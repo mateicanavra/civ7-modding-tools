@@ -9,6 +9,7 @@ import { artifacts as morphologyTerrainArtifacts } from "@mapgen/domain/morpholo
 import resources from "@mapgen/domain/resources";
 import { artifacts as resourceDemandArtifacts } from "@mapgen/domain/resources/modules/demand/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
+import { STANDARD_INITIAL_SETUP } from "../../../../initial-setup.js";
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 
 /**
@@ -17,6 +18,7 @@ import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
  */
 export const config = defineStep({
   id: "plan-resource-demands",
+  initialSetup: STANDARD_INITIAL_SETUP,
   engine: [
     "readCurrentRiverSurface",
     "readCurrentMapBiomeTypes",

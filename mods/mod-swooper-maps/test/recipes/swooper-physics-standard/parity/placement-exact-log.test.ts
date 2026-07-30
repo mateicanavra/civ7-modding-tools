@@ -5,6 +5,11 @@ import {
   resolveResourceRuntimeIds,
 } from "@civ7/map-policy";
 import { fnv1a32StringHex } from "@swooper/mapgen-core/lib/hash";
+import {
+  BOUNDED_JSON_LOG_MAX_LINE_LENGTH,
+  decodeBoundedJsonLogSeries,
+  encodeBoundedJsonLogLines,
+} from "@swooper/mapgen-core/lib/log";
 import { measureStandardResourcePlacement } from "../../../../src/recipes/standard/metrics/families/placement/resource-placement.js";
 import {
   emitStandardNaturalWonderPlacementExactLog,
@@ -28,8 +33,6 @@ type ResourcePlacementEvidence = Parameters<typeof emitStandardResourcePlacement
 type ResourcePlacementRow = Parameters<typeof measureStandardResourcePlacement>[0][number];
 type ResourcePlacementPhase = ResourcePlacementRow["phase"];
 
-const CIV7_LOG_TRUNCATION_BUDGET = 900;
-const RESOURCE_PLACEMENT_LOG_PREFIX = "[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 ";
 const EMPTY_HASH32 = fnv1a32StringHex("");
 const GOLD_RESOURCE = requireResourceRuntimeId("RESOURCE_GOLD");
 const JADE_RESOURCE = requireResourceRuntimeId("RESOURCE_JADE");
@@ -219,10 +222,18 @@ describe("resource placement exact-log projection", () => {
     };
     expect(projection).toEqual(expected);
     expect(JSON.stringify(projection)).toBe(JSON.stringify(expected));
-    expect(JSON.stringify(projection).length).toBeLessThan(CIV7_LOG_TRUNCATION_BUDGET);
+    const lines = encodeBoundedJsonLogLines({
+      prefix: "[SWOOPER_MOD]",
+      marker: "RESOURCE_PLACEMENT_V1",
+      payload: projection,
+    });
+    expect(lines.every((line) => line.length <= BOUNDED_JSON_LOG_MAX_LINE_LENGTH)).toBe(true);
+    expect(decodeBoundedJsonLogSeries(lines, "RESOURCE_PLACEMENT_V1")[0]?.payload).toEqual(
+      expected
+    );
   });
 
-  it("keeps a full runtime catalog below Civ7's log truncation budget", () => {
+  it("transports a full runtime catalog below Civ7's physical line ceiling", () => {
     const officialResources = Array.from(resolveResourceRuntimeIds().byId.values());
     const measurements = resourcePlacementEvidence(
       officialResources.flatMap(({ resourceType }) =>
@@ -238,8 +249,6 @@ describe("resource placement exact-log projection", () => {
       })),
       measurements
     );
-    const line = `${RESOURCE_PLACEMENT_LOG_PREFIX}${JSON.stringify(projection)}`;
-
     expect(projection).toMatchObject({
       version: 1,
       plannedCount: measurements.summary.plannedCount,
@@ -259,7 +268,17 @@ describe("resource placement exact-log projection", () => {
         },
       },
     });
-    expect(line.length).toBeLessThan(CIV7_LOG_TRUNCATION_BUDGET);
+    const lines = encodeBoundedJsonLogLines({
+      prefix: "[SWOOPER_MOD]",
+      marker: "RESOURCE_PLACEMENT_V1",
+      payload: projection,
+    });
+    const engineObservedLines = lines.map((line) => line.slice(0, 1_022));
+    expect(lines.every((line) => line.length <= BOUNDED_JSON_LOG_MAX_LINE_LENGTH)).toBe(true);
+    expect(engineObservedLines).toEqual([...lines]);
+    expect(
+      decodeBoundedJsonLogSeries(engineObservedLines, "RESOURCE_PLACEMENT_V1")[0]?.payload
+    ).toEqual(projection);
   });
 });
 
@@ -327,9 +346,11 @@ describe("natural-wonder placement exact-log projection", () => {
     try {
       emitStandardNaturalWonderPlacementExactLog(compatibility);
 
-      expect(log.mock.calls).toEqual([
-        [`[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 ${JSON.stringify(expected)}`],
-      ]);
+      const lines = log.mock.calls.map((call) => String(call[0]));
+      expect(lines.every((line) => line.length <= BOUNDED_JSON_LOG_MAX_LINE_LENGTH)).toBe(true);
+      expect(decodeBoundedJsonLogSeries(lines, "NATURAL_WONDER_PLACEMENT_V1")[0]?.payload).toEqual(
+        expected
+      );
     } finally {
       log.mockRestore();
     }
@@ -408,50 +429,56 @@ describe("placement exact-log producer protocol", () => {
       emitStandardNaturalWonderPlacementExactLog(EMPTY_NATURAL_WONDER_PLACEMENT);
       emitStandardPlacementParityExactLog(EMPTY_PLACEMENT_PARITY);
 
-      expect(log.mock.calls).toEqual([
-        [`[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 ${JSON.stringify(resourcePayload)}`],
-        [
-          `[SWOOPER_MOD] NATURAL_WONDER_PLAN_V1 ${JSON.stringify({
-            version: 1,
-            wondersCount: 0,
-            targetCount: 0,
-            plannedCount: 0,
-            planRows: [],
-            coordinateEvidence: {
-              version: 1,
-              plannedCount: 0,
-              plannedHash32: EMPTY_HASH32,
-            },
-          })}`,
-        ],
-        [
-          `[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V2 ${JSON.stringify(
-            EMPTY_NATURAL_WONDER_PLAN_INPUT
-          )}`,
-        ],
-        [
-          `[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 ${JSON.stringify({
-            version: 1,
-            plannedCount: 0,
-            targetCount: 0,
-            placedCount: 0,
-            terrainAdjustedCount: 0,
-            skippedOutOfBoundsCount: 0,
-            rejectedCount: 0,
-            shortfallCount: 0,
-            rejectionExampleCount: 0,
-            rejectionExamples: [],
-            rejectedRows: [],
-            coordinateEvidence: {
-              version: 1,
-              placedCount: 0,
-              placedHash32: EMPTY_HASH32,
-            },
-          })}`,
-        ],
-        [`[SWOOPER_MOD] PLACEMENT_PARITY_V1 ${JSON.stringify(EMPTY_PLACEMENT_PARITY)}`],
-      ]);
-      expect(String(log.mock.calls[3]?.[0])).not.toContain('"rejectedHash32"');
+      const expectedPlan = {
+        version: 1,
+        wondersCount: 0,
+        targetCount: 0,
+        plannedCount: 0,
+        planRows: [],
+        coordinateEvidence: {
+          version: 1,
+          plannedCount: 0,
+          plannedHash32: EMPTY_HASH32,
+        },
+      };
+      const expectedPlacement = {
+        version: 1,
+        plannedCount: 0,
+        targetCount: 0,
+        placedCount: 0,
+        terrainAdjustedCount: 0,
+        skippedOutOfBoundsCount: 0,
+        rejectedCount: 0,
+        shortfallCount: 0,
+        rejectionExampleCount: 0,
+        rejectionExamples: [],
+        rejectedRows: [],
+        coordinateEvidence: {
+          version: 1,
+          placedCount: 0,
+          placedHash32: EMPTY_HASH32,
+        },
+      };
+      const lines = log.mock.calls.map((call) => String(call[0]));
+      const engineObservedLines = lines.map((line) => line.slice(0, 1_022));
+      expect(lines.every((line) => line.length <= BOUNDED_JSON_LOG_MAX_LINE_LENGTH)).toBe(true);
+      expect(engineObservedLines).toEqual(lines);
+      expect(
+        decodeBoundedJsonLogSeries(engineObservedLines, "RESOURCE_PLACEMENT_V1")[0]?.payload
+      ).toEqual(resourcePayload);
+      expect(
+        decodeBoundedJsonLogSeries(engineObservedLines, "NATURAL_WONDER_PLAN_V1")[0]?.payload
+      ).toEqual(expectedPlan);
+      expect(
+        decodeBoundedJsonLogSeries(engineObservedLines, "NATURAL_WONDER_PLAN_INPUT_V2")[0]?.payload
+      ).toEqual(EMPTY_NATURAL_WONDER_PLAN_INPUT);
+      expect(
+        decodeBoundedJsonLogSeries(engineObservedLines, "NATURAL_WONDER_PLACEMENT_V1")[0]?.payload
+      ).toEqual(expectedPlacement);
+      expect(
+        decodeBoundedJsonLogSeries(engineObservedLines, "PLACEMENT_PARITY_V1")[0]?.payload
+      ).toEqual(EMPTY_PLACEMENT_PARITY);
+      expect(JSON.stringify(expectedPlacement)).not.toContain('"rejectedHash32"');
     } finally {
       log.mockRestore();
     }

@@ -34,18 +34,7 @@ export const PlanNaturalWondersStep = createStep(config, {
     const climateIndices = deps.artifacts.climateIndices.read(context);
     const biomeClassification = deps.artifacts.biomeClassification.read(context);
     const pedology = deps.artifacts.pedology.read(context);
-    const mapSizeId = deps.engine.getMapSizeId(context);
-    const mapInfo = deps.engine.lookupMapInfo(context, mapSizeId);
-    if (!mapInfo) {
-      throw new Error("[Placement] Civ7 map metadata is unavailable for the active map size.");
-    }
-
-    const wondersCount = mapInfo.NumNaturalWonders;
-    if (typeof wondersCount !== "number" || !Number.isInteger(wondersCount) || wondersCount < 0) {
-      throw new Error(
-        "[Placement] Civ7 map metadata has no valid natural-wonder count for the active map size."
-      );
-    }
+    const wondersCount = deps.initialSetup.map.selection.mapInfo.NumNaturalWonders;
     const terrainType = deps.engine.readCurrentMapTerrainTypes(context);
     const biomeType = deps.engine.readCurrentMapBiomeTypes(context);
     const featureType = deps.engine.readCurrentMapFeatureTypes(context);

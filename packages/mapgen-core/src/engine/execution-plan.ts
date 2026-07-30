@@ -1,3 +1,4 @@
+import { initialSetupFingerprintInputInternal } from "@mapgen/core/initial-setup-binding.js";
 import {
   admitMapSetup,
   type MapSetup,
@@ -31,6 +32,10 @@ interface PlanFingerprintInput {
   recipeSchemaVersion: number;
   recipeId: string | null;
   setup: MapSetup;
+  initialSetup: Readonly<{
+    definitionId: string;
+    value: unknown;
+  }>;
   nodes: Array<{
     stepId: string;
     stageId: string;
@@ -42,10 +47,11 @@ interface PlanFingerprintInput {
 
 function hashExecutionPlan(plan: ExecutionPlan): string {
   const fingerprintInput: PlanFingerprintInput = {
-    version: 3,
+    version: 4,
     recipeSchemaVersion: plan.recipeSchemaVersion,
     recipeId: plan.recipeId ?? null,
     setup: plan.setup,
+    initialSetup: initialSetupFingerprintInputInternal(plan.setup),
     nodes: plan.nodes.map((node) => ({
       stepId: node.stepId,
       stageId: node.stageId,

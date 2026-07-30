@@ -10,6 +10,7 @@ required = [
   "contracts.ts",
   "artifact",
   "domain",
+  "initial-setup",
   "operation",
   "recipe",
   "schema",

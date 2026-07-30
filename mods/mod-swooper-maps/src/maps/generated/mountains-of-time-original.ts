@@ -7,7 +7,12 @@
 
 import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { StandardMapConfigEnvelope } from "../configs/canonical.js";
-import standardRecipe from "../../recipes/standard/recipe.js";
+import standardRecipe, {
+  projectStandardInitialSetup,
+  STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
+  STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
+  STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
+} from "../../recipes/standard/recipe.js";
 
 // The file plan only receives an admitted immutable envelope; this assertion
 // projects its serialized data without adding a second runtime admission path.
@@ -1287,8 +1292,7 @@ const mapConfig = {
             "rankingBlend": 0.86,
             "fairnessTolerance": 0.3,
             "coastalPreferenceWeight": 0,
-            "riverPreferenceWeight": 0,
-            "startBiasWeight": 1
+            "riverPreferenceWeight": 0
           }
         }
       },
@@ -1345,7 +1349,13 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountains-of-time-original",
-  configHash: "db739ba698c27770667bce371639015f40b478f3eafbddcf59b38b96e371342b",
-  envelopeHash: "9ba95736176377dead7521fdc3193bf9d3828072d193e55c8753f52de8250e79",
+  configHash: "4e6d73c192912bf9b7f72ca89e884d3039da9b2a8a7b176d66fc52e3a202c631",
+  envelopeHash: "d44d71214e7bbd101585f9463a5b233e3cbe4f647713d2c3ee71e8ff82b28365",
   config: mapConfig.config,
+  initialSetup: {
+    requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
+    requestedGameOptions: STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
+    requestedPlayerOptions: STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
+    project: projectStandardInitialSetup,
+  },
 });

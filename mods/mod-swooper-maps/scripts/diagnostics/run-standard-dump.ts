@@ -2,7 +2,8 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { createMockAdapter, findCiv7StandardMapSizePreset } from "@civ7/adapter";
+import { createMockAdapter } from "@civ7/adapter";
+import { findCiv7StandardMapSizePreset } from "@civ7/map-policy";
 import {
   createLabelRng,
   createMapContext,
@@ -13,20 +14,40 @@ import { createDiagnosticDumpAdapters } from "@swooper/mapgen-diagnostics";
 
 import { admitStandardMapConfig } from "../../src/maps/configs/canonical.js";
 import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
+import {
+  createStandardInitialSetupInput,
+  createUnavailableStandardInitialOptionEvidence,
+} from "../../src/recipes/standard/initial-setup.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { isJsonDataObject, mergeDiagnosticConfig, parseDiagnosticArgs } from "./command-input.js";
 
 const DEFAULT_MAP_SIZE_ID = "MAPSIZE_STANDARD";
-const DEFAULT_MAP_SEED = 1337;
 
-function parseMapSeed(value: string | true | undefined): number {
-  if (value === undefined) return DEFAULT_MAP_SEED;
-  if (value === true || !/^-?\d+$/.test(value)) {
-    throw new Error("--seed requires an integer value.");
+function parseRequiredSeed(
+  value: string | true | undefined,
+  flag: "--map-seed" | "--game-seed"
+): number {
+  if (value === undefined || value === true || !/^-?\d+$/.test(value)) {
+    throw new Error(`${flag} requires an integer value.`);
   }
   const seed = Number(value);
-  if (!Number.isSafeInteger(seed)) throw new Error("--seed must be a safe integer.");
+  if (!Number.isSafeInteger(seed)) throw new Error(`${flag} must be a safe integer.`);
   return seed;
+}
+
+function parseRequiredPlayerIds(value: string | true | undefined): readonly number[] {
+  if (value === undefined || value === true || value.trim().length === 0) {
+    throw new Error("--players requires an ordered comma-separated list of Civ7 player ids.");
+  }
+  return Object.freeze(
+    value.split(",").map((part) => {
+      const token = part.trim();
+      if (!/^(?:0|[1-9]\d*)$/.test(token)) {
+        throw new Error("--players requires nonnegative base-10 integer ids.");
+      }
+      return Number(token);
+    })
+  );
 }
 
 function parseMapSize(value: string | true | undefined) {
@@ -73,7 +94,7 @@ function loadConfig(flags: Record<string, string | true>): unknown {
  * Data-first dump runner for the full standard pipeline.
  *
  * Usage:
- *   bun ./scripts/diagnostics/run-standard-dump.ts -- --map-size MAPSIZE_STANDARD --seed 1337 --label probe --override '{...}'
+ *   bun ./scripts/diagnostics/run-standard-dump.ts -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed -1337 --players 0,1,2,3,4,5,6,7 --label probe --override '{...}'
  *
  * Output:
  *   {"runId":"...","outputDir":"..."}
@@ -81,10 +102,14 @@ function loadConfig(flags: Record<string, string | true>): unknown {
 async function main(): Promise<void> {
   const { positionals, flags } = parseDiagnosticArgs(process.argv.slice(2));
   if (positionals.length > 0) {
-    throw new Error("Diagnostic dumps accept --map-size and --seed; positional dimensions retire.");
+    throw new Error(
+      "Diagnostic dumps accept named map size, seed, and player-id arguments; positional inputs retire."
+    );
   }
   const preset = parseMapSize(flags["map-size"]);
-  const seed = parseMapSeed(flags.seed);
+  const mapSeed = parseRequiredSeed(flags["map-seed"], "--map-seed");
+  const gameSeed = parseRequiredSeed(flags["game-seed"], "--game-seed");
+  const aliveMajorPlayerIds = parseRequiredPlayerIds(flags.players);
   const { width, height } = preset.dimensions;
   const envelope = admitStandardMapConfig(loadConfig(flags));
 
@@ -94,11 +119,27 @@ async function main(): Promise<void> {
 
   const mapInfo = preset.mapInfo;
 
-  const setupBase = {
-    mapSeed: seed,
-    dimensions: { width, height },
+  const setupInput = createStandardInitialSetupInput({
+    mapSeed,
+    gameSeed,
     latitudeBounds: envelope.latitudeBounds,
-  } as const;
+    selection: Object.freeze({
+      kind: "civ7-preset" as const,
+      id: preset.id,
+      dimensions: preset.dimensions,
+      mapInfo: preset.mapInfo,
+      startSlotCapacity: Object.freeze({
+        west: preset.mapInfo.PlayersLandmass1,
+        east: preset.mapInfo.PlayersLandmass2,
+        total: preset.mapInfo.PlayersLandmass1 + preset.mapInfo.PlayersLandmass2,
+      }),
+    }),
+    aliveMajorPlayerIds,
+    options: createUnavailableStandardInitialOptionEvidence(
+      "configuration-api-unavailable",
+      aliveMajorPlayerIds
+    ),
+  });
 
   const baseConfig = envelope.config;
   const override = loadOverride(flags);
@@ -108,7 +149,7 @@ async function main(): Promise<void> {
       : baseConfig;
   const config = admitStandardMapConfig({ ...envelope, config: mergedConfig }).config;
 
-  const plan = standardRecipe.compile(setupBase, config);
+  const plan = standardRecipe.compile(setupInput, config);
   const verboseSteps = Object.fromEntries(
     plan.nodes.map((node) => [node.stepId, "verbose"] as const)
   );
@@ -117,8 +158,8 @@ async function main(): Promise<void> {
     height,
     mapInfo,
     mapSizeId: preset.id,
-    aliveMajorCount: preset.defaultPlayers,
-    rng: createLabelRng(seed),
+    aliveMajorPlayerIds,
+    rng: createLabelRng(mapSeed),
   });
 
   const context = createMapContext({ setup: plan.setup, adapter });

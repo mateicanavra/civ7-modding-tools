@@ -7,6 +7,7 @@ import type { StandardMetricCohortStudy, StandardMetricSampleStudy } from "./mod
 import {
   SHIPPED_STANDARD_CONFIGURATIONS,
   type ShippedStandardConfigurationId,
+  standardMetricScenarioIdentity,
   standardProductMetricScenario,
 } from "./scenarios.js";
 
@@ -44,15 +45,21 @@ export function requireNonEmptyMetricStudyValues<T>(
   return values as NonEmptyTuple<T>;
 }
 
-/** Builds a stable scenario cohort for one shipped config and one named Civ7 preset. */
-export function standardMetricScenariosForSeeds(
+/** Builds a stable scenario cohort from explicit map/game seed pairs and player identities. */
+export function standardMetricScenariosForSeedPairs(
   config: Parameters<typeof standardProductMetricScenario>[0],
   preset: StandardPresetMetricScenario["preset"],
-  seeds: readonly number[]
+  seedPairs: readonly (readonly [mapSeed: number, gameSeed: number])[]
 ): NonEmptyTuple<StandardPresetMetricScenario> {
   return requireNonEmptyMetricStudyValues(
-    seeds.map((seed) => standardProductMetricScenario(config, preset, seed)),
-    `${preset.id} seed scenarios`
+    seedPairs.map(([mapSeed, gameSeed]) =>
+      standardProductMetricScenario(
+        config,
+        preset,
+        standardMetricScenarioIdentity(preset, mapSeed, gameSeed)
+      )
+    ),
+    `${preset.id} map/game seed scenarios`
   );
 }
 

@@ -157,7 +157,7 @@ const NaturalWonderPlacementOutcomeSchema = Type.Union(
   ],
   {
     description:
-      "One terminal natural-wonder outcome admitted against its planner identity and reason-specific adapter evidence.",
+      "One terminal natural-wonder outcome retaining adapter-admitted identity and reason-specific evidence after ordered recipe fallback selection.",
   }
 );
 
@@ -264,8 +264,9 @@ export type StandardNaturalWonderPlacementOutcome =
  * Closes admitted outcome rows into immutable deterministic evidence without assigning
  * terminal-measurement semantics to the resulting summary.
  *
- * The materializer owns adapter identity and fallback behavior. This projection owns only
- * immutable copies and summaries derived from those already-admitted outcome rows.
+ * The adapter owns outcome identity and readback admission; the materializer owns ordered
+ * fallback and terminal selection. This projection owns only immutable copies and summaries
+ * derived from those already-admitted outcome rows.
  */
 export function summarizeNaturalWonderPlacementOutcomes(
   input: Readonly<{

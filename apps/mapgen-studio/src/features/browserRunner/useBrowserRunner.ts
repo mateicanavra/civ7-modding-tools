@@ -9,11 +9,20 @@ type BrowserRunnerStatus = "idle" | "running" | "finished" | "error";
 
 type BrowserRunnerInputs = {
   recipeId: string;
-  seed: number;
+  mapSeed: number;
+  gameSeed: number;
   mapSizeId: string;
   dimensions: { width: number; height: number };
   latitudeBounds: { topLatitude: number; bottomLatitude: number };
-  playerCount?: number;
+  aliveMajorPlayerIds: readonly number[];
+  options: Readonly<{
+    map: Readonly<Record<string, string | number | boolean | readonly string[]>>;
+    game: Readonly<Record<string, string | number | boolean | readonly string[]>>;
+    player: readonly Readonly<{
+      playerId: number;
+      options: Readonly<Record<string, string | number | boolean | readonly string[]>>;
+    }>[];
+  }>;
   pipelineConfig: unknown;
 };
 
@@ -114,11 +123,15 @@ export function useBrowserRunner(args: UseBrowserRunnerArgs): UseBrowserRunnerRe
         runToken,
         generation,
         recipeId: inputs.recipeId,
-        seed: inputs.seed,
-        mapSizeId: inputs.mapSizeId,
-        dimensions: inputs.dimensions,
-        latitudeBounds: inputs.latitudeBounds,
-        playerCount: inputs.playerCount,
+        initialSetup: {
+          mapSeed: inputs.mapSeed,
+          gameSeed: inputs.gameSeed,
+          mapSizeId: inputs.mapSizeId,
+          dimensions: inputs.dimensions,
+          latitudeBounds: inputs.latitudeBounds,
+          aliveMajorPlayerIds: inputs.aliveMajorPlayerIds,
+          options: inputs.options,
+        },
         pipelineConfig: inputs.pipelineConfig,
       };
 

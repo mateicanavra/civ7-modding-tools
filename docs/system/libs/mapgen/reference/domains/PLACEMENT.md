@@ -75,12 +75,17 @@ adapter-owned mutation/readback boundaries:
 - `domain/resources` owns resource planning end-to-end (ADR-008): demand/eligibility planning, habitat-lane derivation, site selection, and the support-adjustment pass.
 - `domain/placement` owns natural-wonder planning, landmass-region
   classification, and start selection (four-rung fallback ladder, fairness
-  balancing, seat identity, StartBias scoring inside `plan-starts`). Discovery
+  balancing, exact seat identity, and game-seed tie-breaking inside `plan-starts`). Discovery
   placement is delegated to Civ7 as a recipe effect rather than modeled as a
   Placement operation.
 - `@civ7/map-policy` owns static resource facts (`Weight`, `MinimumPerHemisphere`, age validity, and roster-independent `Staple`/`UnlocksCiv` basis). `EngineAdapter` owns the exact active-roster `isResourceRequiredForAge` query used by planning.
 - Selection strategies never throw on degraded inputs: every degradation is recorded as typed data (seat `status`/`rung`/`imputedFlags`, per-type shortfalls) instead of being silently rescued. The only hard-fail is zero settleable land with seats requested.
-- Player identity: the adapter exposes an alive-majors READ surface (`getAliveMajorIds()`); the `plan-starts` op's `seat-identity.ts` policy is the single point mapping seats→playerIds, recorded per seat as `playerIdSource`.
+- Player identity: Standard initial setup admits the exact ordered alive-major IDs once at
+  GenerateMap time. The `plan-starts` operation seats those identities without padding or
+  synthesizing players; its game-seed input only breaks otherwise-equal gameplay choices.
+- Seed authority: physical geography remains derived from the map seed. Resource-site selection,
+  player starts, and post-start resource support are gameplay placement choices derived from the
+  exact Standard game seed, each under a stable operation-local label.
 
 ## Contract (requires/provides)
 
@@ -179,7 +184,7 @@ validated reads. Inventory:
 | `landmassRegionSlotByTile` | plot-landmass-regions | deterministic region classification owned by `placement/modules/regions` |
 | `resourceDemandPlan` | plan-resource-demands | one closed candidate ledger partitioned into admitted demand rows with habitat/legal/intensity evidence and excluded rows with typed terminal reasons |
 | `resourcePlan` | select-resource-sites | typed per-plot site intents (type, family, lane, phase, inHabitat) + per-type shortfalls + region minimums |
-| `startAssignment` | assign-starts | per-player `StartRecord[]` (components, tier, score, rung, status, imputedFlags, playerIdSource) + `fairnessReport` (worstPairGap, swaps, relaxations) + `inputCoverage` |
+| `startAssignment` | assign-starts | per-player `StartRecord[]` (components, tier, score, rung, status, imputedFlags) + `fairnessReport` (worstPairGap, swaps, relaxations) + `inputCoverage` |
 | `resourcePlanAdjusted` | adjust-resources | adjusted intents with typed support provenance (action, reason, seatIndex) |
 Natural-wonder, resource, and discovery materialization, advanced-start
 assignment, and surface maintenance are effects or observations rather than
@@ -209,7 +214,7 @@ published.
 - `regions.ops.projectLandmassRegions` — seam-safe whole-landmass assignment to balanced west/east gameplay regions; Civ7 region-id mutation remains a recipe effect.
 - `starts.ops.planStarts` — candidate admission against wonder and region
   evidence (plus impassability and volcano screens), scoring
-  (fertility/freshwater/climate-comfort/resource-support/roughness/StartBias),
+  (fertility/freshwater/climate-comfort/resource-support/roughness),
   tiering, four-rung selection ladder, fairness balancing, and seat identity.
 
 `domain/resources` composes four modules with level-local model authority:
@@ -243,7 +248,7 @@ resource-to-start support adjustment. Their defaults, ranges, and semantic
 descriptions live with the strategy configs that execute those decisions.
 ADR-010 remains the product taxonomy rather than a second configuration owner.
 
-Policy data comes from `@civ7/map-policy` generated tables and corpus (`CIV7_BROWSER_TABLES_V0` byte-stable + `CIV7_POLICY_TABLES_V1`: resource catalog rows, valid ages, required leaders, minimum-amount modifiers, StartBias tables, start globals), regenerated only via `nx run civ7-map-policy:generate` from the `.civ7/outputs/resources` submodule. That package owns `Weight`, `MinimumPerHemisphere`, age validity, and the static `Staple`/`UnlocksCiv` fallback basis; it does not approximate the roster-dependent live requirement decision. Natural-wonder membership is derived directly from those tables and proved by owner-local map-policy tests. There are no `globalThis.GameInfo` reads in the recipe layer; the resource catalog and exact live requirement query flow through `EngineAdapter`.
+Policy data comes from `@civ7/map-policy` generated tables and corpus (`CIV7_BROWSER_TABLES_V0` byte-stable + `CIV7_POLICY_TABLES_V1`: resource catalog rows, valid ages, required leaders, minimum-amount modifiers, StartBias tables, start globals), regenerated only via `nx run civ7-map-policy:generate` from the `.civ7/outputs/resources` submodule. That package owns `Weight`, `MinimumPerHemisphere`, age validity, and the static `Staple`/`UnlocksCiv` fallback basis; it does not approximate the roster-dependent live requirement decision. Generated StartBias rows remain static Civ7 policy evidence, but Standard does not consume them until a product rule can bind exact admitted civilization and leader identity instead of reconstructing identity from seat position. Natural-wonder membership is derived directly from those tables and proved by owner-local map-policy tests. There are no `globalThis.GameInfo` reads in the recipe layer; the resource catalog and exact live requirement query flow through `EngineAdapter`.
 
 ## Studio visualization coverage
 

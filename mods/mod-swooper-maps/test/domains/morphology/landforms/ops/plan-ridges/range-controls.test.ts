@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
+import { getCiv7StandardMapSizePreset } from "@civ7/map-policy";
 import morphology from "@mapgen/domain/morphology/router";
 import { collectMaskComponentsOddQ, forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";

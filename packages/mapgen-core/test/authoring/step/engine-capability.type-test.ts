@@ -62,6 +62,30 @@ defineStep({
 });
 
 defineStep({
+  id: "initial-map-identity-probe",
+  requires: [],
+  provides: [],
+  // @ts-expect-error Initial map-size identity belongs to recipe setup admission.
+  engine: ["getMapSizeId"],
+});
+
+defineStep({
+  id: "initial-map-policy-probe",
+  requires: [],
+  provides: [],
+  // @ts-expect-error Static map metadata belongs to recipe setup admission and Civ7 policy.
+  engine: ["lookupMapInfo"],
+});
+
+defineStep({
+  id: "initial-player-identity-probe",
+  requires: [],
+  provides: [],
+  // @ts-expect-error Initial alive-player identity belongs to recipe setup admission.
+  engine: ["getAliveMajorIds"],
+});
+
+defineStep({
   id: "unknown-engine-method",
   requires: [],
   provides: [],

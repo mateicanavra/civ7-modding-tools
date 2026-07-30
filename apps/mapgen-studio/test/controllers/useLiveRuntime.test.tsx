@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import type { StudioEvent, StudioOperationsCurrent } from "@civ7/studio-contract";
-import { act, renderHook } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "./_setup";
 
@@ -396,6 +396,62 @@ describe("useLiveRuntime — applyLiveGameState request gating (LR-6)", () => {
       await Promise.resolve();
     });
     expect(mock.snapshot).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("useLiveRuntime — exact live setup suggestions", () => {
+  it("projects GameRandomSeed as a distinct game-seed suggestion", async () => {
+    setupFetch.mockResolvedValueOnce({
+      ok: true,
+      observedAt: "2026-06-29T00:00:00.000Z",
+      setup: {
+        parameters: [{ id: "GameRandomSeed", exists: true, value: -456 }],
+        players: [{ playerId: 0, parameters: [] }],
+      },
+    });
+    const mock = makeSnapshotMock();
+    const { result } = renderHook((p: UseLiveRuntimeArgs) => useLiveRuntime(p), {
+      initialProps: makeArgs(mock.snapshot),
+    });
+
+    act(() =>
+      result.current.applyLiveGameState({ status: "ok", seed: 123 } as LiveRuntimeStatusState)
+    );
+
+    await waitFor(() =>
+      expect(result.current.liveRuntimeSuggestions).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ affectedConfigPath: "seed", value: "123" }),
+          expect.objectContaining({ affectedConfigPath: "gameSeed", value: "-456" }),
+        ])
+      )
+    );
+  });
+
+  it("does not fabricate a game-seed suggestion from malformed live evidence", async () => {
+    setupFetch.mockResolvedValueOnce({
+      ok: true,
+      observedAt: "2026-06-29T00:00:00.000Z",
+      setup: {
+        parameters: [{ id: "GameRandomSeed", exists: true, value: "not-a-seed" }],
+        players: [{ playerId: 0, parameters: [] }],
+      },
+    });
+    const mock = makeSnapshotMock();
+    const { result } = renderHook((p: UseLiveRuntimeArgs) => useLiveRuntime(p), {
+      initialProps: makeArgs(mock.snapshot),
+    });
+
+    act(() =>
+      result.current.applyLiveGameState({ status: "ok", seed: 123 } as LiveRuntimeStatusState)
+    );
+
+    await waitFor(() => expect(result.current.liveSetup.status).toBe("ok"));
+    expect(
+      result.current.liveRuntimeSuggestions.some(
+        ({ affectedConfigPath }) => affectedConfigPath === "gameSeed"
+      )
+    ).toBe(false);
   });
 });
 

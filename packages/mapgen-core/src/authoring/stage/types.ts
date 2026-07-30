@@ -3,6 +3,7 @@ import type { NormalizeContext } from "@mapgen/engine/types.js";
 import type { EmptyObject } from "type-fest";
 import type { Static, TObject, TSchema } from "typebox";
 
+import type { InitialSetupDefinition } from "../initial-setup/definition.js";
 import type { StepArtifactsDeclAny } from "../step/contract.js";
 import type { StepOpsDecl } from "../step/ops.js";
 import type { ReservedStageKey } from "./reserved-key.js";
@@ -167,6 +168,7 @@ type RecipeStepObservation = Readonly<{
     requires: readonly string[];
     provides: readonly string[];
     artifacts?: StepArtifactsDeclAny;
+    initialSetup?: InitialSetupDefinition;
     ops?: StepOpsDecl;
   }>;
   normalize?: (config: unknown, ctx: NormalizeContext) => unknown;

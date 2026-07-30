@@ -1,10 +1,9 @@
 import { dispersionTerm } from "@civ7/map-policy";
 import { clamp01 } from "@swooper/mapgen-core";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
+import { fnv1a32Int32Values } from "@swooper/mapgen-core/lib/hash";
 
 import type { SeatIdentity } from "./seat-identity.js";
-import type { SeatBias, SeatBiasContext } from "./start-bias.js";
-import { seatBiasTerm } from "./start-bias.js";
 
 /*
  * Four-rung start selection ladder (placement-realignment S4, target card):
@@ -99,9 +98,7 @@ type LadderArgs = {
   spacingFloorTiles: number;
   desiredSpacingTiles: number;
   rankingBlend: number;
-  startBiasWeight: number;
-  seatBiasOf: (seatIndex: number) => SeatBias | undefined;
-  biasContextOf: (plotIndex: number) => SeatBiasContext;
+  gameSeed: number;
   /**
    * Settleable-land tiles per working selection region (D3). When a region has room to
    * spread (more land per seat than the fixed desired buffer covers), the
@@ -163,7 +160,7 @@ export function runSelectionLadder(args: LadderArgs): SelectionLadderResult {
   ): SelectableTile | null => {
     let best: SelectableTile | null = null;
     let bestRank = Number.NEGATIVE_INFINITY;
-    const bias = args.seatBiasOf(seat.seatIndex);
+    let bestTieBreak = Number.POSITIVE_INFINITY;
     for (const tile of pool) {
       if (used.has(tile.plotIndex)) continue;
       const distance = minDistanceToSeated(tile.plotIndex);
@@ -172,20 +169,25 @@ export function runSelectionLadder(args: LadderArgs): SelectionLadderResult {
         seatedPlots.length ? distance : null,
         activeDispersionTarget
       );
-      const biasTerm =
-        args.startBiasWeight > 0 && bias
-          ? args.startBiasWeight * seatBiasTerm(bias, args.biasContextOf(tile.plotIndex))
-          : 0;
-      const rank = (tile.score + biasTerm) * blend + spacingScore * (1 - blend);
+      const rank = tile.score * blend + spacingScore * (1 - blend);
+      const tieBreak = fnv1a32Int32Values([
+        args.gameSeed,
+        seat.playerId,
+        seat.seatIndex,
+        tile.plotIndex,
+      ]);
       if (
         rank > bestRank ||
         (rank === bestRank && tile.score > (best?.score ?? -1)) ||
+        (rank === bestRank && tile.score === (best?.score ?? -1) && tieBreak < bestTieBreak) ||
         (rank === bestRank &&
           tile.score === (best?.score ?? -1) &&
+          tieBreak === bestTieBreak &&
           tile.plotIndex < (best?.plotIndex ?? Infinity))
       ) {
         best = tile;
         bestRank = rank;
+        bestTieBreak = tieBreak;
       }
     }
     return best;

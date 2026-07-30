@@ -6,6 +6,7 @@ import {
 } from "@civ7/studio-contract";
 import type { WorldSettings } from "@swooper/mapgen-studio-ui/types";
 import { Value } from "typebox/value";
+import { CIV7_STUDIO_MIN_PLAYER_COUNT, normalizeCiv7WorldSettings } from "../civ7Setup/mapSizes";
 import { parseCiv7StudioSeed } from "../civ7Setup/seedPolicy";
 import {
   type Civ7StudioSetupConfig,
@@ -55,19 +56,25 @@ function parseWorldSettings(value: unknown): WorldSettings | undefined {
   if (!isRecord(value) || !hasExactlyKeys(value, ["mapSize", "playerCount", "resources"])) {
     return undefined;
   }
-  const mapSizes: readonly WorldSettings["mapSize"][] = [
-    "MAPSIZE_TINY",
-    "MAPSIZE_SMALL",
-    "MAPSIZE_STANDARD",
-    "MAPSIZE_LARGE",
-    "MAPSIZE_HUGE",
-  ];
   const resources: readonly WorldSettings["resources"][] = ["balanced", "strategic"];
-  const mapSize = mapSizes.find((entry) => entry === value.mapSize);
   const resourceMode = resources.find((entry) => entry === value.resources);
-  return mapSize !== undefined && resourceMode !== undefined && Number.isInteger(value.playerCount)
-    ? { mapSize, playerCount: value.playerCount as number, resources: resourceMode }
-    : undefined;
+  if (
+    typeof value.mapSize !== "string" ||
+    resourceMode === undefined ||
+    !Number.isInteger(value.playerCount) ||
+    (value.playerCount as number) < CIV7_STUDIO_MIN_PLAYER_COUNT
+  ) {
+    return undefined;
+  }
+  try {
+    return normalizeCiv7WorldSettings({
+      mapSize: value.mapSize as WorldSettings["mapSize"],
+      playerCount: value.playerCount as number,
+      resources: resourceMode,
+    });
+  } catch {
+    return undefined;
+  }
 }
 
 function admitPersistedSeed(value: unknown): string | undefined {
@@ -229,7 +236,7 @@ export function saveStudioAuthoringState(
       JSON.stringify({
         schemaVersion: 5,
         savedAt: new Date().toISOString(),
-        worldSettings: args.worldSettings,
+        worldSettings: normalizeCiv7WorldSettings(args.worldSettings),
         seed,
         gameSeed,
         setupConfig: normalizeStudioSetupConfig(args.setupConfig),

@@ -8,6 +8,7 @@ import { artifacts as placementRegionArtifacts } from "@mapgen/domain/placement/
 import { artifacts as placementStartArtifacts } from "@mapgen/domain/placement/modules/starts/artifacts/index.js";
 import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
+import { STANDARD_INITIAL_SETUP } from "../../../../initial-setup.js";
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 
 /**
@@ -17,14 +18,8 @@ import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
  */
 export const config = defineStep({
   id: "assign-starts",
-  engine: [
-    "emitRuntimeWarning",
-    "getMapSizeId",
-    "lookupMapInfo",
-    "getAliveMajorIds",
-    "readCurrentMapFeatureTypes",
-    "setStartPosition",
-  ] as const,
+  initialSetup: STANDARD_INITIAL_SETUP,
+  engine: ["emitRuntimeWarning", "readCurrentMapFeatureTypes", "setStartPosition"] as const,
   requires: [],
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned],
   artifacts: {

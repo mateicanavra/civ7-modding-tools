@@ -18,6 +18,31 @@ describe("MockAdapter", () => {
     expect(adapter.height).toBe(40);
   });
 
+  it("preserves exact ordered alive-major identities", () => {
+    const configured = [7, 2, 11];
+    const adapter = createMockAdapter({ aliveMajorPlayerIds: configured });
+
+    configured[0] = 0;
+    expect(adapter.getAliveMajorIds()).toEqual([7, 2, 11]);
+    expect(adapter.getAliveMajorIds()).not.toBe(adapter.getAliveMajorIds());
+  });
+
+  it("refuses ambiguous or invalid alive-major fixtures", () => {
+    const sparse = Array<number>(1);
+    const accessor = [7];
+    Object.defineProperty(accessor, "0", { get: () => 7 });
+
+    expect(() => createMockAdapter({ aliveMajorPlayerIds: [7, 2], aliveMajorCount: 2 })).toThrow(
+      "aliveMajorPlayerIds or aliveMajorCount"
+    );
+    expect(() => createMockAdapter({ aliveMajorPlayerIds: [7, 7] })).toThrow("must be unique");
+    expect(() => createMockAdapter({ aliveMajorPlayerIds: [64] })).toThrow("player ids 0..63");
+    expect(() => createMockAdapter({ aliveMajorPlayerIds: sparse })).toThrow("sparse entries");
+    expect(() => createMockAdapter({ aliveMajorPlayerIds: accessor })).toThrow("not accessors");
+    expect(() => createMockAdapter({ aliveMajorCount: 2.5 })).toThrow("integer between 0 and 64");
+    expect(() => createMockAdapter({ aliveMajorCount: 65 })).toThrow("integer between 0 and 64");
+  });
+
   it("stores water and terrain state", () => {
     const adapter = createMockAdapter({ width: 10, height: 10 });
 

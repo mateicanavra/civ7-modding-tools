@@ -7,7 +7,12 @@
 
 import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { StandardMapConfigEnvelope } from "../configs/canonical.js";
-import standardRecipe from "../../recipes/standard/recipe.js";
+import standardRecipe, {
+  projectStandardInitialSetup,
+  STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
+  STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
+  STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
+} from "../../recipes/standard/recipe.js";
 
 // The file plan only receives an admitted immutable envelope; this assertion
 // projects its serialized data without adding a second runtime admission path.
@@ -1288,8 +1293,7 @@ const mapConfig = {
             "rankingBlend": 0.86,
             "fairnessTolerance": 0.3,
             "coastalPreferenceWeight": 0,
-            "riverPreferenceWeight": 0,
-            "startBiasWeight": 1
+            "riverPreferenceWeight": 0
           }
         }
       },
@@ -1346,7 +1350,13 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "shattered-ring",
-  configHash: "2e4b9011c363c6b1afb580dcfb7af47d15189b5a353d27de426c2b774c347f27",
-  envelopeHash: "5dfd84636a0eb0c8d7e228b9a2071273501025cc3351c43c81a57c47e4320c99",
+  configHash: "29586e56906dca2e38d71341300a1c8053b006989404fcaf8575b25f07778f2e",
+  envelopeHash: "d9d243a3a483db3ff13399ab3260018c9025b4222cb39178e731fa3b5579c462",
   config: mapConfig.config,
+  initialSetup: {
+    requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
+    requestedGameOptions: STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
+    requestedPlayerOptions: STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
+    project: projectStandardInitialSetup,
+  },
 });

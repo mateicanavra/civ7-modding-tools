@@ -9,6 +9,7 @@ import {
   Civ7DirectControlSession,
   type Civ7PlayableStatusResult,
 } from "@civ7/direct-control";
+import { getCiv7StandardMapSizePreset } from "@civ7/map-policy";
 import { createRunArtifactId, type RunCorrelation } from "@civ7/studio-run-workspace";
 import {
   contract,
@@ -25,6 +26,7 @@ import type { ContractRouterClient } from "@orpc/contract";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { RecipeDagNotFound } from "../../src/server/recipeDag/service";
+import { TEST_GAME_SEED, TEST_MAP_SEED } from "../setup";
 
 // ============================================================================
 // Single-mount contract pin (runtime-one-mount slice, S1.1).
@@ -39,6 +41,7 @@ import { RecipeDagNotFound } from "../../src/server/recipeDag/service";
 const openServers: Server[] = [];
 const openHandles: StudioRpcHandle[] = [];
 const RUN_ARTIFACT_ID = createRunArtifactId("one-mount-test");
+const TEST_LIVE_MAP_SIZE = getCiv7StandardMapSizePreset("MAPSIZE_STANDARD");
 
 async function rejectUnexpectedLifecycleCall(): Promise<never> {
   throw new Error("Unexpected Civ7 lifecycle call");
@@ -146,9 +149,9 @@ describe("one /rpc mount serves the whole unified contract", () => {
     const lifecycle = await safe(
       client.civ7.lifecycle.singlePlayer.start({
         mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
-        mapSize: "MAPSIZE_STANDARD",
-        mapSeed: 43,
-        gameSeed: 47,
+        mapSize: TEST_LIVE_MAP_SIZE.id,
+        mapSeed: TEST_MAP_SEED,
+        gameSeed: TEST_GAME_SEED,
         targetModId: "mod-swooper-studio-run",
         gameOptions: {},
         mapOptions: {},
@@ -589,19 +592,22 @@ function runInGameRuntimeObservation(
         observedAt: "2026-06-10T00:00:02.000Z",
         status: { readiness: "app-ui-game" },
         appUi: { snapshot: { ui: { inGame: { ok: true, value: true } } } },
-        mapSummary: { mapSize: "MAPSIZE_STANDARD" },
+        mapSummary: { mapSize: TEST_LIVE_MAP_SIZE.id },
         autoplay: {},
       },
       liveSnapshot: {
         ok: true,
         observedAt: "2026-06-10T00:00:02.000Z",
         grid: {
-          map: { width: { ok: true, value: 84 }, height: { ok: true, value: 54 } },
-          plotCount: 4536,
+          map: {
+            width: { ok: true, value: TEST_LIVE_MAP_SIZE.dimensions.width },
+            height: { ok: true, value: TEST_LIVE_MAP_SIZE.dimensions.height },
+          },
+          plotCount: TEST_LIVE_MAP_SIZE.dimensions.width * TEST_LIVE_MAP_SIZE.dimensions.height,
           plots: [{}],
         },
       },
-      dimensions: { width: 84, height: 54 },
+      dimensions: TEST_LIVE_MAP_SIZE.dimensions,
       deployedModId: args.deployment.runDeployment.deployedModId,
       deployedSnapshotDigest: args.deployment.deployedSnapshot.digest,
     },
@@ -632,8 +638,8 @@ function playableStatusResult(): Civ7PlayableStatusResult {
         },
         turn: probe(12),
         turnDate: probe("4000 BCE"),
-        width: probe(84),
-        height: probe(54),
+        width: probe(TEST_LIVE_MAP_SIZE.dimensions.width),
+        height: probe(TEST_LIVE_MAP_SIZE.dimensions.height),
         aliveIds: probe([0]),
         aliveHumanIds: probe([0]),
         autoplayActive: probe(false),
@@ -697,11 +703,13 @@ function appUiSnapshotResult(): Civ7AppUiSnapshotResult {
         numAliveHumans: probe(1),
       },
       map: {
-        width: probe(84),
-        height: probe(54),
-        plotCount: probe(4536),
+        width: probe(TEST_LIVE_MAP_SIZE.dimensions.width),
+        height: probe(TEST_LIVE_MAP_SIZE.dimensions.height),
+        plotCount: probe(
+          TEST_LIVE_MAP_SIZE.dimensions.width * TEST_LIVE_MAP_SIZE.dimensions.height
+        ),
         mapSize: probe(3),
-        randomSeed: probe(43),
+        randomSeed: probe(TEST_MAP_SEED),
       },
     },
   };

@@ -206,13 +206,11 @@ export const STANDARD_INTEGRITY_TARGET = {
       (sample) => {
         const placement = sample.metrics.placement;
         return (
-          placement.expectedPlayers === placement.aliveMajorCount &&
-          placement.assigned === placement.expectedPlayers &&
+          placement.assigned === placement.requestedPlayerCount &&
           placement.unseatedCount === 0 &&
           placement.missingAlivePlayerCount === 0 &&
           placement.unexpectedPlayerCount === 0 &&
-          placement.duplicatePlayerCount === 0 &&
-          placement.slotIndexPlayerCount === 0
+          placement.duplicatePlayerCount === 0
         );
       },
       true

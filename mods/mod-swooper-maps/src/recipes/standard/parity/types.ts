@@ -1,7 +1,8 @@
-import type { Civ7StandardMapSizeId } from "@civ7/adapter";
+import type { Civ7StandardMapSizeId } from "@civ7/map-policy";
 import type { DeepReadonly, RunInGameExactAuthorshipEvidence } from "@civ7/studio-contract";
 import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
 import type { ArtifactReadValueOf } from "@swooper/mapgen-core/authoring";
+import type { STANDARD_INITIAL_SETUP, StandardInitialSetup } from "../initial-setup.js";
 import type { StandardFeatureProjectionMeasurements } from "../metrics/families/ecology-projection.js";
 import type { StandardLakeProjectionMeasurements } from "../metrics/families/hydrology/lake-projection.js";
 import type { StandardNaturalWonderPlanInputMeasurements } from "../metrics/families/placement/natural-wonder-plan-input.js";
@@ -155,9 +156,26 @@ export type CompleteExactAuthorshipEvidence = Extract<
   { readonly status: "complete" }
 >;
 
+/** Exact admitted Standard setup and behavior fingerprint captured from the executed recipe plan. */
+export type StandardExactRecipePlanEvidence = Readonly<{
+  recipeId: "standard";
+  planFingerprint: string;
+  initialSetup: Readonly<{
+    definitionId: typeof STANDARD_INITIAL_SETUP.id;
+    value: StandardInitialSetup;
+  }>;
+}>;
+
+/** Recipe-plan projections retained from both exact Standard lifecycle markers. */
+export type StandardExactRecipePlanPayloads = Readonly<{
+  evidence: StandardExactProductEvidence<StandardExactRecipePlanEvidence>;
+  completion: StandardExactProductEvidence<StandardExactRecipePlanEvidence>;
+}>;
+
 /** Complete exact authorship plus Standard-specific product evidence admitted from its log. */
 export type StandardExactParityCapture = Readonly<{
   authorship: CompleteExactAuthorshipEvidence;
+  recipePlan: StandardExactRecipePlanPayloads;
   placementParity: StandardExactProductEvidence<StandardPlacementParityCounters>;
   floodplains: StandardExactProductEvidence<StandardFloodplainApplyCounters>;
   naturalWonderPlan: StandardExactProductEvidence<StandardNaturalWonderPlanEvidence>;
@@ -169,10 +187,11 @@ export type StandardExactParityCapture = Readonly<{
 export type StandardLocalParityCapture = Readonly<{
   source: "standard-replay";
   identity: Readonly<{
+    planFingerprint: string;
     mapSeed: number;
     gameSeed: number;
     mapSize: Civ7StandardMapSizeId;
-    playerCount: number;
+    aliveMajorPlayerIds: readonly number[];
     canonicalConfigDigest: string;
     launchEnvelopeDigest: string;
   }>;

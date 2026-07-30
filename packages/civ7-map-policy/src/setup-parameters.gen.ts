@@ -11,6 +11,15 @@
  */
 
 import { type Static, Type } from "typebox";
+import { defineCiv7SetupOptionEvidenceSchema } from "./setup-option-evidence.js";
+
+function deepFreeze<T>(value: T): T {
+  if (value !== null && typeof value === "object" && !Object.isFrozen(value)) {
+    for (const child of Object.values(value)) deepFreeze(child);
+    Object.freeze(value);
+  }
+  return value;
+}
 
 /** Pinned official resource provenance for the generated setup catalog. */
 export type Civ7SetupParameterSource = Readonly<{
@@ -85,6 +94,34 @@ export type Civ7SetupDomainEvidence = Readonly<{
   valueKind: "boolean" | "integer" | "string";
   source: "primitive" | "resource-domain";
   declaredValues: readonly string[];
+}>;
+
+/** Physical Civ7 configuration projections and the authored-value read selected for one setup option. */
+export type Civ7SetupOptionDescriptor<
+  ConfigurationGroup extends string = string,
+  ParameterId extends string = string,
+> = Readonly<{
+  configurationGroup: ConfigurationGroup;
+  parameterId: ParameterId;
+  cardinality: "array" | "scalar";
+  valueKind: "boolean" | "integer" | "string";
+  physicalProjections: Readonly<{
+    configuration: Readonly<{
+      key: string;
+      encoding: "hash" | "literal";
+    }>;
+    authoredValue: Readonly<{ key: string }> | null;
+  }>;
+  authoredValueRead:
+    | Readonly<{
+        kind: "configuration";
+        key: string;
+        source: "configuration-key" | "value-configuration-key";
+      }>
+    | Readonly<{
+        kind: "unsupported";
+        reason: "no-authored-value-key" | "overlapping-projection-keys";
+      }>;
 }>;
 
 /** Official resource evidence used to derive the setup-parameter catalog. */
@@ -3785,6 +3822,950 @@ export const CIV7_SETUP_DOMAIN_EVIDENCE: readonly Civ7SetupDomainEvidence[] = [
   }
 ];
 
+/** Game setup identities owned by first-class lifecycle fields rather than option maps. */
+export const CIV7_GAME_SETUP_LIFECYCLE_PARAMETER_IDS = ["GameRandomSeed"] as const;
+
+/** Map setup identities owned by first-class lifecycle fields rather than option maps. */
+export const CIV7_MAP_SETUP_LIFECYCLE_PARAMETER_IDS = ["Map","MapSize","MapRandomSeed"] as const;
+
+/** Setup identities owned by first-class lifecycle fields rather than option maps. */
+export const CIV7_SETUP_LIFECYCLE_PARAMETER_IDS = ["Map","MapSize","MapRandomSeed","GameRandomSeed"] as const;
+
+/** Exact official Game setup projection descriptors in declared parameter order. */
+export const CIV7_GAME_SETUP_PARAMETER_DESCRIPTORS = deepFreeze([
+  {
+    "configurationGroup": "Game",
+    "parameterId": "Ruleset",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "RuleSet",
+        "encoding": "literal"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "RuleSet",
+      "source": "configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "Age",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "StartAge",
+        "encoding": "hash"
+      },
+      "authoredValue": {
+        "key": "StartAgeTypeName"
+      }
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "StartAgeTypeName",
+      "source": "value-configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "Difficulty",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "Handicap",
+        "encoding": "hash"
+      },
+      "authoredValue": {
+        "key": "HandicapTypeName"
+      }
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "HandicapTypeName",
+      "source": "value-configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "DifficultyIndependentsCombat",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "HANDICAP_INDEPENDENTS_COMBAT",
+        "encoding": "hash"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "no-authored-value-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "DifficultyCombat",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "HANDICAP_COMBAT",
+        "encoding": "hash"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "no-authored-value-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "DifficultyArmyXP",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "HANDICAP_ARMY_XP",
+        "encoding": "hash"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "no-authored-value-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "DifficultyUnitProduction",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "HANDICAP_UNITS",
+        "encoding": "hash"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "no-authored-value-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "DifficultyBuildingProduction",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "HANDICAP_BUILDINGS",
+        "encoding": "hash"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "no-authored-value-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "DifficultyFreeStuff",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "FreeStuffHandicap",
+        "encoding": "hash"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "no-authored-value-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "DifficultyGold",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "HANDICAP_GOLD",
+        "encoding": "hash"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "no-authored-value-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "DifficultyScience",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "HANDICAP_SCIENCE",
+        "encoding": "hash"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "no-authored-value-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "DifficultyCulture",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "HANDICAP_CULTURE",
+        "encoding": "hash"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "no-authored-value-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "DifficultyHappiness",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "HANDICAP_HAPPINESS",
+        "encoding": "hash"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "no-authored-value-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "DifficultyTechCost",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "HANDICAP_TECH_COST",
+        "encoding": "hash"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "no-authored-value-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "DifficultyCivicCost",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "HANDICAP_CIVIC_COST",
+        "encoding": "hash"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "no-authored-value-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "DifficultyOceanDamage",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "HANDICAP_WATER_DAMAGE",
+        "encoding": "hash"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "no-authored-value-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "AgeLength",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "AgeLength",
+        "encoding": "literal"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "AgeLength",
+      "source": "configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "AgeCountdownTimer",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "EndOfAgeCountdownLength",
+        "encoding": "literal"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "EndOfAgeCountdownLength",
+      "source": "configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "AgeTransitionSetting",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "AgeTransitionSetting",
+        "encoding": "hash"
+      },
+      "authoredValue": {
+        "key": "AgeTransitionSettingName"
+      }
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "AgeTransitionSettingName",
+      "source": "value-configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "IndependentHostility",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "IndependentHostility",
+        "encoding": "hash"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "no-authored-value-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "NoCivUnlocks",
+    "cardinality": "scalar",
+    "valueKind": "boolean",
+    "physicalProjections": {
+      "configuration": {
+        "key": "NoCivilizationUnlocks",
+        "encoding": "literal"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "NoCivilizationUnlocks",
+      "source": "configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "GameRandomSeed",
+    "cardinality": "scalar",
+    "valueKind": "integer",
+    "physicalProjections": {
+      "configuration": {
+        "key": "RandomSeed",
+        "encoding": "literal"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "RandomSeed",
+      "source": "configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "TurnLimit",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "TurnLimitType",
+        "encoding": "hash"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "no-authored-value-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "MaxTurns",
+    "cardinality": "scalar",
+    "valueKind": "integer",
+    "physicalProjections": {
+      "configuration": {
+        "key": "MaxTurns",
+        "encoding": "literal"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "MaxTurns",
+      "source": "configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "DisasterIntensity",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "RealismSettingType",
+        "encoding": "hash"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "no-authored-value-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "Crises",
+    "cardinality": "array",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "ExcludeCrises",
+        "encoding": "literal"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "ExcludeCrises",
+      "source": "configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "EnableScoreVictory",
+    "cardinality": "scalar",
+    "valueKind": "boolean",
+    "physicalProjections": {
+      "configuration": {
+        "key": "VICTORY_LEGACY",
+        "encoding": "literal"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "VICTORY_LEGACY",
+      "source": "configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "LegacyPaths",
+    "cardinality": "array",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "ExcludeLegacyPaths",
+        "encoding": "literal"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "ExcludeLegacyPaths",
+      "source": "configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "GameSpeeds",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "SpeedType",
+        "encoding": "hash"
+      },
+      "authoredValue": {
+        "key": "SpeedTypeName"
+      }
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "SpeedTypeName",
+      "source": "value-configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "GameName",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "Name",
+        "encoding": "literal"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "Name",
+      "source": "configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "PrivateGame",
+    "cardinality": "scalar",
+    "valueKind": "boolean",
+    "physicalProjections": {
+      "configuration": {
+        "key": "IsPrivate",
+        "encoding": "literal"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "IsPrivate",
+      "source": "configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "KickVote",
+    "cardinality": "scalar",
+    "valueKind": "boolean",
+    "physicalProjections": {
+      "configuration": {
+        "key": "KickVote",
+        "encoding": "literal"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "KickVote",
+      "source": "configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "TurnTimerType",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "TurnTimerType",
+        "encoding": "hash"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "no-authored-value-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "TurnTimerTime",
+    "cardinality": "scalar",
+    "valueKind": "integer",
+    "physicalProjections": {
+      "configuration": {
+        "key": "TurnTimerTime",
+        "encoding": "literal"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "TurnTimerTime",
+      "source": "configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "SingleAgeGame",
+    "cardinality": "scalar",
+    "valueKind": "boolean",
+    "physicalProjections": {
+      "configuration": {
+        "key": "SingleAge",
+        "encoding": "literal"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "SingleAge",
+      "source": "configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "MementosEnabled",
+    "cardinality": "scalar",
+    "valueKind": "boolean",
+    "physicalProjections": {
+      "configuration": {
+        "key": "MementosEnabled",
+        "encoding": "literal"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "MementosEnabled",
+      "source": "configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "GameStartCivSelectionMode",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "GameStartCivSelectionMode",
+        "encoding": "hash"
+      },
+      "authoredValue": {
+        "key": "GameStartCivSelectionMode"
+      }
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "overlapping-projection-keys"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "LeaderAssociatedCivSelectionMode",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "LeaderAssociatedCivSelectionMode",
+        "encoding": "hash"
+      },
+      "authoredValue": {
+        "key": "LeaderAssociatedCivSelectionMode"
+      }
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "overlapping-projection-keys"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "AgeTransitionCivSelectionMode",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "AgeTransitionCivSelectionMode",
+        "encoding": "hash"
+      },
+      "authoredValue": {
+        "key": "AgeTransitionCivSelectionMode"
+      }
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "overlapping-projection-keys"
+    }
+  },
+  {
+    "configurationGroup": "Game",
+    "parameterId": "LegacySets",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "LegacySet",
+        "encoding": "hash"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "no-authored-value-key"
+    }
+  }
+] as const satisfies readonly Civ7SetupOptionDescriptor<"Game">[]);
+
+/** Generated lifecycle descriptor for the game seed read performed at GenerateMap admission. */
+export const CIV7_GAME_RANDOM_SEED_PARAMETER_DESCRIPTOR =
+  CIV7_GAME_SETUP_PARAMETER_DESCRIPTORS[21];
+
+/** Exact official Map setup projection descriptors in declared parameter order. */
+export const CIV7_MAP_SETUP_PARAMETER_DESCRIPTORS = deepFreeze([
+  {
+    "configurationGroup": "Map",
+    "parameterId": "MapSize",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "SizeType",
+        "encoding": "hash"
+      },
+      "authoredValue": {
+        "key": "SizeTypeName"
+      }
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "SizeTypeName",
+      "source": "value-configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Map",
+    "parameterId": "MapRandomSeed",
+    "cardinality": "scalar",
+    "valueKind": "integer",
+    "physicalProjections": {
+      "configuration": {
+        "key": "RandomSeed",
+        "encoding": "literal"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "RandomSeed",
+      "source": "configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Map",
+    "parameterId": "MapSeaLevel",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "SeaLevel",
+        "encoding": "literal"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "SeaLevel",
+      "source": "configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Map",
+    "parameterId": "StartPosition",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "StartPosition",
+        "encoding": "hash"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "no-authored-value-key"
+    }
+  },
+  {
+    "configurationGroup": "Map",
+    "parameterId": "Map",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "Script",
+        "encoding": "literal"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "Script",
+      "source": "configuration-key"
+    }
+  }
+] as const satisfies readonly Civ7SetupOptionDescriptor<"Map">[]);
+
+/** Exact official Player setup projection descriptors in declared parameter order. */
+export const CIV7_PLAYER_SETUP_PARAMETER_DESCRIPTORS = deepFreeze([
+  {
+    "configurationGroup": "Player",
+    "parameterId": "PlayerCivilization",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "CivilizationTypeID",
+        "encoding": "hash"
+      },
+      "authoredValue": {
+        "key": "CivilizationTypeName"
+      }
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "CivilizationTypeName",
+      "source": "value-configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Player",
+    "parameterId": "PlayerLeader",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "LeaderTypeID",
+        "encoding": "hash"
+      },
+      "authoredValue": {
+        "key": "LeaderTypeName"
+      }
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "LeaderTypeName",
+      "source": "value-configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Player",
+    "parameterId": "PlayerTeam",
+    "cardinality": "scalar",
+    "valueKind": "integer",
+    "physicalProjections": {
+      "configuration": {
+        "key": "Team",
+        "encoding": "literal"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "Team",
+      "source": "configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Player",
+    "parameterId": "PlayerDifficulty",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "HandicapTypeID",
+        "encoding": "hash"
+      },
+      "authoredValue": null
+    },
+    "authoredValueRead": {
+      "kind": "unsupported",
+      "reason": "no-authored-value-key"
+    }
+  },
+  {
+    "configurationGroup": "Player",
+    "parameterId": "PlayerMementoMajorSlot",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "MajorMemento",
+        "encoding": "literal"
+      },
+      "authoredValue": {
+        "key": "MajorMementoValue"
+      }
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "MajorMemento",
+      "source": "configuration-key"
+    }
+  },
+  {
+    "configurationGroup": "Player",
+    "parameterId": "PlayerMementoMinorSlot1",
+    "cardinality": "scalar",
+    "valueKind": "string",
+    "physicalProjections": {
+      "configuration": {
+        "key": "MinorMemento1",
+        "encoding": "literal"
+      },
+      "authoredValue": {
+        "key": "MinorMemento1Value"
+      }
+    },
+    "authoredValueRead": {
+      "kind": "configuration",
+      "key": "MinorMemento1",
+      "source": "configuration-key"
+    }
+  }
+] as const satisfies readonly Civ7SetupOptionDescriptor<"Player">[]);
+
 /** Closed declared Game setup shape before product-specific exclusions. */
 export const Civ7GameSetupBaseSchema = Type.Object(
   {
@@ -3890,3 +4871,71 @@ export const Civ7AgeTransitionPlayerSetupBaseSchema = Type.Object(
 
 /** Declared AgeTransitionPlayer setup values before product-specific exclusions. */
 export type Civ7AgeTransitionPlayerSetupBase = Static<typeof Civ7AgeTransitionPlayerSetupBaseSchema>;
+
+/** Exact available-or-unavailable evidence for every authored Game option. */
+export const Civ7GameOptionEvidenceSchema = Type.Union([
+  defineCiv7SetupOptionEvidenceSchema("Ruleset", Civ7GameSetupBaseSchema.properties["Ruleset"]),
+  defineCiv7SetupOptionEvidenceSchema("Age", Civ7GameSetupBaseSchema.properties["Age"]),
+  defineCiv7SetupOptionEvidenceSchema("Difficulty", Civ7GameSetupBaseSchema.properties["Difficulty"]),
+  defineCiv7SetupOptionEvidenceSchema("DifficultyIndependentsCombat", Civ7GameSetupBaseSchema.properties["DifficultyIndependentsCombat"]),
+  defineCiv7SetupOptionEvidenceSchema("DifficultyCombat", Civ7GameSetupBaseSchema.properties["DifficultyCombat"]),
+  defineCiv7SetupOptionEvidenceSchema("DifficultyArmyXP", Civ7GameSetupBaseSchema.properties["DifficultyArmyXP"]),
+  defineCiv7SetupOptionEvidenceSchema("DifficultyUnitProduction", Civ7GameSetupBaseSchema.properties["DifficultyUnitProduction"]),
+  defineCiv7SetupOptionEvidenceSchema("DifficultyBuildingProduction", Civ7GameSetupBaseSchema.properties["DifficultyBuildingProduction"]),
+  defineCiv7SetupOptionEvidenceSchema("DifficultyFreeStuff", Civ7GameSetupBaseSchema.properties["DifficultyFreeStuff"]),
+  defineCiv7SetupOptionEvidenceSchema("DifficultyGold", Civ7GameSetupBaseSchema.properties["DifficultyGold"]),
+  defineCiv7SetupOptionEvidenceSchema("DifficultyScience", Civ7GameSetupBaseSchema.properties["DifficultyScience"]),
+  defineCiv7SetupOptionEvidenceSchema("DifficultyCulture", Civ7GameSetupBaseSchema.properties["DifficultyCulture"]),
+  defineCiv7SetupOptionEvidenceSchema("DifficultyHappiness", Civ7GameSetupBaseSchema.properties["DifficultyHappiness"]),
+  defineCiv7SetupOptionEvidenceSchema("DifficultyTechCost", Civ7GameSetupBaseSchema.properties["DifficultyTechCost"]),
+  defineCiv7SetupOptionEvidenceSchema("DifficultyCivicCost", Civ7GameSetupBaseSchema.properties["DifficultyCivicCost"]),
+  defineCiv7SetupOptionEvidenceSchema("DifficultyOceanDamage", Civ7GameSetupBaseSchema.properties["DifficultyOceanDamage"]),
+  defineCiv7SetupOptionEvidenceSchema("AgeLength", Civ7GameSetupBaseSchema.properties["AgeLength"]),
+  defineCiv7SetupOptionEvidenceSchema("AgeCountdownTimer", Civ7GameSetupBaseSchema.properties["AgeCountdownTimer"]),
+  defineCiv7SetupOptionEvidenceSchema("AgeTransitionSetting", Civ7GameSetupBaseSchema.properties["AgeTransitionSetting"]),
+  defineCiv7SetupOptionEvidenceSchema("IndependentHostility", Civ7GameSetupBaseSchema.properties["IndependentHostility"]),
+  defineCiv7SetupOptionEvidenceSchema("NoCivUnlocks", Civ7GameSetupBaseSchema.properties["NoCivUnlocks"]),
+  defineCiv7SetupOptionEvidenceSchema("TurnLimit", Civ7GameSetupBaseSchema.properties["TurnLimit"]),
+  defineCiv7SetupOptionEvidenceSchema("MaxTurns", Civ7GameSetupBaseSchema.properties["MaxTurns"]),
+  defineCiv7SetupOptionEvidenceSchema("DisasterIntensity", Civ7GameSetupBaseSchema.properties["DisasterIntensity"]),
+  defineCiv7SetupOptionEvidenceSchema("Crises", Civ7GameSetupBaseSchema.properties["Crises"]),
+  defineCiv7SetupOptionEvidenceSchema("EnableScoreVictory", Civ7GameSetupBaseSchema.properties["EnableScoreVictory"]),
+  defineCiv7SetupOptionEvidenceSchema("LegacyPaths", Civ7GameSetupBaseSchema.properties["LegacyPaths"]),
+  defineCiv7SetupOptionEvidenceSchema("GameSpeeds", Civ7GameSetupBaseSchema.properties["GameSpeeds"]),
+  defineCiv7SetupOptionEvidenceSchema("GameName", Civ7GameSetupBaseSchema.properties["GameName"]),
+  defineCiv7SetupOptionEvidenceSchema("PrivateGame", Civ7GameSetupBaseSchema.properties["PrivateGame"]),
+  defineCiv7SetupOptionEvidenceSchema("KickVote", Civ7GameSetupBaseSchema.properties["KickVote"]),
+  defineCiv7SetupOptionEvidenceSchema("TurnTimerType", Civ7GameSetupBaseSchema.properties["TurnTimerType"]),
+  defineCiv7SetupOptionEvidenceSchema("TurnTimerTime", Civ7GameSetupBaseSchema.properties["TurnTimerTime"]),
+  defineCiv7SetupOptionEvidenceSchema("SingleAgeGame", Civ7GameSetupBaseSchema.properties["SingleAgeGame"]),
+  defineCiv7SetupOptionEvidenceSchema("MementosEnabled", Civ7GameSetupBaseSchema.properties["MementosEnabled"]),
+  defineCiv7SetupOptionEvidenceSchema("GameStartCivSelectionMode", Civ7GameSetupBaseSchema.properties["GameStartCivSelectionMode"]),
+  defineCiv7SetupOptionEvidenceSchema("LeaderAssociatedCivSelectionMode", Civ7GameSetupBaseSchema.properties["LeaderAssociatedCivSelectionMode"]),
+  defineCiv7SetupOptionEvidenceSchema("AgeTransitionCivSelectionMode", Civ7GameSetupBaseSchema.properties["AgeTransitionCivSelectionMode"]),
+  defineCiv7SetupOptionEvidenceSchema("LegacySets", Civ7GameSetupBaseSchema.properties["LegacySets"]),
+]);
+
+/** Available-or-unavailable evidence for one exact authored Game option. */
+export type Civ7GameOptionEvidence = Static<typeof Civ7GameOptionEvidenceSchema>;
+
+/** Exact available-or-unavailable evidence for every authored Map option. */
+export const Civ7MapOptionEvidenceSchema = Type.Union([
+  defineCiv7SetupOptionEvidenceSchema("MapSeaLevel", Civ7MapSetupBaseSchema.properties["MapSeaLevel"]),
+  defineCiv7SetupOptionEvidenceSchema("StartPosition", Civ7MapSetupBaseSchema.properties["StartPosition"]),
+]);
+
+/** Available-or-unavailable evidence for one exact authored Map option. */
+export type Civ7MapOptionEvidence = Static<typeof Civ7MapOptionEvidenceSchema>;
+
+/** Exact available-or-unavailable evidence for every authored Player option. */
+export const Civ7PlayerOptionEvidenceSchema = Type.Union([
+  defineCiv7SetupOptionEvidenceSchema("PlayerCivilization", Civ7PlayerSetupBaseSchema.properties["PlayerCivilization"]),
+  defineCiv7SetupOptionEvidenceSchema("PlayerLeader", Civ7PlayerSetupBaseSchema.properties["PlayerLeader"]),
+  defineCiv7SetupOptionEvidenceSchema("PlayerTeam", Civ7PlayerSetupBaseSchema.properties["PlayerTeam"]),
+  defineCiv7SetupOptionEvidenceSchema("PlayerDifficulty", Civ7PlayerSetupBaseSchema.properties["PlayerDifficulty"]),
+  defineCiv7SetupOptionEvidenceSchema("PlayerMementoMajorSlot", Civ7PlayerSetupBaseSchema.properties["PlayerMementoMajorSlot"]),
+  defineCiv7SetupOptionEvidenceSchema("PlayerMementoMinorSlot1", Civ7PlayerSetupBaseSchema.properties["PlayerMementoMinorSlot1"]),
+]);
+
+/** Available-or-unavailable evidence for one exact authored Player option. */
+export type Civ7PlayerOptionEvidence = Static<typeof Civ7PlayerOptionEvidenceSchema>;

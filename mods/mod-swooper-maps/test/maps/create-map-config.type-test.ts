@@ -3,7 +3,14 @@ import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { Static } from "@swooper/mapgen-core/authoring";
 import type { ExtendsStrict, IsEqual, IsStringLiteral } from "type-fest";
 import { buildStandardRecipeDefaultConfig } from "../../src/recipes/standard/artifacts.js";
-import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
+import {
+  projectStandardInitialSetup,
+  STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
+  STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
+  STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
+  type StandardRecipeConfig,
+  default as standardRecipe,
+} from "../../src/recipes/standard/recipe.js";
 import foundationMantleStage from "../../src/recipes/standard/stages/foundation/mantle/index.js";
 
 type Expect<T extends true> = T;
@@ -62,6 +69,12 @@ createMap({
   name: "__type_test__",
   recipe: standardRecipe,
   config: buildStandardRecipeDefaultConfig(),
+  initialSetup: {
+    requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
+    requestedGameOptions: STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
+    requestedPlayerOptions: STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
+    project: projectStandardInitialSetup,
+  },
 });
 
 void badFoundationStepId;

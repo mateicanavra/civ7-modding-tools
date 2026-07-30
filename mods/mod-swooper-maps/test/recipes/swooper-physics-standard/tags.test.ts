@@ -21,7 +21,6 @@ function makeSyntheticStartAssignment(seatCount: number, assigned = seatCount) {
     return {
       seatIndex,
       playerId: seatIndex,
-      playerIdSource: "alive-majors" as const,
       regionSlot: seatIndex % 2 === 0 ? 1 : 2,
       realizedRegionSlot: seated ? (seatIndex % 2 === 0 ? 1 : 2) : 0,
       plotIndex: seated ? seatIndex : -1,

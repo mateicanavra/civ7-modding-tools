@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   clearStudioSetupSavedConfig,
+  getLocalPlayerSetup,
+  studioSavedWorldSettingsFromConfigFile,
   studioSetupConfigFromLiveSnapshot,
   studioSetupConfigFromSavedConfigFile,
   studioSetupDriftsFromSavedConfig,
@@ -11,6 +13,23 @@ import {
 } from "../../src/features/civ7Setup/setupConfig";
 
 describe("Civ7 Studio setup config", () => {
+  it("resolves local-player authorship by player identity rather than override order", () => {
+    const config = {
+      gameOptions: {},
+      mapOptions: {},
+      playerOptions: [
+        { playerId: 4, options: { PlayerLeader: "LEADER_ASHOKA" } },
+        { playerId: 0, options: { PlayerLeader: "LEADER_HARRIET_TUBMAN" } },
+      ],
+    } as const;
+
+    expect(getLocalPlayerSetup(config, 0)).toEqual({
+      playerId: 0,
+      options: { PlayerLeader: "LEADER_HARRIET_TUBMAN" },
+    });
+    expect(getLocalPlayerSetup(config, 2)).toEqual({ playerId: 2, options: {} });
+  });
+
   it("partitions official live setup groups and preserves every observed player slot", () => {
     const config = studioSetupConfigFromLiveSnapshot({
       selectedMap: {
@@ -202,6 +221,22 @@ describe("Civ7 Studio setup config", () => {
           },
         },
       ],
+    });
+  });
+
+  it("refuses saved player counts that exceed the selected preset's official start slots", () => {
+    const savedConfig = {
+      id: "over-capacity",
+      displayName: "Over capacity",
+      fileName: "over-capacity.Civ7Cfg",
+      summary: { mapSize: "MAPSIZE_TINY", playerCount: 5 },
+      gameOptions: {},
+      mapOptions: {},
+      playerOptions: [{ playerId: 0, options: {} }],
+    };
+
+    expect(studioSavedWorldSettingsFromConfigFile(savedConfig)).toEqual({
+      mapSize: "MAPSIZE_TINY",
     });
   });
 

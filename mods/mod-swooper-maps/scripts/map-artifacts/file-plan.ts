@@ -151,7 +151,12 @@ function renderMapEntryArtifact(
 
 import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { StandardMapConfigEnvelope } from "../configs/canonical.js";
-import standardRecipe from "../../recipes/standard/recipe.js";
+import standardRecipe, {
+  projectStandardInitialSetup,
+  STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
+  STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
+  STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
+} from "../../recipes/standard/recipe.js";
 
 // The file plan only receives an admitted immutable envelope; this assertion
 // projects its serialized data without adding a second runtime admission path.
@@ -164,6 +169,12 @@ export default createMap({
   configHash: ${JSON.stringify(configHash)},
   envelopeHash: ${JSON.stringify(envelopeHash)},
   config: mapConfig.config,
+  initialSetup: {
+    requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
+    requestedGameOptions: STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
+    requestedPlayerOptions: STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
+    project: projectStandardInitialSetup,
+  },
 });
 `,
   };
@@ -193,7 +204,12 @@ function renderRunMapEntryArtifact(
 
 import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { StandardMapConfigEnvelope } from "mod-swooper-maps/maps/configs/canonical";
-import standardRecipe from "mod-swooper-maps/recipes/standard";
+import standardRecipe, {
+  projectStandardInitialSetup,
+  STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
+  STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
+  STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
+} from "mod-swooper-maps/recipes/standard";
 
 const runCorrelation = ${JSON.stringify(input.correlation, null, 2)} as const;
 // The manifest generator admitted this envelope before building the file plan.
@@ -206,6 +222,12 @@ export default createMap({
   runCorrelation,
   seed: ${JSON.stringify(input.seed)},
   config: mapConfig.config,
+  initialSetup: {
+    requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
+    requestedGameOptions: STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
+    requestedPlayerOptions: STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
+    project: projectStandardInitialSetup,
+  },
 });
 `,
   };

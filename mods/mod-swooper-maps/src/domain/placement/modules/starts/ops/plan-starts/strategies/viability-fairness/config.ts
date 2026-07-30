@@ -183,13 +183,6 @@ export default defineStrategy({
         description:
           "Weight preferring river-adjacent start tiles beyond the freshwater component (0 = neutral).",
       }),
-      startBiasWeight: Type.Number({
-        minimum: 0,
-        maximum: 4,
-        default: 1,
-        description:
-          "Scales per-seat official StartBias contributions (river/lake/coast) in seat ranking when seatBiases are supplied.",
-      }),
     },
     {
       description:

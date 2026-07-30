@@ -662,16 +662,25 @@ export function createStudioOperationRuntimePorts(
         requestId
       );
       const launchMapScript = context.launchMapScript ?? materialization.mapScript;
-      const logMarkerEvidence = await waitForFreshLogMarkers({
+      const matchedMarkers = [
+        "[mapgen-evidence]",
+        requestId,
+        context.canonicalConfigDigest,
+        context.launchEnvelopeDigest,
+        "[mapgen-complete]",
+      ] as const;
+      const markerProof = await waitForFreshLogMarkers({
         logPath: scriptingLogPath,
         snapshot: scriptingSnapshot,
-        markers: [
-          "[mapgen-evidence]",
-          requestId,
-          context.canonicalConfigDigest,
-          context.launchEnvelopeDigest,
-          "[mapgen-complete]",
-        ],
+        markers: ["[mapgen-evidence]", "[mapgen-complete]"],
+        acceptFreshText: (text) =>
+          parseSwooperMapgenLogEvidence({
+            text,
+            requestId,
+            canonicalConfigDigest: context.canonicalConfigDigest,
+            launchEnvelopeDigest: context.launchEnvelopeDigest,
+            seed: context.seed,
+          }) !== undefined,
         timeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
         rejectPattern: /\b(?:TextEncoder|Uncaught|Exception|Error)\b/i,
       }).catch(async (err: unknown) => {
@@ -700,6 +709,7 @@ export function createStudioOperationRuntimePorts(
           { materialization }
         );
       });
+      const logMarkerEvidence = { ...markerProof, matched: matchedMarkers };
       const freshLogText = await readFreshLogText(scriptingLogPath, scriptingSnapshot).catch(
         () => ""
       );

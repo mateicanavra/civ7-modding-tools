@@ -14,6 +14,7 @@ import {
 import type { GenerationStatus } from "@swooper/mapgen-studio-ui/types";
 import { useCallback, useMemo, useRef } from "react";
 import { useBrowserRunner } from "../features/browserRunner/useBrowserRunner";
+import { getCiv7PlayerCountOptions } from "../features/civ7Setup/mapSizes";
 import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from "../features/civ7Setup/seedPolicy";
 import { getRecipeDefaultCanonicalConfig } from "../features/configAuthoring/canonicalConfig";
 import { orpcClient } from "../lib/orpc";
@@ -22,7 +23,7 @@ import type { VizEvent } from "../shared/vizEvents";
 import { useAuthoringStore } from "../stores/authoringStore";
 import { useRunStore } from "../stores/runStore";
 import { useViewStore } from "../stores/viewStore";
-import { MAP_SIZE_OPTIONS, MAP_SIZE_SHORT, PLAYER_COUNT_OPTIONS } from "../ui/constants";
+import { MAP_SIZE_OPTIONS, MAP_SIZE_SHORT } from "../ui/constants";
 import { CanvasStage } from "./CanvasStage";
 import { useBrowserRun } from "./hooks/useBrowserRun";
 import { useConfigAuthoring } from "./hooks/useConfigAuthoring";
@@ -305,6 +306,7 @@ export function StudioShell(props: StudioShellProps) {
     authoringRevision,
     setupConfig,
     setSeed,
+    setGameSeed,
     setSetupConfig,
     liveRuntime,
     liveRuntimeSuggestions,
@@ -592,7 +594,7 @@ export function StudioShell(props: StudioShellProps) {
       onAutoRunEnabledChange={setAutoRunEnabled}
       mapSizeOptions={MAP_SIZE_OPTIONS}
       mapSizeShortLabels={MAP_SIZE_SHORT}
-      playerCountOptions={PLAYER_COUNT_OPTIONS}
+      playerCountOptions={getCiv7PlayerCountOptions(worldSettings.mapSize)}
       seedMin={CIV7_STUDIO_SEED_MIN}
       seedMax={CIV7_STUDIO_SEED_MAX}
     />

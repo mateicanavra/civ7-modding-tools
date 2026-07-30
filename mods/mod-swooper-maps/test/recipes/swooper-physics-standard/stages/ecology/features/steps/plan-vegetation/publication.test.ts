@@ -16,7 +16,11 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { PlanVegetationStep as planVegetationStep } from "../../../../../../../../src/recipes/standard/stages/ecology/features/steps/plan-vegetation/step.js";
-import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
+import {
+  TEST_MAP_LATITUDE_BOUNDS,
+  TEST_MAP_SEED,
+  TEST_MAP_SIZE,
+} from "../../../../../../../setup.js";
 import { createEmptyFeatureScoreLayers } from "../../fixtures/feature-score-layers.js";
 
 describe("ecology-features plan-vegetation step", () => {
@@ -26,10 +30,7 @@ describe("ecology-features plan-vegetation step", () => {
     const setup = admitMapSetup({
       mapSeed: TEST_MAP_SEED,
       dimensions: TEST_MAP_SIZE.dimensions,
-      latitudeBounds: {
-        topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
-        bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
-      },
+      latitudeBounds: TEST_MAP_LATITUDE_BOUNDS,
     });
 
     const adapter = createMockAdapter({

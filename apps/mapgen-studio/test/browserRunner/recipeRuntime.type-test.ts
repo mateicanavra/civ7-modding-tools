@@ -1,7 +1,7 @@
-import type { MapSetup } from "@swooper/mapgen-core";
+import type { BrowserRunInitialSetup } from "../../src/browser-runner/protocol";
 import { getRuntimeRecipe } from "../../src/browser-runner/recipeRuntime";
 
-declare const setup: MapSetup;
+declare const setup: BrowserRunInitialSetup;
 
 const entry = getRuntimeRecipe("standard");
 const plan = entry.recipe.compile(setup, entry.defaultConfig);

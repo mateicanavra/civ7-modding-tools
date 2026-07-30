@@ -1,6 +1,7 @@
 import { FEATURE_PLACEMENT_KEYS, type FeatureKey } from "@civ7/map-policy";
 import type { FeatureIntentKey } from "@mapgen/domain/ecology/modules/features/model/atoms/index.js";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { encodeBoundedJsonLogLines } from "@swooper/mapgen-core/lib/log";
 import { measureStandardFeatureProjection } from "../../../../../metrics/families/ecology-projection.js";
 import { landMaskFromWaterMask } from "../../../../../water-surface-parity.js";
 import { config } from "./config.js";
@@ -179,8 +180,10 @@ export const FeaturesApplyStep = createStep(config, {
       rejectedCanHaveFeatureByFeature,
     };
 
-    console.log(
-      `[SWOOPER_MOD] FEATURE_APPLY_V1 ${JSON.stringify({
+    for (const line of encodeBoundedJsonLogLines({
+      prefix: "[SWOOPER_MOD]",
+      marker: "FEATURE_APPLY_V1",
+      payload: {
         attempted: resolvedPlacements.length,
         applied,
         rejected: rejections.length,
@@ -188,8 +191,10 @@ export const FeaturesApplyStep = createStep(config, {
         attemptedByFeature,
         appliedByFeature,
         rejectedCanHaveFeatureByFeature,
-      })}`
-    );
+      },
+    })) {
+      console.log(line);
+    }
 
     context.trace.event(() => ({
       type: "map.ecology.features.parity",

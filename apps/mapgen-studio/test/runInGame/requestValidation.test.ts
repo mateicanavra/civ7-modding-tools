@@ -9,6 +9,7 @@ import { Value } from "typebox/value";
 import { describe, expect, it } from "vitest";
 
 import { buildRunInGameStartRequest } from "../../src/features/runInGame/api";
+import { TEST_GAME_SEED, TEST_MAP_SEED } from "../setup";
 
 describe("Run in Game request validation", () => {
   it("rejects undeclared raw-control tunnel fields at the public boundary", () => {
@@ -233,8 +234,8 @@ describe("Run in Game request validation", () => {
 function validRunInGameRequest(extra?: Record<string, unknown>): Record<string, unknown> {
   return {
     canonicalConfig: canonicalConfig({ ok: true }),
-    seed: 123,
-    gameSeed: 456,
+    seed: TEST_MAP_SEED,
+    gameSeed: TEST_GAME_SEED,
     worldSettings: {
       mapSize: "MAPSIZE_STANDARD",
     },

@@ -1,5 +1,26 @@
 import type { VizInlineRef, VizLayerEntryV2 } from "@swooper/mapgen-viz";
 
+/** Portable setup values authored in Studio and projected by the selected recipe runtime. */
+export type BrowserRunSetupOptionValue = string | number | boolean | readonly string[];
+
+/** Explicit initial-state axes carried to a browser recipe runtime without recipe-specific shape. */
+export type BrowserRunInitialSetup = Readonly<{
+  mapSeed: number;
+  gameSeed: number;
+  mapSizeId: string;
+  dimensions: Readonly<{ width: number; height: number }>;
+  latitudeBounds: Readonly<{ topLatitude: number; bottomLatitude: number }>;
+  aliveMajorPlayerIds: readonly number[];
+  options: Readonly<{
+    map: Readonly<Record<string, BrowserRunSetupOptionValue>>;
+    game: Readonly<Record<string, BrowserRunSetupOptionValue>>;
+    player: readonly Readonly<{
+      playerId: number;
+      options: Readonly<Record<string, BrowserRunSetupOptionValue>>;
+    }>[];
+  }>;
+}>;
+
 type BrowserRunStartRequest = {
   type: "run.start";
   runToken: string;
@@ -9,15 +30,11 @@ type BrowserRunStartRequest = {
    * to select a bundled recipe runtime in the worker.
    */
   recipeId: string;
-  seed: number;
-  mapSizeId: string;
-  dimensions: { width: number; height: number };
-  latitudeBounds: { topLatitude: number; bottomLatitude: number };
   /**
-   * Studio-selected alive major-player count used when running outside Civ7.
-   * Static map metadata remains owned by the selected Civ7 map-size preset.
+   * Complete explicit browser-run setup facts. The selected recipe registry
+   * projects these portable axes into its own admitted initial-setup shape.
    */
-  playerCount?: number;
+  initialSetup: BrowserRunInitialSetup;
   /**
    * Complete recipe config JSON for this browser run. The worker validates exact
    * identity against the bundled recipe artifacts before compilation.

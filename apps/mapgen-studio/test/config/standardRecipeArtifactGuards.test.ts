@@ -1,3 +1,4 @@
+import { getCiv7StandardMapSizePreset } from "@civ7/map-policy";
 import {
   STANDARD_RECIPE_CONFIG,
   STANDARD_RECIPE_CONFIG_SCHEMA,
@@ -15,6 +16,7 @@ import {
   getRecipeArtifacts,
   STUDIO_RECIPE_ARTIFACTS,
 } from "../../src/recipes/catalog";
+import { TEST_GAME_SEED, TEST_MAP_SEED } from "../setup";
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -163,6 +165,7 @@ describe("standard recipe generated artifact guardrails", () => {
 
   it("admits the generated default config before worker compilation", () => {
     const runtimeEntry = getRuntimeRecipe("standard");
+    const mapSize = getCiv7StandardMapSizePreset("MAPSIZE_STANDARD");
 
     const admitted = admitPipelineConfig({
       schema: runtimeEntry.configSchema,
@@ -174,9 +177,20 @@ describe("standard recipe generated artifact guardrails", () => {
 
     const plan = runtimeEntry.recipe.compile(
       {
-        mapSeed: 123,
-        dimensions: { width: 84, height: 54 },
+        mapSeed: TEST_MAP_SEED,
+        gameSeed: TEST_GAME_SEED,
+        mapSizeId: mapSize.id,
+        dimensions: mapSize.dimensions,
         latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
+        aliveMajorPlayerIds: [0, 1],
+        options: {
+          map: {},
+          game: {},
+          player: [
+            { playerId: 0, options: {} },
+            { playerId: 1, options: {} },
+          ],
+        },
       },
       admitted.value
     );

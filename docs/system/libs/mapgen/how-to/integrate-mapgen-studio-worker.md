@@ -36,13 +36,14 @@ Do not use this pattern for:
 
 Studio’s working shape (today) is:
 
-1) UI selects `recipeId`, one complete recipe config, and run inputs
-   (seed/dimensions/latitude bounds).
+1) UI selects `recipeId`, one complete recipe config, and portable run inputs: distinct map/game
+   seeds, map selection, latitude bounds, exact alive-major player ids, and setup-option values.
 2) UI creates a dedicated worker (module worker) and posts a `run.start`.
 3) Worker:
    - clones the config through the portable JSON boundary,
    - validates that clone unchanged against the selected recipe schema,
-   - compiles plan,
+   - projects the portable setup through the selected recipe runtime and compiles one plan,
+   - derives its mock adapter setup from the authentic retained plan,
    - translates the executor's `run.start` evidence into the worker protocol identity,
    - runs the recipe with a progress trace sink and visualization facet sink,
    - posts progress and viz upsert events.
@@ -62,11 +63,20 @@ const configResult = admitPipelineConfig({
 if (!configResult.ok) throw new Error(formatConfigErrors(configResult.errors));
 
 const config = configResult.value;
-const setup = admitMapSetup({ mapSeed: seed, dimensions, latitudeBounds });
-const plan = recipeEntry.recipe.compile(setup, config);
+const plan = recipeEntry.recipe.compile(initialSetup, config);
+const adapterSetup = recipeEntry.recipe.projectAdapterSetup(plan);
 const verboseSteps = Object.fromEntries(plan.nodes.map((node) => [node.stepId, "verbose"] as const));
 
-const context = createMapContext({ setup, adapter });
+const adapter = createMockAdapter({
+  width: adapterSetup.dimensions.width,
+  height: adapterSetup.dimensions.height,
+  mapSizeId: adapterSetup.mapSizeId,
+  mapInfo: adapterSetup.mapInfo,
+  aliveMajorPlayerIds: adapterSetup.aliveMajorPlayerIds,
+  rng: createLabelRng(adapterSetup.mapSeed),
+  // Civ7 browser tables omitted.
+});
+const context = createMapContext({ setup: plan.setup, adapter });
 const workerTraceSink = createWorkerTraceSink({ runToken, generation, post, abortSignal });
 const traceSink = {
   emit(event: TraceEvent) {
@@ -100,6 +110,11 @@ await recipeEntry.recipe.executeAsync(context, plan, {
 worker must not allocate or predict it from the plan; it learns both identities
 from the executor's first trace event.
 
+Do not build the adapter from the raw `run.start` request after compilation. The selected runtime
+recipe must project adapter inputs from `recipe.inspectPlan(plan)`, preserving the exact admitted
+setup used by execution. This prevents mutable caller input or a second projection path from
+creating a setup/evidence mismatch.
+
 ## Use the protocol boundary
 
 Keep the boundary narrow and stable:
@@ -115,7 +130,7 @@ Concrete protocol shape (excerpt):
 ```ts
 // apps/mapgen-studio/src/browser-runner/protocol.ts
 export type BrowserRunRequest =
-  | { type: "run.start"; runToken: string; generation: number; recipeId: string; seed: number; pipelineConfig: unknown; /* ... */ }
+  | { type: "run.start"; runToken: string; generation: number; recipeId: string; initialSetup: BrowserRunInitialSetup; pipelineConfig: unknown }
   | { type: "run.cancel"; runToken: string; generation: number };
 
 export type BrowserRunEvent =
@@ -131,6 +146,12 @@ The worker does not default, merge, clean, migrate, or reconstruct config. A
 missing or unknown property is an admission error. Recipe-owned default
 construction happens when the recipe publishes its complete default artifact,
 not when a browser run starts.
+
+The recipe-agnostic `BrowserRunInitialSetup` is likewise only a portable transport shape. A runtime
+entry must translate it into the selected recipe's initial-setup input before calling `compile`.
+For Standard, that translation preserves distinct map/game seeds, resolves an official Civ7 map
+preset, and creates ordered map/game/player option evidence. Compilation performs the authoritative
+schema and cross-field admission.
 
 ## Wire trace + viz correctly
 

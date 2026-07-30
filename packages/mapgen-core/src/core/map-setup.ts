@@ -134,6 +134,11 @@ export type MapSetupInput = Readonly<
 /** Admitted immutable setup whose identity is preserved through compilation and execution. */
 export type MapSetup = MapSetupInput & Readonly<{ [admittedMapSetup]: true }>;
 
+/** @internal Reports whether a value crossed the canonical physical setup boundary. */
+export function isMapSetupInternal(input: unknown): input is MapSetup {
+  return typeof input === "object" && input !== null && admittedMapSetups.has(input);
+}
+
 /** @internal Refuses setup-shaped values that did not cross `admitMapSetup`. */
 export function assertMapSetupInternal(setup: MapSetup): void {
   if (!admittedMapSetups.has(setup)) {

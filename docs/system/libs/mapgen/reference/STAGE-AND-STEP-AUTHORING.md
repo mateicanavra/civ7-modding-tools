@@ -26,6 +26,8 @@ A step contract defines:
 - `requires` / `provides` tags (validated)
 - optional `artifacts` requires/provides (preferred over mixing artifact tags into requires/provides)
 - optional `engine` method keys (an exact occurrence-scoped adapter capability set)
+- optional recipe-owned `initialSetup` authority (grants immutable `deps.initialSetup` only to that
+  step and must match the recipe's exact authority)
 - optional `ops` decl (op contracts used by the step, with schema-enveloped strategies)
 - optional additive `schema` for genuine step-local authored fields
 

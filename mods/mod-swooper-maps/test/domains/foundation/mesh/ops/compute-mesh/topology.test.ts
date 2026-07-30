@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import foundation from "@mapgen/domain/foundation/router";
-import { deriveStepSeed } from "@swooper/mapgen-core";
-import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
+import { deriveTestOperationSeed, TEST_MAP_SIZE } from "../../../../../setup.js";
 
 const { computeMesh } = foundation.mesh.ops;
 const PLATE_COUNT = 12;
@@ -23,7 +22,7 @@ function generateMesh() {
     {
       width,
       height,
-      rngSeed: deriveStepSeed(TEST_MAP_SEED, "test:foundation:mesh-topology"),
+      rngSeed: deriveTestOperationSeed("test:foundation:mesh-topology"),
     },
     config
   ).mesh;

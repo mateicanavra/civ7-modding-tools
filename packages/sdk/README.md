@@ -200,6 +200,45 @@ const builder = new UnitBuilder({
 });
 ```
 
+## Map Generation Runtime
+
+Map-loader entries opt into the Civ7 runtime through the ESM-only
+`@mateicanavra/civ7-sdk/mapgen` subpath. A recipe with product-owned initial
+state must declare the exact generated Civ7 option descriptors it needs and
+provide a projector from the detached one-shot capture into its inferred setup
+input:
+
+```typescript
+import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
+
+createMap({
+  id: "my-map",
+  name: "My Map",
+  recipe,
+  config,
+  initialSetup: {
+    requestedMapOptions,
+    requestedGameOptions,
+    requestedPlayerOptions,
+    project: projectInitialSetup,
+  },
+});
+```
+
+The requested arrays contain the generated Civ7 setup-option descriptors from
+`@civ7/map-policy/setup`, not manually maintained configuration-key strings.
+Evidence remains keyed by the authored parameter ID while the adapter uses each
+descriptor's admitted physical read key. Player evidence contains one row per
+alive-major player in the engine's observed order and never invents unavailable
+leader, civilization, team, difficulty, or memento values.
+
+The SDK compiles the recipe before constructing its execution context, then
+inspects its exact admitted initial setup and behavior fingerprint, emits that
+plan evidence, and executes the same compiled plan. Failed compilation emits no
+run evidence. Recipes that use only Core's physical map setup may omit
+`initialSetup`; the SDK projects map seed, dimensions, and latitude bounds
+directly.
+
 ## API Reference
 
 For detailed API documentation, see:

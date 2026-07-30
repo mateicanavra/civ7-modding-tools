@@ -7,7 +7,12 @@
 
 import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { StandardMapConfigEnvelope } from "../configs/canonical.js";
-import standardRecipe from "../../recipes/standard/recipe.js";
+import standardRecipe, {
+  projectStandardInitialSetup,
+  STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
+  STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
+  STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
+} from "../../recipes/standard/recipe.js";
 
 // The file plan only receives an admitted immutable envelope; this assertion
 // projects its serialized data without adding a second runtime admission path.
@@ -1287,8 +1292,7 @@ const mapConfig = {
             "rankingBlend": 0.86,
             "fairnessTolerance": 0.3,
             "coastalPreferenceWeight": 0,
-            "riverPreferenceWeight": 0,
-            "startBiasWeight": 1
+            "riverPreferenceWeight": 0
           }
         }
       },
@@ -1345,7 +1349,13 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "sundered-archipelago",
-  configHash: "451f2eb733f2d8a03dd047001ca203be829795584cee85ecb7a3c9c0e3f94426",
-  envelopeHash: "aa9269ed59443ee7ae28a8016d9e64b6e68eaaf2ce7fe54043a0d652f1a63eac",
+  configHash: "fe212e8ba4f59a06517eef03e046468de2001076e9fd173fadaa4b8b8efb8d98",
+  envelopeHash: "7aacd4ed313353656c706ce2e50d11f61306b6196a02d5d590f7f5075cd4f8dc",
   config: mapConfig.config,
+  initialSetup: {
+    requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
+    requestedGameOptions: STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
+    requestedPlayerOptions: STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
+    project: projectStandardInitialSetup,
+  },
 });

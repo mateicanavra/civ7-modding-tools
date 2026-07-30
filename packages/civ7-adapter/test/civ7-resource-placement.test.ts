@@ -129,6 +129,27 @@ describe("Civ7Adapter resource placement", () => {
     expect(runtime.writeCalls).toEqual([]);
   });
 
+  it("rejects Civ7's no-resource sentinel without consulting the engine", () => {
+    const runtime = installResourceRuntime();
+    const adapter = new Civ7AdapterCtor(SYNTHETIC_WIDTH, SYNTHETIC_HEIGHT);
+
+    const outcome = adapter.placeResourceIntent({
+      plotIndex: 5,
+      resourceType: NO_RESOURCE,
+    });
+
+    expect(outcome).toEqual({
+      status: "rejected",
+      plotIndex: 5,
+      x: 1,
+      y: 1,
+      resourceType: NO_RESOURCE,
+      reason: "invalid-resource-type",
+    });
+    expect(runtime.feasibilityCalls).toEqual([]);
+    expect(runtime.writeCalls).toEqual([]);
+  });
+
   it("returns fail-hard mismatch evidence when engine readback reports the wrong resource", () => {
     const runtime = installResourceRuntime(NO_RESOURCE);
     const adapter = new Civ7AdapterCtor(SYNTHETIC_WIDTH, SYNTHETIC_HEIGHT);

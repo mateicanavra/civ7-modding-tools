@@ -1,14 +1,11 @@
 import { describe, expect, it, spyOn } from "bun:test";
 
-import {
-  createMockAdapter as createBaseMockAdapter,
-  type MockAdapterConfig,
-  type NaturalWonderPlacementOutcome,
-} from "@civ7/adapter";
+import { createMockAdapter as createBaseMockAdapter, type MockAdapterConfig } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { artifacts as placementWonderArtifacts } from "@mapgen/domain/placement/modules/wonders/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { type ArtifactValueOf } from "@swooper/mapgen-core/authoring";
+import { decodeBoundedJsonLogSeries } from "@swooper/mapgen-core/lib/log";
 import {
   buildStepTestDependencies,
   publishTestArtifact,
@@ -26,134 +23,6 @@ type NaturalWonderPlan = ArtifactValueOf<typeof placementWonderArtifacts.natural
 type TerrainBackedMockAdapterConfig = Omit<MockAdapterConfig, "defaultTerrainType"> &
   Readonly<{ defaultTerrainName: "TERRAIN_FLAT" | "TERRAIN_HILL" | "TERRAIN_MOUNTAIN" }>;
 type Dimensions = Readonly<{ width: number; height: number }>;
-type NaturalWonderAttemptIdentity = Readonly<{
-  plotIndex: number;
-  x: number;
-  y: number;
-  featureType: number;
-  direction: number;
-  elevation: number | undefined;
-}>;
-type InvalidAdapterOutcomeCase = Readonly<{
-  description: string;
-  expectedError: RegExp;
-  buildOutcome: (identity: NaturalWonderAttemptIdentity, noFeature: number) => unknown;
-}>;
-
-const INVALID_ADAPTER_OUTCOME_CASES = [
-  {
-    description: "unknown outcome statuses",
-    expectedError: /returned unknown outcome status/,
-    buildOutcome: (identity) => ({
-      status: "not-an-admitted-status",
-      ...identity,
-    }),
-  },
-  {
-    description: "placed outcomes without elevation",
-    expectedError: /returned placed outcome without finite elevation/,
-    buildOutcome: ({ elevation: _elevation, ...identity }) => ({
-      status: "placed",
-      ...identity,
-    }),
-  },
-  {
-    description: "placed outcomes with non-finite elevation",
-    expectedError: /returned placed outcome without finite elevation/,
-    buildOutcome: (identity) => ({
-      status: "placed",
-      ...identity,
-      elevation: Number.NaN,
-    }),
-  },
-  {
-    description: "unknown rejection reasons",
-    expectedError: /returned unknown rejection reason/,
-    buildOutcome: (identity) => ({
-      status: "rejected",
-      ...identity,
-      reason: "not-an-admitted-reason",
-    }),
-  },
-  {
-    description: "unpaired observed rejection identity",
-    expectedError: /returned incomplete observed rejection identity/,
-    buildOutcome: (identity, noFeature) => ({
-      status: "rejected",
-      ...identity,
-      reason: "can-have-feature-param-false",
-      observedFeatureType: noFeature,
-    }),
-  },
-  {
-    description: "footprint evidence on a non-readback rejection",
-    expectedError: /attached footprint readback evidence to non-readback rejection/,
-    buildOutcome: (identity, noFeature) => ({
-      status: "rejected",
-      ...identity,
-      reason: "can-have-feature-param-false",
-      expectedFootprintReadback: [
-        { plotIndex: identity.plotIndex, observedFeatureType: noFeature },
-      ],
-      expectedFootprintReadbackStatus: "empty-expected-footprint",
-    }),
-  },
-  {
-    description: "observed identity on an unsupported-footprint rejection",
-    expectedError: /attached observed rejection identity to unsupported-footprint/,
-    buildOutcome: (identity, noFeature) => ({
-      status: "rejected",
-      ...identity,
-      reason: "unsupported-footprint",
-      observedFeatureType: noFeature,
-      observedPlotIndex: identity.plotIndex,
-    }),
-  },
-  {
-    description: "incomplete readback-mismatch evidence",
-    expectedError: /returned readback mismatch without complete footprint evidence/,
-    buildOutcome: (identity, noFeature) => ({
-      status: "rejected",
-      ...identity,
-      reason: "readback-mismatch",
-      observedFeatureType: noFeature,
-      observedPlotIndex: identity.plotIndex,
-      expectedFootprintReadback: [],
-      expectedFootprintReadbackStatus: "empty-expected-footprint",
-    }),
-  },
-  {
-    description: "readback identity inconsistent with its footprint",
-    expectedError:
-      /returned readback mismatch whose observed cell contradicts its footprint evidence/,
-    buildOutcome: (identity, noFeature) => ({
-      status: "rejected",
-      ...identity,
-      reason: "readback-mismatch",
-      observedFeatureType: noFeature,
-      observedPlotIndex: identity.plotIndex + 1,
-      expectedFootprintReadback: [
-        { plotIndex: identity.plotIndex, observedFeatureType: noFeature },
-      ],
-      expectedFootprintReadbackStatus: "empty-expected-footprint",
-    }),
-  },
-  {
-    description: "readback status inconsistent with its footprint",
-    expectedError: /returned readback mismatch with contradictory footprint status/,
-    buildOutcome: (identity, noFeature) => ({
-      status: "rejected",
-      ...identity,
-      reason: "readback-mismatch",
-      observedFeatureType: noFeature,
-      observedPlotIndex: identity.plotIndex,
-      expectedFootprintReadback: [
-        { plotIndex: identity.plotIndex, observedFeatureType: noFeature },
-      ],
-      expectedFootprintReadbackStatus: "partial-expected-footprint",
-    }),
-  },
-] as const satisfies readonly InvalidAdapterOutcomeCase[];
 
 function createTerrainBackedAdapter(config: TerrainBackedMockAdapterConfig) {
   const { defaultTerrainName, ...adapterConfig } = config;
@@ -359,6 +228,9 @@ describe("natural wonder placement materialization", () => {
       defaultTerrainName: "TERRAIN_FLAT",
     });
     adapter.placeNaturalWonder = (x, y, featureType, direction, elevation) => {
+      if (elevation === undefined) {
+        throw new Error("Readback-mismatch fixture requires the planned wonder elevation.");
+      }
       for (const plotIndex of [17, 18]) {
         const fy = Math.trunc(plotIndex / adapter.width);
         const fx = plotIndex - fy * adapter.width;
@@ -436,7 +308,7 @@ describe("natural wonder placement materialization", () => {
     adapter.placeNaturalWonder = (x, y, featureType, direction, elevation) => {
       const plotIndex = y * adapter.width + x;
       attemptedPlotIndices.push(plotIndex);
-      return {
+      const rejected = {
         status: "rejected",
         plotIndex,
         x,
@@ -444,11 +316,10 @@ describe("natural wonder placement materialization", () => {
         featureType,
         direction,
         elevation,
-        reason:
-          plotIndex === terminalFallbackPlotIndex
-            ? "set-feature-false"
-            : "can-have-feature-param-false",
-      };
+      } as const;
+      return plotIndex === terminalFallbackPlotIndex
+        ? { ...rejected, reason: "set-feature-false" }
+        : { ...rejected, reason: "can-have-feature-param-false" };
     };
     const plan = oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, primaryPlotIndex, dimensions);
     plan.placements[0]!.fallbacks = [
@@ -484,10 +355,14 @@ describe("natural wonder placement materialization", () => {
       expect(String(log.mock.calls[0]?.[0])).toContain(
         `feature=${featureTypes.FEATURE_KILIMANJARO} plot=${primaryPlotIndex}`
       );
-      expect(String(log.mock.calls[0]?.[0])).toContain(`"rejectedRows":[["r",${primaryPlotIndex},`);
-      expect(String(log.mock.calls[0]?.[0])).not.toContain(
-        `"rejectedRows":[["r",${terminalFallbackPlotIndex},`
-      );
+      const placementPayload = decodeBoundedJsonLogSeries(
+        log.mock.calls.map((call) => String(call[0])),
+        "NATURAL_WONDER_PLACEMENT_V1"
+      ).at(-1)?.payload as { rejectedRows?: readonly (readonly unknown[])[] } | undefined;
+      expect(placementPayload?.rejectedRows?.[0]?.[1]).toBe(primaryPlotIndex);
+      expect(
+        placementPayload?.rejectedRows?.some((row) => row[1] === terminalFallbackPlotIndex)
+      ).toBe(false);
     } finally {
       log.mockRestore();
     }
@@ -522,77 +397,4 @@ describe("natural wonder placement materialization", () => {
       },
     });
   });
-
-  it("fails adapter identity drift before terminal evidence escapes", () => {
-    const dimensions = TEST_MAP_SIZE.dimensions;
-    const anchorPlotIndex = interiorPlotIndex(dimensions);
-    const adapter = createTerrainBackedAdapter({
-      ...dimensions,
-      mapInfo: TEST_MAP_SIZE.mapInfo,
-      mapSizeId: TEST_MAP_SIZE.id,
-      defaultBiomeType: biomeGlobals.BIOME_PLAINS,
-      defaultTerrainName: "TERRAIN_MOUNTAIN",
-    });
-    adapter.placeNaturalWonder = (x, y, featureType, direction, elevation) => ({
-      status: "placed",
-      plotIndex: y * adapter.width + x + 1,
-      x,
-      y,
-      featureType,
-      direction,
-      elevation: elevation ?? 0,
-    });
-    const log = spyOn(console, "log").mockImplementation(() => {});
-
-    try {
-      expect(() =>
-        executeNaturalWonderStep(
-          adapter,
-          oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, anchorPlotIndex, dimensions)
-        )
-      ).toThrow(/outcome drifted from planner identity/);
-      expect(log).not.toHaveBeenCalled();
-    } finally {
-      log.mockRestore();
-    }
-  });
-
-  for (const invalidOutcome of INVALID_ADAPTER_OUTCOME_CASES) {
-    it(`rejects ${invalidOutcome.description} before terminal evidence escapes`, () => {
-      const dimensions = TEST_MAP_SIZE.dimensions;
-      const anchorPlotIndex = interiorPlotIndex(dimensions);
-      const adapter = createTerrainBackedAdapter({
-        ...dimensions,
-        mapInfo: TEST_MAP_SIZE.mapInfo,
-        mapSizeId: TEST_MAP_SIZE.id,
-        defaultBiomeType: biomeGlobals.BIOME_PLAINS,
-        defaultTerrainName: "TERRAIN_MOUNTAIN",
-      });
-      adapter.placeNaturalWonder = (x, y, featureType, direction, elevation) =>
-        invalidOutcome.buildOutcome(
-          {
-            plotIndex: y * adapter.width + x,
-            x,
-            y,
-            featureType,
-            direction,
-            elevation,
-          },
-          adapter.NO_FEATURE
-        ) as NaturalWonderPlacementOutcome;
-      const log = spyOn(console, "log").mockImplementation(() => {});
-
-      try {
-        expect(() =>
-          executeNaturalWonderStep(
-            adapter,
-            oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, anchorPlotIndex, dimensions)
-          )
-        ).toThrow(invalidOutcome.expectedError);
-        expect(log).not.toHaveBeenCalled();
-      } finally {
-        log.mockRestore();
-      }
-    });
-  }
 });

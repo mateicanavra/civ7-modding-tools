@@ -324,10 +324,11 @@ describe("useSetupControls — E4a header view-model + setup intents (the contai
   // against the pure-helper composition the deleted component performed.
   function applyIntent(
     invoke: (r: ReturnType<typeof setup>["result"]) => void,
-    base: Civ7StudioSetupConfig
+    base: Civ7StudioSetupConfig,
+    over: Partial<UseSetupControlsArgs> = {}
   ): Civ7StudioSetupConfig {
     const setSetupConfig = vi.fn<UseSetupControlsArgs["setSetupConfig"]>();
-    const harness = setup({ setupConfig: base, setSetupConfig });
+    const harness = setup({ ...over, setupConfig: base, setSetupConfig });
     invoke(harness.result);
     expect(setSetupConfig).toHaveBeenCalledTimes(1);
     const updater = setSetupConfig.mock.calls[0]?.[0];
@@ -370,6 +371,99 @@ describe("useSetupControls — E4a header view-model + setup intents (the contai
       applyIntent((r) => r.current.handleGameSpeedChange("GAMESPEED_ONLINE"), base).gameOptions
         .GameSpeeds
     ).toBe("GAMESPEED_ONLINE");
+  });
+
+  it("projects and edits the observed local player when Civ7 reports a nonzero identity", () => {
+    const localPlayerId = 3;
+    const base: Civ7StudioSetupConfig = {
+      gameOptions: {},
+      mapOptions: {},
+      playerOptions: [
+        {
+          playerId: 0,
+          options: {
+            PlayerLeader: "LEADER_HARRIET_TUBMAN",
+            PlayerCivilization: "CIVILIZATION_AMERICA",
+          },
+        },
+        {
+          playerId: localPlayerId,
+          options: {
+            PlayerLeader: "LEADER_ASHOKA",
+            PlayerCivilization: "CIVILIZATION_INDIA_MAURYA",
+            PlayerDifficulty: "DIFFICULTY_KING",
+          },
+        },
+      ],
+    };
+    const liveSetup = {
+      status: "ok" as const,
+      setup: {
+        parameters: [],
+        players: [
+          { playerId: 0, parameters: [] },
+          { playerId: localPlayerId, parameters: [] },
+        ],
+        localPlayerId,
+      },
+    } satisfies UseSetupControlsArgs["liveSetup"];
+    const { result } = setup({ setupConfig: base, liveSetup });
+
+    expect(result.current.headerSetupState).toEqual({
+      savedConfig: null,
+      leaderId: "LEADER_ASHOKA",
+      civilizationId: "CIVILIZATION_INDIA_MAURYA",
+      difficultyId: "DIFFICULTY_KING",
+      gameSpeedId: "",
+    });
+
+    const next = applyIntent((hook) => hook.current.handleLeaderChange("LEADER_AMINA"), base, {
+      liveSetup,
+    });
+    expect(next.playerOptions.find(({ playerId }) => playerId === 0)?.options.PlayerLeader).toBe(
+      "LEADER_HARRIET_TUBMAN"
+    );
+    expect(
+      next.playerOptions.find(({ playerId }) => playerId === localPlayerId)?.options.PlayerLeader
+    ).toBe("LEADER_AMINA");
+  });
+
+  it("does not borrow another player's option domain when the observed local row is absent", () => {
+    const localPlayerId = 3;
+    const liveSetup = {
+      status: "ok" as const,
+      setup: {
+        parameters: [],
+        players: [
+          {
+            playerId: 0,
+            parameters: [
+              {
+                id: "PlayerLeader",
+                exists: true,
+                possibleValues: [{ value: "LEADER_HARRIET_TUBMAN" }],
+              },
+            ],
+          },
+        ],
+        localPlayerId,
+      },
+    } satisfies UseSetupControlsArgs["liveSetup"];
+    const setupConfig: Civ7StudioSetupConfig = {
+      gameOptions: {},
+      mapOptions: {},
+      playerOptions: [{ playerId: localPlayerId, options: { PlayerLeader: "LEADER_ASHOKA" } }],
+    };
+
+    const { result } = setup({ liveSetup, setupConfig });
+
+    expect(result.current.setupControlOptions.leaderOptions).toContainEqual({
+      value: "LEADER_ASHOKA",
+      label: "Ashoka",
+    });
+    expect(result.current.setupControlOptions.leaderOptions).not.toContainEqual(
+      expect.objectContaining({ value: "LEADER_HARRIET_TUBMAN" })
+    );
   });
 });
 
@@ -501,6 +595,22 @@ describe("useSetupControls — SC-6 (handleExplore busy-gate + re-entrant guard,
     });
     expect(exploreRpc).toHaveBeenCalledWith({ playerId: 0 });
     expect(result.current.exploreActionRunning).toBe(false);
+  });
+
+  it("targets the observed local player when revealing the live map", async () => {
+    exploreRpc.mockResolvedValue({ ...EXPLORE_ALREADY_VISIBLE_RESULT, playerId: 3 });
+    const { result } = setup({
+      liveSetup: {
+        status: "ok",
+        setup: { parameters: [], players: [{ playerId: 3, parameters: [] }], localPlayerId: 3 },
+      },
+    });
+
+    await act(async () => {
+      await result.current.handleExplore();
+    });
+
+    expect(exploreRpc).toHaveBeenCalledWith({ playerId: 3 });
   });
 
   it("catches a thrown RPC, toasts an error, and still clears the in-flight flag (try/finally)", async () => {

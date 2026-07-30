@@ -1,18 +1,12 @@
 import { describe, expect, it } from "bun:test";
-import { admitMapSetup } from "@swooper/mapgen-core";
 
 import standardRecipe from "../../../../../../../../../src/recipes/standard/recipe.js";
-import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../../setup.js";
 import {
   createStandardRecipeTestConfig,
-  standardMapConfig,
+  createStandardRecipeTestInitialSetup,
 } from "../../../../../../fixtures/standard-recipe.js";
 
-const setup = admitMapSetup({
-  mapSeed: TEST_MAP_SEED,
-  dimensions: TEST_MAP_SIZE.dimensions,
-  latitudeBounds: standardMapConfig.latitudeBounds,
-});
+const setup = createStandardRecipeTestInitialSetup();
 
 function normalizeDryness(dryness: "wet" | "mix") {
   const recipeConfig = createStandardRecipeTestConfig();

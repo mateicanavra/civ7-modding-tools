@@ -4,6 +4,7 @@ import { defineStandardMetricCohortStudy, requireNonEmptyMetricStudyValues } fro
 import {
   SHIPPED_STANDARD_CONFIGURATIONS,
   STANDARD_METRIC_PRESETS,
+  standardMetricScenarioIdentity,
   standardProductMetricScenario,
 } from "../scenarios.js";
 
@@ -14,8 +15,12 @@ export const SHIPPED_GEOGRAPHY_STUDY = defineStandardMetricCohortStudy(
   "shipped/geography",
   requireNonEmptyMetricStudyValues(
     SHIPPED_STANDARD_CONFIGURATIONS.flatMap(({ config }) =>
-      SHIPPED_GEOGRAPHY_SEEDS.map((seed) =>
-        standardProductMetricScenario(config, STANDARD_METRIC_PRESETS.huge, seed)
+      SHIPPED_GEOGRAPHY_SEEDS.map((mapSeed) =>
+        standardProductMetricScenario(
+          config,
+          STANDARD_METRIC_PRESETS.huge,
+          standardMetricScenarioIdentity(STANDARD_METRIC_PRESETS.huge, mapSeed, mapSeed)
+        )
       )
     ),
     "shipped geography scenarios"

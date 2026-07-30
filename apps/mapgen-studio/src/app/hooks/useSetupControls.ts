@@ -137,8 +137,11 @@ function adoptSavedSeed(
  * "" = unset throughout. Pure + exported so the markup-pin test composes the
  * REAL derivation with the package AppHeader.
  */
-export function deriveAppHeaderSetupState(config: Civ7StudioSetupConfig): AppHeaderSetupState {
-  const localPlayerSetup = getLocalPlayerSetup(config);
+export function deriveAppHeaderSetupState(
+  config: Civ7StudioSetupConfig,
+  localPlayerId = 0
+): AppHeaderSetupState {
+  const localPlayerSetup = getLocalPlayerSetup(config, localPlayerId);
   return {
     savedConfig: config.savedConfig
       ? { id: config.savedConfig.id, displayName: config.savedConfig.displayName }
@@ -207,16 +210,14 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
 
   const [autoplayActionRunning, setAutoplayActionRunning] = useState(false);
   const [exploreActionRunning, setExploreActionRunning] = useState(false);
+  const localPlayerId = liveSetup.setup?.localPlayerId ?? 0;
 
   const setupControlOptions = useMemo(() => {
     const setup = liveSetup.setup;
     const parameters = setup?.parameters ?? [];
-    const localPlayerId = setup?.localPlayerId ?? getLocalPlayerSetup(setupConfig).playerId;
     const playerParameters =
-      setup?.players.find((player) => player.playerId === localPlayerId)?.parameters ??
-      setup?.players[0]?.parameters ??
-      [];
-    const localPlayer = getLocalPlayerSetup(setupConfig);
+      setup?.players.find((player) => player.playerId === localPlayerId)?.parameters ?? [];
+    const localPlayer = getLocalPlayerSetup(setupConfig, localPlayerId);
     const gameOptions = setupConfig.gameOptions;
     const playerOptions = localPlayer.options;
     const savedConfigOptions = [
@@ -271,6 +272,7 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
     };
   }, [
     liveSetup.setup,
+    localPlayerId,
     savedSetupConfigs.configurations,
     savedSetupConfigs.status,
     setupCatalog.catalog,
@@ -330,18 +332,23 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
   const handleLeaderChange = useCallback(
     (value: string) => {
       setSetupConfig((current) =>
-        updateStudioSetupPlayerOption(current, "PlayerLeader", value || undefined)
+        updateStudioSetupPlayerOption(current, "PlayerLeader", value || undefined, localPlayerId)
       );
     },
-    [setSetupConfig]
+    [localPlayerId, setSetupConfig]
   );
   const handleCivilizationChange = useCallback(
     (value: string) => {
       setSetupConfig((current) =>
-        updateStudioSetupPlayerOption(current, "PlayerCivilization", value || undefined)
+        updateStudioSetupPlayerOption(
+          current,
+          "PlayerCivilization",
+          value || undefined,
+          localPlayerId
+        )
       );
     },
-    [setSetupConfig]
+    [localPlayerId, setSetupConfig]
   );
   // The difficulty DOUBLE-WRITE (pre-redesign AppHeader.tsx:92-97): one state
   // update writing game `Difficulty` and player `PlayerDifficulty` together —
@@ -352,11 +359,12 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
         updateStudioSetupPlayerOption(
           updateStudioSetupGameOption(current, "Difficulty", value || undefined),
           "PlayerDifficulty",
-          value || undefined
+          value || undefined,
+          localPlayerId
         )
       );
     },
-    [setSetupConfig]
+    [localPlayerId, setSetupConfig]
   );
   const handleGameSpeedChange = useCallback(
     (value: string) => {
@@ -367,7 +375,10 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
     [setSetupConfig]
   );
 
-  const headerSetupState = useMemo(() => deriveAppHeaderSetupState(setupConfig), [setupConfig]);
+  const headerSetupState = useMemo(
+    () => deriveAppHeaderSetupState(setupConfig, localPlayerId),
+    [localPlayerId, setupConfig]
+  );
 
   const handleToggleAutoplay = useCallback(async () => {
     if (autoplayActionRunning) {
@@ -423,7 +434,7 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
    * Explore (reveal the map) in the live game via the canonical
    * `display.explore.request` control procedure — the studio's map-QA verb.
    * The grant stays held (fog does not re-cover) for a disposable studio
-   * session; player 0 is the canonical local player, matching the CLI.
+   * session; the observed local-player identity is used when Civ7 supplies one.
    */
   const handleExplore = useCallback(async () => {
     if (exploreActionRunning) {
@@ -442,7 +453,7 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
     }
     setExploreActionRunning(true);
     try {
-      const result = await liveControlPort.display.explore.request({ playerId: 0 });
+      const result = await liveControlPort.display.explore.request({ playerId: localPlayerId });
       toast(
         result.classification === "already-explored"
           ? "Live map already fully revealed"
@@ -456,7 +467,14 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
     } finally {
       setExploreActionRunning(false);
     }
-  }, [browserRunning, exploreActionRunning, runInGameRunning, saveDeployRunning, toast]);
+  }, [
+    browserRunning,
+    exploreActionRunning,
+    localPlayerId,
+    runInGameRunning,
+    saveDeployRunning,
+    toast,
+  ]);
 
   return {
     setupControlOptions,

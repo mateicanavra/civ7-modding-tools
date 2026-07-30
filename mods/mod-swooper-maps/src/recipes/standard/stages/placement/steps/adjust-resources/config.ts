@@ -6,6 +6,7 @@ import { artifacts as resourceDemandArtifacts } from "@mapgen/domain/resources/m
 import { artifacts as resourceSiteArtifacts } from "@mapgen/domain/resources/modules/sites/artifacts/index.js";
 import { artifacts as resourceSupportArtifacts } from "@mapgen/domain/resources/modules/support/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
+import { STANDARD_INITIAL_SETUP } from "../../../../initial-setup.js";
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 
 /**
@@ -14,6 +15,7 @@ import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
  */
 export const config = defineStep({
   id: "adjust-resources",
+  initialSetup: STANDARD_INITIAL_SETUP,
   engine: ["emitRuntimeWarning"] as const,
   requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned],
   provides: [],

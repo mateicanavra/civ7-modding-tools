@@ -55,14 +55,12 @@ type StandardStartSpreadMeasurement = Readonly<{
  */
 export type StandardPlacementMetrics = Readonly<{
   discoveryGeneration: StandardMapCapture["projection"]["discoveryGeneration"];
-  expectedPlayers: number;
-  aliveMajorCount: number;
+  requestedPlayerCount: number;
   assigned: number;
   unseatedCount: number;
   missingAlivePlayerCount: number;
   unexpectedPlayerCount: number;
   duplicatePlayerCount: number;
-  slotIndexPlayerCount: number;
   illegalStarts: CountMetric;
   startsOnWater: CountMetric;
   startsOnLakes: CountMetric;
@@ -255,8 +253,7 @@ export function measureStandardPlacement(capture: StandardMapCapture): StandardP
 
   return Object.freeze({
     discoveryGeneration: capture.projection.discoveryGeneration,
-    expectedPlayers: capture.provenance.playerCount,
-    aliveMajorCount: capture.placement.aliveMajorIds.length,
+    requestedPlayerCount: capture.placement.aliveMajorIds.length,
     assigned: capture.placement.assigned,
     unseatedCount: capture.placement.unseatedCount,
     missingAlivePlayerCount: capture.placement.aliveMajorIds.filter(
@@ -266,7 +263,6 @@ export function measureStandardPlacement(capture: StandardMapCapture): StandardP
       (playerId) => !alivePlayers.has(playerId)
     ).length,
     duplicatePlayerCount: seatedPlayerIds.length - uniqueSeatedPlayers.size,
-    slotIndexPlayerCount: seats.filter((seat) => seat.playerIdSource === "slot-index").length,
     illegalStarts: measureMetricCount(illegalCount, seats.length),
     startsOnWater: measureMetricCount(waterCount, seats.length),
     startsOnLakes: measureMetricCount(lakeCount, seats.length),

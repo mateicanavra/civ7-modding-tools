@@ -3,6 +3,37 @@ import { describe, expect, it } from "bun:test";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 
 import { createMockAdapter } from "../src/mock-adapter.js";
+import type { NaturalWonderPlacementOutcome } from "../src/types.js";
+
+const unobservedLegalityRejection = {
+  status: "rejected",
+  plotIndex: 9,
+  x: 1,
+  y: 2,
+  featureType: 35,
+  direction: 0,
+  reason: "can-have-feature-param-false",
+} as const satisfies NaturalWonderPlacementOutcome;
+const observedLegalityRejection = {
+  ...unobservedLegalityRejection,
+  observedFeatureType: -1,
+  observedPlotIndex: 13,
+} as const satisfies NaturalWonderPlacementOutcome;
+// @ts-expect-error Observed natural-wonder rejection identity is an all-or-nothing pair.
+const incompleteObservedLegalityRejection: NaturalWonderPlacementOutcome = {
+  ...unobservedLegalityRejection,
+  observedFeatureType: -1,
+};
+const emptyFootprintReadback: NaturalWonderPlacementOutcome = {
+  ...observedLegalityRejection,
+  elevation: 120,
+  reason: "readback-mismatch",
+  // @ts-expect-error Readback mismatch evidence must identify at least one footprint cell.
+  expectedFootprintReadback: [],
+  expectedFootprintReadbackStatus: "empty-expected-footprint",
+};
+void incompleteObservedLegalityRejection;
+void emptyFootprintReadback;
 
 /**
  * Adapter outcome tests live at the adapter boundary by design.
@@ -74,6 +105,25 @@ describe("typed placement outcomes", () => {
     expect(adapter.calls.setResourceType.length).toBe(0);
   });
 
+  it("rejects the mock adapter's no-resource sentinel as an invalid resource type", () => {
+    const adapter = createMockAdapter({ width: 4, height: 3 });
+
+    const outcome = adapter.placeResourceIntent({
+      plotIndex: 5,
+      resourceType: adapter.NO_RESOURCE,
+    });
+
+    expect(outcome).toEqual({
+      status: "rejected",
+      plotIndex: 5,
+      x: 1,
+      y: 1,
+      resourceType: adapter.NO_RESOURCE,
+      reason: "invalid-resource-type",
+    });
+    expect(adapter.calls.setResourceType).toEqual([]);
+  });
+
   it("returns mismatch evidence when mock readback differs from the stamped resource", () => {
     const adapter = createMockAdapter({
       width: 4,
@@ -131,6 +181,53 @@ describe("typed placement outcomes", () => {
     });
   });
 
+  it("rejects a natural-wonder anchor whose footprint crosses the mock map boundary", () => {
+    const adapter = createMockAdapter({
+      width: 4,
+      height: 6,
+      defaultBiomeType: CIV7_BROWSER_TABLES_V0.biomeGlobals.BIOME_GRASSLAND,
+      defaultTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_FLAT,
+    });
+    const featureType = CIV7_BROWSER_TABLES_V0.featureTypes.FEATURE_REDWOOD_FOREST;
+
+    const outcome = adapter.placeNaturalWonder(1, 5, featureType, 0, 120);
+
+    expect(outcome).toEqual({
+      status: "rejected",
+      plotIndex: 21,
+      x: 1,
+      y: 5,
+      featureType,
+      direction: 0,
+      reason: "unsupported-footprint",
+    });
+  });
+
+  it("identifies the exact footprint cell rejected by mock natural-wonder legality", () => {
+    const adapter = createMockAdapter({
+      width: 4,
+      height: 6,
+      defaultBiomeType: CIV7_BROWSER_TABLES_V0.biomeGlobals.BIOME_GRASSLAND,
+      defaultTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_FLAT,
+      canHaveFeature: (_x, y) => y !== 3,
+    });
+    const featureType = CIV7_BROWSER_TABLES_V0.featureTypes.FEATURE_REDWOOD_FOREST;
+
+    const outcome = adapter.placeNaturalWonder(1, 2, featureType, 0, 120);
+
+    expect(outcome).toEqual({
+      status: "rejected",
+      plotIndex: 9,
+      x: 1,
+      y: 2,
+      featureType,
+      direction: 0,
+      reason: "can-have-feature-param-false",
+      observedFeatureType: adapter.NO_FEATURE,
+      observedPlotIndex: 13,
+    });
+  });
+
   it("rejects a partial natural-wonder write with exact footprint readback", () => {
     const adapter = createMockAdapter({
       width: 4,
@@ -160,7 +257,11 @@ describe("typed placement outcomes", () => {
       observedPlotIndex: 10,
       expectedFootprintReadbackStatus: "partial-expected-footprint",
     });
-    expect(outcome.status === "rejected" ? outcome.expectedFootprintReadback : undefined).toEqual([
+    expect(
+      outcome.status === "rejected" && outcome.reason === "readback-mismatch"
+        ? outcome.expectedFootprintReadback
+        : undefined
+    ).toEqual([
       { plotIndex: 9, observedFeatureType: featureType },
       { plotIndex: 13, observedFeatureType: featureType },
       { plotIndex: 10, observedFeatureType: adapter.NO_FEATURE },

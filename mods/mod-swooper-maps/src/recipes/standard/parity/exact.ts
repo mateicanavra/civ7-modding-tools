@@ -1,6 +1,7 @@
 import { snapshotRunInGameExactAuthorshipEvidence } from "@civ7/studio-contract";
 import { type Static, type TSchema, Type } from "typebox";
 import { Value } from "typebox/value";
+import { STANDARD_INITIAL_SETUP } from "../initial-setup.js";
 import { StandardNaturalWonderPlanInputMeasurementsSchema } from "../metrics/families/placement/natural-wonder-plan-input.js";
 import { StandardPlacementParityMeasurementsSchema } from "../metrics/families/placement-parity.js";
 import type {
@@ -76,6 +77,22 @@ const NaturalWonderPlanEvidenceSchema = Type.Object({
   planRows: Type.Optional(Type.Array(NaturalWonderPlanRowSchema, { maxItems: 16 })),
 });
 const ExactLogPayloadSchema = Type.Object({ payload: Type.Unknown() });
+const RecipePlanEvidenceSchema = Type.Object({
+  recipePlan: Type.Object(
+    {
+      recipeId: Type.Literal("standard"),
+      planFingerprint: Type.String({ pattern: "^[0-9a-f]{64}$" }),
+      initialSetup: Type.Object(
+        {
+          definitionId: Type.Literal(STANDARD_INITIAL_SETUP.id),
+          value: STANDARD_INITIAL_SETUP.schema,
+        },
+        { additionalProperties: false }
+      ),
+    },
+    { additionalProperties: false }
+  ),
+});
 const ResourcePlacementEvidenceSchema = Type.Object({
   stats: Type.Object({
     version: Type.Literal(1),
@@ -121,6 +138,20 @@ export function admitStandardExactParityCapture(value: unknown): StandardExactPa
     status: "admitted",
     capture: {
       authorship: snapshot,
+      recipePlan: {
+        evidence: projectExactProduct(
+          snapshot.log.evidencePayload,
+          RecipePlanEvidenceSchema,
+          "exact-authorship.log.evidence-payload.recipe-plan",
+          ({ recipePlan }) => recipePlan
+        ),
+        completion: projectExactProduct(
+          snapshot.log.completionPayload,
+          RecipePlanEvidenceSchema,
+          "exact-authorship.log.completion-payload.recipe-plan",
+          ({ recipePlan }) => recipePlan
+        ),
+      },
       placementParity: projectExactLogPayload(
         exactLogValue(snapshot, "placementParity"),
         StandardPlacementParityMeasurementsSchema,

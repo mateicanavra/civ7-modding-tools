@@ -1246,8 +1246,7 @@
             "rankingBlend": 0.86,
             "fairnessTolerance": 0.3,
             "coastalPreferenceWeight": 0,
-            "riverPreferenceWeight": 0,
-            "startBiasWeight": 1
+            "riverPreferenceWeight": 0
           }
         }
       },

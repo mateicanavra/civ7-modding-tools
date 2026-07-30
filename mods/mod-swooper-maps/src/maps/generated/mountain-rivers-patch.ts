@@ -7,7 +7,12 @@
 
 import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { StandardMapConfigEnvelope } from "../configs/canonical.js";
-import standardRecipe from "../../recipes/standard/recipe.js";
+import standardRecipe, {
+  projectStandardInitialSetup,
+  STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
+  STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
+  STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
+} from "../../recipes/standard/recipe.js";
 
 // The file plan only receives an admitted immutable envelope; this assertion
 // projects its serialized data without adding a second runtime admission path.
@@ -1287,8 +1292,7 @@ const mapConfig = {
             "rankingBlend": 0.86,
             "fairnessTolerance": 0.3,
             "coastalPreferenceWeight": 0,
-            "riverPreferenceWeight": 0,
-            "startBiasWeight": 1
+            "riverPreferenceWeight": 0
           }
         }
       },
@@ -1345,7 +1349,13 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountain-rivers-patch",
-  configHash: "dc9482864053fffcfa850a1a5c1d06d4e851ead586b123f68a7759c075f98213",
-  envelopeHash: "c42cd71f281420a6bea9485176f38d954cb38461e047430085abc984db49ba18",
+  configHash: "d73a892d91cd5aa5a9dc1bf58852adb4f87c250cd7eee1f48a753bbf6b7d61b3",
+  envelopeHash: "9edbfbd718f8e32289fa53abe42004911279436060f368bc84231e27aab9b58e",
   config: mapConfig.config,
+  initialSetup: {
+    requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
+    requestedGameOptions: STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
+    requestedPlayerOptions: STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
+    project: projectStandardInitialSetup,
+  },
 });

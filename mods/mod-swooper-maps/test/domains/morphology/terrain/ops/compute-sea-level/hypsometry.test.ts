@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import morphology from "@mapgen/domain/morphology/router";
-import { deriveStepSeed } from "@swooper/mapgen-core";
-import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
+import { deriveTestOperationSeed, TEST_MAP_SIZE } from "../../../../../setup.js";
 
 const { computeSeaLevel } = morphology.terrain.ops;
 
@@ -29,7 +28,7 @@ describe("compute-sea-level hypsometry", () => {
           crustType,
           boundaryCloseness: new Uint8Array(size),
           upliftPotential: new Uint8Array(size),
-          rngSeed: deriveStepSeed(TEST_MAP_SEED, "test:morphology:sea-level"),
+          rngSeed: deriveTestOperationSeed("test:morphology:sea-level"),
         },
         {
           ...computeSeaLevel.defaultConfig,

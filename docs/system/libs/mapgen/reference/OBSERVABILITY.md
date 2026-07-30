@@ -12,12 +12,14 @@
 Define how MapGen runs can be inspected and debugged deterministically:
 
 - trace sessions (per-step verbosity),
-- reproducible map setup (seed, dimensions, latitude bounds),
+- reproducible recipe initial setup and its projected physical `MapSetup`,
 - and optional viz dump hooks (deck.gl pipeline visualization).
 
 ## Contract (trace + reproducibility)
 
-- Run reproducibility is rooted in immutable `MapSetup` initial conditions.
+- Run reproducibility is rooted in the recipe's complete immutable initial value. Core retains its
+  exact physical `MapSetup`, while product-specific facts such as Standard's game seed, player
+  identities, and option evidence remain part of plan identity.
 - Trace configuration and sinks are explicit execution options, not map setup or product identity.
 - Absence of the trace capability is the only disabled state. A present config emits basic step
   lifecycle events by default, with `steps` overrides selecting `off` or `verbose` per step.

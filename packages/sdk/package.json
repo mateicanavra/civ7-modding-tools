@@ -11,8 +11,7 @@
     },
     "./mapgen": {
       "types": "./dist/mapgen/index.d.ts",
-      "import": "./dist/mapgen/index.js",
-      "require": "./dist/mapgen/index.cjs"
+      "import": "./dist/mapgen/index.js"
     }
   },
   "main": "./dist/index.cjs",
@@ -22,10 +21,11 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts src/mapgen/index.ts --format esm,cjs --dts",
+    "build": "rimraf dist && tsup --config tsup.config.ts",
     "check:test": "tsc -p test/tsconfig.json --noEmit",
+    "check:tools": "tsc -p tsconfig.tools.json --noEmit",
     "clean": "rimraf dist",
-    "dev": "tsup src/index.ts src/mapgen/index.ts --format esm,cjs --dts --watch",
+    "dev": "rimraf dist && tsup --config tsup.config.ts --watch",
     "prepublishOnly": "node -e \"\"",
     "test": "vitest run --project sdk",
     "typecheck": "tsc -p tsconfig.json --noEmit"

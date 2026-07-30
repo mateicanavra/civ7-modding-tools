@@ -76,6 +76,36 @@ describe("Studio authoring-state persistence", () => {
     expect(Object.isFrozen(hydrated?.canonicalConfig.config)).toBe(true);
   });
 
+  it.each([
+    ["MAPSIZE_TINY", 4],
+    ["MAPSIZE_SMALL", 6],
+    ["MAPSIZE_STANDARD", 8],
+    ["MAPSIZE_LARGE", 10],
+    ["MAPSIZE_HUGE", 12],
+  ] as const)("normalizes persisted %s rosters to its %i official start slots", (mapSize, capacity) => {
+    const storage = memoryStorage();
+    saveStudioAuthoringState(
+      {
+        worldSettings: { mapSize, playerCount: 64, resources: "balanced" },
+        seed: "123",
+        gameSeed: "456",
+        setupConfig,
+        canonicalConfig,
+      },
+      storage
+    );
+
+    const serialized = JSON.parse(storage.getItem(STUDIO_AUTHORING_STATE_KEY)!) as {
+      worldSettings: WorldSettings;
+    };
+    expect(serialized.worldSettings.playerCount).toBe(capacity);
+    expect(loadStudioAuthoringState(storage)?.worldSettings).toEqual({
+      mapSize,
+      playerCount: capacity,
+      resources: "balanced",
+    });
+  });
+
   it("migrates one exact valid v3 snapshot once by projecting its seed to both authorities", () => {
     const storage = memoryStorage();
     storage.setItem(

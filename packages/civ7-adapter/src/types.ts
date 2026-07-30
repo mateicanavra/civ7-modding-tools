@@ -7,7 +7,7 @@
 
 /// <reference types="@civ7/types" />
 
-import type { OfficialAgeType } from "@civ7/map-policy";
+import type { Civ7MapInfo, OfficialAgeType } from "@civ7/map-policy";
 import type { FeatureData } from "@civ7/types";
 
 /** Civ7's native feature-placement payload, re-exported for adapter API compatibility. */
@@ -113,30 +113,60 @@ export type NaturalWonderFootprintReadbackStatus =
   | "empty-expected-footprint"
   | "partial-expected-footprint";
 
+type NaturalWonderPlacementIdentity = {
+  plotIndex: number;
+  x: number;
+  y: number;
+  featureType: number;
+  direction: number;
+};
+
+type RejectedNaturalWonderPlacement<Reason extends NaturalWonderPlacementRejectionReason> =
+  NaturalWonderPlacementIdentity & {
+    status: "rejected";
+    elevation?: number;
+    reason: Reason;
+  };
+
+type ObservedNaturalWonderPlacementRejection = {
+  observedFeatureType: number;
+  observedPlotIndex: number;
+};
+
+type UnobservedNaturalWonderPlacementRejection = {
+  observedFeatureType?: never;
+  observedPlotIndex?: never;
+};
+
+type NaturalWonderFootprintReadbackEvidence = readonly [
+  NaturalWonderFootprintReadback,
+  ...NaturalWonderFootprintReadback[],
+];
+
+/**
+ * Adapter-owned result of one natural-wonder placement attempt.
+ *
+ * Each rejection state carries only the identity and readback evidence admitted for that reason,
+ * so recipe consumers can sequence outcomes without reconstructing the provider contract.
+ */
 export type NaturalWonderPlacementOutcome =
-  | {
+  | (NaturalWonderPlacementIdentity & {
       status: "placed";
-      plotIndex: number;
-      x: number;
-      y: number;
-      featureType: number;
-      direction: number;
       elevation: number;
-    }
-  | {
-      status: "rejected";
-      plotIndex: number;
-      x: number;
-      y: number;
-      featureType: number;
-      direction: number;
-      elevation?: number;
-      reason: NaturalWonderPlacementRejectionReason;
-      observedFeatureType?: number;
-      observedPlotIndex?: number;
-      expectedFootprintReadback?: NaturalWonderFootprintReadback[];
-      expectedFootprintReadbackStatus?: NaturalWonderFootprintReadbackStatus;
-    };
+    })
+  | RejectedNaturalWonderPlacement<"out-of-bounds">
+  | RejectedNaturalWonderPlacement<"unsupported-footprint">
+  | RejectedNaturalWonderPlacement<"set-feature-false">
+  | (RejectedNaturalWonderPlacement<"can-have-feature-param-false"> &
+      UnobservedNaturalWonderPlacementRejection)
+  | (RejectedNaturalWonderPlacement<"can-have-feature-param-false"> &
+      ObservedNaturalWonderPlacementRejection)
+  | (RejectedNaturalWonderPlacement<"readback-mismatch"> &
+      ObservedNaturalWonderPlacementRejection & {
+        elevation: number;
+        expectedFootprintReadback: NaturalWonderFootprintReadbackEvidence;
+        expectedFootprintReadbackStatus: NaturalWonderFootprintReadbackStatus;
+      });
 
 /**
  * Map dimensions
@@ -171,24 +201,11 @@ export interface MapInitParams {
 /**
  * Map info row returned by Civ7's `GameInfo.Maps.lookup(mapSizeId)`.
  *
- * Note: Civ7 fields are PascalCase; values may be missing in tests and should be
- * treated as optional by consumers.
+ * The policy package derives the closed column set and field values from Civ7's
+ * official gameplay SQL schema. Runtime lookups and focused test doubles may
+ * expose only a subset, so the adapter boundary makes those generated fields optional.
  */
-export interface MapInfo {
-  // === Map Size Dimensions ===
-  GridWidth?: number;
-  GridHeight?: number;
-  MinLatitude?: number;
-  MaxLatitude?: number;
-  // === Game Setup Parameters ===
-  NumNaturalWonders?: number;
-  LakeGenerationFrequency?: number;
-  PlayersLandmass1?: number;
-  PlayersLandmass2?: number;
-  StartSectorRows?: number;
-  StartSectorCols?: number;
-  [key: string]: unknown;
-}
+export type MapInfo = Partial<Civ7MapInfo>;
 
 /**
  * Adapter readback for deterministic lake projection.

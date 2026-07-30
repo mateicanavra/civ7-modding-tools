@@ -17,7 +17,7 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { PlotRiversStep } from "../../../../../../../src/recipes/standard/stages/hydrology/rivers/steps/plot-rivers/step.js";
-import { TEST_MAP_SIZE } from "../../../../../../setup.js";
+import { TEST_MAP_LATITUDE_BOUNDS, TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../setup.js";
 
 class RiverCacheRefreshAdapter extends MockAdapter {
   private cachedWater: Uint8Array;
@@ -77,21 +77,17 @@ describe("map-rivers/plot-rivers", () => {
     );
 
     const { width, height } = TEST_MAP_SIZE.dimensions;
-    const seed = 9876;
     const setup = admitMapSetup({
-      mapSeed: seed,
+      mapSeed: TEST_MAP_SEED,
       dimensions: TEST_MAP_SIZE.dimensions,
-      latitudeBounds: {
-        topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
-        bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
-      },
+      latitudeBounds: TEST_MAP_LATITUDE_BOUNDS,
     });
 
     const adapter = new RiverCacheRefreshAdapter({
       ...TEST_MAP_SIZE.dimensions,
       mapInfo: TEST_MAP_SIZE.mapInfo,
       mapSizeId: TEST_MAP_SIZE.id,
-      rng: createLabelRng(seed),
+      rng: createLabelRng(TEST_MAP_SEED),
     });
     const context = createMapContext({ setup, adapter });
     const { TERRAIN_FLAT: flatTerrain, TERRAIN_NAVIGABLE_RIVER: navigableRiverTerrain } =

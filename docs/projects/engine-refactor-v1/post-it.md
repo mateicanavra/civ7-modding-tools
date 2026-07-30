@@ -28,13 +28,15 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** finish Placement's operation-test ownership on the
-normalized domain plane. A suite that invokes exactly one domain operation
-belongs beneath that operation, even when its behavior spans many cases; module
-roots remain available only for behavior that genuinely composes multiple
-operations or module capabilities. Moving a suite does not change its oracle:
-controlled synthetic geometry remains valid where geometry itself is the
-subject, while ordinary product runs continue to use Civ7 preset dimensions.
+**Current container:** untangle the complete Placement stage on one normalized
+plane. A real Placement step must add recipe-level orchestration: select exact
+declared inputs, call domain operations or adapter capabilities, publish
+immutable products, or reconcile an engine mutation. Pseudo-steps that merely
+reshape setup, collect several operation configs, duplicate a domain decision,
+or preserve a retired coordination model are deleted at their root rather than
+made prettier inside the closed `config.ts`/`step.ts` shape. Finish the whole
+Placement stage before reopening its test corpus so semantic review occurs
+against one topology, not another hybrid.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -51,11 +53,13 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** relocate start viability beneath
-`starts/ops/plan-starts` and natural-wonder planning beneath
-`wonders/ops/plan-natural-wonders`; preserve their behavior and imports, run the
-two exact suites plus domain-test topology, then seal the layer before opening
-the distinct initial-seat-authority design.
+**Gradient:** read the Placement stage in causal order and classify every step
+by intent before ownership or file shape. Collapse obsolete setup-derivation,
+coordination, and alternate planning paths; push reusable decisions into their
+existing domain operation or Civ7 adapter owner; leave thin materialization and
+observation steps explicit. Regenerate the stage/config consumers, prove the
+complete Placement behavior surface, then audit tests against the normalized
+production plane and delete provider-guarantee or corruption-theater cases.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -90,6 +94,25 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-27 - Exact Standard Initial Setup Authority
+
+One immutable Standard setup now carries distinct map and game seeds, exact
+official-preset or explicit-custom map identity, ordered alive-major player
+identity, and complete available-or-unavailable authored option evidence.
+Generated Civ7 policy owns static setup projections and map metadata; the
+adapter captures runtime values once; Core and the SDK preserve that identity
+through recipe compilation; Studio browser/live flows, metrics, parity, and
+bounded lifecycle markers consume the same plan. Studio constrains rosters to
+official start-slot capacity, lifecycle markers must match completely, and
+fresh Civ7 log extraction is byte-correct.
+
+### 2026-07-26 - Placement Operation Test Ownership
+
+The two Placement suites that invoke one operation now live beneath their exact
+`plan-starts` and `plan-natural-wonders` owners. Their 28 behavior cases and
+controlled topology fixtures are unchanged; module roots remain reserved for
+behavior that composes multiple operation or module capabilities.
 
 ### 2026-07-26 - Natural Wonder Terminal Evidence
 

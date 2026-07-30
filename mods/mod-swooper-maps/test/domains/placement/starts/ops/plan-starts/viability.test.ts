@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import placementDomain from "@mapgen/domain/placement/router";
 import type { Static } from "@swooper/mapgen-core/authoring";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
+import { TEST_GAME_SEED } from "../../../../../setup.js";
 
 const { planStarts } = placementDomain.starts.ops;
 
@@ -43,8 +44,7 @@ function idx(width: number, x: number, y: number): number {
 
 function makeInput(
   dimensions: Readonly<{ width: number; height: number }>,
-  playersLandmass1 = 1,
-  playersLandmass2 = 0
+  playerCount = 1
 ): StartInput {
   const { width, height } = dimensions;
   const size = width * height;
@@ -53,10 +53,8 @@ function makeInput(
   const landmassIdByTile = new Int32Array(size);
   landmassIdByTile.fill(-1);
   return {
-    baseStarts: {
-      playersLandmass1,
-      playersLandmass2,
-    },
+    playerIds: Array.from({ length: playerCount }, (_value, playerId) => playerId),
+    gameSeed: TEST_GAME_SEED,
     width,
     height,
     landMask: new Uint8Array(size),
@@ -107,15 +105,15 @@ function plan(
   return runAdmittedOperationForTest(planStarts, input, selection);
 }
 
-function makeSeatDemandInput(slotCapacity: number, alivePlayerIds?: readonly number[]): StartInput {
-  const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid16x10, slotCapacity, 0);
+function makePlayerDemandInput(playerIds: readonly number[]): StartInput {
+  const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid16x10, playerIds.length);
   addLandmass(
     input,
     0,
     1,
     Array.from({ length: 80 }, (_value, i) => [1 + (i % 10), 1 + Math.floor(i / 10)] as const)
   );
-  if (alivePlayerIds) input.alivePlayerIds = [...alivePlayerIds];
+  input.playerIds = [...playerIds];
   return input;
 }
 
@@ -276,7 +274,7 @@ describe("start viability planning", () => {
 
 describe("start selection ladder (op-owned, S4)", () => {
   it("seats regional players with full status at or above the spacing floor", () => {
-    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid16x10, 2, 0);
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid16x10, 2);
     addLandmass(
       input,
       0,
@@ -300,7 +298,7 @@ describe("start selection ladder (op-owned, S4)", () => {
   });
 
   it("allocates zero players to a homeland with no candidates (capacity allocation pre-empts reassignment)", () => {
-    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid16x10, 1, 1);
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid16x10, 2);
     // All land sits in the west homeland; the east homeland has no land at all.
     // D2 apportions players by capacity, so east receives 0 players up front —
     // both civs seat cleanly in the west with no zero-candidate reassignment.
@@ -332,7 +330,7 @@ describe("start selection ladder (op-owned, S4)", () => {
   });
 
   it("preserves the requested homeland when zero-capacity overflow selects from the other region", () => {
-    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid10x8, 13, 0);
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid10x8, 13);
     addLandmass(
       input,
       0,
@@ -361,7 +359,7 @@ describe("start selection ladder (op-owned, S4)", () => {
   });
 
   it("apportions each homeland a spaceable share by feasibility instead of overloading one (D2)", () => {
-    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid20x10, 0, 2);
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid20x10, 2);
     // East homeland: a compact 3x4 block (12 tiles). West homeland: a larger
     // distant block (36 tiles). The legacy fixed 0/2 split forced both seats
     // into the cramped east block (an open-pool degradation); D2 apportions by
@@ -396,7 +394,7 @@ describe("start selection ladder (op-owned, S4)", () => {
   });
 
   it("degrades over-subscribed seats when a homeland cannot space its forced allocation (degrade-as-data)", () => {
-    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid16x10, 3, 0);
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid16x10, 3);
     // One small 12-tile west homeland, 3 players, 6-tile floor: feasibility caps
     // the homeland near 1 well-spaced start, but every player must still seat
     // (never dropped) — the surplus seats degrade through the ladder.
@@ -422,7 +420,7 @@ describe("start selection ladder (op-owned, S4)", () => {
   });
 
   it("uses the scored quality-relaxed rung before relaxing spacing below the floor", () => {
-    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid12x8, 2, 0);
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid12x8, 2);
     // A 5-tile strip: below every tier admission gate (marginal needs 6
     // contiguous at marginalLandRatio 0.5) but still settleable land.
     addLandmass(input, 0, 1, [
@@ -451,7 +449,7 @@ describe("start selection ladder (op-owned, S4)", () => {
   });
 
   it("spacing-relaxed last resort stays scored, goes below the floor only when forced, and never throws", () => {
-    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid8x6, 3, 0);
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid8x6, 3);
     // Three settleable tiles in a tight cluster: floor 2 cannot hold 3 seats.
     addLandmass(input, 0, 1, [
       [2, 2],
@@ -480,7 +478,7 @@ describe("start selection ladder (op-owned, S4)", () => {
   });
 
   it("records unseated players as degraded data instead of throwing on an exhausted map", () => {
-    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid8x6, 3, 0);
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid8x6, 3);
     // Two settleable tiles for three seats: one seat must remain unseated.
     addLandmass(input, 0, 1, [
       [2, 2],
@@ -502,7 +500,7 @@ describe("start selection ladder (op-owned, S4)", () => {
 
   it("is deterministic: identical inputs produce identical seats and fairness report", () => {
     const build = () => {
-      const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid16x10, 2, 2);
+      const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid16x10, 4);
       addLandmass(
         input,
         0,
@@ -530,7 +528,7 @@ describe("start selection ladder (op-owned, S4)", () => {
   });
 
   it("publishes a fairness report whose verdict matches the worst-pair gap", () => {
-    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid16x10, 2, 2);
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid16x10, 4);
     addLandmass(
       input,
       0,
@@ -560,7 +558,7 @@ describe("start selection ladder (op-owned, S4)", () => {
   });
 
   it("improves weak seats without lowering strong seats to manufacture parity", () => {
-    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid24x10, 1, 1);
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid24x10, 2);
     const west = Array.from(
       { length: 48 },
       (_value, i) => [1 + (i % 6), 1 + Math.floor(i / 6)] as const
@@ -609,89 +607,59 @@ describe("start selection ladder (op-owned, S4)", () => {
     expect(result.fairnessReport.balanced).toBe(true);
   });
 
-  it("uses a nonempty alive-major observation as exact demand below slot capacity", () => {
-    const alivePlayerIds = Array.from({ length: 10 }, (_value, playerId) => playerId);
-    const result = plan(makeSeatDemandInput(12, alivePlayerIds));
+  it("preserves the exact admitted player order through seat planning", () => {
+    const playerIds = [7, 2, 11, 5];
+    const result = plan(makePlayerDemandInput(playerIds));
 
-    expect(result.playersLandmass1 + result.playersLandmass2).toBe(10);
-    expect(result.seats.map((seat) => seat.playerId)).toEqual(alivePlayerIds);
-    expect(result.seats.every((seat) => seat.playerIdSource === "alive-majors")).toBe(true);
+    expect(result.playersLandmass1 + result.playersLandmass2).toBe(playerIds.length);
+    expect(result.seats.map((seat) => seat.playerId)).toEqual(playerIds);
   });
 
-  it("falls back to slot-capacity identities only when no alive majors are observed", () => {
-    const result = plan(makeSeatDemandInput(2, []));
-
-    expect(result.playersLandmass1 + result.playersLandmass2).toBe(2);
-    expect(
-      result.seats.map(({ playerId, playerIdSource }) => ({ playerId, playerIdSource }))
-    ).toEqual([
-      { playerId: 0, playerIdSource: "slot-index" },
-      { playerId: 1, playerIdSource: "slot-index" },
-    ]);
-  });
-
-  it("caps alive-major demand at map-size slot capacity without synthesizing overflow", () => {
-    const result = plan(makeSeatDemandInput(2, [7, 9, 11]));
-
-    expect(result.playersLandmass1 + result.playersLandmass2).toBe(2);
-    expect(result.seats.map((seat) => seat.playerId)).toEqual([7, 9]);
-    expect(result.seats.every((seat) => seat.playerIdSource === "alive-majors")).toBe(true);
-  });
-
-  it("caps valid alive-major demand at zero capacity without synthesizing fallback identities", () => {
-    const result = plan(makeSeatDemandInput(0, [7]));
-
-    expect(result.playersLandmass1 + result.playersLandmass2).toBe(0);
-    expect(result.seats).toEqual([]);
-  });
-
-  it("rejects duplicate alive-major identities instead of silently normalizing demand", () => {
-    expect(() => plan(makeSeatDemandInput(2, [7, 7]))).toThrow();
-  });
-
-  it("preserves authoritative alive-major demand on a valid map with no settleable land", () => {
-    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid8x6, 2, 0);
-    input.alivePlayerIds = [7];
+  it("preserves admitted players as explicit degradation when no settleable land exists", () => {
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid8x6);
+    input.playerIds = [7];
     const result = plan(input);
 
     expect(result.playersLandmass1 + result.playersLandmass2).toBe(1);
     expect(result.seats).toHaveLength(1);
     expect(result.seats[0]).toMatchObject({
       playerId: 7,
-      playerIdSource: "alive-majors",
       plotIndex: -1,
       status: "degraded",
     });
   });
 
-  it("applies official per-seat start biases through the offline scoring hook", () => {
-    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid14x9, 1, 0);
-    // Inland block plus a coastal strip; mark only the strip coastal.
+  it("uses the game seed only to resolve otherwise-equal player-seat choices", () => {
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid14x9);
     const tiles: Array<readonly [number, number]> = [];
     for (let y = 1; y < 8; y++) for (let x = 1; x < 9; x++) tiles.push([x, y] as const);
     addLandmass(input, 0, 1, tiles);
-    input.coastalLand.fill(0);
-    for (let y = 1; y < 8; y++) input.coastalLand[idx(input.width, 1, y)] = 1;
 
-    const neutral = plan(input, (config) => {
+    const configure = (config: (typeof planStarts.defaultConfig)["config"]) => {
       config.spacingFloorTiles = 0;
       config.desiredSpacingTiles = 0;
-    });
-    input.seatBiases = [{ seatIndex: 0, river: 0, lake: 0, adjacentToCoast: 200 }];
-    const biased = plan(input, (config) => {
-      config.spacingFloorTiles = 0;
-      config.desiredSpacingTiles = 0;
-      config.startBiasWeight = 4;
-    });
+      config.rankingBlend = 1;
+      config.largeLandmassWeight = 0;
+      config.fertilityWeight = 0;
+      config.resourceSupportWeight = 0;
+      config.freshwaterWeight = 0;
+      config.climateWeight = 0;
+      config.coastalPreferenceWeight = 0;
+      config.riverPreferenceWeight = 0;
+      config.roughnessPenaltyWeight = 0;
+      config.climateExtremePenaltyWeight = 0;
+    };
+    const first = plan(input, configure);
+    const repeated = plan(input, configure);
+    input.gameSeed = TEST_GAME_SEED + 1;
+    const alternate = plan(input, configure);
 
-    const coastal = (plotIndex: number) => input.coastalLand[plotIndex] === 1;
-    expect(coastal(biased.seats[0]!.plotIndex)).toBe(true);
-    // The published score stays seat-independent; bias only steers ranking.
-    expect(neutral.scoreByTile.length).toBe(biased.scoreByTile.length);
+    expect(repeated.seats[0]!.plotIndex).toBe(first.seats[0]!.plotIndex);
+    expect(alternate.seats[0]!.plotIndex).not.toBe(first.seats[0]!.plotIndex);
   });
 
   it("surfaces imputed inputs in coverage rows and seat flags instead of silently defaulting", () => {
-    const completeInput = makeInput(SYNTHETIC_START_DIMENSIONS.grid12x8, 1, 0);
+    const completeInput = makeInput(SYNTHETIC_START_DIMENSIONS.grid12x8);
     addLandmass(
       completeInput,
       0,

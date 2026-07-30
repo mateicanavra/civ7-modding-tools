@@ -4,16 +4,26 @@ import {
   buildStudioRunGenerationManifestPayload,
   type StudioRunGenerationManifest,
 } from "@civ7/studio-run-workspace";
-import { admitStandardMapConfig } from "../../../../src/maps/configs/canonical.js";
+import {
+  admitStandardMapConfig,
+  canonicalRecipeConfig,
+} from "../../../../src/maps/configs/canonical.js";
 import swooperEarthlikeRaw from "../../../../src/maps/configs/swooper-earthlike.config.json";
 import {
   admitStandardExactParityCapture,
   resolveStandardParityReplayInput,
   runResolvedStandardParityReplay,
 } from "../../../../src/recipes/standard/parity/index.js";
+import {
+  issueStandardParityReplayAuthority,
+  runStandardParityReplayAuthority,
+} from "../../../../src/recipes/standard/parity/replay.js";
+import standardRecipe from "../../../../src/recipes/standard/recipe.js";
 import { TEST_GAME_SEED, TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../setup.js";
+import { createStandardRecipeTestInitialSetup } from "../fixtures/standard-recipe.js";
 
-const PLAYER_COUNT = 6;
+const ALIVE_MAJOR_PLAYER_IDS = [3, 0, 2, 1] as const;
+const PLAYER_COUNT = ALIVE_MAJOR_PLAYER_IDS.length;
 const CREATED_AT = "2026-07-25T00:00:00.000Z";
 const FILE_IDENTITY = {
   path: "/tmp/studio-run.js",
@@ -25,47 +35,88 @@ const FILE_IDENTITY = {
 const CONFIG = admitStandardMapConfig(swooperEarthlikeRaw);
 
 describe("Standard parity correlation", () => {
-  test("resolves one replay from matching manifest and exact authorship", () => {
+  test("resolves a partial player override against the exact ordered Standard setup identity", () => {
+    const log = spyOn(console, "log").mockImplementation(() => {});
+    try {
+      const manifest = manifestFixture();
+      const recipePlan = recipePlanFixture();
+      expect(manifest.payload.launchEnvelope.setupConfig.playerOptions).toEqual([
+        { playerId: 0, options: {} },
+      ]);
+      const resolution = resolveStandardParityReplayInput({
+        exactAuthorship: exactFixture(manifest),
+        manifest,
+      });
+
+      expect(resolution.status).toBe("ready");
+      if (resolution.status !== "ready") return;
+      expect(Object.isFrozen(resolution.replayAuthority)).toBe(true);
+      expect(resolution.exact.recipePlan).toEqual({
+        evidence: { status: "present", value: recipePlan },
+        completion: { status: "present", value: recipePlan },
+      });
+
+      const local = runResolvedStandardParityReplay(resolution);
+      expect(local.identity).toMatchObject({
+        planFingerprint: recipePlan.planFingerprint,
+        mapSeed: TEST_MAP_SEED,
+        gameSeed: TEST_GAME_SEED,
+        mapSize: TEST_MAP_SIZE.id,
+        aliveMajorPlayerIds: ALIVE_MAJOR_PLAYER_IDS,
+      });
+    } finally {
+      log.mockRestore();
+    }
+  }, 15_000);
+
+  test("blocks replay when either exact recipe-plan lifecycle payload is missing", () => {
     const manifest = manifestFixture();
-    const exact = exactFixture(manifest);
+    expect(
+      resolveStandardParityReplayInput({
+        exactAuthorship: exactFixture(manifest, {
+          log: { evidencePayload: {} },
+        }),
+        manifest,
+      })
+    ).toEqual({
+      status: "blocked",
+      unresolvedLinks: ["exact-authorship.log.evidence-payload.recipe-plan"],
+    });
+    expect(
+      resolveStandardParityReplayInput({
+        exactAuthorship: exactFixture(manifest, {
+          log: { completionPayload: {} },
+        }),
+        manifest,
+      })
+    ).toEqual({
+      status: "blocked",
+      unresolvedLinks: ["exact-authorship.log.completion-payload.recipe-plan"],
+    });
+  });
 
-    const resolution = resolveStandardParityReplayInput({
-      exactAuthorship: exact,
-      manifest,
+  test("fails correlation when exact recipe-plan lifecycle payloads disagree", () => {
+    const manifest = manifestFixture();
+    const recipePlan = recipePlanFixture();
+    const completionPlan = withInitialSetup(recipePlan, {
+      ...recipePlan.initialSetup.value,
+      gameSeed: TEST_GAME_SEED + 1,
     });
 
-    expect(resolution.status).toBe("ready");
-    if (resolution.status !== "ready") return;
-    expect(Object.isFrozen(resolution.replayAuthority)).toBe(true);
-    expect(resolution.exact.naturalWonderPlan).toMatchObject({
-      status: "present",
-      value: {
-        version: 1,
-        plannedCount: 0,
-        coordinateDigest: { count: 0, hash32: "811c9dc5" },
-      },
-    });
-    expect(resolution.exact.floodplains).toMatchObject({
-      status: "present",
-      value: {
-        attemptedFloodplainFeatureCount: 3,
-        appliedFloodplainFeatureCount: 2,
-        rejectedFloodplainFeatureCount: 1,
-      },
-    });
-    expect(resolution.exact.placementParity).toEqual({
-      status: "present",
-      value: {
-        version: 1,
-        waterDriftCount: 0,
-        acceptedLakeTileCount: 2,
-        finalLakeWaterDriftCount: 0,
-        finalLakeClassificationDriftCount: 0,
-      },
-    });
-    expect(resolution.exact.naturalWonderPlanInput).toMatchObject({
-      status: "present",
-      value: { version: 2 },
+    expect(
+      resolveStandardParityReplayInput({
+        exactAuthorship: exactFixture(manifest, {
+          log: {
+            evidencePayload: { recipePlan },
+            completionPayload: { recipePlan: completionPlan },
+          },
+        }),
+        manifest,
+      })
+    ).toEqual({
+      status: "failed",
+      failureLinks: ["correlation.recipe-plan-payloads"],
+      unresolvedLinks: [],
     });
   });
 
@@ -109,7 +160,7 @@ describe("Standard parity correlation", () => {
 
     expect(resolution).toEqual({
       status: "failed",
-      failureLinks: ["correlation.request-id"],
+      failureLinks: ["correlation.initial-setup-map-size", "correlation.request-id"],
       unresolvedLinks: ["correlation.civ7-map-size-preset"],
     });
   });
@@ -130,7 +181,274 @@ describe("Standard parity correlation", () => {
 
     expect(resolution).toEqual({
       status: "failed",
-      failureLinks: ["correlation.recipe-id"],
+      failureLinks: ["correlation.recipe-id", "correlation.recipe-plan-recipe-id"],
+      unresolvedLinks: [],
+    });
+  });
+
+  test("rejects exact recipe-plan game-seed contradictions", () => {
+    const manifest = manifestFixture();
+    const recipePlan = recipePlanFixture();
+    const contradictoryPlan = inspectRecipePlanForInitialSetup({
+      ...recipePlan.initialSetup.value,
+      gameSeed: TEST_GAME_SEED + 1,
+    });
+    const exact = exactFixture(manifest, {
+      log: {
+        evidencePayload: { recipePlan: contradictoryPlan },
+        completionPayload: { recipePlan: contradictoryPlan },
+      },
+    });
+
+    expect(
+      resolveStandardParityReplayInput({
+        exactAuthorship: exact,
+        manifest,
+      })
+    ).toEqual({
+      status: "failed",
+      failureLinks: ["correlation.initial-setup-game-seed"],
+      unresolvedLinks: [],
+    });
+  });
+
+  test.each([
+    ["map", "mapSeed", TEST_MAP_SEED + 1, "correlation.civ-setup-map-seed"],
+    ["game", "gameSeed", TEST_GAME_SEED + 1, "correlation.civ-setup-game-seed"],
+  ] as const)("rejects an applied Civ7 %s seed that contradicts the launch envelope", (_axis, field, contradictorySeed, failureLink) => {
+    const manifest = manifestFixture();
+    const exact = exactFixture(manifest);
+
+    expect(
+      resolveStandardParityReplayInput({
+        exactAuthorship: {
+          ...exact,
+          civSetup: {
+            ...exact.civSetup,
+            [field]: contradictorySeed,
+          },
+        },
+        manifest,
+      })
+    ).toEqual({
+      status: "failed",
+      failureLinks: [failureLink],
+      unresolvedLinks: [],
+    });
+  });
+
+  test("fails resolution when the exact plan fingerprint does not match authentic compilation", () => {
+    const manifest = manifestFixture();
+    const recipePlan = recipePlanFixture();
+    const forgedPlan = { ...recipePlan, planFingerprint: "f".repeat(64) };
+    const resolution = resolveStandardParityReplayInput({
+      exactAuthorship: exactFixture(manifest, {
+        log: {
+          evidencePayload: { recipePlan: forgedPlan },
+          completionPayload: { recipePlan: forgedPlan },
+        },
+      }),
+      manifest,
+    });
+
+    expect(resolution).toEqual({
+      status: "failed",
+      failureLinks: ["correlation.recipe-plan-fingerprint"],
+      unresolvedLinks: [],
+    });
+  });
+
+  test("never issues replay authority for refinement-invalid exact setup", () => {
+    const manifest = manifestFixture();
+    const recipePlan = recipePlanFixture();
+    const selection = recipePlan.initialSetup.value.map.selection;
+    const invalidPlan = withInitialSetup(recipePlan, {
+      ...recipePlan.initialSetup.value,
+      map: {
+        ...recipePlan.initialSetup.value.map,
+        selection: {
+          ...selection,
+          startSlotCapacity: {
+            ...selection.startSlotCapacity,
+            total: selection.startSlotCapacity.total + 1,
+          },
+        },
+      },
+    });
+
+    expect(
+      resolveStandardParityReplayInput({
+        exactAuthorship: exactFixture(manifest, {
+          log: {
+            evidencePayload: { recipePlan: invalidPlan },
+            completionPayload: { recipePlan: invalidPlan },
+          },
+        }),
+        manifest,
+      })
+    ).toEqual({
+      status: "failed",
+      failureLinks: ["correlation.initial-setup-admission"],
+      unresolvedLinks: [],
+    });
+  });
+
+  test("blocks when an authored map option has unavailable exact evidence", () => {
+    const manifest = manifestFixture({ mapOptions: { MapSeaLevel: "SEA_LEVEL_NORMAL" } });
+
+    expect(
+      resolveStandardParityReplayInput({
+        exactAuthorship: exactFixture(manifest),
+        manifest,
+      })
+    ).toEqual({
+      status: "blocked",
+      unresolvedLinks: ["correlation.map-option.MapSeaLevel"],
+    });
+  });
+
+  test("blocks when an authored map option is missing exact evidence", () => {
+    const manifest = manifestFixture({ mapOptions: { MapSeaLevel: "SEA_LEVEL_NORMAL" } });
+    const recipePlan = recipePlanFixture();
+    const missingPlan = withInitialSetup(recipePlan, {
+      ...recipePlan.initialSetup.value,
+      options: {
+        ...recipePlan.initialSetup.value.options,
+        map: recipePlan.initialSetup.value.options.map.filter(({ key }) => key !== "MapSeaLevel"),
+      },
+    });
+
+    expect(
+      resolveStandardParityReplayInput({
+        exactAuthorship: exactFixture(manifest, {
+          log: {
+            evidencePayload: { recipePlan: missingPlan },
+            completionPayload: { recipePlan: missingPlan },
+          },
+        }),
+        manifest,
+      })
+    ).toEqual({
+      status: "blocked",
+      unresolvedLinks: ["correlation.map-option.MapSeaLevel"],
+    });
+  });
+
+  test("fails when available exact map-option evidence contradicts authorship", () => {
+    const manifest = manifestFixture({ mapOptions: { MapSeaLevel: "SEA_LEVEL_NORMAL" } });
+    const recipePlan = recipePlanFixture();
+    const mismatchedPlan = inspectRecipePlanForInitialSetup({
+      ...recipePlan.initialSetup.value,
+      options: {
+        ...recipePlan.initialSetup.value.options,
+        map: recipePlan.initialSetup.value.options.map.map((evidence) =>
+          evidence.key === "MapSeaLevel"
+            ? { status: "available", key: "MapSeaLevel", value: "SEA_LEVEL_LOW" }
+            : evidence
+        ),
+      },
+    });
+
+    expect(
+      resolveStandardParityReplayInput({
+        exactAuthorship: exactFixture(manifest, {
+          log: {
+            evidencePayload: { recipePlan: mismatchedPlan },
+            completionPayload: { recipePlan: mismatchedPlan },
+          },
+        }),
+        manifest,
+      })
+    ).toEqual({
+      status: "failed",
+      failureLinks: ["correlation.map-option.MapSeaLevel"],
+      unresolvedLinks: [],
+    });
+  });
+
+  test("blocks when an authored player option has unavailable exact evidence", () => {
+    const manifest = manifestFixture({
+      playerOptions: [{ playerId: 0, options: { PlayerTeam: 2 } }],
+    });
+
+    expect(
+      resolveStandardParityReplayInput({
+        exactAuthorship: exactFixture(manifest),
+        manifest,
+      })
+    ).toEqual({
+      status: "blocked",
+      unresolvedLinks: ["correlation.player-option.0.PlayerTeam"],
+    });
+  });
+
+  test("fails when available exact player-option evidence contradicts authorship", () => {
+    const manifest = manifestFixture({
+      playerOptions: [{ playerId: 0, options: { PlayerTeam: 2 } }],
+    });
+    const recipePlan = recipePlanFixture();
+    const mismatchedPlan = inspectRecipePlanForInitialSetup({
+      ...recipePlan.initialSetup.value,
+      options: {
+        ...recipePlan.initialSetup.value.options,
+        player: recipePlan.initialSetup.value.options.player.map((player) =>
+          player.playerId === 0
+            ? {
+                ...player,
+                options: player.options.map((evidence) =>
+                  evidence.key === "PlayerTeam"
+                    ? { status: "available", key: "PlayerTeam", value: 3 }
+                    : evidence
+                ),
+              }
+            : player
+        ),
+      },
+    });
+
+    expect(
+      resolveStandardParityReplayInput({
+        exactAuthorship: exactFixture(manifest, {
+          log: {
+            evidencePayload: { recipePlan: mismatchedPlan },
+            completionPayload: { recipePlan: mismatchedPlan },
+          },
+        }),
+        manifest,
+      })
+    ).toEqual({
+      status: "failed",
+      failureLinks: ["correlation.player-option.0.PlayerTeam"],
+      unresolvedLinks: [],
+    });
+  });
+
+  test("rejects a player override outside the exact captured roster", () => {
+    const manifest = manifestFixture({ playerOptionIds: [7] });
+
+    expect(
+      resolveStandardParityReplayInput({
+        exactAuthorship: exactFixture(manifest),
+        manifest,
+      })
+    ).toEqual({
+      status: "failed",
+      failureLinks: ["correlation.player-option-player-ids"],
+      unresolvedLinks: [],
+    });
+  });
+
+  test("rejects a captured roster whose cardinality contradicts the requested population", () => {
+    const manifest = manifestFixture({ playerCount: PLAYER_COUNT + 1 });
+
+    expect(
+      resolveStandardParityReplayInput({
+        exactAuthorship: exactFixture(manifest),
+        manifest,
+      })
+    ).toEqual({
+      status: "failed",
+      failureLinks: ["correlation.alive-major-player-count"],
       unresolvedLinks: [],
     });
   });
@@ -150,6 +468,43 @@ describe("Standard parity correlation", () => {
       } as never)
     ).toThrow("requires an authority issued by correlation");
   });
+
+  test("refuses to retain a structural copy of an authentic Standard plan", () => {
+    const authenticPlan = compileStandardPlan();
+    const copiedPlan = { ...authenticPlan };
+
+    expect(() =>
+      issueStandardParityReplayAuthority({
+        plan: copiedPlan,
+        canonicalConfigDigest: "canonical-config",
+        launchEnvelopeDigest: "launch-envelope",
+      })
+    ).toThrow(
+      "Pipeline execution requires an authentic execution plan returned by compileExecutionPlan."
+    );
+  });
+
+  test("snapshots replay metadata when issuing authority", () => {
+    const log = spyOn(console, "log").mockImplementation(() => {});
+    try {
+      const request = {
+        plan: compileStandardPlan(),
+        canonicalConfigDigest: "canonical-before-issuance",
+        launchEnvelopeDigest: "envelope-before-issuance",
+      };
+      const authority = issueStandardParityReplayAuthority(request);
+
+      request.canonicalConfigDigest = "canonical-after-issuance";
+      request.launchEnvelopeDigest = "envelope-after-issuance";
+
+      expect(runStandardParityReplayAuthority(authority).identity).toMatchObject({
+        canonicalConfigDigest: "canonical-before-issuance",
+        launchEnvelopeDigest: "envelope-before-issuance",
+      });
+    } finally {
+      log.mockRestore();
+    }
+  }, 15_000);
 
   test("does not synthesize missing floodplain or resource coordinate evidence", () => {
     const manifest = manifestFixture();
@@ -202,53 +557,6 @@ describe("Standard parity correlation", () => {
     });
   });
 
-  test("keeps game-seed correlation outside deterministic map generation", () => {
-    const log = spyOn(console, "log").mockImplementation(() => {});
-    try {
-      const firstManifest = manifestFixture({ gameSeed: TEST_GAME_SEED });
-      const secondManifest = manifestFixture({ gameSeed: TEST_GAME_SEED + 1 });
-      const firstResolution = resolveStandardParityReplayInput({
-        exactAuthorship: exactFixture(firstManifest),
-        manifest: firstManifest,
-      });
-      const secondResolution = resolveStandardParityReplayInput({
-        exactAuthorship: exactFixture(secondManifest),
-        manifest: secondManifest,
-      });
-      if (firstResolution.status !== "ready" || secondResolution.status !== "ready") {
-        throw new Error("Expected both correlated Standard replays to be ready.");
-      }
-
-      const first = runResolvedStandardParityReplay(firstResolution);
-      const second = runResolvedStandardParityReplay(secondResolution);
-
-      expect(first.identity.gameSeed).toBe(TEST_GAME_SEED);
-      expect(second.identity.gameSeed).toBe(TEST_GAME_SEED + 1);
-      expect(first.surface).toEqual(second.surface);
-      expect(first.hydrology).toEqual(second.hydrology);
-      expect(first.placement.naturalWonderPlanEvidence).toEqual(
-        second.placement.naturalWonderPlanEvidence
-      );
-      expect(first.placement.naturalWonderPlanInput).toEqual(
-        second.placement.naturalWonderPlanInput
-      );
-      expect(first.placement.naturalWonderPlanInput).toMatchObject({
-        status: "present",
-        value: {
-          version: 2,
-          plannerInput: {
-            dimensions: TEST_MAP_SIZE.dimensions,
-            surfaceDigests: {
-              plotCount: TEST_MAP_SIZE.dimensions.width * TEST_MAP_SIZE.dimensions.height,
-            },
-          },
-        },
-      });
-    } finally {
-      log.mockRestore();
-    }
-  }, 15_000);
-
   test("keeps incomplete exact authorship blocked at admission", () => {
     const admission = admitStandardExactParityCapture({
       status: "unresolved",
@@ -269,7 +577,17 @@ describe("Standard parity correlation", () => {
 });
 
 function manifestFixture(
-  options: Readonly<{ gameSeed?: number; mapSize?: string }> = {}
+  options: Readonly<{
+    gameSeed?: number;
+    mapSize?: string;
+    playerCount?: number;
+    playerOptionIds?: readonly number[];
+    playerOptions?: readonly Readonly<{
+      playerId: number;
+      options: Readonly<{ PlayerTeam?: number }>;
+    }>[];
+    mapOptions?: Readonly<{ MapSeaLevel?: string }>;
+  }> = {}
 ): StudioRunGenerationManifest {
   return buildStudioRunGenerationManifest(
     buildStudioRunGenerationManifestPayload({
@@ -279,12 +597,17 @@ function manifestFixture(
         gameSeed: options.gameSeed ?? TEST_GAME_SEED,
         worldSettings: {
           mapSize: options.mapSize ?? TEST_MAP_SIZE.id,
-          playerCount: PLAYER_COUNT,
+          playerCount: options.playerCount ?? PLAYER_COUNT,
         },
         setupConfig: {
           gameOptions: {},
-          mapOptions: {},
-          playerOptions: [],
+          mapOptions: options.mapOptions ?? {},
+          playerOptions:
+            options.playerOptions ??
+            (options.playerOptionIds ?? [0]).map((playerId) => ({
+              playerId,
+              options: {},
+            })),
         },
         canonicalConfig: CONFIG,
       },
@@ -297,6 +620,8 @@ function exactFixture(
   overrides: Readonly<Record<string, unknown>> = {}
 ) {
   const { width, height } = TEST_MAP_SIZE.dimensions;
+  const requestedPlayerCount = manifest.payload.launchEnvelope.worldSettings.playerCount;
+  const recipePlan = recipePlanFixture(manifest.payload.launchEnvelope.gameSeed);
   const base = {
     status: "complete",
     requestId: manifest.payload.requestId,
@@ -309,7 +634,7 @@ function exactFixture(
       seed: TEST_MAP_SEED,
       gameSeed: manifest.payload.launchEnvelope.gameSeed,
       mapSize: manifest.payload.launchEnvelope.worldSettings.mapSize,
-      playerCount: PLAYER_COUNT,
+      ...(requestedPlayerCount === undefined ? {} : { playerCount: requestedPlayerCount }),
     },
     materialization: {
       mapScript: "{swooper-maps}/maps/studio-run.js",
@@ -331,7 +656,7 @@ function exactFixture(
       mapSize: manifest.payload.launchEnvelope.worldSettings.mapSize,
       mapSeed: TEST_MAP_SEED,
       gameSeed: manifest.payload.launchEnvelope.gameSeed,
-      playerCount: PLAYER_COUNT,
+      ...(requestedPlayerCount === undefined ? {} : { playerCount: requestedPlayerCount }),
       rowCount: 1,
     },
     runtime: {
@@ -352,8 +677,12 @@ function exactFixture(
       seed: TEST_MAP_SEED,
       mapSize: manifest.payload.launchEnvelope.worldSettings.mapSize,
       dimensions: { width, height },
-      evidencePayload: {},
-      completionPayload: {},
+      evidencePayload: {
+        recipePlan,
+      },
+      completionPayload: {
+        recipePlan,
+      },
       matched: [],
       placementParity: {
         marker: "PLACEMENT_PARITY_V1",
@@ -463,6 +792,40 @@ function exactFixture(
     ...overrides,
     ...(isRecord(overrides.log) ? { log: { ...base.log, ...overrides.log } } : {}),
   };
+}
+
+function recipePlanFixture(gameSeed = TEST_GAME_SEED) {
+  return standardRecipe.inspectPlan(compileStandardPlan(gameSeed));
+}
+
+function compileStandardPlan(gameSeed = TEST_GAME_SEED) {
+  const initialSetup = createStandardRecipeTestInitialSetup({
+    preset: TEST_MAP_SIZE,
+    mapSeed: TEST_MAP_SEED,
+    gameSeed,
+    aliveMajorPlayerIds: ALIVE_MAJOR_PLAYER_IDS,
+    mapConfig: CONFIG,
+  });
+  return standardRecipe.compile(initialSetup, canonicalRecipeConfig(CONFIG));
+}
+
+function withInitialSetup(recipePlan: ReturnType<typeof recipePlanFixture>, value: unknown) {
+  return {
+    ...recipePlan,
+    initialSetup: {
+      ...recipePlan.initialSetup,
+      value,
+    },
+  };
+}
+
+function inspectRecipePlanForInitialSetup(value: unknown) {
+  return standardRecipe.inspectPlan(
+    standardRecipe.compile(
+      value as Parameters<typeof standardRecipe.compile>[0],
+      canonicalRecipeConfig(CONFIG)
+    )
+  );
 }
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {

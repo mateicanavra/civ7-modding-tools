@@ -15,19 +15,44 @@
  *   import type { EngineAdapter } from "@civ7/adapter";
  */
 
+export type {
+  Civ7GameOptionDescriptor,
+  Civ7MapOptionDescriptor,
+  Civ7PlayerOptionDescriptor,
+} from "@civ7/map-policy/setup";
+export {
+  CIV7_GAME_OPTION_DESCRIPTORS,
+  CIV7_MAP_OPTION_DESCRIPTORS,
+  CIV7_PLAYER_OPTION_DESCRIPTORS,
+} from "@civ7/map-policy/setup";
 export type { EngineEffectTagId } from "./effects.js";
 export { ENGINE_EFFECT_TAGS } from "./effects.js";
 export type {
-  Civ7LatitudeBounds,
+  Civ7MapGenerationLatitudeBounds,
+  Civ7MapGenerationSetupCapture,
+  Civ7MapGenerationSetupCaptureInput,
+  Civ7MapInfoSnapshot,
+  Civ7PlayerSetupOptionEvidence,
+  Civ7SetupOptionEvidence,
+  Civ7SetupOptionEvidenceForDescriptor,
+  Civ7SetupOptionEvidenceForDescriptors,
+  Civ7SetupOptionUnavailableReason,
+  Civ7SetupOptionValue,
+  Civ7StartSlotCapacity,
+} from "./map-generation-setup.js";
+export { captureCiv7MapGenerationSetup } from "./map-generation-setup.js";
+export type {
+  Civ7MapInfo,
+  Civ7RowLatitudeEndpoints,
   Civ7StandardMapInfo,
   Civ7StandardMapSizeId,
   Civ7StandardMapSizePreset,
 } from "./map-metadata.js";
 export {
   CIV7_STANDARD_MAP_SIZE_PRESETS,
-  CIV7_STANDARD_ROW_LATITUDE_BOUNDS,
+  CIV7_STANDARD_ROW_LATITUDE_ENDPOINTS,
   findCiv7StandardMapSizePreset,
-  getCiv7MapInfoLatitudeBounds,
+  findCiv7StandardMapSizePresetForMapInfo,
   getCiv7RowLatitude,
   getCiv7StandardMapSizePreset,
   getCiv7StandardMapSizePresetForDimensions,

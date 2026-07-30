@@ -57,8 +57,11 @@ must be named as synthetic and never presented as a Civ7 product map size.
 Map-size-independent behavior tests use `TEST_MAP_SIZE` from `test/setup.ts`,
 which defaults to Civ7 Tiny. The same fixture exports deliberately distinct
 `TEST_MAP_SEED` and `TEST_GAME_SEED` values so tests cannot silently conflate
-map generation with game setup. Switch the broad regime with
-`SWOOPER_TEST_MAP_SIZE`, `SWOOPER_TEST_MAP_SEED`, and `SWOOPER_TEST_GAME_SEED`.
+map generation with game setup. `TEST_ALIVE_MAJOR_PLAYER_IDS` supplies exact
+ordered identities for tests whose oracle does not exercise player composition;
+tests that do exercise it must provide their own explicit identities. Switch
+the broad regime with `SWOOPER_TEST_MAP_SIZE`, `SWOOPER_TEST_MAP_SEED`, and
+`SWOOPER_TEST_GAME_SEED`.
 Keep an explicit preset or seed only when that input participates in the oracle,
 such as a cross-size matrix, seed cohort, deterministic RNG test, admission
 boundary, or exact coordinate evidence.

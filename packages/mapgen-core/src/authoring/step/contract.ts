@@ -1,6 +1,10 @@
 import type { DependencyTag } from "@mapgen/engine/index.js";
 import { type TObject, type TSchema, Type } from "typebox";
 import { type Artifact, assertArtifact } from "../artifact/contract.js";
+import {
+  assertInitialSetupDefinitionInternal,
+  type InitialSetupDefinition,
+} from "../initial-setup/definition.js";
 import { isCanonicalOpContract } from "../operation/contract.js";
 import { buildOpEnvelopeSchema } from "../operation/envelope.js";
 import type { OpTypeBagOf } from "../operation/types.js";
@@ -372,6 +376,7 @@ export type StepContract<
   Ops extends StepOpsDecl | undefined = undefined,
   Artifacts extends StepArtifactsDeclAny | undefined = StepArtifactsDeclAny | undefined,
   Engine extends StepEngineDecl | undefined = StepEngineDecl | undefined,
+  InitialSetup extends InitialSetupDefinition | undefined = InitialSetupDefinition | undefined,
 > = Readonly<{
   id: Id;
   description?: string;
@@ -379,6 +384,7 @@ export type StepContract<
   provides: readonly DependencyTag[];
   artifacts?: Artifacts;
   engine?: Engine;
+  initialSetup?: InitialSetup;
   schema: Schema;
   ops?: Ops;
 }>;
@@ -388,6 +394,7 @@ type StepContractBaseInput<
   Ops extends StepOpsDeclInput | undefined,
   Artifacts extends StepArtifactsDeclInput | undefined,
   Engine extends StepEngineDecl | undefined,
+  InitialSetup extends InitialSetupDefinition | undefined,
 > = Readonly<{
   id: Id;
   description?: string;
@@ -395,6 +402,7 @@ type StepContractBaseInput<
   provides: readonly DependencyTag[];
   artifacts?: Artifacts;
   engine?: Engine;
+  initialSetup?: InitialSetup;
   ops?: Ops;
 }>;
 
@@ -404,7 +412,8 @@ type StepContractInput<
   Ops extends StepOpsDeclInput | undefined,
   Artifacts extends StepArtifactsDeclInput | undefined,
   Engine extends StepEngineDecl | undefined,
-> = StepContractBaseInput<Id, Ops, Artifacts, Engine> &
+  InitialSetup extends InitialSetupDefinition | undefined,
+> = StepContractBaseInput<Id, Ops, Artifacts, Engine, InitialSetup> &
   Readonly<{
     schema?: Schema &
       (Schema extends TObject ? (keyof PropsOf<Schema> extends never ? never : unknown) : unknown);
@@ -454,6 +463,7 @@ function snapshotStepDefinition(def: unknown): Readonly<{
   provides: unknown;
   artifacts: unknown;
   engine: unknown;
+  initialSetup: unknown;
   schema: unknown;
   ops: unknown;
 }> {
@@ -472,6 +482,11 @@ function snapshotStepDefinition(def: unknown): Readonly<{
   const artifacts = readOptionalOwnDataProperty(def, "artifacts", "step contract artifacts");
   const description = readOptionalOwnDataProperty(def, "description", "step contract description");
   const engine = readOptionalOwnDataProperty(def, "engine", "step contract engine");
+  const initialSetup = readOptionalOwnDataProperty(
+    def,
+    "initialSetup",
+    "step contract initialSetup"
+  );
   const ops = readOptionalOwnDataProperty(def, "ops", "step contract ops");
   const id = required("id");
   const requires = required("requires");
@@ -485,6 +500,7 @@ function snapshotStepDefinition(def: unknown): Readonly<{
     provides,
     artifacts: artifacts.value,
     engine: engine.value,
+    initialSetup: initialSetup.value,
     schema: schema.value,
     ops: ops.value,
   };
@@ -497,29 +513,39 @@ export function defineStep<
   const Id extends string,
   const Schema extends TObject | undefined = undefined,
   const Engine extends StepEngineDecl | undefined = undefined,
+  const InitialSetup extends InitialSetupDefinition | undefined = undefined,
 >(
-  def: StepContractInput<Schema, Id, undefined, undefined, Engine> &
+  def: StepContractInput<Schema, Id, undefined, undefined, Engine, InitialSetup> &
     ValidatedStepEngineDeclInput<Engine>
-): StepContract<StepSchema<Schema>, Id, undefined, undefined, Engine>;
+): StepContract<StepSchema<Schema>, Id, undefined, undefined, Engine, InitialSetup>;
 
 export function defineStep<
   const Id extends string,
   const Artifacts extends StepArtifactsDeclInput,
   const Schema extends TObject | undefined = undefined,
   const Engine extends StepEngineDecl | undefined = undefined,
+  const InitialSetup extends InitialSetupDefinition | undefined = undefined,
 >(
-  def: StepContractInput<Schema, Id, undefined, Artifacts, Engine> & {
+  def: StepContractInput<Schema, Id, undefined, Artifacts, Engine, InitialSetup> & {
     artifacts: Artifacts;
   } & ValidatedStepEngineDeclInput<Engine>
-): StepContract<StepSchema<Schema>, Id, undefined, StepArtifactsDeclFromInput<Artifacts>, Engine>;
+): StepContract<
+  StepSchema<Schema>,
+  Id,
+  undefined,
+  StepArtifactsDeclFromInput<Artifacts>,
+  Engine,
+  InitialSetup
+>;
 
 export function defineStep<
   const Id extends string,
   const Ops extends StepOpsDeclInput,
   const Schema extends TObject | undefined = undefined,
   const Engine extends StepEngineDecl | undefined = undefined,
+  const InitialSetup extends InitialSetupDefinition | undefined = undefined,
 >(
-  def: StepContractInput<Schema, Id, Ops, undefined, Engine> & {
+  def: StepContractInput<Schema, Id, Ops, undefined, Engine, InitialSetup> & {
     ops: Ops & ValidatedStepOpsDeclInput<Ops>;
   } & ValidatedStepEngineDeclInput<Engine>
 ): StepContract<
@@ -527,7 +553,8 @@ export function defineStep<
   Id,
   StepOpsDeclNormalizedFromInput<Ops>,
   undefined,
-  Engine
+  Engine,
+  InitialSetup
 >;
 
 export function defineStep<
@@ -536,8 +563,9 @@ export function defineStep<
   const Artifacts extends StepArtifactsDeclInput,
   const Schema extends TObject | undefined = undefined,
   const Engine extends StepEngineDecl | undefined = undefined,
+  const InitialSetup extends InitialSetupDefinition | undefined = undefined,
 >(
-  def: StepContractInput<Schema, Id, Ops, Artifacts, Engine> & {
+  def: StepContractInput<Schema, Id, Ops, Artifacts, Engine, InitialSetup> & {
     ops: Ops & ValidatedStepOpsDeclInput<Ops>;
     artifacts: Artifacts;
   } & ValidatedStepEngineDeclInput<Engine>
@@ -546,7 +574,8 @@ export function defineStep<
   Id,
   StepOpsDeclNormalizedFromInput<Ops>,
   StepArtifactsDeclFromInput<Artifacts>,
-  Engine
+  Engine,
+  InitialSetup
 >;
 
 export function defineStep(def: any): any {
@@ -567,6 +596,10 @@ export function defineStep(def: any): any {
 
   const artifacts = snapshotArtifactsDecl(stepId, admitted.artifacts);
   const engine = snapshotEngineDecl(stepId, admitted.engine);
+  const initialSetup =
+    admitted.initialSetup === undefined
+      ? undefined
+      : (assertInitialSetupDefinitionInternal(admitted.initialSetup), admitted.initialSetup);
   const artifactRequires: string[] =
     artifacts?.requires?.map((artifact: Artifact) => artifact.id) ?? [];
   const artifactProvides: string[] =
@@ -663,6 +696,7 @@ export function defineStep(def: any): any {
     provides,
     ...(hasArtifacts ? { artifacts } : {}),
     ...(engine === undefined ? {} : { engine }),
+    ...(initialSetup === undefined ? {} : { initialSetup }),
     schema,
     ...(ops === undefined ? {} : { ops }),
   };

@@ -15,6 +15,7 @@ import {
   type LiveRuntimeSnapshotState,
   type LiveRuntimeStatusState,
   type LiveRuntimeSuggestionRecord,
+  selectLiveRuntimeGameSeed,
   shouldCommitLiveRuntimeSetup,
   shouldCommitLiveRuntimeSnapshot,
 } from "../../features/liveRuntime/model";
@@ -220,6 +221,7 @@ export function useLiveRuntime(args: UseLiveRuntimeArgs): UseLiveRuntimeResult {
       const suggestedSetupConfig = setup.ok
         ? normalizeStudioSetupConfig(studioSetupConfigFromLiveSnapshot(setup.setup))
         : undefined;
+      const suggestedGameSeed = setup.ok ? selectLiveRuntimeGameSeed(setup.setup) : undefined;
       if (setup.ok) {
         setLiveSetup({ status: "ok", setup: setup.setup, updatedAt: setup.observedAt });
       } else {
@@ -233,6 +235,7 @@ export function useLiveRuntime(args: UseLiveRuntimeArgs): UseLiveRuntimeResult {
         buildLiveRuntimeSuggestionRecords({
           sourceSnapshotId: statusState.snapshotId,
           seed: statusState.seed,
+          gameSeed: suggestedGameSeed,
           setupConfig: suggestedSetupConfig,
           provedStudioRun: false,
         })

@@ -3,8 +3,9 @@ import {
   type Civ7StandardMapSizePreset,
   findCiv7StandardMapSizePreset,
   getCiv7StandardMapSizePreset,
-} from "@civ7/adapter";
+} from "@civ7/map-policy";
 import { assessCiv7SignedIntSeed } from "@civ7/map-policy/setup";
+import { createLabelRng } from "@swooper/mapgen-core";
 
 const DEFAULT_TEST_MAP_SIZE_ID = "MAPSIZE_TINY" satisfies Civ7StandardMapSizeId;
 const DEFAULT_TEST_MAP_SEED = 1234;
@@ -46,8 +47,32 @@ function resolveTestSeed(environmentVariable: string, fallback: number): number 
 /** Civ7 preset selected for map-size-independent Swooper behavior tests. */
 export const TEST_MAP_SIZE = resolveTestMapSize();
 
+/** Authored latitude override shared by tests whose behavior does not depend on latitude. */
+export const TEST_MAP_LATITUDE_BOUNDS = {
+  topLatitude: 60,
+  bottomLatitude: -60,
+} as const;
+
 /** Map-generation seed shared by tests whose behavior does not depend on a particular seed. */
 export const TEST_MAP_SEED = resolveTestSeed("SWOOPER_TEST_MAP_SEED", DEFAULT_TEST_MAP_SEED);
 
 /** Civ7 game seed shared by launch tests whose behavior does not depend on a particular seed. */
 export const TEST_GAME_SEED = resolveTestSeed("SWOOPER_TEST_GAME_SEED", DEFAULT_TEST_GAME_SEED);
+
+/**
+ * Derives an operation-local fixture seed from the suite map seed and a stable semantic label.
+ *
+ * This mirrors the first labeled draw made by `ctxStepSeed`: operation tests receive the same
+ * nonnegative signed-int seed range as recipe execution without treating the map seed itself as
+ * an already-derived operation seed.
+ */
+export function deriveTestOperationSeed(label: string): number {
+  return createLabelRng(TEST_MAP_SEED)(2_147_483_647, label);
+}
+
+/**
+ * Exact ordered alive-major identities shared by tests that do not exercise player composition.
+ *
+ * These are explicit player identities, not a count-derived slot synthesis.
+ */
+export const TEST_ALIVE_MAJOR_PLAYER_IDS = [0, 1] as const;

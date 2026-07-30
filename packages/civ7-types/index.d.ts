@@ -49,19 +49,22 @@ interface GameInfoTable<T = any> {
  * Map configuration row from GameInfo.Maps
  */
 interface MapConfigRow {
-  NumNaturalWonders: number;
+  MapSizeType: string;
+  AllOnLargestLandmass: boolean;
+  Continents: number;
+  DefaultPlayers: number;
+  Description?: string;
+  GridHeight: number;
+  GridWidth: number;
   LakeGenerationFrequency: number;
+  LakeSizeCutoff: number;
+  Name: string;
+  NumNaturalWonders: number;
+  OceanWidth: number;
   PlayersLandmass1: number;
   PlayersLandmass2: number;
-  StartSectorRows: number;
   StartSectorCols: number;
-  Width: number;
-  Height: number;
-  MinimumResources: number;
-  DesiredRivers: number;
-  MinIslandSize: number;
-  MaxIslandSize: number;
-  NumMinorIslands: number;
+  StartSectorRows: number;
   [key: string]: any;
 }
 

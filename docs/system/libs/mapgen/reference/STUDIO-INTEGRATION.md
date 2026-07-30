@@ -28,7 +28,8 @@ For “how do I build this in my app?”, see:
 
 Studio’s runtime posture is:
 
-- **UI/main thread** owns: recipe selection, UI schema, run requests, and rendering.
+- **UI/main thread** owns: recipe selection, UI schema, portable initial-setup inputs, run requests,
+  and rendering.
 - **Web Worker** owns: config validation, plan compilation, pipeline execution, and emitting progress/trace/viz events back to the UI.
 
 This seam exists to keep:
@@ -57,9 +58,22 @@ export type BrowserRunStartRequest = {
   runToken: string;
   generation: number;
   recipeId: string;
-  seed: number;
-  dimensions: { width: number; height: number };
-  latitudeBounds: { topLatitude: number; bottomLatitude: number };
+  initialSetup: {
+    mapSeed: number;
+    gameSeed: number;
+    mapSizeId: string;
+    dimensions: { width: number; height: number };
+    latitudeBounds: { topLatitude: number; bottomLatitude: number };
+    aliveMajorPlayerIds: readonly number[];
+    options: {
+      map: Readonly<Record<string, string | number | boolean | readonly string[]>>;
+      game: Readonly<Record<string, string | number | boolean | readonly string[]>>;
+      player: readonly {
+        playerId: number;
+        options: Readonly<Record<string, string | number | boolean | readonly string[]>>;
+      }[];
+    };
+  };
   pipelineConfig: unknown;
 };
 
@@ -84,29 +98,50 @@ The worker never merges defaults, cleans keys, migrates properties, or repairs
 config. Recipe defaults are already complete artifacts, and editing replaces
 values inside a complete editor config before the worker request is created.
 
+Initial setup follows a parallel but recipe-owned boundary. The transport carries portable setup
+axes without claiming they are Core `MapSetup` or Standard initial setup. The selected runtime
+recipe projects those axes into its exact initial-setup schema, and recipe compilation owns final
+admission and snapshotting.
+
 ## Plan compile + execution
 
-The worker translates its public seed input into one `MapSetup` (`mapSeed`/dimensions/latitudes) and then:
+The worker does not construct a physical setup independently. It:
 
-- compiles a plan using the runtime recipe (`recipe.compile(setup, config)`),
+- projects the portable request through the selected runtime recipe and compiles one authentic plan,
+- derives the mock adapter's map metadata, dimensions, map seed, and exact alive-major player ids
+  from that retained plan,
 - receives the executor-owned `runId` and stable `planFingerprint` from the
   emitted `run.start` trace event,
 - enables step tracing for Studio's progress posture,
-- constructs an adapter (mock civ7 adapter in browser),
-- constructs one map context from the same setup,
+- constructs the browser mock adapter from plan-derived setup,
+- constructs one map context from `plan.setup`,
 - creates a browser visualization facet sink,
 - and calls `recipe.executeAsync(context, plan, { trace: { config, sink }, facets, abortSignal,
   yieldToEventLoop: true })`.
+
+For Standard, the runtime projector resolves the official map preset and constructs complete map,
+game, player, and option evidence. `standardRecipe.inspectPlan(plan)` is then the only source used to
+project adapter setup. The raw browser request is not consulted again after compilation, so Studio
+cannot execute one setup while attributing the run to another.
 
 Concrete execution posture (excerpt):
 
 ```ts
 // apps/mapgen-studio/src/browser-runner/pipeline.worker.ts
-const setup = admitMapSetup({ mapSeed: seed, dimensions, latitudeBounds });
-const plan = recipeEntry.recipe.compile(setup, config);
+const plan = recipeEntry.recipe.compile(initialSetup, configResult.value);
+const adapterSetup = recipeEntry.recipe.projectAdapterSetup(plan);
 const verboseSteps: Record<string, "verbose"> = Object.fromEntries(plan.nodes.map((node) => [node.stepId, "verbose"] as const));
 
-const context = createMapContext({ setup, adapter });
+const adapter = createMockAdapter({
+  width: adapterSetup.dimensions.width,
+  height: adapterSetup.dimensions.height,
+  mapSizeId: adapterSetup.mapSizeId,
+  mapInfo: adapterSetup.mapInfo,
+  aliveMajorPlayerIds: adapterSetup.aliveMajorPlayerIds,
+  rng: createLabelRng(adapterSetup.mapSeed),
+  // Civ7 browser tables omitted.
+});
+const context = createMapContext({ setup: plan.setup, adapter });
 const workerTraceSink = createWorkerTraceSink({ runToken, generation, post, abortSignal });
 const traceSink = {
   emit(event: TraceEvent) {
@@ -188,8 +223,10 @@ Cancellation posture:
 ## Determinism posture
 
 Studio’s browser runner is designed to be deterministic (given the same inputs), by:
-- deriving a label-based RNG from the seed (stable per label),
+- keeping map physics on `mapSeed` and gameplay placement on the distinct `gameSeed`,
+- deriving the browser adapter RNG from the admitted plan's map seed,
 - admitting the exact complete config carried by the request,
+- retaining exact map selection, player identities, and option evidence in the compiled plan, and
 - deriving run identity from the compiled plan.
 
 This does not mean “bitwise identical” across engines/platforms; it is a **developer-facing determinism posture** suitable for iteration and debugging.
@@ -199,6 +236,7 @@ This does not mean “bitwise identical” across engines/platforms; it is a **d
 Worker seam + protocol:
 - Worker entrypoint: `apps/mapgen-studio/src/browser-runner/pipeline.worker.ts`
 - Message protocol types: `apps/mapgen-studio/src/browser-runner/protocol.ts`
+- Runtime setup projection: `apps/mapgen-studio/src/browser-runner/recipeRuntime.ts`
 - Worker trace sink (progress): `apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts`
 - Worker visualization facet sink (materialization + Transferables):
   `apps/mapgen-studio/src/browser-runner/worker-viz-facet-sink.ts`

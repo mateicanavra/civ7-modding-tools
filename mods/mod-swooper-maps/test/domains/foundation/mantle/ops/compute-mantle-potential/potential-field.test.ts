@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import foundation from "@mapgen/domain/foundation/router";
-import { deriveStepSeed } from "@swooper/mapgen-core";
-import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
+import { deriveTestOperationSeed, TEST_MAP_SIZE } from "../../../../../setup.js";
 
 const { computeMesh } = foundation.mesh.ops;
 const { computeMantlePotential } = foundation.mantle.ops;
@@ -14,7 +13,7 @@ describe("foundation/compute-mantle-potential", () => {
       {
         width,
         height,
-        rngSeed: deriveStepSeed(TEST_MAP_SEED, "test:foundation:mantle-potential-mesh"),
+        rngSeed: deriveTestOperationSeed("test:foundation:mantle-potential-mesh"),
       },
       computeMesh.normalize({
         strategy: "jittered-delaunay",
@@ -29,7 +28,7 @@ describe("foundation/compute-mantle-potential", () => {
     const result = computeMantlePotential.run(
       {
         mesh: generatedMesh,
-        rngSeed: deriveStepSeed(TEST_MAP_SEED, "test:foundation:mantle-potential"),
+        rngSeed: deriveTestOperationSeed("test:foundation:mantle-potential"),
       },
       {
         ...computeMantlePotential.defaultConfig,
@@ -88,7 +87,7 @@ describe("foundation/compute-mantle-potential", () => {
     const result = computeMantlePotential.run(
       {
         mesh: syntheticSeamMesh,
-        rngSeed: deriveStepSeed(TEST_MAP_SEED, "test:foundation:mantle-potential-wrap"),
+        rngSeed: deriveTestOperationSeed("test:foundation:mantle-potential-wrap"),
       },
       {
         ...computeMantlePotential.defaultConfig,

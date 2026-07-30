@@ -1,7 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
-import { FEATURE_PLACEMENT_KEYS } from "@civ7/map-policy";
+import { FEATURE_PLACEMENT_KEYS, getCiv7StandardMapSizePreset } from "@civ7/map-policy";
 import { evaluateMetricTargets } from "@swooper/mapgen-metrics";
 import { admitStandardMapConfig } from "../../../../src/maps/configs/canonical.js";
 import swooperEarthlikeRaw from "../../../../src/maps/configs/swooper-earthlike.config.json";
@@ -12,16 +11,26 @@ import { EARTHLIKE_BIOME_STRUCTURE_STUDY } from "../../../../src/recipes/standar
 import { EARTHLIKE_RELIEF_REPRESENTATIVE_STUDY } from "../../../../src/recipes/standard/metrics/studies/benchmarks/earthlike-relief-representative.study.js";
 import {
   evaluateStandardMetricStudies,
+  standardMetricScenarioIdentity,
   standardProductMetricScenario,
 } from "../../../../src/recipes/standard/metrics/studies/index.js";
 import { EARTHLIKE_BIOME_STRUCTURE_TARGET } from "../../../../src/recipes/standard/metrics/targets/ecology.js";
 import { STANDARD_INTEGRITY_TARGET } from "../../../../src/recipes/standard/metrics/targets/integrity.js";
 import { EARTHLIKE_RELIEF_REPRESENTATIVE_TARGET } from "../../../../src/recipes/standard/metrics/targets/relief.js";
-import { TEST_MAP_SIZE } from "../../../setup.js";
+import { TEST_GAME_SEED, TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../setup.js";
 
 const standardPreset = getCiv7StandardMapSizePreset("MAPSIZE_STANDARD");
 const earthlikeConfig = admitStandardMapConfig(swooperEarthlikeRaw);
 const FORGED_NON_CIV7_DIMENSIONS = { width: 48, height: 28 } as const;
+const ABSURD_CUSTOM_DIMENSIONS = {
+  width: 2_147_483_647,
+  height: 2_147_483_647,
+} as const;
+const STANDARD_SCENARIO_IDENTITY = standardMetricScenarioIdentity(
+  standardPreset,
+  TEST_MAP_SEED,
+  TEST_GAME_SEED
+);
 
 describe("Standard metric scenario admission", () => {
   it("retains one complete Civ7 preset selection without inferred dimensions", () => {
@@ -30,7 +39,7 @@ describe("Standard metric scenario admission", () => {
       id: "earthlike-standard",
       config: earthlikeConfig,
       preset: standardPreset,
-      seed: 1018,
+      ...STANDARD_SCENARIO_IDENTITY,
     });
 
     expect(scenario.kind).toBe("civ7-preset");
@@ -41,31 +50,55 @@ describe("Standard metric scenario admission", () => {
 
   it("refuses custom selections whose dimensions and map metadata disagree", () => {
     expect(() =>
-      defineStandardMapMetricScenario({
-        ...validCustomScenario(),
-        mapInfo: { ...standardPreset.mapInfo, GridWidth: standardPreset.dimensions.width + 1 },
-      })
-    ).toThrow("map metadata inconsistent with its dimensions");
+      captureStandardMapScenario(
+        defineStandardMapMetricScenario({
+          ...validCustomScenario(),
+          mapInfo: { ...standardPreset.mapInfo, GridWidth: standardPreset.dimensions.width + 1 },
+        })
+      )
+    ).toThrow("refused semantic admission");
   });
 
   it("refuses custom selections that cannot seat their declared players", () => {
     expect(() =>
-      defineStandardMapMetricScenario({
-        ...validCustomScenario(),
-        mapInfo: { ...standardPreset.mapInfo, PlayersLandmass1: 0, PlayersLandmass2: 0 },
-      })
-    ).toThrow("landmass capacity for every player");
+      captureStandardMapScenario(
+        defineStandardMapMetricScenario({
+          ...validCustomScenario(),
+          mapInfo: { ...standardPreset.mapInfo, PlayersLandmass1: 0, PlayersLandmass2: 0 },
+        })
+      )
+    ).toThrow("refused semantic admission");
   });
 
-  it("refuses non-finite custom map-size identities", () => {
+  it("refuses an absurd custom grid before allocating metric adapter buffers", () => {
+    expect(() =>
+      captureStandardMapScenario({
+        ...validCustomScenario(),
+        dimensions: ABSURD_CUSTOM_DIMENSIONS,
+        mapInfo: {
+          ...standardPreset.mapInfo,
+          GridWidth: ABSURD_CUSTOM_DIMENSIONS.width,
+          GridHeight: ABSURD_CUSTOM_DIMENSIONS.height,
+        },
+      })
+    ).toThrow("Map setup tile count must fit a signed 32-bit grid index.");
+  });
+
+  it("refuses unstable custom map-size identities", () => {
     expect(() =>
       defineStandardMapMetricScenario({ ...validCustomScenario(), mapSizeId: Number.NaN })
+    ).toThrow("stable map-size ID");
+    expect(() =>
+      defineStandardMapMetricScenario({ ...validCustomScenario(), mapSizeId: " padded" })
+    ).toThrow("stable map-size ID");
+    expect(() =>
+      defineStandardMapMetricScenario({ ...validCustomScenario(), mapSizeId: 1.5 })
     ).toThrow("stable map-size ID");
   });
 
   it("refuses a forged Civ7 preset before a product study can capture it", () => {
     const forgedScenario = {
-      ...standardProductMetricScenario(earthlikeConfig, standardPreset, 1018),
+      ...standardProductMetricScenario(earthlikeConfig, standardPreset, STANDARD_SCENARIO_IDENTITY),
       preset: {
         ...standardPreset,
         dimensions: FORGED_NON_CIV7_DIMENSIONS,
@@ -83,21 +116,42 @@ describe("Standard metric scenario admission", () => {
       targets: [STANDARD_INTEGRITY_TARGET] as const,
     };
 
-    expect(() => evaluateStandardMetricStudies([study])).toThrow("canonical Civ7 preset");
+    expect(() => evaluateStandardMetricStudies([study])).toThrow("refused semantic admission");
   });
 
   it("constructs scenarios without process-global identity state", () => {
-    const first = standardProductMetricScenario(earthlikeConfig, standardPreset, 1018);
-    const second = standardProductMetricScenario(earthlikeConfig, standardPreset, 1018);
+    const first = standardProductMetricScenario(
+      earthlikeConfig,
+      standardPreset,
+      STANDARD_SCENARIO_IDENTITY
+    );
+    const second = standardProductMetricScenario(
+      earthlikeConfig,
+      standardPreset,
+      STANDARD_SCENARIO_IDENTITY
+    );
 
     expect(second).toEqual(first);
     expect(second).not.toBe(first);
   });
 
-  it("captures the complete canonical feature legality corpus including floodplains", () => {
+  it("captures inspected-setup provenance and the complete feature legality corpus", () => {
+    const identity = standardMetricScenarioIdentity(TEST_MAP_SIZE, TEST_MAP_SEED, TEST_GAME_SEED);
     const capture = captureStandardMapScenario(
-      standardProductMetricScenario(earthlikeConfig, TEST_MAP_SIZE, 1018)
+      standardProductMetricScenario(earthlikeConfig, TEST_MAP_SIZE, identity)
     );
+    expect(capture.provenance).toMatchObject({
+      mapKind: "civ7-preset",
+      mapSizeId: TEST_MAP_SIZE.id,
+      mapSeed: TEST_MAP_SEED,
+      gameSeed: TEST_GAME_SEED,
+      aliveMajorPlayerIds: identity.aliveMajorPlayerIds,
+      width: TEST_MAP_SIZE.dimensions.width,
+      height: TEST_MAP_SIZE.dimensions.height,
+      topLatitude: earthlikeConfig.latitudeBounds.topLatitude,
+      bottomLatitude: earthlikeConfig.latitudeBounds.bottomLatitude,
+    });
+    expect(capture.placement.aliveMajorIds).toEqual(capture.provenance.aliveMajorPlayerIds);
     const capturedKeys = capture.observation.features.map(({ key }) => key);
     const floodplain = FEATURE_PLACEMENT_KEYS.find((key) => key.includes("_FLOODPLAIN_"));
     if (!floodplain) throw new Error("Canonical Civ7 feature authority has no floodplain feature.");
@@ -180,7 +234,8 @@ function validCustomScenario() {
     dimensions: { ...standardPreset.dimensions },
     mapInfo: { ...standardPreset.mapInfo },
     mapSizeId: "fixture-standard",
-    playerCount: standardPreset.defaultPlayers,
-    seed: 1018,
+    mapSeed: TEST_MAP_SEED,
+    gameSeed: TEST_GAME_SEED,
+    aliveMajorPlayerIds: [...STANDARD_SCENARIO_IDENTITY.aliveMajorPlayerIds],
   };
 }

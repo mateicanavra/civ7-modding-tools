@@ -1,6 +1,6 @@
 import type { ResourcePlacementOutcome } from "@civ7/adapter";
 import { requireResourceRuntimeId } from "@civ7/map-policy";
-import { type ArtifactReadValueOf, createStep } from "@swooper/mapgen-core/authoring";
+import { createStep } from "@swooper/mapgen-core/authoring";
 
 import {
   measureStandardResourcePlacement,
@@ -35,9 +35,7 @@ const RESOURCE_OUTCOME_CATEGORIES = [
 ] as const;
 
 type ResourceOutcomeRow = StandardResourcePlacementMeasurements["outcomes"][number];
-type ResourcePlanIntent = ArtifactReadValueOf<
-  NonNullable<NonNullable<(typeof config)["artifacts"]>["requires"]>[number]
->["intents"][number];
+type ResourcePlacementPhase = ResourceOutcomeRow["phase"];
 
 function resourceOutcomeCategoryValue(outcome: ResourceOutcomeRow): number {
   if (outcome.status === "placed") return 1;
@@ -51,66 +49,51 @@ function resourceOutcomeCategoryValue(outcome: ResourceOutcomeRow): number {
   }
 }
 
-function admitResourcePlacementOutcome(
-  planned: ResourcePlanIntent,
-  expectedResourceType: number,
+/**
+ * Projects an adapter-owned terminal outcome into recipe evidence, adding only
+ * the planning phase that explains which product demand produced the request.
+ */
+function projectResourcePlacementOutcome(
+  phase: ResourcePlacementPhase,
   outcome: ResourcePlacementOutcome
 ): ResourceOutcomeRow {
-  if (
-    outcome.plotIndex !== planned.plotIndex ||
-    outcome.x !== planned.x ||
-    outcome.y !== planned.y ||
-    outcome.resourceType !== expectedResourceType
-  ) {
-    throw new Error(
-      `[Placement] Resource placement outcome drifted from adjusted-plan identity: ` +
-        `expected plot ${planned.plotIndex} at ${planned.x},${planned.y} with requested runtime type ${expectedResourceType}; ` +
-        `received plot ${outcome.plotIndex} at ${outcome.x},${outcome.y} with requested runtime type ${outcome.resourceType}.`
-    );
+  switch (outcome.status) {
+    case "placed":
+      return {
+        status: "placed",
+        plotIndex: outcome.plotIndex,
+        x: outcome.x,
+        y: outcome.y,
+        resourceType: outcome.resourceType,
+        phase,
+      };
+    case "rejected":
+      return {
+        status: "rejected",
+        plotIndex: outcome.plotIndex,
+        x: outcome.x,
+        y: outcome.y,
+        resourceType: outcome.resourceType,
+        phase,
+        reason: outcome.reason,
+        ...(outcome.observedResourceType === undefined
+          ? {}
+          : { observedResourceType: outcome.observedResourceType }),
+      };
+    case "mismatch":
+      throw new Error(
+        `[Placement] Resource placement readback mismatch at plot ${outcome.plotIndex}: ` +
+          `requested runtime type ${outcome.resourceType}, observed ${outcome.observedResourceType}.`
+      );
   }
-
-  if (
-    outcome.status === "mismatch" ||
-    (outcome.status === "placed" && outcome.observedResourceType !== expectedResourceType)
-  ) {
-    const observedResourceType = outcome.observedResourceType;
-    throw new Error(
-      `[Placement] Resource placement produced wrong-type readback at plot ${planned.plotIndex}: ` +
-        `expected runtime type ${expectedResourceType}, observed ${observedResourceType}.`
-    );
-  }
-
-  if (outcome.status === "placed") {
-    return Object.freeze({
-      status: "placed",
-      plotIndex: outcome.plotIndex,
-      x: outcome.x,
-      y: outcome.y,
-      resourceType: outcome.resourceType,
-      phase: planned.phase,
-    });
-  }
-
-  return Object.freeze({
-    status: "rejected",
-    plotIndex: outcome.plotIndex,
-    x: outcome.x,
-    y: outcome.y,
-    resourceType: outcome.resourceType,
-    phase: planned.phase,
-    reason: outcome.reason,
-    ...(outcome.observedResourceType === undefined
-      ? {}
-      : { observedResourceType: outcome.observedResourceType }),
-  });
 }
 
 /**
- * Materializes the adjusted resource plan exactly once per intent, then emits
- * one terminal measurement of Civ7 acceptance without relocation or type
- * re-decision. The adjusted plan remains authority for type-at-plot; normal
- * engine rejections become typed shortfalls while identity drift fails before
- * any warning, metric, visualization, or exact-log evidence can escape.
+ * Materializes each adjusted resource intent once, then closes Civ7's typed
+ * outcomes into terminal product evidence. The adapter owns bounds,
+ * coordinates, feasibility, and readback identity; this recipe preserves the
+ * originating plan phase, warns on normal rejections, and fails only when the
+ * adapter explicitly reports a readback mismatch.
  */
 export const PlaceResourcesStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
@@ -123,7 +106,7 @@ export const PlaceResourcesStep = createStep(config, {
         plotIndex: planned.plotIndex,
         resourceType,
       });
-      outcomes.push(admitResourcePlacementOutcome(planned, resourceType, outcome));
+      outcomes.push(projectResourcePlacementOutcome(planned.phase, outcome));
     }
 
     const measurements = measureStandardResourcePlacement(outcomes);

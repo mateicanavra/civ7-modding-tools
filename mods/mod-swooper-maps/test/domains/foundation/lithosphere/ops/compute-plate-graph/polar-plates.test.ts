@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import foundation from "@mapgen/domain/foundation/router";
-import { deriveStepSeed } from "@swooper/mapgen-core";
-import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
+import { deriveTestOperationSeed, TEST_MAP_SIZE } from "../../../../../setup.js";
 
 const { computeMesh } = foundation.mesh.ops;
 const { computePlateGraph } = foundation.lithosphere.ops;
@@ -52,7 +51,7 @@ function generatePlateInput(params: {
     {
       width,
       height,
-      rngSeed: deriveStepSeed(TEST_MAP_SEED, `${params.seedLabel}:mesh`),
+      rngSeed: deriveTestOperationSeed(`${params.seedLabel}:mesh`),
     },
     computeMesh.normalize({
       strategy: "jittered-delaunay",
@@ -72,7 +71,7 @@ function generatePlateInput(params: {
       maturity: new Float32Array(generatedMesh.cellCount),
       strength,
     },
-    rngSeed: deriveStepSeed(TEST_MAP_SEED, `${params.seedLabel}:plate-graph`),
+    rngSeed: deriveTestOperationSeed(`${params.seedLabel}:plate-graph`),
   };
 }
 
