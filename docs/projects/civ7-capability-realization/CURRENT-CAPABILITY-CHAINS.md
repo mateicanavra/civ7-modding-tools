@@ -45,21 +45,7 @@ and several focused readiness/play helpers intentionally do not all pass
 through the semantic service today. They require individual classification;
 the service must not absorb diagnostics merely to make package deletion easy.
 
-## 3. In-Game Provider Island
-
-```text
-game-scoped UIScript
-  -> nested control service client
-  -> App-UI-native facade
-  -> Civ7 globals
-  -> globalThis.Civ7IntelligenceBridge
-```
-
-This chain is build- and test-proven only. It has no deploy target, no installed
-mod evidence, and no tracked external caller. It is not a current shipped
-capability. App UI, Tuner, and gameplay ScriptSystem remain distinct states.
-
-## 4. Studio Control And Inspection
+## 3. Studio Control And Inspection
 
 ```text
 Studio browser
@@ -87,7 +73,7 @@ It preserves ordering, replays the latest live-game event, and closes
 subscribers on shutdown. Those are caller-visible projection behaviors, not
 MapGen run-storage semantics.
 
-## 5. Studio Browser Preview
+## 4. Studio Browser Preview
 
 ```text
 Studio UI
@@ -101,7 +87,7 @@ Studio UI
 This chain is deterministic browser execution. It does not use Civ7 and does
 not prove game-runtime projection.
 
-## 6. Studio Save, Deploy, And Run
+## 5. Studio Save, Deploy, And Run
 
 ```text
 durable save
@@ -145,7 +131,7 @@ Run in Game or Save & Deploy operation must reject autoplay with the current
 cross-operation mutex is MapGen-runs policy even though the admitted autoplay
 mutation is delegated to the control service.
 
-## 7. Official Data Authority
+## 6. Official Data Authority
 
 ```text
 installed Civ7 data
@@ -160,7 +146,7 @@ Preserve explicit extraction versus publication, submodule metadata, and
 generated-currentness proof. The static resource corpus is source evidence,
 not a managed runtime resource instance.
 
-## 8. Generic Mod Authoring And Deployment
+## 7. Generic Mod Authoring And Deployment
 
 ```text
 mod definition
@@ -182,7 +168,7 @@ construction. Its sole status projection is inlined into its CLI adapter;
 unconsumed remote, registry, packaging, validation, and Steam planning stubs
 are deleted.
 
-## 9. Swooper MapGen Runtime
+## 8. Swooper MapGen Runtime
 
 ```text
 Swooper domains and Standard recipe

@@ -4,48 +4,48 @@ Deterministic analytics for the Habitat authority execution surface. This report
 
 ## Sanity Assertions
 
-- Passed: 108 `rule.json`, 21 `structure.toml`, and `tools/habitat` `generate:schemas` were detected.
+- Passed: 121 `rule.json`, 22 `structure.toml`, and `tools/habitat` `generate:schemas` were detected.
 
 ## Surfaces By Kind
 
 | kind | count |
 | --- | --- |
-| pattern | 68 |
-| rule-json | 108 |
-| structure-spec | 21 |
+| pattern | 80 |
+| rule-json | 121 |
+| structure-spec | 22 |
 | check-script | 16 |
 | apply-pattern | 1 |
 | generate-script | 2 |
 | operation-note | 3 |
 | fix-script | 1 |
-| package-script | 193 |
-| nx-target | 127 |
+| package-script | 190 |
+| nx-target | 124 |
 | nx-plugin | 2 |
 | nx-target-default | 11 |
-| habitat-cli-source | 119 |
+| habitat-cli-source | 120 |
 
 ## Surfaces By Role
 
 | role | count |
 | --- | --- |
-| policy_pattern | 69 |
-| runner_metadata | 108 |
-| structure_authority | 21 |
+| policy_pattern | 81 |
+| runner_metadata | 121 |
+| structure_authority | 22 |
 | command_check_executor | 16 |
 | operation_surface | 6 |
-| workspace_entrypoint | 333 |
-| toolkit_runner | 119 |
+| workspace_entrypoint | 327 |
+| toolkit_runner | 120 |
 
 ## Execution Anatomy Roles
 
 | anatomy role | surface count |
 | --- | --- |
-| policy-predicate | 90 |
-| adapter | 108 |
-| transient-dependency | 142 |
-| fixture-support | 3 |
-| entrypoint | 335 |
-| runner-runtime | 119 |
+| policy-predicate | 103 |
+| adapter | 121 |
+| transient-dependency | 138 |
+| fixture-support | 4 |
+| entrypoint | 329 |
+| runner-runtime | 120 |
 
 ## Fixture/Support Files
 
@@ -58,53 +58,53 @@ Deterministic analytics for the Habitat authority execution surface. This report
 
 | invoker | count |
 | --- | --- |
-| unknown | 218 |
+| unknown | 244 |
 | direct-script | 5 |
-| package | 194 |
-| nx | 140 |
-| habitat | 119 |
+| package | 191 |
+| nx | 137 |
+| habitat | 120 |
 
 ## Buckets
 
 | bucket | count |
 | --- | --- |
-| unknown_invocation | 218 |
-| mutation_surface | 137 |
-| nx_ordering_tie | 149 |
-| package_boundary_tie | 40 |
+| unknown_invocation | 244 |
+| mutation_surface | 145 |
+| nx_ordering_tie | 145 |
+| package_boundary_tie | 39 |
 | direct_script_invoked | 5 |
-| package_invoked | 334 |
-| habitat_invoked | 119 |
+| package_invoked | 328 |
+| habitat_invoked | 120 |
 
 ## Top Cross-Boundary Ties By Fanout
 
 | target class | target | source count | references | sample sources |
 | --- | --- | --- | --- | --- |
 | workspace-tool | nx:noop | 38 | 38 | apps/cli/project.json#targets.check<br>apps/docs/project.json#targets.check<br>apps/mapgen-studio/project.json#targets.check |
+| relative | ./ | 25 | 25 | .habitat/blueprints/artifact/require_artifact_catalog_index_shape/pattern.md<br>.habitat/blueprints/artifact/require_artifact_file_shape/pattern.md<br>.habitat/blueprints/domain-atom/require_domain_atom_owner_shape/pattern.md |
 | workspace-tool | tsc -p test/tsconfig.json --noEmit | 24 | 24 | apps/cli/package.json#scripts.check:test<br>apps/docs/package.json#scripts.check:test<br>apps/mods/map/swooper-physics/package.json#scripts.check:test |
 | habitat-toolkit | @habitat/cli/service/model/check/index | 22 | 22 | tools/habitat/src/cli/commands/check.ts<br>tools/habitat/src/cli/commands/verify.ts<br>tools/habitat/src/service/model/check/policy/structural/blueprint-continuity-execution.policy.ts |
 | habitat-toolkit | @habitat/cli/resources/command/index | 21 | 21 | tools/habitat/src/providers/biome/index.ts<br>tools/habitat/src/providers/git/index.ts<br>tools/habitat/src/providers/graphite/index.ts |
-| relative | ./ | 19 | 19 | .habitat/blueprints/artifact/require_artifact_catalog_index_shape/pattern.md<br>.habitat/blueprints/artifact/require_artifact_file_shape/pattern.md<br>.habitat/blueprints/domain-atom/require_domain_atom_owner_shape/pattern.md |
 | habitat-toolkit | @habitat/cli/service/model/rules/index | 19 | 19 | tools/habitat/src/resources/rule-diagnostics/providers/grit/acquisition-roots/index.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts |
-| workspace-tool | git | 16 | 16 | .habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts<br>.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest/check.ts<br>.habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/check.mjs |
-| workspace-tool | grit<br>language js(typescript)<br><br>or { | 16 | 16 | .habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md<br>.habitat/blueprints/domain-operation/prohibit_domain_ops_recipe_dependencies/pattern.md<br>.habitat/blueprints/domain-operation/prohibit_runtime_orchestration_helpers_in_domain_ops/pattern.md |
+| workspace-tool | git | 16 | 16 | .habitat/blueprints/cli-topic-plugin/require_cli_command_module_semantics/check.ts<br>.habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts<br>.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest/check.ts |
+| workspace-tool | grit<br>language js(typescript)<br><br>or { | 15 | 15 | .habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md<br>.habitat/blueprints/domain-operation/prohibit_domain_ops_recipe_dependencies/pattern.md<br>.habitat/blueprints/domain-operation/prohibit_runtime_orchestration_helpers_in_domain_ops/pattern.md |
 | relative | ./types.js | 14 | 25 | .habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md<br>.habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/pattern.md<br>tools/habitat/src/resources/command/fake.ts |
-| workspace-tool | tsc -p tsconfig.json --noEmit --composite false --incremental false | 13 | 13 | apps/docs/package.json#scripts.typecheck<br>apps/playground/package.json#scripts.typecheck<br>packages/civ7-control-orpc/project.json#targets.typecheck |
+| workspace-tool | tsc -p tsconfig.json --noEmit --composite false --incremental false | 13 | 13 | apps/docs/package.json#scripts.typecheck<br>apps/playground/package.json#scripts.typecheck<br>packages/civ7-direct-control/package.json#scripts.typecheck |
 | workspace-tool | tsc -p tsconfig.json --noEmit | 11 | 11 | mods/mod-swooper-civ-dacia/package.json#scripts.typecheck<br>packages/mapgen-diagnostics/package.json#scripts.typecheck<br>packages/mapgen-metrics/package.json#scripts.typecheck |
 | relative | ./contract.js | 10 | 10 | .habitat/blueprints/domain-operation/prohibit_cross_op_runtime_calls/pattern.md<br>.habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/pattern.md<br>.habitat/blueprints/domain-operation/require_domain_operation_implementation_artifact_boundary/pattern.md |
 | habitat-toolkit | @habitat/cli/service/model/diagnostics/index | 10 | 10 | tools/habitat/src/resources/rule-diagnostics/providers/grit/acquisition-roots/index.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/command.ts |
 | relative | ./output.js | 9 | 18 | tools/habitat/src/resources/command/index.ts<br>tools/habitat/src/resources/command/runner.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts |
-| workspace-tool | grit | 9 | 9 | tools/habitat/src/resources/rule-diagnostics/providers/grit/command.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-preview.ts<br>tools/habitat/src/service/model/check/policy/structural/execution.policy.ts |
+| workspace-tool | grit | 9 | 9 | tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-preview.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/grit-package.ts<br>tools/habitat/src/service/model/check/policy/structural/execution.policy.ts |
 | relative | ./context.policy.js | 8 | 16 | tools/habitat/src/service/model/check/policy/structural/blueprint-continuity-execution.policy.ts<br>tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts<br>tools/habitat/src/service/model/check/policy/structural/diagnostic-execution.policy.ts |
 | relative | ./request.js | 8 | 16 | tools/habitat/src/resources/command/index.ts<br>tools/habitat/src/resources/command/observation.ts<br>tools/habitat/src/resources/command/result.ts |
 | habitat-toolkit | @habitat/cli/service/model/workspace/index | 8 | 8 | tools/habitat/src/providers/nx/graph.ts<br>tools/habitat/src/providers/nx/index.ts<br>tools/habitat/src/providers/nx/inventory.ts |
-| workspace-tool | tsc --noEmit | 8 | 8 | apps/mapgen-studio/project.json#targets.typecheck<br>apps/mods/map/swooper-physics/package.json#scripts.typecheck<br>apps/mods/map/swooper-physics/project.json#targets.typecheck |
-| workspace-tool | tsc -p tsconfig.tools.json --noEmit | 8 | 8 | apps/mapgen-studio/project.json#targets.check:tools<br>packages/civ7-control-orpc/package.json#scripts.check:tools<br>packages/civ7-direct-control/package.json#scripts.check:tools |
+| workspace-tool | tsc -p tsconfig.tools.json --noEmit | 8 | 8 | apps/mapgen-studio/project.json#targets.check:tools<br>packages/civ7-direct-control/package.json#scripts.check:tools<br>packages/mapgen-studio-ui/package.json#scripts.check:tools |
 | relative | ./command.js | 7 | 14 | tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/check.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-preview.ts |
-| workspace-tool | bun test | 7 | 7 | apps/mods/map/swooper-physics/package.json#scripts.test<br>apps/mods/map/swooper-physics/project.json#targets.test<br>mods/mod-civ7-intelligence-bridge/package.json#scripts.test |
 | workspace-tool | nx | 7 | 7 | tools/habitat/src/providers/nx/index.ts<br>tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts<br>tools/habitat/src/service/model/rules/dto/registry.schema.ts |
+| workspace-tool | tsc --noEmit | 7 | 7 | apps/mapgen-studio/project.json#targets.typecheck<br>apps/mods/map/swooper-physics/package.json#scripts.typecheck<br>apps/mods/map/swooper-physics/project.json#targets.typecheck |
 | habitat-toolkit | @habitat/cli/cli/base/HabitatCommand | 6 | 6 | tools/habitat/src/cli/commands/check.ts<br>tools/habitat/src/cli/commands/classify.ts<br>tools/habitat/src/cli/commands/fix.ts |
 | habitat-toolkit | @habitat/cli/resources/command/types | 6 | 6 | tools/habitat/src/providers/biome/index.ts<br>tools/habitat/src/providers/git/index.ts<br>tools/habitat/src/providers/nx/index.ts |
+| habitat-toolkit | @habitat/cli/service/model/rules/policy/selection.policy | 6 | 6 | tools/habitat/src/service/model/check/policy/request.policy.ts<br>tools/habitat/src/service/model/check/policy/structural/execution.policy.ts<br>tools/habitat/src/service/model/check/policy/structural/report.policy.ts |
 
 ## Direct Package Or Root Scripts Calling `.habitat` Internals
 
@@ -132,6 +132,10 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | .habitat/blueprints/artifact/require_artifact_index_aggregate_shape/structure.toml | structure-spec |  |
 | .habitat/blueprints/cli-shell/require_cli_shell_project_topology/rule.json | rule-json |  |
 | .habitat/blueprints/cli-shell/require_cli_shell_project_topology/structure.toml | structure-spec |  |
+| .habitat/blueprints/cli-topic-plugin/require_cli_command_module_identity/pattern.md | pattern | >; rm; ../../adapters/topic-command-base.js |
+| .habitat/blueprints/cli-topic-plugin/require_cli_command_module_identity/rule.json | rule-json |  |
+| .habitat/blueprints/cli-topic-plugin/require_cli_command_module_semantics/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:fs |
+| .habitat/blueprints/cli-topic-plugin/require_cli_command_module_semantics/rule.json | rule-json |  |
 | .habitat/blueprints/cli-topic-plugin/require_cli_topic_plugin_project_topology/rule.json | rule-json |  |
 | .habitat/blueprints/cli-topic-plugin/require_cli_topic_plugin_project_topology/structure.toml | structure-spec |  |
 | .habitat/blueprints/domain-atom/require_domain_atom_owner_shape/pattern.md | pattern | >; ./; grit<br>language js(typescript)<br><br>predicate disallowed_root_atom_dependency($source) {<br>  ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/schema\|type-fest\|\./[^\"']+)[\"']?$"<br>}<br><br>predicate disallowed_module_atom_dependency($source) {<br>  ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/schema\|type-fest\|\./[^\"']+\|(?:\.\./){4}model/atoms/(?:index\|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)\.js)[\"']?$"<br>}<br><br>or {<br>  import_statement(source=$source) where {<br>    $filename <: r".*plugins/mod/map/[^/]+/src/domain/[^/]+/model/atoms/[^/]+\.ts$",<br>    disallowed_root_atom_dependency($source)<br>  },<br>  import_statement(source=$source) where {<br>    $filename <: r".*plugins/mod/map/[^/]+/src/domain/[^/]+/modules/[^/]+/model/atoms/[^/]+\.ts$",<br>    disallowed_module_atom_dependency($source)<br>  },<br>  or { |
@@ -226,6 +230,32 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | .habitat/blueprints/recipe/require_recipe_metrics_study_structure/structure.toml | structure-spec |  |
 | .habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/pattern.md | pattern | ../../domain/morphology/index.js; ../../domain/morphology/router.js; ../@mapgen/domain/placement |
 | .habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/rule.json | rule-json |  |
+| .habitat/blueprints/service/require_orpc_error_authority/pattern.md | pattern | >; ../model/errors/unit; grit<br>language js(typescript)<br><br>predicate require_orpc_error_authority_is_governed_source() {<br>  $filename <: r".*/services/[^/]+/src/service/.*\.ts$"<br>}<br><br>predicate require_orpc_error_authority_is_executable_interior() {<br>  $filename <: r".*/services/[^/]+/src/service/(?:impl\.ts\|router\.ts\|middleware/[^/]+\.ts\|modules/[^/]+/(?:module\.ts\|router/[^/]+\.ts\|middleware/[^/]+\.ts))$"<br>}<br><br>predicate require_orpc_error_authority_is_middleware_source() {<br>  $filename <: r".*/services/[^/]+/src/service/(?:middleware\|modules/[^/]+/middleware)/.*\.ts$"<br>}<br><br>predicate require_orpc_error_authority_is_error_source($source) {<br>  $source <: r"^[\"'][^\"']*(?:[/\.]errors?)(?:[/\.][^\"']*)?[\"']$"<br>}<br><br>predicate require_orpc_error_authority_is_whole_type_import($import) {<br>  $import <: import_statement(type=type())<br>}<br><br>predicate require_orpc_error_authority_is_named_type_import($import) {<br>  $import <: |
+| .habitat/blueprints/service/require_orpc_error_authority/rule.json | rule-json |  |
+| .habitat/blueprints/service/require_service_anchor_exports/pattern.md | pattern | >; grit<br>language js(typescript)<br><br>predicate require_service_anchor_exports_is_service_base() {<br>  $filename <: r".*/services/[^/]+/src/service/base\.ts$"<br>}<br><br>predicate require_service_anchor_exports_is_service_context() {<br>  $filename <: r".*/services/[^/]+/src/service/context\.ts$"<br>}<br><br>predicate require_service_anchor_exports_is_service_contract_anchor() {<br>  $filename <: r".*/services/[^/]+/src/service/(?:contract\.ts\|modules/[^/]+/contract/index\.ts)$"<br>}<br><br>predicate require_service_anchor_exports_is_service_impl() {<br>  $filename <: r".*/services/[^/]+/src/service/impl\.ts$"<br>}<br><br>predicate require_service_anchor_exports_is_service_module() {<br>  $filename <: r".*/services/[^/]+/src/service/modules/[^/]+/module\.ts$"<br>}<br><br>predicate require_service_anchor_exports_is_service_router_anchor() {<br>  $filename <: r".*/services/[^/]+/src/service/(?:router\.ts\|modules/[^/]+/router/index\.ts)$"<br>}<br><br>predicate require_service_anchor_exports_is_service_root_router() {<br>  $filename <: r".*/services/[^/]+/src/service/router\.ts$"<br>}<br><br>predicate require_service_anchor_exports_is_service_module_router() {<br>  $filename <: r".*/services/[^/]+/src/service/modules/[^/]+/router/index\.ts$"<br>}<br><br>predicate require_service_anchor_exports_is_runtime_export($export) {<br>  $export <: export_statement(declaration=$declaration) where {<br>    $declaration <: or {<br>      lexical_declaration(),<br>      variable_declaration(),<br>      function_declaration(),<br>      class_declaration(),<br>      enum_declaration()<br>    }<br>  }<br>}<br><br>predicate require_service_anchor_exports_is_contract_export($export) {<br>  or {<br>    $export <: |
+| .habitat/blueprints/service/require_service_anchor_exports/rule.json | rule-json |  |
+| .habitat/blueprints/service/require_service_boundary_platform_independence/pattern.md | pattern | >; rm; ./modules/unit/model/ports/unit |
+| .habitat/blueprints/service/require_service_boundary_platform_independence/rule.json | rule-json |  |
+| .habitat/blueprints/service/require_service_context_boundaries/pattern.md | pattern | >; ../../../context; ./ |
+| .habitat/blueprints/service/require_service_context_boundaries/rule.json | rule-json |  |
+| .habitat/blueprints/service/require_service_contract_authority/pattern.md | pattern | >; rm; ../../../base |
+| .habitat/blueprints/service/require_service_contract_authority/rule.json | rule-json |  |
+| .habitat/blueprints/service/require_service_contract_property_descriptions/pattern.md | pattern | grit<br>language js(typescript)<br><br>predicate require_service_contract_property_descriptions_is_module_contract() {<br>  $filename <: r".*/services/[^/]+/src/service/modules/[^/]+/contract/[^/]+\.ts$"<br>}<br><br>predicate require_service_contract_property_descriptions_imports_canonical_typebox() {<br>  $program <: contains |
+| .habitat/blueprints/service/require_service_contract_property_descriptions/rule.json | rule-json |  |
+| .habitat/blueprints/service/require_service_effect_error_authority/pattern.md | pattern | >; grit<br>language js(typescript)<br><br>predicate require_service_effect_error_authority_is_service_production_source() {<br>  $filename <: r".*/services/[^/]+/src/.*\.ts$"<br>}<br><br>predicate require_service_effect_error_authority_is_error_subclass($name) {<br>  $program <: contains |
+| .habitat/blueprints/service/require_service_effect_error_authority/rule.json | rule-json |  |
+| .habitat/blueprints/service/require_service_module_isolation/pattern.md | pattern | ../../../base; ../../../impl; ../../../schema/standard |
+| .habitat/blueprints/service/require_service_module_isolation/rule.json | rule-json |  |
+| .habitat/blueprints/service/require_service_orpc_composition/pattern.md | pattern | >; ../../impl; ./command |
+| .habitat/blueprints/service/require_service_orpc_composition/rule.json | rule-json |  |
+| .habitat/blueprints/service/require_service_proof_isolation/pattern.md | pattern | ../../../../../test/support/unit; ../../src/client; ./ |
+| .habitat/blueprints/service/require_service_proof_isolation/rule.json | rule-json |  |
+| .habitat/blueprints/service/require_service_public_consumer_sealing/pattern.md | pattern | >; ../../../services/civ7-control/src/service/router; ./ |
+| .habitat/blueprints/service/require_service_public_consumer_sealing/rule.json | rule-json |  |
+| .habitat/blueprints/service/require_service_router_authorship/pattern.md | pattern | ../module; ./; ./command |
+| .habitat/blueprints/service/require_service_router_authorship/rule.json | rule-json |  |
+| .habitat/blueprints/service/require_service_spine_topology/rule.json | rule-json |  |
+| .habitat/blueprints/service/require_service_spine_topology/structure.toml | structure-spec |  |
 | .habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md | pattern | build; ../contract.js; ./builders |
 | .habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_empty_object_defaults_in_contract_schemas/pattern.md | pattern | packages/mapgen-core/src/demo.contract.ts; grit<br>language js(typescript) |
@@ -298,12 +328,8 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | .habitat/civ7/platform/adapter/rules/enforce_adapter_only_base_standard_imports/rule.json | rule-json |  |
 | .habitat/civ7/platform/adapter/rules/prohibit_adapter_local_legacy_generator_logic/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:fs |
 | .habitat/civ7/platform/adapter/rules/prohibit_adapter_local_legacy_generator_logic/rule.json | rule-json |  |
-| .habitat/civ7/platform/control-orpc/rules/preserve_transport_pure_orpc_contracts/pattern.md | pattern | ./bridge/controller-ingress; ./modules/; ./modules/demo |
-| .habitat/civ7/platform/control-orpc/rules/preserve_transport_pure_orpc_contracts/rule.json | rule-json |  |
 | .habitat/civ7/platform/direct-control/session/rules/require_sanctioned_direct_control_session_owners/pattern.md | pattern | apps; apps/cli/civ7.ts; apps/mapgen-studio/src/features/liveRuntime/session.ts |
 | .habitat/civ7/platform/direct-control/session/rules/require_sanctioned_direct_control_session_owners/rule.json | rule-json |  |
-| .habitat/civ7/platform/game-ui-bridge/rules/require_narrow_game_ui_bridge_bootstrap/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:fs |
-| .habitat/civ7/platform/game-ui-bridge/rules/require_narrow_game_ui_bridge_bootstrap/rule.json | rule-json |  |
 | .habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/pattern.md | pattern | ./policy-grid.js; ./types.js; packages/civ7-map-policy/src/. |
 | .habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/rule.json | rule-json |  |
 | .habitat/docs/_blueprints/docs-site/generate_docs_sidebar_from_docs_tree/operation.md | operation-note | generate |

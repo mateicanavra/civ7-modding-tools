@@ -47,11 +47,6 @@ describe("boundary taxonomy verifier", () => {
       root: ".habitat",
       tags: ["kind:tooling"],
     });
-    expect(taxonomy.projects).toContainEqual({
-      name: "mod-intelligence-bridge",
-      root: "mods/mod-civ7-intelligence-bridge",
-      tags: ["kind:mod", "kind:control"],
-    });
     expect(taxonomy.constraints).toContainEqual({
       sourceTag: "kind:control",
       onlyDependOnLibsWithTags: ["kind:adapter", "kind:control", "kind:engine", "kind:library"],
@@ -165,15 +160,12 @@ describe("boundary taxonomy verifier", () => {
           .map((project) => [project.name, project.root, project.tags])
       ),
       configConstraints: taxonomy.constraints,
-      graphEdges: [
-        { source: "civ7-types", target: "civ7-adapter" },
-        { source: "mod-intelligence-bridge", target: "civ7-sdk" },
-      ],
+      graphEdges: [{ source: "civ7-types", target: "civ7-adapter" }],
     });
 
     expect(audit.ok).toBe(true);
     expect(audit.issues).toEqual([]);
-    expect(audit.graphEdgeCount).toBe(2);
+    expect(audit.graphEdgeCount).toBe(1);
   });
 
   test("reports boundary config drift from taxonomy constraints", async () => {
@@ -269,7 +261,6 @@ function packageNameForRoot(root: string): string | null {
       {
         "apps/docs": "@civ7/docs",
         "apps/playground": "@civ7/playground",
-        "mods/mod-civ7-intelligence-bridge": "mod-civ7-intelligence-bridge",
         "mods/mod-swooper-civ-dacia": "civ-mod-dacia",
         "packages/civ7-adapter": "@civ7/adapter",
         "services/civ7-control": "@civ7/control-orpc",

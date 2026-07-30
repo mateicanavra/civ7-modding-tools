@@ -1,3 +1,8 @@
+> **Controller amendment (2026-07-30):** ADR-007 and DEF-022 supersede this
+> packet's `Civ7IntelligenceBridge` ingress and deployed-controller clauses.
+> Its service/direct-control ownership decisions remain active until the
+> capability-realization cutover; workstream records remain chronology.
+
 ## Why
 
 The support stack has enough direct-control atom and descriptor evidence to

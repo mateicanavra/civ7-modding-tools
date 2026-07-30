@@ -1,5 +1,13 @@
 # Civ7 Intelligence Actuation Path Map
 
+> **Control-path rebaseline (2026-07-30):** This evidence map predates the
+> retirement of the unconsumed intelligence bridge. Its App UI observations
+> remain evidence; its controller and global-ingress recommendation is
+> superseded by
+> [ADR-007](../../system/ADR.md#adr-007-civ7-intelligence-separates-live-control-from-native-policy)
+> and
+> [DEF-022](../../system/DEFERRALS.md#def-022-persistent-in-game-civ7-controller).
+
 Status: evidence synthesis for the open-thread investigation.
 Updated: 2026-06-03.
 Companion frame: [SOLUTION-FRAME.md](SOLUTION-FRAME.md).

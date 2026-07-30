@@ -1,3 +1,8 @@
+> **Controller amendment (2026-07-30):** Task 7.3 and all bridge-specific
+> follow-ons are retired rather than pending implementation. Checked child rows
+> remain chronological evidence; non-bridge service work keeps its recorded
+> state.
+
 ## 1. Authority And Intake
 
 - [x] 1.1 Re-check official oRPC docs for procedure, router, context,

@@ -1,3 +1,7 @@
+> **Superseded 2026-07-30:** The source repair remains historical evidence, but
+> the bundle and bridge project it protected have been retired by ADR-007 and
+> DEF-022. This packet awaits capability-realization Container 14 archival.
+
 ## Why
 
 The generated `mod-civ7-intelligence-bridge` game UI bundle is a Civ7

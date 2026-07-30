@@ -1,5 +1,13 @@
 # 12 — Studio ↔ Control-oRPC Seam (designed-toward stack-top, not yet on main)
 
+> **Superseded control seam (2026-07-30):** The bridge host and
+> `Civ7IntelligenceBridge` ingress below are no longer a valid target. Retain
+> this file as design evidence only. Re-derive Studio's control projection from
+> [ADR-007](../../../system/ADR.md#adr-007-civ7-intelligence-separates-live-control-from-native-policy)
+> and the
+> [capability-realization frame](../../civ7-capability-realization/FRAME.md)
+> after the corrected shared Habitat substrate is accepted.
+
 > **Status:** designed-toward the **tip of the live-control `codex/*` stack**, **not
 > yet on `main`**. This document captures the *target* control-oRPC contract
 > surface the studio will consume and the **thin adapter seam** the studio binds

@@ -1,3 +1,8 @@
+> **Superseded 2026-07-30:** These requirements preserve historical repair
+> evidence for a bundle and bridge project retired by ADR-007 and DEF-022.
+> They are not current Civ7 control authority and await capability-realization
+> Container 14 archival with `--skip-specs`.
+
 ## ADDED Requirements
 
 ### Requirement: Game UI Bridge Bundle Excludes Node Direct-Control Runtime

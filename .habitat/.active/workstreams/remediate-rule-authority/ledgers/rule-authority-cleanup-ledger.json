@@ -2,14 +2,14 @@
   "schemaVersion": 2,
   "kind": "habitat.ruleAuthorityCleanup.operationalLedger",
   "status": "canonical-operational-source",
-  "updatedOn": "2026-07-26",
+  "updatedOn": "2026-07-30",
   "recordPolicy": "This JSON file is the only machine-readable operational source for rule authority cleanup: live rule rows, retired/stale references, queued/completed slices, blockers, findings, counts, and gate state. Markdown receipts may explain completed slices, but they must not duplicate or define active rule rows, queue, blockers, or counts.",
   "controllingFrame": ".habitat/.active/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/.active/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
   "corpus": {
-    "liveManifestCount": 108,
-    "currentRowCount": 121,
-    "retiredHistoricalRowCount": 45,
+    "liveManifestCount": 121,
+    "currentRowCount": 120,
+    "retiredHistoricalRowCount": 46,
     "duplicateLiveRows": []
   },
   "counts": {
@@ -18,31 +18,32 @@
       "closed structure inversion": 2,
       "consolidation/dedup": 1,
       "context admission": 27,
-      "no action": 52,
+      "no action": 49,
       "positive authority creation": 13,
+      "relocate to niche self-authority": 2,
       "retirement/garbage collection": 2,
       "runtime/source validation": 3,
       "split by owner": 14
     },
     "packetNeeded": {
-      "false": 121
+      "false": 120
     },
     "layer2Status": {
       "blocked-prior-source-owner-design": 1,
       "decision-packet-accepted; deletion-blocked-partial-absorber": 1,
       "decision-packet-accepted; split-generalization-needed": 3,
       "excluded-native-rail-not-semantic-remediation": 1,
-      "none": 87,
+      "none": 86,
       "packet-complete": 14,
       "transition-decision-accepted": 14
     }
   },
   "gateState": {
-    "currentLayer": "MapGen final ratchet: Civ7 generated-currentness authority retirement.",
-    "currentGate": "Seal exact package-owned generated currentness as the sole content oracle while preserving Habitat host classification and recovery.",
-    "mutationAuthorization": "Only the active root-owned final-ratchet Graphite stack; A.2 remains separately owned and unstarted.",
+    "currentLayer": "Rule authority cleanup: live-manifest and ledger identity reconciliation.",
+    "currentGate": "Restore exact one-row-per-live-rule identity parity before selecting another rule-authority mutation.",
+    "mutationAuthorization": "Only the reviewed require_narrow_game_ui_bridge_bootstrap retirement is authorized by the controller-disposition slice. No further rule mutation is authorized until a fresh no-edit Layer 1 reconciliation classifies the 46 missing live ids and dispositions the 45 manifestless current rows.",
     "nextSliceId": null,
-    "nextLegalAction": "Commit the reviewed Civ7 generated-authority retirement layer, then return to the next independently framed MapGen final-ratchet container.",
+    "nextLegalAction": "Land the reviewed bridge-rule retirement, then frame and run a no-edit Layer 1 corpus reconciliation before selecting any further rule-authority slice.",
     "operationalSourceOfTruth": ".habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json"
   },
   "rules": [
@@ -1067,15 +1068,6 @@
       "expectedRemediation": "Stay live as morphology public-surface import boundary authority.",
       "evidenceNote": "Domino 63 replaced the retired-path proxy with a single Grit public-surface import rule for non-domain consumers; G4 remains recipe-wide domain import authority, while this morphology row owns morphology-specific consumer relapse detection outside the domain internals.",
       "currentPath": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/rule.json"
-    },
-    {
-      "ruleId": "require_narrow_game_ui_bridge_bootstrap",
-      "lane": "Civ7 platform/resources",
-      "actionDecision": "no action",
-      "packetNeeded": false,
-      "expectedRemediation": "Stay as game UI bridge bootstrap surface guard.",
-      "evidenceNote": "Static source scan is the current Habitat-owned proof surface.",
-      "currentPath": ".habitat/civ7/platform/game-ui-bridge/rules/require_narrow_game_ui_bridge_bootstrap/rule.json"
     },
     {
       "ruleId": "require_owner_workflow_for_host_protected_surfaces",
@@ -2983,6 +2975,14 @@
       "kind": "retired story publisher native-boundary blocker",
       "rules": ["prohibit_morphology_hotspot_overlay_publishers"],
       "reason": "The current publisher surface was deleted by narrative burn-down. If a Gameplay story publisher returns, define a positive source/API boundary before adding enforcement."
+    },
+    {
+      "kind": "live-manifest-ledger-identity-parity",
+      "rules": [],
+      "missingLiveRowCount": 46,
+      "staleCurrentRowCount": 45,
+      "introducedByCurrentSlice": false,
+      "reason": "The controller-disposition slice preserves a pre-existing 46/45 live-manifest and ledger-row identity mismatch while truthfully retiring its one deleted rule. No missing or manifestless row disposition may be inferred mechanically; a fresh no-edit Layer 1 reconciliation must restore exact identity parity before further rule mutation."
     }
   ],
   "findings": [
@@ -3198,9 +3198,36 @@
       ],
       "summary": "Retired five split token/path successors whose empty baselines recorded only current execution. Common scoring vocabulary, seeded RNG helper names, exact legacy call names, and retired module strings do not define durable authority with honest false-positive models.",
       "handling": "Deleted the five packets and their live rows. Deterministic authored-generation and official-generator ownership remain open under prohibit_ambient_rng_in_authored_generation and adjacent domain-operation/placement boundary authority; no package test or replacement lexical assertion was created."
+    },
+    {
+      "findingId": "2026-07-30-live-manifest-ledger-parity-drift",
+      "recordedOn": "2026-07-30",
+      "kind": "operational-ledger-coverage-drift",
+      "rules": [],
+      "summary": "Fresh identity comparison found 121 live rule manifests, 120 current ledger rows, 46 live ids without rows, and 45 current rows without live manifests. Reconstructing the parent commit yields the same 46/45 mismatch, so the controller-disposition slice did not introduce or enlarge the drift.",
+      "handling": "Preserve the truthful bridge retirement, block further rule-authority mutation, and use the comm-based reproduction commands in rule-authority-corpus-grounding.md as the admission proof for a separately framed no-edit Layer 1 reconciliation. Do not manufacture context-admission or retirement dispositions from registry identity alone."
     }
   ],
   "retiredRules": [
+    {
+      "ruleId": "require_narrow_game_ui_bridge_bootstrap",
+      "lane": "Civ7 platform/resources",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Retire the instance rule with the unconsumed intelligence-bridge project.",
+      "evidenceNote": "The bridge had zero production consumers. Durable App UI facts moved to the engine-reference sieve; future same-realm control requires a new admitted consumer, ingress, deployment, and lifecycle proof.",
+      "currentPath": null,
+      "previousPath": ".habitat/civ7/platform/game-ui-bridge/rules/require_narrow_game_ui_bridge_bootstrap/rule.json",
+      "retiredOn": "2026-07-30",
+      "retiredBy": "Civ7 capability-realization controller disposition",
+      "retiredReason": "An instance-specific bootstrap guard cannot outlive the unshipped provider island it protected.",
+      "authorityDestination": {
+        "nativeEvidence": "docs/system/direct-control/SIEVE-ENGINE-REFERENCE.md#app-ui-gameplay-evidence",
+        "architectureDecision": "docs/system/ADR.md#adr-007-civ7-intelligence-separates-live-control-from-native-policy",
+        "deferredAdmission": "docs/system/DEFERRALS.md#def-022-persistent-in-game-civ7-controller"
+      },
+      "retirementRecord": "docs/projects/civ7-capability-realization/WORKSTREAM.md#container-11-controller-disposition"
+    },
     {
       "ruleId": "protect_generated_map_entrypoints_from_hand_edits",
       "lane": "mixed blueprints",

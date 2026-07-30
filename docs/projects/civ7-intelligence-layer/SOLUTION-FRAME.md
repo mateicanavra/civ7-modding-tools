@@ -1,5 +1,13 @@
 # Civ7 Intelligence Layer Solution Frame
 
+> **Control-path rebaseline (2026-07-30):** The controller and
+> `globalThis.Civ7IntelligenceBridge` recommendations below are retained as
+> investigation history, not current architecture. Current authority is
+> [ADR-007](../../system/ADR.md#adr-007-civ7-intelligence-separates-live-control-from-native-policy),
+> [DEF-022](../../system/DEFERRALS.md#def-022-persistent-in-game-civ7-controller),
+> and the
+> [capability-realization frame](../civ7-capability-realization/FRAME.md).
+
 **Status:** Operational solution frame
 **Audience:** Workstream lead, agent implementers, and reviewers deciding what
 to build next

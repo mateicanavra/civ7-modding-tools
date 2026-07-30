@@ -1,3 +1,7 @@
+> **Superseded 2026-07-30:** This bridge design is historical evidence, not
+> current architecture. ADR-007 and DEF-022 govern any future same-realm
+> controller.
+
 ## Design
 
 The controller is a native App UI companion loaded through Civ7 modinfo action

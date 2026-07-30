@@ -20,18 +20,13 @@ anchor; path placement and Nx tags never admit them. Each accepted kind closes
 its own proof topology around disjoint confidence axes; domain-qualified kinds
 such as MapGen keep their stronger domain-shaped testing grammar.
 
-**Current container:** review and accept the capability-realization authority
-packet. Before any source moves, account for every direct-control and Studio
-consumer, settle the closed kind matrix, Nx graph facts, and dependency policy,
-and prove the app-to-topic composition rail. Close each admitted test interior
-at its kind around a finite, disjoint confidence taxonomy before using that
-kind as a destination. The first coupled cutover
-container adopts the accepted corrected shared Habitat successor and closes
-the oRPC 2/Effect vendor line,
-Tuner resource, canonical runtime realization, private service ports,
-CLI/Studio projections, and mixed-package deletion as one transition rather
-than preserving either manual app wiring, an oRPC 1 compatibility service,
-facade, or adapter project.
+**Current container:** retire the unshipped Civ7 intelligence bridge as an
+unconsumed provider island. Preserve only unique native App UI facts in the
+engine-reference sieve, prove zero production consumers, delete the bridge
+project and its instance-specific Habitat authority, supersede ADR-007's
+controller-candidate language, and record the exact same-realm-consumer or
+proven-async-ingress admission trigger. This container introduces no new kind,
+vendor, destination package, compatibility surface, or deployment path.
 
 **Stable ownership:** Swooper remains a portable mod definition realized by
 its mod app. The CLI remains a commandless `cli-shell` composed from
@@ -97,6 +92,17 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-30 - Capability Realization Authority Frozen
+
+The capability-realization authority packet is accepted. It accounts for the
+current control and Studio contract corpus, freezes the selected product chains
+and destination topology, closes every admitted kind-owned test interior around
+finite disjoint confidence axes, and identifies the coupled substrate cutover
+without legitimizing the current oRPC 1, facade, mixed-package, or manual app
+wiring as destination architecture. Source migration remains gated on the
+accepted corrected shared Habitat successor; independent subtractive containers
+may proceed meanwhile.
 
 ### 2026-07-30 - Capability Realization Frame
 

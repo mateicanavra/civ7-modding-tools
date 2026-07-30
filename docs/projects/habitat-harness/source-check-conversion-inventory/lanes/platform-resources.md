@@ -1,6 +1,11 @@
 # platform-resources Lane Inventory
 
-Status: inspected by Agent 4
+Status: historical lane inspection with current retirement annotations
+
+This lane note preserves the original source-check conversion assessment; it
+does not define current live-rule status. The canonical cleanup ledger retires
+`require_narrow_game_ui_bridge_bootstrap` with the unconsumed bridge project,
+so the references below are historical evidence rather than future work.
 
 Assigned surface: `.habitat/civ7/{platform,resources}/**`
 

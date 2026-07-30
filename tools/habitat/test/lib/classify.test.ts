@@ -32,10 +32,6 @@ const fixtureProjects = [
   project("civ7-types", "packages/civ7-types", "kind:library", ["check", "test"]),
   project("mapgen-core", "packages/mapgen-core", "kind:library", ["check", "test"]),
   project("mapgen-studio", "apps/mapgen-studio", "kind:app", ["check", "test"]),
-  project("mod-intelligence-bridge", "mods/mod-civ7-intelligence-bridge", "kind:mod", [
-    "build",
-    "test",
-  ]),
   project("swooper-physics", "plugins/mod/map/swooper-physics", "kind:mod", [
     "check",
     "check:policy",

@@ -53,6 +53,90 @@ Command execution has a frame boundary. Some native/UI mutations are stale when
 read back inside the same JavaScript command. After writes, direct-control
 wrappers must reread in a later command before reporting a postcondition.
 
+## App UI Gameplay Evidence
+
+The retired game-scoped controller experiment had no production consumer and
+does not remain as an implementation owner. Its durable contribution is this
+finite App UI evidence. Official-source corroboration uses the pinned resource
+gitlink `c9f612ba19242a4add63acf9e5a344178898b725` (snapshot 2026-07-11,
+accessed 2026-07-30).
+
+- App UI/game scope exposes `UI`, `Game`, `GameplayMap`, `Players`, `GameInfo`,
+  `Database`, `ComponentID`, and `InterfaceMode`. These are realm observations,
+  not proof that a game-scoped `UIScript` has a usable ingress, transport, or
+  lifecycle.
+- Observed official `Game.PlayerOperations.canStart(...)` and
+  `Game.UnitCommands.canStart(...)` callers inspect the returned `.Success`
+  member. Owning command atoms preserve and interpret their operation's raw
+  result rather than globally normalizing it. A non-throwing
+  `sendRequest(...)` is dispatch evidence, not an acceptance receipt or
+  completed effect.
+- Notification queue and blocker reads, `UI.Player.getFirstReadyUnit()`, and
+  selected-unit/city heads are native observations. Selection is not
+  readiness. Treating first-ready-unit as positive readiness evidence and
+  requiring blocker or population evidence for city readiness are repo-owned
+  service policies, not native protocol facts.
+- Advisor warning acknowledgement is
+  `VIEWED_ADVISOR_WARNING` with `{ Target }`.
+- Ordinary diplomacy response is `RESPOND_DIPLOMATIC_ACTION` with
+  `{ ID, Type }`; first-meet response is
+  `RESPOND_DIPLOMATIC_FIRST_MEET` with `{ Player1, Player2, Type }`.
+- Government change is `CHANGE_GOVERNMENT` with
+  `{ GovernmentType, Action: PlayerOperationParameters.Activate }`;
+  celebration choice is `CHOOSE_GOLDEN_AGE` with
+  `{ GoldenAgeType: Database.makeHash(type) }`.
+- Official narrative-choice callers check and send
+  `CHOOSE_NARRATIVE_STORY_DIRECTION` with
+  `{ TargetType, Target, Action: PlayerOperationParameters.Activate }`.
+- Worker assignment is `ASSIGN_WORKER` with `{ Location, Amount: 1 }`.
+  Expansion admits `EXPAND` with empty arguments, pairs aligned
+  `Plots`/`ConstructibleTypes`, and sends `{ X, Y }`.
+- Production `BUILD` selects exactly one of `UnitType`, `ConstructibleType`, or
+  `ProjectType`. Constructibles may require a plot derived from
+  `InProgress`/`Plots`; town projects add `Exclusive`.
+- Town-focus change uses `CHANGE_GROWTH_MODE` with
+  `{ Type, ProjectType, City }`. `CONSIDER_TOWN_PROJECT` is sent with empty
+  arguments, and official UI code does not provide a `canStart` review
+  validator.
+- Attribute, technology, and culture progression operations carry
+  `ProgressionTreeNodeType`; clearing a target uses `NO_NODE`. Tradition
+  changes instead carry `{ TraditionType, Action }`.
+- Native notification dismissal is
+  `Game.Notifications.canUserDismissNotification(id)` followed by
+  `Game.Notifications.dismiss(id)`.
+- Turn observations include `.action-panel.maybeComponent.canEndTurn`,
+  `GameContext.hasSentTurnComplete`, `sendEndTurn`, and `Game.turn`.
+- Unit upgrade uses empty arguments; resettle uses `{ X, Y }`; command
+  ownership is local-player scoped.
+- Plot targeting currently implements the observed action candidates naval, air, ranged,
+  army-overrun, swap, and move with `{ X, Y, Modifiers }`. Naval, air, ranged,
+  and move dispatch use `ATTACK` plus
+  `MOVE_IGNORE_UNEXPLORED_DESTINATION`; army-overrun and swap use the base
+  `NONE` arguments. Ranged admission includes
+  `Game.Combat.testAttackInto(...) === COMBAT_RANGED`; war-risk evidence comes
+  from `Players.get(owner).Diplomacy.willMoveStartWar(...)`.
+- App UI map reads include grid validity/index, terrain, biome, feature,
+  resource, elevation, rainfall, fertility, rivers, water, yields, owner, area,
+  region, landmass, tags, visibility, `MapCities`, and `MapUnits`.
+- Owner ids, proximity, water state, and definitions are observable.
+  Relationship classification and role-token matches such as
+  `SETTLER`/`MIGRANT` are repository heuristics, not native truth.
+
+Representative official owners in that snapshot are
+`Base/modules/base-standard/base-standard.modinfo:25-34`,
+`ui/action/panel-action.js:647-728`,
+`ui/small-narrative-event/small-narrative-event.js:265-285`,
+`ui/government-chooser/government-chooser-model.js:95-109`,
+`ui/celebration-chooser/panel-celebration-chooser.js:225-246`,
+`ui/production-chooser/production-chooser-helpers.js:865-878`, and
+`ui/production-chooser/panel-town-focus.js:96-99`.
+
+The executable forms of these operations remain owned by direct-control atoms;
+the control service owns admission, orchestration, ambiguity handling,
+postconditions, and no-repeat policy. Do not reconstruct either layer in a
+deployed mod. Mutation completion always requires command-boundary readback,
+and an ambiguous dispatch is never replayed automatically.
+
 ## Useful Direct-Control And CLI Endpoints
 
 These endpoints are useful enough to keep or promote into core direct-control
