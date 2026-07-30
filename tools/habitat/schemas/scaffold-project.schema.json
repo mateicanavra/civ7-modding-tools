@@ -1,0 +1,114 @@
+{
+  "type": "object",
+  "required": ["name", "kind"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Project slug without workspace prefix.",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      }
+    },
+    "kind": {
+      "anyOf": [
+        {
+          "type": "string",
+          "const": "plugin"
+        },
+        {
+          "type": "string",
+          "const": "cli-topic-plugin"
+        },
+        {
+          "type": "string",
+          "const": "app"
+        },
+        {
+          "type": "string",
+          "const": "adapter"
+        },
+        {
+          "type": "string",
+          "const": "control"
+        },
+        {
+          "type": "string",
+          "const": "engine"
+        },
+        {
+          "type": "string",
+          "const": "library"
+        },
+        {
+          "type": "string",
+          "const": "mod"
+        },
+        {
+          "type": "string",
+          "const": "sdk"
+        },
+        {
+          "type": "string",
+          "const": "tooling"
+        },
+        {
+          "type": "string",
+          "const": "kind:app"
+        },
+        {
+          "type": "string",
+          "const": "kind:adapter"
+        },
+        {
+          "type": "string",
+          "const": "kind:control"
+        },
+        {
+          "type": "string",
+          "const": "kind:engine"
+        },
+        {
+          "type": "string",
+          "const": "kind:library"
+        },
+        {
+          "type": "string",
+          "const": "kind:mod"
+        },
+        {
+          "type": "string",
+          "const": "kind:plugin"
+        },
+        {
+          "type": "string",
+          "const": "kind:cli-topic-plugin"
+        },
+        {
+          "type": "string",
+          "const": "kind:sdk"
+        },
+        {
+          "type": "string",
+          "const": "kind:tooling"
+        }
+      ],
+      "description": "Requested project kind. Only plugin is currently supported."
+    },
+    "packageName": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional package name override."
+    },
+    "directory": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional repo-relative project root override."
+    }
+  },
+  "$schema": "https://json-schema.org/schema",
+  "$id": "HabitatProjectGenerator",
+  "title": "Habitat project generator",
+  "additionalProperties": true
+}

@@ -1,95 +1,97 @@
 {
   "name": "@habitat/cli",
   "version": "0.1.0",
-  "private": true,
-  "description": "Repo-local enforcement harness: single entrypoint over all structural checks, with ratchet baselines (see docs/projects/habitat-harness/FRAME.md)",
+  "description": "Portable structural-policy CLI and Nx plugin for Habitat authority workspaces.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mateicanavra/civ7-modding-tools.git",
+    "directory": "tools/habitat"
+  },
+  "license": "MIT",
   "type": "module",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "bun": "./src/index.ts",
-      "types": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
     "./cli/*": {
-      "bun": "./src/cli/*.ts",
-      "types": "./src/cli/*.ts",
+      "types": "./dist/cli/*.d.ts",
       "import": "./dist/cli/*.js",
       "default": "./dist/cli/*.js"
     },
     "./service/*": {
-      "bun": "./src/service/*.ts",
-      "types": "./src/service/*.ts",
+      "types": "./dist/service/*.d.ts",
       "import": "./dist/service/*.js",
       "default": "./dist/service/*.js"
     },
     "./providers/*": {
-      "bun": "./src/providers/*.ts",
-      "types": "./src/providers/*.ts",
+      "types": "./dist/providers/*.d.ts",
       "import": "./dist/providers/*.js",
       "default": "./dist/providers/*.js"
     },
     "./resources/rule-diagnostics/providers/grit/provider": {
-      "bun": "./src/resources/rule-diagnostics/providers/grit/provider.ts",
-      "types": "./src/resources/rule-diagnostics/providers/grit/provider.ts",
+      "types": "./dist/resources/rule-diagnostics/providers/grit/provider.d.ts",
       "import": "./dist/resources/rule-diagnostics/providers/grit/provider.js",
       "default": "./dist/resources/rule-diagnostics/providers/grit/provider.js"
     },
     "./resources/rule-diagnostics/providers/*": null,
+    "./grit": {
+      "types": "./dist/resources/rule-diagnostics/providers/grit/grit-package.d.ts",
+      "import": "./dist/resources/rule-diagnostics/providers/grit/grit-package.js",
+      "default": "./dist/resources/rule-diagnostics/providers/grit/grit-package.js"
+    },
     "./resources/*": {
-      "bun": "./src/resources/*.ts",
-      "types": "./src/resources/*.ts",
+      "types": "./dist/resources/*.d.ts",
       "import": "./dist/resources/*.js",
       "default": "./dist/resources/*.js"
     },
     "./runtime/*": {
-      "bun": "./src/runtime/*.ts",
-      "types": "./src/runtime/*.ts",
+      "types": "./dist/runtime/*.d.ts",
       "import": "./dist/runtime/*.js",
       "default": "./dist/runtime/*.js"
     },
     "./generators/scaffold/model": {
-      "bun": "./src/generators/scaffold/model/index.ts",
-      "types": "./src/generators/scaffold/model/index.ts",
+      "types": "./dist/generators/scaffold/model/index.d.ts",
       "import": "./dist/generators/scaffold/model/index.js",
       "default": "./dist/generators/scaffold/model/index.js"
     },
     "./generators/scaffold/pattern/support/schema": {
-      "bun": "./src/generators/scaffold/pattern/support/schema.ts",
-      "types": "./src/generators/scaffold/pattern/support/schema.ts",
+      "types": "./dist/generators/scaffold/pattern/support/schema.d.ts",
       "import": "./dist/generators/scaffold/pattern/support/schema.js",
       "default": "./dist/generators/scaffold/pattern/support/schema.js"
     },
     "./generators/scaffold/project/support/schema": {
-      "bun": "./src/generators/scaffold/project/support/schema.ts",
-      "types": "./src/generators/scaffold/project/support/schema.ts",
+      "types": "./dist/generators/scaffold/project/support/schema.d.ts",
       "import": "./dist/generators/scaffold/project/support/schema.js",
       "default": "./dist/generators/scaffold/project/support/schema.js"
     },
     "./validation/*": {
-      "bun": "./src/validation/*.ts",
-      "types": "./src/validation/*.ts",
+      "types": "./dist/validation/*.d.ts",
       "import": "./dist/validation/*.js",
       "default": "./dist/validation/*.js"
     },
     "./nx-plugin": {
-      "bun": "./src/nx-plugin.ts",
-      "types": "./src/nx-plugin.ts",
+      "types": "./dist/nx-plugin.d.ts",
       "import": "./dist/nx-plugin.js",
       "default": "./dist/nx-plugin.js"
     }
   },
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "bin": {
     "habitat": "./bin/run.js"
   },
   "files": [
-    "bin",
+    "LICENSE",
+    "PROVENANCE.md",
+    "README.md",
+    "bin/run.js",
     "dist",
     "generators.json",
     "oclif.manifest.json",
-    "src"
+    "schemas"
   ],
   "scripts": {
     "analyze:execution-surface": "bun run scripts/execution-surface-map.ts --repo-root ../.. --out-json ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.json --out-md ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.md --out-anatomy-md ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-anatomy.md",
@@ -114,19 +116,23 @@
   "dependencies": {
     "@effect/platform": "0.96.1",
     "@effect/platform-node": "0.107.0",
+    "@getgrit/cli": "0.1.0-alpha.1743007075",
     "@nx/devkit": "23.1.0",
     "@oclif/core": "^4.11.4",
     "@oclif/plugin-help": "^6.2.50",
     "@orpc/client": "1.14.6",
     "@orpc/contract": "1.14.6",
     "@orpc/server": "1.14.6",
-    "@orpc/shared": "^1.14.4",
+    "@orpc/shared": "1.14.6",
     "@standard-schema/spec": "^1.1.0",
     "effect": "3.21.3",
-    "effect-orpc": "catalog:",
+    "effect-orpc": "0.5.0",
     "picomatch": "4.0.4",
     "smol-toml": "1.7.0",
-    "typebox": "catalog:"
+    "typebox": "1.3.6"
+  },
+  "engines": {
+    "bun": "1.3.14"
   },
   "generators": "./generators.json"
 }

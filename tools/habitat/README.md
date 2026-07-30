@@ -22,6 +22,103 @@ pattern: command classes live under `src/cli/commands/**`, local repo scripts
 run `bin/dev.ts`, and `bin/run.js` is the built production runner. Build
 output (`dist/**`) and `oclif.manifest.json` are generated artifacts.
 
+## Portable package
+
+The package contains TypeScript 6.0.3 JavaScript-compiler output and
+declarations, `bin/run.js`, the Oclif manifest, generator metadata and schemas,
+and ordinary package dependencies. The build names that compiler explicitly
+rather than using the workspace's Effect-patched native `tsc` alias, whose
+declaration union ordering can vary with the checkout path. The package does
+not ship Habitat source files, `bin/dev.ts`, or source maps.
+
+```bash
+nx run habitat:pack
+nx run habitat:verify:package
+```
+
+`pack` retains the exact release candidate and digest at
+`tools/habitat/artifacts/habitat-cli-0.1.0.tgz{,.sha256}`. `verify:package`
+consumes those files, rebuilds the exact committed Git tree from a disposable
+archive and frozen lockfile, and requires its package bytes to match before
+installing the retained tarball into two isolated-linker Nx workspaces. The
+proof also typechecks the public service declarations without skipping library
+checks, keeps the Nx-plugin declaration probe isolated from upstream declaration
+noise, and runs the real Habitat check service through its service, module, and
+Effect-handler middleware lineage. A negative service probe injects the exact
+producer-only `EffectProcedure` shape and requires vanilla TypeScript resolution
+to reject it.
+
+Packing uses a disposable staging tree with canonical modes: `bin/run.js` is
+`0755` and every ordinary package file is `0644`. Verification asserts every
+archive entry, so ambient worktree permissions cannot change the retained
+artifact.
+
+The runtime proof matrix is:
+
+| Bun line | Status |
+| --- | --- |
+| 1.3.14 | Supported, pinned by `.bun-version`, and required by `verify:package`. |
+| 1.4.x | Pending: no stable tag exists as of 2026-07-30, so it is not claimed as tested. |
+
+When Bun 1.4 is released, pin its exact stable version in CI and run the same
+pack and two-location consumer proof before expanding the package engine range.
+
+Consumers must trust the pinned Grit lifecycle dependency and register the
+compiled plugin export:
+
+```json
+{
+  "trustedDependencies": ["@getgrit/cli"]
+}
+```
+
+```json
+{
+  "namedInputs": {
+    "habitatRuntime": [
+      "{workspaceRoot}/package.json",
+      "{workspaceRoot}/bun.lock",
+      { "env": "HABITAT_HARNESS_ROOT" },
+      { "env": "HABITAT_CACHE_ROOT" },
+      { "env": "HABITAT_PATTERN_CACHE_ROOT" },
+      { "env": "HABITAT_TELEMETRY_DISABLED" },
+      { "env": "HABITAT_COMMAND_TIMEOUT_MS" }
+    ]
+  },
+  "plugins": [
+    {
+      "plugin": "@habitat/cli/nx-plugin",
+      "options": { "checkTargetName": "check:policy" }
+    }
+  ]
+}
+```
+
+After installation, explicitly realize and verify Habitat's package-local Grit
+native binary:
+
+```bash
+bun -e 'import { acquirePinnedGrit } from "@habitat/cli/grit"; acquirePinnedGrit()'
+```
+
+Install with `bun install --linker isolated`. Habitat resolves
+`@getgrit/cli@0.1.0-alpha.1743007075` from its own installed module graph,
+the explicit acquisition verifies native identity `grit 0.1.1`, and ordinary
+rule execution disables runtime downloads. Nx targets use `{workspaceRoot}`
+rather than embedding the consumer's absolute path, while shared acquisition
+roots retain one multi-pattern Grit execution.
+
+Habitat depends only on the published `effect-orpc@0.5.0` contract-first
+surface and native oRPC middleware. The Civ7 producer checkout patches that
+dependency for other services' Effect-middleware extensions, but the package
+does not export or require that patch. `verify:package` pins the vanilla
+registry runtime hash and proves the compiled Habitat middleware lineage
+against it.
+
+No release, tag, upload, or registry publication is performed by these targets.
+The retained `.tgz` and `.sha256` are the separately reviewable GitHub release
+assets. Package authorship and license scope are recorded in `PROVENANCE.md`.
+
 ## Usage
 
 ```bash

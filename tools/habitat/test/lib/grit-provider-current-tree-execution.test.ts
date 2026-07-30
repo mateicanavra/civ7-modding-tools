@@ -71,7 +71,7 @@ describe("generic Grit current-tree execution", () => {
     expect(request.cwd).toBe(path.dirname(request.gritDir));
     expect(existsSync(path.join(request.gritDir, "grit.yaml"))).toBe(false);
     const command = required(execution.observation.checkCommand, "check command");
-    expect(command.executable).toBe(pinnedGritNativePath(workspaceRepoRoot));
+    expect(command.executable).toBe(pinnedGritNativePath());
     expect(command.argv).toEqual([
       "--json",
       "check",
@@ -478,7 +478,7 @@ multifile {
   test.runIf(process.platform === "darwin" && process.arch === "arm64")(
     "pins the installed Darwin/arm64 executable digest used by this proof",
     () => {
-      const executable = pinnedGritNativePath(workspaceRepoRoot);
+      const executable = pinnedGritNativePath();
       expect(statSync(executable).size).toBe(84_376_600);
       expect(createHash("sha256").update(readFileSync(executable)).digest("hex")).toBe(
         "ce6f216eb60f5652f5f60156e411d136ce600cb29d9616e5e2018a38fdde0cb7"
