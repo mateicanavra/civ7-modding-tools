@@ -1,20 +1,14 @@
 import { Command, Flags } from "@oclif/core";
 import { createCiv7GameControlClient } from "../../../adapters/control/service-client";
-import {
-  buildDirectControlOptions,
-  emitPlayResult,
-  validatePlayOperation,
-} from "../../../adapters/play/direct-control";
-
-const CONSIDER_ASSIGN_ATTRIBUTE = "CONSIDER_ASSIGN_ATTRIBUTE";
+import { buildDirectControlOptions, emitPlayResult } from "../../../adapters/play/direct-control";
 
 export default class GamePlayConsiderAttributes extends Command {
-  static summary = "Validate or close out attribute assignment review";
+  static summary = "Check or close attribute assignment review";
   static description =
-    "Wraps player-operation CONSIDER_ASSIGN_ATTRIBUTE for the post-attribute assignment closeout path.";
+    "Checks or requests attribute review completion through the Civ7 control service.";
 
   static examples = [
-    "<%= config.bin %> game play consider-attributes --player-id 0 --json",
+    "<%= config.bin %> game play consider-attributes --json",
     "<%= config.bin %> game play consider-attributes --send --json",
   ];
 
@@ -25,11 +19,8 @@ export default class GamePlayConsiderAttributes extends Command {
     port: Flags.integer({
       description: "Civ7 tuner socket port",
     }),
-    "player-id": Flags.integer({
-      description: "Player id for read-only validation; send mode uses live local-player evidence",
-    }),
     send: Flags.boolean({
-      description: "Send CONSIDER_ASSIGN_ATTRIBUTE after validator success",
+      description: "Request attribute review completion after a fresh native check",
       default: false,
     }),
     "timeout-ms": Flags.integer({
@@ -44,25 +35,12 @@ export default class GamePlayConsiderAttributes extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayConsiderAttributes);
-    const options = buildDirectControlOptions(flags);
-    if (flags.send) {
-      const client = createCiv7GameControlClient({
-        endpointDefaults: options,
-      });
-      const result = await client.progression.attribute.review.request({});
-      emitPlayResult(this.log.bind(this), flags.json, result);
-      return;
-    }
-
-    if (typeof flags["player-id"] !== "number") {
-      throw new Error("game play consider-attributes requires --player-id unless --send is used");
-    }
-    const input = {
-      operationType: CONSIDER_ASSIGN_ATTRIBUTE,
-      playerId: flags["player-id"],
-      args: {},
-    };
-    const result = await validatePlayOperation("player-operation", input, options);
+    const client = createCiv7GameControlClient({
+      endpointDefaults: buildDirectControlOptions(flags),
+    });
+    const result = flags.send
+      ? await client.progression.attribute.review.request({})
+      : await client.progression.attribute.review.check({});
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }

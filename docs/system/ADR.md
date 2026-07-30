@@ -206,6 +206,18 @@ no-repeat guidance. Generic player-operation dispatch rejects this operation,
 and neither the controller nor the CLI emulates notification-handler UI
 bookkeeping.
 
+Unit plot targeting follows the same split while preserving Civ7's conditional
+right-click order. Direct-control owns focused unit/target observation, one
+exact action check, and one guarded action send. The unit service alone walks
+naval, air, combat-gated ranged, overrun, same-tile stop, swap, and move
+candidates; admits the ambient local player; refuses native war-start evidence
+in favor of the dedicated confirmation workflow; and owns bounded observation,
+semantic classification, dispatch uncertainty, and no-repeat policy.
+`canStart(...).Plots` belongs to dedicated interface-mode target enumeration
+and is not an additional right-click admission rule. Generic unit-operation
+dispatch rejects the identities owned by these exact atoms, and both CLI modes
+call the unit service rather than bypassing it for read-only resolution.
+
 **Consequences:**
 - Raw `CMD:<stateId>:<javascript>` / `game exec` stays a diagnostic and probe
   transport, not the agent-facing product API.

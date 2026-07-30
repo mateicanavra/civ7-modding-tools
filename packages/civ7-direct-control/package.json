@@ -58,30 +58,6 @@
       "bun-source": "./src/play/narrative/choice.ts",
       "import": "./dist/play/narrative/choice.js",
       "require": "./dist/play/narrative/choice.cjs"
-    },
-    "./play/progression/choice-postconditions": {
-      "types": "./dist/play/progression/choice-postconditions.d.ts",
-      "bun-source": "./src/play/progression/choice-postconditions.ts",
-      "import": "./dist/play/progression/choice-postconditions.js",
-      "require": "./dist/play/progression/choice-postconditions.cjs"
-    },
-    "./proof/progression-player-choice-proof-policy": {
-      "types": "./dist/proof/progression-player-choice-proof-policy.d.ts",
-      "bun-source": "./src/proof/progression-player-choice-proof-policy.ts",
-      "import": "./dist/proof/progression-player-choice-proof-policy.js",
-      "require": "./dist/proof/progression-player-choice-proof-policy.cjs"
-    },
-    "./proof/progression-target-proof-policy": {
-      "types": "./dist/proof/progression-target-proof-policy.d.ts",
-      "bun-source": "./src/proof/progression-target-proof-policy.ts",
-      "import": "./dist/proof/progression-target-proof-policy.js",
-      "require": "./dist/proof/progression-target-proof-policy.cjs"
-    },
-    "./proof/unit-target-proof-policy": {
-      "types": "./dist/proof/unit-target-proof-policy.d.ts",
-      "bun-source": "./src/proof/unit-target-proof-policy.ts",
-      "import": "./dist/proof/unit-target-proof-policy.js",
-      "require": "./dist/proof/unit-target-proof-policy.cjs"
     }
   },
   "main": "./dist/index.cjs",

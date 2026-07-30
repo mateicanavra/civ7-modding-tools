@@ -12,7 +12,6 @@ import type {
   Civ7TunerState,
 } from "../../session/types.js";
 import { actionPanelTurnAuthoritySource } from "../action-panel-turn.js";
-import type { Civ7OperationFamily } from "../operations/types.js";
 
 const nullableComponentIdSchema = Type.Union([Civ7ComponentIdSchema, Type.Null()]);
 const Civ7PlayOperationFamilySchema = Type.Union([
@@ -23,6 +22,7 @@ const Civ7PlayOperationFamilySchema = Type.Union([
   Type.Literal("player-operation"),
   Type.Literal("app-ui-action"),
 ]);
+type Civ7PlayOperationFamily = Static<typeof Civ7PlayOperationFamilySchema>;
 
 export const Civ7PlayNotificationViewInputSchema = Type.Object(
   {
@@ -165,7 +165,7 @@ export type Civ7PlayNotificationViewResultContract = Static<
 
 export type Civ7PlayDecisionHint = Readonly<{
   category: string;
-  operationFamily?: Civ7OperationFamily | "app-ui-action";
+  operationFamily?: Civ7PlayOperationFamily;
   operationType?: string;
   argsShape?: string;
   requiredInputs: ReadonlyArray<Civ7PlayDecisionInput>;
@@ -183,7 +183,7 @@ export type Civ7PlayDecisionInput = Readonly<{
 
 export type Civ7PlayDecisionAction = Readonly<{
   label: string;
-  operationFamily?: Civ7OperationFamily | "app-ui-action";
+  operationFamily?: Civ7PlayOperationFamily;
   operationType?: string;
   argsShape?: string;
   when: string;
@@ -217,7 +217,7 @@ export type Civ7PlayDecisionQueueItem = Readonly<{
   location: unknown;
   player: unknown;
   category: string;
-  operationFamily?: Civ7OperationFamily | "app-ui-action";
+  operationFamily?: Civ7PlayOperationFamily;
   operationType?: string;
   argsShape?: string;
   requiredInputs: ReadonlyArray<Civ7PlayDecisionInput>;
@@ -1623,11 +1623,11 @@ function playNotificationViewSource(): string {
           [
             action("read ready-unit view", undefined, undefined, "selected/first ready unit, legal operations, nearby occupied plots", "before choosing a unit operation"),
             action("resolve plot target", "unit-operation", undefined, "official right-click action order", "when choosing a move or attack target"),
-            action("validate generic unit operation", "unit-operation", "<operation>", "operation-specific args", "when the operation is not covered by a named shortcut"),
           ],
           [
             "Read the selected or first ready unit before choosing skip, automate, move, or promote.",
             "If selectedUnitId and firstReadyUnitId are stale or null, notification details may expose validator-backed SKIP_TURN reconciliation candidates with exact unit ids.",
+            "When no named service owns the required unit action, stop and report the unsupported action instead of composing a generic mutation.",
           ],
         );
       }
@@ -1640,9 +1640,10 @@ function playNotificationViewSource(): string {
         [requiredInput("Notification handler evidence", "official UI handler or live runtime surface", "Unclassified notifications need handler inspection before choosing an operation.")],
         [
           action("inspect materialized notifications", undefined, undefined, undefined, "before deciding whether this is a real blocker"),
-          action("validate generic operation", undefined, undefined, "operation-specific args", "only after the official handler or live UI proves the operation"),
         ],
-        ["No specialized shortcut is known; inspect official UI handler or use validate-only generic operation."],
+        [
+          "No named service is known; inspect the official handler, then stop and report the unsupported action rather than composing a generic operation.",
+        ],
       );
     };
     const summarizeNotification = (id, blockingKey) => {

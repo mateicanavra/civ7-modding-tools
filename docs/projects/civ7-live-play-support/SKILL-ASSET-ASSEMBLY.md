@@ -316,7 +316,6 @@ CLI shortcuts:
 - `game play unit target`
 - `game play unit resettle`
 - `game play unit upgrade`
-- `game operation`
 
 Norms:
 
@@ -341,8 +340,9 @@ Norms:
   makes a route worth pursuing.
 - Target plots, not target unit ids.
 - Validator success is not proof of tactical effect; require a postcondition.
-- `verification.status == "no-state-change"` means the action is unresolved,
-  not successful; re-read before trying the same target again.
+- `sent-unverified` and `dispatch-unknown` mean the action is unresolved;
+  follow `postcondition` and `nextSteps`, then re-read before trying the same
+  target again.
 - Commanders are support and coordination units first. Do not treat them as
   default attackers without live evidence.
 - Treat visible `PROMOTE` as a prompt to check `unit promotion-readiness`, not as
@@ -350,7 +350,7 @@ Norms:
   commendation points are positive and an available promotion has
   validator-backed args.
 - `RESETTLE` and `UPGRADE` are `unit-command` actions, not `unit-operation`
-  actions. Use the named wrappers or `game operation --family unit-command`.
+  actions. Use their named wrappers.
 - Unit-command sends still need board-state postconditions: resettle should
   change unit/settlement population state; upgrade should change unit tier/type
   and cost state.

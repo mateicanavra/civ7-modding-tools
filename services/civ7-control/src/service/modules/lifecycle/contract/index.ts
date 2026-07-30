@@ -8,7 +8,6 @@ export const contract = {
   },
 };
 
-export type Civ7LifecycleContract = typeof contract;
 export type Civ7LifecycleSinglePlayerStartInput = InferContractRouterInputs<
   typeof contract
 >["singlePlayer"]["start"];

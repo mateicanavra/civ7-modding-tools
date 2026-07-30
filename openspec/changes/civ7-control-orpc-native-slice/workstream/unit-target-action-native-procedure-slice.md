@@ -3,6 +3,10 @@
 Status: implemented local package slice.
 Date: 2026-06-04.
 
+> Historical record. Superseded by Task 8.35. Current behavior and ownership
+> live in the active OpenSpec and
+> [unit-target-actions.md](../../../../docs/projects/civ7-live-play-support/topics/unit-target-actions.md).
+
 ## Purpose
 
 Seed a native `packages/civ7-control-orpc` unit-domain procedure for an

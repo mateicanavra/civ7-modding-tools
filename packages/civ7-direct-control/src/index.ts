@@ -173,6 +173,28 @@ export {
   sendCiv7DiplomacyResponse,
 } from "./play/diplomacy/response.js";
 export type {
+  Civ7CloseDisplaysInput,
+  Civ7CloseDisplaysResult,
+  Civ7ClosedDisplaysRow,
+  Civ7DisplayQueueHoldResult,
+  Civ7DisplayQueueSnapshot,
+  Civ7DisplayRequest,
+  DisplayQueueDependencies,
+} from "./play/display/queue.js";
+export {
+  CIV7_DISPLAY_QUEUE_BRIDGE_GLOBAL,
+  CIV7_KNOWN_DISPLAY_CATEGORIES,
+  Civ7CloseDisplaysResultSchema,
+  Civ7ClosedDisplaysRowSchema,
+  Civ7DisplayQueueSnapshotSchema,
+  Civ7DisplayRequestSchema,
+  closeCiv7Displays,
+  ensureCiv7DisplayQueueBridge,
+  readCiv7DisplayQueue,
+  resumeCiv7DisplayQueue,
+  suspendCiv7DisplayQueue,
+} from "./play/display/queue.js";
+export type {
   Civ7CelebrationChoiceCheckResult,
   Civ7CelebrationChoiceInput,
   Civ7CelebrationChoiceOption,
@@ -379,102 +401,36 @@ export {
   getCiv7PlayNotificationView,
 } from "./play/notifications/view.js";
 export type {
-  Civ7CloseDisplaysInput,
-  Civ7CloseDisplaysResult,
-  Civ7ClosedDisplaysRow,
-  Civ7DisplayQueueHoldResult,
-  Civ7DisplayQueueSnapshot,
-  Civ7DisplayRequest,
-  DisplayQueueDependencies,
-} from "./play/operations/display-queue.js";
+  Civ7AttributeNodeSnapshot,
+  Civ7AttributePurchaseAtomInput,
+  Civ7AttributePurchaseAtomSendInput,
+  Civ7AttributePurchaseCheckResult,
+  Civ7AttributePurchaseSendResult,
+  Civ7AttributeReviewAtomInput,
+  Civ7AttributeReviewCheckResult,
+  Civ7AttributeReviewSendInput,
+  Civ7AttributeReviewSendResult,
+  Civ7AttributeReviewSnapshot,
+  Civ7AttributeValidationResult,
+} from "./play/progression/attribute.js";
 export {
-  CIV7_DISPLAY_QUEUE_BRIDGE_GLOBAL,
-  CIV7_KNOWN_DISPLAY_CATEGORIES,
-  Civ7CloseDisplaysResultSchema,
-  Civ7ClosedDisplaysRowSchema,
-  Civ7DisplayQueueSnapshotSchema,
-  Civ7DisplayRequestSchema,
-  closeCiv7Displays,
-  ensureCiv7DisplayQueueBridge,
-  readCiv7DisplayQueue,
-  resumeCiv7DisplayQueue,
-  suspendCiv7DisplayQueue,
-} from "./play/operations/display-queue.js";
-export type {
-  Civ7OperationFamily,
-  Civ7OperationInput,
-  Civ7OperationTarget,
-  Civ7OperationValidationResult,
-} from "./play/operations/types.js";
-export type {
-  Civ7UnitOperationPostcondition,
-  Civ7UnitOperationPostconditionClassification,
-  Civ7UnitOperationPostconditionSnapshot,
-} from "./play/operations/unit-postconditions.js";
-export type {
-  Civ7UnitTargetActionCandidate,
-  Civ7UnitTargetActionInput,
-  Civ7UnitTargetActionRequestInput,
-  Civ7UnitTargetActionResult,
-} from "./play/operations/unit-target-action.js";
-export {
-  Civ7UnitTargetActionCandidateSchema,
-  Civ7UnitTargetActionInputSchema,
-  Civ7UnitTargetActionRequestInputSchema,
-  Civ7UnitTargetActionResultSchema,
-  Civ7UnitTargetActionVerificationSchema,
-  DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
-  DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
-  getCiv7UnitTargetAction,
-  requestCiv7UnitTargetAction,
-} from "./play/operations/unit-target-action.js";
-export type { Civ7OperationRequestResult } from "./play/operations/validate-request.js";
-export {
-  canStartCiv7CityCommand,
-  canStartCiv7CityOperation,
-  canStartCiv7PlayerOperation,
-  canStartCiv7UnitOperation,
-  requestCiv7CityCommand,
-  requestCiv7CityOperation,
-  requestCiv7PlayerOperation,
-  requestCiv7UnitOperation,
-} from "./play/operations/validate-request.js";
-export type {
-  Civ7CultureChoicePostconditionClassification,
-  Civ7ProgressionChoiceNotification,
-  Civ7ProgressionChoiceNotificationView,
-  Civ7ProgressionChoicePostcondition,
-  Civ7TechnologyChoicePostconditionClassification,
-} from "./play/progression/choice-postconditions.js";
-export {
-  cultureChoicePostcondition,
-  findCultureChoiceNotification,
-  findTechnologyChoiceNotification,
-  technologyChoicePostcondition,
-} from "./play/progression/choice-postconditions.js";
-export type {
-  Civ7CultureChoiceCloseoutInput,
-  Civ7CultureChoiceCloseoutResult,
-} from "./play/progression/culture.js";
-export { requestCiv7CultureChoiceCloseout } from "./play/progression/culture.js";
-export type {
-  Civ7AttributePurchaseInput,
-  Civ7AttributeReviewInput,
-  Civ7ProgressionPlayerChoiceInput,
-  Civ7ProgressionPlayerChoiceKind,
-  Civ7ProgressionPlayerChoicePostcondition,
-  Civ7ProgressionPlayerChoicePostconditionClassification,
-  Civ7ProgressionPlayerChoiceResult,
-  Civ7TraditionChangeInput,
-  Civ7TraditionReviewInput,
-} from "./play/progression/player-choice-request";
-export {
-  requestCiv7AttributePurchase,
-  requestCiv7AttributeReviewCloseout,
-  requestCiv7ProgressionPlayerChoice,
-  requestCiv7TraditionChange,
-  requestCiv7TraditionReviewCloseout,
-} from "./play/progression/player-choice-request";
+  Civ7AttributeNodeSnapshotSchema,
+  Civ7AttributePurchaseAtomInputSchema,
+  Civ7AttributePurchaseAtomSendInputSchema,
+  Civ7AttributePurchaseCheckResultSchema,
+  Civ7AttributePurchaseSendResultSchema,
+  Civ7AttributeReviewAtomInputSchema,
+  Civ7AttributeReviewCheckResultSchema,
+  Civ7AttributeReviewSendInputSchema,
+  Civ7AttributeReviewSendResultSchema,
+  Civ7AttributeReviewSnapshotSchema,
+  Civ7AttributeValidationResultSchema,
+  checkCiv7AttributePurchase,
+  checkCiv7AttributeReview,
+  observeCiv7AttributeNode,
+  sendCiv7AttributePurchase,
+  sendCiv7AttributeReview,
+} from "./play/progression/attribute.js";
 export type {
   Civ7ProgressDashboardInput,
   Civ7ProgressDashboardLegacyPath,
@@ -501,22 +457,65 @@ export {
   getCiv7TraditionsView,
 } from "./play/progression/reads.js";
 export type {
-  Civ7ProgressionTargetInput,
-  Civ7ProgressionTargetKind,
-  Civ7ProgressionTargetPostcondition,
-  Civ7ProgressionTargetPostconditionClassification,
-  Civ7ProgressionTargetResult,
-} from "./play/progression/target-request.js";
+  Civ7TraditionAssignmentsSnapshot,
+  Civ7TraditionChangeAction,
+  Civ7TraditionChangeAtomInput,
+  Civ7TraditionChangeAtomSendInput,
+  Civ7TraditionChangeCheckResult,
+  Civ7TraditionChangeSendResult,
+  Civ7TraditionReviewAtomInput,
+  Civ7TraditionReviewCheckResult,
+  Civ7TraditionReviewSendInput,
+  Civ7TraditionReviewSendResult,
+  Civ7TraditionReviewSnapshot,
+  Civ7TraditionValidationResult,
+} from "./play/progression/tradition-assignment.js";
 export {
-  requestCiv7CultureTarget,
-  requestCiv7ProgressionTarget,
-  requestCiv7TechnologyTarget,
-} from "./play/progression/target-request.js";
+  Civ7TraditionAssignmentsSnapshotSchema,
+  Civ7TraditionChangeActionSchema,
+  Civ7TraditionChangeAtomInputSchema,
+  Civ7TraditionChangeAtomSendInputSchema,
+  Civ7TraditionChangeCheckResultSchema,
+  Civ7TraditionChangeSendResultSchema,
+  Civ7TraditionReviewAtomInputSchema,
+  Civ7TraditionReviewCheckResultSchema,
+  Civ7TraditionReviewSendInputSchema,
+  Civ7TraditionReviewSendResultSchema,
+  Civ7TraditionReviewSnapshotSchema,
+  Civ7TraditionValidationResultSchema,
+  checkCiv7TraditionChange,
+  checkCiv7TraditionReview,
+  observeCiv7TraditionAssignments,
+  sendCiv7TraditionChange,
+  sendCiv7TraditionReview,
+} from "./play/progression/tradition-assignment.js";
 export type {
-  Civ7TechnologyChoiceCloseoutInput,
-  Civ7TechnologyChoiceCloseoutResult,
-} from "./play/progression/technology.js";
-export { requestCiv7TechnologyChoiceCloseout } from "./play/progression/technology.js";
+  Civ7ProgressionTreeCheckResult,
+  Civ7ProgressionTreeClearTargetInput,
+  Civ7ProgressionTreeClearTargetResult,
+  Civ7ProgressionTreeKind,
+  Civ7ProgressionTreeNodeInput,
+  Civ7ProgressionTreeNodeSendInput,
+  Civ7ProgressionTreeSendResult,
+  Civ7ProgressionTreeSnapshot,
+  Civ7ProgressionTreeValidationResult,
+} from "./play/progression/tree-node.js";
+export {
+  Civ7ProgressionTreeCheckResultSchema,
+  Civ7ProgressionTreeClearTargetInputSchema,
+  Civ7ProgressionTreeClearTargetResultSchema,
+  Civ7ProgressionTreeKindSchema,
+  Civ7ProgressionTreeNodeInputSchema,
+  Civ7ProgressionTreeNodeSendInputSchema,
+  Civ7ProgressionTreeSendResultSchema,
+  Civ7ProgressionTreeSnapshotSchema,
+  Civ7ProgressionTreeValidationResultSchema,
+  checkCiv7ProgressionTreeChoice,
+  checkCiv7ProgressionTreeTarget,
+  clearCiv7ProgressionTreeTarget,
+  sendCiv7ProgressionTreeChoice,
+  sendCiv7ProgressionTreeTarget,
+} from "./play/progression/tree-node.js";
 export type {
   Civ7ReadyCityOperationCandidate,
   Civ7ReadyCityPopulationPlacement,
@@ -694,6 +693,30 @@ export {
   sendCiv7UnitUpgrade,
 } from "./play/unit/commands.js";
 export type {
+  Civ7UnitTargetActionCheckInput,
+  Civ7UnitTargetActionCheckResult,
+  Civ7UnitTargetActionId,
+  Civ7UnitTargetActionSendInput,
+  Civ7UnitTargetActionSendResult,
+  Civ7UnitTargetInput,
+  Civ7UnitTargetObservationInput,
+  Civ7UnitTargetSnapshot,
+  Civ7UnitTargetUnitSummary,
+} from "./play/unit/target-action.js";
+export {
+  Civ7UnitTargetActionCheckInputSchema,
+  Civ7UnitTargetActionCheckResultSchema,
+  Civ7UnitTargetActionIdSchema,
+  Civ7UnitTargetActionSendInputSchema,
+  Civ7UnitTargetActionSendResultSchema,
+  Civ7UnitTargetInputSchema,
+  Civ7UnitTargetObservationInputSchema,
+  Civ7UnitTargetSnapshotSchema,
+  checkCiv7UnitTargetAction,
+  observeCiv7UnitTarget,
+  sendCiv7UnitTargetAction,
+} from "./play/unit/target-action.js";
+export type {
   CameraFocusDependencies,
   Civ7CameraFocusInput,
   Civ7CameraFocusResult,
@@ -749,19 +772,6 @@ export {
   snapshotFile,
   waitForFreshLogMarkers,
 } from "./proof/log-markers.js";
-export {
-  progressionPlayerChoiceProofOutcome,
-  progressionPlayerChoiceProofPostcondition,
-} from "./proof/progression-player-choice-proof-policy";
-export {
-  progressionTargetProofOutcome,
-  progressionTargetProofPostcondition,
-} from "./proof/progression-target-proof-policy.js";
-export type { Civ7UnitTargetActionVerification } from "./proof/unit-target-proof-policy";
-export {
-  unitTargetProofOutcome,
-  unitTargetProofPostcondition,
-} from "./proof/unit-target-proof-policy";
 export type {
   AppUiSnapshotDependencies,
   Civ7AppUiSnapshot,

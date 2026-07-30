@@ -442,7 +442,7 @@ function definedLifecycleFailure(err: DefinedLifecycleError): StudioRuntimeFailu
         recoveryActions: ["copy-diagnostics", "retry-status", "retry-run"],
       })
     ),
-    Match.exhaustive
+    Match.orElse((error) => uncertainLifecycleFailure(error.code, undefined))
   );
 }
 

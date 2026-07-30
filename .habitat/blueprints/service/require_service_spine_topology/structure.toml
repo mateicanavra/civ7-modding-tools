@@ -117,11 +117,8 @@ root = "services/!(*.*)/src/service/middleware"
 kind = "directory"
 mode = "closed"
 allowEmpty = true
-required = ["index.ts"]
-allowed = [
-  "index.ts",
-  "+([a-z0-9])*(-+([a-z0-9])).ts",
-]
+allowed = ["+([a-z0-9])*(-+([a-z0-9])).ts"]
+forbidden = ["index.ts"]
 
 [[scopes]]
 name = "service-module-middleware"

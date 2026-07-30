@@ -2444,3 +2444,16 @@ adding more read-only facade shells.
   strict OpenSpec validation, stale-route scans, staged Habitat policy, and
   diff hygiene. These are local package proofs and do not claim deployed Civ7
   runtime proof.
+- [x] 8.35 Converge unit plot targeting on focused observe/check/send atoms and
+  one `unit.target.action` service owner: preserve Civ7's conditional native
+  right-click order, combat-gated terminal ranged branch, exact modifier split,
+  same-tile stop, and action-local war evidence; move local-player admission,
+  dedicated war-workflow refusal, guarded dispatch, bounded observation,
+  semantic postconditions, uncertainty, and no-repeat policy into the service;
+  route the controller and both CLI modes through that owner; and retire the
+  thick direct request/polling wrapper, bridge-owned resolver, direct
+  proof/telemetry, raw validation envelopes, and generic target-operation
+  bypasses. Run the combined direct/service/controller/CLI check/test graph,
+  strict OpenSpec validation, stale-route scans, staged Habitat policy, and
+  diff hygiene. These are local package proofs and do not claim deployed Civ7
+  runtime proof.

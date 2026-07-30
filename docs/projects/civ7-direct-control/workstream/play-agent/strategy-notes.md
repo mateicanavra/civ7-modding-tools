@@ -1,11 +1,17 @@
-# Play-Agent Strategic Advisory Notes (Active Loop Ledger)
+# Play-Agent Strategic Advisory Notes (Historical Session Ledger)
 
 Date: 2026-06-02
 Parent frame: `output-contract.md`
-Scope: tactical + strategic planning support for the active Civ7 AI play thread.
+Scope: tactical + strategic planning support captured from one Civ7 AI play thread.
 Frame anchor: [output-contract.md](docs/projects/civ7-direct-control/workstream/play-agent/output-contract.md)
 
-Status: **Live thread data captured, turn-window baseline established.**
+Status: **Historical session ledger; not current command authority.**
+
+> **Current command authority:** This ledger preserves the command examples
+> used during its original live session. Those examples may name retired flags
+> such as `--reason`, `--player-id`, or `--closeout`. Use each current command's
+> `--help` surface and the service-owned options/check/request workflows in
+> `docs/projects/civ7-live-play-support/topics/` for new execution.
 
 ## Live update (Turn 3 / 3950 BCE, stale COMMAND_UNITS repair)
 

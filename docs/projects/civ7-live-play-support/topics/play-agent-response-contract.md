@@ -1,6 +1,11 @@
 # Play Agent Response Contract
 
-Status: `design-reference`.
+Status: `superseded-reference`.
+
+> This document preserves a superseded design exploration and is not current
+> implementation guidance. Generic `game operation` examples below predate the
+> named Civ7 control-service plane. Current callers use named procedures;
+> unsupported operation identities stop and report.
 
 ## Frame
 

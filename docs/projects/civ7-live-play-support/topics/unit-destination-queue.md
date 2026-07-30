@@ -66,8 +66,8 @@ Useful fields:
 
 ## Proposed Mutation
 
-Keep the mutating command provisional until live smoke proves the direct-control
-path:
+Keep the dedicated mutating command provisional until its service contract and
+live proof exist:
 
 ```bash
 game play set-unit-destination \
@@ -76,9 +76,12 @@ game play set-unit-destination \
   --send
 ```
 
-Likely implementation: validate and send `unit-operation MOVE_TO` with
-`{ X, Y, Modifiers }`, using the same official right-click order as
-`unit target` when the destination plot might be attack, swap, or overrun.
+The current supported mutation is `game play unit target --send`, whose unit
+service owns the complete official right-click order. A future destination
+command must call that service or introduce a named destination service with
+queued-destination semantics. It must not reopen generic `unit-operation
+MOVE_TO`, which is deliberately rejected because it bypasses target-action
+ordering, war refusal, and no-repeat policy.
 
 Mutation postcondition should accept:
 
@@ -95,8 +98,8 @@ Mutation postcondition should accept:
 Use a low-risk local unit with a destination beyond current movement range:
 
 1. Read `unit-destination` and `unit move-preview`.
-2. Validate `MOVE_TO` for a far reachable/pathable destination.
-3. Send once after fresh validation.
+2. Check the destination through `unit target`.
+3. Send once through `unit target --send` after fresh service admission.
 4. Poll unit state, ready queue, `Units.getQueuedOperationDestination`, and
    `Units.getPathTo` for the requested destination.
 5. End turn only after noting whether the queue persists and whether the unit

@@ -18,6 +18,10 @@ prove transitive reachability. Local error maps remain literal or private
 objects. TypeBox capabilities that cannot project through the public
 JSON-schema boundary are excluded.
 
+The root aggregate may carry an explicit TypeScript annotation for declaration
+portability. The annotation is structurally transparent: the initializer must
+still be the direct `base.router(...)` composition.
+
 ```grit
 language js(typescript)
 
@@ -90,10 +94,19 @@ predicate require_service_contract_authority_is_bigint_literal($value) {
   $value <: r"^-?(?:0|[1-9][0-9]*)n$"
 }
 
+predicate require_service_contract_authority_is_root_contract_export($export) {
+  or {
+    $export <: `export const contract = base.router($modules)`,
+    $export <: `export const contract: $annotation = base.router($modules)`
+  }
+}
+
 or {
   program(statements=$body) where {
     require_service_contract_authority_is_root_service_contract(),
-    ! $body <: contains `export const contract = base.router($modules)`
+    ! $body <: contains $export where {
+      require_service_contract_authority_is_root_contract_export(export=$export)
+    }
   },
   program(statements=$body) where {
     require_service_contract_authority_is_module_contract_index(),
@@ -245,5 +258,5 @@ export const contract = { commandRequest };
 // @filename: services/control/src/service/contract.ts
 import { base } from "./base";
 import { contract as unit } from "./modules/unit/contract";
-export const contract = base.router({ unit });
+export const contract: ServiceContract = base.router({ unit });
 ```

@@ -37,7 +37,11 @@ describe("game play progression reads", () => {
           active: Array<{ id: number; name: string }>;
           available: Array<{
             id: number;
-            actions: Array<{ kind: string; parameters: { traditionType: number; action: number } }>;
+            actions: Array<{
+              kind: string;
+              runtimeAction: number | null;
+              parameters: { traditionType: number; action: "activate" | "deactivate" };
+            }>;
           }>;
           recommendedCli?: unknown;
         };
@@ -50,9 +54,10 @@ describe("game play progression reads", () => {
       expect(payload.view.active[0].name).toBe("Honor");
       expect(payload.view.available[0].actions[0]).toMatchObject({
         kind: "activate",
+        runtimeAction: -1326475004,
         parameters: {
           traditionType: 90243567,
-          action: -1326475004,
+          action: "activate",
         },
       });
       expect(payload.view.recommendedCli).toBeUndefined();
@@ -98,7 +103,10 @@ describe("game play progression reads", () => {
           validationSuccess: boolean;
           nextAction: {
             kind: string;
-            parameters: { traditionType: number; action: number };
+            parameters: {
+              traditionType: number;
+              action: "activate" | "deactivate";
+            };
             validationSuccess: boolean;
             closeout: boolean;
             sendsMutation: boolean;
@@ -106,7 +114,10 @@ describe("game play progression reads", () => {
         }>;
         recommendedActions: Array<{
           kind: string;
-          parameters: { traditionType: number; action: number };
+          parameters: {
+            traditionType: number;
+            action: "activate" | "deactivate";
+          };
         }>;
         enabledAvailableCount: number;
         disabledAvailableCount: number;
@@ -132,7 +143,7 @@ describe("game play progression reads", () => {
           kind: "activate",
           parameters: {
             traditionType: 90243567,
-            action: -1326475004,
+            action: "activate",
           },
           validationSuccess: true,
           closeout: true,
@@ -143,7 +154,7 @@ describe("game play progression reads", () => {
         kind: "activate",
         parameters: {
           traditionType: 90243567,
-          action: -1326475004,
+          action: "activate",
         },
       });
       expect(payload.recommendedActions).toHaveLength(1);

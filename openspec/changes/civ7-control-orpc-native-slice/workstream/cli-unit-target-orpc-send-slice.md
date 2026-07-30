@@ -1,5 +1,9 @@
 # CLI Unit Target oRPC Send Slice
 
+> Historical record. Superseded by Task 8.35. Current behavior and ownership
+> live in the active OpenSpec and
+> [unit-target-actions.md](../../../../docs/projects/civ7-live-play-support/topics/unit-target-actions.md).
+
 ## Scope
 
 Route `civ7 game play unit-target --send` through the native in-process

@@ -1,7 +1,7 @@
 import { runInNewContext } from "node:vm";
 import { describe, expect, test } from "vitest";
 
-import { operationRouterSource } from "../src/play/operations/router";
+import { unitCommandWireSource } from "../src/play/unit/commands";
 
 const unitId = { owner: 0, id: 65_536, type: 26 };
 const input = {
@@ -67,7 +67,7 @@ function runUnitCommandAtom(
 ): unknown {
   return runInNewContext(
     `(() => {
-      ${operationRouterSource()}
+      ${unitCommandWireSource()}
       return ${atom}(${JSON.stringify(input)});
     })()`,
     {

@@ -17,14 +17,15 @@ unit, first ready unit, blocker, and a classification.
 ## Failure Modes
 
 - Latent postcondition: a `unit target` send can return before animation,
-  queued movement, or unit/path state becomes visible to the summary probe. The
-  command now absorbs that latency with bounded polling before reporting a miss.
+  queued movement, or unit/path state becomes visible. The unit service absorbs
+  that latency with bounded focused observation before classifying the result.
 - Naval movement ambiguity: the UI can track desired destination or path state
   separately from the unit summary, so a Galley may validate and send while
   current probes still report no state change.
-- Generic operation overclaim: generic `game operation --send` must not
-  treat the transport envelope as proof. For unit families, `verified` now
-  depends on the postcondition classification.
+- Internal generic-operation overclaim: the runtime operation substrate must
+  not treat its transport envelope as proof. Named unit services own the public
+  mutation boundary; internal unit-family verification still depends on the
+  postcondition classification.
 - Queue advancement gap: no-target operations should prove whether
   `firstReadyUnitId`, `selectedUnitId`, HUD blocker, unit activity, or unit
   action state changed.
@@ -44,18 +45,13 @@ A robust caller-level unit operation reports:
   `activity-changed`, `unit-state-changed`, `blocker-changed`,
   `validation-changed`, `not-sent`, or `no-state-change`.
 
-The play agent should treat `no-state-change` as unresolved, not as permission
-to repeat the same send. For `game play unit target --send`,
-`no-state-change` now means the immediate response and the bounded poll window
-both failed to observe unit or target-plot change. Re-read the HUD and ready
-unit before trying another movement, alert, wait, or skip.
-
-`unit target --send` includes:
-
-- `verification.source`: `immediate` or `bounded-poll`;
-- `verification.attempts`: number of follow-up reads used by bounded polling;
-- `verification.observedAfterMs`: elapsed observation time before returning;
-- `verification.reason`: caller-facing interpretation of the postcondition.
+The play agent should treat `no-state-change`, `runtime-state-changed`, and
+`missing-postcondition` as unresolved, not as permission to repeat the same
+send. `dispatch-unknown` is stricter: invocation may already have occurred, so
+callers must obtain fresh evidence before issuing any repeat. A confirmed
+`target-reached`, `units-swapped`, or `attack-state-changed` result proves the
+focused semantic outcome. A confirmed `path-shortfall` proves partial movement
+but still requires a fresh route decision.
 
 ## Next Implementation Work
 

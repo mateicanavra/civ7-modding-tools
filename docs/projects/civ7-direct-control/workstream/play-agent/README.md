@@ -18,9 +18,10 @@ Keep these nine documents together:
 3. `hotseat-phase-packet.md` - proof-gated phase packet imported from the
    Graphite hotseat phase branch.
 4. `output-contract.md` - play-agent output contract and response shape.
-5. `operational-reference.md` - cross-game operational doctrine for the
-   validator-backed play loop.
-6. `strategy-notes.md` - active-loop strategic advisory ledger.
+5. `operational-reference.md` - historical ledger for the live Antiquity play
+   session; its captured command examples are not current CLI authority.
+6. `strategy-notes.md` - historical strategic ledger for its captured live
+   session; its command examples are not current CLI authority.
 7. `current-launch-netnew-strategy.md` - launch-specific ledger for one active
    new-game run.
 8. `restart-strategy-brief.md` - restart/relaunch strategy handoff.

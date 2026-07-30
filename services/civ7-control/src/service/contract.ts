@@ -15,7 +15,7 @@ import { contract as unit } from "./modules/unit/contract";
 import { contract as view } from "./modules/view/contract";
 import { contract as world } from "./modules/world/contract";
 
-export const contract = base.router({
+const modules = {
   attention,
   city,
   diplomacy,
@@ -31,4 +31,6 @@ export const contract = base.router({
   unit,
   view,
   world,
-});
+};
+
+export const contract: ReturnType<typeof base.router<typeof modules>> = base.router(modules);

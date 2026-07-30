@@ -6,7 +6,7 @@ import type {
 } from "#civ7-control-service/model/ports/direct-control";
 import type { Civ7CityProductionChoiceInput } from "../../contract";
 
-export type Civ7ProductionChoicePostconditionClassification =
+type Civ7ProductionChoicePostconditionClassification =
   | "not-sent"
   | "production-choice-cleared"
   | "production-state-changed"

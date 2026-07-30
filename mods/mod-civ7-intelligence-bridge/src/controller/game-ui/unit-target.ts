@@ -1,520 +1,729 @@
 import type {
-  Civ7ControlOrpcComponentId,
-  Civ7ControlOrpcUnitTargetActionResult,
-} from "../service-types";
+  Civ7UnitTargetActionCheckInput,
+  Civ7UnitTargetActionCheckResult,
+  Civ7UnitTargetActionId,
+  Civ7UnitTargetActionSendInput,
+  Civ7UnitTargetActionSendResult,
+  Civ7UnitTargetObservationInput,
+  Civ7UnitTargetSnapshot,
+  Civ7UnitTargetUnitSummary,
+} from "@civ7/direct-control";
+import type { Civ7DirectControlErrorShape } from "@civ7/direct-control/error";
 
-type RuntimeProbe<T> = Readonly<{ ok: true; value: T } | { ok: false; error: string }>;
-type UnitTargetCandidate = Civ7ControlOrpcUnitTargetActionResult["candidates"][number];
+type UnitTargetComponentId = Civ7UnitTargetObservationInput["unitId"];
+type UnitTargetArgs = Civ7UnitTargetActionCheckResult["args"];
+type UnitTargetPrerequisite = Civ7UnitTargetActionCheckResult["prerequisite"];
+type UnitTargetJsonValue = Civ7UnitTargetSnapshot["combatType"];
+type UnitTargetWarObservation = Civ7UnitTargetSnapshot["war"];
 
-export type Civ7GameUiUnitTargetActionTarget = Readonly<{
+type UnitTargetActionRouter = Readonly<{
+  canStart?: (
+    unitId: UnitTargetComponentId,
+    operationType: unknown,
+    args: UnitTargetArgs,
+    includeDetails?: boolean
+  ) => unknown;
+  sendRequest?: (
+    unitId: UnitTargetComponentId,
+    operationType: unknown,
+    args: UnitTargetArgs
+  ) => unknown;
+}>;
+
+export type Civ7GameUiUnitTargetTarget = Readonly<{
+  CombatTypes?: {
+    COMBAT_RANGED?: unknown;
+  };
   Game?: {
-    UnitCommands?: UnitActionRouter;
-    UnitOperations?: UnitActionRouter;
+    Combat?: {
+      testAttackInto?: (
+        unitId: UnitTargetComponentId,
+        args: Readonly<{ X: number; Y: number; Modifiers: number | null }>
+      ) => unknown;
+    };
+    UnitCommands?: UnitTargetActionRouter;
+    UnitOperations?: UnitTargetActionRouter;
   };
   GameContext?: {
     localPlayerID?: number;
   };
   GameplayMap?: {
-    getIndexFromLocation?: (location: Readonly<{ x: number; y: number }>) => number;
-    getIndexFromXY?: (x: number, y: number) => number;
+    getIndexFromLocation?: (location: Readonly<{ x: number; y: number }>) => unknown;
+    getIndexFromXY?: (x: number, y: number) => unknown;
   };
   MapUnits?: {
     getUnits?: (x: number, y: number) => unknown;
   };
-  UnitCommandTypes?: Record<string, unknown>;
+  PlayerIds?: {
+    NO_PLAYER?: unknown;
+  };
+  Players?: {
+    get?: (playerId: number) => unknown;
+  };
   UnitOperationMoveModifiers?: {
-    ATTACK?: number;
-    MOVE_IGNORE_UNEXPLORED_DESTINATION?: number;
+    NONE?: unknown;
+    ATTACK?: unknown;
+    MOVE_IGNORE_UNEXPLORED_DESTINATION?: unknown;
   };
-  UnitOperationTypes?: Record<string, unknown>;
+  UnitOperationTypes?: Readonly<Record<string, unknown>> & {
+    MOVE_TO?: unknown;
+  };
   Units?: {
-    get?: (id: Civ7ControlOrpcComponentId) => unknown;
+    get?: (id: UnitTargetComponentId) => unknown;
   };
 }>;
 
-type UnitActionRouter = Readonly<{
-  canStart?: (
-    unitId: Civ7ControlOrpcComponentId,
-    operationType: unknown,
-    args: Readonly<Record<string, number>>,
-    queue?: boolean
-  ) => unknown;
-  sendRequest?: (
-    unitId: Civ7ControlOrpcComponentId,
-    operationType: unknown,
-    args: Readonly<Record<string, number>>
-  ) => unknown;
+type UnitTargetActionSpec = Readonly<{
+  family: "command" | "operation";
+  operationType: unknown;
+  checkArgs: UnitTargetArgs;
+  sendArgs: UnitTargetArgs;
+  prerequisite: UnitTargetPrerequisite;
+  warGate: "none" | "before-check" | "after-check";
 }>;
 
-export function civ7GameUiUnitTargetActionAvailable(
-  target: Civ7GameUiUnitTargetActionTarget
-): boolean {
+const UNIT_TARGET_ACTION_IDS = new Set<Civ7UnitTargetActionId>([
+  "naval-attack",
+  "air-attack",
+  "ranged-attack",
+  "army-overrun",
+  "swap-units",
+  "move-to",
+]);
+
+/** Reports whether focused unit-target snapshots can be read from the controller runtime. */
+function civ7GameUiUnitTargetObservationAvailable(target: Civ7GameUiUnitTargetTarget): boolean {
   return (
-    typeof target.Game?.UnitOperations?.canStart === "function" &&
-    typeof target.Game.UnitOperations.sendRequest === "function" &&
-    typeof target.Game?.UnitCommands?.canStart === "function" &&
-    typeof target.Game.UnitCommands.sendRequest === "function" &&
-    target.UnitOperationTypes != null &&
-    target.UnitCommandTypes != null &&
+    Number.isInteger(target.GameContext?.localPlayerID) &&
     typeof target.Units?.get === "function" &&
     typeof target.MapUnits?.getUnits === "function" &&
+    typeof target.Players?.get === "function" &&
     (typeof target.GameplayMap?.getIndexFromLocation === "function" ||
-      typeof target.GameplayMap?.getIndexFromXY === "function")
+      typeof target.GameplayMap?.getIndexFromXY === "function") &&
+    Number.isInteger(target.UnitOperationMoveModifiers?.NONE) &&
+    Number.isInteger(target.UnitOperationMoveModifiers?.ATTACK) &&
+    Number.isInteger(target.UnitOperationMoveModifiers?.MOVE_IGNORE_UNEXPLORED_DESTINATION)
   );
 }
 
-export async function requestCiv7GameUiUnitTargetAction(
-  input: Readonly<{
-    unitId: Civ7ControlOrpcComponentId;
-    x: number;
-    y: number;
-  }>,
-  target: Civ7GameUiUnitTargetActionTarget = globalThis as Civ7GameUiUnitTargetActionTarget
-): Promise<Civ7ControlOrpcUnitTargetActionResult> {
-  const beforeUnit = probe(() => summarizeUnit(input.unitId, target));
-  const beforeTargetUnits = probe(() => targetUnitsAt(input.x, input.y, target));
-  const targetIndex = targetIndexFor(input.x, input.y, target);
-  const ownerMatchesLocalPlayer = input.unitId.owner === target.GameContext?.localPlayerID;
-  const candidates = ownerMatchesLocalPlayer
-    ? unitTargetCandidates(input, targetIndex, target)
-    : [];
-  const selected = candidates.find(acceptedCandidate) ?? null;
+/** Reports whether one exact native unit-target action can be checked without sending. */
+export function civ7GameUiUnitTargetActionCheckAvailable(
+  target: Civ7GameUiUnitTargetTarget
+): boolean {
+  return (
+    civ7GameUiUnitTargetObservationAvailable(target) &&
+    typeof target.Game?.Combat?.testAttackInto === "function" &&
+    target.CombatTypes?.COMBAT_RANGED !== undefined &&
+    typeof target.Game.UnitCommands?.canStart === "function" &&
+    typeof target.Game.UnitOperations?.canStart === "function" &&
+    target.UnitOperationTypes?.MOVE_TO !== undefined
+  );
+}
 
-  if (!ownerMatchesLocalPlayer || selected == null) {
-    return unitTargetResult({
-      input,
-      targetIndex,
-      beforeUnit,
-      beforeTargetUnits,
-      candidates,
-      selected: null,
-      sent: false,
-      sendResult: undefined,
-      afterUnit: undefined,
-      afterTargetUnits: undefined,
-      verification: {
-        status: "not-sent",
-        classification: "not-sent",
-        unitChanged: false,
-        targetUnitsChanged: false,
-        destinationReached: null,
-        requestedLocation: { x: input.x, y: input.y },
-        landedLocation: locationFromUnitProbe(beforeUnit),
-        source: "immediate",
-        attempts: 0,
-        observedAfterMs: 0,
-        reason: ownerMatchesLocalPlayer
-          ? "No acceptable game UI unit target action candidate validated for the requested tile."
-          : "The requested unit is not owned by GameContext.localPlayerID; game UI controller did not send.",
-      },
+/** Reports whether an admitted exact unit-target action can be sent once. */
+export function civ7GameUiUnitTargetActionSendAvailable(
+  target: Civ7GameUiUnitTargetTarget
+): boolean {
+  return (
+    civ7GameUiUnitTargetActionCheckAvailable(target) &&
+    typeof target.Game?.UnitCommands?.sendRequest === "function" &&
+    typeof target.Game.UnitOperations?.sendRequest === "function"
+  );
+}
+
+/** Reads focused actor, target, combat, war, and modifier evidence without selecting an action. */
+export async function observeCiv7GameUiUnitTarget(
+  input: Civ7UnitTargetObservationInput,
+  target: Civ7GameUiUnitTargetTarget = globalThis as Civ7GameUiUnitTargetTarget
+): Promise<Civ7UnitTargetSnapshot> {
+  try {
+    const admitted = admitUnitTargetObservationInput(input);
+    return readUnitTargetSnapshot(admitted, target, admitted.trackedUnitIds, {
+      includeCombat: true,
+      includeWar: true,
     });
+  } catch (cause) {
+    throw unitTargetDispatchError(cause, "not-dispatched");
   }
-
-  const sendResult = probe(() => sendCandidate(input.unitId, selected, target));
-  const sent = sendResult.ok && sendResult.value !== false;
-  const afterUnit = probe(() => summarizeUnit(input.unitId, target));
-  const afterTargetUnits = probe(() => targetUnitsAt(input.x, input.y, target));
-  const verification = unitTargetVerification(
-    input,
-    selected,
-    sent,
-    beforeUnit,
-    beforeTargetUnits,
-    afterUnit,
-    afterTargetUnits
-  );
-
-  return unitTargetResult({
-    input,
-    targetIndex,
-    beforeUnit,
-    beforeTargetUnits,
-    candidates,
-    selected,
-    sent,
-    sendResult,
-    afterUnit,
-    afterTargetUnits,
-    verification,
-  });
 }
 
-function unitTargetResult(
-  input: Readonly<{
-    input: Readonly<{
-      unitId: Civ7ControlOrpcComponentId;
-      x: number;
-      y: number;
-    }>;
-    targetIndex: RuntimeProbe<number>;
-    beforeUnit: RuntimeProbe<unknown>;
-    beforeTargetUnits: RuntimeProbe<unknown>;
-    candidates: readonly UnitTargetCandidate[];
-    selected: UnitTargetCandidate | null;
-    sent: boolean;
-    sendResult: RuntimeProbe<unknown> | undefined;
-    afterUnit: RuntimeProbe<unknown> | undefined;
-    afterTargetUnits: RuntimeProbe<unknown> | undefined;
-    verification: NonNullable<Civ7ControlOrpcUnitTargetActionResult["verification"]>;
-  }>
-): Civ7ControlOrpcUnitTargetActionResult {
-  return {
-    host: "game-ui",
-    port: 0,
-    state: { id: "game-ui", name: "Game UI" },
-    unitId: input.input.unitId,
-    target: {
-      x: input.input.x,
-      y: input.input.y,
-      index: input.targetIndex,
-    },
-    beforeUnit: input.beforeUnit,
-    beforeTargetUnits: input.beforeTargetUnits,
-    candidates: [...input.candidates],
-    selected: input.selected,
-    sent: input.sent,
-    ...(input.sendResult === undefined ? {} : { sendResult: input.sendResult }),
-    ...(input.afterUnit === undefined ? {} : { afterUnit: input.afterUnit }),
-    ...(input.afterTargetUnits === undefined ? {} : { afterTargetUnits: input.afterTargetUnits }),
-    verified: input.verification.status === "verified",
-    verification: input.verification,
-    notes: [
-      "Game UI unit target action uses fixed official right-click candidate ordering: naval, air, ranged, overrun, swap, then MOVE_TO.",
-      "Game UI controller only sends for units owned by GameContext.localPlayerID.",
-    ],
-  };
+/** Checks only the requested native action with its exact right-click arguments. */
+export async function checkCiv7GameUiUnitTargetAction(
+  input: Civ7UnitTargetActionCheckInput,
+  target: Civ7GameUiUnitTargetTarget = globalThis as Civ7GameUiUnitTargetTarget
+): Promise<Civ7UnitTargetActionCheckResult> {
+  try {
+    return checkUnitTargetAction(admitUnitTargetCheckInput(input), target);
+  } catch (cause) {
+    throw unitTargetDispatchError(cause, "not-dispatched");
+  }
 }
 
-function unitTargetCandidates(
-  input: Readonly<{
-    unitId: Civ7ControlOrpcComponentId;
-    x: number;
-    y: number;
-  }>,
-  targetIndex: RuntimeProbe<number>,
-  target: Civ7GameUiUnitTargetActionTarget
-): UnitTargetCandidate[] {
-  const baseArgs = { X: input.x, Y: input.y };
-  const attackArgs = { ...baseArgs, Modifiers: moveModifiers(target) };
-  return [
-    candidate(
-      "unit-operation",
-      "UNITOPERATION_NAVAL_ATTACK",
-      attackArgs,
-      input.unitId,
-      targetIndex,
-      target
-    ),
-    candidate(
-      "unit-operation",
-      "UNITOPERATION_AIR_ATTACK",
-      attackArgs,
-      input.unitId,
-      targetIndex,
-      target
-    ),
-    candidate(
-      "unit-operation",
-      "UNITOPERATION_RANGE_ATTACK",
-      attackArgs,
-      input.unitId,
-      targetIndex,
-      target
-    ),
-    candidate(
-      "unit-command",
-      "UNITCOMMAND_ARMY_OVERRUN",
-      baseArgs,
-      input.unitId,
-      targetIndex,
-      target
-    ),
-    candidate(
-      "unit-operation",
-      "UNITOPERATION_SWAP_UNITS",
-      baseArgs,
-      input.unitId,
-      targetIndex,
-      target
-    ),
-    candidate("unit-operation", "MOVE_TO", attackArgs, input.unitId, targetIndex, target),
-  ];
-}
+/** Revalidates one service-admitted action and invokes its native send method at most once. */
+export async function sendCiv7GameUiUnitTargetAction(
+  input: Civ7UnitTargetActionSendInput,
+  target: Civ7GameUiUnitTargetTarget = globalThis as Civ7GameUiUnitTargetTarget
+): Promise<Civ7UnitTargetActionSendResult> {
+  let sendInvoked = false;
+  try {
+    const admitted = admitUnitTargetSendInput(input);
+    const fresh = checkUnitTargetAction(admitted, target);
+    if (
+      admitted.actionId !== admitted.expected.actionId ||
+      !unitTargetJsonValuesMatch(fresh, admitted.expected)
+    ) {
+      throw new Error("Unit target evidence changed after service admission.");
+    }
+    if (!fresh.valid) {
+      return {
+        sent: false,
+        actionId: admitted.actionId,
+        validation: fresh,
+        before: fresh.snapshot,
+        after: fresh.snapshot,
+      };
+    }
+    if (fresh.snapshot.war.required === true) {
+      throw new Error("Unit target action requires the dedicated war-confirmation workflow.");
+    }
 
-function candidate(
-  family: UnitTargetCandidate["family"],
-  operationType: string,
-  args: Readonly<Record<string, number>>,
-  unitId: Civ7ControlOrpcComponentId,
-  targetIndex: RuntimeProbe<number>,
-  target: Civ7GameUiUnitTargetActionTarget
-): UnitTargetCandidate {
-  const router =
-    family === "unit-command" ? target.Game?.UnitCommands : target.Game?.UnitOperations;
-  const enums = family === "unit-command" ? target.UnitCommandTypes : target.UnitOperationTypes;
-  const enumValue = enumValueFor(enums, operationType);
-  const result = probe(() => router?.canStart?.(unitId, enumValue, args, false) ?? false);
-  const valid = result.ok && successFromCanStart(result.value);
-  const targetInReturnedPlots = targetInReturnedPlotsFor(result, targetIndex);
-  return {
-    family,
-    operationType,
-    args,
-    valid,
-    result,
-    targetInReturnedPlots,
-    ...(valid && targetInReturnedPlots === false
-      ? { rejectedReason: "target not present in canStart returned Plots" }
-      : {}),
-  };
-}
+    const spec = unitTargetActionSpec(admitted, fresh.snapshot, target);
+    const router = unitTargetRouter(spec.family, target);
+    const sendRequest = router?.sendRequest;
+    if (typeof sendRequest !== "function") {
+      throw new Error("Unit action sendRequest is unavailable.");
+    }
+    sendInvoked = true;
+    Reflect.apply(sendRequest, router, [admitted.unitId, spec.operationType, spec.sendArgs]);
 
-function sendCandidate(
-  unitId: Civ7ControlOrpcComponentId,
-  entry: UnitTargetCandidate,
-  target: Civ7GameUiUnitTargetActionTarget
-): unknown {
-  const router =
-    entry.family === "unit-command" ? target.Game?.UnitCommands : target.Game?.UnitOperations;
-  const enums =
-    entry.family === "unit-command" ? target.UnitCommandTypes : target.UnitOperationTypes;
-  return router?.sendRequest?.(
-    unitId,
-    enumValueFor(enums, entry.operationType),
-    argsRecord(entry.args)
-  );
-}
-
-function unitTargetVerification(
-  input: Readonly<{
-    x: number;
-    y: number;
-  }>,
-  selected: UnitTargetCandidate,
-  sent: boolean,
-  beforeUnit: RuntimeProbe<unknown>,
-  beforeTargetUnits: RuntimeProbe<unknown>,
-  afterUnit: RuntimeProbe<unknown>,
-  afterTargetUnits: RuntimeProbe<unknown>
-): NonNullable<Civ7ControlOrpcUnitTargetActionResult["verification"]> {
-  if (!sent) {
+    const trackedUnitIds = fresh.snapshot.targetUnits.map((unit) => unit.id);
     return {
-      status: "not-sent",
-      classification: "not-sent",
-      unitChanged: false,
-      targetUnitsChanged: false,
-      destinationReached: null,
-      requestedLocation: { x: input.x, y: input.y },
-      landedLocation: locationFromUnitProbe(beforeUnit),
-      source: "immediate",
-      attempts: 0,
-      observedAfterMs: 0,
-      reason: "The game UI unit target send did not report a sent result.",
+      sent: true,
+      actionId: admitted.actionId,
+      validation: fresh,
+      before: fresh.snapshot,
+      after: readUnitTargetSnapshot(admitted, target, trackedUnitIds, {
+        includeCombat: true,
+        includeWar: true,
+      }),
+    };
+  } catch (cause) {
+    throw unitTargetDispatchError(cause, sendInvoked ? "dispatched" : "not-dispatched");
+  }
+}
+
+function checkUnitTargetAction(
+  input: Civ7UnitTargetActionCheckInput,
+  target: Civ7GameUiUnitTargetTarget
+): Civ7UnitTargetActionCheckResult {
+  let snapshot = readUnitTargetSnapshot(input, target, undefined, {
+    includeCombat: false,
+    includeWar: false,
+  });
+  if (input.actionId === "ranged-attack") {
+    snapshot = {
+      ...snapshot,
+      combatType: readUnitTargetCombatType(input, snapshot.modifiers.none, target),
     };
   }
+  const spec = unitTargetActionSpec(input, snapshot, target);
+  if (snapshot.actor === null) {
+    return {
+      actionId: input.actionId,
+      valid: false,
+      prerequisite: { ...spec.prerequisite, satisfied: false },
+      args: spec.checkArgs,
+      result: null,
+      snapshot,
+    };
+  }
+  if (!spec.prerequisite.satisfied) {
+    return {
+      actionId: input.actionId,
+      valid: false,
+      prerequisite: spec.prerequisite,
+      args: spec.checkArgs,
+      result: null,
+      snapshot,
+    };
+  }
+  if (spec.warGate === "before-check") {
+    snapshot = { ...snapshot, war: readUnitTargetWar(input, target) };
+    if (snapshot.war.required === true) {
+      return {
+        actionId: input.actionId,
+        valid: false,
+        prerequisite: spec.prerequisite,
+        args: spec.checkArgs,
+        result: null,
+        snapshot,
+      };
+    }
+  }
 
-  const unitChanged = stableJson(beforeUnit) !== stableJson(afterUnit);
-  const targetUnitsChanged = stableJson(beforeTargetUnits) !== stableJson(afterTargetUnits);
-  const requestedLocation = { x: input.x, y: input.y };
-  const beforeLocation = locationFromUnitProbe(beforeUnit);
-  const landedLocation = locationFromUnitProbe(afterUnit);
-  const destinationReached = landedLocation
-    ? sameLocation(landedLocation, requestedLocation)
-    : null;
-  const originChanged =
-    beforeLocation && landedLocation ? !sameLocation(beforeLocation, landedLocation) : unitChanged;
-  const classification =
-    !unitChanged && !targetUnitsChanged
-      ? "no-state-change"
-      : selected.operationType === "MOVE_TO" && destinationReached === true
-        ? "target-reached"
-        : selected.operationType === "MOVE_TO" && originChanged && destinationReached === false
-          ? "path-shortfall"
-          : targetUnitsChanged
-            ? "target-state-changed"
-            : "unit-state-changed";
-
+  const router = unitTargetRouter(spec.family, target);
+  const canStart = router?.canStart;
+  if (typeof canStart !== "function") {
+    throw new Error("Unit action canStart is unavailable.");
+  }
+  const rawResult = Reflect.apply(canStart, router, [
+    input.unitId,
+    spec.operationType,
+    spec.checkArgs,
+    false,
+  ]);
+  const valid =
+    rawResult !== null &&
+    typeof rawResult === "object" &&
+    Reflect.get(rawResult, "Success") === true;
+  if (valid && spec.warGate === "after-check") {
+    snapshot = { ...snapshot, war: readUnitTargetWar(input, target) };
+  }
   return {
-    status: unitChanged || targetUnitsChanged ? "verified" : "no-state-change",
-    classification,
-    unitChanged,
-    targetUnitsChanged,
-    destinationReached,
-    requestedLocation,
-    landedLocation,
-    source: "immediate",
-    attempts: 0,
-    observedAfterMs: 0,
-    reason: unitTargetReason(classification),
+    actionId: input.actionId,
+    valid,
+    prerequisite: spec.prerequisite,
+    args: spec.checkArgs,
+    result: unitTargetJsonValue(rawResult),
+    snapshot,
   };
 }
 
-function unitTargetReason(
-  classification: NonNullable<
-    Civ7ControlOrpcUnitTargetActionResult["verification"]
-  >["classification"]
-): string {
-  switch (classification) {
-    case "target-reached":
-      return "unit reached the requested target tile";
-    case "path-shortfall":
-      return "unit moved, but landed short of the requested target tile; re-read before issuing a follow-up move";
-    case "target-state-changed":
-      return "target-plot unit state changed after send";
-    case "unit-state-changed":
-      return "unit state changed after send";
-    case "no-state-change":
-      return "send returned but unit and target-plot probes did not change; re-read before repeating";
-    case "not-sent":
-      return "no unit target action was sent";
+function readUnitTargetSnapshot(
+  input: Pick<Civ7UnitTargetObservationInput, "unitId" | "x" | "y">,
+  target: Civ7GameUiUnitTargetTarget,
+  trackedUnitIds: readonly UnitTargetComponentId[] | undefined,
+  options: Readonly<{
+    includeCombat: boolean;
+    includeWar: boolean;
+  }>
+): Civ7UnitTargetSnapshot {
+  const targetIds = readUnitTargetIds(input.x, input.y, target);
+  const trackedIds = trackedUnitIds ?? targetIds;
+  const modifiers = readUnitTargetModifiers(target);
+  return {
+    localPlayerId: Number.isInteger(target.GameContext?.localPlayerID)
+      ? (target.GameContext?.localPlayerID as number)
+      : null,
+    unitId: input.unitId,
+    target: {
+      x: input.x,
+      y: input.y,
+      index: readUnitTargetIndex(input.x, input.y, target),
+    },
+    actor: readUnitTargetUnit(input.unitId, target),
+    targetUnits: targetIds
+      .map((id) => readUnitTargetUnit(id, target))
+      .filter((unit): unit is Civ7UnitTargetUnitSummary => unit !== null),
+    trackedTargetUnits: trackedIds.map((id) => ({
+      id,
+      unit: readUnitTargetUnit(id, target),
+    })),
+    combatType: options.includeCombat
+      ? readUnitTargetCombatType(input, modifiers.none, target)
+      : null,
+    rangedCombatType: unitTargetJsonValue(target.CombatTypes?.COMBAT_RANGED),
+    war: options.includeWar ? readUnitTargetWar(input, target) : unobservedUnitTargetWar(target),
+    modifiers,
+  };
+}
+
+function unitTargetActionSpec(
+  input: Civ7UnitTargetActionCheckInput,
+  snapshot: Civ7UnitTargetSnapshot,
+  target: Civ7GameUiUnitTargetTarget
+): UnitTargetActionSpec {
+  const none = requireUnitTargetInteger(snapshot.modifiers.none, "UnitOperationMoveModifiers.NONE");
+  const dispatch = requireUnitTargetInteger(
+    snapshot.modifiers.dispatch,
+    "unit target dispatch modifiers"
+  );
+  const checkArgs = { X: input.x, Y: input.y, Modifiers: none };
+  const dispatchArgs = { X: input.x, Y: input.y, Modifiers: dispatch };
+  const offCurrentTile = unitTargetIsOffCurrentTile(snapshot);
+
+  switch (input.actionId) {
+    case "naval-attack":
+      return operationSpec(
+        "UNITOPERATION_NAVAL_ATTACK",
+        checkArgs,
+        dispatchArgs,
+        noUnitTargetPrerequisite(),
+        "after-check"
+      );
+    case "air-attack":
+      return operationSpec(
+        "UNITOPERATION_AIR_ATTACK",
+        checkArgs,
+        dispatchArgs,
+        noUnitTargetPrerequisite(),
+        "after-check"
+      );
+    case "ranged-attack":
+      return operationSpec(
+        "UNITOPERATION_RANGE_ATTACK",
+        checkArgs,
+        dispatchArgs,
+        {
+          kind: "ranged-combat",
+          satisfied:
+            snapshot.combatType !== null &&
+            snapshot.rangedCombatType !== null &&
+            Object.is(snapshot.combatType, snapshot.rangedCombatType),
+        },
+        "before-check"
+      );
+    case "army-overrun":
+      return {
+        family: "command",
+        operationType: "UNITCOMMAND_ARMY_OVERRUN",
+        checkArgs,
+        sendArgs: checkArgs,
+        prerequisite: noUnitTargetPrerequisite(),
+        warGate: "none",
+      };
+    case "swap-units":
+      return operationSpec(
+        "UNITOPERATION_SWAP_UNITS",
+        checkArgs,
+        checkArgs,
+        { kind: "off-current-tile", satisfied: offCurrentTile },
+        "none"
+      );
+    case "move-to": {
+      const operationType = target.UnitOperationTypes?.MOVE_TO;
+      if (operationType === undefined) {
+        throw new Error("UnitOperationTypes.MOVE_TO is unavailable.");
+      }
+      return operationSpec(
+        operationType,
+        dispatchArgs,
+        dispatchArgs,
+        { kind: "off-current-tile", satisfied: offCurrentTile },
+        "before-check"
+      );
+    }
   }
 }
 
-function targetIndexFor(
+function operationSpec(
+  operationType: unknown,
+  checkArgs: UnitTargetArgs,
+  sendArgs: UnitTargetArgs,
+  prerequisite: UnitTargetPrerequisite,
+  warGate: UnitTargetActionSpec["warGate"]
+): UnitTargetActionSpec {
+  return {
+    family: "operation",
+    operationType,
+    checkArgs,
+    sendArgs,
+    prerequisite,
+    warGate,
+  };
+}
+
+function noUnitTargetPrerequisite(): UnitTargetPrerequisite {
+  return { kind: "none", satisfied: true };
+}
+
+function unitTargetRouter(
+  family: UnitTargetActionSpec["family"],
+  target: Civ7GameUiUnitTargetTarget
+): UnitTargetActionRouter | undefined {
+  return family === "command" ? target.Game?.UnitCommands : target.Game?.UnitOperations;
+}
+
+function readUnitTargetUnit(
+  id: UnitTargetComponentId,
+  target: Civ7GameUiUnitTargetTarget
+): Civ7UnitTargetUnitSummary | null {
+  const getUnit = target.Units?.get;
+  if (typeof getUnit !== "function") throw new Error("Units.get is unavailable.");
+  const value = Reflect.apply(getUnit, target.Units, [id]);
+  if (value === null || typeof value !== "object") return null;
+  const observedId = unitTargetComponentId(Reflect.get(value, "id")) ?? id;
+  const movement = unitTargetRecord(Reflect.get(value, "Movement"));
+  const combat = unitTargetRecord(Reflect.get(value, "Combat"));
+  const health = unitTargetRecord(Reflect.get(value, "Health"));
+  const damage = finiteUnitTargetNumber(health == null ? undefined : Reflect.get(health, "damage"));
+  const maxDamage = finiteUnitTargetNumber(
+    health == null ? undefined : Reflect.get(health, "maxDamage")
+  );
+  return {
+    id: observedId,
+    location: unitTargetLocation(Reflect.get(value, "location")),
+    movementMovesRemaining: finiteUnitTargetNumber(
+      movement == null ? undefined : Reflect.get(movement, "movementMovesRemaining")
+    ),
+    movementTurnsRemaining: finiteUnitTargetNumber(
+      movement == null ? undefined : Reflect.get(movement, "movementTurnsRemaining")
+    ),
+    attacksRemaining: finiteUnitTargetNumber(
+      combat == null ? undefined : Reflect.get(combat, "attacksRemaining")
+    ),
+    damage,
+    hitPoints: damage === null || maxDamage === null ? null : maxDamage - damage,
+  };
+}
+
+function readUnitTargetIds(
   x: number,
   y: number,
-  target: Civ7GameUiUnitTargetActionTarget
-): RuntimeProbe<number> {
-  return probe(() =>
-    typeof target.GameplayMap?.getIndexFromLocation === "function"
-      ? target.GameplayMap.getIndexFromLocation({ x, y })
-      : (target.GameplayMap?.getIndexFromXY?.(x, y) ?? -1)
-  );
-}
-
-function summarizeUnit(
-  unitId: Civ7ControlOrpcComponentId,
-  target: Civ7GameUiUnitTargetActionTarget
-): unknown {
-  const unit = target.Units?.get?.(unitId);
-  if (unit == null || typeof unit !== "object") return null;
-  const record = unit as Record<string, any>;
-  return {
-    id: toComponentId(record.id) ?? unitId,
-    owner: record.owner ?? unitId.owner,
-    type: record.type ?? unitId.type ?? null,
-    location: record.location ?? null,
-    movementMovesRemaining: record.Movement?.movementMovesRemaining ?? null,
-    movementTurnsRemaining: record.Movement?.movementTurnsRemaining ?? null,
-    attacksRemaining: record.Combat?.attacksRemaining ?? null,
-    rangedStrength: record.Combat?.rangedStrength ?? null,
-    bombardStrength: record.Combat?.bombardStrength ?? null,
-    meleeStrength:
-      typeof record.Combat?.getMeleeStrength === "function"
-        ? record.Combat.getMeleeStrength(false)
-        : null,
-    damage: record.Health?.damage ?? null,
-    hitPoints: record.Health?.hitPoints ?? null,
-  };
-}
-
-function targetUnitsAt(x: number, y: number, target: Civ7GameUiUnitTargetActionTarget): unknown {
-  const units = target.MapUnits?.getUnits?.(x, y) ?? [];
-  return Array.isArray(units) ? units.map((id) => toComponentId(id) ?? id) : units;
-}
-
-function targetInReturnedPlotsFor(
-  result: RuntimeProbe<unknown>,
-  targetIndex: RuntimeProbe<number>
-): boolean | null {
-  if (!result.ok || !targetIndex.ok) return null;
-  const value = result.value;
-  if (value == null || typeof value !== "object") return null;
-  const plots = (value as { Plots?: unknown }).Plots;
-  return Array.isArray(plots) ? plots.includes(targetIndex.value) : null;
-}
-
-function moveModifiers(target: Civ7GameUiUnitTargetActionTarget): number {
-  return (
-    (target.UnitOperationMoveModifiers?.ATTACK ?? 0) +
-    (target.UnitOperationMoveModifiers?.MOVE_IGNORE_UNEXPLORED_DESTINATION ?? 0)
-  );
-}
-
-function acceptedCandidate(entry: UnitTargetCandidate): boolean {
-  return entry.valid === true && entry.targetInReturnedPlots !== false;
-}
-
-function enumValueFor(enums: Record<string, unknown> | undefined, operationType: string): unknown {
-  if (enums == null) return operationType;
-  if (Object.prototype.hasOwnProperty.call(enums, operationType)) {
-    return enums[operationType];
-  }
-  for (const key of [
-    operationType.replace(/^UNITOPERATION_/, ""),
-    operationType.replace(/^UNITCOMMAND_/, ""),
-  ]) {
-    if (Object.prototype.hasOwnProperty.call(enums, key)) {
-      return enums[key];
-    }
-  }
-  return operationType;
-}
-
-function successFromCanStart(result: unknown): boolean {
-  if (result === true) return true;
-  if (result === false || result == null) return false;
-  if (typeof result === "object") {
-    const record = result as Record<string, unknown>;
-    if (record.Success !== undefined) return record.Success === true;
-    if (record.success !== undefined) return record.success === true;
-    if (record.canStart !== undefined) return record.canStart === true;
-  }
-  return Boolean(result);
-}
-
-function argsRecord(value: unknown): Readonly<Record<string, number>> {
-  return value != null && typeof value === "object"
-    ? (value as Readonly<Record<string, number>>)
-    : {};
-}
-
-function locationFromUnitProbe(
-  input: RuntimeProbe<unknown> | undefined
-): { x: number; y: number } | null {
-  const value = input?.ok === true ? input.value : null;
-  if (value == null || typeof value !== "object") return null;
-  const location = (value as { location?: unknown }).location;
-  if (location == null || typeof location !== "object") return null;
-  const { x, y } = location as { x?: unknown; y?: unknown };
-  return typeof x === "number" && typeof y === "number" ? { x, y } : null;
-}
-
-function sameLocation(
-  left: Readonly<{ x: number; y: number }>,
-  right: Readonly<{ x: number; y: number }>
-): boolean {
-  return left.x === right.x && left.y === right.y;
-}
-
-function toComponentId(value: unknown): Civ7ControlOrpcComponentId | null {
-  if (value == null || typeof value !== "object") return null;
-  const record = value as Record<string, unknown>;
-  if (typeof record.owner !== "number" || typeof record.id !== "number") {
-    return null;
-  }
-  return typeof record.type === "number"
-    ? { owner: record.owner, id: record.id, type: record.type }
-    : { owner: record.owner, id: record.id };
-}
-
-function stableJson(value: unknown): string {
-  return JSON.stringify(value, (_key, candidate) => {
-    if (candidate == null || typeof candidate !== "object" || Array.isArray(candidate)) {
-      return candidate;
-    }
-    return Object.fromEntries(
-      Object.entries(candidate as Record<string, unknown>).sort(([left], [right]) =>
-        left.localeCompare(right)
-      )
-    );
+  target: Civ7GameUiUnitTargetTarget
+): UnitTargetComponentId[] {
+  const getUnits = target.MapUnits?.getUnits;
+  if (typeof getUnits !== "function") throw new Error("MapUnits.getUnits is unavailable.");
+  const values = Reflect.apply(getUnits, target.MapUnits, [x, y]);
+  if (!Array.isArray(values)) throw new Error("MapUnits.getUnits did not return an array.");
+  return values.map((value) => {
+    const id = unitTargetComponentId(value);
+    if (id === null) throw new Error("Target unit has no valid ComponentID.");
+    return id;
   });
 }
 
-function probe<T>(fn: () => T): RuntimeProbe<T> {
-  try {
-    return { ok: true, value: fn() };
-  } catch (err) {
-    return { ok: false, error: String(err) };
+function readUnitTargetIndex(
+  x: number,
+  y: number,
+  target: Civ7GameUiUnitTargetTarget
+): number | null {
+  const fromLocation = target.GameplayMap?.getIndexFromLocation;
+  const value =
+    typeof fromLocation === "function"
+      ? Reflect.apply(fromLocation, target.GameplayMap, [{ x, y }])
+      : typeof target.GameplayMap?.getIndexFromXY === "function"
+        ? Reflect.apply(target.GameplayMap.getIndexFromXY, target.GameplayMap, [x, y])
+        : null;
+  return Number.isInteger(value) ? (value as number) : null;
+}
+
+function readUnitTargetCombatType(
+  input: Pick<Civ7UnitTargetObservationInput, "unitId" | "x" | "y">,
+  none: number | null,
+  target: Civ7GameUiUnitTargetTarget
+): UnitTargetJsonValue {
+  const testAttackInto = target.Game?.Combat?.testAttackInto;
+  if (typeof testAttackInto !== "function") return null;
+  return unitTargetJsonValue(
+    Reflect.apply(testAttackInto, target.Game?.Combat, [
+      input.unitId,
+      { X: input.x, Y: input.y, Modifiers: none },
+    ])
+  );
+}
+
+function readUnitTargetWar(
+  input: Pick<Civ7UnitTargetObservationInput, "unitId" | "x" | "y">,
+  target: Civ7GameUiUnitTargetTarget
+): UnitTargetWarObservation {
+  const getPlayer = target.Players?.get;
+  if (typeof getPlayer !== "function") throw new Error("Players.get is unavailable.");
+  const player = Reflect.apply(getPlayer, target.Players, [input.unitId.owner]);
+  const diplomacy =
+    player !== null && typeof player === "object" ? Reflect.get(player, "Diplomacy") : null;
+  const noPlayerId = Number.isInteger(target.PlayerIds?.NO_PLAYER)
+    ? (target.PlayerIds?.NO_PLAYER as number)
+    : null;
+  if (diplomacy === null || typeof diplomacy !== "object") {
+    return {
+      observed: true,
+      result: null,
+      player2: null,
+      noPlayerId,
+      required: false,
+    };
   }
+  const willMoveStartWar = Reflect.get(diplomacy, "willMoveStartWar");
+  if (typeof willMoveStartWar !== "function") {
+    throw new Error("Diplomacy.willMoveStartWar is unavailable.");
+  }
+  const rawResult = Reflect.apply(willMoveStartWar, diplomacy, [
+    input.unitId,
+    { x: input.x, y: input.y },
+  ]);
+  const success =
+    rawResult !== null &&
+    typeof rawResult === "object" &&
+    Reflect.get(rawResult, "Success") === true;
+  const rawPlayer2 =
+    success && rawResult !== null && typeof rawResult === "object"
+      ? Reflect.get(rawResult, "Player2")
+      : undefined;
+  if (rawPlayer2 !== undefined && !Number.isInteger(rawPlayer2)) {
+    throw new Error("Diplomacy.willMoveStartWar returned an invalid Player2.");
+  }
+  const player2 = rawPlayer2 === undefined ? null : (rawPlayer2 as number);
+  return {
+    observed: true,
+    result: unitTargetJsonValue(rawResult),
+    player2,
+    noPlayerId,
+    required: player2 !== null && (noPlayerId === null || player2 !== noPlayerId),
+  };
+}
+
+function unobservedUnitTargetWar(target: Civ7GameUiUnitTargetTarget): UnitTargetWarObservation {
+  return {
+    observed: false,
+    result: null,
+    player2: null,
+    noPlayerId: Number.isInteger(target.PlayerIds?.NO_PLAYER)
+      ? (target.PlayerIds?.NO_PLAYER as number)
+      : null,
+    required: null,
+  };
+}
+
+function readUnitTargetModifiers(
+  target: Civ7GameUiUnitTargetTarget
+): Civ7UnitTargetSnapshot["modifiers"] {
+  const none = target.UnitOperationMoveModifiers?.NONE;
+  const attack = target.UnitOperationMoveModifiers?.ATTACK;
+  const ignore = target.UnitOperationMoveModifiers?.MOVE_IGNORE_UNEXPLORED_DESTINATION;
+  return {
+    none: Number.isInteger(none) ? (none as number) : null,
+    dispatch:
+      Number.isInteger(attack) && Number.isInteger(ignore)
+        ? (attack as number) + (ignore as number)
+        : null,
+  };
+}
+
+function admitUnitTargetObservationInput(
+  input: Civ7UnitTargetObservationInput
+): Civ7UnitTargetObservationInput {
+  const admitted = admitUnitTargetInput(input);
+  const trackedUnitIds = input.trackedUnitIds?.map((id, index) =>
+    requireUnitTargetComponentId(id, `trackedUnitIds[${index}]`)
+  );
+  return trackedUnitIds === undefined ? admitted : { ...admitted, trackedUnitIds };
+}
+
+function admitUnitTargetCheckInput(
+  input: Civ7UnitTargetActionCheckInput
+): Civ7UnitTargetActionCheckInput {
+  const admitted = admitUnitTargetInput(input);
+  const actionId = input.actionId;
+  if (!UNIT_TARGET_ACTION_IDS.has(actionId)) {
+    throw new Error("Unit target action check requires a closed native action identifier.");
+  }
+  return { ...admitted, actionId };
+}
+
+function admitUnitTargetSendInput(
+  input: Civ7UnitTargetActionSendInput
+): Civ7UnitTargetActionSendInput {
+  const admitted = admitUnitTargetCheckInput(input);
+  const expected = input.expected;
+  if (expected === null || typeof expected !== "object") {
+    throw new Error("Unit target action send requires the exact preceding action check.");
+  }
+  return { ...admitted, expected };
+}
+
+function admitUnitTargetInput(
+  input: Pick<Civ7UnitTargetObservationInput, "unitId" | "x" | "y">
+): Pick<Civ7UnitTargetObservationInput, "unitId" | "x" | "y"> {
+  const unitId = requireUnitTargetComponentId(input.unitId, "unitId");
+  const x = input.x;
+  const y = input.y;
+  if (
+    !Number.isInteger(x) ||
+    x < 0 ||
+    x > 1_000_000 ||
+    !Number.isInteger(y) ||
+    y < 0 ||
+    y > 1_000_000
+  ) {
+    throw new Error("Unit target input requires bounded integer coordinates.");
+  }
+  return { unitId, x, y };
+}
+
+function requireUnitTargetComponentId(
+  value: UnitTargetComponentId,
+  label: string
+): UnitTargetComponentId {
+  const owner = value?.owner;
+  const id = value?.id;
+  const type = value?.type;
+  if (
+    typeof owner !== "number" ||
+    !Number.isFinite(owner) ||
+    typeof id !== "number" ||
+    !Number.isFinite(id) ||
+    (type !== undefined && (typeof type !== "number" || !Number.isFinite(type)))
+  ) {
+    throw new Error(`${label} must be a Civ7 ComponentID.`);
+  }
+  return type === undefined ? { owner, id } : { owner, id, type };
+}
+
+function unitTargetComponentId(value: unknown): UnitTargetComponentId | null {
+  if (value === null || typeof value !== "object") return null;
+  const nested = Reflect.get(value, "id");
+  const source = nested !== null && typeof nested === "object" ? nested : value;
+  const owner = Reflect.get(source, "owner");
+  const id = Reflect.get(source, "id");
+  const type = Reflect.get(source, "type");
+  if (!Number.isInteger(owner) || !Number.isInteger(id)) return null;
+  return Number.isInteger(type)
+    ? { owner: owner as number, id: id as number, type: type as number }
+    : { owner: owner as number, id: id as number };
+}
+
+function unitTargetLocation(value: unknown): Civ7UnitTargetUnitSummary["location"] {
+  if (value === null || typeof value !== "object") return null;
+  const x = Reflect.get(value, "x");
+  const y = Reflect.get(value, "y");
+  return Number.isInteger(x) && Number.isInteger(y) ? { x: x as number, y: y as number } : null;
+}
+
+function unitTargetIsOffCurrentTile(snapshot: Civ7UnitTargetSnapshot): boolean {
+  const location = snapshot.actor?.location;
+  return (
+    location !== null &&
+    location !== undefined &&
+    (location.x !== snapshot.target.x || location.y !== snapshot.target.y)
+  );
+}
+
+function unitTargetRecord(value: unknown): object | null {
+  return value !== null && typeof value === "object" ? value : null;
+}
+
+function finiteUnitTargetNumber(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function requireUnitTargetInteger(value: number | null, label: string): number {
+  if (!Number.isInteger(value)) throw new Error(`${label} is unavailable.`);
+  return value as number;
+}
+
+function unitTargetJsonValue(value: unknown): UnitTargetJsonValue {
+  if (value === undefined) return null;
+  const serialized = JSON.stringify(value);
+  if (serialized === undefined) return null;
+  return JSON.parse(serialized) as UnitTargetJsonValue;
+}
+
+function unitTargetJsonValuesMatch(left: unknown, right: unknown): boolean {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function unitTargetDispatchError(
+  cause: unknown,
+  dispatchStatus: "not-dispatched" | "dispatched"
+): Civ7DirectControlErrorShape {
+  const message = cause instanceof Error ? cause.message : String(cause);
+  const error = new Error(message, { cause }) as Error & {
+    name: "Civ7DirectControlError";
+  };
+  error.name = "Civ7DirectControlError";
+  return Object.assign(error, {
+    code: "command-failed" as const,
+    dispatchStatus,
+  });
 }

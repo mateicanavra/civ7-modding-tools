@@ -1,7 +1,12 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
-import { type Civ7ControlOrpcContext, Civ7ControlOrpcRouter } from "../../../../src/index";
+import {
+  type Civ7ControlOrpcContext,
+  Civ7ControlOrpcContract,
+  Civ7ControlOrpcRouter,
+} from "../../../../src/index";
 import type { Civ7ControlOrpcTraditionsViewResult } from "../../../../src/service/model/ports/direct-control";
+import { standardSchemaAccepts } from "../../../support/standard-schema";
 
 describe("progression traditions control-oRPC procedure", () => {
   test("projects traditions into semantic action descriptors without CLI strings", async () => {
@@ -49,15 +54,48 @@ describe("progression traditions control-oRPC procedure", () => {
       actions: [
         {
           kind: "activate",
-          action: -1326475004,
+          runtimeAction: -1326475004,
           validationSuccess: true,
           parameters: {
             traditionType: 90243567,
-            action: -1326475004,
+            action: "activate",
           },
+          nextSteps: [
+            {
+              kind: "validate-tradition-change",
+              parameters: {
+                traditionType: 90243567,
+                action: "activate",
+              },
+            },
+            {
+              kind: "request-tradition-change",
+              parameters: {
+                traditionType: 90243567,
+                action: "activate",
+              },
+            },
+          ],
         },
       ],
     });
+    const advertisedParameters = result.available[0]?.actions[0]?.parameters;
+    expect(advertisedParameters).toEqual({
+      traditionType: 90243567,
+      action: "activate",
+    });
+    expect(
+      standardSchemaAccepts(
+        Civ7ControlOrpcContract.progression.tradition.change.check["~orpc"].inputSchema,
+        advertisedParameters
+      )
+    ).toBe(true);
+    expect(
+      standardSchemaAccepts(
+        Civ7ControlOrpcContract.progression.tradition.change.request["~orpc"].inputSchema,
+        advertisedParameters
+      )
+    ).toBe(true);
     expect(result.nextSteps).toEqual([
       {
         kind: "inspect-tradition-change",
@@ -71,6 +109,9 @@ describe("progression traditions control-oRPC procedure", () => {
       "presentation.actionDirections",
       "runtime.validationProbe",
     ]);
+    expect(result.notes.join("\n")).toContain("semantic action parameters");
+    expect(result.notes.join("\n")).toContain("runtimeAction is raw");
+    expect(result.notes.join("\n")).not.toContain("actionHints");
 
     const serialized = JSON.stringify(result);
     expect(serialized).not.toContain('"host"');
@@ -221,6 +262,7 @@ function traditionsViewResult(
     hiddenInfoPolicy: "player-culture-runtime",
     notes: [
       "Read-only traditions view; it does not send CHANGE_TRADITION or CONSIDER_ASSIGN_TRADITIONS.",
+      "Use the exact TraditionType and Action values from actionHints, then validate the selected change.",
     ],
   };
 }

@@ -1,9 +1,17 @@
 # Play-Agent Operational Reference (Live Antiquity Playbook)
 
-Status: active
+Status: historical session ledger
 Session owner: Codex play agent
 Scope: one live Civ VII run, from current position through end of Antiquity
 Commit policy: keep this file as durable session memory; do not delete it. Persist under Git once session ends (or when watcher does).
+
+> **Current command authority:** This ledger preserves the commands and
+> postcondition language used during its original live session. Those examples
+> are historical and may name retired flags such as `--reason`, `--player-id`,
+> or `--closeout`. Use each current command's `--help` surface and the
+> service-owned options/check/request workflows documented in
+> `docs/projects/civ7-live-play-support/topics/caller-level-closeout-workflows.md`
+> and `progression-tree-targets.md` for new execution.
 
 ## 0) Core objective
 Maintain a high-probability win-or-near-top Antiquity outcome by driving score/legacy/achievement pressure while preserving growth and survivability. Military domination is a valid lane but not the only one; policy, culture, science, and economy lanes are competitive if they unlock compounding advantage before turn pressure converges.

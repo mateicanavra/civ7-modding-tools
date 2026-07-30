@@ -67,9 +67,10 @@ blockers):
 3. Re-validate `end-turn --json`; send only when clear.
 4. Never re-send `--send` against a known block — fix the cause first.
 
-## Rejected action
+## Rejected or uncertain action
 
-A `--send` returned `verified:false` or an error:
+A `--send` returned an explicit no-dispatch/rejection result, or an error before
+dispatch:
 
 1. Re-read the source view (`unit ready`, `ready-city`, `choose-* --options`) —
    the candidate may have changed, be disabled, or need different inputs.
@@ -79,6 +80,11 @@ A `--send` returned `verified:false` or an error:
    current `legalOperations`.
 4. Retry **once** with corrected inputs. If it fails again → STOP and report
    (see below). Do not loop on a rejecting action.
+
+An unverified unit-target dispatch is different. `sent-unverified`,
+`dispatch-unknown`, and `sent-guarded` mean the mutation may already have
+occurred. Follow `nextSteps` and do not repeat the request until fresh native
+evidence establishes a new decision.
 
 ## When to stop and report
 

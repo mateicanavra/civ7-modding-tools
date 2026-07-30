@@ -5,12 +5,7 @@ import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
 import * as directControl from "../src/index";
-import {
-  canStartCiv7PlayerOperation,
-  checkCiv7NarrativeChoice,
-  requestCiv7PlayerOperation,
-  sendCiv7NarrativeChoice,
-} from "../src/index";
+import { checkCiv7NarrativeChoice, sendCiv7NarrativeChoice } from "../src/index";
 import { liveCiv7DirectControl } from "../src/live-control";
 
 type NarrativeCall = Readonly<{
@@ -109,27 +104,6 @@ describe("exact native narrative-choice atoms", () => {
         notifications: [],
       })
     ).toBe(false);
-  });
-
-  test.each([
-    "CHOOSE_NARRATIVE_STORY_DIRECTION",
-    "PLAYEROPERATION_CHOOSE_NARRATIVE_STORY_DIRECTION",
-  ])("refuses %s through generic player-operation paths before dispatch", async (operationType) => {
-    for (const run of [canStartCiv7PlayerOperation, requestCiv7PlayerOperation]) {
-      await expect(
-        run(
-          {
-            playerId: 0,
-            operationType,
-            args: { TargetType: targetType, Target: target, Action: activateAction },
-          },
-          { host: "127.0.0.1", port: 1, timeoutMs: 10 }
-        )
-      ).rejects.toMatchObject({
-        name: "Civ7DirectControlError",
-        dispatchStatus: "not-dispatched",
-      });
-    }
   });
 
   test("checks the official local-player operation with fixed ambient Activate", async () => {

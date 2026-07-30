@@ -69,17 +69,6 @@ civ7 game play choose-celebration \
   --json
 ```
 
-The generic fallback is:
-
-```bash
-civ7 game operation \
-  --family player-operation \
-  --operation-type CHOOSE_GOLDEN_AGE \
-  --player-id 0 \
-  --args '{"GoldenAgeType":-340825966}' \
-  --json
-```
-
 ## Live Turn-98 Evidence
 
 On turn 98 / 1660 BCE, the active game exposed two Classical Republic

@@ -71,8 +71,14 @@ import {
   Civ7UnitMovePreviewResultSchema,
   Civ7UnitSummaryInputSchema,
   Civ7UnitSummaryResultSchema,
-  Civ7UnitTargetActionRequestInputSchema,
-  Civ7UnitTargetActionResultSchema,
+  Civ7UnitTargetActionCheckInputSchema,
+  Civ7UnitTargetActionCheckResultSchema,
+  Civ7UnitTargetActionIdSchema,
+  Civ7UnitTargetActionSendInputSchema,
+  Civ7UnitTargetActionSendResultSchema,
+  Civ7UnitTargetInputSchema,
+  Civ7UnitTargetObservationInputSchema,
+  Civ7UnitTargetSnapshotSchema,
   Civ7VisibilitySummaryInputSchema,
   Civ7VisibilitySummaryResultSchema,
   createCiv7ControlRequestId,
@@ -95,8 +101,6 @@ import {
   DEFAULT_CIV7_TUNER_HOST,
   DEFAULT_CIV7_TUNER_PORT,
   DEFAULT_CIV7_TUNER_STATE_NAME,
-  DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
-  DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
   HARD_CIV7_GAMEINFO_LIMIT,
   HARD_CIV7_MAP_GRID_MAX_PLOTS,
 } from "../src/index";
@@ -492,8 +496,6 @@ describe("Civ7 direct control public API", () => {
     expect(DEFAULT_CIV7_AUTOPLAY_STOP_WAIT_MS).toBe(30_000);
     expect(DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS).toBe(250);
     expect(DEFAULT_CIV7_AUTOPLAY_STOP_STABILITY_MS).toBe(10_000);
-    expect(DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS).toBe(1_500);
-    expect(DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS).toBe(250);
     expect(DEFAULT_CIV7_SCRIPTING_LOG).toMatch(/Civilization VII[/\\]Logs[/\\]Scripting\.log$/);
 
     expect(HARD_CIV7_MAP_GRID_MAX_PLOTS).toBeGreaterThan(DEFAULT_CIV7_MAP_GRID_MAX_PLOTS);
@@ -808,41 +810,66 @@ describe("Civ7 direct control public API", () => {
     });
   });
 
-  test("exports unit-target action request schemas from the public facade", () => {
+  test("exports exact unit-target wire atom schemas from the public facade", () => {
     expect(
-      Value.Check(Civ7UnitTargetActionRequestInputSchema, {
+      Value.Check(Civ7UnitTargetInputSchema, {
         unitId: { owner: 0, id: 65536, type: 26 },
         x: 23,
         y: 33,
       })
     ).toBe(true);
     expect(
-      Value.Check(Civ7UnitTargetActionRequestInputSchema, {
+      Value.Check(Civ7UnitTargetInputSchema, {
         unitId: { owner: 0, id: 65536 },
         x: 23,
         y: 1_000_001,
       })
     ).toBe(false);
     expect(
-      Value.Check(Civ7UnitTargetActionRequestInputSchema, {
+      Value.Check(Civ7UnitTargetInputSchema, {
         unitId: { owner: 0, id: 65536 },
         x: 23,
         y: 33,
         rawCommand: "Game.UnitOperations.sendRequest(...)",
       })
     ).toBe(false);
-    expect(Civ7UnitTargetActionResultSchema).toMatchObject({
+    expect(Value.Check(Civ7UnitTargetActionIdSchema, "ranged-attack")).toBe(true);
+    expect(Value.Check(Civ7UnitTargetActionIdSchema, "UNITOPERATION_RANGE_ATTACK")).toBe(false);
+    expect(Civ7UnitTargetActionCheckInputSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+    });
+    expect(
+      Value.Check(Civ7UnitTargetObservationInputSchema, {
+        unitId: { owner: 0, id: 65536, type: 26 },
+        x: 23,
+        y: 33,
+        trackedUnitIds: [{ owner: 1, id: 131072, type: 26 }],
+      })
+    ).toBe(true);
+    expect(Civ7UnitTargetActionCheckResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+    });
+    expect(Civ7UnitTargetActionSendInputSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+    });
+    expect(Civ7UnitTargetActionSendResultSchema).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      required: expect.arrayContaining(["actionId", "sent", "validation", "before", "after"]),
+    });
+    expect(Civ7UnitTargetSnapshotSchema).toMatchObject({
       type: "object",
       additionalProperties: false,
       required: expect.arrayContaining([
-        "host",
-        "port",
-        "state",
-        "unitId",
-        "target",
-        "candidates",
-        "sent",
-        "notes",
+        "actor",
+        "targetUnits",
+        "trackedTargetUnits",
+        "combatType",
+        "war",
+        "modifiers",
       ]),
     });
   });

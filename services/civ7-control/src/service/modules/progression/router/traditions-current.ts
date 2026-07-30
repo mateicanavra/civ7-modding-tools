@@ -39,6 +39,7 @@ function progressionTraditionsResult(
   const recentUnlocks = view.recentUnlocks.map(traditionRow);
   const traditions = view.traditions.map(traditionRow);
   const nextSteps = traditionsNextSteps(view, available, active);
+  const notes = view.notes.filter((note) => !note.includes("actionHints"));
   return {
     playerId: view.playerId,
     sourceStatus: {
@@ -85,8 +86,10 @@ function progressionTraditionsResult(
       },
     ],
     notes: [
-      ...view.notes,
+      ...notes,
       "Read-only progression traditions view. It does not send CHANGE_TRADITION or review closeout mutations.",
+      "Use the semantic action parameters from each descriptor with progression.tradition.change.check or progression.tradition.change.request.",
+      "runtimeAction is raw PlayerOperationParameters evidence and is not accepted as a progression mutation action.",
     ],
     nextSteps,
   };
@@ -108,11 +111,11 @@ function traditionRow(
     recentUnlock: tradition.recentUnlock,
     actions: tradition.actionHints.map((action) => ({
       kind: action.kind,
-      action: action.action,
+      runtimeAction: action.action,
       validationSuccess: validationSuccess(action.validation),
       parameters: {
         traditionType: tradition.id,
-        action: action.action,
+        action: action.kind,
       },
       nextSteps: [
         {
@@ -121,7 +124,7 @@ function traditionRow(
           label: `Validate ${action.kind} for ${tradition.name ?? tradition.type ?? tradition.id}.`,
           parameters: {
             traditionType: tradition.id,
-            action: action.action,
+            action: action.kind,
           },
         },
         {
@@ -130,7 +133,7 @@ function traditionRow(
           label: `Request ${action.kind} for ${tradition.name ?? tradition.type ?? tradition.id} only after choosing this tradition.`,
           parameters: {
             traditionType: tradition.id,
-            action: action.action,
+            action: action.kind,
           },
         },
       ],

@@ -166,8 +166,8 @@ Poll every few seconds; if nothing changes for a long time, check `game status`
 
 | After | Good signal | Bad signal → do |
 |---|---|---|
-| any `--send` | `result.sent:true` + `verified:true` | `verified:false`/error → read validation, fix inputs, retry once |
-| `unit target --send` | `target-reached` or `path-shortfall` | `no-state-change` → unit blocked; pick another plot or skip |
+| any `--send` | procedure-specific semantic success status | uncertainty/error → follow `nextSteps`, re-read, and never retry blindly |
+| `unit target --send` | `sent-confirmed`, or guarded `path-shortfall` | `sent-unverified`/`dispatch-unknown` → re-read; outcome is unresolved |
 | `build-production --send` | `verified:true` | invalid candidate → re-read `ready-city`, pick a `valid:true` candidate |
 | `choose-tech/culture --send` | `verified:true` | re-read `--options`; node may be disabled now |
 | `end-turn --send` | `turn-advanced` | `turn-completion-blocked` → handle blockers, re-validate |

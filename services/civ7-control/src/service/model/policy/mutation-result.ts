@@ -48,7 +48,7 @@ export type Civ7MutationProjection<
   nextSteps: Array<Civ7MutationNextStep<Source, InspectKind>>;
 }>;
 
-export function civ7MutationRequestStatus(
+function civ7MutationRequestStatus(
   input: Readonly<{
     sent: boolean;
     postcondition: Civ7MutationPostconditionState;

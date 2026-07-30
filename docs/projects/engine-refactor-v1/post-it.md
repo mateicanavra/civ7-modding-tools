@@ -29,17 +29,16 @@ binds leaf implementations directly. Intermediate `ops/contract.ts` and
 `ops/index.ts` registries add no cycle break or invariant and therefore are not
 part of the nested module kind.
 
-**Current container:** converge ordinary diplomacy responses around the
-official `PlayerOperations.RESPOND_DIPLOMATIC_ACTION` check/send path.
-Direct-control and the controller may retain only exact runtime validation,
-guarded dispatch, and focused response/blocker observations; the diplomacy
-service owns ambient local-player admission, offered-response membership,
-bounded observation, semantic postconditions, dispatch uncertainty, no-repeat
-policy, and refusal of the military-presence rejection that requires Civ7's
-separate war-confirmation workflow. The CLI consumes that one service owner in
-read and mutation modes. Retire notification activation, caller-owned
-local-player identity, direct-owned polling/classification, UI closeout,
-generic-operation dry runs, and the duplicate proof plane.
+**Current container:** converge the complete progression family through exact
+Civ7-native wire atoms and one progression service authority. Technology and
+culture choices and targets, attribute purchases and review, and tradition
+changes and review currently mix UI closeout, generic player operations,
+provider-owned postcondition policy, and CLI-local validation. Replace that
+hybrid surface with exact checks, guarded sends, and focused observations in
+direct control; service-owned native sequencing, admission, bounded proof, and
+no-repeat policy; and one service projection in both CLI modes. Then delete the
+last public generic operation validator and every progression compensation it
+made necessary.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -56,14 +55,12 @@ Core-owned issue accumulator. The generic artifact law selects exact members
 and enforces their closed import, export, root-schema, and refinement surfaces
 without broad source scans.
 
-**Gradient:** establish exact ordinary diplomacy check/send atoms with current
-response-list and paired blocker evidence -> move admission, special-war
-refusal, polling, classification, uncertainty, and no-repeat policy into the
-diplomacy service -> route controller and both CLI modes through that owner ->
-retire the thick request, generic-operation dry run, UI choreography, and
-direct-proof planes -> prove the full control graph -> converge unit-target
-actions -> repeat by domain until direct-control exposes only wire atoms and
-explicit diagnostics -> normalize the remaining mod application containers.
+**Gradient:** name the exact native progression atoms -> compose the official
+choice, target, attribute, and tradition sequences in the service -> route
+every CLI check and mutation through that service -> delete UI activation,
+generic operations, provider-owned proof policy, and duplicate bridge
+orchestration -> prove the complete progression graph -> continue through
+remaining thick observation owners.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty
@@ -106,6 +103,49 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-29 - Generic Mutation Tunnel Closed
+
+Named Civ7 services now own every supported public mutation. The workspace
+root no longer exports generic player, city, or unit request functions, the CLI
+cannot compose caller-authored operation sends, stale generic-operation
+guidance is explicitly non-authoritative, and obsolete rejection tests retired.
+Only the progression family's temporary generic player-operation check remains;
+its deletion is an outcome of the active progression convergence rather than a
+parallel compatibility surface. The coupled direct-control, service,
+controller, and CLI graph, strict OpenSpec validation, Habitat, and fresh
+residual review passed.
+
+### 2026-07-29 - Unit Plot Target Authority Converged
+
+Unit plot targeting now follows Civ7's native right-click decision order across
+naval, air, ranged, overrun, swap, and movement actions. Direct-control and the
+controller own only exact check, guarded send, and focused observation atoms;
+the unit service owns ambient-player admission, action selection,
+war-confirmation refusal, bounded observation, semantic postconditions,
+dispatch uncertainty, and no-repeat policy. Both CLI modes use the service.
+The thick direct request, bridge-owned selection and classification, duplicate
+proof and telemetry, and generic target-operation bypass retired. The complete
+direct/service/controller/CLI graph, strict OpenSpec validation, generated
+bridge freshness, Habitat, and fresh residual review passed.
+
+### 2026-07-29 - Ordinary Diplomacy Response Authority Converged
+
+Ordinary diplomacy responses now use the exact native
+`PlayerOperations.RESPOND_DIPLOMATIC_ACTION` check/send path through one
+diplomacy service owner. Direct-control owns only native validation, guarded
+dispatch, and immutable response/blocker observations; the service owns
+ambient-player admission, offered-response membership, bounded polling,
+semantic classification, dispatch uncertainty, and no-repeat policy; the
+controller and both CLI modes are thin adapters. Notification activation,
+caller-owned player identity, generic-operation dry runs, UI closeout, the
+thick direct wrapper, duplicate proof policy, and telemetry retired.
+Military-presence rejection is refused in favor of Civ7's dedicated
+war-confirmation workflow, same-action blocker reissuance remains active, and
+failed observations never manufacture clearance. The complete
+direct/service/controller/CLI graph, strict OpenSpec validation, staged Habitat
+law, and fresh native, state, and TypeScript reviews passed; deployed Civ7
+behavior remains a separate live-proof boundary.
 
 ### 2026-07-29 - First-Meet Response Authority Converged
 

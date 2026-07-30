@@ -40,9 +40,7 @@ export type Civ7GameUiTurnCompletionTarget = Civ7GameUiActionPanelTarget &
   }>;
 
 /** Reports whether the action panel can expose its native end-turn admission decision. */
-export function civ7GameUiActionPanelCanEndTurnAvailable(
-  target: Civ7GameUiActionPanelTarget
-): boolean {
+function civ7GameUiActionPanelCanEndTurnAvailable(target: Civ7GameUiActionPanelTarget): boolean {
   try {
     return typeof actionPanel(target)?.canEndTurn === "function";
   } catch {

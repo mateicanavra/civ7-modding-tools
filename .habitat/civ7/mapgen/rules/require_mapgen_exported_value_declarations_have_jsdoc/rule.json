@@ -20,7 +20,6 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "apps/mapgen-studio/scripts/**/*.{js,mjs,cjs,ts,tsx}",
         "apps/mapgen-studio/src/**/*.{ts,tsx}",
         "apps/mods/map/*/scripts/**/*.{ts,tsx}",
         "apps/mods/map/*/src/**/*.{ts,tsx}",
@@ -57,7 +56,6 @@
     "acquisition": {
       "kind": "check",
       "roots": [
-        "apps/mapgen-studio/scripts",
         "apps/mapgen-studio/src",
         "apps/mods/map",
         "plugins/mod/map",

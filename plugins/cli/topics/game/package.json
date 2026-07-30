@@ -33,20 +33,20 @@
       "game:play": {
         "description": "Turn-by-turn live-play shortcuts over direct-control"
       },
-      "game:play:front": {
-        "description": "Read battlefield pressure, target candidates, and composed military front summaries"
-      },
-      "game:play:unit": {
-        "description": "Read unit readiness, movement, and promotion state; validate or send target, resettle, and upgrade actions"
-      },
       "game:play:diplomacy": {
         "description": "Validate and send diplomatic action responses and first-meet greetings"
+      },
+      "game:play:front": {
+        "description": "Read battlefield pressure, target candidates, and composed military front summaries"
       },
       "game:play:notifications": {
         "description": "Read and schedule live Civ7 notifications; dismiss reviewed items and acknowledge advisor warnings"
       },
       "game:play:screen": {
         "description": "Inspect and dismiss App UI display-queue screens (cinematic moments)"
+      },
+      "game:play:unit": {
+        "description": "Read unit readiness, movement, and promotion state; validate or send target, resettle, and upgrade actions"
       },
       "game:view": {
         "description": "Capture a clean, window-scoped screenshot of the live Civ7 session"

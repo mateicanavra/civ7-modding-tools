@@ -1,20 +1,13 @@
 import { Command, Flags } from "@oclif/core";
 import { createCiv7GameControlClient } from "../../../adapters/control/service-client";
-import {
-  buildDirectControlOptions,
-  emitPlayResult,
-  validatePlayOperation,
-} from "../../../adapters/play/direct-control";
-
-const SET_TECH_TREE_TARGET_NODE = "SET_TECH_TREE_TARGET_NODE";
+import { buildDirectControlOptions, emitPlayResult } from "../../../adapters/play/direct-control";
 
 export default class GamePlaySetTechTarget extends Command {
-  static summary = "Validate or set a technology tree target node";
-  static description =
-    "Wraps player-operation SET_TECH_TREE_TARGET_NODE with the official ProgressionTreeNodeType argument.";
+  static summary = "Check or set a technology tree target";
+  static description = "Checks or requests a technology target through the Civ7 control service.";
 
   static examples = [
-    "<%= config.bin %> game play set-tech-target --player-id 0 --node -1255676052 --json",
+    "<%= config.bin %> game play set-tech-target --node -1255676052 --json",
     "<%= config.bin %> game play set-tech-target --node -1255676052 --send --json",
   ];
 
@@ -25,15 +18,12 @@ export default class GamePlaySetTechTarget extends Command {
     port: Flags.integer({
       description: "Civ7 tuner socket port",
     }),
-    "player-id": Flags.integer({
-      description: "Player id for read-only validation; send mode uses live local-player evidence",
-    }),
     node: Flags.integer({
-      description: "ProgressionTreeNodeType id from live GameInfo/progression tree reads",
+      description: "ProgressionTreeNodeType id from live progression options",
       required: true,
     }),
     send: Flags.boolean({
-      description: "Send SET_TECH_TREE_TARGET_NODE after validator success",
+      description: "Request the technology target after a fresh native check",
       default: false,
     }),
     "timeout-ms": Flags.integer({
@@ -48,29 +38,13 @@ export default class GamePlaySetTechTarget extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlaySetTechTarget);
-    const options = buildDirectControlOptions(flags);
-    if (flags.send) {
-      const result = await createCiv7GameControlClient({
-        endpointDefaults: options,
-      }).progression.technology.target.request({
-        node: flags.node,
-      });
-
-      emitPlayResult(this.log.bind(this), flags.json, result);
-      return;
-    }
-
-    if (typeof flags["player-id"] !== "number") {
-      throw new Error("game play set-tech-target requires --player-id unless --send is used");
-    }
-    const input = {
-      operationType: SET_TECH_TREE_TARGET_NODE,
-      playerId: flags["player-id"],
-      args: {
-        ProgressionTreeNodeType: flags.node,
-      },
-    };
-    const result = await validatePlayOperation("player-operation", input, options);
+    const client = createCiv7GameControlClient({
+      endpointDefaults: buildDirectControlOptions(flags),
+    });
+    const input = { node: flags.node };
+    const result = flags.send
+      ? await client.progression.technology.target.request(input)
+      : await client.progression.technology.target.check(input);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
   }

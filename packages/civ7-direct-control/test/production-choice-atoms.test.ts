@@ -5,12 +5,7 @@ import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
 import * as directControl from "../src/index";
-import {
-  canStartCiv7CityOperation,
-  checkCiv7ProductionChoice,
-  requestCiv7CityOperation,
-  sendCiv7ProductionChoice,
-} from "../src/index";
+import { checkCiv7ProductionChoice, sendCiv7ProductionChoice } from "../src/index";
 import { liveCiv7DirectControl } from "../src/live-control";
 
 type ProductionCall = Readonly<{
@@ -96,26 +91,6 @@ describe("exact city production-choice wire atoms", () => {
         canEndTurn: { ok: true, value: false },
       })
     ).toBe(false);
-  });
-
-  test("refuses BUILD through the generic city-operation path before dispatch", async () => {
-    const input = {
-      cityId,
-      operationType: "BUILD",
-      args: { ConstructibleType: constructibleType, X: 22, Y: 31 },
-    };
-
-    for (const run of [canStartCiv7CityOperation, requestCiv7CityOperation]) {
-      const failure = await captureFailure(() =>
-        run(input, { host: "127.0.0.1", port: 1, timeoutMs: 10 })
-      );
-      expect(failure).toMatchObject({
-        name: "Civ7DirectControlError",
-        code: "command-failed",
-        dispatchStatus: "not-dispatched",
-      });
-      expect((failure as Error).message).toContain("exact production choice");
-    }
   });
 
   test("checks strict BUILD admission with one App UI execution and a faithful raw snapshot", async () => {

@@ -11,8 +11,8 @@ yet.
 The end-turn loop is an App UI-owned flow. A play agent should not call
 `GameContext.sendTurnComplete()` merely because it has finished its local
 reasoning. It must first read the live App UI turn-completion state and resolve
-the blocker through the corresponding game operation when the blocker is a real
-choice surface.
+the blocker through its corresponding named service action when the blocker is
+a real choice surface.
 
 The useful control pattern is:
 
@@ -183,7 +183,6 @@ The first CLI shortcut family lives under `civ7 game play`:
 
 - `game play end-turn`
 - `game play notifications list`
-- `game operation`
 - `game play notifications advisor-warning`
 - `game play choose-tech`
 - `game play set-tech-target`
@@ -223,10 +222,12 @@ to resolve the selected/first-ready unit, materialize legal no-target unit
 operations/commands, and inspect nearby occupied plots before deciding whether
 to hold, move, pack, unpack, promote, or target an attack.
 
-`game play unit target` is the tactical plot-target resolver. It follows the
-official right-click unit action order and returns candidate operations plus
-before/after probes when sent. Use it when the play question is "what does this
-unit do to that plot?" rather than "send this known operation type."
+`game play unit target` is the tactical plot-target resolver. The unit service
+follows the official right-click order, refuses native war-start candidates,
+and returns a semantic availability or guarded mutation result without
+exposing raw candidate or snapshot envelopes. Use it when the play question is
+"what does this unit do to that plot?" rather than "send this known operation
+type."
 
 `game play ready-city` is read-only. Use it when production, town focus, or
 population placement is the blocker to resolve the selected/blocking city,
