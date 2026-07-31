@@ -179,10 +179,14 @@ describe("display.explore.request control-oRPC procedure", () => {
     );
     expect(fake.calls).toContain("grant");
     expect(fake.calls).toContain("release");
-    expect(result).toMatchObject({ skipped: false, grantReleased: true });
+    expect(result).toMatchObject({
+      skipped: false,
+      grantReleased: true,
+      classification: "unverified",
+    });
   });
 
-  test("classifies an unchanged revealed count as already-explored", async () => {
+  test("classifies an unchanged revealed count after a full run as unverified", async () => {
     const fake = fakeContext({
       summaries: [visibilitySummary(6996), visibilitySummary(6996)],
     });
@@ -191,7 +195,7 @@ describe("display.explore.request control-oRPC procedure", () => {
       { playerId: 0, ...fastDrain },
       { context: fake.context }
     );
-    expect(result.classification).toBe("already-explored");
+    expect(result.classification).toBe("unverified");
   });
 
   test("classifies missing visibility probes as unverified", async () => {

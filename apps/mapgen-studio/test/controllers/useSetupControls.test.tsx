@@ -85,6 +85,31 @@ const EXPLORE_ALREADY_VISIBLE_RESULT = {
   classification: "already-explored",
 } satisfies ExploreRequestResult;
 
+const EXPLORE_REVEALED_RESULT = {
+  playerId: 0,
+  skipped: false,
+  before: { revealed: 29, visible: 7 },
+  after: { revealed: 64, visible: 64 },
+  grantId: 1,
+  grantedPlots: 64,
+  grantReleased: false,
+  settleMs: 15_000,
+  drainPolls: 3,
+  quiesced: true,
+  suspendVerified: true,
+  resumeVerified: true,
+  suppressedDisplays: [],
+  mutation: "Visibility.setTrackedVisibilityGrant",
+  discoveryPosture: "ui-suppressed-gameplay-discovers",
+  classification: "explored",
+} satisfies ExploreRequestResult;
+
+const EXPLORE_UNVERIFIED_RESULT = {
+  ...EXPLORE_REVEALED_RESULT,
+  after: { revealed: null, visible: 64 },
+  classification: "unverified",
+} satisfies ExploreRequestResult;
+
 function makeArgs(over: Partial<UseSetupControlsArgs> = {}): UseSetupControlsArgs {
   return {
     setupConfig: studioSetupConfigFromSavedConfigFile(SAVED_CONFIG),
@@ -587,12 +612,70 @@ describe("useSetupControls — SC-6 (handleExplore busy-gate + re-entrant guard,
     });
   });
 
-  it("issues the explore RPC + clears the in-flight flag in finally on success", async () => {
-    exploreRpc.mockResolvedValue(EXPLORE_ALREADY_VISIBLE_RESULT);
-    const { result } = setup();
+  it("presents explored as a success with the owner's granted-plot evidence", async () => {
+    const toast = vi.fn();
+    exploreRpc.mockResolvedValue(EXPLORE_REVEALED_RESULT);
+    const { result } = setup({ toast });
+
     await act(async () => {
       await result.current.handleExplore();
     });
+
+    expect(toast).toHaveBeenCalledWith("Live map revealed — 64 plots granted", {
+      variant: "success",
+    });
+  });
+
+  it("presents already-explored as a success without claiming a new reveal", async () => {
+    const toast = vi.fn();
+    exploreRpc.mockResolvedValue(EXPLORE_ALREADY_VISIBLE_RESULT);
+    const { result } = setup({ toast });
+
+    await act(async () => {
+      await result.current.handleExplore();
+    });
+
+    expect(toast).toHaveBeenCalledWith("Live map already fully revealed", {
+      variant: "success",
+    });
+  });
+
+  it("presents unverified as informational uncertainty with inspect-before-retry guidance", async () => {
+    const toast = vi.fn();
+    exploreRpc.mockResolvedValue(EXPLORE_UNVERIFIED_RESULT);
+    const { result } = setup({ toast });
+
+    await act(async () => {
+      await result.current.handleExplore();
+    });
+
+    expect(toast).toHaveBeenCalledWith(
+      "Live map reveal could not be verified. Inspect the live map before retrying.",
+      { variant: "info" }
+    );
+  });
+
+  it("sets the in-flight flag before awaiting and clears it in finally", async () => {
+    let resolveRpc: (value: ExploreRequestResult) => void = () => {};
+    exploreRpc.mockImplementationOnce(
+      () =>
+        new Promise<ExploreRequestResult>((resolve) => {
+          resolveRpc = resolve;
+        })
+    );
+    const { result } = setup();
+    let request!: Promise<void>;
+
+    act(() => {
+      request = result.current.handleExplore();
+    });
+    expect(result.current.exploreActionRunning).toBe(true);
+
+    await act(async () => {
+      resolveRpc(EXPLORE_REVEALED_RESULT);
+      await request;
+    });
+
     expect(exploreRpc).toHaveBeenCalledWith({ playerId: 0 });
     expect(result.current.exploreActionRunning).toBe(false);
   });
@@ -613,14 +696,14 @@ describe("useSetupControls — SC-6 (handleExplore busy-gate + re-entrant guard,
     expect(exploreRpc).toHaveBeenCalledWith({ playerId: 3 });
   });
 
-  it("catches a thrown RPC, toasts an error, and still clears the in-flight flag (try/finally)", async () => {
+  it("presents a thrown owner error as an error and still clears the in-flight flag", async () => {
     const toast = vi.fn();
-    exploreRpc.mockRejectedValue(new Error("live game unavailable"));
+    exploreRpc.mockRejectedValue(new Error("owner refused request"));
     const { result } = setup({ toast });
     await act(async () => {
       await result.current.handleExplore();
     });
-    expect(toast).toHaveBeenCalledWith(expect.stringContaining("Explore failed"), {
+    expect(toast).toHaveBeenCalledWith("Explore failed: owner refused request", {
       variant: "error",
     });
     expect(result.current.exploreActionRunning).toBe(false);

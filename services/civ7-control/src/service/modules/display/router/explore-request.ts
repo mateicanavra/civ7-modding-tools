@@ -197,9 +197,7 @@ function displayExploreRequestResult(
   const classification =
     beforeRevealed != null && afterRevealed != null && afterRevealed > beforeRevealed
       ? "explored"
-      : beforeRevealed != null && afterRevealed != null && afterRevealed === beforeRevealed
-        ? "already-explored"
-        : "unverified";
+      : "unverified";
   return {
     playerId: input.playerId,
     skipped: false,
