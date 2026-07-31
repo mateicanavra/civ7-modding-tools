@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import type { StorybookConfig } from "@storybook/react-vite";
 import tailwindcss from "@tailwindcss/vite";
 
-const requireFromPackage = createRequire(`${process.cwd()}/package.json`);
+const requireFromPackage = createRequire(import.meta.url);
 const packageRoot = (packageName: string): string =>
   dirname(requireFromPackage.resolve(`${packageName}/package.json`));
 

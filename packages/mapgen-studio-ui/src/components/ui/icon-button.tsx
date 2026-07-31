@@ -36,7 +36,9 @@ export interface IconButtonProps
     VariantProps<typeof iconButtonVariants> {}
 
 function IconButton({ className, active, type = "button", ...props }: IconButtonProps) {
-  return <button type={type} className={cn(iconButtonVariants({ active }), className)} {...props} />;
+  return (
+    <button type={type} className={cn(iconButtonVariants({ active }), className)} {...props} />
+  );
 }
 
 export { IconButton, iconButtonVariants };

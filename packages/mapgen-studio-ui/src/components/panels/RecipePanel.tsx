@@ -22,7 +22,6 @@ import { SchemaConfigForm } from "../forms/SchemaConfigForm.js";
 import { pointerToPath } from "../forms/schemaPresentation.js";
 import { useConfigCollapse } from "../forms/useConfigCollapse.js";
 import { Button } from "../ui/button.js";
-import { IconButton } from "../ui/icon-button.js";
 import {
   Dialog,
   DialogClose,
@@ -38,6 +37,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu.js";
+import { IconButton } from "../ui/icon-button.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.js";
 import { formatMapConfigSaveDeployPhaseLabel } from "./statusLabels.js";
 // ============================================================================
@@ -360,10 +360,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
 
         {/* Config Content */}
         {!configCollapsed && (
-          <div
-            id={configSectionId}
-            className="flex-1 overflow-y-auto overflow-x-hidden"
-          >
+          <div id={configSectionId} className="flex-1 overflow-y-auto overflow-x-hidden">
             {/* Config form (flat-and-flush delta 1): flush — no horizontal
               gutter, so stage rows and dividers run edge-to-edge, and no
               trailing padding — the footer's own hairline closes the last

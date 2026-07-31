@@ -15,7 +15,7 @@
 //    are derived from source, not hand-maintained prose (the "AppFooter
 //    self-provides a TooltipProvider" case — flipped eras ago, doc never
 //    followed).
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -31,9 +31,9 @@ const walk = (dir: string): string[] =>
 
 const storyFiles = walk(componentsRoot).filter((f) => f.endsWith(".stories.tsx"));
 
-const config = JSON.parse(
-  readFileSync(join(pkgRoot, ".design-sync", "config.json"), "utf8")
-) as { docsMap: Record<string, string> };
+const config = JSON.parse(readFileSync(join(pkgRoot, ".design-sync", "config.json"), "utf8")) as {
+  docsMap: Record<string, string>;
+};
 const docsMap = config.docsMap;
 
 /** Every `import … from "spec"` (and side-effect `import "spec"`), with type-only flag. */
@@ -92,8 +92,10 @@ describe("story title taxonomy (titles are the sync's card-group authority)", ()
   it("every story component is in docsMap and its prefix matches the mapped group", () => {
     for (const { file, prefix, component } of titles.values()) {
       const group = docsMap[component];
-      expect(group, `${file}: "${component}" missing from .design-sync/config.json docsMap`)
-        .toBeTruthy();
+      expect(
+        group,
+        `${file}: "${component}" missing from .design-sync/config.json docsMap`
+      ).toBeTruthy();
       expect(prefix, `${file}: title group "${prefix}" disagrees with docsMap ${group}`).toBe(
         basename(group as string, ".md")
       );
@@ -129,9 +131,10 @@ describe("conventions.md truth (behavior claims shipped to design agents)", () =
       .filter((name) => name in docsMap);
     expect(consumers.length).toBeGreaterThan(0);
     for (const name of consumers) {
-      expect(conventions, `conventions.md must list \`${name}\` as needing TooltipProvider`).toMatch(
-        new RegExp(`\`${name}\``)
-      );
+      expect(
+        conventions,
+        `conventions.md must list \`${name}\` as needing TooltipProvider`
+      ).toMatch(new RegExp(`\`${name}\``));
     }
   });
 

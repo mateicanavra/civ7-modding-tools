@@ -145,8 +145,7 @@ export function DisclosureHeader({
     return (
       <div className={cn(ROOT_CHROME, className)}>
         {trigger({
-        className:
-          "flex flex-1 min-w-0 items-center justify-between text-left cursor-pointer",
+          className: "flex flex-1 min-w-0 items-center justify-between text-left cursor-pointer",
         })}
         <div className={TRAILING_CHROME}>{actions}</div>
       </div>

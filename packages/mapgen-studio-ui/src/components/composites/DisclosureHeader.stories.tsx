@@ -1,5 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { DisclosureHeader, type DisclosureHeaderProps, IconButton } from "@swooper/mapgen-studio-ui";
+import {
+  DisclosureHeader,
+  type DisclosureHeaderProps,
+  IconButton,
+} from "@swooper/mapgen-studio-ui";
 import { Compass, Layers, Link, Power, Settings } from "lucide-react";
 import type { ReactNode } from "react";
 
