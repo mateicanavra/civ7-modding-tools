@@ -1,13 +1,13 @@
 # Civ7 Capability Realization Proof Corpus
 
-**Status:** Terminal proof classification
-**Date:** 2026-07-30
+**Status:** Frozen proof classification
+**Date:** 2026-07-31
 **Scope:** Current proof and proof-support files participating in the first
 capability-realization cutover
 
 ## Authority
 
-This ledger classifies the complete current 468-file proof/support corpus. Each
+This ledger classifies the complete current 459-file proof/support corpus. Each
 current file has one terminal disposition:
 
 - `relocate`: preserve the file's coherent oracle at the named owner;
@@ -41,16 +41,16 @@ or `integration` cabinets.
 | `apps/mapgen-studio` proof and compiler configuration | 70 |
 | `plugins/cli/topics/{data,docs,game,git-mod}` proof | 62 |
 | `apps/cli` proof | 2 |
-| `plugins/mod/map/swooper-physics` proof | 180 |
+| `plugins/mod/map/swooper-physics` proof | 187 |
 | `apps/mods/map/swooper-physics` proof | 8 |
 | `packages/plugins/plugin-mods` proof | 2 |
-| `mods/mod-civ7-intelligence-bridge` proof/support | 19 |
+| `mods/mod-civ7-intelligence-bridge` proof/support | 0 |
 | `packages/studio-run-workspace` proof and compiler configuration | 3 |
-| `packages/mapgen-studio-ui` proof and compiler configuration | 27 |
-| **Total** | **468** |
+| `packages/mapgen-studio-ui` proof and compiler configuration | 30 |
+| **Total** | **459** |
 
 The current-tree census was recomputed after the destination repairs and
-remains exactly 468 source files. Destination leaves are not a parity count:
+remains exactly 459 source files. Destination leaves are not a parity count:
 API consolidation, strategy qualification, fixture dissolution, and new
 target-law proof may change their total without changing this source census.
 
@@ -340,7 +340,7 @@ The CLI section covers 62 topic proof/support files and two shell files.
 
 ### Domain proof
 
-The following finite current roots contain exactly 97 files:
+The following finite current roots contain exactly 98 files:
 
 - `plugins/mod/map/swooper-physics/test/domains/ecology/biomes`;
 - `plugins/mod/map/swooper-physics/test/domains/ecology/features`;
@@ -360,7 +360,7 @@ The following finite current roots contain exactly 97 files:
 - `plugins/mod/map/swooper-physics/test/domains/resources/sites/artifacts`;
 - `plugins/mod/map/swooper-physics/test/domains/resources/support/artifacts`.
 
-That set is not a wholesale unchanged subtree. The following exact 35
+That set is not a wholesale unchanged subtree. The following exact 36
 operation-root tests select a concrete strategy and therefore relocate to that
 strategy owner:
 
@@ -379,6 +379,7 @@ strategy owner:
 | `plugins/mod/map/swooper-physics/test/domains/foundation/tectonics/ops/compute-tectonic-history-rollups/rollups.test.ts` | relocate | `plugins/mod/map/swooper-physics/test/domains/foundation/tectonics/ops/compute-tectonic-history-rollups/strategies/cumulative-era-rollup/rollups.test.ts` |
 | `plugins/mod/map/swooper-physics/test/domains/foundation/tectonics/ops/compute-tectonic-segments/classification.test.ts` | relocate | `plugins/mod/map/swooper-physics/test/domains/foundation/tectonics/ops/compute-tectonic-segments/strategies/relative-motion-regimes/classification.test.ts` |
 | `plugins/mod/map/swooper-physics/test/domains/hydrology/climate/ops/compute-atmospheric-circulation/geostrophic-proxy.test.ts` | relocate | `plugins/mod/map/swooper-physics/test/domains/hydrology/climate/ops/compute-atmospheric-circulation/strategies/geostrophic-proxy/geostrophic-proxy.test.ts` |
+| `plugins/mod/map/swooper-physics/test/domains/hydrology/climate/ops/compute-pressure-field/thermal-continental.test.ts` | relocate | `plugins/mod/map/swooper-physics/test/domains/hydrology/climate/ops/compute-pressure-field/strategies/thermal-continental/thermal-continental.test.ts` |
 | `plugins/mod/map/swooper-physics/test/domains/hydrology/climate/ops/compute-land-water-budget/riparian-moisture.test.ts` | relocate | `plugins/mod/map/swooper-physics/test/domains/hydrology/climate/ops/compute-land-water-budget/strategies/pet-aridity/riparian-moisture.test.ts` |
 | `plugins/mod/map/swooper-physics/test/domains/hydrology/climate/ops/compute-precipitation/orographic-lift.test.ts` | relocate | `plugins/mod/map/swooper-physics/test/domains/hydrology/climate/ops/compute-precipitation/strategies/vector/orographic-lift.test.ts` |
 | `plugins/mod/map/swooper-physics/test/domains/hydrology/climate/ops/refine-precipitation/riparian-basin-wetness.test.ts` | relocate | `plugins/mod/map/swooper-physics/test/domains/hydrology/climate/ops/refine-precipitation/strategies/riparian-basin-wetness/riparian-basin-wetness.test.ts` |
@@ -431,9 +432,9 @@ Every suffix below is relative to
 - `domains/placement/wonders/{artifacts/natural-wonder-plan,ops/plan-natural-wonders/planning}.test.ts`;
 - `domains/resources/{demand/artifacts/resource-demand-plan,sites/artifacts/resource-plan}.test.ts`.
 
-The exact remaining 21 members of the frozen 97-file set are `excluded
-unchanged` at the same relative path. "Remaining" means the 97 identities under
-the exact roots above minus the 35 strategy rows, two fixture rows, four
+The exact remaining 21 members of the frozen 98-file set are `excluded
+unchanged` at the same relative path. "Remaining" means the 98 identities under
+the exact roots above minus the 36 strategy rows, two fixture rows, four
 fixture-consuming test rows, and 35 root-setup consumers, not a future
 directory glob.
 
@@ -448,16 +449,24 @@ Eight domain proofs move to their now-qualified kind owner:
 | `plugins/mod/map/swooper-physics/test/domains/resources/sites/selection.test.ts` | relocate | `plugins/mod/map/swooper-physics/test/domains/resources/sites/ops/select-resource-sites/selection.test.ts` |
 | `plugins/mod/map/swooper-physics/test/domains/resources/support/adjustment.test.ts` | relocate | `plugins/mod/map/swooper-physics/test/domains/resources/support/ops/adjust-resource-support/adjustment.test.ts` |
 
+One additional policy proof already occupies its qualified owner and remains
+outside the frozen root set:
+
+| Exact current source | Disposition | Exact destination |
+| --- | --- | --- |
+| `plugins/mod/map/swooper-physics/test/domains/resources/model/policy/qualifying-landmass-density.test.ts` | excluded unchanged | Same exact path |
+
 ### Standard recipe proof
 
-All 65 files move from the exact old root
+All 70 files move from the exact old root
 `plugins/mod/map/swooper-physics/test/recipes/swooper-physics-standard` to the
 exact new root `plugins/mod/map/swooper-physics/test/recipes/standard`.
 
-The following 41 files preserve their relative suffix:
+The following 46 files preserve their relative suffix:
 
 - `{generation,initial-setup,rng-authority}.test.ts`;
-- `metrics/families/{ecology/classification,geography/integrity,hydrology/integrity,hydrology/river-network,placement/discovery-placement,placement/homeland-distribution,placement/natural-wonder-placement,placement/natural-wonder-plan-input,placement/resource-placement,product/integrity,product/studies,resources/distribution}.test.ts`;
+- `metrics/catalog-identity.test.ts`;
+- `metrics/families/{ecology/classification,geography/integrity,hydrology/integrity,hydrology/lake-projection,hydrology/pressure-structure,hydrology/river-network,hydrology/wind-structure,placement/discovery-placement,placement/homeland-distribution,placement/natural-wonder-placement,placement/natural-wonder-plan-input,placement/resource-placement,product/integrity,product/studies,relief/elevation,resources/distribution}.test.ts`;
 - `parity/{correlation,live-observation,placement-exact-log,report}.test.ts`;
 - `trace/morphology-emissions.test.ts`;
 - `viz/{ecology/biomes,ecology/feature-types,ecology/plot-effects,emissions,placement}.test.ts`;
@@ -478,8 +487,8 @@ consumers:
 
 | Exact old relative suffix | Disposition | Exact destination |
 | --- | --- | --- |
-| `fixtures/standard-recipe.ts` | inline | The 24 exact current importing proof leaves at their own recipe, stage, step, or map-config destination; no recipe-root fixture survives |
-| `metrics/fixtures/standard-product.ts` | inline | The seven exact current importing metric-family leaves; no cross-family metric fixture survives |
+| `fixtures/standard-recipe.ts` | inline | The 23 exact current importing proof leaves at their own recipe, stage, step, or map-config destination; no recipe-root fixture survives |
+| `metrics/fixtures/standard-product.ts` | inline | The nine exact current importing metric-family leaves; no cross-family metric fixture survives |
 | `stages/ecology/features/fixtures/feature-score-layers.ts` | inline | The four exact current importing feature-publication step leaves; no stage fixture cabinet survives |
 
 These exact 21 files normalize to these exact suffixes:
@@ -512,7 +521,7 @@ These exact 21 files normalize to these exact suffixes:
 
 | Exact current source | Disposition | Exact destination |
 | --- | --- | --- |
-| `plugins/mod/map/swooper-physics/test/setup.ts` | combine | Same exact path, narrowed to suite-wide switchable Civ7 map-size, map-seed, game-seed, and generic test-kit composition; its 104 current importers retain only the shared defaults they actually consume, while subject-specific tests opt out explicitly |
+| `plugins/mod/map/swooper-physics/test/setup.ts` | combine | Same exact path, narrowed to suite-wide switchable Civ7 map-size, map-seed, game-seed, and generic test-kit composition; its 105 current importers retain only the shared defaults they actually consume, while subject-specific tests opt out explicitly |
 | `plugins/mod/map/swooper-physics/test/maps/catalog-generation.test.ts` | relocate | `plugins/mod/map/swooper-physics/test/maps/catalog/projection.test.ts` |
 | `plugins/mod/map/swooper-physics/test/maps/catalog-membership.test.ts` | relocate | `plugins/mod/map/swooper-physics/test/maps/catalog/membership.test.ts` |
 | `plugins/mod/map/swooper-physics/test/maps/create-map-config.type-test.ts` | relocate | `plugins/mod/map/swooper-physics/test/maps/configs/authoring.typecheck.ts` |
@@ -523,8 +532,8 @@ These exact 21 files normalize to these exact suffixes:
 | `plugins/mod/map/swooper-physics/test/generated/standard-generated-artifacts.test.ts` | relocate | `apps/mods/map/swooper-physics/test/artifact/standard-generated-artifacts.test.ts` |
 | `plugins/mod/map/swooper-physics/test/{.gritignore,README.md,scripts/diagnostic-command-inputs.test.ts,tsconfig.json}` | delete | No destination; Habitat, CLI command mirrors, and target compilers own these concerns |
 
-The section covers 105 domain files, 65 recipe files, and ten root/map/script
-files, for 180 files total.
+The section covers 107 domain files, 70 recipe files, and ten root/map/script
+files, for 187 files total.
 
 ## Swooper Physics Realization
 
@@ -546,7 +555,7 @@ executes it.
 
 ### Adjacent engine-adapter proof realignment
 
-The following 17 current proof files were not members of the sealed 468-file
+The following 17 current proof files were not members of the sealed 459-file
 census and therefore do not change its arithmetic. They are nevertheless
 mandatory downstream realignment for the engine-adapter split:
 
@@ -560,6 +569,10 @@ mandatory downstream realignment for the engine-adapter split:
 | `packages/sdk/test/mapgen-create-map.test.ts` | combine | `apps/mods/map/swooper-physics/test/runtime/map-script-entrypoint.test.ts` |
 | `packages/sdk/test/mapgen-create-map.type-test.ts` | combine | Type assertions compile inside `apps/mods/map/swooper-physics/test/runtime/map-script-entrypoint.test.ts`; no unselected realization proof axis is invented |
 
+`packages/mapgen-core/test/lib/noise/perlin.test.ts` is adjacent portable
+MapGen proof and remains `excluded unchanged`; it is not part of the 459-file
+capability-realization census.
+
 ## False Plugin, Bridge, Workspace, And UI
 
 ### False plugin collapse
@@ -568,17 +581,17 @@ mandatory downstream realignment for the engine-adapter split:
 | --- | --- | --- |
 | `packages/plugins/plugin-mods/test/basic.test.ts#deployMod validates input and id then copies` pure validation, path-plan, and receipt assertions | combine | `packages/civ7-mod-install/test/semantics/installation-plan.test.ts` |
 | `packages/plugins/plugin-mods/test/basic.test.ts#{resolveModsDir returns darwin path on mac,resolveModsDir returns Documents/My Games path on win32}` | combine | `apps/mods/map/swooper-physics/test/profiles/local-civ7.test.ts` |
-| `packages/plugins/plugin-mods/test/basic.test.ts#listMods filters to directories` | combine | `plugins/cli/topics/git-mod/test/adapters/local-mods.test.ts` |
+| `packages/plugins/plugin-mods/test/basic.test.ts#listMods filters to directories` | combine | `apps/cli/test/execution/adapters/local-mods.test.ts` |
 | `packages/plugins/plugin-mods/test/basic.test.ts#deployMod validates input and id then copies` host replacement/copy assertions | combine | `apps/mods/map/swooper-physics/test/execution/adapters/local-mod-install.test.ts` |
-| `packages/plugins/plugin-mods/test/tsconfig.json` | delete | No destination; the pure package, realization, and CLI topic own their exact proof compilers |
+| `packages/plugins/plugin-mods/test/tsconfig.json` | delete | No destination; the pure package, mod realization, and CLI app adapter own their exact proof compilers |
 
-### Intelligence bridge
+### Completed intelligence-bridge retirement
 
-All exact 19 current files under
-`mods/mod-civ7-intelligence-bridge/test` are `delete`. Their owner is deleted;
-native engine facts move to the engine reference, and control semantics remain
-with the control-service modules. No bridge support helper or duplicate
-behavior suite survives.
+Commit `8d0d4983ba` deleted all 19 historical files under
+`mods/mod-civ7-intelligence-bridge/test`. Native engine facts moved to the
+engine reference, and control semantics remain with the control-service
+modules. No bridge support helper or duplicate behavior suite remains in the
+current 459-file corpus.
 
 ### Studio run workspace
 
@@ -595,13 +608,13 @@ behavior suite survives.
 | --- | --- | --- |
 | `packages/mapgen-studio-ui/test/{GameConsole,PipelineStage}.test.tsx` | combine | Same exact paths after the public DTO owner changes |
 | `packages/mapgen-studio-ui/test/recipeDagLayout.test.ts` | combine | Same exact path after the public DTO owner changes |
-| `packages/mapgen-studio-ui/test/{AppBrand,AppFooter,AppHeader,MapConfigSaveDialog,RecipePanel,plainCnMarkup,rjsfFieldTemplateErrors,sonnerTheme,waterStatsSection}.test.tsx` | excluded unchanged | Same exact paths |
-| `packages/mapgen-studio-ui/test/{artifactPresentation,designTokens,domainPresentation,lightCanaryResult,lightCanaryServer,themeTokens,typeboxRjsfValidator,useConfigCollapse}.test.ts` | excluded unchanged | Same exact paths |
+| `packages/mapgen-studio-ui/test/{AppBrand,AppFooter,AppHeader,MapConfigSaveDialog,RecipePanel,SegmentedControl,configFormStructure,plainCnMarkup,rjsfFieldTemplateErrors,sonnerTheme,waterStatsSection}.test.tsx` | excluded unchanged | Same exact paths |
+| `packages/mapgen-studio-ui/test/{artifactPresentation,designSyncOutputAssertions,designTokens,domainPresentation,lightCanaryResult,lightCanaryServer,storyContract,themeTokens,typeboxRjsfValidator}.test.ts` | excluded unchanged | Same exact paths |
 | `packages/mapgen-studio-ui/test/pipelineConfig.type-test.ts` | excluded unchanged | Same exact path |
 | `packages/mapgen-studio-ui/test/fixtures/{authored-tokens,framework-tokens,plain-cn-markup,recipe-dag-layout,token-contract}.json` | excluded unchanged | Same exact paths |
 | `packages/mapgen-studio-ui/tsconfig.test.json` | excluded unchanged | Same exact path |
 
-This final UI table covers three combined tests, 23 unchanged proof/support
+This final UI table covers three combined tests, 26 unchanged proof/support
 files, and one unchanged compiler file.
 
 ## New Proof Required By The Target Laws
@@ -663,22 +676,23 @@ production leaves survive the source cutover:
 - `plugins/cli/topics/game/test/adapters/play/semantic-envelope.test.ts`;
 - `plugins/cli/topics/mapgen/test/commands/mapgen/diagnostics/{diff,trace,list,dump}.test.ts`;
 - `plugins/cli/topics/mapgen/test/commands/mapgen/metrics/report.test.ts`;
-- `plugins/cli/topics/git-mod/test/adapters/local-mods.test.ts`;
+- `apps/cli/test/execution/adapters/local-mods.test.ts`;
 - `plugins/cli/topics/git-mod/test/commands/git/subtree/{clear,import,list,pull,push,remove,setup,status,update}.test.ts`;
 - `plugins/cli/topics/git-mod/test/commands/mod/git/{clear,list,pull,push,remove,setup,update}.test.ts`;
 - `plugins/cli/topics/git-mod/test/adapters/subtree/{subtree-clear-config-base,subtree-command,subtree-config-remote-base,subtree-import-base,subtree-list-config-base,subtree-pull-base,subtree-push-base,subtree-remove-config-base,subtree-status-base}.test.ts`.
 
 These leaves are not relabels of mixed command tests. Their command/adapter
 oracles must be written at the exact source mirror after the target source
-surface is frozen. A topic adapter mirror proves runtime-context translation
-and any qualified adapter-local host effect, failure translation, and cleanup;
-it does not repeat command presentation or pure package semantics.
+surface is frozen. The CLI app adapter proves runtime-context translation,
+host effects, failure translation, and cleanup; topic tests prove command
+presentation over that bound capability without repeating adapter or pure
+package semantics.
 
 ## Separate DRA Corpus
 
 Architecture rules, baselines, injected fixtures, and Habitat runner support
 under `.habitat/blueprints`, `.habitat/civ7`, `.habitat/baselines`, and
-`tools/habitat` are excluded unchanged from this 468-file corpus. They form a
+`tools/habitat` are excluded unchanged from this 459-file corpus. They form a
 separate Designer/Engineer workstream. No target source move may mutate or
 baseline them until the corresponding target kind law, membership authority,
 fixture strategy, and current-tree proof are accepted. This capability ledger
@@ -689,7 +703,7 @@ proof leaf.
 
 The proof cutover is closed only when:
 
-1. every one of the 468 current files has the single disposition recorded
+1. every one of the 459 current files has the single disposition recorded
    here;
 2. every reconstructed assertion passes at its named owner before the old
    source is deleted;
@@ -700,4 +714,4 @@ The proof cutover is closed only when:
    compiler, duplicate schema test, or deterministic suite mislabeled as live
    proof survives;
 6. the exact arithmetic remains
-   `42 + 38 + 5 + 10 + 70 + 62 + 2 + 180 + 8 + 2 + 19 + 3 + 27 = 468`.
+   `42 + 38 + 5 + 10 + 70 + 62 + 2 + 187 + 8 + 2 + 0 + 3 + 30 = 459`.

@@ -548,13 +548,14 @@ capture mechanics. No generic desktop-control resource is inferred.
 - **Produces:** path grammar, tree comparison, replacement plans, digest
   algorithms, and typed receipt construction over supplied observations
 - **Consumers:** the Swooper realization's `local-mod-install` adapter and the
-  git-mod topic's `local-mods` adapter
+  CLI app's `local-mods` adapter
 - **Forbids:** rendering, mod identity, target selection, deployment semantics,
   filesystem access, compatibility, live proof, provider selection, and
   process lifecycle
 
-The app/topic adapters own directory discovery, reads, writes, and atomic
-replacement. The package computes what an exact replacement means from
+The app adapters own directory discovery, reads, writes, and atomic
+replacement. A CLI topic calls the CLI app-bound capability and owns no
+filesystem writer. The package computes what an exact replacement means from
 caller-supplied tree observations; deployment remains an outcome owned by the
 matching mod realization app.
 
@@ -805,7 +806,8 @@ shared runtime owns command-process lifecycle proof.
   `UNCONSTRUCTIBLE`
 - **Role:** own the MapGen Studio browser product surface
 - **Produces:** browser role projection
-- **Consumes:** Studio API client and public product definitions
+- **Consumes:** Studio API client, public product definitions, and the retained
+  `packages/mapgen-studio-ui` component library
 - **Consumers:** MapGen Studio app definition
 - **Forbids:** provider selection, process startup, private service source
 
@@ -813,6 +815,9 @@ Its manifest selects the exact view, interaction, and browser-execution proof
 component identities classified from the migration corpus. Each selected
 identity has one matching suite and every unselected suite is forbidden;
 `*.test.tsx` is terminal filename grammar only.
+This destination receives browser application source from
+`apps/mapgen-studio`; it does not relocate or relabel the separate
+`packages/mapgen-studio-ui` component package.
 
 #### `apps/mapgen-studio`
 
@@ -913,8 +918,9 @@ apps/mods/ui/civ7-control/
 
 Admission requires a concrete same-realm consumer or a proven asynchronous
 host ingress, separate shell/game lifecycle facts, deployment/version
-negotiation, and live proof. Until then, the current intelligence bridge is
-removed rather than renamed.
+negotiation, and live proof. Commit `8d0d4983ba` already removed the unconsumed
+intelligence bridge; that completed receipt is not a candidate implementation
+to rename or restore.
 
 ### Tuner protocol package
 

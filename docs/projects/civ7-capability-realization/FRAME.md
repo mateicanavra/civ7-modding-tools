@@ -1,7 +1,7 @@
 # Civ7 Capability Realization Frame
 
-**Status:** Accepted; coupled climate convergence active, Habitat-backed cutover next
-**Date:** 2026-07-30
+**Status:** Four-model packet and corpus sealing; bounded Explore oracle next
+**Date:** 2026-07-31
 **Owner:** Civ7 platform architecture and product stewardship
 
 ## Intent
@@ -33,36 +33,83 @@ one convenience owner.
 Directories and package edges are evidence about that chain. They are not
 authority by themselves.
 
+## Model Progression
+
+The four models deliberately change the viewpoint before implementation:
+
+1. **Product frame — establish meaning.** Stop reading routes, screens,
+   packages, vendors, and current folders as product truth. Classify each actor
+   outcome, capability, fact, policy, refusal, owner, non-owner, disposition,
+   and explicit unknown. The receipt is a stable product vocabulary and finite
+   capability corpus. This gate closes only when every relevant capability has
+   one owner or a deliberate exclusion; unresolved ownership and inferred
+   policy do not proceed.
+2. **System frame — establish lawful placement and direction.** Place those
+   product truths into containers without collapsing semantic authority,
+   runtime realization, caller projection, and physical storage into one
+   graph. Inspect writers, lifecycles, execution realms, cycles, reciprocal
+   clients, shared writers, cross-owner transactions, and crash boundaries.
+   The receipt is an acyclic owner graph with explicit current, logical, and
+   physical horizons. This gate closes only when every identity, fact,
+   transition, and writer has one container and each cross-owner edge has
+   authority, replay/idempotency, and failure semantics.
+3. **Outcome frame — pathwalk lawful change.** Walk forward from every admitted
+   intent and backward from every promised outcome. Search the negative space
+   between adjacent responsibilities for different identities, clocks,
+   authorities, correction laws, or lawful futures without a carrier. Expose
+   collapsed evidence, decision, permission, effect, and acceptance; missing
+   reconciliation; dropped handoffs; and invisible exceptional work. The
+   receipt is a set of owner-local transitions connected by commands, facts,
+   obligations, and receipts rather than one global state machine. This gate
+   closes only when every admitted path reaches an owned result, declared
+   refusal, reconciliation state, or actionable attention and every answer
+   traces backward to authoritative facts.
+4. **Actor/role/outcome frame — observe from outside.** Fix the system boundary,
+   separate external Actors from contextual Roles, express channel-independent
+   Tasks, and ask owner-local, vertical-chain, and surface Questions. Reject
+   transport or local-command success as product proof. The receipt is a set of
+   actor journeys whose answers resolve to owner facts, followed by the
+   smallest cross-channel executable falsifier. This gate closes only when
+   Tasks and Questions retain their meaning across authorized channels, Roles
+   confer no authority, and Questions observe rather than create facts.
+
+The actor model is dynamic while the product and system models are structural.
+That asymmetry is intentional: actors traverse the structure and expose
+missing authority, handoffs, refusals, proof, and lawful next actions without
+adding another production layer.
+
+This is a normative funnel, not a claim about commit chronology. Generic
+Habitat substrate may already exist before the models close, but product-law
+burn-down starts only after the relevant destination is deterministic. Civ7
+copies the progression of viewpoints and gate receipts, not another product's
+actors, vocabulary, topology, or implementation machinery.
+
 ## Rolling Focus
 
-**Attractors:** Intent. Capability. Authority. Environment. Kind. Boundary.
-Chain. Destination. Collapse. Proof. Closure.
+**Attractors:** Product. Actor. Role. Intent. Authority. Capability. Outcome.
+Boundary. Refusal. Evidence. Closure.
 
-**Current container:** seal circulation-pressure anomaly and atmospheric
-circulation as one coupled climate unit in the current Swooper topology.
-Certification proved that wind alone is not a closed product boundary: the
-accepted consumer contract already expects pressure departures, while a
-transient-only realization moves unrelated ecology and hydrography outcomes.
-Do not tune product configs around missing cause, manufacture absolute surface
-pressure, or restore the retired land, terrain, and wave proxies. The pressure
-producer owns the complete anomaly sample, including transient structure; wind
-owns only the analytic backbone and its pressure response. Preserve full-width
-seed entropy, close the causal and product proof, then require the complete
-shipped-config bank to pass. The obsolete flat-path branch remains evidence,
-not an integration candidate. Studio design-sync and the Template-owned
-Habitat release are settled ground; the active Fluree inquiry lane remains
-independently owned and non-blocking until its owner finishes a clean
-package-shaped result.
+**Current container:** seal the product, system, outcome, and actor-role-outcome
+models together with the exact migration corpus. Then execute the bounded
+current-topology Explore Live Map oracle through the existing CLI and Studio
+projections of `display.explore.request`. The bounded repair first reserves
+`already-explored` for the skipped full-map precondition, then fixes both
+projections' false success presentation for `unverified`. This closes
+executable model evidence; it does not move architecture.
 
-After the coupled climate unit closes, begin the capability-chain cutover directly on
-the released `@habitat/cli` substrate. Civ7 does not add local Habitat
-machinery, preserve the old oRPC/service spine, or harden an isolated CLI,
-service, Studio, resource, or mod transition. Each migrated chain reaches
-owner-correct source, runtime realization, parity proof, old-owner deletion,
-and a sealed Graphite layer before the next chain opens.
+Habitat source, package, blueprint, and release ownership lives upstream and is
+accepted as external authority. The corrected, constructible, consumer-usable
+pin has not landed for Civ7. Until it does, no target source moves and Civ7
+creates no local kind, copied packet, compatibility law, or other approximation.
+The complete Swooper chain is staged but blocked as the first structural
+migration after that pin and the qualified kinds are admitted: admitted config
+-> generated entrypoint/digests -> materialized tree -> installation receipt
+-> loader/runtime evidence -> final-surface parity. An isolated adapter move
+is not that chain. Full live control follows later as its own complete chain.
 
-**Gradient:** current behavior -> capability owner -> execution realm -> target
-kind -> positive law -> destination -> parity proof -> source deletion.
+**Gradient:** observed product -> four-model and corpus seal -> bounded Explore
+oracle -> usable upstream Habitat pin -> qualified kind admission -> complete
+Swooper chain -> independent proof set -> old-owner deletion -> Graphite seal.
 
 ## Settled Ground
 
@@ -78,9 +125,10 @@ The following work is complete and is not reopened by this frame:
   second topic enumeration. Shell tests observe runtime discovery, collision
   freedom, help, executable-shim equivalence, and shared-harness delegation
   only.
-- The accepted corrected Template successor must use
-  `plugins/cli/topics/*`, never package-per-command roots or app-owned command
-  source, before Civ7 imports its shared app law.
+- Upstream ownership and destination direction are accepted. The corrected
+  Template successor must use `plugins/cli/topics/*`, never package-per-command
+  roots or app-owned command source, and publish a constructible usable pin
+  before Civ7 imports its shared app law or moves target source.
 - `plugins/mod/map/swooper-physics` owns Swooper's portable mod definition:
   domains, recipe, metrics, diagnostics, trace, and visualization.
 - `apps/mods/map/swooper-physics` owns the deployable Civ7 realization,
@@ -101,10 +149,13 @@ The following work is complete and is not reopened by this frame:
 1. CLI and Studio use the host-side Tuner socket path in production.
 2. App UI, Tuner, and gameplay `ScriptSystem` are distinct Civ7 JavaScript
    states. Their `globalThis` objects and lifecycles are not shared.
-3. The intelligence-bridge mod installs an async nested client in App UI, but
-   has no deploy target, no tracked external caller, and no live product proof.
-4. Tuner `CMD` evaluation is synchronous. Calling the async bridge from the
-   host would require a deliberate mailbox or another proven async transport.
+3. Commit `8d0d4983ba` deleted the unconsumed intelligence-bridge project after
+   preserving unique native App UI evidence and recording its re-entry trigger.
+   That commit is a completed historical receipt, not a current provider or
+   product path.
+4. Preserved engine-reference evidence shows that nested App UI clients are
+   asynchronous while Tuner `CMD` evaluation is synchronous. Any future bridge
+   would require a deliberate mailbox or another proven async transport.
 5. `@civ7/direct-control` mixes protocol framing, managed session state,
    exact Civ7 command lowering, observations, and product-facing convenience
    surfaces.
@@ -126,7 +177,8 @@ The following work is complete and is not reopened by this frame:
     and the patched `effect-orpc` bridge. They are migration corpus, not target
     authority. The inspected shared commit is only an audit baseline pointing
     toward native oRPC 2 and its official Effect integration; destination law
-    is the accepted corrected successor, not that baseline.
+    is the accepted corrected successor, not that baseline, and its corrected
+    constructible usable pin has not landed for Civ7.
 12. `packages/civ7-adapter` is hybrid: its port, mock, and static metadata are
     portable, while its concrete adapter and setup capture import Civ7 engine
     modules and globals.
@@ -159,12 +211,13 @@ The following work is complete and is not reopened by this frame:
 These are architecture roles, not folder folklore or a claim that every noun
 has one generic blueprint. Independent Habitat packets select the exact depths
 they govern; qualified Civ7 niches own only product-specific law where the
-shared substrate has no generic packet. The corrected successor RAWR HQ
-Template Habitat packets and canonical runtime realization model are
-destination authority; the currently inspected Template commit is an audit
-baseline with recorded law corrections. Magic Migration is executable
-corroboration, not a competing source. Existing Civ7 mechanics do not earn an
-exception merely because they already work.
+shared substrate has no generic packet. RAWR HQ Template owns the Habitat
+packets, package, and canonical runtime realization model upstream, and Civ7
+accepts that external destination authority. The currently inspected Template
+commit remains an audit baseline with recorded corrections: a corrected,
+constructible, consumer-usable pin has not landed for Civ7. Magic Migration is
+executable corroboration, not a competing source. Existing Civ7 mechanics do
+not earn a local approximation merely because they already work.
 
 ## Authority Order
 
@@ -243,13 +296,14 @@ consumer proves that public boundary.
 
 ### Adopt the shared service substrate
 
-Do not extend Civ7's oRPC 1 and patched `effect-orpc` service law. Import the
-accepted corrected successor Habitat service, API-plugin, and app packet set,
-converge the workspace vendor catalog on its native oRPC/Effect line, and burn
-the control service and future MapGen runs service directly into that shape.
-Product names, roots, and optional interiors remain Civ7-owned; generic
-contract, implementation, context, module, router, error, proof, and consumer
-laws do not fork locally.
+Do not extend Civ7's oRPC 1 and patched `effect-orpc` service law. When the
+accepted upstream owner publishes the corrected constructible usable pin,
+import its Habitat service, API-plugin, app packet set, and native oRPC/Effect
+line, then burn the control service and future MapGen-runs service directly
+into that shape. Until then, target source does not move and Civ7 does not fork,
+copy, or approximate generic contract, implementation, context, module, router,
+error, proof, or consumer law. Product names, roots, and optional interiors
+remain Civ7-owned.
 
 The reusable service source blueprint is independently selected at
 `src/service` in both a standalone service project and an API composition. It
@@ -295,10 +349,10 @@ Path injection and one-shot calls do not make external I/O pure.
 metadata, and mock; the concrete Civ7-global adapter, setup capture, and map
 entrypoint belong to the Swooper realization's generated map-script runtime.
 Pure mod-install, save-file, and Studio-run packages may retain parsing,
-planning, hashing, serialization, and comparison only. The Studio app, Swooper
-realization app, and qualified CLI topic own the exact cold filesystem adapters
-they select or project. App profiles choose roots and providers, but never
-redefine adapter identities.
+planning, hashing, serialization, and comparison only. The Studio, Swooper
+realization, and CLI apps own the exact cold filesystem adapters they select;
+CLI topics call those bound capabilities and never become effect writers. App
+profiles choose roots and providers, but never redefine adapter identities.
 
 ### Do not create an HQ API
 
@@ -310,19 +364,21 @@ compatibility, and lifecycle requirements are concrete.
 
 ### Do not promote the controller island
 
-Do not make the current intelligence bridge the primary control path. A
-controller-primary design depends on an unbuilt async mailbox, deployed-version
-negotiation, lifecycle readiness, and live proof. The current package is not a
-shipped capability.
+Do not resurrect the deleted intelligence bridge as the primary control path.
+A controller-primary design still depends on an unbuilt async mailbox,
+deployed-version negotiation, lifecycle readiness, and live proof. Commit
+`8d0d4983ba` is the completed deletion receipt; it is not a provider awaiting
+promotion.
 
-The terminal state of this initiative contains no unconsumed bridge package.
-Verified native behavior facts may inform the control service implementation. A future App UI
-controller starts as a new qualified mod plugin and app only after a real
-same-realm consumer or async ingress contract exists.
+The no-unconsumed-bridge terminal condition is already satisfied and remains an
+invariant. Verified native behavior facts may inform the control service
+implementation. A future App UI controller starts as a new qualified mod
+plugin and app only after a real same-realm consumer or async ingress contract
+exists.
 
-Any deletion or ownership change lands with the corresponding ADR-007
-supersession. Accepted authority never knowingly contradicts a mergeable
-intermediate layer.
+The deletion receipt includes the corresponding ADR-007 supersession. Any
+future ownership change must update its governing ADR in the same layer.
+Accepted authority never knowingly contradicts a mergeable intermediate layer.
 
 ### Admit resources only for managed capabilities
 
@@ -402,11 +458,25 @@ Reopen the frame if any of the following becomes true:
 
 ## Decision Gate
 
-This frame, [current capability chains](./CURRENT-CAPABILITY-CHAINS.md),
-[topology alternatives](./TOPOLOGY.md), [kind-law matrix](./KIND-LAW-MATRIX.md),
-[migration corpus](./CORPUS.md), and [workstream](./WORKSTREAM.md) must be
-reviewed together. After acceptance, implementation proceeds one sealed
-container at a time: positive destination law, injected fixtures,
-promotion/enforcement in the exact burn-down branch, observed live red,
-qualified dispositions, zero, behavior proof, source deletion, and Graphite
-seal.
+The models are read in this order:
+
+1. [product authority](./PRODUCT-AUTHORITY.md);
+2. [system model](./SYSTEM-MODEL.md);
+3. [outcome model](./OUTCOME-MODEL.md);
+4. [actor, role, and outcome lens](./ACTOR-ROLE-OUTCOME-MODEL.md).
+
+They must agree with the [current capability
+chains](./CURRENT-CAPABILITY-CHAINS.md), [topology
+alternatives](./TOPOLOGY.md), [kind-law matrix](./KIND-LAW-MATRIX.md),
+[migration corpus](./CORPUS.md), and [workstream](./WORKSTREAM.md). Current
+chains remain behavior-preservation evidence; topology remains the accepted
+destination; cross-channel parity applies only where multiple authorized
+projections exist; the four models decide which complete product chain may move
+next.
+
+After model acceptance, the bounded Explore oracle proceeds in current topology.
+Structural implementation waits for the corrected usable Habitat pin and
+qualified kind admission, then proceeds one complete chain at a time: positive
+destination law, injected fixtures, promotion/enforcement in the exact
+burn-down branch, observed live red, qualified dispositions, zero, behavior
+proof, source deletion, and Graphite seal.

@@ -1,74 +1,100 @@
 # Flow Set
 
-Use these flow templates to classify product/domain changes.
+Use these capability-realization trains to classify changes. Each arrow must
+preserve one-way authority and each proof names only the claim it establishes.
 
-## Flow 1: Official Resources To Typed Model
-
-```text
-official game resources -> extraction/indexing -> constants/types/docs/tests
-```
-
-- Owner: resource workflow, `civ7-types`, SDK constants as applicable.
-- Proof: resource files, generated types/constants, typecheck/tests.
-- Forbidden claim: generated constants alone prove in-game behavior.
-
-## Flow 2: SDK Mod Authoring To XML Output
+## Official Facts
 
 ```text
-SDK builder/config -> nodes/files -> XML/modinfo output -> optional game validation
+identified Civ7 installation/resources
+  -> qualified extraction
+  -> published official-resource revision
+  -> deterministic generated types/policy
+  -> public consumers
 ```
 
-- Owner: SDK.
-- Proof: unit tests, generated XML snapshots, playground examples, optional game checks.
-- Forbidden claim: XML shape is correct for gameplay without schema/resource or in-game validation.
+Forbidden claim: generated contracts prove current live-engine behavior.
 
-## Flow 3: CLI Command To Plugin Workflow
+## Mod Product
 
 ```text
-CLI args/config -> plugin workflow -> filesystem/output/logging
+author intent
+  -> SDK plus product definition
+  -> deterministic file plan
+  -> matching realization
+  -> qualified installation
+  -> loader and live evidence
 ```
 
-- Owner: CLI for user command behavior; plugin package for reusable mechanics.
-- Proof: CLI tests, plugin tests, sample outputs.
-- Forbidden claim: command behavior owns plugin API semantics.
+Forbidden claim: definition or generated output proves installation or loader
+acceptance.
 
-## Flow 4: MapGen Recipe To Truth Artifacts
+## Swooper Map Product
 
 ```text
-recipe config -> compiled plan -> stages/steps/domains -> artifacts/fields/diagnostics
+map author intent
+  -> Swooper definition
+  -> MapGen Core
+  -> deterministic artifacts/trace/metrics/viz
+  -> Swooper realization
+  -> realization-local Civ7 adapter and entrypoint
+  -> loader and fresh live evidence
 ```
 
-- Owner: MapGen core and source recipe package.
-- Proof: compiler tests, step/domain tests, trace/dump inspection.
-- Forbidden claim: engine materialization is deterministic truth unless the pipeline owns and verifies it.
+Forbidden claim: browser preview or pipeline artifact is engine-current truth.
 
-## Flow 5: Truth Artifacts To Civ7 Projection
+## Live Civ7 Interaction
 
 ```text
-MapGen artifacts -> map-* or game-facing steps -> adapter/mod runtime -> engine state/mod output
+actor intent
+  -> CLI or API/web projection
+  -> control-service client
+  -> semantic admission and policy
+  -> runtime-bound ready capability
+  -> native Civ7 action or observation
+  -> owner result or reconciliation
+  -> caller projection
 ```
 
-- Owner: projection step, adapter, or mod runtime depending on concern.
-- Proof: adapter tests, mod build, in-game validation, parity diagnostics.
-- Forbidden claim: projection telemetry is source truth.
+Forbidden claim: transport success or dispatch is gameplay acceptance.
 
-## Flow 6: Docs To User Promise
+## Map Configuration And Operations
 
 ```text
-canonical doc/tutorial -> source example/test -> generated or runtime behavior
+Studio intent
+  -> browser/API projection
+  -> definition-owned config admission or run-service operation
+  -> runtime-bound source/run/log/mod/control capabilities
+  -> owner facts and correlated evidence
+  -> Studio outcome view
 ```
 
-- Owner: docs plus corresponding code owner.
-- Proof: doc lint, linked source/tests, examples that still run.
-- Forbidden claim: project scratch or archived notes are current user promises.
+Forbidden claim: saved means deployed, deployed means loaded, or readback means
+the operation owner accepted an outcome.
 
-## Flow 7: Workstream Review To Durable Authority
+## CLI Projection
 
 ```text
-review finding -> disposition -> doc/ADR/deferral/test/code change -> closure claim
+terminal actor
+  -> commandless CLI app
+  -> one topic plugin
+  -> runtime-bound public client or qualified adapter
+  -> owner capability
+  -> structured terminal result
 ```
 
-- Owner: workstream owner and affected docs/code owner.
-- Proof: changed durable artifact plus verification.
-- Forbidden claim: chat acknowledgement resolves a finding.
+Forbidden claim: a command owns service policy, resource lifecycle, or a
+parallel contract.
 
+## Authority Promotion
+
+```text
+finding
+  -> disposition
+  -> project model or exact implementation evidence
+  -> canonical doc/ADR/deferral/test/code
+  -> named proof
+```
+
+Forbidden claim: chat acknowledgement, generated output, or an unverified
+target path is durable authority.
