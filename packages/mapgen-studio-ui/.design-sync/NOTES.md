@@ -647,3 +647,28 @@ drift plus a family of design-side loading hazards:
   (LANDED — lifecycle law says prune; not executed without his word since it
   deletes design-side work); run `check_design_system` after the recompile and
   record the DEF-017 outcome.
+
+## Setup-correctness C1 vocabulary seal (2026-07-31)
+
+- The package now exposes one 46-component vocabulary. `SegmentedControl`
+  replaces the three hand-authored option strips; `Badge.interactive` owns the
+  layer-reference chip; Tabs and ScrollArea are fully removed because neither
+  represented a shipped interaction idiom.
+- Native scrollbars are themed globally. No component opts into a private
+  scrollbar class, so an overflowing surface cannot silently lose the Studio
+  treatment.
+- The exact-literal sweep found no further missing component. The remaining
+  three-site warning contour is a shared semantic state across different
+  controls; the other repeats are atomic icon-size, truncation, or layout
+  utilities. No generic class-string helper was introduced.
+- Storybook package-root resolution now works under Bun's isolated linker.
+  Portal-only Dialog and MapConfigSaveDialog stories use the ordinary capture
+  path with visible-geometry admission and viewport screenshots; no manual
+  portal exception remains. Generated README assertions also fail closed when
+  the exact `## Tokens` section is absent.
+- Proof: package/app typecheck and 621 tests passed (222 UI, 399 app);
+  Storybook and the 99-export artifact contract built cleanly; React Compiler
+  reported 0 errors and 0 warnings across 96 files; design-sync rendered 46/46
+  previews with zero factual failures; forced-light canary passed 7/7 with
+  zero token drift. The 32 changed/new component grades and remote upload remain
+  S1 work, not hidden completion.
