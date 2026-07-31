@@ -92,11 +92,12 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
 - Use package scripts (`bun run --cwd <path> <script>`) for leaf-local debugging
   when dependency freshness is already established. Use root Nx-orchestrated
   scripts for proof.
-- Route Civ7 control by responsibility: `@civ7/direct-control` currently
-  contains the mixed low-level Tuner/socket and one-wire Civ7-side command nodes
-  pending ADR-007 extraction. `@civ7/control-orpc` owns the public control-service
-  contract, router, admission, and multi-step Effect orchestration. Callers must
-  not add alternate transports or local control scripts.
+- Route Civ7 control by responsibility: `@civ7/direct-control` owns low-level
+  Tuner/socket and one-wire Civ7-side command atoms. `@civ7/control-orpc` owns
+  the public control-service contract, router, admission, and multi-step Effect
+  orchestration. Callers must not add alternate transports, local control
+  scripts, or an in-game global controller without an accepted same-realm
+  consumer and lifecycle owner.
 
 ## Civ7 Resources
 

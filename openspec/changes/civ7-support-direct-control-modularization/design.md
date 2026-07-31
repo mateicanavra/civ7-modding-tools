@@ -1,3 +1,7 @@
+> **Controller amendment (2026-07-30):** ADR-007 and DEF-022 supersede this
+> packet's bridge-as-current-consumer passages. The atom/service ownership and
+> modularization design remains current.
+
 ## Design
 
 This workstream uses two coupled but separately verified migrations:

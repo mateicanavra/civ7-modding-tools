@@ -1,3 +1,8 @@
+> **Superseded 2026-07-30:** This bridge proposal is no longer an active
+> implementation packet. ADR-007 and DEF-022 retire the unconsumed controller
+> and require a future same-realm capability to earn a new shape. Preserve this
+> packet as historical evidence pending Container 14 archival.
+
 ## Why
 
 The live runtime probe changed the direct-control implementation target. In the

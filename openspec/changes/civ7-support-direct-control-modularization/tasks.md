@@ -1,3 +1,7 @@
+> **Controller amendment (2026-07-30):** Bridge-ingress task passages are
+> retired rather than future work. Preserve checked rows as chronological
+> evidence; the remaining non-bridge modularization state is unchanged.
+
 ## 1. Workstream Setup
 
 - [x] 1.1 Import `civ7-systematic-workstream` into the support stack.

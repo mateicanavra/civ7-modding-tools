@@ -111,7 +111,6 @@ treatment without adding a concrete tag or constraint row.
 | plugin-mods | `packages/plugins/plugin-mods` | `kind:plugin` |
 | swooper-physics | `plugins/mod/map/swooper-physics` | `kind:mod` |
 | swooper-physics-mod | `apps/mods/map/swooper-physics` | `kind:app` |
-| mod-intelligence-bridge | `mods/mod-civ7-intelligence-bridge` | `kind:mod`, `kind:control` |
 | mod-dacia | `mods/mod-swooper-civ-dacia` | `kind:mod` |
 | habitat-authority | `.habitat` | `kind:tooling` |
 | habitat | `tools/habitat` | `kind:tooling` |
@@ -164,12 +163,6 @@ owned by their Grit/file-layer rules.
 | `layer:service-module` | `layer:service-shell`, `layer:service-model`, `layer:resource-provider` | modules use the service implementer seam, shared service model, and runtime resources; module-local `model/` trees stay inside their owning module project, while sibling module imports are red because `layer:service-module` cannot depend on `layer:service-module` |
 | `layer:service-model` | `layer:service-model`, `layer:resource-provider` | service-wide facts, DTOs, and read models may reuse resource contracts but do not import module internals |
 | `layer:resource-provider` | `layer:resource-provider`, `layer:service-model` | runtime providers may consume shared service model facts but must not import service module internals |
-
-Dual-tagged projects (`mod-intelligence-bridge`: `kind:mod` +
-`kind:control`) are constrained by the **intersection** of their rows — every
-matching constraint is enforced, so its effective allowed set is
-{engine, adapter, library, control} (e.g. a future sdk dep would be red
-despite the mod row allowing it).
 
 devDependency edges and test-file imports are constrained identically to
 runtime deps (`enforce-module-boundaries` lints imports wherever the config's

@@ -1,5 +1,12 @@
 # Target Architecture — MapGen Studio
 
+> **Control-path rebaseline (2026-07-30):** The
+> `Civ7IntelligenceBridge`-specific integration below is superseded. Preserve
+> the Studio behavior inventory, but re-derive its control projection from
+> [ADR-007](../../../system/ADR.md#adr-007-civ7-intelligence-separates-live-control-from-native-policy)
+> and the
+> [capability-realization frame](../../civ7-capability-realization/FRAME.md).
+
 > Synthesis of the six audit/research lanes. This is the target state the slice
 > plan implements. Hard core: behavior parity (map-gen, Deck.gl, recipes,
 > live-control loop unchanged). Exterior: engine internals.

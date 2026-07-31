@@ -1,6 +1,13 @@
 # Rule/Adapter Disposition Matrix
 
-Status: live inventory updated after Packet A.2 validator-ownership retirement
+Status: historical conversion inventory with current retirement annotations
+
+This matrix records the source-check conversion investigation at its captured
+state. It does not define current live-rule status. The canonical operational
+source is
+`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`;
+that ledger retires `require_narrow_game_ui_bridge_bootstrap` with the
+unconsumed bridge project.
 
 ## Coverage
 

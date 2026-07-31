@@ -168,8 +168,8 @@ plugins/
 
 apps/
   product/runtime identities and final composition
-  studio, cli, dev foundry, intelligence bridge, shipped mod build identities
-  where appropriate; app-owned runtime profiles and provider choices
+  studio, cli, dev foundry, and shipped mod build identities where appropriate;
+  app-owned runtime profiles and provider choices
 ```
 
 This is a semantic-authority layout, not a deployment layout, package-manager
@@ -444,10 +444,12 @@ game entry scripts
 
 Dacia mod
   unresolved product-content ownership; see FG-004
-
-intelligence bridge mod
-  runtime bridge/harness surface, not semantic truth
 ```
+
+The retired intelligence bridge does not define a target app or mod identity.
+Any future same-realm controller must be re-earned through the Civ7 control
+boundary in FG-002 and the concrete admission trigger in DEF-022 rather than
+reviving that package shape.
 
 ### Named Design Gaps
 

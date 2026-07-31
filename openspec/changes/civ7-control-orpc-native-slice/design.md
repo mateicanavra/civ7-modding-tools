@@ -1,5 +1,10 @@
 # Control-oRPC Native Slice Design
 
+> **Controller amendment (2026-07-30):** ADR-007 and DEF-022 supersede the
+> bridge-specific design below. The service owns semantic policy and
+> orchestration; direct-control owns admitted command atoms. No deployed
+> controller or global ingress is current architecture.
+
 This is a target architecture and staged implementation boundary for
 Effect/oRPC service ownership over Civ7 runtime control ports. It is not
 runtime source, not transport work, not Task 2.9.4 acceptance, and not live

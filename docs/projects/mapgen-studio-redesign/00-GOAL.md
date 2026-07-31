@@ -1,5 +1,13 @@
 # MapGen Studio Redesign — Active Goal & Frame
 
+> **Control-path rebaseline (2026-07-30):** Preserve this document's Studio
+> product goal, but treat every `Civ7IntelligenceBridge` integration instruction
+> as superseded by
+> [ADR-007](../../system/ADR.md#adr-007-civ7-intelligence-separates-live-control-from-native-policy)
+> and the
+> [capability-realization frame](../civ7-capability-realization/FRAME.md).
+> The control projection must be re-derived from the accepted shared substrate.
+
 > Controlling scope for the systematic workstream. This is the closure test:
 > work is done when this objective is met and its falsifier has not fired.
 >

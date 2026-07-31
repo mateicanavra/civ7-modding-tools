@@ -1,3 +1,7 @@
+> **Superseded 2026-07-30:** This delta describes the retired bridge candidate
+> and must not be promoted into canonical specs. ADR-007 and DEF-022 are current
+> authority.
+
 ## ADDED Requirements
 
 ### Requirement: Direct Control Provides A Game-Scoped Controller Bridge

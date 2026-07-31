@@ -1354,7 +1354,7 @@ describe("Grit immutable root planning", () => {
     try {
       mkdirSync(path.join(fixture, "mods/target/nested"), { recursive: true });
       mkdirSync(path.join(fixture, "mods/unrelated"), { recursive: true });
-      mkdirSync(path.join(fixture, "mods/mod-civ7-intelligence-bridge/src/maps/generated"), {
+      mkdirSync(path.join(fixture, "mods/other/src/maps/generated"), {
         recursive: true,
       });
       mkdirSync(path.join(fixture, "packages/unrelated"), { recursive: true });
@@ -1407,7 +1407,7 @@ describe("Grit immutable root planning", () => {
       expect(directoryReads).not.toContain(realpathSync(path.join(fixture, "mods")));
       expect(directoryReads).not.toContain(realpathSync(path.join(fixture, "mods/unrelated")));
       expect(directoryReads).not.toContain(
-        realpathSync(path.join(fixture, "mods/mod-civ7-intelligence-bridge/src/maps/generated"))
+        realpathSync(path.join(fixture, "mods/other/src/maps/generated"))
       );
       expect(directoryReads).not.toContain(realpathSync(path.join(fixture, "packages")));
       expect(directoryReads).not.toContain(realpathSync(path.join(fixture, "node_modules")));

@@ -1,5 +1,10 @@
 # Resume Prompt — MapGen Studio Redesign (post live-control merge, post-compaction)
 
+> **Superseded handoff (2026-07-30):** Do not execute the bridge-specific
+> instructions in this prompt. Re-ground in the
+> [capability-realization frame](../civ7-capability-realization/FRAME.md) and
+> current Studio lane before producing a replacement handoff.
+
 > Hand the block below back to the agent once the consolidated control-oRPC work
 > has merged to `main`. It is self-contained and assumes zero memory of the prior
 > session. (Mirror copy of this lives in git; the agent should still re-read the

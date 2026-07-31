@@ -1,3 +1,7 @@
+> **Controller amendment (2026-07-30):** ADR-007 and DEF-022 supersede only
+> this delta's deployed-bridge and global-ingress scenarios. Its service-owned
+> contract, router, admission, and orchestration requirements remain current.
+
 ## ADDED Requirements
 
 ### Requirement: Native oRPC Owns Procedure Composition
