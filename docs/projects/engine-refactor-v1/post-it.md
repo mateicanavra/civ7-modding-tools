@@ -2,9 +2,9 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Product. Meaning. Structure. Movement. Observation.
-Actor. Role. Intent. Authority. Capability. Outcome. Boundary. Refusal.
-Evidence. Closure.
+**Attractor cubes:** Meaning selects Actor. Intent. Outcome. Refusal. Trust.
+Structure selects Owner. Boundary. Direction. Lifecycle. Closure. Descent
+selects Ground. Chain. Ratchet. Delete. Seal.
 
 **Frame:** the final platform pass operates on product capability realization
 chains, not current package names. Pure packages, managed resources, semantic
@@ -22,13 +22,15 @@ them. Each accepted kind closes its own proof topology around disjoint
 confidence axes; domain-qualified kinds such as MapGen keep their stronger
 domain-shaped testing grammar.
 
-**Current container:** preserve the shared-substrate admission gate after
-landing product convergence. The Civ7 product, system, outcome, and
-actor-role-outcome models and their exact corpora are sealed on `main`, along
-with the Explore Live Map oracle, Studio design synchronization, physical wind
-and pressure reconstruction, and seed-stateless latitude fallback. The
-pre-migration convergence stack landed through PR #2144 and its worktrees are
-drained.
+**Current container:** hold the final platform descent at the shared-substrate
+admission gate. The Civ7 product, system, outcome, and actor-role-outcome
+models and their exact corpora are sealed on `main`, along with the Explore
+Live Map oracle, Studio design synchronization, physical wind and pressure
+reconstruction, and seed-stateless latitude fallback. The final workstream now
+absorbs the historical phase train into five product-led containers: Ground,
+Core Platform, Dacia Product, Estate Reconciliation, and Platform Seal. Core
+Platform contains Swooper construction, Interactive construction, and one joint
+seal.
 
 Habitat source, package, blueprint, and release ownership lives upstream and is
 accepted as external authority. Template now has accepted repository-local
@@ -38,11 +40,13 @@ data-only blueprint pack, idempotent consumer initializer, or versioned release
 pin. Target source therefore does not move and Civ7 creates no local
 approximation. The next executable container opens only when that complete
 consumer artifact and its qualified kinds land. Its first structural migration
-remains the whole Swooper realization chain: admitted config -> generated
-entrypoint/digests -> materialized tree -> installation receipt ->
-loader/runtime evidence -> final-surface parity. The adapter split is
-supporting work inside that chain, not an isolated migration. Full live control
-follows later as one complete chain.
+is the Core Platform parent. Swooper is the first construction slice: admitted
+config -> generated entrypoint/digests -> materialized tree -> installation
+receipt -> loader/runtime evidence -> final-surface parity. The adapter split
+is supporting work inside that slice, not an isolated migration. Interactive
+construction follows inside the same parent because Swooper's source writer,
+deployment path, and fresh-live proof consume those owners. Both close through
+one joint proof and deletion receipt.
 
 **Stable ownership:** Swooper remains a portable mod definition realized by
 its mod app. The CLI remains a commandless `cli-shell` composed from
@@ -59,11 +63,10 @@ cold filesystem effects, while CLI topics project their bound capabilities.
 MapGen run records, cancellation, retention, and events remain scoped
 MapGen-runs service state rather than a manufactured resource.
 
-**Gradient:** constructible upstream Habitat release -> exact pin and digest
-admission -> qualified kind admission -> complete Swooper chain -> independent
-proof set -> old-owner deletion -> Graphite seal. The Tuner protocol remains
-private to its sole provider unless another independent consumer earns a public
-package.
+**Gradient:** usable upstream Habitat handoff -> Ground -> Core Platform
+(Swooper -> Interactive -> joint seal) -> Dacia Product -> Estate
+Reconciliation -> Platform Seal. The Tuner protocol remains private to its sole
+provider unless another independent consumer earns a public package.
 
 **Detailed frame:** [Civ7 Capability Realization](../civ7-capability-realization/FRAME.md).
 
@@ -108,6 +111,17 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-31 - Final Platform Descent Prepared
+
+The sealed product, system, outcome, and actor-role-outcome models now govern
+one nested final initiative rather than fourteen historical implementation
+phases. The prior work is absorbed into five product-led containers with
+explicit entry, exit, and refusal receipts. The Core Platform parent contains
+Swooper and Interactive construction plus one joint seal. Five read-only model
+roles preserve the four distinct receipts and route defects back to their
+earliest owner. Source remains stationary until the direct Habitat consumer
+handoff proves the Ground container constructible.
 
 ### 2026-07-31 - Product Convergence Sealed
 

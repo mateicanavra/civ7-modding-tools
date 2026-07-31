@@ -341,9 +341,9 @@ control cutover.
 
 ## First Structural Migration After Kind Admission
 
-The first structural migration is the complete Swooper realization chain, and
-it remains blocked until the usable upstream Habitat pin lands and the
-qualified definition/realization kinds are constructible:
+The first structural migration is one Core Platform parent. Swooper remains
+its first construction slice and is blocked until the usable upstream Habitat
+pin lands and the qualified definition/realization kinds are constructible:
 
 ```text
 admitted Swooper configuration
@@ -355,16 +355,15 @@ admitted Swooper configuration
 ```
 
 The portable `EngineAdapter` split and realization-local Civ7 adapter are
-supporting changes inside that chain. Moving the adapter alone is not a product
-migration and must not merge as one. The chain closes every touched consumer,
-preserves each proof fact independently, deletes the old owners, and asserts
-cross-channel parity only for any final surface with more than one authorized
-projection.
-
-The full live-control migration follows later as one whole resource, provider,
-service, CLI, Studio API/web, app-runtime, consumer, and old-owner-deletion
-chain. The bounded Explore repair neither pre-migrates nor authorizes isolated
-pieces of that chain.
+supporting changes inside that slice. Moving the adapter alone is not a product
+migration and must not merge as one. Swooper also cannot seal independently:
+its source writer, deployment path, and fresh-live proof consume the control
+client, Studio API, MapGen-runs, app adapters, and Tuner provisioning. The
+Interactive slice therefore follows inside the same parent as one resource,
+provider, service, CLI, Studio API/web, app-runtime, consumer, and
+old-owner-deletion chain. Product meaning remains separate; execution closes
+together. The bounded Explore repair neither pre-migrates nor authorizes an
+isolated piece of either slice.
 
 ## Transition Test
 
@@ -380,4 +379,5 @@ The model is ready to open implementation when:
 - no internal component is treated as an Actor or product capability; and
 - the immediate Explore oracle closes both current projections without source
   movement, while the first structural migration remains blocked until its
-  whole Swooper chain and destination gates are constructible.
+  Core Platform destination gates and both construction slices are
+  constructible.

@@ -3,9 +3,11 @@
 **Status:** Frozen migration classification
 **Date:** 2026-07-31
 
-This is the finite source-to-destination ledger for the first coupled
-capability-realization cutover. It is Engineer input only after the authority
-packet passes its architecture, Habitat, and testing freeze.
+This is the finite source-to-destination ledger for the final platform
+initiative. [WORKSTREAM.md](./WORKSTREAM.md) selects its exact rows by product
+container; this file does not require the whole ledger to move at once. It is
+Engineer input only after the owning container passes its product, architecture,
+Habitat, and testing freeze.
 
 Every participating source has exactly one terminal disposition:
 
@@ -23,6 +25,18 @@ contract package, or alternate runtime constructor survives the cutover.
 The Studio API selects that shared source packet at `src/service`, but the
 selected depth remains caller projection: it owns no independent semantic
 service state, provider lifecycle, process startup, or nested proof.
+
+The first structural migration is one Core Platform parent. Its first nested
+construction slice selects rows from the Swooper definition/realization,
+engine-adapter/map-entrypoint, consumer, and false-plugin sections only where
+the destination is the admitted definition, realization, pure adapter package,
+or MapGen CLI-topic instance. Studio-targeted writers, Studio-owned deployment
+source, and Interactive-dependent live proof remain stationary for the second
+slice, which also owns Direct Control, Studio, remaining CLI and consumer rows,
+and the coupled deletions. The two slices retain distinct semantic owners but
+share one terminal seal. Dacia and other explicitly excluded roots retain
+separate later containers. This partition changes execution containment, not
+any row's terminal disposition.
 
 ## Direct Control: Managed Tuner
 
@@ -527,10 +541,10 @@ service facades.
 
 ## Civ7 Engine Adapter And Map Entrypoint
 
-After the complete Swooper cutover, `@civ7/adapter` is a pure package. Until
-then it remains a hybrid current-state owner. Civ7 globals, `/base-standard`
-imports, loader event registration, and live map execution move together to the
-Swooper realization that runs inside the engine.
+After the Core Platform parent seals the Swooper slice, `@civ7/adapter` is a
+pure package. Until then it remains a hybrid current-state owner. Civ7 globals,
+`/base-standard` imports, loader event registration, and live map execution move
+together to the Swooper realization that runs inside the engine.
 
 | Exact current source | Disposition | Exact destination | Proof owner |
 | --- | --- | --- | --- |

@@ -1,7 +1,7 @@
 # Civ7 Capability Realization Workstream
 
-**Status:** Pre-migration convergence; model and Explore receipts sealed,
-corrected consumer-usable Habitat pin and qualified kinds pending
+**Status:** Final platform descent prepared; product models sealed, external
+Habitat consumer handoff gates source cutover
 **Frame:** [FRAME.md](./FRAME.md)
 **Model progression:** [MODEL-PROGRESSION.md](./MODEL-PROGRESSION.md)
 **Product authority:** [PRODUCT-AUTHORITY.md](./PRODUCT-AUTHORITY.md)
@@ -9,727 +9,522 @@ corrected consumer-usable Habitat pin and qualified kinds pending
 **Outcome model:** [OUTCOME-MODEL.md](./OUTCOME-MODEL.md)
 **Actor lens:** [ACTOR-ROLE-OUTCOME-MODEL.md](./ACTOR-ROLE-OUTCOME-MODEL.md)
 **Current chains:** [CURRENT-CAPABILITY-CHAINS.md](./CURRENT-CAPABILITY-CHAINS.md)
-**Topology decision:** [TOPOLOGY.md](./TOPOLOGY.md)
-**Kind-law matrix:** [KIND-LAW-MATRIX.md](./KIND-LAW-MATRIX.md)
+**Selected topology:** [TOPOLOGY.md](./TOPOLOGY.md)
+**Kind law:** [KIND-LAW-MATRIX.md](./KIND-LAW-MATRIX.md)
 **Migration corpus:** [CORPUS.md](./CORPUS.md)
+**Proof corpus:** [PROOF-CORPUS.md](./PROOF-CORPUS.md)
 
 ## Objective
 
-Reach the selected capability-port topology without preserving hybrid
-containers or inventing unused layers. Every independently mergeable
-implementation container is one complete product capability chain and closes
-with positive law, behavior parity, source deletion, a semantic Graphite layer,
-and a clean worktree. The earlier phase numbering remains sequencing evidence,
-not permission to move an isolated service, resource, CLI topic, Studio
-projection, or app. A supporting phase may use its own review branch, but it is
-not described as a terminal product migration.
+Materialize one cohesive Civ7 modding platform on the shared Habitat substrate.
+The final platform preserves the authorized product capabilities while giving
+each fact, transition, lifecycle, and effect one qualified owner. It removes
+hybrid containers rather than carrying them forward under new names.
 
-## Model Gate
+The migration unit is a complete product capability realization chain:
 
-The [model progression](./MODEL-PROGRESSION.md) owns the four-gate method:
-Meaning, Lawful Structure, Lawful Movement, and Lived Observation. The product,
-system, outcome, and actor-role-outcome packets own their respective laws. All
-four receipts are now sealed against the exact migration and proof corpora.
+```text
+meaning -> lawful structure -> lawful movement -> lived observation
+  -> displaced-owner deletion -> seal
+```
 
-A failed receipt returns to the earliest model that owns the defect. It does
-not become a compatibility layer, local Habitat approximation, inferred
-policy, or implementation task. Product-specific Habitat burn-down begins only
-after the destination selected by these receipts is deterministic and
-constructible.
+Models are authority and evidence, not a backlog. Work is the finite difference
+between those models and the observed estate. Once a difference closes, it
+disappears from the active frame.
 
-The first evidence oracle is the existing Explore Live Map interaction.
-Both `plugins/cli/topics/game/src/commands/game/map/visibility.ts` and
-`apps/mapgen-studio/src/app/hooks/useSetupControls.ts` call
-`display.explore.request`; both must preserve the owner's
-`explored | already-explored | unverified` result and typed errors. The same
-bounded slice first reserves `already-explored` for the skipped full-map
-precondition; a non-skipped run with no increased revealed evidence is
-`unverified`. Repairing that owner classification, Studio's false success
-styling, and the CLI's unconditional `{ ok: true }` wrapper is bounded
-current-topology outcome work, not a source migration. That oracle is now
-sealed: owner, CLI, and Studio preserve the complete classification and typed
-failure boundary.
+## Director Frame
 
-## Current Execution Sequence
+### Attractor Cubes
 
-1. Land the sealed product convergence stack: Studio design synchronization,
-   wind and pressure reconstruction, the four-model authority packet, the
-   Explore outcome oracle, and the seed-stateless latitude fallback. This is a
-   current-product integration receipt, not a Habitat migration.
-2. Keep target source stationary until the corrected, constructible,
-   consumer-usable upstream Habitat pin lands and the required qualified kinds
-   are admitted. Habitat source/package/blueprint ownership is settled upstream
-   and accepted externally; Civ7 creates no local approximation.
-3. Make the first structural migration the complete Swooper chain:
+The active context filter is deliberately small and selective:
+
+| Cube | Attractors |
+| --- | --- |
+| Meaning | Actor. Intent. Outcome. Refusal. Trust. |
+| Structure | Owner. Boundary. Direction. Lifecycle. Closure. |
+| Descent | Ground. Chain. Ratchet. Delete. Seal. |
+
+These are not a vocabulary list. Each cube selects the context admitted into
+one decision. A clarification that sharpens the same selection updates the
+rolling frame in place; a change that selects a different governing context is
+a recorded focus pivot.
+
+### Layer Weight
+
+| Layer | Character | Authority |
+| --- | --- | --- |
+| Packages and static policy | Dense and slow | Pure contracts, schemas, algorithms, plans, generated static truth |
+| Resources and providers | Stable and explicit | Foreign lifecycle, readiness, epochs, typed failures, concrete acquisition |
+| Services | Assured and semantic | Capability policy, invariants, operations, scoped semantic state |
+| Projections | Responsive and replaceable | Caller translation, transport, presentation, host integration |
+| Apps and realizations | Flexible at the surface | Product membership, profile, entrypoint, adapter selection, runtime observation |
+
+Lower layers do not absorb upper-layer convenience. Upper layers remain easy to
+change because the layers beneath them are narrow, typed, and unsurprising.
+
+## Settled Ground
+
+The following are complete evidence, not open work containers:
+
+- Product, system, outcome, and actor-role-outcome models are sealed against
+  the exact current and proof corpora.
+- Studio design synchronization, Explore Live Map outcome honesty, physical
+  wind and pressure reconstruction, and seed-stateless latitude behavior are
+  landed current-product receipts.
+- Swooper's portable definition and Civ7 realization are distinct owners.
+- The CLI app is commandless; nested commands belong to
+  `plugins/cli/topics/*`.
+- `services/civ7-control` is the sole semantic live-control authority.
+- The unconsumed controller island is deleted. Its future form remains deferred
+  behind the recorded same-realm consumer and lifecycle trigger.
+- MapGen remains portable. A network-shaped MapGen generation service and a
+  manufactured MapGen-run resource remain excluded.
+
+Historical semantic cuts under `docs/projects/engine-refactor-v1` remain
+behavior and decision evidence. They are not reopened merely because their
+source later moves into the accepted topology.
+
+## Final Initiative
+
+```mermaid
+flowchart LR
+  Ground["0. Ground"] --> Swooper
+
+  subgraph Core["1. Core Platform"]
+    direction LR
+    Swooper["1.1 Swooper construction"] --> Interactive["1.2 Interactive construction"]
+    Interactive --> CoreSeal["1.3 Joint seal"]
+  end
+
+  CoreSeal --> Dacia["2. Dacia product"]
+  Dacia --> Estate["3. Estate reconciliation"]
+  Estate --> Seal["4. Platform seal"]
+
+  classDef gate fill:#24303a,stroke:#101820,color:#f4f7f8;
+  classDef product fill:#0f6b63,stroke:#101820,color:#ffffff;
+  classDef closure fill:#3d4851,stroke:#101820,color:#f4f7f8;
+  class Ground gate;
+  class Swooper,Interactive,Dacia product;
+  class CoreSeal,Estate,Seal closure;
+```
+
+The order is product-led. Each container establishes a construction pattern or
+public capability that the next container consumes. Swooper and Interactive
+retain distinct product owners, but their current source-write, deployment, and
+live-proof dependencies make them one execution parent. Nested slices receive
+separate Graphite branches for review; neither claims migration until the Core
+Platform exit receipt closes.
+
+## Container 0: Ground
+
+**Outcome:** Civ7 can construct and enforce the selected platform kinds using
+one versioned upstream Habitat consumer release, without local substrate forks
+or copied policy.
+
+**Entry:** the four model receipts and selected topology remain current.
+
+**Contained work:**
+
+1. Receive the direct Habitat-lane handoff and verify the exact package version,
+   source identity, digest, release provenance, and supported Bun/Nx/Oclif
+   surface.
+2. Run the consumer initializer in a disposable or no-write mode and prove that
+   repeated application is idempotent.
+3. Admit and prove only the shared generic package, resource, provider, service,
+   API, CLI-topic, app, construction, generator, and initializer kinds required
+   by the initiative. Each product slice owns admission of its qualified Civ7
+   laws immediately before source movement.
+4. Receive and verify the exact shared vendor-transition manifest for the root
+   catalog, patched dependency, patch file, lockfile, and Habitat package. Do
+   not mutate the root or strand current consumers during Ground.
+5. Prove instance anchors, generated `habitat.toml` facts, positive and negative
+   injected fixtures, generator success, and unsupported-kind empty-write
+   refusal.
+6. Freeze the exact Core Platform source and proof census from `CORPUS.md` and
+   `PROOF-CORPUS.md` before opening its red corpus.
+
+**Exit receipt:** the pinned substrate constructs every shared kind needed by
+the Core Platform parent, the vendor transition is exact and ready for its
+coupled Interactive branch, the live estate is classified without source
+relocation, and no generic law contains Civ7 instance names.
+
+**Refusal:** one missing kind, non-idempotent initializer, unverified artifact,
+or need for a Civ7-local approximation keeps all target source stationary.
+
+## Container 1: Core Platform
+
+**Actors and outcomes:** a map author can author, run, inspect, compare, and
+explain deterministic Swooper Physics output. A release operator can realize
+one exact definition in Civ7 and receive independent materialization,
+installation, loader, and live-behavior facts. An operator or agent can observe
+a running Civ7 epoch, make one lawful native decision, reconcile uncertainty
+without unsafe repeat, and run, adopt, inspect, or cancel one request-correlated
+MapGen realization through CLI or Studio without changing owner meaning.
+
+**Why one parent:** Swooper is the most mature definition/realization split and
+therefore the first construction slice. It is not independently sealable: its
+source writer belongs to the Studio app, its deployment path crosses current
+Studio source, and its live proofs consume the target control client, Studio
+API, MapGen-runs service, app adapters, and Tuner provisioning. Coupling the
+execution seal removes that knot without merging the products' semantic owners.
+
+**Entry:** Ground closes. The Swooper child uses the admitted substrate without
+applying a dependency-only root transition. The effective vendor change occurs
+with native service and error migration in the Interactive slice; no old patch
+line survives the joint seal.
+
+### 1.1 Swooper Product
+
+Admit the qualified map-definition and map-realization laws, and instantiate the
+MapGen CLI-topic root under Ground's shared CLI-topic law, before moving their
+respective Swooper source.
+
+#### 1.1.1 Portable Definition
+
+- Close `plugins/mod/map/swooper-physics` around domains, recipe, authoring,
+  diagnostics, metrics, trace, and visualization.
+- Retain generic mechanics in MapGen packages and product meaning in Swooper.
+- Move definition-owned diagnostic and metric commands to the MapGen topic
+  instance without moving product truth into the CLI.
+- Remove generated-file materializers, live engine globals, and realization
+  effects from the definition only where their destinations already exist.
+- Keep Studio-targeted source writers, Studio-owned deployment source, and
+  Interactive-dependent live proof stationary until slice 1.2 constructs those
+  exact destinations.
+
+#### 1.1.2 Civ7 Realization
+
+- Construct `apps/mods/map/swooper-physics` as one cold app definition with the
+  `local-civ7` profile, `build` and `deploy` entrypoints, exact target table,
+  realization-local map-script adapter/setup/entrypoint, and qualified install
+  adapter.
+- Reduce `packages/civ7-adapter` to its portable contract, static metadata,
+  detached comparison support, and deterministic mock.
+- Reduce mod installation to pure validation, comparison, plan, digest, and
+  receipt matter; keep filesystem effects at the app adapter.
+- Preserve MapGen's separate map seed, game seed, setup, artifacts, trace,
+  metrics, diagnostics, and visualization contracts.
+
+#### 1.1.3 Slice Construction And Evidence
 
 ```text
 admitted config
-  -> generated map entrypoint and source/artifact digests
+  -> generated entrypoint and source/artifact digests
   -> materialized exact tree
   -> installation/replacement receipt
-  -> Civ7 loader/runtime evidence
-  -> final-surface parity
+  [held for parent]
+  -> loader/runtime evidence -> final-surface parity
 ```
 
-The `EngineAdapter` and concrete Civ7 map-runtime split is supporting work
-inside that chain, never an isolated migration. Each proof fact remains an
-independent member of the proof set.
+Each arrow yields an independent fact. Slice 1.1 constructs and proves only the
+cold chain available at its admitted destinations; it freezes the live oracle
+for execution after slice 1.2 supplies the required owners. Browser preview is
+not loader proof; installation is not live behavior; later failure does not
+erase an earlier receipt. Before retiring the engine-bound SDK path or concrete
+adapter exports, close generated entrypoints, SDK types, package exports, docs
+and examples, live-subpath imports, and an exact external-consumer search. Old
+scripts and Swooper-owned false-plugin consumers receive terminal dispositions
+only after their replacement proof passes.
 
-4. Migrate full live control later as one resource, provider, service, CLI,
-   Studio API/web, app-runtime, consumer, and old-owner-deletion chain. The
-   bounded Explore repair does not authorize an early control source move.
+**Corpus:** select only rows from *Swooper Definition And Realization*, *Civ7
+Engine Adapter And Map Entrypoint*, *Direct-Control Consumer Closure*, and
+*False Plugin Collapse* whose destinations are the admitted definition,
+realization, pure adapter package, or MapGen CLI-topic instance. Rows targeting
+the Studio app, control service, MapGen-runs, app adapters, Tuner provisioning,
+or their live proofs remain stationary for slice 1.2. No other row enters this
+slice implicitly.
 
-The numbered containers and phases below retain the detailed dependency and
-disposition ledger. They do not override this complete-chain execution order,
-and no package, service, CLI topic, Studio projection, resource, adapter, or mod
-root moves alone merely because its destination is known.
+**Slice receipt:** every Swooper-owned destination and the MapGen topic instance
+are constructible, their selected rows have exact dispositions, and every
+cross-owner row is explicitly held for slice 1.2. No old owner is deleted and
+no independent migration or merge is claimed.
 
-## Entry Convergence
+**Refusal:** an isolated package/adapter move, missing live fact, retained host
+effect in the definition, or compatibility facade refuses the whole migration
+claim. The slice remains inside the Core Platform parent.
 
-Three independent product lanes require explicit disposition before their paths
-move:
+### 1.2 Interactive Platform
 
-| Lane | Disposition |
+**Actors and outcomes:** an operator or agent can observe a running Civ7 epoch,
+make one lawful native decision, reconcile uncertainty without unsafe repeat,
+and run, adopt, inspect, or cancel one request-correlated MapGen realization
+through CLI or Studio without changing owner meaning.
+
+**Why next:** the Swooper slice supplies the concrete realization target and
+the exact consumer gates that expose the remaining host, transport, service,
+API, web, CLI, and app knot. This slice closes those dependencies rather than
+hardening a transition facade.
+
+The nested order is dependency order, not separate product migrations.
+
+#### 1.2.1 Pure Matter And Managed Collaboration
+
+Instantiate resource, provider, service, API, and remaining CLI-topic roots
+under Ground-proven shared laws. Admit only the qualified web, CLI-app, and
+Studio-app laws before moving their respective source.
+
+- Extract only proven pure config, save parsing, run-workspace comparison, and
+  mod-install planning into packages.
+- Construct `resources/civ7-tuner` with its local-socket provider and
+  `resources/civ7-window-capture` with its macOS provider.
+- Keep framing, socket, helper acquisition, session lifetime, epochs, health,
+  and foreign-failure translation private to their qualified owners. Do not
+  publish a Tuner protocol package with one consumer.
+
+#### 1.2.2 Semantic Services
+
+- Apply the accepted root `@orpc`/Effect/TypeBox transition in the same semantic
+  branch that migrates native service construction and errors. Do not create a
+  dependency-only intermediate estate; retain the obsolete patch file until no
+  consumer remains, then delete it at the joint seal.
+- Rewrite `services/civ7-control` directly onto the accepted service substrate,
+  consuming ready runtime-bound capabilities through private module ports and
+  exposing one public client.
+- Construct `services/mapgen-runs` for admission, operation state, retention,
+  adoption, cancellation, diagnostics, autoplay policy, and terminal outcomes.
+- Keep process-scoped semantic state in its service scope. Cold host effects
+  enter through exact app-selected dependencies; neither service constructs a
+  provider, mount, process, or ambient singleton.
+
+#### 1.2.3 Projections
+
+- Construct the MapGen Studio API projection from its frozen route ledger,
+  composing public service clients rather than extracting private contracts or
+  redeclaring schemas.
+- Construct the Studio web projection around authorized views, interactions,
+  and browser execution.
+- Construct all CLI topic roots with exact command mirrors. Semantic game
+  commands use the control client; MapGen operations use the MapGen-runs
+  client; raw diagnostics retain only their bounded evidence vocabulary.
+
+#### 1.2.4 App Realization
+
+- Make `apps/mapgen-studio` a cold composition: plugin membership, profile,
+  role entrypoints, and exact semantic adapter selection.
+- Construct the commandless CLI app around its app definition, selected
+  profiles, `civ7.ts` entrypoint, shared Oclif harness, runtime binding, and
+  app-owned `local-mods` adapter. The app owns no commands or semantic service
+  truth.
+- Let shared runtime provision providers, bind public clients, materialize API
+  context, mount server/web roles, observe the process, and dispose one scope.
+- Keep official-data, saved-file, fresh-log, run-file, and authored-config
+  filesystem effects in exact app adapters with one matching execution proof.
+- Move the Swooper source writers, Studio-owned deployment source, and live
+  proof rows held by slice 1.1 only after these app, service, and resource
+  destinations are constructible.
+
+#### 1.2.5 Slice Collapse
+
+- Delete the direct-control facade, mixed direct-control package, parallel
+  contract package, Studio server package, manual daemon/runtime construction,
+  alternate transports, and duplicate observation paths only as their target
+  owners and consumer gates close inside the parent stack.
+- Preserve request, refusal, dispatch, observation, acceptance, reconciliation,
+  and terminal operation facts without reducing them to `ok` or one strongest
+  status.
+
+**Slice receipt:** the two semantic services and their resources, projections,
+apps, and consumers are constructible; CLI and Studio preserve authorized
+Task/Question meaning; every displaced owner is ready for joint deletion. This
+is not an independent migration or merge claim.
+
+**Refusal:** one unresolved route, import, proof row, lifecycle owner, or need
+to keep the old source owner refuses the parent seal. A resource, service, API,
+CLI, web, or app sub-slice does not claim the product migration by itself.
+
+### 1.3 Joint Evidence And Seal
+
+1. Drive every one of the frozen 460 current proof/support files to exactly one
+   terminal disposition: `relocate`, `combine`, `inline`, `delete`, or
+   `excluded unchanged`. Destination leaves may differ in count; no source row
+   remains ambiguous.
+2. Run the complete definition, realization, adapter, service, resource,
+   provider, API, web, CLI, app, MapGen-runs, Studio, and fresh-live proof graph.
+   Preserve admission, dispatch, observation, acceptance, reconciliation, and
+   terminal outcome as independent facts.
+3. Close every generated entrypoint, SDK, package-export, documentation,
+   live-subpath, external-consumer, route, lifecycle, and filesystem-effect
+   gate at its selected owner.
+4. Delete the old scripts, mixed packages, compatibility facade, parallel
+   contract, manual runtime, false-plugin owners, duplicate observations, and
+   old vendor patch line. Regenerate rather than hand-edit generated output.
+5. Obtain fresh product, system, outcome, actor/outcome, TypeScript/state-space,
+   testing, native-authority, and runtime reviews against the frozen parent.
+
+**Exit receipt:** both product chains close at their distinct semantic owners;
+all 460 source proof rows have terminal dispositions; every touched consumer
+reaches its selected owner; no old owner, facade, patch, or alternate runtime
+survives; and the complete Core Platform stack is clean and mergeable.
+
+**Refusal:** one unresolved corpus row, public consumer, route, live fact,
+lifecycle owner, filesystem effect, inflated result, or need to retain a
+displaced owner refuses the entire parent seal.
+
+## Container 2: Dacia Product
+
+**Actors and outcomes:** a civilization mod author owns one portable Dacia
+definition; a release operator can build, install, and prove its exact Civ7
+realization.
+
+**Why now:** the Core Platform has proved the generic definition, realization,
+runtime, installation, CLI, and proof paths. Dacia therefore becomes a small
+product migration instead of a second architecture design.
+
+**Contained work:**
+
+- Admit the qualified civilization definition and realization laws.
+- Construct `plugins/mod/civ/dacia` and `apps/mods/civ/dacia` from the accepted
+  SDK and shared runtime grammar.
+- Preserve mod identity, content, generated tree, deployment, loader behavior,
+  and consumer gates while separating authored truth from host effects.
+- Delete `mods/mod-swooper-civ-dacia` only after both owners and their
+  independent proof facts close.
+
+**Exit receipt:** no mixed Dacia root remains; definition, generated,
+installation, loader, and live claims are independently supported.
+
+**Refusal:** a missing qualified kind, unknown public consumer, or absent loader
+evidence retains the current root and refuses the migration claim.
+
+## Container 3: Estate Reconciliation
+
+**Outcome:** every remaining repository root has a truthful role in the
+materialized platform, without empty substrate layers or names that impersonate
+ownership.
+
+**Contained work:**
+
+- Classify `packages/plugins/{plugin-files,plugin-git,plugin-graph}` by actual
+  state owner, mutations, consumers, and runtime. Relocate, combine, inline, or
+  delete each capability only after its destination kind is active.
+- Classify `apps/docs` and `apps/playground` against their actual content and
+  example/build outcomes instead of forcing the Studio app shape onto them.
+- Reconfirm that the official-game-knowledge chain and generic mod SDK remain
+  pure current owners; move nothing merely for topological symmetry.
+- Remove stale package identities, exports, graph edges, docs, generated
+  currentness owners, and legacy enforcement whose governed state no longer
+  exists.
+- Leave deferred capabilities absent: no controller mod, HQ API, public Tuner
+  protocol, generic catalog or desktop-control resource, MapGen generation
+  service, or durable workflow plugin without its recorded re-entry evidence.
+
+**Exit receipt:** the hybrid-owner register is empty or contains only explicit
+deferred external facts; nothing is called a plugin, service, resource, or app
+because that name was convenient historically.
+
+**Refusal:** reuse, naming, or visual symmetry alone never earns a destination.
+An unconstructible or ownerless capability remains classified and stationary.
+
+## Container 4: Platform Seal
+
+**Outcome:** the repository, canonical authority, generated artifacts, and
+runtime evidence all describe the same materialized Civ7 modding platform.
+
+**Contained work:**
+
+1. Promote stable product and system truth to canonical docs, domain routers,
+   skills, ADRs, and deferrals. Archive or rebaseline historical OpenSpec
+   packets without rewriting their chronology.
+2. Reconcile `CORPUS.md`, `PROOF-CORPUS.md`, status axes, and consumer gates to
+   the final estate. Reconfirm the Core Platform's terminal 460-file census;
+   do not claim it for the first time here. A moved path is not a migration
+   receipt.
+3. Run one Nx-owned build/check/test graph, Habitat policy and boundaries,
+   generated-currentness, Knip, and focused uncached loader/live proofs.
+4. Run final Narsil reference, cycle, and boundary corroboration. Narsil does
+   not replace TypeScript, Knip, Habitat, or product proof.
+5. Obtain fresh product, system, outcome, actor/outcome, TypeScript/state-space,
+   testing, native-authority, and runtime reviews against the frozen tree.
+6. Merge the Graphite stack in dependency order, remove clean worktrees, run
+   `gt sync --force --no-restack --no-interactive`, and leave primary attached
+   to current `main`.
+
+**Exit receipt:** every authorized capability is `migrated` with its honest
+proof set, every retained public consumer reaches its selected owner, all
+currentness and policy graphs are green, and the repository is clean.
+
+**Refusal:** any old-owner reference, unknown consumer, inflated live claim,
+policy violation, dead-code finding, dirty worktree, or unresolved review
+finding refuses the finalization claim.
+
+## Prior Container Absorption
+
+| Earlier workstream slice | Final owner |
 | --- | --- |
-| Studio design sync | Sealed in the current product stack; land before moving Studio app/API paths |
-| Wind and pressure upgrade | Reconstructed and product-proved in the current Swooper topology; the latitude fallback now derives each roll statelessly from the full seed |
-| Git-to-Fluree index | Let the active owner finish; review and merge when clean. It may accelerate later inquiry but does not block this authority packet |
+| Pre-migration convergence and Explore oracle | Settled Ground |
+| Old Containers 1-4: substrate, package, resource, provider law | Container 0 shared admission; qualified instances materialize inside Containers 1-3 |
+| Old Phase 5: projection/app/deployment preflight | Container 1 nested Swooper and Interactive slices |
+| Old Phase 6: shared runtime and service substrate | Container 0 admission plus Container 1 consumption |
+| Old Phases 7-10: MapGen-runs, Studio API/web/app, host control | Container 1.2 dependency order and Container 1.3 joint seal |
+| Old Container 11: controller disposition | Settled Ground; only canonical history cleanup remains in Container 4 |
+| Old Container 12: mod kinds | Swooper -> Container 1.1; Dacia -> Container 2 |
+| Old Container 13: false plugins | Swooper/CLI split -> Container 1; remaining classifications -> Container 3 |
+| Old Container 14: canonical authority and final proof | Container 4 |
 
-After each lane is merged or retired, remove its clean worktree and run
-`gt sync --force --no-restack --no-interactive`. Do not restack unrelated live
-stacks globally.
+A.2, automatic post-step engine-layer observation, and other separately
+accepted project slices retain their own admission. They do not enter this
+initiative unless product authority proves that one is required to close a
+named capability receipt.
 
-## Container 1: Shared Substrate Pin And Kind Matrix
+## Model Stewards
 
-**Intent:** freeze one shared realization grammar and its exact Civ7
-specializations before any implementation or dependency changes.
+Five read-only standing roles keep the models selective rather than blending
+them into one architecture opinion:
 
-RAWR HQ Template owns Habitat source, package identity, blueprints, and release
-upstream; Civ7 accepts that external authority. The corrected, constructible,
-consumer-usable pin is still outstanding. This container records and later
-consumes that exact pin; it never patches, copies, or approximates the missing
-law in Civ7.
+| Role | Receipt |
+| --- | --- |
+| `civ7-product-model-steward` | Meaning: capability, actor outcome, authorization, owner/non-owners, independent status axes |
+| `civ7-system-model-steward` | Lawful Structure: qualified container, typed direction, writer, lifecycle, constructibility |
+| `civ7-outcome-model-steward` | Lawful Movement: intent, owner result/refusal/reconciliation, next action, independent proof facts |
+| `civ7-actor-outcome-steward` | Lived Observation: external actor, role, Task/Question, authorized channels, meaning parity |
+| `civ7-model-defect-router` | Feedback only: return a failed receipt to its earliest owning model |
 
-1. Keep Template
-   `33eabdd741d8961dbb2be0b6d4c7284ac58aad52` only as the audit baseline.
-   Pin the accepted successor after the CLI, provider-family,
-   service-module-collection, platform-neutral TypeBox entity, proof, and
-   instance-anchor corrections land.
-2. Pin the canonical runtime realization spec and explicitly reconcile its
-   ownership/lifecycle model with newer concrete Habitat source packets.
-3. Record the exact oRPC, Effect, TypeBox, runtime, and Habitat delta. Do not
-   change the vendor catalog or activate source rules in this docs-only layer.
-4. Reconcile every selected blueprint and existing path-selected root with
-   Habitat's normative instance model: accept its manifest anchor contract and
-   generated `habitat.toml` facts before constructing or activating a root.
-   Existing locked CLI checks remain operative as legacy enforcement, but do
-   not become an admission bypass.
-5. Treat Civ7's current oRPC 1 and patched `effect-orpc` implementation as
-   future red migration corpus. Do not create compatibility kinds or local
-   forks.
-6. For each selected blueprint or qualified Civ7 specialization, record:
+The router has no corrective authority. Task-specific corpus, scope, and
+questions belong in each launch packet, not in the standing constitutions.
+Invoke only the steward whose receipt is under review; use fresh sessions for
+a frozen container's terminal review. The rolling frame remains director-held:
+it selects which model and container are active rather than becoming a fifth
+evaluative authority.
 
-- root grammar and selected depth;
-- required spine and finite optional interiors;
-- independent selected-depth blueprints;
-- public imports and exports;
-- proof topology;
-- graph metadata and dependency proof, without using Nx to admit a kind;
-- generator support and refusal behavior.
-- blueprint-defined instance anchor and generated `habitat.toml` facts.
+## Delivery Law
 
-Record the replacement from the current ambiguous `kind:plugin` graph
-classification to the shared descriptive graph vocabulary without using Nx to
-admit Habitat kinds. Apply that metadata only in the implementation container
-that moves each project. Retire the current engine-global adapter-project kind:
-portable contracts, static metadata, and mocks use shared package law, while
-concrete Civ7-global integration uses the qualified Swooper
-`runtime/map-script/` realization law. Do not invent a service-adapter kind.
-
-Only the accepted corrected Template successor is shared destination law, and
-its constructible consumer-usable pin has not landed for Civ7. The inspected
-commit remains an audit baseline. Settled Civ7 ownership decisions, including
-commandless CLI ownership, remain authoritative, but current roots and files
-are migration corpus rather than admitted shared-law instances. No target
-source moves before the exact pin and required admissions exist.
-
-Record the future workspace globs here; add each one in the implementation
-container that first constructs its governed root:
-
-- `resources/*`
-- `resources/*/providers/*`
-- `plugins/cli/topics/*`
-- `plugins/server/api/*`
-- `plugins/web/app/*`
-- `plugins/mod/civ/*`
-- `apps/mods/civ/*`
-
-**Seal:** one reviewed kind-law matrix exists; no source has moved.
-
-## Container 2: Package Kind
-
-Promote or import the shared package candidate before classifying anything as a
-package. Do not fork generic package law in Civ7. Preserve Civ7 manifests and
-build surfaces, and do not create a public Tuner protocol package with one
-consumer.
-
-When a package admits `test/`, the package blueprint closes it to its
-manifest-selected `contract` and `semantics` axes. An instance may select the
-finite subjects proved inside those axes; it may not invent a testing layer,
-generic cabinet, or local taxonomy. A package with no distinct package-owned
-oracle omits `test/` rather than adding ceremonial coverage.
-
-If the shared package packet remains unaccepted, defer package
-reclassification rather than treating the proposed shape as local authority.
-
-Per-kind sequence:
+Each parent container repeats one compact loop:
 
 ```text
-accepted closed law
-  -> injected fixtures
-  -> generator decision/schema/writer/tests
-  -> manifest-backed scaffold
-  -> promote/enforce in the burn-down branch
-  -> exact live red corpus
+accepted receipts
+  -> constructible closed law
+  -> exact red corpus
   -> qualified dispositions
   -> zero
-  -> behavior proof
-  -> seal/land
+  -> behavior and outcome proof
+  -> displaced-owner deletion
+  -> Graphite seal
 ```
 
-Unsupported generator kinds continue refusing with an empty write set.
-
-## Container 3: Resource Kind
-
-First correct the shared resource packet: `test/contract/` is required and
-closed, with exact `contract.typecheck.ts` and optional `contract.test.ts` only
-when the contract has runtime schema or failure values. A generic
-`runtime-contract-values` instance fact is derived from that declaration and
-requires the optional leaf when selected while forbidding it otherwise. This
-is the resource kind's complete confidence taxonomy, not an instance choice.
-Then import the
-resource contract, typed failure vocabulary, public entry, and dependency
-direction.
-Resource law does not own concrete providers or profile-owned provider
-selection. Its `providers/` collection is closed, may be empty, and admits only
-manifest-backed provider directories; loose files and invalid children are
-negative fixtures.
-
-Use the same law-only sequence and prove it with injected positive and negative
-fixtures. The first real managed capability is constructed only in its coupled
-product migration.
-
-## Container 4: Provider Kind
-
-First correct the shared provider packet: `test/` is required and closed to
-exact `semantics/provider.test.ts` and `execution/lifecycle.test.ts`, plus
-optional exact `collaboration/provider.live.test.ts` only when compatibility
-with the concrete substrate is a distinct oracle. Providers do not choose
-alternative confidence layers case by case. A generic `live-collaboration`
-instance fact is selected exactly with an uncached live-substrate target and
-requires or forbids the collaboration leaf accordingly.
-Then import the exact flat provider root beneath one resource, its public index,
-and failure-translation boundary. Do not copy provider names or lifecycle
-implementations. The generated provider includes its blueprint-defined
-`habitat.toml` and the parent resource relation.
-
-## Cutover Phase 5: Projection, App, And Deployment Preflight
-
-1. Retain Civ7's accepted `cli-topic-plugin` ownership law at
-   `plugins/cli/topics/*`, with commands nested inside each topic, and retain
-   the commandless `cli-shell` ownership law at `apps/cli`. Accept the corrected
-   shared app law, then compose the CLI specialization with it atomically;
-   neither current root is considered admitted until its anchor migration,
-   closed proof interior, and composed root grammar land.
-2. Route Template's `plugins/cli/commands/*` packet and app-owned
-   `src/commands` requirement back upstream as shared-substrate corrections.
-   Record in Template authority that the canonical shared destination is
-   `plugins/cli/topics/<topic>`, not `plugins/cli/commands/<command>`; do not
-   import either defect. CLI composition waits for the accepted corrected
-   successor, while unrelated Civ7 preflight may continue.
-3. Preserve those settled ownership laws while treating both current roots as
-   legacy and unsealed until their anchor and proof migrations land. Correct
-   the topic proof law in the same authority packet: require
-   `test/tsconfig.json`; derive an exact one-suite-per-leaf mirror from admitted
-   `src/commands/<path>/<command>.ts`; when
-   `src/adapters/<path>/<adapter>.ts` is selected, derive its exact
-   one-suite-per-leaf mirror in `test/adapters/<path>/<adapter>.test.ts`; keep
-   fixtures beside their sole consumer; remove the recursive generic
-   `test/support/**` cabinet.
-   Add blueprint-defined instance anchors to the current shell and topic roots;
-   path-selected legacy instances are not an admission exception.
-   Keep `apps/cli/package.json#oclif.plugins` as the sole authored membership
-   registry. The composed app proof additionally requires exact
-   `test/definition.test.ts`, `test/profiles/<profile>.test.ts`, and
-   `test/entrypoints/civ7.test.ts`; the CLI specialization adds only
-   `test/assembly/shell.test.ts`, with one shared `test/tsconfig.json`. The
-   app layers prove definition, selected profile, and role entrypoint. Both
-   launchers must enter one shared oclif harness that calls
-   native `run(...)`, opens one managed command process scope, and finalizes it
-   before reporting success or failure. Move shell proof to the exact
-   `test/assembly/shell.test.ts` owner beside exact `test/tsconfig.json`; it
-   observes collision-free runtime discovery, help, executable-shim
-   equivalence, and shared-harness delegation only. Habitat topology proves
-   the shell is commandless; a bounded source relation owns the sole
-   `package.json#oclif.plugins` registry and forbids a second topic
-   enumeration. Topic command suites
-   prove command projection; adapter suites prove adapter-local translation
-   plus any qualified host effect, failure translation, and cleanup without
-   repeating command presentation or pure package semantics.
-   Topic-local semantic and diagnostic bases carry static cold requirement
-   descriptors. Native oclif class selection followed by base initialization
-   lets the surrounding harness provision only the selected command's declared
-   clients. Commands do not construct clients or import the app, profile,
-   provider, or process runtime. Shared runtime owns lazy acquisition and
-   lifecycle proof across success, command and binding failures, partial
-   startup, help, version, unknown command, interruption, and sequential runs.
-4. Import `plugin-server-api` at the API root and select `service`
-   independently at `src/service` only after shared authority requires and
-   closes API-owned `test/contract/client.typecheck.ts`,
-   `test/projection/<selected-component>.test.ts`, and optional
-   `test/execution/<selected-component>.test.ts` axes. The reusable service
-   source selection owns no nested proof; the containing API kind owns
-   contract, projection, and its selected execution proof. Its manifest selects
-   the `authoring`, `control`, `errors`, `router`, and `runs` projection
-   identities plus the `live-game-watcher` and `studio-events` execution
-   identities. The API kind itself fixes the client contract leaf. Wildcards
-   are terminal filename grammar only. Fixtures remain beside their consumers;
-   no generic support interior is admitted.
-5. Design and accept closed qualified laws for
-   `plugins/web/app/<app>` and the shared generic `apps/<app>` law over the
-   canonical runtime realization model; product app packets may narrow roles
-   only after that generic law is constructible. Web proof owns required
-   nonempty `test/views/*.test.tsx` and optional nonempty
-   `test/interactions/*.test.tsx`; the qualified Studio web packet selects
-   interactions as required and additionally requires
-   `test/execution/*.test.tsx` for its browser-worker runtime. App
-   proof owns exact `test/definition.test.ts`, source-mirrored
-   `test/profiles/<profile>.test.ts`, and
-   `test/entrypoints/<entrypoint>.test.ts`, plus fixed
-   `test/tsconfig.json`.
-   Every admitted `runtime/profiles/<profile>.ts` and every authored
-   `<role>.ts` or `dev.ts` entrypoint has exactly one matching app suite, and
-   unmatched suites are forbidden. The web manifest selects exact view,
-   interaction, and execution component identities from the qualified corpus;
-   nonempty wildcards define grammar, never membership. No Studio source moves
-   until both destinations are constructible.
-   The app definition suite also proves each authored semantic adapter
-   selection; shared runtime owns exact-one compatibility and binding proof.
-6. Replace `packages/plugins/plugin-mods` before MapGen-runs design.
-   First accept the closed generic pure-package law with direct source leaves
-   and kind-owned contract/semantics proof. `packages/civ7-mod-install` selects
-   it and owns only path grammar, supplied-tree validation, wholesale
-   replacement planning, digest mechanics, and typed receipt construction.
-   The matching mod realization's `local-mod-install` adapter owns its host
-   reads, writes, and exact replacement receipt. The CLI app's `local-mods`
-   adapter owns generic CLI-scoped filesystem interaction, while the git-mod
-   topic calls that bound capability and owns only command projection. The
-   realization retains rendering, identity, deployment semantics,
-   compatibility, and live proof.
-   Inline the sole status projection into the CLI command; delete unconsumed
-   remote, registry, packaging, validation, and Steam-planning stubs and then
-   the false-plugin root. No filesystem resource or mod-management service is
-   earned. The remaining false-plugin corpus may wait until Container 13.
-7. Close the remaining host mechanics before source cutover.
-   `resources/civ7-window-capture/providers/macos-screencapturekit` owns helper
-   acquisition, content-addressed cache revision, TCC/platform failure
-   translation, capture, and release because those are managed external
-   collaboration. `packages/civ7-save-files` owns parsing and deterministic
-   classification over supplied candidates; `packages/studio-run-workspace`
-   owns path grammar, manifests, and pure fresh-log comparison over supplied
-   snapshots. Control consumes the ready capture resource. The Studio app owns
-   exact `civ7-official-data`, `civ7-save-files`, `studio-run-files`,
-   `fresh-log-files`, and `swooper-map-config-source` runtime adapters with
-   one exact execution suite per adapter. Its profile selects managed providers
-   and configuration roots, never adapter identities. Do not infer a generic
-   filesystem, desktop-control, or log resource from these qualified owners.
-8. After the usable upstream generic pin lands, accept the qualified Swooper
-   map-definition and realization packets needed by this cutover. The
-   definition packet remains portable and closes its
-   authoring interior to pure config admission, serialization, catalog
-   projection, and target metadata. Source discovery, write, and rollback move
-   to the Studio app's exact `swooper-map-config-source` adapter. The
-   realization packet
-   composes generic app law at `apps/mods/map/swooper-physics`: it selects the
-   `local-civ7` profile and `build` and `deploy` entrypoints with their exact
-   source-mirrored app suites, then adds its cold app descriptor, typed target
-   table, exact `local-mod-install` adapter, concrete `runtime/map-script`
-   integration, and exact manifest-selected artifact, deployment, optional
-   runtime, and live proof identities. Wildcards are grammar only; the
-   qualified packet neither bypasses nor weakens generic app law. Do not defer
-   the config-source transaction, real transient-materialization target, or
-   either binding contract past MapGen-runs.
-   This phase records the closed law, identities, and corpus dispositions only.
-   Actual Swooper source moves occur together in the complete first structural
-   chain after the usable upstream pin and kind admissions land.
-9. Keep each specialization's source, proof, and generator contract
-   independent. Do not invent a universal plugin or app shell.
-10. Resolve every Direct Control and Studio design-corpus row participating in
-   the cutover to exact source and destination roots plus one terminal
-   `relocate`, `inline`, `combine`, or `delete` disposition. No umbrella root or
-   alternative destination reaches Phase 6.
-
-## Cutover Phase 6: Shared Runtime And Service Substrate
-
-**Intent:** install the common construction and realization substrate only
-after the current CLI rail and every product destination it will bind are
-proved.
-
-1. Close the accepted-successor service construction packets and import them
-   without a Civ7 fork. Accept the pending shared platform-neutral TypeBox
-   `entity` source packet before MapGen-runs is constructed; its operation
-   records and transition state remain real service entities, and no Civ7-local
-   substitute or DTO relabel is admitted. The reusable `service` source
-   blueprint is selected at `src/service` in both a standalone service and an
-   API composition and never owns `test/`; each containing project owns its
-   kind-specific proof. Close both standalone and embedded `modules/`
-   collections as nonempty lower-kebab module families; loose files and invalid
-   child directories are negative fixtures.
-2. Import the runtime compiler, provisioning, service-binding, context,
-   harness, observation substrate, and immutable per-process runtime identity
-   only from the corrected usable upstream pin. That pin has not landed; stop
-   on the upstream dependency rather than approximating it locally.
-   Complete generic semantic-dependency declaration and app-authored adapter
-   lowering in the same substrate: public operation/failure descriptors,
-   typed execution-descriptor refs, exact-one compatible selection, missing or
-   ambiguous diagnostics, cancellation, and once-only binding.
-3. After the usable pin lands, converge the implementation stack on its oRPC 2,
-   official Effect integration, Effect, and TypeBox line. This phase is not
-   independently mergeable; the coupled stack closes only with the complete
-   product chain that consumes it.
-4. Prove the reusable service spine and source relations with Habitat and Grit.
-   Before migrating a standalone product service, prove its public contract,
-   module semantics, and execution behavior through the containing project's
-   required closed contract, semantics, and execution axes. The service
-   blueprint fixes `contract/client.typecheck.ts`, mirrors each admitted module
-   operation under `semantics/modules/`, and fixes `execution/root.test.ts`;
-   direct service semantics leaves are manifest-selected only for genuine
-   cross-module invariants. API compositions instead use their API-owned
-   contract, projection, and selected execution axes. Every new service and API
-   root
-   carries the accepted instance manifest facts; the API-selected service
-   source projection follows its own blueprint-defined anchor contract and owns
-   no nested proof.
-
-**Phase proof:** once available, the exact corrected upstream pin and fixtures
-pass before product source moves. Until then this phase remains blocked. Its
-proof supports a complete cutover and is not an independent architectural seal.
-
-## Cutover Phase 7: MapGen Runs Capability
-
-Split `StudioOperationRuntime` by actual authority:
-
-1. Move its process-scoped registry, retention records, cancellation handles,
-   operation-event source, and finalization into the private model of
-   `services/mapgen-runs`. They are scoped semantic service state, not a
-   foreign capability with independent acquire/use/release authority; no
-   `mapgen-run-runtime` resource is constructed.
-2. Move run admission, adoption semantics, diagnostics, public outcomes, and
-   Run/Save policy into the same service. It also owns the
-   explicit `autoplay` operation and shared active-operation gate, preserves
-   `AUTOPLAY_BLOCKED`, and delegates admitted mutation to the control client.
-3. Keep `packages/studio-run-workspace` as a pure path, manifest, snapshot-
-   comparison, and marker-classification package. It performs no filesystem
-   effects.
-4. Declare three semantic dependencies on MapGen-runs' public construction face:
-   an authored-config dependency with
-   `prepareAuthoredConfigWrite(...) -> { configId, write, rollback }`, and a
-   mod-realization dependency with distinct materialize,
-   deploy-materialization, deploy-saved-configuration, and release operations,
-   plus a fresh-log dependency for snapshot and fresh-byte observation.
-   Implement the first in the Studio app's
-   `runtime/adapters/swooper-map-config-source.ts`; implement host workspace and
-   fresh-log effects in its exact `studio-run-files` and `fresh-log-files`
-   adapters; implement installation effects in the Swooper realization's
-   `local-mod-install` adapter and retain the cold typed target table,
-   including the real transient-materialization target. Pure packages supply
-   parsing, planning, and comparison algorithms only. Shared runtime resolves
-   and binds selected adapters before the service runs. The run service imports
-   no definition/app implementation, Node filesystem API, generated output,
-   target implementation, provider, mod-install package, or old false-plugin
-   package.
-5. Leave caller-facing Studio oRPC contract authority in place until Phase 8
-   constructs its API destination; do not move it early.
-6. Split the current event hub by truth: MapGen-runs emits operation events from
-   its scoped service model; control owns live observations; the Studio API
-   selected service source composes the caller-facing stream, immediate
-   process-identity hello, latest-live replay, ordering, and scoped subscriber
-   closure.
-
-**Phase proof:** operations survive caller interruption and browser reload
-exactly as before; service source owns no HTTP mount, provider construction,
-or ambient process singleton. Its own Effect scope owns operation-state and
-cancellation finalization. Runtime realization binds the service and releases
-the scope. Runtime compiler fixtures prove exact-one compatible semantic target
-success and reject missing, ambiguous, or incompatible bindings. The Studio
-app's fixed definition suite names every exact adapter identity; each exact
-adapter execution suite proves its qualified effect, while shared binding
-execution proof demonstrates that the resolved adapter reaches its intended
-MapGen-runs dependency once. Swooper realization proof covers artifact
-identity, operation and target/root selection, receipt interpretation,
-cancellation, and release without repeating the mod-install package's pure
-planning semantics.
-Currentness, both deployment paths, release, and uncached live acceptance
-retain distinct Nx target ownership.
-Definition authoring proof covers pure config admission and serialization;
-Studio adapter execution covers exact prior-byte restoration, newly created
-source deletion, and path privacy. Service execution proof uses fake authored-
-config and realization adapters to prove
-prepare -> write -> deploy ordering, public saving/deploying/complete phase
-evidence, rollback after save or deploy failure, interruption, request
-correlation, and once-only cleanup.
-
-## Cutover Phase 8: Studio API Projection
-
-1. Extract server-side contract composition and procedure projection from
-   `packages/studio-server` into `plugins/server/api/mapgen-studio`.
-2. Implement the already-frozen route ledger in `CORPUS.md`. Every current
-   route preserves its exact caller-facing identity, TypeBox input/output
-   schema, and declared errors. Studio-owned routes move to exact API-local
-   contract leaves. The 70 exact `civ7.{attention,city,diplomacy,display,
-   government,lifecycle,narrative,notifications,progression,readiness,strategy,
-   turn,unit,view,world}` control routes compose the public control-service
-   contract subtree whole through one control-module contract leaf and delegate
-   through its public client; the API neither redeclares those schemas nor
-   extracts selected types or procedures. No compatibility alias or second
-   contract survives.
-3. Declare narrow API-owned service requirements. Runtime realization binds
-   public MapGen-runs and current control clients and materializes the API
-   `Context`; the API does not import service implementation or own service
-   state. Declare the official-data and saved-configuration requirements as
-   caller-projection capabilities and bind them from the Studio app's exact
-   runtime adapters; the API neither discovers roots nor reads files.
-4. Derive the browser client from the API-owned contract and retire parallel
-   oRPC contract authority in `packages/studio-contract`. Relocate its sole
-   proven non-oRPC residue into the generic pure package
-   `@swooper/mapgen-config`, closed to `src/index.ts` and the direct
-   `src/map-config-envelope.ts` leaf with contract and semantics proof.
-5. Preserve all four `civ7.live.*` product projections at their current public
-   paths and route their implementation through the control client. The API
-   owns aggregation and caller projection only; it does not recreate live
-   reads or readiness policy.
-6. Preserve the public `civ7.autoplay` path in the API's caller-facing control
-   grouping while routing it to the MapGen-runs `autoplay` operation. The API
-   does not own its mutex or mutation policy.
-7. Materialize immutable `{ serverInstanceId, serverStartedAt }` from the shared
-   process runtime into API context and emit `hello` before operation/live
-   events.
-8. Move compile-only caller/server coherence to exact
-   `test/contract/client.typecheck.ts`; move projection behavior to exact
-   `test/projection/{authoring,control,errors,router,runs}.test.ts`; and keep
-   API-owned stream behavior at exact
-   `test/execution/{live-game-watcher,studio-events}.test.ts`. The API blueprint
-   owns these closed confidence axes, while the instance manifest selects the
-   finite projection and execution subjects. Require one matching leaf per
-   selected identity and forbid unselected leaves; wildcard suffixes remain
-   grammar only. Do not delete current proof owners until all three API axes
-   and the cross-host app proof pass.
-
-**Phase proof:** API source constructs no provider, operation registry, or
-process, and every projected procedure is owned by an API-local proof.
-
-## Cutover Phase 9: Studio Projection And App Realization
-
-1. Extract the browser product surface into
-   `plugins/web/app/mapgen-studio`; the app selects it rather than owning a
-   second browser truth.
-2. Author `apps/mapgen-studio/rawr.mapgen-studio.ts` as plugin-membership
-   and semantic-adapter selection authority, runtime profiles as provider,
-   configuration-root, and process-default selection, and `server.ts`, `web.ts`,
-   and `dev.ts` as `startApp(...)` role selections.
-3. Delete manual provider acquisition, service-client construction, API context
-   wiring, mounts, startup, shutdown, and disposal after the shared runtime
-   compiler/provisioner/harness owns them.
-4. Implement the exact app-owned `civ7-official-data`, `civ7-save-files`,
-   `fresh-log-files`, `studio-run-files`, and `swooper-map-config-source`
-   adapters. Each owns its qualified cold host effects, consumes pure package
-   algorithms where applicable, and has one exact
-   `test/execution/adapters/<adapter>.test.ts` suite. Profiles do not select
-   semantic adapters.
-5. Delete `packages/studio-server` after one-mount, operation-adoption,
-   cancellation, drain, readback, and authorship proofs.
-6. Keep `apps/docs` and `apps/playground` in place until separately classified.
-7. Migrate assembly proof into the app blueprint's closed definition, profile,
-   entrypoint, and adapter-execution axes and browser projection proof into the
-   web plugin's closed view, interaction, and execution axes; neither suite
-   re-proves API, service, or provider behavior. Derive exact app profile,
-   entrypoint, and adapter leaves from their selected source identities. Select
-   every web view, interaction, and execution identity in the qualified
-   manifest and require one matching suite; wildcards define legal filenames
-   only.
-
-**Phase proof:** the app declares membership, profiles, and entrypoint roles
-only. It imports no private service/API implementation and contains no manual
-runtime realization.
-
-## Cutover Phase 10: Host Control Collapse And Coupled Seal
-
-**Intent:** close the service-port, Tuner-resource, runtime-binding, and all
-consumer cuts together after CLI and Studio destinations exist.
-
-1. Define the minimal port required by each control module at that module's
-   service-owned model boundary.
-2. Declare service resource requirements through the shared runtime boundary;
-   `client.ts` adapts runtime-supplied capabilities into private module ports
-   without exposing router or implementation types.
-3. Derive supported procedure availability from supplied bindings; delete
-   mirrored supported-read and supported-mutation lists.
-4. Define `resources/civ7-tuner`; implement the local-socket provider with
-   private framing/session internals.
-5. Move exact Tuner lowering and native observations into the nearest
-   service-private module implementation or port adapter. Keep non-Tuner host
-   utilities as runtime-supplied qualified dependencies unless a managed
-   resource is independently earned.
-6. Require the completed Swooper-chain receipt: `packages/civ7-adapter` already
-   retains only portable engine contracts, static capability metadata, and
-   deterministic mocks, while concrete Civ7-global adapter/setup/entrypoint
-   code already belongs to the Swooper realization's closed
-   `runtime/map-script/` interior. Do not perform or merge that split as an
-   isolated live-control step.
-7. Rewrite `services/civ7-control` directly into the shared service topology.
-8. Make CLI and Studio declare the control service and Tuner requirement
-   through the shared realization model. Runtime profiles select the provider;
-   runtime realization provisions and binds one scoped session per process.
-9. Route semantic commands through the control client and retain raw
-   exec/health/catalog/inspection as explicit diagnostic projections.
-10. Preserve public `lifecycle` and `readiness` routes.
-11. Remove all facade parameter/return extraction and duplicate support lists.
-12. Delete `Civ7ControlOrpcDirectControlFacade`, `liveCiv7DirectControl`,
-    `packages/civ7-direct-control`, and the old vendor/patch line only after
-    every corpus row proves its destination.
-
-**Coupled seal:** the service imports no direct-control package, Tuner protocol,
-socket, or ambient Civ7 global. No facade, old deployment owner, manual app
-realization, or mixed vendor line survives. The earlier Swooper receipt proves
-that `packages/civ7-adapter` is purely portable and the concrete map runtime
-exists only in the mod realization. CLI and Studio preserve one scoped session
-each. The live-control work draws its required projection/runtime dependencies
-from Phases 5-10, passes one Nx-owned product graph, and merges as one complete
-Graphite chain; no resource, provider, service, CLI, Studio, or runtime slice
-merges independently.
-
-## Container 11: Controller Disposition (Complete)
-
-Commit `8d0d4983ba` is the completion receipt. It preserved unique native App UI
-facts in the engine-reference sieve, deleted the unconsumed
-`mods/mod-civ7-intelligence-bridge` project, generated bundle, duplicate facade,
-tests, and instance-specific Habitat rule, superseded controller-candidate
-authority, and recorded the same-realm-consumer or proven-async-ingress plus
-deployment/lifecycle re-entry trigger.
-
-The bridge is therefore historical evidence, not a current provider, hybrid,
-or product path. No production package publishes an unconsumed global bridge
-or throw-only partial facade.
-
-Container 11 completion does not complete Container 14: the OpenSpec archive
-and rebaseline work listed there remains pending.
-
-## Container 12: Mod Definition And Realization Kinds
-
-Correct the current `map-mod-project` law before using it as precedent:
-
-1. Treat new map/civilization definitions and realizations as
-   `UNCONSTRUCTIBLE` until independently closed qualified packets are designed
-   and accepted.
-2. After the corrected upstream pin lands, admit the qualified Swooper
-   map-definition and realization packets before its complete migration. The
-   completed Swooper chain then becomes the map-family precedent; do not
-   generalize any superseded open interior from the legacy envelope.
-3. Admit a closed qualified civilization-mod definition kind under
-   `plugins/mod/civ/**`.
-4. Admit a separate closed civilization-mod realization app kind under
-   `apps/mods/civ/**`.
-5. Require `test/definition.test.ts` for each definition packet, with
-   family-specific additions closed by that family and selected by exact
-   product-manifest identities. Every realization composes generic app law at
-   its `apps/mods/**` root: the selected `local-civ7`
-   profile and `build` and `deploy` entrypoints require exact matching app
-   suites. The qualified Swooper packet also selects exact
-   `local-mod-install` adapter execution and concrete map-script identities,
-   then adds exact manifest-selected artifact, deployment, and live subjects;
-   it may select runtime subjects only for qualified generated-module
-   collaboration. These are fixed kind-owned delivery/execution axes, not
-   case-by-case folders. Wildcards specify leaf grammar only and never select
-   proof membership. Keep generated-currentness, deployment verification, and
-   uncached live compatibility as distinct Nx targets; task wiring does not
-   replace any required kind-owned proof layer. No current Swooper test is
-   genuine live proof, so the required live suites must be newly authored
-   against real loader/runtime observations rather than relabeled from
-   deterministic local checks.
-6. Move instance-specific generated-output assertions out of generic mod law.
-7. Add generators only after each law is accepted.
-8. Split Dacia into definition and realization; preserve the already-qualified
-   Swooper product split.
-9. Delete `mods/mod-swooper-civ-dacia` after definition, realization, generated
-   output, deployment, and loader proofs pass.
-
-## Container 13: Remaining False Plugin Classification
-
-With the mod-rendering/deployment owner already removed from the coupled
-cutover's critical path, classify each remaining `packages/plugins/*`
-capability by state owner, mutations, consumers, and runtime:
-
-- pure support -> package;
-- managed external capability -> resource/provider;
-- semantic state/policy -> service;
-- caller/host projection -> qualified plugin specialization.
-
-Move each capability only after its destination kind is active. Delete old
-roots and compatibility exports after consumer proof.
-
-**Seal:** nothing is called a plugin merely because it is reusable. Every mod
-has one definition owner and one realization owner.
-
-## Container 14: Canonical Authority And Final Proof
-
-**Status:** Pending. Container 11 deleted the bridge source, but its historical
-OpenSpec packets have not yet received the archive/rebaseline disposition below.
-
-1. Update `docs/system/ARCHITECTURE.md`, product docs, and relevant domain
-   routers.
-2. Retire or archive OpenSpec packets that describe the facade or
-   `Civ7IntelligenceBridge.invoke` as current authority. Archive
-   `direct-control-game-controller-bridge` and
-   `civ7-intelligence-bridge-ui-bundle-runtime` with `--skip-specs`; rebaseline
-   the mixed `civ7-control-orpc-native-slice` and
-   `civ7-support-direct-control-modularization` fronts without rewriting their
-   chronological workstream evidence, then archive them only after their
-   remaining service/atom authority is consumed.
-3. Run one Nx-owned build/check/test graph, Habitat policy and boundaries,
-   generated-currentness, Knip, and focused product proofs.
-4. Run final Narsil reference, cycle, and boundary corroboration.
-5. Obtain fresh platform-architecture, product, TypeScript/state-space, and
-   runtime/native-authority reviews.
-6. Submit and merge the Graphite stack bottom to top; remove clean worktrees;
-   run `gt sync --force --no-restack --no-interactive`; return primary to
-   attached, current `main`.
-
-## Container Proof Contract
-
-Every container must satisfy:
-
-- accepted positive destination law before source relocation;
-- every admitted test root closed by its blueprint around disjoint, meaningful
-  confidence axes; generic kinds reuse generic layers and qualified/domain
-  kinds refine them without case-by-case or open test cabinets;
-- no instance-name enumeration in generic blueprints;
-- behavior ledger mapped to the selected kind-owned confidence layers;
-- no compatibility facade without an explicit terminal deletion in the same
-  container;
-- no hand-edited generated output;
-- Nx/Habitat/TypeScript proof at the owning boundary;
-- clean Git and Graphite state;
-- canonical docs updated only after behavior and ownership are true;
-- accepted ADRs updated in the same layer that changes their governed behavior.
+- Product behavior stays fixed unless product authority changes it.
+- Positive kind law precedes source movement.
+- Tests prove disjoint behavior claims; they do not parse source or restate
+  topology.
+- TypeScript owns type relations, Habitat owns structure and bounded source
+  law, Nx owns graph and proof ordering, Knip owns reachability, and vendor
+  reviewers challenge custom native-boundary machinery.
+- Commit a closed semantic slice promptly. Keep coupled child branches in one
+  parent delivery stack until the parent exit receipt closes.
+- Return surprising evidence to the earliest owning model. Do not convert it
+  into a compatibility layer, exception cabinet, or ambient backlog.
 
 ## Stop Conditions
 
-Stop and reframe rather than pushing through if:
+Stop and return to the owning model when:
 
-- a destination requires a second authority for the same behavior;
-- a resource contract starts expressing product semantics;
-- a service becomes a forwarding router with no invariant or policy;
-- an API plugin exists without a caller boundary;
-- an app starts exporting reusable capability truth;
-- a generic Habitat rule needs current Civ7 instance names;
-- a migration can close only by retaining the old source owner.
+- a capability exists only because a legacy container exposes it;
+- one fact, writer, or lifecycle has two owners;
+- a cross-owner edge is reciprocal, private, ambient, or untyped;
+- a service is a forwarding facade, a resource owns product semantics, a
+  projection owns state, or an app exports reusable truth;
+- a result collapses admission, dispatch, observation, acceptance, and outcome;
+- a channel reports success that its semantic owner did not prove;
+- a generic law needs current Civ7 instance names;
+- a source move can close only by retaining its displaced owner; or
+- the required Habitat destination is not constructible from the accepted
+  upstream release.

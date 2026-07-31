@@ -1,7 +1,7 @@
 # Civ7 Capability Realization Frame
 
-**Status:** Pre-migration convergence; four-model packet and Explore oracle
-sealed
+**Status:** Final platform descent prepared; four-model packet and current
+product receipts sealed, external Habitat consumer handoff pending
 **Date:** 2026-07-31
 **Owner:** Civ7 platform architecture and product stewardship
 
@@ -49,28 +49,35 @@ route. It is a funnel, not commit chronology and not another production layer.
 
 ## Rolling Focus
 
-**Attractors:** Product. Meaning. Structure. Movement. Observation. Actor. Role.
-Intent. Authority. Capability. Outcome. Boundary. Refusal. Evidence. Closure.
+**Attractor cubes:** Meaning selects Actor. Intent. Outcome. Refusal. Trust.
+Structure selects Owner. Boundary. Direction. Lifecycle. Closure. Descent
+selects Ground. Chain. Ratchet. Delete. Seal.
 
-**Current container:** certify and land the pre-migration product convergence
-stack. The four models, exact corpora, Explore Live Map oracle, Studio design
-synchronization, wind and pressure reconstruction, and seed-stateless latitude
-fallback are sealed current-product receipts. This container does not move
-architecture.
+**Current container:** hold the final product-led descent at its external
+admission gate. The four models, exact corpora, Explore Live Map oracle, Studio
+design synchronization, wind and pressure reconstruction, and seed-stateless
+latitude fallback are sealed current-product receipts. The remaining work is
+recomposed in [WORKSTREAM.md](./WORKSTREAM.md) as Ground -> Core Platform ->
+Dacia Product -> Estate Reconciliation -> Platform Seal. Core Platform contains
+Swooper construction, Interactive construction, and one joint seal. Historical
+numbered phases are absorbed evidence rather than a competing execution
+sequence.
 
 Habitat source, package, blueprint, and release ownership lives upstream and is
 accepted as external authority. The corrected, constructible, consumer-usable
 pin has not landed for Civ7. Until it does, no target source moves and Civ7
 creates no local kind, copied packet, compatibility law, or other approximation.
-The complete Swooper chain is staged but blocked as the first structural
-migration after that pin and the qualified kinds are admitted: admitted config
--> generated entrypoint/digests -> materialized tree -> installation receipt
--> loader/runtime evidence -> final-surface parity. An isolated adapter move
-is not that chain. Full live control follows later as its own complete chain.
+The Swooper chain is staged as the first construction slice after that pin and
+the qualified kinds are admitted: admitted config -> generated
+entrypoint/digests -> materialized tree -> installation receipt ->
+loader/runtime evidence -> final-surface parity. It does not seal alone: its
+source writer, deployment path, and fresh-live proof consume Interactive owners.
+Interactive construction therefore follows inside the same Core Platform
+parent, and both close through one joint proof and deletion receipt.
 
-**Gradient:** certify product convergence -> land current stack -> usable
-upstream Habitat pin -> qualified kind admission -> complete Swooper chain ->
-independent proof set -> old-owner deletion -> Graphite seal.
+**Gradient:** usable upstream Habitat handoff -> Ground -> Core Platform
+(Swooper -> Interactive -> joint seal) -> Dacia Product -> Estate
+Reconciliation -> Platform Seal.
 
 ## Settled Ground
 
