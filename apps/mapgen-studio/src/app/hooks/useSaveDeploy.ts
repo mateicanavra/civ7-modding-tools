@@ -13,6 +13,7 @@ import {
 } from "../../features/mapConfigSave/status";
 import type { AuthoringState } from "../../stores/authoringStore";
 import { mergeSaveDeployFailureResponse, mergeSaveDeployOperation } from "../operationAdoption";
+import { useLatestRef } from "./useLatestRef";
 import type { StudioOperations } from "./useStudioOperations";
 import type { ToastFn } from "./useToast";
 
@@ -33,9 +34,10 @@ export type UseSaveDeployArgs = {
   runInGameRunning: StudioOperations["runInGameRunning"];
   canonicalConfig: MapConfigEnvelope;
   /**
-   * Whole-envelope install for save-as-new: adopting the renamed envelope is
-   * an identity change, so it replaces the canonical config and refreshes
-   * the working-change baseline together.
+   * Whole-envelope install for save-as-new identity adoption. When working
+   * values changed during the save, the install receives those latest values;
+   * `adoptSavedBaseline` then restores the values that were actually saved as
+   * the working-change baseline.
    */
   installCanonicalConfig: AuthoringState["installCanonicalConfig"];
   /**
@@ -80,6 +82,7 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
   const saveDeployWaitersRef = useRef<Map<string, SaveDeployTerminalWaiter>>(new Map());
   const saveDeployInFlightRef = useRef(false);
   const mountedRef = useRef(true);
+  const canonicalConfigRef = useLatestRef(canonicalConfig);
 
   const adoptSaveDeployOperation = useCallback<StudioOperations["setSaveDeployOperation"]>(
     (update) => {
@@ -249,7 +252,23 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
       }
       const result = await saveCanonicalConfig(next);
       if (!mountedRef.current) return;
-      if (result.ok) installCanonicalConfig(next);
+      if (result.ok) {
+        const current = canonicalConfigRef.current;
+        if (current === canonicalConfig) {
+          installCanonicalConfig(next);
+        } else {
+          const renamedCurrent = createNamedCanonicalConfig({
+            current,
+            id: next.id,
+            name: next.name,
+            description: next.description,
+          });
+          if (renamedCurrent !== undefined) {
+            installCanonicalConfig(renamedCurrent);
+            adoptSavedBaseline(next.config);
+          }
+        }
+      }
       presentSaveResult(result);
       closeSaveDialog();
     },
@@ -258,6 +277,8 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
       closeSaveDialog,
       presentSaveResult,
       saveCanonicalConfig,
+      adoptSavedBaseline,
+      canonicalConfigRef,
       installCanonicalConfig,
       toast,
     ]

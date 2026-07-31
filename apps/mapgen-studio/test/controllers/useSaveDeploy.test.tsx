@@ -10,9 +10,13 @@ vi.mock("../../src/features/mapConfigSave/api", async (importOriginal) => {
 });
 
 import { type UseSaveDeployArgs, useSaveDeploy } from "../../src/app/hooks/useSaveDeploy";
-import { getRecipeDefaultCanonicalConfig } from "../../src/features/configAuthoring/canonicalConfig";
+import {
+  getRecipeDefaultCanonicalConfig,
+  replaceCanonicalConfig,
+} from "../../src/features/configAuthoring/canonicalConfig";
 import { saveRepoBackedConfig } from "../../src/features/mapConfigSave/api";
 import { createMapConfigSaveDeployStatus } from "../../src/features/mapConfigSave/status";
+import { getRecipeArtifacts } from "../../src/recipes/catalog";
 
 const canonicalConfig = getRecipeDefaultCanonicalConfig("standard");
 const saveRpc = vi.mocked(saveRepoBackedConfig);
@@ -117,6 +121,41 @@ describe("useSaveDeploy config ownership", () => {
     expect(deployed).toBe(saved);
     expect(deployed).toMatchObject({ id: "new-config", name: "New Config" });
     expect(saveRpc.mock.calls[0]?.[0]).not.toHaveProperty("sourcePath");
+  });
+
+  it("preserves edits made while Save As is awaiting its result", async () => {
+    const response = deferred<Awaited<ReturnType<typeof saveRepoBackedConfig>>>();
+    saveRpc.mockReturnValue(response.promise);
+    const { result, props, rerender } = setup();
+    let save: Promise<void> | undefined;
+
+    await act(async () => {
+      save = result.current.handleSaveDialogConfirm({
+        name: "New Config",
+        description: "Test save",
+      });
+      await Promise.resolve();
+    });
+    const deployed = saveRpc.mock.calls[0]?.[0].canonicalConfig;
+    if (!deployed) throw new Error("Expected Save As to submit a canonical config");
+
+    const alternate = getRecipeArtifacts("standard").catalogConfigs[0];
+    if (!alternate) throw new Error("Expected a standard recipe catalog config");
+    const edited = replaceCanonicalConfig(canonicalConfig, alternate.config);
+    if (!edited) throw new Error("Expected the edited canonical config to remain valid");
+    rerender({ ...props, canonicalConfig: edited });
+
+    await act(async () => {
+      response.resolve({ ok: true, status: completeStatus("save-as") });
+      await save;
+    });
+
+    const installed = vi.mocked(props.installCanonicalConfig).mock.calls[0]?.[0];
+    expect(installed).toMatchObject({ id: "new-config", name: "New Config" });
+    expect(installed?.config).toStrictEqual(edited.config);
+    expect(installed?.config).not.toStrictEqual(deployed.config);
+    expect(props.adoptSavedBaseline).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(props.adoptSavedBaseline).mock.calls[0]?.[0]).toBe(deployed.config);
   });
 
   it("leaves the visible config unchanged when Save As fails", async () => {
