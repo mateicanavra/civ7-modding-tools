@@ -154,7 +154,7 @@ describe("BrowserConfigObjectFieldTemplate collapse (Pass-4 config-collapse spec
       <BrowserConfigArrayFieldTemplate
         {...({
           title: "Range Seeds",
-          items: [{ key: "0", children: <div>array-item-marker</div> }],
+          items: [<div key="0">array-item-marker</div>],
           canAdd: true,
           onAddClick: () => {},
           disabled: false,
