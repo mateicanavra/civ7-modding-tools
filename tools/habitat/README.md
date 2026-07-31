@@ -37,7 +37,7 @@ nx run habitat:verify:package
 ```
 
 `pack` retains the exact release candidate and digest at
-`tools/habitat/artifacts/habitat-cli-0.1.0.tgz{,.sha256}`. `verify:package`
+`tools/habitat/artifacts/habitat-cli-0.1.1.tgz{,.sha256}`. `verify:package`
 consumes those files, rebuilds the exact committed Git tree from a disposable
 archive and frozen lockfile, and requires its package bytes to match before
 installing the retained tarball into two isolated-linker Nx workspaces. The
@@ -52,6 +52,12 @@ Packing uses a disposable staging tree with canonical modes: `bin/run.js` is
 `0755` and every ordinary package file is `0644`. Verification asserts every
 archive entry, so ambient worktree permissions cannot change the retained
 artifact.
+
+Version `0.1.1` is a compatibility release on the historical Civ7 portable
+line. It bounds and shares native Grit acquisition for current consumers while
+the Template-owned Habitat substrate is not yet distributable. It adds no new
+Habitat authority and must be retired when the first consumable Template
+release supplies equivalent aggregate evaluation.
 
 The runtime proof matrix is:
 

@@ -1,6 +1,6 @@
 {
   "name": "@habitat/cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Portable structural-policy CLI and Nx plugin for Habitat authority workspaces.",
   "repository": {
     "type": "git",

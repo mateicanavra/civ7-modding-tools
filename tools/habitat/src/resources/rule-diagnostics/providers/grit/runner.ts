@@ -1,3 +1,4 @@
+import { Buffer } from "node:buffer";
 import path from "node:path";
 import type {
   RuleDiagnosticExecutionResult,
@@ -83,6 +84,13 @@ type GritExecutionUnit =
   | { readonly kind: "check-group"; readonly plans: readonly [CheckGritPlan, ...CheckGritPlan[]] }
   | { readonly kind: "single"; readonly plan: PlannedGritRule };
 
+interface ExactCheckGroup {
+  readonly plans: CheckGritPlan[];
+}
+
+/** Caps pattern-by-root expansion while still amortizing native Grit startup. */
+const maximumExactBatchWorkExpansion = 2;
+
 const runGritDiagnosticExecutionsEffect = Effect.fn("grit.diagnosticExecutions.run")(function* (
   selectedRules: readonly RuleGritFacts[],
   options: GritRunOptions
@@ -129,68 +137,52 @@ const executeTimedCheckGroupEffect = Effect.fn("grit.checkGroup.executeTimed")(f
 ) {
   const started = yield* Clock.currentTimeMillis;
   const canonicalOptions = { ...options, repoRoot: plans[0].repoRoot };
-  const acquisitions = yield* runGritCheckAcquisitionsEffect(
-    checkGroupRules(plans),
-    plans[0].roots,
+  const [firstPlan, ...remainingPlans] = plans;
+  const batch = yield* runGritCheckAcquisitionsEffect(
+    [
+      { rule: firstPlan.rule, roots: firstPlan.roots },
+      ...remainingPlans.map(({ rule, roots }) => ({ rule, roots })),
+    ],
     canonicalOptions
   ).pipe(Effect.scoped);
   const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
-  const timing = sharedCheckTiming(plans, durationMs);
-  const observedRules = plans.flatMap((plan) =>
-    observedCheckRuleEntry(plan, acquisitions.get(plan.rule.id))
-  );
-  const projected = Option.match(Option.fromNullable(observedRules[0]), {
-    onNone: () => new Map<string, DiagnosticRunOutcome>(),
-    onSome: (firstObservation) =>
-      gritDiagnosticOutcomesFromReport(
-        observedRules.map(({ rule }) => rule),
-        firstObservation.report,
-        { repoRoot: canonicalOptions.repoRoot }
-      ),
-  });
+  const participants = plans.filter(({ rule }) => batch.participantRuleIds.has(rule.id));
+  const timing = sharedCheckTiming(participants, durationMs);
   return plans.map((plan) =>
     checkGroupExecution(
       plan,
-      acquisitions,
-      projected,
+      batch.acquisitions,
       canonicalOptions.repoRoot,
-      durationMs,
-      timing
+      batch.participantRuleIds.has(plan.rule.id) ? durationMs : 0,
+      batch.participantRuleIds.has(plan.rule.id) ? timing : undefined
     )
   );
 });
 
 function sharedCheckTiming(
-  plans: readonly [CheckGritPlan, ...CheckGritPlan[]],
+  plans: readonly CheckGritPlan[],
   durationMs: number
 ): RuleDiagnosticExecutionTiming | undefined {
-  return Match.value(plans.length).pipe(
-    Match.when(1, () => undefined),
-    Match.orElse(() => ({
-      kind: "shared" as const,
-      groupId: `rule-diagnostics:${plans.map(({ rule }) => rule.id).join(",")}`,
-      durationMs,
-      ruleCount: plans.length,
-    }))
-  );
+  if (plans.length <= 1) return undefined;
+  return {
+    kind: "shared",
+    groupId: `rule-diagnostics:${plans.map(({ rule }) => rule.id).join(",")}`,
+    durationMs,
+    ruleCount: plans.length,
+  };
 }
 
 function checkGroupExecution(
   plan: CheckGritPlan,
   acquisitions: ReadonlyMap<string, GritDiagnosticAcquisition>,
-  projected: ReadonlyMap<string, DiagnosticRunOutcome>,
   repoRoot: string,
   durationMs: number,
   timing: RuleDiagnosticExecutionTiming | undefined
 ): GritDiagnosticExecution {
-  const fallback = Option.match(Option.fromNullable(acquisitions.get(plan.rule.id)), {
+  const outcome = Option.match(Option.fromNullable(acquisitions.get(plan.rule.id)), {
     onNone: () => missingOutcome(plan.rule),
     onSome: (acquisition) => outcomeFromAcquisition(plan.rule, acquisition, repoRoot),
   });
-  const outcome = Option.getOrElse(
-    Option.fromNullable(projected.get(plan.rule.id)),
-    () => fallback
-  );
   return { outcome, durationMs, ...optionalTiming(timing) };
 }
 
@@ -201,91 +193,91 @@ function optionalTiming(timing: RuleDiagnosticExecutionTiming | undefined) {
   );
 }
 
-function observedCheckRuleEntry(
-  plan: CheckGritPlan,
-  acquisition: GritDiagnosticAcquisition | undefined
-) {
-  return Match.value(acquisition).pipe(
-    Match.when({ kind: "observed-complete", observation: { kind: "check" } }, ({ observation }) => [
-      { rule: plan.rule, report: observation.report },
-    ]),
-    Match.orElse(() => [])
-  );
-}
-
-function checkGroupRules(
-  plans: readonly [CheckGritPlan, ...CheckGritPlan[]]
-): readonly [RuleGritFacts, ...RuleGritFacts[]] {
-  const [first, ...rest] = plans;
-  return [first.rule, ...rest.map(({ rule }) => rule)];
-}
-
 function executionUnits(plans: readonly PlannedGritRule[]): readonly GritExecutionUnit[] {
-  const checkPlans = plans.filter(isCheckPlan);
-  const patternCounts = new Map<string, number>();
-  for (const plan of checkPlans) {
-    const key = plan.rule.patternName;
-    patternCounts.set(key, (patternCounts.get(key) ?? 0) + 1);
+  const occurrenceByPattern = new Map<string, number>();
+  const exactGroupByPlan = new Map<CheckGritPlan, ExactCheckGroup>();
+  const exactGroupsByOccurrence = new Map<number, ExactCheckGroup[]>();
+  const otherCheckPlans = plans.filter(
+    (plan): plan is CheckGritPlan => isCheckPlan(plan) && !hasExactPathCoverage(plan)
+  );
+  const otherPatternCounts = new Map<string, number>();
+  const otherRootGroups = new Map<string, CheckGritPlan[]>();
+  for (const plan of plans) {
+    if (!isCheckPlan(plan) || !hasExactPathCoverage(plan)) continue;
+    const occurrence = occurrenceByPattern.get(plan.rule.patternName) ?? 0;
+    occurrenceByPattern.set(plan.rule.patternName, occurrence + 1);
+    const groups = exactGroupsByOccurrence.get(occurrence) ?? [];
+    const group = groups.find(({ plans: peers }) => canShareExactCheckGroup(peers, plan)) ?? {
+      plans: [],
+    };
+    if (!groups.includes(group)) exactGroupsByOccurrence.set(occurrence, [...groups, group]);
+    group.plans.push(plan);
+    exactGroupByPlan.set(plan, group);
   }
-  const groups = new Map<string, CheckGritPlan[]>();
-  for (const plan of checkPlans) {
-    if ((patternCounts.get(plan.rule.patternName) ?? 0) > 1) continue;
+  for (const plan of otherCheckPlans) {
+    otherPatternCounts.set(
+      plan.rule.patternName,
+      (otherPatternCounts.get(plan.rule.patternName) ?? 0) + 1
+    );
+  }
+  for (const plan of otherCheckPlans) {
+    if ((otherPatternCounts.get(plan.rule.patternName) ?? 0) > 1) continue;
     const key = rootsKey(plan.roots);
-    groups.set(key, [...(groups.get(key) ?? []), plan]);
+    otherRootGroups.set(key, [...(otherRootGroups.get(key) ?? []), plan]);
   }
-  const emittedGroups = new Set<string>();
-  return plans.flatMap((plan) => planExecutionUnits(plan, patternCounts, groups, emittedGroups));
-}
 
-function planExecutionUnits(
-  plan: PlannedGritRule,
-  patternCounts: ReadonlyMap<string, number>,
-  groups: ReadonlyMap<string, readonly CheckGritPlan[]>,
-  emittedGroups: Set<string>
-): readonly GritExecutionUnit[] {
-  return Option.match(Option.liftPredicate(plan, isCheckPlan), {
-    onNone: () => singleExecutionUnit(plan),
-    onSome: (checkPlan) => checkPlanExecutionUnits(checkPlan, patternCounts, groups, emittedGroups),
+  const emittedExactGroups = new Set<ExactCheckGroup>();
+  const emittedOtherGroups = new Set<string>();
+  return plans.flatMap((plan) => {
+    if (!isCheckPlan(plan)) return singleExecutionUnit(plan);
+    if (hasExactPathCoverage(plan)) {
+      const group = exactGroupByPlan.get(plan);
+      if (group === undefined || emittedExactGroups.has(group)) return [];
+      emittedExactGroups.add(group);
+      return checkGroupUnit(group.plans, plan);
+    }
+    if ((otherPatternCounts.get(plan.rule.patternName) ?? 0) > 1) {
+      return singleExecutionUnit(plan);
+    }
+    const key = rootsKey(plan.roots);
+    if (emittedOtherGroups.has(key)) return [];
+    emittedOtherGroups.add(key);
+    return checkGroupUnit(otherRootGroups.get(key), plan);
   });
 }
 
-function checkPlanExecutionUnits(
-  plan: CheckGritPlan,
-  patternCounts: ReadonlyMap<string, number>,
-  groups: ReadonlyMap<string, readonly CheckGritPlan[]>,
-  emittedGroups: Set<string>
-): readonly GritExecutionUnit[] {
-  const duplicatedPattern = (patternCounts.get(plan.rule.patternName) ?? 0) > 1;
-  return Match.value(duplicatedPattern).pipe(
-    Match.when(true, () => singleExecutionUnit(plan)),
-    Match.orElse(() => groupedCheckExecutionUnits(plan, groups, emittedGroups))
+function canShareExactCheckGroup(
+  current: readonly CheckGritPlan[],
+  candidate: CheckGritPlan
+): boolean {
+  if (current.length === 0) return true;
+  const plans = [...current, candidate];
+  const union = uniquePlanRoots(plans);
+  const independentWork = plans.reduce((total, plan) => total + plan.roots.length, 0);
+  const batchedWork = plans.length * union.length;
+  const largestExistingArgv = Math.max(...plans.map(({ roots }) => rootArgumentBytes(roots)));
+  return (
+    rootArgumentBytes(union) <= largestExistingArgv &&
+    batchedWork <= independentWork * maximumExactBatchWorkExpansion
   );
 }
 
-function groupedCheckExecutionUnits(
-  plan: CheckGritPlan,
-  groups: ReadonlyMap<string, readonly CheckGritPlan[]>,
-  emittedGroups: Set<string>
-): readonly GritExecutionUnit[] {
-  const key = rootsKey(plan.roots);
-  return Match.value(emittedGroups.has(key)).pipe(
-    Match.when(true, () => []),
-    Match.orElse(() => emitCheckGroupExecutionUnit(key, plan, groups, emittedGroups))
-  );
+function uniquePlanRoots(plans: readonly CheckGritPlan[]): readonly string[] {
+  return [...new Set(plans.flatMap(({ roots }) => roots))];
 }
 
-function emitCheckGroupExecutionUnit(
-  key: string,
-  plan: CheckGritPlan,
-  groups: ReadonlyMap<string, readonly CheckGritPlan[]>,
-  emittedGroups: Set<string>
+function rootArgumentBytes(roots: readonly string[]): number {
+  return roots.reduce((total, root) => total + Buffer.byteLength(root) + 1, 0);
+}
+
+function checkGroupUnit(
+  plans: readonly CheckGritPlan[] | undefined,
+  fallback: CheckGritPlan
 ): readonly GritExecutionUnit[] {
-  emittedGroups.add(key);
-  const [first, ...rest] = groups.get(key) ?? [];
-  return Option.match(Option.fromNullable(first), {
-    onNone: () => singleExecutionUnit(plan),
-    onSome: (head) => [{ kind: "check-group", plans: [head, ...rest] }],
-  });
+  const [first, ...rest] = plans ?? [];
+  return first === undefined
+    ? singleExecutionUnit(fallback)
+    : [{ kind: "check-group", plans: [first, ...rest] }];
 }
 
 function singleExecutionUnit(plan: PlannedGritRule): readonly GritExecutionUnit[] {
@@ -294,6 +286,10 @@ function singleExecutionUnit(plan: PlannedGritRule): readonly GritExecutionUnit[
 
 function isCheckPlan(plan: PlannedGritRule): plan is CheckGritPlan {
   return plan.kind === "execute" && plan.rule.runner.acquisition.kind === "check";
+}
+
+function hasExactPathCoverage(plan: CheckGritPlan): boolean {
+  return plan.rule.pathCoverage.every(({ kind }) => kind === "exact-path");
 }
 
 function rootsKey(roots: readonly string[]): string {
