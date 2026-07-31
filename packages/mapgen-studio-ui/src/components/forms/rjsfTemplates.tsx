@@ -8,13 +8,13 @@ import { deepEquals } from "@rjsf/utils";
 import { Braces, ChevronDown, ChevronRight, EllipsisVertical, Eraser, Undo2 } from "lucide-react";
 import { Fragment, type ReactNode, useMemo, useState } from "react";
 import { cn } from "../../lib/utils.js";
-import { IconButton } from "../ui/icon-button.js";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu.js";
+import { IconButton } from "../ui/icon-button.js";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip.js";
 import { FieldRow } from "./FieldRow.js";
 import { type FieldBaseline, FieldBaselineContext } from "./fieldBaseline.js";
@@ -456,6 +456,8 @@ function StageObjectSection(args: {
   description?: ReactNode;
   collapse: ConfigCollapseContext | undefined;
   expanded: boolean;
+  disabled: boolean;
+  readonly: boolean;
   baseline?: FieldBaseline;
   onStageRestoreRequest?: (request: StageRestoreRequest) => void;
 }): ReactNode {
@@ -469,6 +471,8 @@ function StageObjectSection(args: {
     description,
     collapse,
     expanded,
+    disabled,
+    readonly,
     baseline,
     onStageRestoreRequest,
   } = args;
@@ -478,6 +482,7 @@ function StageObjectSection(args: {
 
   const defaults = schemaDefaultsFor(schema);
   const atDefaults = defaults !== undefined && deepEquals(formData ?? {}, defaults);
+  const allowMutations = !disabled && !readonly;
   // `baseline.value` arrives already normalized (the object template resolves
   // the slice with `?? {}`), so the value this gate compares against is
   // byte-identical to the one the rollback request carries — one resolution.
@@ -492,6 +497,7 @@ function StageObjectSection(args: {
         <Tooltip>
           <TooltipTrigger asChild>
             <IconButton
+              disabled={!allowMutations}
               onClick={() =>
                 onStageRestoreRequest({
                   pointer,
@@ -539,7 +545,7 @@ function StageObjectSection(args: {
           </Tooltip>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
-              disabled={defaults === undefined || atDefaults}
+              disabled={!allowMutations || defaults === undefined || atDefaults}
               onSelect={() =>
                 onStageRestoreRequest({ pointer, label: title, values: defaults, mode: "defaults" })
               }
@@ -714,6 +720,8 @@ export function BrowserConfigObjectFieldTemplate(
         description={description}
         collapse={collapse}
         expanded={expanded}
+        disabled={props.disabled ?? false}
+        readonly={props.readonly ?? false}
         baseline={baseline}
         onStageRestoreRequest={props.registry.formContext?.onStageRestoreRequest}
       />

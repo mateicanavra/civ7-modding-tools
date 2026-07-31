@@ -82,7 +82,7 @@ describe("RecipePanel scoped stage restore (flat-and-flush deltas 5+8, re-cut)",
     climate: { rainfall: "temperate" },
   };
 
-  const renderPanel = (onConfigChange: (next: unknown) => void) =>
+  const renderPanel = (onConfigChange: (next: unknown) => void, configEditingEnabled = true) =>
     render(
       <TooltipProvider>
         <RecipePanel
@@ -105,7 +105,7 @@ describe("RecipePanel scoped stage restore (flat-and-flush deltas 5+8, re-cut)",
           onImportConfig={vi.fn()}
           onExportConfig={vi.fn()}
           isDirty={false}
-          configEditingEnabled={true}
+          configEditingEnabled={configEditingEnabled}
           onConfigEditingEnabledChange={vi.fn()}
         />
       </TooltipProvider>
@@ -157,5 +157,23 @@ describe("RecipePanel scoped stage restore (flat-and-flush deltas 5+8, re-cut)",
       elevation: { seaLevel: 0.6, mountainDensity: 0.3 },
       climate: { rainfall: "temperate" },
     });
+  });
+
+  it("keeps stage restore controls observational while overrides are disabled", () => {
+    const onConfigChange = vi.fn();
+    renderPanel(onConfigChange, false);
+
+    const discard = screen.getByRole("button", { name: "Discard Changes to Elevation" });
+    expect((discard as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(discard);
+
+    const optionsTrigger = screen.getByRole("button", { name: "Elevation Options" });
+    fireEvent.keyDown(optionsTrigger, { key: "Enter" });
+    const reset = screen.getByRole("menuitem", { name: /Reset to Defaults/ });
+    expect(reset.getAttribute("aria-disabled")).toBe("true");
+    fireEvent.click(reset);
+
+    expect(onConfigChange).not.toHaveBeenCalled();
+    expect(screen.queryByText(/This will (discard|reset)/)).toBeNull();
   });
 });
