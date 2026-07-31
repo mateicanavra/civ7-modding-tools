@@ -454,12 +454,23 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
     setExploreActionRunning(true);
     try {
       const result = await liveControlPort.display.explore.request({ playerId: localPlayerId });
-      toast(
-        result.classification === "already-explored"
-          ? "Live map already fully revealed"
-          : `Live map revealed — ${result.grantedPlots} plots granted`,
-        { variant: "success" }
-      );
+      switch (result.classification) {
+        case "explored":
+          toast(`Live map revealed — ${result.grantedPlots} plots granted`, {
+            variant: "success",
+          });
+          break;
+        case "already-explored":
+          toast("Live map already fully revealed", { variant: "success" });
+          break;
+        case "unverified":
+          toast("Live map reveal could not be verified. Inspect the live map before retrying.", {
+            variant: "info",
+          });
+          break;
+        default:
+          result satisfies never;
+      }
     } catch (err) {
       toast(`Explore failed: ${err instanceof Error ? err.message : "live game unavailable"}`, {
         variant: "error",

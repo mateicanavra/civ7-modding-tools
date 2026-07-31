@@ -2,6 +2,9 @@ import { getCiv7VisibilitySummary, revealCiv7MapForPlayer } from "@civ7/direct-c
 import { Command, Flags } from "@oclif/core";
 import { createCiv7GameControlClient } from "../../../adapters/control/service-client";
 
+const EXPLORE_UNVERIFIED_GUIDANCE =
+  "Inspect the live map before retrying; the previous explore request may have changed engine state.";
+
 // Two discrete mutations, deliberately not interchangeable:
 // --explore  the whole map becomes known via the engine's tracked visibility
 //            grants, with discovery popups suppressed through the official
@@ -94,15 +97,22 @@ export default class GameMapVisibility extends Command {
         `game map visibility --${flags.reveal ? "reveal" : "explore"} requires --disposable`
       );
     }
-    const result = flags.explore
-      ? await createCiv7GameControlClient({
-          endpointDefaults: options,
-        }).display.explore.request({
-          playerId: flags["player-id"],
-          ...(flags["settle-ms"] === undefined ? {} : { settleMs: flags["settle-ms"] }),
-          ...(flags["restore-fog"] ? { restoreFog: true } : {}),
-        })
-      : flags.reveal
+    let ok = true;
+    let result: unknown;
+    let guidance: string | undefined;
+    if (flags.explore) {
+      const exploreResult = await createCiv7GameControlClient({
+        endpointDefaults: options,
+      }).display.explore.request({
+        playerId: flags["player-id"],
+        ...(flags["settle-ms"] === undefined ? {} : { settleMs: flags["settle-ms"] }),
+        ...(flags["restore-fog"] ? { restoreFog: true } : {}),
+      });
+      ok = exploreResult.classification !== "unverified";
+      result = exploreResult;
+      guidance = ok ? undefined : EXPLORE_UNVERIFIED_GUIDANCE;
+    } else {
+      result = flags.reveal
         ? await revealCiv7MapForPlayer({ playerId: flags["player-id"] }, options)
         : await getCiv7VisibilitySummary(
             {
@@ -113,13 +123,15 @@ export default class GameMapVisibility extends Command {
             },
             options
           );
+    }
 
     if (flags.json) {
-      this.log(JSON.stringify({ ok: true, result }));
+      this.log(JSON.stringify({ ok, result, ...(guidance ? { guidance } : {}) }));
       return;
     }
 
     this.log(JSON.stringify(result, null, 2));
+    if (guidance) this.log(guidance);
   }
 }
 

@@ -141,12 +141,10 @@ const Civ7DisplayExploreFullResultSchema = Type.Object(
     discoveryPosture: Type.Literal("ui-suppressed-gameplay-discovers", {
       description: "Exploration posture used while gameplay reveals the map.",
     }),
-    classification: Type.Union(
-      [Type.Literal("explored"), Type.Literal("already-explored"), Type.Literal("unverified")],
-      {
-        description: "Outcome derived from before-and-after visibility evidence.",
-      }
-    ),
+    classification: Type.Union([Type.Literal("explored"), Type.Literal("unverified")], {
+      description:
+        "Explored only when revealed evidence increased; otherwise the full run is unverified.",
+    }),
   },
   { additionalProperties: false }
 );
