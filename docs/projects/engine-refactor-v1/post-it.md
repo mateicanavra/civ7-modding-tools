@@ -2,8 +2,9 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Product. Actor. Role. Intent. Authority. Capability.
-Outcome. Boundary. Refusal. Evidence. Closure.
+**Attractor filter:** Product. Meaning. Structure. Movement. Observation.
+Actor. Role. Intent. Authority. Capability. Outcome. Boundary. Refusal.
+Evidence. Closure.
 
 **Frame:** the final platform pass operates on product capability realization
 chains, not current package names. Pure packages, managed resources, semantic
@@ -21,18 +22,15 @@ them. Each accepted kind closes its own proof topology around disjoint
 confidence axes; domain-qualified kinds such as MapGen keep their stronger
 domain-shaped testing grammar.
 
-**Current container:** seal the Civ7 product, system, outcome, and
-actor-role-outcome models together with the exact migration corpus, then run
-the bounded current-topology Explore Live Map oracle. The existing CLI
-`plugins/cli/topics/game/src/commands/game/map/visibility.ts` and Studio
-`apps/mapgen-studio/src/app/hooks/useSetupControls.ts` interactions both call
-`display.explore.request`. They must preserve the owner's
-`explored | already-explored | unverified` result and typed errors. The same
-slice reserves `already-explored` for the skipped full-map precondition; a
-non-skipped run without increased revealed evidence is `unverified`. Studio
-currently styles that uncertainty as success, while CLI JSON wraps every
-returned classification in `{ ok: true, result }`. Owner, projection, and
-focused parity proof close this oracle without changing ownership or topology.
+**Current container:** close and land the pre-migration product convergence
+stack. The Civ7 product, system, outcome, and actor-role-outcome models and
+their exact corpora are sealed. The Explore Live Map oracle now preserves
+`explored | already-explored | unverified` and typed failures through owner,
+CLI, and Studio. Studio design synchronization, wind and pressure
+reconstruction, and the seed-stateless latitude fallback are also sealed as
+current-product receipts. The remaining work in this container is bounded
+stack certification, Graphite submission and merge, and worktree accounting;
+it does not authorize source migration or new transition architecture.
 
 Habitat source, package, blueprint, and release ownership lives upstream and is
 accepted as external authority. The corrected, constructible, consumer-usable
@@ -59,11 +57,11 @@ cold filesystem effects, while CLI topics project their bound capabilities.
 MapGen run records, cancellation, retention, and events remain scoped
 MapGen-runs service state rather than a manufactured resource.
 
-**Gradient:** observed product -> four-model and corpus seal -> bounded Explore
-oracle -> usable upstream Habitat pin -> qualified kind admission -> complete
-Swooper chain -> independent proof set -> old-owner deletion -> Graphite seal.
-The Tuner protocol remains private to its sole provider unless another
-independent consumer earns a public package.
+**Gradient:** certify product convergence -> land current stack -> usable
+upstream Habitat pin -> qualified kind admission -> complete Swooper chain ->
+independent proof set -> old-owner deletion -> Graphite seal. The Tuner
+protocol remains private to its sole provider unless another independent
+consumer earns a public package.
 
 **Detailed frame:** [Civ7 Capability Realization](../civ7-capability-realization/FRAME.md).
 

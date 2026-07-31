@@ -585,13 +585,13 @@ The terminal file-by-file authority is
 proof-support files as:
 
 ```text
-42 + 38 + 5 + 10 + 70 + 62 + 2 + 187 + 8 + 2 + 0 + 3 + 30 = 459
+42 + 38 + 5 + 10 + 70 + 63 + 2 + 187 + 8 + 2 + 0 + 3 + 30 = 460
 ```
 
 That ledger is the only cutover authority for proof relocation, combination,
 inlining, deletion, and unchanged exclusion. It also names the proof that must
 be authored fresh because no current suite can be relabeled honestly. Closure
-requires all 459 current files to reach their recorded terminal disposition,
+requires all 460 current files to reach their recorded terminal disposition,
 all new target-kind proof to pass, and every admitted test interior to be
 closed by its kind-specific or domain-qualified confidence layers.
 

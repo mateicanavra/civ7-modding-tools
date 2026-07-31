@@ -296,30 +296,27 @@ actor machinery.
 ## Immediate Executable Evidence Oracle
 
 The first executable oracle is the existing **Explore Live Map** interaction.
-It is selected now because two authorized current projections already call the
-same public owner procedure and already disagree with its honest uncertainty:
+It was selected because two authorized current projections already called the
+same public owner procedure but disagreed with its honest uncertainty before
+the repair:
 
 | Projection | Exact interaction | Owner call |
 | --- | --- | --- |
 | CLI | `plugins/cli/topics/game/src/commands/game/map/visibility.ts` with `--explore --disposable` | `display.explore.request` |
 | Studio | `apps/mapgen-studio/src/app/hooks/useSetupControls.ts#handleExplore` | `display.explore.request` |
 
-The control owner returns `explored | already-explored | unverified`, plus its
-before/after and state-machine proof facts, or a typed owner error. The current
-implementation contains one owner defect before projection: after a non-skipped
-run it labels any unchanged revealed count `already-explored`, even though only
-the pre-mutation full-map check can prove that classification. The bounded
-repair reserves `already-explored` for that skipped precondition,
+The control owner now returns `explored | already-explored | unverified`, plus
+its before/after and state-machine proof facts, or a typed owner error. It
+reserves `already-explored` for the skipped pre-mutation full-map precondition,
 classifies a full run as `explored` only when revealed evidence increases, and
 otherwise preserves `unverified`.
 
-Today the Studio hook treats every returned classification other than
-`already-explored` as a green success toast, so `unverified` is falsely
-presented as "Live map revealed." The CLI JSON branch wraps every returned
-classification in `{ ok: true, result }`, so `unverified` is likewise falsely
-presented as success.
+Studio now presents `unverified` as uncertainty rather than a green success
+toast. CLI structured output preserves the full owner result and derives its
+`ok` field from the classification instead of equating a returned value with
+success.
 
-The bounded oracle repairs and proves this exact current-topology scene:
+The bounded oracle proves this exact current-topology scene:
 
 ```text
 actor requests Explore for one player
@@ -332,16 +329,15 @@ actor requests Explore for one player
   -> typed owner error is presented as failure, never as a result
 ```
 
-Focused owner, CLI, and Studio tests must assert the three classifications and
-owner errors. CLI structured output retains the complete result and derives its
-existing `ok` wrapper from the classification. Studio presents the
-classification and only the evidence needed for that toast-sized claim; this
-oracle does not manufacture a full Studio inspection panel. Parity applies
-here because both projections are already authorized. The repair adds no
-product entity, package move, kind law, runtime wiring, alternate transport, or
-new result vocabulary. It is a bounded current-topology outcome repair and
-executable evidence for the four-model packet, not an architecture migration
-and not permission to split the later control cutover.
+Focused owner, CLI, and Studio tests assert the three classifications and owner
+errors. CLI retains the complete result; Studio presents the classification
+and only the evidence needed for its toast-sized claim. This oracle does not
+manufacture a full Studio inspection panel. Parity applies here because both
+projections were already authorized. The repair added no product entity,
+package move, kind law, runtime wiring, alternate transport, or new result
+vocabulary. It is a bounded current-topology outcome receipt for the four-model
+packet, not an architecture migration and not permission to split the later
+control cutover.
 
 ## First Structural Migration After Kind Admission
 

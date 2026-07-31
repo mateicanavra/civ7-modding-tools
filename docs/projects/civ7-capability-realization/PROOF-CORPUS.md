@@ -7,7 +7,7 @@ capability-realization cutover
 
 ## Authority
 
-This ledger classifies the complete current 459-file proof/support corpus. Each
+This ledger classifies the complete current 460-file proof/support corpus. Each
 current file has one terminal disposition:
 
 - `relocate`: preserve the file's coherent oracle at the named owner;
@@ -39,7 +39,7 @@ or `integration` cabinets.
 | `packages/studio-contract` proof | 5 |
 | `packages/studio-server` proof and compiler configuration | 10 |
 | `apps/mapgen-studio` proof and compiler configuration | 70 |
-| `plugins/cli/topics/{data,docs,game,git-mod}` proof | 62 |
+| `plugins/cli/topics/{data,docs,game,git-mod}` proof | 63 |
 | `apps/cli` proof | 2 |
 | `plugins/mod/map/swooper-physics` proof | 187 |
 | `apps/mods/map/swooper-physics` proof | 8 |
@@ -47,10 +47,10 @@ or `integration` cabinets.
 | `mods/mod-civ7-intelligence-bridge` proof/support | 0 |
 | `packages/studio-run-workspace` proof and compiler configuration | 3 |
 | `packages/mapgen-studio-ui` proof and compiler configuration | 30 |
-| **Total** | **459** |
+| **Total** | **460** |
 
-The current-tree census was recomputed after the destination repairs and
-remains exactly 459 source files. Destination leaves are not a parity count:
+The current-tree census was recomputed after the Explore outcome oracle and
+remains exactly 460 source files. Destination leaves are not a parity count:
 API consolidation, strategy qualification, fixture dissolution, and new
 target-law proof may change their total without changing this source census.
 
@@ -296,6 +296,7 @@ The section covers 69 app test/support files and one compiler file.
 | `plugins/cli/topics/game/test/commands/game/control.test.ts` | combine | `plugins/cli/topics/game/test/commands/game/{ai/loaded-levers,catalog,exec,gameinfo,health,inspect,map/index,map/visibility,status}.test.ts` |
 | `plugins/cli/topics/game/test/commands/game/map/starts.test.ts` | excluded unchanged | Same exact path |
 | `plugins/cli/topics/game/test/commands/game/map/topic.test.ts` | combine | `plugins/cli/topics/game/test/commands/game/map/{index,grid,plot,summary,visibility}.test.ts`; duplicate `index` and `visibility` assertions combine with `control.test.ts` |
+| `plugins/cli/topics/game/test/commands/game/map/visibility.test.ts` | excluded unchanged | Same exact path; it owns the current Explore classification and typed-error projection oracle |
 | `plugins/cli/topics/game/test/commands/game/play/attribute-tradition.test.ts` | combine | `plugins/cli/topics/game/test/commands/game/play/{buy-attribute,change-tradition,consider-attributes,consider-traditions}.test.ts` |
 | `plugins/cli/topics/game/test/commands/game/play/celebration-government.test.ts` | combine | `plugins/cli/topics/game/test/commands/game/play/{choose-celebration,choose-government}.test.ts` |
 | `plugins/cli/topics/game/test/commands/game/play/culture.test.ts` | combine | `plugins/cli/topics/game/test/commands/game/play/{choose-culture,set-culture-target}.test.ts` |
@@ -334,7 +335,7 @@ The section covers 69 app test/support files and one compiler file.
 | `apps/cli/test/shell.test.ts` | relocate | `apps/cli/test/assembly/shell.test.ts` |
 | `apps/cli/test/tsconfig.json` | excluded unchanged | Same exact path |
 
-The CLI section covers 62 topic proof/support files and two shell files.
+The CLI section covers 63 topic proof/support files and two shell files.
 
 ## Swooper Physics Definition
 
@@ -555,7 +556,7 @@ executes it.
 
 ### Adjacent engine-adapter proof realignment
 
-The following 17 current proof files were not members of the sealed 459-file
+The following 17 current proof files were not members of the sealed 460-file
 census and therefore do not change its arithmetic. They are nevertheless
 mandatory downstream realignment for the engine-adapter split:
 
@@ -570,7 +571,7 @@ mandatory downstream realignment for the engine-adapter split:
 | `packages/sdk/test/mapgen-create-map.type-test.ts` | combine | Type assertions compile inside `apps/mods/map/swooper-physics/test/runtime/map-script-entrypoint.test.ts`; no unselected realization proof axis is invented |
 
 `packages/mapgen-core/test/lib/noise/perlin.test.ts` is adjacent portable
-MapGen proof and remains `excluded unchanged`; it is not part of the 459-file
+MapGen proof and remains `excluded unchanged`; it is not part of the 460-file
 capability-realization census.
 
 ## False Plugin, Bridge, Workspace, And UI
@@ -591,7 +592,7 @@ Commit `8d0d4983ba` deleted all 19 historical files under
 `mods/mod-civ7-intelligence-bridge/test`. Native engine facts moved to the
 engine reference, and control semantics remain with the control-service
 modules. No bridge support helper or duplicate behavior suite remains in the
-current 459-file corpus.
+current 460-file corpus.
 
 ### Studio run workspace
 
@@ -692,7 +693,7 @@ package semantics.
 
 Architecture rules, baselines, injected fixtures, and Habitat runner support
 under `.habitat/blueprints`, `.habitat/civ7`, `.habitat/baselines`, and
-`tools/habitat` are excluded unchanged from this 459-file corpus. They form a
+`tools/habitat` are excluded unchanged from this 460-file corpus. They form a
 separate Designer/Engineer workstream. No target source move may mutate or
 baseline them until the corresponding target kind law, membership authority,
 fixture strategy, and current-tree proof are accepted. This capability ledger
@@ -703,7 +704,7 @@ proof leaf.
 
 The proof cutover is closed only when:
 
-1. every one of the 459 current files has the single disposition recorded
+1. every one of the 460 current files has the single disposition recorded
    here;
 2. every reconstructed assertion passes at its named owner before the old
    source is deleted;
@@ -714,4 +715,4 @@ The proof cutover is closed only when:
    compiler, duplicate schema test, or deterministic suite mislabeled as live
    proof survives;
 6. the exact arithmetic remains
-   `42 + 38 + 5 + 10 + 70 + 62 + 2 + 187 + 8 + 2 + 0 + 3 + 30 = 459`.
+   `42 + 38 + 5 + 10 + 70 + 63 + 2 + 187 + 8 + 2 + 0 + 3 + 30 = 460`.

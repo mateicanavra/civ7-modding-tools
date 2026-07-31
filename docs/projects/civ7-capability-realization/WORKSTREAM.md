@@ -1,7 +1,9 @@
 # Civ7 Capability Realization Workstream
 
-**Status:** Active; four-model/corpus seal, then bounded Explore oracle
+**Status:** Pre-migration convergence; model and Explore receipts sealed,
+corrected consumer-usable Habitat pin and qualified kinds pending
 **Frame:** [FRAME.md](./FRAME.md)
+**Model progression:** [MODEL-PROGRESSION.md](./MODEL-PROGRESSION.md)
 **Product authority:** [PRODUCT-AUTHORITY.md](./PRODUCT-AUTHORITY.md)
 **System model:** [SYSTEM-MODEL.md](./SYSTEM-MODEL.md)
 **Outcome model:** [OUTCOME-MODEL.md](./OUTCOME-MODEL.md)
@@ -24,34 +26,18 @@ not described as a terminal product migration.
 
 ## Model Gate
 
-The cutover opens only after the four-model progression leaves four explicit
-receipts:
+The [model progression](./MODEL-PROGRESSION.md) owns the four-gate method:
+Meaning, Lawful Structure, Lawful Movement, and Lived Observation. The product,
+system, outcome, and actor-role-outcome packets own their respective laws. All
+four receipts are now sealed against the exact migration and proof corpora.
 
-1. **Meaning receipt:** the product authority and capability corpus give each
-   relevant capability one owner or deliberate exclusion, preserve explicit
-   unknowns, and keep current behavior, destination ownership,
-   constructibility, migration, and proof independent.
-2. **Placement receipt:** the system model gives every identity, fact,
-   transition, writer, lifecycle, and cross-owner edge one lawful direction.
-   It rejects cycles, reciprocal clients, shared writers, accidental runtime
-   ownership, and destinations that the shared Habitat substrate cannot yet
-   construct.
-3. **Change receipt:** the outcome model walks every admitted intent forward
-   and every promised result backward until the path ends in an owner result,
-   exact refusal, reconciliation state, or actionable attention. Evidence,
-   dispatch, acceptance, and completion remain distinct.
-4. **Observation receipt:** the actor-role-outcome model keeps Actors external,
-   Roles contextual, state-changing Tasks distinct from fact-returning
-   Questions, and owner result meaning intact across every already-authorized
-   projection. The smallest executable oracle then tries to falsify that
-   closure.
+A failed receipt returns to the earliest model that owns the defect. It does
+not become a compatibility layer, local Habitat approximation, inferred
+policy, or implementation task. Product-specific Habitat burn-down begins only
+after the destination selected by these receipts is deterministic and
+constructible.
 
-Failure at one gate returns to that model. It does not become a compatibility
-layer, local Habitat approximation, inferred policy, or implementation task.
-Product-specific Habitat burn-down begins only after the destination selected
-by these receipts is deterministic and constructible.
-
-The immediate evidence oracle is the existing Explore Live Map interaction.
+The first evidence oracle is the existing Explore Live Map interaction.
 Both `plugins/cli/topics/game/src/commands/game/map/visibility.ts` and
 `apps/mapgen-studio/src/app/hooks/useSetupControls.ts` call
 `display.explore.request`; both must preserve the owner's
@@ -60,22 +46,21 @@ bounded slice first reserves `already-explored` for the skipped full-map
 precondition; a non-skipped run with no increased revealed evidence is
 `unverified`. Repairing that owner classification, Studio's false success
 styling, and the CLI's unconditional `{ ok: true }` wrapper is bounded
-current-topology outcome work, not a source migration.
+current-topology outcome work, not a source migration. That oracle is now
+sealed: owner, CLI, and Studio preserve the complete classification and typed
+failure boundary.
 
 ## Current Execution Sequence
 
-1. Seal the four models and exact migration corpus as one authority packet.
-2. Execute the focused owner, CLI, and Studio Explore oracle across `explored`,
-   `already-explored`, `unverified`, and owner-error cases. CLI preserves the
-   complete result; Studio preserves the classification and toast-sized
-   evidence needed for its claim. Cross-channel parity is required here because
-   both projections are already authorized; it is not a general requirement to
-   manufacture alternate channels or identical presentation density.
-3. Keep target source stationary until the corrected, constructible,
+1. Land the sealed product convergence stack: Studio design synchronization,
+   wind and pressure reconstruction, the four-model authority packet, the
+   Explore outcome oracle, and the seed-stateless latitude fallback. This is a
+   current-product integration receipt, not a Habitat migration.
+2. Keep target source stationary until the corrected, constructible,
    consumer-usable upstream Habitat pin lands and the required qualified kinds
    are admitted. Habitat source/package/blueprint ownership is settled upstream
    and accepted externally; Civ7 creates no local approximation.
-4. Make the first structural migration the complete Swooper chain:
+3. Make the first structural migration the complete Swooper chain:
 
 ```text
 admitted config
@@ -90,7 +75,7 @@ The `EngineAdapter` and concrete Civ7 map-runtime split is supporting work
 inside that chain, never an isolated migration. Each proof fact remains an
 independent member of the proof set.
 
-5. Migrate full live control later as one resource, provider, service, CLI,
+4. Migrate full live control later as one resource, provider, service, CLI,
    Studio API/web, app-runtime, consumer, and old-owner-deletion chain. The
    bounded Explore repair does not authorize an early control source move.
 
@@ -106,8 +91,8 @@ move:
 
 | Lane | Disposition |
 | --- | --- |
-| Studio design sync | Restack and review on current `main`; merge before moving Studio app/API paths |
-| Wind and pressure upgrade | Reconstruct accepted product behavior in the current Swooper topology; do not mechanically restack obsolete flat-stage paths |
+| Studio design sync | Sealed in the current product stack; land before moving Studio app/API paths |
+| Wind and pressure upgrade | Reconstructed and product-proved in the current Swooper topology; the latitude fallback now derives each roll statelessly from the full seed |
 | Git-to-Fluree index | Let the active owner finish; review and merge when clean. It may accelerate later inquiry but does not block this authority packet |
 
 After each lane is merged or retired, remove its clean worktree and run
