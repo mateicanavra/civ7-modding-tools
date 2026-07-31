@@ -2,19 +2,19 @@
 
 > **Status:** ACTIVE (opened 2026-07-21). Owner: the pipeline director (FRAME §8).
 >
-> **Execution ledger (live, 2026-07-21):** branches `agent-DS-init-rails`
-> (R1 complete, `3eedaf9e0e`) and `agent-DS-init-primitives` (C1a IconButton+
-> Badge `abd71e002c`; C2a rjsf shells+section naming+id scoping `d4a7dce0f8`;
-> C2b Disclosure anatomy+useControllableState `77d25d4d3b`; C2c SelectWidget→
-> OptionSelect+AppBrand dismissal+array de-any `1418f43a49`; C3a Toaster
-> reunification `c5f41f830e`; A1a Tailwind src scan+StrictMode honesty
-> `63ca371c1a` — StrictMode exception ledgered as root DEF-020; G1 gate repair
-> `edee8f8472`).
-> **Open rows:** C1.2 SegmentedControl + Tabs retirement, C1.4 scroll idiom +
-> ScrollArea retirement, C1.5 literal sweep, C2.3 ExplorePanel provider
-> collapse, C2.9 strategy-envelope collapse, C3.3 tier-policy note, A1.3 palette
-> identity contract, A1.4 errorFormat consolidation, A1.5 WaterStats shortLabel,
-> S1 sync & seal.
+> **Execution ledger (live, 2026-07-31):** `agent-DS-init-rails` owns R1
+> (`c0a6d705ac`); the restacked primitives lane owns IconButton/Badge
+> (`fc782d5232`), config structure (`0cfcdcb7d7`), disclosure/state
+> (`99eb5c1da2`), OptionSelect/AppBrand/array typing (`83a7d09e92`), Toaster
+> reunification (`486fc2c685`), Tailwind/StrictMode honesty (`0e20e37473`), and
+> the G1 repair (`8536a6f88e`). StrictMode is tracked as root DEF-022.
+> **C1 is locally sealed:** Storybook package resolution `a5c3779781`, complete
+> vocabulary closure `83687e3d01`, Save As concurrency correctness
+> `4d4968313f`, disabled restore admission `99ce12edc3`, and fail-closed
+> design-sync capture `d52ce86407`.
+> **Open rows:** C2.3 ExplorePanel provider collapse, C2.9 strategy-envelope
+> collapse, C3.3 tier-policy note, A1.3 palette identity contract, A1.4
+> errorFormat consolidation, A1.5 WaterStats shortLabel, and S1 sync & seal.
 > **Codex Sol adversarial pass: DEAD, not in flight.** Job task-mrv2a6c0-mfesmo
 > left no state on disk and returned no verdict, so the gate it held was never
 > going to lift on its own. C1.2, C1.4 and C2.3 are hereby UNGATED — re-run an
@@ -109,6 +109,17 @@ reminder to stay correct — this initiative failed and the pipeline shape itsel
 | C1.4 | Three scroll idioms; two sites already fell back to native scrollbars | Make scrollbar theming **global** in theme.css (kill the opt-in class trap); **retire ScrollArea/ScrollBar from the barrel** (zero consumers, unexercised path) with ledger note. Keep Separator (honest, no competing idiom). |
 | C1.5 | Sweep residue | rg sweep for other 3+-site verbatim class literals; promote or explicitly ledger each. verify.mjs floor recount after barrel changes. |
 
+**C1 seal, 2026-07-31.** The runtime barrel now has 99 value exports and the
+fidelity oracle has 46 components. The only remaining exact three-site visual
+literal is the warning contour used by AppHeader config drift, field drift, and
+GameConsole stale state. Those are different controls sharing one semantic
+state treatment, not one missing component, so the treatment remains local
+rather than creating another string-helper API. All other three-plus repeats
+are atomic icon sizing, truncation, or layout utilities. The full local
+design-sync pass rendered 46/46 previews with zero factual failures; 32 changed
+or new components remain intentionally ungraded until S1. The forced-light
+canary passed 7/7 with zero token drift.
+
 ### C2 — COMPOSITION: compound APIs + state shape  (branch `agent-DS-init-compounds`)
 
 | Row | Finding | Resolution |
@@ -169,8 +180,8 @@ hand-rolls the C2 files touch).
 ## Judgment calls taken (protective belt; reversible, recorded)
 
 - **Tabs + ScrollArea retired, Separator kept.** The line: retire what misleads
-  (competing shipped idiom exists), keep what is honest. Re-adding later is one
-  export + one story.
+  (competing shipped idiom exists), keep what is honest. Their source is gone;
+  reintroduction is a fresh capability decision rather than a dormant export.
 - **Scroll idiom = globally themed native scrollbars,** not ScrollArea adoption
   (smallest diff, kills the opt-in failure mode entirely).
 - **ExplorePanel API break is sanctioned** — the package is repo-internal and the

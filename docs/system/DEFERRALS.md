@@ -263,7 +263,7 @@ authority.
 **Scope:** Deliver the feedback packet to the design-sync/claude.ai-design maintainers; when a classifier fix or a project-supplied classification input ships, re-sync and confirm the findings clear, then retire the noise-disposition sections in `packages/mapgen-studio-ui/docs/design-tokens.md` and `.design-sync/NOTES.md`. (Partially delivered 2026-07-18: the annotation input shipped and the repo emits it — see the `@kind` trigger outcome above; finding-#1 retirement awaits the post-upload check confirmation, finding-#2 remains open upstream.)
 **Impact:** Design agents see two known-noise findings per check (dispositioned in the synced guidelines); the repo-owned token guard (`packages/mapgen-studio-ui/test/designTokens.test.ts`) carries the real signal meanwhile.
 
-## DEF-020: React StrictMode disabled pending a remount-safe DeckCanvas
+## DEF-022: React StrictMode disabled pending a remount-safe DeckCanvas
 
 **Deferred:** 2026-07-21
 **Trigger:** DeckCanvas (`apps/mapgen-studio/src/features/viz/DeckCanvas.tsx`) guards its Deck/luma device + canvas initialization against StrictMode's dev double-mount (create → destroy → create on one canvas element), verified in a live dev session; then enable `<StrictMode>` unconditionally in `apps/mapgen-studio/src/main.tsx`. Also fires on a deck.gl/luma release note addressing StrictMode double-mount.
