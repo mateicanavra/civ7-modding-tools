@@ -1,6 +1,6 @@
 # Civ7 Capability Realization Frame
 
-**Status:** Proposed authority gate
+**Status:** Accepted; implementation gated on the shared Habitat successor
 **Date:** 2026-07-30
 **Owner:** Civ7 platform architecture and product stewardship
 
@@ -38,12 +38,15 @@ authority by themselves.
 **Attractors:** Intent. Capability. Authority. Environment. Kind. Boundary.
 Chain. Destination. Collapse. Proof. Closure.
 
-**Current container:** freeze the current capability chains and the target role
-model; then classify every `direct-control` consumer before migrating the live-
-control chain through one proven resource, one semantic service, its actual CLI
-and Studio projections, and canonical runtime realization. Delete the
-mega-facade and the mixed package only after every shipped semantic,
-diagnostic, and host capability has a proved destination.
+**Current container:** construct and accept the corrected shared Habitat
+successor in RAWR HQ-Template. That successor must provide the generic package,
+resource, provider, service, API projection, app, and CLI-topic construction
+laws selected by this frame; use `plugins/cli/topics/*`; close every admitted
+test root around finite, disjoint, kind-relevant confidence axes; and expose an
+executable versioned adoption seam. Civ7 does not begin a product source move
+until that shared prerequisite is sealed. The first Civ7 implementation
+container afterward is the coupled capability-chain cutover, not an isolated
+CLI, service, Studio, resource, or mod move.
 
 **Gradient:** current behavior -> capability owner -> execution realm -> target
 kind -> positive law -> destination -> parity proof -> source deletion.

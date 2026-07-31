@@ -20,16 +20,16 @@ anchor; path placement and Nx tags never admit them. Each accepted kind closes
 its own proof topology around disjoint confidence axes; domain-qualified kinds
 such as MapGen keep their stronger domain-shaped testing grammar.
 
-**Current container:** restore exact identity parity between the live Habitat
-rule-manifest corpus and the canonical rule-authority ledger before authorizing
-another kind-law mutation. Run a fresh no-edit Layer 1 classification by stable
-tree lane for all 46 live rules without rows and all 45 manifestless current
-rows, reconcile only evidence-backed admissions, absorptions, relocations, and
-retirements, and seal the ledger at one row per live rule. Add only the
-lifecycle-bound self-check that keeps this active cleanup ledger in exact
-identity parity with Habitat's canonical registry discovery; retire that check
-when the cleanup ledger retires. This container does not redesign, weaken, or
-otherwise mutate any governed rule.
+**Current container:** construct and accept the corrected shared Habitat
+successor in RAWR HQ-Template before any Civ7 capability source move. The
+shared container owns generic package, resource, provider, service, API
+projection, app, and CLI-topic construction law, plus an executable versioned
+adoption seam. `plugins/cli/topics/*` is the only CLI projection root. Every
+kind that admits `test/` closes it around finite, disjoint, kind-relevant
+confidence axes; generic kinds define reusable layers and qualified kinds
+refine them without open or case-by-case test cabinets. When that prerequisite
+seals, Civ7 pins it and begins the coupled capability-chain cutover rather than
+hardening an isolated CLI, service, Studio, resource, or mod transition.
 
 **Stable ownership:** Swooper remains a portable mod definition realized by
 its mod app. The CLI remains a commandless `cli-shell` composed from
@@ -95,6 +95,17 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-30 - Habitat Rule-Ledger Parity Sealed
+
+The live Habitat registry and canonical rule-authority ledger now agree at
+exact identity parity: 122 live manifests have 122 current rows, manifestless
+historical rows moved to retired evidence, and stale active slices and blockers
+no longer reference retired rules. The lifecycle-bound parity guard and focused
+comparator passed, as did the full Habitat test corpus. With rule mutation
+unblocked, the focus moved to the only honest prerequisite for capability
+realization: the corrected shared Habitat successor. No Civ7 product-semantic
+container is constructible before that substrate lands.
 
 ### 2026-07-30 - Unconsumed Controller Provider Retired
 
