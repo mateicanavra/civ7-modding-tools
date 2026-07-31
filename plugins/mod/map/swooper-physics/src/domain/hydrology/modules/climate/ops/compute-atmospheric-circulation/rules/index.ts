@@ -11,8 +11,8 @@ import {
   vec2LengthSquared,
   vec2Scale,
 } from "@swooper/mapgen-core/lib/grid";
+import { fnv1a32Int32Values, fnv1a32String } from "@swooper/mapgen-core/lib/hash";
 import { clamp01, clampInt, lerp } from "@swooper/mapgen-core/lib/math";
-import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 /**
  * Per-sample perturbation ceiling relative to the analytic circulation backbone.
@@ -39,6 +39,13 @@ const FERREL_MERIDIONAL_WEIGHT = 0.6;
 const POLAR_MERIDIONAL_WEIGHT = 0.5;
 const EQUATORIAL_TAPER_DEFAULT_DEG = 18;
 const PRESSURE_SMOOTHING_BLEND = 0.55;
+const JET_STREAK_ROLL_SALT = fnv1a32String("hydrology:circulation:jet-streak");
+const WIND_U_VARIANCE_ROLL_SALT = fnv1a32String("hydrology:circulation:wind-u-variance");
+const WIND_V_VARIANCE_ROLL_SALT = fnv1a32String("hydrology:circulation:wind-v-variance");
+
+function seededRoll(seed: number, salt: number, sampleIndex: number, rollSize: number): number {
+  return fnv1a32Int32Values([seed, salt, sampleIndex]) % Math.max(1, rollSize | 0);
+}
 
 /**
  * Builds the inexpensive latitude-band wind field used by the fallback circulation strategy.
@@ -66,14 +73,14 @@ export function computeWinds(
   const jetStrength = options.jetStrength;
   const variance = options.variance;
 
-  const rng = createLabelRng(options.seed | 0);
   const streakLats: number[] = [];
   for (let s = 0; s < streaks; s++) {
     const base =
       HADLEY_CELL_END_DEG +
       s * ((FERREL_CELL_END_DEG - HADLEY_CELL_END_DEG) / Math.max(1, streaks - 1));
     const jitter =
-      rng(JET_STREAK_JITTER_RANGE_DEG, "JetJit") - JET_STREAK_JITTER_RANGE_DEG / 2;
+      seededRoll(options.seed, JET_STREAK_ROLL_SALT, s, JET_STREAK_JITTER_RANGE_DEG) -
+      JET_STREAK_JITTER_RANGE_DEG / 2;
     streakLats.push(
       Math.max(
         JET_STREAK_MIN_LATITUDE_DEG,
@@ -102,12 +109,14 @@ export function computeWinds(
 
     const varU =
       Math.round(
-        (rng(WIND_U_VARIANCE_ROLL_SIZE, "WindUVar") - (WIND_U_VARIANCE_ROLL_SIZE - 1) / 2) *
+        (seededRoll(options.seed, WIND_U_VARIANCE_ROLL_SALT, y, WIND_U_VARIANCE_ROLL_SIZE) -
+          (WIND_U_VARIANCE_ROLL_SIZE - 1) / 2) *
           variance
       ) | 0;
     const varV =
       Math.round(
-        (rng(WIND_V_VARIANCE_ROLL_SIZE, "WindVVar") - (WIND_V_VARIANCE_ROLL_SIZE - 1) / 2) *
+        (seededRoll(options.seed, WIND_V_VARIANCE_ROLL_SALT, y, WIND_V_VARIANCE_ROLL_SIZE) -
+          (WIND_V_VARIANCE_ROLL_SIZE - 1) / 2) *
           variance
       ) | 0;
 
