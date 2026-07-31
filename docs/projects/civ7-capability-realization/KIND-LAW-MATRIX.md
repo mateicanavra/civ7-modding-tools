@@ -1,6 +1,7 @@
 # Civ7 Capability Realization Kind-Law Matrix
 
-**Status:** Proposed authority artifact
+**Status:** Accepted target; implementation waits for the corrected shared
+successor
 **Verdict:** `LAW_CORRECTION`
 **Date:** 2026-07-30
 **Scope:** Kinds required by the selected capability-port topology only

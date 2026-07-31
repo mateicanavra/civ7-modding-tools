@@ -1,6 +1,6 @@
 # Civ7 Capability Realization Topology
 
-**Status:** Proposed decision
+**Status:** Accepted decision
 **Date:** 2026-07-30
 
 This comparison expands each plausible topology far enough to expose its real
