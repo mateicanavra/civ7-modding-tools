@@ -8,7 +8,7 @@
 //   0. The root package.json `ci` script actually runs the `verify` target.
 //   1. dist/index.js exists and carries at least EXPECTED_MIN_EXPORTS named
 //      exports (the floor RISES as each extraction branch lands components —
-//      currently: 45 components + TooltipProvider + lib exports).
+//      currently: 46 components + TooltipProvider + library exports).
 //   2. No `@civ7/studio-server` specifier anywhere in dist JS (unconditional),
 //      and no RUNTIME `@civ7/studio-contract` specifier either — contract
 //      usage is type-position only, so it must compile away entirely.
@@ -24,38 +24,11 @@ import { fileURLToPath } from "node:url";
 const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = (p) => join(pkgRoot, "dist", p);
 
-// Each component branch raises this floor. B2 (foundation + primitives 16):
-// 58 primitive names (Button+buttonVariants, Checkbox, Dialog×10,
-// DropdownMenu×15, Input, Label, Popover×4, ScrollArea+ScrollBar, Select×10,
-// Separator, Toaster, Switch, Tabs×4, Textarea, Tooltip×4) + FieldRow +
-// cn + useResolvedTheme + resolveThemeFromDom + LAYOUT = 63.
-// B3 (composites + layout): AppBrand, AppFooter, StageViewTabs,
-// ViewControls, WaterStatsSection, OptionSelect, DisclosureHeader, EmptyState,
-// ErrorBanner, MapConfigSaveDialog,
-// LeftDock, RightDock = 77.
-// B4 (forms 11 + engine): TextWidget, TextareaWidget, NumberWidget,
-// SelectWidget, CheckboxWidget, SwitchWidget, TagSelectWidget, configWidgets,
-// BrowserConfigFieldTemplate, BrowserConfigObjectFieldTemplate,
-// BrowserConfigArrayFieldTemplate, SchemaConfigForm, useConfigCollapse = 90.
-// (SchemaForm stays internal — structure-rewire §3.5 lists no export for it.)
-// B5 (panels 4 + splits): ExplorePanel, GameConsole, RecipePanel,
-// PipelineStage + the four statusLabels formatters
-// (formatMapConfigSaveDeployPhaseLabel, formatRunInGamePhaseLabel,
-// runInGamePrimaryActionLabel, runInGameRequiresProcessRestart) +
-// parseArtifactPresentation (the app's recipe-corpus classification test's
-// import) = 99. (recipe-dag layout/presentation modules + PIPELINE_EDGE_INK
-// stay internal — package tests import them relatively.)
-// B6 (AppHeader, E4a redesign): AppHeader = 100. (AppHeaderProps /
-// AppHeaderSetupState are type-only — no runtime export.)
-// Operating-model wave (templates group): StudioShellLayout = 98.
-// (StudioShellGeometry / StudioShellLayoutProps are type-only.)
-// Sync-surface repair: `toast` (adjudication 8 amended — the design bundle
-// needs a same-instance toast for its Toaster) = 99.
-// Setup-correctness C1 (vocabulary): IconButton + iconButtonVariants
-// (the icon-toolbar idiom promoted from lib class strings) and
-// Badge + badgeVariants (the status-chip idiom promoted from a repeated
-// class literal) = 103.
-const EXPECTED_MIN_EXPORTS = 103;
+// The floor is recounted from the built public barrel whenever the vocabulary
+// changes. C1 adds SegmentedControl while retiring the unused Tabs and
+// ScrollArea families, leaving 99 runtime exports. Type-only exports do not
+// contribute to this number.
+const EXPECTED_MIN_EXPORTS = 99;
 
 const failures = [];
 const assert = (cond, msg) => {

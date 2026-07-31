@@ -11,15 +11,17 @@ import { cn } from "../../lib/utils.js";
  * home and one story.
  *
  * `warning` is the amber-contour alert chip; `neutral` is the quiet filled
- * count chip. Interactive chips (a clickable warning) render a real button
- * via `asChild` and add their own hover treatment — interactivity is the
- * caller's semantics, not a chip variant.
+ * count chip; `interactive` is the inset, hoverable reference chip. Interactive
+ * badges render a real button through `asChild`; the variant owns its shared
+ * chrome while the caller owns the action and content.
  */
 const badgeVariants = cva("rounded px-1.5 py-0.5 text-label", {
   variants: {
     variant: {
       warning: "border border-warning/40 text-warning",
       neutral: "bg-muted/50 text-muted-foreground",
+      interactive:
+        "inline-flex max-w-[112px] items-center gap-1 truncate border border-border-subtle bg-input-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
     },
   },
   defaultVariants: {

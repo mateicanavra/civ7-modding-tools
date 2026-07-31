@@ -32,12 +32,13 @@ import type {
 } from "../../types/index.js";
 import { DisclosureHeader } from "../composites/DisclosureHeader.js";
 import { OptionSelect } from "../composites/OptionSelect.js";
-import { IconButton } from "../ui/icon-button.js";
+import { SegmentedControl } from "../composites/SegmentedControl.js";
 import {
   type WaterStatsLayerRef,
   WaterStatsSection,
   type WaterStatsSummary,
 } from "../composites/WaterStatsSection.js";
+import { IconButton } from "../ui/icon-button.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.js";
 // ============================================================================
 // Props
@@ -287,12 +288,6 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
   // (View = camera/map, Layer = selected data); row labels sit a tier below.
   const clusterHeading = cn("text-label font-semibold uppercase tracking-wider", textSecondary);
   const rowLabel = cn("text-label uppercase tracking-wider", textMuted);
-  const segGroup =
-    "inline-flex items-center rounded border border-border-subtle bg-input-background p-0.5";
-  const segBtn =
-    "h-6 w-6 flex items-center justify-center rounded-sm transition-colors shrink-0 text-muted-foreground hover:text-foreground";
-  const segBtnActive =
-    "h-6 w-6 flex items-center justify-center rounded-sm transition-colors shrink-0 text-foreground bg-muted";
   const stageBadge = (isActive: boolean) =>
     cn(
       "w-5 h-5 flex items-center justify-center rounded-full text-label font-semibold shrink-0",
@@ -379,7 +374,7 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
     <div
       style={{ width: LAYOUT.EXPLORE_PANEL_WIDTH }}
       className={cn(
-        "flex flex-col max-h-full rounded-lg border overflow-y-auto overflow-x-hidden custom-scrollbar shadow-lg backdrop-blur-sm pointer-events-auto",
+        "flex flex-col max-h-full rounded-lg border overflow-y-auto overflow-x-hidden shadow-lg backdrop-blur-sm pointer-events-auto",
         panelBg,
         panelBorder
       )}
@@ -408,7 +403,7 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
             "flex-shrink-0 py-1 border-b",
             borderSubtle,
             listMaxHeight,
-            "overflow-y-auto custom-scrollbar"
+            "overflow-y-auto"
           )}
         >
           {stages.map((stage, index) => (
@@ -458,7 +453,7 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
             "flex-shrink-0 pb-2 border-b",
             borderSubtle,
             listMaxHeight,
-            "overflow-y-auto custom-scrollbar"
+            "overflow-y-auto"
           )}
         >
           {steps.length > 0 ? (
@@ -539,7 +534,7 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
             "flex-shrink-0 pb-2 border-b",
             borderSubtle,
             listMaxHeight,
-            "overflow-y-auto custom-scrollbar"
+            "overflow-y-auto"
           )}
         >
           {groupedDataTypes.map((group) => {
@@ -637,43 +632,33 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
           <span className={clusterHeading}>Layer</span>
           <div className="flex items-center justify-between gap-2">
             <span className={rowLabel}>Render</span>
-            <div className={segGroup}>
-              {renderModeOptions.map((option) => (
-                <Tooltip key={option.value}>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => onSelectedRenderModeChange(option.value)}
-                      aria-label={option.label}
-                      aria-pressed={selectedRenderMode === option.value}
-                      className={selectedRenderMode === option.value ? segBtnActive : segBtn}
-                    >
-                      {getRenderModeIcon(option.value)}
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>{option.label}</TooltipContent>
-                </Tooltip>
-              ))}
-            </div>
+            <SegmentedControl
+              aria-label="Layer render mode"
+              size="icon"
+              value={selectedRenderMode}
+              onValueChange={onSelectedRenderModeChange}
+              items={renderModeOptions.map((option) => ({
+                value: option.value,
+                label: option.label,
+                tooltip: option.label,
+                children: getRenderModeIcon(option.value),
+              }))}
+            />
           </div>
           <div className="flex items-center justify-between gap-2">
             <span className={rowLabel}>Space</span>
-            <div className={segGroup}>
-              {spaceOptions.map((option) => (
-                <Tooltip key={option.value}>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => onSelectedSpaceChange(option.value)}
-                      aria-label={option.label}
-                      aria-pressed={selectedSpace === option.value}
-                      className={selectedSpace === option.value ? segBtnActive : segBtn}
-                    >
-                      {getSpaceIcon(option.value)}
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>{option.label}</TooltipContent>
-                </Tooltip>
-              ))}
-            </div>
+            <SegmentedControl
+              aria-label="Layer coordinate space"
+              size="icon"
+              value={selectedSpace}
+              onValueChange={onSelectedSpaceChange}
+              items={spaceOptions.map((option) => ({
+                value: option.value,
+                label: option.label,
+                tooltip: option.label,
+                children: getSpaceIcon(option.value),
+              }))}
+            />
           </div>
         </div>
 

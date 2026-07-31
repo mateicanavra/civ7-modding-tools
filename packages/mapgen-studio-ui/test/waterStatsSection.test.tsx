@@ -143,5 +143,7 @@ describe("WaterStatsSection (water stats)", () => {
   it("gives layer chips an accessible name carrying the category label", () => {
     const html = renderSection();
     expect(html).toContain('aria-label="Projected river mask · Projection plan"');
+    expect(html).toContain("border-border-subtle");
+    expect(html).toContain("hover:bg-accent");
   });
 });

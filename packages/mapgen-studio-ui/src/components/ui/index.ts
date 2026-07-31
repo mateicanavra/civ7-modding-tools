@@ -15,10 +15,10 @@
  * impossible in designs. `toast` and `Toaster` must ride the same barrel.
  */
 
+export { toast } from "sonner";
 export { Badge, type BadgeProps, badgeVariants } from "./badge.js";
 export { Button, type ButtonProps, buttonVariants } from "./button.js";
 export { Checkbox } from "./checkbox.js";
-export { IconButton, type IconButtonProps, iconButtonVariants } from "./icon-button.js";
 export {
   Dialog,
   DialogClose,
@@ -48,10 +48,10 @@ export {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "./dropdown-menu.js";
+export { IconButton, type IconButtonProps, iconButtonVariants } from "./icon-button.js";
 export { Input } from "./input.js";
 export { Label } from "./label.js";
 export { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "./popover.js";
-export { ScrollArea, ScrollBar } from "./scroll-area.js";
 export {
   Select,
   SelectContent,
@@ -66,9 +66,7 @@ export {
 } from "./select.js";
 export { Separator } from "./separator.js";
 export { Toaster } from "./sonner.js";
-export { toast } from "sonner";
 export { Switch } from "./switch.js";
-export { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs.js";
 export { Textarea } from "./textarea.js";
 export {
   Tooltip,

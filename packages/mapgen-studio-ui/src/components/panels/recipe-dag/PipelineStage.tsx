@@ -196,7 +196,7 @@ export function PipelineStage(props: PipelineStageProps) {
         className="relative flex h-full min-h-0 flex-col"
         style={{ paddingTop: topInset, paddingBottom: bottomInset }}
       >
-        <div className="relative min-h-0 flex-1 overflow-auto px-4 pb-4 pt-14 custom-scrollbar">
+        <div className="relative min-h-0 flex-1 overflow-auto px-4 pb-4 pt-14">
           {status === "loading" || status === "idle" ? (
             <div className="absolute inset-0 flex items-center justify-center px-4">
               <EmptyState
@@ -593,7 +593,7 @@ const StageNode = React.memo(function StageNode(props: {
           expanded ? "max-h-[340px] opacity-100 translate-y-0" : "max-h-0 opacity-0 -translate-y-1"
         )}
       >
-        <div className="max-h-[320px] overflow-auto px-3 py-2 custom-scrollbar">
+        <div className="max-h-[320px] overflow-auto px-3 py-2">
           <ol className="space-y-2">
             {stage.steps.map((step) => (
               <li
