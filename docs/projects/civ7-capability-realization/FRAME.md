@@ -1,6 +1,6 @@
 # Civ7 Capability Realization Frame
 
-**Status:** Accepted; implementation gated on the shared Habitat successor
+**Status:** Accepted; implementation gated on the Template-owned Habitat successor
 **Date:** 2026-07-30
 **Owner:** Civ7 platform architecture and product stewardship
 
@@ -38,15 +38,26 @@ authority by themselves.
 **Attractors:** Intent. Capability. Authority. Environment. Kind. Boundary.
 Chain. Destination. Collapse. Proof. Closure.
 
-**Current container:** construct and accept the corrected shared Habitat
-successor in RAWR HQ-Template. That successor must provide the generic package,
-resource, provider, service, API projection, app, and CLI-topic construction
-laws selected by this frame; use `plugins/cli/topics/*`; close every admitted
-test root around finite, disjoint, kind-relevant confidence axes; and expose an
-executable versioned adoption seam. Civ7 does not begin a product source move
-until that shared prerequisite is sealed. The first Civ7 implementation
-container afterward is the coupled capability-chain cutover, not an isolated
-CLI, service, Studio, resource, or mod move.
+**Current container:** complete the owner-correct Habitat handoff, then accept
+the corrected shared successor from RAWR HQ-Template. That successor must
+provide the generic package, resource, provider, service, API projection, app,
+and CLI-topic construction laws selected by this frame; use
+`plugins/cli/topics/*`; close every admitted test root around finite, disjoint,
+kind-relevant confidence axes; and expose one executable versioned adoption
+seam. Civ7 does not begin a product source move until that shared prerequisite
+is sealed. The first Civ7 implementation container afterward is the coupled
+capability-chain cutover, not an isolated CLI, service, Studio, resource, or
+mod move.
+
+The active subcontainer is the source-and-authority handoff. RAWR HQ-Template
+owns `@habitat/cli` source, package identity, releases, ordinary consumer
+integration, generic blueprint policy, and the data-only policy pack. Civ7's
+admission, resolved-application, execution, and classification commits are
+scoped implementation evidence for Template's extraction; they are not a
+release train. Blueprint-aware production loading, generation, Nx projection,
+the idempotent consumer initializer, vendor modernization, and release belong
+to Template. Civ7 does not add a local C5 projection or harden the temporary
+compatibility-only activation seam.
 
 **Gradient:** current behavior -> capability owner -> execution realm -> target
 kind -> positive law -> destination -> parity proof -> source deletion.
