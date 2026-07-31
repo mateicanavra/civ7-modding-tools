@@ -24,10 +24,8 @@
 //
 // Verdict semantics (resync.mjs): exit 0 = every mechanical stage green
 // (pendingGrade is the agent's job, not a failure). A factual capture
-// failure — including the four portal dialogs' known reference-capture limit
-// on a run where their sourceKeys moved — exits non-zero until they are
-// graded via the recorded manual path; steady-state (sources unchanged,
-// grades carried) runs green end to end.
+// failure exits non-zero; steady-state (sources unchanged, grades carried)
+// runs green end to end.
 //
 // Chromium: DS_CHROMIUM_PATH is respected; on macOS, Google Chrome is
 // auto-detected as a fallback (the Homebrew `chromium` wrapper is stale —
@@ -42,6 +40,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { findDesignSyncReadmeFailures } from "./design-sync-output-assertions.mjs";
 
 const PKG = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const run = (cmd, args, opts = {}) => {
@@ -138,17 +137,7 @@ const driverCode = run("node", args, { env });
   const readmePath = join(PKG, "ds-bundle", "README.md");
   if (existsSync(readmePath)) {
     const readme = readFileSync(readmePath, "utf8");
-    const tokensSection = readme.slice(readme.indexOf("\n## Tokens"));
-    const tokensBody = tokensSection.slice(0, tokensSection.indexOf("\n## ", 1));
-    // Emitted shape: one bullet per kind — `- **color** (14): \`--x\`, …`.
-    const leakedTw = [...tokensBody.matchAll(/^- \*\*(?!other\b)[\w-]+\*\*.*?(--tw-[\w-]+)/gm)].map(
-      ([, name]) => name
-    );
-    if (leakedTw.length) {
-      postFailures.push(
-        `README token buckets list Tailwind engine vars outside 'other' (${[...new Set(leakedTw)].join(", ")}) — the .ds-sync emit.mjs --tw- classifier patch was lost (re-stage?)`
-      );
-    }
+    postFailures.push(...findDesignSyncReadmeFailures(readme));
   } else {
     postFailures.push("ds-bundle/README.md missing after the driver run");
   }

@@ -121,6 +121,59 @@ catch {
 
 const squash = (s) => String(s ?? '').replace(/[^a-z0-9]/gi, '').toLowerCase();
 
+// Browser-realm render oracle shared by Storybook and preview capture. Content
+// is visible only when a rendered box intersects the viewport; DOM shape,
+// text, and IDs are not evidence of paint (portals commonly use an id-bearing
+// body child, while injected mounts commonly contain hidden/zero-size nodes).
+function inspectVisibleBodyContent({ rootSelectors, excludedBodyChildren = '', errorSelectors = [] }) {
+  const ignoredTags = new Set(['SCRIPT', 'STYLE', 'LINK', 'META', 'TEMPLATE', 'NOSCRIPT']);
+  const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+  const viewportHeight = document.documentElement.clientHeight || window.innerHeight;
+  const hasVisiblePaint = (root) =>
+    [root, ...root.querySelectorAll('*')].some((element) => {
+      if (ignoredTags.has(element.tagName)) return false;
+      const style = getComputedStyle(element);
+      if (
+        style.display === 'none' ||
+        style.visibility === 'hidden' ||
+        style.visibility === 'collapse' ||
+        Number(style.opacity) === 0
+      ) return false;
+      try {
+        if (element.checkVisibility && !element.checkVisibility({
+          checkOpacity: true,
+          checkVisibilityCSS: true,
+        })) return false;
+      } catch { /* geometry below remains the compatibility fallback */ }
+      return [...element.getClientRects()].some((rect) =>
+        rect.width > 0 &&
+        rect.height > 0 &&
+        rect.right > 0 &&
+        rect.bottom > 0 &&
+        rect.left < viewportWidth &&
+        rect.top < viewportHeight);
+    });
+
+  const roots = rootSelectors
+    .map((selector) => ({ selector, element: document.querySelector(selector) }))
+    .filter(({ element }) => element);
+  const visibleRoot = roots.find(({ element }) => hasVisiblePaint(element));
+  const visibleError = errorSelectors
+    .flatMap((selector) => [...document.querySelectorAll(selector)])
+    .find((element) => hasVisiblePaint(element));
+  const portal = [...document.body.children].some((element) =>
+    !roots.some(({ element: root }) => root === element) &&
+    !(excludedBodyChildren && element.matches(excludedBodyChildren)) &&
+    hasVisiblePaint(element));
+
+  if (!visibleRoot && !visibleError && !portal) return null;
+  return {
+    rootSelector: visibleRoot?.selector ?? null,
+    portal,
+    error: visibleError ? (visibleError.textContent ?? '').trim().slice(0, 160) : null,
+  };
+}
+
 // Input fingerprinting for the skip rule: BASE = the whole reference
 // storybook + everything shared in the bundle (by exclusion, so a new asset
 // dir is automatically covered — no list to maintain); per-component adds its
@@ -335,32 +388,45 @@ try {
   let dsErrs = [];
   dsPage.on('pageerror', (e) => dsErrs.push(String(e).split('\n')[0]));
 
-  // Capture one storybook story: the true root screenshot. Storybook 7+
-  // renders into #storybook-root; v6 into #root. CSS-in-JS runtimes often
-  // inject <style>/<script> as the first root child and waitForSelector
-  // locks onto the first match — wait for CONTENT, not any child.
-  const SB_ROOT = '#storybook-root, #root';
-  const SB_CONTENT = `:is(${SB_ROOT}) > :not(style,script,link,meta,template)`;
+  // Capture one Storybook story from what actually painted. Storybook 7+
+  // renders into #storybook-root; v6 into #root, but portal-only stories can
+  // legitimately leave both roots at zero height and paint directly in body.
+  const SB_RENDER_ORACLE = {
+    rootSelectors: ['#storybook-root', '#root'],
+    excludedBodyChildren: [
+      '.sb-wrapper',
+      '#storybook-docs',
+      '#storybook-highlights-root',
+      'script',
+      'style',
+      'link',
+      'meta',
+      'template',
+      'noscript',
+    ].join(','),
+    errorSelectors: ['.sb-errordisplay', '.sb-nopreview'],
+  };
   async function captureStory(id) {
     try {
       await sbPage.goto(`http://127.0.0.1:${sbPort}/iframe.html?id=${encodeURIComponent(id)}&viewMode=story`, { waitUntil: 'networkidle', timeout: 20_000 });
-    } catch { /* fall through to the selector wait — slow asset ≠ broken story */ }
-    const loaded = await sbPage.waitForSelector(SB_CONTENT, { timeout: 8_000 }).then(() => true).catch(() => false);
-    if (!loaded) {
-      // .sb-errordisplay is always present as a display:none template — only
-      // report its text when it's actually visible.
-      const err = await sbPage.evaluate(() => {
-        const e = document.querySelector('.sb-errordisplay');
-        return e && getComputedStyle(e).display !== 'none' ? e.textContent?.slice(0, 160) : 'no storybook root content';
-      }).catch(() => '?');
-      return { err };
-    }
+    } catch { /* fall through to the paint wait — slow asset ≠ broken story */ }
+    await sbPage.waitForFunction(inspectVisibleBodyContent, SB_RENDER_ORACLE, { timeout: 8_000 }).catch(() => {});
     await settleRender(sbPage);
+    const rendered = await sbPage.evaluate(inspectVisibleBodyContent, SB_RENDER_ORACLE).catch(() => null);
+    if (rendered?.error) return { err: rendered.error };
+    if (!rendered) return { err: 'no visible storybook output' };
+
     let png = null;
-    try {
-      const el = await sbPage.$(SB_ROOT);
-      png = await el.screenshot(SHOT);
-    } catch { /* full-page fallback below */ }
+    // A body portal is outside the Storybook root even when the root also
+    // paints a trigger. Capture the viewport so both layers stay in frame.
+    if (rendered.portal) {
+      try { png = await sbPage.screenshot({ ...SHOT, fullPage: false }); } catch { /* keep null */ }
+    } else if (rendered.rootSelector) {
+      try {
+        const el = await sbPage.$(rendered.rootSelector);
+        png = await el.screenshot(SHOT);
+      } catch { /* full-page fallback below */ }
+    }
     if (!png || png.length < 200) {
       try { png = await sbPage.screenshot({ ...SHOT, fullPage: false }); } catch { /* keep null */ }
     }
@@ -446,7 +512,11 @@ try {
     // keyed by export name) vs 'fallback' (the floor card — no compiled
     // preview module). Fallback still renders, but the
     // fix for a mismatch lives in the .tsx, so surface the kind loudly.
-    const pv = pageErr ? null : await dsPage.evaluate(() => {
+    const previewBody = pageErr ? null : await dsPage.evaluate(inspectVisibleBodyContent, {
+      rootSelectors: ['.ds-grid', '.ds-single'],
+      excludedBodyChildren: 'script,style,link,meta,template,noscript',
+    }).catch((e) => { pageErr = String(e).split('\n')[0]; return null; });
+    const pvFacts = pageErr ? null : await dsPage.evaluate(() => {
       const kind = document.querySelector('script[src*="_preview/"]') ? 'module' : 'fallback';
       // Module previews list every export in __dsCells (capture happens
       // per-story via ?story=, so pairing must not depend on the default
@@ -467,15 +537,9 @@ try {
               caught: (mount?.textContent ?? '').trim().startsWith('⚠'),
             };
           });
-      // Portal content (Dialog/Tooltip/Toast) renders outside the cells —
-      // cell crops would miss it, so pair shots fall back to full-page. Only
-      // counts foreign body children that actually hold content; empty
-      // injected containers (toast roots, style mounts) don't trip it.
-      const portal = [...document.body.children].some((el) =>
-        !el.matches('.ds-grid, .ds-single, section, script, style, link, h4, div[id]') &&
-        (el.childElementCount > 0 || (el.textContent ?? '').trim().length > 0));
-      return { kind, cells, portal, perStory: !!dsCells, mode: window.__dsMode ?? 'grid' };
+      return { kind, cells, perStory: !!dsCells, mode: window.__dsMode ?? 'grid' };
     }).catch((e) => { pageErr = String(e).split('\n')[0]; return null; });
+    const pv = pvFacts ? { ...pvFacts, portal: !!previewBody?.portal } : null;
 
     if (pageErr || !pv) {
       report.push({ name: c.name, group: c.group, verdict: 'error', reason: `preview page failed: ${pageErr}` });

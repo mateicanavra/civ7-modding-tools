@@ -4,15 +4,15 @@ import {
   BrowserConfigArrayFieldTemplate,
   type BrowserConfigFormContext,
 } from "@swooper/mapgen-studio-ui";
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { alwaysExpandedCollapse, mockFieldContent, noop } from "../../storybook/mockWidgetProps.js";
 
 /**
  * BrowserConfigArrayFieldTemplate is the config explorer's array section: the same
  * flat disclosure-row anatomy as object groups, with the "Add" button riding the
  * header's trailing action zone and hairline-divided item rows. Adapted from
- * `.design-sync/previews/BrowserConfigArrayFieldTemplate.tsx`. Each item's
- * `children` is the pre-rendered item element; the registry set-like forces
+ * `.design-sync/previews/BrowserConfigArrayFieldTemplate.tsx`. Each item is
+ * the pre-rendered element supplied by rjsf v6; the registry set-like forces
  * "always expanded".
  */
 // `args` is cast to the full ArrayFieldTemplateProps so Storybook's CSF3 type
@@ -61,8 +61,8 @@ export const WithItems: Story = {
         {...({
           ...base,
           items: [
-            { key: "0", children: mockFieldContent("seed 0", "0.42, 0.18") },
-            { key: "1", children: mockFieldContent("seed 1", "0.71, 0.66") },
+            <Fragment key="0">{mockFieldContent("seed 0", "0.42, 0.18")}</Fragment>,
+            <Fragment key="1">{mockFieldContent("seed 1", "0.71, 0.66")}</Fragment>,
           ],
         } as unknown as ArrayFieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>)}
       />
