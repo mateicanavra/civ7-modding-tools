@@ -1,6 +1,6 @@
 # Civ7 Capability Realization Workstream
 
-**Status:** Proposed
+**Status:** Active; accepted target, shared-substrate prerequisite in progress
 **Frame:** [FRAME.md](./FRAME.md)
 **Current chains:** [CURRENT-CAPABILITY-CHAINS.md](./CURRENT-CAPABILITY-CHAINS.md)
 **Topology decision:** [TOPOLOGY.md](./TOPOLOGY.md)
