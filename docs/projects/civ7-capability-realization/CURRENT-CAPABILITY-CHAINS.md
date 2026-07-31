@@ -1,7 +1,7 @@
 # Current Civ7 Capability Chains
 
 **Status:** Current-state authority
-**Date:** 2026-07-30
+**Date:** 2026-07-31
 
 This inventory records shipped or directly exercised product realization
 chains. It is not a dependency graph and does not grant architectural authority
@@ -197,16 +197,21 @@ truth-versus-engine-projection boundary.
 - CLI raw diagnostic and read commands consume that package outside the
   semantic service.
 - `Civ7ControlOrpcDirectControlFacade` mirrors that hybrid inside the service.
-- Three control providers exist conceptually, but only the host Tuner provider
-  participates in shipped CLI and Studio paths.
+- Only the host Tuner path is implemented. Window capture and other qualified
+  resource/provider destinations remain target modeling, not current providers.
 - Studio's `civ7.live.*` projections overlap canonical control reads.
 - `packages/studio-server` mixes API projection, host runtime, and a genuine
   process-lifetime MapGen run-state service.
 - `packages/plugins/*` uses "plugin" for support and mutation libraries rather
   than projections.
-- Dacia and the intelligence bridge have not adopted the definition-plugin and
-  realization-app split already used by Swooper.
-- High-level product and architecture docs describe an older topology.
+- Dacia has not adopted the definition-plugin and realization-app split already
+  used by Swooper.
+- The intelligence bridge was retired in `8d0d4983ba`; its finite native facts
+  survive only in the engine reference and do not form a current capability
+  chain.
+- Historical subsystem guides may still describe mixed implementation owners;
+  the canonical product and architecture overviews now preserve the current
+  hybrids while pointing at the gated destination model.
 
 ## Behavior Ledger
 

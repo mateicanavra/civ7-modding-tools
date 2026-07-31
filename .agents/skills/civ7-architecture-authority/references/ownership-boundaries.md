@@ -71,12 +71,21 @@ Does not own:
 
 ## Civ7 Adapter
 
-Owns:
+Current operational ownership, until ADR-019's complete Swooper realization
+cutover:
 
 - direct imports of Civ7 engine globals and `base-standard` APIs;
 - translation from engine/runtime APIs into stable adapter methods.
 
-Does not own:
+Selected destination:
+
+- the portable package retains the `EngineAdapter` contract, static capability
+  metadata, and deterministic mocks;
+- the matching mod realization owns its concrete Civ7-global adapter, setup
+  capture, and loader/map entrypoint as one closed runtime slice;
+- target source does not move before the full consumer and proof gate closes.
+
+Neither current nor destination ownership admits:
 
 - MapGen algorithms or recipe semantics;
 - mod tuning/content decisions;

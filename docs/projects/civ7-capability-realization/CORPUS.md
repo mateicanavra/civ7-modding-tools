@@ -1,7 +1,7 @@
 # Civ7 Capability Realization Cutover Corpus
 
-**Status:** Terminal classification; authority freeze pending
-**Date:** 2026-07-30
+**Status:** Frozen migration classification
+**Date:** 2026-07-31
 
 This is the finite source-to-destination ledger for the first coupled
 capability-realization cutover. It is Engineer input only after the authority
@@ -102,42 +102,37 @@ CLI commands consume only ready typed clients or capabilities.
 | `packages/civ7-direct-control/src/live-control.ts` | delete | Runtime binding and service execution proof |
 | `packages/civ7-direct-control/src/index.ts` and the package root | delete | Export-map removal, Knip, Narsil references, and the coupled graph |
 
-The controller island and its finite native-fact extraction are classified in
-`Controller Island Deletion` below. No current same-realm consumer earns a
+The completed controller-island retirement and its finite native-fact
+extraction receipt are recorded below. No current same-realm consumer earns a
 controller mod.
 
 ## Direct-Control Consumer Closure
 
-The current production graph contains 59 source or script importers of
-`@civ7/direct-control`. Every edge has one terminal replacement below. The
-finite brace sets name current files, not future path acquisition. Only raw
-Tuner diagnostics keep direct resource access; every semantic command or
-projection consumes a service client.
+The current production graph contains 44 source or script importers of
+`@civ7/direct-control`. Every importer edge has one terminal replacement below.
+Five adjacent conceptual consumer files across four rows marked `†` encode or
+project the same contract without a direct import; they are included so the
+source closure does not preserve a parallel shape. The finite brace sets name
+current files, not future path acquisition. Only raw Tuner diagnostics keep
+direct resource access; every semantic command or projection consumes a
+service client.
 
 | Exact current consumer | Disposition | Terminal consumer boundary |
 | --- | --- | --- |
 | `apps/mapgen-studio/src/server/studio/context.ts` | delete | Shared runtime supplies control and MapGen-runs clients to the Studio API context selected by `rawr.mapgen-studio.ts` and its profile |
 | `apps/mapgen-studio/src/server/studio/engines.ts` | combine | Pure parsing/plans/comparison in `packages/studio-run-workspace`, MapGen-runs bindings, and Studio filesystem adapters `{studio-run-files,fresh-log-files,swooper-map-config-source}`; mod installation moves to the Swooper realization adapter; the mixed source file then disappears |
 | `apps/mods/map/swooper-physics/scripts/live/verify-final-surface-parity.ts` | combine | Recipe-owned `plugins/mod/map/swooper-physics/test/recipes/standard/parity/final-surface-parity.live.test.ts`, consuming the control world client and Studio API client through the realization-owned live target |
-| `apps/mods/map/swooper-physics/scripts/live/verify-studio-run-in-game-live.ts` | combine | The Studio API client through the realization-owned live target; the Studio app internally binds control, MapGen-runs, and its selected `{civ7-save-files,studio-run-files,fresh-log-files}` adapters and provisions Tuner |
+| `apps/mods/map/swooper-physics/scripts/live/verify-studio-run-in-game-live.ts` | combine | The Studio API client through the realization-owned live target; the Studio app selects control, MapGen-runs, and `{civ7-save-files,studio-run-files,fresh-log-files}`, while the shared runtime binds those capabilities and provisions Tuner |
 | `plugins/mod/map/swooper-physics/src/recipes/standard/parity/live.ts` | relocate | `apps/mods/map/swooper-physics/runtime/parity/live.ts`, consuming the control world client at realization time |
-| `packages/studio-contract/src/{civ7,live}.ts` | combine | Exact Studio API control-module contracts over the public control-service client |
-| `packages/studio-contract/src/shared.ts` | inline | Exact owning Studio API module contracts |
-| `packages/studio-server/src/context.ts` | combine | Studio API context containing runtime-supplied public clients |
+| `packages/studio-contract/src/{civ7,live}.ts` `†` | combine | Exact Studio API control-module contracts over the public control-service client |
+| `packages/studio-contract/src/shared.ts` `†` | inline | Exact owning Studio API module contracts |
+| `packages/studio-server/src/context.ts` `†` | combine | Studio API context containing runtime-supplied public clients |
 | `packages/studio-server/src/liveGame/statusRead.ts` | combine | Studio API live-status projection over control clients |
 | `packages/studio-server/src/ports/Civ7WorkflowControl.ts` | combine | MapGen-runs public control dependency and run-in-game private ports |
 | `packages/studio-server/src/router/index.ts` | combine | Studio API authoring, control, runs, and studio module routers |
 | `packages/studio-server/src/services/Civ7TunerClient.ts` | delete | Runtime-supplied control client and API-owned cold requirements |
 | `packages/studio-server/src/services/Civ7TunerSession.ts` | delete | Runtime-provisioned local-socket Tuner provider |
-| `packages/studio-server/src/services/StudioConfig.ts` | combine | Studio app profile and API cold configuration projection |
-| `mods/mod-civ7-intelligence-bridge/src/controller/game-ui/{advisor-warning,notification-dismissal}.ts` | combine | Native facts move to the engine reference; notification semantics remain in the control notifications module; executable sources disappear |
-| `mods/mod-civ7-intelligence-bridge/src/controller/game-ui/{diplomacy,first-meet}.ts` | combine | Engine reference plus control diplomacy module; executable sources disappear |
-| `mods/mod-civ7-intelligence-bridge/src/controller/game-ui/government.ts` | combine | Engine reference plus control government module; executable source disappears |
-| `mods/mod-civ7-intelligence-bridge/src/controller/game-ui/narrative.ts` | combine | Engine reference plus control narrative module; executable source disappears |
-| `mods/mod-civ7-intelligence-bridge/src/controller/game-ui/{population,production,town-focus}.ts` | combine | Engine reference plus control city module; executable sources disappear |
-| `mods/mod-civ7-intelligence-bridge/src/controller/game-ui/progression/{attribute,shared,tradition,tree}.ts` | combine | Engine reference plus control progression module; executable sources disappear |
-| `mods/mod-civ7-intelligence-bridge/src/controller/game-ui/turn-completion.ts` | combine | Engine reference plus control turn module; executable source disappears |
-| `mods/mod-civ7-intelligence-bridge/src/controller/game-ui/unit-target.ts` | combine | Engine reference plus control unit module; executable source disappears |
+| `packages/studio-server/src/services/StudioConfig.ts` `†` | combine | Studio app profile and API cold configuration projection |
 | `plugins/cli/topics/game/src/adapters/control/service-client.ts` | delete | Runtime-supplied public control-service client |
 | `plugins/cli/topics/game/src/adapters/play/direct-control.ts` | combine | Topic-local play-input projection over control DTOs; endpoint selection moves to the runtime profile |
 | `plugins/cli/topics/game/src/commands/game/{ai/loaded-levers,gameinfo,map/starts,map/visibility}.ts` | combine | Control world client, with display client added for visibility |
@@ -168,19 +163,18 @@ The only direct Tuner command consumers after cutover are `exec`,
 resource-level `health`, catalog inspection, `inspect`, and the raw restart
 half. `status`, `watch`, map reads, autoplay, and play helpers are semantic
 control consumers. Test importers move with the behavior classified in the
-proof corpus; the bridge test deletes with its owner. Dependency edges are
-removed from
+proof corpus. Dependency edges are removed from
 `apps/mapgen-studio/package.json`,
 `apps/mods/map/swooper-physics/package.json`,
-`mods/mod-civ7-intelligence-bridge/{package.json,tsup.config.ts}`,
 `packages/studio-server/package.json`,
 `plugins/cli/topics/game/package.json`, and
 `services/civ7-control/package.json`.
 
 ## Control Service Substrate Migration
 
-`services/civ7-control` is reconstructed directly on the accepted shared
-service packet. Its finite module set is
+After the corrected shared packet is constructible,
+`services/civ7-control` is reconstructed directly on that selected service
+shape. Its finite module set is
 `{attention,city,diplomacy,display,government,lifecycle,narrative,notifications,progression,readiness,strategy,turn,unit,view,world}`.
 There is no facade, public contract subpath, public router, or second service
 constructor.
@@ -231,23 +225,27 @@ router set is:
 | `view` | `appshot-capture`, `camera-focus` |
 | `world` | `current`, `map-reads` |
 
-## Controller Island Deletion
+## Completed Controller Island Retirement
 
-The bridge never becomes a product, service, API, or mod application. Its
-native Civ7 execution-realm observations are finite reference evidence; all
-callable behavior is already owned by the control service.
+Commit `8d0d4983ba` deleted all 52 tracked bridge files. The bridge never became
+a product, service, API, or mod application. Its native Civ7 execution-realm
+observations survive only as finite reference evidence; all callable behavior
+is owned by the control service.
 
-| Exact current source | Disposition | Exact destination or replacement |
+| Exact historical source | Completed disposition | Destination or replacement |
 | --- | --- | --- |
 | `mods/mod-civ7-intelligence-bridge/src/controller/game-ui.ts` and `src/controller/game-ui/{attention,map,strategy-front,unit-command}.ts` | combine | Verified native API and execution-realm facts in `docs/system/direct-control/SIEVE-ENGINE-REFERENCE.md`; the executable sources are then removed |
 | `mods/mod-civ7-intelligence-bridge/src/controller/{intelligence-bridge,service-types}.ts` | delete | Accepted control-service client plus runtime-supplied resources; no global bridge or extracted facade survives |
 | `mods/mod-civ7-intelligence-bridge/src/{modinfo.ts,ui/civ7-intelligence-bridge.ts}` | delete | No controller mod is realized |
-| `mods/mod-civ7-intelligence-bridge/{AGENTS.md,package.json,project.json,tsconfig.json,tsup.config.ts}` | delete | Negative workspace, export-map, and package-reference proof |
+| `mods/mod-civ7-intelligence-bridge/{.gitignore,AGENTS.md,package.json,project.json,tsconfig.json,tsup.config.ts}` | delete | Negative workspace, export-map, and package-reference proof |
 | `mods/mod-civ7-intelligence-bridge/scripts/{clean-generated-artifacts,generate-mod-artifacts}.ts` | delete | No controller artifact is generated |
 | `mods/mod-civ7-intelligence-bridge/mod/civ7-intelligence-bridge.modinfo` | delete | Generated residue, not migration authority |
 
-Controller proof files are classified only in the proof corpus. The package
-root is removed after the finite fact diff and replacement behavior proof pass.
+The same commit preserved accepted native facts in
+`docs/system/direct-control/SIEVE-ENGINE-REFERENCE.md`, amended ADR-007, and
+recorded the future-controller re-entry trigger. `git ls-files
+mods/mod-civ7-intelligence-bridge` is empty; ignored dependency residue is not a
+product owner or corpus member.
 
 ## Vendor Cutover And Shared-Habitat Boundary
 
@@ -292,7 +290,7 @@ second topic-membership authority.
 | `apps/cli/TESTING.md` | combine | `docs/system/TESTING.md` and CLI-specific links under `docs/system/cli` |
 | `apps/cli/civ7.ts` | combine | `apps/cli/civ7.ts`, the sole authored role entrypoint using native Oclif `run` through the shared harness |
 | `apps/cli/bin/run.js` | combine | One executable shim delegating to `apps/cli/civ7.ts`; it owns no startup plan |
-| `plugins/cli/topics/{data,docs,git-mod}/{AGENTS.md,package.json,project.json,tsconfig.json,src}` | combine | Matching accepted topic roots under `plugins/cli/topics`; local-mod filesystem operations in `git-mod` terminate at `src/adapters/local-mods.ts` |
+| `plugins/cli/topics/{data,docs,git-mod}/{AGENTS.md,package.json,project.json,tsconfig.json,src}` | combine | Matching accepted topic roots under `plugins/cli/topics`; git-mod retains command projection while local-mod filesystem operations move to `apps/cli/runtime/adapters/local-mods.ts` |
 | `plugins/cli/topics/game/{AGENTS.md,package.json,project.json,tsconfig.json,src/index.ts}` | combine | Accepted `game` topic envelope and public plugin entry |
 | `plugins/cli/topics/game/src/adapters/control/service-client.ts` | delete | Runtime command context supplies the public control-service client |
 | `plugins/cli/topics/game/src/adapters/play/direct-control.ts` | combine | `plugins/cli/topics/game/src/adapters/play/semantic-envelope.ts`; endpoint and provider selection move to the app profile |
@@ -396,7 +394,7 @@ vocabulary, child source directory, or broad barrel. The
 | `packages/studio-server/src/workflows/{AutoplayWorkflow,RunInGameWorkflow,SaveDeployWorkflow}.ts` | combine | Exact `services/mapgen-runs/src/service/modules/{autoplay,run-in-game,save-deploy}` service | Module semantics |
 | `packages/studio-server/src/workflows/workflowTransitions.ts` | inline | The three owning modules | Module semantics |
 | `packages/studio-server/src/ports/Civ7WorkflowControl.ts` | combine | MapGen-runs public control dependency plus private module ports | Service contract and module semantics |
-| `packages/studio-server/src/ports/{DeployRunner,EvidenceBuilder,MapConfigStore,RunInGameArtifactGenerator,ScriptingLog}.ts` | combine | MapGen-runs public authored-config, realization, and fresh-log dependency descriptors plus matching service-private ports; Studio binds `{swooper-map-config-source,studio-run-files,fresh-log-files}` and the realization binds `local-mod-install` | Service contract, fake-port semantics, and app binding proof |
+| `packages/studio-server/src/ports/{DeployRunner,EvidenceBuilder,MapConfigStore,RunInGameArtifactGenerator,ScriptingLog}.ts` | combine | MapGen-runs public authored-config, realization, and fresh-log dependency descriptors plus matching service-private ports; Studio selects `{swooper-map-config-source,studio-run-files,fresh-log-files}`, the realization selects `local-mod-install`, and the shared runtime performs both bindings | Service contract, fake-port semantics, and runtime binding proof |
 | `packages/studio-server/src/ports/RuntimeObservation.ts` | combine | Run-in-game module observation port | Run-in-game semantics |
 | `packages/studio-server/src/operationRuntime/launchEnvelope.ts` | combine | `services/mapgen-runs/src/service/modules/run-in-game/model/policy/launch-admission.ts` | Run-in-game semantics |
 | `packages/studio-server/src/operationRuntime/{attributionReport,diagnostics,privateJson}.ts` | combine | `services/mapgen-runs/src/service/modules/run-in-game` | Run-in-game diagnostics semantics |
@@ -463,6 +461,11 @@ provider, transport, server mount, process, or application lifecycle.
 
 ## Studio Web And App
 
+The selected web projection below receives browser application source from
+`apps/mapgen-studio`. It may continue consuming
+`packages/mapgen-studio-ui` as a component library; this corpus selects no
+relocation or web-plugin identity for that separate package.
+
 | Exact source | Disposition | Exact destination | Proof owner |
 | --- | --- | --- | --- |
 | `apps/mapgen-studio/src/{App.tsx,app,browser-runner,features,index.css,lib,main.tsx,recipes,shared,shims,stores,ui,vite-env.d.ts}` | relocate | Matching paths under `plugins/web/app/mapgen-studio/src` | Web `views`, `interactions`, and `execution` proof |
@@ -524,9 +527,10 @@ service facades.
 
 ## Civ7 Engine Adapter And Map Entrypoint
 
-`@civ7/adapter` remains a pure package. Civ7 globals, `/base-standard` imports,
-loader event registration, and live map execution move to the Swooper
-realization that runs inside the engine.
+After the complete Swooper cutover, `@civ7/adapter` is a pure package. Until
+then it remains a hybrid current-state owner. Civ7 globals, `/base-standard`
+imports, loader event registration, and live map execution move together to the
+Swooper realization that runs inside the engine.
 
 | Exact current source | Disposition | Exact destination | Proof owner |
 | --- | --- | --- | --- |
@@ -547,14 +551,14 @@ map entrypoint, or SDK `createMap` implementation after cutover.
 | --- | --- | --- | --- |
 | Pure mod-id/path grammar, supplied-tree validation, wholesale replacement planning, digest comparison, and receipt construction latent in `packages/plugins/plugin-mods/src/index.ts#deployMod` | combine | `packages/civ7-mod-install/src/{index,installation-plan}.ts` | Package contract and semantics |
 | Host root resolution, directory observation, replacement, copy, and receipt materialization in `packages/plugins/plugin-mods/src/index.ts#{resolveModsDir,listMods,deployMod}` used by the Swooper deployment target | combine | `apps/mods/map/swooper-physics/runtime/adapters/local-mod-install.ts` | Mod realization adapter and deployment proof |
-| Host root resolution, directory observation, replacement, status, and copy in `packages/plugins/plugin-mods/src/index.ts#{resolveModsDir,listMods,deployMod,getModStatus}` used by CLI commands | combine | `plugins/cli/topics/git-mod/src/adapters/local-mods.ts` | CLI adapter and exact command mirrors |
+| Host root resolution, directory observation, replacement, status, and copy in `packages/plugins/plugin-mods/src/index.ts#{resolveModsDir,listMods,deployMod,getModStatus}` used by CLI commands | combine | `apps/cli/runtime/adapters/local-mods.ts` | CLI app adapter execution and exact topic command mirrors |
 | `packages/plugins/plugin-mods/src/index.ts` remote-link/subtree wrappers, planning stubs, validation stub, packaging stub, Steam stub, default export, and package root | delete | Existing `plugin-git` command paths, Knip, and negative consumer search |
 
 `packages/civ7-mod-install` receives caller-supplied observations and returns
 only validation, comparison, replacement-plan, digest, and receipt values. It
 performs no root discovery, filesystem read or write, deployment, provider
 selection, or process lifecycle; those effects remain at the qualified
-realization and topic adapters.
+realization and CLI app adapters.
 
 `packages/plugins/{plugin-files,plugin-git,plugin-graph}` remain at their current
 owners in this coupled cutover. Their later kind classification is independent;
@@ -581,13 +585,13 @@ The terminal file-by-file authority is
 proof-support files as:
 
 ```text
-42 + 38 + 5 + 10 + 70 + 62 + 2 + 180 + 8 + 2 + 19 + 3 + 27 = 468
+42 + 38 + 5 + 10 + 70 + 62 + 2 + 187 + 8 + 2 + 0 + 3 + 30 = 459
 ```
 
 That ledger is the only cutover authority for proof relocation, combination,
 inlining, deletion, and unchanged exclusion. It also names the proof that must
 be authored fresh because no current suite can be relabeled honestly. Closure
-requires all 468 current files to reach their recorded terminal disposition,
+requires all 459 current files to reach their recorded terminal disposition,
 all new target-kind proof to pass, and every admitted test interior to be
 closed by its kind-specific or domain-qualified confidence layers.
 

@@ -23,6 +23,10 @@ Before changing public SDK exports, CLI commands/flags, plugin APIs, docs tutori
 - run focused verification;
 - state whether the change is compatible, breaking, experimental, or internal.
 
+Caller projections preserve the exact owner result vocabulary. A projection
+must not translate refusal, uncertainty, stale evidence, or unverified dispatch
+into a generic success response.
+
 For MapGen recipe config, the default accepted stage surface is flat:
 `{ knobs?, [stepId]?: stepConfig }`. Treat persisted `advanced.<stepId>` as a
 migration concern unless a controlling decision names a genuine public surface
@@ -63,9 +67,23 @@ surface.
 
 ## Adapter Policy
 
-- Direct Civ7 engine imports and `base-standard` APIs belong behind the adapter or game-facing mod runtime.
+- ADR-019 selects direct Civ7 engine imports and `base-standard` APIs for the
+  qualified game-facing realization runtime. The current adapter package
+  remains the sole operational boundary until the complete Swooper consumer
+  and proof cutover; it is not split early. After that cutover, reusable
+  adapter packages retain only pure contracts, static facts, and deterministic
+  mocks.
 - Adapter methods should stay thin and stable.
 - MapGen algorithms and mod tuning do not move into the adapter.
+
+## Construction Policy
+
+- Habitat owns shared kind construction upstream; Civ7 selects and composes
+  accepted kinds.
+- Do not move target source until the corrected shared substrate pin and
+  selected kind are constructible in this repository.
+- Do not create a local approximation or harden a transition container while a
+  target kind is unconstructible.
 
 ## Documentation Policy
 
@@ -76,14 +94,6 @@ surface.
 
 ## Proof Policy
 
-Label evidence precisely:
-
-- typecheck/build;
-- unit/integration test;
-- generated XML/mod output;
-- doc lint;
-- local app/browser check;
-- in-game validation;
-- deployment/install verification.
-
-Do not collapse one proof class into another.
+Track proof as an independent set: contract, semantics, execution, projection,
+assembly, generated, installed, loader, and live behavior. No member supersedes
+another, and no single "strongest" status summarizes the set honestly.

@@ -581,3 +581,60 @@ services.
 reusable package. `apps/cli/civ7.ts` owns development composition,
 `apps/cli/bin/run.js` owns production launch, and command topics remain
 independent plugins.
+
+## ADR-018: Civ7 capability realization composes the shared Habitat substrate
+
+**Status:** Accepted
+**Date:** 2026-07-31
+**Context:** Civ7 packages historically mixed pure contracts, acquired foreign
+capabilities, semantic policy, caller projection, and process startup. The
+shared Habitat platform now supplies the generic package, resource/provider,
+service, plugin, app, profile, entrypoint, and runtime-realization grammar. Civ7
+needs a stable role model without copying that substrate or presenting target
+paths as already shipped.
+**Decision:** Civ7 product capabilities use the shared Habitat roles and
+one-way relationships recorded in `docs/system/ARCHITECTURE.md`. Civ7 owns its
+product capabilities, qualified niches, app compositions, and behavior proof.
+The upstream Habitat owner retains kind construction, generation, compilation,
+provider acquisition, capability binding, role mounting, process observation,
+and disposal. Current behavior, selected ownership, constructibility,
+migration, and proof remain independent facts. Target source does not move
+until the corrected, constructible, consumer-usable Habitat pin and the
+required qualified kinds are admitted.
+**Consequences:**
+- Civ7 does not fork, copy, weaken, or locally approximate missing generic
+  Habitat law.
+- Packages remain pure; resources define foreign lifecycles; providers emit
+  concrete foreign facts; services own product semantics; plugins project;
+  apps declare cold composition; shared runtime realizes it.
+- A complete product capability chain moves and proves together. A known
+  destination does not authorize an isolated package, adapter, service,
+  projection, or app move.
+- The active model and exact migration ledgers live under
+  `docs/projects/civ7-capability-realization/`.
+
+## ADR-019: Concrete Civ7 map adaptation belongs to the mod realization
+
+**Status:** Accepted
+**Date:** 2026-07-31
+**Context:** `packages/civ7-adapter` currently combines a portable
+`EngineAdapter` contract, static capability metadata, deterministic mocks,
+direct `base-standard` imports, setup capture, and concrete Civ7-global
+execution. The package is the correct operational boundary today, but the
+engine-bound half has one selected consumer and participates in Civ7 loader
+lifecycle rather than portable MapGen authorship.
+**Decision:** The current adapter package remains the sole operational
+engine-import boundary until the complete Swooper realization migration
+closes. At that cutover, the portable package retains only the engine contract,
+static metadata, and deterministic mocks. The concrete Civ7-global adapter,
+setup capture, and map entrypoint move together into the matching Swooper
+realization's closed `runtime/map-script` interior. The move is supporting work
+inside the generated-entrypoint-to-live-evidence product chain, never an
+independent adapter refactor.
+**Consequences:**
+- No portable package imports ambient Civ7 globals after the cutover.
+- The Swooper definition and MapGen Core remain runtime-agnostic.
+- Existing callers keep using the current adapter boundary until the whole
+  consumer and proof gate can move atomically.
+- A second independent map realization may earn a reusable qualified
+  integration owner later; one hypothetical consumer does not justify it now.

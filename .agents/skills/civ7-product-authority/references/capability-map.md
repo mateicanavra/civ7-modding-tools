@@ -1,44 +1,39 @@
 # Capability Map
 
-This map names durable product/domain owners for Civ7 Modding Tools. It is a starting authority template; extend it when a capability becomes durable.
+Use this map to identify durable Civ7 product authority before selecting or
+changing a container. A capability may traverse several owners; each durable
+fact, decision, transition, and correction still has one writer.
 
 ## Capabilities
 
-| Capability | Owner | Owns | Does Not Own |
-|---|---|---|---|
-| Official resource ingestion | CLI/config/resource workflow owners | locating, extracting, indexing, and referencing official game resources | SDK public API policy, MapGen domain topology, hand-edited resource outputs |
-| Generated Civ7 types/constants | `packages/civ7-types`, SDK constants where applicable | type-level representation of Civ7 runtime/game identifiers | runtime adapter implementation, generated artifact hand-edits |
-| SDK mod authoring | `packages/sdk` | builders, nodes, XML file generation contracts, authoring ergonomics | CLI UX, MapGen algorithms, Civ7 runtime adapter calls |
-| CLI workflows | `apps/cli` | command UX, flags, command orchestration, command errors | reusable plugin internals, SDK semantics |
-| Plugin libraries | `packages/plugins/*` | reusable pure mechanics for graph/file/git/mod workflows | CLI-specific behavior, product-specific generated output claims |
-| MapGen core | `packages/mapgen-core` | authoring/compiler/executor/artifact/trace contracts and generic generation primitives | Swooper domain implementations, Civ7 runtime globals, generated mod files, MapGen Studio UI |
-| Civ7 adapter | `packages/civ7-adapter` | engine/runtime API boundary and stable adapter methods | MapGen algorithms, mod tuning, pure SDK XML generation |
-| MapGen visualization | `packages/mapgen-viz`, `apps/mapgen-studio` | visualization contracts, viewers, workers, UI, trace/dump presentation | generation truth, engine projection |
-| Swooper Maps mod | `mods/mod-swooper-maps` | all six Swooper domains and operations, recipes, game-facing integration, deployment package generation | generic SDK/runtime mechanics, adapter internals, hand-edited `mod/` output |
-| Docs and examples | `docs/**`, `apps/playground` | canonical promises, tutorials, examples, project state | executable behavior without matching source/tests |
+| Capability chain | Owner chain | Explicit non-owners |
+| --- | --- | --- |
+| Official game knowledge | Qualified extraction owns its receipt; the published official corpus owns source revision; generated type/policy packages own derived contracts | Studio, MapGen, adapters, generated output, runtime services |
+| Generic mod authoring | `@mateicanavra/civ7-sdk` owns reusable authoring; each definition owns product identity and content | CLI, installer, realization app, generated tree, Civ7 loader |
+| Swooper map definition and generation | Swooper definition owns domains, Standard recipe, configuration, diagnostics, metrics, trace, and visualization; MapGen Core owns only generic language/mechanics | Civ7 adapter, Studio, CLI, generated entrypoint, realization app, engine readback |
+| Mod realization and deployment | The matching realization owns materialization and deployment meaning; its qualified app adapter emits the exact host-effect receipt; loader and live evidence remain independent | Definition, SDK, pure installer plan, CLI topic, generated tree |
+| Live Civ7 observation | Control service owns semantic snapshots and interpretation; the resource owns foreign vocabulary and the selected provider emits exact foreign facts | CLI, Studio projection, raw transport command; resource/provider are non-owners only of semantic interpretation |
+| Live Civ7 decision | Control service owns admission, policy, native transition meaning, uncertainty, and correction | Tuner resource, CLI command, API/web projection, UI element, observer |
+| Map configuration authoring | Swooper definition owns canonical admission/serialization; qualified source adapter owns mutation/rollback receipt | Studio UI/API, run service, realization app, generic filesystem code |
+| Map realization operations | MapGen-runs semantic owner owns request-correlated operation policy and facts; selected adapters/clients own exact effects | Studio API/browser, run-files adapter, Tuner, definition |
 
-## Explicit Non-Ownership Rules
+CLI, Studio web/API, docs, examples, and mod-loader entrypoints are product
+surfaces, not additional semantic capability owners.
 
-- Generated artifacts do not own product policy.
-- Official resources do not own repo package boundaries.
-- MapGen core does not own Civ7 engine runtime integration.
-- Adapter does not own MapGen algorithms.
-- CLI does not own reusable plugin behavior beyond command orchestration.
-- Project reviews do not become evergreen authority until promoted, linked from canonical docs, or accepted as the active project baseline for a bounded workstream.
+Raw diagnostics are supporting interactions. Each reports only the exact
+resource, provider, app, or engine fact it observes and must not inherit
+gameplay-success meaning.
 
-## Current MapGen Domain Frame
+## Invariants
 
-MapGen product/domain claims should distinguish:
+- Product capability precedes package, resource, service, plugin, or app.
+- Portable definition differs from environment-qualified realization.
+- Deterministic MapGen truth differs from engine-current observation.
+- Admission, dispatch, observation, acceptance, and outcome remain distinct.
+- Generated, installed, loader, and live-behavior evidence remain independent.
+- Every public surface has an explicit consumer gate before reshape or removal.
+- Current hybrid containers do not gain authority merely because they contain
+  working code.
 
-- recipe/stage/step authoring contracts;
-- domain ops and pure semantics;
-- artifacts and truth products;
-- map projection/materialization into Civ7;
-- diagnostics, parity capture, and generated-output proof.
-
-Recipe-stage topology is a product contract when it affects user config,
-presets, Studio surfaces, trace identity, stage enablement, or handoff
-artifacts. It is not a product contract merely because an implementation helper
-or variant name exists.
-
-If a domain claim cannot identify which row it belongs to, stop and record a decision before implementation.
+The active exact status axes, hybrid register, and consumer ledger live in
+`docs/projects/civ7-capability-realization/PRODUCT-AUTHORITY.md`.

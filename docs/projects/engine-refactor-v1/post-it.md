@@ -2,8 +2,8 @@
 
 ## Rolling Focus
 
-**Attractor filter:** Intent. Capability. Authority. Environment. Kind.
-Boundary. Chain. Destination. Collapse. Proof. Closure.
+**Attractor filter:** Product. Actor. Role. Intent. Authority. Capability.
+Outcome. Boundary. Refusal. Evidence. Closure.
 
 **Frame:** the final platform pass operates on product capability realization
 chains, not current package names. Pure packages, managed resources, semantic
@@ -13,53 +13,55 @@ ScriptSystem do not share state or lifecycle.
 
 **Authority order:** product intent -> capability owner -> execution
 environment -> kind law -> public contract -> app composition -> behavior
-proof. Habitat owns positive closed kinds, Nx owns graph direction and proof
-ordering, TypeScript owns assignability, Knip owns dead code, and tests own
-product behavior. Admitted instances require the blueprint-defined `habitat.toml`
-anchor; path placement and Nx tags never admit them. Each accepted kind closes
-its own proof topology around disjoint confidence axes; domain-qualified kinds
-such as MapGen keep their stronger domain-shaped testing grammar.
+proof. Upstream Habitat authority owns positive closed kinds, Nx owns graph
+direction and proof ordering, TypeScript owns assignability, Knip owns dead
+code, and tests own product behavior. Admitted instances require the
+blueprint-defined `habitat.toml` anchor; path placement and Nx tags never admit
+them. Each accepted kind closes its own proof topology around disjoint
+confidence axes; domain-qualified kinds such as MapGen keep their stronger
+domain-shaped testing grammar.
 
-**Current container:** seal circulation-pressure anomaly and atmospheric
-circulation as one coupled climate unit in the current Swooper topology.
-Wind-only certification proved that the consumer contract already expects
-pressure departures and that transient-only weather moves unrelated product
-outcomes. Do not retune product configs around missing cause, manufacture
-absolute surface pressure, or restore retired land, terrain, and wave proxies.
-The pressure producer owns the complete anomaly sample, including transient
-structure; wind owns only the analytic backbone and its pressure response.
-Preserve full-width seed entropy, close the causal and product proof, and
-require the complete shipped-config bank to pass. The obsolete flat-path branch
-remains evidence, not an integration candidate. Studio design-sync and the
-Template-owned `@habitat/cli` release are settled ground. The active Fluree
-inquiry lane remains independently owned and non-blocking until it produces a
-clean package-shaped result.
+**Current container:** seal the Civ7 product, system, outcome, and
+actor-role-outcome models together with the exact migration corpus, then run
+the bounded current-topology Explore Live Map oracle. The existing CLI
+`plugins/cli/topics/game/src/commands/game/map/visibility.ts` and Studio
+`apps/mapgen-studio/src/app/hooks/useSetupControls.ts` interactions both call
+`display.explore.request`. They must preserve the owner's
+`explored | already-explored | unverified` result and typed errors. The same
+slice reserves `already-explored` for the skipped full-map precondition; a
+non-skipped run without increased revealed evidence is `unverified`. Studio
+currently styles that uncertainty as success, while CLI JSON wraps every
+returned classification in `{ ok: true, result }`. Owner, projection, and
+focused parity proof close this oracle without changing ownership or topology.
 
-After the coupled climate unit closes, begin the capability-chain cutover directly on
-the shared Habitat substrate. Civ7 adds no local Habitat machinery, preserves
-no old oRPC/service spine, and hardens no isolated CLI, service, Studio,
-resource, or mod transition. Each migrated chain reaches owner-correct source,
-runtime realization, parity proof, old-owner deletion, and a sealed Graphite
-layer before the next chain opens.
+Habitat source, package, blueprint, and release ownership lives upstream and is
+accepted as external authority. The corrected, constructible, consumer-usable
+pin has not landed for Civ7, so target source does not move and Civ7 creates no
+local approximation. The first structural migration is staged but blocked
+until that pin and the qualified kinds land: admitted config -> generated
+entrypoint/digests -> materialized tree -> installation receipt ->
+loader/runtime evidence -> final-surface parity. The adapter split is
+supporting work inside that complete Swooper chain, not an isolated migration.
+Full live control follows later as one complete chain.
 
 **Stable ownership:** Swooper remains a portable mod definition realized by
 its mod app. The CLI remains a commandless `cli-shell` composed from
 `plugins/cli/topics/*`; each topic package owns its nested commands. The control
 service remains callable in process. Studio is the only current HTTP host. The
 Tuner session and narrow Civ7 window-capture helper are the earned managed
-resources. The unshipped intelligence bridge, a MapGen service, an HQ API, and
-generic catalog or desktop-control resources are not current architecture
-authority. Packages retain only pure parsing, planning, schemas, algorithms,
-and comparison over supplied values; qualified app/topic adapters own cold
-filesystem effects. MapGen run records, cancellation, retention, and events
-remain scoped MapGen-runs service state rather than a manufactured resource.
+resources. Commit `8d0d4983ba` is the completed intelligence-bridge deletion
+receipt, not a current provider; a future controller remains deferred behind
+its same-realm-consumer or proven-async-ingress trigger. A MapGen service, an HQ
+API, and generic catalog or desktop-control resources are not current
+architecture authority. Packages retain only pure parsing, planning, schemas,
+algorithms, and comparison over supplied values; qualified app adapters own
+cold filesystem effects, while CLI topics project their bound capabilities.
+MapGen run records, cancellation, retention, and events remain scoped
+MapGen-runs service state rather than a manufactured resource.
 
-**Gradient:** freeze current capability chains -> accept authority and selected
-depth -> write positive destination law -> close topology and source relations
--> prove fixtures -> settle Nx metadata and manifest-backed generator ->
-promote/enforce in the exact burn-down branch -> observe live red -> apply
-qualified dispositions -> reach zero -> prove behavior -> delete the old owner
--> seal the Graphite layer -> repeat.
+**Gradient:** observed product -> four-model and corpus seal -> bounded Explore
+oracle -> usable upstream Habitat pin -> qualified kind admission -> complete
+Swooper chain -> independent proof set -> old-owner deletion -> Graphite seal.
 The Tuner protocol remains private to its sole provider unless another
 independent consumer earns a public package.
 
