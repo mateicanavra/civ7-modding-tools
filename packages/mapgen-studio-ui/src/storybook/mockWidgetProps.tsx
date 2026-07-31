@@ -71,7 +71,7 @@ export function mockFieldContent(label: string, value: string): ReactNode {
 /** A nested object/array child rendered flush as its own group-eyebrow row. */
 export function mockSectionContent(title: string): ReactNode {
   return (
-    <div className="px-2.5 py-2 text-label font-semibold uppercase tracking-wider text-muted-foreground">
+    <div className="px-4 py-2 text-label font-semibold uppercase tracking-wider text-muted-foreground">
       {title}
     </div>
   );

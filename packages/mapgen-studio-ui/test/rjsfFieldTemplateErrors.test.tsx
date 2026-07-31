@@ -32,6 +32,8 @@ function renderField(overrides: Partial<TemplateProps>): string {
     help: null,
     rawErrors: [] as string[],
     schema: { type: "number" } as RJSFSchema,
+    fieldPathId: { path: ["test", "field"], $id: "root_test_field" },
+    registry: { formContext: { transparentPaths: new Set<string>() } },
     children: <input id="root_test_field" />,
   };
   return renderToStaticMarkup(

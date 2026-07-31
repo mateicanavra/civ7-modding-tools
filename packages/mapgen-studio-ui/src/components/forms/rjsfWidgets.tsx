@@ -1,12 +1,17 @@
 import type { RJSFSchema, WidgetProps } from "@rjsf/utils";
+import { deepEquals } from "@rjsf/utils";
+import { Undo2 } from "lucide-react";
+import { use } from "react";
 import { cn } from "../../lib/utils.js";
 import { Checkbox } from "../ui/checkbox.js";
 import { Input } from "../ui/input.js";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select.js";
 import { Switch } from "../ui/switch.js";
 import { Textarea } from "../ui/textarea.js";
+import { type FieldBaseline, FieldBaselineContext } from "./fieldBaseline.js";
 import { errorFieldId } from "./fieldIds.js";
 import type { BrowserConfigFormContext } from "./rjsfTemplates.js";
+import { humanizeSchemaLabel } from "./schemaPresentation.js";
 
 type ConfigWidgetProps = WidgetProps<unknown, RJSFSchema, BrowserConfigFormContext>;
 
@@ -38,6 +43,56 @@ function errorA11yProps(
   return rawErrors && rawErrors.length > 0
     ? { "aria-invalid": true, "aria-describedby": errorFieldId(id) }
     : {};
+}
+
+// Per-field working-change feedback (flat-and-flush delta 9, re-keyed): a
+// field whose live value differs from the LOADED config's value (the
+// `FieldBaselineContext` baseline — never the schema default) wears the design
+// system's established drifted treatment (verbatim from GameConsole's
+// savedConfigModified) and offers a one-field undo back to that loaded value.
+// Dirtiness re-derives on every controlled value change — no effects, no blur
+// gating. No baseline in context ⇒ no drift treatment and no undo.
+const DRIFT_CLASSES = "border-warning text-warning ring-1 ring-warning/40";
+
+function fieldDrift(baseline: FieldBaseline | null, value: unknown) {
+  // null and undefined both mean "empty" here (rjsf emptyValue vs an absent
+  // baseline key) — normalize both sides so an empty field with an empty
+  // baseline reads clean, not perpetually dirty.
+  return baseline !== null && !deepEquals(value ?? undefined, baseline.value ?? undefined);
+}
+
+/**
+ * The one-field undo affordance, overlaid INSIDE the field's own box (an
+ * absolutely positioned sibling in a `relative` wrapper — never a flex
+ * sibling, which would steal width from this field's value column and break
+ * the equal-width grid; never a nested button inside the Select trigger,
+ * which is invalid HTML). The element stays mounted and flips `invisible`
+ * when clean so the slot never reflows — the host control must permanently
+ * reserve the strip the icon sits in (input `pr-8`; select value-span
+ * `mr-6`) so content NEVER runs underneath it.
+ */
+function FieldUndoButton(args: {
+  dirty: boolean;
+  disabled: boolean | undefined;
+  label: string;
+  positionClass: string;
+  onUndo: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      disabled={args.disabled}
+      aria-label={`Undo changes to ${humanizeSchemaLabel(args.label)}`}
+      onClick={args.onUndo}
+      className={cn(
+        "absolute top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded text-warning transition-colors hover:bg-warning/10",
+        args.positionClass,
+        !args.dirty && "invisible"
+      )}
+    >
+      <Undo2 className="w-3.5 h-3.5" aria-hidden="true" />
+    </button>
+  );
 }
 
 export function TextWidget(props: ConfigWidgetProps) {
@@ -114,6 +169,7 @@ export function NumberWidget(props: ConfigWidgetProps) {
   const {
     id,
     name,
+    label,
     autoComplete,
     value,
     required,
@@ -125,61 +181,101 @@ export function NumberWidget(props: ConfigWidgetProps) {
     placeholder,
     rawErrors,
   } = props;
+  const baseline = use(FieldBaselineContext);
+  const dirty = fieldDrift(baseline, value);
+  // The undo strip is reserved permanently: `pr-8` pads the value away from
+  // it and the native webkit/moz spinners are suppressed (they render inside
+  // the input's right edge — exactly the strip the icon owns).
   return (
-    <Input
-      id={id}
-      name={name}
-      autoComplete={autoComplete ?? "off"}
-      type="number"
-      inputMode="decimal"
-      spellCheck={false}
-      required={required}
-      autoFocus={autofocus}
-      disabled={disabled || readonly}
-      value={(value as number | string | undefined) ?? ""}
-      placeholder={placeholder}
-      {...errorA11yProps(id, rawErrors)}
-      onChange={(event) => {
-        const next = event.target.value;
-        if (next === "") {
-          onChange(options.emptyValue);
-          return;
-        }
-        const parsed = Number(next);
-        onChange(Number.isNaN(parsed) ? options.emptyValue : parsed);
-      }}
-    />
+    <div className="relative">
+      <Input
+        id={id}
+        name={name}
+        autoComplete={autoComplete ?? "off"}
+        type="number"
+        inputMode="decimal"
+        spellCheck={false}
+        required={required}
+        autoFocus={autofocus}
+        disabled={disabled || readonly}
+        value={(value as number | string | undefined) ?? ""}
+        placeholder={placeholder}
+        className={cn(
+          "pr-8 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
+          dirty && DRIFT_CLASSES
+        )}
+        {...errorA11yProps(id, rawErrors)}
+        onChange={(event) => {
+          const next = event.target.value;
+          if (next === "") {
+            onChange(options.emptyValue);
+            return;
+          }
+          const parsed = Number(next);
+          onChange(Number.isNaN(parsed) ? options.emptyValue : parsed);
+        }}
+      />
+      <FieldUndoButton
+        dirty={dirty}
+        disabled={disabled || readonly}
+        label={label || name}
+        positionClass="right-1.5"
+        onUndo={() => onChange(baseline?.value)}
+      />
+    </div>
   );
 }
 
 export function SelectWidget(props: ConfigWidgetProps) {
-  const { id, name, value, disabled, readonly, onChange, options, placeholder, rawErrors } = props;
+  const { id, name, label, value, disabled, readonly, onChange, options, placeholder, rawErrors } =
+    props;
   const enumOptions = (options.enumOptions ?? []) as Array<{ value: unknown; label: string }>;
   const map = new Map(enumOptions.map((opt) => [String(opt.value), opt.value]));
   const selectedKey = value === undefined || value === null ? "" : String(value);
   const toRadix = (raw: string) => (raw === "" ? SELECT_EMPTY_SENTINEL : raw);
+  const baseline = use(FieldBaselineContext);
+  const dirty = fieldDrift(baseline, value);
 
+  // The undo icon tucks into the strip just left of the chevron. That strip
+  // is reserved for real: the value span's `mr-6` caps the clamped text
+  // before it, so a long value ellipsizes instead of running under the icon.
+  // No trigger padding change — padding would shrink the trigger's inner flex
+  // row and drag the chevron off flush-right.
   return (
-    <Select
-      name={name}
-      disabled={disabled || readonly}
-      value={toRadix(selectedKey)}
-      onValueChange={(next) => {
-        const key = next === SELECT_EMPTY_SENTINEL ? "" : next;
-        onChange(map.has(key) ? map.get(key) : key);
-      }}
-    >
-      <SelectTrigger id={id} aria-label={placeholder ?? name} {...errorA11yProps(id, rawErrors)}>
-        <SelectValue placeholder={placeholder} />
-      </SelectTrigger>
-      <SelectContent>
-        {enumOptions.map((opt) => (
-          <SelectItem key={String(opt.value)} value={toRadix(String(opt.value))}>
-            {opt.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <div className="relative">
+      <Select
+        name={name}
+        disabled={disabled || readonly}
+        value={toRadix(selectedKey)}
+        onValueChange={(next) => {
+          const key = next === SELECT_EMPTY_SENTINEL ? "" : next;
+          onChange(map.has(key) ? map.get(key) : key);
+        }}
+      >
+        <SelectTrigger
+          id={id}
+          aria-label={placeholder ?? name}
+          className={cn("[&>span]:mr-6", dirty && DRIFT_CLASSES)}
+          {...errorA11yProps(id, rawErrors)}
+        >
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent>
+          {enumOptions.map((opt) => (
+            <SelectItem key={String(opt.value)} value={toRadix(String(opt.value))}>
+              {opt.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <FieldUndoButton
+        dirty={dirty}
+        disabled={disabled || readonly}
+        label={label || name}
+        positionClass="right-8"
+        onUndo={() => onChange(baseline?.value)}
+      />
+    </div>
   );
 }
 

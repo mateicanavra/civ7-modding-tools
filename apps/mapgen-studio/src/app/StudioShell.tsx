@@ -16,7 +16,6 @@ import { useCallback, useMemo, useRef } from "react";
 import { useBrowserRunner } from "../features/browserRunner/useBrowserRunner";
 import { getCiv7PlayerCountOptions } from "../features/civ7Setup/mapSizes";
 import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from "../features/civ7Setup/seedPolicy";
-import { getRecipeDefaultCanonicalConfig } from "../features/configAuthoring/canonicalConfig";
 import { orpcClient } from "../lib/orpc";
 import { getRecipeDagId } from "../recipes/catalog";
 import type { VizEvent } from "../shared/vizEvents";
@@ -62,6 +61,9 @@ export function StudioShell(props: StudioShellProps) {
   const setSetupConfig = useAuthoringStore((s) => s.setSetupConfig);
   const canonicalConfig = useAuthoringStore((s) => s.canonicalConfig);
   const setCanonicalConfig = useAuthoringStore((s) => s.setCanonicalConfig);
+  const installCanonicalConfig = useAuthoringStore((s) => s.installCanonicalConfig);
+  const adoptSavedBaseline = useAuthoringStore((s) => s.adoptSavedBaseline);
+  const baselineConfig = useAuthoringStore((s) => s.baselineConfig);
   const authoringRevision = useAuthoringStore((s) => s.authoringRevision);
 
   // View-only state is owned by `viewStore` (Zustand, architecture/10 §3). These
@@ -155,6 +157,7 @@ export function StudioShell(props: StudioShellProps) {
   } = useConfigAuthoring({
     canonicalConfig,
     setCanonicalConfig,
+    installCanonicalConfig,
     toast,
   });
 
@@ -274,7 +277,8 @@ export function StudioShell(props: StudioShellProps) {
     browserRunning,
     runInGameRunning,
     canonicalConfig,
-    setCanonicalConfig,
+    installCanonicalConfig,
+    adoptSavedBaseline,
     toast,
   });
 
@@ -495,11 +499,9 @@ export function StudioShell(props: StudioShellProps) {
   const leftPanel = (
     <RecipePanel
       config={pipelineConfig}
+      baselineConfig={baselineConfig}
       configSchema={recipeArtifacts.configSchema}
       onConfigChange={setPipelineConfig}
-      onConfigReset={() =>
-        setPipelineConfig(getRecipeDefaultCanonicalConfig(canonicalConfig.recipe).config)
-      }
       recipeOptions={recipeOptions}
       configOptions={configOptions}
       selectedStep={selectedStageId}

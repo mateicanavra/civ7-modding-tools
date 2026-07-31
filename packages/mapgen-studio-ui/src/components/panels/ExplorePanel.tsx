@@ -18,6 +18,7 @@ import {
   SquareStack,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { iconButton, iconButtonActive } from "../../lib/iconButton.js";
 import { LAYOUT } from "../../lib/layout.js";
 import { cn } from "../../lib/utils.js";
 import type {
@@ -277,10 +278,8 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
   const stepItemActive = "border-primary bg-accent text-foreground";
   const stepItemInactive =
     "border-transparent text-muted-foreground hover:bg-accent hover:text-foreground";
-  const iconBtn =
-    "h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 text-muted-foreground hover:text-foreground hover:bg-accent";
-  const iconBtnActive =
-    "h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 text-foreground bg-muted";
+  const iconBtn = iconButton;
+  const iconBtnActive = iconButtonActive;
   // Segmented controls for mutually-exclusive option sets (Render / Space):
   // an inset container on the control-background token bounds the options so
   // they read as one control; the active segment lifts one surface tier
