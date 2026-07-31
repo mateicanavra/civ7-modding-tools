@@ -44,6 +44,9 @@
   },
   "linter": {
     "enabled": true,
+    "domains": {
+      "react": "recommended"
+    },
     "rules": {
       "recommended": false,
       "correctness": {
@@ -54,10 +57,7 @@
         "noUnsafeFinally": "error",
         "noUnsafeOptionalChaining": "error",
         "useIsNan": "error",
-        "useValidTypeof": "error",
-        "useExhaustiveDependencies": "warn",
-        "useHookAtTopLevel": "error",
-        "useJsxKeyInIterable": "error"
+        "useValidTypeof": "error"
       },
       "suspicious": {
         "noDebugger": "error",
@@ -75,6 +75,18 @@
       }
     }
   },
+  "overrides": [
+    {
+      "includes": ["packages/mapgen-studio-ui/src/**", "!**/*.stories.tsx"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "useUniqueElementIds": "error"
+          }
+        }
+      }
+    }
+  ],
   "javascript": {
     "formatter": {
       "quoteStyle": "double",
