@@ -20,16 +20,27 @@ anchor; path placement and Nx tags never admit them. Each accepted kind closes
 its own proof topology around disjoint confidence axes; domain-qualified kinds
 such as MapGen keep their stronger domain-shaped testing grammar.
 
-**Current container:** construct and accept the corrected shared Habitat
-successor in RAWR HQ-Template before any Civ7 capability source move. The
-shared container owns generic package, resource, provider, service, API
-projection, app, and CLI-topic construction law, plus an executable versioned
-adoption seam. `plugins/cli/topics/*` is the only CLI projection root. Every
-kind that admits `test/` closes it around finite, disjoint, kind-relevant
-confidence axes; generic kinds define reusable layers and qualified kinds
-refine them without open or case-by-case test cabinets. When that prerequisite
-seals, Civ7 pins it and begins the coupled capability-chain cutover rather than
-hardening an isolated CLI, service, Studio, resource, or mod transition.
+**Current container:** complete the owner-correct Habitat handoff, then accept
+the corrected shared successor from RAWR HQ-Template before any Civ7
+capability source move. The shared container owns generic package, resource,
+provider, service, API projection, app, and CLI-topic construction law, plus
+one executable versioned adoption seam. `plugins/cli/topics/*` is the only CLI
+projection root. Every kind that admits `test/` closes it around finite,
+disjoint, kind-relevant confidence axes; generic kinds define reusable layers
+and qualified kinds refine them without open or case-by-case test cabinets.
+When that prerequisite seals, Civ7 pins it and begins the coupled
+capability-chain cutover rather than hardening an isolated CLI, service,
+Studio, resource, or mod transition.
+
+The current active subcontainer is the source-and-authority handoff. RAWR
+HQ-Template owns `@habitat/cli` source, package identity, releases, ordinary
+consumer integration, generic blueprint policy, and its data-only pack.
+Civ7's four clean admission-through-classification commits are scoped
+implementation evidence, not a release train. Blueprint-aware production
+loading, generation, Nx projection, the idempotent consumer initializer,
+vendor modernization, and release stay with Template. Civ7 does not start a
+local C5 projection or harden the temporary compatibility-only activation
+seam.
 
 **Stable ownership:** Swooper remains a portable mod definition realized by
 its mod app. The CLI remains a commandless `cli-shell` composed from
@@ -95,6 +106,17 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-30 - Habitat Package Authority Handed Off
+
+The earlier delegated-release premise was superseded by the cross-lane
+authority decision: RAWR HQ-Template owns Habitat source, package identity,
+releases, generic policy distribution, and ordinary consumer integration.
+Civ7 completed four clean evidence layers through application classification
+and stopped before Nx projection. Template now owns scoped extraction,
+deproductization, blueprint-aware production loading, generation, Nx
+projection, the idempotent initializer, vendor modernization, and the first
+owner-correct release.
 
 ### 2026-07-30 - Habitat Rule-Ledger Parity Sealed
 
