@@ -1,6 +1,7 @@
 # Civ7 Capability Realization Frame
 
-**Status:** Four-model packet and corpus sealing; bounded Explore oracle next
+**Status:** Pre-migration convergence; four-model packet and Explore oracle
+sealed
 **Date:** 2026-07-31
 **Owner:** Civ7 platform architecture and product stewardship
 
@@ -35,67 +36,27 @@ authority by themselves.
 
 ## Model Progression
 
-The four models deliberately change the viewpoint before implementation:
+The normative [model progression](./MODEL-PROGRESSION.md) changes the viewpoint
+before implementation:
 
-1. **Product frame — establish meaning.** Stop reading routes, screens,
-   packages, vendors, and current folders as product truth. Classify each actor
-   outcome, capability, fact, policy, refusal, owner, non-owner, disposition,
-   and explicit unknown. The receipt is a stable product vocabulary and finite
-   capability corpus. This gate closes only when every relevant capability has
-   one owner or a deliberate exclusion; unresolved ownership and inferred
-   policy do not proceed.
-2. **System frame — establish lawful placement and direction.** Place those
-   product truths into containers without collapsing semantic authority,
-   runtime realization, caller projection, and physical storage into one
-   graph. Inspect writers, lifecycles, execution realms, cycles, reciprocal
-   clients, shared writers, cross-owner transactions, and crash boundaries.
-   The receipt is an acyclic owner graph with explicit current, logical, and
-   physical horizons. This gate closes only when every identity, fact,
-   transition, and writer has one container and each cross-owner edge has
-   authority, replay/idempotency, and failure semantics.
-3. **Outcome frame — pathwalk lawful change.** Walk forward from every admitted
-   intent and backward from every promised outcome. Search the negative space
-   between adjacent responsibilities for different identities, clocks,
-   authorities, correction laws, or lawful futures without a carrier. Expose
-   collapsed evidence, decision, permission, effect, and acceptance; missing
-   reconciliation; dropped handoffs; and invisible exceptional work. The
-   receipt is a set of owner-local transitions connected by commands, facts,
-   obligations, and receipts rather than one global state machine. This gate
-   closes only when every admitted path reaches an owned result, declared
-   refusal, reconciliation state, or actionable attention and every answer
-   traces backward to authoritative facts.
-4. **Actor/role/outcome frame — observe from outside.** Fix the system boundary,
-   separate external Actors from contextual Roles, express channel-independent
-   Tasks, and ask owner-local, vertical-chain, and surface Questions. Reject
-   transport or local-command success as product proof. The receipt is a set of
-   actor journeys whose answers resolve to owner facts, followed by the
-   smallest cross-channel executable falsifier. This gate closes only when
-   Tasks and Questions retain their meaning across authorized channels, Roles
-   confer no authority, and Questions observe rather than create facts.
+```text
+meaning -> lawful structure -> lawful movement -> lived observation
+```
 
-The actor model is dynamic while the product and system models are structural.
-That asymmetry is intentional: actors traverse the structure and expose
-missing authority, handoffs, refusals, proof, and lawful next actions without
-adding another production layer.
-
-This is a normative funnel, not a claim about commit chronology. Generic
-Habitat substrate may already exist before the models close, but product-law
-burn-down starts only after the relevant destination is deterministic. Civ7
-copies the progression of viewpoints and gate receipts, not another product's
-actors, vocabulary, topology, or implementation machinery.
+The product, system, outcome, and actor-role-outcome packets own the laws at
+those gates. The progression owns their order, receipt shape, and feedback
+route. It is a funnel, not commit chronology and not another production layer.
 
 ## Rolling Focus
 
-**Attractors:** Product. Actor. Role. Intent. Authority. Capability. Outcome.
-Boundary. Refusal. Evidence. Closure.
+**Attractors:** Product. Meaning. Structure. Movement. Observation. Actor. Role.
+Intent. Authority. Capability. Outcome. Boundary. Refusal. Evidence. Closure.
 
-**Current container:** seal the product, system, outcome, and actor-role-outcome
-models together with the exact migration corpus. Then execute the bounded
-current-topology Explore Live Map oracle through the existing CLI and Studio
-projections of `display.explore.request`. The bounded repair first reserves
-`already-explored` for the skipped full-map precondition, then fixes both
-projections' false success presentation for `unverified`. This closes
-executable model evidence; it does not move architecture.
+**Current container:** certify and land the pre-migration product convergence
+stack. The four models, exact corpora, Explore Live Map oracle, Studio design
+synchronization, wind and pressure reconstruction, and seed-stateless latitude
+fallback are sealed current-product receipts. This container does not move
+architecture.
 
 Habitat source, package, blueprint, and release ownership lives upstream and is
 accepted as external authority. The corrected, constructible, consumer-usable
@@ -107,9 +68,9 @@ migration after that pin and the qualified kinds are admitted: admitted config
 -> loader/runtime evidence -> final-surface parity. An isolated adapter move
 is not that chain. Full live control follows later as its own complete chain.
 
-**Gradient:** observed product -> four-model and corpus seal -> bounded Explore
-oracle -> usable upstream Habitat pin -> qualified kind admission -> complete
-Swooper chain -> independent proof set -> old-owner deletion -> Graphite seal.
+**Gradient:** certify product convergence -> land current stack -> usable
+upstream Habitat pin -> qualified kind admission -> complete Swooper chain ->
+independent proof set -> old-owner deletion -> Graphite seal.
 
 ## Settled Ground
 
