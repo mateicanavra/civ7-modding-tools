@@ -4,8 +4,8 @@ import type { ReactNode } from "react";
 
 /**
  * The dense status chip of the instrument panel: amber-contour warnings
- * (drift, autoplay, busy) and quiet neutral count read-outs. Interactive
- * chips render a real button via `asChild` and add their own hover.
+ * (drift, autoplay, busy), quiet neutral count read-outs, and inset interactive
+ * references. Interactive chips render a real button via `asChild`.
  */
 const meta = {
   title: "primitives/Badge",
@@ -41,6 +41,7 @@ export const Variants: Story = {
       <Badge variant="warning">Busy</Badge>
       <Badge variant="neutral">rivers 42</Badge>
       <Badge variant="neutral">lakes 7</Badge>
+      <Badge variant="interactive">elevation</Badge>
     </Demo>
   ),
 };
@@ -48,11 +49,7 @@ export const Variants: Story = {
 export const Interactive: Story = {
   render: () => (
     <Demo>
-      <Badge
-        asChild
-        variant="warning"
-        className="cursor-pointer transition-colors hover:bg-warning/10"
-      >
+      <Badge asChild variant="interactive">
         <button type="button" aria-label="Game setup drifted — click to re-apply the saved config">
           Re-apply
         </button>

@@ -3,9 +3,10 @@
  *
  * B2 surface: the 16 primitives (15 shadcn `components/ui` + FieldRow) and the
  * lib foundation (`cn`, `useResolvedTheme`/`resolveThemeFromDom`, `LAYOUT`).
- * B3 surface: the composites (12: AppBrand, AppFooter, StageViewTabs,
- * ViewControls, WaterStatsSection, OptionSelect, DisclosureHeader, EmptyState,
- * ErrorBanner, MapConfigSaveDialog) + layout (LeftDock, RightDock).
+ * B3 surface: the composites (13: AppBrand, AppFooter, StageViewTabs,
+ * SegmentedControl, ViewControls, WaterStatsSection, OptionSelect,
+ * DisclosureHeader, EmptyState, ErrorBanner, MapConfigSaveDialog) + layout
+ * (LeftDock, RightDock).
  * B4 surface: the forms group (11: the 7 config widgets + the 3 BrowserConfig
  * templates + SchemaConfigForm) with `configWidgets` and the public
  * `useConfigCollapse` collapse engine (SchemaConfigForm's documented
@@ -28,7 +29,7 @@
  * shell as a slot-based canonical assembly (the graduation path for
  * reference explorations; README.md → Operating model).
  * Each branch adds its exports here and raises the `verify` export floor.
- * Final surface: the 45 design-synced components (+ TooltipProvider and the
+ * Final surface: the 46 design-synced components (+ TooltipProvider and the
  * lib exports — `cn`, `useResolvedTheme`, `LAYOUT`, statusLabels formatters,
  * `useConfigCollapse`).
  *
@@ -62,6 +63,11 @@ export {
   type MapConfigSaveDialogProps,
 } from "./components/composites/MapConfigSaveDialog.js";
 export { OptionSelect, type OptionSelectProps } from "./components/composites/OptionSelect.js";
+export {
+  SegmentedControl,
+  type SegmentedControlItem,
+  type SegmentedControlProps,
+} from "./components/composites/SegmentedControl.js";
 export {
   type StageView,
   StageViewTabs,

@@ -170,7 +170,7 @@ export function WaterStatsSection<TRef extends WaterStatsLayerRef>({
       {expanded ? (
         <div
           id={listId}
-          className={`flex-shrink-0 border-b ${borderSubtle} max-h-[220px] overflow-y-auto custom-scrollbar`}
+          className={`flex-shrink-0 border-b ${borderSubtle} max-h-[220px] overflow-y-auto`}
         >
           {rows.map((row) => (
             <div
@@ -191,23 +191,24 @@ export function WaterStatsSection<TRef extends WaterStatsLayerRef>({
                 return (
                   <Tooltip key={ref.layerKey}>
                     <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        onClick={() => onLayerSelect?.(ref)}
-                        aria-label={refTitle}
-                        className="inline-flex max-w-[112px] items-center gap-1 truncate rounded px-1.5 py-0.5 text-label transition-colors bg-input-background border border-border-subtle text-muted-foreground hover:bg-accent hover:text-foreground"
-                      >
-                        {/* Module-owned DATA color: the palette hue travels with
-                            the semantic layer ref (it matches how the mask renders
-                            on the map), so an inline style is legal here per the
-                            system.md data-color rule — it is matter, not chrome. */}
-                        <span
-                          aria-hidden="true"
-                          className="h-1.5 w-1.5 shrink-0 rounded-full"
-                          style={{ background: ref.presentation.palette.activeColor }}
-                        />
-                        <span className="truncate">{formatLayerButtonLabel(ref)}</span>
-                      </button>
+                      <Badge asChild variant="interactive">
+                        <button
+                          type="button"
+                          onClick={() => onLayerSelect?.(ref)}
+                          aria-label={refTitle}
+                        >
+                          {/* Module-owned DATA color: the palette hue travels with
+                              the semantic layer ref (it matches how the mask renders
+                              on the map), so an inline style is legal here per the
+                              system.md data-color rule — it is matter, not chrome. */}
+                          <span
+                            aria-hidden="true"
+                            className="h-1.5 w-1.5 shrink-0 rounded-full"
+                            style={{ background: ref.presentation.palette.activeColor }}
+                          />
+                          <span className="truncate">{formatLayerButtonLabel(ref)}</span>
+                        </button>
+                      </Badge>
                     </TooltipTrigger>
                     <TooltipContent>{refTitle}</TooltipContent>
                   </Tooltip>

@@ -1,6 +1,6 @@
 # @swooper/mapgen-studio-ui
 
-MapGen Studio's UI component library: the 45 design-synced components as a real
+MapGen Studio's UI component library: the 46 design-synced components as a real
 package — compiled `dist/index.js`, a strict generated `.d.ts` tree
 (`dist/types/`), a compiled stylesheet (`dist/styles.css`), and the theme/fonts
 seams the app and the Claude Design sync both consume. Single source of truth;
@@ -188,7 +188,7 @@ dependency inputs, outputs, and caching rather than replacing those files.
 This package IS the synced artifact: `.design-sync/` (config, notes,
 conventions) and `.ds-sync/` (the vendored converter) live here, and the
 config consumes the real build (`entry: dist/index.js`, `cssEntry:
-dist/styles.css`, `buildCmd: bunx nx run mapgen-studio-ui:build`). The 45
+dist/styles.css`, `buildCmd: bunx nx run mapgen-studio-ui:build`). The 46
 co-located stories are the fidelity oracle; story titles are the sync's
 grouping authority (byte-frozen).
 

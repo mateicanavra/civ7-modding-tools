@@ -19,7 +19,7 @@ luminance focus ring. Every component is React, imported from the bundle as
   on `<html>` still works for components that read it at runtime, e.g. `Toaster`.)
 - **Mount one `TooltipProvider` at the app root.** Any component that uses a
   tooltip — `AppFooter`, `AppHeader`, `GameConsole`, `RecipePanel`,
-  `ExplorePanel`, `ViewControls`, `WaterStatsSection`, and `Tooltip` itself —
+  `ExplorePanel`, `SegmentedControl`, `ViewControls`, `WaterStatsSection`, and `Tooltip` itself —
   renders **blank** without a `TooltipProvider` ancestor. No component
   self-provides one (one-provider policy).
 - **Notifications pair `Toaster` with the bundle's own `toast`.** Mount

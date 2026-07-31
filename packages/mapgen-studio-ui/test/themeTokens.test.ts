@@ -1,7 +1,8 @@
 // @vitest-environment node
 // (pure artifact test — reads dist/ from disk; the project default is jsdom
 // for component tests, where import.meta.url is not a file: URL)
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import fixture from "./fixtures/token-contract.json";
@@ -19,7 +20,14 @@ import fixture from "./fixtures/token-contract.json";
  * light-default or dead-toggle stylesheet) fails here instead of shipping.
  */
 
-const css = readFileSync(fileURLToPath(new URL("../dist/styles.css", import.meta.url)), "utf8");
+const packageRoot = fileURLToPath(new URL("..", import.meta.url));
+const css = readFileSync(join(packageRoot, "dist", "styles.css"), "utf8");
+
+const walk = (directory: string): readonly string[] =>
+  readdirSync(directory).flatMap((name) => {
+    const path = join(directory, name);
+    return statSync(path).isDirectory() ? walk(path) : [path];
+  });
 
 function tokensOf(selectorPattern: RegExp, label: string): Record<string, string> {
   const matches = [...css.matchAll(selectorPattern)];
@@ -66,5 +74,14 @@ describe("theme token contract (vs the final build-inputs.sh capture)", () => {
   it("fixture itself still names the full token surface (sanity)", () => {
     expect(Object.keys(stripComment(fixture.dark)).length).toBeGreaterThanOrEqual(28);
     expect(Object.keys(stripComment(fixture.light)).length).toBeGreaterThanOrEqual(31);
+  });
+
+  it("themes native scrollbars globally without a component opt-in class", () => {
+    expect(css).toMatch(/\*::?-webkit-scrollbar/);
+    const authoredSources = walk(join(packageRoot, "src"))
+      .filter((path) => /\.(?:css|tsx?)$/.test(path))
+      .map((path) => readFileSync(path, "utf8"))
+      .join("\n");
+    expect(authoredSources).not.toContain("custom-scrollbar");
   });
 });

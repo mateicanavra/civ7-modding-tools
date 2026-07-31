@@ -1,6 +1,7 @@
 import { Map as MapIcon, Workflow } from "lucide-react";
 import React from "react";
 import { cn } from "../../lib/utils.js";
+import { SegmentedControl } from "./SegmentedControl.js";
 
 /**
  * Which view the center stage presents: the generated map, or the authored
@@ -64,33 +65,26 @@ export const StageViewTabs: React.FC<StageViewTabsProps> = ({
   className,
 }) => {
   return (
-    <div
-      role="group"
+    <SegmentedControl
       aria-label="Stage view"
       className={cn(
-        "absolute left-1/2 z-20 -translate-x-1/2 inline-flex items-center rounded-lg border border-border bg-popover/95 p-1 backdrop-blur-sm",
+        "absolute left-1/2 z-20 -translate-x-1/2 rounded-lg border-border bg-popover/95 p-1 backdrop-blur-sm",
         className
       )}
       style={{ top }}
-    >
-      {VIEWS.map(({ id, label, description, Icon }) => {
-        const active = value === id;
-        return (
-          <button
-            key={id}
-            type="button"
-            aria-pressed={active}
-            title={description}
-            onClick={() => onValueChange(id)}
-            className={`inline-flex h-7 items-center gap-1.5 rounded-md px-2.5 text-data font-medium transition-colors ${
-              active ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
+      value={value}
+      onValueChange={onValueChange}
+      items={VIEWS.map(({ id, label, description, Icon }) => ({
+        value: id,
+        label,
+        title: description,
+        children: (
+          <>
             <Icon className="h-3.5 w-3.5 shrink-0" />
             <span>{label}</span>
-          </button>
-        );
-      })}
-    </div>
+          </>
+        ),
+      }))}
+    />
   );
 };

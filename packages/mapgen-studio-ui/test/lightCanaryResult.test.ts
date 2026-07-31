@@ -15,7 +15,11 @@ const {
 
 const EXPECTED_PICKS = [
   { name: "Button", storyId: "primitives-button--variants", exportName: "Variants" },
-  { name: "Tabs", storyId: "primitives-tabs--recipe-panel", exportName: "RecipePanel" },
+  {
+    name: "SegmentedControl",
+    storyId: "composites-segmentedcontrol--labeled",
+    exportName: "Labeled",
+  },
 ];
 const EXPECTED_TOKENS = ["--background"];
 
@@ -28,9 +32,9 @@ function validResult() {
       sbTokens: { "--background": "#fff" },
       dsTokens: { "--background": "#fff" },
     },
-    Tabs: {
-      storyMarker: "primitives-tabs--recipe-panel",
-      exportMarker: "RecipePanel",
+    SegmentedControl: {
+      storyMarker: "composites-segmentedcontrol--labeled",
+      exportMarker: "Labeled",
       sbClass: "light",
       sbTokens: { "--background": "#111" },
       dsTokens: { "--background": "#111" },
@@ -273,7 +277,7 @@ describe("light canary result", () => {
 
   it("reports drift and assigns exit only after deferred cleanup completes", async () => {
     const result = validResult();
-    result.Tabs.dsTokens["--background"] = "#222";
+    result.SegmentedControl.dsTokens["--background"] = "#222";
     const outcome = evaluateLightCanary(result, {
       expectedPicks: EXPECTED_PICKS,
       expectedTokens: EXPECTED_TOKENS,
