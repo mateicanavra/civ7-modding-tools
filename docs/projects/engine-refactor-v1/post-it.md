@@ -22,25 +22,27 @@ them. Each accepted kind closes its own proof topology around disjoint
 confidence axes; domain-qualified kinds such as MapGen keep their stronger
 domain-shaped testing grammar.
 
-**Current container:** close and land the pre-migration product convergence
-stack. The Civ7 product, system, outcome, and actor-role-outcome models and
-their exact corpora are sealed. The Explore Live Map oracle now preserves
-`explored | already-explored | unverified` and typed failures through owner,
-CLI, and Studio. Studio design synchronization, wind and pressure
-reconstruction, and the seed-stateless latitude fallback are also sealed as
-current-product receipts. The remaining work in this container is bounded
-stack certification, Graphite submission and merge, and worktree accounting;
-it does not authorize source migration or new transition architecture.
+**Current container:** preserve the shared-substrate admission gate after
+landing product convergence. The Civ7 product, system, outcome, and
+actor-role-outcome models and their exact corpora are sealed on `main`, along
+with the Explore Live Map oracle, Studio design synchronization, physical wind
+and pressure reconstruction, and seed-stateless latitude fallback. The
+pre-migration convergence stack landed through PR #2144 and its worktrees are
+drained.
 
 Habitat source, package, blueprint, and release ownership lives upstream and is
-accepted as external authority. The corrected, constructible, consumer-usable
-pin has not landed for Civ7, so target source does not move and Civ7 creates no
-local approximation. The first structural migration is staged but blocked
-until that pin and the qualified kinds land: admitted config -> generated
+accepted as external authority. Template now has accepted repository-local
+catalog resolution and rule-evaluation checkpoints, but it still has no
+published constructible consumer substrate: no assembled Oclif/Nx projection,
+data-only blueprint pack, idempotent consumer initializer, or versioned release
+pin. Target source therefore does not move and Civ7 creates no local
+approximation. The next executable container opens only when that complete
+consumer artifact and its qualified kinds land. Its first structural migration
+remains the whole Swooper realization chain: admitted config -> generated
 entrypoint/digests -> materialized tree -> installation receipt ->
 loader/runtime evidence -> final-surface parity. The adapter split is
-supporting work inside that complete Swooper chain, not an isolated migration.
-Full live control follows later as one complete chain.
+supporting work inside that chain, not an isolated migration. Full live control
+follows later as one complete chain.
 
 **Stable ownership:** Swooper remains a portable mod definition realized by
 its mod app. The CLI remains a commandless `cli-shell` composed from
@@ -57,11 +59,11 @@ cold filesystem effects, while CLI topics project their bound capabilities.
 MapGen run records, cancellation, retention, and events remain scoped
 MapGen-runs service state rather than a manufactured resource.
 
-**Gradient:** certify product convergence -> land current stack -> usable
-upstream Habitat pin -> qualified kind admission -> complete Swooper chain ->
-independent proof set -> old-owner deletion -> Graphite seal. The Tuner
-protocol remains private to its sole provider unless another independent
-consumer earns a public package.
+**Gradient:** constructible upstream Habitat release -> exact pin and digest
+admission -> qualified kind admission -> complete Swooper chain -> independent
+proof set -> old-owner deletion -> Graphite seal. The Tuner protocol remains
+private to its sole provider unless another independent consumer earns a public
+package.
 
 **Detailed frame:** [Civ7 Capability Realization](../civ7-capability-realization/FRAME.md).
 
@@ -106,6 +108,16 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-31 - Product Convergence Sealed
+
+The 22-layer convergence stack landed through PR #2144. Product, system,
+outcome, actor-role-outcome, and model-progression authority now agree with the
+current capability and proof corpora; the Studio, Explore, and physical
+wind/pressure receipts are on `main`. A fresh upstream audit found accepted
+Template source checkpoints but no constructible consumer release, so focus
+moved from product convergence to strict substrate admission without opening a
+local transition architecture.
 
 ### 2026-07-31 - Coupled Pressure and Circulation
 
