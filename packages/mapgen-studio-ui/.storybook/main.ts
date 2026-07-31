@@ -1,6 +1,12 @@
+import { createRequire } from "node:module";
+import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { StorybookConfig } from "@storybook/react-vite";
 import tailwindcss from "@tailwindcss/vite";
+
+const requireFromPackage = createRequire(`${process.cwd()}/package.json`);
+const packageRoot = (packageName: string): string =>
+  dirname(requireFromPackage.resolve(`${packageName}/package.json`));
 
 /**
  * Studio UI component workbench — the design-sync fidelity oracle.
@@ -19,9 +25,12 @@ import tailwindcss from "@tailwindcss/vite";
  * addon installed + registered explicitly for autodocs.
  */
 const config: StorybookConfig = {
-  framework: { name: "@storybook/react-vite", options: {} },
+  framework: {
+    name: packageRoot("@storybook/react-vite") as "@storybook/react-vite",
+    options: {},
+  },
   stories: ["../src/**/*.stories.@(tsx|jsx)"],
-  addons: ["@storybook/addon-docs"],
+  addons: [packageRoot("@storybook/addon-docs")],
   core: { disableTelemetry: true },
   viteFinal: (viteConfig) => {
     viteConfig.resolve ??= {};
