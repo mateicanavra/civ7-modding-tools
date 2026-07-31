@@ -27,9 +27,22 @@ import type { GritReport } from "./types.js";
 
 type NonEmptyGritRules = readonly [RuleGritFacts, ...RuleGritFacts[]];
 
+interface GritCheckPlan {
+  readonly rule: RuleGritFacts;
+  readonly roots: readonly [string, ...string[]];
+}
+
+type NonEmptyGritCheckPlans = readonly [GritCheckPlan, ...GritCheckPlan[]];
+
+interface GritCheckBatchAcquisition {
+  readonly acquisitions: ReadonlyMap<string, GritDiagnosticAcquisition>;
+  readonly participantRuleIds: ReadonlySet<string>;
+}
+
 interface MaterializedRule {
   readonly kind: "materialized";
   readonly rule: RuleGritFacts;
+  readonly roots: readonly [string, ...string[]];
   readonly pattern: MaterializedGritPattern;
 }
 
@@ -47,8 +60,8 @@ export const runGritCheckAcquisitionEffect = Effect.fn("grit.check.acquire")(fun
   roots: readonly [string, ...string[]],
   options: { readonly repoRoot: string; readonly grit: GritCommandService }
 ) {
-  const acquisitions = yield* runGritCheckAcquisitionsEffect([rule], roots, options);
-  return Option.getOrElse(Option.fromNullable(acquisitions.get(rule.id)), () =>
+  const batch = yield* runGritCheckAcquisitionsEffect([{ rule, roots }], options);
+  return Option.getOrElse(Option.fromNullable(batch.acquisitions.get(rule.id)), () =>
     preCommandFailure(
       "DiagnosticProviderSetupFailed",
       `Grit check produced no acquisition for selected rule ${rule.id}.`
@@ -57,19 +70,20 @@ export const runGritCheckAcquisitionEffect = Effect.fn("grit.check.acquire")(fun
 });
 
 /**
- * Acquires one check report for rules with exactly equal ordered acquisition roots.
- * Asset admission remains per rule; provider execution is shared only by valid peers.
+ * Acquires one check report across the union of selected exact-path rule roots.
+ * Asset admission and observed evidence remain projected independently per rule.
  */
 export const runGritCheckAcquisitionsEffect = Effect.fn("grit.check.acquireBatch")(function* (
-  rules: NonEmptyGritRules,
-  roots: readonly [string, ...string[]],
+  plans: NonEmptyGritCheckPlans,
   options: { readonly repoRoot: string; readonly grit: GritCommandService }
 ) {
   const materializations: readonly RuleMaterialization[] = yield* Effect.forEach(
-    rules,
-    (rule) =>
+    plans,
+    ({ rule, roots }) =>
       materializeGritPatternEffect(rule, options.repoRoot).pipe(
-        Effect.map((pattern): RuleMaterialization => ({ kind: "materialized", rule, pattern })),
+        Effect.map(
+          (pattern): RuleMaterialization => ({ kind: "materialized", rule, roots, pattern })
+        ),
         Effect.catchTag("GritPatternAssetInvalid", (error) =>
           Effect.succeed({
             kind: "failed",
@@ -81,22 +95,25 @@ export const runGritCheckAcquisitionsEffect = Effect.fn("grit.check.acquireBatch
     { concurrency: 1 }
   );
   const valid = materializations.flatMap(materializedRuleEntry);
-  const shared = yield* acquireSharedCheckEffect(nonEmptyMaterializations(valid), roots, options);
-  return new Map(
-    materializations.map((materialization) =>
-      materializationAcquisitionEntry(materialization, shared)
-    )
-  );
+  const shared = yield* acquireSharedCheckEffect(nonEmptyMaterializations(valid), options);
+  return {
+    acquisitions: new Map(
+      materializations.map((materialization) =>
+        materializationAcquisitionEntry(materialization, shared)
+      )
+    ),
+    participantRuleIds: new Set(valid.map(({ rule }) => rule.id)),
+  } satisfies GritCheckBatchAcquisition;
 });
 
 function materializationAcquisitionEntry(
   materialization: RuleMaterialization,
-  shared: Option.Option<GritDiagnosticAcquisition>
+  shared: ReadonlyMap<string, GritDiagnosticAcquisition>
 ): readonly [string, GritDiagnosticAcquisition] {
   const acquisition = Match.value(materialization).pipe(
     Match.when({ kind: "failed" }, ({ acquisition: failure }) => failure),
     Match.when({ kind: "materialized" }, ({ rule }) =>
-      Option.getOrElse(shared, () =>
+      Option.getOrElse(Option.fromNullable(shared.get(rule.id)), () =>
         preCommandFailure(
           "DiagnosticProviderSetupFailed",
           `Grit check produced no acquisition for materialized rule ${rule.id}.`
@@ -110,26 +127,30 @@ function materializationAcquisitionEntry(
 
 const acquireSharedCheckEffect = Effect.fn("grit.check.acquireShared")(function* (
   materializations: Option.Option<readonly [MaterializedRule, ...MaterializedRule[]]>,
-  roots: readonly [string, ...string[]],
   options: { readonly repoRoot: string; readonly grit: GritCommandService }
 ) {
   return yield* Match.value(materializations).pipe(
-    Match.when({ _tag: "None" }, () => Effect.succeed(Option.none<GritDiagnosticAcquisition>())),
-    Match.orElse(({ value }) => acquireMaterializedCheckEffect(value, roots, options))
+    Match.when({ _tag: "None" }, () =>
+      Effect.succeed(new Map<string, GritDiagnosticAcquisition>())
+    ),
+    Match.orElse(({ value }) => acquireMaterializedCheckEffect(value, options))
   );
 });
 
 const acquireMaterializedCheckEffect = Effect.fn("grit.check.acquireMaterialized")(function* (
   materializations: readonly [MaterializedRule, ...MaterializedRule[]],
-  roots: readonly [string, ...string[]],
   options: { readonly repoRoot: string; readonly grit: GritCommandService }
 ) {
-  const acquisition = yield* runMaterializedCheckEffect(materializations, roots, options).pipe(
+  return yield* runMaterializedCheckEffect(materializations, options).pipe(
     Effect.catchTag("GritScopedConfigInvalid", (error) =>
-      Effect.succeed(preCommandFailure("DiagnosticProviderSetupFailed", error.detail))
+      Effect.succeed(
+        sharedAcquisitions(
+          materializations,
+          preCommandFailure("DiagnosticProviderSetupFailed", error.detail)
+        )
+      )
     )
   );
-  return Option.some(acquisition);
 });
 
 function materializedRuleEntry(materialization: RuleMaterialization): readonly MaterializedRule[] {
@@ -155,13 +176,13 @@ function materializedPatterns(
 
 const runMaterializedCheckEffect = Effect.fn("grit.check.runMaterializedBatch")(function* (
   materializations: readonly [MaterializedRule, ...MaterializedRule[]],
-  roots: readonly [string, ...string[]],
   options: { readonly repoRoot: string; readonly grit: GritCommandService }
 ) {
   const workspace = yield* acquireScopedGritCatalogEffect(materializedPatterns(materializations));
   const fs = yield* FileSystem.FileSystem;
   const rules = materializedRules(materializations);
   const patternNames = materializedPatternNames(materializations);
+  const roots = unionRoots(materializations);
   const providerRequest = {
     patternNames,
     scanRoots: roots,
@@ -182,14 +203,39 @@ const runMaterializedCheckEffect = Effect.fn("grit.check.runMaterializedBatch")(
   );
   return yield* Match.value(capture).pipe(
     Match.when({ kind: "command-failed" }, (failure) =>
-      Effect.succeed(commandFailure(nativeRequest, failure))
+      Effect.succeed(sharedAcquisitions(materializations, commandFailure(nativeRequest, failure)))
     ),
     Match.when({ kind: "completed" }, ({ result, command }) =>
-      continueCompletedCheckEffect(rules, roots, result, nativeRequest, command, fs)
+      continueCompletedCheckEffect(
+        materializations,
+        rules,
+        roots,
+        result,
+        nativeRequest,
+        command,
+        fs
+      )
     ),
     Match.exhaustive
   );
 });
+
+function unionRoots(
+  materializations: readonly [MaterializedRule, ...MaterializedRule[]]
+): readonly [string, ...string[]] {
+  const [first, ...rest] = [...new Set(materializations.flatMap(({ roots }) => roots))].sort(
+    (left, right) => left.localeCompare(right)
+  );
+  if (first === undefined) throw new Error("Materialized Grit check batch has no roots.");
+  return [first, ...rest];
+}
+
+function sharedAcquisitions(
+  materializations: readonly MaterializedRule[],
+  acquisition: GritDiagnosticAcquisition
+): ReadonlyMap<string, GritDiagnosticAcquisition> {
+  return new Map(materializations.map(({ rule }) => [rule.id, acquisition]));
+}
 
 function materializedRules(
   materializations: readonly [MaterializedRule, ...MaterializedRule[]]
@@ -206,6 +252,7 @@ function materializedPatternNames(
 }
 
 function continueCompletedCheckEffect(
+  materializations: readonly [MaterializedRule, ...MaterializedRule[]],
   rules: NonEmptyGritRules,
   roots: readonly [string, ...string[]],
   result: Parameters<typeof parseGritCheckCommand>[0],
@@ -214,15 +261,18 @@ function continueCompletedCheckEffect(
   fs: FileSystem.FileSystem
 ) {
   return Match.value(checkAcquisitionEvidence(request, command)).pipe(
-    Match.when({ kind: "failed" }, ({ acquisition }) => Effect.succeed(acquisition)),
+    Match.when({ kind: "failed" }, ({ acquisition }) =>
+      Effect.succeed(sharedAcquisitions(materializations, acquisition))
+    ),
     Match.when({ kind: "accepted" }, ({ evidence }) =>
-      completeCapturedCheckEffect(rules, roots, result, evidence, fs)
+      completeCapturedCheckEffect(materializations, rules, roots, result, evidence, fs)
     ),
     Match.exhaustive
   );
 }
 
 const completeCapturedCheckEffect = Effect.fn("grit.check.completeCapture")(function* (
+  materializations: readonly [MaterializedRule, ...MaterializedRule[]],
   rules: NonEmptyGritRules,
   roots: readonly [string, ...string[]],
   result: Parameters<typeof parseGritCheckCommand>[0],
@@ -236,21 +286,35 @@ const completeCapturedCheckEffect = Effect.fn("grit.check.completeCapture")(func
     Match.when({ kind: "parse-failed" }, ({ failure, detail }) =>
       Effect.succeed({
         kind: "terminal" as const,
-        acquisition: parseAcquisitionFailure(failure, detail, evidence),
+        acquisitions: sharedAcquisitions(
+          materializations,
+          parseAcquisitionFailure(failure, detail, evidence)
+        ),
       })
     ),
     Match.when({ kind: "parsed-incomplete" }, ({ failure, detail }) =>
       Effect.succeed({
         kind: "terminal" as const,
-        acquisition: incompleteAcquisitionFailure(failure, detail, evidence),
+        acquisitions: sharedAcquisitions(
+          materializations,
+          incompleteAcquisitionFailure(failure, detail, evidence)
+        ),
       })
     ),
     Match.exhaustive
   );
   return Match.value(observation).pipe(
-    Match.when({ kind: "terminal" }, ({ acquisition }) => acquisition),
+    Match.when({ kind: "terminal" }, ({ acquisitions }) => acquisitions),
     Match.orElse(({ report, processed, results }) =>
-      reconcileCheckObservation(rules, roots, report, processed, results, evidence)
+      reconcileCheckObservation(
+        materializations,
+        rules,
+        roots,
+        report,
+        processed,
+        results,
+        evidence
+      )
     )
   );
 });
@@ -285,13 +349,14 @@ const canonicalCheckObservationEffect = Effect.fn("grit.check.canonicalize")(fun
 });
 
 function reconcileCheckObservation(
+  materializations: readonly [MaterializedRule, ...MaterializedRule[]],
   rules: NonEmptyGritRules,
   roots: readonly string[],
   report: GritReport,
   processed: CanonicalPaths,
   resultPaths: readonly Option.Option<string>[],
   evidence: GritCheckAcquisitionEvidence
-): GritDiagnosticAcquisition {
+): ReadonlyMap<string, GritDiagnosticAcquisition> {
   const processedPaths = Match.value(processed).pipe(
     Match.when({ kind: "complete" }, ({ paths }) => paths),
     Match.orElse(() => [])
@@ -313,13 +378,6 @@ function reconcileCheckObservation(
         `path-escape: processed path ${processedPath} is outside every admitted root.`
       )
     ),
-    ...roots.flatMap((root) =>
-      validationFailure(
-        !processedPaths.some((processedPath) => pathIsWithinRoot(processedPath, root)),
-        "DiagnosticOutputIncomplete",
-        `unobserved-root: Grit check provided no processed path for ${root}.`
-      )
-    ),
     ...report.results.flatMap((result, index) =>
       resultValidationFailures(
         selectedPatternNames,
@@ -331,11 +389,56 @@ function reconcileCheckObservation(
     ),
   ];
   return Match.value(Option.fromNullable(validationFailures[0])).pipe(
-    Match.when({ _tag: "None" }, () => completeCheckAcquisition(report, evidence)),
+    Match.when(
+      { _tag: "None" },
+      () =>
+        new Map(
+          materializations.map((materialization) => [
+            materialization.rule.id,
+            projectRuleAcquisition(materialization, report, processedPaths, resultPaths, evidence),
+          ])
+        )
+    ),
     Match.orElse(({ value: { failure, detail } }) =>
-      incompleteAcquisitionFailure(failure, detail, evidence)
+      sharedAcquisitions(materializations, incompleteAcquisitionFailure(failure, detail, evidence))
     )
   );
+}
+
+function projectRuleAcquisition(
+  materialization: MaterializedRule,
+  report: GritReport,
+  processedPaths: readonly string[],
+  resultPaths: readonly Option.Option<string>[],
+  evidence: GritCheckAcquisitionEvidence
+): GritDiagnosticAcquisition {
+  const missingRoot = materialization.roots.find(
+    (root) => !processedPaths.some((processedPath) => pathIsWithinRoot(processedPath, root))
+  );
+  if (missingRoot !== undefined) {
+    return incompleteAcquisitionFailure(
+      "DiagnosticOutputIncomplete",
+      `unobserved-root: Grit check provided no processed path for ${missingRoot}.`,
+      evidence
+    );
+  }
+
+  const paths = processedPaths.filter((observed) =>
+    materialization.roots.some((root) => pathIsWithinRoot(observed, root))
+  );
+  const results = report.results.flatMap((result, index) => {
+    const observedPath = resultPaths[index];
+    const observedIdentity = observedGritDiagnosticIdentity(result);
+    const belongsToRule =
+      observedIdentity.kind !== "observed-identity-mismatch" &&
+      observedIdentity.observedPatternIdentity === materialization.rule.patternName &&
+      Option.exists(observedPath, (candidate) =>
+        materialization.roots.some((root) => pathIsWithinRoot(candidate, root))
+      );
+    if (!belongsToRule || Option.isNone(observedPath)) return [];
+    return [{ ...result, path: observedPath.value }];
+  });
+  return completeCheckAcquisition({ paths, results }, evidence);
 }
 
 const canonicalPathsEffect = Effect.fn("grit.check.canonicalPaths")(function* (

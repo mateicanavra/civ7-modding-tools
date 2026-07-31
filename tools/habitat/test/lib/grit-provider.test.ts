@@ -2335,53 +2335,123 @@ describe("Grit generic acquisition and public disposition", () => {
     expect(executions.get("beta")?.timing).toEqual(executions.get("alpha")?.timing);
   });
 
-  test("keeps different roots and duplicate pattern identities in sequential commands", async () => {
-    const cases = [
-      [
-        rule("alpha", "alpha_pattern", providerPattern, [providerRoot]),
-        rule("docs", "docs_pattern", providerPattern, ["docs"]),
-      ],
-      [
-        rule("duplicate-a", "duplicate_pattern", providerPattern, [providerRoot]),
-        rule("duplicate-b", "duplicate_pattern", providerPattern, [providerRoot]),
-      ],
+  test("shares one immutable catalog across compatible exact roots", async () => {
+    const selectedRules = [
+      exactRule("alpha", "alpha_pattern", [providerRoot], [providerFile]),
+      exactRule(
+        "broad",
+        "broad_pattern",
+        [providerRoot, "docs"],
+        [providerFile, "docs/PRODUCT.md"]
+      ),
     ] as const;
-    for (const selectedRules of cases) {
-      const observed: Array<readonly string[]> = [];
-      const catalogs: string[] = [];
+    const observed: Array<readonly string[]> = [];
+    const catalogs: string[] = [];
+    const grit = makeFakeGritCommandService(
+      (request, providerRequest) => {
+        const checkRequest = requireCheckProviderRequest(providerRequest);
+        observed.push([...checkRequest.scanRoots]);
+        catalogs.push(readFileSync(path.join(request.cwd, ".grit/grit.yaml"), "utf8"));
+        return makeHabitatCommandResult(request, {
+          stderr: captureOutput(jsonDocument({ paths: [...checkRequest.scanRoots], results: [] })),
+        });
+      },
+      { repoRoot }
+    );
+
+    const executions = await Effect.runPromise(
+      runGritRulesEffect(selectedRules, { repoRoot, grit }).pipe(Effect.provide(NodeContext.layer))
+    );
+
+    expect([...executions.keys()]).toEqual(selectedRules.map(({ id }) => id));
+    expect(observed).toHaveLength(1);
+    expect(observed[0]).toEqual([...new Set(observed[0])].sort());
+    expect(catalogs).toHaveLength(1);
+    expect(catalogs[0]).toContain("alpha_pattern");
+    expect(catalogs[0]).toContain("broad_pattern");
+  });
+
+  test("splits disjoint exact scopes instead of creating an unbounded cross-product", async () => {
+    const fixture = mkdtempSync(path.join(tmpdir(), "habitat-grit-batch-bounds-"));
+    try {
+      mkdirSync(path.join(fixture, ".habitat"));
+      mkdirSync(path.join(fixture, "alpha"));
+      mkdirSync(path.join(fixture, "beta"));
+      mkdirSync(path.join(fixture, "gamma"));
+      writeFileSync(
+        path.join(fixture, ".habitat/pattern.md"),
+        readFileSync(path.join(repoRoot, providerPattern), "utf8")
+      );
+      for (const directory of ["alpha", "beta", "gamma"]) {
+        writeFileSync(path.join(fixture, directory, "subject.ts"), "const subject = true;\n");
+      }
+      const selectedRules = ["alpha", "beta", "gamma"].map((id) =>
+        exactRule(id, `${id}_pattern`, [id], [`${id}/subject.ts`], ".habitat/pattern.md")
+      );
+      const observedPatternNames: string[][] = [];
       const grit = makeFakeGritCommandService(
         (request, providerRequest) => {
           const checkRequest = requireCheckProviderRequest(providerRequest);
-          observed.push([...checkRequest.scanRoots]);
-          catalogs.push(readFileSync(path.join(request.cwd, ".grit/grit.yaml"), "utf8"));
+          observedPatternNames.push([...checkRequest.patternNames]);
           return makeHabitatCommandResult(request, {
             stderr: captureOutput(
               jsonDocument({ paths: [...checkRequest.scanRoots], results: [] })
             ),
           });
         },
-        { repoRoot }
+        { repoRoot: fixture }
       );
 
-      const executions = await Effect.runPromise(
-        runGritRulesEffect(selectedRules, { repoRoot, grit }).pipe(
+      await Effect.runPromise(
+        runGritRulesEffect(selectedRules, { repoRoot: fixture, grit }).pipe(
           Effect.provide(NodeContext.layer)
         )
       );
 
-      expect([...executions.keys()]).toEqual(selectedRules.map(({ id }) => id));
-      expect(observed).toHaveLength(2);
-      expect(catalogs).toHaveLength(2);
-      expect(catalogs.every((catalog) => catalog.split("  - name:").length === 2)).toBe(true);
+      expect(observedPatternNames).toEqual([
+        ["alpha_pattern"],
+        ["beta_pattern"],
+        ["gamma_pattern"],
+      ]);
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
     }
   });
 
-  test("keeps duplicate pattern identities singleton across different root groups", async () => {
+  test("uses deterministic compatibility batches for duplicate pattern identities", async () => {
     const selectedRules = [
-      rule("duplicate-provider", "duplicate_pattern", providerPattern, [providerRoot]),
-      rule("provider-peer", "provider_peer_pattern", providerPattern, [providerRoot]),
-      rule("duplicate-docs", "duplicate_pattern", providerPattern, ["docs"]),
-      rule("docs-peer", "docs_peer_pattern", providerPattern, ["docs"]),
+      exactRule("duplicate-a", "duplicate_pattern", [providerRoot], [providerFile]),
+      exactRule("duplicate-b", "duplicate_pattern", ["docs"], ["docs/PRODUCT.md"]),
+      exactRule("peer", "peer_pattern", [providerRoot], [providerFile]),
+    ] as const;
+    const observedPatternNames: string[][] = [];
+    const grit = makeFakeGritCommandService(
+      (request, providerRequest) => {
+        const checkRequest = requireCheckProviderRequest(providerRequest);
+        observedPatternNames.push([...checkRequest.patternNames]);
+        return makeHabitatCommandResult(request, {
+          stderr: captureOutput(jsonDocument({ paths: [...checkRequest.scanRoots], results: [] })),
+        });
+      },
+      { repoRoot }
+    );
+
+    await Effect.runPromise(
+      runGritRulesEffect(selectedRules, { repoRoot, grit }).pipe(Effect.provide(NodeContext.layer))
+    );
+
+    expect(observedPatternNames).toEqual([
+      ["duplicate_pattern", "peer_pattern"],
+      ["duplicate_pattern"],
+    ]);
+  });
+
+  test("bounds multiple duplicate identities by maximum multiplicity", async () => {
+    const selectedRules = [
+      exactRule("duplicate-provider", "duplicate_pattern", [providerRoot], [providerFile]),
+      exactRule("provider-peer", "provider_peer_pattern", [providerRoot], [providerFile]),
+      exactRule("duplicate-docs", "duplicate_pattern", ["docs"], ["docs/PRODUCT.md"]),
+      exactRule("docs-peer", "provider_peer_pattern", ["docs"], ["docs/PRODUCT.md"]),
     ] as const;
     const observedPatternNames: string[][] = [];
     const grit = makeFakeGritCommandService(
@@ -2401,11 +2471,160 @@ describe("Grit generic acquisition and public disposition", () => {
 
     expect([...executions.keys()]).toEqual(selectedRules.map(({ id }) => id));
     expect(observedPatternNames).toEqual([
-      ["duplicate_pattern"],
-      ["provider_peer_pattern"],
-      ["duplicate_pattern"],
-      ["docs_peer_pattern"],
+      ["duplicate_pattern", "provider_peer_pattern"],
+      ["duplicate_pattern", "provider_peer_pattern"],
     ]);
+  });
+
+  test("projects cross-scope findings and missing processed roots per rule", async () => {
+    const alpha = exactRule("alpha", "alpha_pattern", [providerRoot], [providerFile]);
+    const broad = exactRule(
+      "broad",
+      "broad_pattern",
+      [providerRoot, "docs"],
+      [providerFile, "docs/PRODUCT.md"]
+    );
+    const docsFile = path.join(repoRoot, "docs/PRODUCT.md");
+    let omitDocsRoot = false;
+    const grit = makeFakeGritCommandService(
+      (request, providerRequest) => {
+        const checkRequest = requireCheckProviderRequest(providerRequest);
+        const paths = omitDocsRoot
+          ? [path.join(repoRoot, providerFile)]
+          : [...checkRequest.scanRoots];
+        return makeHabitatCommandResult(request, {
+          stderr: captureOutput(
+            jsonDocument({
+              paths,
+              results: omitDocsRoot ? [] : checkReport(docsFile, "alpha_pattern").results,
+            })
+          ),
+        });
+      },
+      { repoRoot }
+    );
+
+    const projected = await Effect.runPromise(
+      runGritRulesEffect([alpha, broad], { repoRoot, grit }).pipe(Effect.provide(NodeContext.layer))
+    );
+    expect(projected.get("alpha")).toMatchObject({
+      kind: "executed",
+      result: { diagnostics: [] },
+    });
+    expect(projected.get("broad")).toMatchObject({
+      kind: "executed",
+      result: { diagnostics: [] },
+    });
+
+    omitDocsRoot = true;
+    const incomplete = await Effect.runPromise(
+      runGritRulesEffect([alpha, broad], { repoRoot, grit }).pipe(Effect.provide(NodeContext.layer))
+    );
+    expect(incomplete.get("alpha")).toMatchObject({ kind: "executed" });
+    expect(incomplete.get("broad")).toMatchObject({
+      kind: "failed",
+      failure: "DiagnosticOutputIncomplete",
+    });
+  });
+
+  test("projects canonical paths from an external symlink alias", async () => {
+    const fixture = mkdtempSync(path.join(tmpdir(), "habitat-grit-batch-canonical-"));
+    const outside = mkdtempSync(path.join(tmpdir(), "habitat-grit-batch-alias-"));
+    try {
+      mkdirSync(path.join(fixture, ".habitat"));
+      mkdirSync(path.join(fixture, "scan"));
+      writeFileSync(
+        path.join(fixture, ".habitat/pattern.md"),
+        readFileSync(path.join(repoRoot, providerPattern), "utf8")
+      );
+      const subject = path.join(fixture, "scan/subject.ts");
+      const alias = path.join(outside, "subject.ts");
+      writeFileSync(subject, "const subject = true;\n");
+      symlinkSync(subject, alias);
+      const alpha = exactRule(
+        "alpha",
+        "alpha_pattern",
+        ["scan"],
+        ["scan/**/*.ts"],
+        ".habitat/pattern.md"
+      );
+      const beta = exactRule(
+        "beta",
+        "beta_pattern",
+        ["scan"],
+        ["scan/**/*.ts"],
+        ".habitat/pattern.md"
+      );
+      const grit = makeFakeGritCommandService(
+        (request) =>
+          makeHabitatCommandResult(request, {
+            stderr: captureOutput(jsonDocument(checkReport(alias, "alpha_pattern", [alias]))),
+          }),
+        { repoRoot: fixture }
+      );
+
+      const executions = await Effect.runPromise(
+        runGritRulesEffect([alpha, beta], { repoRoot: fixture, grit }).pipe(
+          Effect.provide(NodeContext.layer)
+        )
+      );
+
+      expect(executions.get("alpha")).toMatchObject({
+        kind: "executed",
+        result: { diagnostics: [{ path: "scan/subject.ts" }] },
+      });
+      expect(executions.get("beta")).toMatchObject({
+        kind: "executed",
+        result: { diagnostics: [] },
+      });
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
+  });
+
+  test("fails shared batch integrity while continuing a later compatibility batch", async () => {
+    const selectedRules = [
+      exactRule("alpha", "duplicate_pattern", [providerRoot], [providerFile]),
+      exactRule("peer", "peer_pattern", [providerRoot], [providerFile]),
+      exactRule("alpha-second", "duplicate_pattern", [providerRoot], [providerFile]),
+    ] as const;
+    let callCount = 0;
+    const grit = makeFakeGritCommandService(
+      (request, providerRequest) => {
+        const checkRequest = requireCheckProviderRequest(providerRequest);
+        callCount += 1;
+        return makeHabitatCommandResult(request, {
+          stderr: captureOutput(
+            callCount === 1
+              ? jsonDocument(
+                  checkReport(
+                    checkRequest.scanRoots[0] ?? path.join(repoRoot, providerFile),
+                    "foreign_pattern",
+                    checkRequest.scanRoots
+                  )
+                )
+              : jsonDocument({ paths: [...checkRequest.scanRoots], results: [] })
+          ),
+        });
+      },
+      { repoRoot }
+    );
+
+    const executions = await Effect.runPromise(
+      runGritRulesEffect(selectedRules, { repoRoot, grit }).pipe(Effect.provide(NodeContext.layer))
+    );
+
+    expect(callCount).toBe(2);
+    expect(executions.get("alpha")).toMatchObject({
+      kind: "failed",
+      failure: "DiagnosticUnexpectedIdentity",
+    });
+    expect(executions.get("peer")).toMatchObject({
+      kind: "failed",
+      failure: "DiagnosticUnexpectedIdentity",
+    });
+    expect(executions.get("alpha-second")).toMatchObject({ kind: "executed" });
   });
 
   test("isolates invalid rule assets before valid peers acquire a shared catalog", async () => {
@@ -2435,8 +2654,11 @@ describe("Grit generic acquisition and public disposition", () => {
     expect(executions.get("invalid")).toMatchObject({
       kind: "failed",
       failure: "DiagnosticRuleMaterializationFailed",
+      durationMs: 0,
     });
+    expect(executions.get("invalid")?.timing).toBeUndefined();
     expect(executions.get("valid")).toMatchObject({ kind: "executed" });
+    expect(executions.get("valid")?.timing).toBeUndefined();
     expect(catalogs).toHaveLength(1);
     expect(catalogs[0]).toContain("valid_pattern");
     expect(catalogs[0]).not.toContain("invalid_pattern");
@@ -3055,8 +3277,18 @@ function exactCheckRule(
   acquisitionRoots: readonly string[],
   patterns: readonly string[]
 ): RuleGritFacts {
+  return exactRule(id, `${id}_pattern`, acquisitionRoots, patterns);
+}
+
+function exactRule(
+  id: string,
+  patternName: string,
+  acquisitionRoots: readonly string[],
+  patterns: readonly string[],
+  pattern = providerPattern
+): RuleGritFacts {
   return {
-    ...rule(id, `${id}_pattern`, providerPattern, acquisitionRoots),
+    ...rule(id, patternName, pattern, acquisitionRoots),
     pathCoverage: [{ kind: "exact-path", patterns: [...patterns] }],
   };
 }
