@@ -32,7 +32,6 @@
 					<Item>maps/latest-juicy.js</Item>
 					<Item>maps/mountain-patch.js</Item>
 					<Item>maps/mountains-of-time-original.js</Item>
-					<Item>maps/mountain-rivers-patch.js</Item>
 				</ImportFiles>
 			</Actions>
 		</ActionGroup>

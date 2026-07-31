@@ -12,12 +12,14 @@ import { defineStandardVizMeta } from "../../../../../../viz.js";
 
 const GROUP_SEASONALITY = "Hydrology / Seasonality";
 const GROUP_CLIMATE = "Hydrology / Climate";
+const GROUP_PRESSURE = "Hydrology / Pressure";
 const GROUP_WIND = "Hydrology / Wind";
 const GROUP_CURRENT = "Hydrology / Currents";
 const GROUP_OCEAN = "Hydrology / Ocean";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 type BaselineClimateField = ArtifactReadValueOf<typeof climateArtifacts.baselineClimateField>;
+type PressureField = ArtifactReadValueOf<typeof climateArtifacts.pressureField>;
 type WindField = ArtifactReadValueOf<typeof climateArtifacts.windField>;
 type Uint8VizValues = Extract<VizScalarSource, { format: "u8" }>["values"];
 type Int8VizValues = Extract<VizScalarSource, { format: "i8" }>["values"];
@@ -32,6 +34,7 @@ type ClimateBaselineVizEvidence = Readonly<{
     rainfallAmplitude: Uint8VizValues;
     humidityAmplitude: Uint8VizValues;
   }>;
+  pressureField: PressureField;
   windField: WindField;
   currentField: Readonly<{
     currentU: Int8VizValues;
@@ -39,6 +42,7 @@ type ClimateBaselineVizEvidence = Readonly<{
   }>;
   seasonalRainfall: readonly Uint8VizValues[];
   seasonalHumidity: readonly Uint8VizValues[];
+  seasonalPressure: readonly Float32VizValues[];
   seasonalWindU: readonly Int8VizValues[];
   seasonalWindV: readonly Int8VizValues[];
   seasonalCurrentU: readonly Int8VizValues[];
@@ -70,7 +74,8 @@ export function buildClimateBaselineVizProjections(
   dimensions: VizDims
 ): readonly VizProjection[] {
   const projections: VizProjection[] = [];
-  const { baselineClimateField, seasonalAmplitudes, windField, currentField } = observation;
+  const { baselineClimateField, seasonalAmplitudes, pressureField, windField, currentField } =
+    observation;
 
   if (observation.oceanGeometry) {
     projections.push(
@@ -137,6 +142,39 @@ export function buildClimateBaselineVizProjections(
         meta: defineStandardVizMeta("hydrology.ocean.seaIceMask", "category.distinct", {
           label: "Ocean Sea Ice Mask",
           group: GROUP_OCEAN,
+          visibility: "debug",
+        }),
+        points: {},
+      })
+    );
+  }
+
+  projections.push(
+    ...buildScalarFieldProjections({
+      dataTypeKey: "hydrology.pressure.pressure",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "f32", values: pressureField.pressure },
+      meta: defineStandardVizMeta("hydrology.pressure.pressure", "field.signed", {
+        label: "Circulation Pressure Anomaly (hPa)",
+        group: GROUP_PRESSURE,
+      }),
+      points: {},
+    })
+  );
+  for (let season = 0; season < observation.seasonalPressure.length; season += 1) {
+    const pressure = observation.seasonalPressure[season];
+    if (!pressure) continue;
+    projections.push(
+      ...buildScalarFieldProjections({
+        dataTypeKey: "hydrology.pressure.pressure",
+        variantKey: `season:${season}`,
+        spaceId: TILE_SPACE_ID,
+        dims: dimensions,
+        field: { format: "f32", values: pressure },
+        meta: defineStandardVizMeta("hydrology.pressure.pressure", "field.signed", {
+          label: `Circulation Pressure Anomaly (Season ${season + 1})`,
+          group: GROUP_PRESSURE,
           visibility: "debug",
         }),
         points: {},

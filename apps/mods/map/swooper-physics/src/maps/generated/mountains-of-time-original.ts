@@ -598,6 +598,9 @@ const mapConfig = {
           "modeCount": 4,
           "axialTiltDeg": 23
         },
+        "coupling": {
+          "iterations": 2
+        },
         "computeRadiativeForcing": {
           "strategy": "latitude-insolation",
           "config": {
@@ -611,25 +614,32 @@ const mapConfig = {
           "config": {
             "baseTemperatureC": 8,
             "insolationScaleC": 50,
-            "lapseRateCPerM": -0.0065,
+            "lapseRateCPerElevationUnit": -0.0065,
             "landCoolingC": 3.2,
             "minC": -40,
             "maxC": 50
           }
         },
+        "computePressureField": {
+          "strategy": "thermal-continental",
+          "config": {
+            "scaffoldStrength": 1,
+            "thermalAnomalyHpaPerC": 0.55,
+            "stationaryThermalHpaPerC": 1.2,
+            "transientScaleTiles": 20,
+            "transientAmplitudeHpa": 14,
+            "smoothIters": 2
+          }
+        },
         "computeAtmosphericCirculation": {
           "strategy": "geostrophic-proxy",
           "config": {
-            "maxSpeed": 160,
-            "zonalStrength": 130,
-            "meridionalStrength": 130,
-            "geostrophicStrength": 170,
-            "pressureNoiseScale": 20,
-            "pressureNoiseAmp": 62,
-            "waveStrength": 48,
-            "landHeatStrength": 23,
-            "mountainDeflectStrength": 22,
-            "smoothIters": 5
+            "maxSpeed": 115,
+            "zonalStrength": 120,
+            "meridionalStrength": 15,
+            "pressureDrivenRms": 95,
+            "smoothIters": 5,
+            "equatorialTaperDeg": 18
           }
         },
         "computeOceanSurfaceCurrents": {
@@ -784,7 +794,7 @@ const mapConfig = {
           "config": {
             "baseTemperatureC": 9,
             "insolationScaleC": 50,
-            "lapseRateCPerM": -0.0095,
+            "lapseRateCPerElevationUnit": -0.0095,
             "landCoolingC": 0.32,
             "minC": -60,
             "maxC": 50
@@ -1349,8 +1359,8 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountains-of-time-original",
-  configHash: "39fb4dcf08d71a0521dacda74991debf2996d99d3a9029cd054d31c57772e8f3",
-  envelopeHash: "9383fc01f4c519e805cdd310ab91af7e71459be65d01a1156569d8b337c31b73",
+  configHash: "43a9b99032995f29463e3f2fe7d3c84284b2c8a9af8e73aa9ece671794776da4",
+  envelopeHash: "a646dc08b279b6e751cd84e2555c2a86f57c73b42fe6fce6bac174bd7123ddfb",
   config: mapConfig.config,
   initialSetup: {
     requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,

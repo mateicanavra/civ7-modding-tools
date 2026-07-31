@@ -2,9 +2,11 @@ import { collectMaskComponentsOddQ } from "@swooper/mapgen-core/lib/grid";
 import {
   type ComponentMetricSummary,
   type CountMetric,
+  type NumericMetricSummary,
   countMetricMask,
   measureMetricCount,
   summarizeMetricComponents,
+  summarizeNumericMetrics,
 } from "@swooper/mapgen-metrics";
 
 import type { StandardMapCapture } from "../capture.js";
@@ -46,6 +48,7 @@ export type StandardReliefMetrics = Readonly<{
   finalRoughTerrain: CountMetric;
   finalNonVolcanoRoughTerrain: CountMetric;
   finalFlatTerrain: CountMetric;
+  finalLandElevation: NumericMetricSummary;
 }>;
 
 /** Measures relief relationships from one closed Standard capture without applying thresholds. */
@@ -132,7 +135,25 @@ export function measureStandardRelief(capture: StandardMapCapture): StandardReli
       population
     ),
     finalFlatTerrain: measureMetricCount(finalFlatCount, population),
+    finalLandElevation: summarizeFinalLandElevation(capture),
   });
+}
+
+function summarizeFinalLandElevation(capture: StandardMapCapture): NumericMetricSummary {
+  const elevations: number[] = [];
+  for (let index = 0; index < capture.model.landMask.length; index += 1) {
+    if (capture.model.landMask[index] !== 1) continue;
+    const elevation = capture.model.elevation[index];
+    if (elevation === undefined) {
+      throw new Error(`Final Morphology elevation is missing at land tile ${index}.`);
+    }
+    elevations.push(elevation);
+  }
+  const [first, ...rest] = elevations;
+  if (first === undefined) {
+    throw new Error("Final land elevation requires at least one Morphology land tile.");
+  }
+  return summarizeNumericMetrics([first, ...rest]);
 }
 
 function measureMountainRegion(

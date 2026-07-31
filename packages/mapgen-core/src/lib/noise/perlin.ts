@@ -1,7 +1,22 @@
+function createMulberry32(seed: number): () => number {
+  let state = seed >>> 0;
+  return () => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let value = state;
+    value = Math.imul(value ^ (value >>> 15), value | 1);
+    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+    return (value ^ (value >>> 14)) >>> 0;
+  };
+}
+
 /**
- * Mutable seeded implementation of classic improved Perlin noise for repeatable terrain perturbations.
- * `setSeed` rebuilds the permutation, so sampling is stateless between calls for a fixed integer seed
- * and repeats every 256 lattice units in each dimension.
+ * Mutable seeded implementation of classic improved Perlin noise for repeatable terrain
+ * perturbations. Sampling repeats every 256 lattice units in each dimension.
+ *
+ * The constructor and `setSeed` retain the historical permutation algorithm exactly for output
+ * compatibility. In its usual nonnegative integer domain, that algorithm repeats seeds 256 apart.
+ * `fromFullSeed` and `setFullSeed` instead normalize the seed to its unsigned 32-bit bit pattern
+ * and use Mulberry32 plus Fisher-Yates.
  */
 export class PerlinNoise {
   private p: number[] = new Array(512);
@@ -25,12 +40,35 @@ export class PerlinNoise {
     this.setSeed(seed);
   }
 
+  /** Creates a noise source whose permutation participates in all 32 seed bits. */
+  static fromFullSeed(seed = 0): PerlinNoise {
+    const noise = new PerlinNoise();
+    noise.setFullSeed(seed);
+    return noise;
+  }
+
+  /** Rebuilds the permutation with the historical low-byte-compatible algorithm. */
   setSeed(seed: number): void {
     const source = [...this.permutation];
     for (let i = 0; i < 256; i++) {
       const r = (seed + i * 31337) % 256;
       [source[i], source[r]] = [source[r], source[i]];
     }
+    this.installPermutation(source);
+  }
+
+  /** Rebuilds the permutation from the seed's complete unsigned 32-bit bit pattern. */
+  setFullSeed(seed: number): void {
+    const source = [...this.permutation];
+    const nextUint32 = createMulberry32(seed);
+    for (let i = source.length - 1; i > 0; i--) {
+      const r = Math.floor((nextUint32() / 0x100000000) * (i + 1));
+      [source[i], source[r]] = [source[r], source[i]];
+    }
+    this.installPermutation(source);
+  }
+
+  private installPermutation(source: readonly number[]): void {
     for (let i = 0; i < 256; i++) {
       this.p[256 + i] = this.p[i] = source[i];
     }

@@ -2,20 +2,19 @@ import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authorin
 import geostrophicProxyDefinition from "./strategies/geostrophic-proxy/config.js";
 import latitudeDefinition from "./strategies/latitude/config.js";
 
-/** Wind-field contract whose geostrophic proxy is the product default and latitude is the simpler fallback. */
+/**
+ * Wind-field contract whose geostrophic proxy is the product default and latitude is the simpler
+ * fallback. The analytic three-cell backbone carries the zonal belts while departures in the
+ * supplied pressure proxy provide bounded weather-scale structure.
+ */
 const ComputeAtmosphericCirculationContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-atmospheric-circulation",
   /**
-   * Computes a prevailing wind field (U/V) from latitude plus deterministic structure/noise.
+   * Computes a prevailing wind field (U/V) from latitude and deterministic pressure structure.
    *
-   * Important invariants:
-   * - RNG crosses the op boundary as *data only* (`rngSeed`). The op must construct its own local RNG.
-   * - Outputs are deterministic given the same seed + inputs.
-   *
-   * Practical guidance:
-   * - If winds feel too uniform: increase `windVariance` and/or `windJetStreaks`.
-   * - If winds dominate too strongly: decrease `windJetStrength`.
+   * `rngSeed` remains part of the operation input because the latitude fallback consumes it.
+   * The geostrophic strategy is deterministic from latitude, pressure, and configuration alone.
    */
   input: Type.Object(
     {
@@ -28,34 +27,24 @@ const ComputeAtmosphericCirculationContract = defineOp({
         cardinality: ["height"],
         description: "Latitude per row (degrees).",
       }),
-      /** Deterministic RNG seed (derived in the step; pure data). */
+      /** Deterministic RNG seed consumed by strategies that synthesize seeded latitude variation. */
       rngSeed: Type.Integer({
         minimum: 0,
         maximum: 2_147_483_647,
-        description: "Deterministic RNG seed (derived in the step; pure data).",
+        description:
+          "Deterministic RNG seed consumed by the latitude strategy; the geostrophic strategy ignores it.",
       }),
-      /** Optional land mask per tile (1=land, 0=water). */
-      landMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." })
-      ),
-      /** Optional elevation (meters-ish) per tile (signed). */
-      elevation: Type.Optional(
-        TypedArraySchemas.i16({ description: "Elevation per tile (optional; signed meters-ish)." })
-      ),
-      /** Optional season phase (0..1), where 0 and 1 represent the same point in the cycle. */
-      seasonPhase01: Type.Optional(
-        Type.Number({
-          minimum: 0,
-          maximum: 1,
-          description:
-            "Optional season phase (0..1), where 0 and 1 represent the same point in the cycle.",
-        })
-      ),
+      /** Pressure-anomaly proxy whose departures from each row's zonal mean drive eddies. */
+      pressureField: TypedArraySchemas.f32({
+        cardinality: ["width", "height"],
+        description:
+          "Circulation-oriented mean-sea-level pressure-anomaly proxy per tile. Only departures from each row's zonal mean feed the wind perturbation, avoiding duplication of the analytic circulation belts.",
+      }),
     },
     {
       additionalProperties: false,
       description:
-        "Latitude and deterministic seed, with optional season, land, and elevation evidence that shape the selected wind model.",
+        "Latitude, circulation pressure proxy, and deterministic seed evidence.",
     }
   ),
   /**
@@ -63,10 +52,16 @@ const ComputeAtmosphericCirculationContract = defineOp({
    */
   output: Type.Object(
     {
-      /** Wind U component per tile (-127..127). */
-      windU: TypedArraySchemas.i8({ description: "Wind U component per tile (-127..127)." }),
-      /** Wind V component per tile (-127..127). */
-      windV: TypedArraySchemas.i8({ description: "Wind V component per tile (-127..127)." }),
+      /** Wind U component per tile (-127..127); +U points east toward increasing columns. */
+      windU: TypedArraySchemas.i8({
+        description:
+          "Wind U component per tile (-127..127); +U points east toward increasing columns.",
+      }),
+      /** Wind V component per tile (-127..127); +V points toward increasing rows. */
+      windV: TypedArraySchemas.i8({
+        description:
+          "Wind V component per tile (-127..127); +V points toward increasing rows, with geographic orientation derived from the latitude ramp.",
+      }),
     },
     {
       additionalProperties: false,

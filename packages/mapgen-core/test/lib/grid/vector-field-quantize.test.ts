@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { quantizeUnitVec2I8 } from "@mapgen/lib/grid/index.js";
+import { quantizeUnitVec2I8, quantizeVec2I8ClampMagnitude } from "@mapgen/lib/grid/index.js";
 
 describe("lib/grid vector field quantization", () => {
   it("returns zero for zero, tiny, and non-finite vectors", () => {
@@ -32,5 +32,20 @@ describe("lib/grid vector field quantization", () => {
       expect(q.y).toBeGreaterThanOrEqual(-127);
       expect(q.y).toBeLessThanOrEqual(127);
     }
+  });
+
+  it("clamps over-range vector magnitude without rotating toward the diagonal", () => {
+    expect(quantizeVec2I8ClampMagnitude(200, 200, 100)).toEqual({ x: 90, y: 90 });
+    expect(quantizeVec2I8ClampMagnitude(200, 50, 100)).toEqual({ x: 123, y: 31 });
+    expect(quantizeVec2I8ClampMagnitude(50, 25, 100)).toEqual({ x: 64, y: 32 });
+  });
+
+  it("collapses invalid magnitude-scaled vectors to zero", () => {
+    expect(quantizeVec2I8ClampMagnitude(Number.NaN, 1, 100)).toEqual({ x: 0, y: 0 });
+    expect(quantizeVec2I8ClampMagnitude(1, Number.POSITIVE_INFINITY, 100)).toEqual({
+      x: 0,
+      y: 0,
+    });
+    expect(quantizeVec2I8ClampMagnitude(1, 1, 0)).toEqual({ x: 0, y: 0 });
   });
 });

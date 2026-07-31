@@ -598,6 +598,9 @@ const mapConfig = {
           "modeCount": 2,
           "axialTiltDeg": 12
         },
+        "coupling": {
+          "iterations": 2
+        },
         "computeRadiativeForcing": {
           "strategy": "latitude-insolation",
           "config": {
@@ -611,10 +614,21 @@ const mapConfig = {
           "config": {
             "baseTemperatureC": 11.5,
             "insolationScaleC": 57,
-            "lapseRateCPerM": -0.0065,
+            "lapseRateCPerElevationUnit": -0.0065,
             "landCoolingC": 2,
             "minC": -40,
             "maxC": 50
+          }
+        },
+        "computePressureField": {
+          "strategy": "thermal-continental",
+          "config": {
+            "scaffoldStrength": 1,
+            "thermalAnomalyHpaPerC": 0.55,
+            "stationaryThermalHpaPerC": 1.2,
+            "transientScaleTiles": 18,
+            "transientAmplitudeHpa": 14,
+            "smoothIters": 2
           }
         },
         "computeAtmosphericCirculation": {
@@ -622,14 +636,10 @@ const mapConfig = {
           "config": {
             "maxSpeed": 110,
             "zonalStrength": 90,
-            "meridionalStrength": 30,
-            "geostrophicStrength": 70,
-            "pressureNoiseScale": 18,
-            "pressureNoiseAmp": 41.25,
-            "waveStrength": 33.75,
-            "landHeatStrength": 20,
-            "mountainDeflectStrength": 18,
-            "smoothIters": 4
+            "meridionalStrength": 15,
+            "pressureDrivenRms": 35,
+            "smoothIters": 4,
+            "equatorialTaperDeg": 18
           }
         },
         "computeOceanSurfaceCurrents": {
@@ -784,7 +794,7 @@ const mapConfig = {
           "config": {
             "baseTemperatureC": 11.5,
             "insolationScaleC": 57,
-            "lapseRateCPerM": -0.0065,
+            "lapseRateCPerElevationUnit": -0.0065,
             "landCoolingC": 2,
             "minC": -40,
             "maxC": 50
@@ -1350,8 +1360,8 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-desert-mountains",
-  configHash: "fd2b720b13413511a4b41943e6e73bdba2f89c036409988116bd6a7b6764f437",
-  envelopeHash: "0b07979789e49bf2d9d145424569440637422fd6b9450c4536d671fe99faf679",
+  configHash: "18929e03c3a7a89175242cbb6452fe2bc120b764253097779f2a184fcf25aaac",
+  envelopeHash: "350c625cc9c012a247748920380f7e7c18467309402e5fa7f9008482dccfc167",
   config: mapConfig.config,
   initialSetup: {
     requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,

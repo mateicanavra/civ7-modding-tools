@@ -631,6 +631,9 @@ const mapConfig = {
           "modeCount": 4,
           "axialTiltDeg": 23
         },
+        "coupling": {
+          "iterations": 2
+        },
         "computeRadiativeForcing": {
           "strategy": "latitude-insolation",
           "config": {
@@ -644,10 +647,21 @@ const mapConfig = {
           "config": {
             "baseTemperatureC": 8,
             "insolationScaleC": 50,
-            "lapseRateCPerM": -0.0065,
+            "lapseRateCPerElevationUnit": -0.0065,
             "landCoolingC": 3.2,
             "minC": -40,
             "maxC": 50
+          }
+        },
+        "computePressureField": {
+          "strategy": "thermal-continental",
+          "config": {
+            "scaffoldStrength": 1,
+            "thermalAnomalyHpaPerC": 0.55,
+            "stationaryThermalHpaPerC": 1.2,
+            "transientScaleTiles": 20,
+            "transientAmplitudeHpa": 14,
+            "smoothIters": 2
           }
         },
         "computeAtmosphericCirculation": {
@@ -655,14 +669,10 @@ const mapConfig = {
           "config": {
             "maxSpeed": 160,
             "zonalStrength": 130,
-            "meridionalStrength": 130,
-            "geostrophicStrength": 170,
-            "pressureNoiseScale": 20,
-            "pressureNoiseAmp": 62,
-            "waveStrength": 48,
-            "landHeatStrength": 23,
-            "mountainDeflectStrength": 22,
-            "smoothIters": 5
+            "meridionalStrength": 15,
+            "pressureDrivenRms": 95,
+            "smoothIters": 5,
+            "equatorialTaperDeg": 18
           }
         },
         "computeOceanSurfaceCurrents": {
@@ -817,7 +827,7 @@ const mapConfig = {
           "config": {
             "baseTemperatureC": 9,
             "insolationScaleC": 50,
-            "lapseRateCPerM": -0.0095,
+            "lapseRateCPerElevationUnit": -0.0095,
             "landCoolingC": 0.32,
             "minC": -60,
             "maxC": 50
@@ -1362,8 +1372,8 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "latest-juicy",
-  configHash: "10757d969472f0a6f61c2a859a5036c9f8dda2c93889616c38b50d1b95b1b07b",
-  envelopeHash: "1915218f6b9468ed62a5981c99ae01350814954f3873c6569cd427cc5754b7fa",
+  configHash: "ead8c0c24aad5630ac7d99c883fcf7f8669215860ac0a67cc486470bc2fdfcfe",
+  envelopeHash: "cfefeceeeec5ae18090b9ade6260e3d0edd5dc75068b544a469515011053bfcc",
   config: mapConfig.config,
   initialSetup: {
     requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,

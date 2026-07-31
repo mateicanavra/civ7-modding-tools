@@ -49,11 +49,5 @@
 			Description="LOC_MAP_MOUNTAINS_OF_TIME_ORIGINAL_DESCRIPTION"
 			SortIndex="1900"
 		/>
-		<Row
-			File="{swooper-maps}/maps/mountain-rivers-patch.js"
-			Name="LOC_MAP_MOUNTAIN_RIVERS_PATCH_NAME"
-			Description="LOC_MAP_MOUNTAIN_RIVERS_PATCH_DESCRIPTION"
-			SortIndex="1901"
-		/>
 	</Maps>
 </Database>

@@ -1,4 +1,8 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
+import {
+  collectMaskComponentsOddQ,
+  getHexNeighborIndicesOddQ,
+} from "@swooper/mapgen-core/lib/grid";
 import type { VizProjection } from "@swooper/mapgen-viz";
 import { measureStandardLakeProjection } from "../../../../../metrics/families/hydrology/lake-projection.js";
 import { defineStandardVizMeta } from "../../../../../viz.js";
@@ -8,9 +12,39 @@ import { config } from "./config.js";
 const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
+function pruneIsolatedMorphologyFragments(
+  projectionLakeMask: Uint8Array,
+  directlyProtectedLakeMask: Uint8Array,
+  width: number,
+  height: number
+): number {
+  let protectedCount = 0;
+  for (const component of collectMaskComponentsOddQ({
+    mask: projectionLakeMask,
+    width,
+    height,
+  })) {
+    if (component.size !== 1) continue;
+    const tileIndex = component.indices[0];
+    if (tileIndex === undefined) continue;
+    const x = tileIndex % width;
+    const y = Math.floor(tileIndex / width);
+    if (
+      !getHexNeighborIndicesOddQ(x, y, width, height).some(
+        (neighbor) => directlyProtectedLakeMask[neighbor] === 1
+      )
+    ) {
+      continue;
+    }
+    projectionLakeMask[tileIndex] = 0;
+    protectedCount += 1;
+  }
+  return protectedCount;
+}
+
 /**
- * Withholds final Morphology landforms from lake projection, then keeps mutable
- * engine readback invocation-local.
+ * Withholds final Morphology landforms and their isolated one-tile lake remnants
+ * from projection, then keeps mutable engine readback invocation-local.
  */
 export const LakesStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
@@ -21,6 +55,7 @@ export const LakesStep = createStep(config, {
     const size = width * height;
 
     const projectionLakeMask = new Uint8Array(size);
+    const directlyProtectedLakeMask = new Uint8Array(size);
     let morphologyProtectedLakeTileCount = 0;
     let mountainProtectedLakeTileCount = 0;
     let volcanoProtectedLakeTileCount = 0;
@@ -29,15 +64,24 @@ export const LakesStep = createStep(config, {
       if (mountains.mountainMask[i] === 1) {
         morphologyProtectedLakeTileCount += 1;
         mountainProtectedLakeTileCount += 1;
+        directlyProtectedLakeMask[i] = 1;
         continue;
       }
       if (volcanoes.volcanoMask[i] === 1) {
         morphologyProtectedLakeTileCount += 1;
         volcanoProtectedLakeTileCount += 1;
+        directlyProtectedLakeMask[i] = 1;
         continue;
       }
       projectionLakeMask[i] = 1;
     }
+    const isolatedFragmentProtectedLakeTileCount = pruneIsolatedMorphologyFragments(
+      projectionLakeMask,
+      directlyProtectedLakeMask,
+      width,
+      height
+    );
+    morphologyProtectedLakeTileCount += isolatedFragmentProtectedLakeTileCount;
 
     // The adapter is the only engine boundary. Stamping plus readback stays there
     // so later steps observe current Civ7 state instead of consuming stale snapshots.
@@ -56,6 +100,7 @@ export const LakesStep = createStep(config, {
       morphologyProtectedLakeTileCount,
       mountainProtectedLakeTileCount,
       volcanoProtectedLakeTileCount,
+      isolatedFragmentProtectedLakeTileCount,
       nonLakeTileCount: projection.nonLakeTileCount,
       terrainMismatchTileCount: projection.terrainMismatchTileCount,
       rejectedLakeShare: Number(
@@ -67,6 +112,7 @@ export const LakesStep = createStep(config, {
       projection,
       engineLandMask,
       morphologyProtectedLakeTileCount,
+      isolatedFragmentProtectedLakeTileCount,
     };
   },
   metrics: ({ observation, dimensions }) => ({
@@ -75,6 +121,8 @@ export const LakesStep = createStep(config, {
       projectedLakeMask: observation.projection.stampedLakeMask,
       plannedLakeTileCount: observation.projection.plannedLakeTileCount,
       morphologyProtectedLakeTileCount: observation.morphologyProtectedLakeTileCount,
+      isolatedFragmentProtectedLakeTileCount:
+        observation.isolatedFragmentProtectedLakeTileCount,
       stampedLakeTileCount: observation.projection.stampedLakeTileCount,
       rejectedLakeTileCount: observation.projection.rejectedLakeTileCount,
       nonLakeTileCount: observation.projection.nonLakeTileCount,

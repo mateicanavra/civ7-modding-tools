@@ -104,8 +104,20 @@
         "computeEraPlateMembership": {
           "strategy": "backward-drift",
           "config": {
-            "eraWeights": [0.3, 0.25, 0.2, 0.15, 0.1],
-            "driftStepsByEra": [12, 9, 6, 3, 1]
+            "eraWeights": [
+              0.3,
+              0.25,
+              0.2,
+              0.15,
+              0.1
+            ],
+            "driftStepsByEra": [
+              12,
+              9,
+              6,
+              3,
+              1
+            ]
           }
         },
         "computeEraTectonicFields": {
@@ -568,6 +580,9 @@
           "modeCount": 4,
           "axialTiltDeg": 23.44
         },
+        "coupling": {
+          "iterations": 2
+        },
         "computeRadiativeForcing": {
           "strategy": "latitude-insolation",
           "config": {
@@ -581,25 +596,32 @@
           "config": {
             "baseTemperatureC": 11.5,
             "insolationScaleC": 57,
-            "lapseRateCPerM": -0.0065,
+            "lapseRateCPerElevationUnit": -0.0065,
             "landCoolingC": 2,
             "minC": -40,
             "maxC": 50
           }
         },
+        "computePressureField": {
+          "strategy": "thermal-continental",
+          "config": {
+            "scaffoldStrength": 1,
+            "thermalAnomalyHpaPerC": 0.55,
+            "stationaryThermalHpaPerC": 1.2,
+            "transientScaleTiles": 18,
+            "transientAmplitudeHpa": 14,
+            "smoothIters": 2
+          }
+        },
         "computeAtmosphericCirculation": {
           "strategy": "geostrophic-proxy",
           "config": {
-            "maxSpeed": 110,
-            "zonalStrength": 90,
-            "meridionalStrength": 30,
-            "geostrophicStrength": 70,
-            "pressureNoiseScale": 18,
-            "pressureNoiseAmp": 68.75,
-            "waveStrength": 56.25,
-            "landHeatStrength": 20,
-            "mountainDeflectStrength": 18,
-            "smoothIters": 4
+            "maxSpeed": 130,
+            "zonalStrength": 100,
+            "meridionalStrength": 15,
+            "pressureDrivenRms": 35,
+            "smoothIters": 4,
+            "equatorialTaperDeg": 18
           }
         },
         "computeOceanSurfaceCurrents": {
@@ -653,7 +675,7 @@
         "computePrecipitation": {
           "strategy": "vector",
           "config": {
-            "rainfallScale": 206.99999999999997,
+            "rainfallScale": 130,
             "humidityExponent": 1,
             "noiseAmplitude": 8,
             "noiseScale": 0.12,
@@ -754,7 +776,7 @@
           "config": {
             "baseTemperatureC": 11.5,
             "insolationScaleC": 57,
-            "lapseRateCPerM": -0.0065,
+            "lapseRateCPerElevationUnit": -0.0065,
             "landCoolingC": 2,
             "minC": -40,
             "maxC": 50
@@ -847,7 +869,12 @@
               "tropicalThreshold": 24
             },
             "moisture": {
-              "thresholds": [88, 120, 162, 210]
+              "thresholds": [
+                88,
+                120,
+                162,
+                210
+              ]
             },
             "aridity": {
               "temperatureMin": 2,
@@ -858,7 +885,10 @@
               "rainfallWeight": 1.08,
               "bias": 2,
               "normalization": 132,
-              "moistureShiftThresholds": [0.43, 0.66],
+              "moistureShiftThresholds": [
+                0.43,
+                0.66
+              ],
               "vegetationPenalty": 0.14
             },
             "vegetation": {
@@ -1098,7 +1128,10 @@
             "maxFreeze": 0.2,
             "maxVegetation": 0.1,
             "maxMoisture": 70,
-            "allowedBiomes": ["desert", "temperateDry"]
+            "allowedBiomes": [
+              "desert",
+              "temperateDry"
+            ]
           }
         },
         "scoreBurned": {
@@ -1109,7 +1142,10 @@
             "maxFreeze": 0.15,
             "maxVegetation": 0.15,
             "maxMoisture": 90,
-            "allowedBiomes": ["temperateDry", "tropicalSeasonal"]
+            "allowedBiomes": [
+              "temperateDry",
+              "tropicalSeasonal"
+            ]
           }
         },
         "scoreJungle": {
@@ -1118,7 +1154,9 @@
             "minTemperature": 22,
             "minMoisture": 110,
             "minVegetation": 0.45,
-            "allowedBiomes": ["tropicalRainforest"]
+            "allowedBiomes": [
+              "tropicalRainforest"
+            ]
           }
         },
         "plotEffects": {

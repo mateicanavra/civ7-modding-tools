@@ -10,6 +10,11 @@ import {
   canonicalMapConfigDigest,
   type StandardMapConfigEnvelope,
 } from "../../../../maps/configs/canonical.js";
+import { MAP_CONFIG_CATALOG_IDS } from "../../../../maps/catalog/membership.js";
+import latestJuicyRaw from "../../../../maps/configs/latest-juicy.config.json";
+import mountainPatchRaw from "../../../../maps/configs/mountain-patch.config.json";
+import mountainsOfTimeEarthlikeRaw from "../../../../maps/configs/mountains-of-time-earthlike.config.json";
+import mountainsOfTimeOriginalRaw from "../../../../maps/configs/mountains-of-time-original.config.json";
 import shatteredRingRaw from "../../../../maps/configs/shattered-ring.config.json";
 import sunderedArchipelagoRaw from "../../../../maps/configs/sundered-archipelago.config.json";
 import swooperDesertMountainsRaw from "../../../../maps/configs/swooper-desert-mountains.config.json";
@@ -24,19 +29,29 @@ export type StandardMetricScenarioIdentity = Readonly<{
 }>;
 
 /** Stable identities admitted by the shipped Standard recipe study bank. */
-export type ShippedStandardConfigurationId =
-  | "swooper-earthlike"
-  | "shattered-ring"
-  | "sundered-archipelago"
-  | "swooper-desert-mountains";
+export type ShippedStandardConfigurationId = (typeof MAP_CONFIG_CATALOG_IDS)[number];
 
-/** Shipped Standard configurations admitted once for every product-metrics study. */
-export const SHIPPED_STANDARD_CONFIGURATIONS = Object.freeze([
-  shippedConfiguration("swooper-earthlike", swooperEarthlikeRaw),
-  shippedConfiguration("shattered-ring", shatteredRingRaw),
-  shippedConfiguration("sundered-archipelago", sunderedArchipelagoRaw),
-  shippedConfiguration("swooper-desert-mountains", swooperDesertMountainsRaw),
-]);
+const SHIPPED_STANDARD_CONFIGURATION_SOURCES = {
+  "swooper-desert-mountains": swooperDesertMountainsRaw,
+  "swooper-earthlike": swooperEarthlikeRaw,
+  "shattered-ring": shatteredRingRaw,
+  "sundered-archipelago": sunderedArchipelagoRaw,
+  "mountains-of-time-earthlike": mountainsOfTimeEarthlikeRaw,
+  "latest-juicy": latestJuicyRaw,
+  "mountain-patch": mountainPatchRaw,
+  "mountains-of-time-original": mountainsOfTimeOriginalRaw,
+} as const satisfies Readonly<Record<ShippedStandardConfigurationId, unknown>>;
+
+/**
+ * Every durable catalog configuration, admitted once in catalog order for product-metrics studies.
+ *
+ * Broad integrity, geography, and identity studies consume this complete set.
+ */
+export const SHIPPED_STANDARD_CONFIGURATIONS = Object.freeze(
+  MAP_CONFIG_CATALOG_IDS.map((id) =>
+    shippedConfiguration(id, SHIPPED_STANDARD_CONFIGURATION_SOURCES[id])
+  )
+);
 
 /** Civ7 presets used by Standard product studies, admitted explicitly from canonical metadata. */
 export const STANDARD_METRIC_PRESETS = Object.freeze({

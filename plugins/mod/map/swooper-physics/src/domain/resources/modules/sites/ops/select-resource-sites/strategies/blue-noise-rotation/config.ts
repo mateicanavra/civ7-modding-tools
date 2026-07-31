@@ -49,7 +49,7 @@ export default defineStrategy({
         maximum: 4,
         default: 1.8,
         description:
-          "Per-landmass density ceiling relative to the mean across qualifying landmasses (>=10% of land); rotation skips sites on landmasses above the ceiling.",
+          "Maximum resource-density spread across qualifying landmasses (>=10% of land); required target/range placements and support adjustments avoid crossing a healthy spread or worsening an unhealthy one.",
       }),
       familyDensity: Type.Object(
         {

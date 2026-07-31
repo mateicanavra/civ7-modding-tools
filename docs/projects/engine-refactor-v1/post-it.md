@@ -20,23 +20,27 @@ anchor; path placement and Nx tags never admit them. Each accepted kind closes
 its own proof topology around disjoint confidence axes; domain-qualified kinds
 such as MapGen keep their stronger domain-shaped testing grammar.
 
-**Current container:** converge the independent product lanes required before
-the coupled capability-chain cutover. Restack and re-prove the remaining Studio
-design-sync stack on current `main`, then merge it before moving Studio API or
-app paths. Reconstruct the accepted wind/pressure behavior and metric proof in
-the current Swooper topology rather than restacking its obsolete flat-path
-branch. The active Fluree inquiry lane remains independently owned and
-non-blocking until it produces a clean package-shaped result.
+**Current container:** seal circulation-pressure anomaly and atmospheric
+circulation as one coupled climate unit in the current Swooper topology.
+Wind-only certification proved that the consumer contract already expects
+pressure departures and that transient-only weather moves unrelated product
+outcomes. Do not retune product configs around missing cause, manufacture
+absolute surface pressure, or restore retired land, terrain, and wave proxies.
+The pressure producer owns the complete anomaly sample, including transient
+structure; wind owns only the analytic backbone and its pressure response.
+Preserve full-width seed entropy, close the causal and product proof, and
+require the complete shipped-config bank to pass. The obsolete flat-path branch
+remains evidence, not an integration candidate. Studio design-sync and the
+Template-owned `@habitat/cli` release are settled ground. The active Fluree
+inquiry lane remains independently owned and non-blocking until it produces a
+clean package-shaped result.
 
-RAWR HQ-Template concurrently owns the corrected Habitat successor:
-`@habitat/cli` source and releases, generic blueprint policy, its data-only
-pack, production loading, generation, Nx projection, initialization, and
-vendor modernization. Civ7's four admission-through-classification commits
-remain scoped evidence on a sibling stack. Civ7 adds no local Habitat machinery
-and moves no capability-owner source into a transition shape while waiting.
-Once product convergence and the shared release both seal, Civ7 begins the
-coupled cutover rather than hardening an isolated CLI, service, Studio,
-resource, or mod transition.
+After the coupled climate unit closes, begin the capability-chain cutover directly on
+the shared Habitat substrate. Civ7 adds no local Habitat machinery, preserves
+no old oRPC/service spine, and hardens no isolated CLI, service, Studio,
+resource, or mod transition. Each migrated chain reaches owner-correct source,
+runtime realization, parity proof, old-owner deletion, and a sealed Graphite
+layer before the next chain opens.
 
 **Stable ownership:** Swooper remains a portable mod definition realized by
 its mod app. The CLI remains a commandless `cli-shell` composed from
@@ -102,6 +106,25 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-07-31 - Coupled Pressure and Circulation
+
+Wind-only proof exposed a false container boundary. The new circulation
+consumer had already admitted caused pressure, while the tree supplied only
+transient Perlin texture after retiring the old synthetic land, terrain, and
+wave proxies. The resulting ecology, lake, and resource drift is not a tuning
+problem; it is evidence of the missing producer. Pressure and circulation now
+close atomically with seed-entropy, anomaly, product-metric, and generated-map
+proof before capability-chain migration begins.
+
+### 2026-07-31 - Final Product Convergence
+
+Studio design-sync and the Template-owned portable Habitat release are sealed.
+The remaining entry-convergence owner is Swooper's accepted wind/pressure
+behavior in current topology: wind first, caused pressure second. When that
+product evidence closes, the shared-substrate gate is gone and the initiative
+descends directly into coupled capability-chain migration rather than another
+transition architecture.
 
 ### 2026-07-31 - Civ7 Product Convergence Resumed
 

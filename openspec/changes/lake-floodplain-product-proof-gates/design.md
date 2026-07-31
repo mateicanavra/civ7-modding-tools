@@ -33,7 +33,7 @@ Product matrix:
 - fast deterministic generated-map layer;
 - Earthlike acceptance seed;
 - holdout seeds;
-- mountain-patch vs mountain-rivers-patch contrast;
+- retained mountain-config contrast through the catalog-wide mountain-drama study;
 - floodplain active seed;
 - arid/desert no-signal controls;
 - final reviewer disposition.

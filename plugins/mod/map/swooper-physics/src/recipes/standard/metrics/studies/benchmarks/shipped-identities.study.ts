@@ -8,7 +8,7 @@ import {
   standardProductMetricScenario,
 } from "../scenarios.js";
 
-/** Proves each shipped Standard configuration retains its identity on one stable Huge map. */
+/** Proves every durable catalog configuration retains its exact identity on one stable map. */
 export const SHIPPED_IDENTITY_STUDIES = requireNonEmptyMetricStudyValues(
   SHIPPED_STANDARD_CONFIGURATIONS.map(({ id, config }) =>
     defineStandardMetricSampleStudy(

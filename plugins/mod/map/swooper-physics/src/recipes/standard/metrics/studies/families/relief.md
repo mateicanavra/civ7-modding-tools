@@ -6,7 +6,8 @@ This family compares authored mountains, hills, foothills, rough land, volcanoes
 and mountain-region interiors with realized Civ7 mountain, hill, flat, and
 volcano surfaces. It retains counts, populations, connected-component size and
 diameter, volcano boundary-regime classification, exact per-tile volcano
-feature/terrain readback mismatches, and flat pockets inside orogenic regions.
+feature/terrain readback mismatches, flat pockets inside orogenic regions, and
+the count, minimum, maximum, and mean of final Morphology elevation on land.
 
 Connectivity uses the recipe's periodic odd-Q grid. The family does not decide
 whether a range is long enough, an interior is open enough, or rough terrain is

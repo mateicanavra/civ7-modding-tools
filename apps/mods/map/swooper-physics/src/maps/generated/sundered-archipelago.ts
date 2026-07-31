@@ -598,6 +598,9 @@ const mapConfig = {
           "modeCount": 4,
           "axialTiltDeg": 23.44
         },
+        "coupling": {
+          "iterations": 2
+        },
         "computeRadiativeForcing": {
           "strategy": "latitude-insolation",
           "config": {
@@ -611,25 +614,32 @@ const mapConfig = {
           "config": {
             "baseTemperatureC": 11.5,
             "insolationScaleC": 57,
-            "lapseRateCPerM": -0.0065,
+            "lapseRateCPerElevationUnit": -0.0065,
             "landCoolingC": 2,
             "minC": -40,
             "maxC": 50
           }
         },
+        "computePressureField": {
+          "strategy": "thermal-continental",
+          "config": {
+            "scaffoldStrength": 1,
+            "thermalAnomalyHpaPerC": 0.55,
+            "stationaryThermalHpaPerC": 1.2,
+            "transientScaleTiles": 18,
+            "transientAmplitudeHpa": 14,
+            "smoothIters": 2
+          }
+        },
         "computeAtmosphericCirculation": {
           "strategy": "geostrophic-proxy",
           "config": {
-            "maxSpeed": 110,
-            "zonalStrength": 90,
-            "meridionalStrength": 30,
-            "geostrophicStrength": 70,
-            "pressureNoiseScale": 18,
-            "pressureNoiseAmp": 68.75,
-            "waveStrength": 56.25,
-            "landHeatStrength": 20,
-            "mountainDeflectStrength": 18,
-            "smoothIters": 4
+            "maxSpeed": 130,
+            "zonalStrength": 100,
+            "meridionalStrength": 15,
+            "pressureDrivenRms": 35,
+            "smoothIters": 4,
+            "equatorialTaperDeg": 18
           }
         },
         "computeOceanSurfaceCurrents": {
@@ -683,7 +693,7 @@ const mapConfig = {
         "computePrecipitation": {
           "strategy": "vector",
           "config": {
-            "rainfallScale": 206.99999999999997,
+            "rainfallScale": 130,
             "humidityExponent": 1,
             "noiseAmplitude": 8,
             "noiseScale": 0.12,
@@ -784,7 +794,7 @@ const mapConfig = {
           "config": {
             "baseTemperatureC": 11.5,
             "insolationScaleC": 57,
-            "lapseRateCPerM": -0.0065,
+            "lapseRateCPerElevationUnit": -0.0065,
             "landCoolingC": 2,
             "minC": -40,
             "maxC": 50
@@ -1349,8 +1359,8 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "sundered-archipelago",
-  configHash: "44d03df4fa8e29fa1f2ca36d37f5da3325add1a9f2bc712e0461ef24d7247338",
-  envelopeHash: "9d5592f73722922c302d0d42ed00706895396ba58c3ff46366c5b9cb0aff7078",
+  configHash: "939b6f7dde7935180fae331a44eac0f24bf55fdf976d15333bb41127eceeb012",
+  envelopeHash: "cf01e5fbff3255833392421eaccde9afdae06305490c3358be0b85454eda95d2",
   config: mapConfig.config,
   initialSetup: {
     requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,

@@ -115,13 +115,13 @@ describe("studio run-in-game live verifier", () => {
   test("resolves Swooper map script paths into local and deployed bundles", () => {
     expect(
       resolveSwooperMapScriptPaths({
-        mapScript: "{swooper-maps}/maps/mountain-rivers-patch.js",
+        mapScript: "{swooper-maps}/maps/mountain-patch.js",
         repoRoot: "/repo",
         modsDir: "/Users/test/Civ Mods",
       })
     ).toEqual({
-      localPath: "/repo/apps/mods/map/swooper-physics/mod/maps/mountain-rivers-patch.js",
-      deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-rivers-patch.js",
+      localPath: "/repo/apps/mods/map/swooper-physics/mod/maps/mountain-patch.js",
+      deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-patch.js",
     });
 
     expect(
@@ -135,17 +135,11 @@ describe("studio run-in-game live verifier", () => {
 
   test("passes only when local and deployed map scripts match and carry river markers", () => {
     const stage = buildSwooperMapScriptDeploymentStage({
-      mapScript: "{swooper-maps}/maps/mountain-rivers-patch.js",
-      localPath: "/repo/apps/mods/map/swooper-physics/mod/maps/mountain-rivers-patch.js",
-      deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-rivers-patch.js",
-      local: identity(
-        "/repo/apps/mods/map/swooper-physics/mod/maps/mountain-rivers-patch.js",
-        "same"
-      ),
-      deployed: identity(
-        "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-rivers-patch.js",
-        "same"
-      ),
+      mapScript: "{swooper-maps}/maps/mountain-patch.js",
+      localPath: "/repo/apps/mods/map/swooper-physics/mod/maps/mountain-patch.js",
+      deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-patch.js",
+      local: identity("/repo/apps/mods/map/swooper-physics/mod/maps/mountain-patch.js", "same"),
+      deployed: identity("/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-patch.js", "same"),
       localMarkers: [
         { marker: "map.rivers.authoredTerrainMaterialization", present: true },
         { marker: "POST-AUTHORED-RIVERS", present: true },
@@ -165,17 +159,11 @@ describe("studio run-in-game live verifier", () => {
 
   test("blocks stale deployed scripts before mutating a live game", () => {
     const stage = buildSwooperMapScriptDeploymentStage({
-      mapScript: "{swooper-maps}/maps/mountain-rivers-patch.js",
-      localPath: "/repo/apps/mods/map/swooper-physics/mod/maps/mountain-rivers-patch.js",
-      deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-rivers-patch.js",
-      local: identity(
-        "/repo/apps/mods/map/swooper-physics/mod/maps/mountain-rivers-patch.js",
-        "current"
-      ),
-      deployed: identity(
-        "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-rivers-patch.js",
-        "stale"
-      ),
+      mapScript: "{swooper-maps}/maps/mountain-patch.js",
+      localPath: "/repo/apps/mods/map/swooper-physics/mod/maps/mountain-patch.js",
+      deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-patch.js",
+      local: identity("/repo/apps/mods/map/swooper-physics/mod/maps/mountain-patch.js", "current"),
+      deployed: identity("/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-patch.js", "stale"),
       localMarkers: [
         { marker: "map.rivers.authoredTerrainMaterialization", present: true },
         { marker: "POST-AUTHORED-RIVERS", present: true },

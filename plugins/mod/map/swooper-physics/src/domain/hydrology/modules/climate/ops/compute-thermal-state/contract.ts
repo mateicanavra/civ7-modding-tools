@@ -9,7 +9,8 @@ const ComputeThermalStateContract = defineOp({
    * Computes a surface temperature proxy from insolation + elevation + land/ocean mask.
    *
    * Practical guidance:
-   * - If mountains are too cold/hot: adjust `lapseRateCPerM` magnitude (more negative = colder at altitude).
+   * - If mountains are too cold/hot: adjust `lapseRateCPerElevationUnit` magnitude
+   *   (more negative = colder at altitude).
    * - If land feels too continental: adjust `landCoolingC` (higher = cooler land relative to oceans).
    * - If the entire world is too warm/cold: adjust `baseTemperatureC`.
    */
@@ -21,8 +22,10 @@ const ComputeThermalStateContract = defineOp({
       height: Type.Integer({ minimum: 1, description: "Tile grid height (rows)." }),
       /** Insolation proxy (0..1) per tile. */
       insolation: TypedArraySchemas.f32({ description: "Insolation proxy (0..1) per tile." }),
-      /** Elevation (meters) per tile. */
-      elevation: TypedArraySchemas.i16({ description: "Elevation (meters) per tile." }),
+      /** Upstream quantized relief elevation per tile. */
+      elevation: TypedArraySchemas.i16({
+        description: "Elevation per tile in the upstream topography artifact's relief units.",
+      }),
       /** Land mask per tile (1=land, 0=water). */
       landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
       /**

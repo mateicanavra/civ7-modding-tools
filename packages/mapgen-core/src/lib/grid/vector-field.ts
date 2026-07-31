@@ -107,6 +107,30 @@ export function dequantizeI8Signed(value: number, maxAbs: number): number {
 }
 
 /**
+ * Quantizes a vector at the caller's physical scale while preserving its direction.
+ *
+ * Vectors longer than `maxMagnitude` are shortened before component quantization. This avoids
+ * the rotation toward diagonals caused by independently clamping over-range components.
+ */
+export function quantizeVec2I8ClampMagnitude(x: number, y: number, maxMagnitude: number): Vec2 {
+  if (
+    !Number.isFinite(x) ||
+    !Number.isFinite(y) ||
+    !Number.isFinite(maxMagnitude) ||
+    maxMagnitude <= 0
+  ) {
+    return { x: 0, y: 0 };
+  }
+
+  const magnitude = Math.hypot(x, y);
+  const magnitudeScale = magnitude > maxMagnitude ? maxMagnitude / magnitude : 1;
+  return {
+    x: quantizeI8Signed(x * magnitudeScale, maxMagnitude),
+    y: quantizeI8Signed(y * magnitudeScale, maxMagnitude),
+  };
+}
+
+/**
  * Normalizes a direction and quantizes each component to the symmetric `[-127, 127]` encoding.
  * Tiny or non-finite vectors collapse to a newly allocated zero vector.
  */

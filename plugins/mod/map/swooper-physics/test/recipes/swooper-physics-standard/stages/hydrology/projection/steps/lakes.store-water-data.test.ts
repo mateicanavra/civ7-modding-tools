@@ -293,7 +293,7 @@ describe("map-hydrology/lakes", () => {
     const context = createContext(adapter, TEST_DIMENSIONS, TEST_MAP_SEED);
     const mountainTile = 2 + width;
     const volcanoTile = 3 + width;
-    const plainLakeTile = 4 + width;
+    const plainLakeTile = 6 + width;
     const lakeMask = new Uint8Array(width * height);
     lakeMask[mountainTile] = 1;
     lakeMask[volcanoTile] = 1;
@@ -336,7 +336,52 @@ describe("map-hydrology/lakes", () => {
       expect.objectContaining({
         plannedLakeTileCount: 1,
         morphologyProtectedLakeTileCount: 2,
+        isolatedFragmentProtectedLakeTileCount: 0,
       })
     );
+  });
+
+  it("withholds isolated projection fragments caused by protected landforms", () => {
+    const { width, height } = TEST_DIMENSIONS;
+    const adapter = new CachedWaterAdapter({
+      width,
+      height,
+      mapInfo: TEST_MAP_SIZE.mapInfo,
+      mapSizeId: TEST_MAP_SIZE.id,
+      rng: createLabelRng(TEST_MAP_SEED),
+    });
+    const context = createContext(adapter, TEST_DIMENSIONS, TEST_MAP_SEED);
+    const rowOffset = width;
+    const fragmentedLakeTiles = [2, 3, 4].map((x) => x + rowOffset);
+    const retainedLakeTiles = [7, 8, 9].map((x) => x + rowOffset);
+    const standaloneLakeTile = 12 + rowOffset;
+    const lakeMask = new Uint8Array(width * height);
+    for (const tileIndex of [
+      ...fragmentedLakeTiles,
+      ...retainedLakeTiles,
+      standaloneLakeTile,
+    ]) {
+      lakeMask[tileIndex] = 1;
+    }
+    const mountainMask = new Uint8Array(width * height);
+    mountainMask[fragmentedLakeTiles[1]!] = 1;
+    const volcanoMask = new Uint8Array(width * height);
+    volcanoMask[retainedLakeTiles[0]!] = 1;
+
+    const observation = executeLakesStep(context, lakeMask, mountainMask, volcanoMask);
+
+    const projectedCandidates = adapter.calls.stampLakes.at(-1)?.lakeMask;
+    expect(projectedCandidates).toBeInstanceOf(Uint8Array);
+    expect(fragmentedLakeTiles.map((tileIndex) => projectedCandidates?.[tileIndex])).toEqual([
+      0, 0, 0,
+    ]);
+    expect(retainedLakeTiles.map((tileIndex) => projectedCandidates?.[tileIndex])).toEqual([0, 1, 1]);
+    expect(projectedCandidates?.[standaloneLakeTile]).toBe(1);
+    expect(observation.isolatedFragmentProtectedLakeTileCount).toBe(2);
+    expect(observation.morphologyProtectedLakeTileCount).toBe(4);
+    expect(observation.projection.plannedLakeTileCount).toBe(3);
+    expect(
+      observation.projection.plannedLakeTileCount + observation.morphologyProtectedLakeTileCount
+    ).toBe(7);
   });
 });

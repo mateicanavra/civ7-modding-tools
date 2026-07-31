@@ -3,6 +3,32 @@ import type { CountMetric, MetricTarget } from "@swooper/mapgen-metrics";
 import type { StandardMapMetricCohort, StandardMapProductSample } from "../sample.js";
 import { atLeast, atMost, equalTo, requiredShare, summarizeCohort } from "./support.js";
 
+/** Exact product and seed axes whose matched elevation relationship defines mountain drama. */
+export const MOUNTAIN_DRAMA_COHORT_IDENTITY = {
+  referenceConfigurationId: "swooper-earthlike",
+  mountainConfigurationIds: [
+    "mountain-patch",
+    "mountains-of-time-earthlike",
+    "mountains-of-time-original",
+  ],
+  seeds: [1018, 2024, 5050],
+} as const;
+
+/** Matched-seed relational proof that each mountain product raises the peak land elevation. */
+export const MOUNTAIN_DRAMA_ELEVATION_TARGET = {
+  id: "shipped/mountain-drama-elevation",
+  description:
+    "Each retained mountain configuration exceeds Earthlike's final maximum land elevation at the same seed.",
+  expectations: [
+    equalTo<StandardMapMetricCohort>(
+      "maximum-land-elevation-exceeds-earthlike",
+      "Every mountain configuration has a higher maximum final land elevation than Earthlike at the matched seed.",
+      matchedMountainElevationExceedsEarthlike,
+      true
+    ),
+  ],
+} satisfies MetricTarget<StandardMapMetricCohort>;
+
 /** Representative Earthlike relief benchmark for varied terrain without rough-upland carpets. */
 export const EARTHLIKE_RELIEF_REPRESENTATIVE_TARGET = {
   id: "swooper-earthlike/relief",
@@ -253,6 +279,46 @@ export const EARTHLIKE_OROGENY_TARGET = {
     ),
   ],
 } satisfies MetricTarget<StandardMapMetricCohort>;
+
+function matchedMountainElevationExceedsEarthlike(samples: StandardMapMetricCohort): boolean {
+  const expectedSampleCount =
+    (MOUNTAIN_DRAMA_COHORT_IDENTITY.mountainConfigurationIds.length + 1) *
+    MOUNTAIN_DRAMA_COHORT_IDENTITY.seeds.length;
+  if (samples.length !== expectedSampleCount) return false;
+
+  for (const seed of MOUNTAIN_DRAMA_COHORT_IDENTITY.seeds) {
+    const earthlike = uniqueMatchedSample(
+      samples,
+      MOUNTAIN_DRAMA_COHORT_IDENTITY.referenceConfigurationId,
+      seed
+    );
+    if (!earthlike) return false;
+    for (const configurationId of MOUNTAIN_DRAMA_COHORT_IDENTITY.mountainConfigurationIds) {
+      const mountain = uniqueMatchedSample(samples, configurationId, seed);
+      if (
+        !mountain ||
+        mountain.metrics.relief.finalLandElevation.maximum <=
+          earthlike.metrics.relief.finalLandElevation.maximum
+      ) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+function uniqueMatchedSample(
+  samples: StandardMapMetricCohort,
+  configurationId: string,
+  mapSeed: number
+): StandardMapProductSample | undefined {
+  const matched = samples.filter(
+    (sample) =>
+      sample.provenance.configurationId === configurationId &&
+      sample.provenance.mapSeed === mapSeed
+  );
+  return matched.length === 1 ? matched[0] : undefined;
+}
 
 function minimumShare(
   samples: StandardMapMetricCohort,

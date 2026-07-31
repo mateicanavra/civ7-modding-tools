@@ -24,6 +24,7 @@ function intentAt(args: {
   resourceType: PlanIntent["resourceType"];
   order: number;
   inHabitat?: boolean;
+  landmassId?: number;
 }): PlanIntent {
   const plotIndex = plotAt(args.x, args.y);
   return {
@@ -37,7 +38,7 @@ function intentAt(args: {
     phase: "rotation",
     order: args.order,
     regionSlot: args.x < width / 2 ? 1 : 2,
-    landmassId: 0,
+    landmassId: args.landmassId ?? 0,
     inHabitat: args.inHabitat ?? true,
   };
 }
@@ -80,6 +81,9 @@ function buildInput(args: {
   affinityRules?: AdjustInput["plan"]["settings"]["affinityRules"];
   habitatMaskByType?: Partial<Record<PlanIntent["resourceType"], Uint8Array>>;
   legalMaskByType?: Partial<Record<PlanIntent["resourceType"], Uint8Array>>;
+  intensityByType?: Partial<Record<PlanIntent["resourceType"], Float32Array>>;
+  landmassIdByTile?: Int32Array;
+  landmassTileCounts?: number[];
 }): AdjustInput {
   const regionSlotByTile = new Uint8Array(size);
   for (let i = 0; i < size; i++) {
@@ -115,11 +119,12 @@ function buildInput(args: {
       habitatMask:
         args.habitatMaskByType?.[row.resourceType]?.slice() ?? new Uint8Array(size).fill(1),
       legalMask: args.legalMaskByType?.[row.resourceType]?.slice() ?? new Uint8Array(size).fill(1),
-      intensity: new Float32Array(size).fill(1),
+      intensity:
+        args.intensityByType?.[row.resourceType]?.slice() ?? new Float32Array(size).fill(1),
     })),
     starts: args.starts,
-    landmassIdByTile: new Int32Array(size),
-    landmassTileCounts: [size],
+    landmassIdByTile: args.landmassIdByTile?.slice() ?? new Int32Array(size),
+    landmassTileCounts: args.landmassTileCounts?.slice() ?? [size],
     regionSlotByTile,
   };
 }
@@ -596,6 +601,181 @@ describe("adjust-resource-support operation contract", () => {
         ].includes(row.reason)
       )
     ).toBe(true);
+  });
+
+  it("records a failed support repair when density blocks the only legal site and admits improvements", () => {
+    const landmassBoundary = Math.floor(width / 2);
+    const landmassIdByTile = new Int32Array(size);
+    for (let plotIndex = 0; plotIndex < size; plotIndex += 1) {
+      landmassIdByTile[plotIndex] = plotIndex % width < landmassBoundary ? 0 : 1;
+    }
+    const richSeat = plotAt(landmassBoundary - 1, 6);
+    const poorSeat = plotAt(landmassBoundary - 1, 20);
+    const intents = [
+      intentAt({ x: landmassBoundary - 5, y: 6, resourceType: "RESOURCE_A", order: 0 }),
+      intentAt({ x: landmassBoundary - 3, y: 4, resourceType: "RESOURCE_A", order: 1 }),
+      intentAt({ x: landmassBoundary - 3, y: 8, resourceType: "RESOURCE_A", order: 2 }),
+      intentAt({ x: landmassBoundary - 1, y: 3, resourceType: "RESOURCE_A", order: 3 }),
+      intentAt({
+        x: landmassBoundary + 1,
+        y: 4,
+        resourceType: "RESOURCE_A",
+        order: 4,
+        landmassId: 1,
+      }),
+      intentAt({
+        x: landmassBoundary + 1,
+        y: 8,
+        resourceType: "RESOURCE_A",
+        order: 5,
+        landmassId: 1,
+      }),
+    ];
+    expect(supportCount(intents, richSeat, 4)).toBe(intents.length);
+
+    const worseningCandidate = plotAt(landmassBoundary - 3, 20);
+    const improvingCandidate = plotAt(landmassBoundary + 1, 20);
+    const intensity = new Float32Array(size);
+    intensity[worseningCandidate] = 1;
+    const buildScenario = (
+      startingIntents: readonly PlanIntent[],
+      candidatePlots: readonly number[]
+    ) => {
+      const legalMask = new Uint8Array(size);
+      for (const plotIndex of candidatePlots) legalMask[plotIndex] = 1;
+      return buildInput({
+        intents: startingIntents,
+        perType: [
+          perTypeRow({
+            resourceType: "RESOURCE_A",
+            plannedCount: startingIntents.length,
+            minCount: 2,
+            maxCount: startingIntents.length + 1,
+            spacingFloorTiles: 2,
+          }),
+        ],
+        starts: [
+          { seatIndex: 0, playerId: 0, plotIndex: richSeat },
+          { seatIndex: 1, playerId: 1, plotIndex: poorSeat },
+        ],
+        legalMaskByType: { RESOURCE_A: legalMask },
+        intensityByType: { RESOURCE_A: intensity },
+        landmassIdByTile,
+        landmassTileCounts: [
+          landmassBoundary * height,
+          (width - landmassBoundary) * height,
+        ],
+      });
+    };
+    const configure = (
+      config: (typeof resources.support.ops.adjustResourceSupport.defaultConfig)["config"]
+    ) => {
+      config.supportFloor = 1;
+      config.equityTolerance = 8;
+    };
+
+    // 3:2 is within the 1.8 maximum and 4:2 is already above it.
+    for (const startingIntents of [intents.slice(1), intents]) {
+      const blocked = run(
+        buildScenario(startingIntents, [worseningCandidate]),
+        configure
+      );
+      expect(blocked.adjustments).toEqual([]);
+      expect(blocked.shortfalls).toContainEqual({
+        seatIndex: 1,
+        reason: "no-admitted-adjustment",
+        missing: 1,
+      });
+
+      const improved = run(
+        buildScenario(startingIntents, [worseningCandidate, improvingCandidate]),
+        configure
+      );
+      expect(improved.adjustments).toEqual([
+        {
+          action: "add",
+          reason: "support-floor",
+          resourceType: "RESOURCE_A",
+          toPlotIndex: improvingCandidate,
+          seatIndex: 1,
+        },
+      ]);
+    }
+
+    const goodSource = intentAt({
+      x: 5,
+      y: 30,
+      resourceType: "RESOURCE_GOOD",
+      order: 6,
+    });
+    const badSource = intentAt({
+      x: width - 5,
+      y: 30,
+      resourceType: "RESOURCE_BAD",
+      order: 7,
+      landmassId: 1,
+    });
+    const background = [intents[0]!, intents[1]!, intents[2]!, intents[4]!];
+    const legalGood = new Uint8Array(size);
+    legalGood[improvingCandidate] = 1;
+    const legalBad = new Uint8Array(size);
+    legalBad[worseningCandidate] = 1;
+    const moved = run(
+      buildInput({
+        intents: [...background, goodSource, badSource],
+        perType: [
+          perTypeRow({
+            resourceType: "RESOURCE_A",
+            plannedCount: background.length,
+            minCount: background.length,
+            maxCount: background.length,
+            spacingFloorTiles: 2,
+          }),
+          perTypeRow({
+            resourceType: "RESOURCE_GOOD",
+            plannedCount: 1,
+            minCount: 1,
+            maxCount: 1,
+            spacingFloorTiles: 2,
+          }),
+          perTypeRow({
+            resourceType: "RESOURCE_BAD",
+            plannedCount: 1,
+            minCount: 1,
+            maxCount: 1,
+            spacingFloorTiles: 2,
+          }),
+        ],
+        starts: [
+          { seatIndex: 0, playerId: 0, plotIndex: richSeat },
+          { seatIndex: 1, playerId: 1, plotIndex: poorSeat },
+        ],
+        legalMaskByType: {
+          RESOURCE_A: new Uint8Array(size),
+          RESOURCE_GOOD: legalGood,
+          RESOURCE_BAD: legalBad,
+        },
+        landmassIdByTile,
+        landmassTileCounts: [
+          landmassBoundary * height,
+          (width - landmassBoundary) * height,
+        ],
+      }),
+      configure
+    );
+    expect(moved.adjustments).toEqual([
+      {
+        action: "move",
+        reason: "support-floor",
+        resourceType: "RESOURCE_GOOD",
+        fromPlotIndex: goodSource.plotIndex,
+        toPlotIndex: improvingCandidate,
+        seatIndex: 1,
+      },
+    ]);
+    expect(
+      moved.intents.find((intent) => intent.resourceType === "RESOURCE_BAD")?.plotIndex
+    ).toBe(badSource.plotIndex);
   });
 
   it("adds within maxCount headroom when moves are blocked, with support phase provenance", () => {

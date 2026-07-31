@@ -5,8 +5,8 @@ import LatitudeDefinition from "./config.js";
 
 /**
  * Builds prevailing winds directly from latitude bands and seeded jet variation, deliberately
- * omitting pressure, land-heating, and orographic coupling. It remains the deterministic low-cost
- * fallback to geostrophic projection.
+ * omitting pressure response, continuous cell shaping, and perturbation budgeting. It remains the
+ * deterministic low-cost fallback to geostrophic projection.
  */
 const latitudeStrategy = createStrategy(ComputeAtmosphericCirculationContract, LatitudeDefinition, {
   run: (input, config) => {
