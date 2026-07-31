@@ -1,8 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import type { StepFacetSinks } from "@swooper/mapgen-core";
-import type { VizLayerMeta } from "@swooper/mapgen-viz";
+import type { VizLayerMeta, VizProjection } from "@swooper/mapgen-viz";
 
 import { runStandardRecipeTestMap } from "../fixtures/standard-recipe.js";
+import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../setup.js";
 
 describe("standard pipeline viz emissions", () => {
   it("emits expected dataTypeKeys across stages", () => {
@@ -81,6 +82,62 @@ describe("standard pipeline viz emissions", () => {
     const upliftVariants =
       variantsByKey.get("foundation.history.upliftPotential") ?? new Set<string>();
     expect([...upliftVariants].some((key) => /^era:\d+$/.test(key))).toBe(true);
+  });
+
+  it("emits annual and seasonal pressure grids with stable identities", () => {
+    const pressureGrids: VizProjection[] = [];
+    const captureViz: NonNullable<StepFacetSinks["viz"]> = (projections) => {
+      pressureGrids.push(
+        ...projections.filter(
+          (projection) =>
+            projection.kind === "grid" &&
+            projection.dataTypeKey === "hydrology.pressure.pressure"
+        )
+      );
+    };
+
+    runStandardRecipeTestMap({
+      presetId: TEST_MAP_SIZE.id,
+      mapSeed: TEST_MAP_SEED,
+      execution: { facets: { viz: captureViz } },
+    });
+
+    const annual = pressureGrids.find((projection) => projection.variantKey === undefined);
+    expect(annual).toMatchObject({
+      kind: "grid",
+      dataTypeKey: "hydrology.pressure.pressure",
+      spaceId: "tile.hexOddQ",
+      dims: TEST_MAP_SIZE.dimensions,
+      field: { format: "f32" },
+      meta: {
+        label: "Circulation Pressure Anomaly (hPa)",
+        group: "Hydrology / Pressure",
+        visibility: "default",
+      },
+    });
+
+    const seasonal = pressureGrids.filter((projection) => projection.variantKey !== undefined);
+    expect(seasonal.map((projection) => projection.variantKey)).toEqual([
+      "season:0",
+      "season:1",
+      "season:2",
+      "season:3",
+    ]);
+    for (const [index, projection] of seasonal.entries()) {
+      expect(projection).toMatchObject({
+        kind: "grid",
+        dataTypeKey: "hydrology.pressure.pressure",
+        variantKey: `season:${index}`,
+        spaceId: "tile.hexOddQ",
+        dims: TEST_MAP_SIZE.dimensions,
+        field: { format: "f32" },
+        meta: {
+          label: `Circulation Pressure Anomaly (Season ${index + 1})`,
+          group: "Hydrology / Pressure",
+          visibility: "debug",
+        },
+      });
+    }
   });
 
   it("declutters noisy layers behind debug visibility", () => {

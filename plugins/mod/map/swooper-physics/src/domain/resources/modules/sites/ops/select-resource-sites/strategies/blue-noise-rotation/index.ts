@@ -3,13 +3,18 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import { fnv1a32String } from "@swooper/mapgen-core/lib/hash";
 import type { ResourceRegionMinimumRequirement } from "../../../../../../model/atoms/region-minimum-requirement.schema.js";
+import {
+  admitsQualifyingLandmassDensityChange,
+  qualifyingLandmassRows,
+} from "../../../../../../model/policy/qualifying-landmass-density.js";
 import { spacingFloorFor } from "../../../../model/policy/spacing-floors.js";
 import Contract from "../../contract.js";
 import StrategyDefinition from "./config.js";
 
 /**
- * Default site selection: deterministic blue-noise site stream + official
- * weight deficit rotation + range-floor and region-minimum passes.
+ * Default site selection: deterministic blue-noise site stream, official
+ * weight deficit rotation, authored-range completion, and official region
+ * minimums.
  *
  * Determinism: all randomness is a splitmix-style hash of (seed, plotIndex,
  * salt) — no call-order coupling, so the same inputs always produce the same
@@ -86,10 +91,6 @@ function countMask(mask: ArrayLike<number>): number {
  * best-effort score.
  */
 const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
-  // TODO: if you need to normalize, do it in the normalize method, not in run.
-  normalize: (config) => {
-    return config;
-  },
   run: (input, config) => {
     const width = input.width;
     const height = input.height;
@@ -189,16 +190,9 @@ const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
     const intents: Intent[] = [];
     const plotsByType = new Map<OfficialResourceType, number[]>();
 
-    const totalQualifyingLand = (() => {
-      const totalLand = input.landmassTileCounts.reduce((acc, count) => acc + count, 0);
-      return input.landmassTileCounts
-        .map((count, id) => ({ id, count }))
-        .filter((row) => totalLand > 0 && row.count / totalLand >= 0.1);
-    })();
+    const totalQualifyingLand = qualifyingLandmassRows(input.landmassTileCounts);
     const qualifyingLandmassIds = new Set(totalQualifyingLand.map((row) => row.id));
-    const qualifyingLandTiles = totalQualifyingLand.reduce((acc, row) => acc + row.count, 0);
     const placedByLandmass = new Map<number, number>();
-    let placedOnQualifyingLand = 0;
     let equitySkippedSiteCount = 0;
 
     const tileOf = (plotIndex: number): { x: number; y: number } => {
@@ -252,7 +246,6 @@ const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
       const landmassId = landmassIdByTile[plotIndex] ?? -1;
       if (landmassId >= 0 && qualifyingLandmassIds.has(landmassId)) {
         placedByLandmass.set(landmassId, (placedByLandmass.get(landmassId) ?? 0) + 1);
-        placedOnQualifyingLand += 1;
       }
       intents.push({
         plotIndex,
@@ -294,26 +287,22 @@ const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
         // Cross-type blue-noise floor between accepted sites.
         if (violatesSpacing(plotIndex, sitePlots, siteSpacingTiles)) continue;
 
-        // Equity ceiling on qualifying landmasses (land plots only).
+        // Once the low-sample gate closes, prospective placements may not
+        // cross a healthy max/min spread or worsen one already above it.
         const landmassId = landmassIdByTile[plotIndex] ?? -1;
         if (
-          landmassId >= 0 &&
-          qualifyingLandmassIds.has(landmassId) &&
-          qualifyingLandmassIds.size >= 2 &&
-          placedOnQualifyingLand >= qualifyingLandmassIds.size * 2
+          !admitsQualifyingLandmassDensityChange({
+            qualifyingRows: totalQualifyingLand,
+            resourceCountByLandmass: placedByLandmass,
+            maxDensityRatio: equityMaxDensityRatio,
+            addedLandmassId: landmassId,
+          })
         ) {
-          const tiles = input.landmassTileCounts[landmassId] ?? 0;
-          const meanDensity =
-            qualifyingLandTiles > 0 ? placedOnQualifyingLand / qualifyingLandTiles : 0;
-          const landmassDensity = tiles > 0 ? (placedByLandmass.get(landmassId) ?? 0) / tiles : 0;
-          if (meanDensity > 0 && landmassDensity > equityMaxDensityRatio * meanDensity) {
-            equitySkippedSiteCount += 1;
-            continue;
-          }
+          equitySkippedSiteCount += 1;
+          continue;
         }
 
         // Co-eligible demands at this plot.
-        let bestIntensity = 0;
         const coEligible: DemandState[] = [];
         for (const demand of demands) {
           if (demand.rotationCount + demand.rangeFloorCount >= demand.effectiveTargetCount)
@@ -322,14 +311,11 @@ const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
           if (violatesSpacing(plotIndex, demand.plannedPlots, demand.spacingFloorTiles)) continue;
           const ruleState = ruleStateAt(demand, plotIndex);
           if (ruleState.excluded) continue;
-          coEligible.push(demand);
           const intensity = demand.intensity[plotIndex] ?? 0;
-          if (intensity > bestIntensity) bestIntensity = intensity;
+          if (sweep === 0 && hash01(seed, plotIndex, 0x7417) > 0.3 + 0.7 * intensity) continue;
+          coEligible.push(demand);
         }
         if (coEligible.length === 0) continue;
-
-        // Inhomogeneous thinning: acceptance probability rises with habitat intensity.
-        if (sweep === 0 && hash01(seed, plotIndex, 0x7417) > 0.3 + 0.7 * bestIntensity) continue;
 
         // Official deficit rotation: max running weight wins; ties prefer the
         // larger remaining deficit, then the deterministic hash.
@@ -387,6 +373,16 @@ const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
             if (violatesSpacing(plotIndex, demand.plannedPlots, demand.spacingFloorTiles)) continue;
             if (violatesSpacing(plotIndex, sitePlots, 1)) continue;
             if (ruleStateAt(demand, plotIndex).excluded) continue;
+            if (
+              !admitsQualifyingLandmassDensityChange({
+                qualifyingRows: totalQualifyingLand,
+                resourceCountByLandmass: placedByLandmass,
+                maxDensityRatio: equityMaxDensityRatio,
+                addedLandmassId: landmassIdByTile[plotIndex] ?? -1,
+              })
+            ) {
+              continue;
+            }
             let contested = 0;
             for (const other of demands) {
               if (other === demand) continue;

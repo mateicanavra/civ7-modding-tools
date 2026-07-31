@@ -1,8 +1,11 @@
 import type { MetricExpectation, MetricTarget } from "@swooper/mapgen-metrics";
 import type { NonEmptyTuple } from "type-fest";
 
+import type { MAP_CONFIG_CATALOG_IDS } from "../../../../maps/catalog/membership.js";
 import type { StandardMapProductSample } from "../sample.js";
 import { atLeast, atMost, equalTo, requiredShare } from "./support.js";
+
+type ShippedStandardConfigurationId = (typeof MAP_CONFIG_CATALOG_IDS)[number];
 
 type WorldIdentityTargetSpec = Readonly<{
   wetlandShareMaximum: number;
@@ -16,24 +19,37 @@ type WorldIdentityTargetSpec = Readonly<{
   rainforestTileMaximum: number | null;
 }>;
 
+const EARTHLIKE_WORLD_IDENTITY_SPEC = {
+  wetlandShareMaximum: 0.08,
+  reefShareMaximum: 0.13,
+  deepOceanShareMinimum: 0.4,
+  largestLakeComponentMinimum: 4,
+  requiredFeatures: [
+    "FEATURE_FOREST",
+    "FEATURE_RAINFOREST",
+    "FEATURE_TAIGA",
+    "FEATURE_SAVANNA_WOODLAND",
+    "FEATURE_SAGEBRUSH_STEPPE",
+  ],
+  vegetationFamilyMinimum: 5,
+  requiresAtolls: false,
+  rainforestVegetationShareMaximum: 0.65,
+  rainforestTileMaximum: null,
+} as const satisfies WorldIdentityTargetSpec;
+
 const IDENTITY_SPECS = {
-  "swooper-earthlike": {
+  "swooper-desert-mountains": {
     wetlandShareMaximum: 0.08,
-    reefShareMaximum: 0.13,
-    deepOceanShareMinimum: 0.4,
+    reefShareMaximum: 0.047,
+    deepOceanShareMinimum: null,
     largestLakeComponentMinimum: 4,
-    requiredFeatures: [
-      "FEATURE_FOREST",
-      "FEATURE_RAINFOREST",
-      "FEATURE_TAIGA",
-      "FEATURE_SAVANNA_WOODLAND",
-      "FEATURE_SAGEBRUSH_STEPPE",
-    ],
-    vegetationFamilyMinimum: 5,
-    requiresAtolls: false,
-    rainforestVegetationShareMaximum: 0.65,
-    rainforestTileMaximum: null,
+    requiredFeatures: ["FEATURE_SAVANNA_WOODLAND", "FEATURE_SAGEBRUSH_STEPPE"],
+    vegetationFamilyMinimum: 2,
+    requiresAtolls: true,
+    rainforestVegetationShareMaximum: null,
+    rainforestTileMaximum: 20,
   },
+  "swooper-earthlike": EARTHLIKE_WORLD_IDENTITY_SPEC,
   "shattered-ring": {
     wetlandShareMaximum: 0.12,
     reefShareMaximum: 0.04,
@@ -56,23 +72,20 @@ const IDENTITY_SPECS = {
     rainforestVegetationShareMaximum: null,
     rainforestTileMaximum: null,
   },
-  "swooper-desert-mountains": {
-    wetlandShareMaximum: 0.08,
-    reefShareMaximum: 0.047,
-    deepOceanShareMinimum: null,
-    largestLakeComponentMinimum: 4,
-    requiredFeatures: ["FEATURE_SAVANNA_WOODLAND", "FEATURE_SAGEBRUSH_STEPPE"],
-    vegetationFamilyMinimum: 2,
-    requiresAtolls: true,
-    rainforestVegetationShareMaximum: null,
-    rainforestTileMaximum: 20,
-  },
-} as const satisfies Readonly<Record<string, WorldIdentityTargetSpec>>;
+  "mountains-of-time-earthlike": EARTHLIKE_WORLD_IDENTITY_SPEC,
+  "latest-juicy": EARTHLIKE_WORLD_IDENTITY_SPEC,
+  "mountain-patch": EARTHLIKE_WORLD_IDENTITY_SPEC,
+  "mountains-of-time-original": EARTHLIKE_WORLD_IDENTITY_SPEC,
+} as const satisfies Readonly<Record<ShippedStandardConfigurationId, WorldIdentityTargetSpec>>;
 
 /** Product-identity targets keyed by the exact shipped Standard configuration ID. */
 export const SHIPPED_IDENTITY_TARGETS: Readonly<
-  Record<keyof typeof IDENTITY_SPECS, MetricTarget<StandardMapProductSample>>
+  Record<ShippedStandardConfigurationId, MetricTarget<StandardMapProductSample>>
 > = Object.freeze({
+  "swooper-desert-mountains": createIdentityTarget(
+    "swooper-desert-mountains",
+    IDENTITY_SPECS["swooper-desert-mountains"]
+  ),
   "swooper-earthlike": createIdentityTarget(
     "swooper-earthlike",
     IDENTITY_SPECS["swooper-earthlike"]
@@ -82,9 +95,15 @@ export const SHIPPED_IDENTITY_TARGETS: Readonly<
     "sundered-archipelago",
     IDENTITY_SPECS["sundered-archipelago"]
   ),
-  "swooper-desert-mountains": createIdentityTarget(
-    "swooper-desert-mountains",
-    IDENTITY_SPECS["swooper-desert-mountains"]
+  "mountains-of-time-earthlike": createIdentityTarget(
+    "mountains-of-time-earthlike",
+    IDENTITY_SPECS["mountains-of-time-earthlike"]
+  ),
+  "latest-juicy": createIdentityTarget("latest-juicy", IDENTITY_SPECS["latest-juicy"]),
+  "mountain-patch": createIdentityTarget("mountain-patch", IDENTITY_SPECS["mountain-patch"]),
+  "mountains-of-time-original": createIdentityTarget(
+    "mountains-of-time-original",
+    IDENTITY_SPECS["mountains-of-time-original"]
   ),
 });
 

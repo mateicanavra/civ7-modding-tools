@@ -6,6 +6,7 @@ import computeClimateDiagnostics from "./ops/compute-climate-diagnostics/index.j
 import computeEvaporationSources from "./ops/compute-evaporation-sources/index.js";
 import computeLandWaterBudget from "./ops/compute-land-water-budget/index.js";
 import computePrecipitation from "./ops/compute-precipitation/index.js";
+import computePressureField from "./ops/compute-pressure-field/index.js";
 import computeRadiativeForcing from "./ops/compute-radiative-forcing/index.js";
 import computeThermalState from "./ops/compute-thermal-state/index.js";
 import refinePrecipitation from "./ops/refine-precipitation/index.js";
@@ -19,6 +20,7 @@ import transportMoisture from "./ops/transport-moisture/index.js";
 const climate = createDomainSubdomainRouter(contract, {
   computeRadiativeForcing,
   computeThermalState,
+  computePressureField,
   computeAtmosphericCirculation,
   computeEvaporationSources,
   transportMoisture,

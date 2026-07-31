@@ -598,6 +598,9 @@ const mapConfig = {
           "modeCount": 4,
           "axialTiltDeg": 23
         },
+        "coupling": {
+          "iterations": 2
+        },
         "computeRadiativeForcing": {
           "strategy": "latitude-insolation",
           "config": {
@@ -611,10 +614,21 @@ const mapConfig = {
           "config": {
             "baseTemperatureC": 8,
             "insolationScaleC": 50,
-            "lapseRateCPerM": -0.0065,
+            "lapseRateCPerElevationUnit": -0.0065,
             "landCoolingC": 3.2,
             "minC": -40,
             "maxC": 50
+          }
+        },
+        "computePressureField": {
+          "strategy": "thermal-continental",
+          "config": {
+            "scaffoldStrength": 1,
+            "thermalAnomalyHpaPerC": 0.55,
+            "stationaryThermalHpaPerC": 1.2,
+            "transientScaleTiles": 20,
+            "transientAmplitudeHpa": 14,
+            "smoothIters": 2
           }
         },
         "computeAtmosphericCirculation": {
@@ -622,14 +636,10 @@ const mapConfig = {
           "config": {
             "maxSpeed": 160,
             "zonalStrength": 130,
-            "meridionalStrength": 130,
-            "geostrophicStrength": 170,
-            "pressureNoiseScale": 20,
-            "pressureNoiseAmp": 62,
-            "waveStrength": 48,
-            "landHeatStrength": 23,
-            "mountainDeflectStrength": 30,
-            "smoothIters": 5
+            "meridionalStrength": 15,
+            "pressureDrivenRms": 95,
+            "smoothIters": 5,
+            "equatorialTaperDeg": 18
           }
         },
         "computeOceanSurfaceCurrents": {
@@ -784,7 +794,7 @@ const mapConfig = {
           "config": {
             "baseTemperatureC": 9,
             "insolationScaleC": 50,
-            "lapseRateCPerM": -0.0095,
+            "lapseRateCPerElevationUnit": -0.0095,
             "landCoolingC": 0.32,
             "minC": -60,
             "maxC": 50
@@ -1349,8 +1359,8 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountain-patch",
-  configHash: "6fb250e6828d5aa00690692e3463eb111f5d1d87d3e66cc280254a1b758f16fe",
-  envelopeHash: "27ee010e9377bd3c18f268768dcc982085567c54bdab504e73b1f9b409f4d516",
+  configHash: "b5e0ce85aea8c6fcaaf44eace04a0638716ac79e11264c6a602808a46442b424",
+  envelopeHash: "f14661acabd48fcd23fd9711a9e9d7a7aca2c62392b972de0611907da0b41117",
   config: mapConfig.config,
   initialSetup: {
     requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,

@@ -4,11 +4,7 @@ import ComputeAtmosphericCirculationContract from "../../contract.js";
 import { computeWindsEarthlike } from "../../rules/index.js";
 import GeostrophicProxyDefinition from "./config.js";
 
-/**
- * Synthesizes seeded wind vectors from latitude circulation, pressure gradients, planetary waves,
- * and optional land and terrain coupling. Fixed smoothing and `maxSpeed` quantization keep the
- * result deterministic and bounded.
- */
+/** Synthesizes wind vectors from a continuous latitude-cell backbone and supplied pressure. */
 const geostrophicProxyStrategy = createStrategy(
   ComputeAtmosphericCirculationContract,
   GeostrophicProxyDefinition,
@@ -16,28 +12,15 @@ const geostrophicProxyStrategy = createStrategy(
     run: (input, config) => {
       const width = input.width;
       const height = input.height;
-      const rngSeed = input.rngSeed | 0;
-
-      const seasonPhase01 =
-        typeof (input as { seasonPhase01?: unknown }).seasonPhase01 === "number"
-          ? (input as { seasonPhase01: number }).seasonPhase01
-          : 0;
 
       return computeWindsEarthlike(width, height, input.latitudeByRow, {
-        seed: rngSeed,
-        landMask: input.landMask,
-        elevation: input.elevation,
-        seasonPhase01,
+        pressureField: input.pressureField,
         maxSpeed: config.maxSpeed,
         zonalStrength: config.zonalStrength,
         meridionalStrength: config.meridionalStrength,
-        geostrophicStrength: config.geostrophicStrength,
-        pressureNoiseScale: config.pressureNoiseScale,
-        pressureNoiseAmp: config.pressureNoiseAmp,
-        waveStrength: config.waveStrength,
-        landHeatStrength: config.landHeatStrength,
-        mountainDeflectStrength: config.mountainDeflectStrength,
+        pressureDrivenRms: config.pressureDrivenRms,
         smoothIters: config.smoothIters,
+        equatorialTaperDeg: config.equatorialTaperDeg,
       });
     },
   }

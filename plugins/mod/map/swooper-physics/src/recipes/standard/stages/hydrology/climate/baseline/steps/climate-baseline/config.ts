@@ -7,8 +7,8 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 /**
  * Hydrology baseline climate step (mechanism-driven).
  *
- * This step is an orchestration boundary: it binds deterministic seeds, invokes Hydrology ops, and publishes the
- * canonical baseline climate + wind artifacts for downstream consumption.
+ * This step is an orchestration boundary: it binds deterministic seeds, invokes Hydrology ops,
+ * and publishes the canonical baseline climate, pressure, and wind artifacts.
  *
  * Configuration posture:
  * - Broad author-facing control flows through Hydrology knobs compiled at stage compile time.
@@ -44,6 +44,27 @@ const ClimateBaselineStepConfigSchema = Type.Object(
         description: "Seasonality controls for climate-baseline sampling.",
       }
     ),
+    /**
+     * Fixed atmosphere-ocean coupling controls.
+     *
+     * Every iteration re-derives temperature, pressure, wind, currents, and SST. Only SST, the
+     * ocean's slow thermal memory, crosses the iteration boundary.
+     */
+    coupling: Type.Object(
+      {
+        iterations: Type.Integer({
+          default: 2,
+          minimum: 1,
+          maximum: 4,
+          description:
+            "Fixed atmosphere-ocean coupling iterations. One is an SST-free first guess; later iterations consume only the preceding SST field.",
+        }),
+      },
+      {
+        additionalProperties: false,
+        description: "Bounded deterministic atmosphere-ocean fixed-point controls.",
+      }
+    ),
   },
   {
     additionalProperties: false,
@@ -52,19 +73,25 @@ const ClimateBaselineStepConfigSchema = Type.Object(
 
 /**
  * Defines baseline circulation and moisture transport over final Morphology topography and
- * shelf evidence. It publishes wind and baseline climate together so river routing and
- * refinement start from one deterministic climate vintage; seasonal amplitudes remain
+ * shelf evidence. It publishes pressure, wind, and baseline climate together so river routing
+ * and refinement start from one deterministic climate vintage; seasonal amplitudes remain
  * invocation-local visualization evidence.
  */
 export const config = defineStep({
   id: "climate-baseline",
-  description: "Computes baseline wind, climate, and seasonality from final Morphology evidence.",
+  description:
+    "Computes baseline pressure, wind, climate, and seasonality from final Morphology evidence.",
   requires: [morphologyLandformsArtifacts.topography, morphologyShelfArtifacts.shelf],
-  provides: [climateArtifacts.baselineClimateField, climateArtifacts.windField],
+  provides: [
+    climateArtifacts.baselineClimateField,
+    climateArtifacts.pressureField,
+    climateArtifacts.windField,
+  ],
 
   ops: {
     computeRadiativeForcing: hydrology.climate.ops.computeRadiativeForcing,
     computeThermalState: hydrology.climate.ops.computeThermalState,
+    computePressureField: hydrology.climate.ops.computePressureField,
     computeAtmosphericCirculation: hydrology.climate.ops.computeAtmosphericCirculation,
     computeOceanSurfaceCurrents: hydrology.ocean.ops.computeOceanSurfaceCurrents,
     computeOceanGeometry: hydrology.ocean.ops.computeOceanGeometry,

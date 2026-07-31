@@ -2,6 +2,10 @@ import type { OfficialResourceType } from "@civ7/map-policy";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { getHexRadiusIndicesOddQ, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import { fnv1a32String } from "@swooper/mapgen-core/lib/hash";
+import {
+  admitsQualifyingLandmassDensityChange,
+  qualifyingLandmassRows,
+} from "../../../../../../model/policy/qualifying-landmass-density.js";
 import Contract from "../../contract.js";
 import StrategyDefinition from "./config.js";
 
@@ -23,8 +27,9 @@ import StrategyDefinition from "./config.js";
  * All adjusted destination tiles are inside their authored habitat and policy-legal for their type, hold the
  * per-type same-type spacing floor, keep cross-type adjacency clearance (the
  * official force-pass convention used by the region-minimum pass), respect
- * exclusion rules and the per-landmass density ceiling, and leave affinity as
- * a best-effort score. Unsatisfiable units become typed shortfalls.
+ * exclusion rules and the qualifying-landmass max/min density spread, and
+ * leave affinity as a best-effort score. Unsatisfiable units become typed
+ * shortfalls.
  *
  * Determinism: candidate scans run in ascending plot/intent order; score ties
  * break on a splitmix-style hash of (seed, plotIndex, salt) — no call-order
@@ -231,23 +236,12 @@ const supportEquityStrategy = createStrategy(Contract, StrategyDefinition, {
     }
 
     // --- landmass equity state (E2.8) ----------------------------------------------------------
-    const totalLand = input.landmassTileCounts.reduce((acc, count) => acc + count, 0);
-    const qualifyingLandmassIds = new Set(
-      input.landmassTileCounts
-        .map((count, id) => ({ id, count }))
-        .filter((row) => totalLand > 0 && row.count / totalLand >= 0.1)
-        .map((row) => row.id)
-    );
-    const qualifyingLandTiles = input.landmassTileCounts.reduce(
-      (acc, count, id) => (qualifyingLandmassIds.has(id) ? acc + count : acc),
-      0
-    );
+    const qualifyingLandmasses = qualifyingLandmassRows(input.landmassTileCounts);
+    const qualifyingLandmassIds = new Set(qualifyingLandmasses.map((row) => row.id));
     const placedByLandmass = new Map<number, number>();
-    let placedOnQualifyingLand = 0;
     for (const intent of intents) {
       if (intent.landmassId >= 0 && qualifyingLandmassIds.has(intent.landmassId)) {
         placedByLandmass.set(intent.landmassId, (placedByLandmass.get(intent.landmassId) ?? 0) + 1);
-        placedOnQualifyingLand += 1;
       }
     }
     const equityMaxDensityRatio = plan.settings.equityMaxDensityRatio;
@@ -361,28 +355,18 @@ const supportEquityStrategy = createStrategy(Contract, StrategyDefinition, {
       return { excluded: false, affinityBonus };
     };
 
-    const exceedsLandmassCeiling = (
+    const violatesLandmassDensitySpread = (
       plotIndex: number,
       removedLandmassId: number | null
     ): boolean => {
       const landmassId = landmassIdByTile[plotIndex] ?? -1;
-      if (landmassId < 0 || !qualifyingLandmassIds.has(landmassId)) return false;
-      if (qualifyingLandmassIds.size < 2) return false;
-      let total = placedOnQualifyingLand;
-      let onLandmass = placedByLandmass.get(landmassId) ?? 0;
-      if (
-        removedLandmassId !== null &&
-        removedLandmassId >= 0 &&
-        qualifyingLandmassIds.has(removedLandmassId)
-      ) {
-        total -= 1;
-        if (removedLandmassId === landmassId) onLandmass -= 1;
-      }
-      if (total < qualifyingLandmassIds.size * 2) return false;
-      const tiles = input.landmassTileCounts[landmassId] ?? 0;
-      const meanDensity = qualifyingLandTiles > 0 ? (total + 1) / qualifyingLandTiles : 0;
-      const landmassDensity = tiles > 0 ? (onLandmass + 1) / tiles : 0;
-      return meanDensity > 0 && landmassDensity > equityMaxDensityRatio * meanDensity;
+      return !admitsQualifyingLandmassDensityChange({
+        qualifyingRows: qualifyingLandmasses,
+        resourceCountByLandmass: placedByLandmass,
+        maxDensityRatio: equityMaxDensityRatio,
+        removedLandmassId,
+        addedLandmassId: landmassId,
+      });
     };
 
     /**
@@ -420,7 +404,7 @@ const supportEquityStrategy = createStrategy(Contract, StrategyDefinition, {
         if (violatesCrossClearance(plotIndex, args.ignorePlot)) continue;
         const ruleState = excludedAt(resourceType, plotIndex, args.ignorePlot);
         if (ruleState.excluded) continue;
-        if (exceedsLandmassCeiling(plotIndex, args.removedLandmassId)) continue;
+        if (violatesLandmassDensitySpread(plotIndex, args.removedLandmassId)) continue;
         if (
           args.sourceIntent &&
           !moveAllowedFrom(args.sourceIntent, regionSlotByTile[plotIndex] ?? 0)
@@ -495,7 +479,6 @@ const supportEquityStrategy = createStrategy(Contract, StrategyDefinition, {
             intent.landmassId,
             (placedByLandmass.get(intent.landmassId) ?? 1) - 1
           );
-          placedOnQualifyingLand -= 1;
         }
         for (const seatPos of seatsByPlot.get(fromPlot) ?? []) counts[seatPos]! -= 1;
 
@@ -555,7 +538,6 @@ const supportEquityStrategy = createStrategy(Contract, StrategyDefinition, {
       countByTypeRegion.set(toRegionKey, (countByTypeRegion.get(toRegionKey) ?? 0) + 1);
       if (destLandmassId >= 0 && qualifyingLandmassIds.has(destLandmassId)) {
         placedByLandmass.set(destLandmassId, (placedByLandmass.get(destLandmassId) ?? 0) + 1);
-        placedOnQualifyingLand += 1;
       }
       for (const seatPos of seatsByPlot.get(toPlot) ?? []) counts[seatPos]! += 1;
     };

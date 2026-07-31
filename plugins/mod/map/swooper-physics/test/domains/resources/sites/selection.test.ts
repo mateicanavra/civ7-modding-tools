@@ -11,7 +11,7 @@ type Demand = Pick<
   SelectInput["demands"][number],
   "resourceType" | "weight" | "targetCount" | "minCount" | "maxCount"
 > &
-  Partial<Pick<SelectInput["demands"][number], "regionMinimumRequirement">> &
+  Partial<Pick<SelectInput["demands"][number], "family" | "regionMinimumRequirement">> &
   Readonly<{
     habitatMask?: Uint8Array;
     legalMask?: Uint8Array;
@@ -20,6 +20,9 @@ type Demand = Pick<
 
 const { width, height } = TEST_MAP_SIZE.dimensions;
 const cellCount = width * height;
+
+// Reproduces the Earthlike Standard product regression rather than incidental test setup.
+const RESOURCE_EQUITY_REGRESSION_MAP_SEED = 1356;
 
 function countMask(mask: Uint8Array): number {
   let count = 0;
@@ -49,11 +52,19 @@ function maskRectangle(columns: number, rows: number): Uint8Array {
   return mask;
 }
 
-function buildInput(args: { demands: Demand[]; seed?: number }): SelectInput {
+function buildInput(args: {
+  demands: Demand[];
+  seed?: number;
+  landmassIdByTile?: Int32Array;
+  landmassTileCounts?: number[];
+  regionSlotByTile?: Uint8Array;
+}): SelectInput {
   const allLand = new Uint8Array(cellCount).fill(1);
-  const regionSlotByTile = new Uint8Array(cellCount);
-  for (let i = 0; i < cellCount; i++) {
-    regionSlotByTile[i] = i % width < width / 2 ? 1 : 2;
+  const regionSlotByTile = args.regionSlotByTile?.slice() ?? new Uint8Array(cellCount);
+  if (!args.regionSlotByTile) {
+    for (let i = 0; i < cellCount; i++) {
+      regionSlotByTile[i] = i % width < width / 2 ? 1 : 2;
+    }
   }
   return {
     width,
@@ -61,8 +72,8 @@ function buildInput(args: { demands: Demand[]; seed?: number }): SelectInput {
     seed: args.seed ?? TEST_MAP_SEED,
     landMask: allLand,
     lakeMask: new Uint8Array(cellCount),
-    landmassIdByTile: new Int32Array(cellCount),
-    landmassTileCounts: [cellCount],
+    landmassIdByTile: args.landmassIdByTile?.slice() ?? new Int32Array(cellCount),
+    landmassTileCounts: args.landmassTileCounts?.slice() ?? [cellCount],
     regionSlotByTile,
     minimumAmountModifier: 0,
     demands: args.demands.map((demand): SelectInput["demands"][number] => {
@@ -71,7 +82,7 @@ function buildInput(args: { demands: Demand[]; seed?: number }): SelectInput {
       const intensity = demand.intensity?.slice() ?? new Float32Array(cellCount).fill(1);
       return {
         resourceType: demand.resourceType,
-        family: "geological",
+        family: demand.family ?? "geological",
         laneId: "probe",
         laneKind: "land",
         weight: demand.weight,
@@ -107,6 +118,78 @@ function run(
 }
 
 describe("select-resource-sites operation contract", () => {
+  it("does not let a low-intensity family borrow another family's thinning admission", () => {
+    // Seed 7331 orders the anchor first, then draws 0.356 at the contested plot:
+    // admitted for intensity 1, rejected for intensity 0.
+    const donorAnchor = 691;
+    const contestedPlot = 1264;
+    const donorFallback = 746;
+    const borrowerFallback = 709;
+    const donorMask = maskFromPlots(donorAnchor, contestedPlot, donorFallback);
+    const borrowerMask = maskFromPlots(contestedPlot, borrowerFallback);
+    const donorIntensity = new Float32Array(cellCount);
+    donorIntensity[donorAnchor] = 1;
+    donorIntensity[contestedPlot] = 1;
+    donorIntensity[donorFallback] = 1;
+    const borrowerIntensity = new Float32Array(cellCount);
+    borrowerIntensity[borrowerFallback] = 1;
+
+    const result = run(
+      buildInput({
+        seed: 7331,
+        demands: [
+          {
+            resourceType: "RESOURCE_DONOR",
+            family: "terrestrial",
+            weight: 10,
+            targetCount: 2,
+            minCount: 0,
+            maxCount: 2,
+            habitatMask: donorMask,
+            legalMask: donorMask,
+            intensity: donorIntensity,
+          },
+          {
+            resourceType: "RESOURCE_BORROWER",
+            family: "geological",
+            weight: 10,
+            targetCount: 1,
+            minCount: 0,
+            maxCount: 1,
+            habitatMask: borrowerMask,
+            legalMask: borrowerMask,
+            intensity: borrowerIntensity,
+          },
+        ],
+      }),
+      (config) => {
+        config.siteSpacingTiles = 1;
+        config.perTypeSpacingFloorScale = 0.5;
+      }
+    );
+
+    expect(result.intents).toMatchObject([
+      {
+        phase: "rotation",
+        plotIndex: donorAnchor,
+        resourceType: "RESOURCE_DONOR",
+        family: "terrestrial",
+      },
+      {
+        phase: "rotation",
+        plotIndex: contestedPlot,
+        resourceType: "RESOURCE_DONOR",
+        family: "terrestrial",
+      },
+      {
+        phase: "rotation",
+        plotIndex: borrowerFallback,
+        resourceType: "RESOURCE_BORROWER",
+        family: "geological",
+      },
+    ]);
+  });
+
   it("allocates co-eligible rotation frequency proportional to 1/Weight (official deficit rotation, E2.1)", () => {
     // Scarce sites relative to targets so the rotation is the binding
     // mechanism: counts must fall as Weight rises.
@@ -245,6 +328,142 @@ describe("select-resource-sites operation contract", () => {
         count: 4,
       },
     ]);
+  });
+
+  it("does not spend above-target headroom to repair density after region minimums", () => {
+    const landmassBoundary = Math.floor(width / 2);
+    const landmassIdByTile = new Int32Array(cellCount);
+    for (let plotIndex = 0; plotIndex < cellCount; plotIndex += 1) {
+      landmassIdByTile[plotIndex] = plotIndex % width < landmassBoundary ? 0 : 1;
+    }
+    const anchor = landmassBoundary - 5;
+    const regionMinimumCandidate = landmassBoundary - 3;
+    const overDensityCandidate = landmassBoundary - 1;
+    const underDensityCandidates = [landmassBoundary, landmassBoundary + 3] as const;
+    const habitatMask = maskFromPlots(anchor, overDensityCandidate, ...underDensityCandidates);
+    const legalMask = maskFromPlots(
+      anchor,
+      regionMinimumCandidate,
+      overDensityCandidate,
+      ...underDensityCandidates
+    );
+    const intensity = new Float32Array(cellCount);
+    intensity[anchor] = 1;
+    intensity[overDensityCandidate] = 1;
+    const regionSlotByTile = new Uint8Array(cellCount).fill(1);
+    regionSlotByTile[regionMinimumCandidate] = 2;
+
+    const result = run(
+      buildInput({
+        seed: RESOURCE_EQUITY_REGRESSION_MAP_SEED,
+        landmassIdByTile,
+        regionSlotByTile,
+        landmassTileCounts: [
+          landmassBoundary * height,
+          (width - landmassBoundary) * height,
+        ],
+        demands: [
+          {
+            resourceType: "RESOURCE_A",
+            weight: 10,
+            targetCount: 1,
+            minCount: 1,
+            maxCount: 4,
+            habitatMask,
+            legalMask,
+            intensity,
+            regionMinimumRequirement: {
+              kind: "required",
+              minimumPerHemisphere: admitPositiveResourceRegionMinimum(1),
+              source: "engine",
+            },
+          },
+        ],
+      }),
+      (config) => {
+        config.siteSpacingTiles = 6;
+        config.perTypeSpacingFloorScale = 0.5;
+      }
+    );
+
+    expect(result.intents[0]).toMatchObject({
+      phase: "rotation",
+      plotIndex: anchor,
+      landmassId: 0,
+    });
+    expect(result.intents[1]).toMatchObject({
+      phase: "region-minimum",
+      plotIndex: regionMinimumCandidate,
+      landmassId: 0,
+      inHabitat: false,
+    });
+    expect(result.intents.filter((intent) => intent.phase === "range-floor")).toEqual([]);
+    expect(result.intents.map((intent) => intent.plotIndex)).not.toContain(overDensityCandidate);
+    for (const plotIndex of underDensityCandidates) {
+      expect(result.intents.map((intent) => intent.plotIndex)).not.toContain(plotIndex);
+    }
+    expect(result.perType[0]).toMatchObject({
+      effectiveTargetCount: 1,
+      maxCount: 4,
+      plannedCount: 2,
+      rotationCount: 1,
+      rangeFloorCount: 0,
+      regionMinimumCount: 1,
+    });
+  });
+
+  it("keeps required range completion intensity-scored while density admission is open", () => {
+    const landmassBoundary = Math.floor(width / 2);
+    const landmassIdByTile = new Int32Array(cellCount);
+    for (let plotIndex = 0; plotIndex < cellCount; plotIndex += 1) {
+      landmassIdByTile[plotIndex] = plotIndex % width < landmassBoundary ? 0 : 1;
+    }
+    const anchor = landmassBoundary - 5;
+    const clusteredCandidate = landmassBoundary - 1;
+    const lowerDensityCandidate = landmassBoundary;
+    const admissionMask = maskFromPlots(anchor, clusteredCandidate, lowerDensityCandidate);
+    const intensity = new Float32Array(cellCount);
+    intensity[anchor] = 1;
+    intensity[clusteredCandidate] = 0.9;
+    intensity[lowerDensityCandidate] = 0.1;
+
+    const result = run(
+      buildInput({
+        seed: RESOURCE_EQUITY_REGRESSION_MAP_SEED,
+        landmassIdByTile,
+        landmassTileCounts: [
+          landmassBoundary * height,
+          (width - landmassBoundary) * height,
+        ],
+        demands: [
+          {
+            resourceType: "RESOURCE_A",
+            weight: 10,
+            targetCount: 2,
+            minCount: 2,
+            maxCount: 2,
+            habitatMask: admissionMask,
+            legalMask: admissionMask,
+            intensity,
+          },
+        ],
+      }),
+      (config) => {
+        config.siteSpacingTiles = 6;
+        config.perTypeSpacingFloorScale = 0.5;
+      }
+    );
+
+    expect(result.intents).toMatchObject([
+      { phase: "rotation", plotIndex: anchor, landmassId: 0 },
+      { phase: "range-floor", plotIndex: clusteredCandidate, landmassId: 0 },
+    ]);
+    expect(result.perType[0]).toMatchObject({
+      effectiveTargetCount: 2,
+      plannedCount: 2,
+      rotationCount: 1,
+      rangeFloorCount: 1,
+    });
   });
 
   it("runs the region-minimum force pass only for an admitted required state (E2.2)", () => {

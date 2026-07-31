@@ -10,7 +10,6 @@ export const MAP_CONFIG_CATALOG_IDS = [
   "latest-juicy",
   "mountain-patch",
   "mountains-of-time-original",
-  "mountain-rivers-patch",
 ] as const satisfies readonly MapConfigId[];
 
 /**

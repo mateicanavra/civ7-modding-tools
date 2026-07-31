@@ -459,5 +459,7 @@ split). The decomposition stands; refinements below.
   added). Projection is now config-less. `bun test` 583 pass / 0 fail; tsc clean;
   source-check boundaries ok.
 - Status (5-slice split): **implemented + verified green; identity proven against main**
-  (all 9 shipped/dev configs byte-identical end-to-end). Remaining closure: live in-game
-  smoke run (the engine is the final closure test).
+  (all 9 shipped/dev configs at the time were byte-identical end-to-end).
+  `mountain-rivers-patch` was subsequently retired as a duplicate, leaving 8 current
+  shipped configs. Remaining closure: live in-game smoke run (the engine is the final
+  closure test).

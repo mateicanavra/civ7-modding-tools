@@ -2,6 +2,12 @@
 
 Date: 2026-06-09; updated 2026-06-10 for native river modeling
 
+Historical scope: this audit records the catalog that existed on those dates.
+`mountain-rivers-patch` was later retired as behaviorally duplicate; the
+current catalog and deployment proof use retained map identities. The rows
+below remain evidence of the earlier acceptance slice, not a current catalog
+membership promise.
+
 This audit maps the active river/lake objective to current evidence on
 `codex/mapgen-physical-rivers`. It is intentionally stricter than the task list:
 items are only marked proved when current source, generated artifacts, tests,

@@ -21,6 +21,8 @@ import { createMapContext, type MapContext } from "@swooper/mapgen-core";
 import {
   type ArtifactReadValueOf,
   assertFloat32Array,
+  assertInt8Array,
+  assertInt16Array,
   assertInt32Array,
   assertUint8Array,
   assertUint16Array,
@@ -160,6 +162,7 @@ export type StandardMapCapture = Readonly<{
   }>;
   model: Readonly<{
     landMask: Uint8Array;
+    elevation: Int16Array;
     regionSlotByTile: Uint8Array;
     landmassIdByTile: Int32Array;
     landmasses: readonly Pick<Landmasses["landmasses"][number], "id" | "tileCount">[];
@@ -184,6 +187,9 @@ export type StandardMapCapture = Readonly<{
     effectiveMoisture: Float32Array;
     surfaceTemperature: Float32Array;
     aridityIndex: Float32Array;
+    windU: Int8Array;
+    windV: Int8Array;
+    pressure: Float32Array;
   }>;
   projection: Readonly<{
     discoveryGeneration: StandardDiscoveryPlacementMeasurements;
@@ -443,6 +449,8 @@ function copyCompletedRun(
   const lakePlanValue = readArtifact(context, hydrographyArtifacts.lakePlan);
   const hydrographyValue = readArtifact(context, hydrographyArtifacts.hydrography);
   const climateIndicesValue = readArtifact(context, climateArtifacts.climateIndices);
+  const windFieldValue = readArtifact(context, climateArtifacts.windField);
+  const pressureFieldValue = readArtifact(context, climateArtifacts.pressureField);
   const navigableRiverValue = readArtifact(context, hydrographyArtifacts.projectedNavigableRivers);
   const riverReadbackValue = adapter.readRiverProjection(
     width,
@@ -506,6 +514,11 @@ function copyCompletedRun(
     }),
     model: Object.freeze({
       landMask,
+      elevation: copyInt16Grid(
+        "morphology.topography.elevation",
+        topographyValue.elevation,
+        gridSize
+      ),
       regionSlotByTile: copyUint8Grid(
         "map.landmassRegionSlotByTile.slotByTile",
         regionSlotsValue.slotByTile,
@@ -600,6 +613,13 @@ function copyCompletedRun(
       aridityIndex: copyFloat32Grid(
         "hydrology.climateIndices.aridityIndex",
         climateIndicesValue.aridityIndex,
+        gridSize
+      ),
+      windU: copyInt8Grid("hydrology.windField.windU", windFieldValue.windU, gridSize),
+      windV: copyInt8Grid("hydrology.windField.windV", windFieldValue.windV, gridSize),
+      pressure: copyFloat32Grid(
+        "hydrology.pressureField.pressure",
+        pressureFieldValue.pressure,
         gridSize
       ),
     }),
@@ -806,6 +826,14 @@ function copyUint8Grid(name: string, value: unknown, size: number): Uint8Array {
 
 function copyUint16Grid(name: string, value: unknown, size: number): Uint16Array {
   return assertUint16Array(name, value, size).slice();
+}
+
+function copyInt8Grid(name: string, value: unknown, size: number): Int8Array {
+  return assertInt8Array(name, value, size).slice();
+}
+
+function copyInt16Grid(name: string, value: unknown, size: number): Int16Array {
+  return assertInt16Array(name, value, size).slice();
 }
 
 function copyInt32Grid(name: string, value: unknown, size: number): Int32Array {

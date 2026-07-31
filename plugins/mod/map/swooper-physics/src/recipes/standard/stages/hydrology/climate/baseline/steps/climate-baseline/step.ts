@@ -1,5 +1,6 @@
 import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { I8_VECTOR_MAX_ABS } from "@swooper/mapgen-core/lib/grid";
 import {
   HYDROLOGY_DRYNESS_WETNESS_SCALE,
   HYDROLOGY_OCEAN_COUPLING_CURRENT_STRENGTH,
@@ -22,6 +23,9 @@ type HydrologySeasonalityKnob = "low" | "normal" | "high";
 type HydrologyTemperatureKnob = "cold" | "temperate" | "hot";
 
 const QUARTER_YEAR_MODE_COUNT_THRESHOLD = 3;
+const CIRCULATION_MIGRATION_FRACTION = 0.35;
+const SEASON_TRANSIENT_SALT_MULTIPLIER = 0x9e3779b1;
+const TRANSIENT_POLARITIES = [1, -1] as const;
 
 function clampLatitudeDeg(latitudeDeg: number): number {
   if (!Number.isFinite(latitudeDeg)) return 0;
@@ -34,8 +38,8 @@ function getSeasonPhases(modeCount: 2 | 4): readonly number[] {
 }
 
 /**
- * Orchestrates deterministic atmosphere-ocean forcing and moisture transport
- * over final topography, publishing climate, seasonality, and winds together.
+ * Orchestrates deterministic atmosphere-ocean forcing and moisture transport over final
+ * topography, publishing climate, pressure, and winds together.
  */
 export const ClimateBaselineStep = createStep(config, {
   normalize: (stepConfig, ctx) => {
@@ -124,31 +128,28 @@ export const ClimateBaselineStep = createStep(config, {
       }
 
       if (stepConfig.computeAtmosphericCirculation.strategy === "geostrophic-proxy") {
+        const circulation = stepConfig.computeAtmosphericCirculation.config;
         return {
           ...stepConfig.computeAtmosphericCirculation,
           config: {
-            ...stepConfig.computeAtmosphericCirculation.config,
-            // Reuse the legacy coupling knobs as broad "strength/variance" scalars.
+            ...circulation,
+            // Ocean coupling controls the circulation backbone; seasonality controls the
+            // decorrelated weather budget. Keeping those axes separate preserves the authored
+            // zonal-to-meridional ratio and avoids double-scaling transient pressure texture.
             zonalStrength: clampNumber(
-              stepConfig.computeAtmosphericCirculation.config.zonalStrength * jetStrengthFactor,
+              circulation.zonalStrength * jetStrengthFactor,
               0,
               300
             ),
-            geostrophicStrength: clampNumber(
-              stepConfig.computeAtmosphericCirculation.config.geostrophicStrength *
-                jetStrengthFactor,
+            meridionalStrength: clampNumber(
+              circulation.meridionalStrength * jetStrengthFactor,
+              0,
+              200
+            ),
+            pressureDrivenRms: clampNumber(
+              circulation.pressureDrivenRms * varianceFactor,
               0,
               400
-            ),
-            pressureNoiseAmp: clampNumber(
-              stepConfig.computeAtmosphericCirculation.config.pressureNoiseAmp * varianceFactor,
-              0,
-              400
-            ),
-            waveStrength: clampNumber(
-              stepConfig.computeAtmosphericCirculation.config.waveStrength * varianceFactor,
-              0,
-              300
             ),
           },
         };
@@ -397,10 +398,6 @@ export const ClimateBaselineStep = createStep(config, {
 
     const seasonalRainfall: Uint8Array[] = [];
     const seasonalHumidity: Uint8Array[] = [];
-    const seasonalWindU: Int8Array[] = [];
-    const seasonalWindV: Int8Array[] = [];
-    const seasonalCurrentU: Int8Array[] = [];
-    const seasonalCurrentV: Int8Array[] = [];
 
     const usesCoupledClimatePath =
       stepConfig.computeAtmosphericCirculation.strategy === "geostrophic-proxy" ||
@@ -431,87 +428,187 @@ export const ClimateBaselineStep = createStep(config, {
       );
     }
 
-    // Pass 1: winds + currents (seasonal). Legacy behavior is preserved when legacy strategies are selected.
-    for (const phase of phases) {
+    // Per-phase forcing is static across the fixed-point cycle. Circulation belts follow only
+    // part of solar declination because atmospheric and oceanic inertia keeps their seasonal
+    // migration narrower than direct insolation.
+    const hasSeasons = Math.abs(axialTiltDeg) >= 1e-6;
+    const seasonalForcing = phases.map((phase, seasonIndex) => {
       const declinationDeg = axialTiltDeg * Math.sin(2 * Math.PI * phase);
-      const latitudeByRowSeasonal = new Float32Array(height);
+      const circulationLatitude = new Float32Array(height);
+      const thermalLatitude = new Float32Array(height);
       for (let y = 0; y < height; y++) {
-        latitudeByRowSeasonal[y] = clampLatitudeDeg(latitudeByRow[y] - declinationDeg);
+        circulationLatitude[y] = clampLatitudeDeg(
+          latitudeByRow[y] - declinationDeg * CIRCULATION_MIGRATION_FRACTION
+        );
+        thermalLatitude[y] = clampLatitudeDeg(latitudeByRow[y] - declinationDeg);
       }
 
-      // If the axial tilt is effectively zero, there should be no seasonality. Keep `seasonPhase01` fixed
-      // so wind/currents don't vary solely because we looped through phases.
-      const seasonPhase01 = Math.abs(axialTiltDeg) < 1e-6 ? 0 : phase;
+      return {
+        circulationLatitude,
+        thermalLatitude,
+        insolation: ops.computeRadiativeForcing(
+          { width, height, latitudeByRow: thermalLatitude },
+          stepConfig.computeRadiativeForcing
+        ).insolation,
+        transientSalt: hasSeasons
+          ? (Math.imul(
+              rngSeed ^ (seasonIndex + 1),
+              SEASON_TRANSIENT_SALT_MULTIPLIER
+            ) >>>
+              1) |
+            0
+          : 0,
+      };
+    });
 
-      const winds = ops.computeAtmosphericCirculation(
-        {
-          width,
-          height,
-          latitudeByRow: latitudeByRowSeasonal,
-          rngSeed,
-          landMask,
-          elevation,
-          seasonPhase01,
-        },
-        stepConfig.computeAtmosphericCirculation
-      );
-
-      const currents = ops.computeOceanSurfaceCurrents(
-        {
-          width,
-          height,
-          latitudeByRow: latitudeByRowSeasonal,
-          isWaterMask,
-          windU: winds.windU,
-          windV: winds.windV,
-          basinId: oceanGeometry?.basinId,
-          coastDistance: oceanGeometry?.coastDistance,
-          coastTangentU: oceanGeometry?.coastTangentU,
-          coastTangentV: oceanGeometry?.coastTangentV,
-        },
-        stepConfig.computeOceanSurfaceCurrents
-      );
-
-      seasonalWindU.push(winds.windU);
-      seasonalWindV.push(winds.windV);
-      seasonalCurrentU.push(currents.currentU);
-      seasonalCurrentV.push(currents.currentV);
-    }
-
-    const seasonCount = phases.length;
+    const seasonCount = seasonalForcing.length;
     const meanRainfall = new Uint8Array(size);
     const meanHumidity = new Uint8Array(size);
     const rainfallAmplitude = new Uint8Array(size);
     const humidityAmplitude = new Uint8Array(size);
-    const meanWindU = new Int8Array(size);
-    const meanWindV = new Int8Array(size);
-    const meanCurrentU = new Int8Array(size);
-    const meanCurrentV = new Int8Array(size);
+    const clampI8 = (value: number): number =>
+      Math.max(-I8_VECTOR_MAX_ABS, Math.min(I8_VECTOR_MAX_ABS, value));
+    const meanOfF32Fields = (fields: readonly Float32Array[]): Float32Array<ArrayBuffer> => {
+      const mean = new Float32Array(size);
+      const fieldCount = Math.max(1, fields.length);
+      for (let index = 0; index < size; index++) {
+        let sum = 0;
+        for (const field of fields) sum += field[index] ?? 0;
+        mean[index] = sum / fieldCount;
+      }
+      return mean;
+    };
+    const meanOfI8Fields = (fields: readonly Int8Array[]): Int8Array<ArrayBuffer> => {
+      const mean = new Int8Array(size);
+      const fieldCount = Math.max(1, fields.length);
+      for (let index = 0; index < size; index++) {
+        let sum = 0;
+        for (const field of fields) sum += field[index] ?? 0;
+        mean[index] = clampI8(Math.round(sum / fieldCount));
+      }
+      return mean;
+    };
+    const meanOfU8Fields = (fields: readonly Uint8Array[]): Uint8Array<ArrayBuffer> => {
+      const mean = new Uint8Array(size);
+      const fieldCount = Math.max(1, fields.length);
+      for (let index = 0; index < size; index++) {
+        let sum = 0;
+        for (const field of fields) sum += field[index] ?? 0;
+        mean[index] = Math.max(0, Math.min(255, Math.round(sum / fieldCount)));
+      }
+      return mean;
+    };
 
-    const clampI8 = (value: number): number => Math.max(-128, Math.min(127, value));
+    const computeSeasonalAtmosphere = (sstC?: Float32Array) => {
+      const zeroElevation = new Int16Array(size);
+      const thermalSamples = seasonalForcing.map((forcing) => ({
+        ...forcing,
+        surfaceTemperatureC: ops.computeThermalState(
+          {
+            width,
+            height,
+            insolation: forcing.insolation,
+            elevation: zeroElevation,
+            landMask,
+            ...(sstC ? { sstC } : {}),
+          },
+          stepConfig.computeThermalState
+        ).surfaceTemperatureC,
+      }));
 
-    for (let i = 0; i < size; i++) {
-      let windUSum = 0;
-      let windVSum = 0;
-      let currentUSum = 0;
-      let currentVSum = 0;
-
-      for (let s = 0; s < seasonCount; s++) {
-        windUSum += seasonalWindU[s]?.[i] ?? 0;
-        windVSum += seasonalWindV[s]?.[i] ?? 0;
-        currentUSum += seasonalCurrentU[s]?.[i] ?? 0;
-        currentVSum += seasonalCurrentV[s]?.[i] ?? 0;
+      const meanSeaLevelTemperatureC = new Float32Array(size);
+      for (const sample of thermalSamples) {
+        for (let index = 0; index < size; index++) {
+          meanSeaLevelTemperatureC[index] += sample.surfaceTemperatureC[index] ?? 0;
+        }
+      }
+      for (let index = 0; index < size; index++) {
+        meanSeaLevelTemperatureC[index] /= Math.max(1, thermalSamples.length);
       }
 
-      meanWindU[i] = clampI8(Math.round(windUSum / seasonCount));
-      meanWindV[i] = clampI8(Math.round(windVSum / seasonCount));
-      meanCurrentU[i] = clampI8(Math.round(currentUSum / seasonCount));
-      meanCurrentV[i] = clampI8(Math.round(currentVSum / seasonCount));
-    }
+      const samples = thermalSamples.map((sample) => {
+        const weatherMembers = TRANSIENT_POLARITIES.map((transientPolarity) => {
+          const pressure = ops.computePressureField(
+            {
+              width,
+              height,
+              latitudeByRow: sample.circulationLatitude,
+              surfaceTemperatureC: sample.surfaceTemperatureC,
+              meanSurfaceTemperatureC: meanSeaLevelTemperatureC,
+              landMask,
+              rngSeed,
+              seasonSalt: sample.transientSalt,
+              transientPolarity,
+            },
+            stepConfig.computePressureField
+          ).pressure;
+          const winds = ops.computeAtmosphericCirculation(
+            {
+              width,
+              height,
+              latitudeByRow: sample.circulationLatitude,
+              rngSeed,
+              pressureField: pressure,
+            },
+            stepConfig.computeAtmosphericCirculation
+          );
+          const currents = ops.computeOceanSurfaceCurrents(
+            {
+              width,
+              height,
+              latitudeByRow: sample.circulationLatitude,
+              isWaterMask,
+              windU: winds.windU,
+              windV: winds.windV,
+              basinId: oceanGeometry?.basinId,
+              coastDistance: oceanGeometry?.coastDistance,
+              coastTangentU: oceanGeometry?.coastTangentU,
+              coastTangentV: oceanGeometry?.coastTangentV,
+            },
+            stepConfig.computeOceanSurfaceCurrents
+          );
+          return {
+            transientPolarity,
+            pressure,
+            windU: winds.windU,
+            windV: winds.windV,
+            currentU: currents.currentU,
+            currentV: currents.currentV,
+          };
+        });
+        return {
+          ...sample,
+          weatherMembers,
+          pressure: meanOfF32Fields(weatherMembers.map((member) => member.pressure)),
+          windU: meanOfI8Fields(weatherMembers.map((member) => member.windU)),
+          windV: meanOfI8Fields(weatherMembers.map((member) => member.windV)),
+          currentU: meanOfI8Fields(weatherMembers.map((member) => member.currentU)),
+          currentV: meanOfI8Fields(weatherMembers.map((member) => member.currentV)),
+        };
+      });
 
+      return {
+        samples,
+        meanWindU: meanOfI8Fields(samples.map((sample) => sample.windU)),
+        meanWindV: meanOfI8Fields(samples.map((sample) => sample.windV)),
+        meanCurrentU: meanOfI8Fields(samples.map((sample) => sample.currentU)),
+        meanCurrentV: meanOfI8Fields(samples.map((sample) => sample.currentV)),
+      };
+    };
+
+    const couplingIterations = usesCoupledClimatePath
+      ? stepConfig.computeAtmosphericCirculation.strategy === "geostrophic-proxy"
+        ? stepConfig.coupling.iterations
+        : 1
+      : 0;
+    let carriedSstC: Float32Array | undefined;
     let oceanThermal: { sstC: Float32Array; seaIceMask: Uint8Array } | null = null;
-    if (usesCoupledClimatePath) {
-      // Annual mean SST/ice coupling: compute once from mean currents (bounded, deterministic).
+
+    // Temperature -> pressure -> wind -> currents -> SST advances the slow ocean state. A final
+    // atmosphere evaluation then consumes that state without advancing it again, so every
+    // published atmospheric field and the downstream moisture pass share one climate vintage.
+    for (let iteration = 0; iteration < couplingIterations; iteration++) {
+      const iterationAtmosphere = computeSeasonalAtmosphere(carriedSstC);
       oceanThermal = ops.computeOceanThermalState(
         {
           width,
@@ -519,158 +616,105 @@ export const ClimateBaselineStep = createStep(config, {
           latitudeByRow,
           isWaterMask,
           shelfMask: shelf.shelfMask,
-          currentU: meanCurrentU,
-          currentV: meanCurrentV,
+          currentU: iterationAtmosphere.meanCurrentU,
+          currentV: iterationAtmosphere.meanCurrentV,
         },
         stepConfig.computeOceanThermalState
       );
+      carriedSstC = oceanThermal.sstC;
     }
 
-    if (usesCoupledClimatePath) {
-      // Pass 2: moisture + precip (seasonal), with optional SST/wind coupling into thermal+evap.
-      for (let s = 0; s < phases.length; s++) {
-        const phase = phases[s] ?? 0;
-        const declinationDeg = axialTiltDeg * Math.sin(2 * Math.PI * phase);
-        const latitudeByRowSeasonal = new Float32Array(height);
-        for (let y = 0; y < height; y++) {
-          latitudeByRowSeasonal[y] = clampLatitudeDeg(latitudeByRow[y] - declinationDeg);
-        }
+    const atmosphere = computeSeasonalAtmosphere(carriedSstC);
+    const seasonalPressure = atmosphere.samples.map((sample) => sample.pressure);
+    const seasonalWindU = atmosphere.samples.map((sample) => sample.windU);
+    const seasonalWindV = atmosphere.samples.map((sample) => sample.windV);
+    const seasonalCurrentU = atmosphere.samples.map((sample) => sample.currentU);
+    const seasonalCurrentV = atmosphere.samples.map((sample) => sample.currentV);
+    const {
+      meanWindU,
+      meanWindV,
+      meanCurrentU,
+      meanCurrentV,
+    } = atmosphere;
+    const meanPressure = new Float32Array(size);
+    for (const pressure of seasonalPressure) {
+      for (let index = 0; index < size; index++) {
+        meanPressure[index] += pressure[index] ?? 0;
+      }
+    }
+    for (let index = 0; index < size; index++) {
+      meanPressure[index] /= Math.max(1, seasonalPressure.length);
+    }
 
-        const forcing = ops.computeRadiativeForcing(
-          { width, height, latitudeByRow: latitudeByRowSeasonal },
-          stepConfig.computeRadiativeForcing
-        );
-
-        const thermal = ops.computeThermalState(
-          {
-            width,
-            height,
-            insolation: forcing.insolation,
-            elevation,
-            landMask,
-            sstC: oceanThermal?.sstC,
-          },
-          stepConfig.computeThermalState
-        );
-
-        const windU = seasonalWindU[s] ?? meanWindU;
-        const windV = seasonalWindV[s] ?? meanWindV;
-
+    // Moisture and precipitation consume the same final atmosphere vintage. The uncoupled path
+    // intentionally omits ocean-only inputs rather than manufacturing an empty ocean state.
+    for (const sample of atmosphere.samples) {
+      const thermal = ops.computeThermalState(
+        {
+          width,
+          height,
+          insolation: sample.insolation,
+          elevation,
+          landMask,
+          ...(oceanThermal ? { sstC: oceanThermal.sstC } : {}),
+        },
+        stepConfig.computeThermalState
+      );
+      const weatherPrecipitation = sample.weatherMembers.map((member) => {
         const evaporation = ops.computeEvaporationSources(
-          {
-            width,
-            height,
-            landMask,
-            surfaceTemperatureC: thermal.surfaceTemperatureC,
-            windU,
-            windV,
-            sstC: oceanThermal?.sstC,
-            seaIceMask: oceanThermal?.seaIceMask,
-          },
+          oceanThermal
+            ? {
+                width,
+                height,
+                landMask,
+                surfaceTemperatureC: thermal.surfaceTemperatureC,
+                windU: member.windU,
+                windV: member.windV,
+                sstC: oceanThermal.sstC,
+                seaIceMask: oceanThermal.seaIceMask,
+              }
+            : {
+                width,
+                height,
+                landMask,
+                surfaceTemperatureC: thermal.surfaceTemperatureC,
+              },
           stepConfig.computeEvaporationSources
         );
-
         const moisture = ops.transportMoisture(
           {
             width,
             height,
-            latitudeByRow: latitudeByRowSeasonal,
+            latitudeByRow: sample.thermalLatitude,
             landMask,
-            windU,
-            windV,
+            windU: member.windU,
+            windV: member.windV,
             evaporation: evaporation.evaporation,
           },
           stepConfig.transportMoisture
         );
-
-        const precipitation = ops.computePrecipitation(
+        return ops.computePrecipitation(
           {
             width,
             height,
-            latitudeByRow: latitudeByRowSeasonal,
+            latitudeByRow: sample.thermalLatitude,
             elevation,
             landMask,
-            windU,
-            windV,
+            windU: member.windU,
+            windV: member.windV,
             humidityF32: moisture.humidity,
             perlinSeed,
           },
           stepConfig.computePrecipitation
         );
+      });
 
-        seasonalRainfall.push(precipitation.rainfall);
-        seasonalHumidity.push(precipitation.humidity);
-      }
-    } else {
-      // Legacy coupling path: compute full seasonal climate in one pass (kept intact for stability).
-      for (let s = 0; s < phases.length; s++) {
-        const phase = phases[s] ?? 0;
-        const declinationDeg = axialTiltDeg * Math.sin(2 * Math.PI * phase);
-        const latitudeByRowSeasonal = new Float32Array(height);
-        for (let y = 0; y < height; y++) {
-          latitudeByRowSeasonal[y] = clampLatitudeDeg(latitudeByRow[y] - declinationDeg);
-        }
-
-        const forcing = ops.computeRadiativeForcing(
-          { width, height, latitudeByRow: latitudeByRowSeasonal },
-          stepConfig.computeRadiativeForcing
-        );
-
-        const thermal = ops.computeThermalState(
-          {
-            width,
-            height,
-            insolation: forcing.insolation,
-            elevation,
-            landMask,
-          },
-          stepConfig.computeThermalState
-        );
-
-        const windU = seasonalWindU[s] ?? meanWindU;
-        const windV = seasonalWindV[s] ?? meanWindV;
-
-        const evaporation = ops.computeEvaporationSources(
-          {
-            width,
-            height,
-            landMask,
-            surfaceTemperatureC: thermal.surfaceTemperatureC,
-          },
-          stepConfig.computeEvaporationSources
-        );
-
-        const moisture = ops.transportMoisture(
-          {
-            width,
-            height,
-            latitudeByRow: latitudeByRowSeasonal,
-            landMask,
-            windU,
-            windV,
-            evaporation: evaporation.evaporation,
-          },
-          stepConfig.transportMoisture
-        );
-
-        const precipitation = ops.computePrecipitation(
-          {
-            width,
-            height,
-            latitudeByRow: latitudeByRowSeasonal,
-            elevation,
-            landMask,
-            windU,
-            windV,
-            humidityF32: moisture.humidity,
-            perlinSeed,
-          },
-          stepConfig.computePrecipitation
-        );
-
-        seasonalRainfall.push(precipitation.rainfall);
-        seasonalHumidity.push(precipitation.humidity);
-      }
+      seasonalRainfall.push(
+        meanOfU8Fields(weatherPrecipitation.map((member) => member.rainfall))
+      );
+      seasonalHumidity.push(
+        meanOfU8Fields(weatherPrecipitation.map((member) => member.humidity))
+      );
     }
 
     // Recompute annual mean + amplitude now that we have seasonal rainfall/humidity.
@@ -707,6 +751,9 @@ export const ClimateBaselineStep = createStep(config, {
       rainfallAmplitude,
       humidityAmplitude,
     };
+    const pressureField = deps.artifacts.pressureField.publish({
+      pressure: meanPressure,
+    });
     const windField = deps.artifacts.windField.publish({
       windU: meanWindU,
       windV: meanWindV,
@@ -718,10 +765,12 @@ export const ClimateBaselineStep = createStep(config, {
     return {
       baselineClimateField,
       seasonalAmplitudes,
+      pressureField,
       windField,
       currentField,
       seasonalRainfall,
       seasonalHumidity,
+      seasonalPressure,
       seasonalWindU,
       seasonalWindV,
       seasonalCurrentU,

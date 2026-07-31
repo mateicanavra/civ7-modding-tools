@@ -598,6 +598,9 @@ const mapConfig = {
           "modeCount": 4,
           "axialTiltDeg": 23.44
         },
+        "coupling": {
+          "iterations": 2
+        },
         "computeRadiativeForcing": {
           "strategy": "latitude-insolation",
           "config": {
@@ -611,10 +614,21 @@ const mapConfig = {
           "config": {
             "baseTemperatureC": 9,
             "insolationScaleC": 47,
-            "lapseRateCPerM": -0.0065,
+            "lapseRateCPerElevationUnit": -0.0065,
             "landCoolingC": 2,
             "minC": -40,
             "maxC": 50
+          }
+        },
+        "computePressureField": {
+          "strategy": "thermal-continental",
+          "config": {
+            "scaffoldStrength": 1,
+            "thermalAnomalyHpaPerC": 0.55,
+            "stationaryThermalHpaPerC": 1.2,
+            "transientScaleTiles": 18,
+            "transientAmplitudeHpa": 14,
+            "smoothIters": 2
           }
         },
         "computeAtmosphericCirculation": {
@@ -622,14 +636,10 @@ const mapConfig = {
           "config": {
             "maxSpeed": 110,
             "zonalStrength": 90,
-            "meridionalStrength": 30,
-            "geostrophicStrength": 70,
-            "pressureNoiseScale": 18,
-            "pressureNoiseAmp": 68.75,
-            "waveStrength": 56.25,
-            "landHeatStrength": 20,
-            "mountainDeflectStrength": 18,
-            "smoothIters": 4
+            "meridionalStrength": 15,
+            "pressureDrivenRms": 35,
+            "smoothIters": 4,
+            "equatorialTaperDeg": 18
           }
         },
         "computeOceanSurfaceCurrents": {
@@ -784,7 +794,7 @@ const mapConfig = {
           "config": {
             "baseTemperatureC": 9,
             "insolationScaleC": 47,
-            "lapseRateCPerM": -0.0065,
+            "lapseRateCPerElevationUnit": -0.0065,
             "landCoolingC": 2,
             "minC": -40,
             "maxC": 50
@@ -1350,8 +1360,8 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "shattered-ring",
-  configHash: "281cfc215fc69a9bd788cc1413b41b2010b5119ddae5aacf00ae5c8e4ef4b68a",
-  envelopeHash: "a2bed1249d8d6fa61a4e75c472f25c7732cf58b561baead9beac59e558f164e4",
+  configHash: "22c39b308886edddd43713266c70ea02829183bacad336fa10e39273fde2e97b",
+  envelopeHash: "3a09faed8b71c1e8eb03f208e10d13ddc4f5a7d0ae940d93011f883ad4ed3f9f",
   config: mapConfig.config,
   initialSetup: {
     requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,

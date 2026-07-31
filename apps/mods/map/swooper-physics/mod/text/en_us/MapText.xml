@@ -49,12 +49,6 @@
 		<Row Tag="LOC_MAP_MOUNTAINS_OF_TIME_ORIGINAL_DESCRIPTION">
 			<Text>Earthlike map with great mountains and diverse continent formation</Text>
 		</Row>
-		<Row Tag="LOC_MAP_MOUNTAIN_RIVERS_PATCH_NAME">
-			<Text>Mountain Rivers Patch</Text>
-		</Row>
-		<Row Tag="LOC_MAP_MOUNTAIN_RIVERS_PATCH_DESCRIPTION">
-			<Text>Mountain Patch terrain configuration with the current visible-river projection settings applied for Studio comparison.</Text>
-		</Row>
 		<Row Tag="LOC_PLOTEFFECT_DESERT_HEAT_NAME">
 			<Text>Deep Desert Heat</Text>
 		</Row>

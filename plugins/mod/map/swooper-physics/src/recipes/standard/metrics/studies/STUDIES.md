@@ -54,13 +54,16 @@ sheet. Every runtime study ID emitted by `STANDARD_METRIC_STUDIES` maps below.
 
 | Runtime study ID | Shape | Protocol |
 | --- | --- | --- |
-| `shipped/identity/{swooper-earthlike,shattered-ring,sundered-archipelago,swooper-desert-mountains}` | Four Huge sample studies, seed 1018 | [Shipped identities](benchmarks/shipped-identities.md) |
+| `shipped/identity/<catalog-config-id>` | Eight Huge sample studies exhausting the durable catalog, seed 1018 | [Shipped identities](benchmarks/shipped-identities.md) |
 | `shipped/arid-climate/MAPSIZE_HUGE/seed-{123,1337,1538316415,1538316523}` | Four Huge sample studies | [Desert Mountains arid climate](benchmarks/shipped-arid-climate.md) |
-| `shipped/geography` | 16-map cohort across four shipped configs | [Shipped geography](benchmarks/shipped-geography.md) |
+| `shipped/geography` | 32-map cohort across all eight catalog configs | [Shipped geography](benchmarks/shipped-geography.md) |
+| `shipped/mountain-drama` | Twelve matched-seed Huge samples across Earthlike and three mountain configs | [Mountain drama](benchmarks/mountain-drama.md) |
 | `earthlike/geography` | Standard sample, seed 1337 | [Earthlike geography](benchmarks/earthlike-geography.md) |
 | `earthlike/biome-structure` | Huge sample, seed 1337 | [Earthlike biome structure](benchmarks/earthlike-biome-structure.md) |
 | `earthlike/deep-ocean` | Nine-map cross-size cohort | [Earthlike deep ocean](benchmarks/earthlike-deep-ocean.md) |
 | `earthlike/river-network` | Three-seed Standard cohort | [Earthlike river network](benchmarks/earthlike-river-network.md) |
+| `earthlike/wind-structure` | Three-seed Standard cohort | [Earthlike circulation structure](benchmarks/earthlike-wind-structure.md) |
+| `latest-juicy/wind-structure` | Three-seed Standard cohort | [Earthlike circulation structure](benchmarks/earthlike-wind-structure.md) |
 | `earthlike/ecology` | Eight-seed Standard cohort | [Earthlike ecology](benchmarks/earthlike-ecology.md) |
 | `earthlike/cold-reef` | Eight-seed Huge cohort | [Earthlike cold reef](benchmarks/earthlike-cold-reef.md) |
 | `earthlike/floodplain` | Standard sample, seed 1018 | [Earthlike floodplain](benchmarks/earthlike-floodplain.md) |

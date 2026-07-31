@@ -11,6 +11,24 @@ major and eligible for navigable projection. Missing terminal classification is
 retained as `null`; the measurement does not infer it or decide how many rivers a
 product should contain.
 
+The nested `windStructure` measurement reads the durable signed-byte `windU`
+and `windV` grids. In its declared frame, `+U` points east and `+V` points
+toward increasing row; row 0 carries `topLatitude`, so equatorward tropical flow
+is positive `V` north of the equator and negative `V` south of it. It retains
+broad zonal band-sign agreement, row-mean zonal and meridional strength,
+within-row zonal RMS, deviation dominance, vector-magnitude saturation,
+tropical meridional means, and hemispheric mean curl as a chirality proxy.
+Targets own all product bounds.
+
+The nested `pressureStructure` measurement reads the durable annual-mean
+circulation-pressure anomaly grid. It retains equatorial-trough,
+subtropical-ridge, and subpolar-low band means per hemisphere; normalized
+north/south profile asymmetry; extratropical pressure/wind scaffold-frame
+agreement; and RMS non-zonal anomaly after each row mean is removed. The frame
+check proves coordinate and broad-belt consistency, not that annual-mean
+pressure reconstructs the complete wind field. The anomaly is a field
+measurement in hPa, not a pressure-operation knob.
+
 ## Scale and interpretation
 
 - A Civ tile is a strategy-scale sample, not a geodetic cell. Study sheets record

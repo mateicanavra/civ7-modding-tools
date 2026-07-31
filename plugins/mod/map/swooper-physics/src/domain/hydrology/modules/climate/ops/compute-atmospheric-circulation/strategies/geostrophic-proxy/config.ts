@@ -1,77 +1,43 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Defines the authored component weights, pressure scale, smoothing budget, and output scale for
- * Hydrology's default circulation posture. Defaults favor strong zonal flow with bounded regional
- * variation rather than fluid-simulation cost.
+ * Defines the analytic backbone, pressure-driven RMS budget, equatorial transition, and output
+ * scale for Hydrology's default circulation posture.
  */
 export default defineStrategy({
   id: "geostrophic-proxy",
   config: Type.Object(
     {
-      /** Max physical-ish speed used for quantization to i8 (higher = weaker output for same internal field). */
+      /** Physical vector magnitude represented by signed-byte magnitude 127. */
       maxSpeed: Type.Number({
-        default: 110,
+        default: 130,
         minimum: 1,
         maximum: 400,
         description:
-          "Max speed used for quantization to i8 (higher = weaker output for the same computed wind field).",
+          "Physical vector magnitude mapped to signed-byte magnitude 127. Composed winds above this envelope clip while a higher value encodes the same field more weakly.",
       }),
       /** Base zonal (east-west) circulation strength. */
       zonalStrength: Type.Number({
-        default: 90,
+        default: 100,
         minimum: 0,
         maximum: 300,
         description: "Base zonal (east-west) circulation strength.",
       }),
       /** Base meridional (north-south) circulation strength. */
       meridionalStrength: Type.Number({
-        default: 30,
+        default: 15,
         minimum: 0,
         maximum: 200,
-        description: "Base meridional (north-south) circulation strength.",
+        description:
+          "Base meridional circulation strength. Runtime structure clamps it to at most 0.35 times zonalStrength.",
       }),
-      /** Strength of geostrophic-like flow derived from a pressure gradient proxy. */
-      geostrophicStrength: Type.Number({
-        default: 70,
+      /** Target RMS strength of the pressure-gradient weather perturbation. */
+      pressureDrivenRms: Type.Number({
+        default: 35,
         minimum: 0,
         maximum: 400,
-        description: "Strength of geostrophic-like flow derived from a pressure gradient proxy.",
-      }),
-      /** Spatial scale (in tiles) for pressure noise. */
-      pressureNoiseScale: Type.Number({
-        default: 18,
-        minimum: 2,
-        maximum: 128,
-        description: "Spatial scale (in tiles) for pressure noise.",
-      }),
-      /** Amplitude of pressure noise (higher = more meander/eddies). */
-      pressureNoiseAmp: Type.Number({
-        default: 55,
-        minimum: 0,
-        maximum: 400,
-        description: "Amplitude of pressure noise (higher = more meander/eddies).",
-      }),
-      /** Planetary wave strength (longitude-dependent meanders). */
-      waveStrength: Type.Number({
-        default: 45,
-        minimum: 0,
-        maximum: 300,
-        description: "Planetary wave strength (longitude-dependent meanders).",
-      }),
-      /** Land heating influence (requires `landMask`; ignored if absent). */
-      landHeatStrength: Type.Number({
-        default: 20,
-        minimum: 0,
-        maximum: 200,
-        description: "Land heating influence (requires landMask; ignored if absent).",
-      }),
-      /** Orography influence (requires `elevation`; ignored if absent). */
-      mountainDeflectStrength: Type.Number({
-        default: 18,
-        minimum: 0,
-        maximum: 200,
-        description: "Orography influence (requires elevation; ignored if absent).",
+        description:
+          "Target RMS strength of the pressure-gradient weather perturbation, capped against the analytic backbone.",
       }),
       /** Bounded smoothing passes over the vector field (higher = smoother, less noisy). */
       smoothIters: Type.Integer({
@@ -81,11 +47,19 @@ export default defineStrategy({
         description:
           "Bounded smoothing passes over the vector field (higher = smoother, less noisy).",
       }),
+      /** Width of the equatorial transition from geostrophic to down-gradient flow. */
+      equatorialTaperDeg: Type.Number({
+        default: 18,
+        minimum: 0,
+        maximum: 45,
+        description:
+          "Latitude width in degrees where weakening Coriolis response blends geostrophic flow into down-gradient flow.",
+      }),
     },
     {
       additionalProperties: false,
       description:
-        "Weights zonal, meridional, pressure-gradient, land, and terrain influences, then bounds wind-field smoothing and i8 quantization.",
+        "Controls the analytic circulation backbone, budgeted pressure-driven perturbation, equatorial transition, smoothing, and magnitude-preserving i8 quantization.",
     }
   ),
 });

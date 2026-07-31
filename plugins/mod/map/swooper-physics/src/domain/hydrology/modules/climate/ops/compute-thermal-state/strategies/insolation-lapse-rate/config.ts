@@ -23,12 +23,13 @@ export default defineStrategy({
         maximum: 80,
         description: "Temperature delta contributed by insolation forcing.",
       }),
-      /** Temperature change per meter of elevation (negative cools with altitude). */
-      lapseRateCPerM: Type.Number({
+      /** Temperature change per upstream elevation unit (negative cools with altitude). */
+      lapseRateCPerElevationUnit: Type.Number({
         default: -0.0065,
         minimum: -0.02,
         maximum: 0,
-        description: "Temperature change per meter of elevation (negative cools with altitude).",
+        description:
+          "Temperature change per quantized upstream elevation unit (negative cools with altitude).",
       }),
       /** Extra cooling applied to land tiles (continentality proxy). */
       landCoolingC: Type.Number({

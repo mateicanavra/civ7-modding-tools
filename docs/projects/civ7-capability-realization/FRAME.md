@@ -1,6 +1,6 @@
 # Civ7 Capability Realization Frame
 
-**Status:** Accepted; entry convergence active, coupled cutover gated on the Template-owned Habitat successor
+**Status:** Accepted; coupled climate convergence active, Habitat-backed cutover next
 **Date:** 2026-07-30
 **Owner:** Civ7 platform architecture and product stewardship
 
@@ -38,24 +38,28 @@ authority by themselves.
 **Attractors:** Intent. Capability. Authority. Environment. Kind. Boundary.
 Chain. Destination. Collapse. Proof. Closure.
 
-**Current container:** converge the independent product lanes that must be
-settled before their capability roots move. First, restack and re-prove the
-remaining Studio design-sync stack on current `main`, then merge it before any
-Studio API or app relocation. Second, reconstruct the accepted wind/pressure
-behavior and metric proof in the current Swooper topology; the obsolete
-flat-path branch is evidence, not an integration candidate. The active Fluree
-inquiry lane remains independently owned and non-blocking until its owner
-finishes a clean package-shaped result.
+**Current container:** seal circulation-pressure anomaly and atmospheric
+circulation as one coupled climate unit in the current Swooper topology.
+Certification proved that wind alone is not a closed product boundary: the
+accepted consumer contract already expects pressure departures, while a
+transient-only realization moves unrelated ecology and hydrography outcomes.
+Do not tune product configs around missing cause, manufacture absolute surface
+pressure, or restore the retired land, terrain, and wave proxies. The pressure
+producer owns the complete anomaly sample, including transient structure; wind
+owns only the analytic backbone and its pressure response. Preserve full-width
+seed entropy, close the causal and product proof, then require the complete
+shipped-config bank to pass. The obsolete flat-path branch remains evidence,
+not an integration candidate. Studio design-sync and the Template-owned
+Habitat release are settled ground; the active Fluree inquiry lane remains
+independently owned and non-blocking until its owner finishes a clean
+package-shaped result.
 
-RAWR HQ-Template concurrently owns the corrected Habitat successor:
-`@habitat/cli` source and releases, generic blueprint policy, its data-only
-policy pack, production loading, generation, Nx projection, initialization,
-and vendor modernization. Civ7's four admission-through-classification commits
-remain scoped implementation evidence on a sibling stack. Civ7 does not add
-local Habitat machinery or move capability-owner source into a transition
-shape while waiting. Once entry convergence and the shared release both seal,
-the first source migration is the coupled capability-chain cutover, not an
-isolated CLI, service, Studio, resource, or mod move.
+After the coupled climate unit closes, begin the capability-chain cutover directly on
+the released `@habitat/cli` substrate. Civ7 does not add local Habitat
+machinery, preserve the old oRPC/service spine, or harden an isolated CLI,
+service, Studio, resource, or mod transition. Each migrated chain reaches
+owner-correct source, runtime realization, parity proof, old-owner deletion,
+and a sealed Graphite layer before the next chain opens.
 
 **Gradient:** current behavior -> capability owner -> execution realm -> target
 kind -> positive law -> destination -> parity proof -> source deletion.

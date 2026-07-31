@@ -10,9 +10,14 @@ import { EARTHLIKE_OROGENY_STUDY } from "./benchmarks/earthlike-orogeny.study.js
 import { EARTHLIKE_PLACEMENT_STUDY } from "./benchmarks/earthlike-placement.study.js";
 import { EARTHLIKE_RELIEF_REPRESENTATIVE_STUDY } from "./benchmarks/earthlike-relief-representative.study.js";
 import { EARTHLIKE_RIVER_NETWORK_STUDY } from "./benchmarks/earthlike-river-network.study.js";
+import {
+  EARTHLIKE_WIND_STRUCTURE_STUDY,
+  LATEST_JUICY_WIND_STRUCTURE_STUDY,
+} from "./benchmarks/earthlike-wind-structure.study.js";
 import { SHIPPED_ARID_CLIMATE_STUDIES } from "./benchmarks/shipped-arid-climate.study.js";
 import { SHIPPED_GEOGRAPHY_STUDY } from "./benchmarks/shipped-geography.study.js";
 import { SHIPPED_IDENTITY_STUDIES } from "./benchmarks/shipped-identities.study.js";
+import { MOUNTAIN_DRAMA_STUDY } from "./benchmarks/mountain-drama.study.js";
 import type { StandardMetricStudy } from "./model.js";
 
 /** Closed executable study bank for the shipped Standard recipe product. */
@@ -20,10 +25,13 @@ export const STANDARD_METRIC_STUDIES: NonEmptyTuple<StandardMetricStudy> = Objec
   ...SHIPPED_IDENTITY_STUDIES,
   ...SHIPPED_ARID_CLIMATE_STUDIES,
   SHIPPED_GEOGRAPHY_STUDY,
+  MOUNTAIN_DRAMA_STUDY,
   EARTHLIKE_GEOGRAPHY_STUDY,
   EARTHLIKE_BIOME_STRUCTURE_STUDY,
   EARTHLIKE_DEEP_OCEAN_STUDY,
   EARTHLIKE_RIVER_NETWORK_STUDY,
+  EARTHLIKE_WIND_STRUCTURE_STUDY,
+  LATEST_JUICY_WIND_STRUCTURE_STUDY,
   EARTHLIKE_ECOLOGY_STUDY,
   EARTHLIKE_COLD_REEF_STUDY,
   EARTHLIKE_FLOODPLAIN_STUDY,

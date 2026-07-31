@@ -28,8 +28,15 @@ export const StandardLakeProjectionMeasurementsSchema = Type.Object(
     morphologyProtectedLakeTileCount: Type.Integer({
       minimum: 0,
       description:
-        "Number of domain-planned lake tiles withheld because final Morphology marks them as mountains or volcanoes.",
+        "Number of domain-planned lake tiles withheld because final Morphology marks them as mountains or volcanoes or would leave them as isolated projection fragments.",
     }),
+    isolatedFragmentProtectedLakeTileCount: Type.Optional(
+      Type.Integer({
+        minimum: 0,
+        description:
+          "Number of singleton lake remnants withheld after mountain and volcano protection split a larger planned component. Historical v1 records omit this additive diagnostic.",
+      })
+    ),
     stampedLakeTileCount: Type.Integer({
       minimum: 0,
       description: "Number of planned lake tiles accepted as lakes by Civ7.",
@@ -67,6 +74,7 @@ export type StandardLakeProjectionMeasurementInput = Readonly<{
   projectedLakeMask: ArrayLike<number>;
   plannedLakeTileCount: number;
   morphologyProtectedLakeTileCount: number;
+  isolatedFragmentProtectedLakeTileCount: number;
   stampedLakeTileCount: number;
   rejectedLakeTileCount: number;
   nonLakeTileCount: number;
@@ -92,6 +100,7 @@ export function measureStandardLakeProjection(
     version: 1,
     plannedLakeTileCount: input.plannedLakeTileCount,
     morphologyProtectedLakeTileCount: input.morphologyProtectedLakeTileCount,
+    isolatedFragmentProtectedLakeTileCount: input.isolatedFragmentProtectedLakeTileCount,
     stampedLakeTileCount: input.stampedLakeTileCount,
     rejectedLakeTileCount: input.rejectedLakeTileCount,
     nonLakeTileCount: input.nonLakeTileCount,

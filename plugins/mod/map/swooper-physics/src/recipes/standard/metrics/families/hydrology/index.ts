@@ -6,8 +6,16 @@ import {
 import { type CountMetric, measureMetricCount } from "@swooper/mapgen-metrics";
 
 import type { StandardMapCapture } from "../../capture.js";
+import {
+  measureStandardPressureStructure,
+  type StandardPressureStructureMetrics,
+} from "./pressure-structure.js";
+import {
+  measureStandardWindStructure,
+  type StandardWindStructureMetrics,
+} from "./wind-structure.js";
 
-/** Hydrology model, navigable-river selection, and engine readback closure facts. */
+/** Hydrology model, atmospheric structure, navigable-river, and engine readback facts. */
 export type StandardHydrologyMetrics = Readonly<{
   riverTiles: CountMetric;
   minorRiverTiles: CountMetric;
@@ -17,9 +25,11 @@ export type StandardHydrologyMetrics = Readonly<{
   networkSummary: StandardMapCapture["model"]["riverNetworkSummary"];
   navigable: StandardMapCapture["projection"]["navigableRivers"] &
     StandardMapCapture["projection"]["riverReadback"];
+  windStructure: StandardWindStructureMetrics;
+  pressureStructure: StandardPressureStructureMetrics;
 }>;
 
-/** Measures modeled rivers and projection/readback evidence without deciding product budgets. */
+/** Measures Hydrology structure and projection/readback evidence without deciding product budgets. */
 export function measureStandardHydrology(capture: StandardMapCapture): StandardHydrologyMetrics {
   const tileCount = capture.provenance.width * capture.provenance.height;
   let riverTiles = 0;
@@ -48,5 +58,7 @@ export function measureStandardHydrology(capture: StandardMapCapture): StandardH
       ...capture.projection.navigableRivers,
       ...capture.projection.riverReadback,
     }),
+    windStructure: measureStandardWindStructure(capture),
+    pressureStructure: measureStandardPressureStructure(capture),
   });
 }
