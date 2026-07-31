@@ -10,8 +10,8 @@ import type { MapConfigSaveDeployStatus } from "@civ7/studio-contract";
 import { BookOpen, Eraser, Link, Power, Save, Settings, Undo2 } from "lucide-react";
 import React, { useId, useState } from "react";
 import type { XSchema } from "typebox/schema";
-import { iconButton, iconButtonActive } from "../../lib/iconButton.js";
 import { LAYOUT } from "../../lib/layout.js";
+import { useControllableState } from "../../lib/useControllableState.js";
 import { cn } from "../../lib/utils.js";
 import type { PipelineConfig, SelectOption } from "../../types/index.js";
 import { DisclosureHeader } from "../composites/DisclosureHeader.js";
@@ -22,6 +22,7 @@ import { SchemaConfigForm } from "../forms/SchemaConfigForm.js";
 import { pointerToPath } from "../forms/schemaPresentation.js";
 import { useConfigCollapse } from "../forms/useConfigCollapse.js";
 import { Button } from "../ui/button.js";
+import { IconButton } from "../ui/icon-button.js";
 import {
   Dialog,
   DialogClose,
@@ -138,9 +139,6 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   const uid = useId();
   const recipeSectionId = `${uid}-recipe-section`;
   const configSectionId = `${uid}-config-section`;
-  const [localRecipeCollapsed, setLocalRecipeCollapsed] = useState(false);
-  const [localConfigCollapsed, setLocalConfigCollapsed] = useState(false);
-  const [localConfigEditingEnabled, setLocalConfigEditingEnabled] = useState(true);
   const [showAllSteps, setShowAllSteps] = useState(false);
   // Scoped restore (flat-and-flush delta 5, re-cut): the confirmation dialog
   // is owned here but always targets ONE stage. The request carries the
@@ -152,21 +150,21 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   const [stageRestoreTarget, setStageRestoreTarget] = useState<StageRestoreRequest | null>(null);
   const [showSaveMenu, setShowSaveMenu] = useState(false);
 
-  const configEditingEnabled = configEditingEnabledProp ?? localConfigEditingEnabled;
-  const setConfigEditingEnabled = (next: boolean) => {
-    onConfigEditingEnabledChange?.(next);
-    if (configEditingEnabledProp === undefined) setLocalConfigEditingEnabled(next);
-  };
-  const recipeCollapsed = recipeCollapsedProp ?? localRecipeCollapsed;
-  const setRecipeCollapsed = (next: boolean) => {
-    onRecipeCollapsedChange?.(next);
-    if (recipeCollapsedProp === undefined) setLocalRecipeCollapsed(next);
-  };
-  const configCollapsed = configCollapsedProp ?? localConfigCollapsed;
-  const setConfigCollapsed = (next: boolean) => {
-    onConfigCollapsedChange?.(next);
-    if (configCollapsedProp === undefined) setLocalConfigCollapsed(next);
-  };
+  const [configEditingEnabled, setConfigEditingEnabled] = useControllableState({
+    value: configEditingEnabledProp,
+    defaultValue: true,
+    onChange: onConfigEditingEnabledChange,
+  });
+  const [recipeCollapsed, setRecipeCollapsed] = useControllableState({
+    value: recipeCollapsedProp,
+    defaultValue: false,
+    onChange: onRecipeCollapsedChange,
+  });
+  const [configCollapsed, setConfigCollapsed] = useControllableState({
+    value: configCollapsedProp,
+    defaultValue: false,
+    onChange: onConfigCollapsedChange,
+  });
   const saveActionDisabled = isSaveDisabled || isSaveDeployRunning;
   const saveLabel = saveDeployStatus
     ? formatMapConfigSaveDeployPhaseLabel(saveDeployStatus.phase)
@@ -309,72 +307,47 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             double hairline. */}
         <div className={cn("flex-shrink-0", !configCollapsed && "border-b", borderSubtle)}>
           <DisclosureHeader
-            className="px-4 py-2.5 cursor-pointer"
+            className="px-4 py-2.5"
             chevron={false}
             expanded={!configCollapsed}
             onToggle={() => setConfigCollapsed(!configCollapsed)}
             controls={configSectionId}
             icon={<Settings className={cn("w-4 h-4 shrink-0", textSecondary)} aria-hidden="true" />}
             title={<span className={cn("text-[13px] font-semibold", textPrimary)}>Config</span>}
-            // role="button" div (not a <button>) because the trailing zone nests
-            // interactive controls; the Enter/Space keyboard contract comes from
-            // the primitive (p.onKeyDown).
-            render={(p) => (
-              <div
-                role={p.role}
-                tabIndex={p.tabIndex}
-                aria-expanded={p["aria-expanded"]}
-                aria-controls={p["aria-controls"]}
-                onClick={p.onClick}
-                onKeyDown={p.onKeyDown}
-                className={p.className}
-              >
-                {p.children}
-              </div>
-            )}
-            trailing={
+            actions={
               <>
                 {/* Overrides toggle (flat-and-flush delta 3): ONE icon-only
                     control — a fixed Power glyph whose highlight alone carries
-                    on/off, matching the row's other icon buttons. Self-guards
-                    its click so it never toggles the section. */}
+                    on/off, matching the row's other icon buttons. As a sibling
+                    of the trigger its clicks never reach the toggle. */}
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setConfigEditingEnabled(!configEditingEnabled);
-                      }}
+                    <IconButton
+                      onClick={() => setConfigEditingEnabled(!configEditingEnabled)}
                       aria-pressed={configEditingEnabled}
                       aria-label={configEditingEnabled ? "Disable Overrides" : "Enable Overrides"}
-                      className={configEditingEnabled ? iconButtonActive : iconButton}
+                      active={configEditingEnabled}
                     >
                       <Power className="w-3.5 h-3.5" aria-hidden="true" />
-                    </button>
+                    </IconButton>
                   </TooltipTrigger>
                   <TooltipContent>
                     {configEditingEnabled ? "Disable Overrides" : "Enable Overrides"}
                   </TooltipContent>
                 </Tooltip>
 
-                {/* Step-visibility toggle self-guards its own click. Chain-link
-                    glyph (delta 4): "these steps are shown together", not
-                    camera focus. */}
+                {/* Step-visibility toggle. Chain-link glyph (delta 4): "these
+                    steps are shown together", not camera focus. */}
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowAllSteps(!showAllSteps);
-                      }}
+                    <IconButton
+                      onClick={() => setShowAllSteps(!showAllSteps)}
                       aria-label={showAllSteps ? "Focus Current Step" : "Show All Steps"}
                       aria-pressed={showAllSteps}
-                      className={!showAllSteps ? iconButtonActive : iconButton}
+                      active={!showAllSteps}
                     >
                       <Link className="w-3.5 h-3.5" aria-hidden="true" />
-                    </button>
+                    </IconButton>
                   </TooltipTrigger>
                   <TooltipContent>
                     {showAllSteps ? "Focus Current Step" : "Show All Steps"}

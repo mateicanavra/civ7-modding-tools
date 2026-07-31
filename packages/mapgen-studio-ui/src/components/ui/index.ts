@@ -15,8 +15,10 @@
  * impossible in designs. `toast` and `Toaster` must ride the same barrel.
  */
 
+export { Badge, type BadgeProps, badgeVariants } from "./badge.js";
 export { Button, type ButtonProps, buttonVariants } from "./button.js";
 export { Checkbox } from "./checkbox.js";
+export { IconButton, type IconButtonProps, iconButtonVariants } from "./icon-button.js";
 export {
   Dialog,
   DialogClose,

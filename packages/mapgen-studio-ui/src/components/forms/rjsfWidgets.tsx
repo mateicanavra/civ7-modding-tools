@@ -3,9 +3,9 @@ import { deepEquals } from "@rjsf/utils";
 import { Undo2 } from "lucide-react";
 import { use } from "react";
 import { cn } from "../../lib/utils.js";
+import { OptionSelect } from "../composites/OptionSelect.js";
 import { Checkbox } from "../ui/checkbox.js";
 import { Input } from "../ui/input.js";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select.js";
 import { Switch } from "../ui/switch.js";
 import { Textarea } from "../ui/textarea.js";
 import { type FieldBaseline, FieldBaselineContext } from "./fieldBaseline.js";
@@ -22,11 +22,6 @@ type ConfigWidgetProps = WidgetProps<unknown, RJSFSchema, BrowserConfigFormConte
  * contract: the authored config the form emits is exactly what the schema
  * round-trip expects.
  */
-
-// Radix Select disallows an empty `value`; the schema enum's "no selection"
-// placeholder maps to this reserved sentinel internally and round-trips back to
-// the real empty selection on change.
-const SELECT_EMPTY_SENTINEL = "__rjsf-select-empty__";
 
 function normalizeEmptyValue(next: string, emptyValue: unknown): string | unknown {
   return next === "" ? emptyValue : next;
@@ -232,7 +227,6 @@ export function SelectWidget(props: ConfigWidgetProps) {
   const enumOptions = (options.enumOptions ?? []) as Array<{ value: unknown; label: string }>;
   const map = new Map(enumOptions.map((opt) => [String(opt.value), opt.value]));
   const selectedKey = value === undefined || value === null ? "" : String(value);
-  const toRadix = (raw: string) => (raw === "" ? SELECT_EMPTY_SENTINEL : raw);
   const baseline = use(FieldBaselineContext);
   const dirty = fieldDrift(baseline, value);
 
@@ -241,33 +235,24 @@ export function SelectWidget(props: ConfigWidgetProps) {
   // before it, so a long value ellipsizes instead of running under the icon.
   // No trigger padding change — padding would shrink the trigger's inner flex
   // row and drag the chevron off flush-right.
+  //
+  // The picker is `OptionSelect` — the package's one adapter over Radix
+  // Select (it owns the empty-value sentinel round-trip); the widget adds
+  // only what schema forms need: the non-string enum value-map, drift
+  // chrome, and the label/error wiring on the trigger.
   return (
     <div className="relative">
-      <Select
+      <OptionSelect
         name={name}
         disabled={disabled || readonly}
-        value={toRadix(selectedKey)}
-        onValueChange={(next) => {
-          const key = next === SELECT_EMPTY_SENTINEL ? "" : next;
-          onChange(map.has(key) ? map.get(key) : key);
-        }}
-      >
-        <SelectTrigger
-          id={id}
-          aria-label={placeholder ?? name}
-          className={cn("[&>span]:mr-6", dirty && DRIFT_CLASSES)}
-          {...errorA11yProps(id, rawErrors)}
-        >
-          <SelectValue placeholder={placeholder} />
-        </SelectTrigger>
-        <SelectContent>
-          {enumOptions.map((opt) => (
-            <SelectItem key={String(opt.value)} value={toRadix(String(opt.value))}>
-              {opt.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        value={selectedKey}
+        onValueChange={(key) => onChange(map.has(key) ? map.get(key) : key)}
+        options={enumOptions.map((opt) => ({ value: String(opt.value), label: opt.label }))}
+        ariaLabel={placeholder ?? name}
+        placeholder={placeholder}
+        className={cn("[&>span]:mr-6", dirty && DRIFT_CLASSES)}
+        triggerProps={{ id, ...errorA11yProps(id, rawErrors) }}
+      />
       <FieldUndoButton
         dirty={dirty}
         disabled={disabled || readonly}

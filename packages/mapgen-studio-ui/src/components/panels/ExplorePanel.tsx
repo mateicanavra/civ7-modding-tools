@@ -18,8 +18,8 @@ import {
   SquareStack,
 } from "lucide-react";
 import React, { useEffect, useId, useState } from "react";
-import { iconButton, iconButtonActive } from "../../lib/iconButton.js";
 import { LAYOUT } from "../../lib/layout.js";
+import { useControllableState } from "../../lib/useControllableState.js";
 import { cn } from "../../lib/utils.js";
 import type {
   DataTypeOption,
@@ -32,6 +32,7 @@ import type {
 } from "../../types/index.js";
 import { DisclosureHeader } from "../composites/DisclosureHeader.js";
 import { OptionSelect } from "../composites/OptionSelect.js";
+import { IconButton } from "../ui/icon-button.js";
 import {
   type WaterStatsLayerRef,
   WaterStatsSection,
@@ -194,35 +195,28 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
   const stageListId = `${uid}-stage-list`;
   const stepListId = `${uid}-step-list`;
   const layersListId = `${uid}-layers-list`;
-  const [localStageExpanded, setLocalStageExpanded] = useState(true);
-  const [localStepExpanded, setLocalStepExpanded] = useState(true);
-  const [localLayersExpanded, setLocalLayersExpanded] = useState(true);
-  const [localWaterStatsExpanded, setLocalWaterStatsExpanded] = useState(false);
   const [groupOpen, setGroupOpen] = useState<Record<string, boolean>>({});
 
-  const isStageExpanded = stageExpandedProp ?? localStageExpanded;
-  const setIsStageExpanded = (next: boolean) => {
-    onStageExpandedChange?.(next);
-    if (stageExpandedProp === undefined) setLocalStageExpanded(next);
-  };
-
-  const isStepExpanded = stepExpandedProp ?? localStepExpanded;
-  const setIsStepExpanded = (next: boolean) => {
-    onStepExpandedChange?.(next);
-    if (stepExpandedProp === undefined) setLocalStepExpanded(next);
-  };
-
-  const isLayersExpanded = layersExpandedProp ?? localLayersExpanded;
-  const setIsLayersExpanded = (next: boolean) => {
-    onLayersExpandedChange?.(next);
-    if (layersExpandedProp === undefined) setLocalLayersExpanded(next);
-  };
-
-  const isWaterStatsExpanded = waterStatsExpandedProp ?? localWaterStatsExpanded;
-  const setIsWaterStatsExpanded = (next: boolean) => {
-    onWaterStatsExpandedChange?.(next);
-    if (waterStatsExpandedProp === undefined) setLocalWaterStatsExpanded(next);
-  };
+  const [isStageExpanded, setIsStageExpanded] = useControllableState({
+    value: stageExpandedProp,
+    defaultValue: true,
+    onChange: onStageExpandedChange,
+  });
+  const [isStepExpanded, setIsStepExpanded] = useControllableState({
+    value: stepExpandedProp,
+    defaultValue: true,
+    onChange: onStepExpandedChange,
+  });
+  const [isLayersExpanded, setIsLayersExpanded] = useControllableState({
+    value: layersExpandedProp,
+    defaultValue: true,
+    onChange: onLayersExpandedChange,
+  });
+  const [isWaterStatsExpanded, setIsWaterStatsExpanded] = useControllableState({
+    value: waterStatsExpandedProp,
+    defaultValue: false,
+    onChange: onWaterStatsExpandedChange,
+  });
   const currentStage = stages.find((s) => s.value === selectedStage);
   const currentStep = steps.find((s) => s.value === selectedStep);
   const currentLayer = dataTypeOptions.find((dt) => dt.value === selectedDataType);
@@ -285,12 +279,10 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
   const stepItemActive = "border-primary bg-accent text-foreground";
   const stepItemInactive =
     "border-transparent text-muted-foreground hover:bg-accent hover:text-foreground";
-  const iconBtn = iconButton;
-  const iconBtnActive = iconButtonActive;
   // Segmented controls for mutually-exclusive option sets (Render / Space):
   // an inset container on the control-background token bounds the options so
   // they read as one control; the active segment lifts one surface tier
-  // (Pass-2 explore-toolbar spec). Independent toggles keep `iconBtn`.
+  // (Pass-2 explore-toolbar spec). Independent toggles are `IconButton`s.
   // Toolbar cluster anatomy (Pass-3): a cluster heading names the target
   // (View = camera/map, Layer = selected data); row labels sit a tier below.
   const clusterHeading = cn("text-label font-semibold uppercase tracking-wider", textSecondary);
@@ -525,14 +517,15 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
         />
         <Tooltip>
           <TooltipTrigger asChild>
-            <button
+            <IconButton
               onClick={() => onShowDebugLayersChange(!showDebugLayers)}
               aria-label={showDebugLayers ? "Hide debug layers" : "Show debug layers"}
               aria-pressed={showDebugLayers}
-              className={cn("mr-2", showDebugLayers ? iconBtnActive : iconBtn)}
+              active={showDebugLayers}
+              className="mr-2"
             >
               <Bug className="w-3.5 h-3.5" />
-            </button>
+            </IconButton>
           </TooltipTrigger>
           <TooltipContent>
             {showDebugLayers ? "Hide debug layers" : "Show debug layers"}
@@ -614,22 +607,22 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
           <div className="flex items-center gap-1">
             <Tooltip>
               <TooltipTrigger asChild>
-                <button onClick={onFitView} aria-label="Fit to view" className={iconBtn}>
+                <IconButton onClick={onFitView} aria-label="Fit to view">
                   <Maximize className="w-3.5 h-3.5" />
-                </button>
+                </IconButton>
               </TooltipTrigger>
               <TooltipContent>Fit to view</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button
+                <IconButton
                   onClick={() => onShowEdgesChange(!showEdges)}
                   aria-label={showEdges ? "Hide edges" : "Show edges"}
                   aria-pressed={showEdges}
-                  className={showEdges ? iconBtnActive : iconBtn}
+                  active={showEdges}
                 >
                   <GitBranch className="w-3.5 h-3.5" />
-                </button>
+                </IconButton>
               </TooltipTrigger>
               <TooltipContent>{showEdges ? "Hide edges" : "Show edges"}</TooltipContent>
             </Tooltip>

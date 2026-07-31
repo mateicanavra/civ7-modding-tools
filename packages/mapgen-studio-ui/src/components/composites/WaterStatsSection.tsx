@@ -12,6 +12,7 @@
 
 import { Droplets } from "lucide-react";
 import { useId } from "react";
+import { Badge } from "../ui/badge.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.js";
 import { DisclosureHeader } from "./DisclosureHeader.js";
 
@@ -180,16 +181,9 @@ export function WaterStatsSection<TRef extends WaterStatsLayerRef>({
               {row.counts.map(([key, value]) => {
                 const diverged = isDivergenceCount(key) && value > 0;
                 return (
-                  <span
-                    key={key}
-                    className={`rounded px-1.5 py-0.5 text-label ${
-                      diverged
-                        ? "border border-warning/40 text-warning"
-                        : "bg-muted/50 text-muted-foreground"
-                    }`}
-                  >
+                  <Badge key={key} variant={diverged ? "warning" : "neutral"}>
                     {key} {value}
-                  </span>
+                  </Badge>
                 );
               })}
               {row.layerRefs.slice(0, 4).map((ref) => {

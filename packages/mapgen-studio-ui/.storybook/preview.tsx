@@ -14,23 +14,21 @@ import "@fontsource/jetbrains-mono/500.css";
 import "../src/styles/index.css";
 
 import type { Decorator, Preview } from "@storybook/react-vite";
-import { Toaster, TooltipProvider } from "@swooper/mapgen-studio-ui";
+import { TooltipProvider } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
 
 /**
  * The package's ambient context, and nothing else (LEDGER adjudication 12):
  * TooltipProvider is mandatory — tooltip-using components render silently
- * blank with no console error without it. Toaster is the sink for the Toaster
- * story's toast.*() calls. No QueryClient, no store reset: every storied
- * component is props-driven (classification ledger, frozen 2026-07-01).
+ * blank with no console error without it. This decorator must stay EXACTLY
+ * the provider set .design-sync/config.json declares: the sync renders cards
+ * without Storybook globals, so anything a story needs beyond this list must
+ * live in the story itself (the Toaster story mounts its own sink for that
+ * reason). No QueryClient, no store reset: every storied component is
+ * props-driven (classification ledger, frozen 2026-07-01).
  */
 function StoryProviders({ children }: { children: ReactNode }) {
-  return (
-    <TooltipProvider delayDuration={300}>
-      {children}
-      <Toaster />
-    </TooltipProvider>
-  );
+  return <TooltipProvider delayDuration={300}>{children}</TooltipProvider>;
 }
 
 /**

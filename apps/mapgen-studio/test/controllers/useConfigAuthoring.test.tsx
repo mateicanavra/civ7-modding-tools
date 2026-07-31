@@ -18,6 +18,7 @@ function setup(canonicalConfig: MapConfigEnvelope = defaultConfig) {
   const args: UseConfigAuthoringArgs = {
     canonicalConfig,
     setCanonicalConfig: vi.fn(),
+    installCanonicalConfig: vi.fn(),
     toast: vi.fn(),
   };
   const view = renderHook((current: UseConfigAuthoringArgs) => useConfigAuthoring(current), {
@@ -43,10 +44,13 @@ describe("useConfigAuthoring", () => {
     const { result, args } = setup();
 
     act(() => result.current.selectConfig(catalogConfig.id));
-    expect(args.setCanonicalConfig).toHaveBeenLastCalledWith(catalogConfig);
+    expect(args.installCanonicalConfig).toHaveBeenLastCalledWith(catalogConfig);
 
     act(() => result.current.selectRecipe("standard"));
-    expect(args.setCanonicalConfig).toHaveBeenLastCalledWith(artifacts.defaultCanonicalConfig);
+    expect(args.installCanonicalConfig).toHaveBeenLastCalledWith(artifacts.defaultCanonicalConfig);
+    // Whole-envelope installs must not travel the working-edit path — that
+    // would leave the baseline stale and every freshly-loaded config dirty.
+    expect(args.setCanonicalConfig).not.toHaveBeenCalled();
     expect(Object.isFrozen(artifacts.defaultCanonicalConfig)).toBe(true);
     expect(artifacts.defaultCanonicalConfig).not.toHaveProperty("source");
     expect(artifacts.defaultCanonicalConfig).not.toHaveProperty("preset");
@@ -100,19 +104,20 @@ describe("useConfigAuthoring", () => {
       await result.current.importFile(importEvent(JSON.stringify(defaultConfig)));
     });
 
-    const imported = vi.mocked(args.setCanonicalConfig).mock.calls[0]?.[0];
+    const imported = vi.mocked(args.installCanonicalConfig).mock.calls[0]?.[0];
     expect(imported).toEqual(defaultConfig);
     expect(Object.isFrozen(imported)).toBe(true);
     expect(imported).not.toHaveProperty("source");
     expect(imported).not.toHaveProperty("preset");
 
-    vi.mocked(args.setCanonicalConfig).mockClear();
+    vi.mocked(args.installCanonicalConfig).mockClear();
     await act(async () => {
       await result.current.importFile(
         importEvent(JSON.stringify({ canonicalConfig: defaultConfig }))
       );
     });
 
+    expect(args.installCanonicalConfig).not.toHaveBeenCalled();
     expect(args.setCanonicalConfig).not.toHaveBeenCalled();
     expect(args.toast).toHaveBeenLastCalledWith(expect.stringContaining("Config import failed"), {
       variant: "error",

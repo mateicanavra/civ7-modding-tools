@@ -1,44 +1,91 @@
 // @vitest-environment jsdom
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { AppHeader, TooltipProvider } from "@swooper/mapgen-studio-ui";
 import { fireEvent, render } from "@testing-library/react";
 import type { ReactElement, ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
 import { deriveAppHeaderSetupState } from "../../src/app/hooks/useSetupControls";
 import type { Civ7StudioSetupConfig } from "../../src/features/civ7Setup/setupConfig";
 
-// AppHeader rendered-markup regression pins. Originally the E4a redesign
-// no-op verification (tasks.md 6.1): the fixture was the byte-exact markup of the
-// PRE-redesign app-side AppHeader captured at the B6 parent tip
-// (studio-ui-panels, 1eb984728), and the redesigned package AppHeader +
-// container derivation reproduced it byte-identically — that verification is
-// anchored in git history (the fixture as of the B6/B7 commits). The fixture
-// has since advanced ONCE, for the E3 cleanup wave (B8): the only delta vs
-// the B6 capture, enumerated across all 7 scenarios, is `tabindex="0"` on
-// the AppBrand root — E3 item 2's keyboard-a11y intent (nothing else in the
-// wave moved AppHeader's markup). The scenarios: the two story scenes, the
-// P7 precedence-pin scenes, a no-saved-config + gameConsole scene, and two
-// OPEN setup-panel scenes (gear-click via jsdom) covering the
-// leader/civ/difficulty/speed value paths including the difficulty
-// game-over-player fallback, all rendered through the REAL app container
-// derivation (`deriveAppHeaderSetupState`) composed with the package
-// AppHeader and required byte-equal.
+// AppHeader rendered-markup regression pin: the byte-exact markup AppHeader
+// currently renders across 7 scenarios, so that any UNINTENDED markup change
+// fails loudly. It is a regression pin, NOT an equivalence proof — the E4a
+// redesign no-op verification it was born as (fixture captured pre-redesign at
+// the B6 parent tip 1eb984728, reproduced byte-identically by the package
+// AppHeader + container derivation) is permanently anchored in git history at
+// the B6/B7 commits and is not re-proven here.
 //
-// Static scenes render via renderToStaticMarkup (server ids, per-call
-// deterministic); the two open scenes render via RTL + gear click in the
-// generator's exact order (client useId parity — currently vacuous: the
-// captured markup carries no generated ids, only the authored
-// `app-header-setup-panel`).
+// The fixture advances only on a DELIBERATE markup change, and every advance is
+// enumerated. Advance 1 (B8, E3 cleanup wave): `tabindex="0"` on the AppBrand
+// root. Advance 2 (this initiative): ViewControls' theme + grid toggles became
+// `IconButton` rather than hand-rolled `<button className={iconBtn}>` (attribute
+// order + class list, all 7 scenes); the Re-apply affordance is wrapped in
+// `<Badge asChild variant="warning">` (the two `modified: true` scenes); and the
+// setup panel's `aria-controls`/`id` linkage moved from a hardcoded
+// `app-header-setup-panel` to `React.useId()`, which the React-lint domain's
+// `useUniqueElementIds` requires.
+//
+// Generated ids are NORMALIZED out of both capture and fixture (see
+// `normalizeGeneratedIds`): a `useId()` value is a React implementation detail
+// whose text depends on hook ordering and render entry point, so pinning it
+// would make this test fail on refactors that change nothing a user can see.
+// The linkage itself stays pinned — both sides collapse to the same token, so a
+// broken `aria-controls` → `id` pairing still diverges.
+//
+// The scenarios: the two story scenes, the P7 precedence-pin scenes, a
+// no-saved-config + gameConsole scene, and two OPEN setup-panel scenes
+// (gear-click via jsdom) covering the leader/civ/difficulty/speed value paths
+// including the difficulty game-over-player fallback — all rendered through the
+// REAL app container derivation (`deriveAppHeaderSetupState`) composed with the
+// package AppHeader. Static scenes render via renderToStaticMarkup; the two open
+// scenes render via RTL + gear click.
+//
+// To advance the fixture after an intended markup change, re-run this file with
+// `UPDATE_MARKUP_PIN=1` and review the resulting diff delta-by-delta — an
+// unreviewed regeneration defeats the point of the pin.
 
-const fixture: Record<string, string> = JSON.parse(
-  readFileSync(
-    join(dirname(fileURLToPath(import.meta.url)), "fixtures", "appHeaderMarkup.json"),
-    "utf8"
-  )
+const fixturePath = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "fixtures",
+  "appHeaderMarkup.json"
 );
+
+const fixture: Record<string, string> = JSON.parse(readFileSync(fixturePath, "utf8"));
+
+const updateFixture = process.env.UPDATE_MARKUP_PIN === "1";
+const captured: Record<string, string> = {};
+
+// React's useId output (`_R_0_` server / `_r_0_` client in 19, `:r0:` in 18) is
+// generated, not authored — its text depends on hook ordering and render entry
+// point, so pinning it would fail on refactors that change nothing visible.
+// Each DISTINCT generated id collapses to its own stable token in order of first
+// appearance, so linkage stays pinned: a swapped or dangling
+// `aria-controls` → `id` pairing still diverges from the fixture.
+const GENERATED_ID = /_[Rr]_[0-9a-z]*_|:r[0-9a-z]+:/g;
+
+function normalizeGeneratedIds(html: string): string {
+  const seen = new Map<string, string>();
+  return html.replace(GENERATED_ID, (raw) => {
+    const token = seen.get(raw) ?? `«id:${seen.size}»`;
+    seen.set(raw, token);
+    return token;
+  });
+}
+
+function pin(name: string, actual: string): void {
+  captured[name] = actual;
+  if (updateFixture) return;
+  expect(fixture[name], name).toBeTypeOf("string");
+  expect(actual, name).toBe(fixture[name]);
+}
+
+afterAll(() => {
+  if (!updateFixture) return;
+  writeFileSync(fixturePath, `${JSON.stringify(captured, null, 2)}\n`, "utf8");
+});
 
 const noop = () => {};
 
@@ -181,7 +228,7 @@ function header(scene: Scene): ReactElement {
 }
 
 function captureStatic(node: ReactElement): string {
-  return renderToStaticMarkup(<TooltipProvider>{node}</TooltipProvider>);
+  return normalizeGeneratedIds(renderToStaticMarkup(<TooltipProvider>{node}</TooltipProvider>));
 }
 
 function captureOpen(node: ReactElement): string {
@@ -191,11 +238,11 @@ function captureOpen(node: ReactElement): string {
   fireEvent.click(gear);
   const html = container.innerHTML;
   unmount();
-  return html;
+  return normalizeGeneratedIds(html);
 }
 
-describe("E4a AppHeader redesign is a rendered-markup no-op (container derivation + package view)", () => {
-  it("pins the closed-header scenes byte-identical to the pre-redesign render", () => {
+describe("AppHeader rendered-markup regression pin (container derivation + package view)", () => {
+  it("pins the closed-header scenes byte-identical to the recorded markup", () => {
     const scenes: Record<string, ReactElement> = {
       "story/Default": (
         <Bar>
@@ -227,17 +274,18 @@ describe("E4a AppHeader redesign is a rendered-markup no-op (container derivatio
       }),
     };
     for (const [name, node] of Object.entries(scenes)) {
-      expect(fixture[name], name).toBeTypeOf("string");
-      expect(captureStatic(node), name).toBe(fixture[name]);
+      pin(name, captureStatic(node));
     }
   });
 
   it("pins the OPEN setup panel byte-identical — the view-model value paths (generator order)", () => {
-    expect(
+    pin(
+      "open/PopulatedSetup",
       captureOpen(header({ config: OPEN_POPULATED_CONFIG, options: OPEN_SETUP_OPTIONS }))
-    ).toBe(fixture["open/PopulatedSetup"]);
-    expect(captureOpen(header({ config: OPEN_FALLBACK_CONFIG, options: OPEN_SETUP_OPTIONS }))).toBe(
-      fixture["open/FallbackDifficulty"]
+    );
+    pin(
+      "open/FallbackDifficulty",
+      captureOpen(header({ config: OPEN_FALLBACK_CONFIG, options: OPEN_SETUP_OPTIONS }))
     );
   });
 });

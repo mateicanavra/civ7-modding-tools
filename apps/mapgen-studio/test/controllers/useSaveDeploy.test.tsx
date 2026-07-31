@@ -46,7 +46,8 @@ function makeArgs(over: Partial<UseSaveDeployArgs> = {}): UseSaveDeployArgs {
     browserRunning: false,
     runInGameRunning: false,
     canonicalConfig,
-    setCanonicalConfig: vi.fn(),
+    installCanonicalConfig: vi.fn(),
+    adoptSavedBaseline: vi.fn(),
     toast: vi.fn(),
     ...over,
   };
@@ -77,6 +78,31 @@ describe("useSaveDeploy config ownership", () => {
     expect(saveRpc.mock.calls[0]?.[0]).not.toHaveProperty("sourcePath");
   });
 
+  // Save-to-current is baseline-only by contract: the just-saved values become
+  // the loaded baseline, but the canonical config is NOT reinstalled — edits made
+  // while the save was in flight must survive, and no revision bump may fake a
+  // dirty run state. Installing here would silently clobber both.
+  it("adopts only the baseline on Save to current — never reinstalls the config", async () => {
+    saveRpc.mockResolvedValue({ ok: true, status: completeStatus("config-save") });
+    const { result, props } = setup();
+
+    await act(async () => result.current.handleSaveToCurrent());
+
+    expect(props.adoptSavedBaseline).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(props.adoptSavedBaseline).mock.calls[0]?.[0]).toBe(canonicalConfig.config);
+    expect(props.installCanonicalConfig).not.toHaveBeenCalled();
+  });
+
+  it("does not adopt a baseline when Save to current fails", async () => {
+    saveRpc.mockResolvedValue({ ok: false, status: failedStatus("config-save") });
+    const { result, props } = setup();
+
+    await act(async () => result.current.handleSaveToCurrent());
+
+    expect(props.adoptSavedBaseline).not.toHaveBeenCalled();
+    expect(props.installCanonicalConfig).not.toHaveBeenCalled();
+  });
+
   it("adopts a Save As config only after save and deploy succeeds", async () => {
     saveRpc.mockResolvedValue({ ok: true, status: completeStatus("save-as") });
     const { result, props } = setup();
@@ -85,7 +111,7 @@ describe("useSaveDeploy config ownership", () => {
       result.current.handleSaveDialogConfirm({ name: "New Config", description: "Test save" })
     );
 
-    const saved = vi.mocked(props.setCanonicalConfig).mock.calls[0]?.[0];
+    const saved = vi.mocked(props.installCanonicalConfig).mock.calls[0]?.[0];
     const deployed = saveRpc.mock.calls[0]?.[0]?.canonicalConfig;
     expect(saved).toBeDefined();
     expect(deployed).toBe(saved);
@@ -100,7 +126,8 @@ describe("useSaveDeploy config ownership", () => {
     await act(async () => result.current.handleSaveDialogConfirm({ name: "Failed Copy" }));
 
     expect(saveRpc).toHaveBeenCalledTimes(1);
-    expect(props.setCanonicalConfig).not.toHaveBeenCalled();
+    expect(props.installCanonicalConfig).not.toHaveBeenCalled();
+    expect(props.adoptSavedBaseline).not.toHaveBeenCalled();
     expect(props.toast).toHaveBeenCalledWith(
       "Config save failed: Saving the map configuration failed.",
       { variant: "error" }

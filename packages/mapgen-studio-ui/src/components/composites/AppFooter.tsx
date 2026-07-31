@@ -3,6 +3,7 @@ import React from "react";
 import { LAYOUT } from "../../lib/layout.js";
 import { cn } from "../../lib/utils.js";
 import type { GenerationStatus, MapSize, SelectOption, WorldSettings } from "../../types/index.js";
+import { Badge } from "../ui/badge.js";
 import { Button } from "../ui/button.js";
 import { Input } from "../ui/input.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.js";
@@ -197,12 +198,9 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           <div className={`w-2 h-2 rounded-full ${statusDotClass}`} />
           <span className={`text-data font-medium ${textPrimary}`}>{statusText}</span>
           {busyTitle ? (
-            <span
-              className="rounded border border-warning/40 px-1.5 py-0.5 text-label text-warning"
-              title={busyTitle}
-            >
+            <Badge variant="warning" title={busyTitle}>
               Busy
-            </span>
+            </Badge>
           ) : null}
         </div>
 

@@ -1,5 +1,5 @@
 import { ExternalLink, Github, User } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 /** One link row in the AppBrand hover/focus info card. */
 export interface AppBrandLink {
@@ -50,9 +50,12 @@ const DEFAULT_LINKS: ReadonlyArray<AppBrandLink> = [
  * content (title, version, description, links, footnote) is prop-driven with
  * the studio's own strings as defaults, so hosts can brand it without forking.
  *
- * The card opens on hover AND on keyboard focus (the pill is focusable and the
- * card's links are reachable by Tab); it closes when the pointer leaves or
- * focus moves outside the component.
+ * The card opens on hover, on keyboard focus, and on tap (the pill toggles on
+ * click for pointerless/touch input); it closes when the pointer leaves, focus
+ * moves outside the component, Escape is pressed, or a pointer goes down
+ * outside — the same dismissal semantics as the Radix-backed popups. The card
+ * deliberately stays INLINE (no portal): its links must remain reachable by
+ * Tab directly from the pill, which portal DOM order would break.
  */
 export const AppBrand: React.FC<AppBrandProps> = ({
   title = "MapGen Studio",
@@ -62,8 +65,29 @@ export const AppBrand: React.FC<AppBrandProps> = ({
   footnote = "© 2024 • MIT License",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+
+  // Escape + outside-pointer dismissal while open — document-level because the
+  // dismiss gesture happens outside the component by definition.
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+    const onPointerDown = (event: PointerEvent) => {
+      if (rootRef.current && !rootRef.current.contains(event.target as Node)) setIsOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("pointerdown", onPointerDown);
+    };
+  }, [isOpen]);
+
   return (
     <div
+      ref={rootRef}
       className="relative h-10"
       onMouseEnter={() => setIsOpen(true)}
       onMouseLeave={() => setIsOpen(false)}
@@ -74,9 +98,11 @@ export const AppBrand: React.FC<AppBrandProps> = ({
         if (!event.currentTarget.contains(event.relatedTarget)) setIsOpen(false);
       }}
     >
-      {/* Main Pill — focusable so the info card (and its links) is keyboard-reachable. */}
+      {/* Main Pill — focusable so the info card (and its links) is
+          keyboard-reachable; click toggles for touch/pointerless input. */}
       <div
         tabIndex={0}
+        onClick={() => setIsOpen((open) => !open)}
         className="h-full inline-flex items-center gap-2 px-3 rounded-lg border border-border bg-popover/90 backdrop-blur-sm cursor-default"
       >
         <span className="font-semibold text-[13px] tracking-tight text-foreground">{title}</span>

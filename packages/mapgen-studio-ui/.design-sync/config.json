@@ -45,7 +45,9 @@
     "StudioShellLayout": { "cardMode": "single", "viewport": "1280x800" }
   },
   "docsMap": {
+    "Badge": ".design-sync/groups/primitives.md",
     "Button": ".design-sync/groups/primitives.md",
+    "IconButton": ".design-sync/groups/primitives.md",
     "Checkbox": ".design-sync/groups/primitives.md",
     "Dialog": ".design-sync/groups/primitives.md",
     "DropdownMenu": ".design-sync/groups/primitives.md",

@@ -3,26 +3,28 @@
 import "./index.css";
 
 import { QueryClientProvider } from "@tanstack/react-query";
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App";
 import { createQueryClient } from "./lib/query";
 
-// One QueryClient for the app lifetime. Created at the module root (not inside a
-// component) so the cache survives re-renders and the dev-only StrictMode skip
-// below cannot duplicate it. Server state reaches components through oRPC-native
-// query utils (`src/lib/orpc.ts`) bound to this client.
+// One QueryClient for the app lifetime. Created at the module root (not inside
+// a component) so the cache survives re-renders. Server state reaches
+// components through oRPC-native query utils (`src/lib/orpc.ts`) bound to this
+// client.
 const queryClient = createQueryClient();
 
+// StrictMode is deliberately OFF — everywhere, and honestly so. Its checks
+// (double-mount, double-effect) run only in development builds, so the
+// previous prod-only <StrictMode> wrapper provided zero coverage while its
+// comment claimed partial coverage. The real blocker is dev-side:
+// deck.gl/luma device/canvas initialization crashes under StrictMode's
+// double-mount. Tracked exception (docs/system/DEFERRALS.md): enable
+// StrictMode unconditionally once DeckCanvas guards device init against
+// remount.
 const app = (
   <QueryClientProvider client={queryClient}>
     <App />
   </QueryClientProvider>
 );
 
-// deck.gl/luma currently has a known issue under React StrictMode in dev
-// (double-mount can break device/canvas initialization and crash on resize).
-// Keep StrictMode enabled for prod builds, but disable it during local dev for stability.
-const tree = import.meta.env.DEV ? app : <StrictMode>{app}</StrictMode>;
-
-createRoot(document.getElementById("root")!).render(tree);
+createRoot(document.getElementById("root")!).render(app);

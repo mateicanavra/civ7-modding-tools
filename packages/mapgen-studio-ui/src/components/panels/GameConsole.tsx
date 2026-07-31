@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import React from "react";
 import { cn } from "../../lib/utils.js";
+import { Badge } from "../ui/badge.js";
 import { Button } from "../ui/button.js";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.js";
@@ -327,9 +328,9 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
                   {chipContent}
                 </span>
                 {liveRuntime?.autoplayActive ? (
-                  <span className="shrink-0 rounded border border-warning/40 px-1.5 py-0.5 text-label text-warning">
+                  <Badge variant="warning" className="shrink-0">
                     Auto
-                  </span>
+                  </Badge>
                 ) : null}
                 <ChevronDown
                   className={cn(
@@ -346,12 +347,9 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
         </Tooltip>
 
         {operationControlsDisabled && operationBusyLabel ? (
-          <span
-            className="shrink-0 rounded border border-warning/40 px-1.5 py-0.5 text-label text-warning"
-            title={operationBusyLabel}
-          >
+          <Badge variant="warning" className="shrink-0" title={operationBusyLabel}>
             Busy
-          </span>
+          </Badge>
         ) : null}
 
         <Tooltip>
@@ -440,9 +438,9 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
               <div className="flex items-center gap-2">
                 <span className={eyebrowClass}>Live game</span>
                 {liveRuntime?.autoplayActive ? (
-                  <span className="rounded border border-warning/40 px-1.5 py-0.5 text-label text-warning">
+                  <Badge variant="warning">
                     Auto{liveRuntime.autoplayPaused ? " (paused)" : ""}
-                  </span>
+                  </Badge>
                 ) : null}
               </div>
               <div className="flex items-center gap-2">

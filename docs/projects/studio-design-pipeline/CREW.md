@@ -103,9 +103,14 @@ If a skill path above is missing (plugin versions rotate), re-resolve it:
 ls -dt ~/.claude/plugins/cache/*/*/*/skills/<skill-dir-name> | head -1.
 
 Code intel: you may load narsil tools via ToolSearch ("narsil-code-intel-civ7").
-Never use hybrid_search (standing directive). The index covers only the
-primary worktree — for lane-only code not yet there, use rg/Read instead.
-Confirm narsil hits with get_excerpt(expand_to_scope=true).
+Never use hybrid_search (standing directive). The index covers only the primary
+worktree, which sits on whatever commit that checkout was last parked at — often
+a peer stack's tip, not ours. Narsil is therefore wrong in two ways at once: code
+that exists only in our lane is missing, and code that exists in both resolves at
+the OTHER commit's line numbers. Use it to find WHICH file, never as the
+authority for WHERE in it — every anchor line number you record must come from
+rg/Read in your own lane worktree. Confirm narsil hits with
+get_excerpt(expand_to_scope=true).
 
 Scope bound: review only the rows in the seed. Inspect at most what you need
 to judge them; stop once every row has a verdict.
@@ -424,7 +429,9 @@ For each delta in your assigned slice, produce one row:
   (ToolSearch "narsil-code-intel-civ7"): find_symbols/search_code for named
   anchors; neural_search UNSCOPED for prose anchors; NEVER hybrid_search;
   confirm every hit with get_excerpt(expand_to_scope=true). The index covers
-  only the primary worktree — for lane-only code use rg/Read.
+  only the primary worktree at whatever commit it is parked on, so narsil
+  locates the FILE but never the line — read every anchor's line number out of
+  your own lane worktree with rg/Read before recording it.
 - expectation: what this row should do/look like when done (predeclared, from
   the proposal — not from what current code does)
 - depends-on: other rows, if ordering is forced
