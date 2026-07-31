@@ -39,10 +39,10 @@ Current prerequisites also include:
 - `RuleFixPreview`, with Habitat-owned admission and vendor-neutral file
   impacts while all writes remain refused;
 - Nx-owned ordering and deduplication for output-materializing targets;
-- 121 live rule manifests with exact active cleanup-ledger id parity. The
-  unqualified Habitat command owns 119 local-runner rules; the two `runner:nx`
-  manifests resolve to `habitat:check:hygiene` and `habitat:check:boundaries`
-  through the native Nx graph.
+- 122 live rule manifests with enforced exact active cleanup-ledger identity
+  parity. The unqualified Habitat command owns 119 local-runner rules; the
+  three `runner:nx` manifests resolve formatting, workspace boundaries, and
+  reachability/dependency hygiene through the native Nx graph.
 
 These capabilities are foundations for the split. They are not reopened by
 the descent.
