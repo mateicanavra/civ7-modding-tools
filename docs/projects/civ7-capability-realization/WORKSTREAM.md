@@ -1,7 +1,7 @@
 # Civ7 Capability Realization Workstream
 
-**Status:** Final platform descent prepared; product models sealed, external
-Habitat consumer handoff gates source cutover
+**Status:** Ground active and refused at shared kind construction; release
+provenance and initializer idempotence verified, target source stationary
 **Frame:** [FRAME.md](./FRAME.md)
 **Model progression:** [MODEL-PROGRESSION.md](./MODEL-PROGRESSION.md)
 **Product authority:** [PRODUCT-AUTHORITY.md](./PRODUCT-AUTHORITY.md)
@@ -13,6 +13,7 @@ Habitat consumer handoff gates source cutover
 **Kind law:** [KIND-LAW-MATRIX.md](./KIND-LAW-MATRIX.md)
 **Migration corpus:** [CORPUS.md](./CORPUS.md)
 **Proof corpus:** [PROOF-CORPUS.md](./PROOF-CORPUS.md)
+**Ground receipt:** [GROUND-RECEIPT.md](./GROUND-RECEIPT.md)
 
 ## Objective
 
@@ -62,7 +63,7 @@ a recorded focus pivot.
 Lower layers do not absorb upper-layer convenience. Upper layers remain easy to
 change because the layers beneath them are narrow, typed, and unsurprising.
 
-## Settled Ground
+## Settled Evidence
 
 The following are complete evidence, not open work containers:
 
@@ -131,15 +132,16 @@ or copied policy.
 2. Run the consumer initializer in a disposable or no-write mode and prove that
    repeated application is idempotent.
 3. Admit and prove only the shared generic package, resource, provider, service,
-   API, CLI-topic, app, construction, generator, and initializer kinds required
-   by the initiative. Each product slice owns admission of its qualified Civ7
-   laws immediately before source movement.
+   API, CLI-topic, and app blueprint kinds required by the initiative. Prove
+   their shared construction and initializer mechanics separately. Each product
+   slice owns admission of its qualified Civ7 laws immediately before source
+   movement.
 4. Receive and verify the exact shared vendor-transition manifest for the root
    catalog, patched dependency, patch file, lockfile, and Habitat package. Do
    not mutate the root or strand current consumers during Ground.
-5. Prove instance anchors, generated `habitat.toml` facts, positive and negative
-   injected fixtures, generator success, and unsupported-kind empty-write
-   refusal.
+5. Prove blueprint-owned instance anchors, generated `habitat.toml` facts,
+   positive and negative injected fixtures, construction success, and
+   unsupported-kind empty-write refusal.
 6. Freeze the exact Core Platform source and proof census from `CORPUS.md` and
    `PROOF-CORPUS.md` before opening its red corpus.
 
@@ -150,6 +152,8 @@ relocation, and no generic law contains Civ7 instance names.
 
 **Refusal:** one missing kind, non-idempotent initializer, unverified artifact,
 or need for a Civ7-local approximation keeps all target source stationary.
+The current refusal and exact re-entry trigger are recorded in
+[GROUND-RECEIPT.md](./GROUND-RECEIPT.md).
 
 ## Container 1: Core Platform
 
@@ -334,7 +338,7 @@ CLI, web, or app sub-slice does not claim the product migration by itself.
 
 ### 1.3 Joint Evidence And Seal
 
-1. Drive every one of the frozen 460 current proof/support files to exactly one
+1. Drive every one of the frozen 461 current proof/support files to exactly one
    terminal disposition: `relocate`, `combine`, `inline`, `delete`, or
    `excluded unchanged`. Destination leaves may differ in count; no source row
    remains ambiguous.
@@ -352,7 +356,7 @@ CLI, web, or app sub-slice does not claim the product migration by itself.
    testing, native-authority, and runtime reviews against the frozen parent.
 
 **Exit receipt:** both product chains close at their distinct semantic owners;
-all 460 source proof rows have terminal dispositions; every touched consumer
+all 461 source proof rows have terminal dispositions; every touched consumer
 reaches its selected owner; no old owner, facade, patch, or alternate runtime
 survives; and the complete Core Platform stack is clean and mergeable.
 
@@ -426,7 +430,7 @@ runtime evidence all describe the same materialized Civ7 modding platform.
    skills, ADRs, and deferrals. Archive or rebaseline historical OpenSpec
    packets without rewriting their chronology.
 2. Reconcile `CORPUS.md`, `PROOF-CORPUS.md`, status axes, and consumer gates to
-   the final estate. Reconfirm the Core Platform's terminal 460-file census;
+   the final estate. Reconfirm the Core Platform's terminal 461-file census;
    do not claim it for the first time here. A moved path is not a migration
    receipt.
 3. Run one Nx-owned build/check/test graph, Habitat policy and boundaries,
@@ -451,12 +455,12 @@ finding refuses the finalization claim.
 
 | Earlier workstream slice | Final owner |
 | --- | --- |
-| Pre-migration convergence and Explore oracle | Settled Ground |
+| Pre-migration convergence and Explore oracle | Settled evidence |
 | Old Containers 1-4: substrate, package, resource, provider law | Container 0 shared admission; qualified instances materialize inside Containers 1-3 |
 | Old Phase 5: projection/app/deployment preflight | Container 1 nested Swooper and Interactive slices |
 | Old Phase 6: shared runtime and service substrate | Container 0 admission plus Container 1 consumption |
 | Old Phases 7-10: MapGen-runs, Studio API/web/app, host control | Container 1.2 dependency order and Container 1.3 joint seal |
-| Old Container 11: controller disposition | Settled Ground; only canonical history cleanup remains in Container 4 |
+| Old Container 11: controller disposition | Settled evidence; only canonical history cleanup remains in Container 4 |
 | Old Container 12: mod kinds | Swooper -> Container 1.1; Dacia -> Container 2 |
 | Old Container 13: false plugins | Swooper/CLI split -> Container 1; remaining classifications -> Container 3 |
 | Old Container 14: canonical authority and final proof | Container 4 |

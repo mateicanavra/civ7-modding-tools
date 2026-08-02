@@ -1,13 +1,23 @@
 # Civ7 Capability Realization Proof Corpus
 
-**Status:** Frozen proof classification
-**Date:** 2026-07-31
+**Status:** Frozen proof classification at Ground source snapshot
+**Date:** 2026-08-02
 **Scope:** Current proof and proof-support files participating in the final
 platform initiative
 
+**Proof snapshot:** commit
+`b89db91f40604905ce502a20fd0ea95ff5c2676f`, repository tree
+`88e7bec0358300bd691a9534ed09c66cef180bd3`. The exact sorted 461-path manifest
+has SHA-256 `1e08fa783ab27596d01b46a9723acaf55963fe64dcf6cc1f7f9275da589f2fca`;
+the sorted Git mode/type/blob/path manifest has SHA-256
+`c546d9cf434879e1208c52626f69e93f6e30f157366e152a09f5cc3e8142a847`.
+Both digests use bytewise-sorted UTF-8 rows with exactly one trailing line
+feed; object rows are the unmodified `git ls-tree -r <snapshot> --
+<path-manifest>` output.
+
 ## Authority
 
-This ledger classifies the complete current 460-file proof/support corpus. Each
+This ledger classifies the complete current 461-file proof/support corpus. Each
 current file has one terminal disposition:
 
 - `relocate`: preserve the file's coherent oracle at the named owner;
@@ -41,16 +51,18 @@ or `integration` cabinets.
 | `apps/mapgen-studio` proof and compiler configuration | 70 |
 | `plugins/cli/topics/{data,docs,game,git-mod}` proof | 63 |
 | `apps/cli` proof | 2 |
-| `plugins/mod/map/swooper-physics` proof | 187 |
+| `plugins/mod/map/swooper-physics` proof | 188 |
 | `apps/mods/map/swooper-physics` proof | 8 |
 | `packages/plugins/plugin-mods` proof | 2 |
 | `mods/mod-civ7-intelligence-bridge` proof/support | 0 |
 | `packages/studio-run-workspace` proof and compiler configuration | 3 |
 | `packages/mapgen-studio-ui` proof and compiler configuration | 30 |
-| **Total** | **460** |
+| **Total** | **461** |
 
-The current-tree census was recomputed after the Explore outcome oracle and
-remains exactly 460 source files. Destination leaves are not a parity count:
+The current-tree census was recomputed at Ground and contains exactly 461
+tracked proof/support files. The earlier 460 count understated the finite
+Swooper domain set by one; no file or terminal disposition was added by this
+correction. Destination leaves are not a parity count:
 API consolidation, strategy qualification, fixture dissolution, and new
 target-law proof may change their total without changing this source census.
 
@@ -60,7 +72,7 @@ first construction slice only where their destination is already admitted.
 Studio-targeted writers and Interactive-dependent fresh-live rows remain
 stationary for the second slice alongside Direct Control, Studio, remaining
 CLI, MapGen-runs, and caller-projection rows. Neither slice claims an independent
-migration. The parent seal drives all 460 current files to terminal
+migration. The parent seal drives all 461 current files to terminal
 dispositions, including `excluded unchanged`; the final Platform Seal later
 reconfirms that completed census against the materialized estate.
 
@@ -351,7 +363,7 @@ The CLI section covers 63 topic proof/support files and two shell files.
 
 ### Domain proof
 
-The following finite current roots contain exactly 98 files:
+The following finite current roots contain exactly 99 files:
 
 - `plugins/mod/map/swooper-physics/test/domains/ecology/biomes`;
 - `plugins/mod/map/swooper-physics/test/domains/ecology/features`;
@@ -443,8 +455,8 @@ Every suffix below is relative to
 - `domains/placement/wonders/{artifacts/natural-wonder-plan,ops/plan-natural-wonders/planning}.test.ts`;
 - `domains/resources/{demand/artifacts/resource-demand-plan,sites/artifacts/resource-plan}.test.ts`.
 
-The exact remaining 21 members of the frozen 98-file set are `excluded
-unchanged` at the same relative path. "Remaining" means the 98 identities under
+The exact remaining 22 members of the frozen 99-file set are `excluded
+unchanged` at the same relative path. "Remaining" means the 99 identities under
 the exact roots above minus the 36 strategy rows, two fixture rows, four
 fixture-consuming test rows, and 35 root-setup consumers, not a future
 directory glob.
@@ -543,8 +555,8 @@ These exact 21 files normalize to these exact suffixes:
 | `plugins/mod/map/swooper-physics/test/generated/standard-generated-artifacts.test.ts` | relocate | `apps/mods/map/swooper-physics/test/artifact/standard-generated-artifacts.test.ts` |
 | `plugins/mod/map/swooper-physics/test/{.gritignore,README.md,scripts/diagnostic-command-inputs.test.ts,tsconfig.json}` | delete | No destination; Habitat, CLI command mirrors, and target compilers own these concerns |
 
-The section covers 107 domain files, 70 recipe files, and ten root/map/script
-files, for 187 files total.
+The section covers 108 domain files, 70 recipe files, and ten root/map/script
+files, for 188 files total.
 
 ## Swooper Physics Realization
 
@@ -566,7 +578,7 @@ executes it.
 
 ### Adjacent engine-adapter proof realignment
 
-The following 17 current proof files were not members of the sealed 460-file
+The following 17 current proof files were not members of the sealed 461-file
 census and therefore do not change its arithmetic. They are nevertheless
 mandatory downstream realignment for the engine-adapter split:
 
@@ -581,7 +593,7 @@ mandatory downstream realignment for the engine-adapter split:
 | `packages/sdk/test/mapgen-create-map.type-test.ts` | combine | Type assertions compile inside `apps/mods/map/swooper-physics/test/runtime/map-script-entrypoint.test.ts`; no unselected realization proof axis is invented |
 
 `packages/mapgen-core/test/lib/noise/perlin.test.ts` is adjacent portable
-MapGen proof and remains `excluded unchanged`; it is not part of the 460-file
+MapGen proof and remains `excluded unchanged`; it is not part of the 461-file
 capability-realization census.
 
 ## False Plugin, Bridge, Workspace, And UI
@@ -602,7 +614,7 @@ Commit `8d0d4983ba` deleted all 19 historical files under
 `mods/mod-civ7-intelligence-bridge/test`. Native engine facts moved to the
 engine reference, and control semantics remain with the control-service
 modules. No bridge support helper or duplicate behavior suite remains in the
-current 460-file corpus.
+current 461-file corpus.
 
 ### Studio run workspace
 
@@ -703,7 +715,7 @@ package semantics.
 
 Architecture rules, baselines, injected fixtures, and Habitat runner support
 under `.habitat/blueprints`, `.habitat/civ7`, `.habitat/baselines`, and
-`tools/habitat` are excluded unchanged from this 460-file corpus. They form a
+`tools/habitat` are excluded unchanged from this 461-file corpus. They form a
 separate Designer/Engineer workstream. No target source move may mutate or
 baseline them until the corresponding target kind law, membership authority,
 fixture strategy, and current-tree proof are accepted. This capability ledger
@@ -714,7 +726,7 @@ proof leaf.
 
 The proof cutover is closed only when:
 
-1. every one of the 460 current files has the single disposition recorded
+1. every one of the 461 current files has the single disposition recorded
    here;
 2. every reconstructed assertion passes at its named owner before the old
    source is deleted;
@@ -725,4 +737,4 @@ The proof cutover is closed only when:
    compiler, duplicate schema test, or deterministic suite mislabeled as live
    proof survives;
 6. the exact arithmetic remains
-   `42 + 38 + 5 + 10 + 70 + 63 + 2 + 187 + 8 + 2 + 0 + 3 + 30 = 460`.
+   `42 + 38 + 5 + 10 + 70 + 63 + 2 + 188 + 8 + 2 + 0 + 3 + 30 = 461`.
