@@ -162,11 +162,19 @@ export type Civ7SetupSnapshotSelection = Readonly<{
   playerIds: readonly number[];
 }>;
 
-const EMPTY_SETUP_SNAPSHOT_SELECTION: Civ7SetupSnapshotSelection = {
-  setupParameterIds: [],
-  playerSetupParameterIds: [],
-  playerIds: [],
-};
+/** Reads setup phase and revision without traversing parameter catalogs or player slots. */
+export const CIV7_SETUP_PHASE_SNAPSHOT_SELECTION: Civ7SetupSnapshotSelection = Object.freeze({
+  setupParameterIds: Object.freeze([]),
+  playerSetupParameterIds: Object.freeze([]),
+  playerIds: Object.freeze([]),
+});
+
+/** Reads the four lifecycle-owned values that identify one prepared map launch. */
+export const CIV7_SETUP_IDENTITY_SNAPSHOT_SELECTION: Civ7SetupSnapshotSelection = Object.freeze({
+  setupParameterIds: Object.freeze(["Map", "MapSize", "MapRandomSeed", "GameRandomSeed"]),
+  playerSetupParameterIds: Object.freeze([]),
+  playerIds: Object.freeze([]),
+});
 
 export async function getCiv7SetupSnapshot(
   options: Civ7DirectControlOptions = {},
@@ -177,6 +185,19 @@ export async function getCiv7SetupSnapshot(
     command: buildSetupSnapshotCommand(dependencies),
   });
   return dependencies.parseSetupSnapshot(result, "Civ7 setup snapshot");
+}
+
+/** Reads exactly the setup parameters and player slots requested by one consumer. */
+export async function getCiv7SelectedSetupSnapshot(
+  selection: Civ7SetupSnapshotSelection,
+  options: Civ7DirectControlOptions = {},
+  dependencies: SetupReadDependencies = defaultSetupReadDependencies
+): Promise<Civ7SetupSnapshotResult> {
+  const result = await dependencies.executeAppUiCommand({
+    ...options,
+    command: buildSetupSnapshotCommand(dependencies, selection),
+  });
+  return dependencies.parseSetupSnapshot(result, "Selected Civ7 setup snapshot");
 }
 
 /** Reads the setup phase and conditionally exits an active game in one App UI command. */
@@ -245,9 +266,12 @@ export async function getCiv7SetupMapRows(
   return dependencies.parseSetupMapRows(result, "Civ7 setup map rows");
 }
 
-export function buildSetupSnapshotCommand(dependencies: SetupReadDependencies): string {
+export function buildSetupSnapshotCommand(
+  dependencies: SetupReadDependencies,
+  selection?: Civ7SetupSnapshotSelection
+): string {
   return `(() => {
-    ${setupSnapshotScriptSource(dependencies)}
+    ${setupSnapshotScriptSource(dependencies, selection)}
     return JSON.stringify({ snapshot: readSetupSnapshot() });
   })()`;
 }
@@ -257,7 +281,7 @@ function buildSetupShellAdmissionCommand(
   dependencies: SetupReadDependencies
 ): string {
   return `(() => {
-    ${setupSnapshotScriptSource(dependencies)}
+    ${setupSnapshotScriptSource(dependencies, CIV7_SETUP_PHASE_SNAPSHOT_SELECTION)}
     const policy = ${dependencies.jsLiteral(policy)};
     const initial = readSetupSnapshot();
     if (initial.phase === "shell") {
@@ -273,7 +297,7 @@ function buildSetupShellAdmissionCommand(
 
 function buildSetupShellReloadCommand(dependencies: SetupReadDependencies): string {
   return `(() => {
-    ${setupSnapshotScriptSource(dependencies)}
+    ${setupSnapshotScriptSource(dependencies, CIV7_SETUP_PHASE_SNAPSHOT_SELECTION)}
     const snapshot = readSetupSnapshot();
     if (snapshot.phase !== "shell") {
       return JSON.stringify({ snapshot, reloaded: false });
@@ -288,7 +312,7 @@ function buildSetupMapRowsCommand(
   dependencies: SetupReadDependencies
 ): string {
   return `(() => {
-    ${setupSnapshotScriptSource(dependencies)}
+    ${setupSnapshotScriptSource(dependencies, CIV7_SETUP_PHASE_SNAPSHOT_SELECTION)}
     const input = ${dependencies.jsLiteral(input)};
     const rows = readSetupMapRows(input.file).slice(0, input.limit);
     return JSON.stringify({
@@ -303,16 +327,17 @@ function buildSetupMapRowsCommand(
 
 export function setupSnapshotScriptSource(
   dependencies: SetupReadDependencies,
-  selection: Civ7SetupSnapshotSelection = EMPTY_SETUP_SNAPSHOT_SELECTION
+  selection?: Civ7SetupSnapshotSelection
 ): string {
-  const setupParameterIds = unionParameterIds(
-    dependencies.setupParameterIds,
-    selection.setupParameterIds
-  );
-  const playerSetupParameterIds = unionParameterIds(
-    dependencies.playerSetupParameterIds,
-    selection.playerSetupParameterIds
-  );
+  const setupParameterIds = selection
+    ? uniqueSortedStrings(selection.setupParameterIds)
+    : dependencies.setupParameterIds;
+  const playerSetupParameterIds = selection
+    ? uniqueSortedStrings(selection.playerSetupParameterIds)
+    : dependencies.playerSetupParameterIds;
+  const selectedPlayerIds = selection
+    ? Array.from(new Set(selection.playerIds)).sort((left, right) => left - right)
+    : undefined;
   return `${dependencies.probeHelperSource()}
     ${canonicalMapSizeTypeScriptSource()}
     const plain = (value) => {
@@ -527,9 +552,9 @@ export function setupSnapshotScriptSource(
       const parameterIds = ${dependencies.jsLiteral(setupParameterIds)};
       const parameters = parameterIds.map(readParameter);
       const playerParameterIds = ${dependencies.jsLiteral(playerSetupParameterIds)};
-      const requestedPlayerIds = ${dependencies.jsLiteral(selection.playerIds)};
-      const playerIds = Array.from(new Set([...readActivePlayerIds(), ...requestedPlayerIds]))
-        .sort((left, right) => left - right);
+      const playerIds = ${
+        selectedPlayerIds ? dependencies.jsLiteral(selectedPlayerIds) : "readActivePlayerIds()"
+      };
       const playerParameters = playerIds.map((playerId) => ({
         playerId,
         exists: readPlayerExists(playerId),
@@ -566,11 +591,8 @@ export function setupSnapshotScriptSource(
     };`;
 }
 
-function unionParameterIds(
-  defaults: readonly string[],
-  additional: readonly string[]
-): readonly string[] {
-  return Array.from(new Set([...defaults, ...additional.slice().sort()]));
+function uniqueSortedStrings(values: readonly string[]): readonly string[] {
+  return Array.from(new Set(values)).sort();
 }
 
 export function validateMapScript(value: string): string {

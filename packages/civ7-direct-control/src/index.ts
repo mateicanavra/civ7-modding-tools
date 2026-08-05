@@ -19,7 +19,11 @@ import {
   type Civ7SavedGameConfigurationListResult,
   listCiv7SavedGameConfigurations as listCiv7SavedGameConfigurationsFromModule,
 } from "./setup/prepare.js";
-import { getCiv7SetupMapRows, getCiv7SetupSnapshot } from "./setup/reads.js";
+import {
+  getCiv7SelectedSetupSnapshot,
+  getCiv7SetupMapRows,
+  getCiv7SetupSnapshot,
+} from "./setup/reads.js";
 import { boundedInteger } from "./validation.js";
 
 export type {
@@ -895,6 +899,7 @@ export {
   DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR,
   reconcileCiv7RequiredTargetMod,
   requestCiv7SavedGameConfigurationLoad,
+  setupSnapshotSelectionFromInput,
 } from "./setup/prepare.js";
 export type {
   Civ7PlayerSetupParameterSnapshot,
@@ -910,10 +915,13 @@ export type {
   Civ7SetupShellAdmissionResult,
   Civ7SetupSnapshot,
   Civ7SetupSnapshotResult,
+  Civ7SetupSnapshotSelection,
   Civ7SetupUiReloadResult,
 } from "./setup/reads.js";
 export {
   admitCiv7SetupShell,
+  CIV7_SETUP_IDENTITY_SNAPSHOT_SELECTION,
+  CIV7_SETUP_PHASE_SNAPSHOT_SELECTION,
   reloadCiv7SetupUiInShell,
 } from "./setup/reads.js";
 export type { Civ7BeginGameResult, Civ7RestartAndBeginResult } from "./setup/restart.js";
@@ -932,6 +940,7 @@ export {
   getCiv7NativeRiverObjects,
   getCiv7PlayerSummary,
   getCiv7PlotSnapshot,
+  getCiv7SelectedSetupSnapshot,
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
   getCiv7UnitSummary,

@@ -1,4 +1,6 @@
 import {
+  CIV7_SETUP_IDENTITY_SNAPSHOT_SELECTION,
+  CIV7_SETUP_PHASE_SNAPSHOT_SELECTION,
   type Civ7AppUiSnapshotResult,
   type Civ7CommandResult,
   Civ7DirectControlError,
@@ -7,7 +9,9 @@ import {
   type Civ7RuntimeProbe,
   type Civ7SetupMapRowsResult,
   type Civ7SetupSnapshotResult,
+  type Civ7SetupSnapshotSelection,
   type Civ7TunerHealthResult,
+  setupSnapshotSelectionFromInput,
 } from "@civ7/direct-control";
 import { call } from "@orpc/server";
 import { Data, Effect } from "effect";
@@ -88,6 +92,10 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
       "getMapSummary",
     ]);
     expect(harness.count("beginGame")).toBe(1);
+    expect(harness.setupSnapshotSelections()).toEqual([
+      CIV7_SETUP_PHASE_SNAPSHOT_SELECTION,
+      CIV7_SETUP_IDENTITY_SNAPSHOT_SELECTION,
+    ]);
     expect(
       harness.calls.find((entry) => entry.operation === "hostPreparedSinglePlayerGame")?.args[0]
     ).toEqual({
@@ -158,6 +166,12 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     expect(
       harness.calls.find((entry) => entry.operation === "requestSavedConfigLoad")?.args[0]
     ).toEqual(savedConfig);
+    expect(harness.setupSnapshotSelections()).toEqual([
+      CIV7_SETUP_PHASE_SNAPSHOT_SELECTION,
+      CIV7_SETUP_PHASE_SNAPSHOT_SELECTION,
+      CIV7_SETUP_PHASE_SNAPSHOT_SELECTION,
+      CIV7_SETUP_IDENTITY_SNAPSHOT_SELECTION,
+    ]);
   });
 
   test("reports exact App UI game start before final tuner and map proof completes", async () => {
@@ -390,6 +404,11 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
         ],
       })
     );
+    expect(harness.setupSnapshotSelections()).toEqual([
+      CIV7_SETUP_PHASE_SNAPSHOT_SELECTION,
+      CIV7_SETUP_IDENTITY_SNAPSHOT_SELECTION,
+      setupSnapshotSelectionFromInput(demand),
+    ]);
   });
 
   test("projects deterministic unique map-row evidence from observed provider rows", async () => {
@@ -1186,24 +1205,31 @@ function makeHarness(
   context: Civ7ControlOrpcContext;
   count: (operation: LifecycleOperation) => number;
   operations: () => LifecycleOperation[];
+  setupSnapshotSelections: () => readonly Civ7SetupSnapshotSelection[];
 }> {
   const calls: RecordedCall[] = [];
+  const setupSnapshotSelections: Civ7SetupSnapshotSelection[] = [];
   const record =
     <Args extends unknown[], Result>(
       operation: LifecycleOperation,
-      run: (...args: Args) => Promise<Result>
+      run: (...args: Args) => Promise<Result>,
+      observe?: (...args: Args) => void
     ) =>
     async (...args: Args): Promise<Result> => {
       calls.push({ operation, args });
+      observe?.(...args);
       if (failAt === operation) throw directControlFailure("response-timeout");
       return run(...args);
     };
 
+  const getSetupSnapshot =
+    overrides.getSetupSnapshot ??
+    (async (_selection: Civ7SetupSnapshotSelection) => setupSnapshot("shell"));
+
   const directLifecycle: Civ7ControlOrpcDirectLifecycleFacade = {
-    getSetupSnapshot: record(
-      "getSetupSnapshot",
-      overrides.getSetupSnapshot ?? (async () => setupSnapshot("shell"))
-    ),
+    getSetupSnapshot: record("getSetupSnapshot", getSetupSnapshot, (selection) => {
+      setupSnapshotSelections.push(selection);
+    }),
     admitSetupShell: record(
       "admitSetupShell",
       overrides.admitSetupShell ??
@@ -1272,6 +1298,7 @@ function makeHarness(
     },
     count: (operation) => calls.filter((entry) => entry.operation === operation).length,
     operations: () => calls.map((entry) => entry.operation),
+    setupSnapshotSelections: () => setupSnapshotSelections,
   };
 }
 

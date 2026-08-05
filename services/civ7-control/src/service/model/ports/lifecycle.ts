@@ -12,6 +12,7 @@ import type {
   Civ7SetupShellAdmissionPolicy,
   Civ7SetupShellAdmissionResult,
   Civ7SetupSnapshotResult,
+  Civ7SetupSnapshotSelection,
   Civ7SetupUiReloadResult,
   Civ7SinglePlayerHostResult,
   Civ7SinglePlayerSetupValues,
@@ -24,7 +25,10 @@ type Civ7ControlOrpcSavedConfigIdentity = Omit<Civ7SavedGameConfigurationRef, "p
 
 /** Direct-control atoms consumed by the Effect-owned control-oRPC lifecycle. */
 export type Civ7ControlOrpcDirectLifecycleFacade = Readonly<{
-  getSetupSnapshot(options?: Civ7DirectControlOptions): Promise<Civ7SetupSnapshotResult>;
+  getSetupSnapshot(
+    selection: Civ7SetupSnapshotSelection,
+    options?: Civ7DirectControlOptions
+  ): Promise<Civ7SetupSnapshotResult>;
   admitSetupShell(
     policy: Civ7SetupShellAdmissionPolicy,
     options?: Civ7DirectControlOptions

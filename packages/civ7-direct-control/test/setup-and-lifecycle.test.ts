@@ -33,6 +33,7 @@ import {
   buildReconcileTargetModCommand,
   normalizeSinglePlayerSetupInput,
   setupExpectationScriptSource,
+  setupSnapshotSelectionFromInput,
 } from "../src/setup/prepare";
 import { buildSetupSnapshotCommand, defaultSetupReadDependencies } from "../src/setup/reads";
 import { buildStartPreparedSinglePlayerCommand } from "../src/setup/start";
@@ -257,6 +258,93 @@ describe("Civ7 setup and lifecycle orchestration", () => {
     } finally {
       await server.close();
     }
+  });
+
+  test("keeps an explicit setup snapshot selection exact across active player slots", () => {
+    const gameParameterReads: string[] = [];
+    const playerParameterReads: Array<[number, string]> = [];
+    const playerConfigReads: number[] = [];
+    const command = buildSetupSnapshotCommand(defaultSetupReadDependencies, {
+      setupParameterIds: ["Map"],
+      playerSetupParameterIds: ["PlayerDifficulty"],
+      playerIds: [3],
+    });
+    const result = JSON.parse(
+      runInNewContext(command, {
+        Configuration: {
+          getMap: () => ({
+            script: MAP_SCRIPT,
+            mapSize: "MAPSIZE_STANDARD",
+            mapSizeTypeName: "MAPSIZE_STANDARD",
+            mapSeed: 111,
+            maxMajorPlayers: 12,
+          }),
+          getGame: () => ({ gameSeed: 112 }),
+          getPlayer: (playerId: number) => {
+            playerConfigReads.push(playerId);
+            return playerId === 3 ? { slotStatus: 2 } : null;
+          },
+        },
+        GameContext: { localPlayerID: 0 },
+        GameSetup: {
+          currentRevision: 19,
+          findGameParameter: (id: string) => {
+            gameParameterReads.push(id);
+            return id === "Map"
+              ? {
+                  value: MAP_SCRIPT,
+                  domain: { possibleValues: [{ Domain: "StandardMaps", File: MAP_SCRIPT }] },
+                }
+              : undefined;
+          },
+          findPlayerParameter: (playerId: number, id: string) => {
+            playerParameterReads.push([playerId, id]);
+            return {
+              value: "DIFFICULTY_DEITY",
+              domain: { possibleValues: [{ value: "DIFFICULTY_DEITY" }] },
+            };
+          },
+        },
+        SlotStatus: { SS_OPEN: 0, SS_CLOSED: 1, SS_TAKEN: 2 },
+        UI: {
+          getGameLoadingState: () => 0,
+          isInGame: () => false,
+          isInLoading: () => false,
+          isInShell: () => true,
+        },
+      }) as string
+    ) as { snapshot: Civ7SetupSnapshot };
+
+    expect(result.snapshot.setup.parameters.map((parameter) => parameter.id)).toEqual(["Map"]);
+    expect(result.snapshot.setup.playerParameters).toMatchObject([
+      {
+        playerId: 3,
+        parameters: [
+          {
+            id: "PlayerDifficulty",
+            value: "DIFFICULTY_DEITY",
+            possibleValues: [{ value: "DIFFICULTY_DEITY" }],
+          },
+        ],
+      },
+    ]);
+    expect(new Set(gameParameterReads)).toEqual(new Set(["Map"]));
+    expect(playerParameterReads).toEqual([[3, "PlayerDifficulty"]]);
+    expect(new Set(playerConfigReads)).toEqual(new Set([3]));
+  });
+
+  test("selects lifecycle identity alongside exactly demanded setup options and players", () => {
+    expect(
+      setupSnapshotSelectionFromInput({
+        gameOptions: { Difficulty: "DIFFICULTY_DEITY" },
+        mapOptions: {},
+        playerOptions: [{ playerId: 3, options: { PlayerDifficulty: "DIFFICULTY_KING" } }],
+      })
+    ).toEqual({
+      setupParameterIds: ["Difficulty", "GameRandomSeed", "Map", "MapRandomSeed", "MapSize"],
+      playerSetupParameterIds: ["PlayerDifficulty"],
+      playerIds: [3],
+    });
   });
 
   test("resolves a decimal Configuration map-size id canonically and retries only its changed raw form", () => {
@@ -775,8 +863,7 @@ describe("Civ7 setup and lifecycle orchestration", () => {
       reason: "parameter",
       detail: "Difficulty:hidden",
     });
-    expect(observedDifficultyContexts).toContain(PREVIOUS_MAP_SCRIPT);
-    expect(observedDifficultyContexts).toContain(MAP_SCRIPT);
+    expect(observedDifficultyContexts).toEqual([MAP_SCRIPT]);
     expect(mutations).not.toContain("option:Difficulty");
   });
 

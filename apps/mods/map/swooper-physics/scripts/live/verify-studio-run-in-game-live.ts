@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 
 import { type Civ7ControlOrpcContext, createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
 import {
+  CIV7_SETUP_IDENTITY_SNAPSHOT_SELECTION,
   type Civ7DirectControlOptions,
   type Civ7SavedGameConfiguration,
   type Civ7SavedGameConfigurationRef,
@@ -14,8 +15,8 @@ import {
   checkCiv7DirectControlHealth,
   createCiv7ControlRequestId,
   DEFAULT_CIV7_SCRIPTING_LOG,
+  getCiv7SelectedSetupSnapshot,
   getCiv7SetupMapRows,
-  getCiv7SetupSnapshot,
   listCiv7SavedGameConfigurations,
   snapshotFile,
   waitForFreshLogMarkers,
@@ -485,7 +486,10 @@ async function main(): Promise<number> {
       return 2;
     }
 
-    const setupSnapshot = await getCiv7SetupSnapshot(options);
+    const setupSnapshot = await getCiv7SelectedSetupSnapshot(
+      CIV7_SETUP_IDENTITY_SNAPSHOT_SELECTION,
+      options
+    );
     stages.push({
       name: "setup-snapshot",
       ok: true,
