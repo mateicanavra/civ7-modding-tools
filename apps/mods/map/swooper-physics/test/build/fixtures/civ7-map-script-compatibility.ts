@@ -6,8 +6,8 @@ const textEncoderBannerMarker = "@civ7/adapter map-script TextEncoder compatibil
 /**
  * Proves the final map script satisfies the bounded loader and syntax contract
  * of Civ7's embedded V8. This intentionally observes only runtime imports,
- * TypeBox's known Unicode-regex hazard, and the pre-evaluation TextEncoder
- * bootstrap; it is not a general lint pass over generated output.
+ * TypeBox's known host hazards, and the pre-evaluation TextEncoder bootstrap;
+ * it is not a general lint pass over generated output.
  */
 export async function expectCiv7MapScriptCompatibility(
   source: string,
@@ -32,6 +32,10 @@ export async function expectCiv7MapScriptCompatibility(
   expect(
     source.match(/\\[pP]\{/g) ?? [],
     `${label} contains a Unicode-property regular expression Civ7 cannot parse`
+  ).toEqual([]);
+  expect(
+    source.match(/new\s+URL\s*\(/g) ?? [],
+    `${label} constructs the Web URL API omitted by Civ7's MapGeneration isolate`
   ).toEqual([]);
   expect(source.split(textEncoderBannerMarker).length - 1, `${label} banner count`).toBe(1);
   const installationSites = Array.from(source.matchAll(/globalThis\.TextEncoder\s*=(?!=)/g));
