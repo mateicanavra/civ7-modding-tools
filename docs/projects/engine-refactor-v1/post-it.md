@@ -22,10 +22,10 @@ them. Each accepted kind closes its own proof topology around disjoint
 confidence axes; domain-qualified kinds such as MapGen keep their stronger
 domain-shaped testing grammar.
 
-**Current container:** hold the final platform descent at the shared-substrate
-admission gate. The Civ7 product, system, outcome, and actor-role-outcome
-models and their exact corpora are sealed on `main`, along with the Explore
-Live Map oracle, Studio design synchronization, physical wind and pressure
+**Current container:** Ground, at the shared-kind construction gate. The Civ7
+product, system, outcome, and actor-role-outcome models and their exact corpora
+are sealed in the descent parent, along with the Explore Live Map oracle,
+Studio design synchronization, physical wind and pressure
 reconstruction, and seed-stateless latitude fallback. The final workstream now
 absorbs the historical phase train into five product-led containers: Ground,
 Core Platform, Dacia Product, Estate Reconciliation, and Platform Seal. Core
@@ -33,20 +33,21 @@ Platform contains Swooper construction, Interactive construction, and one joint
 seal.
 
 Habitat source, package, blueprint, and release ownership lives upstream and is
-accepted as external authority. Template now has accepted repository-local
-catalog resolution and rule-evaluation checkpoints, but it still has no
-published constructible consumer substrate: no assembled Oclif/Nx projection,
-data-only blueprint pack, idempotent consumer initializer, or versioned release
-pin. Target source therefore does not move and Civ7 creates no local
-approximation. The next executable container opens only when that complete
-consumer artifact and its qualified kinds land. Its first structural migration
-is the Core Platform parent. Swooper is the first construction slice: admitted
-config -> generated entrypoint/digests -> materialized tree -> installation
-receipt -> loader/runtime evidence -> final-surface parity. The adapter split
-is supporting work inside that slice, not an isolated migration. Interactive
-construction follows inside the same parent because Swooper's source writer,
-deployment path, and fresh-live proof consume those owners. Both close through
-one joint proof and deletion receipt.
+accepted as external authority. Ground proved the release provenance and
+initializer idempotence of `@habitat-ai/cli@0.2.3`, truthful empty-catalog
+resolution, and unsupported-generator zero-write refusal. Its exact
+`@habitat-ai/blueprints@0.2.1` peer contains an empty blueprint set and the CLI
+exposes no generic project-kind generator, so the shared kinds are not
+constructible. [The exact receipt](../civ7-capability-realization/GROUND-RECEIPT.md)
+refuses source movement and any local approximation. Ground resumes only after
+a complete upstream handoff earns a passing exit receipt. Its first admitted
+structural migration remains the Core Platform parent. Swooper is the first
+construction slice: admitted config -> generated entrypoint/digests ->
+materialized tree -> installation receipt -> loader/runtime evidence ->
+final-surface parity. The adapter split is supporting work inside that slice,
+not an isolated migration. Interactive construction follows inside the same
+parent because Swooper's source writer, deployment path, and fresh-live proof
+consume those owners. Both close through one joint proof and deletion receipt.
 
 **Stable ownership:** Swooper remains a portable mod definition realized by
 its mod app. The CLI remains a commandless `cli-shell` composed from
@@ -63,10 +64,10 @@ cold filesystem effects, while CLI topics project their bound capabilities.
 MapGen run records, cancellation, retention, and events remain scoped
 MapGen-runs service state rather than a manufactured resource.
 
-**Gradient:** usable upstream Habitat handoff -> Ground -> Core Platform
-(Swooper -> Interactive -> joint seal) -> Dacia Product -> Estate
-Reconciliation -> Platform Seal. The Tuner protocol remains private to its sole
-provider unless another independent consumer earns a public package.
+**Gradient:** qualified upstream Habitat handoff -> passing Ground exit receipt
+-> Core Platform (Swooper -> Interactive -> joint seal) -> Dacia Product ->
+Estate Reconciliation -> Platform Seal. The Tuner protocol remains private to
+its sole provider unless another independent consumer earns a public package.
 
 **Detailed frame:** [Civ7 Capability Realization](../civ7-capability-realization/FRAME.md).
 

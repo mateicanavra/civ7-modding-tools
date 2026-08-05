@@ -1,7 +1,14 @@
 # Civ7 Capability Realization Cutover Corpus
 
-**Status:** Frozen migration classification
-**Date:** 2026-07-31
+**Status:** Frozen migration classification at Ground source snapshot
+**Date:** 2026-08-02
+
+**Source snapshot:** commit
+`b89db91f40604905ce502a20fd0ea95ff5c2676f`, repository tree
+`88e7bec0358300bd691a9534ed09c66cef180bd3`. This ledger's pre-receipt Git blob
+is `9ab0b15be096d98a4ca39ee6e93e1e6169ca578e`. The paired identity fixes both
+the exact classification and the product files it classifies; Ground changed
+neither.
 
 This is the finite source-to-destination ledger for the final platform
 initiative. [WORKSTREAM.md](./WORKSTREAM.md) selects its exact rows by product
@@ -599,13 +606,13 @@ The terminal file-by-file authority is
 proof-support files as:
 
 ```text
-42 + 38 + 5 + 10 + 70 + 63 + 2 + 187 + 8 + 2 + 0 + 3 + 30 = 460
+42 + 38 + 5 + 10 + 70 + 63 + 2 + 188 + 8 + 2 + 0 + 3 + 30 = 461
 ```
 
 That ledger is the only cutover authority for proof relocation, combination,
 inlining, deletion, and unchanged exclusion. It also names the proof that must
 be authored fresh because no current suite can be relabeled honestly. Closure
-requires all 460 current files to reach their recorded terminal disposition,
+requires all 461 current files to reach their recorded terminal disposition,
 all new target-kind proof to pass, and every admitted test interior to be
 closed by its kind-specific or domain-qualified confidence layers.
 
