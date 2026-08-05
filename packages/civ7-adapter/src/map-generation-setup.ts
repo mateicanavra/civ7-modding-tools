@@ -5,6 +5,7 @@ import {
   CIV7_GAME_RANDOM_SEED_PARAMETER_DESCRIPTOR,
   CIV7_MAP_OPTION_DESCRIPTORS,
   CIV7_PLAYER_OPTION_DESCRIPTORS,
+  CIV7_SIGNED_INT_SEED_MAX,
   type Civ7GameOptionDescriptor,
   type Civ7MapOptionDescriptor,
   type Civ7PlayerOptionDescriptor,
@@ -13,6 +14,9 @@ import {
 } from "@civ7/map-policy/setup";
 
 import type { MapDimensions, MapInfo, MapSizeId } from "./types.js";
+
+const CIV7_UINT32_MAX = 0xffff_ffff;
+const CIV7_UINT32_MODULUS = CIV7_UINT32_MAX + 1;
 
 type Civ7ConfigurationRuntime = Readonly<{
   getGameValue?: (key: string) => unknown;
@@ -249,6 +253,18 @@ function requireSignedIntSeed(value: unknown, label: string): number {
   throw new TypeError(message);
 }
 
+function requireRuntimeSignedIntSeed(value: unknown, label: string): number {
+  if (
+    typeof value === "number" &&
+    Number.isInteger(value) &&
+    value > CIV7_SIGNED_INT_SEED_MAX &&
+    value <= CIV7_UINT32_MAX
+  ) {
+    return value - CIV7_UINT32_MODULUS;
+  }
+  return requireSignedIntSeed(value, label);
+}
+
 function snapshotDimensions(value: MapDimensions): Readonly<MapDimensions> {
   if (
     value === null ||
@@ -412,7 +428,8 @@ function captureRequiredGameSeed(configuration: Civ7ConfigurationRuntime | undef
   } catch {
     throw new Error("Civ7 game seed read failed during GenerateMap.");
   }
-  return requireSignedIntSeed(value, "Civ7 game seed");
+  // The MapGeneration bridge exposes negative int setup values as their uint32 bit pattern.
+  return requireRuntimeSignedIntSeed(value, "Civ7 game seed");
 }
 
 function captureAliveMajorPlayerIds(): readonly number[] {
