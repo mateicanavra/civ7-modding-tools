@@ -354,9 +354,13 @@ export function setupSnapshotScriptSource(
         invalidReason: source.invalidReason ?? null,
       };
     };
-    const parameterValue = (parameter) => Array.isArray(parameter.values)
+    const parameterValue = (parameter) => parameter.array === true
       ? parameter.values.map(scalarValue).filter((value) => typeof value === "string")
       : scalarValue(parameter.value);
+    const parameterPossibleValues = (parameter) =>
+      Array.isArray(parameter?.domain?.possibleValues)
+        ? parameter.domain.possibleValues.map(boundedPossibleValue).filter(Boolean)
+        : undefined;
     const rowFile = (row) => {
       if (row == null || typeof row !== "object") return undefined;
       return row.File ?? row.file;
@@ -389,15 +393,11 @@ export function setupSnapshotScriptSource(
         ? GameSetup.findGameParameter(id)
         : undefined;
       if (!parameter) return { id, exists: false };
-      const possibleValues = parameter.domain
-        ? Array.isArray(parameter.domain.possibleValues)
-          ? parameter.domain.possibleValues.map(boundedPossibleValue).filter(Boolean)
-          : []
-        : undefined;
+      const possibleValues = parameterPossibleValues(parameter);
       return {
         id,
         exists: true,
-        array: Array.isArray(parameter.values),
+        array: parameter.array === true,
         destroyed: parameter.destroyed === true,
         hidden: parameter.hidden === true,
         readOnly: parameter.readOnly === true,
@@ -412,15 +412,11 @@ export function setupSnapshotScriptSource(
         ? GameSetup.findPlayerParameter(playerId, id)
         : undefined;
       if (!parameter) return { id, exists: false };
-      const possibleValues = parameter.domain
-        ? Array.isArray(parameter.domain.possibleValues)
-          ? parameter.domain.possibleValues.map(boundedPossibleValue).filter(Boolean)
-          : []
-        : undefined;
+      const possibleValues = parameterPossibleValues(parameter);
       return {
         id,
         exists: true,
-        array: Array.isArray(parameter.values),
+        array: parameter.array === true,
         destroyed: parameter.destroyed === true,
         hidden: parameter.hidden === true,
         readOnly: parameter.readOnly === true,

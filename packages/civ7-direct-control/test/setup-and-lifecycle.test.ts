@@ -329,17 +329,41 @@ describe("Civ7 setup and lifecycle orchestration", () => {
       maxMajorPlayers: 0,
     };
     const gameConfig = { gameSeed: 112 };
-    const gameParameters = new Map<string, { value: unknown; domain?: unknown }>([
+    const gameParameters = new Map<
+      string,
+      {
+        value: unknown;
+        values?: ReadonlyArray<unknown>;
+        array?: boolean;
+        domain?: unknown;
+      }
+    >([
       [
         "Map",
         {
           value: MAP_SCRIPT,
+          values: [{ value: MAP_SCRIPT }],
+          array: false,
           domain: { possibleValues: [{ Domain: "StandardMaps", File: MAP_SCRIPT }] },
         },
       ],
-      ["MapSize", { value: "MAPSIZE_SMALL" }],
-      ["MapRandomSeed", { value: 111 }],
-      ["GameRandomSeed", { value: 112 }],
+      [
+        "MapSize",
+        {
+          value: "MAPSIZE_SMALL",
+          values: [{ value: "MAPSIZE_SMALL" }],
+          array: false,
+          domain: { possibleValues: [{ value: "MAPSIZE_SMALL" }] },
+        },
+      ],
+      [
+        "MapRandomSeed",
+        { value: 111, values: [{ value: 111 }], array: false, domain: { type: 1 } },
+      ],
+      [
+        "GameRandomSeed",
+        { value: 112, values: [{ value: 112 }], array: false, domain: { type: 1 } },
+      ],
       ["Difficulty", { value: "DIFFICULTY_SOVEREIGN" }],
     ]);
     const playerParameters = new Map<string, { value: unknown }>([
