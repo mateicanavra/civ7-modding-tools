@@ -52,6 +52,7 @@ export default defineConfig({
     "@civ7/map-policy",
     "@civ7/studio-contract",
     "@mateicanavra/civ7-sdk",
+    "@swooper/swooper-physics",
     "typebox",
   ],
 

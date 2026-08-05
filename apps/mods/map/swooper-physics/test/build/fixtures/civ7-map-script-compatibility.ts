@@ -15,14 +15,15 @@ export async function expectCiv7MapScriptCompatibility(
 ): Promise<void> {
   const parsed = await build({
     stdin: { contents: source, loader: "js", sourcefile: label },
-    bundle: false,
+    bundle: true,
+    external: ["*"],
     format: "esm",
     platform: "neutral",
     write: false,
     metafile: true,
     logLevel: "silent",
   });
-  const imports = Object.values(parsed.metafile.inputs).flatMap((input) => input.imports);
+  const imports = Object.values(parsed.metafile.outputs).flatMap((output) => output.imports);
 
   expect(
     imports.filter((entry) => !entry.path.startsWith("/base-standard/")),
