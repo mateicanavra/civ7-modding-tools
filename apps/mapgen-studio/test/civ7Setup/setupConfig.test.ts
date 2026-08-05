@@ -194,7 +194,6 @@ describe("Civ7 Studio setup config", () => {
           options: {
             PlayerLeader: "LEADER_ALEXANDER",
             PlayerCivilization: "CIVILIZATION_GREECE",
-            PlayerDifficulty: "DIFFICULTY_CUSTOM",
           },
         },
       ],
@@ -217,7 +216,6 @@ describe("Civ7 Studio setup config", () => {
           options: {
             PlayerLeader: "LEADER_ALEXANDER",
             PlayerCivilization: "CIVILIZATION_GREECE",
-            PlayerDifficulty: "DIFFICULTY_CUSTOM",
           },
         },
       ],

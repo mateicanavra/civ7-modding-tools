@@ -96,7 +96,7 @@ export type UseSetupControlsResult = {
   handleLeaderChange: (value: string) => void;
   /** AppHeader intent: set/clear the local player's civilization. */
   handleCivilizationChange: (value: string) => void;
-  /** AppHeader intent: the difficulty DOUBLE-WRITE — game `Difficulty` + player `PlayerDifficulty`. */
+  /** AppHeader intent: set/clear the game `Difficulty`. */
   handleDifficultyChange: (value: string) => void;
   /** AppHeader intent: set/clear the game speed. */
   handleGameSpeedChange: (value: string) => void;
@@ -132,8 +132,7 @@ function adoptSavedSeed(
  * setup config into AppHeader's `AppHeaderSetupState` view-model (E4a redesign,
  * structure-rewire §5). Field-for-field the reads the pre-redesign AppHeader
  * performed inline: saved-config ref (id + displayName only), the local
- * player's leader/civilization, the difficulty with its game-over-player
- * fallback (`gameOptions.Difficulty ?? PlayerDifficulty`), and the game speed.
+ * player's leader/civilization, the game `Difficulty`, and the game speed.
  * "" = unset throughout. Pure + exported so the markup-pin test composes the
  * REAL derivation with the package AppHeader.
  */
@@ -148,9 +147,7 @@ export function deriveAppHeaderSetupState(
       : null,
     leaderId: String(localPlayerSetup.options.PlayerLeader ?? ""),
     civilizationId: String(localPlayerSetup.options.PlayerCivilization ?? ""),
-    difficultyId: String(
-      config.gameOptions.Difficulty ?? localPlayerSetup.options.PlayerDifficulty ?? ""
-    ),
+    difficultyId: String(config.gameOptions.Difficulty ?? ""),
     gameSpeedId: String(config.gameOptions.GameSpeeds ?? ""),
   };
 }
@@ -159,7 +156,7 @@ export function deriveAppHeaderSetupState(
  * `useSetupControls` — owns the Civ7 setup-controls cluster: the derived
  * `setupControlOptions` select-option projection, the AppHeader view-model
  * (`headerSetupState`) with its four setup intents (leader/civ/difficulty/
- * speed — the E4a container half; difficulty is the game+player double-write),
+ * speed — the E4a container half),
  * the saved-config selection handler (`handleSavedSetupConfigChange`), the
  * complete saved-launch relation (`savedSetupConfigModified`), and the two
  * live-game *actions* co-located here (`handleToggleAutoplay` /
@@ -232,7 +229,7 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
     ];
     const leader = playerOptions.PlayerLeader;
     const civilization = playerOptions.PlayerCivilization;
-    const difficulty = gameOptions.Difficulty ?? playerOptions.PlayerDifficulty;
+    const difficulty = gameOptions.Difficulty;
     const gameSpeed = gameOptions.GameSpeeds;
     const catalog = setupCatalog.catalog;
     return {
@@ -350,21 +347,13 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
     },
     [localPlayerId, setSetupConfig]
   );
-  // The difficulty DOUBLE-WRITE (pre-redesign AppHeader.tsx:92-97): one state
-  // update writing game `Difficulty` and player `PlayerDifficulty` together —
-  // the pair must never drift apart.
   const handleDifficultyChange = useCallback(
     (value: string) => {
       setSetupConfig((current) =>
-        updateStudioSetupPlayerOption(
-          updateStudioSetupGameOption(current, "Difficulty", value || undefined),
-          "PlayerDifficulty",
-          value || undefined,
-          localPlayerId
-        )
+        updateStudioSetupGameOption(current, "Difficulty", value || undefined)
       );
     },
-    [localPlayerId, setSetupConfig]
+    [setSetupConfig]
   );
   const handleGameSpeedChange = useCallback(
     (value: string) => {

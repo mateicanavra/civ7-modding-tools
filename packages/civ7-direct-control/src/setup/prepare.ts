@@ -906,7 +906,6 @@ async function readCiv7SavedGameConfiguration(path: string): Promise<Civ7SavedGa
   const playerSetupOptions: Record<string, Civ7SetupOptionValue> = {};
   if (summary.leader) playerSetupOptions.PlayerLeader = summary.leader;
   if (summary.civilization) playerSetupOptions.PlayerCivilization = summary.civilization;
-  if (summary.difficulty) playerSetupOptions.PlayerDifficulty = summary.difficulty;
 
   return {
     id:
