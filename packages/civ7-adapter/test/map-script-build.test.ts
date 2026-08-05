@@ -1,6 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import { runInNewContext } from "node:vm";
-import { civ7MapScriptTextEncoderBanner } from "../tools/map-script-build.js";
+import { join } from "node:path";
+import { build } from "esbuild";
+import {
+  civ7MapScriptTextEncoderBanner,
+  civ7TypeBoxCompatibilityPlugin,
+} from "../tools/map-script-build.js";
 
 type CompatibleTextEncoder = Readonly<{
   encoding: string;
@@ -22,6 +27,71 @@ function evaluateBanner(
   runInNewContext(civ7MapScriptTextEncoderBanner, sandbox);
   if (!sandbox.TextEncoder) throw new Error("Civ7 TextEncoder banner installed no constructor");
   return sandbox.TextEncoder;
+}
+
+type TypeBoxCompatibilityProof = Readonly<{
+  urls: readonly Readonly<{ href: string; pathname: string; hash: string }>[];
+  plain: boolean;
+  recursive: boolean;
+  recursiveRefusal: boolean;
+  fragment: boolean;
+  fragmentRefusal: boolean;
+}>;
+
+async function evaluateTypeBoxCompatibility(): Promise<TypeBoxCompatibilityProof> {
+  const result = await build({
+    stdin: {
+      contents: `
+        import { Type } from "typebox";
+        import { Compile } from "typebox/compile";
+        import { TypeBoxURL } from "civ7:typebox-url";
+
+        const recursiveSchema = Type.Cyclic(
+          {
+            JsonValue: Type.Union([
+              Type.Null(),
+              Type.Array(Type.Ref("JsonValue")),
+            ]),
+          },
+          "JsonValue"
+        );
+        const fragmentSchema = {
+          $id: "Root",
+          $defs: { Leaf: Type.Object({ value: Type.Number() }) },
+          $ref: "#/$defs/Leaf",
+        };
+        const urls = [
+          new TypeBoxURL("http://unknown"),
+          new TypeBoxURL("JsonValue", "http://unknown/"),
+          new TypeBoxURL("#/$defs/Leaf", "http://unknown/Root"),
+        ];
+        globalThis.__typeBoxCompatibilityProof = {
+          urls: urls.map(({ href, pathname, hash }) => ({ href, pathname, hash })),
+          plain: Compile(Type.Object({ value: Type.Number() })).Check({ value: 1 }),
+          recursive: Compile(recursiveSchema).Check([null, [null]]),
+          recursiveRefusal: Compile(recursiveSchema).Check([1]),
+          fragment: Compile(fragmentSchema).Check({ value: 1 }),
+          fragmentRefusal: Compile(fragmentSchema).Check({ value: "one" }),
+        };
+      `,
+      loader: "js",
+      resolveDir: join(import.meta.dir, "..", "..", ".."),
+      sourcefile: "civ7-typebox-url-compatibility.js",
+    },
+    banner: { js: civ7MapScriptTextEncoderBanner },
+    bundle: true,
+    format: "iife",
+    logLevel: "silent",
+    platform: "neutral",
+    plugins: [civ7TypeBoxCompatibilityPlugin],
+    write: false,
+  });
+  const sandbox: { __typeBoxCompatibilityProof?: TypeBoxCompatibilityProof } = {};
+  runInNewContext(result.outputFiles[0]!.text, sandbox);
+  if (!sandbox.__typeBoxCompatibilityProof) {
+    throw new Error("Civ7 TypeBox compatibility bundle emitted no proof.");
+  }
+  return JSON.parse(JSON.stringify(sandbox.__typeBoxCompatibilityProof));
 }
 
 describe("Civ7 map-script build support", () => {
@@ -70,5 +140,23 @@ describe("Civ7 map-script build support", () => {
     const twoBytes = new Uint8Array(2);
     expect(encoder.encodeInto("aé", twoBytes)).toEqual({ read: 1, written: 1 });
     expect(Array.from(twoBytes)).toEqual([0x61, 0]);
+  });
+
+  test("keeps TypeBox compilation and reference resolution host-independent", async () => {
+    const proof = await evaluateTypeBoxCompatibility();
+    const oracle = [
+      new URL("http://unknown"),
+      new URL("JsonValue", "http://unknown/"),
+      new URL("#/$defs/Leaf", "http://unknown/Root"),
+    ].map(({ href, pathname, hash }) => ({ href, pathname, hash }));
+
+    expect(proof.urls).toEqual(oracle);
+    expect(proof).toMatchObject({
+      plain: true,
+      recursive: true,
+      recursiveRefusal: false,
+      fragment: true,
+      fragmentRefusal: false,
+    });
   });
 });
