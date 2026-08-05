@@ -288,6 +288,29 @@ describe("Civ7 GenerateMap setup capture", () => {
     expect(captured.options.player).toEqual([]);
   });
 
+  it("decodes negative game seeds exposed through the unsigned MapGeneration bridge", () => {
+    installGlobal("Players", { getAliveMajorIds: () => [0] });
+
+    for (const [observed, expected] of [
+      [0x8000_0000, -0x8000_0000],
+      [0xc5b3_ccfc, -978_072_324],
+      [0xffff_ffff, -1],
+    ] as const) {
+      installGlobal("Configuration", {
+        getGameValue: (key: string) => (key === GAME_RANDOM_SEED_KEY ? observed : undefined),
+      });
+      expect(captureCiv7MapGenerationSetup(captureInput()).gameSeed).toBe(expected);
+    }
+
+    installGlobal("Configuration", {
+      getGameValue: (key: string) =>
+        key === GAME_RANDOM_SEED_KEY ? 0x1_0000_0000 : undefined,
+    });
+    expect(() => captureCiv7MapGenerationSetup(captureInput())).toThrow(
+      "Civ7 game seed must be between"
+    );
+  });
+
   it("fails closed for coerced seeds, malformed ids, duplicate players, and missing capacity", () => {
     installGlobal("Configuration", {
       getGameValue: (key: string) => (key === GAME_RANDOM_SEED_KEY ? "23" : undefined),
