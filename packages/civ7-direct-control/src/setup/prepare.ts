@@ -590,6 +590,13 @@ export function buildApplySinglePlayerSetupIdentityCommand(
     const setMaxMajorPlayers = input.playerCount === undefined
       ? null
       : requireFunction(editMap, "setMaxMajorPlayers", "Configuration.editMap().setMaxMajorPlayers");
+    const setParticipatingPlayerCount = input.playerCount === undefined
+      ? null
+      : requireFunction(
+          editGame,
+          "setParticipatingPlayerCount",
+          "Configuration.editGame().setParticipatingPlayerCount"
+        );
     const identityParameters = [
       [before.setup.parameters.find((parameter) => parameter.id === "Map"), input.mapScript],
       [before.setup.parameters.find((parameter) => parameter.id === "MapSize"), input.mapSize],
@@ -617,6 +624,13 @@ export function buildApplySinglePlayerSetupIdentityCommand(
     if (input.playerCount !== undefined) {
       setMaxMajorPlayers.call(editMap, input.playerCount);
       applied.MaxMajorPlayers = input.playerCount;
+      const hiddenPlayerCount = Configuration.getGame()?.hiddenPlayerCount;
+      if (!Number.isInteger(hiddenPlayerCount) || hiddenPlayerCount < 0) {
+        throw new Error("Configuration.getGame().hiddenPlayerCount unavailable");
+      }
+      const participatingPlayerCount = input.playerCount + hiddenPlayerCount;
+      setParticipatingPlayerCount.call(editGame, participatingPlayerCount);
+      applied.ParticipatingPlayerCount = participatingPlayerCount;
     }
     return JSON.stringify({ status: "performed", before, applied });
   })()`;

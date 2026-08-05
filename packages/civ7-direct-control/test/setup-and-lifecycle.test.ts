@@ -443,7 +443,7 @@ describe("Civ7 setup and lifecycle orchestration", () => {
       mapSeed: 111,
       maxMajorPlayers: 0,
     };
-    const gameConfig = { gameSeed: 112 };
+    const gameConfig = { gameSeed: 112, hiddenPlayerCount: 2, participatingPlayerCount: 0 };
     const gameParameters = new Map<
       string,
       {
@@ -501,10 +501,16 @@ describe("Civ7 setup and lifecycle orchestration", () => {
           setMapSeed: (value: number) => {
             mapConfig.mapSeed = value;
           },
+          setMaxMajorPlayers: (value: number) => {
+            mapConfig.maxMajorPlayers = value;
+          },
         }),
         editGame: () => ({
           setGameSeed: (value: number) => {
             gameConfig.gameSeed = value;
+          },
+          setParticipatingPlayerCount: (value: number) => {
+            gameConfig.participatingPlayerCount = value;
           },
         }),
       },
@@ -539,6 +545,7 @@ describe("Civ7 setup and lifecycle orchestration", () => {
         mapSize: "MAPSIZE_SMALL",
         mapSeed: 111,
         gameSeed: 112,
+        playerCount: 6,
         gameOptions: { Difficulty: "DIFFICULTY_DEITY" },
         mapOptions: {},
         playerOptions: [
@@ -576,6 +583,8 @@ describe("Civ7 setup and lifecycle orchestration", () => {
     };
 
     expect(identityApplied).toMatchObject({ status: "performed" });
+    expect(mapConfig.maxMajorPlayers).toBe(6);
+    expect(gameConfig.participatingPlayerCount).toBe(8);
     expect(optionsApplied).toMatchObject({ status: "performed" });
     expect(hosted).toMatchObject({
       status: "performed",
