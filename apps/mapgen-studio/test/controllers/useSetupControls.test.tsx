@@ -311,7 +311,7 @@ describe("useSetupControls — SC-4 (complete saved-launch exactness)", () => {
 describe("useSetupControls — E4a header view-model + setup intents (the container half)", () => {
   // The pre-redesign AppHeader read these fields inline (setupConfig prop);
   // the E4a container derives them. Field-for-field equivalence, including
-  // the difficulty game-over-player fallback and the narrow savedConfig ref.
+  // game-owned difficulty and the narrow savedConfig ref.
   it("deriveAppHeaderSetupState projects the authored config field-for-field (game Difficulty wins)", () => {
     expect(deriveAppHeaderSetupState(studioSetupConfigFromSavedConfigFile(SAVED_CONFIG))).toEqual({
       savedConfig: { id: "saved-alpha", displayName: "Saved Alpha" },
@@ -322,20 +322,24 @@ describe("useSetupControls — E4a header view-model + setup intents (the contai
     });
   });
 
-  it("deriveAppHeaderSetupState falls back to the player difficulty and maps unset to ''/null", () => {
-    expect(
-      deriveAppHeaderSetupState({
-        gameOptions: {},
-        mapOptions: {},
-        playerOptions: [{ playerId: 0, options: { PlayerDifficulty: "DIFFICULTY_KING" } }],
-      })
-    ).toEqual({
+  it("deriveAppHeaderSetupState does not infer game difficulty from player difficulty", () => {
+    const playerOnlyDifficulty: Civ7StudioSetupConfig = {
+      gameOptions: {},
+      mapOptions: {},
+      playerOptions: [{ playerId: 0, options: { PlayerDifficulty: "DIFFICULTY_KING" } }],
+    };
+    expect(deriveAppHeaderSetupState(playerOnlyDifficulty)).toEqual({
       savedConfig: null,
       leaderId: "",
       civilizationId: "",
-      difficultyId: "DIFFICULTY_KING",
+      difficultyId: "",
       gameSpeedId: "",
     });
+
+    const { result } = setup({ setupConfig: playerOnlyDifficulty });
+    expect(result.current.setupControlOptions.difficultyOptions).toEqual([
+      { value: "", label: "Difficulty" },
+    ]);
   });
 
   it("headerSetupState is the derived projection of the threaded-in config", () => {
@@ -364,14 +368,21 @@ describe("useSetupControls — E4a header view-model + setup intents (the contai
     return updater(base);
   }
 
-  it("handleDifficultyChange performs the game+player DOUBLE-WRITE in one update", () => {
-    const base = studioSetupConfigFromSavedConfigFile(SAVED_CONFIG);
+  it("handleDifficultyChange updates game difficulty and preserves explicit player difficulty", () => {
+    const derived = studioSetupConfigFromSavedConfigFile(SAVED_CONFIG);
+    const base: Civ7StudioSetupConfig = {
+      ...derived,
+      playerOptions: derived.playerOptions.map((player) => ({
+        ...player,
+        options: { ...player.options, PlayerDifficulty: "DIFFICULTY_KING" },
+      })),
+    };
     const next = applyIntent((r) => r.current.handleDifficultyChange("DIFFICULTY_DEITY"), base);
     expect(next.gameOptions.Difficulty).toBe("DIFFICULTY_DEITY");
-    expect(next.playerOptions[0]?.options.PlayerDifficulty).toBe("DIFFICULTY_DEITY");
+    expect(next.playerOptions[0]?.options.PlayerDifficulty).toBe("DIFFICULTY_KING");
   });
 
-  it("handleDifficultyChange('') clears BOTH difficulty keys", () => {
+  it("handleDifficultyChange('') clears only game difficulty", () => {
     const base: Civ7StudioSetupConfig = {
       gameOptions: { Difficulty: "DIFFICULTY_DEITY" },
       mapOptions: {},
@@ -379,7 +390,7 @@ describe("useSetupControls — E4a header view-model + setup intents (the contai
     };
     const next = applyIntent((r) => r.current.handleDifficultyChange(""), base);
     expect(next.gameOptions.Difficulty).toBeUndefined();
-    expect(next.playerOptions[0]?.options.PlayerDifficulty).toBeUndefined();
+    expect(next.playerOptions[0]?.options.PlayerDifficulty).toBe("DIFFICULTY_DEITY");
   });
 
   it("leader/civ/speed intents set the single key ('' clears)", () => {
@@ -438,7 +449,7 @@ describe("useSetupControls — E4a header view-model + setup intents (the contai
       savedConfig: null,
       leaderId: "LEADER_ASHOKA",
       civilizationId: "CIVILIZATION_INDIA_MAURYA",
-      difficultyId: "DIFFICULTY_KING",
+      difficultyId: "",
       gameSpeedId: "",
     });
 

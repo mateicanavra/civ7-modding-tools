@@ -38,7 +38,7 @@ import type { Civ7StudioSetupConfig } from "../../src/features/civ7Setup/setupCo
 // The scenarios: the two story scenes, the P7 precedence-pin scenes, a
 // no-saved-config + gameConsole scene, and two OPEN setup-panel scenes
 // (gear-click via jsdom) covering the leader/civ/difficulty/speed value paths
-// including the difficulty game-over-player fallback — all rendered through the
+// including independent game and player difficulty values — all rendered through the
 // REAL app container derivation (`deriveAppHeaderSetupState`) composed with the
 // package AppHeader. Static scenes render via renderToStaticMarkup; the two open
 // scenes render via RTL + gear click.
@@ -178,11 +178,11 @@ const OPEN_POPULATED_CONFIG: Civ7StudioSetupConfig = {
   ],
 };
 
-const OPEN_FALLBACK_CONFIG: Civ7StudioSetupConfig = {
+const OPEN_INDEPENDENT_DIFFICULTY_CONFIG: Civ7StudioSetupConfig = {
   savedConfig: PIN_SETUP_CONFIG.savedConfig,
-  gameOptions: {},
+  gameOptions: { Difficulty: "DIFFICULTY_KING" },
   mapOptions: {},
-  playerOptions: [{ playerId: 0, options: { PlayerDifficulty: "DIFFICULTY_KING" } }],
+  playerOptions: [{ playerId: 0, options: { PlayerDifficulty: "DIFFICULTY_DEITY" } }],
 };
 
 // Story wrapper, byte-identical to AppHeader.stories.tsx `Bar`.
@@ -285,7 +285,9 @@ describe("AppHeader rendered-markup regression pin (container derivation + packa
     );
     pin(
       "open/FallbackDifficulty",
-      captureOpen(header({ config: OPEN_FALLBACK_CONFIG, options: OPEN_SETUP_OPTIONS }))
+      captureOpen(
+        header({ config: OPEN_INDEPENDENT_DIFFICULTY_CONFIG, options: OPEN_SETUP_OPTIONS })
+      )
     );
   });
 });

@@ -93,6 +93,33 @@ function civ7CfgFixture(
 }
 
 describe("Civ7 setup and lifecycle orchestration", () => {
+  test("keeps saved-config difficulty under game authority without inferring player difficulty", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "civ7-saved-config-"));
+    try {
+      await writeFile(
+        join(directory, "difficulty.Civ7Cfg"),
+        Buffer.from(["CIV7", "DIFFICULTY_DEITY", "GAMESPEED_STANDARD"].join("\0"))
+      );
+
+      const result = await listCiv7SavedGameConfigurations({ directory });
+
+      expect(result.configurations).toHaveLength(1);
+      expect(result.configurations[0]).toMatchObject({
+        summary: {
+          difficulty: "DIFFICULTY_DEITY",
+          gameSpeed: "GAMESPEED_STANDARD",
+        },
+        gameOptions: {
+          Difficulty: "DIFFICULTY_DEITY",
+          GameSpeeds: "GAMESPEED_STANDARD",
+        },
+        playerOptions: [],
+      });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   test("reads exact Civ7Cfg setup scalars without reinterpreting numeric metadata", async () => {
     const directory = await mkdtemp(join(tmpdir(), "civ7-saved-config-"));
     try {
