@@ -47,9 +47,9 @@ import {
   getCiv7ProgressDashboard,
   getCiv7ReadyCityView,
   getCiv7ReadyUnitView,
+  getCiv7SelectedSetupSnapshot,
   getCiv7SettlementRecommendations,
   getCiv7SetupMapRows,
-  getCiv7SetupSnapshot,
   getCiv7TargetCandidates,
   getCiv7TraditionsView,
   getCiv7VisibilitySummary,
@@ -167,7 +167,7 @@ type Civ7SavedConfigIdentity = Omit<Civ7SavedGameConfigurationRef, "path">;
 
 /** Provider-neutral live setup lifecycle atoms for qualified host composition. */
 export const liveCiv7LifecycleControl = {
-  getSetupSnapshot: getCiv7SetupSnapshot,
+  getSetupSnapshot: getCiv7SelectedSetupSnapshot,
   admitSetupShell: admitCiv7SetupShell,
   requestSavedConfigLoad: (input: Civ7SavedConfigIdentity, options?: Civ7DirectControlOptions) =>
     requestCiv7SavedGameConfigurationLoad({ ...input, path: input.fileName }, options),

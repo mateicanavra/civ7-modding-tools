@@ -8,6 +8,11 @@ import type {
   Civ7SinglePlayerSetupValues,
   Civ7TargetModReconciliationResult,
 } from "@civ7/direct-control";
+import {
+  CIV7_SETUP_IDENTITY_SNAPSHOT_SELECTION,
+  CIV7_SETUP_PHASE_SNAPSHOT_SELECTION,
+  setupSnapshotSelectionFromInput,
+} from "@civ7/direct-control";
 import { CIV7_UI_LOADING_STATES } from "@civ7/direct-control/game-ui/loading-states";
 import { assessCiv7SignedIntSeed } from "@civ7/map-policy/setup";
 import { Cause, Clock, Effect, Either, Match, Option, Predicate } from "effect";
@@ -151,7 +156,9 @@ export const singlePlayerStart = module.singlePlayer.start.effect(function* ({
       dependencyFailure("inspect-setup-phase", "direct-lifecycle-facade-unavailable")
     )
   );
-  yield* Effect.tryPromise(() => directLifecycle.getSetupSnapshot(context.endpointDefaults)).pipe(
+  yield* Effect.tryPromise(() =>
+    directLifecycle.getSetupSnapshot(CIV7_SETUP_PHASE_SNAPSHOT_SELECTION, context.endpointDefaults)
+  ).pipe(
     Effect.uninterruptible,
     Effect.flatMap((result) =>
       validateObservation(
@@ -204,7 +211,11 @@ export const singlePlayerStart = module.singlePlayer.start.effect(function* ({
     Match.when("exit-sent", () =>
       requireMatched(
         pollUntil({
-          read: () => directLifecycle.getSetupSnapshot(context.endpointDefaults),
+          read: () =>
+            directLifecycle.getSetupSnapshot(
+              CIV7_SETUP_PHASE_SNAPSHOT_SELECTION,
+              context.endpointDefaults
+            ),
           matches: (result) => result.snapshot.phase === "shell",
           timeoutMs: DEFAULT_LIFECYCLE_SETUP_WAIT_MS,
           pollMs: DEFAULT_LIFECYCLE_POLL_MS,
@@ -239,7 +250,11 @@ export const singlePlayerStart = module.singlePlayer.start.effect(function* ({
           });
           return yield* requireMatched(
             pollUntil({
-              read: () => directLifecycle.getSetupSnapshot(context.endpointDefaults),
+              read: () =>
+                directLifecycle.getSetupSnapshot(
+                  CIV7_SETUP_PHASE_SNAPSHOT_SELECTION,
+                  context.endpointDefaults
+                ),
               matches: (result) => hasAdvancedSetupRevision(result, baseline.revision),
               timeoutMs: DEFAULT_LIFECYCLE_SETUP_WAIT_MS,
               pollMs: DEFAULT_LIFECYCLE_POLL_MS,
@@ -329,7 +344,11 @@ export const singlePlayerStart = module.singlePlayer.start.effect(function* ({
   });
   const identitySnapshot = yield* requireMatched(
     pollUntil({
-      read: () => directLifecycle.getSetupSnapshot(context.endpointDefaults),
+      read: () =>
+        directLifecycle.getSetupSnapshot(
+          CIV7_SETUP_IDENTITY_SNAPSHOT_SELECTION,
+          context.endpointDefaults
+        ),
       matches: (result) =>
         hasExpectedSetupIdentity(result, setupValues) &&
         hasAdvancedSetupRevision(result, identityBaselineRevision),
@@ -352,9 +371,11 @@ export const singlePlayerStart = module.singlePlayer.start.effect(function* ({
           try: () => requiredSetupRevision(optionsMutation.before),
           catch: () => verificationFailure("apply-setup-options", "setup-revision-unavailable"),
         });
+        const optionsSnapshotSelection = setupSnapshotSelectionFromInput(setupValues);
         return yield* requireMatched(
           pollUntil({
-            read: () => directLifecycle.getSetupSnapshot(context.endpointDefaults),
+            read: () =>
+              directLifecycle.getSetupSnapshot(optionsSnapshotSelection, context.endpointDefaults),
             matches: (result) =>
               hasExpectedPreparedSetup(result, setupValues) &&
               hasAdvancedSetupRevision(result, optionsBaselineRevision),

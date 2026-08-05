@@ -25,6 +25,8 @@ import type {
   Civ7TunerState,
 } from "../session/types.js";
 import {
+  CIV7_SETUP_IDENTITY_SNAPSHOT_SELECTION,
+  CIV7_SETUP_PHASE_SNAPSHOT_SELECTION,
   type Civ7SetupMapRow,
   type Civ7SetupParameterSnapshot,
   type Civ7SetupParameterValue,
@@ -377,7 +379,7 @@ function buildLoadSavedGameConfigurationCommand(
   dependencies: SetupReadDependencies
 ): string {
   return `(() => {
-    ${setupSnapshotScriptSource(dependencies)}
+    ${setupSnapshotScriptSource(dependencies, CIV7_SETUP_PHASE_SNAPSHOT_SELECTION)}
     const input = ${dependencies.jsLiteral(input)};
     const before = readSetupSnapshot();
     if (before.phase !== "shell") {
@@ -529,7 +531,12 @@ export function setupSnapshotSelectionFromInput(
 ): Civ7SetupSnapshotSelection {
   const playerOptions = input.playerOptions;
   return {
-    setupParameterIds: Object.keys({ ...input.gameOptions, ...input.mapOptions }).sort(),
+    setupParameterIds: Array.from(
+      new Set([
+        ...CIV7_SETUP_IDENTITY_SNAPSHOT_SELECTION.setupParameterIds,
+        ...Object.keys({ ...input.gameOptions, ...input.mapOptions }),
+      ])
+    ).sort(),
     playerSetupParameterIds: Array.from(
       new Set(playerOptions.flatMap((player) => Object.keys(player.options)))
     ).sort(),
@@ -545,7 +552,7 @@ export function buildApplySinglePlayerSetupIdentityCommand(
   dependencies: SetupReadDependencies
 ): string {
   return `(() => {
-    ${setupSnapshotScriptSource(dependencies)}
+    ${setupSnapshotScriptSource(dependencies, CIV7_SETUP_IDENTITY_SNAPSHOT_SELECTION)}
     ${setupExpectationScriptSource()}
     ${setupParameterAdmissionScriptSource()}
     const input = ${dependencies.jsLiteral(input)};
@@ -656,7 +663,7 @@ export function buildReconcileTargetModCommand(
   dependencies: SetupReadDependencies
 ): string {
   return `(() => {
-    ${setupSnapshotScriptSource(dependencies)}
+    ${setupSnapshotScriptSource(dependencies, CIV7_SETUP_PHASE_SNAPSHOT_SELECTION)}
     const input = ${dependencies.jsLiteral(input)};
     const before = readSetupSnapshot();
     if (before.phase !== "shell") {
