@@ -2,8 +2,8 @@
 
 **Status:** Frozen proof classification
 **Date:** 2026-07-31
-**Scope:** Current proof and proof-support files participating in the first
-capability-realization cutover
+**Scope:** Current proof and proof-support files participating in the final
+platform initiative
 
 ## Authority
 
@@ -53,6 +53,16 @@ The current-tree census was recomputed after the Explore outcome oracle and
 remains exactly 460 source files. Destination leaves are not a parity count:
 API consolidation, strategy qualification, fixture dissolution, and new
 target-law proof may change their total without changing this source census.
+
+`WORKSTREAM.md` partitions this frozen census inside one Core Platform parent.
+Swooper definition, realization, adjacent adapter, and MapGen CLI rows form its
+first construction slice only where their destination is already admitted.
+Studio-targeted writers and Interactive-dependent fresh-live rows remain
+stationary for the second slice alongside Direct Control, Studio, remaining
+CLI, MapGen-runs, and caller-projection rows. Neither slice claims an independent
+migration. The parent seal drives all 460 current files to terminal
+dispositions, including `excluded unchanged`; the final Platform Seal later
+reconfirms that completed census against the materialized estate.
 
 ## Direct Control
 
