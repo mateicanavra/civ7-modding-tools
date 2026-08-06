@@ -55,10 +55,9 @@
       ]
     },
     "apps/mods/map/swooper-physics": {
-      // Nx invokes these cold app and uncached proof entrypoints. The build compiles
-      // virtual map sources that import the SDK, so no authored import can expose that
-      // runtime dependency to static analysis.
-      "entry": ["src/build.ts", "src/run-manifest.ts", "test/live/*.live.ts"],
+      // Nx already exposes the app entrypoints. Knip needs only the uncached live proof;
+      // the build compiles virtual map sources whose SDK import is invisible to static analysis.
+      "entry": ["test/live/*.live.test.ts"],
       "ignoreDependencies": ["@mateicanavra/civ7-sdk"]
     },
     "packages/civ7-adapter": {

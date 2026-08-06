@@ -9,7 +9,7 @@ import {
   parseStudioRunInGameLiveArgs,
   resolveSwooperMapScriptPaths,
   serializeVerifierError,
-} from "../live/verify-studio-run-in-game.live";
+} from "../live/studio-run-in-game.live.test";
 
 const identity = (path: string, sha256: string): MapScriptFileIdentity => ({
   path,

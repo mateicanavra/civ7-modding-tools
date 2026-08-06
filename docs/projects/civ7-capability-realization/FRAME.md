@@ -90,12 +90,13 @@ The first realization reduction is also closed. Swooper is an admitted shared
 virtual map entries directly into an ignored final `dist/mod` tree; no root
 scripts cabinet, checked-in mod tree, or generated TypeScript entries survive.
 Exact config-to-script identity is proved before materialization. The current
-proof folders remain deliberately unratcheted because their accepted
-`artifact`, `deployment`, `runtime`, and `live` destinations are the next
-mechanical normalization, not today's accidental paths.
+proof topology is also closed on four disjoint axes: artifact-plan proof,
+deployment behavior, runtime compatibility, and uncached live observation.
+Final-surface parity moved to its recipe owner while the realization retains
+the target that executes it. The ordinary graph proves 527 product tests and
+28 app tests; no live Civ7 target was executed or claimed.
 
-**Gradient:** realization proof normalization -> app profile/entrypoints and
-qualified installation -> Interactive construction
+**Gradient:** app profile/entrypoints and qualified installation -> Interactive construction
 -> joint Core Platform seal -> Dacia Product -> Estate Reconciliation ->
 Platform Seal.
 

@@ -566,9 +566,9 @@ files, for 188 files total.
 | `apps/mods/map/swooper-physics/test/build/map-bundle-runtime-compatibility.test.ts` | relocate | `apps/mods/map/swooper-physics/test/runtime/map-bundle-runtime-compatibility.test.ts` |
 | `apps/mods/map/swooper-physics/test/maps/map-artifact-file-plan.test.ts` | relocate | `apps/mods/map/swooper-physics/test/artifact/map-artifact-file-plan.test.ts` |
 | `apps/mods/map/swooper-physics/test/maps/run-manifest-generation.test.ts` | relocate | `apps/mods/map/swooper-physics/test/artifact/run-manifest.test.ts` |
-| `apps/mods/map/swooper-physics/test/scripts/verify-final-surface-parity.test.ts` | relocate | `plugins/mod/map/swooper-physics/test/recipes/standard/parity/final-surface-parity.test.ts` |
+| `apps/mods/map/swooper-physics/test/scripts/verify-final-surface-parity.test.ts` | relocate | `plugins/mod/map/swooper-physics/test/recipes/swooper-physics-standard/parity/final-surface-parity.test.ts` |
 | `apps/mods/map/swooper-physics/test/scripts/verify-studio-run-in-game-live.test.ts` | relocate | `apps/mods/map/swooper-physics/test/deployment/studio-run-in-game.test.ts` |
-| `apps/mods/map/swooper-physics/test/setup.ts` | delete | No destination; target fixtures colocate with their sole consumers |
+| `apps/mods/map/swooper-physics/test/setup.ts` | combine | Same exact path, narrowed to suite-wide switchable Civ7 map-size, map-seed, and game-seed defaults; subject fixtures remain with their exact consumers |
 | `apps/mods/map/swooper-physics/test/tsconfig.json` | combine | Same exact path, narrowed to the realization's closed generic-app, artifact, deployment, runtime, and live axes |
 
 No current Swooper realization test is a live proof. The two required live
@@ -688,7 +688,7 @@ execution proof set below.
 | `apps/mods/map/swooper-physics/test/entrypoints/{build,deploy}.test.ts` | Each entrypoint selects app/profile/role and calls `startApp` once without repeating target behavior |
 | `apps/mods/map/swooper-physics/test/runtime/{map-script-adapter,map-script-setup,map-script-entrypoint}.test.ts` | The exact manifest-selected runtime subjects prove engine-global adapter/setup and map-loader execution only at the mod realization; the entrypoint suite also compiles its definition/EngineAdapter boundary |
 | `apps/mods/map/swooper-physics/test/execution/adapters/local-mod-install.test.ts` | Host discovery, exact-tree replacement, failure translation, and cleanup are owned by the deployment realization while pure validation, planning, digest, and receipt mechanics remain in `packages/civ7-mod-install` |
-| `plugins/mod/map/swooper-physics/test/recipes/standard/parity/final-surface-parity.live.test.ts` | Recipe-owned uncached real-Civ7 final-surface parity, executed by the realization's live target |
+| `plugins/mod/map/swooper-physics/test/recipes/swooper-physics-standard/parity/final-surface-parity.live.test.ts` | Recipe-owned uncached real-Civ7 final-surface parity, executed by the realization's live target |
 | `apps/mods/map/swooper-physics/test/live/studio-run-in-game.live.test.ts` | Uncached real loader/runtime acceptance of the Studio-run realization |
 
 The CLI topic mirror law also makes these current gaps new proof if their

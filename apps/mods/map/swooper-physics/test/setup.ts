@@ -5,11 +5,6 @@ import {
   getCiv7StandardMapSizePreset,
 } from "@civ7/map-policy";
 import { assessCiv7SignedIntSeed } from "@civ7/map-policy/setup";
-import {
-  createStandardInitialSetupInput,
-  createUnavailableStandardInitialOptionEvidence,
-} from "@swooper/swooper-physics/standard";
-import type { StandardMapConfigEnvelope } from "@swooper/swooper-physics/standard/map-config";
 
 const DEFAULT_TEST_MAP_SIZE_ID = "MAPSIZE_TINY" satisfies Civ7StandardMapSizeId;
 const DEFAULT_TEST_MAP_SEED = 1234;
@@ -46,42 +41,3 @@ function resolveTestSeed(environmentVariable: string, fallback: number): number 
 export const TEST_MAP_SIZE = resolveTestMapSize();
 export const TEST_MAP_SEED = resolveTestSeed("SWOOPER_TEST_MAP_SEED", DEFAULT_TEST_MAP_SEED);
 export const TEST_GAME_SEED = resolveTestSeed("SWOOPER_TEST_GAME_SEED", DEFAULT_TEST_GAME_SEED);
-
-/** App-local bootstrap for parity tests that need a complete headless Standard setup. */
-export function createStandardRecipeTestInitialSetup(options: {
-  preset: Civ7StandardMapSizePreset;
-  mapSeed: number;
-  gameSeed: number;
-  aliveMajorPlayerIds: readonly number[];
-  mapConfig: StandardMapConfigEnvelope;
-}) {
-  const mapInfo = {
-    ...options.preset.mapInfo,
-    MapSizeType: options.preset.id,
-    GridWidth: options.preset.dimensions.width,
-    GridHeight: options.preset.dimensions.height,
-  };
-  const startSlotCapacity = {
-    west: mapInfo.PlayersLandmass1,
-    east: mapInfo.PlayersLandmass2,
-    total: mapInfo.PlayersLandmass1 + mapInfo.PlayersLandmass2,
-  } as const;
-
-  return createStandardInitialSetupInput({
-    mapSeed: options.mapSeed,
-    gameSeed: options.gameSeed,
-    latitudeBounds: options.mapConfig.latitudeBounds,
-    selection: {
-      kind: "civ7-preset",
-      id: options.preset.id,
-      dimensions: options.preset.dimensions,
-      mapInfo,
-      startSlotCapacity,
-    },
-    aliveMajorPlayerIds: options.aliveMajorPlayerIds,
-    options: createUnavailableStandardInitialOptionEvidence(
-      "configuration-api-unavailable",
-      options.aliveMajorPlayerIds
-    ),
-  });
-}
