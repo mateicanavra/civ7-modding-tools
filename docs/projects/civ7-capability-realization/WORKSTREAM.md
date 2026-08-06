@@ -301,11 +301,19 @@ shared-kind instance; never copy or approximate an upstream packet.
 
 - Extract only proven pure config, save parsing, run-workspace comparison, and
   mod-install planning into packages.
-- Construct `resources/civ7-tuner` with its local-socket provider and
-  `resources/civ7-window-capture` with its macOS provider.
-- Keep framing, socket, helper acquisition, session lifetime, epochs, health,
-  and foreign-failure translation private to their qualified owners. Do not
-  publish a Tuner protocol package with one consumer.
+- Construct `resources/civ7-tuner` with its local-socket provider and the
+  generic `resources/window-capture` contract with its
+  `macos-screencapturekit` provider.
+- Keep Tuner framing, socket acquisition, session lifetime, epochs, health, and
+  transport failures private to its provider. Keep ScreenCaptureKit/TCC,
+  helper preparation, atomic file installation, and child-process ownership
+  private to its provider. Do not publish a Tuner protocol package with one
+  consumer or put Civ7 selection policy in the generic capture resource.
+- Window-capture acquisition must establish the scoped owner of every compile
+  and capture child. Interruption and release terminate and await all in-flight
+  children exactly once; work after release is refused. These are target
+  repairs over the current uncancellable direct-control path, not migrated
+  behavior claims. No daemon is introduced.
 
 #### 1.2.2 Semantic Services
 
@@ -349,6 +357,9 @@ shared-kind instance; never copy or approximate an upstream packet.
   generic process runtime; do not invent wrappers for absent capabilities.
 - Keep official-data, saved-file, fresh-log, run-file, and authored-config
   filesystem effects in exact app adapters with one matching execution proof.
+- Select the same generic macOS window-capture provider in CLI and Studio app
+  composition. Provider execution and opt-in live collaboration are proved once
+  at that provider; app proof owns only exact selection and binding.
 - Move the Swooper source writers, Studio-owned deployment source, and live
   proof rows held by slice 1.1 only after these app, service, and resource
   destinations are constructible.

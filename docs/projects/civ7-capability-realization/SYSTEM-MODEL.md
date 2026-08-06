@@ -59,7 +59,7 @@ distinct from reusable capabilities.
 | Mod definition plugin | Portable authored mod identity, content, product configuration, and cold metadata | Generated output, installation, engine globals, process lifecycle, or live proof |
 | Workflow plugin | Available shared grammar for durable orchestration that outlives one request and earns replay/retry ownership; no Civ7 instance is selected | Product facts, service policy, synchronous request composition, or current Studio run state |
 | App | Product/runtime identity, concrete host entrypoints, selected plugins and providers, public-client construction, qualified adapters, mounting, observation, and disposal | Reusable product truth, semantic service policy, or plugin-owned interaction meaning |
-| Qualified app adapter | One environment-specific effect implementation selected by the app | Managed foreign-resource lifecycle, provider selection, service policy, or a generic integration cabinet |
+| Qualified app adapter | One product-specific environment effect selected by the app | Managed foreign-resource lifecycle, provider selection, service policy, or a generic integration cabinet |
 
 All selected kinds are closed. Required leaves define the spine; optional
 leaves are finite, explicitly admitted capabilities. An open interior is not an
@@ -67,10 +67,10 @@ extensibility mechanism. Workflow grammar is available, but durable workflows
 remain deferred until a Civ7 capability earns and selects an instance.
 
 The resource/provider split has one writer at each fact boundary: the resource
-defines the provider-neutral value and failure vocabulary; the selected
-provider emits the concrete epoch, health, command, capture, and foreign-failure
-facts under that contract. Services may interpret those facts into product
-meaning but do not rewrite them.
+defines provider-neutral value and failure vocabulary; the selected provider
+emits concrete epoch, health, command, capture, and foreign-failure facts under
+that contract. Services may interpret those facts into product meaning but do
+not rewrite them.
 
 ## Relationship Vocabulary
 
@@ -179,17 +179,18 @@ CLI or Studio actor intent
   -> topic or API projection
   -> civ7-control public client
   -> semantic admission and policy
-  -> runtime-bound ready Tuner/window capabilities
+  -> runtime-bound ready Tuner and window-capture resources
   -> exact native Civ7 command or observation
   -> semantic result or reconciliation state
   -> same caller projection
 ```
 
-The Tuner provider owns connection and session mechanics. The service owns
-gameplay meaning. The qualified CLI or Studio app selects and acquires the
-provider, constructs the service client with the ready capability, and owns
-process-scope disposal. No direct-control facade, service-adapter package, or
-caller-owned contract sits between them.
+The Tuner provider owns connection and session mechanics; the window-capture
+provider owns raw ScreenCaptureKit execution and scoped children. The service
+owns gameplay and appshot meaning. The qualified CLI or Studio app selects and
+acquires both providers, constructs the service client with both ready
+capabilities, and owns process-scope disposal. No direct-control facade,
+service-adapter package, or caller-owned contract sits between them.
 
 ### Map Configuration And Realization
 
@@ -240,7 +241,7 @@ service-owned state rather than a workflow by analogy.
 
 | Current mixed owner | Destination authorities |
 | --- | --- |
-| `@civ7/direct-control` | `resources/civ7-tuner`, its provider, `services/civ7-control`, and owner-qualified diagnostic adapters/projections |
+| `@civ7/direct-control` | `resources/civ7-tuner`, `resources/window-capture`, their providers, `services/civ7-control`, and owner-qualified diagnostic projections |
 | Control facade and parallel contract shapes | One `services/civ7-control` public client; private router and implementation |
 | `packages/studio-contract` | Portable MapGen config package plus Studio API caller contract |
 | `packages/studio-server` | MapGen-runs service, Studio API plugin, and qualified Studio host composition/adapters |
@@ -259,7 +260,8 @@ does not move on the strength of this table.
 | State or lifecycle | Fact or behavior owner | App-composition responsibility | Replay/crash law |
 | --- | --- | --- | --- |
 | Tuner socket/session epoch | Local-socket provider | Acquire the selected provider once for the required scope and release it | Reconnect creates a new epoch; release closes provider-owned socket state |
-| Live control decision | Civ7 control service | Bind ready Tuner/window capabilities to the public client and dispose the binding | Unverified dispatch is explicit and must not be blindly repeated |
+| Window-capture provider scope | macOS ScreenCaptureKit provider | Acquire one ready generic capture capability, track every invocation child, and release the scope | Target law: completion or interruption terminates each child; provider release cancels any in-flight capture; the helper cache is inert |
+| Live control decision | Civ7 control service | Bind ready Tuner and window-capture resources to the public client and dispose the binding | Unverified dispatch is explicit and must not be blindly repeated |
 | Studio process identity | MapGen Studio app | Create, observe, and dispose its native host roles | Stable for one process scope; never product state |
 | MapGen operation record | MapGen-runs service | Bind and scope the service client; dispose process-scoped service state after drain | Request-correlated, adoptable during the retained process scope, cancellable, and terminal according to owner policy |
 | Authored config source write | Swooper definition for admitted content; qualified Studio adapter for the exact write/rollback effect | Bind the app-selected adapter using app-owned roots and scope its execution | Preserve the prepared write and exact write or rollback receipt |

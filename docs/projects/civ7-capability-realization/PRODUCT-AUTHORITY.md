@@ -166,12 +166,12 @@ the current migration state, not an inferred implementation plan.
   readiness, attention, world, and game-state evidence from a running Civ7
   session.
 - **Semantic owner:** `services/civ7-control`.
-- **Explicit non-owners:** Tuner resource/provider for semantic interpretation,
-  CLI, Studio API, Studio web, and raw transport diagnostics.
+- **Explicit non-owners:** Tuner and window-capture resources/providers for
+  semantic interpretation, CLI, Studio API, Studio web, and raw diagnostics.
 - **Current realization:** shipped but hybrid with direct-control transport and
   Studio-specific reads.
-- **Disposition:** `repair`; migrate to one service client over ready managed
-  resources and remove duplicate observations.
+- **Disposition:** `repair`; migrate to one service client over ready Tuner and
+  window-capture resources and remove duplicate observations.
 - **Honest outcome:** time- and epoch-correlated snapshot with explicit stale,
   partial, unavailable, and failure classifications.
 
@@ -239,9 +239,11 @@ authorized product surfaces, not additional semantic capability owners.
 
 Raw diagnostics are explicit supporting surfaces, not one semantic product
 capability. The Tuner resource defines health and execution vocabulary while
-its selected provider emits the concrete facts; the window-capture resource and
-provider use the same split. App restart belongs to the qualified app boundary,
-and each projection reports only the exact evidence emitted by its owner. These
+its selected provider emits the concrete facts. The generic window-capture
+resource defines raw image/window evidence while its macOS provider owns
+ScreenCaptureKit execution. The control service alone interprets those facts as
+a Civ7 appshot. App restart belongs to the qualified app boundary, and each
+projection reports only the exact evidence emitted by its owner. These
 surfaces must not be gathered under a new diagnostic service or inherit
 gameplay-success semantics.
 
@@ -269,7 +271,7 @@ an unknown external consumer keeps the gate open.
 
 | Current hybrid | Target split | Deletion trigger |
 | --- | --- | --- |
-| `@civ7/direct-control` | Managed Tuner resource/provider, semantic control service, qualified diagnostics | All semantic and diagnostic consumers use their target owner; no facade or convenience surface remains |
+| `@civ7/direct-control` | Managed Tuner and generic window-capture resources/providers, semantic control service, qualified diagnostics | All semantic and diagnostic consumers use their target owner; no facade or convenience surface remains |
 | `Civ7ControlOrpcDirectControlFacade` | Direct service client over runtime-supplied ready capabilities | Service implementation and all consumers compile without facade-shaped extraction |
 | `packages/studio-contract` | Portable MapGen config package plus Studio API-owned caller contract | All routes and config consumers have explicit dispositions and the old package has no imports |
 | `packages/studio-server` | MapGen-runs service, Studio API projection, and Studio app runtime | Operation state, projection, and host startup each have one owner with parity proof |

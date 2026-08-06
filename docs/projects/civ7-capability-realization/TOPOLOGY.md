@@ -192,7 +192,7 @@ resources/
           semantics/provider.test.ts
           execution/lifecycle.test.ts
           [collaboration/provider.live.test.ts]
-  civ7-window-capture/
+  window-capture/
     AGENTS.md
     contract.ts
     habitat.toml
@@ -203,7 +203,12 @@ resources/
       macos-screencapturekit/
         AGENTS.md
         habitat.toml
+        capture.ts
+        config.ts
+        helper.ts
         index.ts
+        process-supervisor.ts
+        protocol.ts
         project.json
         tsconfig.json
         test/
@@ -212,7 +217,6 @@ resources/
           collaboration/provider.live.test.ts
     tsconfig.build.json
     tsconfig.json
-
 services/
   civ7-control/
     habitat.toml
@@ -335,7 +339,7 @@ apps/
           local-mods.ts
     test/
       assembly/
-        shell.test.ts
+        composition.test.ts
       execution/
         binding.test.ts
         finalization.test.ts
@@ -361,9 +365,10 @@ apps/
           studio-run-files.ts
           swooper-map-config-source.ts
     test/
+      assembly/
+        composition.test.ts
       execution/
         hosts/{server,web,dev}.test.ts
-        composition.test.ts
         adapters/
           civ7-official-data.test.ts
           civ7-save-files.test.ts
@@ -486,22 +491,46 @@ runtime adapter, then supplies the package only names and bytes. The API sees a
 typed saved-configurations requirement and imports neither Node filesystem APIs
 nor this package.
 
-#### `resources/civ7-window-capture`
+#### `resources/window-capture`
 
-- **Kind:** resource with `macos-screencapturekit` provider
-- **Role:** acquire the content-addressed helper, translate platform/TCC
-  failures, capture only a selected Civ7 window, and release process-owned
-  helper state
-- **Produces:** ready window-capture capability and typed platform failures
+- **Kind:** generic resource with `macos-screencapturekit` provider
+- **Role:** expose provider-neutral selected-window capture while the macOS
+  provider owns ScreenCaptureKit/TCC/helper/process/filesystem execution
+- **Produces:** ready capture capability, raw window/image evidence, and typed
+  platform, permission, selection, interruption, and capture failures
 - **Consumers:** runtime-owned control-service binding in CLI and Studio
-- **Forbids:** control policy, app activation, desktop capture, provider
-  selection, and caller projection
+- **Forbids:** Civ7 defaults, appshot policy, app activation, whole-desktop
+  capture, provider selection, and caller projection
 
-The existing helper compilation, cache revision, TCC availability, and external
-process collaboration earn a managed resource rather than a package-shaped
-host adapter. Qualified CLI and Studio apps select the macOS provider. The control service
-owns view policy and public outcomes; the provider owns only acquisition and
-capture mechanics. No generic desktop-control resource is inferred.
+The resource is window capture, not Civ7 capture and not generic desktop
+control. The current helper cache is inert and does not itself earn lifecycle.
+The target macOS provider earns its kind only by acquiring one scoped process
+supervisor: every compile or capture child is registered there, interruption
+terminates and awaits that child, provider release terminates and awaits all
+remaining children exactly once, and work after release is refused. Atomic PNG
+installation and cancellation are target repairs; the current direct-control
+implementation proves neither. CLI and Studio select the same provider rather
+than copy its effectful implementation. The control service supplies Civ7
+selection, destination, and result meaning over the ready generic capability.
+
+#### `resources/window-capture/providers/macos-screencapturekit`
+
+- **Kind:** provider
+- **Role:** acquire one scoped macOS ScreenCaptureKit capture capability and
+  own helper preparation, TCC/platform translation, child processes, and PNG
+  installation
+- **Produces:** `WindowCapture` resource value
+- **Consumes:** the generic window-capture contract and macOS host APIs
+- **Consumers:** qualified app composition and control-service binding
+- **Forbids:** Civ7 matching, appshot semantics, app activation, whole-display
+  capture, provider selection, and caller projection
+
+`index.ts` owns acquisition and the public implementation face; `config.ts`
+admits provider options; `helper.ts` owns the embedded source and
+content-addressed toolchain artifact; `process-supervisor.ts` is the sole child
+owner; `protocol.ts` parses helper output; and `capture.ts` performs one atomic
+selected-window capture through those private capabilities. None is a second
+public surface.
 
 #### `resources/civ7-tuner`
 
@@ -799,12 +828,12 @@ This destination receives browser application source from
 - **Forbids:** Swooper truth, private service/API implementation, and an
   invented generic runtime layer
 
-The app selects and acquires the Tuner and window-capture providers, constructs
-the control and MapGen-runs public clients, materializes API context, mounts its
-native roles, observes them, and disposes the process scope. These are host
-composition responsibilities, not semantic product truth. No Studio source
-moves until the qualified Studio source and proof overlays close these exact
-roles.
+The app selects and acquires the Tuner and macOS window-capture providers,
+constructs the control and MapGen-runs public clients, materializes API context,
+mounts its native roles, observes them, and disposes the process scope. These
+are host composition responsibilities, not semantic product truth. No Studio
+source moves until the qualified Studio source and proof overlays close these
+exact roles.
 
 The Studio app additionally selects the Swooper definition-authoring and
 realization bindings used by MapGen-runs plus the cold official-data,
@@ -813,7 +842,7 @@ capabilities declare. Each semantic selection names one exact
 `runtime/adapters/` identity. Those adapters derive qualified host paths from
 app configuration and own filesystem effects while delegating pure
 parsing, planning, and comparison to packages. The realization app owns opaque
-deployment target references. The app selects Tuner and window-capture
+deployment target references. The app selects its Tuner and window-capture
 providers, configuration roots, and adapter identities exactly once. Cold
 filesystem adapters never become managed providers.
 

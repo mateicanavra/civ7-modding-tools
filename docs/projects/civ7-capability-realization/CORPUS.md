@@ -104,8 +104,8 @@ contract is extracted through a facade or reconstructed by a consumer.
 
 | Exact source | Disposition | Exact destination | Proof owner |
 | --- | --- | --- | --- |
-| ScreenCaptureKit helper, cache, platform/TCC translation, capture, and release in `packages/civ7-direct-control/src/play/view/window-shot.ts` | combine | `resources/civ7-window-capture/providers/macos-screencapturekit` | Provider semantics, execution, and collaboration |
-| View policy and public result projection in `packages/civ7-direct-control/src/play/view/window-shot.ts` | combine | `services/civ7-control/src/service/modules/view` | View semantics |
+| ScreenCaptureKit helper source, content-addressed cache, platform/TCC translation, process execution, caller-supplied window selection, PNG admission, and managed-default retention in `packages/civ7-direct-control/src/play/view/window-shot.ts` | combine | `resources/window-capture/providers/macos-screencapturekit` | Provider semantics, execution, and collaboration |
+| Civ7 window defaults, appshot destination policy, and public result projection in `packages/civ7-direct-control/src/play/view/window-shot.ts` | combine | `services/civ7-control/src/service/modules/view` | View semantics |
 | Filesystem snapshot, rewrite detection, and fresh-byte mechanics in `packages/civ7-direct-control/src/proof/log-markers.ts` | combine | `apps/mapgen-studio/runtime/adapters/fresh-log-files.ts` | Studio cold-adapter execution |
 | Marker selection, timeout, acceptance, and result policy in `packages/civ7-direct-control/src/proof/log-markers.ts` | combine | `services/mapgen-runs/src/service/modules/run-in-game` | Run-in-game semantics |
 | Pure saved-configuration DTO, byte parsing, admission, and ordering in `packages/civ7-direct-control/src/setup/prepare.ts` | combine | `packages/civ7-save-files/src/{index,saved-config}.ts` | Package contract and semantics |
@@ -114,9 +114,10 @@ contract is extracted through a facade or reconstructed by a consumer.
 | Runtime capability projection in `packages/civ7-direct-control/src/catalog/capabilities.ts` | inline | `plugins/cli/topics/game/src/commands/game/catalog.ts` | Catalog command proof |
 | `packages/civ7-direct-control/src/setup/restart.ts#{restartCiv7Game,restartCiv7GameAndBegin}` | inline | `plugins/cli/topics/game/src/commands/game/restart.ts` | Restart command proof |
 
-Qualified CLI and Studio apps select the Tuner and window-capture providers. The Studio app
-selects the cold saved-config and fresh-log bindings. The API, services, and
-CLI commands consume only ready typed clients or capabilities.
+Qualified CLI and Studio apps select the Tuner and generic macOS window-capture
+providers. The Studio app selects the cold saved-config and fresh-log bindings.
+The API, services, and CLI commands consume only ready typed clients or
+capabilities.
 
 ## Direct Control: Deletion
 
@@ -216,7 +217,7 @@ constructor.
 | `services/civ7-control/src/service/{base,contract,impl,router}.ts` | combine | Matching accepted service anchors under `services/civ7-control/src/service` |
 | `services/civ7-control/src/service/schema/typebox-standard-schema.ts` | delete | Native oRPC 2 contract schemas and TypeBox's accepted Standard Schema path |
 | `services/civ7-control/src/service/middleware/{mutation-procedure-key,mutation-procedure,mutation-proof-boundary,mutation-readiness}.ts` | combine | `services/civ7-control/src/service/middleware` under the accepted service context and native error lineage |
-| `services/civ7-control/src/service/middleware/controller-admission.ts` | delete | Runtime binding supplies ready Tuner and window-capture capabilities; no controller mode enters the service context |
+| `services/civ7-control/src/service/middleware/controller-admission.ts` | delete | Runtime binding supplies ready Tuner and window-capture resources; no controller mode enters the service context |
 | `services/civ7-control/src/service/model/dto/controller-proof.ts` | delete | Resource readiness and module outcomes are the only admitted evidence |
 | `services/civ7-control/src/service/model/dto/primitives.ts` | combine | Matching service-owned DTO leaf |
 | `services/civ7-control/src/service/model/policy/{metadata,mutation-result}.ts` | combine | Matching service-owned policy leaves |

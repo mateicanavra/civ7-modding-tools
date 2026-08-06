@@ -1,7 +1,7 @@
 # Civ7 Capability Realization Frame
 
 **Status:** Ground sealed; Core Platform 1.2 Interactive construction active
-**Date:** 2026-08-05
+**Date:** 2026-08-06
 **Owner:** Civ7 platform architecture and product stewardship
 
 ## Intent
@@ -87,6 +87,16 @@ opt-in collaboration proof are active, and the Nx graph now sees resource and
 provider as distinct one-way project roles. The collaboration leaf has not run
 against a live Civ7 process and is not claimed as passed.
 
+Window capture is classified by its reusable capability rather than its first
+product consumer. `resources/window-capture` owns provider-neutral
+selected-window evidence and failures; its `macos-screencapturekit` provider
+owns helper preparation, TCC/platform translation, atomic PNG installation,
+and the scoped lifetime of in-flight capture children. Provider acquisition
+must establish a ready capability and provider release must interrupt every
+remaining child. Those cancellation and atomicity guarantees are target laws,
+not claims about the current direct-control implementation. The control service
+alone owns Civ7 window defaults, appshot policy, and semantic interpretation.
+
 The first definition ownership reduction is closed: diagnostics and metric
 commands now live in the closed `mapgen` CLI topic, consume public Swooper and
 MapGen capabilities, and leave no command runner in the portable definition.
@@ -119,12 +129,31 @@ proves 29 tests. Published Habitat and canonical Template expose no generic
 product app-runtime constructor, so no inert app descriptor or profile was
 authored.
 
-**Gradient:** window-capture resource -> local semantic services ->
+**Gradient:** generic window-capture resource -> local semantic services ->
 CLI and Studio projections/composition -> joint Core Platform seal -> Dacia
 Product -> Estate Reconciliation -> Platform Seal.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-08-06 - Window Capture Resource Generalized
+
+The app-adapter direction correctly rejected a Civ7-specific resource but
+would have duplicated one effectful ScreenCaptureKit implementation across two
+apps. That contradiction exposed the real owner: a generic managed
+window-capture capability. Its lifecycle is not the inert helper cache; it is
+the acquired provider scope that owns and terminates every in-flight foreign
+child. Apps select one provider, the service supplies Civ7 meaning, and neither
+duplicates host execution.
+
+### 2026-08-06 - Window Capture Resource Refused
+
+The prior Interactive gradient treated compilation and reuse of a
+ScreenCaptureKit helper as managed acquisition. Implementation falsified that
+classification: no foreign state survives a capture call and no honest release
+operation exists. Window capture now enters the control service as an
+app-supplied capability port; qualified app adapters own platform execution.
+The Tuner remains the sole managed resource in this slice.
 
 ### 2026-08-05 - Interactive Runtime Substrate Rebased
 
@@ -421,10 +450,12 @@ Accepted authority never knowingly contradicts a mergeable intermediate layer.
 ### Admit resources only for managed capabilities
 
 The Tuner session is an earned resource: it has acquisition, reconnect,
-health, command execution, and release semantics. Civ7 window capture
-independently earns a narrow resource because it acquires and revisions a
-compiled ScreenCaptureKit helper, translates TCC/platform failures, and serves
-two app runtimes. Neither fact earns a generic desktop-control resource. The
+health, command execution, and release semantics. Generic window capture also
+earns a resource because provider acquisition establishes a ready
+ScreenCaptureKit capability and its scope owns every in-flight child through
+completion, interruption, or release. Helper compilation alone earns nothing,
+and no daemon or synthetic state is introduced. Civ7 matching, appshot policy,
+and outcome meaning remain in the control service. The
 official resource corpus is currently a static submodule and generated-data
 authority, not automatically a runtime `resource` package. A generic catalog or
 desktop-app resource still waits for a concrete managed consumer and provider

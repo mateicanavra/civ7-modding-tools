@@ -122,7 +122,7 @@ the state column remains authoritative:
 | Standalone service | Established local Civ7 packet; shared `service@1` unselected | Required exact `test/contract/client.typecheck.ts`, operation-mirrored `test/semantics/modules/<module>/<operation>.test.ts`, and exact `test/execution/root.test.ts`; direct semantics suites are reserved for cross-module service invariants |
 | Server API plugin | Selected shared `plugin@1` plus qualified API overlay | Required exact `test/contract/client.typecheck.ts` plus manifest-selected `test/projection/<component>.test.ts`; optional selected `test/execution/<component>.test.ts` only for API-owned scoped behavior |
 | CLI topic | Accepted ownership; proof correction pending | Required `test/tsconfig.json` plus an exact source-derived mirror in `test/commands`; optional source-derived `test/adapters`; fixtures stay beside their consumer |
-| CLI shell | Shared `app@1`; qualified CLI overlay pending | Exact `test/assembly/shell.test.ts`, app-binding/finalization execution proof, selected adapter proof, and one `test/tsconfig.json` |
+| CLI shell | Shared `app@1`; qualified CLI overlay pending | Exact `test/assembly/composition.test.ts`, app-binding/finalization execution proof, selected adapter proof, and one `test/tsconfig.json` |
 | Web projection | `UNCONSTRUCTIBLE` candidate minimum | Required nonempty `test/views/*.test.tsx`; optional nonempty `test/interactions/*.test.tsx` and `test/execution/*.test.tsx` selected by the qualified product |
 | App realization | Shared `app@1`; qualified host overlay required | Required closed host-composition and adapter execution axes plus one `test/tsconfig.json`; exact selected host and adapter identities determine proof leaves |
 | Mod definition | `UNCONSTRUCTIBLE` candidate minimum | Required `test/definition.test.ts`; each qualified family packet closes its semantic layers; the selected map packet uses domain/module/artifact/operation/strategy and recipe/stage/step ownership |
@@ -755,7 +755,7 @@ apps/cli/
         local-mods.ts
   test/
     assembly/
-      shell.test.ts
+      composition.test.ts
     execution/
       binding.test.ts
       finalization.test.ts
@@ -778,21 +778,21 @@ This composed packet is qualified local law over the accepted shared app shell,
 not an exception to it. The burn-down branch replaces the old root structure
 atomically after the local source and proof overlay is fixture-proved.
 
-The CLI proof topology is likewise kind-owned. The shell test root is closed to
-the `assembly/` layer within that app proof:
+The CLI proof topology is likewise kind-owned. The test root is closed to the
+`assembly/` layer within that app proof:
 
 ```text
 assembly/
-  shell.test.ts
+  composition.test.ts
 ```
 
 Habitat topology owns commandless app source. A bounded source relation owns
 the sole authored `package.json#oclif.plugins` registry and the absence of a
-second topic enumeration. The shell suite observes only runtime assembly:
+second topic enumeration. The composition suite observes only runtime assembly:
 collision-free command discovery, help catalog, and executable-shim
 equivalence. The app's `test/tsconfig.json` is the sole compiler program.
 Binding and finalization execution suites own command-process lifecycle proof;
-the shell does not repeat it.
+composition does not repeat it.
 
 A topic test root is closed to:
 
