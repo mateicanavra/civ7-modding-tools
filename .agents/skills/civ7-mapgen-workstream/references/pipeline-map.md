@@ -1,347 +1,210 @@
-# Pipeline Map — Technical-Arm Grounding
+# Pipeline And Ownership Map
 
-> Open when you need to make a TECHNICAL change to the recipe (add/split/recombine a stage, add an op or strategy, wire a new artifact) and you want the architecture map without re-discovering it. This is the structural cross-section: stages → steps → ops → strategies → artifacts, the truth/projection split, the data-flow contract, and the boundaries any change must respect. For copy-paste skeletons, go to `assets/recipe-scaffolds.md`. For the physics *inside* the ops, see `references/facet-physics.md`.
+Use this reference to locate a map-generation change. It describes durable
+roles and discovery points, not a frozen stage inventory.
 
-**Currency rule.** Everything below is re-derived from live source under `mods/mod-swooper-maps/src/`. Verify any stage/op/artifact claim against the live file cited, not against a doc. The `mapgen:*` cache skills are philosophy-only / outdated arch — never use them for stage order, file paths, or schemas. SDK/engine *architecture* authority is `civ7-architecture-authority`; this file maps the recipe-domain layer the mod authors.
+## Capability Chain
 
----
+```text
+Swooper definition + pure MapGen packages
+  -> admitted authored configuration
+  -> deterministic recipe execution
+  -> causal artifacts, diagnostics, metrics, trace, and visualization evidence
 
-## Where recipe-domain logic lives (and where it does NOT)
+Swooper definition
+  -> Swooper realization app Nx targets
+  -> generated deployable mod artifact
+  -> qualified installation effect and receipt
+  -> Civ7 loader/live evidence
 
-| Concern | Location | Owner |
-|---|---|---|
-| Domain algorithms and immutable causal artifacts | `mods/mod-swooper-maps/src/domain/<domain>/` | the mod |
-| Recipe (stages, steps, ordering, authoring projection) | `mods/mod-swooper-maps/src/recipes/standard/` | the mod |
-| Map configs / generated entrypoints / presets | `mods/mod-swooper-maps/src/maps/{configs,generated,presets}` | the mod |
-| Diagnostics / viz (the harness) | `mods/mod-swooper-maps/scripts/diagnostics` | the mod |
-| Authoring API + execution infra (`createRecipe`/`createStage`/`createStep`/`createOp`/`defineArtifact`, PipelineExecutor, write-once artifact runtime, TypeBox validation, trace/viz) | `@swooper/mapgen-core` = `packages/mapgen-core` | engine substrate (referenced, not changed for domain work) |
-| SDK / Civ7 adapter contracts | `packages/sdk`, adapter | `civ7-architecture-authority` |
-
-**The hard rule:** generation-logic (recipe-domain) changes land in `mods/mod-swooper-maps/src/{domain,recipes}`. ONLY engine-substrate changes touch `packages/mapgen-core`. The engine has zero Civ7 knowledge — Civ7 enters only at map entrypoints and the `map-*` projection / `placement` stages via adapter calls.
-
----
-
-## Vocabulary (current, from live source)
-
-- **domain** — a contract-composed collection of pure-algorithm modules for one concern-family. `domain/<domain>/contract.ts` uses `defineDomain`, `router.ts` binds the corresponding module routers, and `index.ts` exposes only the contract. Domains have no recipe awareness.
-- **module** — one cohesive domain capability under `modules/<module>/`. Its `contract.ts` declares the module's operation contracts, `router.ts` binds implementations, and `index.ts` exposes only the contract. Optional `artifacts/` and `model/` directories stay inside the module that owns them.
-- **op** — op-per-concern unit inside one module. `defineOp({ kind, id, input, output, strategies })` lives in `modules/<module>/ops/<op-id>/contract.ts`; `index.ts` binds the semantic strategy implementations. No cross-op reach-ins. Op id is `<domain>/<op-name>` kebab-case.
-- **strategy** — a semantically named variant inside an op's `strategies` record. A sole strategy is inferred as the default; a multi-strategy op declares `defaultStrategy` explicitly. The op envelope is `{ strategy: "<id>", config: {...} }` (TypeBox discriminated union built by `defineOp`). Most ops are single-strategy; multi-strategy ops live in hydrology + ecology (see strategy table below).
-- **rule** — pure implementation logic below a contract boundary. Operation-private rules live in
-  an op's `rules/`; rules genuinely shared across operations rise only to the nearest domain or
-  module `model/rules/` owner. Neither surface becomes a recipe shortcut around declared ops.
-  Before naming a local helper, search MapGen Core's public libraries and import an existing
-  primitive when semantics match. A deliberate divergence needs a distinct domain name and visible
-  rationale; silently redefining a Core helper such as `clamp01` is not domain logic.
-- **step** — executable contract boundary. Owner-local `config.ts` exports the contract as `config = defineStep({ id, requires, provides, ops, schema })`; those two ordered lists are the sole dependency surface and contain exact `Artifact` authorities alongside typed completion ids for payload-free engine transactions. `createStep(config, { normalize?, run, viz?, metrics? })` binds behavior plus optional post-run observation facets. Recipe composition may alias imported configs but never renames the leaf export. Recipe composition assigns the exact `stageId`; steps do not author a duplicate phase. `run(context, stepConfig, ops, deps)` receives admitted runtime configuration and publishes or reads through the typed `deps.artifacts.<name>` capabilities derived from the exact artifact selections.
-- **stage** — recipe-level authoring + ownership surface. `createStage({ id, steps, ... })`
-  owns step composition; its ordinary config surface is derived from those
-  steps and their bound operations. A rare semantic override stays inline at
-  the concrete stage and must translate the complete external surface rather
-  than forwarding or manufacturing empty step objects.
-- **recipe** — global stage/step order. `createRecipe({ id, namespace, stages, operations })`, where `operations` is the one canonical executable registry returned by `collectOperations(...)`. Standard recipe id `mod-swooper-maps/standard`. Ordering is enforced by `contract-manifest.ts`, not by key order in `recipe.ts`.
-- **artifact** — named, typed, write-once causal data owned by the domain module that defines the immutable product. One `*.artifact.ts` file owns one weighted `defineArtifact({ name, id, schema, refine? })` definition with its schema inline. `defineArtifactCatalog` closes the module catalog. Engine observation and metrics/viz/trace evidence remain those capabilities rather than becoming causal artifacts.
-- **knob** — an optional stage-wide semantic authoring control, applied through compilation only when it adds real authoring value.
-
----
-
-## The standard recipe — 22 ordered stages (VERIFY against `contract-manifest.ts`)
-
-Order authority is `mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts` (`standardStageContractManifest`, enforced by `orderStandardStages()`). `recipe.ts` assembles via `orderStandardStages({...})`; its key order is irrelevant — the manifest reorders deterministically. `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md` was in sync at last check but is **down-ranked**: it can lag the engine-refactor-v1 normalization work — re-read `contract-manifest.ts` before trusting it.
-
-The names below are stable runtime stage IDs. Physical source roots use semantic
-family nesting and do not need to mirror those hyphenated identities.
-
-```
-PHYSICS / TRUTH STAGES (compute + publish artifacts; MUST NOT touch the adapter)
-  1  foundation-mantle             mesh, mantle potential, mantle forcing
-  2  foundation-lithosphere        crust, plate graph
-  3  foundation-tectonics          tectonics (current motion + history)
-  4  foundation-orogeny            crust evolution
-  5  foundation-projection         tile-space foundation fields + plate topology (not engine projection)
-  6  morphology-coasts             landmass plates, coherent base topography, coastline evidence
-  7  morphology-routing            flow routing
-  8  morphology-erosion            geomorphic cycle (stream-power + diffusion)
-  9  morphology-features           islands, mountains, volcanoes, landmasses
-  10 morphology-shelf              post-island coastline metrics + continental shelf
-  11 hydrology-climate-baseline    radiative/thermal/circulation/precip baseline
-  12 hydrology-hydrography         rivers, lakes
-  13 hydrology-climate-refine      precip refine (river-corridor / low-basin)
-  14 ecology-pedology              pedology classify + aggregate
-  15 ecology-biomes                Whittaker/Holdridge biome classify
-
-MAP-PROJECTION STAGES (consume truth, materialize/read back through the adapter)
-  16 map-morphology                plot coasts/continents/mountains/volcanoes
-  17 map-hydrology                 project final rainfall, then lakes
-  18 map-elevation                 build elevation
-  19 map-rivers                    plot rivers (authored terrain materialization)
-
-PLANNER (adapter-free; publishes Ecology intent artifacts)
-  20 ecology-features              score + plan floodplains/ice/reefs/wetlands/vegetation/plot-effects
-
-MAP PROJECTION
-  21 map-ecology                   plot biomes, apply features, plot effects
-
-CIV7 PLANNER + MATERIALIZER
-  22 placement                     derive/plan/assign/place starts, wonders, resources, discoveries
+Studio caller
+  -> Studio web/API projections
+  -> MapGen-runs public client
+  -> app-bound config/run/log/realization/control capabilities
+  -> operation state, correlation, reconciliation, and semantic outcome
 ```
 
-Read the braid carefully: physical truth runs through `ecology-biomes` (15), but
-the pipeline then projects morphology/hydrology at 16–19 before the adapter-free
-`ecology-features` planner (20), whose scoring consumes projected river/coast
-evidence. `map-ecology` (21) materializes those plans, and `placement` (22)
-combines product planning with Civ7 writes/readback. `foundation-projection` (5)
-projects Foundation evidence onto the recipe's tile space; it does **not** call
-the Civ7 adapter. `morphology-shelf` (10) runs after complete island-topography
-computation so the published shelf includes island coastlines before Hydrology
-starts.
+No part of this chain authorizes one owner to absorb another.
 
-**Narrative is absent.** There is no `narrative` domain or live recipe stage
-slot. Do not infer a seventh domain from historical project material.
+## Durable Owner Map
 
-**Stage-family containers:** `stages/foundation/`, `stages/morphology/`,
-`stages/hydrology/`, and `stages/ecology/` are not registered runtime stages.
-They contain semantically nested physical stage roots, including projection
-leaves beneath the family whose products they materialize, and only warranted
-family-shared authoring or visualization surfaces. None has its own stage
-`index.ts` or manifest slot. Immutable causal artifacts remain in their owning
-domain catalogs. Do not count these containers as stages or collapse their
-registered runtime stages into one.
+| Concern | Owner |
+| --- | --- |
+| Swooper domains, recipe, product config, diagnostics, metrics, trace, and visualization semantics | `plugins/mod/map/swooper-physics` |
+| Generic authoring/execution language and deterministic runtime mechanics | `packages/mapgen-core` |
+| Neutral diagnostic, metric, and visualization mechanics | matching `packages/mapgen-*` package |
+| Static Civ7 map legality/policy derived from official sources | `packages/civ7-map-policy` |
+| Portable engine-adapter contract/static vocabulary/mock | `packages/civ7-adapter` |
+| Engine globals, map loader, generated map script, deployable outcome | `apps/mods/map/swooper-physics` |
+| Save & Deploy / Run in Game operation authority | `services/mapgen-runs` |
+| Studio physical materialization/install effects | `apps/mapgen-studio/src/runtime/adapters/swooper-map-realization.ts` |
+| Typed live Civ7 app/game/map/UI facts | `services/civ7-control` |
+| CLI/API/web caller presentation | matching projection plugin |
+| Provider selection, client binding, host mount, process lifetime | matching app |
 
----
+The Swooper realization app and Studio's realization adapter have different
+outcomes. The app owns the deployable product produced by its Nx targets. The
+Studio adapter owns one ephemeral Studio operation's physical effects and
+receipts. Studio does not import the realization app or call its targets.
 
-## The seven domains and their op counts
+## Definition Source Grammar
 
-Each migrated domain composes module contracts from
-`domain/<domain>/contract.ts`. Every module contract directly composes its leaf
-operation contracts, while its router directly binds the matching leaf
-implementations. Counts below are verified from those module authorities:
+The portable product root is `plugins/mod/map/swooper-physics`.
 
-| Domain | Ops | Character |
-|---|---|---|
-| `foundation` | 17 | mesh, mantle potential/forcing, crust + evolution, plate graph/motion, tectonic segments, era membership, segment/hotspot events, era tectonic fields, history rollups, tectonics current, tracer advection, provenance, plate tensors |
-| `morphology` | 17 | belt drivers, base topography, continental margins, sea level, landmask, base coastline adjacency/distance evidence, flow routing, geomorphic cycle, substrate, complete island topography with formation classes, foothills, ridges, rough lands, volcanoes, landmasses, and the final shelf mask |
-| `hydrology` | 19 | Baseline climate composes radiative/thermal forcing, circulation, ocean coupling, evaporation, moisture transport, and precipitation; hydrography then solves drainage, discharge, river projection, lake intent, and causal classification; climate refinement closes with precipitation refinement, cryosphere/albedo, land-water budget, and advisory diagnostics. Navigable-river selection is a map-rivers rule. |
-| `ecology` | 32 | biome classify, pedology classify/aggregate, edge refine, feature/vegetation substrate, 5 vegetation + 5 wetland + 4 reef score ops, ice score, 4 plot-effects score ops, plan plot-effects, plan floodplains/wetlands/reefs/ice/vegetation, features apply. The most granular domain. |
-| `placement` | 3 | `wonders.planNaturalWonders`, `regions.projectLandmassRegions`, `starts.planStarts` |
-| `resources` | 8 | adjust resource support, derive habitat fields, plan aquatic/cultivated/geological/terrestrial resources, plan resource groups, select resource sites |
-| `narrative` | 0 | no ops, no stage (see above) |
-
-> Op counts = the operation contracts directly composed by module
-> `contract.ts` files. Confirm executable symmetry in the matching module
-> `router.ts`; there is no intermediate operation registry.
-
----
-
-## Domain-module layout (the unit you'll most often touch)
-
-A domain is a contract/router whose modules repeat the same contract/router shape at a narrower semantic level. A single operation then lives under its owning module:
-
-```
-domain/<domain>/
-  contract.ts               defineDomain("<domain>", { <module>: moduleContract })
-  router.ts                 createDomainRouter(contract, { <module>: moduleRouter })
-  index.ts                  exports the contract only
-  model/                    facts genuinely shared across multiple modules (optional)
+```text
+src/domain/<domain>/
+  contract.ts
+  router.ts
+  index.ts
   modules/<module>/
-    contract.ts             defineDomainSubdomain({ id, ops: { leaf contracts } })
-    router.ts               createDomainSubdomainRouter(contract, { leaf implementations })
-    index.ts                exports the module contract only
-    model/                  module-scoped atoms and policy (optional)
-    artifacts/
-      <name>.artifact.ts    one inline defineArtifact definition
-      index.ts              one defineArtifactCatalog
-    ops/
-      <op-id>/
-        contract.ts         shared input/output contract plus strategy definitions
-        index.ts            createOp(contract, strategy tuple)
-        strategies/
-          index.ts          executable implementation tuple
-          <semantic-id>/
-            config.ts       semantic id plus strategy configuration
-            index.ts        implementation of the shared operation contract
-        rules/              private pure helpers shared inside the operation (optional)
+    contract.ts
+    router.ts
+    index.ts
+    model/                     # owner-local facts/policy when earned
+    artifacts/                 # module-owned immutable products
+    ops/<operation>/
+      contract.ts
+      index.ts
+      rules/                   # operation-private mechanics
+      strategies/
+        index.ts
+        <semantic-id>/{config,index}.ts
+
+src/recipes/standard/
+  contract-manifest.ts         # stage and step order authority
+  recipe.ts                    # recipe composition
+  stages/<semantic-path>/
+    index.ts
+    steps/<step>/{config,step}.ts
+
+authoring/{config,index,targets}.ts
+src/maps/{catalog,configs}/
+test/{domains,recipes}/
 ```
 
-The `@mapgen/domain/*` alias exposes two deliberate faces: the root contract for
-step authoring and `/router` for recipe operation collection. Consumers import
-artifacts or model facts from the exact owning module; module indexes do not
-re-export those secondary surfaces.
+Verify this grammar against live source before copying it. Qualified Habitat
+law and tests, not this reference, decide which optional leaves are admitted.
 
-Visualization is owned by the step's optional `createStep(config, { viz })`
-facet. Here `<stage-root>` means the stage's semantic physical path, such as
-`morphology/shelf`, `hydrology/climate/baseline`, or direct `placement`. A helper
-private to one step lives at `stages/<stage-root>/steps/<step>/viz.ts`; helpers
-shared by multiple owner-stage steps (or consumed outside the stage) live at
-`stages/<stage-root>/viz.ts`. These
-files are implementation placement, not a second authoring surface. See
-`docs/system/libs/mapgen/reference/VISUALIZATION.md`; direct `context.viz`
-emission in live steps is compatibility code, not the scaffold for new work.
-For `morphology-shelf`, the owning surface is
-`stages/morphology/shelf/steps/compute-shelf`; a helper shared beyond that step
-would promote to `stages/morphology/shelf/viz.ts`, not the residual
-`stages/morphology/` family container.
+## Vocabulary
 
-**Registration points** when you add code (full skeletons in `assets/recipe-scaffolds.md`):
-- New **op** → create `modules/<module>/ops/<op-id>/`; compose its contract
-  directly in the module `contract.ts` and bind its implementation directly in
-  the module `router.ts`.
-- New **step** → add the step contract to `standardStageContractManifest` (sets order) and the runtime step to the stage's `orderStandardStageSteps({...})`.
-- New **stage** → add to `standardStageContractManifest` (position = pipeline order), add to `orderStandardStages({...})` in `recipe.ts`; if it brings a new domain, add that domain to `collectOperations(...)`.
-- New **artifact** → add one `domain/<domain>/modules/<owner>/artifacts/<name>.artifact.ts` file with one inline `defineArtifact({ name, id, schema, refine? })`; register it once in that module's `artifacts/index.ts` using `defineArtifactCatalog`. Step contracts place exact artifact definitions directly in `requires` and `provides`; `createStep` derives read/publish runtimes from those selections. Raw `artifact:*` strings are not an authoring substitute.
+- **Domain:** pure semantic concern composed from module contracts. It has no
+  recipe or host lifecycle authority.
+- **Module:** cohesive capability within a domain. It owns its operation
+  contracts, router, model, and immutable products.
+- **Operation:** one semantic input/output transition. Its contract owns the
+  shared envelope; its executable strategies implement that same transition.
+- **Strategy:** replaceable semantic model satisfying one operation contract.
+  A model with different inputs, outputs, or transition timing is another
+  operation, not a strategy.
+- **Artifact:** typed, write-once causal product owned by the module that
+  produces it. Diagnostic, metric, trace, and visualization evidence is not a
+  causal artifact merely because it is recorded.
+- **Step:** recipe execution boundary declaring exact operations and artifact
+  requirements/provisions.
+- **Stage:** recipe-level composition of ordered steps and any earned public
+  authoring translation.
+- **Recipe:** global composition and order of stages plus the one canonical
+  executable operation collection.
 
----
+Use `assets/recipe-scaffolds.md` only after checking the nearest live example.
 
-## Strategy selection
+## Re-Derive The Pipeline
 
-The op envelope `{ strategy, config }` selects the algorithm. There are two authoring control points; runtime dispatch is `runtimeStrategies[cfg.strategy].run(input, cfg.config)` in `packages/mapgen-core/src/authoring/operation/create.ts`:
+Do not preserve stage counts, operation counts, strategy lists, or artifact
+inventories in planning prose. Rebuild the map from current owners:
 
-1. **Direct step config (ordinary stages)** - the op envelope is authored
-   directly as a step-config key:
-   `{ "computeAtmosphericCirculation": { "strategy": "latitude", "config": {...} } }`.
-2. **Rare inline stage compiler** - a concrete stage may define an inline
-   `public: Type.Object(...)` and compile it only when the external shape
-   intentionally hides and semantically translates the complete internal
-   surface. External `public.config.ts` assemblies and wrapper-only compilers
-   are forbidden.
+1. Read `src/recipes/standard/contract-manifest.ts` for ordered stage and step
+   identities.
+2. Read `recipe.ts` for composition and executable domain collection.
+3. Read a domain's `contract.ts` and `router.ts` for module symmetry.
+4. Read a module's `contract.ts`, `router.ts`, and `ops/` leaves for operation
+   symmetry.
+5. Read an operation contract and `strategies/index.ts` for admitted strategy
+   identities and default authority.
+6. Search an artifact definition by id/name through recipe step contracts to
+   find all producers and consumers.
+7. Read tests and Habitat rules for the closed structural and behavioral law.
 
-The operation contract owns its sole inferred or multi-strategy explicit default. Steps select
-canonical operation contracts directly and cannot replace that authority. Authors select an
-alternate through the envelope. A candidate with different inputs, outputs, or transition timing
-becomes a separate operation rather than a step-local default or incompatible strategy.
+## Truth, Planning, Projection, And Realization
 
-Selected strategy-bearing ops in live source (every other op has one inferred semantic default):
+Classify each step before moving it:
 
-| Op | Strategy keys (default → impl) |
-|---|---|
-| `hydrology/compute-atmospheric-circulation` | `geostrophic-proxy` (default), `latitude` |
-| `hydrology/compute-precipitation` | `vector` (default), `baseline` |
-| `hydrology/refine-precipitation` | `riparian-basin-wetness` (sole inferred default) |
-| `hydrology/transport-moisture` | `vector-advection` (default), `cardinal` |
-| `hydrology/compute-ocean-surface-currents` | `wind-gyre-projection` (default), `latitude` |
-| `ecology/pedology/classify` | `balanced` (default), `coastal-shelf`, `orogeny-boosted` |
-| `ecology/resources/plan-basins` | `balanced` (default), `hydro-fluvial`, `mixed` |
-| `ecology/features/plan-reefs` | `habitat` (default), `diagonal-stride` |
+- **Truth:** computes portable causal products without a live Civ7 adapter.
+- **Planning:** converts admitted truth and policy into intents without
+  claiming the host effect happened.
+- **Projection:** applies or observes truth through the engine adapter. It does
+  not become the truth owner.
+- **Realization:** generates, installs, loads, or executes the engine-bound mod.
+  It returns receipts/evidence for its exact effect.
 
-> The contract's resolved `defaultStrategy` is authoritative at runtime. Strategy keys,
-> filenames, and exported implementation names retain the same semantic identity; none is
-> renamed merely to `default`.
+Names such as `projection` are hints, not authority. Read imports, operations,
+artifacts, and effects. A tile-space projection can still be pure truth; a
+placement step can combine planning and engine materialization. Split facts by
+what they mean, not by directory names alone.
 
----
+## Strategy Selection
 
-## Truth vs projection (the load-bearing split)
+An operation contract owns the available semantic strategies and the default.
+Selection enters through the authored operation envelope or an earned stage
+compiler that translates a genuinely different public surface. Before tuning:
 
-- **Physics/truth stages** (1–15: the five `foundation-*`, five
-  `morphology-*` including `morphology-shelf`, three `hydrology-*`, then
-  `ecology-pedology` and `ecology-biomes`) publish canonical domain artifacts
-  and MUST NOT call the adapter. `foundation-projection` is tile-space physics,
-  not an engine-facing `map-*` projection.
-- **Planner stages** are deliberately distinct. `ecology-features` (20) is an
-  adapter-free, projection-adjacent intent planner feeding `map-ecology`;
-  `placement` (22) mixes domain planning with Civ7 materialization/readback.
-  Neither owns physical truth.
-- **Map-projection stages** (`map-*`: 16–19 and 21) consume authored evidence
-  and write/read engine terrain, biomes, and features through the adapter. They
-  MUST NOT become truth authorities.
+1. Find the operation contract and its shared transition.
+2. Find the authoring point that supplies its envelope.
+3. Confirm no compiler overwrites that value.
+4. Decide whether the request is a re-tune, existing-strategy selection, new
+   strategy, or new operation.
+5. Add a behavioral comparison that keeps the incumbent visible whenever a
+   new physical model is introduced.
 
-A common failure mode (see `references/worked-examples.md`, the coast-projection case): adapter terrain *maintenance* inside a `map-*` stage silently demotes a projected surface (coast→ocean) after the stamp. The fix reapplies the authoritative declared surface at each adapter boundary — drift happens after maintenance, not at the stamp.
+## Artifact Discipline
 
----
+- The producing module owns definition, schema, semantic refinement, and
+  catalog membership.
+- Step contracts select exact artifact authorities, not copied ids or parallel
+  payload interfaces.
+- Publication is write-once per invocation; consumers read the admitted value.
+- Engine state is observed at the adapter boundary, not copied into an artifact
+  to make it look portable.
+- Metrics, trace, diagnostics, and visualization observe; they do not silently
+  become causal state.
 
-## Artifact data-flow cross-section
+## Run And Realization Boundaries
 
-The cross-stage contract is artifacts. The spine:
+MapGen-runs consumes exact app-bound dependencies for authored config,
+run-files, fresh logs, realization, foundational control, and clock. It owns
+accepted intent, phase transitions, operation records, correlation,
+cancellation, reconciliation, and final semantic outcomes.
 
-```
-foundation-* ──▶ artifact:foundation.{mesh,initialCrust,crust,plateGraph,tectonicHistory,
-                                      plates,crustTiles,...}
-   │
-   ▼
-morphology-* ──▶ artifact:morphology.topography.base    (coherent pre-erosion terrain vintage)
-                 artifact:morphology.topography.eroded  (post-geomorphic, pre-island vintage)
-                 artifact:morphology.topography         (final elevation + seaLevel + landMask + bathymetry)
-                 artifact:morphology.{routing, baseCoastline(pre-island adjacency/distance evidence),
-                                      shelf(post-island shelfMask/coast metrics), mountains, volcanoes,
-                                      beltDrivers, landmasses}
-   │
-   ▼
-hydrology  ──▶ artifact:hydrology.baselineClimateField  (routing + refinement vintage)
-               artifact:hydrology.climateField          (final-refined consumer vintage)
-               artifact:hydrology.{climateIndices, cryosphere, hydrography, lakePlan, riverNetwork}
-               seasonal amplitudes remain invocation-local visualization evidence
-   │
-   ▼
-ecology    ──▶ artifact:ecology.{biomeClassification, soils, scoreLayers, plotEffectPlan}
-               featureIntents.{vegetation,wetlands,floodplains,reefs,ice}
-               occupancy.{base,floodplains,ice,reefs,wetlands}
-   │
-   ▼
-map-*      ──▶ writes and observes engine state through the Civ7 adapter
-               metrics/viz/trace project evidence without becoming causal artifact stores
-```
+The Studio app constructs adapters directly from public definition/package
+surfaces. The realization adapter owns physical materialization and installation
+receipts. The run service neither imports app source nor performs filesystem or
+provider acquisition.
 
-Immutable recipe setup and static projection policy own shared projection facts directly.
-Engine state is observed at the adapter boundary rather than snapshotted into cross-stage artifacts.
+## Verification Routing
 
-Artifacts are **write-once**: a producer `publish`es once; consumers `read`. Every
-`*.artifact.ts` file contains one complete `defineArtifact` definition. Core derives
-structural admission from its inline TypeBox schema; an inline `refine` callback adds only
-cardinality, relational, or domain invariants the schema cannot express. There is no separate
-artifact-validator export. The owning module's `artifacts/index.ts` passes the definitions once to
-`defineArtifactCatalog`, and step contracts select those exact definitions. `createStep` then
-derives the validated read/publish runtimes from the contract. This keeps definition, admission,
-catalog membership, and step access under one authority.
-To find who produces/consumes a given key, grep its `artifact:` id across
-`src/domain/` and `src/recipes/standard/stages/`.
+- Definition structure -> definition contract/type/Habitat checks.
+- Domain behavior -> focused semantics tests and deterministic recipe runs.
+- Product expectation -> named metric study over a stable cohort.
+- Diagnostic comparison -> the diagnostic leaf selected from native MapGen CLI
+  help.
+- Generated realization -> `swooper-physics-mod` artifact tests.
+- Installation -> realization adapter/deploy receipt.
+- Loader/live behavior -> uncached live target plus bounded logs/readback.
+- Save & Deploy / Run in Game -> MapGen-runs semantics, adapter receipts, and
+  caller projection proof.
+- Browser display -> web projection/UI tests after raw values are proven.
 
----
+Discover current targets with Nx and CLI help rather than recording remembered
+syntax here.
 
-## The mod ↔ engine boundary (what each side owns)
+## Boundary Smells
 
-| `@swooper/mapgen-core` (engine substrate) owns | The mod (`mods/mod-swooper-maps`) authors |
-|---|---|
-| The authoring API (`defineOp/defineStep/defineArtifact/defineArtifactCatalog/defineDomain`, `createOp/createStep/createStage/createRecipe/createDomainRouter/collectOperations`) | All domain algorithms (modules, ops, strategies, rules) |
-| Execution infra: PipelineExecutor, StepRegistry, write-once artifact runtime, reusable TypeBox schema validation, trace/viz | Domain artifact schemas + ids + relational validators; stage orchestration; recipe ordering; real authoring schemas |
-| Strategy dispatch (`runtimeStrategies[cfg.strategy]`) | Game-facing entrypoints, map configs, presets |
-| Zero Civ7 knowledge | Civ7 enters only at map entrypoints + `map-*`/`placement` adapter calls |
-
-Falsifier awareness: if making a recipe-domain change *requires redefining* this boundary (not just referencing it), stop — the boundary was mis-drawn (FRAMING falsifier-b). In practice it is cleanly drawable and Grit/Nx-enforced.
-
----
-
-## Boundary enforcement any change must respect (awareness-level)
-
-These are enforced by tooling; respect them or CI/lint blocks the change. `civ7-architecture-authority` (`references/ownership-boundaries.md`) is the owner — reference it, don't restate it.
-
-- **Nx boundaries** (`eslint.boundaries.config.mjs`; `bun run nx run-many -t boundaries`): `kind:mod` may only import `kind:{sdk,engine,adapter,foundation,control}`. No reaching into engine internals.
-- **Habitat-routed Grit checks** (registered `.habitat/**/rule.json` manifests
-  with `runner.name: "grit"` and their `pattern.md` files): these protect the
-  recipe/domain public surface, domain-operation adapter and projection
-  boundaries, step and stage imports, runtime validation/config boundaries,
-  MapGen-core runtime neutrality, placement outcomes, Studio recipe artifacts,
-  and the SDK entrypoint. Run focused proof with
-  `bun habitat check --rule <registered-rule-id>`; use the graph-owned Habitat
-  check targets for owner or workspace scope. A future native fixture corpus
-  would validate patterns separately, not replace this authority.
-- **Biome** (`biome.json`): double quotes, semicolons, ES5 trailing commas, 100-char lines, LF, 2-space indent. `src/maps/generated/**` is excluded; all recipe/domain source is linted.
-- **Normalized domain layout**: domain and module contracts/routers form the spine; operations live only under `modules/<module>/ops/`; module-scoped artifacts and model facts live beside that module; domain-level model facts are reserved for genuine cross-module sharing.
-
-After any structural change: `nx run mod-swooper-maps:build` (tsup → `mod/`, not hand-editable) is the schema-compile gate; behavioral changes also need diagnostics + in-game verification (`assets/live-verification-runbook.md`).
-
----
-
-## Map configs → generated entrypoints
-
-Map configs are `.config.json` envelopes (`{ $schema, id, name, description, recipe:"standard", sortIndex, latitudeBounds?, config:RecipeConfig }`); the `config` object addresses stage ids as keys. `bun run gen:maps` produces `src/maps/generated/*.ts` (`createMap`). Presets are legacy TS aliases. `src/recipes/studio-contracts/index.ts` exports `swooperStudioRecipeDagSources` mapping the contract-manifest to the Studio RecipeDag schema (Studio consumes source contracts, not generated outputs).
-
----
-
-## Verify-against-source checklist (do this before trusting any structural claim)
-
-- Stage order → `mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts` (`standardStageContractManifest`). NOT `recipe.ts` key order, NOT `STANDARD-RECIPE.md`.
-- Module inventory for a domain → `mods/mod-swooper-maps/src/domain/<domain>/contract.ts` plus `modules/`.
-- Op inventory for a module → the module `contract.ts`, checked against its
-  `router.ts` and leaf directories under `ops/`.
-- Strategy keys for an op → that op's `contract.ts` strategy definitions plus `strategies/index.ts` implementation tuple.
-- Which step produces/consumes an artifact → grep its `artifact:` id under `src/domain/` and `src/recipes/standard/stages/`.
-- Authoring call shapes / import paths → `assets/recipe-scaffolds.md` (copy-paste, live-sourced).
+- Domain logic imports a recipe, adapter, host API, or app.
+- A projection recomputes product truth.
+- A definition writes files or installs itself.
+- A service acquires a provider or imports an app.
+- An app authors a second service contract.
+- A caller imports a private router or constructs a hidden live dependency.
+- A diagnostic result is promoted to a causal artifact.
+- A generated/install receipt is called live proof.
+- A new root exists only to preserve an old import or directory.

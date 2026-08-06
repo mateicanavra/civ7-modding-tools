@@ -1,139 +1,120 @@
 ---
 name: civ7-play-game
 description: |
-  Use in the Civ7 Modding Tools repo to PLAY a live Civilization VII game turn-by-turn through the `civ7` CLI (`bun apps/cli/bin/run.js game ...`) and the FireTuner control surface — reading game state and issuing unit, city, research, civic, diplomacy, and end-turn actions. Trigger phrases include "play Civ", "play the game", "take a turn", "play through to turn N", "end the turn", "move this unit", "found a city", "set city production", "choose research", "respond to the notification", "what should I do this turn", and "drive a live Civ7 game". Do NOT use for designing/refactoring the control surfaces themselves (use civ7-orpc-control-architecture), for map generation (use civ7-mapgen-workstream), or for build/deploy/log debugging (use civ7-operational-debugging).
+  Use in the Civ7 Modding Tools repo for "play Civ", "take a turn", "play through turn N", "what should I do this turn", "move this unit", "choose research", "set city production", "respond to diplomacy", "clear turn blockers", or "end the turn" in an already-running Civilization VII game. Uses the actor-facing game-play CLI and public play capability, with foundational control only as its typed native dependency.
 ---
 
 # Civ7 Play Game
 
 ## Purpose
 
-Drive a live, already-running Civilization VII game from the CLI: read what
-needs a decision, issue the action, confirm it landed, and end the turn — then
-repeat. This skill makes turn-by-turn play reliable for a small agent by leaning
-on one fact: **the CLI is self-describing.** Read commands hand you the exact
-IDs and parameters to feed back into action commands. You never invent IDs,
-hashes, or coordinates — you echo what the reads surface.
+Drive an already-running Civ7 game through actor-facing play operations: observe
+the situation, check one choice, request it, reconcile the result, and choose
+the next lawful action.
 
-## When To Use
+The ownership chain matters:
 
-- The human has launched a Civ7 game and asks you to play, take a turn, or play
-  through to some turn number.
-- Any single in-game action: move a unit, found a city, set production, pick
-  research/civics, respond to a notification/diplomacy, end the turn.
-- Deciding "what should I do this turn?" against the game's own priority view.
+```text
+terminal actor
+  -> game-play CLI projection
+  -> public play client
+  -> actor-facing observation/check/request/reconciliation policy
+  -> public foundational control client
+  -> exact native fact or operation
+  -> play-owned outcome and next action
+  -> CLI projection
+```
+
+The CLI is self-describing. Candidate reads provide the exact component ids,
+types, coordinates, and action descriptors needed by checks and requests. Echo
+those values; never invent them.
+
+## Use This For
+
+- Playing one or more turns in a live session.
+- Resolving research, culture, government, celebration, narrative, diplomacy,
+  notification, unit, city, and turn decisions exposed by the play projection.
+- Asking what to do next from the play-owned priority and planning views.
+- Reconciling an uncertain action without repeating it.
 
 ## Non-Goals
 
-- **You do not launch or save the game.** The human owns starting Civ7 and
-  reaching a playable in-game state. If it is not playable, stop and report
-  (see `references/setup-and-recovery.md`).
-- Not for designing the oRPC/CLI control surfaces (use
-  `civ7-orpc-control-architecture`), map generation (`civ7-mapgen-workstream`),
-  or log/build/deploy debugging (`civ7-operational-debugging`).
-- Do not store game/session state, save logs, or move history in this skill.
+- Launching Civ7, preparing setup, deploying mods, inspecting logs, or probing
+  raw Tuner state. Use `civ7-operational-debugging` for those tasks.
+- Map generation or Run in Game orchestration. Use
+  `civ7-mapgen-workstream` and the MapGen-runs surface.
+- Designing service, resource, provider, API, or CLI architecture.
+- Bypassing a missing actor-facing command with raw execution.
 
-## How It Works (read this once)
+## Establish The Current Command Surface
 
-- **One CLI, one prefix.** Every command is `bun apps/cli/bin/run.js game …`
-  run from the repo root. Use the linked `civ7` command only after the owning Nx
-  build/link target has refreshed it. Connection defaults to the tuner at `127.0.0.1:4318`; **no host/port
-  flags are needed.**
-- **Always pass `--json`** so you parse structured output, not prose.
-- **Reads → Actions.** Read commands (`priorities`, `unit ready`,
-  `ready-city`, `choose-tech --options`, …) return candidate actions with their
-  exact parameters and IDs. Action commands (`unit target`, `build-production`,
-  `choose-tech`, `end-turn`, …) take those same parameters back.
-- **Validate, then `--send`.** Action commands run as a dry-run validation by
-  default; add `--send` to actually issue. After sending, read the result
-  envelope according to that procedure's contract. Prefer its `status`,
-  `postcondition`, and `nextSteps`; use `verified` only when that procedure
-  still exposes it.
-- **Named actions are the public boundary.** `unit ready`/`ready-city` may list
-  legal `{family, operationType}` pairs for which no named action command exists.
-  Stop and report those gaps; do not route around the public service through a
-  generic operation command or raw execution.
+Run from the repo root:
 
-## The Turn Loop (core procedure)
+```bash
+bun apps/cli/bin/run.js game --help
+bun apps/cli/bin/run.js game play --help
+```
 
-Run this loop once per turn. Full decision tables, command syntax, and the
-founding/movement/production procedures live in the references — open them.
+Then ask the selected leaf for `--help`. The source-of-truth command tree is
+`plugins/cli/topics/game/src/commands/game`. The app supplies bound public
+clients; commands do not select providers or construct live state.
 
-1. **Confirm playable.** `game status --json`. Require `playable:true` and a
-   readiness that allows mutation. If not → STOP, report, do not fabricate
-   (`references/setup-and-recovery.md`).
-2. **Triage.** `game play priorities --compact --json`. Read `decisionHud`
-   (turn, `canEndTurn`, `readyUnit`, `readyCity`) and the ranked `priorities[]`;
-   each carries a `nextAction` telling you what to do next. Work the list
-   top-down.
-3. **Resolve choice decisions** (research, civics, government, narrative,
-   celebration, attribute points, diplomacy/first-meet). For each: run the
-   `… --options --json` read to list candidates, pick one per
-   `references/strategy.md`, then send the matching `choose-*`/`respond-*`
-   command. Confirm the postcondition.
-4. **Order every ready unit.** Drain `game play unit ready --json` one unit at a
-   time using named unit actions. If the only legal action has no named command,
-   stop and report the unsupported operation. See `references/turn-loop.md` →
-   "Units".
-5. **Set production for every city/town.** Drain `game play ready-city --compact
-   --json`: pick from `productionCandidates`, send `build-production`; set
-   `set-town-focus` once per town. See `references/turn-loop.md` → "Cities".
-6. **End turn.** `game play end-turn --json` (validate — it lists remaining
-   blockers). If blockers remain, handle them (back to step 3) and re-validate.
-   When clear: `game play end-turn --send --json`; require postcondition
-   `turn-advanced`.
-7. **Wait for your next turn.** Poll `game play priorities --compact --json`
-   until it is your turn again with decisions/`canEndTurn`. Then go to step 2.
+Use the globally linked `civ7` executable only after the current `civ7-cli` Nx
+project confirms and runs its link target.
 
-Stop the loop when you reach the human's target turn, hit a decision they asked
-to be consulted on, or an action keeps failing (see Invariants).
+## The Turn Loop
+
+1. **Observe readiness.** Select the foundational readiness read from native
+   game help. Proceed only when its output admits observation and mutation for
+   the live session.
+2. **Read the situation.** Select the actor-facing situation view from native
+   play help and follow its ranked decisions and next-action descriptors.
+3. **Resolve actor choices.** Read available options, select one according to
+   the live situation and `references/strategy.md`, validate the choice, then
+   request it.
+4. **Drain ready units.** Re-read each unit after an action. Use only named play
+   commands and coordinates returned by fresh planning/movement reads.
+5. **Resolve cities.** Choose production, worker placement, expansion, or town
+   focus from the candidates returned by the fresh city view.
+6. **Check turn completion.** Validate the end-turn request. Route each blocker
+   back to its actor-facing module.
+7. **Request turn completion.** Send only when the check is clear. Require the
+   procedure's own postcondition or reconciliation result.
+8. **Wait and re-observe.** Do not infer that the next turn is ready from
+   elapsed time or command return alone.
+
+See `references/turn-loop.md` for the operational playbook.
+
+## Mutation Discipline
+
+- Read -> choose -> check -> request -> reconcile.
+- One mutation at a time.
+- Preserve any operation or no-repeat key returned by play.
+- Treat `refused`, `uncertain`, stale, partial, and unavailable as real outcomes.
+- If dispatch may have occurred, follow the returned reconciliation/next-action
+  guidance. Never repeat the mutation merely because confirmation is missing.
+- Stop when the public actor-facing surface does not expose the required
+  operation. Report the gap instead of reaching into foundational control or
+  the Tuner resource.
 
 ## Reference Map
 
-| Reference | Path | Open When |
-|---|---|---|
-| Turn playbook | `references/turn-loop.md` | Running the loop: per-`kind` decision tables, moving units, production, draining ready entities, unsupported-action boundaries, success signals |
-| Command reference | `references/command-reference.md` | Exact flags for public commands, the result envelope, the read→action ID-flow, unsupported-operation handling, `gameinfo` name↔id lookup |
-| Strategy | `references/strategy.md` | Deciding *what* to choose: ages, Legacy Paths, settlements, yields, units, early-game build/research order, default policy, pitfalls |
-| Setup & recovery | `references/setup-and-recovery.md` | Game not playable, tuner unreachable, blocked end-turn, rejected action, readiness states, waiting through AI turns |
+| Reference | Open when |
+| --- | --- |
+| `references/turn-loop.md` | Running one complete observe/check/request/reconcile turn loop |
+| `references/command-reference.md` | Discovering command families and applying read-to-action value flow |
+| `references/setup-and-recovery.md` | The session is unavailable, not playable, not your turn, blocked, or uncertain |
+| `references/strategy.md` | Choosing among lawful options without hard-coding patch-sensitive numbers |
 
-## Core Invariants
+## Invariants
 
 <invariants>
-<invariant name="playable-before-acting">Confirm `game status --json` shows `playable:true` and a mutation-capable readiness before any action. If it shows shell/loading/unreachable, STOP and report — the human owns launching and advancing past non-playable states.</invariant>
-<invariant name="cli-is-source-of-truth">The live CLI output is authoritative over anything written here. Trust each read's `nextAction`, `legalOperations`, and candidate IDs. When unsure of a command's shape, run `bun apps/cli/bin/run.js game play <cmd> --help`.</invariant>
-<invariant name="never-invent-ids">Never hand-compute or guess a type id, component id, hash, node, or coordinate. Echo IDs and parameters straight from the read that surfaced them. Resolve a name to an id only via `game gameinfo <Table> --lookup <TYPE> --json`.</invariant>
-<invariant name="read-coords-never-guess">Immediate movement coordinates come from `unit move-preview`; placement and expansion coordinates come from the corresponding `ready-city` candidates. `front target-candidates` and `settlement-recommendations` identify strategic destinations only: inspect a reachable move and validate it before sending. Never guess a coordinate.</invariant>
-<invariant name="validate-then-send">Issue mutations by validating first (no `--send`, or read the validation block), then `--send` only when validation/`legalOperations` confirm legality. After sending, follow the procedure-specific `status`, `postcondition`, and `nextSteps`; use `verified` only where that contract exposes it. Never assume success or blindly repeat an uncertain dispatch.</invariant>
-<invariant name="drain-then-end">Resolve all choice decisions, give every ready unit an order, and set production for every city before `end-turn --send`. Use `end-turn` (validate) to enumerate remaining blockers; clear them, then send.</invariant>
-<invariant name="stop-on-repeated-rejection">If the same action is rejected twice, or the game state is ambiguous/irrecoverable, STOP and report with the envelope output. Do not spam `--send` against a blocked engine.</invariant>
+<invariant name="play-owns-actor-meaning">Gameplay observation, checks, requests, reconciliation, no-repeat policy, and next-action meaning belong to play, not foundational control or the CLI.</invariant>
+<invariant name="play-consumes-public-control">Play consumes only the public foundational control capability. It never receives Tuner, window capture, provider state, arbitrary JavaScript, or private control source.</invariant>
+<invariant name="discover-command-before-use">Confirm every command and flag from the current game topic and leaf help before use.</invariant>
+<invariant name="never-invent-values">Echo ids, types, coordinates, actions, and operation keys from current reads. Never guess or hand-compute them.</invariant>
+<invariant name="check-before-request">Validate a mutation before sending it unless the current procedure explicitly defines a single atomic request flow.</invariant>
+<invariant name="reconcile-before-repeat">Uncertain dispatch is reconciled through fresh play/control facts before any retry.</invariant>
+<invariant name="no-raw-bypass">A missing named play action is reported as a capability gap; raw execution is not a gameplay fallback.</invariant>
+<invariant name="human-boundaries-hold">Stop at the requested turn, a requested consultation point, a twice-refused action, or an unresolved high-impact decision.</invariant>
 </invariants>
-
-## Anti-Patterns To Avoid
-
-- Guessing coordinates or type ids, or hand-computing engine hashes.
-- Sending an action without checking its validation or postcondition.
-- Ending the turn with idle units or cities building nothing.
-- Treating "the command returned" as "my turn" — check `canEndTurn`/`decisionHud`.
-- Re-sending `--send` while blocked instead of reading the blocker.
-- Playing legal-but-pointless moves: ignore the Legacy Path / strategy layer and
-  the game goes nowhere. Pick a path early and steer toward its milestones.
-- Recording turn-by-turn state or save logs in this skill.
-
-## Quick Start
-
-```bash
-cd <repo-root>            # contains apps/cli
-CLI="bun apps/cli/bin/run.js"
-
-$CLI game status --json                          # 1. playable?
-$CLI game play priorities --compact --json       # 2. what needs deciding?
-# 3-5. resolve choices, order units, set production (see references/turn-loop.md)
-$CLI game play end-turn --json                   # 6. validate (lists blockers)
-$CLI game play end-turn --send --json            #    send when clear -> "turn-advanced"
-```
-
-Default play stance when no human steering is given: pursue the **Science**
-Legacy Path, expand to the settlement cap (not past it), keep every unit and
-city productive, and spend Influence/Gold/Attribute points rather than hoarding.
-Details in `references/strategy.md`.

@@ -1,173 +1,172 @@
-# Facet 2 — Verification
+# MapGen Verification Facet
 
-> Open when you are at loop step 7 (in-game verification), need to decide whether a wrong-looking map is a generation bug or a display bug, or are setting up the Earth-like benchmark gate. This facet does **not** restate the base proof discipline — it points at the owner and adds three map-gen-specific overlays.
+MapGen verification combines several disjoint proof surfaces. Use
+`civ7-operational-debugging/references/proof-boundaries.md` for the common
+taxonomy; this reference adds MapGen-specific routing.
 
-The verification facet has a **base** owned elsewhere plus **three net-new overlays** that no existing skill covers. Author and operate the overlays here; lean on the base by reference.
+## The First Branch: Generation Or Display?
 
----
+Do not choose an edit owner from a screenshot.
 
-## Base — proof boundaries (DO NOT restate; reference `civ7-operational-debugging`)
+1. Capture deterministic diagnostic evidence for the exact recipe/config/seeds.
+2. Inspect or compare the raw layer values and metadata.
+3. Compare the browser projection against those values.
+4. If the claim involves Civ7, compare the admitted deterministic surface with
+   one correlated foundational-control map observation.
 
-The proof-boundary taxonomy and closure labels are **owned** by `civ7-operational-debugging`:
-- `civ7-operational-debugging/references/proof-boundaries.md` — the evidence-class table (typecheck/test, build, generated, deploy, deployed-file, log lines, tuner command, in-game, official resources) and the closure labels `built` / `generated` / `deployed` / `logged` / `tuner-exercised` / `in-game observed` / `resource-backed` / `unresolved`.
-- `civ7-operational-debugging/references/firetuner-runtime.md` — tuner discipline (port 4318, Scripting.log boundaries, scripting-state refresh, log siblings).
-- `civ7-operational-debugging/references/operational-paths.md` — build/deploy/log/Mods-folder paths.
-- `civ7-operational-debugging/references/debugging-workflow.md` — the operational debugging loop.
+| Evidence | Likely owner |
+| --- | --- |
+| Causal artifact or raw diagnostic values are wrong | Swooper definition domain/recipe |
+| Values are right; labels, palette, geometry, selection, or interaction are wrong | Studio web projection or retained UI component package |
+| Deterministic values are right; generated bundle differs | Swooper realization build/compiler |
+| Installed tree differs from generated tree | qualified install adapter |
+| Civ7 readback differs from admitted deterministic product | projection/realization or foundational control map observation; preserve exact correlation |
+| Run state/receipts are right but API/browser outcome is wrong | Studio API/web projection |
 
-**Rule: every verification claim in a map-gen workstream carries one of those closure labels.** Studio-rendered evidence is at most `generated` (the dump binaries exist and were inspected). A map-gen change is not closed on Studio evidence alone — see overlay (iii) and the in-game gate. The three overlays below extend that base; they do not re-derive it.
+Discover the current MapGen CLI projection before choosing a diagnostic or
+metric operation:
 
----
+```bash
+bun apps/cli/bin/run.js mapgen --help
+```
 
-## Overlay (i) — Studio-viz verification: display bug vs generation bug
+Select the owning family and leaf from native help, then ask that leaf for
+`--help`. Do not keep a command inventory or copy remembered flags in durable
+guidance.
 
-This is the single most consequential map-gen-specific diagnostic skill. The two problem classes (FRAMING hard core) branch here, and resolving the branch wrong wastes a whole loop fixing the wrong layer.
+## Behavioral Expectation Gate
 
-### The decision
+Before tuning, copy `assets/earthlike-expectation-ledger.md` into the workstream
+and declare:
 
-> **Ask: does the raw binary coming out of generation already look correct?**
-> If the per-tile `.bin` values are right but the canvas is wrong → **display bug** (fix in `apps/mapgen-studio/src/features/viz/*`).
-> If the `.bin` values are wrong → **generation bug** (fix in `mods/mod-swooper-maps/src/{domain,recipes}`).
+- the physical/gameplay hypothesis;
+- named regimes and seed/map-size cohort;
+- target metrics with direction and bounds;
+- collateral `HOLD` guards;
+- the decision rule and lawful amendment process;
+- the stronger live claim, if any, that remains after deterministic proof.
 
-Two authoritative discriminators answer this; never argue the branch from a screenshot.
+Metric families measure; product targets decide. Keep metric mechanics in the
+neutral package, Swooper target meaning in the definition, and workstream
+results in the evidence record.
 
-| Discriminator | What it compares | Reading |
-|---|---|---|
-| `diff-layers.ts` (`diag:diff`) | two **local** run manifests (`manifest.json` + `.bin`), per-layer Hamming / maxAbsDiff, filterable by `--prefix` / `--data-type-key` | non-zero diff in the data ⇒ **generation** bug, in `domain/*` or `recipes/*` |
-| Standard parity report | correlated Standard replay vs one coherent **live** Civ7 map observation | `complete-pass` ⇒ the admitted product surfaces match; `complete-failed` names generation/product mismatches; `blocked-unresolved` preserves known comparisons but does not close the branch |
+## Proof Ladder
 
-If local-vs-local and a `complete-pass` local-vs-live report both agree while
-only the Studio canvas is wrong, generation is correct: stop editing
-`domain/*`. A display bug cannot create a raw product-comparison failure because
-the parity command never inspects rendered pixels. Treat `blocked-unresolved`
-as bounded evidence, not as proof that generation matched; inspect its retained
-comparison, failure, and unresolved links rather than creating a second
-classification implementation.
+### 1. Contract And Structure
 
-### Producing the binaries to diff
+Use for schemas, operation/strategy symmetry, stage/step registration,
+artifacts, authoring exports, and kind law. This closes only contract and
+structural claims.
 
-`nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7`
-writes a preset-shaped Swooper Earthlike dump under
-`mods/mod-swooper-maps/dist/visualization/<label>/<runId>/{manifest.json,data/*.bin}`.
-Inspect with `nx run mod-swooper-maps:diag:diff -- <args>`. (Full diagnostics
-inventory: `references/pipeline-map.md`.)
+### 2. Domain Semantics
 
-### The Studio edit surface (where a display bug actually lives)
+Use focused tests for physical algorithms, policy, invariants, conservation,
+classification, fairness, and deterministic edge cases. This closes owner-local
+semantics under supplied inputs.
 
-When the branch resolves to **display**, the fix is one of a small set of files in `apps/mapgen-studio/src/features/viz/`. Do not re-discover this map per bug:
+### 3. Deterministic Recipe Execution
 
-| Symptom | Owner file | Note |
-|---|---|---|
-| wrong tile color / scale / legend | `presentation.ts` | `writeColorForScalarValue`, `VALUE_RAMP` (viridis-like 5-stop), `buildCategoricalColorMap`, `legendForLayer`, `resolveUnitValue` (transform/domain/scale) |
-| layer missing from the picker | `dataTypeModel.ts` | `buildStepDataTypeModel` groups `VizLayerEntryV2[]` by `dataTypeKey`; check the `visibility` / `includeDebug` filter |
-| wrong projection / hex misalignment | `deckgl/render.ts` | `renderDeckLayers`/`renderSingleLayer`; `oddRTileCenter`, `orientTilePointNorthUp` (y-flip); `tile.hexOddR` and `tile.hexOddQ` render as the same odd-R lattice |
-| wrong default / overlay layer selected | `useVizState.ts` | `effectiveLayer` / `overlayLayer` memos |
-| layers never appear after a run | `ingest.ts` / `vizStore.ts` | `ingestVizEvent` maps the `VizEvent` union onto `VizManifestV2`; streaming-commit state |
+Run the admitted recipe/config against exact seeds and inspect artifacts,
+metrics, trace, and diagnostic layers. This proves the portable product outcome
+for those inputs, not Civ7 execution.
 
-**Caveat — wrong layer *metadata* is not a Studio fix.**
-`meta.categories` / `meta.palette` / `meta.label` / `dataTypeKey` /
-`variantKey` are recipe-owned. The current authoring surface is the owning
-step's optional `createStep(config, { viz })` facet; legacy steps may still
-emit through `context.viz.dumpGrid/dumpPoints/dumpSegments/dumpGridFields` while
-they migrate. Private helpers belong in `steps/<step>/viz.ts`; shared owner-stage
-helpers belong in `stages/<stage-root>/viz.ts`, where `<stage-root>` is the
-semantic physical path such as `morphology/shelf` or direct `placement`. See the canonical model in
-`docs/system/libs/mapgen/reference/VISUALIZATION.md`. If metadata is wrong, fix
-the owning recipe step/helper, not `presentation.ts`. The browser dumper
-(`browser-runner/worker-viz-dumper.ts`, inline ArrayBuffers) and CLI facet sink
-(`scripts/diagnostics/dump.ts`, `.bin` path refs) must materialize identical
-`VizLayerEntryV2` shapes — divergence makes Studio disagree with `diag:diff`.
+### 4. Browser Projection
 
-Studio launch / daemon contract (port 5174, oRPC `/rpc`, `runtimeMode: "studio-daemon-effect-orpc"`) and the control-surface design owner (`civ7-orpc-control-architecture`) live in `references/pipeline-map.md` — not repeated here.
+Verify that the browser consumes the same admitted values and renders correct
+geometry, palette, labels, selection, and interactions. Pixel/display proof is
+a projection claim. It does not promote the browser to MapGen truth owner.
 
----
+### 5. Realization Artifact
 
-## Overlay (ii) — Earth-like benchmark: declared metrics and targets
+Build through the `swooper-physics-mod` Nx project. Inspect the generated mod
+tree and runtime compatibility proof. Generated output is not installation.
 
-The benchmark is a reusable completed-map subsystem plus a *pre-declared
-expectation ledger*. It is a **gate at loop step 5**, declared **before** any
-tuning, then amended with evidence.
+### 6. Installation And Loader
 
-### The owned chain
+Run the qualified deploy target/adapter, record its receipt, then collect a
+separate Civ7 loader signal. An exact tree replacement does not prove the game
+selected or executed it.
 
-1. `docs/system/libs/mapgen/benchmarks/BENCHMARKS.md` owns the generic subsystem, authoring contract, and proof boundary.
-2. Metric families under `src/recipes/standard/metrics/families` measure one completed Standard run without embedding pass/fail policy.
-3. `MetricTarget`s under `src/recipes/standard/metrics/targets` own product expectations. Logical `*.study.ts` modules under `src/recipes/standard/metrics/studies/benchmarks` bind them to named Civ7 map-size presets and stable seed cohorts. `STANDARD_METRIC_STUDIES` assembles the bank and deduplicates identical scenario captures.
-4. `src/recipes/standard/metrics/studies/STUDIES.md` is the Standard recipe research index. Each executable study is colocated with a sheet describing its hypothesis, dimensions, seeds, measurements, and expected outcomes.
-5. `nx run mod-swooper-maps:metrics:report` emits the complete machine-readable evaluation; `nx run mod-swooper-maps:test` is the behavioral gate. Use `diag:dump`, `diag:list`, `diag:diff`, and `diag:trace` only for trace and visualization investigation, not as a second metrics authority.
-6. Targets are **regime-family based** (wet / arid / mountain / closed / archipelago), **not** single scalars — never collapse a regime distribution to one number. Earth anchors include HydroLAKES ~1.8% of land, non-perennial river share 51–60%, endorheic ~1/5 of land, and passive-vs-active margin shelf-width contrast. `riverClass` is `0/1/≥2`; only `≥2` projects to `TERRAIN_NAVIGABLE_RIVER`.
+### 7. Live Behavior And Parity
 
-Historical workstream docs retain the evidence and amendments for the studies they
-ran. They are not the current subsystem or Standard recipe authority.
+Use the uncached live targets selected by `swooper-physics-mod`, current
+MapGen-runs operation evidence, fresh logs, and one coherent foundational
+control map observation. Record exact build/config/seeds/map size/game setup,
+operation id, resource epoch, timestamps, and unresolved links.
 
-### The pre-declared expectation ledger (the discipline)
+Only a fully correlated comparison can claim parity. A successful live map
+generation with an unresolved identity link remains a bounded live observation,
+not complete parity.
 
-Declare expectations as a ledger **before** tuning (loop step 5 gate), then amend each row with the measured value and a pass/fail/amended verdict. Copy-paste template: `assets/earthlike-expectation-ledger.md`. Recipe targets and studies are current authority; a project ledger records the workstream-specific hypothesis and evidence without replacing them.
+## Live Target Discovery
 
-Physics targets behind the metrics — what is modeled vs approximated vs absent per domain — are owned by `references/facet-physics.md`. This overlay measures; the physics facet decides what the measurement *should* be.
+The realization project owns its live target identities. Discover them at
+execution time:
 
----
+```bash
+bunx nx show project swooper-physics-mod --json
+```
 
-## Overlay (iii) — pipeline-internal diagnostics vs Civ7 Logs (two distinct evidence sources)
+Select the required target from that result, then derive its implementation and
+flags from the owning entrypoint and `--help`. Use
+`assets/live-verification-runbook.md` for ordering and proof capture.
 
-Map-gen has two independent diagnostic surfaces; conflating them produces mislabeled proof.
+## MapGen-runs Evidence
 
-- **Pipeline-internal diagnostics** (`mods/mod-swooper-maps/scripts/diagnostics`) run headlessly through **MockAdapter**. They prove the recipe *computes* a given surface. Closure label: `generated` at most — never `in-game observed`. A clean `diag:dump` says nothing about the live engine.
-- **Civ7 Logs** (`~/Library/Application Support/Civilization VII/Logs/Scripting.log`) are emitted by the **live engine**. Only these support `logged` / `in-game observed`. (Tuner/log discipline: `civ7-operational-debugging/references/firetuner-runtime.md`.)
+For Save & Deploy or Run in Game, inspect the operation as a transaction:
 
-A MockAdapter-clean map can still **SIGSEGV** the live engine — so internal diagnostics are necessary but never sufficient for a map-gen change. The closure test is the in-game gate.
+```text
+intent admitted
+  -> authored config prepared/written
+  -> materialization receipt
+  -> installation receipt
+  -> setup/control facts
+  -> fresh run/log evidence
+  -> reconciliation
+  -> terminal semantic outcome
+```
 
-### Verification targets — headless vs live (what this overlay turns on)
+MapGen-runs owns order, phases, cancellation, retention, correlation,
+reconciliation, and final outcome. Qualified app adapters own their physical
+effects and opaque receipts. A projection owns caller translation only.
 
-Nx owns the live command surface directly through `verify:studio-run-in-game-live` and `verify:final-surface-parity`. For *this* overlay, the only distinction that matters is the closure boundary:
+On failure, record the last service-owned phase and the exact lower-owner
+receipt/failure. Do not collapse every failure into deployment or infer rollback
+from absence of output.
 
-| Class | Example target | Closure ceiling |
-|---|---|---|
-| **headless** (no tuner) | Standard product-metrics test | `generated` at most — MockAdapter, never `in-game observed` |
-| **live** (running tuner required) | `verify:studio-run-in-game-live` (the in-game gate) | the only path to `logged` / `in-game observed` |
+## Live Observation Discipline
 
-Full operational target table and invocations: `assets/live-verification-runbook.md` §5.
+- Snapshot logs before the action and read only fresh bytes/lines.
+- Record the Tuner resource epoch used by foundational control.
+- Keep map/game/process/operation identities distinct.
+- Use closed control map operations; do not add caller-local raw scripts for
+  product proof.
+- Preserve stale, partial, unavailable, refused, uncertain, and unresolved
+  states.
+- Do not repeat a mutation when dispatch may already have occurred.
+- Treat window capture as separate raw evidence; it can be stale or occluded
+  while log/readback proof remains valid.
 
-Build before any live verify: `nx run mod-swooper-maps:build` → `mods/mod-swooper-maps/mod/`. Deploy with `nx run mod-swooper-maps:deploy`.
+## Proof By Change Class
 
----
+| Change class | Minimum useful proof |
+| --- | --- |
+| Structural, output-preserving definition change | contract/structure checks plus explicit output/identity invariants |
+| Behavioral definition change | focused semantics, stable metric cohort, deterministic run, then live realization if Civ7 behavior is claimed |
+| Diagnostic/metric presentation change | package/CLI projection tests against fixed evidence |
+| Browser display change | raw-value agreement plus browser view/interaction proof |
+| Realization/compiler change | artifact/runtime compatibility, install receipt, loader/live proof |
+| MapGen-runs change | service semantics, app-adapter execution proof, projection proof, and live reconciliation when claimed |
+| Foundational map observation change | control contract/semantics/execution plus epoch-correlated live evidence |
 
-## The in-game gate (loop step 7 — the closure test)
+## Failure Patterns
 
-The runnable, ordered checklist with the exact failure-recovery branch is **`assets/live-verification-runbook.md`**. The load-bearing contract, summarized so you know what the gate asserts:
-
-- **Success markers** (matched **in order** from the fresh, post-snapshot Scripting.log segment): `[mapgen-complete]` then `"seed":<N>`. Sequence-enforced via a cursor, not mere presence.
-- **rejectPattern:** `/\[mapgen-failure\]|Map generation failed|\[recipe:[^\]]+\].*fail|StepExecutionError|\b(?:TextEncoder|Uncaught|Exception|Error)\b/i`.
-- **Deploy gate:** the verifier SHA-256-compares local `mods/mod-swooper-maps/mod/maps/<name>.js` vs the deployed copy and requires both river-materialization markers (`map.rivers.authoredTerrainMaterialization`, `POST-AUTHORED-RIVERS`) in both. Mismatch ⇒ exit 2, `recoveryHint: "nx run mod-swooper-maps:deploy"`. **Always deploy immediately before a mutating verify** (nx cache can serve stale output).
-- **Tuner:** `127.0.0.1:4318`; the `Tuner` scripting state (not `App UI`) is command-ready only after Begin Game. The live verifier calls `@civ7/control-orpc` `lifecycle.singlePlayer.start`, which requires post-start tuner evidence. Standard write/prep ownership remains in the deployed map recipe.
-- **Parity follow-up:** for a map launched through Studio Run in Game, `nx run mod-swooper-maps:verify:final-surface-parity -- --request-id <id> --studio-url http://127.0.0.1:5174` uses public status only to reach private diagnostics and the immutable generation manifest. The Standard recipe owner admits the raw exact-authorship evidence, performs one correlated deterministic replay, and compares it with exactly one coherent Direct Control map observation. `complete-pass` alone exits 0; product failures, correlation blockers, and `blocked-unresolved` exit 2. The latter currently retains `identity.cross-window-game-instance` because no supported token spans the Studio launch and later observation windows; seed, turn, dimensions, endpoint, and map content are not substitute identity.
-- **Exit codes:** `0` ok · `1` exception · `2` stage-failure · `3` run-not-verified.
-
-### Live constraints — set expectations honestly (these are normal, not exceptional)
-
-- **Attempt-1 live-only failures are expected**, and hotfix slices from live proof are a normal part of behavioral work. Precedent (placement-realignment, 2026-06-11): attempt 1 crashed at step 50 with `console.warn is not a function` — the `MapGeneration` scripting context exposes only `console.log`. Fixed with an engine-safe `warnLog` helper (recovery branch `placement-realignment-s9-live-compat`); attempt 2 ran 53/53.
-- **SIGSEGV on MockAdapter-valid maps** without standard recipe write/prep ops — prevented by retaining the standard deployed map recipe; not caught by the log-marker gate (it would surface as a health-check failure on the next run).
-- **Age-intro / wonder-discovery cinematic overlay blocks OS capture.** After `game visibility --reveal`, the game sits behind a blocking notification queue; `screencapture` returns pixel-identical **stale** frames for many seconds. Drain the queue (activate `fxs-hero-button.cinematic-moment__close-button`) before any screenshot. This blocks **visual QA**, not the log-marker gate — the gate proves mapgen completed regardless of what the screen shows.
-- Huge maps take ~60–90 s of live map-gen; set `--wait-timeout-ms` to match.
-
----
-
-## How verification differs by request class
-
-The verification surface is set by the request class — do not run the expensive gate when it proves nothing new.
-
-- **Technical** (e.g. a stage split that changes no generated terrain): verification is **schema-compile + test**; live game **not required** if artifact ids / op ids / viz `dataTypeKey` / publish-once locations are unchanged. Architecture review (`civ7-architecture-authority`) dominates. Worked example: `docs/projects/morphology-4stage-split/`.
-- **Behavioral** (coasts, rivers, placement): requires the **pre-declared Earth-like ledger** (overlay ii) **and** the **live in-game gate**, scoped to **milestones** (expensive — not per-slice). Expect hotfix slices from live-only defects. Worked example: `docs/projects/placement-realignment/`.
-- **Visualization** (Studio): the diagnostic is "generation was right; the view was wrong" (overlay i); verification is **display-correctness** (operator click-through). The physics facet is absent. Worked example: `docs/projects/studio-runtime-simplification/` (note: the **D10 live-game watcher proof gap remains open as of 2026-06-16** — do not present live-watcher reconnect/replay as fully proven).
-
-The arms stay coupled: the coast fix (behavioral) required locating the adapter-maintenance structural locus (technical); placement realignment (behavioral) required restoring the policy-table generator (technical). Verify both. Full worked examples: `references/worked-examples.md`.
-
----
-
-## Currency notes
-
-- The `mapgen:*` cache plugin skills are **philosophy-only / outdated arch** — never cite their paths, schemas, or stage structure as a verification surface.
-- `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md` currently lists the
-  same 22 stages, including the five `foundation-*` stages and
-  `morphology-shelf`, but the live order authority remains
-  `recipes/standard/contract-manifest.ts` (`standardStageContractManifest`).
-- The `@civ7/map-policy` snapshot is dated 2026-01-24; static legality tables may lag a game patch. Cross-check resource-legality claims against `game:gameinfo` when a live game is available.
+- A clean deterministic run is called live proof.
+- A screenshot overrides raw values.
+- Installed files are called loader acceptance.
+- A log line is generalized beyond its bounded run.
+- Seeds/dimensions are used as a substitute for missing game/process identity.
+- A projection recomputes a parity or failure classification already owned by
+  the definition, control, or MapGen-runs.
+- A superseded verification script is revived instead of using current CLI/Nx
+  discovery.

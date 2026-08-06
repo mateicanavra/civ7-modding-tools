@@ -1,132 +1,144 @@
-# Earth-like Expectation Ledger (template)
+# MapGen Behavioral Expectation Ledger
 
-> Open when you are at **loop step 5** (alternative selection) and about to tune or implement a *behavioral* change. Fill this BEFORE touching generation logic. Pre-declaring the expected Earth-like outcome is what makes step-7 verification falsifiable instead of post-hoc rationalization. This is the **step-5 gate artifact** referenced by `references/orchestration.md` and `references/facet-verification.md`.
+Copy this asset into the active workstream before changing behavioral logic.
+Fill the declaration sections before implementation. Amendments are append-only.
 
-Copy this file into the workstream's project dir (e.g. `docs/projects/<workstream>/expectations.md`) and fill it. The generic benchmark subsystem is canonical at `docs/system/libs/mapgen/benchmarks/BENCHMARKS.md`; the Standard recipe's executable studies and product sheets live at `mods/mod-swooper-maps/src/recipes/standard/metrics/studies/STUDIES.md`. Historical project ledgers remain evidence of their own workstreams, not current benchmark authority.
+## 1. Change Identity
 
-The rule this enforces: **observed stats may calibrate the declared numbers only by a recorded amendment in this file, never silently.** A change that "looks better" but was never predicted is not verified — it is lucky.
+- **Workstream/request:** `<one sentence>`
+- **Actor outcome:** `<what the map author or player should experience>`
+- **Definition owner:** `plugins/mod/map/swooper-physics/<exact area>`
+- **Other owners touched:** `<none | mapgen-core | realization app | MapGen-runs | control | projection | app adapter>`
+- **Recipe/config identity:** `<recipe, config id/digest>`
+- **Cohort:** `<map sizes, regime families, stable seeds>`
+- **Baseline evidence ids:** `<metric report/run ids>`
+- **Stronger live claim planned:** `<none | exact claim and live setup>`
 
----
+## 2. Falsifiable Hypothesis
 
-## 0. Change under test
+**Mechanism:**
 
-- **Workstream / request:** `<one line — e.g. "improve how rivers are generated">`
-- **Arm:** behavioral (this ledger is only for the behavioral arm; technical-only changes verify structurally — see `references/facet-verification.md`).
-- **Domain(s) touched:** `<foundation | morphology | hydrology | ecology | placement | resources>`
-- **Structural alternative chosen (step 5):** `<the one of ≥1 alternatives you picked, in one line>`
-- **Hypothesis (physical, falsifiable):** `<what Earth-science mechanism you expect to show up in the metrics — see references/facet-physics.md for the mechanism owner>`
-- **Baseline study:** study id `<...>` · seed `<1337>` · Civ7 preset `<MAPSIZE_STANDARD | MAPSIZE_HUGE>` · config `<swooper-earthlike>` · scenario id `<from metrics report>`
+`<physical or gameplay mechanism expected to change>`
 
-A change with no falsifiable hypothesis is not ready for step 6. Go back to step 4/5.
+**Current classification:**
 
----
+- Modeled: `<...>`
+- Approximated: `<...>`
+- Absent: `<...>`
 
-## 1. Metric vocabulary (the primitive you measure against)
+**Falsifier:**
 
-Standard product metrics live under
-`mods/mod-swooper-maps/src/recipes/standard/metrics`. A metric family measures one
-completed Standard run without embedding pass/fail policy. A `MetricTarget` owns
-the pre-declared product expectation, and `STANDARD_METRIC_STUDIES` binds targets
-to named Civ7 map-size presets and stable seed cohorts. Each logical binding lives
-beside its study sheet under `metrics/studies/benchmarks`. Add or amend that
-authority before changing generation behavior; do not recreate a workstream-local
-metrics harness.
+`<evidence that would show this mechanism or chosen locus is wrong>`
 
-The reusable families currently cover geography, relief, hydrology, ecology,
-placement, and resources. Metrics are **regime-family** (wet / arid / mountain /
-closed / archipelago), not single global scalars. Declare which family this
-change targets; do not assert one global "Earth-like" number.
+## 3. Alternatives
 
-For placement/resource changes, use the placement and resource families in this
-same completed-map subsystem. They preserve the completed-map E1–E3 observations
-they actually measure without a separate `placement-metrics` mode. Synthetic
-operation laws remain behavior tests, and E4 remains Studio/live operational
-proof; see the placement-realignment expectation ledger for the historical
-vocabulary.
+| Alternative | Structural/model shape | Expected benefit | Main risk | Disposition |
+| --- | --- | --- | --- | --- |
+| A | `<...>` | `<...>` | `<...>` | selected/rejected |
+| B | `<meaningfully different shape>` | `<...>` | `<...>` | selected/rejected |
 
----
+Selected alternative: `<id and rationale>`
 
-## 2. Pre-declared expectations (fill BEFORE step 6)
+## 4. Pre-Declared Expectations
 
-One row per metric you expect to move. Declare **direction** (UP / DOWN / HOLD) and a **range or bound** — a bare direction with no magnitude is weak; prefer a range when you can defend it. Leave untouched metrics as explicit HOLD guards so you catch collateral damage.
+Use one row per metric. Targets must be owned by the Swooper definition's
+current metric-study bank; this ledger records the workstream hypothesis and
+evidence rather than creating a parallel metrics implementation.
 
-| ID | Metric | Direction | Pre-declared range / bound | Physical rationale (1 line) | Regime family |
-| --- | --- | --- | --- | --- | --- |
-| X1 | `riverClassShare` | UP | `<e.g. 0.06 → 0.09–0.12>` | `<more orographic rainfall feeds more channels>` | wet/temperate |
-| X2 | `lakeShare` | HOLD | `<within ±15% of baseline>` | `<change must not drain/flood lakes as a side effect>` | all |
-| X3 | `dominantBiome` | HOLD-or-NAMED | `<stays "grassland" | shifts grassland→forest>` | `<...>` | `<...>` |
-| X4 | `biomeDiversity` | UP | `<≥ baseline; target +1>` | `<wetter bands open new biomes>` | wet |
-| X5 | `landShare` | HOLD | `<within ±0.01>` | `<hydrology change must not move coastlines>` | all |
-| … | `<metric>` | `<UP/DOWN/HOLD>` | `<range/bound>` | `<rationale>` | `<family>` |
+| ID | Regime | Metric | Direction | Bound/range | Physical or gameplay rationale | Source/study |
+| --- | --- | --- | --- | --- | --- | --- |
+| X1 | `<wet-temperate>` | `<metric id>` | UP/DOWN/HOLD | `<range>` | `<why>` | `<study id>` |
+| X2 | `<all>` | `<guard metric>` | HOLD | `<tolerance>` | `<collateral guard>` | `<study id>` |
 
-Guard rows (HOLD) are not optional. The most common failure is a behavioral change that hits its target metric while silently wrecking an adjacent one.
+Required guard families to consider:
 
----
+- land/water and coast/shelf shape;
+- routing conservation, lakes, and river hierarchy;
+- climate and biome distribution;
+- feature/resource occupancy and legality;
+- start fairness and settlement viability;
+- deterministic stability and runtime bounds.
 
-## 3. Diagnostic command (how you measure)
+## 5. Civ7 Constraint Ledger
 
-Run the declared catalog; record the exact target, study, presets, and seeds so the
-measurement is reproducible.
+| Constraint | Evidence owner | Source revision/epoch | Expected result |
+| --- | --- | --- | --- |
+| Static legality | `packages/civ7-map-policy` | `<generator receipt>` | `<...>` |
+| Official intent | official resource corpus | `<revision/files>` | `<...>` |
+| Installed runtime fact, if needed | qualified diagnostic or foundational control | `<epoch/game identity>` | `<...>` |
+| Player value | Swooper product policy/playtest | `<criteria>` | `<...>` |
+
+Do not call a placement successful merely because it is physically plausible.
+It must also be legal and useful.
+
+## 6. Decision Rule
+
+Declare before running:
+
+- **PASS:** every target satisfies its declared bound across the cohort and all
+  `HOLD` guards stay within tolerance.
+- **FAIL - mechanism:** the expected causal signal is absent or reversed.
+- **FAIL - collateral:** a hold guard or Civ7 constraint breaks.
+- **INCONCLUSIVE:** sample, correlation, or evidence identity is insufficient.
+- **AMEND:** a magnitude bound was poorly calibrated but direction/mechanism
+  remains defensible; record the amendment below before re-evaluation.
+
+Changing the direction, mechanism, owner, or regime is a redesign, not a
+calibration amendment.
+
+## 7. Measurement Discovery
+
+Discover current commands and targets at execution time:
 
 ```bash
-# Emit the complete machine-readable Standard product-metrics report.
-bun run --cwd mods/mod-swooper-maps metrics:report
-
-# Run the behavior owner through the native Nx graph.
-nx run mod-swooper-maps:test
-
-# For a generation-vs-display question, compare already-captured viz layers.
-bun run --cwd mods/mod-swooper-maps diag:diff -- <runDirA> <runDirB> --prefix <layer> --data-type-key <key>
+bun apps/cli/bin/run.js mapgen --help
+bunx nx show project swooper-physics --json
+bunx nx show project swooper-physics-mod --json
 ```
 
-Record for each measurement: study id, scenario id, seed, named Civ7 map-size
-preset, config, and timestamp. Live closure still records its correlated request
-and run identifiers under the `civ7-operational-debugging` proof boundary.
+Select each command family and leaf from native help. Record the exact leaf
+help/version, target, config, seeds, map sizes, regime, timestamp, and output id
+used. Prefer a stable multi-seed cohort and report a distribution (`mean`,
+spread, quantiles or min/max where appropriate), not one anecdotal seed.
 
-Stability: measure over **multiple stable seeds** (the repo norm is ~20 seeds for placement; pick a defensible N) and report `mean [min..max]`, not a single seed. A single-seed delta is an anecdote.
+## 8. Deterministic Results
 
----
+| ID | Declared expectation | Observed distribution | Evidence id | Verdict |
+| --- | --- | --- | --- | --- |
+| X1 | `<...>` | `<...>` | `<...>` | PASS/FAIL/INCONCLUSIVE/AMEND |
+| X2 | `<...>` | `<...>` | `<...>` | `<...>` |
 
-## 4. Pass / fail rule (declare BEFORE the run)
+- **Overall deterministic verdict:** `<...>`
+- **Generation/display discriminator:** `<not applicable | raw values wrong | projection wrong | unresolved>`
+- **Unexpected effects:** `<...>`
 
-State the decision rule now, so the result cannot be reinterpreted after you see it.
+## 9. Realization And Live Results
 
-- **PASS** = every targeted row lands inside its declared range/direction over the seed set, AND every HOLD guard stays inside its bound.
-- **FAIL (target miss)** = a targeted metric did not move as predicted → the hypothesis (or the implementation) is wrong; loop back to step 4.
-- **FAIL (collateral)** = a HOLD guard broke → the change has an unintended side effect; loop back to step 4/6.
-- **AMEND (calibration)** = the declared number was mis-set but the *direction and mechanism held* → record an amendment in §6 with date + evidence + runId, then re-judge against the amended number. Amending a *direction* is a reframe, not a calibration — surface it.
+Fill only when the claim crosses into Civ7.
 
-Mock metrics are necessary but **not sufficient**: a behavioral change is not closed until **step-7 live in-game verification** passes (Studio is where you see; the live engine is where you know). The mock ledger gates entry to live; live is the closure test. See `references/facet-verification.md` and `assets/live-verification-runbook.md`.
+- **Realization build/artifact identity:** `<...>`
+- **Installation receipt:** `<...>`
+- **MapGen-runs operation/request id:** `<...>`
+- **Tuner resource epoch:** `<...>`
+- **Game/setup/map identity:** `<...>`
+- **Fresh log evidence:** `<...>`
+- **Foundational map readback:** `<...>`
+- **Parity status and unresolved links:** `<...>`
+- **Supported proof class:** `<generated | installed | loader | live-behavior>`
+- **What remains unproved:** `<...>`
 
----
+## 10. Amendments
 
-## 5. Results (fill AFTER the run)
+Append; never edit the original declaration in place.
 
-| ID | Metric | Predicted | Observed (mean [min..max], N seeds) | runId | Verdict |
+| Date | ID | Old | New | Reason | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| X1 | `riverClassShare` | `0.09–0.12` | `<...>` | `<...>` | `<PASS / FAIL / AMEND>` |
-| X2 | `lakeShare` | `HOLD ±15%` | `<...>` | `<...>` | `<...>` |
-| … | `<...>` | `<...>` | `<...>` | `<...>` | `<...>` |
+| `<YYYY-MM-DD>` | `<X#>` | `<...>` | `<...>` | `<...>` | `<path/id>` |
 
-**Overall mock verdict:** `<PASS / FAIL / AMEND>` — `<one line>`
-**Live verification:** `<pending / branch+commit+requestId+timestamp once run — see live-verification-runbook.md>`
+## 11. Final Decision
 
----
-
-## 6. Amendments (append-only; never edit a declared number in place)
-
-> Record every range/direction change here with **date + evidence path + runId** before relying on it. An unrecorded change to a pre-declared number voids the gate.
-
-- `<YYYY-MM-DD>`: `<which ID>` `<old → new>` — `<why; evidence: docs/projects/<ws>/evidence/<file>.md; runId <...>>`
-
----
-
-## 7. Proof-class ladder (which expectations gate where)
-
-Mirror the placement-realignment ladder — match each expectation to the cheapest sufficient proof surface:
-
-- **Per-change (cheap, every iteration):** focused unit/contract tests plus the relevant named Standard metric study over its stable Civ7-preset seed cohort → the §2 rows.
-- **Per-milestone (Studio):** browser-runner dump inspected in Mapjet Studio → display/parity expectations; use `diff-layers.ts` to separate a generation bug from a viz bug.
-- **Milestone boundaries (live game, expensive — not per-change):** deployed mod run + `nx run mod-swooper-maps:verify:final-surface-parity` → live-engine expectations. Record branch / commit / runId / config / timestamp / payloads.
-
-Do not promote a change past a tier until its tier passes. Expect attempt-1 live failures and hotfix slices — they are normal here, not exceptional (MockAdapter-valid maps can still SIGSEGV the live engine).
+- **Outcome:** `<accepted | rejected | refine | unresolved>`
+- **Supported actor claim:** `<...>`
+- **Proof classes:** `<...>`
+- **Consumer impact:** `<...>`
+- **Excluded/generalization limits:** `<...>`

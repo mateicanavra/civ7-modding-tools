@@ -1,22 +1,28 @@
 # Failure Patterns
 
 | Failure | Symptom | Repair |
-|---|---|---|
-| Resource fact becomes product policy | Official XML shape directly dictates SDK/MapGen/API design | Separate game-data fact from repo-owned modeling decision |
-| Generated output becomes authority | `dist/` or `mod/` is used as the edit surface | Change source and regenerate |
-| Proof inflation | Local tests or generated XML are claimed as in-game correctness | Label proof boundary and gather stronger evidence |
-| Public contract drift | SDK/CLI/docs behavior changes without consumer review | Record consumer gate and update docs/tests |
-| Project scratch becomes promise | Active review notes are treated as canonical docs | Promote stable knowledge or keep it as project evidence |
-| MapGen truth/projection blur | Engine-owned output is documented as deterministic pipeline truth | Decide owner and align artifact names/docs/tests |
-| Presentation becomes product topology | Studio/map-dash grouping or debug visibility forces a recipe stage | Add presentation metadata or SDK/Studio support instead of changing generation topology |
-| Variant naming becomes public surface | Score/intent/helper-family distinctions are exposed as stages or config keys without consumer need | Keep variants internal as ops, steps, or artifacts unless consumers need the surface |
-| Compatibility by inertia | Old behavior remains because deletion feels risky | Record compatibility gate or delete with proof |
-| Authority map neglect | A durable decision changes only code or chat | Update capability/flow/policy/source records |
+| --- | --- | --- |
+| Container becomes capability | A route, package, service name, or UI grouping defines product meaning | Return to the external actor Task/Question and sole fact writer |
+| Current estate becomes promise | Existing exports or facade methods are retained without an authorized outcome or consumer | Treat them as migration evidence and apply the consumer/deletion gate |
+| Resource fact becomes product policy | Tuner health, raw execution, or capture output is interpreted as Civ7 or gameplay success | Preserve the resource/provider fact and let control/play supply their own meaning |
+| Control/play collapse | Native operations also own goals, no-repeat, or next-action advice | Keep foundational facts in control and actor-facing policy in play |
+| Definition/realization collapse | Portable Swooper truth writes files or production/Studio realizers share one runtime | Keep definition, production realization, and Studio ephemeral realization distinct |
+| MapGen-runs ownership leak | API/host owns operation state or an effect adapter decides the final result | Return semantic state/outcome to MapGen-runs and exact receipts to adapters |
+| Facade resurrection | A convenience client combines control, play, raw diagnostics, or run methods | Delete the mixed surface and bind exact public owner clients |
+| Transport success becomes outcome | A returned RPC/CLI value is displayed as success without inspecting owner classification | Project the exact owner result, refusal, uncertainty, and next action |
+| Proof becomes a ladder | Generated, installed, loader, and live facts collapse to the strongest label | Report the independent supported set and missing facts |
+| Projection rewrites errors | Typed owner refusal or uncertainty becomes a generic success/failure | Preserve owner vocabulary and evidence scope |
+| Workflow by complexity | A multi-step process-local run is called durable orchestration | Keep service-owned state until process-independent replay/resume is authorized |
+| Upstream law becomes product policy | Habitat or vendor mechanics are used to justify a Civ7 capability | Use the sealed model for product authority; use upstream/global sources only for realization mechanics |
+| Overlay becomes status log | Readiness, migration progress, or transient proof results are copied into the skill | Link to the sealed/current project source and retain only durable guardrails |
 
 ## Smell Tests
 
-- Which capability owns this behavior?
-- Which consumers observe it?
-- Is this evidence official data, source behavior, generated output, or runtime behavior?
-- What claim remains forbidden after the change?
-- Does this belong in a skill/canonical doc, or in a project decision/deferral?
+- Which external actor, Role, Task, or Question needs this?
+- Who writes the fact and who may only observe or project it?
+- Is a native fact being interpreted as gameplay meaning outside play?
+- Is Studio's physical receipt being mistaken for the MapGen-runs outcome?
+- Are production and ephemeral Swooper realization being conflated?
+- Does this public surface preserve exact owner refusal and uncertainty?
+- Which independent proof facts exist, and which are still absent?
+- Would this capability still be promised if the current path vanished?

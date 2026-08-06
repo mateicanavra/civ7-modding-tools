@@ -1,110 +1,139 @@
-# Failure Patterns
+# Civ7 oRPC Failure Patterns
 
-## Generic Router Wrapper
+## Control And Play Collapse
 
-**Symptom:** a router exposes `control.call`, `operation.any`, or raw command
-strings.
+**Symptom:** actor-facing city, diplomacy, planning, or turn policy is placed
+beside foundational app/game/map/UI operations in one service.
 
-**Why It Fails:** it preserves the current command/transport tangle and removes
-procedure identity. Policy and tests cannot attach to meaningful atoms.
+**Why it fails:** sharing live prerequisites does not make the facts, writers,
+or correction laws identical.
 
-**Fix:** name stable procedure keys by capability, risk, and proof boundary.
+**Repair:** keep control at exactly `{app,game,map,ui}`. Place gameplay meaning
+under the finite play inventory and depend only on the public control client.
 
-## Runtime Authority Leak
+## Provider Leakage
 
-**Symptom:** oRPC handlers open sockets, select tuner states, or build raw
-App UI/Tuner scripts outside `@civ7/direct-control`.
+**Symptom:** a service, API projection, or command selects or acquires Tuner or
+window-capture providers, or accepts provider configuration from an ordinary
+caller.
 
-**Why It Fails:** callers become runtime transport owners and the repo loses the
-central package boundary.
+**Why it fails:** foreign capability acquisition and process scope belong to
+qualified app composition.
 
-**Fix:** use the typed `context.directControl` port for low-level access while
-keeping the service router leaf responsible for the offered behavior,
-composition, and proof boundary.
+**Repair:** let the app acquire providers, construct ready typed values, bind
+service clients, and give consumers only the capability they declare.
 
-## Pass-Through Service Leaf
+## Parallel Method Vocabulary
 
-**Symptom:** a new public procedure only renames one direct-control method and
-passes its input and output through unchanged.
+**Symptom:** a caller invents a look-alike service interface, extracts method
+types from another surface, or imports private contract/router leaves.
 
-**Why It Fails:** the service adds no contract, policy, composition, or proof
-value while expanding a second public surface over the same runtime atom.
+**Why it fails:** one service now has competing descriptions and private
+implementation becomes caller authority.
 
-**Fix:** keep the operation on the direct-control port until the service owns a
-complete behavior around it. A service leaf should earn its place through
-composition, stable service semantics, or shared policy.
+**Repair:** expose the service-owned contract through its public client face.
+Qualified composition constructs the bound client; consumers call it directly.
 
-## Orchestration In The Atom Layer
+## Service Internals At The API Boundary
 
-**Symptom:** a direct-control function grows a multi-step async flow — a
-suspend/resume lifecycle, a drain/poll loop, retries, a hand-rolled
-try/finally state machine over several execs.
+**Symptom:** an API copies a whole service contract subtree, registers a
+private service router, or treats transport exposure as making the service a
+caller contract.
 
-**Why It Fails:** it bypasses the Effect layer the repo standardized on, so
-cleanup guarantees, schedules, typed errors, and procedure-level tests are
-reimplemented ad hoc — and CLI callers end up importing orchestration from
-the wrong package (live lesson: the explore orchestrator was first built in
-direct-control and had to be migrated; D10 in the cli-command-taxonomy
-workstream record).
+**Why it fails:** caller policy and product authority collapse, and service
+internals become externally coupled.
 
-**Fix:** keep direct-control functions one-exec wire atoms; home the flow in
-`@civ7/control-orpc` as an Effect procedure (`Effect.acquireUseRelease` for
-guaranteed cleanup, `Effect.iterate`/`Schedule` for loops) and route the CLI
-through the typed server client.
+**Repair:** author API-owned contract leaves, a public API client, and a public
+registration face. Keep API implementation private and delegate each leaf to
+the matching bound public client.
 
-## Deleted Runtime Provider Surface
+## App Becomes Product Policy
 
-**Symptom:** a caller imports a live facade from
-`@civ7/control-orpc/runtime`, or asks the control service to construct its own
-direct-control provider.
+**Symptom:** composition code decides gameplay outcomes, MapGen operation
+meaning, or API caller semantics because it already owns provider and host
+lifecycle.
 
-**Why It Fails:** provider construction belongs to the qualified host. The
-runtime subpath was deleted when the service became a closed service plane.
+**Why it fails:** constructing and running the graph does not transfer semantic
+write authority.
 
-**Fix:** create the in-process server client with `liveCiv7DirectControl` from
-`@civ7/direct-control/live`; add `liveCiv7LifecycleControl` only for setup
-lifecycle calls.
+**Repair:** apps select, acquire, bind, mount, observe, and dispose. Services
+and projections retain their own policy and facts.
 
-## Middleware As Admission Laundering
+## Generic Router Escape Hatch
 
-**Symptom:** middleware invents controller support/proof or turns a host
-admission refusal into a default success.
+**Symptom:** a public operation accepts arbitrary script text, raw command
+strings, or an unbounded `call` payload.
 
-**Why It Fails:** mutation risk becomes invisible at the call site.
+**Why it fails:** procedure identity, admission, uncertainty, and meaningful
+semantics proof disappear.
 
-**Fix:** middleware validates controller capabilities/proof and honors the
-optional admission function supplied by the qualified host; it must not
-manufacture proof or swallow a refusal.
+**Repair:** expose only closed typed operations owned by a selected service
+module. Keep raw diagnostics explicit and owner-qualified.
 
-## Transport-First Drift
+## Vendor Mechanism By Memory
 
-**Symptom:** REST path aesthetics, RPC URL shape, or frontend route convenience
-drive procedure shape before the shared behavior is stable.
+**Symptom:** implementation chooses a builder chain, adapter, error tunnel,
+runtime/scoping strategy, or initialization side effect because it appeared in
+another prerelease or example.
 
-**Why It Fails:** the external transport becomes product authority.
+**Why it fails:** prerelease APIs and lifecycle behavior can differ across the
+installed lane.
 
-**Fix:** design the shared router/procedure core first; then expose it through
-the caller boundary that fits the caller. CLI/tests can call in-process. Studio
-browser clients should use HTTP `RPCHandler`/`RPCLink`. OpenAPI should be a
-separate external/documented edge.
+**Repair:** load the global vendor skills, inspect the exact installed source
+and declarations, and select the mechanism only after a discriminating type or
+lifecycle fixture passes. Keep the choice localized to qualified composition
+or the private procedure boundary.
+
+## Transport-First Design
+
+**Symptom:** route aesthetics or frontend convenience determine service
+operations before semantic ownership is settled.
+
+**Why it fails:** a caller surface starts defining product meaning.
+
+**Repair:** stabilize the owning service contract and public client first.
+Then define the API-owned caller contract and explicit delegations.
+
+## Workflow By Analogy
+
+**Symptom:** a multi-step or background-capable operation becomes a durable
+workflow despite having only request-local or retained-process state.
+
+**Why it fails:** orchestration topology expands without a process-independent
+resume or replay requirement.
+
+**Repair:** keep the operation service-owned until it must survive request or
+process loss with stable intent, idempotency, and reconciliation owners.
+
+## Uncertainty Laundering
+
+**Symptom:** dispatch, a stale observation, or a timeout is returned as
+accepted gameplay success, and retry can repeat an ambiguous mutation.
+
+**Why it fails:** callers lose the distinction between intent, dispatch,
+observation, acceptance, and final outcome.
+
+**Repair:** preserve refused, partial, stale, unavailable, and uncertain
+states. Retain a no-repeat identity and reconcile through fresh control facts.
 
 ## Relationship Label Regression
 
-**Symptom:** a planning or battlefield procedure emits hostile/enemy/opponent/
-threat/non-friendly because owner ids differ, units are near us, or an attack
-operation appears legal.
+**Symptom:** output says hostile, enemy, opponent, threat, or non-friendly only
+because owners differ, units are near each other, or an attack is legal.
 
-**Why It Fails:** those facts are contact/validator evidence, not relationship
-proof.
+**Why it fails:** those facts show contact or validator possibility, not a
+relationship.
 
-**Fix:** enforce neutral labels in procedure output or middleware until official
-relationship, team, war, suzerain, or equivalent validator evidence exists.
+**Repair:** require official relationship, team, war, suzerain, or equivalent
+validator evidence; otherwise keep labels neutral.
 
 ## Proof Inflation
 
-**Symptom:** a passing ORPC test or CLI test is described as in-game verified.
+**Symptom:** a typecheck, service test, API projection test, generated artifact,
+or installation receipt is reported as live Civ7 behavior.
 
-**Why It Fails:** procedure tests prove local behavior, not Civ7 runtime state.
+**Why it fails:** each evidence class proves a different stage.
 
-**Fix:** close with evidence-scoped labels and require live smoke for live-game
-claims.
+**Repair:** label contract, semantics, execution, projection, assembly,
+generated, installed, loader, and live evidence separately. Make no stronger
+claim than the evidence supports.
