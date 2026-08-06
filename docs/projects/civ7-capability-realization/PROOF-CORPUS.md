@@ -40,6 +40,23 @@ blueprint-defined axes; it cannot invent case-by-case proof structure. This
 ledger does not create generic `behavior`, `mechanics`, `runtime`, `support`,
 or `integration` cabinets.
 
+Habitat supplies that structure and bounded-source law; it does not compile,
+bind, mount, execute, or prove a product runtime. An API plugin proves its
+public registration and caller projection. Qualified app proof owns selected
+adapter/client binding and the observable behavior of each native Bun, Vite,
+server, web, or Oclif host entrypoint.
+
+Effect-backed oRPC proof is portable at this stage: one direct adaptation per
+procedure at the owning private service or API implementation/router boundary,
+with typed context/dependencies and declared-error, defect, signal,
+interruption, and cancellation lineage preserved. Extension-free direct
+handlers are the default. Exact beta.23 syntax, Cause behavior, and any
+`@orpc/experimental-effect` extension remain gated on the exact published
+source/declarations plus discriminating artifact, type, error, interruption,
+lifecycle, and module-realm fixtures. If an extension is later selected, one
+qualified process bootstrap must own and prove the physical mutation exactly
+once; no feature module may acquire it by side-effect import.
+
 ## Coverage
 
 | Current owner | Files |
@@ -78,72 +95,73 @@ reconfirms that completed census against the materialized estate.
 
 ## Direct Control
 
-### Semantic control behavior
+### Foundational control and play behavior
 
 | Exact current source | Disposition | Exact destination |
 | --- | --- | --- |
-| `packages/civ7-direct-control/test/advisor-warning.test.ts` | combine | `services/civ7-control/test/semantics/modules/notifications/advisor-warning-request.test.ts` |
-| `packages/civ7-direct-control/test/autoplay.test.ts` | combine | `services/mapgen-runs/test/semantics/modules/autoplay/autoplay.test.ts` |
-| `packages/civ7-direct-control/test/diplomacy-response-atoms.test.ts` | combine | `services/civ7-control/test/semantics/modules/diplomacy/response.test.ts` |
-| `packages/civ7-direct-control/test/display-queue.test.ts` | combine | `services/civ7-control/test/semantics/modules/display/queue.test.ts` |
-| `packages/civ7-direct-control/test/first-meet-response-atoms.test.ts` | combine | `services/civ7-control/test/semantics/modules/diplomacy/first-meet-response.test.ts` |
-| `packages/civ7-direct-control/test/government-choice-atoms.test.ts` | combine | `services/civ7-control/test/semantics/modules/government/{celebration-choice,choice}.test.ts` |
-| `packages/civ7-direct-control/test/map-and-visibility.test.ts#map and visibility reads` | combine | `services/civ7-control/test/semantics/modules/world/map-reads.test.ts` |
-| `packages/civ7-direct-control/test/map-and-visibility.test.ts#explore grant atoms` | combine | `services/civ7-control/test/semantics/modules/display/explore-request.test.ts` |
-| `packages/civ7-direct-control/test/map-surface-observation.test.ts` | combine | `services/civ7-control/test/semantics/modules/world/map-reads.test.ts` |
-| `packages/civ7-direct-control/test/narrative-choice-atoms.test.ts` | combine | `services/civ7-control/test/semantics/modules/narrative/choice.test.ts` |
-| `packages/civ7-direct-control/test/notification-dismissal.test.ts` | combine | `services/civ7-control/test/semantics/modules/notifications/dismiss.test.ts` |
-| `packages/civ7-direct-control/test/play-notification-view.test.ts` | combine | `services/civ7-control/test/semantics/modules/notifications/queue.test.ts` |
-| `packages/civ7-direct-control/test/population-placement.test.ts` | combine | `services/civ7-control/test/semantics/modules/city/population-placement.test.ts` |
-| `packages/civ7-direct-control/test/production-choice-atoms.test.ts` | combine | `services/civ7-control/test/semantics/modules/city/production-choice.test.ts` |
-| `packages/civ7-direct-control/test/progression-native-atoms.test.ts` | combine | `services/civ7-control/test/semantics/modules/progression/{attribute,choice,target,tradition}.test.ts` |
-| `packages/civ7-direct-control/test/progression-reads.test.ts` | combine | `services/civ7-control/test/semantics/modules/progression/{dashboard-current,traditions-current}.test.ts` |
-| `packages/civ7-direct-control/test/ready-city-view.test.ts` | combine | `services/civ7-control/test/semantics/modules/attention/current.test.ts` |
-| `packages/civ7-direct-control/test/ready-unit-view.test.ts` | combine | `services/civ7-control/test/semantics/modules/attention/current.test.ts` |
-| `packages/civ7-direct-control/test/settlement-recommendations.test.ts` | combine | `services/civ7-control/test/semantics/modules/strategy/civilian-route-triage.test.ts` |
-| `packages/civ7-direct-control/test/start-positions.test.ts` | combine | `services/civ7-control/test/semantics/modules/world/current.test.ts` |
-| `packages/civ7-direct-control/test/summary-reads.test.ts` | combine | `services/civ7-control/test/semantics/modules/world/current.test.ts` |
-| `packages/civ7-direct-control/test/tactical-reads.test.ts` | combine | `services/civ7-control/test/semantics/modules/strategy/tactical-reads.test.ts` |
-| `packages/civ7-direct-control/test/town-focus-atoms.test.ts` | combine | `services/civ7-control/test/semantics/modules/city/town-focus.test.ts` |
-| `packages/civ7-direct-control/test/turn-completion-atoms.test.ts` | combine | `services/civ7-control/test/semantics/modules/turn/complete.test.ts` |
-| `packages/civ7-direct-control/test/unit-command-admission.test.ts` | combine | `services/civ7-control/test/semantics/modules/unit/command.test.ts` |
-| `packages/civ7-direct-control/test/unit-command-atoms.test.ts` | combine | `services/civ7-control/test/semantics/modules/unit/command.test.ts` |
-| `packages/civ7-direct-control/test/unit-move-preview.test.ts` | combine | `services/civ7-control/test/semantics/modules/strategy/tactical-reads.test.ts` |
-| `packages/civ7-direct-control/test/unit-target-atoms.test.ts` | combine | `services/civ7-control/test/semantics/modules/unit/target-action.test.ts` |
-| `packages/civ7-direct-control/test/view-camera.test.ts` | combine | `services/civ7-control/test/semantics/modules/view/camera-focus.test.ts` |
-| `packages/civ7-direct-control/test/view-clean-frame.test.ts` | combine | `services/civ7-control/test/semantics/modules/view/appshot-capture.test.ts` |
+| `packages/civ7-direct-control/test/advisor-warning.test.ts` | combine | `services/civ7-play/test/semantics/modules/notifications/advisor-warning-request.test.ts` |
+| `packages/civ7-direct-control/test/autoplay.test.ts` | decompose | `services/civ7-play/test/semantics/modules/automation/autoplay.test.ts` plus MapGen-runs autoplay-admission proof |
+| `packages/civ7-direct-control/test/diplomacy-response-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/diplomacy/response.test.ts` |
+| `packages/civ7-direct-control/test/display-queue.test.ts` | combine | `services/civ7-control/test/semantics/modules/ui/display-queue.test.ts` |
+| `packages/civ7-direct-control/test/first-meet-response-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/diplomacy/first-meet-response.test.ts` |
+| `packages/civ7-direct-control/test/government-choice-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/progression/{celebration-choice,government-choice}.test.ts` |
+| `packages/civ7-direct-control/test/map-and-visibility.test.ts#map and visibility reads` | combine | `services/civ7-control/test/semantics/modules/map/map-reads.test.ts` |
+| `packages/civ7-direct-control/test/map-and-visibility.test.ts#explore grant atoms` | combine | `services/civ7-control/test/semantics/modules/map/visibility-explore.test.ts` |
+| `packages/civ7-direct-control/test/map-surface-observation.test.ts` | combine | `services/civ7-control/test/semantics/modules/map/map-surface-observation.test.ts` |
+| `packages/civ7-direct-control/test/narrative-choice-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/progression/narrative-choice.test.ts` |
+| `packages/civ7-direct-control/test/notification-dismissal.test.ts` | combine | `services/civ7-play/test/semantics/modules/notifications/dismiss.test.ts` |
+| `packages/civ7-direct-control/test/play-notification-view.test.ts` | combine | `services/civ7-play/test/semantics/modules/notifications/queue.test.ts` |
+| `packages/civ7-direct-control/test/population-placement.test.ts` | combine | `services/civ7-play/test/semantics/modules/city/population-placement.test.ts` |
+| `packages/civ7-direct-control/test/production-choice-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/city/production-choice.test.ts` |
+| `packages/civ7-direct-control/test/progression-native-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/progression/{attribute,choice,target,tradition}.test.ts` |
+| `packages/civ7-direct-control/test/progression-reads.test.ts` | combine | `services/civ7-play/test/semantics/modules/progression/{dashboard-current,traditions-current}.test.ts` |
+| `packages/civ7-direct-control/test/ready-city-view.test.ts` | combine | `services/civ7-play/test/semantics/modules/attention/current.test.ts` |
+| `packages/civ7-direct-control/test/ready-unit-view.test.ts` | combine | `services/civ7-play/test/semantics/modules/attention/current.test.ts` |
+| `packages/civ7-direct-control/test/settlement-recommendations.test.ts` | combine | `services/civ7-play/test/semantics/modules/planning/civilian-route-triage.test.ts` |
+| `packages/civ7-direct-control/test/start-positions.test.ts` | combine | `services/civ7-control/test/semantics/modules/map/current.test.ts` |
+| `packages/civ7-direct-control/test/summary-reads.test.ts` | combine | `services/civ7-control/test/semantics/modules/map/current.test.ts` |
+| `packages/civ7-direct-control/test/tactical-reads.test.ts` | combine | `services/civ7-play/test/semantics/modules/planning/tactical-reads.test.ts` |
+| `packages/civ7-direct-control/test/town-focus-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/city/town-focus.test.ts` |
+| `packages/civ7-direct-control/test/turn-completion-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/turn/complete.test.ts` |
+| `packages/civ7-direct-control/test/unit-command-admission.test.ts` | combine | `services/civ7-play/test/semantics/modules/unit/command.test.ts` |
+| `packages/civ7-direct-control/test/unit-command-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/unit/command.test.ts` |
+| `packages/civ7-direct-control/test/unit-move-preview.test.ts` | combine | `services/civ7-play/test/semantics/modules/planning/tactical-reads.test.ts` |
+| `packages/civ7-direct-control/test/unit-target-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/unit/target-action.test.ts` |
+| `packages/civ7-direct-control/test/view-camera.test.ts` | combine | `services/civ7-control/test/semantics/modules/ui/camera-focus.test.ts` |
+| `packages/civ7-direct-control/test/view-clean-frame.test.ts` | combine | `services/civ7-control/test/semantics/modules/ui/appshot-capture.test.ts` |
 
 ### Mixed infrastructure suites
 
 | Exact current source or fragment | Disposition | Exact destination |
 | --- | --- | --- |
-| `packages/civ7-direct-control/test/session.test.ts#{parses command JSON payloads with endpoint and state context,reports invalid command JSON with the original command result details}` | combine | `services/civ7-control/test/semantics/tuner-result.test.ts` and consuming module semantics |
-| `packages/civ7-direct-control/test/session.test.ts#{uses defaults and env hosts when resolving health,handles empty env when resolving health,waits for direct-control health readiness,times out waiting for direct-control health readiness}` | combine | `services/civ7-control/test/semantics/modules/readiness/current.test.ts` |
+| `packages/civ7-direct-control/test/session.test.ts#{parses command JSON payloads with endpoint and state context,reports invalid command JSON with the original command result details}` | decompose | Tuner resource contract proof preserves the provider-emitted command/disposition fields; `services/civ7-control/test/semantics/tuner-result.test.ts` proves control-owned JSON/schema interpretation over that supplied result |
+| `packages/civ7-direct-control/test/session.test.ts#{uses defaults and env hosts when resolving health,handles empty env when resolving health,waits for direct-control health readiness,times out waiting for direct-control health readiness}` | combine | `resources/civ7-tuner/providers/local-socket/test/{semantics/provider,execution/lifecycle}.test.ts`; these are raw provider configuration, acquisition, health, and wait facts, not app-readiness interpretation |
 | `packages/civ7-direct-control/test/session.test.ts#{resolves direct-control config from explicit and env options,selects a tuner state by role, name, and id,parses tuner LSQ response parts into state pairs,allocates positive increasing tuner listener ids,parses fragmented and concatenated tuner frames}` | combine | `resources/civ7-tuner/providers/local-socket/test/semantics/provider.test.ts` |
 | `packages/civ7-direct-control/test/session.test.ts#{discovers a reachable endpoint after earlier hosts fail,reports unavailable endpoint discovery with per-host details,opens tuner sockets and reports connection failures with typed errors,issues framed commands and interprets the server response,returns a typed command state error when requested state is unavailable}` | combine | `resources/civ7-tuner/providers/local-socket/test/execution/lifecycle.test.ts` |
 | `packages/civ7-direct-control/test/session.test.ts#rejects an empty command as not dispatched without opening a socket` | combine | `resources/civ7-tuner/providers/local-socket/test/execution/lifecycle.test.ts` preserves typed not-dispatched and zero request writes after ready acquisition; the old lazy-connect assertion is retired because apps acquire one ready scoped resource before consumers execute |
 | `packages/civ7-direct-control/test/session.test.ts#waits for fresh ordered log markers` filesystem snapshot assertions | combine | `apps/mapgen-studio/test/execution/adapters/fresh-log-files.test.ts` |
 | `packages/civ7-direct-control/test/session.test.ts#waits for fresh ordered log markers` marker acceptance assertions | combine | `services/mapgen-runs/test/semantics/modules/run-in-game/start.test.ts` |
-| `packages/civ7-direct-control/test/shared-session.test.ts` | combine | `resources/civ7-tuner/providers/local-socket/test/execution/lifecycle.test.ts` |
-| `packages/civ7-direct-control/test/restart-lifecycle.test.ts#waits for Tuner readiness through the public wrapper` | combine | `services/civ7-control/test/semantics/modules/readiness/current.test.ts` |
-| `packages/civ7-direct-control/test/restart-lifecycle.test.ts` excluding the Tuner-readiness wrapper assertion | combine | `services/civ7-control/test/semantics/modules/lifecycle/single-player-start.test.ts` |
+| `packages/civ7-direct-control/test/shared-session.test.ts` | combine | `resources/civ7-tuner/providers/local-socket/test/execution/lifecycle.test.ts`, including exact acquisition, socket-epoch, command-disposition, and release facts |
+| `packages/civ7-direct-control/test/restart-lifecycle.test.ts#waits for Tuner readiness through the public wrapper` | combine | `services/civ7-control/test/semantics/modules/app/readiness-current.test.ts` |
+| `packages/civ7-direct-control/test/restart-lifecycle.test.ts` excluding the Tuner-readiness wrapper assertion | decompose | Qualified CLI app restart-adapter proof plus `services/civ7-control/test/semantics/modules/game/single-player-start.test.ts` |
 | `packages/civ7-direct-control/test/setup-and-lifecycle.test.ts#{reads exact Civ7Cfg setup scalars without reinterpreting numeric metadata,omits Civ7Cfg seed evidence for malformed or non-exact record cardinality}` pure byte parsing, admission, and ordering assertions | combine | `packages/civ7-save-files/test/semantics/saved-config.test.ts` |
 | The same two saved-configuration tests' directory traversal, metadata, and byte-read assertions | combine | `apps/mapgen-studio/test/execution/adapters/civ7-save-files.test.ts` |
-| `packages/civ7-direct-control/test/setup-and-lifecycle.test.ts` setup admission, mutation, readback, and lifecycle assertions | combine | `services/civ7-control/test/semantics/modules/lifecycle/single-player-start.test.ts` |
+| `packages/civ7-direct-control/test/setup-and-lifecycle.test.ts` setup admission, mutation, readback, and lifecycle assertions | combine | `services/civ7-control/test/semantics/modules/game/single-player-start.test.ts` |
 | `packages/civ7-direct-control/test/runtime-and-catalog.test.ts` command serialization assertions | combine | `services/civ7-control/test/semantics/tuner-script.test.ts` |
 | `packages/civ7-direct-control/test/runtime-and-catalog.test.ts` state-selection and command-dispatch assertions | combine | `resources/civ7-tuner/providers/local-socket/test/execution/lifecycle.test.ts` |
-| `packages/civ7-direct-control/test/runtime-and-catalog.test.ts` readiness and playable-status assertions | combine | `services/civ7-control/test/semantics/modules/readiness/current.test.ts` |
+| `packages/civ7-direct-control/test/runtime-and-catalog.test.ts#reads App UI snapshots, Tuner readiness, and playable status shapes` raw Tuner command/health assertions | combine | `resources/civ7-tuner/providers/local-socket/test/execution/lifecycle.test.ts` |
+| The same test's App UI and playable-status interpretation assertions, plus `#classifies shell status without claiming Tuner gameplay readiness` and `#validates playable status when Tuner health is unavailable` | combine | `services/civ7-control/test/semantics/modules/app/readiness-current.test.ts` |
 | `packages/civ7-direct-control/test/runtime-and-catalog.test.ts` runtime-root and GameInfo inspection assertions | combine | `plugins/cli/topics/game/test/adapters/tuner-inspection.test.ts` |
 | `packages/civ7-direct-control/test/runtime-and-catalog.test.ts` capability-catalog assertions | combine | `plugins/cli/topics/game/test/commands/game/catalog.test.ts` |
 | `packages/civ7-direct-control/test/runtime-and-catalog.test.ts` fresh-log snapshot/rewrite assertions | combine | `apps/mapgen-studio/test/execution/adapters/fresh-log-files.test.ts` |
 | `packages/civ7-direct-control/test/runtime-and-catalog.test.ts` marker acceptance and timeout assertions | combine | `services/mapgen-runs/test/semantics/modules/run-in-game/start.test.ts` |
 | `packages/civ7-direct-control/test/view-window-shot.test.ts#window-shot helper lifecycle` | combine | `resources/window-capture/providers/macos-screencapturekit/test/{semantics/provider,execution/lifecycle}.test.ts` |
 | `packages/civ7-direct-control/test/view-window-shot.test.ts#captureCiv7WindowShot` generic selection, process, platform/TCC, PNG, and failure assertions | split | `resources/window-capture/test/contract/contract.typecheck.ts` plus `resources/window-capture/providers/macos-screencapturekit/test/{semantics/provider,execution/lifecycle}.test.ts` |
-| `packages/civ7-direct-control/test/view-window-shot.test.ts#captureCiv7WindowShot` Civ7 defaults and public result assertions | combine | `services/civ7-control/test/semantics/modules/view/appshot-capture.test.ts` |
+| `packages/civ7-direct-control/test/view-window-shot.test.ts#captureCiv7WindowShot` Civ7 defaults and public result assertions | combine | `services/civ7-control/test/semantics/modules/ui/appshot-capture.test.ts` |
 | `packages/civ7-direct-control/test/view-window-shot.test.ts#appshot retention` generic configured-root pruning and explicit-destination noninterference | combine | `resources/window-capture/providers/macos-screencapturekit/test/execution/lifecycle.test.ts` |
-| `packages/civ7-direct-control/test/view-window-shot.test.ts#appshot retention` Civ7 default root, prefix, and retention selection | combine | `services/civ7-control/test/semantics/modules/view/appshot-capture.test.ts`; the service supplies policy while the provider performs only generic configured-root effects |
+| `packages/civ7-direct-control/test/view-window-shot.test.ts#appshot retention` Civ7 default root, prefix, and retention selection | combine | `services/civ7-control/test/semantics/modules/ui/appshot-capture.test.ts`; the service supplies policy while the provider performs only generic configured-root effects |
 | `packages/civ7-direct-control/test/validation.test.ts#{bounds integers with existing command-failed classification,validates player ids through the existing bounded range}` | combine | `services/civ7-control/test/semantics/bounded-input.test.ts` |
-| `packages/civ7-direct-control/test/validation.test.ts#{validates simple identifiers without broadening accepted input,validates map locations and bounds with existing map-specific ranges}` | combine | `services/civ7-control/test/semantics/modules/world/map-reads.test.ts` |
+| `packages/civ7-direct-control/test/validation.test.ts#{validates simple identifiers without broadening accepted input,validates map locations and bounds with existing map-specific ranges}` | combine | `services/civ7-control/test/semantics/modules/map/map-reads.test.ts` |
 | `packages/civ7-direct-control/test/validation.test.ts#formats dependency errors and exposes the current timer primitive` | delete | No destination; Effect scheduling and owner-native errors replace the assertion |
 
 ### Deleted package proof
@@ -155,13 +173,13 @@ reconfirms that completed census against the materialized estate.
 
 The section covers 40 test leaves and two compiler/runner files.
 
-## Civ7 Control Service
+## Civ7 Control And Play Services
 
 | Exact current source | Disposition | Exact destination |
 | --- | --- | --- |
-| The exact 30 current files under `services/civ7-control/test/behavior/modules` | combine | Reconstruct each assertion at the exact source-derived `services/civ7-control/test/semantics/modules/<module>/<operation>.test.ts` mirror; legacy module prefixes and `-procedure(s)` suffixes disappear, and mixed files split by final router operation |
-| `services/civ7-control/test/integration/client-context.test.ts` | combine | `services/civ7-control/test/execution/root.test.ts` |
-| `services/civ7-control/test/mechanics/mutation-result-policy.test.ts` | relocate | `services/civ7-control/test/semantics/mutation-result-policy.test.ts` |
+| The exact 30 current files under `services/civ7-control/test/behavior/modules` | decompose | Foundational app/game/map/UI assertions move to `services/civ7-control/test/semantics/modules/<module>/<operation>.test.ts`; actor-facing gameplay assertions move to the matching `services/civ7-play` mirror without Tuner-backed play ports |
+| `services/civ7-control/test/integration/client-context.test.ts` | decompose | Control and play `test/execution/root.test.ts` prove their independent contexts and the one-way public-client dependency |
+| `services/civ7-control/test/mechanics/mutation-result-policy.test.ts` | relocate | `services/civ7-play/test/semantics/mutation-result-policy.test.ts` |
 | `services/civ7-control/test/mechanics/primitive-schemas.test.ts` | delete | No destination; contract type proof and TypeBox's own behavior own this guarantee |
 | `services/civ7-control/test/support/{direct-control-facade,playable-status,standard-schema}.ts` | delete | No destination; public clients, module-local DTOs, and colocated fixtures replace the support cabinet |
 | `services/civ7-control/{tsconfig.test.json,vitest.config.ts}` | delete | No destination; the accepted service packet owns the proof compiler/runner |
@@ -198,8 +216,8 @@ service or proof owner.
 | `packages/studio-server/test/handler.test.ts` declared-error and unexpected-defect projection assertions | combine | `plugins/server/api/mapgen-studio/test/projection/errors.test.ts` |
 | `packages/studio-server/test/handler.test.ts` exact route-tree and collision assertions | combine | `plugins/server/api/mapgen-studio/test/projection/router.test.ts` |
 | `packages/studio-server/test/handler.test.ts` hello, replay, publish, cancellation, and subscriber-release assertions for `studio.events.watch` | combine | `plugins/server/api/mapgen-studio/test/execution/studio-events.test.ts` |
-| `packages/studio-server/test/handler.test.ts` service admission, cancellation-fence, and operation-lifecycle assertions | combine | Exact `services/{civ7-control,mapgen-runs}/test/execution/root.test.ts` owner |
-| `packages/studio-server/test/handler.test.ts` raw handler construction, HTTP status, `/rpc` mounting, non-RPC fallthrough, and aborted-transport-only assertions | delete | Shared runtime transport proof replaces these assertions; they are not API projection proof |
+| `packages/studio-server/test/handler.test.ts` service admission, cancellation-fence, and operation-lifecycle assertions | combine | Exact `services/{civ7-control,civ7-play,mapgen-runs}/test/execution/root.test.ts` owner |
+| `packages/studio-server/test/handler.test.ts` raw handler construction, HTTP status, `/rpc` mounting, non-RPC fallthrough, and aborted-transport-only assertions | decompose | Direct private procedure adaptation plus public registration move to `plugins/server/api/mapgen-studio/test/projection/router.test.ts`; HTTP status, `/rpc` mounting, fallthrough, and request-signal delivery move to `apps/mapgen-studio/test/execution/hosts/server.test.ts`; service root execution proves resulting interruption/cancellation lineage |
 | `packages/studio-server/test/liveGameWatcher.test.ts` | combine | `plugins/server/api/mapgen-studio/test/execution/live-game-watcher.test.ts` |
 | `packages/studio-server/test/operationRuntime.test.ts` public operation admission, outcome, and projection assertions | combine | Exact operation mirrors at `services/mapgen-runs/test/semantics/modules/{autoplay/autoplay,operations/current,run-in-game/start,run-in-game/status,run-in-game/cancel,run-in-game/diagnostics,save-deploy/start,save-deploy/status}.test.ts` |
 | `packages/studio-server/test/operationRuntime.test.ts` registry, records, retention, cancellation-fence, leases, service lifecycle, and event-state assertions | combine | `services/mapgen-runs/test/execution/root.test.ts` |
@@ -280,15 +298,15 @@ These sections cover five Studio-contract files and ten Studio-server files.
 | `apps/mapgen-studio/test/server/daemonFetch.test.ts` health, static serving, route mounting, HTTP status, and retired-path assertions | combine | Preserve public host behavior in `apps/mapgen-studio/test/execution/hosts/server.test.ts`; delete implementation-shaped assertions |
 | `apps/mapgen-studio/test/server/engineErrorSpine.test.ts` | combine | `plugins/server/api/mapgen-studio/test/projection/errors.test.ts` |
 | `apps/mapgen-studio/test/server/oneMount.test.ts` app/client/provider selection and delegation setup | combine | `apps/mapgen-studio/test/assembly/composition.test.ts` and `test/execution/hosts/server.test.ts` |
-| `apps/mapgen-studio/test/server/oneMount.test.ts#studio, civ7-control, and recipeDag namespaces answer over one handler` app-host mount assertion | combine | Shared server-runtime execution proof |
+| `apps/mapgen-studio/test/server/oneMount.test.ts#studio, civ7-control, and recipeDag namespaces answer over one handler` app-host mount assertion | combine | `apps/mapgen-studio/test/execution/hosts/server.test.ts`; the qualified app mounts the API plugin's public registration once |
 | The same test's `civ7.setupCatalog` and `recipeDag.get` route-projection assertions | combine | `plugins/server/api/mapgen-studio/test/projection/authoring.test.ts` |
 | The same test's readiness, lifecycle-error, and sanitization route-projection assertions | combine | `plugins/server/api/mapgen-studio/test/projection/control.test.ts` |
 | The same test's `studio.serverInfo` route-projection assertion | combine | `plugins/server/api/mapgen-studio/test/projection/router.test.ts` |
 | The same test's `studio.operations.current` route-projection assertion | combine | `plugins/server/api/mapgen-studio/test/projection/runs.test.ts` |
-| The same test's exact-one session binding and reuse assertions | combine | Shared runtime service-binding execution proof |
+| The same test's exact-one session binding and reuse assertions | combine | `apps/mapgen-studio/test/assembly/composition.test.ts` proves one app-bound ready client/session selection, and `test/execution/hosts/server.test.ts` proves reuse across the mounted host lifetime |
 | The same test's lifecycle-admission assertions | combine | `services/civ7-control/test/execution/root.test.ts` |
 | The same test's provider acquisition and release assertions | combine | `resources/civ7-tuner/providers/local-socket/test/execution/lifecycle.test.ts` |
-| `apps/mapgen-studio/test/server/oneMount.test.ts#{serializes complete public control procedures on the daemon Tuner lease,removes an aborted queued control procedure before it can enter,drains an admitted control procedure before cancellation releases its lease}` | combine | `services/civ7-control/test/execution/root.test.ts` |
+| `apps/mapgen-studio/test/server/oneMount.test.ts#{serializes complete public control procedures on the daemon Tuner lease,removes an aborted queued control procedure before it can enter,drains an admitted control procedure before cancellation releases its lease}` | decompose | `services/civ7-control/test/execution/root.test.ts` for foundational native execution and `services/civ7-play/test/execution/root.test.ts` for actor-facing delegation over the bound control client |
 | `apps/mapgen-studio/test/server/oneMount.test.ts#daemon disposal drains an admitted control procedure before closing the session` | combine | `services/civ7-control/test/execution/root.test.ts`, local-socket provider release proof, and Studio host disposal proof |
 | `apps/mapgen-studio/test/server/oneMount.test.ts#the civ7 namespace merge is collision-free` | combine | `plugins/server/api/mapgen-studio/test/projection/router.test.ts` |
 | `apps/mapgen-studio/test/server/oneMount.test.ts#out-of-scope paths fall through to the host 404` | combine | `apps/mapgen-studio/test/execution/hosts/server.test.ts`; this is app-host behavior, not API semantics |
@@ -298,7 +316,7 @@ These sections cover five Studio-contract files and ten Studio-server files.
 
 | Exact current source | Disposition | Exact destination |
 | --- | --- | --- |
-| `apps/mapgen-studio/test/browserRunner/{query-modules.d.ts,recipeRuntime.type-test.ts}` | delete | No destination; target public types and compiler own the type surface |
+| `apps/mapgen-studio/test/browserRunner/{query-modules.d.ts,recipeRuntime.type-test.ts}` | combine | Preserve the positive and negative compile assertions with a colocated declaration fixture inside `plugins/web/app/mapgen-studio/test/execution/recipe-runtime.test.tsx`, compiled by that projection's own test program rather than a shared compiler |
 | `apps/mapgen-studio/test/config/standardRecipeGeneratedTypes.type-test.ts` | delete | No destination; Swooper definition currentness and public types own the guarantee |
 | `apps/mapgen-studio/test/controllers/{_setup.ts,harness.smoke.test.tsx,useLatestRef.test.tsx}` | delete | No destination; colocated fixtures and product behavior replace generic harness proof |
 | `apps/mapgen-studio/test/server/tunerSession.test.ts` | delete | No destination; Tuner provider proof owns session lifecycle |
@@ -352,7 +370,7 @@ The section covers 69 app test/support files and one compiler file.
 | `plugins/cli/topics/game/test/commands/game/surface-contract.test.ts` | delete | No destination; Habitat topology and exact command mirrors own the surface |
 | `plugins/cli/topics/game/test/support/normal-output-boundary.ts` | inline | Inline the output-boundary assertion into each exact consuming command proof |
 | `plugins/cli/topics/game/test/support/normal-output-boundary.test.ts` | delete | No destination; command proofs own output projection |
-| `plugins/cli/topics/game/test/support/{progression-tuner-server,tuner-socket-server,unit-command-tuner-server}.ts` | delete | No destination; commands consume runtime-supplied client fakes rather than private socket servers |
+| `plugins/cli/topics/game/test/support/{progression-tuner-server,tuner-socket-server,unit-command-tuner-server}.ts` | delete | No destination; command proofs consume test-supplied client fakes shaped like the app-bound command context rather than private socket servers |
 | `plugins/cli/topics/game/test/tsconfig.json` | excluded unchanged | Same exact path |
 
 ### Git/mod topic and CLI shell
@@ -559,7 +577,7 @@ These exact 21 files normalize to these exact suffixes:
 | `plugins/mod/map/swooper-physics/test/maps/map-config-schema.test.ts` source write/rollback assertions | combine | `apps/mapgen-studio/test/execution/adapters/swooper-map-config-source.test.ts` |
 | `plugins/mod/map/swooper-physics/test/maps/map-config-schema.test.ts` whole-recipe compilation assertions | combine | `plugins/mod/map/swooper-physics/test/recipes/standard/configuration.test.ts` |
 | `plugins/mod/map/swooper-physics/test/generated/standard-generated-artifacts.test.ts` | relocate | `apps/mods/map/swooper-physics/test/artifact/standard-generated-artifacts.test.ts` |
-| `plugins/mod/map/swooper-physics/test/{.gritignore,README.md,scripts/diagnostic-command-inputs.test.ts,tsconfig.json}` | delete | No destination; Habitat, CLI command mirrors, and target compilers own these concerns |
+| `plugins/mod/map/swooper-physics/test/{.gritignore,README.md,scripts/diagnostic-command-inputs.test.ts,tsconfig.json}` | delete | No destination; Habitat structure/source law, CLI command mirrors, and owning-project compiler programs own these concerns |
 
 The section covers 108 domain files, 70 recipe files, and ten root/map/script
 files, for 188 files total.
@@ -652,26 +670,28 @@ The following proof cannot be obtained by renaming a current suite. It is new
 proof against the target construction and must be authored after its
 destination law exists:
 
-The Studio API's selected `src/service` packet has no nested test interior.
-The API root owns its complete closed contract, projection, and selected
-execution proof set below.
+The Studio API has no selected service-contract subtree or nested service-test
+interior. Its root owns the complete closed caller contract, delegates only
+bound clients, and owns the projection and selected execution proof below.
 
 | Exact new proof | Required oracle |
 | --- | --- |
-| `resources/civ7-tuner/test/contract/contract.typecheck.ts` | Consumers compile against only the provider-neutral ready Tuner contract; provider assignability is proved independently by its public implementation typecheck and one-way Nx edge |
+| `resources/civ7-tuner/test/contract/contract.typecheck.ts` | Consumers compile against only the provider-neutral ready Tuner contract carrying raw health, command, and connection facts; provider assignability is proved independently by its public implementation typecheck and one-way Nx edge |
 | `resources/window-capture/test/contract/contract.typecheck.ts` | Provider and consumers compile against only generic window selection, destination, raw capture evidence, and typed provider-neutral failures; no Civ7 identity or appshot policy is reachable |
 | `resources/civ7-tuner/providers/local-socket/test/collaboration/provider.live.test.ts` | Real local-socket framing and listener collaboration against the supported Tuner |
 | `resources/window-capture/providers/macos-screencapturekit/test/execution/lifecycle.test.ts` | New target law: interruption and release close admission, apply bounded `SIGTERM`/`SIGKILL` escalation, and drain admitted work without escaping filesystem effects; released providers refuse work; interrupted writes leave no partial destination, while an entered publication commit completes atomically |
 | `resources/window-capture/providers/macos-screencapturekit/test/collaboration/provider.live.test.ts` | One opt-in real ScreenCaptureKit/TCC/window proof on macOS without Civ7-specific matching or semantic claims |
-| `services/civ7-control/test/contract/client.typecheck.ts` | Public module client shape and resource requirements compile without facade extraction |
-| `services/civ7-control/test/execution/root.test.ts` | Middleware order, request isolation, cancellation, and once-only root execution on the accepted service substrate |
+| `services/civ7-control/test/contract/client.typecheck.ts` | The sole public client face, including any owned-contract re-export, exposes exactly `{app,game,map,ui}` without router, implementation, facade, or provider leakage |
+| `services/civ7-control/test/execution/root.test.ts` | Private-router middleware order, request isolation, raw-resource interpretation, and once-only direct Effect-to-procedure adaptation; typed context/dependencies, declared failures, defects, request interruption, cancellation, and finalization retain their lineage without a shared runtime |
+| `services/civ7-play/test/contract/client.typecheck.ts` | The sole public client face, including any owned-contract re-export, exposes exactly `{attention,automation,city,diplomacy,notifications,progression,planning,turn,unit}` over the public control client with no Tuner-backed port, router, implementation, or provider leakage |
+| `services/civ7-play/test/execution/root.test.ts` | Private-router middleware order, request isolation, one-way delegation through the bound control client, and once-only direct Effect-to-procedure adaptation with typed dependency, error, interruption, cancellation, and finalization lineage |
 | `services/mapgen-runs/test/contract/client.typecheck.ts` | Save/Deploy and Run-in-Game clients expose only the accepted public service contract |
-| `services/mapgen-runs/test/execution/root.test.ts` | Middleware order, request isolation, records, retention, cancellation, leases, event state, and once-only root invocation through fake ready ports |
-| `plugins/server/api/mapgen-studio/test/contract/client.typecheck.ts` | The exact public Studio route tree compiles from the API contract without importing service-private source |
+| `services/mapgen-runs/test/execution/root.test.ts` | Middleware order, request isolation, records, retention, cancellation, leases, event state, and once-only direct Effect-to-procedure adaptation through fake ready ports, including typed dependency, error, interruption, and finalization lineage |
+| `plugins/server/api/mapgen-studio/test/contract/client.typecheck.ts` | The exact public Studio route tree compiles from API-owned caller contracts without importing a service contract subtree, router, implementation, or other service-private source |
 | `plugins/server/api/mapgen-studio/test/projection/authoring.test.ts` | Saved configurations, official setup catalog, and recipe-DAG routes faithfully project their declared app-selected dependencies |
-| `plugins/server/api/mapgen-studio/test/projection/control.test.ts` | Every control and live-control route faithfully projects public control-service clients |
-| `plugins/server/api/mapgen-studio/test/projection/errors.test.ts` | Every declared route error is exact and unexpected defects remain sealed |
-| `plugins/server/api/mapgen-studio/test/projection/router.test.ts` | The frozen route tree and server-identity projection compose once without collision or alias |
+| `plugins/server/api/mapgen-studio/test/projection/control.test.ts` | Every frozen control, live-control, and play-compatibility route delegates the bound control or play client, while `civ7.autoplay` explicitly delegates the bound MapGen-runs autoplay client; no service contract subtree is composed |
+| `plugins/server/api/mapgen-studio/test/projection/errors.test.ts` | Every declared route error is exact, unexpected defects remain sealed, and the private adaptation preserves error/interruption origin rather than manufacturing a compatibility tunnel |
+| `plugins/server/api/mapgen-studio/test/projection/router.test.ts` | The frozen route tree and server-identity projection compose once without collision or alias; every Effect-backed route adapts directly at the private implementation/router boundary and public `api.ts` registers that router once without choosing or mounting transport |
 | `plugins/server/api/mapgen-studio/test/projection/runs.test.ts` | Current operations, Autoplay, Save/Deploy, Run-in-Game, diagnostics, status, and cancellation faithfully project MapGen-runs clients |
 | `plugins/server/api/mapgen-studio/test/execution/live-game-watcher.test.ts` | Watcher publication, quiet equality, diagnostics-only failures, replay, and scoped release |
 | `plugins/server/api/mapgen-studio/test/execution/studio-events.test.ts` | Hello, replay, publication, cancellation, and subscriber release use the accepted API-owned event scope |
@@ -681,11 +701,12 @@ execution proof set below.
 | `packages/civ7-mod-install/test/semantics/installation-plan.test.ts` | Invalid identifiers and paths are rejected; supplied observations deterministically yield wholesale replacement plans, digest comparisons, counts, and typed receipts without reading or mutating a host filesystem |
 | `packages/civ7-save-files/test/contract/contract.typecheck.ts` | Consumers compile against pure saved-config parsing and DTO contracts without filesystem capability |
 | `packages/studio-run-workspace/test/contract/contract.typecheck.ts` | Consumers compile against pure correlation, path-plan, manifest parse/serialize, and comparison contracts without filesystem capability |
-| `apps/cli/test/assembly/composition.test.ts` | Exact topic membership, Tuner and window-capture providers, public-client, configuration, and process facts |
+| `apps/cli/test/assembly/composition.test.ts` | Exact topic membership, Tuner and window-capture providers, app-bound public clients, configuration, and process facts |
 | `apps/cli/test/execution/{binding,finalization}.test.ts` | Native Oclif demand binding and once-only command-process finalization |
-| `apps/mapgen-studio/test/assembly/composition.test.ts` | Exact Tuner/window-capture providers, public clients, configuration roots, cold adapters, plugins, and process facts, including official-data roots |
-| `apps/mapgen-studio/test/execution/hosts/{server,web,dev}.test.ts` | Each native host starts, mounts, observes, and disposes only its selected roles |
+| `apps/mapgen-studio/test/assembly/composition.test.ts` | Exact Tuner/window-capture providers, app-bound public clients, configuration roots, cold adapters, API/web plugins, and process facts, including official-data roots; while extension-free adaptation is selected, no prototype-mutation bootstrap is present |
+| `apps/mapgen-studio/test/execution/hosts/{server,web,dev}.test.ts` | Each native Bun/Vite/server/web host entrypoint starts, mounts only the selected API registration and web projection, preserves request-signal/interruption behavior, observes, and disposes its exact roles |
 | `apps/mapgen-studio/test/execution/adapters/{civ7-save-files,studio-run-files,fresh-log-files,civ7-official-data,swooper-map-config-source}.test.ts` | Each selected Studio cold adapter alone owns its exact filesystem effects and release/failure behavior |
+| `apps/mapgen-studio/test/execution/adapters/swooper-map-realization.test.ts` | The app-owned adapter implements the public MapGen-runs realization descriptor by invoking only the Swooper realization's finite public Nx targets, preserves target failure/cancellation evidence, and imports neither realization source nor outcome authority |
 | `plugins/mod/map/swooper-physics/test/definition.test.ts` | Product identity, public definition face, and finite authored capability membership |
 | `plugins/mod/map/swooper-physics/test/authoring/targets.test.ts` | Exact cold authoring target table and deterministic currentness contract |
 | `apps/mods/map/swooper-physics/test/runtime/{map-script-adapter,map-script-setup,map-script-entrypoint}.test.ts` | The exact manifest-selected runtime subjects prove engine-global adapter/setup and map-loader execution only at the mod realization; the entrypoint suite also compiles its definition/EngineAdapter boundary |

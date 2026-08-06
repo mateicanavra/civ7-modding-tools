@@ -78,6 +78,9 @@ is expensive to move.
 | Package exports, exact construction types, assignability | TypeScript and `package.json` |
 | Project classification, dependency edges, and scheduling | Nx project metadata and targets |
 | Build, generation, currentness, deployment, and proof ordering | Nx targets and `dependsOn` |
+| Project-local compiler and build programs | The owning project; Nx only schedules their entrypoints |
+| Public API registration and caller projection | The qualified API plugin |
+| Selected adapters, public-client binding, transport mounting, native host entrypoints, and exact host proof | Qualified app or realization composition |
 | Observable behavior, failure translation, lifecycle, cancellation | The owning kind's closed proof axes |
 | Reachability and unused public exports | Knip |
 | Instance-specific product inventory | Qualified Civ7 niche or product authority, never a generic blueprint |
@@ -243,7 +246,7 @@ admission authority.
 | Web app projection | `UNCONSTRUCTIBLE` until qualified closed law | `plugins/web/app/<app>` | pending qualified web-app packet |
 | CLI app | Settled commandless ownership; shared shell selected and qualification pending | `apps/cli` | shared `app@1` plus corrected `cli-shell` specialization |
 | MapGen Studio app | Shared shell selected; qualified role law pending | `apps/mapgen-studio` | shared `app@1` plus Studio specialization |
-| Existing Swooper mod split | Admitted portable definition and deployable realization owners | `plugins/mod/map/swooper-physics`, `apps/mods/map/swooper-physics` | shared root kinds plus closed qualified MapGen definition, realization, and nested laws |
+| Existing Swooper mod split | Ownership split selected; realization app admitted, definition root still unadmitted behind its qualified family packet | `plugins/mod/map/swooper-physics`, `apps/mods/map/swooper-physics` | shared root kinds plus admitted realization law and independently enforced nested MapGen laws; qualified map-definition root law pending |
 | Civilization mod definition | `UNCONSTRUCTIBLE` until qualified closed law | `plugins/mod/civ/<mod>` | pending qualified definition packet |
 | Civilization mod realization | `UNCONSTRUCTIBLE` until qualified closed law | `apps/mods/civ/<mod>` | pending qualified realization packet |
 
@@ -473,6 +476,8 @@ by the shared provider packet.
 - The nested root is independently admitted by `provider`.
 - Resource structure does not apply its package-root shape to the provider
   root; the physical parent relation does not merge the two kinds.
+- App composition selects and acquires a provider, but the provider is neither
+  part of the resource contract nor an app-owned source interior.
 
 **Public face and import direction**
 
@@ -577,6 +582,21 @@ The selected `modules/` collection is closed, nonempty, and admits only
 lower-kebab module directories satisfying that module spine. Loose files,
 invalid child names, and unselected directories are violations.
 
+The selected Civ7 service instances close that generic collection to exact
+semantic inventories:
+
+```text
+civ7-control -> {app,game,map,ui}
+civ7-play -> {attention,automation,city,diplomacy,notifications,
+              progression,planning,turn,unit}
+mapgen-runs -> {autoplay,operations,run-in-game,save-deploy}
+```
+
+Within control, `game` owns setup/start and current-game facts. `map` separately
+owns observation, visibility, plot, grid, and surface facts; those operations
+must not be folded into `game`. These instance inventories are product law, not
+permission for a generic service blueprint to encode Civ7 vocabulary.
+
 Contract directories admit direct kebab-case TypeScript leaves beside
 `index.ts`. Router directories admit only named `*.router.ts` operation leaves;
 the module-root `router.ts` composes them. Neither module `contract.ts` nor
@@ -617,18 +637,25 @@ additional service-root cabinet is admitted. Recognized outputs are `dist/`,
 **Public face and import direction**
 
 - `src/client.ts` is the complete public caller and construction face. It
-  accepts runtime-supplied ready capabilities and maps them into the
+  accepts app-supplied ready capabilities and maps them into the
   service's private module ports.
 - `src/service/**` is private implementation.
-- Services consume runtime-supplied ports and public package types.
+- Services consume app-supplied ready ports and public package types.
+- A service may consume another service only through that owner's public
+  `src/client.ts` face. `civ7-play -> civ7-control` is the selected semantic
+  direction; private contracts, routers, implementation types, and the
+  control service's ready resource context remain inaccessible.
 - A service may declare a named semantic capability in its public construction
   face without importing the project that realizes it. That public dependency
   descriptor owns the adapter operation signatures and typed failure
-  vocabulary. A realizing app may implement the public descriptor through cold
-  execution-descriptor references; a consuming app selects one adapter
-  identity. Shared runtime validates exact-one compatible selection and lowers
-  it into the ready private port supplied to the client constructor. This is
-  neither a service-to-app project dependency nor provider selection.
+  vocabulary. A qualified consuming app may directly construct one adapter
+  implementing that descriptor and pass the ready value to the public client
+  constructor. The adapter may compose public definition faces and pure
+  packages while owning its app-qualified host effects; it never imports
+  another app to obtain an implementation. Habitat closes the selected adapter
+  identity and import/proof topology, and TypeScript proves descriptor
+  assignability. No shared runtime, execution-descriptor compiler, facade, or
+  private cross-app import participates in construction.
 - A service client may type its ready input through the matching public
   resource contract and may consume its own private port types. It imports no
   provider implementation.
@@ -639,20 +666,28 @@ additional service-root cabinet is admitted. Recognized outputs are `dist/`,
   module implementation. They do not become a resource unless they manage a
   foreign acquired capability through a provider-neutral contract. An
   API-selected projection packet admits none of that semantic service state.
-- `base.ts` owns `Context` and authors a native `os.$context<Context>()` base
-  only when context-authored middleware needs it.
-- `impl.ts` owns the sole
-  `implement(contract).$context<Context>()` lineage, its unconfigured `impl`,
-  configured `service`, and the official Effect extension when procedures are
-  Effect-authored.
-- Each module descends from its exact configured service branch. Its
-  module-root router composes plain operation leaves; the service-root
-  `router.ts` performs the sole aggregate implementation through unconfigured
-  `impl.router(...)`.
-- Contracts use native `.errors(...)`; handlers use supplied `errors.*`
-  constructors. The community `effect-orpc` bridge, `ORPCTaggedError`,
-  compatibility status tables, and custom error tunnels are not target
-  surfaces.
+- The private implementation owns typed oRPC context and Effect dependencies;
+  public callers never receive an ambient runtime or service locator.
+- Every Effect-authored operation crosses into its native oRPC procedure once,
+  directly at the owning private service or API implementation/router boundary.
+  The adapter preserves typed context requirements, declared error lineage,
+  unexpected defects, request interruption, and cancellation through the
+  owner-specific proof rather than through a shared bridge or runtime.
+- Extension-free direct handler adaptation is the portable default. This law
+  deliberately does not freeze beta.23 builder names, chaining syntax, Cause
+  mapping, or `@orpc/experimental-effect` extension use. Any such mechanism is
+  selected only after the exact beta.23 published source, declarations, and
+  discriminating type/lifecycle fixtures prove it for the admitted artifact.
+- If that gate selects a prototype extension, one qualified process bootstrap
+  owns the physical-module-realm mutation and proves it executes exactly once
+  before router construction. Service and API feature modules never scatter
+  side-effect imports. Without that proof, the direct extension-free handler
+  remains selected.
+- Module routers compose their exact operation leaves and the service-root
+  router composes modules once. Expected public failures are declared and
+  projected once at the native contract/handler boundary; unexpected failures
+  remain sealed. A community bridge, `ORPCTaggedError`, compatibility status
+  table, or custom error tunnel is not a target surface.
 
 **Containing-project proof topology**
 
@@ -683,12 +718,15 @@ while a containing API owns its distinct contract/projection/execution axes.
 
 **Nx mapping**
 
-- Current: the control service uses `kind:control`.
+- Current: the flat control service uses `kind:control` and incorrectly mixes
+  foundational control with actor-facing play.
 - Target graph metadata after T1: `type:service` plus one
   product/capability/domain identity consistent with the shared taxonomy.
-- Service projects may depend on packages and the matching resource contract,
-  not providers or apps. The resource edge exists only for the public client
-  input and cannot expose acquisition or provider construction.
+- Service projects may depend on packages, matching resource contracts, and a
+  lower semantic service's public client, never providers or apps. The control
+  service may consume ready resource values through its public construction
+  input. The play service may consume only the public control client and has no
+  resource/provider edge.
 
 **Generator**
 
@@ -808,7 +846,7 @@ every `src/commands/<path>/<command>.ts` requires exactly
 `test/commands/<path>/<command>.test.ts`, and no proof directory or suite may
 exist without its matching source path. That layer proves command projection
 semantics from flags and arguments through client calls to output and declared
-errors using runtime-supplied fakes.
+errors using test-supplied fakes shaped like the app-bound command context.
 
 When `src/adapters/` is selected, `test/adapters/` mirrors its exact directory
 and leaf identities in the same way. Every
@@ -856,18 +894,30 @@ project.json
 src/
   api.ts
   client.ts
-  context.ts
-  contract.ts
-  modules/
-  router.ts
+  service/
+    habitat.toml
+    base.ts
+    contract.ts
+    impl.ts
+    router.ts
+    modules/
+      <module>/
+        AGENTS.md
+        contract/
+          index.ts
+        module.ts
+        router.ts
+        router/
+          <operation>.router.ts
 test/
 tsconfig.json
 ```
 
-The qualified API packet owns its caller-facing contract/router relations. Its
-modules are projection groups that consume context-supplied public clients and
-adapters; they own no domain state, actors, provider lifecycle, database, or
-semantic service policy. The API project root owns all proof.
+The qualified API packet owns the nested `src/service` projection and its
+caller-facing contract/router relations. Its modules are projection groups that
+consume context-supplied public clients and adapters; they own no domain state,
+actors, provider lifecycle, database, or semantic service policy. The API
+project root owns all proof.
 
 **Finite optional authored interiors**
 
@@ -880,24 +930,33 @@ semantic service state, database, or nested proof interior is admitted.
 
 **Public face and import direction**
 
-- `client.ts` is the caller face derived from the complete API contract.
-- `api.ts` is the server-side projection face over the API router.
-- `src/context.ts` owns the exact public service-client and app-adapter context
-  required by projections.
-- `src/contract.ts` aggregates module contracts and owns the sole
-  caller-facing route tree.
+- `client.ts` is the public caller face derived from the complete API contract.
+- `api.ts` is the public server-registration face over the private API router.
+- `src/service/base.ts` owns the exact public service-client and app-adapter
+  context required by projections.
+- `src/service/contract.ts` aggregates API-owned module contracts and owns the
+  sole caller-facing route tree.
+- `src/service/impl.ts`, `src/service/router.ts`, and the module routers are
+  private API projection implementation.
+- Each Effect-backed projection is adapted once, directly at that private
+  implementation/router boundary; `api.ts` only exposes the already-composed
+  registration face.
 - The application host owns Elysia and oRPC transport realization; neither API
   face chooses a transport, process, or provider.
 - Module contracts own caller-facing API schemas and errors. Routers translate
   those calls to capabilities supplied through API context; they neither
   reconstruct a domain-service contract nor import service-private source.
-- When an API preserves a complete public service-contract subtree at the same
-  route identities, one module contract leaf may compose that subtree whole
-  and delegate through its public client. It may not pick types or procedures
-  from the contract, redeclare its schemas, or import the service router.
+- The API never composes a whole service-contract subtree. Every caller-facing
+  contract leaf is API-owned and delegates explicitly through the matching
+  public client, even when preserving a frozen caller route namespace.
 - The host app materializes `Context` from public service clients and selected
   adapters before mounting `api.ts`. Browser callers import
   only `client.ts`.
+
+The qualified Studio API closes its module inventory to `authoring`, `control`,
+`runs`, and `studio`. The module name is `control`, not `civ7`; it may project
+the frozen caller-facing `civ7.*` namespace without acquiring Civ7 domain
+authority or composing the control/play service contracts wholesale.
 
 **Proof topology**
 
@@ -942,8 +1001,9 @@ only.
 
 No API generator is required for this migration. If one is later earned, it
 must compose the shared plugin shell and qualified projection atomically. It
-must refuse partial roots and never emit `server.ts`, `package.json`, a service
-implementation, a community Effect bridge, or an oRPC 1 compatibility layer.
+must refuse partial roots and never emit `server.ts`, `package.json`, a
+domain-service implementation, a community Effect bridge, or an oRPC 1
+compatibility layer.
 
 ## Web Projection Authority
 
@@ -978,14 +1038,16 @@ disjoint even when they observe the same user capability.
 **State:** Shared `app@1` is accepted. It owns only the closed generic app
 shell. Qualified Civ7 app packets own actual host composition and proof.
 
-Habitat 0.5.2 does not provide `defineApp`, profiles, `startApp`, provider
-provisioning, client binding, or a process runtime. An app therefore uses its
-real host directly: finite Nx tasks for mod realization, native Oclif for the
-CLI, and Bun/Vite/server/web entrypoints for Studio. The app selects providers
-and plugins, acquires ready resources, constructs public service clients,
-materializes projection context, mounts its roles, observes the process, and
-disposes its scope. These mechanics do not transfer semantic authority out of
-resources, services, or plugins.
+Habitat 0.5.2 supplies and checks structure and bounded source law only. It does
+not provide `defineApp`, profiles, `startApp`, a compiler, provider
+provisioning, client binding, transport mounting, host proof, or a process
+runtime. An app therefore owns its project-local compiler/build program and
+uses its real host directly: finite Nx tasks for mod realization, native Oclif
+for the CLI, and Bun/Vite/server/web entrypoints for Studio. The app selects
+providers and plugins, acquires ready resources, constructs and binds public
+service clients, materializes projection context, mounts its roles, observes
+the process, and disposes its scope. These mechanics do not transfer semantic
+authority out of resources, services, or plugins.
 
 An app may select one semantic adapter identity for each requirement declared
 by its services and projections. The consuming service imports no app
@@ -995,7 +1057,7 @@ exposing paths, prior bytes, handles, or host-specific failures to the caller.
 `src/runtime/adapters/` is closed and source-derived, never a generic
 integration cabinet.
 
-For the CLI role, the app-owned harness surrounds native Oclif `run(...)` with
+For the CLI role, the app-owned bootstrap surrounds native Oclif `run(...)` with
 one managed process scope and exposes bound clients through a scoped command
 context. Topic-local bases carry static requirement descriptors and narrow
 access to their declared clients. Native Oclif command selection is the
@@ -1017,15 +1079,16 @@ may run production roles; a development entrypoint may cohost them without
 creating another app kind. Nx records graph identity and schedules entrypoints;
 it does not admit app kind.
 
-The qualified Studio packet selects exactly these cold app adapters:
+The qualified Studio packet selects exactly these app adapters:
 
 ```text
-runtime/adapters/
+src/runtime/adapters/
   civ7-official-data.ts
   civ7-save-files.ts
   fresh-log-files.ts
   studio-run-files.ts
   swooper-map-config-source.ts
+  swooper-map-realization.ts
 ```
 
 The app composition owns those semantic adapter identities, their concrete
@@ -1035,8 +1098,15 @@ Studio API's explicit `OfficialDataCatalog` requirement; it is separate from
 saved-game configuration access. The other adapters implement bounded
 filesystem effects for MapGen-runs or API context while importing pure
 parser/planner packages and the Swooper definition's pure authoring surface.
-No adapter identity or implementation is duplicated in a service or API
-module.
+`swooper-map-realization.ts` implements the exact public MapGen-runs
+realization descriptor from that public definition plus the pure
+`studio-run-workspace` and `civ7-mod-install` packages. It owns the ephemeral
+run's physical materialization/install effects and returns opaque receipts.
+The Studio composition constructs it directly and supplies it to the
+MapGen-runs client, which owns correlation, reconciliation, and the final
+semantic operation outcome. The adapter imports no mod-realization app source;
+that separate app owns only its own deployable realization outcome. No adapter
+identity or implementation is duplicated in a service or API module.
 
 Every qualified app packet owns a required closed proof interior:
 
@@ -1388,6 +1458,9 @@ app dependency.
 **Public face and import direction**
 
 - The realization app has no reusable production export.
+- Its finite Nx target entrypoints realize this app's own deployable artifact
+  and proof. They are task surfaces, not an importable capability or the
+  supplier for Studio's ephemeral run.
 - It consumes exactly one matching mod definition plus public SDK/runtime,
   pure adapter contracts, packages, and qualified service/resource surfaces.
 - It owns render, bundle, generated-currentness, deployment, compatibility,
@@ -1417,6 +1490,9 @@ Instance-specific product assertions do not enter generic realization law.
 - Observed graph metadata may describe `type:app`, `runtime:mod`, and the
   matching family identity. These facts do not admit the Habitat packet.
 - Nx owns the exact definition-to-realization edge and build/deploy ordering.
+- No Studio-to-realization project or target edge is needed for the dynamic
+  path; the Studio adapter depends only on public definition and pure package
+  owners.
 
 **Generator**
 
