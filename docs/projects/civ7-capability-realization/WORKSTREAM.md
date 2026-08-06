@@ -219,9 +219,16 @@ eight generated source entries are gone. The pure file plan requires exactly
 one compiled script identity per admitted config. App build/check and 38 tests,
 the shared app law, qualified source law, both filesystem-boundary laws, the
 exported-value JSDoc law, and scoped Knip pass. This receipt does not harden the
-current transitional proof folders or claim loader/live success: proof-layer
-normalization, app definition/profile/entrypoint construction, qualified
-installation, and the held Interactive dependencies remain in this slice.
+current transitional proof folders or claim loader/live success.
+
+**Realization-proof receipt:** the app proof interior is now closed around
+`artifact`, `deployment`, `runtime`, and `live` confidence axes. Final-surface
+parity belongs to the Standard recipe and is only executed by the realization's
+uncached live target. The ordinary Nx graph proves 527 product tests and 28 app
+tests, both typechecks and all dependencies; the generic proof-topology law,
+exported-value JSDoc law, and scoped Knip pass. No live Civ7 target ran or
+passed. App definition/profile/entrypoint construction, qualified installation,
+and the held Interactive dependencies remain in this slice.
 
 #### 1.1.3 Slice Construction And Evidence
 

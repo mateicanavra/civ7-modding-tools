@@ -1,0 +1,51 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "map-mod-realization-proof"
+root = "apps/mods/map/*/test"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "artifact",
+  "deployment",
+  "live",
+  "runtime",
+  "setup.ts",
+  "tsconfig.json",
+]
+
+[[scopes]]
+name = "map-mod-realization-artifact-proof"
+root = "apps/mods/map/*/test/artifact"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["*.test.ts"]
+
+[[scopes]]
+name = "map-mod-realization-deployment-proof"
+root = "apps/mods/map/*/test/deployment"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["*.test.ts"]
+
+[[scopes]]
+name = "map-mod-realization-runtime-proof"
+root = "apps/mods/map/*/test/runtime"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "*.fixture.ts",
+  "*.test.ts",
+]
+
+[[scopes]]
+name = "map-mod-realization-live-proof"
+root = "apps/mods/map/*/test/live"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["*.live.test.ts"]

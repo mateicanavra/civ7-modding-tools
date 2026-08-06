@@ -72,8 +72,7 @@ cold filesystem effects, while CLI topics project their bound capabilities.
 MapGen run records, cancellation, retention, and events remain scoped
 MapGen-runs service state rather than a manufactured resource.
 
-**Gradient:** realization proof normalization -> app profile/entrypoints and
-qualified installation -> Interactive construction
+**Gradient:** app profile/entrypoints and qualified installation -> Interactive construction
 -> joint Core Platform seal -> Dacia Product -> Estate Reconciliation ->
 Platform Seal. The Tuner protocol remains private to its sole provider unless
 another independent consumer earns a public package.
