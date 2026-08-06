@@ -283,9 +283,10 @@ product owner or corpus member.
 Participating capability owners target the compatible core tuple `@orpc/*`
 `2.0.0-beta.23`, Effect `4.0.0-beta.101`, and TypeBox `1.3.8`.
 `@orpc/experimental-effect@2.0.0-beta.23` is a candidate adapter, not selected
-law. The published global `dev:effect-orpc` skill verifies only the exact
-beta.17 E4 profile, so it cannot authorize beta.23 spelling or behavior by
-analogy.
+law. The published global vendor skills classify this exact tuple as an
+unclassified preview lane, so its spelling and behavior come from installed
+beta.23 source, declarations, and discriminating proof rather than analogy or
+repository-local vendor guidance.
 
 The portable Effect-oRPC law is smaller: every Effect-authored procedure is
 adapted directly and exactly once at its owning private service or API

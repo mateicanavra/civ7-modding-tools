@@ -63,7 +63,7 @@
 ## Domain Safety
 
 - Intent, dispatch, observation, acceptance, and outcome remain distinct:
-- Stable no-repeat identity for uncertain mutation:
+- Play-owned stable no-repeat identity for uncertain gameplay mutation (N/A for a control native atom):
 - Fresh evidence required before retry:
 - Relationship evidence for any non-neutral label:
 - Raw resource facts remain owner-qualified:

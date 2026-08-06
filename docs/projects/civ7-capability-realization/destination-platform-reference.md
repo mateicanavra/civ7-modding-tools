@@ -383,4 +383,4 @@ the comparison exposed these concrete corrections:
 | Provider realization | CLI and Studio must actually acquire the selected providers and bind clients; the current working tree has not closed that chain |
 | Active guidance | The sealed model now drives an explicit keep/repair/consolidate/delete pass over local skills, AGENTS routers, ADRs, and architecture docs before source movement |
 | API/workflow/data/controller expansion | Keep explicit re-entry gates rather than creating layers for topology symmetry |
-| Vendor lane | The repository pins oRPC/Effect-oRPC `2.0.0-beta.23` and Effect `4.0.0-beta.101`; the published global `dev:effect-orpc` skill's verified E4 profile covers beta.17, so beta.23 syntax and lifecycle claims require exact installed-source proof |
+| Vendor lane | The repository pins oRPC/Effect-oRPC `2.0.0-beta.23` and Effect `4.0.0-beta.101`; the published global vendor skills classify that tuple as an unclassified preview lane and route it to exact installed-source and discriminating proof rather than to repository-local syntax guidance |

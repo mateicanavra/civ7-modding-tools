@@ -60,6 +60,14 @@ and depends only on the public control client. `mapgen-runs` owns exactly
 `{autoplay,operations,run-in-game,save-deploy}` and remains separate from both
 live-control semantics and pure MapGen definition truth.
 
+Within control, `game` composes explicit native city, diplomacy, notification,
+player, progression, turn, and unit subdomains. Their leaves are exact `observe`,
+`check`, and single-dispatch `send` operations, not generic operation unions.
+Play composes those atoms into actor-facing requests and owns gameplay polling,
+postconditions, no-repeat policy, and reconciliation. Separately named
+foundational operations may perform bounded observation required by their own
+explicit contract, but never replay a mutation or decide actor meaning.
+
 Public service dependency descriptors may be implemented by qualified app
 adapters. The app constructs the ready adapter from public definitions, pure
 packages, and its host APIs, then supplies it to service-client construction.

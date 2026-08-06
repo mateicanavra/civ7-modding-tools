@@ -63,12 +63,23 @@ dependencies, extract private types, or import router source.
 - `services/mapgen-runs` remains a separate operation authority in exactly
   `{autoplay, operations, run-in-game, save-deploy}`.
 
-Control owns native admission, lowering, dispatch, bounded readback, and exact
-native uncertainty. It does not own gameplay goals, no-repeat policy, or next
-action. Play may preserve native evidence returned by control, but only play
-interprets it as a gameplay outcome. MapGen-runs owns run intent, ordering,
-state, correlation, reconciliation, and final semantic outcome; it does not own
-portable MapGen definition truth or app-qualified physical effects.
+Control's `game` module composes explicit native subdomains such as `city`,
+`diplomacy`, `notifications`, `player`, `progression`, `turn`, and `unit`; those nouns do
+not become peer control modules. Native leaves use `observe`, `check`, and
+`send`. A `send` performs one fresh native check and at most one invocation,
+then returns exact dispatch evidence and optional same-evaluation
+`immediateAfter` readback. A generic operation union or caller-authored
+operation name is the deleted facade under another spelling.
+
+Those native action leaves do not own polling, gameplay postconditions,
+no-repeat policy, actor-facing `request`, reconciliation, or next action. A
+separately named foundational control operation may perform bounded observation
+required by its own explicit contract, but cannot replay a mutation or decide
+actor meaning. Play may preserve native evidence returned by control, but only
+play interprets it as a gameplay outcome. MapGen-runs owns run intent, ordering,
+state, correlation,
+reconciliation, and final semantic outcome; it does not own portable MapGen
+definition truth or app-qualified physical effects.
 
 ### API Plugins
 
@@ -154,6 +165,7 @@ non-trivial service or API slice.
 
 <invariants>
 <invariant name="one-semantic-owner">Control, play, and MapGen-runs retain distinct facts, transitions, and correction laws.</invariant>
+<invariant name="native-control-kernel">Control has exactly app/game/map/UI at its root; game nests explicit native subdomains whose leaves are observe, check, or single-dispatch send, never generic operation unions.</invariant>
 <invariant name="public-client-private-router">Consumers call public service clients; complete service routers and implementation stay private.</invariant>
 <invariant name="apps-compose">Qualified apps acquire providers and supply ready typed dependencies, bound clients, and API context.</invariant>
 <invariant name="api-owns-caller-contract">An API owns its caller contract and delegates to bound public clients without copying service authority.</invariant>
