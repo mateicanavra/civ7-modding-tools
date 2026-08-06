@@ -1,6 +1,6 @@
 # Civ7 Capability Realization Frame
 
-**Status:** Ground sealed; Core Platform 1.1 Swooper construction active
+**Status:** Ground sealed; Core Platform 1.2 Interactive construction active
 **Date:** 2026-08-05
 **Owner:** Civ7 platform architecture and product stewardship
 
@@ -52,12 +52,13 @@ route. It is a funnel, not commit chronology and not another production layer.
 Structure selects Owner. Boundary. Direction. Lifecycle. Closure. Descent
 selects Ground. Chain. Ratchet. Delete. Seal.
 
-**Current container:** construct the complete Swooper definition and realization
-chain on the admitted Habitat consumer substrate. The four models, exact
-corpora, Ground receipt, Explore Live Map oracle, Studio design synchronization,
-wind and pressure reconstruction, and seed-stateless latitude fallback are
-sealed inputs. Habitat source and shared law remain upstream; Civ7 authors only
-instances, qualified overlays, product policy, and compatibility rules.
+**Current container:** construct the Interactive platform chain on the admitted
+Habitat consumer substrate. The completed Swooper cold construction, four
+models, exact corpora, Ground receipt, Explore Live Map oracle, Studio design
+synchronization, wind and pressure reconstruction, and seed-stateless latitude
+fallback are sealed inputs. Habitat source and shared law remain upstream;
+Civ7 authors only instances, qualified overlays, product policy, adapters, and
+compatibility rules.
 
 `@habitat-ai/cli@0.5.1` and its exact `@habitat-ai/sdk@0.5.1` dependency now
 supply the selected `app@1`, `package@1`, `plugin@1`, `plugin-nx@1`,
@@ -66,12 +67,14 @@ architecture are gone. `service@1` remains intentionally unselected, so
 current Civ7 service law stays local rather than being disguised as shared
 substrate.
 
-The active chain is admitted config -> generated entrypoint/digests ->
-materialized tree -> installation receipt -> loader/runtime evidence ->
-final-surface parity. Swooper does not seal alone: its source writer,
-deployment path, and fresh-live proof consume Interactive owners. Interactive
-construction therefore follows inside the same Core Platform parent, and both
-close through one joint proof and deletion receipt.
+The active chain is provider-neutral resource -> concrete provider -> semantic
+service -> caller projection -> real host composition -> observation. Habitat
+0.5.1 closes the shared structural shells but publishes neither a product app
+runtime nor a selected service kind. Provider selection, acquisition, public-
+client binding, host mounting, observation, and disposal therefore belong to
+the qualified CLI or Studio app composition that actually performs them;
+services retain Civ7-owned law. Decorative app descriptors, profiles,
+`startApp` wrappers, and copied shared-service packets are refused.
 
 The first definition ownership reduction is closed: diagnostics and metric
 commands now live in the closed `mapgen` CLI topic, consume public Swooper and
@@ -105,11 +108,23 @@ proves 29 tests. Published Habitat and canonical Template expose no generic
 product app-runtime constructor, so no inert app descriptor or profile was
 authored.
 
-**Gradient:** Interactive construction -> joint Core Platform seal -> Dacia
+**Gradient:** Tuner and window-capture resources -> local semantic services ->
+CLI and Studio projections/composition -> joint Core Platform seal -> Dacia
 Product -> Estate Reconciliation -> Platform Seal.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-08-05 - Interactive Runtime Substrate Rebased
+
+The accepted Interactive target previously delegated provider lifecycle,
+service binding, projection mounting, and process disposal to a generic Habitat
+runtime and expected shared `service@1` law. The published 0.5.1 consumer face
+falsifies both assumptions: it supplies structural `app@1`, `resource@1`, and
+`provider@1`, while `service@1` is intentionally unselected and no product
+runtime constructor exists. The product ownership model survives. Each
+qualified host app now owns its concrete composition and lifecycle directly;
+services keep local Civ7 law and consume ready resource values.
 
 ### 2026-08-05 - Product App Runtime Refused
 
@@ -221,14 +236,12 @@ The following work is complete and is not reopened by this frame:
 | --- | --- | --- |
 | Package | Pure protocol, SDK, algorithm, schema, parser, plan, or comparison matter | Filesystem/network/engine effects, managed external state, product orchestration, host startup |
 | Resource | A provider-neutral foreign capability with a real acquire/use/release lifetime and typed failure vocabulary | Stateless external calls, service-owned state, semantic product policy, provider selection, caller projection |
-| Provider | One concrete resource realization and foreign-failure translation | Resource contract authority, app profile, service policy |
+| Provider | One concrete resource realization and foreign-failure translation | Resource contract authority, app composition, service policy |
 | Service | A named domain capability, invariants, policy, operations, required semantic capabilities, and scoped semantic state | Transport mount, provider construction, ambient host globals |
-| Plugin projection | A qualified projection or integration for one real role, host, or caller; an API may reuse shared service-source construction law for its own oRPC projection; a CLI topic may own command-local host translation | Independent product truth, domain-service state, process lifecycle |
+| Plugin projection | A qualified projection or integration for one real role, host, or caller; an API calls public service clients and a CLI topic may own command-local host translation | Independent product truth, domain-service state, process lifecycle |
 | Mod definition | Authored product content and one stable mod identity | Generated output, deployment, process lifecycle |
-| App | Product/runtime identity, selected plugin membership, semantic adapter selection, and qualified cold effect implementations | Provider acquisition, service binding, mounting, reusable capability truth |
-| Runtime profile | Provider selection, configuration roots, and process/harness defaults | Capability truth, acquisition, plugin membership, adapter identity |
-| Entrypoint | One app, one profile, and one role/process selection through `startApp(...)` | App membership, provider acquisition, manual mounting |
-| Runtime substrate | Derivation, compilation, provisioning, semantic-target lowering, service binding, context materialization, mounting, observation, and disposal | Product capability truth or app membership |
+| App | Product/runtime identity, selected plugin membership, provider and semantic-adapter selection, qualified host composition, and process lifecycle | Reusable capability truth, semantic service policy, plugin-owned interaction meaning |
+| Entrypoint | One concrete app role or finite Nx task using its native host | A second product model, reusable capability truth, invented generic startup wrappers |
 | Instance manifest | Concrete blueprint identity, version, governed roots, selected capabilities, and accepted niche facts | Blueprint policy, source topology, runtime composition |
 
 These are architecture roles, not folder folklore or a claim that every noun
@@ -269,11 +282,10 @@ product intent
   selected by the instance or product manifest. A wildcard names only the
   terminal filename grammar; it never discovers app, API, web, or product
   proof.
-- Generic app proof mirrors source exactly: every admitted
-  `runtime/profiles/<profile>.ts` and every authored role entrypoint has one
-  matching suite. API projection and optional execution leaves, web layers,
-  and qualified product layers use their exact manifest-selected component ids
-  instead; the API contract anchor remains fixed by its kind.
+- Qualified app proof mirrors the actual host composition it admits. API
+  projection and optional execution leaves, web layers, and qualified product
+  layers use exact manifest-selected component ids; no profile or entrypoint
+  grammar is inferred from shared `app@1`.
 - Narsil and Fluree support discovery and corroboration; neither defines
   architecture authority.
 
@@ -288,28 +300,25 @@ flowchart LR
   Web["Studio web projection"] --> Studio["MapGen Studio app definition"]
   StudioAPI --> Studio
   CLI --> CLIApp["CLI app definition"]
-  Provider --> Profile["Runtime profile"]
-  Studio --> Runtime["Shared runtime realization"]
-  CLIApp --> Runtime
-  Profile --> Runtime
-  Entry["Entrypoint role selection"] --> Runtime
-  Runtime --> Process["Realized process"]
+  Provider --> Studio
+  Provider --> CLIApp
+  Studio --> StudioProcess["Studio host process"]
+  CLIApp --> CLIProcess["Oclif command process"]
 
   classDef truth fill:#24303a,stroke:#101820,color:#f4f7f8;
   classDef projection fill:#3d4851,stroke:#101820,color:#f4f7f8;
   classDef runtime fill:#0f6b63,stroke:#101820,color:#ffffff;
   class Resource,Provider,Control,Runs truth;
   class CLI,StudioAPI,Web projection;
-  class Studio,CLIApp,Profile,Entry,Runtime,Process runtime;
+  class Studio,CLIApp,StudioProcess,CLIProcess runtime;
 ```
 
 The service remains callable in process. An API plugin projects it only when a
-network caller exists. The app definition selects plugins; its runtime profile
-selects the concrete provider. The shared runtime provisions the resource,
-binds the public service client, supplies API context, mounts the selected
-roles, and owns disposal. The service client maps the ready capability into
-private service ports; no facade or adapter project sits between resource and
-service.
+network caller exists. Each qualified host app selects and acquires its
+concrete providers, constructs public service clients, supplies projection
+context, mounts its native host, and owns disposal. The service client maps the
+ready capability into private service ports; no facade or adapter project sits
+between resource and service.
 
 The local-socket provider keeps its framing and command codecs private. A
 standalone Tuner protocol package is admitted only when a second independent
@@ -317,25 +326,19 @@ consumer proves that public boundary.
 
 ## Explicit Decisions
 
-### Adopt the shared service substrate
+### Retain one local service substrate
 
-Do not extend Civ7's oRPC 1 and patched `effect-orpc` service law. When the
-accepted upstream owner publishes the complete service, API-plugin, app packet
-set and native oRPC/Effect transition, and that handoff earns a passing Ground
-exit receipt, burn the control service and future MapGen-runs service directly
-into that shape. Until then, target source does not move and Civ7 does not
-fork, copy, or approximate generic contract, implementation, context, module,
-router, error, proof, or consumer law. Product names, roots, and optional
-interiors remain Civ7-owned.
+Habitat 0.5.1 deliberately leaves `service@1` unselected. Interactive
+construction therefore reuses and tightens the existing local Civ7 service
+packet rather than copying the dormant SDK packet, extending the old mixed
+facade, or waiting on a fictitious shared runtime. The service owns contract,
+modules, router, errors, public in-process client, and its disjoint proof
+layers. The Studio API is a caller projection over public clients, never a
+second service owner.
 
-The reusable service source blueprint is independently selected at
-`src/service` in both a standalone service project and an API composition. It
-never owns `test/`: the standalone project owns contract, module-semantics, and
-execution proof, while the containing API project owns its contract,
-projection, and selected execution proof.
-
-Any exception requires a concrete incompatibility that survives a focused
-shared-substrate spike. Migration convenience is not sufficient.
+The root `@orpc`/Effect/TypeBox transition lands only with a complete behavior-
+preserving service cut. A dependency-only intermediate, compatibility facade,
+or private-contract extraction is refused.
 
 ### Keep one control service
 
@@ -362,8 +365,8 @@ serialization. The Studio app's selected config-source adapter supplies an
 opaque prepared write with exact rollback; the matching realization supplies
 materialization and deployment operations. MapGen-runs owns their prepare ->
 write -> deploy transaction and public phase evidence. The Studio app selects
-the effect adapters, while shared runtime binds them without importing their
-implementations into the service.
+and binds the effect adapters without importing their implementations into the
+service.
 
 ### Keep external effects at realization
 
@@ -374,8 +377,9 @@ entrypoint belong to the Swooper realization's generated map-script runtime.
 Pure mod-install, save-file, and Studio-run packages may retain parsing,
 planning, hashing, serialization, and comparison only. The Studio, Swooper
 realization, and CLI apps own the exact cold filesystem adapters they select;
-CLI topics call those bound capabilities and never become effect writers. App
-profiles choose roots and providers, but never redefine adapter identities.
+CLI topics call those bound capabilities and never become effect writers. The
+qualified app composition owns concrete roots, providers, and adapter
+identities exactly once.
 
 ### Do not create an HQ API
 
@@ -426,12 +430,12 @@ or CLI adapters because they have no independent acquire/release lifetime.
 ### In
 
 - Current capability-chain authority and canonical architecture alignment.
-- Shared or qualified Habitat kind-law adoption for packages, resources,
-  providers, services, caller projections, mod definitions, and apps.
-- Civ7 service/API law normalization and oRPC/Effect vendor convergence;
-  shared service adoption waits for a deliberately selected upstream kind.
-- Shared runtime-realization adoption for app definitions, profiles,
-  entrypoints, provisioning, service binding, mounting, and disposal.
+- Shared Habitat kind-law adoption for packages, resources, providers,
+  plugins, and apps, plus qualified Civ7 overlays and local service law.
+- Civ7 service/API law normalization and oRPC/Effect vendor convergence without
+  selecting or copying the unavailable `service@1` packet.
+- Qualified CLI, Studio, and finite-task app composition using their real host
+  entrypoints and explicit lifecycle ownership.
 - Tuner resource/provider extraction.
 - Control-service client and private capability-port normalization.
 - Deletion of the mixed direct-control package and the facade mirror.
@@ -454,8 +458,8 @@ or CLI adapters because they have no independent acquire/release lifetime.
 - A MapGen service, Civ7 HQ API, or durable workflow merely to complete the
   five-root visual pattern.
 - A public Tuner protocol package with only one provider consumer.
-- Product-specific forks of the shared service or API substrate without a
-  proven incompatibility.
+- A copied, forked, or locally approximated shared service or product-runtime
+  substrate.
 
 ## Falsifiers
 
@@ -475,8 +479,8 @@ Reopen the frame if any of the following becomes true:
   same-origin or shared-session invariant rather than relocating its owner.
 - MapGen run-state cannot be separated from Studio transport without losing
   operation adoption, retention, or cancellation behavior.
-- The shared service substrate cannot preserve a current control behavior after
-  one focused native migration spike.
+- The established local service packet cannot preserve a current control
+  behavior without reintroducing a facade or duplicated authority.
 - A proposed portable Habitat law cannot be expressed without encoding Civ7
   instance names or current directory enumerations.
 

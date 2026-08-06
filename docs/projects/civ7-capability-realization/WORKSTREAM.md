@@ -57,7 +57,7 @@ a recorded focus pivot.
 | Resources and providers | Stable and explicit | Foreign lifecycle, readiness, epochs, typed failures, concrete acquisition |
 | Services | Assured and semantic | Capability policy, invariants, operations, scoped semantic state |
 | Projections | Responsive and replaceable | Caller translation, transport, presentation, host integration |
-| Apps and realizations | Flexible at the surface | Product membership, profile, entrypoint, adapter selection, runtime observation |
+| Apps and realizations | Flexible at the surface | Product membership, host composition, provider/adapter selection, runtime observation |
 
 Lower layers do not absorb upper-layer convenience. Upper layers remain easy to
 change because the layers beneath them are narrow, typed, and unsurprising.
@@ -200,10 +200,9 @@ this receipt advances but does not claim slice 1.1.
 
 #### 1.1.2 Civ7 Realization
 
-- Construct `apps/mods/map/swooper-physics` as one cold app definition with the
-  `local-civ7` profile, `build` and `deploy` entrypoints, exact target table,
-  realization-local map-script adapter/setup/entrypoint, and qualified install
-  adapter.
+- Construct `apps/mods/map/swooper-physics` as one finite app with `build` and
+  `deploy` entrypoints, exact target table, realization-local map-script
+  adapter/setup/entrypoint, and qualified install adapter.
 - Reduce `packages/civ7-adapter` to its portable contract, static metadata,
   detached comparison support, and deterministic mock.
 - Reduce mod installation to pure validation, comparison, plan, digest, and
@@ -294,9 +293,11 @@ The nested order is dependency order, not separate product migrations.
 
 #### 1.2.1 Pure Matter And Managed Collaboration
 
-Instantiate resource, provider, service, API, and remaining CLI-topic roots
-under Ground-proven shared laws. Admit only the qualified web, CLI-app, and
-Studio-app laws before moving their respective source.
+Instantiate package, resource, provider, plugin, app, and remaining CLI-topic
+roots under the Ground-proven shared laws. Services retain the accepted local
+Civ7 law because Habitat 0.5.1 deliberately does not select `service@1`.
+Admit only qualified Civ7 source and proof overlays before moving source into a
+shared-kind instance; never copy or approximate an upstream packet.
 
 - Extract only proven pure config, save parsing, run-workspace comparison, and
   mod-install planning into packages.
@@ -308,13 +309,14 @@ Studio-app laws before moving their respective source.
 
 #### 1.2.2 Semantic Services
 
-- Apply the accepted root `@orpc`/Effect/TypeBox transition in the same semantic
-  branch that migrates native service construction and errors. Do not create a
-  dependency-only intermediate estate; retain the obsolete patch file until no
-  consumer remains, then delete it at the joint seal.
-- Rewrite `services/civ7-control` directly onto the accepted service substrate,
-  consuming ready runtime-bound capabilities through private module ports and
-  exposing one public client.
+- Apply the accepted root `@orpc`/Effect/TypeBox transition only when the
+  existing local Civ7 service law and executable service construction prove the
+  complete move together. Do not create a dependency-only intermediate estate;
+  retain the obsolete patch file until no consumer remains, then delete it at
+  the joint seal.
+- Rewrite `services/civ7-control` under the established local service packet,
+  consuming app-supplied ready capabilities through private module ports and
+  exposing one public in-process client.
 - Construct `services/mapgen-runs` for admission, operation state, retention,
   adoption, cancellation, diagnostics, autoplay policy, and terminal outcomes.
 - Keep process-scoped semantic state in its service scope. Cold host effects
@@ -334,14 +336,17 @@ Studio-app laws before moving their respective source.
 
 #### 1.2.4 App Realization
 
-- Make `apps/mapgen-studio` a cold composition: plugin membership, profile,
-  role entrypoints, and exact semantic adapter selection.
-- Construct the commandless CLI app around its app definition, selected
-  profiles, `civ7.ts` entrypoint, shared Oclif harness, runtime binding, and
-  app-owned `local-mods` adapter. The app owns no commands or semantic service
-  truth.
-- Let shared runtime provision providers, bind public clients, materialize API
-  context, mount server/web roles, observe the process, and dispose one scope.
+- Make `apps/mapgen-studio` the qualified composition root for its actual Bun,
+  Vite, server, and web hosts: exact plugin membership, provider selection,
+  public-client construction, API context, role mounting, observation,
+  disposal, and exact semantic adapter selection. Keep reusable product truth
+  in its packages, resources, services, and plugins.
+- Construct the commandless CLI app around native Oclif startup, its sole topic
+  registry, exact app-owned client/resource binding, and the `local-mods`
+  adapter. The app owns no commands or semantic service truth.
+- Use direct host entrypoints or Nx targets. Habitat 0.5.1 supplies app
+  structure, not `defineApp`, profiles, `startApp`, provider provisioning, or a
+  generic process runtime; do not invent wrappers for absent capabilities.
 - Keep official-data, saved-file, fresh-log, run-file, and authored-config
   filesystem effects in exact app adapters with one matching execution proof.
 - Move the Swooper source writers, Studio-owned deployment source, and live
@@ -358,10 +363,11 @@ Studio-app laws before moving their respective source.
   and terminal operation facts without reducing them to `ok` or one strongest
   status.
 
-**Slice receipt:** the two semantic services and their resources, projections,
-apps, and consumers are constructible; CLI and Studio preserve authorized
-Task/Question meaning; every displaced owner is ready for joint deletion. This
-is not an independent migration or merge claim.
+**Slice receipt:** the two locally governed semantic services and their shared-
+kind resources, providers, projections, apps, and consumers are constructible;
+CLI and Studio preserve authorized Task/Question meaning; every displaced
+owner is ready for joint deletion. This is not an independent migration or
+merge claim.
 
 **Refusal:** one unresolved route, import, proof row, lifecycle owner, or need
 to keep the old source owner refuses the parent seal. A resource, service, API,
@@ -409,7 +415,7 @@ product migration instead of a second architecture design.
 
 - Admit the qualified civilization definition and realization laws.
 - Construct `plugins/mod/civ/dacia` and `apps/mods/civ/dacia` from the accepted
-  SDK and shared runtime grammar.
+  definition/finite-realization grammar.
 - Preserve mod identity, content, generated tree, deployment, loader behavior,
   and consumer gates while separating authored truth from host effects.
 - Delete `mods/mod-swooper-civ-dacia` only after both owners and their
@@ -489,7 +495,7 @@ finding refuses the finalization claim.
 | Pre-migration convergence and Explore oracle | Settled evidence |
 | Old Containers 1-4: substrate, package, resource, provider law | Container 0 shared admission; qualified instances materialize inside Containers 1-3 |
 | Old Phase 5: projection/app/deployment preflight | Container 1 nested Swooper and Interactive slices |
-| Old Phase 6: shared runtime and service substrate | Container 0 admission plus Container 1 consumption |
+| Old Phase 6: proposed runtime/service substrate | Shared runtime refused; local service and qualified app composition absorbed into Container 1 |
 | Old Phases 7-10: MapGen-runs, Studio API/web/app, host control | Container 1.2 dependency order and Container 1.3 joint seal |
 | Old Container 11: controller disposition | Settled evidence; only canonical history cleanup remains in Container 4 |
 | Old Container 12: mod kinds | Swooper -> Container 1.1; Dacia -> Container 2 |
