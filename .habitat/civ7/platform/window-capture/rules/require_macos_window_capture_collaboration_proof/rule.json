@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 2,
+  "id": "require_macos_window_capture_collaboration_proof",
+  "title": "Require macOS Window Capture Collaboration Proof",
+  "placement": {
+    "niche": "civ7/platform/window-capture",
+    "blueprint": "macos-window-capture-provider",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "provider-window-capture-macos-screencapturekit",
+  "lane": "enforced",
+  "forbids": "a selected ScreenCaptureKit window-capture provider without an opt-in real-platform collaboration proof",
+  "why": "Fixtures prove deterministic process, protocol, and file mechanics but cannot prove compatibility with macOS ScreenCaptureKit and TCC. Civ7 selects this concrete provider, so it earns one uncached collaboration leaf without making live proof mandatory for every provider kind.",
+  "remediate": "Keep one provider.live.test.ts leaf that acquires the real provider through its public face and captures a caller-selected window. Execute it only through the uncached live target.",
+  "message": "The selected macOS ScreenCaptureKit provider must retain its opt-in real-platform collaboration proof.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "resources/window-capture/providers/macos-screencapturekit/test/collaboration",
+        "resources/window-capture/providers/macos-screencapturekit/test/collaboration/**"
+      ]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/platform/window-capture/rules/require_macos_window_capture_collaboration_proof/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/civ7/platform/window-capture/rules/require_macos_window_capture_collaboration_proof/structure.toml"
+    }
+  }
+}

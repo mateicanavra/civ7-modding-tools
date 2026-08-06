@@ -197,9 +197,9 @@ truth-versus-engine-projection boundary.
 - CLI raw diagnostic and read commands consume that package outside the
   semantic service.
 - `Civ7ControlOrpcDirectControlFacade` mirrors that hybrid inside the service.
-- Only the host Tuner resource is implemented. Generic window capture and the
-  remaining qualified destinations are accepted target modeling, not current
-  providers.
+- The host Tuner and generic selected-window capture resources are implemented.
+  Civ7 selection policy and image meaning still remain in the hybrid control
+  path until the next service burn-down binds both ready capabilities directly.
 - Studio's `civ7.live.*` projections overlap canonical control reads.
 - `packages/studio-server` mixes API projection, host runtime, and a genuine
   process-lifetime MapGen run-state service.

@@ -453,6 +453,14 @@
         "effect": "3.21.3",
       },
     },
+    "resources/window-capture": {
+      "name": "@civ7/window-capture",
+      "version": "0.1.0",
+      "dependencies": {
+        "effect": "3.21.3",
+        "typebox": "catalog:",
+      },
+    },
     "services/civ7-control": {
       "name": "@civ7/control-orpc",
       "version": "0.1.0",
@@ -873,6 +881,8 @@
     "@civ7/tuner": ["@civ7/tuner@workspace:resources/civ7-tuner"],
 
     "@civ7/types": ["@civ7/types@workspace:packages/civ7-types"],
+
+    "@civ7/window-capture": ["@civ7/window-capture@workspace:resources/window-capture"],
 
     "@csstools/color-helpers": ["@csstools/color-helpers@6.1.0", "", {}, "sha512-064IFJdjTfUqnjpCVpMOdbr8FLQBhinbZj6yRv2An2E41O/pLEXqfFRWqGq/SxlE5PEUYTlvWsG2r8MswAVvkg=="],
 

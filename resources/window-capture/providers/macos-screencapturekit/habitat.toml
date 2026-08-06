@@ -1,0 +1,10 @@
+schemaVersion = 1
+id = "window-capture-macos-screencapturekit"
+ownerProject = "provider-window-capture-macos-screencapturekit"
+blueprint = "provider"
+blueprintVersion = 1
+
+[roots]
+project = "resources/window-capture/providers/macos-screencapturekit"
+
+[selections]

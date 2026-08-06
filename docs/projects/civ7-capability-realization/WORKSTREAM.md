@@ -1,6 +1,6 @@
 # Civ7 Capability Realization Workstream
 
-**Status:** Ground sealed; Core Platform 1.1 Swooper construction active
+**Status:** Ground sealed; Core Platform 1.2 Interactive construction active
 **Frame:** [FRAME.md](./FRAME.md)
 **Model progression:** [MODEL-PROGRESSION.md](./MODEL-PROGRESSION.md)
 **Product authority:** [PRODUCT-AUTHORITY.md](./PRODUCT-AUTHORITY.md)
@@ -310,10 +310,12 @@ shared-kind instance; never copy or approximate an upstream packet.
   private to its provider. Do not publish a Tuner protocol package with one
   consumer or put Civ7 selection policy in the generic capture resource.
 - Window-capture acquisition must establish the scoped owner of every compile
-  and capture child. Interruption and release terminate and await all in-flight
-  children exactly once; work after release is refused. These are target
-  repairs over the current uncancellable direct-control path, not migrated
-  behavior claims. No daemon is introduced.
+  and capture child. Interruption and release close admission, apply bounded
+  `SIGTERM`/`SIGKILL` escalation, and drain all admitted operations; a child
+  that never reports closure becomes explicit timeout evidence rather than an
+  unbounded finalizer. Work after release is refused. These are target repairs
+  over the current uncancellable direct-control path, not migrated behavior
+  claims. No daemon is introduced.
 
 #### 1.2.2 Semantic Services
 

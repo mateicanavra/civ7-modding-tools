@@ -92,10 +92,16 @@ product consumer. `resources/window-capture` owns provider-neutral
 selected-window evidence and failures; its `macos-screencapturekit` provider
 owns helper preparation, TCC/platform translation, atomic PNG installation,
 and the scoped lifetime of in-flight capture children. Provider acquisition
-must establish a ready capability and provider release must interrupt every
-remaining child. Those cancellation and atomicity guarantees are target laws,
-not claims about the current direct-control implementation. The control service
+must strictly probe the cached or newly compiled helper before returning a
+ready capability; release closes admission, requests bounded
+termination of every remaining child, and drains every admitted operation.
+Those cancellation and atomicity guarantees are target laws, not claims about
+the current direct-control implementation. The control service
 alone owns Civ7 window defaults, appshot policy, and semantic interpretation.
+The first runtime schema also exposed one upstream substrate gap: `resource@1`
+admits `test/` but does not close or select the provider-neutral contract proof
+below it. Civ7 will not fork that generic law; the resource seal waits for the
+shared required typecheck leaf and optional runtime-contract-value proof.
 
 The first definition ownership reduction is closed: diagnostics and metric
 commands now live in the closed `mapgen` CLI topic, consume public Swooper and
@@ -142,9 +148,9 @@ The app-adapter direction correctly rejected a Civ7-specific resource but
 would have duplicated one effectful ScreenCaptureKit implementation across two
 apps. That contradiction exposed the real owner: a generic managed
 window-capture capability. Its lifecycle is not the inert helper cache; it is
-the acquired provider scope that owns and terminates every in-flight foreign
-child. Apps select one provider, the service supplies Civ7 meaning, and neither
-duplicates host execution.
+the acquired provider scope that owns every in-flight foreign child and its
+bounded termination protocol. Apps select one provider, the service supplies
+Civ7 meaning, and neither duplicates host execution.
 
 ### 2026-08-06 - Window Capture Resource Refused
 
