@@ -1,0 +1,32 @@
+{
+  "name": "@civ7/window-capture",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Provider-neutral managed window-scoped PNG capture",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./contract.ts",
+      "bun-source": "./contract.ts",
+      "import": "./dist/contract.js"
+    },
+    "./providers/macos-screencapturekit": {
+      "types": "./providers/macos-screencapturekit/index.ts",
+      "bun-source": "./providers/macos-screencapturekit/index.ts",
+      "import": "./dist/providers/macos-screencapturekit/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "check:test": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
+    "clean": "rimraf dist tsconfig.tsbuildinfo",
+    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
+  },
+  "dependencies": {
+    "effect": "3.21.3",
+    "typebox": "catalog:"
+  },
+  "engines": {
+    "node": "22.22.0"
+  }
+}

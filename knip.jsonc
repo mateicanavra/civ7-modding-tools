@@ -63,6 +63,9 @@
     "resources/civ7-tuner": {
       "entry": ["test/**/*.typecheck.ts"]
     },
+    "resources/window-capture": {
+      "entry": ["test/**/*.typecheck.ts"]
+    },
     "packages/civ7-adapter": {
       "ignoreUnresolved": ["^/base-standard/"],
       // The map-script builder resolves uri-js dynamically into an esbuild virtual module.

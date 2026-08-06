@@ -1,0 +1,39 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "resource-window-capture",
+  "projectType": "library",
+  "sourceRoot": "resources/window-capture",
+  "tags": ["type:resource", "resource:window-capture"],
+  "targets": {
+    "build": {
+      "command": "tsc -p tsconfig.build.json",
+      "options": {
+        "cwd": "resources/window-capture"
+      },
+      "cache": true,
+      "inputs": ["default", "{projectRoot}/providers/**/*.ts"],
+      "outputs": ["{projectRoot}/dist/**", "{projectRoot}/tsconfig.tsbuildinfo"]
+    },
+    "typecheck": {
+      "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
+      "options": {
+        "cwd": "resources/window-capture"
+      },
+      "cache": true,
+      "outputs": []
+    },
+    "check:test": {
+      "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
+      "options": {
+        "cwd": "resources/window-capture"
+      },
+      "cache": true,
+      "outputs": []
+    },
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    }
+  }
+}

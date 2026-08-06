@@ -1,0 +1,9 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "macos-window-capture-live-collaboration-proof"
+root = "resources/window-capture/providers/macos-screencapturekit/test/collaboration"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["provider.live.test.ts"]
