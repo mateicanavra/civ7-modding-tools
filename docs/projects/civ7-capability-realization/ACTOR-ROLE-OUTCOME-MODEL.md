@@ -61,8 +61,8 @@ scene, not baked into the actor identity.
 | Release operator | Materialize and install one exact mod build |
 | Run operator | Realize one exact map configuration in Civ7 and follow its operation state |
 | Playtester | Exercise one exact installed build in Civ7 and report loader, runtime, and behavior evidence without upgrading its proof class |
-| Live observer | Obtain trustworthy current Civ7 evidence without mutation |
-| Live decision-maker | Check and perform one lawful native game action |
+| Live operator | Obtain trustworthy current Civ7 evidence or request one closed native app/game/map/UI operation |
+| Player | Understand the playable situation and check or perform one lawful gameplay action |
 | Integrator | Consume public contracts without depending on private topology |
 | Steward or verifier | Prove currentness, compatibility, boundaries, and named runtime outcomes |
 | Learner | Use docs and examples that resolve to current public behavior |
@@ -81,8 +81,9 @@ a permission model, account identity, or service.
 | Save an authored map configuration | Swooper definition plus selected app source adapter | Canonical source and exact write or rollback receipt |
 | Materialize a mod | Matching realization app | Generated files, manifest, and source-to-artifact digests |
 | Install or replace a mod | Matching realization app | Exact installed tree and replacement receipt |
-| Start, adopt, or cancel a map realization | MapGen-runs plus matching realization | Request-correlated operation state and effect receipts |
-| Request a lawful live-game action | Civ7 control service | Owner-classified native mutation or explicit no-op/refusal/reconciliation |
+| Start, adopt, or cancel a map realization | MapGen-runs plus the Studio app's qualified realization adapter | Request-correlated semantic operation state plus physical effect receipts |
+| Request a foundational live operation | Civ7 control service | Exact native app/game/map/UI fact, dispatch, readback, or typed refusal |
+| Request a lawful gameplay action | Civ7 play service | Actor-facing no-op, refusal, confirmed effect, or reconciliation state plus next safe action |
 
 Reading official facts, inspecting a generated map, observing live Civ7,
 checking a native action, examining a receipt, and learning from an example are
@@ -99,7 +100,10 @@ Ask only the fact owner:
 - Is this definition or configuration admitted?
 - Which artifact, observation, operation, or receipt exists?
 - Which phase, refusal, failure, or uncertainty is current?
-- Which native action was checked, dispatched, or classified as uncertain?
+- Which foundational native operation was observed, dispatched, or classified
+  as uncertain?
+- Which gameplay Question, check, request, or next action did the play owner
+  derive from those control facts?
 - Is generated policy current for the selected official source?
 
 The answer is the fact, typed owner error, and proof fact. A projection-local
@@ -114,8 +118,8 @@ Compose facts without inventing a shared writer:
 - Which installation and loader evidence support live acceptance?
 - Which request, source write, deployment, setup, log, and readback belong to
   this MapGen operation?
-- Which check, dispatch, and postcondition evidence support this live decision
-  result?
+- Which control facts support this play check, request, postcondition, and next
+  lawful action?
 
 ### Surface Questions
 
@@ -151,8 +155,8 @@ proof, not a manufactured second channel.
 
 Supporting interactions stay with their exact fact owner:
 
-- Tuner connection health and raw execution return provider-emitted facts under
-  the Tuner resource contract;
+- Tuner connection health, epoch, raw command, and execution results return
+  provider-emitted facts under the Tuner resource contract;
 - selected-window capture returns provider-emitted raw image and window facts
   under the generic window-capture resource contract, while the control
   service alone returns the semantic Civ7 appshot result;
@@ -244,22 +248,25 @@ behavior acceptance closes as reconciliation with the next owner Question.
 
 **Actor:** human practitioner or external automation.
 
-**Roles:** live observer, live decision-maker, steward or verifier.
+**Roles:** live operator, player, steward or verifier.
 
 **Goal:** make one informed native Civ7 decision without unsafe repetition.
 
 ```text
-observe epoch-correlated live state
+observe Civ7 semantic state correlated to the resource-owned epoch through
+foundational control
+  -> interpret the playable situation through the play capability
   -> check one semantic action
-  -> request the action when lawful
+  -> request the corresponding closed control operation when lawful
   -> inspect bounded postcondition evidence
-  -> accept confirmed/no-op/refused outcome or reconcile uncertainty
-  -> choose the next lawful task
+  -> accept confirmed/no-op/refused play outcome or reconcile uncertainty
+  -> choose the next lawful gameplay task
 ```
 
 Tuner health/execution, window capture, app restart, and other supporting
-interactions may investigate the boundary through their exact owners. They do
-not replace or rewrite the semantic owner result.
+interactions may investigate the boundary through their exact owners. The
+control result remains native evidence; the play result remains actor-facing
+meaning. Neither replaces or rewrites the other.
 
 ## Channel Matrix
 
@@ -268,13 +275,20 @@ not replace or rewrite the semantic owner result.
 | Official facts | Generated types/policy | Data topic | Studio cold read where authorized | Official source only |
 | Mod authoring | SDK/definition | - | Authoring projection where selected | Loader is a later consumer |
 | Map authoring/generation | Swooper definition/MapGen | MapGen topic | Studio web/API | Realization is separate |
-| Mod realization | Realization target | Mod topic invokes target | MapGen-runs invokes target | Loader/live proof |
-| Live observation/decision | Control client | Game topic | Studio API/web | Authoritative execution/state |
+| Mod realization | Matching realization target owns its own production build/deploy | Mod topic invokes the matching production target | Studio app's qualified realization adapter uses the public Swooper definition plus pure workspace/install packages; MapGen-runs owns semantic order and outcome | Loader/live proof |
+| Foundational live control | Control client with exactly `{app,game,map,ui}` | Game status/map/view/setup topics | Studio API/web and MapGen-runs | Authoritative native execution/state |
+| Civ7 play | Play client with exactly `{attention,automation,city,diplomacy,notifications,progression,planning,turn,unit}` | Game-play topic | Selected delegated MapGen Studio routes; a standalone public Play API is future-only | Actor-facing gameplay outcome |
 
 `-` is intentional: there is no current CLI mod-authoring channel. An empty
 cell is allowed. A new projection must reuse the Task and Questions, not copy
 private implementation or invent a different result, and it does not create a
 parity obligation until more than one authorized projection exists.
+
+The MapGen Studio API is an existing caller-specific projection: selected
+frozen routes delegate to the bound play client alongside control and run
+routes. That does not select a general `plugins/server/api/civ7-play` surface;
+such a standalone browser or network-agent API still requires its own caller
+contract and future admission.
 
 ## Mechanism Leaks Exposed By The Lens
 
@@ -290,6 +304,7 @@ parity obligation until more than one authorized projection exists.
 | Tuner health, raw execution, window capture, or app restart uses semantic decision result language | Exact supporting evidence is mistaken for gameplay meaning |
 | Check-or-choose interactions collapse Question and Task | Observation can accidentally become mutation |
 | A facade extracts method parameters from another surface | Caller topology becomes contract authority |
+| Foundational live control and actor-facing play share one owner because both require Tuner readiness | A shared prerequisite is mistaken for one product capability, and gameplay policy leaks into native control |
 
 These are model defects, not requests for additional facade, event, status, or
 actor machinery.
@@ -340,11 +355,14 @@ vocabulary. It is a bounded current-topology outcome receipt for the four-model
 packet, not an architecture migration and not permission to split the later
 control cutover.
 
-## First Structural Migration After Kind Admission
+## First Structural Migration On Sealed Ground
 
-The first structural migration is one Core Platform parent. Swooper remains
-its first construction slice and is blocked until the usable upstream Habitat
-pin lands and the qualified definition/realization kinds are constructible:
+Ground is sealed and the exact Habitat 0.5.2 consumer substrate is installed,
+so shared substrate readiness no longer gates entry. The first structural
+migration is still one Core Platform parent. Swooper remains its first
+construction slice; its admitted cold definition and realization work cannot
+seal the product independently until the remaining qualified Interactive
+overlays, owner bindings, consumer gates, and product proof close:
 
 ```text
 admitted Swooper configuration
@@ -379,6 +397,6 @@ The model is ready to open implementation when:
 - multiple authorized projections preserve Task and Question meaning;
 - no internal component is treated as an Actor or product capability; and
 - the immediate Explore oracle closes both current projections without source
-  movement, while the first structural migration remains blocked until its
-  Core Platform destination gates and both construction slices are
-  constructible.
+  movement, while sealed Ground remains distinct from the still-open Core
+  Platform destination gates, both construction slices, and their product
+  proof.

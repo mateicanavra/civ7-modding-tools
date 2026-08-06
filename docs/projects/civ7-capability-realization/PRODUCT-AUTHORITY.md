@@ -22,15 +22,23 @@ Never infer one axis from another.
 | --- | --- | --- |
 | Product authority | `authorized`, `compatibility-retained`, `excluded`, `retired`, `deferred` | Whether the product promises the capability or surface |
 | Target ownership | `selected`, `proposed`, `unresolved` | Whether every fact and transition in the owner chain has one accepted authority |
-| Kind constructibility | `admitted`, `legacy-only`, `unconstructible`, `not-applicable` | Whether the corrected shared Habitat substrate can create and enforce the selected kind; `legacy-only` means current source exists without that target admission |
+| Shared substrate readiness | `ready`, `unselected`, `not-applicable` | Whether the exact installed Habitat release supplies and enforces the selected generic shell; this is a repository-wide kind fact, not product proof |
+| Qualified destination admission | `admitted`, `partially-admitted`, `legacy-only`, `qualified-pending`, `not-applicable` | Whether the complete Civ7-local instance and qualified overlays can admit source; `legacy-only` means current source exists without that destination admission |
 | Migration | `current`, `hybrid`, `migrated` | Whether source and consumers occupy the selected ownership graph |
 | Proof | a set of `contract`, `semantics`, `execution`, `projection`, `assembly`, `generated`, `installed`, `loader`, `live-behavior` | The disjoint claims supported by current evidence |
 
-A product capability may be authorized with selected ownership while its kind
-is still unconstructible. A project may be constructible while owning no
-authorized capability. A generated or installed artifact is not live proof.
-Habitat ownership is settled upstream, but the corrected usable substrate pin
-has not landed in this repository; no target admission is implied below.
+A product capability may be authorized with selected ownership while one of
+its qualified destination overlays is still pending. A shared shell may be
+ready while owning no authorized product capability. A generated or installed
+artifact is not live proof.
+
+Ground is sealed on the exact installed `@habitat-ai/cli@0.5.2` consumer
+release and its exact `@habitat-ai/sdk@0.5.2` dependency. Shared `app@1`,
+`package@1`, `plugin@1`, `plugin-nx@1`, `provider@1`, and `resource@1` are
+`ready`; `service@1` remains deliberately `unselected`, so Civ7 service law
+stays local. That closes shared substrate readiness only. It does not admit a
+missing qualified Civ7 overlay, move product source, close a consumer gate, or
+upgrade any product proof claim. The model's overall status is unchanged.
 
 ## Product Laws
 
@@ -74,9 +82,10 @@ has not landed in this repository; no target admission is implied below.
 | Realization | Environment-qualified rendering, bundling, installation, startup, engine integration, or live proof |
 | Preview | Deterministic execution through a non-Civ7 projection; never live-game proof |
 | Run operation | A request-correlated, host-scoped Save & Deploy, Run in Game, or autoplay operation with observable state |
-| Live observation | Epoch- and time-correlated evidence read from the running Civ7 authority |
-| Semantic control | An admitted game action with policy, native checks, mutation classification, and bounded postcondition evidence |
-| Raw diagnostic | Explicit transport or engine inspection that makes no semantic gameplay-success claim |
+| Live observation | Resource-epoch- and time-correlated semantic evidence read from the running Civ7 authority |
+| Foundational control | Civ7 interpretation and closed native app/game/map/UI operations over a ready resource, without owning its raw health, epoch, or command facts |
+| Play | Actor-facing gameplay observation, checks, requests, reconciliation, no-repeat policy, and next-action meaning composed over foundational control |
+| Raw diagnostic | Explicit transport or engine inspection, including raw command results, that makes no semantic gameplay-success claim |
 | Receipt | An owner-issued fact about one exact input, transition, effect, or accepted offer |
 | Reconciliation | An explicit state used when dispatch or observation cannot prove acceptance or final outcome |
 
@@ -86,16 +95,20 @@ The registry names actor-facing capability chains. A chain may contain several
 owner-local facts; each card names that split explicitly. The axes below are
 the current migration state, not an inferred implementation plan.
 
-| Capability chain | Product authority | Target ownership | Constructibility | Migration | Current proof set |
+| Capability chain | Product authority | Target ownership | Qualified destination admission | Migration | Current proof set |
 | --- | --- | --- | --- | --- | --- |
 | Official game knowledge | `authorized` | `selected` | `not-applicable` | `current` | `{generated, contract, semantics}` |
 | Generic mod authoring | `authorized` | `selected` | `legacy-only` | `hybrid` | `{contract, semantics, generated}` |
-| Swooper map definition and generation | `authorized` | `selected` | `unconstructible` | `hybrid` | `{contract, semantics, execution, projection, generated}` |
-| Mod realization and deployment | `authorized` | `selected` | `unconstructible` | `hybrid` | `{generated, installed}`; no sealed loader or live-behavior proof |
-| Live Civ7 observation | `authorized` | `selected` | `unconstructible` | `hybrid` | `{contract, semantics, execution}` plus operation-specific live evidence |
-| Live Civ7 decision | `authorized` | `selected` | `unconstructible` | `hybrid` | `{contract, semantics, execution}` plus operation-specific live evidence |
-| Map configuration authoring | `authorized` | `selected` | `unconstructible` | `hybrid` | `{contract, semantics, projection}` |
-| Map realization operations | `authorized` | `selected` | `unconstructible` | `hybrid` | `{contract, semantics, execution, projection}`; no sealed live-behavior proof |
+| Swooper map definition and generation | `authorized` | `selected` | `partially-admitted` | `hybrid` | `{contract, semantics, execution, projection, generated}` |
+| Mod realization and deployment | `authorized` | `selected` | `partially-admitted` | `hybrid` | `{generated, installed}`; no sealed loader or live-behavior proof |
+| Foundational live Civ7 control | `authorized` | `selected` | `partially-admitted` | `hybrid` | `{contract, semantics, execution}` plus operation-specific live evidence |
+| Civ7 play | `authorized` | `selected` | `qualified-pending` | `hybrid` | `{contract, semantics, execution}` plus operation-specific live evidence |
+| Map configuration authoring | `authorized` | `selected` | `partially-admitted` | `hybrid` | `{contract, semantics, projection}` |
+| Map realization operations | `authorized` | `selected` | `qualified-pending` | `hybrid` | `{contract, semantics, execution, projection}`; no sealed live-behavior proof |
+
+`partially-admitted` means at least one required Civ7-local destination packet
+is closed while another owner or overlay in the same capability chain remains
+open. It is not an intermediate proof class and does not imply migration.
 
 ### Official Game Knowledge
 
@@ -160,36 +173,57 @@ the current migration state, not an inferred implementation plan.
 - **Honest outcome:** rendered artifact, exact installation receipt, then a
   separate loader/live acceptance result.
 
-### Live Civ7 Observation
+### Foundational Live Civ7 Control
 
-- **Actor outcome:** an operator or external tool can obtain trustworthy
-  readiness, attention, world, and game-state evidence from a running Civ7
-  session.
+- **Actor outcome:** an operator, integrator, or product capability can inspect
+  and control one running Civ7 session through closed app, game, map, and UI
+  operations correlated to the resource-supplied epoch, without learning Tuner
+  or provider mechanics.
 - **Semantic owner:** `services/civ7-control`.
+- **Finite module inventory:** exactly `{app, game, map, ui}`.
+- **Consumes:** ready `resources/civ7-tuner` and generic window-capture
+  capabilities supplied by the realizing app.
 - **Explicit non-owners:** Tuner and window-capture resources/providers for
-  semantic interpretation, CLI, Studio API, Studio web, and raw diagnostics.
-- **Current realization:** shipped but hybrid with direct-control transport and
-  Studio-specific reads.
-- **Disposition:** `repair`; migrate to one service client over ready Tuner and
-  window-capture resources and remove duplicate observations.
-- **Honest outcome:** time- and epoch-correlated snapshot with explicit stale,
-  partial, unavailable, and failure classifications.
+  Civ7 interpretation, `services/civ7-play` for native execution, CLI, Studio
+  API/web, MapGen-runs, Swooper live proof, and raw diagnostics.
+- **Current realization:** shipped but hybrid with direct-control transport,
+  actor-facing play policy, Studio-specific reads, and incomplete setup/map
+  observation.
+- **Disposition:** `repair`; retain exact native lowering and epoch-correlated
+  observation in one public control client, while removing gameplay policy,
+  provider mechanics, facade access, and duplicate observations.
+- **Honest outcome:** exact Civ7 readiness interpretation, setup, game, map, UI,
+  dispatch, and readback facts correlated to the resource-owned epoch, with
+  explicit stale, partial, unavailable, refused, and uncertain classifications.
+  Raw Tuner health, epoch, and command facts remain resource/provider facts; a
+  native semantic fact is not a gameplay recommendation.
 
-### Live Civ7 Decision
+### Civ7 Play
 
-- **Actor outcome:** an operator or agent can check and perform one lawful
-  native game decision without confusing dispatch with acceptance or repeating
-  an uncertain effect.
-- **Semantic owner:** `services/civ7-control`.
-- **Explicit non-owners:** Tuner resource/provider for semantic interpretation,
-  CLI command, API projection, UI element, and postcondition observer.
-- **Current realization:** shipped semantic service over a hybrid
-  direct-control facade.
-- **Disposition:** `repair`; retain native checks, exact lowering, bounded
-  observation, uncertainty, and no-repeat policy while deleting the facade and
-  parallel contract authority.
-- **Honest outcome:** separate check and request facts, followed by a mutation
-  classification such as not sent, confirmed, guarded, or sent-unverified.
+- **Actor outcome:** a human or agent can understand the current playable
+  situation, check one lawful gameplay choice, perform it, and determine the
+  next safe action without repeating an uncertain effect.
+- **Semantic owner:** `services/civ7-play`.
+- **Finite module inventory:** exactly `{attention, automation, city,
+  diplomacy, notifications, progression, planning, turn, unit}`.
+- **Consumes:** only the public foundational control capability; it never
+  receives Tuner, arbitrary JavaScript execution, provider state, or a private
+  control router.
+- **Explicit non-owners:** `services/civ7-control` for actor intent and play
+  policy, resources/providers, CLI commands, API projections, UI elements, and
+  postcondition observers.
+- **Current realization:** play-oriented source and CLI language exist, but the
+  prior model flattened them beside readiness, setup, world, and view in one
+  control service. The current MapGen Studio API also delegates selected frozen
+  caller routes to play-owned operations; that caller-specific delegation is
+  not a standalone general public Play API.
+- **Disposition:** `repair`; reconstruct the actor-facing service around its
+  finite module inventory and exact observation/check/request/reconciliation,
+  no-repeat, and next-action contracts. Preserve narrower subdomains only
+  beneath the outer play authority.
+- **Honest outcome:** separate situation, check, request, dispatch,
+  postcondition, refusal, uncertainty, no-repeat, and next-action facts. Shared
+  live admission is a prerequisite, not evidence of shared product ownership.
 
 ### Map Configuration Authoring
 
@@ -211,8 +245,12 @@ the current migration state, not an inferred implementation plan.
 - **Actor outcome:** a map author or playtester can Save & Deploy, Run in Game,
   adopt, inspect, or cancel one request-correlated realization operation.
 - **Semantic owner:** `services/mapgen-runs`.
+- **Physical effect owner:** the Studio app's qualified
+  `swooper-map-realization` adapter, built from the public Swooper definition
+  and pure run-workspace/mod-install packages.
 - **Explicit non-owners:** Studio API, Studio host, browser caller, run-files
-  adapter, Tuner resource, and Swooper definition.
+  adapter, Tuner resource, Swooper definition, and the separate Swooper
+  realization app's production Nx targets.
 - **Current realization:** shipped inside `packages/studio-server`.
 - **Disposition:** `repair`; extract the semantic operation owner and bind its
   exact app-selected dependencies.
@@ -228,7 +266,8 @@ authorized product surfaces, not additional semantic capability owners.
 - `apps/cli` owns one commandless oclif process and topic registration.
 - `plugins/cli/topics/*` own command and presentation projections.
 - `plugins/server/api/mapgen-studio` owns the Studio caller contract and
-  transport projection.
+  transport projection. Its frozen route ledger may delegate selected
+  play-owned routes to the bound play client.
 - `plugins/web/app/mapgen-studio` owns browser application views and
   interactions. It may consume the retained `packages/mapgen-studio-ui`
   component library; that package has no selected web-plugin relocation.
@@ -237,11 +276,17 @@ authorized product surfaces, not additional semantic capability owners.
   process disposal.
 - Docs and examples promise only the public contracts and proof class they name.
 
+The current Studio projection is the only selected API use of the play client
+in this cutover. A standalone `plugins/server/api/civ7-play` surface remains a
+future-only candidate that requires its own browser or network-agent caller
+contract; it is not implied by Studio route delegation.
+
 Raw diagnostics are explicit supporting surfaces, not one semantic product
-capability. The Tuner resource defines health and execution vocabulary while
-its selected provider emits the concrete facts. The generic window-capture
-resource defines raw image/window evidence while its macOS provider owns
-ScreenCaptureKit execution. The control service alone interprets those facts as
+capability. The Tuner resource defines health, epoch, and raw-command
+vocabulary while its selected provider emits the concrete facts. The generic
+window-capture resource defines raw image/window evidence while its macOS
+provider owns ScreenCaptureKit execution. The control service alone interprets
+those facts as
 a Civ7 appshot. App restart belongs to the qualified app boundary, and each
 projection reports only the exact evidence emitted by its owner. These
 surfaces must not be gathered under a new diagnostic service or inherit
@@ -256,12 +301,12 @@ an unknown external consumer keeps the gate open.
 | Public surface | Known consumers | Compatibility disposition | Migration owner and closure |
 | --- | --- | --- | --- |
 | CLI | Terminal users/agents, scripts, oclif discovery, docs | Retain command discovery, nouns, flags, help, structured output, exit behavior, and dev/production parity | CLI app and each topic plugin; exact command mirrors and help proof close the gate |
-| Studio `/rpc` | MapGen Studio browser and any local RPC caller | Each frozen Studio and `civ7.*` route is retain, replace, or retire-with-consumer-proof | Studio API plugin; the 70-route control subtree and Studio route ledger in `CORPUS.md` close together |
-| Control client/direct-control exports | Game topic, Studio host, MapGen Studio app, Swooper definition/realization, control service | Replace private/facade access with one public owner client or qualified resource diagnostic | Live-control cutover owner; all production import edges and public subpaths must reach zero |
+| Studio `/rpc` | MapGen Studio browser and any local RPC caller | Each frozen Studio and `civ7.*` route is assigned to control, play, another owner, or retire-with-consumer-proof | Studio API plugin; the 70-route ledger and its exact owner delegations in `CORPUS.md` close together |
+| Control, play, and direct-control exports | Game topic, Studio host, MapGen Studio app, Swooper realization/proof, control service, and play consumers | Foundational app/game/map/UI consumers move to the control client; actor-facing gameplay consumers move to the play client; raw escape hatches remain qualified diagnostics | Joint live/play cutover; all facade imports, mixed package imports, and private cross-service edges must reach zero |
 | SDK `createMap` | Generated Swooper map entries, SDK tests/types, docs/examples | Reshape runtime behavior into the qualified realization while preserving admitted definition/config semantics | Swooper engine-boundary cutover; generated entrypoint, SDK type, doc, and external-consumer search close the gate |
 | Adapter exports | SDK `createMap`, realization compiler, Swooper proof, external SDK callers | Retain pure contract/static/mock; retire concrete engine-global and setup exports | Swooper engine-boundary cutover; package exports and all live-subpath imports reach zero |
 | Swooper configuration | Studio authoring, Swooper definition/realization, generated entries, tests | Retain canonical identity, admission, serialization, defaults, map/game seeds, and authored source | Swooper definition plus Studio source adapter; config and source-write proof close separately |
-| Mod entrypoints | Civ7 loader, generated files, deployment targets, Studio run materialization | Retain identity, action groups, generated paths, loader entrypoint, compatibility, and target behavior | Matching realization app; generated, installation, loader, and live evidence remain separate |
+| Mod entrypoints | Civ7 loader, generated files, and production deployment targets | Retain identity, action groups, generated paths, loader entrypoint, compatibility, and target behavior; do not reuse the target as Studio's dynamic materializer | Matching realization app; generated, installation, loader, and live evidence remain separate |
 | Generated Civ7 types/policy | SDK, adapters, MapGen, Studio, docs | Retain public identifiers or record a source-backed correction | Official-data generator owners; deterministic regeneration and currentness proof close the gate |
 | Docs/examples | Mod authors, tool builders, Playground, canonical links | Update or retire with the public contract they promise | Corresponding capability owner plus docs owner; links and executable examples must resolve |
 | Raw diagnostic commands | Game CLI users/scripts and selected Studio diagnostics | Preserve exact bounded evidence; do not translate it into gameplay success | Owning resource or qualified app adapter plus projection; each exact command receives a disposition |
@@ -271,8 +316,8 @@ an unknown external consumer keeps the gate open.
 
 | Current hybrid | Target split | Deletion trigger |
 | --- | --- | --- |
-| `@civ7/direct-control` | Managed Tuner and generic window-capture resources/providers, semantic control service, qualified diagnostics | All semantic and diagnostic consumers use their target owner; no facade or convenience surface remains |
-| `Civ7ControlOrpcDirectControlFacade` | Direct service client over runtime-supplied ready capabilities | Service implementation and all consumers compile without facade-shaped extraction |
+| `@civ7/direct-control` | Managed Tuner and generic window-capture resources/providers, foundational control service, gameplay service, qualified diagnostics, and app adapters | All live, play, run, and diagnostic consumers use their exact target owner; no facade or convenience surface remains |
+| `Civ7ControlOrpcDirectControlFacade` | Delete; its method inventory is parity evidence only and no destination component replaces its shape | Public control and play clients are independently callable; all facade imports, facade-shaped extraction, and private contract picking reach zero |
 | `packages/studio-contract` | Portable MapGen config package plus Studio API-owned caller contract | All routes and config consumers have explicit dispositions and the old package has no imports |
 | `packages/studio-server` | MapGen-runs service, Studio API projection, and Studio app runtime | Operation state, projection, and host startup each have one owner with parity proof |
 | `packages/civ7-adapter` | Portable contract/static/mock package plus realization-local engine-global implementation | No portable consumer imports ambient Civ7 globals or loader/setup code |
@@ -291,6 +336,7 @@ owner.
 | Candidate | Status | Re-entry trigger |
 | --- | --- | --- |
 | In-game controller mod | `deferred` | A proven same-realm consumer, lifecycle owner, loader boundary, and simpler control path |
+| Third `civ7-live` forwarding service | `excluded` | A distinct fact owner, policy, or lifecycle not already owned by foundational control or actor-facing play |
 | Public Tuner protocol package | `deferred` | A second independent protocol consumer |
 | Generic desktop-app control resource | `deferred` | Two concrete apps share one acquire/use/release capability |
 | Durable workflow plugin | `deferred` | A process-independent, resumable, long-running operation with durable retry/replay needs |
@@ -338,5 +384,6 @@ The product model is stable enough to open system placement only when:
 - every deferred candidate has a re-entry trigger;
 - no route, file, package name, vendor, or generated artifact defines product
   meaning; and
-- current behavior, accepted target ownership, constructibility, migration,
-  and proof remain independently visible.
+- current behavior, accepted target ownership, shared substrate readiness,
+  qualified destination admission, migration, and proof remain independently
+  visible.

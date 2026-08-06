@@ -1,6 +1,6 @@
 # Civ7 Capability Realization Workstream
 
-**Status:** Ground sealed; Core Platform 1.2 Interactive construction active
+**Status:** Destination model sealed; active-guidance ratchet in progress
 **Frame:** [FRAME.md](./FRAME.md)
 **Model progression:** [MODEL-PROGRESSION.md](./MODEL-PROGRESSION.md)
 **Product authority:** [PRODUCT-AUTHORITY.md](./PRODUCT-AUTHORITY.md)
@@ -8,6 +8,7 @@
 **Outcome model:** [OUTCOME-MODEL.md](./OUTCOME-MODEL.md)
 **Actor lens:** [ACTOR-ROLE-OUTCOME-MODEL.md](./ACTOR-ROLE-OUTCOME-MODEL.md)
 **Current chains:** [CURRENT-CAPABILITY-CHAINS.md](./CURRENT-CAPABILITY-CHAINS.md)
+**Destination platform:** [destination-platform-reference.md](./destination-platform-reference.md)
 **Selected topology:** [TOPOLOGY.md](./TOPOLOGY.md)
 **Kind law:** [KIND-LAW-MATRIX.md](./KIND-LAW-MATRIX.md)
 **Migration corpus:** [CORPUS.md](./CORPUS.md)
@@ -16,7 +17,8 @@
 
 ## Objective
 
-Materialize one cohesive Civ7 modding platform on the shared Habitat substrate.
+Materialize one cohesive Civ7 modding platform on the shared Habitat law
+substrate.
 The final platform preserves the authorized product capabilities while giving
 each fact, transition, lifecycle, and effect one qualified owner. It removes
 hybrid containers rather than carrying them forward under new names.
@@ -56,8 +58,8 @@ a recorded focus pivot.
 | Packages and static policy | Dense and slow | Pure contracts, schemas, algorithms, plans, generated static truth |
 | Resources and providers | Stable and explicit | Foreign lifecycle, readiness, epochs, typed failures, concrete acquisition |
 | Services | Assured and semantic | Capability policy, invariants, operations, scoped semantic state |
-| Projections | Responsive and replaceable | Caller translation, transport, presentation, host integration |
-| Apps and realizations | Flexible at the surface | Product membership, host composition, provider/adapter selection, runtime observation |
+| Projections | Responsive and replaceable | Caller contracts, public registration, translation, and presentation |
+| Apps and realizations | Flexible at the surface | Product membership, compiler/build programs, host composition, provider/adapter and public-client binding, transport mounting, exact host proof, runtime observation |
 
 Lower layers do not absorb upper-layer convenience. Upper layers remain easy to
 change because the layers beneath them are narrow, typed, and unsurprising.
@@ -66,15 +68,19 @@ change because the layers beneath them are narrow, typed, and unsurprising.
 
 The following are complete evidence, not open work containers:
 
-- Product, system, outcome, and actor-role-outcome models are sealed against
-  the exact current and proof corpora.
+- Product, system, outcome, and actor-role-outcome packets were re-ratified as
+  one whole-platform authority. The exact consumer corpus falsified their
+  earlier one-service live/play decision; the accepted destination reference
+  now restores implementation authority to the mutually consistent packet.
 - Studio design synchronization, Explore Live Map outcome honesty, physical
   wind and pressure reconstruction, and seed-stateless latitude behavior are
   landed current-product receipts.
 - Swooper's portable definition and Civ7 realization are distinct owners.
 - The CLI app is commandless; nested commands belong to
   `plugins/cli/topics/*`.
-- `services/civ7-control` is the sole semantic live-control authority.
+- `services/civ7-control` is the foundational live-control authority;
+  `services/civ7-play` is the actor-facing gameplay authority built on its
+  public client.
 - The unconsumed controller island is deleted. Its future form remains deferred
   behind the recorded same-realm consumer and lifecycle trigger.
 - MapGen remains portable. A network-shaped MapGen generation service and a
@@ -146,7 +152,8 @@ as part of Ground, and Core Platform 1.1 is admitted.
 explain deterministic Swooper Physics output. A release operator can realize
 one exact definition in Civ7 and receive independent materialization,
 installation, loader, and live-behavior facts. An operator or agent can observe
-a running Civ7 epoch, make one lawful native decision, reconcile uncertainty
+a running Civ7 epoch, make one lawful gameplay decision through foundational
+control, reconcile uncertainty
 without unsafe repeat, and run, adopt, inspect, or cancel one request-correlated
 MapGen realization through CLI or Studio without changing owner meaning.
 
@@ -279,8 +286,9 @@ claim. The slice remains inside the Core Platform parent.
 
 ### 1.2 Interactive Platform
 
-**Actors and outcomes:** an operator or agent can observe a running Civ7 epoch,
-make one lawful native decision, reconcile uncertainty without unsafe repeat,
+**Actors and outcomes:** an operator or agent can observe and control a running
+Civ7 epoch, interpret it through the play capability, make one lawful gameplay
+decision, reconcile uncertainty without unsafe repeat,
 and run, adopt, inspect, or cancel one request-correlated MapGen realization
 through CLI or Studio without changing owner meaning.
 
@@ -324,38 +332,62 @@ shared-kind instance; never copy or approximate an upstream packet.
   complete move together. Do not create a dependency-only intermediate estate;
   retain the obsolete patch file until no consumer remains, then delete it at
   the joint seal.
+- Keep the Effect-oRPC law portable: adapt each Effect-authored procedure once,
+  directly at its owning private service or API implementation/router boundary,
+  while preserving typed context/dependencies and declared-error, defect,
+  request-signal, interruption, cancellation, and finalization lineage.
+  Extension-free direct handlers are the default. Exact beta.23 syntax, Cause
+  behavior, and extension use require the exact published source/declarations
+  plus discriminating artifact, type, error, interruption, lifecycle, and realm
+  fixtures. If an extension is selected, one qualified process bootstrap owns
+  and proves the physical mutation exactly once; feature modules never import
+  it for side effects.
+- Make no repository-local vendor-skill change during this construction cut.
+  Promote beta.23 guidance only after the exact evidence receipt exists.
 - Rewrite `services/civ7-control` under the established local service packet,
-  consuming app-supplied ready capabilities through private module ports and
-  exposing one public in-process client.
+  consuming app-supplied ready capabilities through private app/game/map/UI
+  ports and exposing one public in-process control client.
+- Construct `services/civ7-play` under the same local service kind, consuming
+  only the public control client and owning gameplay observation, checks,
+  requests, reconciliation, no-repeat policy, and next lawful action.
 - Construct `services/mapgen-runs` for admission, operation state, retention,
   adoption, cancellation, diagnostics, autoplay policy, and terminal outcomes.
 - Keep process-scoped semantic state in its service scope. Cold host effects
-  enter through exact app-selected dependencies; neither service constructs a
-  provider, mount, process, or ambient singleton.
+  enter through exact app-selected dependencies; no service constructs a
+  provider, mount, process, or ambient singleton. Play receives neither Tuner
+  nor window capture; control owns no gameplay recommendation merely because it
+  executes the native operation.
 
 #### 1.2.3 Projections
 
-- Construct the MapGen Studio API projection from its frozen route ledger,
-  composing public service clients rather than extracting private contracts or
-  redeclaring schemas.
+- Construct the MapGen Studio API projection from its frozen route ledger. Its
+  API-owned caller contracts delegate through bound public clients and exact
+  app-supplied capabilities; they never compose service contract subtrees,
+  extract private contracts, or redeclare an owner's schemas. The API plugin
+  owns public registration over its private router; it does not choose or mount
+  transport.
 - Construct the Studio web projection around authorized views, interactions,
   and browser execution.
-- Construct all CLI topic roots with exact command mirrors. Semantic game
-  commands use the control client; MapGen operations use the MapGen-runs
-  client; raw diagnostics retain only their bounded evidence vocabulary.
+- Construct all CLI topic roots with exact command mirrors. Status, setup, map,
+  and view commands use the control client; `game play` commands use the play
+  client; MapGen operations use the MapGen-runs client; raw diagnostics retain
+  only their bounded evidence vocabulary.
 
 #### 1.2.4 App Realization
 
 - Make `apps/mapgen-studio` the qualified composition root for its actual Bun,
   Vite, server, and web hosts: exact plugin membership, provider selection,
-  public-client construction, API context, role mounting, observation,
-  disposal, and exact semantic adapter selection. Keep reusable product truth
-  in its packages, resources, services, and plugins.
+  project-local compiler/build programs, public-client construction and
+  binding, API context, transport and role mounting, observation, disposal,
+  exact semantic adapter selection, and one execution proof per native host
+  entrypoint. Keep reusable product truth in its packages, resources, services,
+  and plugins.
 - Construct the commandless CLI app around native Oclif startup, its sole topic
   registry, exact app-owned client/resource binding, and the `local-mods`
   adapter. The app owns no commands or semantic service truth.
-- Use direct host entrypoints or Nx targets. Habitat 0.5.2 supplies app
-  structure, not `defineApp`, profiles, `startApp`, provider provisioning, or a
+- Use direct host entrypoints or Nx targets. Habitat 0.5.2 supplies structure
+  and bounded-source law, not a compiler, `defineApp`, profiles, `startApp`,
+  provider provisioning, client binding, transport mounting, host proof, or a
   generic process runtime; do not invent wrappers for absent capabilities.
 - Keep official-data, saved-file, fresh-log, run-file, and authored-config
   filesystem effects in exact app adapters with one matching execution proof.
@@ -376,7 +408,7 @@ shared-kind instance; never copy or approximate an upstream packet.
   and terminal operation facts without reducing them to `ok` or one strongest
   status.
 
-**Slice receipt:** the two locally governed semantic services and their shared-
+**Slice receipt:** the three locally governed semantic services and their shared-
 kind resources, providers, projections, apps, and consumers are constructible;
 CLI and Studio preserve authorized Task/Question meaning; every displaced
 owner is ready for joint deletion. This is not an independent migration or

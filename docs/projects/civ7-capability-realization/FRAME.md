@@ -1,6 +1,6 @@
 # Civ7 Capability Realization Frame
 
-**Status:** Ground sealed; Core Platform 1.2 Interactive construction active
+**Status:** Destination model sealed; active-guidance ratchet in progress
 **Date:** 2026-08-06
 **Owner:** Civ7 platform architecture and product stewardship
 
@@ -52,13 +52,23 @@ route. It is a funnel, not commit chronology and not another production layer.
 Structure selects Owner. Boundary. Direction. Lifecycle. Closure. Descent
 selects Ground. Chain. Ratchet. Delete. Seal.
 
-**Current container:** construct the Interactive platform chain on the admitted
-Habitat consumer substrate. The completed Swooper cold construction, four
-models, exact corpora, Ground receipt, Explore Live Map oracle, Studio design
-synchronization, wind and pressure reconstruction, and seed-stateless latitude
-fallback are sealed inputs. Habitat source and shared law remain upstream;
-Civ7 authors only instances, qualified overlays, product policy, adapters, and
-compatibility rules.
+**Current container:** ratchet every active guidance surface to the sealed Civ7
+destination platform before source migration resumes. The accepted
+[destination reference](./destination-platform-reference.md) and mutually
+consistent product, system, outcome, actor, topology, corpus, proof, and vendor
+packets are implementation authority again. Repo-local skills, AGENTS routers,
+ADRs, and architecture guidance now receive an explicit
+keep/repair/consolidate/delete disposition. Published global vendor skills own
+generic oRPC, Effect-oRPC, Effect, and Inngest teaching; Civ7 retains only
+domain-specific overlays that add durable local authority. Source remains
+stationary until this executable-guidance pass removes the old direct-control,
+flat-service, local-Habitat-producer, and stale-path attractors.
+
+The completed Swooper cold construction, exact corpora, Ground receipt,
+Explore Live Map oracle, Studio design synchronization, wind and pressure
+reconstruction, and seed-stateless latitude fallback remain sealed inputs.
+Habitat source and shared law remain upstream; Civ7 authors only instances,
+qualified overlays, product policy, adapters, and compatibility rules.
 
 `@habitat-ai/cli@0.5.2` and its exact `@habitat-ai/sdk@0.5.2` dependency now
 supply the selected `app@1`, `package@1`, `plugin@1`, `plugin-nx@1`,
@@ -67,8 +77,9 @@ architecture are gone. `service@1` remains intentionally unselected, so
 current Civ7 service law stays local rather than being disguised as shared
 substrate.
 
-The active chain is provider-neutral resource -> concrete provider -> semantic
-service -> caller projection -> real host composition -> observation. Habitat
+The active chain is provider-neutral resource -> concrete provider ->
+foundational control service -> actor-facing play or run service -> caller
+projection -> real host composition -> observation. Habitat
 0.5.2 closes the shared structural shells but publishes neither a product app
 runtime nor a selected service kind. Provider selection, acquisition, public-
 client binding, host mounting, observation, and disposal therefore belong to
@@ -96,12 +107,12 @@ must strictly probe the cached or newly compiled helper before returning a
 ready capability; release closes admission, requests bounded
 termination of every remaining child, and drains every admitted operation.
 Those cancellation and atomicity guarantees are target laws, not claims about
-the current direct-control implementation. The control service
-alone owns Civ7 window defaults, appshot policy, and semantic interpretation.
-The first runtime schema also exposed one upstream substrate gap: `resource@1`
-admits `test/` but does not close or select the provider-neutral contract proof
-below it. Civ7 will not fork that generic law; the resource seal waits for the
-shared required typecheck leaf and optional runtime-contract-value proof.
+the current direct-control implementation. The control service alone owns Civ7
+window defaults, appshot policy, and semantic interpretation. Shared
+`resource@1` closes the generic resource shell without prescribing every
+product proof axis. Civ7 therefore composes its qualified resource-proof overlay
+for the required contract typecheck and optional runtime contract-value proof;
+it does not fork or copy the shared law.
 
 The first definition ownership reduction is closed: diagnostics and metric
 commands now live in the closed `mapgen` CLI topic, consume public Swooper and
@@ -135,12 +146,63 @@ proves 29 tests. Published Habitat and canonical Template expose no generic
 product app-runtime constructor, so no inert app descriptor or profile was
 authored.
 
-**Gradient:** generic window-capture resource -> local semantic services ->
-CLI and Studio projections/composition -> joint Core Platform seal -> Dacia
-Product -> Estate Reconciliation -> Platform Seal.
+The service cut remains native oRPC 2 plus Effect 4, but the flat fifteen-root
+control contract is no longer target authority. `services/civ7-control` owns
+closed typed app/game/map/UI operations over ready Tuner and generic window-
+capture resources. `services/civ7-play` consumes only that public client and
+owns attention, gameplay checks/requests, reconciliation, no-repeat policy, and
+next lawful action. No play module receives Tuner or provider state; no control
+module manufactures gameplay strategy merely because it executes the native
+operation. The aggregate direct-control facade, host-admission middleware,
+controller capability mirror, transport address, arbitrary JavaScript escape,
+and generic mutation-proof wrapper remain refused.
+
+Construction is ratcheted continuously rather than certified only at the end.
+Each completed module must close its focused semantic tests, TypeScript,
+Biome, and selected Habitat laws before the next module becomes the active red
+corpus. The ordinary Nx `check` graph composes those product proofs with Effect
+diagnostics, Knip, boundaries, policy, verification, and upstream checks. Civ7
+keeps that explicit consumer selection until Habitat decides whether generic,
+opt-in quality-graph aggregation belongs in the shared substrate.
+
+**Gradient:** guidance seal -> qualified law red state -> resource/provider fact
+closure -> foundational control -> actor-facing play -> MapGen-runs -> CLI and
+Studio projections/composition -> displaced-owner deletion -> joint Core
+Platform seal -> Dacia Product -> Estate Reconciliation -> Platform Seal.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-08-06 - Destination Platform Re-ratified
+
+The recovered whole-platform proposal falsified the one-service control/play
+collapse and exposed an unnamed MapGen realization supplier plus a fictitious
+shared runtime. The accepted model now selects provider-neutral resources,
+app-selected providers, foundational control, actor-facing play, MapGen-runs,
+caller projections, and native app composition with no facade or shared runtime.
+Studio's qualified adapter owns ephemeral materialization/install effects;
+MapGen-runs owns their semantic operation. The next forcing surface is active
+guidance: stale local skills and routers must no longer teach the architecture
+that this model just rejected.
+
+### 2026-08-06 - Live/Play Repair Expanded To The Whole Platform
+
+The prior focus correctly re-separated foundational live control from
+actor-facing play, but it began evaluating source before independently
+reconstructing the full earlier platform proposal. The active model loop now
+re-tests resources, services, API projections, workflows, apps, and deletion
+boundaries together. The green flat service rewrite remains migration evidence;
+no source shape becomes authority until the platform model seals.
+
+### 2026-08-06 - Live Control And Play Re-separated
+
+The prior focus assigned readiness, setup, world, view, city, diplomacy,
+progression, strategy, and mutations to one semantic service because they
+shared Tuner readiness. Exact consumers and the recovered product proposal
+falsified that premise. Foundational live control and actor-facing play have
+different outcomes, policy, consumers, and dependency direction. The model is
+repaired before further source moves; the technically green flat rewrite is
+migration evidence, not a destination to ratchet.
 
 ### 2026-08-06 - Window Capture Resource Generalized
 
@@ -222,8 +284,9 @@ The following work is complete and is not reopened by this frame:
   `defineApp` or profile objects. No live target has passed yet.
 - `packages/mapgen-core` owns the portable MapGen authoring and execution SDK,
   not Swooper's product domain.
-- `services/civ7-control` owns semantic live-control admission, policy,
-  orchestration, and outcomes.
+- `services/civ7-control` owns foundational app/game/map/UI control facts and
+  typed native operations. `services/civ7-play` owns actor-facing gameplay
+  observation, decisions, reconciliation, and next-action policy.
 - Closed positive Habitat law is the ratchet. A destination is not valid merely
   because files were moved into it.
 
@@ -244,7 +307,8 @@ The following work is complete and is not reopened by this frame:
    surfaces.
 6. `Civ7ControlOrpcDirectControlFacade` mirrors that mixed package as one large
    service dependency and encourages type extraction from a facade rather than
-   module-owned capability contracts.
+   module-owned capability contracts. The flat successor repeated the deeper
+   collapse by treating a shared Tuner prerequisite as one semantic owner.
 7. The game CLI also calls direct-control outside the semantic service for raw
    execution, health, catalog, inspection, map reads, watch, restart, and
    focused diagnostic/read helpers.
@@ -254,8 +318,9 @@ The following work is complete and is not reopened by this frame:
 9. MapGen remains portable across browser preview, generated mod runtime, and
    tests. Moving its product truth into a network-shaped service would reduce
    that portability without adding an earned capability.
-10. Studio is the only current HTTP host for the control service. The CLI calls
-    the service in process.
+10. Studio is the only current HTTP host for foundational control. The CLI
+    calls control and play in process; Studio projects only the exact control or
+    play leaves its caller contract retains.
 11. Civ7's current service blueprint and implementation are pinned to oRPC 1
     and the patched `effect-orpc` bridge. They are migration corpus, not target
     authority. Habitat 0.5.2 intentionally publishes no shared service kind, so
@@ -339,10 +404,15 @@ product intent
 
 ```mermaid
 flowchart LR
-  Resource["Tuner resource"] --> Provider["Local-socket provider"]
-  Control["Civ7 control service"] --> CLI["CLI projection"]
+  Provider["Local-socket provider"] -->|realizes| Resource["Ready Tuner resource"]
+  Resource --> Control["Foundational control service"]
+  Control --> Play["Civ7 play service"]
+  Control --> CLI["CLI projections"]
+  Play --> CLI
   Control --> StudioAPI["Studio API projection"]
-  Runs["MapGen runs service"] --> StudioAPI
+  Play --> StudioAPI
+  Control --> Runs["MapGen runs service"]
+  Runs --> StudioAPI
   Web["Studio web projection"] --> Studio["MapGen Studio app definition"]
   StudioAPI --> Studio
   CLI --> CLIApp["CLI app definition"]
@@ -354,17 +424,17 @@ flowchart LR
   classDef truth fill:#24303a,stroke:#101820,color:#f4f7f8;
   classDef projection fill:#3d4851,stroke:#101820,color:#f4f7f8;
   classDef runtime fill:#0f6b63,stroke:#101820,color:#ffffff;
-  class Resource,Provider,Control,Runs truth;
+  class Resource,Provider,Control,Play,Runs truth;
   class CLI,StudioAPI,Web projection;
   class Studio,CLIApp,StudioProcess,CLIProcess runtime;
 ```
 
-The service remains callable in process. An API plugin projects it only when a
-network caller exists. Each qualified host app selects and acquires its
-concrete providers, constructs public service clients, supplies projection
-context, mounts its native host, and owns disposal. The service client maps the
-ready capability into private service ports; no facade or adapter project sits
-between resource and service.
+Both services remain callable in process. An API plugin projects either only
+when a network caller exists. Each qualified host app selects and acquires its
+concrete providers, constructs the control client, constructs the play and run
+clients from that public capability, supplies projection context, mounts its
+native host, and owns disposal. No facade or adapter project sits between
+resource and control, and no Tuner-shaped port bypasses control into play.
 
 The local-socket provider keeps its framing and command codecs private. A
 standalone Tuner protocol package is admitted only when a second independent
@@ -386,13 +456,20 @@ The root `@orpc`/Effect/TypeBox transition lands only with a complete behavior-
 preserving service cut. A dependency-only intermediate, compatibility facade,
 or private-contract extraction is refused.
 
-### Keep one control service
+### Separate foundational control from play
 
-Do not split `civ7-control`, `civ7-live`, and `civ7-play` merely because those
-nouns are plausible. The current city, diplomacy, display, government,
-notification, progression, turn, unit, view, world, and strategy procedures
-share one live-game admission and policy boundary. A later split requires a
-different authority, runtime, access policy, or consumer lifecycle.
+Keep `services/civ7-control` as the foundational live-control owner and create
+`services/civ7-play` as the actor-facing gameplay owner. This split is earned:
+Studio, MapGen-runs, Swooper live proof, and CLI status/map/view need control
+without play, while the game-play CLI needs gameplay situation, policy,
+reconciliation, and next actions that those consumers must not inherit.
+
+Control exposes closed typed app/game/map/UI operations over ready resources.
+Play consumes only the public control capability. A third `civ7-live` service
+is refused because it would forward the same foundational facts without a new
+owner. Sharing one live-game admission prerequisite does not merge services;
+allowing both services direct Tuner access would erase the direction and is
+also refused.
 
 ### Keep MapGen portable
 

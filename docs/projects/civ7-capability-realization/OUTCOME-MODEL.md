@@ -185,59 +185,70 @@ erase a materialization or installation fact. A surface reports the complete
 supported set and each fact's evidence boundary rather than selecting a
 "strongest completed" label.
 
-### Live Observation
+### Foundational Live Control
 
-**Intent:** inspect the current running Civ7 state.
+**Intent:** inspect or perform one closed native operation against the running
+Civ7 session identified by a resource-owned epoch.
 
 **Owned facts:**
 
-- connection/session epoch;
-- observation time and source;
-- requested state or layer;
-- completeness and freshness;
+- operation correlation to the connection/session epoch owned and supplied by
+  the ready resource;
+- observation or dispatch time and exact native source;
+- requested operation from the exact control module inventory `{app, game, map,
+  ui}`;
+- completeness, freshness, native admission, dispatch, and readback;
 - exact payload or typed failure.
 
 **Analytical distinctions:** an observation can be complete and fresh, stale,
 partial, not ready at the selected epoch, unavailable from its source, or
-rejected by the owning observation contract. The owner's current typed payload
-and failure vocabulary remain exact; this sentence defines no replacement
-status set. A refusal preserves the exact owner reason, exact requested input,
-revision, epoch, or observation time, and lawful next action from the observation
-owner.
+rejected by the owning control contract. A native transition may be refused,
+dispatched, acknowledged by its immediate native return, or remain unverified
+when the engine supplies no receipt. Those facts never imply actor intent,
+gameplay value, or a next action. A control refusal preserves its exact input,
+native reason, revision, epoch, and lawful technical recovery.
 
+The control service references the resource-owned epoch; it does not re-own
+resource health, connection state, epoch, raw command/result, raw execution,
+or capture evidence.
 Observation never mutates and never implies that a prior command caused the
-observed state unless correlation evidence proves it.
+observed state unless correlation evidence proves it. Raw transport execution,
+Tuner health, generic window capture, restart, and arbitrary GameInfo/root
+inspection remain supporting resource, provider, diagnostic, or app-adapter
+facts rather than control outcomes.
 
-### Live Decision
+### Civ7 Play
 
-**Intent:** check or perform one semantic gameplay action.
+**Intent:** understand the playable situation and check or perform one semantic
+gameplay action.
 
 **Owned facts:**
 
-- check input and native legality result;
+- actor-facing facts from the exact play module inventory `{attention,
+  automation, city, diplomacy, notifications, progression, planning, turn,
+  unit}`;
+- actor-facing situation or attention evidence;
+- check input and interpreted native legality result;
 - request correlation and no-repeat key;
-- exact native command attempted;
-- dispatch classification;
-- bounded postcondition evidence;
-- next lawful action.
+- exact foundational control operation requested;
+- dispatch classification and bounded postcondition evidence;
+- reconciliation and no-repeat state;
+- next lawful gameplay action.
 
-**Analytical distinctions:** the action may remain undispatched because
+**Analytical distinctions:** the action may remain undispatched because play
 admission or the native check refused it; dispatch plus bounded evidence may
-confirm the intended postcondition; dispatch may occur while owner policy guards
-against further mutation; dispatch may remain unverified; or observation may
-show the requested outcome already held without mutation. These are semantic
-distinctions, not a replacement public union. Every refusal preserves the exact
-service or native-check reason, request input/revision, and lawful next action;
-every uncertain dispatch preserves the no-repeat instruction.
+confirm the intended postcondition; dispatch may occur while owner policy
+guards against further mutation; dispatch may remain unverified; or fresh
+control observation may show the requested outcome already held without
+mutation. Every refusal preserves the exact play reason, request input/revision,
+and lawful next action; every uncertain dispatch preserves the no-repeat
+instruction.
 
-Check and request remain distinct operations. A caller may present both, but it
-cannot turn a check into a mutation or treat dispatch as confirmation.
-
-Raw transport execution, Tuner health, screenshot capture, restart, and other
-diagnostic observations are not a generic capability card. Each remains
-supporting evidence owned by its resource, provider, service, or qualified app
-adapter and projected with that owner's exact contract. No shared diagnostic
-status or semantic gameplay result is inferred from them.
+Play Questions and Tasks remain distinct. A caller may present observation,
+check, and request together, but it cannot turn a Question into a mutation or
+treat native dispatch as gameplay confirmation. The play service derives its
+outcomes from the public control capability; it does not reinterpret provider
+facts or own the foundational native operation twice.
 
 ### Authored Map Configuration
 
