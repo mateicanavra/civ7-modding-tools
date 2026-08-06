@@ -42,12 +42,14 @@ not an isolated migration. Interactive construction follows inside the same
 parent because Swooper's source writer, deployment path, and fresh-live proof
 consume those owners. Both close through one joint proof and deletion receipt.
 
-The first definition reduction is sealed: the closed `mapgen` CLI topic owns
+Two definition reductions are sealed. The closed `mapgen` CLI topic owns
 diagnostic and metric commands while Swooper and neutral MapGen packages retain
-their meaning. The active subcontainer is now the config/catalog authoring
-boundary: expose pure definition plans, hold Studio filesystem effects for its
-qualified Interactive adapter, and delete the mixed script owner only after
-both sides are independently constructible.
+their meaning. The closed Swooper `authoring` packet now owns pure config
+admission, canonical serialization, and the finite metadata target table;
+transitional scripts retain only host reads, writes, rollback, and plan
+application. Those effects stay held for the qualified Interactive adapter.
+The active subcontainer is the Civ7 realization: construct the exact cold app
+chain without borrowing Interactive owners or claiming live proof early.
 
 **Stable ownership:** Swooper remains a portable mod definition realized by
 its mod app. The CLI remains a commandless `cli-shell` composed from
@@ -64,7 +66,7 @@ cold filesystem effects, while CLI topics project their bound capabilities.
 MapGen run records, cancellation, retention, and events remain scoped
 MapGen-runs service state rather than a manufactured resource.
 
-**Gradient:** Swooper authoring -> Civ7 realization -> Interactive construction
+**Gradient:** Civ7 realization -> Interactive construction
 -> joint Core Platform seal -> Dacia Product -> Estate Reconciliation ->
 Platform Seal. The Tuner protocol remains private to its sole provider unless
 another independent consumer earns a public package.

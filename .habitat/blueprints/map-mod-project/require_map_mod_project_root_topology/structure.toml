@@ -7,9 +7,11 @@ kind = "directory"
 mode = "closed"
 allowEmpty = true
 required = [
+  "authoring",
   "package.json",
   "project.json",
   "src",
+  "test",
 ]
 allowed = [
   "AGENTS.md",
@@ -24,6 +26,28 @@ allowed = [
   "tsconfig.tools.json",
   "tsup.config.ts",
   "vitest.config.ts",
+]
+
+[[scopes]]
+name = "map-mod-definition-authoring"
+root = "plugins/mod/map/*/authoring"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "config.ts",
+  "index.ts",
+  "targets.ts",
+]
+
+[[scopes]]
+name = "map-mod-definition-authoring-proof"
+root = "plugins/mod/map/*/test/authoring"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "targets.test.ts",
 ]
 
 [[scopes]]
