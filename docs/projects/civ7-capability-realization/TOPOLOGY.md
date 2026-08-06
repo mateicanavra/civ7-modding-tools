@@ -228,7 +228,6 @@ resources/
     tsconfig.json
 services/
   civ7-control/
-    habitat.toml
     package.json
     project.json
     test/
@@ -240,7 +239,6 @@ services/
     src/
       client.ts
       service/
-        habitat.toml
         base.ts
         contract.ts
         impl.ts
@@ -255,7 +253,6 @@ services/
             [middleware/]
             [model/]
   civ7-play/
-    habitat.toml
     package.json
     project.json
     test/
@@ -267,7 +264,6 @@ services/
     src/
       client.ts
       service/
-        habitat.toml
         base.ts
         contract.ts
         impl.ts
@@ -283,7 +279,6 @@ services/
             [middleware/]
             [model/]
   mapgen-runs/
-    habitat.toml
     package.json
     project.json
     test/
@@ -295,7 +290,6 @@ services/
     src/
       client.ts
       service/
-        habitat.toml
         base.ts
         contract.ts
         impl.ts

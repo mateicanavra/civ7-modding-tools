@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 2,
+  "id": "require_civ7_service_inventory",
+  "title": "Require The Selected Civ7 Service Inventory",
+  "placement": {
+    "niche": "civ7/platform/services",
+    "blueprint": "service",
+    "category": "structure"
+  },
+  "operation": { "kind": "check" },
+  "ownerProject": "control-orpc",
+  "lane": "enforced",
+  "forbids": "missing selected services, legacy peer services, flat control modules, gameplay modules inside control, or unselected service modules",
+  "why": "The sealed product model has three semantic service authorities. Exact module inventories keep foundational control, actor-facing play, and MapGen run orchestration physically distinct.",
+  "remediate": "Construct civ7-control, civ7-play, and mapgen-runs with only their selected modules; move legacy control modules to the owning service and delete superseded roots after behavior proof closes.",
+  "message": "Civ7 services and modules must match the selected platform model.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["services/**"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/platform/services/rules/require_civ7_service_inventory/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/civ7/platform/services/rules/require_civ7_service_inventory/structure.toml"
+    }
+  }
+}

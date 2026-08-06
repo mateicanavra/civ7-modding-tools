@@ -344,17 +344,19 @@ Before moving source into a destination:
 
 1. the product capability and semantic owner are authorized;
 2. the selected shared kind is published at the accepted 0.5.2 pin, or the
-   destination is governed by an already-accepted local Civ7 kind;
-3. the exact root is constructible through an accepted manifest-backed
-   instance path;
+   destination is governed by an explicitly accepted local compatibility kind;
+3. a selected shared instance has its accepted manifest-backed construction
+   path, while a local compatibility kind has resolved rules and exact path
+   coverage without manufacturing a false shared-kind manifest;
 4. its public faces, dependencies, proof topology, and runtime role are closed;
 5. current consumers and behavior evidence are frozen; and
 6. the same implementation container deletes the displaced owner.
 
-The gate is open only for the six Ground-proven shared kinds and established
-local Civ7 kinds. If a destination kind is not selected, keep current behavior
-stable. Do not create a local approximation, move source speculatively, or
-harden a transition architecture.
+The gate is open only for the six Ground-proven shared kinds and the explicitly
+accepted local Civ7 service compatibility kind. If a destination has neither a
+selected shared kind nor an accepted local compatibility law, keep current
+behavior stable. Do not create a local approximation, move source
+speculatively, or harden a transition architecture.
 
 ## Transition Test
 

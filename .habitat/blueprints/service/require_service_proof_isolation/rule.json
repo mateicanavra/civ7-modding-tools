@@ -1,21 +1,19 @@
 {
   "schemaVersion": 2,
   "id": "require_service_proof_isolation",
-  "title": "Require Service Proof Isolation",
+  "title": "Require One-Way Service Proof Dependencies",
   "placement": {
     "niche": "global/services",
     "blueprint": "service",
     "category": "boundary"
   },
-  "operation": {
-    "kind": "check"
-  },
+  "operation": { "kind": "check" },
   "ownerProject": "control-orpc",
   "lane": "enforced",
-  "forbids": "standalone service production source that imports, re-exports, dynamically imports, requires, or resolves a relative module source containing an exact test path segment",
-  "why": "Package-root proof may consume production behavior, but production source must not acquire proof fixtures, harnesses, support, or suites.",
-  "remediate": "Move proof-only code under the package-root test categories and remove the production-to-proof edge. Do not replace it with a proof alias.",
-  "message": "Service production source must not import package proof code.",
+  "forbids": "production imports, re-exports, dynamic imports, or CommonJS resolution into the owning service's test tree",
+  "why": "Proof consumes production authority. Production never depends on a fixture, harness, or assertion that exists only to prove it.",
+  "remediate": "Move a reusable value to its qualified production owner or keep it as a fixture beside the contract, semantics, or execution proof that consumes it.",
+  "message": "Service production source must not import package proof.",
   "pathCoverage": [
     {
       "kind": "exact-path",
