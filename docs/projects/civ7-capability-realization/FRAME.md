@@ -1,6 +1,6 @@
 # Civ7 Capability Realization Frame
 
-**Status:** Guidance sealed; qualified service law red-state in progress
+**Status:** Qualified service law materialized; exact service corpus red
 **Date:** 2026-08-06
 **Owner:** Civ7 platform architecture and product stewardship
 
@@ -52,15 +52,14 @@ route. It is a funnel, not commit chronology and not another production layer.
 Structure selects Owner. Boundary. Direction. Lifecycle. Closure. Descent
 selects Ground. Chain. Ratchet. Delete. Seal.
 
-**Current container:** make Civ7's unselected local service law express the
-sealed control/play split before admitting any dirty service source. The
-accepted [destination reference](./destination-platform-reference.md) and its
-product, system, outcome, actor, topology, corpus, proof, and vendor packets are
-the positive authority. Review the existing local service blueprint as
-untrusted work-in-progress, close the exact public/private service spine and
-module/proof grammar, turn the current flat control corpus red, then burn down
-foundational `{app,game,map,ui}` control and actor-facing play without a facade,
-private contract picking, provider acquisition, or frozen vendor syntax.
+**Current container:** burn the exact red service corpus into the accepted
+control/play split. The local compatibility law now closes the public client,
+private service spine, module/model interiors, and contract/semantics/execution
+proof axes without selecting vendor syntax or manufacturing a shared-kind
+manifest. The qualified inventory requires control `{app,game,map,ui}`, the
+actor-facing play modules, and MapGen-runs. Foundational control burns down
+first, followed by play, without a facade, private contract picking, provider
+acquisition, or frozen vendor syntax.
 
 The completed Swooper cold construction, exact corpora, Ground receipt,
 Explore Live Map oracle, Studio design synchronization, wind and pressure

@@ -22,15 +22,16 @@ them. Each accepted kind closes its own proof topology around disjoint
 confidence axes; domain-qualified kinds such as MapGen keep their stronger
 domain-shaped testing grammar.
 
-**Current container:** qualified Civ7 service law before service-source
-admission. Product, system, outcome, actor, topology, corpus, proof, and vendor
-models agree on the package/resource/provider/service/plugin/app chain, and the
-active guidance corpus is sealed against that model. The existing local service
-blueprint is work-in-progress rather than inherited authority: close the exact
-public/private service spine, finite module grammar, and proof topology; turn
-the flat control corpus red; then burn down foundational control and
-actor-facing play without recreating the facade, acquiring providers in a
-service, or freezing prerelease vendor mechanics.
+**Current container:** exact service-corpus burn-down. Product, system, outcome,
+actor, topology, corpus, proof, and vendor models agree on the
+package/resource/provider/service/plugin/app chain, and the active guidance
+corpus is sealed against that model. The local compatibility law now closes the
+public client, private service spine, finite module/model grammar, and
+contract/semantics/execution proof axes without claiming shared-kind admission.
+Its qualified inventory has turned the flat control corpus red. Burn down
+foundational control `{app,game,map,ui}` first, then actor-facing play, without
+recreating the facade, acquiring providers in a service, or freezing vendor
+mechanics.
 
 Habitat source, package, blueprint, and release ownership lives upstream.
 `@habitat-ai/cli@0.5.2` and its exact `@habitat-ai/sdk@0.5.2` dependency supply

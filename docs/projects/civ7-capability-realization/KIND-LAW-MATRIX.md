@@ -215,18 +215,22 @@ The instance author materializes those facts; Habitat admits them and Nx
 corroborates graph identity and schedules proof. Existing locked CLI path
 selectors remain operative for the already-present shell and topic corpus, but
 this initiative does not treat them as a generic admission bridge.
-Every new package, resource, provider, service, API, web, app, or mod
-destination waits for its manifest-bearing packet. Exact instance names in
-generic `structure.toml`, Grit patterns, or generator tables remain rejected.
+Every new instance of a selected shared kind waits for its manifest-bearing
+packet. `service@1` is not selected in Habitat 0.5.2, so current Civ7 services
+are governed by an explicit local compatibility rule set and do not pretend to
+be `package@1` instances. They gain `habitat.toml` only when shared service
+authority is published and adopted. Exact Civ7 service inventories remain in
+qualified product law, never generic structure.
 
 ### T3: Construction Interface
 
 Habitat 0.5.2 exposes the workspace `init` and `remove-hook` generators. It does
 not promise a generic project generator, and Civ7 does not recreate one as
 local substrate. A product slice may use ordinary Nx generation, a bounded
-product template, or direct construction, but the semantic write is admitted
+product template, or direct construction. A selected shared kind is admitted
 only when the complete destination and its blueprint-defined `habitat.toml`
-arrive together and pass the selected closed law.
+arrive together. An explicitly unselected compatibility kind instead requires
+its complete local rule application and may not manufacture a false manifest.
 
 Construction refuses before product source moves when the kind is unselected,
 the qualified overlay is missing, the manifest names unsupported facts, or the
@@ -529,34 +533,31 @@ resource contract.
 
 ## Service Source And Standalone Semantic Service
 
-**State:** Proposed adoption of the accepted corrected successor service law.
-The inspected baseline and existing Civ7 service are migration evidence, not
-destination authority.
+**State:** Accepted local compatibility law while shared `service@1` remains
+unselected. The inspected baseline and existing Civ7 service are migration
+evidence, not destination authority.
 
 **Selected depth and root grammar**
 
-- The reusable `service` source packet is selected at `src/service` only
-  beneath an admitted standalone service or server API project.
-- A standalone project rooted at `services/<service>` gives that packet
-  semantic service authority and composes it with the service-project envelope
-  and proof law.
-- An API project may select the same construction packet at `src/service` for
-  its own caller projection. That packet consumes public domain-service
-  clients; it is not another domain service, facade, or contract-extraction
-  owner.
-- The private packet owns no `test/` interior. Its containing service or API
-  project owns the kind-appropriate proof.
+- The local compatibility law governs standalone roots at
+  `services/<service>` and their private `src/service` implementation.
+- It is not a local Habitat blueprint, a copy of the dormant SDK packet, or a
+  `package@1` specialization. Rule selection remains explicit through the
+  owning Nx project until shared service authority replaces it.
+- A server API owns a distinct qualified projection packet. It may use the
+  same architectural ideas, but it does not inherit domain-service law or
+  private service source.
+- The private implementation owns no proof interior. The standalone service
+  project owns contract, semantics, and execution proof.
 
 **Required standalone spine**
 
 ```text
-habitat.toml
 package.json
 project.json
 src/
   client.ts
   service/
-    habitat.toml
     base.ts
     contract.ts
     impl.ts
@@ -697,7 +698,6 @@ Standalone `test/` is required and closed to:
 contract/client.typecheck.ts
 semantics/
   modules/<module>/<operation>.test.ts
-  *.test.ts                       # optional cross-module invariants
 execution/root.test.ts
 ```
 
@@ -705,11 +705,14 @@ The contract and execution leaves are fixed kind anchors. Semantics mirrors
 every admitted module and every admitted operation contract leaf exactly;
 there is one suite at
 `test/semantics/modules/<module>/<operation>.test.ts` and no unmatched suite.
-The instance manifest may select direct `test/semantics/<component>.test.ts`
-leaves only for genuine cross-module or service-root invariants. Contract
-proves the public client/contract consumer surface. Module semantics prove
-public operation outcomes at the exact owner. Execution proves middleware
-order, request isolation, cancellation, and once-only root execution.
+The service-local `verify` target compares those three
+finite filename sets inside its own root and also requires `package.json` to
+export only `.`. Direct `test/semantics/<component>.test.ts` leaves remain
+refused until qualified law selects a genuine cross-module or service-root
+invariant. Contract proves the public client/contract consumer surface and
+negative private-subpath resolution. Module semantics prove public operation
+outcomes at the exact owner. Execution proves middleware order, request
+isolation, cancellation, and once-only root execution.
 Colocated fixtures are allowed; generic support, mechanics, database, and
 integration cabinets are not. An independently selected database kind owns
 database proof. Production never imports proof. The private service source
@@ -1558,11 +1561,15 @@ Outside this slice:
 - Habitat `structure.toml`: every required spine, finite optional interior,
   protected generated slot, and absent legacy interior.
 - Habitat Grit: bounded public/private imports, provider/resource direction,
-  native service construction and error lineage, projection/app direction, and
-  definition/realization direction.
+  single stable service implementation ownership, projection/app direction,
+  and definition/realization direction. It does not infer vendor construction
+  or error behavior from syntax.
 - TypeScript plus `package.json`: public faces, exact assignability, native
   router completeness, context/failure types, and package or package-less
   resolution.
+- `lintEffect` plus execution proof: exact installed-lane Effect context/error
+  discipline, once-only native adaptation, declared error projection, defect
+  sealing, cancellation, and middleware/bootstrap order.
 - Instance manifests: blueprint identity/version, governed roots, selected
   capabilities, and accepted niche facts.
 - Nx: primary and secondary facts, project dependency matrix, target ordering,
@@ -1635,7 +1642,7 @@ lifecycle and consumer closure require it:
 
 ```text
 fixture-proved destination laws
-  -> Nx mapping and manifest-backed instance generation
+  -> Nx mapping and selected shared-instance manifest generation
   -> generator contract and refusal proof
   -> promote exact laws
   -> live red
@@ -1658,8 +1665,8 @@ Stop and return to design if:
   facts without assigning kind admission, plugin membership, provider
   selection, or process-role selection to Nx;
 - a kind requires an instance name or current file inventory in generic law;
-- a new instance has no accepted blueprint anchor or generated
-  `habitat.toml` facts;
+- a selected shared-kind instance has no accepted blueprint anchor or generated
+  `habitat.toml` facts, or a local compatibility kind pretends to have them;
 - a required child remains structurally open after all selected
   specializations apply;
 - a package role becomes a substitute for a missing resource, service,

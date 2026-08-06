@@ -1,61 +1,73 @@
-# Service
+# Service Compatibility Law
 
-`service` is the closed, contract-first Effect-oRPC package kind under
-`services/<service>`.
+Habitat 0.5.2 deliberately does not select `service@1`. This directory is the
+small local Civ7 compatibility law used until shared service authority is
+published and adopted. It does not define a local Habitat blueprint, copy the
+dormant SDK packet, or misclassify a service as `package@1`. Consequently a
+service has no `habitat.toml` instance manifest in this lane. The local rules
+are selected by their exact Nx owner and retired when shared authority can
+express the same kind honestly.
 
-The public source root exposes only `client.ts`, `contract.ts`, `index.ts`, and
-the private `service/` implementation tree. Provider construction, transports,
-runtime hosts, platform controllers, and product-specific facades belong to
-their qualified host or niche owners; they are not optional service interiors.
-Foreign consumers under `packages/`, `plugins/`, `apps/`, and `mods/` acquire
-a service only through its deliberate public package exports. Private
-`#<owner>-service` aliases and physical `services/<owner>/src/service` paths
-remain owned by the service package.
+The law owns only durable service invariants:
 
-The service spine separates contract authoring, context, implementation, and
-router composition:
+- a closed standalone project, public `client.ts` face, private `service/`
+  implementation, finite module grammar, and closed proof layers;
+- exact Civ7 service and module inventories in a separate qualified rule;
+- stable source roles: one context owner, contract and router composers, one
+  implementation owner, filename-matched operation leaves, and one module
+  wiring face;
+- module isolation, public-client-only service dependencies, platform-neutral
+  service source, one-way production-to-proof dependencies, root-only package
+  exports, and exact contract/router/semantics membership.
 
-- `base.ts` owns the shared `eoc` contract-authoring base, metadata, and public
-  error map.
-- `context.ts` owns the service context and its port vocabulary.
-- `context.ts` may name a module port only through a whole type import or named
-  imports whose every specifier is type-only.
-- `contract.ts` composes module contracts.
-- `impl.ts` privately creates the sole
-  `implementEffect(contract, runtime).$context<Context>()` lineage and exports
-  its configured `service` stage.
-- each module descends from its matching configured service branch, authors
-  Effect handlers in direct router leaves, and exposes a plain router tree from
-  `router/index.ts`.
-- root `router.ts` performs the sole aggregate implementation through the
-  configured `service.router(...)` stage.
+The law does not select contract-first or router-first authoring, an oRPC or
+Effect prerelease spelling, a bridge package, error-constructor syntax,
+runtime construction, middleware chaining, or transport mounting. Those are
+vendor mechanisms proved from the exact installed artifact through global
+`dev:orpc`, `dev:effect-orpc`, and `dev:effect-ts` guidance plus TypeScript and
+execution fixtures. `lintEffect`, package exports, Nx boundaries, Knip, and
+the owning proof graph retain their native responsibilities.
 
-This shape is pinned to `@orpc/*` 1.14.6, the repository-patched
-`effect-orpc` 0.5.0, Effect 3.21.3, and TypeBox 1.3.6. The patched
-`effect-orpc` implementation preserves equal leading middleware by identity
-and order when the configured service implements the root router. Native oRPC
-middleware therefore precedes generator Effect middleware, and the same
-callback is not attached again at a module or router boundary.
+## Standalone Shape
 
-Module contract and router directories have one `index.ts` aggregate plus
-direct semantic leaves. Optional middleware directories follow the same closed
-shape. Optional `model` containers admit only direct `dto`, `errors`, `policy`,
-and `ports` leaves. The required root `schema/` container owns only the
-Standard Schema bridge and shared mechanical schema adapters. Reusable DTOs
-belong in `model/dto`; private request, response, envelope, and helper schemas
-remain with the contract leaf that owns them.
+```text
+services/<service>/
+  package.json
+  project.json
+  tsconfig.json
+  src/
+    client.ts
+    service/
+      base.ts
+      contract.ts
+      impl.ts
+      router.ts
+      modules/<module>/
+        AGENTS.md
+        contract/{index.ts,<operation>.ts}
+        module.ts
+        router.ts
+        router/<operation>.router.ts
+        [middleware/]
+        [model/{actors,dto,errors,policy,ports,prompts}/]
+  test/
+    contract/client.typecheck.ts
+    semantics/modules/<module>/<operation>.test.ts
+    execution/root.test.ts
+```
 
-The pinned E2 provider gives public error authority to contract-declared
-`ORPCTaggedError` values. Executable interiors use the provider's injected
-`errors.*` constructors or yield those declared failures; they do not install
-a parallel catch-all `ORPCError` translation middleware. `context.ts` is the
-single context and port aggregation owner, and its implementation vocabulary
-stays behind the package public face. Directly authored TypeBox object
-properties carry static descriptions so the protocol vocabulary remains
-self-describing.
+`src/client.ts` is the sole package entrypoint. A service may re-export its
+owned public contract there when a caller genuinely needs boundary metadata;
+the private router and implementation are never package subpaths. Another
+service consumes only the bound public client and never receives the lower
+service's resources, providers, context, or private contract.
 
-Package proof lives only under the optional root `test/` categories
-`behavior`, `mechanics`, `integration`, and `support`. Production source never
-imports proof. Behavior tests own runtime ordering and preserved product
-behavior; Habitat owns only filesystem topology and declared source
-relationships.
+The exact operation mirror is executable compatibility-law proof owned by the
+service project's ordinary `verify` target. That target invokes
+`verify-service-membership.ts` against only its own root, requires
+`package.json` to export only `.`, and proves exact
+contract/router/semantics filenames with no unmatched suite. Habitat closes
+the layer and filename grammar; TypeScript in `client.typecheck.ts` proves the
+public root while refusing private subpath resolution. A direct
+`semantics/*.test.ts` suite remains structurally refused until qualified law
+selects a real cross-module invariant.

@@ -1,115 +1,75 @@
 schemaVersion = 1
 
 [[scopes]]
-name = "service-packages"
+name = "service-projects"
 root = "services/!(*.*)"
 kind = "directory"
 mode = "closed"
-required = [
-  "package.json",
-  "project.json",
-  "src",
-  "tsconfig.json",
-]
+allowEmpty = false
+required = ["package.json", "project.json", "src", "test", "tsconfig.json"]
 allowed = [
   "AGENTS.md",
-  "scripts",
-  "test",
-  "tsup.config.ts",
+  "dist",
+  "node_modules",
+  "tsconfig.build.json",
   "tsconfig.test.json",
-  "tsconfig.tools.json",
+  "tsconfig.tsbuildinfo",
   "vitest.config.ts",
 ]
-
-[[scopes]]
-name = "service-build-scripts"
-root = "services/!(*.*)/scripts"
-kind = "directory"
-mode = "closed"
-allowEmpty = true
-required = ["build.mjs"]
 
 [[scopes]]
 name = "service-public-source"
 root = "services/!(*.*)/src"
 kind = "directory"
 mode = "closed"
-required = [
-  "client.ts",
-  "contract.ts",
-  "index.ts",
-  "service",
-]
+allowEmpty = false
+required = ["client.ts", "service"]
+allowed = []
 
 [[scopes]]
-name = "service-spines"
+name = "service-private-spine"
 root = "services/!(*.*)/src/service"
 kind = "directory"
 mode = "closed"
-required = [
-  "base.ts",
-  "context.ts",
-  "contract.ts",
-  "impl.ts",
-  "modules",
-  "router.ts",
-  "schema",
-]
-allowed = [
-  "middleware",
-  "model",
-]
+allowEmpty = false
+required = ["base.ts", "contract.ts", "impl.ts", "modules", "router.ts"]
+allowed = ["middleware", "model"]
 
 [[scopes]]
-name = "service-schema"
-root = "services/!(*.*)/src/service/schema"
-kind = "directory"
-mode = "closed"
-allowed = ["+([a-z0-9])*(-+([a-z0-9])).ts"]
-
-[[scopes]]
-name = "service-module-containers"
+name = "service-module-collection"
 root = "services/!(*.*)/src/service/modules"
 kind = "directory"
 mode = "closed"
-allowed = ["+([a-z0-9])*(-+([a-z0-9]))"]
+allowEmpty = false
+required = ["[a-z]*([a-z0-9]|-[a-z0-9])"]
+allowed = ["[a-z]*([a-z0-9]|-[a-z0-9])"]
 
 [[scopes]]
-name = "service-module-shells"
-root = "services/!(*.*)/src/service/modules/+([a-z0-9])*(-+([a-z0-9]))"
+name = "service-modules"
+root = "services/!(*.*)/src/service/modules/[a-z]*([a-z0-9]|-[a-z0-9])"
 kind = "directory"
 mode = "closed"
-required = [
-  "contract",
-  "module.ts",
-  "router",
-]
-allowed = [
-  "middleware",
-  "model",
-]
+allowEmpty = false
+required = ["AGENTS.md", "contract", "module.ts", "router", "router.ts"]
+allowed = ["middleware", "model"]
 
 [[scopes]]
 name = "service-module-contracts"
-root = "services/!(*.*)/src/service/modules/+([a-z0-9])*(-+([a-z0-9]))/contract"
+root = "services/!(*.*)/src/service/modules/[a-z]*([a-z0-9]|-[a-z0-9])/contract"
 kind = "directory"
 mode = "closed"
-required = ["index.ts"]
-allowed = [
-  "index.ts",
-  "+([a-z0-9])*(-+([a-z0-9])).ts",
-]
+allowEmpty = false
+required = ["index.ts", "!(index).ts"]
+allowed = ["index.ts", "[a-z]*([a-z0-9]|-[a-z0-9]).ts"]
 
 [[scopes]]
 name = "service-module-routers"
-root = "services/!(*.*)/src/service/modules/+([a-z0-9])*(-+([a-z0-9]))/router"
+root = "services/!(*.*)/src/service/modules/[a-z]*([a-z0-9]|-[a-z0-9])/router"
 kind = "directory"
 mode = "closed"
-required = ["index.ts"]
-allowed = [
-  "index.ts",
-  "+([a-z0-9])*(-+([a-z0-9])).ts",
-]
+allowEmpty = false
+required = ["[a-z]*([a-z0-9]|-[a-z0-9]).router.ts"]
+allowed = ["[a-z]*([a-z0-9]|-[a-z0-9]).router.ts"]
 
 [[scopes]]
 name = "service-root-middleware"
@@ -117,20 +77,18 @@ root = "services/!(*.*)/src/service/middleware"
 kind = "directory"
 mode = "closed"
 allowEmpty = true
-allowed = ["+([a-z0-9])*(-+([a-z0-9])).ts"]
+required = ["[a-z]*([a-z0-9]|-[a-z0-9]).ts"]
+allowed = ["[a-z]*([a-z0-9]|-[a-z0-9]).ts"]
 forbidden = ["index.ts"]
 
 [[scopes]]
 name = "service-module-middleware"
-root = "services/!(*.*)/src/service/modules/+([a-z0-9])*(-+([a-z0-9]))/middleware"
+root = "services/!(*.*)/src/service/modules/[a-z]*([a-z0-9]|-[a-z0-9])/middleware"
 kind = "directory"
 mode = "closed"
 allowEmpty = true
-required = ["index.ts"]
-allowed = [
-  "index.ts",
-  "+([a-z0-9])*(-+([a-z0-9])).ts",
-]
+required = ["index.ts", "!(index).ts"]
+allowed = ["index.ts", "[a-z]*([a-z0-9]|-[a-z0-9]).ts"]
 
 [[scopes]]
 name = "service-root-model"
@@ -138,42 +96,36 @@ root = "services/!(*.*)/src/service/model"
 kind = "directory"
 mode = "closed"
 allowEmpty = true
-allowed = [
-  "dto",
-  "errors",
-  "policy",
-  "ports",
-]
+required = ["@(actors|dto|errors|policy|ports|prompts)"]
+allowed = ["actors", "dto", "errors", "policy", "ports", "prompts"]
 
 [[scopes]]
 name = "service-module-model"
-root = "services/!(*.*)/src/service/modules/+([a-z0-9])*(-+([a-z0-9]))/model"
+root = "services/!(*.*)/src/service/modules/[a-z]*([a-z0-9]|-[a-z0-9])/model"
 kind = "directory"
 mode = "closed"
 allowEmpty = true
-allowed = [
-  "dto",
-  "errors",
-  "policy",
-  "ports",
-]
+required = ["@(actors|dto|errors|policy|ports|prompts)"]
+allowed = ["actors", "dto", "errors", "policy", "ports", "prompts"]
 
 [[scopes]]
 name = "service-root-model-kinds"
-root = "services/!(*.*)/src/service/model/@(dto|errors|policy|ports)"
+root = "services/!(*.*)/src/service/model/@(actors|dto|errors|policy|ports|prompts)"
 kind = "directory"
 mode = "closed"
 allowEmpty = true
-allowed = ["+([a-z0-9])*(-+([a-z0-9])).ts"]
+required = ["[a-z]*([a-z0-9]|-[a-z0-9]).ts"]
+allowed = ["[a-z]*([a-z0-9]|-[a-z0-9]).ts"]
 forbidden = ["index.ts"]
 
 [[scopes]]
 name = "service-module-model-kinds"
-root = "services/!(*.*)/src/service/modules/+([a-z0-9])*(-+([a-z0-9]))/model/@(dto|errors|policy|ports)"
+root = "services/!(*.*)/src/service/modules/[a-z]*([a-z0-9]|-[a-z0-9])/model/@(actors|dto|errors|policy|ports|prompts)"
 kind = "directory"
 mode = "closed"
 allowEmpty = true
-allowed = ["+([a-z0-9])*(-+([a-z0-9])).ts"]
+required = ["[a-z]*([a-z0-9]|-[a-z0-9]).ts"]
+allowed = ["[a-z]*([a-z0-9]|-[a-z0-9]).ts"]
 forbidden = ["index.ts"]
 
 [[scopes]]
@@ -181,61 +133,51 @@ name = "service-proof-root"
 root = "services/!(*.*)/test"
 kind = "directory"
 mode = "closed"
-allowEmpty = true
-allowed = [
-  "behavior",
-  "integration",
-  "mechanics",
-  "support",
-]
+allowEmpty = false
+required = ["contract", "execution", "semantics"]
+allowed = []
 
 [[scopes]]
-name = "service-behavior-proof"
-root = "services/!(*.*)/test/behavior"
+name = "service-contract-proof"
+root = "services/!(*.*)/test/contract"
 kind = "directory"
 mode = "closed"
-allowEmpty = true
-allowed = [
-  "*.test.ts",
-  "modules",
-]
+allowEmpty = false
+required = ["client.typecheck.ts"]
+allowed = ["[a-z]*([a-z0-9]|-[a-z0-9]).fixture.ts"]
 
 [[scopes]]
-name = "service-behavior-module-containers"
-root = "services/!(*.*)/test/behavior/modules"
+name = "service-semantics-proof"
+root = "services/!(*.*)/test/semantics"
 kind = "directory"
 mode = "closed"
-allowEmpty = true
-allowed = ["+([a-z0-9])*(-+([a-z0-9]))"]
+allowEmpty = false
+required = ["modules"]
+allowed = []
 
 [[scopes]]
-name = "service-behavior-module-proof"
-root = "services/!(*.*)/test/behavior/modules/+([a-z0-9])*(-+([a-z0-9]))"
+name = "service-semantics-module-collection"
+root = "services/!(*.*)/test/semantics/modules"
 kind = "directory"
 mode = "closed"
-allowEmpty = true
-allowed = ["*.test.ts"]
+allowEmpty = false
+required = ["[a-z]*([a-z0-9]|-[a-z0-9])"]
+allowed = ["[a-z]*([a-z0-9]|-[a-z0-9])"]
 
 [[scopes]]
-name = "service-mechanics-proof"
-root = "services/!(*.*)/test/mechanics"
+name = "service-semantics-module-proof"
+root = "services/!(*.*)/test/semantics/modules/[a-z]*([a-z0-9]|-[a-z0-9])"
 kind = "directory"
 mode = "closed"
-allowEmpty = true
-allowed = ["*.test.ts"]
+allowEmpty = false
+required = ["[a-z]*([a-z0-9]|-[a-z0-9]).test.ts"]
+allowed = ["[a-z]*([a-z0-9]|-[a-z0-9]).fixture.ts"]
 
 [[scopes]]
-name = "service-integration-proof"
-root = "services/!(*.*)/test/integration"
+name = "service-execution-proof"
+root = "services/!(*.*)/test/execution"
 kind = "directory"
 mode = "closed"
-allowEmpty = true
-allowed = ["*.test.ts"]
-
-[[scopes]]
-name = "service-proof-support"
-root = "services/!(*.*)/test/support"
-kind = "directory"
-mode = "closed"
-allowEmpty = true
-allowed = ["*.ts"]
+allowEmpty = false
+required = ["root.test.ts"]
+allowed = ["[a-z]*([a-z0-9]|-[a-z0-9]).fixture.ts"]
