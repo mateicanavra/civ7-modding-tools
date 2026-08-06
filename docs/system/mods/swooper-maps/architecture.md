@@ -17,10 +17,15 @@ Swooper Maps has two repository owners with one stable runtime identity. The
 reusable `@swooper/swooper-physics` definition owns domains, the Standard
 recipe, authored configs/catalog, metrics, visualization authorship, and
 product diagnostics. The `@swooper/swooper-physics-mod` application owns Civ7
-entry generation, mod files, bundling, deployment, request-local Studio
-materialization, and live proof. The application depends on the definition;
-the definition never imports the application. Both preserve the existing
-`mod-swooper-maps` runtime namespace and Civ7 mod identity.
+entry generation, mod files, bundling, deployment, and live proof for its own
+production realization. The qualified MapGen Studio
+`swooper-map-realization` adapter independently composes the public definition
+with pure run-workspace and mod-install capabilities for ephemeral Studio
+materialization; it neither imports nor invokes the production app. The
+application depends on the definition, and the definition never imports either
+application. Both realization paths preserve the existing `mod-swooper-maps`
+runtime namespace and Civ7 mod identity where that identity is part of the
+result they materialize.
 
 Canonical JSON map configs plus recipe selection let shipped variants share
 one product definition while keeping each selectable world's identity and full
@@ -139,7 +144,15 @@ runStandardRecipe({ recipe: standardRecipe, init, overrides: {} });
 
 ## Operational Note
 
-Headless generation via an `InMemoryAdapter` proved impractical (the pipeline still depends on Civ VII engine globals such as `GameplayMap`, `TerrainBuilder`, `ResourceBuilder`, `FertilityBuilder`, `GameInfo`, etc.), so the stub adapter has been removed. For rapid iteration we use the repo-owned direct control package (`@civ7/direct-control`) to send tuner-socket commands such as `Network.restartGame()` and the native Begin Game action (`UI.notifyUIReady()`) to a running Civ7 client. FireTuner remains useful reference-client evidence, but it is no longer the default runtime control path for repo tooling.
+The portable definition and the Civ7 realization have separate proof. A
+headless or browser run proves deterministic MapGen behavior only; it does not
+prove loader acceptance or live Civ7 behavior. Live iteration flows through a
+qualified app: the app acquires the Tuner provider, binds foundational control,
+and supplies the MapGen-runs service with the public Swooper definition plus its
+exact host adapters. FireTuner and raw Tuner commands remain diagnostic
+evidence, never a second product control path. A live claim closes only when
+materialization, installation, loader, and bounded engine observation all name
+the same run correlation.
 
 ## Legacy JS Architecture (Archived)
 

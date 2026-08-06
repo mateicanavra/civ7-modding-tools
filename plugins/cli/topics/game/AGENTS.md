@@ -6,8 +6,11 @@ Scope: `plugins/cli/topics/game/**`
   command-local game adapters, and its behavior tests.
 - Keep the Civ7 CLI binary, startup, global hooks, and plugin registration in
   `apps/cli`.
-- Route live Civ7 control through `@civ7/control-orpc` and
-  `@civ7/direct-control`; do not add a topic-local transport.
+- Receive exact bound public clients from the CLI app: foundational status,
+  setup, map, and view commands call `civ7-control`; actor-facing attention,
+  city, diplomacy, progression, planning, turn, and unit commands call
+  `civ7-play`. Do not import the legacy direct-control package, service-private
+  source, providers, or add a topic-local transport.
 - Preserve topic-prefixed discovery under `src/commands/game` and do not add
   forwarding commands to the shell.
 

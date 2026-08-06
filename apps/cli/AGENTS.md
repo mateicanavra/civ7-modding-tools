@@ -8,14 +8,16 @@ Scope: `apps/cli/**`
 - Cohesive command topics belong under `plugins/cli/topics/<topic>` as
   `kind:cli-topic-plugin` projects. Register each plugin once; do not retain
   forwarding commands or duplicate topic metadata in the shell.
-- Reusable graph, file, Git, mod, configuration, and control behavior remains
-  in its named package owner. The shell and topic plugins adapt those
-  capabilities rather than reimplementing them.
+- Reusable graph, file, Git, mod, configuration, and product behavior remains
+  in its named package, resource, or service owner. The app selects providers,
+  acquires ready resources, binds public clients, and supplies those clients to
+  topic plugins rather than reimplementing product policy.
 - Keep command behavior tests with the command owner. Keep only genuinely
   shell-wide hook, startup, and binary tests here.
-- Route live Civ7 control through `@civ7/control-orpc` or
-  `@civ7/direct-control` according to the root responsibility split; never add
-  a shell-local transport.
+- Route foundational live control through the bound `civ7-control` client and
+  actor-facing gameplay through the bound `civ7-play` client. Never import the
+  legacy direct-control package, a service-private router/contract, or add a
+  shell-local transport.
 
 Architecture authority:
 

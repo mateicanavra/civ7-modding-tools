@@ -22,17 +22,15 @@ them. Each accepted kind closes its own proof topology around disjoint
 confidence axes; domain-qualified kinds such as MapGen keep their stronger
 domain-shaped testing grammar.
 
-**Current container:** active-guidance ratchet against the sealed destination
-platform. Product, system, outcome, actor, topology, corpus, proof, and vendor
-models now agree on the complete package/resource/provider/service/plugin/app
-chain. Interactive source movement remains paused while every repo-local skill,
-AGENTS router, ADR, and architecture guide receives a
-keep/repair/consolidate/delete disposition. Generic vendor guidance comes only
-from the published global skills; local guidance survives only when it adds
-durable Civ7 authority. Ground, the complete Swooper cold construction, the
-exact corpora, the Explore Live Map oracle, Studio design synchronization,
-physical wind and pressure reconstruction, and seed-stateless latitude
-fallback remain sealed inputs.
+**Current container:** qualified Civ7 service law before service-source
+admission. Product, system, outcome, actor, topology, corpus, proof, and vendor
+models agree on the package/resource/provider/service/plugin/app chain, and the
+active guidance corpus is sealed against that model. The existing local service
+blueprint is work-in-progress rather than inherited authority: close the exact
+public/private service spine, finite module grammar, and proof topology; turn
+the flat control corpus red; then burn down foundational control and
+actor-facing play without recreating the facade, acquiring providers in a
+service, or freezing prerelease vendor mechanics.
 
 Habitat source, package, blueprint, and release ownership lives upstream.
 `@habitat-ai/cli@0.5.2` and its exact `@habitat-ai/sdk@0.5.2` dependency supply
@@ -72,9 +70,10 @@ displaced rather than recreated under new names; concrete semantic procedures
 retain their own readiness and reconciliation laws.
 
 Active skills, AGENTS routers, ADRs, and architecture guidance are executable
-inputs to this migration. Their keep/repair/consolidate/delete pass is now the
-active ratchet; no legacy vendor or ownership lesson remains available as
-hidden drift when source movement resumes.
+inputs to this migration. Their keep/repair/consolidate/delete pass is sealed:
+six Civ7-specific skills remain, while generic Habitat, OpenSpec/workstream,
+TypeScript-refactoring, and vendor teaching comes from its published owner.
+Legacy vendor and ownership lessons are no longer available as hidden drift.
 
 The construction loop is continuous: focused semantics, TypeScript, Biome, and
 selected Habitat law close each module before focus advances. The ordinary Nx
@@ -115,8 +114,7 @@ cold filesystem effects, while CLI topics project their bound capabilities.
 MapGen run records, cancellation, retention, and events remain scoped
 MapGen-runs service state rather than a manufactured resource.
 
-**Gradient:** guidance seal -> qualified law red state -> generic
-window-capture and Tuner resource closure -> foundational control ->
+**Gradient:** qualified service law red state -> foundational control ->
 actor-facing play -> MapGen-runs -> CLI and Studio projections/composition ->
 joint Core Platform seal -> Dacia Product -> Estate Reconciliation -> Platform
 Seal. The Tuner protocol remains private to its sole provider unless another
@@ -165,6 +163,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-08-06 - Active Guidance Ratchet
+
+The sealed destination model was applied to every active local skill, AGENTS
+router, ADR, and canonical architecture guide before source movement resumed.
+Generic Habitat and vendor law returned to their published owners; copied
+workstream/refactor teaching, legacy facade ownership, flat-service guidance,
+and source-revision command snapshots were deleted or repaired. Six durable
+Civ7-specific skill overlays remain.
 
 ### 2026-08-06 - Destination Platform Re-ratified
 
