@@ -1,0 +1,10 @@
+schemaVersion = 1
+id = "civ7-tuner-local-socket"
+ownerProject = "provider-civ7-tuner-local-socket"
+blueprint = "provider"
+blueprintVersion = 1
+
+[roots]
+project = "resources/civ7-tuner/providers/local-socket"
+
+[selections]

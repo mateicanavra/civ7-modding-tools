@@ -1,0 +1,37 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "provider-proof"
+root = "resources/*/providers/*/test"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "execution",
+  "semantics",
+]
+allowed = ["collaboration"]
+
+[[scopes]]
+name = "provider-semantics-proof"
+root = "resources/*/providers/*/test/semantics"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["*.test.ts"]
+
+[[scopes]]
+name = "provider-execution-proof"
+root = "resources/*/providers/*/test/execution"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["*.test.ts"]
+
+[[scopes]]
+name = "provider-collaboration-proof"
+root = "resources/*/providers/*/test/collaboration"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["*.live.test.ts"]

@@ -1,8 +1,8 @@
 # Habitat Authority Tree
 
 This directory contains Civ7's durable Habitat policy. Habitat itself is
-installed development tooling: `@habitat-ai/cli@0.5.1` loads the exact
-`@habitat-ai/sdk@0.5.1` policy pack and executes this repository's admitted
+installed development tooling: `@habitat-ai/cli@0.5.2` loads the exact
+`@habitat-ai/sdk@0.5.2` policy pack and executes this repository's admitted
 instances and compatibility rules.
 
 Shared authority owns `app@1`, `package@1`, `plugin@1`, `plugin-nx@1`,
