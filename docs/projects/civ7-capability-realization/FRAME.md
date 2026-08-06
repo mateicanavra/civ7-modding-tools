@@ -61,6 +61,18 @@ actor-facing play modules, and MapGen-runs. Foundational control burns down
 first, followed by play, without a facade, private contract picking, provider
 acquisition, or frozen vendor syntax.
 
+The joint live seal begins from a known refusal, not an assumed-green path.
+Studio request `studio-run-in-game-msgl7ptj-dcs-2` installed the exact generated
+mod but failed `game.singlePlayer.start` setup admission at
+`apply-setup-identity` with `direct-control/setup-parameter-refused`; a manual
+new-game attempt also reached a map-generation error. Control construction may
+proceed first, but Core Platform cannot seal until fresh evidence separates
+setup admission from generated-map runtime failure and proves the corrected
+path against the current Civ7 resource revision. A fresh read-only Tuner
+acquisition attempt on 2026-08-06 found the Civ7 process running and
+`EnableTuner 1` configured, but no listener on `127.0.0.1:4318`; app presence
+therefore does not clear either refusal or admit a mutating retry.
+
 The completed Swooper cold construction, exact corpora, Ground receipt,
 Explore Live Map oracle, Studio design synchronization, wind and pressure
 reconstruction, and seed-stateless latitude fallback remain sealed inputs.
@@ -93,7 +105,8 @@ thresholds, and command-output interpretation were refused from the provider;
 they remain service concerns. Closed contract, semantics, execution, and
 opt-in collaboration proof are active, and the Nx graph now sees resource and
 provider as distinct one-way project roles. The collaboration leaf has not run
-against a live Civ7 process and is not claimed as passed.
+successfully: its first current-process attempt was refused at resource
+acquisition because the configured Tuner endpoint had no listener.
 
 Window capture is classified by its reusable capability rather than its first
 product consumer. `resources/window-capture` owns provider-neutral
