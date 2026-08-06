@@ -420,6 +420,16 @@ CLI, web, or app sub-slice does not claim the product migration by itself.
 
 ### 1.3 Joint Evidence And Seal
 
+**Known live refusal:** Studio request `studio-run-in-game-msgl7ptj-dcs-2`
+proved generation and exact installation, then failed setup identity admission
+with `direct-control/setup-parameter-refused`; a manual new-game attempt also
+failed during map generation. The seal must reproduce against the current Civ7
+resource revision and independently prove setup admission, generated script
+loader/runtime behavior, and fresh correlated game/log observation. Missing
+progress markers cannot be treated as the root cause until those earlier
+boundaries are separated. Engine events may improve observation later, but do
+not substitute for fixing or proving either failure.
+
 1. Drive every one of the frozen 461 current proof/support files to exactly one
    terminal disposition: `relocate`, `combine`, `inline`, `delete`, or
    `excluded unchanged`. Destination leaves may differ in count; no source row
