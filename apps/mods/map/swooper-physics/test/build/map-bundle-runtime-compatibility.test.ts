@@ -4,8 +4,8 @@ import { join } from "node:path";
 import { expectCiv7MapScriptCompatibility } from "./fixtures/civ7-map-script-compatibility";
 
 const repoRoot = join(import.meta.dir, "..", "..");
-const mapOutputDir = join(repoRoot, "mod", "maps");
-const modInfoPath = join(repoRoot, "mod", "swooper-maps.modinfo");
+const mapOutputDir = join(repoRoot, "dist", "mod", "maps");
+const modInfoPath = join(repoRoot, "dist", "mod", "swooper-maps.modinfo");
 
 function listedModMapFiles(): string[] {
   const modInfo = readFileSync(modInfoPath, "utf8");

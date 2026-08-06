@@ -1,9 +1,9 @@
-import { generateSwooperRunGeneratedModFromManifestPath } from "./run-manifest-generator.js";
+import { generateSwooperRunGeneratedModFromManifestPath } from "./runtime/run-manifest.js";
 
 /** Requires the single generation-manifest path consumed by the Studio run-mod generator. */
 export function parseSwooperRunManifestPathArg(args: readonly string[]): string {
   if (args.length !== 1 || !args[0]) {
-    throw new Error("Usage: bun ./scripts/generate-run-manifest.ts <generation-manifest.json>");
+    throw new Error("Usage: bun ./src/run-manifest.ts <generation-manifest.json>");
   }
   return args[0];
 }

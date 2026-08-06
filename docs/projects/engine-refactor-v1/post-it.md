@@ -48,8 +48,14 @@ their meaning. The closed Swooper `authoring` packet now owns pure config
 admission, canonical serialization, and the finite metadata target table;
 transitional scripts retain only host reads, writes, rollback, and plan
 application. Those effects stay held for the qualified Interactive adapter.
-The active subcontainer is the Civ7 realization: construct the exact cold app
-chain without borrowing Interactive owners or claiming live proof early.
+The Swooper realization is now an admitted shared `app@1` instance with a
+closed qualified source interior. Virtual map entries compile directly into the
+ignored final `dist/mod` tree; root scripts, checked-in output, and generated
+TypeScript are gone, and exact config-to-script identity is proved before
+materialization. The active subcontainer is proof normalization into the
+accepted artifact, deployment, runtime, and live axes, followed by the exact
+cold app profile, entrypoints, and install adapter. It does not borrow
+Interactive owners or claim live proof early.
 
 **Stable ownership:** Swooper remains a portable mod definition realized by
 its mod app. The CLI remains a commandless `cli-shell` composed from
@@ -66,7 +72,8 @@ cold filesystem effects, while CLI topics project their bound capabilities.
 MapGen run records, cancellation, retention, and events remain scoped
 MapGen-runs service state rather than a manufactured resource.
 
-**Gradient:** Civ7 realization -> Interactive construction
+**Gradient:** realization proof normalization -> app profile/entrypoints and
+qualified installation -> Interactive construction
 -> joint Core Platform seal -> Dacia Product -> Estate Reconciliation ->
 Platform Seal. The Tuner protocol remains private to its sole provider unless
 another independent consumer earns a public package.

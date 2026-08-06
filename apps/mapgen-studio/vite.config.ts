@@ -94,8 +94,7 @@ export default defineConfig(({ command }) => ({
     watch: {
       ignored: [
         "**/plugins/**/dist/**",
-        "**/apps/mods/map/swooper-physics/mod/**",
-        "**/apps/mods/map/swooper-physics/src/maps/generated/**",
+        "**/apps/mods/map/swooper-physics/dist/**",
         "**/packages/*/dist/**",
         "**/packages/*/types/**",
       ],

@@ -86,7 +86,6 @@ or {
     }
   }
 } where {
-  not { $filename <: r".*apps/mods/map/[^/]+/src/maps/generated/.*\.tsx?$" },
   not { $filename <: r".*\.gen\.[cm]?[jt]sx?$" }
 }
 ```

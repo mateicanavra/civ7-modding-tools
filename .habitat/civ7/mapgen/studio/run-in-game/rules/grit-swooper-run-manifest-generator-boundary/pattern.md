@@ -15,31 +15,31 @@ language js(typescript)
 
 or {
   program(statements=$body) where {
-    $filename <: r".*apps/mods/map/swooper-physics/scripts/generate-run-manifest\.ts$",
+    $filename <: r".*apps/mods/map/swooper-physics/src/run-manifest\.ts$",
     ! $body <: contains `const manifestPath = parseSwooperRunManifestPathArg(process.argv.slice(2))`
   },
   program(statements=$body) where {
-    $filename <: r".*apps/mods/map/swooper-physics/scripts/generate-run-manifest\.ts$",
+    $filename <: r".*apps/mods/map/swooper-physics/src/run-manifest\.ts$",
     ! $body <: contains `await generateSwooperRunGeneratedModFromManifestPath(manifestPath)`
   },
   program(statements=$body) where {
-    $filename <: r".*apps/mods/map/swooper-physics/scripts/run-manifest-generator\.ts$",
+    $filename <: r".*apps/mods/map/swooper-physics/src/runtime/run-manifest\.ts$",
     ! $body <: contains `export async function generateSwooperRunGeneratedModFromManifestPath($manifestPath): $returnType { $... }`
   },
   program(statements=$body) where {
-    $filename <: r".*apps/mods/map/swooper-physics/scripts/run-manifest-generator\.ts$",
+    $filename <: r".*apps/mods/map/swooper-physics/src/runtime/run-manifest\.ts$",
     ! $body <: contains `const generatedModRoot = resolveSwooperRunGeneratedModRoot(manifestPath, $manifest)`
   },
   program(statements=$body) where {
-    $filename <: r".*apps/mods/map/swooper-physics/scripts/run-manifest-generator\.ts$",
+    $filename <: r".*apps/mods/map/swooper-physics/src/runtime/run-manifest\.ts$",
     ! $body <: contains `buildSwooperRunGeneratedModFilePlan`
   },
   program(statements=$body) where {
-    $filename <: r".*apps/mods/map/swooper-physics/scripts/run-manifest-generator\.ts$",
+    $filename <: r".*apps/mods/map/swooper-physics/src/runtime/run-manifest\.ts$",
     ! $body <: contains `import { $..., applyGeneratedFilePlan, $... } from "@civ7/plugin-files/generated-file-plan"`
   },
   program(statements=$body) where {
-    $filename <: r".*apps/mods/map/swooper-physics/scripts/run-manifest-generator\.ts$",
+    $filename <: r".*apps/mods/map/swooper-physics/src/runtime/run-manifest\.ts$",
     ! $body <: contains `await applyGeneratedFilePlan(plan, { outputRoot: generatedModRoot })`
   },
   program(statements=$body) where {
@@ -48,7 +48,7 @@ or {
   },
   program(statements=$body) where {
     $filename <: r".*apps/mods/map/swooper-physics/project\.json$",
-    ! $body <: contains `"command": "bun ./scripts/generate-run-manifest.ts"`
+    ! $body <: contains `"command": "bun ./src/run-manifest.ts"`
   },
   or {
     `import { $..., writeFile, $... } from "node:fs"`,
@@ -81,7 +81,7 @@ or {
     `import * as $fs from "node:fs"`,
     `import * as $fs from "node:fs/promises"`
   } where {
-    $filename <: r".*apps/mods/map/swooper-physics/scripts/run-manifest-generator\.ts$"
+    $filename <: r".*apps/mods/map/swooper-physics/src/runtime/run-manifest\.ts$"
   },
   or {
     `writeFile($...)`,
@@ -121,7 +121,7 @@ or {
     `$fs.cp($...)`,
     `$fs.cpSync($...)`
   } where {
-    $filename <: r".*apps/mods/map/swooper-physics/scripts/run-manifest-generator\.ts$"
+    $filename <: r".*apps/mods/map/swooper-physics/src/runtime/run-manifest\.ts$"
   }
 }
 ```
@@ -129,10 +129,10 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: apps/mods/map/swooper-physics/scripts/generate-run-manifest.ts
+// @filename: apps/mods/map/swooper-physics/src/run-manifest.ts
 await generateSwooperRunGeneratedModFromManifestPath(process.argv[2]);
 
-// @filename: apps/mods/map/swooper-physics/scripts/run-manifest-generator.ts
+// @filename: apps/mods/map/swooper-physics/src/runtime/run-manifest.ts
 import { writeFile } from "node:fs/promises";
 
 export async function generateSwooperRunGeneratedModFromManifestPath(path: string) {
@@ -146,13 +146,13 @@ export async function generateSwooperRunGeneratedModFromManifestPath(path: strin
 ## Ignores Fixture
 
 ```typescript
-// @filename: apps/mods/map/swooper-physics/scripts/generate-run-manifest.ts
-import { generateSwooperRunGeneratedModFromManifestPath } from "./run-manifest-generator.js";
+// @filename: apps/mods/map/swooper-physics/src/run-manifest.ts
+import { generateSwooperRunGeneratedModFromManifestPath } from "./runtime/run-manifest.js";
 
 const manifestPath = parseSwooperRunManifestPathArg(process.argv.slice(2));
 await generateSwooperRunGeneratedModFromManifestPath(manifestPath);
 
-// @filename: apps/mods/map/swooper-physics/scripts/run-manifest-generator.ts
+// @filename: apps/mods/map/swooper-physics/src/runtime/run-manifest.ts
 import { applyGeneratedFilePlan } from "@civ7/plugin-files/generated-file-plan";
 
 export async function generateSwooperRunGeneratedModFromManifestPath(
@@ -169,7 +169,7 @@ export async function generateSwooperRunGeneratedModFromManifestPath(
 {
   "targets": {
     "gen:run-manifest": {
-      "command": "bun ./scripts/generate-run-manifest.ts"
+      "command": "bun ./src/run-manifest.ts"
     }
   }
 }

@@ -30,14 +30,14 @@ Shipped map variants are authored only as
 `plugins/mod/map/swooper-physics/src/maps/configs/*.config.json`. Each file contains the
 map id, display name, description, recipe id, sort order, optional latitude
 bounds, and the full flat standard-recipe config payload.
-`nx run swooper-physics-mod:gen:maps` consumes and validates that directory and generates the
-tracked per-map entry modules plus Civ7 map rows, modinfo imports, and
-localization rows. `nx run swooper-physics:gen:studio-map-catalog` separately
+`nx run swooper-physics-mod:build` consumes and validates that directory, bundles
+each virtual map entrypoint, and materializes the complete Civ7 mod tree under
+`dist/mod`. `nx run swooper-physics:gen:studio-map-catalog` separately
 projects the same source index into Studio's built-in catalog. Do not
-hand-author shipped map wrappers or shipped `.config.ts` files. The native
-`swooper-physics-mod:build` graph depends on `generated:check`, which compares
-the complete tracked map and mod output plan with the canonical inputs and is
-the currentness authority for those files.
+hand-author shipped map wrappers or shipped `.config.ts` files. Generated
+TypeScript entrypoints and a tracked deployment tree are intentionally absent:
+the build plan derives the deployable output directly from admitted definition
+data.
 
 ## Physics-Truth Cutover (Ecology + Placement)
 
@@ -88,8 +88,8 @@ without claiming per-tile reconciliation that Civ7 does not expose.
 - Map config authority: `plugins/mod/map/swooper-physics/src/maps/configs/*.config.json`
 - Recipes and domains: `plugins/mod/map/swooper-physics/src/{recipes,domain}/*`
 - Civ7 realization owner: `apps/mods/map/swooper-physics/`
-- Generated map entry sources: `apps/mods/map/swooper-physics/src/maps/generated/*`
-- Generated Civ7 mod tree: `apps/mods/map/swooper-physics/mod/*`
+- Map realization compiler: `apps/mods/map/swooper-physics/src/runtime/map-script/*`
+- Generated Civ7 mod tree: `apps/mods/map/swooper-physics/dist/mod/*`
 
 ## Legacy TypeScript Architecture (M6)
 

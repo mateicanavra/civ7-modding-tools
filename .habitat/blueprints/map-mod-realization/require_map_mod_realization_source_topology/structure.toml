@@ -1,0 +1,35 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "map-mod-realization-source"
+root = "apps/mods/map/*/src"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "build.ts",
+  "runtime",
+]
+allowed = ["run-manifest.ts"]
+
+[[scopes]]
+name = "map-mod-realization-runtime"
+root = "apps/mods/map/*/src/runtime"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "file-plan.ts",
+  "map-script",
+]
+allowed = ["run-manifest.ts"]
+
+[[scopes]]
+name = "map-mod-realization-map-script"
+root = "apps/mods/map/*/src/runtime/map-script"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "compiler.ts",
+]

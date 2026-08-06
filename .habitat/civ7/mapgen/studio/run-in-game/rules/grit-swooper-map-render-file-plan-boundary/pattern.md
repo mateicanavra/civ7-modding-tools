@@ -5,10 +5,10 @@ level: error
 
 Swooper owns product-specific map artifact rendering and orchestration, while
 `@civ7/plugin-files/generated-file-plan` owns reusable filesystem admission,
-currentness inspection, cleanup, and writes. Renderers under
-`scripts/map-artifacts` remain pure plan builders. The catalog commands may
-read authored configs, but they must delegate plan inspection and application
-to the plugin capability instead of acquiring a local writer. Behavior and
+cleanup, and writes. The realization renderer remains a pure plan builder. The
+build entrypoint may read authored configs and compile virtual sources, but it
+must delegate plan application to the plugin capability instead of acquiring a
+local writer. Behavior and
 exact bytes belong to tests; this rule guards only that ownership boundary.
 
 ```grit
@@ -23,10 +23,10 @@ or {
     `import * as $fs from "node:fs"`,
     `import * as $fs from "node:fs/promises"`
   } where {
-    $filename <: r".*apps/mods/map/swooper-physics/scripts/map-artifacts/.*\.tsx?$"
+    $filename <: r".*apps/mods/map/swooper-physics/src/runtime/file-plan\.tsx?$"
   },
   `process.env` where {
-    $filename <: r".*apps/mods/map/swooper-physics/scripts/map-artifacts/file-plan\.ts$"
+    $filename <: r".*apps/mods/map/swooper-physics/src/runtime/file-plan\.ts$"
   },
   or {
     `import { $..., writeFile, $... } from "node:fs"`,
@@ -67,7 +67,7 @@ or {
     `import * as $fs from "node:fs/promises"`,
     `import { $..., promises as $fs, $... } from "node:fs"`
   } where {
-    $filename <: r".*apps/mods/map/swooper-physics/scripts/generate-map-artifacts\.ts$"
+    $filename <: r".*apps/mods/map/swooper-physics/src/build\.ts$"
   },
   or {
     `writeFile($...)`,
@@ -117,23 +117,15 @@ or {
     `$fs.mkdtempSync($...)`,
     `$fs.createWriteStream($...)`
   } where {
-    $filename <: r".*apps/mods/map/swooper-physics/scripts/generate-map-artifacts\.ts$"
+    $filename <: r".*apps/mods/map/swooper-physics/src/build\.ts$"
   },
   program(statements=$body) where {
-    $filename <: r".*apps/mods/map/swooper-physics/scripts/generate-map-artifacts\.ts$",
+    $filename <: r".*apps/mods/map/swooper-physics/src/build\.ts$",
     ! $body <: contains `import { $..., applyGeneratedFilePlan, $... } from "@civ7/plugin-files/generated-file-plan"`
   },
   program(statements=$body) where {
-    $filename <: r".*apps/mods/map/swooper-physics/scripts/generate-map-artifacts\.ts$",
-    ! $body <: contains `import { $..., inspectGeneratedFilePlan, $... } from "@civ7/plugin-files/generated-file-plan"`
-  },
-  program(statements=$body) where {
-    $filename <: r".*apps/mods/map/swooper-physics/scripts/generate-map-artifacts\.ts$",
-    ! $body <: contains `await applyGeneratedFilePlan(plan, { outputRoot: pkgRoot })`
-  },
-  program(statements=$body) where {
-    $filename <: r".*apps/mods/map/swooper-physics/scripts/generate-map-artifacts\.ts$",
-    ! $body <: contains `await inspectGeneratedFilePlan(plan, { outputRoot: pkgRoot })`
+    $filename <: r".*apps/mods/map/swooper-physics/src/build\.ts$",
+    ! $body <: contains `await applyGeneratedFilePlan(plan, { outputRoot: modOutputRoot })`
   }
 }
 ```
@@ -141,7 +133,7 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: apps/mods/map/swooper-physics/scripts/map-artifacts/file-plan.ts
+// @filename: apps/mods/map/swooper-physics/src/runtime/file-plan.ts
 import { writeFile } from "node:fs/promises";
 
 export function buildSwooperCatalogModFilePlan(options) {
@@ -150,7 +142,7 @@ export function buildSwooperCatalogModFilePlan(options) {
 ```
 
 ```typescript
-// @filename: apps/mods/map/swooper-physics/scripts/generate-map-artifacts.ts
+// @filename: apps/mods/map/swooper-physics/src/build.ts
 import { readFile, writeFile } from "node:fs/promises";
 
 export async function loadSwooperMapConfigRegistry() {
@@ -163,23 +155,19 @@ await writeFile("src/maps/generated/example.ts", "direct write");
 ## Ignores Fixture
 
 ```typescript
-// @filename: apps/mods/map/swooper-physics/scripts/map-artifacts/file-plan.ts
+// @filename: apps/mods/map/swooper-physics/src/runtime/file-plan.ts
 export function buildSwooperCatalogModFilePlan(options) {
   return { exclusiveSets: [], files: options.configs.map(renderArtifactIntent) };
 }
 
-// @filename: apps/mods/map/swooper-physics/scripts/generate-map-artifacts.ts
+// @filename: apps/mods/map/swooper-physics/src/build.ts
 import { readFile } from "node:fs/promises";
-import {
-  applyGeneratedFilePlan,
-  inspectGeneratedFilePlan,
-} from "@civ7/plugin-files/generated-file-plan";
+import { applyGeneratedFilePlan } from "@civ7/plugin-files/generated-file-plan";
 
 export async function loadSwooperMapConfigRegistry() {
   return JSON.parse(await readFile("config.json", "utf8"));
 }
 
 const plan = buildSwooperCatalogModFilePlan({});
-await inspectGeneratedFilePlan(plan, { outputRoot: pkgRoot });
-await applyGeneratedFilePlan(plan, { outputRoot: pkgRoot });
+await applyGeneratedFilePlan(plan, { outputRoot: modOutputRoot });
 ```
