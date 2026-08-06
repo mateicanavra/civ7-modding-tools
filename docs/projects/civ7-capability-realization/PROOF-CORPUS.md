@@ -99,34 +99,34 @@ reconfirms that completed census against the materialized estate.
 
 | Exact current source | Disposition | Exact destination |
 | --- | --- | --- |
-| `packages/civ7-direct-control/test/advisor-warning.test.ts` | combine | `services/civ7-play/test/semantics/modules/notifications/advisor-warning-request.test.ts` |
+| `packages/civ7-direct-control/test/advisor-warning.test.ts` | decompose | Exact control `game/notifications-advisor-warning-viewed-{check,send}.test.ts` plus Play notification request/reconciliation proof |
 | `packages/civ7-direct-control/test/autoplay.test.ts` | decompose | `services/civ7-play/test/semantics/modules/automation/autoplay.test.ts` plus MapGen-runs autoplay-admission proof |
-| `packages/civ7-direct-control/test/diplomacy-response-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/diplomacy/response.test.ts` |
-| `packages/civ7-direct-control/test/display-queue.test.ts` | combine | `services/civ7-control/test/semantics/modules/ui/display-queue.test.ts` |
-| `packages/civ7-direct-control/test/first-meet-response-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/diplomacy/first-meet-response.test.ts` |
-| `packages/civ7-direct-control/test/government-choice-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/progression/{celebration-choice,government-choice}.test.ts` |
-| `packages/civ7-direct-control/test/map-and-visibility.test.ts#map and visibility reads` | combine | `services/civ7-control/test/semantics/modules/map/map-reads.test.ts` |
-| `packages/civ7-direct-control/test/map-and-visibility.test.ts#explore grant atoms` | combine | `services/civ7-control/test/semantics/modules/map/visibility-explore.test.ts` |
-| `packages/civ7-direct-control/test/map-surface-observation.test.ts` | combine | `services/civ7-control/test/semantics/modules/map/map-surface-observation.test.ts` |
-| `packages/civ7-direct-control/test/narrative-choice-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/progression/narrative-choice.test.ts` |
-| `packages/civ7-direct-control/test/notification-dismissal.test.ts` | combine | `services/civ7-play/test/semantics/modules/notifications/dismiss.test.ts` |
-| `packages/civ7-direct-control/test/play-notification-view.test.ts` | combine | `services/civ7-play/test/semantics/modules/notifications/queue.test.ts` |
-| `packages/civ7-direct-control/test/population-placement.test.ts` | combine | `services/civ7-play/test/semantics/modules/city/population-placement.test.ts` |
-| `packages/civ7-direct-control/test/production-choice-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/city/production-choice.test.ts` |
-| `packages/civ7-direct-control/test/progression-native-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/progression/{attribute,choice,target,tradition}.test.ts` |
-| `packages/civ7-direct-control/test/progression-reads.test.ts` | combine | `services/civ7-play/test/semantics/modules/progression/{dashboard-current,traditions-current}.test.ts` |
-| `packages/civ7-direct-control/test/ready-city-view.test.ts` | combine | `services/civ7-play/test/semantics/modules/attention/current.test.ts` |
-| `packages/civ7-direct-control/test/ready-unit-view.test.ts` | combine | `services/civ7-play/test/semantics/modules/attention/current.test.ts` |
+| `packages/civ7-direct-control/test/diplomacy-response-atoms.test.ts` | decompose | Exact control `game/diplomacy-response-{check,send}.test.ts` plus Play diplomacy request/reconciliation proof |
+| `packages/civ7-direct-control/test/display-queue.test.ts` | decompose | Exact `services/civ7-control/test/semantics/modules/ui/{display-queue-current,display-queue-close}.test.ts` |
+| `packages/civ7-direct-control/test/first-meet-response-atoms.test.ts` | decompose | Exact control `game/diplomacy-first-meet-response-{check,send}.test.ts` plus Play diplomacy request/reconciliation proof |
+| `packages/civ7-direct-control/test/government-choice-atoms.test.ts` | decompose | Exact control game-progression native leaf proofs plus Play progression request/reconciliation proof |
+| `packages/civ7-direct-control/test/map-and-visibility.test.ts#map and visibility reads` | decompose | Exact control map `{current,plot,grid,visibility-current}.test.ts` proofs |
+| `packages/civ7-direct-control/test/map-and-visibility.test.ts#explore grant atoms` | decompose | Exact control map `{visibility-grant-set,visibility-grant-remove}.test.ts` proofs; display choreography is not preserved here |
+| `packages/civ7-direct-control/test/map-surface-observation.test.ts` | combine | `services/civ7-control/test/semantics/modules/map/surface.test.ts` |
+| `packages/civ7-direct-control/test/narrative-choice-atoms.test.ts` | decompose | Exact control game-progression native leaf proofs plus Play progression request/reconciliation proof |
+| `packages/civ7-direct-control/test/notification-dismissal.test.ts` | decompose | Exact control `game/notifications-dismissal-{check,send}.test.ts` plus Play notification request/reconciliation proof |
+| `packages/civ7-direct-control/test/play-notification-view.test.ts` | decompose | Exact control `game/notifications-observe.test.ts` plus Play notification/attention interpretation proof |
+| `packages/civ7-direct-control/test/population-placement.test.ts` | decompose | Exact control game city worker/expansion check/send proofs plus Play city request/reconciliation proof |
+| `packages/civ7-direct-control/test/production-choice-atoms.test.ts` | decompose | Exact control `game/city-production-choice-{check,send}.test.ts` plus Play city request/reconciliation proof |
+| `packages/civ7-direct-control/test/progression-native-atoms.test.ts` | decompose | Exact control game-progression observe/check/send leaf proofs plus Play progression request/reconciliation proof |
+| `packages/civ7-direct-control/test/progression-reads.test.ts` | decompose | Exact control game-progression observation proofs plus Play progression interpretation proof |
+| `packages/civ7-direct-control/test/ready-city-view.test.ts` | decompose | Exact control game-city observation proof plus Play attention interpretation proof |
+| `packages/civ7-direct-control/test/ready-unit-view.test.ts` | decompose | Exact control game-unit observation proof plus Play attention interpretation proof |
 | `packages/civ7-direct-control/test/settlement-recommendations.test.ts` | combine | `services/civ7-play/test/semantics/modules/planning/civilian-route-triage.test.ts` |
-| `packages/civ7-direct-control/test/start-positions.test.ts` | combine | `services/civ7-control/test/semantics/modules/map/current.test.ts` |
-| `packages/civ7-direct-control/test/summary-reads.test.ts` | combine | `services/civ7-control/test/semantics/modules/map/current.test.ts` |
+| `packages/civ7-direct-control/test/start-positions.test.ts` | combine | `services/civ7-control/test/semantics/modules/map/start-positions.test.ts` |
+| `packages/civ7-direct-control/test/summary-reads.test.ts` | decompose | Exact `services/civ7-control/test/semantics/modules/game/{player,city,unit}-observe.test.ts`; caller-shaped combined summary behavior stays in the qualified projection proof |
 | `packages/civ7-direct-control/test/tactical-reads.test.ts` | combine | `services/civ7-play/test/semantics/modules/planning/tactical-reads.test.ts` |
-| `packages/civ7-direct-control/test/town-focus-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/city/town-focus.test.ts` |
-| `packages/civ7-direct-control/test/turn-completion-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/turn/complete.test.ts` |
-| `packages/civ7-direct-control/test/unit-command-admission.test.ts` | combine | `services/civ7-play/test/semantics/modules/unit/command.test.ts` |
-| `packages/civ7-direct-control/test/unit-command-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/unit/command.test.ts` |
+| `packages/civ7-direct-control/test/town-focus-atoms.test.ts` | decompose | Exact control game city town-focus check/send proofs plus Play city request/reconciliation proof |
+| `packages/civ7-direct-control/test/turn-completion-atoms.test.ts` | decompose | Exact control `game/turn-completion-{observe,send}.test.ts` plus Play turn request/reconciliation proof |
+| `packages/civ7-direct-control/test/unit-command-admission.test.ts` | decompose | Exact control game unit upgrade/resettle and target-action check proofs plus Play unit admission proof |
+| `packages/civ7-direct-control/test/unit-command-atoms.test.ts` | decompose | Exact control game unit upgrade/resettle and target-action check/send proofs plus Play unit request/reconciliation proof |
 | `packages/civ7-direct-control/test/unit-move-preview.test.ts` | combine | `services/civ7-play/test/semantics/modules/planning/tactical-reads.test.ts` |
-| `packages/civ7-direct-control/test/unit-target-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/unit/target-action.test.ts` |
+| `packages/civ7-direct-control/test/unit-target-atoms.test.ts` | decompose | Exact control game unit-target observe and action-specific check/send proofs plus Play unit request/reconciliation proof |
 | `packages/civ7-direct-control/test/view-camera.test.ts` | combine | `services/civ7-control/test/semantics/modules/ui/camera-focus.test.ts` |
 | `packages/civ7-direct-control/test/view-clean-frame.test.ts` | combine | `services/civ7-control/test/semantics/modules/ui/appshot-capture.test.ts` |
 

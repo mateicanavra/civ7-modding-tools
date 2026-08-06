@@ -190,6 +190,19 @@ emits those facts. The window-capture provider owns raw ScreenCaptureKit
 execution and scoped children. The control service has exactly the finite
 module set `{app,game,map,ui}` and owns only Civ7 interpretation plus
 epoch-correlated semantic facts and closed native operations in those modules.
+`game` composes explicit native subdomains such as `city`, `diplomacy`,
+`notifications`, `player`, `progression`, `turn`, and `unit`; those subdomains do not
+become peer control modules. Their leaf vocabulary is `observe`, `check`, and
+`send`. A `send` performs one fresh native check and at most one invocation,
+then returns dispatch evidence plus any same-evaluation readback as
+`immediateAfter`. Generic operation unions, caller-supplied operation names,
+polling, retries, postconditions, no-repeat policy, and next-action policy are
+refused from those native action leaves: they would recreate the displaced
+facade beneath a new spelling. A separately named foundational operation may
+own bounded observation needed to fulfill its own explicit semantic contract,
+but never replay a mutation or interpret an actor outcome.
+`request` belongs to the actor-facing Play service, which composes these exact
+native atoms and owns reconciliation.
 It does not own raw Tuner health, epoch, or command facts, actor intent,
 gameplay strategy, or next-action policy. The qualified CLI or Studio app
 selects and acquires both providers, constructs the service client with both

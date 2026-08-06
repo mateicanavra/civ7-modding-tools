@@ -154,6 +154,16 @@ operation. The aggregate direct-control facade, host-admission middleware,
 controller capability mirror, transport address, arbitrary JavaScript escape,
 and generic mutation-proof wrapper remain refused.
 
+Within control, `game` composes explicit native subdomains rather than
+promoting city, diplomacy, notifications, player, progression, turn, or unit to
+root modules. Native leaves use `observe`, `check`, and `send`; a `send` performs one
+fresh check and at most one invocation, then reports exact dispatch evidence
+and optional same-evaluation `immediateAfter` readback. Generic operation
+unions, polling, postconditions, no-repeat behavior, and actor-facing `request`
+are structurally displaced from those native action leaves rather than ported.
+A named foundational operation may own bounded observation required by its own
+contract, but never mutation replay or actor-outcome interpretation.
+
 Construction is ratcheted continuously rather than certified only at the end.
 Each completed module must close its focused semantic tests, TypeScript,
 Biome, and selected Habitat laws before the next module becomes the active red

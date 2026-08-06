@@ -154,6 +154,18 @@ Civ7 process + Tuner + visible window
 readback, and exact native uncertainty. It does not own gameplay goals,
 priorities, no-repeat policy, or next-action recommendations.
 
+The root remains exactly `{app,game,map,ui}`. `game` nests explicit native
+subdomains rather than flattening city, diplomacy, notifications, player,
+progression, turn, or unit into peer modules. Leaves expose exact `observe`, `check`, and
+`send` operations. `send` means one fresh native check, at most one invocation,
+and honest dispatch evidence with optional same-evaluation `immediateAfter`
+readback. A generic operation dispatcher or discriminated family union is a
+facade by another name and is not admitted. Polling, postconditions,
+no-repeat behavior, actor-facing `request`, and reconciliation do not belong
+inside those native action leaves. A named foundational operation may perform
+bounded observation required by its own explicit contract, without replaying
+a mutation or deciding actor meaning.
+
 ### Play
 
 ```text
