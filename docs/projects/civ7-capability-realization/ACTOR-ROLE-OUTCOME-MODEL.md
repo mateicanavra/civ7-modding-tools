@@ -153,8 +153,9 @@ Supporting interactions stay with their exact fact owner:
 
 - Tuner connection health and raw execution return provider-emitted facts under
   the Tuner resource contract;
-- Civ7 window capture returns provider-emitted facts under the window-capture
-  resource contract;
+- selected-window capture returns provider-emitted raw image and window facts
+  under the generic window-capture resource contract, while the control
+  service alone returns the semantic Civ7 appshot result;
 - app restart and fresh-log reads return their qualified app adapters' attempt,
   readiness, snapshot, and read facts;
 - generated artifacts and digests return matching-realization facts; and

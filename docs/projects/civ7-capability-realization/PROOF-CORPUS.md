@@ -137,9 +137,11 @@ reconfirms that completed census against the materialized estate.
 | `packages/civ7-direct-control/test/runtime-and-catalog.test.ts` capability-catalog assertions | combine | `plugins/cli/topics/game/test/commands/game/catalog.test.ts` |
 | `packages/civ7-direct-control/test/runtime-and-catalog.test.ts` fresh-log snapshot/rewrite assertions | combine | `apps/mapgen-studio/test/execution/adapters/fresh-log-files.test.ts` |
 | `packages/civ7-direct-control/test/runtime-and-catalog.test.ts` marker acceptance and timeout assertions | combine | `services/mapgen-runs/test/semantics/modules/run-in-game/start.test.ts` |
-| `packages/civ7-direct-control/test/view-window-shot.test.ts#window-shot helper lifecycle` | combine | `resources/civ7-window-capture/providers/macos-screencapturekit/test/semantics/provider.test.ts` and `resources/civ7-window-capture/providers/macos-screencapturekit/test/execution/lifecycle.test.ts` |
-| `packages/civ7-direct-control/test/view-window-shot.test.ts#captureCiv7WindowShot` capture/process assertions | combine | `resources/civ7-window-capture/providers/macos-screencapturekit/test/execution/lifecycle.test.ts` |
-| `packages/civ7-direct-control/test/view-window-shot.test.ts` public result and appshot-retention assertions | combine | `services/civ7-control/test/semantics/modules/view/appshot-capture.test.ts` |
+| `packages/civ7-direct-control/test/view-window-shot.test.ts#window-shot helper lifecycle` | combine | `resources/window-capture/providers/macos-screencapturekit/test/{semantics/provider,execution/lifecycle}.test.ts` |
+| `packages/civ7-direct-control/test/view-window-shot.test.ts#captureCiv7WindowShot` generic selection, process, platform/TCC, PNG, and failure assertions | split | `resources/window-capture/test/contract/contract.typecheck.ts` plus `resources/window-capture/providers/macos-screencapturekit/test/{semantics/provider,execution/lifecycle}.test.ts` |
+| `packages/civ7-direct-control/test/view-window-shot.test.ts#captureCiv7WindowShot` Civ7 defaults and public result assertions | combine | `services/civ7-control/test/semantics/modules/view/appshot-capture.test.ts` |
+| `packages/civ7-direct-control/test/view-window-shot.test.ts#appshot retention` generic configured-root pruning and explicit-destination noninterference | combine | `resources/window-capture/providers/macos-screencapturekit/test/execution/lifecycle.test.ts` |
+| `packages/civ7-direct-control/test/view-window-shot.test.ts#appshot retention` Civ7 default root, prefix, and retention selection | combine | `services/civ7-control/test/semantics/modules/view/appshot-capture.test.ts`; the service supplies policy while the provider performs only generic configured-root effects |
 | `packages/civ7-direct-control/test/validation.test.ts#{bounds integers with existing command-failed classification,validates player ids through the existing bounded range}` | combine | `services/civ7-control/test/semantics/bounded-input.test.ts` |
 | `packages/civ7-direct-control/test/validation.test.ts#{validates simple identifiers without broadening accepted input,validates map locations and bounds with existing map-specific ranges}` | combine | `services/civ7-control/test/semantics/modules/world/map-reads.test.ts` |
 | `packages/civ7-direct-control/test/validation.test.ts#formats dependency errors and exposes the current timer primitive` | delete | No destination; Effect scheduling and owner-native errors replace the assertion |
@@ -358,7 +360,7 @@ The section covers 69 app test/support files and one compiler file.
 | Exact current source | Disposition | Exact destination |
 | --- | --- | --- |
 | The exact five current files under `plugins/cli/topics/git-mod/test` | excluded unchanged | Same exact paths; four command mirrors and `test/tsconfig.json` |
-| `apps/cli/test/shell.test.ts` | relocate | `apps/cli/test/assembly/shell.test.ts` |
+| `apps/cli/test/shell.test.ts` | combine | `apps/cli/test/assembly/composition.test.ts` |
 | `apps/cli/test/tsconfig.json` | excluded unchanged | Same exact path |
 
 The CLI section covers 63 topic proof/support files and two shell files.
@@ -657,9 +659,10 @@ execution proof set below.
 | Exact new proof | Required oracle |
 | --- | --- |
 | `resources/civ7-tuner/test/contract/contract.typecheck.ts` | Consumers compile against only the provider-neutral ready Tuner contract; provider assignability is proved independently by its public implementation typecheck and one-way Nx edge |
-| `resources/civ7-window-capture/test/contract/contract.typecheck.ts` | Provider and consumer compile against only the provider-neutral capture contract |
+| `resources/window-capture/test/contract/contract.typecheck.ts` | Provider and consumers compile against only generic window selection, destination, raw capture evidence, and typed provider-neutral failures; no Civ7 identity or appshot policy is reachable |
 | `resources/civ7-tuner/providers/local-socket/test/collaboration/provider.live.test.ts` | Real local-socket framing and listener collaboration against the supported Tuner |
-| `resources/civ7-window-capture/providers/macos-screencapturekit/test/collaboration/provider.live.test.ts` | Real ScreenCaptureKit/TCC/window collaboration on macOS |
+| `resources/window-capture/providers/macos-screencapturekit/test/execution/lifecycle.test.ts` | New target law: a never-ending fake compile/capture child is interrupted and awaited exactly once on operation interruption or provider release; released providers refuse work; interrupted writes leave no temporary or partial destination; successful writes install atomically |
+| `resources/window-capture/providers/macos-screencapturekit/test/collaboration/provider.live.test.ts` | One opt-in real ScreenCaptureKit/TCC/window proof on macOS without Civ7-specific matching or semantic claims |
 | `services/civ7-control/test/contract/client.typecheck.ts` | Public module client shape and resource requirements compile without facade extraction |
 | `services/civ7-control/test/execution/root.test.ts` | Middleware order, request isolation, cancellation, and once-only root execution on the accepted service substrate |
 | `services/mapgen-runs/test/contract/client.typecheck.ts` | Save/Deploy and Run-in-Game clients expose only the accepted public service contract |
@@ -678,9 +681,9 @@ execution proof set below.
 | `packages/civ7-mod-install/test/semantics/installation-plan.test.ts` | Invalid identifiers and paths are rejected; supplied observations deterministically yield wholesale replacement plans, digest comparisons, counts, and typed receipts without reading or mutating a host filesystem |
 | `packages/civ7-save-files/test/contract/contract.typecheck.ts` | Consumers compile against pure saved-config parsing and DTO contracts without filesystem capability |
 | `packages/studio-run-workspace/test/contract/contract.typecheck.ts` | Consumers compile against pure correlation, path-plan, manifest parse/serialize, and comparison contracts without filesystem capability |
-| `apps/cli/test/assembly/shell.test.ts` | Native discovery, sole-topic-registry assembly, help catalog, and executable-shim equivalence |
-| `apps/cli/test/execution/{binding,finalization}.test.ts` | Actual provider, public-client, semantic-adapter and configuration binding; native Oclif demand binding and once-only command-process finalization |
-| `apps/mapgen-studio/test/assembly/composition.test.ts` | Exact API/web membership, adapter selection, provider, public-client, configuration-root, plugin and process facts, including official-data roots |
+| `apps/cli/test/assembly/composition.test.ts` | Exact topic membership, Tuner and window-capture providers, public-client, configuration, and process facts |
+| `apps/cli/test/execution/{binding,finalization}.test.ts` | Native Oclif demand binding and once-only command-process finalization |
+| `apps/mapgen-studio/test/assembly/composition.test.ts` | Exact Tuner/window-capture providers, public clients, configuration roots, cold adapters, plugins, and process facts, including official-data roots |
 | `apps/mapgen-studio/test/execution/hosts/{server,web,dev}.test.ts` | Each native host starts, mounts, observes, and disposes only its selected roles |
 | `apps/mapgen-studio/test/execution/adapters/{civ7-save-files,studio-run-files,fresh-log-files,civ7-official-data,swooper-map-config-source}.test.ts` | Each selected Studio cold adapter alone owns its exact filesystem effects and release/failure behavior |
 | `plugins/mod/map/swooper-physics/test/definition.test.ts` | Product identity, public definition face, and finite authored capability membership |
