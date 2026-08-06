@@ -164,8 +164,10 @@ in the Interactive slice; no old patch line survives the joint seal.
 ### 1.1 Swooper Product
 
 Admit the qualified map-definition and map-realization laws, and instantiate the
-MapGen CLI-topic root under Ground's shared CLI-topic law, before moving their
-respective Swooper source.
+MapGen CLI-topic root under Civ7's closed qualified CLI-topic law on Ground's
+consumer substrate, before moving their respective Swooper source. Habitat
+0.5.1 does not publish a composable CLI-topic kind, so the broad shared
+`plugin@1` shell is not misapplied to this package-backed oclif projection.
 
 #### 1.1.1 Portable Definition
 
@@ -179,6 +181,13 @@ respective Swooper source.
 - Keep Studio-targeted source writers, Studio-owned deployment source, and
   Interactive-dependent live proof stationary until slice 1.2 constructs those
   exact destinations.
+
+**Construction receipt:** the closed `mapgen` CLI topic now owns diagnostic
+dump/diff/list/trace and metric-report command behavior. It consumes public
+Swooper and neutral MapGen capabilities, the commandless CLI shell discovers it
+once, and the old definition-owned runners and parser-only proof are gone. The
+complete affected Nx graph passes. Portable-definition work continues at the
+config/catalog authoring boundary; this receipt does not claim slice 1.1.
 
 #### 1.1.2 Civ7 Realization
 

@@ -68,6 +68,6 @@ causal reconstruction.
 ## Proof
 
 ```bash
-nx run swooper-physics:metrics:report
+civ7 mapgen metrics report
 nx run swooper-physics:test
 ```
