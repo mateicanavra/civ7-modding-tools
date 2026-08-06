@@ -557,24 +557,24 @@ global hooks, plugin registration, and shell-wide operational targets. A
 cohesive command topic may live at `plugins/cli/topics/<topic>` as one
 `kind:cli-topic-plugin` project with its own source, behavior tests, build, and
 oclif manifest. The shell registers that package exactly once and retains no
-forwarding commands. Topic plugins adapt `kind:plugin`, `kind:library`, and
-`kind:control` capabilities; reusable capabilities never move into a topic
-solely because its commands are their current consumer. The control allowance
-exists so the `game` topic can adapt the canonical live-control contracts and
-runtimes into CLI UX; it does not permit topic-owned transports or control
-services.
+forwarding commands. Topic plugins project public capabilities from packages,
+services, SDKs, engines, adapters, and reusable product definitions; capability
+truth never moves into a topic solely because its commands are the current
+consumer. The `game` topic adapts canonical live control, while `mapgen` adapts
+Swooper and neutral MapGen capabilities. Neither allowance permits topic-owned
+transports, services, engines, algorithms, or product definitions.
 **Consequences:**
-- `kind:app -> kind:cli-topic-plugin` and
-  `kind:cli-topic-plugin -> {kind:plugin, kind:library, kind:control}` are the
-  complete new project-plane edges.
+- `kind:app -> kind:cli-topic-plugin`; a topic may depend on the public
+  capability kinds it projects, but never on the shell, another topic, an app,
+  or workspace tooling.
 - Each topic keeps its topic-prefixed directory under `src/commands`, because
   oclif derives canonical command ids from paths rather than package names.
 - The generic CLI-topic blueprint closes project, source, command, and test
   spines. oclif owns native command discovery and manifests; Nx and TypeScript
   own package edges and imports.
-- The `data`, `docs`, `git-mod`, and `game` topics are independent instances.
-  Graph, archive, configuration, file, Git, mod, and live-control mechanics
-  remain in their existing reusable package owners.
+- The `data`, `docs`, `git-mod`, `game`, and `mapgen` topics are independent
+  instances. Graph, archive, configuration, file, Git, mod, live-control, and
+  MapGen mechanics remain in their existing reusable owners.
 
 **Amendment (2026-07-28):** The shell's physical owner is `apps/cli`, not
 `packages/cli`, because it realizes an executable application rather than a

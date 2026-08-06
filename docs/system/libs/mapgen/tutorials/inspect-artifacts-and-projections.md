@@ -36,10 +36,10 @@ This tutorial uses the Standard recipe visualization harness, which emits the cu
 This harness runs the complete Standard recipe and writes a dump under
 `dist/visualization/<label>/<runId>/`.
 
-Preferred (package script):
+Preferred CLI path:
 
 ```bash
-nx run swooper-physics:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7
+civ7 mapgen diagnostics dump --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7
 ```
 
 Inputs:
@@ -132,5 +132,5 @@ supply their own facet sink; trace verbosity is unrelated to whether the project
 - Standard recipe wiring: `plugins/mod/map/swooper-physics/src/recipes/standard/recipe.ts`
 - Foundation projection step (source of many viz layer dumps): `plugins/mod/map/swooper-physics/src/recipes/standard/stages/foundation/projection/steps/projection/step.ts`
 - Trace+viz dump capability (writes `trace.jsonl`, `manifest.json`, and `data/*`): `packages/mapgen-diagnostics/src/dump.ts`
-- Standard capture runner: `plugins/mod/map/swooper-physics/scripts/diagnostics/run-standard-dump.ts`
+- Standard capture command: `plugins/cli/topics/mapgen/src/commands/mapgen/diagnostics/dump.ts`
 - Trace core contract: `packages/mapgen-core/src/trace/index.ts`

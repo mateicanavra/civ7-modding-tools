@@ -73,7 +73,14 @@ deployment path, and fresh-live proof consume Interactive owners. Interactive
 construction therefore follows inside the same Core Platform parent, and both
 close through one joint proof and deletion receipt.
 
-**Gradient:** Swooper definition -> Civ7 realization -> Interactive construction
+The first definition ownership reduction is closed: diagnostics and metric
+commands now live in the closed `mapgen` CLI topic, consume public Swooper and
+MapGen capabilities, and leave no command runner in the portable definition.
+The active subcontainer now separates pure config/catalog authoring from its
+current filesystem scripts so the definition exposes plans while the later
+Interactive app supplies the write authority.
+
+**Gradient:** Swooper authoring -> Civ7 realization -> Interactive construction
 -> joint Core Platform seal -> Dacia Product -> Estate Reconciliation ->
 Platform Seal.
 

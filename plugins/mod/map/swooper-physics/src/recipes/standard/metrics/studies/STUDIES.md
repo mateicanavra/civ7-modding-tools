@@ -87,7 +87,7 @@ All studies that include `STANDARD_INTEGRITY_TARGET` also use the [Standard inte
 
 ```bash
 # Complete machine-readable evaluation of the closed study bank.
-nx run swooper-physics:metrics:report
+civ7 mapgen metrics report
 
 # Behavioral gate that asserts the declared studies.
 nx run swooper-physics:test

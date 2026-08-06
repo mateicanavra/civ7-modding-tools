@@ -11,14 +11,14 @@ import {
   type StandardMapConfigEnvelope,
 } from "../../../../maps/configs/canonical.js";
 import { MAP_CONFIG_CATALOG_IDS } from "../../../../maps/catalog/membership.js";
-import latestJuicyRaw from "../../../../maps/configs/latest-juicy.config.json";
-import mountainPatchRaw from "../../../../maps/configs/mountain-patch.config.json";
-import mountainsOfTimeEarthlikeRaw from "../../../../maps/configs/mountains-of-time-earthlike.config.json";
-import mountainsOfTimeOriginalRaw from "../../../../maps/configs/mountains-of-time-original.config.json";
-import shatteredRingRaw from "../../../../maps/configs/shattered-ring.config.json";
-import sunderedArchipelagoRaw from "../../../../maps/configs/sundered-archipelago.config.json";
-import swooperDesertMountainsRaw from "../../../../maps/configs/swooper-desert-mountains.config.json";
-import swooperEarthlikeRaw from "../../../../maps/configs/swooper-earthlike.config.json";
+import latestJuicyRaw from "../../../../maps/configs/latest-juicy.config.json" with { type: "json" };
+import mountainPatchRaw from "../../../../maps/configs/mountain-patch.config.json" with { type: "json" };
+import mountainsOfTimeEarthlikeRaw from "../../../../maps/configs/mountains-of-time-earthlike.config.json" with { type: "json" };
+import mountainsOfTimeOriginalRaw from "../../../../maps/configs/mountains-of-time-original.config.json" with { type: "json" };
+import shatteredRingRaw from "../../../../maps/configs/shattered-ring.config.json" with { type: "json" };
+import sunderedArchipelagoRaw from "../../../../maps/configs/sundered-archipelago.config.json" with { type: "json" };
+import swooperDesertMountainsRaw from "../../../../maps/configs/swooper-desert-mountains.config.json" with { type: "json" };
+import swooperEarthlikeRaw from "../../../../maps/configs/swooper-earthlike.config.json" with { type: "json" };
 import { defineStandardMapMetricScenario, type StandardPresetMetricScenario } from "../scenario.js";
 
 /** Explicit per-run identity axes retained by one headless Standard product scenario. */

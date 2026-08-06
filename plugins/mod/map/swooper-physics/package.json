@@ -21,6 +21,10 @@
       "types": "./src/maps/configs/index.ts",
       "import": "./src/maps/configs/index.ts"
     },
+    "./standard/metrics": {
+      "types": "./src/recipes/standard/metrics/index.ts",
+      "import": "./dist/recipes/standard-metrics.js"
+    },
     "./catalog": {
       "types": "./src/maps/catalog/public.ts",
       "import": "./src/maps/catalog/public.ts"
@@ -41,12 +45,6 @@
       "types": "./src/recipes/standard/stages/ecology/projection/model/policy/plot-effect-projection.ts",
       "import": "./src/recipes/standard/stages/ecology/projection/model/policy/plot-effect-projection.ts"
     }
-  },
-  "scripts": {
-    "diag:diff": "bun ./scripts/diagnostics/diff-layers.ts",
-    "diag:list": "bun ./scripts/diagnostics/list-layers.ts",
-    "diag:trace": "bun ./scripts/diagnostics/extract-trace.ts",
-    "metrics:report": "bun ./scripts/metrics/report.ts"
   },
   "dependencies": {
     "@civ7/adapter": "workspace:*",

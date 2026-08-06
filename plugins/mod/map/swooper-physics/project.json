@@ -12,7 +12,10 @@
       "command": "tsup --config scripts/tsup.studio-recipes.config.ts",
       "dependsOn": ["^build"],
       "inputs": ["default", "^default"],
-      "outputs": ["{projectRoot}/dist/recipes/standard.js"],
+      "outputs": [
+        "{projectRoot}/dist/recipes/standard.js",
+        "{projectRoot}/dist/recipes/standard-metrics.js"
+      ],
       "options": {
         "cwd": "plugins/mod/map/swooper-physics"
       }
@@ -85,23 +88,6 @@
       "options": {
         "cwd": "plugins/mod/map/swooper-physics"
       }
-    },
-    "diag:dump": {
-      "command": "bun ./scripts/diagnostics/run-standard-dump.ts",
-      "dependsOn": ["^build"],
-      "cache": false,
-      "options": {
-        "cwd": "plugins/mod/map/swooper-physics"
-      }
-    },
-    "diag:diff": {
-      "dependsOn": [{ "projects": ["mapgen-diagnostics"], "target": "build" }]
-    },
-    "diag:list": {
-      "dependsOn": [{ "projects": ["mapgen-diagnostics"], "target": "build" }]
-    },
-    "diag:trace": {
-      "dependsOn": [{ "projects": ["mapgen-diagnostics"], "target": "build" }]
     }
   }
 }
