@@ -76,11 +76,16 @@ close through one joint proof and deletion receipt.
 The first definition ownership reduction is closed: diagnostics and metric
 commands now live in the closed `mapgen` CLI topic, consume public Swooper and
 MapGen capabilities, and leave no command runner in the portable definition.
-The active subcontainer now separates pure config/catalog authoring from its
-current filesystem scripts so the definition exposes plans while the later
-Interactive app supplies the write authority.
+The second definition reduction is now closed. One closed `authoring` packet
+owns config admission, canonical serialization, and the finite map-catalog and
+recipe-metadata target table. Exact target proof replaces the two displaced
+generated-output tests; 517 Swooper product tests, package build/check, both
+focused Habitat laws, and Knip pass. Transitional scripts retain only host
+reads, writes, rollback, and plan application. Those effects remain held for
+the qualified Interactive app adapter rather than being hidden in definition
+authorship.
 
-**Gradient:** Swooper authoring -> Civ7 realization -> Interactive construction
+**Gradient:** Civ7 realization -> Interactive construction
 -> joint Core Platform seal -> Dacia Product -> Estate Reconciliation ->
 Platform Seal.
 

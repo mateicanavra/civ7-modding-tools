@@ -18,5 +18,5 @@
     "noUncheckedSideEffectImports": true,
     "types": ["@civ7/types"]
   },
-  "include": ["src/**/*.ts"]
+  "include": ["authoring/**/*.ts", "src/**/*.ts"]
 }

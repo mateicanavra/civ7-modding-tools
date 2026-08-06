@@ -24,6 +24,8 @@
         "apps/mods/map/*/scripts/**/*.tsx",
         "apps/mods/map/*/src/**/*.ts",
         "apps/mods/map/*/src/**/*.tsx",
+        "plugins/mod/map/*/authoring/**/*.ts",
+        "plugins/mod/map/*/authoring/**/*.tsx",
         "plugins/mod/map/*/scripts/**/*.ts",
         "plugins/mod/map/*/scripts/**/*.tsx",
         "plugins/mod/map/*/src/**/*.ts",

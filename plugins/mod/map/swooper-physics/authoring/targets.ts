@@ -1,0 +1,325 @@
+import type {
+  GeneratedFilePlan,
+  GeneratedFilePlanFile,
+} from "@civ7/plugin-files/generated-file-plan";
+import {
+  deriveStageAuthoringModel,
+  type StageAuthoringModel,
+} from "@swooper/mapgen-core/authoring";
+import type { TObject, TSchema } from "typebox";
+import {
+  buildCanonicalMapConfigSchema,
+  type ValidatedMapConfig,
+} from "../src/maps/configs/canonical.js";
+import { deriveStandardRecipeArtifacts } from "../src/recipes/standard/artifacts.js";
+import { STANDARD_STAGES } from "../src/recipes/standard/recipe.js";
+
+type JsonObject = Record<string, unknown>;
+
+type StageLike = Readonly<{
+  id: string;
+  steps: readonly Readonly<{
+    contract: Readonly<{ id: string; schema: TSchema }>;
+  }>[];
+  surfaceSchema: TObject;
+  authoring: StageAuthoringModel;
+  toInternal: (args: { setup: unknown; stageConfig: unknown }) => {
+    rawSteps: Record<string, unknown>;
+  };
+}>;
+
+type StudioRecipeUiMeta = Readonly<{
+  namespace: string;
+  recipeId: string;
+  stages: readonly Readonly<{
+    stageId: string;
+    stageLabel: string;
+    steps: readonly Readonly<{
+      stepId: string;
+      stepLabel: string;
+      fullStepId: string;
+      configFocusPathWithinStage: readonly string[];
+    }>[];
+  }>[];
+}>;
+
+const STAGE_LABEL_OVERRIDES: Readonly<Record<string, string>> = {
+  "morphology-coasts": "Morphology / Coasts",
+  "morphology-routing": "Morphology / Routing",
+  "morphology-erosion": "Morphology / Erosion",
+  "morphology-features": "Morphology / Features",
+  "morphology-shelf": "Morphology / Shelf",
+  "map-morphology": "Map / Morphology",
+  "map-hydrology": "Map / Hydrology",
+  "map-ecology": "Map / Ecology",
+};
+
+const STEP_LABEL_OVERRIDES: Readonly<Record<string, string>> = {
+  "plate-graph": "Plate Graph",
+  "plate-topology": "Plate Topology",
+  "climate-baseline": "Climate Baseline",
+  "climate-refine": "Climate Refine",
+  "landmass-plates": "Landmass Plates",
+};
+
+function assertPlainObject(value: unknown, label: string): asserts value is JsonObject {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error(`${label} must be a JSON object`);
+  }
+}
+
+function snapshotJsonObject(value: unknown): JsonObject {
+  const text = JSON.stringify(value);
+  if (!text) throw new Error("schema is not JSON-serializable");
+  const parsed = JSON.parse(text) as unknown;
+  assertPlainObject(parsed, "schema");
+  return parsed;
+}
+
+function schemaForTypeGeneration(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(schemaForTypeGeneration);
+  if (!value || typeof value !== "object") return value;
+
+  const schema = Object.fromEntries(
+    Object.entries(value).map(([key, child]) => [key, schemaForTypeGeneration(child)])
+  ) as JsonObject;
+  const properties = schema.properties;
+  const patternProperties = schema.patternProperties;
+  const hasNoNamedProperties =
+    properties !== null &&
+    typeof properties === "object" &&
+    !Array.isArray(properties) &&
+    Object.keys(properties).length === 0;
+  const hasNoPatternProperties =
+    patternProperties === undefined ||
+    (patternProperties !== null &&
+      typeof patternProperties === "object" &&
+      !Array.isArray(patternProperties) &&
+      Object.keys(patternProperties).length === 0);
+
+  if (
+    schema.type === "object" &&
+    schema.additionalProperties === false &&
+    hasNoNamedProperties &&
+    hasNoPatternProperties
+  ) {
+    schema.tsType = "Readonly<Record<string, never>>";
+  }
+  return schema;
+}
+
+function assertStageLikes(value: unknown, label: string): asserts value is readonly StageLike[] {
+  if (!Array.isArray(value)) {
+    throw new Error(`${label} missing export STANDARD_STAGES`);
+  }
+}
+
+function formatKebabIdLabel(id: string): string {
+  return id
+    .split("-")
+    .map((word) => (word ? word[0]!.toUpperCase() + word.slice(1) : word))
+    .join(" ");
+}
+
+function deriveStudioRecipeUiMeta(args: {
+  namespace: string;
+  recipeId: string;
+  stages: readonly StageLike[];
+}): StudioRecipeUiMeta {
+  const { namespace, recipeId } = args;
+  return {
+    namespace,
+    recipeId,
+    stages: args.stages.map((stage) => {
+      const authoring = deriveStageAuthoringModel(stage);
+      return {
+        stageId: stage.id,
+        stageLabel: STAGE_LABEL_OVERRIDES[stage.id] ?? formatKebabIdLabel(stage.id),
+        steps: authoring.runtime.steps.map((step) => ({
+          stepId: step.stepId,
+          stepLabel: STEP_LABEL_OVERRIDES[step.stepId] ?? formatKebabIdLabel(step.stepId),
+          fullStepId: `${namespace}.${recipeId}.${stage.id}.${step.stepId}`,
+          configFocusPathWithinStage: authoring.config.focusPathsByStepId[step.stepId] ?? [],
+        })),
+      };
+    }),
+  };
+}
+
+function buildArtifactsModuleFiles(args: {
+  schemaJson: JsonObject;
+  configValue: unknown;
+  uiMetaValue: StudioRecipeUiMeta;
+}): readonly GeneratedFilePlanFile[] {
+  const generatedBy =
+    "// Generated by @swooper/swooper-physics authoring target recipe-authoring-metadata.";
+  const rerun = "// Do not edit by hand; re-run `nx run swooper-physics:build`.";
+  const jsLines = [
+    generatedBy,
+    rerun,
+    "",
+    `export const STANDARD_RECIPE_CONFIG = ${JSON.stringify(args.configValue, null, 2)};`,
+    `export const STANDARD_RECIPE_CONFIG_SCHEMA = ${JSON.stringify(args.schemaJson, null, 2)};`,
+    `export const studioRecipeUiMeta = ${JSON.stringify(args.uiMetaValue, null, 2)};`,
+    "",
+  ];
+  const dtsLines = [
+    generatedBy,
+    rerun,
+    "",
+    `import type { XSchema } from "typebox/schema";`,
+    "",
+    `export type StudioRecipeUiMeta = Readonly<{`,
+    `  namespace: string;`,
+    `  recipeId: string;`,
+    `  stages: ReadonlyArray<Readonly<{`,
+    `    stageId: string;`,
+    `    stageLabel: string;`,
+    `    steps: ReadonlyArray<Readonly<{`,
+    `      stepId: string;`,
+    `      stepLabel: string;`,
+    `      fullStepId: string;`,
+    `      configFocusPathWithinStage: ReadonlyArray<string>;`,
+    `    }>>;`,
+    `  }>>;`,
+    `}>;`,
+    "",
+    `export const STANDARD_RECIPE_CONFIG: Readonly<import("@swooper/swooper-physics/standard").StandardRecipeConfig>;`,
+    `export const STANDARD_RECIPE_CONFIG_SCHEMA: XSchema;`,
+    `export const studioRecipeUiMeta: Readonly<StudioRecipeUiMeta>;`,
+    "",
+  ];
+
+  return [
+    {
+      relativePath: "dist/recipes/standard-artifacts.js",
+      content: jsLines.join("\n"),
+    },
+    {
+      relativePath: "dist/recipes/standard-artifacts.d.ts",
+      content: dtsLines.join("\n"),
+    },
+  ];
+}
+
+function stableJson(value: unknown): string {
+  return `${JSON.stringify(value, null, 2)}\n`;
+}
+
+function renderMapConfigsArtifact(configs: readonly ValidatedMapConfig[]): string {
+  const values = configs.map((config) => config.canonicalConfig);
+  return `// Generated by @swooper/swooper-physics authoring target map-catalog-metadata.
+// Do not edit by hand; re-run \`nx run swooper-physics:gen:studio-map-catalog\`.
+
+export const standardMapConfigs = ${JSON.stringify(values, null, 2)};
+`;
+}
+
+function renderMapConfigsDts(): string {
+  return `// Generated by @swooper/swooper-physics authoring target map-catalog-metadata.
+// Do not edit by hand; re-run \`nx run swooper-physics:gen:studio-map-catalog\`.
+
+import type { MapConfigEnvelope } from "@civ7/studio-contract";
+
+/** Canonical envelopes in durable shipped catalog order; transient Studio deploy configs are absent. */
+export const standardMapConfigs: ReadonlyArray<MapConfigEnvelope>;
+`;
+}
+
+async function createRecipeAuthoringMetadataPlan(): Promise<GeneratedFilePlan> {
+  assertStageLikes(STANDARD_STAGES, "[recipe:mod-swooper-maps.standard]");
+  const { schema, defaults } = deriveStandardRecipeArtifacts();
+  const schemaJson = snapshotJsonObject(schema);
+  assertPlainObject(defaults, "standard recipe defaults");
+  const { compile } = await import("json-schema-to-typescript");
+  const configTypes = await compile(
+    schemaForTypeGeneration(schemaJson) as JsonObject,
+    "StandardRecipeConfig",
+    {
+      bannerComment: "",
+      style: { singleQuote: false, semi: true },
+    }
+  );
+  const declaration = [
+    `import type { RecipeModule } from "@swooper/mapgen-core/authoring";`,
+    `import type { STANDARD_INITIAL_SETUP } from "../../src/recipes/standard/initial-setup.js";`,
+    "",
+    configTypes.trimEnd(),
+    "",
+    `export const STANDARD_STAGES: ReadonlyArray<unknown>;`,
+    `export {`,
+    `  createStandardInitialSetupInput,`,
+    `  createUnavailableStandardInitialOptionEvidence,`,
+    `  projectStandardInitialSetup,`,
+    `  STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,`,
+    `  STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,`,
+    `  STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,`,
+    `} from "../../src/recipes/standard/initial-setup.js";`,
+    "",
+    `declare const recipe: RecipeModule<`,
+    `  Readonly<StandardRecipeConfig>,`,
+    `  unknown,`,
+    `  typeof STANDARD_INITIAL_SETUP`,
+    `>;`,
+    `export default recipe;`,
+    "",
+  ].join("\n");
+  const uiMeta = deriveStudioRecipeUiMeta({
+    namespace: "mod-swooper-maps",
+    recipeId: "standard",
+    stages: STANDARD_STAGES,
+  });
+
+  return {
+    exclusiveSets: [{ relativeDir: "dist/recipes", fileExtension: ".presets.json" }],
+    files: [
+      {
+        relativePath: "dist/recipes/standard.schema.json",
+        content: JSON.stringify(schemaJson, null, 2),
+      },
+      {
+        relativePath: "dist/recipes/standard.defaults.json",
+        content: JSON.stringify(defaults, null, 2),
+      },
+      { relativePath: "dist/recipes/standard.d.ts", content: declaration },
+      ...buildArtifactsModuleFiles({
+        schemaJson,
+        configValue: defaults,
+        uiMetaValue: uiMeta,
+      }),
+    ],
+  };
+}
+
+function createMapCatalogMetadataPlan(configs: readonly ValidatedMapConfig[]): GeneratedFilePlan {
+  const { schema } = deriveStandardRecipeArtifacts();
+  return {
+    exclusiveSets: [],
+    files: [
+      {
+        relativePath: "dist/recipes/standard-map-config.schema.json",
+        content: stableJson(buildCanonicalMapConfigSchema(schema)),
+      },
+      {
+        relativePath: "dist/recipes/standard-map-configs.js",
+        content: renderMapConfigsArtifact(configs),
+      },
+      {
+        relativePath: "dist/recipes/standard-map-configs.d.ts",
+        content: renderMapConfigsDts(),
+      },
+    ],
+  };
+}
+
+/** The complete finite set of cold metadata targets owned by the Swooper definition. */
+export const authoringTargets = {
+  mapCatalogMetadata: {
+    id: "map-catalog-metadata",
+    createPlan: createMapCatalogMetadataPlan,
+  },
+  recipeAuthoringMetadata: {
+    id: "recipe-authoring-metadata",
+    createPlan: createRecipeAuthoringMetadataPlan,
+  },
+} as const;

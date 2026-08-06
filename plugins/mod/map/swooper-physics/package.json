@@ -5,6 +5,10 @@
   "description": "Reusable Swooper Physics domains, Standard recipe, and authored map product",
   "type": "module",
   "exports": {
+    "./authoring": {
+      "types": "./authoring/index.ts",
+      "import": "./authoring/index.ts"
+    },
     "./standard": {
       "types": "./src/recipes/standard/recipe.ts",
       "import": "./dist/recipes/standard.js"
@@ -49,20 +53,20 @@
   "dependencies": {
     "@civ7/adapter": "workspace:*",
     "@civ7/map-policy": "workspace:*",
+    "@civ7/plugin-files": "workspace:*",
     "@civ7/studio-contract": "workspace:*",
     "@civ7/studio-run-workspace": "workspace:*",
     "@mateicanavra/civ7-sdk": "workspace:*",
     "@swooper/mapgen-core": "workspace:*",
     "@swooper/mapgen-metrics": "workspace:*",
     "@swooper/mapgen-viz": "workspace:*",
+    "json-schema-to-typescript": "^15.0.4",
     "typebox": "catalog:"
   },
   "devDependencies": {
     "@civ7/direct-control": "workspace:*",
-    "@civ7/plugin-files": "workspace:*",
     "@civ7/types": "workspace:*",
     "@swooper/mapgen-diagnostics": "workspace:*",
-    "json-schema-to-typescript": "^15.0.4",
     "type-fest": "^5.7.0"
   }
 }

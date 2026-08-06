@@ -189,6 +189,15 @@ once, and the old definition-owned runners and parser-only proof are gone. The
 complete affected Nx graph passes. Portable-definition work continues at the
 config/catalog authoring boundary; this receipt does not claim slice 1.1.
 
+**Authoring receipt:** the definition now exposes one closed pure `authoring`
+face for config admission, canonical serialization, and a finite pair of cold
+metadata target plans. The remaining scripts only select host paths, read and
+write source, apply plans, and roll back failed writes. One exact target-table
+proof replaces the displaced generated-output checks; package build/check, 517
+Swooper tests, the focused topology and JSDoc laws, and Knip pass. Moving those
+remaining host effects is held for the qualified Interactive app adapter, so
+this receipt advances but does not claim slice 1.1.
+
 #### 1.1.2 Civ7 Realization
 
 - Construct `apps/mods/map/swooper-physics` as one cold app definition with the
