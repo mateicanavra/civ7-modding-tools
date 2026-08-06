@@ -14,14 +14,14 @@
   "lane": "enforced",
   "forbids": "Swooper map artifact renderers or catalog commands acquiring reusable filesystem mutation authority",
   "why": "Swooper owns product-specific rendering while @civ7/plugin-files/generated-file-plan owns reusable path admission, currentness inspection, cleanup, and writes.",
-  "remediate": "Keep Swooper renderers pure and delegate plan inspection or application to @civ7/plugin-files/generated-file-plan.",
+  "remediate": "Keep the Swooper renderer pure and delegate materialization to @civ7/plugin-files/generated-file-plan from the app build entrypoint.",
   "message": "Swooper map artifact filesystem ownership drifted from the plugin-files boundary.",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
-        "apps/mods/map/swooper-physics/scripts/generate-map-artifacts.ts",
-        "apps/mods/map/swooper-physics/scripts/map-artifacts"
+        "apps/mods/map/swooper-physics/src/build.ts",
+        "apps/mods/map/swooper-physics/src/runtime/file-plan.ts"
       ]
     }
   ],
@@ -38,8 +38,8 @@
     "acquisition": {
       "kind": "check",
       "roots": [
-        "apps/mods/map/swooper-physics/scripts/generate-map-artifacts.ts",
-        "apps/mods/map/swooper-physics/scripts/map-artifacts"
+        "apps/mods/map/swooper-physics/src/build.ts",
+        "apps/mods/map/swooper-physics/src/runtime/file-plan.ts"
       ]
     }
   }

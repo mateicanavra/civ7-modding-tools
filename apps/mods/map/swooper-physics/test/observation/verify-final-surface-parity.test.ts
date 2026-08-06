@@ -24,7 +24,7 @@ import {
   loadFinalSurfaceParityEvidence,
   parseFinalSurfaceParityArgs,
   type StudioRunInGameClientFactory,
-} from "../../scripts/live/verify-final-surface-parity.js";
+} from "../live/verify-final-surface-parity.live.js";
 import {
   createStandardRecipeTestInitialSetup,
   TEST_GAME_SEED,

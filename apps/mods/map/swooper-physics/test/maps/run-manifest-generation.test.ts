@@ -17,11 +17,11 @@ import {
   admitStandardMapConfig,
   type StandardMapConfigEnvelope,
 } from "@swooper/swooper-physics/standard/map-config";
-import { parseSwooperRunManifestPathArg } from "../../scripts/generate-run-manifest";
+import { parseSwooperRunManifestPathArg } from "../../src/run-manifest";
 import {
   generateSwooperRunGeneratedModFromManifestPath,
   verifySwooperStandardRunManifest,
-} from "../../scripts/run-manifest-generator";
+} from "../../src/runtime/run-manifest";
 import { expectCiv7MapScriptCompatibility } from "../build/fixtures/civ7-map-script-compatibility";
 import { TEST_GAME_SEED, TEST_MAP_SEED, TEST_MAP_SIZE } from "../setup.js";
 

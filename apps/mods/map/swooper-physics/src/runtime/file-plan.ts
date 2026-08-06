@@ -1,4 +1,5 @@
 import type { GeneratedFilePlan } from "@civ7/plugin-files/generated-file-plan";
+import type { MapConfigId } from "@civ7/studio-contract";
 import {
   type RunCorrelation,
   STUDIO_RUN_MAP_ROW_ID,
@@ -21,6 +22,12 @@ export type SwooperRunGeneratedModPlanInput = Readonly<{
   seed: number;
 }>;
 
+/** One compiled Civ7 map script paired with the admitted config that produced it. */
+export type BundledSwooperMapScript = Readonly<{
+  configId: MapConfigId;
+  content: string;
+}>;
+
 function xmlEscape(value: string): string {
   return value
     .replace(/&/g, "&amp;")
@@ -40,13 +47,14 @@ function moduleLocalizationTag(field: "name" | "description"): string {
   return `LOC_MODULE_${SWOOPER_MAPS_MOD_DEFINITION.id.toUpperCase().replace(/[^A-Z0-9]+/g, "_")}_${suffix}`;
 }
 
-function renderMapEntryArtifact(config: ValidatedMapConfig): string {
+/** Renders one admitted catalog config as the virtual TypeScript entry compiled for Civ7. */
+export function renderSwooperCatalogMapSource(config: ValidatedMapConfig): string {
   const canonicalConfig = config.canonicalConfig;
   const configHash = canonicalMapConfigContentDigest(canonicalConfig);
   const envelopeHash = canonicalMapConfigDigest(canonicalConfig);
   return `/**
  * Generated from the Swooper catalog config ${config.fileName}.
- * Do not edit by hand; re-run \`nx run swooper-physics-mod:gen:maps\`.
+ * Do not edit by hand; rebuild the Swooper Physics mod application.
  */
 
 /// <reference types="@civ7/types" />
@@ -337,39 +345,74 @@ ${localizedModuleText}</Mod>
 export function buildSwooperCatalogModFilePlan(
   options: Readonly<{
     configs: readonly ValidatedMapConfig[];
+    mapScripts: readonly BundledSwooperMapScript[];
   }>
 ): GeneratedFilePlan {
-  const generatedMapFiles = options.configs.map((config) => ({
-    relativePath: `src/maps/generated/${config.canonicalConfig.id}.ts`,
-    content: renderMapEntryArtifact(config),
-  }));
+  const mapScriptsByConfigId = new Map<MapConfigId, string>();
+  for (const script of options.mapScripts) {
+    if (mapScriptsByConfigId.has(script.configId)) {
+      throw new Error(`Duplicate bundled map script for config: ${script.configId}`);
+    }
+    mapScriptsByConfigId.set(script.configId, script.content);
+  }
+
+  const configIds = new Set(options.configs.map((config) => config.canonicalConfig.id));
+  for (const configId of mapScriptsByConfigId.keys()) {
+    if (!configIds.has(configId)) {
+      throw new Error(`Bundled map script has no admitted catalog config: ${configId}`);
+    }
+  }
+
+  const generatedMapFiles = options.configs.map((config) => {
+    const configId = config.canonicalConfig.id;
+    const content = mapScriptsByConfigId.get(configId);
+    if (content === undefined) {
+      throw new Error(`Missing bundled map script for config: ${configId}`);
+    }
+    return {
+      relativePath: `maps/${configId}.js`,
+      content,
+    };
+  });
   return {
     exclusiveSets: [
       {
-        relativeDir: "src/maps/generated",
-        fileExtension: ".ts",
+        relativeDir: "maps",
+        fileExtension: ".js",
+      },
+      {
+        relativeDir: "config",
+        fileExtension: ".xml",
+      },
+      {
+        relativeDir: "data",
+        fileExtension: ".xml",
+      },
+      {
+        relativeDir: "text/en_us",
+        fileExtension: ".xml",
       },
     ],
     files: [
       ...generatedMapFiles,
       {
-        relativePath: "mod/config/config.xml",
+        relativePath: "config/config.xml",
         content: renderConfigXml(options.configs.map((config) => config.canonicalConfig)),
       },
       {
-        relativePath: `mod/${SWOOPER_MAPS_MOD_DEFINITION.id}.modinfo`,
+        relativePath: `${SWOOPER_MAPS_MOD_DEFINITION.id}.modinfo`,
         content: renderModInfo(options.configs.map((config) => config.canonicalConfig)),
       },
       {
-        relativePath: "mod/data/biome-hazards.xml",
+        relativePath: "data/biome-hazards.xml",
         content: renderBiomeHazardData(),
       },
       {
-        relativePath: "mod/text/en_us/MapText.xml",
+        relativePath: "text/en_us/MapText.xml",
         content: renderMapText(options.configs.map((config) => config.canonicalConfig)),
       },
       {
-        relativePath: "mod/text/en_us/ModuleText.xml",
+        relativePath: "text/en_us/ModuleText.xml",
         content: renderModuleText(),
       },
     ],

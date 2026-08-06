@@ -55,8 +55,11 @@
       ]
     },
     "apps/mods/map/swooper-physics": {
-      // Generated Civ7 map scripts are the deployable realization's executable entrypoints.
-      "entry": ["src/maps/generated/*.ts"]
+      // Nx invokes these cold app and uncached proof entrypoints. The build compiles
+      // virtual map sources that import the SDK, so no authored import can expose that
+      // runtime dependency to static analysis.
+      "entry": ["src/build.ts", "src/run-manifest.ts", "test/live/*.live.ts"],
+      "ignoreDependencies": ["@mateicanavra/civ7-sdk"]
     },
     "packages/civ7-adapter": {
       "ignoreUnresolved": ["^/base-standard/"],

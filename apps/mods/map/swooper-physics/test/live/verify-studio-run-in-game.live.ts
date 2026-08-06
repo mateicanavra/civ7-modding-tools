@@ -293,7 +293,7 @@ export function resolveSwooperMapScriptPaths(args: {
   if (!match) return undefined;
   const fileName = match[1]!;
   return {
-    localPath: resolve(args.repoRoot, "apps/mods/map/swooper-physics/mod/maps", fileName),
+    localPath: resolve(args.repoRoot, "apps/mods/map/swooper-physics/dist/mod/maps", fileName),
     deployedPath: resolve(args.modsDir, "mod-swooper-maps/maps", fileName),
   };
 }

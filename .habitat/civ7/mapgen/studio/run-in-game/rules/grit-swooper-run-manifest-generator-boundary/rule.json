@@ -14,14 +14,14 @@
   "lane": "enforced",
   "forbids": "Swooper Run in Game generation drifting from one manifest input and request-local generated-mod output",
   "why": "Packet 8 makes request generation manifest-only: the command accepts one manifest path, the port reads the shared private manifest contract, derives generated-mod from that manifest, and delegates file-plan application to @civ7/plugin-files.",
-  "remediate": "Keep generate-run-manifest.ts as the single-argument CLI shim and run-manifest-generator.ts as the manifest-path port that calls buildSwooperRunGeneratedModFilePlan and applyGeneratedFilePlan(plan, { outputRoot: generatedModRoot }).",
+  "remediate": "Keep src/run-manifest.ts as the single-argument CLI entrypoint and src/runtime/run-manifest.ts as the manifest-path port that calls buildSwooperRunGeneratedModFilePlan and applyGeneratedFilePlan(plan, { outputRoot: generatedModRoot }).",
   "message": "Swooper Run in Game manifest generator boundary drifted.",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
-        "apps/mods/map/swooper-physics/scripts/generate-run-manifest.ts",
-        "apps/mods/map/swooper-physics/scripts/run-manifest-generator.ts",
+        "apps/mods/map/swooper-physics/src/run-manifest.ts",
+        "apps/mods/map/swooper-physics/src/runtime/run-manifest.ts",
         "apps/mods/map/swooper-physics/project.json"
       ]
     }
@@ -39,8 +39,8 @@
     "acquisition": {
       "kind": "check",
       "roots": [
-        "apps/mods/map/swooper-physics/scripts/generate-run-manifest.ts",
-        "apps/mods/map/swooper-physics/scripts/run-manifest-generator.ts",
+        "apps/mods/map/swooper-physics/src/run-manifest.ts",
+        "apps/mods/map/swooper-physics/src/runtime/run-manifest.ts",
         "apps/mods/map/swooper-physics/project.json"
       ]
     }
