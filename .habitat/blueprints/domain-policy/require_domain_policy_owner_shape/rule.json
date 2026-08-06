@@ -25,10 +25,10 @@
       ]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain-policy/require_domain_policy_owner_shape/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

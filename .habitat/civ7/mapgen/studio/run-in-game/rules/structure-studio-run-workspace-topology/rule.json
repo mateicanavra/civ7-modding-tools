@@ -20,9 +20,6 @@
     {
       "kind": "exact-path",
       "patterns": ["packages/studio-run-workspace/src"]
-    },
-    {
-      "kind": "project-owner"
     }
   ],
   "supportFiles": {

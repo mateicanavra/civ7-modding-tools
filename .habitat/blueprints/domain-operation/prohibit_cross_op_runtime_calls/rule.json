@@ -14,7 +14,7 @@
   "lane": "enforced",
   "forbids": "domain op runtime entrypoints importing sibling op runtimes or importing the domain ops barrel",
   "why": "Domain ops stay atomic; step and stage composition owns cross-op orchestration.",
-  "remediate": null,
+  "remediate": "Move op composition into the owning step/stage or public domain surface.",
   "message": "Move op composition into the owning step/stage or public domain surface.",
   "pathCoverage": [
     {
@@ -22,10 +22,10 @@
       "patterns": ["plugins/mod/map/*/src/domain/*/modules/*/ops/*/index.ts"]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain-operation/prohibit_cross_op_runtime_calls/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

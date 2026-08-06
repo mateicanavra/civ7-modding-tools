@@ -26,10 +26,10 @@
       ]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain-operation-strategy/require_domain_operation_strategy_import_boundaries/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

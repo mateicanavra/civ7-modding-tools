@@ -18,12 +18,14 @@
   "message": "Studio Run in Game attribution report boundary drifted.",
   "pathCoverage": [
     {
-      "kind": "project-owner"
+      "kind": "exact-path",
+      "patterns": ["packages/studio-server/src", "apps/mapgen-studio/src/server"]
     }
   ],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-attribution-report-boundary/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

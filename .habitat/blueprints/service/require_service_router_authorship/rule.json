@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "habitat",
+  "ownerProject": "control-orpc",
   "lane": "enforced",
   "forbids": "a router leaf without one Effect or native handler authored from its configured module branch, a router leaf with multiple runtime exports, handler authorship in a module or root router aggregate, or a module router index without a direct registered semantic leaf",
   "why": "Handler authorship belongs in direct semantic router leaves. Module router indexes expose plain operation trees and the root router performs only aggregate service implementation, keeping behavior ownership visible and preventing hidden procedure registries.",
@@ -25,10 +25,10 @@
       ]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/service/require_service_router_authorship/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

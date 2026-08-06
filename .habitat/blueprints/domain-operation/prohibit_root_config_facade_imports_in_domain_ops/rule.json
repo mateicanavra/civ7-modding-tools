@@ -14,7 +14,7 @@
   "lane": "enforced",
   "forbids": "ops importing domain-root config facades via parent traversal or package aliases",
   "why": "Ops receive normalized config contracts; root/domain config facades are composition surfaces.",
-  "remediate": null,
+  "remediate": "Do not import domain-root config facades from ops.",
   "message": "Do not import domain-root config facades from ops.",
   "pathCoverage": [
     {
@@ -22,10 +22,10 @@
       "patterns": ["plugins/mod/map/*/src/domain/*/modules/*/ops/**/*.ts"]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

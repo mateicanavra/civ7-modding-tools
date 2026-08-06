@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "habitat",
+  "ownerProject": "control-orpc",
   "lane": "enforced",
   "forbids": "a service spine file without its direct generic anchor and required native portable type, a public implementation anchor other than configured service, a module wiring file with a second export, or a context file with runtime authority",
   "why": "Generic local anchors keep contract authoring, context, implementation, module descent, and router composition visible without product-qualified aliases or compatibility exports. One canonical Service alias over EffectImplementerInternal plus ServiceModule and EnhancedEffectRouter<Modules, ...> annotations keep large service declarations portable while preserving direct branch access and runtime lineage. The pinned Effect-oRPC implementation stage remains private; only its configured service stage is exported.",
@@ -31,10 +31,10 @@
       ]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/service/require_service_anchor_exports/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

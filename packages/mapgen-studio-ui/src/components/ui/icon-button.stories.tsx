@@ -37,6 +37,7 @@ function Demo({ children }: { children: ReactNode }) {
   );
 }
 
+/** Shows the ordinary, active, disabled, and linked icon-button states. */
 export const States: Story = {
   render: () => (
     <Demo>
@@ -56,6 +57,7 @@ export const States: Story = {
   ),
 };
 
+/** Shows deliberate warning and primary intent overrides on the shared icon button. */
 export const IntentOverrides: Story = {
   render: () => (
     <Demo>

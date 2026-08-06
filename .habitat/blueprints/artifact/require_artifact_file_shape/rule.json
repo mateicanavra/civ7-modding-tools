@@ -22,10 +22,10 @@
       "patterns": ["plugins/mod/map/*/src/domain/*/modules/*/artifacts/*.artifact.ts"]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/artifact/require_artifact_file_shape/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "habitat",
+  "ownerProject": "civ7-workspace",
   "lane": "enforced",
   "forbids": "a CLI application shell without its package, Nx project, role-named development composition, production launcher, and shell behavior-test spine or with loose children outside that finite topology",
   "why": "A CLI shell is an application realization: it composes independently owned command plugins into one executable process. Closing its root, binary, and test spines prevents topic commands, reusable capabilities, fake library surfaces, and duplicate shell registries from accumulating in the application container.",

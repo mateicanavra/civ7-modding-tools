@@ -22,10 +22,10 @@
       "patterns": ["plugins/mod/map/*/src/domain/*/modules/*/ops/*/rules/*.ts"]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain-operation/require_domain_operation_rule_import_boundaries/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

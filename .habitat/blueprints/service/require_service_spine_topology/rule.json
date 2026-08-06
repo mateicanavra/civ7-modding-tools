@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "habitat",
+  "ownerProject": "control-orpc",
   "lane": "enforced",
   "forbids": "a service package, public source root, service spine, module, capability directory, model kind, or proof category outside the closed generic service topology",
   "why": "Every service is one constructible package with a required contract-first spine and finite optional interiors. Closing each container prevents host adapters, provider construction, runtime surfaces, product controllers, loose helpers, and source-owned proof from becoming accidental service authority.",

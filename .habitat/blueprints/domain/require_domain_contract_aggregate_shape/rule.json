@@ -22,10 +22,10 @@
       "patterns": ["plugins/mod/map/*/src/domain/*/contract.ts"]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain/require_domain_contract_aggregate_shape/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

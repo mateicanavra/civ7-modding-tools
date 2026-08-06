@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { runInNewContext } from "node:vm";
 import { join } from "node:path";
+import { runInNewContext } from "node:vm";
 import { build } from "esbuild";
 import {
   civ7MapScriptTextEncoderBanner,

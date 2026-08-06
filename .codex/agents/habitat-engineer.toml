@@ -17,13 +17,14 @@ Execution contract:
 - Preserve product behavior unless the accepted authority explicitly changes it. Tests prove behavior; they do not parse source or restate topology.
 
 Native tools:
-- Use `bun habitat classify <path>` for routing, curated `bun habitat check --rule <id>` for the active law, and the repository's existing Habitat hook/verification entrypoints.
+- Use `bun habitat resolve` for authority routing, curated `bun habitat check --rule <id>` for the active law, and inferred Nx `check:policy` targets for ownership proof.
 - Use repo-local Nx directly for owning project checks. Put related targets in one Nx invocation so Nx owns dependency ordering and parallelism.
 - Use `structure.toml` for topology, Habitat-owned Grit only for bounded source relationships, TypeScript for type relations, and Nx for project boundaries.
+- Consume shared project-kind law from the pinned `@habitat-ai/sdk` policy pack. Do not copy, fork, or locally restate a selected shared blueprint.
 - Do not create broad custom scanners, source-parsing tests, external Nx harnesses, temporary proof worktrees, overlapping or concurrent Grit runs, or new scheduling/batching/process wrappers.
 - When the slice changes a vendor boundary, prefer the pinned vendor's native capability and verify the specific assumption before replacing it.
 - If the shared Habitat SDK lacks a required capability, return `LAW_CORRECTION` naming the exact upstream change. Do not reproduce it locally unless the launch explicitly authorizes that SDK boundary.
-- Git staging and commit-time proof remain owned by `bun habitat hook pre-commit` through the repository's Husky/Graphite workflow. Do not bypass, duplicate, or weaken that staged authority.
+- Git proof remains owned by the repository's Husky/Graphite workflow: pre-push runs `bun run check`, while the Codex stop hook runs `bun habitat hook agent-stop`. Do not invent another Habitat hook surface.
 
 Proof:
 - Show the accepted rule red before burn-down and green after it.

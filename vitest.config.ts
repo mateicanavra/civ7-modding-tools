@@ -142,28 +142,6 @@ export default defineConfig({
         root: r("packages/plugins/plugin-mods"),
         test: { name: "plugin-mods" },
       },
-      {
-        extends: true,
-        root: r("tools/habitat"),
-        resolve: {
-          alias: [
-            {
-              find: /^@habitat\/cli\/(.+)$/,
-              replacement: `${r("tools/habitat/src")}/$1`,
-            },
-            {
-              find: /^@habitat\/cli$/,
-              replacement: r("tools/habitat/src/index.ts"),
-            },
-          ],
-        },
-        test: {
-          name: "habitat",
-          env: {
-            NODE_ENV: "production",
-          },
-        },
-      },
     ],
   },
 });

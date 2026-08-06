@@ -34,6 +34,7 @@ function Demo({ children }: { children: ReactNode }) {
   );
 }
 
+/** Shows the warning, neutral, and interactive badge vocabulary together. */
 export const Variants: Story = {
   render: () => (
     <Demo>
@@ -46,6 +47,7 @@ export const Variants: Story = {
   ),
 };
 
+/** Verifies that interactive badges delegate semantics to a real child button. */
 export const Interactive: Story = {
   render: () => (
     <Demo>

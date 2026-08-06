@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "habitat",
+  "ownerProject": "control-orpc",
   "lane": "enforced",
   "forbids": "a root contract outside the shared base lineage, a module contract index without a direct semantic leaf, a module-named mega-leaf that preserves the aggregate behind another file, a contract leaf whose sole export does not match its filename, exported parallel schema authority, raw TypeBox procedure schemas, imported error-map authority, or TypeBox capabilities that cannot project through the service boundary",
   "why": "The service contract is one aggregate over module-owned semantic leaves. Each leaf owns one procedure or coherent semantic group plus its private request, response, envelope, and helper schemas; the module name belongs only to the aggregate and cannot masquerade as a leaf. Genuinely reusable DTO schemas move to model/dto, while local declarations cross the oRPC boundary through the pinned Standard Schema bridge. TypeScript and Knip own unused private declarations without a Habitat-only schema registry.",
@@ -28,10 +28,10 @@
       ]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/service/require_service_contract_authority/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

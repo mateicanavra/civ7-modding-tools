@@ -27,14 +27,12 @@
         "apps/mapgen-studio/src/server/runInGame/runtimeObservation.ts",
         "apps/mapgen-studio/src/server/daemon/daemon.ts"
       ]
-    },
-    {
-      "kind": "project-owner"
     }
   ],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-direct-control-observation-boundary/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

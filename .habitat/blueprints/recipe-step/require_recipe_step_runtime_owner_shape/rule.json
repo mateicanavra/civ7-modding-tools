@@ -22,10 +22,10 @@
       "patterns": ["plugins/mod/map/*/src/recipes/*/stages/**/steps/*/step.ts"]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/recipe-step/require_recipe_step_runtime_owner_shape/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

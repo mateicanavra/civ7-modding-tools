@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "habitat",
+  "ownerProject": "civ7-workspace",
   "lane": "enforced",
   "forbids": "CLI topic command modules without a named concrete default command class",
   "why": "oclif discovers every TypeScript module in a topic plugin command tree and derives its canonical command id from its relative path. Each discovered module must therefore own exactly one syntactic runtime command authority whose class name remains visible in stack traces and diagnostics.",
@@ -22,10 +22,10 @@
       "patterns": ["plugins/cli/topics/*/src/commands/**/*.ts"]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/cli-topic-plugin/require_cli_command_module_identity/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

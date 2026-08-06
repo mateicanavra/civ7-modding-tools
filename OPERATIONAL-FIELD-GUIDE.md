@@ -9,10 +9,17 @@ Start in a clean, correctly targeted worktree:
 ```bash
 git status --short --branch
 gt log short
-bun habitat classify <path-or-diff>
+bunx nx show projects
 ```
 
-Use the targets Habitat reports with `nx run <project>:<target>`. Root `bun` scripts are reserved for repository-wide workflows and explicit operational commands. Generated `dist/`, `mod/`, map output, lockfiles, and `.civ7/outputs` are evidence surfaces: regenerate them rather than editing them.
+Resolve the owning project with Nx, inspect it with
+`bunx nx show project <project> --json`, and run its concrete targets with
+`bunx nx run <project>:<target>`. Habitat projects its policy targets into that
+same graph; `bun habitat check --owner <project>` is the focused diagnostic
+surface. Root `bun` scripts are reserved for repository-wide workflows and
+explicit operational commands. Generated `dist/`, `mod/`, map output,
+lockfiles, and `.civ7/outputs` are evidence surfaces: regenerate them rather
+than editing them.
 
 Environment setup runs the same bootstrap expected in a fully provisioned clean worktree: initialize the resources submodule and pinned read-only Effect source reference, install the frozen Bun graph and Husky hooks, build the workspace, then run its static checks. It has no Codex-specific prebuild and does not copy ignored files because this repository has no `.worktreeinclude`.
 
@@ -22,7 +29,7 @@ The Effect checkout at `.repos/effect` is reference source, not a build input. `
 
 | Action | Prerequisites | Side effect and proof | Recovery |
 | --- | --- | --- | --- |
-| Rebuild workspace | Bun and dependencies | Rebuilds all Nx projects. Successful Nx exit is the proof boundary. | Read the first failed Nx target; run its reported project target after classification. |
+| Rebuild workspace | Bun and dependencies | Rebuilds all Nx projects. Successful Nx exit is the proof boundary. | Read the first failed Nx target, inspect its project metadata, and rerun that concrete target. |
 | Sync resources snapshot | Git access to the submodule | Initializes or updates `.civ7/outputs/resources`; no resource content is changed. | Resolve a local directory that blocks checkout, then rerun `bun run resources:init`. |
 | Inspect resources snapshot | Initialized submodule | Reports initialization, dirtiness, lock, and gitlink state; read-only. | Follow the emitted command, usually `git -C .civ7/outputs/resources status` or the explicit publish path. |
 | Refresh game resources (macOS) | Local Civ7 data and initialized resources | Zips then unzips game data into the resource submodule. A dirty submodule is expected evidence, not publication. | Check `bun run resources:status`; inspect the submodule diff before publishing. |
@@ -83,7 +90,7 @@ Routine `bun run lint`, `bun run test`, `bun run check`, `bun run format`, broad
 ## Recovery Checklist
 
 1. Inspect worktree and Graphite state: `git status --short --branch`, then `gt log short`.
-2. Re-run `bun habitat classify <path-or-diff>` and use only reported project targets.
+2. Inspect the owner with `bunx nx show project <project> --json`, then rerun its concrete Nx or projected Habitat target.
 3. For resources, use `bun run resources:status`; do not hand-edit the submodule or remove a lock speculatively.
 4. For Studio, inspect the single Nx action terminal and stop that owning process before retrying.
 5. For a failed runtime probe, validate Civ7/Tuner availability before retrying; no environment action starts or changes a game.

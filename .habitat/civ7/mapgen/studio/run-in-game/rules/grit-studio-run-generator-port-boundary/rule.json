@@ -24,14 +24,12 @@
         "packages/studio-server/src/workflows/RunInGameWorkflow.ts",
         "apps/mapgen-studio/src/server/studio/engines.ts"
       ]
-    },
-    {
-      "kind": "project-owner"
     }
   ],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-generator-port-boundary/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

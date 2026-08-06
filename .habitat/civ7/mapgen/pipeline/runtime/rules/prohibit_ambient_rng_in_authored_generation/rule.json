@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_ambient_rng_in_authored_generation",
+  "title": "Prohibit Ambient RNG In Authored Generation",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/runtime",
+    "blueprint": "_self",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "swooper-physics",
+  "lane": "enforced",
+  "forbids": "map-domain or recipe source acquiring ambient randomness, calling Civ7 generators outside its declared step engine capability, or importing MapGen's private RNG implementation",
+  "why": "Authored generation is deterministic dataflow. Randomness comes from explicit seed-derived operation inputs, while sanctioned Civ7 generators are reachable only through the step engine capability selected by the step contract.",
+  "remediate": "Derive randomness from the operation's admitted seed, invoke an authorized Civ7 generator through deps.engine, and depend on public MapGen authoring contracts rather than private RNG implementation modules.",
+  "message": "Authored map generation must keep randomness and Civ7 generator access explicit.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["plugins/mod/map/*/src/domain/**/*.ts", "plugins/mod/map/*/src/recipes/**/*.ts"]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_ambient_rng_in_authored_generation/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_ambient_rng_in_authored_generation/pattern.md"
+    },
+    "patternName": "prohibit_ambient_rng_in_authored_generation",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["plugins/mod/map"]
+    }
+  }
+}

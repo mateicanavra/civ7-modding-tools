@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "habitat",
+  "ownerProject": "control-orpc",
   "lane": "enforced",
   "forbids": "standalone service production source that imports, re-exports, dynamically imports, requires, or resolves a relative module source containing an exact test path segment",
   "why": "Package-root proof may consume production behavior, but production source must not acquire proof fixtures, harnesses, support, or suites.",
@@ -22,10 +22,10 @@
       "patterns": ["services/*/src/**/*.ts"]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/service/require_service_proof_isolation/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

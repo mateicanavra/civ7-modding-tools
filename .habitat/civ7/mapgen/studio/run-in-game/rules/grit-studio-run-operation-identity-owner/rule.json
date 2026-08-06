@@ -25,14 +25,12 @@
         "packages/studio-server/src/operationRuntime/StudioOperationRuntime.ts",
         "packages/studio-server/src/operationRuntime/operationRecords.ts"
       ]
-    },
-    {
-      "kind": "project-owner"
     }
   ],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-operation-identity-owner/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

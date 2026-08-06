@@ -28,6 +28,7 @@
     },
     "sync": {
       "command": "bun run scripts/sync-resources.ts",
+      "dependsOn": ["^build"],
       "cache": true,
       "outputs": ["{projectRoot}/public/civ7-official/**"],
       "options": {

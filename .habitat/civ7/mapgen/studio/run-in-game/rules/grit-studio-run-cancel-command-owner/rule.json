@@ -26,14 +26,12 @@
         "packages/studio-server/src/operationRuntime/StudioOperationRuntime.ts",
         "packages/studio-server/src/operationRuntime/registry.ts"
       ]
-    },
-    {
-      "kind": "project-owner"
     }
   ],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-cancel-command-owner/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

@@ -14,7 +14,7 @@
   "lane": "enforced",
   "forbids": "stage code importing another stage's steps implementation",
   "why": "Stages compose through recipe/domain contracts, not sibling step internals.",
-  "remediate": null,
+  "remediate": "Do not import sibling stage steps; promote a contract or domain surface.",
   "message": "Do not import sibling stage steps; promote a contract or domain surface.",
   "pathCoverage": [
     {
@@ -22,10 +22,10 @@
       "patterns": ["plugins/mod/map/*/src/recipes/*/stages/**/*.ts"]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

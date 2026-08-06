@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { SegmentedControl, type SegmentedControlProps } from "@swooper/mapgen-studio-ui";
 import { Activity, Hexagon, Map as MapIcon, Workflow } from "lucide-react";
 
+/** Registers the segmented-control stories used to inspect stage and layer view selectors. */
 const meta = {
   title: "composites/SegmentedControl",
   component: SegmentedControl,

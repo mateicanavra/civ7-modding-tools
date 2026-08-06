@@ -14,7 +14,7 @@
   "lane": "enforced",
   "forbids": "domain ops importing engine runtime entrypoints as values",
   "why": "Domain ops stay portable domain logic; engine runtime entrypoints belong behind approved domain/runtime surfaces.",
-  "remediate": null,
+  "remediate": "Do not import engine runtime entrypoints from domain ops.",
   "message": "Do not import engine runtime entrypoints from domain ops.",
   "pathCoverage": [
     {
@@ -22,10 +22,10 @@
       "patterns": ["plugins/mod/map/*/src/domain/*/modules/*/ops/**/*.ts"]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain-operation/block_engine_runtime_imports_from_domain_ops/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

@@ -10,22 +10,34 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "habitat",
+  "ownerProject": "civ7-adapter",
   "lane": "enforced",
   "forbids": "runtime /base-standard/ imports outside @civ7/adapter",
   "why": "The adapter is the sole owner of Civ7 engine imports; provenance strings remain covered by wrapped-rule ownership until H6 adjudication.",
-  "remediate": null,
+  "remediate": "Move /base-standard/ runtime imports into @civ7/adapter.",
   "message": "Move /base-standard/ runtime imports into @civ7/adapter.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["packages/**/*.ts", "plugins/cli/topics/*/src/**/*.ts"]
+      "patterns": [
+        "packages/*/*.ts",
+        "packages/*/generated/**/*.ts",
+        "packages/*/scripts/*.ts",
+        "packages/*/src/**/*.ts",
+        "packages/*/test/**/*.ts",
+        "packages/*/tools/**/*.ts",
+        "packages/plugins/*/*.ts",
+        "packages/plugins/*/scripts/**/*.ts",
+        "packages/plugins/*/src/**/*.ts",
+        "packages/plugins/*/test/**/*.ts",
+        "plugins/cli/topics/*/src/**/*.ts"
+      ]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/platform/adapter/rules/enforce_adapter_only_base_standard_imports/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

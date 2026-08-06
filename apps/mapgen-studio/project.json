@@ -104,6 +104,16 @@
       "options": {
         "cwd": "apps/mapgen-studio"
       }
+    },
+    "verify": {
+      "command": "bun scripts/verify-browser-bundle.mjs",
+      "dependsOn": ["build:vite"],
+      "cache": true,
+      "inputs": ["default", "{projectRoot}/dist/**"],
+      "outputs": [],
+      "options": {
+        "cwd": "apps/mapgen-studio"
+      }
     }
   }
 }

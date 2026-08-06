@@ -14,7 +14,7 @@
   "lane": "enforced",
   "forbids": "empty object defaults in schema definitions",
   "why": "Object-level empty defaults hide absent user configuration; property defaults are explicit.",
-  "remediate": null,
+  "remediate": "Do not use empty object defaults in schema definitions; rely on property defaults.",
   "message": "Do not use empty object defaults in schema definitions; rely on property defaults.",
   "pathCoverage": [
     {
@@ -26,10 +26,10 @@
       ]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_empty_object_defaults_in_contract_schemas/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

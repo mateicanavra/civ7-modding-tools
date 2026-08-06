@@ -58,37 +58,34 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
   commands, use `nx <args>` so the repo-local pinned Nx package is used through
   standard Nx local override behavior. An Nx-owned Habitat target must not start
   another Nx scheduler; project graph-backed work belongs in `dependsOn`.
-  Direct diagnostic Habitat commands may delegate an explicitly selected
-  `runner:nx` rule through the same root entrypoint. Package scripts may still
-  call non-Nx local tools such as `biome` and `grit` through the script PATH.
+  Package scripts may still call non-Nx local tools such as `biome` through the
+  script PATH.
 - Put all output-materializing targets for one proof in one Nx invocation so
   Nx owns ordering, deduplication, caching, and parallelism. Do not manufacture
   parallel graphs or temporary worktrees for routine proof; compose the task
   graph instead.
 - Use direct Habitat CLI commands as `bun habitat <subcommand>`. Graph-owned
   Habitat execution is `nx run-many -t check:policy`.
-- Git hooks are Husky delegators into `bun habitat hook <name>`; hooks reduce local friction, while CI remains authoritative. Pre-commit may restage formatter-touched files only. Resource publishing is an explicit command path documented in `docs/process/resources-submodule.md`, not a hidden default hook side effect.
+- Habitat is consumed only through the pinned `@habitat-ai/cli` development
+  dependency. Its exact SDK dependency owns shared blueprint law; do not copy
+  shared packets into this repository. Local `.habitat` authority is limited
+  to qualified Civ7 Grit and structure rules described in
+  `.habitat/AUTHORITY.md`.
+- Husky pre-push runs the repository-owned `bun run check` graph. The Codex
+  stop hook delegates only to `bun habitat hook agent-stop`; Habitat does not
+  own a pre-commit or pre-push command surface. Resource publishing is an
+  explicit command path documented in `docs/process/resources-submodule.md`,
+  not a hidden hook side effect.
 - Project-plane import boundaries are enforced by
-  `nx run habitat:check:boundaries` through the registered
-  `enforce_workspace_import_boundaries` rule. See
+  `nx run civ7-workspace:check:boundaries`. See
   `docs/projects/habitat-harness/taxonomy.md` before changing `kind:*` tags or
   boundary constraints.
-- For unfamiliar structure, start with `bun habitat classify <path-or-diff>`
-  before editing. Treat emitted project targets as runnable only when classify
-  reports them from resolved Nx metadata; unavailable targets are routing facts,
-  not commands to run. For supported new uniform projects, scaffold with
-  `nx g @habitat/cli:project <name> --kind=plugin`;
-  for new Grit-backed rules, use
-  `nx g @habitat/cli:pattern <rule-id>` only to create a
-  non-enforcing candidate draft. Candidate output is not a registered Habitat
-  rule, baseline, hook scope, or current-tree proof. Registered enforcement
-  is authored separately through the location-independent `rule.json`
-  authority and requires a baseline contract, current-tree proof, executable
-  injected-fixture strategy, false-positive model, and explicit hook-scope
-  decision. Embedded Markdown examples are documentation, not fixture proof.
-  Unsupported kinds are intentionally refused until their owning domain
-  defines a uniform generator shape. After authoring, run the targets reported
-  by `habitat classify` plus the nearest package-local checks.
+- For unfamiliar structure, inspect `habitat.toml`, run `bun habitat resolve`,
+  and inspect the owning Nx project's inferred `check:policy` target. The
+  public release does not expose project or pattern scaffold generators;
+  unsupported kinds remain refused rather than approximated locally. After
+  authoring a qualified local rule, run its focused Habitat target plus the
+  nearest package-local checks.
 - Use package scripts (`bun run --cwd <path> <script>`) for leaf-local debugging
   when dependency freshness is already established. Use root Nx-orchestrated
   scripts for proof.

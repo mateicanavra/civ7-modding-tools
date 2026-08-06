@@ -22,27 +22,20 @@ them. Each accepted kind closes its own proof topology around disjoint
 confidence axes; domain-qualified kinds such as MapGen keep their stronger
 domain-shaped testing grammar.
 
-**Current container:** Ground, at the shared-kind construction gate. The Civ7
-product, system, outcome, and actor-role-outcome models and their exact corpora
-are sealed in the descent parent, along with the Explore Live Map oracle,
-Studio design synchronization, physical wind and pressure
-reconstruction, and seed-stateless latitude fallback. The final workstream now
-absorbs the historical phase train into five product-led containers: Ground,
-Core Platform, Dacia Product, Estate Reconciliation, and Platform Seal. Core
-Platform contains Swooper construction, Interactive construction, and one joint
-seal.
+**Current container:** Core Platform 1.1, constructing the complete Swooper
+definition and Civ7 realization chain. Ground, the Civ7 product, system,
+outcome, and actor-role-outcome models, their exact corpora, the Explore Live
+Map oracle, Studio design synchronization, physical wind and pressure
+reconstruction, and seed-stateless latitude fallback are sealed inputs.
 
-Habitat source, package, blueprint, and release ownership lives upstream and is
-accepted as external authority. Ground proved the release provenance and
-initializer idempotence of `@habitat-ai/cli@0.2.3`, truthful empty-catalog
-resolution, and unsupported-generator zero-write refusal. Its exact
-`@habitat-ai/blueprints@0.2.1` peer contains an empty blueprint set and the CLI
-exposes no generic project-kind generator, so the shared kinds are not
-constructible. [The exact receipt](../civ7-capability-realization/GROUND-RECEIPT.md)
-refuses source movement and any local approximation. Ground resumes only after
-a complete upstream handoff earns a passing exit receipt. Its first admitted
-structural migration remains the Core Platform parent. Swooper is the first
-construction slice: admitted config -> generated entrypoint/digests ->
+Habitat source, package, blueprint, and release ownership lives upstream.
+`@habitat-ai/cli@0.5.1` and its exact `@habitat-ai/sdk@0.5.1` dependency supply
+the selected `app@1`, `package@1`, `plugin@1`, `plugin-nx@1`, `provider@1`, and
+`resource@1` laws. The local Habitat producer and bootstrap architecture are
+deleted. Civ7 keeps only its instances, qualified overlays, policy, adapters,
+and compatibility rules. `service@1` is intentionally unselected.
+
+Swooper now descends through admitted config -> generated entrypoint/digests ->
 materialized tree -> installation receipt -> loader/runtime evidence ->
 final-surface parity. The adapter split is supporting work inside that slice,
 not an isolated migration. Interactive construction follows inside the same
@@ -64,10 +57,10 @@ cold filesystem effects, while CLI topics project their bound capabilities.
 MapGen run records, cancellation, retention, and events remain scoped
 MapGen-runs service state rather than a manufactured resource.
 
-**Gradient:** qualified upstream Habitat handoff -> passing Ground exit receipt
--> Core Platform (Swooper -> Interactive -> joint seal) -> Dacia Product ->
-Estate Reconciliation -> Platform Seal. The Tuner protocol remains private to
-its sole provider unless another independent consumer earns a public package.
+**Gradient:** Swooper definition -> Civ7 realization -> Interactive construction
+-> joint Core Platform seal -> Dacia Product -> Estate Reconciliation ->
+Platform Seal. The Tuner protocol remains private to its sole provider unless
+another independent consumer earns a public package.
 
 **Detailed frame:** [Civ7 Capability Realization](../civ7-capability-realization/FRAME.md).
 
@@ -112,6 +105,14 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-08-05 - Ground Closed
+
+The Habitat 0.5.1 handoff superseded the earlier shared-kind refusal. The exact
+consumer install, initializer idempotence, six shared kinds, unsupported-service
+refusal, local compatibility corpus, and ordinary Nx graph pass. The local
+producer is gone, so focus moved to Swooper as the first complete capability
+construction chain.
 
 ### 2026-07-31 - Final Platform Descent Prepared
 

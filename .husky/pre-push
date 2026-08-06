@@ -1,1 +1,3 @@
-bun habitat hook pre-push
+# Nested Git work must discover its own repository.
+unset $(git rev-parse --local-env-vars)
+bun run check

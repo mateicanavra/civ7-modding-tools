@@ -14,7 +14,7 @@
   "lane": "enforced",
   "forbids": "ops importing adapters or receiving MapSetup/MapContext authority",
   "why": "Domain ops stay pure and composable by consuming explicit projected values; setup and runtime context remain outside domain implementation.",
-  "remediate": null,
+  "remediate": "Remove setup, adapter, or runtime-context authority from domain ops; project only the explicit values the operation requires.",
   "message": "Remove setup, adapter, or runtime-context authority from domain ops; project only the explicit values the operation requires.",
   "pathCoverage": [
     {
@@ -22,10 +22,10 @@
       "patterns": ["plugins/mod/map/*/src/domain/*/modules/*/ops/**/*.ts"]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

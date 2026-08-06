@@ -22,10 +22,10 @@
       "patterns": ["plugins/mod/map/*/src/recipes/**/recipe.ts"]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

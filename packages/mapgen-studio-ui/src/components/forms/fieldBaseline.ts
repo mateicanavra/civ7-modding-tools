@@ -20,4 +20,5 @@ export type FieldBaseline = Readonly<{
   value: unknown;
 }>;
 
+/** Carries the loaded field value used to render drift and restore one field. */
 export const FieldBaselineContext = createContext<FieldBaseline | null>(null);

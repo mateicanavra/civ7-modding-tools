@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "habitat",
+  "ownerProject": "control-orpc",
   "lane": "enforced",
   "forbids": "a Node or Bun module-loading edge from a service context, contract, schema, DTO, error, policy, or port declaration",
   "why": "Service boundary declarations must remain portable across in-process, host, and transport compositions. Concrete platform acquisition belongs at a qualified host composition root, not in service vocabulary.",
@@ -29,10 +29,10 @@
       ]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/service/require_service_boundary_platform_independence/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

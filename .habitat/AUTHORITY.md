@@ -1,140 +1,64 @@
-# Habitat Authority Contract
+# Habitat Consumer Authority
 
-Status: active authority contract with provisional physical hierarchy
+Status: active
 
-## What This Establishes
+## Authority Order
 
-Use `.habitat/.active/frames/FRAME.md` as the current living lens and sole
-canonical source-order router. Apply its complete order rather than rebuilding
-one here. This file supplies the durable contract at the rank assigned there;
-it does not define a second local order.
+Habitat is installed development tooling. The selected `@habitat-ai/sdk`
+policy pack owns the shared `app@1`, `package@1`, `plugin@1`, `plugin-nx@1`,
+`provider@1`, and `resource@1` laws. This repository does not copy, fork, or
+reimplement those blueprints.
 
-Use `.habitat/.active/frames/DOMINO-FRAME.md` as the operating specialization
-for choosing, reviewing, and carrying authority-tree dominoes across Graphite
-branches and agent handoffs. This file defines the durable authority contract
-that those frames apply to the current repository tree.
+Repository-local authority is limited to Civ7 product instances, qualified
+overlays, adapters, policy, and rules whose meaning cannot be shared without
+losing the Civ7 domain. Local rules use the released compatibility face only:
 
-`.habitat` is the durable repository-local source of truth for structural enforcement intent. Other files may execute, bridge, cache, generate, or test that intent, but they do not define it independently.
+- `pattern.md` for Grit source relationships;
+- `structure.toml` for closed filesystem shape;
+- `baseline.json` for an empty admitted finding set;
+- `rule.json` for identity, owner, exact coverage, remediation, and runner.
 
-The semantic-ratchet addendum generalizes the method for converting architecture
-intuition into Habitat authority, proof, guardrails, and overwatch. The active
-blueprint descent frame specializes that method and controls blueprint-ratchet
-closure. The future architecture reference is not yet a replacement for current
-canonical system docs or accepted MapGen project baselines; it is draft target
-direction that Habitat work should validate and make executable through bounded
-authority slices.
+Executable checks, builds, tests, formatting, graph boundaries, and dead-code
+proof belong to their Nx project owners. They are not Habitat runner kinds.
 
-The current physical hierarchy has four packet lanes:
+## Tree
 
 ```text
-.habitat/blueprints/<blueprint>/<packet>/
-.habitat/<niche>/_blueprints/<candidate>/<packet>/
-.habitat/<niche>/rules/<packet>/
-.habitat/<niche>/_remainder/<packet>/
-.habitat/<niche>/<child-niche>/...
+.habitat/
+  blueprints/<qualified-kind>/<rule>/
+  civ7/<product-niche>/<rule-lane>/<rule>/
+  docs/<qualified-doc-niche>/<rule-lane>/<rule>/
+  index.json
 ```
 
-Top-level `blueprints/` is affirmed constructible kind authority. Niches are
-authored jurisdictions and may nest into child niches. Niche-local
-`_blueprints/` is candidate blueprint-shaped inventory that has not yet been
-affirmed as blueprint authority. The `rules` lane is transitional inventory for
-the niche itself. The `_remainder` lane is transitional visual debt for packets
-that a slice has reviewed and sorted but cannot yet move to a final owner. It
-is not a niche, blueprint, capability, or final ontology plane;
-sorted-but-deferred packets must not stay in `rules/` as if they were
-intentional current-context authority. Categories and operation kinds are
-manifest placement facts, not physical grouping directories.
+`blueprints/` contains generic laws that are still local because the shared
+pack does not select their kind. `civ7/` and `docs/` contain qualified product
+law. Physical placement does not replace the rule's stable `id`.
 
-Execution mechanics stay in Habitat Toolkit source under `tools/habitat`. External tools such as Nx, Biome, Grit, Husky, CI, shell scripts, and package scripts are invocation mechanisms whose structural meaning must trace back to this tree.
+There is no local Habitat implementation, script runner, file-layer runner,
+Nx runner, execution-support bridge, or active Habitat work backlog.
 
-Temporary execution support that cannot yet move into Toolkit source lives under
-`.habitat/_support/execution/`. That directory is a bridge, not a niche,
-blueprint, category, operation kind, or authored policy root.
+## Admission
 
-## Already True
+1. Prefer the selected shared blueprint whenever it expresses the kind.
+2. Add a local law only when its owner, exact subject, positive invariant, and
+   counterfactual remediation are clear.
+3. Keep structures closed. Required members define the spine; allowed members
+   are explicit exceptions.
+4. Acquire subjects from exact roots. Do not broad-scan the repository and
+   recover membership with filename guesses.
+5. Route executable or behavioral proof to Nx, TypeScript, tests, or the
+   product runtime instead of manufacturing another Habitat runner.
+6. Retire a local rule when the type system, shared pack, product model, or
+   qualified upstream law makes it redundant.
 
-- Collected packets live under top-level affirmed `blueprints/`, niche-local
-  `_blueprints/` candidate paths, or niche/context `rules` inventory paths.
-- Niche-wide authority no longer uses `_self` as a physical blueprint path.
-  Existing `_self` placement facts remain transitional manifest inventory only.
-- Rule manifests are discovered at `.habitat/**/rule.json`.
-- Rule identity is manifest-authored as `id`; physical path is not identity.
-- Current placement is manifest-authored as inventory metadata. It records
-  where the rule belongs now without freezing the final ontology or requiring
-  the manifest to live at that path forever.
-- Runner files and baselines are explicit manifest references, even when they
-  are currently sibling role files.
-- Pattern, baseline, Habitat script, and provisional operation files are
-  co-located with their packets under generic role filenames.
-- Transitional shared execution helpers are centralized under `.habitat/_support/execution/` rather than packet authoring sites.
-- The Toolkit rule registry owner-root index lives at `.habitat/index.json` as root registry metadata, not as an authority packet.
-- The current tree has zero `triage` packets; the kind remains reserved for future unadmitted evidence only.
+## Operation
 
-## Authority Rules
+- Resolve authority: `bun habitat resolve`
+- Check all admitted law: `bun habitat check`
+- Check through Nx ownership: `bunx nx run <project>:check:policy`
+- Agent stop gate: `bun habitat hook agent-stop`
 
-1. A structural check is admitted into the current inventory only by a
-   `rule.json` manifest with stable identity, current placement, and explicit
-   runner/support file references.
-2. A source-pattern rule is authored as a `grit` runner manifest pointing at
-   its `pattern.md` file.
-3. Baseline/current-tree evidence is accepted only when referenced from the
-   owning rule manifest.
-4. A command-backed check is accepted only when its manifest points at a
-   read-only `check.{sh,mjs,ts}` script.
-5. Current placement should match the best known niche, owner, category, and
-   operation kind in `rule.json`, but moving the manifest is an inventory
-   operation, not an identity change.
-6. Habitat-owned fix/generate/migrate operations require explicit operation identity and must not be registered as read-only checks unless they are genuinely read-only.
-7. `triage` packets are excluded from default execution until admitted, split, renamed, or removed.
-8. No new loose lint, validation, topology, or pattern script may be introduced as authored policy without Habitat authority-tree identity.
-
-## Current Niches
-
-| Path | Role |
-| --- | --- |
-| `global/workspace/**` | Whole-workspace hygiene, boundaries, protected surfaces, and repo structure. |
-| `docs/**` | Documentation content, site, publication, and maintenance authority. |
-| `habitat/toolkit/**` | Habitat Toolkit self-authority, service shape, provider boundaries, registry bridge, and legacy compatibility packets. |
-| `civ7/platform/**` | Civ7 adapter, control, game UI, and oRPC integration surfaces. |
-| `civ7/resources/**` | Official-resource-derived generated projections and protected resource surfaces. |
-| `civ7/mod-sdk/**` | Civ7 mod SDK authoring API and explicit runtime-bound SDK subpath authority. |
-| `civ7/mapgen/sdk/core/**` | MapGen SDK core package authority. |
-| `civ7/mapgen/sdk/visualization/**` | MapGen SDK visualization/runtime dependency authority. |
-| `civ7/mapgen/domains/**` | MapGen domain model boundaries, contracts, and runtime capability discipline. |
-| `civ7/mapgen/pipeline/**` | Standard stage, recipe, runtime validation, and pipeline policy. |
-| `civ7/mapgen/studio/**` | Studio integration, recipe artifacts, worker safety, and dev runner topology. |
-
-## Current Runners
-
-Runners are execution owners, not ontology categories. `grit` runs `pattern.md`;
-`habitat` runs Habitat-native packet forms such as `structure.toml`,
-`check.*`, and file-layer guards; `nx` runs graph targets. These runner names
-must not become authority-tree directories.
-
-## Migration Implications
-
-Toolkit discovery now routes through location-independent rule manifests:
-identity, current placement, runner entrypoints, and baselines are read from
-`rule.json`. Next consolidation work can physically move manifests and their
-referenced files into better blueprint, capability, or niche locations without
-changing rule identity or behavior. The current physical tree intentionally
-splits affirmed constructible kind authority into top-level
-`.habitat/blueprints/`, marks not-yet-affirmed niche-local candidates as
-`_blueprints/`, keeps `rules/` for niche-wide and explicitly contextual
-inventory, and uses `_remainder/` for reviewed deferred packets that still need
-later movement, split, projection, consolidation, or retirement. Future layout
-and registry changes should use
-`AUTHORITY-ONTOLOGY.md` as the concept source for distinguishing blueprint kind
-authority, instance facts, capability facets, and niche governance.
-
-## Stop Conditions
-
-Stop a consolidation slice if it creates any of these states:
-
-- authored structural policy exists with no Habitat identity;
-- generic tool dispatch is modeled as repo-authored `.habitat` config instead of Toolkit source;
-- a pattern, baseline, or adapter exists outside manifest references with no
-  authority or bridge rationale;
-- external config claims structural meaning not represented in `.habitat`;
-- tests are used as structural gates without Habitat registration or explicit product-test classification;
-- niches, narrow subjects, runner names, or current defect names are promoted into blueprints without domain proof.
+Canonical platform migration state lives under
+`docs/projects/civ7-capability-realization/`; `.habitat` contains durable law,
+not temporal work tracking.
