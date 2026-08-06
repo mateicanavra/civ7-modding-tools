@@ -324,48 +324,46 @@ apps/
     habitat.toml
     package.json
     project.json
-    rawr.civ7.ts
-    civ7.ts
     bin/
       run.js
-    runtime/
-      config.ts
-      processes.ts
-      profiles/
-        <profile>.ts
+    src/
+      cli.ts
+      runtime/
+        composition.ts
+        context.ts
+        adapters/
+          local-mods.ts
     test/
-      definition.test.ts
       assembly/
         shell.test.ts
-      profiles/
-        <profile>.test.ts
-      entrypoints/
-        civ7.test.ts
+      execution/
+        binding.test.ts
+        finalization.test.ts
+        adapters/
+          local-mods.test.ts
       tsconfig.json
     tsconfig.json
   mapgen-studio/
     habitat.toml
     package.json
     project.json
-    rawr.mapgen-studio.ts
-    server.ts
-    web.ts
-    dev.ts
-    runtime/
-      config.ts
-      processes.ts
-      adapters/
-        civ7-official-data.ts
-        civ7-save-files.ts
-        fresh-log-files.ts
-        studio-run-files.ts
-        swooper-map-config-source.ts
-      profiles/<profile>.ts
+    src/
+      server.ts
+      web.ts
+      dev.ts
+      runtime/
+        composition.ts
+        config.ts
+        adapters/
+          civ7-official-data.ts
+          civ7-save-files.ts
+          fresh-log-files.ts
+          studio-run-files.ts
+          swooper-map-config-source.ts
     test/
-      definition.test.ts
-      profiles/<profile>.test.ts
-      entrypoints/{server,web,dev}.test.ts
       execution/
+        hosts/{server,web,dev}.test.ts
+        composition.test.ts
         adapters/
           civ7-official-data.test.ts
           civ7-save-files.test.ts
@@ -408,13 +406,11 @@ Tuner protocol package, or durable workflow plugin. Those remain admissible
 future kinds, not empty placeholders. Docs and Playground retain their current
 roots until their distinct app shapes are classified.
 
-The reusable service source packet is selected at each shown `src/service`
-anchor. It owns no `test/` interior: standalone service roots own their
-contract, module-semantics, and execution proof, while the API root owns its
-contract, projection, and selected execution proof. Each kind fixes its anchor
-leaves directly. Source-shaped proof mirrors admitted source identities one for
-one; for example, every admitted app profile and role entrypoint has exactly
-one matching suite. API, web, and qualified product manifests select only the
+Services remain governed by the established local Civ7 packet because
+`service@1` is unselected. Standalone service roots own their contract,
+module-semantics, and execution proof; the API root owns only caller contract,
+projection, and selected execution proof. Each kind fixes its anchor leaves
+directly. API, web, app-host, and qualified product manifests select only the
 variable subjects within their blueprint-defined axes. Placeholder and
 wildcard suffix grammar never discover or admit proof. Every admitted test root
 is closed by its blueprint around a small set of disjoint, meaningful
@@ -503,7 +499,7 @@ nor this package.
 
 The existing helper compilation, cache revision, TCC availability, and external
 process collaboration earn a managed resource rather than a package-shaped
-host adapter. Runtime profiles select the macOS provider. The control service
+host adapter. Qualified CLI and Studio apps select the macOS provider. The control service
 owns view policy and public outcomes; the provider owns only acquisition and
 capture mechanics. No generic desktop-control resource is inferred.
 
@@ -523,8 +519,8 @@ capture mechanics. No generic desktop-control resource is inferred.
   Civ7 Tuner socket
 - **Produces:** `Civ7Tuner` resource value
 - **Consumes:** resource contract; keeps its single-consumer protocol private
-- **Consumers:** shared runtime provisioning and control-service binding
-- **Forbids:** provider selection, app profile, control-service policy
+- **Consumers:** qualified app composition and control-service binding
+- **Forbids:** provider selection, app policy, control-service policy
 
 #### `packages/civ7-mod-install`
 
@@ -620,24 +616,22 @@ and combine definition and realization authority.
 
 The MapGen-runs public construction face owns its typed semantic
 dependency descriptors, their operation signatures, and their failure
-vocabulary. The Studio app selects exact config-source, run-files, and
-fresh-log adapter identities; the Swooper realization selects the exact local
-installation adapter and cold execution targets. Shared runtime lowers those
-selections into ready capabilities during service binding without restating
-operation keys or types. This is neither resource acquisition nor provider
-selection. The service imports no app implementation, Node filesystem API,
-generated output, target implementation, or installation package.
+vocabulary. The Studio app selects and binds exact config-source, run-files,
+and fresh-log adapter identities; the Swooper realization selects and invokes
+the exact local installation adapter and finite execution targets. This is
+neither resource acquisition nor provider selection. The service imports no
+app implementation, Node filesystem API, generated output, target
+implementation, or installation package.
 
 #### `plugins/server/api/mapgen-studio`
 
-- **Kind:** plugin-server-api root with independently selected shared
-  service-source projection
+- **Kind:** shared plugin shell plus qualified Civ7 API projection
 - **Role:** project Studio and control capabilities across the Studio
   same-origin caller boundary
 - **Produces:** client and API-registration faces
 - **Consumes:** public `civ7-control` and `mapgen-runs` clients plus
   official-data and saved-configuration capabilities supplied through
-  runtime-materialized request context
+  app-materialized request context
 - **Consumers:** MapGen Studio app
 - **Forbids:** Tuner construction, product truth, process startup
 
@@ -647,16 +641,17 @@ the caller-facing `civ7.*` surface, `runs` projects the MapGen runs service, and
 `studio` projects host identity and event observation. The `civ7.autoplay`
 contract remains in the API's caller-facing `control` grouping but invokes the
 MapGen-runs `autoplay` operation, which owns mutex admission and delegates the
-accepted mutation to the control client. The API adopts the
-shared Habitat API-plugin plus service-source construction laws directly. It declares
-narrow API-owned service requirements; the shared runtime binds public control
-and run-service clients and materializes the API `Context`. It owns no domain
-truth, operation registry, or run-retention state. Its selected service source owns
-the caller-facing `studio.events.watch` projection. The shared process runtime
-supplies one immutable `{ serverInstanceId, serverStartedAt }` identity per
-process scope; the API emits its immediate `hello` first, then combines
+accepted mutation to the control client. The API adopts the shared plugin shell
+plus a qualified Civ7 API projection law. It declares narrow API-owned client
+requirements; the Studio app binds public control and run-service clients and
+materializes the API `Context`. It owns no domain truth, operation registry, or
+run-retention state. Its caller-facing source owns the
+`studio.events.watch` projection. The Studio server composition supplies one
+immutable `{ serverInstanceId, serverStartedAt }` identity per process scope;
+the API emits its immediate `hello` first, then combines
 operation and control observation streams, preserves ordering, replays the
-latest live-game event, and closes subscriptions when its runtime scope ends.
+latest live-game event, and closes subscriptions when its app-owned process
+scope ends.
 
 The 70 existing routes beneath the merged control-service namespaces retain
 their public service contract as one indivisible subtree. The API control
@@ -669,8 +664,7 @@ The API kind fixes `contract/client.typecheck.ts`. The API manifest selects the
 `authoring`, `control`, `errors`, `router`, and `runs` projection identities
 plus the `live-game-watcher` and `studio-events` execution identities. Each
 selected identity owns one matching suite and every unselected leaf is
-forbidden; `*.test.ts` is filename grammar only. The selected service source at
-`src/service` owns no nested proof.
+forbidden; `*.test.ts` is filename grammar only.
 
 #### `plugins/cli/topics/{data,docs,game,git-mod,mapgen}`
 
@@ -742,49 +736,38 @@ definition and realization packets are accepted.
 - **Role:** declare the CLI product and own the sole oclif topic-registration
   manifest
 - **Produces:** CLI process
-- **Consumes:** topic plugins and shared runtime realization
-- **Forbids:** command ownership, a second topic registry, provider
-  acquisition, and reusable control truth
+- **Consumes:** topic plugins, selected providers, and public service clients
+- **Forbids:** command ownership, a second topic registry, and reusable control
+  truth
 
 `apps/cli/package.json#oclif.plugins` is the single authored membership
-authority. The cold app definition references the oclif host but does not
-enumerate topic packages again. The development and production launchers both
-select the same app, profile, and `cli` role through one shared oclif harness.
-That harness calls native oclif `run(...)` inside a managed process scope;
+authority. The development and production launchers call native oclif
+`run(...)` through one app-owned process scope;
 using `execute(...)` is rejected because its process-exit behavior can bypass
 outer finalizers.
 
-The runtime profile selects providers. Shared runtime provisions resources,
-binds service clients once for the one-command process, and exposes them
-through a scoped runtime command context. Topic-local semantic and diagnostic
-command bases carry static cold requirement descriptors and narrow that context
-to the clients their commands require. After native oclif selects a command
-class, shared base initialization asks the surrounding harness to provision
-and bind only that class's requirements. The descriptors are neither a second
-registry nor topic hooks. Commands do not import the app, profile, provider,
-process runtime, or a topic-local client factory. Invocation facts from parsed
-flags remain command-scoped views and never enter the service-binding cache.
-The runtime profile selects the Civ7 window-capture provider required by the
-control service; the game topic receives only the bound control client and
-never imports the resource or provider.
+The CLI app selects providers, binds service clients once for a command that
+requires them, and exposes those clients through a scoped command context.
+Topic-local semantic and diagnostic command bases carry static requirement
+descriptors and narrow that context to the clients their commands require.
+Native oclif command selection is the discovery event; app-owned binding then
+satisfies only that command's requirements. The descriptors are neither a
+second registry nor topic hooks. Commands do not import the app, provider, or a
+topic-local client factory. Invocation facts from parsed flags remain command-
+scoped views and never enter binding identity. The game topic receives only
+the bound control client and never imports a resource or provider.
 
 Help, version, and unknown-command paths acquire no live capability. Success,
 command failure, binding failure, partial startup, and interruption all reach
-one idempotent finalizer before oclif reports the captured result. The current
-shared runtime is only a type-environment marker, so this oclif host bridge and
-runtime-aware command base are shared-substrate prerequisites rather than
-Civ7-local compensation.
+one idempotent app finalizer before oclif reports the captured result.
 
-The CLI root composes the shared app proof with one CLI specialization:
-`test/definition.test.ts`, exact `test/profiles/<profile>.test.ts`, exact
-`test/entrypoints/civ7.test.ts`, `test/assembly/shell.test.ts`, and one
-`test/tsconfig.json`. Habitat topology proves the app is commandless; a bounded
-source relation owns the sole authored `package.json#oclif.plugins` registry
-and forbids duplicate topic enumeration. The CLI-specific assembly suite
-observes only collision-free runtime discovery, the help catalog,
-executable-shim equivalence, and delegation to the shared harness. The shared
-definition, profile, and entrypoint layers retain their distinct oracles;
-shared runtime owns command-process lifecycle proof.
+The CLI root composes shared `app@1` with one qualified CLI specialization.
+Habitat topology proves the app is commandless; a bounded source relation owns
+the sole authored `package.json#oclif.plugins` registry and forbids duplicate
+topic enumeration. Assembly proof observes collision-free native discovery,
+the help catalog, and executable-shim equivalence. Execution proof owns exact
+binding, no-acquisition help paths, partial-startup cleanup, interruption, and
+idempotent command-process finalization.
 
 #### `plugins/web/app/mapgen-studio`
 
@@ -807,38 +790,35 @@ This destination receives browser application source from
 
 #### `apps/mapgen-studio`
 
-- **Kind:** proposed shared generic app plus qualified Studio role packet;
-  currently `UNCONSTRUCTIBLE`
-- **Role:** declare Studio plugin membership, provider profiles, and server/web
-  entrypoint role selections
+- **Kind:** shared `app@1` plus qualified Studio host packet; qualified overlay
+  pending before source movement
+- **Role:** compose Studio's real Bun, Vite, server, and web hosts
 - **Produces:** Studio product runtime
-- **Consumes:** Studio web and API plugins plus app-owned runtime profiles
-- **Forbids:** resource acquisition, manual service binding, manual API context,
-  transport mounting, Swooper truth, private service/API implementation
+- **Consumes:** Studio web and API plugins, selected providers, public service
+  clients, and app-owned adapters
+- **Forbids:** Swooper truth, private service/API implementation, and an
+  invented generic runtime layer
 
-The shared runtime compiler, provisioning kernel, process runtime, and
-harnesses acquire the selected Tuner and window-capture providers, bind the
-control and MapGen-runs services, materialize API context, mount the selected
-roles, observe, and dispose. The app does not recreate that substrate. No
-Studio source moves into these semantic destinations until the shared generic
-app law and independently closed web/Studio specializations are accepted.
+The app selects and acquires the Tuner and window-capture providers, constructs
+the control and MapGen-runs public clients, materializes API context, mounts its
+native roles, observes them, and disposes the process scope. These are host
+composition responsibilities, not semantic product truth. No Studio source
+moves until the qualified Studio source and proof overlays close these exact
+roles.
 
 The Studio app additionally selects the Swooper definition-authoring and
 realization bindings used by MapGen-runs plus the cold official-data,
 saved-configuration, run-files, and fresh-log bindings its selected
 capabilities declare. Each semantic selection names one exact
 `runtime/adapters/` identity. Those adapters derive qualified host paths from
-profile-supplied roots and own filesystem effects while delegating pure
+app configuration and own filesystem effects while delegating pure
 parsing, planning, and comparison to packages. The realization app owns opaque
-deployment target references. The runtime profile selects the Tuner and
-window-capture providers plus configuration roots, never adapter identities.
-Shared runtime resolves and binds all of them; cold filesystem adapters never
-become managed providers.
+deployment target references. The app selects Tuner and window-capture
+providers, configuration roots, and adapter identities exactly once. Cold
+filesystem adapters never become managed providers.
 
-Every admitted `runtime/profiles/<profile>.ts` has exactly one
-`test/profiles/<profile>.test.ts`, and each authored `server.ts`, `web.ts`, or
-`dev.ts` role entrypoint has its exact `test/entrypoints/<role>.test.ts`.
-Every selected runtime adapter has one exact
+Each authored `server.ts`, `web.ts`, or `dev.ts` host entrypoint has one exact
+`test/execution/hosts/<role>.test.ts`. Every selected runtime adapter has one exact
 `test/execution/adapters/<adapter>.test.ts` suite. The app blueprint closes
 those axes and forbids unmatched leaves; wildcard syntax describes only the
 terminal filename grammar.
@@ -939,31 +919,23 @@ behavior does not qualify merely because it has multiple steps.
 
 ## Law Adoption
 
-Adopt only from the accepted corrected shared Habitat successor, never from
-the inspected audit baseline:
+Adopt only the selected Habitat 0.5.1 consumer packets, never dormant or
+unselected SDK material:
 
 - resource/provider separation;
-- the oRPC 2 and official Effect service lineage;
 - independent selected-depth blueprint law;
-- service truth and qualified plugin projection;
+- local Civ7 service truth and qualified plugin projection;
 - exact public entries and private implementation closure;
 - proof ownership by kind;
-- canonical app definition/profile/entrypoint semantics and shared runtime
-  realization;
+- closed generic app structure plus qualified native host composition;
 - structure and source relationships in Habitat, graph scheduling in Nx,
   types in TypeScript, and behavior in tests.
 
-The accepted corrected shared successor uses `src/api.ts` and `src/client.ts`
-for an API plugin's public faces, keeps its executable router private, and uses
-a module-root `router.ts` plus operation router leaves. Older Magic or Civ7
-`server.ts` and `router/index.ts` shapes are migration evidence, not
-destination law.
-
-The canonical runtime realization spec governs ownership and lifecycle:
-plugins declare service use, profiles select providers, and runtime
-realization binds and mounts them. Its older flat API file sketch is not
-selected over the newer concrete Habitat API and service packets. This is an
-explicit authority reconciliation, not a second API topology.
+Habitat 0.5.1 does not select service or product-runtime law. Existing local
+Civ7 service authority therefore remains the destination for service source,
+while qualified app overlays govern native Oclif, Bun, Vite, server, web, and
+finite Nx task composition. This is an explicit authority reconciliation, not
+permission to copy dormant SDK packets.
 
 Civ7 adds only qualified product facts:
 

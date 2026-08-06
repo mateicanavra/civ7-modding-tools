@@ -22,10 +22,10 @@ them. Each accepted kind closes its own proof topology around disjoint
 confidence axes; domain-qualified kinds such as MapGen keep their stronger
 domain-shaped testing grammar.
 
-**Current container:** Core Platform 1.1, constructing the complete Swooper
-definition and Civ7 realization chain. Ground, the Civ7 product, system,
-outcome, and actor-role-outcome models, their exact corpora, the Explore Live
-Map oracle, Studio design synchronization, physical wind and pressure
+**Current container:** Core Platform 1.2, constructing the Interactive platform
+chain. Ground, the complete Swooper cold construction, the Civ7 product,
+system, outcome, and actor-role-outcome models, their exact corpora, the Explore
+Live Map oracle, Studio design synchronization, physical wind and pressure
 reconstruction, and seed-stateless latitude fallback are sealed inputs.
 
 Habitat source, package, blueprint, and release ownership lives upstream.
@@ -35,12 +35,13 @@ the selected `app@1`, `package@1`, `plugin@1`, `plugin-nx@1`, `provider@1`, and
 deleted. Civ7 keeps only its instances, qualified overlays, policy, adapters,
 and compatibility rules. `service@1` is intentionally unselected.
 
-Swooper now descends through admitted config -> generated entrypoint/digests ->
-materialized tree -> installation receipt -> loader/runtime evidence ->
-final-surface parity. The adapter split is supporting work inside that slice,
-not an isolated migration. Interactive construction follows inside the same
-parent because Swooper's source writer, deployment path, and fresh-live proof
-consume those owners. Both close through one joint proof and deletion receipt.
+Interactive now descends through provider-neutral resources -> concrete
+providers -> semantic services -> caller projections -> real host composition
+-> observation. Habitat closes the shared structural shells but provides no
+product app runtime and deliberately omits `service@1`. Qualified CLI and
+Studio apps therefore own their actual host composition and lifecycle;
+services retain Civ7-owned law and consume ready resources. Both product chains
+still close through one joint proof and deletion receipt.
 
 Two definition reductions are sealed. The closed `mapgen` CLI topic owns
 diagnostic and metric commands while Swooper and neutral MapGen packages retain
@@ -74,7 +75,8 @@ cold filesystem effects, while CLI topics project their bound capabilities.
 MapGen run records, cancellation, retention, and events remain scoped
 MapGen-runs service state rather than a manufactured resource.
 
-**Gradient:** Interactive construction -> joint Core Platform seal -> Dacia
+**Gradient:** Tuner and window-capture resources -> local semantic services ->
+CLI and Studio projections/composition -> joint Core Platform seal -> Dacia
 Product -> Estate Reconciliation -> Platform Seal. The Tuner protocol remains
 private to its sole provider unless another independent consumer earns a public
 package.
@@ -122,6 +124,15 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-08-05 - Interactive Runtime Substrate Rebased
+
+The prior Interactive direction assumed a generic Habitat app runtime and a
+selected shared service law. Habitat 0.5.1 publishes neither. Product ownership
+remains unchanged, but qualified host apps now own provider lifecycle, client
+binding, host mounting, observation, and disposal directly. Services keep the
+existing local Civ7 law; no copied service packet, profile fiction, or
+`startApp` wrapper enters the repository.
 
 ### 2026-08-05 - Product App Runtime Refused
 

@@ -232,8 +232,9 @@ authorized product surfaces, not additional semantic capability owners.
 - `plugins/web/app/mapgen-studio` owns browser application views and
   interactions. It may consume the retained `packages/mapgen-studio-ui`
   component library; that package has no selected web-plugin relocation.
-- `apps/mapgen-studio` declares runtime composition, profiles, adapters, and
-  role entrypoints; the shared runtime realizes the selected process.
+- `apps/mapgen-studio` owns its qualified Bun/Vite/server/web composition,
+  selected providers and adapters, public-client binding, role mounting, and
+  process disposal.
 - Docs and examples promise only the public contracts and proof class they name.
 
 Raw diagnostics are explicit supporting surfaces, not one semantic product
