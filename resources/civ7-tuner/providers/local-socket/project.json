@@ -1,0 +1,46 @@
+{
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "name": "provider-civ7-tuner-local-socket",
+  "projectType": "library",
+  "sourceRoot": "resources/civ7-tuner/providers/local-socket",
+  "tags": ["type:provider", "resource:civ7-tuner", "provider:local-socket"],
+  "targets": {
+    "typecheck": {
+      "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
+      "options": {
+        "cwd": "resources/civ7-tuner/providers/local-socket"
+      },
+      "cache": true,
+      "outputs": []
+    },
+    "check:test": {
+      "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
+      "options": {
+        "cwd": "resources/civ7-tuner/providers/local-socket"
+      },
+      "cache": true,
+      "outputs": []
+    },
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    },
+    "test": {
+      "command": "vitest run --config vitest.config.ts test/semantics test/execution",
+      "options": {
+        "cwd": "resources/civ7-tuner/providers/local-socket"
+      },
+      "cache": true,
+      "outputs": []
+    },
+    "verify:live": {
+      "command": "vitest run --config vitest.config.ts test/collaboration/provider.live.test.ts",
+      "options": {
+        "cwd": "resources/civ7-tuner/providers/local-socket"
+      },
+      "cache": false,
+      "outputs": []
+    }
+  }
+}

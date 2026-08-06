@@ -8,11 +8,11 @@ This model places the capabilities authorized by
 [PRODUCT-AUTHORITY.md](./PRODUCT-AUTHORITY.md) against the shared Habitat
 substrate. Shared Habitat is external authority for the selected structural
 kinds; Civ7 selects and composes them rather than forking, weakening, or
-reimplementing them. Habitat 0.5.1 does not supply a generic product runtime and
+reimplementing them. Habitat 0.5.2 does not supply a generic product runtime and
 does not select `service@1`. Concrete host composition and service law therefore
 remain explicit Civ7 responsibilities.
 
-The selected shared kinds are constructible at the Ground-proven 0.5.1 pin.
+The selected shared kinds are constructible at the Ground-proven 0.5.2 pin.
 Qualified Civ7 overlays still must close each destination before source moves.
 Exact current-source dispositions remain in [CORPUS.md](./CORPUS.md).
 
@@ -308,7 +308,7 @@ merely because an app must eventually dispose it.
 Before moving source into a destination:
 
 1. the product capability and semantic owner are authorized;
-2. the selected shared kind is published at the accepted 0.5.1 pin, or the
+2. the selected shared kind is published at the accepted 0.5.2 pin, or the
    destination is governed by an already-accepted local Civ7 kind;
 3. the exact root is constructible through an accepted manifest-backed
    instance path;

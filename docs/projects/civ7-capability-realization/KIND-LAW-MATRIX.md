@@ -1,6 +1,6 @@
 # Civ7 Capability Realization Kind-Law Matrix
 
-**Status:** Accepted target on the Habitat 0.5.1 consumer substrate
+**Status:** Accepted target on the Habitat 0.5.2 consumer substrate
 **Verdict:** `GROUND_PASSED`
 **Date:** 2026-08-05
 **Scope:** Kinds required by the selected capability-port topology only
@@ -12,7 +12,7 @@ destination law, generator, or source move in this initiative. It distinguishes
 current Civ7 law from proposed generic law and assigns every invariant to its
 native owner.
 
-The selected shared direction is the released Habitat 0.5.1 consumer pack.
+The selected shared direction is the released Habitat 0.5.2 consumer pack.
 Magic Migration is executable prior art for selected-depth law, owner
 separation, and migration proof. It is not a source of Civ7 roots, product
 vocabulary, package manifests, or instance inventories.
@@ -34,10 +34,10 @@ vocabulary, package manifests, or instance inventories.
 
 ## Shared Substrate And Qualified Gap
 
-The accepted consumer authority is Habitat CLI release `0.5.1`, source
-`75d816fbece0be47edc6a45b0c05957321d1fc25`, with canonical Template consumer
-merge `0f61751cbab8ba41c0fbbe0b12fb4a3129cc7b58`. Civ7 installs only
-`@habitat-ai/cli@0.5.1`; its exact ordinary `@habitat-ai/sdk@0.5.1` dependency
+The accepted consumer authority is Habitat CLI release `0.5.2`, source
+`92482052a7878d47085a14831bf3d6098f2b2d5d`, with canonical Template `main` at
+`ee03d1c7e065c779fb63f9c57a1c0d2e121c1630`. Civ7 installs only
+`@habitat-ai/cli@0.5.2`; its exact ordinary `@habitat-ai/sdk@0.5.2` dependency
 supplies the shared policy pack.
 
 The selected pack owns `app@1`, `package@1`, `plugin@1`, `plugin-nx@1`,
@@ -218,7 +218,7 @@ generic `structure.toml`, Grit patterns, or generator tables remain rejected.
 
 ### T3: Construction Interface
 
-Habitat 0.5.1 exposes the workspace `init` and `remove-hook` generators. It does
+Habitat 0.5.2 exposes the workspace `init` and `remove-hook` generators. It does
 not promise a generic project generator, and Civ7 does not recreate one as
 local substrate. A product slice may use ordinary Nx generation, a bounded
 product template, or direct construction, but the semantic write is admitted
@@ -252,7 +252,7 @@ admission authority.
 **State:** Shared `package@1` shell selected; qualified package semantics remain
 product-owned.
 
-Habitat 0.5.1 supplies the generic closed package shell. The shape below
+Habitat 0.5.2 supplies the generic closed package shell. The shape below
 describes Civ7's selected package role and any stronger qualified proof, not a
 replacement for the shared blueprint.
 
@@ -978,7 +978,7 @@ disjoint even when they observe the same user capability.
 **State:** Shared `app@1` is accepted. It owns only the closed generic app
 shell. Qualified Civ7 app packets own actual host composition and proof.
 
-Habitat 0.5.1 does not provide `defineApp`, profiles, `startApp`, provider
+Habitat 0.5.2 does not provide `defineApp`, profiles, `startApp`, provider
 provisioning, client binding, or a process runtime. An app therefore uses its
 real host directly: finite Nx tasks for mod realization, native Oclif for the
 CLI, and Bun/Vite/server/web entrypoints for Studio. The app selects providers
@@ -1436,7 +1436,7 @@ broaden a kind:
 | --- | --- | --- |
 | `.habitat/blueprints/service/**` | Existing local service law remains the selected authority while `service@1` is unselected | Tighten only when the Interactive service cut proves a generic local gap; never copy dormant SDK service packets |
 | `package.json`, `bun.lock`, `patches/**`, `services/**` | Old oRPC, Effect, TypeBox, and community-bridge dependency family remains reachable in Civ7 product code | Upgrade atomically with native local service construction/error relations, then delete the obsolete patch and bridge only after no product consumer remains |
-| `tools/habitat/**` | Closed Ground disposition: the local producer was not Civ7 product capability | Deleted after installing and proving the Habitat 0.5.1 consumer face; never recreate it as migration corpus |
+| `tools/habitat/**` | Closed Ground disposition: the local producer was not Civ7 product capability | Deleted after installing and proving the Habitat 0.5.2 consumer face; never recreate it as migration corpus |
 | `packages/**` | Resource contract, provider, and service concerns are combined or proposed service-adapter/parallel-contract packages lack a native owner | Relocate to the qualified owner, retain only proven shared non-oRPC models, inline owner-local residue, combine duplicate public faces, or delete dead residue |
 | `resources/**` | Selected resource/provider roots do not yet exist under the released shared shells | Construct manifest-backed instances and qualified proof overlays; never move implementation into the resource contract |
 | `services/**` | Existing service source and proof require local normalization; MapGen-runs is absent | Migrate behavior under the established local service packet or construct the missing local service; do not baseline legacy files |

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 2,
+  "id": "require_civ7_tuner_collaboration_proof",
+  "title": "Require Civ7 Tuner Collaboration Proof",
+  "placement": {
+    "niche": "civ7/platform/tuner",
+    "blueprint": "civ7-tuner",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "provider-civ7-tuner-local-socket",
+  "lane": "enforced",
+  "forbids": "a local-socket Civ7 Tuner provider without an opt-in real-engine collaboration proof",
+  "why": "Framing and socket fixtures prove deterministic provider mechanics but cannot prove compatibility with the supported Civ7 Tuner. This concrete provider therefore earns one uncached collaboration leaf without making real-vendor proof mandatory for every provider kind.",
+  "remediate": "Keep one provider.live.test.ts leaf that acquires the running supported Civ7 Tuner through the public provider face and observes its named states. Execute it only through the uncached live target.",
+  "message": "The local-socket Civ7 Tuner provider must retain its opt-in real-engine collaboration proof.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "resources/civ7-tuner/providers/local-socket/test/collaboration",
+        "resources/civ7-tuner/providers/local-socket/test/collaboration/**"
+      ]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/platform/tuner/rules/require_civ7_tuner_collaboration_proof/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/civ7/platform/tuner/rules/require_civ7_tuner_collaboration_proof/structure.toml"
+    }
+  }
+}

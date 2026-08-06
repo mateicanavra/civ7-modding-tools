@@ -117,11 +117,15 @@ reconfirms that completed census against the materialized estate.
 
 | Exact current source or fragment | Disposition | Exact destination |
 | --- | --- | --- |
-| `packages/civ7-direct-control/test/session.test.ts` excluding `#waits for fresh ordered log markers` | combine | Protocol, framing, and failure assertions consolidate into `resources/civ7-tuner/providers/local-socket/test/semantics/provider.test.ts`; discovery, command, reconnect, and release assertions consolidate into `test/execution/lifecycle.test.ts` |
+| `packages/civ7-direct-control/test/session.test.ts#{parses command JSON payloads with endpoint and state context,reports invalid command JSON with the original command result details}` | combine | `services/civ7-control/test/semantics/tuner-result.test.ts` and consuming module semantics |
+| `packages/civ7-direct-control/test/session.test.ts#{uses defaults and env hosts when resolving health,handles empty env when resolving health,waits for direct-control health readiness,times out waiting for direct-control health readiness}` | combine | `services/civ7-control/test/semantics/modules/readiness/current.test.ts` |
+| `packages/civ7-direct-control/test/session.test.ts#{resolves direct-control config from explicit and env options,selects a tuner state by role, name, and id,parses tuner LSQ response parts into state pairs,allocates positive increasing tuner listener ids,parses fragmented and concatenated tuner frames}` | combine | `resources/civ7-tuner/providers/local-socket/test/semantics/provider.test.ts` |
+| `packages/civ7-direct-control/test/session.test.ts#{discovers a reachable endpoint after earlier hosts fail,reports unavailable endpoint discovery with per-host details,opens tuner sockets and reports connection failures with typed errors,issues framed commands and interprets the server response,returns a typed command state error when requested state is unavailable}` | combine | `resources/civ7-tuner/providers/local-socket/test/execution/lifecycle.test.ts` |
+| `packages/civ7-direct-control/test/session.test.ts#rejects an empty command as not dispatched without opening a socket` | combine | `resources/civ7-tuner/providers/local-socket/test/execution/lifecycle.test.ts` preserves typed not-dispatched and zero request writes after ready acquisition; the old lazy-connect assertion is retired because apps acquire one ready scoped resource before consumers execute |
 | `packages/civ7-direct-control/test/session.test.ts#waits for fresh ordered log markers` filesystem snapshot assertions | combine | `apps/mapgen-studio/test/execution/adapters/fresh-log-files.test.ts` |
 | `packages/civ7-direct-control/test/session.test.ts#waits for fresh ordered log markers` marker acceptance assertions | combine | `services/mapgen-runs/test/semantics/modules/run-in-game/start.test.ts` |
 | `packages/civ7-direct-control/test/shared-session.test.ts` | combine | `resources/civ7-tuner/providers/local-socket/test/execution/lifecycle.test.ts` |
-| `packages/civ7-direct-control/test/restart-lifecycle.test.ts#waits for Tuner readiness through the public wrapper` | combine | `resources/civ7-tuner/providers/local-socket/test/execution/lifecycle.test.ts` |
+| `packages/civ7-direct-control/test/restart-lifecycle.test.ts#waits for Tuner readiness through the public wrapper` | combine | `services/civ7-control/test/semantics/modules/readiness/current.test.ts` |
 | `packages/civ7-direct-control/test/restart-lifecycle.test.ts` excluding the Tuner-readiness wrapper assertion | combine | `services/civ7-control/test/semantics/modules/lifecycle/single-player-start.test.ts` |
 | `packages/civ7-direct-control/test/setup-and-lifecycle.test.ts#{reads exact Civ7Cfg setup scalars without reinterpreting numeric metadata,omits Civ7Cfg seed evidence for malformed or non-exact record cardinality}` pure byte parsing, admission, and ordering assertions | combine | `packages/civ7-save-files/test/semantics/saved-config.test.ts` |
 | The same two saved-configuration tests' directory traversal, metadata, and byte-read assertions | combine | `apps/mapgen-studio/test/execution/adapters/civ7-save-files.test.ts` |
@@ -652,7 +656,7 @@ execution proof set below.
 
 | Exact new proof | Required oracle |
 | --- | --- |
-| `resources/civ7-tuner/test/contract/contract.typecheck.ts` | Provider and consumer compile against only the provider-neutral ready Tuner contract |
+| `resources/civ7-tuner/test/contract/contract.typecheck.ts` | Consumers compile against only the provider-neutral ready Tuner contract; provider assignability is proved independently by its public implementation typecheck and one-way Nx edge |
 | `resources/civ7-window-capture/test/contract/contract.typecheck.ts` | Provider and consumer compile against only the provider-neutral capture contract |
 | `resources/civ7-tuner/providers/local-socket/test/collaboration/provider.live.test.ts` | Real local-socket framing and listener collaboration against the supported Tuner |
 | `resources/civ7-window-capture/providers/macos-screencapturekit/test/collaboration/provider.live.test.ts` | Real ScreenCaptureKit/TCC/window collaboration on macOS |

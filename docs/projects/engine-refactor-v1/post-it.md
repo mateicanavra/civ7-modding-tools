@@ -29,7 +29,7 @@ Live Map oracle, Studio design synchronization, physical wind and pressure
 reconstruction, and seed-stateless latitude fallback are sealed inputs.
 
 Habitat source, package, blueprint, and release ownership lives upstream.
-`@habitat-ai/cli@0.5.1` and its exact `@habitat-ai/sdk@0.5.1` dependency supply
+`@habitat-ai/cli@0.5.2` and its exact `@habitat-ai/sdk@0.5.2` dependency supply
 the selected `app@1`, `package@1`, `plugin@1`, `plugin-nx@1`, `provider@1`, and
 `resource@1` laws. The local Habitat producer and bootstrap architecture are
 deleted. Civ7 keeps only its instances, qualified overlays, policy, adapters,
@@ -43,6 +43,14 @@ Studio apps therefore own their actual host composition and lifecycle;
 services retain Civ7-owned law and consume ready resources. Both product chains
 still close through one joint proof and deletion receipt.
 
+The first managed capability is now constructed. `resources/civ7-tuner` owns
+only the provider-neutral ready capability and typed transport failures; its
+`local-socket` provider owns physical acquisition, framing, multiplexing,
+epochs, dispatch evidence, reset, and scoped release. Readiness, output
+interpretation, and semantic retry remain service-owned. Closed proof and Nx
+direction are active. The live collaboration leaf exists but has not run and
+is not claimed as passed.
+
 Two definition reductions are sealed. The closed `mapgen` CLI topic owns
 diagnostic and metric commands while Swooper and neutral MapGen packages retain
 their meaning. The closed Swooper `authoring` packet now owns pure config
@@ -55,7 +63,7 @@ ignored final `dist/mod` tree; root scripts, checked-in output, and generated
 TypeScript are gone, and exact config-to-script identity is proved before
 materialization. Its proof topology is closed around artifact, deployment,
 runtime, and live axes. A qualified deploy entrypoint and local-install adapter
-bind the exact mod identity without invoking the CLI process. Habitat 0.5.1
+bind the exact mod identity without invoking the CLI process. Habitat 0.5.2
 does not expose a product app-runtime constructor, so no inert app descriptor,
 profile, or `startApp` wrapper was invented. It does not borrow Interactive
 owners or claim live proof early.
@@ -75,7 +83,7 @@ cold filesystem effects, while CLI topics project their bound capabilities.
 MapGen run records, cancellation, retention, and events remain scoped
 MapGen-runs service state rather than a manufactured resource.
 
-**Gradient:** Tuner and window-capture resources -> local semantic services ->
+**Gradient:** window-capture resource -> local semantic services ->
 CLI and Studio projections/composition -> joint Core Platform seal -> Dacia
 Product -> Estate Reconciliation -> Platform Seal. The Tuner protocol remains
 private to its sole provider unless another independent consumer earns a public

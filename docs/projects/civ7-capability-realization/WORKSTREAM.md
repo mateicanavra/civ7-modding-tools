@@ -79,9 +79,9 @@ The following are complete evidence, not open work containers:
   behind the recorded same-realm consumer and lifecycle trigger.
 - MapGen remains portable. A network-shaped MapGen generation service and a
   manufactured MapGen-run resource remain excluded.
-- Habitat 0.5.1 is installed and self-consumed through its released CLI/SDK
+- Habitat 0.5.2 is installed and self-consumed through its released CLI/SDK
   boundary. The local producer and bootstrap architecture are deleted; all six
-  selected shared kinds and all 97 local compatibility applications pass.
+  selected shared kinds and the admitted local compatibility applications pass.
 
 Historical semantic cuts under `docs/projects/engine-refactor-v1` remain
 behavior and decision evidence. They are not reopened merely because their
@@ -123,12 +123,12 @@ Platform exit receipt closes.
 **Status:** sealed by [GROUND-RECEIPT.md](./GROUND-RECEIPT.md).
 
 **Outcome:** Civ7 constructs and enforces its selected platform kinds using the
-versioned Habitat 0.5.1 consumer release, without local substrate forks or
+versioned Habitat 0.5.2 consumer release, without local substrate forks or
 copied shared policy.
 
 **Proof:** the exact release provenance, frozen install, initializer
 idempotence, six selected closed-kind fixtures, loose-member falsifiers,
-unsupported-service refusal, 97 local compatibility applications, Knip,
+unsupported-service refusal, the admitted local compatibility applications, Knip,
 OpenSpec, and the ordinary Nx check/build/test/verify graphs pass. The local
 Habitat producer, bootstrap paths, and temporal authority tree are deleted.
 
@@ -166,7 +166,7 @@ in the Interactive slice; no old patch line survives the joint seal.
 Admit the qualified map-definition and map-realization laws, and instantiate the
 MapGen CLI-topic root under Civ7's closed qualified CLI-topic law on Ground's
 consumer substrate, before moving their respective Swooper source. Habitat
-0.5.1 does not publish a composable CLI-topic kind, so the broad shared
+0.5.2 does not publish a composable CLI-topic kind, so the broad shared
 `plugin@1` shell is not misapplied to this package-backed oclif projection.
 
 #### 1.1.1 Portable Definition
@@ -229,7 +229,7 @@ exported-value JSDoc law, and scoped Knip pass. No live Civ7 target ran or
 passed. Qualified installation and the held Interactive dependencies remained
 in this slice at that checkpoint.
 
-**Installation receipt:** published Habitat 0.5.1 and canonical Template expose
+**Installation receipt:** published Habitat 0.5.2 and canonical Template expose
 structural app law but no product app-runtime constructor. Swooper therefore
 keeps finite Nx build/deploy entrypoints rather than manufacturing an inert
 descriptor/profile layer. `src/deploy.ts` now delegates to the qualified
@@ -295,7 +295,7 @@ The nested order is dependency order, not separate product migrations.
 
 Instantiate package, resource, provider, plugin, app, and remaining CLI-topic
 roots under the Ground-proven shared laws. Services retain the accepted local
-Civ7 law because Habitat 0.5.1 deliberately does not select `service@1`.
+Civ7 law because Habitat 0.5.2 deliberately does not select `service@1`.
 Admit only qualified Civ7 source and proof overlays before moving source into a
 shared-kind instance; never copy or approximate an upstream packet.
 
@@ -344,7 +344,7 @@ shared-kind instance; never copy or approximate an upstream packet.
 - Construct the commandless CLI app around native Oclif startup, its sole topic
   registry, exact app-owned client/resource binding, and the `local-mods`
   adapter. The app owns no commands or semantic service truth.
-- Use direct host entrypoints or Nx targets. Habitat 0.5.1 supplies app
+- Use direct host entrypoints or Nx targets. Habitat 0.5.2 supplies app
   structure, not `defineApp`, profiles, `startApp`, provider provisioning, or a
   generic process runtime; do not invent wrappers for absent capabilities.
 - Keep official-data, saved-file, fresh-log, run-file, and authored-config
