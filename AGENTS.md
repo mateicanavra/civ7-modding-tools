@@ -89,12 +89,21 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
 - Use package scripts (`bun run --cwd <path> <script>`) for leaf-local debugging
   when dependency freshness is already established. Use root Nx-orchestrated
   scripts for proof.
-- Route Civ7 control by responsibility: `@civ7/direct-control` owns low-level
-  Tuner/socket and one-wire Civ7-side command atoms. `@civ7/control-orpc` owns
-  the public control-service contract, router, admission, and multi-step Effect
-  orchestration. Callers must not add alternate transports, local control
-  scripts, or an in-game global controller without an accepted same-realm
-  consumer and lifecycle owner.
+- Route Civ7 capabilities through the accepted realization model in
+  `docs/projects/civ7-capability-realization/`: resource contracts own
+  provider-neutral external capability, providers own concrete acquisition and
+  release, services own semantic policy and operations, plugins own caller
+  projection, and apps own selection, binding, mounting, and process lifetime.
+  `services/civ7-control` owns foundational `{app,game,map,ui}` control over
+  app-supplied ready resources; `services/civ7-play` owns actor-facing gameplay
+  over the public control client. `packages/civ7-direct-control`, aggregate
+  facades, private contract picking, service routers exposed over the wire, and
+  caller-owned resource acquisition have no destination shape.
+- Global `dev:orpc`, `dev:effect-orpc`, `dev:effect-ts`, `dev:inngest`, and
+  `dev:effect-inngest` skills own generic vendor guidance. Repo-local skills may
+  add Civ7 product and boundary law only; they must not freeze or copy vendor
+  syntax. Claims about the installed prerelease tuple require exact installed
+  declarations, source, or discriminating fixtures.
 
 ## Civ7 Resources
 
@@ -103,16 +112,24 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
 
 ## Effect Source
 
-- `.repos/effect` is a source-only reference submodule; the Effect skill is supplied globally by RAWR HQ and must not be copied into Civ7.
-- Initialize and verify it with `bun run effect:init` and `bun run effect:status`; see `docs/process/effect-source-submodule.md`.
+- `.repos/effect` is a source-only reference submodule; the Effect skill is
+  supplied globally by RAWR HQ and must not be copied into Civ7.
+- Initialize it only for exact source-level vendor work, then verify with
+  `bun run effect:init` and `bun run effect:status`; see
+  `docs/process/effect-source-submodule.md`.
 
 ## Domain Routers
 
 - MapGen / Swooper Physics definition: `plugins/mod/map/swooper-physics/AGENTS.md`;
   Civ7 realization: `apps/mods/map/swooper-physics/AGENTS.md`; canonical docs:
   `docs/system/mods/swooper-maps/` and `docs/system/libs/mapgen/`.
-- MapGen / Swooper Maps architecture normalization: `docs/projects/engine-refactor-v1/architecture-normalization-packet.md` is the active project baseline; `openspec/changes/README.md` owns the downstream change train.
-- CLI & plugins: `apps/cli/AGENTS.md`, `packages/plugins/*/AGENTS.md`, `docs/system/cli/`.
+- Platform realization and migration authority:
+  `docs/projects/civ7-capability-realization/`. MapGen-internal normalization
+  evidence remains in
+  `docs/projects/engine-refactor-v1/architecture-normalization-packet.md`;
+  `openspec/changes/README.md` owns the downstream change train.
+- CLI and projections: `apps/cli/AGENTS.md`, `plugins/cli/topics/*/AGENTS.md`,
+  the nearest `plugins/**/AGENTS.md`, and `docs/system/cli/`.
 - SDK: `packages/sdk/AGENTS.md`, `docs/system/sdk/`.
 
 ## Repo Policy

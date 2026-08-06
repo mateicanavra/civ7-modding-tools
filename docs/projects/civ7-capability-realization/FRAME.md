@@ -1,6 +1,6 @@
 # Civ7 Capability Realization Frame
 
-**Status:** Destination model sealed; active-guidance ratchet in progress
+**Status:** Guidance sealed; qualified service law red-state in progress
 **Date:** 2026-08-06
 **Owner:** Civ7 platform architecture and product stewardship
 
@@ -52,17 +52,15 @@ route. It is a funnel, not commit chronology and not another production layer.
 Structure selects Owner. Boundary. Direction. Lifecycle. Closure. Descent
 selects Ground. Chain. Ratchet. Delete. Seal.
 
-**Current container:** ratchet every active guidance surface to the sealed Civ7
-destination platform before source migration resumes. The accepted
-[destination reference](./destination-platform-reference.md) and mutually
-consistent product, system, outcome, actor, topology, corpus, proof, and vendor
-packets are implementation authority again. Repo-local skills, AGENTS routers,
-ADRs, and architecture guidance now receive an explicit
-keep/repair/consolidate/delete disposition. Published global vendor skills own
-generic oRPC, Effect-oRPC, Effect, and Inngest teaching; Civ7 retains only
-domain-specific overlays that add durable local authority. Source remains
-stationary until this executable-guidance pass removes the old direct-control,
-flat-service, local-Habitat-producer, and stale-path attractors.
+**Current container:** make Civ7's unselected local service law express the
+sealed control/play split before admitting any dirty service source. The
+accepted [destination reference](./destination-platform-reference.md) and its
+product, system, outcome, actor, topology, corpus, proof, and vendor packets are
+the positive authority. Review the existing local service blueprint as
+untrusted work-in-progress, close the exact public/private service spine and
+module/proof grammar, turn the current flat control corpus red, then burn down
+foundational `{app,game,map,ui}` control and actor-facing play without a facade,
+private contract picking, provider acquisition, or frozen vendor syntax.
 
 The completed Swooper cold construction, exact corpora, Ground receipt,
 Explore Live Map oracle, Studio design synchronization, wind and pressure
@@ -165,13 +163,24 @@ diagnostics, Knip, boundaries, policy, verification, and upstream checks. Civ7
 keeps that explicit consumer selection until Habitat decides whether generic,
 opt-in quality-graph aggregation belongs in the shared substrate.
 
-**Gradient:** guidance seal -> qualified law red state -> resource/provider fact
-closure -> foundational control -> actor-facing play -> MapGen-runs -> CLI and
-Studio projections/composition -> displaced-owner deletion -> joint Core
-Platform seal -> Dacia Product -> Estate Reconciliation -> Platform Seal.
+**Gradient:** qualified service law red state -> foundational control ->
+actor-facing play -> MapGen-runs -> CLI and Studio projections/composition ->
+displaced-owner deletion -> joint Core Platform seal -> Dacia Product -> Estate
+Reconciliation -> Platform Seal.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-08-06 - Active Guidance Ratchet
+
+The destination model was sealed, but executable guidance still encoded
+direct-control ownership, flat service structure, local Habitat production,
+copied vendor mechanics, and stale source/command snapshots. Every active local
+skill, AGENTS router, ADR, and canonical architecture guide received an
+explicit keep/repair/consolidate/delete disposition. Generic Habitat and vendor
+law returned to their published owners; six Civ7-specific skills remain.
+Source stayed stationary until the guidance corpus could no longer pull
+implementation toward the displaced model.
 
 ### 2026-08-06 - Destination Platform Re-ratified
 

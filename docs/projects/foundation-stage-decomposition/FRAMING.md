@@ -54,16 +54,16 @@ explicitly *out of scope* here — they are follow-on slices that become possibl
 
 ---
 
-## 3. Skills & context gathered (read in full)
+## 3. Continuation routing
+
+The original workstream skill names were migration-era guidance and have been
+retired. Any continuation uses the current local and published authorities:
 
 Anchor skills (entry → relevant references, read fully):
 - `civ7-mapgen-workstream` SKILL + `references/pipeline-map.md` + `references/facet-physics.md`
-  + `templates/mapgen-workstream-starting-frame.md`.
-- `civ7-systematic-workstream` SKILL (12-gate evidence loop).
-- `civ7-open-spec-workstream` SKILL (phase loop, dominoes → OpenSpec changes).
+  + `assets/mapgen-workstream-starting-frame.md`.
+- `habitat:systematic-workstream` + `cognition:investigation-design`.
 - `dev:graphite` SKILL + `dev:git-worktrees` SKILL (worktree + stack mechanics).
-- `mapgen:foundation` (philosophy-only / outdated arch — used for domain
-  philosophy, never for current paths).
 
 Authoritative repo grounding (live source + canonical docs):
 - Recipe wiring: `recipes/standard/recipe.ts`, `recipes/standard/contract-manifest.ts`.

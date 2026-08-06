@@ -1,5 +1,13 @@
 ## Mini-roadmap and Feature Tracker
 
+**Status:** historical capability evidence; not current ownership authority.
+
+Current CLI composition and capability ownership come from
+[the Civ7 CLI operating contract](./OPERATIONS.md) and the accepted
+[capability-realization model](../../projects/civ7-capability-realization/).
+Entries below record behavior that existed when completed; they do not preserve
+the package or transport that first implemented it.
+
 Runtime, plugin assembly, manifest, and distribution procedures are governed by
 [the Civ7 CLI operating contract](./OPERATIONS.md).
 
@@ -58,22 +66,22 @@ This document tracks completed work and upcoming enhancements for the CLI and XM
   - `--port` selects port (default 3000, falls back if busy).
   - Use with `civ7 explore <seed> --serve` for local iteration.
 
-- Civ7 direct restart control (Completed)
-  - `civ7 game restart` now defaults to the direct Civ7 tuner socket through
-    `@civ7/direct-control`.
+- Civ7 restart control (historical implementation complete; ownership migrating)
+  - `civ7 game restart` is retained only through the bound foundational control
+    client; the CLI topic never owns or acquires a Tuner socket.
   - Direct mode supports host, port, scripting state selection, readiness
     waiting, JSON output, and dry-run validation.
   - `--begin` follows the native load-screen action with `UI.notifyUIReady()`;
     `--wait-tuner` waits for post-Begin gameplay API readiness in `Tuner`.
-- Civ7 direct runtime command surface (Completed)
-  - `civ7 game exec "<js>"` sends arbitrary JavaScript to the selected tuner
-    state through `@civ7/direct-control`.
+- Civ7 diagnostic runtime command surface (historical implementation complete)
+  - `civ7 game exec "<js>"` is an explicit qualified diagnostic, not a product
+    control API or permission for caller-local transport.
   - `civ7 game health` checks listener readiness and lists available states.
   - `civ7 game health --tuner` checks whether `Tuner` can execute read-only
     gameplay probes against `Game`, `GameplayMap`, and `Players`.
   - `civ7 game inspect` enumerates state-specific API roots and can return the
     package-maintained read-only `App UI` snapshot.
-- Civ7 first-class direct-control surface (Completed)
+- Civ7 first-class control surface (historical behavior retained through target clients)
   - `civ7 game status` composes App UI lifecycle status and Tuner gameplay
     readiness.
   - `civ7 game map` reads map summaries, individual plot snapshots, and bounded
