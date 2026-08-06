@@ -96,12 +96,30 @@ Final-surface parity moved to its recipe owner while the realization retains
 the target that executes it. The ordinary graph proves 527 product tests and
 28 app tests; no live Civ7 target was executed or claimed.
 
-**Gradient:** app profile/entrypoints and qualified installation -> Interactive construction
--> joint Core Platform seal -> Dacia Product -> Estate Reconciliation ->
-Platform Seal.
+The second realization reduction is closed. A qualified `deploy.ts` entrypoint
+and `runtime/adapters/local-mod-install.ts` now bind the exact Swooper mod
+identity without invoking the CLI process. The CLI and app remain peer
+projections of the existing installation capability until Estate
+Reconciliation resolves its misclassified package owner. The app graph now
+proves 29 tests. Published Habitat and canonical Template expose no generic
+product app-runtime constructor, so no inert app descriptor or profile was
+authored.
+
+**Gradient:** Interactive construction -> joint Core Platform seal -> Dacia
+Product -> Estate Reconciliation -> Platform Seal.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-08-05 - Product App Runtime Refused
+
+The accepted Swooper target previously assumed a shared `defineApp`/profile/
+`startApp` runtime. Inspection of the published Habitat 0.5.1 interface and
+canonical Template implementation falsified that assumption: Habitat owns
+structural authority, not product process realization. Swooper is a finite
+build/deploy app whose honest entrypoints are Nx targets. The qualified local
+installation boundary landed without inventing an unused runtime abstraction;
+focus moved directly to Interactive construction and the joint live seal.
 
 ### 2026-08-05 - Ground Closed
 
@@ -136,10 +154,11 @@ The following work is complete and is not reopened by this frame:
   domains, recipe, metrics, diagnostics, trace, and visualization.
 - `apps/mods/map/swooper-physics` owns the deployable Civ7 realization,
   generated entrypoints, build output, deployment, and live proof. Its
-  corrected destination composes generic app definition/profile/entrypoint law
-  with a `local-civ7` profile, `build` and `deploy` entrypoints, and qualified
-  artifact, deployment, optional runtime, and live layers; it does not bypass
-  generic app law. No current Swooper test is genuine live proof.
+  corrected destination composes shared `app@1` root law with closed qualified
+  build, deploy, runtime, artifact, deployment, compatibility, and live axes.
+  Habitat 0.5.1 supplies no product app-runtime constructor, so the finite
+  build/deploy targets remain Nx entrypoints rather than decorative
+  `defineApp` or profile objects. No live target has passed yet.
 - `packages/mapgen-core` owns the portable MapGen authoring and execution SDK,
   not Swooper's product domain.
 - `services/civ7-control` owns semantic live-control admission, policy,

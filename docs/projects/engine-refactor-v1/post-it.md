@@ -52,10 +52,12 @@ The Swooper realization is now an admitted shared `app@1` instance with a
 closed qualified source interior. Virtual map entries compile directly into the
 ignored final `dist/mod` tree; root scripts, checked-in output, and generated
 TypeScript are gone, and exact config-to-script identity is proved before
-materialization. The active subcontainer is proof normalization into the
-accepted artifact, deployment, runtime, and live axes, followed by the exact
-cold app profile, entrypoints, and install adapter. It does not borrow
-Interactive owners or claim live proof early.
+materialization. Its proof topology is closed around artifact, deployment,
+runtime, and live axes. A qualified deploy entrypoint and local-install adapter
+bind the exact mod identity without invoking the CLI process. Habitat 0.5.1
+does not expose a product app-runtime constructor, so no inert app descriptor,
+profile, or `startApp` wrapper was invented. It does not borrow Interactive
+owners or claim live proof early.
 
 **Stable ownership:** Swooper remains a portable mod definition realized by
 its mod app. The CLI remains a commandless `cli-shell` composed from
@@ -72,10 +74,10 @@ cold filesystem effects, while CLI topics project their bound capabilities.
 MapGen run records, cancellation, retention, and events remain scoped
 MapGen-runs service state rather than a manufactured resource.
 
-**Gradient:** app profile/entrypoints and qualified installation -> Interactive construction
--> joint Core Platform seal -> Dacia Product -> Estate Reconciliation ->
-Platform Seal. The Tuner protocol remains private to its sole provider unless
-another independent consumer earns a public package.
+**Gradient:** Interactive construction -> joint Core Platform seal -> Dacia
+Product -> Estate Reconciliation -> Platform Seal. The Tuner protocol remains
+private to its sole provider unless another independent consumer earns a public
+package.
 
 **Detailed frame:** [Civ7 Capability Realization](../civ7-capability-realization/FRAME.md).
 
@@ -120,6 +122,14 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-08-05 - Product App Runtime Refused
+
+The prior direction assumed shared app definition/profile/entrypoint runtime
+APIs. The published Habitat 0.5.1 interface and canonical Template contain no
+such product runtime. Swooper therefore keeps honest finite Nx entrypoints and
+a qualified installation adapter; focus moves to Interactive construction
+without a decorative transition layer.
 
 ### 2026-08-05 - Ground Closed
 

@@ -127,7 +127,7 @@ the state column remains authoritative:
 | Web projection | `UNCONSTRUCTIBLE` candidate minimum | Required nonempty `test/views/*.test.tsx`; optional nonempty `test/interactions/*.test.tsx` and `test/execution/*.test.tsx` selected by the qualified product |
 | App realization | `UNCONSTRUCTIBLE` candidate minimum | Required `test/definition.test.ts` and `test/tsconfig.json` plus exact source mirrors for profiles and entrypoints; selected cold adapters add an exact `test/execution/adapters/<adapter>.test.ts` mirror |
 | Mod definition | `UNCONSTRUCTIBLE` candidate minimum | Required `test/definition.test.ts`; each qualified family packet closes its semantic layers; the selected map packet uses domain/module/artifact/operation/strategy and recipe/stage/step ownership |
-| Mod realization | `UNCONSTRUCTIBLE` candidate minimum | Generic app definition plus exact profile/entrypoint mirrors; required selected `test/artifact/*.test.ts`, `test/deployment/*.test.ts`, and `test/live/*.live.test.ts`; optional selected `test/runtime/*.test.ts`; currentness, deployment, and live remain distinct Nx targets |
+| Mod realization | Accepted shared `app@1` root plus qualified local overlay | Required closed `test/artifact/*.test.ts`, `test/deployment/*.test.ts`, `test/runtime/{*.fixture.ts,*.test.ts}`, and `test/live/*.live.test.ts`; currentness, deployment, compatibility, and live remain distinct Nx targets |
 
 All proof directories are closed. `*.fixture.ts` or `*.fixture.tsx` may live
 only beside the suites that consume them and are never suites. There is no
@@ -244,7 +244,7 @@ admission authority.
 | Web app projection | `UNCONSTRUCTIBLE` until qualified closed law | `plugins/web/app/<app>` | pending qualified web-app packet |
 | CLI app | Settled commandless ownership; shared shell selected and qualification pending | `apps/cli` | shared `app@1` plus corrected `cli-shell` specialization |
 | MapGen Studio app | Shared shell selected; qualified role law pending | `apps/mapgen-studio` | shared `app@1` plus Studio specialization |
-| Existing Swooper mod split | Legacy product owners; unadmitted until the qualified map envelopes, proof roots, and anchors close | `plugins/mod/map/swooper-physics`, `apps/mods/map/swooper-physics` | pending corrected map definition/realization packets plus nested laws |
+| Existing Swooper mod split | Admitted portable definition and deployable realization owners | `plugins/mod/map/swooper-physics`, `apps/mods/map/swooper-physics` | shared root kinds plus closed qualified MapGen definition, realization, and nested laws |
 | Civilization mod definition | `UNCONSTRUCTIBLE` until qualified closed law | `plugins/mod/civ/<mod>` | pending qualified definition packet |
 | Civilization mod realization | `UNCONSTRUCTIBLE` until qualified closed law | `apps/mods/civ/<mod>` | pending qualified realization packet |
 
@@ -1402,49 +1402,33 @@ output exists only under `dist/`. Virtual map entrypoints are bundled directly
 into the final mod tree; no tracked deployment tree or generated-source slot
 survives as authored source.
 
-The qualified packet composes the generic app law with additional finite
-delivery law. It selects a cold typed app descriptor rather than a reusable
-production module:
+The qualified packet composes shared `app@1` root law with finite map-mod
+delivery law. Habitat supplies structural authority, not a product app-runtime
+constructor:
 
 ```text
 habitat.toml
 package.json
 project.json
 src/
-  rawr.<mod>.ts
   build.ts
   deploy.ts
   run-manifest.ts
   runtime/
     adapters/
       local-mod-install.ts
-    config.ts
-    processes.ts
-    profiles/
-      local-civ7.ts
     file-plan.ts
     map-script/
-      adapter.ts
       compiler.ts
-      entrypoint.ts
-      setup.ts
     run-manifest.ts
-    targets.ts
 test/
-  definition.test.ts
-  profiles/
-    local-civ7.test.ts
-  entrypoints/
-    build.test.ts
-    deploy.test.ts
-  execution/
-    adapters/
-      local-mod-install.test.ts
+  setup.ts
   artifact/
     *.test.ts
   deployment/
     *.test.ts
-  [runtime/]
+  runtime/
+    *.fixture.ts
     *.test.ts
   live/
     *.live.test.ts
@@ -1452,37 +1436,27 @@ test/
 tsconfig.json
 ```
 
-`src/rawr.<mod>.ts` declares the exact matching definition identity and the
-realization's cold semantic target bindings. The `local-civ7` profile selects
-the local Civ7 installation/deployment configuration; `src/build.ts` and
-`src/deploy.ts` are the selected app roles and delegate through the shared runtime
-rather than constructing their own harness. `src/runtime/targets.ts` implements
-the cold bindings with typed non-portable execution descriptor references;
+`src/build.ts` and `src/deploy.ts` are finite Nx entrypoints.
 `src/runtime/file-plan.ts` owns the deterministic rendered mod-tree plan and
 `src/runtime/run-manifest.ts` owns transient run-manifest materialization. These
 runtime leaves are compiler input, not reusable public exports.
-`src/runtime/adapters/local-mod-install.ts` performs the host filesystem
-installation selected by the app definition. `src/runtime/map-script/` contains
-the only engine-global implementation: the concrete adapter, setup capture,
-and generated Civ7 map entrypoint. It consumes the pure
-`packages/civ7-adapter` port/static/mock package plus static Civ7 policy; the
-package and portable definition import none of these engine-global leaves. The
-map-family packet admits no root `scripts/`, checked-in mod tree, or open test
+`src/runtime/adapters/local-mod-install.ts` owns the exact mod identity and host
+installation boundary. `src/runtime/map-script/` owns Civ7 map-script
+compilation. The map-family packet admits no decorative app descriptor, root
+`scripts/`, checked-in mod tree, generated-source cabinet, or open test
 interior.
 
 **Qualified selection**
 
-A future qualified realization packet must compose the accepted generic app
-packet at this root, then add only the family relation, cold target interior,
-and delivery proof layers. It cannot bypass or weaken generic
-definition/profile/entrypoint law. Mod realization is not a subtype of mod
-definition; it selects one definition as an app dependency.
+A qualified realization packet composes the accepted shared app packet at this
+root, then adds only its closed family source and delivery proof laws. It does
+not infer an absent runtime abstraction from the shared structural kind. Mod
+realization is not a subtype of mod definition; it selects one definition as an
+app dependency.
 
 **Public face and import direction**
 
 - The realization app has no reusable production export.
-- The app descriptor and target table are cold runtime-compiler inputs, not a
-  callable library surface.
 - It consumes exactly one matching mod definition plus public SDK/runtime,
   pure adapter contracts, packages, and qualified service/resource surfaces.
 - It owns render, bundle, generated-currentness, deployment, compatibility,
@@ -1493,29 +1467,14 @@ definition; it selects one definition as an app dependency.
 
 **Selected proof law**
 
-The generic app layers remain intact. `definition.test.ts` proves exact
-matching-definition identity, complete semantic target operation keys, and
-cold descriptor compilation. `profiles/local-civ7.test.ts` proves the selected
-installation/deployment configuration, while `entrypoints/{build,deploy}.test.ts`
-prove role selection and shared-runtime delegation without repeating target
-behavior. `test/execution/adapters/local-mod-install.test.ts` proves exact-tree
-installation, failure translation, and cleanup against an isolated root.
-`test/artifact/` proves deterministic rendered identity, content, and output
-placement. `test/deployment/` proves correct operation distinction, target/root
-selection, installation-receipt interpretation, cancellation, and release for
-every selected deployment path; it does not repeat filesystem mechanics owned
-by the app adapter. Optional `test/runtime/` proves only generated-module
-collaboration, map-script adapter behavior, and engine compatibility under the
-qualified runtime harness.
-`test/live/` owns loader acceptance and runtime compatibility and runs only
-through the explicit uncached live target.
-
-`runtime/targets.ts` declares the exact artifact, deployment, optional runtime,
-and live proof-component identities selected by the realization manifest. Each
-identity requires one matching proof leaf in its layer; unselected leaves are
-forbidden. The Swooper realization selects the finite identities classified in
-`CORPUS.md`. Existing deterministic scripts cannot be relabeled as live proof:
-its live leaves are newly authored against real loader/runtime observations.
+Shared app root law remains intact. The qualified map-mod proof law closes four
+disjoint axes. `test/artifact/` proves deterministic rendered identity, content,
+and placement. `test/deployment/` proves the exact mod identity, installation
+binding, and deployment-evidence interpretation. `test/runtime/` proves only
+generated-module compatibility and keeps fixtures beside those suites.
+`test/live/` owns real loader/runtime acceptance and runs only through explicit
+uncached live targets. Existing deterministic scripts cannot be relabeled as
+live proof.
 
 All selected layers are closed and nonempty. Generation/currentness,
 deployment verification, and live Civ7 acceptance remain distinct Nx targets.
@@ -1530,10 +1489,9 @@ Instance-specific product assertions do not enter generic realization law.
 
 **Generator**
 
-Unsupported today. The candidate shape is not Engineer input. After a qualified
-family law is accepted, generation requires that family and a matching admitted
-definition. It emits authored scaffold files only; `dist/` and `mod/` remain
-absent until their Nx generators run.
+No generator is required for the admitted Swooper instance. A future generator
+may emit this closed authored scaffold after a second realization proves the
+grammar; `dist/` and `mod/` remain absent until Nx tasks materialize them.
 
 ## Design Disagreement Inventory
 
@@ -1556,7 +1514,7 @@ broaden a kind:
 | `plugins/web/app/**` | The qualified Studio browser projection law is absent | Design and accept the closed qualified packet before creating the root or moving browser source |
 | `apps/cli`, `apps/mapgen-studio` | Current app code manually owns provider, service, API-context, mounting, and lifecycle realization | Preserve the CLI law; keep Studio in place until its qualified packet is accepted, then move provisioning, binding, mounting, observation, and disposal into shared runtime |
 | `plugins/mod/{map,civ}/**` | Swooper remains a legacy definition owner under a partial envelope; qualified map and civilization definition laws are absent | Preserve Swooper behavior and ownership in place until the qualified map definition packet closes its domain-shaped proof and manifest anchor; do not create or move Dacia until the civilization packet is accepted |
-| `apps/mods/{map,civ}/**` | Swooper remains a legacy realization owner under partial law; qualified map and civilization realization laws are absent | Preserve Swooper behavior in place until its qualified realization proof and anchor close; do not construct Dacia realization until its packet is accepted; generated output is never moved as source |
+| `apps/mods/{map,civ}/**` | Swooper is admitted by shared app root law plus qualified map-mod source/proof law; Dacia's civilization realization law is absent | Preserve the sealed Swooper grammar, do not construct Dacia realization until its packet is accepted, and never move generated output as source |
 
 Only qualified relocation, inlining, combination, or deletion is allowed.
 Grandfather baselines, instance-path exceptions, broad source scanners, and
