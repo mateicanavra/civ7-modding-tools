@@ -1,175 +1,156 @@
-# Turn Playbook
+# Actor-Facing Turn Loop
 
-The detailed, deterministic version of the loop in SKILL.md. Commands assume
-`CLI="bun apps/cli/bin/run.js"` run from the repo root, and `--json` on
-everything. Resolve *what to choose* with `strategy.md`; resolve *exact flags*
-with `command-reference.md`.
+Run one mutation at a time:
 
-**Contents:** [Loop](#the-loop) · [Triage by priority kind](#step-2-triage-by-priority-kind) ·
-[Choice decisions](#step-3-choice-decisions) · [Units](#step-4-units-drain-ready-units) ·
-[Found a city](#founding-a-city) · [Cities](#step-5-cities-set-production) ·
-[End turn](#step-6-end-turn) · [Wait](#step-7-wait-for-your-turn) · [Success signals](#success-signals)
-
-## The loop
-
-```
-status (playable?) -> priorities (triage) -> resolve choices
-  -> drain ready units -> set city production -> end-turn validate
-  -> clear blockers -> end-turn --send -> wait -> repeat
+```text
+status
+  -> situation/priorities
+  -> choice blockers
+  -> ready units
+  -> city decisions
+  -> turn-completion check
+  -> turn-completion request
+  -> fresh situation
 ```
 
-One mutation per step; confirm its postcondition before the next.
-
-## Step 1 — Confirm playable
+Before the first turn, discover current leaves and flags:
 
 ```bash
-$CLI game status --json
-```
-Proceed only if `playable:true` and `capability.canMutate:true`. Otherwise →
-`setup-and-recovery.md` (STOP and report; the human launches/advances).
-
-## Step 2 — Triage by priority kind
-
-```bash
-$CLI game play priorities --compact --json
-```
-`decisionHud` tells you `turn`, `canEndTurn`, whether a `readyUnit`/`readyCity`
-is waiting. Work `priorities[]` top-down. Map each `kind` to the handler:
-
-| `priority.kind` / signal | Handler |
-|---|---|
-| research / tech choice pending | Step 3 → `choose-tech` |
-| culture / civic choice pending | Step 3 → `choose-culture` |
-| government / tradition / attribute available | Step 3 → `choose-government` / `change-tradition` / `buy-attribute` |
-| narrative / era event | Step 3 → `choose-narrative` |
-| celebration available | Step 3 → `choose-celebration` |
-| diplomacy / first-meet request | Step 3 → `diplomacy respond` / `diplomacy respond-first-meet` |
-| advisor warning | Read `notifications list`, then `notifications advisor-warning --target '<notification-id>' --send` |
-| ready unit needs orders | Step 4 |
-| city needs production / population to place | Step 5 |
-| informational notifications piling up | `notifications dismiss-reviewed --send` (after reading) |
-| `canEndTurn:true`, nothing pending | Step 6 |
-
-If `priorities` is sparse, cross-check with `game play notifications list --json`
-(its `hud.decisionQueue[]` enumerates pending decisions with `requiredInputs`).
-
-## Step 3 — Choice decisions
-
-Pattern for every choice: **read options → pick → send → confirm.**
-
-```bash
-# Research (civics identical with choose-culture)
-$CLI game play choose-tech --options --json          # -> enabledOptions[].nodeType + name
-$CLI game play choose-tech --node <nodeType> --send --json   # confirm result.verified
+bun apps/cli/bin/run.js game --help
+bun apps/cli/bin/run.js game play --help
 ```
 
-- **Tech / civics:** pick per `strategy.md` (terrain-driven early; then steer to
-  your Legacy Path). Use `set-tech-target`/`set-culture-target` to aim at a
-  deeper node the game will auto-path toward.
-- **Narrative:** echo all three of `{targetType, target, action}` from the
-  chosen `enabledOptions[]` entry. Prefer the option whose `reward` matches your
-  path; avoid options with a `cost` you cannot afford.
-- **Government / tradition / attribute / celebration:** read options, choose per
-  strategy, send. Spend attribute points into the tree matching your path.
-- **Diplomacy / first-meet:** read `notifications list`; the decision item
-  carries the ids to echo into `diplomacy respond` (`--action-id`,
-  `--response-type`) or `diplomacy respond-first-meet` (`--met-player-id`,
-  `--response-type`/`--response`) — see `command-reference.md`. Default: accept
-  friendly/neutral first-meets; do not declare war unless told to.
+Ask every selected leaf for `--help`. The command examples below name current
+leaves only; their flags and result fields come from live discovery.
 
-Re-run `priorities` after clearing choices to see what surfaced next.
+## 1. Gate On Foundational Readiness
 
-## Step 4 — Units: drain ready units
+Select the foundational readiness read from native game help. Proceed only when
+it reports a playable,
+mutation-capable, current observation. Otherwise use
+`setup-and-recovery.md`.
 
-Repeat until no unit is "ready" (idle). Each pass handles the
-selected/first-ready unit:
+Do not query the Tuner resource directly for gameplay readiness. Foundational
+control owns the Civ7 interpretation.
 
-```bash
-$CLI game play unit ready --json     # -> unitId, unit (type/pos/moves), legalOperations[]
-```
+## 2. Read The Play Situation
 
-Decide from `legalOperations` + unit role:
+Select the situation/planning read from native play help and request its
+structured agent view.
+Work the returned priority and next-action descriptors in order.
 
-| Unit situation | Do |
-|---|---|
-| Scout / military with moves, map to explore | Move toward unexplored/objective: get a plot from `unit move-preview --unit-id '…'`, then `unit target --unit-id '…' --x <x> --y <y> --send`. |
-| Settler / founder on/near a good site | Move it with the named `unit target` command, then stop and report when `FOUND_CITY` is the remaining legal action; founding has no public named command yet. |
-| Military on a border, nothing to do | Use a named action command if one matches the live state. Otherwise stop and report the exposed fortify/skip operation; do not bypass the public CLI. |
-| Unit genuinely has nothing useful | Stop and report the exposed legal operation when no named skip command exists. |
-| Commander with units to pack/move | Use a named commander action when available; otherwise stop and report the unsupported legal operation. See `strategy.md` → Commanders. |
+Typical owner routing:
 
-After each `--send`, check the postcondition (`target-reached` good;
-`path-shortfall` = multi-turn move in progress, fine). The same unit should no
-longer appear ready on the next pass — that is how you avoid infinite loops.
+| Situation | Play owner |
+| --- | --- |
+| blocking notification or ready entity | attention |
+| gameplay autoplay choice | automation |
+| production, worker, expansion, town focus | city |
+| response or first meet | diplomacy |
+| notification review/dismissal | notifications |
+| research, culture, government, tradition, celebration, narrative, attribute | progression |
+| front, destination, formation, settlement, movement analysis | planning |
+| turn completion | turn |
+| unit movement/target/resettle/upgrade/readiness | unit |
 
-### Preparing to found a city
+The CLI may retain older caller-facing nouns. Route by semantic owner, not path
+spelling.
 
-1. Find a site: `game play settlement-recommendations --json` → take a top
-   suggestion's `location{x,y}` (or use the settler's current plot if it is
-   already a recommended spot).
-2. Move the settler there: `game play unit target --unit-id '<settlerId>' --x
-   <x> --y <y> --send --json`. If `path-shortfall`, the move continues next turn
-   — end the turn and resume.
-3. When the settler is **on** the target plot, re-read it with `game play unit
-   ready --unit-id '<settlerId>' --json`. If `FOUND_CITY` is legal, stop and
-   report that founding is blocked on a named public command. Do not use raw
-   execution to bypass the service boundary.
+## 3. Resolve Choice Decisions
 
-## Step 5 — Cities: set production
+For each progression or diplomacy choice:
 
-Repeat until no city is "blocking" (needs a production choice):
+1. Read the current options/decision.
+2. Choose using `strategy.md` and explicit human constraints.
+3. Echo the returned ids/actions exactly into the named check.
+4. Request only after the check admits it.
+5. Read the procedure's postcondition, uncertainty, and next action.
+6. Re-read priorities because resolving one choice can expose another.
 
-```bash
-$CLI game play ready-city --compact --json   # -> cityId, productionCandidates[], townFocusOptions[], expansionCandidates[]
-```
+Select the exact choice family, leaf, and flags through native help.
 
-- **Pick production** from `productionCandidates[]` (each has `kind`, `type`,
-  `name`, `cost`, `turns`, `valid`). Choose per `strategy.md` build order, then:
-  ```bash
-  $CLI game play build-production --city-id '<cityId>' --unit-type <type> --send --json
-  # constructible: --constructible-type <type> [--x --y from placementPlots]
-  # project:       --project-type <type>
-  ```
-- **Towns:** set focus once per Age from `townFocusOptions[]`:
-  `set-town-focus --city-id '…' --growth-type <g> --project-type <p> --send`.
-  Towns convert production to gold and feed food to connected cities — usually
-  leave them on a growth/food/production focus and let them grow.
-- **Place population / expand** when `populationPlacement`/`expansionCandidates`
-  surface: `expand-city --city-id '…' --x --y --send` using a candidate plot.
+## 4. Drain Ready Units
 
-## Step 6 — End turn
+Repeat:
 
-```bash
-$CLI game play end-turn --json          # validate: enumerates blockers, shows canEndTurn
-```
-- If it lists blockers (units to order, cities to set, choices pending) → go back
-  to the relevant step, clear them, re-validate.
-- When clear:
-  ```bash
-  $CLI game play end-turn --send --json   # expect postcondition: turn-advanced
-  ```
-- `turn-completion-blocked` → something is still pending; read the blocker, do
-  not re-send blindly.
+1. Select the unit family and ready-unit view through native play help.
+2. Select the returned ready unit and inspect lawful named actions.
+3. For movement, use the selected movement-planning read to obtain a
+   reachable coordinate.
+4. Check the named unit action with the exact component id and coordinate.
+5. Request it once.
+6. Re-read the unit and situation.
 
-## Step 7 — Wait for your turn
+Interpret results carefully:
 
-After `turn-advanced`, the AI players take their turns. Poll until it is yours
-again:
+- reached/confirmed: continue;
+- path shortfall or multi-turn progress: preserve the destination and continue
+  on a later turn;
+- refused without dispatch: refresh and correct once;
+- guarded/uncertain dispatch: reconcile before any retry;
+- only an unnamed native operation remains: stop and report the capability gap.
 
-```bash
-$CLI game play priorities --compact --json   # until decisionHud shows your turn + decisions/canEndTurn
-```
-Poll every few seconds; if nothing changes for a long time, check `game status`
-(see `setup-and-recovery.md`). Then return to Step 2 for the new turn.
+Strategic settlement/front suggestions are not automatically reachable action
+coordinates. Move toward them through fresh unit planning reads.
 
-## Success signals
+## 5. Resolve City Decisions
 
-| After | Good signal | Bad signal → do |
-|---|---|---|
-| any `--send` | procedure-specific semantic success status | uncertainty/error → follow `nextSteps`, re-read, and never retry blindly |
-| `unit target --send` | `sent-confirmed`, or guarded `path-shortfall` | `sent-unverified`/`dispatch-unknown` → re-read; outcome is unresolved |
-| `build-production --send` | `verified:true` | invalid candidate → re-read `ready-city`, pick a `valid:true` candidate |
-| `choose-tech/culture --send` | `verified:true` | re-read `--options`; node may be disabled now |
-| `end-turn --send` | `turn-advanced` | `turn-completion-blocked` → handle blockers, re-validate |
+Select the city situation view and named request leaves through native play
+help.
 
-[← Back to SKILL.md](../SKILL.md)
+For each blocking city/town:
+
+1. Read production, worker, expansion, and town-focus candidates.
+2. Choose from returned candidates only.
+3. Check the matching named action.
+4. Request it once and inspect its postcondition.
+5. Re-read the city/situation before the next city action.
+
+## 6. Check Turn Completion
+
+Select the turn-completion leaf through native play help and invoke its check
+mode.
+
+- If blockers remain, route each to the owning play module and resolve one at a
+  time.
+- If the result is stale or unavailable, refresh status and situation.
+- Request turn completion only when a fresh check admits it.
+
+Do not interpret a CLI return or raw native dispatch as `turn advanced`.
+
+## 7. Request And Reconcile Turn Completion
+
+Send the named request once. Require the turn procedure's own result:
+
+- postcondition satisfied: move to waiting;
+- refused/no dispatch: resolve the returned blocker;
+- uncertain/dispatch may have occurred: preserve the operation key and follow
+  reconciliation; do not send again.
+
+## 8. Wait For A Fresh Turn
+
+Read the play situation again or use the current watch projection. Resume only
+when fresh state identifies the actor's turn and exposes decisions or lawful
+turn completion. If progress stalls, check foundational status and use
+`setup-and-recovery.md`.
+
+## Stop Conditions
+
+- target turn reached;
+- human consultation trigger;
+- missing named action;
+- second refusal for the same corrected action;
+- uncertain mutation cannot be reconciled;
+- resource epoch or game identity changed mid-decision;
+- session no longer playable/mutation-capable.
+
+## Per-Action Record
+
+- situation/priority id;
+- candidate source read;
+- check input/result;
+- request input and operation/no-repeat key;
+- dispatch disposition;
+- postcondition/reconciliation;
+- next action;
+- retry law.

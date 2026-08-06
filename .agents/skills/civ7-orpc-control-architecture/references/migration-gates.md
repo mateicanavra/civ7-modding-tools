@@ -1,65 +1,123 @@
-# Migration Gates
+# Civ7 oRPC Migration Gates
 
-## Incremental Path
+## 1. Ground The Slice
 
-1. **Inventory the current wrapper.** Name the direct-control function, CLI
-   command, tests, docs, risk class, and live proof boundary.
-2. **Extract a procedure atom without changing callers.** Add a semantic
-   contract leaf and matching Effect router leaf under
-   `services/civ7-control/src/service/modules/<domain>/`, then add no-network
-   behavior tests around the direct-control port.
-3. **Route one caller through the procedure.** Prefer one CLI command or one
-   Studio endpoint. Keep output contract stable unless the product change is
-   intentional and documented.
-4. **Centralize repeated policy.** Only after at least two procedure atoms share
-   the same guard should it become middleware.
-5. **Add edge handlers last.** Mount RPC/OpenAPI only after in-process callers
-   and tests prove the router shape.
+- Read the sealed destination, product, system, topology, and kind-law packet.
+- Identify the actor outcome, current callers, current owner, destination
+  owner, preserved behavior, and deletion trigger.
+- Use `bunx nx show project <project> --json` to discover the real project and
+  target names before choosing verification commands.
+- Treat current implementation shape as migration evidence, not destination
+  authority.
 
-## Required Gates By Slice
+## 2. Close Semantic Ownership
 
-For any direct-control package change:
+- Foundational native behavior lands in one of control's exact
+  `{app,game,map,ui}` modules.
+- Actor-facing gameplay meaning lands in one of play's exact
+  `{attention,automation,city,diplomacy,notifications,progression,planning,turn,unit}`
+  modules and consumes only the public control client.
+- Run intent, state, ordering, cancellation, correlation, reconciliation, and
+  final outcome remain in MapGen-runs, separate from control, play, portable
+  definition truth, and app-qualified physical effects.
+- No operation has two fact writers or depends on a current route/file name for
+  its meaning.
 
-- `nx run control-direct:check`
-- package tests if present or touched
-- build/export verification when CLI imports changed symbols
+## 3. Close The Service Boundary
 
-For any CLI game/play command change:
+- The service owns one public contract and callable client over one private
+  complete router.
+- `src/client.ts` is the ordinary consumer face; private service source is not
+  imported across the boundary.
+- Ready dependencies are declared through the public construction face and
+  supplied only by qualified app or API composition.
+- Consumers neither recreate a method interface nor derive types from private
+  contract or implementation leaves.
+- Expected failures, defects, interruption, cancellation, and context
+  requirements are preserved at the one native procedure boundary selected by
+  the exact installed vendor lane.
 
-- focused CLI tests for the changed command and adjacent scheduler/priority
-  behavior
-- `nx run civ7-cli:check`
-- broader `game.play.test.ts` gate when shared output, notification scheduling,
-  postconditions, or relationship labels are affected
+## 4. Close The API Projection
 
-For any `@civ7/control-orpc` contract/router/service change:
+- Every caller-facing route leaf is owned by the API contract.
+- `src/client.ts` is the public caller face and `src/api.ts` is the public
+  registration face.
+- API contract, implementation, and router stay private under
+  `src/service/**`.
+- Each projection delegates explicitly to a bound public service client or
+  exact app-supplied public capability.
+- The API does not copy a service contract subtree, import a service-private
+  router, acquire providers, or own service operation state.
+- The qualified app materializes request context and mounts the registration
+  face.
 
-- `nx run control-orpc:check` (includes the contract ownership guard),
-  `nx run control-orpc:build`, and `nx run control-orpc:test`
-- no-network behavior tests with a fake direct-control port (see
-  `services/civ7-control/test/behavior/modules/display/display-explore-procedure.test.ts`
-  for the lifecycle-ordering pattern: assert the port call sequence, failure
-  paths, and cleanup)
-- contract meta + error-map coverage for every new procedure key
-- dependency review for new `@orpc/*` / `effect` packages
+## 5. Close App Composition
 
-For live-game claims:
+- One qualified app selects each provider, plugin, host role, configuration
+  root, and adapter identity exactly once.
+- The app acquires providers, constructs ready resource values and adapters,
+  binds service clients in dependency order, and supplies API context.
+- Ordinary commands, projections, and services receive only their declared
+  bound capabilities.
+- Success, failure, partial startup, cancellation, and interruption all reach
+  app-owned disposal without duplicating provider or service policy.
 
-- read-only smoke before mutation guidance
-- mutation smoke only when explicitly authorized and scoped to the current
-  player/game state
-- final claim labeled as unit-tested, type-checked, built, CLI-verified,
-  live-read, or live-mutated
+## 6. Pass The Vendor Source Gate
+
+- Load `dev:orpc`; add `dev:effect-orpc` and `dev:effect-ts` when Effect crosses
+  the procedure boundary.
+- Load `dev:inngest` and, when relevant, `dev:effect-inngest` only for an earned
+  durable workflow.
+- Record the installed package tuple from the workspace manifest and lockfile.
+- Inspect that exact published source and declarations for the proposed
+  mechanism.
+- Add a discriminating compile or lifecycle fixture for any choice that could
+  differ across vendor lanes.
+- Do not freeze guessed builder names, extension behavior, initialization
+  order, error mapping, runtime/scoping, or cancellation semantics in Civ7
+  architecture guidance.
+
+## 7. Verify The Owning Proof
+
+- Service contract: public client and contract type coherence.
+- Service semantics: one mirrored suite for each affected module operation;
+  preserve refusal, partial, stale, unavailable, and uncertain outcomes.
+- Service execution: request isolation, interruption, cancellation, ordering,
+  and once-only root behavior when affected.
+- API contract/projection: caller schema and exact delegation/output/error
+  mapping without choosing transport.
+- API execution: only API-owned stream or projection lifecycle.
+- App assembly/execution: provider/plugin/adapter selection, client binding,
+  host mounting, interruption, and disposal.
+- Run the discovered affected Nx lint, typecheck, test, and build targets.
+
+## 8. Bound Live Claims
+
+- Run read-only live evidence before mutation evidence.
+- Mutate only with explicit authorization and a scope tied to the current
+  player and game state.
+- Preserve stable no-repeat identity for uncertain play mutations and require
+  fresh control evidence before retry.
+- Label type, contract, semantics, execution, projection, assembly, generated,
+  installed, loader, and live claims independently.
 
 ## Stop Conditions
 
-Stop and ask or nudge the owning thread if:
+Return to design when:
 
-- a caller imports a new direct-control symbol that package exports/builds do
-  not expose, or imports the deleted `@civ7/control-orpc/runtime` surface;
-- middleware invents controller capability/proof or swallows a host admission
-  refusal;
-- a router exposes broad arbitrary runtime execution;
-- a relationship/city-state label becomes hostile/enemy/opponent/threat without
-  official proof;
-- tests prove only TypeScript shape but the handoff claims live game behavior.
+- control and play require shared semantic write authority;
+- play needs a provider, resource value, raw execution capability, or private
+  control source;
+- an API cannot state a caller contract distinct from a service mirror;
+- a service or API must expose private router source;
+- a concrete vendor mechanism cannot be proven against the installed source;
+- a workflow has no process-independent resumption need;
+- relationship labels outrun official relationship evidence; or
+- local proof is being used to claim live Civ7 behavior.
+
+## Bounded Residue Review
+
+Search the changed service, API, app, tests, and guidance roots only. The slice
+must contain no private cross-service imports, provider acquisition outside an
+app, copied service-contract subtrees in an API, parallel method interfaces,
+unselected peer modules, or claims that one proof class establishes another.

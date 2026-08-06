@@ -1,153 +1,158 @@
-# Facet 3 — Civ7 Domain (data modalities · research · design intent)
+# Civ7 Domain Facet
 
-> Open when a map-gen request needs **Civ7 game facts**: which terrains/biomes/features/resources are legal, where the game wants starts, what the official scripts actually do, or whether a physically-realistic plan is also *placeable* per Civ7 rules. This facet is the **research/intent dimension** of the loop — it supplies the Civ7 truth that grounds design (loop steps 3–5) and that the verification facet later proves in-game (step 7).
+Open this reference when MapGen needs an official identifier, legality rule,
+setup fact, runtime row, placement constraint, or gameplay-intent judgment.
 
-This facet is **partially owned elsewhere — reference, do not restate**:
+## Authority Split
 
-- **`civ7-product-authority`** owns *what the repo promises* and the **evidence hierarchy** (the numbered authority ladder + evidence classes in `references/source-map.md`). It governs which sources may support a claim; it does **not** itself parse game XML. Inherit its tiering wholesale.
-- **`civ7-operational-debugging`** owns the **live runtime** discipline (FireTuner port 4318, `Scripting.log`, `@civ7/direct-control` probes, in-game proof boundaries — `references/firetuner-runtime.md`). Use it for any *live* read; this facet only adds *where to point the probe* and *how to read the answer for map-gen intent*.
+- The identified official-resource corpus owns source facts for that revision.
+- Generated policy packages own their public derived static contracts.
+- The Swooper definition owns product-specific use of those facts in domains,
+  recipe, configuration, diagnostics, metrics, and visualization semantics.
+- The portable adapter package owns only its contract/static vocabulary/mock.
+- The realization app owns engine globals, loader entrypoints, and live map
+  execution.
+- The Tuner provider owns raw runtime acquisition and command facts.
+- Foundational control owns typed Civ7 app/game/map/UI interpretation.
+- Play owns gameplay choice and next-action meaning.
+- Generated, installed, loader, and live evidence remain separate.
 
-What is **net-new here** (author/carry in this facet): integrating the four data modalities into one reasoning surface, the web/forum research posture, design-intent reasoning, and the **earthlike-expectations ∩ Civ7-legality bridge**. The facet's contribution is *integration and judgment*, not pioneering data access from scratch — most of the official corpus is already encoded in the mod.
+Read `civ7-product-authority` and the sealed capability packet before changing
+one of these contracts.
 
----
+## Evidence Modalities
 
-## The four data-access modalities
+### 1. Official Resource Corpus
 
-A map-gen request touching terrain/feature/resource/start legality needs Civ7 facts. There are exactly four ways to get them; pick by *what kind of truth* you need. Evidence tiers below are from `civ7-product-authority/references/source-map.md` (official resources = tier 8, live source = tier 9, in-game = tier 11, community = tier 13).
+Start with `.civ7/outputs/resources` for deterministic facts from the identified
+source revision. Useful source families include terrain/biome/feature/resource
+tables, setup and map-size definitions, leader start biases, discovery and
+narrative rules, and official map scripts.
 
-### 1. Offline XML — `data:crawl` / `data:explore` (tier 8, authoritative-static)
-
-The official game data is a git submodule at `.civ7/outputs/resources/` (`mateicanavra/civ7-official-resources.git`, **snapshot 2026-01-24**). Sync it:
-
-```bash
-bun run resources:init      # init/update the submodule
-bun run refresh:data        # resources:init + plugin-files build + data:unzip (NO data:zip)
-```
-
-`refresh:data` works **without the Steam install** (`inputs.installDir` is commented out in `civ.config.jsonc`; `data:zip` would need the game and is intentionally not chained). Extracted XML lands at `.civ7/outputs/resources/Base/modules/base-standard/data/`:
-
-| File | What it grounds |
-|---|---|
-| `resources.xml`, `resources-v2.xml` | resource class/weight/hemisphere, `AdjacentToLand`, `LakeEligible` |
-| `terrain.xml` | terrain / biome / feature vocabulary |
-| `leaders.xml` | `StartBias*` rows (per-leader start preferences) |
-| `maps.xml` | continent counts, map-size definitions |
-| `discovery-stories.xml`, `narrative-sifting.xml` | discovery / narrative placement rules |
-
-Official **JS map scripts** sit alongside at `.../base-standard/maps/`: `resource-generator.js`, `assign-starting-plots.js`, `discovery-generator.js`, `natural-wonder-generator.js` — these are the **reference implementations of official placement logic** (read them to learn *what the game actually does*, not just what the tables say).
-
-Graph-traversal CLI for exploring the relationship web (BFS from a seed identifier → graph.json / dot / SVG):
+Use native CLI help and generator Nx project discovery to refresh or
+explore the corpus. Discover their syntax instead of copying a remembered
+command:
 
 ```bash
-civ7 data crawl <SEED_IDENTIFIER> ...     # BFS the data graph from a seed row
-civ7 data explore ...                     # interactive exploration
-civ7 data render ... / civ7 data slice ...# emit graph artifacts
+bun apps/cli/bin/run.js data --help
+bunx nx show project civ7-map-policy-tools --json
 ```
 
-Use this modality **first** for any legality/vocabulary/weight question — it is deterministic, version-pinned, and citeable at tier 8.
+Record the corpus revision with every claim. Corpus evidence does not prove the
+installed game has the same patch/DLC state.
 
-### 2. Static policy package — `@civ7/map-policy` (tier 8, pre-distilled)
+### 2. Generated Static Policy
 
-`packages/civ7-map-policy/src/civ7-tables.gen.ts` is the **generated** authoritative static snapshot (also dated **2026-01-24**) — terrain/biome/feature indices, resource weights, hemisphere minimums, start biases, `MapResourceMinimumAmountModifier` rows. Exported as two table bundles:
+Use `packages/civ7-map-policy` when the product already needs a distilled
+identifier, legality table, setup rule, start bias, or resource policy. Confirm
+the generator source and generated-currentness target before relying on it.
 
-```ts
-import { CIV7_BROWSER_TABLES_V0, CIV7_POLICY_TABLES_V1 } from "@civ7/map-policy";
-```
+Generated policy is authoritative for the package contract derived from its
+recorded source. It is not runtime acquisition and does not own Swooper product
+thresholds or placement outcomes.
 
-This is what the mod actually consumes (see the bridge below). It is the distilled form of modality 1; prefer it when you need *indices/weights the recipe already speaks*, and fall back to raw XML when you need a field the package didn't capture. Refresh after a game patch: `bun run refresh:data` then `nx run @civ7/map-policy:verify -- --write` (regenerates the `.gen.ts` snapshot).
+Before authoring a new table inside the Swooper definition, search the policy
+package and official-source generator. Duplicate tables drift.
 
-> **Staleness caveat (load-bearing).** Both modality 1 and 2 are pinned to the **2026-01-24** snapshot. If the live game has patched resource/terrain data since, the static tables may diverge from runtime behavior (tracked as refactor-plan D4). When a live game is available, **cross-check legality claims against `game:gameinfo`** (modality 3) before asserting them as current. Treat static tables as *authoritative-for-planning*, live probes as *authoritative-for-this-build*.
+### 3. Live Game Information
 
-### 3. Live game info — `game:gameinfo` (tier 11, runtime truth)
-
-With Civ7 running and the tuner up (`EnableTuner 1`, `127.0.0.1:4318` — see `civ7-operational-debugging/references/firetuner-runtime.md`), read live `GameInfo.*` rows:
+Use a bounded table-inspection diagnostic only when the exact installed runtime
+must be checked. Discover the leaf from native game help:
 
 ```bash
-civ7 game gameinfo Resources --limit 50 --json
-civ7 game gameinfo Units --lookup UNIT_SETTLER --json
+bun apps/cli/bin/run.js game --help
 ```
 
-This is the **only modality that reflects the exact patched game you are about to verify in**. Use it to resolve the staleness caveat above and to confirm that a planned placement is legal *in the live runtime*, not just in the snapshot. It is heavier (needs a running game) — reserve it for cross-checks and live-legality questions, not bulk exploration.
+Ask the selected leaf for `--help`. This is a qualified raw diagnostic over
+the app-bound Tuner resource. It is not a foundational control promise and must
+not be imported into ordinary play or MapGen domain logic. Record provider
+epoch, scripting state, game build/context, table, query bounds, and result.
 
-### 4. Forensic local data — `game:play` / `local-data:inspect` (tier 9–11, installed-state forensics)
+### 4. Installed-State Forensics
 
-Inventory the installed game's SQLite catalogs, saves, and logs (the `game play` topic carries the `sqlite` / `local-data` / `catalog` / `authority` aliases):
+Select an installed-state diagnostic from native game/data help for bounded
+inspection of SQLite, save, or log evidence when corpus and runtime disagree.
+Ask the selected leaf for help before use. Filesystem roots and reads belong to
+the qualified app adapter/projection, not to the Swooper definition or a
+semantic service.
 
-```bash
-civ7 game play <topic> ...   # SQLite / saves / logs forensics on the installed game
-```
+### 5. Foundational Semantic Observation
 
-Use when you need *what the installed game actually has on disk* — DLC-conditional rows, modifier stacks, or to diagnose a divergence between the submodule snapshot and the user's installed version.
+Use the public control client when the needed fact is a typed Civ7 readiness,
+setup, current-game, map, or UI observation rather than an arbitrary table row.
+Map live readback belongs to the `map` module and must be correlated to the
+resource epoch and run identity. Actor recommendations belong to play, not
+control.
 
-**Modality discipline:** exhaust 1→2 (offline, deterministic, citeable) before reaching for 3→4 (live, heavier, build-specific). A claim grounded in modality 1/2 is reproducible; a claim grounded in 3/4 is true only for the exact game state checked — label it accordingly per the product-authority evidence classes.
+## Evidence Order
 
----
+Use the cheapest sufficient modality:
 
-## How official data flows into the mod (where the facts already live)
+1. Current repo product source and tests.
+2. Generated policy with source/currentness receipt.
+3. Identified official corpus.
+4. Qualified installed-state diagnostic.
+5. Resource-epoch-correlated foundational observation.
+6. Exact live realization proof.
+7. External/community material as discovery only, followed by corroboration.
 
-Most of the official corpus is **already integrated** — Facet 3's job is usually to *read the integration*, not re-derive it. Two channels:
+The order is not a claim that one modality can replace another. Use the one
+that matches the fact being asserted.
 
-- **Static** — `@civ7/map-policy` tables (`CIV7_BROWSER_TABLES_V0` / `CIV7_POLICY_TABLES_V1`) are consumed directly: `mods/mod-swooper-maps/src/domain/resources/policy/resource-legality.ts` reads `CIV7_BROWSER_TABLES_V0.resourceValidPlacementRows` / `.resourcePlacementFlags` to build per-resource eligibility masks. `mods/mod-swooper-maps/src/domain/resources/lib/corpus/official-base-standard.ts` fully encodes the official resource rows.
-- **Runtime** — `GameInfo.*` reaches the recipe only via the **adapter** at map entrypoints / projection (`map-*`) and placement stages; truth stages have zero Civ7 knowledge (see `references/pipeline-map.md` for the truth-vs-projection boundary).
+## Legality, Physical Habitat, And Gameplay Intent
 
-So before researching a Civ7 fact from scratch, **check whether the mod already encodes it** (`domain/resources/lib/corpus/`, `domain/resources/policy/`). Re-deriving an already-encoded table is wasted motion and a drift risk.
+A placement is acceptable only when three independent questions pass:
 
----
+1. **Physical habitat:** Does the generated climate, relief, water, substrate,
+   and topology support it?
+2. **Civ7 legality:** Does the identified policy/runtime permit it on this
+   terrain, biome, feature, age, and adjacency state?
+3. **Gameplay intent:** Does the distribution or start create fair, legible,
+   strategically useful play?
 
-## Web / forum research posture
+Encode reusable source-derived legality in `packages/civ7-map-policy`. Encode
+Swooper-specific habitat/demand/fairness policy in the owning definition domain.
+Keep engine materialization and readback in projection/realization owners.
 
-Official sources first; community sources are **lower-tier discovery, not authority**. Order:
+For a placement/resource change, the expectation ledger should contain:
 
-1. **Official XML + `@civ7/map-policy`** (modality 1/2, tier 8) — exhaust these.
-2. **`data:crawl` / `data:explore`** to chase relationships the flat tables don't expose.
-3. **Web/forum** only for genuine gaps — tools `mcp__web-search__firecrawl_*`; skills `search:web-search`, `search:deep-search`.
+- habitat-regime targets;
+- legality rejection/acceptance measures;
+- fairness and spatial-distribution measures;
+- hold guards for adjacent resources, starts, coast/river occupancy, and map
+  size;
+- exact live-readback comparison when the claim crosses into Civ7.
 
-Authoritative community sources are **tier 13 discovery material** (`civ7-product-authority/references/source-map.md`, line 35: "External examples, community knowledge … as discovery material only"). Known community references: CivFanatics forums (incl. WildW's "Scripting Runtime Information"), `ghost-ng/Civ7-Developer-Docs`, Chrispresso's Debug Console.
+## Official Algorithm Reading
 
-**Treat community as hypothesis, not authority.** A forum claim is a lead to verify against modality 1–4 — never a citeable fact on its own. Label every community finding as *discovery* unless corroborated by official XML, live source, or an in-game probe. Methodology precedent for a disciplined public-corpus pass: `docs/projects/civ7-direct-control/workstream/discovery/public-corpus-report.md`.
+Official map scripts are valuable for intent and native constraints. When
+reading them:
 
----
+- identify the exact source revision and module;
+- separate data lookup, candidate generation, scoring, mutation, and engine
+  side effects;
+- promote reusable static facts into the policy generator, not copied code;
+- implement Swooper product behavior at its definition owner rather than
+  mirroring an official script line for line;
+- prove live compatibility at the realization owner.
 
-## Game-design-intent reasoning
+## Community Research
 
-Legality says *what is allowed*; intent says *what the game wants*. A Civ-appropriate map needs both. Where to read intent:
+Community docs and forum posts are hypothesis sources. They may reveal native
+APIs, patch changes, or undocumented constraints, but they do not close a
+product claim. Record the lead, then corroborate it against official corpus,
+installed state, provider-scoped runtime evidence, current repo source, or a
+bounded live proof.
 
-- **`leaders.xml`** — `StartBias*` rows: which terrains/features/resources each leader is steered toward (the game's notion of "a good start").
-- **`resources.xml` / `resources-v2.xml`** — class, weight, hemisphere assignment, `AdjacentToLand`, `LakeEligible`: the game's distribution priors.
-- **`terrain.xml`** — the biome/terrain/feature vocabulary the projection must speak.
-- **`maps.xml`** — continent/map-size shape expectations.
-- **Official JS scripts** (`resource-generator.js`, `assign-starting-plots.js`, `discovery-generator.js`, `natural-wonder-generator.js`) — the *actual algorithms*. When you need "what does the game do at mapgen time," these are ground truth over any prose.
+## Quick Routing
 
-Best single research orientation for mapgen touchpoints: `docs/system/libs/mapgen/research/SPIKE-gameplay-mapgen-touchpoints.md` — **research/discovery, not a contract**; treat as a map of where to look, verify specifics against the XML/JS above. (Note: like all SPIKE docs, it is philosophy-only / non-canonical — do not cite it as authoritative behavior.)
-
-Design-intent reasoning feeds **loop step 5 (Civ-appropriateness judgment)**: a change that is physically realistic and legal can still be *un-Civ-like* (e.g. starts the game never biases toward, resource densities that break playability). Hold aesthetics and playability alongside physics — the map serves the player.
-
----
-
-## The bridge: earthlike-expectations ∩ Civ7-legality
-
-This is the facet's load-bearing seam, and where it couples to **Facet 1 (physics)**. A map-gen plan must be **both** physically plausible **and** legal/placeable per Civ7 rules. Neither alone is sufficient:
-
-- A physically-realistic resource distribution that violates `resourceValidPlacementRows` will be **rejected by the engine** (and surface as `FinalSurfaceParityProof.unresolvedLinks` — see `references/facet-verification.md`).
-- A legal-but-physically-arbitrary distribution produces a placeable-but-unrealistic map (fails the Earth-like benchmark).
-
-The bridge is encoded in `mods/mod-swooper-maps/src/domain/resources/lib/earthlike-expectations/official-earthlike.ts`: per-resource `range: [min, target, max]` count expectations **grounded in physical geography**, carrying `habitatEvidence`, `proxyRequirements`, and `caveats`. This is **the file where game-design intent meets physics reasoning** — the "habitat lane" = physics fields (Facet 1) ∩ official legality mask (`domain/resources/policy/resource-legality.ts`, this facet).
-
-**Working rule for any placement/resource change:** before declaring an Earth-like expectation (the pre-declared ledger gate, loop step 5 — `assets/earthlike-expectation-ledger.md`), confirm the target is **legal** for the candidate tiles. The physics plan proposes; the legality mask disposes. Pre-declare expectations *inside* the legal envelope, evaluate them through the recipe metric studies, then use canonical final-surface parity for run-specific live deltas (`assets/live-verification-runbook.md`). If a current runtime legality fact is specifically required, query it through the owning Civ7 adapter/control diagnostic rather than adding a Swooper probe. The retired milestone probes remain historical characterization, not a reusable current-tree gate.
-
----
-
-## Quick routing
-
-| Need | Modality / source | Tier |
-|---|---|---|
-| Is terrain/feature/resource X legal here? | `@civ7/map-policy` → `resource-legality.ts`; cross-check `game:gameinfo` if live | 8 / 11 |
-| Resource weight / hemisphere / class | `resources*.xml`, `CIV7_BROWSER_TABLES_V0` | 8 |
-| Where does the game want starts? | `leaders.xml` `StartBias*`, `assign-starting-plots.js` | 8 |
-| What does the official algorithm actually do? | `.../base-standard/maps/*.js` | 8 |
-| Exact patched-game runtime fact | `civ7 game gameinfo --json` (Civ7 running) | 11 |
-| Installed-game forensics (DLC rows, saves) | `civ7 game play <topic>` | 9–11 |
-| Community lead (forum/wiki) | firecrawl / `search:*` — **discovery only** | 13 |
-| Realistic *and* placeable count range | `official-earthlike.ts` ∩ `resource-legality.ts` | 8 |
-
-When the request is bounded → hand legality/intent findings to design (step 4–5). When it needs corpus coverage (all resources, all biomes) → that is a `habitat:systematic-workstream` handoff at closure (`references/orchestration.md`).
+| Need | First owner/surface |
+| --- | --- |
+| Static terrain/resource/start legality | `packages/civ7-map-policy` and its official-source generator |
+| Field not captured by policy | identified official-resource corpus |
+| Exact installed table row | qualified table-inspection diagnostic selected from native help |
+| Installed SQLite/save/log fact | installed-state diagnostic projection and app adapter |
+| Current setup/game/map/UI meaning | public foundational control client |
+| What action is best or lawful for the actor | public play client |
+| Swooper habitat, fairness, or threshold | Swooper definition domain/metric study |
+| Did Civ7 accept the generated surface | realization/MapGen-runs proof plus correlated control readback |

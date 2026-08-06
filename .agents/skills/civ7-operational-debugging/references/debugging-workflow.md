@@ -1,81 +1,124 @@
-# Debugging Workflow
+# Debugging Workflows
 
-## Standard Pass
+Choose the workflow by the fact under review. Do not run every gate by habit.
 
-1. Record repo branch, dirty state, and relevant `AGENTS.md` routers.
-2. Identify the mod slug, mod id, source entrypoints, generated output path, and
-   deployed target path.
-3. Capture current mtimes or a short baseline for the log files you will read.
-4. Run the narrow build or deploy command needed for the question.
-5. Inspect local generated output before inspecting deployed output.
-6. Inspect the deployed Mods directory only after the deploy command has run.
-7. Launch or use Civ7 only when the claim requires game load/runtime evidence.
-8. Use direct tuner control when runtime iteration or introspection is needed;
-   see `firetuner-runtime.md` for connection, state, restart, and autoplay
-   rules.
-9. Read logs after the game action and bound findings to that run.
-10. Report claims with proof labels from `proof-boundaries.md`.
+## Common Setup
 
-## Build And Generated Output Gate
+1. Read the nearest `AGENTS.md` and the sealed Civ7 capability packet.
+2. Name the product capability and the exact fact that looks wrong.
+3. Locate its owner with `operational-paths.md`.
+4. Inspect the owning Nx project and, for CLI work, native `--help`.
+5. Record inputs and a fresh evidence boundary before the action.
 
-Use when the question is "did source generate the expected mod files?"
+## Definition And Deterministic Generation
 
-- Run `nx run <mod-project>:build`.
-- Inspect `mods/<mod-slug>/mod/` for the expected `.modinfo`, XML, JS, text, or
-  config files.
-- If output is wrong, inspect source and build scripts; do not patch generated
-  output.
+Use when asking whether the portable Swooper definition produced the expected
+artifact, metric, trace, or diagnostic values.
 
-## Deploy Gate
+1. Run the smallest target on `swooper-physics` or the MapGen CLI leaf selected
+   through native help.
+2. Record recipe/config identity, map and game seeds, map size, and output/run
+   identity.
+3. Inspect typed artifacts or diagnostic layer values, not only rendered pixels.
+4. Compare against a declared expectation or baseline cohort.
+5. Label the result as contract/semantics/execution/generated evidence. It is
+   not Civ7 loader or live-game proof.
 
-Use when the question is "did the built mod reach Civ7's Mods directory?"
+## Realization And Installation
 
-- Run `nx run <mod-project>:deploy` for a single mod or
-  `bun run deploy:mods` for all repo mods.
-- Inspect `<game-data>/Mods/<mod-id>/`.
-- Compare deployed files to `mods/<mod-slug>/mod/` when the copied content is in
-  question.
+Use when asking whether the exact mod artifact was built and installed.
 
-## Log Gate
+1. Inspect `swooper-physics-mod` targets and outputs with Nx.
+2. Invoke the owning build or deploy target; do not call an internal script
+   directly unless that target explicitly delegates to it for debugging.
+3. Record generated-tree and installed-tree identities plus the install
+   adapter's receipt.
+4. Compare exact files/digests only within the selected receipt.
+5. Label build, generated, and installed claims separately. Proceed to loader
+   or live evidence only if the question requires it.
 
-Use when the question is "what did Civ7 report?"
+## Tuner Resource
 
-- Bound the log window before launching or exercising the game path.
-- Inspect `Modding.log` for discovery and load issues.
-- Inspect `Database.log` for XML import failures.
-- Inspect `Scripting.log` for map/runtime JavaScript errors and diagnostic
-  `console.log` output.
-- Inspect `UI.log` for UI-context JavaScript/module errors when direct control
-  targets `App UI` or when a visible UI path is involved.
-- Inspect `Localization.log` when text keys or localization files are involved.
-- Inspect `GameCore.log`, `Game.log`, `General.log`, `output.log`, and net logs
-  when the issue may be engine flow, simulation, process, or connection state
-  rather than map script execution.
-- Record searched files, search terms, and whether findings were current.
+Use when acquisition, connection, epoch, health, raw execution, or release is
+in question.
 
-## In-Game Gate
+1. Verify the qualified app selected the local-socket provider.
+2. Observe the resource-owned health/epoch result through the app-bound
+   diagnostic projection.
+3. If raw execution is required, use the current bounded diagnostic command
+   discovered from `game --help`; name the scripting state and epoch.
+4. After reconnect, treat all prior observations as stale and rediscover states.
+5. Do not infer Civ7 gameplay success from a raw command result.
 
-Use when the claim depends on Civ7 executing behavior.
+## Window Capture And Appshot
 
-- Deploy the mod first and inspect the deployed target.
-- Launch Civ7, enable/select the mod or map path under test, and exercise the
-  relevant behavior.
-- Tie the observation to current logs or visible game behavior.
-- State the exact exercised path; do not generalize beyond it.
+Use when capture is blank, stale, denied, or targets the wrong window.
 
-## Direct Tuner Gate
+1. Separate generic provider facts (platform, permission, selected window,
+   helper/process result, image receipt) from control-owned Civ7 appshot meaning.
+2. Confirm acquisition and capture occur inside the qualified app scope.
+3. Record provider interruption or timeout explicitly; do not hang waiting for
+   an unbounded child process.
+4. Validate the captured file/image receipt, then separately validate that
+   foundational control selected the intended Civ7 window and requested frame.
 
-Use when the question is "what does the running Civ7 session expose or do?"
+## Foundational Control
 
-- Verify Civ7 is listening on the tuner port before treating connection failure
-  as an app bug: `lsof -nP -iTCP:4318`.
-- Rediscover scripting states after connecting and after game restarts.
-- Select `App UI` for `Network.restartGame()` and the native Begin Game action
-  (`UI.notifyUIReady()`). Use `civ7 game restart --begin --wait-tuner` for the
-  proven restart loop.
-- Use `civ7 game health --tuner` when the question is whether the game is
-  actually running and the `Tuner` state can execute gameplay API probes. `LSQ:`
-  listing alone is not enough.
-- Run the smallest direct command needed, usually through `civ7 game exec` or
-  `@civ7/direct-control`.
-- Bound proof in `Scripting.log` or the relevant sibling log after the command.
+Use when Civ7 readiness, setup, game, map, UI, dispatch, or readback is wrong.
+
+1. Start from a ready app-bound control client, never the provider.
+2. Select the finite owner module: `app`, `game`, `map`, or `ui`.
+3. Record the resource epoch and request/operation correlation emitted by the
+   capability.
+4. Distinguish admission, dispatch, readback, stale/partial/unavailable, and
+   uncertain results.
+5. If the desired result is a gameplay recommendation or next action, move to
+   the play workflow instead of adding policy to control.
+
+## Actor-Facing Play
+
+Use when a lawful gameplay choice is refused, uncertain, repeated, or gives a
+bad next action.
+
+1. Re-read the situation from the public play client/CLI projection.
+2. Preserve the check/request/no-repeat identity and exact candidate values.
+3. If the request may have dispatched, reconcile through fresh control facts;
+   do not retry blindly.
+4. Classify refusal, postcondition, uncertainty, and next action as play-owned
+   outcomes.
+
+## MapGen-runs
+
+Use when Save & Deploy or Run in Game is stuck, stale, canceled, or disagrees
+with receipts.
+
+1. Record the operation/request id and current MapGen-runs phase/state.
+2. Inspect each dependency result separately: authored-config write,
+   materialization, installation, setup/control, run-files, and fresh-log
+   evidence.
+3. Keep app-adapter physical receipts distinct from the service's semantic
+   outcome.
+4. Adopt, cancel, or reconcile only through the public operation contract.
+5. Preserve failure, cancellation, stale adoption, and uncertainty in the
+   final projection rather than collapsing them into a generic error.
+
+## Projection
+
+Use when owner facts are correct but CLI/API/web output is wrong.
+
+1. Compare the projection's caller contract with the bound public result.
+2. Verify translation, presentation, auth/request context, stream ordering, or
+   browser interaction without reaching into private service source.
+3. Fix the projection only if the underlying owner fact is already correct.
+
+## Closeout
+
+Report:
+
+- claim and owner;
+- exact input and correlation identities;
+- command/target discovered and run;
+- evidence boundary;
+- strongest supported proof label;
+- what remains unproved;
+- whether retry is lawful.

@@ -1,81 +1,115 @@
 ---
 name: civ7-product-authority
 description: |
-  Use in the Civ7 Modding Tools repo when deciding product/domain authority, public SDK or CLI behavior, mod-facing guarantees, official game-data source truth, MapGen domain meaning, consumer compatibility gates, or proof/adoption claims. Trigger phrases include "what owns this product behavior", "does this break SDK users", "does this change CLI behavior", "can generated output prove this", "is this official resource truth", "what does this MapGen domain mean", "is this in-game verified", and "what compatibility gate applies". Pair with civ7-architecture-authority for implementation placement and package boundaries.
+  Use in the Civ7 Modding Tools repo when deciding actor outcomes, product capability ownership, public behavior, consumer contracts, or honest proof claims. Trigger phrases include "what owns this product behavior", "is this control or play", "what does Swooper promise", "is this production or Studio realization", "who owns this MapGen operation", "does this surface change meaning", "can this proof support the claim", "what can the actor ask next", "does this break consumers", and "update product authority". Pair with civ7-architecture-authority for container placement, imports, lifecycle, and structural enforcement.
 ---
 
 # Civ7 Product Authority
 
 ## Purpose
 
-Use this skill when work changes or depends on what Civ7 Modding Tools promises to users, mod authors, repo maintainers, or generated mod consumers. It separates product/domain authority from implementation topology, generated artifacts, proof observations, and official game-resource evidence.
+Use this durable local overlay to apply the sealed Civ7 product, system,
+outcome, actor, topology, and destination models. It keeps actor outcomes,
+semantic owners, caller projections, external evidence, and proof classes
+separate. It does not restate project status or infer promises from the current
+repository tree.
 
-This skill is intentionally updateable, but it is not a parking lot for unresolved questions or audit findings. Durable product decisions belong in canonical docs, accepted project baselines, ADRs, or deferrals; this skill reflects stable guardrails for applying them.
+The overlay owns Civ7-specific product guardrails only. Law for selected shared
+kinds stays upstream in Habitat, while Civ7 service law and qualified product
+overlays stay repo-owned. Generic Effect/oRPC teaching stays in the global
+vendor skills and exact installed source.
 
 ## When To Use
 
-- Changing SDK builders, generated XML behavior, CLI commands, plugin workflow behavior, MapGen recipe/domain semantics, Swooper Maps behavior, or documentation promises.
-- Deciding whether official Civ7 resources, current code, generated output, docs, or in-game checks can support a claim.
-- Retiring, reshaping, or preserving a public SDK/CLI/mod/docs contract.
-- Updating product capability, flow, policy, consumer gate, or proof boundary records.
+- Naming or changing a Civ7 actor Task, Question, capability, semantic owner, or
+  owner-local result.
+- Separating foundational native control from actor-facing play.
+- Changing Swooper definition/generation, production realization, or Studio
+  ephemeral realization behavior.
+- Changing MapGen-runs admission, phase meaning, correlation, reconciliation,
+  cancellation, or final operation outcome.
+- Adding, reshaping, transferring, or deleting an SDK, CLI, API, web, docs, or
+  mod-loader surface.
+- Deciding what official facts, generated output, installation receipts,
+  loader evidence, or live observations can honestly prove.
 
 ## Non-Goals
 
-- Do not use this as a project plan or migration sequence.
-- Do not use it to preserve current file topology.
-- Do not use official game resources to bypass repo-owned modeling decisions.
-- Do not encode unresolved decisions as fallback, optional, or temporary product behavior.
-- Do not use it for code placement without `civ7-architecture-authority`.
+- Do not use this skill as a migration plan, readiness/admission ledger, or
+  duplicate of the sealed project packet.
+- Do not preserve public behavior merely because a current path or facade
+  exposes it.
+- Do not use package names, routes, framework APIs, tests, or generated output
+  to define product meaning.
+- Do not reproduce generic Habitat or vendor mechanics locally.
+- Do not select implementation placement without
+  `civ7-architecture-authority`.
 
 ## Default Workflow
 
-1. **Ground sources.** Read `references/source-map.md` and the relevant controlling docs or accepted project baseline.
-2. **Name the capability.** Use `references/capability-map.md` to identify owner, non-owners, and excluded claims.
-3. **Trace the flow.** Use `references/flow-set.md` to locate inputs, state/products changed, outputs, generated artifacts, and proof boundaries.
-4. **Check policy.** Use `references/policy-map.md` for rules around resources, generated artifacts, public contracts, MapGen truth/projection, docs, and verification.
-5. **Check consumers.** Before deleting or reshaping public behavior, record the consumer gate and evidence needed.
-6. **Classify the change.** New product decision, source-backed correction, compatibility retention, consumer retirement, projection change, proof-only change, or architecture placement change.
-7. **Update durable authority.** If product authority changes, update the relevant canonical doc, accepted project baseline, ADR, or deferral in the same patch; update this skill only for durable guardrail changes.
-8. **Close honestly.** State product behavior, consumer impact, proof boundary, and excluded claims separately.
+1. **Resolve authority.** Read `references/source-map.md` and the exact sealed
+   sections governing the capability.
+2. **Name the actor lens.** State the external Actor, contextual Role, Goal,
+   state-changing Task or fact-returning Question, and authorized channel.
+3. **Assign fact writers.** Use `references/capability-map.md` to name the
+   semantic owner, adjacent effect/evidence owners, and explicit non-owners.
+4. **Trace the chain.** Use `references/flow-set.md` to separate definition,
+   realization, construction, projection, and proof.
+5. **Keep outcomes honest.** Preserve intent, admission, plan, effect attempt,
+   receipt/observation, acceptance/reconciliation, and owner result as distinct
+   facts.
+6. **Apply policy.** Use `references/policy-map.md` for control/play,
+   definition/realization, MapGen-runs, projection, consumer, and proof rules.
+7. **Gate consumers.** Before reshaping or deleting a public surface, copy
+   `assets/consumer-contract-gate-template.md` and close known and searched
+   consumers.
+8. **Update the real authority.** Follow
+   `references/update-protocol.md` when a durable model changes; update this
+   overlay only when its routing guardrails change.
+9. **Close with bounded claims.** Report owner behavior, consumer effect,
+   supported proof classes, uncertainty, and still-forbidden claims separately.
 
 ## Reference Map
 
 | Reference | Path | Open When |
-|---|---|---|
-| Source map | `references/source-map.md` | Resolving product evidence and authority order |
-| Capability map | `references/capability-map.md` | Naming product/domain owners and non-owners |
-| Flow set | `references/flow-set.md` | Tracing resource, SDK, CLI, MapGen, mod, docs, or generation flows |
-| Policy map | `references/policy-map.md` | Checking durable behavior rules |
-| Update protocol | `references/update-protocol.md` | Changing this skill or product/domain authority |
-| Failure patterns | `references/failure-patterns.md` | Work smells like proof inflation, topology preservation, or stale-source promotion |
+| --- | --- | --- |
+| Source map | `references/source-map.md` | Resolving product authority and evidence classes |
+| Capability map | `references/capability-map.md` | Naming semantic/effect owners and non-owners |
+| Flow set | `references/flow-set.md` | Tracing actor intent through owners and projections |
+| Policy map | `references/policy-map.md` | Applying durable product and proof laws |
+| Update protocol | `references/update-protocol.md` | Changing accepted product authority or this overlay |
+| Failure patterns | `references/failure-patterns.md` | A surface, path, or proof is starting to define meaning |
 
 ## Asset Map
 
 | Asset | Path | Use When |
-|---|---|---|
-| Capability record | `assets/capability-record-template.md` | Adding or changing a capability |
-| Flow record | `assets/flow-record-template.md` | Adding or changing a flow |
-| Consumer gate record | `assets/consumer-contract-gate-template.md` | Retaining, retiring, or reshaping public behavior |
-| Authority change note | `assets/authority-change-note.md` | Copy into the owning ADR, canonical doc update, deferral, or project workstream artifact when recording a dated authority update |
+| --- | --- | --- |
+| Capability record | `assets/capability-record-template.md` | Recording an actor outcome and its fact writers |
+| Flow record | `assets/flow-record-template.md` | Recording an end-to-end capability chain |
+| Consumer contract gate | `assets/consumer-contract-gate-template.md` | Retaining, transferring, reshaping, or deleting a public surface |
+| Authority change note | `assets/authority-change-note.md` | Recording a durable model change in its owning authority artifact |
 
 ## Core Invariants
 
 <invariants>
-<invariant name="capability-before-implementation">Name the product capability and owner before talking about endpoints, files, tests, or migration steps.</invariant>
-<invariant name="official-data-vs-repo-contract">Official Civ7 resources define game facts. The repo owns how those facts become SDK constants, XML builders, CLI behavior, MapGen rules, docs, and mod outputs.</invariant>
-<invariant name="generated-output-is-proof-not-policy">Generated XML, `dist/`, `mod/`, and resource outputs prove generation happened. They do not define product policy or editable source truth.</invariant>
-<invariant name="public-contracts-need-gates">SDK exports, CLI commands/flags, plugin APIs, docs tutorials, and mod entrypoints cannot be deleted or reshaped without consumer-impact review.</invariant>
-<invariant name="mapgen-truth-needs-owner">If MapGen claims deterministic truth, the pipeline must own and verify it. If current behavior delegates a surface to the engine, docs and artifact names must say projection/telemetry/materialization until a controlling decision gives the pipeline deterministic ownership.</invariant>
-<invariant name="proof-boundaries-are-explicit">Local tests, package builds, generated XML, deployed mod files, and in-game checks support different claims. Do not generalize one into another.</invariant>
-<invariant name="living-map-must-change">Product authority changes and the affected capability, flow, policy, consumer, or proof records change together.</invariant>
-<invariant name="unresolved-decisions-stay-non-normative">Open decisions belong in project records, deferrals, or decision requests, not as fallback behavior in normative skill references.</invariant>
+<invariant name="capability-before-container">Name the actor outcome and semantic capability before discussing paths, packages, endpoints, or frameworks.</invariant>
+<invariant name="one-writer-per-fact">Every durable fact, policy decision, transition, correction law, effect receipt, and product result has one writer. A capability chain may traverse owners; projections never share their write authority.</invariant>
+<invariant name="current-estate-is-evidence">Current source, routes, exports, and tests describe behavior and consumers. They do not define target authority.</invariant>
+<invariant name="control-is-foundational">Foundational control owns closed app/game/map/UI native interpretation, admission, dispatch, readback, and uncertainty correlated to resource facts. It does not own actor intent or gameplay strategy.</invariant>
+<invariant name="play-is-actor-facing">Play alone owns gameplay situation, checks, requests, reconciliation, no-repeat policy, and next lawful action over the public control capability.</invariant>
+<invariant name="definition-and-realizations-differ">The Swooper definition owns portable authored/generation truth. The production realization app owns its deployable outcome. Studio's qualified adapter owns ephemeral physical effects and receipts only.</invariant>
+<invariant name="mapgen-runs-is-semantic-owner">MapGen-runs owns operation intent, order, state, correlation, retention, cancellation, reconciliation, and final semantic outcome. It does not own Swooper truth or physical host effects.</invariant>
+<invariant name="channels-preserve-meaning">CLI, API, web, SDK, docs, and loader surfaces project owner results without changing owner vocabulary, inventing success, or becoming a second semantic capability.</invariant>
+<invariant name="facade-has-no-product-future">The legacy facade/direct-control shape is deletion evidence, not a compatibility promise or target public capability.</invariant>
+<invariant name="outcomes-do-not-collapse">Intent, admission, plan, dispatch/effect, observation/receipt, consumer acceptance, reconciliation, and owner-local result remain distinct.</invariant>
+<invariant name="proof-is-a-set">Contract, semantics, execution, projection, assembly, generated, installed, loader, and live-behavior evidence are independent facts; no strongest scalar status replaces them.</invariant>
+<invariant name="external-law-does-not-own-product">Upstream Habitat and global vendor guidance may constrain realization mechanics; neither defines Civ7 product meaning.</invariant>
 </invariants>
 
 ## Quick Start
 
 1. Read `references/source-map.md`.
-2. Locate the capability in `references/capability-map.md`.
-3. Trace the flow in `references/flow-set.md`.
-4. Check rules in `references/policy-map.md`.
-5. If consumers are touched, copy `assets/consumer-contract-gate-template.md`.
-6. If authority changes, use `references/update-protocol.md`.
+2. Locate the actor outcome in `references/capability-map.md`.
+3. Trace its realization in `references/flow-set.md`.
+4. Apply the relevant policy and consumer gate.
+5. Close with owner-local facts and exact proof classes.

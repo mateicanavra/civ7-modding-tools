@@ -1,56 +1,85 @@
 # Implementation Gates
 
-Use this checklist before editing structural code, while reviewing, and before closure.
+Use these gates before structural edits, during review, and before closure.
 
 ## Pre-Code Gate
 
-Do not start structural implementation until these are explicit:
-
-| Gate | Required Output |
-|---|---|
-| Repo state | Branch, Graphite stack, dirty files, and pre-existing work ownership |
-| Authority | Root/subtree `AGENTS.md` plus accepted baselines and canonical docs controlling the slice |
-| Owner | Owning package/mod/app/doc boundary |
-| Forbidden owners | Boundaries that must not receive the concern |
-| Target shape | Files, exports, imports, generated outputs, and docs to change |
-| Normalization role | Whether each changed surface is authoring, truth, projection, gameplay product, presentation, or OpenSpec change management |
-| Write set | Paths this slice may touch |
-| Consumer impact | SDK/API/CLI/mod/docs consumers affected |
-| Verification | Focused commands and evidence labels matching the claim |
-| Stop triggers | Conditions that require decision, deferral, or re-grounding |
+| Gate | Required output |
+| --- | --- |
+| Sealed authority | Exact sections from the capability-realization packet that control the slice |
+| Actor outcome | Task or Question being realized and the honest owner-local result |
+| Fact writers | Sole owner for each fact, policy, transition, correction, effect receipt, and proof claim |
+| Kind placement | Package, resource, provider, service, plugin, app, or qualified app adapter for every responsibility |
+| Explicit non-owners | Containers that must not receive each responsibility |
+| Relationship edges | Named `defines/derives/declares/selects/acquires/binds/mounts/calls/projects/realizes/observes/disposes/proves` edges |
+| Current evidence | Existing paths and behavior classified as evidence, not target authority |
+| Target shape | Public faces, private interior, imports, construction root, process owner, and deletion set |
+| Consumer gate | Known callers, result vocabulary, compatibility disposition, and closure proof |
+| External law | Upstream Habitat packet and global vendor guidance/exact source needed for the slice |
+| Proof plan | Independent contract, semantics, execution, projection, assembly, generated, installed, loader, and live-behavior claims |
+| Stop triggers | Facts that would falsify the selected owner chain or require a model change |
 
 ## Required Review Axes
 
-Select only the lanes needed for the risk:
+Select every axis touched by the change:
 
-- Authority routing: are the right accepted baselines, docs, and `AGENTS.md` files controlling the change?
-- Package boundary: are imports/exports placed under the correct owner?
-- MapGen truth/projection: are truth products separate from engine materialization?
-- Stage promotion: does every new or preserved stage have a real recipe-level authoring, input/handoff, placement, enablement, trace, helper-ownership, or projection surface?
-- Generated-output hygiene: are outputs regenerated rather than edited?
-- Consumer contract: are SDK/CLI/mod/docs users affected and tested?
-- Verification claim: does each gate prove only what is claimed?
+- **Kind ownership:** package purity; resource/provider writer split; service
+  semantics; projection ownership; app composition and disposal.
+- **Control versus play:** native app/game/map/UI facts stay in control;
+  situation/check/request/reconciliation/no-repeat/next-action meaning stays in
+  play; play sees only the public control client.
+- **Definition versus realization:** portable Swooper truth stays in the
+  definition; production deployment stays in the realization app; Studio
+  ephemeral effects stay in its qualified adapter.
+- **MapGen operation authority:** MapGen-runs owns admission, order, state,
+  correlation, cancellation, reconciliation, and final semantic outcome while
+  bound adapters own physical receipts.
+- **Projection integrity:** CLI/API/web surfaces preserve exact owner results
+  and do not import private routers, providers, or app implementation.
+- **Composition integrity:** apps select/acquire/bind/mount/dispose without
+  duplicating service policy; help and other cold paths acquire nothing.
+- **Deletion integrity:** no facade, direct-control convenience surface,
+  forwarding service adapter, parallel contract, private type picking, or
+  cross-app target call remains.
+- **Authority inheritance:** generic structure comes from upstream Habitat;
+  generic vendor mechanics come from global guidance and exact installed
+  source; local rules contain only qualified Civ7 facts.
+- **Proof honesty:** each test or observation proves only its named class.
 
 ## Stop Conditions
 
 Stop and re-ground when:
 
-- two owners could plausibly own the same concern;
-- generated artifacts are being edited directly;
-- `mapgen-core` needs a Civ7 runtime import;
-- adapter code starts accumulating MapGen algorithms or mod tuning;
-- old docs or stage ids conflict with live recipe/source authority;
-- a broad `shared`, `utils`, or `support` bucket appears to avoid an owner decision;
-- tests pass only because a compatibility path, fallback, or silent skip remains;
-- in-game behavior is claimed without game/runtime evidence.
+- two containers could write the same durable fact or correction;
+- a package needs filesystem, socket, engine-global, transport-host, or process
+  access;
+- a service needs to select or acquire its provider;
+- control begins interpreting gameplay goals or play receives Tuner/provider
+  state;
+- Studio imports the Swooper production app or its targets;
+- MapGen-runs performs physical realization effects or the Studio adapter
+  decides the semantic operation outcome;
+- an API or CLI surface picks a private service contract or creates a parallel
+  result vocabulary;
+- a current path, passing test, or compatibility wrapper is the only reason a
+  component survives;
+- a local rule reimplements shared Habitat kind law;
+- version-sensitive vendor behavior is asserted without exact source proof;
+- generated, installed, loader, or live evidence is collapsed into one status.
 
 ## Closure Gate
 
-A structural slice can close only when:
+A structural slice closes only when:
 
-- all edited files match the named write set or are explained;
-- adjacent docs/tests are updated for changed public contracts;
-- generated outputs are either untouched or regenerated by a command;
-- material review findings have disposition;
-- focused verification ran or skipped gates have rationale;
-- repo and Graphite state are clean or explicitly handed off.
+- every responsibility and edge matches the sealed owner chain;
+- public consumers call the selected public face and keep the exact owner
+  result vocabulary;
+- the displaced mixed owner and all convenience/facade paths in the slice are
+  deleted rather than wrapped;
+- app construction, provider lifecycle, service binding, mounting, and disposal
+  are each proved at their real owner;
+- qualified local law contains no copied generic Habitat or vendor mechanics;
+- affected docs/tests are updated without copying project status into durable
+  overlays; and
+- every closure statement names the exact proof classes run and the claims
+  still excluded.

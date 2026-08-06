@@ -1,137 +1,164 @@
 ---
 name: civ7-orpc-control-architecture
 description: |
-  Use in the Civ7 Modding Tools repo before designing, refactoring, or reviewing oRPC/ORPC surfaces for Civ7 direct-control, CLI game/play commands, Studio Civ7 endpoints, tuner control procedures, in-process procedure routing, context/middleware policy, OpenAPI/RPC exposure, or contract-first control APIs. Trigger phrases include "ORPC direct-control", "oRPC game command", "direct-control router", "procedure map for Civ7 control", "Civ7 control API", "middleware for verification", and "context for Civ7 runtime".
+  Use in the Civ7 Modding Tools repo when designing, migrating, or reviewing
+  Civ7 oRPC service boundaries, service clients, API projections, app binding,
+  or durable-workflow candidates. Trigger phrases include "where should this
+  oRPC router live", "is this control or play", "should this service mount
+  HTTP", "who acquires the provider", "can this API expose the service router",
+  "does this need Inngest", and "remove the facade". This is a Civ7 ownership
+  and proof overlay; generic oRPC, Effect, and Inngest mechanisms belong to the
+  global dev skills.
 ---
 
-# Civ7 ORPC Control Architecture
+# Civ7 oRPC Architecture Overlay
 
 ## Purpose
 
-Use this skill before adding or reshaping oRPC surfaces for Civ7 play/control
-support. The frame is: oRPC is a typed procedure/router/context layer over
-repo-owned control capabilities; it is not the authority for Civ7 runtime
-behavior and it is not a replacement transport for `@civ7/direct-control`.
+Use this skill to place Civ7 service and projection behavior in the accepted
+destination model. It owns Civ7-specific semantic boundaries, dependency
+direction, mutation safety, and proof classification. It does not teach vendor
+syntax, runtime construction, transport setup, Effect lifecycle primitives, or
+Inngest APIs.
 
-General oRPC semantics and current vendor guidance are owned by the global
-`dev:orpc` skill. When an Effect computation crosses the procedure boundary,
-the provider bridge is owned by global `dev:effect-orpc` together with the
-matching `dev:effect-ts` lane. This skill is the Civ7 overlay: package
-ownership, control topology, caller boundaries, live-play safety, and proof
-classification. Do not duplicate generic vendor guidance here.
+Ground decisions in the sealed platform packet before following current source:
 
-This layer is IMPLEMENTED: `@civ7/control-orpc`
-(`services/civ7-control`) is the closed native oRPC+Effect service over
-direct-control atoms. Its public source root is only `client.ts`,
-`contract.ts`, `index.ts`, and the private `service/` tree. The service owns
-contract-first TypeBox schemas (`toStandardSchema`), the sole
-`effect-orpc` implementer/runtime lineage, Effect router leaves, typed errors,
-admission, and shared mutation policy. New control surfaces extend this
-service; do not start a parallel oRPC layer or hand-roll orchestration in
-plain async.
+- `docs/projects/civ7-capability-realization/destination-platform-reference.md`
+- `docs/projects/civ7-capability-realization/PRODUCT-AUTHORITY.md`
+- `docs/projects/civ7-capability-realization/SYSTEM-MODEL.md`
+- `docs/projects/civ7-capability-realization/TOPOLOGY.md`
+- `docs/projects/civ7-capability-realization/KIND-LAW-MATRIX.md`
 
-## When To Use
+## Vendor Authority
 
-- Designing an oRPC contract, router, procedure, handler, or server-side client
-  for Civ7 runtime control.
-- Refactoring CLI game/play commands or Studio Civ7 endpoints toward shared
-  procedures with the right caller boundary.
-- Moving verification, admission, controller capability/proof,
-  relationship-label policy, readiness, or proof boundaries into typed
-  middleware/context.
-- Reviewing whether a proposed ORPC slice preserves direct-control package
-  ownership and active live-play safety.
+| Need | Load |
+| --- | --- |
+| oRPC contracts, routers, middleware, clients, handlers, links, or testing | Global `dev:orpc` |
+| An Effect computation crossing an oRPC procedure boundary | Global `dev:effect-orpc` and `dev:effect-ts` |
+| A genuinely durable workflow | Global `dev:inngest`; also `dev:effect-inngest` when Effect participates |
 
-## Non-Goals
+Those global skills own all generic syntax and lifecycle guidance. Before
+selecting any concrete mechanism, identify the installed package tuple from
+the workspace manifest and lockfile, inspect that exact package's published
+source and declarations, and prove the choice with a discriminating type or
+lifecycle fixture. Do not infer an API from another prerelease, a transitive
+dependency, or remembered examples.
 
-- Do not expose arbitrary `game exec` JavaScript as an oRPC procedure.
-- Do not move raw tuner socket framing, reconnect polling, App UI/Tuner state
-  discovery, or generated command strings into caller-local code.
-- Do not make HTTP/OpenAPI shape the product authority. Transports mount at the
-  edge after the shared procedure/router core is coherent.
-- Do not treat oRPC tests, TypeScript checks, or generated schemas as in-game
-  proof.
+## Destination Boundaries
+
+### Services
+
+Each service is one semantic authority with a public contract and callable
+client over one private complete router. `src/client.ts` is the public caller
+and qualified construction face; `src/service/**` is private implementation.
+Qualified app composition constructs the bound client and supplies it to API
+context when needed. Ordinary consumers receive that client and do not supply
+dependencies, extract private types, or import router source.
+
+- `services/civ7-control` owns foundational Civ7 interpretation and closed
+  native operations in exactly `{app, game, map, ui}`.
+- `services/civ7-play` owns actor-facing gameplay meaning in exactly
+  `{attention, automation, city, diplomacy, notifications, progression,
+  planning, turn, unit}` and consumes only the public control client.
+- `services/mapgen-runs` remains a separate operation authority in exactly
+  `{autoplay, operations, run-in-game, save-deploy}`.
+
+Control owns native admission, lowering, dispatch, bounded readback, and exact
+native uncertainty. It does not own gameplay goals, no-repeat policy, or next
+action. Play may preserve native evidence returned by control, but only play
+interprets it as a gameplay outcome. MapGen-runs owns run intent, ordering,
+state, correlation, reconciliation, and final semantic outcome; it does not own
+portable MapGen definition truth or app-qualified physical effects.
+
+### API Plugins
+
+An API plugin owns the caller boundary, not another product service:
+
+- `src/client.ts` is the public caller face.
+- `src/api.ts` is the public server-registration face.
+- `src/service/**` is the private API-owned contract, router, implementation,
+  and projection modules.
+
+Every caller-facing contract leaf is API-owned and delegates explicitly to a
+matching public service client or exact public capability supplied in context.
+The API does not copy a service contract subtree, import a private service
+router, acquire a provider, or own service state. The app materializes request
+context and mounts the API registration face.
+
+### Apps
+
+Qualified apps select and acquire concrete providers, construct ready typed
+resource values and app adapters, bind public service clients, materialize API
+context, mount selected plugins and native hosts, observe the process, and
+dispose the scope. Services and projections receive only the ready values they
+declare. Provider selection, process lifetime, and transport mounting do not
+transfer semantic authority to the app.
+
+### Durable Workflows
+
+No Civ7 workflow is selected merely because an operation has several steps.
+Admit one only when work must survive a request or process and needs durable
+resume, retry, scheduling, waits, replay, fanout, or progress. A workflow calls
+public clients, rechecks product authority on re-entry, and reconciles stable
+effect identities; it never becomes the writer of service-owned facts.
+
+## Domain Safety
+
+- Keep accepted intent, native dispatch, observation, caller acceptance, and
+  final product outcome distinct.
+- Preserve stale, partial, unavailable, refused, and uncertain results rather
+  than translating them into success.
+- An uncertain gameplay mutation retains a no-repeat identity and is reconciled
+  through fresh control facts before retry.
+- Owner mismatch, proximity, or attack legality is not proof of
+  hostile/enemy/opponent/threat status. Require official relationship, team,
+  war, suzerain, or equivalent validator evidence.
+- Raw resource health, epoch, command, and capture facts remain owned by their
+  resource/provider boundary. Control may interpret them into Civ7 meaning but
+  does not rewrite them.
+- Type, schema, service, projection, assembly, installation, and live-game
+  evidence prove different claims. Report only the strongest proof collected.
 
 ## Default Workflow
 
-1. **Ground authority.** Read root `AGENTS.md`, the closest package router,
-   global `dev:orpc`, and the Civ7 architecture/product authority skills. For
-   an Effect-backed procedure, also load global `dev:effect-orpc` and the
-   matching `dev:effect-ts` lane after identifying the installed package tuple.
-2. **Name the capability.** Identify the repo-owned behavior: runtime read,
-   mutating operation, live-play decision view, Studio endpoint, or CLI command
-   orchestration.
-3. **Choose the procedure atom.** Procedures should be the smallest complete
-   behavior with a stable input, output, risk level, and proof boundary.
-4. **Place context.** Provision the direct-control port and, when required, the
-   setup lifecycle port through `Civ7ControlOrpcContext`. Keep endpoint
-   defaults, whole-procedure admission, lifecycle progress, correlation,
-   controller capabilities/proof, and test doubles in their existing context
-   fields rather than globals.
-5. **Place middleware.** Reuse the installed root correlation, controller
-   admission, and host procedure-admission stages. Mutating router leaves use
-   the shared readiness and proof-boundary composition when their output
-   carries that contract. Add new shared policy only after more than one
-   procedure has earned it.
-6. **Compose routers by operational surface.** Extend the existing
-   `src/service/modules/*` families (`attention`, `city`, `diplomacy`,
-   `display`, `government`, `lifecycle`, `narrative`, `notifications`,
-   `progression`, `readiness`, `strategy`, `turn`, `unit`, `view`, `world`)
-   over broad `control.call` routers. A family is
-   `contract/` + `router/` + `module.ts`: contract leaves author protocol,
-   router leaves author Effect behavior, and `module.ts` selects the configured
-   service branch.
-7. **Choose the caller boundary deliberately.** CLI/tests use the in-process
-   typed client, provisioning the `directControl` port with
-   `liveCiv7DirectControl` from `@civ7/direct-control/live`. Setup lifecycles
-   also provision `directLifecycle` with `liveCiv7LifecycleControl`. There is
-   no `@civ7/control-orpc/runtime` provider surface. Studio browser clients
-   should call the same router over HTTP through `RPCHandler`/`RPCLink`; Studio
-   server code may call in-process when no browser boundary is crossed. OpenAPI
-   remains for external/documented consumers, not the Civ7 Studio control
-   loop.
-8. **Verify in layers.** Run no-network service behavior tests, CLI/Studio
-   integration tests for changed callers, direct-control checks/builds, and
-   live read-only smoke when a claim depends on the running game.
+1. Read the sealed model and classify the actor outcome as control, play,
+   MapGen-runs, API projection, app composition, or a still-deferred workflow.
+2. Load the applicable global vendor skills and complete the exact-source gate
+   before choosing an implementation mechanism.
+3. Place the operation in one selected module and name its stable input,
+   output, failure, uncertainty, and proof boundary.
+4. Keep the service contract/client public, the complete router private, and
+   all ready dependencies supplied by qualified composition.
+5. For a network caller, author an API-owned contract leaf and explicit
+   delegation through bound public clients; do not expose service internals.
+6. Verify the owning contract, semantics, execution, projection, or assembly
+   layer, then label any live evidence separately.
+7. Run `references/migration-gates.md` and the bounded residue checks before
+   handoff.
 
 ## Reference Map
 
-| Reference | Path | Open When |
-|---|---|---|
-| Global oRPC authority | `dev:orpc` | Always, before interpreting or changing native oRPC contracts, routers, middleware, context, transports, clients, or tests. |
-| Global Effect-oRPC authority | `dev:effect-orpc` + `dev:effect-ts` | An Effect computation crosses an oRPC procedure boundary; select the exact installed provider and Effect lane. |
-| Civ7 oRPC integration boundary | `references/orpc-server-shape.md` | You need the repo-specific package wiring and caller boundary after loading the applicable global authority. |
-| Civ7 procedure map | `references/civ7-procedure-map.md` | You are mapping direct-control/CLI/Studio behavior into procedure/router/context/middleware atoms. |
-| Migration gates | `references/migration-gates.md` | You are planning an incremental slice or deciding what tests/proof must pass before handoff. |
-| Failure patterns | `references/failure-patterns.md` | A proposed oRPC refactor smells like a wrapper, broad transport, unsafe mutation, or relationship-authority leak. |
+| Reference | Open when |
+| --- | --- |
+| `references/orpc-server-shape.md` | Placing public/private service, API, and app composition faces |
+| `references/civ7-procedure-map.md` | Selecting the owning Civ7 service and finite module |
+| `references/migration-gates.md` | Planning or closing a migration slice |
+| `references/failure-patterns.md` | Reviewing ownership, safety, or proof drift |
 
 ## Asset Map
 
-| Asset | Path | Use When |
-|---|---|---|
-| Procedure slice preflight | `assets/procedure-slice-preflight.md` | Copy into a project/spec note before implementing an ORPC control slice. |
+Use `assets/procedure-slice-preflight.md` as the scratch template for a
+non-trivial service or API slice.
 
 ## Core Invariants
 
 <invariants>
-<invariant name="direct-control-owns-runtime">`@civ7/direct-control` owns low-level tuner/socket framing, state discovery, reconnect behavior, command serialization, runtime reads, and live provider bundles. Its functions stay plain-async WIRE ATOMS (ideally one exec each).</invariant>
-<invariant name="control-service-owns-public-behavior">`@civ7/control-orpc` owns the public control contract, router, context ports, admission, mutation policy, and multi-step service behavior. A service procedure must offer behavior or composition, not merely rename one direct-control call.</invariant>
-<invariant name="orchestration-lives-in-effect-layer">Multi-step async flows over the atoms (state machines, drain/poll loops, suspend/resume lifecycles, retries, schedules) are Effect procedures in `@civ7/control-orpc` — use `Effect.acquireUseRelease`/`Effect.ensuring` for guaranteed cleanup and `Effect.iterate`/`Schedule` for loops, never hand-rolled try/finally orchestrators inside direct-control (live lesson: D10, cli-command-taxonomy workstream).</invariant>
-<invariant name="orpc-is-procedure-composition">oRPC organizes typed procedures, routers, context, middleware, and optional edge handlers. It does not redefine Civ7 runtime truth.</invariant>
-<invariant name="shared-core-caller-boundary">Design the shared procedure/router core first. CLI and tests can call it in-process; Studio browser clients cross the web boundary with RPC over HTTP (`RPCHandler`/`RPCLink`).</invariant>
-<invariant name="middleware-guards-mutations">Mutation policy stays explicit: honor host admission where configured and require controller capability/proof for controller-backed calls; compose shared runtime-readiness and proof-boundary policy when the output contract supports it, otherwise the specialized service behavior owns equivalent guards and proof.</invariant>
-<invariant name="context-not-globals">Provision runtime dependencies through typed context. Do not smuggle endpoint/session/admission/correlation/controller state through globals or ad hoc command flags inside handlers.</invariant>
-<invariant name="relationship-authority-is-structural">Owner mismatch, contact, proximity, or attack legality is not hostile/enemy/opponent/threat/non-friendly proof without official relationship, team, war, suzerain, or equivalent validator evidence.</invariant>
-<invariant name="proof-boundaries-stay-labeled">Unit tests, oRPC procedure calls, handler tests, CLI tests, package builds, and live game smoke prove different things. Close claims with the strongest evidence actually collected.</invariant>
+<invariant name="one-semantic-owner">Control, play, and MapGen-runs retain distinct facts, transitions, and correction laws.</invariant>
+<invariant name="public-client-private-router">Consumers call public service clients; complete service routers and implementation stay private.</invariant>
+<invariant name="apps-compose">Qualified apps acquire providers and supply ready typed dependencies, bound clients, and API context.</invariant>
+<invariant name="api-owns-caller-contract">An API owns its caller contract and delegates to bound public clients without copying service authority.</invariant>
+<invariant name="play-depends-on-control">Play consumes only the public control capability and never receives a resource, provider, or private control source.</invariant>
+<invariant name="uncertainty-survives">Dispatch is not acceptance; uncertainty and no-repeat reconciliation remain explicit.</invariant>
+<invariant name="vendor-mechanism-is-source-gated">Concrete vendor APIs are selected only from the exact installed source, declarations, and discriminating fixtures.</invariant>
+<invariant name="proof-stays-scoped">Contract, semantics, execution, projection, assembly, generated, installed, and live evidence are not interchangeable.</invariant>
 </invariants>
-
-## Quick Start
-
-1. Load global `dev:orpc`; for an Effect-backed procedure, also load
-   `dev:effect-orpc` and the matching `dev:effect-ts` lane.
-2. Open `references/orpc-server-shape.md` for Civ7-specific integration facts.
-3. Open `references/civ7-procedure-map.md` for the affected surface.
-4. Copy `assets/procedure-slice-preflight.md` into the project note if the slice
-   will be implemented.
-5. Run `references/migration-gates.md` before handoff.
-6. Check `references/failure-patterns.md` during review.

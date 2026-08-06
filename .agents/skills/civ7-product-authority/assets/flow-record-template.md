@@ -1,37 +1,56 @@
 # Flow Record
 
-## Flow
+## Actor Flow
 
-- Name:
-- Last updated:
-- Authority status: authorized / experimental / internal / compatibility-retained / retired / blocked / excluded
+- Actor and contextual Role:
+- Goal:
+- State-changing Task:
+- Fact-returning Questions:
+- Authorized surfaces:
+- Controlling sealed authority:
 
 ## Shape
 
 ```text
-source/input -> owner -> output/proof
+actor intent
+  -> admission owner
+  -> semantic owner
+  -> exact bound effect/evidence owners
+  -> owner-local result or reconciliation
+  -> caller projection
+  -> next lawful action or Question
 ```
 
-## Authority
+## Owner Ledger
 
-- Product/domain owner:
-- Architecture owner:
-- Generated-output owner:
-- Verification owner:
+| Step/fact | Sole writer | Kind | Input/revision/epoch | Output/receipt | Explicit non-owners |
+| --- | --- | --- | --- | --- | --- |
+| | | | | | |
 
-## Behavior
+## Required Separations
 
-- Inputs:
-- State or artifact changed:
-- Outputs:
-- Error/status semantics:
-- Consumer-visible behavior:
+- Intent versus admission:
+- Plan versus effect:
+- Dispatch versus acceptance:
+- Observation versus semantic decision:
+- Definition versus production realization:
+- Production versus Studio ephemeral realization:
+- Foundational control versus play:
+- Physical receipts versus MapGen-runs semantic outcome:
 
-## Evidence And Claims
+## Projection And Consumers
 
-- Source docs/code:
-- Tests/proof:
-- Consumer signoff:
-- Allowed claim:
-- Forbidden claim:
+- Projection owner:
+- Exact result/error vocabulary preserved:
+- Known/searched consumers:
+- Facade/convenience/mixed owner deleting:
+- Consumer closure condition:
 
+## Proof And Closure
+
+- Independent proof facts:
+- Refusal path and lawful next action:
+- Uncertainty/reconciliation and retry law:
+- Allowed claims:
+- Still-forbidden claims:
+- Evidence that would falsify this flow:

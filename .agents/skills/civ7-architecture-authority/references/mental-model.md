@@ -1,79 +1,97 @@
 # Architecture Mental Model
 
-Architecture work in this repo starts with ownership, not path names.
+Architecture starts from a capability and its facts, then chooses containers.
+It does not start from the current repository tree.
 
-The durable frame is:
+## Three Concurrent Graphs
+
+Keep these graphs separate:
+
+1. **Authority:** who writes each fact, policy, transition, and correction.
+2. **Construction:** which app selects, acquires, constructs, binds, mounts,
+   observes, and disposes concrete runtime capabilities.
+3. **Projection:** which CLI, API, web, or mod surface presents an owner
+   capability to a caller.
+
+A source import may implement an edge in one graph. It is not itself an
+authority relation.
+
+## Live Capability Chain
 
 ```text
-official game/resource facts
-  -> typed modeling and SDK/CLI/plugin abstractions
-  -> MapGen pure truth products where applicable
-  -> adapter or mod runtime projection into Civ7
-  -> generated outputs and verification evidence
+external Civ7 or host capability
+  -> provider-neutral resource contract
+  -> concrete provider acquisition
+  -> app-owned resource scope
+  -> app-bound public service client
+  -> semantic service result
+  -> caller-shaped plugin projection
+  -> external actor
 ```
 
-## Ownership Before Existing Topology
+The resource defines lifecycle and foreign facts. The provider performs
+acquisition and release. The app selects and binds. The service interprets and
+decides. The projection presents. No layer takes the writer owned by another.
 
-Ask these questions before choosing a file path:
+For live Civ7 behavior, foundational control and play are two authorities:
 
-- What behavior or contract is changing?
-- Which package, mod, app, or doc set owns that contract?
-- Which adjacent owners consume it?
-- Which owners are explicitly forbidden?
-- Which generated artifacts will be regenerated rather than edited?
-- Which tests or runtime checks can prove the claim?
+```text
+ready Tuner and window-capture values
+  -> civ7-control: app/game/map/UI native facts and operations
+  -> civ7-play: situation, check, request, reconciliation, no-repeat, next action
+  -> CLI or selected Studio API projection
+```
 
-## Truth, Projection, And Materialization
+Shared readiness is a dependency, not a reason to merge the semantic owners.
 
-For MapGen, truth products and game projection are separate:
+## Definition And Realization Chains
 
-- Domains and steps publish artifacts and fields that describe generated world truth.
-- `map-*` or game-facing stages project truth into engine state, terrain, tags, resources, starts, or other Civ7 surfaces.
-- Adapter calls and official game generators are runtime materialization evidence. If current behavior delegates to them, classify that surface as projection/materialization until a controlling decision gives the pipeline deterministic ownership.
-- Diagnostics, parity captures, and generated mod files observe or serialize behavior. They do not define it.
+Portable truth and environment effects remain separate:
 
-## Normalization Classification
+```text
+Swooper definition plugin
+  -> domains, recipe, config, diagnostics, metrics, trace, visualization
+  -> deterministic MapGen products
 
-For MapGen architecture normalization, classify each concern before naming a
-stage or file move:
+Swooper definition plugin
+  -> Swooper realization app's finite production targets
+  -> deployable production artifact and deployment outcome
 
-- **Authoring surface:** public config, knobs, presets, Studio defaults, docs
-  examples, or SDK-facing schema.
-- **Truth surface:** deterministic domain artifacts, fields, or intent owned by
-  the pipeline.
-- **Projection surface:** engine-facing writes, adapter materialization,
-  parity diagnostics, or map artifacts derived from truth.
-- **Gameplay product surface:** placement products such as wonders,
-  resources, starts, discoveries, or advanced starts.
-- **Presentation surface:** Studio grouping, debug navigation, visualization,
-  or trace display.
+Swooper public definition + pure workspace/install packages
+  -> Studio app's qualified Swooper realization adapter
+  -> ephemeral physical materialization/install receipts
+  -> MapGen-runs semantic ordering, state, reconciliation, and outcome
+  -> Studio API/web projection
+```
 
-Only the first four categories can justify recipe-level topology. Presentation
-needs should usually be solved with metadata or UI/SDK support instead of
-surfacing implementation seams as stages.
+The production realization app and Studio's ephemeral adapter are independent
+realizers. Studio does not import the production app or invoke its targets.
+MapGen-runs does not perform filesystem effects and does not own Swooper
+definition truth.
 
-## Native Repo Shape First
+## Civ7 Qualification Tests
 
-Prefer existing repo primitives:
+Use upstream Habitat for generic kind and relationship grammar. This overlay
+adds only the discriminators that are specific to Civ7:
 
-- Bun workspace scripts and Nx for builds/checks.
-- Package-local `bun run --cwd <package> <script>` for focused validation.
-- Graphite for branch/stack workflow.
-- TypeScript source as editable implementation; `dist/` as generated output.
-- `docs/system/**` for evergreen architecture/process.
-- `docs/projects/**` for active project state, specs, reviews, workstream records, deferrals, and triage.
+- raw Tuner or window facts route to their resource/provider chain; Civ7
+  readiness, app, game, map, and UI meaning route to foundational control;
+- a gameplay goal, recommendation, guarded request, reconciliation, or next
+  action routes to play over the public control client;
+- portable Swooper authorship, its production realization, Studio's ephemeral
+  realization effects, and MapGen-runs operation meaning remain four different
+  owners;
+- a caller-facing CLI/API/web shape projects a public capability and never
+  earns its fact writer, provider selection, or process lifetime.
 
-Add helpers only when they remove real repeated complexity, isolate a named boundary, or match an established local pattern. A helper that hides a placement decision is debt.
+Resolve the exact relationship name from the sealed topology rather than
+maintaining a second local relationship glossary.
 
-## Guidance Must Become Control
+## External Authority
 
-A correction or reviewer finding is consumed only when it changes one of:
-
-- an authority doc or ADR;
-- a deferral/triage record with owner and trigger;
-- a source path, import boundary, or public export;
-- a test, lint, or verification gate;
-- a generated-output regeneration step;
-- a closure claim.
-
-Acknowledgement without a durable change is not an operational state.
+Upstream Habitat owns the generic shells and structural law for the shared
+kinds selected by the sealed model. Civ7 owns its local service law plus
+qualified overlays and product facts. Global vendor skills own generic
+Effect/oRPC guidance; exact installed source decides version-sensitive syntax
+and lifecycle behavior. Neither source may be copied into a local pseudo-
+platform or used to invent product authority.
