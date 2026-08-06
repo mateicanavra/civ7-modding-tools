@@ -159,10 +159,10 @@ mod author intent
   -> independent installation, loader, and live evidence
 ```
 
-The definition never depends on its realization. The cold realization
-declaration references one definition and one qualified adapter identity; the
-shared runtime executes the selected role and scopes the adapter. Generated,
-installed, loader-accepted, and live facts remain independent.
+The definition never depends on its realization. Nx records the realization's
+one-way product dependency, while its finite build/deploy entrypoints invoke
+the qualified adapter directly. Generated, installed, loader-accepted, and live
+facts remain independent. No absent shared product runtime is simulated.
 
 ### Swooper Map Product
 
@@ -171,15 +171,15 @@ map author intent
   -> Swooper definition
   -> MapGen SDK/core
   -> deterministic artifacts, trace, metrics, and browser projection
-  -> cold Swooper realization, profile, and map-role selection
-  -> shared runtime binds the realization-local Civ7 adapter
+  -> finite Swooper build/deploy realization
+  -> realization-local Civ7 adapter
   -> selected map entrypoint
   -> Civ7 map loader and engine projection
   -> fresh live evidence
 ```
 
 Portable generation and Civ7 realization remain separate proof classes even
-when one cold app declaration selects them together.
+when one finite app realizes them together.
 
 ### Live Civ7 Control
 

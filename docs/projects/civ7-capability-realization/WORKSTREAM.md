@@ -227,8 +227,18 @@ parity belongs to the Standard recipe and is only executed by the realization's
 uncached live target. The ordinary Nx graph proves 527 product tests and 28 app
 tests, both typechecks and all dependencies; the generic proof-topology law,
 exported-value JSDoc law, and scoped Knip pass. No live Civ7 target ran or
-passed. App definition/profile/entrypoint construction, qualified installation,
-and the held Interactive dependencies remain in this slice.
+passed. Qualified installation and the held Interactive dependencies remained
+in this slice at that checkpoint.
+
+**Installation receipt:** published Habitat 0.5.1 and canonical Template expose
+structural app law but no product app-runtime constructor. Swooper therefore
+keeps finite Nx build/deploy entrypoints rather than manufacturing an inert
+descriptor/profile layer. `src/deploy.ts` now delegates to the qualified
+`runtime/adapters/local-mod-install.ts` boundary, removing the app's dependency
+on the CLI process while fixing the exact Swooper mod identity. App and provider
+graphs, 29 app tests, the ratcheted source topology, JSDoc, and Knip pass. The
+existing installation package remains an explicit transitional provider owner
+for Estate Reconciliation; its use is not encoded by the kind law.
 
 #### 1.1.3 Slice Construction And Evidence
 
