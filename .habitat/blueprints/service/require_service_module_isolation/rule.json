@@ -10,9 +10,9 @@
   "operation": { "kind": "check" },
   "ownerProject": "control-orpc",
   "lane": "enforced",
-  "forbids": "computed module sources, sibling-module entry, arbitrary root entry into module implementation, module entry into root execution, and cross-service private source imports",
+  "forbids": "computed module sources, sibling-module entry, contract type extraction outside the contract composer, arbitrary root entry into module implementation, module entry into root execution, and cross-service private source imports",
   "why": "A service root composes modules, each module owns its interior, and service-to-service collaboration crosses only the public client boundary.",
-  "remediate": "Use a literal module source, keep behavior inside its owning module, compose only contract and router faces at the service root, and replace private cross-service imports with the owner's public client.",
+  "remediate": "Use a literal module source, keep behavior inside its owning module, let handler contextual typing prove operation input/output assignability, compose only contract and router faces at the service root, and replace private cross-service imports with the owner's public client.",
   "message": "Service modules and private implementation must remain sealed behind their owning composition faces.",
   "pathCoverage": [
     {

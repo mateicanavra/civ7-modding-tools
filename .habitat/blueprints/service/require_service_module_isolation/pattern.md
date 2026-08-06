@@ -10,7 +10,10 @@ consumes only the public client, never a private relative path or internal
 service alias. Import and require sources are literal so the boundary remains
 inspectable. Module wiring may reach the local implementation spine; other
 module source may use service-root model facts but not root contract/router
-execution.
+execution. A module contract is consumed only by its contract composer and the
+service root; routers and model code rely on handler contextual typing and
+module-owned facts instead of picking input or output types back out of the
+contract.
 
 This rule reasons from normalized paths rather than enumerating directory
 depths. It does not select an oRPC builder, middleware API, or Effect bridge.
@@ -61,6 +64,15 @@ function require_service_module_isolation_status($filename, $source) js {
   const targetModule = target.match(/\/src\/service\/modules\/([^/]+)(?:\/|$)/);
   if (importerModule && targetModule && targetModule[1] !== importerModule) {
     return "blocked:sibling";
+  }
+
+  if (
+    importerModule &&
+    targetModule &&
+    /\/contract(?:\/|$)/.test(target) &&
+    !/\/contract\/index\.ts$/.test(filename)
+  ) {
+    return "blocked:contract-authority";
   }
 
   if (importerModule && /\/src\/service\/(?:contract|router)$/.test(target)) {
@@ -128,6 +140,13 @@ const dependency = await import(moduleSpecifier);
 ```typescript
 // @filename: services/jobs/src/service/model/policy/catalog.ts
 import { runFind } from "../../modules/catalog/router/find.router";
+```
+
+## Matches router extraction of operation contract types
+
+```typescript
+// @filename: services/jobs/src/service/modules/catalog/router/find.router.ts
+import type { contract } from "../contract";
 ```
 
 ## Ignores lawful composition and local collaboration
