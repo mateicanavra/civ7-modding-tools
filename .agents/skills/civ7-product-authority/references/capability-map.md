@@ -21,10 +21,13 @@ this reference carries no migration, admission, or proof status.
 
 ### Foundational Control
 
-The finite control modules are `{app, game, map, ui}`. They own native
-readiness/application, setup/game, map/visibility/surface, and UI/display/
-appshot facts. Raw Tuner epoch, health, commands, and window captures remain
-resource/provider facts.
+The finite control modules are `{app, game, map, ui}`. `game` nests explicit
+native city, diplomacy, notification, player, progression, turn, and unit subdomains;
+those nouns are not peer control modules. Exact `observe`, `check`, and
+single-dispatch `send` leaves own native readiness/application, setup/game,
+map/visibility/surface, and UI/display/appshot facts. Raw Tuner epoch, health,
+commands, and window captures remain resource/provider facts. Actor-facing
+requests and gameplay reconciliation remain Play-owned.
 
 ### Actor-Facing Play
 

@@ -71,13 +71,19 @@ ui}`:
 
 - readiness and current-application facts;
 - setup/start and current-game facts;
+- explicit native city, diplomacy, notification, player, progression, turn, and unit
+  subdomains nested beneath `game`;
 - observation, visibility, plot, grid, and surface facts;
 - display queue, camera, and semantic Civ7 appshot behavior;
-- native admission, dispatch, bounded readback, and exact native uncertainty.
+- exact `observe`, `check`, and single-dispatch `send` leaves plus native
+  uncertainty and optional same-evaluation `immediateAfter` readback.
 
 It consumes app-supplied ready Tuner and window-capture capabilities. It does
 not acquire providers, expose arbitrary JavaScript, own raw resource facts,
-interpret actor goals, recommend actions, or mount a transport.
+interpret actor goals, recommend actions, own gameplay postconditions or
+reconciliation, expose generic operation unions, or mount a transport. A named
+foundational operation may perform bounded observation required by its own
+contract, but never replay a mutation or decide actor meaning.
 
 ### Actor-Facing Play
 

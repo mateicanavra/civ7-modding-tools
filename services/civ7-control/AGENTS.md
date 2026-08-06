@@ -5,8 +5,14 @@ Scope: `services/civ7-control/**`
 - This local service kind owns foundational Civ7 control only, with the exact
   public module inventory `{app,game,map,ui}`.
 - `app` owns readiness and current-application interpretation; `game` owns
-  setup/start and current-game facts; `map` owns observation, visibility, plot,
-  grid, and surface facts; `ui` owns display, camera, and Civ7 appshot meaning.
+  setup/start and current-game facts plus explicit native city, diplomacy,
+  notification, player, progression, turn, and unit subdomains; `map` owns observation,
+  visibility, plot, grid, and surface facts; `ui` owns display, camera, and
+  Civ7 appshot meaning. Those game subdomains never become peer root modules.
+- Native leaves use `observe`, `check`, and `send`. A `send` performs one fresh
+  native check and at most one invocation, then returns exact dispatch evidence
+  and optional same-evaluation `immediateAfter` readback. Generic operation
+  unions and caller-authored native operation names are forbidden.
 - Gameplay goals, priorities, city/diplomacy decisions, no-repeat policy, and
   next-action meaning belong to `services/civ7-play`, which consumes only this
   service's public client.
@@ -25,6 +31,11 @@ Scope: `services/civ7-control/**`
 - Each public procedure owns a complete foundational semantic outcome. Private
   module ports own the smallest native lowering needed for that outcome without
   becoming public capabilities or a replacement facade.
+- Polling, gameplay postconditions, no-repeat policy, actor-facing `request`,
+  reconciliation, and next-action meaning are forbidden from native action
+  leaves and belong to `services/civ7-play`. A separately named foundational
+  operation may perform bounded observation required by its own explicit
+  contract, but never replay a mutation or decide actor meaning.
 - API plugins project the bound public client through API-owned caller
   contracts. The service router is never exposed directly over the wire.
 

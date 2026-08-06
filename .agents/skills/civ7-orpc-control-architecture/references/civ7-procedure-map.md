@@ -23,18 +23,30 @@ finite module inventory is exactly:
 | Module | Owner boundary |
 | --- | --- |
 | `app` | Civ7 readiness and current-application interpretation |
-| `game` | Setup/start and current-game facts |
+| `game` | Setup/start and current-game facts plus explicit native city, diplomacy, notification, player, progression, turn, and unit subdomains |
 | `map` | Observation, visibility, plot, grid, and surface facts |
 | `ui` | Display queue, camera, and Civ7 appshot meaning |
 
-Control owns native admission, lowering, dispatch, bounded readback, and exact
-native uncertainty. Raw health, epoch, command, capture, and foreign-failure
-facts remain resource/provider facts. Control does not own actor goals,
-gameplay strategy, no-repeat policy, or next-action recommendations.
+Control leaves use `observe`, `check`, and `send`. `send` performs one fresh
+native check and at most one invocation, then returns dispatch evidence and
+optional same-evaluation `immediateAfter` readback. Generic operation unions
+and caller-authored operation names are not native subdomains; they recreate a
+facade. Raw health, epoch, command, capture, and foreign-failure facts remain
+resource/provider facts. Those native action leaves do not own polling,
+postconditions, actor goals, gameplay strategy, no-repeat policy,
+reconciliation, or next-action recommendations. A separately named
+foundational operation may perform bounded observation required by its own
+explicit contract, but cannot replay a mutation or interpret actor meaning.
 
 Do not preserve migration-era domains such as lifecycle, readiness, world,
 display, or view as peer modules. Place their retained behavior under the four
 selected execution domains.
+
+The selected progression native kernel is the finite hierarchy recorded by
+`services/civ7-control/src/service/modules/game/AGENTS.md`. Its technology,
+culture, attribute, tradition, government, celebration, and narrative leaves
+fix native lowering privately. None accepts a public kind/action/operation
+discriminator or emits actor ranking, postconditions, or next actions.
 
 ## Actor-Facing Play
 
@@ -105,7 +117,9 @@ A service operation is complete when it has:
 - one stable actor or owner intent;
 - admitted input and explicit output/error vocabulary;
 - a named mutation and uncertainty policy;
-- explicit dispatch, observation, and reconciliation facts; and
+- the dispatch, observation, or reconciliation facts owned by that service;
+  foundational control stops at native dispatch and same-evaluation readback,
+  while Play owns gameplay reconciliation; and
 - one owning semantics proof.
 
 Do not split a behavior so callers must remember a hidden preflight or

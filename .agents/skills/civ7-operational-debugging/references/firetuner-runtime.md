@@ -98,7 +98,8 @@ When an actor-facing blocker lacks a public operation:
    policy.
 5. Add one closed typed operation at the correct owner, then expose it through
    play and the caller projection only when a concrete actor task requires it.
-6. Prove exact dispatch and postcondition; preserve uncertainty and no-repeat
-   behavior.
+6. Prove the control leaf's exact check, single dispatch, and same-evaluation
+   readback. Then prove actor-facing postcondition, uncertainty, and no-repeat
+   policy in Play rather than adding them to the native leaf.
 
 Do not leave users with a raw script recipe as the permanent workflow.

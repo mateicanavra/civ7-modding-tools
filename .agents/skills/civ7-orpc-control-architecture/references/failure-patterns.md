@@ -70,6 +70,22 @@ semantics proof disappear.
 **Repair:** expose only closed typed operations owned by a selected service
 module. Keep raw diagnostics explicit and owner-qualified.
 
+## Family Dispatcher Recreates The Facade
+
+**Symptom:** a control leaf accepts a generic operation name, argument bag, or
+discriminated union covering several native operations.
+
+**Why it fails:** the route is nominally typed but still transfers native
+selection, lowering, and authority to the caller. It preserves the aggregate
+facade under a family-shaped name.
+
+**Repair:** keep control root modules exactly `{app,game,map,ui}`; nest the
+explicit native subdomain under `game`, and expose exact `observe`, `check`, or
+single-dispatch `send` leaves. Put actor-facing `request`, polling,
+postconditions, no-repeat behavior, and reconciliation in Play. A separately
+named foundational operation may own bounded observation required by its own
+contract, but must not replay a mutation or decide an actor outcome.
+
 ## Vendor Mechanism By Memory
 
 **Symptom:** implementation chooses a builder chain, adapter, error tunnel,
