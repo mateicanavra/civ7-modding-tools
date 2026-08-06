@@ -68,7 +68,18 @@ window-capture resources. Procedure-local errors replace one root-global error
 surface. The direct-control aggregate facade, controller capability mirror,
 host admission, generic mutation wrappers, and transport-address leakage are
 displaced rather than recreated under new names; concrete semantic procedures
-retain their own readiness and reconciliation laws.
+retain their own native admission and dispatch laws.
+
+Control remains exactly `{app,game,map,ui}` at the root. `game` nests explicit
+native city, diplomacy, notification, player, progression, turn, and unit
+subdomains; its leaves are exact `observe`, `check`, and `send`
+operations, never generic operation unions or caller-authored operation names.
+A `send` performs one fresh native check and at most one invocation, returning
+dispatch evidence and optional same-evaluation `immediateAfter` readback.
+Polling, postconditions, no-repeat policy, actor-facing `request`, and outcome
+reconciliation are refused from those native action leaves. Separately named
+foundational operations may own bounded observation required by their explicit
+contract, but never replay a mutation or decide actor meaning.
 
 Active skills, AGENTS routers, ADRs, and architecture guidance are executable
 inputs to this migration. Their keep/repair/consolidate/delete pass is sealed:

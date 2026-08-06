@@ -84,22 +84,23 @@ is deleted rather than relocated.
 | `packages/civ7-direct-control/src/runtime/app-ui-snapshot.ts` | combine | `services/civ7-control/src/service/modules/{app,game}/model/ports/app-ui-snapshot.ts` | App readiness and game setup semantics |
 | `packages/civ7-direct-control/src/runtime/{playable-status,tuner-health}.ts` | combine | `services/civ7-control/src/service/modules/app` | App-readiness semantics |
 | `packages/civ7-direct-control/src/game-ui/loading-states.ts` | combine | `services/civ7-control/src/service/modules/game/model/dto/loading-state.ts`; native scripts reference the ambient Civ7 enum by name rather than preserving a second numeric table | Game setup contract and semantics |
-| `packages/civ7-direct-control/src/play/action-panel-turn.ts` | combine | `services/civ7-play/src/service/modules/turn/model/ports/action-panel.ts` | Play turn semantics |
-| `packages/civ7-direct-control/src/play/notifications/blocking-observation.ts` | combine | `services/civ7-play/src/service/modules/attention/model/ports/blocking-notification.ts` | Play attention semantics |
+| `packages/civ7-direct-control/src/play/action-panel-turn.ts` | decompose | Exact raw control `ui` or `game.turn` observation plus `services/civ7-play/src/service/modules/turn` interpretation; Play never receives a Tuner-backed port | Control semantics plus Play turn semantics |
+| `packages/civ7-direct-control/src/play/notifications/blocking-observation.ts` | decompose | Exact `control.game.notifications.observe` fact plus `services/civ7-play/src/service/modules/attention` blocker interpretation | Control notification semantics plus Play attention semantics |
 | `packages/civ7-direct-control/src/play/autoplay.ts` | decompose | `services/civ7-play/src/service/modules/automation` for gameplay automation; `services/mapgen-runs/src/service/modules/autoplay` retains only run-operation admission and mutual exclusion | Play automation and MapGen-runs policy proof |
-| `packages/civ7-direct-control/src/play/turn-completion.ts` | combine | `services/civ7-play/src/service/modules/turn` | Play turn semantics |
-| `packages/civ7-direct-control/src/play/city` | combine | `services/civ7-play/src/service/modules/city` | Play city semantics |
-| `packages/civ7-direct-control/src/play/diplomacy` | combine | `services/civ7-play/src/service/modules/diplomacy` | Play diplomacy semantics |
+| `packages/civ7-direct-control/src/play/turn-completion.ts` | decompose | Exact `control.game.turn.completion` observe/send atoms plus `services/civ7-play/src/service/modules/turn` check/request/reconciliation | Control native semantics plus Play turn semantics |
+| `packages/civ7-direct-control/src/play/city` | decompose | Exact `control.game.city` observe/check/send atoms plus `services/civ7-play/src/service/modules/city` actor policy and reconciliation | Control native semantics plus Play city semantics |
+| `packages/civ7-direct-control/src/play/diplomacy` | decompose | Exact `control.game.diplomacy` check/send atoms plus `services/civ7-play/src/service/modules/diplomacy` actor policy and reconciliation | Control native semantics plus Play diplomacy semantics |
 | `packages/civ7-direct-control/src/play/display/queue.ts` | combine | `services/civ7-control/src/service/modules/ui` | Foundational UI control semantics |
 | `packages/civ7-direct-control/src/play/map/visibility.ts` and the explore choreography from `src/play/display` | combine | `services/civ7-control/src/service/modules/map` | Foundational map-visibility semantics |
-| `packages/civ7-direct-control/src/play/government` and `src/play/narrative` | combine | `services/civ7-play/src/service/modules/progression` | Play progression semantics |
-| `packages/civ7-direct-control/src/play/notifications/{advisor-warning,dismissal,view}.ts` | combine | `services/civ7-play/src/service/modules/notifications` | Play notification semantics |
-| `packages/civ7-direct-control/src/play/progression` | combine | `services/civ7-play/src/service/modules/progression` | Play progression semantics |
-| `packages/civ7-direct-control/src/play/ready/{city,unit}.ts` | combine | `services/civ7-play/src/service/modules/attention` | Play attention semantics |
+| `packages/civ7-direct-control/src/play/government` and `src/play/narrative` | decompose | Exact `control.game.progression` native atoms plus `services/civ7-play/src/service/modules/progression` actor policy and reconciliation | Control native semantics plus Play progression semantics |
+| `packages/civ7-direct-control/src/play/notifications/{advisor-warning,dismissal,view}.ts` | decompose | Exact `control.game.notifications` observe/check/send atoms plus `services/civ7-play/src/service/modules/notifications` actor policy and reconciliation | Control native semantics plus Play notification semantics |
+| `packages/civ7-direct-control/src/play/progression` | decompose | Exact `control.game.progression` observe/check/send atoms plus `services/civ7-play/src/service/modules/progression` actor policy, polling, and reconciliation | Control native semantics plus Play progression semantics |
+| `packages/civ7-direct-control/src/play/ready/{city,unit}.ts` | decompose | Exact `control.game.{city,unit}` observations plus `services/civ7-play/src/service/modules/attention` readiness interpretation | Control game facts plus Play attention semantics |
 | `packages/civ7-direct-control/src/play/ready/move-preview.ts` and `src/play/tactical` | combine | `services/civ7-play/src/service/modules/planning` | Play planning semantics |
-| `packages/civ7-direct-control/src/play/unit` | combine | `services/civ7-play/src/service/modules/unit` | Play unit semantics |
+| `packages/civ7-direct-control/src/play/unit` | decompose | Exact `control.game.unit` observe/check/send atoms plus `services/civ7-play/src/service/modules/unit` actor policy, planning, and reconciliation | Control native semantics plus Play unit semantics |
 | `packages/civ7-direct-control/src/play/view/{camera,clean-frame}.ts` | combine | `services/civ7-control/src/service/modules/ui` | Foundational UI control semantics |
-| `packages/civ7-direct-control/src/play/map/{constants,full-grid,reads,surface-observation,types,validation}.ts`, `src/play/start-positions.ts`, and `src/play/summaries.ts` | combine | `services/civ7-control/src/service/modules/map` | Foundational map/world observation semantics and Swooper live proof |
+| `packages/civ7-direct-control/src/play/map/{constants,full-grid,reads,surface-observation,types,validation}.ts` and `src/play/start-positions.ts` | combine | `services/civ7-control/src/service/modules/map` | Foundational map/world observation semantics and Swooper live proof |
+| `packages/civ7-direct-control/src/play/summaries.ts` | decompose | Exact `services/civ7-control/src/service/modules/game/{player,city,unit}` observation leaves; caller-facing map summaries may compose them with control-map facts only in the qualified projection | Foundational game observation semantics plus projection proof |
 | `packages/civ7-direct-control/src/play/map/gameinfo.ts` | relocate | Qualified CLI and Studio diagnostic adapters; arbitrary table access is not a game/map service promise | Diagnostic adapter proof |
 | `packages/civ7-direct-control/src/setup/{constants,reads,start}.ts`, `src/setup/prepare.ts#{Civ7SetupOptionValue,Civ7PlayerSetupOptions,Civ7SavedGameConfigurationLoadRequestResult,Civ7SinglePlayerSetupValues,Civ7TargetModReconciliationResult,Civ7SetupMutationResult,requestCiv7SavedGameConfigurationLoad,applyCiv7SinglePlayerSetupIdentity,applyCiv7SinglePlayerSetupOptions,reconcileCiv7RequiredTargetMod,setupExpectationScriptSource,setupSnapshotSelectionFromInput,buildApplySinglePlayerSetupIdentityCommand,buildApplySinglePlayerSetupOptionsCommand,buildReconcileTargetModCommand,normalizeSinglePlayerSetupInput,assertPreparedSetupMatches}`, and `src/setup/restart.ts#beginCiv7Game` | combine | `services/civ7-control/src/service/modules/game` | Foundational game setup semantics |
 
@@ -228,7 +229,7 @@ and never compose either service contract subtree.
 | Generic mutation middleware and controller-admission/proof machinery | delete | Exact control dispatch facts plus play-owned operation policy; qualified app composition supplies ready capabilities |
 | Shared primitives, correlation, and failure projection | decompose | Smallest truthful control- or play-owned DTO/policy leaves; no cross-service shared cabinet |
 | Current `{readiness,lifecycle,world,display,view}` modules | decompose | Control `{app,game,map,ui}` modules according to the exact operation table below |
-| Current `{attention,city,diplomacy,government,narrative,notifications,progression,strategy,turn,unit}` modules | decompose | Play modules according to the exact operation table below |
+| Current `{attention,city,diplomacy,government,narrative,notifications,progression,strategy,turn,unit}` modules | decompose | Raw native observations/checks/sends move beneath exact control `game`/`ui` subdomains; actor interpretation, requests, polling, no-repeat policy, reconciliation, and next action move to the finite Play modules below |
 | Any play module import of `Civ7Tuner`, `WindowCapture`, provider state, arbitrary JavaScript execution, or private control source | delete | Public control-client dependency and exact typed control operations |
 | `packages/civ7-control-orpc/dist` | delete | Ignored generated cleanup only; the deleted tracked package contributes no contract, behavior, or migration authority |
 
@@ -238,7 +239,7 @@ The target public module grammar is:
 | --- | --- |
 | `control.app` | readiness and current-application facts |
 | `control.game` | setup/start, current-game lifecycle and state, and closed typed native game-operation families required by play |
-| `control.map` | map plot/grid/surface observations, visibility, start positions, summaries, and legacy world-like reads |
+| `control.map` | map plot/grid/surface observations, visibility, start positions, and legacy world-like reads |
 | `control.ui` | display queue, camera, and Civ7 appshot meaning |
 | `play.attention` | current attention, priorities, and blocker interpretation |
 | `play.automation` | gameplay autoplay configuration/status/start/stop; MapGen-runs owns only cross-operation admission and mutual exclusion |
@@ -371,7 +372,7 @@ explicitly replaces one. No compatibility alias or second contract is added.
 | Exact public route | Route disposition | Exact API contract owner | Underlying authority |
 | --- | --- | --- | --- |
 | `civ7.status` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/status.ts` | Control-service readiness client |
-| `civ7.mapSummary` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/map-summary.ts` | Control `map` client |
+| `civ7.mapSummary` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/map-summary.ts` | API-owned composition over bound control `map` plus exact `game.player`, `game.city`, and `game.unit` observation clients |
 | `civ7.gameInfo` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/game-info.ts` | Qualified diagnostic adapter; arbitrary table access is not a control contract |
 | `civ7.autoplay` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/autoplay.ts` | MapGen-runs autoplay client |
 | `civ7.setupConfig` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/setup-config.ts` | Control `game` client |
