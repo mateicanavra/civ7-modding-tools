@@ -290,8 +290,8 @@ describe("macOS ScreenCaptureKit provider semantics", () => {
     expect(compileCount).toBe(1);
     expect(probeCount).toBe(2);
     await expect(accessAsync(staleBinary)).rejects.toThrow();
-    await expect(accessAsync(concurrentSource)).resolves.toBeUndefined();
-    await expect(accessAsync(concurrentTemporary)).resolves.toBeUndefined();
+    await accessAsync(concurrentSource);
+    await accessAsync(concurrentTemporary);
   });
 
   test("fails acquisition when a cached helper violates the readiness protocol", async () => {
