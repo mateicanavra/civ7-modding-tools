@@ -28,9 +28,9 @@ authority by themselves.
 
 **Attractor cubes**
 
-- Meaning: Actor. Intent. Outcome. Refusal. Trust.
-- Structure: Owner. Boundary. Direction. Lifecycle. Closure.
-- Descent: Ground. Chain. Ratchet. Delete. Seal.
+- Selection: Outcome. Corpus. Disposition. Falsifier.
+- Structure: Owner. Kind. Relation. Boundary. Constructor.
+- Descent: Admit. Migrate. Prove. Delete. Seal.
 
 **Current frame:** the actor/outcome, product, system, topology, source, and
 public-surface models are ratified. The exact pre-substrate estate at
@@ -85,13 +85,21 @@ No replacement ambient package, forwarding subpath, app export, or Tuner-backed
 inventory was admitted.
 
 **Current container:** admit the shared Habitat `service@1` consumer boundary,
-then construct the smallest complete controller service: versioned identity,
-readiness, realm, lifecycle, boot identity, and typed ping. Habitat `0.5.5` is
-installed, but its selected policy pack still omits `service@1`. The bundled
-candidate explicitly has no release-pack acceptance and binds only structure.
-Civ7 therefore does not instantiate it, copy its generic rules, or substitute
-local service law while the Habitat owner finishes the selected kind and its
-complete consumer contract.
+refresh the destination snapshot, and seal the Controller Foundation N=1 row
+map and rails before constructing versioned identity, readiness, realm,
+lifecycle, boot identity, and typed ping. Habitat `0.5.5` is installed, but its
+selected policy pack still omits `service@1`. The bundled candidate explicitly
+has no release-pack acceptance and binds only structure. Civ7 therefore does
+not instantiate it, copy its generic rules, or substitute local service law
+while the Habitat owner finishes the selected kind and its complete consumer
+contract.
+
+This is the active N=1 capability migration. Its selected system handoff,
+enclosing actor receipt, source corpus, destination chain, Habitat admission,
+proof axes, and displaced-path deletion inventory are governed by the
+repeatable loop in
+[WORKSTREAM.md](./WORKSTREAM.md#final-descent-n1-capability-loop). No second
+capability is selected while this iteration is refused at admission.
 
 Once admitted, the service executes inside Civ7, depends only on the generated
 official API and exact isolate-compatible vendors, and publishes its own
