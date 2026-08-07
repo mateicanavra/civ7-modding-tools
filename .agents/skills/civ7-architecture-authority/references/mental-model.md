@@ -19,30 +19,41 @@ authority relation.
 ## Live Capability Chain
 
 ```text
-external Civ7 or host capability
+external host capability
   -> provider-neutral resource contract
   -> concrete provider acquisition
   -> app-owned resource scope
-  -> app-bound public service client
+
+controller TypeScript + private router
+  -> dedicated controller mod definition and app
+  -> realm-local versioned ingress
+
+ready Tuner value + realm-local ingress
+  -> app-owned narrow transport binding
+  -> public controller client
   -> semantic service result
   -> caller-shaped plugin projection
   -> external actor
 ```
 
 The resource defines lifecycle and foreign facts. The provider performs
-acquisition and release. The app selects and binds. The service interprets and
-decides. The projection presents. No layer takes the writer owned by another.
+acquisition and release. The controller remains the semantic owner inside
+Civ7; the host app transports typed envelopes to its ingress and binds the
+public client. The projection presents. No layer takes the writer owned by
+another or regenerates a mature operation body.
 
-For live Civ7 behavior, foundational control and play are two authorities:
+For live Civ7 behavior, Controller and Play are two authorities:
 
 ```text
-ready Tuner and window-capture values
-  -> civ7-control: app/game/map/UI native facts and operations
-  -> civ7-play: situation, check, request, reconciliation, no-repeat, next action
+services/civ7-controller inside the controller mod
+  -> typed native facts and operations through the public controller client
+  -> services/civ7-play: situation, check, request, reconciliation, no-repeat, next action
   -> CLI or selected Studio API projection
 ```
 
-Shared readiness is a dependency, not a reason to merge the semantic owners.
+Selected Tuner access is a host-app binding concern. Window capture remains
+generic diagnostic or app evidence and is not a controller dependency. Shared
+readiness is not a reason to merge semantic owners.
 
 ## Definition And Realization Chains
 
@@ -74,10 +85,11 @@ definition truth.
 Use upstream Habitat for generic kind and relationship grammar. This overlay
 adds only the discriminators that are specific to Civ7:
 
-- raw Tuner or window facts route to their resource/provider chain; Civ7
-  readiness, app, game, map, and UI meaning route to foundational control;
+- raw Tuner or window facts route to their resource/provider chain; typed
+  native Civ7 readiness, realm, game, map, and UI facts route to the
+  realm-local controller;
 - a gameplay goal, recommendation, guarded request, reconciliation, or next
-  action routes to play over the public control client;
+  action routes to Play over the public controller client;
 - portable Swooper authorship, its production realization, Studio's ephemeral
   realization effects, and MapGen-runs operation meaning remain four different
   owners;

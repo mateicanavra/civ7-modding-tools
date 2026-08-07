@@ -1,7 +1,7 @@
 ---
 name: civ7-architecture-authority
 description: |
-  Use in the Civ7 Modding Tools repo when deciding capability placement or ownership across packages, resources, providers, services, plugins, apps, and qualified app adapters. Trigger phrases include "what owns this code", "where should this capability live", "is this a resource or service", "who acquires this provider", "is this control or play", "where does Swooper realization live", "who owns MapGen run state", "delete this facade", "which Habitat law applies", and "before moving this boundary". Pair with civ7-product-authority when actor outcomes, public behavior, or consumer contracts are changing.
+  Use in the Civ7 Modding Tools repo when deciding capability placement or ownership across packages, resources, providers, services, plugins, apps, and qualified app adapters. Trigger phrases include "what owns this code", "where should this capability live", "is this a resource or service", "who acquires this provider", "is this controller or Play", "where does Swooper realization live", "who owns MapGen run state", "delete this facade", "which Habitat law applies", and "before moving this boundary". Pair with civ7-product-authority when actor outcomes, public behavior, or consumer contracts are changing.
 ---
 
 # Civ7 Architecture Authority
@@ -23,7 +23,7 @@ overlay adds only Civ7-specific ownership and composition constraints.
 
 - Selecting or changing a package, resource, provider, service, plugin, app, or
   qualified app-adapter boundary.
-- Separating foundational live control from actor-facing play.
+- Separating the realm-local controller from actor-facing Play and host access.
 - Changing Swooper definition, production realization, or Studio ephemeral
   realization responsibilities.
 - Moving MapGen operation state, host effects, API projection, or process
@@ -88,7 +88,7 @@ overlay adds only Civ7-specific ownership and composition constraints.
 <invariants>
 <invariant name="capability-before-container">Name the actor outcome and sole writer for every durable fact, policy, transition, and correction before selecting a container.</invariant>
 <invariant name="current-paths-are-evidence">Current paths, imports, tests, and working behavior describe the estate; the sealed model defines destination authority.</invariant>
-<invariant name="control-and-play-stay-distinct">Foundational control owns closed app/game/map/UI native facts and operations. Play owns actor-facing observation, checks, requests, reconciliation, no-repeat policy, and next lawful action over the public control client.</invariant>
+<invariant name="controller-and-play-stay-distinct">The controller owns closed typed native facts and operations executed inside Civ7. Play owns actor-facing observation, checks, requests, reconciliation, no-repeat policy, and next lawful action over the public controller client.</invariant>
 <invariant name="swooper-has-three-boundaries">The Swooper definition owns portable authored truth. The Swooper realization app owns its production build/deploy outcome. The Studio app's qualified adapter owns only ephemeral physical materialization/install effects and receipts.</invariant>
 <invariant name="mapgen-runs-owns-operation-meaning">MapGen-runs owns accepted operation intent, order, state, correlation, cancellation, retention, reconciliation, and final semantic outcome. App adapters own exact host effects and receipts; API and web surfaces only project the service result.</invariant>
 <invariant name="facades-delete">The legacy facade and direct-control convenience shape are deletion evidence only. No successor facade, parallel contract, private contract picking, or service-adapter forwarding layer is allowed.</invariant>

@@ -24,8 +24,14 @@ game files or confusing local output with game behavior.
   diagnostics, metrics, trace, and visualization outside Civ7.
 - **Mod realization:** materialize, install, replace, and separately prove
   loader and live behavior for an exact build.
-- **Live observation and control:** inspect epoch-scoped Civ7 facts and perform
-  native game decisions without treating dispatch as acceptance.
+- **Civ7 Controller:** execute closed TypeScript native operations inside the
+  Civ7 shell and game realms through a dedicated controller mod.
+- **Live access:** bind selected Tuner access to the controller's public client
+  while preserving provider epoch and controller realm/boot identity.
+- **Civ7 Play:** interpret the playable situation, pursue actor intent,
+  reconcile uncertain dispatch, and identify the next safe action.
+- **Raw diagnostics:** inspect Tuner state or execute audited JavaScript through
+  an explicit qualified escape hatch, never as a mature operation path.
 - **Map configuration and operations:** author stable MapGen configuration and
   run request-correlated Save & Deploy, Run in Game, inspection, adoption, and
   cancellation flows.

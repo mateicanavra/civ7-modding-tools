@@ -20,7 +20,7 @@ Swooper definition
 Studio caller
   -> Studio web/API projections
   -> MapGen-runs public client
-  -> app-bound config/run/log/realization/control capabilities
+  -> app-bound config/run/log/realization/controller capabilities
   -> operation state, correlation, reconciliation, and semantic outcome
 ```
 
@@ -38,7 +38,7 @@ No part of this chain authorizes one owner to absorb another.
 | Engine globals, map loader, generated map script, deployable outcome | `apps/mods/map/swooper-physics` |
 | Save & Deploy / Run in Game operation authority | `services/mapgen-runs` |
 | Studio physical materialization/install effects | `apps/mapgen-studio/src/runtime/adapters/swooper-map-realization.ts` |
-| Typed live Civ7 app/game/map/UI facts | `services/civ7-control` |
+| Typed live Civ7 app/game/map/UI facts | `services/civ7-controller`, executed inside the controller mod |
 | CLI/API/web caller presentation | matching projection plugin |
 | Provider selection, client binding, host mount, process lifetime | matching app |
 
@@ -171,7 +171,7 @@ compiler that translates a genuinely different public surface. Before tuning:
 ## Run And Realization Boundaries
 
 MapGen-runs consumes exact app-bound dependencies for authored config,
-run-files, fresh logs, realization, foundational control, and clock. It owns
+run-files, fresh logs, realization, the public controller client, and clock. It owns
 accepted intent, phase transitions, operation records, correlation,
 cancellation, reconciliation, and final semantic outcomes.
 

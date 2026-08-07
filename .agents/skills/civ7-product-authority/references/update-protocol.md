@@ -42,7 +42,7 @@ project status updates.
 - Fact, policy, transition, correction, or result changing.
 - Previous writer and proposed sole writer.
 - Explicit non-owners.
-- Definition, production-realization, Studio-realization, control/play, and
+- Definition, production-realization, Studio-realization, Controller/Play, and
   MapGen-runs distinctions affected.
 - Public surfaces and consumers.
 - Exact owner result/error vocabulary.
@@ -56,7 +56,7 @@ Stop and reopen the owning model when:
 
 - two capabilities would write the same fact or correction;
 - a current path or compatibility concern is the only reason for an owner;
-- control and play meaning would merge;
+- Controller and Play meaning would merge;
 - production and Studio ephemeral realization would share one product outcome;
 - an adapter receipt would become the MapGen-runs semantic result;
 - a public surface would rewrite refusal, uncertainty, or proof meaning;

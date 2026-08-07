@@ -147,12 +147,14 @@ runStandardRecipe({ recipe: standardRecipe, init, overrides: {} });
 The portable definition and the Civ7 realization have separate proof. A
 headless or browser run proves deterministic MapGen behavior only; it does not
 prove loader acceptance or live Civ7 behavior. Live iteration flows through a
-qualified app: the app acquires the Tuner provider, binds foundational control,
-and supplies the MapGen-runs service with the public Swooper definition plus its
-exact host adapters. FireTuner and raw Tuner commands remain diagnostic
-evidence, never a second product control path. A live claim closes only when
-materialization, installation, loader, and bounded engine observation all name
-the same run correlation.
+qualified app: the app acquires the selected Tuner provider, binds the public
+controller client through a narrow typed-envelope transport, and supplies the
+MapGen-runs service with that client plus the public Swooper definition and its
+exact host adapters. The binding never regenerates a mature controller
+operation body. FireTuner and raw Tuner commands remain explicit app-owned
+diagnostic evidence, never a second product control path. A live claim closes
+only when materialization, installation, loader, and bounded engine observation
+all name the same run correlation.
 
 ## Legacy JS Architecture (Archived)
 

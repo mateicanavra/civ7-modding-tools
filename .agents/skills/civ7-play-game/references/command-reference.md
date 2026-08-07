@@ -26,7 +26,7 @@ link target on the `civ7-cli` Nx project.
 
 | Command family | Underlying owner |
 | --- | --- |
-| Foundational readiness/setup/game/map/view reads selected from native help | foundational control |
+| Controller readiness/setup/game/map/view reads selected from native help | public controller client |
 | Actor-facing observations, checks, requests, reconciliation, and next actions selected from play help | actor-facing play |
 | A run-admission automation leaf, when exposed | MapGen-runs; gameplay automation remains play-owned |
 | Raw health/execution/catalog/table diagnostics | qualified Tuner diagnostic or app adapter |
@@ -104,9 +104,9 @@ command exists. Stop and report:
 - current situation and blocker;
 - the missing actor task.
 
-Do not route around play through a raw Tuner command or private foundational
-control operation. The durable repair is a typed control primitive when needed,
-play-owned policy/reconciliation, and a concrete projection for the actor task.
+Do not route around Play through a raw Tuner command or private controller
+operation. The durable repair is a typed controller primitive when needed,
+Play-owned policy/reconciliation, and a concrete projection for the actor task.
 
 ## Command Record
 

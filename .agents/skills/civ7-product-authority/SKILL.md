@@ -1,7 +1,7 @@
 ---
 name: civ7-product-authority
 description: |
-  Use in the Civ7 Modding Tools repo when deciding actor outcomes, product capability ownership, public behavior, consumer contracts, or honest proof claims. Trigger phrases include "what owns this product behavior", "is this control or play", "what does Swooper promise", "is this production or Studio realization", "who owns this MapGen operation", "does this surface change meaning", "can this proof support the claim", "what can the actor ask next", "does this break consumers", and "update product authority". Pair with civ7-architecture-authority for container placement, imports, lifecycle, and structural enforcement.
+  Use in the Civ7 Modding Tools repo when deciding actor outcomes, product capability ownership, public behavior, consumer contracts, or honest proof claims. Trigger phrases include "what owns this product behavior", "is this controller or Play", "what does Swooper promise", "is this production or Studio realization", "who owns this MapGen operation", "does this surface change meaning", "can this proof support the claim", "what can the actor ask next", "does this break consumers", and "update product authority". Pair with civ7-architecture-authority for container placement, imports, lifecycle, and structural enforcement.
 ---
 
 # Civ7 Product Authority
@@ -23,7 +23,7 @@ vendor skills and exact installed source.
 
 - Naming or changing a Civ7 actor Task, Question, capability, semantic owner, or
   owner-local result.
-- Separating foundational native control from actor-facing play.
+- Separating the realm-local controller from actor-facing Play and host access.
 - Changing Swooper definition/generation, production realization, or Studio
   ephemeral realization behavior.
 - Changing MapGen-runs admission, phase meaning, correlation, reconciliation,
@@ -58,7 +58,7 @@ vendor skills and exact installed source.
 5. **Keep outcomes honest.** Preserve intent, admission, plan, effect attempt,
    receipt/observation, acceptance/reconciliation, and owner result as distinct
    facts.
-6. **Apply policy.** Use `references/policy-map.md` for control/play,
+6. **Apply policy.** Use `references/policy-map.md` for Controller/Play,
    definition/realization, MapGen-runs, projection, consumer, and proof rules.
 7. **Gate consumers.** Before reshaping or deleting a public surface, copy
    `assets/consumer-contract-gate-template.md` and close known and searched
@@ -95,8 +95,8 @@ vendor skills and exact installed source.
 <invariant name="capability-before-container">Name the actor outcome and semantic capability before discussing paths, packages, endpoints, or frameworks.</invariant>
 <invariant name="one-writer-per-fact">Every durable fact, policy decision, transition, correction law, effect receipt, and product result has one writer. A capability chain may traverse owners; projections never share their write authority.</invariant>
 <invariant name="current-estate-is-evidence">Current source, routes, exports, and tests describe behavior and consumers. They do not define target authority.</invariant>
-<invariant name="control-is-foundational">Foundational control owns closed app/game/map/UI native interpretation, admission, dispatch, readback, and uncertainty correlated to resource facts. It does not own actor intent or gameplay strategy.</invariant>
-<invariant name="play-is-actor-facing">Play alone owns gameplay situation, checks, requests, reconciliation, no-repeat policy, and next lawful action over the public control capability.</invariant>
+<invariant name="controller-is-native">The controller owns closed typed native operations executed inside Civ7 and exposes realm/boot identity. It does not acquire Tuner, execute caller-authored JavaScript, or own actor intent and gameplay strategy.</invariant>
+<invariant name="play-is-actor-facing">Play alone owns gameplay situation, checks, requests, reconciliation, no-repeat policy, and next lawful action over the public controller client.</invariant>
 <invariant name="definition-and-realizations-differ">The Swooper definition owns portable authored/generation truth. The production realization app owns its deployable outcome. Studio's qualified adapter owns ephemeral physical effects and receipts only.</invariant>
 <invariant name="mapgen-runs-is-semantic-owner">MapGen-runs owns operation intent, order, state, correlation, retention, cancellation, reconciliation, and final semantic outcome. It does not own Swooper truth or physical host effects.</invariant>
 <invariant name="channels-preserve-meaning">CLI, API, web, SDK, docs, and loader surfaces project owner results without changing owner vocabulary, inventing success, or becoming a second semantic capability.</invariant>

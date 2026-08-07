@@ -12,7 +12,7 @@ Do not choose an edit owner from a screenshot.
 2. Inspect or compare the raw layer values and metadata.
 3. Compare the browser projection against those values.
 4. If the claim involves Civ7, compare the admitted deterministic surface with
-   one correlated foundational-control map observation.
+   one correlated controller map observation.
 
 | Evidence | Likely owner |
 | --- | --- |
@@ -20,7 +20,7 @@ Do not choose an edit owner from a screenshot.
 | Values are right; labels, palette, geometry, selection, or interaction are wrong | Studio web projection or retained UI component package |
 | Deterministic values are right; generated bundle differs | Swooper realization build/compiler |
 | Installed tree differs from generated tree | qualified install adapter |
-| Civ7 readback differs from admitted deterministic product | projection/realization or foundational control map observation; preserve exact correlation |
+| Civ7 readback differs from admitted deterministic product | projection/realization or controller map observation; preserve exact controller and access correlation |
 | Run state/receipts are right but API/browser outcome is wrong | Studio API/web projection |
 
 Discover the current MapGen CLI projection before choosing a diagnostic or
@@ -91,8 +91,9 @@ selected or executed it.
 
 Use the uncached live targets selected by `swooper-physics-mod`, current
 MapGen-runs operation evidence, fresh logs, and one coherent foundational
-control map observation. Record exact build/config/seeds/map size/game setup,
-operation id, resource epoch, timestamps, and unresolved links.
+controller map observation. Record exact build/config/seeds/map size/game setup,
+operation id, controller realm/boot identity, host-access epoch, timestamps, and
+unresolved links.
 
 Only a fully correlated comparison can claim parity. A successful live map
 generation with an unresolved identity link remains a bounded live observation,
@@ -120,7 +121,7 @@ intent admitted
   -> authored config prepared/written
   -> materialization receipt
   -> installation receipt
-  -> setup/control facts
+  -> setup/controller facts
   -> fresh run/log evidence
   -> reconciliation
   -> terminal semantic outcome
@@ -137,9 +138,10 @@ from absence of output.
 ## Live Observation Discipline
 
 - Snapshot logs before the action and read only fresh bytes/lines.
-- Record the Tuner resource epoch used by foundational control.
+- Record controller realm/boot identity and the independently owned host-access
+  epoch used to reach it.
 - Keep map/game/process/operation identities distinct.
-- Use closed control map operations; do not add caller-local raw scripts for
+- Use closed controller map operations; do not add caller-local raw scripts for
   product proof.
 - Preserve stale, partial, unavailable, refused, uncertain, and unresolved
   states.
@@ -157,7 +159,7 @@ from absence of output.
 | Browser display change | raw-value agreement plus browser view/interaction proof |
 | Realization/compiler change | artifact/runtime compatibility, install receipt, loader/live proof |
 | MapGen-runs change | service semantics, app-adapter execution proof, projection proof, and live reconciliation when claimed |
-| Foundational map observation change | control contract/semantics/execution plus epoch-correlated live evidence |
+| Controller map observation change | controller contract/semantics/execution plus realm/boot and access-epoch-correlated live evidence |
 
 ## Failure Patterns
 
@@ -167,6 +169,6 @@ from absence of output.
 - A log line is generalized beyond its bounded run.
 - Seeds/dimensions are used as a substitute for missing game/process identity.
 - A projection recomputes a parity or failure classification already owned by
-  the definition, control, or MapGen-runs.
+  the definition, controller, or MapGen-runs.
 - A superseded verification script is revived instead of using current CLI/Nx
   discovery.

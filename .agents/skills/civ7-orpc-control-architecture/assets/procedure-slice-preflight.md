@@ -4,7 +4,7 @@
 
 - Actor and outcome:
 - Current owner and callers:
-- Destination kind: control / play / MapGen-runs / API / app / workflow candidate
+- Destination kind: Controller / Play / MapGen-runs / API / app / workflow candidate
 - Destination service and selected module:
 - Fact, transition, and correction-law owner:
 - Preserved behavior:
@@ -63,7 +63,9 @@
 ## Domain Safety
 
 - Intent, dispatch, observation, acceptance, and outcome remain distinct:
-- Play-owned stable no-repeat identity for uncertain gameplay mutation (N/A for a control native atom):
+- Play-owned stable no-repeat identity for uncertain gameplay mutation (N/A for a controller native atom):
+- Host binding carries envelopes only; no mature operation body:
+- Raw JavaScript and window evidence remain explicit app diagnostics:
 - Fresh evidence required before retry:
 - Relationship evidence for any non-neutral label:
 - Raw resource facts remain owner-qualified:

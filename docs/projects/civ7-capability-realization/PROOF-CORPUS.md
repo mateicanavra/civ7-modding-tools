@@ -1,9 +1,18 @@
 # Civ7 Capability Realization Proof Corpus
 
-**Status:** Frozen proof classification at Ground source snapshot
+**Status:** Superseded destination ledger; frozen proof census only
 **Date:** 2026-08-02
 **Scope:** Current proof and proof-support files participating in the final
 platform initiative
+
+> **Authority notice (2026-08-06):** the file identities and source assertions
+> below remain baseline evidence. Destination paths and target proof ownership
+> predate the ratified in-engine Controller, access, and Play model and are not
+> construction authority. Each workstream vertical must preserve, reconstruct,
+> or delete the selected assertions against the current
+> [Outcome Model](./OUTCOME-MODEL.md),
+> [Source Reconciliation](./SOURCE-RECONCILIATION.md), and
+> [Public Surface Disposition](./PUBLIC-SURFACE-DISPOSITION.md).
 
 **Proof snapshot:** commit
 `b89db91f40604905ce502a20fd0ea95ff5c2676f`, repository tree
@@ -17,8 +26,9 @@ feed; object rows are the unmodified `git ls-tree -r <snapshot> --
 
 ## Authority
 
-This ledger classifies the complete current 461-file proof/support corpus. Each
-current file has one terminal disposition:
+This ledger records the complete 461-file proof/support census selected by the
+earlier model. Its source assertions remain evidence; its terminal destination
+choices must be re-ratified inside the owning vertical:
 
 - `relocate`: preserve the file's coherent oracle at the named owner;
 - `combine`: preserve its useful assertions by reconstructing them at the named
@@ -304,10 +314,10 @@ These sections cover five Studio-contract files and ten Studio-server files.
 | The same test's `studio.serverInfo` route-projection assertion | combine | `plugins/server/api/mapgen-studio/test/projection/router.test.ts` |
 | The same test's `studio.operations.current` route-projection assertion | combine | `plugins/server/api/mapgen-studio/test/projection/runs.test.ts` |
 | The same test's exact-one session binding and reuse assertions | combine | `apps/mapgen-studio/test/assembly/composition.test.ts` proves one app-bound ready client/session selection, and `test/execution/hosts/server.test.ts` proves reuse across the mounted host lifetime |
-| The same test's lifecycle-admission assertions | combine | `services/civ7-control/test/execution/root.test.ts` |
+| The same test's lifecycle-admission assertions | delete | The superseded controller-admission middleware has no target service obligation |
 | The same test's provider acquisition and release assertions | combine | `resources/civ7-tuner/providers/local-socket/test/execution/lifecycle.test.ts` |
-| `apps/mapgen-studio/test/server/oneMount.test.ts#{serializes complete public control procedures on the daemon Tuner lease,removes an aborted queued control procedure before it can enter,drains an admitted control procedure before cancellation releases its lease}` | decompose | `services/civ7-control/test/execution/root.test.ts` for foundational native execution and `services/civ7-play/test/execution/root.test.ts` for actor-facing delegation over the bound control client |
-| `apps/mapgen-studio/test/server/oneMount.test.ts#daemon disposal drains an admitted control procedure before closing the session` | combine | `services/civ7-control/test/execution/root.test.ts`, local-socket provider release proof, and Studio host disposal proof |
+| `apps/mapgen-studio/test/server/oneMount.test.ts#{serializes complete public control procedures on the daemon Tuner lease,removes an aborted queued control procedure before it can enter,drains an admitted control procedure before cancellation releases its lease}` | delete | The target public client has no controller lease or admission queue; provider concurrency and interruption remain provider-owned |
+| `apps/mapgen-studio/test/server/oneMount.test.ts#daemon disposal drains an admitted control procedure before closing the session` | combine | Local-socket provider release proof and Studio host disposal proof; Control owns neither provider nor host lifetime |
 | `apps/mapgen-studio/test/server/oneMount.test.ts#the civ7 namespace merge is collision-free` | combine | `plugins/server/api/mapgen-studio/test/projection/router.test.ts` |
 | `apps/mapgen-studio/test/server/oneMount.test.ts#out-of-scope paths fall through to the host 404` | combine | `apps/mapgen-studio/test/execution/hosts/server.test.ts`; this is app-host behavior, not API semantics |
 | `apps/mapgen-studio/test/studioErrors/definedErrorProjection.test.ts` | combine | `plugins/server/api/mapgen-studio/test/projection/errors.test.ts` |
@@ -682,7 +692,7 @@ bound clients, and owns the projection and selected execution proof below.
 | `resources/window-capture/providers/macos-screencapturekit/test/execution/lifecycle.test.ts` | New target law: interruption and release close admission, apply bounded `SIGTERM`/`SIGKILL` escalation, and drain admitted work without escaping filesystem effects; released providers refuse work; interrupted writes leave no partial destination, while an entered publication commit completes atomically |
 | `resources/window-capture/providers/macos-screencapturekit/test/collaboration/provider.live.test.ts` | One opt-in real ScreenCaptureKit/TCC/window proof on macOS without Civ7-specific matching or semantic claims |
 | `services/civ7-control/test/contract/client.typecheck.ts` | The sole public client face, including any owned-contract re-export, exposes exactly `{app,game,map,ui}` without router, implementation, facade, or provider leakage |
-| `services/civ7-control/test/execution/root.test.ts` | Private-router middleware order, request isolation, raw-resource interpretation, and once-only direct Effect-to-procedure adaptation; typed context/dependencies, declared failures, defects, request interruption, cancellation, and finalization retain their lineage without a shared runtime |
+| `services/civ7-control/test/execution/root.test.ts` | App-supplied dependency binding, per-call correlation isolation, and once-only execution through the public client with distinct fake dependencies; provider lifecycle and generic oRPC/Effect internals remain with their owning proofs |
 | `services/civ7-play/test/contract/client.typecheck.ts` | The sole public client face, including any owned-contract re-export, exposes exactly `{attention,automation,city,diplomacy,notifications,progression,planning,turn,unit}` over the public control client with no Tuner-backed port, router, implementation, or provider leakage |
 | `services/civ7-play/test/execution/root.test.ts` | Private-router middleware order, request isolation, one-way delegation through the bound control client, and once-only direct Effect-to-procedure adaptation with typed dependency, error, interruption, cancellation, and finalization lineage |
 | `services/mapgen-runs/test/contract/client.typecheck.ts` | Save/Deploy and Run-in-Game clients expose only the accepted public service contract |

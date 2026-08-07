@@ -9,12 +9,14 @@ stop rather than guess.
 Select the foundational readiness read through `game --help`. Interpret its
 typed result rather than relying on a copied command name or readiness enum.
 
-Proceed only when foundational control reports:
+Proceed only when the fresh Play situation, grounded in controller facts,
+reports:
 
 - the Civ7 application and game are available for the requested observation;
 - the session is playable;
 - mutation is admitted for the current state;
-- the observation is current for its resource epoch.
+- the observation is current for its controller realm/boot and host-access
+  epoch.
 
 If the game is at shell/setup/loading, unavailable, stale, partial, or
 read-only, do not send a play request. Report the observed state and current
@@ -26,11 +28,12 @@ a separate app-lifecycle task.
 Separate three layers:
 
 1. **App composition:** did the CLI app select/acquire the Tuner provider and
-   bind a control/play client for this command?
+   bind the controller/Play clients for this command?
 2. **Resource:** did the provider return a ready epoch or a typed acquisition,
    health, interruption, or release failure?
-3. **Semantic readiness:** did foundational control interpret the current Civ7
-   app/game state as playable and mutation-capable?
+3. **Controller:** did the current realm/boot return the required native facts?
+4. **Play:** did actor policy admit the current situation as playable and the
+   requested mutation as lawful?
 
 Use `civ7-operational-debugging` for layers 1-2. Repeatedly polling play will
 not repair a missing provider or closed Civ7 process.
@@ -47,8 +50,9 @@ After turn completion:
    exists.
 2. Resume only when the fresh situation says it is the actor's turn and exposes
    decisions or lawful turn completion.
-3. If progress stalls, re-read foundational status. A modal, age transition,
-   loading state, or lost resource epoch may require separate recovery.
+3. If progress stalls, re-read the Play situation and underlying controller
+   identity. A modal, age transition, loading state, lost realm/boot, or changed
+   access epoch may require separate recovery.
 
 Elapsed time and command completion do not prove the next turn is ready.
 
@@ -101,7 +105,7 @@ If play can observe a lawful native operation but no actor-facing request exists
 Stop and report when:
 
 - status is not playable/mutation-capable;
-- the Tuner resource epoch changed during a decision;
+- the controller realm/boot or host-access epoch changed during a decision;
 - the same action is refused twice;
 - dispatch is uncertain and reconciliation cannot close it;
 - a high-impact decision requires human consultation;
@@ -113,7 +117,7 @@ blocker, next action, and retry law.
 
 ## Launching Is Separate
 
-Starting Civ7 or beginning/loading a game is an app/control task, not normal
+Starting Civ7 or beginning/loading a game is an app/controller task, not normal
 turn play. When explicitly requested, route it through the qualified app and
-public foundational control game capability, with Tuner acquisition and process
+public controller game capability, with Tuner acquisition and process
 lifetime owned by the app. Keep that workflow separate from actor-facing play.

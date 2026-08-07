@@ -15,7 +15,7 @@ The following packet controls the accepted destination model:
 | `docs/projects/civ7-capability-realization/OUTCOME-MODEL.md` | Honest intent, admission, effect, observation, receipt, reconciliation, and result boundaries |
 | `docs/projects/civ7-capability-realization/ACTOR-ROLE-OUTCOME-MODEL.md` | External actors, contextual roles, Tasks, Questions, scenes, and cross-channel parity |
 | `docs/projects/civ7-capability-realization/TOPOLOGY.md` | Selected owner graph, package ledger, qualified shapes, consumer/proof obligations, and deferred candidates |
-| `docs/projects/civ7-capability-realization/destination-platform-reference.md` | Kind grammar, capability chains, service/API shape, mandatory deletions, and external-law constraints |
+| `docs/projects/civ7-capability-realization/WORKSTREAM.md` | Ratified migration sequence, quarantine law, per-container deletion obligations, and stop conditions |
 
 Read the exact source when a detail matters. This overlay summarizes routing
 only and never owns the packet's readiness, admission, migration, or proof
