@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_civ7_api_materializer_structure",
+  "title": "Require Civ7 API Materializer Structure",
+  "placement": {
+    "niche": "civ7/official-knowledge/materializer",
+    "blueprint": "civ7-api-materializer",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "civ7-api-materializer",
+  "lane": "enforced",
+  "forbids": "an open materializer source or proof cabinet that can mix acquisition, generated authority, or unrelated host logic",
+  "why": "Official knowledge is only trustworthy when one finite host realization owns source identity, exact snapshot replacement, and its semantic proof while the generated package remains separate.",
+  "remediate": "Keep the materializer inside its closed source and semantics members; move generated authority to packages/civ7-api and unrelated host capabilities to their rightful owners.",
+  "message": "The Civ7 API materializer must preserve its closed product-qualified source and proof topology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "apps/civ7-api-materializer/src",
+        "apps/civ7-api-materializer/src/**",
+        "apps/civ7-api-materializer/test",
+        "apps/civ7-api-materializer/test/**"
+      ]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/official-knowledge/materializer/rules/require_civ7_api_materializer_structure/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/civ7/official-knowledge/materializer/rules/require_civ7_api_materializer_structure/structure.toml"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "civ7-api-materializer",
+  "tags": ["kind:app"],
+  "targets": {
+    "materialize": {
+      "executor": "nx:run-script",
+      "cache": false,
+      "outputs": ["{workspaceRoot}/.civ7/outputs/resources/**"],
+      "options": {
+        "script": "materialize"
+      }
+    },
+    "materialized:check": {
+      "executor": "nx:run-script",
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "script": "materialized:check"
+      }
+    },
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": [],
+      "dependsOn": ["typecheck", "test", "check:policy", "^check"]
+    }
+  }
+}

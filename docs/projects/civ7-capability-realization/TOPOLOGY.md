@@ -156,6 +156,7 @@ plugins/
     src/{api,client,service}/
 
 apps/
+  civ7-api-materializer/        exact official-evidence acquisition and API projection
   mods/ui/civ7-controller/
     src/{build,deploy}/
     test/live/realm-proof.test.ts
@@ -212,6 +213,7 @@ and workflow layers appear only where actors and lifetimes earn them.
 
 | App | Authority | Runtime composition | Refusal |
 | --- | --- | --- | --- |
+| Civ7 API materializer | Installed-root selection, exact staged evidence snapshot, provenance receipt, deterministic API projection and replacement | Identified Civ7 installation + pinned resource submodule + generated API destination | No public API authority, handwritten declarations, CLI presentation or reusable support owner without a second consumer |
 | Controller mod app | Bundle, file plan, install and live realm proof | Controller service + mod definition | No controller semantics, ingress authorship or Play policy |
 | Swooper mod app | Civ7 map-script realization, bundle, install and live proof | Swooper definition + MapGen + realization-local adapter | No portable product ownership |
 | CLI app | oclif process, topic registration, provider selection, client binding, disposal | Tuner provider + controller/Play clients + diagnostic adapter | No command implementation in app root |

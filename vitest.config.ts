@@ -31,6 +31,14 @@ export default defineConfig({
       },
       {
         extends: true,
+        root: r("apps/civ7-api-materializer"),
+        test: {
+          name: "civ7-api-materializer",
+          testTimeout: 30_000,
+        },
+      },
+      {
+        extends: true,
         root: r("plugins/cli/topics/data"),
         test: {
           name: "cli-data",

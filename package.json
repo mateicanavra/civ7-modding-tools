@@ -55,7 +55,7 @@
     "openspec": "openspec",
     "openspec:validate": "openspec validate --all --strict",
     "prepare": "husky",
-    "refresh:data": "bun run resources:init && nx run civ7-cli:data:zip:default && nx run civ7-cli:data:unzip:default",
+    "refresh:data": "bun run resources:init && nx run civ7-api-materializer:materialize",
     "resources:init": "bash ./scripts/civ7-resources/init-submodule.sh",
     "resources:publish": "bash ./scripts/civ7-resources/publish-submodule.sh",
     "resources:status": "bash ./scripts/civ7-resources/status.sh",

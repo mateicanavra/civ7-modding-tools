@@ -18,7 +18,7 @@
 - Build: `bun run build`
 - Lint: `bun run lint`
 - Test: `bun run test`
-- Refresh game data: `bun run refresh:data`
+- Refresh exact official game evidence: `bun run refresh:data`
 
 ## Current Projects
 

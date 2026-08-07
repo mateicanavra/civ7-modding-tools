@@ -7,6 +7,10 @@ const EXPECTED_PARAMETER_SOURCES = [
   "Base/modules/base-standard/config/config.xml",
 ] as const;
 const PARAMETERS_SCHEMA = "Base/Assets/schema/frontend/schema-frontend-10-setup-parameters.sql";
+const EXPECTED_PARAMETER_COLUMN_COUNT = 31;
+const EXPECTED_PARAMETER_ROW_COUNT = 63;
+const EXPECTED_UNIQUE_PARAMETER_ID_COUNT = 56;
+const EXPECTED_PARAMETER_GROUP_COUNT = 16;
 const GAME_LIFECYCLE_PARAMETER_IDS = ["GameRandomSeed"] as const;
 const MAP_LIFECYCLE_PARAMETER_IDS = ["Map", "MapSize", "MapRandomSeed"] as const;
 const SETUP_LIFECYCLE_PARAMETER_IDS = [
@@ -236,8 +240,10 @@ function readParameterColumns(schemaSource: string): readonly SqliteColumn[] {
   try {
     database.exec(schemaSource);
     const columns = database.query<SqliteColumn, []>("PRAGMA table_info('Parameters')").all();
-    if (columns.length !== 31) {
-      throw new Error(`Official Parameters table has ${columns.length} columns; expected 31.`);
+    if (columns.length !== EXPECTED_PARAMETER_COLUMN_COUNT) {
+      throw new Error(
+        `Official Parameters table has ${columns.length} columns; expected ${EXPECTED_PARAMETER_COLUMN_COUNT}.`
+      );
     }
     return columns;
   } finally {
@@ -345,15 +351,21 @@ function sqlDefaultValue(value: string | null): string | null {
 }
 
 function validateCorpus(parameters: readonly ParameterRow[], groups: readonly SourceRow[]): void {
-  if (parameters.length !== 61) {
-    throw new Error(`Official setup corpus has ${parameters.length} rows; expected 61.`);
+  if (parameters.length !== EXPECTED_PARAMETER_ROW_COUNT) {
+    throw new Error(
+      `Official setup corpus has ${parameters.length} rows; expected ${EXPECTED_PARAMETER_ROW_COUNT}.`
+    );
   }
   const uniqueIds = new Set(parameters.map(parameterId));
-  if (uniqueIds.size !== 54) {
-    throw new Error(`Official setup corpus has ${uniqueIds.size} unique IDs; expected 54.`);
+  if (uniqueIds.size !== EXPECTED_UNIQUE_PARAMETER_ID_COUNT) {
+    throw new Error(
+      `Official setup corpus has ${uniqueIds.size} unique IDs; expected ${EXPECTED_UNIQUE_PARAMETER_ID_COUNT}.`
+    );
   }
-  if (groups.length !== 14) {
-    throw new Error(`Official setup corpus has ${groups.length} groups; expected 14.`);
+  if (groups.length !== EXPECTED_PARAMETER_GROUP_COUNT) {
+    throw new Error(
+      `Official setup corpus has ${groups.length} groups; expected ${EXPECTED_PARAMETER_GROUP_COUNT}.`
+    );
   }
   const groupIds = new Set(groups.map((row) => requireAttribute(row.attributes, "GroupId")));
   for (const row of parameters) {

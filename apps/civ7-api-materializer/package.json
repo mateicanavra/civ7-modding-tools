@@ -1,0 +1,12 @@
+{
+  "name": "@civ7/api-materializer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "materialize": "bun run src/index.ts materialize",
+    "materialized:check": "bun run src/index.ts check",
+    "test": "vitest run --config ../../vitest.config.ts --project civ7-api-materializer",
+    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
+  }
+}

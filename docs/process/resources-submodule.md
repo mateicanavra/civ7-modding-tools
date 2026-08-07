@@ -4,11 +4,18 @@ This repo treats `.civ7/outputs/resources` as a git submodule pointing at the pu
 
 - `https://github.com/mateicanavra/civ7-official-resources`
 
-The intended flow is:
+The authoritative flow is:
 
-- `civ7 data unzip` writes into `.civ7/outputs/resources`
+- `civ7-api-materializer` identifies the installed game and stages the exact
+  admitted `Base`/`DLC` evidence, including source maps
+- the materializer records deterministic application, Steam, profile, byte,
+  and embedded-source provenance before replacing `.civ7/outputs/resources`
 - Those changes are committed and pushed to the public resources repo
 - The monorepo commits the updated submodule pointer
+
+The generic `civ7 data zip` and `civ7 data unzip` commands remain useful data
+operations. They are not official-API currentness proof and must not overwrite
+the authoritative snapshot.
 
 ## One-time setup (per clone)
 
@@ -21,8 +28,14 @@ The intended flow is:
 
 ## Daily usage
 
-- Refresh game data (zip then unzip):
+- Refresh official game evidence from the installed application:
   - `bun run refresh:data`
+- Verify without changing the snapshot:
+  - `nx run civ7-api-materializer:materialized:check`
+- A refresh holds `.civ7/outputs/.resources.materializer.lock` for its complete
+  transaction. If a terminated process leaves it behind, verify that no
+  materializer is running before removing that one lock file; takeover is
+  intentionally never automatic.
 - Check whether the resources submodule is clean:
   - `bun run resources:status`
 - Inspect diffs inside the resources repo:
@@ -74,3 +87,6 @@ Re-enable with:
 
 - Publishing extracted game resources publicly may be subject to licensing/ToS constraints; verify before distributing.
 - Large updates can generate large commits in the resources repo; this is expected for snapshot-style publishing.
+- The checked receipt proves equality with an identified installed source under
+  one explicit profile. It does not claim that binary-injected APIs are
+  available in every Civ7 realm or lifecycle state.
