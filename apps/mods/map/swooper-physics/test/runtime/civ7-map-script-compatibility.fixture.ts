@@ -1,7 +1,7 @@
 import { expect } from "bun:test";
 import { build } from "esbuild";
 
-const textEncoderBannerMarker = "@civ7/adapter map-script TextEncoder compatibility";
+const textEncoderBannerMarker = "Swooper map-script TextEncoder compatibility";
 
 /**
  * Proves the final map script satisfies the bounded loader and syntax contract

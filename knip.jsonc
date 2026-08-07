@@ -60,10 +60,10 @@
       ]
     },
     "apps/mods/map/swooper-physics": {
-      // Nx already exposes the app entrypoints. Knip needs only the uncached live proof;
-      // the build compiles virtual map sources whose SDK import is invisible to static analysis.
+      // Nx already exposes the app entrypoints. Knip needs the uncached live proof and
+      // cannot observe the compiler's dynamic resolution of uri-js into an esbuild module.
       "entry": ["test/live/*.live.test.ts"],
-      "ignoreDependencies": ["@mateicanavra/civ7-sdk"]
+      "ignoreDependencies": ["uri-js"]
     },
     "resources/civ7-tuner": {
       "entry": ["test/**/*.typecheck.ts"]
@@ -72,8 +72,8 @@
       "entry": ["test/**/*.typecheck.ts"]
     },
     "packages/civ7-adapter": {
-      // The map-script builder resolves uri-js dynamically into an esbuild virtual module.
-      "ignoreDependencies": ["uri-js"]
+      // Habitat compiles this declaration-only public contract independently.
+      "entry": ["test/contract/*.typecheck.ts"]
     },
     "packages/civ7-api": {
       // Habitat selects these independently compiled realm and public-surface contracts.
@@ -106,9 +106,6 @@
       "entry": ["src/commands/**/*.ts"]
     },
     "packages/mapgen-core": {
-      "entry": ["test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"]
-    },
-    "packages/sdk": {
       "entry": ["test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"]
     },
     "packages/mapgen-metrics": {

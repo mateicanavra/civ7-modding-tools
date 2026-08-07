@@ -41,5 +41,8 @@ kind = "directory"
 mode = "closed"
 allowEmpty = false
 required = [
+  "adapter.ts",
   "compiler.ts",
+  "entrypoint.ts",
+  "setup.ts",
 ]

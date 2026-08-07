@@ -1,8 +1,8 @@
 /**
  * Source metadata for Civ7 river type enum values.
  *
- * This hand-reviewed input generates both the map-policy browser tables and
- * the ambient Civ7 runtime declaration through `civ7-map-policy:generate`.
+ * This hand-reviewed input generates the map-policy browser tables through
+ * `civ7-map-policy:generate`.
  */
 export const CIV7_RIVER_TYPE_METADATA_SOURCE = {
   source: [

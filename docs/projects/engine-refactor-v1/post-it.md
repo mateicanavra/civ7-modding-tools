@@ -8,9 +8,9 @@ selects Ground. Chain. Ratchet. Delete. Seal.
 
 **Frame:** the corrected platform models are ratified, and Habitat is the sole
 constitutional owner of every generic kind. Civ7 layers only qualified product
-law over the released substrate. The missing shared `service@1` is an upstream
-construction refusal, not permission to maintain a local generic substitute.
-oRPC 2 and Effect 4 are fixed vendor substrate, not compatibility questions.
+law over the released substrate. Habitat `0.5.4` supplies the closed shared
+`service@1`; no local generic substitute is admitted. oRPC 2 and Effect 4 are
+fixed vendor substrate, not compatibility questions.
 
 **Authority order:** actor outcome -> product authority -> execution realm ->
 relationship direction -> shared Habitat kind -> qualified Civ7 overlay ->
@@ -31,25 +31,24 @@ closure without a wildcard, `baseUrl`, or import suppression. The canonical
 Habitat `0.5.4` owner gate evaluates the complete 1,815-subject corpus with zero
 findings. No local narrowing or provider fork remains.
 
-**Current container:** retire ambient authority and delete `civ7-types`. Move the
-concrete adapter, setup, compiler, and entrypoint into the Swooper app's
-qualified map-script runtime; leave the adapter package with only its portable
-contract, static metadata, and mock; use narrow private host ports with runtime
-validation; route authored DTOs to their owners; stop the old generator write;
-remove the SDK's runtime-bound `./mapgen` surface; and delete the old package
-atomically. Static source and binary evidence retain their explicit nonclaims.
-A live descriptor inventory cannot prove callable contracts and has no current
-consumer, so it is not part of this descent.
+Ambient authority is now retired. The Swooper realization owns its complete
+map-script kernel; the adapter is portable; authored setup DTOs live with the
+definition; map policy emits no ambient declarations; the SDK has no runtime
+mapgen surface; and `civ7-types` is deleted without a shim or second path.
+
+**Current container:** construct the smallest complete in-engine controller
+service on shared `service@1`: versioned identity, readiness, realm, lifecycle,
+boot identity, and typed ping. It owns its contract, implementation, router, and
+callable client and admits no Tuner transport, host lifecycle, Play policy,
+facade, or generated JavaScript operation body.
 
 **Stack:** only the linear Civ7 stack descending from
 `agent-root-civ7-habitat-051-ground` through the active HEAD is in motion.
 Sibling Fluree worktrees are parked external workstreams. No parallel Civ7
 implementation branch is admitted.
 
-**Gradient:** realization map runtime -> portable adapter -> ambient deletion ->
-service adoption -> kernel -> mod -> ingress -> live proof -> native verticals
--> Play -> projections -> direct-control deletion -> estate reconciliation ->
-seal.
+**Gradient:** kernel -> mod -> ingress -> live proof -> native verticals -> Play
+-> projections -> direct-control deletion -> estate reconciliation -> seal.
 
 <details>
 <summary>Previous rolling focus before generated API authority sealed</summary>

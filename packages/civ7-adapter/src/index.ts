@@ -1,44 +1,10 @@
-/**
- * @civ7/adapter - Centralized adapter for Civ7 engine APIs
- *
- * This package is the ONLY place allowed to import /base-standard/... paths.
- * All other packages must consume the EngineAdapter interface.
- *
- * Usage:
- *   // In production (mod code):
- *   import { createCiv7Adapter } from "@civ7/adapter/civ7";
- *
- *   // In tests:
- *   import { createMockAdapter } from "@civ7/adapter/mock";
- *
- *   // For types only:
- *   import type { EngineAdapter } from "@civ7/adapter";
- */
+/** Reusable contract and deterministic test double for Civ7 MapGen adapters. */
 
-export type {
-  Civ7GameOptionDescriptor,
-  Civ7MapOptionDescriptor,
-  Civ7PlayerOptionDescriptor,
-} from "@civ7/map-policy/setup";
 export {
-  CIV7_GAME_OPTION_DESCRIPTORS,
-  CIV7_MAP_OPTION_DESCRIPTORS,
-  CIV7_PLAYER_OPTION_DESCRIPTORS,
-} from "@civ7/map-policy/setup";
-export type {
-  Civ7MapGenerationLatitudeBounds,
-  Civ7MapGenerationSetupCapture,
-  Civ7MapGenerationSetupCaptureInput,
-  Civ7MapInfoSnapshot,
-  Civ7PlayerSetupOptionEvidence,
-  Civ7SetupOptionEvidence,
-  Civ7SetupOptionEvidenceForDescriptor,
-  Civ7SetupOptionEvidenceForDescriptors,
-  Civ7SetupOptionUnavailableReason,
-  Civ7SetupOptionValue,
-  Civ7StartSlotCapacity,
-} from "./map-generation-setup.js";
-export { captureCiv7MapGenerationSetup } from "./map-generation-setup.js";
+  captureCurrentMapLayer,
+  captureCurrentRiverSurface,
+  deriveRiverProjectionFromCurrentSurface,
+} from "./current-map-surface.js";
 export type {
   Civ7MapInfo,
   Civ7RowLatitudeEndpoints,
@@ -56,10 +22,8 @@ export {
   getCiv7StandardMapSizePresetForDimensions,
   interpolateCiv7RowLatitude,
 } from "./map-metadata.js";
-export type { MockAdapterConfig } from "./mock-adapter.js";
-// Re-export mock adapter (safe to import anywhere)
-export { createMockAdapter, MockAdapter } from "./mock-adapter.js";
-// Re-export types
+export type { MockAdapterConfig, MockPlotEffectType } from "./mock-adapter.js";
+export { createMockAdapter, DEFAULT_PLOT_EFFECT_TYPES, MockAdapter } from "./mock-adapter.js";
 export type {
   ContinentBounds,
   CurrentRiverSurface,
@@ -86,7 +50,3 @@ export type {
   RiverProjectionResult,
   VoronoiUtils,
 } from "./types.js";
-
-// Note: Civ7Adapter is NOT re-exported from index to prevent accidental
-// bundling of /base-standard/... imports. Import it explicitly from:
-//   import { Civ7Adapter, createCiv7Adapter } from "@civ7/adapter/civ7";

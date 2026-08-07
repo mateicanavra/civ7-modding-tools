@@ -14,5 +14,5 @@ Tooling:
 
 - Use `nx run civ7-map-policy:build` and `nx run civ7-map-policy:check`.
 - `nx run civ7-map-policy:generate` is the sole materializer for the tracked
-  policy tables, setup parameters, and ambient river declaration. Normal
-  package build/check invokes its exact `generated:check` owner.
+  policy tables, setup parameters, and map metadata. Normal package build/check
+  invokes its exact `generated:check` owner.

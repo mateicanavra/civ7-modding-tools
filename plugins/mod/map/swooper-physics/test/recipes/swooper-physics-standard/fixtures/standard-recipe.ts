@@ -1,5 +1,5 @@
 import { createMockAdapter, type MockAdapter } from "@civ7/adapter";
-import { DEFAULT_PLOT_EFFECT_TYPES, type MockPlotEffectType } from "@civ7/adapter/mock";
+import { DEFAULT_PLOT_EFFECT_TYPES, type MockPlotEffectType } from "@civ7/adapter";
 import {
   type Civ7MapInfo,
   type Civ7StandardMapInfo,

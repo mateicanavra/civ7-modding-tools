@@ -3,8 +3,20 @@
   "name": "civ7-adapter",
   "tags": ["kind:adapter"],
   "targets": {
+    "check:contract": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default", "typescriptRuntime"],
+      "outputs": [],
+      "dependsOn": ["build"],
+      "options": {
+        "cwd": "packages/civ7-adapter",
+        "command": "tsc --ignoreConfig --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext test/contract/contract.typecheck.ts"
+      }
+    },
     "check": {
       "executor": "nx:noop",
+      "dependsOn": ["typecheck", "check:contract", "check:policy", "^check"],
       "cache": false,
       "outputs": []
     }

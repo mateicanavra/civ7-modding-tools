@@ -1,6 +1,6 @@
 # Civ7 Capability Realization Frame
 
-**Status:** Map-resolution transfer sealed; ambient-authority retirement active
+**Status:** Ambient-authority retirement sealed; controller service kernel active
 **Date:** 2026-08-07
 **Owner:** Civ7 migration director
 
@@ -73,20 +73,24 @@ preserves Civ7 loader imports, and the proof corrected the official `boolean[]`
 starting-sector contract. Habitat `0.5.4` evaluates the restored 1,815-subject
 owner corpus with zero findings; no local narrowing or provider fork remains.
 
-**Current container:** retire handwritten ambient authority and finish the
-`civ7-types` deletion. The remaining old package mixes usage-constrained host
-globals, authored boundary types, dead declarations, and generated policy
-evidence. Static source and binary evidence prove names and candidates but not
-callable runtime contracts; a live descriptor inventory would not close that
-gap and has no current product consumer. Keep those nonclaims explicit. Move
-the concrete adapter, setup, compiler, and entrypoint into the Swooper app's
-qualified map-script runtime; keep only the portable contract, static metadata,
-and mock in `packages/civ7-adapter`; acquire host values through narrow private
-ports with validation and explicit absence behavior; route authored DTOs to
-their semantic owners; stop the map-policy generator's ambient output; remove
-the SDK's runtime-bound `./mapgen` surface; and delete `civ7-types` atomically
-before controller construction. No replacement ambient package, forwarding
-subpath, app export, or Tuner-backed inventory is admitted.
+**Sealed authority:** handwritten ambient authority is retired. The Swooper app
+owns its concrete adapter, setup capture, entrypoint, and compiler as one closed
+map-script realization kernel. `packages/civ7-adapter` now owns only portable
+contracts, static metadata, deterministic current-surface derivation, and its
+mock. Authored setup DTOs live with the Swooper definition; map policy no longer
+emits ambient declarations; the SDK no longer exposes the runtime-bound
+`./mapgen` surface; and `packages/civ7-types` no longer exists. Eight built map
+artifacts contain neither mock initialization nor a second adapter authority.
+No replacement ambient package, forwarding subpath, app export, or Tuner-backed
+inventory was admitted.
+
+**Current container:** construct the smallest complete controller service on
+shared Habitat `service@1`: versioned identity, readiness, realm, lifecycle,
+boot identity, and typed ping. The service executes inside Civ7, depends only on
+the generated official API and exact isolate-compatible vendors, and publishes
+its own contract, implementation, router, and callable client. It contains no
+Tuner transport, host lifecycle, Play policy, facade, generated JavaScript
+operation body, or empty future module.
 
 The in-engine boundary is a production-project closure, not the mod app.
 Container 1 activates `runtime:civ7-v8` atomically with its first complete
@@ -106,11 +110,10 @@ workstreams and are neither edited nor restacked by this initiative. No
 parallel Civ7 implementation branch is admitted.
 
 **Ground:** Habitat `0.5.4` is the locked consumer substrate for shared
-`app@1`, `package@1`, `plugin@1`, `plugin-nx@1`, `provider@1`, and `resource@1`.
-Civ7 consumes those laws and keeps only qualified instances, overlays, policy,
-adapters, and product proof. Shared `service@1` remains unselected, so service
-construction is refused until Habitat publishes it. Existing local generic
-service patterns are migration substrate, not a Civ7-owned substitute.
+`app@1`, `package@1`, `plugin@1`, `plugin-nx@1`, `provider@1`, `resource@1`, and
+`service@1`. Civ7 consumes those laws and keeps only qualified instances,
+overlays, policy, adapters, and product proof. Existing local generic service
+patterns are migration evidence, not a Civ7-owned substitute.
 
 **Official realm evidence:** shell, loading, and game have distinct document
 roots, and shell/game scoped UIScripts are supported. The exact Tuner-observed
@@ -120,10 +123,9 @@ phase. Tuner state IDs are runtime-discovered. `CMD` Promise behavior and later
 global visibility are also proof gaps; no mailbox or mutating asynchronous path
 is selected until the discriminating live experiment runs.
 
-**Current gradient:** realization-local map runtime -> portable adapter
-contraction -> ambient-authority deletion -> controller kernel -> controller mod
--> typed ingress -> live realm proof -> native verticals -> Play -> projections
--> direct-control deletion -> remaining platform chains -> full seal.
+**Current gradient:** controller kernel -> controller mod -> typed ingress ->
+live realm proof -> native verticals -> Play -> projections -> direct-control
+deletion -> remaining platform chains -> full seal.
 
 This is not a backlog. Work emerges from the difference between the normative
 models and the observed estate. Once a difference closes, it disappears from
@@ -131,6 +133,16 @@ the frame.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-08-07 - Ambient Authority Retired
+
+The deployable Swooper app now owns the complete concrete map-script kernel,
+while the adapter package retains only portable contracts, metadata, derivation,
+and deterministic test support. Authored setup DTOs moved to the definition;
+map policy stopped emitting ambient declarations; the SDK runtime mapgen surface
+was deleted; and `civ7-types` disappeared without a shim. App, package, API,
+boundary, Habitat, Knip, hygiene, OpenSpec, build, and behavior proofs pass; all
+eight built maps are free of mock residue.
 
 ### 2026-08-07 - Exact Map-Script Resolution Sealed
 
@@ -215,10 +227,10 @@ reopened by the controller correction.
   admission, polling, reconciliation, no-repeat, priorities, and next action.
 - Official Civ7 resources prove shell/game scoped UIScript loading and separate
   document lifecycles. A bootstrap must explicitly publish a callable global.
-- The current `civ7-types` surface is partial and contains a wildcard `any`.
-  Exact official map-module resolution is complete. The remaining deletion gate
-  is the separately classified ambient host-global surface; those globals must
-  not be laundered into official source evidence or retained as a catch-all.
+- The retired `civ7-types` surface was partial and contained a wildcard `any`.
+  Exact official map-module resolution now supplies the admitted static
+  evidence, while realization-private host ports own only the callable surfaces
+  they use. No ambient catch-all survived the transfer.
 - The current Studio live attempt proved exact generation and installation but
   not startup or map behavior. A manual new-game attempt also reached a map
   generation error. Those are open product proofs, not reasons to preserve the

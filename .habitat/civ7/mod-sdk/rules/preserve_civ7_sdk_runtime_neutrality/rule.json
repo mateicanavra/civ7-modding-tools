@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "preserve_civ7_sdk_runtime_neutrality",
+  "title": "Preserve Civ7 SDK Runtime Neutrality",
+  "placement": {
+    "niche": "civ7/mod-sdk",
+    "blueprint": "_self",
+    "category": "execution"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "civ7-sdk",
+  "lane": "enforced",
+  "forbids": "Civ7 map runtime, official API, adapter, ambient type, or Swooper execution imports in the authoring SDK",
+  "why": "The SDK authors portable mod data and files. Civ7 map-script execution belongs to the deployable map application, not an SDK subpath.",
+  "remediate": "Move map runtime behavior to its qualified mod application and keep the SDK limited to runtime-neutral authoring capabilities.",
+  "message": "Keep the Civ7 SDK runtime-neutral.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["packages/sdk/src", "packages/sdk/src/**/*.ts"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mod-sdk/rules/preserve_civ7_sdk_runtime_neutrality/baseline.json"
+  },
+  "hookCheck": true,
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mod-sdk/rules/preserve_civ7_sdk_runtime_neutrality/pattern.md"
+    },
+    "patternName": "preserve_civ7_sdk_runtime_neutrality",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["packages/sdk/src"]
+    }
+  }
+}

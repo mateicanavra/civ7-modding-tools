@@ -1,6 +1,6 @@
 # River/Lake Recovery Frame
 
-Status: active session frame
+Status: superseded by the Civ7 capability-realization product and system models
 Date: 2026-06-10
 Owner: Codex river/lake recovery workstream
 
@@ -63,8 +63,7 @@ Exterior:
 - Hydrology owns water truth: drainage routing, basin ids, terminal typing,
   runoff/discharge, river classes, lake intent, floodplain-relevant hydrology,
   and physical diagnostics.
-- `@civ7/map-policy` and generated `@civ7/types` own pure Civ facts and
-  compliance tables only.
+- `@civ7/map-policy` owns pure Civ facts and compliance tables only.
 - `map-*` stages own projection, materialization, effects, and readback. They
   do not define upstream truth.
 - Studio owns explanation, inspection, and proof presentation. It does not
@@ -95,7 +94,7 @@ create live river metadata, including minor and navigable river rows, after
 authored terrain stamping. This proves a native bulk materialization surface,
 not a per-tile minor-river writer and not topology parity. Current product work
 therefore keeps Hydrology as truth owner, uses `map-rivers` to stamp the
-Hydrology-selected navigable terrain mask, then calls the adapter-owned Civ
+Hydrology-selected navigable terrain mask, then calls the Swooper realization-owned Civ
 bulk writer so water cache, named rivers, models, and river metadata exist for
 Civ. Closure still requires same-run parity/reclassification of extra native
 river objects and rendered visual proof.
@@ -158,9 +157,9 @@ Sources:
 | --- | --- | --- |
 | Landform, elevation, depressions, basin precursors | Morphology | Hydrology projection, map-rivers, policy package |
 | Drainage routing, terminal typing, discharge, river class, lake truth | Hydrology | Morphology recipe glue, map-rivers, Studio |
-| Pure Civ facts and runtime semantic tables | `@civ7/map-policy`, generated `@civ7/types` | Hydrology algorithms, projection selectors |
+| Pure Civ facts and runtime semantic tables | `@civ7/map-policy` | Hydrology algorithms, projection selectors |
 | Civ-visible river subset selection | `map-rivers` projection consuming Hydrology truth and Hydrology-owned selection ops | Morphology, policy package, invented policy folders |
-| Lake/water projection and river terrain/materialization | `map-hydrology`, `map-rivers`, adapter/direct-control proof tooling | Hydrology truth |
+| Lake/water projection and river terrain/materialization | `map-hydrology`, `map-rivers`, and the Swooper map-script realization; direct control is live proof only | Hydrology truth |
 | Studio hydrology visualization and status ladder | Studio / DX layer | Hydrology truth, projection logic |
 | Product acceptance | OpenSpec/product proof records plus reviewer disposition | unit tests or code slices self-closing |
 

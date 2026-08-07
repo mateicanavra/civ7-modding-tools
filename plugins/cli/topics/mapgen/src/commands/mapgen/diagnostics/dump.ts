@@ -1,5 +1,3 @@
-/// <reference types="@civ7/types" />
-
 import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { createMockAdapter } from "@civ7/adapter";

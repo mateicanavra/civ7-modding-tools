@@ -1,6 +1,8 @@
 # Morphology Phase 2 — Map Projections & Civ7 Stamping
 
-This is a canonical Phase 2 spec file.
+Status: superseded as runtime/package authority by
+`docs/projects/civ7-capability-realization/`. The remaining content is retained
+as historical Morphology and projection design evidence.
 
 Historical source material (archived; do not edit):
 - `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/morphology/_archive/v3/spike-morphology-modeling-gpt.md`

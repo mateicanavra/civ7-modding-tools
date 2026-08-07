@@ -1,13 +1,14 @@
-# Civ7 Engine Adapter — Agent Router
+# Civ7 MapGen Adapter — Agent Router
 
 Scope: `packages/civ7-adapter/**`
 
-- Sole boundary for importing Civ7 engine globals / `base-standard` APIs.
-- Exposes stable `EngineAdapter` implementations consumed by MapGen and mods.
-- Owns final Civ7 map-script compatibility through
-  `@civ7/adapter/map-script-build`; neutral libraries must not carry embedded-V8
-  shims or global polyfills.
-- Keep this package thin: translate engine calls to adapter methods; no MapGen algorithms or mod logic.
+- Runtime-free shared package for the `EngineAdapter` contract, map metadata,
+  deterministic mock, and adapter-owned outcome types.
+- It does not import Civ7 engine globals, `/base-standard/` modules, generated
+  API declarations, host tooling, or a concrete runtime implementation.
+- Concrete MapGen lowering and map-script compilation belong to the deployable
+  Swooper realization app.
+- Keep the public surface singular: consumers import `@civ7/adapter`.
 
 Tooling: use `nx run civ7-adapter:build` and `nx run civ7-adapter:check`.
 

@@ -1,0 +1,30 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "swooper-map-script-realization-source"
+root = "apps/mods/map/swooper-physics/src/runtime/map-script"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "adapter.ts",
+  "compiler.ts",
+  "entrypoint.ts",
+  "setup.ts",
+]
+allowed = []
+
+[[scopes]]
+name = "swooper-map-script-realization-proof"
+root = "apps/mods/map/swooper-physics/test/runtime"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "civ7-map-script-compatibility.fixture.ts",
+  "map-bundle-runtime-compatibility.test.ts",
+  "map-script-adapter.test.ts",
+  "map-script-entrypoint.test.ts",
+  "map-script-setup.test.ts",
+]
+allowed = []

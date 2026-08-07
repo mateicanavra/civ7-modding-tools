@@ -13,8 +13,8 @@
   "ownerProject": "civ7-workspace",
   "lane": "enforced",
   "forbids": "map-mod realization source files outside their finite application, runtime, and map-script owners",
-  "why": "The released app blueprint closes the package-backed application root. This qualified map-mod overlay closes only the reusable Civ7 realization source interior: finite build and deploy entrypoints invoke qualified installation, runtime file planning, and map-script compilation instead of accumulating root scripts, checked-in output, generated source, or CLI process dependencies.",
-  "remediate": "Place build and deploy entrypoints under src, host installation under src/runtime/adapters, pure realization mechanics under src/runtime, and map-script compilation under src/runtime/map-script. Remove loose siblings, root scripts, tracked generated sources, checked-in mod output, and calls through a CLI process. Product-specific proof inventories belong to their owning niche rather than this kind law.",
+  "why": "The released app blueprint closes the package-backed application root. This qualified map-mod overlay closes only the reusable Civ7 realization source interior: finite build and deploy entrypoints invoke qualified installation, runtime file planning, and one complete map-script kernel instead of accumulating root scripts, checked-in output, generated source, or CLI process dependencies.",
+  "remediate": "Place build and deploy entrypoints under src, host installation under src/runtime/adapters, pure realization mechanics under src/runtime, and the native adapter, setup capture, entrypoint, and compiler under src/runtime/map-script. Remove loose siblings, root scripts, tracked generated sources, checked-in mod output, and calls through a CLI process. Product-specific proof inventories belong to their owning niche rather than this kind law.",
   "message": "Map-mod realizations must preserve their closed qualified source topology.",
   "pathCoverage": [
     {

@@ -198,8 +198,7 @@ Civ7 river proof has two distinct surfaces:
 Live runtime evidence on 2026-06-09 reported `RiverTypes.NO_RIVER=-1`,
 `RIVER_MINOR=0`, and `RIVER_NAVIGABLE=1`; those metadata values are cataloged in
 the generated `@civ7/map-policy` table as `CIV7_BROWSER_TABLES_V0.riverTypes`,
-re-exported by `CIV7_RIVER_TYPES_V0`, and generated into `@civ7/types`. A
-same-run Studio/Civ proof
+re-exported by `CIV7_RIVER_TYPES_V0`. A same-run Studio/Civ proof
 (`studio-run-in-game-mq6c38rf-n2p`) matched projected navigable terrain to live
 `TERRAIN_NAVIGABLE_RIVER` exactly (`6/6`, zero terrain mismatches), while
 `GameplayMap` still reported `NO_RIVER` metadata for those tiles. That proof is
@@ -208,7 +207,7 @@ it is not the current product closure path.
 
 `TerrainBuilder.modelRivers` remains the official high-level stock Civ river
 materialization surface. Swooper authored maps must not delegate river truth to
-that engine generator, but `map-rivers` may use the adapter-owned native bulk
+that engine generator, but `map-rivers` may use the Swooper realization's native bulk
 writer after it stamps the Hydrology-selected navigable terrain mask so Civ
 creates river metadata, model objects, water caches, and named-river state. A
 2026-06-10 same-seed run proved why this boundary matters: unbounded native

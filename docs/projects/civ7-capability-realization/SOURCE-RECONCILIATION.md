@@ -37,7 +37,7 @@ The dispositions are:
 | Data extraction/publication commands | Carry | Explicit source extraction and published revision receipts |
 | `.civ7/outputs/resources` | Carry | Static official evidence corpus, not managed runtime resource |
 | `packages/civ7-map-policy` generator/output | Carry and strengthen | Generated map policy with exact source provenance |
-| `packages/civ7-types` | Correct | Become or be replaced by systematic state-scoped `civ7-api` authority |
+| `packages/civ7-types` | Retire | Replaced by generated state-scoped `civ7-api` evidence and owner-private usage-constrained ports; no ambient replacement |
 | Catch-all ambient module declarations | Retire | Unknown APIs are refused or marked observed/unproven, never `any` authority |
 | Direct-control regex catalog | Retire | Partial traversal-order inspection is not official API authority |
 
