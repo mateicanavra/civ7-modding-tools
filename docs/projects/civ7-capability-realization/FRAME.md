@@ -1,6 +1,6 @@
 # Civ7 Capability Realization Frame
 
-**Status:** Ambient-authority retirement sealed; controller service substrate gate refused
+**Status:** Habitat 0.5.5 consumer ground sealed; controller service substrate gate refused
 **Date:** 2026-08-07
 **Owner:** Civ7 migration director
 
@@ -70,7 +70,7 @@ It admits ten exact MapGen roots and their 23-module declaration closure without
 `baseUrl`, a wildcard, import suppression, or an unlisted module claim. The
 adapter compiles and emits declarations against that face, runtime bundling
 preserves Civ7 loader imports, and the proof corrected the official `boolean[]`
-starting-sector contract. Habitat `0.5.4` evaluates the restored 1,815-subject
+starting-sector contract. Habitat `0.5.5` evaluates the restored 1,815-subject
 owner corpus with zero findings; no local narrowing or provider fork remains.
 
 **Sealed authority:** handwritten ambient authority is retired. The Swooper app
@@ -86,12 +86,12 @@ inventory was admitted.
 
 **Current container:** admit the shared Habitat `service@1` consumer boundary,
 then construct the smallest complete controller service: versioned identity,
-readiness, realm, lifecycle, boot identity, and typed ping. Habitat `0.5.4` is
-installed and `0.5.5` is public, but neither release selects `service@1` in its
-policy pack. The bundled candidate explicitly has no release-pack acceptance
-and binds only structure. Civ7 therefore does not instantiate it, copy its
-generic rules, or substitute local service law while the Habitat owner finishes
-the selected kind and its complete consumer contract.
+readiness, realm, lifecycle, boot identity, and typed ping. Habitat `0.5.5` is
+installed, but its selected policy pack still omits `service@1`. The bundled
+candidate explicitly has no release-pack acceptance and binds only structure.
+Civ7 therefore does not instantiate it, copy its generic rules, or substitute
+local service law while the Habitat owner finishes the selected kind and its
+complete consumer contract.
 
 Once admitted, the service executes inside Civ7, depends only on the generated
 official API and exact isolate-compatible vendors, and publishes its own
@@ -116,13 +116,13 @@ HEAD. The Fluree branches and worktrees shown beside it are separate parked
 workstreams and are neither edited nor restacked by this initiative. No
 parallel Civ7 implementation branch is admitted.
 
-**Ground:** Habitat `0.5.4` is the installed consumer substrate for shared
+**Ground:** Habitat `0.5.5` is the installed consumer substrate for shared
 `app@1`, `package@1`, `plugin@1`, `plugin-nx@1`, `provider@1`, and `resource@1`.
-The public `0.5.5` pair preserves that six-kind boundary and begins the upstream
-`service@1` construction container; it does not yet admit the kind. Civ7
-consumes published laws and keeps only qualified instances, overlays, policy,
-adapters, and product proof. Existing local generic service patterns are
-migration evidence, not a Civ7-owned substitute.
+Its selected pack preserves that six-kind boundary and does not yet admit
+`service@1`. Civ7 consumes published laws and keeps only qualified instances,
+overlays, policy, adapters, and product proof. Superseded local generic service
+patterns are retired rather than promoted; the legacy service remains only
+source behavior to reconcile into selected destination owners.
 
 **Official realm evidence:** shell, loading, and game have distinct document
 roots, and shell/game scoped UIScripts are supported. The exact Tuner-observed
@@ -143,6 +143,18 @@ the frame.
 <details>
 <summary>Prior focus pivots</summary>
 
+### 2026-08-07 - Habitat 0.5.5 Consumer Ground Sealed
+
+Civ7 adopted the published CLI and exact SDK pair through native Nx migration.
+The machine-level Bun policy supplies the three-day release-age gate; this
+repository names only the two reviewed first-party Habitat packages as
+immediate-consumption exceptions.
+Frozen installation, idempotent migration, the resolved six-kind policy pack,
+and the complete 37-project check graph pass. The upgrade does not admit the
+still-unselected `service@1`. The red local service compatibility packets are
+retired instead of forcing the rejected host service through a repository-owned
+generic blueprint.
+
 ### 2026-08-07 - Ambient Authority Retired
 
 The deployable Swooper app now owns the complete concrete map-script kernel,
@@ -161,9 +173,9 @@ declaration closure. A semantic compiler fixture proves listed imports resolve,
 unlisted imports refuse, and no wildcard or `baseUrl` broadens the claim. The
 adapter consumes that face without `@ts-ignore`; both TypeScript and tsup DTS
 generation pass, and runtime imports remain external for Civ7's loader.
-The upstream provider fix was consumed through the published Habitat `0.5.4`
-CLI and exact SDK dependency. The canonical owner check evaluates the complete
-1,815-subject rule corpus with zero findings.
+The upstream provider fix was first consumed through the published Habitat
+`0.5.4` CLI and exact SDK dependency. The current `0.5.5` owner check evaluates
+the complete 1,815-subject rule corpus with zero findings.
 
 ### 2026-08-07 - Generated API Authority Sealed
 

@@ -10,7 +10,6 @@
     "civ7-sdk": "packages/sdk",
     "civ7-workspace": ".",
     "control-direct": "packages/civ7-direct-control",
-    "control-orpc": "services/civ7-control",
     "mapgen-core": "packages/mapgen-core",
     "mapgen-studio": "apps/mapgen-studio",
     "provider-civ7-tuner-local-socket": "resources/civ7-tuner/providers/local-socket",

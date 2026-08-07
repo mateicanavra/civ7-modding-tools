@@ -8,10 +8,11 @@ selects Ground. Chain. Ratchet. Delete. Seal.
 
 **Frame:** the corrected platform models are ratified, and Habitat is the sole
 constitutional owner of every generic kind. Civ7 layers only qualified product
-law over the released substrate. Habitat `0.5.4` and public `0.5.5` do not yet
-select `service@1`; the bundled candidate is structure-only and has no
-release-pack acceptance. No local generic substitute is admitted. oRPC 2 and
-Effect 4 remain fixed vendor substrate, not compatibility questions.
+law over the released substrate. Installed Habitat `0.5.5` does not yet select
+`service@1`; the bundled candidate is structure-only and has no release-pack
+acceptance. No local generic substitute is admitted. oRPC 2 and Effect 4 remain
+fixed vendor substrate, not compatibility questions. The obsolete local service
+compatibility packet is retired rather than repaired around `control-orpc`.
 
 **Authority order:** actor outcome -> product authority -> execution realm ->
 relationship direction -> shared Habitat kind -> qualified Civ7 overlay ->
@@ -29,7 +30,7 @@ The exact map-module resolution transfer is sealed at tree digest
 `98718b72b1e558db07175c452e111560906e31396c3cb6e6f7f0e7cc3033c573`;
 the adapter consumes ten exact official map-module roots and their 23-module
 closure without a wildcard, `baseUrl`, or import suppression. The canonical
-Habitat `0.5.4` owner gate evaluates the complete 1,815-subject corpus with zero
+Habitat `0.5.5` owner gate evaluates the complete 1,815-subject corpus with zero
 findings. No local narrowing or provider fork remains.
 
 Ambient authority is now retired. The Swooper realization owns its complete
