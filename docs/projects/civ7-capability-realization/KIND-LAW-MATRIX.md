@@ -10,9 +10,10 @@
 > app-composition, dependency, and migration laws were built around the rejected
 > host-side control service and are not destination authority. Container 1 of
 > [WORKSTREAM.md](./WORKSTREAM.md) must project new qualified law from the
-> ratified [System Model](./SYSTEM-MODEL.md) before Controller Foundation source
-> is constructed. Do not mechanically rename the old service paths or enforce
-> this matrix against the current estate.
+> ratified [System Model](./SYSTEM-MODEL.md) after Habitat supplies shared
+> `service@1`. Local generic service-law claims anywhere below are superseded;
+> do not repair them, mechanically rename old service paths, or enforce this
+> matrix against the current estate.
 
 ## Purpose
 

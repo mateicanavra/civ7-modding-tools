@@ -43,8 +43,8 @@ not become platform-wide state.
 | Workflow | Durable orchestration across a request/process boundary | Service state, public API envelopes, provider ownership |
 
 Habitat owns the generic closed kind shells. Civ7 owns qualified instances,
-domain overlays, service law while the shared service kind remains unselected,
-and product proof. No local packet copies or forks shared Habitat law.
+domain overlays, and product proof. Missing generic kinds are upstream
+construction refusals; Civ7 neither copies nor substitutes shared Habitat law.
 
 ## Selected Semantic Topology
 
@@ -312,8 +312,8 @@ Before source migration resumes, the model packet must prove:
 2. every cross-owner edge has one relationship kind and direction;
 3. the service dependency graph is acyclic;
 4. controller realm, bootstrap, transport, and proof gaps are explicit;
-5. the destination can be expressed through installed Habitat kinds plus
-   qualified Civ7 service law without copying shared substrate;
+5. every generic destination kind is constructible through the installed
+   Habitat substrate, with only qualified Civ7 overlays layered above it;
 6. no compatibility facade or alternate mature execution path survives.
 
 ## Falsifiers

@@ -119,8 +119,9 @@ Its first operation set is identity/readiness only: API version, realm, boot
 identity, lifecycle state, and a typed ping. It is not an empty scaffold and it
 does not claim gameplay capability.
 
-**Seal:** native oRPC/Effect construction, closed service law, contract and
-semantic proof, no host/Tuner dependency in the in-engine implementation.
+**Seal:** native oRPC/Effect construction under shared `service@1`, qualified
+Civ7 contract and semantic proof, no host/Tuner dependency in the in-engine
+implementation.
 
 ### 1.3 Controller Mod Realization
 

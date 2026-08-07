@@ -71,7 +71,8 @@ by this initiative. No parallel Civ7 implementation branch is admitted.
 `app@1`, `package@1`, `plugin@1`, `plugin-nx@1`, `provider@1`, and `resource@1`.
 Civ7 consumes those laws and keeps only qualified instances, overlays, policy,
 adapters, and product proof. Shared `service@1` remains unselected, so service
-law is Civ7-local without pretending to be shared substrate.
+construction is refused until Habitat publishes it. Existing local generic
+service patterns are migration substrate, not a Civ7-owned substitute.
 
 **Official realm evidence:** shell, loading, and game have distinct document
 roots, and shell/game scoped UIScripts are supported. The exact Tuner-observed

@@ -17,8 +17,10 @@ Civ7 retains only its instances, qualified overlays, product policy, adapters,
 and compatibility rules. It does not copy, fork, or reinterpret the shared
 laws. The selected shared pack is exactly `app@1`, `package@1`, `plugin@1`,
 `plugin-nx@1`, `provider@1`, and `resource@1`. `service@1` is intentionally not
-selected; current Civ7 service law remains local until the upstream owner
-publishes a shared service kind that this product deliberately admits.
+selected in `0.5.2`. That is an upstream construction refusal, not local design
+space: Civ7 does not author generic service law and will not construct a new
+service until the Habitat owner publishes the shared kind. Existing local
+service patterns are finite migration substrate and receive no new authority.
 
 ## Release Authority
 
@@ -48,6 +50,9 @@ blueprints above.
 | Unsupported-kind refusal | A disposable `service@1` instance was refused with `authority-blueprint-missing` | Passed without writes |
 | Local compatibility structure | 26 of 26 Habitat structure applications | Passed |
 | Local compatibility syntax | 76 of 76 Grit applications | Passed |
+
+The compatibility rows prove the inherited estate under its frozen migration
+rules; they do not promote repository-local generic blueprints to authority.
 
 The JSDoc law remains one generic positive pattern. Its product and platform
 applications split acquisition only to keep each Grit report within the

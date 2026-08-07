@@ -25,31 +25,33 @@ proof belong to their Nx project owners. They are not Habitat runner kinds.
 
 ```text
 .habitat/
-  blueprints/<qualified-kind>/<rule>/
   civ7/<product-niche>/<rule-lane>/<rule>/
   docs/<qualified-doc-niche>/<rule-lane>/<rule>/
   index.json
 ```
 
-`blueprints/` contains generic laws that are still local because the shared
-pack does not select their kind. `civ7/` and `docs/` contain qualified product
-law. Physical placement does not replace the rule's stable `id`.
+`civ7/` and `docs/` contain qualified product law. Physical placement does not
+replace the rule's stable `id`. Any tracked `.habitat/blueprints/` content is
+migration substrate, not constitutional authority: it receives no new law and
+is deleted when the corresponding shared kind is available.
 
 There is no local Habitat implementation, script runner, file-layer runner,
 Nx runner, execution-support bridge, or active Habitat work backlog.
 
 ## Admission
 
-1. Prefer the selected shared blueprint whenever it expresses the kind.
-2. Add a local law only when its owner, exact subject, positive invariant, and
-   counterfactual remediation are clear.
-3. Keep structures closed. Required members define the spine; allowed members
+1. Adopt the selected shared blueprint exactly whenever it expresses the kind.
+2. Refuse an unsupported generic kind and route the missing capability to the
+   Habitat owner; never approximate, fork, or repair it locally.
+3. Add local law only for a qualified Civ7 or documentation niche whose owner,
+   exact subject, positive invariant, and counterfactual remediation are clear.
+4. Keep structures closed. Required members define the spine; allowed members
    are explicit exceptions.
-4. Acquire subjects from exact roots. Do not broad-scan the repository and
+5. Acquire subjects from exact roots. Do not broad-scan the repository and
    recover membership with filename guesses.
-5. Route executable or behavioral proof to Nx, TypeScript, tests, or the
+6. Route executable or behavioral proof to Nx, TypeScript, tests, or the
    product runtime instead of manufacturing another Habitat runner.
-6. Retire a local rule when the type system, shared pack, product model, or
+7. Retire a local rule when the type system, shared pack, product model, or
    qualified upstream law makes it redundant.
 
 ## Operation
