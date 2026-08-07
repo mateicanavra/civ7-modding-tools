@@ -1,0 +1,28 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "civ7-api-materializer-source"
+root = "apps/civ7-api-materializer/src"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["index.ts", "materialize.ts", "model.ts", "snapshot.ts"]
+allowed = []
+
+[[scopes]]
+name = "civ7-api-materializer-proof"
+root = "apps/civ7-api-materializer/test"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["semantics", "tsconfig.json"]
+allowed = []
+
+[[scopes]]
+name = "civ7-api-materializer-semantics"
+root = "apps/civ7-api-materializer/test/semantics"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["snapshot.test.ts"]
+allowed = []

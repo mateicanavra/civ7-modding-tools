@@ -16,23 +16,24 @@ oRPC 2 and Effect 4 are fixed vendor substrate, not compatibility questions.
 relationship direction -> shared Habitat kind -> qualified Civ7 overlay ->
 public contract -> app composition -> behavior proof.
 
-**Current container:** land the exact oRPC 2, Effect 4, and TypeBox vendor plane
-without deepening the rejected host-control rewrite; reconcile active model and
-authority docs; receive shared `service@1`; then instantiate the smallest
-complete Controller Foundation chain. Existing host-injected operations remain
-frozen quarantine and receive no new mature behavior. The first in-engine
-project activates the `runtime:civ7-v8` closure; the host mod app remains
-outside it and mixed projects must split.
+**Current container:** the oRPC 2, Effect 4, and TypeBox vendor plane is sealed.
+Construct one `app@1` official-knowledge materializer that stages an exact,
+provenance-bearing `Base`/`DLC` snapshot including source maps, then emits the
+first complete `packages/civ7-api` authority. That package activates
+`runtime:civ7-v8`; host acquisition and generation remain outside the isolate.
+Shared `service@1` proceeds independently upstream and is adopted only after
+its published handoff. Existing host-injected operations remain frozen
+quarantine and receive no new mature behavior.
 
-**Stack:** only the linear `agent-root-civ7-habitat-051-ground` ->
-`agent-root-civ7-live-refusal-ground` Civ7 stack is active for this initiative.
+**Stack:** only the linear Civ7 stack descending from
+`agent-root-civ7-habitat-051-ground` through the active HEAD is in motion.
 Sibling Fluree worktrees are parked external workstreams. No parallel Civ7
 implementation branch is admitted.
 
-**Gradient:** authority correction -> vendor plane -> shared service handoff ->
-service adoption -> official API -> kernel -> mod -> ingress -> live proof ->
-native verticals -> Play -> projections -> direct-control deletion -> estate
-reconciliation -> seal.
+**Gradient:** source receipt -> materializer -> official API -> V8 closure ->
+service adoption -> kernel -> mod -> ingress -> live proof -> native verticals
+-> Play -> projections -> direct-control deletion -> estate reconciliation ->
+seal.
 
 <details>
 <summary>Previous rolling focus before Habitat service authority correction</summary>

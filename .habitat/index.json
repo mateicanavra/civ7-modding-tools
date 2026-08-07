@@ -2,6 +2,7 @@
   "$comment": "Root registry metadata for Habitat rule discovery. Habitat discovers .habitat/**/rule.json manifests. Each manifest owns stable rule identity, current placement inventory facts, operation kind, explicit runner file references, and support file references. Physical location is not rule identity. ownerProject = the workspace project whose check:policy target runs this rule. lane: enforced rules fail `habitat check`; advisory rules report only.",
   "schemaVersion": 2,
   "ownerRoots": {
+    "civ7-api-materializer": "apps/civ7-api-materializer",
     "civ7-adapter": "packages/civ7-adapter",
     "civ7-docs": "apps/docs",
     "civ7-map-policy": "packages/civ7-map-policy",

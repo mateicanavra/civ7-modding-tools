@@ -35,6 +35,10 @@
         "vitest": "^4.0.18",
       },
     },
+    "apps/civ7-api-materializer": {
+      "name": "@civ7/api-materializer",
+      "version": "0.1.0",
+    },
     "apps/cli": {
       "name": "@mateicanavra/civ7-cli",
       "version": "0.1.0",
@@ -846,6 +850,8 @@
     "@catenarycloud/linteffect": ["@catenarycloud/linteffect@0.0.6", "", { "dependencies": { "@biomejs/biome": "^2.4.15" }, "bin": { "linteffect": "bin/linteffect.mjs" } }, "sha512-iQ4+2disNYH4euHVYC8AOelDcYmJkEUU1cqC218Mj7SspJZCOa4K2EYgNtzLV/kcPO025u7hOGKdAe0xlmYsCw=="],
 
     "@civ7/adapter": ["@civ7/adapter@workspace:packages/civ7-adapter"],
+
+    "@civ7/api-materializer": ["@civ7/api-materializer@workspace:apps/civ7-api-materializer"],
 
     "@civ7/cli-data": ["@civ7/cli-data@workspace:plugins/cli/topics/data"],
 

@@ -57,7 +57,9 @@ if [[ -n "$(git -C "$SUBMODULE_ABS" status --porcelain)" ]]; then
     COMMIT_MSG="Update snapshot $(date -u +%Y-%m-%dT%H:%M:%SZ)"
     git -C "$SUBMODULE_ABS" commit -q -m "$COMMIT_MSG"
   fi
-
-  git -C "$SUBMODULE_ABS" push -q origin main
-  git add "$SUBMODULE_REL"
 fi
+
+# A retry after a transient push failure begins from a clean, locally-ahead
+# submodule. Publishing must still finish that transaction and stage its gitlink.
+git -C "$SUBMODULE_ABS" push -q origin main
+git add "$SUBMODULE_REL"

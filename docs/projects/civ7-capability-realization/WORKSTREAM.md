@@ -103,6 +103,13 @@ provenance-bearing Civ7 API generation chain. The complete accessible official
 corpus is classified; unknown and runtime-only facts remain explicitly marked
 rather than hidden behind wildcard `any`.
 
+`apps/civ7-api-materializer` owns the one-shot host process: installed-root
+selection, exact staged `Base`/`DLC` acquisition, source/install identity,
+snapshot comparison, deterministic projection, and physical replacement. It is
+an `app@1` realization, not a scripts drawer, CLI-topic owner, or reusable
+package invented without a second consumer. `packages/civ7-api` owns only the
+emitted static authority.
+
 **Seal:** exact source revision, deterministic generation, provenance and
 currentness proof, state-qualified exports, no competing handwritten API
 authority. The complete production project is the first `runtime:civ7-v8`

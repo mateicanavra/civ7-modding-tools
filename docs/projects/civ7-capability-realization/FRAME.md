@@ -50,12 +50,13 @@ versioned realm-local controller ingress. Play owns intent, reconciliation,
 no-repeat, and next action. The controller owns native observation, checks,
 at-most-once dispatch, and exact engine evidence.
 
-**Current container:** seal active repository guidance against the ratified
-model, then turn the smallest complete Controller Foundation chain structurally
-red. The first constructed vertical is generated official API authority ->
-identity/ping service kernel -> controller mod realization -> app-bound typed
-ingress -> live realm proof. Existing host-injected operations remain only in
-the finite transition quarantine and receive no new mature behavior.
+**Current container:** construct the official-knowledge materialization chain
+before its generated authority. One dedicated host app selects an identified
+Civ7 installation, stages an exact `Base`/`DLC` evidence snapshot with source
+maps and provenance, and deterministically projects `packages/civ7-api` from
+that pinned corpus. The generated package then activates the first
+`runtime:civ7-v8` closure. Existing host-injected operations remain only in the
+finite transition quarantine and receive no new mature behavior.
 
 The in-engine boundary is a production-project closure, not the mod app.
 Container 1 activates `runtime:civ7-v8` atomically with its first complete
@@ -69,10 +70,10 @@ relationship direction -> Habitat kind -> public contract -> app composition ->
 behavior proof. The existing working tree may not outrank any earlier item.
 
 **Stack boundary:** this initiative operates only on the single linear Graphite
-line from `agent-root-civ7-habitat-051-ground` to the current
-`agent-root-civ7-live-refusal-ground`. The Fluree branches and worktrees shown
-beside it are separate parked workstreams and are neither edited nor restacked
-by this initiative. No parallel Civ7 implementation branch is admitted.
+line descending from `agent-root-civ7-habitat-051-ground` through the active
+HEAD. The Fluree branches and worktrees shown beside it are separate parked
+workstreams and are neither edited nor restacked by this initiative. No
+parallel Civ7 implementation branch is admitted.
 
 **Ground:** Habitat `0.5.2` is the locked consumer substrate for shared
 `app@1`, `package@1`, `plugin@1`, `plugin-nx@1`, `provider@1`, and `resource@1`.
@@ -89,10 +90,10 @@ phase. Tuner state IDs are runtime-discovered. `CMD` Promise behavior and later
 global visibility are also proof gaps; no mailbox or mutating asynchronous path
 is selected until the discriminating live experiment runs.
 
-**Current gradient:** guidance seal -> destination law red -> official API
-authority -> controller kernel -> controller mod -> typed ingress -> live realm
-proof -> native verticals -> Play -> projections -> direct-control deletion ->
-remaining platform chains -> full seal.
+**Current gradient:** exact source receipt -> materializer app -> official API
+authority -> V8 closure -> controller kernel -> controller mod -> typed ingress
+-> live realm proof -> native verticals -> Play -> projections -> direct-control
+deletion -> remaining platform chains -> full seal.
 
 This is not a backlog. Work emerges from the difference between the normative
 models and the observed estate. Once a difference closes, it disappears from
