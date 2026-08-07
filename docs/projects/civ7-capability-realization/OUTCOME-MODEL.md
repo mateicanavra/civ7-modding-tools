@@ -92,8 +92,10 @@ subject + source + observation identity + observedAt + completeness
 
 ### Civ7 Controller Instance
 
-- **Identity:** the mod-app bootstrap creates realm and boot identity; the
-  controller contract exposes that identity and its API version.
+- **Identity:** the portable controller definition bootstraps the realm-local
+  service instance and versioned ingress; the controller contract exposes its
+  realm, boot identity, and API version. The mod app only bundles, installs,
+  and proves that definition.
 - **Ready inside the realm:** the controller can answer in the current App UI
   document and admits the requested lifecycle state.
 - **Refused inside the realm:** the native operation is not valid in the

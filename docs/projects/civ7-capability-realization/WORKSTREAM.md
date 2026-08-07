@@ -105,7 +105,10 @@ rather than hidden behind wildcard `any`.
 
 **Seal:** exact source revision, deterministic generation, provenance and
 currentness proof, state-qualified exports, no competing handwritten API
-authority.
+authority. The complete production project is the first `runtime:civ7-v8`
+member and activates the qualified closure with executable counterexample
+proof; an API package mixing host generation code with emitted authority must
+split before admission.
 
 ### 1.2 Controller Service Kernel
 
@@ -120,15 +123,25 @@ identity, lifecycle state, and a typed ping. It is not an empty scaffold and it
 does not claim gameplay capability.
 
 **Seal:** native oRPC/Effect construction under shared `service@1`, qualified
-Civ7 contract and semantic proof, no host/Tuner dependency in the in-engine
-implementation.
+Civ7 contract and semantic proof, and an active `runtime:civ7-v8` closure. The
+controller and generated API projects carry that tag. The same cut records and
+proves the exact isolate-compatible vendor imports actually used by the
+kernel; qualified Habitat/Grit law closes production source and categorically
+refuses `node:` and `bun:` imports. Host/Tuner code cannot enter by omission or
+by an ever-growing denylist.
 
 ### 1.3 Controller Mod Realization
 
-Create the portable controller mod definition and qualified mod app. Register
-the same bootstrap in shell and game scopes, bundle the controller service,
-publish one versioned global ingress, install the exact artifact, and keep
-loader and live receipts separate.
+Create the portable controller mod definition and qualified mod app. The
+tagged definition owns the shell/game registrations, realm-local bootstrap,
+and versioned global ingress around the controller router. The untagged host
+app bundles that definition with the service, installs the exact artifact, and
+keeps build, install, load, and live receipts separate.
+
+The portable controller definition carries `runtime:civ7-v8` only when its
+whole production project is isolate-admissible. The mod app does not: it owns
+host build, install, and live proof. Any project mixing those two realms must
+split before admission rather than receive an exception.
 
 ### 1.4 Host Typed Ingress
 

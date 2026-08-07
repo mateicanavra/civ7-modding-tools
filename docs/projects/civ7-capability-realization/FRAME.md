@@ -57,6 +57,13 @@ identity/ping service kernel -> controller mod realization -> app-bound typed
 ingress -> live realm proof. Existing host-injected operations remain only in
 the finite transition quarantine and receive no new mature behavior.
 
+The in-engine boundary is a production-project closure, not the mod app.
+Container 1 activates `runtime:civ7-v8` atomically with its first complete
+project and executable rules; it admits only same-tagged project dependencies
+and a proved positive vendor set, while qualified source law refuses `node:`
+and `bun:` imports. Build, install, Tuner binding, and live proof remain in
+untagged host apps. Mixed projects split rather than weakening the closure.
+
 **Authority order:** actor outcome -> product authority -> execution realm ->
 relationship direction -> Habitat kind -> public contract -> app composition ->
 behavior proof. The existing working tree may not outrank any earlier item.

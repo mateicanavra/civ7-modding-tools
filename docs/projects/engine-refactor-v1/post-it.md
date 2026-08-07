@@ -20,7 +20,9 @@ public contract -> app composition -> behavior proof.
 without deepening the rejected host-control rewrite; reconcile active model and
 authority docs; receive shared `service@1`; then instantiate the smallest
 complete Controller Foundation chain. Existing host-injected operations remain
-frozen quarantine and receive no new mature behavior.
+frozen quarantine and receive no new mature behavior. The first in-engine
+project activates the `runtime:civ7-v8` closure; the host mod app remains
+outside it and mixed projects must split.
 
 **Stack:** only the linear `agent-root-civ7-habitat-051-ground` ->
 `agent-root-civ7-live-refusal-ground` Civ7 stack is active for this initiative.
