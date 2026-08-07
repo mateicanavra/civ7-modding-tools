@@ -99,10 +99,12 @@ contract leaves to manufacture parallel interfaces.
 
 The controller is unusual only in its execution environment, not its semantic
 model. Its TypeScript implementation and router are bundled into the controller
-mod. The mod app installs a versioned global ingress around the router. Host
-apps bind the controller's public client to that ingress through a narrow oRPC
-transport. The transport owns envelopes, correlation, realm/boot validation,
-and the live-proven completion mechanism only. It knows no controller operation
+mod. The portable controller definition owns the realm-local bootstrap and
+versioned global ingress around that router. The mod app bundles and installs
+the definition without owning its engine behavior. Host apps bind the
+controller's public client to that ingress through a narrow oRPC transport. The
+transport owns envelopes, correlation, realm/boot validation, and the
+live-proven completion mechanism only. It knows no controller operation
 semantics.
 
 No separate controller resource is selected. Tuner already owns the foreign
@@ -155,7 +157,8 @@ does not create a reciprocal service dependency.
 | From | To | Relationship | Rule |
 | --- | --- | --- | --- |
 | Controller | Generated Civ7 API | Conformist static contract | Controller imports state-qualified official declarations; it does not redefine them |
-| Controller mod app | Controller | Runtime realization | App bundles and installs the service, creates realm/boot instance identity, and exposes it through the unchanged controller contract |
+| Controller mod definition | Controller | In-engine realization | Definition bootstraps the service router and exposes one versioned realm-local ingress through the unchanged controller contract |
+| Controller mod app | Controller definition | Host realization | App bundles and installs the exact definition and records build/install/live receipts without owning ingress behavior |
 | Controller mod app | Civ7 loader | Foreign realization | Generated, installed, loaded, and ready remain separate receipts |
 | Host app | Tuner provider | Runtime realization | App selects and scopes the provider; the provider implements the resource contract and owns concrete acquisition/use/release facts |
 | Host app | Controller | Transport binding | App supplies a ready link to the controller-owned client factory; no facade |
@@ -164,6 +167,24 @@ does not create a reciprocal service dependency.
 | CLI/API plugin | Services | Caller projection | May translate and compose, never write owner state directly |
 | Workflow | Public service clients | Durable orchestration | Admitted only when work crosses request/process lifetime |
 | Definition plugin | Realization app | Product realization | Definition supplies portable truth; app supplies target effects |
+
+## Civ7 V8 Runtime Closure
+
+`runtime:civ7-v8` is an orthogonal execution-realm fact, not a replacement for
+Habitat service, plugin, package, or app kinds. It applies only to a whole
+closed production project that is admissible inside Civ7's embedded V8. Every
+workspace dependency reachable from that production source carries the same
+tag. Every npm import belongs to the exact compatibility set proved for the
+emitted bundle. Qualified source law refuses `node:` and `bun:` imports and
+same-project escape into host tools or deployment code.
+
+The generated Civ7 API activates this closure first, in the same cut as its
+executable import proof. The controller service and portable controller
+definition each earn the tag later, atomically with their own import and bundle
+proof. The controller mod app, Tuner resource/provider, host bindings,
+build/install code, and live proof do not. A mixed project must split before
+selection; it never receives an exception. Live shell/game loading remains the
+final behavior oracle.
 
 ## Controller Runtime Realms
 

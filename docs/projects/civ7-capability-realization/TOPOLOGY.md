@@ -148,7 +148,7 @@ services/
 
 plugins/
   mod/ui/civ7-controller/
-    src/{mod-definition,controller-config}/
+    src/{mod-definition,controller-config,bootstrap,global-ingress}/
   mod/map/swooper-physics/
     src/{mod-definition,domain,recipes,authoring}/
   cli/topics/{data,docs,game,mapgen,mod}/
@@ -158,7 +158,7 @@ plugins/
 apps/
   mods/ui/civ7-controller/
     src/{build,deploy}/
-    src/runtime/{bootstrap,global-ingress,realm-proof}/
+    test/live/realm-proof.test.ts
   mods/map/swooper-physics/
     src/{build,deploy}/
     src/runtime/map-script/
@@ -203,7 +203,7 @@ and workflow layers appear only where actors and lifetimes earn them.
 
 | Plugin | Authority | Realized by | Refusal |
 | --- | --- | --- | --- |
-| Controller mod definition | Portable identity, shell/game UIScript registrations, controller compatibility declaration | Controller mod app | No host transport or live proof |
+| Controller mod definition | Portable identity, shell/game UIScript registrations, realm-local bootstrap, versioned global ingress and controller compatibility declaration | Controller mod app | No host transport, build/install effect or live proof |
 | Swooper definition | Product domains, recipe, config and authored evidence | Swooper mod app and previews | No installation or concrete engine globals |
 | CLI topics | Commands, flags, help and presentation | CLI app | No provider acquisition or semantic implementation |
 | Studio API | Caller contract, transport/auth policy and response projection | Studio app | No run state or private service routers |
@@ -212,7 +212,7 @@ and workflow layers appear only where actors and lifetimes earn them.
 
 | App | Authority | Runtime composition | Refusal |
 | --- | --- | --- | --- |
-| Controller mod app | Build, install, loader, global ingress, realm/boot instance identity and live proof | Generated API + controller router + mod definition | No Play policy or host resource |
+| Controller mod app | Bundle, file plan, install and live realm proof | Controller service + mod definition | No controller semantics, ingress authorship or Play policy |
 | Swooper mod app | Civ7 map-script realization, bundle, install and live proof | Swooper definition + MapGen + realization-local adapter | No portable product ownership |
 | CLI app | oclif process, topic registration, provider selection, client binding, disposal | Tuner provider + controller/Play clients + diagnostic adapter | No command implementation in app root |
 | Studio app | Browser/server host, provider selection, controller/Play/run binding, API mount and disposal | Public clients + qualified map/run adapters | No hidden shared runtime or duplicate semantic service |
