@@ -3,6 +3,10 @@ import { createHash, randomUUID } from "node:crypto";
 import { lstat, mkdir, mkdtemp, readdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, join, relative, sep } from "node:path";
 import {
+  CIV7_MAP_SCRIPT_MODULE_RESOLUTION_FILE,
+  renderMapScriptModuleResolution,
+} from "./module-resolution.js";
+import {
   type OfficialBaseDeclarationProjection,
   projectOfficialBaseDeclarations,
 } from "./projection-receipt.js";
@@ -93,7 +97,7 @@ function realmModuleReferences(
 function catalogValue(projection: OfficialBaseDeclarationProjection): unknown {
   const { declarations, realms } = projection;
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     modules: declarations.shards.map((shard) => ({
       id: shard.virtualId,
       source: shard.sourcePath,
@@ -111,12 +115,15 @@ function catalogValue(projection: OfficialBaseDeclarationProjection): unknown {
       game: realms.game,
       map: realms.map,
     },
+    moduleResolution: {
+      mapScript: projection.receipt.moduleResolution.mapScript,
+    },
   };
 }
 
 function provenanceValue(projection: OfficialBaseDeclarationProjection): unknown {
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     receipt: projection.receipt,
     diagnostics: projection.declarations.shards.flatMap((shard) =>
       shard.diagnostics.map((diagnostic) => ({
@@ -131,7 +138,7 @@ function provenanceValue(projection: OfficialBaseDeclarationProjection): unknown
       "dlc",
       "loading-realm",
       "absent-module-definitions",
-      "absolute-module-resolution",
+      "unlisted-absolute-module-resolution",
       "any-free-declarations",
     ],
   };
@@ -161,6 +168,10 @@ function renderApiProjection(
     {
       path: "provenance.ts",
       text: `// ${GENERATED_BANNER}\n${generatedValue("provenance", "Official Civ7 API projection provenance and diagnostics.", provenanceValue(projection))}`,
+    },
+    {
+      path: CIV7_MAP_SCRIPT_MODULE_RESOLUTION_FILE,
+      text: renderMapScriptModuleResolution(projection.mapScriptResolution),
     },
   ];
   for (const shard of projection.declarations.shards) {

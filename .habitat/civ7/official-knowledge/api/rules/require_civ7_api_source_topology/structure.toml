@@ -12,6 +12,7 @@ required = [
   "catalog.ts",
   "generated",
   "index.ts",
+  "map-resolution.json",
   "map-script.d.ts",
   "provenance.ts",
 ]

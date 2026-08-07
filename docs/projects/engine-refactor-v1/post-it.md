@@ -17,28 +17,39 @@ relationship direction -> shared Habitat kind -> qualified Civ7 overlay ->
 public contract -> app composition -> behavior proof.
 
 **Sealed authority:** the identified Civ7 `1.4.2.26` / Steam `24410208` corpus
-projects deterministically into `packages/civ7-api` at tree digest
-`bc109467b0f55be1cf6b7d866eb77d11c35909f53c67cef957e7e251bce7cc8d`.
+projects deterministically into `packages/civ7-api`. Its original Base digest
+was `bc109467b0f55be1cf6b7d866eb77d11c35909f53c67cef957e7e251bce7cc8d`.
 Its 943 direct declaration shards preserve 153 source-owned global
 augmentations, 685 emitted `any` keywords, diagnostics, unresolved edges,
 provenance, and disjoint realm manifests. Positive Nx and qualified Habitat law
 close the first `runtime:civ7-v8` project.
 
-**Current container:** delete the competing handwritten `civ7-types` authority
-in one consumer cut. Exact emitted declarations alone do not make Civ7's
-absolute runtime module IDs resolvable by TypeScript, and no wildcard or guessed
-shim is admitted. Derive one exact resolution face from generated evidence,
-compile every current MapGen consumer, stop the old generator write, switch all
-consumers, and delete the old package atomically before controller construction.
+The exact map-module resolution transfer is sealed at tree digest
+`98718b72b1e558db07175c452e111560906e31396c3cb6e6f7f0e7cc3033c573`;
+the adapter consumes ten exact official map-module roots and their 23-module
+closure without a wildcard, `baseUrl`, or import suppression. The canonical
+Habitat `0.5.4` owner gate evaluates the complete 1,815-subject corpus with zero
+findings. No local narrowing or provider fork remains.
+
+**Current container:** retire ambient authority and delete `civ7-types`. Move the
+concrete adapter, setup, compiler, and entrypoint into the Swooper app's
+qualified map-script runtime; leave the adapter package with only its portable
+contract, static metadata, and mock; use narrow private host ports with runtime
+validation; route authored DTOs to their owners; stop the old generator write;
+remove the SDK's runtime-bound `./mapgen` surface; and delete the old package
+atomically. Static source and binary evidence retain their explicit nonclaims.
+A live descriptor inventory cannot prove callable contracts and has no current
+consumer, so it is not part of this descent.
 
 **Stack:** only the linear Civ7 stack descending from
 `agent-root-civ7-habitat-051-ground` through the active HEAD is in motion.
 Sibling Fluree worktrees are parked external workstreams. No parallel Civ7
 implementation branch is admitted.
 
-**Gradient:** exact resolution -> consumer proof -> ambient deletion -> service
-adoption -> kernel -> mod -> ingress -> live proof -> native verticals -> Play
--> projections -> direct-control deletion -> estate reconciliation -> seal.
+**Gradient:** realization map runtime -> portable adapter -> ambient deletion ->
+service adoption -> kernel -> mod -> ingress -> live proof -> native verticals
+-> Play -> projections -> direct-control deletion -> estate reconciliation ->
+seal.
 
 <details>
 <summary>Previous rolling focus before generated API authority sealed</summary>

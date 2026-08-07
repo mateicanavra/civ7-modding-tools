@@ -12,11 +12,13 @@ or {
   `import $imports from $source` where {
     $filename <: r".*(?:packages/.*|plugins/cli/topics/[^/]+/src/.*)\.ts$",
     ! $filename <: includes "packages/civ7-adapter/",
+    ! $filename <: includes "packages/civ7-api/src/generated/",
     $source <: r".*/base-standard/.+"
   },
   `import $source` where {
     $filename <: r".*(?:packages/.*|plugins/cli/topics/[^/]+/src/.*)\.ts$",
     ! $filename <: includes "packages/civ7-adapter/",
+    ! $filename <: includes "packages/civ7-api/src/generated/",
     $source <: r".*/base-standard/.+"
   }
 }
@@ -37,6 +39,9 @@ import type { GameplayMap } from "/base-standard/maps/map-globals.js";
 // @filename: packages/example/src/runtime.d.ts
 import { GameplayMap } from "/base-standard/maps/map-globals.js";
 
+// @filename: packages/civ7-api/src/catalog.ts
+import { GameplayMap } from "/base-standard/maps/map-globals.js";
+
 // @filename: packages/example/src/source-prefix.ts
 import { TerrainBuilder } from "Base/modules/base-standard/maps/map-globals.js";
 
@@ -49,6 +54,9 @@ import { GameplayMap } from "/base-standard/maps/map-globals.js";
 ```typescript
 // @filename: packages/civ7-adapter/src/demo.ts
 import "/base-standard/maps/map-globals.js";
+
+// @filename: packages/civ7-api/src/generated/modules/map-globals.d.ts
+import type { MapLike } from "/base-standard/maps/map-like.js";
 
 // @filename: packages/example/src/demo.tsx
 import "/base-standard/maps/map-globals.js";

@@ -1,6 +1,6 @@
 # Civ7 Capability Realization Frame
 
-**Status:** Generated API authority sealed; consumer replacement active
+**Status:** Map-resolution transfer sealed; ambient-authority retirement active
 **Date:** 2026-08-07
 **Owner:** Civ7 migration director
 
@@ -51,26 +51,42 @@ no-repeat, and next action. The controller owns native observation, checks,
 at-most-once dispatch, and exact engine evidence.
 
 **Sealed authority:** `packages/civ7-api` is the deterministic projection of the
-identified Civ7 `1.4.2.26` / Steam `24410208` corpus. Its generated tree digest
-is `bc109467b0f55be1cf6b7d866eb77d11c35909f53c67cef957e7e251bce7cc8d`:
+identified Civ7 `1.4.2.26` / Steam `24410208` corpus. The original Base
+projection digest was
+`bc109467b0f55be1cf6b7d866eb77d11c35909f53c67cef957e7e251bce7cc8d`:
 940 embedded Base TypeScript sources produce 943 direct declaration shards,
 2,536 retained diagnostics, 153 source-owned global augmentations, 685 emitted
 `any` keywords, five provenance-visible unresolved targets, and disjoint
 shell, game, and map manifests. Emitted types remain source evidence rather than
 being mechanically rewritten. The package makes no runtime, lifecycle, DLC,
-loading-realm, absent-module-definition, TypeScript absolute-module-resolution,
+loading-realm, absent-module-definition, unlisted-absolute-module-resolution,
 or any-free declaration claim. It is the first closed `runtime:civ7-v8`
 project.
 
-**Current container:** retire the competing handwritten `civ7-types` authority
-in one consumer cut. TypeScript cannot directly resolve Civ7's absolute runtime
-module IDs merely because exact declarations exist; that claim was
-falsified rather than patched with another wildcard. The next cut must derive
-one exact consumer-resolution face from the generated catalog, compile every
-current MapGen consumer without a wildcard or guessed signatures, keep any
-retained source uncertainty provenance-visible, stop `civ7-map-policy` from
-writing into the old package, switch consumers, and delete `civ7-types`
-atomically before controller construction.
+The exact map-script resolution transfer is now part of that sealed authority at
+tree digest
+`98718b72b1e558db07175c452e111560906e31396c3cb6e6f7f0e7cc3033c573`.
+It admits ten exact MapGen roots and their 23-module declaration closure without
+`baseUrl`, a wildcard, import suppression, or an unlisted module claim. The
+adapter compiles and emits declarations against that face, runtime bundling
+preserves Civ7 loader imports, and the proof corrected the official `boolean[]`
+starting-sector contract. Habitat `0.5.4` evaluates the restored 1,815-subject
+owner corpus with zero findings; no local narrowing or provider fork remains.
+
+**Current container:** retire handwritten ambient authority and finish the
+`civ7-types` deletion. The remaining old package mixes usage-constrained host
+globals, authored boundary types, dead declarations, and generated policy
+evidence. Static source and binary evidence prove names and candidates but not
+callable runtime contracts; a live descriptor inventory would not close that
+gap and has no current product consumer. Keep those nonclaims explicit. Move
+the concrete adapter, setup, compiler, and entrypoint into the Swooper app's
+qualified map-script runtime; keep only the portable contract, static metadata,
+and mock in `packages/civ7-adapter`; acquire host values through narrow private
+ports with validation and explicit absence behavior; route authored DTOs to
+their semantic owners; stop the map-policy generator's ambient output; remove
+the SDK's runtime-bound `./mapgen` surface; and delete `civ7-types` atomically
+before controller construction. No replacement ambient package, forwarding
+subpath, app export, or Tuner-backed inventory is admitted.
 
 The in-engine boundary is a production-project closure, not the mod app.
 Container 1 activates `runtime:civ7-v8` atomically with its first complete
@@ -89,7 +105,7 @@ HEAD. The Fluree branches and worktrees shown beside it are separate parked
 workstreams and are neither edited nor restacked by this initiative. No
 parallel Civ7 implementation branch is admitted.
 
-**Ground:** Habitat `0.5.2` is the locked consumer substrate for shared
+**Ground:** Habitat `0.5.4` is the locked consumer substrate for shared
 `app@1`, `package@1`, `plugin@1`, `plugin-nx@1`, `provider@1`, and `resource@1`.
 Civ7 consumes those laws and keeps only qualified instances, overlays, policy,
 adapters, and product proof. Shared `service@1` remains unselected, so service
@@ -104,10 +120,10 @@ phase. Tuner state IDs are runtime-discovered. `CMD` Promise behavior and later
 global visibility are also proof gaps; no mailbox or mutating asynchronous path
 is selected until the discriminating live experiment runs.
 
-**Current gradient:** exact consumer resolution -> MapGen compile proof ->
-`civ7-types` deletion -> controller kernel -> controller mod -> typed ingress ->
-live realm proof -> native verticals -> Play -> projections -> direct-control
-deletion -> remaining platform chains -> full seal.
+**Current gradient:** realization-local map runtime -> portable adapter
+contraction -> ambient-authority deletion -> controller kernel -> controller mod
+-> typed ingress -> live realm proof -> native verticals -> Play -> projections
+-> direct-control deletion -> remaining platform chains -> full seal.
 
 This is not a backlog. Work emerges from the difference between the normative
 models and the observed estate. Once a difference closes, it disappears from
@@ -115,6 +131,18 @@ the frame.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-08-07 - Exact Map-Script Resolution Sealed
+
+The generated API now publishes one exact TypeScript resolution face for the
+ten official MapGen modules the adapter executes and their complete 23-module
+declaration closure. A semantic compiler fixture proves listed imports resolve,
+unlisted imports refuse, and no wildcard or `baseUrl` broadens the claim. The
+adapter consumes that face without `@ts-ignore`; both TypeScript and tsup DTS
+generation pass, and runtime imports remain external for Civ7's loader.
+The upstream provider fix was consumed through the published Habitat `0.5.4`
+CLI and exact SDK dependency. The canonical owner check evaluates the complete
+1,815-subject rule corpus with zero findings.
 
 ### 2026-08-07 - Generated API Authority Sealed
 
@@ -188,8 +216,9 @@ reopened by the controller correction.
 - Official Civ7 resources prove shell/game scoped UIScript loading and separate
   document lifecycles. A bootstrap must explicitly publish a callable global.
 - The current `civ7-types` surface is partial and contains a wildcard `any`.
-  Systematic official generation is complete, while exact TypeScript consumer
-  resolution remains the explicit deletion gate for that handwritten package.
+  Exact official map-module resolution is complete. The remaining deletion gate
+  is the separately classified ambient host-global surface; those globals must
+  not be laundered into official source evidence or retained as a catch-all.
 - The current Studio live attempt proved exact generation and installation but
   not startup or map behavior. A manual new-game attempt also reached a map
   generation error. Those are open product proofs, not reasons to preserve the

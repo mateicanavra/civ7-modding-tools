@@ -18,6 +18,7 @@
       "types": "./src/provenance.ts",
       "import": "./src/provenance.ts"
     },
+    "./map-resolution": "./src/map-resolution.json",
     "./map-script": {
       "types": "./src/map-script.d.ts"
     },

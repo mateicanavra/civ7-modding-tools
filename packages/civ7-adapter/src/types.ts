@@ -8,10 +8,13 @@
 /// <reference types="@civ7/types" />
 
 import type { Civ7MapInfo, OfficialAgeType } from "@civ7/map-policy";
-import type { FeatureData } from "@civ7/types";
 
-/** Civ7's native feature-placement payload, re-exported for adapter API compatibility. */
-export type { FeatureData } from "@civ7/types";
+/** Feature-placement payload accepted at the engine adapter boundary. */
+export interface FeatureData {
+  Feature: number;
+  Direction: number;
+  Elevation: number;
+}
 
 /**
  * Runtime resource catalog row used to enrich placement telemetry with
@@ -814,7 +817,7 @@ export interface EngineAdapter {
     eastContinent: ContinentBounds,
     startSectorRows: number,
     startSectorCols: number,
-    startSectors: number[]
+    startSectors: boolean[]
   ): number[];
 
   /**
@@ -861,7 +864,7 @@ export interface EngineAdapter {
     rows: number,
     cols: number,
     humanNearEquator: boolean
-  ): unknown[];
+  ): boolean[];
 
   /**
    * Check if human player should start near equator

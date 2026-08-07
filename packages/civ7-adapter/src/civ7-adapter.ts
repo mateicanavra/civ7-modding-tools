@@ -62,33 +62,29 @@ const FEATURE_POLICIES = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
   FeaturePolicy | undefined
 >;
 
-// Import from /base-standard/... — these are external Civ7 runtime paths
-// resolved by the game's module loader, not TypeScript
-// @ts-ignore - resolved only at Civ7 runtime
+// Civ7 resolves these absolute module ids in its V8 loader. @civ7/api maps the
+// same ids to generated official declarations for authoring.
 import "/base-standard/maps/map-globals.js";
-// @ts-ignore - resolved only at Civ7 runtime
 import { assignAdvancedStartRegions as civ7AssignAdvancedStartRegions } from "/base-standard/maps/assign-advanced-start-region.js";
-// biome-ignore format: keep this runtime import on one line so @ts-ignore suppresses the unresolved Civ7 module diagnostic.
-// @ts-ignore - resolved only at Civ7 runtime
-import { assignStartPositions as civ7AssignStartPositions, chooseStartSectors as civ7ChooseStartSectors } from "/base-standard/maps/assign-starting-plots.js";
-// @ts-ignore - resolved only at Civ7 runtime
+import {
+  assignStartPositions as civ7AssignStartPositions,
+  chooseStartSectors as civ7ChooseStartSectors,
+} from "/base-standard/maps/assign-starting-plots.js";
 import { generateDiscoveries as civ7GenerateDiscoveries } from "/base-standard/maps/discovery-generator.js";
 // Elevation terrain generator (lakes/coasts)
-// biome-ignore format: keep this runtime import on one line so @ts-ignore suppresses the unresolved Civ7 module diagnostic.
-// @ts-ignore - resolved only at Civ7 runtime
-import { expandCoasts as civ7ExpandCoasts, generateLakes as civ7GenerateLakes } from "/base-standard/maps/elevation-terrain-generator.js";
+import {
+  expandCoasts as civ7ExpandCoasts,
+  generateLakes as civ7GenerateLakes,
+} from "/base-standard/maps/elevation-terrain-generator.js";
 // Vanilla Civ7 biomes/features live in feature-biome-generator.js
-// biome-ignore format: keep this runtime import on one line so @ts-ignore suppresses the unresolved Civ7 module diagnostic.
-// @ts-ignore - resolved only at Civ7 runtime
-import { addFeatures as civ7AddFeatures, designateBiomes as civ7DesignateBiomes } from "/base-standard/maps/feature-biome-generator.js";
-// @ts-ignore - resolved only at Civ7 runtime
+import {
+  addFeatures as civ7AddFeatures,
+  designateBiomes as civ7DesignateBiomes,
+} from "/base-standard/maps/feature-biome-generator.js";
 import { needHumanNearEquator as civ7NeedHumanNearEquator } from "/base-standard/maps/map-utilities.js";
-// @ts-ignore - resolved only at Civ7 runtime
 import * as civ7ResourceGeneratorModule from "/base-standard/maps/resource-generator.js";
-// @ts-ignore - resolved only at Civ7 runtime
 import { generateSnow as civ7GenerateSnow } from "/base-standard/maps/snow-generator.js";
 // Load Voronoi utilities for plate generation.
-// @ts-ignore - resolved only at Civ7 runtime
 import { VoronoiUtils as CivVoronoiUtils } from "/base-standard/scripts/voronoi-utils.js";
 
 /**
@@ -1178,7 +1174,7 @@ export class Civ7Adapter implements EngineAdapter {
     eastContinent: { west: number; east: number; south: number; north: number },
     startSectorRows: number,
     startSectorCols: number,
-    startSectors: number[]
+    startSectors: boolean[]
   ): number[] {
     const result = civ7AssignStartPositions(
       playersLandmass1,
@@ -1222,7 +1218,7 @@ export class Civ7Adapter implements EngineAdapter {
     rows: number,
     cols: number,
     humanNearEquator: boolean
-  ): unknown[] {
+  ): boolean[] {
     const result = civ7ChooseStartSectors(players1, players2, rows, cols, humanNearEquator);
     return Array.isArray(result) ? result : [];
   }

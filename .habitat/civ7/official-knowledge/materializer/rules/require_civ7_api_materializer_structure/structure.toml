@@ -12,6 +12,7 @@ required = [
   "materialize.ts",
   "model.ts",
   "module-catalog.ts",
+  "module-resolution.ts",
   "projection-receipt.ts",
   "projection.ts",
   "realms.ts",
@@ -37,6 +38,7 @@ mode = "closed"
 allowEmpty = false
 required = [
   "declaration-projection.test.ts",
+  "module-resolution.test.ts",
   "projection-receipt.test.ts",
   "projection-tree.test.ts",
   "realms-projection.test.ts",

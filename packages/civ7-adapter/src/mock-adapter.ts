@@ -1538,7 +1538,7 @@ export class MockAdapter implements EngineAdapter {
     _eastContinent: { west: number; east: number; south: number; north: number },
     startSectorRows: number,
     startSectorCols: number,
-    _startSectors: number[]
+    _startSectors: boolean[]
   ): number[] {
     this.calls.assignStartPositions.push({
       playersLandmass1,
@@ -1584,7 +1584,7 @@ export class MockAdapter implements EngineAdapter {
     _rows: number,
     _cols: number,
     _humanNearEquator: boolean
-  ): unknown[] {
+  ): boolean[] {
     // Mock: empty; callers can supply custom behavior if they need it.
     return [];
   }
