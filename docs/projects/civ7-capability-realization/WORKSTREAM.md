@@ -120,10 +120,9 @@ split before admission.
 ### 1.2 Controller Service Kernel
 
 **Admission:** construction is refused until Habitat publishes a policy pack
-that selects a complete `service@1`. The candidate bundled
-with `0.5.4` and public `0.5.5` is structure-only and explicitly has no
-release-pack acceptance. Civ7 does not instantiate it or supply generic
-replacement law.
+that selects a complete `service@1`. The candidate bundled with the installed
+`0.5.5` substrate is structure-only and explicitly has no release-pack
+acceptance. Civ7 does not instantiate it or supply generic replacement law.
 
 Construct the smallest complete service authority:
 

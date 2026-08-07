@@ -19,19 +19,6 @@
         "cwd": "services/civ7-control"
       }
     },
-    "verify": {
-      "command": "bun ../../.habitat/blueprints/service/verify-service-membership.ts --root .",
-      "cache": true,
-      "dependsOn": [],
-      "inputs": [
-        "default",
-        "{workspaceRoot}/.habitat/blueprints/service/verify-service-membership.ts"
-      ],
-      "outputs": [],
-      "options": {
-        "cwd": "services/civ7-control"
-      }
-    },
     "check": {
       "executor": "nx:noop",
       "cache": false,
