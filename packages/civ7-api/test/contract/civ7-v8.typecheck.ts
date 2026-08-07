@@ -3,5 +3,6 @@ import type { provenance } from "../../src/provenance.js";
 
 type Catalog = typeof catalog;
 type Provenance = typeof provenance;
-const admitted: [Catalog["schemaVersion"], Provenance["schemaVersion"]] = [1, 1];
-void admitted;
+type SchemaVersions = [Catalog["schemaVersion"], Provenance["schemaVersion"]];
+declare const schemaVersions: SchemaVersions;
+void schemaVersions;

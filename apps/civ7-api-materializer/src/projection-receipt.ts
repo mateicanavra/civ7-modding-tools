@@ -3,10 +3,16 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { type DeclarationEmission, emitBaseDeclarationProjection } from "./declaration-emit.js";
 import { buildBaseModuleCatalog, type ModuleCatalog } from "./module-catalog.js";
+import {
+  CIV7_MAP_SCRIPT_MODULE_RESOLUTION_FILE,
+  type MapScriptModuleResolution,
+  projectMapScriptModuleResolution,
+  renderMapScriptModuleResolution,
+} from "./module-resolution.js";
 import { projectDeclarationRealms, type RealmProjection } from "./realms.js";
 import { collectBaseSourceMapEvidence, compareUtf8 } from "./source-maps.js";
 
-const DECLARATION_PROJECTION_SCHEMA_VERSION = 2 as const;
+const DECLARATION_PROJECTION_SCHEMA_VERSION = 3 as const;
 
 const EXPECTED_EMBEDDED_TYPESCRIPT_SOURCE_COUNT = 940;
 const EXPECTED_EMBEDDED_TS_SOURCE_COUNT = 715;
@@ -62,12 +68,21 @@ export interface DeclarationProjectionReceipt {
     readonly map: { readonly rootCount: number; readonly moduleCount: number };
     readonly sha256: string;
   };
+  readonly moduleResolution: {
+    readonly mapScript: {
+      readonly path: typeof CIV7_MAP_SCRIPT_MODULE_RESOLUTION_FILE;
+      readonly rootIds: readonly string[];
+      readonly moduleIds: readonly string[];
+      readonly sha256: string;
+    };
+  };
 }
 
 export interface OfficialBaseDeclarationProjection {
   readonly catalog: ModuleCatalog;
   readonly declarations: DeclarationEmission;
   readonly realms: RealmProjection;
+  readonly mapScriptResolution: MapScriptModuleResolution;
   readonly receipt: DeclarationProjectionReceipt;
   readonly receiptText: string;
 }
@@ -181,7 +196,8 @@ export async function buildDeclarationProjectionReceipt(
   snapshotRoot: string,
   catalog: ModuleCatalog,
   declarations: DeclarationEmission,
-  realms: RealmProjection
+  realms: RealmProjection,
+  mapScriptResolution: MapScriptModuleResolution
 ): Promise<DeclarationProjectionReceipt> {
   const embeddedSources = catalog.sourceMaps.embeddedTypeScriptSources;
   const compiledBarrelCount = catalog.declarationModules.filter(
@@ -225,6 +241,14 @@ export async function buildDeclarationProjectionReceipt(
       game: { rootCount: realms.game.roots.length, moduleCount: realms.game.moduleIds.length },
       map: { rootCount: realms.map.roots.length, moduleCount: realms.map.moduleIds.length },
       sha256: sha256(realmManifest(realms)),
+    },
+    moduleResolution: {
+      mapScript: {
+        path: CIV7_MAP_SCRIPT_MODULE_RESOLUTION_FILE,
+        rootIds: mapScriptResolution.rootIds,
+        moduleIds: mapScriptResolution.modules.map((module) => module.virtualId),
+        sha256: sha256(renderMapScriptModuleResolution(mapScriptResolution)),
+      },
     },
   };
 }
@@ -274,17 +298,20 @@ export async function projectOfficialBaseDeclarations(
   const catalog = await buildBaseModuleCatalog(snapshotRoot, sourceMaps);
   const declarations = emitBaseDeclarationProjection(catalog);
   const realms = await projectDeclarationRealms(snapshotRoot, catalog, declarations.edges);
+  const mapScriptResolution = projectMapScriptModuleResolution(declarations);
   assertOfficialProjectionProfile(catalog, declarations, realms);
   const receipt = await buildDeclarationProjectionReceipt(
     snapshotRoot,
     catalog,
     declarations,
-    realms
+    realms,
+    mapScriptResolution
   );
   return {
     catalog,
     declarations,
     realms,
+    mapScriptResolution,
     receipt,
     receiptText: `${JSON.stringify(receipt, null, 2)}\n`,
   };

@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": ["../../tsconfig.base.json", "@civ7/api/map-resolution"],
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",

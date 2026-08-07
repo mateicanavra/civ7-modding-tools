@@ -72,7 +72,6 @@
       "entry": ["test/**/*.typecheck.ts"]
     },
     "packages/civ7-adapter": {
-      "ignoreUnresolved": ["^/base-standard/"],
       // The map-script builder resolves uri-js dynamically into an esbuild virtual module.
       "ignoreDependencies": ["uri-js"]
     },

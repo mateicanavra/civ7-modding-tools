@@ -43,6 +43,7 @@
     "uri-js": "4.4.1"
   },
   "devDependencies": {
+    "@civ7/api": "workspace:*",
     "esbuild": "^0.27.2"
   }
 }

@@ -1,0 +1,75 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "/base-standard/maps/assign-advanced-start-region.js": [
+        "./generated/modules/Base__modules__base-standard__maps__assign-advanced-start-region.d.ts"
+      ],
+      "/base-standard/maps/assign-starting-plots.js": [
+        "./generated/modules/Base__modules__base-standard__maps__assign-starting-plots.d.ts"
+      ],
+      "/base-standard/maps/discovery-generator.js": [
+        "./generated/modules/Base__modules__base-standard__maps__discovery-generator.d.ts"
+      ],
+      "/base-standard/maps/elevation-terrain-generator.js": [
+        "./generated/modules/Base__modules__base-standard__maps__elevation-terrain-generator.d.ts"
+      ],
+      "/base-standard/maps/feature-biome-generator.js": [
+        "./generated/modules/Base__modules__base-standard__maps__feature-biome-generator.d.ts"
+      ],
+      "/base-standard/maps/map-globals.js": [
+        "./generated/modules/Base__modules__base-standard__maps__map-globals.d.ts"
+      ],
+      "/base-standard/maps/map-utilities.js": [
+        "./generated/modules/Base__modules__base-standard__maps__map-utilities.d.ts"
+      ],
+      "/base-standard/maps/resource-generator.js": [
+        "./generated/modules/Base__modules__base-standard__maps__resource-generator.d.ts"
+      ],
+      "/base-standard/maps/snow-generator.js": [
+        "./generated/modules/Base__modules__base-standard__maps__snow-generator.d.ts"
+      ],
+      "/base-standard/scripts/hex-map.js": [
+        "./generated/modules/Base__modules__base-standard__scripts__hex-map.d.ts"
+      ],
+      "/base-standard/scripts/kd-tree.js": [
+        "./generated/modules/Base__modules__base-standard__scripts__kd-tree.d.ts"
+      ],
+      "/base-standard/scripts/quadtree.js": [
+        "./generated/modules/Base__modules__base-standard__scripts__quadtree.d.ts"
+      ],
+      "/base-standard/scripts/voronoi-region.js": [
+        "./generated/modules/Base__modules__base-standard__scripts__voronoi-region.d.ts"
+      ],
+      "/base-standard/scripts/voronoi-types.js": [
+        "./generated/modules/Base__modules__base-standard__scripts__voronoi-types.d.ts"
+      ],
+      "/base-standard/scripts/voronoi-utils.js": [
+        "./generated/modules/Base__modules__base-standard__scripts__voronoi-utils.d.ts"
+      ],
+      "/base-standard/scripts/voronoi_rules/rules-base.js": [
+        "./generated/modules/Base__modules__base-standard__scripts__voronoi_rules__rules-base.d.ts"
+      ],
+      "/core/scripts/external/TypeScript-Voronoi-master/src/bounding_box.js": [
+        "./generated/modules/Base__modules__core__scripts__external__TypeScript-Voronoi-master__src__bounding_box.d.ts"
+      ],
+      "/core/scripts/external/TypeScript-Voronoi-master/src/cell.js": [
+        "./generated/modules/Base__modules__core__scripts__external__TypeScript-Voronoi-master__src__cell.d.ts"
+      ],
+      "/core/scripts/external/TypeScript-Voronoi-master/src/diagram.js": [
+        "./generated/modules/Base__modules__core__scripts__external__TypeScript-Voronoi-master__src__diagram.d.ts"
+      ],
+      "/core/scripts/external/TypeScript-Voronoi-master/src/edge.js": [
+        "./generated/modules/Base__modules__core__scripts__external__TypeScript-Voronoi-master__src__edge.d.ts"
+      ],
+      "/core/scripts/external/TypeScript-Voronoi-master/src/halfedge.js": [
+        "./generated/modules/Base__modules__core__scripts__external__TypeScript-Voronoi-master__src__halfedge.d.ts"
+      ],
+      "/core/scripts/external/TypeScript-Voronoi-master/src/site.js": [
+        "./generated/modules/Base__modules__core__scripts__external__TypeScript-Voronoi-master__src__site.d.ts"
+      ],
+      "/core/scripts/external/TypeScript-Voronoi-master/src/vertex.js": [
+        "./generated/modules/Base__modules__core__scripts__external__TypeScript-Voronoi-master__src__vertex.d.ts"
+      ]
+    }
+  }
+}

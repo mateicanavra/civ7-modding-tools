@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
 import type { DeclarationEmission } from "../../src/declaration-emit.js";
 import type { ModuleCatalog } from "../../src/module-catalog.js";
+import type { MapScriptModuleResolution } from "../../src/module-resolution.js";
 import { buildDeclarationProjectionReceipt } from "../../src/projection-receipt.js";
 import type { RealmClosure, RealmProjection } from "../../src/realms.js";
 
@@ -89,6 +90,25 @@ const realms: RealmProjection = {
   map: emptyClosure("map"),
 };
 
+const mapScriptResolution: MapScriptModuleResolution = {
+  rootIds: ["/base-standard/maps/example.js"],
+  modules: [
+    {
+      virtualId: "/base-standard/maps/example.js",
+      declarationPath: "./generated/modules/Base__modules__base-standard__maps__example.d.ts",
+    },
+  ],
+  config: {
+    compilerOptions: {
+      paths: {
+        "/base-standard/maps/example.js": [
+          "./generated/modules/Base__modules__base-standard__maps__example.d.ts",
+        ],
+      },
+    },
+  },
+};
+
 afterEach(async () => {
   await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true })));
 });
@@ -107,12 +127,31 @@ describe("declaration projection receipt", () => {
     const prettyText = `${JSON.stringify(sourceReceipt, null, 2)}\n`;
     await mkdir(root, { recursive: true });
     await writeFile(join(root, ".civ7-source-receipt.json"), prettyText);
-    const pretty = await buildDeclarationProjectionReceipt(root, catalog, declarations, realms);
+    const pretty = await buildDeclarationProjectionReceipt(
+      root,
+      catalog,
+      declarations,
+      realms,
+      mapScriptResolution
+    );
+    expect(pretty.schemaVersion).toBe(3);
     expect(pretty.sourceSnapshot.sourceReceiptSha256).toBe(sha256(prettyText));
+    expect(pretty.moduleResolution.mapScript).toEqual({
+      path: "map-resolution.json",
+      rootIds: mapScriptResolution.rootIds,
+      moduleIds: ["/base-standard/maps/example.js"],
+      sha256: sha256(`${JSON.stringify(mapScriptResolution.config, null, 2)}\n`),
+    });
 
     const compactText = JSON.stringify(sourceReceipt);
     await writeFile(join(root, ".civ7-source-receipt.json"), compactText);
-    const compact = await buildDeclarationProjectionReceipt(root, catalog, declarations, realms);
+    const compact = await buildDeclarationProjectionReceipt(
+      root,
+      catalog,
+      declarations,
+      realms,
+      mapScriptResolution
+    );
     expect(compact.sourceSnapshot.sha256).toBe(pretty.sourceSnapshot.sha256);
     expect(compact.sourceSnapshot.sourceReceiptSha256).toBe(sha256(compactText));
     expect(compact.sourceSnapshot.sourceReceiptSha256).not.toBe(
