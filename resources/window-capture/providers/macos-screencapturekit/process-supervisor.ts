@@ -165,7 +165,7 @@ export class ProcessSupervisor {
   }
 
   run(invocation: ProcessInvocation): Effect.Effect<ProcessResult, ProcessSupervisorFailure> {
-    return Effect.async<ProcessResult, ProcessSupervisorFailure>((resume) => {
+    return Effect.callback<ProcessResult, ProcessSupervisorFailure>((resume) => {
       if (this.#released) {
         resume(Effect.fail(providerReleasedFailure()));
         return;

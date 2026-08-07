@@ -411,7 +411,7 @@ function ignoreHelperFs<A>(operation: () => Promise<A>): Effect.Effect<A | undef
     try: operation,
     catch: () => undefined,
   }).pipe(
-    Effect.catchAll(() => Effect.succeed(undefined)),
+    Effect.catch(() => Effect.succeed(undefined)),
     Effect.uninterruptible
   );
 }

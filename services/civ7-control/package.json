@@ -49,7 +49,7 @@
     "@orpc/client": "1.14.6",
     "@orpc/contract": "1.14.6",
     "@orpc/server": "1.14.6",
-    "@orpc/shared": "^1.14.4",
+    "@orpc/shared": "1.14.6",
     "@standard-schema/spec": "^1.1.0",
     "effect": "3.21.3",
     "effect-orpc": "catalog:",

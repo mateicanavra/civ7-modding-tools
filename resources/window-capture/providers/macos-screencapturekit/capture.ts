@@ -401,7 +401,7 @@ function ignoreCaptureFs<A>(operation: () => Promise<A>): Effect.Effect<A | unde
     try: operation,
     catch: () => undefined,
   }).pipe(
-    Effect.catchAll(() => Effect.succeed(undefined)),
+    Effect.catch(() => Effect.succeed(undefined)),
     Effect.uninterruptible
   );
 }

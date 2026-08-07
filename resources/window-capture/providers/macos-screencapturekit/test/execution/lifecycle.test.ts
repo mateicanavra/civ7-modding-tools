@@ -196,7 +196,7 @@ describe("macOS ScreenCaptureKit provider execution", () => {
             providerOptions(root, cacheRoot),
             dependencies
           );
-          const fiber = yield* Effect.fork(
+          const fiber = yield* Effect.forkChild(
             capture.capture({
               selection: { _tag: "text-contains", text: "Editor" },
               destination: { path: destination },
