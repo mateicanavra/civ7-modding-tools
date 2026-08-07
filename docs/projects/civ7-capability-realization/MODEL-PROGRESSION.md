@@ -27,7 +27,9 @@ before imagining its destination. Stay above files, endpoints, and framework
 mechanics long enough for capabilities and exclusions to become obvious.
 
 **Model:** [PRODUCT-AUTHORITY.md](./PRODUCT-AUTHORITY.md), supported by the
-exact [migration corpus](./CORPUS.md).
+exact [Source Reconciliation](./SOURCE-RECONCILIATION.md) and
+[Public Surface Disposition](./PUBLIC-SURFACE-DISPOSITION.md). The superseded
+[migration corpus](./CORPUS.md) remains baseline source evidence only.
 
 **Gap pass:** classify observed capabilities, facts, owners, non-owners,
 policies, refusals, unknowns, and preserve/repair/retire/defer dispositions.
@@ -99,7 +101,8 @@ Observe what the actor can actually know, not what an internal command,
 workflow, transport, or local projection hopes happened.
 
 **Model:** [ACTOR-ROLE-OUTCOME-MODEL.md](./ACTOR-ROLE-OUTCOME-MODEL.md), tested
-against the [proof corpus](./PROOF-CORPUS.md).
+against owner-local proof. The frozen [proof corpus](./PROOF-CORPUS.md) is a
+baseline census whose old destination assignments are not authority.
 
 The dynamic walk is:
 

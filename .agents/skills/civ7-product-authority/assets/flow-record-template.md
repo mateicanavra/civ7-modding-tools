@@ -35,7 +35,9 @@ actor intent
 - Observation versus semantic decision:
 - Definition versus production realization:
 - Production versus Studio ephemeral realization:
-- Foundational control versus play:
+- Realm-local controller versus Play:
+- Host controller-client binding versus controller implementation:
+- Raw diagnostic and window-evidence boundaries:
 - Physical receipts versus MapGen-runs semantic outcome:
 
 ## Projection And Consumers

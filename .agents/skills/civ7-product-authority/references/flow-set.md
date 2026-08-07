@@ -74,10 +74,10 @@ run-operator intent
   -> Studio web/API projection
   -> MapGen-runs public client
   -> operation admission, identity, order, and state
-  -> app-bound config/run/log/control/clock capabilities
+  -> app-bound config/run/log/realization/clock capabilities
   -> Studio Swooper realization adapter
        -> ephemeral materialization/install effects and receipts
-  -> control-client setup/readback facts
+  -> public controller-client setup/readback facts
   -> MapGen-runs correlation, reconciliation, and final semantic outcome
   -> Studio projection
 ```
@@ -87,22 +87,24 @@ workspace/install packages. It does not import the production realization app
 or invoke its targets. MapGen-runs owns semantic operation meaning; adapters
 own exact effects and receipts.
 
-Forbidden claim: API return, physical deployment receipt, or control readback
+Forbidden claim: API return, physical deployment receipt, or controller readback
 alone is the MapGen-runs outcome.
 
-## Foundational Live Control
+## Civ7 Controller
 
 ```text
 live-operator or dependent-capability intent
   -> CLI/API projection or public service dependency
-  -> app-bound control client
-  -> ready resource values supplied by the app
-  -> closed app/game/map/UI operation
-  -> epoch-correlated native fact, dispatch, readback, refusal, or uncertainty
+  -> host app selects Tuner and verifies controller realm/boot identity
+  -> host app binds the public controller client to the versioned ingress
+  -> typed envelope carrying no operation implementation body
+  -> closed native operation executed by controller TypeScript inside Civ7
+  -> correlated native fact, dispatch, readback, refusal, or uncertainty
   -> requesting owner
 ```
 
-Honest close: exact native result and recovery at the selected epoch.
+Honest close: exact host-access evidence plus the controller-issued realm/boot
+and native operation result.
 
 Forbidden claim: raw transport success or native dispatch is gameplay value or
 acceptance.
@@ -114,8 +116,8 @@ player or agent intent
   -> game-play CLI or selected caller projection
   -> play public client
   -> situation, check, request, reconciliation, and no-repeat policy
-  -> public control client
-  -> exact native control fact or transition
+  -> public controller client
+  -> exact native controller fact or transition
   -> play-owned outcome and next lawful action
   -> caller projection
 ```
@@ -123,8 +125,21 @@ player or agent intent
 Honest close: no-op, refusal, confirmed effect, or explicit reconciliation with
 the next safe action.
 
-Forbidden claim: a shared live prerequisite gives control actor-facing play
+Forbidden claim: a shared live prerequisite gives the controller actor-facing Play
 authority.
+
+## Raw Diagnostic
+
+```text
+qualified operator
+  -> explicit diagnostic projection
+  -> app-owned raw-exec adapter
+  -> ready Tuner resource
+  -> exact raw response and audit evidence
+```
+
+This path is not imported by Controller, Play, MapGen-runs, or ordinary product
+commands. Window capture is likewise separate generic diagnostic/app evidence.
 
 ## CLI Projection
 

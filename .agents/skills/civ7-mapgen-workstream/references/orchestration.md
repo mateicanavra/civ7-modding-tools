@@ -54,7 +54,7 @@ For meaningful behavioral work, use independent lanes:
 | Physics/gameplay | Which process or player outcome is wrong, and what is modeled/approximated/absent? |
 | Civ7 policy | Which official/static/runtime legality and intent facts constrain the solution? |
 | Verification | Which proof could actually close the claim, and which identity/correlation links may remain? |
-| Realization/run | Does the change cross generated artifact, installation, loader, MapGen-runs, or live-control boundaries? |
+| Realization/run | Does the change cross generated artifact, installation, loader, MapGen-runs, host-access, or controller boundaries? |
 | Projection | Could correct values be rendered or translated incorrectly? |
 
 Use `cognition:team-design` for lane ownership and synthesis mechanics. Keep
@@ -86,7 +86,7 @@ Slice by complete behavior, not directory:
 - realization slice: compiler/runtime/artifact/deploy behavior plus receipts;
 - run slice: MapGen-runs contract/semantics plus exact app adapter and
   projection changes;
-- observation slice: foundational control operation plus public consumer;
+- observation slice: controller operation plus public consumer;
 - display slice: projection/UI behavior over fixed owner evidence.
 
 Use `assets/recipe-scaffolds.md` for portable definition authoring after
@@ -111,7 +111,7 @@ At a behavior milestone:
 - stable metric cohort against the pre-declared ledger;
 - exact realization build and install receipt;
 - MapGen-runs operation/correlation evidence when involved;
-- fresh logs and epoch-correlated foundational map readback;
+- fresh logs and controller/access-correlated native map readback;
 - parity only when every required identity link is present.
 
 Use `facet-verification.md` and `assets/live-verification-runbook.md`.
@@ -144,7 +144,7 @@ Return to the earliest failed layer:
 - generated artifact wrong -> realization;
 - physical receipt wrong -> app adapter;
 - service phase/outcome wrong -> MapGen-runs;
-- live observation stale/partial -> resource/control correlation;
+- live observation stale/partial -> access/controller correlation;
 - identity unresolved -> preserve the block rather than weakening parity.
 
 Live-only compatibility fixes should be focused slices with their own proof.

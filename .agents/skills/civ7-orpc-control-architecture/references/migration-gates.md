@@ -2,7 +2,7 @@
 
 ## 1. Ground The Slice
 
-- Read the sealed destination, product, system, topology, and kind-law packet.
+- Read the ratified product, system, outcome, topology, and workstream packet.
 - Identify the actor outcome, current callers, current owner, destination
   owner, preserved behavior, and deletion trigger.
 - Use `bunx nx show project <project> --json` to discover the real project and
@@ -12,13 +12,12 @@
 
 ## 2. Close Semantic Ownership
 
-- Foundational native behavior lands in one of control's exact
-  `{app,game,map,ui}` modules.
-- Actor-facing gameplay meaning lands in one of play's exact
-  `{attention,automation,city,diplomacy,notifications,progression,planning,turn,unit}`
-  modules and consumes only the public control client.
+- Native behavior lands in `services/civ7-controller`, under the official
+  runtime realm/API group that owns it, and executes inside the controller mod.
+- Actor-facing gameplay meaning lands in the Play module proved by baseline
+  behavior and consumes only the public controller client.
 - Run intent, state, ordering, cancellation, correlation, reconciliation, and
-  final outcome remain in MapGen-runs, separate from control, play, portable
+  final outcome remain in MapGen-runs, separate from Controller, Play, portable
   definition truth, and app-qualified physical effects.
 - No operation has two fact writers or depends on a current route/file name for
   its meaning.
@@ -57,6 +56,9 @@
   root, and adapter identity exactly once.
 - The app acquires providers, constructs ready resource values and adapters,
   binds service clients in dependency order, and supplies API context.
+- A host controller binding transports typed envelopes only; it never
+  regenerates a mature operation body. Raw JavaScript remains an explicit
+  app-owned diagnostic, and window capture remains separate app evidence.
 - Ordinary commands, projections, and services receive only their declared
   bound capabilities.
 - Success, failure, partial startup, cancellation, and interruption all reach
@@ -97,7 +99,7 @@
 - Mutate only with explicit authorization and a scope tied to the current
   player and game state.
 - Preserve stable no-repeat identity for uncertain play mutations and require
-  fresh control evidence before retry.
+  fresh controller evidence before retry.
 - Label type, contract, semantics, execution, projection, assembly, generated,
   installed, loader, and live claims independently.
 
@@ -105,9 +107,9 @@
 
 Return to design when:
 
-- control and play require shared semantic write authority;
-- play needs a provider, resource value, raw execution capability, or private
-  control source;
+- Controller and Play require shared semantic write authority;
+- Play needs a provider, resource value, transport, raw execution capability,
+  or private controller source;
 - an API cannot state a caller contract distinct from a service mirror;
 - a service or API must expose private router source;
 - a concrete vendor mechanism cannot be proven against the installed source;

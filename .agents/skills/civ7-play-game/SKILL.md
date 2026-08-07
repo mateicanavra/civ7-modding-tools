@@ -1,7 +1,7 @@
 ---
 name: civ7-play-game
 description: |
-  Use in the Civ7 Modding Tools repo for "play Civ", "take a turn", "play through turn N", "what should I do this turn", "move this unit", "choose research", "set city production", "respond to diplomacy", "clear turn blockers", or "end the turn" in an already-running Civilization VII game. Uses the actor-facing game-play CLI and public play capability, with foundational control only as its typed native dependency.
+  Use in the Civ7 Modding Tools repo for "play Civ", "take a turn", "play through turn N", "what should I do this turn", "move this unit", "choose research", "set city production", "respond to diplomacy", "clear turn blockers", or "end the turn" in an already-running Civilization VII game. Uses the actor-facing game-play CLI and public Play capability, which consumes only the public controller client for typed native operations.
 ---
 
 # Civ7 Play Game
@@ -19,7 +19,7 @@ terminal actor
   -> game-play CLI projection
   -> public play client
   -> actor-facing observation/check/request/reconciliation policy
-  -> public foundational control client
+  -> public controller client
   -> exact native fact or operation
   -> play-owned outcome and next action
   -> CLI projection
@@ -64,7 +64,7 @@ project confirms and runs its link target.
 
 ## The Turn Loop
 
-1. **Observe readiness.** Select the foundational readiness read from native
+1. **Observe readiness.** Select the controller readiness read from native
    game help. Proceed only when its output admits observation and mutation for
    the live session.
 2. **Read the situation.** Select the actor-facing situation view from native
@@ -94,7 +94,7 @@ See `references/turn-loop.md` for the operational playbook.
 - If dispatch may have occurred, follow the returned reconciliation/next-action
   guidance. Never repeat the mutation merely because confirmation is missing.
 - Stop when the public actor-facing surface does not expose the required
-  operation. Report the gap instead of reaching into foundational control or
+  operation. Report the gap instead of reaching into the controller or
   the Tuner resource.
 
 ## Reference Map
@@ -109,12 +109,12 @@ See `references/turn-loop.md` for the operational playbook.
 ## Invariants
 
 <invariants>
-<invariant name="play-owns-actor-meaning">Gameplay observation, checks, requests, reconciliation, no-repeat policy, and next-action meaning belong to play, not foundational control or the CLI.</invariant>
-<invariant name="play-consumes-public-control">Play consumes only the public foundational control capability. It never receives Tuner, window capture, provider state, arbitrary JavaScript, or private control source.</invariant>
+<invariant name="play-owns-actor-meaning">Gameplay observation, checks, requests, reconciliation, no-repeat policy, and next-action meaning belong to Play, not the controller or CLI.</invariant>
+<invariant name="play-consumes-public-controller">Play consumes only the public controller client. It never receives Tuner, window capture, provider state, transport, arbitrary JavaScript, or private controller source.</invariant>
 <invariant name="discover-command-before-use">Confirm every command and flag from the current game topic and leaf help before use.</invariant>
 <invariant name="never-invent-values">Echo ids, types, coordinates, actions, and operation keys from current reads. Never guess or hand-compute them.</invariant>
 <invariant name="check-before-request">Validate a mutation before sending it unless the current procedure explicitly defines a single atomic request flow.</invariant>
-<invariant name="reconcile-before-repeat">Uncertain dispatch is reconciled through fresh play/control facts before any retry.</invariant>
+<invariant name="reconcile-before-repeat">Uncertain dispatch is reconciled through fresh Play/controller facts before any retry.</invariant>
 <invariant name="no-raw-bypass">A missing named play action is reported as a capability gap; raw execution is not a gameplay fallback.</invariant>
 <invariant name="human-boundaries-hold">Stop at the requested turn, a requested consultation point, a twice-refused action, or an unresolved high-impact decision.</invariant>
 </invariants>

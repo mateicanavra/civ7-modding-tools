@@ -33,16 +33,19 @@
 - Definition, materialized artifact, installed tree, loader acceptance, and
   live behavior remain independent facts.
 
-## Foundational Control Policy
+## Civ7 Controller Policy
 
-- Control owns closed app/game/map/UI native interpretation, admission,
-  dispatch, bounded readback, and exact uncertainty.
+- The controller owns closed typed native interpretation, admission, dispatch,
+  bounded readback, and exact uncertainty inside Civ7. Its TypeScript service
+  and private router run in the dedicated controller mod.
 - Resource-owned epoch, health, raw command, and capture facts remain resource
-  or provider facts; control references and interprets them without re-owning
-  them.
+  or provider facts. Host apps bind the public controller client through
+  selected Tuner access; the controller does not consume those resources.
+- Window capture remains generic diagnostic or qualified app evidence, not a
+  controller dependency.
 - Arbitrary runtime execution, generic GameInfo inspection, app restart, and
-  raw diagnostics remain exact supporting capabilities, not semantic control
-  or play results.
+  raw diagnostics remain explicit app-owned supporting capabilities, not
+  controller or Play results.
 - The legacy facade/direct-control shape is deleted. No successor facade,
   parallel method interface, private contract picking, or convenience surface
   becomes product authority.
@@ -51,8 +54,8 @@
 
 - Play owns situation, attention, checks, semantic requests, bounded
   postconditions, reconciliation, no-repeat keys, and next lawful actions.
-- Play consumes only the public control capability; it receives no Tuner,
-  provider, raw JavaScript, or private control implementation.
+- Play consumes only the public controller client; it receives no Tuner,
+  provider, transport, raw JavaScript, or private controller implementation.
 - A native refusal or dispatch may be preserved as evidence, but only play
   interprets it as gameplay meaning.
 - Uncertain dispatch prevents unsafe repetition until the named fresh
@@ -65,8 +68,9 @@
 - It owns admission, transaction order, operation records, phase evidence,
   retention, cancellation, correlation, timeout, reconciliation, and final
   semantic outcome.
-- Authored-config, source-write, run-file, fresh-log, realization, control, and
-  clock capabilities are exact app-bound dependencies.
+- Authored-config, source-write, run-file, fresh-log, realization, and clock
+  capabilities are exact app-bound dependencies; admitted live phases consume
+  the public controller client.
 - Qualified adapters own source/filesystem/materialization/install effects and
   their receipts. They do not decide the operation outcome.
 - API and web surfaces project MapGen-runs facts; they own no operation
@@ -87,7 +91,7 @@ docs promise, mod entrypoint, or package identity:
 - update adjacent contracts, tests, and docs; and
 - prove the exact channel behavior without upgrading its proof class.
 
-A caller-shaped API may group control, play, and run routes. It must delegate to
+A caller-shaped API may group controller, Play, and run routes. It must delegate to
 independently bound public clients rather than merge contracts or mount private
 service routers.
 

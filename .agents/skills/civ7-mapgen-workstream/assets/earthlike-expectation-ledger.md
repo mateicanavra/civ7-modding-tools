@@ -8,7 +8,7 @@ Fill the declaration sections before implementation. Amendments are append-only.
 - **Workstream/request:** `<one sentence>`
 - **Actor outcome:** `<what the map author or player should experience>`
 - **Definition owner:** `plugins/mod/map/swooper-physics/<exact area>`
-- **Other owners touched:** `<none | mapgen-core | realization app | MapGen-runs | control | projection | app adapter>`
+- **Other owners touched:** `<none | mapgen-core | realization app | MapGen-runs | controller | projection | app adapter>`
 - **Recipe/config identity:** `<recipe, config id/digest>`
 - **Cohort:** `<map sizes, regime families, stable seeds>`
 - **Baseline evidence ids:** `<metric report/run ids>`
@@ -65,7 +65,7 @@ Required guard families to consider:
 | --- | --- | --- | --- |
 | Static legality | `packages/civ7-map-policy` | `<generator receipt>` | `<...>` |
 | Official intent | official resource corpus | `<revision/files>` | `<...>` |
-| Installed runtime fact, if needed | qualified diagnostic or foundational control | `<epoch/game identity>` | `<...>` |
+| Installed runtime fact, if needed | qualified diagnostic or controller | `<controller realm/boot, access epoch, game identity>` | `<...>` |
 | Player value | Swooper product policy/playtest | `<criteria>` | `<...>` |
 
 Do not call a placement successful merely because it is physically plausible.
@@ -122,7 +122,7 @@ Fill only when the claim crosses into Civ7.
 - **Tuner resource epoch:** `<...>`
 - **Game/setup/map identity:** `<...>`
 - **Fresh log evidence:** `<...>`
-- **Foundational map readback:** `<...>`
+- **Controller map readback:** `<...>`
 - **Parity status and unresolved links:** `<...>`
 - **Supported proof class:** `<generated | installed | loader | live-behavior>`
 - **What remains unproved:** `<...>`

@@ -1,9 +1,18 @@
 # Civ7 Capability Realization Kind-Law Matrix
 
-**Status:** Accepted target on the Habitat 0.5.2 consumer substrate
-**Verdict:** `GROUND_PASSED`
+**Status:** Superseded host-control law; structural evidence only
+**Verdict:** `MODEL_REPLACED`
 **Date:** 2026-08-05
 **Scope:** Kinds required by the selected capability-port topology only
+
+> **Authority notice (2026-08-06):** the shared Habitat `0.5.2` consumer facts
+> and generic kind observations below remain valid evidence. The Civ7 service,
+> app-composition, dependency, and migration laws were built around the rejected
+> host-side control service and are not destination authority. Container 1 of
+> [WORKSTREAM.md](./WORKSTREAM.md) must project new qualified law from the
+> ratified [System Model](./SYSTEM-MODEL.md) before Controller Foundation source
+> is constructed. Do not mechanically rename the old service paths or enforce
+> this matrix against the current estate.
 
 ## Purpose
 
@@ -711,8 +720,9 @@ export only `.`. Direct `test/semantics/<component>.test.ts` leaves remain
 refused until qualified law selects a genuine cross-module or service-root
 invariant. Contract proves the public client/contract consumer surface and
 negative private-subpath resolution. Module semantics prove public operation
-outcomes at the exact owner. Execution proves middleware order, request
-isolation, cancellation, and once-only root execution.
+outcomes at the exact owner. Execution proves the qualified root's actual
+dependency binding and request-isolation obligations plus once-only public-client
+execution; it does not manufacture generic middleware or vendor-lifecycle proof.
 Colocated fixtures are allowed; generic support, mechanics, database, and
 integration cabinets are not. An independently selected database kind owns
 database proof. Production never imports proof. The private service source

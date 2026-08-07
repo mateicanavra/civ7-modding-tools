@@ -26,7 +26,9 @@
 ## Boundary Distinctions
 
 - Package/resource/provider/service/plugin/app roles:
-- Foundational control versus actor-facing play:
+- Realm-local controller versus actor-facing Play:
+- Host controller-client binding versus controller implementation:
+- Raw diagnostic and window-evidence boundaries:
 - Portable definition:
 - Production realization:
 - Studio ephemeral realization:

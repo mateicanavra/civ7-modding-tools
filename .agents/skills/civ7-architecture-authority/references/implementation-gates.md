@@ -25,9 +25,13 @@ Select every axis touched by the change:
 
 - **Kind ownership:** package purity; resource/provider writer split; service
   semantics; projection ownership; app composition and disposal.
-- **Control versus play:** native app/game/map/UI facts stay in control;
+- **Controller versus Play:** typed native facts stay in the realm-local
+  controller;
   situation/check/request/reconciliation/no-repeat/next-action meaning stays in
-  play; play sees only the public control client.
+  Play; Play sees only the public controller client.
+- **Host-access integrity:** host apps bind that public client through selected
+  Tuner access without regenerating mature operation bodies; raw JavaScript is
+  an explicit diagnostic only; window capture is separate app evidence.
 - **Definition versus realization:** portable Swooper truth stays in the
   definition; production deployment stays in the realization app; Studio
   ephemeral effects stay in its qualified adapter.
@@ -54,8 +58,8 @@ Stop and re-ground when:
 - a package needs filesystem, socket, engine-global, transport-host, or process
   access;
 - a service needs to select or acquire its provider;
-- control begins interpreting gameplay goals or play receives Tuner/provider
-  state;
+- the controller begins interpreting gameplay goals or Play receives
+  Tuner/provider/transport state;
 - Studio imports the Swooper production app or its targets;
 - MapGen-runs performs physical realization effects or the Studio adapter
   decides the semantic operation outcome;

@@ -1,386 +1,324 @@
 # Civ7 System Model
 
-**Status:** Normative project system model for the capability-realization cutover
-**Date:** 2026-08-05
+**Status:** Normative destination model
+**Date:** 2026-08-06
 **Owner:** Civ7 platform architecture
 
-This model places the capabilities authorized by
-[PRODUCT-AUTHORITY.md](./PRODUCT-AUTHORITY.md) against the shared Habitat
-substrate. Shared Habitat is external authority for the selected structural
-kinds; Civ7 selects and composes them rather than forking, weakening, or
-reimplementing them. Habitat 0.5.2 does not supply a generic product runtime and
-does not select `service@1`. Concrete host composition and service law therefore
-remain explicit Civ7 responsibilities.
-
-The selected shared kinds are constructible at the Ground-proven 0.5.2 pin.
-Qualified Civ7 overlays still must close each destination before source moves.
-Exact current-source dispositions remain in [CORPUS.md](./CORPUS.md).
+This model places the capabilities in
+[PRODUCT-AUTHORITY.md](./PRODUCT-AUTHORITY.md) into one directional system. It
+defines ownership and relationships, not migration chronology or permission to
+copy the current estate into similarly named folders.
 
 ## System Boundary
 
-Inside the Civ7 Modding Tools system:
+Inside the Civ7 modding platform:
 
-- portable SDKs, protocols, algorithms, definitions, and static policy;
-- managed foreign resources and their concrete providers;
-- semantic product services;
-- CLI, API, web, and mod-definition projections;
-- runtime apps, concrete host entrypoints, and qualified adapters.
+- official-data extraction and generated API authority;
+- portable mod and MapGen authorship;
+- in-engine controller semantics and realization;
+- host access, Play policy, MapGen run state, and caller projections;
+- qualified app composition and proof.
 
-Outside the system:
+Outside the boundary:
 
-- people and external automation;
-- Civilization VII, its loader, engine, Tuner endpoint, files, and official
-  resource corpus;
-- the host operating system and filesystem;
-- remote source repositories and network consumers;
-- shared Habitat kind law and its consumer tooling.
+- Firaxis' engine, UI documents, loader, files, sockets, processes, and windows;
+- Steam and operating-system lifecycle;
+- actor goals that the product has not explicitly admitted;
+- unproven future network APIs and durable workflows.
 
-The shared Habitat platform is a sealed external substrate beneath the Civ7
-system boundary. It is neither a Civ7 product capability nor a local migration
-owner. Civ7 app source implements its real host composition; Habitat closes the
-app shell but does not execute the product.
+Foreign systems cross the boundary only through generated evidence, resource
+contracts, or qualified realization adapters. Their globals and failures do
+not become platform-wide state.
 
 ## Placement Laws
 
-An app is one finite runtime composition for an actual host or task: concrete
-entrypoints, selected providers and plugins, client construction, qualified
-adapters, and owned process lifetime. The following rows keep that composition
-distinct from reusable capabilities.
-
-| Kind or role | Owns | Does not own |
+| Kind | Owns | Must not own |
 | --- | --- | --- |
-| Package | Pure reusable contracts, algorithms, parsing, planning, comparison, static policy, and deterministic test implementations | Foreign acquisition, product write authority, projection, process startup, or host effects |
-| Resource | Provider-neutral acquire/use/release contract and typed readiness/failure vocabulary for one foreign capability | Provider selection, product semantics, caller projection, or app policy |
-| Provider | One concrete resource acquisition and release implementation | Product policy, app selection, semantic service operations, or projection |
-| Service | One semantic capability and its facts, policy, transitions, correction law, contract, private implementation/router, and public in-process client | Transport mounting, resource acquisition, provider selection, UI/CLI presentation, or process startup |
-| CLI topic plugin | One command-topic projection, cold capability requirements, and qualified command-local adapters | Binary startup, reusable semantic truth, provider construction, or alternate transport |
-| Server API plugin | One caller-facing contract, request policy, context projection, transport metadata, and calls to public clients | Product state, provider construction, app startup, or private service implementation |
-| Web plugin | Browser views, interactions, and client-side projection | Server startup, provider selection, product write authority, or private service source |
-| Mod definition plugin | Portable authored mod identity, content, product configuration, and cold metadata | Generated output, installation, engine globals, process lifecycle, or live proof |
-| Workflow plugin | Available shared grammar for durable orchestration that outlives one request and earns replay/retry ownership; no Civ7 instance is selected | Product facts, service policy, synchronous request composition, or current Studio run state |
-| App | Product/runtime identity, concrete host entrypoints, selected plugins and providers, public-client construction, qualified adapters, mounting, observation, and disposal | Reusable product truth, semantic service policy, or plugin-owned interaction meaning |
-| Qualified app adapter | One product-specific environment effect selected by the app | Managed foreign-resource lifecycle, provider selection, service policy, or a generic integration cabinet |
+| Package | Runtime-free reusable or generated authority | Foreign lifecycle, process selection, product orchestration |
+| Resource | Provider-neutral foreign capability contract and failure vocabulary | Concrete runtime facts, product semantics, controller operations, caller policy |
+| Provider | Concrete acquisition, use mechanics, runtime facts, and release under a resource contract | Product meaning or app membership |
+| Service | One semantic contract, policy, state, and operation authority | Provider acquisition, HTTP/CLI presentation, foreign process lifetime |
+| Plugin | A portable definition or caller projection | Host realization, service write authority, provider lifecycle |
+| App | Concrete selection, binding, mounting, process lifetime, and disposal | Portable definition or reusable product semantics |
+| Workflow | Durable orchestration across a request/process boundary | Service state, public API envelopes, provider ownership |
 
-All selected kinds are closed. Required leaves define the spine; optional
-leaves are finite, explicitly admitted capabilities. An open interior is not an
-extensibility mechanism. Workflow grammar is available, but durable workflows
-remain deferred until a Civ7 capability earns and selects an instance.
+Habitat owns the generic closed kind shells. Civ7 owns qualified instances,
+domain overlays, service law while the shared service kind remains unselected,
+and product proof. No local packet copies or forks shared Habitat law.
 
-The resource/provider split has one writer at each fact boundary: the resource
-defines provider-neutral value and failure vocabulary; the selected provider
-emits concrete epoch, health, command, capture, and foreign-failure facts under
-that contract. Services may interpret those facts into product meaning but do
-not rewrite them.
+## Selected Semantic Topology
 
-## Relationship Vocabulary
+```text
+packages/
+  civ7-api/                    generated official API authority
+  civ7-map-policy/             generated map policy
+  mapgen-*/ sdk/               portable authoring and execution substrate
+  civ7-mod-install/            pure planning, validation, digest, receipt data
 
-Every cross-container edge uses one of these meanings:
+resources/
+  civ7-tuner/
+    providers/local-socket/    managed foreign Tuner session
+  window-capture/
+    providers/macos-.../       generic selected-window evidence and scoped child lifecycle
 
-| Edge | Authorized subject and meaning |
-| --- | --- |
-| `defines` | Owns portable product or contract truth consumed elsewhere |
-| `derives` | Produces static output from identified source evidence |
-| `declares` | Records plugin membership, capability requirements, or qualified adapter identities without transferring their authority |
-| `selects` | An app chooses the concrete provider, plugin, adapter, or host role it will realize |
-| `acquires` | An app invokes its selected provider and owns the resulting process-local resource scope |
-| `binds` | An app supplies ready resources and qualified adapters to a public service client or projection context |
-| `mounts` | An app starts its selected native host and projections |
-| `calls` | Invokes a public client or pure package contract |
-| `projects` | Presents an owner capability to a caller without acquiring its authority |
-| `realizes` | Applies a runtime-bound qualified effect to a portable definition without transferring definition authority |
-| `observes` | Reads owner facts or runtime state without creating or deciding them |
-| `disposes` | The app closes mounted roles, bound clients, and acquired resources in its process scope |
-| `proves` | Supplies evidence for one named claim class |
+services/
+  civ7-controller/             TypeScript native operations, executed in Civ7
+  civ7-play/                   actor intent, policy, reconciliation, next action
+  mapgen-runs/                 correlated Studio run-operation state
 
-Imports are implementation evidence, not a system relationship. A dependency
-that cannot be described by one edge usually signals mixed ownership.
+plugins/
+  mod/ui/civ7-controller/      portable controller mod definition
+  mod/map/swooper-physics/     portable Swooper product definition
+  cli/topics/.../              command projections
+  server/api/mapgen-studio/    Studio caller contract and projection
+
+apps/
+  mods/ui/civ7-controller/     controller bundle, install, loader and live proof
+  mods/map/swooper-physics/    Swooper Civ7 realization
+  cli/                         local composition and command host
+  mapgen-studio/               browser, API, providers and run composition
+```
+
+Names beneath an unimplemented destination are semantic cards, not permission
+to scaffold an empty container. A component lands only when its complete
+capability chain and qualified Habitat law are ready.
+
+## Service Shape
+
+Each service owns one contract and one implementation authority:
+
+```text
+contract  -> public boundary truth
+router    -> complete private implementation
+client    -> typed callable projection of that contract
+```
+
+The three faces are not three contracts. Consumers receive the public client.
+API plugins compose clients; they do not mount private service routers or pick
+contract leaves to manufacture parallel interfaces.
+
+The controller is unusual only in its execution environment, not its semantic
+model. Its TypeScript implementation and router are bundled into the controller
+mod. The mod app installs a versioned global ingress around the router. Host
+apps bind the controller's public client to that ingress through a narrow oRPC
+transport. The transport owns envelopes, correlation, realm/boot validation,
+and the live-proven completion mechanism only. It knows no controller operation
+semantics.
+
+No separate controller resource is selected. Tuner already owns the foreign
+acquire/use/release lifetime; the controller link is an app-bound integration
+over a ready Tuner capability and a controller-owned contract. It becomes a
+resource only if an independently managed lifecycle appears.
 
 ## Authority Direction
 
-```mermaid
-flowchart LR
-  X[External actor] -->|intent| P[Projection plugin]
-  G[External host or Civ7] -->|evidence| P
-  P -->|calls| S[Public client of semantic service]
-  S -->|calls| K[Pure package]
+```text
+official Civ7 corpus
+  -> generated civ7-api
+  -> controller contract and TypeScript implementation
+  -> controller mod definition
+  -> controller mod app
+  -> Civ7 loader
+  -> realm-local controller instance
 
-  A[Qualified host app] -->|selects and acquires| R[Selected resource provider]
-  A -->|binds ready capabilities| S
-  A -->|mounts| P
-  A -->|observes and disposes| L[Process scope]
+host app
+  -> selected Tuner provider
+  -> ready Tuner resource value
+  -> app-owned controller transport binding
+  -> public controller client
 
-  D[Portable definition] -->|calls| K
-  A -->|realizes through qualified adapter| G
-  P -->|projects owner facts| X
+actor
+  -> CLI or API projection
+  -> public Play client
+  -> Play service
+  -> public controller client
+  -> realm-local controller
+  -> official Civ7 API
+  -> native evidence
+  -> Play reconciliation
+  -> caller result
 ```
 
-Authority flows inward through admitted intent and outward through owner facts.
-The qualified host app selects providers and plugins, acquires ready
-capabilities, constructs public clients, mounts native roles, observes the
-process, and disposes the scope. Services retain semantic authority, and
-projections call their public clients. No projection, provider, or app reaches
-inward to extract private service contracts or implementation types.
-
-## Capability Realization Chains
-
-### Official Game Knowledge
+The synchronous semantic service graph is acyclic:
 
 ```text
-identified Civ7 installation/resources
-  -> qualified extraction command
-  -> published official-resource corpus
-  -> deterministic generated types and policy
-  -> pure SDK/MapGen/Studio consumers
-  -> generated-currentness proof
+civ7-play   -> civ7-controller
+mapgen-runs -> civ7-controller
+civ7-controller -> none
 ```
 
-The corpus is static source evidence, not a managed runtime resource. The
-extractor and publisher own effects; generated packages own the public static
-contract.
+An app binding, durable data reference, projection call, or workflow obligation
+does not create a reciprocal service dependency.
 
-### Generic Mod Product
+## Cross-Owner Relationships
 
-```text
-mod author intent
-  -> SDK plus mod definition plugin
-  -> deterministic render/file plan
-  -> finite realization build/deploy entrypoint
-  -> realization app invokes its qualified install adapter
-  -> Civ7 Mods tree
-  -> independent installation, loader, and live evidence
-```
-
-The definition never depends on its realization. Nx records the realization's
-one-way product dependency, while its finite build/deploy entrypoints invoke
-the qualified adapter directly. Generated, installed, loader-accepted, and live
-facts remain independent. No absent shared product runtime is simulated.
-
-### Swooper Map Product
-
-```text
-map author intent
-  -> Swooper definition
-  -> MapGen SDK/core
-  -> deterministic artifacts, trace, metrics, and browser projection
-  -> finite Swooper build/deploy realization
-  -> realization-local Civ7 adapter
-  -> selected map entrypoint
-  -> Civ7 map loader and engine projection
-  -> fresh live evidence
-```
-
-Portable generation and Civ7 realization remain separate proof classes even
-when one finite app realizes them together.
-
-### Foundational Live Civ7 Control
-
-```text
-CLI, Studio, MapGen-runs, Swooper proof, or play-service intent
-  -> caller projection or public service dependency
-  -> civ7-control public client
-  -> runtime-bound ready Tuner and window-capture resources
-  -> closed app, game, map, or UI operation
-  -> exact epoch-correlated native fact, dispatch, or readback
-  -> requesting owner
-```
-
-The Tuner resource defines health, epoch, raw-command, and failure vocabulary;
-the selected Tuner provider owns the concrete connection/session mechanics and
-emits those facts. The window-capture provider owns raw ScreenCaptureKit
-execution and scoped children. The control service has exactly the finite
-module set `{app,game,map,ui}` and owns only Civ7 interpretation plus
-epoch-correlated semantic facts and closed native operations in those modules.
-`game` composes explicit native subdomains such as `city`, `diplomacy`,
-`notifications`, `player`, `progression`, `turn`, and `unit`; those subdomains do not
-become peer control modules. Their leaf vocabulary is `observe`, `check`, and
-`send`. A `send` performs one fresh native check and at most one invocation,
-then returns dispatch evidence plus any same-evaluation readback as
-`immediateAfter`. Generic operation unions, caller-supplied operation names,
-polling, retries, postconditions, no-repeat policy, and next-action policy are
-refused from those native action leaves: they would recreate the displaced
-facade beneath a new spelling. A separately named foundational operation may
-own bounded observation needed to fulfill its own explicit semantic contract,
-but never replay a mutation or interpret an actor outcome.
-`request` belongs to the actor-facing Play service, which composes these exact
-native atoms and owns reconciliation.
-It does not own raw Tuner health, epoch, or command facts, actor intent,
-gameplay strategy, or next-action policy. The qualified CLI or Studio app
-selects and acquires both providers, constructs the service client with both
-ready capabilities, and owns process-scope disposal. No direct-control facade,
-service-adapter package, caller-owned contract, arbitrary JavaScript executor,
-or provider state crosses this boundary.
-
-### Civ7 Play
-
-```text
-human or agent gameplay intent
-  -> game-play CLI or selected API projection
-  -> civ7-play public client
-  -> actor-facing observation, check, request, and reconciliation policy
-  -> civ7-control public client
-  -> exact native control fact or transition
-  -> play-owned outcome and next lawful action
-  -> caller projection
-```
-
-The play service owns gameplay meaning and composes the foundational control
-capability. It has exactly the finite module set `{attention,automation,city,
-diplomacy,notifications,progression,planning,turn,unit}`. Actor reconciliation,
-no-repeat policy, and next-action policy remain play-owned across those
-modules. It never receives `Civ7Tuner`, provider configuration, raw runtime
-inspection, or a private control router. Shared live admission is one
-dependency, not one semantic owner.
-
-### Map Configuration And Realization
-
-```text
-Studio actor intent
-  -> Studio web projection
-  -> Studio API projection
-  -> {
-       public Swooper definition surface for config admission/serialization
-       mapgen-runs public client for operation authority
-     }
-  -> runtime-bound source/run/log adapters and control capabilities
-  -> MapGen-runs semantic transitions and foundational control-client calls
-  -> operation facts and correlated live evidence
-  -> Studio API and web outcome view
-```
-
-Save & Deploy may remain one interaction, but source writing, deployment, and
-their receipts remain distinct owner transitions.
-
-### CLI Product Access
-
-```text
-terminal actor
-  -> commandless CLI app starts native oclif
-  -> native discovery selects one registered topic projection
-  -> app-owned command context binds the required public client or adapter
-  -> topic projection calls the public client or pure package contract
-  -> owner capability
-  -> structured terminal projection
-```
-
-The CLI app is already commandless: `apps/cli/package.json#oclif.plugins` is the
-sole topic-membership authority, and topic plugins already own command UX. The
-cutover seals the app anchor, native Oclif entrypoint, topic registry, and
-command-scope binding/finalization proof; it does not move command logic into
-the app. Topics own neither service policy nor provider construction.
-
-### Durable Workflows
-
-Shared Habitat supplies workflow grammar, but this model selects no Civ7
-workflow instance. Durable workflow realization remains deferred until a
-process-independent capability requires resume, retry, scheduling, fanout, or
-durable progress. Request-local and retained-process MapGen operations remain
-service-owned state rather than a workflow by analogy.
-
-## Current-To-Destination Authority Map
-
-| Current mixed owner | Destination authorities |
-| --- | --- |
-| `@civ7/direct-control` | `resources/civ7-tuner`, `resources/window-capture`, their providers, `services/civ7-control`, `services/civ7-play`, qualified app adapters, and owner-qualified diagnostic projections |
-| Control facade and parallel contract shapes | Delete; control and play each expose one public contract/client face over one private router authority, and callers use the public client without picking types from another surface |
-| `packages/studio-contract` | Portable MapGen config package plus Studio API caller contract |
-| `packages/studio-server` | MapGen-runs service, Studio API plugin, and qualified Studio host composition/adapters |
-| `packages/mapgen-studio-ui` | Retained component library; no relocation is selected. The separate Studio browser application source moves to the web projection |
-| Concrete `packages/civ7-adapter` engine code | Matching mod realization's map-script runtime |
-| `packages/plugins/plugin-mods` | Pure installation plan package plus qualified app effects; CLI topics only project the app-bound capability |
-| Swooper/Dacia mixed mod roots | Definition plugins plus matching realization apps |
-| `apps/cli` runtime anchor and shell proof | Shared app anchor plus qualified native Oclif startup, command binding, and finalization proof; commands remain in their topic owners |
-
-These are authority selections, not permission to create an unselected kind
-or a complete source-disposition ledger. In particular, the Studio UI package
-does not move on the strength of this table.
-
-## State And Lifecycle Ownership
-
-| State or lifecycle | Fact or behavior owner | App-composition responsibility | Replay/crash law |
+| From | To | Relationship | Rule |
 | --- | --- | --- | --- |
-| Tuner socket/session epoch | Local-socket provider | Acquire the selected provider once for the required scope and release it | Reconnect creates a new epoch; release closes provider-owned socket state |
-| Window-capture provider scope | macOS ScreenCaptureKit provider | Acquire one ready generic capture capability, track every invocation child, and release the scope | Target law: release closes admission, applies bounded child termination, and drains admitted capture operations; the helper cache is inert |
-| Foundational live-control scope | Civ7 control service | Bind ready Tuner and window-capture resources to the public control client and dispose the binding | Provider-owned epoch changes invalidate control observations; raw dispatch never becomes gameplay acceptance |
-| Gameplay decision | Civ7 play service | Bind the public control client to the public play client; no provider enters play context | Unverified dispatch is explicit, retains its no-repeat key, and must be reconciled through fresh control facts |
-| Studio process identity | MapGen Studio app | Create, observe, and dispose its native host roles | Stable for one process scope; never product state |
-| MapGen operation record | MapGen-runs service | Bind and scope the service client; dispose process-scoped service state after drain | Request-correlated, adoptable during the retained process scope, cancellable, and terminal according to owner policy |
-| Authored config source write | Swooper definition for admitted content; qualified Studio adapter for the exact write/rollback effect | Bind the app-selected adapter using app-owned roots and scope its execution | Preserve the prepared write and exact write or rollback receipt |
-| Mod installation | Qualified app adapter emits the exact replacement-effect receipt; the matching mod realization owns deployment meaning | Bind the selected adapter and scope its execution; CLI topics call the bound capability without becoming writers | Retry compares supplied tree state and never infers loader acceptance |
-| Generated policy | Generator/package owner | None; this is deterministic static derivation, not runtime acquisition | Reproduce from the identified official source revision |
-| Browser preview | Studio web projection and browser worker | Mount the web host and dispose its scope | Ephemeral projection; reproducible from exact admitted inputs and independently cancellable |
+| Controller | Generated Civ7 API | Conformist static contract | Controller imports state-qualified official declarations; it does not redefine them |
+| Controller mod app | Controller | Runtime realization | App bundles and installs the service, creates realm/boot instance identity, and exposes it through the unchanged controller contract |
+| Controller mod app | Civ7 loader | Foreign realization | Generated, installed, loaded, and ready remain separate receipts |
+| Host app | Tuner provider | Runtime realization | App selects and scopes the provider; the provider implements the resource contract and owns concrete acquisition/use/release facts |
+| Host app | Controller | Transport binding | App supplies a ready link to the controller-owned client factory; no facade |
+| Play | Controller | Public client dependency | One-way, semantic, and typed |
+| MapGen-runs | Controller | Public client dependency | Used only for admitted live setup/observation operations |
+| CLI/API plugin | Services | Caller projection | May translate and compose, never write owner state directly |
+| Workflow | Public service clients | Durable orchestration | Admitted only when work crosses request/process lifetime |
+| Definition plugin | Realization app | Product realization | Definition supplies portable truth; app supplies target effects |
 
-Apps own their concrete process composition and lifetime without gaining the
-semantic authority of the services, resources, or plugins they compose. A
-runtime cache, registry, or actor exists only when its semantic or mechanical
-owner needs that lifecycle. Process state is not promoted into a resource
-merely because an app must eventually dispose it.
+## Controller Runtime Realms
+
+Official Civ7 resources prove separate shell, loading, and game document roots
+and support shell- and game-scoped `UIScripts`. They do not yet prove how the
+Tuner-observed App UI global behaves across those transitions. The selected
+architecture proposes the same controller bootstrap in both scopes and must
+prove its versioned callable surface through the live gate before source
+migration depends on it.
+
+The model therefore requires:
+
+- a bootstrap-created controller boot identity whose replacement behavior is
+  measured across document transitions;
+- explicit observation of whether the controller is absent, retained, or
+  replaced during the dedicated loading document;
+- fresh Tuner state discovery and controller probing before every operation or
+  lifecycle phase;
+- no stable numeric Tuner state ID;
+- idempotent bootstrap installation;
+- no mutation replay after an indeterminate transport result.
+
+The current Tuner protocol proves only request/response framing. Live proof must
+first discriminate direct Promise handling, continued asynchronous work, and
+later global visibility. Only then may the transport select a direct response
+or bounded correlated mailbox. No mutating asynchronous controller operation is
+admitted before that selection.
+
+## Control And Play Boundaries
+
+Controller modules follow official platform realms and remain mechanical.
+Gameplay nouns can appear beneath the controller's game boundary as native
+operation groups, but they do not become root platform services or policy
+owners.
+
+Play uses actor language and may organize around city, diplomacy, progression,
+planning, turn, unit, or other proven gameplay concerns. It owns:
+
+- situation and attention;
+- goal and choice admission;
+- multi-operation coordination;
+- post-dispatch observation;
+- uncertainty and no-repeat policy;
+- next-action recommendation.
+
+The controller owns:
+
+- fresh native observation and readiness checks;
+- exact native operands;
+- at-most-once dispatch;
+- immediate engine evidence when available;
+- exposure of bootstrap-issued realm/boot identity and ownership of operation
+  identity.
+
+This boundary removes the old facade rather than moving it.
+
+## Supporting Host Capabilities
+
+Raw Tuner execution remains a qualified app diagnostic. It can prototype an
+operation before that operation graduates into controller TypeScript, but no
+ordinary service may import it.
+
+Window capture is selected as a generic managed capability because its provider
+scope owns admitted in-flight capture children and release drains or terminates
+them. The resource owns only the provider-neutral selected-window contract and
+failure vocabulary; the macOS provider owns concrete preparation, capture,
+child lifecycle, and release facts. Current use remains an explicit diagnostic
+or qualified app observation; Play has no unnamed window-capture dependency.
+
+OS process launch, restart, and focus similarly become a generic desktop-app
+resource only when their managed lifecycle is implemented and reused. Until
+then they are explicit qualified app effects, never controller operations.
+
+## MapGen Realization Chains
+
+```text
+portable Swooper definition
+  -> deterministic MapGen execution and evidence
+  -> Swooper realization app
+  -> generated mod artifact
+  -> install receipt
+  -> Civ7 loader and live proof
+
+canonical map config
+  -> qualified source-write adapter
+  -> MapGen-runs accepted operation
+  -> qualified materialize/install/log adapters
+  -> public controller client for live phases
+  -> correlated terminal outcome
+  -> Studio API and web projection
+```
+
+MapGen-runs owns operation intent, order, state, cancellation, adoption,
+retention, and reconciliation. It does not own portable configuration,
+filesystem mechanics, controller semantics, or Studio transport.
+
+The Swooper realization app installs the stable product mod under its own mod
+identity. Studio run adapters install only the reserved ephemeral run mod under
+its request-correlated identity. Their target trees and receipts are disjoint;
+neither app may overwrite or issue facts for the other's installation.
+
+## System Dynamics
+
+The legacy reinforcing loop was:
+
+```text
+mixed direct-control consumers
+  -> more convenience exports and facade methods
+  -> more consumers bypass semantic owners
+  -> more local rules needed to protect the hybrid
+  -> greater direct-control gravity
+```
+
+The selected balancing loop is:
+
+```text
+product authority
+  -> closed kind and dependency law
+  -> violations become explicit
+  -> each behavior moves to one qualified owner or is deleted
+  -> consumer proof removes the displaced owner
+```
+
+Live operation stability has its own balancing loop: every realm transition
+invalidates controller identity; fresh discovery and boot validation prevent a
+stale caller from dispatching into the wrong document.
 
 ## Forbidden Relations
 
-- A service does not acquire its own provider, import its app, or cede
-  semantic decisions to the runtime that binds it.
-- The play service does not receive Tuner, window capture, provider state,
-  arbitrary JavaScript execution, or private control source; it depends on the
-  public foundational control capability.
-- The control service does not own actor-facing gameplay strategy, next-action
-  policy, or a second copy of play outcomes merely because it performs the
-  native operation.
-- A projection calls public clients or pure package contracts. It does not
-  import private service source, construct providers, or become a second
-  semantic service.
-- A CLI command does not construct Tuner, service, or app process state.
-- The already-commandless CLI app does not receive commands during migration;
-  only its app anchor, cold composition proof, and runtime delegation change.
-- A facade does not use `Parameters<OtherSurface["method"]>` as contract
-  authority.
-- A definition plugin does not write generated files or install itself.
-- A package does not hide host filesystem or ambient engine access.
-- A provider does not name gameplay operations or caller routes.
-- An app does not duplicate service contracts or own semantic capability state
-  merely because it selects, binds, mounts, observes, and disposes them.
-- No descriptor, profile, or `startApp` wrapper is authored without a concrete
-  runtime capability that consumes it.
-- No current source, including Studio run state, is classified as a workflow.
-  Workflow grammar remains available and a Civ7 instance remains deferred until
-  request/process lifetime is demonstrably insufficient.
-- `packages/mapgen-studio-ui` remains a component library. The selected
-  `plugins/web/app/mapgen-studio` destination applies only to browser
-  application source currently under `apps/mapgen-studio`; it does not
-  relocate or relabel the component package.
-- A controller mod does not appear without an accepted same-realm consumer and
-  lifecycle owner.
-- A Habitat rule does not gain Civ7 product policy.
+- controller or Play -> raw Tuner execute;
+- controller -> host process, window, filesystem, CLI, HTTP, or workflow;
+- Play -> Tuner provider, controller router, or controller implementation;
+- API plugin -> private service router or provider;
+- provider -> product policy;
+- app -> duplicated service semantics;
+- service -> app construction or another service's private state;
+- package -> runtime acquisition or host mutation;
+- mature operation -> generated JavaScript implementation body;
+- deleted or transitional source -> destination authority.
 
 ## Construction Gate
 
-Before moving source into a destination:
+Before source migration resumes, the model packet must prove:
 
-1. the product capability and semantic owner are authorized;
-2. the selected shared kind is published at the accepted 0.5.2 pin, or the
-   destination is governed by an explicitly accepted local compatibility kind;
-3. a selected shared instance has its accepted manifest-backed construction
-   path, while a local compatibility kind has resolved rules and exact path
-   coverage without manufacturing a false shared-kind manifest;
-4. its public faces, dependencies, proof topology, and runtime role are closed;
-5. current consumers and behavior evidence are frozen; and
-6. the same implementation container deletes the displaced owner.
+1. every baseline behavior has one owner and disposition;
+2. every cross-owner edge has one relationship kind and direction;
+3. the service dependency graph is acyclic;
+4. controller realm, bootstrap, transport, and proof gaps are explicit;
+5. the destination can be expressed through installed Habitat kinds plus
+   qualified Civ7 service law without copying shared substrate;
+6. no compatibility facade or alternate mature execution path survives.
 
-The gate is open only for the six Ground-proven shared kinds and the explicitly
-accepted local Civ7 service compatibility kind. If a destination has neither a
-selected shared kind nor an accepted local compatibility law, keep current
-behavior stable. Do not create a local approximation, move source
-speculatively, or harden a transition architecture.
+## Falsifiers
 
-## Transition Test
-
-The system model is stable enough to open outcome modeling only when:
-
-- every product owner maps to exactly one Habitat role;
-- every relationship has a named direction;
-- no service, resource, provider, plugin, app, or workflow shares a writer;
-- no reciprocal client or private-source dependency is required;
-- provider, process, binding, mounting, operation, and effect lifecycles have
-  one owner, with each qualified app responsible for its concrete composition
-  and disposal;
-- current and destination topology remain visibly distinct; and
-- every unselected destination remains blocked rather than locally emulated.
+Reopen the system topology if a live experiment disproves the controller realm
+model, a selected owner requires reciprocal service calls, an app binding grows
+independent lifecycle authority, or a claimed service/resource cannot state an
+owned semantic transition or acquire/use/release obligation respectively.

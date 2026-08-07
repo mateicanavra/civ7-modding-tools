@@ -6,6 +6,65 @@
 Structure selects Owner. Boundary. Direction. Lifecycle. Closure. Descent
 selects Ground. Chain. Ratchet. Delete. Seal.
 
+**Frame:** the corrected actor/outcome, product, system, topology, source, and
+public-surface models are ratified. The exact pre-substrate estate remains
+behavior evidence; later transition code and the deleted controller experiment
+remain non-authoritative. Construction now follows the accepted separation of
+official Civ7 knowledge, in-engine Controller, host access, actor-facing Play,
+and protected raw diagnostics.
+
+**Authority order:** actor outcome -> product authority -> execution realm ->
+relationship direction -> Habitat kind -> public contract -> app composition ->
+behavior proof. Controller operations execute inside Civ7; host Tuner transport
+carries only a typed envelope; Play owns intent, reconciliation, no-repeat, and
+next action.
+
+**Current container:** seal active repository guidance against the corrected
+model, then turn the smallest complete Controller Foundation chain red:
+official API authority -> identity/ping kernel -> controller mod -> typed ingress
+-> live realm proof. Existing host-injected operations remain only inside the
+finite transition quarantine and receive no new mature behavior.
+
+**Stack:** only the linear `agent-root-civ7-habitat-051-ground` ->
+`agent-root-civ7-live-refusal-ground` Civ7 stack is active for this initiative.
+Sibling Fluree worktrees are parked external workstreams. No parallel Civ7
+implementation branch is admitted.
+
+**Gradient:** guidance seal -> law red -> official API -> kernel -> mod ->
+ingress -> live proof -> native verticals -> Play -> projections ->
+direct-control deletion -> estate reconciliation -> seal.
+
+<details>
+<summary>Previous rolling focus before corrected Model Ground ratification</summary>
+
+**Frame:** source migration was paused at a genuine product-model falsifier. The
+exact pre-substrate estate was behavior evidence; later transition code and the
+deleted controller experiment were not authority. The proposed platform split
+generated official Civ7 knowledge, an in-engine TypeScript controller, managed
+host access, actor-facing Play, and a protected raw-JavaScript diagnostic.
+
+**Authority order:** actor outcome -> product authority -> execution realm ->
+relationship direction -> Habitat kind -> public contract -> app composition ->
+behavior proof.
+
+**Current container:** close Product, System, Outcome, and Actor/Outcome as one
+internally consistent model packet; compare full topology alternatives,
+classify the baseline corpus, and resequence the final descent before source or
+Habitat law moved again.
+
+**Gradient:** model ratification -> topology/source reconciliation -> descent
+resequence -> law red -> controller chain -> Play -> projections ->
+direct-control deletion -> estate reconciliation -> seal.
+
+</details>
+
+<details>
+<summary>Previous rolling focus before the controller-model falsifier</summary>
+
+**Attractor cubes:** Meaning selects Actor. Intent. Outcome. Refusal. Trust.
+Structure selects Owner. Boundary. Direction. Lifecycle. Closure. Descent
+selects Ground. Chain. Ratchet. Delete. Seal.
+
 **Frame:** the final platform pass operates on product capability realization
 chains, not current package names. Pure packages, managed resources, semantic
 services, qualified projections, and runtime apps each own one kind of authority.
@@ -32,6 +91,14 @@ Its qualified inventory has turned the flat control corpus red. Burn down
 foundational control `{app,game,map,ui}` first, then actor-facing play, without
 recreating the facade, acquiring providers in a service, or freezing vendor
 mechanics.
+
+The four foundational roots are now the only physical Control modules in the
+working buffer. Certification is deliberately held on two exact gates: three
+raw observations required by Play, and the accepted native-send findings around
+admission, operand identity, invocation timing, and single-check ownership.
+After those close, Control seals before Play is reconstructed from the actor and
+outcome model; deleted legacy peer roots remain historical inputs, not a live
+transition architecture.
 
 Habitat source, package, blueprint, and release ownership lives upstream.
 `@habitat-ai/cli@0.5.2` and its exact `@habitat-ai/sdk@0.5.2` dependency supply
@@ -172,6 +239,8 @@ nearest module/domain `model/policy` only when multiple consumers prove that
 scope. The generic kind law targets the authoring sites that create hidden
 behavior, not incidental indexes, arithmetic identities, schema metadata, or
 tests.
+
+</details>
 
 <details>
 <summary>Prior focus pivots</summary>

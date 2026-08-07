@@ -1,7 +1,18 @@
 # Civ7 Capability Realization Cutover Corpus
 
-**Status:** Frozen migration classification at Ground source snapshot
+**Status:** Superseded migration ledger; baseline evidence only
 **Date:** 2026-08-02
+
+> **Authority notice (2026-08-06):** this file preserves an exact earlier
+> source census and the dispositions considered at that time. Its destination
+> columns predate the ratified in-engine Controller, access, and Play model and
+> are not implementation authority. Use
+> [SOURCE-RECONCILIATION.md](./SOURCE-RECONCILIATION.md),
+> [PUBLIC-SURFACE-DISPOSITION.md](./PUBLIC-SURFACE-DISPOSITION.md), and
+> [WORKSTREAM.md](./WORKSTREAM.md) for the accepted owner and migration chain.
+> Re-derive each selected vertical's exact consumer and proof disposition from
+> the stated baseline before moving it; do not mechanically retarget the paths
+> below.
 
 **Source snapshot:** commit
 `b89db91f40604905ce502a20fd0ea95ff5c2676f`, repository tree
@@ -10,11 +21,10 @@ is `9ab0b15be096d98a4ca39ee6e93e1e6169ca578e`. The paired identity fixes both
 the exact classification and the product files it classifies; Ground changed
 neither.
 
-This is the finite source-to-destination ledger for the final platform
-initiative. [WORKSTREAM.md](./WORKSTREAM.md) selects its exact rows by product
-container; this file does not require the whole ledger to move at once. It is
-Engineer input only after the owning container passes its product, architecture,
-Habitat, and testing freeze.
+This is the frozen source-to-destination ledger produced by the earlier model.
+It remains useful for locating source behavior and detecting omissions, but its
+target paths and ownership claims were superseded when the product model split
+the in-engine Controller from host access and actor-facing Play.
 
 Every participating source has exactly one terminal disposition:
 

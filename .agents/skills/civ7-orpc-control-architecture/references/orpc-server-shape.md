@@ -46,27 +46,36 @@ or import router implementation.
 ## Selected Service Dependencies
 
 ```text
-qualified app
-  -> acquires Tuner and window-capture providers
-  -> supplies ready resource values to civ7-control construction
-  -> supplies the bound control client to civ7-play construction
+controller mod app
+  -> bundles the civ7-controller TypeScript router
+  -> publishes a versioned realm-local ingress
+
+qualified host app
+  -> acquires the selected Tuner provider
+  -> binds the public controller client to that ingress with typed envelopes
+  -> supplies the bound controller client to civ7-play construction
   -> supplies exact app adapters and bound capabilities to mapgen-runs
   -> gives ordinary consumers the resulting public clients
 ```
 
-`civ7-control` owns exactly `{app,game,map,ui}`. `civ7-play` owns exactly
-`{attention,automation,city,diplomacy,notifications,progression,planning,turn,unit}`
-and depends only on the public control client. `mapgen-runs` owns exactly
-`{autoplay,operations,run-in-game,save-deploy}` and remains separate from both
-live-control semantics and pure MapGen definition truth.
+`civ7-controller` owns typed native operations executed in Civ7. Its outer
+groups follow official runtime realms and APIs. `civ7-play` owns the
+actor-facing modules proved by baseline behavior and depends only on the public
+controller client. `mapgen-runs` owns request-correlated run-operation meaning
+and remains separate from controller semantics and pure MapGen definition
+truth.
 
-Within control, `game` composes explicit native city, diplomacy, notification,
+Within the controller, `game` composes explicit native city, diplomacy, notification,
 player, progression, turn, and unit subdomains. Their leaves are exact `observe`,
 `check`, and single-dispatch `send` operations, not generic operation unions.
 Play composes those atoms into actor-facing requests and owns gameplay polling,
 postconditions, no-repeat policy, and reconciliation. Separately named
-foundational operations may perform bounded observation required by their own
+controller operations may perform bounded observation required by their own
 explicit contract, but never replay a mutation or decide actor meaning.
+
+Caller-authored JavaScript remains an explicit app-owned diagnostic path over
+the ready Tuner resource. Window capture is separate generic diagnostic/app
+evidence. Neither path constructs or feeds the controller.
 
 Public service dependency descriptors may be implemented by qualified app
 adapters. The app constructs the ready adapter from public definitions, pure
@@ -106,7 +115,7 @@ The qualified app owns the concrete process graph:
 
 1. Select and acquire providers.
 2. Construct ready resource values and qualified app adapters.
-3. Bind the control, play, and MapGen-runs public clients in dependency order.
+3. Bind the controller, Play, and MapGen-runs public clients in dependency order.
 4. Materialize API context from those bound clients and exact public
    capabilities.
 5. Mount API, CLI, web, or native host roles.
