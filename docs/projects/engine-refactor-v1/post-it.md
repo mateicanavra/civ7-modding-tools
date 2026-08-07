@@ -8,9 +8,10 @@ selects Ground. Chain. Ratchet. Delete. Seal.
 
 **Frame:** the corrected platform models are ratified, and Habitat is the sole
 constitutional owner of every generic kind. Civ7 layers only qualified product
-law over the released substrate. Habitat `0.5.4` supplies the closed shared
-`service@1`; no local generic substitute is admitted. oRPC 2 and Effect 4 are
-fixed vendor substrate, not compatibility questions.
+law over the released substrate. Habitat `0.5.4` and public `0.5.5` do not yet
+select `service@1`; the bundled candidate is structure-only and has no
+release-pack acceptance. No local generic substitute is admitted. oRPC 2 and
+Effect 4 remain fixed vendor substrate, not compatibility questions.
 
 **Authority order:** actor outcome -> product authority -> execution realm ->
 relationship direction -> shared Habitat kind -> qualified Civ7 overlay ->
@@ -36,11 +37,13 @@ map-script kernel; the adapter is portable; authored setup DTOs live with the
 definition; map policy emits no ambient declarations; the SDK has no runtime
 mapgen surface; and `civ7-types` is deleted without a shim or second path.
 
-**Current container:** construct the smallest complete in-engine controller
-service on shared `service@1`: versioned identity, readiness, realm, lifecycle,
-boot identity, and typed ping. It owns its contract, implementation, router, and
-callable client and admits no Tuner transport, host lifecycle, Play policy,
-facade, or generated JavaScript operation body.
+**Current container:** hold the controller construction boundary until Habitat
+publishes selected, constructible `service@1`, then build the smallest complete
+in-engine controller: versioned identity, readiness, realm, lifecycle, boot
+identity, and typed ping. Civ7 will consume only the published kind and will not
+copy its candidate rules. The controller owns its contract, implementation,
+router, and callable client and admits no Tuner transport, host lifecycle, Play
+policy, facade, or generated JavaScript operation body.
 
 **Stack:** only the linear Civ7 stack descending from
 `agent-root-civ7-habitat-051-ground` through the active HEAD is in motion.

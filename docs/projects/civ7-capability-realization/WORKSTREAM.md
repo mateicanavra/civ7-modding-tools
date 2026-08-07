@@ -1,6 +1,6 @@
 # Civ7 Capability Realization Workstream
 
-**Status:** Final descent; Controller Foundation admission active
+**Status:** Final descent; Controller Foundation held at shared service admission
 **Date:** 2026-08-06
 **Owner:** Civ7 migration director
 
@@ -119,6 +119,12 @@ split before admission.
 
 ### 1.2 Controller Service Kernel
 
+**Admission:** construction is refused until Habitat publishes a policy pack
+that selects a complete `service@1`. The candidate bundled
+with `0.5.4` and public `0.5.5` is structure-only and explicitly has no
+release-pack acceptance. Civ7 does not instantiate it or supply generic
+replacement law.
+
 Construct the smallest complete service authority:
 
 ```text
@@ -129,13 +135,14 @@ Its first operation set is identity/readiness only: API version, realm, boot
 identity, lifecycle state, and a typed ping. It is not an empty scaffold and it
 does not claim gameplay capability.
 
-**Seal:** native oRPC/Effect construction under shared `service@1`, qualified
-Civ7 contract and semantic proof, and an active `runtime:civ7-v8` closure. The
-controller and generated API projects carry that tag. The same cut records and
-proves the exact isolate-compatible vendor imports actually used by the
-kernel; qualified Habitat/Grit law closes production source and categorically
-refuses `node:` and `bun:` imports. Host/Tuner code cannot enter by omission or
-by an ever-growing denylist.
+**Seal:** native oRPC 2 construction under shared `service@1`, with Effect 4
+used only where operation semantics require it; qualified Civ7 contract and
+semantic proof; and an active `runtime:civ7-v8` closure. The controller and
+generated API projects carry that tag. The same cut records and proves the
+exact isolate-compatible vendor imports actually used by the kernel; qualified
+Habitat/Grit law closes production source and categorically refuses `node:` and
+`bun:` imports. Host/Tuner code cannot enter by omission or by an ever-growing
+denylist.
 
 ### 1.3 Controller Mod Realization
 

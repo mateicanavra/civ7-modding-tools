@@ -129,15 +129,8 @@ resources/
     providers/macos-screencapturekit/
 
 services/
-  civ7-controller/
-    src/{contract,router,client}.ts
-    src/modules/
-      shell/
-      game/
-        modules/{city,diplomacy,government,narrative,notifications,
-                 player,progression,turn,unit}/   # only proven native groups
-      map/
-      ui/
+  civ7-controller/              # physical spine comes from selected service@1
+    instance/ping               # product module/operation; not a literal path
   civ7-play/
     src/{contract,router,client}.ts
     src/modules/{attention,city,diplomacy,government,narrative,
