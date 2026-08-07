@@ -52,7 +52,8 @@ It is not an alternate controller implementation.
 | Workflow | Durable orchestration across request/process lifetime |
 
 Habitat owns generic kind law. Civ7 owns qualified instances, overlays,
-product-specific service law, adapters, policy, and behavior proof.
+adapters, policy, and behavior proof. A missing generic kind refuses
+construction and routes upstream; it does not become Civ7 law.
 
 ## Authority Splits
 

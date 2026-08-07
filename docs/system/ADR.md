@@ -555,7 +555,8 @@ acquisition, service binding, role mounting, process observation, disposal, or
 a generic shared runtime. Qualified apps own provider selection/acquisition,
 public-client binding, plugin mounting, native host entrypoints, process
 lifetime, observation, and shutdown. `service@1` remains deliberately
-unselected; Civ7's service law stays local.
+unselected in Habitat 0.5.2; service construction therefore refuses until the
+upstream substrate publishes it. Civ7 does not own a generic substitute.
 **Context:** Civ7 packages historically mixed pure contracts, acquired foreign
 capabilities, semantic policy, caller projection, and process startup. The
 shared Habitat platform supplies generic package, resource/provider, plugin,
@@ -564,7 +565,7 @@ or presenting target paths as already shipped.
 **Decision:** Civ7 product capabilities use the shared Habitat roles and
 one-way relationships recorded in `docs/system/ARCHITECTURE.md`. Habitat owns
 kind construction and generic law. Civ7 owns its product capabilities,
-qualified overlays, service law, adapters, app compositions, and behavior
+qualified overlays, adapters, app compositions, and behavior
 proof. Current behavior, shared substrate readiness, qualified admission,
 migration, and proof remain independent facts. Target source moves only after
 the required qualified kind and proof topology are admitted.

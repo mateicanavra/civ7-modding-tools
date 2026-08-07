@@ -6,10 +6,39 @@
 Structure selects Owner. Boundary. Direction. Lifecycle. Closure. Descent
 selects Ground. Chain. Ratchet. Delete. Seal.
 
+**Frame:** the corrected platform models are ratified, and Habitat is the sole
+constitutional owner of every generic kind. Civ7 layers only qualified product
+law over the released substrate. The missing shared `service@1` is an upstream
+construction refusal, not permission to maintain a local generic substitute.
+oRPC 2 and Effect 4 are fixed vendor substrate, not compatibility questions.
+
+**Authority order:** actor outcome -> product authority -> execution realm ->
+relationship direction -> shared Habitat kind -> qualified Civ7 overlay ->
+public contract -> app composition -> behavior proof.
+
+**Current container:** land the exact oRPC 2, Effect 4, and TypeBox vendor plane
+without deepening the rejected host-control rewrite; reconcile active model and
+authority docs; receive shared `service@1`; then instantiate the smallest
+complete Controller Foundation chain. Existing host-injected operations remain
+frozen quarantine and receive no new mature behavior.
+
+**Stack:** only the linear `agent-root-civ7-habitat-051-ground` ->
+`agent-root-civ7-live-refusal-ground` Civ7 stack is active for this initiative.
+Sibling Fluree worktrees are parked external workstreams. No parallel Civ7
+implementation branch is admitted.
+
+**Gradient:** authority correction -> vendor plane -> shared service handoff ->
+service adoption -> official API -> kernel -> mod -> ingress -> live proof ->
+native verticals -> Play -> projections -> direct-control deletion -> estate
+reconciliation -> seal.
+
+<details>
+<summary>Previous rolling focus before Habitat service authority correction</summary>
+
 **Frame:** the corrected actor/outcome, product, system, topology, source, and
-public-surface models are ratified. The exact pre-substrate estate remains
+public-surface models were ratified. The exact pre-substrate estate remained
 behavior evidence; later transition code and the deleted controller experiment
-remain non-authoritative. Construction now follows the accepted separation of
+remained non-authoritative. Construction followed the accepted separation of
 official Civ7 knowledge, in-engine Controller, host access, actor-facing Play,
 and protected raw diagnostics.
 
@@ -25,14 +54,11 @@ official API authority -> identity/ping kernel -> controller mod -> typed ingres
 -> live realm proof. Existing host-injected operations remain only inside the
 finite transition quarantine and receive no new mature behavior.
 
-**Stack:** only the linear `agent-root-civ7-habitat-051-ground` ->
-`agent-root-civ7-live-refusal-ground` Civ7 stack is active for this initiative.
-Sibling Fluree worktrees are parked external workstreams. No parallel Civ7
-implementation branch is admitted.
-
 **Gradient:** guidance seal -> law red -> official API -> kernel -> mod ->
 ingress -> live proof -> native verticals -> Play -> projections ->
 direct-control deletion -> estate reconciliation -> seal.
+
+</details>
 
 <details>
 <summary>Previous rolling focus before corrected Model Ground ratification</summary>
