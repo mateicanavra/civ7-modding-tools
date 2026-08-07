@@ -8,10 +8,6 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
-    },
-    "./mapgen": {
-      "types": "./dist/mapgen/index.d.ts",
-      "import": "./dist/mapgen/index.js"
     }
   },
   "main": "./dist/index.cjs",
@@ -31,13 +27,10 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@civ7/adapter": "workspace:*",
-    "@swooper/mapgen-core": "workspace:*",
     "jstoxml": "^7.0.1",
     "lodash-es": "^4.17.23"
   },
   "devDependencies": {
-    "@civ7/types": "workspace:*",
     "@types/jstoxml": "^5.0.0"
   },
   "engines": {

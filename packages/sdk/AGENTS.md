@@ -3,6 +3,10 @@
 ## Package Overview
 The `@civ7/sdk` package provides a TypeScript SDK for programmatically generating Civilization VII mods. It offers both high-level builders for rapid development and low-level nodes for fine-grained control.
 
+The SDK is a runtime-neutral authoring package. It owns no Civ7 map-script
+entrypoint, engine adapter, official runtime API, or Swooper execution surface.
+Those capabilities belong to their deployable mod applications.
+
 ## Quick Navigation
 
 ### Core Components

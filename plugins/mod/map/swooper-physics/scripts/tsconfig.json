@@ -3,7 +3,7 @@
   "compilerOptions": {
     "composite": false,
     "incremental": false,
-    "types": ["node", "bun-types", "@civ7/types"]
+    "types": ["node", "bun-types"]
   },
   "include": ["**/*.ts"],
   "exclude": []

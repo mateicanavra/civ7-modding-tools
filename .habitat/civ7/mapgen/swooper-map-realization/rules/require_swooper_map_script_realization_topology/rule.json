@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_swooper_map_script_realization_topology",
+  "title": "Require Swooper Map Script Realization Topology",
+  "placement": {
+    "niche": "civ7/mapgen/swooper-map-realization",
+    "blueprint": "swooper-map-script-realization",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "swooper-physics-mod",
+  "lane": "enforced",
+  "forbids": "an open Swooper map-script runtime or proof cabinet that can absorb host tooling, reusable contracts, or unrelated product behavior",
+  "why": "The deployable mod application owns one exact in-engine realization: native adapter, setup capture, entrypoint, compiler, and their bounded runtime proofs.",
+  "remediate": "Move reusable contracts to packages, product definition to the Swooper plugin, and retain only the admitted map-script realization members here.",
+  "message": "The Swooper map-script realization must preserve its exact closed topology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "apps/mods/map/swooper-physics/src/runtime/map-script",
+        "apps/mods/map/swooper-physics/src/runtime/map-script/**",
+        "apps/mods/map/swooper-physics/test/runtime",
+        "apps/mods/map/swooper-physics/test/runtime/**"
+      ]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/swooper-map-realization/rules/require_swooper_map_script_realization_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/civ7/mapgen/swooper-map-realization/rules/require_swooper_map_script_realization_topology/structure.toml"
+    }
+  }
+}

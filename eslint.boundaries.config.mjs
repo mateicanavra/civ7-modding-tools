@@ -65,7 +65,7 @@ const depConstraints = [
   },
   {
     sourceTag: "kind:sdk",
-    onlyDependOnLibsWithTags: ["kind:engine", "kind:adapter", "kind:library", "kind:plugin"],
+    onlyDependOnLibsWithTags: ["kind:library", "kind:plugin"],
   },
   {
     sourceTag: "kind:control",

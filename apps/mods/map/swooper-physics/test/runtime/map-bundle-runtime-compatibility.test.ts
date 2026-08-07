@@ -1,4 +1,4 @@
-import { describe, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expectCiv7MapScriptCompatibility } from "./civ7-map-script-compatibility.fixture";
@@ -26,4 +26,11 @@ describe("built map runtime compatibility", () => {
       );
     }
   }, 30_000);
+
+  test("does not ship the deterministic adapter test double", () => {
+    for (const mapFile of listedModMapFiles()) {
+      const mapScript = readFileSync(join(mapOutputDir, mapFile), "utf8");
+      expect(mapScript).not.toContain("DEFAULT_PLOT_EFFECT_TYPES");
+    }
+  });
 });

@@ -162,7 +162,7 @@ MapGen truth template. Hydrology owns river truth; `map-rivers` projects the
 Civ-visible navigable terrain subset and records planned minor/major intent.
 Mutable engine readback is observed at the decision or proof boundary that needs it; it is not a
 later-consumed artifact. A bounded
-adapter-owned `modelRivers(...)` call is allowed only after Hydrology-selected
+realization-owned `modelRivers(...)` call is allowed only after Hydrology-selected
 terrain stamping, as native Civ materialization for metadata/model/cache state.
 
 ## Stage contract (config compilation boundary)

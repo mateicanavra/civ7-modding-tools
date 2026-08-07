@@ -1,0 +1,49 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "civ7-adapter-source"
+root = "packages/civ7-adapter/src"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "current-map-surface.ts",
+  "index.ts",
+  "map-metadata.ts",
+  "mock-adapter.ts",
+  "types.ts",
+]
+allowed = []
+
+[[scopes]]
+name = "civ7-adapter-proof"
+root = "packages/civ7-adapter/test"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["contract", "semantics"]
+allowed = []
+
+[[scopes]]
+name = "civ7-adapter-contract-proof"
+root = "packages/civ7-adapter/test/contract"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["contract.typecheck.ts"]
+allowed = []
+
+[[scopes]]
+name = "civ7-adapter-semantics-proof"
+root = "packages/civ7-adapter/test/semantics"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "map-metadata.test.ts",
+  "mock-adapter-rng.test.ts",
+  "mock-adapter.test.ts",
+  "mock-terrain-policy.test.ts",
+  "placement-outcomes.test.ts",
+]
+allowed = []

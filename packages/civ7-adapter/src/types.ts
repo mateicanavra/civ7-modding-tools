@@ -5,8 +5,6 @@
  * Core logic consumes this interface; tests can mock it.
  */
 
-/// <reference types="@civ7/types" />
-
 import type { Civ7MapInfo, OfficialAgeType } from "@civ7/map-policy";
 
 /** Feature-placement payload accepted at the engine adapter boundary. */

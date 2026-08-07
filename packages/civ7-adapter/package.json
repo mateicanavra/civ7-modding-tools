@@ -1,7 +1,7 @@
 {
   "name": "@civ7/adapter",
   "version": "0.1.0",
-  "description": "Centralized adapter for Civ7 engine APIs - the only package allowed to import /base-standard/...",
+  "description": "Reusable Civ7 MapGen adapter contract, map metadata, and deterministic test double",
   "keywords": [
     "civ7",
     "civilization",
@@ -9,41 +9,22 @@
     "adapter"
   ],
   "license": "MIT",
+  "sideEffects": false,
   "type": "module",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    },
-    "./civ7": {
-      "types": "./dist/civ7-adapter.d.ts",
-      "import": "./dist/civ7-adapter.js"
-    },
-    "./map-script-build": {
-      "types": "./dist/map-script-build.d.ts",
-      "import": "./dist/map-script-build.js"
-    },
-    "./mock": {
-      "types": "./dist/mock-adapter.d.ts",
-      "import": "./dist/mock-adapter.js"
     }
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsup --config tools/tsup.config.ts",
-    "check:test": "tsc -p test/tsconfig.json --noEmit",
-    "check:tools": "tsc -p tools/tsconfig.json --noEmit",
-    "test": "bun test",
+    "build": "tsup src/index.ts src/current-map-surface.ts src/map-metadata.ts src/mock-adapter.ts --format esm --dts --clean --splitting",
+    "test": "bun test test/semantics",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@civ7/map-policy": "workspace:*",
-    "@civ7/types": "workspace:*",
-    "uri-js": "4.4.1"
-  },
-  "devDependencies": {
-    "@civ7/api": "workspace:*",
-    "esbuild": "^0.27.2"
+    "@civ7/map-policy": "workspace:*"
   }
 }

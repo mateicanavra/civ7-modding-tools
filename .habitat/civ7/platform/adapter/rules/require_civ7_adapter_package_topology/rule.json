@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_civ7_adapter_package_topology",
+  "title": "Require Civ7 Adapter Package Topology",
+  "placement": {
+    "niche": "civ7/platform/adapter",
+    "blueprint": "civ7-adapter",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "civ7-adapter",
+  "lane": "enforced",
+  "forbids": "runtime lowering, host tooling, generated authority, or unclassified proof inside the reusable Civ7 adapter package",
+  "why": "The adapter package is a runtime-free contract and test double boundary. Concrete Civ7 map-script realization belongs to its mod application.",
+  "remediate": "Keep only the admitted adapter contract, map metadata, current-map surface, mock implementation, and selected package proof.",
+  "message": "The Civ7 adapter must preserve its closed reusable package topology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "packages/civ7-adapter/src",
+        "packages/civ7-adapter/src/**",
+        "packages/civ7-adapter/test",
+        "packages/civ7-adapter/test/**"
+      ]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/platform/adapter/rules/require_civ7_adapter_package_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/civ7/platform/adapter/rules/require_civ7_adapter_package_topology/structure.toml"
+    }
+  }
+}

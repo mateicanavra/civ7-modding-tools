@@ -36,7 +36,7 @@ supersedes that historical negative guard:
 | G8 hidden placement sub-concerns | `normalize-placement-contracts`, `normalize-placement-reconciliation` | Generic recipe-step topology plus typed artifact contracts and direct Step behavior tests. The retired exact-file rule no longer names a deleted `placement/apply.ts` helper. | Resource and discovery materialization remain explicit executable steps over typed plans and outcomes rather than hidden apply sub-concerns. |
 | G9 wrapper-only `advanced` stage config | `normalize-config-surface` | Habitat `prohibit_wrapper_only_advanced_config` | Standard recipe source and map configs do not reintroduce persisted SDK-native `advanced` wrappers. |
 | G10 visualization contract owner surfaces | `normalize-viz-contract-owners` | Habitat `require_shared_visualization_contracts_at_stage_surfaces` | No collection-wide `steps/viz.ts` hub exists. Recipe-root styles and stage/step projection ownership remain normative review and import-boundary concerns. |
-| G11 SDK map runtime entrypoint boundary | `normalize-sdk-mapgen-runtime-entrypoint` | Habitat `require_explicit_mapgen_sdk_opt_in` | The SDK root remains runtime-neutral; Civ7 map runtime helpers are exposed only from the MapGen subpath. |
+| G11 SDK runtime boundary | `normalize-sdk-mapgen-runtime-entrypoint` | Habitat `preserve_civ7_sdk_runtime_neutrality` | The SDK remains a runtime-neutral mod-authoring package; map-script execution belongs to the deployable map application rather than an SDK subpath. |
 
 ## Proof boundary
 
@@ -51,7 +51,7 @@ completed implementation record.
 
 ## Commands
 
-- `bun habitat check --rule require_typed_recipe_step_dependencies --rule prohibit_domain_artifacts_modules --rule preserve_mapgen_core_runtime_neutrality --rule require_public_domain_surfaces_in_recipes_and_maps --rule prohibit_sibling_stage_private_step_imports --rule require_recipe_step_source_topology --rule prohibit_wrapper_only_advanced_config --rule require_shared_visualization_contracts_at_stage_surfaces --rule require_explicit_mapgen_sdk_opt_in`
+- `bun habitat check --rule require_typed_recipe_step_dependencies --rule prohibit_domain_artifacts_modules --rule preserve_mapgen_core_runtime_neutrality --rule require_public_domain_surfaces_in_recipes_and_maps --rule prohibit_sibling_stage_private_step_imports --rule require_recipe_step_source_topology --rule prohibit_wrapper_only_advanced_config --rule require_shared_visualization_contracts_at_stage_surfaces --rule preserve_civ7_sdk_runtime_neutrality`
 - `bun habitat check --rule validate_mapgen_docs_anchors_and_references`
 
 `habitat check` selects bounded rules with repeatable `--rule`; it has no

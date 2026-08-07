@@ -1,5 +1,5 @@
 import foundationDomain from "../../src/domain/foundation/index.js";
-import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
+import type { MapDefinition } from "@swooper/swooper-physics/standard";
 import type { Static } from "@swooper/mapgen-core/authoring";
 import type { ExtendsStrict, IsEqual, IsStringLiteral } from "type-fest";
 import { buildStandardRecipeDefaultConfig } from "../../src/recipes/standard/artifacts.js";
@@ -64,7 +64,12 @@ export type PlateActivityKnobIsNumber = Expect<
   IsEqual<Exclude<PlateActivityKnob, undefined>, number>
 >;
 
-createMap({
+const standardMapDefinition: MapDefinition<
+  typeof standardRecipe,
+  typeof STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
+  typeof STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
+  typeof STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS
+> = {
   id: "__type_test__",
   name: "__type_test__",
   recipe: standardRecipe,
@@ -75,6 +80,7 @@ createMap({
     requestedPlayerOptions: STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
     project: projectStandardInitialSetup,
   },
-});
+};
 
 void badFoundationStepId;
+void standardMapDefinition;

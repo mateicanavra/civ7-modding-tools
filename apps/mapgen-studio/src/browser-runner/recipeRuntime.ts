@@ -1,16 +1,15 @@
+import type { MapInfo, MapSizeId } from "@civ7/adapter";
+import { findCiv7StandardMapSizePreset } from "@civ7/map-policy";
 import type {
   Civ7GameOptionDescriptor,
   Civ7MapOptionDescriptor,
   Civ7PlayerOptionDescriptor,
-  Civ7SetupOptionEvidence,
-  Civ7SetupOptionEvidenceForDescriptors,
-  MapInfo,
-  MapSizeId,
-} from "@civ7/adapter";
-import { findCiv7StandardMapSizePreset } from "@civ7/map-policy";
+} from "@civ7/map-policy/setup";
 import type { RecipeModule } from "@swooper/mapgen-core/authoring";
 import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
 import standardRecipe, {
+  type Civ7SetupOptionEvidence,
+  type Civ7SetupOptionEvidenceForDescriptors,
   projectStandardInitialSetup,
   STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
   STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,

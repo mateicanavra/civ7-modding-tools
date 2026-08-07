@@ -21,12 +21,12 @@ Two enforcement planes — do not conflate them:
 |---|---|---|
 | `kind:workspace` | Repo-root orchestration and proof entrypoints: owns root Nx aggregate targets and root `scripts/**`; consumes public package surfaces only | root `AGENTS.md` Tooling Defaults; Habitat `workspace-entrypoints`; Nx DAG normalization |
 | `kind:app` | User-facing applications and entry surfaces (CLI included): own caller-specific transports/workflows; consume public surfaces only | `apps/*` layout; `docs/system/ARCHITECTURE.md`; Habitat `workspace-entrypoints` |
-| `kind:sdk` | High-level authoring/builder APIs for mod generation; mapgen runtime only via `@civ7/sdk/mapgen` subpath | `packages/sdk/AGENTS.md`; Habitat `grit-sdk-mapgen-entrypoint` |
+| `kind:sdk` | Runtime-neutral high-level authoring and builder APIs for mod generation; owns no Civ7 map-script execution surface | `packages/sdk/AGENTS.md`; Habitat `preserve_civ7_sdk_runtime_neutrality` |
 | `kind:engine` | Pure TS engine/domain logic (no Civ7 runtime values, no engine globals) | Habitat `mapgen-core-runtime-civ7`; normalization guardrail G3 |
 | `kind:mapgen-tool` | Reusable Node/Bun MapGen development capabilities; may consume neutral engine/library contracts and live-control ports, but never product mods, apps, workspace orchestration, or Habitat tooling | `docs/projects/engine-refactor-v1/package-ownership-migration.md`; root `AGENTS.md` MapGen control routing |
-| `kind:adapter` | Sole owner of Civ7 engine globals and `/base-standard/` imports | `lint-adapter-boundary.sh`; `packages/civ7-adapter/AGENTS.md` |
+| `kind:adapter` | Reusable runtime-free boundary contracts, static metadata, and deterministic test doubles; concrete engine lowering belongs to a qualified realization app | `packages/civ7-adapter/AGENTS.md`; Habitat `require_civ7_adapter_package_topology` |
 | `kind:control` | Runtime control of a live Civ7 instance: socket protocol (`direct-control`) and oRPC service surface (`control-orpc`, `studio-server`) | `packages/civ7-direct-control/AGENTS.md`; Habitat `grit-control-orpc-contract-ownership`; root `AGENTS.md` ("runtime Civ7 control belongs in @civ7/direct-control") |
-| `kind:library` | Pure leaf libraries: types, config, policy facts, metrics/viz contracts and evaluators; no domain orchestration, broadly importable | `packages/civ7-types`, `config`, `civ7-map-policy`, `mapgen-metrics`, `mapgen-viz` package docs |
+| `kind:library` | Pure leaf libraries: config, generated policy/API facts, metrics/viz contracts and evaluators; no domain orchestration, broadly importable | `config`, `civ7-api`, `civ7-map-policy`, `mapgen-metrics`, `mapgen-viz` package docs |
 | `kind:plugin` | Reusable CLI/SDK helper libraries, leaf-local | `packages/plugins/*`; `apps/cli/AGENTS.md` |
 | `kind:cli-topic-plugin` | Independently buildable oclif topic surfaces registered by the CLI shell; own command adapters and behavior tests but no binary, startup hooks, or reusable capabilities | `plugins/cli/topics/*`; ADR-017; Habitat `cli-topic-plugin` blueprint |
 | `kind:package-tool` | Package-owned, non-runtime build, generation, and currentness programs; callable through Nx targets but not imported by product source | package-local `scripts/project.json`; root `AGENTS.md` task ownership |
@@ -110,7 +110,6 @@ treatment without adding a concrete tag or constraint row.
 | studio-contract | `packages/studio-contract` | `kind:library` |
 | studio-run-workspace | `packages/studio-run-workspace` | `kind:library` |
 | mapgen-studio-ui | `packages/mapgen-studio-ui` | `kind:library` |
-| civ7-types | `packages/civ7-types` | `kind:library` |
 | civ7-config | `packages/config` | `kind:library` |
 | civ7-map-policy | `packages/civ7-map-policy` | `kind:library` |
 | civ7-map-policy-tools | `packages/civ7-map-policy/scripts` | `kind:package-tool` |
@@ -155,13 +154,13 @@ owned by their Grit/file-layer rules.
 | `kind:workspace` | `kind:sdk`, `kind:engine`, `kind:mapgen-tool`, `kind:adapter`, `kind:control`, `kind:library`, `kind:plugin`, `kind:mod`, `kind:tooling`, `type:resource`, `type:provider` | root orchestration/proof scripts may consume public package and managed-resource surfaces, but app code remains a caller surface rather than a library |
 | `kind:library` | `kind:library` | leaf purity (types/config/policy/viz import nothing higher) |
 | `runtime:civ7-v8` | `runtime:civ7-v8` | isolate membership is inductive over the workspace graph; exact npm and source-form admission are independently fail-closed |
-| `kind:adapter` | `kind:library` | adapter translates engine↔types; owns `/base-standard/` exclusively (`lint-adapter-boundary.sh`) |
+| `kind:adapter` | `kind:library` | reusable adapter contracts and test doubles depend only on leaf policy/value libraries; qualified apps own concrete engine lowering |
 | `kind:engine` | `kind:adapter`, `kind:library` | core purity: mapgen-core sees adapter *types* only, never runtime values (`mapgen-core-runtime-civ7`, G3) |
 | `kind:mapgen-tool` | `kind:engine`, `kind:library`, `kind:control` | reusable MapGen tooling may compose neutral execution, projection, and future live-control capabilities without importing product or harness owners |
 | `kind:plugin` | `kind:plugin`, `kind:library` | plugins stay leaf-local (`cli/AGENTS.md`) |
 | `kind:cli-topic-plugin` | `kind:sdk`, `kind:engine`, `kind:mapgen-tool`, `kind:adapter`, `kind:library`, `kind:plugin`, `kind:control`, `kind:mod` | topic packages project public reusable or product capabilities into one oclif command surface without depending on the shell, another topic, an app, or workspace tooling. The `game` topic adapts live control; the `mapgen` topic adapts the Swooper definition and neutral MapGen packages without taking ownership of either. |
 | `kind:package-tool` | `kind:library`, `kind:plugin` | package build/generation programs consume only leaf contracts and reusable CLI/file helpers; no source kind may import package tools |
-| `kind:sdk` | `kind:engine`, `kind:adapter`, `kind:library`, `kind:plugin` | SDK composes engine+adapter; mapgen subpath isolation (G11) stays grit-owned |
+| `kind:sdk` | `kind:library`, `kind:plugin` | SDK composes runtime-neutral authoring capabilities only; map-script execution is categorically app-owned (G11) |
 | `kind:control` | `kind:control`, `kind:library`, `kind:adapter`, `kind:engine`, `type:resource` | semantic control may consume ready provider-neutral capabilities but never construct or select their providers; lifecycle ownership remains governed by the control note above |
 | `kind:mod` | `kind:sdk`, `kind:engine`, `kind:mapgen-tool`, `kind:adapter`, `kind:library`, `kind:control`, `kind:plugin` | mods consume SDK/engine/MapGen tooling/adapter/policy/control and plugin utilities needed for mod package workflows |
 | `kind:app` | `kind:sdk`, `kind:engine`, `kind:mapgen-tool`, `kind:adapter`, `kind:library`, `kind:plugin`, `kind:cli-topic-plugin`, `kind:control`, `kind:mod`, `kind:tooling`, `type:resource`, `type:provider` | apps are top of the graph and own concrete provider selection and scoped acquisition; nothing imports apps or the workspace root |
