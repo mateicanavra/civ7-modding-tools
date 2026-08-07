@@ -1,6 +1,6 @@
 # Civ7 Capability Realization Frame
 
-**Status:** Ambient-authority retirement sealed; controller service kernel active
+**Status:** Ambient-authority retirement sealed; controller service substrate gate refused
 **Date:** 2026-08-07
 **Owner:** Civ7 migration director
 
@@ -84,13 +84,20 @@ artifacts contain neither mock initialization nor a second adapter authority.
 No replacement ambient package, forwarding subpath, app export, or Tuner-backed
 inventory was admitted.
 
-**Current container:** construct the smallest complete controller service on
-shared Habitat `service@1`: versioned identity, readiness, realm, lifecycle,
-boot identity, and typed ping. The service executes inside Civ7, depends only on
-the generated official API and exact isolate-compatible vendors, and publishes
-its own contract, implementation, router, and callable client. It contains no
-Tuner transport, host lifecycle, Play policy, facade, generated JavaScript
-operation body, or empty future module.
+**Current container:** admit the shared Habitat `service@1` consumer boundary,
+then construct the smallest complete controller service: versioned identity,
+readiness, realm, lifecycle, boot identity, and typed ping. Habitat `0.5.4` is
+installed and `0.5.5` is public, but neither release selects `service@1` in its
+policy pack. The bundled candidate explicitly has no release-pack acceptance
+and binds only structure. Civ7 therefore does not instantiate it, copy its
+generic rules, or substitute local service law while the Habitat owner finishes
+the selected kind and its complete consumer contract.
+
+Once admitted, the service executes inside Civ7, depends only on the generated
+official API and exact isolate-compatible vendors, and publishes its own
+contract, implementation, router, and callable client. It contains no Tuner
+transport, host lifecycle, Play policy, facade, generated JavaScript operation
+body, or empty future module.
 
 The in-engine boundary is a production-project closure, not the mod app.
 Container 1 activates `runtime:civ7-v8` atomically with its first complete
@@ -109,11 +116,13 @@ HEAD. The Fluree branches and worktrees shown beside it are separate parked
 workstreams and are neither edited nor restacked by this initiative. No
 parallel Civ7 implementation branch is admitted.
 
-**Ground:** Habitat `0.5.4` is the locked consumer substrate for shared
-`app@1`, `package@1`, `plugin@1`, `plugin-nx@1`, `provider@1`, `resource@1`, and
-`service@1`. Civ7 consumes those laws and keeps only qualified instances,
-overlays, policy, adapters, and product proof. Existing local generic service
-patterns are migration evidence, not a Civ7-owned substitute.
+**Ground:** Habitat `0.5.4` is the installed consumer substrate for shared
+`app@1`, `package@1`, `plugin@1`, `plugin-nx@1`, `provider@1`, and `resource@1`.
+The public `0.5.5` pair preserves that six-kind boundary and begins the upstream
+`service@1` construction container; it does not yet admit the kind. Civ7
+consumes published laws and keeps only qualified instances, overlays, policy,
+adapters, and product proof. Existing local generic service patterns are
+migration evidence, not a Civ7-owned substitute.
 
 **Official realm evidence:** shell, loading, and game have distinct document
 roots, and shell/game scoped UIScripts are supported. The exact Tuner-observed
