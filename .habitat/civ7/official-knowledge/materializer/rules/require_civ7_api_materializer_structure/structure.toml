@@ -6,7 +6,18 @@ root = "apps/civ7-api-materializer/src"
 kind = "directory"
 mode = "closed"
 allowEmpty = false
-required = ["index.ts", "materialize.ts", "model.ts", "snapshot.ts"]
+required = [
+  "declaration-emit.ts",
+  "index.ts",
+  "materialize.ts",
+  "model.ts",
+  "module-catalog.ts",
+  "projection-receipt.ts",
+  "projection.ts",
+  "realms.ts",
+  "snapshot.ts",
+  "source-maps.ts",
+]
 allowed = []
 
 [[scopes]]
@@ -24,5 +35,12 @@ root = "apps/civ7-api-materializer/test/semantics"
 kind = "directory"
 mode = "closed"
 allowEmpty = false
-required = ["snapshot.test.ts"]
+required = [
+  "declaration-projection.test.ts",
+  "projection-receipt.test.ts",
+  "projection-tree.test.ts",
+  "realms-projection.test.ts",
+  "runtime-boundary.test.ts",
+  "snapshot.test.ts",
+]
 allowed = []

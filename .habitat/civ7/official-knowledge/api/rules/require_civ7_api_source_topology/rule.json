@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_civ7_api_source_topology",
+  "title": "Require Civ7 API Source Topology",
+  "placement": {
+    "niche": "civ7/official-knowledge/api",
+    "blueprint": "civ7-api",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "civ7-api",
+  "lane": "enforced",
+  "forbids": "an open or handwritten Civ7 API package that mixes official declarations, realm activation, host generation, or unrelated runtime logic",
+  "why": "Official API authority remains inspectable only when generated module shards, disjoint realm entries, provenance, and finite contract proof occupy closed qualified destinations beneath the shared package shell.",
+  "remediate": "Regenerate packages/civ7-api through civ7-api-materializer and move host acquisition, Tuner, controller, or product behavior to their qualified owners.",
+  "message": "The generated Civ7 API must preserve its closed official-knowledge topology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "packages/civ7-api/src",
+        "packages/civ7-api/src/**",
+        "packages/civ7-api/test",
+        "packages/civ7-api/test/**"
+      ]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/official-knowledge/api/rules/require_civ7_api_source_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/civ7/official-knowledge/api/rules/require_civ7_api_source_topology/structure.toml"
+    }
+  }
+}

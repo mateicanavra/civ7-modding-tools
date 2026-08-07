@@ -1,0 +1,39 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "civ7-api",
+  "tags": ["kind:library", "runtime:civ7-v8"],
+  "targets": {
+    "check:contract": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default", "typescriptRuntime"],
+      "outputs": [],
+      "options": {
+        "cwd": "packages/civ7-api",
+        "parallel": false,
+        "commands": [
+          "tsc --ignoreConfig --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext test/contract/public-surface.typecheck.ts",
+          "tsc --ignoreConfig --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext test/contract/map-script.typecheck.ts",
+          "tsc --ignoreConfig --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext test/contract/app-ui-shell.typecheck.ts",
+          "tsc --ignoreConfig --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext test/contract/app-ui-game.typecheck.ts",
+          "tsc --ignoreConfig --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext test/contract/civ7-v8.typecheck.ts"
+        ]
+      }
+    },
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": [],
+      "dependsOn": [
+        "typecheck",
+        "check:contract",
+        "check:policy",
+        "^check",
+        {
+          "projects": ["civ7-api-materializer"],
+          "target": "api:check"
+        }
+      ]
+    }
+  }
+}

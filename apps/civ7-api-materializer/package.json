@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "api:check": "bun run src/index.ts api:check",
+    "api:generate": "bun run src/index.ts api:generate",
     "materialize": "bun run src/index.ts materialize",
     "materialized:check": "bun run src/index.ts check",
     "test": "vitest run --config ../../vitest.config.ts --project civ7-api-materializer",

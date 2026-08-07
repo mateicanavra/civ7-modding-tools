@@ -37,14 +37,14 @@ export const EXCLUDED_EXTENSIONS = [
   ".otf",
 ] as const;
 
-export interface InstalledApplicationIdentity {
+interface InstalledApplicationIdentity {
   readonly bundleIdentifier: string;
   readonly version: string;
   readonly bundleVersion: string;
   readonly longVersion: string;
 }
 
-export interface SteamInstallationIdentity {
+interface SteamInstallationIdentity {
   readonly appId: string;
   readonly buildId: string;
   readonly installDirectory: string;

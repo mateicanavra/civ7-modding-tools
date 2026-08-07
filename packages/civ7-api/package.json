@@ -1,0 +1,38 @@
+{
+  "name": "@civ7/api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Generated, provenance-bearing TypeScript authority for the official Civilization VII API corpus",
+  "license": "UNLICENSED",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    },
+    "./catalog": {
+      "types": "./src/catalog.ts",
+      "import": "./src/catalog.ts"
+    },
+    "./provenance": {
+      "types": "./src/provenance.ts",
+      "import": "./src/provenance.ts"
+    },
+    "./map-script": {
+      "types": "./src/map-script.d.ts"
+    },
+    "./app-ui/shell": {
+      "types": "./src/app-ui-shell.d.ts"
+    },
+    "./app-ui/game": {
+      "types": "./src/app-ui-game.d.ts"
+    }
+  },
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
+  },
+  "dependencies": {
+    "solid-js": "1.9.5"
+  }
+}

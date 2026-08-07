@@ -1,0 +1,31 @@
+export declare class AutomationBasePlayGame {
+    private saveCompleteListener;
+    private autoplayEndListener;
+    private turnBeginListener;
+    private turnEndListener;
+    private multiplayerGameLastPlayerListener;
+    private updateFrameListener;
+    private waitForSetupListener;
+    private runServerType;
+    private runStartRevision;
+    private maxCameraDistance;
+    private direction;
+    private panSpeed;
+    private totalDistance;
+    private gameAgeEndedListener;
+    private onSaveComplete;
+    private onAutoplayEnd;
+    private onTurnBegin;
+    protected onTurnEnd(data: TurnState_EventData): void;
+    private onMultiplayerGameLastPlayer;
+    private onGameAgeEndedListener;
+    protected run(serverType?: ServerType): void;
+    protected restart(): void;
+    protected postGameInitialization(_bWasLoaded: boolean): void;
+    protected startAutoPlay(): void;
+    protected resumeGame(): void;
+    protected gameStarted(): void;
+    protected stop(): void;
+    private OnUpdate;
+    private OnWaitForSetupUpdate;
+}
