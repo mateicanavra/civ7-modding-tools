@@ -1,4 +1,5 @@
 import { execFile as execFileCallback } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import {
   copyFile,
   lstat,
@@ -13,7 +14,16 @@ import {
 import { homedir } from "node:os";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { promisify } from "node:util";
-import { SOURCE_RECEIPT_FILE, type SourceIdentity } from "./model.js";
+import type { SourceIdentity } from "./model.js";
+import {
+  apiProjectionTreesMatch,
+  assertGeneratedApiReplacementSettled,
+  generatedApiBackupRoot,
+  inspectApiProjection,
+  recoverGeneratedApiReplacement,
+  type StagedApiProjection,
+  stageApiProjection,
+} from "./projection.js";
 import {
   assertSnapshotReceipt,
   type BuildSnapshotResult,
@@ -35,8 +45,14 @@ const execFile = promisify(execFileCallback);
 
 export interface MaterializeOptions {
   readonly destinationRoot: string;
+  readonly apiDestinationRoot: string;
   readonly steamManifestPath: string;
   readonly checkOnly: boolean;
+}
+
+export interface MaterializeResult {
+  readonly snapshot: BuildSnapshotResult;
+  readonly api: StagedApiProjection;
 }
 
 interface IdentifiedSource {
@@ -214,8 +230,23 @@ function snapshotsMatch(expected: BuildSnapshotResult, actual: BuildSnapshotResu
   return expected.receiptText === actual.receiptText && snapshotFilesMatch(expected, actual);
 }
 
+function errorCode(error: unknown): string | undefined {
+  return typeof error === "object" && error !== null && "code" in error
+    ? String((error as { code: unknown }).code)
+    : undefined;
+}
+
+async function missingAsNull<T>(operation: () => Promise<T>): Promise<T | null> {
+  try {
+    return await operation();
+  } catch (error) {
+    if (errorCode(error) === "ENOENT") return null;
+    throw error;
+  }
+}
+
 async function pathExists(path: string): Promise<boolean> {
-  return (await lstat(path).catch(() => null)) !== null;
+  return (await missingAsNull(() => lstat(path))) !== null;
 }
 
 async function git(destinationRoot: string, args: readonly string[]): Promise<string> {
@@ -232,7 +263,7 @@ async function assertSubmoduleCheckout(
   requireClean: boolean
 ): Promise<void> {
   const gitPath = join(destinationRoot, ".git");
-  const gitStats = await lstat(gitPath).catch(() => null);
+  const gitStats = await missingAsNull(() => lstat(gitPath));
   if (!gitStats?.isFile()) {
     throw new Error(`Refusing a destination without a submodule .git file: ${destinationRoot}`);
   }
@@ -300,12 +331,6 @@ function replacementLockPath(destinationRoot: string): string {
   return join(dirname(destinationRoot), `.${basename(destinationRoot)}.materializer.lock`);
 }
 
-function errorCode(error: unknown): string | undefined {
-  return typeof error === "object" && error !== null && "code" in error
-    ? String((error as { code: unknown }).code)
-    : undefined;
-}
-
 async function acquireMaterializerLock(lockPath: string): Promise<void> {
   let handle: Awaited<ReturnType<typeof open>>;
   try {
@@ -325,7 +350,7 @@ async function acquireMaterializerLock(lockPath: string): Promise<void> {
   }
 }
 
-async function withMaterializerLock<T>(
+export async function withMaterializerLock<T>(
   destinationRoot: string,
   operation: () => Promise<T>
 ): Promise<T> {
@@ -336,6 +361,131 @@ async function withMaterializerLock<T>(
   } finally {
     const ownerText = await readFile(lockPath, "utf8").catch(() => "");
     if (ownerText.trim() === String(process.pid)) await rm(lockPath, { force: true });
+  }
+}
+
+interface PairedReplacementMarker {
+  readonly schemaVersion: 1;
+  readonly apiExisted: boolean;
+}
+
+function pairedReplacementMarkerPath(destinationRoot: string): string {
+  return join(dirname(destinationRoot), `.${basename(destinationRoot)}.api-pair-transaction.json`);
+}
+
+function parsePairedReplacementMarker(text: string, path: string): PairedReplacementMarker {
+  let value: unknown;
+  try {
+    value = JSON.parse(text);
+  } catch (error) {
+    throw new Error(`Invalid Civ7 API paired-replacement marker: ${path}`, { cause: error });
+  }
+  if (
+    typeof value !== "object" ||
+    value === null ||
+    (value as { schemaVersion?: unknown }).schemaVersion !== 1 ||
+    typeof (value as { apiExisted?: unknown }).apiExisted !== "boolean"
+  ) {
+    throw new Error(`Invalid Civ7 API paired-replacement marker: ${path}`);
+  }
+  return value as PairedReplacementMarker;
+}
+
+async function writePairedReplacementMarker(
+  markerPath: string,
+  marker: PairedReplacementMarker
+): Promise<void> {
+  const tempPath = `${markerPath}.${process.pid}.${randomUUID()}.tmp`;
+  try {
+    await writeFile(tempPath, `${JSON.stringify(marker, null, 2)}\n`, { flag: "wx" });
+    await rename(tempPath, markerPath);
+  } finally {
+    await rm(tempPath, { force: true });
+  }
+}
+
+/** Refuses active or interrupted materialization without repairing repository state. */
+export async function assertMaterializerTransactionSettled(
+  destinationRoot: string,
+  apiDestinationRoot: string
+): Promise<void> {
+  const paths = [
+    replacementLockPath(destinationRoot),
+    replacementBackupRoot(destinationRoot),
+    pairedReplacementMarkerPath(destinationRoot),
+  ];
+  const residue = (
+    await Promise.all(paths.map(async (path) => ((await pathExists(path)) ? [path] : [])))
+  ).flat();
+  if (residue.length > 0) {
+    throw new Error(
+      `Civ7 materialization is in progress or interrupted: ${residue.join(", ")}; run the owning generate command to recover`
+    );
+  }
+  await assertGeneratedApiReplacementSettled(apiDestinationRoot);
+}
+
+async function recoverPairedReplacement(
+  destinationRoot: string,
+  apiDestinationRoot: string
+): Promise<void> {
+  const markerPath = pairedReplacementMarkerPath(destinationRoot);
+  const markerText = await missingAsNull(() => readFile(markerPath, "utf8"));
+  if (markerText === null) {
+    await recoverInterruptedReplacement(destinationRoot);
+    await recoverGeneratedApiReplacement(apiDestinationRoot);
+    return;
+  }
+
+  const marker = parsePairedReplacementMarker(markerText, markerPath);
+  const snapshotBackup = replacementBackupRoot(destinationRoot);
+  const apiBackup = generatedApiBackupRoot(apiDestinationRoot);
+  if (await pathExists(snapshotBackup)) {
+    await rm(destinationRoot, { recursive: true, force: true });
+    await rename(snapshotBackup, destinationRoot);
+  }
+  if (await pathExists(apiBackup)) {
+    await rm(apiDestinationRoot, { recursive: true, force: true });
+    await rename(apiBackup, apiDestinationRoot);
+  } else if (!marker.apiExisted) {
+    await rm(apiDestinationRoot, { recursive: true, force: true });
+  }
+  await rm(markerPath, { force: true });
+}
+
+async function replaceSnapshotAndApiLocked(
+  stagedSnapshotRoot: string,
+  stagedApiRoot: string,
+  destinationRoot: string,
+  apiDestinationRoot: string,
+  verify: (snapshotRoot: string, apiRoot: string) => Promise<void>
+): Promise<void> {
+  await recoverPairedReplacement(destinationRoot, apiDestinationRoot);
+  await assertSubmoduleCheckout(destinationRoot, true);
+  const snapshotBackup = replacementBackupRoot(destinationRoot);
+  const apiBackup = generatedApiBackupRoot(apiDestinationRoot);
+  const markerPath = pairedReplacementMarkerPath(destinationRoot);
+  const apiExisted = await pathExists(apiDestinationRoot);
+
+  await copyFile(join(destinationRoot, ".git"), join(stagedSnapshotRoot, ".git"));
+  try {
+    await writePairedReplacementMarker(markerPath, { schemaVersion: 1, apiExisted });
+    await rename(destinationRoot, snapshotBackup);
+    if (apiExisted) await rename(apiDestinationRoot, apiBackup);
+    await rename(stagedSnapshotRoot, destinationRoot);
+    await rename(stagedApiRoot, apiDestinationRoot);
+    await assertSubmoduleCheckout(destinationRoot, false);
+    await verify(destinationRoot, apiDestinationRoot);
+
+    // Removing the marker commits the pair. Orphaned backups then finalize on recovery.
+    await rm(markerPath, { force: true });
+    await Promise.all([
+      rm(snapshotBackup, { recursive: true, force: true }),
+      rm(apiBackup, { recursive: true, force: true }),
+    ]);
+  } catch (error) {
+    await recoverPairedReplacement(destinationRoot, apiDestinationRoot);
+    throw error;
   }
 }
 
@@ -388,22 +538,17 @@ export async function replaceSnapshot(
   );
 }
 
-async function replaceReceipt(destinationRoot: string, receiptText: string): Promise<void> {
-  const temporaryPath = join(destinationRoot, `.${SOURCE_RECEIPT_FILE}.${process.pid}.tmp`);
-  try {
-    await writeFile(temporaryPath, receiptText);
-    await rename(temporaryPath, join(destinationRoot, SOURCE_RECEIPT_FILE));
-  } finally {
-    await rm(temporaryPath, { force: true });
-  }
-}
-
 /** Materializes or verifies the installed Civ7 official-evidence snapshot. */
-export async function materialize(options: MaterializeOptions): Promise<BuildSnapshotResult> {
+export async function materialize(options: MaterializeOptions): Promise<MaterializeResult> {
   return withMaterializerLock(options.destinationRoot, async () => {
-    if (!options.checkOnly) await recoverInterruptedReplacement(options.destinationRoot);
+    if (!options.checkOnly) {
+      await recoverPairedReplacement(options.destinationRoot, options.apiDestinationRoot);
+    }
     await assertSubmoduleCheckout(options.destinationRoot, false);
     const stageRoot = await mkdtemp(join(dirname(options.destinationRoot), ".civ7-api-snapshot-"));
+    const stageApiRoot = await mkdtemp(
+      join(dirname(options.apiDestinationRoot), ".civ7-api-projection-")
+    );
     try {
       const sourceBefore = await identifySource(options);
       await buildSnapshot(sourceBefore.root, stageRoot, sourceBefore.identity);
@@ -426,37 +571,54 @@ export async function materialize(options: MaterializeOptions): Promise<BuildSna
         throw new Error("Civ7 source bytes changed while the official snapshot was acquired");
       }
 
-      const current = await inspectSnapshot(options.destinationRoot).catch(() => null);
+      const stagedApi = await stageApiProjection(stageRoot, stageApiRoot);
+
+      const current = await missingAsNull(() => inspectSnapshot(options.destinationRoot));
       if (current) assertSnapshotReceipt(current);
-      if (current && snapshotsMatch(staged, current)) return staged;
-      if (current && snapshotFilesMatch(staged, current)) {
-        if (options.checkOnly) {
-          throw new Error("Official Civ7 source snapshot bytes are current but provenance differs");
-        }
-        await replaceReceipt(options.destinationRoot, staged.receiptText);
-        const refreshed = await inspectSnapshot(options.destinationRoot);
-        assertSnapshotReceipt(refreshed);
-        if (!snapshotsMatch(staged, refreshed)) {
-          throw new Error("Refreshed Civ7 source receipt differs from its validated stage");
-        }
-        return staged;
-      }
+      const currentApi = await missingAsNull(() =>
+        inspectApiProjection(options.apiDestinationRoot)
+      );
+      const snapshotCurrent = current !== null && snapshotsMatch(staged, current);
+      const apiCurrent = currentApi !== null && apiProjectionTreesMatch(stagedApi.tree, currentApi);
+      if (snapshotCurrent && apiCurrent) return { snapshot: staged, api: stagedApi };
       if (options.checkOnly) {
-        throw new Error(
-          `Official Civ7 source snapshot is stale: expected ${staged.receipt.snapshot.sha256}, ` +
-            `found ${current?.receipt.snapshot.sha256 ?? "no valid receipt"}`
-        );
+        const differences = [
+          ...(snapshotCurrent
+            ? []
+            : [
+                `source expected ${staged.receipt.snapshot.sha256}, found ${current?.receipt.snapshot.sha256 ?? "no valid receipt"}`,
+              ]),
+          ...(apiCurrent
+            ? []
+            : [
+                `API expected ${stagedApi.tree.sha256}, found ${currentApi?.sha256 ?? "no generated source"}`,
+              ]),
+        ];
+        throw new Error(`Official Civ7 source/API pair is stale: ${differences.join("; ")}`);
       }
-      await replaceSnapshotLocked(stageRoot, options.destinationRoot, async (root) => {
-        const replaced = await inspectSnapshot(root);
-        assertSnapshotReceipt(replaced);
-        if (!snapshotsMatch(staged, replaced)) {
-          throw new Error("Replaced Civ7 source snapshot differs from its validated stage");
+      await replaceSnapshotAndApiLocked(
+        stageRoot,
+        stageApiRoot,
+        options.destinationRoot,
+        options.apiDestinationRoot,
+        async (snapshotRoot, apiRoot) => {
+          const replaced = await inspectSnapshot(snapshotRoot);
+          assertSnapshotReceipt(replaced);
+          const replacedApi = await inspectApiProjection(apiRoot);
+          if (
+            !snapshotsMatch(staged, replaced) ||
+            !apiProjectionTreesMatch(stagedApi.tree, replacedApi)
+          ) {
+            throw new Error("Replaced Civ7 source/API pair differs from its validated stage");
+          }
         }
-      });
-      return staged;
+      );
+      return { snapshot: staged, api: stagedApi };
     } finally {
-      await rm(stageRoot, { recursive: true, force: true });
+      await Promise.all([
+        rm(stageRoot, { recursive: true, force: true }),
+        rm(stageApiRoot, { recursive: true, force: true }),
+      ]);
     }
   });
 }
@@ -467,6 +629,7 @@ export function defaultMaterializeOptions(
 ): MaterializeOptions {
   return {
     destinationRoot: resolve(repoRoot, ".civ7/outputs/resources"),
+    apiDestinationRoot: resolve(repoRoot, "packages/civ7-api/src"),
     steamManifestPath: resolve(process.env.CIV7_STEAM_MANIFEST ?? DEFAULT_STEAM_MANIFEST),
     checkOnly,
   };

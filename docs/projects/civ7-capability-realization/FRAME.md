@@ -1,7 +1,7 @@
 # Civ7 Capability Realization Frame
 
-**Status:** Model Ground ratified; Controller Foundation admission active
-**Date:** 2026-08-06
+**Status:** Generated API authority sealed; consumer replacement active
+**Date:** 2026-08-07
 **Owner:** Civ7 migration director
 
 ## Intent
@@ -50,13 +50,27 @@ versioned realm-local controller ingress. Play owns intent, reconciliation,
 no-repeat, and next action. The controller owns native observation, checks,
 at-most-once dispatch, and exact engine evidence.
 
-**Current container:** construct the official-knowledge materialization chain
-before its generated authority. One dedicated host app selects an identified
-Civ7 installation, stages an exact `Base`/`DLC` evidence snapshot with source
-maps and provenance, and deterministically projects `packages/civ7-api` from
-that pinned corpus. The generated package then activates the first
-`runtime:civ7-v8` closure. Existing host-injected operations remain only in the
-finite transition quarantine and receive no new mature behavior.
+**Sealed authority:** `packages/civ7-api` is the deterministic projection of the
+identified Civ7 `1.4.2.26` / Steam `24410208` corpus. Its generated tree digest
+is `bc109467b0f55be1cf6b7d866eb77d11c35909f53c67cef957e7e251bce7cc8d`:
+940 embedded Base TypeScript sources produce 943 direct declaration shards,
+2,536 retained diagnostics, 153 source-owned global augmentations, 685 emitted
+`any` keywords, five provenance-visible unresolved targets, and disjoint
+shell, game, and map manifests. Emitted types remain source evidence rather than
+being mechanically rewritten. The package makes no runtime, lifecycle, DLC,
+loading-realm, absent-module-definition, TypeScript absolute-module-resolution,
+or any-free declaration claim. It is the first closed `runtime:civ7-v8`
+project.
+
+**Current container:** retire the competing handwritten `civ7-types` authority
+in one consumer cut. TypeScript cannot directly resolve Civ7's absolute runtime
+module IDs merely because exact declarations exist; that claim was
+falsified rather than patched with another wildcard. The next cut must derive
+one exact consumer-resolution face from the generated catalog, compile every
+current MapGen consumer without a wildcard or guessed signatures, keep any
+retained source uncertainty provenance-visible, stop `civ7-map-policy` from
+writing into the old package, switch consumers, and delete `civ7-types`
+atomically before controller construction.
 
 The in-engine boundary is a production-project closure, not the mod app.
 Container 1 activates `runtime:civ7-v8` atomically with its first complete
@@ -90,9 +104,9 @@ phase. Tuner state IDs are runtime-discovered. `CMD` Promise behavior and later
 global visibility are also proof gaps; no mailbox or mutating asynchronous path
 is selected until the discriminating live experiment runs.
 
-**Current gradient:** exact source receipt -> materializer app -> official API
-authority -> V8 closure -> controller kernel -> controller mod -> typed ingress
--> live realm proof -> native verticals -> Play -> projections -> direct-control
+**Current gradient:** exact consumer resolution -> MapGen compile proof ->
+`civ7-types` deletion -> controller kernel -> controller mod -> typed ingress ->
+live realm proof -> native verticals -> Play -> projections -> direct-control
 deletion -> remaining platform chains -> full seal.
 
 This is not a backlog. Work emerges from the difference between the normative
@@ -101,6 +115,24 @@ the frame.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-08-07 - Generated API Authority Sealed
+
+The pinned official snapshot now projects deterministically into one static,
+provenance-bearing API package. Direct declaration shards preserve their
+source-owned globals and uncertainty; realm activation remains separate;
+diagnostics and unresolved edges remain evidence; and positive Nx plus
+qualified Habitat law close the Civ7 V8 production boundary. Installed-source comparison,
+generated currentness, typing, semantic proof, package contracts, Habitat,
+boundaries, hygiene, and dead-code proof pass.
+
+### 2026-08-07 - Official Source Acquisition Sealed
+
+The identified Civ7 installation was snapshotted twice under one stable Steam
+and application identity. The exact Base/DLC tree, source maps, receipt, and
+resource submodule publication are current. Acquisition is no longer active
+semantic work; the materializer now consumes that sealed evidence to produce
+the static API authority.
 
 ### 2026-08-06 - Corrected Model Ground Ratified
 
@@ -155,8 +187,9 @@ reopened by the controller correction.
   admission, polling, reconciliation, no-repeat, priorities, and next action.
 - Official Civ7 resources prove shell/game scoped UIScript loading and separate
   document lifecycles. A bootstrap must explicitly publish a callable global.
-- The current `civ7-types` surface is partial and contains a wildcard `any`;
-  systematic state-scoped API generation is not yet complete.
+- The current `civ7-types` surface is partial and contains a wildcard `any`.
+  Systematic official generation is complete, while exact TypeScript consumer
+  resolution remains the explicit deletion gate for that handwritten package.
 - The current Studio live attempt proved exact generation and installation but
   not startup or map behavior. A manual new-game attempt also reached a map
   generation error. Those are open product proofs, not reasons to preserve the

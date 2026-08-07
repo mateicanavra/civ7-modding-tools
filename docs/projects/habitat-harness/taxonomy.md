@@ -34,6 +34,7 @@ Two enforcement planes — do not conflate them:
 | `kind:tooling` | Repo-local dev tooling (the habitat harness itself) | new with this workstream |
 | `type:resource` | Provider-neutral contract for one managed foreign capability; owns no provider selection or product semantics | `docs/projects/civ7-capability-realization/KIND-LAW-MATRIX.md`; shared Habitat `resource@1` |
 | `type:provider` | One concrete acquire/use/release realization of its matching resource contract | `docs/projects/civ7-capability-realization/KIND-LAW-MATRIX.md`; shared Habitat `provider@1` |
+| `runtime:civ7-v8` | Orthogonal whole-project admission to Civ7's embedded V8. Every workspace dependency repeats the tag; runtime npm imports are admitted by an exact positive set; qualified Civ7 law closes source forms Nx cannot classify. Mixed host/isolate projects split. | `docs/projects/civ7-capability-realization/SYSTEM-MODEL.md`; `WORKSTREAM.md` Container 1 |
 
 ### Control lifecycle note
 
@@ -96,6 +97,8 @@ treatment without adding a concrete tag or constraint row.
 | civ7-docs | `apps/docs` | `kind:app` |
 | civ7-playground | `apps/playground` | `kind:app` |
 | mapgen-studio | `apps/mapgen-studio` | `kind:app` |
+| civ7-api-materializer | `apps/civ7-api-materializer` | `kind:app` |
+| civ7-api | `packages/civ7-api` | `kind:library`, `runtime:civ7-v8` |
 | civ7-sdk | `packages/sdk` | `kind:sdk` |
 | mapgen-core | `packages/mapgen-core` | `kind:engine` |
 | mapgen-diagnostics | `packages/mapgen-diagnostics` | `kind:mapgen-tool` |
@@ -151,6 +154,7 @@ owned by their Grit/file-layer rules.
 |---|---|---|
 | `kind:workspace` | `kind:sdk`, `kind:engine`, `kind:mapgen-tool`, `kind:adapter`, `kind:control`, `kind:library`, `kind:plugin`, `kind:mod`, `kind:tooling`, `type:resource`, `type:provider` | root orchestration/proof scripts may consume public package and managed-resource surfaces, but app code remains a caller surface rather than a library |
 | `kind:library` | `kind:library` | leaf purity (types/config/policy/viz import nothing higher) |
+| `runtime:civ7-v8` | `runtime:civ7-v8` | isolate membership is inductive over the workspace graph; exact npm and source-form admission are independently fail-closed |
 | `kind:adapter` | `kind:library` | adapter translates engine↔types; owns `/base-standard/` exclusively (`lint-adapter-boundary.sh`) |
 | `kind:engine` | `kind:adapter`, `kind:library` | core purity: mapgen-core sees adapter *types* only, never runtime values (`mapgen-core-runtime-civ7`, G3) |
 | `kind:mapgen-tool` | `kind:engine`, `kind:library`, `kind:control` | reusable MapGen tooling may compose neutral execution, projection, and future live-control capabilities without importing product or harness owners |

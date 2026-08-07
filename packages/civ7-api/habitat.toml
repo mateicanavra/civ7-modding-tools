@@ -1,0 +1,17 @@
+schemaVersion = 1
+id = "civ7-api"
+ownerProject = "civ7-api"
+blueprint = "package"
+blueprintVersion = 1
+
+[roots]
+project = "packages/civ7-api"
+
+[selections]
+contract = [
+  "app-ui-game",
+  "app-ui-shell",
+  "civ7-v8",
+  "map-script",
+  "public-surface",
+]

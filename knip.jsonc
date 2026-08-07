@@ -2,6 +2,11 @@
   "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
   "includeEntryExports": false,
   "treatConfigHintsAsErrors": true,
+  // The root catalog is repository vendor-plane authority. A version remains valid even
+  // while no current project selects it directly during an atomic vendor migration.
+  "ignoreIssues": {
+    "package.json": ["catalog"]
+  },
   "workspaces": {
     ".": {
       "project": ["*.{ts,mts,cts,js,mjs,cjs}"],
@@ -70,6 +75,14 @@
       "ignoreUnresolved": ["^/base-standard/"],
       // The map-script builder resolves uri-js dynamically into an esbuild virtual module.
       "ignoreDependencies": ["uri-js"]
+    },
+    "packages/civ7-api": {
+      // Habitat selects these independently compiled realm and public-surface contracts.
+      "entry": ["test/contract/*.typecheck.ts"],
+      // Generated declarations are exact protected vendor evidence. Projection currentness
+      // and semantic contracts own them; dead-code analysis must not reinterpret their
+      // unresolved Civ7 runtime module IDs as workspace imports.
+      "ignore": ["src/generated/**/*.d.ts"]
     },
     "packages/civ7-map-policy": {
       // Generated setup policy is inspected through its source generator and currentness

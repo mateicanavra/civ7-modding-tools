@@ -16,24 +16,62 @@ oRPC 2 and Effect 4 are fixed vendor substrate, not compatibility questions.
 relationship direction -> shared Habitat kind -> qualified Civ7 overlay ->
 public contract -> app composition -> behavior proof.
 
-**Current container:** the oRPC 2, Effect 4, and TypeBox vendor plane is sealed.
-Construct one `app@1` official-knowledge materializer that stages an exact,
-provenance-bearing `Base`/`DLC` snapshot including source maps, then emits the
-first complete `packages/civ7-api` authority. That package activates
-`runtime:civ7-v8`; host acquisition and generation remain outside the isolate.
-Shared `service@1` proceeds independently upstream and is adopted only after
-its published handoff. Existing host-injected operations remain frozen
-quarantine and receive no new mature behavior.
+**Sealed authority:** the identified Civ7 `1.4.2.26` / Steam `24410208` corpus
+projects deterministically into `packages/civ7-api` at tree digest
+`bc109467b0f55be1cf6b7d866eb77d11c35909f53c67cef957e7e251bce7cc8d`.
+Its 943 direct declaration shards preserve 153 source-owned global
+augmentations, 685 emitted `any` keywords, diagnostics, unresolved edges,
+provenance, and disjoint realm manifests. Positive Nx and qualified Habitat law
+close the first `runtime:civ7-v8` project.
+
+**Current container:** delete the competing handwritten `civ7-types` authority
+in one consumer cut. Exact emitted declarations alone do not make Civ7's
+absolute runtime module IDs resolvable by TypeScript, and no wildcard or guessed
+shim is admitted. Derive one exact resolution face from generated evidence,
+compile every current MapGen consumer, stop the old generator write, switch all
+consumers, and delete the old package atomically before controller construction.
 
 **Stack:** only the linear Civ7 stack descending from
 `agent-root-civ7-habitat-051-ground` through the active HEAD is in motion.
 Sibling Fluree worktrees are parked external workstreams. No parallel Civ7
 implementation branch is admitted.
 
+**Gradient:** exact resolution -> consumer proof -> ambient deletion -> service
+adoption -> kernel -> mod -> ingress -> live proof -> native verticals -> Play
+-> projections -> direct-control deletion -> estate reconciliation -> seal.
+
+<details>
+<summary>Previous rolling focus before generated API authority sealed</summary>
+
+**Current container:** the official Base/DLC evidence snapshot and its installed
+identity were sealed. Project its complete Base TypeScript corpus into one
+generated `packages/civ7-api` package with disjoint realm activation, explicit
+diagnostics, exact provenance, and no hidden runtime claims. The package was the
+first `runtime:civ7-v8` member; Nx closed workspace/npm edges and qualified Civ7
+law closed source forms.
+
+**Gradient:** declarations -> realms -> receipt -> package contract -> V8
+closure -> ambient replacement -> service adoption -> kernel -> mod -> ingress
+-> live proof -> native verticals -> Play -> projections -> direct-control
+deletion -> estate reconciliation -> seal.
+
+</details>
+
+<details>
+<summary>Previous rolling focus before official source acquisition sealed</summary>
+
+**Current container:** the oRPC 2, Effect 4, and TypeBox vendor plane was sealed.
+One `app@1` official-knowledge materializer selected an identified Civ7
+installation, staged an exact provenance-bearing Base/DLC snapshot including
+source maps, and prepared the first complete `packages/civ7-api` authority.
+Host acquisition and generation remained outside the isolate.
+
 **Gradient:** source receipt -> materializer -> official API -> V8 closure ->
 service adoption -> kernel -> mod -> ingress -> live proof -> native verticals
 -> Play -> projections -> direct-control deletion -> estate reconciliation ->
 seal.
+
+</details>
 
 <details>
 <summary>Previous rolling focus before Habitat service authority correction</summary>

@@ -3,6 +3,7 @@
   "schemaVersion": 2,
   "ownerRoots": {
     "civ7-api-materializer": "apps/civ7-api-materializer",
+    "civ7-api": "packages/civ7-api",
     "civ7-adapter": "packages/civ7-adapter",
     "civ7-docs": "apps/docs",
     "civ7-map-policy": "packages/civ7-map-policy",

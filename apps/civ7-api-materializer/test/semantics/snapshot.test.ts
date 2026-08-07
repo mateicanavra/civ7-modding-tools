@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import { afterEach, describe, expect, test } from "vitest";
-import { replaceSnapshot } from "../../src/materialize.js";
+import { assertMaterializerTransactionSettled, replaceSnapshot } from "../../src/materialize.js";
 import type { SourceIdentity } from "../../src/model.js";
 import {
   assertSnapshotReceipt,
@@ -235,6 +235,20 @@ describe("official source profile", () => {
       "Another Civ7 API materializer owns"
     );
     expect(await readFile(join(destination, "initial.txt"), "utf8")).toBe("initial\n");
+  });
+
+  test("read-only settlement proof refuses a writer lock without removing it", async () => {
+    const parent = await tempRoot();
+    const destination = join(parent, "resources");
+    const apiDestination = join(parent, "api");
+    const lock = join(parent, ".resources.materializer.lock");
+    await Promise.all([mkdir(destination), mkdir(apiDestination)]);
+    await writeFile(lock, "999999\n");
+
+    await expect(assertMaterializerTransactionSettled(destination, apiDestination)).rejects.toThrow(
+      "in progress or interrupted"
+    );
+    expect(await readFile(lock, "utf8")).toBe("999999\n");
   });
 
   test("refuses a linked checkout that is not the superproject's registered submodule", async () => {
