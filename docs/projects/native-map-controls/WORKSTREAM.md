@@ -496,6 +496,22 @@ qualified. No shipped configuration or production algorithm changes in this
 observational layer. Existing domain operations own the computations; extracting
 unrelated step logic is not a prerequisite to this causal diagnosis.
 
+The full-map native wet-outlet A/B now completes with identical physical inputs
+and preserved lake footprints. Two added wet-source directions change one
+generation-time cached ocean read, but that change is absent in the completed
+game; all 184 qualified network records and 656 dry classes remain identical.
+This is not a completed connectivity fix. The five-tile lake in the follow-up
+photo also distinguishes a broad inlet from a broad outlet, weakening a
+single-tile-only explanation. See the investigation for phase-specific receipts
+and the boundary between shoreline rendering and physical drainage changes.
+
+Publication remains blocked by the empty ancestor noted above. A subsequent
+submit accidentally created draft PRs #2157-#2166 for the ten lower prerequisite
+branches while skipping this workstream. All ten newly created drafts were
+closed immediately; no branches or code were deleted or rewritten. Do not
+retry submission to work around this gate. Use a dry run for any future
+publication check until the owning stack resolves the empty ancestor.
+
 ## Historical Handoff
 
 The following records the pre-integration handoff, not current activation state.
