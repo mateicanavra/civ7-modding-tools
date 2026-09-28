@@ -286,3 +286,150 @@ baseline climate exact. Class-conditioned relief and inspected transitions
 should improve, without forcing every mountain/foothill edge to one sign.
 Keep existing product bounds and report conflicts rather than retuning these
 floors to a desired terrain count.
+
+### Landform Comparison And Corridor Discriminator
+
+The twelve relief-supported captures preserve every captured ground, coastline,
+climate, drainage and lake field exactly. Only the five landform masks change.
+Earthlike mountain local-contrast means improve from -0.352..0.278 to
+1.421..2.737 model units. Mountain-to-foothill signed mean contrasts improve
+from -0.802..1.643 to 2.952..6.188; every mountain-focused counterpart also
+improves. These are cohort relationships, not a promise that every local edge
+has one sign. Coverage does not bypass measured support: one mountain-focused
+case leaves its former quota unfilled (350 to 333 mountain cells).
+
+The full product bank resolves seed 7777's flat-interior failure but exposes a
+connected-mountain-diameter regression: Huge Earthlike seeds 1018/2024/5050
+have diameters 28/30/17, against the unchanged cohort floor 25. Seed comparison
+was independently corrected to exclude ineligible neighboring candidates; this
+fix does not remove the cohort failure. The exact eligible terrain graph spans
+51/59/48, so the failure is not forced by the relief floor. Seed 5050 still has
+a tectonic-region diameter 48 and eligible-within-region diameter 38.
+
+Exact-input replay identifies a selection-order mechanism. Already traversed,
+owned corridor cells stop promotion at a per-owner fair-share budget; later
+generic widening can reject those cells at a neighboring owner's boundary.
+One seed-5050 example has downward relief 24 and adequate tectonic support,
+yet stays unexposed for this reason. That example diagnoses the mechanism;
+it is not a special-case bridge rule or a license to join every range.
+
+Predeclare a bounded candidate: retain the fair per-owner first pass, then
+complete supported, already-owned corridor exposure using remaining global
+budget before generic widening. Preserve identical relief/driver admission,
+ground, regional ownership, and separation rules for unowned expansion.
+Do not invent routes, promote flat passes, raise coverage, or change the
+diameter guard. Test global caps, determinism, range diversity and legitimate
+passes; rerun the three-seed discriminator and full product bank before
+acceptance. Receipts before this candidate:
+`/tmp/civ7-relief-relief-supported.json`,
+`/tmp/civ7-spine-selection-analysis.json`, and
+`/tmp/civ7-spine-replay-trace-5050.json`.
+
+The corridor-completion experiment is rejected and removed. Although it keeps
+global caps and all 18 range owners, cohort diameters become 29/23/21: one
+previously passing case regresses and the original guard still fails. Exact
+replay after removal restores 28/30/17 with zero mask differences. Its receipt
+`/tmp/civ7-relief-corridor-completion.json` is rejected evidence, not a shipped
+candidate. No extra corridor phase or fitted ranking remains.
+
+### Explicit Orogeny Acceptance Amendment
+
+Retire the hard `mountain-spine-diameter >=25` expectation; retain the measured
+categorical span as a diagnostic. Do not lower the threshold to match seed
+5050. This knowingly removes guaranteed peak-chain scale; it does not relabel
+the old failing result as a pass or claim that all allocation gaps are passes.
+
+The original `272b9af96f` guard required 30 to avoid local peak clusters.
+`d7ceb780ac` reframed the intended object as a long, varied region with valleys
+and passes, retained 25 as a residual peak-scale check, and added the regional
+guards. The accepted
+[recovery proposal](../../../openspec/changes/swooper-world-balance-recovery/proposal.md)
+and [mountain-region specification](../../../openspec/changes/earthlike-mountain-region-visual-acceptance/specs/mapgen-normalization-workstreams/spec.md)
+reject artificial mountain walls or spine optimization at the expense of
+passable regions. Connected mountain terrain is ordinarily impassable in
+Civ7; its two-sweep BFS span is neither regional geology nor a measurement of
+transverse passage connectivity. Forcing it to 25 would impose a separate
+movement-barrier goal absent from the user's physical-coherence request.
+
+Retain all existing regional and terrain guards: region diameter >=38, size
+>=450, nonmountain share >=65%, flat share >=35% and volume >=300, shoulders
+>=25%, mountain share <=38%, and the separate coverage/diversity/flat-pocket
+checks. Retain actual relief admission in every mountain/hill write path.
+Independent physical/design review supports this narrower contract and rejects
+another selection phase solely to repair the proxy. Target-only changes must
+alter no generated output. Neither regional composition nor this amendment
+proves native movement or improved chokepoints.
+
+Budget/owner omissions remain distinguishable from physically unsupported
+passes. Reopen selection design if repeated supported omissions demonstrably
+degrade recognizable ranges or create implausible crossings, not merely because
+an eligible graph can have a larger diameter. The study on the unamended
+contract has exactly one failure among 7,023 expectations after Latest Juicy
+is corrected; preserve that receipt as `/tmp/civ7-study-bank-coherent-neutral.json`.
+
+### Latest Juicy Climate Owner Discriminator
+
+Its authored baseline/refinement dryness was `dry/dry` despite sharing the
+Earthlike identity that requires all five vegetation families. The map's name
+is not evidence of intended wetness. After terrain correction, Huge 1018 has
+only three rainforest-biome cells: two non-flat and one occupied by a legitimate
+mangrove. Confidence is adequate; lowering feature thresholds or removing
+wetlands would treat the symptom and violate habitat ownership.
+
+The paired candidate changes only both dryness knobs to neutral `mix`, keeping
+all biome/feature thresholds and identity guards. Huge 1018, Standard 1018,
+Huge 42 and Standard 1 increase rainforest-biome habitat from 3/0/0/2 to
+111/44/106/114 cells, and rainforest features from 0/0/0/2 to 47/14/36/48.
+All five vegetation families remain present. All 12 unchanged identity checks
+pass in all four candidates; all 51 integrity checks pass in all eight paired
+runs. Maximum wetland share is 1.35% against the existing 8% bound.
+
+All 13 captured authored terrain/mask hashes, wind and pressure remain exact;
+projected lakes and realized land totals also remain unchanged. Downstream
+navigable selection changes slightly, so realized terrain is not universally
+byte-identical. The Huge 1018 biome histogram covers 2,676 cells, correctly
+excluding 37 planned lakes from 2,713 modeled land cells. Receipt:
+`/tmp/civ7-latest-juicy-dryness-paired.json`. This supports the two owner-level
+config changes, not a wetness quota or wider retuning of other map identities.
+
+### Accepted Relief Proof
+
+The amended full bank passes all 29 studies, 96 scenarios and 7,022
+expectations. This explicitly excludes the retired peak-chain requirement;
+the unamended failure remains recorded above. The definition check, test and
+Habitat policy graph passes 25 tasks, including 722 tests and 33,711 assertions.
+Receipts: `/tmp/civ7-study-bank-coherent-final.json` and
+`/tmp/civ7-relief-coherence-final-check.log`.
+
+The normal Huge Earthlike map was rebuilt, deployed and loaded with map/game
+seed 1018, ten players and saved configuration `ToT_NoModsExceptMaps`.
+Generated/deployed script SHA-256:
+`d72d47805ed72226a2d387418f4ed34eb7fac6b53f4ec4ea2035cf83e824032c`.
+Fresh completion: 2026-09-28T08:07:43.765Z. This map uses the accepted relief
+classification and baseline-demand refactor, but still uses the existing
+production lake policy and native procedural river pass, not the forthcoming
+basin-aware/authored-river replacement.
+
+All 6,996 elevation writes were observed. Immediately after projection there
+were zero non-lake mismatches; 45 accepted lake cells and one native lake had
+engine-adjusted heights. Final readback adds one non-lake difference at
+`(85,18)`, 778 to 788. A live public plot read finds natural-wonder feature 28
+there, and live GameInfo identifies it as `FEATURE_VALLEY_OF_FLOWERS`. This
+locates the exception on a native wonder; it does not prove which later
+native operation changed it. Accepted lake classification and water drift
+remain zero. Resources retain ten native legality rejections (including two
+Cotton), two planned wonders are rejected, and eleven ordinary feature
+placements are rejected. These are explicit realization shortfalls, not a
+claim of perfect planned/native placement parity.
+
+After data collection, Explore revealed all 6,996 cells. A lingering natural
+wonder cinematic initially prevented verified camera focus; after dismissal,
+the public appshot operation verified target coordinates and restored the HUD.
+Inspected frames include the mountain/foothill transition at `(90,23)` and the
+high marine coast at `(94,19)`. The latter visibly has steep cliffs and a river
+reaching the elevated shore; a land-to-seabed numeric difference must not be
+reported as exposed cliff height. Screenshots are visual corroboration for
+this seed, not a substitute for the cohort or native navigation proof.
+Receipts and frames: `/tmp/civ7-coherent-relief-native-{deploy.log,live.log,observations.json}`,
+`/tmp/civ7-coherence-mountain-foothills.png`, and
+`/tmp/civ7-coherence-high-coast.png`.

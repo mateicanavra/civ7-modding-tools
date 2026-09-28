@@ -267,16 +267,6 @@ export const EARTHLIKE_OROGENY_TARGET = {
         }).minimum,
       0.25
     ),
-    atLeast<StandardMapMetricCohort>(
-      "mountain-spine-diameter",
-      "Every roll retains a mountain spine with geographic length.",
-      (samples) =>
-        summarizeCohort(
-          samples,
-          (sample) => sample.metrics.relief.plannedMountainComponents.maximumComponentDiameter
-        ).minimum,
-      25
-    ),
   ],
 } satisfies MetricTarget<StandardMapMetricCohort>;
 

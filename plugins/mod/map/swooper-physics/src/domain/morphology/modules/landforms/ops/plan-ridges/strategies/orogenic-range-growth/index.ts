@@ -6,6 +6,7 @@ import {
   resolveTileAreaSpacingTarget,
 } from "@swooper/mapgen-core/lib/grid";
 import { normalizeFractal } from "@swooper/mapgen-core/lib/noise";
+import { computeLandNeighborRelief } from "../../../../model/policy/land-neighbor-relief.js";
 import { resolveBoundaryStrength } from "../../../../model/policy/boundary-strength.js";
 import { resolveDriverStrength } from "../../../../model/policy/driver-strength.js";
 import type {
@@ -15,6 +16,10 @@ import type {
 } from "../../../../model/policy/mountain-scoring-policy.js";
 import { encodeNormalizedToU8 } from "../../../../model/policy/normalized-byte.js";
 import { computeOrogenyPotential } from "../../../../model/policy/orogeny-potential.js";
+import {
+  MOUNTAIN_DOWNWARD_RELIEF_MIN,
+  normalizeReliefSupport,
+} from "../../../../model/policy/relief-support.js";
 import PlanRidgesContract from "../../contract.js";
 import { computeFracturePotential } from "../../rules/fracture-potential.js";
 import { isStrictLocalMaximumHexWithTies } from "../../rules/local-maximum.js";
@@ -139,6 +144,7 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
       width,
       height,
       landMask,
+      elevation,
       boundaryCloseness,
       boundaryType,
       upliftPotential,
@@ -160,6 +166,8 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
     const orogenyPotential = new Uint8Array(size);
     const fracturePotential = new Uint8Array(size);
     const mountainScoreByTile = new Float32Array(size);
+    const mountainEligible = new Uint8Array(size);
+    const downwardReliefSupport = new Float32Array(size);
 
     const boundaryGate = Math.min(0.99, Math.max(0, config.boundaryGate));
     const falloffExponent = config.boundaryExponent;
@@ -262,6 +270,11 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
         driverSignalByteMin: config.driverSignalByteMin,
         driverExponent: config.driverExponent,
       });
+      const relief = computeLandNeighborRelief({ index: i, width, height, elevation, landMask });
+      downwardReliefSupport[i] = normalizeReliefSupport(relief.downward);
+      if (relief.downward >= MOUNTAIN_DOWNWARD_RELIEF_MIN && driverStrength > 0) {
+        mountainEligible[i] = 1;
+      }
 
       const fractal = normalizeFractal(fractalMountain[i]);
 
@@ -299,7 +312,7 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
       // Age attenuation: old belts should transition from "mountain" ridges to hills/plateaus.
       const ageNorm = (beltAge[i] ?? 0) / 255;
       const ageScale = 1 - ageNorm * (1 - oldBeltMountainScale);
-      mountainScoreByTile[i] = score * ageScale;
+      mountainScoreByTile[i] = score * ageScale * downwardReliefSupport[i]!;
     }
 
     const mountainTarget =
@@ -322,32 +335,19 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
           ((fracturePotential[i] ?? 0) / 255) * 0.75,
           ((boundaryCloseness[i] ?? 0) / 255) * 0.45
         );
-        return score + corridorPotential * 0.55 + (driverByte / 255) * 0.35;
-      };
-      const hasRangeSeedSupport = (i: number): boolean => {
-        if (landMask[i] !== 1) return false;
-        if (computeRangeSeedPotential(i) <= 0) return false;
-        const driverByte = resolveStrongestDriverByte({
-          i,
-          upliftPotential,
-          collisionPotential,
-          subductionPotential,
-          riftPotential,
-          tectonicStress,
-        });
         return (
-          driverByte >= Math.max(0, Math.round(mountainFloorDriverByteMin * 0.35)) ||
-          (orogenyPotential[i] ?? 0) > 0 ||
-          (fracturePotential[i] ?? 0) > 0 ||
-          (boundaryCloseness[i] ?? 0) > 0
+          score +
+          (corridorPotential * 0.55 + (driverByte / 255) * 0.35) * downwardReliefSupport[i]!
         );
       };
+      const hasRangeSeedSupport = (i: number): boolean =>
+        mountainEligible[i] === 1 && computeRangeSeedPotential(i) > 0;
 
       // 1) Select ridge spines as local maxima of the mountain score.
       const spineCandidates: number[] = [];
       const spineCandidateMask = new Uint8Array(size);
       for (let i = 0; i < size; i++) {
-        if (landMask[i] === 0) continue;
+        if (mountainEligible[i] !== 1) continue;
         const score = mountainScoreByTile[i] ?? 0;
         // Score is already physics-gated by driver strength; mountainThreshold is an authored cutoff.
         if (!(score >= mountainThreshold)) continue;
@@ -357,7 +357,7 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
             width: w,
             height: h,
             values: mountainScoreByTile,
-            mask: landMask,
+            mask: mountainEligible,
           })
         ) {
           spineCandidates.push(i);
@@ -367,7 +367,7 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
 
       if (rangeSystemTarget > 0 && spineCandidates.length < rangeSystemTarget) {
         for (let i = 0; i < size; i++) {
-          if (landMask[i] === 0) continue;
+          if (mountainEligible[i] !== 1) continue;
           if (spineCandidateMask[i] === 1) continue;
           const score = mountainScoreByTile[i] ?? 0;
           if (!(score >= mountainThreshold)) continue;
@@ -399,6 +399,14 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
       const rangeOwner = new Int32Array(size);
       rangeOwner.fill(-1);
       let mountainCount = 0;
+      // Every promotion, including quota recovery and corridor shoulders, shares this admission.
+      const admitMountain = (index: number, owner: number): boolean => {
+        if (mountainEligible[index] !== 1 || mountainMask[index] === 1) return false;
+        mountainMask[index] = 1;
+        rangeOwner[index] = owner;
+        mountainCount++;
+        return true;
+      };
       const addLocalShoulders = (
         owner: number,
         spine: number,
@@ -411,7 +419,7 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
         const y = Math.floor(spine / w);
         forEachHexNeighborOddQ(x, y, w, h, (nx, ny) => {
           const ni = ny * w + nx;
-          if (landMask[ni] === 0) return;
+          if (mountainEligible[ni] !== 1) return;
           if (mountainMask[ni] === 1) return;
           const score = mountainScoreByTile[ni] ?? 0;
           if (!(score >= mountainShoulderThreshold)) return;
@@ -435,9 +443,7 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
           });
           if (adjacentOwner >= 0 && adjacentOwner !== owner) continue;
           if (adjacentOwner === -2) continue;
-          mountainMask[i] = 1;
-          rangeOwner[i] = owner;
-          mountainCount++;
+          admitMountain(i, owner);
         }
       };
       const addDistributedFloorAnchors = (desiredOwnerCount: number, target: number): void => {
@@ -482,10 +488,8 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
 
           if (bestIdx < 0) break;
           const owner = selectedSpines.length;
+          if (!admitMountain(bestIdx, owner)) break;
           selectedSpines.push(bestIdx);
-          mountainMask[bestIdx] = 1;
-          rangeOwner[bestIdx] = owner;
-          mountainCount++;
           markSpineExclusion({
             exclusionMask: spineExclusionMask,
             startIndex: bestIdx,
@@ -534,6 +538,8 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
             ownerAxisCounts[owner] = (ownerAxisCounts[owner] ?? 0) + 1;
           }
           if (mountainMask[index] === 1) return;
+          // Corridor ownership and traversal include passes that cannot become mountains.
+          if (mountainEligible[index] !== 1) return;
           if (mountainCount >= target) return;
           if ((ownerMountainCounts[owner] ?? 0) >= ownerMountainBudget) return;
 
@@ -551,9 +557,9 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
             driverByte >= Math.max(regionSupportDriverMin, mountainFloorDriverByteMin);
           if (!mountainSupported) return;
 
-          mountainMask[index] = 1;
-          ownerMountainCounts[owner] = (ownerMountainCounts[owner] ?? 0) + 1;
-          mountainCount++;
+          if (admitMountain(index, owner)) {
+            ownerMountainCounts[owner] = (ownerMountainCounts[owner] ?? 0) + 1;
+          }
         };
 
         const pickAxisStep = (params: {
@@ -716,10 +722,8 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
         const idx = bestIdx;
         if (mountainCount >= spineTarget) break;
         selectedCandidateMask[idx] = 1;
-        mountainMask[idx] = 1;
-        rangeOwner[idx] = selectedSpines.length;
+        if (!admitMountain(idx, selectedSpines.length)) continue;
         selectedSpines.push(idx);
-        mountainCount++;
         if (effectiveSpineMinDistance > 0) {
           markSpineExclusion({
             exclusionMask: spineExclusionMask,
@@ -754,7 +758,7 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
       for (let step = 0; step < dilationSteps && mountainCount < mountainTarget; step++) {
         const frontierByOwner: number[][] = Array.from({ length: selectedSpines.length }, () => []);
         for (let i = 0; i < size; i++) {
-          if (landMask[i] === 0) continue;
+          if (mountainEligible[i] !== 1) continue;
           if (mountainMask[i] === 1) continue;
           const score = mountainScoreByTile[i] ?? 0;
           if (!(score >= mountainShoulderThreshold)) continue;
@@ -800,9 +804,7 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
                 rangeOwner,
               });
               if (adjacentOwner !== owner) continue;
-              mountainMask[i] = 1;
-              rangeOwner[i] = owner;
-              mountainCount++;
+              if (!admitMountain(i, owner)) continue;
               grew = true;
               break;
             }
@@ -815,7 +817,7 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
       if (mountainCount < mountainTarget && rangeSystemTarget <= 0) {
         const remaining: number[] = [];
         for (let i = 0; i < size; i++) {
-          if (landMask[i] === 0) continue;
+          if (mountainEligible[i] !== 1) continue;
           if (mountainMask[i] === 1) continue;
           const score = mountainScoreByTile[i] ?? 0;
           if (!(score >= mountainShoulderThreshold)) continue;
@@ -830,9 +832,7 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
         for (const i of remaining) {
           if (mountainCount >= mountainTarget) break;
           if (effectiveSpineMinDistance > 0 && spineExclusionMask[i] === 1) continue;
-          mountainMask[i] = 1;
-          rangeOwner[i] = selectedSpines.length;
-          mountainCount++;
+          if (!admitMountain(i, selectedSpines.length)) continue;
           if (effectiveSpineMinDistance > 0) {
             markSpineExclusion({
               exclusionMask: spineExclusionMask,
@@ -865,7 +865,7 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
             () => []
           );
           for (let i = 0; i < size; i++) {
-            if (landMask[i] === 0) continue;
+            if (mountainEligible[i] !== 1) continue;
             if (mountainMask[i] === 1) continue;
             const driverByte = resolveStrongestDriverByte({
               i,
@@ -919,9 +919,7 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
                   rangeOwner,
                 });
                 if (adjacentOwner !== owner) continue;
-                mountainMask[i] = 1;
-                rangeOwner[i] = owner;
-                mountainCount++;
+                if (!admitMountain(i, owner)) continue;
                 grewAdjacent = true;
                 grewRound = true;
                 break;
@@ -932,7 +930,7 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
 
         const floorCandidates: number[] = [];
         for (let i = 0; i < size; i++) {
-          if (landMask[i] === 0) continue;
+          if (mountainEligible[i] !== 1) continue;
           if (mountainMask[i] === 1) continue;
           const driverByte = resolveStrongestDriverByte({
             i,
@@ -992,10 +990,8 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
             if (bestIdx < 0) break;
 
             const owner = selectedSpines.length;
+            if (!admitMountain(bestIdx, owner)) break;
             selectedSpines.push(bestIdx);
-            mountainMask[bestIdx] = 1;
-            rangeOwner[bestIdx] = owner;
-            mountainCount++;
             if (effectiveSpineMinDistance > 0) {
               markSpineExclusion({
                 exclusionMask: spineExclusionMask,
@@ -1011,9 +1007,7 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
           for (const i of floorCandidates) {
             if (mountainCount >= mountainMinTarget) break;
             if (mountainMask[i] === 1) continue;
-            mountainMask[i] = 1;
-            rangeOwner[i] = selectedSpines.length;
-            mountainCount++;
+            admitMountain(i, selectedSpines.length);
           }
         }
       }

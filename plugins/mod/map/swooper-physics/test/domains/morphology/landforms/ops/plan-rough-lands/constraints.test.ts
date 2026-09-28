@@ -25,7 +25,7 @@ function createInput(width: number, height: number) {
     mountainRegionMask: new Uint8Array(size),
     mountainRegionIdByTile: new Int32Array(size).fill(-1),
     foothillMask: new Uint8Array(size),
-    elevation: new Int16Array(size).fill(30),
+    elevation: Int16Array.from({ length: size }, (_, index) => 30 + (index % width) * 4),
     seaLevel: 0,
     boundaryCloseness: new Uint8Array(size).fill(180),
     boundaryType: new Uint8Array(size).fill(BOUNDARY_TYPE.transform),
