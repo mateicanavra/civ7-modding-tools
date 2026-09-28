@@ -31,6 +31,8 @@ type StandardBiomeRowMetrics = Readonly<{
   landRowCount: number;
   medianBiomeDiversity: number | null;
   maximumBiomeDiversity: number | null;
+  /** Sum of each qualified row's modal classified-biome count over all land in those rows. */
+  dominantBiomeTiles: CountMetric;
   qualifiedRainforestRowCount: number;
   adjacentRainforestRowPairCount: number;
   maximumAdjacentRainforestShareDelta: number | null;
@@ -57,7 +59,6 @@ export type StandardEcologyMetrics = Readonly<{
 
 /** Measures realized Ecology product evidence without applying identity thresholds. */
 export function measureStandardEcology(capture: StandardMapCapture): StandardEcologyMetrics {
-  const { width, height } = capture.provenance;
   const tileCount = capture.provenance.width * capture.provenance.height;
   const plannedLandCount = countBinary(capture.model.landMask);
   const realizedWaterCount = countBinary(capture.observation.isWater);
@@ -72,8 +73,6 @@ export function measureStandardEcology(capture: StandardMapCapture): StandardEco
     capture.observation.features.map(({ key }) => [key, 0])
   );
   const biomeCounts = new Map<string, number>();
-  const rowBiomeDiversity: number[] = [];
-  const rainforestShareByRow: Array<number | null> = [];
   let invalidFeatureSurfaceCount = 0;
   let unclassifiedModeledLandCount = 0;
 
@@ -96,32 +95,6 @@ export function measureStandardEcology(capture: StandardMapCapture): StandardEco
     }
   }
 
-  for (let y = 0; y < height; y += 1) {
-    let landTiles = 0;
-    let rainforestTiles = 0;
-    const rowBiomes = new Set<number>();
-    for (let x = 0; x < width; x += 1) {
-      const index = y * width + x;
-      if (capture.model.landMask[index] !== 1) continue;
-      landTiles += 1;
-      const biomeIndex = capture.model.biomeIndex[index]!;
-      if (biomeIndex !== 255) rowBiomes.add(biomeIndex);
-      if (biomeIndex === BIOME_SYMBOL_TO_INDEX.tropicalRainforest) rainforestTiles += 1;
-    }
-    if (landTiles > 0) rowBiomeDiversity.push(rowBiomes.size);
-    rainforestShareByRow.push(
-      landTiles >= MINIMUM_LAND_TILES_PER_LATITUDE_ROW ? rainforestTiles / landTiles : null
-    );
-  }
-
-  const adjacentRainforestShareDeltas: number[] = [];
-  for (let y = 1; y < rainforestShareByRow.length; y += 1) {
-    const previous = rainforestShareByRow[y - 1];
-    const current = rainforestShareByRow[y];
-    if (previous === null || current === null) continue;
-    adjacentRainforestShareDeltas.push(Math.abs(current - previous));
-  }
-
   let dominantBiome: string | null = null;
   let dominantCount = -1;
   for (const [biome, count] of biomeCounts) {
@@ -141,17 +114,7 @@ export function measureStandardEcology(capture: StandardMapCapture): StandardEco
   return Object.freeze({
     biomeDiversity: biomeCounts.size,
     dominantBiome,
-    biomeRows: Object.freeze({
-      landRowCount: rowBiomeDiversity.length,
-      medianBiomeDiversity: medianOrNull(rowBiomeDiversity),
-      maximumBiomeDiversity: rowBiomeDiversity.length === 0 ? null : Math.max(...rowBiomeDiversity),
-      qualifiedRainforestRowCount: rainforestShareByRow.filter((value) => value !== null).length,
-      adjacentRainforestRowPairCount: adjacentRainforestShareDeltas.length,
-      maximumAdjacentRainforestShareDelta:
-        adjacentRainforestShareDeltas.length === 0
-          ? null
-          : Math.max(...adjacentRainforestShareDeltas),
-    }),
+    biomeRows: measureStandardBiomeRows(capture),
     coldBiomeTiles: measureMetricCount(
       (biomeCounts.get("tundra") ?? 0) + (biomeCounts.get("boreal") ?? 0),
       plannedLandCount
@@ -167,6 +130,60 @@ export function measureStandardEcology(capture: StandardMapCapture): StandardEco
     featureHabitatMismatchCounts: Object.freeze(mismatchCounts),
     featureAttemptCounts: capture.projection.featureAttempts,
     featureRejectCounts: capture.projection.featureRejections,
+  });
+}
+
+/** Measures categorical row modes, never arithmetic distances between biome IDs. */
+export function measureStandardBiomeRows(
+  capture: Readonly<{
+    provenance: Pick<StandardMapCapture["provenance"], "width" | "height">;
+    model: Pick<StandardMapCapture["model"], "landMask" | "biomeIndex">;
+  }>
+): StandardBiomeRowMetrics {
+  const { width, height } = capture.provenance;
+  const rowBiomeDiversity: number[] = [];
+  const rainforestShareByRow: Array<number | null> = [];
+  let qualifiedLandCount = 0;
+  let dominantBiomeCount = 0;
+  for (let y = 0; y < height; y += 1) {
+    let landTiles = 0;
+    let rainforestTiles = 0;
+    const rowBiomes = new Map<number, number>();
+    for (let x = 0; x < width; x += 1) {
+      const index = y * width + x;
+      if (capture.model.landMask[index] !== 1) continue;
+      landTiles += 1;
+      const biomeIndex = capture.model.biomeIndex[index]!;
+      if (biomeIndex !== 255) rowBiomes.set(biomeIndex, (rowBiomes.get(biomeIndex) ?? 0) + 1);
+      if (biomeIndex === BIOME_SYMBOL_TO_INDEX.tropicalRainforest) rainforestTiles += 1;
+    }
+    if (landTiles > 0) rowBiomeDiversity.push(rowBiomes.size);
+    if (landTiles >= MINIMUM_LAND_TILES_PER_LATITUDE_ROW) {
+      qualifiedLandCount += landTiles;
+      dominantBiomeCount += Math.max(0, ...rowBiomes.values());
+      rainforestShareByRow.push(rainforestTiles / landTiles);
+    } else {
+      rainforestShareByRow.push(null);
+    }
+  }
+
+  const adjacentRainforestShareDeltas: number[] = [];
+  for (let y = 1; y < rainforestShareByRow.length; y += 1) {
+    const previous = rainforestShareByRow[y - 1];
+    const current = rainforestShareByRow[y];
+    if (previous === null || current === null) continue;
+    adjacentRainforestShareDeltas.push(Math.abs(current - previous));
+  }
+
+  return Object.freeze({
+    landRowCount: rowBiomeDiversity.length,
+    medianBiomeDiversity: medianOrNull(rowBiomeDiversity),
+    maximumBiomeDiversity: rowBiomeDiversity.length === 0 ? null : Math.max(...rowBiomeDiversity),
+    dominantBiomeTiles: measureMetricCount(dominantBiomeCount, qualifiedLandCount),
+    qualifiedRainforestRowCount: rainforestShareByRow.filter((value) => value !== null).length,
+    adjacentRainforestRowPairCount: adjacentRainforestShareDeltas.length,
+    maximumAdjacentRainforestShareDelta:
+      adjacentRainforestShareDeltas.length === 0 ? null : Math.max(...adjacentRainforestShareDeltas),
   });
 }
 

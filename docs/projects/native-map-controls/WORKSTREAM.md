@@ -1,6 +1,6 @@
 # Native Map Controls
 
-Status: elevation-first acceptance passes; river integration remains separately deferred.
+Status: elevation acceptance passes; Earthlike climate correction precedes authorized river integration.
 DRA: root. Opened: 2026-09-27.
 Opening branch: `agent-root-civ7-native-map-controls-frame`.
 
@@ -18,12 +18,13 @@ contracts, native readback, and a [study loop](studies.md).
 Research can run in parallel; integrated behavior lands in one linear Graphite
 stack, elevation before rivers. This order reduces experimental confounding; it
 is not a claim that the river setter technically requires our elevation setter.
-The current authorized execution slice is elevation only. Existing procedural
-river behavior remains a downstream preservation check; native river writing
-has not been integrated. Its obsolete automatic naming call was removed for
-installed-source compatibility, without introducing new river authorship.
+Elevation-first execution is complete. On 2026-09-27 the user authorized an
+[Earthlike climate correction](earthlike-climate.md) before proceeding directly
+into native river integration. Existing procedural river behavior remains a
+downstream preservation check until then. Its obsolete automatic naming call
+was removed for installed-source compatibility, without new river authorship.
 
-Non-goals: redesign geophysics, retune maps to pass new screenshots, finish the
+Non-goals: redesign geophysics, disguise climate defects with cosmetic noise, finish the
 unrelated Controller/Play migration, upgrade Habitat wholesale, invent generic
 blueprints, or change volcano placement merely because naming is now exposed.
 New resource-schema compatibility is in scope because it gates current-source
@@ -325,8 +326,9 @@ Graphite publication is deferred. The dry run is blocked by the unrelated empty
 ancestor `agent-root-civ7-control-service-rewrite` and would publish 10 unrelated
 PRs. Do not mutate that prior stack or publish those branches to clear this gate.
 The elevation-first native gate is satisfied for the tested setup. Implementation
-and proof are committed in the local Graphite stack; this does not authorize
-river work. Independent final source review found no actionable defects.
+and proof are committed in the local Graphite stack. Independent final source
+review found no actionable defects. Subsequent climate/river authorization is
+recorded in the current frame above.
 
 ### Design Review Dispositions
 
@@ -350,6 +352,8 @@ physical truth or lake placement. Exact native calls account for all eight
 post-write-to-final height changes. Retain those transformations and the
 evidence limits; do not generalize the tested setup into preservation of every
 numeric value or every map/wonder combination.
-River integration and unrelated stack publication remain deferred. Preserve the
-separate main edits and discover current owner commands rather than historical
-aliases. Studio remains available at `http://127.0.0.1:5173/` from this worktree.
+Continue through the Earthlike climate investigation and behavioral expectation
+ledger before implementing the approved river lane. Publication remains deferred
+by the unrelated ancestor. Preserve the separate main edits and discover current
+owner commands rather than historical aliases. Studio remains available at
+`http://127.0.0.1:5173/` from this worktree.

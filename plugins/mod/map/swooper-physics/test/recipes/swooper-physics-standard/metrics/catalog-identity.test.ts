@@ -5,8 +5,61 @@ import { MOUNTAIN_DRAMA_STUDY } from "../../../../src/recipes/standard/metrics/s
 import { SHIPPED_IDENTITY_STUDIES } from "../../../../src/recipes/standard/metrics/studies/benchmarks/shipped-identities.study.js";
 import { SHIPPED_IDENTITY_TARGETS } from "../../../../src/recipes/standard/metrics/targets/identities.js";
 import { MOUNTAIN_DRAMA_COHORT_IDENTITY } from "../../../../src/recipes/standard/metrics/targets/relief.js";
+import { EARTHLIKE_CLIMATE_STRUCTURE_STUDY } from "../../../../src/recipes/standard/metrics/studies/benchmarks/earthlike-climate-structure.study.js";
+import { EARTHLIKE_WIND_STRUCTURE_STUDY } from "../../../../src/recipes/standard/metrics/studies/benchmarks/earthlike-wind-structure.study.js";
+import { standardMetricScenarioSignature } from "../../../../src/recipes/standard/metrics/studies/scenarios.js";
 
 describe("Standard catalog identity proof", () => {
+  it("pins the climate cohort and reuses existing Huge and Standard scenario identities", () => {
+    const { scenarios, sampleTargets } = EARTHLIKE_CLIMATE_STRUCTURE_STUDY;
+    expect(
+      scenarios.map(({ preset, mapSeed, gameSeed, aliveMajorPlayerIds }) => ({
+        preset: preset.id,
+        mapSeed,
+        gameSeed,
+        players: aliveMajorPlayerIds,
+      }))
+    ).toEqual([
+      {
+        preset: "MAPSIZE_HUGE",
+        mapSeed: 1018,
+        gameSeed: 1018,
+        players: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      },
+      {
+        preset: "MAPSIZE_STANDARD",
+        mapSeed: 1018,
+        gameSeed: 1018,
+        players: [0, 1, 2, 3, 4, 5, 6, 7],
+      },
+      {
+        preset: "MAPSIZE_STANDARD",
+        mapSeed: 1,
+        gameSeed: 1,
+        players: [0, 1, 2, 3, 4, 5, 6, 7],
+      },
+      {
+        preset: "MAPSIZE_STANDARD",
+        mapSeed: 42,
+        gameSeed: 42,
+        players: [0, 1, 2, 3, 4, 5, 6, 7],
+      },
+    ]);
+    const existing = [
+      ...SHIPPED_IDENTITY_STUDIES.map(({ scenario }) => scenario),
+      ...EARTHLIKE_WIND_STRUCTURE_STUDY.scenarios,
+    ];
+    for (const scenario of scenarios) {
+      const shared = existing.find(({ id }) => id === scenario.id);
+      expect(shared).toBeDefined();
+      if (!shared) throw new Error(`Missing shared scenario ${scenario.id}`);
+      expect(standardMetricScenarioSignature(scenario)).toBe(
+        standardMetricScenarioSignature(shared)
+      );
+    }
+    expect(sampleTargets.map(({ id }) => id)).toContain("standard/integrity");
+  });
+
   it("exhausts the eight-config durable catalog without presence filtering", () => {
     expect(MAP_CONFIG_CATALOG_IDS).toHaveLength(8);
     expect(MAP_CONFIG_CATALOG_IDS).not.toContain("mountain-rivers-patch");

@@ -1,6 +1,7 @@
 import type { NonEmptyTuple } from "type-fest";
 import { EARTHLIKE_BIOME_STRUCTURE_STUDY } from "./benchmarks/earthlike-biome-structure.study.js";
 import { EARTHLIKE_COLD_REEF_STUDY } from "./benchmarks/earthlike-cold-reef.study.js";
+import { EARTHLIKE_CLIMATE_STRUCTURE_STUDY } from "./benchmarks/earthlike-climate-structure.study.js";
 import { EARTHLIKE_DEEP_OCEAN_STUDY } from "./benchmarks/earthlike-deep-ocean.study.js";
 import { EARTHLIKE_ECOLOGY_STUDY } from "./benchmarks/earthlike-ecology.study.js";
 import { EARTHLIKE_FLOODPLAIN_STUDY } from "./benchmarks/earthlike-floodplain.study.js";
@@ -28,6 +29,7 @@ export const STANDARD_METRIC_STUDIES: NonEmptyTuple<StandardMetricStudy> = Objec
   MOUNTAIN_DRAMA_STUDY,
   EARTHLIKE_GEOGRAPHY_STUDY,
   EARTHLIKE_BIOME_STRUCTURE_STUDY,
+  EARTHLIKE_CLIMATE_STRUCTURE_STUDY,
   EARTHLIKE_DEEP_OCEAN_STUDY,
   EARTHLIKE_RIVER_NETWORK_STUDY,
   EARTHLIKE_WIND_STRUCTURE_STUDY,

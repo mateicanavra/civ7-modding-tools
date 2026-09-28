@@ -60,6 +60,7 @@ sheet. Every runtime study ID emitted by `STANDARD_METRIC_STUDIES` maps below.
 | `shipped/mountain-drama` | Twelve matched-seed Huge samples across Earthlike and three mountain configs | [Mountain drama](benchmarks/mountain-drama.md) |
 | `earthlike/geography` | Standard sample, seed 1337 | [Earthlike geography](benchmarks/earthlike-geography.md) |
 | `earthlike/biome-structure` | Huge sample, seed 1337 | [Earthlike biome structure](benchmarks/earthlike-biome-structure.md) |
+| `earthlike/climate-structure` | Huge 1018 and Standard 1018/1/42 cohort | [Earthlike climate structure](benchmarks/earthlike-climate-structure.md) |
 | `earthlike/deep-ocean` | Nine-map cross-size cohort | [Earthlike deep ocean](benchmarks/earthlike-deep-ocean.md) |
 | `earthlike/river-network` | Three-seed Standard cohort | [Earthlike river network](benchmarks/earthlike-river-network.md) |
 | `earthlike/wind-structure` | Three-seed Standard cohort | [Earthlike circulation structure](benchmarks/earthlike-wind-structure.md) |

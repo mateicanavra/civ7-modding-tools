@@ -3,6 +3,56 @@ import { metricShare, type MetricTarget } from "@swooper/mapgen-metrics";
 import type { StandardMapMetricCohort } from "../sample.js";
 import { atLeast, atMost, equalTo, summarizeCohort } from "./support.js";
 
+/** Pre-declared Earthlike bounds for unsaturated rainfall and regional land temperature. */
+export const EARTHLIKE_CLIMATE_STRUCTURE_TARGET = {
+  id: "swooper-earthlike/climate-structure",
+  description:
+    "Every Earthlike case retains within-latitude thermal variation without broad rainfall saturation.",
+  expectations: [
+    equalTo<StandardMapMetricCohort>(
+      "seasonal-land-rainfall-saturation",
+      "Every season saturates strictly less than ten percent of modeled land in every map.",
+      (samples) =>
+        samples.every(({ metrics }) =>
+          (metrics.hydrology.climateStructure.maximumSeasonalLandSaturationFraction ?? 1) < 0.1
+        ),
+      true
+    ),
+    equalTo<StandardMapMetricCohort>(
+      "refined-land-rainfall-saturation",
+      "Refined annual rainfall saturates strictly less than five percent of land in every map.",
+      (samples) =>
+        samples.every(({ metrics }) => {
+          const { count, population } = metrics.hydrology.climateStructure.refinedSaturatedLandTiles;
+          return population > 0 && count * 20 < population;
+        }),
+      true
+    ),
+    atLeast<StandardMapMetricCohort>(
+      "within-row-temperature-variation-floor",
+      "Pooled within-row land-temperature standard deviation is at least one degree Celsius.",
+      (samples) =>
+        summarizeCohort(
+          samples,
+          (sample) => sample.metrics.hydrology.climateStructure.pooledWithinRowTemperatureSdC ?? 0
+        ).minimum,
+      1
+    ),
+    atMost<StandardMapMetricCohort>(
+      "within-row-temperature-variation-ceiling",
+      "Pooled within-row land-temperature standard deviation is at most eight degrees Celsius.",
+      (samples) =>
+        summarizeCohort(
+          samples,
+          (sample) =>
+            sample.metrics.hydrology.climateStructure.pooledWithinRowTemperatureSdC ??
+            Number.MAX_SAFE_INTEGER
+        ).maximum,
+      8
+    ),
+  ],
+} satisfies MetricTarget<StandardMapMetricCohort>;
+
 /** Earthlike cohort target for a meaningful river hierarchy and a closed permanence partition. */
 export const EARTHLIKE_RIVER_NETWORK_TARGET = {
   id: "swooper-earthlike/river-network",

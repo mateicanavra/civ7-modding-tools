@@ -8,6 +8,14 @@ closure, typed reasons, habitat and phase fidelity, same-type spacing, authored
 count ranges, regional minimums, geological pair correlation, landmass density,
 15-degree latitude bands, and a 4 x 4 sector entropy surface.
 
+Geological pair correlation remains a per-map measurement over the pooled
+geological population above its maximum same-type spacing floor. The Earthlike
+target requires a nonempty cohort with every ratio finite and available, then
+compares their equally weighted arithmetic mean strictly above CSR (`1`). A
+below-one map remains visible evidence, not an omitted sample or an individual
+failure. This statistical cohort expectation does not establish per-map physical
+fidelity or replace per-map habitat, legality, closure, spacing, or equity guards.
+
 Regional minimums apply to every admitted resource in each positive published
 engine-region slot with legal candidates. Region zero, absent slots, and slots
 without legal candidates have no floor. These slots are distinct from physical

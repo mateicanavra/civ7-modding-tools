@@ -7,6 +7,10 @@ import { type CountMetric, measureMetricCount } from "@swooper/mapgen-metrics";
 
 import type { StandardMapCapture } from "../../capture.js";
 import {
+  measureStandardClimateStructure,
+  type StandardClimateStructureMetrics,
+} from "./climate-structure.js";
+import {
   measureStandardPressureStructure,
   type StandardPressureStructureMetrics,
 } from "./pressure-structure.js";
@@ -27,6 +31,7 @@ export type StandardHydrologyMetrics = Readonly<{
     StandardMapCapture["projection"]["riverReadback"];
   windStructure: StandardWindStructureMetrics;
   pressureStructure: StandardPressureStructureMetrics;
+  climateStructure: StandardClimateStructureMetrics;
 }>;
 
 /** Measures Hydrology structure and projection/readback evidence without deciding product budgets. */
@@ -60,5 +65,6 @@ export function measureStandardHydrology(capture: StandardMapCapture): StandardH
     }),
     windStructure: measureStandardWindStructure(capture),
     pressureStructure: measureStandardPressureStructure(capture),
+    climateStructure: measureStandardClimateStructure(capture),
   });
 }

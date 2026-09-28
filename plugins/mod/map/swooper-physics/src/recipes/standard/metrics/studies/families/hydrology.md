@@ -29,6 +29,17 @@ check proves coordinate and broad-belt consistency, not that annual-mean
 pressure reconstructs the complete wind field. The anomaly is a field
 measurement in hPa, not a pressure-operation knob.
 
+The nested `climateStructure` measurement retains baseline and refined annual
+rainfall saturation as land counts/populations, the worst seasonal land
+saturation fraction, and pooled within-row land-temperature SD in Celsius.
+Annual rainfall is copied from the existing baseline/refined climate artifacts;
+the baseline metrics facet projects seasonal counts without publishing new
+climate artifacts. Saturation means rainfall >=200. Water is excluded, each
+temperature row mean uses only land, and squared departures are pooled over all
+land tiles. Empty land produces null fractions/SD rather than a passing zero.
+The [climate-structure study](../benchmarks/earthlike-climate-structure.md) owns
+the product bounds.
+
 ## Scale and interpretation
 
 - A Civ tile is a strategy-scale sample, not a geodetic cell. Study sheets record

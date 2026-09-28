@@ -183,6 +183,7 @@ describe("Standard metric scenario admission", () => {
             landRowCount: 0,
             medianBiomeDiversity: null,
             maximumBiomeDiversity: null,
+            dominantBiomeTiles: { count: 0, population: 0 },
             qualifiedRainforestRowCount: 0,
             adjacentRainforestRowPairCount: 0,
             maximumAdjacentRainforestShareDelta: null,

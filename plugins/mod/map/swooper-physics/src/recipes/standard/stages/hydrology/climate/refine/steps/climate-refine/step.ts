@@ -139,6 +139,7 @@ export const ClimateRefineStep = createStep(config, {
         height,
         insolation: forcing.insolation,
         elevation: topography.elevation,
+        seaLevel: topography.seaLevel,
         landMask: topography.landMask,
       },
       stepConfig.computeThermalState
