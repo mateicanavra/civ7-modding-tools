@@ -131,6 +131,48 @@ Separate write capability from type-readback capability; the current
 `minorRiverStampingSupported` flag is derived from readback support and cannot
 prove authorship. Update its contract and parity consumers together.
 
+## Additive Adapter Contract
+
+`EngineAdapter` now exposes detached symbolic `RiverWriteIntent` values and
+explicit `RiverFinalizationArgs`. Geographic symbols are translated to installed
+native enums only in the app adapter. Coordinates, classes and numeric arguments
+are validated before dispatch; absent functions/enums and native exceptions
+remain errors. There is no rerouting, procedural fallback, retry or defaulted
+finalizer tuple.
+
+`getRiverCapabilities` separately reports writer, finalizer and raw type-reader
+availability, labeled `native` or `mock`. Callable surfaces do not prove native
+semantic parity. The mock records intent and applies declared classes only;
+it does not simulate slopes, network construction, class demotion or ocean
+connectivity. The recipe owns once-per-map finalization, not the adapter.
+
+This prerequisite is deliberately additive: production still uses its existing
+river path until the physical model and projection design are reconciled.
+The misleading older readback-derived flag is retained only until its consumers
+can migrate together. The live atlas qualifies direct engine calls, not the
+new wrapper; wrapper-level evidence is focused dispatch/contract testing until
+production integration receives its own correlated native run.
+
+The unified adapter/Core/definition/app check, test and policy graph passes
+63 tasks: 56 adapter, 360 Core, 655 definition and 114 app tests, with 49,125
+assertions. Receipt: `/tmp/civ7-river-adapter-verified.log`. The first run found
+that a new standalone semantics test was outside the admitted package shell;
+the tests were folded into the existing mock-adapter proof instead of weakening
+Habitat policy. Independent source review found no actionable defects.
+
+After qualification, the normal saved `ToT_NoModsExceptMaps` Huge Earthlike
+map/game seed 1018 setup was restored at turn 1. A fresh run completed at
+`2026-09-28T05:37:55.568Z`; generated and installed script SHA-256 match
+`732b817b98c29e0fde7131e249c6b1162561eda05a86cff6201689ba80ed4cfc`.
+Receipt: `/tmp/civ7-river-contract-earthlike-restored.log`. The subsequent
+Explore request reports all 6,996 plots revealed and visible, with quiescence
+and notification suspension/resumption verified:
+`/tmp/civ7-river-contract-earthlike-explore.json`. This is normal-path regression
+and player handback, not proof of the still-unused explicit river wrapper.
+Studio was restarted from this worktree and regenerated Huge Earthlike/1018;
+the biome preview is available in Arc. Its legacy live-status connection entered
+backoff during Explore, independently of the successful fresh native request.
+
 ## Tests And Acceptance
 
 - Deterministic graph-to-hex lowering, odd/even rows, seams, transitions,

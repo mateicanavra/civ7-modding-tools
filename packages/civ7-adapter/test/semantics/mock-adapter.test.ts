@@ -1,5 +1,5 @@
 import { describe, expect, it, mock } from "bun:test";
-import { NO_RIVER_TYPE, RIVER_TYPE_NAVIGABLE } from "@civ7/map-policy";
+import { NO_RIVER_TYPE, RIVER_TYPE_MINOR, RIVER_TYPE_NAVIGABLE } from "@civ7/map-policy";
 import {
   captureCurrentMapElevationSnapshot,
   copyElevationIntent,
@@ -10,6 +10,7 @@ import {
   DEFAULT_PLOT_EFFECT_TYPES,
   MockAdapter,
 } from "../../src/mock-adapter.js";
+import type { RiverDirection, RiverFinalizationArgs, RiverWriteIntent } from "../../src/types.js";
 
 describe("MockAdapter", () => {
   it.each([
@@ -369,5 +370,95 @@ describe("MockAdapter", () => {
     expect(Array.from(resetSurface.riverMask)).toEqual([0, 0]);
     expect(Array.from(resetSurface.navigableRiverMask)).toEqual([0, 0]);
     expect(Array.from(resetSurface.minorRiverMask)).toEqual([0, 0]);
+  });
+});
+
+describe("MockAdapter explicit river intent (not native proof)", () => {
+  it("records detached symbolic intents and applies declared classes only at finalization", () => {
+    const adapter = createMockAdapter({ width: 4, height: 3 });
+    expect(adapter.getRiverCapabilities()).toEqual({
+      source: "mock",
+      setRiverInfo: { status: "available" },
+      finalizeRivers: { status: "available" },
+      riverTypeReadback: { status: "available" },
+    });
+    const mountain = adapter.getTerrainTypeIndex("TERRAIN_MOUNTAIN");
+    const navigable = adapter.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER");
+    adapter.setTerrainType(0, 1, mountain);
+    const minor = { x: 0, y: 1, direction: "EAST", riverClass: "MINOR" } satisfies RiverWriteIntent;
+    const nav = { x: 1, y: 1, direction: "WEST", riverClass: "NAVIGABLE" } satisfies RiverWriteIntent;
+    adapter.setRiverInfo(minor);
+    adapter.setRiverInfo(nav);
+    expect(adapter.getRiverType(0, 1)).toBe(NO_RIVER_TYPE);
+    expect(adapter.getRiverType(1, 1)).toBe(NO_RIVER_TYPE);
+    expect(adapter.calls.setRiverInfo).toEqual([minor, nav]);
+    expect(adapter.calls.setRiverInfo[0]).not.toBe(minor);
+    minor.x = 3;
+    nav.x = 3;
+    const args: [boolean, number, number, number] = [false, 25, 2, 2];
+    adapter.finalizeRivers(args);
+    args[1] = 99;
+    expect(adapter.calls.finalizeRivers).toEqual([[false, 25, 2, 2]]);
+    expect(adapter.getRiverType(0, 1)).toBe(RIVER_TYPE_MINOR);
+    expect(adapter.getRiverType(1, 1)).toBe(RIVER_TYPE_NAVIGABLE);
+    expect(adapter.getRiverType(3, 1)).toBe(NO_RIVER_TYPE);
+    expect(adapter.getTerrainType(0, 1)).toBe(mountain);
+    expect(adapter.getTerrainType(1, 1)).toBe(navigable);
+  });
+
+  it("supports all geographic symbols without inventing receiver, slope or ocean connectivity", () => {
+    const adapter = createMockAdapter({ width: 8, height: 3 });
+    const symbols: RiverDirection[] = [
+      "EAST", "NORTHEAST", "NORTHWEST", "WEST", "SOUTHWEST", "SOUTHEAST",
+    ];
+    adapter.setElevation(Array.from({ length: 24 }, (_, i) => i % 8 === 1 ? 1 : 700));
+    symbols.forEach((direction, x) =>
+      adapter.setRiverInfo({ x: x + 1, y: 1, direction, riverClass: "NAVIGABLE" })
+    );
+    adapter.finalizeRivers([true, 0, 0x7fffffff, 0x7fffffff]);
+    for (let x = 1; x <= 6; x++) expect(adapter.getRiverType(x, 1)).toBe(RIVER_TYPE_NAVIGABLE);
+    expect(adapter.getRiverType(0, 1)).toBe(NO_RIVER_TYPE);
+    expect(adapter.getRiverType(7, 1)).toBe(NO_RIVER_TYPE);
+    expect(adapter.getElevation(1, 1)).toBe(1);
+    expect(adapter.calls.setRiverInfo.map(({ direction }) => direction)).toEqual(symbols);
+    expect(adapter.getRiverCapabilities().source).toBe("mock");
+  });
+
+  it("last intent at a plot wins and repeat finalizations remain explicit test calls, not native idempotence evidence", () => {
+    const adapter = createMockAdapter({ width: 3, height: 2 });
+    const terrain = adapter.getTerrainType(1, 1);
+    adapter.setRiverInfo({ x: 1, y: 1, direction: "EAST", riverClass: "NAVIGABLE" });
+    adapter.setRiverInfo({ x: 1, y: 1, direction: "WEST", riverClass: "MINOR" });
+    adapter.finalizeRivers([false, 0, 0, 0]);
+    adapter.finalizeRivers([true, 100, 4, 0]);
+    expect(adapter.calls.finalizeRivers).toEqual([[false, 0, 0, 0], [true, 100, 4, 0]]);
+    expect(adapter.getRiverType(1, 1)).toBe(RIVER_TYPE_MINOR);
+    expect(adapter.getTerrainType(1, 1)).toBe(terrain);
+    adapter.reset();
+    expect(adapter.calls.setRiverInfo).toEqual([]);
+    expect(adapter.calls.finalizeRivers).toEqual([]);
+    adapter.finalizeRivers([false, 25, 2, 2]);
+    expect(adapter.getRiverType(1, 1)).toBe(NO_RIVER_TYPE);
+  });
+
+  it("invalid inputs change neither recorded calls nor simulated state", () => {
+    const adapter = createMockAdapter({ width: 3, height: 2 });
+    const valid: RiverWriteIntent = { x: 1, y: 1, direction: "EAST", riverClass: "MINOR" };
+    const invalid: unknown[] = [null, [], {}, { ...valid, x: -1 }, { ...valid, y: 2 },
+      { ...valid, x: 3 }, { ...valid, x: 0.5 }, { ...valid, y: NaN }, { ...valid, y: "1" },
+      { ...valid, direction: 0 }, { ...valid, direction: "east" }, { ...valid, direction: "toString" },
+      { ...valid, direction: { toString: () => "EAST" } }, { ...valid, riverClass: 1 },
+    ];
+    for (const intent of invalid) expect(() => adapter.setRiverInfo(intent as RiverWriteIntent)).toThrow();
+    const invalidArgs: unknown[] = [undefined, [], [false, 25, 2], [false, 25, 2, 2, 2],
+      [1, 25, 2, 2], [false, -1, 2, 2], [false, 101, 2, 2], [false, 0.5, 2, 2],
+      [false, 25, -1, 2], [false, 25, 2, -1], [false, 25, NaN, 2], [false, 25, 2, Infinity],
+      [false, 25, 0x80000000, 2], [false, 25, 2, 0x80000000], [false, "25", 2, 2],
+      Object.assign(new Array(4), { 0: false, 1: 25, 3: 2 }),
+    ];
+    for (const args of invalidArgs) expect(() => adapter.finalizeRivers(args as RiverFinalizationArgs)).toThrow();
+    expect(adapter.calls.setRiverInfo).toEqual([]);
+    expect(adapter.calls.finalizeRivers).toEqual([]);
+    expect(adapter.isRiver(1, 1)).toBe(false);
   });
 });

@@ -41,7 +41,11 @@ import type {
   ResourceCatalogEntry,
   ResourcePlacementIntent,
   ResourcePlacementOutcome,
+  RiverCapabilities,
+  RiverDirection,
+  RiverFinalizationArgs,
   RiverProjectionResult,
+  RiverWriteIntent,
   VoronoiBoundingBox,
   VoronoiCell,
   VoronoiDiagram,
@@ -51,6 +55,10 @@ import type {
 } from "./types.js";
 
 type MockRandomFn = (max: number, label: string) => number;
+const MOCK_RIVER_DIRECTIONS: Readonly<Record<RiverDirection, true>> = {
+  EAST: true, NORTHEAST: true, NORTHWEST: true, WEST: true, SOUTHWEST: true, SOUTHEAST: true,
+};
+const MAX_MOCK_RIVER_INTEGER = 0x7fffffff;
 type ResourceValidPlacementRow = readonly [
   biomeType: number,
   terrainType: number,
@@ -416,6 +424,7 @@ export class MockAdapter implements EngineAdapter {
   private landmassRegionIds: Uint8Array;
   private riverMask: Uint8Array;
   private riverTypes: Int32Array;
+  private riverWriteIntents = new Map<number, RiverWriteIntent>();
   private rngFn: (max: number, label: string) => number;
   private biomeGlobals: Record<string, number>;
   private featureTypes: Record<string, number>;
@@ -443,6 +452,8 @@ export class MockAdapter implements EngineAdapter {
     setMapInitData: Array<MapInitParams>;
     setElevation: number[][];
     generateCliffsFromElevation: number;
+    setRiverInfo: RiverWriteIntent[];
+    finalizeRivers: RiverFinalizationArgs[];
     designateBiomes: Array<{ width: number; height: number }>;
     addFeatures: Array<{ width: number; height: number }>;
     stampNaturalWonder: Array<{
@@ -554,6 +565,8 @@ export class MockAdapter implements EngineAdapter {
     this.calls = {
       setElevation: [],
       generateCliffsFromElevation: 0,
+      setRiverInfo: [],
+      finalizeRivers: [],
       emitRuntimeWarning: [],
       setMapInitData: [],
       designateBiomes: [],
@@ -1008,6 +1021,50 @@ export class MockAdapter implements EngineAdapter {
       if ((this.terrainTypes[i] ?? 0) !== (_navigableTerrain | 0)) continue;
       this.riverMask[i] = 1;
       this.riverTypes[i] = MOCK_RIVER_NAVIGABLE;
+    }
+  }
+
+  getRiverCapabilities(): RiverCapabilities {
+    return {
+      source: "mock",
+      setRiverInfo: { status: "available" },
+      finalizeRivers: { status: "available" },
+      riverTypeReadback: { status: "available" },
+    };
+  }
+
+  setRiverInfo(intent: RiverWriteIntent): void {
+    if (!intent || typeof intent !== "object" || Array.isArray(intent))
+      throw new TypeError("[MockAdapter] River write intent must be an object.");
+    const { x, y, direction, riverClass } = intent;
+    if (![this.width, this.height].every((value) => Number.isInteger(value) && value > 0 && value <= MAX_MOCK_RIVER_INTEGER))
+      throw new RangeError("[MockAdapter] River dimensions must be positive signed-32-bit integers.");
+    if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || y < 0 || x >= this.width || y >= this.height)
+      throw new RangeError("[MockAdapter] River coordinates must be in-bounds integers.");
+    if (typeof direction !== "string" || !Object.prototype.hasOwnProperty.call(MOCK_RIVER_DIRECTIONS, direction))
+      throw new TypeError("[MockAdapter] River direction must be a geographic symbol.");
+    if (riverClass !== "MINOR" && riverClass !== "NAVIGABLE")
+      throw new TypeError("[MockAdapter] River class must be MINOR or NAVIGABLE.");
+    const snapshot = Object.freeze({ x, y, direction, riverClass });
+    this.calls.setRiverInfo.push(snapshot);
+    this.riverWriteIntents.set(this.idx(x, y), snapshot);
+  }
+
+  finalizeRivers(args: RiverFinalizationArgs): void {
+    if (!Array.isArray(args) || args.length !== 4 || typeof args[0] !== "boolean")
+      throw new TypeError("[MockAdapter] River finalization requires [boolean, percent, minLength, upstream].");
+    for (const [offset, value] of args.slice(1).entries()) {
+      const max = offset === 0 ? 100 : MAX_MOCK_RIVER_INTEGER;
+      if (typeof value !== "number" || !Number.isInteger(value) || value < 0 || value > max)
+        throw new RangeError(`[MockAdapter] River finalization argument ${offset + 1} must be an integer in [0, ${max}].`);
+    }
+    this.calls.finalizeRivers.push(Object.freeze([args[0], args[1], args[2], args[3]] as const));
+    // Declared intent only: no drainage, slope, class demotion, or ocean-connectivity simulation.
+    for (const [plotIndex, intent] of this.riverWriteIntents) {
+      this.riverMask[plotIndex] = 1;
+      this.riverTypes[plotIndex] = intent.riverClass === "MINOR" ? MOCK_RIVER_MINOR : MOCK_RIVER_NAVIGABLE;
+      if (intent.riverClass === "NAVIGABLE")
+        this.setTerrainType(intent.x, intent.y, this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER"));
     }
   }
 
@@ -1655,12 +1712,15 @@ export class MockAdapter implements EngineAdapter {
     this.riverMask.fill(0);
     this.riverTypes.fill(MOCK_NO_RIVER);
     this.landmassRegionIds.fill(0);
+    this.riverWriteIntents.clear();
     this.mapSizeId = config.mapSizeId ?? 0;
     this.mapInfo = config.mapInfo ?? null;
     this.calls.emitRuntimeWarning.length = 0;
     this.calls.setMapInitData.length = 0;
     this.calls.setElevation.length = 0;
     this.calls.generateCliffsFromElevation = 0;
+    this.calls.setRiverInfo.length = 0;
+    this.calls.finalizeRivers.length = 0;
     this.calls.designateBiomes.length = 0;
     this.calls.addFeatures.length = 0;
     this.calls.stampNaturalWonder.length = 0;
