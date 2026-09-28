@@ -125,8 +125,9 @@ explicit quantization residual. Integration: no ordinary uphill links, cycles,
 untyped terminals or double-counted flow; lake interiors excluded from rivers.
 
 Predeclared holds: terrain, continents, coast, bathymetry and baseline climate
-remain exact during water-model work. Existing lake share <=0.08, component
-count <=24, singleton share <=0.20 and placement/resource/ecology legality
+remain exact during water-model work. Existing projected lake share <=0.08 of
+modeled land tiles, wrapped connected-component count <=24, singleton lake tiles <=0.20
+of all projected lake tiles, and placement/resource/ecology legality
 remain unchanged. Study Earthlike Standard seeds 1/42/1018, Huge 1018, and
 wet/arid identities. Guard failure diagnoses model or terrain-scale mismatch;
 it does not authorize an arbitrary breach threshold or weakened acceptance.
@@ -246,3 +247,60 @@ coefficients, unchanged baseline precipitation/humidity and all existing map
 outputs, correct seasonal averaging, and explicit forward parameter reuse.
 This is a preparatory refactor: baseline demand is not yet a calibrated
 open-water-loss guarantee or permission to activate the basin replacement.
+
+The extraction passes 59 focused climate tests (4,395 assertions), including
+double-precision aridity parity, seasonal averaging and forward parameter
+reuse. All twelve paired Earthlike/mountain-patch captures retain every
+previously captured model and observed-array hash exactly versus the
+relief-supported baseline. Receipts:
+`/tmp/civ7-relief-{relief-supported,baseline-demand}.json`. The config digest
+changes because coefficient ownership moves; their admitted numeric values
+do not. This qualifies the preparatory refactor, not basin water physics.
+Independent review identified invalid floating-point forcing admission:
+non-finite land temperatures and non-finite/negative published demand are now
+rejected, with focused fixtures. The definition's 23-task check graph passes.
+The broader check/test run retains only the three separately diagnosed
+landform/Latest Juicy expectations; no full-bank pass is claimed here.
+
+## Stationary-Budget Feasibility Discriminator
+
+The twelve post-noise/post-shelf captures reproduce their full-spill footprints
+exactly from pure basin geometry. Earthlike's existing demand coefficients
+bound PET at 101, and its existing runoff law supplies at least `0.6396 P`.
+Scanning every elevation cohort, recursively certifying every child, and
+omitting incoming overflow gives a conservative saturation certificate without
+borrowing refined climate backward:
+
+`B_lower(h) = sum_dry(0.6396 P) + sum_wet(P - 101)`.
+
+| Earthlike case | Full wet components | Certified full components | Wet / land | Singleton / wet |
+| --- | ---: | ---: | ---: | ---: |
+| Standard 1 | 24 | 23 | 8.37% | 6.43% |
+| Standard 42 | 32 | 31 | 5.65% | 16.84% |
+| Standard 1018 | 26 | 26 | 4.42% | 16.88% |
+| Huge 1 | 60 | 58 | 8.89% | 10.96% |
+| Huge 42 | 58 | 52 | 8.70% | 9.73% |
+| Huge 1018 | 55 | 50 | 7.46% | 9.85% |
+
+Counts use actual wrapped-hex wet components. A separate mixed-vintage
+approximation, baseline rainfall minus reconstructed refined PET, is positive
+on every wet tile; it is corroborating diagnosis, not production forcing.
+Actual baseline demand is still required, but cannot by itself defeat the
+certificate while retaining these coefficients. This establishes consequences
+of the selected empirical model, not physical calibration of open-water loss.
+Reproducer: `/tmp/civ7-basin-budget-discriminator.ts` with
+`/tmp/civ7-relief-coherent-shelf.json`.
+
+The count guard was introduced in `2e6a56c466` with the 2026-05-30 visual-quality
+work, alongside the old selected-sink/upstream-expansion policy. Its underlying
+requirement rejects maps whose lake area is mostly isolated one-tile basins;
+the promoted requirement does not prescribe 24. The number remains an existing
+acceptance gate, not a native limit or a physical constant. Superseding it
+requires an explicit acceptance amendment, not adjusting it to this cohort's
+maximum. The 8% area gate is a separate gameplay concern and is not resolved
+by distinguishing count from singleton scatter.
+
+Do not hide this conflict with a sink selector, fabricated evaporation,
+sub-grid labels for everywhere-positive basins, or arbitrary ground carving.
+Measure demand, whole-body native realization and playable-land impact before
+deciding whether to amend product acceptance or revise terrain-scale physics.

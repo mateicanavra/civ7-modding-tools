@@ -1,5 +1,6 @@
 import hydrology from "../../../../../../../../domain/hydrology/index.js";
 import { artifacts as climateArtifacts } from "../../../../../../../../domain/hydrology/modules/climate/artifacts/index.js";
+import { PotentialDemandParametersSchema } from "../../../../../../../../domain/hydrology/modules/climate/model/atoms/potential-demand.schema.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../../domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "../../../../../../../../domain/morphology/modules/shelf/artifacts/index.js";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
@@ -16,6 +17,8 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 const ClimateBaselineStepConfigSchema = Type.Object(
   {
+    /** Physical demand calibration owned here and forwarded unchanged to refinement. */
+    potentialDemand: PotentialDemandParametersSchema,
     /**
      * Seasonality controls.
      *
@@ -99,6 +102,7 @@ export const config = defineStep({
     computeEvaporationSources: hydrology.climate.ops.computeEvaporationSources,
     transportMoisture: hydrology.climate.ops.transportMoisture,
     computePrecipitation: hydrology.climate.ops.computePrecipitation,
+    computePotentialDemand: hydrology.climate.ops.computePotentialDemand,
   },
   schema: ClimateBaselineStepConfigSchema,
 });

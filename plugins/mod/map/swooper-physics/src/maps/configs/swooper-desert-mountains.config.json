@@ -576,6 +576,17 @@
         "oceanCoupling": "earthlike"
       },
       "climate-baseline": {
+        "potentialDemand": {
+          "tMinC": 0,
+          "tMaxC": 35,
+          "petBase": 40,
+          "petTemperatureWeight": 140,
+          "humidityDampening": 0.45
+        },
+        "computePotentialDemand": {
+          "strategy": "temperature-humidity",
+          "config": {}
+        },
         "seasonality": {
           "modeCount": 2,
           "axialTiltDeg": 12
@@ -819,13 +830,11 @@
         },
         "computeLandWaterBudget": {
           "strategy": "pet-aridity",
-          "config": {
-            "tMinC": 0,
-            "tMaxC": 35,
-            "petBase": 40,
-            "petTemperatureWeight": 140,
-            "humidityDampening": 0.45
-          }
+          "config": {}
+        },
+        "computePotentialDemand": {
+          "strategy": "temperature-humidity",
+          "config": {}
         },
         "computeClimateDiagnostics": {
           "strategy": "terrain-wind-indices",

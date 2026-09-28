@@ -167,6 +167,17 @@ export const ClimateRefineStep = createStep(config, {
       stepConfig.computeCryosphereState
     );
 
+    const demand = ops.computePotentialDemand(
+      {
+        width,
+        height,
+        landMask: topography.landMask,
+        surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,
+        humidity: refined.humidity,
+        parameters: baselineClimateField.demandParameters,
+      },
+      stepConfig.computePotentialDemand
+    );
     const waterBudget = ops.computeLandWaterBudget(
       {
         width,
@@ -174,7 +185,7 @@ export const ClimateRefineStep = createStep(config, {
         landMask: topography.landMask,
         rainfall: refined.rainfall,
         humidity: refined.humidity,
-        surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,
+        pet: demand.pet,
         riverClass: hydrography.riverClass,
       },
       stepConfig.computeLandWaterBudget

@@ -43,6 +43,7 @@ export const config = defineStep({
     applyAlbedoFeedback: hydrology.cryosphere.ops.applyAlbedoFeedback,
     computeCryosphereState: hydrology.cryosphere.ops.computeCryosphereState,
     computeLandWaterBudget: hydrology.climate.ops.computeLandWaterBudget,
+    computePotentialDemand: hydrology.climate.ops.computePotentialDemand,
     computeClimateDiagnostics: hydrology.climate.ops.computeClimateDiagnostics,
   },
 });
