@@ -133,6 +133,100 @@ describe("Base source-map declaration evidence", () => {
 });
 
 describe("declaration emission", () => {
+  test("records extracted SCSS evidence without retaining runtime styles in declarations", async () => {
+    const root = await tempRoot();
+    await writeSolidEvidence(root);
+    await writeCompiledSource(
+      root,
+      "Base/modules/core/ui/root.js",
+      "root.ts",
+      [
+        'import "./root.scss";',
+        'import "#core/ui/themes/default.scss";',
+        'import "#base/ui/game.scss";',
+        'import "./behavior.js";',
+        "export interface Root { ready: boolean }",
+      ].join("\n")
+    );
+    const stylesheetPaths = [
+      "Base/modules/core/ui/root.css",
+      "Base/modules/core/ui/themes/default.css",
+      "Base/modules/base-standard/ui/game.css",
+    ];
+    for (const stylesheetPath of stylesheetPaths) await write(root, stylesheetPath, ".root {}\n");
+    await write(root, "Base/modules/core/ui/behavior.js", "globalThis.ready = true;\n");
+
+    const catalog = await buildBaseModuleCatalog(root);
+    const emission = emitBaseDeclarationProjection(catalog);
+    const shard = emission.shards[0];
+    expect(emission.shards).toHaveLength(1);
+    expect(shard?.text).toContain('import "/core/ui/behavior.js";');
+    expect(shard?.text).toContain("export interface Root");
+    expect(shard?.text).not.toContain(".scss");
+    expect(shard?.text).not.toContain(".css");
+    expect(emission.anyKeywordCount).toBe(0);
+    expect(emission.unresolvedTargets).toEqual([]);
+    expect(emission.edges).toMatchObject([
+      { originalSpecifier: "./behavior.js", status: "compiled-only" },
+    ]);
+    expect(emission.runtimeStylesheetImports).toEqual(
+      ["./root.scss", "#core/ui/themes/default.scss", "#base/ui/game.scss"].map(
+        (originalSpecifier, index) => ({
+          fromVirtualId: "/core/ui/root.js",
+          originalSpecifier,
+          sourcePath: "Base/modules/core/ui/root.ts",
+          mapPath: "Base/modules/core/ui/root.js.map",
+          stylesheetPath: stylesheetPaths[index],
+        })
+      )
+    );
+    expect(shard?.runtimeStylesheetImports).toEqual(emission.runtimeStylesheetImports);
+    expect(emitBaseDeclarationProjection(catalog)).toEqual(emission);
+    expect(catalog.sourceMaps.embeddedTypeScriptSources[0]?.sourceText).toContain("./root.scss");
+  });
+
+  test("preserves module scope when SCSS is the only retained import", async () => {
+    const root = await tempRoot();
+    await writeSolidEvidence(root);
+    await writeCompiledSource(
+      root,
+      "Base/modules/core/root.js",
+      "root.ts",
+      'import "./root.scss"; declare global { interface Window { ready: boolean } }\n'
+    );
+    await write(root, "Base/modules/core/root.css", ".root {}\n");
+
+    const emission = emitBaseDeclarationProjection(await buildBaseModuleCatalog(root));
+    const shard = emission.shards[0];
+    expect(shard?.text).toContain("export {};");
+    expect(shard?.text).toContain("declare global");
+    expect(emission.globalAugmentationCount).toBe(1);
+    expect(emission.anyKeywordCount).toBe(0);
+  });
+
+  test.each([
+    ['import "./missing.scss";', "no compiled CSS evidence"],
+    ['import "./root.css";', "does not identify JavaScript"],
+    ['import "./unknown.svg";', "does not identify JavaScript"],
+    ['import "unknown-package";', "Unsupported retained declaration module specifier"],
+    ['import "unknown-package/root.scss";', "Unsupported runtime stylesheet import"],
+    ['import styles from "./root.scss"; export { styles };', "does not identify JavaScript"],
+    ['export type Styles = typeof import("./root.scss");', "does not identify JavaScript"],
+    ['export * from "./root.scss";', "does not identify JavaScript"],
+    [
+      'import "./root.scss" with { type: "unknown" };',
+      "Unsupported runtime stylesheet import attributes",
+    ],
+  ])("refuses unsupported declaration evidence: %s", async (sourceText, error) => {
+    const root = await tempRoot();
+    await writeSolidEvidence(root);
+    await writeCompiledSource(root, "Base/modules/core/root.js", "root.ts", sourceText);
+    await write(root, "Base/modules/core/root.css", ".root {}\n");
+
+    const catalog = await buildBaseModuleCatalog(root);
+    expect(() => emitBaseDeclarationProjection(catalog)).toThrow(error);
+  });
+
   test("preserves official declaration types and retains ordered diagnostics", async () => {
     const root = await tempRoot();
     await writeSolidEvidence(root);

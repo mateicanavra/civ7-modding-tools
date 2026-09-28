@@ -52,6 +52,7 @@ function shard(
     text: "export {};\n",
     diagnostics: [],
     edges: options.edges ?? [],
+    runtimeStylesheetImports: [],
     anyKeywordCount: 0,
     globalAugmentationCount: options.globalAugmentationCount ?? 0,
   };

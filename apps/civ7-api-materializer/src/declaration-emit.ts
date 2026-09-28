@@ -5,6 +5,7 @@ import {
   type ModuleCatalog,
   type RetainedModuleResolution,
   resolveRetainedModuleSpecifier,
+  resolveRuntimeStylesheetPath,
 } from "./module-catalog.js";
 import { compareUtf8 } from "./source-maps.js";
 
@@ -30,6 +31,19 @@ export interface DeclarationEdge {
   readonly status: DeclarationEdgeStatus;
 }
 
+/**
+ * Bare SCSS imports extracted by the official bundler are not declaration edges. Receipt
+ * schema 4 retains their source-map and compiled CSS paths; the source snapshot digest pins
+ * both files' bytes. No stylesheet module or declaration stub is synthesized.
+ */
+interface RuntimeStylesheetImport {
+  readonly fromVirtualId: string;
+  readonly originalSpecifier: string;
+  readonly sourcePath: string;
+  readonly mapPath: string;
+  readonly stylesheetPath: string;
+}
+
 interface DeclarationShard {
   readonly virtualId: string;
   readonly outputFileName: string;
@@ -38,6 +52,7 @@ interface DeclarationShard {
   readonly text: string;
   readonly diagnostics: readonly DeclarationDiagnostic[];
   readonly edges: readonly DeclarationEdge[];
+  readonly runtimeStylesheetImports: readonly RuntimeStylesheetImport[];
   readonly anyKeywordCount: number;
   readonly globalAugmentationCount: number;
 }
@@ -55,6 +70,7 @@ export interface DeclarationEmission {
   readonly shards: readonly DeclarationShard[];
   readonly diagnostics: readonly DeclarationDiagnostic[];
   readonly edges: readonly DeclarationEdge[];
+  readonly runtimeStylesheetImports: readonly RuntimeStylesheetImport[];
   readonly unresolvedTargets: readonly UnresolvedTargetProvenance[];
   readonly anyKeywordCount: number;
   readonly globalAugmentationCount: number;
@@ -150,16 +166,42 @@ function isGlobalAugmentation(statement: ts.Statement): statement is ts.ModuleDe
 interface TransformResult {
   readonly sourceFile: ts.SourceFile;
   readonly edges: readonly DeclarationEdge[];
+  readonly runtimeStylesheetImports: readonly RuntimeStylesheetImport[];
 }
 
 function transformDeclarationSource(
   catalog: ModuleCatalog,
-  fromVirtualId: string,
+  module: DeclarationModule,
   sourceFile: ts.SourceFile
 ): TransformResult {
+  const fromVirtualId = module.virtualId;
   const edges: DeclarationEdge[] = [];
+  const runtimeStylesheetImports: RuntimeStylesheetImport[] = [];
   const transformer: ts.TransformerFactory<ts.SourceFile> = (context) => {
     const visitor: ts.Visitor = (node) => {
+      // The shipped bundler extracts bare SCSS imports to CSS, not a declaration module.
+      if (
+        module.evidenceKind === "embedded-typescript" &&
+        ts.isImportDeclaration(node) &&
+        node.parent === sourceFile &&
+        node.importClause === undefined &&
+        node.attributes === undefined &&
+        ts.isStringLiteralLike(node.moduleSpecifier) &&
+        node.moduleSpecifier.text.endsWith(".scss")
+      ) {
+        runtimeStylesheetImports.push({
+          fromVirtualId,
+          originalSpecifier: node.moduleSpecifier.text,
+          sourcePath: module.source.sourcePath,
+          mapPath: module.source.mapPath,
+          stylesheetPath: resolveRuntimeStylesheetPath(
+            catalog,
+            fromVirtualId,
+            node.moduleSpecifier.text
+          ),
+        });
+        return undefined;
+      }
       if (ts.isStringLiteralLike(node) && moduleSpecifierLiteral(node)) {
         const resolution = resolveRetainedModuleSpecifier(catalog, fromVirtualId, node.text);
         if (resolution.status === "unretained") {
@@ -187,6 +229,7 @@ function transformDeclarationSource(
     return {
       sourceFile: transformedSourceFile,
       edges,
+      runtimeStylesheetImports,
     };
   } finally {
     transformed.dispose();
@@ -270,11 +313,17 @@ function emitDeclarationShard(
   module: DeclarationModule,
   sourceFile: ts.SourceFile,
   diagnostics: readonly DeclarationDiagnostic[],
-  edges: readonly DeclarationEdge[]
+  edges: readonly DeclarationEdge[],
+  runtimeStylesheetImports: readonly RuntimeStylesheetImport[]
 ): DeclarationShard {
   const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
-  const text = printer.printFile(sourceFile).replace(/[ \t]+$/gm, "");
+  let text = printer.printFile(sourceFile).replace(/[ \t]+$/gm, "");
   const outputFileName = flatDeclarationShardFileName(module);
+  if (runtimeStylesheetImports.length > 0) {
+    const reparsed = ts.createSourceFile(outputFileName, text, ts.ScriptTarget.Latest, true);
+    // Removing a module's only import must not turn its declarations into ambient globals.
+    if (!ts.isExternalModule(reparsed)) text += "export {};\n";
+  }
   const counts = assertReparsed(outputFileName, text);
   return {
     virtualId: module.virtualId,
@@ -284,6 +333,7 @@ function emitDeclarationShard(
     text,
     diagnostics,
     edges,
+    runtimeStylesheetImports,
     ...counts,
   };
 }
@@ -292,6 +342,27 @@ function emitEmbeddedModule(
   catalog: ModuleCatalog,
   module: Extract<DeclarationModule, { readonly evidenceKind: "embedded-typescript" }>
 ): DeclarationShard {
+  const originalSourceFile = ts.createSourceFile(
+    module.source.sourcePath,
+    module.source.sourceText,
+    ts.ScriptTarget.Latest,
+    true,
+    module.source.sourceKind === "tsx" ? ts.ScriptKind.TSX : ts.ScriptKind.TS
+  );
+  // Declaration emit erases import attributes; refuse them before their evidence is lost.
+  for (const statement of originalSourceFile.statements) {
+    if (
+      ts.isImportDeclaration(statement) &&
+      statement.importClause === undefined &&
+      statement.attributes !== undefined &&
+      ts.isStringLiteralLike(statement.moduleSpecifier) &&
+      statement.moduleSpecifier.text.endsWith(".scss")
+    ) {
+      throw new Error(
+        `Unsupported runtime stylesheet import attributes in ${module.virtualId}: ${statement.moduleSpecifier.text}`
+      );
+    }
+  }
   const output = ts.transpileDeclaration(module.source.sourceText, {
     compilerOptions: DECLARATION_COMPILER_OPTIONS,
     fileName: module.source.sourcePath,
@@ -305,8 +376,14 @@ function emitEmbeddedModule(
     true,
     ts.ScriptKind.TS
   );
-  const transformed = transformDeclarationSource(catalog, module.virtualId, emittedSourceFile);
-  return emitDeclarationShard(module, transformed.sourceFile, diagnostics, transformed.edges);
+  const transformed = transformDeclarationSource(catalog, module, emittedSourceFile);
+  return emitDeclarationShard(
+    module,
+    transformed.sourceFile,
+    diagnostics,
+    transformed.edges,
+    transformed.runtimeStylesheetImports
+  );
 }
 
 function emitCompiledBarrel(
@@ -321,8 +398,14 @@ function emitCompiledBarrel(
     true,
     ts.ScriptKind.TS
   );
-  const transformed = transformDeclarationSource(catalog, module.virtualId, sourceFile);
-  return emitDeclarationShard(module, transformed.sourceFile, [], transformed.edges);
+  const transformed = transformDeclarationSource(catalog, module, sourceFile);
+  return emitDeclarationShard(
+    module,
+    transformed.sourceFile,
+    [],
+    transformed.edges,
+    transformed.runtimeStylesheetImports
+  );
 }
 
 function unresolvedTargetProvenance(
@@ -382,6 +465,7 @@ export function emitBaseDeclarationProjection(catalog: ModuleCatalog): Declarati
     shards,
     diagnostics,
     edges,
+    runtimeStylesheetImports: shards.flatMap((shard) => shard.runtimeStylesheetImports),
     unresolvedTargets: unresolvedTargetProvenance(edges),
     anyKeywordCount,
     globalAugmentationCount,

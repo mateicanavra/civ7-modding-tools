@@ -49,6 +49,7 @@ const catalog: ModuleCatalog = {
   declarationModules: [],
   declarationModuleIds: ["/core/example.js"],
   compiledModuleIds: ["/core/example.js"],
+  compiledStylesheetPaths: [],
   solidTypeEvidence: {
     packageName: "solid-js",
     version: "1.9.5",
@@ -72,12 +73,22 @@ const declarations: DeclarationEmission = {
       text: "export interface Example {}\n",
       diagnostics: [],
       edges: [],
+      runtimeStylesheetImports: [],
       anyKeywordCount: 0,
       globalAugmentationCount: 0,
     },
   ],
   diagnostics: [],
   edges: [],
+  runtimeStylesheetImports: [
+    {
+      fromVirtualId: "/core/example.js",
+      originalSpecifier: "./example.scss",
+      sourcePath: "Base/modules/core/example.ts",
+      mapPath: "Base/modules/core/example.js.map",
+      stylesheetPath: "Base/modules/core/example.css",
+    },
+  ],
   unresolvedTargets: [],
   anyKeywordCount: 0,
   globalAugmentationCount: 0,
@@ -134,7 +145,8 @@ describe("declaration projection receipt", () => {
       realms,
       mapScriptResolution
     );
-    expect(pretty.schemaVersion).toBe(3);
+    expect(pretty.schemaVersion).toBe(4);
+    expect(pretty.emission.runtimeStylesheetImports).toEqual(declarations.runtimeStylesheetImports);
     expect(pretty.sourceSnapshot.sourceReceiptSha256).toBe(sha256(prettyText));
     expect(pretty.moduleResolution.mapScript).toEqual({
       path: "map-resolution.json",
