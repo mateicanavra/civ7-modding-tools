@@ -133,6 +133,18 @@ adjust wet cells. Do not compare these numbers directly with physical heights
 or infer uphill water from them. [Projection owner](../../../../../../plugins/mod/map/swooper-physics/src/recipes/standard/elevation-projection.ts).
 Background: [USGS reference levels](https://www.usgs.gov/water-science-school/science/how-streamflow-measured).
 
+### Physical Lake Versus Native Lake Classification
+
+The physical model records a basin's wet footprint and spill surface. Civ's
+`isLake` is a separate engine classification: shipped 1.5 Huge metadata sets
+`Maps.LakeSizeCutoff` to ten cells. Our larger accepted inland bodies can thus
+remain COAST water without becoming native lakes. This matters because their
+native heights can be lowered again during river finalization and terrain
+validation; it does not mean the physical lake should be drained or carved.
+Area size is not a real-world salinity model. Keep physical provenance, native
+classification and visible surface height distinct.
+[Source and measured behavior](../../../../../projects/native-map-controls/water-height-maintenance.md).
+
 ### River Class And Navigable River
 
 Our minor/major classes come from exposed-land discharge percentiles plus

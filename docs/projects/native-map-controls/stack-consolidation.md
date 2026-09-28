@@ -1,7 +1,7 @@
 # Native Stack Consolidation
 
-**Date:** 2026-09-28. **Disposition:** local consolidation complete; stack
-submission pending. This is a history-preserving publication repair for the
+**Date:** 2026-09-28. **Disposition:** local consolidation and native draft
+submission complete. This is a history-preserving publication repair for the
 [native map-controls workstream](WORKSTREAM.md), not a code or acceptance change.
 
 The preceding draft submission reached Graphite's 50-PR stack limit. Nineteen
@@ -53,5 +53,11 @@ The before/after fold receipts preserve these exact identities:
 The retained [C2 result](wet-river-continuity.md) and separate
 [water-height investigation](water-height-maintenance.md) therefore keep their
 implementation/proof boundary. No new runtime verification is claimed by this
-topology change. Submission, remote base reconciliation, and creation of the
-remaining draft PRs are still pending the owning agent's native Graphite submit.
+topology change. `gt submit --stack --draft --no-edit --no-interactive` exited
+successfully after the folds, reconciled the changed PR bases, and created the
+remaining drafts #2208-2214. The current investigation is
+[PR #2214](https://github.com/mateicanavra/civ7-modding-tools/pull/2214);
+the bounded wet-outlet correction is
+[PR #2213](https://github.com/mateicanavra/civ7-modding-tools/pull/2213).
+All newly created PRs are attached to the task. No branch was merged as part of
+this publication repair.
