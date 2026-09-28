@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 import { applyGeneratedFilePlan, type GeneratedFilePlan } from "@civ7/plugin-files/generated-file-plan";
 import { bundleCiv7MapScript } from "../../src/runtime/map-script/compiler.js";
-import { RIVER_PROBE, RIVER_TERRAIN_PROBE, RIVER_PROBE_VARIANTS, type RiverProbeAtlas, type RiverProbeVariant } from "./river-contract-map.fixture.js";
+import { RIVER_PROBE, RIVER_TERRAIN_PROBE, RIVER_LAKE_NAVIGATION_PROBE, RIVER_PROBE_VARIANTS, type RiverProbeAtlas, type RiverProbeVariant } from "./river-contract-map.fixture.js";
 
 export const riverProbeAppRoot = fileURLToPath(new URL("../../", import.meta.url));
 export const riverProbeOutputRoot = resolve(riverProbeAppRoot, "dist/river-contract-probe");
@@ -15,12 +15,12 @@ export const riverProbeMapScript = `{${RIVER_PROBE.id}}/maps/river-contract.js`;
 export async function buildRiverProbePlan(proofId: string, variant: RiverProbeVariant = "authored", atlasKind: RiverProbeAtlas = "legacy"): Promise<GeneratedFilePlan> {
   if (!/^[a-zA-Z0-9-]{1,100}$/.test(proofId)) throw new Error("Use a short alphanumeric/hyphen proof ID.");
   if (!Object.hasOwn(RIVER_PROBE_VARIANTS, variant)) throw new Error(`Unknown river probe variant: ${variant}`);
-  if (atlasKind !== "legacy" && atlasKind !== "terrain-admission") throw new Error(`Unknown river probe atlas: ${atlasKind}`);
-  if (atlasKind === "terrain-admission" && variant !== "authored") throw new Error("Terrain admission requires the authored finalization tuple.");
-  const probe = atlasKind === "terrain-admission" ? RIVER_TERRAIN_PROBE : RIVER_PROBE;
-  const displayLabel = atlasKind === "terrain-admission" ? RIVER_TERRAIN_PROBE.displayLabel : "River Contract Probe";
-  const adapterImport = atlasKind === "terrain-admission" ? 'import { Civ7Adapter } from "./src/runtime/map-script/adapter.ts";\n' : "";
-  const adapterFactory = atlasKind === "terrain-admission" ? ", (width, height) => new Civ7Adapter(width, height)" : "";
+  if (atlasKind !== "legacy" && atlasKind !== "terrain-admission" && atlasKind !== "lake-navigation") throw new Error(`Unknown river probe atlas: ${atlasKind}`);
+  if (atlasKind !== "legacy" && variant !== "authored") throw new Error("Adapter atlases require the authored finalization tuple.");
+  const probe = atlasKind === "terrain-admission" ? RIVER_TERRAIN_PROBE : atlasKind === "lake-navigation" ? RIVER_LAKE_NAVIGATION_PROBE : RIVER_PROBE;
+  const displayLabel = "displayLabel" in probe ? probe.displayLabel : "River Contract Probe";
+  const adapterImport = atlasKind !== "legacy" ? 'import { Civ7Adapter } from "./src/runtime/map-script/adapter.ts";\n' : "";
+  const adapterFactory = atlasKind !== "legacy" ? ", (width, height) => new Civ7Adapter(width, height)" : "";
   const content = await bundleCiv7MapScript({
     source: `${adapterImport}import { registerRiverContractProbe } from "./test/live/river-contract-map.fixture.ts";\nregisterRiverContractProbe(${JSON.stringify(proofId)}, ${JSON.stringify(variant)}, ${JSON.stringify(atlasKind)}${adapterFactory});`,
     sourceName: "river-contract-probe.ts",
@@ -58,8 +58,8 @@ if (import.meta.main) {
   const proofId = process.argv[2];
   const variant = process.argv[3] ?? "authored";
   const atlasKind = process.argv[4] ?? "legacy";
-  if (!proofId || process.argv.length > 5 || !Object.hasOwn(RIVER_PROBE_VARIANTS, variant) || (atlasKind !== "legacy" && atlasKind !== "terrain-admission"))
-    throw new Error("Usage: bun test/live/river-contract-probe.ts <proof-id> [authored|aesthetic|length|upstream|percent] [legacy|terrain-admission] (build only)");
+  if (!proofId || process.argv.length > 5 || !Object.hasOwn(RIVER_PROBE_VARIANTS, variant) || (atlasKind !== "legacy" && atlasKind !== "terrain-admission" && atlasKind !== "lake-navigation"))
+    throw new Error("Usage: bun test/live/river-contract-probe.ts <proof-id> [authored|aesthetic|length|upstream|percent] [legacy|terrain-admission|lake-navigation] (build only)");
   await applyGeneratedFilePlan(await buildRiverProbePlan(proofId, variant as RiverProbeVariant, atlasKind), { outputRoot: riverProbeOutputRoot });
   console.log(JSON.stringify({ outputRoot: riverProbeOutputRoot, proofId, variant, atlasKind,
     mapScript: riverProbeMapScript,
