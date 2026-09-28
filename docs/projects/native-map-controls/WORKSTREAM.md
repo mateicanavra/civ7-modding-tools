@@ -398,7 +398,7 @@ and Latest Juicy's neutral climate identity. See
 rejected alternatives and the explicit retirement of the categorical
 peak-chain proxy. The amended bank passes 29 studies, 96 scenarios and 7,022
 expectations; 722 definition tests and Habitat checks pass. A fresh normal
-Huge Earthlike/1018 native map completes and remains available after Explore.
+Huge Earthlike/1018 native map completed and was inspected after Explore.
 This does not activate the new basin water model or authored river network.
 
 Actual baseline forcing certifies full-spill inundation for all twelve current
@@ -406,6 +406,33 @@ basin study cases. That exposes real changes in land area and mountain/lake
 connectivity, recorded in [basin-design.md](basin-design.md). Reconcile those
 outcomes and exposed landform sequencing before replacing production water;
 do not enforce old lake-count limits with hidden sinks or arbitrary carving.
+
+The recorded-sill network now has a reviewed bounded implementation, preserving
+raw downhill tributaries and admitting each actual mixed-body budget. Global
+filled-surface rerouting was rejected because it diverted supply from three
+otherwise sustainable bodies. The full current scenario bank supports 92/96
+cases, including all 47 Earthlike scenarios, while four desert-mountains cases
+require actual non-open handling. This is not authority to activate the open
+solver indiscriminately on all map identities.
+
+The selected [Earthlike integration packet](basin-integration.md) implements
+one complete path: explicit authored selection, consistent water/network
+publication, subsequent exposed-landform selection, whole-body lake admission,
+and all classified dry river writes. Other identities remain explicitly legacy,
+not automatic fallbacks. The user's delegated design authority covers the
+model-scoped retirement of the old 24-component/8%-area proxy budgets; preserve
+their measurements and replace those assertions with physical invariants plus
+existing playability, placement, ecology and relief guards, not fitted caps.
+
+V5 native evidence establishes why the surface ordering matters: minor rivers
+retain hill terrain, navigable reaches replace hills without numeric height
+changes, and mountains/volcanoes leave river gaps and split memberships. Reserve
+channel eligibility separately from exposed land; do not mark dry channels as
+water or carve ground. V6 will qualify native navigable lake inlets before the
+physical-major/native-class lowering policy is finalized. The normal map was
+subsequently replaced by these bounded fixtures; restore Huge Earthlike after
+integrated acceptance. Baseline hashes for all 96 unchanged scenarios are in
+`/tmp/civ7-integration-captures-before-basin-integration.json`.
 
 Start here, then read resources.md, elevation.md and studies.md. Current-source
 compatibility, unchanged studies and bounded native elevation acceptance are
