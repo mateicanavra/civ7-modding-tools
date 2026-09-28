@@ -149,9 +149,9 @@ connectivity. The recipe owns once-per-map finalization, not the adapter.
 This prerequisite is deliberately additive: production still uses its existing
 river path until the physical model and projection design are reconciled.
 The misleading older readback-derived flag is retained only until its consumers
-can migrate together. The live atlas qualifies direct engine calls, not the
-new wrapper; wrapper-level evidence is focused dispatch/contract testing until
-production integration receives its own correlated native run.
+can migrate together. The V2-V4 live atlases qualify direct engine calls, not
+the new wrapper. V5 is prepared to qualify wrapper dispatch independently;
+production integration still needs its own correlated native run.
 
 The unified adapter/Core/definition/app check, test and policy graph passes
 63 tasks: 56 adapter, 360 Core, 655 definition and 114 app tests, with 49,125
@@ -213,6 +213,89 @@ loaded. Its failure and native crash report were retained separately; the
 successful run followed fresh process and read-only health reconciliation,
 not a blind retry of an uncertain mutation. The crash is not attributed to
 basin generation or the new fixture.
+
+### Terrain Admission Qualification Fixture
+
+Revision 5 is an explicit `terrain-admission` selector labeled **River Terrain
+Admission V5**, not an extension of the crowded V4 atlas. The default `legacy`
+selector preserves V4 geometry and controls. Both replace the same disposable
+diagnostic mod; proof metadata includes the selected atlas, revision and script
+SHA. The owner build is:
+
+```sh
+nx run swooper-physics-mod:build:river-contract-probe river-terrain-1018-v5 authored terrain-admission
+```
+
+Sixteen cases pair flat, hill, mountain and mountain-plus-volcano surfaces with
+minor/navigable classes and two interior barrier positions. Every case writes
+all six sources `(52..57,y)` eastward with identical elevation inputs
+`550,500,450,400,350,300`; `(58,y)` is original ocean. There is no unwritten dry
+gap. Rows `3,5,..33` leave the four standard Tiny starts separate and keep all
+reach neighborhoods equally buffered from the north/south coasts. All writes
+use the real `Civ7Adapter`; finalization is once with `(false,25,2,2)`.
+
+The native qualification questions are deliberately bounded:
+
+- Does each actual terrain/feature survive setup validation and elevation
+  authorship, and does the observed profile remain downhill? A missing volcano
+  cannot establish volcano admission; compare it with mountain-only controls.
+- What changes while writing into versus out of a barrier, and at finalization?
+  Source/receiver labels refer only to test edge `(54,y)->(55,y)`. Every interior
+  barrier has both roles in its complete reach; whole-reach results cannot
+  isolate source-only versus receiver-only legality.
+- Which classes, terrain, features, memberships and cached ocean-connectivity
+  observations survive all nine existing checkpoints without repair or retry?
+
+Each write records both endpoints before/after, requested inputs separately
+from observations, and its barrier interaction. Setup snapshots bracket terrain
+validation *before* elevation authorship; `initialized` observations follow it.
+Later snapshots preserve observed terrain, elevation, feature and class rather
+than reconstructing them from requests. The focused artifact tests pass (18
+tests, 9,388 assertions), including legacy controls and real-wrapper dispatch;
+they do not simulate native terrain or river semantics. This fixture does not
+activate production projection or prove exact native directed edges.
+
+The fresh native V5 run completed at `2026-09-28T09:07:55.486Z`, using the saved
+configuration with Tiny size, four players and map/game seeds 1018/1019.
+Generated and installed script SHA-256:
+`65c96b2de84bee1eea07ee00a9e40a7e013940f6c9cf0cc4d81ea9372e706726`.
+Digest-valid decoding recovers all 106 diagnostic series from 1,138 parts:
+metadata, 96 writes and nine checkpoints, plus one completion and no failure.
+Every write returns and all 96 native adjacencies match the requested neighbor.
+
+| Actual initialized surface | Minor reach | Navigable reach |
+| --- | --- | --- |
+| Flat | All six cells remain minor and flat | All six become navigable terrain |
+| Hill at the interior barrier | All six remain minor; hill retained | All six navigable; hill becomes navigable terrain |
+| Mountain at the interior barrier | Mountain has no river; separate upstream/downstream memberships | Upstream becomes minor; downstream remains navigable; mountain unchanged |
+| Mountain plus actual volcano feature | Same split as mountain, feature retained | Same split as mountain, feature retained |
+
+All eight mountain/volcano barriers remain terrain 0 with no river class. The
+four actual volcano features (ID 25) survive every checkpoint. These are not
+rejected-feature controls accidentally testing flat terrain. Native receiver
+readback at x58 is coast terrain 3, water and not lake, despite requested ocean
+terrain 4; every reach still terminates directly in marine water without a dry
+gap. Hill conversion and class downgrading occur during finalization; sampled
+numeric elevations remain unchanged. Navigable ocean-connectivity is false
+before the water-cache refresh and true afterward on retained navigable cells.
+River memberships describe the observed split, not native directed-edge parity
+or a source-only versus receiver-only legality law.
+
+This establishes a production ordering requirement: select exposed mountains
+and volcanoes with the final water footprint and authored dry channel occupancy
+available. Do not classify a required channel as an impassable peak and then
+expect the native setter to cut it. Hills are not a blanket exclusion for minor
+rivers; navigable terrain replacement is an explicit gameplay projection.
+Physical ground and drainage stay authoritative, without late adapter carving.
+
+Receipts: `/tmp/civ7-river-terrain-v5-{live-fresh-menu.log,scripting.log,analysis.md,
+observations.json}`. The first launch crashed in `reconcile-target-mod` during
+the prior session's exit/setup transition, before any V5 generation. Its native
+SIGSEGV stack exactly matches an earlier fixture-transition crash. The previous
+stack's socket-reset and observation fixes are already present. Transition
+readiness is a hypothesis, not a proven native cause; no speculative controller
+rewrite was made. Logs/crash reports were preserved before a fresh process,
+read-only ready/shell observation and this successful launch.
 
 ### Production Gates
 
