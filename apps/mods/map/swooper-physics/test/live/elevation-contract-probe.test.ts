@@ -5,8 +5,10 @@ import { decodeBoundedJsonLogSeries } from "@swooper/mapgen-core/lib/log";
 import { expectCiv7MapScriptCompatibility } from "../runtime/civ7-map-script-compatibility.fixture.js";
 import {
   buildElevationProbeInput,
+  buildLakeElevationProbeInput,
   ELEVATION_PROBE,
   ELEVATION_SURFACES,
+  LAKE_LEVEL_CONTROLS,
   probeTerrainAt,
 } from "./elevation-contract-map.fixture.js";
 import { buildElevationProbePlan, elevationProbeMapScript } from "./elevation-contract-probe.js";
@@ -112,7 +114,7 @@ describe("elevation diagnostic artifact (not native behavior proof)", () => {
     callbacks.get("GenerateMap")!();
     expect(calls.filter((name) => name === "buildElevation")).toHaveLength(1);
     expect(calls.indexOf("buildElevation")).toBeLessThan(calls.indexOf("setElevation"));
-    expect(calls.filter((name) => name === "setElevation")).toHaveLength(5);
+    expect(calls.filter((name) => name === "setElevation")).toHaveLength(11);
     expect(calls.filter((name) => name === "generateCliffsFromElevation")).toHaveLength(2);
     expect(calls.indexOf("modelRivers")).toBeGreaterThan(
       calls.lastIndexOf("generateCliffsFromElevation")
@@ -126,6 +128,10 @@ describe("elevation diagnostic artifact (not native behavior proof)", () => {
         }
     );
     expect(observations.map(({ stage }) => stage)).toContain("after-model-rivers-5-15");
+    for (const control of LAKE_LEVEL_CONTROLS) {
+      expect(observations.map(({ stage }) => stage)).toContain(`lake-level-${control.name}`);
+    }
+    expect(observations.map(({ stage }) => stage)).toContain("restore-authored-elevation");
     expect(
       observations.find(({ stage }) => stage === "stock-build-elevation")!.payload.elevation![0]
     ).toBe(25.75);
@@ -134,5 +140,20 @@ describe("elevation diagnostic artifact (not native behavior proof)", () => {
         .water
     ).toEqual({ status: "unavailable", member: "isWater" });
     expect(decodeBoundedJsonLogSeries(lines, "[mapgen-complete]")).toHaveLength(1);
+  });
+
+  test("lake controls independently vary wet input, whole shore and a single outlet", () => {
+    const original = buildElevationProbeInput("positive");
+    for (const control of LAKE_LEVEL_CONTROLS) {
+      const input = buildLakeElevationProbeInput(control);
+      expect(input).toHaveLength(original.length);
+      for (const y of [18, 19]) for (const x of [22, 23]) {
+        expect(input[x + y * 60]).toBe(control.lake);
+        expect(probeTerrainAt(x, y)).toBe("COAST");
+      }
+      expect(input[21 + 18 * 60]).toBe(control.shore);
+      expect(input[24 + 18 * 60]).toBe(control.outlet);
+      expect(input[8 + 8 * 60]).toBe(original[8 + 8 * 60]);
+    }
   });
 });

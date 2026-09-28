@@ -2,6 +2,7 @@ import { encodeBoundedJsonLogLines } from "@swooper/mapgen-core/lib/log";
 
 export const ELEVATION_PROBE = {
   id: "swooper-elevation-contract-v1",
+  diagnosticRevision: 2,
   width: 60,
   height: 38,
   mapSeed: 1018,
@@ -23,6 +24,14 @@ const cliffSample = { name: "coastal-cliff-land", x: 3, y: 10 };
 const starts = [8, 20, 38, 50].map((x) => ({ x, y: 26 }));
 const scaleValues = [0, 1, 25, 100, 200, 350, 700, 1100, 1550];
 const directions = ["EAST", "NORTHEAST", "NORTHWEST", "WEST", "SOUTHWEST", "SOUTHEAST"];
+
+export const LAKE_LEVEL_CONTROLS = [
+  { name: "low-input", lake: 0, shore: 500, outlet: 500 },
+  { name: "candidate-surface-input", lake: 372, shore: 500, outlet: 500 },
+  { name: "high-input", lake: 900, shore: 500, outlet: 500 },
+  { name: "raised-shore", lake: 900, shore: 700, outlet: 700 },
+  { name: "lowered-outlet", lake: 900, shore: 700, outlet: 450 },
+] as const;
 
 type XY = Readonly<{ x: number; y: number }>;
 type TerrainName = "OCEAN" | "COAST" | "FLAT" | "HILL" | "MOUNTAIN";
@@ -119,6 +128,19 @@ export function buildElevationProbeInput(probeCase: ProbeCase): number[] {
         probeCase === "zero" ? 0 : probeCase === "negative" ? -1 : [0.5, 25.75, 350.5][index % 3]!;
     });
   }
+  return values;
+}
+
+/** Independent lake and shore controls; no assumed native leveling formula in the fixture. */
+export function buildLakeElevationProbeInput(control: typeof LAKE_LEVEL_CONTROLS[number]): number[] {
+  const values = buildElevationProbeInput("positive");
+  for (let y = 17; y <= 20; y++) {
+    for (let x = 21; x <= 24; x++) {
+      values[x + y * ELEVATION_PROBE.width] =
+        x >= 22 && x <= 23 && y >= 18 && y <= 19 ? control.lake : control.shore;
+    }
+  }
+  values[24 + 18 * ELEVATION_PROBE.width] = control.outlet;
   return values;
 }
 
@@ -275,6 +297,15 @@ export function registerElevationContractProbe(proofId: string): void {
         }
         capture({ input, outcome });
       }
+      for (const control of LAKE_LEVEL_CONTROLS) {
+        stage = `lake-level-${control.name}`;
+        const input = buildLakeElevationProbeInput(control);
+        TerrainBuilder.setElevation(input);
+        capture({ control, input });
+      }
+      stage = "restore-authored-elevation";
+      TerrainBuilder.setElevation(buildElevationProbeInput("positive"));
+      capture();
       // One stock baseline only: never rebuild elevation after the authored arrays.
       const phases: ReadonlyArray<readonly [string, () => void]> = [
         ["cliffs-first", () => TerrainBuilder.generateCliffsFromElevation()],
