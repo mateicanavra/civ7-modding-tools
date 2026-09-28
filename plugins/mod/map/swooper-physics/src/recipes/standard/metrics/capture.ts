@@ -55,6 +55,11 @@ import {
   StandardLakeProjectionMeasurementsSchema,
 } from "./families/hydrology/lake-projection.js";
 import {
+  STANDARD_SEASONAL_RAINFALL_METRIC_KEY,
+  type StandardSeasonalRainfallMeasurements,
+  StandardSeasonalRainfallMeasurementsSchema,
+} from "./families/hydrology/climate-structure.js";
+import {
   type StandardRiverNetworkMeasurements,
   StandardRiverNetworkMeasurementsSchema,
 } from "./families/hydrology/river-network.js";
@@ -192,6 +197,9 @@ export type StandardMapCapture = Readonly<{
     fertility: Pedology["fertility"];
     effectiveMoisture: Float32Array;
     surfaceTemperature: Float32Array;
+    baselineRainfall: Uint8Array;
+    refinedRainfall: Uint8Array;
+    seasonalRainfall: StandardSeasonalRainfallMeasurements;
     aridityIndex: Float32Array;
     windU: Int8Array;
     windV: Int8Array;
@@ -336,6 +344,7 @@ export function captureStandardMapScenario(
 
   const context = createMapContext({ setup: plan.setup, adapter });
   let riverNetworkSummary: StandardRiverNetworkMeasurements | undefined;
+  let seasonalRainfall: StandardSeasonalRainfallMeasurements | undefined;
   let discoveryGeneration: StandardDiscoveryPlacementMeasurements | undefined;
   let featureProjection: StandardFeatureProjectionMeasurements | undefined;
   let lakeProjection: StandardLakeProjectionMeasurements | undefined;
@@ -349,6 +358,13 @@ export function captureStandardMapScenario(
     log: () => {},
     facets: {
       metrics: (projection) => {
+        const seasonalRainfallCandidate = projection[STANDARD_SEASONAL_RAINFALL_METRIC_KEY];
+        if (seasonalRainfallCandidate !== undefined) {
+          seasonalRainfall = Value.Parse(
+            StandardSeasonalRainfallMeasurementsSchema,
+            seasonalRainfallCandidate
+          );
+        }
         const postWriteCandidate = projection[STANDARD_ELEVATION_POST_WRITE_METRIC_KEY];
         if (postWriteCandidate !== undefined) {
           elevationPostWrite = Value.Parse(
@@ -414,6 +430,9 @@ export function captureStandardMapScenario(
     },
   });
   if (metricFailure !== undefined) throw metricFailure;
+  if (!seasonalRainfall) {
+    throw new Error("Standard metric capture requires Hydrology seasonal-rainfall evidence.");
+  }
   if (!elevationPostWrite || !elevationFinal) {
     throw new Error("Standard metric capture requires post-write and final elevation evidence.");
   }
@@ -451,7 +470,8 @@ export function captureStandardMapScenario(
     placementParity,
     naturalWonderPlacement,
     resourcePlacement,
-    { postWrite: elevationPostWrite, final: elevationFinal }
+    { postWrite: elevationPostWrite, final: elevationFinal },
+    seasonalRainfall
   );
 }
 
@@ -467,7 +487,8 @@ function copyCompletedRun(
   placementParity: StandardPlacementParityMeasurements,
   naturalWonderPlacement: StandardNaturalWonderPlacementMeasurements,
   resourcePlacement: StandardResourcePlacementMeasurements,
-  elevation: StandardMapCapture["projection"]["elevation"]
+  elevation: StandardMapCapture["projection"]["elevation"],
+  seasonalRainfall: StandardSeasonalRainfallMeasurements
 ): StandardMapCapture {
   const { selection } = initialSetup.map;
   const { width, height } = selection.dimensions;
@@ -480,6 +501,8 @@ function copyCompletedRun(
   const lakePlanValue = readArtifact(context, hydrographyArtifacts.lakePlan);
   const hydrographyValue = readArtifact(context, hydrographyArtifacts.hydrography);
   const climateIndicesValue = readArtifact(context, climateArtifacts.climateIndices);
+  const baselineClimateValue = readArtifact(context, climateArtifacts.baselineClimateField);
+  const climateValue = readArtifact(context, climateArtifacts.climateField);
   const windFieldValue = readArtifact(context, climateArtifacts.windField);
   const pressureFieldValue = readArtifact(context, climateArtifacts.pressureField);
   const navigableRiverValue = readArtifact(context, hydrographyArtifacts.projectedNavigableRivers);
@@ -641,6 +664,20 @@ function copyCompletedRun(
         climateIndicesValue.surfaceTemperatureC,
         gridSize
       ),
+      baselineRainfall: copyUint8Grid(
+        "hydrology.baselineClimateField.rainfall",
+        baselineClimateValue.rainfall,
+        gridSize
+      ),
+      refinedRainfall: copyUint8Grid(
+        "hydrology.climateField.rainfall",
+        climateValue.rainfall,
+        gridSize
+      ),
+      seasonalRainfall: Object.freeze({
+        ...seasonalRainfall,
+        saturatedLandTileCounts: Object.freeze([...seasonalRainfall.saturatedLandTileCounts]),
+      }),
       aridityIndex: copyFloat32Grid(
         "hydrology.climateIndices.aridityIndex",
         climateIndicesValue.aridityIndex,

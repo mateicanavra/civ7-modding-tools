@@ -199,6 +199,7 @@ describe("hydrology climate-baseline composition", () => {
       adapter: createMockAdapter({ width, height }),
     });
     const topographyElevation = new Int16Array(size).fill(DEFAULT_ELEVATION_SCALE);
+    const topographySeaLevel = -25;
     const windValuesU = Array.from({ length: weatherCalls }, (_, index) => index + 1);
     const windValuesV = windValuesU.map((value) => -value);
     const currentValuesU = windValuesU.map((value) => value * 4);
@@ -239,6 +240,7 @@ describe("hydrology climate-baseline composition", () => {
     const thermalInputs: Array<{
       sstC: ArrayLike<number> | undefined;
       elevation: ArrayLike<number>;
+      seaLevel: number;
       output: Float32Array;
     }> = [];
     const pressureInputs: PressureFieldInput[] = [];
@@ -265,7 +267,7 @@ describe("hydrology climate-baseline composition", () => {
       const dependencies = buildStepTestDependencies(ClimateBaselineStep, stepContext);
       publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: topographyElevation,
-        seaLevel: 0,
+        seaLevel: topographySeaLevel,
         landMask: new Uint8Array(size),
         bathymetry: new Int16Array(size),
       });
@@ -332,6 +334,7 @@ describe("hydrology climate-baseline composition", () => {
             thermalInputs.push({
               sstC: input.sstC,
               elevation: input.elevation,
+              seaLevel: input.seaLevel,
               output,
             });
             return { surfaceTemperatureC: output };
@@ -380,6 +383,8 @@ describe("hydrology climate-baseline composition", () => {
       expect(positive.seasonSalt).toBeGreaterThanOrEqual(0);
       expect(positive.surfaceTemperatureC).toBe(thermalInputs[seasonCall]!.output);
       expect(negative.surfaceTemperatureC).toBe(thermalInputs[seasonCall]!.output);
+      expect(thermalInputs[seasonCall]!.seaLevel).toBe(0);
+      expect(Array.from(thermalInputs[seasonCall]!.elevation).every((value) => value === 0)).toBeTrue();
       for (const call of [positiveCall, negativeCall]) {
         expect("elevation" in pressureInputs[call]!).toBeFalse();
         expect("elevationScale" in pressureInputs[call]!).toBeFalse();
@@ -404,6 +409,7 @@ describe("hydrology climate-baseline composition", () => {
     }
     for (let call = atmosphereSeasonCalls; call < atmosphereSeasonCalls + modeCount; call++) {
       expect(thermalInputs[call]!.elevation).toBe(topographyElevation);
+      expect(thermalInputs[call]!.seaLevel).toBe(topographySeaLevel);
       expect(thermalInputs[call]!.sstC).toBe(sstByIteration[couplingIterations - 1]);
     }
 

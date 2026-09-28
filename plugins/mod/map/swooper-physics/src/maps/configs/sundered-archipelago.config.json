@@ -858,11 +858,6 @@
           "strategy": "biophysical-gaussian",
           "config": {
             "temperature": {
-              "equator": 31,
-              "pole": -6,
-              "lapseRate": 6.7,
-              "seaLevel": 0,
-              "bias": 1.8,
               "polarCutoff": -5,
               "tundraCutoff": 2,
               "midLatitude": 13,
@@ -877,14 +872,6 @@
               ]
             },
             "aridity": {
-              "temperatureMin": 2,
-              "temperatureMax": 37,
-              "petBase": 22,
-              "petTemperatureWeight": 95,
-              "humidityDampening": 0.52,
-              "rainfallWeight": 1.08,
-              "bias": 2,
-              "normalization": 132,
               "moistureShiftThresholds": [
                 0.43,
                 0.66

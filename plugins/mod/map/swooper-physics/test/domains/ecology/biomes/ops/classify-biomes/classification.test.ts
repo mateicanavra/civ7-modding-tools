@@ -5,6 +5,58 @@ import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing
 import { TEST_MAP_SIZE } from "../../../../../setup.js";
 
 describe("classifyBiomes operation", () => {
+  it("exposes classification responses rather than local climate derivation controls", () => {
+    const { config } = ecology.biomes.ops.classifyBiomes.defaultConfig;
+
+    expect(Object.keys(config.temperature).sort()).toEqual([
+      "midLatitude",
+      "polarCutoff",
+      "tropicalThreshold",
+      "tundraCutoff",
+    ]);
+    expect(Object.keys(config.aridity).sort()).toEqual([
+      "moistureShiftThresholds",
+      "vegetationPenalty",
+    ]);
+  });
+
+  it("classifies supplied Hydrology temperature and aridity without re-deriving them", () => {
+    const { width, height } = TEST_MAP_SIZE.dimensions;
+    const size = width * height;
+    const selection = normalizeOperationSelectionForTest(
+      ecology.biomes.ops.classifyBiomes,
+      ecology.biomes.ops.classifyBiomes.defaultConfig
+    );
+    const climates = [
+      { temperature: 15, aridity: 0, biome: "temperateHumid" },
+      { temperature: -10, aridity: 0, biome: "tundra" },
+      { temperature: 15, aridity: 1, biome: "desert" },
+    ] as const;
+
+    for (const climate of climates) {
+      const surfaceTemperatureC = new Float32Array(size).fill(climate.temperature);
+      const aridityIndex = new Float32Array(size).fill(climate.aridity);
+      const result = ecology.biomes.ops.classifyBiomes.run(
+        {
+          width,
+          height,
+          effectiveMoisture: new Float32Array(size).fill(110),
+          surfaceTemperatureC,
+          aridityIndex,
+          freezeIndex: new Float32Array(size),
+          landMask: new Uint8Array(size).fill(1),
+          soilType: new Uint8Array(size),
+          fertility: new Float32Array(size).fill(0.5),
+        },
+        selection
+      );
+
+      expect(biomeSymbolFromIndex(result.biomeIndex[0]!)).toBe(climate.biome);
+      expect(result.surfaceTemperature).toEqual(surfaceTemperatureC);
+      expect(result.aridityIndex).toEqual(aridityIndex);
+    }
+  });
+
   it("maps temperature + moisture into biome symbols", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
@@ -116,7 +168,7 @@ describe("classifyBiomes operation", () => {
     const localSmoothing = runWithRadius(1);
     const broadSmoothing = runWithRadius(3);
 
-    expect(biomeSymbolFromIndex(localSmoothing.biomeIndex[center]!)).toBe("tropicalRainforest");
+    expect(biomeSymbolFromIndex(localSmoothing.biomeIndex[center]!)).toBe("temperateHumid");
     expect(biomeSymbolFromIndex(broadSmoothing.biomeIndex[center]!)).toBe("temperateDry");
     expect(localSmoothing.biomeIndex[waterTile]).toBe(255);
     expect(broadSmoothing.biomeIndex[waterTile]).toBe(255);

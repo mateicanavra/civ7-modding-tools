@@ -26,6 +26,10 @@ const ComputeThermalStateContract = defineOp({
       elevation: TypedArraySchemas.i16({
         description: "Elevation per tile in the upstream topography artifact's relief units.",
       }),
+      /** Sea-level datum in the same relief units as elevation. */
+      seaLevel: Type.Number({
+        description: "Sea-level datum subtracted from land elevation before lapse cooling.",
+      }),
       /** Land mask per tile (1=land, 0=water). */
       landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
       /**
@@ -41,7 +45,7 @@ const ComputeThermalStateContract = defineOp({
     {
       additionalProperties: false,
       description:
-        "Insolation, elevation, and land identity used for atmospheric temperature, with optional SST authoritative on water tiles.",
+        "Insolation, elevation above the sea-level datum, and land identity used for atmospheric temperature, with optional SST authoritative on water tiles.",
     }
   ),
   /**

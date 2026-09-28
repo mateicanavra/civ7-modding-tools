@@ -40,7 +40,7 @@ export function scoreRainforestSuitability(args: {
     const score =
       biomass *
       bandpass(energy, 0.65, 0.95, 0.08) *
-      bandpass(water, 0.7, 1.0, 0.08) *
+      smoothstep(0.62, 0.78, water) *
       (1 - waterStress) *
       (1 - coldStress);
 

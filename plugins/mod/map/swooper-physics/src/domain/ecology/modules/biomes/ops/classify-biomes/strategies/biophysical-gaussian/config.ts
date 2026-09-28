@@ -8,39 +8,9 @@ export default defineStrategy({
   id: "biophysical-gaussian",
   config: Type.Object(
     {
-      /** Temperature model knobs (degrees C, lapse rate, thresholds). */
+      /** Classification thresholds for Hydrology surface temperature (degrees C). */
       temperature: Type.Object(
         {
-          equator: Type.Number({
-            description: "Baseline equatorial temperature at sea level (degrees C).",
-            default: 28,
-            minimum: -100,
-            maximum: 100,
-          }),
-          pole: Type.Number({
-            description: "Baseline polar temperature at sea level (degrees C).",
-            default: -8,
-            minimum: -100,
-            maximum: 100,
-          }),
-          lapseRate: Type.Number({
-            description: "Temperature drop per kilometer of elevation (degrees C / km).",
-            default: 6.5,
-            minimum: 0,
-            maximum: 30,
-          }),
-          seaLevel: Type.Number({
-            description: "Elevation reference point for temperature (meters).",
-            default: 0,
-            minimum: -12000,
-            maximum: 12000,
-          }),
-          bias: Type.Number({
-            description: "Global temperature offset after latitude/elevation (degrees C).",
-            default: 0,
-            minimum: -100,
-            maximum: 100,
-          }),
           polarCutoff: Type.Number({
             description: "Temperature threshold for polar zone classification (degrees C).",
             default: -5,
@@ -67,7 +37,7 @@ export default defineStrategy({
           }),
         },
         {
-          description: "Temperature model parameters (degrees C, lapse rate, thresholds).",
+          description: "Biome classification thresholds for Hydrology surface temperature (degrees C).",
         }
       ),
       /** Moisture model knobs (thresholds only; no local effective-moisture derivation). */
@@ -112,57 +82,9 @@ export default defineStrategy({
             "Effective moisture thresholds (Hydrology effectiveMoisture advisory index).",
         }
       ),
-      /** Aridity knobs (used to shift moisture zones + vegetation dryness stress). */
+      /** Responses to Hydrology aridity (moisture-zone shifts and vegetation dryness stress). */
       aridity: Type.Object(
         {
-          temperatureMin: Type.Number({
-            description: "Minimum temperature for aridity normalization (C).",
-            default: 0,
-            minimum: -100,
-            maximum: 100,
-          }),
-          temperatureMax: Type.Number({
-            description: "Maximum temperature for aridity normalization (C).",
-            default: 35,
-            minimum: -100,
-            maximum: 100,
-          }),
-          petBase: Type.Number({
-            description: "Base PET-like moisture demand (rainfall units).",
-            default: 20,
-            minimum: 0,
-            maximum: 1000,
-          }),
-          petTemperatureWeight: Type.Number({
-            description: "PET temperature weight (rainfall units).",
-            default: 80,
-            minimum: 0,
-            maximum: 1000,
-          }),
-          humidityDampening: Type.Number({
-            description: "Humidity dampening factor (0..1).",
-            default: 0.5,
-            minimum: 0,
-            maximum: 1,
-          }),
-          rainfallWeight: Type.Number({
-            description: "Rainfall weight when subtracting supply from PET (scalar).",
-            default: 1,
-            minimum: 0,
-            maximum: 10,
-          }),
-          bias: Type.Number({
-            description: "Bias applied to aridity raw units (rainfall units).",
-            default: 0,
-            minimum: -1000,
-            maximum: 1000,
-          }),
-          normalization: Type.Number({
-            description: "Normalization scale for aridity index (rainfall units).",
-            default: 120,
-            minimum: 1,
-            maximum: 10000,
-          }),
           moistureShiftThresholds: Type.Tuple(
             [
               Type.Number({
@@ -191,7 +113,7 @@ export default defineStrategy({
           }),
         },
         {
-          description: "Aridity/PET proxy controls for dry-climate modeling.",
+          description: "Biome and vegetation responses to the Hydrology aridity index.",
         }
       ),
       /** Vegetation density model knobs (0..1 weights, soil modifiers). */

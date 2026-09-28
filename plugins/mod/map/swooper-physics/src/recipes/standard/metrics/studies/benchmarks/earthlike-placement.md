@@ -30,12 +30,18 @@ least two resources per start with gap `<=2` and no shortfall.
 
 ## Resource expected outcomes
 
-Hard placement phases remain inside habitat lanes. Geological resources must
-aggregate above their same-type spacing floor. Landmass density equity is
-conditional: only maps with at least two landmasses each containing `>=10%` of
-modeled land are comparable. The cohort must contain at least one comparable map
-and, among comparable samples, every qualifying landmass has resources and
-maximum/minimum density is `<=2x`. The study fails
+Hard placement phases remain inside habitat lanes. Geological aggregation is a
+cohort expectation: every map must provide a finite, available pair-correlation
+ratio, and their arithmetic mean must be strictly greater than CSR (`1`). Empty
+cohorts fail closed. Each map has equal weight, and below-one per-map ratios remain
+visible rather than being excluded. This tests cohort-level aggregation beyond
+the spacing floor, not universal per-map clustering or physical fidelity.
+Per-map legality, habitat, closure, spacing, and placement guards remain unchanged.
+
+Landmass density equity is conditional: only maps with at least two landmasses
+each containing `>=10%` of modeled land are comparable. The cohort must contain
+at least one comparable map and, among comparable samples, every qualifying
+landmass has resources and maximum/minimum density is `<=2x`. The study fails
 closed if no sample is comparable. Authored count ranges, latitude bands, and
 sector entropy remain measurements, not target gates.
 

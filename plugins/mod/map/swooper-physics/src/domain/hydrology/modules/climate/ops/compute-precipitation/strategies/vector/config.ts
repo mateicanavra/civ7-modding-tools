@@ -82,13 +82,13 @@ export default defineStrategy({
         maximum: 200,
         description: "Strength of windward uplift rainfall boost derived from ∇elevation · wind.",
       }),
-      /** Strength of convergence rainfall boost derived from negative divergence (convergence). */
+      /** Maximum additive rainfall units from normalized convergence at full humidity. */
       convergenceStrength: Type.Number({
         default: 16,
         minimum: 0,
         maximum: 200,
         description:
-          "Strength of convergence rainfall boost derived from negative divergence (convergence).",
+          "Maximum additive rainfall units from unit-scale wind convergence, capped to 0..1 and multiplied by available humidity (0..1).",
       }),
     },
     {

@@ -23,6 +23,38 @@ const FLOODPLAIN_FEATURE_KEYS = [
   "FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE",
 ] as const;
 
+/** Qualified-row biome balance for the pre-declared Earthlike climate correction cohort. */
+export const EARTHLIKE_CLIMATE_BIOME_STRUCTURE_TARGET = {
+  id: "swooper-earthlike/climate-biome-structure",
+  description:
+    "Earthlike climate produces regional biome variety while retaining cold and diverse biomes.",
+  expectations: [
+    atMost<StandardMapMetricCohort>(
+      "land-weighted-row-biome-dominance",
+      "Dominant row biomes cover at most seventy-five percent of land in rows with at least twenty land tiles.",
+      (samples) =>
+        summarizeCohort(samples, (sample) =>
+          requiredShare(sample.metrics.ecology.biomeRows.dominantBiomeTiles, "Row biome dominance")
+        ).maximum,
+      0.75
+    ),
+    atLeast<StandardMapMetricCohort>(
+      "cold-biome-presence",
+      "Every representative map retains tundra or boreal biome tiles.",
+      (samples) =>
+        summarizeCohort(samples, (sample) => sample.metrics.ecology.coldBiomeTiles.count).minimum,
+      1
+    ),
+    atLeast<StandardMapMetricCohort>(
+      "land-biome-diversity",
+      "Every representative map retains at least three classified land biome families.",
+      (samples) =>
+        summarizeCohort(samples, (sample) => sample.metrics.ecology.biomeDiversity).minimum,
+      3
+    ),
+  ],
+} satisfies MetricTarget<StandardMapMetricCohort>;
+
 /** Representative Earthlike target for gradual latitude transitions and within-row variety. */
 export const EARTHLIKE_BIOME_STRUCTURE_TARGET = {
   id: "swooper-earthlike/biome-structure",

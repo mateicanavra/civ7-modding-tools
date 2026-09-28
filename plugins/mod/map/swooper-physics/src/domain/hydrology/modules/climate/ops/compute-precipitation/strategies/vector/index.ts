@@ -4,6 +4,7 @@ import {
   estimateDivergenceOddQ,
   forEachHexNeighborOddQWithDirection,
   getHexNeighborDirectionVectorsOddQ,
+  I8_VECTOR_MAX_ABS,
 } from "@swooper/mapgen-core/lib/grid";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 
@@ -16,6 +17,10 @@ import ComputePrecipitationContract from "../../contract.js";
 import VectorDefinition from "./config.js";
 
 type Vec2 = Readonly<{ x: number; y: number }>;
+
+// Empirical response scale: normalized convergence 1/16 reaches the wetting cap.
+// Apply before clamping so wind quantization cannot multiply the rainfall budget.
+const CONVERGENCE_RESPONSE_GAIN = 16;
 
 // Orographic uplift gradient over the engine's odd-R hex neighborhood. Uses the
 // shared neighbor iterator + hex-space direction vectors (parity keyed on the
@@ -78,12 +83,12 @@ const vectorStrategy = createStrategy(ComputePrecipitationContract, VectorDefini
     const waterLowlandBonus = config.waterGradient.lowlandBonus;
     const waterLowlandElevationMax = config.waterGradient.lowlandElevationMax | 0;
 
-    // Compute a divergence proxy (convergence = -div).
+    // Divergence uses unit-scale wind components, not their signed-byte encoding.
     const windX = new Float32Array(size);
     const windY = new Float32Array(size);
     for (let i = 0; i < size; i++) {
-      windX[i] = input.windU[i] ?? 0;
-      windY[i] = input.windV[i] ?? 0;
+      windX[i] = (input.windU[i] ?? 0) / I8_VECTOR_MAX_ABS;
+      windY[i] = (input.windV[i] ?? 0) / I8_VECTOR_MAX_ABS;
     }
     const divergence = estimateDivergenceOddQ(width, height, windX, windY);
 
@@ -117,11 +122,11 @@ const vectorStrategy = createStrategy(ComputePrecipitationContract, VectorDefini
           // Uplift proxy: positive when wind is blowing uphill.
           const uplift = Math.max(0, grad.x * whx + grad.y * why);
           rf += upliftStrength * uplift * 0.02;
-
-          // Convergence proxy: negative divergence.
-          const conv = Math.max(0, -(divergence[i] ?? 0));
-          rf += convergenceStrength * conv * 35;
         }
+
+        // Neighboring inflow can wet a calm center; available humidity bounds its contribution.
+        const convergence = clamp01(-CONVERGENCE_RESPONSE_GAIN * (divergence[i] ?? 0));
+        rf += convergenceStrength * convergence * hum;
 
         const noise = perlin.noise2D(x * noiseScale, y * noiseScale);
         rf += noise * noiseAmplitude;

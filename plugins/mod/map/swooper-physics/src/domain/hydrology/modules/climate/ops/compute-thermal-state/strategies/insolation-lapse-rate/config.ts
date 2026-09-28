@@ -2,8 +2,8 @@ import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Defines the sea-level baseline, insolation response, lapse rate, land cooling, and hard
- * temperature bounds. Defaults use a terrestrial lapse rate while allowing admitted SST to remain
- * authoritative over water.
+ * temperature bounds. Lapse cooling is empirical in upstream relief units, not physical meters;
+ * admitted SST remains authoritative over water.
  */
 export default defineStrategy({
   id: "insolation-lapse-rate",
@@ -23,13 +23,13 @@ export default defineStrategy({
         maximum: 80,
         description: "Temperature delta contributed by insolation forcing.",
       }),
-      /** Temperature change per upstream elevation unit (negative cools with altitude). */
+      /** Empirical land cooling per relief unit above sea level, not per physical meter. */
       lapseRateCPerElevationUnit: Type.Number({
         default: -0.0065,
-        minimum: -0.02,
+        minimum: -0.5,
         maximum: 0,
         description:
-          "Temperature change per quantized upstream elevation unit (negative cools with altitude).",
+          "Temperature change per quantized relief unit above sea level on land, not per meter. The range allows up to 50 C cooling per 100 relief units.",
       }),
       /** Extra cooling applied to land tiles (continentality proxy). */
       landCoolingC: Type.Number({

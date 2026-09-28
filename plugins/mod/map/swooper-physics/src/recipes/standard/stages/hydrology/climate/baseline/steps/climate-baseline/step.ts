@@ -2,6 +2,10 @@ import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { I8_VECTOR_MAX_ABS } from "@swooper/mapgen-core/lib/grid";
 import {
+  measureStandardSeasonalRainfall,
+  STANDARD_SEASONAL_RAINFALL_METRIC_KEY,
+} from "../../../../../../metrics/families/hydrology/climate-structure.js";
+import {
   HYDROLOGY_DRYNESS_WETNESS_SCALE,
   HYDROLOGY_OCEAN_COUPLING_CURRENT_STRENGTH,
   HYDROLOGY_OCEAN_COUPLING_MOISTURE_TRANSPORT_ITERATIONS,
@@ -509,6 +513,7 @@ export const ClimateBaselineStep = createStep(config, {
             height,
             insolation: forcing.insolation,
             elevation: zeroElevation,
+            seaLevel: 0,
             landMask,
             ...(sstC ? { sstC } : {}),
           },
@@ -655,6 +660,7 @@ export const ClimateBaselineStep = createStep(config, {
           height,
           insolation: sample.insolation,
           elevation,
+          seaLevel: topography.seaLevel,
           landMask,
           ...(oceanThermal ? { sstC: oceanThermal.sstC } : {}),
         },
@@ -764,6 +770,7 @@ export const ClimateBaselineStep = createStep(config, {
     };
     return {
       baselineClimateField,
+      landMask,
       seasonalAmplitudes,
       pressureField,
       windField,
@@ -779,5 +786,8 @@ export const ClimateBaselineStep = createStep(config, {
       oceanThermal,
     };
   },
+  metrics: ({ observation }) => ({
+    [STANDARD_SEASONAL_RAINFALL_METRIC_KEY]: measureStandardSeasonalRainfall(observation),
+  }),
   viz: ({ observation, dimensions }) => buildClimateBaselineVizProjections(observation, dimensions),
 });

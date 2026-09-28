@@ -107,6 +107,11 @@ Key contract point: each strategy owns its configuration schema, while each sema
 artifacts and model vocabulary its operations share. Cross-stage consumption does not move artifact
 authority to the root domain.
 
+Biome classification consumes Hydrology's surface temperature, effective moisture, aridity, and
+freeze indices without re-deriving them. Its temperature controls classify supplied temperatures;
+its aridity controls govern moisture-zone shifts and vegetation stress. Thermal forcing, lapse
+rates, and PET derivation remain Hydrology-owned, not Ecology authoring controls.
+
 Feature scoring and planning stay separate:
 - Score ops produce continuous physical suitability fields. A positive score is not itself a placement command.
 - Planner-local policies decide whether a suitability candidate is strong enough to become an intent.
