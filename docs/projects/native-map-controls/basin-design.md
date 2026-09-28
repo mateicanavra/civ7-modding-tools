@@ -304,3 +304,119 @@ Do not hide this conflict with a sink selector, fabricated evaporation,
 sub-grid labels for everywhere-positive basins, or arbitrary ground carving.
 Measure demand, whole-body native realization and playable-land impact before
 deciding whether to amend product acceptance or revise terrain-scale physics.
+
+## Actual Baseline Forcing And Gameplay Discriminator
+
+The preparatory demand extraction now supplies the actual pre-hydrography
+vintage. Across twelve Earthlike/mountain-patch Standard/Huge captures at
+seeds 1/42/1018, all 630 basin nodes, 502 roots and 2,562 elevation-cohort
+states have strictly positive stationary balance without incoming overflow.
+The minimum is +13.472597 rainfall-index tile units per interval. Every
+descendant also passes, and every root has an external spill. Therefore the
+selected fixed-forcing model fills all these basins to their geometric sill;
+no guessed partial level is needed to establish this cohort's wet footprint.
+
+This is not because direct precipitation exceeds demand everywhere: 107 wet
+cells have nonpositive `P-PET`. Catchment runoff and the remaining wet-cell
+balance supply the surplus. The scan uses published baseline seasonal-mean
+demand, not PET recomputed from annual-mean temperature or refined climate.
+Runoff reconstruction, geometry membership, prior capture hashes and the
+current observed playable mask all pass exact checks. The complete wet mask
+matches priority-flood positive-depth membership exactly; it replaces current
+lakes rather than adding to them. Current selected lakes have 6-40 cells per
+case outside that geometric footprint.
+
+| Configuration / size / seed | Full wet cells | Wet components | Wet / land | Retained playable cells detached |
+| --- | ---: | ---: | ---: | ---: |
+| Earthlike Standard 1 | 140 | 24 | 8.37% | 5 |
+| Earthlike Standard 42 | 95 | 32 | 5.65% | 5 |
+| Earthlike Standard 1018 | 77 | 26 | 4.42% | 0 |
+| Earthlike Huge 1 | 228 | 60 | 8.89% | 464 |
+| Earthlike Huge 42 | 226 | 58 | 8.70% | 682 |
+| Earthlike Huge 1018 | 203 | 55 | 7.46% | 537 |
+| Mountain patch Standard 1 | 112 | 19 | 6.76% | 33 |
+| Mountain patch Standard 42 | 171 | 35 | 10.11% | 9 |
+| Mountain patch Standard 1018 | 90 | 21 | 5.12% | 0 |
+| Mountain patch Huge 1 | 234 | 60 | 9.05% | 3 |
+| Mountain patch Huge 42 | 295 | 60 | 11.35% | 173 |
+| Mountain patch Huge 1018 | 219 | 52 | 8.007% | 39 |
+
+This first connectivity comparison holds original mountain and volcano masks
+fixed as blockers. For each original dry/nonmountain component, group its
+surviving cells by new component and count cells outside the largest surviving
+group. It does not count flooded cells or restored former lake cells as
+detached survivors. The measure diagnoses land-route changes, not unit
+pathfinding, embarkation, starts, city legality or a universal badness cutoff.
+Natural-wonder impassability and river crossing rules are not represented.
+
+The 24-component guard fails in nine cases and the 8% area guard in seven;
+all twelve pass the existing singleton-area share bound. Area and component
+count do not stand in for movement topology: Huge Earthlike 1018 is below 8%
+yet loses a large land connection, while mountain-patch Standard 42 exceeds
+10% with only nine detached surviving cells. Do not fit new caps to this table.
+Full inundation overlaps 1-11 existing mountain and 0-3 volcano cells per case;
+whole-body water admission and exposed terrain selection need reconciliation.
+
+The next discriminator replans exposed landforms on the final dry footprint
+without changing physical ground, and separately measures water-only splits.
+That distinguishes a sequencing problem from genuinely fragmented basins and
+from legitimate combined lake/mountain barriers. Neither an ordering change
+nor preservation of all previous land routes is assumed correct in advance.
+
+Reproducers and complete evidence:
+`/tmp/civ7-baseline-demand-basin-study.ts`,
+`/tmp/civ7-baseline-demand-forcing.json`, and
+`/tmp/civ7-baseline-demand-basin-results.json`.
+The reference cohort is `/tmp/civ7-relief-baseline-demand.json`.
+
+### Exposed Landform Ordering
+
+The five-case counterfactual reproduces all original mountain artifact fields
+exactly before changing only the three landform operations' admitted land
+mask to final dry land. It preserves ground, marine coast distance, tectonic
+drivers, normalized config, seeds and noise. Volcanoes remain fixed. No
+downstream climate, placement or native operation is rerun in this comparison.
+
+| Case | Water-only detached | Full water / old mountains | Full water / replanned mountains |
+| --- | ---: | ---: | ---: |
+| Earthlike Standard 1 | 2 | 5 | 235 |
+| Earthlike Huge 1 | 0 | 464 | 5 |
+| Earthlike Huge 42 | 1 | 682 | 518 |
+| Earthlike Huge 1018 | 0 | 537 | 7 |
+| Mountain patch Huge 42 | 7 | 173 | 58 |
+
+Water-only and playable-land columns have different reference masks; they
+cannot be added together. Removing old mountain labels only on submerged cells
+is exactly equivalent to retaining old blockers there, because water already
+blocks the tested dry route. Replanning removes every mountain/water overlap
+but redistributes substantial exposed terrain, rather than merely subtracting
+submerged mountains. Standard 1 loses 120 old dry peaks and gains 102 different
+dry peaks, despite total mountain area declining from 221 to 202.
+
+The large splits are therefore classification/water interactions, not intrinsic
+fragmentation from the basin footprints alone. They are not automatically
+defects: the compared Standard 1 regions contain 602/277 cells and retain
+119/50 marine-coastal cells; Huge 42 has 891/509 cells with 143/145 marine-coastal
+cells. Each pair has a dry route requiring one classified blocker. That is a
+causal witness, not permission to remove the blocker or claim naval access.
+
+Inspected separator `(9,30)` on Standard 1 is a newly promoted former foothill,
+ground 69 with downward/upward local relief 6/8. Huge 42's existing `(27,22)`
+mountain has ground 58 and relief 5/11; newly promoted `(26,25)` has ground 44
+and exposed relief 4/3 between two shallow basins. Every example meets current
+relief admission. They are not the prior unsupported-flat classification leak.
+Some are modest shoulders or saddle-like connections, but the model has no
+elevation-to-real-slope calibration that proves they must be passable.
+
+Selected implication: exposed landforms need final water evidence for coherent
+surface ownership; blind resequencing is not a proven playability repair.
+Do not add a universal no-barrier rule, zero-fragmentation target or peak quota.
+Physical range structure, land area, starts/settlement and coastal access remain
+separate acceptance questions. Keep old production generation active while
+the integrated basin candidate is studied, not as a hidden fallback inside it.
+
+Evidence: `/tmp/civ7-basin-exposed-landform-discriminator.{ts,md}`,
+`/tmp/civ7-basin-exposed-landform-results.json`, and
+`/tmp/civ7-basin-cut-neighborhoods.json`. Fresh acquisition, cached reanalysis,
+original artifact parity, immutable ground, removal-only equivalence and
+adjacent no-water route witnesses all pass.
