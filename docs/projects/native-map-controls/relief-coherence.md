@@ -16,7 +16,8 @@ kilometer or true summit-prominence claim follows from that support.
 
 Baseline cohort: shipped `swooper-earthlike` and `mountain-patch`, Standard and
 Huge, map/game seed pairs 1/1, 42/42, and 1018/1018: twelve cases. Scenario
-provenance includes the full configuration digest and player identity. The
+provenance includes configuration identity and player identity; investigation
+receipts additionally retain the admitted configuration and its digest. The
 mountain-focused identity is a counterexample to overfitting Earthlike, not a
 second identity to recalibrate automatically.
 
@@ -103,6 +104,100 @@ public study-report schema solely for this investigation.
 
 ## Results And Amendments
 
-No baseline result or behavioral remedy is asserted by this declaration.
-Record acquisition identity, distributions, representative outliers,
-counterfactuals, and decisions here after verification.
+### Baseline
+
+The declared twelve cases completed through `captureStandardMapScenario` then
+`measureStandardMapCapture`. Raw typed-array values, hashes, scenario identity
+and complete family measurements are retained in
+`/tmp/civ7-relief-baseline.json`; driver `/tmp/civ7-relief-baseline.ts` and log
+`/tmp/civ7-relief-baseline.log`. This measurement layer changes no recipe
+behavior. Fifteen focused tests (111 assertions), the two product-study tests,
+and the definition/realization typecheck/build graph (28 tasks) passed.
+
+Across the six Earthlike cases, mountain-to-foothill edges are lower on the
+mountain side in 41.6-51.6% of comparisons. Signed mean contrast ranges from
+-0.131 to +1.445 model units. Mountain radius-one relief means range
+15.15-25.51, versus foothills 16.33-25.80 and rough-land hills 19.16-30.06.
+These are potential coupling gaps, not a rule that every mountain must exceed
+every neighbor. Huge seed 1018 has mountain local-contrast mean -0.066 and
+foothill +0.392, providing a concrete neighborhood-inspection case.
+
+Within-row temperature/elevation slopes are consistently negative in Earthlike
+(-0.161 to -0.155 degrees C per model unit), with correlations below -0.995.
+Wind-aligned terrain/rainfall associations are positive (baseline Pearson
+0.132-0.395). These results support the implemented response directions, not
+real-world calibration or independent proof of causality.
+
+Physical-uphill river links remain 17.0-24.2% in Earthlike, dominated by ordinary
+land rather than mountains. Planned lakes intersect 0-7 mountain cells per
+case; one case also intersects a volcano. This supports explicit surface
+precedence and basin resolution, not more projection clipping.
+
+### Pre-Declared Noise Discriminator
+
+Source review found that `tectonic-relief` groups labels by
+`floor(x/fractalGrain), floor(y/fractalGrain)` but calls `createLabelRng` once
+per tile. That helper advances per-label state on every call; it is not a
+coordinate hash. Repeated labels therefore do not produce a fixed spatial
+sample. With shipped amplitudes, crust noise spans approximately +/-18 model
+units and arc noise +/-13 times boundary closeness before blending/erosion.
+
+Before changing classification, compare the same twelve scenarios with only
+those two additive noise amplitudes set to zero in temporary admitted configs.
+Expect ordinary-land radius-one roughness and depression incidence to fall
+if this is a material upstream driver. Inspect transitions and coast geometry
+as well; do not presume their direction from that one mechanism. Existing
+product guards are reported as collateral observations, not relaxed.
+
+This is a counterfactual, not a proposal to remove all terrain variation. A
+coherent-noise remedy must preserve meaningful texture, correct cylindrical
+seams and deterministic sampling, and use the existing noise machinery where
+possible. If the causal signal is small or absent, reject this explanation
+rather than tune it until a desired mountain ordering appears. Physical
+terrain and downstream climate cannot be exact HOLDs for this alternative;
+the untouched Foundation/config inputs and product guard bounds are the
+appropriate holds. No production behavior is authorized merely by this test.
+
+### Noise Discriminator Result And Production Candidate
+
+The same twelve scenarios completed with only the two additive terms disabled
+(`/tmp/civ7-relief-noise-off.json`). In the six Earthlike cases, ordinary-land
+mean radius-one relief fell from 15.72-26.90 to 6.22-18.70 model units;
+physical-uphill river links fell from 78-164 to 6-26. Independently measured
+finite depression roots fell from 76-155 to 6-13, with full-spill wet footprints
+falling from 173-400 to 12-88 tiles. The mountain-focused counterpart showed the
+same direction. These are paired causal comparisons, not calibrated Earth
+scales or promises that every remaining depression should be filled.
+
+Mountain-to-foothill mean height contrast did not consistently improve. Thus
+the noise is a demonstrated driver of small pits and roughness, not a complete
+explanation of terrain-class coherence. Representative Huge seed 1018 mountain
+plots 4972 and 2627 are enclosed below all six neighbors, while plot 1466 borders
+water and must not be classified as an enclosed pit from a mean contrast alone.
+High nonmountain plot 2212 has neighbors at similar heights and is a legitimate
+plateau/pass candidate rather than evidence for altitude-based classification.
+
+Selected production candidate: repair the topography consumer using the
+existing full-seed Perlin implementation with smooth cylindrical sampling.
+Keep independent crust and boundary-arc fields, their existing amplitudes,
+all tectonic terms, and authored map configurations. Do not change shared label
+RNG semantics, substitute block-constant grain cells, or retain the zero-noise
+ablation as a product strategy. Define grain as a spatial tile-scale length,
+not a misleading higher-is-finer knob.
+
+Before observing the candidate, require deterministic full-seed sampling,
+horizontal periodicity, meaningful nonzero texture and locally smooth field
+tests; expect fewer tiny pits and reduced routing lift across the declared
+cohort. Run existing product guards without changing their bounds. Preserve
+negative within-row altitude/temperature response and inspect mountain,
+foothill, coastal, and plateau representatives separately. Coastline and
+downstream climate identity are not holds when changing physical height.
+No new mountain quota, lake cap, or river acceptance relaxation is part of this
+candidate. Reevaluate basin demand after this upstream repair rather than
+designing water storage around noise-created holes.
+
+Independent measurement review found no blocking issues. Two diagnostic
+conventions remain explicit: regressions with constant response return null,
+and the neutral cohort target checks accounting rather than exhaustive capture
+corruption. Independent basin-geometry review also found no blocking issues;
+its sibling spill endpoints are not themselves a final routing DAG.
