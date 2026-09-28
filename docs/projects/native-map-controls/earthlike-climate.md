@@ -1,5 +1,29 @@
 # Earthlike Climate Correction
 
+## Latest Juicy Identity Follow-Up
+
+The relief-coherence work exposed an authored mismatch in Latest Juicy: both
+climate stages requested `dry` while its shared Earthlike identity requires
+all five vegetation families. After correcting terrain noise, Huge seed 1018
+retained only three rainforest-biome cells, none available for rainforest:
+two were non-flat and one carried a legitimate mangrove. Confidence thresholds
+and engine placement legality were not the defect.
+
+Select neutral `mix` for baseline and refinement in this map only. The paired
+study covers Huge 1018, Standard 1018, Huge 42 and Standard 1 with every other
+parameter held fixed. Rainforest-biome area becomes 111/44/106/114 cells rather
+than 3/0/0/2; rainforest placement becomes 47/14/36/48 rather than 0/0/0/2.
+All 12 existing identity expectations pass in every candidate; all 51 integrity
+expectations pass in all eight paired runs. Wetlands keep precedence and peak
+at 1.35% against the unchanged 8% guard. Dry vegetation remains abundant.
+
+Ground, authored terrain masks, winds, pressure, projected lake footprints and
+realized land totals remain unchanged in the pairs. Moisture, discharge and
+some navigable-river selections change intentionally downstream. This is a
+climate-owner correction, not a guaranteed rainforest quota, relaxed placement
+rule, or a recalibration of every shipped map. Paired headless evidence:
+`/tmp/civ7-latest-juicy-dryness-paired.json`; no new native claim follows from it.
+
 ## Investigation Brief
 
 Prepared by root, 2026-09-27. Source baseline: `40a74b5206` after native
