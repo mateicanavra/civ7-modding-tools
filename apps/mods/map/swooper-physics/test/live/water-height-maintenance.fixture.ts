@@ -7,6 +7,7 @@ import type { FullMapProbeIdentity } from "./river-full-map.fixture.js";
 
 export const WATER_HEIGHT_MAINTENANCE_ATLAS = "full-map-maintenance";
 export const WATER_HEIGHT_LAKE_CUTOFF_ATLAS = "full-map-lake-cutoff";
+export const WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS = "full-map-max-lake-cutoff";
 export const WATER_HEIGHT_MAINTENANCE_PROBE = {
   diagnosticRevision: 9, displayLabel: "Water Height Maintenance V9", atlasKind: WATER_HEIGHT_MAINTENANCE_ATLAS,
   width: 106, height: 66, mapSize: "MAPSIZE_HUGE", mapSeed: 1018, gameSeed: 1018,
@@ -16,7 +17,12 @@ export const WATER_HEIGHT_LAKE_CUTOFF_PROBE = {
   ...WATER_HEIGHT_MAINTENANCE_PROBE, diagnosticRevision: 11, displayLabel: "Water Lake Cutoff V11",
   atlasKind: WATER_HEIGHT_LAKE_CUTOFF_ATLAS, expectedLakeSizeCutoff: 20,
 } as const;
-type ProbeOptions = typeof WATER_HEIGHT_MAINTENANCE_PROBE | typeof WATER_HEIGHT_LAKE_CUTOFF_PROBE;
+export const WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE = {
+  ...WATER_HEIGHT_MAINTENANCE_PROBE, diagnosticRevision: 12, displayLabel: "Water Max Lake Cutoff V12",
+  atlasKind: WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS,
+  expectedLakeSizeCutoff: WATER_HEIGHT_MAINTENANCE_PROBE.width * WATER_HEIGHT_MAINTENANCE_PROBE.height,
+} as const;
+type ProbeOptions = typeof WATER_HEIGHT_MAINTENANCE_PROBE | typeof WATER_HEIGHT_LAKE_CUTOFF_PROBE | typeof WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE;
 const focus = [
   { body: 56, role: "wet-outlet", x: 86, y: 32 }, { body: 56, role: "dry-receiver", x: 85, y: 33 },
   { body: 42, role: "wet-outlet", x: 85, y: 9 }, { body: 42, role: "dry-receiver", x: 84, y: 9 },
@@ -32,8 +38,12 @@ const digest = (value: unknown) => sha256Hex(stableStringify(value));
 
 /** The diagnostic changes one official field, so its truthful selection is custom, not a preset. */
 export function projectLakeCutoffInitialSetup(
-  capture: Parameters<typeof projectStandardInitialSetup>[0]
+  capture: Parameters<typeof projectStandardInitialSetup>[0],
+  expectedLakeSizeCutoff: number = WATER_HEIGHT_LAKE_CUTOFF_PROBE.expectedLakeSizeCutoff
 ): ReturnType<typeof projectStandardInitialSetup> {
+  if (expectedLakeSizeCutoff !== WATER_HEIGHT_LAKE_CUTOFF_PROBE.expectedLakeSizeCutoff
+    && expectedLakeSizeCutoff !== WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE.expectedLakeSizeCutoff)
+    throw new Error("Unsupported diagnostic lake cutoff.");
   const setup = projectStandardInitialSetup(capture);
   const selection = setup.map.selection;
   const preset = getCiv7StandardMapSizePreset("MAPSIZE_HUGE");
@@ -41,7 +51,7 @@ export function projectLakeCutoffInitialSetup(
     || selection.dimensions.height !== preset.dimensions.height)
     throw new Error("Lake cutoff diagnostic requires the captured Huge selection and dimensions.");
   for (const key of CIV7_MAP_INFO_KEYS) {
-    const expected = key === "LakeSizeCutoff" ? WATER_HEIGHT_LAKE_CUTOFF_PROBE.expectedLakeSizeCutoff : preset.mapInfo[key];
+    const expected = key === "LakeSizeCutoff" ? expectedLakeSizeCutoff : preset.mapInfo[key];
     if (selection.mapInfo[key] !== expected)
       throw new Error(`Lake cutoff diagnostic requires mapInfo.${key}=${String(expected)}; observed ${String(selection.mapInfo[key])}.`);
   }
