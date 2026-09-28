@@ -13,6 +13,9 @@
 
 # Hydrology domain
 
+Learning companion: [Water and Relief Glossary](water-and-relief-glossary.md)
+connects physical terms, current computations and practical interpretation.
+
 ## Purpose
 
 Hydrology produces climate and water-cycle products for downstream consumption:

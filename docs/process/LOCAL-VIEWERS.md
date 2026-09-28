@@ -8,12 +8,20 @@
 - **Logs:** `~/Library/Application Support/Civ7Tools/logs/`
 - **Current-login process:** launchd job `com.mateicanavra.civ7-gallery`
 - **Generation / interpretation:** [native-map-controls visual audit](../projects/native-map-controls/visual-audit.md)
+- **Interactive same-seed study:** [Huge/1018 comparison](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherence-huge-1018/index.html)
+- **Independent repetitions:** [Huge/42](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherence-huge-42/index.html), [Standard/1018](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherence-standard-1018/index.html)
 
 The current gallery contains 28 Huge Earthlike/1018 game screenshots and five
 analytical maps. Original PNGs, mobile thumbnails, manifests, data tables and
 reproduction scripts are retained together. This is user data, not a temporary
 worktree dependency or a 500 MB Git asset. Worktree `.civ7/outputs/` and `/tmp/`
 copies are working copies, not the hosting authority.
+
+The `coherence-*` subdirectories hold portable-generated comparisons, not new
+Civ screenshots. Each includes `comparison.json`, full admitted configurations,
+per-variant data/logs and a standalone `index.html` with physical flow arrows and
+PNG exports. Regenerate with the definition-owned `scripts/compare-coherence.ts`;
+see [study methodology](../projects/native-map-controls/network-coherence-investigation.md).
 
 This URL uses the existing Mac's **Tailscale Serve**, not public Funnel and not
 a separate custom `tsnet` program. The user approved incoming tailnet

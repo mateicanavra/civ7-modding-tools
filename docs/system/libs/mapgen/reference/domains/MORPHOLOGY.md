@@ -12,6 +12,9 @@
 
 # Morphology
 
+Learning companion: [Water and Relief Glossary](water-and-relief-glossary.md)
+distinguishes physical processes, current proxies and native presentation.
+
 > **Status:** Canonical (domain reference)
 >
 > **This doc is:** the contract surface and “what exists before what” meaning of the MapGen **MORPHOLOGY** domain (inputs, outputs, truth vs projections, and invariants).
