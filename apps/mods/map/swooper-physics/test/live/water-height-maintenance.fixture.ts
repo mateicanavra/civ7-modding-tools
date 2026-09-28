@@ -1,5 +1,7 @@
 import { encodeBoundedJsonLogLines } from "@swooper/mapgen-core/lib/log";
 import { sha256Hex, stableStringify } from "@swooper/mapgen-core/trace";
+import { CIV7_MAP_INFO_KEYS, getCiv7StandardMapSizePreset } from "@civ7/map-policy";
+import { projectStandardInitialSetup } from "@swooper/swooper-physics/standard";
 import type { Civ7Adapter } from "../../src/runtime/map-script/adapter.js";
 import type { FullMapProbeIdentity } from "./river-full-map.fixture.js";
 
@@ -11,7 +13,7 @@ export const WATER_HEIGHT_MAINTENANCE_PROBE = {
   playerCount: 10, sourceConfigId: "swooper-earthlike", expectedLakeSizeCutoff: 10,
 } as const;
 export const WATER_HEIGHT_LAKE_CUTOFF_PROBE = {
-  ...WATER_HEIGHT_MAINTENANCE_PROBE, diagnosticRevision: 10, displayLabel: "Water Lake Cutoff V10",
+  ...WATER_HEIGHT_MAINTENANCE_PROBE, diagnosticRevision: 11, displayLabel: "Water Lake Cutoff V11",
   atlasKind: WATER_HEIGHT_LAKE_CUTOFF_ATLAS, expectedLakeSizeCutoff: 20,
 } as const;
 type ProbeOptions = typeof WATER_HEIGHT_MAINTENANCE_PROBE | typeof WATER_HEIGHT_LAKE_CUTOFF_PROBE;
@@ -27,6 +29,30 @@ type Adapter = Pick<Civ7Adapter, typeof maintenanceMethods[number] | "setElevati
   | "getElevation" | "getTerrainType" | "getRiverType" | "isWater" | "isLake" | "getMapSizeId" | "lookupMapInfo">;
 const installed = new WeakSet<object>();
 const digest = (value: unknown) => sha256Hex(stableStringify(value));
+
+/** The diagnostic changes one official field, so its truthful selection is custom, not a preset. */
+export function projectLakeCutoffInitialSetup(
+  capture: Parameters<typeof projectStandardInitialSetup>[0]
+): ReturnType<typeof projectStandardInitialSetup> {
+  const setup = projectStandardInitialSetup(capture);
+  const selection = setup.map.selection;
+  const preset = getCiv7StandardMapSizePreset("MAPSIZE_HUGE");
+  if (selection.id !== preset.id || selection.dimensions.width !== preset.dimensions.width
+    || selection.dimensions.height !== preset.dimensions.height)
+    throw new Error("Lake cutoff diagnostic requires the captured Huge selection and dimensions.");
+  for (const key of CIV7_MAP_INFO_KEYS) {
+    const expected = key === "LakeSizeCutoff" ? WATER_HEIGHT_LAKE_CUTOFF_PROBE.expectedLakeSizeCutoff : preset.mapInfo[key];
+    if (selection.mapInfo[key] !== expected)
+      throw new Error(`Lake cutoff diagnostic requires mapInfo.${key}=${String(expected)}; observed ${String(selection.mapInfo[key])}.`);
+  }
+  if (selection.startSlotCapacity.west !== preset.mapInfo.PlayersLandmass1
+    || selection.startSlotCapacity.east !== preset.mapInfo.PlayersLandmass2
+    || selection.startSlotCapacity.total !== preset.mapInfo.PlayersLandmass1 + preset.mapInfo.PlayersLandmass2)
+    throw new Error("Lake cutoff diagnostic requires the captured Huge start-slot capacity.");
+  return Object.freeze({ ...setup, map: Object.freeze({ ...setup.map,
+    selection: Object.freeze({ ...selection, kind: "custom" as const }),
+  }) });
+}
 
 /** Read-only instrumentation: admitted runs preserve every original call and its arguments. */
 export function installWaterHeightMaintenanceProbe(

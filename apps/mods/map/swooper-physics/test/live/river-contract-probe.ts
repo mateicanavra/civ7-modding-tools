@@ -46,9 +46,32 @@ export async function buildRiverProbePlan(proofId: string, variant: RiverProbeVa
     identity = { configHash: canonicalMapConfigContentDigest(config.canonicalConfig),
       envelopeHash: canonicalMapConfigDigest(config.canonicalConfig),
       fixtureSourceSha256: createHash("sha256").update(await readFile(new URL(maintenance ? "./water-height-maintenance.fixture.ts" : "./river-full-map.fixture.ts", import.meta.url))).digest("hex") };
+    const mapSource = lakeCutoff ? `import { createMap } from "./src/runtime/map-script/entrypoint.js";
+import type { StandardMapConfigEnvelope } from "@swooper/swooper-physics/standard/map-config";
+import standardRecipe, {
+  STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
+  STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
+  STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
+} from "@swooper/swooper-physics/standard";
+import { projectLakeCutoffInitialSetup } from "./test/live/water-height-maintenance.fixture.ts";
+const mapConfig = ${JSON.stringify(config.canonicalConfig, null, 2)} as unknown as StandardMapConfigEnvelope;
+export default createMap({
+  ...mapConfig,
+  recipe: standardRecipe,
+  sourceConfigId: ${JSON.stringify(config.canonicalConfig.id)},
+  configHash: ${JSON.stringify(identity.configHash)},
+  envelopeHash: ${JSON.stringify(identity.envelopeHash)},
+  config: mapConfig.config,
+  initialSetup: {
+    requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
+    requestedGameOptions: STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
+    requestedPlayerOptions: STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
+    project: projectLakeCutoffInitialSetup,
+  },
+});` : renderSwooperCatalogMapSource(config);
     source = maintenance ? `${adapterImport}import { installWaterHeightMaintenanceProbe } from "./test/live/water-height-maintenance.fixture.ts";
 installWaterHeightMaintenanceProbe(Civ7Adapter.prototype, ${JSON.stringify(proofId)}, ${JSON.stringify(identity)}, ${JSON.stringify(maintenanceProbe)});
-${renderSwooperCatalogMapSource(config)}` : `${adapterImport}import { installFullMapRiverProbe } from "./test/live/river-full-map.fixture.ts";
+${mapSource}` : `${adapterImport}import { installFullMapRiverProbe } from "./test/live/river-full-map.fixture.ts";
 installFullMapRiverProbe(Civ7Adapter.prototype, ${JSON.stringify(proofId)}, ${JSON.stringify(atlasKind)}, ${JSON.stringify(identity)});
 ${renderSwooperCatalogMapSource(config)}`;
   }
@@ -82,7 +105,8 @@ ${renderSwooperCatalogMapSource(config)}`;
           extraWriteCount: FULL_MAP_RIVER_PROBE_EDGES[atlasKind].length, edges: FULL_MAP_RIVER_PROBE_EDGES[atlasKind] } } : {}),
         ...(lakeCutoff ? { intervention: { kind: "source-qualified-classification-only", scope: "game",
           criterion: { MapInUse: riverProbeMapScript }, table: "Maps", where: { MapSizeType: "MAPSIZE_HUGE" },
-          set: { LakeSizeCutoff: 20 }, qualification: "Activation requires measured MapInfo cutoff 20; no height, visual or navigation success claimed." } } : {}),
+          set: { LakeSizeCutoff: 20 }, setupSelection: "custom; captured Huge metadata differs only at numeric LakeSizeCutoff 20",
+          qualification: "Activation requires measured MapInfo cutoff 20; no height, visual or navigation success claimed." } } : {}),
         settings: RIVER_PROBE_VARIANTS[variant], scriptSha256: createHash("sha256").update(content).digest("hex"),
         mapScript: riverProbeMapScript, installDirectoryName: riverProbeInstallDirectoryName,
         evidence: "built-only; no native observations",
