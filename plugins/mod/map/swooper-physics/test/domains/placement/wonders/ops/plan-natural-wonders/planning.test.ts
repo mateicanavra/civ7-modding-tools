@@ -63,6 +63,7 @@ describe("natural wonder planning", () => {
       wondersCount: 3,
       landMask: new Uint8Array(size).fill(1),
       elevation: Int16Array.from(Array.from({ length: size }, (_, i) => (i * 137) % 400)),
+      engineElevations: Array.from({ length: size }, (_, i) => 1000.25 + i),
       aridityIndex: f32((i) => ((i * 7) % 100) / 100),
       riverClass: new Uint8Array(size),
       lakeMask: new Uint8Array(size),
@@ -97,6 +98,14 @@ describe("natural wonder planning", () => {
       expect(placement.priority).toBeGreaterThanOrEqual(0);
       expect(placement.priority).toBeLessThanOrEqual(1);
     }
+    const differentNativeHeights = runAdmittedOperationForTest(
+      planNaturalWonders,
+      { ...input, engineElevations: input.engineElevations.map((value) => -value) },
+      cfg
+    );
+    expect(
+      differentNativeHeights.placements.map(({ plotIndex, priority }) => ({ plotIndex, priority }))
+    ).toEqual(first.placements.map(({ plotIndex, priority }) => ({ plotIndex, priority })));
   });
 
   it("excludes overlapping footprints from fallback anchors (multi-tile + used plots)", () => {
@@ -125,6 +134,7 @@ describe("natural wonder planning", () => {
         wondersCount: 2,
         landMask: new Uint8Array(size).fill(1),
         elevation: Int16Array.from(Array.from({ length: size }, (_, i) => (i * 53) % 300)),
+        engineElevations: Array.from({ length: size }, (_, i) => ((i * 53) % 300) + 0.25),
         aridityIndex: new Float32Array(size).fill(0.3),
         riverClass: new Uint8Array(size),
         lakeMask: new Uint8Array(size),
@@ -172,7 +182,7 @@ describe("natural wonder planning", () => {
         for (const cell of footprintOf(result.placements[j]!.plotIndex)) forbidden.add(cell);
       }
       for (const fallback of fallbacks) {
-        expect(fallback.elevation).toBe((fallback.plotIndex * 53) % 300);
+        expect(fallback.elevation).toBe(((fallback.plotIndex * 53) % 300) + 0.25);
         for (const cell of footprintOf(fallback.plotIndex)) {
           expect(forbidden.has(cell)).toBe(false);
         }
@@ -199,6 +209,7 @@ describe("natural wonder planning", () => {
         wondersCount: 2,
         landMask: new Uint8Array(size).fill(1),
         elevation: new Int16Array(size).fill(100),
+        engineElevations: Array.from({ length: size }, () => 800.5),
         aridityIndex: new Float32Array(size).fill(1), // group H: 0.5*1 + 0.3*elevN(1) = 0.8
         riverClass: new Uint8Array(size),
         lakeMask: new Uint8Array(size),
@@ -228,5 +239,57 @@ describe("natural wonder planning", () => {
     // Cross-group MIX: one arid (31) + one forest (30); the 2nd arid (39) is NOT
     // selected because the decay made it lose to the fresh forest group.
     expect(placed).toEqual([30, 31]);
+  });
+
+  it("uses exact engine numbers for native floors without substituting physical heights", () => {
+    const width = 3;
+    const height = 3;
+    const size = width * height;
+    const input = {
+      width,
+      height,
+      wondersCount: 1,
+      landMask: new Uint8Array(size).fill(1),
+      elevation: new Int16Array(size).fill(30000),
+      engineElevations: Array.from({ length: size }, () => 700.249),
+      aridityIndex: new Float32Array(size).fill(1),
+      riverClass: new Uint8Array(size),
+      lakeMask: new Uint8Array(size),
+      ...baselineSuitabilitySurfaces(size),
+      coastTerrainType: 2,
+      mountainTerrainType: 3,
+      iceFeatureType: 4,
+      terrainType: new Int32Array(size).fill(1),
+      biomeType: new Int32Array(size).fill(1),
+      featureType: new Int32Array(size).fill(-1),
+      noFeatureType: -1,
+      naturalWonderBlockedMask: new Uint8Array(size),
+      featureCatalog: [
+        {
+          ...plannerCatalogEntry(39, { even: [{ dx: 0, dy: 0 }], odd: [{ dx: 0, dy: 0 }] }),
+          minimumElevation: 700.25,
+        },
+      ],
+    };
+    expect(
+      runAdmittedOperationForTest(planNaturalWonders, input, naturalWonderSelection(0)).plannedCount
+    ).toBe(0);
+    input.elevation.fill(-30000);
+    input.engineElevations[4] = 700.25;
+    const result = runAdmittedOperationForTest(
+      planNaturalWonders,
+      input,
+      naturalWonderSelection(0)
+    );
+    expect(result.placements[0]).toMatchObject({ plotIndex: 4, elevation: 700.25 });
+    for (const engineElevations of [[], input.engineElevations.map(() => Number.NaN)]) {
+      expect(() =>
+        runAdmittedOperationForTest(
+          planNaturalWonders,
+          { ...input, engineElevations },
+          naturalWonderSelection(0)
+        )
+      ).toThrow();
+    }
   });
 });

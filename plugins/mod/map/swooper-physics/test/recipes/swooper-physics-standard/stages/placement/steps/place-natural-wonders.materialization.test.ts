@@ -139,6 +139,7 @@ describe("natural wonder placement materialization", () => {
     });
     const placeNaturalWonder = adapter.placeNaturalWonder.bind(adapter);
     adapter.placeNaturalWonder = (x, y, featureType, direction, elevation) => {
+      expect(elevation).toBeUndefined();
       const plotIndex = y * adapter.width + x;
       return plotIndex === primaryPlotIndex
         ? {
@@ -154,6 +155,10 @@ describe("natural wonder placement materialization", () => {
     };
     const plan = oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, primaryPlotIndex, dimensions);
     plan.placements[0]!.fallbacks = [{ plotIndex: fallbackPlotIndex, elevation: 240 }];
+    // The current native surface may have changed since planning; never write its stale height back.
+    adapter.setElevation(
+      Array.from({ length: dimensions.width * dimensions.height }, () => 800.125)
+    );
 
     const measurements = executeNaturalWonderStep(adapter, plan);
     const fallbackY = Math.trunc(fallbackPlotIndex / dimensions.width);
@@ -173,7 +178,7 @@ describe("natural wonder placement materialization", () => {
         y: fallbackY,
         featureType: featureTypes.FEATURE_KILIMANJARO,
         direction: -1,
-        elevation: 240,
+        elevation: 800.125,
       },
     ]);
     expect(adapter.getFeatureType(fallbackX, fallbackY)).toBe(featureTypes.FEATURE_KILIMANJARO);
@@ -227,10 +232,9 @@ describe("natural wonder placement materialization", () => {
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       defaultTerrainName: "TERRAIN_FLAT",
     });
-    adapter.placeNaturalWonder = (x, y, featureType, direction, elevation) => {
-      if (elevation === undefined) {
-        throw new Error("Readback-mismatch fixture requires the planned wonder elevation.");
-      }
+    adapter.placeNaturalWonder = (x, y, featureType, direction, plannedElevation) => {
+      expect(plannedElevation).toBeUndefined();
+      const elevation = adapter.getElevation(x, y);
       for (const plotIndex of [17, 18]) {
         const fy = Math.trunc(plotIndex / adapter.width);
         const fx = plotIndex - fy * adapter.width;
@@ -305,7 +309,12 @@ describe("natural wonder placement materialization", () => {
       defaultTerrainName: "TERRAIN_FLAT",
     });
     const attemptedPlotIndices: number[] = [];
-    adapter.placeNaturalWonder = (x, y, featureType, direction, elevation) => {
+    adapter.setElevation(
+      Array.from({ length: dimensions.width * dimensions.height }, () => 900.625)
+    );
+    adapter.placeNaturalWonder = (x, y, featureType, direction, plannedElevation) => {
+      expect(plannedElevation).toBeUndefined();
+      const elevation = adapter.getElevation(x, y);
       const plotIndex = y * adapter.width + x;
       attemptedPlotIndices.push(plotIndex);
       const rejected = {
@@ -347,7 +356,7 @@ describe("natural wonder placement materialization", () => {
           {
             status: "rejected",
             plotIndex: terminalFallbackPlotIndex,
-            elevation: 240,
+            elevation: 900.625,
             reason: "set-feature-false",
           },
         ],

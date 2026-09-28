@@ -68,7 +68,7 @@ type NaturalWonderPlacementExactLogPayload = Readonly<{
 
 type PlacementExactLogMarker =
   | "NATURAL_WONDER_PLACEMENT_V1"
-  | "NATURAL_WONDER_PLAN_INPUT_V2"
+  | "NATURAL_WONDER_PLAN_INPUT_V3"
   | "NATURAL_WONDER_PLAN_V1"
   | "PLACEMENT_PARITY_V1"
   | "RESOURCE_PLACEMENT_V1";
@@ -205,7 +205,7 @@ export function projectStandardNaturalWonderPlanEvidence(
       y,
       featureType: placement.featureType | 0,
       direction: placement.direction | 0,
-      elevation: normalizeInteger(placement.elevation),
+      elevation: Number.isFinite(placement.elevation) ? placement.elevation : null,
       priorityPpm: normalizeOptionalPpm(placement.priority),
     };
   });
@@ -276,7 +276,7 @@ export function emitStandardNaturalWonderPlanExactLog(plan: DeepReadonly<Natural
 export function emitStandardNaturalWonderPlanInputExactLog(
   measurements: StandardNaturalWonderPlanInputMeasurements
 ): void {
-  emitPlacementExactLog("NATURAL_WONDER_PLAN_INPUT_V2", measurements);
+  emitPlacementExactLog("NATURAL_WONDER_PLAN_INPUT_V3", measurements);
 }
 
 function projectNaturalWonderPlacementExactLog(
@@ -362,10 +362,6 @@ export function emitStandardPlacementParityExactLog(
   measurements: StandardPlacementParityMeasurements
 ): void {
   emitPlacementExactLog("PLACEMENT_PARITY_V1", measurements);
-}
-
-function normalizeInteger(value: unknown): number | null {
-  return Number.isFinite(value) ? Math.trunc(value as number) : null;
 }
 
 function normalizeOptionalPpm(value: unknown): number | null {

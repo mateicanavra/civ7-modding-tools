@@ -22,9 +22,10 @@ const COMPARISON_DIMENSIONS = TEST_MAP_SIZE.dimensions;
 const COMPARISON_PLOT_COUNT = COMPARISON_DIMENSIONS.width * COMPARISON_DIMENSIONS.height;
 const EMPTY_DIGEST = { count: 0, hash32: "811c9dc5" } as const;
 const EMPTY_INPUT_EVIDENCE = {
-  version: 2,
+  version: 3,
   plannerInput: {
-    version: 1,
+    version: 2,
+    engineElevationSource: "mock",
     dimensions: COMPARISON_DIMENSIONS,
     wondersCount: 0,
     engineConstants: {
@@ -44,10 +45,11 @@ const EMPTY_INPUT_EVIDENCE = {
       configHash32: "bbbbbbbb",
     },
     surfaceDigests: {
-      version: 1,
+      version: 2,
       plotCount: COMPARISON_PLOT_COUNT,
       landMaskHash32: "11111111",
       elevationHash32: "22222222",
+      engineElevationsHash32: "12341234",
       aridityIndexHash32: "33333333",
       riverClassHash32: "44444444",
       lakeMaskHash32: "55555555",
@@ -315,6 +317,65 @@ describe("Standard parity report state", () => {
     expect(report.failureLinks).toContain("resource-placement.placed");
     expect(report.unresolvedLinks).toContain(
       "exact-authorship.log.resource-placement.rejected-coordinates"
+    );
+  });
+
+  test("retains native versus mock provenance without treating it as a numeric planner mismatch", () => {
+    const base = captures();
+    const exactInput = base.exact.naturalWonderPlanInput;
+    if (exactInput.status !== "present") throw new Error("Expected exact planner input evidence.");
+    const report = buildStandardParityReport({
+      ...base,
+      exact: {
+        ...base.exact,
+        naturalWonderPlanInput: {
+          status: "present",
+          value: {
+            ...exactInput.value,
+            plannerInput: { ...exactInput.value.plannerInput, engineElevationSource: "native" },
+          },
+        },
+      },
+    });
+
+    expect(report.placement.naturalWonderPlanInput.claim.status).toBe("pass");
+    expect(report.failureLinks).toEqual([]);
+    expect(report.state).toBe("blocked-unresolved");
+    expect(report.placement.naturalWonderPlanInput.exact?.plannerInput.engineElevationSource).toBe(
+      "native"
+    );
+    const localInput = report.placement.naturalWonderPlanInput.local;
+    if (localInput.status !== "present") throw new Error("Expected local planner input evidence.");
+    expect(localInput.value.plannerInput.engineElevationSource).toBe("mock");
+  });
+
+  test("fails when exact native elevation numbers diverge despite matching physical elevation", () => {
+    const base = captures();
+    const exactInput = base.exact.naturalWonderPlanInput;
+    if (exactInput.status !== "present") throw new Error("Expected exact planner input evidence.");
+    const report = buildStandardParityReport({
+      ...base,
+      exact: {
+        ...base.exact,
+        naturalWonderPlanInput: {
+          status: "present",
+          value: {
+            ...exactInput.value,
+            plannerInput: {
+              ...exactInput.value.plannerInput,
+              surfaceDigests: {
+                ...exactInput.value.plannerInput.surfaceDigests,
+                engineElevationsHash32: "fedcba98",
+              },
+            },
+          },
+        },
+      },
+    });
+
+    expect(report.placement.naturalWonderPlanInput.claim.status).toBe("fail");
+    expect(report.failureLinks).toContain(
+      "natural-wonder-plan-input.surface-digests.engineElevationsHash32"
     );
   });
 

@@ -95,6 +95,15 @@ const suitabilityDiversity = createStrategy(
       const height = input.height;
       const size = width * height;
 
+      if (
+        input.engineElevations.length !== size ||
+        input.engineElevations.some((value) => !Number.isFinite(value))
+      ) {
+        throw new Error(
+          "Natural-wonder planning requires exact finite engine elevations for every tile."
+        );
+      }
+
       const wondersCount = input.wondersCount;
       const noFeatureType = input.noFeatureType;
       const featureCatalog = [...input.featureCatalog].sort((a, b) => {
@@ -199,7 +208,7 @@ const suitabilityDiversity = createStrategy(
         allTiles[i] = {
           plotIndex: i,
           relief: clamp01(reliefByTile[i]! / reliefScale),
-          elevation: input.elevation[i]!,
+          elevation: input.engineElevations[i]!,
         };
       }
 

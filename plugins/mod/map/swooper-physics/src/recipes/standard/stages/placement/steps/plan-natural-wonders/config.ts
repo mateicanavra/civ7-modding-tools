@@ -20,6 +20,7 @@ export const config = defineStep({
     "readCurrentMapTerrainTypes",
     "readCurrentMapBiomeTypes",
     "readCurrentMapFeatureTypes",
+    "readCurrentMapElevationSnapshot",
   ] as const,
   requires: [
     STANDARD_COMPLETIONS.featuresApplied,

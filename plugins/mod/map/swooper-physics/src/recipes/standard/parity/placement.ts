@@ -47,6 +47,7 @@ type StandardNaturalWonderPlanInputDelta = Readonly<
     biomeType: Readonly<{ exact: number; local: number }>;
     occupiedFeatureType: Readonly<{ exact: number; local: number }>;
     elevationDelta: number;
+    engineElevationDelta: number;
     aridityPpmDelta: number;
     riverClassDelta: number;
     lakeMaskDelta: number;
@@ -326,10 +327,12 @@ function compareNaturalWonderPlanInput(
   }
   const exactEvidence = exact.naturalWonderPlanInput.value;
   const localValue = localEvidence.value;
-  const mismatchedPlannerFields = mismatchedCanonicalFields(
-    exactEvidence.plannerInput,
-    localValue.plannerInput
-  );
+  // Provenance remains in the report, but native versus mock is not a numeric input difference.
+  const { engineElevationSource: exactSource, ...exactPlannerValues } = exactEvidence.plannerInput;
+  const { engineElevationSource: localSource, ...localPlannerValues } = localValue.plannerInput;
+  void exactSource;
+  void localSource;
+  const mismatchedPlannerFields = mismatchedCanonicalFields(exactPlannerValues, localPlannerValues);
   const mismatchedDigestFields = mismatchedCanonicalFields(
     exactEvidence.plannerInput.surfaceDigests,
     localValue.plannerInput.surfaceDigests
@@ -341,12 +344,14 @@ function compareNaturalWonderPlanInput(
   );
   const rowsMatch = stableStringify(exactEvidence.rows) === stableStringify(localValue.rows);
   const plannedCountMatches = exactEvidence.plannedCount === localValue.plannedCount;
-  const measurementMatches = stableStringify(exactEvidence) === stableStringify(localValue);
+  const measurementMatches =
+    stableStringify({ ...exactEvidence, plannerInput: exactPlannerValues }) ===
+    stableStringify({ ...localValue, plannerInput: localPlannerValues });
   const claim: StandardParityComparison = measurementMatches
     ? {
         status: "pass",
         reason:
-          "Exact and local natural-wonder evidence identifies the same complete admitted planner request and selected anchors.",
+          "Exact and local natural-wonder evidence identifies the same admitted planner values and selected anchors; observation provenance remains separate and this is not native execution proof.",
         evidenceLinks: ["natural-wonder-plan-input"],
       }
     : {
@@ -436,6 +441,9 @@ function naturalWonderInputDelta(
     ...(exact.elevation === local.elevation
       ? {}
       : { elevationDelta: exact.elevation - local.elevation }),
+    ...(exact.engineElevation === local.engineElevation
+      ? {}
+      : { engineElevationDelta: exact.engineElevation - local.engineElevation }),
     ...(exact.aridityPpm === local.aridityPpm
       ? {}
       : { aridityPpmDelta: exact.aridityPpm - local.aridityPpm }),

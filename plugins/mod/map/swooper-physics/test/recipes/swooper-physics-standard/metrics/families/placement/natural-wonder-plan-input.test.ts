@@ -44,12 +44,14 @@ function measurementInput(
   featureType[5] = 18;
 
   return {
+    engineElevationSource: "mock" as const,
     plannerInput: {
       width,
       height,
       wondersCount: options.wondersCount ?? 3,
       landMask,
       elevation,
+      engineElevations: Array.from({ length: plotCount }, () => 999.125),
       aridityIndex,
       riverClass,
       lakeMask,
@@ -126,6 +128,13 @@ const SURFACE_PERTURBATIONS: Array<{
     digest: "elevationHash32",
     mutate: (input) => {
       input.plannerInput.elevation[9] += 1;
+    },
+  },
+  {
+    channel: "engineElevations",
+    digest: "engineElevationsHash32",
+    mutate: (input) => {
+      input.plannerInput.engineElevations[9] += 0.000_000_1;
     },
   },
   {
@@ -228,9 +237,10 @@ describe("Standard natural-wonder planning-input measurements", () => {
 
     expect(Value.Check(StandardNaturalWonderPlanInputMeasurementsSchema, measurements)).toBe(true);
     expect(measurements).toMatchObject({
-      version: 2,
+      version: 3,
       plannerInput: {
-        version: 1,
+        version: 2,
+        engineElevationSource: "mock",
         dimensions: TEST_MAP_SIZE.dimensions,
         wondersCount: 3,
         engineConstants: {
@@ -250,7 +260,7 @@ describe("Standard natural-wonder planning-input measurements", () => {
           configHash32: expect.stringMatching(/^[0-9a-f]{8}$/),
         },
         surfaceDigests: {
-          version: 1,
+          version: 2,
           plotCount: TEST_MAP_SIZE.dimensions.width * TEST_MAP_SIZE.dimensions.height,
         },
       },
@@ -265,6 +275,7 @@ describe("Standard natural-wonder planning-input measurements", () => {
           biomeType: 7,
           occupiedFeatureType: 18,
           elevation: 240,
+          engineElevation: 999.125,
           aridityPpm: 250_000,
           riverClass: 2,
           lakeMask: 0,
@@ -273,6 +284,17 @@ describe("Standard natural-wonder planning-input measurements", () => {
         },
       ],
     });
+  });
+
+  it("retains native versus mock admission provenance without relabeling physical evidence", () => {
+    const input = measurementInput();
+    const mock = measureStandardNaturalWonderPlanInput(input);
+    const native = measureStandardNaturalWonderPlanInput({
+      ...input,
+      engineElevationSource: "native",
+    });
+    expect(native.plannerInput.engineElevationSource).toBe("native");
+    expect(native.plannerInput.surfaceDigests).toEqual(mock.plannerInput.surfaceDigests);
   });
 
   it.each(SURFACE_PERTURBATIONS)("changes only the $digest digest when $channel changes", ({

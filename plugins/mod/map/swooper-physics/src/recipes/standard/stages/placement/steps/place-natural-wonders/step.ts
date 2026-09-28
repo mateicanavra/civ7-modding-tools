@@ -30,8 +30,7 @@ type NaturalWonderEngine = Readonly<{
     x: number,
     y: number,
     featureType: number,
-    direction: number,
-    elevation?: number
+    direction: number
   ) => NaturalWonderPlacementOutcome;
 }>;
 
@@ -46,12 +45,12 @@ function attemptNaturalWonderAnchor(args: {
   width: number;
   featureType: number;
   direction: number;
-  elevation: number;
 }): NaturalWonderPlacementRow {
-  const { anchorPlotIndex: plotIndex, direction, elevation, engine, featureType, width } = args;
+  const { anchorPlotIndex: plotIndex, direction, engine, featureType, width } = args;
   const y = Math.trunc(plotIndex / width);
   const x = plotIndex - y * width;
-  const outcome = engine.placeNaturalWonder(x, y, featureType, direction, elevation);
+  // Native feature admission and dispatch use the current engine height, not stale plan evidence.
+  const outcome = engine.placeNaturalWonder(x, y, featureType, direction);
   if (outcome.status === "rejected" && outcome.reason === "out-of-bounds") {
     throw new Error(
       `[Placement] Natural-wonder adapter rejected admitted in-bounds plot ${plotIndex} as out of bounds.`
@@ -87,7 +86,6 @@ function materializeNaturalWonders(args: {
         width: args.width,
         featureType: placement.featureType,
         direction: placement.direction,
-        elevation: candidate.elevation,
       });
       if (outcome.status === "placed") {
         placed = outcome;
@@ -140,13 +138,8 @@ export const PlaceNaturalWondersStep = createStep(config, {
     const naturalWonderPlan = deps.artifacts.naturalWonderPlan.read();
     const { exactLogCompatibility, measurements } = materializeNaturalWonders({
       engine: {
-        placeNaturalWonder: (
-          x: number,
-          y: number,
-          featureType: number,
-          direction: number,
-          elevation?: number
-        ) => deps.engine.placeNaturalWonder(context, x, y, featureType, direction, elevation),
+        placeNaturalWonder: (x: number, y: number, featureType: number, direction: number) =>
+          deps.engine.placeNaturalWonder(context, x, y, featureType, direction),
       },
       width: context.setup.dimensions.width,
       plan: naturalWonderPlan,

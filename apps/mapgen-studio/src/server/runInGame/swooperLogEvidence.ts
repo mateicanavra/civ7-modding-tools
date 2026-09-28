@@ -346,14 +346,14 @@ function parseNaturalWonderPlanInputTelemetryBetween(
   | undefined {
   for (const { payload } of payloadOccurrencesBetween(
     lines,
-    "NATURAL_WONDER_PLAN_INPUT_V2",
+    "NATURAL_WONDER_PLAN_INPUT_V3",
     evidenceIndex,
     completionIndex
   )
     .slice()
     .reverse()) {
     return {
-      marker: "NATURAL_WONDER_PLAN_INPUT_V2",
+      marker: "NATURAL_WONDER_PLAN_INPUT_V3",
       payload,
     };
   }
