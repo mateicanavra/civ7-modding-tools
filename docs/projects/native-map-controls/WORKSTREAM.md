@@ -1,6 +1,6 @@
 # Native Map Controls
 
-Status: elevation and Earthlike climate acceptance pass; native river qualification exposed a physical drainage prerequisite.
+Status: elevation and Earthlike climate acceptance pass; relief coherence and basin-aware drainage are authorized prerequisites to native river integration.
 DRA: root. Opened: 2026-09-27.
 Opening branch: `agent-root-civ7-native-map-controls-frame`.
 
@@ -10,6 +10,44 @@ Map authors should see the physical heightfield and connected minor/navigable
 river network produced by Swooper realized faithfully in Civ7, rather than
 reconstructed by unrelated native generators. Studio must remain usable from
 the same isolated checkout throughout the work.
+
+### Relief And Basin Continuation
+
+On 2026-09-28 the user authorized the complete study, design, implementation,
+review and native-test loop, including justified simplification and sequencing
+changes. The selected direction is basin-aware Earthlike, not blanket removal
+of depression storage. Ask only for a concrete consequential product choice
+that the evidence and stated Earthlike intent cannot resolve.
+
+Proceed in the existing worktree and stack through these complete changes:
+
+1. Add reusable relief/climate and basin/drainage reviewer prompts, with
+   bounded responsibilities and source-backed scientific assumptions.
+2. Establish class-conditioned relief, neighboring transitions, coastal
+   exposure, climate associations and drainage-conflict baselines. Distinguish
+   genuine summit prominence from a local-neighborhood proxy, and distinguish
+   numerical height from categorical gameplay terrain and native cliff edges.
+3. Correct demonstrated coherence failures at the earliest causal owner;
+   predeclare behavioral expectations and collateral guards before tuning.
+4. Design and implement basin geometry, water-surface/outlet/terminal semantics
+   and authoritative drainage as one coherent model. Consider sequence changes
+   when they remove a false dependency; do not introduce late adapter carving,
+   arbitrary barrier repair or a second water-network owner.
+5. Integrate native minor/navigable writes over the accepted physical model,
+   then study, inspect in Civ7 and retire displaced generation/compensation.
+
+Each change receives independent review and actual verification before the
+next depends on it. The initial coherence cohort is Earthlike and the shipped
+mountain-focused identity at Standard and Huge, with seeds 1, 42 and 1018.
+Broaden a regime only when evidence identifies a missing discriminating case.
+The existing full study bank remains the collateral guard; thresholds are not
+loosened to make a new model pass.
+
+The previous shallow-throughflow/deep-closed binary is superseded: basin depth,
+outlet status and wetness are independent. Full-graph lowering remains an
+experimental comparison, not the selected production model. A bounded static
+basin representation is in scope; a numerical lake/atmosphere simulator and
+reimplementation of Civ7 internals are not.
 
 This is one workstream with two separately reviewable implementation lanes:
 [elevation](elevation.md) and [rivers](rivers.md). They share resource/API

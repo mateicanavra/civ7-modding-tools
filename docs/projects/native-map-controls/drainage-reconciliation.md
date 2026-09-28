@@ -147,9 +147,16 @@ Independent review narrowed the meaningful alternatives:
   a defensible breach-cost policy and real basin/overflow semantics; neither
   exists today. It must not recreate a terminal at every raw pit.
 
-The user's lake-model preference was requested during review. The first model
-is the proposed scope for this integration; quantitative full-graph lowering
-and final-surface guards must pass before it becomes implementation authority.
+The initial preference request above conflated depth, outlet status and wetness.
+On 2026-09-28 the user approved the revised basin-aware Earthlike direction:
+preserve meaningful basins and represent their water surfaces and outlets,
+rather than removing all depression storage to unblock native authorship.
+An open lake can have a deep bed; a closed basin can be wet or dry. Full-graph
+lowering remains a measured comparison, not production implementation authority.
+Neither option establishes native through-lake navigation. The next design
+must define a bounded physical representation and policy, not require a full
+numerical water-balance simulator by default. Relief coherence studies precede
+behavior changes, as recorded in WORKSTREAM.md.
 
 ## Sequencing And Parallelization
 

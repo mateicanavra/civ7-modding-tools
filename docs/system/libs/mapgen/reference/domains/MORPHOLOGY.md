@@ -74,7 +74,7 @@ artifact evidence consumed through declared step contracts.
 
 **Invariants**
 
-- **Projections must not drift land/water classification.** After calling engine-facing helpers (`stampContinents`, `buildElevation`, or any engine-side terrain fixups), the adapter's `isWater(x,y)` must still match the expected projected land mask. Before lake projection this is Morphology `topography.landMask`; after lake projection it includes Hydrology lake intent as expected water.
+- **Projections must not drift land/water classification.** After calling engine-facing helpers (`stampContinents`, `setElevation`, cliff generation, or any engine-side terrain fixups), the adapter's `isWater(x,y)` must still match the expected projected land mask. Before lake projection this is Morphology `topography.landMask`; after lake projection it includes accepted Hydrology lake intent as expected water. The standard recipe writes authored numeric heights directly; it does not ask stock `buildElevation` to regenerate them from terrain classes.
 
 **Ground truth anchors**
 
@@ -82,7 +82,8 @@ artifact evidence consumed through declared step contracts.
 - `plugins/mod/map/swooper-physics/src/recipes/standard/water-surface-parity.ts` (`restoreProjectedCoastTerrain`)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/projection/steps/plot-coasts/step.ts` (seeds source coast from post-island `shelf.coastalWater || shelf.shelfMask`, applies the Civ7 coast-ring policy, then guards with `assertWaterDriftWithinPolicy`)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/projection/steps/plot-continents/step.ts` (`deps.engine.stampContinents`, `assertWaterDriftWithinPolicy`)
-- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/elevation/steps/build-elevation/step.ts` (`deps.engine.buildElevation`, `assertWaterDriftWithinPolicy`)
+- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/elevation/steps/build-elevation/step.ts` (`deps.engine.setElevation`, `deps.engine.generateCliffsFromElevation`, exact numeric readback and `assertWaterDriftWithinPolicy`)
+- `plugins/mod/map/swooper-physics/src/recipes/standard/elevation-projection.ts` (physical-model to native-display conversion; no terrain-class-driven physical relief)
 
 ## Contract
 
@@ -706,18 +707,18 @@ volcano, natural-wonder, and other land projection steps.
 
 ### Drift notes (only where it affects the contract surface)
 
-- **Elevation units are inconsistently described.** Relief config and base-topography quantization operate in “normalized units” scaled by `DEFAULT_ELEVATION_SCALE = 100`, while the `morphology.topography` artifact schema describes “integer meters”. Decide and make consistent.
+- **Elevation units are normalized model units, not meters.** Base-topography quantizes normalized relief with `DEFAULT_ELEVATION_SCALE = 100`; the shared topography atoms now describe this explicitly. Native display conversion is a downstream projection and does not mutate physical topography or establish a meter conversion.
 
 **Ground truth anchors**
 
 - `plugins/mod/map/swooper-physics/src/domain/morphology/modules/terrain/ops/compute-base-topography/contract.ts` (`ReliefConfigSchema` “normalized units”)
 - `plugins/mod/map/swooper-physics/src/domain/morphology/modules/terrain/ops/compute-base-topography/rules/index.ts` (`DEFAULT_ELEVATION_SCALE`)
-- `plugins/mod/map/swooper-physics/src/domain/morphology/modules/landforms/artifacts/topography.artifact.ts` (`artifact.schema` description)
+- `plugins/mod/map/swooper-physics/src/domain/morphology/model/atoms/topography-fields.schema.ts` (shared elevation, datum and bathymetry descriptions)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/coasts/steps/coastline-evidence/step.ts` (`computeDistanceToCoast`, publish under `baseCoastline`)
 
 ## Open Questions
 
-1. What is the canonical unit/datum for `morphology.topography.elevation` before (and after) engine `buildElevation`? Should the artifact schema say “normalized units \* 100” rather than “meters”, or should base-topography/hypsometry be reparameterized into meters?
+1. Which horizontal and vertical physical scales, if any, should a future calibrated model assign to the current normalized relief? Current climate and terrain interpretation must not assume meters or kilometers while this remains uncalibrated.
 2. Is `artifact:morphology.volcanoes` intended to be the only canonical volcanic intent surface, or should it also include a stable “volcanism driver” snapshot for downstream consumers?
 
 ## Ground truth anchors
