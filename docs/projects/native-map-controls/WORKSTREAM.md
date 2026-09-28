@@ -481,7 +481,9 @@ three-way disconnection classification, the Galley diagnostic's limits, and
 a line-count/domain-ownership scan. It distinguishes the retained native
 numeric receipt from the later same-script/seed screenshot session. No map
 algorithm or native connectivity claim is changed by that observational work.
-The local gallery is `.civ7/outputs/visual-atlas/huge-1018/gallery.html`.
+The [durable viewer entry point](../../process/LOCAL-VIEWERS.md) is linked from
+the repository README; the gallery lives in user data and is privately served
+over Tailscale at `/civ/`, independent of worktree lifetime.
 
 ## Historical Handoff
 
