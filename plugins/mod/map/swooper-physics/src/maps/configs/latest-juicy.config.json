@@ -603,7 +603,7 @@
     },
     "hydrology-climate-baseline": {
       "knobs": {
-        "dryness": "dry",
+        "dryness": "mix",
         "temperature": "hot",
         "seasonality": "high",
         "oceanCoupling": "earthlike"
@@ -785,7 +785,7 @@
     },
     "hydrology-climate-refine": {
       "knobs": {
-        "dryness": "dry",
+        "dryness": "mix",
         "temperature": "hot",
         "cryosphere": "on"
       },
