@@ -5,4 +5,5 @@ export declare class PlayerRegion {
     playerAreas: number;
     filter: (tile: HexTile) => boolean;
 }
+export declare function CreatePlayerRegions(hexMap: HexMap, totalPlayers: number): PlayerRegion[];
 export declare function CreateMajorPlayerAreas(hexMap: HexMap, playerRegions: PlayerRegion[], valueFunction?: (tile: HexTile) => number, wrap?: WrapDistOptions): void;

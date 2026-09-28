@@ -60,6 +60,7 @@ export declare class PanelAction extends Panel {
     private refreshActionButton;
     private centerButtonAnimEnd;
     private setEndTurnWaiting;
+    setMultiplayerPaused(): void;
     canEndTurn(): boolean;
     canUnreadyTurn(): boolean;
     showRemainingMovesState(): boolean;
@@ -89,4 +90,5 @@ export declare class PanelAction extends Panel {
     private tryAutoUnitCycle;
     private onTurnTimerUpdated;
     private startMPTimerAnimation;
+    private onGamePauseStateChanged;
 }

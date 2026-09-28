@@ -39,7 +39,7 @@ describe("official Civ7 setup parameter authority", () => {
       schema: "Base/Assets/schema/frontend/schema-frontend-10-setup-parameters.sql",
     });
     expect(CIV7_SETUP_PARAMETER_SOURCE.commit).toMatch(/^[0-9a-f]{40}$/);
-    expect(CIV7_SETUP_PARAMETER_FACTS).toHaveLength(63);
+    expect(CIV7_SETUP_PARAMETER_FACTS).toHaveLength(65);
     expect(new Set(CIV7_SETUP_PARAMETER_FACTS.map(parameterId)).size).toBe(56);
     expect(CIV7_SETUP_PARAMETER_GROUPS).toHaveLength(16);
   });
@@ -48,7 +48,16 @@ describe("official Civ7 setup parameter authority", () => {
     const rowsFor = (id: string) =>
       CIV7_SETUP_PARAMETER_FACTS.filter((row) => parameterId(row) === id);
 
-    expect(rowsFor("MapSeaLevel")).toHaveLength(5);
+    expect(rowsFor("MapSeaLevel")).toHaveLength(7);
+    expect(rowsFor("MapSeaLevel").map((row) => row.columns.Key2)).toEqual([
+      "{base-standard}maps/continents-voronoi.js",
+      "{base-standard}maps/pangaea-voronoi.js",
+      "{base-standard}maps/fractal-voronoi.js",
+      "{base-standard}maps/shattered-seas-voronoi.js",
+      "{base-standard}maps/archipelago-voronoi.js",
+      "{base-standard}maps/shuffle-voronoi.js",
+      "{base-standard}maps/terra-incognita-voronoi.js",
+    ]);
     expect(rowsFor("MapSeaLevel").every((row) => row.columns.Key1 === "Map")).toBe(true);
     expect(rowsFor("GameSpeeds")).toHaveLength(2);
     expect(rowsFor("StartPosition")).toHaveLength(2);

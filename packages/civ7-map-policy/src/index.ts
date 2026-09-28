@@ -10,7 +10,6 @@ export {
 } from "./catalogs/natural-wonders.js";
 export type {
   Civ7BrowserTablesV0,
-  Civ7MapResourceMinimumAmountModifierRowV1,
   Civ7PolicyTablesV1,
   Civ7ResourceRowV1,
   Civ7StartBiasScoreRowV1,
@@ -93,7 +92,6 @@ export {
   OFFICIAL_RESOURCE_CORPUS_ARTIFACT,
   OFFICIAL_RESOURCE_TYPE_ORDER,
 } from "./resources/index.js";
-export { resolveMapResourceMinimumAmountModifier } from "./resources/map-minimum-modifier.js";
 export {
   getUnconditionalResourceRequirementBasisForAge,
   type UnconditionalResourceRequirementBasis,

@@ -25,6 +25,9 @@
       "/base-standard/maps/resource-generator.js": [
         "./generated/modules/Base__modules__base-standard__maps__resource-generator.d.ts"
       ],
+      "/base-standard/maps/resource-placement-common.js": [
+        "./generated/modules/Base__modules__base-standard__maps__resource-placement-common.d.ts"
+      ],
       "/base-standard/maps/snow-generator.js": [
         "./generated/modules/Base__modules__base-standard__maps__snow-generator.d.ts"
       ],

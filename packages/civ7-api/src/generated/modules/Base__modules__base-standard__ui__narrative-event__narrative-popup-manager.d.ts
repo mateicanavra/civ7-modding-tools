@@ -14,18 +14,19 @@ declare class NarrativePopupManagerImpl extends DisplayHandlerBase<NarrativePopu
     private static instance;
     constructor();
     raiseNotificationPanel(notificationId: NotificationID, _activatedBy: PlayerId | null, favorDiscovery: boolean): false | undefined;
+    private onInterfaceModeChanged;
     closePopup: () => void;
     /**
-     * @implements {IDisplayQueue}
+     * @implements {IDisplayHandler}
      */
     canShow(): any;
     /**
-     * @implements {IDisplayQueue}
+     * @implements {IDisplayHandler}
      */
     show(request: NarrativePopupRequest): void;
     isShowing(): boolean;
     /**
-     * @implements {IDisplayQueue}
+     * @implements {IDisplayHandler}
      */
     hide(request: NarrativePopupRequest, _options?: DisplayHideOptions): void;
 }

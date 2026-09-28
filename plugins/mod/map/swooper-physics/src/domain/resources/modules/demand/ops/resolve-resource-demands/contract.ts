@@ -57,21 +57,12 @@ const ResolveResourceDemandsContract = defineOp({
         },
         { additionalProperties: false }
       ),
-      requiredForAge: Type.Record(
-        Type.String({ pattern: "^RESOURCE_[A-Z0-9_]+$" }),
-        Type.Union([Type.Boolean(), Type.Null()]),
-        {
-          description:
-            "Current initial-age requirement observation keyed once by official resource type.",
-        }
-      ),
       riverMasks: Type.Array(
         TypedArraySchemas.u8({
           cardinality: ["width", "height"],
           description: "One admitted planned or current river exclusion surface.",
         })
       ),
-      minimumAmountModifier: Type.Integer(),
     },
     { additionalProperties: false }
   ),
@@ -80,7 +71,6 @@ const ResolveResourceDemandsContract = defineOp({
       width: Type.Integer({ minimum: 1 }),
       height: Type.Integer({ minimum: 1 }),
       age: Type.Literal(INITIAL_MAP_RESOURCE_AUTHORING_AGE),
-      minimumAmountModifier: Type.Integer(),
       candidates: Type.Object(
         {
           admitted: Type.Array(AdmittedResourceDemandCandidateSchema),

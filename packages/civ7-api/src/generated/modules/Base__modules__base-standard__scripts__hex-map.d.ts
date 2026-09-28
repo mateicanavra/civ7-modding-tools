@@ -51,7 +51,7 @@ export declare enum FloodFillResult {
     Exclude = 1,
     Halt = 2
 }
-export interface LandmassTiles {
+export interface LandmassTileStats {
     land: number;
     coast: number;
     playerLandmassId: number;
@@ -60,9 +60,12 @@ export declare class HexMapStats {
     oceanTileCount: number;
     totalCoastCount: number;
     totalLandCount: number;
-    playerLandmasses: LandmassTiles[];
-    nonPlayerLand: LandmassTiles;
+    playerLandmasses: LandmassTileStats[];
+    nonPlayerLand: LandmassTileStats;
     log(): void;
+}
+export interface ValidationTracking {
+    playerLandmassRemapStats?: Map<number, Map<number, number>>;
 }
 export interface LakeSettings extends ConfigValueRecord {
     lakeDensity: number;
@@ -87,7 +90,8 @@ export declare class HexMap {
     setValidationSettings(validationSettings: HexValidationSettings): void;
     buildWrappedIndices(xCount: number): void;
     getSettingsSchema(): ParameterSpecNode;
-    initFromRegionCells(width: number, height: number, tree: Readonly<kdTree<RegionCell>>, landmassRegions: readonly LandmassRegion[], playerRegionCallback: (cell: RegionCell) => number, voronoiValidationSettings?: VoronoiValidationSettings, dominantCells?: RegionCell[][]): void;
+    initFromRegionCells(width: number, height: number, tree: Readonly<kdTree<RegionCell>>, landmassRegions: readonly LandmassRegion[], playerRegionCallback: (cell: RegionCell) => number, voronoiValidationSettings?: VoronoiValidationSettings, dominantCells?: RegionCell[][], // maps x/y hex tiles to the region cell used for that tile.
+    ruleSetToPlayerLandmassIdMap?: Map<string, number>): void;
     initFromTiles(xCount: number, yCount: number, getTile: (x: number, y: number, pos: float2) => HexTileDesc): void;
     initFromTerrainBuilder(): void;
     writeToTerrainBuilder(): void;
@@ -109,7 +113,7 @@ export declare class HexMap {
     anyNeighborOfArr<T = HexTile>(x: number, y: number, sourceArr: readonly T[][], condition: (neighbor: T) => boolean): boolean;
     anyNeighbor(tile: HexTile, condition: (neighbor: HexTile) => boolean): boolean;
     forAllTiles(callback: (tile: HexTile) => void): void;
-    validate(): void;
+    validate(tracking?: ValidationTracking): void;
     getMapStats(): HexMapStats;
     validatePoles(marginSize: number): void;
     validateCoasts(): void;
@@ -118,7 +122,7 @@ export declare class HexMap {
     removeAdjacentVolcanoes(): void;
     GenerateLakes(): void;
     removeBridgingPlayerLandmasses(option: RemoveBridgingLandmassOptions): void;
-    rebuildPlayerLandmasses(): void;
+    rebuildPlayerLandmasses(tracking?: ValidationTracking): void;
     offset(x: number, y: number): void;
     getOffsetX(): number;
     getOffsetY(): number;

@@ -1,6 +1,6 @@
 /**
  * @file tech-civic-popup-manager.ts
- * @copyright 2022, Firaxis Games
+ * @copyright 2022-2026, Firaxis Games
  * @description Manages the data and queue for tech and civic completed popups
  */
 import { DisplayHandlerBase, DisplayHideOptions, IDisplayRequestBase } from "/core/ui/context-manager/display-handler.js";
@@ -23,17 +23,16 @@ declare class TechCivicPopupManagerClass extends DisplayHandlerBase<TechCivicPop
     isFirstPopup: boolean;
     constructor();
     private initializeListeners;
-    isShowing(): boolean;
+    private isShowing;
     /**
-     * @implements {IDisplayQueue}
+     * @implements {IDisplayHandler}
      */
     show(request: TechCivicPopupData): void;
     /**
-     * @implements {IDisplayQueue}
+     * @implements {IDisplayHandler}
      */
     hide(_request: TechCivicPopupData, _options?: DisplayHideOptions): void;
     closePopup: () => void;
-    setRequestIdAndPriority(request: TechCivicPopupData): void;
     private onTechNodeCompleted;
     private onCultureNodeCompleted;
 }

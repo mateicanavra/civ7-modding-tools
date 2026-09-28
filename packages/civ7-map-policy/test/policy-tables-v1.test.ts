@@ -1,10 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
-import {
-  CIV7_BROWSER_TABLES_V0,
-  CIV7_POLICY_TABLES_V1,
-  resolveMapResourceMinimumAmountModifier,
-} from "../src/index.js";
+import * as policy from "../src/index.js";
+import { CIV7_BROWSER_TABLES_V0, CIV7_POLICY_TABLES_V1 } from "../src/index.js";
 
 const resourceIndexByType = CIV7_BROWSER_TABLES_V0.resourceTypes as Record<string, number>;
 
@@ -20,13 +17,19 @@ describe("CIV7_POLICY_TABLES_V1", () => {
     }
   });
 
-  it("carries known official weights and hemisphere minimums", () => {
+  it("carries fractional weights, schema defaults, and explicit landmass minimums", () => {
     const gold = CIV7_POLICY_TABLES_V1.resourceRows[String(resourceIndexByType.RESOURCE_GOLD)];
-    expect(gold?.weight).toBe(20);
-    expect(gold?.minimumPerHemisphere).toBe(8);
+    expect(gold?.weight).toBe(0.5);
+    expect(gold?.minimumPerLandmass).toBe(3);
     const hides = CIV7_POLICY_TABLES_V1.resourceRows[String(resourceIndexByType.RESOURCE_HIDES)];
-    expect(hides?.weight).toBe(40);
-    expect(hides?.minimumPerHemisphere).toBe(0);
+    expect(hides?.weight).toBe(0.25);
+    expect(hides?.minimumPerLandmass).toBe(1);
+    const tin = CIV7_POLICY_TABLES_V1.resourceRows[String(resourceIndexByType.RESOURCE_TIN)];
+    expect(tin?.weight).toBe(0.4);
+    const cotton = CIV7_POLICY_TABLES_V1.resourceRows[String(resourceIndexByType.RESOURCE_COTTON)];
+    expect(cotton?.weight).toBe(1);
+    expect(cotton?.minimumPerLandmass).toBe(1);
+    expect(cotton?.landmassUnique).toBe(false);
   });
 
   it("keeps raw leader requirement rows separate from live roster-dependent decisions", () => {
@@ -37,18 +40,36 @@ describe("CIV7_POLICY_TABLES_V1", () => {
     expect(CIV7_POLICY_TABLES_V1.resourceValidAges[fishIndex]).toContain("AGE_ANTIQUITY");
   });
 
-  it("includes the DEFAULT MapResourceMinimumAmountModifier rows for every official size step", () => {
-    const defaults = CIV7_POLICY_TABLES_V1.mapResourceMinimumAmountModifier.filter(
-      (row) => row.mapType === "DEFAULT"
-    );
-    expect(defaults.length).toBeGreaterThanOrEqual(4);
-    const tiny = defaults.find((row) => row.mapSizeType === "MAPSIZE_TINY");
-    expect(tiny?.amount).toBe(-4);
+  it("does not retain the removed modifier API or table", () => {
+    expect(Object.hasOwn(policy, "resolveMapResourceMinimumAmountModifier")).toBe(false);
+    expect(Object.hasOwn(CIV7_POLICY_TABLES_V1, "mapResourceMinimumAmountModifier")).toBe(false);
   });
 
-  it("resolves exact resource-minimum modifiers and treats omitted zero rows as zero", () => {
-    expect(resolveMapResourceMinimumAmountModifier("DEFAULT", "MAPSIZE_TINY")).toBe(-4);
-    expect(resolveMapResourceMinimumAmountModifier("DEFAULT", "MAPSIZE_STANDARD")).toBe(0);
+  it("bounds landmass-unique official resources to later ages", () => {
+    const unique = Object.entries(CIV7_POLICY_TABLES_V1.resourceRows).filter(
+      ([, row]) => row.landmassUnique
+    );
+    expect(unique.map(([, row]) => row.type)).toEqual([
+      "RESOURCE_COCOA",
+      "RESOURCE_SPICES",
+      "RESOURCE_SUGAR",
+      "RESOURCE_TEA",
+    ]);
+    for (const [index] of unique) {
+      expect(CIV7_POLICY_TABLES_V1.resourceValidAges[index]).not.toContain("AGE_ANTIQUITY");
+    }
+  });
+
+  it("records schema provenance and resolved defaults", () => {
+    expect(CIV7_POLICY_TABLES_V1.source).toContain(
+      "Base/Assets/schema/gameplay/01_GameplaySchema.sql"
+    );
+    expect(CIV7_POLICY_TABLES_V1.resourceDefaults).toEqual({
+      weight: 1,
+      minimumPerLandmass: 1,
+      landmassUnique: false,
+      placementWeight: 1,
+    });
   });
 
   it("attributes every StartBias row to exactly one civilization or leader", () => {

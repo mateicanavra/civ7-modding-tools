@@ -21,6 +21,8 @@ export interface ChooserItemProps extends ActivatableProps {
     iconLocked?: boolean;
     /** Optional classes applied to the inner content container. */
     contentClass?: string;
+    /** Optional opacity for the disabled overlay. Defaults to 0.7. */
+    disabledOverlayOpacity?: number;
     /** Ref callback to get access to the host element */
     ref?: (el: HTMLDivElement) => void;
 }

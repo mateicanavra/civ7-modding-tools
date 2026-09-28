@@ -140,11 +140,11 @@ declare class DiplomacyManagerImpl {
     selectedAttributeType: string;
     shouldQuickClose: boolean;
     constructor();
-    isShowing(): boolean;
+    private isShowing;
     isEmpty(): boolean;
     private addDealCloseBlocker;
     /**
-     * @implements {IDisplayQueue}
+     * @implements {IDisplayHandler}
      */
     hide(isSuspended: boolean): void;
     private initializeListeners;

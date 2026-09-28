@@ -1,9 +1,3 @@
-/**
- * @file unit-flags.ts
- * @copyright 2021-2024, Firaxis Games
- * @description Generic unit flag implementation; the default unit flag if no specific one is found.
- * The flag manages the lifetime and update of any additional 3D pieces and/or overlays.
- */
 import { ComponentID } from "/core/ui/utilities/utilities-component-id.js";
 import { UnitFlagType } from "/base-standard/ui/unit-flags/unit-flag-manager.js";
 export declare class GenericUnitFlag extends Component implements UnitFlagType {
@@ -21,6 +15,7 @@ export declare class GenericUnitFlag extends Component implements UnitFlagType {
     private unitFlagIcon;
     private readonly SPACING;
     private readonly BASE_OFFSET;
+    private disposeTooltips;
     /**
      * A vertical offset when the unit is 'stacked' with other units.
      * TODO - The unit world anchor should be able to incorporate this offset in C++ to avoid constantly recalculating this in Script.

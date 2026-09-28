@@ -4,7 +4,7 @@
  *
  * Handles input interacting with the world.
  */
-import { IEngineInputHandler, InputEngineEvent, NavigateInputEvent } from "/core/ui/input/input-support.js";
+import { IEngineInputHandler, InputEngineEvent, InputHandlerState, NavigateInputEvent } from "/core/ui/input/input-support.js";
 import { ComponentID } from "/core/ui/utilities/utilities-component-id.js";
 export type PlotSelectionHandler = (plot: PlotCoord, previousPlot: PlotCoord | null) => boolean;
 export type PostDeclareWarActionFunc = () => void;
@@ -32,11 +32,11 @@ declare class WorldInputSingleton implements IEngineInputHandler {
     /**
      * @returns true if still live, false if input should stop.
      */
-    handleInput(inputEvent: InputEngineEvent): boolean;
+    handleInput(inputEvent: InputEngineEvent): InputHandlerState;
     /**
      * @returns true if still live, false if input should stop.
      */
-    handleNavigation(_navigationEvent: NavigateInputEvent): boolean;
+    handleNavigation(_navigationEvent: NavigateInputEvent): InputHandlerState;
     private trySelectPlot;
     /**
      * @returns true if still live, false if input should stop.

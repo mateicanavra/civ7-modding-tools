@@ -25,6 +25,12 @@ blueprints, or change volcano placement merely because naming is now exposed.
 New resource-schema compatibility is in scope because it gates current-source
 generation and changes facts consumed by placement.
 
+The existing API materializer is only the installed-resource sync and
+TypeScript-declaration generator. It does not run, emulate, rebuild, or isolate
+the Civ7 engine. Native verification means running map scripts in the installed
+game. Keep any diagnostic map fixture small and use the existing build/deploy
+path; do not introduce a replacement engine or general test framework.
+
 Done means: current official resources and generated policy agree; the portable
 definition projects authored elevation and both river classes through the
 qualified realization; studies and downstream guards pass; a correlated live
@@ -227,10 +233,24 @@ native-controls regression or a passing guard.
 
 The materializer prerequisite admits only evidenced bare SCSS side effects.
 Pinned baseline declaration shards remain byte-identical; its receipt advances
-to schema 4 with no stylesheet omissions. Installed-source adoption remains a
-separate change: 960 embedded sources (716 TS, 244 TSX), 11 stylesheet
-dispositions, and 15 map rows (14 JS roots plus one `.Civ7Map`) differ from the
-pinned corpus. Resource snapshot and generated API are not yet upgraded.
+to schema 4 with no stylesheet omissions. Installed-source adoption is the next
+coherent layer: 960 embedded sources (716 TS, 244 TSX), 11 stylesheet dispositions,
+and 15 map rows (14 JS roots plus one `.Civ7Map`) differ from the pinned corpus.
+Resource refresh and publication completed at
+`89cee44d5ae7192f126e8ae09484c04400df9146`, from installed game 1.5.0.40
+(1306154), Steam build 25245002. The source receipt covers 10,794 files and
+192,609,798 bytes, SHA-256
+`6859927406ee2837555eed8e91767c28cf00b011f44e470dae89b4f63c07046f`.
+Generated policy and placement consumers now use the current source. The API
+projection preserves the exact bare imports in two newly consolidated UI
+loaders, restoring the declaration closure without inferring engine behavior.
+The loader change is shipped behavior, not missing XML tags or an engine change.
+Current-source API generation produces 965 declaration shards, SHA-256
+`f25259815e4b4c1f6929cd2cc2333fd6de6bd64315101d3d44378ba906a186d5`.
+Its uncached API/materializer check graph passes 64 tests, unchanged shell
+contract checks, typechecks, freshness and Habitat policies. The missing native
+`ResourceDefinition` type is opaque only inside the existing module-resolution
+test fixture, not invented in production declarations.
 The graph-owned materializer check passes all 43 tests, typecheck, both Habitat
 policy rules and generated freshness after regeneration. Independent patch
 review found no P1/P2 defects. Frozen dependency installation makes no changes.
@@ -241,7 +261,10 @@ until that graph-owned build creates its command manifest.
 
 The existing `earthlike/relief-representative` sample passes both integrity and
 relief targets. See studies.md for its reproducible inputs and honest headless
-evidence boundary. This is not a full-bank or native-runtime pass.
+evidence boundary. It also passes after resource migration with the reported
+relief and river measurements unchanged. The 20-scenario `earthlike/placement`
+cohort passes its integrity, placement and resource targets after migration.
+These are not full-bank or native-runtime passes.
 
 ### Design Review Dispositions
 
@@ -259,8 +282,8 @@ references here rather than dumping generated evidence into documentation.
 ## Next Packet
 
 Start here, then read resources.md, elevation.md, rivers.md and studies.md. Confirm current
-Graphite tip and clean status; preserve the separate main edits. Complete the
-bounded startup/materializer repairs, review resource-policy migration, and
-execute the approved design through its native-probe gates. Discover resolved
+Graphite tip and clean status; preserve the separate main edits. Current-source
+compatibility is verified; proceed through the approved actual-game probe gates
+before changing production elevation or river behavior. Discover resolved
 Nx targets and current CLI help rather than copying historical metrics aliases.
 Do not report live parity while run identity/correlation remains unresolved.

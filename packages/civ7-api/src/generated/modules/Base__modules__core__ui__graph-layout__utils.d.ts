@@ -4,7 +4,7 @@
  * @description Graph utilities and simplified versions of "lodash" functions for specific purposes
  */
 import { Graph, Label } from "/core/ui/graph-layout/graph.js";
-import { EntryResolved, EntryResolvedSortable } from "/core/ui/graph-layout/layout-order.js";
+import { type EntryResolved, type EntryResolvedSortable } from "/core/ui/graph-layout/layout-order.js";
 interface GraphDefaults {
     ranksep: number;
     edgesep: number;

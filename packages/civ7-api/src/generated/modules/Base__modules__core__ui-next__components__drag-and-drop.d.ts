@@ -70,7 +70,9 @@ dropzone: DropzoneData,
 position?: {
     x: number;
     y: number;
-}) => void;
+},
+/** The draggable is dropped into a position where it can't be dropped */
+dropFailed?: boolean) => void;
 export type DragDropPredicate = (draggable: DraggableData, dropzone: DropzoneData) => Accessor<boolean>;
 export interface DragAndDropGlobalContextValue {
     /**
@@ -176,6 +178,11 @@ export interface DraggableProps {
      */
     disabled?: boolean;
     /**
+     * Makes the audio behave as if it were disabled.
+     * Default: false
+     */
+    disableAudio?: boolean;
+    /**
      * Style applied on the element left behind when dragging.
      * Default: false
      */
@@ -272,7 +279,9 @@ dropzone: DropzoneDataT<DropzoneType>,
 position?: {
     x: number;
     y: number;
-}) => void;
+},
+/** The draggable is dropped into a position where it can't be dropped */
+dropFailed?: boolean) => void;
 export type DragDropPredicateT<DraggableType, DropzoneType> = (draggable: DraggableDataT<DraggableType>, dropzone: DropzoneDataT<DropzoneType>) => Accessor<boolean>;
 export interface DraggablePropsT<DraggableDataType, DropzoneDataType> extends DraggableProps {
     /**

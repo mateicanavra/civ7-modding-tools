@@ -1,6 +1,6 @@
 /**
  * @file lens-manager.ts
- * @copyright 2022-2025, Firaxis Games
+ * @copyright 2022-2026, Firaxis Games
  * @description Central manager object for lenses used by other scripts to toggles lenses and layers.
  */
 declare global {
@@ -39,11 +39,8 @@ export interface ILens {
 declare global {
     /**
      * Lens layers need to define a new entry for each layer
-     *
-     * Example: 'fxs-hexgrid-layer' : HexGridLensLayer
-     *
-     * !DON'T FORGET to also include the reference in globals.d.ts!
-     * */
+     * @example: 'fxs-hexgrid-layer' : HexGridLensLayer
+     **/
     interface LensLayerTypeMap {
     }
 }
@@ -81,6 +78,11 @@ export interface LensActivationEventDetail {
 export declare class LensActivationEvent extends CustomEvent<LensActivationEventDetail> {
     constructor(prevLens: LensActivationEventDetail["prevLens"], activeLens: LensActivationEventDetail["activeLens"], hasLegend: boolean);
 }
+declare global {
+    interface WindowEventMap {
+        [LensActivationEventName]: LensActivationEvent;
+    }
+}
 export interface LensToggleOptions {
     force?: boolean;
     serialize?: boolean;
@@ -92,6 +94,7 @@ declare class LensManagerSingleton {
     private showDebugInfo;
     private lenses;
     private layers;
+    private previousLens;
     private activeLensGetter;
     private activeLensSetter;
     private get activeLens();
@@ -102,6 +105,7 @@ declare class LensManagerSingleton {
     registerLensLayer(layerType: LensLayerName, layer: ILensLayer): void;
     getActiveLens(): LensName;
     setActiveLens(type: LensName): boolean;
+    restorePreviousLens(): void;
     getActiveLayers(lens: ILens): Set<keyof LensLayerTypeMap>;
     enableLayers(layerTypes: Set<LensLayerName>): void;
     enableLayer(layerType: LensLayerName): boolean;

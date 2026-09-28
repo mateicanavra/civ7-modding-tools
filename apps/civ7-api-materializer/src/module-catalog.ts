@@ -37,7 +37,19 @@ export interface CompiledBarrelModule {
   readonly reexports: readonly CompiledBarrelReexport[];
 }
 
-export type DeclarationModule = EmbeddedDeclarationModule | CompiledBarrelModule;
+/** An import-only loader has exact declaration edges, but no inferred JavaScript types. */
+export interface CompiledImportBarrelModule {
+  readonly evidenceKind: "compiled-import-barrel";
+  readonly virtualId: string;
+  readonly compiledPath: string;
+  readonly mapPath: string;
+  readonly imports: readonly CompiledBarrelReexport[];
+}
+
+export type DeclarationModule =
+  | EmbeddedDeclarationModule
+  | CompiledBarrelModule
+  | CompiledImportBarrelModule;
 
 interface SolidTypeEvidence {
   readonly packageName: "solid-js";
@@ -224,8 +236,8 @@ export function resolveRetainedModuleSpecifier(
 async function extractCompiledBarrels(
   snapshotRoot: string,
   sourceMaps: BaseSourceMapEvidence
-): Promise<readonly CompiledBarrelModule[]> {
-  const barrels: CompiledBarrelModule[] = [];
+): Promise<readonly (CompiledBarrelModule | CompiledImportBarrelModule)[]> {
+  const barrels: (CompiledBarrelModule | CompiledImportBarrelModule)[] = [];
   for (const mapPath of sourceMaps.emptyCompiledMapPaths) {
     const compiledPath = mapPath.slice(0, -".map".length);
     const javascript = await readFile(join(snapshotRoot, compiledPath), "utf8").catch(() => null);
@@ -244,6 +256,33 @@ async function extractCompiledBarrels(
       throw new Error(
         `Cannot parse compiled-only barrel evidence at ${compiledPath}: TS${first.code} ${ts.flattenDiagnosticMessageText(first.messageText, "\n")}`
       );
+    }
+
+    // Civ7 1.5 consolidates its core realm roots into import-only loaders with empty maps.
+    // Retain their entire body only when every statement is an exact bare JavaScript import.
+    const imports = sourceFile.statements.flatMap((statement) =>
+      ts.isImportDeclaration(statement) &&
+      statement.importClause === undefined &&
+      statement.attributes === undefined &&
+      ts.isStringLiteralLike(statement.moduleSpecifier) &&
+      statement.moduleSpecifier.text.endsWith(".js")
+        ? [
+            {
+              statementText: statement.getText(sourceFile),
+              specifier: statement.moduleSpecifier.text,
+            },
+          ]
+        : []
+    );
+    if (imports.length > 0 && imports.length === sourceFile.statements.length) {
+      barrels.push({
+        evidenceKind: "compiled-import-barrel",
+        virtualId: virtualIdForCompiledPath(compiledPath),
+        compiledPath,
+        mapPath,
+        imports,
+      });
+      continue;
     }
 
     const reexports = sourceFile.statements.flatMap((statement) => {

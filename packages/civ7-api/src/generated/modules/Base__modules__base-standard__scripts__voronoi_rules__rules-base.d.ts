@@ -17,6 +17,7 @@ export declare abstract class Rule {
     description?: string;
     isActive: boolean;
     weight: number;
+    isStatic: boolean;
     abstract parameterSpecs: ParameterSpecRecord;
     abstract configValues: ConfigValueRecord;
     abstract score(cell: RegionCell, ctx: ScoringContext): number;

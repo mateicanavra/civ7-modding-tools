@@ -27,10 +27,14 @@ export interface ActivatableProps extends JSX.HTMLAttributes<HTMLDivElement> {
     vfxComponentAlias?: string;
     /** Audio overrides for this control - See {@link ActivatableAudio} for a full list. */
     audio?: ActivatableAudio;
+    /** Is this control disabled for audio? It will produce error sounds as if the activatable were disabled. Default: false */
+    disableAudio?: boolean;
     /** Is this control disabled both visually and for input? Default: false */
     disabled?: boolean;
     /** Is controller focus disabled for this control? Default: false */
     disableFocus?: boolean;
+    /** Is controller visually disabled for this control? Default: false */
+    disableVisual?: boolean;
     /** Should we suppress the pointer/disabled cursor? Used when activatables are present for gamepad purposes only. Default: false */
     suppressPointerChanges?: boolean;
     /** Is controller focus disabled for this control? Default: false */

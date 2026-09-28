@@ -4,6 +4,7 @@
  * @description Loads and stores leader data for game creation
  */
 import { Accessor } from "solid-js";
+import { SyncretismData } from "/core/ui-next/screens/create-game/syncretism-model.js";
 export declare enum OwnershipAction {
     None = 0,
     IncludedWith = 1,
@@ -25,6 +26,7 @@ export interface LeaderInfo {
     abilityText: string;
     ageUnlocks: string[];
     unlocks: string[];
+    syncretismUnlocks: SyncretismData[];
     nextReward?: LegendPathReward;
     playCount: number;
     level: number;

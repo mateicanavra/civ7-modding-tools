@@ -1,6 +1,6 @@
 /**
  * @file panel-place-population.ts
- * @copyright 2024-2025, Firaxis Games
+ * @copyright 2024-2026, Firaxis Games
  * @description Displays all the useful information when attempting to place new population
  */
 import Panel from "/core/ui/panel-support.js";

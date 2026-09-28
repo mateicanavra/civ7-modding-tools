@@ -3,7 +3,7 @@
  * @copyright 2021-2025, Firaxis Games
  * @description Handles camera movement triggered by input actions
  */
-import { IEngineInputHandler, InputEngineEvent, NavigateInputEvent } from "/core/ui/input/input-support.js";
+import { IEngineInputHandler, InputEngineEvent, InputHandlerState, NavigateInputEvent } from "/core/ui/input/input-support.js";
 declare class CameraControllerSingleton implements IEngineInputHandler {
     private static instance;
     private keyboardPanDirection;
@@ -74,11 +74,11 @@ declare class CameraControllerSingleton implements IEngineInputHandler {
     /**
      *  @returns true if still live, false if input should stop.
      */
-    handleInput(inputEvent: InputEngineEvent): boolean;
+    handleInput(inputEvent: InputEngineEvent): InputHandlerState;
     /**
      * @returns true if still live, false if input should stop.
      */
-    handleNavigation(_navigationEvent: NavigateInputEvent): boolean;
+    handleNavigation(_navigationEvent: NavigateInputEvent): InputHandlerState;
 }
 declare const CameraController: CameraControllerSingleton;
 export { CameraController as default };

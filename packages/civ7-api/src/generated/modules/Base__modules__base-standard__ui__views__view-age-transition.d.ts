@@ -12,7 +12,5 @@ export declare class AgeTransitionView implements IGameView {
     exitView(): void;
     addEnterCallback(_func: ViewCallback): void;
     addExitCallback(_func: ViewCallback): void;
-    handleReceiveFocus(): void;
-    handleLoseFocus(): void;
     getRules(): ViewRules[];
 }

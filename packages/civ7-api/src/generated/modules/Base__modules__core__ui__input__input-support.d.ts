@@ -32,6 +32,10 @@ export declare class NavigateInputEvent extends CustomEvent<NavigateInputEventDe
 export declare namespace AnalogInput {
     const deadzoneThreshold = 0.2;
 }
+export declare enum InputHandlerState {
+    Active = 0,
+    Handled = 1
+}
 /**
  * Handler interface for input that's raised from the engine.
  */
@@ -40,13 +44,13 @@ export interface IEngineInputHandler {
      * Handling an input from the engine.
      * @param {InputEngineEvent} inputEvent of type 'engine-input' with details on the event name, status, (x), (y)
      */
-    handleInput(inputEvent: InputEngineEvent): boolean;
+    handleInput(inputEvent: InputEngineEvent): InputHandlerState;
     /**
      * Handle a focus navigation event.
      * @param {NavigateInputEvent} navigationEvent of type 'navigate-input' with both engine input and navigation information
-     * @returns true if still live, false if input should stop.
+     * @returns Active if still live, Handled if input should stop.
      */
-    handleNavigation(navigationEvent: NavigateInputEvent): boolean;
+    handleNavigation(navigationEvent: NavigateInputEvent): InputHandlerState;
 }
 declare global {
     interface WindowEventMap {

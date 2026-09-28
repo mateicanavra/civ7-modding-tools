@@ -1,6 +1,7 @@
 import ts from "typescript";
 import {
   type CompiledBarrelModule,
+  type CompiledImportBarrelModule,
   type DeclarationModule,
   type ModuleCatalog,
   type RetainedModuleResolution,
@@ -388,9 +389,11 @@ function emitEmbeddedModule(
 
 function emitCompiledBarrel(
   catalog: ModuleCatalog,
-  module: CompiledBarrelModule
+  module: CompiledBarrelModule | CompiledImportBarrelModule
 ): DeclarationShard {
-  const sourceText = `${module.reexports.map((reexport) => reexport.statementText).join("\n")}\n`;
+  const statements =
+    module.evidenceKind === "compiled-import-barrel" ? module.imports : module.reexports;
+  const sourceText = `${statements.map((statement) => statement.statementText).join("\n")}\n`;
   const sourceFile = ts.createSourceFile(
     `${module.virtualId}.d.ts`,
     sourceText,

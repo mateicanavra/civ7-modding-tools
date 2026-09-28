@@ -10,14 +10,26 @@ export declare class ToggleGeneralAppealPanelEvent extends CustomEvent<{
 }> {
     constructor(enabled: boolean);
 }
+export declare const ToggleGeneralAppealNumbersEventName = "raise-general-appeal-numbers";
+export declare class ToggleGeneralAppealNumbersEvent extends CustomEvent<{
+    enabled: boolean;
+}> {
+    constructor(enabled: boolean);
+}
 export declare class GeneralAppealLensLayer implements ILensLayer {
     private generalAppealOverlayGroup;
+    private appealSpriteGrid;
     private generalAppealOverlay;
     private naturalWonderPlots;
     private breathtakingPlots;
     private charmingPlots;
     private averagePlots;
+    private offset;
+    private fontData;
+    private backing;
+    private onToggleAppealNumbersListener;
     clearOverlay(): void;
+    onToggleAppealNumbers(event: ToggleGeneralAppealNumbersEvent): void;
     initLayer(): void;
     applyLayer(): void;
     removeLayer(): void;

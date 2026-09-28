@@ -133,6 +133,7 @@ export interface ResourceSlotData {
     resourceType: string;
     cityID?: ComponentID;
     yieldTypes: string[];
+    isOffMap?: boolean;
     canSwapWithSelectedResource: Accessor<boolean>;
 }
 export declare enum ResourceContainerSelectionState {
@@ -184,6 +185,7 @@ export interface CommerceScreenData {
 export interface SelectedResourceData {
     resourceValue: number;
     cityID?: ComponentID;
+    isOffMap?: boolean;
 }
 export declare enum TradeRouteSortType {
     Unset = 0,
@@ -215,6 +217,11 @@ declare enum ResourceSettlementSortType {
     Influence = 14
 }
 export declare function gamepadLog(...args: unknown[]): void;
+export interface SwapFailData {
+    swapFail: boolean;
+    selectedResourceData?: SelectedResourceData;
+    dropzoneID?: ComponentID;
+}
 export interface CommerceScreenContextModel {
     data: CommerceScreenData;
     clickAvailableResource: (resourceData: SelectedResourceData) => void;
@@ -277,6 +284,9 @@ export interface CommerceScreenContextModel {
     onTabChanged: (tab: TabItemProps) => void;
     hasUnassignedResources: () => boolean;
     tradeRouteSearch: (text: string) => Set<string>;
+    swapFail: Accessor<SwapFailData | undefined>;
+    setSwapFail: Setter<SwapFailData | undefined>;
+    getResourceTypeFromValue: (resourceValue: number, isOffMap?: boolean) => string;
 }
 export declare function createCommerceScreenModel(): any;
 export declare function getCityName(cityID: ComponentID | undefined, context?: "settlement" | "resource"): string;

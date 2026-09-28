@@ -3,10 +3,11 @@
  * @copyright 2026 Firaxis Games
  * @description A specific view of the game world with most elements disabled for use with diplomacy peace deals
  */
-import { InputEngineEvent } from "/core/ui/input/input-support.js";
+import { InputEngineEvent, InputHandlerState } from "/core/ui/input/input-support.js";
 import { IGameView, ViewCallback, ViewRules } from "/core/ui/views/view-manager.js";
 export declare class DiplomacyWorldView implements IGameView {
     private canPlayExitSound;
+    tooltipModel: any;
     getName(): string;
     getInputContext(): InputContext;
     getHarnessTemplate(): string;
@@ -14,6 +15,6 @@ export declare class DiplomacyWorldView implements IGameView {
     exitView(): void;
     addEnterCallback(_func: ViewCallback): void;
     addExitCallback(_func: ViewCallback): void;
-    readInputEvent(inputEvent: InputEngineEvent): boolean;
+    handleInputEvent(inputEvent: InputEngineEvent): InputHandlerState;
     getRules(): ViewRules[];
 }

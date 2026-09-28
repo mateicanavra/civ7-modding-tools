@@ -1,6 +1,6 @@
 /**
  * @file utililties-color.ts
- * @copyright 2021-2025, Firaxis Games
+ * @copyright 2021-2026, Firaxis Games
  */
 export declare enum HighlightColors {
     unitSelection = 4292584979,
@@ -10,7 +10,17 @@ export declare enum HighlightColors {
     unitAttackShadow = 4278198237,
     unitMovementZOC = 4278190335,
     unitMovementZOCShadow = 0,
-    unitCommanderRadius = 4294967295
+    unitCommanderRadius = 4294967295,
+    wmdTargetRange = 1711341312,
+    wmdTargetRangeShadow = 65280,
+    wmdDamageRadius = 285212927,
+    wmdDamageRadiusShadow = 4278190335
+}
+export declare enum CityHighlightColors {
+    cityCenterHighlight = 4278242525,
+    urbanPlotHighlight = 4281545523,
+    ruralPlotHighlight = 4280470528,
+    ruralPlotShadow = 572705792
 }
 /**
  * The variants of a color
@@ -40,9 +50,14 @@ export interface PlayerColorVariants {
 }
 /**
  * Converts an hex number color to a RGB string
- * @param {number} hex
+ * @param {number} color channel values are packed into single hex of RRGGBB.
  */
 export declare const numberHexToStringRGB: (hex: number) => string;
+/**
+ * Converts an hex number in ABGR format to an RGB string (ignores alpha)
+ * @param {number} color channel values are packed into single hex of AABBGGRR
+ */
+export declare const numberHexToStringBGR: (hex: number) => string;
 /**
  * Applies a player's colors as a CSS variables onto a given element based on the playerId
  *
@@ -80,3 +95,13 @@ export declare const ObjectToRgbaString: (object: {
  * @returns String in the form "rgba(r, g, b, a)"
  */
 export declare const RGBAToString: (rgba: RGBA) => string;
+/**
+ * Convert RGB into its numeric representation in the format RRGGBB
+ * @param rgba
+ * @returns
+ */
+export declare const RGBToNumber: (rgb: {
+    r: number;
+    g: number;
+    b: number;
+}) => number;

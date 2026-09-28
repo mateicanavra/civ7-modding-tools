@@ -1,6 +1,7 @@
 # Official Source Compatibility
 
-Status: source-backed design, implementation pending. This prerequisite is
+Status: current-source API and policy/consumer migration implemented and verified
+headlessly. This prerequisite is
 separate from elevation and rivers because resource legality and distribution
 must have a stable baseline before evaluating native controls.
 
@@ -96,3 +97,25 @@ No adapter change is needed for this policy migration. Do not delete generic
   build/test graph and placement studies. No checks bypassed for freshness.
 - Snapshot, generated output and live realization identities agree before any
   native-controls runtime claim.
+
+## Current-Source Verification
+
+The published snapshot is `89cee44d5ae7192f126e8ae09484c04400df9146`.
+All three generated policy outputs were regenerated at that commit. All 55
+curated resource dispositions and rationale text are preserved; factual values
+and legality tuples follow the new XML/SQL. Cotton's flat placement changes
+from plains to grassland. Fractional weights and default regional minima are
+preserved, and the removed modifier surface has no compatibility shim.
+
+Policy build/check/test/test-types/tools-types pass (83 tests, 2,715 assertions).
+Swooper's check graph passes, with 74 resource tests and 27 placement/generation
+tests passing. Independent source-policy and consumer reviews found no material
+defects. The 20-seed placement cohort and representative relief sample pass;
+see studies.md. No native density parity or live legality result is claimed.
+The final combined API-generator/API/policy/Swooper check graph passes all 44
+tasks, and independent review of the source projection found no material issue.
+
+The setup-parameter census changes from 63 to 65 rows for shipped sea-level
+variants `shuffle-voronoi` and `terra-incognita-voronoi`; the 56 unique IDs,
+16 groups and 31-column invariants remain. Binary `Earth_Huge.Civ7Map` is
+recorded as a non-script asset, never a JavaScript declaration root.

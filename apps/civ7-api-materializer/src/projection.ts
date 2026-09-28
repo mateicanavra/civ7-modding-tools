@@ -97,7 +97,7 @@ function realmModuleReferences(
 function catalogValue(projection: OfficialBaseDeclarationProjection): unknown {
   const { declarations, realms } = projection;
   return {
-    schemaVersion: 3,
+    schemaVersion: 4,
     modules: declarations.shards.map((shard) => ({
       id: shard.virtualId,
       source: shard.sourcePath,
@@ -111,6 +111,7 @@ function catalogValue(projection: OfficialBaseDeclarationProjection): unknown {
     unresolvedDependencies: declarations.unresolvedTargets,
     realms: {
       roots: realms.rootEvidence,
+      nonScriptMaps: realms.nonScriptMaps,
       shell: realms.shell,
       game: realms.game,
       map: realms.map,

@@ -18,3 +18,9 @@ export interface MoveSoftCursorEventDetail {
 export declare class MoveSoftCursorEvent extends CustomEvent<MoveSoftCursorEventDetail> {
     constructor(status: InputActionStatuses, x: number, y: number);
 }
+declare global {
+    interface WindowEventMap {
+        "active-device-type-changed": ActiveDeviceTypeChangedEvent;
+        "move-soft-cursor": MoveSoftCursorEvent;
+    }
+}

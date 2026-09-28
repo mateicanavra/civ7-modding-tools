@@ -1,6 +1,7 @@
 import { Accessor, JSX, ParentComponent } from "solid-js";
 import { LocaleProps } from "/core/ui-next/components/l10n.js";
 import { FocusNavigationRulesMap } from "/core/ui-next/services/focus.js";
+import "/core/ui-next/components/tooltip-hidden-hint.js";
 export declare const TooltipNavigationRules: FocusNavigationRulesMap;
 export declare enum TooltipVerticalPosition {
     /** Automatically determine best fit based on position of target  */
@@ -43,12 +44,16 @@ export interface TooltipContentProps extends JSX.HTMLAttributes<HTMLDivElement> 
 export declare const TooltipContext: any;
 type TooltipInspectHintProps = JSX.HTMLAttributes<HTMLDivElement> & {
     progressBarRef?: (el: HTMLDivElement | null) => void;
+    isLargeContent?: Accessor<boolean>;
     handlers?: {
         isLocked: Accessor<boolean>;
         isTopLevelActiveAndLocked: Accessor<boolean>;
         tooltipCount: Accessor<number>;
     };
 };
+interface TooltipFrameProps extends JSX.HTMLAttributes<HTMLDivElement> {
+    hideHint?: boolean;
+}
 export type TooltipTextProps = TooltipBaseProps & LocaleProps & {
     class?: string;
     header?: string;
@@ -99,6 +104,18 @@ export type TooltipComponents = ParentComponent<TooltipBaseProps> & {
      */
     Text: ParentComponent<TooltipTextProps>;
     /**
+     * A text tooltip formatted to look like legacy tooltips (i.e. frame only, just text).
+     * Can be used to display a text tooltip on an activatable or derivative.
+     * ```tsx
+     * <Tooltip.LegacyText text="I am a text tooltip">
+     *   <Activatable> Hover Me </Activatable>
+     * </Tooltip.LegacyText>
+     * ```
+     * Default implementation: {@link TooltipLegacyTextComponent}
+     * @param {LocaleProps} props See {@link LocaleProps} for a full list of properties
+     */
+    LegacyText: ParentComponent<LocaleProps>;
+    /**
      * A basic tooltip frame.
      * Can be used to add a basic frame around a tooltip
      *
@@ -112,7 +129,7 @@ export type TooltipComponents = ParentComponent<TooltipBaseProps> & {
      * ```
      * Default implementation: {@link TooltipFrameComponent}
      */
-    Frame: ParentComponent<JSX.HTMLAttributes<HTMLDivElement>>;
+    Frame: ParentComponent<TooltipFrameProps>;
     /**
      * A hint to show when the tooltip can be inspected to reveal other nested tooltips.
      *

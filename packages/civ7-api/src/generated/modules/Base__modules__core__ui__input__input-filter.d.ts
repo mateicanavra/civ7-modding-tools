@@ -3,7 +3,7 @@
  * @copyright 2025, Firaxis Games
  * @description Input handler for input exceptions.
  */
-import { IEngineInputHandler, InputEngineEvent } from "/core/ui/input/input-support.js";
+import { IEngineInputHandler, InputEngineEvent, InputHandlerState } from "/core/ui/input/input-support.js";
 export interface InputFilter {
     inputName: string;
     filterSource?: string;
@@ -24,11 +24,11 @@ declare class InputFilterSingleton implements IEngineInputHandler {
      * @returns true if the input is still "live" and not yet cancelled.
      * @implements InputEngineEvent
      */
-    handleInput(inputEvent: InputEngineEvent): boolean;
+    handleInput(inputEvent: InputEngineEvent): InputHandlerState;
     /**
      * Input filter doesn't handle navigation input events
      */
-    handleNavigation(): boolean;
+    handleNavigation(): InputHandlerState;
     /**
      * Adds a filter
      * @param inputFilter Contains the input action to be filtered.

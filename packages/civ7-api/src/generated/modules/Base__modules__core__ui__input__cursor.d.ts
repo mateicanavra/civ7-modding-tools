@@ -4,7 +4,7 @@
  * @description Input marshaling of where the 'cursor' should exist in screen space.
  * Cursor may be moved by a mouse, by a soft-cursor setup from gamepad, by touch, or by focus jumping via gamepad.
  */
-import { IEngineInputHandler, InputEngineEvent, NavigateInputEvent } from "/core/ui/input/input-support.js";
+import { IEngineInputHandler, InputEngineEvent, InputHandlerState, NavigateInputEvent } from "/core/ui/input/input-support.js";
 interface CursorUpdatedEventDetail {
     x: number;
     y: number;
@@ -113,11 +113,11 @@ declare class CursorSingleton implements IEngineInputHandler {
     /**
      *  @returns true if still live, false if input should stop.
      */
-    handleInput(_inputEvent: InputEngineEvent): boolean;
+    handleInput(_inputEvent: InputEngineEvent): InputHandlerState;
     /**
      * @returns true if still live, false if input should stop.
      */
-    handleNavigation(_navigationEvent: NavigateInputEvent): boolean;
+    handleNavigation(_navigationEvent: NavigateInputEvent): InputHandlerState;
     /** Update the target on standard mouse events to ensure we have the best target */
     private onClick;
 }

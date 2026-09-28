@@ -59,6 +59,7 @@ export declare function getTerrainLabel(location: float2, showDebug: boolean): s
  * @param showDebug Whether to include debug type info
  */
 export declare function getBiomeLabel(location: float2, showDebug: boolean): string;
+export declare function getAppealLabel(location: float2, _showDebug: boolean): string;
 export interface VolcanoFeatureInfo {
     /** The proper name of the volcano (e.g. "Hunga Tonga - Hunga Ha'apai"), or empty if unnamed. */
     name: string;
@@ -187,6 +188,12 @@ export interface UnitInfoSectionProps {
         points: number;
     };
 }
+/**
+ * Build tooltip display info for a single unit.
+ * @param unit The unit to build info for
+ * @param localPlayerID The local observer player ID
+ */
+export declare function buildUnitInfoProps(unit: Unit, localPlayer: PlayerLibrary): UnitInfoSectionProps | null;
 /**
  * Get unit info for display in the tooltip.
  * @param location The X,Y plot location

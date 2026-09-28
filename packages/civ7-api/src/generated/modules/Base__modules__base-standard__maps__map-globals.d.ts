@@ -36,3 +36,4 @@ export declare const g_RainShadowIncreasePerHex = 10;
 export declare const g_RequiredBufferBetweenMajorStarts = 6;
 export declare const g_DesiredBufferBetweenMajorStarts = 12;
 export declare const g_RequiredDistanceFromMajorForDiscoveries = 3;
+export declare const g_MinLandmassSizeForIslandBias = 4;

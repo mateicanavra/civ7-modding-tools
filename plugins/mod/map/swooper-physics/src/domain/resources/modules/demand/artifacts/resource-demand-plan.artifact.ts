@@ -20,7 +20,6 @@ import {
   getInitialMapResourcePolicyForType,
   INITIAL_MAP_RESOURCE_AUTHORING_AGE,
 } from "../model/policy/initial-map-authoring.js";
-import { resolveResourceRegionMinimumRequirement } from "../model/policy/resource-region-minimum.js";
 
 type ReadonlyMask = {
   readonly length: number;
@@ -81,7 +80,6 @@ export const artifact = defineArtifact({
       width: Type.Integer({ minimum: 1 }),
       height: Type.Integer({ minimum: 1 }),
       age: Type.Literal(INITIAL_MAP_RESOURCE_AUTHORING_AGE),
-      minimumAmountModifier: Type.Integer(),
       candidates: Type.Object(
         {
           admitted: Type.Array(AdmittedResourceDemandCandidateSchema),
@@ -299,7 +297,7 @@ function validateAdmittedCandidate(
 ): void {
   const { source, demand } = candidate;
   validateExpectedAge(source.resourceType, age, "eligible", addIssue);
-  validateCanonicalDemandPolicy(source.resourceType, age, demand, addIssue);
+  validateCanonicalDemandPolicy(source.resourceType, demand, addIssue);
   const legalTileCount = countBinaryMask(
     source.resourceType,
     "legalMask",
@@ -333,7 +331,6 @@ function validateAdmittedCandidate(
 
 function validateCanonicalDemandPolicy(
   resourceType: string,
-  age: typeof INITIAL_MAP_RESOURCE_AUTHORING_AGE,
   demand: AdmittedCandidateLike["demand"],
   addIssue: (message: string) => void
 ): void {
@@ -343,7 +340,12 @@ function validateCanonicalDemandPolicy(
     return;
   }
 
-  const expectedWeight = Math.max(1, resolved.weight);
+  if (resolved.landmassUnique) {
+    addIssue(
+      `Demand ${resourceType} is landmass-unique; regional group assignment is not supported.`
+    );
+  }
+  const expectedWeight = resolved.weight;
   if (demand.weight !== expectedWeight) {
     addIssue(
       `Demand ${resourceType} weight ${demand.weight} does not match canonical weight ${expectedWeight}.`
@@ -351,7 +353,7 @@ function validateCanonicalDemandPolicy(
   }
 
   const requirement = demand.regionMinimumRequirement;
-  const officialMinimum = resolved.minimumPerHemisphere;
+  const officialMinimum = resolved.minimumPerLandmass;
   if (officialMinimum === 0) {
     if (requirement.kind !== "not-applicable") {
       addIssue(
@@ -367,22 +369,9 @@ function validateCanonicalDemandPolicy(
     );
     return;
   }
-  if (requirement.minimumPerHemisphere !== officialMinimum) {
+  if (requirement.minimumPerLandmass !== officialMinimum) {
     addIssue(
-      `Demand ${resourceType} regional minimum ${requirement.minimumPerHemisphere} does not match canonical minimum ${officialMinimum}.`
-    );
-  }
-
-  if (requirement.source === "engine") return;
-  const canonicalStaticRequirement = resolveResourceRegionMinimumRequirement({
-    resourceType: resourceType as OfficialResourceType,
-    age,
-    minimumPerHemisphere: officialMinimum,
-    observedRequiredForAge: null,
-  });
-  if (!sameStaticRegionMinimumRequirement(requirement, canonicalStaticRequirement)) {
-    addIssue(
-      `Demand ${resourceType} static regional-minimum disposition does not match canonical fallback policy.`
+      `Demand ${resourceType} regional minimum ${requirement.minimumPerLandmass} does not match canonical minimum ${officialMinimum}.`
     );
   }
 }
@@ -448,23 +437,6 @@ function validateUnitIntensity(
       );
     }
   }
-}
-
-function sameStaticRegionMinimumRequirement(
-  observed: Readonly<ResourceDemand["regionMinimumRequirement"]>,
-  expected: ResourceDemand["regionMinimumRequirement"]
-): boolean {
-  if (observed.kind !== expected.kind) return false;
-  if (observed.kind === "not-applicable" || expected.kind === "not-applicable") return true;
-  if (observed.minimumPerHemisphere !== expected.minimumPerHemisphere) return false;
-  if (observed.source !== expected.source) return false;
-  if (observed.source !== "static-unconditional" || expected.source !== "static-unconditional") {
-    return true;
-  }
-  return (
-    observed.basis.length === expected.basis.length &&
-    observed.basis.every((value, index) => value === expected.basis[index])
-  );
 }
 
 function validateExpectedAge(

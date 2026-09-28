@@ -1,8 +1,3 @@
-/**
- * @file unit-flags-independent-powers.ts
- * @copyright 2021-2025, Firaxis Games
- * @description Unit flag for independent powers.  These eventually can become city-states.
- */
 import { ComponentID } from "/core/ui/utilities/utilities-component-id.js";
 import { UnitFlagType } from "/base-standard/ui/unit-flags/unit-flag-manager.js";
 export declare class IndependentPowersUnitFlag extends Component implements UnitFlagType {
@@ -16,6 +11,9 @@ export declare class IndependentPowersUnitFlag extends Component implements Unit
     private isHidden;
     private independentID;
     private privateerContainer;
+    private disposeTooltips;
+    private readonly SPACING;
+    private readonly BASE_OFFSET;
     /**
      * A vertical offset when the unit is 'stacked' with other units.
      * TODO - The unit world anchor should be able to incorporate this offset in C++ to avoid constantly recalculating this in Script.

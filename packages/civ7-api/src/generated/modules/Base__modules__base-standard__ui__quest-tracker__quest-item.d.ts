@@ -3,7 +3,7 @@
  * @copyright 2023, Firaxis Games
  * @description A single item to be tracked in the quest tracker.
  */
-import { TutorialQuestContent } from "/base-standard/ui/tutorial/tutorial-item.js";
+import { type TutorialQuestContent } from "/base-standard/ui/tutorial/tutorial-item.js";
 type SystemType = "tutorial" | "narrative" | "ageless" | "triumph" | "civ-unlock";
 /**
  * Tracked item by quest system.

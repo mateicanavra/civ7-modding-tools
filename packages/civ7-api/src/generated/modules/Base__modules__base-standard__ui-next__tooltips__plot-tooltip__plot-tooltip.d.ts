@@ -5,12 +5,14 @@
  */
 import { type Component, type JSX } from "solid-js";
 import { TooltipBaseProps } from "/core/ui-next/components/tooltip.js";
-import { type PlotTooltipBaseProps } from "/base-standard/ui-next/tooltips/plot-tooltip/helpers.js";
+import { type PlotTooltipBaseProps, type UnitInfoSectionProps } from "/base-standard/ui-next/tooltips/plot-tooltip/helpers.js";
 /** Global toggle for plot tooltip visibility across UI systems. */
 export declare const IsPlotTooltipVisible: any, SetIsPlotTooltipVisible: any;
 /** Props for the PlotTooltipContent component */
 export interface PlotTooltipContentProps extends PlotTooltipBaseProps, JSX.HTMLAttributes<HTMLDivElement> {
 }
+/** Unit information section with banner-style background. */
+export declare const UnitInfoSection: Component<UnitInfoSectionProps>;
 /**
  * Plot tooltip content component.
  * Displays detailed information about a world plot including terrain, yields, owner, units, etc.

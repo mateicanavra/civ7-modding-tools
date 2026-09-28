@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import {
+  CIV7_BROWSER_TABLES_V0,
+  CIV7_POLICY_TABLES_V1,
   OFFICIAL_RESOURCE_CORPUS,
   OFFICIAL_RESOURCE_CORPUS_ARTIFACT,
   OFFICIAL_RESOURCE_TYPE_ORDER,
@@ -19,6 +21,9 @@ import {
 const repoRoot = join(import.meta.dir, "../../..");
 const officialRoot = join(repoRoot, ".civ7/outputs/resources");
 const baseStandardRoot = join(officialRoot, "Base/modules/base-standard");
+const resourcePlacementRows: Readonly<
+  Record<string, readonly (readonly [number, number, number])[]>
+> = CIV7_BROWSER_TABLES_V0.resourceValidPlacementRows;
 const resourceFiles = [
   "Base/modules/base-standard/data/resources.xml",
   "Base/modules/base-standard/data/resources-v2.xml",
@@ -105,19 +110,22 @@ function normalizeDistribution(attrs: Record<string, string>) {
     "AdjacentToLand",
     "LakeEligible",
     "Staple",
-    "MinimumPerHemisphere",
-    "HemisphereUnique",
+    "MinimumPerLandmass",
+    "LandmassUnique",
     "BonusResourceSlots",
     "UnlocksCiv",
     "Tradeable",
   ];
-  const result: Record<string, boolean | number> = {};
+  const result: Record<string, boolean | number> & {
+    minimumPerLandmass: number;
+    landmassUnique: boolean;
+  } = { minimumPerLandmass: 1, landmassUnique: false };
   for (const key of keys) {
     const value = attrs[key];
     if (value === undefined) continue;
     const normalizedKey = `${key.charAt(0).toLowerCase()}${key.slice(1)}`;
     switch (key) {
-      case "MinimumPerHemisphere":
+      case "MinimumPerLandmass":
       case "BonusResourceSlots":
         if (!/^\d+$/.test(value)) {
           throw new Error(`Invalid official resource distribution ${key}=${JSON.stringify(value)}`);
@@ -137,8 +145,8 @@ function normalizeDistribution(attrs: Record<string, string>) {
 describe("official resource distribution evidence", () => {
   it("fails closed for malformed boolean and numeric values", () => {
     expect(() => normalizeDistribution({ Staple: "TRUE" })).toThrow('Staple="TRUE"');
-    expect(() => normalizeDistribution({ MinimumPerHemisphere: "-1" })).toThrow(
-      'MinimumPerHemisphere="-1"'
+    expect(() => normalizeDistribution({ MinimumPerLandmass: "-1" })).toThrow(
+      'MinimumPerLandmass="-1"'
     );
   });
 });
@@ -147,6 +155,7 @@ function collectOfficialFacts() {
   const rows = new Map<OfficialResourceType, Record<string, string>>();
   const ages = new Map<OfficialResourceType, OfficialAgeType[]>();
   const biomeCounts = new Map<OfficialResourceType, number>();
+  const placements = new Map<OfficialResourceType, Array<[number, number, number, number]>>();
   const yields = new Map<OfficialResourceType, ResourceYieldChange[]>();
   const tags = new Map<OfficialResourceType, string[]>();
 
@@ -188,6 +197,23 @@ function collectOfficialFacts() {
         `${file} Resource_ValidBiomes row`
       );
       biomeCounts.set(resourceType, (biomeCounts.get(resourceType) ?? 0) + 1);
+      const lookup = (indices: Readonly<Record<string, number>>, attribute: string): number => {
+        const key = requireAttribute(attrs, attribute, `${file} Resource_ValidBiomes row`);
+        const index = indices[key];
+        if (index === undefined) throw new Error(`Unknown official ${attribute}: ${key}`);
+        return index;
+      };
+      placements.set(resourceType, [
+        ...(placements.get(resourceType) ?? []),
+        [
+          lookup(CIV7_BROWSER_TABLES_V0.biomeGlobals, "BiomeType"),
+          lookup(CIV7_BROWSER_TABLES_V0.terrainTypeIndices, "TerrainType"),
+          attrs.FeatureType === undefined
+            ? -1
+            : lookup(CIV7_BROWSER_TABLES_V0.featureTypes, "FeatureType"),
+          Number(attrs.Weight ?? "1"),
+        ],
+      ]);
     }
     for (const match of extractSection(xml, "Resource_YieldChanges").matchAll(
       /<Row\s+([^>]*)\/>/g
@@ -256,7 +282,7 @@ function collectOfficialFacts() {
     }
   }
 
-  return { rows, ages, biomeCounts, yields, tags, classOverrides };
+  return { rows, ages, biomeCounts, placements, yields, tags, classOverrides };
 }
 
 describe("official resource corpus", () => {
@@ -325,7 +351,19 @@ describe("official resource corpus", () => {
       expect(entry.baseClass).toBe(
         requireOfficialValue(row.ResourceClassType, "RESOURCECLASS_", rowContext)
       );
-      expect(entry.weight).toBe(Number(requireAttribute(row, "Weight", rowContext)));
+      expect(entry.weight).toBe(Number(row.Weight ?? "1"));
+      expect(entry.minimumPerLandmass).toBe(Number(row.MinimumPerLandmass ?? "1"));
+      expect(entry.landmassUnique).toBe(row.LandmassUnique === "true");
+      expect(CIV7_POLICY_TABLES_V1.resourceRows[String(entry.staticResourceRowSlot)]).toEqual({
+        type: entry.resourceType,
+        classType: entry.baseClass,
+        weight: entry.weight,
+        minimumPerLandmass: entry.minimumPerLandmass,
+        landmassUnique: entry.landmassUnique,
+        staple: row.Staple === "true",
+        tradeable: row.Tradeable !== "false",
+        unlocksCiv: row.UnlocksCiv === "true",
+      });
       expect(entry.validAges).toEqual(facts.ages.get(entry.resourceType) ?? []);
       expect(entry.ageClassOverrides).toEqual(facts.classOverrides.get(entry.resourceType) ?? []);
       expect(entry.officialPlacementConstraints.validBiomeConstraintCount).toBe(
@@ -342,6 +380,13 @@ describe("official resource corpus", () => {
       expect(entry.yieldChanges).toEqual(facts.yields.get(entry.resourceType) ?? []);
       expect(entry.typeTags).toEqual(facts.tags.get(entry.resourceType) ?? []);
       expect(entry.officialPlacementConstraints.placementFlags).toEqual(normalizeDistribution(row));
+      const placements = facts.placements.get(entry.resourceType) ?? [];
+      expect(
+        CIV7_POLICY_TABLES_V1.resourceValidPlacementRows[String(entry.staticResourceRowSlot)] ?? []
+      ).toEqual(placements);
+      expect(resourcePlacementRows[String(entry.staticResourceRowSlot)] ?? []).toEqual(
+        placements.map(([biome, terrain, feature]) => [biome, terrain, feature] as const)
+      );
     }
   });
 
@@ -354,6 +399,33 @@ describe("official resource corpus", () => {
 
     expect(loadedResourceFiles).toEqual([...resourceFiles]);
     expect(OFFICIAL_RESOURCE_CORPUS_ARTIFACT.source.sourceFiles).toEqual([...resourceFiles]);
+    expect(OFFICIAL_RESOURCE_CORPUS_ARTIFACT.source.schemaFile).toBe(
+      "Base/Assets/schema/gameplay/01_GameplaySchema.sql"
+    );
+  });
+
+  it("refreshes cotton, limestone, and hardwood placement facts", () => {
+    const byType = new Map(OFFICIAL_RESOURCE_CORPUS.map((entry) => [entry.resourceType, entry]));
+    expect(
+      byType.get("RESOURCE_COTTON")?.officialPlacementConstraints.validBiomeConstraintCount
+    ).toBe(4);
+    expect(
+      byType.get("RESOURCE_LIMESTONE")?.officialPlacementConstraints.validBiomeConstraintCount
+    ).toBe(7);
+    expect(
+      byType.get("RESOURCE_HARDWOOD")?.officialPlacementConstraints.validBiomeConstraintCount
+    ).toBe(8);
+    const cotton = CIV7_BROWSER_TABLES_V0.resourceValidPlacementRows["0"];
+    expect(cotton).toContainEqual([
+      CIV7_BROWSER_TABLES_V0.biomeGlobals.BIOME_GRASSLAND,
+      CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_FLAT,
+      -1,
+    ]);
+    expect(cotton).not.toContainEqual([
+      CIV7_BROWSER_TABLES_V0.biomeGlobals.BIOME_PLAINS,
+      CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_FLAT,
+      -1,
+    ]);
   });
 });
 
@@ -366,13 +438,16 @@ describe("resource runtime id proof", () => {
     expect(resolution.byId.size).toBe(OFFICIAL_RESOURCE_CORPUS.length);
   });
 
-  it("carries official Weight and MinimumPerHemisphere facts", () => {
+  it("carries official Weight, MinimumPerLandmass, and LandmassUnique facts", () => {
     const gold = requireResourceRuntimeId("RESOURCE_GOLD");
-    expect(gold.weight).toBe(20);
-    expect(gold.minimumPerHemisphere).toBe(8);
+    expect(gold.weight).toBe(0.5);
+    expect(gold.minimumPerLandmass).toBe(3);
+    expect(gold.landmassUnique).toBe(false);
 
     const hides = requireResourceRuntimeId("RESOURCE_HIDES");
-    expect(hides.weight).toBe(40);
+    expect(hides.weight).toBe(0.25);
+    expect(hides.minimumPerLandmass).toBe(1);
+    expect(requireResourceRuntimeId("RESOURCE_TEA").landmassUnique).toBe(true);
   });
 
   it("hard-fails on unresolvable symbolic ids instead of degrading", () => {

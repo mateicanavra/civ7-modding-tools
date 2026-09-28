@@ -3,7 +3,7 @@
  * @copyright 2021-2024, Firaxis Games
  * @description Entering diplomatic conversations.
  */
-import { InputEngineEvent, NavigateInputEvent } from "/core/ui/input/input-support.js";
+import { InputEngineEvent, InputHandlerState, NavigateInputEvent } from "/core/ui/input/input-support.js";
 import { IGameView, ViewCallback, ViewRules } from "/core/ui/views/view-manager.js";
 export declare class DiplomacyView implements IGameView {
     private canPlayExitSound;
@@ -17,8 +17,8 @@ export declare class DiplomacyView implements IGameView {
     /**
      * @returns true if still live, false if input should stop.
      */
-    readInputEvent(inputEvent: InputEngineEvent): boolean;
-    handleNavigation(navigationEvent: NavigateInputEvent): boolean;
+    handleInputEvent(inputEvent: InputEngineEvent): InputHandlerState;
+    handleNavigation(navigationEvent: NavigateInputEvent): InputHandlerState;
     getRules(): ViewRules[];
     handleReceiveFocus(): void;
     handleLoseFocus(): void;

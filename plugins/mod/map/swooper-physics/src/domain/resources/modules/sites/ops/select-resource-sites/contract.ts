@@ -51,10 +51,6 @@ const SelectResourceSitesContract = defineOp({
       regionSlotByTile: TypedArraySchemas.u8({
         description: "Landmass region slot per tile (0=none, 1=west, 2=east).",
       }),
-      minimumAmountModifier: Type.Integer({
-        description:
-          "MapResourceMinimumAmountModifier amount for the active map type/size (added to MinimumPerHemisphere).",
-      }),
       demands: Type.Array(ResourceDemandRowSchema),
     },
     { additionalProperties: false }

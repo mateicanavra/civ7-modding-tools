@@ -282,7 +282,7 @@ export default class TutorialItem implements IDisplayRequestBase {
     category: DisplayRequestCategory;
     priority?: number | undefined;
     subpriority?: number | undefined;
-    /** If defined will attempt to override the default IDisplayQueue category for this tutorial item  */
+    /** If defined will attempt to override the default IDisplayHandler category for this tutorial item  */
     queueToOverride: DisplayRequestCategory | undefined;
     activationCustomEvents: string[];
     activationEngineEvents: string[];

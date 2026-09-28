@@ -1,3 +1,4 @@
+import { TabItem } from "/core/ui/components/fxs-tab-bar.js";
 import Panel from "/core/ui/panel-support.js";
 export declare const ShowCityDetailsEventName: "show-city-details";
 interface ShowCityDetailsEventDetail {
@@ -9,6 +10,16 @@ export declare class ShowCityDetailsEvent extends CustomEvent<ShowCityDetailsEve
 export declare const CityDetailsClosedEventName: "city-details-closed";
 export declare class CityDetailsClosedEvent extends CustomEvent<void> {
     constructor();
+}
+export type CityDetailsTabItem = TabItem & {
+    headerText: string;
+};
+export declare const AddTabItemEventName: "add-panel-city-details-tab";
+interface AddTabItemEventDetail {
+    tabItem: CityDetailsTabItem;
+}
+export declare class AddTabItemEvent extends CustomEvent<AddTabItemEventDetail> {
+    constructor(detail: AddTabItemEventDetail);
 }
 export declare class PanelCityDetails extends Panel {
     private readonly frame;
@@ -68,6 +79,7 @@ export declare class PanelCityDetails extends Panel {
     private updateCityDetailersListener;
     private onNextCityButtonListener;
     private onPrevCityButtonListener;
+    private onCollapseAllImprovementsListener;
     onInitialize(): void;
     onAttach(): void;
     onDetach(): void;
@@ -80,6 +92,7 @@ export declare class PanelCityDetails extends Panel {
     private selectPrevCity;
     private selectNextCity;
     private onFocus;
+    private onAddTabItemEvent;
     private onShowCityDetailsEvent;
     protected requestClose: () => void;
     private toggleClose;
@@ -100,6 +113,7 @@ export declare class PanelCityDetails extends Panel {
     private addDistrictData;
     protected updateCollapseAll(collapseButton: HTMLElement, collapseText: HTMLElement, sectionCollapse: HTMLElement): void;
     protected onCollapseAllSection(collapseButton: HTMLElement, collapseText: HTMLElement, sectionCollapse: HTMLElement): void;
+    protected onCollapseAllImprovements(): void;
     protected onCollapseImprovementSection(collapseButton: HTMLElement, listContainer: HTMLElement, collapseAllButton: HTMLElement, collapseAllText: HTMLElement, sectionCollapse: HTMLElement, playSound?: boolean): void;
     private addImprovementEntry;
     private addImprovementPlotEntry;

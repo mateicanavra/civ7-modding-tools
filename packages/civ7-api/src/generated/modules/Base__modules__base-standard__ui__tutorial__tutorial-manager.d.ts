@@ -10,7 +10,7 @@
  */
 import { DisplayHandlerBase, DisplayHideOptions } from "/core/ui/context-manager/display-handler.js";
 import { DialogBoxDefinition } from "/core/ui/dialog-box/manager-dialog-box.js";
-import { IEngineInputHandler, InputEngineEvent } from "/core/ui/input/input-support.js";
+import { IEngineInputHandler, InputEngineEvent, InputHandlerState } from "/core/ui/input/input-support.js";
 import TutorialItem, { TutorialDefinition, TutorialItemModifiers, TutorialDialogDefinition } from "/base-standard/ui/tutorial/tutorial-item.js";
 /**
  * The main class of the tutorial engine.
@@ -80,13 +80,13 @@ declare class TutorialManagerClass extends DisplayHandlerBase<TutorialItem> impl
      * @returns true if the input is still "live" and not yet cancelled.
      * @implements InputEngineEvent
      */
-    handleInput(inputEvent: InputEngineEvent): boolean;
+    handleInput(inputEvent: InputEngineEvent): InputHandlerState;
     /**
      * Tutorial manager doesn't handle navigation input events
      * @returns true if the input is still "live" and not yet cancelled.
      * @implements InputEngineEvent
      */
-    handleNavigation(): boolean;
+    handleNavigation(): InputHandlerState;
     /**  Read/Write version information */
     private versionChecks;
     /**
@@ -106,15 +106,15 @@ declare class TutorialManagerClass extends DisplayHandlerBase<TutorialItem> impl
     isShowing(): boolean;
     isSuspended(): boolean;
     /**
-     * @implements {IDisplayQueue}
+     * @implements {IDisplayHandler}
      */
     show(request: TutorialItem): void;
     /**
-     * @implements {IDisplayQueue}
+     * @implements {IDisplayHandler}
      */
     hide(request: TutorialItem, options?: DisplayHideOptions): void;
     /**
-     * @implements {IDisplayQueue}
+     * @implements {IDisplayHandler}
      */
     addDialogBoxToQueue(data: DialogBoxDefinition): void;
     /**

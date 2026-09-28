@@ -3,8 +3,6 @@
  * @copyright 2020-2026 Firaxis Games
  * @description Handles data for policies and traditions
  */
-import { Accessor, Setter } from "solid-js";
-import { FocusContextProvider } from "/core/ui-next/services/focus.js";
 export interface PolicyCardContext {
     activePolicies: TraditionDefinition[];
     availablePolicies: TraditionDefinition[];
@@ -26,12 +24,6 @@ export interface PolicyCardContext {
     isSmallScreen: () => boolean;
     clearArrays: () => void;
     canSlotCard: (card: TraditionDefinition) => boolean;
-    setActiveFocus: Setter<FocusContextProvider | null>;
-    getActiveFocus: Accessor<FocusContextProvider | null>;
-    setAvailablePolicyFocus: Setter<FocusContextProvider | null>;
-    getAvailablePolicyFocus: Accessor<FocusContextProvider | null>;
-    setAvailableTraditionFocus: Setter<FocusContextProvider | null>;
-    getAvailableTraditionFocus: Accessor<FocusContextProvider | null>;
     autoFocusCard: number;
 }
 export declare enum PolicyCardIdeology {
