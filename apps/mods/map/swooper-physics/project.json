@@ -3,6 +3,19 @@
   "name": "swooper-physics-mod",
   "tags": ["kind:app"],
   "targets": {
+    "verify:elevation-contract-probe-live": {
+      "command": "bun ./test/live/studio-run-in-game.live.test.ts",
+      "dependsOn": ["build:elevation-contract-probe", { "target": "build", "projects": ["control-orpc"] }],
+      "cache": false,
+      "options": { "cwd": "apps/mods/map/swooper-physics" }
+    },
+    "build:elevation-contract-probe": {
+      "command": "bun ./test/live/elevation-contract-probe.ts elevation-native-1018-v1",
+      "dependsOn": [{ "target": "build", "projects": ["mapgen-core", "plugin-files"] }],
+      "outputs": ["{projectRoot}/dist/elevation-contract-probe/**"],
+      "cache": false,
+      "options": { "cwd": "apps/mods/map/swooper-physics" }
+    },
     "build": {
       "command": "bun ./src/build.ts",
       "dependsOn": ["^build"],
