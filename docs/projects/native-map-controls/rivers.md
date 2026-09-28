@@ -297,6 +297,88 @@ readiness is a hypothesis, not a proven native cause; no speculative controller
 rewrite was made. Logs/crash reports were preserved before a fresh process,
 read-only ready/shell observation and this successful launch.
 
+### Lake Inlet Navigation Qualification Fixture
+
+Revision 6 adds the explicit `lake-navigation` selector labeled **River Lake
+Navigation V6**. The `legacy` V4 and `terrain-admission` V5 selectors remain
+available. This is controlled requalification of V4's local body, shore and
+reach profiles on a new dedicated coast-ring background, not a repeat of the
+entire V4 atlas. The owner build is:
+
+```sh
+nx run swooper-physics-mod:build:river-contract-probe river-lake-navigation-1018-v6 authored lake-navigation
+```
+
+Four independent four-cell bodies pair MINOR/NAVIGABLE inlets. Open bodies are
+at `(50..51,8..9)` and `(50..51,18..19)`; closed bodies are at
+`(33..34,13..14)` and `(33..34,23..24)`. The later row in each pair preserves
+the original V4 coordinates and receives the NAVIGABLE inlet. Translation by
+ten rows preserves parity; only inlet class differs within each pair.
+Lake input remains 572, ordinary shore 700, and all four-source inlets retain
+`900,850,800,750`. Both open bodies retain V4's five NAVIGABLE outlet sources
+`(52..56,y)` with inputs `450,380,310,240,170`, directly reaching original
+marine coast at `(57,y)`, not an unwritten dry gap. Two additional four-source
+direct-marine controls at `(53..56,28)` and `(53..56,30)` hold inlet length,
+profile and MINOR/NAVIGABLE class explicit.
+
+All 34 writes are on dry land, through the real adapter, with one finalizer
+`(false,25,2,2)` and the existing nine checkpoints. Metadata carries requested
+profiles and full shores separately from actual initialized/later lake,
+terrain, elevation, class and feature observations. Per-write endpoint
+snapshots, bounded memberships, freshwater and post-finalization/cache ocean
+connectivity remain observations, not a simulated native network.
+
+The discriminating questions are whether four-source NAVIGABLE inlets remain
+navigable when ending at an actual open or closed lake, whether a separately
+marine-connected outlet changes that result, and whether direct-marine controls
+exclude a generic length/class failure. Compare actual initialized shore and
+lake profiles before interpreting class changes. No shared river ID or
+through-lake navigation is assumed. Exact native directed edges remain
+unqualified; the result will inform an explicit physical-major/native-class
+policy, never silently rewrite physical truth after native demotion.
+
+The focused artifact suite passes 23 tests with 16,090 assertions, including
+translated neighborhood equality, V4 profile preservation, real-wrapper
+dispatch and refusal evidence. These are fixture/receipt tests, not native
+lake-navigation qualification. Production remains unchanged.
+
+### V6 Native Result
+
+V6 completed at `2026-09-28T09:39:41.341Z` under proof
+`river-lake-navigation-1018-v6`, map seed 1018, game seed 1019, Tiny 60x38
+and four players. Generated and installed SHA-256:
+`14e1d5723fcb7c68163660bf663c40a206c365eb4b64f089595a1ee47c19d1a4`.
+Independent decoding validates all 811 V6 log parts, 44 complete records,
+nine checkpoints and one successful completion with zero write failures.
+Earlier V5 records are excluded by exact proof identity.
+
+All 34 dry source writes retain their requested classes through final
+maintenance: 12 minor and 22 navigable, including both four-source navigable
+lake inlets. All 16 lake cells retain actual COAST/water/lake identity with no
+wet-cell river writes. Open-body heights are actual 322, closed-body heights
+572, despite a common requested input of 572. All 92 sampled heights remain
+unchanged through the nine checkpoints; this is not a full-grid height proof.
+Eight separate native networks cover the 34 sources exactly once. Open inlet
+and outlet IDs remain separate.
+
+After water-cache refresh, the ten outlet cells and four direct-marine
+navigable controls report ocean=true. All eight navigable lake-inlet cells
+remain ocean=false while retaining navigability. Within each profile, the
+minor/navigable class contrast holds matched geometry. Open versus closed
+profiles also differ in location and shore elevation, so those differences
+cannot isolate the effect of an outlet alone.
+
+Selected lowering is therefore physical MINOR to intended native MINOR and
+physical MAJOR to intended native NAVIGABLE, including lake inlets. No
+lake-specific demotion or ocean-only filter is justified. Physical downstream
+marine drainage and native river-object ocean connectivity remain distinct.
+This does not prove exact directed edges, naval movement through a lake,
+controllable native lake height, or universal parity across untested geometry.
+
+Receipts: `/tmp/civ7-river-lake-v6-analysis.md`,
+`/tmp/civ7-river-lake-v6-observations.json`,
+`/tmp/civ7-river-lake-v6-live.log`, `/tmp/civ7-river-lake-v6-install.json`.
+
 ### Production Gates
 
 - Deterministic graph-to-hex lowering, odd/even rows, seams, transitions,

@@ -9,6 +9,8 @@ import {
   buildRiverProbeAtlas, buildRiverProbeElevation, RIVER_CHECKPOINTS, RIVER_DIRECTIONS, RIVER_ELEVATED_LAKE_CONTROLS, RIVER_LAKE_CASES,
   RIVER_PROBE, RIVER_PROBE_VARIANTS, RIVER_SLOPE_CONTROLS, riverProbeExpectedReceiver, riverProbeTerrainAt,
   buildRiverTerrainAtlas, buildRiverTerrainElevation, RIVER_TERRAIN_CONTROLS, RIVER_TERRAIN_PROBE, riverTerrainProbeTerrainAt,
+  buildRiverLakeNavigationAtlas, buildRiverLakeNavigationElevation, riverLakeNavigationTerrainAt,
+  RIVER_LAKE_NAVIGATION_CONTROLS, RIVER_LAKE_MARINE_CONTROLS, RIVER_LAKE_NAVIGATION_PROBE,
   type RiverProbeAtlas, type RiverProbeVariant,
 } from "./river-contract-map.fixture.js";
 import { buildRiverProbePlan, riverProbeMapScript } from "./river-contract-probe.js";
@@ -484,6 +486,201 @@ describe("river diagnostic artifact (not native semantics proof)", () => {
     await expect(buildRiverProbePlan("valid", "unknown" as RiverProbeVariant)).rejects.toThrow("Unknown river probe variant");
     const runtime = mockRuntime((await compiled()).script);
     expect(() => runtime.callbacks.get("RequestMapInitData")!({ width: 44, height: 26 })).toThrow("Tiny 60x38");
+  });
+});
+
+describe("V6 lake navigation artifact (not native semantics proof)", () => {
+  test("four translated class-paired lakes preserve V4 local profiles without wet writes or dry marine gaps", () => {
+    expect(RIVER_LAKE_NAVIGATION_CONTROLS).toHaveLength(4);
+    expect(RIVER_LAKE_NAVIGATION_CONTROLS.map(({ cells }) => cells[0]!.y)).toEqual([8, 18, 13, 23]);
+    for (const wrapX of [false, true]) {
+      const writes = buildRiverLakeNavigationAtlas(wrapX);
+      const heights = buildRiverLakeNavigationElevation(wrapX);
+      const v4Heights = buildRiverProbeElevation(wrapX);
+      const at = ({ x, y }: { x: number; y: number }) => heights[x + y * 60]!;
+      const water = new Set(RIVER_LAKE_NAVIGATION_CONTROLS.flatMap(({ cells }) => cells.map(({ x, y }) => `${x}/${y}`)));
+      expect(heights).toHaveLength(2280);
+      expect(water.size).toBe(16);
+      expect(writes).toHaveLength(34);
+      expect(new Set(writes.map(({ x, y }) => `${x}/${y}`)).size).toBe(34);
+      for (const control of RIVER_LAKE_NAVIGATION_CONTROLS) {
+        const original = RIVER_ELEVATED_LAKE_CONTROLS.find(({ caseId }) => caseId === control.originalCaseId)!;
+        const dy = control.geometryTranslation.y;
+        expect(Math.abs(dy) % 2).toBe(0);
+        expect(control.lakeElevationInput).toBe(original.lakeElevationInput);
+        expect(control.shoreElevationInput).toBe(original.shoreElevationInput);
+        expect(control.cells.map((point) => ({ ...point, y: point.y - dy }))).toEqual([...original.cells]);
+        expect(control.inlet.map((point) => ({ ...point, y: point.y - dy }))).toEqual([...original.inlet]);
+        expect(control.outlet.map((point) => ({ ...point, y: point.y - dy }))).toEqual([...original.outlet]);
+        const inlet = writes.filter(({ caseId, role }) => caseId === control.caseId && role === "inlet");
+        const outlet = writes.filter(({ caseId, role }) => caseId === control.caseId && role === "outlet");
+        expect(inlet).toHaveLength(4);
+        expect(inlet.map(at)).toEqual([900, 850, 800, 750]);
+        expect(inlet.every(({ riverClass }) => riverClass === control.inletClass)).toBe(true);
+        expect(inlet[3]!.expectedReceiver).toEqual(control.cells[0]!);
+        expect(outlet).toHaveLength(original.outlet.length);
+        expect(outlet.every(({ riverClass }) => riverClass === "NAVIGABLE")).toBe(true);
+        for (const point of [...control.cells, ...control.inlet, ...control.outlet])
+          expect(at(point)).toBe(v4Heights[point.x + (point.y - dy) * 60]);
+        for (const point of control.cells) {
+          expect(riverLakeNavigationTerrainAt(point.x, point.y)).toBe("COAST");
+          for (const direction of RIVER_DIRECTIONS) {
+            const shore = riverProbeExpectedReceiver(point, direction, wrapX);
+            if (!water.has(`${shore.x}/${shore.y}`)) {
+              expect(riverLakeNavigationTerrainAt(shore.x, shore.y)).toBe("FLAT");
+              expect(at(shore)).toBe(v4Heights[shore.x + (shore.y - dy) * 60]);
+            }
+          }
+        }
+        if (outlet.length) {
+          expect(outlet.map(at)).toEqual([450, 380, 310, 240, 170]);
+          expect(outlet[4]!.expectedReceiver).toEqual({ x: 57, y: control.inlet[0]!.y });
+          expect(riverLakeNavigationTerrainAt(57, control.inlet[0]!.y)).toBe("COAST");
+          expect(riverLakeNavigationTerrainAt(58, control.inlet[0]!.y)).toBe("OCEAN");
+          expect(at(outlet[4]!.expectedReceiver)).toBe(0);
+        }
+      }
+      for (const write of writes) {
+        expect(water.has(`${write.x}/${write.y}`)).toBe(false);
+        expect(riverLakeNavigationTerrainAt(write.x, write.y)).toBe("FLAT");
+        expect(write.expectedReceiver).toEqual({ x: write.x + 1, y: write.y });
+        expect(at(write.expectedReceiver)).toBeLessThan(at(write));
+        expect(at(write)).toBeGreaterThan(128);
+        expect(write.y).toBeLessThan(34);
+      }
+      for (const control of RIVER_LAKE_MARINE_CONTROLS) {
+        const reach = writes.filter(({ caseId }) => caseId === control.caseId);
+        expect(reach).toHaveLength(4);
+        expect(reach.map(at)).toEqual([900, 850, 800, 750]);
+        expect(reach.every(({ riverClass }) => riverClass === control.riverClass)).toBe(true);
+        expect(reach[3]!.expectedReceiver).toEqual(control.terminalReceiver);
+        expect(riverLakeNavigationTerrainAt(control.terminalReceiver.x, control.terminalReceiver.y)).toBe("COAST");
+        expect(at(control.terminalReceiver)).toBe(0);
+      }
+    }
+    expect(buildRiverLakeNavigationAtlas(false)).toEqual(buildRiverLakeNavigationAtlas(true));
+    expect(buildRiverLakeNavigationElevation(false)).toEqual(buildRiverLakeNavigationElevation(true));
+  });
+
+  test("MINOR/NAVIGABLE pairs have identical translated terrain and elevation neighborhoods", () => {
+    const heights = buildRiverLakeNavigationElevation(false);
+    const neighborhood = (points: readonly { x: number; y: number }[], originY: number) => {
+      const cells = new Map<string, { x: number; y: number }>();
+      for (const point of points) for (const neighbor of [point, ...RIVER_DIRECTIONS.map((direction) => riverProbeExpectedReceiver(point, direction, false))])
+        cells.set(`${neighbor.x}/${neighbor.y}`, neighbor);
+      return [...cells.values()].map(({ x, y }) => ({ x, dy: y - originY,
+        terrain: riverLakeNavigationTerrainAt(x, y), elevation: heights[x + y * 60],
+      }));
+    };
+    for (const original of RIVER_ELEVATED_LAKE_CONTROLS) {
+      const pair = RIVER_LAKE_NAVIGATION_CONTROLS.filter(({ originalCaseId }) => originalCaseId === original.caseId);
+      expect(pair.map(({ inletClass }) => inletClass)).toEqual(["MINOR", "NAVIGABLE"]);
+      const masks = pair.map((control) => neighborhood([...control.cells, ...control.inlet, ...control.outlet,
+        ...(control.outlet.length ? [riverProbeExpectedReceiver(control.outlet.at(-1)!, "EAST", false)] : [])], control.cells[0]!.y));
+      expect(masks[0]).toEqual(masks[1]);
+    }
+    const marineMasks = RIVER_LAKE_MARINE_CONTROLS.map((control) => neighborhood([...control.reach, control.terminalReceiver], control.terminalReceiver.y));
+    expect(marineMasks[0]).toEqual(marineMasks[1]);
+  });
+
+  test("explicit revision-six selector has its own label and digest and keeps both older selectors", async () => {
+    const { plan, script } = await compiled("authored", "lake-navigation");
+    await expectCiv7MapScriptCompatibility(script, "river-lake-navigation-v6.js");
+    const manifest = JSON.parse(String(plan.files.find(({ relativePath }) => relativePath === "proof.json")!.content));
+    expect(manifest).toMatchObject({ diagnosticRevision: 6, atlasKind: "lake-navigation",
+      displayLabel: RIVER_LAKE_NAVIGATION_PROBE.displayLabel, finalizationPasses: 1,
+      settings: [false, 25, 2, 2], width: 60, height: 38, playerCount: 4,
+      scriptSha256: createHash("sha256").update(script).digest("hex"),
+    });
+    expect(String(plan.files.find(({ relativePath }) => relativePath === "text/en_us/MapText.xml")!.content)).toContain("River Lake Navigation V6");
+    expect(String(plan.files.find(({ relativePath }) => relativePath.endsWith(".modinfo"))!.content)).toContain("River Lake Navigation V6");
+    for (const [atlasKind, revision] of [["legacy", 4], ["terrain-admission", 5]] as const) {
+      const old = await compiled("authored", atlasKind);
+      const oldManifest = JSON.parse(String(old.plan.files.find(({ relativePath }) => relativePath === "proof.json")!.content));
+      expect(oldManifest).toMatchObject({ diagnosticRevision: revision, atlasKind });
+      expect(oldManifest.scriptSha256).not.toBe(manifest.scriptSha256);
+    }
+    for (const variant of ["aesthetic", "length", "upstream", "percent"] as const)
+      await expect(compiled(variant, "lake-navigation")).rejects.toThrow("authored finalization tuple");
+  });
+
+  test("real adapter writes all 34 dry sources once and captures independent lake/shore evidence at nine checkpoints", async () => {
+    const runtime = mockRuntime((await compiled("authored", "lake-navigation")).script, { wrapX: true });
+    runtime.run();
+    const entries = runtime.entries();
+    const metadata = entries[0]!.payload;
+    expect(metadata).toMatchObject({ diagnosticRevision: 6, atlasKind: "lake-navigation", settings: [false, 25, 2, 2] });
+    expect(metadata.lakeNavigationControls).toEqual(RIVER_LAKE_NAVIGATION_CONTROLS);
+    expect(metadata.marineControls).toEqual(RIVER_LAKE_MARINE_CONTROLS);
+    expect(metadata.lakeNavigationEvidence).toContain("NEW dedicated coast-ring background, not the entire V4 run");
+    expect(metadata.dispatch).toMatchObject({ writer: "Civ7Adapter.setRiverInfo", finalizer: "Civ7Adapter.finalizeRivers", capabilities: { source: "native" } });
+    expect(metadata.lakeCases).toHaveLength(4);
+    expect(metadata.slopeControls).toEqual([]);
+    expect(metadata.seam).toEqual({ status: "skipped", reason: "lake-controls-do-not-cross-seam" });
+    const writes = entries.filter(({ stage }) => stage === "write");
+    expect(writes).toHaveLength(34);
+    expect(runtime.calls.filter(({ name }) => name === "setRiverInfo").map(({ args }) => args)).toEqual(
+      buildRiverLakeNavigationAtlas(true).map(({ x, y, riverClass }) => [x, y, 70, riverClass === "MINOR" ? 11 : 23]),
+    );
+    for (const { payload } of writes) {
+      expect(payload.gameplayAdjacency).toEqual(payload.expectedReceiver);
+      expect(payload.outcome).toEqual({ status: "returned" });
+      expect(payload.lakeAdmission.before.source.riverClass).toBe(-1);
+      expect(payload.lakeAdmission.after.source.riverClass).toBe(payload.riverClass === "MINOR" ? 11 : 23);
+      expect(payload.lakeAdmission.before.receiver.riverClass).toBe(-1);
+      expect(payload.lakeAdmission.after.receiver.riverClass).toBe(-1);
+      expect(payload.lakeAdmission.before.source.requested.riverClass).toBe(payload.riverClass);
+      expect(payload.lakeAdmission.before.source.lake).toBe(false);
+    }
+    const snapshots = entries.filter(({ stage }) => RIVER_CHECKPOINTS.includes(stage as any));
+    expect(snapshots.map(({ stage }) => stage)).toEqual([...RIVER_CHECKPOINTS]);
+    for (const { payload } of snapshots) for (const control of metadata.elevatedLakeControls) {
+      for (const point of [...control.cells, ...control.shore, ...control.inlet, ...control.outlet]) {
+        const observed = payload.surfaces.find((surface: any) => surface.x === point.x && surface.y === point.y);
+        expect(observed).toBeDefined();
+        expect(observed.elevation).toBe(observed.requested.elevation);
+        expect(observed.terrain).toBe(observed.requested.terrain);
+        // The VM deliberately reports false even on requested lake cells. Never synthesize native truth.
+        expect(observed.lake).toBe(false);
+        expect(observed.water).toBe(false);
+      }
+    }
+    expect(runtime.elevationInputs).toEqual([buildRiverLakeNavigationElevation(true)]);
+    expect(runtime.calls.filter(({ name }) => name === "setFeatureType")).toHaveLength(0);
+    expect(runtime.calls.filter(({ name }) => name === "finalizeRivers").map(({ args }) => args)).toEqual([[false, 25, 2, 2]]);
+    const afterFinalize = runtime.calls.slice(runtime.calls.findIndex(({ name }) => name === "finalizeRivers"));
+    expect(afterFinalize.some(({ name }) => ["setTerrainType", "setElevation", "setFeatureType", "setRiverInfo"].includes(name))).toBe(false);
+    expect(runtime.unsafeOceanCalls).toEqual([]);
+    expect(runtime.calls.filter(({ name }) => name === "start")).toHaveLength(4);
+    expect(runtime.lines.every((line) => line.length <= 900)).toBe(true);
+    expect(decodeBoundedJsonLogSeries(runtime.lines, "[mapgen-complete]")[0]!.payload).toMatchObject({ diagnosticRevision: 6, atlasKind: "lake-navigation", writeFailures: 0, observationsOnly: true });
+  });
+
+  test("requested heights never replace actual observations and failures do not gain retries or completion", async () => {
+    const { script } = await compiled("authored", "lake-navigation");
+    const observed = mockRuntime(script, { elevationReadback: 1234, terrainReadback: 987, featureReadback: 654 });
+    observed.run();
+    for (const { stage, payload } of observed.entries()) {
+      if (RIVER_CHECKPOINTS.includes(stage as any)) for (const surface of payload.surfaces) {
+        expect(surface).toMatchObject({ elevation: 1234, terrain: 987, feature: 654 });
+        expect(surface.requested.elevation).not.toBe(surface.elevation);
+      }
+      if (stage === "write") for (const moment of [payload.lakeAdmission.before, payload.lakeAdmission.after]) {
+        expect(moment.source).toMatchObject({ elevation: 1234, terrain: 987, feature: 654 });
+        expect(moment.receiver).toMatchObject({ elevation: 1234, terrain: 987, feature: 654 });
+      }
+    }
+    const failed = mockRuntime(script, { failWriteAt: RIVER_LAKE_NAVIGATION_CONTROLS[1]!.inlet[3]! });
+    failed.run();
+    expect(failed.calls.filter(({ name }) => name === "setRiverInfo")).toHaveLength(34);
+    expect(failed.entries().filter(({ stage, payload }) => stage === "write" && payload.outcome.status === "unavailable")).toHaveLength(1);
+    expect(decodeBoundedJsonLogSeries(failed.lines, "[mapgen-complete]")[0]!.payload).toMatchObject({ writeFailures: 1 });
+    const invalid = mockRuntime(script, { invalidNativeEnum: true });
+    expect(invalid.run).toThrow("RiverTypes.RIVER_MINOR");
+    expect(invalid.calls).toHaveLength(0);
+    const finalizer = mockRuntime(script, { failPhase: "finalizeRivers" });
+    expect(finalizer.run).toThrow("mock failed finalizeRivers");
+    expect(decodeBoundedJsonLogSeries(finalizer.lines, "[mapgen-complete]")).toHaveLength(0);
   });
 });
 

@@ -17,7 +17,12 @@ export const RIVER_TERRAIN_PROBE = {
   diagnosticRevision: 5,
   displayLabel: "River Terrain Admission V5",
 } as const;
-export type RiverProbeAtlas = "legacy" | "terrain-admission";
+export const RIVER_LAKE_NAVIGATION_PROBE = {
+  ...RIVER_PROBE,
+  diagnosticRevision: 6,
+  displayLabel: "River Lake Navigation V6",
+} as const;
+export type RiverProbeAtlas = "legacy" | "terrain-admission" | "lake-navigation";
 
 // Argument order comes from shipped scripts/common-generation.js, not the adapter.
 export const RIVER_PROBE_VARIANTS = {
@@ -193,6 +198,69 @@ export const RIVER_ELEVATED_LAKE_CONTROLS: readonly {
     outlet: [],
   },
 ];
+
+/** V6 requalifies V4 local profiles on a dedicated background, with class-only translated pairs. */
+export const RIVER_LAKE_NAVIGATION_CONTROLS = RIVER_ELEVATED_LAKE_CONTROLS.flatMap((original) =>
+  (["MINOR", "NAVIGABLE"] as const).map((inletClass) => {
+    const dy = inletClass === "MINOR" ? -10 : 0;
+    return {
+      caseId: `${original.caseId}-${inletClass.toLowerCase()}`,
+      originalCaseId: original.caseId,
+      geometryTranslation: { x: 0, y: dy },
+      inletClass,
+      lakeElevationInput: original.lakeElevationInput,
+      shoreElevationInput: original.shoreElevationInput,
+      cells: original.cells.map((point) => ({ ...point, y: point.y + dy })),
+      inlet: original.inlet.map((point) => ({ ...point, y: point.y + dy })),
+      outlet: original.outlet.map((point) => ({ ...point, y: point.y + dy })),
+    };
+  })
+);
+
+export const RIVER_LAKE_MARINE_CONTROLS = (["MINOR", "NAVIGABLE"] as const).map((riverClass, i) => ({
+  caseId: `lake-navigation-marine-${riverClass.toLowerCase()}`,
+  riverClass,
+  reach: [900, 850, 800, 750].map((elevation, j) => ({ x: 53 + j, y: 28 + 2 * i, elevation })),
+  terminalReceiver: { x: 57, y: 28 + 2 * i },
+}));
+
+export function buildRiverLakeNavigationAtlas(wrapX: boolean): RiverProbeWrite[] {
+  const writes: RiverProbeWrite[] = [];
+  const add = (caseId: string, point: XY, riverClass: RiverClass, role: string) => writes.push({
+    caseId, ...point, directionSymbol: "EAST", riverClass, role,
+    expectedReceiver: riverProbeExpectedReceiver(point, "EAST", wrapX),
+  });
+  for (const control of RIVER_LAKE_NAVIGATION_CONTROLS) {
+    for (const point of control.inlet) add(control.caseId, { x: point.x, y: point.y }, control.inletClass, "inlet");
+    for (const point of control.outlet) add(control.caseId, { x: point.x, y: point.y }, "NAVIGABLE", "outlet");
+  }
+  for (const control of RIVER_LAKE_MARINE_CONTROLS)
+    for (const point of control.reach) add(control.caseId, { x: point.x, y: point.y }, control.riverClass, "direct-marine-control");
+  return writes;
+}
+
+export function riverLakeNavigationTerrainAt(x: number, y: number): Terrain {
+  if (RIVER_LAKE_NAVIGATION_CONTROLS.some((control) => control.cells.some((cell) => cell.x === x && cell.y === y))) return "COAST";
+  if (x < 2 || x >= 58 || y < 1 || y >= 37) return "OCEAN";
+  if (x === 2 || x === 57 || y === 1 || y === 36) return "COAST";
+  return "FLAT";
+}
+
+export function buildRiverLakeNavigationElevation(wrapX: boolean): number[] {
+  const values = Array.from({ length: RIVER_PROBE.width * RIVER_PROBE.height }, (_, cell) => {
+    const x = cell % RIVER_PROBE.width;
+    const terrain = riverLakeNavigationTerrainAt(x, Math.floor(cell / RIVER_PROBE.width));
+    return terrain === "OCEAN" || terrain === "COAST" ? 0 : 100 + 2 * (60 - x);
+  });
+  for (const control of RIVER_LAKE_NAVIGATION_CONTROLS) {
+    for (const cell of control.cells) values[index(cell)] = control.lakeElevationInput;
+    for (const point of elevatedLakeShore(control.cells, wrapX)) values[index(point)] = control.shoreElevationInput;
+    for (const point of [...control.inlet, ...control.outlet]) values[index(point)] = point.elevation;
+  }
+  for (const control of RIVER_LAKE_MARINE_CONTROLS)
+    for (const point of control.reach) values[index(point)] = point.elevation;
+  return values;
+}
 
 function elevatedLakeShore(cells: readonly XY[], wrapX: boolean): XY[] {
   const water = new Set(cells.map(key));
@@ -408,11 +476,13 @@ export function registerRiverContractProbe(
 ): void {
   const settings = RIVER_PROBE_VARIANTS[variant];
   if (!settings) throw new Error(`Unknown river probe variant: ${variant}`);
-  if (atlasKind !== "legacy" && atlasKind !== "terrain-admission") throw new Error(`Unknown river probe atlas: ${atlasKind}`);
-  if (atlasKind === "terrain-admission" && variant !== "authored") throw new Error("Terrain admission requires the authored finalization tuple.");
-  if (atlasKind === "terrain-admission" && !createAdapter) throw new Error("Terrain admission requires the app adapter factory.");
+  if (atlasKind !== "legacy" && atlasKind !== "terrain-admission" && atlasKind !== "lake-navigation") throw new Error(`Unknown river probe atlas: ${atlasKind}`);
+  if (atlasKind !== "legacy" && variant !== "authored") throw new Error("Adapter atlases require the authored finalization tuple.");
+  if (atlasKind !== "legacy" && !createAdapter) throw new Error("Adapter atlases require the app adapter factory.");
   const isTerrainAtlas = atlasKind === "terrain-admission";
-  const probe = isTerrainAtlas ? RIVER_TERRAIN_PROBE : RIVER_PROBE;
+  const isLakeAtlas = atlasKind === "lake-navigation";
+  const usesAdapter = atlasKind !== "legacy";
+  const probe = isTerrainAtlas ? RIVER_TERRAIN_PROBE : isLakeAtlas ? RIVER_LAKE_NAVIGATION_PROBE : RIVER_PROBE;
   const emit = (stage: string, payload: unknown, marker = "[river-contract]") => {
     for (const line of encodeBoundedJsonLogLines({ marker, payload: { proofId, variant, stage, payload } })) console.log(line);
   };
@@ -432,13 +502,15 @@ export function registerRiverContractProbe(
       for (const name of ["setRiverInfo", "finalizeRivers"])
         if (typeof TerrainBuilder[name] !== "function") throw new Error(`Missing TerrainBuilder.${name}`);
       const wrapX = requestedWrapX === true;
-      const writes = isTerrainAtlas ? buildRiverTerrainAtlas(wrapX) : buildRiverProbeAtlas(wrapX);
-      const adapter = isTerrainAtlas ? createAdapter!(probe.width, probe.height) : null;
+      const writes = isTerrainAtlas ? buildRiverTerrainAtlas(wrapX) : isLakeAtlas ? buildRiverLakeNavigationAtlas(wrapX) : buildRiverProbeAtlas(wrapX);
+      const adapter = usesAdapter ? createAdapter!(probe.width, probe.height) : null;
       const riverCapabilities = adapter?.getRiverCapabilities();
       if (riverCapabilities?.setRiverInfo.status === "unavailable") throw new Error(riverCapabilities.setRiverInfo.reason);
       if (riverCapabilities?.finalizeRivers.status === "unavailable") throw new Error(riverCapabilities.finalizeRivers.reason);
-      const terrainAt = (x: number, y: number) => isTerrainAtlas ? riverTerrainProbeTerrainAt(x, y) : riverProbeTerrainAt(x, y, wrapX);
-      const lakeCases = isTerrainAtlas ? [] : RIVER_LAKE_CASES;
+      const terrainAt = (x: number, y: number) => isTerrainAtlas ? riverTerrainProbeTerrainAt(x, y) : isLakeAtlas ? riverLakeNavigationTerrainAt(x, y) : riverProbeTerrainAt(x, y, wrapX);
+      const lakeCases = isTerrainAtlas ? [] : isLakeAtlas ? RIVER_LAKE_NAVIGATION_CONTROLS.map(({ caseId, cells }) => ({
+        caseId, cells: cells.map((cell) => ({ ...cell, accepted: true, reason: "admitted" })),
+      })) : RIVER_LAKE_CASES;
       const grid = Array.from({ length: RIVER_PROBE.width * RIVER_PROBE.height }, (_, i) => ({ x: i % RIVER_PROBE.width, y: Math.floor(i / RIVER_PROBE.width) }));
       const directions = Object.fromEntries(RIVER_DIRECTIONS.map((symbol) => [symbol,
         requireInteger(typeof DirectionTypes === "undefined" ? undefined : DirectionTypes[`DIRECTION_${symbol}`], `DirectionTypes.DIRECTION_${symbol}`)]));
@@ -451,13 +523,13 @@ export function registerRiverContractProbe(
       const volcano = requireInteger(GameInfo.Features.find((row) => row.FeatureType === "FEATURE_VOLCANO")?.$index, "FEATURE_VOLCANO");
       const nativeRivers = typeof MapRivers === "undefined" ? undefined : MapRivers;
       const noDirection = requireInteger(typeof DirectionTypes === "undefined" ? undefined : DirectionTypes.NO_DIRECTION, "DirectionTypes.NO_DIRECTION");
-      const heights = isTerrainAtlas ? buildRiverTerrainElevation() : buildRiverProbeElevation(wrapX);
-      const elevatedLakeControls = (isTerrainAtlas ? [] : RIVER_ELEVATED_LAKE_CONTROLS).map((control) => ({ ...control,
+      const heights = isTerrainAtlas ? buildRiverTerrainElevation() : isLakeAtlas ? buildRiverLakeNavigationElevation(wrapX) : buildRiverProbeElevation(wrapX);
+      const elevatedLakeControls = (isTerrainAtlas ? [] : isLakeAtlas ? RIVER_LAKE_NAVIGATION_CONTROLS : RIVER_ELEVATED_LAKE_CONTROLS).map((control) => ({ ...control,
         shore: elevatedLakeShore(control.cells, wrapX).map((point) => ({ ...point, elevationInput: heights[index(point)] })),
       }));
       const requestedFeatureAt = (x: number, y: number): number | null => isTerrainAtlas
         ? RIVER_TERRAIN_CONTROLS.some((control) => control.surface === "VOLCANO" && control.barrier.x === x && control.barrier.y === y) ? volcano : null
-        : x === 9 && y === 34 ? volcano : null;
+        : !isLakeAtlas && x === 9 && y === 34 ? volcano : null;
       const requestedAt = (x: number, y: number) => ({
         terrainSymbol: terrainAt(x, y), terrain: terrainIds[terrainAt(x, y)],
         elevation: heights[index({ x, y })], feature: requestedFeatureAt(x, y),
@@ -470,22 +542,30 @@ export function registerRiverContractProbe(
         feature: observe(GameplayMap, "GameplayMap", "getFeatureType", [x, y]),
         riverClass: observe(GameplayMap, "GameplayMap", "getRiverType", [x, y]),
         water: observe(GameplayMap, "GameplayMap", "isWater", [x, y], "boolean"),
+        ...(isLakeAtlas ? { lake: observe(GameplayMap, "GameplayMap", "isLake", [x, y], "boolean") } : {}),
       });
       const observeBarriers = () => RIVER_TERRAIN_CONTROLS.map((control) => ({ caseId: control.caseId, ...observeTerrainPoint(control.barrier) }));
       emit(stage, { ...probe, atlasKind, actualSeed: GameplayMap.getRandomSeed(), settings, terrainIds, classes, directions, players, starts,
         ...(isTerrainAtlas ? {
           terrainControls: RIVER_TERRAIN_CONTROLS,
           terrainEvidence: "Same six-source downhill profile and explicit original-ocean receiver. Source/receiver labels refer ONLY to the interior test edge x54 -> x55. Every barrier is an incoming receiver AND an outgoing source in its full reach; whole-reach outcomes do not isolate these roles. Before/after observations bracket each write. Volcano is mountain substrate plus requested feature, paired against mountain-only. Requested inputs never substitute for native observations.",
+        } : {}),
+        ...(isLakeAtlas ? {
+          lakeNavigationControls: RIVER_LAKE_NAVIGATION_CONTROLS,
+          marineControls: RIVER_LAKE_MARINE_CONTROLS,
+          lakeNavigationEvidence: "Controlled requalification of V4 local body/shore/reach profiles on a NEW dedicated coast-ring background, not the entire V4 run. Each open/closed pair differs only in inlet class after its parity-preserving translation. Four-source direct-marine controls hold class and length explicit. Native initialized and later lake/shore/reach observations are independent of requested elevations; no river writes inside water, no required single ID or navigation through the lake.",
+        } : {}),
+        ...(usesAdapter ? {
           dispatch: { writer: "Civ7Adapter.setRiverInfo", finalizer: "Civ7Adapter.finalizeRivers", capabilities: riverCapabilities },
           requestedFeatureMeaning: "null means no feature was authored, not proof that the engine reports no feature",
         } : {}),
         wrapX: requestedWrapX ?? unavailable("RequestMapInitData.wrapX", "missing-boolean"),
-        seam: isTerrainAtlas ? { status: "skipped", reason: "terrain-controls-do-not-cross-seam" } : wrapX ? { status: "included", count: 4 } : { status: "skipped", reason: requestedWrapX === false ? "wrapX-false" : "wrapX-unavailable" },
+        seam: usesAdapter ? { status: "skipped", reason: isTerrainAtlas ? "terrain-controls-do-not-cross-seam" : "lake-controls-do-not-cross-seam" } : wrapX ? { status: "included", count: 4 } : { status: "skipped", reason: requestedWrapX === false ? "wrapX-false" : "wrapX-unavailable" },
         order: "x + y * width", nativeIndices: grid.map(({ x, y }) => GameplayMap.getIndexFromXY(x, y)),
         lakeCases, lakeEvidence: "synthetic planned/accepted fixture inputs; native isLake observed separately",
         elevatedLakeControls,
         elevatedLakeEvidence: "land-only writes; inlet and outlet authored separately; no river object through water required; native elevation readbacks, not setter inputs, determine lake/shore gradients",
-        atlas: writes, slopeControls: isTerrainAtlas ? [] : RIVER_SLOPE_CONTROLS,
+        atlas: writes, slopeControls: usesAdapter ? [] : RIVER_SLOPE_CONTROLS,
         expectedReceiverEvidence: "independent odd-row geographical hypothesis; native adjacency logged separately",
         passiveMembers: { GameplayMap: passiveMembers(GameplayMap, "GameplayMap"), MapRivers: passiveMembers(nativeRivers, "MapRivers") },
         observationLaw: "Native false and zero are observations; missing, throwing, and unexpected readbacks are unavailable, never false or zero.",
@@ -541,7 +621,7 @@ export function registerRiverContractProbe(
                 ? observe(nativeRivers, "MapRivers", "isRiverConnectedToOcean", [plotIndex], "boolean")
                 : unavailable("MapRivers.isRiverConnectedToOcean", "plot-index-unavailable-or-invalid");
           return { x, y, arrayIndex: index({ x, y }), plotIndex,
-            ...(isTerrainAtlas ? { requested: requestedAt(x, y) } : {}),
+            ...(usesAdapter ? { requested: requestedAt(x, y) } : {}),
             terrain: observe(GameplayMap, "GameplayMap", "getTerrainType", [x, y]),
             riverClass,
             elevation: observe(GameplayMap, "GameplayMap", "getElevation", [x, y]),
@@ -572,7 +652,7 @@ export function registerRiverContractProbe(
         const barrierInteraction = !control ? null
           : key(write) === key(control.barrier) ? "outgoing-source"
           : key(write.expectedReceiver) === key(control.barrier) ? "incoming-receiver" : "neither";
-        const before = isTerrainAtlas ? { source: observeTerrainPoint(write), receiver: observeTerrainPoint(write.expectedReceiver) } : null;
+        const before = usesAdapter ? { source: observeTerrainPoint(write), receiver: observeTerrainPoint(write.expectedReceiver) } : null;
         let outcome: unknown = { status: "returned" };
         try {
           if (adapter) adapter.setRiverInfo({ x: write.x, y: write.y, direction: write.directionSymbol, riverClass: write.riverClass });
@@ -582,6 +662,10 @@ export function registerRiverContractProbe(
         emit(stage, { ...write, nativeDirection, nativeClass, gameplayAdjacency, outcome,
           ...(isTerrainAtlas ? { terrainAdmission: {
             barrierInteraction, before,
+            after: { source: observeTerrainPoint(write), receiver: observeTerrainPoint(write.expectedReceiver) },
+          } } : {}),
+          ...(isLakeAtlas ? { lakeAdmission: {
+            role: write.role, before,
             after: { source: observeTerrainPoint(write), receiver: observeTerrainPoint(write.expectedReceiver) },
           } } : {}),
         });
