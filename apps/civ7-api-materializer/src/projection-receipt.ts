@@ -12,7 +12,7 @@ import {
 import { projectDeclarationRealms, type RealmProjection } from "./realms.js";
 import { collectBaseSourceMapEvidence, compareUtf8 } from "./source-maps.js";
 
-const DECLARATION_PROJECTION_SCHEMA_VERSION = 3 as const;
+const DECLARATION_PROJECTION_SCHEMA_VERSION = 4 as const;
 
 const EXPECTED_EMBEDDED_TYPESCRIPT_SOURCE_COUNT = 940;
 const EXPECTED_EMBEDDED_TS_SOURCE_COUNT = 715;
@@ -59,6 +59,7 @@ export interface DeclarationProjectionReceipt {
     readonly globalAugmentationCount: number;
     readonly globalAugmentationsSha256: string;
     readonly edgesSha256: string;
+    readonly runtimeStylesheetImports: DeclarationEmission["runtimeStylesheetImports"];
     readonly anyKeywordCount: number;
   };
   readonly externalTypeEvidence: ModuleCatalog["solidTypeEvidence"];
@@ -233,6 +234,7 @@ export async function buildDeclarationProjectionReceipt(
       globalAugmentationCount: declarations.globalAugmentationCount,
       globalAugmentationsSha256: sha256(globalAugmentationManifest(declarations)),
       edgesSha256: sha256(`${JSON.stringify(declarations.edges)}\n`),
+      runtimeStylesheetImports: declarations.runtimeStylesheetImports,
       anyKeywordCount: declarations.anyKeywordCount,
     },
     externalTypeEvidence: catalog.solidTypeEvidence,

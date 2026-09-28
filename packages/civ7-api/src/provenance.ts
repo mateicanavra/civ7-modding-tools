@@ -3,7 +3,7 @@
 export const provenance = {
   "schemaVersion": 3,
   "receipt": {
-    "schemaVersion": 3,
+    "schemaVersion": 4,
     "sourceSnapshot": {
       "receiptPath": ".civ7-source-receipt.json",
       "sourceReceiptSha256": "18beed71bfa5a05ada01b8ecd9b2b275bfaf3a16db2d66752029bd4be0cc27ef",
@@ -132,6 +132,7 @@ export const provenance = {
       "globalAugmentationCount": 153,
       "globalAugmentationsSha256": "9aedc5afc7de47fc121dd457cf8abe1a7c6b8f7c681d352df1e215a372159ab1",
       "edgesSha256": "3c58ea3aba162e6b98ae0755c1dd0ecb8c7b73755c4a39e05fcb30e07daa57ea",
+      "runtimeStylesheetImports": [],
       "anyKeywordCount": 685
     },
     "externalTypeEvidence": {

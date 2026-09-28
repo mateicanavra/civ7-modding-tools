@@ -51,6 +51,7 @@ export interface ModuleCatalog {
   readonly declarationModules: readonly DeclarationModule[];
   readonly declarationModuleIds: readonly string[];
   readonly compiledModuleIds: readonly string[];
+  readonly compiledStylesheetPaths: readonly string[];
   readonly solidTypeEvidence: SolidTypeEvidence;
 }
 
@@ -119,7 +120,7 @@ function hasSorted(values: readonly string[], value: string): boolean {
   return false;
 }
 
-function canonicalInternalTarget(fromVirtualId: string, specifier: string): string | undefined {
+function canonicalInternalPath(fromVirtualId: string, specifier: string): string | undefined {
   let target: string;
   if (specifier.startsWith("#core/")) {
     target = `/core/${specifier.slice("#core/".length)}`;
@@ -136,6 +137,12 @@ function canonicalInternalTarget(fromVirtualId: string, specifier: string): stri
       `Retained module specifier escapes the Civ7 virtual module root: ${fromVirtualId} -> ${specifier}`
     );
   }
+  return target;
+}
+
+function canonicalInternalTarget(fromVirtualId: string, specifier: string): string | undefined {
+  const target = canonicalInternalPath(fromVirtualId, specifier);
+  if (target === undefined) return undefined;
   const compiledTarget = target.endsWith(".jsx")
     ? `${target.slice(0, -".jsx".length)}.js`
     : posix.extname(target) === ""
@@ -147,6 +154,25 @@ function canonicalInternalTarget(fromVirtualId: string, specifier: string): stri
     );
   }
   return compiledTarget;
+}
+
+/** Resolves a bare SCSS import only when its compiled CSS is admitted snapshot evidence. */
+export function resolveRuntimeStylesheetPath(
+  catalog: Pick<ModuleCatalog, "compiledStylesheetPaths">,
+  fromVirtualId: string,
+  specifier: string
+): string {
+  const target = canonicalInternalPath(fromVirtualId, specifier);
+  if (target === undefined || !target.endsWith(".scss")) {
+    throw new Error(`Unsupported runtime stylesheet import in ${fromVirtualId}: ${specifier}`);
+  }
+  const stylesheetPath = `Base/modules${target.slice(0, -".scss".length)}.css`;
+  if (!hasSorted(catalog.compiledStylesheetPaths, stylesheetPath)) {
+    throw new Error(
+      `Runtime stylesheet import has no compiled CSS evidence: ${fromVirtualId} -> ${specifier} (${stylesheetPath})`
+    );
+  }
+  return stylesheetPath;
 }
 
 /** Resolves only declaration-retained Civ7 aliases/relatives and pinned externals. */
@@ -306,7 +332,8 @@ export async function buildBaseModuleCatalog(
   providedSourceMaps?: BaseSourceMapEvidence
 ): Promise<ModuleCatalog> {
   const sourceMaps = providedSourceMaps ?? (await collectBaseSourceMapEvidence(snapshotRoot));
-  const compiledModuleIds = (await listBaseFiles(snapshotRoot))
+  const baseFiles = await listBaseFiles(snapshotRoot);
+  const compiledModuleIds = baseFiles
     .filter((path) => path.startsWith("Base/modules/") && path.endsWith(".js"))
     .map(virtualIdForCompiledPath)
     .sort(compareUtf8);
@@ -344,6 +371,9 @@ export async function buildBaseModuleCatalog(
     declarationModules,
     declarationModuleIds: declarationModules.map((module) => module.virtualId),
     compiledModuleIds,
+    compiledStylesheetPaths: baseFiles.filter(
+      (path) => path.startsWith("Base/modules/") && path.endsWith(".css")
+    ),
     solidTypeEvidence: await extractSolidTypeEvidence(snapshotRoot),
   };
 }

@@ -49,6 +49,7 @@ function catalog(): ModuleCatalog {
     declarationModules: [],
     declarationModuleIds,
     compiledModuleIds: [...declarationModuleIds, "/core/compiled-root.js"].sort(),
+    compiledStylesheetPaths: [],
     solidTypeEvidence: {
       packageName: "solid-js",
       version: "1.9.5",
