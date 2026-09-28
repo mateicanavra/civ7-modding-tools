@@ -1,8 +1,10 @@
 import { describe, expect, test } from "bun:test";
+import { Civ7ControlOrpcContract } from "@civ7/control-orpc/contract";
 import { ORPCError } from "@orpc/client";
 import { encodeBoundedJsonLogLines } from "@swooper/mapgen-core/lib/log";
 import {
   admitStudioRunInGameLiveMutationArgs,
+  buildStudioRunInGameLiveStartInput,
   buildSwooperMapScriptDeploymentStage,
   hasMapgenCompletionForSeed,
   type MapScriptFileIdentity,
@@ -73,6 +75,57 @@ describe("studio run-in-game live verifier", () => {
     expect(() => parseStudioRunInGameLiveArgs(["--seed", "2147483648"])).toThrow(
       "--seed must be an integer from -2147483648 to 2147483647"
     );
+  });
+
+  test.each([
+    undefined,
+    6,
+  ])("projects saved setup identity without inventing players; explicit override %s", async (playerCount) => {
+    const savedConfig = {
+      id: "tot-nomodsexceptmaps",
+      displayName: "ToT_NoModsExceptMaps",
+      fileName: "ToT_NoModsExceptMaps.Civ7Cfg",
+      path: "/Civ7/Saves/Single/ToT_NoModsExceptMaps.Civ7Cfg",
+      summary: { playerCount: 12 },
+    };
+    const args = admitStudioRunInGameLiveMutationArgs(
+      parseStudioRunInGameLiveArgs([
+        "--mutate",
+        "--saved-config",
+        savedConfig.displayName,
+        "--map-script",
+        "{swooper-maps}/maps/swooper-earthlike.js",
+        "--map-size",
+        "MAPSIZE_HUGE",
+        "--seed",
+        "1018",
+        "--game-seed",
+        "1018",
+        ...(playerCount === undefined ? [] : ["--player-count", String(playerCount)]),
+      ])
+    );
+    const input = buildStudioRunInGameLiveStartInput(args, savedConfig);
+    expect(input.savedConfig).toEqual({
+      id: savedConfig.id,
+      displayName: savedConfig.displayName,
+      fileName: savedConfig.fileName,
+    });
+    expect(input.playerOptions).toEqual([]);
+    expect(input.playerCount).toBe(playerCount);
+    if (playerCount === undefined) expect(input).not.toHaveProperty("playerCount");
+    expect(savedConfig.summary.playerCount).toBe(12);
+
+    const schema = Civ7ControlOrpcContract.lifecycle.singlePlayer.start["~orpc"].inputSchema;
+    if (!schema) throw new Error("Lifecycle input schema is unavailable.");
+    expect((await schema["~standard"].validate(input)).issues).toBeUndefined();
+    expect(
+      (
+        await schema["~standard"].validate({
+          ...input,
+          savedConfig: { ...input.savedConfig, path: savedConfig.path },
+        })
+      ).issues
+    ).toBeDefined();
   });
 
   test("projects bounded defined-error evidence without provider internals", () => {

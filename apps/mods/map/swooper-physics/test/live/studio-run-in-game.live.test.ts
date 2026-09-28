@@ -5,7 +5,11 @@ import { readFile, stat } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { type Civ7ControlOrpcContext, createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
+import {
+  type Civ7ControlOrpcContext,
+  type Civ7LifecycleSinglePlayerStartInput,
+  createCiv7ControlOrpcServerClient,
+} from "@civ7/control-orpc";
 import {
   CIV7_SETUP_IDENTITY_SNAPSHOT_SELECTION,
   type Civ7DirectControlOptions,
@@ -223,6 +227,34 @@ export function admitStudioRunInGameLiveMutationArgs(args: LiveVerificationArgs)
     mapSize: args.mapSize,
     mapSeed: args.mapSeed,
     gameSeed: args.gameSeed,
+  };
+}
+
+/** Projects CLI demand onto the public lifecycle contract without overriding saved setup players. */
+export function buildStudioRunInGameLiveStartInput(
+  args: LiveMutationArgs,
+  savedConfig?: Civ7SavedGameConfigurationRef
+): Civ7LifecycleSinglePlayerStartInput {
+  return {
+    mapScript: args.mapScript,
+    mapSize: args.mapSize,
+    mapSeed: args.mapSeed,
+    gameSeed: args.gameSeed,
+    ...(args.playerCount === undefined ? {} : { playerCount: args.playerCount }),
+    targetModId: targetModIdFromMapScript(args.mapScript),
+    ...(savedConfig
+      ? {
+          savedConfig: {
+            id: savedConfig.id,
+            displayName: savedConfig.displayName,
+            fileName: savedConfig.fileName,
+          },
+        }
+      : {}),
+    gameOptions: args.options,
+    mapOptions: {},
+    playerOptions: [],
+    activeGamePolicy: "exit-active-game",
   };
 }
 
@@ -579,19 +611,9 @@ async function main(): Promise<number> {
       >,
       endpointDefaults: options,
       correlation: { correlationId },
-    }).lifecycle.singlePlayer.start({
-      mapScript: mutationArgs.mapScript,
-      mapSize: mutationArgs.mapSize,
-      mapSeed: mutationArgs.mapSeed,
-      gameSeed: mutationArgs.gameSeed,
-      playerCount: args.playerCount,
-      targetModId: targetModIdFromMapScript(mutationArgs.mapScript),
-      ...(savedConfigRef ? { savedConfig: savedConfigRef } : {}),
-      gameOptions: args.options,
-      mapOptions: {},
-      playerOptions: [],
-      activeGamePolicy: "exit-active-game",
-    });
+    }).lifecycle.singlePlayer.start(
+      buildStudioRunInGameLiveStartInput(mutationArgs, savedConfigRef)
+    );
     stages.push({
       name: "setup-start",
       ok: run.status === "started",
