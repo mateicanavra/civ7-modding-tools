@@ -473,6 +473,16 @@ Capture metadata, camera verification and file hashes are in
 retains the actual cliff-mouth outcome; visual river continuity is not evidence
 of naval passability. Earlier fogged captures are superseded, not proof frames.
 
+### Extended Visual And Ownership Audit
+
+The [visual audit](visual-audit.md) adds a 28-shot Huge/1018 tour, including
+12 maximum-supported-zoom survey views, full-resolution analytical PNGs,
+three-way disconnection classification, the Galley diagnostic's limits, and
+a line-count/domain-ownership scan. It distinguishes the retained native
+numeric receipt from the later same-script/seed screenshot session. No map
+algorithm or native connectivity claim is changed by that observational work.
+The local gallery is `.civ7/outputs/visual-atlas/huge-1018/gallery.html`.
+
 ## Historical Handoff
 
 The following records the pre-integration handoff, not current activation state.
