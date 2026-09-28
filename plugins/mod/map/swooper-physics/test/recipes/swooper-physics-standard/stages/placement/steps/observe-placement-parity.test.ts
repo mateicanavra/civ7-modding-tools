@@ -42,6 +42,7 @@ function riverIntent(
     plannedMinorRiverTileCount: sources.filter(([, kind]) => kind === "MINOR").length,
     plannedMajorRiverTileCount: sources.filter(([, kind]) => kind === "NAVIGABLE").length,
     authoredSourceCount: sources.length,
+    wetTransitionWrites: [],
     writes: sources.map(([sourceCell, riverClass]) => ({
       sourceCell,
       receiverCell: sourceCell + 1,
@@ -286,7 +287,7 @@ describe("placement/observe-placement-parity", () => {
       }
     }
     const { width, height } = TEST_MAP_SIZE.dimensions;
-    const { authoredSourceCount: _, writes: __, ...empty } = riverIntent();
+    const { authoredSourceCount: _, writes: __, wetTransitionWrites: ___, ...empty } = riverIntent();
     const legacy: ProjectedRivers = {
       ...empty,
       model: "legacy-sink-budget",

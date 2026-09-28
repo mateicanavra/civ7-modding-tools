@@ -239,7 +239,7 @@ export type StandardMapCapture = Readonly<{
       | "projectionSignalStatus"
       | "plannedMajorRiverTileCount"
     > | Pick<Extract<ProjectedNavigableRivers, { model: "certified-sill-spill" }>,
-      "model" | "authoredSourceCount" | "plannedMinorRiverTileCount" | "plannedMajorRiverTileCount" | "writes">;
+      "model" | "authoredSourceCount" | "plannedMinorRiverTileCount" | "plannedMajorRiverTileCount" | "writes" | "wetTransitionWrites">;
     riverReadback: Readonly<{
       terrainNavigableRiverTileCount: number;
       riverMismatchCount: number;
@@ -747,6 +747,7 @@ function copyCompletedRun(
         plannedMinorRiverTileCount: navigableRiverValue.plannedMinorRiverTileCount,
         plannedMajorRiverTileCount: navigableRiverValue.plannedMajorRiverTileCount,
         writes: Object.freeze(navigableRiverValue.writes.map((write) => Object.freeze({ ...write }))),
+        wetTransitionWrites: Object.freeze(navigableRiverValue.wetTransitionWrites.map((write) => Object.freeze({ ...write }))),
       }) : Object.freeze({
         model: navigableRiverValue.model,
         selectedTileCount: navigableRiverValue.selectedTileCount,

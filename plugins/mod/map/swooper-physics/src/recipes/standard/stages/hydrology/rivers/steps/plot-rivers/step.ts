@@ -126,9 +126,11 @@ export const PlotRiversStep = createStep(config, {
       throw new Error("River projection requires one coherent physical water model.");
     }
     if (hydrography.model === "certified-sill-spill") {
+      if (lakePlan.model !== "certified-sill-spill") throw new Error("Authored rivers require a certified lake plan.");
       if (projectionConfig.model !== "authored-network") throw new Error("Certified water requires authored-network river projection.");
+      const acceptedLakeMask = deps.artifacts.projectedLakes.read().lakeMask;
       const materialized = projectAuthoredRiverNetwork({
-        width, height, landMask: topography.landMask, lakeMask: lakePlan.lakeMask,
+        width, height, landMask: topography.landMask, lakePlan, acceptedLakeMask,
         riverClass: hydrography.riverClass, flowDir: hydrography.flowDir,
       });
       const capabilities = deps.engine.getRiverCapabilities(context);
@@ -137,6 +139,12 @@ export const PlotRiversStep = createStep(config, {
         if (capability.status !== "available") throw new Error(`Authored rivers require ${key}: ${capability.reason}`);
       }
       // Preflight the complete plan before the first mutation; never drop a blocked channel.
+      assertAcceptedLakeFootprint(
+        context.setup.dimensions, acceptedLakeMask,
+        deps.engine.readCurrentMapWaterMask(context),
+        deps.engine.readCurrentMapTerrainTypes(context),
+        "map-rivers/plot-rivers/preflight"
+      );
       for (const write of materialized.writes) {
         const x = write.sourceCell % width;
         const y = Math.floor(write.sourceCell / width);
@@ -149,8 +157,18 @@ export const PlotRiversStep = createStep(config, {
           throw new Error(`Authored river receiver ${write.receiverCell} is blocked by native terrain.`);
         }
       }
+      for (const write of materialized.wetTransitionWrites) {
+        const x = write.sourceCell % width;
+        const y = Math.floor(write.sourceCell / width);
+        const receiverX = write.receiverCell % width;
+        const receiverY = Math.floor(write.receiverCell / width);
+        if (!deps.engine.isWater(context, x, y) || deps.engine.isWater(context, receiverX, receiverY)
+          || deps.engine.getTerrainType(context, receiverX, receiverY) === terrain.TERRAIN_MOUNTAIN) {
+          throw new Error(`Authored wet outlet ${write.sourceCell}->${write.receiverCell} is blocked by native terrain.`);
+        }
+      }
       deps.artifacts.projectedRivers.publish(materialized);
-      for (const write of materialized.writes) {
+      for (const write of [...materialized.writes, ...materialized.wetTransitionWrites]) {
         deps.engine.setRiverInfo(context, {
           x: write.sourceCell % width, y: Math.floor(write.sourceCell / width),
           direction: write.direction, riverClass: write.riverClass,
@@ -169,7 +187,7 @@ export const PlotRiversStep = createStep(config, {
       deps.engine.storeWaterData(context);
       assertAcceptedLakeFootprint(
         context.setup.dimensions,
-        deps.artifacts.projectedLakes.read().lakeMask,
+        acceptedLakeMask,
         deps.engine.readCurrentMapWaterMask(context),
         deps.engine.readCurrentMapTerrainTypes(context),
         "map-rivers/plot-rivers/post-maintenance"
@@ -179,6 +197,7 @@ export const PlotRiversStep = createStep(config, {
         type: "map.rivers.authoredNetworkMaterialization",
         model: materialized.model,
         authoredSourceCount: materialized.authoredSourceCount,
+        wetTransitionWriteCount: materialized.wetTransitionWrites.length,
         plannedMinorRiverTileCount: materialized.plannedMinorRiverTileCount,
         plannedMajorRiverTileCount: materialized.plannedMajorRiverTileCount,
         navigableTerrainMismatchCount: riverReadback.navigableRiverMismatchTileCount,

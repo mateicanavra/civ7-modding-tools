@@ -16,11 +16,11 @@ is a baseline and discriminator, not the finished solution.
 | Numeric elevation | Authored native elevation, live qualification and retained water/wonder exceptions | Preserve those guards during further changes |
 | Climate banding | Convergence/precipitation and geographic temperature corrections; cohort and native checks | Regression protection, not another climate rewrite |
 | Mountains, hills and coasts | Coherent relief, shelf repair, relief-supported landforms; old peak-chain proxy removed | Preserve relief support as terrain evolves |
-| Basin-aware lakes and rivers | Certified static drainage, budgets, footprints, dry minor/NAV authorship | Wet shoreline projection and actual traversal |
+| Basin-aware lakes and rivers | Certified static drainage, budgets, footprints, dry minor/NAV authorship; generalized wet NAV outlet declarations | Cliff-transition regime and actual traversal |
 | Time/erosion/network coherence | Same-seed causal comparisons identified weak incision and fixed preliminary routing | Final climate-fed basin network does not yet shape the terrain it drains |
 | Density and scale | Land-area denominators, map-size cohorts and independent channel-class controls | Select and qualify a gameplay density policy; no invented km-per-tile calibration |
 | Cliffs and navigation | Late cliff generation prevents observed NAV-to-MINOR demotions | Normally produced stock-unit positive control, then Swooper traversal |
-| Lake junctions at (87,31) and larger lake | Physical directions, native terrain and cliff observations; wet-write candidate | Repeat visual effect, test large-lake interior, then generalize at the projection owner |
+| Lake junctions at (87,31) and larger lake | Repeated controls; outlet-only beats unnecessary interior paths; production repair verified on normal Huge map | Cliff-ringed body69 remains visually discontinuous; distinguish native height treatment from shoreline declaration |
 | Whole-map studies and images | Reusable comparison script, 28 native frames, diagnostic PNGs, flow arrows, phone viewer | Update with final accepted implementation, not just candidate captures |
 | Domain operations / step size | Inventory completed; basin and erosion algorithms already have domain operations | Climate coupling, mountain noise and treeline computation remain extraction candidates |
 | Glossary | Functional glossary with model owners and source links | Extend only for newly introduced concepts |
@@ -64,7 +64,7 @@ serial committed implementations and a single coordinated live-game operator.
 | --- | --- | --- |
 | C0: restore execution | Native Graphite cleanup; explicit open-work accounting | Empty branch removed without commit/tree loss; no operational gate masquerades as a map defect |
 | C1: qualify wet joins | App-owned full-map probe, repeated singleton arm and body42 outlet-only versus complete wet spine | Same dry writes, heights, lake masks and finalizer; reproducible visual join improvement with unaffected controls |
-| C2: generalize projection | Definition-owned directed wet-path/outlet policy, if C1 supports it; app remains mechanical | No coordinate exceptions, no second drainage solver, preserved lake terrain, deterministic tests, multiple native witnesses |
+| C2: generalize projection | Outlet-only policy implemented and reviewed; app remains mechanical | Three held cohorts and normal-map native preservation pass; lake joins repaired, cliff-ringed body69 still requires a bounded height/cliff discriminator |
 | C3: basin evolution | Review explicit terrain/routing/incision composition using certified network and fixed existing climate forcing | Causal process metrics and integrity before default changes; final network/terrain agreement across the held cohorts |
 | C4: density and architecture | Calibrate visible minor/NAV projection after mechanisms; extract affected numerical code into domain operations | Class controls do not alter physical drainage; no arbitrary minimum lake size; focused identity-preserving extraction tests |
 | C5: close the outcome | Full study bank, fresh Huge native generation, actual movement controls, gallery refresh, independent review | Every remaining claim is either verified or an explicit bounded product decision, not an unowned future task |
@@ -75,6 +75,9 @@ mechanism fixes so density cannot conceal broken joins or ineffective erosion.
 The independently reviewed [basin evolution design](basin-evolution-design.md)
 pins the initial/final artifact migration and contributing-area semantics;
 it is not an implemented result.
+The accepted [wet outlet implementation](wet-river-continuity.md) preserves all
+physical fields and dry sources across three cohorts. Production native evidence
+separates the repaired lake joins from the remaining cliff-transition case.
 
 Refreshing strict-descent receivers between early erosion eras is not the next
 main fix: shipped Earthlike uses one era, so that change cannot alter its
@@ -96,9 +99,11 @@ Do not implement either as a purported answer to the user's current map.
 - If wet paths fail to fix the specific visual join, stop adding writes and
   compare the shoreline contract with a verified shipped lake. Do not pile
   on cliff removal, repeated finalization or a minimum lake-area threshold.
-- Movement qualification first needs a normally produced stock-map naval
-  unit that actually traverses a stock navigable river. Debug-created Galley
-  failures on stock maps are not a valid rejection oracle for Swooper.
+- Movement qualification first needs a normally produced or normally granted
+  era-appropriate stock-map naval unit that actually traverses a stock navigable
+  river. Exploration grants a Cog after ordinary Advanced Start card effects;
+  its production availability is corroboration, not a reason to wait for a new
+  ship. Debug-created Galley failures are not a valid rejection oracle for Swooper.
 - Study the actual per-process incision and published terrain change, not
   only lake counts or a net erosion correlation. Fewer lakes is not a general
   correctness criterion; genuine divides and closed basins remain valid.

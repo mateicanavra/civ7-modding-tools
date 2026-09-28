@@ -1,6 +1,6 @@
 # Native Map Controls
 
-Status: active coherence completion. Elevation, climate and relief changes are accepted; static basin/authored-river footprint and class qualification pass. Wet shoreline continuity, basin-aware terrain evolution, density calibration and actual naval traversal are not complete. See [request accounting and solution path](coherence-completion.md).
+Status: active coherence completion. Elevation, climate, relief and generalized wet NAV outlet declarations are accepted; normal-map lake joins improve with all physical/native categories held. Cliff-transition continuity, basin-aware terrain evolution, density calibration and actual naval traversal remain open. See [request accounting and solution path](coherence-completion.md).
 DRA: root. Opened: 2026-09-27.
 Opening branch: `agent-root-civ7-native-map-controls-frame`.
 

@@ -36,6 +36,7 @@ function fixture() {
         { sourceCell: 1, receiverCell: 0, direction: "WEST" as const, riverClass: "NAVIGABLE" as const },
         { sourceCell: 3, receiverCell: 2, direction: "WEST" as const, riverClass: "MINOR" as const },
       ],
+      wetTransitionWrites: [] as { bodyId: number; role: "outlet"; sourceCell: number; receiverCell: number; direction: "WEST"; riverClass: "NAVIGABLE" }[],
     } },
   } satisfies Parameters<typeof measureStandardNetworkCoherence>[0];
 }
@@ -48,7 +49,8 @@ describe("network coherence measurements", () => {
       lakeFractionOfOriginalLand: 1 / 4, bodyCount: 1, singleTileBodyCount: 1,
       ascendingHydraulicReceivers: 0, invalidDryReceivers: 0,
       minorHydraulicDrops: { min: 0, max: 0 }, majorHydraulicDrops: { min: 3, max: 3 },
-      classifiedLakeOutletCount: 1, unauthoredClassifiedWetOutletCount: 1 });
+      classifiedLakeOutletCount: 1, unauthoredClassifiedWetOutletCount: 1,
+      wetTransitionWriteCount: 0, navigableLakeOutletCount: 1, unauthoredNavigableWetOutletCount: 1 });
     expect(result.lakeOutlets[0]).toMatchObject({ bodyId: 7, floor: 1, surface: 3,
       receiverGround: 3, receiverClass: 2, classifiedInletCells: [3], wetOutletWritePresent: false });
     expect(result.majorSegmentStarts).toEqual([1]);
@@ -66,7 +68,27 @@ describe("network coherence measurements", () => {
       direction: "WEST", riverClass: "NAVIGABLE" });
     expect(measureStandardNetworkCoherence(input)?.unauthoredClassifiedWetOutletCount).toBe(1);
     input.projection.navigableRivers.writes[2]!.receiverCell = 1;
-    expect(measureStandardNetworkCoherence(input)?.unauthoredClassifiedWetOutletCount).toBe(0);
+    expect(measureStandardNetworkCoherence(input)?.unauthoredClassifiedWetOutletCount).toBe(1);
+    input.projection.navigableRivers.wetTransitionWrites.push({ bodyId: 7, role: "outlet", sourceCell: 2,
+      receiverCell: 0, direction: "WEST", riverClass: "NAVIGABLE" });
+    expect(measureStandardNetworkCoherence(input)?.unauthoredNavigableWetOutletCount).toBe(1);
+    input.projection.navigableRivers.wetTransitionWrites[0]!.receiverCell = 1;
+    expect(measureStandardNetworkCoherence(input)).toMatchObject({ unauthoredClassifiedWetOutletCount: 0,
+      wetTransitionWriteCount: 1, navigableLakeOutletCount: 1, unauthoredNavigableWetOutletCount: 0 });
+    input.projection.navigableRivers.wetTransitionWrites[0]!.bodyId = 9;
+    expect(measureStandardNetworkCoherence(input)?.unauthoredNavigableWetOutletCount).toBe(1);
+  });
+
+  it("does not count MINOR, unclassified, zero-outflow or marine regimes as missing qualified NAV outlets", () => {
+    for (const regime of ["minor", "unclassified", "zero", "marine"]) {
+      const input = fixture();
+      if (regime === "minor") input.model.riverClass[1] = 1;
+      if (regime === "unclassified") input.model.riverClass[1] = 0;
+      if (regime === "zero") input.model.physicalHydrology.bodies[0]!.outflow = 0;
+      if (regime === "marine") input.model.landMask[1] = 0;
+      expect(measureStandardNetworkCoherence(input)).toMatchObject({ navigableLakeOutletCount: 0,
+        unauthoredNavigableWetOutletCount: 0, wetTransitionWriteCount: 0 });
+    }
   });
 
   it("reports local lower-lake bypass candidates without treating them as violations", () => {
