@@ -137,6 +137,193 @@ describe("Civ7Adapter current map layers", () => {
   });
 });
 
+describe("Civ7Adapter exact elevation capabilities", () => {
+  it.each([
+    [Number.NaN, 2],
+    [1.5, 2],
+    [2, 1.5],
+    [0, 2],
+    [2, -1],
+    [Number.POSITIVE_INFINITY, 2],
+    [Number.MAX_SAFE_INTEGER + 1, 1],
+    [Number.MAX_SAFE_INTEGER, 2],
+  ])("rejects malformed dimensions %s x %s before native reads or writes", (width, height) => {
+    const setElevation = mock(() => {});
+    const getElevation = mock(() => 0);
+    (globalThis as Record<string, unknown>).TerrainBuilder = { setElevation };
+    (globalThis as Record<string, unknown>).GameplayMap = { getElevation };
+    const adapter = new Civ7AdapterCtor(width, height);
+    expect(() => adapter.setElevation([1, 2, 3])).toThrow("positive safe integer");
+    expect(() => adapter.readCurrentMapElevationSnapshot()).toThrow("positive safe integer");
+    expect(setElevation).not.toHaveBeenCalled();
+    expect(getElevation).not.toHaveBeenCalled();
+  });
+
+  it("dispatches a detached ordinary array and cliffs as separate native calls", () => {
+    const intent = Object.freeze([-0, -2.5, 0.125, 65_536.5, 3, 1.23456789012345]);
+    const calls: string[] = [];
+    let dispatched: number[] | undefined;
+    const terrainBuilder = {
+      setElevation(values: number[]) {
+        expect(this).toBe(terrainBuilder);
+        expect(Array.isArray(values)).toBe(true);
+        expect(values).not.toBe(intent);
+        expect(values).toEqual([...intent]);
+        dispatched = values;
+        calls.push("setElevation");
+      },
+      generateCliffsFromElevation() {
+        expect(this).toBe(terrainBuilder);
+        calls.push("generateCliffsFromElevation");
+      },
+      buildElevation: () => {
+        throw new Error("Stock elevation must not be invoked.");
+      },
+    };
+    (globalThis as Record<string, unknown>).TerrainBuilder = terrainBuilder;
+    const adapter = new Civ7AdapterCtor(3, 2);
+    adapter.setElevation(intent);
+    expect(calls).toEqual(["setElevation"]);
+    adapter.generateCliffsFromElevation();
+    expect(calls).toEqual(["setElevation", "generateCliffsFromElevation"]);
+    dispatched![0] = 999;
+    expect(Object.is(intent[0], -0)).toBe(true);
+  });
+
+  it.each([
+    ["short", [0]],
+    ["long", [0, 1, 2]],
+    ["sparse", new Array<number>(2)],
+    ["NaN", [0, Number.NaN]],
+    ["infinity", [0, Number.POSITIVE_INFINITY]],
+    ["negative infinity", [0, Number.NEGATIVE_INFINITY]],
+    ["non-number", [0, "1"]],
+    ["typed array", new Float64Array([0, 1])],
+  ])("rejects %s elevation intent before native mutation", (_label, invalid) => {
+    const setElevation = mock(() => {});
+    const generateCliffsFromElevation = mock(() => {});
+    (globalThis as Record<string, unknown>).TerrainBuilder = {
+      setElevation,
+      generateCliffsFromElevation,
+    };
+    const adapter = new Civ7AdapterCtor(2, 1);
+    expect(() => adapter.setElevation(invalid as readonly number[])).toThrow();
+    expect(setElevation).not.toHaveBeenCalled();
+    expect(generateCliffsFromElevation).not.toHaveBeenCalled();
+  });
+
+  it("refuses missing native writers rather than falling back to stock generation", () => {
+    const adapter = new Civ7AdapterCtor(1, 1);
+    expect(() => adapter.setElevation([0])).toThrow("setElevation is unavailable");
+    expect(() => adapter.generateCliffsFromElevation()).toThrow(
+      "generateCliffsFromElevation is unavailable"
+    );
+    const buildElevation = mock(() => {});
+    (globalThis as Record<string, unknown>).TerrainBuilder = { buildElevation };
+    expect(() => adapter.setElevation([0])).toThrow("setElevation is unavailable");
+    expect(() => adapter.generateCliffsFromElevation()).toThrow(
+      "generateCliffsFromElevation is unavailable"
+    );
+    expect(buildElevation).not.toHaveBeenCalled();
+  });
+
+  it("preserves native dispatch errors without retrying", () => {
+    const error = new Error("Native writer failed after dispatch.");
+    const setElevation = mock(() => {
+      throw error;
+    });
+    const generateCliffsFromElevation = mock(() => {
+      throw error;
+    });
+    (globalThis as Record<string, unknown>).TerrainBuilder = {
+      setElevation,
+      generateCliffsFromElevation,
+    };
+    const adapter = new Civ7AdapterCtor(1, 1);
+    expect(() => adapter.setElevation([0.5])).toThrow(error);
+    expect(setElevation).toHaveBeenCalledTimes(1);
+    expect(generateCliffsFromElevation).not.toHaveBeenCalled();
+    expect(() => adapter.generateCliffsFromElevation()).toThrow(error);
+    expect(generateCliffsFromElevation).toHaveBeenCalledTimes(1);
+  });
+
+  it("reads asymmetric row-major native numbers without truncation or aliasing", () => {
+    const values = [-0, -7.25, 0.125, 65_536.5, 0, 1.23456789012345];
+    const coordinates: number[][] = [];
+    const gameplayMap = {
+      getElevation(x: number, y: number) {
+        expect(this).toBe(gameplayMap);
+        coordinates.push([x, y]);
+        return values[y * 3 + x]!;
+      },
+    };
+    (globalThis as Record<string, unknown>).GameplayMap = gameplayMap;
+    const adapter = new Civ7AdapterCtor(3, 2);
+    const first = adapter.readCurrentMapElevationSnapshot();
+    expect(first.status).toBe("available");
+    if (first.status !== "available") throw new Error("Expected native getter readback.");
+    expect(first.source).toBe("native");
+    expect([first.width, first.height]).toEqual([3, 2]);
+    expect(first.values).toBeInstanceOf(Float64Array);
+    expect(Array.from(first.values)).toEqual(values);
+    expect(coordinates).toEqual([
+      [0, 0],
+      [1, 0],
+      [2, 0],
+      [0, 1],
+      [1, 1],
+      [2, 1],
+    ]);
+    first.values[1] = 999;
+    const second = adapter.readCurrentMapElevationSnapshot();
+    expect(second.status).toBe("available");
+    if (second.status !== "available") throw new Error("Expected native getter readback.");
+    expect(second.values).not.toBe(first.values);
+    expect(Array.from(second.values)).toEqual(values);
+    values[2] = 99;
+    expect(second.values[2]).toBe(0.125);
+  });
+
+  it("reports absent native numeric readback explicitly", () => {
+    const adapter = new Civ7AdapterCtor(3, 2);
+    const expected = {
+      source: "native",
+      width: 3,
+      height: 2,
+      status: "unavailable",
+      reason: "getter-unavailable",
+    } as const;
+    expect(adapter.readCurrentMapElevationSnapshot()).toEqual(expected);
+    (globalThis as Record<string, unknown>).GameplayMap = {};
+    expect(adapter.readCurrentMapElevationSnapshot()).toEqual(expected);
+  });
+
+  it.each([
+    ["NaN", (): number => Number.NaN, "non-finite-value"],
+    ["infinity", (): number => Number.POSITIVE_INFINITY, "non-finite-value"],
+    ["non-number", (): string => "0", "non-finite-value"],
+    [
+      "exception",
+      (): never => {
+        throw new Error("Native read failed.");
+      },
+      "read-failed",
+    ],
+  ] as const)("does not turn %s native readback into partial or zero-valued evidence", (_label, read, reason) => {
+    (globalThis as Record<string, unknown>).GameplayMap = {
+      getElevation: (x: number, y: number) => (y * 3 + x === 4 ? read() : 0.25),
+    };
+    expect(new Civ7AdapterCtor(3, 2).readCurrentMapElevationSnapshot()).toEqual({
+      source: "native",
+      width: 3,
+      height: 2,
+      status: "unavailable",
+      reason,
+      plotIndex: 4,
+    });
+  });
+});
+
 const WIDTH = 4;
 const HEIGHT = 6;
 const REDWOOD_FOOTPRINT = [9, 13, 10] as const;

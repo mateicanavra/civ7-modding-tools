@@ -58,6 +58,43 @@ const defineUncheckedStep = (definition: unknown): unknown =>
   Reflect.apply(defineStep, undefined, [definition]);
 
 describe("step testing surface", () => {
+  it("admits exact elevation capabilities without exposing stock or undeclared engine methods", () => {
+    const methods = [
+      "setElevation",
+      "generateCliffsFromElevation",
+      "readCurrentMapElevationSnapshot",
+    ] as const;
+    const step = createStep(
+      defineStep({ id: "project-exact-elevation", requires: [], provides: [], engine: methods }),
+      { run: () => {} }
+    );
+    let retainedWrite: ((context: MapContext, values: readonly number[]) => void) | undefined;
+    let retainedContext: MapContext | undefined;
+    withMapContextExecutionForTest(createSyntheticContext(), (context) => {
+      const dependencies = buildStepTestDependencies(step, context);
+      expect(Object.keys(dependencies.engine)).toEqual([...methods]);
+      expect(Object.isFrozen(dependencies.engine)).toBe(true);
+      expect(Reflect.get(dependencies.engine, "buildElevation")).toBeUndefined();
+      dependencies.engine.setElevation(context, [-0.5, 0, 0.125, 65_536.5]);
+      dependencies.engine.generateCliffsFromElevation(context);
+      expect(dependencies.engine.readCurrentMapElevationSnapshot(context)).toEqual({
+        source: "mock",
+        width: 2,
+        height: 2,
+        status: "available",
+        values: new Float64Array([-0.5, 0, 0.125, 65_536.5]),
+      });
+      retainedWrite = dependencies.engine.setElevation;
+      retainedContext = context;
+    });
+    expect(() => retainedWrite?.(retainedContext!, [0, 0, 0, 0])).toThrow(
+      "context returned by createMapContext"
+    );
+    withMapContextExecutionForTest(createSyntheticContext(), (foreignContext) => {
+      expect(() => retainedWrite?.(foreignContext, [0, 0, 0, 0])).toThrow("exact active context");
+    });
+  });
+
   it("binds only declared engine methods to the exact active step occurrence", () => {
     const engineMethods = ["readCurrentMapWaterMask"] as const;
     const engineStep = createStep(

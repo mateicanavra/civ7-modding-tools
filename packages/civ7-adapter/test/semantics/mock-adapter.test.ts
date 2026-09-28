@@ -1,5 +1,9 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it, mock } from "bun:test";
 import { NO_RIVER_TYPE, RIVER_TYPE_NAVIGABLE } from "@civ7/map-policy";
+import {
+  captureCurrentMapElevationSnapshot,
+  copyElevationIntent,
+} from "../../src/current-map-surface.js";
 
 import {
   createMockAdapter,
@@ -8,6 +12,24 @@ import {
 } from "../../src/mock-adapter.js";
 
 describe("MockAdapter", () => {
+  it.each([
+    [Number.NaN, 2],
+    [1.5, 2],
+    [2, 1.5],
+    [0, 2],
+    [2, -1],
+    [Number.POSITIVE_INFINITY, 2],
+    [Number.MAX_SAFE_INTEGER + 1, 1],
+    [Number.MAX_SAFE_INTEGER, 2],
+  ])("rejects malformed elevation dimensions %s x %s before reads", (width, height) => {
+    const read = mock(() => 0);
+    expect(() => copyElevationIntent([1, 2, 3], width, height)).toThrow("positive safe integer");
+    expect(() =>
+      captureCurrentMapElevationSnapshot({ source: "mock", width, height, read })
+    ).toThrow("positive safe integer");
+    expect(read).not.toHaveBeenCalled();
+  });
+
   it("uses the default map dimensions", () => {
     const adapter = createMockAdapter();
 
@@ -20,6 +42,89 @@ describe("MockAdapter", () => {
 
     expect(adapter.width).toBe(64);
     expect(adapter.height).toBe(40);
+  });
+
+  it("stores exact detached elevation intent and records cliffs without emulating native effects", () => {
+    const adapter = createMockAdapter({ width: 3, height: 2 });
+    const intent = [-0, -7.25, 0.125, 65_536.5, 0, 1.23456789012345];
+    const expected = [...intent];
+    const terrain = adapter.readCurrentMapTerrainTypes();
+    const water = adapter.readCurrentMapWaterMask();
+    adapter.setElevation(intent);
+    const first = adapter.readCurrentMapElevationSnapshot();
+    expect(first.status).toBe("available");
+    if (first.status !== "available") throw new Error("Expected mock elevation state.");
+    expect(first.source).toBe("mock");
+    expect([first.width, first.height]).toEqual([3, 2]);
+    expect(first.values).toBeInstanceOf(Float64Array);
+    expect(Array.from(first.values)).toEqual(expected);
+    expect(Object.is(first.values[0], -0)).toBe(true);
+    expect(adapter.getElevation(0, 1)).toBe(expected[3]);
+
+    intent[1] = 999;
+    first.values[2] = 999;
+    adapter.calls.setElevation[0]![3] = 999;
+    adapter.generateCliffsFromElevation();
+    adapter.generateCliffsFromElevation();
+    const second = adapter.readCurrentMapElevationSnapshot();
+    expect(second.status).toBe("available");
+    if (second.status !== "available") throw new Error("Expected mock elevation state.");
+    expect(second.values).not.toBe(first.values);
+    expect(Array.from(second.values)).toEqual(expected);
+    expect(adapter.calls.generateCliffsFromElevation).toBe(2);
+    expect(adapter.readCurrentMapTerrainTypes()).toEqual(terrain);
+    expect(adapter.readCurrentMapWaterMask()).toEqual(water);
+
+    adapter.reset({ defaultElevation: -0.375 });
+    expect(adapter.getElevation(0, 1)).toBe(-0.375);
+    expect(adapter.calls.setElevation).toEqual([]);
+    expect(adapter.calls.generateCliffsFromElevation).toBe(0);
+  });
+
+  it.each([
+    ["short", [0]],
+    ["long", [0, 1, 2]],
+    ["sparse", new Array<number>(2)],
+    ["NaN", [0, Number.NaN]],
+    ["infinity", [0, Number.POSITIVE_INFINITY]],
+    ["negative infinity", [0, Number.NEGATIVE_INFINITY]],
+    ["non-number", [0, "1"]],
+    ["typed array", new Float64Array([0, 1])],
+  ])("refuses %s elevation intent without changing stored state", (_label, invalid) => {
+    const adapter = createMockAdapter({ width: 2, height: 1 });
+    const before = adapter.readCurrentMapElevationSnapshot();
+    expect(() => adapter.setElevation(invalid as readonly number[])).toThrow();
+    expect(adapter.readCurrentMapElevationSnapshot()).toEqual(before);
+    expect(adapter.calls.setElevation).toEqual([]);
+  });
+
+  it("uses exact overridable numeric getters for snapshots and reports unavailable values", () => {
+    class FractionalElevationAdapter extends MockAdapter {
+      override getElevation(x: number, y: number): number {
+        return y * 3 + x + 0.125;
+      }
+    }
+    const adapter = new FractionalElevationAdapter({ width: 3, height: 2 });
+    const observed = adapter.readCurrentMapElevationSnapshot();
+    expect(observed.status).toBe("available");
+    if (observed.status !== "available") throw new Error("Expected mock elevation state.");
+    expect(Array.from(observed.values)).toEqual([0.125, 1.125, 2.125, 3.125, 4.125, 5.125]);
+
+    class UnavailableElevationAdapter extends MockAdapter {
+      override getElevation(): number {
+        return Number.NaN;
+      }
+    }
+    expect(
+      new UnavailableElevationAdapter({ width: 3, height: 2 }).readCurrentMapElevationSnapshot()
+    ).toEqual({
+      source: "mock",
+      width: 3,
+      height: 2,
+      status: "unavailable",
+      reason: "non-finite-value",
+      plotIndex: 0,
+    });
   });
 
   it("preserves resource-age policy hooks across reset", () => {

@@ -1,8 +1,10 @@
 /** Reusable contract and deterministic test double for Civ7 MapGen adapters. */
 
 export {
+  captureCurrentMapElevationSnapshot,
   captureCurrentMapLayer,
   captureCurrentRiverSurface,
+  copyElevationIntent,
   deriveRiverProjectionFromCurrentSurface,
 } from "./current-map-surface.js";
 export type {
@@ -26,6 +28,7 @@ export type { MockAdapterConfig, MockPlotEffectType } from "./mock-adapter.js";
 export { createMockAdapter, DEFAULT_PLOT_EFFECT_TYPES, MockAdapter } from "./mock-adapter.js";
 export type {
   ContinentBounds,
+  CurrentMapElevationSnapshot,
   CurrentRiverSurface,
   EngineAdapter,
   EngineAdapterMethodKey,
