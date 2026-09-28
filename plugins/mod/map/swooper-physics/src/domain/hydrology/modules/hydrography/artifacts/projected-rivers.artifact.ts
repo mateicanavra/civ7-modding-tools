@@ -1,5 +1,10 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
+const RiverDirectionSchema = Type.Union([
+  Type.Literal("EAST"), Type.Literal("NORTHEAST"), Type.Literal("NORTHWEST"),
+  Type.Literal("WEST"), Type.Literal("SOUTHWEST"), Type.Literal("SOUTHEAST"),
+]);
+
 /** Publishes Hydrology's immutable Civ7-projectable river intent for downstream map products. */
 export const artifact = defineArtifact({
   name: "projectedRivers",
@@ -138,19 +143,26 @@ export const artifact = defineArtifact({
     plannedMajorRiverMask: TypedArraySchemas.u8({ cardinality: "map-grid" }),
     plannedMinorRiverTileCount: Type.Integer({ minimum: 0 }),
     plannedMajorRiverTileCount: Type.Integer({ minimum: 0 }),
-    authoredSourceCount: Type.Integer({ minimum: 0 }),
+    authoredSourceCount: Type.Integer({ minimum: 0, description: "Dry-source write count; wet transitions are separate connectivity declarations." }),
     writes: Type.Array(Type.Object({
       sourceCell: Type.Integer({ minimum: 0 }),
       receiverCell: Type.Integer({ minimum: 0 }),
-      direction: Type.Union([
-        Type.Literal("EAST"), Type.Literal("NORTHEAST"), Type.Literal("NORTHWEST"),
-        Type.Literal("WEST"), Type.Literal("SOUTHWEST"), Type.Literal("SOUTHEAST"),
-      ]),
+      direction: RiverDirectionSchema,
       riverClass: Type.Union([Type.Literal("MINOR"), Type.Literal("NAVIGABLE")]),
     }, { additionalProperties: false })),
+    wetTransitionWrites: Type.Array(Type.Object({
+      bodyId: Type.Integer({ minimum: 1 }),
+      role: Type.Literal("outlet"),
+      sourceCell: Type.Integer({ minimum: 0 }),
+      receiverCell: Type.Integer({ minimum: 0 }),
+      direction: RiverDirectionSchema,
+      riverClass: Type.Literal("NAVIGABLE"),
+    }, { additionalProperties: false }), {
+      description: "Qualified accepted original-land lake outlets to existing dry NAV sources; neither wet river terrain intent nor navigation proof.",
+    }),
   }, {
     additionalProperties: false,
-    description: "Complete authored dry-source native river intent; lake connectivity is not a native through-lake navigation claim.",
+    description: "Complete authored dry-source river intent and separate wet outlet declarations; not a native through-lake navigation claim.",
   })]),
   refine: (value, { issues }) => {
     if (value.model !== "certified-sill-spill") return;
@@ -183,6 +195,19 @@ export const artifact = defineArtifact({
     if (value.authoredSourceCount !== value.writes.length || value.authoredSourceCount !== minorCount + majorCount ||
         value.plannedMinorRiverTileCount !== minorCount || value.plannedMajorRiverTileCount !== majorCount) {
       issues.add("Authored river counts must match complete source masks and writes.");
+    }
+    const wetSources = new Set<number>();
+    const wetBodies = new Set<number>();
+    for (const write of value.wetTransitionWrites) {
+      if (write.sourceCell >= size || write.receiverCell >= size || write.sourceCell === write.receiverCell
+        || seen[write.sourceCell] === 1 || wetSources.has(write.sourceCell) || wetBodies.has(write.bodyId)) {
+        issues.add("Wet outlet writes must have unique valid wet sources and body identities, separate from dry writes.");
+      }
+      if (seen[write.receiverCell] !== 1 || value.riverMask[write.receiverCell] !== 1) {
+        issues.add("Wet outlet receivers must already be authored dry NAV sources.");
+      }
+      wetSources.add(write.sourceCell);
+      wetBodies.add(write.bodyId);
     }
   },
 });

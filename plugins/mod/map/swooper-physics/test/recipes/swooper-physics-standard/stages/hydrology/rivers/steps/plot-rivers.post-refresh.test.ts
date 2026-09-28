@@ -113,30 +113,50 @@ class RiverCacheRefreshAdapter extends MockAdapter {
 }
 
 describe("map-rivers/plot-rivers", () => {
-  it("writes every certified class, finalizes once, then generates cliffs on restored river terrain before cache refresh", () => {
+  it("preflights complete dry/wet plans, writes only qualified outlets, and preserves finalization and maintenance order", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const source = width + 4;
     const lake = source + 2;
     const marine = source + 5;
     const terrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
-    const cases: { blocker: boolean; drift?: LakeDrift; nativeLakeClass?: boolean }[] = [{ blocker: false }, { blocker: true }, { blocker: false, nativeLakeClass: false }];
+    const cases: { blocker: boolean; drift?: LakeDrift; nativeLakeClass?: boolean; multiCell?: boolean;
+      preflightFailure?: "lake-water" | "lake-terrain" | "receiver-water" | "partial-acceptance" }[] = [
+      { blocker: false }, { blocker: true }, { blocker: false, nativeLakeClass: false },
+      { blocker: false, nativeLakeClass: false, multiCell: true },
+    ];
+    for (const preflightFailure of ["lake-water", "lake-terrain", "receiver-water", "partial-acceptance"] as const) {
+      cases.push({ blocker: false, multiCell: true, preflightFailure });
+    }
     for (const at of ["validate", "restore", "cliffs", "area", "cache"] as const) {
       for (const lost of ["water", "terrain", "lake"] as const) cases.push({ blocker: false, drift: { cell: lake, marineCell: marine, at, lost } });
     }
-    for (const { blocker, drift, nativeLakeClass = true } of cases) {
+    for (const { blocker, drift, nativeLakeClass = true, multiCell = false, preflightFailure } of cases) {
       const adapter = new RiverCacheRefreshAdapter({ width, height, mapInfo: TEST_MAP_SIZE.mapInfo, mapSizeId: TEST_MAP_SIZE.id, rng: createLabelRng(TEST_MAP_SEED) });
       const context = createMapContext({ setup: admitMapSetup({ mapSeed: TEST_MAP_SEED, dimensions: { width, height }, latitudeBounds: TEST_MAP_LATITUDE_BOUNDS }), adapter });
       for (let cell = 0; cell < size; cell++) adapter.setTerrainType(cell % width, Math.floor(cell / width), terrain.TERRAIN_FLAT);
       const landMask = new Uint8Array(size).fill(1);
       landMask[marine] = 0;
       const lakeMask = new Uint8Array(size);
-      lakeMask[lake] = 1;
-      adapter.setTerrainType(lake % width, 1, terrain.TERRAIN_COAST);
+      const wetCells = multiCell ? [lake, lake + width] : [lake];
+      for (const cell of wetCells) {
+        lakeMask[cell] = 1;
+        adapter.setTerrainType(cell % width, Math.floor(cell / width), terrain.TERRAIN_COAST);
+      }
       adapter.setTerrainType(marine % width, 1, terrain.TERRAIN_COAST);
       adapter.setTerrainType(source % width, 1, terrain.TERRAIN_HILL);
       if (blocker) adapter.setTerrainType((source + 4) % width, 1, terrain.TERRAIN_MOUNTAIN);
       adapter.stampLakes(width, height, lakeMask);
+      const acceptedLakeMask = lakeMask.slice();
+      if (preflightFailure === "partial-acceptance") acceptedLakeMask[lake + width] = 0;
+      if (preflightFailure === "lake-water" || preflightFailure === "lake-terrain") {
+        adapter.setTerrainType(lake % width, 2, preflightFailure === "lake-water" ? terrain.TERRAIN_FLAT : terrain.TERRAIN_OCEAN);
+        adapter.storeWaterData();
+      }
+      if (preflightFailure === "receiver-water") {
+        adapter.setTerrainType((lake + 1) % width, 1, terrain.TERRAIN_COAST);
+        adapter.storeWaterData();
+      }
       adapter.nativeLakeClass = nativeLakeClass;
       adapter.lakeDrift = drift;
       adapter.callOrder.length = 0;
@@ -155,18 +175,18 @@ describe("map-rivers/plot-rivers", () => {
           model: "certified-sill-spill", upstreamArea: new Int32Array(size), streamOrderProxy: new Uint8Array(size), mouthType: new Uint8Array(size), slopeClass: new Uint8Array(size), flowPermanenceProxy: new Uint8Array(size), mouthBodyId: new Int32Array(size),
         });
         publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, {
-          model: "certified-sill-spill", width, height, lakeMask, plannedLakeTileCount: 1,
+          model: "certified-sill-spill", width, height, lakeMask, plannedLakeTileCount: wetCells.length,
           bodyId: Int32Array.from(lakeMask), waterSurface: new Int16Array(size),
-          bodies: [{ nodeId: 1, wetCells: [lake], spillElevation: 0, outletCell: lake, receiverCell: lake + 1, connectorCells: [lake + 1], flux: { incomingOverflow: 1, dryRunoff: 0, wetPrecipitation: 1, wetDemand: 1, balance: 1 }, outflow: 1, floorCell: lake, floorElevation: -1 }],
+          bodies: [{ nodeId: 1, wetCells, spillElevation: 0, outletCell: lake, receiverCell: lake + 1, connectorCells: [lake + 1], flux: { incomingOverflow: 1, dryRunoff: 0, wetPrecipitation: 1, wetDemand: 1, balance: 1 }, outflow: 1, floorCell: lake, floorElevation: -1 }],
           certificates: [{ nodeId: 1, spillBalance: 1 }], marineExits: [{ fromCell: marine - 1, marineCell: marine, discharge: 1 }], conservation: { dryRunoff: 1, wetPrecipitation: 1, wetDemand: 1, externalDischarge: 1, residual: 0, roundoffBound: 0 },
         });
-        publishTestArtifact(stepContext, hydrographyArtifacts.projectedLakes, { lakeMask });
+        publishTestArtifact(stepContext, hydrographyArtifacts.projectedLakes, { lakeMask: acceptedLakeMask });
         publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, { elevation: new Int16Array(size), seaLevel: 0, landMask, bathymetry: new Int16Array(size) });
         publishTestArtifact(stepContext, morphologyShelfArtifacts.shelf, { shelfMask: Uint8Array.from(landMask, (value) => 1 - value), coastalLand: new Uint8Array(size), coastalWater: Uint8Array.from(landMask, (value) => 1 - value), distanceToCoast: new Uint16Array(size) });
         PlotRiversStep.run(stepContext, { projection: { model: "authored-network" } }, {}, buildStepTestDependencies(PlotRiversStep, stepContext));
       });
-      if (blocker) {
-        expect(run).toThrow(/blocked by native terrain/);
+      if (blocker || preflightFailure) {
+        expect(run).toThrow(/blocked by native terrain|preflight.*certified accepted|complete accepted/);
         expect(adapter.calls.setRiverInfo).toEqual([]);
         expect(adapter.calls.finalizeRivers).toEqual([]);
       } else if (drift && drift.lost !== "lake") {
@@ -184,20 +204,26 @@ describe("map-rivers/plot-rivers", () => {
         run();
         expect(adapter.calls.setRiverInfo.map(({ x, y, riverClass, direction }) => [y * width + x, riverClass, direction])).toEqual([
           [source, "MINOR", "EAST"], [source + 1, "NAVIGABLE", "EAST"], [source + 3, "NAVIGABLE", "EAST"], [source + 4, "NAVIGABLE", "EAST"],
+          [lake, "NAVIGABLE", "EAST"],
         ]);
         expect(adapter.calls.finalizeRivers).toEqual([[false, 25, 2, 2]]);
         expect(adapter.callOrder).not.toContain("modelRivers");
-        expect(adapter.callOrder).toEqual(["setRiverInfo", "setRiverInfo", "setRiverInfo", "setRiverInfo", "finalizeRivers", "validateAndFixTerrain", "generateCliffsFromElevation", "recalculateAreas", "storeWaterData"]);
+        expect(adapter.callOrder).toEqual(["setRiverInfo", "setRiverInfo", "setRiverInfo", "setRiverInfo", "setRiverInfo", "finalizeRivers", "validateAndFixTerrain", "generateCliffsFromElevation", "recalculateAreas", "storeWaterData"]);
         const projected = readArtifact(context, hydrographyArtifacts.projectedRivers);
         expect(projected.model).toBe("certified-sill-spill");
+        if (projected.model !== "certified-sill-spill") throw new Error("Expected authored projection.");
+        expect(projected.authoredSourceCount).toBe(4);
+        expect(projected.writes).toHaveLength(4);
+        expect(projected.wetTransitionWrites).toEqual([{ bodyId: 1, role: "outlet", sourceCell: lake,
+          receiverCell: lake + 1, direction: "EAST", riverClass: "NAVIGABLE" }]);
         expect(projected.nativeMinorRiverMask[source]).toBe(1);
         expect(projected.riverMask[lake]).toBe(0);
         expect(adapter.getTerrainType(lake % width, 1)).toBe(terrain.TERRAIN_COAST);
         expect(adapter.isLake(lake % width, 1)).toBe(nativeLakeClass);
       }
       expect(adapter.calls.setElevation).toEqual([]);
-      expect(adapter.calls.generateCliffsFromElevation).toBe(blocker ? 0 : 1);
-      if (!blocker) {
+      expect(adapter.calls.generateCliffsFromElevation).toBe(blocker || preflightFailure ? 0 : 1);
+      if (!blocker && !preflightFailure) {
         const cliffs = adapter.callOrder.indexOf("generateCliffsFromElevation");
         expect(cliffs).toBeGreaterThan(adapter.callOrder.indexOf("finalizeRivers"));
         expect(cliffs).toBeGreaterThan(adapter.callOrder.indexOf("validateAndFixTerrain"));
@@ -208,6 +234,7 @@ describe("map-rivers/plot-rivers", () => {
     }
     expect(PlotRiversStep.contract.engine).not.toContain("readCurrentMapElevationSnapshot");
     expect(PlotRiversStep.contract.engine).not.toContain("setElevation");
+    expect(PlotRiversStep.contract.engine).not.toContain("isLake");
   });
   it("stamps MapGen-projected navigable rivers and refreshes downstream caches", () => {
     expect(hydrographyArtifacts.projectedRivers.id).toBe(

@@ -27,9 +27,10 @@ export function measureStandardNetworkCoherence(capture: NetworkCoherenceInput) 
   const { width, height } = capture.provenance;
   const size = width * height;
   const upstreamMajorCount = new Uint16Array(size);
-  const writes = projection.navigableRivers.model === "certified-sill-spill"
-    ? new Map(projection.navigableRivers.writes.map((write) => [write.sourceCell, write]))
+  const wetTransitions = projection.navigableRivers.model === "certified-sill-spill"
+    ? projection.navigableRivers.wetTransitionWrites
     : null;
+  const wetWrites = wetTransitions === null ? null : new Map(wetTransitions.map((write) => [write.sourceCell, write]));
   let originalLand = 0, exposedLand = 0, nonMountainExposedLand = 0;
   let minorSources = 0, majorSources = 0, equalHeightDryReceivers = 0;
   let invalidDryReceivers = 0, ascendingHydraulicReceivers = 0;
@@ -91,7 +92,7 @@ export function measureStandardNetworkCoherence(capture: NetworkCoherenceInput) 
       if (model.riverClass[cell]! > 0 && receiver >= 0 && physical.bodyId[receiver] === body.nodeId)
         incoming.push(cell);
     }
-    const write = writes?.get(body.outletCell);
+    const write = wetWrites?.get(body.outletCell);
     return {
       bodyId: body.nodeId,
       wetTileCount: body.wetCells.length,
@@ -103,10 +104,13 @@ export function measureStandardNetworkCoherence(capture: NetworkCoherenceInput) 
       receiverClass: model.riverClass[body.receiverCell]!,
       outflow: body.outflow,
       classifiedInletCells: incoming,
-      wetOutletWritePresent: writes === null ? null : write?.receiverCell === body.receiverCell,
+      wetOutletWritePresent: wetWrites === null ? null : write?.receiverCell === body.receiverCell
+        && write.bodyId === body.nodeId && write.role === "outlet" && write.riverClass === "NAVIGABLE",
     };
   });
   const classifiedOutlets = lakeOutlets.filter((outlet) => outlet.receiverClass > 0);
+  const navigableOutlets = lakeOutlets.filter((outlet) => outlet.outflow > 0 && outlet.receiverClass === 2
+    && model.landMask[outlet.receiverCell] === 1 && model.plannedLakeMask[outlet.receiverCell] === 0);
   return {
     units: "Tile counts and model elevation units; not km, metres, m3/s or native movement proof.",
     originalLand, exposedLand, nonMountainExposedLand,
@@ -123,7 +127,11 @@ export function measureStandardNetworkCoherence(capture: NetworkCoherenceInput) 
     equalHeightDryReceivers, invalidDryReceivers, ascendingHydraulicReceivers,
     majorSegmentStarts, lakeOutlets, lowerAdjacentLakeBypasses,
     classifiedLakeOutletCount: classifiedOutlets.length,
-    unauthoredClassifiedWetOutletCount: writes === null ? null
+    unauthoredClassifiedWetOutletCount: wetWrites === null ? null
       : classifiedOutlets.filter((outlet) => !outlet.wetOutletWritePresent).length,
+    wetTransitionWriteCount: wetTransitions?.length ?? null,
+    navigableLakeOutletCount: navigableOutlets.length,
+    unauthoredNavigableWetOutletCount: wetWrites === null ? null
+      : navigableOutlets.filter((outlet) => !outlet.wetOutletWritePresent).length,
   };
 }

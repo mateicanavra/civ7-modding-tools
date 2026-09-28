@@ -53,6 +53,7 @@ describe("Hydrology projected-rivers artifact", () => {
         { sourceCell: 1, receiverCell: 2, direction: "EAST" as const, riverClass: "MINOR" as const },
         { sourceCell: 2, receiverCell: 3, direction: "EAST" as const, riverClass: "NAVIGABLE" as const },
       ],
+      wetTransitionWrites: [],
     };
     const validate = (value: unknown) => hydrographyArtifacts.projectedRivers.validate(value, { dimensions: TEST_DIMENSIONS });
     expect(validate(valid)).toEqual([]);
@@ -60,6 +61,20 @@ describe("Hydrology projected-rivers artifact", () => {
     expect(validate({ ...valid, writes: [valid.writes[0], valid.writes[0]] }).length).toBeGreaterThan(0);
     expect(validate({ ...valid, nativeMinorRiverMask: new Uint8Array(TEST_CARDINALITY) }).length).toBeGreaterThan(0);
     expect(validate({ ...valid, targetTileCount: 2 }).length).toBeGreaterThan(0);
+    const wet = { bodyId: 7, role: "outlet", sourceCell: 3, receiverCell: 2, direction: "WEST", riverClass: "NAVIGABLE" };
+    expect(validate({ ...valid, wetTransitionWrites: [wet] })).toEqual([]);
+    for (const invalid of [
+      [wet, wet],
+      [wet, { ...wet, sourceCell: 4 }],
+      [{ ...wet, sourceCell: 2 }],
+      [{ ...wet, receiverCell: 1 }],
+      [{ ...wet, sourceCell: TEST_CARDINALITY }],
+      [{ ...wet, receiverCell: TEST_CARDINALITY }],
+      [{ ...wet, receiverCell: 3 }],
+      [{ ...wet, bodyId: 0 }],
+      [{ ...wet, riverClass: "MINOR" }],
+      [{ ...wet, role: "inlet" }],
+    ]) expect(validate({ ...valid, wetTransitionWrites: invalid }).length).toBeGreaterThan(0);
   });
   it("couples chain-length cardinality to chain count rather than map size", () => {
     const valid = projectedNavigableRiverPayload(new Uint16Array([2]));

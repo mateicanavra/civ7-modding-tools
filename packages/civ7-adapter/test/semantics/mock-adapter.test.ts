@@ -406,6 +406,32 @@ describe("MockAdapter explicit river intent (not native proof)", () => {
     expect(adapter.getTerrainType(1, 1)).toBe(navigable);
   });
 
+  it("records wet directions without projecting dry river terrain or classes onto water", () => {
+    const adapter = createMockAdapter({ width: 4, height: 3 });
+    const coast = adapter.getTerrainTypeIndex("TERRAIN_COAST");
+    const ocean = adapter.getTerrainTypeIndex("TERRAIN_OCEAN");
+    adapter.setTerrainType(0, 1, coast);
+    adapter.setTerrainType(1, 1, ocean);
+    adapter.setElevation(Array(12).fill(25));
+    for (let x = 0; x < 3; x++)
+      adapter.setRiverInfo({ x, y: 1, direction: "EAST", riverClass: "NAVIGABLE" });
+
+    adapter.finalizeRivers([false, 25, 2, 2]);
+    adapter.storeWaterData();
+
+    expect(adapter.calls.setRiverInfo).toHaveLength(3);
+    expect(adapter.getTerrainType(0, 1)).toBe(coast);
+    expect(adapter.getTerrainType(1, 1)).toBe(ocean);
+    for (let x = 0; x < 2; x++) {
+      expect(adapter.isWater(x, 1)).toBe(true);
+      expect(adapter.getRiverType(x, 1)).toBe(NO_RIVER_TYPE);
+      expect(adapter.isRiver(x, 1)).toBe(false);
+      expect(adapter.getElevation(x, 1)).toBe(25);
+    }
+    expect(adapter.getRiverType(2, 1)).toBe(RIVER_TYPE_NAVIGABLE);
+    expect(adapter.getTerrainType(2, 1)).toBe(adapter.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER"));
+  });
+
   it("supports all geographic symbols without inventing receiver, slope or ocean connectivity", () => {
     const adapter = createMockAdapter({ width: 8, height: 3 });
     const symbols: RiverDirection[] = [

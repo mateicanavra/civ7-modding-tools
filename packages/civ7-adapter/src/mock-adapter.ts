@@ -1061,6 +1061,8 @@ export class MockAdapter implements EngineAdapter {
     this.calls.finalizeRivers.push(Object.freeze([args[0], args[1], args[2], args[3]] as const));
     // Declared intent only: no drainage, slope, class demotion, or ocean-connectivity simulation.
     for (const [plotIndex, intent] of this.riverWriteIntents) {
+      // Wet direction declarations do not turn water into dry river terrain.
+      if (this.isWater(intent.x, intent.y)) continue;
       this.riverMask[plotIndex] = 1;
       this.riverTypes[plotIndex] = intent.riverClass === "MINOR" ? MOCK_RIVER_MINOR : MOCK_RIVER_NAVIGABLE;
       if (intent.riverClass === "NAVIGABLE")

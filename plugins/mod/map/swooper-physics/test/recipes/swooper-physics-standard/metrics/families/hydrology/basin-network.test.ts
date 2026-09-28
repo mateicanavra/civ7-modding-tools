@@ -75,6 +75,7 @@ function capture() {
       navigableRivers: {
         model: "certified-sill-spill" as const,
         authoredSourceCount: 1,
+        wetTransitionWrites: [],
         plannedMinorRiverTileCount: 0,
         plannedMajorRiverTileCount: 1,
         writes: [
