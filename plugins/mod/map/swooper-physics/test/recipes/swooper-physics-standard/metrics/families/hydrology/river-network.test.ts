@@ -12,6 +12,7 @@ import {
   HYDROLOGY_MOUTH_CLOSED_BASIN,
   HYDROLOGY_MOUTH_OCEAN,
   HYDROLOGY_MOUTH_SPILL_PATH,
+  HYDROLOGY_MOUTH_UNRESOLVED,
 } from "../../../../../../src/domain/hydrology/modules/hydrography/model/policy/river-network-classification.js";
 import {
   measureStandardRiverNetwork,
@@ -21,6 +22,7 @@ import {
 describe("Standard river-network measurements", () => {
   it("projects river hierarchy, permanence, and accepted-lake terminal shares", () => {
     const input = {
+      model: "legacy-sink-budget",
       width: 3,
       height: 2,
       landMask: new Uint8Array(6).fill(1),
@@ -68,6 +70,7 @@ describe("Standard river-network measurements", () => {
       riverEphemeralTileCount: 2,
       riverIntermittentTileCount: 2,
       acceptedLakeMouthTileCount: 6,
+      mouthSourceTileCount: 6,
       resolvedMouthTileCount: 6,
       assignedBasinLandTileCount: 6,
       invalidReceiverTileCount: 0,
@@ -87,6 +90,7 @@ describe("Standard river-network measurements", () => {
 
   it("projects spill-routed paths separately from direct ocean mouths", () => {
     const measurements = measureStandardRiverNetwork({
+      model: "legacy-sink-budget",
       width: 6,
       height: 1,
       landMask: new Uint8Array([1, 1, 1, 1, 1, 0]),
@@ -144,6 +148,7 @@ describe("Standard river-network measurements", () => {
 
   it("surfaces routing and basin health counters from fixed evidence", () => {
     const measurements = measureStandardRiverNetwork({
+      model: "legacy-sink-budget",
       width: 3,
       height: 1,
       landMask: new Uint8Array(3).fill(1),
@@ -175,5 +180,52 @@ describe("Standard river-network measurements", () => {
       riverPerennialTileCount: 1,
     });
     expect(measurements.nonPerennialRiverShareOfRiverTiles).toBe(0.5);
+  });
+
+  it("does not compare wet connectivity sentinels as allocated body discharge", () => {
+    const measurements = measureStandardRiverNetwork({
+      model: "certified-sill-spill",
+      width: 4,
+      height: 1,
+      landMask: new Uint8Array([1, 1, 1, 0]),
+      discharge: [5, 0, 3, 0],
+      riverClass: new Uint8Array([RIVER_CLASS_MAJOR, 0, RIVER_CLASS_MINOR, 0]),
+      flowDir: new Int32Array([1, 2, 3, -1]),
+      basinId: new Int32Array([3, 3, 3, -1]),
+      lakeMask: new Uint8Array([0, 1, 0, 0]),
+      upstreamArea: new Int32Array([1, 2, 3, 0]),
+      streamOrderProxy: new Uint8Array([1, 1, 1, 0]),
+      mouthType: new Uint8Array([HYDROLOGY_MOUTH_ACCEPTED_LAKE, HYDROLOGY_MOUTH_UNRESOLVED, HYDROLOGY_MOUTH_OCEAN, 0]),
+      flowPermanenceProxy: new Uint8Array([HYDROLOGY_FLOW_PERENNIAL, HYDROLOGY_FLOW_DRY, HYDROLOGY_FLOW_INTERMITTENT, HYDROLOGY_FLOW_DRY]),
+    });
+    expect(measurements.model).toBe("certified-sill-spill");
+    expect(measurements.downstreamDischargeDropEdgeCount).toBe(0);
+    expect(measurements.lakeConnectedTerminalDischargeShare).toBe(5 / 8);
+    expect(measurements.lakeTileCount).toBe(1);
+    expect(measurements.mouthSourceTileCount).toBe(2);
+    expect(measurements.resolvedMouthTileCount).toBe(2);
+    expect(measurements.unresolvedMouthTileCount).toBe(0);
+    expect(measurements.assignedBasinLandTileCount).toBe(3);
+  });
+
+  it("still reports unresolved dry sources next to certified wet bodies", () => {
+    const measurements = measureStandardRiverNetwork({
+      model: "certified-sill-spill",
+      width: 2,
+      height: 1,
+      landMask: new Uint8Array([1, 1]),
+      discharge: [5, 0],
+      riverClass: new Uint8Array([RIVER_CLASS_MINOR, 0]),
+      flowDir: new Int32Array([1, -1]),
+      basinId: new Int32Array([1, 1]),
+      lakeMask: new Uint8Array([0, 1]),
+      upstreamArea: new Int32Array([1, 2]),
+      streamOrderProxy: new Uint8Array([1, 1]),
+      mouthType: new Uint8Array(2).fill(HYDROLOGY_MOUTH_UNRESOLVED),
+      flowPermanenceProxy: new Uint8Array([HYDROLOGY_FLOW_PERENNIAL, HYDROLOGY_FLOW_DRY]),
+    });
+    expect(measurements.mouthSourceTileCount).toBe(1);
+    expect(measurements.resolvedMouthTileCount).toBe(0);
+    expect(measurements.unresolvedMouthTileCount).toBe(1);
   });
 });

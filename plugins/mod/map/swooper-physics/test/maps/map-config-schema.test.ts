@@ -160,4 +160,30 @@ describe("Shipped map configs", () => {
       expect(Object.keys(compiled).length, canonicalConfig.id).toBeGreaterThan(0);
     }
   });
+
+  it("rejects mismatched physical-water and native-river selections", async () => {
+    const configs = await loadSwooperMapConfigRegistry();
+    const earthlike = configs.find((entry) => entry.canonicalConfig.id === "swooper-earthlike")!;
+    const legacy = configs.find((entry) => entry.canonicalConfig.id === "latest-juicy")!;
+    for (const [physical, projection] of [[earthlike, legacy], [legacy, earthlike]]) {
+      const raw = structuredClone(physical!.canonicalConfig);
+      const config = { ...raw.config, "map-rivers": projection!.canonicalConfig.config["map-rivers"] };
+      expect(() => admitStandardMapConfig({ ...raw, config })).toThrow(
+        "water model and river projection must select the same physical path"
+      );
+    }
+  });
+
+  it("rejects obsolete sink-budget controls on certified water", async () => {
+    const configs = await loadSwooperMapConfigRegistry();
+    const raw = structuredClone(configs.find((entry) => entry.canonicalConfig.id === "swooper-earthlike")!.canonicalConfig);
+    const stage = raw.config["hydrology-hydrography"];
+    if (!stage || typeof stage !== "object" || !("water" in stage)) throw new Error("Missing water selection");
+    const water = stage.water;
+    if (!water || typeof water !== "object") throw new Error("Missing certified water");
+    expect(() => admitStandardMapConfig({
+      ...raw,
+      config: { ...raw.config, "hydrology-hydrography": { ...stage, water: { ...water, lakeiness: "many" } } },
+    })).toThrow();
+  });
 });

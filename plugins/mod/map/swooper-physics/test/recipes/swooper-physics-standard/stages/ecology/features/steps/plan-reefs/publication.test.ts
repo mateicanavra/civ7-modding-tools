@@ -50,6 +50,7 @@ describe("ecology-features plan-reefs step", () => {
       publishTestArtifact(stepContext, featureArtifacts.floodplainIntents, []);
       publishTestArtifact(stepContext, featureArtifacts.iceIntents, []);
       publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, {
+        model: "legacy-sink-budget",
         width,
         height,
         lakeMask: new Uint8Array(size),
@@ -105,6 +106,7 @@ describe("ecology-features plan-reefs step", () => {
         ]);
         publishTestArtifact(stepContext, featureArtifacts.iceIntents, []);
         publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, {
+          model: "legacy-sink-budget",
           width,
           height,
           lakeMask: new Uint8Array(size),

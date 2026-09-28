@@ -1,3 +1,4 @@
+import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { encodeBoundedJsonLogLines } from "@swooper/mapgen-core/lib/log";
 import type { VizProjection } from "@swooper/mapgen-viz";
@@ -8,6 +9,7 @@ import {
 } from "../../../../../metrics/families/elevation-projection.js";
 import { defineStandardVizMeta } from "../../../../../viz.js";
 import {
+  assertAcceptedLakeFootprint,
   assertWaterDriftWithinPolicy,
   landMaskFromWaterMask,
 } from "../../../../../water-surface-parity.js";
@@ -24,6 +26,7 @@ export const BuildElevationStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
     const topography = deps.artifacts.topography.read();
     const projectedLakes = deps.artifacts.projectedLakes.read();
+    const certifiedLakes = deps.artifacts.lakePlan.read().model === "certified-sill-spill";
     const { width, height } = context.setup.dimensions;
 
     const expectedLandMask = Uint8Array.from(topography.landMask);
@@ -31,6 +34,12 @@ export const BuildElevationStep = createStep(config, {
       if (projectedLakes.lakeMask[index] === 1) expectedLandMask[index] = 0;
     }
     const projectedWaterMask = deps.engine.readCurrentMapWaterMask(context);
+    if (certifiedLakes) {
+      assertAcceptedLakeFootprint(
+        context.setup.dimensions, projectedLakes.lakeMask, projectedWaterMask,
+        deps.engine.readCurrentMapTerrainTypes(context), "map-elevation/build-elevation/pre-build"
+      );
+    }
     assertWaterDriftWithinPolicy(
       context.setup.dimensions,
       context.trace,
@@ -45,20 +54,32 @@ export const BuildElevationStep = createStep(config, {
       seaLevel: topography.seaLevel,
       acceptedLakeMask: projectedLakes.lakeMask,
     });
-    // Cliff generation consumes the explicit numeric write; stock buildElevation must not
-    // overwrite it. Native accepted-lake leveling is measured separately from other drift.
+    // Legacy cliffs consume this numeric write here. Certified cliffs wait for finalized
+    // NAV terrain in PlotRivers; neither path calls stock buildElevation over authored heights.
     deps.engine.recalculateAreas(context);
     const beforeWaterMask = deps.engine.readCurrentMapWaterMask(context);
     const beforeLakeMask = deps.engine.readCurrentMapLakeMask(context);
     const beforeTerrain = deps.engine.readCurrentMapTerrainTypes(context);
+    if (certifiedLakes) {
+      assertAcceptedLakeFootprint(
+        context.setup.dimensions, projectedLakes.lakeMask, beforeWaterMask, beforeTerrain,
+        "map-elevation/build-elevation/pre-write-area"
+      );
+    }
     deps.engine.setElevation(context, intended);
-    deps.engine.generateCliffsFromElevation(context);
+    if (!certifiedLakes) deps.engine.generateCliffsFromElevation(context);
     deps.engine.recalculateAreas(context);
 
     const snapshot = deps.engine.readCurrentMapElevationSnapshot(context);
     const engineWaterMask = deps.engine.readCurrentMapWaterMask(context);
     const engineLakeMask = deps.engine.readCurrentMapLakeMask(context);
     const engineTerrain = deps.engine.readCurrentMapTerrainTypes(context);
+    if (certifiedLakes) {
+      assertAcceptedLakeFootprint(
+        context.setup.dimensions, projectedLakes.lakeMask, engineWaterMask, engineTerrain,
+        "map-elevation/build-elevation/post-build"
+      );
+    }
     if (snapshot.width !== width || snapshot.height !== height) {
       throw new Error("Elevation projection readback dimensions differ from the current map.");
     }
@@ -68,6 +89,11 @@ export const BuildElevationStep = createStep(config, {
       snapshot,
       acceptedLakeMask: projectedLakes.lakeMask,
       observedLakeMask: engineLakeMask,
+      observedSurface: {
+        waterMask: engineWaterMask,
+        terrain: engineTerrain,
+        coastTerrain: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST,
+      },
     });
     if (snapshot.source === "native" && snapshot.status === "available") {
       for (const line of encodeBoundedJsonLogLines({
@@ -79,6 +105,7 @@ export const BuildElevationStep = createStep(config, {
           intended,
           observed: Array.from(snapshot.values),
           acceptedLakeMask: Array.from(projectedLakes.lakeMask),
+          observedLakeMask: Array.from(engineLakeMask),
           measurements: elevationProjection,
         },
       }))
@@ -95,18 +122,29 @@ export const BuildElevationStep = createStep(config, {
       );
     }
     for (let plotIndex = 0; plotIndex < intended.length; plotIndex += 1) {
-      if (
-        intended[plotIndex] === snapshot.values[plotIndex] ||
-        projectedLakes.lakeMask[plotIndex] === 1 ||
-        engineLakeMask[plotIndex] !== 1
-      )
+      if (intended[plotIndex] === snapshot.values[plotIndex]) continue;
+      // Accepted inland water may be native lake or coast water. The immutable footprint
+      // alone grants no exception: require stable local water, COAST and native class.
+      if (projectedLakes.lakeMask[plotIndex] === 1) {
+        if (
+          topography.landMask[plotIndex] !== 1 ||
+          beforeWaterMask[plotIndex] !== 1 || engineWaterMask[plotIndex] !== 1 ||
+          beforeTerrain[plotIndex] !== CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST ||
+          engineTerrain[plotIndex] !== CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST ||
+          beforeLakeMask[plotIndex] !== engineLakeMask[plotIndex]
+        ) {
+          throw new Error(
+            `Elevation projection has an unqualified accepted inland-water numeric mismatch at plot ${plotIndex} after writing.`
+          );
+        }
         continue;
-      // Native classification alone grants no exception: only already-water physical
-      // plots with stable lake/water/terrain evidence qualify for native lake leveling.
+      }
+      // Outside that footprint, only preexisting native lakes on original water qualify.
       if (
         topography.landMask[plotIndex] !== 0 ||
         beforeWaterMask[plotIndex] !== 1 ||
         beforeLakeMask[plotIndex] !== 1 ||
+        engineLakeMask[plotIndex] !== 1 ||
         engineWaterMask[plotIndex] !== 1 ||
         beforeTerrain[plotIndex] !== engineTerrain[plotIndex]
       ) {

@@ -1,6 +1,7 @@
 import ecology from "../../../../../../../domain/ecology/index.js";
 import { artifacts as pedologyArtifacts } from "../../../../../../../domain/ecology/modules/pedology/artifacts/index.js";
 import { artifacts as climateArtifacts } from "../../../../../../../domain/hydrology/modules/climate/artifacts/index.js";
+import { artifacts as hydrographyArtifacts } from "../../../../../../../domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyErosionArtifacts } from "../../../../../../../domain/morphology/modules/erosion/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
@@ -17,6 +18,7 @@ export const config = defineStep({
     morphologyLandformsArtifacts.topography,
     morphologyErosionArtifacts.substrate,
     climateArtifacts.climateField,
+    hydrographyArtifacts.lakePlan,
   ],
   provides: [pedologyArtifacts.pedology],
 

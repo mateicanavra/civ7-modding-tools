@@ -1,7 +1,9 @@
 # Elevation Lane
 
-Status: elevation-first acceptance passes for the tested native setup, with every
-late height change attributed. River integration remains a separate lane.
+Status: historical elevation-first acceptance passes for its tested native
+setup, with every late height change attributed. The current basin/authored-river
+integration extends accepted inland-water qualification; see
+[the integration boundary](basin-integration.md#native-water-category-boundary).
 
 ## Outcome And Boundary
 
@@ -14,10 +16,11 @@ Swooper definition. Native writer: the realization app's map-script adapter.
 Portable contract/mock: `packages/civ7-adapter`. Core only admits the new exact
 step capabilities; it gains no Civ7 conversion policy.
 
-The user authorized elevation-first completion on 2026-09-27. River writing
-remains a separate subsequent slice; the existing river pass is a downstream
-preservation guard. Removing its obsolete automatic river-naming call is a
-current-source compatibility repair, not new river authorship.
+The user authorized elevation-first completion on 2026-09-27. The initial
+expectations and receipts below concern that slice, when the procedural river
+pass was a downstream preservation guard. Removing its obsolete automatic
+river-naming call was a current-source compatibility repair, not new river
+authorship. Later production integration is recorded in the linked packet.
 
 ## Elevation-First Expectations
 
@@ -102,14 +105,21 @@ writes and models only known semantics. Unsupported behavior stays observable.
 Separate physics height, projected native intent, immediate observation, and
 final observation in metrics and visualization.
 
-Accepted lakes remain native-leveled. Submit their physical projected heights
-and keep that authored mask distinct from current native lake classification.
-Measurements partition every numeric mismatch into accepted-lake adjustments,
-unplanned native-lake mismatches, and other mismatches; raw errors remain intact.
-Observed lake classification is evidence, not permission: post-write continuation
-for an unplanned lake requires physical water, native water and lake before and
-after writing/cliffs, and unchanged terrain. Other numeric mismatches still
-refuse. Final classification describes current evidence only, not preservation.
+Accepted inland water remains native-leveled. Submit physical projected ground
+heights and keep that authored footprint distinct from native lake classification
+and physical spill height. Measurements partition every numeric mismatch into
+accepted native-lake adjustments, accepted inland-COAST adjustments, unplanned
+native-lake mismatches, and other mismatches; raw errors remain intact.
+An accepted adjustment requires original physical land plus stable local native
+water, COAST terrain and category before/after the write. The separate unplanned
+lake exception requires original physical water, native water and lake before
+and after the immediate write maintenance, and unchanged terrain. Legacy cliffs
+occur before this admission read; certified late-cliff qualification occurs
+after river finalization and does not redefine immediate numeric admission.
+Ordinary land and ocean
+mismatches still refuse. Final classification describes current evidence only,
+not preservation. Uniform water levels are observations, not an inferred native
+formula or a newly enforced flat-body constraint.
 Compare post-write and final native arrays outside the generator. Do not
 reproduce native lake leveling or feed readback into physical truth.
 

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "bun:test";
-import { type CurrentMapElevationSnapshot, MockAdapter } from "@civ7/adapter";
+import {
+  type CurrentMapElevationSnapshot,
+  MockAdapter,
+  type RiverFinalizationArgs,
+  type RiverWriteIntent,
+} from "@civ7/adapter";
 import { getCiv7StandardMapSizePreset } from "@civ7/map-policy";
 import { artifacts as placementStartArtifacts } from "../../../src/domain/placement/modules/starts/artifacts/index.js";
 import { artifacts as resourceDemandArtifacts } from "../../../src/domain/resources/modules/demand/artifacts/index.js";
@@ -8,6 +13,8 @@ import { artifacts as resourceSupportArtifacts } from "../../../src/domain/resou
 import { deriveStepSeed } from "@swooper/mapgen-core";
 import { readArtifact } from "@swooper/mapgen-core/authoring";
 import { Value } from "typebox/value";
+import { admitStandardMapConfig } from "../../../src/maps/configs/canonical.js";
+import mountainPatchConfigRaw from "../../../src/maps/configs/mountain-patch.config.json";
 
 import {
   STANDARD_NATURAL_WONDER_PLACEMENT_METRIC_KEY,
@@ -29,7 +36,10 @@ import {
 } from "../../../src/recipes/standard/metrics/families/elevation-projection.js";
 
 describe("Standard recipe generation", () => {
-  it("uses one explicit elevation write before cliffs and preserves mock-only terminal numeric evidence", () => {
+  it.each([
+    { model: "certified-sill-spill", mapConfig: standardMapConfig },
+    { model: "legacy-sink-budget", mapConfig: admitStandardMapConfig(mountainPatchConfigRaw) },
+  ])("uses one explicit elevation write with $model cliff ordering and mock-only terminal numeric evidence", ({ model, mapConfig }) => {
     class ExplicitElevationRecipeAdapter extends MockAdapter {
       readonly elevationEvents: string[] = [];
       buildElevation(): void {
@@ -43,6 +53,18 @@ describe("Standard recipe generation", () => {
         this.elevationEvents.push("generateCliffsFromElevation");
         super.generateCliffsFromElevation();
       }
+      override setRiverInfo(intent: RiverWriteIntent): void {
+        this.elevationEvents.push("setRiverInfo");
+        super.setRiverInfo(intent);
+      }
+      override finalizeRivers(args: RiverFinalizationArgs): void {
+        this.elevationEvents.push("finalizeRivers");
+        super.finalizeRivers(args);
+      }
+      override modelRivers(minLength: number, maxLength: number, navigableTerrain: number): void {
+        this.elevationEvents.push("modelRivers");
+        super.modelRivers(minLength, maxLength, navigableTerrain);
+      }
       override readCurrentMapElevationSnapshot(): CurrentMapElevationSnapshot {
         this.elevationEvents.push("readCurrentMapElevationSnapshot");
         return super.readCurrentMapElevationSnapshot();
@@ -51,6 +73,7 @@ describe("Standard recipe generation", () => {
     const measured = new Map<string, StandardElevationProjectionMeasurements>();
     let metricFailure: unknown;
     const { adapter } = runStandardRecipeTestMap({
+      mapConfig,
       createAdapter: ({ preset, mapInfo, mapSeed, aliveMajorPlayerIds, plotEffectTypes }) =>
         new ExplicitElevationRecipeAdapter({
           ...preset.dimensions,
@@ -83,11 +106,35 @@ describe("Standard recipe generation", () => {
     if (metricFailure !== undefined) throw metricFailure;
     expect(adapter.calls.setElevation.length).toBe(1);
     expect(adapter.calls.generateCliffsFromElevation).toBe(1);
-    expect(adapter.elevationEvents.slice(0, 3)).toEqual([
-      "setElevation",
-      "generateCliffsFromElevation",
-      "readCurrentMapElevationSnapshot",
-    ]);
+    if (model === "certified-sill-spill") {
+      expect(adapter.elevationEvents.slice(0, 2)).toEqual([
+        "setElevation",
+        "readCurrentMapElevationSnapshot",
+      ]);
+      expect(adapter.calls.setRiverInfo.length).toBeGreaterThan(0);
+      expect(adapter.calls.finalizeRivers).toEqual([[false, 25, 2, 2]]);
+      expect(adapter.elevationEvents).not.toContain("modelRivers");
+      expect(adapter.elevationEvents.indexOf("setRiverInfo")).toBeGreaterThan(1);
+      expect(adapter.elevationEvents.lastIndexOf("setRiverInfo")).toBeLessThan(
+        adapter.elevationEvents.indexOf("finalizeRivers")
+      );
+      expect(adapter.elevationEvents.indexOf("generateCliffsFromElevation")).toBeGreaterThan(
+        adapter.elevationEvents.indexOf("finalizeRivers")
+      );
+    } else {
+      expect(adapter.elevationEvents.slice(0, 3)).toEqual([
+        "setElevation",
+        "generateCliffsFromElevation",
+        "readCurrentMapElevationSnapshot",
+      ]);
+      expect(adapter.calls.setRiverInfo).toEqual([]);
+      expect(adapter.calls.finalizeRivers).toEqual([]);
+      expect(adapter.elevationEvents.filter((event) => event === "modelRivers")).toHaveLength(1);
+      expect(adapter.elevationEvents.indexOf("modelRivers")).toBeGreaterThan(2);
+    }
+    expect(adapter.elevationEvents.lastIndexOf("readCurrentMapElevationSnapshot")).toBeGreaterThan(
+      adapter.elevationEvents.indexOf("generateCliffsFromElevation")
+    );
     for (const key of [
       STANDARD_ELEVATION_POST_WRITE_METRIC_KEY,
       STANDARD_ELEVATION_FINAL_METRIC_KEY,

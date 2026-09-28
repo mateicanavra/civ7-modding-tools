@@ -8,6 +8,16 @@ import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing
 import { TEST_MAP_SIZE } from "../../../../../setup.js";
 
 describe("ecology feature substrate", () => {
+  it("does not invent sink substrate when certified inputs omit legacy sink evidence", () => {
+    const input = { width: 5, height: 5, riverClass: new Uint8Array(25), navigableRiverMask: new Uint8Array(25), landMask: new Uint8Array(25).fill(1), elevation: new Int16Array(25).fill(10), seaLevel: 0, discharge: Array<number>(25).fill(0) };
+    const selection = normalizeOperationSelectionForTest(ecology.features.ops.computeFeatureSubstrate, ecology.features.ops.computeFeatureSubstrate.defaultConfig);
+    const without = ecology.features.ops.computeFeatureSubstrate.run(input, selection);
+    const sinkMask = new Uint8Array(25);
+    sinkMask[12] = 1;
+    const legacy = ecology.features.ops.computeFeatureSubstrate.run({ ...input, sinkMask }, selection);
+    expect(without.sinkBasinMask[12]).toBe(0);
+    expect(legacy.sinkBasinMask[12]).toBe(1);
+  });
   it("separates minor river adjacency from projected navigable terrain", () => {
     const syntheticDimensions = { width: 3, height: 3 } as const;
     const { width, height } = syntheticDimensions;
@@ -30,7 +40,7 @@ describe("ecology feature substrate", () => {
         landMask: new Uint8Array(size).fill(1),
         elevation: new Int16Array(size).fill(40),
         seaLevel: 0,
-        discharge: new Float32Array(size).fill(100),
+        discharge: Array<number>(size).fill(100),
         sinkMask: new Uint8Array(size),
       },
       selection
@@ -67,7 +77,7 @@ describe("ecology feature substrate", () => {
         landMask: new Uint8Array(size).fill(1),
         elevation: new Int16Array(size).fill(24),
         seaLevel: 0,
-        discharge: new Float32Array(size).fill(8),
+        discharge: Array<number>(size).fill(8),
         sinkMask: new Uint8Array(size),
       },
       selection
@@ -82,7 +92,7 @@ describe("ecology feature substrate", () => {
     const riverIndex = Math.floor(height / 2) * width + Math.floor(width / 2);
     const riverClass = new Uint8Array(size);
     const navigableRiverMask = new Uint8Array(size);
-    const discharge = new Float32Array(size);
+    const discharge = Array<number>(size).fill(0);
     riverClass[riverIndex] = RIVER_CLASS_MAJOR;
     navigableRiverMask[riverIndex] = 1;
     discharge[riverIndex] = 160;

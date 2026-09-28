@@ -1,7 +1,8 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Publishes the exact lake mask accepted at Hydrology's Civ7 projection boundary.
+ * Publishes the physical inland-water mask accepted at Hydrology's Civ7 boundary.
+ * Native isLake classification is separate and can exclude larger water bodies.
  * The mask is immutable continuity evidence, not a retained engine snapshot.
  */
 export const artifact = defineArtifact({
@@ -12,7 +13,7 @@ export const artifact = defineArtifact({
       lakeMask: TypedArraySchemas.u8({
         cardinality: "map-grid",
         description:
-          "Mountain-filtered Hydrology lake candidates accepted as water immediately after Civ7 stamping.",
+          "Accepted inland-water footprint: legacy filtered candidates or the complete certified physical footprint; not a claim that every cell has native isLake classification.",
       }),
     },
     {

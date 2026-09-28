@@ -5,6 +5,7 @@ import { artifacts as pedologyArtifacts } from "../../../../../../../../src/doma
 import ecology from "../../../../../../../../src/domain/ecology/router.js";
 import { artifacts as climateArtifacts } from "../../../../../../../../src/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as cryosphereArtifacts } from "../../../../../../../../src/domain/hydrology/modules/cryosphere/artifacts/index.js";
+import { artifacts as hydrographyArtifacts } from "../../../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readArtifact } from "@swooper/mapgen-core/authoring";
@@ -15,6 +16,7 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { BiomesStep as biomesStep } from "../../../../../../../../src/recipes/standard/stages/ecology/biomes/steps/biomes/step.js";
+import { createSurfaceWaterFixture } from "../../../../morphology/features/fixtures/surface-water.js";
 import {
   TEST_MAP_LATITUDE_BOUNDS,
   TEST_MAP_SEED,
@@ -59,6 +61,8 @@ describe("biomes step", () => {
     );
 
     withMapContextExecutionForTest(ctx, (stepContext) => {
+      publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan,
+        createSurfaceWaterFixture("legacy-sink-budget", width, height).lakePlan);
       publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation,
         seaLevel: 0,
@@ -136,6 +140,8 @@ describe("biomes step", () => {
       const elevation = new Int16Array(size).fill(1);
 
       withMapContextExecutionForTest(ctx, (stepContext) => {
+        publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan,
+          createSurfaceWaterFixture("legacy-sink-budget", width, height).lakePlan);
         publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
           elevation,
           seaLevel: 0,

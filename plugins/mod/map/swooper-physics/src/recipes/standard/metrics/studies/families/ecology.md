@@ -12,6 +12,13 @@ Feature membership comes from the canonical captured Civ7 feature corpus. Counts
 retain land, water, or coast populations as appropriate. Identity-specific
 feature requirements and ecological share budgets remain target policy.
 
+For `certified-sill-spill`, terrestrial biome counts and land populations use
+original modeled land minus the physical planned lake footprint. A wet elevated
+cell's unclassified biome sentinel is not missing terrestrial classification.
+Dry channel cells remain in the population, and native water observations cannot
+hide missing dry-land classification. `legacy-sink-budget` retains the original
+modeled-land population, including its planned lake cells.
+
 `biomeRows.dominantBiomeTiles` sums the modal classified-biome count separately
 in each row with at least 20 modeled land tiles. Its population is all modeled
 land in those same rows; its share is therefore land-weighted, not an unweighted

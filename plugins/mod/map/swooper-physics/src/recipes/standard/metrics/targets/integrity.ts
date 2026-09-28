@@ -236,11 +236,11 @@ export const STANDARD_INTEGRITY_TARGET = {
       (sample) => sample.metrics.placement.unacknowledgedDegradationCount,
       0
     ),
-    atMost<StandardMapProductSample>(
+    equalTo<StandardMapProductSample>(
       "lake-share",
-      "Projected lakes remain an occasional inland surface.",
-      (sample) => requiredShare(sample.metrics.geography.projectedLakes, "Projected lake share"),
-      0.08
+      "Legacy budgeted lakes remain an occasional inland surface; certified basin areas are physically budgeted instead.",
+      (sample) => sample.metrics.hydrology.model !== "legacy-sink-budget" || requiredShare(sample.metrics.geography.projectedLakes, "Projected lake share") <= 0.08,
+      true
     ),
     equalTo<StandardMapProductSample>(
       "final-water-surface-drift",
@@ -256,9 +256,9 @@ export const STANDARD_INTEGRITY_TARGET = {
     ),
     equalTo<StandardMapProductSample>(
       "final-lake-classification-drift",
-      "Final headless placement preserves the adapter's lake classification.",
-      (sample) => sample.metrics.geography.finalLakeClassificationDriftCount,
-      0
+      "Legacy lake projection retains native lake classification; certified whole-water bodies report native classification separately.",
+      (sample) => sample.metrics.hydrology.model === "certified-sill-spill" || sample.metrics.geography.finalLakeClassificationDriftCount === 0,
+      true
     ),
     atMost<StandardMapProductSample>(
       "lake-projection-rejections",
@@ -284,17 +284,18 @@ export const STANDARD_INTEGRITY_TARGET = {
           sample.metrics.geography.lakeProjectionRejectedCount,
       true
     ),
-    atMost<StandardMapProductSample>(
+    equalTo<StandardMapProductSample>(
       "single-tile-lake-share",
-      "One-tile basins remain a minority of projected lake tiles.",
-      (sample) => requiredShare(sample.metrics.geography.singleTileLakeTiles, "Single-tile lakes"),
-      0.2
+      "Legacy lake selection limits singleton fragments; certified full bodies are not clipped to a size quota.",
+      (sample) => sample.metrics.hydrology.model !== "legacy-sink-budget" ||
+        requiredShare(sample.metrics.geography.singleTileLakeTiles, "Single-tile lakes") <= 0.2,
+      true
     ),
-    atMost<StandardMapProductSample>(
+    equalTo<StandardMapProductSample>(
       "lake-component-count",
-      "Projected lakes remain a bounded set of coherent basins.",
-      (sample) => sample.metrics.geography.projectedLakeComponents.componentCount,
-      24
+      "Legacy lake selection retains its component cap; certified basin bodies are not clipped to a quota.",
+      (sample) => sample.metrics.hydrology.model !== "legacy-sink-budget" || sample.metrics.geography.projectedLakeComponents.componentCount <= 24,
+      true
     ),
     equalTo<StandardMapProductSample>(
       "feature-surface-legality",
@@ -388,6 +389,9 @@ export const STANDARD_INTEGRITY_TARGET = {
         const summary = sample.metrics.hydrology.networkSummary;
         return (
           summary.unresolvedMouthTileCount === 0 &&
+          summary.resolvedMouthTileCount === summary.mouthSourceTileCount &&
+          summary.mouthSourceTileCount === summary.landTileCount -
+            (summary.model === "certified-sill-spill" ? summary.lakeTileCount : 0) &&
           summary.invalidReceiverTileCount === 0 &&
           summary.downstreamDischargeDropEdgeCount === 0 &&
           summary.unassignedBasinLandTileCount === 0 &&
@@ -405,26 +409,38 @@ export const STANDARD_INTEGRITY_TARGET = {
     atLeast<StandardMapProductSample>(
       "navigable-river-selection",
       "The projection selects visible navigable-river terrain.",
-      (sample) => sample.metrics.hydrology.navigable.selectedTileCount,
+      (sample) => {
+        const rivers = sample.metrics.hydrology.navigable;
+        return rivers.model === "legacy-sink-budget" ? rivers.selectedTileCount : rivers.plannedMajorRiverTileCount;
+      },
       1
     ),
-    atLeast<StandardMapProductSample>(
+    equalTo<StandardMapProductSample>(
       "navigable-river-eligibility",
-      "The projection observes an eligible navigable-river corpus.",
-      (sample) => sample.metrics.hydrology.navigable.eligibleTileCount,
-      1
+      "The legacy selector observes an eligible navigable-river corpus.",
+      (sample) => {
+        const rivers = sample.metrics.hydrology.navigable;
+        return rivers.model !== "legacy-sink-budget" || rivers.eligibleTileCount >= 1;
+      },
+      true
     ),
-    atLeast<StandardMapProductSample>(
+    equalTo<StandardMapProductSample>(
       "navigable-river-chains",
-      "The visible navigable-river selection contains at least one coherent chain.",
-      (sample) => sample.metrics.hydrology.navigable.selectedChainCount,
-      1
+      "The legacy navigable-river selection contains at least one coherent chain.",
+      (sample) => {
+        const rivers = sample.metrics.hydrology.navigable;
+        return rivers.model !== "legacy-sink-budget" || rivers.selectedChainCount >= 1;
+      },
+      true
     ),
-    atLeast<StandardMapProductSample>(
+    equalTo<StandardMapProductSample>(
       "durable-major-river-support",
-      "Navigable-river projection is supported by perennial major-river tiles.",
-      (sample) => sample.metrics.hydrology.navigable.majorDurableTileCount,
-      1
+      "Legacy navigable-river selection is supported by perennial major-river tiles.",
+      (sample) => {
+        const rivers = sample.metrics.hydrology.navigable;
+        return rivers.model !== "legacy-sink-budget" || rivers.majorDurableTileCount >= 1;
+      },
+      true
     ),
     equalTo<StandardMapProductSample>(
       "major-river-selection-source",
@@ -437,17 +453,19 @@ export const STANDARD_INTEGRITY_TARGET = {
     equalTo<StandardMapProductSample>(
       "navigable-selection-bounds",
       "Selected navigable-river tiles remain inside the eligible corpus.",
-      (sample) =>
-        sample.metrics.hydrology.navigable.selectedTileCount <=
-        sample.metrics.hydrology.navigable.eligibleTileCount,
+      (sample) => {
+        const rivers = sample.metrics.hydrology.navigable;
+        return rivers.model !== "legacy-sink-budget" || rivers.selectedTileCount <= rivers.eligibleTileCount;
+      },
       true
     ),
     equalTo<StandardMapProductSample>(
       "navigable-river-readback",
       "Observed navigable-river terrain exactly matches the selected projection.",
-      (sample) =>
-        sample.metrics.hydrology.navigable.terrainNavigableRiverTileCount ===
-        sample.metrics.hydrology.navigable.selectedTileCount,
+      (sample) => {
+        const rivers = sample.metrics.hydrology.navigable;
+        return rivers.terrainNavigableRiverTileCount === (rivers.model === "legacy-sink-budget" ? rivers.selectedTileCount : rivers.plannedMajorRiverTileCount);
+      },
       true
     ),
     equalTo<StandardMapProductSample>(
@@ -458,9 +476,59 @@ export const STANDARD_INTEGRITY_TARGET = {
         return (
           metrics.riverMismatchCount === 0 &&
           metrics.selectedRiverRejectedCount === 0 &&
-          metrics.extraEngineRiverCount === 0
+          metrics.extraEngineRiverCount === 0 &&
+          (metrics.model === "legacy-sink-budget" || (metrics.minorRiverMismatchCount === 0 && metrics.navigableMetadataMismatchCount === 0))
         );
       },
+      true
+    ),
+    equalTo<StandardMapProductSample>(
+      "certified-basin-conservation",
+      "Certified physical water sources and marine exits conserve flux within the reported arithmetic bound.",
+      (sample) => sample.metrics.hydrology.model === "legacy-sink-budget"
+        ? sample.metrics.hydrology.basinNetwork === null
+        : sample.metrics.hydrology.basinNetwork?.conservationValid === true,
+      true
+    ),
+    equalTo<StandardMapProductSample>(
+      "certified-basin-certificates",
+      "Every certified body has positive certificate support and finite nonnegative mixed outflow.",
+      (sample) => sample.metrics.hydrology.model === "legacy-sink-budget"
+        ? sample.metrics.hydrology.basinNetwork === null
+        : sample.metrics.hydrology.basinNetwork?.certificatesAndLedgersValid === true,
+      true
+    ),
+    equalTo<StandardMapProductSample>(
+      "certified-basin-footprints",
+      "Certified bodies exactly partition wet cells while dry receivers preserve nonascending ground.",
+      (sample) => sample.metrics.hydrology.model === "legacy-sink-budget"
+        ? sample.metrics.hydrology.basinNetwork === null
+        : sample.metrics.hydrology.basinNetwork?.physicalFootprintsValid === true,
+      true
+    ),
+    equalTo<StandardMapProductSample>(
+      "certified-basin-exposure",
+      "Certified wet cells and dry channel sources do not overlap blocking landforms.",
+      (sample) => sample.metrics.hydrology.model === "legacy-sink-budget"
+        ? sample.metrics.hydrology.basinNetwork === null
+        : sample.metrics.hydrology.basinNetwork?.exposureValid === true,
+      true
+    ),
+    equalTo<StandardMapProductSample>(
+      "certified-lake-projection",
+      "Certified lake projection retains the complete physical footprint without rejected or protected tiles.",
+      (sample) => sample.metrics.hydrology.model === "legacy-sink-budget"
+        ? sample.metrics.hydrology.basinNetwork === null
+        : sample.metrics.hydrology.basinNetwork?.lakeProjectionComplete === true,
+      true
+    ),
+    equalTo<StandardMapProductSample>(
+      "certified-river-source-classes",
+      "Every certified dry channel source is authored exactly once with its physical class and reconciled native readback.",
+      (sample) => sample.metrics.hydrology.model === "legacy-sink-budget"
+        ? sample.metrics.hydrology.basinNetwork === null
+        : sample.metrics.hydrology.basinNetwork?.authoredSourcesComplete === true &&
+          sample.metrics.hydrology.basinNetwork.nativeClassesMatch === true,
       true
     ),
   ],

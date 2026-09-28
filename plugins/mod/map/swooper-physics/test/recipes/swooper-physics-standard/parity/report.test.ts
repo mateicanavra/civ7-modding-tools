@@ -242,6 +242,78 @@ describe("Standard parity report state", () => {
     expect(report.failureLinks).toContain("placement-parity.drift");
   });
 
+  test.each(["legacy-sink-budget", "certified-sill-spill"] as const)(
+    "keeps native classification differences visible with model-scoped physical closure: %s",
+    (model) => {
+      const base = captures();
+      const localCounters = {
+        ...base.local.placement.terminalParity,
+        acceptedLakeTileCount: 203,
+      };
+      const report = buildStandardParityReport({
+        ...base,
+        exact: {
+          ...base.exact,
+          placementParity: {
+            status: "present",
+            value: { ...localCounters, finalLakeClassificationDriftCount: 48 },
+          },
+        },
+        local: {
+          ...base.local,
+          hydrology: {
+            ...base.local.hydrology,
+            rivers: { ...base.local.hydrology.rivers, model },
+          },
+          placement: { ...base.local.placement, terminalParity: localCounters },
+        },
+      });
+
+      expect(report.placement.terminalParity.claim.status).toBe(
+        model === "certified-sill-spill" ? "pass" : "fail"
+      );
+      expect(report.placement.terminalParity.mismatchedFields).toEqual([
+        "finalLakeClassificationDriftCount",
+      ]);
+      expect(report.placement.terminalParity.exact?.finalLakeClassificationDriftCount).toBe(48);
+      expect(report.placement.terminalParity.local.finalLakeClassificationDriftCount).toBe(0);
+    }
+  );
+
+  test("never waives certified physical water loss alongside native class differences", () => {
+    const base = captures();
+    const counters = {
+      ...base.local.placement.terminalParity,
+      acceptedLakeTileCount: 203,
+      waterDriftCount: 1,
+      finalLakeWaterDriftCount: 1,
+    };
+    const report = buildStandardParityReport({
+      ...base,
+      exact: {
+        ...base.exact,
+        placementParity: {
+          status: "present",
+          value: { ...counters, finalLakeClassificationDriftCount: 48 },
+        },
+      },
+      local: {
+        ...base.local,
+        hydrology: {
+          ...base.local.hydrology,
+          rivers: { ...base.local.hydrology.rivers, model: "certified-sill-spill" },
+        },
+        placement: { ...base.local.placement, terminalParity: counters },
+      },
+    });
+
+    expect(report.placement.terminalParity.claim.status).toBe("fail");
+    expect(report.failureLinks).toContain("placement-parity.drift");
+    expect(report.placement.terminalParity.mismatchedFields).toEqual([
+      "finalLakeClassificationDriftCount",
+    ]);
+  });
+
   test("compares river terrain even when a metadata grid has incompatible cardinality", () => {
     const base = captures();
     const terrain = new Array<number | null>(COMPARISON_PLOT_COUNT).fill(0);
@@ -522,6 +594,8 @@ function captures(): Readonly<{
       surface: finalSurface(0),
       hydrology: {
         rivers: {
+          model: "legacy-sink-budget",
+          nativeMinor: emptyGrid,
           plannedMinor: emptyGrid,
           plannedMajor: emptyGrid,
           projectedNavigableTerrain: emptyGrid,

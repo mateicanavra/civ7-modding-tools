@@ -84,8 +84,10 @@ type Volcanoes = ArtifactReadValueOf<typeof morphologyLandformsArtifacts.volcano
 type Landmasses = ArtifactReadValueOf<typeof morphologyLandformsArtifacts.landmasses>;
 type Pedology = ArtifactReadValueOf<typeof pedologyArtifacts.pedology>;
 type ProjectedNavigableRivers = ArtifactReadValueOf<
-  typeof hydrographyArtifacts.projectedNavigableRivers
+  typeof hydrographyArtifacts.projectedRivers
 >;
+type CertifiedLakePlan = Extract<ArtifactReadValueOf<typeof hydrographyArtifacts.lakePlan>, { model: "certified-sill-spill" }>;
+type CertifiedRiverNetwork = Extract<ArtifactReadValueOf<typeof hydrographyArtifacts.riverNetwork>, { model: "certified-sill-spill" }>;
 type ResourceDemandPlan = ArtifactReadValueOf<typeof resourceDemandArtifacts.resourceDemandPlan>;
 type ResourcePlan = ArtifactReadValueOf<typeof resourceSiteArtifacts.resourcePlan>;
 type ResourcePlanAdjusted = ArtifactReadValueOf<
@@ -191,8 +193,15 @@ export type StandardMapCapture = Readonly<{
     plannedLakeMask: Uint8Array;
     riverClass: Uint8Array;
     flowDir: Int32Array;
-    routingElevation: Float32Array;
-    outletMask: Uint8Array;
+    physicalHydrology:
+      | Readonly<{ model: "legacy-sink-budget"; routingElevation: Float32Array; outletMask: Uint8Array }>
+      | Readonly<Pick<CertifiedLakePlan, "model" | "bodies" | "certificates" | "marineExits" | "conservation"> & {
+          runoff: readonly number[];
+          discharge: readonly number[];
+          bodyId: Int32Array;
+          waterSurface: Int16Array;
+          mouthBodyId: CertifiedRiverNetwork["mouthBodyId"];
+        }>;
     terminalType: Uint8Array;
     riverNetworkSummary: StandardRiverNetworkMeasurements;
     biomeIndex: Uint8Array;
@@ -217,7 +226,8 @@ export type StandardMapCapture = Readonly<{
     lakes: StandardLakeProjectionMeasurements;
     placementParity: StandardPlacementParityMeasurements;
     navigableRivers: Pick<
-      ProjectedNavigableRivers,
+      Extract<ProjectedNavigableRivers, { model: "legacy-sink-budget" }>,
+      | "model"
       | "selectedTileCount"
       | "targetTileCount"
       | "eligibleTileCount"
@@ -228,12 +238,15 @@ export type StandardMapCapture = Readonly<{
       | "majorDurableTileCount"
       | "projectionSignalStatus"
       | "plannedMajorRiverTileCount"
-    >;
+    > | Pick<Extract<ProjectedNavigableRivers, { model: "certified-sill-spill" }>,
+      "model" | "authoredSourceCount" | "plannedMinorRiverTileCount" | "plannedMajorRiverTileCount" | "writes">;
     riverReadback: Readonly<{
       terrainNavigableRiverTileCount: number;
       riverMismatchCount: number;
       selectedRiverRejectedCount: number;
       extraEngineRiverCount: number;
+      minorRiverMismatchCount: number;
+      navigableMetadataMismatchCount: number;
     }>;
     featureAttempts: Readonly<Record<string, number>>;
     featureRejections: Readonly<Record<string, number>>;
@@ -503,12 +516,37 @@ function copyCompletedRun(
   const volcanoesValue = readArtifact(context, morphologyLandformsArtifacts.volcanoes);
   const lakePlanValue = readArtifact(context, hydrographyArtifacts.lakePlan);
   const hydrographyValue = readArtifact(context, hydrographyArtifacts.hydrography);
+  const riverNetworkValue = readArtifact(context, hydrographyArtifacts.riverNetwork);
+  if (hydrographyValue.model !== lakePlanValue.model || hydrographyValue.model !== riverNetworkValue.model) {
+    throw new Error("Capture requires one coherent physical water model.");
+  }
+  const physicalHydrology: StandardMapCapture["model"]["physicalHydrology"] =
+    hydrographyValue.model === "legacy-sink-budget"
+      ? Object.freeze({
+          model: hydrographyValue.model,
+          routingElevation: copyFloat32Grid("hydrology.hydrography.routingElevation", hydrographyValue.routingElevation, gridSize),
+          outletMask: copyUint8Grid("hydrology.hydrography.outletMask", hydrographyValue.outletMask, gridSize),
+        })
+      : lakePlanValue.model === "certified-sill-spill" && riverNetworkValue.model === "certified-sill-spill"
+        ? Object.freeze({
+            model: hydrographyValue.model,
+            runoff: Object.freeze([...hydrographyValue.runoff]),
+            discharge: Object.freeze([...hydrographyValue.discharge]),
+            bodyId: copyInt32Grid("hydrology.lakePlan.bodyId", lakePlanValue.bodyId, gridSize),
+            waterSurface: copyInt16Grid("hydrology.lakePlan.waterSurface", lakePlanValue.waterSurface, gridSize),
+            mouthBodyId: copyInt32Grid("hydrology.riverNetwork.mouthBodyId", riverNetworkValue.mouthBodyId, gridSize),
+            bodies: Object.freeze(lakePlanValue.bodies.map((body) => Object.freeze({ ...body, wetCells: Object.freeze([...body.wetCells]), connectorCells: Object.freeze([...body.connectorCells]), flux: Object.freeze({ ...body.flux }) }))),
+            certificates: Object.freeze(lakePlanValue.certificates.map((value) => Object.freeze({ ...value }))),
+            marineExits: Object.freeze(lakePlanValue.marineExits.map((value) => Object.freeze({ ...value }))),
+            conservation: Object.freeze({ ...lakePlanValue.conservation }),
+          })
+        : (() => { throw new Error("Capture requires certified lake and river evidence."); })();
   const climateIndicesValue = readArtifact(context, climateArtifacts.climateIndices);
   const baselineClimateValue = readArtifact(context, climateArtifacts.baselineClimateField);
   const climateValue = readArtifact(context, climateArtifacts.climateField);
   const windFieldValue = readArtifact(context, climateArtifacts.windField);
   const pressureFieldValue = readArtifact(context, climateArtifacts.pressureField);
-  const navigableRiverValue = readArtifact(context, hydrographyArtifacts.projectedNavigableRivers);
+  const navigableRiverValue = readArtifact(context, hydrographyArtifacts.projectedRivers);
   const riverReadbackValue = adapter.readRiverProjection(
     width,
     height,
@@ -641,16 +679,7 @@ function copyCompletedRun(
         gridSize
       ),
       flowDir: copyInt32Grid("hydrology.hydrography.flowDir", hydrographyValue.flowDir, gridSize),
-      routingElevation: copyFloat32Grid(
-        "hydrology.hydrography.routingElevation",
-        hydrographyValue.routingElevation,
-        gridSize
-      ),
-      outletMask: copyUint8Grid(
-        "hydrology.hydrography.outletMask",
-        hydrographyValue.outletMask,
-        gridSize
-      ),
+      physicalHydrology,
       terminalType: copyUint8Grid(
         "hydrology.hydrography.terminalType",
         hydrographyValue.terminalType,
@@ -712,7 +741,14 @@ function copyCompletedRun(
         components: Object.freeze({ ...lakeProjection.components }),
       }),
       placementParity: Object.freeze({ ...placementParity }),
-      navigableRivers: Object.freeze({
+      navigableRivers: navigableRiverValue.model === "certified-sill-spill" ? Object.freeze({
+        model: navigableRiverValue.model,
+        authoredSourceCount: navigableRiverValue.authoredSourceCount,
+        plannedMinorRiverTileCount: navigableRiverValue.plannedMinorRiverTileCount,
+        plannedMajorRiverTileCount: navigableRiverValue.plannedMajorRiverTileCount,
+        writes: Object.freeze(navigableRiverValue.writes.map((write) => Object.freeze({ ...write }))),
+      }) : Object.freeze({
+        model: navigableRiverValue.model,
         selectedTileCount: navigableRiverValue.selectedTileCount,
         targetTileCount: navigableRiverValue.targetTileCount,
         eligibleTileCount: navigableRiverValue.eligibleTileCount,
@@ -729,6 +765,8 @@ function copyCompletedRun(
         riverMismatchCount: riverReadbackValue.navigableRiverMismatchTileCount,
         selectedRiverRejectedCount: riverReadbackValue.rejectedNavigableRiverTileCount,
         extraEngineRiverCount: riverReadbackValue.extraNavigableRiverTileCount,
+        minorRiverMismatchCount: Array.from(navigableRiverValue.nativeMinorRiverMask).reduce((count, value, cell) => count + Number(value !== riverReadbackValue.engineMinorRiverMask[cell]), 0),
+        navigableMetadataMismatchCount: Array.from(navigableRiverValue.riverMask).reduce((count, value, cell) => count + Number(value !== riverReadbackValue.engineNavigableRiverMask[cell]), 0),
       }),
       featureAttempts: Object.freeze({ ...featureProjection.attemptedByFeature }),
       featureRejections: Object.freeze({

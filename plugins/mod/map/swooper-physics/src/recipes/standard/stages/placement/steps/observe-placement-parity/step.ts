@@ -1,3 +1,4 @@
+import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { encodeBoundedJsonLogLines } from "@swooper/mapgen-core/lib/log";
 import { projectStandardElevation } from "../../../../elevation-projection.js";
@@ -6,6 +7,10 @@ import {
   STANDARD_ELEVATION_FINAL_METRIC_KEY,
 } from "../../../../metrics/families/elevation-projection.js";
 import { measureStandardPlacementParity } from "../../../../metrics/families/placement-parity.js";
+import {
+  measureStandardFinalRiverParity,
+  STANDARD_FINAL_RIVER_PARITY_METRIC_KEY,
+} from "../../../../metrics/families/hydrology/final-river-parity.js";
 import { emitStandardPlacementParityExactLog } from "../../../../parity/placement-exact-log.js";
 import { landMaskFromWaterMask } from "../../../../water-surface-parity.js";
 import { config } from "./config.js";
@@ -19,6 +24,7 @@ export const ObservePlacementParityStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
     const topography = deps.artifacts.topography.read();
     const projectedLakes = deps.artifacts.projectedLakes.read();
+    const projectedRivers = deps.artifacts.projectedRivers.read();
     const { width, height } = context.setup.dimensions;
     const terminalSnapshot = {
       width,
@@ -75,6 +81,46 @@ export const ObservePlacementParityStep = createStep(config, {
     }));
     emitStandardPlacementParityExactLog(placementParity);
 
+    const finalRiverParity =
+      projectedRivers.model === "certified-sill-spill"
+        ? measureStandardFinalRiverParity({
+            width,
+            height,
+            intendedMinor: projectedRivers.nativeMinorRiverMask,
+            intendedNavigable: projectedRivers.riverMask,
+            readback: (() => {
+              try {
+                return {
+                  status: "available" as const,
+                  value: deps.engine.readRiverProjection(
+                    context,
+                    width,
+                    height,
+                    projectedRivers.riverMask
+                  ),
+                };
+              } catch (error) {
+                return {
+                  status: "unavailable" as const,
+                  reason: `Final river read failed: ${String(error).slice(0, 500)}`,
+                };
+              }
+            })(),
+          })
+        : null;
+    if (finalRiverParity !== null) {
+      for (const line of encodeBoundedJsonLogLines({
+        prefix: "[SWOOPER_MOD]",
+        marker: "FINAL_RIVER_PARITY_V1",
+        payload: {
+          mapSeed: context.setup.mapSeed,
+          dimensions: { width, height },
+          ...finalRiverParity,
+        },
+      }))
+        console.log(line);
+    }
+
     // Recreate intent from immutable physics plus accepted lakes, never from an earlier engine
     // observation. Final numeric drift remains evidence while native preservation is calibrated.
     const intended = projectStandardElevation({
@@ -89,6 +135,11 @@ export const ObservePlacementParityStep = createStep(config, {
       snapshot: terminalSnapshot.elevation,
       acceptedLakeMask: projectedLakes.lakeMask,
       observedLakeMask: terminalSnapshot.lakeMask,
+      observedSurface: {
+        waterMask: terminalSnapshot.waterMask,
+        terrain: terminalSnapshot.terrain,
+        coastTerrain: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST,
+      },
     });
     if (
       terminalSnapshot.elevation.source === "native" &&
@@ -103,6 +154,7 @@ export const ObservePlacementParityStep = createStep(config, {
           intended,
           observed: Array.from(terminalSnapshot.elevation.values),
           acceptedLakeMask: Array.from(projectedLakes.lakeMask),
+          observedLakeMask: Array.from(terminalSnapshot.lakeMask),
           measurements: elevationProjection,
         },
       }))
@@ -114,11 +166,15 @@ export const ObservePlacementParityStep = createStep(config, {
       waterDrift,
       placementParity,
       elevationProjection,
+      finalRiverParity,
     };
   },
   metrics: ({ observation }) => ({
     "placement.parity": observation.placementParity,
     [STANDARD_ELEVATION_FINAL_METRIC_KEY]: observation.elevationProjection,
+    ...(observation.finalRiverParity === null
+      ? {}
+      : { [STANDARD_FINAL_RIVER_PARITY_METRIC_KEY]: observation.finalRiverParity }),
   }),
   viz: ({ observation, dimensions }) => projectPlacementParityViz(observation, dimensions),
 });

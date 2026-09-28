@@ -25,10 +25,10 @@ describe("recipe DAG artifact presentation", () => {
       domainId: "hydrology",
       label: "lakePlan",
     });
-    expect(parseArtifactPresentation("artifact:map.rivers.projectedNavigableRivers")).toEqual({
-      id: "artifact:map.rivers.projectedNavigableRivers",
+    expect(parseArtifactPresentation("artifact:map.rivers.projectedRivers")).toEqual({
+      id: "artifact:map.rivers.projectedRivers",
       domainId: "hydrology",
-      label: "projectedNavigableRivers",
+      label: "projectedRivers",
     });
     expect(parseArtifactPresentation("artifact:foundation.plates")).toEqual({
       id: "artifact:foundation.plates",
@@ -64,7 +64,7 @@ describe("recipe DAG artifact presentation", () => {
     expect(
       resolveArtifactGroupDomainId([
         "artifact:hydrology.lakePlan",
-        "artifact:map.rivers.projectedNavigableRivers",
+        "artifact:map.rivers.projectedRivers",
       ])
     ).toBe("hydrology");
     expect(

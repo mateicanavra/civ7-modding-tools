@@ -5,8 +5,9 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
 import { NAVIGABLE_RIVER_PROJECTION_POLICY } from "../../model/policy/navigable-river-projection.js";
 
-const PlotRiversStepConfigSchema = Type.Object(
+const PlotRiversStepConfigSchema = Type.Object({ projection: Type.Union([Type.Object(
   {
+    model: Type.Literal("legacy-procedural"),
     endpointDischargePercentileMin: Type.Number({
       default: NAVIGABLE_RIVER_PROJECTION_POLICY.normal.endpointDischargePercentileMin,
       minimum: 0,
@@ -25,7 +26,7 @@ const PlotRiversStepConfigSchema = Type.Object(
   {
     additionalProperties: false,
   }
-);
+), Type.Object({ model: Type.Literal("authored-network") }, { additionalProperties: false })], { default: { model: "legacy-procedural", ...NAVIGABLE_RIVER_PROJECTION_POLICY.normal } }) }, { additionalProperties: false });
 
 /**
  * Defines river projection after elevation exists, requiring Hydrology truth and publishing the
@@ -41,21 +42,28 @@ export const config = defineStep({
     "getTerrainType",
     "setTerrainType",
     "modelRivers",
+    "getRiverCapabilities",
+    "setRiverInfo",
+    "finalizeRivers",
     "validateAndFixTerrain",
     "storeWaterData",
     "recalculateAreas",
     "readRiverProjection",
+    "readCurrentMapWaterMask",
+    "readCurrentMapTerrainTypes",
+    "generateCliffsFromElevation",
   ] as const,
   requires: [
     STANDARD_COMPLETIONS.elevationBuilt,
     STANDARD_COMPLETIONS.rainfallProjected,
     hydrographyArtifacts.hydrography,
     hydrographyArtifacts.lakePlan,
+    hydrographyArtifacts.projectedLakes,
     hydrographyArtifacts.riverNetwork,
     morphologyShelfArtifacts.shelf,
     morphologyLandformsArtifacts.topography,
   ],
-  provides: [STANDARD_COMPLETIONS.riversPlotted, hydrographyArtifacts.projectedNavigableRivers],
+  provides: [STANDARD_COMPLETIONS.riversPlotted, hydrographyArtifacts.projectedRivers],
 
   schema: PlotRiversStepConfigSchema,
 });

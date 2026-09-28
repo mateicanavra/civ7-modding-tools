@@ -25,12 +25,12 @@ const ComputeFeatureSubstrateContract = defineOp({
       seaLevel: Type.Number({
         description: "Global sea-level datum in meters.",
       }),
-      discharge: TypedArraySchemas.f32({
+      discharge: Type.Array(Type.Number({ minimum: 0 }), {
         description: "Hydrology discharge proxy per tile.",
       }),
-      sinkMask: TypedArraySchemas.u8({
-        description: "Mask (1/0): local drainage sink or depression.",
-      }),
+      sinkMask: Type.Optional(TypedArraySchemas.u8({
+        description: "Legacy local drainage sink evidence; absent for certified open bodies, not a synthesized zero mask.",
+      })),
     },
     { additionalProperties: false }
   ),

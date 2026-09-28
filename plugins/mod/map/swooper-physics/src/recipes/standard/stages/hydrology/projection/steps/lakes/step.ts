@@ -1,4 +1,5 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { encodeBoundedJsonLogLines } from "@swooper/mapgen-core/lib/log";
 import {
   collectMaskComponentsOddQ,
   getHexNeighborIndicesOddQ,
@@ -43,8 +44,8 @@ function pruneIsolatedMorphologyFragments(
 }
 
 /**
- * Withholds final Morphology landforms and their isolated one-tile lake remnants
- * from projection, then keeps mutable engine readback invocation-local.
+ * Projects complete certified inland-water bodies; legacy selection retains its
+ * landform exclusions. Native lake classification remains local observation.
  */
 export const LakesStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
@@ -61,6 +62,10 @@ export const LakesStep = createStep(config, {
     let volcanoProtectedLakeTileCount = 0;
     for (let i = 0; i < size; i++) {
       if (lakePlan.lakeMask[i] !== 1) continue;
+      if (lakePlan.model === "certified-sill-spill" &&
+          (mountains.mountainMask[i] === 1 || volcanoes.volcanoMask[i] === 1)) {
+        throw new Error(`Certified lake cell ${i} overlaps a blocking landform; refusing partial projection.`);
+      }
       if (mountains.mountainMask[i] === 1) {
         morphologyProtectedLakeTileCount += 1;
         mountainProtectedLakeTileCount += 1;
@@ -75,7 +80,7 @@ export const LakesStep = createStep(config, {
       }
       projectionLakeMask[i] = 1;
     }
-    const isolatedFragmentProtectedLakeTileCount = pruneIsolatedMorphologyFragments(
+    const isolatedFragmentProtectedLakeTileCount = lakePlan.model === "certified-sill-spill" ? 0 : pruneIsolatedMorphologyFragments(
       projectionLakeMask,
       directlyProtectedLakeMask,
       width,
@@ -86,6 +91,46 @@ export const LakesStep = createStep(config, {
     // The adapter is the only engine boundary. Stamping plus readback stays there
     // so later steps observe current Civ7 state instead of consuming stale snapshots.
     const projection = deps.engine.stampLakes(context, width, height, projectionLakeMask);
+    if (lakePlan.model === "certified-sill-spill") {
+      const areas = new Map<number, { area: number; water: number; planned: number; lake: number }>();
+      for (let cell = 0; cell < size; cell++) {
+        if (projection.engineWaterMask[cell] !== 1) continue;
+        const id = projection.engineAreaId[cell]!;
+        const area = areas.get(id) ?? { area: id, water: 0, planned: 0, lake: 0 };
+        area.water++;
+        if (lakePlan.lakeMask[cell] === 1) area.planned++;
+        if (projection.engineLakeMask[cell] === 1) area.lake++;
+        areas.set(id, area);
+      }
+      for (const line of encodeBoundedJsonLogLines({
+        prefix: "[SWOOPER_MOD]",
+        marker: "CERTIFIED_LAKE_PROJECTION_V1",
+        payload: {
+          mapSeed: context.setup.mapSeed,
+          dimensions: { width, height },
+          planned: lakePlan.plannedLakeTileCount,
+          stamped: projection.stampedLakeTileCount,
+          rejected: projection.rejectedLakeTileCount,
+          nonLake: projection.nonLakeTileCount,
+          terrainMismatch: projection.terrainMismatchTileCount,
+          areas: Array.from(areas.values()).filter((area) => area.planned > 0),
+          columns: ["cell", "body", "terrain", "water", "lake", "area", "elevation"],
+          cells: Array.from(lakePlan.lakeMask).flatMap((wet, cell) => wet === 1 ? [[
+            cell, lakePlan.bodyId[cell], projection.engineTerrain[cell],
+            projection.engineWaterMask[cell], projection.engineLakeMask[cell],
+            projection.engineAreaId[cell], projection.engineElevation[cell],
+          ]] : []),
+        },
+      })) console.log(line);
+      for (let cell = 0; cell < size; cell++) {
+        if (projection.stampedLakeMask[cell] !== lakePlan.lakeMask[cell]) {
+          throw new Error(`Certified lake footprint rejected at cell ${cell}; no partial body is published.`);
+        }
+      }
+      if (projection.terrainMismatchTileCount !== 0) {
+        throw new Error(`Certified inland-water projection has ${projection.terrainMismatchTileCount} coast terrain mismatches.`);
+      }
+    }
     deps.artifacts.projectedLakes.publish({
       lakeMask: Uint8Array.from(projection.stampedLakeMask),
     });
@@ -150,7 +195,7 @@ export const LakesStep = createStep(config, {
         dataTypeKey: "map.hydrology.lakes.engineLakeMask",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "u8", values: observation.projection.stampedLakeMask },
+        field: { format: "u8", values: observation.projection.engineLakeMask },
         meta: defineStandardVizMeta("map.hydrology.lakes.engineLakeMask", "category.distinct", {
           label: "Lake Mask (Engine)",
           group: GROUP_MAP_HYDROLOGY,

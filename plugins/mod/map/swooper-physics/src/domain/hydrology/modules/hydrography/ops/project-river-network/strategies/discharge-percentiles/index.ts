@@ -45,6 +45,9 @@ const dischargePercentilesStrategy = createStrategy(
       const width = input.width;
       const height = input.height;
       const size = width * height;
+      if (input.discharge.length !== size) {
+        throw new RangeError("River classification requires map-grid Number discharge.");
+      }
 
       const riverClass = new Uint8Array(size);
       const minorMask = new Uint8Array(size);

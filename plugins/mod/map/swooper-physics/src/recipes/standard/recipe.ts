@@ -30,6 +30,7 @@ import morphologyCoasts from "./stages/morphology/coasts/index.js";
 import mapElevation from "./stages/morphology/elevation/index.js";
 import morphologyErosion from "./stages/morphology/erosion/index.js";
 import morphologyFeatures from "./stages/morphology/features/index.js";
+import morphologyIslands from "./stages/morphology/islands/index.js";
 import mapMorphology from "./stages/morphology/projection/index.js";
 import morphologyRouting from "./stages/morphology/routing/index.js";
 import morphologyShelf from "./stages/morphology/shelf/index.js";
@@ -49,10 +50,11 @@ const stages = orderStandardStages({
   "morphology-coasts": morphologyCoasts,
   "morphology-routing": morphologyRouting,
   "morphology-erosion": morphologyErosion,
-  "morphology-features": morphologyFeatures,
+  "morphology-islands": morphologyIslands,
   "morphology-shelf": morphologyShelf,
   "hydrology-climate-baseline": hydrologyClimateBaseline,
   "hydrology-hydrography": hydrologyHydrography,
+  "morphology-features": morphologyFeatures,
   "hydrology-climate-refine": hydrologyClimateRefine,
   "ecology-pedology": ecologyPedology,
   "ecology-biomes": ecologyBiomes,

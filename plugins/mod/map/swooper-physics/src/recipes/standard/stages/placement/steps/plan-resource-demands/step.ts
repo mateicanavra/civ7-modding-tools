@@ -14,7 +14,7 @@ export const PlanResourceDemandsStep = createStep(config, {
     const beltDrivers = deps.artifacts.beltDrivers.read();
     const hydrography = deps.artifacts.hydrography.read();
     const lakePlan = deps.artifacts.lakePlan.read();
-    const projectedNavigableRivers = deps.artifacts.projectedNavigableRivers.read();
+    const projectedRivers = deps.artifacts.projectedRivers.read();
     const climateIndices = deps.artifacts.climateIndices.read();
     const cryosphere = deps.artifacts.cryosphere.read();
     const biomeClassification = deps.artifacts.biomeClassification.read();
@@ -54,9 +54,9 @@ export const PlanResourceDemandsStep = createStep(config, {
     );
 
     const riverMasks = [
-      projectedNavigableRivers.riverMask,
-      projectedNavigableRivers.plannedMajorRiverMask,
-      projectedNavigableRivers.plannedMinorRiverMask,
+      projectedRivers.riverMask,
+      projectedRivers.plannedMajorRiverMask,
+      projectedRivers.plannedMinorRiverMask,
       currentRiverSurface.riverMask,
       currentRiverSurface.navigableRiverMask,
       currentRiverSurface.minorRiverMask,

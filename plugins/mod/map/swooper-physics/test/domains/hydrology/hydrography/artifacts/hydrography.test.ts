@@ -8,6 +8,7 @@ const cellCount = dimensions.width * dimensions.height;
 describe("hydrography artifact", () => {
   it("refuses nonbinary outlets and unknown terminal classes", () => {
     const payload = {
+      model: "legacy-sink-budget" as const,
       runoff: new Float32Array(cellCount),
       discharge: new Float32Array(cellCount),
       riverClass: new Uint8Array(cellCount),

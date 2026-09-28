@@ -43,7 +43,7 @@ const PlanNaturalWondersContract = defineOp({
     fertility: TypedArraySchemas.f32({
       description: "Pedology fertility per tile (0..1).",
     }),
-    discharge: TypedArraySchemas.f32({
+    discharge: Type.Array(Type.Number({ minimum: 0 }), {
       description: "Hydrology accumulated discharge proxy per tile.",
     }),
     slopeClass: TypedArraySchemas.u8({

@@ -14,6 +14,7 @@ describe("lake plan artifact", () => {
     const messages = hydrographyArtifacts.lakePlan
       .validate(
         {
+          model: "legacy-sink-budget",
           width: dimensions.width,
           height: dimensions.height,
           lakeMask,

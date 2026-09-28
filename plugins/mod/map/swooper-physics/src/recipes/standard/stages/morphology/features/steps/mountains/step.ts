@@ -141,6 +141,14 @@ export const MountainsStep = createStep(config, {
   },
   run: (context, stepConfig, ops, deps) => {
     const topography = deps.artifacts.topography.read();
+    const lakePlan = deps.artifacts.lakePlan.read();
+    const hydrography = deps.artifacts.hydrography.read();
+    const landMask = lakePlan.model === "certified-sill-spill"
+      ? Uint8Array.from(topography.landMask, (land, i) => land === 1 && lakePlan.lakeMask[i] === 0 ? 1 : 0)
+      : topography.landMask;
+    const candidateMask = lakePlan.model === "certified-sill-spill"
+      ? Uint8Array.from(landMask, (land, i) => land === 1 && hydrography.riverClass[i] === 0 ? 1 : 0)
+      : landMask;
     const beltDrivers = deps.artifacts.beltDrivers.read();
     const substrate = deps.artifacts.substrate.read();
     const routing = deps.artifacts.routing.read();
@@ -156,7 +164,8 @@ export const MountainsStep = createStep(config, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask,
+        candidateMask,
         elevation: topography.elevation,
         boundaryCloseness: beltDrivers.boundaryCloseness,
         boundaryType: beltDrivers.boundaryType,
@@ -174,7 +183,7 @@ export const MountainsStep = createStep(config, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask,
         elevation: topography.elevation,
         mountainMask: ridges.mountainMask,
         mountainRegionMask: ridges.mountainRegionMask,
@@ -195,7 +204,7 @@ export const MountainsStep = createStep(config, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask,
         mountainMask: ridges.mountainMask,
         mountainRegionMask: ridges.mountainRegionMask,
         mountainRegionIdByTile: ridges.mountainRegionIdByTile,
@@ -243,7 +252,7 @@ export const MountainsStep = createStep(config, {
       let foothillTiles = 0;
       let roughLandHillTiles = 0;
       for (let i = 0; i < size; i++) {
-        if (topography.landMask[i] !== 1) continue;
+        if (landMask[i] !== 1) continue;
         landTiles += 1;
         if (plan.mountainMask[i] === 1) mountainTiles += 1;
         if (plan.hillMask[i] === 1) hillTiles += 1;

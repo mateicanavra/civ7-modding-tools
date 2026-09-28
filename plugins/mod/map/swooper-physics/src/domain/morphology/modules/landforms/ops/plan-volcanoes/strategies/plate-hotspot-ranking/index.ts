@@ -47,7 +47,9 @@ export default createStrategy(PlanVolcanoesContract, StrategyDefinition, {
           config,
           rng,
         });
-        if (weight > 0) candidates.push({ index: i, weight });
+        // Draw scoring jitter for every exposed land cell so reserving a channel
+        // does not reassign random values to unrelated candidates.
+        if (input.candidateMask[i] === 1 && weight > 0) candidates.push({ index: i, weight });
       }
     }
 

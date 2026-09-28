@@ -55,12 +55,26 @@ One stage, `placement`, with 12 steps split at real product/effect contracts (en
 10. `place-discoveries` — delegates discovery placement to Civ7 and emits observed runtime evidence.
 11. `assign-advanced-starts` — engine advanced-start regions + fertility recalculation (engine effects only; no per-plot readback surface exists).
 12. `observe-placement-parity` — the single terminal Civ7
-    terrain/elevation/water/lake observation after advanced-start assignment.
+    terrain/elevation/water/native-lake observation after advanced-start assignment,
+    plus final river-class readback for certified authored networks.
     Its `placement.parity` metric and `PLACEMENT_PARITY_V1` exact-log evidence
-    derive whole-surface water drift plus accepted-lake
-    water/classification drift from that same snapshot. Accepted Hydrology
-    lakes are part of the expected water surface, not drift from raw
-    Morphology land.
+    derive whole-surface water drift and accepted-footprint water/category counts
+    from that same snapshot. Accepted Hydrology lakes are expected water, not
+    drift from raw Morphology land. A physical body's native `isLake` category
+    is independent evidence: a non-lake native category does not by itself mean
+    that certified physical water was lost.
+
+For certified projection, the terminal step compares immutable
+`artifact:map.rivers.projectedRivers` intent with a fresh `readRiverProjection`
+observation. It publishes `map.rivers.finalParity` and always emits bounded
+`FINAL_RIVER_PARITY_V1` evidence with intended source/class rows. Available
+readback adds observed rows and separate missing-source, extra-source,
+wrong-class, and NAVIGABLE-terrain mismatch counts; unavailable readback carries
+an explicit reason, never fabricated zero mismatches. This receipt is
+observational only, with no repair or runtime abort, and is not emitted for the
+legacy branch. It proves neither directed native edges, through-lake navigation,
+nor freshwater bonuses. Production-native acceptance is a separate qualification,
+not a consequence of successful headless observation.
 
 The plan→starts→support-adjust→stamp ordering is a deliberate contract: resource *planning* happens before starts (starts score planned sites), resource *stamping* happens after the support pass, so the support guarantee is enforced on the plan rather than by post-stamp mutation (which would need an engine resource-removal capability that does not exist).
 
@@ -144,6 +158,9 @@ Runtime semantics (ADR-009 regime):
   owns the one final terrain, elevation, water, and lake snapshot used by
   metrics, trace, visualization, exact logs, and replay parity. It compares
   Morphology topography plus accepted Hydrology lakes with the engine surface.
+  Its separate certified river read compares source classes against immutable
+  projection intent, independently of native lake categorization. Neither
+  observation becomes a mutable pipeline artifact.
   Materializers may also read the
   engine surface they immediately mutate or reconcile. The
   roster-dependent resource requirement query is a separate declared adapter

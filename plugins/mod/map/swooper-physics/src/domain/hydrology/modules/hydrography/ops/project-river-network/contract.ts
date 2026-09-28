@@ -27,7 +27,9 @@ const ProjectRiverNetworkContract = defineOp({
       /** Land mask per tile (1=land, 0=water). */
       landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
       /** Discharge proxy per tile. */
-      discharge: TypedArraySchemas.f32({ description: "Discharge proxy per tile." }),
+      discharge: Type.Array(Type.Number({ minimum: 0 }), {
+        description: "Map-grid Number discharge; callers widen legacy Float32 values exactly without recomputing them.",
+      }),
       /** Hydrology-conditioned receiver index per tile (or -1 for typed terminals). */
       flowDir: TypedArraySchemas.i32({
         description: "Hydrology-conditioned receiver index per tile (or -1 for typed terminals).",

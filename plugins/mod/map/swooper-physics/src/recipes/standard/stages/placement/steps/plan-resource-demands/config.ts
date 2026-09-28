@@ -33,7 +33,7 @@ export const config = defineStep({
     morphologyTerrainArtifacts.beltDrivers,
     hydrographyArtifacts.hydrography,
     hydrographyArtifacts.lakePlan,
-    hydrographyArtifacts.projectedNavigableRivers,
+    hydrographyArtifacts.projectedRivers,
     climateArtifacts.climateIndices,
     cryosphereArtifacts.cryosphere,
     biomeArtifacts.biomeClassification,
