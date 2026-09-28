@@ -11,6 +11,7 @@ import { renderSwooperCatalogMapSource } from "../../src/runtime/file-plan.js";
 import { bundleCiv7MapScript } from "../../src/runtime/map-script/compiler.js";
 import { RIVER_PROBE, RIVER_TERRAIN_PROBE, RIVER_LAKE_NAVIGATION_PROBE, RIVER_PROBE_VARIANTS, type RiverProbeAtlas, type RiverProbeVariant } from "./river-contract-map.fixture.js";
 import { FULL_MAP_RIVER_PROBE, FULL_MAP_RIVER_PROBE_ATLASES, FULL_MAP_RIVER_PROBE_EDGES, type FullMapProbeIdentity, type FullMapRiverProbeAtlas } from "./river-full-map.fixture.js";
+import { WATER_HEIGHT_MAINTENANCE_ATLAS, WATER_HEIGHT_MAINTENANCE_PROBE } from "./water-height-maintenance.fixture.js";
 
 export const riverProbeAppRoot = fileURLToPath(new URL("../../", import.meta.url));
 export const riverProbeOutputRoot = resolve(riverProbeAppRoot, "dist/river-contract-probe");
@@ -18,8 +19,8 @@ export const riverProbeOutputRoot = resolve(riverProbeAppRoot, "dist/river-contr
 export const riverProbeInstallDirectoryName = "mod-swooper-river-contract-v1";
 export const riverProbeDeployFlags = ["--input", riverProbeOutputRoot, "--id", riverProbeInstallDirectoryName] as const;
 export const riverProbeMapScript = `{${RIVER_PROBE.id}}/maps/river-contract.js`;
-export type RiverProbeAtlasSelection = RiverProbeAtlas | FullMapRiverProbeAtlas;
-const atlases: readonly string[] = ["legacy", "terrain-admission", "lake-navigation", ...FULL_MAP_RIVER_PROBE_ATLASES];
+export type RiverProbeAtlasSelection = RiverProbeAtlas | FullMapRiverProbeAtlas | typeof WATER_HEIGHT_MAINTENANCE_ATLAS;
+const atlases: readonly string[] = ["legacy", "terrain-admission", "lake-navigation", ...FULL_MAP_RIVER_PROBE_ATLASES, WATER_HEIGHT_MAINTENANCE_ATLAS];
 const isFullMapAtlas = (atlas: string): atlas is FullMapRiverProbeAtlas =>
   (FULL_MAP_RIVER_PROBE_ATLASES as readonly string[]).includes(atlas);
 
@@ -29,8 +30,9 @@ export async function buildRiverProbePlan(proofId: string, variant: RiverProbeVa
   if (!Object.hasOwn(RIVER_PROBE_VARIANTS, variant)) throw new Error(`Unknown river probe variant: ${variant}`);
   if (!atlases.includes(atlasKind)) throw new Error(`Unknown river probe atlas: ${atlasKind}`);
   if (atlasKind !== "legacy" && variant !== "authored") throw new Error("Adapter atlases require the authored finalization tuple.");
-  const fullMap = isFullMapAtlas(atlasKind);
-  const probe = fullMap ? { ...RIVER_PROBE, ...FULL_MAP_RIVER_PROBE } : atlasKind === "terrain-admission" ? RIVER_TERRAIN_PROBE : atlasKind === "lake-navigation" ? RIVER_LAKE_NAVIGATION_PROBE : RIVER_PROBE;
+  const maintenance = atlasKind === WATER_HEIGHT_MAINTENANCE_ATLAS;
+  const fullMap = isFullMapAtlas(atlasKind) || maintenance;
+  const probe = fullMap ? { ...RIVER_PROBE, ...(maintenance ? WATER_HEIGHT_MAINTENANCE_PROBE : FULL_MAP_RIVER_PROBE) } : atlasKind === "terrain-admission" ? RIVER_TERRAIN_PROBE : atlasKind === "lake-navigation" ? RIVER_LAKE_NAVIGATION_PROBE : RIVER_PROBE;
   const displayLabel = "displayLabel" in probe ? probe.displayLabel : "River Contract Probe";
   const adapterImport = atlasKind !== "legacy" ? 'import { Civ7Adapter } from "./src/runtime/map-script/adapter.ts";\n' : "";
   const adapterFactory = atlasKind !== "legacy" ? ", (width, height) => new Civ7Adapter(width, height)" : "";
@@ -41,8 +43,10 @@ export async function buildRiverProbePlan(proofId: string, variant: RiverProbeVa
     if (!config || config.canonicalConfig.id !== "swooper-earthlike") throw new Error("Missing canonical swooper-earthlike config.");
     identity = { configHash: canonicalMapConfigContentDigest(config.canonicalConfig),
       envelopeHash: canonicalMapConfigDigest(config.canonicalConfig),
-      fixtureSourceSha256: createHash("sha256").update(await readFile(new URL("./river-full-map.fixture.ts", import.meta.url))).digest("hex") };
-    source = `${adapterImport}import { installFullMapRiverProbe } from "./test/live/river-full-map.fixture.ts";
+      fixtureSourceSha256: createHash("sha256").update(await readFile(new URL(maintenance ? "./water-height-maintenance.fixture.ts" : "./river-full-map.fixture.ts", import.meta.url))).digest("hex") };
+    source = maintenance ? `${adapterImport}import { installWaterHeightMaintenanceProbe } from "./test/live/water-height-maintenance.fixture.ts";
+installWaterHeightMaintenanceProbe(Civ7Adapter.prototype, ${JSON.stringify(proofId)}, ${JSON.stringify(identity)});
+${renderSwooperCatalogMapSource(config)}` : `${adapterImport}import { installFullMapRiverProbe } from "./test/live/river-full-map.fixture.ts";
 installFullMapRiverProbe(Civ7Adapter.prototype, ${JSON.stringify(proofId)}, ${JSON.stringify(atlasKind)}, ${JSON.stringify(identity)});
 ${renderSwooperCatalogMapSource(config)}`;
   }
@@ -89,8 +93,8 @@ if (import.meta.main) {
   if (!proofId || process.argv.length > 5 || !Object.hasOwn(RIVER_PROBE_VARIANTS, variant) || !atlases.includes(atlasKind))
     throw new Error(`Usage: bun test/live/river-contract-probe.ts <proof-id> [authored|aesthetic|length|upstream|percent] [${atlases.join("|")}] (build only)`);
   await applyGeneratedFilePlan(await buildRiverProbePlan(proofId, variant as RiverProbeVariant, atlasKind as RiverProbeAtlasSelection), { outputRoot: riverProbeOutputRoot });
-  const fullMap = isFullMapAtlas(atlasKind);
-  const probe = fullMap ? FULL_MAP_RIVER_PROBE : RIVER_PROBE;
+  const fullMap = isFullMapAtlas(atlasKind) || atlasKind === WATER_HEIGHT_MAINTENANCE_ATLAS;
+  const probe = atlasKind === WATER_HEIGHT_MAINTENANCE_ATLAS ? WATER_HEIGHT_MAINTENANCE_PROBE : fullMap ? FULL_MAP_RIVER_PROBE : RIVER_PROBE;
   console.log(JSON.stringify({ outputRoot: riverProbeOutputRoot, proofId, variant, atlasKind,
     mapScript: riverProbeMapScript, installDirectoryName: riverProbeInstallDirectoryName,
     deployFlags: riverProbeDeployFlags,
