@@ -20,7 +20,7 @@ is a baseline and discriminator, not the finished solution.
 | Time/erosion/network coherence | Same-seed causal comparisons identified weak incision and fixed preliminary routing | Final climate-fed basin network does not yet shape the terrain it drains |
 | Density and scale | Land-area denominators, map-size cohorts and independent channel-class controls | Select and qualify a gameplay density policy; no invented km-per-tile calibration |
 | Cliffs and navigation | Late cliff generation prevents observed NAV-to-MINOR demotions | Normally produced stock-unit positive control, then Swooper traversal |
-| Lake junctions at (87,31) and larger lake | Repeated controls; outlet-only beats unnecessary interior paths; production repair verified on normal Huge map | Cliff-ringed body69 remains visually discontinuous; distinguish native height treatment from shoreline declaration |
+| Lake junctions at (87,31) and larger lake | Outlet-only production repair; controlled lake-classification change repairs the artificial large-lake cliffs | General production height-lifecycle repair; unlimited cutoff rejected because it reclassifies oceans |
 | Whole-map studies and images | Reusable comparison script, 28 native frames, diagnostic PNGs, flow arrows, phone viewer | Update with final accepted implementation, not just candidate captures |
 | Domain operations / step size | Inventory completed; basin and erosion algorithms already have domain operations | Climate coupling, mountain noise and treeline computation remain extraction candidates |
 | Glossary | Functional glossary with model owners and source links | Extend only for newly introduced concepts |
@@ -64,7 +64,7 @@ serial committed implementations and a single coordinated live-game operator.
 | --- | --- | --- |
 | C0: restore execution | Native Graphite cleanup; explicit open-work accounting | Empty branch removed without commit/tree loss; no operational gate masquerades as a map defect |
 | C1: qualify wet joins | App-owned full-map probe, repeated singleton arm and body42 outlet-only versus complete wet spine | Same dry writes, heights, lake masks and finalizer; reproducible visual join improvement with unaffected controls |
-| C2: generalize projection | Outlet-only policy implemented and reviewed; app remains mechanical | Three held cohorts and normal-map native preservation pass; lake joins repaired, cliff-ringed body69 still requires a bounded height/cliff discriminator |
+| C2: generalize projection | Outlet-only policy implemented and reviewed; classification cause and large-lake visual repair proven separately | Three held cohorts and normal-map preservation pass; general height-lifecycle repair still required, with marine and feature/wonder geometry held |
 | C3: basin evolution | Review explicit terrain/routing/incision composition using certified network and fixed existing climate forcing | Causal process metrics and integrity before default changes; final network/terrain agreement across the held cohorts |
 | C4: density and architecture | Calibrate visible minor/NAV projection after mechanisms; extract affected numerical code into domain operations | Class controls do not alter physical drainage; no arbitrary minimum lake size; focused identity-preserving extraction tests |
 | C5: close the outcome | Full study bank, fresh Huge native generation, actual movement controls, gallery refresh, independent review | Every remaining claim is either verified or an explicit bounded product decision, not an unowned future task |
@@ -78,10 +78,16 @@ it is not an implemented result.
 The accepted [wet outlet implementation](wet-river-continuity.md) preserves all
 physical fields and dry sources across three cohorts. Production native evidence
 separates the repaired lake joins from the remaining cliff-transition case.
-The [native maintenance trace](water-height-maintenance.md) now identifies
+The [native maintenance investigation](water-height-maintenance.md) identifies
 repeated height loss in exactly the accepted inland bodies above Huge's native
-ten-cell lake cutoff. A map-gated classification ablation precedes any outlet
-grading: no physical terrain change is justified by an engine-induced drop.
+ten-cell lake cutoff. V11's cutoff20 treatment changes only those 48 cells and
+repairs the artificial cliffs visually without terrain grading. V12 rejects
+an unlimited cutoff: all 4,276 original-marine cells become native lakes, with
+collateral height, feature and resource changes. Normal Earthlike is restored
+and its actual cutoff10 verified. Next is a reviewed height-lifecycle change
+at the last terrain-maintenance boundary, not a seed-specific cutoff or
+physical carving. Setter reapplication and native feature/wonder preservation
+must be qualified before claiming that candidate works. Navigation is separate.
 
 Refreshing strict-descent receivers between early erosion eras is not the next
 main fix: shipped Earthlike uses one era, so that change cannot alter its
