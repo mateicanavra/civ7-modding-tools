@@ -78,6 +78,10 @@ it is not an implemented result.
 The accepted [wet outlet implementation](wet-river-continuity.md) preserves all
 physical fields and dry sources across three cohorts. Production native evidence
 separates the repaired lake joins from the remaining cliff-transition case.
+The [native maintenance trace](water-height-maintenance.md) now identifies
+repeated height loss in exactly the accepted inland bodies above Huge's native
+ten-cell lake cutoff. A map-gated classification ablation precedes any outlet
+grading: no physical terrain change is justified by an engine-induced drop.
 
 Refreshing strict-descent receivers between early erosion eras is not the next
 main fix: shipped Earthlike uses one era, so that change cannot alter its
@@ -138,6 +142,13 @@ closed prerequisite PRs. The ten accidentally closed drafts were reopened
 completed successfully. This manual PR action repaired the earlier mistake;
 normal stack publication remains Graphite-owned. There is no remaining
 Graphite gate on this continuation. No merge was performed.
+
+Actual submission then exposed the 50-PR stack limit. The subsequent
+[native consolidation](stack-consolidation.md) folded nineteen owned review
+boundaries into their associated feature branches, preserved all commits and
+the final tree, and left prerequisites untouched. Native stack submission now
+passes, including the remaining draft PRs. No further manual PR reopening was
+used.
 
 ## Closure
 

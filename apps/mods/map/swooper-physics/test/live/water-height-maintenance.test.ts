@@ -1,15 +1,20 @@
 import { describe, expect, it } from "bun:test";
 import { decodeBoundedJsonLogSeries } from "@swooper/mapgen-core/lib/log";
-import { installWaterHeightMaintenanceProbe } from "./water-height-maintenance.fixture.js";
-import { buildRiverProbePlan } from "./river-contract-probe.js";
+import { installWaterHeightMaintenanceProbe, WATER_HEIGHT_MAINTENANCE_PROBE, WATER_HEIGHT_LAKE_CUTOFF_PROBE } from "./water-height-maintenance.fixture.js";
+import { buildRiverProbePlan, riverProbeMapScript } from "./river-contract-probe.js";
 
 const identity = { configHash: "a".repeat(64), envelopeHash: "b".repeat(64), fixtureSourceSha256: "c".repeat(64) };
 type Adapter = Parameters<typeof installWaterHeightMaintenanceProbe>[0];
-function fixture() {
+type MapInfo = ReturnType<Adapter["lookupMapInfo"]>;
+const mapInfo = (cutoff: number): MapInfo => ({ MapSizeType: "MAPSIZE_HUGE", LakeSizeCutoff: cutoff, GridWidth: 106, GridHeight: 66 });
+function fixture(info: MapInfo = mapInfo(10)) {
   const calls: Array<{ method: string; arg?: unknown }> = [];
+  const metadataCalls: Array<{ method: string; arg?: unknown }> = [];
   const lines: string[] = [];
   let height = 10;
   const adapter: Adapter = {
+    getMapSizeId: () => { metadataCalls.push({ method: "getMapSizeId" }); return "MAPSIZE_HUGE"; },
+    lookupMapInfo: (id) => { metadataCalls.push({ method: "lookupMapInfo", arg: id }); return info; },
     getElevation: () => height, getTerrainType: () => 3, getRiverType: () => -1,
     isWater: (x) => x === 93, isLake: () => false,
     setElevation: (values) => { calls.push({ method: "setElevation", arg: values }); height = 20; },
@@ -21,16 +26,20 @@ function fixture() {
     storeWaterData: () => { calls.push({ method: "storeWaterData" }); },
   };
   const decode = () => decodeBoundedJsonLogSeries(lines, "[water-height-maintenance]").map((entry) => entry.payload as {
-    stage: string; proofId: string; payload: { method?: string; occurrence?: number; points?: Array<{ elevation: number }>;
-      writes?: Array<{ wet: boolean; intent: unknown }>; elevations?: Array<{ count: number; sha256: string }> };
+    stage: string; proofId: string; diagnosticRevision: number; atlasKind: string;
+    payload: { method?: string; occurrence?: number; points?: Array<{ elevation: number }>;
+      writes?: Array<{ wet: boolean; intent: unknown }>; elevations?: Array<{ count: number; sha256: string }>;
+      mapSizeId?: string; mapInfo?: MapInfo; expectedLakeSizeCutoff?: number; observedLakeSizeCutoff?: unknown; activation?: string };
   });
-  return { adapter, calls, lines, decode };
+  return { adapter, calls, metadataCalls, lines, decode };
 }
 
 describe("water height maintenance observation (not native semantics)", () => {
-  it("preserves call order, arguments and count while observing every validation occurrence", () => {
-    const { adapter, calls, lines, decode } = fixture();
-    installWaterHeightMaintenanceProbe(adapter, "maintenance-test", identity, (line) => lines.push(line));
+  it.each([WATER_HEIGHT_MAINTENANCE_PROBE, WATER_HEIGHT_LAKE_CUTOFF_PROBE])("preserves admitted call order, arguments and count for $atlasKind", (options) => {
+    const info = mapInfo(options.expectedLakeSizeCutoff);
+    const { adapter, calls, metadataCalls, lines, decode } = fixture(info);
+    installWaterHeightMaintenanceProbe(adapter, "maintenance-test", identity, options, (line) => lines.push(line));
+    expect(metadataCalls).toHaveLength(0);
     const values = Array(6996).fill(20);
     const dry = { x: 92, y: 34, direction: "WEST", riverClass: "NAVIGABLE" } as const;
     const wet = { ...dry, x: 93 };
@@ -52,6 +61,12 @@ describe("water height maintenance observation (not native semantics)", () => {
     expect(calls[3]!.arg).toBe(args);
     const records = decode();
     expect(records.every((record) => record.proofId === "maintenance-test")).toBe(true);
+    expect(records.every((record) => record.diagnosticRevision === options.diagnosticRevision && record.atlasKind === options.atlasKind)).toBe(true);
+    expect(metadataCalls).toEqual([{ method: "getMapSizeId" }, { method: "lookupMapInfo", arg: "MAPSIZE_HUGE" }]);
+    expect(records.filter((record) => record.stage === "map-info").map((record) => record.payload)).toEqual([{
+      mapSizeId: "MAPSIZE_HUGE", mapInfo: info, expectedLakeSizeCutoff: options.expectedLakeSizeCutoff,
+      observedLakeSizeCutoff: options.expectedLakeSizeCutoff, activation: "accepted",
+    }]);
     const validations = records.filter((record) => record.payload.method === "validateAndFixTerrain");
     expect(validations.map((record) => [record.stage, record.payload.occurrence, record.payload.points?.[0]?.elevation]))
       .toEqual([["before", 1, 30], ["after", 1, 31], ["before", 2, 31], ["after", 2, 32]]);
@@ -66,16 +81,47 @@ describe("water height maintenance observation (not native semantics)", () => {
     const error = new Error("native failure");
     let calls = 0;
     adapter.validateAndFixTerrain = () => { calls++; throw error; };
-    installWaterHeightMaintenanceProbe(adapter, "maintenance-test", identity, (line) => lines.push(line));
+    installWaterHeightMaintenanceProbe(adapter, "maintenance-test", identity, WATER_HEIGHT_MAINTENANCE_PROBE, (line) => lines.push(line));
     expect(() => adapter.validateAndFixTerrain()).toThrow(error);
     expect(calls).toBe(1);
-    expect(decode().map((record) => record.stage)).toEqual(["installed", "before", "failed"]);
+    expect(decode().map((record) => record.stage)).toEqual(["installed", "map-info", "before", "failed"]);
+  });
+
+  it("refuses invalid activation before any first original call, without converting retries into success", () => {
+    const firstCalls: Array<(adapter: Adapter) => void> = [
+      (adapter) => adapter.setElevation([20]),
+      (adapter) => adapter.setRiverInfo({ x: 93, y: 34, direction: "WEST", riverClass: "NAVIGABLE" }),
+      (adapter) => adapter.finalizeRivers([false, 25, 2, 2]),
+      (adapter) => adapter.validateAndFixTerrain(),
+      (adapter) => adapter.generateCliffsFromElevation(),
+      (adapter) => adapter.recalculateAreas(),
+      (adapter) => adapter.storeWaterData(),
+    ];
+    const invalid: Array<{ options: typeof WATER_HEIGHT_MAINTENANCE_PROBE | typeof WATER_HEIGHT_LAKE_CUTOFF_PROBE; info: MapInfo }> = [
+      { options: WATER_HEIGHT_MAINTENANCE_PROBE, info: mapInfo(20) },
+      ...[mapInfo(10), { ...mapInfo(20), LakeSizeCutoff: "20" }, { MapSizeType: "MAPSIZE_HUGE" },
+        null, mapInfo(Number.NaN), { ...mapInfo(20), MapSizeType: "MAPSIZE_STANDARD" }]
+        .map((info) => ({ options: WATER_HEIGHT_LAKE_CUTOFF_PROBE, info: info as MapInfo })),
+    ];
+    for (const { options, info } of invalid) {
+      for (const firstCall of firstCalls) {
+        const { adapter, calls, metadataCalls, lines, decode } = fixture(info);
+        installWaterHeightMaintenanceProbe(adapter, "invalid-activation", identity, options, (line) => lines.push(line));
+        expect(() => firstCall(adapter)).toThrow(`numeric LakeSizeCutoff=${options.expectedLakeSizeCutoff}`);
+        adapter.lookupMapInfo = () => mapInfo(options.expectedLakeSizeCutoff);
+        expect(() => adapter.validateAndFixTerrain()).toThrow(`numeric LakeSizeCutoff=${options.expectedLakeSizeCutoff}`);
+        expect(calls).toHaveLength(0);
+        expect(metadataCalls).toHaveLength(2);
+        expect(decode().map((record) => record.stage)).toEqual(["installed", "map-info"]);
+        expect(decode()[1]!.payload).toMatchObject({ activation: "refused", expectedLakeSizeCutoff: options.expectedLakeSizeCutoff });
+      }
+    }
   });
 
   it("rejects missing identity and duplicate instrumentation without native calls", () => {
     const { adapter, lines, calls } = fixture();
     expect(() => installWaterHeightMaintenanceProbe(adapter, "test", { ...identity, fixtureSourceSha256: "" })).toThrow();
-    installWaterHeightMaintenanceProbe(adapter, "test", identity, (line) => lines.push(line));
+    installWaterHeightMaintenanceProbe(adapter, "test", identity, WATER_HEIGHT_MAINTENANCE_PROBE, (line) => lines.push(line));
     expect(() => installWaterHeightMaintenanceProbe(adapter, "test", identity)).toThrow();
     expect(calls).toHaveLength(0);
   });
@@ -86,9 +132,43 @@ describe("water height maintenance observation (not native semantics)", () => {
     if (typeof proofContent !== "string") throw new Error("Expected a text proof manifest.");
     const proof = JSON.parse(proofContent);
     expect(proof).toMatchObject({ diagnosticRevision: 9, atlasKind: "full-map-maintenance", sourceConfigId: "swooper-earthlike",
-      width: 106, height: 66, playerCount: 10, installDirectoryName: "mod-swooper-river-contract-v1" });
+      width: 106, height: 66, playerCount: 10, installDirectoryName: "mod-swooper-river-contract-v1", expectedLakeSizeCutoff: 10 });
     expect(proof.intervention).toBeUndefined();
     expect(proof.fixtureSourceSha256).toMatch(/^[a-f0-9]{64}$/);
     expect(plan.files.find((file) => file.relativePath === "maps/river-contract.js")!.content).toContain("[water-height-maintenance]");
+    expect(plan.files.some((file) => file.relativePath === "config/lake-cutoff.xml")).toBe(false);
+    const modinfo = plan.files.find((file) => file.relativePath.endsWith(".modinfo"))!.content;
+    expect(modinfo).not.toContain("MapInUse");
+    expect(modinfo).not.toContain("diagnostic-map");
+    expect(modinfo).not.toContain("lake-cutoff.xml");
+  });
+
+  it("builds V10 as a source-qualified classification-only intervention scoped to the exact diagnostic map", async () => {
+    const control = await buildRiverProbePlan("maintenance-control", "authored", "full-map-maintenance");
+    const plan = await buildRiverProbePlan("cutoff-treatment", "authored", "full-map-lake-cutoff");
+    const content = (files: typeof plan.files, path: string) => {
+      const value = files.find((file) => file.relativePath === path)!.content;
+      if (typeof value !== "string") throw new Error(`Expected text file: ${path}`);
+      return value;
+    };
+    const proof = JSON.parse(content(plan.files, "proof.json"));
+    const controlProof = JSON.parse(content(control.files, "proof.json"));
+    expect(proof).toMatchObject({ diagnosticRevision: 10, atlasKind: "full-map-lake-cutoff", expectedLakeSizeCutoff: 20,
+      sourceConfigId: "swooper-earthlike", mapSeed: 1018, gameSeed: 1018, width: 106, height: 66, playerCount: 10,
+      configHash: controlProof.configHash, envelopeHash: controlProof.envelopeHash, fixtureSourceSha256: controlProof.fixtureSourceSha256,
+      settings: controlProof.settings, evidence: "built-only; no native observations",
+      intervention: { kind: "source-qualified-classification-only", scope: "game", criterion: { MapInUse: riverProbeMapScript },
+        table: "Maps", where: { MapSizeType: "MAPSIZE_HUGE" }, set: { LakeSizeCutoff: 20 } },
+    });
+    expect(proof.intervention.qualification).toContain("no height, visual or navigation success claimed");
+    expect(proof.scriptSha256).not.toBe(controlProof.scriptSha256);
+    expect(content(plan.files, "config/config.xml")).toBe(content(control.files, "config/config.xml"));
+    expect(content(plan.files, "config/config.xml")).toContain(`File="${riverProbeMapScript}"`);
+    expect(content(plan.files, "config/lake-cutoff.xml")).toBe(`<?xml version="1.0" encoding="utf-8"?>\n<Database><Maps><Update><Where MapSizeType="MAPSIZE_HUGE"/><Set LakeSizeCutoff="20"/></Update></Maps></Database>`);
+    const modinfo = content(plan.files, "swooper-river-contract-v1.modinfo");
+    expect(modinfo).toContain(`<Criteria id="diagnostic-map"><MapInUse>${riverProbeMapScript}</MapInUse></Criteria>`);
+    expect(modinfo).toContain('<ActionGroup id="game-lake-cutoff" scope="game" criteria="diagnostic-map"><Actions><UpdateDatabase><Item>config/lake-cutoff.xml</Item></UpdateDatabase></Actions></ActionGroup>');
+    expect(modinfo.match(/<Item>config\/lake-cutoff\.xml<\/Item>/g)).toHaveLength(1);
+    expect(content(plan.files, "maps/river-contract.js")).toContain("[water-height-maintenance]");
   });
 });
