@@ -1,6 +1,6 @@
 # Native Map Controls
 
-Status: elevation and Earthlike climate acceptance pass; native river qualification is next.
+Status: elevation and Earthlike climate acceptance pass; native river qualification exposed a physical drainage prerequisite.
 DRA: root. Opened: 2026-09-27.
 Opening branch: `agent-root-civ7-native-map-controls-frame`.
 
@@ -29,6 +29,13 @@ unrelated Controller/Play migration, upgrade Habitat wholesale, invent generic
 blueprints, or change volcano placement merely because naming is now exposed.
 New resource-schema compatibility is in scope because it gates current-source
 generation and changes facts consumed by placement.
+
+River qualification subsequently exposed a structural terrain/drainage
+mismatch, not a reason to change geophysics wholesale. The bounded
+[drainage reconciliation packet](drainage-reconciliation.md) records the cause,
+counterfactuals and lake-model review needed before native river integration.
+The user authorized removing stale algorithms and unnecessary coupling once
+their causes are established. No speculative terrain treatment is enabled.
 
 The existing API materializer is only the installed-resource sync and
 TypeScript-declaration generator. It does not run, emulate, rebuild, or isolate
@@ -356,8 +363,13 @@ Earthlike climate acceptance now passes: the full bank has 28 studies, 91
 scenarios and 6,408 checks, and the saved Huge/1018 native run completes with
 zero water/lake classification drift. See earthlike-climate.md for the explicit
 E2.5 cohort-mean amendment, native admission gaps and exact proof receipts.
-Proceed through the approved river contract probes before implementation;
-do not infer setter direction or finalizer semantics from the climate pass.
+The V3 Tiny native atlas qualifies both-direction slope controls, a connected
+minor/navigable confluence, class transitions and water-cache-dependent ocean
+connectivity. Finalize only once. See rivers.md for exact receipts and limits;
+membership is not directed-edge readback and through-lake continuity remains
+unproved. The additive adapter contract does not switch production generation.
+Reconcile the physical routing/ground mismatch before lowering the full graph;
+do not drop uphill segments or route replacement corridors in the adapter.
 Publication remains deferred
 by the unrelated ancestor. Preserve the separate main edits and discover current
 owner commands rather than historical aliases. Studio remains available at
