@@ -1,42 +1,52 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
-/**
- * Registers Hydrology-owned network hierarchy, mouth, slope, and permanence. Benchmark evidence
- * is projected separately into the metrics sink so it cannot become pipeline state or
- * river-placement authority.
- */
+const common = {
+  upstreamArea: TypedArraySchemas.i32({
+    cardinality: "map-grid",
+    description:
+      "Contributing tile count. Each certified wet member reports the same body aggregate, not additive per-member area.",
+  }),
+  streamOrderProxy: TypedArraySchemas.u8({
+    cardinality: "map-grid",
+    description:
+      "Strahler-like hierarchy; certified body aggregate is independent of internal wet connectivity.",
+  }),
+  mouthType: TypedArraySchemas.u8({
+    cardinality: "map-grid",
+    description:
+      "0 unresolved, 1 ocean, 2 first downstream accepted lake, 3 legacy closed basin, 4 legacy spill path.",
+  }),
+  slopeClass: TypedArraySchemas.u8({
+    cardinality: "map-grid",
+    description:
+      "0 none/water, 1 flat, 2 low, 3 moderate, 4 steep, 5 legacy mountain-blocked basin.",
+  }),
+  flowPermanenceProxy: TypedArraySchemas.u8({
+    cardinality: "map-grid",
+    description: "0 dry, 1 ephemeral, 2 intermittent, 3 perennial.",
+  }),
+};
+
+/** Metadata over the physical network; never an alternative router. */
 export const artifact = defineArtifact({
   name: "riverNetwork",
   id: "artifact:hydrology.riverNetwork",
-  schema: Type.Object(
-    {
-      upstreamArea: TypedArraySchemas.i32({
-        cardinality: "map-grid",
-        description: "Contributing land-tile count draining through each land tile.",
-      }),
-      streamOrderProxy: TypedArraySchemas.u8({
-        cardinality: "map-grid",
-        description: "Strahler-like river hierarchy (0 on non-river tiles).",
-      }),
-      mouthType: TypedArraySchemas.u8({
-        cardinality: "map-grid",
-        description:
-          "Drainage mouth class: 0=unresolved, 1=ocean, 2=accepted lake, 3=closed basin, 4=spill path.",
-      }),
-      slopeClass: TypedArraySchemas.u8({
-        cardinality: "map-grid",
-        description:
-          "Channel slope class: 0=none/water, 1=flat, 2=low, 3=moderate, 4=steep, 5=mountain-blocked basin.",
-      }),
-      flowPermanenceProxy: TypedArraySchemas.u8({
-        cardinality: "map-grid",
-        description: "Flow persistence: 0=dry, 1=ephemeral, 2=intermittent, 3=perennial.",
-      }),
-    },
-    {
-      additionalProperties: false,
-      description:
-        "Hydrology river hierarchy, mouth, slope, and flow-permanence classifications before Civ7 projection.",
-    }
-  ),
+  schema: Type.Union([
+    Type.Object(
+      { model: Type.Literal("legacy-sink-budget"), ...common },
+      { additionalProperties: false }
+    ),
+    Type.Object(
+      {
+        model: Type.Literal("certified-sill-spill"),
+        ...common,
+        mouthBodyId: TypedArraySchemas.i32({
+          cardinality: "map-grid",
+          description:
+            "First downstream accepted lake root ID on its incoming dry reach; 0 for marine destinations and wet cells.",
+        }),
+      },
+      { additionalProperties: false }
+    ),
+  ]),
 });

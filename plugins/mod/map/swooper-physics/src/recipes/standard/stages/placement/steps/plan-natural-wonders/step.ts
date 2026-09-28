@@ -69,7 +69,7 @@ export const PlanNaturalWondersStep = createStep(config, {
       effectiveMoisture: climateIndices.effectiveMoisture,
       surfaceTemperature: climateIndices.surfaceTemperatureC,
       fertility: pedology.fertility,
-      discharge: hydrography.discharge,
+      discharge: Array.from(hydrography.discharge),
       slopeClass: riverNetwork.slopeClass,
       coastTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST,
       mountainTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_MOUNTAIN,
@@ -91,7 +91,7 @@ export const PlanNaturalWondersStep = createStep(config, {
     const naturalWonderPlan = ops.naturalWonders(plannerInput, strategySelection);
     deps.artifacts.naturalWonderPlan.publish(naturalWonderPlan);
     const naturalWonderPlanInput = measureStandardNaturalWonderPlanInput({
-      plannerInput,
+      plannerInput: { ...plannerInput, discharge: hydrography.discharge },
       engineElevationSource: engineElevation.source,
       strategySelection,
       plan: naturalWonderPlan,

@@ -20,7 +20,7 @@ function baselineSuitabilitySurfaces(size: number) {
     effectiveMoisture: new Float32Array(size),
     surfaceTemperature: new Float32Array(size).fill(15),
     fertility: new Float32Array(size),
-    discharge: new Float32Array(size),
+    discharge: Array<number>(size).fill(0),
     slopeClass: new Uint8Array(size),
   };
 }
@@ -79,7 +79,7 @@ describe("natural wonder planning", () => {
       effectiveMoisture: f32((i) => ((i * 13) % 100) / 100),
       surfaceTemperature: f32((i) => (i * 17) % 30),
       fertility: f32((i) => ((i * 19) % 100) / 100),
-      discharge: f32((i) => (i * 23) % 50),
+      discharge: Array.from(f32((i) => (i * 23) % 50)),
       slopeClass: new Uint8Array(size),
       // Distinct requirement groups (Redwood=I, Kilimanjaro=A, Uluru=H) so the
       // per-wonder suitability — and hence the cross-wonder ranking — differs.

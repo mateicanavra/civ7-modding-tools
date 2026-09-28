@@ -16,6 +16,7 @@ const observed = {
   observedMaximum: Type.Number(),
   mismatchCount: Type.Integer({ minimum: 0 }),
   lakeAdjustmentCount: Type.Integer({ minimum: 0 }),
+  acceptedInlandWaterAdjustmentCount: Type.Integer({ minimum: 0 }),
   unplannedNativeLakeMismatchCount: Type.Integer({ minimum: 0 }),
   nonLakeMismatchCount: Type.Integer({ minimum: 0 }),
   maximumAbsoluteError: Type.Number({ minimum: 0 }),
@@ -61,8 +62,9 @@ export type StandardElevationProjectionMeasurements = Static<
 
 /**
  * Compares exact numeric evidence without quantization, clipping, or an invented tolerance.
- * Authored and currently observed lakes classify mismatches without erasing numeric evidence.
- * Current lake evidence neither authorizes a mismatch nor proves preservation across phases.
+ * Separates accepted native-lake and non-lake coast-water adjustments without changing the
+ * numeric evidence. These categories neither authorize a mismatch nor prove local continuity;
+ * the writing step authenticates stable water, terrain and native classification separately.
  */
 export function measureStandardElevationProjection(input: {
   phase: StandardElevationProjectionMeasurements["phase"];
@@ -70,8 +72,13 @@ export function measureStandardElevationProjection(input: {
   snapshot: CurrentMapElevationSnapshot;
   acceptedLakeMask?: ArrayLike<number>;
   observedLakeMask?: ArrayLike<number>;
+  observedSurface?: Readonly<{
+    waterMask: ArrayLike<number>;
+    terrain: ArrayLike<number>;
+    coastTerrain: number;
+  }>;
 }): StandardElevationProjectionMeasurements {
-  const { intended, snapshot, acceptedLakeMask, observedLakeMask } = input;
+  const { intended, snapshot, acceptedLakeMask, observedLakeMask, observedSurface } = input;
   const plotCount = snapshot.width * snapshot.height;
   if (
     !Number.isSafeInteger(snapshot.width) ||
@@ -90,6 +97,14 @@ export function measureStandardElevationProjection(input: {
   }
   if (observedLakeMask !== undefined && observedLakeMask.length !== plotCount) {
     throw new Error("Observed lake mask cardinality differs from the map dimensions.");
+  }
+  if (observedSurface !== undefined && (
+    observedSurface.waterMask.length !== plotCount || observedSurface.terrain.length !== plotCount
+  )) {
+    throw new Error("Observed water/terrain cardinality differs from the map dimensions.");
+  }
+  if (observedSurface !== undefined && !Number.isSafeInteger(observedSurface.coastTerrain)) {
+    throw new Error("Observed coast terrain requires a safe integer terrain identity.");
   }
   let intendedMinimum = Infinity;
   let intendedMaximum = -Infinity;
@@ -111,6 +126,12 @@ export function measureStandardElevationProjection(input: {
       observedLakeMask[index] !== 1
     ) {
       throw new Error("Observed lake mask requires zero or one for every map plot.");
+    }
+    if (observedSurface !== undefined && (
+      (observedSurface.waterMask[index] !== 0 && observedSurface.waterMask[index] !== 1) ||
+      !Number.isSafeInteger(observedSurface.terrain[index])
+    )) {
+      throw new Error("Observed surface requires binary water and integer terrain for every map plot.");
     }
     intendedMinimum = Math.min(intendedMinimum, value);
     intendedMaximum = Math.max(intendedMaximum, value);
@@ -136,6 +157,7 @@ export function measureStandardElevationProjection(input: {
   }
   let mismatchCount = 0;
   let lakeAdjustmentCount = 0;
+  let acceptedInlandWaterAdjustmentCount = 0;
   let unplannedNativeLakeMismatchCount = 0;
   let nonLakeMismatchCount = 0;
   let maximumAbsoluteError = 0;
@@ -165,7 +187,12 @@ export function measureStandardElevationProjection(input: {
     totalAbsoluteError += error;
     if (error !== 0) {
       mismatchCount += 1;
-      if (acceptedLakeMask?.[index] === 1) lakeAdjustmentCount += 1;
+      if (acceptedLakeMask?.[index] === 1 && observedLakeMask?.[index] === 1) lakeAdjustmentCount += 1;
+      else if (
+        acceptedLakeMask?.[index] === 1 && observedLakeMask?.[index] === 0 &&
+        observedSurface?.waterMask[index] === 1 &&
+        observedSurface.terrain[index] === observedSurface.coastTerrain
+      ) acceptedInlandWaterAdjustmentCount += 1;
       else if (observedLakeMask?.[index] === 1) unplannedNativeLakeMismatchCount += 1;
       else nonLakeMismatchCount += 1;
       if (examples.length < 8)
@@ -178,6 +205,7 @@ export function measureStandardElevationProjection(input: {
     observedMaximum,
     mismatchCount,
     lakeAdjustmentCount,
+    acceptedInlandWaterAdjustmentCount,
     unplannedNativeLakeMismatchCount,
     nonLakeMismatchCount,
     maximumAbsoluteError,

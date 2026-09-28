@@ -1,6 +1,6 @@
 # Native Map Controls
 
-Status: elevation, Earthlike climate and relief coherence acceptance pass; basin-aware drainage remains the active prerequisite to native river integration.
+Status: elevation, climate and relief coherence accepted; Earthlike basin/authored-river integration implemented and independently reviewed. Headless and production-native footprint/class qualification pass. Naval gameplay qualification remains open against a failing stock-map control.
 DRA: root. Opened: 2026-09-27.
 Opening branch: `agent-root-civ7-native-map-controls-frame`.
 
@@ -58,9 +58,9 @@ stack, elevation before rivers. This order reduces experimental confounding; it
 is not a claim that the river setter technically requires our elevation setter.
 Elevation-first execution is complete. On 2026-09-27 the user authorized an
 [Earthlike climate correction](earthlike-climate.md) before proceeding directly
-into native river integration. Existing procedural river behavior remains a
-downstream preservation check until then. Its obsolete automatic naming call
-was removed for installed-source compatibility, without new river authorship.
+into native river integration. Procedural river behavior was the downstream
+preservation check during elevation/climate work. Earthlike now explicitly
+selects the authored network; the other seven identities remain legacy.
 
 Non-goals: redesign geophysics, disguise climate defects with cosmetic noise, finish the
 unrelated Controller/Play migration, upgrade Habitat wholesale, invent generic
@@ -357,7 +357,8 @@ dispatch reads current native height, and V3 input evidence records both units.
   `/tmp/civ7-elevation-final-clean-live.log`; freshly decoded full numeric
   payloads match the prior normal run exactly. A subsequent Explore completes
   with all 6,996 plots revealed and visible; its receipt reports quiescence and
-  verified notification suspension/resumption. The clean map remains loaded.
+  verified notification suspension/resumption. This was the elevation-only
+  acceptance run, subsequently replaced by the river qualification fixtures.
 - The separate `saved-map-preset` launcher fix removes the filesystem path from
   the public saved-config identity. Its 9 tests / 31 assertions, test typecheck
   and formatting pass. The public saved-setup result reports 12 players while
@@ -388,7 +389,93 @@ Keep raw command logs and generated study results outside authored source or in
 owner-defined ignored output homes. Commit conclusions, inputs and exact proof
 references here rather than dumping generated evidence into documentation.
 
-## Next Packet
+## Integration Acceptance
+
+The [Earthlike integration packet](basin-integration.md) is implemented through
+one water/network publication, subsequent exposed-landform selection, whole
+physical body projection, and all classified dry river-source writes. Earthlike
+selects certified water and authored rivers explicitly; the other seven maps
+retain explicit legacy paths, never automatic fallbacks. V6 qualifies minor
+and navigable lake inlets within its tested geometry, without a through-lake
+unit-movement claim.
+
+Headless acceptance passes 29 studies, 96 unique scenarios and 7,820
+expectations (`/tmp/civ7-study-bank-certified-cliff-order-final.json`). The
+owner check/test/build/deploy graph passes 64 tasks, including 835 definition,
+128 realization-app, 222 UI and 403 Studio tests
+(`/tmp/civ7-certified-cliff-order-repaired-graph.log`). These are scoped graph
+results, with cache reuse, not an uncached whole-repository claim.
+
+All 49 legacy cases reproduce the previous captured generation outputs after
+normalizing only the explicitly changed product packaging: 4,312 prior field
+hashes match, including model/projection, observation, resources and placement.
+See `/tmp/civ7-legacy-capture-qualification.json`. The unnormalized comparison
+is intentionally different; empty island knobs alter configuration identity,
+not physical outputs. Original Earthlike ground, marine geography and baseline
+forcing remain held while water, channel reservation and downstream consumers
+respond to the new physical network.
+
+Three old certified-lake proxy budgets are retired: component count, total
+area share, and singleton share. Measurements remain, legacy assertions remain,
+and physical conservation, complete footprints, receiver integrity, placement,
+settlement, ecology, relief and access guards remain. The
+[singleton study](basin-singletons.md) documents real local walking barriers;
+neither zero fragmentation nor universal access is claimed. Mouth and planned
+landform measurements now use their actual exposed-land populations rather
+than treating wet interiors as unresolved mouths or dry allocation capacity.
+
+The first normal native run accepted all 203 planned water cells, then stopped
+because an assertion incorrectly required every physical lake to have Civ7's
+`isLake` classification. Diagnostic replay isolates 48 non-lake COAST cells in
+three complete 15/16/17-cell inland bodies. The reviewed correction preserves
+exact physical water/terrain and reports native classification separately;
+it does not shrink bodies or change Civ7 metadata. A subsequent immediate-setter
+probe separately qualifies numeric adjustment of accepted inland COAST water,
+requiring original physical land and stable native water, terrain and category.
+Complete normal runs preserve all 203 water cells. The final normal Huge/1018
+run has exact class parity for all 656 river sources (362 minor, 294 navigable),
+zero missing/extra sources and zero NAV-terrain mismatch. Generated and
+deployed SHA-256 is `56b0a9a7cb9b84528a21fb4efec846fb0ff8870be73ab0150ac416601b7a137e`;
+fresh completion is `2026-09-28T12:19:36.832Z`. Its full 6,996-plot public
+readback has stable map/turn identity. Receipts:
+`/tmp/civ7-certified-release-native-{live.log,decoded.json,surface.json}`.
+
+The late-cliff ordering is a class-preserving candidate, not a demonstrated
+navigation repair. The [navigation discriminator](native-navigation.md)
+reproduces failed Galley river entry on both official Earth and procedural
+Continents, including validated NAV placement relocating the unit to coast.
+Thus the current test does not identify a generator-specific defect. Actual
+naval traversal remains an explicit open qualification; do not claim the
+entire gameplay lane complete or reshape physics to fit the failed control.
+The reviewed physical/native-category integration is committed independently
+of that unresolved native gameplay check.
+
+Publication remains deferred by the unrelated empty ancestor
+`agent-root-civ7-control-service-rewrite`. Do not mutate or publish unrelated
+ancestry to clear it. The separate main edits remain untouched. Studio runs
+from this worktree at `http://127.0.0.1:5173/`.
+
+### Final Visual Receipt
+
+The normal Huge Earthlike/1018 map remains loaded and fully revealed. After
+dismissing the queued Iguazu discovery cinematic, public coordinate appshots
+confirmed the requested camera centers, hid the HUD during capture, and
+restored it afterward. All three final images were visually inspected:
+
+| View | Plot | Local image |
+| --- | --- | --- |
+| Mountain/foothill and dry-to-green transition | 90, 23 | `/tmp/civ7-certified-mountain-foothills-final.png` |
+| Wetter coastal vegetation and river corridors | 53, 31 | `/tmp/civ7-certified-tropical-corridors-final.png` |
+| High coastal relief and river mouths | 94, 19 | `/tmp/civ7-certified-high-coast-final.png` |
+
+Capture metadata, camera verification and file hashes are in
+`/tmp/civ7-certified-visible-appshots.log`. The high-coast image intentionally
+retains the actual cliff-mouth outcome; visual river continuity is not evidence
+of naval passability. Earlier fogged captures are superseded, not proof frames.
+
+## Historical Handoff
+
+The following records the pre-integration handoff, not current activation state.
 
 The relief continuation is committed through
 `agent-root-civ7-relief-supported-landforms`: coherent spatial noise, a shelf

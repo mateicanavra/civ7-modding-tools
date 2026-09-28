@@ -279,15 +279,16 @@ function captureFinalSurface(
 
 function captureRiverProjection(
   context: ReturnType<typeof createMapContext>,
-  adapter: Pick<EngineAdapter, "readRiverProjection">,
+  adapter: Pick<EngineAdapter, "getRiverCapabilities">,
   dimensions: Readonly<{ width: number; height: number }>
 ): StandardRiverProjectionCapture {
-  const projected = requireArtifact(context, hydrographyArtifacts.projectedNavigableRivers);
+  const projected = requireArtifact(context, hydrographyArtifacts.projectedRivers);
   const { width, height } = dimensions;
   const size = width * height;
-  const readback = adapter.readRiverProjection(width, height, projected.riverMask);
-  const unsupportedReason = nonEmptyString(readback.minorRiverUnsupportedReason);
+  const capabilities = adapter.getRiverCapabilities();
   return {
+    model: projected.model,
+    nativeMinor: requiredGrid(width, height, projected.nativeMinorRiverMask, size, "native minor intent"),
     plannedMinor: requiredGrid(
       width,
       height,
@@ -310,16 +311,9 @@ function captureRiverProjection(
       "projected navigable terrain"
     ),
     minorRiverStamping:
-      readback.minorRiverStampingSupported === true
+      capabilities.setRiverInfo.status === "available"
         ? { status: "supported" }
-        : readback.minorRiverStampingSupported === false && unsupportedReason !== undefined
-          ? { status: "unsupported", reason: unsupportedReason }
-          : {
-              status: "unresolved",
-              reason:
-                unsupportedReason ??
-                "The adapter did not identify whether native minor-river stamping is supported.",
-            },
+        : { status: "unsupported", reason: capabilities.setRiverInfo.reason },
   };
 }
 
@@ -340,10 +334,4 @@ function requiredGrid(
     height,
     values: Array.from(value, (entry) => (Number.isFinite(entry) ? Math.trunc(entry) : null)),
   };
-}
-
-function nonEmptyString(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const trimmed = value.trim();
-  return trimmed.length === 0 ? undefined : trimmed;
 }

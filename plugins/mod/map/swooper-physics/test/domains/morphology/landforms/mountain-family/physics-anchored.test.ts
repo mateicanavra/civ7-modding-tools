@@ -37,6 +37,7 @@ describe("mountain-family orogeny gating", () => {
         width,
         height,
         landMask,
+        candidateMask: landMask,
         elevation,
         boundaryCloseness,
         boundaryType,

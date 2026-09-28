@@ -34,7 +34,7 @@ function runRiverSystem(input: {
       width: input.width,
       height: input.height,
       landMask: input.landMask,
-      discharge: accumulated.discharge,
+      discharge: Array.from(accumulated.discharge),
       flowDir: input.flowDir,
     },
     {

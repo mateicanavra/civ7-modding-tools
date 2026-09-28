@@ -26,7 +26,7 @@ export type StandardReliefCoherenceInput = Readonly<{
     | "plannedLakeMask"
     | "riverClass"
     | "flowDir"
-    | "routingElevation"
+    | "physicalHydrology"
     | "surfaceTemperature"
     | "baselineRainfall"
     | "refinedRainfall"
@@ -122,6 +122,7 @@ type RiverEdge = Readonly<{
   routingReceiverMinusSource: number;
 }>;
 type RiverMetrics = Readonly<{
+  routingSurfaceKind: "legacy-conditioned" | "certified-water-surface";
   authoredTiles: number;
   terminalTiles: CountMetric;
   invalidReceiverTiles: CountMetric;
@@ -628,6 +629,10 @@ function measureRiverEdges(
   plannedClass: (i: number) => PlannedClass | "nonLand",
   observedClass: (i: number) => ObservedClass | "nonLand"
 ): RiverMetrics {
+  const physicalHydrology = input.model.physicalHydrology;
+  const routingSurface = physicalHydrology.model === "legacy-sink-budget"
+    ? physicalHydrology.routingElevation
+    : physicalHydrology.waterSurface;
   const edges: RiverEdge[] = [],
     terminals: number[] = [],
     invalid: number[] = [];
@@ -662,7 +667,7 @@ function measureRiverEdges(
     const physicalReceiverMinusSource =
       input.model.elevation[receiver]! - input.model.elevation[source]!;
     const routingReceiverMinusSource =
-      input.model.routingElevation[receiver]! - input.model.routingElevation[source]!;
+      routingSurface[receiver]! - routingSurface[source]!;
     if (
       Number.isFinite(physicalReceiverMinusSource) &&
       Number.isFinite(routingReceiverMinusSource)
@@ -686,6 +691,7 @@ function measureRiverEdges(
         .map((e) => Object.freeze(e))
     );
   return Object.freeze({
+    routingSurfaceKind: physicalHydrology.model === "legacy-sink-budget" ? "legacy-conditioned" : "certified-water-surface",
     authoredTiles,
     terminalTiles: measureMetricCount(terminals.length, authoredTiles),
     invalidReceiverTiles: measureMetricCount(invalid.length, authoredTiles),

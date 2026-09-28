@@ -1,4 +1,5 @@
 import morphology from "../../../../../../../domain/morphology/index.js";
+import { artifacts as hydrographyArtifacts } from "../../../../../../../domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyCoastsArtifacts } from "../../../../../../../domain/morphology/modules/coasts/artifacts/index.js";
 import { artifacts as morphologyErosionArtifacts } from "../../../../../../../domain/morphology/modules/erosion/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../domain/morphology/modules/landforms/artifacts/index.js";
@@ -22,6 +23,8 @@ export const config = defineStep({
     morphologyErosionArtifacts.substrate,
     morphologyRoutingArtifacts.routing,
     morphologyCoastsArtifacts.baseCoastline,
+    hydrographyArtifacts.hydrography,
+    hydrographyArtifacts.lakePlan,
   ],
   provides: [morphologyLandformsArtifacts.mountains],
 

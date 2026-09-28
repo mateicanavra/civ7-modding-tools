@@ -54,6 +54,14 @@ export const VolcanoesStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const plates = deps.artifacts.plates.read();
     const topography = deps.artifacts.topography.read();
+    const lakePlan = deps.artifacts.lakePlan.read();
+    const hydrography = deps.artifacts.hydrography.read();
+    const landMask = lakePlan.model === "certified-sill-spill"
+      ? Uint8Array.from(topography.landMask, (land, i) => land === 1 && lakePlan.lakeMask[i] === 0 ? 1 : 0)
+      : topography.landMask;
+    const candidateMask = lakePlan.model === "certified-sill-spill"
+      ? Uint8Array.from(landMask, (land, i) => land === 1 && hydrography.riverClass[i] === 0 ? 1 : 0)
+      : landMask;
     const { width, height } = context.setup.dimensions;
     const rngSeed = deriveStepSeed(context.setup.mapSeed, "morphology:planVolcanoes");
 
@@ -61,7 +69,8 @@ export const VolcanoesStep = createStep(config, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask,
+        candidateMask,
         boundaryCloseness: plates.boundaryCloseness,
         boundaryType: plates.boundaryType,
         shieldStability: plates.shieldStability,

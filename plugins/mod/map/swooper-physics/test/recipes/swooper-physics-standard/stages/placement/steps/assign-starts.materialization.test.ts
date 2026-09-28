@@ -167,6 +167,7 @@ function publishAssignStartsInputs(context: MapContext, landTiles: readonly Land
     distanceToCoast: new Uint16Array(size),
   });
   publishTestArtifact(context, hydrographyArtifacts.hydrography, {
+    model: "legacy-sink-budget",
     runoff: new Float32Array(size),
     discharge: new Float32Array(size),
     riverClass: new Uint8Array(size),
@@ -179,6 +180,7 @@ function publishAssignStartsInputs(context: MapContext, landTiles: readonly Land
     terminalType: new Uint8Array(size),
   });
   publishTestArtifact(context, hydrographyArtifacts.lakePlan, {
+    model: "legacy-sink-budget",
     width,
     height,
     lakeMask: new Uint8Array(size),

@@ -22,6 +22,34 @@ Each deferral follows this structure:
 
 ## Active Deferrals
 
+## DEF-023: General Non-Open Basin Coordination
+
+**Deferred:** 2026-09-28
+**Trigger:** A retained Earthlike seed fails the certified support contract, or
+another shipped map is proposed for migration to certified water.
+**Context:** The open sill-spill model supports all 47 current Earthlike study
+scenarios but not four desert-mountains cases. Those include actual non-open
+root budgets; legacy selection remains explicit for other map identities.
+**Scope:** Implement the demonstrated closed/subtile or interacting-body case
+from its witness, preserving mass balance and original ground. Do not add
+automatic fallback, seed retries, or speculative general coordination.
+**Impact:** Unsupported certified configurations fail explicitly. Current
+cohorts do not establish universal seed/configuration support. See
+[the bounded integration contract](../projects/native-map-controls/basin-integration.md).
+
+## DEF-024: Continuous Native Navigation Across Lake Bodies
+
+**Deferred:** 2026-09-28
+**Trigger:** A product requirement depends on traversing a lake between its
+authored navigable inlet and outlet, rather than retaining those reach classes.
+**Context:** Native probes preserve navigable lake-bound reaches but assign
+separate inlet/outlet river identities. Class retention and ocean connectivity
+do not prove a continuous unit route through the intervening lake.
+**Scope:** Test real movement/path availability on a bounded native fixture;
+retain class, membership, freshwater and directed-path evidence separately.
+**Impact:** Do not advertise through-lake navigation or infer it from the
+physical water graph. See [native river qualification](../projects/native-map-controls/rivers.md).
+
 The DEF-004…DEF-014 family is owned by the placement-realignment project
 (`docs/projects/placement-realignment/`; slice evidence under `evidence/`,
 live-proof runbook in `MILESTONE-PROOFS.md`).

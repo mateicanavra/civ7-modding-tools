@@ -1,8 +1,8 @@
 # Earthlike Basin Integration
 
-Status: root-approved engineering design under the user's delegated authority,
-independently reviewed; not an activation or verification
-receipt. This packet implements the selected direction in
+Status: implemented and independently reviewed; the complete headless bank and
+owner check/test/build/deploy graph pass. Production-native footprint/class
+qualification passes; actual naval traversal remains open. This packet implements the selected direction in
 [WORKSTREAM](WORKSTREAM.md), [basin design](basin-design.md), and
 [the bounded open-network contract](basin-open-network.md). Native evidence
 and unresolved qualification questions remain in [rivers](rivers.md).
@@ -49,10 +49,13 @@ The physical and native claims are different:
 
 - Physical truth includes exact strict wet footprints, preserved ground,
   nonascending adjacent dry receivers, mixed-body flux, and marine exits.
-- Civ7 receives whole categorical lake bodies and land-only river writes.
+- Civ7 receives whole inland-water bodies and land-only river writes.
   Native lake elevation is not independently controlled physical water height.
+  Physical freshwater bodies and native `isLake` classification are distinct;
+  see the native water-category boundary below.
 - Physical major class and intended native navigability are separate fields.
-  V6 must qualify navigable lake inlets before selecting their lowering rule.
+  The independently reviewed V6 probe qualifies navigable lake inlets within
+  its tested geometry; the selected lowering is MINOR to MINOR and MAJOR to NAVIGABLE.
 - Separate native inlet/outlet river IDs are acceptable. One native object or
   continuous navigation through a lake is not required or presently proven.
 
@@ -131,7 +134,9 @@ back into routing, body budgets, or conservation.
 
 Reuse `projectRiverNetwork` with final dry-cell discharge and receivers. Admit
 Number-valued discharge without first truncating it to Float32; preserve the
-legacy array input and classification result on its branch.
+legacy represented values and classification result by widening the existing
+Float32 input with `Array.from` at the operation boundary. Legacy artifacts
+remain Float32; the operation admits `number[]` for both callers.
 
 Add the focused `classify-basin-river-network` operation for the materially
 different body-aware input. It produces the existing river-metadata product,
@@ -150,8 +155,10 @@ boundaries. Wet BFS receivers are connectivity only: zero wet entries in
 ## Authored Configuration
 
 Keep the Standard recipe and existing Core machinery. No recipe-family
-registry, conditional scheduler, alternative operation dispatcher, or Core
-change is needed.
+registry, conditional scheduler, or alternative operation dispatcher is needed.
+Integration exposed a shared artifact-admission limitation; the independently
+reviewed [tagged artifact admission prerequisite](tagged-artifact-admission.md)
+adds only exact root object-variant support, not product policy or scheduling.
 
 There is a genuine authoring limitation: `defineStep` binds every declared
 operation envelope, and `createRecipe` executes every registered step. A
@@ -329,11 +336,13 @@ These are not a universal terrain/direction or navigation-through-lake law.
 Keep the source-to-receiver lowering proof separate from native class,
 membership, adjacency and gameplay observations.
 
-V6 is the bounded gate for native lake-inlet navigation. Until its result is
-reviewed, do not finalize a major-to-native lowering rule or claim exact
-navigation parity. Any approved distinction must be visible as physical class
-versus intended native class; an observed native demotion is still a mismatch
-against the latter, not permission to rewrite intent after the fact.
+V6 passed the bounded lake-inlet class gate: all 34 dry-source writes retained
+their intended classes, including eight navigable inlet cells, across seven
+later native phases. See [the native river record](rivers.md). This selects
+one-to-one physical/native class lowering, including lake inlets, but does not
+prove through-lake movement or arbitrary geometry. Physical class, intended
+native class, and observed class remain distinct; an observed demotion is a
+mismatch, not permission to rewrite intent after the fact.
 
 ## Acceptance Contract
 
@@ -360,8 +369,12 @@ Replace those two proxies with direct certified invariants:
 
 Retain existing geography, placement/start legality and spacing, settlement,
 coastal access, relief/range structure, ecology/floodplain and resource guards.
-Keep the remaining singleton-share guard until separately reviewed; failure
-must be investigated, not repaired by clipping a strict physical footprint.
+The separately reviewed [singleton study](basin-singletons.md) retires the
+20% singleton-share quota for certified bodies only. All 76 examined singletons
+are complete supported bodies, not projection fragments. Keep their count and
+share as diagnostics, the legacy quota, and every direct physical/playability
+guard. The study records real local walking barriers, including an enclosed
+three-cell pocket; this is not a universal access or zero-fragmentation claim.
 Do not assert zero land fragmentation, manufacture passes, or promise unchanged
 mountain counts. Placement/playability evidence, not a lake count, judges the
 consequences of coherent water and surface eligibility.
@@ -432,8 +445,8 @@ bounded native proof, not as a disconnected helper or a partially native map.
    controls and wrong projection pairing; compile forwards only selected
    authorship; inactive operation spies remain unused. All eight config assets
    remain valid. Manifest/DAG tests prove ground before water and water before
-   surface landforms. Run existing owner type/policy checks without changing
-   Core or weakening Habitat rules.
+   surface landforms. Run existing owner type/policy checks plus the narrow
+   Core admission prerequisite's complete checks, without weakening Habitat rules.
 2. **Physical semantics:** test attributed double-precision runoff, unsupported
    refusal before publication, preserved ground, consistent three-product
    publication, final terminal IDs, strict sill ties and quotient accounting.
@@ -470,15 +483,148 @@ one network step, shared physical artifacts, and post-water surface selection.
 The internal inactive-envelope distinction above is intentional and bounded by
 the static authoring API; it does not authorize unused public controls.
 
-The root has approved the model-scoped retirement of the two proxy lake
+The root has approved the model-scoped retirement of the three proxy lake
 budgets under the user's delegated authority. The quantified full-footprint
 cases and physical intent justify that decision; no replacement fitted caps
 or relaxation of physical/playability guards is approved. Independent
 architecture review accepted the design after the explicit thermal/terrestrial
-mask split and Core-owned knobs clarification. V6's native inlet-navigation
-result remains an activation gate, not a request to reopen the settled
-proxy-budget decision. If a real
+mask split and Core-owned knobs clarification. V6's native inlet-class gate
+has passed; complete Earthlike generation passes headless and the bounded
+production-native category qualification recorded below. Actual naval
+traversal remains separate and open. If a real
 Earthlike unsupported witness appears, preserve it and decide whether to
 narrow the advertised support domain or implement that demonstrated
 coordinator case. Do not preemptively build the general simulator or relabel
 failure as success.
+
+The first integrated bank also exposed measurement-population mismatches,
+not physical failures. Certified wet-body connectivity carries no independent
+river mouth: mouth coverage now explicitly counts exposed dry sources while
+catchment coverage still counts all original land. Planned landform shares
+use the same exposed-land population as their allocator; geological and
+legacy populations are unchanged. Huge 1018 foothills are 317/2517 (12.594%),
+and Huge 7777 are 207/2484 (8.333%), both passing unchanged thresholds.
+
+## Native Water-Category Boundary
+
+The first normal Huge/1018 run stopped on an over-strong native classification
+assertion, not a rejected physical footprint. A diagnostic replay emitted one
+complete 13-part `CERTIFIED_LAKE_PROJECTION_V1` series (digest `4f9900d2`): all
+203 planned cells are accepted COAST/water with zero terrain mismatch. Of
+these, 155 are native `isLake`; the other 48 belong to three isolated native
+water areas of 15, 16 and 17 cells, each wholly within planned bodies. All
+observed areas of 1..10 cells are native lakes, including two ten-cell controls.
+Huge's metadata has `LakeSizeCutoff=10`; this is evidence consistent with a
+size-dependent category, not a recovered general native implementation.
+
+The independently reviewed correction preserves physical bodies and Civ7's
+database. Certified acceptance requires exact water and COAST terrain, not
+that every physical body acquire native lake identity. `projectedLakes` stays
+an immutable accepted physical footprint; it gains no native-class snapshot.
+Stamp/final receipts expose native classifications independently, and local
+before/after observations qualify numeric leveling. A physical mask alone
+grants no numeric mismatch exemption. Native freshwater,
+feature legality and navigation remain actual-game observations, not claims
+inferred from the physical mask. Start planning's physical-lake adjacency
+score is modeled opportunity, not proof of a native freshwater bonus.
+
+Diagnostic receipts: `/tmp/civ7-certified-native-rejected-scripting.log`,
+`/tmp/civ7-certified-lake-diagnostic-scripting.log` and
+`/tmp/civ7-certified-lake-diagnostic-live.log`. This amendment does not by
+itself qualify the final map, native heights, freshwater or river classes.
+
+The subsequent numeric discriminator found that `setElevation` levels all
+203 accepted inland-water cells, not only the 155 native-classified lakes.
+The 15-, 16- and 17-cell bodies read uniformly at 530, 230 and 110 respectively;
+all 55 physical bodies have one observed numeric level. These are native
+representation observations, not physical spill-height equality or a recovered
+leveling formula. All ordinary land and ocean writes remain exact; the only
+adjustment outside the accepted footprint is the already-qualified native lake
+at original-water cell 976.
+
+A temporary immediate-post-setter read was compared with the existing
+post-cliff/area read across all 6,996 cells: zero differences. The complete
+setter receipt has digest `d08abada`; the post-write receipt is `664329d0`.
+This attributes the observed adjustment to the setter without claiming absence
+of unobserved intermediate changes. The temporary probe is removed after this
+qualification; durable post-write/final numeric receipts remain.
+
+The numeric contract therefore distinguishes accepted native-lake adjustments,
+accepted inland-COAST adjustments, and other mismatches. Accepted adjustments
+require complete finite readback and locally unchanged water, COAST terrain
+and native category. Ordinary land/original ocean retain exact admission;
+the separate original-water native-lake exception still requires stable native
+lake evidence. Body-level uniformity remains diagnostic rather than a new
+unsupported engine constraint. Receipt:
+`/tmp/civ7-inland-water-setter-diagnostic-decoded.json`, with the corresponding
+`-scripting.log` and `-live.log` files. At that point a complete normal run and
+final river/water readback were still required; the qualified normal result
+is recorded at the end of the cliff-order discriminator below.
+
+## Native Cliff-Order Discriminator
+
+The first completed normal map retains all 656 intended river source positions
+with zero missing or extra sources, but 11 intended navigable cells become
+minor. These form three complete dry reaches of four, five and two cells ending
+at original marine water. Their physical receivers are nonascending; there is
+no downstream physical MINOR interruption or blocking mountain/volcano. A
+six-phase diagnostic locates these demotions and the first 48 inland COAST
+height adjustments at `finalizeRivers`. Terrain validation then changes 31 of
+those water heights again; coast restoration, area calculation and cache
+refresh make no further change. The source classes remain stable after
+finalization.
+This is a failed class-parity gate, not full integration acceptance.
+
+Those mouths have the three largest native drops (428, 548 and 388), but a
+bare drop threshold contradicts V6's retained 750-to-zero navigable control.
+V5/V6 did not generate cliffs; the production map does so before river
+finalization. Shipped Earth also generates cliffs first, so changing that
+order is a new experiment, not asserted official precedent.
+
+The predeclared ordering discriminator, before changing physical classification:
+on the certified path only, generate cliffs after authored finalization and
+terrain/coast restoration, then refresh areas and water data. Hold all physical
+fields, numeric elevation intent, every source/class write and the once-only
+finalizer tuple exact. Observe complete source classes and numeric changes
+before and after late cliff generation and through final placement. Success
+must retain the authored classes and water footprint without a second river
+finalization, setter repair, invented navigability threshold, or ground carve.
+If the demotions persist, reject cliff order as their explanation.
+
+Receipts: `/tmp/civ7-certified-final-native-{decoded,surface}.json`,
+`/tmp/civ7-certified-river-phases.json`,
+`/tmp/civ7-certified-river-demotion-diagnosis.json`, and
+`/tmp/civ7-certified-river-mouth-discriminator.json`.
+
+The ordering discriminator retains all intended classes through all seven
+observed phases: 362 MINOR and 294 NAV. Complete rows, not just counts, match.
+Cliffs remain present, including at the three formerly demoted mouths; the
+late call does not further change measured heights. No second finalization,
+numeric correction, height cutoff, class rewrite or terrain carve was added.
+This establishes a class-preserving ordering, not a navigation repair.
+
+The final normal Huge/1018 run completed at `2026-09-28T12:19:36.832Z`, with
+generated/deployed script SHA-256
+`56b0a9a7cb9b84528a21fb4efec846fb0ff8870be73ab0150ac416601b7a137e`.
+All 656 intended sources retain their classes, with zero missing/extra cells
+or NAV-terrain mismatches. All 203 planned wet cells remain water/COAST; 155
+are native lakes and 48 are the separately qualified inland-COAST category.
+The public 6,996-cell readback has stable map/turn identity. Temporary phase
+instrumentation is absent from the normal generated script's run.
+
+Immediate numeric admission has zero other-land/original-ocean mismatches,
+plus 155 accepted lake, 48 accepted inland-COAST and one original-water native
+lake adjustment. Final observation adds two dry differences, cells 2603 and
+2709, both on native Redwood Forest. This identifies the affected feature,
+not the exact later mutating call. Placement is not represented as perfect:
+206/216 resource placements, 4/7 wonders and 1,366/1,367 ordinary feature
+placements are accepted; rejected intents remain reported without retries
+or substituted success. Receipts:
+`/tmp/civ7-certified-release-native-{live.log,decoded.json,surface.json}`.
+
+[Native navigation qualification](native-navigation.md) remains explicitly
+open. The Galley entry test also fails on cold official Earth and procedural
+Continents controls. That failed oracle cannot justify changing our physical
+model or claiming a generator-specific bug. Physical/native-category
+integration can be committed and reviewed separately, while no general
+naval traversal, exact directed-edge or through-lake gameplay claim follows.

@@ -3,7 +3,7 @@ import { metricShare } from "@swooper/mapgen-metrics";
 
 import { measureStandardBiomeRows } from "../../../../../../src/recipes/standard/metrics/families/ecology.js";
 
-function controlledBiomeRows() {
+function controlledBiomeRows(model: "legacy-sink-budget" | "certified-sill-spill" = "legacy-sink-budget") {
   const width = 40;
   const height = 3;
   const landMask = new Uint8Array(width * height);
@@ -12,10 +12,34 @@ function controlledBiomeRows() {
   const biomeIndex = new Uint8Array(width * height).fill(5);
   biomeIndex.fill(0, 0, 30);
   biomeIndex.fill(0, 40, 50);
-  return { provenance: { width, height }, model: { landMask, biomeIndex } };
+  return {
+    provenance: { width, height },
+    model: {
+      landMask,
+      biomeIndex,
+      plannedLakeMask: new Uint8Array(width * height),
+      physicalHydrology: { model },
+    },
+  };
 }
 
 describe("Standard biome-row measurements", () => {
+  it("uses certified exposed land for row qualification and shares while retaining legacy populations", () => {
+    const certified = controlledBiomeRows("certified-sill-spill");
+    const legacy = controlledBiomeRows();
+    for (const input of [certified, legacy]) {
+      input.model.plannedLakeMask.fill(1, 0, 10);
+      input.model.plannedLakeMask[40] = 1;
+      input.model.biomeIndex.fill(255, 0, 10);
+      input.model.biomeIndex[40] = 255;
+    }
+    expect(measureStandardBiomeRows(certified).dominantBiomeTiles).toEqual({ count: 20, population: 30 });
+    expect(measureStandardBiomeRows(certified).qualifiedRainforestRowCount).toBe(1);
+    expect(measureStandardBiomeRows(legacy).dominantBiomeTiles).toEqual({ count: 30, population: 60 });
+    expect(measureStandardBiomeRows(legacy).qualifiedRainforestRowCount).toBe(2);
+    expect(certified.model.landMask).toEqual(legacy.model.landMask);
+  });
+
   it("weights row dominance by land population and qualifies exactly twenty land tiles", () => {
     const rows = measureStandardBiomeRows(controlledBiomeRows());
     expect(rows.dominantBiomeTiles).toEqual({ count: 40, population: 60 });

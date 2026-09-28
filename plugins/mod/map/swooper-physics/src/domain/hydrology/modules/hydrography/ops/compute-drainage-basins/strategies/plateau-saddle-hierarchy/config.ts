@@ -10,6 +10,9 @@ export default defineStrategy({
         description: "Allows north/south boundary land to terminate externally; X always wraps.",
       }),
     },
-    { additionalProperties: false }
+    {
+      additionalProperties: false,
+      description: "Builds an elevation-cohort basin hierarchy with explicitly admitted external edge outlets.",
+    }
   ),
 });

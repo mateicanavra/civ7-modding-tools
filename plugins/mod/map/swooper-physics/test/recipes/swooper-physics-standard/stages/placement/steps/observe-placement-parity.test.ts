@@ -1,6 +1,12 @@
 import { describe, expect, it } from "bun:test";
 
-import { type CurrentMapElevationSnapshot, MockAdapter } from "@civ7/adapter";
+import {
+  type CurrentMapElevationSnapshot,
+  type RiverProjectionResult,
+  MockAdapter,
+} from "@civ7/adapter";
+import type { ArtifactValueOf } from "@swooper/mapgen-core/authoring";
+import { Value } from "typebox/value";
 import { artifacts as hydrographyArtifacts } from "../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
@@ -15,6 +21,35 @@ import {
 import { ObservePlacementParityStep } from "../../../../../../src/recipes/standard/stages/placement/steps/observe-placement-parity/step.js";
 import { projectStandardElevation } from "../../../../../../src/recipes/standard/elevation-projection.js";
 import { TEST_MAP_LATITUDE_BOUNDS, TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
+import { StandardFinalRiverParityMeasurementsSchema } from "../../../../../../src/recipes/standard/metrics/families/hydrology/final-river-parity.js";
+
+type ProjectedRivers = ArtifactValueOf<typeof hydrographyArtifacts.projectedRivers>;
+function riverIntent(
+  sources: readonly (readonly [number, "MINOR" | "NAVIGABLE"])[] = []
+): Extract<ProjectedRivers, { model: "certified-sill-spill" }> {
+  const { width, height } = TEST_MAP_SIZE.dimensions;
+  const minor = new Uint8Array(width * height),
+    major = new Uint8Array(width * height);
+  for (const [cell, kind] of sources) (kind === "MINOR" ? minor : major)[cell] = 1;
+  return {
+    model: "certified-sill-spill",
+    width,
+    height,
+    riverMask: major,
+    nativeMinorRiverMask: minor,
+    plannedMinorRiverMask: minor,
+    plannedMajorRiverMask: major,
+    plannedMinorRiverTileCount: sources.filter(([, kind]) => kind === "MINOR").length,
+    plannedMajorRiverTileCount: sources.filter(([, kind]) => kind === "NAVIGABLE").length,
+    authoredSourceCount: sources.length,
+    writes: sources.map(([sourceCell, riverClass]) => ({
+      sourceCell,
+      receiverCell: sourceCell + 1,
+      direction: "EAST",
+      riverClass,
+    })),
+  };
+}
 
 function createLandAdapter(Adapter: typeof MockAdapter = MockAdapter): MockAdapter {
   const { width, height } = TEST_MAP_SIZE.dimensions;
@@ -41,7 +76,8 @@ function executeParity(
   seaLevel = 0,
   landMask = new Uint8Array(TEST_MAP_SIZE.dimensions.width * TEST_MAP_SIZE.dimensions.height).fill(
     1
-  )
+  ),
+  projectedRivers: ProjectedRivers = riverIntent()
 ) {
   const { width, height } = TEST_MAP_SIZE.dimensions;
   const size = width * height;
@@ -69,6 +105,7 @@ function executeParity(
       publishTestArtifact(stepContext, hydrographyArtifacts.projectedLakes, {
         lakeMask: projectedLakeMask,
       });
+      publishTestArtifact(stepContext, hydrographyArtifacts.projectedRivers, projectedRivers);
       const executionResult = ObservePlacementParityStep.run(
         stepContext,
         {},
@@ -86,6 +123,9 @@ function executeParity(
         message.startsWith("[SWOOPER_MOD] PLACEMENT_PARITY_V1 ")
       ),
       elevationMessages: messages.filter((message) => message.startsWith("[elevation-projection]")),
+      riverMessages: messages.filter((message) =>
+        message.startsWith("[SWOOPER_MOD] FINAL_RIVER_PARITY_V1 ")
+      ),
     };
   } finally {
     console.log = originalLog;
@@ -93,7 +133,196 @@ function executeParity(
 }
 
 describe("placement/observe-placement-parity", () => {
-  it("reports exact final non-lake drift, accepted and unplanned lake adjustments without rewriting or failing the run", () => {
+  it("emits complete final source classes and detects later MINOR/NAV changes without repair or abort", () => {
+    class LateMutationAdapter extends MockAdapter {
+      lateTypes = new Map<number, number>();
+      override getRiverType(x: number, y: number): number {
+        return this.lateTypes.get(y * this.width + x) ?? super.getRiverType(x, y);
+      }
+    }
+    const adapter = createLandAdapter(LateMutationAdapter) as LateMutationAdapter;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
+    const first = width + 1,
+      second = width + 3,
+      third = width + 5,
+      extra = width + 7;
+    const intent = riverIntent([
+      [first, "MINOR"],
+      [second, "NAVIGABLE"],
+      [third, "MINOR"],
+    ]);
+    for (const write of intent.writes)
+      adapter.setRiverInfo({
+        x: write.sourceCell % width,
+        y: 1,
+        direction: write.direction,
+        riverClass: write.riverClass,
+      });
+    adapter.finalizeRivers([false, 25, 2, 2]);
+    const minorType = adapter.getRiverType(first % width, 1),
+      majorType = adapter.getRiverType(second % width, 1),
+      noneType = adapter.getRiverType(0, 0);
+    const observe = () =>
+      executeParity(
+        adapter,
+        new Uint8Array(width * height),
+        undefined,
+        undefined,
+        undefined,
+        intent
+      );
+    const stable = observe();
+    expect(stable.result.finalRiverParity).toMatchObject({
+      status: "observed",
+      missingSourceCount: 0,
+      extraSourceCount: 0,
+      wrongClassCount: 0,
+      navigableTerrainMismatchCount: 0,
+    });
+    expect(stable.riverMessages.length).toBeGreaterThan(0);
+    adapter.lateTypes.set(first, noneType);
+    adapter.lateTypes.set(second, minorType);
+    adapter.lateTypes.set(third, majorType);
+    adapter.lateTypes.set(extra, majorType);
+    adapter.setTerrainType(second % width, 1, adapter.getTerrainTypeIndex("TERRAIN_FLAT"));
+    adapter.setTerrainType(
+      extra % width,
+      1,
+      adapter.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER")
+    );
+    const changed = observe();
+    expect(changed.result.finalRiverParity).toMatchObject({
+      status: "observed",
+      intendedMinorSourceCount: 2,
+      intendedNavigableSourceCount: 1,
+      intendedSourceRows: [
+        [first, "MINOR"],
+        [second, "NAVIGABLE"],
+        [third, "MINOR"],
+      ],
+      observedSourceRows: [
+        [second, "MINOR"],
+        [third, "NAVIGABLE"],
+        [extra, "NAVIGABLE"],
+      ],
+      missingSourceCount: 1,
+      extraSourceCount: 1,
+      wrongClassCount: 2,
+      navigableTerrainMismatchCount: 2,
+      missingSourceCells: [first],
+      extraSourceCells: [extra],
+      wrongClassCells: [second, third],
+      navigableTerrainMismatchCells: [second, extra],
+    });
+    expect(
+      Value.Check(StandardFinalRiverParityMeasurementsSchema, changed.result.finalRiverParity)
+    ).toBe(true);
+    expect(changed.riverMessages.every((line) => line.length <= 900)).toBe(true);
+    expect(
+      decodeBoundedJsonLogSeries(changed.riverMessages, "FINAL_RIVER_PARITY_V1")[0]?.payload
+    ).toEqual({
+      mapSeed: TEST_MAP_SEED,
+      dimensions: { width, height },
+      ...changed.result.finalRiverParity,
+    });
+    expect(
+      ObservePlacementParityStep.metrics?.({
+        observation: changed.result,
+        config: {},
+        dimensions: { width, height },
+      })?.["map.rivers.finalParity"]
+    ).toBe(changed.result.finalRiverParity);
+    expect(adapter.calls.setRiverInfo).toHaveLength(3);
+    expect(adapter.calls.finalizeRivers).toHaveLength(1);
+  });
+
+  it("records unavailable final metadata instead of invented zero mismatches", () => {
+    class UnsupportedAdapter extends MockAdapter {
+      override readRiverProjection(
+        width: number,
+        height: number,
+        mask: ArrayLike<number>
+      ): RiverProjectionResult {
+        return {
+          ...super.readRiverProjection(width, height, mask),
+          minorRiverStampingSupported: false,
+          minorRiverUnsupportedReason: "type path missing",
+        };
+      }
+    }
+    class FailedAdapter extends MockAdapter {
+      override readRiverProjection(): RiverProjectionResult {
+        throw new Error("native read failed");
+      }
+    }
+    for (const Adapter of [UnsupportedAdapter, FailedAdapter]) {
+      const adapter = createLandAdapter(Adapter);
+      const { width, height } = TEST_MAP_SIZE.dimensions;
+      const { result, riverMessages } = executeParity(
+        adapter,
+        new Uint8Array(width * height),
+        undefined,
+        undefined,
+        undefined,
+        riverIntent([[width + 1, "MINOR"]])
+      );
+      expect(result.finalRiverParity).toMatchObject({
+        status: "unavailable",
+        intendedMinorSourceCount: 1,
+      });
+      expect(result.finalRiverParity).not.toHaveProperty("missingSourceCount");
+      expect(result.finalRiverParity).not.toHaveProperty("observedSourceRows");
+      expect(Value.Check(StandardFinalRiverParityMeasurementsSchema, result.finalRiverParity)).toBe(
+        true
+      );
+      expect(riverMessages.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("does not read or emit certified river evidence for legacy projection", () => {
+    class NoRiverReadAdapter extends MockAdapter {
+      override readRiverProjection(): RiverProjectionResult {
+        throw new Error("legacy must not read rivers");
+      }
+    }
+    const { width, height } = TEST_MAP_SIZE.dimensions;
+    const { authoredSourceCount: _, writes: __, ...empty } = riverIntent();
+    const legacy: ProjectedRivers = {
+      ...empty,
+      model: "legacy-sink-budget",
+      selectedTileCount: 0,
+      eligibleTileCount: 0,
+      candidateEndpointCount: 0,
+      selectedChainCount: 0,
+      selectedChainLengths: new Uint16Array(),
+      longestSelectedChainLength: 0,
+      meanSelectedChainLength: 0,
+      targetTileCount: 0,
+      targetMajorTileFraction: 0,
+      selectedEndpointDischargeFloor: 0,
+      nonProjectableMajorTileCount: 0,
+      unselectedEligibleMajorTileCount: 0,
+      selectedEligibleMajorTileFraction: 0,
+      majorDurableTileCount: 0,
+      majorPerennialTileCount: 0,
+      majorClosedBasinTileCount: 0,
+      majorOceanMouthTileCount: 0,
+      projectionSignalStatus: "arid-low-signal",
+      projectionSignalReason: "Empty legacy fixture.",
+    };
+    const result = executeParity(
+      createLandAdapter(NoRiverReadAdapter),
+      new Uint8Array(width * height),
+      undefined,
+      undefined,
+      undefined,
+      legacy
+    );
+    expect(result.result.finalRiverParity).toBeNull();
+    expect(result.riverMessages).toEqual([]);
+  });
+
+  it("reports final land drift, accepted lake/coast-water and unplanned lake adjustments without rewriting", () => {
     class NativeSnapshotAdapter extends MockAdapter {
       override readCurrentMapElevationSnapshot(): CurrentMapElevationSnapshot {
         return { ...super.readCurrentMapElevationSnapshot(), source: "native" };
@@ -109,6 +338,8 @@ describe("placement/observe-placement-parity", () => {
     const observedLakeMask = Uint8Array.from(lakeMask);
     observedLakeMask[2] = 1;
     adapter.stampLakes(width, height, observedLakeMask);
+    lakeMask[3] = 1;
+    adapter.setTerrainType(3, 0, adapter.getTerrainTypeIndex("TERRAIN_COAST"));
     const landMask = new Uint8Array(size).fill(1);
     landMask[2] = 0;
     const intended = projectStandardElevation({
@@ -121,6 +352,7 @@ describe("placement/observe-placement-parity", () => {
     observed[0]! += 0.125;
     observed[1]! -= 0.5;
     observed[2] = 10;
+    observed[3]! -= 0.75;
     adapter.setElevation(observed);
     const { result, elevationMessages } = executeParity(
       adapter,
@@ -133,12 +365,15 @@ describe("placement/observe-placement-parity", () => {
       phase: "final",
       source: "native",
       status: "observed",
-      mismatchCount: 3,
+      mismatchCount: 4,
       nonLakeMismatchCount: 1,
       lakeAdjustmentCount: 1,
+      acceptedInlandWaterAdjustmentCount: 1,
       unplannedNativeLakeMismatchCount: 1,
     });
     expect(lakeMask[2]).toBe(0);
+    expect(lakeMask[3]).toBe(1);
+    expect(adapter.isLake(3, 0)).toBe(false);
     expect(landMask[2]).toBe(0);
     expect(intended[2]).toBe(0);
     expect(adapter.calls.setElevation).toEqual([observed]);
@@ -154,6 +389,7 @@ describe("placement/observe-placement-parity", () => {
       intended,
       observed,
       acceptedLakeMask: Array.from(lakeMask),
+      observedLakeMask: Array.from(observedLakeMask),
       measurements: result.elevationProjection,
     });
     const metrics = ObservePlacementParityStep.metrics?.({
@@ -240,6 +476,28 @@ describe("placement/observe-placement-parity", () => {
     expect(decodeBoundedJsonLogSeries(parityMessages, "PLACEMENT_PARITY_V1")[0]?.payload).toEqual(
       result.placementParity
     );
+  });
+
+  it("retains native non-lake classification as evidence without inventing physical water loss", () => {
+    const { width, height } = TEST_MAP_SIZE.dimensions;
+    const adapter = createLandAdapter();
+    const acceptedLake = width + 1;
+    const projectedLakeMask = new Uint8Array(width * height);
+    projectedLakeMask[acceptedLake] = 1;
+    adapter.setTerrainType(1, 1, adapter.getTerrainTypeIndex("TERRAIN_COAST"));
+
+    const { result } = executeParity(adapter, projectedLakeMask);
+
+    expect(result.placementParity).toEqual({
+      version: 1,
+      waterDriftCount: 0,
+      acceptedLakeTileCount: 1,
+      finalLakeWaterDriftCount: 0,
+      finalLakeClassificationDriftCount: 1,
+    });
+    expect(result.engineObservation.landMask[acceptedLake]).toBe(0);
+    expect(adapter.isLake(1, 1)).toBe(false);
+    expect(projectedLakeMask[acceptedLake]).toBe(1);
   });
 
   it("reports dried and declassified accepted lakes from the same terminal surface", () => {

@@ -12,12 +12,14 @@ type Input = Parameters<typeof planRidges.run>[0] &
 
 function createInput(width: number, height: number, elevation: Int16Array) {
   const size = width * height;
+  const landMask = new Uint8Array(size).fill(1);
   return {
     width,
     height,
     elevation,
     seaLevel: 0,
-    landMask: new Uint8Array(size).fill(1),
+    landMask,
+    candidateMask: landMask,
     mountainMask: new Uint8Array(size),
     mountainRegionMask: new Uint8Array(size),
     mountainRegionIdByTile: new Int32Array(size).fill(-1),
@@ -47,6 +49,7 @@ function ridges(input: Input, overrides: Partial<RidgeConfig> = {}) {
       height: input.height,
       elevation: input.elevation,
       landMask: input.landMask,
+      candidateMask: input.candidateMask,
       boundaryCloseness: input.boundaryCloseness,
       boundaryType: input.boundaryType,
       upliftPotential: input.upliftPotential,
@@ -193,6 +196,33 @@ describe("land-neighbor relief geometry", () => {
 });
 
 describe("relief-supported landform admission", () => {
+  it("reserves dry channels from every ridge admission path without removing hill or relief eligibility", () => {
+    const input = createInput(9, 1, Int16Array.of(0, 8, 0, 16, 0, 24, 0, 32, 0));
+    const original = structuredClone(input);
+    input.candidateMask = input.landMask.slice();
+    input.candidateMask[3] = 0;
+    input.candidateMask[5] = 0;
+
+    for (const controls of [
+      {},
+      { mountainMinFraction: 1, mountainThreshold: 10 },
+      { mountainMinFraction: 1, mountainRangeSpacingTiles: 3, mountainRangeLengthTiles: 500, mountainSpineDilationSteps: 6 },
+    ]) {
+      const unreserved = ridges(original, controls);
+      expect(unreserved.mountainMask[3]).toBe(1);
+      expect(unreserved.mountainMask[5]).toBe(1);
+      const result = ridges(input, controls);
+      expect(result.mountainMask[3]).toBe(0);
+      expect(result.mountainMask[5]).toBe(0);
+      expect(count(result.mountainMask)).toBeGreaterThan(0);
+      expect(foothills({ ...input, ...result }).hillMask[3]).toBe(1);
+      expect(roughLands({ ...input, ...result }).hillMask[5]).toBe(1);
+    }
+    expect(reliefAt(input, 4)).toEqual(reliefAt(original, 4));
+    expect(input.landMask).toEqual(original.landMask);
+    expect(input.elevation).toEqual(original.elevation);
+  });
+
   it("leaves flat high plateaus flat despite strong drivers and unfilled coverage floors", () => {
     const input = createInput(30, 3, new Int16Array(90).fill(800));
     const result = ridges(input, {

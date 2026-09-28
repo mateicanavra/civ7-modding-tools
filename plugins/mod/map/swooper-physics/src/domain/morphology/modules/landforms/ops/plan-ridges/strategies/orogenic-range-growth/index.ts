@@ -144,6 +144,7 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
       width,
       height,
       landMask,
+      candidateMask,
       elevation,
       boundaryCloseness,
       boundaryType,
@@ -272,7 +273,7 @@ export default createStrategy(PlanRidgesContract, StrategyDefinition, {
       });
       const relief = computeLandNeighborRelief({ index: i, width, height, elevation, landMask });
       downwardReliefSupport[i] = normalizeReliefSupport(relief.downward);
-      if (relief.downward >= MOUNTAIN_DOWNWARD_RELIEF_MIN && driverStrength > 0) {
+      if (candidateMask[i] === 1 && relief.downward >= MOUNTAIN_DOWNWARD_RELIEF_MIN && driverStrength > 0) {
         mountainEligible[i] = 1;
       }
 

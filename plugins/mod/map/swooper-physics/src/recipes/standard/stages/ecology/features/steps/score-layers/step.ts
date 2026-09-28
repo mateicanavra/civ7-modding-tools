@@ -19,7 +19,7 @@ export const ScoreLayersStep = createStep(config, {
     const coastline = deps.artifacts.shelf.read();
     const hydrography = deps.artifacts.hydrography.read();
     const lakePlan = deps.artifacts.lakePlan.read();
-    const riverProjection = deps.artifacts.projectedNavigableRivers.read();
+    const riverProjection = deps.artifacts.projectedRivers.read();
     const mountains = deps.artifacts.mountains.read();
     const volcanoes = deps.artifacts.volcanoes.read();
 
@@ -89,8 +89,8 @@ export const ScoreLayersStep = createStep(config, {
         landMask: ecologyLandMask,
         elevation: topography.elevation,
         seaLevel: topography.seaLevel,
-        discharge: hydrography.discharge,
-        sinkMask: hydrography.sinkMask,
+        discharge: Array.from(hydrography.discharge),
+        ...(hydrography.model === "legacy-sink-budget" ? { sinkMask: hydrography.sinkMask } : {}),
       },
       stepConfig.featureSubstrate
     );
@@ -244,7 +244,7 @@ export const ScoreLayersStep = createStep(config, {
         fertility: pedology.fertility,
         floodplainMask: featureSubstrate.floodplainMask,
         navigableRiverMask: featureSubstrate.navigableRiverMask,
-        discharge: hydrography.discharge,
+        discharge: Array.from(hydrography.discharge),
         elevation: topography.elevation,
         mountainMask: mountains.mountainMask,
         hillMask: mountains.hillMask,

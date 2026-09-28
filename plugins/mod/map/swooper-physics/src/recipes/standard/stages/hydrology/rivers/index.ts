@@ -1,46 +1,55 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../../contract-manifest.js";
+import { NAVIGABLE_RIVER_PROJECTION_POLICY } from "./model/policy/navigable-river-projection.js";
 import { PlotRiversStep } from "./steps/plot-rivers/step.js";
 
-const NavigableRiverDensityKnobSchema = Type.Union(
-  [
-    Type.Null({
-      description: "Preserves the independently authored river-projection thresholds.",
-    }),
-    Type.Literal("sparse"),
-    Type.Literal("normal"),
-    Type.Literal("dense"),
-  ],
-  {
-    default: null,
-    description:
-      "Optional Civ-visible navigable river density. A preset overrides advanced thresholds after Hydrology authors the physical network; null preserves them.",
-  }
-);
-
-const knobsSchema = Type.Object(
-  {
-    navigableRiverDensity: NavigableRiverDensityKnobSchema,
-  },
-  {
-    additionalProperties: false,
-    description:
-      "Map-rivers knobs. Use navigableRiverDensity for MapGen-owned Civ-visible river projection after elevation is finalized.",
-  }
-);
-
-/**
- * Navigable river materialization stage.
- *
- * River materialization is separated from static lake projection because
- * navigable rivers need the finalized elevation and water surface. MapGen owns
- * the river terrain selection; Civ7 is used only for terrain validation, cache
- * refresh, and naming at this boundary.
- */
+/** Exposes only projection controls applicable to the selected physical model. */
 export default createStage({
   id: "map-rivers",
-  knobsSchema,
+  public: Type.Object({
+    projection: Type.Union([
+      Type.Object({
+        model: Type.Literal("legacy-procedural"),
+        navigableRiverDensity: Type.Union([Type.Null({ description: "Preserves the authored advanced projection thresholds." }), Type.Literal("sparse"), Type.Literal("normal"), Type.Literal("dense")], {
+          default: null,
+          description: "Optional legacy navigable density preset; null preserves advanced thresholds.",
+        }),
+        endpointDischargePercentileMin: Type.Number({
+          minimum: 0,
+          maximum: 1,
+          default: NAVIGABLE_RIVER_PROJECTION_POLICY.normal.endpointDischargePercentileMin,
+          description: "Minimum discharge percentile among terminal endpoints considered for legacy navigable chains.",
+        }),
+        targetMajorTileFraction: Type.Number({
+          minimum: 0,
+          maximum: 1,
+          default: NAVIGABLE_RIVER_PROJECTION_POLICY.normal.targetMajorTileFraction,
+          description: "Target fraction of engine-projectable major river tiles selected for legacy navigable chains.",
+        }),
+      }, {
+        additionalProperties: false,
+        description: "Legacy procedural rivers with threshold-based navigable terrain selection.",
+      }),
+      Type.Object({ model: Type.Literal("authored-network") }, {
+        additionalProperties: false,
+        description: "Projects every certified physical river source with its authored receiver and class.",
+      }),
+    ], {
+      description: "Selects the native river projection appropriate to the physical water model.",
+      default: { model: "legacy-procedural", navigableRiverDensity: null, ...NAVIGABLE_RIVER_PROJECTION_POLICY.normal },
+    }),
+  }, { additionalProperties: false }),
+  compile: ({ config }) => {
+    const projection = config.projection;
+    if (projection.model === "authored-network") return { "plot-rivers": { projection } };
+    const { navigableRiverDensity, ...advanced } = projection;
+    return {
+      "plot-rivers": { projection: navigableRiverDensity === null
+        ? advanced
+        : { ...advanced, ...NAVIGABLE_RIVER_PROJECTION_POLICY[navigableRiverDensity] } },
+    };
+  },
   steps: orderStandardStageSteps("map-rivers", {
     "plot-rivers": PlotRiversStep,
   }),
-} as const);
+});

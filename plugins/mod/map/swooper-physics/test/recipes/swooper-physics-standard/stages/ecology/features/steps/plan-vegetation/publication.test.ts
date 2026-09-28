@@ -71,6 +71,7 @@ describe("ecology-features plan-vegetation step", () => {
         pet: new Float32Array(size),
       });
       publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
+        model: "legacy-sink-budget",
         runoff: new Float32Array(size),
         discharge: new Float32Array(size),
         riverClass: new Uint8Array(size),
@@ -83,6 +84,7 @@ describe("ecology-features plan-vegetation step", () => {
         terminalType: new Uint8Array(size),
       });
       publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, {
+        model: "legacy-sink-budget",
         width,
         height,
         lakeMask: new Uint8Array(size),

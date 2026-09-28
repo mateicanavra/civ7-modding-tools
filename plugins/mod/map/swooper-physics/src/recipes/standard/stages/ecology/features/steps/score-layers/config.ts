@@ -22,7 +22,7 @@ export const config = defineStep({
     climateArtifacts.climateIndices,
     hydrographyArtifacts.hydrography,
     hydrographyArtifacts.lakePlan,
-    hydrographyArtifacts.projectedNavigableRivers,
+    hydrographyArtifacts.projectedRivers,
     morphologyLandformsArtifacts.topography,
     morphologyShelfArtifacts.shelf,
     morphologyLandformsArtifacts.mountains,

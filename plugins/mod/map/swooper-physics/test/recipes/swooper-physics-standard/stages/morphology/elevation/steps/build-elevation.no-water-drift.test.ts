@@ -27,7 +27,8 @@ function publishBuildElevationInputs(
   landMask: Uint8Array,
   projectedLakeMask: Uint8Array,
   elevation = new Int16Array(width * height),
-  seaLevel = 0
+  seaLevel = 0,
+  certified = false
 ): void {
   const size = width * height;
   publishTestArtifact(context, morphologyLandformsArtifacts.topography, {
@@ -39,6 +40,17 @@ function publishBuildElevationInputs(
   publishTestArtifact(context, hydrographyArtifacts.projectedLakes, {
     lakeMask: projectedLakeMask,
   });
+  const wetCells = Array.from(projectedLakeMask.keys()).filter((cell) => projectedLakeMask[cell] === 1);
+  publishTestArtifact(context, hydrographyArtifacts.lakePlan, {
+    width, height, lakeMask: projectedLakeMask, plannedLakeTileCount: wetCells.length,
+    ...(certified ? {
+      model: "certified-sill-spill" as const,
+      bodyId: Int32Array.from(projectedLakeMask), waterSurface: new Int16Array(size),
+      bodies: wetCells.length === 0 ? [] : [{ nodeId: 1, wetCells, spillElevation: 0, outletCell: wetCells[0]!, receiverCell: projectedLakeMask.indexOf(0), connectorCells: [], flux: { incomingOverflow: 1, dryRunoff: 0, wetPrecipitation: 0, wetDemand: 0, balance: 1 }, outflow: 1, floorCell: wetCells[0]!, floorElevation: -1 }],
+      certificates: wetCells.length === 0 ? [] : [{ nodeId: 1, spillBalance: 1 }], marineExits: [],
+      conservation: { dryRunoff: 1, wetPrecipitation: 0, wetDemand: 0, externalDischarge: 1, residual: 0, roundoffBound: 0 },
+    } : { model: "legacy-sink-budget" as const, sinkLakeCount: wetCells.length }),
+  });
 }
 
 function executeBuildElevation(
@@ -48,7 +60,8 @@ function executeBuildElevation(
   landMask: Uint8Array,
   projectedLakeMask = new Uint8Array(width * height),
   elevation = new Int16Array(width * height),
-  seaLevel = 0
+  seaLevel = 0,
+  certified = false
 ) {
   return withMapContextExecutionForTest(context, (stepContext) => {
     publishBuildElevationInputs(
@@ -58,7 +71,8 @@ function executeBuildElevation(
       landMask,
       projectedLakeMask,
       elevation,
-      seaLevel
+      seaLevel,
+      certified
     );
     const observation = BuildElevationStep.run(
       stepContext,
@@ -160,6 +174,7 @@ function createExactProjectionFixture(adapter: ExplicitElevationAdapter) {
       adapter.getTerrainTypeIndex(terrain)
     );
   }
+  adapter.stampLakes(width, height, lakeMask);
   return { context, landMask, lakeMask, elevation, seaLevel };
 }
 
@@ -243,6 +258,164 @@ function createUnplannedNativeLakeFixture(
 }
 
 describe("map-elevation/build-elevation", () => {
+  for (const phase of ["write", "cliffs", "area"] as const) {
+    for (const lost of ["water", "terrain"] as const) {
+      it(`preserves model-specific ${phase} ownership and accepted-water policy for ${lost} loss`, () => {
+        class LakeDriftAdapter extends ExplicitElevationAdapter {
+          private changed = false;
+          private areaCalls = 0;
+          beginProjection(): void {
+            this.changed = false;
+            this.areaCalls = 0;
+          }
+          override setElevation(values: readonly number[]): void {
+            super.setElevation(values);
+            if (phase === "write") this.changed = true;
+          }
+          override generateCliffsFromElevation(): void {
+            super.generateCliffsFromElevation();
+            if (phase === "cliffs") this.changed = true;
+          }
+          override recalculateAreas(): void {
+            super.recalculateAreas();
+            if (++this.areaCalls === 2 && phase === "area") this.changed = true;
+          }
+          override isWater(x: number, y: number): boolean {
+            return this.changed && lost === "water" && x === 1 && y === 1 ? false : super.isWater(x, y);
+          }
+          override getTerrainType(x: number, y: number): number {
+            return this.changed && lost === "terrain" && x === 1 && y === 1
+              ? this.getTerrainTypeIndex("TERRAIN_OCEAN") : super.getTerrainType(x, y);
+          }
+        }
+        for (const certified of [true, false]) {
+          const width = 10;
+          const height = 10;
+          const adapter = new LakeDriftAdapter({ width, height });
+          const context = createMapContext({ setup: admitMapSetup({ mapSeed: TEST_MAP_SEED, dimensions: { width, height }, latitudeBounds: { topLatitude: 60, bottomLatitude: -60 } }), adapter });
+          const landMask = new Uint8Array(width * height).fill(1);
+          const lakeMask = new Uint8Array(width * height);
+          lakeMask[11] = 1;
+          for (let cell = 0; cell < landMask.length; cell++) adapter.setTerrainType(cell % width, Math.floor(cell / width), adapter.getTerrainTypeIndex(cell === 11 ? "TERRAIN_COAST" : "TERRAIN_FLAT"));
+          adapter.stampLakes(width, height, lakeMask);
+          adapter.beginProjection();
+          const run = () => executeBuildElevation(context, width, height, landMask, lakeMask, new Int16Array(width * height), 0, certified);
+          if (certified && phase !== "cliffs") expect(run).toThrow(/post-build.*certified accepted lake footprint lost/);
+          else expect(run).not.toThrow();
+          expect(adapter.calls.generateCliffsFromElevation).toBe(certified ? 0 : 1);
+        }
+      });
+    }
+  }
+
+  it.each([
+    { before: false, after: false, error: 0, expected: null },
+    { before: true, after: false, error: 0, expected: null },
+    { before: false, after: false, error: 0.25, expected: null },
+    { before: true, after: false, error: 0.25, expected: "unqualified accepted inland-water numeric mismatch" },
+    { before: false, after: true, error: 0.25, expected: "unqualified accepted inland-water numeric mismatch" },
+  ])("keeps physical coast water independent of native class and qualifies numeric exceptions: %j", (state) => {
+    class ClassifiedWaterAdapter extends ExplicitElevationAdapter {
+      override isLake(x: number, y: number): boolean {
+        if (x !== 1 || y !== 1) return super.isLake(x, y);
+        return this.calls.setElevation.length === 0 ? state.before : state.after;
+      }
+      override getElevation(x: number, y: number): number {
+        return super.getElevation(x, y) + (x === 1 && y === 1 ? state.error : 0);
+      }
+    }
+    const adapter = new ClassifiedWaterAdapter({ width: 3, height: 2 });
+    const fixture = createExactProjectionFixture(adapter);
+    const run = () => executeBuildElevation(fixture.context, 3, 2, fixture.landMask, fixture.lakeMask, fixture.elevation, fixture.seaLevel, true);
+    if (state.expected) expect(run).toThrow(state.expected);
+    else {
+      const result = run();
+      expect(result.elevationProjection.mismatchCount).toBe(state.error === 0 ? 0 : 1);
+      expect(result.elevationProjection.acceptedInlandWaterAdjustmentCount).toBe(state.error === 0 ? 0 : 1);
+      expect(result.elevationProjection.lakeAdjustmentCount).toBe(0);
+      expect(result.elevationProjection.nonLakeMismatchCount).toBe(0);
+      expect(adapter.isWater(1, 1)).toBe(true);
+      expect(adapter.getTerrainType(1, 1)).toBe(adapter.getTerrainTypeIndex("TERRAIN_COAST"));
+      expect(adapter.isLake(1, 1)).toBe(false);
+    }
+    expect(Array.from(fixture.lakeMask)).toEqual([0, 0, 0, 0, 1, 0]);
+  });
+  it.each([true, false])("writes elevation once with model-specific cliff ownership: certified=%s", (certified) => {
+    const adapter = new ExplicitElevationAdapter({ width: 3, height: 2 });
+    const fixture = createExactProjectionFixture(adapter);
+    executeBuildElevation(fixture.context, 3, 2, fixture.landMask, fixture.lakeMask,
+      fixture.elevation, fixture.seaLevel, certified);
+    expect(adapter.elevationEvents).toEqual(certified
+      ? ["setElevation", "readCurrentMapElevationSnapshot"]
+      : ["setElevation", "generateCliffsFromElevation", "readCurrentMapElevationSnapshot"]);
+    expect(adapter.calls.setElevation).toHaveLength(1);
+    expect(adapter.calls.generateCliffsFromElevation).toBe(certified ? 0 : 1);
+    expect(adapter.calls.setRiverInfo).toEqual([]);
+    expect(adapter.calls.finalizeRivers).toEqual([]);
+  });
+
+  it("retains the certified accepted-lake numeric leveling exception with stable water and lake identity", () => {
+    class LeveledLakeAdapter extends ExplicitElevationAdapter {
+      override getElevation(x: number, y: number): number {
+        return super.getElevation(x, y) + (x === 1 && y === 1 ? 0.25 : 0);
+      }
+    }
+    const adapter = new LeveledLakeAdapter({ width: 3, height: 2 });
+    const fixture = createExactProjectionFixture(adapter);
+    adapter.stampLakes(3, 2, fixture.lakeMask);
+    const observation = executeBuildElevation(fixture.context, 3, 2, fixture.landMask, fixture.lakeMask, fixture.elevation, fixture.seaLevel, true);
+    expect(observation.elevationProjection.lakeAdjustmentCount).toBe(1);
+    expect(observation.elevationProjection.nonLakeMismatchCount).toBe(0);
+  });
+
+  it.each(["land-before", "land-after", "terrain-before", "terrain-after", "original-water"] as const)(
+    "refuses an accepted-mask numeric adjustment with unqualified %s even without certified footprint guards",
+    (mutation) => {
+      class UnqualifiedAcceptedAdapter extends ExplicitElevationAdapter {
+        override isLake(): boolean { return false; }
+        override isWater(x: number, y: number): boolean {
+          const after = this.calls.setElevation.length > 0;
+          if (x === 1 && y === 1 && mutation === (after ? "land-after" : "land-before")) return false;
+          return super.isWater(x, y);
+        }
+        override getTerrainType(x: number, y: number): number {
+          const after = this.calls.setElevation.length > 0;
+          if (x === 1 && y === 1 && mutation === (after ? "terrain-after" : "terrain-before"))
+            return this.getTerrainTypeIndex("TERRAIN_OCEAN");
+          return super.getTerrainType(x, y);
+        }
+        override getElevation(x: number, y: number): number {
+          return super.getElevation(x, y) + (x === 1 && y === 1 ? 0.25 : 0);
+        }
+      }
+      const adapter = new UnqualifiedAcceptedAdapter({ width: 3, height: 2 });
+      const fixture = createExactProjectionFixture(adapter);
+      if (mutation === "original-water") fixture.landMask[4] = 0;
+      expect(() => executeBuildElevation(fixture.context, 3, 2, fixture.landMask, fixture.lakeMask,
+        fixture.elevation, fixture.seaLevel)).toThrow();
+    }
+  );
+
+  it("accepts stable inland coast-water numeric changes without a body-uniformity admission rule", () => {
+    class CoastWaterAdapter extends ExplicitElevationAdapter {
+      override isLake(): boolean { return false; }
+      override getElevation(x: number, y: number): number {
+        return super.getElevation(x, y) + (y === 1 && x < 2 ? x + 0.25 : 0);
+      }
+    }
+    const adapter = new CoastWaterAdapter({ width: 3, height: 2 });
+    const fixture = createExactProjectionFixture(adapter);
+    fixture.lakeMask[3] = 1;
+    adapter.setTerrainType(0, 1, adapter.getTerrainTypeIndex("TERRAIN_COAST"));
+    const result = executeBuildElevation(fixture.context, 3, 2, fixture.landMask, fixture.lakeMask,
+      fixture.elevation, fixture.seaLevel, true);
+    expect(result.elevationProjection).toMatchObject({
+      mismatchCount: 2, acceptedInlandWaterAdjustmentCount: 2, lakeAdjustmentCount: 0,
+      nonLakeMismatchCount: 0, unplannedNativeLakeMismatchCount: 0,
+    });
+    expect(result.engine.elevation[3]).not.toBe(result.engine.elevation[4]);
+    expect(Array.from(fixture.lakeMask)).toEqual([0, 0, 0, 1, 1, 0]);
+  });
   it("writes immutable physics-derived heights before cliffs and exact observation", () => {
     const adapter = new ExplicitElevationAdapter({ width: 3, height: 2 });
     const { observation, elevation, landMask, lakeMask, seaLevel } =
@@ -402,6 +575,7 @@ describe("map-elevation/build-elevation", () => {
           dimensions: { width: 3, height: 2 },
           observed: Array.from(observation.engine.elevation),
           acceptedLakeMask: Array.from(lakeMask),
+          observedLakeMask: Array.from(lakeMask),
           measurements: observation.elevationProjection,
         }
       );

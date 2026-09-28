@@ -146,12 +146,15 @@ semantic parity. The mock records intent and applies declared classes only;
 it does not simulate slopes, network construction, class demotion or ocean
 connectivity. The recipe owns once-per-map finalization, not the adapter.
 
-This prerequisite is deliberately additive: production still uses its existing
-river path until the physical model and projection design are reconciled.
+At this prerequisite's historical boundary, production retained its existing
+river path until the physical model and projection design were reconciled.
 The misleading older readback-derived flag is retained only until its consumers
-can migrate together. The V2-V4 live atlases qualify direct engine calls, not
-the new wrapper. V5 is prepared to qualify wrapper dispatch independently;
-production integration still needs its own correlated native run.
+could migrate together. The V2-V4 live atlases qualified direct engine calls,
+not the new wrapper. V5/V6 subsequently qualified wrapper dispatch and the
+tested lake inlets. Earthlike now explicitly selects the authored network;
+other maps retain the legacy model. Current production qualification
+distinguishes exact class retention from actual naval traversal; see the
+[integration packet](basin-integration.md#native-cliff-order-discriminator).
 
 The unified adapter/Core/definition/app check, test and policy graph passes
 63 tasks: 56 adapter, 360 Core, 655 definition and 114 app tests, with 49,125
@@ -382,11 +385,13 @@ Receipts: `/tmp/civ7-river-lake-v6-analysis.md`,
 ### Production Gates
 
 - Deterministic graph-to-hex lowering, odd/even rows, seams, transitions,
-  confluences and outlets, including rejected/partial lakes; invalid intent
-  fails with a bounded reason.
+  confluences and outlets; invalid intent fails with a bounded reason. Rejected
+  or partial lakes remain legacy cases. Certified projection requires complete
+  accepted bodies and refuses partial realization rather than routing around it.
 - Contract/mock/native-dispatch tests and finalization-order fixtures.
-- Missing, extra, wrong-class and wrong-direction observations counted
-  independently; native-object evidence remains distinct from terrain masks.
+- Missing, extra and wrong-class observations counted independently;
+  wrong-direction remains unavailable until exact native directed-edge readback
+  exists. Native-object evidence remains distinct from terrain masks.
 - Existing river-network, integrity, floodplain and placement studies, augmented
   in the current metric bank rather than a separate diagnostic system.
 - Live cases show accepted minor/main channels and coherent downstream features;
@@ -398,9 +403,18 @@ Receipts: `/tmp/civ7-river-lake-v6-analysis.md`,
 
 ## Deletion Receipt
 
-Candidates: terrain-stamping-plus-modelRivers generation path, generator-only
-length knobs, and compensating navigable-terrain selection restrictions that
-are no longer required. Evaluate each against source rationale and live cases.
+Earthlike's certified branch no longer runs terrain-stamping-plus-modelRivers,
+legacy lake clipping/singleton pruning, ocean-only NAV filtering, or native
+procedural length controls. It writes all classified dry sources once and
+finalizes once. Seven explicitly legacy identities retain their prior path;
+this is not wholesale removal of their algorithms or a silent fallback.
+
+Final normal Huge/1018 retains all 362 intended minor and 294 navigable sources
+and all 203 accepted wet cells. The late-cliff ordering preserves classes but
+is not yet a demonstrated movement fix. See [native navigation](native-navigation.md)
+for failed stock controls, and [integration evidence](basin-integration.md#native-cliff-order-discriminator)
+for the normal-run digest, exact counts and placement shortfalls.
+
 Do not delete meaningful gameplay selection or physical classification just
 because a setter exists. Remove river-specific coast repair only after its
 replacement invariant is proven; shared coast/lake parity helpers have other

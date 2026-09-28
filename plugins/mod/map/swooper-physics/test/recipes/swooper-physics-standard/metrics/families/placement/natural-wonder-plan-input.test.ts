@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { Value } from "typebox/value";
+import { fnv1a32BytesHex } from "@swooper/mapgen-core/lib/hash";
 import {
   measureStandardNaturalWonderPlanInput,
   StandardNaturalWonderPlanInputMeasurementsSchema,
@@ -110,6 +111,22 @@ function measurementInput(
 }
 
 type MeasurementInput = ReturnType<typeof measurementInput>;
+
+it("preserves legacy discharge bytes and distinguishes certified Number precision", () => {
+  const input = measurementInput();
+  const legacy = measureStandardNaturalWonderPlanInput(input).plannerInput.surfaceDigests.dischargeHash32;
+  expect(legacy).toBe(fnv1a32BytesHex(input.plannerInput.discharge));
+  const discharge = Array.from(input.plannerInput.discharge);
+  const baseline = measureStandardNaturalWonderPlanInput({ ...input, plannerInput: { ...input.plannerInput, discharge } }).plannerInput.surfaceDigests.dischargeHash32;
+  discharge[0] = discharge[0]! + 1e-9;
+  expect(Math.fround(discharge[0])).toBe(input.plannerInput.discharge[0]);
+  const changed = measureStandardNaturalWonderPlanInput({ ...input, plannerInput: { ...input.plannerInput, discharge } }).plannerInput.surfaceDigests.dischargeHash32;
+  expect(changed).not.toBe(baseline);
+  const bytes = new Uint8Array(discharge.length * 8);
+  const view = new DataView(bytes.buffer);
+  discharge.forEach((value, index) => view.setFloat64(index * 8, value, true));
+  expect(changed).toBe(fnv1a32BytesHex(bytes));
+});
 
 const SURFACE_PERTURBATIONS: Array<{
   channel: string;

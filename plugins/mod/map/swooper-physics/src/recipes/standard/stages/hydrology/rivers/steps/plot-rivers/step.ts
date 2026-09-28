@@ -11,12 +11,9 @@ import {
   HYDROLOGY_MOUTH_SPILL_PATH,
 } from "../../../../../../../domain/hydrology/modules/hydrography/model/policy/river-network-classification.js";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { restoreProjectedCoastTerrain } from "../../../../../water-surface-parity.js";
-import {
-  NAVIGABLE_RIVER_PROJECTION_POLICY,
-  type NavigableRiverDensityKnob,
-  selectNavigableRiverTerrain,
-} from "../../model/policy/navigable-river-projection.js";
+import { assertAcceptedLakeFootprint, restoreProjectedCoastTerrain } from "../../../../../water-surface-parity.js";
+import { selectNavigableRiverTerrain } from "../../model/policy/navigable-river-projection.js";
+import { projectAuthoredRiverNetwork } from "../../model/policy/authored-river-projection.js";
 import { config } from "./config.js";
 import { buildPlotRiversVizProjections, type PlotRiversVizEvidence } from "./viz.js";
 
@@ -108,18 +105,8 @@ function classifyProjectionSignal(input: {
  * and publishes planned-versus-engine readbacks for parity diagnostics.
  */
 export const PlotRiversStep = createStep(config, {
-  normalize: (stepConfig, ctx) => {
-    const { navigableRiverDensity } = ctx.knobs as Readonly<{
-      navigableRiverDensity?: NavigableRiverDensityKnob | null;
-    }>;
-    return navigableRiverDensity === null || navigableRiverDensity === undefined
-      ? stepConfig
-      : {
-          ...stepConfig,
-          ...NAVIGABLE_RIVER_PROJECTION_POLICY[navigableRiverDensity],
-        };
-  },
   run: (context, stepConfig, _ops, deps) => {
+    const projectionConfig = stepConfig.projection;
     const hydrography = deps.artifacts.hydrography.read();
     const lakePlan = deps.artifacts.lakePlan.read();
     const riverNetwork = deps.artifacts.riverNetwork.read();
@@ -134,6 +121,77 @@ export const PlotRiversStep = createStep(config, {
       shelfMask: shelf.shelfMask,
       coastalWater: shelf.coastalWater,
     });
+
+    if (hydrography.model !== lakePlan.model || hydrography.model !== riverNetwork.model) {
+      throw new Error("River projection requires one coherent physical water model.");
+    }
+    if (hydrography.model === "certified-sill-spill") {
+      if (projectionConfig.model !== "authored-network") throw new Error("Certified water requires authored-network river projection.");
+      const materialized = projectAuthoredRiverNetwork({
+        width, height, landMask: topography.landMask, lakeMask: lakePlan.lakeMask,
+        riverClass: hydrography.riverClass, flowDir: hydrography.flowDir,
+      });
+      const capabilities = deps.engine.getRiverCapabilities(context);
+      for (const key of ["setRiverInfo", "finalizeRivers", "riverTypeReadback"] as const) {
+        const capability = capabilities[key];
+        if (capability.status !== "available") throw new Error(`Authored rivers require ${key}: ${capability.reason}`);
+      }
+      // Preflight the complete plan before the first mutation; never drop a blocked channel.
+      for (const write of materialized.writes) {
+        const x = write.sourceCell % width;
+        const y = Math.floor(write.sourceCell / width);
+        if (deps.engine.isWater(context, x, y) || deps.engine.getTerrainType(context, x, y) === terrain.TERRAIN_MOUNTAIN) {
+          throw new Error(`Authored river source ${write.sourceCell} is blocked by native terrain.`);
+        }
+        const receiverX = write.receiverCell % width;
+        const receiverY = Math.floor(write.receiverCell / width);
+        if (deps.engine.getTerrainType(context, receiverX, receiverY) === terrain.TERRAIN_MOUNTAIN) {
+          throw new Error(`Authored river receiver ${write.receiverCell} is blocked by native terrain.`);
+        }
+      }
+      deps.artifacts.projectedRivers.publish(materialized);
+      for (const write of materialized.writes) {
+        deps.engine.setRiverInfo(context, {
+          x: write.sourceCell % width, y: Math.floor(write.sourceCell / width),
+          direction: write.direction, riverClass: write.riverClass,
+        });
+      }
+      deps.engine.finalizeRivers(context, [false, 25, 2, 2]);
+      deps.engine.validateAndFixTerrain(context);
+      restoreProjectedCoastTerrain(context.setup.dimensions, context.trace, {
+        getTerrainType: (x, y) => deps.engine.getTerrainType(context, x, y),
+        setTerrainType: (x, y, value) => deps.engine.setTerrainType(context, x, y, value),
+        storeWaterData: () => deps.engine.storeWaterData(context),
+      }, coastProjection, "map-rivers/plot-rivers");
+      // Cliffs consume finalized native river terrain, not the earlier dry channel substrate.
+      deps.engine.generateCliffsFromElevation(context);
+      deps.engine.recalculateAreas(context);
+      deps.engine.storeWaterData(context);
+      assertAcceptedLakeFootprint(
+        context.setup.dimensions,
+        deps.artifacts.projectedLakes.read().lakeMask,
+        deps.engine.readCurrentMapWaterMask(context),
+        deps.engine.readCurrentMapTerrainTypes(context),
+        "map-rivers/plot-rivers/post-maintenance"
+      );
+      const riverReadback = deps.engine.readRiverProjection(context, width, height, materialized.riverMask);
+      context.trace.event(() => ({
+        type: "map.rivers.authoredNetworkMaterialization",
+        model: materialized.model,
+        authoredSourceCount: materialized.authoredSourceCount,
+        plannedMinorRiverTileCount: materialized.plannedMinorRiverTileCount,
+        plannedMajorRiverTileCount: materialized.plannedMajorRiverTileCount,
+        navigableTerrainMismatchCount: riverReadback.navigableRiverMismatchTileCount,
+        nativeMinorMismatchCount: Array.from(materialized.nativeMinorRiverMask).reduce((count, value, cell) => count + Number(value !== riverReadback.engineMinorRiverMask[cell]), 0),
+        nativeNavigableMismatchCount: Array.from(materialized.riverMask).reduce((count, value, cell) => count + Number(value !== riverReadback.engineNavigableRiverMask[cell]), 0),
+      }));
+      return {
+        riverClass: hydrography.riverClass,
+        discharge: Float32Array.from(hydrography.discharge), // Visualization only; the physical ledger stays Number-precision.
+        materialized, topographyLandMask: topography.landMask, engineEvidence: { riverReadback },
+      } satisfies PlotRiversVizEvidence;
+    }
+    if (projectionConfig.model !== "legacy-procedural") throw new Error("Legacy water requires legacy-procedural river projection.");
 
     const logStats = (label: string) => {
       context.trace.event(() => {
@@ -194,7 +252,7 @@ export const PlotRiversStep = createStep(config, {
         lakeMask: lakePlan.lakeMask,
         projectableLandMask,
       },
-      stepConfig
+      projectionConfig
     );
 
     let majorDurableTileCount = 0;
@@ -230,11 +288,13 @@ export const PlotRiversStep = createStep(config, {
       nonProjectableMajorTileCount: materialized.nonProjectableMajorTileCount,
     });
 
-    deps.artifacts.projectedNavigableRivers.publish({
+    deps.artifacts.projectedRivers.publish({
+      model: "legacy-sink-budget",
       width,
       height,
       riverMask: materialized.riverMask,
       plannedMinorRiverMask: materialized.plannedMinorRiverMask,
+      nativeMinorRiverMask: new Uint8Array(size),
       plannedMajorRiverMask: materialized.plannedMajorRiverMask,
       selectedTileCount: materialized.selectedTileCount,
       eligibleTileCount: materialized.eligibleTileCount,
@@ -355,7 +415,7 @@ export const PlotRiversStep = createStep(config, {
       engineRiverTileCount: riverReadback.engineRiverTileCount,
       engineNavigableRiverTileCount: riverReadback.engineNavigableRiverTileCount,
       engineMinorRiverTileCount: riverReadback.engineMinorRiverTileCount,
-      minorRiverStampingSupported: riverReadback.minorRiverStampingSupported,
+      riverTypeReadbackSupported: deps.engine.getRiverCapabilities(context).riverTypeReadback.status === "available",
       riverMismatchShare: Number(
         (riverReadback.navigableRiverMismatchTileCount / (width * height)).toFixed(4)
       ),

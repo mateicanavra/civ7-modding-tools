@@ -133,6 +133,7 @@ describe("exact elevation projection measurements", () => {
       nonLakeMismatchCount: 3,
       maximumAbsoluteError: 1,
       meanAbsoluteError: 0.4375,
+      acceptedInlandWaterAdjustmentCount: 0,
       examples: [
         { plotIndex: 0, intended: -2, observed: -1.5 },
         { plotIndex: 2, intended: 1.25, observed: 1 },
@@ -166,6 +167,7 @@ describe("exact elevation projection measurements", () => {
       phase: "post-write",
       intended: [0, 200, 300, 400, 500, 600],
       acceptedLakeMask: Uint8Array.of(0, 1, 1, 0, 0, 0),
+      observedLakeMask: Uint8Array.of(0, 1, 1, 0, 0, 0),
       snapshot: {
         source: "native",
         status: "available",
@@ -214,9 +216,9 @@ describe("exact elevation projection measurements", () => {
     }
     expect(result).toMatchObject({
       mismatchCount: 4,
-      lakeAdjustmentCount: 2,
+      lakeAdjustmentCount: 1,
       unplannedNativeLakeMismatchCount: 1,
-      nonLakeMismatchCount: 1,
+      nonLakeMismatchCount: 2,
       maximumAbsoluteError: 172,
       meanAbsoluteError: 304 / 6,
       examples: [
@@ -228,20 +230,71 @@ describe("exact elevation projection measurements", () => {
     });
     expect(
       result.lakeAdjustmentCount +
+        result.acceptedInlandWaterAdjustmentCount +
         result.unplannedNativeLakeMismatchCount +
         result.nonLakeMismatchCount
     ).toBe(result.mismatchCount);
     expect(result).toEqual({
       ...withoutLakeEvidence,
+      lakeAdjustmentCount: 1,
       unplannedNativeLakeMismatchCount: 1,
-      nonLakeMismatchCount: 1,
+      nonLakeMismatchCount: 2,
     });
     expect(withoutLakeEvidence.unplannedNativeLakeMismatchCount).toBe(0);
-    expect(withoutLakeEvidence.nonLakeMismatchCount).toBe(2);
+    expect(withoutLakeEvidence.lakeAdjustmentCount).toBe(0);
+    expect(withoutLakeEvidence.nonLakeMismatchCount).toBe(4);
     expect(Array.from(input.acceptedLakeMask)).toEqual([0, 1, 1, 0, 0, 0]);
     expect(Array.from(observedLakeMask)).toEqual([1, 1, 0, 0, 1, 0]);
     expect(Array.from(input.snapshot.values)).toEqual([10, 128, 128, 350, 500, 600]);
     expect(Value.Check(StandardElevationProjectionMeasurementsSchema, result)).toBe(true);
+  });
+
+  it.each(["post-write", "final"] as const)("partitions accepted inland-water changes from ordinary land and ocean in %s", (phase) => {
+    const input = {
+      phase,
+      intended: [10, 20, 30, 40, 50, 60],
+      acceptedLakeMask: [1, 1, 1, 0, 0, 0],
+      observedLakeMask: [1, 0, 0, 0, 1, 0],
+      snapshot: {
+        source: "native" as const, status: "available" as const,
+        width: 3, height: 2, values: Float64Array.of(11, 22, 33, 44, 55, 66),
+      },
+    };
+    const result = measureStandardElevationProjection({
+      ...input,
+      observedSurface: { waterMask: [1, 1, 0, 1, 1, 1], terrain: [3, 3, 1, 3, 3, 4], coastTerrain: 3 },
+    });
+    expect(result).toMatchObject({
+      mismatchCount: 6, lakeAdjustmentCount: 1, acceptedInlandWaterAdjustmentCount: 1,
+      unplannedNativeLakeMismatchCount: 1, nonLakeMismatchCount: 3,
+      maximumAbsoluteError: 6, meanAbsoluteError: 3.5,
+    });
+    if (result.status !== "observed") throw new Error("Expected native observation.");
+    expect(result.lakeAdjustmentCount + result.acceptedInlandWaterAdjustmentCount +
+      result.unplannedNativeLakeMismatchCount + result.nonLakeMismatchCount).toBe(6);
+    expect(result.examples.map(({ observed }) => observed)).toEqual([11, 22, 33, 44, 55, 66]);
+    expect(measureStandardElevationProjection(input)).toMatchObject({
+      acceptedInlandWaterAdjustmentCount: 0, nonLakeMismatchCount: 4,
+    });
+    expect(measureStandardElevationProjection({
+      ...input, observedLakeMask: undefined,
+      observedSurface: { waterMask: [1, 1, 0, 1, 1, 1], terrain: [3, 3, 1, 3, 3, 4], coastTerrain: 3 },
+    })).toMatchObject({ acceptedInlandWaterAdjustmentCount: 0, nonLakeMismatchCount: 6 });
+    expect(Value.Check(StandardElevationProjectionMeasurementsSchema, result)).toBe(true);
+  });
+
+  it("rejects incomplete or ambiguous observed surface evidence", () => {
+    const input = {
+      phase: "post-write" as const, intended: [20, 30], acceptedLakeMask: [1, 1], observedLakeMask: [0, 0],
+      snapshot: { source: "native" as const, status: "available" as const, width: 2, height: 1, values: Float64Array.of(21, 31) },
+    };
+    for (const observedSurface of [
+      { waterMask: [1], terrain: [3, 3], coastTerrain: 3 },
+      { waterMask: [1, 1], terrain: [3], coastTerrain: 3 },
+      { waterMask: [1, 2], terrain: [3, 3], coastTerrain: 3 },
+      { waterMask: [1, 1], terrain: [3, NaN], coastTerrain: 3 },
+      { waterMask: [1, 1], terrain: [3, 3], coastTerrain: NaN },
+    ]) expect(() => measureStandardElevationProjection({ ...input, observedSurface })).toThrow();
   });
 
   it("does not count unchanged authored or observed lakes as adjustments", () => {
@@ -330,6 +383,7 @@ describe("exact elevation projection measurements", () => {
       expect("mismatchCount" in result).toBe(false);
       expect("maximumAbsoluteError" in result).toBe(false);
       expect("lakeAdjustmentCount" in result).toBe(false);
+      expect("acceptedInlandWaterAdjustmentCount" in result).toBe(false);
       expect("unplannedNativeLakeMismatchCount" in result).toBe(false);
       expect("nonLakeMismatchCount" in result).toBe(false);
     }

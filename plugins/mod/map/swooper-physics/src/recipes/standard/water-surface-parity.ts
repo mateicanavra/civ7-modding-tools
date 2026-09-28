@@ -84,6 +84,28 @@ export function landMaskFromWaterMask(waterMask: ArrayLike<number>): Uint8Array 
   return Uint8Array.from(waterMask, (isWater) => (isWater === 1 ? 0 : 1));
 }
 
+/** Certified physical water has no drift budget; native lake classification is separate. */
+export function assertAcceptedLakeFootprint(
+  dimensions: MapDimensions,
+  acceptedLakeMask: ArrayLike<number>,
+  currentWaterMask: ArrayLike<number>,
+  currentTerrain: ArrayLike<number>,
+  label: string
+): void {
+  const { width, height } = dimensions;
+  for (let cell = 0; cell < width * height; cell++) {
+    if (acceptedLakeMask[cell] !== 1) continue;
+    if (
+      currentWaterMask[cell] !== 1 ||
+      currentTerrain[cell] !== CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST
+    ) {
+      throw new Error(
+        `[${label}] certified accepted lake footprint lost at (${cell % width},${Math.floor(cell / width)}): water=${currentWaterMask[cell]}, terrain=${currentTerrain[cell]}.`
+      );
+    }
+  }
+}
+
 /**
  * Restores the Standard recipe's authored coast and ocean terrain after Civ7 maintenance calls.
  *

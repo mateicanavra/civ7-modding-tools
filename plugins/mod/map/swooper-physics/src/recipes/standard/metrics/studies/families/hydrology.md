@@ -6,6 +6,14 @@ This family measures modeled river coverage by minor and major class, outlet and
 ocean-terminal coverage, the published river-network summary, navigable-river
 selection, and final headless readback reconciliation.
 
+The physical model tag distinguishes legacy sink-budget selection from certified
+sill-spill bodies. Certified basin measurements retain conservation, certificate
+and body ledgers, exact footprints/outlets, exposed landform eligibility, and
+complete intended/native source-class reconciliation. Legacy absence is `null`,
+not fabricated passing certified evidence. Wet-body internal connectivity has
+no independent river mouth: `mouthSourceTileCount` counts exposed dry sources,
+while catchment coverage still includes every original land cell.
+
 River classes remain model evidence: `0` is absent, `1` is minor, and `>=2` is
 major and eligible for navigable projection. Missing terminal classification is
 retained as `null`; the measurement does not infer it or decide how many rivers a
@@ -46,10 +54,11 @@ the product bounds.
   the named Civ7 dimensions and must state any latitude assumption used for a
   tile-to-kilometer translation. A tile is never compared directly to a 30 m
   river pixel.
-- Hidden drainage and minor/headwater intent may sit below Civ terrain
-  visibility. Only modeled `riverClass>=2` is eligible for
-  `TERRAIN_NAVIGABLE_RIVER`; `riverClass=1` remains hydrology model evidence unless a
-  separate native metadata writer is proven.
+- Hidden drainage may sit below Civ terrain visibility. The legacy path selects
+  a navigable subset and delegates native river metadata to Civ7. Certified
+  Earthlike writes every classified dry source: minor to native MINOR and major
+  to native NAVIGABLE. Physical class, authored native class and observed class
+  remain separate; membership does not prove directed edges or through-lake travel.
 - An Earth-referenced target names its climate/relief regime: `wet`, `normal`,
   `arid`, `mountain`, `closed`, `archipelago`, or an explicit extension. A dry or
   no-visible-river result is meaningful only with its regime and measured

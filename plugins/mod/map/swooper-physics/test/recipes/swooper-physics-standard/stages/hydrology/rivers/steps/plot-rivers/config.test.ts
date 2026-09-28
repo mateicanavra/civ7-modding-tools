@@ -4,44 +4,39 @@ import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 
 import mapRiversStage from "../../../../../../../../src/recipes/standard/stages/hydrology/rivers/index.js";
 import { config as plotRiversConfig } from "../../../../../../../../src/recipes/standard/stages/hydrology/rivers/steps/plot-rivers/config.js";
-import { PlotRiversStep } from "../../../../../../../../src/recipes/standard/stages/hydrology/rivers/steps/plot-rivers/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../setup.js";
-import {
-  createStandardRecipeTestConfig,
-  standardMapConfig,
-} from "../../../../../fixtures/standard-recipe.js";
 
 const setup = admitMapSetup({
   mapSeed: TEST_MAP_SEED,
   dimensions: TEST_MAP_SIZE.dimensions,
-  latitudeBounds: standardMapConfig.latitudeBounds,
+  latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
 });
 
 function normalizeNavigableDensity(navigableRiverDensity: "normal" | "dense" | null) {
-  if (!PlotRiversStep.normalize) throw new Error("Plot rivers must normalize its density knob.");
-  const authored = createStandardRecipeTestConfig()["map-rivers"];
-  authored.knobs.navigableRiverDensity = navigableRiverDensity;
-  authored["plot-rivers"].endpointDischargePercentileMin = 0.82;
-  authored["plot-rivers"].targetMajorTileFraction = 0.61;
+  const authored = { projection: { model: "legacy-procedural", navigableRiverDensity, endpointDischargePercentileMin: 0.82, targetMajorTileFraction: 0.61 } };
   const stageConfig = validateSchemaValueForTest(
     mapRiversStage.surfaceSchema,
     authored,
     "/map-rivers"
   );
-  const { knobs, rawSteps } = mapRiversStage.toInternal({ setup, stageConfig });
+  const { rawSteps } = mapRiversStage.toInternal({ setup, stageConfig });
   const config = validateSchemaValueForTest(
     plotRiversConfig.schema,
     rawSteps["plot-rivers"],
     "/map-rivers/plot-rivers"
   );
-  return validateSchemaValueForTest(
-    plotRiversConfig.schema,
-    PlotRiversStep.normalize(config, { setup, knobs }),
-    "/map-rivers/plot-rivers"
-  );
+  if (config.projection.model !== "legacy-procedural") throw new Error("Expected legacy compiler branch.");
+  return config.projection;
 }
 
 describe("map-rivers plot-rivers authoring", () => {
+  it("admits authored-network without competing legacy knobs or quotas", () => {
+    const authored = { projection: { model: "authored-network" } };
+    const stageConfig = validateSchemaValueForTest(mapRiversStage.surfaceSchema, authored, "/map-rivers");
+    expect(mapRiversStage.toInternal({ setup, stageConfig }).rawSteps).toEqual({ "plot-rivers": authored });
+    expect(() => validateSchemaValueForTest(mapRiversStage.surfaceSchema, { projection: { model: "authored-network", targetMajorTileFraction: 0.2 } }, "/map-rivers")).toThrow();
+    expect(() => validateSchemaValueForTest(mapRiversStage.surfaceSchema, { ...authored, knobs: { navigableRiverDensity: "dense" } }, "/map-rivers")).toThrow();
+  });
   it("selects more Civ-visible river coverage for the dense posture", () => {
     const normal = normalizeNavigableDensity("normal");
     const dense = normalizeNavigableDensity("dense");

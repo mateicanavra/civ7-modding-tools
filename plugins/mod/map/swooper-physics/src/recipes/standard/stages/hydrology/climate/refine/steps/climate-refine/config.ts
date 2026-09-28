@@ -29,6 +29,7 @@ export const config = defineStep({
     climateArtifacts.baselineClimateField,
     climateArtifacts.windField,
     hydrographyArtifacts.hydrography,
+    hydrographyArtifacts.lakePlan,
   ],
   provides: [
     climateArtifacts.climateField,

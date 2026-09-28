@@ -606,3 +606,32 @@ independent adapter refactor.
   consumer and proof gate can move atomically.
 - A second independent map realization may earn a reusable qualified
   integration owner later; one hypothetical consumer does not justify it now.
+
+## ADR-020: Earthlike Water Precedes Exposed Landform Selection
+
+**Status:** Accepted (amends ADR-008's routing implementation, not ownership)
+**Date:** 2026-09-28
+**Context:** A conditioned per-cell drainage graph and seed-selected lake mask
+cannot express complete physical water bodies while preserving authored ground.
+Selecting blocking landforms first also makes native projection compensate by
+clipping lakes or suppressing channels. Civ7's direct river controls remove the
+need for a second procedural river-authoring pass.
+**Decision:** Earthlike explicitly selects a certified sill-spill water model.
+Final ground and original marine geography precede baseline climate, basin
+geometry, and one coherent body/dry-channel network. Exposed mountains and
+volcanoes are selected afterward, excluding wet bodies and classified channels;
+hills remain eligible on dry channels. Hydrology owns the physical products.
+Projection writes complete lake footprints and every authored dry river source,
+then separately observes Civ7's classes and numeric elevation. Other shipped
+maps explicitly retain their legacy model pending qualification.
+**Consequences:**
+- Preserve original ground, baseline forcing, and double-precision conserved
+  water budgets. Unsupported cases fail with evidence, without silent fallback.
+- Distinguish original marine geography used by thermal forcing from exposed
+  ground used by terrestrial ecology and surface-category budgets.
+- Do not clip certified lakes to legacy count, area, or singleton quotas.
+  Direct physical, placement, habitat, and parity guards remain mandatory.
+- Native lake height and through-lake navigation are not inferred from the
+  physical water surface or from successful river-class writes.
+- The integration and bounded support/proof contract are maintained in
+  [Earthlike basin integration](../projects/native-map-controls/basin-integration.md).

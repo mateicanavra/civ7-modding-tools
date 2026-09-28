@@ -69,27 +69,34 @@ stage order is:
 6. `morphology-coasts`
 7. `morphology-routing`
 8. `morphology-erosion`
-9. `morphology-features`
+9. `morphology-islands`
 10. `morphology-shelf`
 11. `hydrology-climate-baseline`
 12. `hydrology-hydrography`
-13. `hydrology-climate-refine`
-14. `ecology-pedology`
-15. `ecology-biomes`
-16. `map-morphology`
-17. `map-hydrology`
-18. `map-elevation`
-19. `map-rivers`
-20. `ecology-features`
-21. `map-ecology`
-22. `placement`
+13. `morphology-features`
+14. `hydrology-climate-refine`
+15. `ecology-pedology`
+16. `ecology-biomes`
+17. `map-morphology`
+18. `map-hydrology`
+19. `map-elevation`
+20. `map-rivers`
+21. `ecology-features`
+22. `map-ecology`
+23. `placement`
 
 The five `foundation-*` stages are a sibling family decomposed from the former
 single `foundation` stage; their steps run in the same order, so output is
 byte-identical (see the FOUNDATION domain reference for the stage→step map).
 The `morphology-shelf` stage computes the continental shelf after
-`compute-island-topography` (post-features), so every newly formed island and
-microcontinent receives coherent coast and shelf evidence.
+`morphology-islands` finalizes island ground and landmass decomposition, so every
+new island and microcontinent receives coherent coast and shelf evidence.
+Hydrography then runs one `network` step for the selected physical model.
+Certified Earthlike computes water on final ground before `morphology-features`
+selects exposed mountains and volcanoes outside wet bodies and reserved dry
+channels. Original ground and marine geography remain unchanged; climate
+refinement and terrestrial ecology use the appropriate original-marine or
+exposed-land population rather than one interchangeable water mask.
 
 Note:
 
@@ -108,7 +115,7 @@ by an admitted outcome artifact.
 | `plot-continents` | `map.continents-plotted` | `plot-mountains`, `plot-volcanoes` | validated continent terrain |
 | `plot-mountains` | `map.mountains-plotted` | `build-elevation` | projected mountain terrain |
 | `plot-volcanoes` | `map.volcanoes-plotted` | `build-elevation` | projected volcano terrain |
-| `project-rainfall` | `map.rainfall-projected` | `plot-rivers` | Civ7 rainfall field read by native river modeling |
+| `project-rainfall` | `map.rainfall-projected` | `plot-rivers` | written Civ7 rainfall; consumed by legacy native river modeling |
 | `build-elevation` | `map.elevation-built` | `plot-rivers` | current Civ7 elevation |
 | `plot-rivers` | `map.rivers-plotted` | `plan-natural-wonders` | final native river surface |
 | `plot-biomes` | `engine.biomes-applied` | `features-apply` | current engine biome classification |
@@ -120,7 +127,9 @@ by an admitted outcome artifact.
 
 This table documents product causality; the typed step configs and selected-plan
 compiler remain the executable authorities. Accepted lake projection and start
-assignment use exact post-action artifacts instead. Advanced starts have no
+assignment use post-action outcome artifacts instead. The certified lake
+artifact is the exact accepted physical water footprint, not a retained native
+`isLake` snapshot. Advanced starts have no
 completion because no selected consumer reads their resulting engine state.
 
 ## Config surface (schema + posture)
@@ -136,14 +145,26 @@ Stage-level posture:
 
 - Wrapper-only `advanced` stage surfaces have been removed. Step overrides live
   at `<stageId>.<stepId>`.
-- Projection `map-*` stages compile fixed materialization step config without
-  exposing empty knobs or public schemas. `map-rivers` retains its real
-  `navigableRiverDensity` knob; the fixed Swooper biome-to-Civ7 projection policy
-  stays beside `plot-biomes` rather than becoming authored configuration.
-  `map-hydrology` projects the final-refined rainfall surface, then stamps static
-  lake water before `map-elevation` builds engine elevation; `map-rivers`
-  projects the Civ-visible navigable river terrain subset from Hydrology river
-  evidence after elevation is finalized and records engine readback separately.
+- Fixed projection `map-*` stages do not expose fictional empty knobs.
+  `hydrology-hydrography.water` explicitly selects `legacy-sink-budget` or
+  `certified-sill-spill`; only the former exposes `lakeiness` and lake-budget
+  controls. The shared `knobs.riverDensity` controls physical classification.
+- `map-rivers.projection` selects `legacy-procedural` with its
+  `navigableRiverDensity`/threshold controls, or `authored-network` without a
+  selection quota. Earthlike authors the certified/authored pair; other shipped
+  maps retain the legacy pair. Admission rejects incompatible pairs rather than
+  falling back when a certified case is unsupported.
+- `map-hydrology` projects final-refined rainfall and accepted lake water before
+  `map-elevation` submits authored numeric elevation. `map-rivers` then writes
+  either the legacy navigable subset plus procedural native rivers or every
+  certified dry MINOR/NAVIGABLE source, finalizing the authored network once.
+  Immutable projection intent and later engine readback remain separate.
+  Physical water, native lake category, and native numeric water level are not
+  interchangeable. Final river-class readback does not establish directed-edge,
+  through-lake navigation, or freshwater parity; production-native qualification
+  remains separate from headless recipe proof.
+- The fixed Swooper biome-to-Civ7 projection policy stays beside `plot-biomes`
+  rather than becoming authored configuration.
 - Mountain/foothill strategy config belongs to
   `morphology-features.mountains`. The `map-morphology.plot-mountains` step is
   projection-only and rejects truth-planning knobs/config.

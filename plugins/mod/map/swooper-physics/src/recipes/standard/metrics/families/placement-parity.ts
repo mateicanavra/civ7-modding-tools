@@ -24,7 +24,7 @@ export const StandardPlacementParityMeasurementsSchema = Type.Object(
     finalLakeClassificationDriftCount: Type.Integer({
       minimum: 0,
       description:
-        "Number of admitted lake tiles no longer classified as lakes in the final engine snapshot.",
+        "Number of admitted physical-water tiles not classified as native lakes in the final snapshot. This is a physical/native classification difference, not necessarily water loss or temporal drift.",
     }),
   },
   {

@@ -1,7 +1,7 @@
 import type { StandardReliefCoherenceInput } from "../../../../../src/recipes/standard/metrics/families/relief-coherence.js";
 
 /** Small independent fields for exact relief, climate, and receiver-index tests. */
-export function reliefCoherenceFixture(width = 6, height = 3): StandardReliefCoherenceInput {
+export function reliefCoherenceFixture(width = 6, height = 3) {
   const size = width * height;
   return {
     provenance: { width, height },
@@ -16,7 +16,11 @@ export function reliefCoherenceFixture(width = 6, height = 3): StandardReliefCoh
       plannedLakeMask: new Uint8Array(size),
       riverClass: new Uint8Array(size),
       flowDir: new Int32Array(size).fill(-1),
-      routingElevation: new Float32Array(size).fill(100),
+      physicalHydrology: {
+        model: "legacy-sink-budget",
+        routingElevation: new Float32Array(size).fill(100),
+        outletMask: new Uint8Array(size),
+      },
       surfaceTemperature: new Float32Array(size).fill(20),
       baselineRainfall: new Uint8Array(size).fill(100),
       refinedRainfall: new Uint8Array(size).fill(100),
@@ -33,5 +37,5 @@ export function reliefCoherenceFixture(width = 6, height = 3): StandardReliefCoh
       coastTerrain: 4,
       oceanTerrain: 5,
     },
-  };
+  } satisfies StandardReliefCoherenceInput;
 }

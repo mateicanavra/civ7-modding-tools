@@ -17,9 +17,10 @@
 
 Hydrology produces climate and water-cycle products for downstream consumption:
 
-- baseline and final-refined climate fields (rainfall/humidity),
+- baseline and final-refined climate fields (rainfall, humidity, and potential demand),
 - atmospheric wind and moisture-transport state,
-- depression-conditioned drainage routing over Morphology topography,
+- explicitly selected legacy conditioned drainage or certified ground-preserving
+  basin routing over final Morphology topography,
 - discharge and hydrography evidence,
 - refined terrestrial indices (effective moisture, aridity, and freeze) and optional cryosphere products,
   and related diagnostics.
@@ -27,7 +28,10 @@ Hydrology produces climate and water-cycle products for downstream consumption:
 Hydrology also feeds engine-facing projection steps, which are explicitly
 **projection-only**: `map-hydrology` materializes final-refined rainfall and
 accepted lake water before engine elevation, and `map-rivers` materializes
-selected navigable river terrain after elevation.
+either legacy procedural rivers or the complete certified dry-source network
+after elevation. Earthlike selects the certified path; other shipped maps
+explicitly retain legacy behavior. Unsupported certified cases are not
+automatically rerouted into the legacy model.
 
 ## Stages (standard recipe)
 
@@ -52,13 +56,19 @@ Hydrology requires:
 
 Hydrology provides:
 
-- `artifact:hydrology.baselineClimateField` (annual-mean rainfall/humidity used by routing and refinement)
+- `artifact:hydrology.baselineClimateField` (annual-mean rainfall, humidity,
+  potential demand, and its admitted parameters used by hydrography/refinement)
 - `artifact:hydrology.climateField` (final-refined rainfall/humidity used by Ecology and engine projection)
-- `artifact:hydrology.hydrography` (canonical drainage routing + discharge + river class snapshot)
+- `artifact:hydrology.hydrography` (model-tagged drainage, discharge, and river
+  classes; certified discharge is dry-cell evidence, with whole-body mixing in
+  lake ledgers rather than signed wet-cell accumulation)
 - `artifact:hydrology.riverNetwork` (upstream area, hierarchy, mouth, slope,
-  and permanence fields consumed by river projection)
-- `artifact:map.rivers.projectedNavigableRivers` (stable runtime id for the
-  immutable Hydrology hydrography module's Civ7-projectable river selection;
+  and permanence fields consumed by river projection; certified mouths identify
+  the first downstream lake separately from ocean termination)
+- `artifact:hydrology.lakePlan` (model-tagged lake intent; certified strict wet
+  footprints, water surfaces, bodies, budgets, and conservation evidence)
+- `artifact:map.rivers.projectedRivers` (stable runtime id for the immutable
+  legacy navigable selection or complete authored dry-source writes;
   `map.rivers` identifies the product lane, not stage catalog ownership, and
   mutable engine readback is not retained)
 - `artifact:hydrology.climateIndices` (advisory indices for downstream consumption)
@@ -66,15 +76,17 @@ Hydrology provides:
 
 Hydrology projection also provides two payload-free external-state completions:
 
-- `completion:map.rainfall-projected` gates native river modeling on the final
-  rainfall surface having been written into Civ7.
+- `completion:map.rainfall-projected` orders rivers after final rainfall has
+  been written into Civ7; legacy native river modeling consumes that surface.
 - `completion:map.rivers-plotted` gates consumers of final native river state.
-  `artifact:map.rivers.projectedNavigableRivers` remains pre-materialization
-  selection intent and therefore cannot substitute for this completion.
+  `artifact:map.rivers.projectedRivers` remains pre-materialization intent and
+  therefore cannot substitute for this completion.
 
 Accepted lake projection has no parallel completion:
-`artifact:hydrology.projectedLakes` is exact post-stamp readback and carries the
-outcome required by elevation and terminal parity consumers.
+`artifact:hydrology.projectedLakes` carries the immutable accepted physical
+footprint required by elevation and terminal parity consumers. Certified
+admission requires the complete planned footprint as water with COAST terrain;
+the artifact is not a snapshot of native `isLake` classifications.
 
 ## Key artifacts
 
@@ -89,7 +101,7 @@ The `modules/ocean` branch currently supplies invocation-local geometry, current
 and thermal state to climate composition; it does not publish a durable ocean artifact.
 
 Aggregate river benchmark evidence is calculated and emitted by the Standard
-recipe's Lakes metrics projector rather than retained as pipeline state.
+recipe's Network metrics projector rather than retained as pipeline state.
 Advisory terrain/wind climate diagnostics are derived by the climate module's
 pure observation operation and remain invocation-local input to visualization.
 Seasonal rainfall and humidity amplitudes likewise remain invocation-local
@@ -133,14 +145,27 @@ The Standard recipe uses operation contracts such as:
 - `projectRiverNetwork`
 - `planLakes`
 - `classifyRiverNetwork`
+- `computeLocalRunoff`
+- `computeDrainageBasins`
+- `computeOpenBasinNetwork`
+- `classifyBasinRiverNetwork`
 - `computeLandWaterBudget`
 - `computePotentialDemand`
 - `computeCryosphereState`, `applyAlbedoFeedback`
 
-Navigable-river terrain selection is intentionally not a second physical river
-model. The map-rivers projection rule derives an immutable Hydrology-owned
-projectable subset from admitted river truth plus the current engine terrain
-constraint; engine mutation and readback remain local to the projection step.
+The single Standard `network` step orchestrates only the selected model's
+operations; operations do not call one another. The legacy branch retains
+conditioned routing, accumulation, sink-budget lakes, and legacy classification.
+The certified branch uses attributed double-precision local runoff, exact basin
+geometry, baseline rainfall/demand, and whole-body conservation before publishing
+consistent hydrography, lake, and river-network products. An unsupported result
+publishes no partial authoritative network.
+
+River projection is not a second physical model. Legacy projection selects a
+navigable subset under terrain constraints. Certified projection preserves every
+classified dry source and receiver, rejecting blocked or invalid intent instead
+of clipping sources or rerouting them. Mutation and readback remain local to
+projection and observation steps.
 
 ## Config + knobs posture
 
@@ -148,9 +173,18 @@ The Standard recipe exposes bound operation envelopes directly and adds a
 small set of stage knobs for product-level posture:
 
 - `hydrology-climate-baseline` knobs: `dryness`, `temperature`, `seasonality`, `oceanCoupling`
-- `hydrology-hydrography` knobs: `riverDensity` (physical river-network classification density), `lakeiness` (a relative sink-derived lake-intent posture whose `normal` value preserves directly authored basin controls)
+- `hydrology-hydrography` knobs: `riverDensity` (physical river-network classification density)
 - `hydrology-climate-refine` knobs: `dryness`, `temperature`, `cryosphere`
-- `map-rivers` knobs: `navigableRiverDensity` (Civ-visible navigable river trunk projection only)
+
+`hydrology-hydrography.water` is a closed, model-tagged public selection:
+`legacy-sink-budget` exposes its operation envelopes and relative `lakeiness`,
+while `certified-sill-spill` exposes only its four physical operation envelopes.
+`map-rivers.projection` similarly selects `legacy-procedural` with optional
+`navigableRiverDensity` and advanced thresholds, or `authored-network` without
+selection controls. Cross-stage admission requires compatible pairs. Earthlike
+authors the certified/authored pair; no lake count, area, or singleton quota is
+part of that physical selection. Legacy controls and acceptance remain scoped
+to legacy maps.
 
 Step schemas and their bound operation contracts remain the advanced
 configuration surface. Knobs transform those admitted configs; they do not
@@ -176,20 +210,39 @@ The `map-hydrology` stage:
 
 - is projection-only,
 - writes every sample from final `artifact:hydrology.climateField` to the adapter exactly once,
-- then projects static `artifact:hydrology.lakePlan` intent before engine elevation while
-  preserving final Morphology mountain and volcano landforms,
+- then projects static `artifact:hydrology.lakePlan` intent before engine elevation,
 - and does not compute a second rainfall or lake model.
 
+Legacy lake selection retains its landform constraints. Certified water is
+computed after erosion/islands but before exposed mountain/volcano selection;
+that later selection reserves complete wet bodies and classified dry channels.
+Projection admits whole certified footprints or fails, never removes lake cells
+to rescue a landform conflict. Thermal forcing retains original marine geography,
+while terrestrial ecology consumes original land minus physical wet cells.
+
 The `map-rivers` stage consumes Hydrology hydrography after `map-elevation` has
-built engine elevation, publishes the immutable projectable river selection,
+built engine elevation, publishes immutable model-tagged river intent,
 then keeps mutable Civ7 mutation/readback as local trace, metrics, and
 visualization evidence. This matches Civ7's terrain lifecycle: static water
 before elevation, rivers after elevation.
 
-Hydrology routing is the canonical water-movement graph. It is derived from
-Morphology topography with a depression-conditioned routing surface and typed
-terminals; it does not consume `artifact:morphology.routing`, which remains a
-Morphology terrain-shaping proxy for existing Morphology consumers.
+Hydrology routing is the canonical water-movement graph. Legacy routing uses a
+depression-conditioned surface. Certified routing preserves original dry-ground
+receivers except explicit exact-sill outlet connectors, mixes wet-body supply
+and demand in body ledgers, and requires nonnegative outflows, acyclicity, and
+marine termination. Its interior wet connectivity is not a per-cell signed
+discharge budget. Neither branch consumes `artifact:morphology.routing`, which
+remains a terrain-shaping proxy for Morphology consumers.
+
+Physical ground, certified spill-level water surface, and native numeric height
+are distinct. Elevation projection converts ground into authored native intent;
+it does not submit the certified spill field as a native lake-level command.
+Native inland-water leveling can occur with or without `isLake`. Qualified
+numeric adjustments require complete finite readback and stable local water,
+COAST terrain, and native category; a physical wet mask alone is insufficient.
+Ordinary dry land and original ocean retain exact numeric admission, apart from
+the separately qualified stable native-lake exception on original water.
+Neither native leveling nor lake classification feeds back into physical truth.
 
 Hydrology river classes have distinct projection meanings:
 
@@ -197,11 +250,14 @@ Hydrology river classes have distinct projection meanings:
   `1` means minor/headwater channel intent, and values `>=2` mean
   major/projectable channel intent. Values above `2` are reserved for future
   stream-order hierarchy and remain eligible for major-river projection.
-- `riverClass=1` is minor-river intent. It remains a physics/display/planning
-  surface and must not be promoted into `TERRAIN_NAVIGABLE_RIVER`.
+- `riverClass=1` is minor-river intent and must not be promoted into
+  `TERRAIN_NAVIGABLE_RIVER`. Certified projection writes native MINOR for every
+  such dry source; legacy procedural metadata remains independently observed.
 - `riverClass>=2` is major-river intent and is the only hydrology class eligible
   for MapGen-owned navigable terrain projection. Major truth is routed trunk
-  truth, not a set of isolated discharge-threshold outlet tiles.
+  truth, not a set of isolated discharge-threshold outlet tiles. Certified
+  projection writes native NAVIGABLE for every such dry source, including lake
+  inlets; it does not select a smaller visible trunk subset.
 
 Civ7 river proof has two distinct surfaces:
 
@@ -220,19 +276,28 @@ re-exported by `CIV7_RIVER_TYPES_V0`. A same-run Studio/Civ proof
 historical evidence that terrain rows and river metadata are separate surfaces;
 it is not the current product closure path.
 
-`TerrainBuilder.modelRivers` remains the official high-level stock Civ river
-materialization surface. Swooper authored maps must not delegate river truth to
-that engine generator, but `map-rivers` may use the Swooper realization's native bulk
-writer after it stamps the Hydrology-selected navigable terrain mask so Civ
-creates river metadata, model objects, water caches, and named-river state. A
-2026-06-10 same-seed run proved why this boundary matters: unbounded native
-generation produced extra no-sink fragments, while terrain-only authored
-materialization produced no river metadata. Current acceptance therefore
-requires both projected-vs-live terrain readback and projected/planned intent
-vs native metadata readback (`engineNavigableRiverMask` and
-`engineMinorRiverMask`). Minor-river exact parity remains open until same-run
-evidence proves native readback matches Hydrology planned-minor intent.
-Official resources were
+The explicitly legacy branch retains navigable terrain selection followed by
+`TerrainBuilder.modelRivers` and legacy maintenance. The certified authored
+branch instead lowers every dry source/receiver to `setRiverInfo`, invokes
+`finalizeRivers` once, and maintains native water data without procedural river
+generation. It emits no river writes inside wet bodies. Final placement rereads
+river classes against immutable `projectedRivers` intent and always emits a
+bounded `FINAL_RIVER_PARITY_V1` receipt for the certified path: unavailable is
+explicit, and missing, extra, wrong-class, and NAVIGABLE-terrain mismatches are
+separate evidence. This receipt is observational, not a runtime repair or abort.
+
+Native class readback is not proof of directed edges, river-object continuity,
+through-lake movement, or freshwater bonuses. Start planning's physical-lake
+adjacency score is modeled opportunity, not a native freshwater observation.
+The complete production-native qualification remains pending independently of
+headless integration proof; bounded fixtures and current qualification limits
+are recorded in the [integration packet](../../../../../projects/native-map-controls/basin-integration.md)
+and [native river evidence](../../../../../projects/native-map-controls/rivers.md).
+
+Historical writer evidence remains useful but does not describe the selected
+authored branch: a 2026-06-10 same-seed run found that unbounded procedural
+generation produced extra fragments while terrain-only authored materialization
+produced no river metadata. Official resources were
 refreshed through `bun run refresh:data`
 against the installed Steam app on 2026-06-09 and stayed clean at snapshot
 `fbc38ef`; spot checks of the installed app matched that snapshot for
@@ -243,8 +308,8 @@ scripts calling `modelRivers(...)`, `defineNamedRivers()`, and
 `TerrainBuilder.setRiverValidationValues` hook was probed in the disposable
 `studio-run-in-game-mq6c38rf-n2p` session; it returned `undefined` and left all
 river metadata counts unchanged (`river=0`, `navigableRiver=0`, `minorRiver=0`).
-Treat that hook as rejected for production minor-river authoring until a
-different writer surface is discovered and proven.
+That historical probe did not qualify the hook for minor-river authoring; the
+current authored branch uses the separately qualified writer described above.
 
 ## Ground truth anchors
 
@@ -256,7 +321,7 @@ different writer surface is discovered and proven.
   - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/rivers/index.ts`
 - Step contracts (truth stages):
   - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.ts`
-  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/hydrography/steps/rivers/config.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/hydrography/steps/network/config.ts`
   - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/refine/steps/climate-refine/config.ts`
 - Step contracts (projection stage):
   - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/projection/steps/lakes/config.ts`

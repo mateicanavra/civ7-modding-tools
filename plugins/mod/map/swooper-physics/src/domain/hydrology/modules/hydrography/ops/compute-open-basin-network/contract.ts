@@ -2,6 +2,7 @@ import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authorin
 
 import { RawReceiverSchema, DrainagePlateauIdSchema, DrainageLeafIdSchema, BasinNodesSchema, BasinRootsSchema, BasinSaddlesSchema, BasinCatchmentCellsSchema, ExternalCatchmentCellsSchema, BasinHypsometrySchema } from "../../model/atoms/index.js";
 import { BasinFluxSchema as FluxSchema, BasinLevelIntervalSchema as LevelIntervalSchema } from "../../model/atoms/index.js";
+import { OpenBasinBodySchema, OpenBasinCertificateSchema, MarineDischargeExitSchema, WaterConservationSchema } from "../../model/atoms/index.js";
 import certifiedSillSpillDefinition from "./strategies/certified-sill-spill/config.js";
 
 const footprint = {
@@ -140,22 +141,10 @@ const ComputeOpenBasinNetworkContract = defineOp({
         terminalType: TypedArraySchemas.u8({ description: "1 only on land-to-original-marine exits; 0 otherwise. No closed or untyped land terminals." }),
         bodyId: TypedArraySchemas.i32({ description: "Containing root node ID on strict wet cells, 0 elsewhere." }),
         dryDischarge: Type.Array(flux(), { description: "Number-precision outflow on dry land only; zero on wet/marine cells is a sentinel, not a wet-cell flow allocation." }),
-        bodies: Type.Array(Type.Object({
-          nodeId: node(),
-          wetCells: Type.Array(cell()),
-          spillElevation: Type.Integer(),
-          outletCell: cell(),
-          receiverCell: cell(),
-          connectorCells: Type.Array(cell(), { description: "Reversed dry-at-sill path in recorded spill-to-wet order." }),
-          flux: FluxSchema,
-          outflow: flux(),
-        }, { additionalProperties: false })),
-        certificates: Type.Array(Type.Object({ nodeId: node(), spillBalance: Type.Number({ exclusiveMinimum: 0 }) }, { additionalProperties: false })),
-        marineExits: Type.Array(Type.Object({ fromCell: cell(), marineCell: cell(), discharge: flux() }, { additionalProperties: false })),
-        conservation: Type.Object({
-          dryRunoff: flux(), wetPrecipitation: flux(), wetDemand: flux(), externalDischarge: flux(),
-          residual: Type.Number(), roundoffBound: flux(),
-        }, { additionalProperties: false }),
+        bodies: Type.Array(OpenBasinBodySchema),
+        certificates: Type.Array(OpenBasinCertificateSchema),
+        marineExits: Type.Array(MarineDischargeExitSchema),
+        conservation: WaterConservationSchema,
       }, { additionalProperties: false }),
     }, { additionalProperties: false }),
   ]),

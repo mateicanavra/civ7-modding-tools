@@ -14,7 +14,7 @@ describe("hydrology/project-river-network (default strategy)", () => {
         width,
         height,
         landMask: new Uint8Array(size).fill(1),
-        discharge: new Float32Array(size).fill(0),
+        discharge: new Array<number>(size).fill(0),
         flowDir: new Int32Array(size).fill(-1),
       },
       {
@@ -46,7 +46,7 @@ describe("hydrology/project-river-network (default strategy)", () => {
         width,
         height,
         landMask: new Uint8Array(size).fill(1),
-        discharge,
+        discharge: Array.from(discharge),
         flowDir: new Int32Array(size).fill(-1),
       },
       {
@@ -79,7 +79,7 @@ describe("hydrology/project-river-network (default strategy)", () => {
         width,
         height,
         landMask,
-        discharge,
+        discharge: Array.from(discharge),
         flowDir,
       },
       {

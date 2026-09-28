@@ -23,7 +23,7 @@ export function computeWetlandSubstrateMasks(args: {
   readonly seaLevel: number;
   readonly riverMask: ArrayLike<number>;
   readonly discharge: ArrayLike<number>;
-  readonly sinkMask: ArrayLike<number>;
+  readonly sinkMask?: ArrayLike<number>;
   readonly nearRiverMask: ArrayLike<number>;
   readonly isolatedRiverMask: ArrayLike<number>;
   readonly coastalLandMask: ArrayLike<number>;
@@ -78,7 +78,7 @@ export function computeWetlandSubstrateMasks(args: {
       const isFloodplain = isLowland && args.nearRiverMask[i] === 1 && hasNearbyFlow;
       floodplainMask[i] = isFloodplain ? 1 : 0;
 
-      const isSinkBasin = isLowland && args.sinkMask[i] === 1;
+      const isSinkBasin = isLowland && args.sinkMask?.[i] === 1;
       sinkBasinMask[i] = isSinkBasin ? 1 : 0;
 
       const hydromorphic = isFloodplain || isIntertidal || isSinkBasin;

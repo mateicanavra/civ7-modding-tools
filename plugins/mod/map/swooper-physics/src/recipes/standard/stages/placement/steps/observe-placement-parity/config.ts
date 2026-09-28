@@ -16,11 +16,13 @@ export const config = defineStep({
     "readCurrentMapElevationSnapshot",
     "readCurrentMapWaterMask",
     "readCurrentMapLakeMask",
+    "readRiverProjection",
   ] as const,
   requires: [
     STANDARD_COMPLETIONS.surfacePrepared,
     morphologyLandformsArtifacts.topography,
     hydrographyArtifacts.projectedLakes,
+    hydrographyArtifacts.projectedRivers,
   ],
   provides: [],
 });

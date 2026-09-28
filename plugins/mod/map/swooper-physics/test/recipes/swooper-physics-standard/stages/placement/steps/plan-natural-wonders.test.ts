@@ -70,6 +70,7 @@ function publishPlacementInputs(context: MapContext): void {
     bathymetry: new Int16Array(size),
   });
   publishTestArtifact(context, hydrographyArtifacts.hydrography, {
+    model: "legacy-sink-budget",
     runoff: new Float32Array(size),
     discharge: new Float32Array(size).fill(PLANNER_SURFACE_SENTINELS.discharge),
     riverClass: new Uint8Array(size).fill(PLANNER_SURFACE_SENTINELS.riverClass),
@@ -82,6 +83,7 @@ function publishPlacementInputs(context: MapContext): void {
     terminalType: new Uint8Array(size),
   });
   publishTestArtifact(context, hydrographyArtifacts.riverNetwork, {
+    model: "legacy-sink-budget",
     upstreamArea: new Int32Array(size),
     streamOrderProxy: new Uint8Array(size),
     mouthType: new Uint8Array(size),
@@ -89,6 +91,7 @@ function publishPlacementInputs(context: MapContext): void {
     flowPermanenceProxy: new Uint8Array(size),
   });
   publishTestArtifact(context, hydrographyArtifacts.lakePlan, {
+    model: "legacy-sink-budget",
     width,
     height,
     lakeMask: new Uint8Array(size).fill(PLANNER_SURFACE_SENTINELS.lakeMask),

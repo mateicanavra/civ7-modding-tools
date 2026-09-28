@@ -14,6 +14,10 @@ const PlanRidgesContract = defineOp({
     width: Type.Integer({ minimum: 1, description: "Map width in tiles." }),
     height: Type.Integer({ minimum: 1, description: "Map height in tiles." }),
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
+    candidateMask: TypedArraySchemas.u8({
+      cardinality: ["width", "height"],
+      description: "Mountain eligibility per tile; reserved dry channels remain land but cannot become blocking peaks.",
+    }),
     elevation: TypedArraySchemas.i16({
       description: "Final physical Morphology elevation used for land-neighbor relief admission.",
     }),

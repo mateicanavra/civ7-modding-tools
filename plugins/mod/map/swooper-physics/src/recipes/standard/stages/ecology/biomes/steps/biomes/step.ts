@@ -21,7 +21,10 @@ export const BiomesStep = createStep(config, {
 
     const climateIndices = deps.artifacts.climateIndices.read();
     const topography = deps.artifacts.topography.read();
-    const { landMask } = topography;
+    const lakePlan = deps.artifacts.lakePlan.read();
+    const landMask = lakePlan.model === "certified-sill-spill"
+      ? Uint8Array.from(topography.landMask, (land, i) => land === 1 && lakePlan.lakeMask[i] === 0 ? 1 : 0)
+      : topography.landMask;
     const pedology = deps.artifacts.pedology.read();
     const cryosphere = deps.artifacts.cryosphere.read();
 

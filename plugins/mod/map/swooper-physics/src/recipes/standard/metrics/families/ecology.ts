@@ -26,6 +26,10 @@ const VEGETATION_FEATURES = new Set([
 ]);
 const MINIMUM_LAND_TILES_PER_LATITUDE_ROW = 20;
 
+type EcologyLandModel = Pick<StandardMapCapture["model"], "landMask" | "plannedLakeMask"> & {
+  physicalHydrology: Pick<StandardMapCapture["model"]["physicalHydrology"], "model">;
+};
+
 /** Neutral row-wise biome measurements retained for latitude and banding studies. */
 type StandardBiomeRowMetrics = Readonly<{
   landRowCount: number;
@@ -60,7 +64,7 @@ export type StandardEcologyMetrics = Readonly<{
 /** Measures realized Ecology product evidence without applying identity thresholds. */
 export function measureStandardEcology(capture: StandardMapCapture): StandardEcologyMetrics {
   const tileCount = capture.provenance.width * capture.provenance.height;
-  const plannedLandCount = countBinary(capture.model.landMask);
+  let terrestrialLandCount = 0;
   const realizedWaterCount = countBinary(capture.observation.isWater);
   const coastWaterCount = countTerrain(capture, capture.observation.coastTerrain, true);
   const featureByType = new Map(
@@ -77,7 +81,8 @@ export function measureStandardEcology(capture: StandardMapCapture): StandardEco
   let unclassifiedModeledLandCount = 0;
 
   for (let index = 0; index < tileCount; index += 1) {
-    if (capture.model.landMask[index] === 1) {
+    if (isModeledTerrestrialLand(capture.model, index)) {
+      terrestrialLandCount += 1;
       const biomeIndex = capture.model.biomeIndex[index]!;
       if (biomeIndex === 255) {
         unclassifiedModeledLandCount += 1;
@@ -117,14 +122,14 @@ export function measureStandardEcology(capture: StandardMapCapture): StandardEco
     biomeRows: measureStandardBiomeRows(capture),
     coldBiomeTiles: measureMetricCount(
       (biomeCounts.get("tundra") ?? 0) + (biomeCounts.get("boreal") ?? 0),
-      plannedLandCount
+      terrestrialLandCount
     ),
-    unclassifiedModeledLand: measureMetricCount(unclassifiedModeledLandCount, plannedLandCount),
+    unclassifiedModeledLand: measureMetricCount(unclassifiedModeledLandCount, terrestrialLandCount),
     featureCounts: Object.freeze(featureCounts),
-    wetlandTiles: measureMetricCount(wetlandCount, plannedLandCount),
+    wetlandTiles: measureMetricCount(wetlandCount, terrestrialLandCount),
     reefFamilyTiles: measureMetricCount(reefCount, realizedWaterCount),
     coldReefCoastTiles: measureMetricCount(featureCounts.FEATURE_COLD_REEF ?? 0, coastWaterCount),
-    vegetationTiles: measureMetricCount(vegetationCount, plannedLandCount),
+    vegetationTiles: measureMetricCount(vegetationCount, terrestrialLandCount),
     vegetationFamiliesPresent,
     invalidFeatureSurfaceCount,
     featureHabitatMismatchCounts: Object.freeze(mismatchCounts),
@@ -137,7 +142,7 @@ export function measureStandardEcology(capture: StandardMapCapture): StandardEco
 export function measureStandardBiomeRows(
   capture: Readonly<{
     provenance: Pick<StandardMapCapture["provenance"], "width" | "height">;
-    model: Pick<StandardMapCapture["model"], "landMask" | "biomeIndex">;
+    model: EcologyLandModel & Pick<StandardMapCapture["model"], "biomeIndex">;
   }>
 ): StandardBiomeRowMetrics {
   const { width, height } = capture.provenance;
@@ -151,7 +156,7 @@ export function measureStandardBiomeRows(
     const rowBiomes = new Map<number, number>();
     for (let x = 0; x < width; x += 1) {
       const index = y * width + x;
-      if (capture.model.landMask[index] !== 1) continue;
+      if (!isModeledTerrestrialLand(capture.model, index)) continue;
       landTiles += 1;
       const biomeIndex = capture.model.biomeIndex[index]!;
       if (biomeIndex !== 255) rowBiomes.set(biomeIndex, (rowBiomes.get(biomeIndex) ?? 0) + 1);
@@ -185,6 +190,12 @@ export function measureStandardBiomeRows(
     maximumAdjacentRainforestShareDelta:
       adjacentRainforestShareDeltas.length === 0 ? null : Math.max(...adjacentRainforestShareDeltas),
   });
+}
+
+/** Certified freshwater removes terrestrial habitat, not original marine geography. */
+function isModeledTerrestrialLand(model: EcologyLandModel, index: number): boolean {
+  return model.landMask[index] === 1 &&
+    (model.physicalHydrology.model === "legacy-sink-budget" || model.plannedLakeMask[index] === 0);
 }
 
 function medianOrNull(values: readonly number[]): number | null {

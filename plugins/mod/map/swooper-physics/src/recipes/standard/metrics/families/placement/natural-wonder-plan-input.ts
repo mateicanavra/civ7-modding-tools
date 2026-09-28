@@ -26,7 +26,7 @@ export type StandardNaturalWonderPlannerMeasurementSurface = Readonly<{
   effectiveMoisture: PlannerNumericSurface;
   surfaceTemperature: PlannerNumericSurface;
   fertility: PlannerNumericSurface;
-  discharge: PlannerNumericSurface;
+  discharge: PlannerNumericSurface | readonly number[];
   slopeClass: PlannerNumericSurface;
   coastTerrainType: number;
   mountainTerrainType: number;
@@ -133,7 +133,7 @@ const PlannerSurfaceDigestsSchema = Type.Object(
       "Raw-byte digest of Pedology fertility admitted as a wonder suitability signal."
     ),
     dischargeHash32: digest(
-      "Raw-byte digest of Hydrology discharge admitted as a wonder suitability signal."
+      "Discharge digest: original Float32 bytes for legacy typed evidence, canonical little-endian Float64 bytes for Number-array evidence."
     ),
     slopeClassHash32: digest(
       "Raw-byte digest of Hydrology slope classes admitted as a wonder suitability signal."
@@ -463,7 +463,7 @@ export function measureStandardNaturalWonderPlanInput({
         effectiveMoistureHash32: fnv1a32BytesHex(plannerInput.effectiveMoisture),
         surfaceTemperatureHash32: fnv1a32BytesHex(plannerInput.surfaceTemperature),
         fertilityHash32: fnv1a32BytesHex(plannerInput.fertility),
-        dischargeHash32: fnv1a32BytesHex(plannerInput.discharge),
+        dischargeHash32: hashDischarge(plannerInput.discharge),
         slopeClassHash32: fnv1a32BytesHex(plannerInput.slopeClass),
         terrainTypeHash32: fnv1a32BytesHex(plannerInput.terrainType),
         biomeTypeHash32: fnv1a32BytesHex(plannerInput.biomeType),
@@ -474,6 +474,18 @@ export function measureStandardNaturalWonderPlanInput({
     plannedCount: plan.plannedCount,
     rows,
   });
+}
+
+function hashDischarge(discharge: PlannerNumericSurface | readonly number[]): string {
+  if (!Array.isArray(discharge)) return fnv1a32BytesHex(discharge as PlannerNumericSurface);
+  const bytes = new Uint8Array(discharge.length * 8);
+  const view = new DataView(bytes.buffer);
+  for (let index = 0; index < discharge.length; index++) {
+    const value = discharge[index]!;
+    if (!Number.isFinite(value) || value < 0) throw new Error("Discharge digest requires finite nonnegative values.");
+    view.setFloat64(index * 8, value, true);
+  }
+  return fnv1a32BytesHex(bytes);
 }
 
 function requiredSurfaceValue(
