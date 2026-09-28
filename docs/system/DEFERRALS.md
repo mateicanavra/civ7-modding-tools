@@ -22,22 +22,6 @@ Each deferral follows this structure:
 
 ## Active Deferrals
 
-## DEF-001: Engine Elevation vs. Physics Heightfield Alignment
-
-**Deferred:** 2025-12-08
-**Trigger:** Next major mapgen engine refactor or post–TS-migration remediation hardening
-**Context:** The Civ7 engine derives elevation internally via `TerrainBuilder.buildElevation()` using its own fractal fields and terrain tags. Our plate/physics `WorldModel` maintains a richer heightfield that cannot be pushed 1:1 into the engine (no `setElevation` API). During TS migration remediation we adopted a conservative hybrid model: physics drives macro structure; Civ fractals + `buildElevation()` provide micro-variation.
-**Scope:** 
-- Explore a physics-first pipeline that maps our height buckets directly to terrain (land/ocean/mountain/hill) with minimal or no use of engine fractals, then calls `buildElevation()` once.
-- Alternatively, more tightly couple fractal usage to our heightfield (e.g., derive fractal thresholds/grain from physics statistics) while keeping the adapter boundary clean.
-- Compare aesthetics, performance, and complexity against the current hybrid approach; update contracts/docs if we standardize on a new pattern.
-**Impact:** 
-- Today, engine elevation and cliffs remain a lossy derivative of our terrain layout and engine-side fractals; our internal heightfield is used for physics/story only.
-- There is conceptual divergence between “true” physics elevation and what the player sees in-game.
-- Addressing this will likely require coordinated changes across `@swooper/mapgen-core`, the Civ7 adapter, and docs, so we are explicitly deferring it beyond the current remediation milestone.
-
----
-
 The DEF-004…DEF-014 family is owned by the placement-realignment project
 (`docs/projects/placement-realignment/`; slice evidence under `evidence/`,
 live-proof runbook in `MILESTONE-PROOFS.md`).
@@ -180,6 +164,26 @@ Some deferrals are intentionally scoped to a specific project/milestone (e.g., E
 - Engine Refactor v1: `docs/projects/engine-refactor-v1/deferrals.md`
 
 ## Resolved Deferrals
+
+## DEF-001: Engine Elevation vs. Physics Heightfield Alignment
+
+**Deferred:** 2025-12-08
+**Resolved:** 2026-09-28
+**Resolution:** Installed Civ7 1.5 source and bounded native probes qualify an
+explicit physical-to-native projection through `setElevation(number[])` and
+`generateCliffsFromElevation()`. The adopted path no longer uses stock
+`buildElevation`; immutable physical truth, exact native observations and
+authored/current lake classification remain separate. The unchanged study bank
+passes, and a normal Earthlike/Huge native game completes with zero unexplained
+late drift: exact call evidence attributes seven lake-height changes to
+`modelRivers` and one Redwood footprint-height change to `setFeatureType`.
+Source commit `fd4802c616` then passes a final clean production reload at turn 1.
+This is bounded runtime proof, not a claim that all native operations preserve
+every height or that all map/wonder combinations have been tested. Existing
+categorical terrain/river maintenance remains; no physics retuning, replacement
+river authorship, lake-leveling algorithm or numeric tolerance was introduced.
+See the [elevation lane](../projects/native-map-controls/elevation.md) for source,
+build, native-call receipts and the saved-setup/runtime-roster distinction.
 
 ## DEF-022: Persistent in-game Civ7 controller
 

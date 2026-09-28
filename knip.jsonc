@@ -62,7 +62,11 @@
     "apps/mods/map/swooper-physics": {
       // Nx already exposes the app entrypoints. Knip needs the uncached live proof and
       // cannot observe the compiler's dynamic resolution of uri-js into an esbuild module.
-      "entry": ["test/live/*.live.test.ts"],
+      "entry": [
+        "test/live/*.live.test.ts",
+        // The diagnostic builder imports this registration through generated source.
+        "test/live/elevation-contract-map.fixture.ts"
+      ],
       "ignoreDependencies": ["uri-js"]
     },
     "resources/civ7-tuner": {
