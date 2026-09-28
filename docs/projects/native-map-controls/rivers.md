@@ -175,6 +175,47 @@ backoff during Explore, independently of the successful fresh native request.
 
 ## Tests And Acceptance
 
+### Elevated Lake Boundary Qualification
+
+Revision 4 adds two four-cell elevated lakes without writing rivers inside
+either water body. The fresh `river-elevated-lake-1018-v4` execution completed
+at `2026-09-28T07:49:59.350Z` on Tiny 60x38, map/game seeds 1018/1019, four
+players, saved configuration `ToT_NoModsExceptMaps`. Generated and installed
+script SHA-256 is
+`7d3ccc32518a159a4cc78cb347396f15528c0e6d29faf83b1655750d8b4f0352`.
+
+Both four-cell categorical footprints remain lakes through all nine
+checkpoints. Each four-cell minor inlet remains one native network (open-lake
+inlet ID 20; closed-lake inlet ID 29). The open lake's five-cell navigable outlet
+is a separate network, ID 21, and all five cells report ocean connectivity
+after water-cache refresh. Every atlas write returned and every independently
+predicted adjacency matched the native adjacency observation.
+
+The open lake reads elevation 322 beside its 450-unit lowest shore/outlet;
+the closed lake reads 572 beside its 700-unit minimum shore. Both received wet
+input 572. Neither lake's numeric readback changes during river finalization
+or later maintenance. This corroborates the earlier surrounding-shore behavior,
+not independent physical water-level authorship. In particular, comparing
+322 directly with the outlet's 450 does not prove a physical uphill outlet:
+the meaning of native water elevation versus rendered water surface remains
+unqualified. Do not alter ground to compensate for that numeric difference.
+
+This establishes stable whole categorical bodies and separately authored
+land-only inlets/outlets in these fixtures. It does not establish one river
+object or navigability through the lake, exact directed-edge readback, arbitrary
+closed-lake levels, or every production basin geometry. The 13 fixture tests
+pass with 1,334 assertions. Native data and copied log are retained in
+`/tmp/civ7-river-authored-river-elevated-lake-1018-v4.{json,log}`; installation
+and launch receipts use `/tmp/civ7-river-elevated-lake-v4-*`.
+
+An earlier launch crashed during setup-identity application before this fixture
+loaded. Its failure and native crash report were retained separately; the
+successful run followed fresh process and read-only health reconciliation,
+not a blind retry of an uncertain mutation. The crash is not attributed to
+basin generation or the new fixture.
+
+### Production Gates
+
 - Deterministic graph-to-hex lowering, odd/even rows, seams, transitions,
   confluences and outlets, including rejected/partial lakes; invalid intent
   fails with a bounded reason.
