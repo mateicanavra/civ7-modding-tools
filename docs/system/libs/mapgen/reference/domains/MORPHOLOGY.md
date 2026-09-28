@@ -275,7 +275,7 @@ engine-facing coast projection.
 
 Fields:
 
-- `shelfMask` (u8): `1` for shoreline-connected water on the gentle pre-break apron; eligible for `TERRAIN_COAST` projection
+- `shelfMask` (u8): `1` for gentle, shoreline-connected continental-crust water or the mandatory immediate shoreline ring; eligible for `TERRAIN_COAST` projection
 - `coastalLand` (u8): `1` where post-island land is adjacent to water
 - `coastalWater` (u8): `1` where post-island water is adjacent to land
 - `distanceToCoast` (u16): post-island minimum tile-graph distance to a coast tile
@@ -345,6 +345,13 @@ Computes substrate evidence from tile-space tectonic potentials and crust typing
 #### `morphology/compute-base-topography` → `{ elevation }`
 
 Converts crust isostasy baseline + tectonic potentials into an initial quantized elevation field.
+
+The `tectonic-relief` strategy adds independent crust and boundary-arc Perlin
+fields derived from the full seed. Sampling uses the canonical hex geometry on
+an X-periodic cylinder, not advancing RNG draws under repeated spatial labels.
+`fractalGrain` is the rounded number of hex-neighbor spacings per noise lattice
+unit: higher means coarser. Each offset stays inside half of its authored
+peak-to-peak amplitude; smooth samples need not fill that envelope uniformly.
 
 **Notable invariant (quantization scale)**
 
@@ -641,13 +648,17 @@ publishes volcano intent, and publishes the landmass decomposition snapshot.
 ### `morphology-shelf` (`compute-shelf`)
 
 Recomputes coastline adjacency and distance from the final post-island landmask,
-classifies the continental shelf from the sculpted bathymetric break, and
-publishes both as one coherent shelf artifact.
+classifies gentle shelf connectivity within Foundation's continental crust,
+and publishes both as one coherent shelf artifact. Immediate coast around
+oceanic islands is retained independently; it cannot seed or bridge shelf
+connectivity into the abyss. Crust support and local bathymetric gradient are
+distinct requirements, because a smooth ocean floor is not a continental shelf.
 
 **Requires**
 
 - `artifact:morphology.topography`
 - `artifact:morphology.beltDrivers`
+- `artifact:foundation.crustTiles`
 
 **Provides**
 

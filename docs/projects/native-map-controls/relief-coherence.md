@@ -201,3 +201,88 @@ conventions remain explicit: regressions with constant response return null,
 and the neutral cohort target checks accounting rather than exhaustive capture
 corruption. Independent basin-geometry review also found no blocking issues;
 its sibling spill endpoints are not themselves a final routing DAG.
+
+### Coherent Candidate And Downstream Couplings
+
+The smooth-noise candidate retains the same admitted configs in all twelve
+cases. Earthlike ordinary-land roughness falls to 7.87-19.77, depression roots
+to 24-60, and physical-uphill river links to 39-102. Huge seed 1018 changes
+from 155 to 55 roots and 153 to 94 uphill links. Temperature response remains
+negative and wind/rainfall association positive. This supports the upstream
+repair while leaving actual basin semantics and landform classification open.
+
+The complete product bank exposed downstream assumptions; its guards are not
+being relaxed. A local-gradient shelf flood had depended on noisy abyssal
+roughness as a stopping barrier. Coherent Earthlike Huge 1018 keeps the median
+physical water depth at 86 units while realized ocean share collapses from
+51.16% to 7.15%. Cross-applying captured masks/heights isolates height smoothness,
+not coastline movement, as the driver. Shelf admission must distinguish
+continental support from oceanic abyss and must not propagate from every
+island's required shoreline ring.
+
+The `latest-juicy` variant also loses its last eligible rainforest-biome site, and Huge
+Earthlike seed 7777 has 31.87% flat mountain-region interior against the existing
+35% floor. These failures are investigated at their physical/classification
+owners; neither a one-tile rainforest quota nor lowered identity bounds is
+accepted as a remedy.
+
+The selected shelf correction consumes the existing `foundation.crustTiles`
+artifact, rather than publishing a duplicate apron mask. Only continental,
+gentle water can seed or propagate shelf connectivity; immediate shoreline
+coast is retained but cannot bridge that admission. This preserves continental
+inland seas beyond the sculpted outer apron and stops an oceanic island from
+flooding the smooth abyss. It does not claim that crust type alone proves
+shallow depth or model island pedestals beyond their required coastal ring.
+
+Official 1.5 resource tables confirm forest/rainforest-family features require
+flat terrain, and rainforest requires the tropical native biome. All three
+remaining `latest-juicy` rainforest-biome tiles are mountains/hills. Keeping
+those restrictions is intentional. Its authored climate is dry despite the
+map's name; do not infer a wet-map product promise from the name. Reevaluate
+the rainforest regression after the upstream shelf correction, which also
+feeds ocean thermal/climate behavior, before any biome calibration.
+
+The corrected shelf candidate completed all 29 owned studies (96 scenarios,
+7,023 expectations). All seven ocean-related failures from the noise-only
+candidate are resolved; only the two `latest-juicy` rainforest expectations
+and seed 7777's mountain-region flat-share floor remain. The same twelve-case
+relief capture is saved as `/tmp/civ7-relief-coherent-shelf.json`, establishing
+the physical/climate HOLD baseline for the next landform change. Twenty-one
+focused noise/shelf/recipe tests pass (594 assertions). Independent source
+review found no blocking noise or shelf issues. Full product acceptance is
+not claimed while those three expectations remain failing.
+
+### Relief-Supported Landform Candidate
+
+After noise repair, the cohort still contains enclosed mountain minima and
+flat mountain cells. Required final elevation is absent from ridge/foothill
+inputs, and rough-land admission allows deformation/proximity to bypass actual
+relief. Retain tectonic range intent, but make exposed terrain classes consume
+the ground they describe.
+
+Predeclare one bounded candidate: use shared radius-one land-neighbor upward
+and downward relief; mountain admission requires at least 4 model units of
+downward relief, hill admission at least 2 units of absolute relief. These are
+explicit empirical classification-resolution floors, not real-world slope
+angles, mountain definitions, or basin-breaching thresholds. Rank eligible
+mountain candidates with downward-relief support and eligible hills with
+absolute-relief support using the existing 16-unit rough-relief normalization.
+Tectonic history/proximity still locates ranges; it cannot create rugged
+terrain on a perfectly flat surface. Coverage floors and corridor promotion
+must not bypass eligibility. Regional footprints can retain valleys/passes.
+
+Do not require strict summits or positive mean prominence: a sloping mountain
+can have higher neighbors. Exclude water-neighbor differences from this
+admission, preserving the separate coastal-cliff diagnostic. The alternative
+of altitude ranking is rejected because it would turn flat plateaus into
+mountains and erase low rugged ranges. Raising physical height to fit labels
+is also rejected.
+
+Fixture gates: flat plateau, low rugged ridge, slope, pass, enclosed pit, coast,
+datum shift, wrapped adjacency, immutable inputs, disjoint terrain classes,
+and unfilled quotas when support is absent. Study the same twelve captures
+plus the existing Huge relief cohort; hold physical elevation, land mask and
+baseline climate exact. Class-conditioned relief and inspected transitions
+should improve, without forcing every mountain/foothill edge to one sign.
+Keep existing product bounds and report conflicts rather than retuning these
+floors to a desired terrain count.

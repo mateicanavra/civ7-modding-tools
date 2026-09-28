@@ -1,7 +1,14 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
+import {
+  CIV7_BROWSER_TABLES_V0,
+  deriveCiv7CoastProjection,
+  WATER_CLASS_COAST,
+  WATER_CLASS_LAND,
+  WATER_CLASS_OCEAN,
+} from "@civ7/map-policy";
+import morphology from "../../../../../../../src/domain/morphology/router.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "../../../../../../../src/domain/morphology/modules/shelf/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
@@ -9,6 +16,7 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import {
   buildStepTestDependencies,
   publishTestArtifact,
+  runAdmittedOperationForTest,
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { PlotCoastsStep } from "../../../../../../../src/recipes/standard/stages/morphology/projection/steps/plot-coasts/step.js";
@@ -25,6 +33,64 @@ function shelfFixture(size: number, shelfMask: Uint8Array, coastalWater: Uint8Ar
 }
 
 describe("map-morphology/plot-coasts", () => {
+  it("projects an oceanic island's coast ring without converting the surrounding smooth abyss", () => {
+    const { width, height } = TEST_MAP_SIZE.dimensions;
+    const size = width * height;
+    const landMask = new Uint8Array(size);
+    const bathymetry = new Int16Array(size).fill(-80);
+    const island = Math.floor(height / 2) * width + Math.floor(width / 2);
+    landMask[island] = 1;
+    bathymetry[island] = 0;
+    const { coastalWater } = runAdmittedOperationForTest(
+      morphology.coasts.ops.computeCoastalAdjacency,
+      { width, height, landMask },
+      { strategy: "wrapped-hex-adjacency", config: {} }
+    );
+    const { shelfMask, depthGateMask } = runAdmittedOperationForTest(
+      morphology.shelf.ops.computeShelfMask,
+      {
+        width,
+        height,
+        landMask,
+        crustType: new Uint8Array(size), // the volcanic island and its floor are oceanic
+        bathymetry,
+        distanceToCoast: new Uint16Array(size),
+        boundaryCloseness: new Uint8Array(size),
+        boundaryType: new Uint8Array(size),
+      },
+      {
+        strategy: "physical-break-connectivity",
+        config: { breakGradient: 8, breakGradientScale: 1, activeClosenessThreshold: 0.45 },
+      }
+    );
+    const projection = deriveCiv7CoastProjection({
+      width,
+      height,
+      landMask,
+      shelfMask,
+      coastalWater,
+    });
+    // Ring projection must remain independent of continental flood eligibility.
+    const ringOnlyProjection = deriveCiv7CoastProjection({
+      width,
+      height,
+      landMask,
+      shelfMask: new Uint8Array(size),
+      coastalWater,
+    });
+
+    expect(depthGateMask.some((value) => value === 1)).toBe(false);
+    expect(Array.from(shelfMask)).toEqual(Array.from(coastalWater));
+    expect(projection.waterClass).toEqual(ringOnlyProjection.waterClass);
+    expect(projection.waterClass[island]).toBe(WATER_CLASS_LAND);
+    expect(projection.waterClass[island + 1]).toBe(WATER_CLASS_COAST);
+    expect(projection.waterClass[island + 2]).toBe(WATER_CLASS_OCEAN);
+    expect(projection.waterClass.filter((value) => value === WATER_CLASS_COAST)).toHaveLength(6);
+    expect(projection.waterClass.filter((value) => value === WATER_CLASS_OCEAN)).toHaveLength(
+      size - 7
+    );
+  });
+
   it("stamps coast from the shelf + shoreline ring; ring promotes only land-adjacent ocean (no distance band)", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const setup = admitMapSetup({
