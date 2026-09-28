@@ -58,6 +58,7 @@ sheet. Every runtime study ID emitted by `STANDARD_METRIC_STUDIES` maps below.
 | `shipped/arid-climate/MAPSIZE_HUGE/seed-{123,1337,1538316415,1538316523}` | Four Huge sample studies | [Desert Mountains arid climate](benchmarks/shipped-arid-climate.md) |
 | `shipped/geography` | 32-map cohort across all eight catalog configs | [Shipped geography](benchmarks/shipped-geography.md) |
 | `shipped/mountain-drama` | Twelve matched-seed Huge samples across Earthlike and three mountain configs | [Mountain drama](benchmarks/mountain-drama.md) |
+| `shipped/relief-coherence` | Twelve matched Earthlike/mountain-patch samples, Standard/Huge, seeds 1/42/1018 | [Relief coherence](benchmarks/relief-coherence.md) |
 | `earthlike/geography` | Standard sample, seed 1337 | [Earthlike geography](benchmarks/earthlike-geography.md) |
 | `earthlike/biome-structure` | Huge sample, seed 1337 | [Earthlike biome structure](benchmarks/earthlike-biome-structure.md) |
 | `earthlike/climate-structure` | Huge 1018 and Standard 1018/1/42 cohort | [Earthlike climate structure](benchmarks/earthlike-climate-structure.md) |

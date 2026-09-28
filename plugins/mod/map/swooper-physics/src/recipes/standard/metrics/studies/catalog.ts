@@ -19,6 +19,7 @@ import { SHIPPED_ARID_CLIMATE_STUDIES } from "./benchmarks/shipped-arid-climate.
 import { SHIPPED_GEOGRAPHY_STUDY } from "./benchmarks/shipped-geography.study.js";
 import { SHIPPED_IDENTITY_STUDIES } from "./benchmarks/shipped-identities.study.js";
 import { MOUNTAIN_DRAMA_STUDY } from "./benchmarks/mountain-drama.study.js";
+import { RELIEF_COHERENCE_STUDY } from "./benchmarks/relief-coherence.study.js";
 import type { StandardMetricStudy } from "./model.js";
 
 /** Closed executable study bank for the shipped Standard recipe product. */
@@ -27,6 +28,7 @@ export const STANDARD_METRIC_STUDIES: NonEmptyTuple<StandardMetricStudy> = Objec
   ...SHIPPED_ARID_CLIMATE_STUDIES,
   SHIPPED_GEOGRAPHY_STUDY,
   MOUNTAIN_DRAMA_STUDY,
+  RELIEF_COHERENCE_STUDY,
   EARTHLIKE_GEOGRAPHY_STUDY,
   EARTHLIKE_BIOME_STRUCTURE_STUDY,
   EARTHLIKE_CLIMATE_STRUCTURE_STUDY,

@@ -10,11 +10,13 @@ import {
 } from "@swooper/mapgen-metrics";
 
 import type { StandardMapCapture } from "../capture.js";
+import { measureStandardReliefCoherence, type StandardReliefCoherenceMetrics } from "./relief-coherence.js";
 
 type VolcanoKind = StandardMapCapture["model"]["volcanoes"][number]["kind"];
 
 /** Relief facts for authored landforms, orographic interiors, and realized Civ7 terrain. */
 export type StandardReliefMetrics = Readonly<{
+  coherence: StandardReliefCoherenceMetrics;
   plannedMountains: CountMetric;
   plannedMountainComponents: ComponentMetricSummary;
   mountainRegion: Readonly<{
@@ -108,6 +110,7 @@ export function measureStandardRelief(capture: StandardMapCapture): StandardReli
   for (const volcano of capture.model.volcanoes) volcanoKindCounts[volcano.kind] += 1;
 
   return Object.freeze({
+    coherence: measureStandardReliefCoherence(capture),
     plannedMountains: measureMetricCount(plannedMountainCount, population),
     plannedMountainComponents: summarizeMask(capture.model.mountainMask, width, height),
     mountainRegion: region,

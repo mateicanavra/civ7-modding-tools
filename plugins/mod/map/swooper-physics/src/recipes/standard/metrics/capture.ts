@@ -173,6 +173,7 @@ export type StandardMapCapture = Readonly<{
   }>;
   model: Readonly<{
     landMask: Uint8Array;
+    seaLevel: number;
     elevation: Int16Array;
     regionSlotByTile: Uint8Array;
     landmassIdByTile: Int32Array;
@@ -189,6 +190,8 @@ export type StandardMapCapture = Readonly<{
     volcanoes: Volcanoes["volcanoes"];
     plannedLakeMask: Uint8Array;
     riverClass: Uint8Array;
+    flowDir: Int32Array;
+    routingElevation: Float32Array;
     outletMask: Uint8Array;
     terminalType: Uint8Array;
     riverNetworkSummary: StandardRiverNetworkMeasurements;
@@ -568,6 +571,7 @@ function copyCompletedRun(
     }),
     model: Object.freeze({
       landMask,
+      seaLevel: requireFinite("morphology.topography.seaLevel", topographyValue.seaLevel),
       elevation: copyInt16Grid(
         "morphology.topography.elevation",
         topographyValue.elevation,
@@ -634,6 +638,12 @@ function copyCompletedRun(
       riverClass: copyUint8Grid(
         "hydrology.hydrography.riverClass",
         hydrographyValue.riverClass,
+        gridSize
+      ),
+      flowDir: copyInt32Grid("hydrology.hydrography.flowDir", hydrographyValue.flowDir, gridSize),
+      routingElevation: copyFloat32Grid(
+        "hydrology.hydrography.routingElevation",
+        hydrographyValue.routingElevation,
         gridSize
       ),
       outletMask: copyUint8Grid(
@@ -1020,6 +1030,13 @@ function copyResourceExclusionReason(
 function requireInt32(name: string, value: number): number {
   if (!Number.isInteger(value) || value < -2_147_483_648 || value > 2_147_483_647) {
     throw new Error(`Standard metric capture requires ${name} to be a signed 32-bit integer.`);
+  }
+  return value;
+}
+
+function requireFinite(name: string, value: number): number {
+  if (!Number.isFinite(value)) {
+    throw new Error(`Standard metric capture requires ${name} to be finite.`);
   }
   return value;
 }
