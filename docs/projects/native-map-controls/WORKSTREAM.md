@@ -1,6 +1,6 @@
 # Native Map Controls
 
-Status: elevation and Earthlike climate acceptance pass; relief coherence and basin-aware drainage are authorized prerequisites to native river integration.
+Status: elevation, Earthlike climate and relief coherence acceptance pass; basin-aware drainage remains the active prerequisite to native river integration.
 DRA: root. Opened: 2026-09-27.
 Opening branch: `agent-root-civ7-native-map-controls-frame`.
 
@@ -389,6 +389,23 @@ owner-defined ignored output homes. Commit conclusions, inputs and exact proof
 references here rather than dumping generated evidence into documentation.
 
 ## Next Packet
+
+The relief continuation is committed through
+`agent-root-civ7-relief-supported-landforms`: coherent spatial noise, a shelf
+coherence repair, relief-supported mountains/hills, baseline demand ownership,
+and Latest Juicy's neutral climate identity. See
+[relief-coherence.md](relief-coherence.md) for twelve-case comparisons,
+rejected alternatives and the explicit retirement of the categorical
+peak-chain proxy. The amended bank passes 29 studies, 96 scenarios and 7,022
+expectations; 722 definition tests and Habitat checks pass. A fresh normal
+Huge Earthlike/1018 native map completes and remains available after Explore.
+This does not activate the new basin water model or authored river network.
+
+Actual baseline forcing certifies full-spill inundation for all twelve current
+basin study cases. That exposes real changes in land area and mountain/lake
+connectivity, recorded in [basin-design.md](basin-design.md). Reconcile those
+outcomes and exposed landform sequencing before replacing production water;
+do not enforce old lake-count limits with hidden sinks or arbitrary carving.
 
 Start here, then read resources.md, elevation.md and studies.md. Current-source
 compatibility, unchanged studies and bounded native elevation acceptance are
