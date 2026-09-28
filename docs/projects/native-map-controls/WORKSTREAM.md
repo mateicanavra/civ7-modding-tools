@@ -1,10 +1,15 @@
 # Native Map Controls
 
-Status: elevation, climate and relief coherence accepted; Earthlike basin/authored-river integration implemented and independently reviewed. Headless and production-native footprint/class qualification pass. Naval gameplay qualification remains open against a failing stock-map control.
+Status: active coherence completion. Elevation, climate and relief changes are accepted; static basin/authored-river footprint and class qualification pass. Wet shoreline continuity, basin-aware terrain evolution, density calibration and actual naval traversal are not complete. See [request accounting and solution path](coherence-completion.md).
 DRA: root. Opened: 2026-09-27.
 Opening branch: `agent-root-civ7-native-map-controls-frame`.
 
 ## Frame
+
+The [coherence completion plan](coherence-completion.md) supersedes the prior
+observational stopping point and historical Graphite publication gate. The user
+has explicitly authorized native Graphite repair and continuation through
+design, implementation, independent review and actual outcome verification.
 
 Map authors should see the physical heightfield and connected minor/navigable
 river network produced by Swooper realized faithfully in Civ7, rather than

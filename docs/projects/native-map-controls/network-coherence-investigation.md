@@ -247,18 +247,22 @@ capture. Production lake-footprint assertions remain enabled.
 
 The added writes therefore are **not wholly ignored during generation**: at
 least one native connectivity readback changes temporarily. A fresh App UI
-read at `2026-09-28T15:49:42Z` returns false again at `(86,29)`, so this is not
-a demonstrated lasting connection repair. A wet setter does not turn the lake into a
+read at `2026-09-28T15:49:42Z` returns false again at `(86,29)`, so the ocean
+flag alone does not demonstrate lasting gameplay connectivity. It also does not
+veto a visible repair. A wet setter does not turn the lake into a
 river terrain, and matching river memberships do not describe all native
 connectivity. The post-cache change is not proof of a rendered shoreline repair,
 a native directed edge, or Galley passage. In particular, this experiment does
 not intervene on the five-tile lake in the user's photo.
 
-The matched native views show different channel shapes, with broader reaches
-in A and narrower reaches in B around the tested junction. Neither improvement
-nor causation is established: uncontrolled native mesh variation remains a
-possible explanation. The report retains only camera-verified, fully explored
-frames, excluding premature fog-only captures.
+The user's second photo matches the retained B detail and shows promising
+continuous joins at the singleton lakes. This was the wet-write intervention,
+not a separate terrain or elevation fix. The original interpretation understated
+that visible result. Causation and reproducibility still need matched repeats:
+native mesh variation outside the edited junction remains a possible confound.
+The report retains only camera-verified, fully explored frames, excluding
+premature fog-only captures. See [shoreline continuity](shoreline-continuity-design.md)
+for the repetition and larger-lake discrimination plan.
 
 Do not ship a two/three-tile lake minimum or lower surrounding terrain on this
 evidence. The next native question is shoreline rendering and water-surface
