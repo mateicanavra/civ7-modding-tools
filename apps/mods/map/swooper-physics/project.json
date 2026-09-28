@@ -3,6 +3,19 @@
   "name": "swooper-physics-mod",
   "tags": ["kind:app"],
   "targets": {
+    "verify:river-contract-probe-live": {
+      "command": "bun ./test/live/studio-run-in-game.live.test.ts",
+      "dependsOn": [{ "target": "build", "projects": ["control-orpc"] }],
+      "cache": false,
+      "options": { "cwd": "apps/mods/map/swooper-physics" }
+    },
+    "build:river-contract-probe": {
+      "command": "bun ./test/live/river-contract-probe.ts",
+      "dependsOn": [{ "target": "build", "projects": ["mapgen-core", "plugin-files"] }],
+      "outputs": ["{projectRoot}/dist/river-contract-probe/**"],
+      "cache": false,
+      "options": { "cwd": "apps/mods/map/swooper-physics" }
+    },
     "verify:elevation-contract-probe-live": {
       "command": "bun ./test/live/studio-run-in-game.live.test.ts",
       "dependsOn": [
