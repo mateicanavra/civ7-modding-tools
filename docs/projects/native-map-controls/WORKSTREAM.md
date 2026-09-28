@@ -1,6 +1,6 @@
 # Native Map Controls
 
-Status: elevation acceptance passes; Earthlike climate correction precedes authorized river integration.
+Status: elevation and Earthlike climate acceptance pass; native river qualification is next.
 DRA: root. Opened: 2026-09-27.
 Opening branch: `agent-root-civ7-native-map-controls-frame`.
 
@@ -352,8 +352,13 @@ physical truth or lake placement. Exact native calls account for all eight
 post-write-to-final height changes. Retain those transformations and the
 evidence limits; do not generalize the tested setup into preservation of every
 numeric value or every map/wonder combination.
-Continue through the Earthlike climate investigation and behavioral expectation
-ledger before implementing the approved river lane. Publication remains deferred
+Earthlike climate acceptance now passes: the full bank has 28 studies, 91
+scenarios and 6,408 checks, and the saved Huge/1018 native run completes with
+zero water/lake classification drift. See earthlike-climate.md for the explicit
+E2.5 cohort-mean amendment, native admission gaps and exact proof receipts.
+Proceed through the approved river contract probes before implementation;
+do not infer setter direction or finalizer semantics from the climate pass.
+Publication remains deferred
 by the unrelated ancestor. Preserve the separate main edits and discover current
 owner commands rather than historical aliases. Studio remains available at
 `http://127.0.0.1:5173/` from this worktree.
