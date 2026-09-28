@@ -3,6 +3,7 @@ import { createDomainSubdomainRouter } from "@swooper/mapgen-core/authoring";
 import contract from "./contract.js";
 import accumulateDischarge from "./ops/accumulate-discharge/index.js";
 import classifyRiverNetwork from "./ops/classify-river-network/index.js";
+import computeDrainageBasins from "./ops/compute-drainage-basins/index.js";
 import computeDrainageRouting from "./ops/compute-drainage-routing/index.js";
 import planLakes from "./ops/plan-lakes/index.js";
 import projectRiverNetwork from "./ops/project-river-network/index.js";
@@ -13,6 +14,7 @@ import projectRiverNetwork from "./ops/project-river-network/index.js";
  * sole executable aggregate; step authoring continues to reference the contract.
  */
 const hydrography = createDomainSubdomainRouter(contract, {
+  computeDrainageBasins,
   computeDrainageRouting,
   accumulateDischarge,
   projectRiverNetwork,
