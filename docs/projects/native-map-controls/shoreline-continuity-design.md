@@ -17,6 +17,28 @@ configuration and envelope hashes, exact fixture-source SHA-256, final bundle
 SHA-256, and explicit edge descriptors in `proof.json`. Installed-bundle identity
 and native game/controller correlation remain separate live-proof gates.
 
+## Probe Deployment
+
+The builder emits `deployFlags` for `civ7 mod manage deploy` and records
+`installDirectoryName` in `proof.json`. Always use the canonical installation
+directory **`mod-swooper-river-contract-v1`**. The logical Mod ID and map-script
+prefix remain **`swooper-river-contract-v1`**; `--id` takes the directory name,
+not that logical ID. From the repository root, the equivalent command is:
+
+```sh
+bun apps/cli/bin/run.js mod manage deploy \
+  --input apps/mods/map/swooper-physics/dist/river-contract-probe \
+  --id mod-swooper-river-contract-v1
+```
+
+This guidance prevents the known naming mistake when followed; it does not
+enforce uniqueness or detect/remove duplicate installed Mod IDs. An alternative
+directory can coexist with the old installation and let Civ7 load stale code.
+Installation digest checks and fresh loaded proof-ID/revision checks remain
+required; rebuilding or a successful copy alone does not prove the selected
+variant ran. Do not automatically delete another installation to resolve a
+collision.
+
 ## Alternatives
 
 | Model | Intervention | Decision |

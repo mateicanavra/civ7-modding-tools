@@ -13,7 +13,7 @@ import {
   RIVER_LAKE_NAVIGATION_CONTROLS, RIVER_LAKE_MARINE_CONTROLS, RIVER_LAKE_NAVIGATION_PROBE,
   type RiverProbeAtlas, type RiverProbeVariant,
 } from "./river-contract-map.fixture.js";
-import { buildRiverProbePlan, riverProbeMapScript } from "./river-contract-probe.js";
+import { buildRiverProbePlan, riverProbeDeployFlags, riverProbeInstallDirectoryName, riverProbeMapScript, riverProbeOutputRoot } from "./river-contract-probe.js";
 
 type LogEntry = { stage: string; payload: Record<string, any>; proofId: string; variant: string };
 
@@ -308,6 +308,22 @@ describe("river diagnostic artifact (not native semantics proof)", () => {
         }
       }
     }
+  });
+
+  test("deployment guidance distinguishes the canonical install directory from the logical mod ID", async () => {
+    const { plan } = await compiled();
+    const proof = JSON.parse(String(plan.files.find(({ relativePath }) => relativePath === "proof.json")!.content));
+    expect(proof.id).toBe("swooper-river-contract-v1");
+    expect(proof.installDirectoryName).toBe("mod-swooper-river-contract-v1");
+    expect(proof.installDirectoryName).toBe(riverProbeInstallDirectoryName);
+    expect(proof.installDirectoryName).not.toBe(proof.id);
+    expect([...riverProbeDeployFlags]).toEqual([
+      "--input", riverProbeOutputRoot, "--id", "mod-swooper-river-contract-v1",
+    ]);
+    expect(proof.mapScript).toBe("{swooper-river-contract-v1}/maps/river-contract.js");
+    const modinfo = String(plan.files.find(({ relativePath }) => relativePath === "swooper-river-contract-v1.modinfo")!.content);
+    expect(modinfo).toContain('<Mod id="swooper-river-contract-v1"');
+    expect(modinfo).not.toContain('<Mod id="mod-swooper-river-contract-v1"');
   });
 
   test("real compiler, isolated mod, SHA manifest, bounded logs, native enums and phase order", async () => {
