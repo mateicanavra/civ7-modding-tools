@@ -324,6 +324,20 @@ describe("Civ7Adapter exact elevation capabilities", () => {
   });
 });
 
+describe("Civ7Adapter procedural river compatibility", () => {
+  it("dispatches the shipped river model without exposing the removed naming API", () => {
+    const modelRivers = mock(() => {});
+    (globalThis as Record<string, unknown>).TerrainBuilder = { modelRivers };
+    const adapter = new Civ7AdapterCtor(2, 2);
+
+    adapter.modelRivers(5, 15, 7);
+
+    expect(modelRivers).toHaveBeenCalledTimes(1);
+    expect(modelRivers).toHaveBeenCalledWith(5, 15, 7);
+    expect("defineNamedRivers" in adapter).toBe(false);
+  });
+});
+
 const WIDTH = 4;
 const HEIGHT = 6;
 const REDWOOD_FOOTPRINT = [9, 13, 10] as const;
@@ -354,6 +368,61 @@ function installNaturalWonderRuntime(
 }
 
 describe("Civ7Adapter natural-wonder placement", () => {
+  it("reads fresh fractional native elevation for each placement without an explicit override", () => {
+    const featureTypes = new Int32Array(WIDTH * HEIGHT).fill(NO_FEATURE);
+    type FeatureData = Readonly<{ Feature: number; Direction: number; Elevation: number }>;
+    const elevationReads: Array<[number, number]> = [];
+    const legalityCalls: Array<{ x: number; y: number; featureData: FeatureData }> = [];
+    const writeCalls: Array<{ x: number; y: number; featureData: FeatureData }> = [];
+    let nativeElevation = 350.125;
+    (globalThis as Record<string, unknown>).GameplayMap = {
+      getElevation: (x: number, y: number) => {
+        elevationReads.push([x, y]);
+        return nativeElevation;
+      },
+      getFeatureType: (x: number, y: number) => featureTypes[y * WIDTH + x] ?? NO_FEATURE,
+    };
+    (globalThis as Record<string, unknown>).TerrainBuilder = {
+      canHaveFeatureParam: (
+        x: number,
+        y: number,
+        _featureType: number,
+        featureData: FeatureData
+      ) => {
+        legalityCalls.push({ x, y, featureData: { ...featureData } });
+        return true;
+      },
+      setFeatureType: (x: number, y: number, featureData: FeatureData) => {
+        writeCalls.push({ x, y, featureData: { ...featureData } });
+        for (const plotIndex of REDWOOD_FOOTPRINT) featureTypes[plotIndex] = featureData.Feature;
+        return true;
+      },
+    };
+
+    const adapter = new Civ7AdapterCtor(WIDTH, HEIGHT);
+    expect(adapter.placeNaturalWonder(1, 2, REDWOOD_FEATURE_TYPE, 0)).toMatchObject({
+      status: "placed",
+      elevation: 350.125,
+    });
+    nativeElevation = 901.625;
+    expect(adapter.placeNaturalWonder(1, 2, REDWOOD_FEATURE_TYPE, 0)).toMatchObject({
+      status: "placed",
+      elevation: 901.625,
+    });
+
+    const expectedCalls = [350.125, 901.625].map((Elevation) => ({
+      x: 1,
+      y: 2,
+      featureData: { Feature: REDWOOD_FEATURE_TYPE, Direction: 0, Elevation },
+    }));
+    expect(elevationReads).toEqual([
+      [1, 2],
+      [1, 2],
+    ]);
+    expect(legalityCalls).toEqual(expectedCalls);
+    expect(writeCalls).toEqual(expectedCalls);
+  });
+
   it("accepts a complete multi-tile engine write after exact footprint readback", () => {
     const featureTypes = installNaturalWonderRuntime(REDWOOD_FOOTPRINT);
     const outcome = new Civ7AdapterCtor(WIDTH, HEIGHT).placeNaturalWonder(

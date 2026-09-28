@@ -977,10 +977,6 @@ export class MockAdapter implements EngineAdapter {
     // No-op in mock
   }
 
-  buildElevation(): void {
-    // No-op in mock
-  }
-
   setElevation(values: readonly number[]): void {
     const snapshot = copyElevationIntent(values, this.width, this.height);
     this.elevations.set(snapshot);
@@ -1013,10 +1009,6 @@ export class MockAdapter implements EngineAdapter {
       this.riverMask[i] = 1;
       this.riverTypes[i] = MOCK_RIVER_NAVIGABLE;
     }
-  }
-
-  defineNamedRivers(): void {
-    // No-op in mock
   }
 
   storeWaterData(): void {

@@ -56,10 +56,6 @@ class RiverCacheRefreshAdapter extends MockAdapter {
     super.modelRivers(minLength, maxLength, navigableTerrain);
   }
 
-  override defineNamedRivers(): void {
-    this.callOrder.push("defineNamedRivers");
-  }
-
   override recalculateAreas(): void {
     this.callOrder.push("recalculateAreas");
   }
@@ -172,7 +168,6 @@ describe("map-rivers/plot-rivers", () => {
     expect(adapter.callOrder).toEqual([
       "modelRivers",
       "validateAndFixTerrain",
-      "defineNamedRivers",
       "recalculateAreas",
       "storeWaterData",
     ]);

@@ -5,7 +5,10 @@
   "targets": {
     "verify:elevation-contract-probe-live": {
       "command": "bun ./test/live/studio-run-in-game.live.test.ts",
-      "dependsOn": ["build:elevation-contract-probe", { "target": "build", "projects": ["control-orpc"] }],
+      "dependsOn": [
+        "build:elevation-contract-probe",
+        { "target": "build", "projects": ["control-orpc"] }
+      ],
       "cache": false,
       "options": { "cwd": "apps/mods/map/swooper-physics" }
     },

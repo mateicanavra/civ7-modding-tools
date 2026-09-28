@@ -63,7 +63,6 @@ describe("@civ7/map-policy", () => {
     expect(CIV7_RIVER_MODELING_POLICY_V0.sequence).toEqual([
       "TerrainBuilder.modelRivers",
       "TerrainBuilder.validateAndFixTerrain",
-      "TerrainBuilder.defineNamedRivers",
     ]);
     expect(CIV7_RIVER_MODELING_POLICY_V0.defaultProfile).toBe("standardContinental");
     expect(CIV7_DEFAULT_RIVER_MODELING_ARGS).toEqual({

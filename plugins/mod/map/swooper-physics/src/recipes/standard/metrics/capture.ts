@@ -29,6 +29,12 @@ import {
   readArtifact,
 } from "@swooper/mapgen-core/authoring";
 import { Value } from "typebox/value";
+import {
+  STANDARD_ELEVATION_POST_WRITE_METRIC_KEY,
+  STANDARD_ELEVATION_FINAL_METRIC_KEY,
+  type StandardElevationProjectionMeasurements,
+  StandardElevationProjectionMeasurementsSchema,
+} from "./families/elevation-projection.js";
 import { canonicalRecipeConfig } from "../../../maps/configs/canonical.js";
 import {
   createStandardInitialSetupInput,
@@ -192,6 +198,10 @@ export type StandardMapCapture = Readonly<{
     pressure: Float32Array;
   }>;
   projection: Readonly<{
+    elevation: Readonly<{
+      postWrite: StandardElevationProjectionMeasurements;
+      final: StandardElevationProjectionMeasurements;
+    }>;
     discoveryGeneration: StandardDiscoveryPlacementMeasurements;
     lakes: StandardLakeProjectionMeasurements;
     placementParity: StandardPlacementParityMeasurements;
@@ -333,10 +343,26 @@ export function captureStandardMapScenario(
   let naturalWonderPlacement: StandardNaturalWonderPlacementMeasurements | undefined;
   let resourcePlacement: StandardResourcePlacementMeasurements | undefined;
   let metricFailure: unknown;
+  let elevationPostWrite: StandardElevationProjectionMeasurements | undefined;
+  let elevationFinal: StandardElevationProjectionMeasurements | undefined;
   standardRecipe.execute(context, plan, {
     log: () => {},
     facets: {
       metrics: (projection) => {
+        const postWriteCandidate = projection[STANDARD_ELEVATION_POST_WRITE_METRIC_KEY];
+        if (postWriteCandidate !== undefined) {
+          elevationPostWrite = Value.Parse(
+            StandardElevationProjectionMeasurementsSchema,
+            postWriteCandidate
+          );
+        }
+        const finalElevationCandidate = projection[STANDARD_ELEVATION_FINAL_METRIC_KEY];
+        if (finalElevationCandidate !== undefined) {
+          elevationFinal = Value.Parse(
+            StandardElevationProjectionMeasurementsSchema,
+            finalElevationCandidate
+          );
+        }
         const discoveryCandidate = projection["placement.discoveryGeneration"];
         if (discoveryCandidate !== undefined) {
           discoveryGeneration = Value.Parse(
@@ -388,6 +414,9 @@ export function captureStandardMapScenario(
     },
   });
   if (metricFailure !== undefined) throw metricFailure;
+  if (!elevationPostWrite || !elevationFinal) {
+    throw new Error("Standard metric capture requires post-write and final elevation evidence.");
+  }
   if (!riverNetworkSummary) {
     throw new Error("Standard metric capture requires Hydrology river-network benchmark evidence.");
   }
@@ -421,7 +450,8 @@ export function captureStandardMapScenario(
     lakeProjection,
     placementParity,
     naturalWonderPlacement,
-    resourcePlacement
+    resourcePlacement,
+    { postWrite: elevationPostWrite, final: elevationFinal }
   );
 }
 
@@ -436,7 +466,8 @@ function copyCompletedRun(
   lakeProjection: StandardLakeProjectionMeasurements,
   placementParity: StandardPlacementParityMeasurements,
   naturalWonderPlacement: StandardNaturalWonderPlacementMeasurements,
-  resourcePlacement: StandardResourcePlacementMeasurements
+  resourcePlacement: StandardResourcePlacementMeasurements,
+  elevation: StandardMapCapture["projection"]["elevation"]
 ): StandardMapCapture {
   const { selection } = initialSetup.map;
   const { width, height } = selection.dimensions;
@@ -624,6 +655,10 @@ function copyCompletedRun(
       ),
     }),
     projection: Object.freeze({
+      elevation: Object.freeze({
+        postWrite: copyElevationMeasurement(elevation.postWrite),
+        final: copyElevationMeasurement(elevation.final),
+      }),
       discoveryGeneration: Object.freeze({ ...discoveryGeneration }),
       lakes: Object.freeze({
         ...lakeProjection,
@@ -956,6 +991,18 @@ function requireRuntimeTypeId(name: string, value: number): number {
   const id = requireInt32(name, value);
   if (id < 0) throw new Error(`Standard metric capture could not resolve runtime type ${name}.`);
   return id;
+}
+
+function copyElevationMeasurement(
+  measurement: StandardElevationProjectionMeasurements
+): StandardElevationProjectionMeasurements {
+  if (measurement.status === "unavailable") return Object.freeze({ ...measurement });
+  const copy = {
+    ...measurement,
+    examples: measurement.examples.map((example) => Object.freeze({ ...example })),
+  };
+  Object.freeze(copy.examples);
+  return Object.freeze(copy);
 }
 
 function assertNever(value: never): never {

@@ -1,6 +1,6 @@
 import {
-  createMockAdapter,
   type CurrentMapElevationSnapshot,
+  createMockAdapter,
   type EngineAdapter,
   type FeatureData,
   findCiv7StandardMapSizePreset,
@@ -21,6 +21,8 @@ const feature: FeatureData = {
 adapter.setFeatureType(0, 0, feature);
 adapter.setElevation([0, -0.5, 1.25] as const);
 adapter.generateCliffsFromElevation();
+// @ts-expect-error Civ7 1.5 no longer exposes the automatic river-naming operation.
+adapter.defineNamedRivers();
 const elevationSnapshot: CurrentMapElevationSnapshot = adapter.readCurrentMapElevationSnapshot();
 if (elevationSnapshot.status === "available") {
   const values: Float64Array = elevationSnapshot.values;

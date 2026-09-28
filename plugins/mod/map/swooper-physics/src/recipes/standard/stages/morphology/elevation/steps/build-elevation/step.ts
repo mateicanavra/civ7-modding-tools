@@ -1,5 +1,11 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { encodeBoundedJsonLogLines } from "@swooper/mapgen-core/lib/log";
 import type { VizProjection } from "@swooper/mapgen-viz";
+import { projectStandardElevation } from "../../../../../elevation-projection.js";
+import {
+  measureStandardElevationProjection,
+  STANDARD_ELEVATION_POST_WRITE_METRIC_KEY,
+} from "../../../../../metrics/families/elevation-projection.js";
 import { defineStandardVizMeta } from "../../../../../viz.js";
 import {
   assertWaterDriftWithinPolicy,
@@ -11,8 +17,8 @@ const GROUP_MAP_ELEVATION = "Map / Elevation (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 /**
- * Builds Civ7 elevation only after mountains, volcanoes, and accepted lakes,
- * then captures terrain readback for physics-to-engine parity checks.
+ * Projects physical heights after accepted lakes, then observes the native numeric and water
+ * surfaces without replacing Morphology truth or treating mock storage as native proof.
  */
 export const BuildElevationStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
@@ -33,22 +39,83 @@ export const BuildElevationStep = createStep(config, {
       "map-elevation/build-elevation/pre-build"
     );
 
-    /**
-     * Civ7 builds visual elevation from the terrain surface already in the engine.
-     * We therefore run after static lake projection, matching Firaxis' map-script
-     * lifecycle: coasts/continents/mountains/volcanoes, accepted lakes, elevation, rivers.
-     * The expected water surface composes immutable Morphology land truth with the
-     * exact lake mask accepted by Civ7. Rejected lake intent therefore cannot become
-     * false water expectation, while any later engine drift remains observable.
-     * If the engine no longer matches that projected land/water surface, this step
-     * fails instead of restoring terrain after the fact; terrain restoration cannot
-     * repair engine-owned cliff/elevation state.
-     */
+    const intended = projectStandardElevation({
+      elevation: topography.elevation,
+      landMask: topography.landMask,
+      seaLevel: topography.seaLevel,
+      acceptedLakeMask: projectedLakes.lakeMask,
+    });
+    // Cliff generation consumes the explicit numeric write; stock buildElevation must not
+    // overwrite it. Native accepted-lake leveling is measured separately from other drift.
     deps.engine.recalculateAreas(context);
-    deps.engine.buildElevation(context);
+    const beforeWaterMask = deps.engine.readCurrentMapWaterMask(context);
+    const beforeLakeMask = deps.engine.readCurrentMapLakeMask(context);
+    const beforeTerrain = deps.engine.readCurrentMapTerrainTypes(context);
+    deps.engine.setElevation(context, intended);
+    deps.engine.generateCliffsFromElevation(context);
     deps.engine.recalculateAreas(context);
 
+    const snapshot = deps.engine.readCurrentMapElevationSnapshot(context);
     const engineWaterMask = deps.engine.readCurrentMapWaterMask(context);
+    const engineLakeMask = deps.engine.readCurrentMapLakeMask(context);
+    const engineTerrain = deps.engine.readCurrentMapTerrainTypes(context);
+    if (snapshot.width !== width || snapshot.height !== height) {
+      throw new Error("Elevation projection readback dimensions differ from the current map.");
+    }
+    const elevationProjection = measureStandardElevationProjection({
+      phase: "post-write",
+      intended,
+      snapshot,
+      acceptedLakeMask: projectedLakes.lakeMask,
+      observedLakeMask: engineLakeMask,
+    });
+    if (snapshot.source === "native" && snapshot.status === "available") {
+      for (const line of encodeBoundedJsonLogLines({
+        marker: "[elevation-projection]",
+        payload: {
+          phase: "post-write",
+          mapSeed: context.setup.mapSeed,
+          dimensions: context.setup.dimensions,
+          intended,
+          observed: Array.from(snapshot.values),
+          acceptedLakeMask: Array.from(projectedLakes.lakeMask),
+          measurements: elevationProjection,
+        },
+      }))
+        console.log(line);
+    }
+    if (snapshot.status === "unavailable" || elevationProjection.status === "unavailable") {
+      throw new Error(
+        "Elevation projection requires available exact numeric readback after writing."
+      );
+    }
+    if (elevationProjection.nonLakeMismatchCount > 0) {
+      throw new Error(
+        `Elevation projection has ${elevationProjection.nonLakeMismatchCount} non-lake numeric mismatches after writing.`
+      );
+    }
+    for (let plotIndex = 0; plotIndex < intended.length; plotIndex += 1) {
+      if (
+        intended[plotIndex] === snapshot.values[plotIndex] ||
+        projectedLakes.lakeMask[plotIndex] === 1 ||
+        engineLakeMask[plotIndex] !== 1
+      )
+        continue;
+      // Native classification alone grants no exception: only already-water physical
+      // plots with stable lake/water/terrain evidence qualify for native lake leveling.
+      if (
+        topography.landMask[plotIndex] !== 0 ||
+        beforeWaterMask[plotIndex] !== 1 ||
+        beforeLakeMask[plotIndex] !== 1 ||
+        engineWaterMask[plotIndex] !== 1 ||
+        beforeTerrain[plotIndex] !== engineTerrain[plotIndex]
+      ) {
+        throw new Error(
+          `Elevation projection has an unqualified unplanned native-lake numeric mismatch at plot ${plotIndex} after writing.`
+        );
+      }
+    }
+
     const engineLandMask = landMaskFromWaterMask(engineWaterMask);
     assertWaterDriftWithinPolicy(
       context.setup.dimensions,
@@ -76,15 +143,20 @@ export const BuildElevationStep = createStep(config, {
 
     return {
       physicsElevation: topography.elevation,
+      intended,
+      elevationProjection,
       expectedLandMask,
       engine: {
         landMask: engineLandMask,
-        terrain: deps.engine.readCurrentMapTerrainTypes(context),
-        elevation: deps.engine.readCurrentMapElevations(context),
+        terrain: engineTerrain,
+        elevation: snapshot.values,
       },
       driftMask,
     };
   },
+  metrics: ({ observation }) => ({
+    [STANDARD_ELEVATION_POST_WRITE_METRIC_KEY]: observation.elevationProjection,
+  }),
   viz: ({ observation, dimensions }) => {
     const projections: VizProjection[] = [
       {
@@ -120,7 +192,7 @@ export const BuildElevationStep = createStep(config, {
         dataTypeKey: "map.elevation.elevation",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "i16", values: observation.engine.elevation },
+        field: { format: "f32", values: Float32Array.from(observation.engine.elevation) },
         meta: defineStandardVizMeta("map.elevation.elevation", "terrain.elevation", {
           label: "Elevation (Engine)",
           group: GROUP_MAP_ELEVATION,
@@ -153,6 +225,18 @@ export const BuildElevationStep = createStep(config, {
         }),
       }
     );
+    projections.push({
+      kind: "grid",
+      dataTypeKey: "map.elevation.nativeIntent",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "f32", values: Float32Array.from(observation.intended) },
+      meta: defineStandardVizMeta("map.elevation.nativeIntent", "terrain.elevation", {
+        label: "Elevation (Native Intent)",
+        group: GROUP_MAP_ELEVATION,
+        visibility: "debug",
+      }),
+    });
     return projections;
   },
 });
