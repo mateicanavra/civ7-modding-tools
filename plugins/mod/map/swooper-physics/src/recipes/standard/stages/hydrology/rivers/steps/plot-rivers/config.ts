@@ -43,7 +43,6 @@ export const config = defineStep({
     "modelRivers",
     "validateAndFixTerrain",
     "storeWaterData",
-    "defineNamedRivers",
     "recalculateAreas",
     "readRiverProjection",
   ] as const,

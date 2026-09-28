@@ -13,7 +13,7 @@ export const config = defineStep({
   id: "observe-placement-parity",
   engine: [
     "readCurrentMapTerrainTypes",
-    "readCurrentMapElevations",
+    "readCurrentMapElevationSnapshot",
     "readCurrentMapWaterMask",
     "readCurrentMapLakeMask",
   ] as const,

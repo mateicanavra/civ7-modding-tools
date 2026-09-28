@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { type CurrentMapElevationSnapshot, MockAdapter } from "@civ7/adapter";
 import { getCiv7StandardMapSizePreset } from "@civ7/map-policy";
 import { artifacts as placementStartArtifacts } from "../../../src/domain/placement/modules/starts/artifacts/index.js";
 import { artifacts as resourceDemandArtifacts } from "../../../src/domain/resources/modules/demand/artifacts/index.js";
@@ -20,8 +21,86 @@ import {
 } from "../../../src/recipes/standard/metrics/families/placement/resource-placement.js";
 import { TEST_GAME_SEED, TEST_MAP_SEED } from "../../setup.js";
 import { runStandardRecipeTestMap, standardMapConfig } from "./fixtures/standard-recipe.js";
+import {
+  STANDARD_ELEVATION_POST_WRITE_METRIC_KEY,
+  STANDARD_ELEVATION_FINAL_METRIC_KEY,
+  type StandardElevationProjectionMeasurements,
+  StandardElevationProjectionMeasurementsSchema,
+} from "../../../src/recipes/standard/metrics/families/elevation-projection.js";
 
 describe("Standard recipe generation", () => {
+  it("uses one explicit elevation write before cliffs and preserves mock-only terminal numeric evidence", () => {
+    class ExplicitElevationRecipeAdapter extends MockAdapter {
+      readonly elevationEvents: string[] = [];
+      buildElevation(): void {
+        throw new Error("Stock elevation must not run in the Standard recipe.");
+      }
+      override setElevation(values: readonly number[]): void {
+        this.elevationEvents.push("setElevation");
+        super.setElevation(values);
+      }
+      override generateCliffsFromElevation(): void {
+        this.elevationEvents.push("generateCliffsFromElevation");
+        super.generateCliffsFromElevation();
+      }
+      override readCurrentMapElevationSnapshot(): CurrentMapElevationSnapshot {
+        this.elevationEvents.push("readCurrentMapElevationSnapshot");
+        return super.readCurrentMapElevationSnapshot();
+      }
+    }
+    const measured = new Map<string, StandardElevationProjectionMeasurements>();
+    let metricFailure: unknown;
+    const { adapter } = runStandardRecipeTestMap({
+      createAdapter: ({ preset, mapInfo, mapSeed, aliveMajorPlayerIds, plotEffectTypes }) =>
+        new ExplicitElevationRecipeAdapter({
+          ...preset.dimensions,
+          mapInfo,
+          mapSizeId: preset.id,
+          rngSeed: mapSeed,
+          aliveMajorPlayerIds,
+          plotEffectTypes,
+        }),
+      execution: {
+        facets: {
+          metrics: (projection) => {
+            for (const key of [
+              STANDARD_ELEVATION_POST_WRITE_METRIC_KEY,
+              STANDARD_ELEVATION_FINAL_METRIC_KEY,
+            ]) {
+              if (projection[key] !== undefined)
+                measured.set(
+                  key,
+                  Value.Parse(StandardElevationProjectionMeasurementsSchema, projection[key])
+                );
+            }
+          },
+          onError: ({ facet, error }) => {
+            if (facet === "metrics") metricFailure = error;
+          },
+        },
+      },
+    });
+    if (metricFailure !== undefined) throw metricFailure;
+    expect(adapter.calls.setElevation.length).toBe(1);
+    expect(adapter.calls.generateCliffsFromElevation).toBe(1);
+    expect(adapter.elevationEvents.slice(0, 3)).toEqual([
+      "setElevation",
+      "generateCliffsFromElevation",
+      "readCurrentMapElevationSnapshot",
+    ]);
+    for (const key of [
+      STANDARD_ELEVATION_POST_WRITE_METRIC_KEY,
+      STANDARD_ELEVATION_FINAL_METRIC_KEY,
+    ]) {
+      expect(measured.get(key)).toMatchObject({
+        source: "mock",
+        status: "mock-only",
+        mismatchCount: 0,
+        unplannedNativeLakeMismatchCount: 0,
+      });
+    }
+  }, 30_000);
+
   it("runs the selected test map through terminal placement product evidence", () => {
     let naturalWonderPlacement: StandardNaturalWonderPlacementMeasurements | undefined;
     let resourcePlacement: StandardResourcePlacementMeasurements | undefined;

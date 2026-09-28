@@ -1,5 +1,5 @@
-import { createStep, defineStep, type StepEngineDecl, Type } from "@mapgen/authoring/index.js";
 import type { CurrentMapElevationSnapshot } from "@civ7/adapter";
+import { createStep, defineStep, type StepEngineDecl, Type } from "@mapgen/authoring/index.js";
 import type { MapContext } from "@mapgen/core/map-context.js";
 import { buildStepTestDependencies } from "@mapgen/testing/index.js";
 import type { IsEqual } from "type-fest";
@@ -109,6 +109,14 @@ defineStep({
   provides: [],
   // @ts-expect-error Unknown adapter methods cannot enter a step contract.
   engine: ["notAnEngineMethod"],
+});
+
+defineStep({
+  id: "removed-river-naming-method",
+  requires: [],
+  provides: [],
+  // @ts-expect-error Removed native operations cannot enter a step contract.
+  engine: ["defineNamedRivers"],
 });
 
 defineStep({

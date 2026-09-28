@@ -334,7 +334,6 @@ export const PlotRiversStep = createStep(config, {
       "map-rivers/plot-rivers"
     );
     logStats("POST-VALIDATE");
-    deps.engine.defineNamedRivers(context);
 
     // River modeling and validation can rewrite terrain after elevation. Refresh
     // area and water caches here so ecology and placement read the final engine

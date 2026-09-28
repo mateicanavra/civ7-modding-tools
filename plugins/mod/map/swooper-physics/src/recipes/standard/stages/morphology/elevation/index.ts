@@ -3,12 +3,10 @@ import { orderStandardStageSteps } from "../../../contract-manifest.js";
 import { BuildElevationStep } from "./steps/build-elevation/step.js";
 
 /**
- * Engine elevation materialization stage.
+ * Projects physical relief into Civ7's native elevation surface.
  *
- * Civ7 shapes cliffs/shore relief from the terrain surface already in the
- * engine. This stage intentionally runs after static water projection so
- * buildElevation sees lakes as water, and before river modeling because the
- * engine river pass depends on finalized elevation.
+ * Runs after accepted lakes so Civ7 can level their surfaces, then derives
+ * cliffs from the authored heights before the existing river modeling pass.
  */
 export default createStage({
   id: "map-elevation",

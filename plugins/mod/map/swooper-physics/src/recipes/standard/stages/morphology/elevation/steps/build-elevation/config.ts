@@ -13,10 +13,12 @@ export const config = defineStep({
   id: "build-elevation",
   engine: [
     "recalculateAreas",
-    "buildElevation",
+    "setElevation",
+    "generateCliffsFromElevation",
     "readCurrentMapTerrainTypes",
-    "readCurrentMapElevations",
+    "readCurrentMapElevationSnapshot",
     "readCurrentMapWaterMask",
+    "readCurrentMapLakeMask",
   ] as const,
   requires: [
     STANDARD_COMPLETIONS.mountainsPlotted,

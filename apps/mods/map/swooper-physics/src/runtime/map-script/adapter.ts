@@ -126,11 +126,9 @@ type Civ7TerrainBuilder = Readonly<{
   getRandomNumber(max: number, label: string): number;
   validateAndFixTerrain(): void;
   stampContinents(): void;
-  buildElevation(): void;
   setElevation?: (values: number[]) => void;
   generateCliffsFromElevation?: () => void;
   modelRivers(minLength: number, maxLength: number, navigableTerrain: number): void;
-  defineNamedRivers(): void;
   storeWaterData(): void;
 }>;
 
@@ -625,10 +623,6 @@ export class Civ7Adapter implements EngineAdapter {
     TerrainBuilder.stampContinents();
   }
 
-  buildElevation(): void {
-    TerrainBuilder.buildElevation();
-  }
-
   setElevation(values: readonly number[]): void {
     const snapshot = copyElevationIntent(values, this.width, this.height);
     if (
@@ -664,10 +658,6 @@ export class Civ7Adapter implements EngineAdapter {
 
   modelRivers(minLength: number, maxLength: number, navigableTerrain: number): void {
     TerrainBuilder.modelRivers(minLength, maxLength, navigableTerrain);
-  }
-
-  defineNamedRivers(): void {
-    TerrainBuilder.defineNamedRivers();
   }
 
   storeWaterData(): void {

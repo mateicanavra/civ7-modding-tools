@@ -678,9 +678,6 @@ export interface EngineAdapter {
   /** Stamp continent assignments */
   stampContinents(): void;
 
-  /** Build elevation layer */
-  buildElevation(): void;
-
   /** Writes one finite ordinary-number array, indexed y * width + x, for the whole map. */
   setElevation(values: readonly number[]): void;
 
@@ -696,9 +693,6 @@ export interface EngineAdapter {
    * objects/metadata, then verify the result through readback.
    */
   modelRivers(minLength: number, maxLength: number, navigableTerrain: number): void;
-
-  /** Define named rivers */
-  defineNamedRivers(): void;
 
   /** Store water data */
   storeWaterData(): void;

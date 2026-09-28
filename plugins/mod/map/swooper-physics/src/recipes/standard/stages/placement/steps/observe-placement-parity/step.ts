@@ -1,4 +1,10 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { encodeBoundedJsonLogLines } from "@swooper/mapgen-core/lib/log";
+import { projectStandardElevation } from "../../../../elevation-projection.js";
+import {
+  measureStandardElevationProjection,
+  STANDARD_ELEVATION_FINAL_METRIC_KEY,
+} from "../../../../metrics/families/elevation-projection.js";
 import { measureStandardPlacementParity } from "../../../../metrics/families/placement-parity.js";
 import { emitStandardPlacementParityExactLog } from "../../../../parity/placement-exact-log.js";
 import { landMaskFromWaterMask } from "../../../../water-surface-parity.js";
@@ -18,17 +24,25 @@ export const ObservePlacementParityStep = createStep(config, {
       width,
       height,
       terrain: deps.engine.readCurrentMapTerrainTypes(context),
-      elevation: deps.engine.readCurrentMapElevations(context),
+      elevation: deps.engine.readCurrentMapElevationSnapshot(context),
       waterMask: deps.engine.readCurrentMapWaterMask(context),
       lakeMask: deps.engine.readCurrentMapLakeMask(context),
     };
+    if (
+      terminalSnapshot.elevation.width !== width ||
+      terminalSnapshot.elevation.height !== height
+    ) {
+      throw new Error("Final elevation readback dimensions differ from the current map.");
+    }
     // Compare the final projected land classification with the engine surface
     // after all placement product work has completed. Accepted lakes are
     // intentionally water even though they began as Morphology land.
     const engineObservation = {
       terrain: terminalSnapshot.terrain,
-      elevation: terminalSnapshot.elevation,
       landMask: landMaskFromWaterMask(terminalSnapshot.waterMask),
+      ...(terminalSnapshot.elevation.status === "available"
+        ? { elevation: terminalSnapshot.elevation.values }
+        : {}),
     };
     let waterDriftCount = 0;
     let acceptedLakeTileCount = 0;
@@ -61,14 +75,50 @@ export const ObservePlacementParityStep = createStep(config, {
     }));
     emitStandardPlacementParityExactLog(placementParity);
 
+    // Recreate intent from immutable physics plus accepted lakes, never from an earlier engine
+    // observation. Final numeric drift remains evidence while native preservation is calibrated.
+    const intended = projectStandardElevation({
+      elevation: topography.elevation,
+      landMask: topography.landMask,
+      seaLevel: topography.seaLevel,
+      acceptedLakeMask: projectedLakes.lakeMask,
+    });
+    const elevationProjection = measureStandardElevationProjection({
+      phase: "final",
+      intended,
+      snapshot: terminalSnapshot.elevation,
+      acceptedLakeMask: projectedLakes.lakeMask,
+      observedLakeMask: terminalSnapshot.lakeMask,
+    });
+    if (
+      terminalSnapshot.elevation.source === "native" &&
+      terminalSnapshot.elevation.status === "available"
+    ) {
+      for (const line of encodeBoundedJsonLogLines({
+        marker: "[elevation-projection]",
+        payload: {
+          phase: "final",
+          mapSeed: context.setup.mapSeed,
+          dimensions: context.setup.dimensions,
+          intended,
+          observed: Array.from(terminalSnapshot.elevation.values),
+          acceptedLakeMask: Array.from(projectedLakes.lakeMask),
+          measurements: elevationProjection,
+        },
+      }))
+        console.log(line);
+    }
+
     return {
       engineObservation,
       waterDrift,
       placementParity,
+      elevationProjection,
     };
   },
   metrics: ({ observation }) => ({
     "placement.parity": observation.placementParity,
+    [STANDARD_ELEVATION_FINAL_METRIC_KEY]: observation.elevationProjection,
   }),
   viz: ({ observation, dimensions }) => projectPlacementParityViz(observation, dimensions),
 });

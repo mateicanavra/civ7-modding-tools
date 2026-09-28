@@ -15,6 +15,21 @@ import {
 } from "../../fixtures/standard-product.js";
 
 describe("Standard relief elevation evidence", () => {
+  it("captures exact authored elevation preservation without claiming native proof", () => {
+    const capture = captureEarthlikeScenario();
+    for (const evidence of [
+      capture.projection.elevation.postWrite,
+      capture.projection.elevation.final,
+    ]) {
+      expect(evidence.status).toBe("mock-only");
+      if (evidence.status === "unavailable") throw new Error("Missing elevation evidence");
+      expect(evidence.mismatchCount).toBe(0);
+      expect(evidence.nonLakeMismatchCount).toBe(0);
+      expect(evidence.maximumAbsoluteError).toBe(0);
+      expect(evidence.plotCount).toBe(capture.provenance.width * capture.provenance.height);
+    }
+  }, 30_000);
+
   it("summarizes every final Morphology land elevation from the closed capture", () => {
     const capture = captureEarthlikeScenario();
     const sample = measureEarthlikeSample();
@@ -48,9 +63,7 @@ describe("Standard relief elevation evidence", () => {
   }, 30_000);
 });
 
-function matchedMountainDramaFixture(
-  base: StandardMapProductSample
-): StandardMapMetricCohort {
+function matchedMountainDramaFixture(base: StandardMapProductSample): StandardMapMetricCohort {
   const configurationIds = [
     MOUNTAIN_DRAMA_COHORT_IDENTITY.referenceConfigurationId,
     ...MOUNTAIN_DRAMA_COHORT_IDENTITY.mountainConfigurationIds,
@@ -58,12 +71,7 @@ function matchedMountainDramaFixture(
   const samples = configurationIds.flatMap((configurationId, configurationIndex) =>
     MOUNTAIN_DRAMA_COHORT_IDENTITY.seeds.map((seed) => {
       const referenceMaximum = 100 + (seed % 10);
-      return withLandElevation(
-        base,
-        configurationId,
-        seed,
-        referenceMaximum + configurationIndex
-      );
+      return withLandElevation(base, configurationId, seed, referenceMaximum + configurationIndex);
     })
   );
   const [first, ...rest] = samples;
