@@ -14,13 +14,16 @@ import { FULL_MAP_RIVER_PROBE, FULL_MAP_RIVER_PROBE_ATLASES, FULL_MAP_RIVER_PROB
 
 export const riverProbeAppRoot = fileURLToPath(new URL("../../", import.meta.url));
 export const riverProbeOutputRoot = resolve(riverProbeAppRoot, "dist/river-contract-probe");
+// The deploy CLI's --id names a directory, not the logical Mod id in the manifest.
+export const riverProbeInstallDirectoryName = "mod-swooper-river-contract-v1";
+export const riverProbeDeployFlags = ["--input", riverProbeOutputRoot, "--id", riverProbeInstallDirectoryName] as const;
 export const riverProbeMapScript = `{${RIVER_PROBE.id}}/maps/river-contract.js`;
 export type RiverProbeAtlasSelection = RiverProbeAtlas | FullMapRiverProbeAtlas;
 const atlases: readonly string[] = ["legacy", "terrain-admission", "lake-navigation", ...FULL_MAP_RIVER_PROBE_ATLASES];
 const isFullMapAtlas = (atlas: string): atlas is FullMapRiverProbeAtlas =>
   (FULL_MAP_RIVER_PROBE_ATLASES as readonly string[]).includes(atlas);
 
-/** One disposable mod; rebuilding replaces the selected variant, never adds a second active map. */
+/** Builds one diagnostic mod tree; installation identity and duplicate detection are separate concerns. */
 export async function buildRiverProbePlan(proofId: string, variant: RiverProbeVariant = "authored", atlasKind: RiverProbeAtlasSelection = "legacy"): Promise<GeneratedFilePlan> {
   if (!/^[a-zA-Z0-9-]{1,100}$/.test(proofId)) throw new Error("Use a short alphanumeric/hyphen proof ID.");
   if (!Object.hasOwn(RIVER_PROBE_VARIANTS, variant)) throw new Error(`Unknown river probe variant: ${variant}`);
@@ -70,7 +73,8 @@ ${renderSwooperCatalogMapSource(config)}`;
         ...(isFullMapAtlas(atlasKind) ? { intervention: { riverClass: "NAVIGABLE",
           extraWriteCount: FULL_MAP_RIVER_PROBE_EDGES[atlasKind].length, edges: FULL_MAP_RIVER_PROBE_EDGES[atlasKind] } } : {}),
         settings: RIVER_PROBE_VARIANTS[variant], scriptSha256: createHash("sha256").update(content).digest("hex"),
-        mapScript: riverProbeMapScript, evidence: "built-only; no native observations",
+        mapScript: riverProbeMapScript, installDirectoryName: riverProbeInstallDirectoryName,
+        evidence: "built-only; no native observations",
         qualification: "completion means all diagnostic phases ran, not river parity or successful writes",
         networkWitness: "experimental bounded ordinal-to-ID-to-plots lookup; no shipped argument contract",
       }, null, 2) },
@@ -88,7 +92,8 @@ if (import.meta.main) {
   const fullMap = isFullMapAtlas(atlasKind);
   const probe = fullMap ? FULL_MAP_RIVER_PROBE : RIVER_PROBE;
   console.log(JSON.stringify({ outputRoot: riverProbeOutputRoot, proofId, variant, atlasKind,
-    mapScript: riverProbeMapScript,
+    mapScript: riverProbeMapScript, installDirectoryName: riverProbeInstallDirectoryName,
+    deployFlags: riverProbeDeployFlags,
     liveVerifierFlags: ["--mutate", "--map-script", riverProbeMapScript, "--map-size", fullMap ? "MAPSIZE_HUGE" : "MAPSIZE_TINY", "--seed", String(probe.mapSeed), "--game-seed", String(probe.gameSeed), "--player-count", String(probe.playerCount)],
     status: "built-only; installation and live launch require separate authorization",
   }, null, 2));
