@@ -30,6 +30,48 @@ function defineTestArtifact() {
 }
 
 describe("artifact admission", () => {
+  it("admits tagged variants structurally before exact array checks and semantic refinement", () => {
+    const refined: string[] = [];
+    const artifact = defineArtifact({
+      name: "variantArtifact",
+      id: "artifact:test.admission.variant",
+      schema: Type.Union([
+        Type.Object(
+          { model: Type.Literal("bytes"), grid: TypedArraySchemas.u8({ cardinality: "map-grid" }) },
+          { additionalProperties: false }
+        ),
+        Type.Object(
+          {
+            model: Type.Literal("shorts"),
+            grid: TypedArraySchemas.i16({ cardinality: "map-grid" }),
+          },
+          { additionalProperties: false }
+        ),
+      ]),
+      refine: (value) => {
+        refined.push(value.model);
+      },
+    });
+    expect(
+      artifact.validate({ model: "unknown", grid: new Uint8Array(6) }, validationContext).length
+    ).toBeGreaterThan(0);
+    expect(refined).toEqual([]);
+    expect(
+      artifact.validate({ model: "shorts", grid: new Uint8Array(6) }, validationContext)
+    ).toEqual([{ message: "Expected $.grid to be Int16Array." }]);
+    expect(
+      artifact.validate({ model: "shorts", grid: new Int16Array(5) }, validationContext)
+    ).toEqual([{ message: "Expected $.grid length 6 (received 5)." }]);
+    expect(refined).toEqual([]);
+    expect(
+      artifact.validate({ model: "shorts", grid: new Int16Array(6) }, validationContext)
+    ).toEqual([]);
+    expect(
+      artifact.validate({ model: "bytes", grid: new Uint8Array(6) }, validationContext)
+    ).toEqual([]);
+    expect(refined).toEqual(["shorts", "bytes"]);
+  });
+
   it("creates one complete authority with a portable frozen shape", () => {
     const artifact = defineTestArtifact();
 

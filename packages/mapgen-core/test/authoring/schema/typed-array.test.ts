@@ -17,6 +17,167 @@ function runtimeMetadata(schema: object): unknown {
 }
 
 describe("typed-array schemas and guards", () => {
+  it("selects only the required root object variant and retains branch-owned cardinalities", () => {
+    const schema = Type.Union([
+      Type.Object({
+        model: Type.Literal("small"),
+        width: Type.Integer(),
+        height: Type.Integer(),
+        values: TypedArraySchemas.u8(),
+        optional: Type.Optional(TypedArraySchemas.i16()),
+      }),
+      Type.Object({
+        model: Type.Literal("wide"),
+        count: Type.Integer(),
+        values: TypedArraySchemas.i32({ cardinality: ["count"] }),
+      }),
+    ]);
+    const plan = compileTypedArrayAdmissionPlan(schema, {
+      subject: "Test",
+      contextualCardinality: "refuse",
+    });
+    expect(
+      validateTypedArrayAdmission(plan, {
+        model: "small",
+        width: 2,
+        height: 3,
+        values: new Uint8Array(6),
+      })
+    ).toEqual([]);
+    expect(
+      validateTypedArrayAdmission(plan, { model: "wide", count: 3, values: new Int32Array(3) })
+    ).toEqual([]);
+    expect(
+      validateTypedArrayAdmission(plan, {
+        model: "small",
+        width: 2,
+        height: 3,
+        values: new Int32Array(6),
+      })
+    ).toEqual([
+      {
+        code: "typed-array-constructor",
+        path: "$.values",
+        expectedConstructors: ["Uint8Array"],
+        observedConstructor: "Int32Array",
+      },
+    ]);
+    expect(
+      validateTypedArrayAdmission(plan, { model: "wide", count: 3, values: new Int32Array(2) })
+    ).toEqual([
+      {
+        code: "typed-array-cardinality",
+        path: "$.values",
+        cardinalityPaths: ["count"],
+        addend: 0,
+        expectedLength: 3,
+        observedLength: 2,
+      },
+    ]);
+    expect(Object.isFrozen(plan.taggedUnion?.branches[0]?.plan)).toBe(true);
+    for (const model of [undefined, "unknown", 1]) {
+      expect(validateTypedArrayAdmission(plan, { model, values: new Uint8Array(6) })).toEqual([
+        {
+          code: "typed-array-discriminant",
+          path: "$.model",
+          expectedTags: ["small", "wide"],
+          observed: model,
+        },
+      ]);
+    }
+    const inheritedTag = Object.assign(Object.create({ model: "small" }), {
+      width: 2,
+      height: 3,
+      values: new Uint8Array(6),
+    });
+    expect(validateTypedArrayAdmission(plan, inheritedTag)[0]?.code).toBe(
+      "typed-array-discriminant"
+    );
+  });
+
+  it("compiles and validates contextual typed arrays in every tagged branch", () => {
+    const schema = Type.Union([
+      Type.Object({
+        kind: Type.Literal("bytes"),
+        values: TypedArraySchemas.u8({ cardinality: "map-grid" }),
+      }),
+      Type.Object({
+        kind: Type.Literal("shorts"),
+        values: TypedArraySchemas.i16({ cardinality: "map-grid" }),
+      }),
+    ]);
+    expect(() =>
+      compileTypedArrayAdmissionPlan(schema, { subject: "Test", contextualCardinality: "refuse" })
+    ).toThrow("requires an admitted validation context");
+    const plan = compileTypedArrayAdmissionPlan(schema, {
+      subject: "Test",
+      contextualCardinality: "allow",
+    });
+    expect(
+      validateTypedArrayAdmission(
+        plan,
+        { kind: "shorts", values: new Int16Array(6) },
+        { dimensions: { width: 2, height: 3 } }
+      )
+    ).toEqual([]);
+    expect(
+      validateTypedArrayAdmission(plan, { kind: "shorts", values: new Int16Array(6) })[0]?.code
+    ).toBe("typed-array-cardinality-source");
+    const malformed = Type.Union([
+      Type.Object({
+        kind: Type.Literal("a"),
+        width: Type.Integer(),
+        height: Type.Integer(),
+        values: TypedArraySchemas.u8(),
+      }),
+      Type.Object({
+        kind: Type.Literal("b"),
+        values: TypedArraySchemas.u8({ cardinality: ["missing"] }),
+      }),
+    ]);
+    expect(() =>
+      compileTypedArrayAdmissionPlan(malformed, { subject: "Test", contextualCardinality: "allow" })
+    ).toThrow('cardinality source "missing"');
+  });
+
+  it("still refuses ambiguous, optional-tagged, nested, and mixed typed-array unions", () => {
+    const buffer = TypedArraySchemas.u8({ cardinality: "constructor-only" });
+    const a = Type.Object({ model: Type.Literal("a"), values: buffer });
+    const b = Type.Object({ model: Type.Literal("b"), values: buffer });
+    for (const schema of [
+      Type.Union([a, Type.Object({ model: Type.Literal("a"), other: buffer })]),
+      Type.Union([a, Type.Object({ model: Type.Optional(Type.Literal("b")), values: buffer })]),
+      Type.Object({ nested: Type.Union([a, b]) }),
+      Type.Union([buffer, Type.Array(Type.Number())]),
+    ]) {
+      expect(() =>
+        compileTypedArrayAdmissionPlan(schema, { subject: "Test", contextualCardinality: "allow" })
+      ).toThrow("must contain only direct typed-array alternatives");
+    }
+    const siblingConstraint = Type.Union([a, b], {
+      allOf: [Type.Object({ extra: buffer })],
+    });
+    expect(() =>
+      compileTypedArrayAdmissionPlan(siblingConstraint, {
+        subject: "Test",
+        contextualCardinality: "allow",
+      })
+    ).toThrow("cannot combine sibling validation constraints");
+    const siblingRequired = Type.Union(
+      [
+        Type.Object({ model: Type.Literal("a"), values: Type.Optional(buffer) }),
+        Type.Object({ model: Type.Literal("b"), values: Type.Optional(buffer) }),
+      ],
+      { required: ["values"] }
+    );
+    expect(() =>
+      compileTypedArrayAdmissionPlan(siblingRequired, {
+        subject: "Test",
+        contextualCardinality: "allow",
+      })
+    ).toThrow("cannot combine sibling validation constraints");
+  });
+
   it("encodes exact constructor identity and input-relative cardinality metadata", () => {
     expect(runtimeMetadata(TypedArraySchemas.u8())).toEqual({
       kind: "typed-array",

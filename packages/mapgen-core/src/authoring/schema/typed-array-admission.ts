@@ -57,6 +57,10 @@ type TypedArrayAdmissionCheck = Readonly<{
 /** Immutable exact-constructor/cardinality program compiled once from an owning schema. */
 export type TypedArrayAdmissionPlan = Readonly<{
   checks: readonly TypedArrayAdmissionCheck[];
+  taggedUnion?: Readonly<{
+    key: string;
+    branches: readonly Readonly<{ tag: string; plan: TypedArrayAdmissionPlan }>[];
+  }>;
 }>;
 
 /** Admitted dimensions available to context-relative cardinality checks. */
@@ -72,6 +76,12 @@ export type TypedArrayAdmissionCompilerOptions = Readonly<{
 
 /** One deterministic, pathful exact-constructor/cardinality refusal. */
 export type TypedArrayAdmissionIssue =
+  | Readonly<{
+      code: "typed-array-discriminant";
+      path: string;
+      expectedTags: readonly string[];
+      observed: unknown;
+    }>
   | Readonly<{
       code: "typed-array-container";
       path: string;
@@ -111,6 +121,40 @@ export function compileTypedArrayAdmissionPlan(
   schema: TSchema,
   options: TypedArrayAdmissionCompilerOptions
 ): TypedArrayAdmissionPlan {
+  // Select a root object variant before compiling its exact constructor/cardinality checks.
+  // Untagged, overlapping, and nested object unions remain deliberately unsupported.
+  const taggedUnion = readRootTaggedUnion(schema);
+  if (taggedUnion) {
+    const annotations = new Set([
+      "anyOf",
+      "$id",
+      "$schema",
+      "$comment",
+      "title",
+      "description",
+      "default",
+      "examples",
+      "deprecated",
+      "readOnly",
+      "writeOnly",
+    ]);
+    if (Object.keys(schema).some((key) => !annotations.has(key))) {
+      throw new Error(
+        `${options.subject} tagged object union cannot combine sibling validation constraints`
+      );
+    }
+    return Object.freeze({
+      checks: Object.freeze([]),
+      taggedUnion: Object.freeze({
+        key: taggedUnion.key,
+        branches: Object.freeze(
+          taggedUnion.branches.map(({ tag, schema: branch }) =>
+            Object.freeze({ tag, plan: compileTypedArrayAdmissionPlan(branch, options) })
+          )
+        ),
+      }),
+    });
+  }
   const checks: TypedArrayAdmissionCheck[] = [];
   const compiler = Object.freeze({ rootSchema: schema, ...options });
   collectChecks(compiler, schema, [], checks, new Set<TSchema>());
@@ -126,6 +170,20 @@ export function validateTypedArrayAdmission(
   value: unknown,
   context?: TypedArrayAdmissionContext
 ): readonly TypedArrayAdmissionIssue[] {
+  if (plan.taggedUnion) {
+    const { key, branches } = plan.taggedUnion;
+    const observed = isRecord(value) && hasOwn(value, key) ? value[key] : undefined;
+    const branch = branches.find(({ tag }) => tag === observed);
+    if (branch) return validateTypedArrayAdmission(branch.plan, value, context);
+    return Object.freeze([
+      Object.freeze({
+        code: "typed-array-discriminant" as const,
+        path: formatValuePath([{ kind: "property", key, optional: false }]),
+        expectedTags: Object.freeze(branches.map(({ tag }) => tag)),
+        observed,
+      }),
+    ]);
+  }
   const issues: TypedArrayAdmissionIssue[] = [];
   const refusedArrayContainers = new Set<string>();
   for (const check of plan.checks) {
@@ -179,6 +237,42 @@ export function validateTypedArrayAdmission(
 }
 
 type CompilationContext = Readonly<{ rootSchema: TSchema } & TypedArrayAdmissionCompilerOptions>;
+
+function readRootTaggedUnion(schema: TSchema): {
+  key: string;
+  branches: { tag: string; schema: TSchema }[];
+} | null {
+  const members = readSchemaMembers(schema as Record<PropertyKey, unknown>, "anyOf");
+  if (!members || members.length < 2) return null;
+  const objects = members.map((member) => member as Record<PropertyKey, unknown>);
+  if (objects.some((member) => member.type !== "object" || !isRecord(member.properties))) {
+    return null;
+  }
+  const firstProperties = objects[0]!.properties as Record<string, unknown>;
+  for (const key of Object.keys(firstProperties).sort()) {
+    const branches: { tag: string; schema: TSchema }[] = [];
+    for (const [index, member] of objects.entries()) {
+      const properties = member.properties as Record<string, unknown>;
+      const property = hasOwn(properties, key) ? properties[key] : undefined;
+      if (
+        !Array.isArray(member.required) ||
+        !member.required.includes(key) ||
+        !isRecord(property) ||
+        !hasOwn(property, "const") ||
+        typeof property.const !== "string"
+      )
+        break;
+      branches.push({ tag: property.const, schema: members[index]! });
+    }
+    if (
+      branches.length === members.length &&
+      new Set(branches.map(({ tag }) => tag)).size === branches.length
+    ) {
+      return { key, branches: branches.sort((left, right) => left.tag.localeCompare(right.tag)) };
+    }
+  }
+  return null;
+}
 
 function collectChecks(
   compiler: CompilationContext,

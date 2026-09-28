@@ -135,6 +135,8 @@ function addTypedArrayIssues(
 
 function formatTypedArrayIssue(issue: TypedArrayAdmissionIssue): string {
   switch (issue.code) {
+    case "typed-array-discriminant":
+      return `Expected ${issue.path} to select ${issue.expectedTags.join(" or ")} (received ${formatObserved(issue.observed)}).`;
     case "typed-array-container":
       return `Expected ${issue.path} to traverse an array (received ${issue.observedContainer}).`;
     case "typed-array-constructor":
