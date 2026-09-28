@@ -7,6 +7,7 @@ import { type CountMetric, measureMetricCount } from "@swooper/mapgen-metrics";
 
 import type { StandardMapCapture } from "../../capture.js";
 import { measureStandardBasinNetwork, type StandardBasinNetworkMetrics } from "./basin-network.js";
+import { measureStandardNetworkCoherence } from "./network-coherence.js";
 import {
   measureStandardClimateStructure,
   type StandardClimateStructureMetrics,
@@ -29,6 +30,7 @@ export type StandardHydrologyMetrics = Readonly<{
   terminalOceanTiles: CountMetric;
   model: StandardMapCapture["model"]["physicalHydrology"]["model"];
   basinNetwork: StandardBasinNetworkMetrics | null;
+  networkCoherence: ReturnType<typeof measureStandardNetworkCoherence>;
   networkSummary: StandardMapCapture["model"]["riverNetworkSummary"];
   navigable: StandardMapCapture["projection"]["navigableRivers"] &
     StandardMapCapture["projection"]["riverReadback"];
@@ -60,6 +62,7 @@ export function measureStandardHydrology(capture: StandardMapCapture): StandardH
   return Object.freeze({
     model: physical.model,
     basinNetwork: measureStandardBasinNetwork(capture),
+    networkCoherence: measureStandardNetworkCoherence(capture),
     riverTiles: measureMetricCount(riverTiles, tileCount),
     minorRiverTiles: measureMetricCount(minorRiverTiles, tileCount),
     majorRiverTiles: measureMetricCount(majorRiverTiles, tileCount),

@@ -485,6 +485,17 @@ The [durable viewer entry point](../../process/LOCAL-VIEWERS.md) is linked from
 the repository README; the gallery lives in user data and is privately served
 over Tailscale at `/civ/`, independent of worktree lifetime.
 
+### Whole-Map Network Coherence
+
+The [network coherence investigation](network-coherence-investigation.md) adds
+same-seed whole-map interventions and reusable portable comparison views. It
+separates early terrain smoothing, physical basin routing, visible channel class
+and native wet-outlet realization. The (87,31) witness has a downhill physical
+lake chain but omitted wet-source river writes; native continuity is not yet
+qualified. No shipped configuration or production algorithm changes in this
+observational layer. Existing domain operations own the computations; extracting
+unrelated step logic is not a prerequisite to this causal diagnosis.
+
 ## Historical Handoff
 
 The following records the pre-integration handoff, not current activation state.
