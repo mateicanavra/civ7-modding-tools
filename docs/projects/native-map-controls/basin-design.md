@@ -420,3 +420,118 @@ Evidence: `/tmp/civ7-basin-exposed-landform-discriminator.{ts,md}`,
 `/tmp/civ7-basin-cut-neighborhoods.json`. Fresh acquisition, cached reanalysis,
 original artifact parity, immutable ground, removal-only equivalence and
 adjacent no-water route witnesses all pass.
+
+## Bounded Open-Network Candidate
+
+The expanded forcing study certifies all 33 unique Earthlike configuration/map
+cases: 1,404 node evaluations and 5,624 elevation cohorts, with no nonpositive
+balance and no outlet-free root. These are 13 distinct physical maps, not
+1,404 independent geometries. Coverage is all nine dryness/temperature pairs
+at Standard/Huge seed 1018, four additional unchanged seeds at both sizes,
+three Tiny seeds, and independent low-seasonality/off-ocean endpoints. Refined
+climate configuration stays unchanged; only actual baseline forcing is read.
+
+The tightest positive margin is 1.4396800995 on Huge 1018 dry/cold. Cold, not
+hot, is the tighter case in this coupled climate model. Two complete repeats
+match forcing, geometry, every cohort and provenance exactly. Evidence:
+`/tmp/civ7-certified-open-forcing-sweep.{ts,md,json}`. This supports a bounded
+candidate, not every admitted parameter combination or a claim that failed
+certification means no equilibrium exists.
+
+The next unit resolves certified full-sill water into a conservative final
+network, without activating Standard. It must either return adjacent,
+acyclic, nonascending dry receivers and nonnegative body overflow, or retain
+a typed unsupported witness. No lake suppression, seed retry, negative-flow
+clamp, ground change, or procedural fallback is admitted.
+
+Budget certification alone cannot prove the chosen receiver graph conserves
+the same supply. A wet pit with precipitation 0 and demand 10 can be sustained
+in its raw catchment by a dry sill with runoff 20. A different flat-routing
+choice can send that runoff outward without entering the lake, leaving a
+deficit. This is a discriminator for catchment/routing consistency, not a reason
+to invent extra inflow. Sum lake precipitation/demand once at a connected
+reservoir before routing its surplus; an arbitrary interior cell tree must
+not turn individual negative wet-cell balances into clamped water sources.
+
+A hydraulic supernode including zero-depth dry sill connectors is a stronger
+alternative, but can require branching discharge that the current singular
+receiver contract cannot represent. It also does not solve closed nested
+basins or sibling overflow. Do not add that graph redesign based solely on
+the synthetic counterexample. First test the singular-receiver candidate
+against the actual bank and preserve any failure. This is a complete bounded
+operation/study, not an unrestricted production strategy or the general
+stationary coordinator promised by final integration.
+
+### Filled-Surface Routing Discriminator
+
+The global priority-flood comparison fills only the admitted water surface,
+asserts no additional conditioning, and chooses one outward connection per
+mixed wet body. Its quotient has a strictly decreasing distance-to-marine
+rank, passes independent Kahn processing, and retains signed body balances.
+Across the combined 43-case bank it passes 40 and rejects three: Huge 1018
+with each dry temperature choice. The four-cell body
+`[3703, 3808, 3809, 3915]` loses all routed inflow, leaving net balances
+approximately -61.69, -59.49 and -52.11 despite original dry-catchment runoff
+of 105.28, 103.91 and 98.25. Those negative balances are retained, not clamped.
+
+Even the passing original twelve cases change 109-373 dry first-body
+assignments each, including uplands above lake level. This falsifies global
+filled-surface rerouting as a drop-in continuation of the certified raw
+catchments. An independent recomputation verifies all 43 experiment records,
+unique/complete attribution of 90,359 land-cell memberships and 1,614 bodies,
+with maximum per-vertex recomputation difference 3.64e-12. This is valid
+negative evidence, not an accepted candidate. Receipt:
+`/tmp/civ7-full-spill-routing-expanded.json`.
+
+The narrower comparison preserves raw downhill tributaries and reverses only
+the recorded, equal-height dry spill connector. It must still verify actual
+body supply after any sill runoff bypass, rather than treating the original
+certificate as a complete routing proof.
+
+### Recorded-Sill Routing Result
+
+That narrower candidate passes all 43 captured cases. Keep every ordinary dry
+receiver from raw drainage. For each certified root, trace its recorded spill
+source inward along raw receivers until reaching water, then reverse only the
+equal-sill dry connector to the recorded external receiver. Orient wet cells
+toward that exit solely for connectivity; account for precipitation, demand and
+mixing once on the contracted water body, not by clamping a wet-cell tree.
+Process the resulting acyclic dry-cell/body graph and verify every actual body
+overflow. The global export equals dry runoff plus wet precipitation minus wet
+demand, without counting children as additional source catchments.
+
+Independent recomputation confirms all 455 reversed dry links lie exactly at
+their sill, complete source attribution and matching terminal identities. The
+largest accounting difference is 3.64e-12. Original twelve-case maps require
+only 3-21 local dry-receiver changes each, rather than global upland rerouting.
+The four-cell Huge 1018 body now retains its raw upland supply and exports
+43.59, 44.41 and 46.14 across the three dry temperature cases. This qualifies
+the candidate's actual routing, not transfer of the preliminary certificate.
+
+A separate unchanged-seed sweep covers Earthlike seeds 0-31 at Standard and
+Huge: all 64 cases pass both the cohort certificate and recorded-sill routing.
+It evaluates 2,594 nodes, 10,581 cohorts and 2,248 water bodies. The tightest
+local positive margin is 0.20493888855; the smallest actual body overflow is
+3.15420150757. Together with prior captures this covers 85 distinct physical
+maps. These are not resampled seeds, an unrestricted parameter guarantee, or
+evidence that unsupported cases have no physical solution.
+
+The synthetic dry-sill bypass still returns its real -10 body deficit. Keep
+that typed unsupported outcome without a partial authoritative network. A
+general coordinator would also need the separate sibling case where one
+child's overflow sustains another child that fails its zero-incoming local
+certificate; the bounded candidate deliberately does not claim that behavior.
+
+Implement this as one pure `compute-open-basin-network` operation with an
+explicit `certified-sill-spill` strategy. Share the unchanged budget law with
+the existing single-pool operation; do not invoke one operation from another
+or duplicate the law. Exact upstream geometry provenance is a caller
+precondition, with structural, adjacency, height, partition and cycle
+admission checked locally rather than recomputing the geometry. Standard
+activation remains a separate integrated story with final water ownership,
+native projection and acceptance studies.
+
+Evidence: `/tmp/civ7-recorded-spill-routing-{discriminator.ts,results.json}`,
+`/tmp/civ7-certified-open-seed-support.{ts,json}`. The committed operation and
+its focused fixtures, rather than these temporary experiments, are the
+durable implementation boundary.

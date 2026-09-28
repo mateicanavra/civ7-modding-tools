@@ -2,30 +2,7 @@ import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import elevationCohortsDefinition from "./strategies/elevation-cohorts/config.js";
 
-const FluxSchema = Type.Object(
-  {
-    incomingOverflow: Type.Number({ minimum: 0 }),
-    dryRunoff: Type.Number({ minimum: 0 }),
-    wetPrecipitation: Type.Number({ minimum: 0 }),
-    wetDemand: Type.Number({ minimum: 0 }),
-    balance: Type.Number({
-      description: "Incoming overflow + dry runoff + wet precipitation - wet demand.",
-    }),
-  },
-  { additionalProperties: false }
-);
-
-const LevelIntervalSchema = Type.Object(
-  {
-    lower: Type.Number(),
-    lowerInclusive: Type.Boolean(),
-    upper: Type.Union([Type.Number(), Type.Null()], {
-      description: "Null denotes an unbounded interval, never an artificial maximum level.",
-    }),
-    upperInclusive: Type.Boolean(),
-  },
-  { additionalProperties: false }
-);
+import { BasinFluxSchema as FluxSchema, BasinLevelIntervalSchema as LevelIntervalSchema } from "../../model/atoms/index.js";
 
 const footprint = {
   wetCells: Type.Array(Type.Integer({ minimum: 0 }), {
