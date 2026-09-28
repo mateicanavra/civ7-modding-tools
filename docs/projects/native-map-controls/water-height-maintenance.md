@@ -129,3 +129,49 @@ The diagnostic build and deployment agree for script, modinfo, database XML
 and proof manifest; `v11-install-identity.json` retains all four digests. Script
 SHA256: `f1886458ff09db182c6f626c7436b5c1a0c18a16c5f7f2c728acc4accec83c6a`.
 This is installation evidence only until the corrected native run completes.
+
+## V11 Outcome
+
+The native Huge1018 run passed. Independent replay of the raw log verifies all
+17 paired maintenance calls, 693 ordered intents (656 dry plus 37 wet), all 6,996
+intended heights and the complete post-setter native array against V9. Only
+the expected captured cutoff and truthful selection kind change in setup.
+Area recalculation #2 makes bodies 63/67/69 native lakes; subsequent finalization
+and validation preserve their post-setter heights 110/230/530. Controls 42/56
+remain 260/460.
+
+A coherent whole-map read finds exactly 48 lake-classification and 48 elevation
+changes, all belonging to those three bodies. The other 6,948 plots, including
+all 4,276 original-marine cells, hold their primary fields. Terrain, river fields,
+water, biomes, features, resources, rainfall, fertility and area/region/landmass
+IDs have zero collateral changes. These claims are retained separately from
+the successful live verifier in `v11-independent-comparison.json`.
+
+Six fresh captures show the repaired large-body shorelines plus unchanged
+small-lake controls and the maximum-zoom neighborhood. Most decisively, body69's
+artificial cliff ring disappears and its NAV outlet meets the water surface.
+No physical terrain grading was performed. This is visual continuity, not
+naval traversal. The phone viewer's `#lake-classification` section retains the
+matched before/after images and capture receipts.
+
+## Generalization Discriminator
+
+The shipped Earth Huge database has 34 isolated all-COAST components, none larger
+than 10 cells, and one 3,767-cell OCEAN-containing marine component. Its plot
+schema has no separate lake override. The read-only census with database hash
+and method lives in `native-shipped-lake-census.json`; it is not native binary
+behavior proof. Shipped JavaScript separates isolated COAST from water reaching
+OCEAN, but that does not establish the engine classifier's rule.
+
+V12 therefore changes only the diagnostic cutoff to the Huge cell count 6996.
+This tests whether OCEAN terrain independently preserves marine identity when
+size no longer excludes it. A changed marine lake flag is a valid negative
+experimental result, not a reason to reject or alter the map. This is not a
+production recommendation. V9 and V11 remain independently selectable. If the
+marine guard fails, reject this policy rather than hiding it with a chosen
+constant, clipping physical lakes or adding a seed-failure gate.
+
+V12 passed independent review and the owning check/test graph (167 tests,
+21,197 assertions). Built and deployed script, modinfo, XML and proof match;
+`v12-install-identity.json` retains all four digests. This is not native outcome
+evidence until the actual treatment and full-map marine hold are observed.
