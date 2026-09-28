@@ -18,6 +18,7 @@ discriminating studies before replacing production behavior.
 
 Add a pure `compute-drainage-basins` Hydrology operation. First establish its
 geometry and focused tests without switching the recipe's drainage authority.
+See [geometry implementation semantics](basin-geometry.md) for the operation's exact outputs and limits.
 
 1. Collapse connected equal-height plateaus on the existing cylindrical hex
    grid; retain explicit ocean and permitted external-edge outlets.
@@ -184,3 +185,64 @@ fresh timestamp distinguish this execution. Receipts:
 Three focused artifact tests passed (132 assertions); the build graph passed
 10 tasks, and the live graph passed 15 tasks. The tests prove fixture and
 transport behavior; the fresh game readbacks prove the five observations.
+
+## Coherence-Study Amendment
+
+Terrain preservation here applies to basin work; it does not forbid correcting
+a demonstrated upstream terrain bug. The matched twelve-case relief study
+found advancing per-tile RNG draws where the base-topography strategy intended
+spatially coherent noise. Disabling only those two terms reduced Earthlike
+depression roots from 76-155 to 6-13. Repair and qualify that consumer before
+calibrating basin budgets. See [the causal comparison](relief-coherence.md).
+
+The pure geometry operation passed 14 focused fixtures (2,585 assertions) and
+an independent source review. Across all 24 baseline and noise-off captures,
+its union of root footprints below the external sill exactly matched the
+existing priority-flood cells whose routing elevation exceeds ground: zero
+membership differences. This corroborates full-spill geometry, not actual lake
+selection, water conservation, or native admission.
+
+Budget implementation must preserve two distinctions identified in review:
+
+- A whole-cell shoreline budget need not be monotonic with level: replacing a
+  cell's land runoff with precipitation minus demand can have either sign.
+  Scan elevation cohorts; do not binary-search an unproved monotonic function.
+- Sibling spill links can be reciprocal before merging. Resolve incoming
+  surplus against unsaturated siblings and merge saturated components before
+  constructing an outward receiver tree. Do not topologically sort raw sibling
+  pointers as if they were already directed drainage.
+
+Use rainfall-index times unit tile area per representative interval for both
+source and demand, not an arbitrary conversion into terrain storage. Count
+dry-catchment runoff and wet-cell direct precipitation on disjoint footprints.
+Apply display/discharge scaling uniformly afterward. Positive runoff floors
+must have an attributed source rather than manufactured rainfall. A positive
+supply dry/sub-tile terminal retains a named residual, not invented loss.
+An outlet-free root with persistent surplus has no stationary solution and
+must report that limitation rather than silently cap its level.
+
+## Pre-Hydrography Demand Owner
+
+Extract the existing empirical PET law into a Climate-owned
+`compute-potential-demand` operation. Baseline owns the five authored demand
+parameters and publishes their admitted values with baseline demand; refinement
+reuses those values with its later temperature/humidity vintage. Hydrography
+consumes baseline demand without owning climate calibration or reading later
+artifacts backward. A shared Climate model schema owns the defaults once.
+
+Baseline already computes actual-ground temperature inside each final seasonal
+moisture sample. Evaluate demand there and average the seasonal results; do not
+repeat atmosphere or thermal solves. Existing land-water-budget arithmetic
+consumes supplied PET and retains effective-moisture/aridity responsibility.
+No operation invokes another operation; step orchestration binds both.
+
+Move authored PET coefficients from refinement to baseline in the shipped
+configs, preserving each map's values. Merely using operation defaults would
+silently change Earthlike's explicitly authored law. Carry only these physical
+parameters forward, not opaque step envelopes or a parallel config authority.
+
+Verification requires numerical refined-PET parity for identical forcing and
+coefficients, unchanged baseline precipitation/humidity and all existing map
+outputs, correct seasonal averaging, and explicit forward parameter reuse.
+This is a preparatory refactor: baseline demand is not yet a calibrated
+open-water-loss guarantee or permission to activate the basin replacement.
