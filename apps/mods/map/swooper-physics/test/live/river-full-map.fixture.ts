@@ -3,20 +3,42 @@ import { sha256Hex, stableStringify } from "@swooper/mapgen-core/trace";
 import { CIV7_GAME_RANDOM_SEED_PARAMETER_DESCRIPTOR } from "@civ7/map-policy/setup";
 import type { Civ7Adapter } from "../../src/runtime/map-script/adapter.js";
 
-export type FullMapRiverProbeAtlas = "full-map-observe" | "full-map-wet-outlets";
+export const FULL_MAP_RIVER_PROBE_ATLASES = [
+  "full-map-observe", "full-map-wet-outlets", "full-map-body42-outlet", "full-map-body42-spine",
+] as const;
+export type FullMapRiverProbeAtlas = typeof FULL_MAP_RIVER_PROBE_ATLASES[number];
 export const FULL_MAP_RIVER_PROBE = {
-  diagnosticRevision: 7, displayLabel: "Full Map Wet Outlet A/B V7",
+  diagnosticRevision: 8, displayLabel: "Full Map Shoreline Continuity V8",
   width: 106, height: 66, mapSize: "MAPSIZE_HUGE", mapSeed: 1018, gameSeed: 1018,
   playerCount: 10, dryWriteCount: 656, finalizationPasses: 1, sourceConfigId: "swooper-earthlike",
 } as const;
 export const FULL_MAP_WET_OUTLETS = [
-  { modelBodyId: 56, modelBodyTileCount: 1, x: 86, y: 32, receiver: { x: 85, y: 33 } },
-  { modelBodyId: 59, modelBodyTileCount: 1, x: 87, y: 28, receiver: { x: 86, y: 29 } },
+  { modelBodyId: 56, modelBodyTileCount: 1, x: 86, y: 32, direction: "NORTHWEST", receiverKind: "dry-nav", receiver: { x: 85, y: 33 } },
+  { modelBodyId: 59, modelBodyTileCount: 1, x: 87, y: 28, direction: "NORTHWEST", receiverKind: "dry-nav", receiver: { x: 86, y: 29 } },
 ] as const;
+export const FULL_MAP_BODY42 = {
+  modelBodyId: 42, modelBodyTileCount: 5,
+  wetCells: [{ x: 85, y: 9 }, { x: 86, y: 9 }, { x: 86, y: 10 }, { x: 87, y: 10 }, { x: 86, y: 11 }],
+  dryControls: [
+    { role: "inlet", x: 85, y: 10, riverClass: "NAVIGABLE" },
+    { role: "outlet", x: 84, y: 9, riverClass: "NAVIGABLE" },
+    { role: "minor-inlet", x: 88, y: 10, riverClass: "MINOR" },
+    { role: "minor-inlet", x: 87, y: 9, riverClass: "MINOR" },
+  ],
+} as const;
+type WetEdge = Readonly<{ x: number; y: number; direction: Intent["direction"];
+  receiverKind: "dry-nav" | "wet-lake"; receiver: Readonly<{ x: number; y: number }> }>;
+const body42Outlet = { x: 85, y: 9, direction: "WEST", receiverKind: "dry-nav", receiver: { x: 84, y: 9 } } as const;
+const body42Spine = { x: 86, y: 10, direction: "SOUTHWEST", receiverKind: "wet-lake", receiver: { x: 85, y: 9 } } as const;
+export const FULL_MAP_RIVER_PROBE_EDGES: Readonly<Record<FullMapRiverProbeAtlas, readonly WetEdge[]>> = {
+  "full-map-observe": [],
+  "full-map-wet-outlets": FULL_MAP_WET_OUTLETS,
+  "full-map-body42-outlet": [body42Outlet],
+  "full-map-body42-spine": [body42Outlet, body42Spine],
+};
 const directions = ["EAST", "NORTHEAST", "NORTHWEST", "WEST", "SOUTHWEST", "SOUTHEAST"] as const;
 const focus = [...FULL_MAP_WET_OUTLETS.flatMap(({ x, y, receiver }) => [{ x, y }, receiver]), { x: 87, y: 31 },
-  // Body 42 is observation-only in both variants; it is not an added wet write.
-  { x: 85, y: 9 }, { x: 84, y: 9 }, { x: 85, y: 10 }, { x: 86, y: 10 }];
+  ...FULL_MAP_BODY42.wetCells, ...FULL_MAP_BODY42.dryControls.map(({ x, y }) => ({ x, y }))];
 const tuple = [false, 25, 2, 2] as const;
 const marker = "[river-full-map]";
 const installed = new WeakSet<object>();
@@ -59,7 +81,7 @@ export function installFullMapRiverProbe(
 ): void {
   if (installed.has(prototype)) throw new Error("Full-map river probe already installed.");
   if (!/^[a-zA-Z0-9-]{1,100}$/.test(proofId)) throw new Error("Invalid full-map proof ID.");
-  if (variant !== "full-map-observe" && variant !== "full-map-wet-outlets") throw new Error("Unknown full-map variant.");
+  if (!Object.hasOwn(FULL_MAP_RIVER_PROBE_EDGES, variant)) throw new Error("Unknown full-map variant.");
   if (![identity.configHash, identity.envelopeHash, identity.fixtureSourceSha256].every((hash) => /^[0-9a-f]{64}$/.test(hash)))
     throw new Error("Missing full-map source identity digests.");
   const original = { setElevation: prototype.setElevation, setRiverInfo: prototype.setRiverInfo,
@@ -67,6 +89,8 @@ export function installFullMapRiverProbe(
   if (Object.values(original).some((method) => typeof method !== "function")) throw new Error("Missing app adapter method.");
   installed.add(prototype);
   const { GameplayMap: map, MapRivers: rivers, DirectionTypes: nativeDirections, RiverTypes: classes } = bindings;
+  const extraEdges = FULL_MAP_RIVER_PROBE_EDGES[variant];
+  const body42Intervention = variant === "full-map-body42-outlet" || variant === "full-map-body42-spine";
   const dryWrites: Intent[] = [];
   const elevations: { length: number; sha256: string }[] = [];
   let owner: Adapter | undefined;
@@ -78,6 +102,23 @@ export function installFullMapRiverProbe(
     for (const line of encodeBoundedJsonLogLines({ marker, payload: { proofId, variant, stage, payload } })) bindings.log(line);
   };
   const require = (condition: unknown, message: string) => { if (!condition) throw new Error(`Full-map probe refused: ${message}`); };
+  const requireWetLake = ({ x, y }: { x: number; y: number }) => {
+    require(read(map, "isWater", [x, y]) === true && read(map, "isLake", [x, y]) === true, `expected wet lake ${x},${y}`);
+  };
+  const requireDryClass = ({ x, y }: { x: number; y: number }, riverClass: "NAVIGABLE" | "MINOR") => {
+    require(read(map, "isWater", [x, y]) === false && read(map, "isLake", [x, y]) === false
+      && read(map, "getRiverType", [x, y]) === classes[`RIVER_${riverClass}`], `expected dry ${riverClass} receiver/control ${x},${y}`);
+  };
+  const preflightEdge = ({ x, y, direction, receiver, receiverKind }: WetEdge) => {
+    requireWetLake({ x, y });
+    if (receiverKind === "wet-lake") requireWetLake(receiver);
+    else requireDryClass(receiver, "NAVIGABLE");
+    const nativeDirection = nativeDirections[`DIRECTION_${direction}`];
+    require(typeof nativeDirection === "number" && Number.isSafeInteger(nativeDirection), `missing ${direction} enum`);
+    const adjacent = read(map, "getAdjacentPlotLocation", [{ x, y }, nativeDirection]);
+    require(typeof adjacent === "object" && adjacent !== null && "x" in adjacent && "y" in adjacent
+      && adjacent.x === receiver.x && adjacent.y === receiver.y, `native ${direction} receiver mismatch`);
+  };
   const admit = (adapter: Adapter, recheck = false) => {
     require(!owner || owner === adapter, "multiple adapter instances");
     if (owner && !recheck) return;
@@ -162,24 +203,21 @@ export function installFullMapRiverProbe(
       emit("inputs", { dryWriteCount: dryWrites.length, dryWritesSha256: digest(dryWrites), dryWrites,
         elevationInputs: elevations, finalizationTuple: args, wetOutlets: FULL_MAP_WET_OUTLETS,
         hashEncoding: "SHA-256 of portable stableStringify; complete input arrays, no sampling",
-        intervention: variant === "full-map-wet-outlets" ? "two NAVIGABLE NORTHWEST writes only" : "none" });
+        intervention: { riverClass: "NAVIGABLE", extraWriteCount: extraEdges.length, edges: extraEdges } });
       snapshot("before-extra-writes");
       require(args.length === tuple.length && args.every((value, index) => value === tuple[index]), "expected authored tuple false,25,2,2");
       require(dryWrites.length === 656 && elevations.length === 1, "expected 656 dry writes and one elevation input");
       require(Number.isSafeInteger(classes.RIVER_NAVIGABLE), "missing NAVIGABLE enum");
-      const northwest = nativeDirections.DIRECTION_NORTHWEST;
-      require(typeof northwest === "number" && Number.isSafeInteger(northwest), "missing NORTHWEST enum");
-      // Validate both pairs before either intervention; failure never becomes a partial admission.
-      for (const { x, y, receiver } of FULL_MAP_WET_OUTLETS) {
-        require(read(map, "isWater", [x, y]) === true && read(map, "isLake", [x, y]) === true, `expected wet lake ${x},${y}`);
-        require(read(map, "isWater", [receiver.x, receiver.y]) === false
-          && read(map, "getRiverType", [receiver.x, receiver.y]) === classes.RIVER_NAVIGABLE, `expected dry NAV receiver ${receiver.x},${receiver.y}`);
-        const adjacent = read(map, "getAdjacentPlotLocation", [{ x, y }, northwest]);
-        require(typeof adjacent === "object" && adjacent !== null && "x" in adjacent && "y" in adjacent
-          && adjacent.x === receiver.x && adjacent.y === receiver.y, "native NORTHWEST receiver mismatch");
+      // Validate every selected edge and retained control before the first extra write.
+      for (const edge of FULL_MAP_WET_OUTLETS) preflightEdge(edge);
+      if (body42Intervention) {
+        require(Number.isSafeInteger(classes.RIVER_MINOR), "missing MINOR enum");
+        for (const point of FULL_MAP_BODY42.wetCells) requireWetLake(point);
+        for (const point of FULL_MAP_BODY42.dryControls) requireDryClass(point, point.riverClass);
+        for (const edge of extraEdges) preflightEdge(edge);
       }
-      if (variant === "full-map-wet-outlets") for (const { x, y } of FULL_MAP_WET_OUTLETS) {
-        original.setRiverInfo.call(this, { x, y, direction: "NORTHWEST", riverClass: "NAVIGABLE" });
+      for (const { x, y, direction } of extraEdges) {
+        original.setRiverInfo.call(this, { x, y, direction, riverClass: "NAVIGABLE" });
         extraWrites++;
       }
       snapshot("before-finalize");
@@ -200,6 +238,7 @@ export function installFullMapRiverProbe(
     finally { snapshot(`after-water-cache-${pass}`, pass === 1); }
   };
   emit("installed", { ...FULL_MAP_RIVER_PROBE, ...identity,
-    observationalBody42: { modelBodyTileCount: 5, points: focus.slice(5), intervention: "none" },
+    body42: { ...FULL_MAP_BODY42, intervention: body42Intervention ? extraEdges : [] },
+    intervention: { riverClass: "NAVIGABLE", extraWriteCount: extraEdges.length, edges: extraEdges },
     qualification: "instrumentation installed, not native run completion; production lake assertions remain unchanged; final bundle SHA is external proof.json" });
 }

@@ -10,13 +10,15 @@ import { canonicalMapConfigContentDigest, canonicalMapConfigDigest } from "@swoo
 import { renderSwooperCatalogMapSource } from "../../src/runtime/file-plan.js";
 import { bundleCiv7MapScript } from "../../src/runtime/map-script/compiler.js";
 import { RIVER_PROBE, RIVER_TERRAIN_PROBE, RIVER_LAKE_NAVIGATION_PROBE, RIVER_PROBE_VARIANTS, type RiverProbeAtlas, type RiverProbeVariant } from "./river-contract-map.fixture.js";
-import { FULL_MAP_RIVER_PROBE, type FullMapProbeIdentity, type FullMapRiverProbeAtlas } from "./river-full-map.fixture.js";
+import { FULL_MAP_RIVER_PROBE, FULL_MAP_RIVER_PROBE_ATLASES, FULL_MAP_RIVER_PROBE_EDGES, type FullMapProbeIdentity, type FullMapRiverProbeAtlas } from "./river-full-map.fixture.js";
 
 export const riverProbeAppRoot = fileURLToPath(new URL("../../", import.meta.url));
 export const riverProbeOutputRoot = resolve(riverProbeAppRoot, "dist/river-contract-probe");
 export const riverProbeMapScript = `{${RIVER_PROBE.id}}/maps/river-contract.js`;
 export type RiverProbeAtlasSelection = RiverProbeAtlas | FullMapRiverProbeAtlas;
-const atlases: readonly string[] = ["legacy", "terrain-admission", "lake-navigation", "full-map-observe", "full-map-wet-outlets"];
+const atlases: readonly string[] = ["legacy", "terrain-admission", "lake-navigation", ...FULL_MAP_RIVER_PROBE_ATLASES];
+const isFullMapAtlas = (atlas: string): atlas is FullMapRiverProbeAtlas =>
+  (FULL_MAP_RIVER_PROBE_ATLASES as readonly string[]).includes(atlas);
 
 /** One disposable mod; rebuilding replaces the selected variant, never adds a second active map. */
 export async function buildRiverProbePlan(proofId: string, variant: RiverProbeVariant = "authored", atlasKind: RiverProbeAtlasSelection = "legacy"): Promise<GeneratedFilePlan> {
@@ -24,7 +26,7 @@ export async function buildRiverProbePlan(proofId: string, variant: RiverProbeVa
   if (!Object.hasOwn(RIVER_PROBE_VARIANTS, variant)) throw new Error(`Unknown river probe variant: ${variant}`);
   if (!atlases.includes(atlasKind)) throw new Error(`Unknown river probe atlas: ${atlasKind}`);
   if (atlasKind !== "legacy" && variant !== "authored") throw new Error("Adapter atlases require the authored finalization tuple.");
-  const fullMap = atlasKind === "full-map-observe" || atlasKind === "full-map-wet-outlets";
+  const fullMap = isFullMapAtlas(atlasKind);
   const probe = fullMap ? { ...RIVER_PROBE, ...FULL_MAP_RIVER_PROBE } : atlasKind === "terrain-admission" ? RIVER_TERRAIN_PROBE : atlasKind === "lake-navigation" ? RIVER_LAKE_NAVIGATION_PROBE : RIVER_PROBE;
   const displayLabel = "displayLabel" in probe ? probe.displayLabel : "River Contract Probe";
   const adapterImport = atlasKind !== "legacy" ? 'import { Civ7Adapter } from "./src/runtime/map-script/adapter.ts";\n' : "";
@@ -65,6 +67,8 @@ ${renderSwooperCatalogMapSource(config)}`;
   </ActionGroups>
 </Mod>` },
       { relativePath: "proof.json", content: JSON.stringify({ proofId, ...probe, ...identity, variant, atlasKind,
+        ...(isFullMapAtlas(atlasKind) ? { intervention: { riverClass: "NAVIGABLE",
+          extraWriteCount: FULL_MAP_RIVER_PROBE_EDGES[atlasKind].length, edges: FULL_MAP_RIVER_PROBE_EDGES[atlasKind] } } : {}),
         settings: RIVER_PROBE_VARIANTS[variant], scriptSha256: createHash("sha256").update(content).digest("hex"),
         mapScript: riverProbeMapScript, evidence: "built-only; no native observations",
         qualification: "completion means all diagnostic phases ran, not river parity or successful writes",
@@ -79,9 +83,9 @@ if (import.meta.main) {
   const variant = process.argv[3] ?? "authored";
   const atlasKind = process.argv[4] ?? "legacy";
   if (!proofId || process.argv.length > 5 || !Object.hasOwn(RIVER_PROBE_VARIANTS, variant) || !atlases.includes(atlasKind))
-    throw new Error("Usage: bun test/live/river-contract-probe.ts <proof-id> [authored|aesthetic|length|upstream|percent] [legacy|terrain-admission|lake-navigation|full-map-observe|full-map-wet-outlets] (build only)");
+    throw new Error(`Usage: bun test/live/river-contract-probe.ts <proof-id> [authored|aesthetic|length|upstream|percent] [${atlases.join("|")}] (build only)`);
   await applyGeneratedFilePlan(await buildRiverProbePlan(proofId, variant as RiverProbeVariant, atlasKind as RiverProbeAtlasSelection), { outputRoot: riverProbeOutputRoot });
-  const fullMap = atlasKind === "full-map-observe" || atlasKind === "full-map-wet-outlets";
+  const fullMap = isFullMapAtlas(atlasKind);
   const probe = fullMap ? FULL_MAP_RIVER_PROBE : RIVER_PROBE;
   console.log(JSON.stringify({ outputRoot: riverProbeOutputRoot, proofId, variant, atlasKind,
     mapScript: riverProbeMapScript,
