@@ -96,9 +96,20 @@ Seasonal rainfall and humidity amplitudes likewise remain invocation-local
 evidence projected by the baseline step; no downstream pipeline consumer owns
 or reads a retained seasonality product.
 
+Baseline climate also publishes potential evaporative demand and its admitted
+five-parameter calibration. The baseline step evaluates the shared
+`computePotentialDemand` operation within its existing final seasonal samples
+and averages demand, rather than applying a nonlinear temperature law to an
+annual temperature mean. Refinement reuses the same parameters with its later
+temperature/humidity forcing. `computeLandWaterBudget` consumes that demand
+and owns effective moisture and aridity; it does not own another PET law.
+Invocation-local demand retains double precision until aridity is computed,
+while published climate arrays remain Float32. Demand uses empirical rainfall
+index units, not calibrated open-water evaporation or a depth-storage rate.
+
 ## Ops surface
 
-Hydrology composes four capability modules and 19 operations. Step contracts bind only the
+Hydrology composes four capability modules. Step contracts bind only the
 operations they execute:
 
 - `ocean`: ocean geometry, surface currents, and thermal state,
@@ -123,6 +134,7 @@ The Standard recipe uses operation contracts such as:
 - `planLakes`
 - `classifyRiverNetwork`
 - `computeLandWaterBudget`
+- `computePotentialDemand`
 - `computeCryosphereState`, `applyAlbedoFeedback`
 
 Navigable-river terrain selection is intentionally not a second physical river
@@ -143,6 +155,9 @@ small set of stage knobs for product-level posture:
 Step schemas and their bound operation contracts remain the advanced
 configuration surface. Knobs transform those admitted configs; they do not
 replace or reconstruct their shape.
+The baseline step's `potentialDemand` object owns PET coefficients; refinement
+receives their admitted values through baseline climate instead of duplicating
+authoring authority in its water-budget strategy.
 
 ## River network benchmark contract
 

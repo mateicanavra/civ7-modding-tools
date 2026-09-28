@@ -44,6 +44,9 @@ type AtmosphericCirculationInput = Parameters<
 type PrecipitationInput = Parameters<
   typeof hydrologyDomain.climate.ops.computePrecipitation.run
 >[0];
+type PotentialDemandInput = Parameters<
+  typeof hydrologyDomain.climate.ops.computePotentialDemand.run
+>[0];
 
 function climateBaselineConfig(options: Readonly<{ axialTiltDeg?: number }> = {}) {
   if (!ClimateBaselineStep.normalize) {
@@ -141,6 +144,7 @@ function captureSeasonalEvidence(axialTiltDeg: number) {
         computeRadiativeForcing: () => ({ insolation: new Float32Array(size) }),
         computeThermalState: () => ({ surfaceTemperatureC: new Float32Array(size) }),
         computeEvaporationSources: () => ({ evaporation: new Float32Array(size) }),
+        computePotentialDemand: hydrologyDomain.climate.ops.computePotentialDemand.run,
         transportMoisture: () => ({ humidity: new Float32Array(size) }),
         computePrecipitation: (input: PrecipitationInput) => {
           const windSignal = Math.abs(input.windU[0] ?? 0);
@@ -200,6 +204,10 @@ describe("hydrology climate-baseline composition", () => {
     });
     const topographyElevation = new Int16Array(size).fill(DEFAULT_ELEVATION_SCALE);
     const topographySeaLevel = -25;
+    const topographyLandMask = new Uint8Array(size).fill(1);
+    topographyLandMask[0] = 0;
+    const demandInputs: PotentialDemandInput[] = [];
+    const demandOutputs: number[][] = [];
     const windValuesU = Array.from({ length: weatherCalls }, (_, index) => index + 1);
     const windValuesV = windValuesU.map((value) => -value);
     const currentValuesU = windValuesU.map((value) => value * 4);
@@ -215,16 +223,12 @@ describe("hydrology climate-baseline composition", () => {
       const start = atmosphereIndex * modeCount * 2;
       return Array.from({ length: modeCount }, (_, seasonIndex) => {
         const memberStart = start + seasonIndex * 2;
-        return Math.round(
-          ((values[memberStart] ?? 0) + (values[memberStart + 1] ?? 0)) / 2
-        );
+        return Math.round(((values[memberStart] ?? 0) + (values[memberStart + 1] ?? 0)) / 2);
       });
     };
     const atmosphereMean = (values: readonly number[], atmosphereIndex: number): number => {
       const seasonMeans = seasonMeansForAtmosphere(values, atmosphereIndex);
-      return Math.round(
-        seasonMeans.reduce((sum, value) => sum + value, 0) / seasonMeans.length
-      );
+      return Math.round(seasonMeans.reduce((sum, value) => sum + value, 0) / seasonMeans.length);
     };
     const sstByIteration = Array.from({ length: couplingIterations }, (_, iteration) =>
       new Float32Array(size).fill(20 + iteration)
@@ -254,7 +258,7 @@ describe("hydrology climate-baseline composition", () => {
           currentU: ArrayLike<number>;
           currentV: ArrayLike<number>;
         }>
-        | undefined;
+      | undefined;
     let observedSeasonalPressure: readonly Float32Array[] = [];
     let observedSeasonalWindU: readonly Int8Array[] = [];
     let observedSeasonalWindV: readonly Int8Array[] = [];
@@ -268,7 +272,7 @@ describe("hydrology climate-baseline composition", () => {
       publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: topographyElevation,
         seaLevel: topographySeaLevel,
-        landMask: new Uint8Array(size),
+        landMask: topographyLandMask,
         bathymetry: new Int16Array(size),
       });
       publishTestArtifact(stepContext, morphologyShelfArtifacts.shelf, {
@@ -340,6 +344,18 @@ describe("hydrology climate-baseline composition", () => {
             return { surfaceTemperatureC: output };
           },
           computeEvaporationSources: () => ({ evaporation: new Float32Array(size) }),
+          computePotentialDemand: (
+            input: PotentialDemandInput,
+            demandConfig: typeof hydrologyDomain.climate.ops.computePotentialDemand.defaultConfig
+          ) => {
+            demandInputs.push(input);
+            const output = hydrologyDomain.climate.ops.computePotentialDemand.run(
+              input,
+              demandConfig
+            );
+            demandOutputs.push(output.pet);
+            return output;
+          },
           transportMoisture: () => ({ humidity: new Float32Array(size) }),
           computePrecipitation: (input: PrecipitationInput) => {
             precipitationInputs.push(input);
@@ -384,7 +400,9 @@ describe("hydrology climate-baseline composition", () => {
       expect(positive.surfaceTemperatureC).toBe(thermalInputs[seasonCall]!.output);
       expect(negative.surfaceTemperatureC).toBe(thermalInputs[seasonCall]!.output);
       expect(thermalInputs[seasonCall]!.seaLevel).toBe(0);
-      expect(Array.from(thermalInputs[seasonCall]!.elevation).every((value) => value === 0)).toBeTrue();
+      expect(
+        Array.from(thermalInputs[seasonCall]!.elevation).every((value) => value === 0)
+      ).toBeTrue();
       for (const call of [positiveCall, negativeCall]) {
         expect("elevation" in pressureInputs[call]!).toBeFalse();
         expect("elevationScale" in pressureInputs[call]!).toBeFalse();
@@ -493,6 +511,28 @@ describe("hydrology climate-baseline composition", () => {
       );
     }
     expect(precipitationInputs).toHaveLength(modeCount * 2);
+    expect(demandInputs).toHaveLength(modeCount);
+    for (let season = 0; season < modeCount; season++) {
+      expect(demandInputs[season]!.surfaceTemperatureC).toBe(
+        thermalInputs[atmosphereSeasonCalls + season]!.output
+      );
+      expect(demandInputs[season]!.humidity).toBe(observedSeasonalHumidity[season]);
+      expect(demandInputs[season]!.landMask).toBe(topographyLandMask);
+      expect(demandInputs[season]!.parameters).toEqual(config.potentialDemand);
+    }
+    const baseline = readArtifact(context, climateArtifacts.baselineClimateField);
+    const expectedDemand = Float32Array.from(
+      { length: size },
+      (_, i) => demandOutputs.reduce((sum, field) => sum + field[i]!, 0) / modeCount
+    );
+    expect(baseline.potentialDemand).toEqual(expectedDemand);
+    expect(baseline.potentialDemand[0]).toBe(0);
+    expect(baseline.demandParameters).toEqual(config.potentialDemand);
+    const annualMoisture = Math.round(
+      expectedSeasonalWindU.reduce((sum, value) => sum + value, 0) / modeCount
+    );
+    expect(baseline.rainfall).toEqual(new Uint8Array(size).fill(annualMoisture));
+    expect(baseline.humidity).toEqual(new Uint8Array(size).fill(annualMoisture));
   });
 
   it("returns zero seasonal amplitude when axial tilt disables seasonal forcing", () => {
@@ -503,10 +543,9 @@ describe("hydrology climate-baseline composition", () => {
       new Array(evidence.modeCount * (evidence.couplingIterations + 1) * 2).fill(0)
     );
     expect(evidence.transientPolarities).toEqual(
-      Array.from(
-        { length: evidence.modeCount * (evidence.couplingIterations + 1) },
-        () => [1, -1]
-      ).flat()
+      Array.from({ length: evidence.modeCount * (evidence.couplingIterations + 1) }, () => [
+        1, -1,
+      ]).flat()
     );
     expect(new Set(evidence.circulationTopLatitudes).size).toBe(1);
     expect(evidence.seasonalFieldCounts).toEqual(new Array(7).fill(evidence.modeCount));
@@ -520,10 +559,9 @@ describe("hydrology climate-baseline composition", () => {
     expect(evidence.axialTiltDeg).toBe(18);
     expect(new Set(evidence.seasonSalts).size).toBe(evidence.modeCount);
     expect(evidence.transientPolarities).toEqual(
-      Array.from(
-        { length: evidence.modeCount * (evidence.couplingIterations + 1) },
-        () => [1, -1]
-      ).flat()
+      Array.from({ length: evidence.modeCount * (evidence.couplingIterations + 1) }, () => [
+        1, -1,
+      ]).flat()
     );
     expect(new Set(evidence.circulationTopLatitudes).size).toBeGreaterThan(1);
     expect(evidence.seasonalFieldCounts).toEqual(new Array(7).fill(evidence.modeCount));

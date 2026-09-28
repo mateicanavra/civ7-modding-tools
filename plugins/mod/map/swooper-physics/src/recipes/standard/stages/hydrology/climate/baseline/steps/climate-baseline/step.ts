@@ -402,6 +402,7 @@ export const ClimateBaselineStep = createStep(config, {
 
     const seasonalRainfall: Uint8Array[] = [];
     const seasonalHumidity: Uint8Array[] = [];
+    const seasonalDemand: number[][] = [];
 
     const usesCoupledClimatePath =
       stepConfig.computeAtmosphericCirculation.strategy === "geostrophic-proxy" ||
@@ -718,15 +719,29 @@ export const ClimateBaselineStep = createStep(config, {
       seasonalRainfall.push(
         meanOfU8Fields(weatherPrecipitation.map((member) => member.rainfall))
       );
-      seasonalHumidity.push(
-        meanOfU8Fields(weatherPrecipitation.map((member) => member.humidity))
+      const humidity = meanOfU8Fields(weatherPrecipitation.map((member) => member.humidity));
+      seasonalHumidity.push(humidity);
+      seasonalDemand.push(
+        ops.computePotentialDemand(
+          {
+            width,
+            height,
+            landMask,
+            surfaceTemperatureC: thermal.surfaceTemperatureC,
+            humidity,
+            parameters: stepConfig.potentialDemand,
+          },
+          stepConfig.computePotentialDemand
+        ).pet
       );
     }
 
     // Recompute annual mean + amplitude now that we have seasonal rainfall/humidity.
+    const meanPotentialDemand = new Float32Array(size);
     for (let i = 0; i < size; i++) {
       let rainSum = 0;
       let humidSum = 0;
+      let demandSum = 0;
       let rainMin = 255;
       let rainMax = 0;
       let humidMin = 255;
@@ -737,6 +752,7 @@ export const ClimateBaselineStep = createStep(config, {
         const humid = seasonalHumidity[s]?.[i] ?? 0;
         rainSum += rain;
         humidSum += humid;
+        demandSum += seasonalDemand[s]![i]!;
         if (rain < rainMin) rainMin = rain;
         if (rain > rainMax) rainMax = rain;
         if (humid < humidMin) humidMin = humid;
@@ -745,6 +761,7 @@ export const ClimateBaselineStep = createStep(config, {
 
       meanRainfall[i] = Math.max(0, Math.min(200, Math.round(rainSum / seasonCount)));
       meanHumidity[i] = Math.max(0, Math.min(255, Math.round(humidSum / seasonCount)));
+      meanPotentialDemand[i] = demandSum / seasonCount;
       rainfallAmplitude[i] = Math.max(0, Math.min(255, Math.round((rainMax - rainMin) / 2)));
       humidityAmplitude[i] = Math.max(0, Math.min(255, Math.round((humidMax - humidMin) / 2)));
     }
@@ -752,6 +769,8 @@ export const ClimateBaselineStep = createStep(config, {
     const baselineClimateField = deps.artifacts.baselineClimateField.publish({
       rainfall: meanRainfall,
       humidity: meanHumidity,
+      potentialDemand: meanPotentialDemand,
+      demandParameters: { ...stepConfig.potentialDemand },
     });
     const seasonalAmplitudes = {
       rainfallAmplitude,

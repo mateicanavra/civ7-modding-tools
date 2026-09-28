@@ -6,16 +6,14 @@ import {
 import hydrology from "../../../../../../src/domain/hydrology/router.js";
 import { TEST_MAP_SIZE } from "../../../../../setup.js";
 
-const { computeLandWaterBudget } = hydrology.climate.ops;
-const strategy = {
-  strategy: "pet-aridity",
-  config: {
-    tMinC: 0,
-    tMaxC: 35,
-    petBase: 18,
-    petTemperatureWeight: 75,
-    humidityDampening: 0.55,
-  },
+const { computeLandWaterBudget, computePotentialDemand } = hydrology.climate.ops;
+const strategy = computeLandWaterBudget.defaultConfig;
+const parameters = {
+  tMinC: 0,
+  tMaxC: 35,
+  petBase: 18,
+  petTemperatureWeight: 75,
+  humidityDampening: 0.55,
 } as const;
 
 function indexOf(x: number, y: number, width: number): number {
@@ -53,7 +51,10 @@ describe("hydrology/compute-land-water-budget riparian moisture", () => {
       landMask,
       rainfall,
       humidity,
-      surfaceTemperatureC,
+      pet: computePotentialDemand.run(
+        { width, height, landMask, humidity, surfaceTemperatureC, parameters },
+        computePotentialDemand.defaultConfig
+      ).pet,
       riverClass,
     };
     const rainfallBefore = new Uint8Array(rainfall);
@@ -102,7 +103,7 @@ describe("hydrology/compute-land-water-budget riparian moisture", () => {
         landMask,
         rainfall: new Uint8Array(size),
         humidity: new Uint8Array(size),
-        surfaceTemperatureC: new Float32Array(size),
+        pet: new Array<number>(size).fill(0),
         riverClass,
       },
       strategy

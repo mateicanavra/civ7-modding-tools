@@ -1,7 +1,7 @@
 import { clamp01 } from "@swooper/mapgen-core/lib/math";
 
 /**
- * Normalizes a value between the water-budget strategy's lower and upper calibration points.
+ * Normalizes a value between the demand law's lower and upper calibration points.
  * Degenerate bounds resolve deterministically to a threshold instead of dividing by near-zero.
  *
  * @param value - Temperature or other scalar to normalize.

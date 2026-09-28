@@ -1,14 +1,14 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import petAridityDefinition from "./strategies/pet-aridity/config.js";
 
-/** Computes terrestrial moisture supply, potential evapotranspiration, and aridity. */
+/** Computes terrestrial moisture supply and aridity from supplied potential demand. */
 const ComputeLandWaterBudgetContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-land-water-budget",
   /**
    * Computes terrestrial effective moisture, PET, and aridity.
    *
-   * This op combines rainfall, humidity, temperature, and river hierarchy into deterministic
+   * This op combines rainfall, humidity, supplied demand, and river hierarchy into deterministic
    * advisory indices. Consumers use these outputs rather than re-deriving local variants.
    */
   input: Type.Object(
@@ -23,8 +23,10 @@ const ComputeLandWaterBudgetContract = defineOp({
       rainfall: TypedArraySchemas.u8({ description: "Rainfall (0..200) per tile." }),
       /** Humidity (0..255) per tile. */
       humidity: TypedArraySchemas.u8({ description: "Humidity (0..255) per tile." }),
-      /** Surface temperature proxy (C). */
-      surfaceTemperatureC: TypedArraySchemas.f32({ description: "Surface temperature proxy (C)." }),
+      /** Double-precision demand preserves pre-extraction aridity before public Float32 rounding. */
+      pet: Type.Array(Type.Number({ minimum: 0 }), {
+        description: "One double-precision potential-demand sample per tile, supplied by Climate.",
+      }),
       /** Hydrology river hierarchy used to derive local riparian moisture influence. */
       riverClass: TypedArraySchemas.u8({
         description:

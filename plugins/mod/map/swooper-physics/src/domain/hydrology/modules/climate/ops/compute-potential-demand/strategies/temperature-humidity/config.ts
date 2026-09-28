@@ -1,7 +1,7 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Balances supplied Climate demand against rainfall; calibration is owned by baseline climate. */
+/** Calibration arrives as admitted physical input, not a second configurable demand authority. */
 export default defineStrategy({
-  id: "pet-aridity",
+  id: "temperature-humidity",
   config: Type.Object({}, { additionalProperties: false }),
 });

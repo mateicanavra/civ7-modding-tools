@@ -4,6 +4,7 @@ import ComputeAtmosphericCirculationContract from "./ops/compute-atmospheric-cir
 import ComputeClimateDiagnosticsContract from "./ops/compute-climate-diagnostics/contract.js";
 import ComputeEvaporationSourcesContract from "./ops/compute-evaporation-sources/contract.js";
 import ComputeLandWaterBudgetContract from "./ops/compute-land-water-budget/contract.js";
+import ComputePotentialDemandContract from "./ops/compute-potential-demand/contract.js";
 import ComputePrecipitationContract from "./ops/compute-precipitation/contract.js";
 import ComputePressureFieldContract from "./ops/compute-pressure-field/contract.js";
 import ComputeRadiativeForcingContract from "./ops/compute-radiative-forcing/contract.js";
@@ -24,6 +25,7 @@ const climate = defineDomainSubdomain({
     computePrecipitation: ComputePrecipitationContract,
     refinePrecipitation: RefinePrecipitationContract,
     computeLandWaterBudget: ComputeLandWaterBudgetContract,
+    computePotentialDemand: ComputePotentialDemandContract,
     computeClimateDiagnostics: ComputeClimateDiagnosticsContract,
   },
 });
