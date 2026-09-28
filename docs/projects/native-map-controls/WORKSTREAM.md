@@ -1,8 +1,8 @@
 # Native Map Controls
 
-Status: active; design approved 2026-09-27, integration not complete.
+Status: elevation-first acceptance passes; river integration remains separately deferred.
 DRA: root. Opened: 2026-09-27.
-Branch: `agent-root-civ7-native-map-controls-frame`.
+Opening branch: `agent-root-civ7-native-map-controls-frame`.
 
 ## Frame
 
@@ -18,6 +18,10 @@ contracts, native readback, and a [study loop](studies.md).
 Research can run in parallel; integrated behavior lands in one linear Graphite
 stack, elevation before rivers. This order reduces experimental confounding; it
 is not a claim that the river setter technically requires our elevation setter.
+The current authorized execution slice is elevation only. Existing procedural
+river behavior remains a downstream preservation check; native river writing
+has not been integrated. Its obsolete automatic naming call was removed for
+installed-source compatibility, without introducing new river authorship.
 
 Non-goals: redesign geophysics, retune maps to pass new screenshots, finish the
 unrelated Controller/Play migration, upgrade Habitat wholesale, invent generic
@@ -216,8 +220,9 @@ Bun install succeeded. The first Studio dev graph built generation dependencies
 but failed UI declaration emission because RJSF could not resolve React types
 under the isolated linker. The first native refresh failed transactionally on
 a retained SCSS import; it did not replace the pinned snapshot or generated API.
-These are reproduced prerequisite failures, not failures of new river/elevation
-implementation. No behavioral integration or native probe is claimed yet.
+These were reproduced prerequisite failures, subsequently repaired, not
+failures of new river/elevation implementation. The current elevation and native
+qualification state is recorded below.
 
 The startup dependency repairs restore graph-owned UI build and local
 generation. Studio runs in this worktree at `http://127.0.0.1:5173/`, with daemon
@@ -232,9 +237,9 @@ same server. Its existing Latest Juicy/Huge seed -978072323 config shows a
 native-controls regression or a passing guard.
 
 The materializer prerequisite admits only evidenced bare SCSS side effects.
-Pinned baseline declaration shards remain byte-identical; its receipt advances
-to schema 4 with no stylesheet omissions. Installed-source adoption is the next
-coherent layer: 960 embedded sources (716 TS, 244 TSX), 11 stylesheet dispositions,
+Pinned baseline declaration shards remained byte-identical; its receipt advanced
+to schema 4 with no stylesheet omissions. The subsequent installed-source
+adoption admits 960 embedded sources (716 TS, 244 TSX), 11 stylesheet dispositions,
 and 15 map rows (14 JS roots plus one `.Civ7Map`) differ from the pinned corpus.
 Resource refresh and publication completed at
 `89cee44d5ae7192f126e8ae09484c04400df9146`, from installed game 1.5.0.40
@@ -251,9 +256,9 @@ Its uncached API/materializer check graph passes 64 tests, unchanged shell
 contract checks, typechecks, freshness and Habitat policies. The missing native
 `ResourceDefinition` type is opaque only inside the existing module-resolution
 test fixture, not invented in production declarations.
-The graph-owned materializer check passes all 43 tests, typecheck, both Habitat
-policy rules and generated freshness after regeneration. Independent patch
-review found no P1/P2 defects. Frozen dependency installation makes no changes.
+The earlier pinned-source prerequisite passed 43 materializer tests, typecheck,
+both Habitat policy rules and generated freshness. Independent patch review
+found no P1/P2 defects. Frozen dependency installation makes no changes.
 The UI build passes with the Nx cache explicitly bypassed; the earlier failed
 build remains in Nx's flaky-task history, not a suppressed current failure.
 The CLI topic build also passes; the command is unavailable in a fresh checkout
@@ -264,7 +269,64 @@ relief targets. See studies.md for its reproducible inputs and honest headless
 evidence boundary. It also passes after resource migration with the reported
 relief and river measurements unchanged. The 20-scenario `earthlike/placement`
 cohort passes its integrity, placement and resource targets after migration.
-These are not full-bank or native-runtime passes.
+Those earlier bounded results are distinct from the subsequent full-bank pass.
+
+### Current Elevation Qualification
+
+The adopted path now writes a named physical-to-native projection, derives
+cliffs once, and records exact post-write and terminal elevation observations.
+Stock `buildElevation` no longer overwrites that path. Natural-wonder planning
+keeps physical suitability separate from current native elevation constraints;
+dispatch reads current native height, and V3 input evidence records both units.
+
+- The final bank passes all 27 studies, 91 unique scenarios and 6,197
+  expectations. Definitions and observed values are unchanged versus baseline;
+  captured physical-model hashes also match on 12 Huge cases. This is headless
+  evidence; numeric observations are labeled `mock-only`.
+- The unified six-owner check/test graph passes 70 tasks, including 598
+  definition tests and 403 Studio tests. See [studies.md](studies.md) for receipts.
+- The actual-game Tiny diagnostic completed successfully at
+  `2026-09-28T02:16:27.871Z`; its bounded semantics are in [elevation.md](elevation.md).
+- The first production attempt stopped because the new guard assumed authored
+  lake intent exhausted native lake classifications. Plot 976 was a guard false
+  positive, not an invalid physical map. Instrumented evidence proved it was already
+  water and lake, with unchanged terrain before/after the setter. The bounded
+  correction keeps authored and observed masks separate, admitting that numeric
+  difference only with stable native classifications on physical water. There
+  is no new lake algorithm or relaxed ordinary-water/land numeric tolerance.
+- A fresh normal Earthlike/Huge build, 106 x 66 and map/game seeds 1018,
+  completed at `2026-09-28T02:56:43.351Z`. Immediate evidence contains 48
+  accepted-lake adjustments, one stable preexisting native lake and zero other
+  mismatches. A successful instrumented replay attributes all eight final
+  height changes: seven accepted-lake cells change in `modelRivers`, and one
+  Redwood footprint cell changes in `setFeatureType`. There is zero unexplained
+  late drift on this tested map, not a claim that every height survives all
+  native operations unchanged. Exact calls, build identity and native evidence
+  are recorded in [elevation.md](elevation.md). Normal and instrumented full
+  post-write/final payloads are byte-equivalent JSON. Temporary attribution
+  code is removed with the adapter source restored exactly and reverified.
+- Source commit `fd4802c616` on `agent-root-civ7-authored-elevation` passes a
+  final clean normal-build reload at turn 1, `2026-09-28T03:08:26.387Z`, using
+  the same saved Huge Earthlike/1018 setup. The clean-run receipt is
+  `/tmp/civ7-elevation-final-clean-live.log`; freshly decoded full numeric
+  payloads match the prior normal run exactly. A subsequent Explore completes
+  with all 6,996 plots revealed and visible; its receipt reports quiescence and
+  verified notification suspension/resumption. The clean map remains loaded.
+- The separate `saved-map-preset` launcher fix removes the filesystem path from
+  the public saved-config identity. Its 9 tests / 31 assertions, test typecheck
+  and formatting pass. The public saved-setup result reports 12 players while
+  recipe capture reports alive major IDs 0-9; these are not conflated. No
+  replacement roster is synthesized. The user confirmed map reveal completed
+  on the earlier normal run after the explore request timed out; its native
+  screenshot confirms visible map/cliff rendering, separately from numeric
+  attribution evidence.
+
+Graphite publication is deferred. The dry run is blocked by the unrelated empty
+ancestor `agent-root-civ7-control-service-rewrite` and would publish 10 unrelated
+PRs. Do not mutate that prior stack or publish those branches to clear this gate.
+The elevation-first native gate is satisfied for the tested setup. Implementation
+and proof are committed in the local Graphite stack; this does not authorize
+river work. Independent final source review found no actionable defects.
 
 ### Design Review Dispositions
 
@@ -281,9 +343,13 @@ references here rather than dumping generated evidence into documentation.
 
 ## Next Packet
 
-Start here, then read resources.md, elevation.md, rivers.md and studies.md. Confirm current
-Graphite tip and clean status; preserve the separate main edits. Current-source
-compatibility is verified; proceed through the approved actual-game probe gates
-before changing production elevation or river behavior. Discover resolved
-Nx targets and current CLI help rather than copying historical metrics aliases.
-Do not report live parity while run identity/correlation remains unresolved.
+Start here, then read resources.md, elevation.md and studies.md. Current-source
+compatibility, unchanged studies and bounded native elevation acceptance are
+verified. The enclosed-water classification is resolved without changing
+physical truth or lake placement. Exact native calls account for all eight
+post-write-to-final height changes. Retain those transformations and the
+evidence limits; do not generalize the tested setup into preservation of every
+numeric value or every map/wonder combination.
+River integration and unrelated stack publication remain deferred. Preserve the
+separate main edits and discover current owner commands rather than historical
+aliases. Studio remains available at `http://127.0.0.1:5173/` from this worktree.
