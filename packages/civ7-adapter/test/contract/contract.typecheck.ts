@@ -1,5 +1,6 @@
 import {
   createMockAdapter,
+  type CurrentMapElevationSnapshot,
   type EngineAdapter,
   type FeatureData,
   findCiv7StandardMapSizePreset,
@@ -18,6 +19,18 @@ const feature: FeatureData = {
 };
 
 adapter.setFeatureType(0, 0, feature);
+adapter.setElevation([0, -0.5, 1.25] as const);
+adapter.generateCliffsFromElevation();
+const elevationSnapshot: CurrentMapElevationSnapshot = adapter.readCurrentMapElevationSnapshot();
+if (elevationSnapshot.status === "available") {
+  const values: Float64Array = elevationSnapshot.values;
+  void values;
+} else {
+  // @ts-expect-error Unavailable elevation cannot masquerade as numeric readback.
+  elevationSnapshot.values;
+}
+// @ts-expect-error Native elevation dispatch takes an ordinary array, not a typed-array view.
+adapter.setElevation(new Float64Array(3));
 findCiv7StandardMapSizePreset("MAPSIZE_STANDARD");
 getCiv7RowLatitude({ firstRowLatitude: 90, exclusiveEndLatitude: -90 }, 1, 0);
 

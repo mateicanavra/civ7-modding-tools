@@ -18,12 +18,15 @@ import {
   RIVER_TYPE_NAVIGABLE,
 } from "@civ7/map-policy";
 import {
+  captureCurrentMapElevationSnapshot,
   captureCurrentMapLayer,
   captureCurrentRiverSurface,
+  copyElevationIntent,
   deriveRiverProjectionFromCurrentSurface,
 } from "./current-map-surface.js";
 import { getCiv7RowLatitude } from "./map-metadata.js";
 import type {
+  CurrentMapElevationSnapshot,
   CurrentRiverSurface,
   EngineAdapter,
   FeatureData,
@@ -400,7 +403,7 @@ export class MockAdapter implements EngineAdapter {
   private aliveMajorPlayerIds: readonly number[] | null;
 
   private terrainTypes: Int32Array;
-  private elevations: Int16Array;
+  private elevations: Float64Array;
   private rainfall: Uint8Array;
   private temperature: Uint8Array;
   private features: Int32Array;
@@ -438,6 +441,8 @@ export class MockAdapter implements EngineAdapter {
   readonly calls: {
     emitRuntimeWarning: string[];
     setMapInitData: Array<MapInitParams>;
+    setElevation: number[][];
+    generateCliffsFromElevation: number;
     designateBiomes: Array<{ width: number; height: number }>;
     addFeatures: Array<{ width: number; height: number }>;
     stampNaturalWonder: Array<{
@@ -508,7 +513,7 @@ export class MockAdapter implements EngineAdapter {
     const size = this.width * this.height;
 
     this.terrainTypes = new Int32Array(size).fill(config.defaultTerrainType ?? 0);
-    this.elevations = new Int16Array(size).fill(config.defaultElevation ?? 100);
+    this.elevations = new Float64Array(size).fill(config.defaultElevation ?? 100);
     this.rainfall = new Uint8Array(size).fill(config.defaultRainfall ?? 50);
     this.temperature = new Uint8Array(size).fill(config.defaultTemperature ?? 15);
     this.features = new Int32Array(size).fill(-1);
@@ -547,6 +552,8 @@ export class MockAdapter implements EngineAdapter {
     this.oceanTerrainId = this.getTerrainTypeIndex("TERRAIN_OCEAN");
     this.mountainTerrainId = this.getTerrainTypeIndex("TERRAIN_MOUNTAIN");
     this.calls = {
+      setElevation: [],
+      generateCliffsFromElevation: 0,
       emitRuntimeWarning: [],
       setMapInitData: [],
       designateBiomes: [],
@@ -972,6 +979,26 @@ export class MockAdapter implements EngineAdapter {
 
   buildElevation(): void {
     // No-op in mock
+  }
+
+  setElevation(values: readonly number[]): void {
+    const snapshot = copyElevationIntent(values, this.width, this.height);
+    this.elevations.set(snapshot);
+    this.calls.setElevation.push(snapshot);
+  }
+
+  generateCliffsFromElevation(): void {
+    // Record dispatch only: native cliff and terrain effects are not modeled.
+    this.calls.generateCliffsFromElevation++;
+  }
+
+  readCurrentMapElevationSnapshot(): CurrentMapElevationSnapshot {
+    return captureCurrentMapElevationSnapshot({
+      source: "mock",
+      width: this.width,
+      height: this.height,
+      read: (x, y) => this.getElevation(x, y),
+    });
   }
 
   modelRivers(_minLength: number, _maxLength: number, _navigableTerrain: number): void {
@@ -1640,6 +1667,8 @@ export class MockAdapter implements EngineAdapter {
     this.mapInfo = config.mapInfo ?? null;
     this.calls.emitRuntimeWarning.length = 0;
     this.calls.setMapInitData.length = 0;
+    this.calls.setElevation.length = 0;
+    this.calls.generateCliffsFromElevation = 0;
     this.calls.designateBiomes.length = 0;
     this.calls.addFeatures.length = 0;
     this.calls.stampNaturalWonder.length = 0;

@@ -6,6 +6,7 @@
  */
 
 import type {
+  CurrentMapElevationSnapshot,
   CurrentRiverSurface,
   EngineAdapter,
   FeatureData,
@@ -24,8 +25,10 @@ import type {
   VoronoiUtils,
 } from "@civ7/adapter";
 import {
+  captureCurrentMapElevationSnapshot,
   captureCurrentMapLayer,
   captureCurrentRiverSurface,
+  copyElevationIntent,
   deriveRiverProjectionFromCurrentSurface,
 } from "@civ7/adapter";
 import {
@@ -124,6 +127,8 @@ type Civ7TerrainBuilder = Readonly<{
   validateAndFixTerrain(): void;
   stampContinents(): void;
   buildElevation(): void;
+  setElevation?: (values: number[]) => void;
+  generateCliffsFromElevation?: () => void;
   modelRivers(minLength: number, maxLength: number, navigableTerrain: number): void;
   defineNamedRivers(): void;
   storeWaterData(): void;
@@ -622,6 +627,39 @@ export class Civ7Adapter implements EngineAdapter {
 
   buildElevation(): void {
     TerrainBuilder.buildElevation();
+  }
+
+  setElevation(values: readonly number[]): void {
+    const snapshot = copyElevationIntent(values, this.width, this.height);
+    if (
+      typeof TerrainBuilder === "undefined" ||
+      typeof TerrainBuilder.setElevation !== "function"
+    ) {
+      throw new Error("[Adapter] TerrainBuilder.setElevation is unavailable.");
+    }
+    TerrainBuilder.setElevation(snapshot);
+  }
+
+  generateCliffsFromElevation(): void {
+    if (
+      typeof TerrainBuilder === "undefined" ||
+      typeof TerrainBuilder.generateCliffsFromElevation !== "function"
+    ) {
+      throw new Error("[Adapter] TerrainBuilder.generateCliffsFromElevation is unavailable.");
+    }
+    TerrainBuilder.generateCliffsFromElevation();
+  }
+
+  readCurrentMapElevationSnapshot(): CurrentMapElevationSnapshot {
+    return captureCurrentMapElevationSnapshot({
+      source: "native",
+      width: this.width,
+      height: this.height,
+      read:
+        typeof GameplayMap !== "undefined" && typeof GameplayMap.getElevation === "function"
+          ? (x, y) => this.getElevation(x, y)
+          : undefined,
+    });
   }
 
   modelRivers(minLength: number, maxLength: number, navigableTerrain: number): void {

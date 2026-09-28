@@ -1,4 +1,5 @@
 import { createStep, defineStep, type StepEngineDecl, Type } from "@mapgen/authoring/index.js";
+import type { CurrentMapElevationSnapshot } from "@civ7/adapter";
 import type { MapContext } from "@mapgen/core/map-context.js";
 import { buildStepTestDependencies } from "@mapgen/testing/index.js";
 import type { IsEqual } from "type-fest";
@@ -32,6 +33,31 @@ const SurfaceStep = createStep(
 );
 
 declare const context: MapContext;
+const ElevationStep = createStep(
+  defineStep({
+    id: "exact-elevation-projection",
+    requires: [],
+    provides: [],
+    engine: ["setElevation", "generateCliffsFromElevation", "readCurrentMapElevationSnapshot"],
+  }),
+  {
+    run: (context, _config, _ops, dependencies) => {
+      dependencies.engine.setElevation(context, [0, 0.125] as const);
+      dependencies.engine.generateCliffsFromElevation(context);
+      const snapshot = dependencies.engine.readCurrentMapElevationSnapshot(context);
+      type SnapshotIsExact = Expect<IsEqual<typeof snapshot, CurrentMapElevationSnapshot>>;
+      void (undefined as unknown as SnapshotIsExact);
+      // @ts-expect-error Numeric native intent must be an ordinary array.
+      dependencies.engine.setElevation(context, new Float64Array(2));
+      // @ts-expect-error Elevation writes require the exact occurrence context first.
+      dependencies.engine.setElevation([0, 0.125]);
+      // @ts-expect-error Declaring the explicit writer does not grant the stock generator.
+      dependencies.engine.buildElevation(context);
+      return snapshot;
+    },
+  }
+);
+buildStepTestDependencies(ElevationStep, context);
 buildStepTestDependencies(SurfaceStep, context);
 // @ts-expect-error Engine-declaring step test dependencies require their exact active context.
 buildStepTestDependencies(SurfaceStep);

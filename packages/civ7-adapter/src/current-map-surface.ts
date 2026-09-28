@@ -1,4 +1,92 @@
-import type { CurrentRiverSurface, RiverProjectionResult } from "./types.js";
+import type {
+  CurrentMapElevationSnapshot,
+  CurrentRiverSurface,
+  RiverProjectionResult,
+} from "./types.js";
+
+function elevationGridSize(width: number, height: number): number {
+  const size = width * height;
+  if (
+    !Number.isSafeInteger(width) ||
+    width <= 0 ||
+    !Number.isSafeInteger(height) ||
+    height <= 0 ||
+    !Number.isSafeInteger(size)
+  ) {
+    throw new RangeError(
+      "Elevation grid requires positive safe integer dimensions and a safe tile count."
+    );
+  }
+  return size;
+}
+
+/** Admits and detaches a full ordinary JS array without choosing a native numeric scale. */
+export function copyElevationIntent(
+  values: readonly number[],
+  width: number,
+  height: number
+): number[] {
+  const size = elevationGridSize(width, height);
+  if (!Array.isArray(values)) {
+    throw new TypeError("Elevation intent must be an ordinary number array.");
+  }
+  if (values.length !== size) {
+    throw new RangeError(`Elevation intent requires ${size} values; received ${values.length}.`);
+  }
+  const snapshot = new Array<number>(size);
+  for (let index = 0; index < size; index++) {
+    const value = values[index];
+    if (typeof value !== "number" || !Number.isFinite(value)) {
+      throw new TypeError(`Elevation intent requires a finite number at plot ${index}.`);
+    }
+    snapshot[index] = value;
+  }
+  return snapshot;
+}
+
+/** Captures exact detached values, or an explicit unavailable observation without partial data. */
+export function captureCurrentMapElevationSnapshot(
+  input: Readonly<{
+    source: CurrentMapElevationSnapshot["source"];
+    width: number;
+    height: number;
+    read?: (x: number, y: number) => number;
+  }>
+): CurrentMapElevationSnapshot {
+  const { source, width, height, read } = input;
+  const size = elevationGridSize(width, height);
+  const identity = { source, width, height };
+  if (!read) {
+    return Object.freeze({ ...identity, status: "unavailable", reason: "getter-unavailable" });
+  }
+  const values = new Float64Array(size);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const plotIndex = y * width + x;
+      let value: number;
+      try {
+        value = read(x, y);
+      } catch {
+        return Object.freeze({
+          ...identity,
+          status: "unavailable",
+          reason: "read-failed",
+          plotIndex,
+        });
+      }
+      if (typeof value !== "number" || !Number.isFinite(value)) {
+        return Object.freeze({
+          ...identity,
+          status: "unavailable",
+          reason: "non-finite-value",
+          plotIndex,
+        });
+      }
+      values[plotIndex] = value;
+    }
+  }
+  return Object.freeze({ ...identity, status: "available", values });
+}
 
 type CurrentMapLayer = Int16Array | Int32Array | Uint8Array;
 

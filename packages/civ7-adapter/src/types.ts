@@ -208,6 +208,21 @@ export interface MapInitParams {
  */
 export type MapInfo = Partial<Civ7MapInfo>;
 
+/** Exact, detached row-major numeric observation; mock state is not native evidence. */
+export type CurrentMapElevationSnapshot = Readonly<{
+  source: "native" | "mock";
+  width: number;
+  height: number;
+}> &
+  (
+    | Readonly<{ status: "available"; values: Float64Array }>
+    | Readonly<{
+        status: "unavailable";
+        reason: "getter-unavailable" | "read-failed" | "non-finite-value";
+        plotIndex?: number;
+      }>
+  );
+
 /**
  * Adapter readback for deterministic lake projection.
  *
@@ -412,6 +427,9 @@ export interface EngineAdapter {
 
   /** Reads current engine elevations into fresh row-major signed storage. */
   readCurrentMapElevations(): Int16Array;
+
+  /** Reads exact numeric heights at index y * width + x without integer coercion. */
+  readCurrentMapElevationSnapshot(): CurrentMapElevationSnapshot;
 
   /**
    * Reads current biome ids into fresh row-major storage.
@@ -662,6 +680,12 @@ export interface EngineAdapter {
 
   /** Build elevation layer */
   buildElevation(): void;
+
+  /** Writes one finite ordinary-number array, indexed y * width + x, for the whole map. */
+  setElevation(values: readonly number[]): void;
+
+  /** Requests native cliff generation separately from elevation dispatch. */
+  generateCliffsFromElevation(): void;
 
   /**
    * Native wrapper for Civ7's high-level river materializer
