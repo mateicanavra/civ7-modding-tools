@@ -51,9 +51,10 @@ const EMPTY_NATURAL_WONDER_PLACEMENT = {
 } satisfies NaturalWonderPlacementCompatibility;
 
 const EMPTY_NATURAL_WONDER_PLAN_INPUT = {
-  version: 2,
+  version: 3,
   plannerInput: {
-    version: 1,
+    version: 2,
+    engineElevationSource: "mock",
     dimensions: TEST_MAP_SIZE.dimensions,
     wondersCount: 0,
     engineConstants: {
@@ -73,10 +74,11 @@ const EMPTY_NATURAL_WONDER_PLAN_INPUT = {
       configHash32: fnv1a32StringHex("{}"),
     },
     surfaceDigests: {
-      version: 1,
+      version: 2,
       plotCount: TEST_MAP_SIZE.dimensions.width * TEST_MAP_SIZE.dimensions.height,
       landMaskHash32: EMPTY_HASH32,
       elevationHash32: EMPTY_HASH32,
+      engineElevationsHash32: EMPTY_HASH32,
       aridityIndexHash32: EMPTY_HASH32,
       riverClassHash32: EMPTY_HASH32,
       lakeMaskHash32: EMPTY_HASH32,
@@ -358,12 +360,14 @@ describe("natural-wonder placement exact-log projection", () => {
 });
 
 describe("natural-wonder plan exact-log projection", () => {
-  it("projects stable coordinates and digest identity from a non-empty Civ7-sized plan", () => {
+  it.each([
+    240, 240.125,
+  ])("preserves elevation %s in stable coordinates and digest identity", (elevation) => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const plotIndex = 65;
     const y = Math.trunc(plotIndex / width);
     const x = plotIndex - y * width;
-    const expectedHash32 = fnv1a32StringHex(`p:${plotIndex}:${x}:${y}:30:2:240:750000`);
+    const expectedHash32 = fnv1a32StringHex(`p:${plotIndex}:${x}:${y}:30:2:${elevation}:750000`);
     const projection = projectStandardNaturalWonderPlanEvidence({
       width,
       height,
@@ -375,7 +379,7 @@ describe("natural-wonder plan exact-log projection", () => {
           plotIndex,
           featureType: 30,
           direction: 2,
-          elevation: 240,
+          elevation,
           priority: 0.75,
         },
       ],
@@ -395,7 +399,7 @@ describe("natural-wonder plan exact-log projection", () => {
           y,
           featureType: 30,
           direction: 2,
-          elevation: 240,
+          elevation,
           priorityPpm: 750_000,
         },
       ],
@@ -470,7 +474,7 @@ describe("placement exact-log producer protocol", () => {
         decodeBoundedJsonLogSeries(engineObservedLines, "NATURAL_WONDER_PLAN_V1")[0]?.payload
       ).toEqual(expectedPlan);
       expect(
-        decodeBoundedJsonLogSeries(engineObservedLines, "NATURAL_WONDER_PLAN_INPUT_V2")[0]?.payload
+        decodeBoundedJsonLogSeries(engineObservedLines, "NATURAL_WONDER_PLAN_INPUT_V3")[0]?.payload
       ).toEqual(EMPTY_NATURAL_WONDER_PLAN_INPUT);
       expect(
         decodeBoundedJsonLogSeries(engineObservedLines, "NATURAL_WONDER_PLACEMENT_V1")[0]?.payload

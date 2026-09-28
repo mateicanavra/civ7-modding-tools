@@ -25,7 +25,7 @@ const NaturalWonderPlanRowSchema = Type.Object(
     y: Type.Integer({ minimum: 0 }),
     featureType: Type.Integer(),
     direction: Type.Integer(),
-    elevation: Type.Optional(Type.Integer()),
+    elevation: Type.Optional(Type.Number()),
     priorityPpm: Type.Optional(Type.Integer({ minimum: 0, maximum: 1_000_000 })),
   },
   { additionalProperties: false }

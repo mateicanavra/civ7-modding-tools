@@ -52,7 +52,7 @@ const NaturalWonderPlacementIdentityProperties = {
 };
 
 const OptionalNaturalWonderPlacementElevation = Type.Optional(
-  Type.Integer({
+  Type.Number({
     description: "Resolved Civ7 elevation when the adapter progressed far enough to acquire it.",
   })
 );
@@ -73,7 +73,7 @@ const NaturalWonderPlacementOutcomeSchema = Type.Union(
       {
         status: Type.Literal("placed"),
         ...NaturalWonderPlacementIdentityProperties,
-        elevation: Type.Integer({
+        elevation: Type.Number({
           description: "Civ7 elevation applied to the successfully materialized wonder.",
         }),
       },
@@ -136,7 +136,7 @@ const NaturalWonderPlacementOutcomeSchema = Type.Union(
       {
         status: Type.Literal("rejected"),
         ...NaturalWonderPlacementIdentityProperties,
-        elevation: Type.Integer({
+        elevation: Type.Number({
           description: "Civ7 elevation applied before strict footprint readback failed.",
         }),
         reason: Type.Literal("readback-mismatch"),
@@ -361,7 +361,7 @@ function formatRejectionExample(
     `feature=${outcome.featureType}`,
     `plot=${outcome.plotIndex}`,
     `direction=${outcome.direction}`,
-    ...(outcome.elevation === undefined ? [] : [`elevation=${Math.trunc(outcome.elevation)}`]),
+    ...(outcome.elevation === undefined ? [] : [`elevation=${outcome.elevation}`]),
     `reason=${outcome.reason}`,
     ...rejectionEvidenceFields(outcome),
   ].join(" ");

@@ -16,7 +16,14 @@ const PlanNaturalWondersContract = defineOp({
     height: Type.Integer({ minimum: 1 }),
     wondersCount: Type.Integer({ minimum: 0 }),
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
-    elevation: TypedArraySchemas.i16({ description: "Elevation per tile (meters)." }),
+    elevation: TypedArraySchemas.i16({
+      description: "Physical normalized relief per tile, used only for suitability scoring.",
+    }),
+    engineElevations: Type.Immutable(
+      Type.Array(Type.Number(), {
+        description: "Exact current engine elevation per tile, used for native elevation floors.",
+      })
+    ),
     aridityIndex: TypedArraySchemas.f32({ description: "Aridity index per tile (0..1)." }),
     riverClass: TypedArraySchemas.u8({
       description: "Hydrology river class per tile (0=none,1=minor,>=2=major/projectable).",

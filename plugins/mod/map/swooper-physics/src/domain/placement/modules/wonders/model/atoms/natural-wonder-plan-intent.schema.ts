@@ -9,8 +9,9 @@ export const NaturalWonderPlanIntentSchema = Type.Object(
     plotIndex: Type.Integer({ minimum: 0 }),
     featureType: Type.Integer({ minimum: 0 }),
     direction: Type.Integer(),
-    elevation: Type.Integer({
-      description: "Planned Civ7 elevation value at the natural-wonder anchor.",
+    elevation: Type.Number({
+      description:
+        "Exact engine elevation observed when admitting the natural-wonder anchor, not a write intent.",
     }),
     priority: Type.Number({ minimum: 0, maximum: 1 }),
     fallbacks: Type.Optional(
@@ -21,14 +22,14 @@ export const NaturalWonderPlanIntentSchema = Type.Object(
               minimum: 0,
               description: "Linear map index of the alternate anchor.",
             }),
-            elevation: Type.Integer({
-              description: "Planned Civ7 elevation at the alternate anchor.",
+            elevation: Type.Number({
+              description: "Exact engine elevation observed when admitting the alternate anchor.",
             }),
           },
           {
             additionalProperties: false,
             description:
-              "One ranked alternate anchor with the elevation derived for that map cell.",
+              "One ranked alternate anchor with its engine elevation admission evidence.",
           }
         ),
         {

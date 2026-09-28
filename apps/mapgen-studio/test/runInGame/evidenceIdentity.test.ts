@@ -84,9 +84,10 @@ describe("Run in Game exact authorship evidence identity", () => {
 
   it("parses bounded Swooper evidence and completion log payloads for the same request chain", () => {
     const naturalWonderPlanInputPayload = {
-      version: 2,
+      version: 3,
       plannerInput: {
-        version: 1,
+        version: 2,
+        engineElevationSource: "native",
         dimensions: { width: 84, height: 54 },
         wondersCount: 7,
         engineConstants: {
@@ -106,10 +107,11 @@ describe("Run in Game exact authorship evidence identity", () => {
           configHash32: "cdcdcdcd",
         },
         surfaceDigests: {
-          version: 1,
+          version: 2,
           plotCount: 4536,
           landMaskHash32: "11111111",
           elevationHash32: "22222222",
+          engineElevationsHash32: "12341234",
           aridityIndexHash32: "33333333",
           riverClassHash32: "44444444",
           lakeMaskHash32: "55555555",
@@ -136,6 +138,7 @@ describe("Run in Game exact authorship evidence identity", () => {
           biomeType: 5,
           occupiedFeatureType: -1,
           elevation: 120,
+          engineElevation: 900.125,
           aridityPpm: 330000,
           riverClass: 1,
           lakeMask: 0,
@@ -151,6 +154,7 @@ describe("Run in Game exact authorship evidence identity", () => {
           biomeType: 5,
           occupiedFeatureType: -1,
           elevation: 90,
+          engineElevation: 950.625,
           aridityPpm: 660000,
           riverClass: 0,
           lakeMask: 1,
@@ -231,7 +235,7 @@ describe("Run in Game exact authorship evidence identity", () => {
             plannedHash32: "bbbbbbbb",
           },
         })}`,
-        `[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V2 ${JSON.stringify(naturalWonderPlanInputPayload)}`,
+        `[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V3 ${JSON.stringify(naturalWonderPlanInputPayload)}`,
         `[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 ${JSON.stringify({
           version: 1,
           plannedCount: 7,
@@ -383,7 +387,7 @@ describe("Run in Game exact authorship evidence identity", () => {
       ],
     });
     expect(logEvidence?.naturalWonderPlanInput).toEqual({
-      marker: "NATURAL_WONDER_PLAN_INPUT_V2",
+      marker: "NATURAL_WONDER_PLAN_INPUT_V3",
       payload: naturalWonderPlanInputPayload,
     });
     expect(logEvidence?.naturalWonderPlacement).toMatchObject({
@@ -619,6 +623,30 @@ describe("Run in Game exact authorship evidence identity", () => {
         seed: 42,
       })
     ).toBeUndefined();
+  });
+
+  it("does not admit retired planner-input evidence without the exact engine elevation surface", () => {
+    const lifecyclePayload = {
+      requestId,
+      canonicalConfigDigest: configHash,
+      launchEnvelopeDigest,
+      seed: 42,
+      dimensions: { width: 84, height: 54 },
+    };
+    const parsed = parseSwooperMapgenLogEvidence({
+      text: [
+        `[mapgen-evidence] ${JSON.stringify(lifecyclePayload)}`,
+        `[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V2 ${JSON.stringify({ version: 2, plannedCount: 0, rows: [] })}`,
+        `[mapgen-complete] ${JSON.stringify(lifecyclePayload)}`,
+      ].join("\n"),
+      requestId,
+      canonicalConfigDigest: configHash,
+      launchEnvelopeDigest,
+      seed: 42,
+    });
+
+    expect(parsed).toBeDefined();
+    expect(parsed?.naturalWonderPlanInput).toBeUndefined();
   });
 
   it("rejects the retired envelopeHash marker at the Swooper evidence boundary", () => {
