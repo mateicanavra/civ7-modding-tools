@@ -2,7 +2,7 @@ import { encodeBoundedJsonLogLines } from "@swooper/mapgen-core/lib/log";
 
 export const RIVER_PROBE = {
   id: "swooper-river-contract-v1",
-  diagnosticRevision: 3,
+  diagnosticRevision: 4,
   finalizationPasses: 1,
   width: 60,
   height: 38,
@@ -112,6 +112,38 @@ export function riverProbeExpectedReceiver({ x, y }: XY, direction: Direction, w
   return { x: wrapX ? (nextX + RIVER_PROBE.width) % RIVER_PROBE.width : nextX, y: y + offset.y };
 }
 
+// V4 asks whether elevated lakes admit land-only inlets and independent outlets without
+// a river through water. Civ levels lakes against their lowest shore; readbacks, not inputs, are evidence.
+export const RIVER_ELEVATED_LAKE_CONTROLS: readonly {
+  caseId: string;
+  lakeElevationInput: number;
+  shoreElevationInput: number;
+  cells: readonly XY[];
+  inlet: readonly (XY & { elevation: number })[];
+  outlet: readonly (XY & { elevation: number })[];
+}[] = [
+  { caseId: "elevated-open-lake", lakeElevationInput: 572, shoreElevationInput: 700,
+    cells: [{ x: 50, y: 18 }, { x: 51, y: 18 }, { x: 50, y: 19 }, { x: 51, y: 19 }],
+    inlet: [900, 850, 800, 750].map((elevation, i) => ({ x: 46 + i, y: 18, elevation })),
+    outlet: [450, 380, 310, 240, 170].map((elevation, i) => ({ x: 52 + i, y: 18, elevation })),
+  },
+  { caseId: "elevated-closed-lake", lakeElevationInput: 572, shoreElevationInput: 700,
+    cells: [{ x: 33, y: 23 }, { x: 34, y: 23 }, { x: 33, y: 24 }, { x: 34, y: 24 }],
+    inlet: [900, 850, 800, 750].map((elevation, i) => ({ x: 29 + i, y: 23, elevation })),
+    outlet: [],
+  },
+];
+
+function elevatedLakeShore(cells: readonly XY[], wrapX: boolean): XY[] {
+  const water = new Set(cells.map(key));
+  const shore = new Map<string, XY>();
+  for (const cell of cells) for (const direction of RIVER_DIRECTIONS) {
+    const point = riverProbeExpectedReceiver(cell, direction, wrapX);
+    if (!water.has(key(point))) shore.set(key(point), point);
+  }
+  return [...shore.values()];
+}
+
 /** Synthetic planned/accepted masks isolate the already-known mountain/volcano exclusions.
  * They are fixture inputs, not claims that Civ classified the accepted coast cells as lakes.
  */
@@ -133,6 +165,9 @@ export const RIVER_LAKE_CASES: readonly {
     { x: 24, y: 34, accepted: true, reason: "admitted" },
     { x: 25, y: 34, accepted: false, reason: "mountain" },
   ] },
+  ...RIVER_ELEVATED_LAKE_CONTROLS.map(({ caseId, cells }) => ({ caseId,
+    cells: cells.map((cell) => ({ ...cell, accepted: true, reason: "admitted" })),
+  })),
 ] as const;
 
 export function buildRiverProbeAtlas(wrapX: boolean): RiverProbeWrite[] {
@@ -177,6 +212,10 @@ export function buildRiverProbeAtlas(wrapX: boolean): RiverProbeWrite[] {
     add("marine-nav-minor-nav", x, 8, "WEST", x === 8 || x === 7 ? "MINOR" : "NAVIGABLE");
   add("lake-marine-extension", 42, 27, "SOUTHEAST", "NAVIGABLE");
   for (let x = 43; x <= 52; x++) add("lake-marine-extension", x, 26, "EAST", "NAVIGABLE");
+  for (const control of RIVER_ELEVATED_LAKE_CONTROLS) {
+    for (const { x, y } of control.inlet) add(control.caseId, x, y, "EAST", "MINOR", "inlet");
+    for (const { x, y } of control.outlet) add(control.caseId, x, y, "EAST", "NAVIGABLE", "outlet");
+  }
   if (wrapX) {
     add("seam-east-even-minor", 59, 6, "EAST", "MINOR");
     add("seam-east-odd-navigable", 59, 11, "EAST", "NAVIGABLE");
@@ -196,7 +235,7 @@ export function riverProbeTerrainAt(x: number, y: number, wrapX: boolean): Terra
   return "FLAT";
 }
 
-/** V3 changes only named controls. In particular, the original lake's zero heights stay untouched. */
+/** Named controls only. V4 preserves every V3 sample, including the original zero-height lake. */
 export function buildRiverProbeElevation(wrapX: boolean): number[] {
   const values = Array.from({ length: RIVER_PROBE.width * RIVER_PROBE.height }, (_, i) => {
     const x = i % RIVER_PROBE.width;
@@ -210,6 +249,11 @@ export function buildRiverProbeElevation(wrapX: boolean): number[] {
   for (let x = 3; x <= 8; x++) values[index({ x, y: 13 })] = 160 + 4 * (x - 3);
   for (const y of [12, 14]) for (const x of [9, 10]) values[index({ x, y })] = 160 + 4 * (x - 3);
   for (let x = 3; x <= 10; x++) values[index({ x, y: 8 })] = 160 + 4 * (x - 3);
+  for (const control of RIVER_ELEVATED_LAKE_CONTROLS) {
+    for (const cell of control.cells) values[index(cell)] = control.lakeElevationInput;
+    for (const point of elevatedLakeShore(control.cells, wrapX)) values[index(point)] = control.shoreElevationInput;
+    for (const point of [...control.inlet, ...control.outlet]) values[index(point)] = point.elevation;
+  }
   return values;
 }
 
@@ -331,18 +375,23 @@ export function registerRiverContractProbe(proofId: string, variant: RiverProbeV
       const volcano = requireInteger(GameInfo.Features.find((row) => row.FeatureType === "FEATURE_VOLCANO")?.$index, "FEATURE_VOLCANO");
       const nativeRivers = typeof MapRivers === "undefined" ? undefined : MapRivers;
       const noDirection = requireInteger(typeof DirectionTypes === "undefined" ? undefined : DirectionTypes.NO_DIRECTION, "DirectionTypes.NO_DIRECTION");
+      const heights = buildRiverProbeElevation(wrapX);
+      const elevatedLakeControls = RIVER_ELEVATED_LAKE_CONTROLS.map((control) => ({ ...control,
+        shore: elevatedLakeShore(control.cells, wrapX).map((point) => ({ ...point, elevationInput: heights[index(point)] })),
+      }));
       emit(stage, { ...RIVER_PROBE, actualSeed: GameplayMap.getRandomSeed(), settings, terrainIds, classes, directions, players, starts,
         wrapX: requestedWrapX ?? unavailable("RequestMapInitData.wrapX", "missing-boolean"),
         seam: wrapX ? { status: "included", count: 4 } : { status: "skipped", reason: requestedWrapX === false ? "wrapX-false" : "wrapX-unavailable" },
         order: "x + y * width", nativeIndices: grid.map(({ x, y }) => GameplayMap.getIndexFromXY(x, y)),
         lakeCases: RIVER_LAKE_CASES, lakeEvidence: "synthetic planned/accepted fixture inputs; native isLake observed separately",
+        elevatedLakeControls,
+        elevatedLakeEvidence: "land-only writes; inlet and outlet authored separately; no river object through water required; native elevation readbacks, not setter inputs, determine lake/shore gradients",
         atlas: writes, slopeControls: RIVER_SLOPE_CONTROLS,
         expectedReceiverEvidence: "independent odd-row geographical hypothesis; native adjacency logged separately",
         passiveMembers: { GameplayMap: passiveMembers(GameplayMap, "GameplayMap"), MapRivers: passiveMembers(nativeRivers, "MapRivers") },
         observationLaw: "Native false and zero are observations; missing, throwing, and unexpected readbacks are unavailable, never false or zero.",
         edgeDirectionReadback: unavailable("river-edge/direction", "no-confirmed-getter; adjacency is not river direction parity"),
         checkpoints: RIVER_CHECKPOINTS });
-      const heights = buildRiverProbeElevation(wrapX);
       for (const { x, y } of grid) {
         const terrain = riverProbeTerrainAt(x, y, wrapX);
         TerrainBuilder.setTerrainType(x, y, terrainIds[terrain]!);
@@ -357,7 +406,7 @@ export function registerRiverContractProbe(proofId: string, variant: RiverProbeV
       TerrainBuilder.setElevation(heights);
       TerrainBuilder.storeWaterData();
       const samplePoints = new Map<string, XY>();
-      for (const point of [...writes, ...writes.map((write) => write.expectedReceiver), ...RIVER_LAKE_CASES.flatMap((entry) => entry.cells), ...starts]) samplePoints.set(key(point), { x: point.x, y: point.y });
+      for (const point of [...writes, ...writes.map((write) => write.expectedReceiver), ...RIVER_LAKE_CASES.flatMap((entry) => entry.cells), ...elevatedLakeControls.flatMap((entry) => entry.shore), ...starts]) samplePoints.set(key(point), { x: point.x, y: point.y });
       // Nearby unwritten controls expose freshwater/adjacency without equating them with network identity.
       for (const write of writes.filter((write) => write.caseId.startsWith("isolated"))) {
         const point = { x: write.x, y: write.y + 1 };
