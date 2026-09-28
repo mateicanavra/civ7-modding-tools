@@ -186,9 +186,95 @@ basis for this witness. Native numeric lake elevations differ from neighboring
 dry elevations, but lake leveling and the native land-floor transform mean those
 numbers are **not** a qualified water-surface or uphill-flow measurement.
 
-Next discriminator: regenerate this full map twice with identical heights,
-dry writes and finalization. In B only, add the known wet outlet edges of bodies
-56 and 59, both northwest to their existing dry navigable receivers. Observe
-native membership, cached connectivity and matched views; preserve the normal
-map and restore it after the test. This remains pending native qualification,
-not an approved blanket wet-path or terrain change.
+The first native discriminator regenerated this full map twice with identical
+heights, dry writes and finalization. B alone added the known wet outlet edges
+of bodies 56 and 59, both northwest to their existing dry navigable receivers.
+The observations cover native membership, cached connectivity and matched
+views. Results below qualify only this two-edge intervention, not blanket
+wet-path or terrain changes.
+
+### Large-Lake Photo Comparison
+
+The user's follow-up photo matches `wide-03-eastern-cool-network.png`, centered
+at `(82,8)`. Its central body 42 has five wet cells, all observed as native lakes.
+This makes a single-tile-only explanation insufficient. The photographed broad
+channels are one inlet and one outlet, not two inflows:
+
+| Position in photo | Physical edge | Authored class | Physical height | Wet-source write |
+| --- | --- | --- | --- | --- |
+| Broad upper-left | `(85,10) -> (86,10)` | NAV inlet | 38 to lake 37 | Not needed; dry source written |
+| Broad lower-left | `(85,9) -> (84,9)` | Lake exit to NAV | lake 37 to 37 | Omitted |
+| Narrow upper-right | `(88,10) -> (87,10)` | MINOR inlet | 38 to lake 37 | Not needed; dry source written |
+| Narrow lower-right | `(87,9) -> (87,10)` | MINOR inlet | 37 to lake 37 | Not needed; dry source written |
+
+Fresh normal-map readback at `2026-09-28T15:24:05Z` agrees with the retained
+classes/heights. All five wet cells have native numeric height 260; dry inlet
+sources are 398 and 388, and the dry navigable outlet is 388. All six directional
+cliff flags were false at each queried wet and adjoining channel cell. The
+upper-right minor source is native hill terrain; the lower-right is flat.
+Neither these numeric heights nor the picture qualifies native flow direction.
+Receipts are `coherence-large-lake-witness.json` and `coherence-live-summary.json`
+beside the gallery.
+
+Bodies 56 and 59 in the first A/B are both single-tile lakes, with physical
+outflows approximately 4,108 and 2,722 model units. Body 42 has outflow about
+2,967 despite its larger footprint. Lake area and navigable class are selected
+by different computations; no evidence yet supports a minimum two- or three-tile
+lake rule. Keep the two-edge A/B unchanged and use this five-tile body as an
+observational comparison rather than changing geometry to fit a hypothesis.
+
+### Full-Map Wet-Outlet A/B
+
+Both cold-start runs completed in Civ7 1.5.0, Huge 106x66, map/game seed 1018,
+ten players, using `ToT_NoModsExceptMaps`. The test-only app fixture adds zero
+native writes in A (`full-map-observe`) and exactly two in B
+(`full-map-wet-outlets`). Canonical generation, source configuration, all 656
+dry writes, one 6,996-cell elevation input and the single finalization tuple
+`false,25,2,2` are identical. Their hashes also match the prior normal-map
+capture. Production lake-footprint assertions remain enabled.
+
+| Observation | Result |
+| --- | --- |
+| All intended and observed native elevation cells | Identical, after elevation write and at completion |
+| All 656 classified dry sources | Same class in both runs |
+| Wet outlet cells | Remain lake/coast with class -1, even immediately after the extra setter calls |
+| Qualified native network records | Same 184 IDs, plot counts, membership digests and focus memberships |
+| Sampled directed cliff flags | All six false, unchanged |
+| Cached ocean connection at `(86,29)` | A false; B true after both cache passes |
+| Completed-game ocean read at `(86,29)` | B returns false again; generation-time readback change does not persist |
+| Other sampled connectivity, including body 42 | Unchanged |
+| Fresh public 320-plot neighborhood | No terrain, height, class, feature, climate or area-field differences |
+
+The added writes therefore are **not wholly ignored during generation**: at
+least one native connectivity readback changes temporarily. A fresh App UI
+read at `2026-09-28T15:49:42Z` returns false again at `(86,29)`, so this is not
+a demonstrated lasting connection repair. A wet setter does not turn the lake into a
+river terrain, and matching river memberships do not describe all native
+connectivity. The post-cache change is not proof of a rendered shoreline repair,
+a native directed edge, or Galley passage. In particular, this experiment does
+not intervene on the five-tile lake in the user's photo.
+
+The matched native views show different channel shapes, with broader reaches
+in A and narrower reaches in B around the tested junction. Neither improvement
+nor causation is established: uncontrolled native mesh variation remains a
+possible explanation. The report retains only camera-verified, fully explored
+frames, excluding premature fog-only captures.
+
+Do not ship a two/three-tile lake minimum or lower surrounding terrain on this
+evidence. The next native question is shoreline rendering and water-surface
+semantics, with an actual larger-lake outlet intervention if needed; keep that
+separate from the physical erosion/routing design. The wet-source policy needs
+reconsideration, but not as an assumed complete visual fix.
+
+The [native comparison report](https://mateis-macbook-pro.taild8da1c.ts.net/civ/native-wet-outlet-ab/index.html)
+and its raw receipts live beside the existing gallery. A/B proof IDs are
+`wet-outlet-a-1018` and `wet-outlet-b-1018`. Built and installed bundle SHA-256
+values were checked equal for each run; transport decoding recovered every
+probe/completion part. The application check/test graph passed 142 tests and
+18,545 assertions, and both native live-verification targets passed. No
+production configuration or algorithm is changed by this fixture.
+
+After the experiment, a cold-start normal Huge Earthlike map was restored with
+the same seeds, players and saved configuration. Its live verifier completed
+at `2026-09-28T15:57:25Z`; `restore-live-verification.log` beside the report
+preserves the receipt. The normal script does not import the test fixture.
