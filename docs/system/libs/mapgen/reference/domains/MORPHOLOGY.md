@@ -386,9 +386,10 @@ vintage reconciled against the selected sea-level datum.
 
 #### `morphology/compute-shelf-mask` → `{ shelfMask, activeMarginMask, depthGateMask, nearshoreCandidateMask, shelfBreakDepthByTile, shallowCutoff }`
 
-Classifies the post-island continental shelf as shoreline-connected water on the
-gentle side of the local bathymetric-gradient break. Boundary proximity is used
-only for the active-margin diagnostic; it does not determine shelf membership.
+Classifies gentle, shoreline-connected continental-crust water and retains the
+mandatory shoreline ring. Oceanic or steep ring cells cannot seed or bridge the
+continental flood. Boundary proximity is used only for the active-margin
+diagnostic; it does not determine shelf membership.
 
 **Ground truth anchors**
 
@@ -466,6 +467,11 @@ Plans mountain ridge intent from belt-driver and topography truth. This op is
 kept separate from foothills so the recipe can expose each strategy definition
 without preserving the retired combined op as a compatibility lane.
 
+The range-growth strategy admits mountains only where final ground descends
+by at least four model units to a land neighbor, with tectonic support. The
+same admission applies to shoulders, corridors and coverage recovery. A range
+can contain unsupported flat passes without turning them into mountains.
+
 **Ground truth anchors**
 
 - `plugins/mod/map/swooper-physics/src/domain/morphology/modules/landforms/ops/plan-ridges/contract.ts` (`PlanRidgesContract`)
@@ -476,6 +482,12 @@ without preserving the retired combined op as a compatibility lane.
 Plans foothill intent from the ridge mask and the same belt-driver/topography
 fields. The shared mountain config family remains named because ridge and
 foothill classification must use one invariant terrain-classification posture.
+
+Foothills and rough-land hills require at least two model units of absolute
+land-neighbor relief. All three planners share the radius-one relief measurement and
+16-unit support normalization. These are empirical gameplay classification
+floors, not calibrated Earth slope angles; water-only cliffs and absolute
+altitude cannot supply this admission. Classification never changes ground.
 
 **Ground truth anchors**
 

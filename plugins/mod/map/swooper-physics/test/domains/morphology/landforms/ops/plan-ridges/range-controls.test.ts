@@ -35,6 +35,10 @@ function createRidgeInput(width: number, height: number) {
     width,
     height,
     landMask: new Uint8Array(size).fill(1),
+    elevation: Int16Array.from(
+      { length: size },
+      (_, index) => ((index % width) + Math.floor(index / width)) * 16
+    ),
     boundaryCloseness,
     boundaryType,
     upliftPotential,

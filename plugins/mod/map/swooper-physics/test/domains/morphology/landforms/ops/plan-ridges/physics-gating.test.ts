@@ -34,6 +34,7 @@ describe("plan-ridges physics gating", () => {
         width,
         height,
         landMask,
+        elevation: Int16Array.from({ length: size }, (_, index) => index * 16),
         boundaryCloseness,
         boundaryType,
         upliftPotential,
