@@ -106,3 +106,26 @@ Retained raw proof lives under the documented VisualAtlas root at
 `huge-1018/native-wet-outlet-ab/v9-{proof.json,live.log,scripting.log}`.
 The [stack consolidation](stack-consolidation.md) changes review boundaries,
 not this runtime result.
+
+## First Treatment Attempt
+
+V10 confirms that the documented map criterion activates: the captured native
+Huge row contained cutoff20. Generation then refused before terrain generation
+because the ordinary setup projector labeled that modified row `civ7-preset`,
+whose admission correctly requires the exact official cutoff10. This attempt
+is excluded from hydraulic or visual comparisons. Raw refusal and the failed
+live verifier are retained as `v10-refused-scripting.log` and `v10-live.log`.
+
+The corrected diagnostic declares the existing `custom` selection shape while
+retaining the real native row, dimensions, capacity and option evidence. It
+must verify that cutoff is the only changed official Huge field. Normal preset
+admission stays unchanged; no forged cutoff10 is supplied to the recipe. The
+new revision must still prove identical physical arrays and river/elevation
+intents before attributing any native difference to classification.
+
+V11's owning check/test graph passed (161 tests, 20,840 assertions), including
+the unchanged official-preset refusal and truthful custom-selection admission.
+The diagnostic build and deployment agree for script, modinfo, database XML
+and proof manifest; `v11-install-identity.json` retains all four digests. Script
+SHA256: `f1886458ff09db182c6f626c7436b5c1a0c18a16c5f7f2c728acc4accec83c6a`.
+This is installation evidence only until the corrected native run completes.
