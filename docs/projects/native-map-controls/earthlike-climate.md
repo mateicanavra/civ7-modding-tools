@@ -5,7 +5,8 @@
 Prepared by root, 2026-09-27. Source baseline: `40a74b5206` after native
 elevation acceptance. Owner: `plugins/mod/map/swooper-physics` unless raw
 diagnostics falsify the definition hypothesis. Status: headless acceptance
-passes under the explicit E2.5 amendment; native proof pending.
+passes under the explicit E2.5 amendment; saved Huge Earthlike native proof
+passes for map/game seed 1018. River qualification may proceed.
 
 ### Frame
 
@@ -349,3 +350,44 @@ wind/pressure study pass after canonical edits (seven studies, nine scenarios).
 Focused config/domain tests pass 13/13. Full integrated proof remains required.
 Receipts: `/tmp/civ7-shipped-ecology-canonical-verified.json` and
 `/tmp/civ7-shipped-ecology-width-paired-report.json`.
+
+### Native Acceptance
+
+Source commits `692aabf476` (climate/ecology) and `ba91efcc29` (resource
+selection) deploy through `swooper-physics-mod:deploy`. The public live verifier
+loads saved `ToT_NoModsExceptMaps`, Swooper Earthlike, Huge 106 x 66, map/game
+seeds 1018, with no roster replacement. Completion is fresh at
+`2026-09-28T04:41:16.717Z`, turn 1. Built and deployed script SHA-256 both equal
+`aedd0322623bd33986906ac578095bb6d874b4d82c2885a63e164078071039da`.
+Receipts: `/tmp/civ7-climate-native-live.log` and the isolated fresh suffix
+`/tmp/civ7-climate-native-scripting.log`.
+
+Immediate elevation evidence admits 45 authored lake adjustments and the same
+stable preexisting native lake, with zero non-lake mismatches. Final water,
+accepted-lake water and lake-classification drift are all zero. Ten numeric
+heights change later: the same seven accepted-lake cells previously attributed
+to procedural river modeling, plus three adjacent cells in the placed feature
+33 footprint. A public native grid read confirms that feature on all three
+cells (`/tmp/civ7-climate-wonder-footprint.json`). This is footprint correlation,
+not a new call-by-call attribution replay or a claim of zero terminal drift.
+
+Native placement applies 1,252/1,260 feature intents, including six rainforest,
+42 forest and 54 savanna-woodland features. Resources apply 204/215 intents and
+retain all 34 planned types with zero readback mismatch. The eleven native
+legality rejections remain reported (pre-climate: 12/214 rejected); do not
+conflate headless closure with perfect native admission. Five of seven wonders
+place, with the same two feature types refused as in the pre-climate run.
+Neither preexisting admission gap is silently claimed fixed by this lane.
+
+The existing Explore operation then reveals and makes visible all 6,996 plots,
+reports quiescence and verified notification suspension/resumption, and leaves
+the map available for inspection. Receipt:
+`/tmp/civ7-climate-native-explore.json`; screenshot:
+`/tmp/civ7-earthlike-climate-native.png`. The rendered terrain is nonblank and
+the minimap is fully revealed. Regional climate metrics remain definition-side
+evidence; this native test verifies loading, rendering and downstream native
+outcomes, not an independent runtime rainfall measurement.
+A separate all-6,996-plot biome grid request timed out on the legacy public
+read path; no complete native biome-array comparison is claimed. The bounded
+three-plot wonder read succeeded. Do not expand the Controller migration to
+clear this optional climate observation.
