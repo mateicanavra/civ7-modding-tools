@@ -3,6 +3,7 @@ import { admitMapSetup } from "@swooper/mapgen-core";
 import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 import { Value } from "typebox/value";
 
+import { artifacts as foundationProjectionArtifacts } from "../../../../../../../../src/domain/foundation/modules/projection/artifacts/index.js";
 import morphologyShelfStage from "../../../../../../../../src/recipes/standard/stages/morphology/shelf/index.js";
 import { config as computeShelfStepConfig } from "../../../../../../../../src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/config.js";
 import { ComputeShelfStep } from "../../../../../../../../src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/step.js";
@@ -42,6 +43,10 @@ function normalizeShelfWidth(shelfWidth: "narrow" | "normal" | "wide") {
 }
 
 describe("morphology compute-shelf authoring", () => {
+  it("declares the existing Foundation crust projection as shelf support", () => {
+    expect(computeShelfStepConfig.requires).toContain(foundationProjectionArtifacts.crustTiles);
+  });
+
   it("scales the authored break-gradient threshold for narrow and wide postures", () => {
     const neutral = normalizeShelfWidth("normal").shelfMask.config.breakGradientScale;
     const narrow = normalizeShelfWidth("narrow").shelfMask.config.breakGradientScale;

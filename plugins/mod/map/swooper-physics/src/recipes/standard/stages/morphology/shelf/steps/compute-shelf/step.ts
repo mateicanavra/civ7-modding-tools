@@ -44,6 +44,7 @@ export const ComputeShelfStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
     const size = width * height;
+    const crustTiles = deps.artifacts.crustTiles.read();
     const beltDrivers = deps.artifacts.beltDrivers.read();
     const topography = deps.artifacts.topography.read();
 
@@ -58,7 +59,7 @@ export const ComputeShelfStep = createStep(config, {
     );
 
     // 2) Post-island distance to coast for the published coastline diagnostic. Shelf
-    //    membership is determined only by local gradient and shoreline connectivity.
+    //    membership uses continental support, local gradient, and shoreline connectivity.
     const coastal = new Uint8Array(size);
     for (let i = 0; i < size; i++) {
       coastal[i] = coastalLand[i] === 1 || coastalWater[i] === 1 ? 1 : 0;
@@ -68,13 +69,14 @@ export const ComputeShelfStep = createStep(config, {
       stepConfig.distanceToCoast
     );
 
-    // 3) Cap-free local-gradient shelf over post-island geography. Boundary posture is
-    //    supplied only for the active-margin diagnostic overlay.
+    // 3) Cap-free continental shelf over post-island geography. Crust type supplies physical
+    //    support; boundary posture supplies only the active-margin diagnostic overlay.
     const shelfResult = ops.shelfMask(
       {
         width,
         height,
         landMask,
+        crustType: crustTiles.type,
         bathymetry,
         distanceToCoast,
         boundaryCloseness: beltDrivers.boundaryCloseness,
@@ -272,15 +274,15 @@ export const ComputeShelfStep = createStep(config, {
       meta: defineStandardVizCategoryMeta(
         "morphology.shelf.nearshoreCandidateMask",
         [
-          { value: 0, label: "Not A Seed", color: STANDARD_VIZ_COLORS.absent },
-          { value: 1, label: "Shoreline Seed", color: STANDARD_VIZ_COLORS.water.coast },
+          { value: 0, label: "Not Shoreline", color: STANDARD_VIZ_COLORS.absent },
+          { value: 1, label: "Shoreline Water", color: STANDARD_VIZ_COLORS.water.coast },
         ],
         {
-          label: "Shoreline Connectivity Seeds",
+          label: "Shoreline Connectivity Candidates",
           group: GROUP_SHELF,
           visibility: "debug",
           description:
-            "Shoreline-adjacent water tiles that seed connectivity across the gentle pre-break apron.",
+            "All shoreline-adjacent water. Only gentle continental candidates seed connectivity; the remaining ring never seeds or bridges the flood.",
           role: "membership",
         }
       ),
@@ -294,15 +296,15 @@ export const ComputeShelfStep = createStep(config, {
       meta: defineStandardVizCategoryMeta(
         "morphology.shelf.depthGateMask",
         [
-          { value: 0, label: "Rejected At Break", color: STANDARD_VIZ_COLORS.water.ocean },
-          { value: 1, label: "Admitted Pre-Break", color: STANDARD_VIZ_COLORS.water.coast },
+          { value: 0, label: "Ineligible For Flood", color: STANDARD_VIZ_COLORS.water.ocean },
+          { value: 1, label: "Eligible For Flood", color: STANDARD_VIZ_COLORS.water.coast },
         ],
         {
-          label: "Gentle-Gradient Admission",
+          label: "Continental Gentle-Gradient Admission",
           group: GROUP_SHELF,
           visibility: "debug",
           description:
-            "Water admitted by the gentle local-gradient gate; shoreline seeds are admitted even when their immediate seaward gradient is steep.",
+            "Continental water passing the gentle local-gradient gate. Shoreline water on oceanic crust or at a steep break stays coast without carrying the flood.",
           role: "membership",
         }
       ),

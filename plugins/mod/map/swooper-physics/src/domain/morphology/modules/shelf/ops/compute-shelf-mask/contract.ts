@@ -4,13 +4,16 @@ import strategyDefinition from "./strategies/physical-break-connectivity/config.
 /**
  * Computes a continental-shelf water mask for projecting to Civ7 TERRAIN_COAST.
  *
- * Physics: shelf = water that is (a) on the GENTLE pre-break apron (local seabed gradient
- * below the break-gradient threshold) AND (b) flood-connected to the shoreline. The break is
+ * Physics: shelf = water that is (a) on continental crust, (b) GENTLE (local seabed gradient
+ * below the break-gradient threshold), and (c) flood-connected to eligible shoreline water.
+ * Crust type distinguishes the continental apron and inland seas from a smooth oceanic abyss.
+ * The shoreline ring is always included, but ineligible ring tiles never seed or bridge the flood.
+ * The break is
  * READ from the sculpted margin terrain (where the seabed gradient steepens into the slope),
  * not invented from a depth quantile. Passive margins yield broad shelves, active margins
  * narrow ones — because the sculpt already carved those postures into the terrain the gradient
- * reads. No tile-distance caps and no datum reference; the only bounds are the gradient
- * steepening (terrain-read) and shore connectivity (BFS).
+ * reads. No tile-distance caps and no datum reference; continental support, gradient
+ * steepening (terrain-read), and shore connectivity (BFS) bound the flood.
  */
 const ComputeShelfMaskContract = defineOp({
   kind: "compute",
@@ -19,6 +22,10 @@ const ComputeShelfMaskContract = defineOp({
     width: Type.Integer({ minimum: 1, description: "Map width in tiles." }),
     height: Type.Integer({ minimum: 1, description: "Map height in tiles." }),
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
+    crustType: TypedArraySchemas.u8({
+      description:
+        "Foundation crust type per tile (0=oceanic, 1=continental). Only continental water can seed or carry shelf connectivity; the shoreline ring remains independent.",
+    }),
     bathymetry: TypedArraySchemas.i16({
       description:
         "Bathymetry per tile in engine elevation units (elevation - seaLevel), not real metres: 0 on land; <=0 in water; closer to 0 is shallower.",
@@ -38,7 +45,7 @@ const ComputeShelfMaskContract = defineOp({
   output: Type.Object({
     shelfMask: TypedArraySchemas.u8({
       description:
-        "Mask (1/0): gentle pre-break shelf water (seabed gradient below the break-gradient threshold AND connected to shore) eligible for TERRAIN_COAST.",
+        "Mask (1/0): shoreline-ring water plus shore-connected gentle continental water eligible for TERRAIN_COAST. Ineligible ring water never seeds or carries connectivity.",
     }),
     activeMarginMask: TypedArraySchemas.u8({
       description:
@@ -46,11 +53,11 @@ const ComputeShelfMaskContract = defineOp({
     }),
     depthGateMask: TypedArraySchemas.u8({
       description:
-        "Mask (1/0): water tiles passing the gentle-gradient gate (local seabed gradient below the break-gradient threshold = pre-break apron).",
+        "Mask (1/0): continental water passing the gentle-gradient gate, eligible to seed or carry shelf connectivity. Does not include an unconditional shoreline override.",
     }),
     nearshoreCandidateMask: TypedArraySchemas.u8({
       description:
-        "Mask (1/0): water tiles directly adjacent to land (the shoreline-ring shelf seeds for the connectivity flood).",
+        "Mask (1/0): all water tiles directly adjacent to land. Only candidates also passing depthGateMask seed the connectivity flood.",
     }),
     shelfBreakDepthByTile: TypedArraySchemas.i16({
       description:
