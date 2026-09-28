@@ -24,7 +24,6 @@ export const config = defineStep({
     "readCurrentMapBiomeTypes",
     "readCurrentMapFeatureTypes",
     "readCurrentMapWaterMask",
-    "isResourceRequiredForAge",
   ] as const,
   requires: [
     STANDARD_COMPLETIONS.surfacePrepared,

@@ -4,6 +4,7 @@ import { RegionCell, WrapType } from "/base-standard/scripts/voronoi-utils.js";
 import { Rule, ScoringContext } from "/base-standard/scripts/voronoi_rules/rules-base.js";
 export interface RegionIdPos {
     regionId: number;
+    regionGroupId: number;
     pos: float2;
 }
 export declare class RuleNearOtherRegion extends Rule {

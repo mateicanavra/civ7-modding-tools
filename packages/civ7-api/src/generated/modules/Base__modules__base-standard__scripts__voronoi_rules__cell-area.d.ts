@@ -5,6 +5,7 @@ export declare class RuleCellArea extends Rule {
     configValues: any;
     name: string;
     description: string;
+    isStatic: boolean;
     private m_diff;
     private m_invBias;
     static getName(): string;

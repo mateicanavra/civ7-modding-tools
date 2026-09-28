@@ -12,7 +12,7 @@ interface PlateSettings extends GeneratorSettingRecord {
     voronoiCellRatio: number;
     plateRotationMultiple: number;
 }
-interface LandmassSettings extends GeneratorSettingRecord {
+export interface LandmassSettings extends GeneratorSettingRecord {
     enabled: boolean;
     groupId: number;
     size: number;
@@ -28,6 +28,7 @@ interface LandmassSettings extends GeneratorSettingRecord {
     coastalIslandsMaxDistance: number;
     coastalIslandsSize: number;
     coastalIslandsSizeVariance: number;
+    ruleSetKey: string | undefined;
 }
 interface IslandSettings extends GeneratorSettingRecord {
     factor: number;
@@ -60,7 +61,7 @@ export interface ContinentGeneratorSettings extends GeneratorSettingRecord {
     mountain: MountainSettings;
     volcano: VolcanoSettings;
 }
-type ContinentRuleCategories = "Plates" | "Landmasses" | "Coastal Islands" | "Islands" | "Erosion" | "Mountains" | "Volcanoes" | "Elevation";
+type ContinentRuleCategories = "Plates" | (string & {}) | "Coastal Islands" | "Islands" | "Erosion" | "Mountains" | "Volcanoes" | "Elevation";
 export declare const continentGeneratorSchema: GeneratorSchema;
 export declare const continentGeneratorRulesSettings: RulesSchema<ContinentRuleCategories>;
 export declare class ContinentGenerator extends MapGenerator {
@@ -71,8 +72,9 @@ export declare class ContinentGenerator extends MapGenerator {
     private m_plateBoundaries;
     private m_platesDiagram;
     private m_plateCells;
+    private m_landmassRuleSetNames;
     protected m_rules: Record<ContinentRuleCategories, Record<string, Rule>>;
-    constructor(generatorSchema: typeof continentGeneratorSchema, rulesSettings: typeof continentGeneratorRulesSettings);
+    constructor(generatorSchema: typeof continentGeneratorSchema, rulesSettings: typeof continentGeneratorRulesSettings, landmassRuleSetNames?: readonly string[]);
     getDefaultGeneratorSettings(): ConfigValueRecord;
     getDefaultRuleSettings(): RuleConfigValueRecord;
     getSchema(): GeneratorSchema;

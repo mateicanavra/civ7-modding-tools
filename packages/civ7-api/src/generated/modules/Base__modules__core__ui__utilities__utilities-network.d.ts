@@ -14,4 +14,5 @@ export declare namespace NetworkUtilities {
     }
     function multiplayerAbandonReasonToPopup(reason: number): AbandonReasonPopup;
     function openSocialPanel(initialTab?: string): void;
+    function getOwnershipErrorContentsString(): string;
 }

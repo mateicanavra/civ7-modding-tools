@@ -12,7 +12,7 @@ import {
 
 const resourceDemandProperties = {
   weight: Type.Number({
-    minimum: 1,
+    exclusiveMinimum: 0,
     description: "Official resource weight used by deficit rotation.",
   }),
   regionMinimumRequirement: ResourceRegionMinimumRequirementSchema,

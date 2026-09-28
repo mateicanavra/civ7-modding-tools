@@ -75,7 +75,6 @@ function buildInput(args: {
     landmassIdByTile: args.landmassIdByTile?.slice() ?? new Int32Array(cellCount),
     landmassTileCounts: args.landmassTileCounts?.slice() ?? [cellCount],
     regionSlotByTile,
-    minimumAmountModifier: 0,
     demands: args.demands.map((demand): SelectInput["demands"][number] => {
       const habitatMask = demand.habitatMask?.slice() ?? new Uint8Array(cellCount).fill(1);
       const legalMask = demand.legalMask?.slice() ?? new Uint8Array(cellCount).fill(1);
@@ -141,7 +140,7 @@ describe("select-resource-sites operation contract", () => {
           {
             resourceType: "RESOURCE_DONOR",
             family: "terrestrial",
-            weight: 10,
+            weight: 1,
             targetCount: 2,
             minCount: 0,
             maxCount: 2,
@@ -152,7 +151,7 @@ describe("select-resource-sites operation contract", () => {
           {
             resourceType: "RESOURCE_BORROWER",
             family: "geological",
-            weight: 10,
+            weight: 1,
             targetCount: 1,
             minCount: 0,
             maxCount: 1,
@@ -196,9 +195,9 @@ describe("select-resource-sites operation contract", () => {
     const scarceAdmissionMask = maskRectangle(20, 12);
     const result = run(
       buildInput({
-        demands: [5, 10, 20, 40].map(
+        demands: [0.25, 0.5, 1, 2].map(
           (weight): Demand => ({
-            resourceType: `RESOURCE_W${weight}`,
+            resourceType: `RESOURCE_W${weight * 100}`,
             weight,
             targetCount: 60,
             minCount: 0,
@@ -210,6 +209,7 @@ describe("select-resource-sites operation contract", () => {
       })
     );
     const byWeight = [...result.perType].sort((a, b) => a.weight - b.weight);
+    expect(byWeight.map((row) => row.effectiveWeight)).toEqual([0.25, 0.5, 1, 2]);
     for (let i = 1; i < byWeight.length; i++) {
       expect(
         byWeight[i]!.rotationCount,
@@ -224,14 +224,14 @@ describe("select-resource-sites operation contract", () => {
         demands: [
           {
             resourceType: "RESOURCE_A",
-            weight: 10,
+            weight: 1,
             targetCount: 12,
             minCount: 4,
             maxCount: 14,
           },
           {
             resourceType: "RESOURCE_B",
-            weight: 10,
+            weight: 1,
             targetCount: 6,
             minCount: 2,
             maxCount: 8,
@@ -261,7 +261,7 @@ describe("select-resource-sites operation contract", () => {
         demands: [
           {
             resourceType: "RESOURCE_A",
-            weight: 10,
+            weight: 1,
             targetCount: 8,
             minCount: 1,
             maxCount: 10,
@@ -287,7 +287,7 @@ describe("select-resource-sites operation contract", () => {
       demands: [
         {
           resourceType: "RESOURCE_A",
-          weight: 10,
+          weight: 1,
           targetCount: 1,
           minCount: 1,
           maxCount: 1,
@@ -310,7 +310,7 @@ describe("select-resource-sites operation contract", () => {
       demands: [
         {
           resourceType: "RESOURCE_A",
-          weight: 10,
+          weight: 1,
           targetCount: 4,
           minCount: 2,
           maxCount: 4,
@@ -358,14 +358,11 @@ describe("select-resource-sites operation contract", () => {
         seed: RESOURCE_EQUITY_REGRESSION_MAP_SEED,
         landmassIdByTile,
         regionSlotByTile,
-        landmassTileCounts: [
-          landmassBoundary * height,
-          (width - landmassBoundary) * height,
-        ],
+        landmassTileCounts: [landmassBoundary * height, (width - landmassBoundary) * height],
         demands: [
           {
             resourceType: "RESOURCE_A",
-            weight: 10,
+            weight: 1,
             targetCount: 1,
             minCount: 1,
             maxCount: 4,
@@ -374,8 +371,8 @@ describe("select-resource-sites operation contract", () => {
             intensity,
             regionMinimumRequirement: {
               kind: "required",
-              minimumPerHemisphere: admitPositiveResourceRegionMinimum(1),
-              source: "engine",
+              minimumPerLandmass: admitPositiveResourceRegionMinimum(1),
+              source: "official-resource",
             },
           },
         ],
@@ -431,14 +428,11 @@ describe("select-resource-sites operation contract", () => {
       buildInput({
         seed: RESOURCE_EQUITY_REGRESSION_MAP_SEED,
         landmassIdByTile,
-        landmassTileCounts: [
-          landmassBoundary * height,
-          (width - landmassBoundary) * height,
-        ],
+        landmassTileCounts: [landmassBoundary * height, (width - landmassBoundary) * height],
         demands: [
           {
             resourceType: "RESOURCE_A",
-            weight: 10,
+            weight: 1,
             targetCount: 2,
             minCount: 2,
             maxCount: 2,
@@ -466,10 +460,10 @@ describe("select-resource-sites operation contract", () => {
     });
   });
 
-  it("runs the region-minimum force pass only for an admitted required state (E2.2)", () => {
+  it("enforces an explicit regional minimum three and skips only an official zero (E2.2)", () => {
     const demand = {
       resourceType: "RESOURCE_REQ",
-      weight: 10,
+      weight: 1,
       targetCount: 0,
       minCount: 0,
       maxCount: 12,
@@ -481,8 +475,8 @@ describe("select-resource-sites operation contract", () => {
             ...demand,
             regionMinimumRequirement: {
               kind: "required",
-              minimumPerHemisphere: admitPositiveResourceRegionMinimum(3),
-              source: "engine",
+              minimumPerLandmass: admitPositiveResourceRegionMinimum(3),
+              source: "official-resource",
             },
           },
         ],
@@ -494,29 +488,100 @@ describe("select-resource-sites operation contract", () => {
       expect(row.fromRotation + row.forced + row.shortfall).toBeGreaterThanOrEqual(row.required);
     }
     const perType = required.perType[0]!;
-    expect(perType.plannedCount).toBeGreaterThanOrEqual(4);
+    expect(perType.plannedCount).toBe(6);
     expect(required.intents.some((intent) => intent.phase === "region-minimum")).toBe(true);
 
-    for (const regionMinimumRequirement of [
-      {
-        kind: "not-required",
-        minimumPerHemisphere: admitPositiveResourceRegionMinimum(3),
-        source: "engine",
+    const skipped = run(buildInput({ demands: [demand] }));
+    expect(skipped.regionMinimums).toEqual([]);
+    expect(skipped.intents).toEqual([]);
+  });
+
+  it("creates floors only for existing positive engine-region slots with legal candidates", () => {
+    const legalMask = maskFromPlots(0, 8, 16);
+    const regionSlotByTile = new Uint8Array(cellCount).fill(2);
+    regionSlotByTile[0] = 0;
+    regionSlotByTile[8] = 1;
+    regionSlotByTile[16] = 1;
+    const landmassIdByTile = new Int32Array(cellCount);
+    landmassIdByTile[16] = 1;
+    const demand: Demand = {
+      resourceType: "RESOURCE_FISH",
+      weight: 1,
+      targetCount: 0,
+      minCount: 0,
+      maxCount: 12,
+      legalMask,
+      habitatMask: new Uint8Array(cellCount),
+      regionMinimumRequirement: {
+        kind: "required",
+        minimumPerLandmass: admitPositiveResourceRegionMinimum(1),
+        source: "official-resource",
       },
+    };
+    const result = run(
+      buildInput({
+        demands: [demand],
+        regionSlotByTile,
+        landmassIdByTile,
+        landmassTileCounts: [cellCount - 1, 1],
+      })
+    );
+    expect(result.regionMinimums).toEqual([
       {
-        kind: "unresolved",
-        minimumPerHemisphere: admitPositiveResourceRegionMinimum(3),
-        source: "engine-unavailable",
+        resourceType: "RESOURCE_FISH",
+        regionSlot: 1,
+        required: 1,
+        fromRotation: 0,
+        forced: 1,
+        shortfall: 0,
       },
-    ] as const) {
-      const skipped = run(
-        buildInput({
-          demands: [{ ...demand, regionMinimumRequirement }],
-        })
-      );
-      expect(skipped.regionMinimums).toEqual([]);
-      expect(skipped.intents).toEqual([]);
-    }
+    ]);
+    expect(result.intents).toHaveLength(1);
+    expect(result.intents[0]?.inHabitat).toBe(false);
+
+    // The same legal tiles in region zero or with no positive slot have no regional floor.
+    const none = run(
+      buildInput({ demands: [demand], regionSlotByTile: new Uint8Array(cellCount) })
+    );
+    expect(none.regionMinimums).toEqual([]);
+    expect(none.intents).toEqual([]);
+    const absentEast = run(
+      buildInput({ demands: [demand], regionSlotByTile: new Uint8Array(cellCount).fill(1) })
+    );
+    expect(absentEast.regionMinimums.map((row) => row.regionSlot)).toEqual([1]);
+  });
+
+  it("reports sparse legal capacity as a shortfall without inventing an absent region", () => {
+    const result = run(
+      buildInput({
+        regionSlotByTile: new Uint8Array(cellCount).fill(1),
+        demands: [
+          {
+            resourceType: "RESOURCE_FISH",
+            weight: 1,
+            targetCount: 0,
+            minCount: 0,
+            maxCount: 12,
+            legalMask: maskFromPlots(0),
+            regionMinimumRequirement: {
+              kind: "required",
+              minimumPerLandmass: admitPositiveResourceRegionMinimum(3),
+              source: "official-resource",
+            },
+          },
+        ],
+      })
+    );
+    expect(result.regionMinimums).toEqual([
+      {
+        resourceType: "RESOURCE_FISH",
+        regionSlot: 1,
+        required: 3,
+        fromRotation: 0,
+        forced: 1,
+        shortfall: 2,
+      },
+    ]);
   });
 
   it("keeps exclusion hard during the region-minimum force pass", () => {
@@ -527,7 +592,7 @@ describe("select-resource-sites operation contract", () => {
         demands: [
           {
             resourceType: "RESOURCE_A",
-            weight: 10,
+            weight: 1,
             targetCount: 1,
             minCount: 1,
             maxCount: 1,
@@ -535,15 +600,15 @@ describe("select-resource-sites operation contract", () => {
           },
           {
             resourceType: "RESOURCE_B",
-            weight: 10,
+            weight: 1,
             targetCount: 0,
             minCount: 0,
             maxCount: 2,
             legalMask: maskFromPlots(westCenter, eastCenter),
             regionMinimumRequirement: {
               kind: "required",
-              minimumPerHemisphere: admitPositiveResourceRegionMinimum(1),
-              source: "engine",
+              minimumPerLandmass: admitPositiveResourceRegionMinimum(1),
+              source: "official-resource",
             },
           },
         ],
@@ -587,14 +652,14 @@ describe("select-resource-sites operation contract", () => {
     const demands: Demand[] = [
       {
         resourceType: "RESOURCE_A",
-        weight: 10,
+        weight: 1,
         targetCount: 16,
         minCount: 4,
         maxCount: 20,
       },
       {
         resourceType: "RESOURCE_B",
-        weight: 10,
+        weight: 1,
         targetCount: 16,
         minCount: 4,
         maxCount: 20,
@@ -632,14 +697,14 @@ describe("select-resource-sites operation contract", () => {
           demands: [
             {
               resourceType: "RESOURCE_A",
-              weight: 10,
+              weight: 1,
               targetCount: 8,
               minCount: 2,
               maxCount: 10,
             },
             {
               resourceType: "RESOURCE_B",
-              weight: 20,
+              weight: 2,
               targetCount: 8,
               minCount: 2,
               maxCount: 10,

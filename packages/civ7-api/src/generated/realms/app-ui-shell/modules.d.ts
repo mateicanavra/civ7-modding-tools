@@ -62,6 +62,7 @@
 /// <reference path="../../modules/Base__modules__core__ui__input__input-support.d.ts" />
 /// <reference path="../../modules/Base__modules__core__ui__input__navigation-support.d.ts" />
 /// <reference path="../../modules/Base__modules__core__ui__modding-registry-handler__modding-registry-handler.d.ts" />
+/// <reference path="../../modules/Base__modules__core__ui__module-shell.d.ts" />
 /// <reference path="../../modules/Base__modules__core__ui__mouse-guard__mouse-guard.d.ts" />
 /// <reference path="../../modules/Base__modules__core__ui__mp-chat__chat-command-manager.d.ts" />
 /// <reference path="../../modules/Base__modules__core__ui__mp-chat__emoticon-panel.d.ts" />

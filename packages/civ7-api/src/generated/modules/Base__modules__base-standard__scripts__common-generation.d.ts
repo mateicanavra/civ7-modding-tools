@@ -5,16 +5,25 @@
 import { HexMap } from "/base-standard/scripts/hex-map.js";
 export declare enum GenerationPhases {
     Lakes = 1,
-    Elevation = 2,
-    Hills = 4,
-    Rainfall = 8,
-    Rivers = 16,
-    Biomes = 32,
-    NaturalWonders = 64,
-    FloodPlains = 128,
-    Features = 256,
-    Snow = 512,
-    Resources = 1024,
-    All = 2047
+    Continents = 2,
+    Elevation = 4,
+    Hills = 8,
+    Rainfall = 16,
+    Rivers = 32,
+    Biomes = 64,
+    NaturalWonders = 128,
+    FloodPlains = 256,
+    Features = 512,
+    Snow = 1024,
+    Resources = 2048,
+    WriteToTerrainBuilder = 4096,
+    All = 4294967295
 }
-export declare function generateMapFeatures(hexMap: HexMap, phases?: GenerationPhases): any;
+export declare class GenerationContext {
+    phases: GenerationPhases;
+    bRunAestheticRiverValidation: boolean;
+    largeRiverPercent: number;
+    minNavRiverLength: number;
+    minUpstreamMinorRivers: number;
+}
+export declare function generateMapFeatures(hexMap: HexMap, context?: GenerationContext): any;

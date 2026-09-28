@@ -3,7 +3,7 @@
  * @copyright 2024, Firaxis Games
  * @description Manages text to speech integration with the UI.
  */
-import { IEngineInputHandler, InputEngineEvent, NavigateInputEvent } from "/core/ui/input/input-support.js";
+import { IEngineInputHandler, InputEngineEvent, InputHandlerState, NavigateInputEvent } from "/core/ui/input/input-support.js";
 export interface TtsExtension {
     checkGlobal(self: typeof TtsManager, addText: (text: string) => void): boolean;
     checkElement(self: typeof TtsManager, element: Element, addText: (text: string) => void): boolean;
@@ -24,8 +24,8 @@ declare class TtsManagerImpl implements IEngineInputHandler {
     get isTextToSpeechOnChatEnabled(): boolean;
     registerWithContextManager(): void;
     handleHover(event: MouseEvent): void;
-    handleInput(event: InputEngineEvent): boolean;
-    handleNavigation(_navigationEvent: NavigateInputEvent): boolean;
+    handleInput(event: InputEngineEvent): InputHandlerState;
+    handleNavigation(_navigationEvent: NavigateInputEvent): InputHandlerState;
     trySpeakElement(element: Element): void;
     private handleUpdateSettings;
     private handleSpeakRequest;

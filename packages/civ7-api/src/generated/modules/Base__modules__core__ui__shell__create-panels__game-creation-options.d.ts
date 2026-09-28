@@ -94,5 +94,6 @@ declare class SettingsGroupManager {
     addNewSettingsGroup(name: string, groupHandle: string, addToContainer: HTMLElement, headerOptions: SettingsHeaderOptions): SettingsGroup;
     clearCachedHiddenContainerIDs(): void;
 }
+export declare function isSetupCategoryRedundant(setupParam: GameSetupParameter): boolean;
 declare const SettingsGroupData: SettingsGroupManager;
 export { SettingsGroupData };

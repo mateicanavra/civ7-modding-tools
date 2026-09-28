@@ -1,13 +1,12 @@
 import { Accessor } from "solid-js";
 import { TriggerHost, TriggerType } from "/core/ui-next/components/trigger.js";
-import "/core/ui-next/components/tooltip-hidden-hint.js";
 export declare const HIDE_TOOLTIPS_HOLD_THRESHOLD_MS = 1000;
 export interface TooltipModel extends TriggerHost {
     readonly active: Accessor<string[]>;
     readonly targets: Accessor<Record<string, WeakRef<HTMLElement> | PlotCoord>>;
     readonly locked: Accessor<string | undefined>;
     readonly isAutolockAvailable: Accessor<boolean>;
-    readonly childTooltipTable: () => Record<string, Accessor<string[]>>;
+    readonly childTooltipTable: ReadonlyMap<string, Accessor<string[]>>;
     readonly register: (name: string, childListAccessor: Accessor<string[]>) => () => void;
     readonly isActive: (name: string | undefined) => boolean;
     /**

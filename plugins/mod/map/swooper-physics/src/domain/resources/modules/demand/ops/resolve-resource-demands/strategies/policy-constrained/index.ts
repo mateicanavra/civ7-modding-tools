@@ -139,18 +139,12 @@ const policyConstrainedStrategy = createStrategy(Contract, StrategyDefinition, {
         continue;
       }
 
-      if (resolved.minimumPerHemisphere > 0 && !Object.hasOwn(input.requiredForAge, resourceType)) {
-        throw new Error(
-          `[resources] Missing required-for-age observation for ${resourceType} with official regional minimum ${resolved.minimumPerHemisphere}.`
-        );
-      }
       const demand: ResourceDemand = {
-        weight: Math.max(1, resolved.weight),
+        weight: resolved.weight,
         regionMinimumRequirement: resolveResourceRegionMinimumRequirement({
           resourceType,
-          age,
-          minimumPerHemisphere: resolved.minimumPerHemisphere,
-          observedRequiredForAge: input.requiredForAge[resourceType] ?? null,
+          minimumPerLandmass: resolved.minimumPerLandmass,
+          landmassUnique: resolved.landmassUnique,
         }),
         legalMask,
         intensity: outputIntensityByFamily[signal.family],
@@ -167,7 +161,6 @@ const policyConstrainedStrategy = createStrategy(Contract, StrategyDefinition, {
       width,
       height,
       age,
-      minimumAmountModifier: input.minimumAmountModifier,
       candidates: { admitted, excluded },
     };
   },

@@ -604,15 +604,32 @@ declare class FxsInclude extends HTMLElement {
 declare const Controls: ComponentManager;
 declare class Loading {
     private static processInitialScriptsRAF;
+    /**
+     * The 'Initialized' state happens after GameCore has been initialized and loaded its data but before visualization/graphics has finished loading.
+     * In this state, only a subset of script APIs are available.  This state is typically only used by the loading screen or systems used by the loading screen.
+     */
     static isInitialized: boolean;
     static whenInitialized: any;
     static runWhenInitialized(f: () => void): void;
+    /**
+     * The 'Loaded' state happens after visualization has finished loading and all script APIs are now available.
+     * Web Components and their dependencies have also been loaded.
+     */
     static isLoaded: boolean;
     static whenLoaded: any;
     static runWhenLoaded(f: () => void): void;
+    /**
+     * The 'Finished' state is the final state which means the game is started, all users clicked "ready" and the curtain has been lifted.
+     */
     static isFinished: boolean;
     static whenFinished: any;
     static runWhenFinished(f: () => void): void;
     private static onInitialScriptAdded;
 }
 declare function setComponentSupportSafeMargins(): void;
+/**
+ * The following code is used to track several types of 'listeners' in the global state
+ * in order to make it easier to track down memory leaks by walking the heap snapshot distance.
+ * This tracking is only enabled by setting the constant `DEBUG_TRACK_LISTENERS` to true.
+ */
+declare const DEBUG_TRACK_LISTENERS = false;

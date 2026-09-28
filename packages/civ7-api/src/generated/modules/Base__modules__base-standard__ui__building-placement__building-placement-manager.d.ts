@@ -29,11 +29,6 @@ export interface AdjacencyData {
     directionType: DirectionTypes;
     directionName: string;
 }
-export interface WarehouseData {
-    value: number;
-    name: string;
-    type: string;
-}
 export interface YieldBonusInfo {
     description: string;
     bonuses: string[];
@@ -62,6 +57,8 @@ declare class BuildingPlacementManagerClass {
     get uniqueQuarterPlots(): PlotIndex[];
     private _urbanPlots;
     get urbanPlots(): PlotIndex[];
+    private _quarterPlots;
+    get quarterPlots(): PlotIndex[];
     private _developedPlots;
     get developedPlots(): PlotIndex[];
     private _expandablePlots;
@@ -89,6 +86,8 @@ declare class BuildingPlacementManagerClass {
     getOverbuildConstructibleID(plotID: number): any;
     reset(): void;
     isValidPlacementPlot(plotIndex: number): boolean;
+    willBecomeQuarter(otherConstructibleType: string): boolean;
+    getWillBecomeQuarterPlots(): PlotIndex[];
     findExistingUniqueBuilding(uniqueQuarterDef: UniqueQuarterDefinition): PlotIndex;
     getBestYieldForConstructible(cityID: ComponentID, constructibleDef: ConstructibleDefinition): number[];
     getImprovementYieldChanges(type: ConstructibleType, plotIndex: PlotIndex): PlacementPlotData | undefined;

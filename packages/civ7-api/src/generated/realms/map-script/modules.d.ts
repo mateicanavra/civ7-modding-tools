@@ -8,5 +8,7 @@
 /// <reference path="../../modules/Base__modules__base-standard__maps__pangaea-plus.d.ts" />
 /// <reference path="../../modules/Base__modules__base-standard__maps__pangaea-voronoi.d.ts" />
 /// <reference path="../../modules/Base__modules__base-standard__maps__shattered-seas-voronoi.d.ts" />
+/// <reference path="../../modules/Base__modules__base-standard__maps__shuffle-voronoi.d.ts" />
 /// <reference path="../../modules/Base__modules__base-standard__maps__shuffle.d.ts" />
+/// <reference path="../../modules/Base__modules__base-standard__maps__terra-incognita-voronoi.d.ts" />
 /// <reference path="../../modules/Base__modules__base-standard__maps__terra-incognita.d.ts" />

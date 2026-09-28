@@ -8,6 +8,7 @@ export interface ResourceProps extends JSX.HTMLAttributes<HTMLDivElement> {
     resourceOrigin?: string;
     importFlag?: ImportFlagProps;
     isSwapTarget?: boolean;
+    isDamaged?: boolean;
 }
 export interface ImportFlagProps {
     primaryColor: string;

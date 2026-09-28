@@ -1,16 +1,5 @@
-import {
-  resolveMapResourceMinimumAmountModifier,
-  resolveResourceRuntimeIds,
-} from "@civ7/map-policy";
-import {
-  INITIAL_MAP_RESOURCE_AUTHORING_AGE,
-  INITIAL_MAP_RESOURCE_TYPES,
-} from "../../../../../../domain/resources/index.js";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { config } from "./config.js";
-
-const STANDARD_RESOURCE_MAP_TYPE = "DEFAULT";
-const CUSTOM_MAP_RESOURCE_MINIMUM_AMOUNT_MODIFIER = 0;
 
 /**
  * Derives resource habitat, resolves the canonical resource corpus against current Civ7 legality,
@@ -64,18 +53,6 @@ export const PlanResourceDemandsStep = createStep(config, {
       stepConfig.habitat
     );
 
-    const requiredForAge: Record<string, boolean | null> = {};
-    const runtimeIds = resolveResourceRuntimeIds();
-    for (const resourceType of INITIAL_MAP_RESOURCE_TYPES) {
-      const resolved = runtimeIds.byType.get(resourceType);
-      if (!resolved || resolved.minimumPerHemisphere <= 0) continue;
-      requiredForAge[resourceType] = deps.engine.isResourceRequiredForAge(
-        context,
-        resolved.resourceTypeId,
-        INITIAL_MAP_RESOURCE_AUTHORING_AGE
-      );
-    }
-
     const riverMasks = [
       projectedNavigableRivers.riverMask,
       projectedNavigableRivers.plannedMajorRiverMask,
@@ -84,11 +61,6 @@ export const PlanResourceDemandsStep = createStep(config, {
       currentRiverSurface.navigableRiverMask,
       currentRiverSurface.minorRiverMask,
     ].filter((mask): mask is Uint8Array => mask !== undefined);
-    const mapSelection = context.initialSetup.map.selection;
-    const minimumAmountModifier =
-      mapSelection.kind === "civ7-preset"
-        ? resolveMapResourceMinimumAmountModifier(STANDARD_RESOURCE_MAP_TYPE, mapSelection.id)
-        : CUSTOM_MAP_RESOURCE_MINIMUM_AMOUNT_MODIFIER;
     const demandPlan = ops.demands(
       {
         ...habitat,
@@ -100,9 +72,7 @@ export const PlanResourceDemandsStep = createStep(config, {
           featureType: currentFeatureTypes,
           engineWaterMask: currentWaterMask,
         },
-        requiredForAge,
         riverMasks,
-        minimumAmountModifier,
       },
       stepConfig.demands
     );
@@ -118,7 +88,6 @@ export const PlanResourceDemandsStep = createStep(config, {
       candidateCount: demandPlan.candidates.admitted.length + excludedCount,
       admittedCount: demandPlan.candidates.admitted.length,
       excludedCount,
-      minimumAmountModifier: demandPlan.minimumAmountModifier,
     }));
   },
 });

@@ -38,7 +38,6 @@ export const SelectResourceSitesStep = createStep(config, {
         landmassIdByTile: landmasses.landmassIdByTile,
         landmassTileCounts,
         regionSlotByTile: regionSlots.slotByTile,
-        minimumAmountModifier: demandPlan.minimumAmountModifier,
         demands,
       },
       stepConfig.selectSites
@@ -58,7 +57,6 @@ export const SelectResourceSitesStep = createStep(config, {
       regionMinimumCount: plan.regionMinimumCount,
       demandCount: demands.length,
       excludedCount,
-      minimumAmountModifier: demandPlan.minimumAmountModifier,
     }));
 
     return { intents: plan.intents, demands };

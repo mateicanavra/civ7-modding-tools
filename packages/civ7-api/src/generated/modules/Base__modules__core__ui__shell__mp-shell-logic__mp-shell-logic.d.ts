@@ -3,7 +3,7 @@
  * @copyright 2021, Firaxis Games
  * @description An object to catch mp messages and orchestrate UI responses.
  */
-import { IEngineInputHandler, InputEngineEvent, NavigateInputEvent } from "/core/ui/input/input-support.js";
+import { IEngineInputHandler, InputEngineEvent, InputHandlerState, NavigateInputEvent } from "/core/ui/input/input-support.js";
 import { NetworkUtilities } from "/core/ui/utilities/utilities-network.js";
 export declare const MultiplayerMatchMakeCompleteEventName: "mp-game-match-make-complete";
 export declare class MultiplayerMatchMakeCompleteEvent extends CustomEvent<never> {
@@ -52,6 +52,7 @@ declare class MultiplayerShellManagerSingleton implements IEngineInputHandler {
     private canMPDialogShow;
     private savedErrorTitle;
     private savedErrorBody;
+    private abandoningGame;
     private hostCreatingGameDialogBoxID?;
     private clientJoiningGameDialogBoxID?;
     private clientMatchmakingGameDialogBoxId?;
@@ -108,9 +109,10 @@ declare class MultiplayerShellManagerSingleton implements IEngineInputHandler {
     hostMultiplayerGame(eServerType: ServerType): void;
     private onLobbyCreated;
     private onLobbyError;
-    handleInput(inputEvent: InputEngineEvent): boolean;
-    handleNavigation(navigationEvent: NavigateInputEvent): boolean;
+    handleInput(inputEvent: InputEngineEvent): InputHandlerState;
+    handleNavigation(navigationEvent: NavigateInputEvent): InputHandlerState;
     get unitTestMP(): boolean;
+    get isShellAbandoningGame(): boolean;
     /**
      * Delay executing a function for the given number of frames.
      * TODO: Remove function if Gameface is able to resolve earlier OR move to a global function for all places to call. Cf. also other existing delayByFrame() functions.

@@ -45,16 +45,27 @@ export interface UnitFlagFactoryMaker {
  * @returns true if object implements the UnitFlagType interface, false otherwise.
  */
 export declare function instanceOfUnitFlagType(object: any): object is UnitFlagType;
+export interface UnitFlagFactoryExtension {
+    componentName: string;
+    apply: (flag: ComponentRoot, unitId: ComponentID) => void;
+}
 /**
  *
  */
 export declare class UnitFlagFactory {
     private static makers;
+    private static extensions;
     /**
      * Register a "maker" class that can determine what component should be used	 to make a particulr type of unit flag.
      * @param {UnitFlagFactoryMaker} makerInstance Instance of a "maker" which has the name of HTML component type to instantiate.
      */
     static registerStyle(makerInstance: UnitFlagFactoryMaker): void;
+    /**
+     * Registers an extension to be applied to a unit flag after it is created.
+     * @param flagExtension
+     */
+    static registerExtension(flagExtension: UnitFlagFactoryExtension): void;
+    static applyExtensions(flag: ComponentRoot, unitID: ComponentID): void;
     static getBestHTMLComponentName(componentID: ComponentID): string;
 }
 /**

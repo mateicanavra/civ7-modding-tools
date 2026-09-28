@@ -123,3 +123,25 @@ not a new CLI option or test harness. After `nx run cli-mapgen:build`, run from
 ```sh
 bun -e 'import { evaluateStandardMetricStudies, STANDARD_METRIC_STUDIES } from "@swooper/swooper-physics/standard/metrics"; const study = STANDARD_METRIC_STUDIES.find((study) => study.id === "earthlike/relief-representative"); if (study === undefined) throw new Error("Missing earthlike/relief-representative study"); console.log(JSON.stringify({ studyId: study.id, kind: study.kind, scenario: study.kind === "sample" ? study.scenario : study.scenarios })); const evaluation = evaluateStandardMetricStudies([study]); console.log(JSON.stringify(evaluation)); process.exitCode = evaluation.status === "pass" ? 0 : 1;'
 ```
+
+## Resource Migration Baseline
+
+The same public evaluator was rerun against resource snapshot
+`89cee44d5ae7192f126e8ae09484c04400df9146` after rebuilding `cli-mapgen` and its
+dependencies. No study targets or seeds were changed.
+
+- `earthlike/relief-representative`: PASS. The relief shares, rough-upland
+  component size, minor/major populations (290/421), selected navigable tiles
+  and chains (37/6), and zero water/lake drift match the opening sample.
+  This is agreement of the listed measurements, not proof of byte-identical
+  physical artifacts.
+- `earthlike/placement`: PASS across its existing 20 Standard 84 x 54 scenarios,
+  map/game seeds 1337 through 1356, players 0-7. All per-scenario integrity and
+  cohort placement/resource targets pass. Nine maps supply the qualifying
+  comparable-landmass evidence; maximum measured density spread is
+  1.629017857142857 (target at most 2).
+
+For the placement run, select `earthlike/placement` instead of the sample ID in
+the existing evaluator call above. These results use the headless adapter. They
+establish the resource-compatibility baseline, not functioning native elevation,
+river connectivity, navigation, or freshwater effects.

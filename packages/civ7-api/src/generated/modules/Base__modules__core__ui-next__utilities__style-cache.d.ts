@@ -1,6 +1,6 @@
 export interface PreloadedStyle {
     url: string;
-    stylesheetLink: HTMLLinkElement;
+    element: HTMLElement;
 }
 export declare class StyleCache {
     private cachedStylesheetLinks;

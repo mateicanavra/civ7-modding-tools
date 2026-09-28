@@ -3,7 +3,7 @@
  * @copyright 2019-2025, Firaxis Games
  * @description States of different "modes" the User Interface may be in while playing the game.
  */
-import { InputEngineEvent, NavigateInputEvent } from "/core/ui/input/input-support.js";
+import { InputEngineEvent, InputHandlerState, NavigateInputEvent } from "/core/ui/input/input-support.js";
 export declare const InterfaceModeChangedEventName: "interface-mode-changed";
 export declare class InterfaceModeChangedEvent extends CustomEvent<{
     prevMode: string;
@@ -33,11 +33,11 @@ export declare namespace InterfaceMode {
         canLeaveMode?(newMode: ModeId): boolean;
         allowsHotKeys?(): boolean;
         /** (optional) Take an input event and potentially do something with it. */
-        handleInput?(inputEvent: InputEngineEvent): boolean;
+        handleInput?(inputEvent: InputEngineEvent): InputHandlerState;
         /** (optional) Take an navigation event and attempt to handle it.
          * @returns true if still live, false if input should stop.
          */
-        handleNavigation?(navigationEvent: NavigateInputEvent): boolean;
+        handleNavigation?(navigationEvent: NavigateInputEvent): InputHandlerState;
     }
     function getInterfaceModeHandler(mode: ModeId): InterfaceMode.Handler | null;
     function addHandler(mode: ModeId, handler: InterfaceMode.Handler): void;
@@ -70,12 +70,12 @@ export declare namespace InterfaceMode {
     function switchToDefault(): void;
     function isInInterfaceMode(targetMode: ModeId): boolean;
     function allowsHotKeys(): boolean;
-    function handleInput(inputEvent: InputEngineEvent): boolean;
+    function handleInput(inputEvent: InputEngineEvent): InputHandlerState;
     /**
      * If the current interface mode handles navigation, let it inspect the navigation event.
      * @returns true if still live, false if input should stop.
      */
-    function handleNavigation(navigationEvent: NavigateInputEvent): boolean;
+    function handleNavigation(navigationEvent: NavigateInputEvent): InputHandlerState;
     function isInDefaultMode(): boolean;
 }
 declare global {

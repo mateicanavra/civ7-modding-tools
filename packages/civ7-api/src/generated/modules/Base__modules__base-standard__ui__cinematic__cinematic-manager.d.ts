@@ -1,4 +1,5 @@
 import { DisplayHandlerBase, DisplayHideOptions, IDisplayRequestBase } from "/core/ui/context-manager/display-handler.js";
+export declare const EndGameScreenCategory: "EndgameScreen";
 declare const enum CinematicTypes {
     WONDER_COMPLETE = 0,
     NATURAL_WONDER_DISCOVERED = 1,
@@ -55,13 +56,13 @@ declare class CinematicManagerImpl extends DisplayHandlerBase<CinematicRequest> 
     private releaseCinematic;
     replayCinematic(): void;
     /**
-     * @implements {IDisplayQueue}
+     * @implements {IDisplayHandler}
      */
     show(request: CinematicRequest): void;
-    isShowing(): boolean;
+    private isShowing;
     private startCinematic;
     /**
-     * @implements {IDisplayQueue}
+     * @implements {IDisplayHandler}
      */
     hide(request: CinematicRequest, _options?: DisplayHideOptions): void;
     private awaitCinematic;

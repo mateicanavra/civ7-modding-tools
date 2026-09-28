@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { type OfficialResourceType, resolveResourceRuntimeIds } from "@civ7/map-policy";
 import {
+  admitPositiveResourceRegionMinimum,
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   getInitialMapResourcePolicyForType,
   INITIAL_MAP_RESOURCE_AUTHORING_AGE,
@@ -158,7 +159,7 @@ describe("placement resource-demand-plan artifact", () => {
 
   it("binds admitted weight and regional policy while rejecting invalid intensity", () => {
     const payload = resourceDemandPlanPayload();
-    const gold = admitCandidate(payload, "RESOURCE_GOLD", false);
+    const gold = admitCandidate(payload, "RESOURCE_GOLD");
     expect(resourceDemandMessages(payload)).toEqual([]);
 
     const resolved = resolveResourceRuntimeIds().byType.get("RESOURCE_GOLD");
@@ -167,22 +168,85 @@ describe("placement resource-demand-plan artifact", () => {
     }
     const demand = gold.demand as {
       weight: number;
-      regionMinimumRequirement: { minimumPerHemisphere: number };
+      regionMinimumRequirement: { minimumPerLandmass: number };
       intensity: Float32Array;
     };
     demand.weight += 1;
-    demand.regionMinimumRequirement.minimumPerHemisphere += 1;
+    demand.regionMinimumRequirement.minimumPerLandmass += 1;
     demand.intensity[0] = Number.NaN;
     demand.intensity[1] = 1.25;
 
     expect(resourceDemandMessages(payload)).toEqual(
       expect.arrayContaining([
-        `Demand RESOURCE_GOLD weight ${Math.max(1, resolved.weight) + 1} does not match canonical weight ${Math.max(1, resolved.weight)}.`,
-        `Demand RESOURCE_GOLD regional minimum ${resolved.minimumPerHemisphere + 1} does not match canonical minimum ${resolved.minimumPerHemisphere}.`,
+        `Demand RESOURCE_GOLD weight ${resolved.weight + 1} does not match canonical weight ${resolved.weight}.`,
+        `Demand RESOURCE_GOLD regional minimum ${resolved.minimumPerLandmass + 1} does not match canonical minimum ${resolved.minimumPerLandmass}.`,
         "Demand RESOURCE_GOLD intensity[0] is NaN; intensity must be finite and within [0, 1].",
         "Demand RESOURCE_GOLD intensity[1] is 1.25; intensity must be finite and within [0, 1].",
       ])
     );
+  });
+
+  it("preserves canonical positive fractions and rejects nonpositive or nonfinite weights", () => {
+    for (const resourceType of ["RESOURCE_GOLD", "RESOURCE_HIDES", "RESOURCE_TIN"] as const) {
+      const payload = resourceDemandPlanPayload();
+      const candidate = admitCandidate(payload, resourceType);
+      expect(candidate.demand.weight).toBeGreaterThan(0);
+      expect(candidate.demand.weight).toBeLessThan(1);
+      expect(resourceDemandMessages(payload)).toEqual([]);
+      for (const weight of [0, -1, Number.NaN, Number.POSITIVE_INFINITY]) {
+        const invalid = structuredClone(payload);
+        Object.assign(invalid.candidates.admitted[0]!.demand, { weight });
+        expect(resourceDemandMessages(invalid).length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("rejects a forged admitted unique resource independently of its future-age exclusion", () => {
+    const payload = resourceDemandPlanPayload();
+    const resourceType = "RESOURCE_SUGAR";
+    const index = payload.candidates.excluded.ageDeferred.findIndex(
+      (candidate) => candidate.source.resourceType === resourceType
+    );
+    const [deferred] = payload.candidates.excluded.ageDeferred.splice(index, 1);
+    const signal = RESOURCE_HABITAT_SIGNALS.get(resourceType);
+    const resolved = resolveResourceRuntimeIds().byType.get(resourceType);
+    if (!deferred || !signal || !resolved) throw new Error("Missing unique-resource fixture.");
+    expect(resolved.landmassUnique).toBe(true);
+    const size = payload.width * payload.height;
+
+    // Bypass the demand resolver deliberately: the persisted artifact must refuse this too.
+    payload.candidates.admitted.push({
+      source: {
+        ...deferred.source,
+        family: signal.family,
+        laneId: signal.laneId,
+        laneKind: signal.laneKind,
+        targetIntentCount: Math.min(
+          deferred.source.expectedCountRange.max,
+          size,
+          deferred.source.expectedCountRange.target
+        ),
+        habitatMask: new Uint8Array(size).fill(1),
+        habitatTileCount: size,
+      },
+      demand: {
+        weight: resolved.weight,
+        regionMinimumRequirement: {
+          kind: "required",
+          minimumPerLandmass: admitPositiveResourceRegionMinimum(resolved.minimumPerLandmass),
+          source: "official-resource",
+        },
+        legalMask: new Uint8Array(size).fill(1),
+        intensity: new Float32Array(size).fill(1),
+        legalTileCount: size,
+        eligibleTileCount: size,
+      },
+    });
+
+    expect(resourceDemandMessages(payload)).toEqual([
+      "Resource demand RESOURCE_SUGAR requires age-policy status eligible for AGE_ANTIQUITY; received deferred-future-age.",
+      "Demand RESOURCE_SUGAR is landmass-unique; regional group assignment is not supported.",
+    ]);
   });
 });
 
@@ -273,25 +337,19 @@ function resourceDemandPlanPayload(): ResourceDemandPlanPayload {
     width: TEST_MAP_SIZE.dimensions.width,
     height: TEST_MAP_SIZE.dimensions.height,
     age: INITIAL_MAP_RESOURCE_AUTHORING_AGE,
-    minimumAmountModifier: 0,
     candidates,
   };
 }
 
-function canonicalDemand(
-  resourceType: string,
-  size: number,
-  observedRequiredForAge: boolean | null = null
-): AdmittedDemand {
+function canonicalDemand(resourceType: string, size: number): AdmittedDemand {
   const resolved = resolveResourceRuntimeIds().byType.get(resourceType as OfficialResourceType);
   if (!resolved) throw new Error(`Missing runtime policy for ${resourceType}.`);
   return {
-    weight: Math.max(1, resolved.weight),
+    weight: resolved.weight,
     regionMinimumRequirement: resolveResourceRegionMinimumRequirement({
       resourceType: resourceType as OfficialResourceType,
-      age: INITIAL_MAP_RESOURCE_AUTHORING_AGE,
-      minimumPerHemisphere: resolved.minimumPerHemisphere,
-      observedRequiredForAge,
+      minimumPerLandmass: resolved.minimumPerLandmass,
+      landmassUnique: resolved.landmassUnique,
     }),
     legalMask: new Uint8Array(size).fill(1),
     intensity: new Float32Array(size).fill(1),
@@ -300,11 +358,7 @@ function canonicalDemand(
   };
 }
 
-function admitCandidate(
-  value: ResourceDemandPlanPayload,
-  resourceType: string,
-  observedRequiredForAge: boolean | null = null
-): AdmittedCandidate {
+function admitCandidate(value: ResourceDemandPlanPayload, resourceType: string): AdmittedCandidate {
   const index = value.candidates.excluded.noLegalSites.findIndex(
     (candidate) => candidate.source.resourceType === resourceType
   );
@@ -315,7 +369,7 @@ function admitCandidate(
   const size = TEST_MAP_SIZE.dimensions.width * TEST_MAP_SIZE.dimensions.height;
   const candidate: AdmittedCandidate = {
     source: excluded.source,
-    demand: canonicalDemand(resourceType, size, observedRequiredForAge),
+    demand: canonicalDemand(resourceType, size),
   };
   value.candidates.admitted.push(candidate);
   return candidate;

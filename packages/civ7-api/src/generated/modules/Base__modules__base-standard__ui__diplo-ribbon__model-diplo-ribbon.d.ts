@@ -21,8 +21,7 @@ export declare enum RibbonYieldType {
     Diplomacy = "diplomacy",
     Trade = "trade",
     Settlements = "settlements",
-    Property = "property",
-    Victory = "victory"
+    Property = "property"
 }
 interface PlayerDataYields {
     type?: RibbonYieldType;
@@ -48,7 +47,6 @@ export interface PlayerDataObject {
     displayItems: PlayerDataYields[];
     yields: PlayerDataYields[];
     size: PlayerDataYields[];
-    scores: PlayerDataYields[];
     canClick: boolean;
     selected: boolean;
     isTurnActive: boolean;
@@ -131,7 +129,6 @@ declare class DiploRibbonModel {
     private getPlayerTradeOpportunities;
     private createPlayerYieldsData;
     private createPlayerSizeData;
-    private createPlayerScoreData;
     private getImg;
     private queueUpdate;
     private queueDataModelChanged;

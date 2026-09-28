@@ -26,8 +26,10 @@ export type ResourceDistributionFacts = {
   readonly adjacentToLand?: boolean;
   readonly lakeEligible?: boolean;
   readonly staple?: boolean;
-  readonly minimumPerHemisphere?: number;
-  readonly hemisphereUnique?: boolean;
+  /** Schema-resolved floor for each eligible positive native landmass region. */
+  readonly minimumPerLandmass: number;
+  /** Native two-group eligibility, not one deposit per connected island. */
+  readonly landmassUnique: boolean;
   readonly bonusResourceSlots?: number;
   readonly unlocksCiv?: boolean;
   readonly tradeable?: boolean;
@@ -52,7 +54,10 @@ export type OfficialResourceCorpusEntry = {
   readonly name: string;
   readonly tooltip: string;
   readonly baseClass: OfficialResourceClassType;
+  /** Positive resource weight; fractional official values remain unrounded. */
   readonly weight: number;
+  readonly minimumPerLandmass: number;
+  readonly landmassUnique: boolean;
   readonly validAges: readonly OfficialAgeType[];
   readonly ageClassOverrides: readonly ResourceClassOverride[];
   readonly officialPlacementConstraints: OfficialPlacementConstraintSummary;
@@ -67,6 +72,7 @@ export type OfficialResourceCorpusArtifact = {
     readonly module: "base-standard";
     readonly order: "base-standard.modinfo Resources row order";
     readonly sourceFiles: readonly string[];
+    readonly schemaFile: string;
   };
   readonly resources: readonly OfficialResourceCorpusEntry[];
 };

@@ -14,7 +14,7 @@ declare class TriumphCompleteQueueManagerClass extends DisplayHandlerBase {
     show(request: TriumphCompletePopupData): void;
     hide(): void;
     closePopup: () => void;
-    isShowing(): boolean;
+    private isShowing;
 }
 export declare const TriumphCompleteQueueManager: TriumphCompleteQueueManagerClass;
 export {};

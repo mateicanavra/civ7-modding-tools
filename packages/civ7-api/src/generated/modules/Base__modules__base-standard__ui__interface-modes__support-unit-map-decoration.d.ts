@@ -1,7 +1,7 @@
 /**
  * @file Unit Map Decoration support
- * @copyright 2021, Firaxis Games
- * @description Unit Map Decoration support for interface modes (unit-select, unit-move)
+ * @copyright 2021-2026, Firaxis Games
+ * @description Unit Map Decoration support, VFX, etc... for interface modes (unit-select, unit-move)
  */
 import { ComponentID } from "/core/ui/utilities/utilities-component-id.js";
 export declare namespace UnitMapDecorationSupport {
@@ -55,6 +55,10 @@ export declare namespace UnitMapDecorationSupport {
         private removeMovePathVFX;
         private getDirectionNumberFromDirectionType;
         private getPathVFXforPlot;
+        /**
+         * Specific to Bermuda event when moving a unit into it.
+         */
+        private onUnitBermudaTeleported;
         private onUnitMoveComplete;
         deactivate(): void;
     }

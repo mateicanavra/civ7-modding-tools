@@ -139,6 +139,10 @@ export declare namespace VoronoiUtils {
     export function schlickInvBias(v: number, invB: number): number;
     export function getMapSizeForDims(hexDims: float2): MapSize;
     export function gaussian(pos: number, center: number, deviation: number): number;
+    export function computeBoundedPartitionRange(count: number, totalSize: number, maxVariance: number): [
+        number,
+        number
+    ];
     export function distributeTotal(totalSize: number, minSize: number, maxSize: number, count: number): number[];
     export function generateLocationsAroundCircle(count: number, minDistance: number, maxDistance: number): float2[];
     export function generateLocationsAroundCircleWithOffsets(distances: number[]): float2[];

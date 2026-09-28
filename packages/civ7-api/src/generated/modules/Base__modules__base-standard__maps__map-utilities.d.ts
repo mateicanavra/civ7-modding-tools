@@ -1,5 +1,4 @@
 export declare function needHumanNearEquator(): boolean;
-export declare function getMinimumResourcePlacementModifier(): number | undefined;
 export declare function getDistanceFromContinentCenter(iX: number, iY: number, iContinentBottomRow: number, iContinentTopRow: number, iWestContinentLeftCol: number, iWestContinentRightCol: number, iEastContinentLeftCol: number, iEastContinentRightCol: number): number;
 export declare function getMaxDistanceFromContinentCenter(iX: number, iContinentBottomRow: number, iContinentTopRow: number, iWestContinentLeftCol: number, iWestContinentRightCol: number, iEastContinentLeftCol: number, iEastContinentRightCol: number): number;
 export declare function getSector(iX: number, iY: number, iRows: number, iCols: number, iContinentBottomRow: number, iContinentTopRow: number, iWestContinentLeftCol: number, iWestContinentRightCol: number, iEastContinentLeftCol: number): number;
@@ -17,7 +16,6 @@ export declare function isOceanAccess(iX: number, iY: number): boolean;
 export declare function removeRuralDistrict(iX: number, iY: number): void;
 export declare function placeRuralDistrict(iX: number, iY: number): void;
 export declare function replaceIslandResources(iWidth: number, iHeight: number, zResourceClassType: string): void;
-export declare function auditMinimumResourcesPlacement(iWidth: number, iHeight: number): void;
 export declare function isAdjacentToLand(iX: number, iY: number): boolean;
 export declare function shiftTerrain(iWidth: number, iHeight: number): void;
 export declare function shiftPlotTypesBy(iWidth: number, iHeight: number, xshift: number, yshift: number): void;

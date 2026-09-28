@@ -6,6 +6,7 @@ import ts from "typescript";
 import { afterEach, describe, expect, test } from "vitest";
 import { emitBaseDeclarationProjection } from "../../src/declaration-emit.js";
 import { buildBaseModuleCatalog } from "../../src/module-catalog.js";
+import { projectDeclarationRealms } from "../../src/realms.js";
 import { collectBaseSourceMapEvidence } from "../../src/source-maps.js";
 
 const roots: string[] = [];
@@ -133,6 +134,82 @@ describe("Base source-map declaration evidence", () => {
 });
 
 describe("declaration emission", () => {
+  test("retains exact import-only loader edges and restores their realm declarations", async () => {
+    const root = await tempRoot();
+    await writeSolidEvidence(root);
+    const compiledPath = "Base/modules/core/module-shell.js";
+    await write(root, compiledPath, 'import "./components.js";\nimport "./runtime.js";\n');
+    await write(
+      root,
+      `${compiledPath}.map`,
+      JSON.stringify({ version: 3, sources: [], sourcesContent: [] })
+    );
+    await write(root, "Base/modules/core/runtime.js", "globalThis.ready = true;\n");
+    await writeCompiledSource(
+      root,
+      "Base/modules/core/components.js",
+      "components.ts",
+      'export {}; declare global { interface HTMLElementTagNameMap { "fixture-button": HTMLElement } }\n'
+    );
+    await write(
+      root,
+      "Base/modules/core/core.modinfo",
+      '<Mod><ActionGroups><ActionGroup id="shell" scope="shell"><Actions><UIScripts><Item>module-shell.js</Item></UIScripts></Actions></ActionGroup></ActionGroups></Mod>'
+    );
+    await write(
+      root,
+      "Base/modules/base-standard/config/config.xml",
+      `<Database><Maps>${Array.from({ length: 14 }, (_, index) => `<Row File="{base-standard}maps/map-${index}.js" />`).join("")}<Row File="{base-standard}maps/EarthMaps/Earth_Huge.Civ7Map" /></Maps></Database>`
+    );
+    await write(root, "Base/modules/base-standard/maps/EarthMaps/Earth_Huge.Civ7Map", "opaque map");
+
+    const catalog = await buildBaseModuleCatalog(root);
+    const emission = emitBaseDeclarationProjection(catalog);
+    const loader = emission.shards.find((shard) => shard.virtualId === "/core/module-shell.js");
+    expect(
+      catalog.declarationModules.find((module) => module.virtualId === "/core/module-shell.js")
+    ).toMatchObject({
+      evidenceKind: "compiled-import-barrel",
+      compiledPath,
+      mapPath: `${compiledPath}.map`,
+    });
+    expect(loader?.text).toBe('import "/core/components.js";\nimport "/core/runtime.js";\n');
+    expect(loader?.edges).toMatchObject([
+      { originalSpecifier: "./components.js", status: "declaration" },
+      { originalSpecifier: "./runtime.js", status: "compiled-only" },
+    ]);
+    expect(loader?.diagnostics).toEqual([]);
+    expect(emission.anyKeywordCount).toBe(0);
+    const realms = await projectDeclarationRealms(root, catalog, emission.edges);
+    expect(realms.shell.moduleIds).toEqual(["/core/components.js", "/core/module-shell.js"]);
+    expect(realms.shell.nonDeclarationRoots).toEqual([]);
+    expect(
+      emission.shards.find((shard) => shard.virtualId === "/core/components.js")?.text
+    ).toContain('"fixture-button": HTMLElement');
+  });
+
+  test.each([
+    'import "./behavior.js"; globalThis.ready = true;',
+    'import behavior from "./behavior.js";',
+    'import "./behavior.js" with { type: "json" };',
+    'import("./behavior.js");',
+    'import "./behavior.css";',
+    "",
+  ])("does not infer an import barrel from other compiled JavaScript: %s", async (source) => {
+    const root = await tempRoot();
+    await writeSolidEvidence(root);
+    await write(root, "Base/modules/core/other.js", source);
+    await write(
+      root,
+      "Base/modules/core/other.js.map",
+      JSON.stringify({ version: 3, sources: [], sourcesContent: [] })
+    );
+    const catalog = await buildBaseModuleCatalog(root);
+    expect(catalog.declarationModules).toEqual([]);
+    expect(catalog.compiledModuleIds).toContain("/core/other.js");
+    expect(emitBaseDeclarationProjection(catalog).shards).toEqual([]);
+  });
+
   test("records extracted SCSS evidence without retaining runtime styles in declarations", async () => {
     const root = await tempRoot();
     await writeSolidEvidence(root);

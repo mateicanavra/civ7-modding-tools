@@ -5,6 +5,7 @@ export declare class RuleAvoidEdge extends Rule {
     configValues: any;
     name: string;
     description: string;
+    isStatic: boolean;
     private randomOffsetTop;
     private randomOffsetBottom;
     static getName(): string;

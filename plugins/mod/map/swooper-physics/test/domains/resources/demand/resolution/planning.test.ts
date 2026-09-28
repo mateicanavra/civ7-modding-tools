@@ -5,6 +5,7 @@ import {
   resolveResourceRuntimeIds,
 } from "@civ7/map-policy";
 import {
+  admitPositiveResourceRegionMinimum,
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   getInitialMapResourcePolicyForType,
   HABITAT_MASK_FIELD_NAMES,
@@ -319,14 +320,28 @@ describe("resource demand resolution", () => {
     });
   });
 
-  it("fails closed when a positive regional minimum has no engine observation", () => {
-    expect(() => run(buildFixture("RESOURCE_GOLD", [], "RESOURCE_GOLD"))).toThrow(
-      /Missing required-for-age observation for RESOURCE_GOLD with official regional minimum 8/
-    );
+  it("admits a non-staple minimum and exact fractional weights without engine observations", () => {
+    for (const resourceType of [
+      "RESOURCE_FISH",
+      "RESOURCE_GOLD",
+      "RESOURCE_HIDES",
+      "RESOURCE_TIN",
+    ] as const) {
+      const candidate = run(buildFixture(resourceType)).candidates.admitted.find(
+        (row) => row.source.resourceType === resourceType
+      );
+      const official = resolveResourceRuntimeIds().byType.get(resourceType)!;
+      expect(candidate?.demand.weight).toBe(official.weight);
+      expect(candidate?.demand.regionMinimumRequirement).toEqual({
+        kind: "required",
+        minimumPerLandmass: admitPositiveResourceRegionMinimum(official.minimumPerLandmass),
+        source: "official-resource",
+      });
+    }
   });
 
   it("preserves the legal-only regional-minimum pass when habitat has no overlap", () => {
-    const input = buildFixture("RESOURCE_GOLD", [], undefined, "empty-primary-habitat");
+    const input = buildFixture("RESOURCE_GOLD", [], "empty-primary-habitat");
 
     const resolved = run(input);
     const candidate = resolved.candidates.admitted.find(
@@ -353,7 +368,6 @@ describe("resource demand resolution", () => {
         landmassIdByTile: new Int32Array(size),
         landmassTileCounts: [size],
         regionSlotByTile,
-        minimumAmountModifier: resolved.minimumAmountModifier,
         demands: [
           {
             resourceType: candidate.source.resourceType,
@@ -431,7 +445,6 @@ describe("resource demand resolution", () => {
   function buildFixture(
     requestedType: OfficialResourceType = selectedResourceFixture().resourceType,
     riverMasks: Uint8Array[] = [],
-    omitRequiredObservation?: OfficialResourceType,
     habitatMode: "admitted" | "empty-primary-habitat" = "admitted"
   ): ResolveInput {
     const selected = selectedResourceFixture(requestedType);
@@ -449,15 +462,6 @@ describe("resource demand resolution", () => {
       if (!signal) throw new Error(`Missing ${requestedType} habitat signal.`);
       for (const field of signal.primary) habitatMasks[field].fill(0);
     }
-    const requiredForAge = Object.fromEntries(
-      [...resolveResourceRuntimeIds().byType.entries()]
-        .filter(
-          ([resourceType, value]) =>
-            value.minimumPerHemisphere > 0 && resourceType !== omitRequiredObservation
-        )
-        .map(([resourceType]) => [resourceType, true])
-    );
-
     return {
       width,
       height,
@@ -472,9 +476,7 @@ describe("resource demand resolution", () => {
         featureType: new Int32Array(size).fill(selected.placementRow[2]),
         engineWaterMask: new Uint8Array(size),
       },
-      requiredForAge,
       riverMasks,
-      minimumAmountModifier: 0,
     };
   }
 });
@@ -497,7 +499,6 @@ function selectedResourceFixture(requestedType?: OfficialResourceType): {
       signal !== undefined &&
       (requestedType !== undefined || signal.laneKind === "land") &&
       resolved !== undefined &&
-      (requestedType !== undefined || resolved.minimumPerHemisphere === 0) &&
       getInitialMapResourcePolicyForType(row.resourceType, INITIAL_MAP_RESOURCE_AUTHORING_AGE)
         ?.status === "eligible" &&
       (requestedType !== undefined || (validRows[String(resolved.resourceTypeId)]?.length ?? 0) > 0)

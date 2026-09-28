@@ -35,6 +35,7 @@ export interface VictoriesPopupDataModel {
     setAnyPlayerDominant: Setter<boolean>;
     players: VictoriesPlayerRecord[];
     victoryUnlockBanner: boolean;
+    showBanner: boolean;
     unlockedVictories: VictoriesUnlockedTiers[];
     extraClass: Accessor<string>;
     setExtraClass: Setter<string>;

@@ -21,6 +21,12 @@ import {
   inspectGeneratedFilePlan,
 } from "@civ7/plugin-files/generated-file-plan";
 import { generateMapMetadataSource } from "./map-metadata.js";
+import {
+  RESOURCE_GAMEPLAY_SCHEMA,
+  readResourceDefaults,
+  resolveResourceFacts,
+  resolveResourcePlacementWeight,
+} from "./resource-data.js";
 import { generateSetupParameterSource } from "./setup-parameters.js";
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
@@ -58,7 +64,6 @@ const DLC_MOUNTAIN_TERRAIN = "DLC/mountain-natural-wonders/modules/data/terrain.
 const DLC_WATER_TERRAIN = "DLC/water-wonders/modules/data/terrain.xml";
 const BASE_RESOURCES = "Base/modules/base-standard/data/resources.xml";
 const BASE_RESOURCES_V2 = "Base/modules/base-standard/data/resources-v2.xml";
-const MAPS_XML = "Base/modules/base-standard/data/maps.xml";
 
 /** V0 source list — kept verbatim (order included) for byte-stable output. */
 const V0_SOURCES = [
@@ -248,8 +253,13 @@ const resourceOrder = resourceRowsRaw.map((r) => r.ResourceType);
 if (!resourceOrder.length) fatal("no resource rows found");
 assertNoDuplicates("resource", resourceOrder);
 const resourceTypes = indexByOrder(resourceOrder);
+const resourceDefaults = readResourceDefaults(readSub(RESOURCE_GAMEPLAY_SCHEMA));
 
 const resourceValidPlacementRows: Record<number, Array<[number, number, number]>> = {};
+const weightedResourceValidPlacementRows: Record<
+  number,
+  Array<[number, number, number, number]>
+> = {};
 for (const row of rowsAcross(RESOURCE_SOURCE_FILES, "Resource_ValidBiomes")) {
   if (!row.ResourceType || !row.BiomeType || !row.TerrainType) continue;
   const r = requireIndex(resourceTypes, row.ResourceType, "resource (Resource_ValidBiomes)");
@@ -260,6 +270,12 @@ for (const row of rowsAcross(RESOURCE_SOURCE_FILES, "Resource_ValidBiomes")) {
       ? requireIndex(featureTypes, row.FeatureType, "feature (Resource_ValidBiomes)")
       : -1;
   (resourceValidPlacementRows[r] ??= []).push([b, t, f]);
+  (weightedResourceValidPlacementRows[r] ??= []).push([
+    b,
+    t,
+    f,
+    resolveResourcePlacementWeight(row, resourceDefaults),
+  ]);
 }
 
 const resourcePlacementFlags: Record<number, { adjacentToLand: boolean; lakeEligible: boolean }> =
@@ -323,23 +339,19 @@ type ResourceRowV1 = {
   type: string;
   classType: string;
   weight: number;
-  minimumPerHemisphere: number;
-  hemisphereUnique: boolean;
+  minimumPerLandmass: number;
+  landmassUnique: boolean;
   staple: boolean;
   tradeable: boolean;
   unlocksCiv: boolean;
 };
 const resourceRows: Record<string, ResourceRowV1> = {};
 resourceRowsRaw.forEach((row, idx) => {
-  if (row.Weight === undefined) fatal(`resource ${row.ResourceType} has no Weight`);
   if (!row.ResourceClassType) fatal(`resource ${row.ResourceType} has no ResourceClassType`);
   resourceRows[String(idx)] = {
     type: row.ResourceType,
     classType: row.ResourceClassType,
-    weight: Number(row.Weight),
-    minimumPerHemisphere:
-      row.MinimumPerHemisphere !== undefined ? Number(row.MinimumPerHemisphere) : 0,
-    hemisphereUnique: row.HemisphereUnique === "true",
+    ...resolveResourceFacts(row, resourceDefaults),
     staple: row.Staple === "true",
     tradeable: row.Tradeable !== "false",
     unlocksCiv: row.UnlocksCiv === "true",
@@ -361,17 +373,6 @@ for (const row of rowsAcross(allResourceDataFiles, "Resource_RequiredLeaders")) 
   if (!list.includes(row.LeaderType)) list.push(row.LeaderType);
 }
 for (const leaders of Object.values(resourceRequiredLeaders)) leaders.sort();
-
-type MinimumAmountModifierRow = { mapType: string; mapSizeType: string; amount: number };
-const mapResourceMinimumAmountModifier: MinimumAmountModifierRow[] = rowsIn(
-  MAPS_XML,
-  "MapResourceMinimumAmountModifier"
-)
-  .filter((r) => r.MapType && r.MapSizeType && r.Amount !== undefined)
-  .map((r) => ({ mapType: r.MapType!, mapSizeType: r.MapSizeType!, amount: Number(r.Amount) }));
-if (!mapResourceMinimumAmountModifier.length) {
-  fatal("no MapResourceMinimumAmountModifier rows found");
-}
 
 // --- StartBias tables ------------------------------------------------------
 
@@ -468,7 +469,12 @@ const startGlobals = {
   startSectorWeight: jsGlobal(mapGlobalsSource, "g_StartSectorWeight"),
 };
 
-const v1Sources = [...allResourceDataFiles, MAPS_XML, MAP_GLOBALS, ...startBiasFiles];
+const v1Sources = [
+  ...allResourceDataFiles,
+  RESOURCE_GAMEPLAY_SCHEMA,
+  MAP_GLOBALS,
+  ...startBiasFiles,
+];
 
 // ---------------------------------------------------------------------------
 // Emission — V0 formatting must stay byte-stable with the committed tables
@@ -563,8 +569,8 @@ const file = `/* eslint-disable */
  * Purpose:
  * - Provide Civ7-derived terrain/biome/feature indices and river metadata for mock generation.
  * - Keep browser Studio, diagnostics, and adapter mocks on the same GameInfo order.
- * - V1 adds resource weights, hemisphere minimums, age validity, and requirement owners,
- *   MapResourceMinimumAmountModifier rows, StartBias tables, and start-buffer
+ * - V1 adds resource weights, landmass minimums and uniqueness, age validity, requirement owners,
+ *   schema defaults, weighted placement rows, StartBias tables, and start-buffer
  *   globals for policy-grounded placement planning.
  */
 
@@ -591,17 +597,11 @@ export type Civ7ResourceRowV1 = {
   readonly type: string;
   readonly classType: string;
   readonly weight: number;
-  readonly minimumPerHemisphere: number;
-  readonly hemisphereUnique: boolean;
+  readonly minimumPerLandmass: number;
+  readonly landmassUnique: boolean;
   readonly staple: boolean;
   readonly tradeable: boolean;
   readonly unlocksCiv: boolean;
-};
-
-export type Civ7MapResourceMinimumAmountModifierRowV1 = {
-  readonly mapType: string;
-  readonly mapSizeType: string;
-  readonly amount: number;
 };
 
 export type Civ7StartBiasValueRowV1 = {
@@ -620,14 +620,23 @@ export type Civ7StartBiasScoreRowV1 = {
 export type Civ7PolicyTablesV1 = {
   readonly version: 1;
   readonly source: readonly string[];
+  /** Defaults read from the official gameplay schema, not placement-product policy. */
+  readonly resourceDefaults: {
+    readonly weight: number;
+    readonly minimumPerLandmass: number;
+    readonly landmassUnique: boolean;
+    readonly placementWeight: number;
+  };
   /** Per-resource catalog row, keyed by GameInfo resource index. */
   readonly resourceRows: Readonly<Record<string, Civ7ResourceRowV1>>;
   /** Ages each resource is valid in (Resource_ValidAges), keyed by resource index. */
   readonly resourceValidAges: Readonly<Record<string, readonly string[]>>;
   /** Leaders naming each resource in Resource_RequiredLeaders (including DLC), keyed by resource index. */
   readonly resourceRequiredLeaders: Readonly<Record<string, readonly string[]>>;
-  /** GameInfo.MapResourceMinimumAmountModifier rows (maps.xml). */
-  readonly mapResourceMinimumAmountModifier: readonly Civ7MapResourceMinimumAmountModifierRowV1[];
+  /** Official biome/terrain/feature tuples with their independent placement-row weight. */
+  readonly resourceValidPlacementRows: Readonly<Record<string, readonly (readonly [
+    biome: number, terrain: number, feature: number, weight: number
+  ])[]>>;
   /** GameInfo.StartBias* rows across base + DLC civilization/leader data. */
   readonly startBias: {
     readonly biomes: readonly Civ7StartBiasValueRowV1[];
@@ -654,10 +663,11 @@ export const CIV7_POLICY_TABLES_V1: Civ7PolicyTablesV1 = ${JSON.stringify(
   {
     version: 1,
     source: v1Sources,
+    resourceDefaults,
     resourceRows,
     resourceValidAges,
     resourceRequiredLeaders,
-    mapResourceMinimumAmountModifier,
+    resourceValidPlacementRows: weightedResourceValidPlacementRows,
     startBias,
     startGlobals,
   },
@@ -734,7 +744,6 @@ console.log(
     `validPlacementResources=${count(resourceValidPlacementRows)}`,
     `resourceRows=${count(resourceRows)}`,
     `requiredLeaderResources=${count(resourceRequiredLeaders)}`,
-    `minAmountModifierRows=${mapResourceMinimumAmountModifier.length}`,
     `startBiasRows=${Object.values(startBias).reduce((n, rows) => n + rows.length, 0)}`,
     `startBiasFiles=${startBiasFiles.length}`,
     `dlcResourceFiles=${dlcResourceFiles.length}`,

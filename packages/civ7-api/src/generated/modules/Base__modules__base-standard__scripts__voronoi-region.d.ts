@@ -2,10 +2,6 @@ import { QuadTree } from "/base-standard/scripts/quadtree.js";
 import { RegionType } from "/base-standard/scripts/voronoi-types.js";
 import { RegionCell, WrapDistOptions } from "/base-standard/scripts/voronoi-utils.js";
 import { Rule, ScoringContext } from "/base-standard/scripts/voronoi_rules/rules-base.js";
-declare class IdScorePair {
-    id: number;
-    score: number;
-}
 export declare abstract class VoronoiRegion {
     name: string;
     id: number;
@@ -15,16 +11,24 @@ export declare abstract class VoronoiRegion {
     playerAreas: number;
     color: float3;
     seedLocation: float2;
-    considerationList: IdScorePair[];
-    cellCount: number;
     latestAddedCell: RegionCell | null;
+    ruleSetKey?: string;
     minOrder: number;
+    cellCount: number;
+    private considerationHeap;
+    private latestScorePairId;
+    private nextScorePairId;
+    private cycle;
+    private dynamicRules;
+    private staticRules;
+    private staticScores;
     private scoringContext;
     private quadTree;
     constructor(name: string, id: number, groupId: number, type: RegionType, maxArea: number, playerAreas: number);
     abstract setRegionIdForCell(cell: RegionCell, id: number, scoringContext: ScoringContext): void;
     abstract getRegionIdForCell(cell: RegionCell): number;
     abstract isCellClaimed(cell: RegionCell): boolean;
+    pushConsideration(cellId: number, score: number): void;
     prepareGrowth(regionCells: RegionCell[], regions: VoronoiRegion[], rules: Record<string, Rule>, worldDims: float2, plateRegions: PlateRegion[], wrap: WrapDistOptions): void;
     growStep(): boolean;
     logStats(): void;
@@ -45,4 +49,3 @@ export declare class PlateRegion extends VoronoiRegion {
     getRegionIdForCell(cell: RegionCell): number;
     isCellClaimed(cell: RegionCell): boolean;
 }
-export {};

@@ -139,7 +139,7 @@ const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
         laneId: row.laneId,
         laneKind: row.laneKind,
         weight: row.weight,
-        effectiveWeight: Math.pow(Math.max(1, row.weight) / 10, rarityFidelity),
+        effectiveWeight: Math.pow(row.weight, rarityFidelity),
         authoredTargetCount: row.targetCount,
         effectiveTargetCount,
         minCount: row.minCount,
@@ -407,8 +407,8 @@ const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
     }
 
     // --- region-minimum pass ---------------------------------------------------------------------
-    // Official semantics: per landmass-region, the admitted minimum plus the active
-    // MapResourceMinimumAmountModifier, forced onto legal plots with no adjacent resource.
+    // Every active resource gets its official minimum in each positive engine-region slot
+    // with legal candidates. Connected-island IDs and region zero do not create obligations.
     const regionMinimums: Array<{
       resourceType: OfficialResourceType;
       regionSlot: number;
@@ -419,10 +419,13 @@ const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
     }> = [];
     for (const demand of demands) {
       if (demand.regionMinimumRequirement.kind !== "required") continue;
-      const { minimumPerHemisphere } = demand.regionMinimumRequirement;
-      const required = Math.max(0, minimumPerHemisphere + input.minimumAmountModifier);
-      if (required === 0) continue;
-      for (const regionSlot of [1, 2] as const) {
+      const required = demand.regionMinimumRequirement.minimumPerLandmass;
+      const legalRegionSlots = new Set<number>();
+      for (let plotIndex = 0; plotIndex < size; plotIndex++) {
+        const regionSlot = regionSlotByTile[plotIndex] ?? 0;
+        if (regionSlot > 0 && demand.legalMask[plotIndex] !== 0) legalRegionSlots.add(regionSlot);
+      }
+      for (const regionSlot of [...legalRegionSlots].sort((a, b) => a - b)) {
         const have = demand.plannedPlots.filter(
           (plot) => (regionSlotByTile[plot] ?? 0) === regionSlot
         ).length;

@@ -38,7 +38,7 @@ export declare abstract class GeneratorSchemaGroup {
 export type GeneratorSchema = Record<string, ParameterSpec | GeneratorSchemaGroup>;
 export type GeneratorSettingGroup = Record<string, number | boolean>;
 export interface GeneratorSettingRecord {
-    [key: string]: number | boolean | GeneratorSettingRecord | GeneratorSettingRecord[] | GeneratorSettingGroup | GeneratorSettingGroup[];
+    [key: string]: number | string | boolean | GeneratorSettingRecord | GeneratorSettingRecord[] | GeneratorSettingGroup | GeneratorSettingGroup[] | undefined;
 }
 export declare abstract class MapGenerator {
     protected m_generatorSettings: GeneratorSettingRecord;
@@ -58,7 +58,7 @@ export declare abstract class MapGenerator {
     abstract getSchema(): GeneratorSchema;
     init(worldDims: float2, diagram: Diagram, hexDims: float2, wrap?: WrapType): void;
     logSettings(): void;
-    static buildDefaultSettings(nodes: GeneratorSchema): GeneratorSettingRecord;
+    static buildDefaultSettings(nodes: GeneratorSchema): ConfigValueRecord;
     private initializeRules;
     getRegionCells(): readonly RegionCell[];
     getPlateCells(): readonly RegionCell[];

@@ -3,7 +3,7 @@
  * @copyright 2020-2024, Firaxis Games
  * @description Handles the tooltips for the world (plots), and 2D UI pieces.
  */
-import { IEngineInputHandler, InputEngineEvent, NavigateInputEvent } from "/core/ui/input/input-support.js";
+import { IEngineInputHandler, InputEngineEvent, InputHandlerState, NavigateInputEvent } from "/core/ui/input/input-support.js";
 export interface TooltipType<T extends HTMLElement | PlotCoord = HTMLElement> {
     /** Obtain the (top) HTML element associated with this tooltip's type. */
     getHTML(): ComponentRoot<Tooltip>;
@@ -57,8 +57,8 @@ declare class TooltipManagerSingleton implements IEngineInputHandler {
     static getInstance(): TooltipManagerSingleton;
     onReady(): void;
     private reset;
-    handleInput(inputEvent: InputEngineEvent): boolean;
-    handleNavigation(_navigationEvent: NavigateInputEvent): boolean;
+    handleInput(inputEvent: InputEngineEvent): InputHandlerState;
+    handleNavigation(_navigationEvent: NavigateInputEvent): InputHandlerState;
     private onEngineInput;
     private hideTooltips;
     private fadeIn;

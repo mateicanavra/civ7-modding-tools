@@ -14,6 +14,11 @@ export interface MapSettingConfig {
     step?: number;
     hidden?: boolean;
 }
+export interface MapConfigGroup {
+    label: string;
+    description?: string;
+    children: MapSettingSchema;
+}
 export type MapGeneratorSettings = ContinentGeneratorSettings;
 export interface MapTypeSetting {
     generatorType: GeneratorType;
@@ -46,14 +51,14 @@ export interface MapVariant {
     settings: Record<string, MapVariantSetting>;
 }
 export type MapVariants = Record<string, MapVariant>;
-export type MapSettingSchema = Record<string, MapSettingConfig>;
+export type MapSettingSchema = Record<string, MapSettingConfig | MapConfigGroup>;
 export interface MapBaseSettings extends ConfigValueRecord {
     totalPlayers: number;
     voronoiCellCountMultiple: number;
     voronoiRelaxationSteps: number;
     wrapX: boolean;
 }
-export declare const voronoiMapSchema: Record<string, MapSettingConfig>;
+export declare const voronoiMapSchema: Record<string, MapSettingConfig | MapConfigGroup>;
 export declare abstract class VoronoiMap<T extends MapBaseSettings = MapBaseSettings> {
     protected m_baseSchema: MapSettingSchema & {
         [K in keyof MapBaseSettings]: MapSettingConfig;
@@ -63,12 +68,14 @@ export declare abstract class VoronoiMap<T extends MapBaseSettings = MapBaseSett
     protected m_settings: T;
     protected m_variants: MapVariants;
     protected m_defaultSettings: MainSettings;
-    protected m_defaultJson: object;
+    protected m_defaultJson?: object;
     protected m_primarySettings: MainSettings;
     protected m_builderNeedsInit: boolean;
     protected m_hexDims: float2;
     protected m_generator: MapGenerator;
     protected m_hexTiles: HexMap;
+    protected m_ruleSetKeysToPlayerRegionIdMap: Map<string, number> | undefined;
+    protected m_playerLandmassIdRemap: Map<number, Map<number, number>> | undefined;
     private m_rndInitState;
     private m_rndSimulateInternalState;
     private m_rndSimulateState;

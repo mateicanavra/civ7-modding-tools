@@ -152,6 +152,8 @@ describe("Civ7 map-script module resolution", () => {
         "type BiomeType = number;",
         "type FeatureType = number;",
         "type ResourceType = number;",
+        // Native engine ambient, opaque here: this fixture tests resolution, not its fields.
+        "interface ResourceDefinition { readonly __nativeResourceDefinition: unique symbol }",
         "interface ContinentBoundary { west: number; east: number; south: number; north: number }",
         "interface ParameterSpecGroup { readonly [key: string]: unknown }",
         "",
@@ -168,6 +170,7 @@ describe("Civ7 map-script module resolution", () => {
         'import { addFeatures, designateBiomes } from "/base-standard/maps/feature-biome-generator.js";',
         'import { needHumanNearEquator } from "/base-standard/maps/map-utilities.js";',
         'import * as resourceGenerator from "/base-standard/maps/resource-generator.js";',
+        'import { prepareResourceSet } from "/base-standard/maps/resource-placement-common.js";',
         'import { generateSnow } from "/base-standard/maps/snow-generator.js";',
         'import { VoronoiUtils } from "/base-standard/scripts/voronoi-utils.js";',
         "void [",
@@ -182,6 +185,7 @@ describe("Civ7 map-script module resolution", () => {
         "  designateBiomes,",
         "  needHumanNearEquator,",
         "  resourceGenerator,",
+        "  prepareResourceSet,",
         "  generateSnow,",
         "  VoronoiUtils,",
         "];",
@@ -220,7 +224,7 @@ describe("Civ7 map-script module resolution", () => {
     const mappedShards = Object.values(generatedConfig.compilerOptions.paths).map(
       ([declaration]) => declaration
     );
-    expect(Object.keys(generatedConfig.compilerOptions.paths)).toHaveLength(23);
+    expect(Object.keys(generatedConfig.compilerOptions.paths)).toHaveLength(24);
     expect(Object.keys(generatedConfig.compilerOptions.paths).some((id) => id.includes("*"))).toBe(
       false
     );

@@ -95,6 +95,10 @@ export declare class PanelDiploRibbon extends Panel {
      */
     private onUserOptionChanged;
     private techCivicPopupVisibility;
+    /**
+     * Always minimize the diplo ribbons if we lose focus
+     */
+    private onFocusout;
 }
 declare global {
     interface HTMLElementTagNameMap {
