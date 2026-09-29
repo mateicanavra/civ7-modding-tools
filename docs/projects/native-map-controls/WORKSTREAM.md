@@ -6,6 +6,12 @@ Opening branch: `agent-root-civ7-native-map-controls-frame`.
 
 ## Frame
 
+The accepted [continuation sequence](continuation-sequence.md) resumes the
+full Earth-reference, causal-repair, calibration and native-qualification loop
+after resolving thermal publication. It owns current dependency order and
+which retained experiments remain valid; no repeated approval is required for
+work inside the user's delegated scope.
+
 The [calibration question sheet](calibration-question-sheet.md) consolidates
 the user's 2026-09-29 questions and delegated continuation: first correct the
 effective Earthlike baseline, then establish fixed-Earth references and
