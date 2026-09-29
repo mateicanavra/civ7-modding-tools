@@ -11,7 +11,8 @@ one canonical immutable data-product authority.
 Required shape:
 
 - exports only `artifact = defineArtifact(...)` as runtime authority;
-- defines the complete payload schema directly in `schema: Type.*(...)`;
+- defines the complete payload schema directly in `schema: Type.*(...)` or
+  Core `schema: TypedArraySchemas.*(...)`;
 - defines any relational or domain refinement directly in `refine`;
 - composes only smaller model atoms rather than borrowing another owner's
   complete payload schema.
