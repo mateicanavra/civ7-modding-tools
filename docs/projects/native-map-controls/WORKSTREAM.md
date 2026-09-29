@@ -11,6 +11,12 @@ observational stopping point and historical Graphite publication gate. The user
 has explicitly authorized native Graphite repair and continuation through
 design, implementation, independent review and actual outcome verification.
 
+The [Earth calibration packet](earth-calibration.md) adds the measured Firaxis
+Huge comparison and a fixed-surface/reference-forcing benchmark design. It
+separates physical-model calibration from native visual repair and gameplay
+NAV coverage. No Earth fixture or new default tuning is implemented by that
+packet; accepted fixes remain in this isolated stack, not merged to main.
+
 Map authors should see the physical heightfield and connected minor/navigable
 river network produced by Swooper realized faithfully in Civ7, rather than
 reconstructed by unrelated native generators. Studio must remain usable from
