@@ -62,6 +62,13 @@ calibration, and era-qualified ship traversal. The Earth fixture and benchmark
 below are not implemented. This investigation changes no runtime defaults and
 does not claim a fresh live-game acceptance run.
 
+The cutoff20 diagnostic already repairs the tested large-lake shorelines
+without expanding water or changing physical drainage. The open question is
+general production coverage, not a demonstrated flaw in that treatment.
+Qualify a bounded map-scoped classification policy before adding a new height
+reapplication pass; failure of an unlimited cutoff does not reject this simpler
+option. The normal restored map still uses cutoff10.
+
 ## Shipped Earth Census
 
 Both maps have 106 x 66 = 6,996 cells. The primary comparison is unique authored

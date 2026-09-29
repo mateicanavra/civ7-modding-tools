@@ -1,6 +1,6 @@
 # Native Map Controls
 
-Status: active coherence completion. Elevation, climate, relief and generalized wet NAV outlet declarations are accepted. Native classification causes the remaining artificial large-lake cliffs; the controlled visual repair is proven, but an unlimited lake cutoff also reclassifies oceans and is rejected. A general height-lifecycle repair, basin-aware terrain evolution, density calibration and actual naval traversal remain open. See [request accounting and solution path](coherence-completion.md).
+Status: active coherence completion. Elevation, climate, relief and generalized wet NAV outlet declarations are accepted in this stack. Cutoff20 preserves existing lake heights and repairs artificial large-lake cliffs without enlarging water footprints. Unlimited classification is rejected; a bounded map-scoped policy remains viable and should be qualified before preferring height reapplication. General production coverage, basin-aware terrain evolution, density calibration and actual naval traversal remain open. See [request accounting and solution path](coherence-completion.md).
 DRA: root. Opened: 2026-09-27.
 Opening branch: `agent-root-civ7-native-map-controls-frame`.
 
