@@ -6,6 +6,7 @@ import {
 import { type CountMetric, measureMetricCount } from "@swooper/mapgen-metrics";
 
 import type { StandardMapCapture } from "../../capture.js";
+import { BASIN_TERMINAL } from "../../../../../domain/hydrology/modules/hydrography/model/atoms/basin-network.schema.js";
 import { measureStandardBasinNetwork, type StandardBasinNetworkMetrics } from "./basin-network.js";
 import { measureStandardNetworkCoherence } from "./network-coherence.js";
 import {
@@ -46,7 +47,7 @@ export function measureStandardHydrology(capture: StandardMapCapture): StandardH
   let riverTiles = 0;
   let minorRiverTiles = 0;
   let majorRiverTiles = 0;
-  let outletTiles = physical.model === "certified-sill-spill" ? physical.marineExits.length : 0;
+  let outletTiles = physical.model === "certified-sill-spill" ? physical.marineExits.length + physical.boundaryExits.length : 0;
   let terminalOceanTiles = 0;
 
   for (let index = 0; index < tileCount; index += 1) {
@@ -56,7 +57,7 @@ export function measureStandardHydrology(capture: StandardMapCapture): StandardH
     if (isMajorRiverClass(riverClass)) majorRiverTiles += 1;
     if (physical.model === "legacy-sink-budget" && physical.outletMask[index] === 1)
       outletTiles += 1;
-    if (capture.model.terminalType[index] === 1) terminalOceanTiles += 1;
+    if (capture.model.terminalType[index] === BASIN_TERMINAL.marine) terminalOceanTiles += 1;
   }
 
   return Object.freeze({

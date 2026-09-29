@@ -9,6 +9,9 @@ import {
   HYDROLOGY_FLOW_INTERMITTENT,
   HYDROLOGY_FLOW_PERENNIAL,
   HYDROLOGY_MOUTH_ACCEPTED_LAKE,
+  HYDROLOGY_MOUTH_BOUNDARY_EXPORT,
+  HYDROLOGY_MOUTH_SUBTILE,
+  HYDROLOGY_MOUTH_DRY,
   HYDROLOGY_MOUTH_CLOSED_BASIN,
   HYDROLOGY_MOUTH_OCEAN,
   HYDROLOGY_MOUTH_SPILL_PATH,
@@ -186,11 +189,13 @@ describe("Standard river-network measurements", () => {
     const measurements = measureStandardRiverNetwork({
       model: "certified-sill-spill",
       width: 4,
+      componentId: Int32Array.of(0, 2, 0, 0),
+      terminalType: Uint8Array.of(1, 1, 1, 0),
       height: 1,
       landMask: new Uint8Array([1, 1, 1, 0]),
       discharge: [5, 0, 3, 0],
       riverClass: new Uint8Array([RIVER_CLASS_MAJOR, 0, RIVER_CLASS_MINOR, 0]),
-      flowDir: new Int32Array([1, 2, 3, -1]),
+      flowDir: new Int32Array([1, -2, 3, -1]),
       basinId: new Int32Array([3, 3, 3, -1]),
       lakeMask: new Uint8Array([0, 1, 0, 0]),
       upstreamArea: new Int32Array([1, 2, 3, 0]),
@@ -212,11 +217,13 @@ describe("Standard river-network measurements", () => {
     const measurements = measureStandardRiverNetwork({
       model: "certified-sill-spill",
       width: 2,
+      componentId: Int32Array.of(0, 2),
+      terminalType: Uint8Array.of(3, 3),
       height: 1,
       landMask: new Uint8Array([1, 1]),
       discharge: [5, 0],
       riverClass: new Uint8Array([RIVER_CLASS_MINOR, 0]),
-      flowDir: new Int32Array([1, -1]),
+      flowDir: new Int32Array([1, -2]),
       basinId: new Int32Array([1, 1]),
       lakeMask: new Uint8Array([0, 1]),
       upstreamArea: new Int32Array([1, 2]),
@@ -227,5 +234,35 @@ describe("Standard river-network measurements", () => {
     expect(measurements.mouthSourceTileCount).toBe(1);
     expect(measurements.resolvedMouthTileCount).toBe(0);
     expect(measurements.unresolvedMouthTileCount).toBe(1);
+  });
+
+  it("exempts only component principal attachments, not ordinary downstream discharge drops", () => {
+    const input = {
+      model: "certified-sill-spill" as const, width: 6, height: 1,
+      landMask: Uint8Array.of(1, 1, 1, 1, 1, 0), lakeMask: Uint8Array.of(0, 0, 1, 0, 0, 0),
+      componentId: Int32Array.of(0, 2, 2, 0, 0, 0), terminalType: Uint8Array.of(1, 1, 1, 1, 1, 0),
+      discharge: [10, 5, 0, 6, 4, 0], flowDir: Int32Array.of(1, 3, -2, 4, 5, -1),
+      basinId: Int32Array.of(5, 5, 5, 5, 5, -1), riverClass: Uint8Array.of(2, 2, 0, 2, 2, 0),
+      upstreamArea: new Int32Array(6), streamOrderProxy: new Uint8Array(6),
+      mouthType: Uint8Array.of(1, 1, 0, 1, 1, 0), flowPermanenceProxy: new Uint8Array(6),
+    };
+    expect(measureStandardRiverNetwork(input).downstreamDischargeDropEdgeCount).toBe(1);
+    input.componentId[1] = 0;
+    expect(measureStandardRiverNetwork(input).downstreamDischargeDropEdgeCount).toBe(2);
+    input.flowDir[0] = -2;
+    expect(measureStandardRiverNetwork(input).invalidReceiverTileCount).toBeGreaterThan(0);
+  });
+
+  it("counts boundary, subtile and dry terminal roles as resolved without calling them ocean mouths", () => {
+    const measurements = measureStandardRiverNetwork({
+      model: "certified-sill-spill", width: 3, height: 1,
+      landMask: Uint8Array.of(1, 1, 1), lakeMask: new Uint8Array(3), componentId: Int32Array.of(0, 2, 3),
+      terminalType: Uint8Array.of(2, 4, 5), discharge: [0, 0, 0], flowDir: Int32Array.of(-1, -2, -2), basinId: Int32Array.of(1, 2, 3),
+      riverClass: new Uint8Array(3), upstreamArea: new Int32Array(3), streamOrderProxy: new Uint8Array(3),
+      mouthType: Uint8Array.of(HYDROLOGY_MOUTH_BOUNDARY_EXPORT, HYDROLOGY_MOUTH_SUBTILE, HYDROLOGY_MOUTH_DRY),
+      flowPermanenceProxy: new Uint8Array(3),
+    });
+    expect(measurements).toMatchObject({ resolvedMouthTileCount: 3, unresolvedMouthTileCount: 0, oceanMouthTileCount: 0,
+      invalidReceiverTileCount: 0, boundaryExportMouthTileCount: 1, subtileMouthTileCount: 1, dryBasinMouthTileCount: 1 });
   });
 });

@@ -35,7 +35,7 @@ export type NetworkInput = Readonly<{
 }>;
 
 export function requireValid(condition: unknown, message: string): asserts condition {
-  if (!condition) throw new RangeError(`Invalid open-basin network input: ${message}.`);
+  if (!condition) throw new RangeError(`Invalid basin network input: ${message}.`);
 }
 
 export function finite(value: number, name: string): number {

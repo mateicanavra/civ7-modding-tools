@@ -21,7 +21,8 @@ export default createStage({
         [Type.Literal("sparse"), Type.Literal("normal"), Type.Literal("dense")],
         {
           default: "normal",
-          description: "Adjusts minor and major channel discharge thresholds relative to authored values.",
+          description:
+            "Adjusts minor and major channel discharge thresholds relative to authored values.",
         }
       ),
     },
@@ -41,7 +42,8 @@ export default createStage({
                 [Type.Literal("few"), Type.Literal("normal"), Type.Literal("many")],
                 {
                   default: "normal",
-                  description: "Adjusts legacy sink admission and lake expansion budgets relative to authored values.",
+                  description:
+                    "Adjusts legacy sink admission and lake expansion budgets relative to authored values.",
                 }
               ),
               drainageRouting: envelopes.drainageRouting,
@@ -51,7 +53,8 @@ export default createStage({
             },
             {
               additionalProperties: false,
-              description: "Legacy conditioned drainage with budgeted sink lakes and river classification.",
+              description:
+                "Legacy conditioned drainage with budgeted sink lakes and river classification.",
             }
           ),
           Type.Object(
@@ -59,17 +62,19 @@ export default createStage({
               model: Type.Literal("certified-sill-spill"),
               computeLocalRunoff: envelopes.computeLocalRunoff,
               computeDrainageBasins: envelopes.computeDrainageBasins,
-              computeOpenBasinNetwork: envelopes.computeOpenBasinNetwork,
+              computeBasinNetwork: envelopes.computeBasinNetwork,
               classifyBasinRiverNetwork: envelopes.classifyBasinRiverNetwork,
             },
             {
               additionalProperties: false,
-              description: "Certified sill-spill basins with complete wet footprints and body-aware river topology.",
+              description:
+                "Certified sill-spill basins with complete wet footprints and body-aware river topology.",
             }
           ),
         ],
         {
-          description: "Selects one physical water model and exposes only its applicable operation controls.",
+          description:
+            "Selects one physical water model and exposes only its applicable operation controls.",
           default: {
             model: "legacy-sink-budget",
             lakeiness: "normal",
@@ -118,7 +123,7 @@ export default createStage({
           classifyRiverNetwork: water.classifyRiverNetwork,
           computeLocalRunoff: ops.computeLocalRunoff.defaultConfig,
           computeDrainageBasins: ops.computeDrainageBasins.defaultConfig,
-          computeOpenBasinNetwork: ops.computeOpenBasinNetwork.defaultConfig,
+          computeBasinNetwork: ops.computeBasinNetwork.defaultConfig,
           classifyBasinRiverNetwork: ops.classifyBasinRiverNetwork.defaultConfig,
         } satisfies NetworkConfig,
       };
@@ -128,7 +133,7 @@ export default createStage({
         projectRiverNetwork,
         computeLocalRunoff: water.computeLocalRunoff,
         computeDrainageBasins: water.computeDrainageBasins,
-        computeOpenBasinNetwork: water.computeOpenBasinNetwork,
+        computeBasinNetwork: water.computeBasinNetwork,
         classifyBasinRiverNetwork: water.classifyBasinRiverNetwork,
         drainageRouting: ops.computeDrainageRouting.defaultConfig,
         accumulateDischarge: ops.accumulateDischarge.defaultConfig,

@@ -1,10 +1,14 @@
 import { describe, expect, it } from "bun:test";
 import { measureStandardNetworkCoherence } from "../../../../../../src/recipes/standard/metrics/families/hydrology/network-coherence.js";
 
+import { basinCapture } from "../../fixtures/basin-network.js";
+
 function fixture() {
+  const base = basinCapture();
   return {
     provenance: { width: 5, height: 1 },
     model: {
+      ...base.model,
       seaLevel: 0,
       landMask: Uint8Array.of(0, 1, 1, 1, 1),
       elevation: Int16Array.of(-1, 3, 1, 3, 4),
@@ -14,19 +18,14 @@ function fixture() {
       mountainMask: Uint8Array.of(0, 0, 0, 0, 1),
       volcanoMask: new Uint8Array(5),
       physicalHydrology: {
-        model: "certified-sill-spill" as const,
+        ...base.model.physicalHydrology,
         runoff: [0, 1, 0, 2, 1], discharge: [0, 5, 0, 3, 1],
-        bodyId: Int32Array.of(0, 0, 7, 0, 0),
-        waterSurface: Int16Array.of(-1, 3, 3, 3, 4),
-        mouthBodyId: new Int32Array(5),
-        bodies: [{ nodeId: 7, wetCells: [2], spillElevation: 3, floorCell: 2,
-          floorElevation: 1, outletCell: 2, receiverCell: 1, connectorCells: [1],
-          flux: { dryRunoff: 0, incomingOverflow: 3, wetPrecipitation: 2, wetDemand: 1, balance: 4 },
-          outflow: 4 }],
-        certificates: [{ nodeId: 7, spillBalance: 4 }],
-        marineExits: [{ fromCell: 1, marineCell: 0, discharge: 5 }],
-        conservation: { dryRunoff: 4, wetPrecipitation: 2, wetDemand: 1, externalDischarge: 5,
-          residual: 0, roundoffBound: 1e-10 },
+        bodyId: Int32Array.of(0, 0, 3, 0, 0),
+        componentId: Int32Array.of(0, 2, 2, 0, 0),
+        waterSurface: [-1, 3, 3, 3, 4],
+        bodies: [{ ...base.model.physicalHydrology.bodies[0]!, level: 3,
+          flux: { dryRunoff: 0, incomingOverflow: 3, wetPrecipitation: 2, wetDemand: 1, balance: 4 }, outflow: 4 }],
+        transfers: [{ ...base.model.physicalHydrology.transfers[0]!, signedDischarge: -4 }],
       },
     },
     projection: { navigableRivers: {
@@ -36,6 +35,7 @@ function fixture() {
         { sourceCell: 1, receiverCell: 0, direction: "WEST" as const, riverClass: "NAVIGABLE" as const },
         { sourceCell: 3, receiverCell: 2, direction: "WEST" as const, riverClass: "MINOR" as const },
       ],
+      wetTransitionDispositions: [],
       wetTransitionWrites: [] as { bodyId: number; role: "outlet"; sourceCell: number; receiverCell: number; direction: "WEST"; riverClass: "NAVIGABLE" }[],
     } },
   } satisfies Parameters<typeof measureStandardNetworkCoherence>[0];
@@ -51,7 +51,7 @@ describe("network coherence measurements", () => {
       minorHydraulicDrops: { min: 0, max: 0 }, majorHydraulicDrops: { min: 3, max: 3 },
       classifiedLakeOutletCount: 1, unauthoredClassifiedWetOutletCount: 1,
       wetTransitionWriteCount: 0, navigableLakeOutletCount: 1, unauthoredNavigableWetOutletCount: 1 });
-    expect(result.lakeOutlets[0]).toMatchObject({ bodyId: 7, floor: 1, surface: 3,
+    expect(result.lakeOutlets[0]).toMatchObject({ bodyId: 3, surface: 3,
       receiverGround: 3, receiverClass: 2, classifiedInletCells: [3], wetOutletWritePresent: false });
     expect(result.majorSegmentStarts).toEqual([1]);
   });
@@ -69,7 +69,7 @@ describe("network coherence measurements", () => {
     expect(measureStandardNetworkCoherence(input)?.unauthoredClassifiedWetOutletCount).toBe(1);
     input.projection.navigableRivers.writes[2]!.receiverCell = 1;
     expect(measureStandardNetworkCoherence(input)?.unauthoredClassifiedWetOutletCount).toBe(1);
-    input.projection.navigableRivers.wetTransitionWrites.push({ bodyId: 7, role: "outlet", sourceCell: 2,
+    input.projection.navigableRivers.wetTransitionWrites.push({ bodyId: 3, role: "outlet", sourceCell: 2,
       receiverCell: 0, direction: "WEST", riverClass: "NAVIGABLE" });
     expect(measureStandardNetworkCoherence(input)?.unauthoredNavigableWetOutletCount).toBe(1);
     input.projection.navigableRivers.wetTransitionWrites[0]!.receiverCell = 1;
@@ -84,11 +84,20 @@ describe("network coherence measurements", () => {
       const input = fixture();
       if (regime === "minor") input.model.riverClass[1] = 1;
       if (regime === "unclassified") input.model.riverClass[1] = 0;
-      if (regime === "zero") input.model.physicalHydrology.bodies[0]!.outflow = 0;
+      if (regime === "zero") input.model.physicalHydrology.transfers[0]!.signedDischarge = 0;
       if (regime === "marine") input.model.landMask[1] = 0;
       expect(measureStandardNetworkCoherence(input)).toMatchObject({ navigableLakeOutletCount: 0,
         unauthoredNavigableWetOutletCount: 0, wetTransitionWriteCount: 0 });
     }
+  });
+
+  it("does not fabricate a reservoir outlet when a exporting junction feeds that reservoir", () => {
+    const input = fixture();
+    input.model.physicalHydrology.transfers[0]!.signedDischarge = 2;
+    input.model.physicalHydrology.bodies[0]!.outflow = 0;
+    expect(measureStandardNetworkCoherence(input)).toMatchObject({
+      lakeOutlets: [], navigableLakeOutletCount: 0, inwardOrZeroWetExchangeCount: 1,
+    });
   });
 
   it("reports local lower-lake bypass candidates without treating them as violations", () => {
@@ -98,7 +107,7 @@ describe("network coherence measurements", () => {
     input.model.flowDir[4] = 0;
     const result = measureStandardNetworkCoherence(input)!;
     expect(result.lowerAdjacentLakeBypasses).toEqual([{ sourceCell: 3, receiverCell: 4,
-      bodyId: 7, adjacentWetCell: 2, ground: 4, waterSurface: 3, riverClass: 1 }]);
+      bodyId: 3, adjacentWetCell: 2, ground: 4, waterSurface: 3, riverClass: 1 }]);
     expect(result.equalHeightDryReceivers).toBe(1);
     expect(result.ascendingHydraulicReceivers).toBe(0);
   });
@@ -113,8 +122,8 @@ describe("network coherence measurements", () => {
         plannedLakeMask: new Uint8Array(6), riverClass: Uint8Array.of(1, 0, 0, 2, 0, 0),
         flowDir: Int32Array.of(2, -1, -1, 1, -1, -1),
         mountainMask: new Uint8Array(6), volcanoMask: new Uint8Array(6),
-        physicalHydrology: { ...input.model.physicalHydrology, bodies: [],
-          bodyId: new Int32Array(6), waterSurface: new Int16Array(6) },
+        physicalHydrology: { ...input.model.physicalHydrology, bodies: [], transfers: [], ports: [],
+          bodyId: new Int32Array(6), componentId: new Int32Array(6), waterSurface: new Array<number>(6).fill(0) },
       },
     });
     expect(result).toMatchObject({ invalidDryReceivers: 0, exposedLand: 2,

@@ -2,8 +2,9 @@
 
 **Goal:** admit climate-supported open, quantized closed and subtile drainage
 without changing terrain or losing supply at equal-sill junctions.
-**Status:** design reviewed, selected for implementation under the delegated
-coherence loop; no runtime activation in this document.
+**Status:** portable implementation and independent review complete; native
+qualification remains open under the delegated coherence loop. The Earthlike
+build selects the coordinator; no new native execution is claimed here.
 **Owner:** Hydrology, with existing Standard projection and metric consumers.
 
 This completes the demonstrated missing cases in [basin design](basin-design.md)
@@ -167,8 +168,11 @@ module-owned budget policy. No operation invokes another operation.
    or positive-to-negative jump under the existing least-extent convention;
    never jump over a closed cohort because the full sill happens to be positive.
    A new external spill is offered only after its head is actually attained.
-7. Finish a root/component before releasing its final export to downstream
-   dependencies. Then construct ordinary dry reaches, internal hydraulic
+7. Resolve a root/component response before releasing its versioned export to
+   downstream dependencies. This response is not an immutable terminal state:
+   a downstream equal-head merger may absorb a previously resolved upstream
+   root, invalidate both responses and cancel its now-internal contribution.
+   Recompute the union before final publication. Then construct ordinary dry reaches, internal hydraulic
    exchange ledgers, external ports and terminal records from the resolved
    component ownership. Independently recompute every flux from original inputs
    on that final partition and reject a disagreement before publication.
@@ -179,6 +183,15 @@ whose endpoints become internal and recompute remaining external supply.
 Reordered or repeated delivery must not create water. Queue entries carry
 component generations, so obsolete entries are discarded rather than mistaken
 for current work or an algorithm failure.
+
+Every active partition's external contribution graph must be acyclic.
+Contract equal-head cycles atomically before propagation, identify each
+delivery by physical edge and source generation, enqueue only changed absolute
+contributions, and discard identical deliveries. A delivery without a new
+upstream response is not progress and cannot justify the termination argument.
+`geometry.saddles` retains the minimum crossing per raw-leaf pair: use it for
+frontier events, but use actual hex adjacencies for complete plateau membership
+and internal exchange trees.
 
 Use a deterministic event queue keyed by spill/cohort height and canonical
 node/cell IDs. Events advance a cohort, activate a spill, merge active groups,
@@ -285,6 +298,10 @@ selected channel attachment. Refined terrestrial eligibility still follows
 the complete wet mask, not component membership.
 
 Every classified principal channel gets its exact one-direction native write.
+An off-map boundary port has no adjacent receiver and is not a principal
+channel attachment: retain its positive export in the port ledger, exclude
+that absent edge from channel classification, and preserve valid incoming
+adjacent channels. Do not manufacture a native direction for it.
 Internal hydraulic exchanges remain modeled mixing within a component, not
 additional native river objects or claims of navigation between every port.
 Wet NAV outlet declarations require a **positive actual reservoir-to-junction
@@ -299,6 +316,12 @@ at most one native write: greatest actual transfer, then lowest receiver-cell
 ID. Preserve unselected transfers in the physical ledger and mark their
 projection disposition explicitly. Native one-direction authorship does not
 erase the physical exchange graph.
+
+The projected-rivers artifact validator must admit distinct-source positive
+transfers from one wet body while continuing to reject duplicate native source
+cells. Its old one-write-per-body rule is not the new one-write-per-source law.
+Likewise, discharge-nondecrease metrics apply to ordinary accumulation edges,
+not principal hydraulic-junction attachments whose complete transfers branch.
 
 Projection receipts must distinguish principal-channel intents, hydraulic
 exchange edges, and wet transition declarations. Retain complete water/class
@@ -372,3 +395,40 @@ not activate basin-aware terrain evolution before this coordinator is admitted:
 otherwise iteration and final terrain quantization expose the same missing
 states deeper inside the generation loop. Thermal calibration proceeds as a
 separate evidence gate; no basin success can validate its coefficients.
+
+## September 29 Verification
+
+The complete coordinator and all consumers now use the grouped body/component,
+signed-transfer, terminal and conservation records. The retired open-only
+operation and certificates are removed, not retained as a second executable
+path. The recipe network step is 225 lines; numerical solve, assembly and
+classification remain in domain operations. Native writes follow actual
+positive wet-to-dry exchanges and validate direction against adjacent receivers.
+
+Independent review found and fixed two consumer faults (direction/receiver
+mismatch admission and zero stream order at a local junction) and one larger
+coordinator counterexample. In the latter, provisional upstream exports had
+committed a downstream equal-head merger before upstream groups finished
+settling. The coordinator now settles independently sustained groups before
+delivering exports, then requeues every receiver, including locally deficient
+ones. No budget, tolerance or terrain was changed. The retained 40 x 30 witness,
+200 larger replay cases, 4,000 small adversarial cases and earlier root17/312
+witnesses pass. Quantization residual remains explicit rather than becoming
+invented storage, evaporation or outward flow.
+
+The single owning Nx graph ran `check,test,build,check:policy` for the definition
+and realization app. All typechecks, builds and original Habitat rules pass.
+Definition tests: 945 pass, one aggregate study test fails on exactly the same
+11 climate/ecology expectations. App tests: 175 pass. Those expectations remain
+open calibration work; neither thresholds nor fixtures were weakened to make
+this change green. The complete log is retained in the discoverable atlas at
+`earth-calibration/basin-coordinator-proof-20260929.log`.
+
+The [Huge/1018 portable comparison](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coordinator-complete-huge-1018/index.html)
+completes both baseline and sparse-river arms with integrity passing. All seven
+required physical holds match exactly, including fractional water surfaces
+hashed as Float64 rather than truncated Int16. The viewer renders 149 signed
+hydraulic exchanges in each arm, separately from principal dry channels.
+Desktop and mobile browser checks pass with nonblank canvases, no page errors,
+no page overflow and functional detail coordinates. This is portable evidence,
+not a fresh Civ7 screenshot, lake-height qualification or naval-traversal proof.

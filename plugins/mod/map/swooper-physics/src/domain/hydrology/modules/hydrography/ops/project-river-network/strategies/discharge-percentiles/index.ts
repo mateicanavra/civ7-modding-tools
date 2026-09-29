@@ -1,5 +1,6 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { clamp01 } from "@swooper/mapgen-core/lib/math";
+import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import {
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_MINOR,
@@ -45,8 +46,28 @@ const dischargePercentilesStrategy = createStrategy(
       const width = input.width;
       const height = input.height;
       const size = width * height;
-      if (input.discharge.length !== size) {
+      if (
+        input.discharge.length !== size ||
+        input.flowDir.length !== size ||
+        input.landMask.length !== size
+      ) {
         throw new RangeError("River classification requires map-grid Number discharge.");
+      }
+      if (input.discharge.some((value) => !Number.isFinite(value) || value < 0))
+        throw new RangeError("River classification requires finite nonnegative discharge.");
+      const eligible = new Uint8Array(size);
+      for (let i = 0; i < size; i++) {
+        if (input.landMask[i] !== 1) continue;
+        if (input.channelSemantics === "legacy-routed") eligible[i] = 1;
+        else if (input.flowDir[i]! >= 0) {
+          if (
+            !getHexNeighborIndicesOddQ(i % width, Math.floor(i / width), width, height).includes(
+              input.flowDir[i]!
+            )
+          )
+            throw new RangeError("Principal river classification requires actual adjacent edges.");
+          eligible[i] = 1;
+        }
       }
 
       const riverClass = new Uint8Array(size);
@@ -54,7 +75,7 @@ const dischargePercentilesStrategy = createStrategy(
 
       const landDischarge: number[] = [];
       for (let i = 0; i < size; i++) {
-        if (input.landMask[i] !== 1) continue;
+        if (!eligible[i]) continue;
         const d = input.discharge[i] ?? 0;
         if (d > 0) landDischarge.push(d);
       }
@@ -74,7 +95,7 @@ const dischargePercentilesStrategy = createStrategy(
 
       const upstream: number[][] = Array.from({ length: size }, () => []);
       for (let i = 0; i < size; i++) {
-        if (input.landMask[i] !== 1) continue;
+        if (!eligible[i]) continue;
         const receiver = input.flowDir[i] ?? -1;
         if (receiver >= 0 && receiver < size && input.landMask[receiver] === 1) {
           upstream[receiver]!.push(i);

@@ -43,33 +43,41 @@ export function createSurfaceWaterFixture(
   let hydrography: Hydrography;
   if (model === "certified-sill-spill") {
     const bodyId = new Int32Array(size);
-    bodyId[wetCell] = 1;
-    const waterSurface = elevation.slice();
+    bodyId[wetCell] = wetCell + 1;
+    const componentId = new Int32Array(size);
+    componentId[wetCell] = componentId[minorChannel] = minorChannel + 1;
+    const waterSurface = Array.from(elevation);
     waterSurface[wetCell] = 801;
+    const flux = { incomingOverflow: 1, dryRunoff: 0, wetPrecipitation: 1, wetDemand: 0, balance: 2 };
     lakePlan = {
       model,
       ...commonLake,
       bodyId,
+      componentId,
       waterSurface,
       bodies: [{
-        nodeId: 1,
+        bodyId: wetCell + 1, componentId: minorChannel + 1, poolId: 1,
         wetCells: [wetCell],
-        floorCell: wetCell,
-        floorElevation: 800,
-        spillElevation: 801,
-        outletCell: wetCell,
-        receiverCell: minorChannel,
-        connectorCells: [],
-        flux: { incomingOverflow: 0, dryRunoff: 0, wetPrecipitation: 1, wetDemand: 0, balance: 1 },
-        outflow: 1,
+        level: 801, flux, outflow: 2, unresolvedResidual: 0,
       }],
-      certificates: [{ nodeId: 1, spillBalance: 1 }],
-      marineExits: [{ fromCell: minorChannel, marineCell: 0, discharge: 1 }],
-      conservation: { dryRunoff: 0, wetPrecipitation: 1, wetDemand: 0, externalDischarge: 1, residual: 0, roundoffBound: 0 },
+      pools: [{ poolId: 1, componentId: minorChannel + 1, leafIds: [1], catchmentCells: [minorChannel, wetCell],
+        wetCells: [wetCell], state: "open", level: 801, flux, outflow: 2, unresolvedResidual: 0, closure: null }],
+      components: [{ componentId: minorChannel + 1, poolId: 1, bodyIds: [wetCell + 1], memberCells: [minorChannel, wetCell],
+        junctionCells: [minorChannel], anchorCell: minorChannel, level: 801, state: "open", flux, outflow: 2, unresolvedResidual: 0, terminalId: 1 }],
+      transfers: [{ componentId: minorChannel + 1, cellA: minorChannel, cellB: wetCell, bodyA: 0, bodyB: wetCell + 1, signedDischarge: -2 }],
+      ports: [{ kind: "adjacent", componentId: minorChannel + 1, fromCell: minorChannel, toCell: 0, destination: "marine", destinationComponentId: 0, discharge: 2 }],
+      terminals: [{ terminalId: 1, role: "marine", anchorCell: 0, componentId: 0 }],
+      marineExits: [{ fromCell: minorChannel, marineCell: 0, discharge: 2 }], boundaryExits: [],
+      conservation: { dryRunoff: 1, wetPrecipitation: 1, wetDemand: 0, marineDischarge: 2, boundaryDischarge: 0,
+        externalDischarge: 2, unresolvedResidual: 0, normalizedUnresolvedResidual: 0, residual: 0, roundoffBound: 0 },
     };
     const discharge = Array<number>(size).fill(0);
-    discharge[minorChannel] = 1;
-    hydrography = { model, ...commonHydrography, runoff: Array<number>(size).fill(0), discharge };
+    discharge[minorChannel] = 2;
+    discharge[majorChannel] = 1;
+    flowDir[wetCell] = -2;
+    const runoff = Array<number>(size).fill(0);
+    runoff[majorChannel] = 1;
+    hydrography = { model, ...commonHydrography, runoff, discharge };
   } else {
     lakePlan = { model, ...commonLake, sinkLakeCount: 1 };
     hydrography = {

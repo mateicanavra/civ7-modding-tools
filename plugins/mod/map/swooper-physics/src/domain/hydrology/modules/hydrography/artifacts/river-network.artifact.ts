@@ -4,17 +4,17 @@ const common = {
   upstreamArea: TypedArraySchemas.i32({
     cardinality: "map-grid",
     description:
-      "Contributing tile count. Each certified wet member reports the same body aggregate, not additive per-member area.",
+      "Contributing tile count. Each certified hydraulic-component member reports the same aggregate, not additive per-member area.",
   }),
   streamOrderProxy: TypedArraySchemas.u8({
     cardinality: "map-grid",
     description:
-      "Strahler-like hierarchy; certified body aggregate is independent of internal wet connectivity.",
+      "Strahler-like hierarchy; certified component aggregate is independent of internal exchange branches.",
   }),
   mouthType: TypedArraySchemas.u8({
     cardinality: "map-grid",
     description:
-      "0 unresolved, 1 ocean, 2 first downstream accepted lake, 3 legacy closed basin, 4 legacy spill path.",
+      "0 unresolved/water, 1 ocean, 2 first downstream accepted lake, 3 closed basin, 4 legacy spill path, 5 boundary export, 6 subtile, 7 dry.",
   }),
   slopeClass: TypedArraySchemas.u8({
     cardinality: "map-grid",
@@ -43,10 +43,19 @@ export const artifact = defineArtifact({
         mouthBodyId: TypedArraySchemas.i32({
           cardinality: "map-grid",
           description:
-            "First downstream accepted lake root ID on its incoming dry reach; 0 for marine destinations and wet cells.",
+            "First downstream accepted wet-body identity on its incoming dry reach; 0 for other destinations and wet cells.",
         }),
       },
       { additionalProperties: false }
     ),
   ]),
+  refine: (value, { issues }) => {
+    if (value.mouthType.some((tag) => tag > (value.model === "legacy-sink-budget" ? 4 : 7)))
+      issues.add("Invalid riverNetwork.mouthType for selected model.");
+    if (
+      value.model === "certified-sill-spill" &&
+      value.mouthBodyId.some((id, cell) => id < 0 || (value.mouthType[cell] === 2) !== id > 0)
+    )
+      issues.add("Accepted-lake mouths require exactly one positive wet-body identity.");
+  },
 });

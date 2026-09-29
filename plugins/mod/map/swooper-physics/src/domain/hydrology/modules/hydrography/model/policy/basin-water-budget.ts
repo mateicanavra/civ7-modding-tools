@@ -1,3 +1,10 @@
+import type {
+  BasinFlux as Flux,
+  BasinLevelInterval,
+  BasinShorelineBracket,
+  BasinNonstationaryResponse,
+} from "../atoms/basin-water-budget.schema.js";
+
 export type BasinWaterBudgetInput = Readonly<{
   cells: readonly Readonly<{
     cell: number;
@@ -10,41 +17,29 @@ export type BasinWaterBudgetInput = Readonly<{
   attainedLevel: number;
   spillElevation: number | null;
 }>;
-type Flux = {
-  incomingOverflow: number;
-  dryRunoff: number;
-  wetPrecipitation: number;
-  wetDemand: number;
-  balance: number;
-};
-type LevelInterval = {
-  lower: number;
-  lowerInclusive: boolean;
-  upper: number | null;
-  upperInclusive: boolean;
-};
-export type BasinWaterBudgetResponse = { wetCells: number[]; flux: Flux } & (
-  | { state: "dry"; overflow: 0; unresolvedResidual: 0 }
-  | {
-    state: "closed";
-    resolution: "exact-balance";
-    levels: LevelInterval;
-    overflow: 0;
-    unresolvedResidual: 0;
-  }
-  | {
-    state: "closed" | "subtile";
-    resolution: "shoreline-quantization";
-    level: number;
-    overflow: 0;
-    unresolvedResidual: number;
-    bracket: { cohortCells: number[]; before: Flux; after: Flux; jumpMagnitude: number };
-  }
-  | { state: "open"; level: number; overflow: number; unresolvedResidual: 0 }
-  | { state: "infeasible-attained-state"; attainedLevel: number; shortfall: number }
-  | { state: "no-stationary-solution"; evaluatedLevels: LevelInterval; unresolvedSurplus: number }
-);
 
+type Footprint = { wetCells: number[]; flux: Flux };
+type QuantizedClosure = Footprint & {
+  resolution: "shoreline-quantization";
+  level: number;
+  overflow: 0;
+  unresolvedResidual: number;
+  bracket: BasinShorelineBracket;
+};
+export type BasinWaterBudgetResponse =
+  | (Footprint & { state: "dry"; overflow: 0; unresolvedResidual: 0 })
+  | (Footprint & {
+      state: "closed";
+      resolution: "exact-balance";
+      levels: BasinLevelInterval;
+      overflow: 0;
+      unresolvedResidual: 0;
+    })
+  | (QuantizedClosure & { state: "closed" })
+  | (QuantizedClosure & { state: "subtile" })
+  | (Footprint & { state: "open"; level: number; overflow: number; unresolvedResidual: 0 })
+  | (Footprint & { state: "infeasible-attained-state"; attainedLevel: number; shortfall: number })
+  | BasinNonstationaryResponse;
 
 type Input = BasinWaterBudgetInput;
 type Result = BasinWaterBudgetResponse;

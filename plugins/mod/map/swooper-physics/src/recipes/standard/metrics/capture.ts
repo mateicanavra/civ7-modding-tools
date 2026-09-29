@@ -195,11 +195,14 @@ export type StandardMapCapture = Readonly<{
     flowDir: Int32Array;
     physicalHydrology:
       | Readonly<{ model: "legacy-sink-budget"; routingElevation: Float32Array; outletMask: Uint8Array }>
-      | Readonly<Pick<CertifiedLakePlan, "model" | "bodies" | "certificates" | "marineExits" | "conservation"> & {
+      | Readonly<Pick<CertifiedLakePlan, "model" | "pools" | "bodies" | "components" | "transfers" | "ports" | "terminals" | "marineExits" | "boundaryExits" | "conservation"> & {
           runoff: readonly number[];
           discharge: readonly number[];
+          potentialDemand: Float32Array;
           bodyId: Int32Array;
-          waterSurface: Int16Array;
+          componentId: Int32Array;
+          basinId: Int32Array;
+          waterSurface: readonly number[];
           mouthBodyId: CertifiedRiverNetwork["mouthBodyId"];
         }>;
     terminalType: Uint8Array;
@@ -239,7 +242,7 @@ export type StandardMapCapture = Readonly<{
       | "projectionSignalStatus"
       | "plannedMajorRiverTileCount"
     > | Pick<Extract<ProjectedNavigableRivers, { model: "certified-sill-spill" }>,
-      "model" | "authoredSourceCount" | "plannedMinorRiverTileCount" | "plannedMajorRiverTileCount" | "writes" | "wetTransitionWrites">;
+      "model" | "authoredSourceCount" | "plannedMinorRiverTileCount" | "plannedMajorRiverTileCount" | "writes" | "wetTransitionWrites" | "wetTransitionDispositions">;
     riverReadback: Readonly<{
       terrainNavigableRiverTileCount: number;
       riverMismatchCount: number;
@@ -517,6 +520,7 @@ function copyCompletedRun(
   const lakePlanValue = readArtifact(context, hydrographyArtifacts.lakePlan);
   const hydrographyValue = readArtifact(context, hydrographyArtifacts.hydrography);
   const riverNetworkValue = readArtifact(context, hydrographyArtifacts.riverNetwork);
+  const baselineClimateValue = readArtifact(context, climateArtifacts.baselineClimateField);
   if (hydrographyValue.model !== lakePlanValue.model || hydrographyValue.model !== riverNetworkValue.model) {
     throw new Error("Capture requires one coherent physical water model.");
   }
@@ -532,17 +536,34 @@ function copyCompletedRun(
             model: hydrographyValue.model,
             runoff: Object.freeze([...hydrographyValue.runoff]),
             discharge: Object.freeze([...hydrographyValue.discharge]),
+            potentialDemand: copyFloat32Grid("hydrology.baselineClimateField.potentialDemand", baselineClimateValue.potentialDemand, gridSize),
             bodyId: copyInt32Grid("hydrology.lakePlan.bodyId", lakePlanValue.bodyId, gridSize),
-            waterSurface: copyInt16Grid("hydrology.lakePlan.waterSurface", lakePlanValue.waterSurface, gridSize),
+            componentId: copyInt32Grid("hydrology.lakePlan.componentId", lakePlanValue.componentId, gridSize),
+            basinId: copyInt32Grid("hydrology.hydrography.basinId", hydrographyValue.basinId, gridSize),
+            waterSurface: Object.freeze([...lakePlanValue.waterSurface]),
             mouthBodyId: copyInt32Grid("hydrology.riverNetwork.mouthBodyId", riverNetworkValue.mouthBodyId, gridSize),
-            bodies: Object.freeze(lakePlanValue.bodies.map((body) => Object.freeze({ ...body, wetCells: Object.freeze([...body.wetCells]), connectorCells: Object.freeze([...body.connectorCells]), flux: Object.freeze({ ...body.flux }) }))),
-            certificates: Object.freeze(lakePlanValue.certificates.map((value) => Object.freeze({ ...value }))),
+            pools: Object.freeze(lakePlanValue.pools.map((pool) => Object.freeze({ ...pool,
+              leafIds: Object.freeze([...pool.leafIds]), catchmentCells: Object.freeze([...pool.catchmentCells]),
+              wetCells: Object.freeze([...pool.wetCells]), flux: Object.freeze({ ...pool.flux }),
+              closure: pool.closure === null ? null : pool.closure.resolution === "exact-balance"
+                ? Object.freeze({ ...pool.closure, levels: Object.freeze({ ...pool.closure.levels }) })
+                : Object.freeze({ ...pool.closure, cohortCells: Object.freeze([...pool.closure.cohortCells]),
+                    before: Object.freeze({ ...pool.closure.before }), after: Object.freeze({ ...pool.closure.after }) }),
+            }))),
+            bodies: Object.freeze(lakePlanValue.bodies.map((body) => Object.freeze({ ...body, wetCells: Object.freeze([...body.wetCells]), flux: Object.freeze({ ...body.flux }) }))),
+            components: Object.freeze(lakePlanValue.components.map((component) => Object.freeze({ ...component,
+              bodyIds: Object.freeze([...component.bodyIds]), memberCells: Object.freeze([...component.memberCells]),
+              junctionCells: Object.freeze([...component.junctionCells]), flux: Object.freeze({ ...component.flux }),
+            }))),
+            transfers: Object.freeze(lakePlanValue.transfers.map((value) => Object.freeze({ ...value }))),
+            ports: Object.freeze(lakePlanValue.ports.map((value) => Object.freeze({ ...value }))),
+            terminals: Object.freeze(lakePlanValue.terminals.map((value) => Object.freeze({ ...value }))),
             marineExits: Object.freeze(lakePlanValue.marineExits.map((value) => Object.freeze({ ...value }))),
+            boundaryExits: Object.freeze(lakePlanValue.boundaryExits.map((value) => Object.freeze({ ...value }))),
             conservation: Object.freeze({ ...lakePlanValue.conservation }),
           })
         : (() => { throw new Error("Capture requires certified lake and river evidence."); })();
   const climateIndicesValue = readArtifact(context, climateArtifacts.climateIndices);
-  const baselineClimateValue = readArtifact(context, climateArtifacts.baselineClimateField);
   const climateValue = readArtifact(context, climateArtifacts.climateField);
   const windFieldValue = readArtifact(context, climateArtifacts.windField);
   const pressureFieldValue = readArtifact(context, climateArtifacts.pressureField);
@@ -748,6 +769,7 @@ function copyCompletedRun(
         plannedMajorRiverTileCount: navigableRiverValue.plannedMajorRiverTileCount,
         writes: Object.freeze(navigableRiverValue.writes.map((write) => Object.freeze({ ...write }))),
         wetTransitionWrites: Object.freeze(navigableRiverValue.wetTransitionWrites.map((write) => Object.freeze({ ...write }))),
+        wetTransitionDispositions: Object.freeze(navigableRiverValue.wetTransitionDispositions.map((row) => Object.freeze({ ...row }))),
       }) : Object.freeze({
         model: navigableRiverValue.model,
         selectedTileCount: navigableRiverValue.selectedTileCount,

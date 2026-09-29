@@ -54,6 +54,7 @@ describe("Hydrology projected-rivers artifact", () => {
         { sourceCell: 2, receiverCell: 3, direction: "EAST" as const, riverClass: "NAVIGABLE" as const },
       ],
       wetTransitionWrites: [],
+      wetTransitionDispositions: [],
     };
     const validate = (value: unknown) => hydrographyArtifacts.projectedRivers.validate(value, { dimensions: TEST_DIMENSIONS });
     expect(validate(valid)).toEqual([]);
@@ -62,10 +63,23 @@ describe("Hydrology projected-rivers artifact", () => {
     expect(validate({ ...valid, nativeMinorRiverMask: new Uint8Array(TEST_CARDINALITY) }).length).toBeGreaterThan(0);
     expect(validate({ ...valid, targetTileCount: 2 }).length).toBeGreaterThan(0);
     const wet = { bodyId: 7, role: "outlet", sourceCell: 3, receiverCell: 2, direction: "WEST", riverClass: "NAVIGABLE" };
-    expect(validate({ ...valid, wetTransitionWrites: [wet] })).toEqual([]);
+    const disposition = { bodyId: 7, transportKind: "internal", wetCell: 3, adjacentCell: 2, outwardDischarge: 1, disposition: "authored" };
+    const withWet = { ...valid, wetTransitionWrites: [wet], wetTransitionDispositions: [disposition] };
+    expect(validate(withWet)).toEqual([]);
+    const secondWetSource = TEST_DIMENSIONS.width + 2;
+    expect(validate({ ...withWet, wetTransitionWrites: [wet, { ...wet, sourceCell: secondWetSource, direction: "SOUTHWEST" }],
+      wetTransitionDispositions: [disposition, { ...disposition, wetCell: secondWetSource }] })).toEqual([]);
+    for (const wrongDirection of [
+      { ...withWet, writes: [{ ...valid.writes[0], direction: "WEST" }, valid.writes[1]] },
+      { ...withWet, wetTransitionWrites: [{ ...wet, direction: "EAST" }] },
+    ]) expect(validate(wrongDirection).some((issue) => issue.message.includes("recorded adjacent receiver"))).toBe(true);
+    for (const nonadjacent of [
+      { ...withWet, writes: [{ ...valid.writes[0], receiverCell: 4 }, valid.writes[1]] },
+      { ...withWet, wetTransitionWrites: [{ ...wet, sourceCell: 4 }], wetTransitionDispositions: [{ ...disposition, wetCell: 4 }] },
+      { ...withWet, wetTransitionDispositions: [disposition, { ...disposition, wetCell: 7, outwardDischarge: -1, disposition: "inward-or-zero" }] },
+    ]) expect(validate(nonadjacent).some((issue) => issue.message.includes("actual adjacent map-grid edges"))).toBe(true);
     for (const invalid of [
       [wet, wet],
-      [wet, { ...wet, sourceCell: 4 }],
       [{ ...wet, sourceCell: 2 }],
       [{ ...wet, receiverCell: 1 }],
       [{ ...wet, sourceCell: TEST_CARDINALITY }],
@@ -74,7 +88,14 @@ describe("Hydrology projected-rivers artifact", () => {
       [{ ...wet, bodyId: 0 }],
       [{ ...wet, riverClass: "MINOR" }],
       [{ ...wet, role: "inlet" }],
-    ]) expect(validate({ ...valid, wetTransitionWrites: invalid }).length).toBeGreaterThan(0);
+    ]) expect(validate({ ...withWet, wetTransitionWrites: invalid }).length).toBeGreaterThan(0);
+    for (const invalid of [
+      [], [disposition, disposition], [{ ...disposition, outwardDischarge: 0 }],
+      [{ ...disposition, disposition: "inward-or-zero" }],
+      [{ ...disposition, disposition: "receiver-not-dry-nav" }],
+      [{ ...disposition, disposition: "same-source-secondary" }],
+      [{ ...disposition, wetCell: 2 }], [{ ...disposition, outwardDischarge: Number.NaN }],
+    ]) expect(validate({ ...withWet, wetTransitionDispositions: invalid }).length).toBeGreaterThan(0);
   });
   it("couples chain-length cardinality to chain count rather than map size", () => {
     const valid = projectedNavigableRiverPayload(new Uint16Array([2]));

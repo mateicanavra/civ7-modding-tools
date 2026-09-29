@@ -1,9 +1,11 @@
 import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import type { StandardMapCapture } from "../../capture.js";
+import { BASIN_INTERNAL_RECEIVER, BASIN_TERMINAL } from "../../../../../domain/hydrology/modules/hydrography/model/atoms/basin-network.schema.js";
+import { measureWetTransitions } from "./wet-transitions.js";
 
 type NetworkCoherenceInput = Readonly<{
   provenance: Pick<StandardMapCapture["provenance"], "width" | "height">;
-  model: Pick<StandardMapCapture["model"], "physicalHydrology" | "landMask" | "plannedLakeMask" | "elevation" | "seaLevel" | "flowDir" | "riverClass" | "mountainMask" | "volcanoMask">;
+  model: Pick<StandardMapCapture["model"], "physicalHydrology" | "landMask" | "plannedLakeMask" | "elevation" | "seaLevel" | "flowDir" | "terminalType" | "riverClass" | "mountainMask" | "volcanoMask">;
   projection: Pick<StandardMapCapture["projection"], "navigableRivers">;
 }>;
 
@@ -21,15 +23,14 @@ function distribution(values: readonly number[]) {
 
 /** Whole-map diagnostics, not channel eligibility rules or a native navigation oracle. */
 export function measureStandardNetworkCoherence(capture: NetworkCoherenceInput) {
-  const { model, projection } = capture;
+  const { model } = capture;
   const physical = model.physicalHydrology;
   if (physical.model !== "certified-sill-spill") return null;
   const { width, height } = capture.provenance;
   const size = width * height;
   const upstreamMajorCount = new Uint16Array(size);
-  const wetTransitions = projection.navigableRivers.model === "certified-sill-spill"
-    ? projection.navigableRivers.wetTransitionWrites
-    : null;
+  const transitions = measureWetTransitions(capture);
+  const wetTransitions = transitions.writes;
   const wetWrites = wetTransitions === null ? null : new Map(wetTransitions.map((write) => [write.sourceCell, write]));
   let originalLand = 0, exposedLand = 0, nonMountainExposedLand = 0;
   let minorSources = 0, majorSources = 0, equalHeightDryReceivers = 0;
@@ -51,6 +52,8 @@ export function measureStandardNetworkCoherence(capture: NetworkCoherenceInput) 
     if (riverClass === 1) minorSources++;
     if (riverClass === 2) majorSources++;
     const receiver = model.flowDir[cell]!;
+    if ((receiver === BASIN_INTERNAL_RECEIVER && physical.componentId[cell]! > 0 && physical.discharge[cell] === 0) ||
+      (receiver === -1 && model.terminalType[cell] === BASIN_TERMINAL["boundary-export"] && physical.boundaryExits.some((exit) => exit.fromCell === cell))) continue;
     const neighbors = getHexNeighborIndicesOddQ(cell % width, Math.floor(cell / width), width, height);
     if (!neighbors.includes(receiver)) {
       invalidDryReceivers++;
@@ -85,27 +88,29 @@ export function measureStandardNetworkCoherence(capture: NetworkCoherenceInput) 
   const majorSegmentStarts: number[] = [];
   for (let cell = 0; cell < size; cell++)
     if (model.riverClass[cell] === 2 && upstreamMajorCount[cell] === 0) majorSegmentStarts.push(cell);
-  const lakeOutlets = physical.bodies.map((body) => {
+  const lakeOutlets = transitions.exchanges.filter((edge) => edge.outwardDischarge > 0).map((edge) => {
+    const body = physical.bodies.find((body) => body.bodyId === edge.bodyId)!;
     const incoming = [] as number[];
     for (let cell = 0; cell < size; cell++) {
       const receiver = model.flowDir[cell]!;
-      if (model.riverClass[cell]! > 0 && receiver >= 0 && physical.bodyId[receiver] === body.nodeId)
+      if (model.riverClass[cell]! > 0 && receiver >= 0 && physical.bodyId[receiver] === body.bodyId)
         incoming.push(cell);
     }
-    const write = wetWrites?.get(body.outletCell);
+    const write = wetWrites?.get(edge.wetCell);
     return {
-      bodyId: body.nodeId,
+      bodyId: body.bodyId,
+      transportKind: edge.transportKind,
       wetTileCount: body.wetCells.length,
-      floor: body.floorElevation,
-      surface: body.spillElevation,
-      outletCell: body.outletCell,
-      receiverCell: body.receiverCell,
-      receiverGround: model.elevation[body.receiverCell]!,
-      receiverClass: model.riverClass[body.receiverCell]!,
-      outflow: body.outflow,
+      surface: body.level,
+      outletCell: edge.wetCell,
+      receiverCell: edge.adjacentCell,
+      receiverGround: model.elevation[edge.adjacentCell]!,
+      receiverClass: model.riverClass[edge.adjacentCell]!,
+      outflow: edge.outwardDischarge,
       classifiedInletCells: incoming,
-      wetOutletWritePresent: wetWrites === null ? null : write?.receiverCell === body.receiverCell
-        && write.bodyId === body.nodeId && write.role === "outlet" && write.riverClass === "NAVIGABLE",
+      wetOutletWritePresent: wetWrites === null ? null : write?.receiverCell === edge.adjacentCell
+        && write.bodyId === body.bodyId && write.role === "outlet" && write.riverClass === "NAVIGABLE",
+      selectedForNativeWrite: transitions.selected.get(edge.wetCell) === edge,
     };
   });
   const classifiedOutlets = lakeOutlets.filter((outlet) => outlet.receiverClass > 0);
@@ -130,8 +135,11 @@ export function measureStandardNetworkCoherence(capture: NetworkCoherenceInput) 
     unauthoredClassifiedWetOutletCount: wetWrites === null ? null
       : classifiedOutlets.filter((outlet) => !outlet.wetOutletWritePresent).length,
     wetTransitionWriteCount: wetTransitions?.length ?? null,
+    inwardOrZeroWetExchangeCount: transitions.exchanges.filter((edge) => edge.outwardDischarge <= 0).length,
+    secondaryWetExchangeCount: navigableOutlets.filter((outlet) => !outlet.selectedForNativeWrite).length,
+    wetTransitionsComplete: transitions.wetTransitionsComplete,
     navigableLakeOutletCount: navigableOutlets.length,
     unauthoredNavigableWetOutletCount: wetWrites === null ? null
-      : navigableOutlets.filter((outlet) => !outlet.wetOutletWritePresent).length,
+      : navigableOutlets.filter((outlet) => outlet.selectedForNativeWrite && !outlet.wetOutletWritePresent).length,
   };
 }

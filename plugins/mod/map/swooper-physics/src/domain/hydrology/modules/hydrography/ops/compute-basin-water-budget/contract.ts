@@ -2,34 +2,12 @@ import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import elevationCohortsDefinition from "./strategies/elevation-cohorts/config.js";
 
-import { BasinFluxSchema as FluxSchema, BasinLevelIntervalSchema as LevelIntervalSchema } from "../../model/atoms/index.js";
-
-const footprint = {
-  wetCells: Type.Array(Type.Integer({ minimum: 0 }), {
-    description: "Strictly submerged active cell IDs, sorted by ID; not a network lake plan.",
-  }),
-  flux: FluxSchema,
-};
-
-const quantization = {
-  ...footprint,
-  resolution: Type.Literal("shoreline-quantization"),
-  level: Type.Number({ description: "Cohort ground height; this cohort remains dry at the retained level." }),
-  overflow: Type.Literal(0),
-  unresolvedResidual: Type.Number({
-    exclusiveMinimum: 0,
-    description: "Retained positive balance, bounded by the shoreline jump; not loss or exported flow.",
-  }),
-  bracket: Type.Object(
-    {
-      cohortCells: Type.Array(Type.Integer({ minimum: 0 })),
-      before: FluxSchema,
-      after: FluxSchema,
-      jumpMagnitude: Type.Number({ exclusiveMinimum: 0 }),
-    },
-    { additionalProperties: false }
-  ),
-};
+import {
+  BasinFluxSchema,
+  BasinLevelIntervalSchema,
+  BasinShorelineBracketSchema,
+  BasinNonstationaryResponseSchema,
+} from "../../model/atoms/index.js";
 
 /** One active pool's lowest-extent stationary response, independent of spill/merge orchestration. */
 const ComputeBasinWaterBudgetContract = defineOp({
@@ -65,51 +43,58 @@ const ComputeBasinWaterBudgetContract = defineOp({
     }
   ),
   output: Type.Union([
-    Type.Object(
-      { ...footprint, state: Type.Literal("dry"), overflow: Type.Literal(0), unresolvedResidual: Type.Literal(0) },
-      { additionalProperties: false }
-    ),
-    Type.Object(
-      {
-        ...footprint,
-        state: Type.Literal("closed"),
-        resolution: Type.Literal("exact-balance"),
-        levels: LevelIntervalSchema,
-        overflow: Type.Literal(0),
-        unresolvedResidual: Type.Literal(0),
-      },
-      { additionalProperties: false, description: "Balanced footprint and level interval, not a unique water height. The interval may include the sill." }
-    ),
-    Type.Object({ ...quantization, state: Type.Literal("closed") }, { additionalProperties: false }),
-    Type.Object({ ...quantization, state: Type.Literal("subtile") }, { additionalProperties: false }),
-    Type.Object(
-      {
-        ...footprint,
-        state: Type.Literal("open"),
-        level: Type.Number(),
-        overflow: Type.Number({ minimum: 0, description: "Exactly the strict-footprint balance at the sill." }),
-        unresolvedResidual: Type.Literal(0),
-      },
-      { additionalProperties: false }
-    ),
-    Type.Object(
-      {
-        ...footprint,
-        state: Type.Literal("infeasible-attained-state"),
-        attainedLevel: Type.Number(),
-        shortfall: Type.Number({ exclusiveMinimum: 0 }),
-      },
-      { additionalProperties: false, description: "Negative starting balance cannot sustain the supplied attained state; no fake closure or retreat." }
-    ),
-    Type.Object(
-      {
-        ...footprint,
-        state: Type.Literal("no-stationary-solution"),
-        evaluatedLevels: LevelIntervalSchema,
-        unresolvedSurplus: Type.Number({ exclusiveMinimum: 0 }),
-      },
-      { additionalProperties: false, description: "Persistent outlet-free surplus after the last cohort; footprint/interval are diagnostic, not an admitted lake." }
-    ),
+    Type.Object({
+      wetCells: Type.Array(Type.Integer({ minimum: 0 })),
+      flux: BasinFluxSchema,
+      state: Type.Literal("dry"),
+      overflow: Type.Literal(0),
+      unresolvedResidual: Type.Literal(0),
+    }, { additionalProperties: false }),
+    Type.Object({
+      wetCells: Type.Array(Type.Integer({ minimum: 0 })),
+      flux: BasinFluxSchema,
+      state: Type.Literal("closed"),
+      resolution: Type.Literal("exact-balance"),
+      levels: BasinLevelIntervalSchema,
+      overflow: Type.Literal(0),
+      unresolvedResidual: Type.Literal(0),
+    }, { additionalProperties: false }),
+    Type.Object({
+      wetCells: Type.Array(Type.Integer({ minimum: 0 })),
+      flux: BasinFluxSchema,
+      resolution: Type.Literal("shoreline-quantization"),
+      level: Type.Number(),
+      overflow: Type.Literal(0),
+      unresolvedResidual: Type.Number({ exclusiveMinimum: 0, description: "Positive retained balance, not exported flow, demand, or storage." }),
+      bracket: BasinShorelineBracketSchema,
+      state: Type.Literal("closed"),
+    }, { additionalProperties: false }),
+    Type.Object({
+      wetCells: Type.Array(Type.Integer({ minimum: 0 })),
+      flux: BasinFluxSchema,
+      resolution: Type.Literal("shoreline-quantization"),
+      level: Type.Number(),
+      overflow: Type.Literal(0),
+      unresolvedResidual: Type.Number({ exclusiveMinimum: 0, description: "Positive retained balance, not exported flow, demand, or storage." }),
+      bracket: BasinShorelineBracketSchema,
+      state: Type.Literal("subtile"),
+    }, { additionalProperties: false }),
+    Type.Object({
+      wetCells: Type.Array(Type.Integer({ minimum: 0 })),
+      flux: BasinFluxSchema,
+      state: Type.Literal("open"),
+      level: Type.Number(),
+      overflow: Type.Number({ minimum: 0 }),
+      unresolvedResidual: Type.Literal(0),
+    }, { additionalProperties: false }),
+    Type.Object({
+      wetCells: Type.Array(Type.Integer({ minimum: 0 })),
+      flux: BasinFluxSchema,
+      state: Type.Literal("infeasible-attained-state"),
+      attainedLevel: Type.Number(),
+      shortfall: Type.Number({ exclusiveMinimum: 0 }),
+    }, { additionalProperties: false }),
+    BasinNonstationaryResponseSchema,
   ]),
   strategies: [elevationCohortsDefinition],
 });

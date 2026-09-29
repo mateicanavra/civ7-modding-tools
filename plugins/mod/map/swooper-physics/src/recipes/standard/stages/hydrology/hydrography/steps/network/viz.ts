@@ -15,7 +15,75 @@ export function projectNetworkViz(
 ) {
   const group = "Hydrology / Hydrography";
   const common = { kind: "grid" as const, spaceId: "tile.hexOddQ" as const, dims: dimensions };
+  const certified =
+    observation.lakePlan.model === "certified-sill-spill" ? observation.lakePlan : null;
+  const basinState = new Uint8Array(certified ? dimensions.width * dimensions.height : 0);
+  const unresolvedResidual = new Float32Array(basinState.length);
+  const junctionMask = new Uint8Array(basinState.length);
+  if (certified) {
+    const stateCode = { open: 1, closed: 2, subtile: 3, dry: 4 } as const;
+    for (const component of certified.components) {
+      for (const cell of component.memberCells) basinState[cell] = stateCode[component.state];
+      for (const cell of component.junctionCells) junctionMask[cell] = 1;
+      // One anchor observation per component keeps this diagnostic additive, unlike shared member area.
+      unresolvedResidual[component.anchorCell] = component.unresolvedResidual;
+    }
+  }
   return [
+    ...(certified
+      ? [
+          {
+            ...common,
+            dataTypeKey: "hydrology.hydrography.componentId",
+            field: { format: "i32" as const, values: certified.componentId },
+            meta: defineStandardVizMeta("hydrology.hydrography.componentId", "category.distinct", {
+              label: "Hydraulic Component Id",
+              group,
+              visibility: "debug",
+            }),
+          },
+          {
+            ...common,
+            dataTypeKey: "hydrology.hydrography.basinState",
+            field: { format: "u8" as const, values: basinState },
+            meta: defineStandardVizMeta("hydrology.hydrography.basinState", "category.distinct", {
+              label: "Basin State (1 Open, 2 Closed, 3 Subtile, 4 Dry)",
+              group,
+              visibility: "debug",
+            }),
+          },
+          {
+            ...common,
+            dataTypeKey: "hydrology.hydrography.unresolvedResidual",
+            field: { format: "f32" as const, values: unresolvedResidual },
+            meta: defineStandardVizMeta(
+              "hydrology.hydrography.unresolvedResidual",
+              "field.intensity",
+              { label: "Unresolved Supply (Component Anchor)", group, visibility: "debug" }
+            ),
+          },
+          {
+            ...common,
+            dataTypeKey: "hydrology.hydrography.junctionMask",
+            field: { format: "u8" as const, values: junctionMask },
+            meta: defineStandardVizMeta("hydrology.hydrography.junctionMask", "category.distinct", {
+              label: "Dry Hydraulic Junction",
+              group,
+              visibility: "debug",
+            }),
+          },
+          {
+            ...common,
+            dataTypeKey: "hydrology.hydrography.waterSurface",
+            field: { format: "f32" as const, values: Float32Array.from(certified.waterSurface) },
+            meta: defineStandardVizMeta("hydrology.hydrography.waterSurface", "terrain.elevation", {
+              label: "Physical Water Surface (Display Precision)",
+              group,
+              visibility: "debug",
+            }),
+          },
+        ]
+      : []),
     {
       ...common,
       dataTypeKey: "hydrology.hydrography.runoff",

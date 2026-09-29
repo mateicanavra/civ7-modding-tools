@@ -82,6 +82,7 @@ Graphite sequencing and live execution. Independent reviews use bounded
 ownership scopes. Steps compose domain operations; they do not absorb newly
 discovered physics or grow fallback implementations.
 
-The current twelve failed calibration expectations are an explicit starting
+The current eleven failed calibration expectations (after the independently
+qualified reef correction) are an explicit starting
 point, not accepted final quality. A successful handoff repair or reference
 fixture is not completion of the Earth calibration or water workstream.
