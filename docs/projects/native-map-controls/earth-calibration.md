@@ -72,8 +72,12 @@ calibration, and era-qualified ship traversal. The pinned
 and native-index controlled-drainage arm now exist, alongside the independent
 [NOAA thermal reference](earth-thermal-reference.md). These are not yet a
 coupled physical-relief Earth reconstruction or a fresh live-game acceptance
-run. The temperate/normal input correction and single thermal handoff are
-implemented; empirical coefficient adoption remains open.
+run. The temperate/normal input correction, single thermal handoff, and
+[periodic solar/thermal response](periodic-thermal-response.md) are implemented.
+That response has a frozen empirical lowland fit; it is not qualification of
+generated relief units, the complete coupled climate, or downstream hydrology.
+The [fixed-height thermal discriminator](earth-thermal-reference.md#fixed-height-thermal-discriminator)
+now separates known Earth-height sensitivity from procedural morphology.
 
 The cutoff20 diagnostic already repairs the tested large-lake shorelines
 without expanding water or changing physical drainage. The open question is
@@ -137,13 +141,15 @@ identity checks, masks, exact counts and coordinates. Run the script with Node
 and this worktree as its optional first argument; it reads shipped data and
 retained receipts only. Syntax checking, all assertions and repeat execution
 pass. It is an investigation artifact, not a second durable benchmark runner.
-The current canonical config was separately admitted and deep-compared with
+The then-current canonical config was separately admitted and deep-compared with
 the retained atlas envelope: exact equality, envelope digest
 `ba0fcb703331b0f2b985800cfc8fcf63b9e2fee2e90eb0390a337ad82282cbb8`,
 recipe digest
 `053248f720f0aae4c2b1c73f141a58ceb9b442858ff8566a03e9c62234480b92`.
-This connects the census to current configuration, not to a fresh current-code
-generation. Both digests also match V9's retained inputs.
+This connects the census to that historical configuration, not the subsequently
+adopted periodic climate or a fresh current-code generation. Both digests also
+match V9's retained inputs. Retain this census as the pre-calibration comparison;
+do not present its river counts as measurements of the latest climate.
 
 ## Current Earthlike Is Not An Earth Calibration
 
@@ -154,8 +160,8 @@ plus normalization, not the preset name or unnormalized fields.
 | Control | Current effective meaning | Previous census input |
 | --- | --- | --- |
 | Latitude and water | +80/-80 latitude; 63% target water, not an empirical Earth-area contract | Unchanged |
-| Thermal setting | `temperate`: baseline thermal 8 C base / 50 C gain, with 3.2 C land cooling | `hot` produced 10.5/60 |
-| Seasonality | `normal`, four phases, effective **23.44 degrees** | `high` plus authored 23 produced 28.44 |
+| Thermal setting | `temperate`, `periodic-response`, zero annual offset; frozen lowland response, lapse -0.0065 C/model unit, bounds -40/50 C | `hot` used the retired 10.5/60 affine forcing response |
+| Seasonality | `normal`, `daily-solar-fourier`, **23.44 degrees**; 24 integration phases, four observations, two coupling iterations | Four integration phases; `high` plus authored 23 produced 28.44 |
 | Terrain evolution | `young`, one era, low erosion; no geological-time calibration | Unchanged |
 | Runoff | Rainfall index with scalar infiltration .18 and humidity damping .22 | Unchanged |
 | Visible classes | Minor percentile .74, major .88, absolute discharge floors zero | Unchanged |
@@ -169,6 +175,11 @@ the scenario Earth-calibrated, not evidence that tilt alone caused the network.
 The flat Firaxis climate arm explicitly spans +/-90 degrees, independently of
 the procedural profile's playable latitude crop. Its compiled coefficient
 envelopes, rather than the preset label, are the comparison authority.
+The current 24-phase integration remains provisional under the
+[sampling study](periodic-thermal-response.md); four observations are not the
+numerical integration resolution. The intermediate neutral affine setting
+(8 C base, 50 C gain and 3.2 C land cooling) is historical, not a second current
+thermal owner.
 
 Physical elevation is quantized normalized relief, not metres; native display
 height is yet another scale. Runoff is rainfall-index flux over unit tile area,
@@ -178,7 +189,8 @@ spatial permeability. A fixture cannot silently supply raw metres, mm/year or
 geology and assume existing computations acquire those meanings.
 
 The [river classifier](../../../plugins/mod/map/swooper-physics/src/domain/hydrology/modules/hydrography/ops/project-river-network/strategies/discharge-percentiles/index.ts)
-ranks all positive-discharge exposed-land cells. Each qualifying major endpoint
+ranks eligible positive-discharge exposed-land cells with an adjacent principal
+edge; terminal/internal records without that edge are ineligible. Each qualifying major endpoint
 promotes its strongest connected upstream minor path, including cells below
 the major threshold. Thus .88 is not a 12% navigable quota. The classifier has
 no minimum trunk length or map-size normalization; authored projection maps
@@ -367,4 +379,5 @@ Independent review accepted the owner/sequence and identified two material
 clarifications, both incorporated: conditioning-information exclusion for
 independent topology holdouts, and computational area/flux admission rather
 than post-hoc score weighting. Documentation links, census assertions and
-current-config identity checks pass; no runtime behavior changed in this slice.
+then-current-config identity checks passed; no runtime behavior changed in that
+original documentation/census slice.

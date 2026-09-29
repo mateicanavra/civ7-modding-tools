@@ -35,7 +35,9 @@ publication mechanism, or bypassing an enforced kind blueprint.
    The [periodic implementation](periodic-thermal-response.md) passes its
    frozen monthly-reference replay. Correct the witnessed geometric ocean
    donor discontinuity and repeat the same coupled resolution controls before
-   accepting the atmospheric sampling count or advancing relief calibration.
+   accepting the atmospheric sampling count. Independently measurable relief
+   shape and fixed-input thermal diagnostics need not wait for coupled-SST
+   resolution qualification.
    The ocean correction is implemented and measured. Its follow-through
    removes the independently reproduced ranked-donor defect and calm-wind
    latitude override in moisture transport, sharing only geometric bracketing
@@ -43,10 +45,11 @@ publication mechanism, or bypassing an enforced kind blueprint.
    the remaining coupled-SST resolution tails or ecological calibration gaps.
    Moisture is now independently qualified at that bounded scope. Exact
    causal-vintage replays attribute the residual SST tails to full-strength
-   transfer by weak encoded currents, amplified by coupling feedback. Apply
-   the reviewed relative-strength correction inside the ocean operation,
-   repeat the same controls, and keep annual transport closure and physical
-   velocity/time calibration separate from this numerical policy.
+   transfer by weak encoded currents, amplified by coupling feedback. The
+   reviewed relative-strength correction is implemented and repeated controls
+   sharply reduce that sensitivity; sampling remains provisional. Keep annual
+   transport closure and physical velocity/time calibration separate from
+   this numerical policy.
 3. **Complete missing downstream mechanisms exposed by that baseline.**
    [Reef spatial thinning](reef-spatial-thinning.md) removes an independently
    demonstrated coordinate-phase rejection while leaving habitat scoring
@@ -62,9 +65,23 @@ publication mechanism, or bypassing an enforced kind blueprint.
    Adopt coefficients only with independent support and unchanged collateral
    expectations. Reintroduce generated geography as a held-seed/size cohort,
    not an uncontrolled variable in the reference fit.
-5. **Qualify the native water boundary.** Run the bounded connectivity/cutoff
-   discriminators against physical body masks and levels, then representative
-   whole-map replays. Distinguish direct marine-tile connectivity, a river
+   The [stagewise relief study](thermal-coherence.md#relief-units-are-a-separate-calibration-question)
+   finds erosion and margin changes too small to explain the observed upper-tail
+   gap in the held cases, with no uplift or Int16 clipping. Do not tune those
+   mechanisms on that evidence or convert
+   generated relief to metres by fitting one quantile. The separate
+   [fixed-Earth-height thermal arm](earth-thermal-reference.md#fixed-height-thermal-discriminator)
+   now runs through existing operations with explicit diagnostic encoding and
+   unchanged empirical response. It reduces global annual error but worsens
+   the original lowland holdout and overcools the highest cohort. Its paired
+   scale controls qualify input conversion, not precipitation, generated
+   geology or a universal physical lapse rate. Keep those residual mechanisms
+   separate rather than promote the illustrative lapse as calibrated truth.
+5. **Qualify the native water boundary.** The controlled connectivity/cutoff
+   probes can proceed independently of climate and generated-relief calibration:
+   held synthetic geometry and native readbacks test engine semantics. Follow
+   with representative whole-map replays as physical inputs are qualified.
+   Distinguish direct marine-tile connectivity, a river
    outlet, body size and native maintenance. Prove actual naval access in an
    appropriate era independently of a visually connected mouth.
 6. **Close the integrated loop.** Run the complete study bank, review new
