@@ -1,25 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import { createHash } from "node:crypto";
-import { createMockAdapter } from "@civ7/adapter";
-import { getCiv7StandardMapSizePreset } from "@civ7/map-policy";
-import { createMapContext } from "@swooper/mapgen-core";
-import { readArtifact } from "@swooper/mapgen-core/authoring";
 import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
-import {
-  buildStepTestDependencies,
-  publishTestArtifact,
-  validateSchemaValueForTest,
-  withMapContextExecutionForTest,
-} from "@swooper/mapgen-core/testing";
-import { artifacts as climateArtifacts } from "../../../../../src/domain/hydrology/modules/climate/artifacts/index.js";
 import hydrology from "../../../../../src/domain/hydrology/router.js";
-import { artifacts as landformArtifacts } from "../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
-import { artifacts as shelfArtifacts } from "../../../../../src/domain/morphology/modules/shelf/artifacts/index.js";
-import morphology from "../../../../../src/domain/morphology/router.js";
-import recipe from "../../../../../src/recipes/standard/recipe.js";
-import { config as climateConfig } from "../../../../../src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.js";
-import { ClimateBaselineStep } from "../../../../../src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/step.js";
 import { riverDirectionToReceiver } from "../../../../../src/recipes/standard/stages/hydrology/rivers/model/policy/authored-river-projection.js";
+import { runEarthCoastBaseline } from "../../fixtures/earth/climate.js";
 import { extractEarthScript } from "../../fixtures/earth/extract.js";
 import {
   createEarthReferenceSurface,
@@ -27,10 +11,6 @@ import {
   northFirstIndex,
   sourceWaterComponents,
 } from "../../fixtures/earth/reference.js";
-import {
-  createStandardRecipeTestInitialSetup,
-  standardMapConfig,
-} from "../../fixtures/standard-recipe.js";
 
 const hydro = hydrology.hydrography.ops;
 
@@ -58,95 +38,6 @@ function drainageFixture(rainfallIndex = 100, demandIndex = 10) {
     localRunoff: runoff,
     rainfall,
     potentialDemand: new Float32Array(size).fill(demandIndex),
-  };
-}
-
-function climateFixture(removeContinents = false) {
-  const source = createEarthReferenceSurface();
-  const { width, height } = source;
-  const size = width * height;
-  const initial = createStandardRecipeTestInitialSetup({
-    preset: getCiv7StandardMapSizePreset("MAPSIZE_HUGE"),
-    mapConfig: {
-      ...standardMapConfig,
-      latitudeBounds: {
-        topLatitude: earthReference.grid.topLatitude,
-        bottomLatitude: earthReference.grid.bottomLatitude,
-      },
-    },
-  });
-  const plan = recipe.compile(initial, standardMapConfig.config);
-  const node = plan.nodes.find((step) => step.stageId === "hydrology-climate-baseline");
-  if (!node) throw new Error("The public Standard plan must contain baseline climate.");
-  const config = validateSchemaValueForTest(
-    climateConfig.schema,
-    node.config,
-    "/earth-reference/climate-baseline"
-  );
-  const context = createMapContext({
-    setup: plan.setup,
-    adapter: createMockAdapter({ width, height }),
-  });
-  const landMask = new Uint8Array(size);
-  const shelfMask = new Uint8Array(size);
-  if (!removeContinents) {
-    for (let cell = 0; cell < size; cell++) {
-      landMask[northFirstIndex(cell)] = source.landMask[cell]!;
-      shelfMask[northFirstIndex(cell)] = source.sourceShelfMask[cell]!;
-    }
-  }
-  const coasts = morphology.coasts.ops.computeCoastalAdjacency;
-  const distances = morphology.coasts.ops.computeDistanceToCoast;
-  const { coastalLand, coastalWater } = coasts.run(
-    { width, height, landMask },
-    coasts.defaultConfig
-  );
-  const coastal = Uint8Array.from(coastalLand, (value, cell) => value || coastalWater[cell]!);
-  const { distanceToCoast } = distances.run({ width, height, coastal }, distances.defaultConfig);
-  const topography = {
-    elevation: new Int16Array(size),
-    seaLevel: 0,
-    landMask,
-    bathymetry: new Int16Array(size),
-  };
-  const shelf = { shelfMask, coastalLand, coastalWater, distanceToCoast };
-  const heldInputs = structuredClone({ topography, shelf, config });
-  let observation: ReturnType<typeof ClimateBaselineStep.run> | undefined;
-  withMapContextExecutionForTest(context, (stepContext) => {
-    publishTestArtifact(stepContext, landformArtifacts.topography, topography);
-    publishTestArtifact(stepContext, shelfArtifacts.shelf, shelf);
-    observation = ClimateBaselineStep.run(
-      stepContext,
-      config,
-      {
-        computeOceanGeometry: hydrology.ocean.ops.computeOceanGeometry.run,
-        computeOceanSurfaceCurrents: hydrology.ocean.ops.computeOceanSurfaceCurrents.run,
-        computeOceanThermalState: hydrology.ocean.ops.computeOceanThermalState.run,
-        computeRadiativeForcing: hydrology.climate.ops.computeRadiativeForcing.run,
-        computeThermalState: hydrology.climate.ops.computeThermalState.run,
-        computePressureField: hydrology.climate.ops.computePressureField.run,
-        computeAtmosphericCirculation: hydrology.climate.ops.computeAtmosphericCirculation.run,
-        computeEvaporationSources: hydrology.climate.ops.computeEvaporationSources.run,
-        transportMoisture: hydrology.climate.ops.transportMoisture.run,
-        computePrecipitation: hydrology.climate.ops.computePrecipitation.run,
-        computePotentialDemand: hydrology.climate.ops.computePotentialDemand.run,
-      },
-      buildStepTestDependencies(ClimateBaselineStep, stepContext)
-    );
-  });
-  if (!observation || observation instanceof Promise)
-    throw new Error("Expected synchronous climate evidence.");
-  expect({ topography, shelf, config }).toEqual(heldInputs);
-  return {
-    setup: plan.setup,
-    config,
-    topography,
-    shelf,
-    baseline: readArtifact(context, climateArtifacts.baselineClimateField),
-    thermal: readArtifact(context, climateArtifacts.thermalField),
-    pressure: readArtifact(context, climateArtifacts.pressureField),
-    wind: readArtifact(context, climateArtifacts.windField),
-    observation,
   };
 }
 
@@ -395,9 +286,20 @@ describe("fixed Earth native-index drainage diagnostic", () => {
 
 describe("fixed Earth-coast flat-relief climate ablation", () => {
   it("runs actual climate operations with normalized Earthlike forcing and source latitude registration", () => {
-    const earth = climateFixture();
-    const repeated = climateFixture();
-    const aquaplanet = climateFixture(true);
+    const earth = runEarthCoastBaseline();
+    const repeated = runEarthCoastBaseline();
+    const aquaplanet = runEarthCoastBaseline("aquaplanet");
+    for (const run of [earth, repeated, aquaplanet]) {
+      expect({ topography: run.topography, shelf: run.shelf, config: run.config }).toEqual(
+        run.heldInputs
+      );
+      expect(run.observation.baselineClimateField).toBe(run.baseline);
+      expect(run.observation.thermalField).toBe(run.thermal);
+      expect(run.observation.pressureField).toBe(run.pressure);
+      expect(run.observation.windField).toBe(run.wind);
+      expect("surfaceTemperatureC" in run.baseline).toBe(false);
+      expect(Object.keys(run.thermal)).toEqual(["surfaceTemperatureC"]);
+    }
     expect(earth.setup.latitudeBounds).toEqual({ topLatitude: 90, bottomLatitude: -90 });
     expect(earth.config.seasonality.axialTiltDeg).toBe(23.44);
     expect(earth.config).toEqual(aquaplanet.config);
@@ -411,20 +313,65 @@ describe("fixed Earth-coast flat-relief climate ablation", () => {
     expect(earth.pressure).toEqual(repeated.pressure);
     expect(earth.wind).toEqual(repeated.wind);
     expect(earth.observation.currentField).toEqual(repeated.observation.currentField);
+    expect(earth.observation).toEqual(repeated.observation);
     expect(earth.baseline.rainfall).not.toEqual(aquaplanet.baseline.rainfall);
     expect(earth.pressure).not.toEqual(aquaplanet.pressure);
     expect(earth.wind).not.toEqual(aquaplanet.wind);
     expect(earth.observation.seasonalRainfall).toHaveLength(earth.config.seasonality.modeCount);
     const seasonalTemperature = earth.observation.seasonalSurfaceTemperatureC;
     expect(seasonalTemperature).toHaveLength(earth.config.seasonality.modeCount);
+    const seasonalDemand = seasonalTemperature.map(
+      (surfaceTemperatureC, season) =>
+        hydrology.climate.ops.computePotentialDemand.run(
+          {
+            width: earthReference.grid.width,
+            height: earthReference.grid.height,
+            landMask: earth.topography.landMask,
+            surfaceTemperatureC,
+            humidity: earth.observation.seasonalHumidity[season]!,
+            parameters: earth.baseline.demandParameters,
+          },
+          earth.config.computePotentialDemand
+        ).pet
+    );
     expect(earth.observation.thermalField).toBe(earth.thermal);
     expect(earth.observation.oceanThermal).not.toBeNull();
     for (let cell = 0; cell < earth.thermal.surfaceTemperatureC.length; cell++) {
-      const mean = seasonalTemperature.reduce((sum, field) => sum + field[cell]!, 0)
-        / seasonalTemperature.length;
+      const mean =
+        seasonalTemperature.reduce((sum, field) => sum + field[cell]!, 0) /
+        seasonalTemperature.length;
       expect(earth.thermal.surfaceTemperatureC[cell]).toBe(Math.fround(mean));
+      const seasonMean = (fields: readonly ArrayLike<number>[]) =>
+        fields.reduce((sum, field) => sum + field[cell]!, 0) / fields.length;
+      expect(earth.baseline.rainfall[cell]).toBe(
+        Math.max(0, Math.min(200, Math.round(seasonMean(earth.observation.seasonalRainfall))))
+      );
+      expect(earth.baseline.humidity[cell]).toBe(
+        Math.max(0, Math.min(255, Math.round(seasonMean(earth.observation.seasonalHumidity))))
+      );
+      expect(earth.baseline.potentialDemand[cell]).toBe(Math.fround(seasonMean(seasonalDemand)));
+      // Pressure accumulates in an f32 buffer, unlike the thermal mean's double-precision sum.
+      const pressureSum = earth.observation.seasonalPressure.reduce(
+        (sum, field) => Math.fround(sum + field[cell]!),
+        0
+      );
+      expect(earth.pressure.pressure[cell]).toBe(
+        Math.fround(pressureSum / earth.observation.seasonalPressure.length)
+      );
+      expect(earth.wind.windU[cell]).toBe(
+        new Int8Array([
+          Math.max(-127, Math.min(127, Math.round(seasonMean(earth.observation.seasonalWindU)))),
+        ])[0]
+      );
+      expect(earth.wind.windV[cell]).toBe(
+        new Int8Array([
+          Math.max(-127, Math.min(127, Math.round(seasonMean(earth.observation.seasonalWindV)))),
+        ])[0]
+      );
       if (!earth.topography.landMask[cell]) {
-        expect(earth.thermal.surfaceTemperatureC[cell]).toBe(earth.observation.oceanThermal!.sstC[cell]);
+        expect(earth.thermal.surfaceTemperatureC[cell]).toBe(
+          earth.observation.oceanThermal!.sstC[cell]
+        );
       }
     }
     expect(earth.baseline.rainfall.every((value) => value >= 0 && value <= 200)).toBe(true);

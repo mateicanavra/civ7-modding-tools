@@ -1,6 +1,7 @@
 # Earth Calibration Benchmark
 
-Status: source census complete; benchmark design proposed, not implemented.
+Status: pinned source and independent thermal fixtures implemented; coupled
+physical Earth benchmark and numerical calibration remain open.
 Prepared 2026-09-29 by root.
 Continues [coherence completion](coherence-completion.md). The user proposes a
 fixed Earth baseline to separate downstream climate/drainage quality from
@@ -9,8 +10,10 @@ generated continent and relief variability.
 The user has now delegated implementation and asked for one consolidated
 [question sheet](calibration-question-sheet.md). Its sequence begins with
 effective Earthlike input correction and distinguishes physical lake surface
-fidelity from preservation of Civ7's initial setter result. This packet remains
-the supporting benchmark design, not a claim that those implementations exist.
+fidelity from preservation of Civ7's initial setter result. The
+[continuation sequence](continuation-sequence.md) owns the accepted execution
+order. This packet retains the original benchmark rationale and source census;
+implemented bounded diagnostics are identified explicitly below.
 
 ## Investigation Frame
 
@@ -64,9 +67,13 @@ authorship, and the [wet outlet repair](wet-river-continuity.md).
 
 Still open: the general [native water-height repair](water-height-maintenance.md),
 climate-fed [network/terrain evolution](basin-evolution-design.md), density
-calibration, and era-qualified ship traversal. The Earth fixture and benchmark
-below are not implemented. This investigation changes no runtime defaults and
-does not claim a fresh live-game acceptance run.
+calibration, and era-qualified ship traversal. The pinned
+[Firaxis source fixture](earth-reference.md), actual flat-relief climate arm
+and native-index controlled-drainage arm now exist, alongside the independent
+[NOAA thermal reference](earth-thermal-reference.md). These are not yet a
+coupled physical-relief Earth reconstruction or a fresh live-game acceptance
+run. The temperate/normal input correction and single thermal handoff are
+implemented; empirical coefficient adoption remains open.
 
 The cutoff20 diagnostic already repairs the tested large-lake shorelines
 without expanding water or changing physical drainage. The open question is
@@ -144,20 +151,24 @@ Authority is the authored
 [`swooper-earthlike.config.json`](../../../plugins/mod/map/swooper-physics/src/maps/configs/swooper-earthlike.config.json)
 plus normalization, not the preset name or unnormalized fields.
 
-| Control | Current effective meaning |
-| --- | --- |
-| Latitude and water | +80/-80 latitude; 63% target water, not an empirical Earth-area contract |
-| Thermal setting | `hot`: baseline thermal 8/50 becomes 10.5/60 after offsets |
-| Seasonality | `high` plus authored tilt 23 gives **28.44 degrees**, not 23 |
-| Terrain evolution | `young`, one era, low erosion; no geological-time calibration |
-| Runoff | Rainfall index with scalar infiltration .18 and humidity damping .22 |
-| Visible classes | Minor percentile .74, major .88, absolute discharge floors zero |
+| Control | Current effective meaning | Previous census input |
+| --- | --- | --- |
+| Latitude and water | +80/-80 latitude; 63% target water, not an empirical Earth-area contract | Unchanged |
+| Thermal setting | `temperate`: baseline thermal 8 C base / 50 C gain, with 3.2 C land cooling | `hot` produced 10.5/60 |
+| Seasonality | `normal`, four phases, effective **23.44 degrees** | `high` plus authored 23 produced 28.44 |
+| Terrain evolution | `young`, one era, low erosion; no geological-time calibration | Unchanged |
+| Runoff | Rainfall index with scalar infiltration .18 and humidity damping .22 | Unchanged |
+| Visible classes | Minor percentile .74, major .88, absolute discharge floors zero | Unchanged |
 
-The tilt is `23 + (23.44 - 18)`. See the
+The old effective tilt was `23 + (23.44 - 18)`; do not neutralize the already
+corrected config a second time. See the
 [normalizer](../../../plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/step.ts)
 and [knob policy](../../../plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/model/policy/climate-knob-policy.ts).
 This is a concrete reason to inspect effective compiled inputs before calling
 the scenario Earth-calibrated, not evidence that tilt alone caused the network.
+The flat Firaxis climate arm explicitly spans +/-90 degrees, independently of
+the procedural profile's playable latitude crop. Its compiled coefficient
+envelopes, rather than the preset label, are the comparison authority.
 
 Physical elevation is quantized normalized relief, not metres; native display
 height is yet another scale. Runoff is rainfall-index flux over unit tile area,
