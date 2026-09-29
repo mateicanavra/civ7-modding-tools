@@ -14,6 +14,7 @@ import {
   type RiverProbeAtlas, type RiverProbeVariant,
 } from "./river-contract-map.fixture.js";
 import { buildRiverProbePlan, riverProbeDeployFlags, riverProbeInstallDirectoryName, riverProbeMapScript, riverProbeOutputRoot } from "./river-contract-probe.js";
+import { WATER_CONNECTIVITY_ATLASES, buildWaterConnectivityWrites } from "./water-connectivity.fixture.js";
 
 type LogEntry = { stage: string; payload: Record<string, any>; proofId: string; variant: string };
 
@@ -30,6 +31,7 @@ function mockRuntime(script: string, options: {
   riverIds?: unknown[]; missingRiverId?: boolean; riverPlotCount?: number;
   elevationReadback?: number; terrainReadback?: number; featureReadback?: number; riverClassReadback?: number;
   invalidNativeEnum?: boolean; failWriteAt?: { x: number; y: number }; repairSetupTerrain?: boolean;
+  lakeCutoff?: number | string; waterAreaReadbacks?: boolean;
 } = {}) {
   const callbacks = new Map<string, (...args: any[]) => void>();
   const lines: string[] = [];
@@ -52,12 +54,15 @@ function mockRuntime(script: string, options: {
   };
   const gameplayMap: Record<string, unknown> = {
     getGridWidth: () => 60, getGridHeight: () => 38, getRandomSeed: () => 1018,
+    getMapSize: () => "MAPSIZE_TINY",
     getIndexFromXY: (x: number, y: number) => x + y * 60,
     getTerrainType: (x: number, y: number) => options.terrainReadback ?? terrain[x + y * 60],
     getRiverType: (x: number, y: number) => options.riverClassReadback ?? rivers[x + y * 60],
     getElevation: (x: number, y: number) => options.elevationReadback ?? heights[x + y * 60],
     getFeatureType: (x: number, y: number) => options.featureReadback ?? features[x + y * 60],
     isWater: () => false, isLake: () => false, isRiver: () => false,
+    getAreaId: () => 7, getAreaIsWater: () => options.waterAreaReadbacks ?? false,
+    getLandmassRegionId: () => -1,
     isNavigableRiver: () => false, isFreshWater: () => false, isAdjacentToRivers: () => false,
     getAdjacentPlotLocation: ({ x, y }: { x: number; y: number }, direction: number) => {
       const symbol = Object.keys(directions).find((name) => directions[name] === direction);
@@ -89,6 +94,7 @@ function mockRuntime(script: string, options: {
     console: { log: (line: string) => lines.push(line) },
     engine: { on: (name: string, callback: (...args: any[]) => void) => callbacks.set(name, callback), call: () => {} },
     GameInfo: {
+      Maps: { lookup: () => ({ MapSizeType: "MAPSIZE_TINY", GridWidth: 60, GridHeight: 38, LakeSizeCutoff: options.lakeCutoff ?? 5 }) },
       Terrains: terrains.map((name, $index) => ({ TerrainType: `TERRAIN_${name}`, $index })),
       Biomes: ["GRASSLAND", "MARINE"].map((name, $index) => ({ BiomeType: `BIOME_${name}`, $index })),
       Features: [{ FeatureType: "FEATURE_VOLCANO", $index: 10 }],
@@ -140,7 +146,14 @@ function mockRuntime(script: string, options: {
         return false;
       },
     },
-    AreaBuilder: { recalculateAreas: () => call("areas") },
+    AreaBuilder: {
+      recalculateAreas: () => call("areas"),
+      isAreaConnectedToOcean: (id: number) => {
+        if (id !== 7 || !options.waterAreaReadbacks) throw new Error("Unsafe water area connectivity invocation");
+        call("areaOceanConnectivity", [id]);
+        return false;
+      },
+    },
     FertilityBuilder: { recalculate: () => call("fertility") },
     Players: { getAliveMajorIds: () => [0, 1, 2, 3] },
     StartPositioner: { setStartPosition: (...args: unknown[]) => call("start", args) },
@@ -151,6 +164,93 @@ function mockRuntime(script: string, options: {
     entries: () => decodeBoundedJsonLogSeries(lines, "[river-contract]").map(({ payload }) => payload as LogEntry),
   };
 }
+
+describe("V13/V14 water connectivity native-call transport (not native semantics)", () => {
+  test.each([...WATER_CONNECTIVITY_ATLASES])("%s observes every cell without deriving native classifications", async (atlas) => {
+    const cutoff = atlas === "water-connectivity-cutoff-5" ? 5 : 10;
+    const { script, plan } = await compiled("authored", atlas);
+    const proof = JSON.parse(String(plan.files.find(({ relativePath }) => relativePath === "proof.json")!.content));
+    const runtime = mockRuntime(script, { lakeCutoff: cutoff, waterAreaReadbacks: true, elevationReadback: 1234 });
+    runtime.run();
+    const entries = runtime.entries();
+    expect(entries[0]).toMatchObject({ stage: "map-info", payload: { activation: "accepted", expectedLakeSizeCutoff: cutoff } });
+    for (const entry of entries) expect(entry).toMatchObject({ proofId: "unit-artifact-only", diagnosticRevision: cutoff === 5 ? 13 : 14, atlasKind: atlas, fixtureSourceSha256: proof.fixtureSourceSha256 });
+    const checkpoints = entries.filter(({ stage }) => RIVER_CHECKPOINTS.includes(stage as typeof RIVER_CHECKPOINTS[number]));
+    expect(checkpoints.map(({ stage }) => stage)).toEqual([...RIVER_CHECKPOINTS]);
+    for (const { stage, payload } of checkpoints) {
+      expect(payload.terrain).toHaveLength(2280);
+      expect(payload.riverClass).toHaveLength(2280);
+      const observations = payload.waterConnectivity;
+      expect(observations).toMatchObject({ cellCount: 2280, rowCount: 38, dataStage: "water-connectivity-grid" });
+      const rows = entries.filter((entry) => entry.stage === "water-connectivity-grid" && entry.payload.checkpoint === stage).map(({ payload }) => payload);
+      expect(rows.map((row) => row.row)).toEqual(Array.from({ length: 38 }, (_, row) => row));
+      for (const row of rows) {
+        expect(row.startCell).toBe(row.row * 60);
+        for (const field of ["water", "lake", "elevation", "areaId", "areaIsWater", "landmassRegionId"]) expect(row[field]).toHaveLength(60);
+        expect(row.water.every((value: unknown) => value === false)).toBe(true);
+        expect(row.lake.every((value: unknown) => value === false)).toBe(true);
+        expect(row.elevation.every((value: unknown) => value === 1234)).toBe(true);
+        expect(row.areaId.every((value: unknown) => value === 7)).toBe(true);
+        expect(row.landmassRegionId.every((value: unknown) => value === -1)).toBe(true);
+      }
+      expect(observations.waterAreaOceanConnectivity).toEqual([{ areaId: 7, connectedToOcean: false }]);
+      if (stage === "initialized" || stage === "after-write") {
+        expect(observations.riverOceanConnectivityGate).toBe("before-finalization");
+        expect(observations.riverOceanConnectivity).toEqual([]);
+      } else {
+        expect(observations.riverOceanConnectivityGate).toBe("observed-navigable-cells-only");
+        expect(observations.riverOceanConnectivity.map((entry: any) => entry.cell)).toEqual(
+          payload.riverClass.flatMap((value: number, cell: number) => value === 23 ? [cell] : [])
+        );
+        expect(observations.riverOceanConnectivity.every((entry: any) => entry.plotIndex === entry.cell && entry.connectedToOcean === false)).toBe(true);
+      }
+    }
+    const writes = entries.filter(({ stage }) => stage === "write");
+    expect(writes).toHaveLength(30);
+    expect(writes.filter(({ payload }) => payload.role === "qualified-wet-nav-outlet")).toHaveLength(2);
+    expect(runtime.calls.filter(({ name }) => name === "setRiverInfo").map(({ args }) => args)).toEqual(
+      buildWaterConnectivityWrites().map(({ x, y, riverClass }) => [x, y, 91, riverClass === "MINOR" ? 11 : 23])
+    );
+    expect(runtime.calls.filter(({ name }) => name === "finalizeRivers").map(({ args }) => args)).toEqual([[false, 25, 2, 2]]);
+    const afterFinalize = runtime.calls.slice(runtime.calls.findIndex(({ name }) => name === "finalizeRivers"));
+    expect(afterFinalize.some(({ name }) => ["setTerrainType", "setElevation", "setFeatureType", "setRiverInfo"].includes(name))).toBe(false);
+    expect(runtime.unsafeOceanCalls).toEqual([]);
+    expect(runtime.calls.filter(({ name }) => name === "areaOceanConnectivity")).toHaveLength(RIVER_CHECKPOINTS.length);
+    expect(runtime.lines.every((line) => line.length <= 900)).toBe(true);
+    expect(decodeBoundedJsonLogSeries(runtime.lines, "[mapgen-complete]")[0]!.payload).toMatchObject({ diagnosticRevision: cutoff === 5 ? 13 : 14, expectedLakeSizeCutoff: cutoff, fixtureSourceSha256: proof.fixtureSourceSha256, writeFailures: 0, observationsOnly: true });
+  });
+
+  test("cutoff refusal precedes mutation; missing readbacks stay unavailable and failures receive no retries", async () => {
+    const { script } = await compiled("authored", "water-connectivity-cutoff-5");
+    for (const cutoff of [10, "5"]) {
+      const runtime = mockRuntime(script, { lakeCutoff: cutoff });
+      expect(runtime.run).toThrow("numeric LakeSizeCutoff=5");
+      expect(runtime.calls).toHaveLength(0);
+      expect(runtime.entries()[0]).toMatchObject({ stage: "map-info", payload: { activation: "refused" } });
+      expect(decodeBoundedJsonLogSeries(runtime.lines, "[mapgen-complete]")).toHaveLength(0);
+    }
+    const missing = mockRuntime(script, { missing: ["isLake", "getAreaId", "getLandmassRegionId"], throws: ["getAreaIsWater"] });
+    missing.run();
+    const missingEntries = missing.entries();
+    const checkpoint = missingEntries.find(({ stage }) => stage === "after-water-cache")!.payload.waterConnectivity;
+    const rows = missingEntries.filter(({ stage, payload }) => stage === "water-connectivity-grid" && payload.checkpoint === "after-water-cache");
+    expect(rows).toHaveLength(38);
+    for (const { payload } of rows) {
+      for (const field of ["lake", "areaId", "landmassRegionId"]) expect(payload[field].every((value: any) => value.status === "unavailable" && value.reason === "missing-callable")).toBe(true);
+      expect(payload.areaIsWater.every((value: any) => value.status === "unavailable" && value.reason === "threw")).toBe(true);
+    }
+    expect(checkpoint.waterAreaOceanConnectivity).toEqual([]);
+    expect(missing.calls.filter(({ name }) => name === "areaOceanConnectivity")).toHaveLength(0);
+    expect(missing.lines.every((line) => line.length <= 900)).toBe(true);
+    const failed = mockRuntime(script, { failWriteAt: { x: 10, y: 11 } });
+    failed.run();
+    expect(failed.calls.filter(({ name }) => name === "setRiverInfo")).toHaveLength(30);
+    expect(decodeBoundedJsonLogSeries(failed.lines, "[mapgen-complete]")[0]!.payload).toMatchObject({ writeFailures: 1 });
+    const failedFinalizer = mockRuntime(script, { failPhase: "finalizeRivers" });
+    expect(failedFinalizer.run).toThrow("mock failed finalizeRivers");
+    expect(decodeBoundedJsonLogSeries(failedFinalizer.lines, "[mapgen-complete]")).toHaveLength(0);
+  });
+});
 
 describe("river diagnostic artifact (not native semantics proof)", () => {
   test("bounded atlas covers symbols, parities, classes, reach lengths, both transitions, outlets and lake mismatches", () => {

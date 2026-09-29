@@ -12,6 +12,7 @@ import { bundleCiv7MapScript } from "../../src/runtime/map-script/compiler.js";
 import { RIVER_PROBE, RIVER_TERRAIN_PROBE, RIVER_LAKE_NAVIGATION_PROBE, RIVER_PROBE_VARIANTS, type RiverProbeAtlas, type RiverProbeVariant } from "./river-contract-map.fixture.js";
 import { FULL_MAP_RIVER_PROBE, FULL_MAP_RIVER_PROBE_ATLASES, FULL_MAP_RIVER_PROBE_EDGES, type FullMapProbeIdentity, type FullMapRiverProbeAtlas } from "./river-full-map.fixture.js";
 import { WATER_HEIGHT_MAINTENANCE_ATLAS, WATER_HEIGHT_MAINTENANCE_PROBE, WATER_HEIGHT_LAKE_CUTOFF_ATLAS, WATER_HEIGHT_LAKE_CUTOFF_PROBE, WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS, WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE } from "./water-height-maintenance.fixture.js";
+import { WATER_CONNECTIVITY_ATLASES, isWaterConnectivityAtlas, waterConnectivityProbe } from "./water-connectivity.fixture.js";
 
 export const riverProbeAppRoot = fileURLToPath(new URL("../../", import.meta.url));
 export const riverProbeOutputRoot = resolve(riverProbeAppRoot, "dist/river-contract-probe");
@@ -20,7 +21,7 @@ export const riverProbeInstallDirectoryName = "mod-swooper-river-contract-v1";
 export const riverProbeDeployFlags = ["--input", riverProbeOutputRoot, "--id", riverProbeInstallDirectoryName] as const;
 export const riverProbeMapScript = `{${RIVER_PROBE.id}}/maps/river-contract.js`;
 export type RiverProbeAtlasSelection = RiverProbeAtlas | FullMapRiverProbeAtlas | typeof WATER_HEIGHT_MAINTENANCE_ATLAS | typeof WATER_HEIGHT_LAKE_CUTOFF_ATLAS | typeof WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS;
-const atlases: readonly string[] = ["legacy", "terrain-admission", "lake-navigation", ...FULL_MAP_RIVER_PROBE_ATLASES, WATER_HEIGHT_MAINTENANCE_ATLAS, WATER_HEIGHT_LAKE_CUTOFF_ATLAS, WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS];
+const atlases: readonly string[] = ["legacy", "terrain-admission", "lake-navigation", ...FULL_MAP_RIVER_PROBE_ATLASES, WATER_HEIGHT_MAINTENANCE_ATLAS, WATER_HEIGHT_LAKE_CUTOFF_ATLAS, WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS, ...WATER_CONNECTIVITY_ATLASES];
 const isFullMapAtlas = (atlas: string): atlas is FullMapRiverProbeAtlas =>
   (FULL_MAP_RIVER_PROBE_ATLASES as readonly string[]).includes(atlas);
 
@@ -35,11 +36,21 @@ export async function buildRiverProbePlan(proofId: string, variant: RiverProbeVa
   const maintenance = atlasKind === WATER_HEIGHT_MAINTENANCE_ATLAS || lakeCutoff;
   const maintenanceProbe = maxLakeCutoff ? WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE : lakeCutoff ? WATER_HEIGHT_LAKE_CUTOFF_PROBE : WATER_HEIGHT_MAINTENANCE_PROBE;
   const fullMap = isFullMapAtlas(atlasKind) || maintenance;
-  const probe = fullMap ? { ...RIVER_PROBE, ...(maintenance ? maintenanceProbe : FULL_MAP_RIVER_PROBE) } : atlasKind === "terrain-admission" ? RIVER_TERRAIN_PROBE : atlasKind === "lake-navigation" ? RIVER_LAKE_NAVIGATION_PROBE : RIVER_PROBE;
+  const waterConnectivity = isWaterConnectivityAtlas(atlasKind);
+  const probe = waterConnectivity ? waterConnectivityProbe(atlasKind) : fullMap ? { ...RIVER_PROBE, ...(maintenance ? maintenanceProbe : FULL_MAP_RIVER_PROBE) } : atlasKind === "terrain-admission" ? RIVER_TERRAIN_PROBE : atlasKind === "lake-navigation" ? RIVER_LAKE_NAVIGATION_PROBE : RIVER_PROBE;
+  const scopedCutoff = waterConnectivity ? waterConnectivityProbe(atlasKind).expectedLakeSizeCutoff : lakeCutoff ? maintenanceProbe.expectedLakeSizeCutoff : undefined;
+  const cutoffMapSize = waterConnectivity ? "MAPSIZE_TINY" : "MAPSIZE_HUGE";
   const displayLabel = "displayLabel" in probe ? probe.displayLabel : "River Contract Probe";
   const adapterImport = atlasKind !== "legacy" ? 'import { Civ7Adapter } from "./src/runtime/map-script/adapter.ts";\n' : "";
   const adapterFactory = atlasKind !== "legacy" ? ", (width, height) => new Civ7Adapter(width, height)" : "";
   let source = `${adapterImport}import { registerRiverContractProbe } from "./test/live/river-contract-map.fixture.ts";\nregisterRiverContractProbe(${JSON.stringify(proofId)}, ${JSON.stringify(variant)}, ${JSON.stringify(atlasKind)}${adapterFactory});`;
+  let waterFixtureSourceSha256: string | undefined;
+  if (waterConnectivity) {
+    waterFixtureSourceSha256 = createHash("sha256").update(await readFile(new URL("./water-connectivity.fixture.ts", import.meta.url))).digest("hex");
+    source = `${adapterImport}import { registerRiverContractProbe } from "./test/live/river-contract-map.fixture.ts";
+import { buildWaterConnectivityFixture } from "./test/live/water-connectivity.fixture.ts";
+registerRiverContractProbe(${JSON.stringify(proofId)}, ${JSON.stringify(variant)}, ${JSON.stringify(atlasKind)}${adapterFactory}, buildWaterConnectivityFixture(${JSON.stringify(atlasKind)}, ${JSON.stringify(waterFixtureSourceSha256)}));`;
+  }
   let identity: FullMapProbeIdentity | undefined;
   if (fullMap) {
     const [config] = await loadSwooperMapConfigCatalog({ catalogConfigIds: ["swooper-earthlike"] });
@@ -87,21 +98,26 @@ ${renderSwooperCatalogMapSource(config)}`;
       { relativePath: "maps/river-contract.js", content },
       { relativePath: "config/config.xml", content: `<?xml version="1.0" encoding="utf-8"?>
 <Database><Maps><Row File="${riverProbeMapScript}" Name="LOC_RIVER_CONTRACT_NAME" Description="LOC_RIVER_CONTRACT_DESCRIPTION" SortIndex="999"/></Maps></Database>` },
-      ...(lakeCutoff ? [{ relativePath: "config/lake-cutoff.xml", content: `<?xml version="1.0" encoding="utf-8"?>
-<Database><Maps><Update><Where MapSizeType="MAPSIZE_HUGE"/><Set LakeSizeCutoff="${maintenanceProbe.expectedLakeSizeCutoff}"/></Update></Maps></Database>` }] : []),
+      ...(scopedCutoff !== undefined ? [{ relativePath: "config/lake-cutoff.xml", content: `<?xml version="1.0" encoding="utf-8"?>
+<Database><Maps><Update><Where MapSizeType="${cutoffMapSize}"/><Set LakeSizeCutoff="${scopedCutoff}"/></Update></Maps></Database>` }] : []),
       { relativePath: "text/en_us/MapText.xml", content: `<?xml version="1.0" encoding="utf-8"?>
 <Database><EnglishText><Row Tag="LOC_RIVER_CONTRACT_NAME"><Text>${displayLabel}</Text></Row><Row Tag="LOC_RIVER_CONTRACT_DESCRIPTION"><Text>Disposable native river diagnostic. ${fullMap ? "Huge, ten players" : "Tiny, four players"}. Revision ${probe.diagnosticRevision}.</Text></Row></EnglishText></Database>` },
       { relativePath: `${RIVER_PROBE.id}.modinfo`, content: `<?xml version="1.0" encoding="utf-8"?>
 <Mod id="${RIVER_PROBE.id}" version="1" xmlns="ModInfo">
   <Properties><Name>${displayLabel}</Name><Description>Disposable native river diagnostic revision ${probe.diagnosticRevision}</Description><Authors>Swooper</Authors><Package>Mod</Package></Properties>
   <Dependencies><Mod id="base-standard" title="LOC_MODULE_BASE_STANDARD_NAME"/>${fullMap ? '<Mod id="swooper-maps" title="LOC_MODULE_SWOOPER_MAPS_NAME"/>' : ""}</Dependencies>
-  <ActionCriteria><Criteria id="always"><AlwaysMet/></Criteria>${lakeCutoff ? `<Criteria id="diagnostic-map"><MapInUse>${riverProbeMapScript}</MapInUse></Criteria>` : ""}</ActionCriteria>
+  <ActionCriteria><Criteria id="always"><AlwaysMet/></Criteria>${scopedCutoff !== undefined ? `<Criteria id="diagnostic-map"><MapInUse>${riverProbeMapScript}</MapInUse></Criteria>` : ""}</ActionCriteria>
   <ActionGroups>
     <ActionGroup id="game-river-contract" scope="game" criteria="always"><Actions><UpdateText><Item>text/en_us/MapText.xml</Item></UpdateText><ImportFiles><Item>maps/river-contract.js</Item></ImportFiles></Actions></ActionGroup>
-    <ActionGroup id="shell-river-contract" scope="shell" criteria="always"><Actions><UpdateDatabase><Item>config/config.xml</Item></UpdateDatabase><UpdateText><Item>text/en_us/MapText.xml</Item></UpdateText></Actions></ActionGroup>${lakeCutoff ? '\n    <ActionGroup id="game-lake-cutoff" scope="game" criteria="diagnostic-map"><Actions><UpdateDatabase><Item>config/lake-cutoff.xml</Item></UpdateDatabase></Actions></ActionGroup>' : ""}
+    <ActionGroup id="shell-river-contract" scope="shell" criteria="always"><Actions><UpdateDatabase><Item>config/config.xml</Item></UpdateDatabase><UpdateText><Item>text/en_us/MapText.xml</Item></UpdateText></Actions></ActionGroup>${scopedCutoff !== undefined ? '\n    <ActionGroup id="game-lake-cutoff" scope="game" criteria="diagnostic-map"><Actions><UpdateDatabase><Item>config/lake-cutoff.xml</Item></UpdateDatabase></Actions></ActionGroup>' : ""}
   </ActionGroups>
 </Mod>` },
       { relativePath: "proof.json", content: JSON.stringify({ proofId, ...probe, ...identity, variant, atlasKind,
+        ...(waterConnectivity ? { fixtureSourceSha256: waterFixtureSourceSha256, intervention: {
+          kind: "paired-source-water-connectivity", scope: "game", criterion: { MapInUse: riverProbeMapScript },
+          table: "Maps", where: { MapSizeType: "MAPSIZE_TINY" }, set: { LakeSizeCutoff: scopedCutoff },
+          qualification: "Activation requires measured Tiny metadata; all-cell native water/lake/area evidence is observed, never inferred from authored terrain. No movement success claimed.",
+        } } : {}),
         ...(isFullMapAtlas(atlasKind) ? { intervention: { riverClass: "NAVIGABLE",
           extraWriteCount: FULL_MAP_RIVER_PROBE_EDGES[atlasKind].length, edges: FULL_MAP_RIVER_PROBE_EDGES[atlasKind] } } : {}),
         ...(lakeCutoff ? { intervention: { kind: "source-qualified-classification-only", scope: "game",
@@ -129,7 +145,7 @@ if (import.meta.main) {
     throw new Error(`Usage: bun test/live/river-contract-probe.ts <proof-id> [authored|aesthetic|length|upstream|percent] [${atlases.join("|")}] (build only)`);
   await applyGeneratedFilePlan(await buildRiverProbePlan(proofId, variant as RiverProbeVariant, atlasKind as RiverProbeAtlasSelection), { outputRoot: riverProbeOutputRoot });
   const fullMap = isFullMapAtlas(atlasKind) || atlasKind === WATER_HEIGHT_MAINTENANCE_ATLAS || atlasKind === WATER_HEIGHT_LAKE_CUTOFF_ATLAS || atlasKind === WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS;
-  const probe = atlasKind === WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS ? WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE : atlasKind === WATER_HEIGHT_LAKE_CUTOFF_ATLAS ? WATER_HEIGHT_LAKE_CUTOFF_PROBE : atlasKind === WATER_HEIGHT_MAINTENANCE_ATLAS ? WATER_HEIGHT_MAINTENANCE_PROBE : fullMap ? FULL_MAP_RIVER_PROBE : RIVER_PROBE;
+  const probe = isWaterConnectivityAtlas(atlasKind) ? waterConnectivityProbe(atlasKind) : atlasKind === WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS ? WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE : atlasKind === WATER_HEIGHT_LAKE_CUTOFF_ATLAS ? WATER_HEIGHT_LAKE_CUTOFF_PROBE : atlasKind === WATER_HEIGHT_MAINTENANCE_ATLAS ? WATER_HEIGHT_MAINTENANCE_PROBE : fullMap ? FULL_MAP_RIVER_PROBE : RIVER_PROBE;
   console.log(JSON.stringify({ outputRoot: riverProbeOutputRoot, proofId, variant, atlasKind,
     mapScript: riverProbeMapScript, installDirectoryName: riverProbeInstallDirectoryName,
     deployFlags: riverProbeDeployFlags,
