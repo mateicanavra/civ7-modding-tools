@@ -240,3 +240,43 @@ is another origin-dependent filter. Keep confidence and habitat gates fixed.
 Require lone-bank translation tests, dense-bank spacing, wrapped adjacency,
 occupancy, determinism and the unchanged complete map study bank before
 acceptance. This is a domain planner change, not more step computation.
+
+### Basin Refusals Expose Two Distinct Missing Capabilities
+
+Exact replays of all four failed candidate arms preserve the experiment's
+source/config hashes and reproduce the same refusals. The current network is
+deliberately certified only for open basins; more realistic thermal forcing
+has now entered previously unsupported states. Do not restore hot forcing or
+change demand solely to stay inside that certificate.
+
+1. Huge1018 NOAA-plus-retired-lapse root17 has no incoming root. Its budget is
+   +14.902249 for levels `22 < h <= 24`, then -3.312319 for `24 < h <= 25`.
+   Wetness is defined by whole cells with ground strictly below the surface.
+   There is no fractional-height root under this stepwise law. Widening the
+   current Int16 water-surface contract would not create one.
+2. Standard3 NOAA root37 receives 6.897626 from root39, enough to turn its raw
+   full-sill deficit into +1.717064. But reversing dry sill connector312
+   diverts 7.303595 of runoff and leaves the actual reservoir at -5.586531.
+   Relaxing the preliminary zero-incoming certificate cannot repair actual
+   supply ownership. A connected equal-level reservoir/junction component
+   must distinguish component export from reservoir exchange.
+
+The next basin design must complete the previously accepted coordinator:
+explicit open/closed/dry/subtile states, disjoint catchments, actual upstream
+exchange and equal-sill junction accounting before publishing receivers and
+water bodies. Preserve the documented quantized-closure approximation, with
+its shoreline bracket and explicit unresolved residual separate from physical
+losses and floating roundoff. It is not exact stationary equilibrium. A future
+claim of exact closed-lake equilibrium instead requires an explicitly designed
+continuous wet-area or temporal storage law, not interpolation between two
+whole-cell budgets. Do not add that larger simulator as an incidental fix.
+
+The exact rows, every unsupported node (not just the first), real-operation
+discriminators and reproducible scripts are retained under the atlas's
+`earth-calibration/basin-refusal-trace/`, with
+`basin-refusal-trace.mjs`, `basin-refusal-discriminators.mjs` and
+`basin-refusal-design.md` beside it. Reuse root17 and root37/root39/connector312
+as permanent regression inputs for the coordinator implementation. Require
+source attribution, signed exchange, explicit terminal identity, complete
+body admission and unchanged geometry in both these cases and the prior
+supported cohort. Resolve this before enabling basin-aware terrain evolution.
