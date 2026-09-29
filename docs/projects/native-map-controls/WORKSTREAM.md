@@ -43,6 +43,12 @@ admits the closed/subtile and equal-sill supply cases exposed by cooler forcing.
 Their tests hold upstream terrain and climate fixed. Neither authorizes biome
 quotas, softened study targets or hidden native projection compensation.
 
+The [periodic thermal response](periodic-thermal-response.md) now integrates
+the held-out monthly reference through production operations. Its qualification
+exposed discontinuous ocean-temperature donor selection; the bounded correction
+stays at that existing domain owner before physical relief calibration. A
+passed primitive fit is not acceptance of the coupled Earth benchmark.
+
 Map authors should see the physical heightfield and connected minor/navigable
 river network produced by Swooper realized faithfully in Civ7, rather than
 reconstructed by unrelated native generators. Studio must remain usable from

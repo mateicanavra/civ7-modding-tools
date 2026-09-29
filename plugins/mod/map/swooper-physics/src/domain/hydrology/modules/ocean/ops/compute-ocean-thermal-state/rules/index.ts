@@ -5,6 +5,15 @@ import {
 
 type Upcurrent = Readonly<{ i0: number; w0: number; i1: number; w1: number }>;
 
+function angularDirections(isOddRow: boolean) {
+  return getHexNeighborDirectionVectorsOddQ(isOddRow)
+    .map((vector, directionIndex) => ({ vector, directionIndex }))
+    .sort((a, b) => Math.atan2(a.vector.y, a.vector.x) - Math.atan2(b.vector.y, b.vector.x));
+}
+
+const EVEN_ROW_DIRECTIONS = angularDirections(false);
+const ODD_ROW_DIRECTIONS = angularDirections(true);
+
 function selectUpcurrent(
   x: number,
   y: number,
@@ -12,61 +21,37 @@ function selectUpcurrent(
   height: number,
   isWaterMask: ArrayLike<number>,
   flowX: number,
-  flowY: number,
-  secondaryWeightMin: number
+  flowY: number
 ): Upcurrent {
-  // Neighbor geometry comes from the shared odd-R primitive (parity keyed on the
-  // ROW, `y & 1`), so the donor selection matches the live engine adjacency. The
-  // previous inlined odd-Q tables keyed on the COLUMN (`x & 1`) and the row-0
-  // delta builder were geometrically degenerate under the odd-R projection.
-  const dirs = getHexNeighborDirectionVectorsOddQ((y & 1) === 1);
+  const self = y * width + x;
+  if (flowX === 0 && flowY === 0) return { i0: self, w0: 1, i1: self, w1: 0 };
 
-  // Upcurrent is opposite direction of the flow.
+  // The legacy OddQ helpers implement odd-R geometry, keyed by row parity.
+  // Find the enclosing angular sector before considering coastlines or bounded Y edges.
+  const directions = (y & 1) === 1 ? ODD_ROW_DIRECTIONS : EVEN_ROW_DIRECTIONS;
   const ux = -flowX;
   const uy = -flowY;
+  for (let k = 0; k < directions.length; k++) {
+    const d0 = directions[k]!;
+    const d1 = directions[(k + 1) % directions.length]!;
+    const a = ux * d1.vector.y - uy * d1.vector.x;
+    const b = d0.vector.x * uy - d0.vector.y * ux;
+    if (a < 0 || b < 0) continue;
 
-  let bestI0 = -1;
-  let bestI1 = -1;
-  let s0 = 0;
-  let s1 = 0;
-
-  forEachHexNeighborOddQWithDirection(x, y, width, height, (nx, ny, k) => {
-    const ni = ny * width + nx;
-    if ((isWaterMask[ni] ?? 0) !== 1) return;
-    const d = dirs[k];
-    const score = ux * d.x + uy * d.y;
-    if (score <= 0) return;
-    if (score > s0) {
-      s1 = s0;
-      bestI1 = bestI0;
-      s0 = score;
-      bestI0 = ni;
-    } else if (score > s1) {
-      s1 = score;
-      bestI1 = ni;
-    }
-  });
-
-  if (bestI0 < 0) {
-    const i0 = y * width + x;
-    return { i0, w0: 1, i1: i0, w1: 0 };
+    const sum = a + b;
+    let i0 = self;
+    let i1 = self;
+    // Blocked shares stay at self; surviving donors never absorb their weight.
+    // Keep direction aliases on narrow periodic grids, including aliases of self.
+    forEachHexNeighborOddQWithDirection(x, y, width, height, (nx, ny, directionIndex) => {
+      const neighbor = ny * width + nx;
+      if (isWaterMask[neighbor] !== 1) return;
+      if (directionIndex === d0.directionIndex) i0 = neighbor;
+      if (directionIndex === d1.directionIndex) i1 = neighbor;
+    });
+    return { i0, w0: a / sum, i1, w1: b / sum };
   }
-
-  const i0 = bestI0;
-
-  if (bestI1 < 0 || s1 <= 0) {
-    return { i0, w0: 1, i1: i0, w1: 0 };
-  }
-
-  const sum = s0 + s1;
-  const w0 = sum > 1e-6 ? s0 / sum : 1;
-  const w1 = sum > 1e-6 ? s1 / sum : 0;
-  if (w1 < secondaryWeightMin) {
-    return { i0, w0: 1, i1: i0, w1: 0 };
-  }
-
-  const i1 = bestI1;
-  return { i0, w0, i1, w1 };
+  throw new Error("Ocean current has no enclosing hex direction sector.");
 }
 
 function lerp(a: number, b: number, t: number): number {
@@ -81,9 +66,10 @@ function clampFinite(value: number, min: number, max: number): number {
 /**
  * Advects a latitudinal sea-surface-temperature baseline through the authored ocean-current field.
  *
- * Each iteration samples one or two upcurrent water neighbors, then diffuses in hex space with a
- * stronger shelf response. Land temperatures remain zero, and the final binary sea-ice mask is
- * derived from the transported SST rather than from an independent latitude classification.
+ * Each iteration interpolates the adjacent rays bracketing the upcurrent direction, retaining
+ * blocked shares at self, then diffuses in hex space with a stronger shelf response. Advection
+ * depends on direction, not current magnitude; this is not a physical speed/time integration.
+ * Land temperatures remain zero, and sea ice is classified from the transported SST.
  *
  * @param width - Number of tile columns in every per-tile field.
  * @param height - Number of tile rows in every per-tile field.
@@ -92,7 +78,7 @@ function clampFinite(value: number, min: number, max: number): number {
  * @param shelfMask - Binary mask selecting the stronger shallow-water diffusion response.
  * @param currentU - Quantized zonal current component per tile.
  * @param currentV - Quantized meridional current component per tile.
- * @param options - SST endpoints, iteration/diffusion controls, donor cutoff, and ice threshold.
+ * @param options - SST endpoints, iteration/diffusion controls, and ice threshold.
  * @returns Transported SST in Celsius and a threshold-derived binary sea-ice mask.
  */
 export function computeOceanThermalState(
@@ -108,7 +94,6 @@ export function computeOceanThermalState(
     poleTempC: number;
     advectIters: number;
     diffusion: number;
-    secondaryWeightMin: number;
     seaIceThresholdC: number;
   }>
 ): { sstC: Float32Array; seaIceMask: Uint8Array } {
@@ -121,7 +106,6 @@ export function computeOceanThermalState(
   const pole = options.poleTempC;
   const diffusion = clampFinite(options.diffusion, 0, 1);
   const advectIters = Math.max(0, options.advectIters | 0);
-  const secondaryWeightMin = clampFinite(options.secondaryWeightMin, 0, 1);
   const seaIceThresholdC = options.seaIceThresholdC;
   const shelfDiffusionScale = 1.35;
 
@@ -158,8 +142,7 @@ export function computeOceanThermalState(
           height,
           isWaterMask,
           flowX,
-          flowY,
-          secondaryWeightMin
+          flowY
         );
         const advected = (sst[up.i0] ?? 0) * up.w0 + (sst[up.i1] ?? 0) * up.w1;
 

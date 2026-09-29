@@ -207,3 +207,97 @@ test is the aggregate coherence bank with the eleven expectations above.
 Realization tests passed 175/175. No tolerance or study expectation was relaxed.
 The periodic implementation is reviewable independently of the unresolved
 coupled-climate qualification; it is not the completed Earth benchmark.
+
+## Ocean Transport Correction
+
+The next independently reviewed change is a correction inside the existing
+`latitude-current-advection` operation, not a second competing strategy. Choose
+the adjacent angular rays enclosing the opposite current vector from all six
+geometric directions before filtering by water. Their cross-product weights
+are nonnegative, sum to one, and approach a single donor continuously at each
+sector boundary. A blocked or off-map donor returns its own weight to the
+receiving tile. Do not rerank remaining water neighbors or renormalize them to
+full transport. Exact zero current retains self for advection.
+
+Retire only the ocean `secondaryWeightMin` option and its eight authored
+selectors. The independent moisture option remains unchanged. Preserve the
+existing SST initialization, pass count, diffusion and shelf response, and ice
+classification. The operation remains a direction-only numerical transport:
+positive current rescaling has no effect, and zero/nonzero magnitude remains a
+separate model limitation. Convex sampling establishes local bounds, not
+global heat conservation or a physical speed/time interpretation.
+
+Acceptance covers both row parities, integer current vectors on both sides of
+all sector boundaries, horizontal direction sign, zero current, contrasting
+blocked/self temperatures, bounded Y, wrapped X and narrow-grid aliases. Replay
+the retained aquaplanet (80,8) and Earth coast (47,4) witnesses. Repeat the same
+20-run coupled comparison and quantify changes in all seven legacy profiles;
+the preceding exact legacy parity applies to the periodic extraction, not to
+this intentional shared-operation repair. Keep coefficients and study targets
+fixed. A smaller error is evidence of improvement, not automatic qualification
+of a phase count.
+
+This correction stays as a separate reviewable commit in the periodic
+integration PR because it directly completes that PR's coupled-climate
+qualification. No empty branch, policy exception, hidden extra parameter, or
+production-step computation is introduced to work around the numerical bug.
+
+The adjacent moisture `vector-advection` strategy independently contains
+ranked positive-dot donor selection, its own secondary cutoff, and a latitude
+fallback when no primary donor is admitted, including calm wind. Those are
+source-confirmed analogous mechanisms, not yet a measured explanation of the
+remaining rainfall or biome failures. Keep that operation unchanged during the
+ocean ablation. Before final climate acceptance, discriminate its exact-axis,
+near-axis, calm-wind and bounded-edge behavior through public operation tests;
+retain or repair it according to the resulting causal evidence rather than
+silently applying the ocean patch everywhere.
+
+### Geometric Repair Results
+
+`periodic-ocean-repair-20260929/receipt.json` retains the repeated twenty-run
+cohort and frozen-driver witnesses. The entire numerical source and exact
+imported fixtures remained stable. Compiled settings, registration and input
+fields match the previous run except the explicitly retired ocean cutoff.
+Two/four-observation annual fields, integration arrays and metadata remain
+exact; land annual temperature and clipping fields are unchanged.
+
+The coastal witness's first-update 48-to-96 temperature difference fell from
+4.24656 C to 0.001812 C; the aquaplanet witness's 24-to-96 difference fell from
+12.27649 C to 1.31477 C. This establishes removal of the abrupt ranked-donor
+defect, not resolution-independent coupled climate.
+
+| Arm | 24-to-96 water SST MAE / P99 / max C | 48-to-96 water SST MAE / P99 / max C |
+| --- | --- | --- |
+| Earth coast, weather 0 | 0.03251 / 0.33559 / 2.14073 | 0.02183 / 0.19714 / 1.56372 |
+| Earth coast, weather 14 | 0.03976 / 0.40948 / 1.92820 | 0.03236 / 0.26099 / 2.80668 |
+| Aquaplanet, weather 0 | 0.07864 / 0.70976 / 2.85480 | 0.04365 / 0.36825 / 1.88112 |
+| Aquaplanet, weather 14 | 0.11928 / 1.24998 / 4.89147 | 0.06354 / 0.41437 / 1.75493 |
+
+Earth land rainfall resolution differences are at most 3-4 index units for
+24-to-96 and 2-3 for 48-to-96. Intentional old-to-new rainfall changes reach
+32-37 units. Coefficients and acceptance targets were not retuned. Residual
+tails keep sampling qualification open; 96 is a comparison, not truth.
+
+`ocean-stencil-seven-profile-20260929/receipt.json` repeats all seven legacy
+Huge/1018 profiles. Elevation, land mask, sea level, lake mask and flow receivers
+remain bitwise exact. River classification hashes change on six profiles,
+despite unchanged total river and lake populations; Latest Juicy shifts one
+net tile from minor to major. All seven climate hashes change. Original-land
+temperature summaries are unchanged; original-water mean temperatures decrease
+by 0.028-0.529 C. The old full arrays were not retained, so unavailable per-cell
+differences are explicitly not inferred from summary or net population deltas.
+New compressed arrays round-trip all 84 field hashes. This shared operation
+repair intentionally does not claim legacy climate parity.
+
+Independent review found no actionable issues. Focused tests pass 35 cases /
+2,790 assertions, and an independent public-operation sweep agrees exactly
+with a trigonometric oracle for all 65,536 signed-byte vectors at both row
+parities. The owning definition/realization graph passes types, builds and
+Habitat policy; realization tests pass 175/175, definition tests 989/990.
+The aggregate study now reports twelve expectations: Earthlike forest presence
+recovers; Shattered Ring atoll presence and Mountains of Time Earthlike forest
+presence newly fail; the other ten prior failures remain. These ecological
+changes are not waived or attributed to the independent temperature fit.
+`ocean-stencil-owning-proof-20260929.log` retains the complete graph result.
+The numerical rule shrank from 195 to 178 lines; the 860-line climate step was
+unchanged by this repair.

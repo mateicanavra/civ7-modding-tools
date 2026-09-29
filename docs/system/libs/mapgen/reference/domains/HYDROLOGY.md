@@ -108,6 +108,18 @@ Hydrology's semantic products are cataloged by their owning module:
 The `modules/ocean` branch currently supplies invocation-local geometry, current,
 and thermal state to climate composition; it does not publish a durable ocean artifact.
 
+Ocean thermal transport uses the existing `latitude-current-advection` strategy.
+Its advection stencil interpolates the two adjacent hex rays bracketing the
+upcurrent direction before applying water masks or bounded Y edges. A blocked
+ray retains its original share at the destination cell; surviving water donors
+are not renormalized. Zero current selects the destination itself. Geometry is
+odd-R with row parity and periodic X, despite the grid helpers' legacy `OddQ`
+names; aliased directions on narrow grids retain their separate weights.
+The operation preserves its latitude initialization, fixed passes, water-only
+diffusion, shelf mixing and SST-derived ice threshold. Current magnitude does
+not set a travel distance or timestep: this remains a direction-only proxy, not
+a physical speed integration or globally heat-conserving transport scheme.
+
 Aggregate river benchmark evidence is calculated and emitted by the Standard
 recipe's Network metrics projector rather than retained as pipeline state.
 Advisory terrain/wind climate diagnostics are derived by the climate module's
