@@ -6,6 +6,13 @@ Opening branch: `agent-root-civ7-native-map-controls-frame`.
 
 ## Frame
 
+The [calibration question sheet](calibration-question-sheet.md) consolidates
+the user's 2026-09-29 questions and delegated continuation: first correct the
+effective Earthlike baseline, then establish fixed-Earth references and
+discriminate physical-surface truth from native water classification/leveling.
+It supersedes choosing either a cutoff or height reapplication before that
+surface comparison. Supporting census/design remains in earth-calibration.md.
+
 The [coherence completion plan](coherence-completion.md) supersedes the prior
 observational stopping point and historical Graphite publication gate. The user
 has explicitly authorized native Graphite repair and continuation through
