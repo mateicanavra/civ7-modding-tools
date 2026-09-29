@@ -349,8 +349,8 @@
     "hydrology-climate-baseline": {
       "knobs": {
         "dryness": "mix",
-        "temperature": "hot",
-        "seasonality": "high",
+        "temperature": "temperate",
+        "seasonality": "normal",
         "oceanCoupling": "earthlike"
       },
       "climate-baseline": {
@@ -367,7 +367,7 @@
         },
         "seasonality": {
           "modeCount": 4,
-          "axialTiltDeg": 23
+          "axialTiltDeg": 23.44
         },
         "coupling": {
           "iterations": 2
@@ -761,7 +761,6 @@
     "hydrology-climate-refine": {
       "knobs": {
         "dryness": "mix",
-        "temperature": "hot",
         "cryosphere": "on"
       },
       "climate-refine": {
@@ -780,25 +779,6 @@
               "elevationMax": 220,
               "openThresholdM": 24
             }
-          }
-        },
-        "computeRadiativeForcing": {
-          "strategy": "latitude-insolation",
-          "config": {
-            "equatorInsolation": 0.9,
-            "poleInsolation": 0.1,
-            "latitudeExponent": 1
-          }
-        },
-        "computeThermalState": {
-          "strategy": "insolation-lapse-rate",
-          "config": {
-            "baseTemperatureC": 9,
-            "insolationScaleC": 50,
-            "lapseRateCPerElevationUnit": -0.15,
-            "landCoolingC": 0.32,
-            "minC": -60,
-            "maxC": 50
           }
         },
         "applyAlbedoFeedback": {

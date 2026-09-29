@@ -17,7 +17,6 @@ function normalizeDryness(dryness: "wet" | "mix") {
   }
   precipitation.config.riverCorridor.lowlandAdjacencyBonus = 20;
   stageConfig.knobs.dryness = dryness;
-  stageConfig.knobs.temperature = "temperate";
   stageConfig.knobs.cryosphere = "on";
   return standardRecipe.compileConfig(setup, recipeConfig)["hydrology-climate-refine"][
     "climate-refine"

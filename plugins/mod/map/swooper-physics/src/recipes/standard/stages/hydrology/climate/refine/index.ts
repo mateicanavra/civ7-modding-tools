@@ -11,15 +11,6 @@ const HydrologyDrynessKnobSchema = Type.Union(
   }
 );
 
-const HydrologyTemperatureKnobSchema = Type.Union(
-  [Type.Literal("cold"), Type.Literal("temperate"), Type.Literal("hot")],
-  {
-    default: "temperate",
-    description:
-      "Global thermal preset (cold/temperate/hot). Used as a bias over the default temperature regime; influences cryosphere and evap/precip behavior.",
-  }
-);
-
 const HydrologyCryosphereKnobSchema = Type.Union([Type.Literal("off"), Type.Literal("on")], {
   default: "on",
   description:
@@ -37,13 +28,6 @@ const knobsSchema = Type.Object(
      */
     dryness: HydrologyDrynessKnobSchema,
     /**
-     * Global thermal bias.
-     *
-     * Stage scope:
-     * - Transforms the refined thermal regime over the defaulted baseline.
-     */
-    temperature: HydrologyTemperatureKnobSchema,
-    /**
      * Cryosphere enablement.
      *
      * Stage scope:
@@ -53,12 +37,12 @@ const knobsSchema = Type.Object(
   },
   {
     description:
-      "Hydrology climate-refine knobs (dryness/temperature/cryosphere). Knobs apply after defaulted refinement controls as deterministic transforms.",
+      "Hydrology climate-refine knobs (dryness/cryosphere). Knobs apply after defaulted refinement controls as deterministic transforms; baseline owns thermal forcing.",
   }
 );
 
 /**
- * Applies bounded precipitation, thermal, albedo, and cryosphere refinement in
+ * Applies bounded precipitation, albedo, and cryosphere refinement in
  * the post-hydrography climate pass.
  */
 export default createStage({

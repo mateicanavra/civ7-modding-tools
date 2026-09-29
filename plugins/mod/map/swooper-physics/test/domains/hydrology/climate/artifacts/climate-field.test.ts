@@ -55,4 +55,39 @@ describe("Hydrology climate-field artifacts", () => {
       );
     }
   });
+
+  it("rejects thermal properties on climate bundles instead of retaining aliases", () => {
+    const baseline = {
+      rainfall: new Uint8Array(cellCount),
+      humidity: new Uint8Array(cellCount),
+      potentialDemand: new Float32Array(cellCount),
+      demandParameters: Value.Create(PotentialDemandParametersSchema),
+    };
+    expect(climateArtifacts.baselineClimateField.validate(baseline, { dimensions })).toEqual([]);
+    expect(
+      climateArtifacts.baselineClimateField.validate(
+        {
+          ...baseline,
+          surfaceTemperatureC: new Float32Array(cellCount),
+        },
+        { dimensions }
+      )
+    ).not.toEqual([]);
+    const indices = {
+      effectiveMoisture: new Float32Array(cellCount),
+      pet: new Float32Array(cellCount),
+      aridityIndex: new Float32Array(cellCount),
+      freezeIndex: new Float32Array(cellCount),
+    };
+    expect(climateArtifacts.climateIndices.validate(indices, { dimensions })).toEqual([]);
+    expect(
+      climateArtifacts.climateIndices.validate(
+        {
+          ...indices,
+          surfaceTemperatureC: new Float32Array(cellCount),
+        },
+        { dimensions }
+      )
+    ).not.toEqual([]);
+  });
 });

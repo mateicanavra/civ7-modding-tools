@@ -61,6 +61,10 @@ Hydrology provides:
 
 - `artifact:hydrology.baselineClimateField` (annual-mean rainfall, humidity,
   potential demand, and its admitted parameters used by hydrography/refinement)
+- `artifact:hydrology.baselineSurfaceTemperature` (the annual mean of seasonal
+  ground temperatures before feedback, as an independent map-grid Float32 array)
+- `artifact:hydrology.surfaceTemperature` (post-feedback temperature in degrees C,
+  independently required by Ecology, placement, visualization and metrics)
 - `artifact:hydrology.climateField` (final-refined rainfall/humidity used by Ecology and engine projection)
 - `artifact:hydrology.hydrography` (model-tagged drainage, discharge, and river
   classes; certified discharge is dry-cell evidence, with whole-body mixing in
@@ -74,7 +78,8 @@ Hydrology provides:
   legacy navigable selection or complete authored dry-source writes;
   `map.rivers` identifies the product lane, not stage catalog ownership, and
   mutable engine readback is not retained)
-- `artifact:hydrology.climateIndices` (advisory indices for downstream consumption)
+- `artifact:hydrology.climateIndices` (moisture, demand, aridity and freezing
+  indices; temperature is not duplicated in this bundle)
 - `artifact:hydrology.cryosphere` (cryosphere products; neutralized when knob disables it)
 
 Hydrology projection also provides two payload-free external-state completions:
@@ -95,7 +100,8 @@ the artifact is not a snapshot of native `isLake` classifications.
 
 Hydrology's semantic products are cataloged by their owning module:
 
-- `modules/climate/artifacts`: baseline/final climate, indices, and winds,
+- `modules/climate/artifacts`: baseline/final climate, independent baseline/final
+  surface temperature, indices, pressure and winds,
 - `modules/cryosphere/artifacts`: snow, sea-ice, albedo, and frozen-ground state,
 - `modules/hydrography/artifacts`: drainage, river-network, projection-ready lake
   intent, and immutable Civ7-projectable river intent.
@@ -121,6 +127,16 @@ and owns effective moisture and aridity; it does not own another PET law.
 Invocation-local demand retains double precision until aridity is computed,
 while published climate arrays remain Float32. Demand uses empirical rainfall
 index units, not calibrated open-water evaporation or a depth-storage rate.
+
+There is one ground-temperature computation owner: baseline climate. Refine
+consumes its annual temperature artifact and applies declared albedo feedback;
+it does not recompute sunlight or elevation cooling with a second calibration.
+Pressure's sea-level temperature calculation remains separate because its datum
+deliberately excludes ground lapse. The two ground-temperature artifacts are
+successive immutable vintages, not competing algorithms. Refined demand uses
+annual refined temperature and is therefore not generally equal to mean
+seasonal demand under a nonlinear law; that approximation remains explicit.
+Elevation lapse is per normalized model relief unit, not per physical meter.
 
 ## Ops surface
 
@@ -177,7 +193,7 @@ small set of stage knobs for product-level posture:
 
 - `hydrology-climate-baseline` knobs: `dryness`, `temperature`, `seasonality`, `oceanCoupling`
 - `hydrology-hydrography` knobs: `riverDensity` (physical river-network classification density)
-- `hydrology-climate-refine` knobs: `dryness`, `temperature`, `cryosphere`
+- `hydrology-climate-refine` knobs: `dryness`, `cryosphere`
 
 `hydrology-hydrography.water` is a closed, model-tagged public selection:
 `legacy-sink-budget` exposes its operation envelopes and relative `lakeiness`,

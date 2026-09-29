@@ -30,6 +30,9 @@ type Float32VizValues = Extract<VizScalarSource, { format: "f32" }>["values"];
 /** Completed baseline-climate evidence observed by the optional visualization facet. */
 type ClimateBaselineVizEvidence = Readonly<{
   baselineClimateField: BaselineClimateField;
+  baselineSurfaceTemperature: ArtifactReadValueOf<
+    typeof climateArtifacts.baselineSurfaceTemperature
+  >;
   seasonalAmplitudes: Readonly<{
     rainfallAmplitude: Uint8VizValues;
     humidityAmplitude: Uint8VizValues;
@@ -42,6 +45,7 @@ type ClimateBaselineVizEvidence = Readonly<{
   }>;
   seasonalRainfall: readonly Uint8VizValues[];
   seasonalHumidity: readonly Uint8VizValues[];
+  seasonalSurfaceTemperatureC: readonly Float32VizValues[];
   seasonalPressure: readonly Float32VizValues[];
   seasonalWindU: readonly Int8VizValues[];
   seasonalWindV: readonly Int8VizValues[];
@@ -151,6 +155,21 @@ export function buildClimateBaselineVizProjections(
 
   projections.push(
     ...buildScalarFieldProjections({
+      dataTypeKey: "hydrology.climate.baselineSurfaceTemperature",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "f32", values: observation.baselineSurfaceTemperature },
+      meta: defineStandardVizMeta(
+        "hydrology.climate.baselineSurfaceTemperature",
+        "climate.temperature",
+        {
+          label: "Surface Temperature (Baseline C)",
+          group: GROUP_CLIMATE,
+        }
+      ),
+      points: {},
+    }),
+    ...buildScalarFieldProjections({
       dataTypeKey: "hydrology.pressure.pressure",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
@@ -162,6 +181,29 @@ export function buildClimateBaselineVizProjections(
       points: {},
     })
   );
+  for (let season = 0; season < observation.seasonalSurfaceTemperatureC.length; season += 1) {
+    const temperature = observation.seasonalSurfaceTemperatureC[season];
+    if (!temperature) continue;
+    projections.push(
+      ...buildScalarFieldProjections({
+        dataTypeKey: "hydrology.climate.baselineSurfaceTemperature",
+        variantKey: `season:${season}`,
+        spaceId: TILE_SPACE_ID,
+        dims: dimensions,
+        field: { format: "f32", values: temperature },
+        meta: defineStandardVizMeta(
+          "hydrology.climate.baselineSurfaceTemperature",
+          "climate.temperature",
+          {
+            label: `Surface Temperature (Season ${season + 1} C)`,
+            group: GROUP_SEASONALITY,
+            visibility: "debug",
+          }
+        ),
+        points: {},
+      })
+    );
+  }
   for (let season = 0; season < observation.seasonalPressure.length; season += 1) {
     const pressure = observation.seasonalPressure[season];
     if (!pressure) continue;

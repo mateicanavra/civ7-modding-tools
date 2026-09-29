@@ -34,6 +34,7 @@ export const PlanNaturalWondersStep = createStep(config, {
     const riverNetwork = deps.artifacts.riverNetwork.read();
     const lakePlan = deps.artifacts.lakePlan.read();
     const climateIndices = deps.artifacts.climateIndices.read();
+    const surfaceTemperature = deps.artifacts.surfaceTemperature.read();
     const biomeClassification = deps.artifacts.biomeClassification.read();
     const pedology = deps.artifacts.pedology.read();
     const wondersCount = context.initialSetup.map.selection.mapInfo.NumNaturalWonders;
@@ -67,7 +68,7 @@ export const PlanNaturalWondersStep = createStep(config, {
       lakeMask: lakePlan.lakeMask,
       vegetationDensity: biomeClassification.vegetationDensity,
       effectiveMoisture: climateIndices.effectiveMoisture,
-      surfaceTemperature: climateIndices.surfaceTemperatureC,
+      surfaceTemperature: surfaceTemperature,
       fertility: pedology.fertility,
       discharge: Array.from(hydrography.discharge),
       slopeClass: riverNetwork.slopeClass,

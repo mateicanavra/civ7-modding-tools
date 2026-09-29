@@ -164,6 +164,7 @@ function captureSeasonalEvidence(axialTiltDeg: number) {
     seasonalFieldCounts = [
       result.seasonalRainfall.length,
       result.seasonalHumidity.length,
+      result.seasonalSurfaceTemperatureC.length,
       result.seasonalPressure.length,
       result.seasonalWindU.length,
       result.seasonalWindV.length,
@@ -266,6 +267,7 @@ describe("hydrology climate-baseline composition", () => {
     let observedSeasonalCurrentV: readonly Int8Array[] = [];
     let observedSeasonalRainfall: readonly Uint8Array[] = [];
     let observedSeasonalHumidity: readonly Uint8Array[] = [];
+    let observedSeasonalSurfaceTemperatureC: readonly Float32Array[] = [];
 
     withMapContextExecutionForTest(context, (stepContext) => {
       const dependencies = buildStepTestDependencies(ClimateBaselineStep, stepContext);
@@ -378,6 +380,7 @@ describe("hydrology climate-baseline composition", () => {
       observedSeasonalCurrentV = result.seasonalCurrentV;
       observedSeasonalRainfall = result.seasonalRainfall;
       observedSeasonalHumidity = result.seasonalHumidity;
+      observedSeasonalSurfaceTemperatureC = result.seasonalSurfaceTemperatureC;
     });
 
     expect(currentInputs).toHaveLength(weatherCalls);
@@ -521,6 +524,22 @@ describe("hydrology climate-baseline composition", () => {
       expect(demandInputs[season]!.parameters).toEqual(config.potentialDemand);
     }
     const baseline = readArtifact(context, climateArtifacts.baselineClimateField);
+    const baselineSurfaceTemperature = readArtifact(context, climateArtifacts.baselineSurfaceTemperature);
+    expect(observedSeasonalSurfaceTemperatureC).toHaveLength(modeCount);
+    for (let season = 0; season < modeCount; season++) {
+      expect(observedSeasonalSurfaceTemperatureC[season]).toBe(
+        thermalInputs[atmosphereSeasonCalls + season]!.output
+      );
+    }
+    const expectedTemperature = Float32Array.from(
+      { length: size },
+      (_, i) => thermalInputs.slice(atmosphereSeasonCalls)
+        .reduce((sum, sample) => sum + sample.output[i]!, 0) / modeCount
+    );
+    expect(baselineSurfaceTemperature).toEqual(expectedTemperature);
+    for (const seasonalTemperature of observedSeasonalSurfaceTemperatureC) {
+      expect(baselineSurfaceTemperature).not.toBe(seasonalTemperature);
+    }
     const expectedDemand = Float32Array.from(
       { length: size },
       (_, i) => demandOutputs.reduce((sum, field) => sum + field[i]!, 0) / modeCount
@@ -548,7 +567,7 @@ describe("hydrology climate-baseline composition", () => {
       ]).flat()
     );
     expect(new Set(evidence.circulationTopLatitudes).size).toBe(1);
-    expect(evidence.seasonalFieldCounts).toEqual(new Array(7).fill(evidence.modeCount));
+    expect(evidence.seasonalFieldCounts).toEqual(new Array(8).fill(evidence.modeCount));
     expect(Array.from(evidence.rainfallAmplitude).every((value) => value === 0)).toBeTrue();
     expect(Array.from(evidence.humidityAmplitude).every((value) => value === 0)).toBeTrue();
   });
@@ -564,7 +583,7 @@ describe("hydrology climate-baseline composition", () => {
       ]).flat()
     );
     expect(new Set(evidence.circulationTopLatitudes).size).toBeGreaterThan(1);
-    expect(evidence.seasonalFieldCounts).toEqual(new Array(7).fill(evidence.modeCount));
+    expect(evidence.seasonalFieldCounts).toEqual(new Array(8).fill(evidence.modeCount));
     expect(Array.from(evidence.rainfallAmplitude).some((value) => value > 0)).toBeTrue();
     expect(Array.from(evidence.humidityAmplitude).some((value) => value > 0)).toBeTrue();
   });

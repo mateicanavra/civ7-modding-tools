@@ -22,123 +22,166 @@ import {
 } from "../../../../../../fixtures/standard-recipe.js";
 
 describe("hydrology climate-refine demand ownership", () => {
-  it("forwards baseline calibration and evaluates only the refined temperature/humidity vintage", () => {
-    const { width, height } = TEST_MAP_SIZE.dimensions;
-    const size = width * height;
-    const setup = admitMapSetup({
-      mapSeed: TEST_MAP_SEED,
-      dimensions: { width, height },
-      latitudeBounds: standardMapConfig.latitudeBounds,
-    });
-    const context = createMapContext({ setup, adapter: createMockAdapter({ width, height }) });
-    const config = standardRecipe.compileConfig(
-      createStandardRecipeTestInitialSetup(),
-      createStandardRecipeTestConfig()
-    )["hydrology-climate-refine"]["climate-refine"];
-    const landMask = new Uint8Array(size).fill(1);
-    landMask[0] = 0;
-    const refinedTemperature = new Float32Array(size).fill(17.25);
-    const refinedHumidity = new Uint8Array(size).fill(100);
-    const rainfall = new Uint8Array(size).fill(40);
-    const parameters = {
-      tMinC: -10,
-      tMaxC: 21,
-      petBase: 43,
-      petTemperatureWeight: 123,
-      humidityDampening: 0.3,
-    };
-    let demandCalls = 0;
-    let computedPet: readonly number[] = [];
+  for (const cryosphere of ["off", "on"] as const) {
+    it(`preserves baseline thermal ownership with cryosphere ${cryosphere} and forwards demand calibration`, () => {
+      const { width, height } = TEST_MAP_SIZE.dimensions;
+      const size = width * height;
+      const setup = admitMapSetup({
+        mapSeed: TEST_MAP_SEED,
+        dimensions: { width, height },
+        latitudeBounds: standardMapConfig.latitudeBounds,
+      });
+      const context = createMapContext({ setup, adapter: createMockAdapter({ width, height }) });
+      const authored = createStandardRecipeTestConfig();
+      authored["hydrology-climate-refine"].knobs.cryosphere = cryosphere;
+      const config = standardRecipe.compileConfig(createStandardRecipeTestInitialSetup(), authored)[
+        "hydrology-climate-refine"
+      ]["climate-refine"];
+      const landMask = new Uint8Array(size).fill(1);
+      landMask[0] = 0;
+      const baselineTemperature = new Float32Array(size).fill(20);
+      baselineTemperature[0] = -10;
+      baselineTemperature[1] = -15;
+      baselineTemperature[2] = 0;
+      const beforeTemperature = baselineTemperature.slice();
+      let refinedTemperature: Float32Array = new Float32Array(size);
+      const refinedHumidity = new Uint8Array(size).fill(100);
+      const rainfall = new Uint8Array(size).fill(40);
+      const parameters = {
+        tMinC: -10,
+        tMaxC: 21,
+        petBase: 43,
+        petTemperatureWeight: 123,
+        humidityDampening: 0.3,
+      };
+      let demandCalls = 0;
+      let computedPet: readonly number[] = [];
 
-    withMapContextExecutionForTest(context, (stepContext) => {
-      const dependencies = buildStepTestDependencies(ClimateRefineStep, stepContext);
-      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
-        elevation: new Int16Array(size),
-        seaLevel: 0,
-        landMask,
-        bathymetry: new Int16Array(size),
+      withMapContextExecutionForTest(context, (stepContext) => {
+        const dependencies = buildStepTestDependencies(ClimateRefineStep, stepContext);
+        publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+          elevation: new Int16Array(size),
+          seaLevel: 0,
+          landMask,
+          bathymetry: new Int16Array(size),
+        });
+        publishTestArtifact(stepContext, climateArtifacts.baselineClimateField, {
+          rainfall: new Uint8Array(size).fill(5),
+          humidity: new Uint8Array(size).fill(6),
+          potentialDemand: new Float32Array(size).fill(999),
+          demandParameters: parameters,
+        });
+        publishTestArtifact(
+          stepContext,
+          climateArtifacts.baselineSurfaceTemperature,
+          baselineTemperature
+        );
+        publishTestArtifact(stepContext, climateArtifacts.windField, {
+          windU: new Int8Array(size),
+          windV: new Int8Array(size),
+        });
+        publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
+          model: "legacy-sink-budget",
+          runoff: new Float32Array(size),
+          discharge: new Float32Array(size),
+          riverClass: new Uint8Array(size),
+          flowDir: new Int32Array(size).fill(-1),
+          sinkMask: new Uint8Array(size),
+          outletMask: new Uint8Array(size),
+          basinId: new Int32Array(size).fill(-1),
+          routingElevation: new Float32Array(size),
+          depressionDepth: new Float32Array(size),
+          terminalType: new Uint8Array(size),
+        });
+        publishTestArtifact(
+          stepContext,
+          hydrographyArtifacts.lakePlan,
+          createSurfaceWaterFixture("legacy-sink-budget", width, height).lakePlan
+        );
+        const result = ClimateRefineStep.run(
+          stepContext,
+          config,
+          {
+            refinePrecipitation: () => ({ rainfall, humidity: refinedHumidity }),
+            applyAlbedoFeedback: (
+              ...[input, albedoConfig]: Parameters<
+                typeof hydrology.cryosphere.ops.applyAlbedoFeedback.run
+              >
+            ) => {
+              expect(input.surfaceTemperatureC).toBe(baselineTemperature);
+              expect(input.landMask).toBe(landMask);
+              expect(input.rainfall).toBe(rainfall);
+              const output = hydrology.cryosphere.ops.applyAlbedoFeedback.run(input, albedoConfig);
+              refinedTemperature = output.surfaceTemperatureC;
+              return output;
+            },
+            computeCryosphereState: hydrology.cryosphere.ops.computeCryosphereState.run,
+            computePotentialDemand: (
+              input: Parameters<typeof hydrology.climate.ops.computePotentialDemand.run>[0],
+              demandConfig: typeof hydrology.climate.ops.computePotentialDemand.defaultConfig
+            ) => {
+              demandCalls++;
+              expect(input.landMask).toBe(landMask);
+              expect(input.surfaceTemperatureC).toBe(refinedTemperature);
+              expect(input.humidity).toBe(refinedHumidity);
+              expect(input.parameters).toEqual(parameters);
+              const output = hydrology.climate.ops.computePotentialDemand.run(input, demandConfig);
+              computedPet = output.pet;
+              return output;
+            },
+            computeLandWaterBudget: (
+              input: Parameters<typeof hydrology.climate.ops.computeLandWaterBudget.run>[0],
+              budgetConfig: typeof hydrology.climate.ops.computeLandWaterBudget.defaultConfig
+            ) => {
+              expect(input.pet).toBe(computedPet);
+              return hydrology.climate.ops.computeLandWaterBudget.run(input, budgetConfig);
+            },
+            computeClimateDiagnostics: hydrology.climate.ops.computeClimateDiagnostics.run,
+          },
+          dependencies
+        );
+        if (result instanceof Promise) throw new Error("Refinement must be synchronous.");
       });
-      publishTestArtifact(stepContext, climateArtifacts.baselineClimateField, {
-        rainfall: new Uint8Array(size).fill(5),
-        humidity: new Uint8Array(size).fill(6),
-        potentialDemand: new Float32Array(size).fill(999),
-        demandParameters: parameters,
-      });
-      publishTestArtifact(stepContext, climateArtifacts.windField, {
-        windU: new Int8Array(size),
-        windV: new Int8Array(size),
-      });
-      publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
-        model: "legacy-sink-budget",
-        runoff: new Float32Array(size),
-        discharge: new Float32Array(size),
-        riverClass: new Uint8Array(size),
-        flowDir: new Int32Array(size).fill(-1),
-        sinkMask: new Uint8Array(size),
-        outletMask: new Uint8Array(size),
-        basinId: new Int32Array(size).fill(-1),
-        routingElevation: new Float32Array(size),
-        depressionDepth: new Float32Array(size),
-        terminalType: new Uint8Array(size),
-      });
-      publishTestArtifact(
-        stepContext,
-        hydrographyArtifacts.lakePlan,
-        createSurfaceWaterFixture("legacy-sink-budget", width, height).lakePlan
-      );
-      const result = ClimateRefineStep.run(
-        stepContext,
-        config,
+
+      expect(demandCalls).toBe(1);
+      const indices = readArtifact(context, climateArtifacts.climateIndices);
+      const surfaceTemperature = readArtifact(context, climateArtifacts.surfaceTemperature);
+      const expected = hydrology.climate.ops.computePotentialDemand.run(
         {
-          refinePrecipitation: () => ({ rainfall, humidity: refinedHumidity }),
-          computeRadiativeForcing: hydrology.climate.ops.computeRadiativeForcing.run,
-          computeThermalState: () => ({ surfaceTemperatureC: new Float32Array(size).fill(20) }),
-          applyAlbedoFeedback: () => ({ surfaceTemperatureC: refinedTemperature }),
-          computeCryosphereState: hydrology.cryosphere.ops.computeCryosphereState.run,
-          computePotentialDemand: (
-            input: Parameters<typeof hydrology.climate.ops.computePotentialDemand.run>[0],
-            demandConfig: typeof hydrology.climate.ops.computePotentialDemand.defaultConfig
-          ) => {
-            demandCalls++;
-            expect(input.landMask).toBe(landMask);
-            expect(input.surfaceTemperatureC).toBe(refinedTemperature);
-            expect(input.humidity).toBe(refinedHumidity);
-            expect(input.parameters).toEqual(parameters);
-            const output = hydrology.climate.ops.computePotentialDemand.run(input, demandConfig);
-            computedPet = output.pet;
-            return output;
-          },
-          computeLandWaterBudget: (
-            input: Parameters<typeof hydrology.climate.ops.computeLandWaterBudget.run>[0],
-            budgetConfig: typeof hydrology.climate.ops.computeLandWaterBudget.defaultConfig
-          ) => {
-            expect(input.pet).toBe(computedPet);
-            return hydrology.climate.ops.computeLandWaterBudget.run(input, budgetConfig);
-          },
-          computeClimateDiagnostics: hydrology.climate.ops.computeClimateDiagnostics.run,
+          width,
+          height,
+          landMask,
+          surfaceTemperatureC: refinedTemperature,
+          humidity: refinedHumidity,
+          parameters,
         },
-        dependencies
+        hydrology.climate.ops.computePotentialDemand.defaultConfig
       );
-      if (result instanceof Promise) throw new Error("Refinement must be synchronous.");
+      expect(indices.pet).toEqual(Float32Array.from(expected.pet));
+      expect(indices.pet[0]).toBe(0);
+      expect(indices.effectiveMoisture[1]).toBe(75);
+      expect(indices.aridityIndex[1]).toBe(Math.fround(expected.pet[1]! / (expected.pet[1]! + 41)));
+      expect(surfaceTemperature).toBe(refinedTemperature);
+      expect(baselineTemperature).toEqual(beforeTemperature);
+      expect(surfaceTemperature).toEqual(
+        hydrology.cryosphere.ops.applyAlbedoFeedback.run(
+          {
+            width,
+            height,
+            landMask,
+            rainfall,
+            surfaceTemperatureC: beforeTemperature,
+          },
+          config.applyAlbedoFeedback
+        ).surfaceTemperatureC
+      );
+      if (cryosphere === "off") {
+        expect(surfaceTemperature).toEqual(baselineTemperature);
+      } else {
+        expect(surfaceTemperature[1]).toBeLessThan(baselineTemperature[1]!);
+        expect(surfaceTemperature[2]).toBe(baselineTemperature[2]);
+        expect(surfaceTemperature[3]).toBe(baselineTemperature[3]);
+      }
     });
-
-    expect(demandCalls).toBe(1);
-    const indices = readArtifact(context, climateArtifacts.climateIndices);
-    const expected = hydrology.climate.ops.computePotentialDemand.run(
-      {
-        width,
-        height,
-        landMask,
-        surfaceTemperatureC: refinedTemperature,
-        humidity: refinedHumidity,
-        parameters,
-      },
-      hydrology.climate.ops.computePotentialDemand.defaultConfig
-    );
-    expect(indices.pet).toEqual(Float32Array.from(expected.pet));
-    expect(indices.pet[0]).toBe(0);
-    expect(indices.effectiveMoisture[1]).toBe(75);
-    expect(indices.aridityIndex[1]).toBe(Math.fround(expected.pet[1]! / (expected.pet[1]! + 41)));
-    expect(indices.surfaceTemperatureC).toBe(refinedTemperature);
-  });
+  }
 });

@@ -18,6 +18,7 @@ export const config = defineStep({
   requires: [
     cryosphereArtifacts.cryosphere,
     climateArtifacts.climateIndices,
+    climateArtifacts.surfaceTemperature,
     morphologyLandformsArtifacts.topography,
     pedologyArtifacts.pedology,
     hydrographyArtifacts.lakePlan,

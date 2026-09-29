@@ -787,7 +787,6 @@
     "hydrology-climate-refine": {
       "knobs": {
         "dryness": "mix",
-        "temperature": "hot",
         "cryosphere": "on"
       },
       "climate-refine": {
@@ -806,25 +805,6 @@
               "elevationMax": 320,
               "openThresholdM": 24
             }
-          }
-        },
-        "computeRadiativeForcing": {
-          "strategy": "latitude-insolation",
-          "config": {
-            "equatorInsolation": 0.9,
-            "poleInsolation": 0.1,
-            "latitudeExponent": 1
-          }
-        },
-        "computeThermalState": {
-          "strategy": "insolation-lapse-rate",
-          "config": {
-            "baseTemperatureC": 9,
-            "insolationScaleC": 50,
-            "lapseRateCPerElevationUnit": -0.0095,
-            "landCoolingC": 0.32,
-            "minC": -60,
-            "maxC": 50
           }
         },
         "applyAlbedoFeedback": {

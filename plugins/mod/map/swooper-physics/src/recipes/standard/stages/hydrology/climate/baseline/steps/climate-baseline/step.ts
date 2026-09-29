@@ -403,6 +403,7 @@ export const ClimateBaselineStep = createStep(config, {
     const seasonalRainfall: Uint8Array[] = [];
     const seasonalHumidity: Uint8Array[] = [];
     const seasonalDemand: number[][] = [];
+    const seasonalSurfaceTemperatureC: Float32Array[] = [];
 
     const usesCoupledClimatePath =
       stepConfig.computeAtmosphericCirculation.strategy === "geostrophic-proxy" ||
@@ -667,6 +668,7 @@ export const ClimateBaselineStep = createStep(config, {
         },
         stepConfig.computeThermalState
       );
+      seasonalSurfaceTemperatureC.push(thermal.surfaceTemperatureC);
       const weatherPrecipitation = sample.weatherMembers.map((member) => {
         const evaporation = ops.computeEvaporationSources(
           oceanThermal
@@ -787,8 +789,13 @@ export const ClimateBaselineStep = createStep(config, {
       currentU: meanCurrentU,
       currentV: meanCurrentV,
     };
+    const baselineSurfaceTemperature = deps.artifacts.baselineSurfaceTemperature.publish(
+      meanOfF32Fields(seasonalSurfaceTemperatureC)
+    );
+
     return {
       baselineClimateField,
+      baselineSurfaceTemperature,
       landMask,
       seasonalAmplitudes,
       pressureField,
@@ -796,6 +803,7 @@ export const ClimateBaselineStep = createStep(config, {
       currentField,
       seasonalRainfall,
       seasonalHumidity,
+      seasonalSurfaceTemperatureC,
       seasonalPressure,
       seasonalWindU,
       seasonalWindV,
