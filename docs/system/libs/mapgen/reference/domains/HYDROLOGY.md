@@ -115,10 +115,15 @@ ray retains its original share at the destination cell; surviving water donors
 are not renormalized. Zero current selects the destination itself. Geometry is
 odd-R with row parity and periodic X, despite the grid helpers' legacy `OddQ`
 names; aliased directions on narrow grids retain their separate weights.
-The operation preserves its latitude initialization, fixed passes, water-only
-diffusion, shelf mixing and SST-derived ice threshold. Current magnitude does
-not set a travel distance or timestep: this remains a direction-only proxy, not
-a physical speed integration or globally heat-conserving transport scheme.
+The operation blends that geometric donor with the destination temperature by
+`alpha = min(1, hypot(U, V) / I8_VECTOR_MAX_ABS)` before diffusion. Exact zero
+retains self and full strength selects the donor directly. The producer clamps
+components independently; radial saturation at the encoding scale of 127 is
+an explicit thermal-consumer policy, not a producer norm bound. The operation
+preserves its latitude initialization, fixed passes, water-only diffusion,
+shelf mixing and SST-derived ice threshold. This relative-strength blend does
+not specify metres per second, a travel distance or timestep, or globally
+heat-conserving transport.
 
 Vector moisture transport uses the same Core angular bracket while retaining
 its own transport law and donor admission. Air crosses both land and water;
@@ -126,7 +131,8 @@ off-map Y shares remain at self. Supplied phase/weather-member winds are
 authoritative: calm wind samples self, and no latitude-band fallback or
 secondary-donor cutoff overrides the vector. Local evaporation is still
 injected on every fixed pass before retention and clamping, so calm conditions
-do not imply constant humidity. The separately selected cardinal strategy
+do not imply constant humidity. Moisture remains direction-only; it does not
+use the ocean's relative-strength blend. The separately selected cardinal strategy
 retains its original latitude fallback and bounded cardinal sampling behavior.
 
 Aggregate river benchmark evidence is calculated and emitted by the Standard

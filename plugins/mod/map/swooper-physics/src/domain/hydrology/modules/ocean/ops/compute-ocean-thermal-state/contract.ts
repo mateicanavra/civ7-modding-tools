@@ -29,15 +29,19 @@ const ComputeOceanThermalStateContract = defineOp({
       shelfMask: TypedArraySchemas.u8({
         description: "Continental shelf mask per tile (1=shelf, 0=not).",
       }),
-      /** Current U component per tile (-127..127). */
-      currentU: TypedArraySchemas.i8({ description: "Current U component per tile (-127..127)." }),
-      /** Current V component per tile (-127..127). */
-      currentV: TypedArraySchemas.i8({ description: "Current V component per tile (-127..127)." }),
+      /** Relative zonal strength; producers use -127..127, while the i8 input also admits -128. */
+      currentU: TypedArraySchemas.i8({
+        description: "Signed-byte relative zonal current strength; radial donor blending saturates at magnitude 127.",
+      }),
+      /** Relative meridional strength; producers use -127..127, while the i8 input also admits -128. */
+      currentV: TypedArraySchemas.i8({
+        description: "Signed-byte relative meridional current strength; radial donor blending saturates at magnitude 127.",
+      }),
     },
     {
       additionalProperties: false,
       description:
-        "Latitude baseline, shelf identity, and quantized currents admitted for bounded water-only thermal transport.",
+        "Latitude baseline, shelf identity, and quantized relative currents for bounded water-only thermal transport; magnitude controls a dimensionless self/donor blend, not physical speed or elapsed time.",
     }
   ),
   output: Type.Object(

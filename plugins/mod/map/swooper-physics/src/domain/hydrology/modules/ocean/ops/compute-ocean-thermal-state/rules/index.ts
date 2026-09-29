@@ -1,6 +1,7 @@
 import {
   bracketHexNeighborDirectionsOddQ,
   forEachHexNeighborOddQWithDirection,
+  I8_VECTOR_MAX_ABS,
 } from "@swooper/mapgen-core/lib/grid";
 
 type Upcurrent = Readonly<{ i0: number; w0: number; i1: number; w1: number }>;
@@ -44,8 +45,9 @@ function clampFinite(value: number, min: number, max: number): number {
  * Advects a latitudinal sea-surface-temperature baseline through the authored ocean-current field.
  *
  * Each iteration interpolates the adjacent rays bracketing the upcurrent direction, retaining
- * blocked shares at self, then diffuses in hex space with a stronger shelf response. Advection
- * depends on direction, not current magnitude; this is not a physical speed/time integration.
+ * blocked shares at self. Relative current strength blends that donor with self before diffusion
+ * in hex space with a stronger shelf response. The radial blend saturates at the signed-byte
+ * encoding scale; this dimensionless consumer policy is not a physical speed/time integration.
  * Land temperatures remain zero, and sea ice is classified from the transported SST.
  *
  * @param width - Number of tile columns in every per-tile field.
@@ -121,7 +123,11 @@ export function computeOceanThermalState(
           flowX,
           flowY
         );
-        const advected = (sst[up.i0] ?? 0) * up.w0 + (sst[up.i1] ?? 0) * up.w1;
+        const donor = (sst[up.i0] ?? 0) * up.w0 + (sst[up.i1] ?? 0) * up.w1;
+        const self = sst[i] ?? 0;
+        const alpha = Math.min(1, Math.hypot(flowX, flowY) / I8_VECTOR_MAX_ABS);
+        // Preserve exact calm/full-strength endpoints without subtract-and-add rounding.
+        const advected = alpha === 0 ? self : alpha === 1 ? donor : lerp(self, donor, alpha);
 
         // Simple diffusion: average neighbor SST over water and mix in. Uses the
         // shared odd-R neighbor iterator (parity keyed on the ROW) so the stencil

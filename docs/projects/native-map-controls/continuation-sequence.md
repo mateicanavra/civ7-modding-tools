@@ -41,6 +41,12 @@ publication mechanism, or bypassing an enforced kind blueprint.
    latitude override in moisture transport, sharing only geometric bracketing
    in Core. Preserve the distinction between these proven operator defects and
    the remaining coupled-SST resolution tails or ecological calibration gaps.
+   Moisture is now independently qualified at that bounded scope. Exact
+   causal-vintage replays attribute the residual SST tails to full-strength
+   transfer by weak encoded currents, amplified by coupling feedback. Apply
+   the reviewed relative-strength correction inside the ocean operation,
+   repeat the same controls, and keep annual transport closure and physical
+   velocity/time calibration separate from this numerical policy.
 3. **Complete missing downstream mechanisms exposed by that baseline.**
    [Reef spatial thinning](reef-spatial-thinning.md) removes an independently
    demonstrated coordinate-phase rejection while leaving habitat scoring

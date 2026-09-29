@@ -183,7 +183,7 @@ describe("hydrology/compute-ocean-thermal-state", () => {
     const currentU = new Int8Array(size);
     const currentV = new Int8Array(size);
     // The blocked half stays at 15 C; the admitted southern donor contributes 30 C.
-    currentV[center] = -80;
+    currentV[center] = -127;
 
     const out = runOceanThermalState(
       {
