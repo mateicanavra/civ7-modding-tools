@@ -1,18 +1,9 @@
 import {
+  bracketHexNeighborDirectionsOddQ,
   forEachHexNeighborOddQWithDirection,
-  getHexNeighborDirectionVectorsOddQ,
 } from "@swooper/mapgen-core/lib/grid";
 
 type Upcurrent = Readonly<{ i0: number; w0: number; i1: number; w1: number }>;
-
-function angularDirections(isOddRow: boolean) {
-  return getHexNeighborDirectionVectorsOddQ(isOddRow)
-    .map((vector, directionIndex) => ({ vector, directionIndex }))
-    .sort((a, b) => Math.atan2(a.vector.y, a.vector.x) - Math.atan2(b.vector.y, b.vector.x));
-}
-
-const EVEN_ROW_DIRECTIONS = angularDirections(false);
-const ODD_ROW_DIRECTIONS = angularDirections(true);
 
 function selectUpcurrent(
   x: number,
@@ -24,34 +15,20 @@ function selectUpcurrent(
   flowY: number
 ): Upcurrent {
   const self = y * width + x;
-  if (flowX === 0 && flowY === 0) return { i0: self, w0: 1, i1: self, w1: 0 };
+  const bracket = bracketHexNeighborDirectionsOddQ({ x: -flowX, y: -flowY }, (y & 1) === 1);
+  if (!bracket) return { i0: self, w0: 1, i1: self, w1: 0 };
 
-  // The legacy OddQ helpers implement odd-R geometry, keyed by row parity.
-  // Find the enclosing angular sector before considering coastlines or bounded Y edges.
-  const directions = (y & 1) === 1 ? ODD_ROW_DIRECTIONS : EVEN_ROW_DIRECTIONS;
-  const ux = -flowX;
-  const uy = -flowY;
-  for (let k = 0; k < directions.length; k++) {
-    const d0 = directions[k]!;
-    const d1 = directions[(k + 1) % directions.length]!;
-    const a = ux * d1.vector.y - uy * d1.vector.x;
-    const b = d0.vector.x * uy - d0.vector.y * ux;
-    if (a < 0 || b < 0) continue;
-
-    const sum = a + b;
-    let i0 = self;
-    let i1 = self;
-    // Blocked shares stay at self; surviving donors never absorb their weight.
-    // Keep direction aliases on narrow periodic grids, including aliases of self.
-    forEachHexNeighborOddQWithDirection(x, y, width, height, (nx, ny, directionIndex) => {
-      const neighbor = ny * width + nx;
-      if (isWaterMask[neighbor] !== 1) return;
-      if (directionIndex === d0.directionIndex) i0 = neighbor;
-      if (directionIndex === d1.directionIndex) i1 = neighbor;
-    });
-    return { i0, w0: a / sum, i1, w1: b / sum };
-  }
-  throw new Error("Ocean current has no enclosing hex direction sector.");
+  let i0 = self;
+  let i1 = self;
+  // Blocked shares stay at self; surviving donors never absorb their weight.
+  // Keep direction aliases on narrow periodic grids, including aliases of self.
+  forEachHexNeighborOddQWithDirection(x, y, width, height, (nx, ny, directionIndex) => {
+    const neighbor = ny * width + nx;
+    if (isWaterMask[neighbor] !== 1) return;
+    if (directionIndex === bracket.direction0) i0 = neighbor;
+    if (directionIndex === bracket.direction1) i1 = neighbor;
+  });
+  return { i0, w0: bracket.weight0, i1, w1: bracket.weight1 };
 }
 
 function lerp(a: number, b: number, t: number): number {

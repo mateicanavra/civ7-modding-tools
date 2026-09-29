@@ -454,8 +454,7 @@
           "config": {
             "iterations": 26,
             "advection": 0.74,
-            "retention": 0.91,
-            "secondaryWeightMin": 0.2
+            "retention": 0.91
           }
         },
         "computePrecipitation": {

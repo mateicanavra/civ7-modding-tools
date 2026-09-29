@@ -1,9 +1,8 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Defines the fixed pass count, donor influence, retention, and secondary-donor cutoff for the
- * default vector transport posture. Defaults retain a second upwind neighbor only when it carries
- * meaningful directional weight.
+ * Defines fixed pass count, donor influence, and retention for vector transport.
+ * Adjacent upwind rays always retain their geometric shares, including shares held at bounded edges.
  */
 export default defineStrategy({
   id: "vector-advection",
@@ -30,18 +29,11 @@ export default defineStrategy({
         maximum: 1,
         description: "How much humidity is retained per iteration.",
       }),
-      /** Minimum normalized weight for a secondary upwind neighbor to be considered. */
-      secondaryWeightMin: Type.Number({
-        default: 0.2,
-        minimum: 0,
-        maximum: 1,
-        description: "Minimum normalized weight for a secondary upwind neighbor to be considered.",
-      }),
     },
     {
       additionalProperties: false,
       description:
-        "Bounds fixed-pass mixing of local evaporation with one or two wind-aligned donors on the map's hex grid.",
+        "Bounds fixed-pass mixing of local evaporation with adjacent upwind rays; calm wind and off-map shares sample self without a latitude fallback.",
     }
   ),
 });
