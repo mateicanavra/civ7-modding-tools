@@ -6,6 +6,7 @@ import { Type } from "typebox";
 import { describe, expect, it } from "vitest";
 import { loadSwooperMapConfigCatalog } from "../../scripts/catalog-source";
 import { createSwooperMapConfigSourceStore } from "../../scripts/config-source-store";
+import ecology from "../../src/domain/ecology/router.js";
 import { admitMapConfigCatalogConfig } from "../../src/maps/catalog/admission";
 import { MAP_CONFIG_CATALOG_IDS } from "../../src/maps/catalog/membership";
 import {
@@ -196,6 +197,96 @@ describe("Shipped map configs", () => {
     });
     expect(refine).not.toHaveProperty("computeRadiativeForcing");
     expect(refine).not.toHaveProperty("computeThermalState");
+  });
+
+  it("compiles all eight reef selections to explicit hex spacing without changing confidence floors", async () => {
+    const configs = await loadSwooperMapConfigRegistry();
+    const actual: Record<string, unknown> = {};
+    for (const { canonicalConfig } of configs) {
+      const compiled = standardRecipe.compileConfig(
+        createStandardRecipeTestInitialSetup({ mapConfig: canonicalConfig }),
+        canonicalConfig.config
+      );
+      const reef = compiled["ecology-features"]["plan-reefs"].planReefs;
+      expect(reef.strategy).toBe("habitat");
+      expect(reef.config).not.toHaveProperty("stride");
+      actual[canonicalConfig.id] = reef.config;
+    }
+    expect(actual).toEqual({
+      "swooper-earthlike": { minConfidence01: 0.84, minSpacingTiles: 2 },
+      "mountains-of-time-earthlike": { minConfidence01: 0.84, minSpacingTiles: 2 },
+      "mountains-of-time-original": { minConfidence01: 0.84, minSpacingTiles: 2 },
+      "latest-juicy": { minConfidence01: 0.84, minSpacingTiles: 2 },
+      "mountain-patch": { minConfidence01: 0.84, minSpacingTiles: 2 },
+      "swooper-desert-mountains": { minConfidence01: 0.62, minSpacingTiles: 2 },
+      "shattered-ring": { minConfidence01: 0.58, minSpacingTiles: 2 },
+      "sundered-archipelago": { minConfidence01: 0.52, minSpacingTiles: 3 },
+    });
+  });
+
+  it("rejects retired reef strategy and stride controls through canonical admission", async () => {
+    const configs = await loadSwooperMapConfigRegistry();
+    for (const { canonicalConfig } of configs) {
+      const stage = canonicalConfig.config["ecology-features"];
+      const reef = stage["plan-reefs"].planReefs;
+      for (const obsolete of [
+        { ...reef, config: { ...reef.config, stride: 2 } },
+        { strategy: "habitat", config: { minConfidence01: reef.config.minConfidence01, stride: 2 } },
+        { strategy: "diagonal-stride", config: { minConfidence01: reef.config.minConfidence01, stride: 10 } },
+      ]) {
+        expect(() => admitStandardMapConfig({
+          ...canonicalConfig,
+          config: {
+            ...canonicalConfig.config,
+            "ecology-features": { ...stage, "plan-reefs": { planReefs: obsolete } },
+          },
+        })).toThrow();
+      }
+    }
+  });
+
+  it("bounds reef spacing to integers from one through twelve and provides a complete spacing-one default", async () => {
+    const [fixture] = await loadSwooperMapConfigRegistry();
+    if (!fixture) throw new Error("Expected a shipped Swooper map config");
+    const { canonicalConfig } = fixture;
+    const stage = canonicalConfig.config["ecology-features"];
+    const reef = stage["plan-reefs"].planReefs;
+    for (const minSpacingTiles of [-1, 0, 1.5, 13]) {
+      expect(() => admitStandardMapConfig({
+        ...canonicalConfig,
+        config: {
+          ...canonicalConfig.config,
+          "ecology-features": {
+            ...stage,
+            "plan-reefs": { planReefs: { ...reef, config: { ...reef.config, minSpacingTiles } } },
+          },
+        },
+      })).toThrow();
+    }
+    for (const minSpacingTiles of [1, 12]) {
+      const admitted = admitStandardMapConfig({
+        ...canonicalConfig,
+        config: {
+          ...canonicalConfig.config,
+          "ecology-features": {
+            ...stage,
+            "plan-reefs": { planReefs: { ...reef, config: { ...reef.config, minSpacingTiles } } },
+          },
+        },
+      });
+      expect(admitted.config["ecology-features"]["plan-reefs"].planReefs.config.minSpacingTiles).toBe(minSpacingTiles);
+    }
+    const compiled = standardRecipe.compileConfig(
+      createStandardRecipeTestInitialSetup({ mapConfig: canonicalConfig }),
+      {
+        ...canonicalConfig.config,
+        "ecology-features": { ...stage, "plan-reefs": { planReefs: ecology.features.ops.planReefs.defaultConfig } },
+      }
+    );
+    expect(compiled["ecology-features"]["plan-reefs"].planReefs).toEqual({
+      strategy: "habitat",
+      config: { minConfidence01: 0.55, minSpacingTiles: 1 },
+    });
   });
 
   it("rejects retired refinement thermal controls through public admission", async () => {

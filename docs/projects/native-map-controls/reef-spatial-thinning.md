@@ -1,7 +1,7 @@
-# Reef Spatial Thinning Proposal
+# Reef Spatial Thinning
 
-**Status:** Selected for implementation under the delegated coherence loop;
-no runtime activation in this document.
+**Status:** Implemented and independently reviewed; portable study acceptance
+passed for this correction. No new native-runtime claim.
 
 ## Scope And Objectives
 
@@ -72,8 +72,10 @@ distance is always retained.
 
 Operation input/output schemas, `seed`, step dependencies, and `reefIntents`
 stay unchanged. `seed` remains unused; this correction does not need new
-randomness. Keep `defaultStrategy: "habitat"` and remove the other strategy
-definition, implementation, contract import, and strategy registry entry.
+randomness. Remove the other strategy definition, implementation, contract
+import, and registry entry. Core infers `habitat` as the sole strategy and
+rejects a redundant authored `defaultStrategy`; remove that property without
+changing the effective default or modifying Core admission.
 
 Replace `habitat.config.stride` with `minSpacingTiles`, an integer in `[1,12]`,
 default `1`. Its meaning is minimum hex-edge distance between accepted
@@ -168,7 +170,37 @@ classified; this change must add none. Pre-declared expectations:
 Failure to retain an isolated eligible bank falsifies the implementation.
 Failure of a density, legality, or downstream guard rejects the proposed
 spacing choices pending review; it does not authorize a quota or target
-relaxation. This proposal itself contains no new execution or live evidence.
+relaxation. The receipt below records portable acceptance, not native proof.
+
+## Implementation Receipt
+
+The selected operation/config migration is implemented without changes to
+habitat scoring, feature floors, Core, steps, or study targets. Independent
+review found no correctness issue. Its focused rerun passed 13 tests with
+110,069 assertions, including exhaustive small-bank spacing/maximality,
+canonical geometry, occupancy and deterministic ranking.
+
+The 2026-09-29 owning Nx graph ran definition and realization check, test,
+build and original Habitat policy together. Definition: 909 passed, one
+aggregate study test failed; realization: 175 passed. The complete unchanged
+study bank now reports **11 rather than 12 failed expectations**: the atoll
+presence failure is gone, with no new failures. The remaining expectations
+are the already-tracked thermal/vegetation calibration issues. All reef
+density, legality, placement and resource guards pass. The graph is therefore
+not globally green and is not represented as such.
+
+Ten retained scenario replays match all 120 upstream field hashes across
+terrain, water masks, drainage and climate. Only the admitted reef envelope
+differs in authored configuration. The receipt and rerunner are
+`earth-calibration/reef-upstream-parity.{json,mjs}` under the documented
+VisualAtlas root. This field list does not claim every downstream output is
+unchanged; reef occupancy intentionally affects later placement.
+
+Dense Huge operation measurements after warmup remain below 8 ms in the
+sampled spacing-2/3 runs. Temporary canonical-radius allocations total about
+36.7 MB at spacing 2 and 16.6 MB at spacing 3 per dense run. No new index or
+optimization was justified by that bounded cost. Native map playback remains
+part of the subsequent integrated qualification, not this operation proof.
 
 ## Source Anchors
 

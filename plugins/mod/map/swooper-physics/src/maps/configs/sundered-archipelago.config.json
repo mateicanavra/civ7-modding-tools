@@ -1050,10 +1050,10 @@
       },
       "plan-reefs": {
         "planReefs": {
-          "strategy": "diagonal-stride",
+          "strategy": "habitat",
           "config": {
             "minConfidence01": 0.52,
-            "stride": 10
+            "minSpacingTiles": 3
           }
         }
       },

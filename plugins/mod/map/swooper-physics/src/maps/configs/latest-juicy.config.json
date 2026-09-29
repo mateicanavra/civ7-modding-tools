@@ -1097,7 +1097,7 @@
           "strategy": "habitat",
           "config": {
             "minConfidence01": 0.84,
-            "stride": 4
+            "minSpacingTiles": 2
           }
         }
       },
