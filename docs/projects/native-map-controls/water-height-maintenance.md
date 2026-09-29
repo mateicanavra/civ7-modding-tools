@@ -9,6 +9,29 @@ the next discriminator; late height reapplication remains an alternative, not
 the selected repair. Neither general production policy nor actual naval
 traversal is yet qualified.
 
+## Bounded Connectivity Controls
+
+V13/V14 are built, source-tested Tiny diagnostics, not native findings yet.
+The existing app-owned river probe now admits
+`water-connectivity-cutoff-5` and `water-connectivity-cutoff-10`. Each contains
+translated 5/6-cell basins joined to the exterior ocean by ordinary COAST
+tiles, dry NAV, dry MINOR, or no outlet. Isolated 4/5/6/9/10/11-cell controls
+distinguish strict from inclusive size comparison. Only NAV receives the
+already-qualified wet outlet write; this does not invent MINOR wet semantics.
+
+The existing MapInUse-scoped database component selects Tiny's cutoff before
+generation, and numeric map metadata must agree before mutation. Every existing
+checkpoint records terrain/river class plus row-batched native water, lake,
+height, area and ocean-connectivity observations. Authored player landmass
+regions are labeled separately from water connectivity. Native call failures
+are retained as unavailable evidence, never negative classification results.
+
+The focused source suite passes 32 tests (26,287 assertions), including legacy
+probe preservation and generated manifest scope. This proves fixture structure
+and build routing only. Native classification, water heights and ship passage
+still require the paired live runs; neither arbitrary cutoff100 nor a dynamic
+runtime cutoff is selected by these unit tests.
+
 ## Current Discriminator
 
 All values below are native units, not model metres. The production whole-map
