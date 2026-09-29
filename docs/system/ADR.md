@@ -638,8 +638,11 @@ maps explicitly retain their legacy model pending qualification.
 
 ## ADR-021: Surface Temperature Is An Independently Published Thermal Product
 
-**Status:** Accepted
+**Status:** Superseded by ADR-022 (publication shape; causal repair retained)
 **Date:** 2026-09-29
+**Historical correction:** The original rationale below preceded the complete
+wind/pressure/thermal lineage audit. It must not be used as independent evidence
+of a prior repository-wide scalar-artifact mandate.
 **Context:** Baseline water forcing and later ecology independently recomputed
 ground temperature with incompatible solar and lapse calibrations. Extending
 older multi-property climate bundles would also preserve avoidable consumer
@@ -662,3 +665,34 @@ the same calibration, not another ground-temperature owner.
   remains in model units and seasonal nonlinear responses need explicit study.
 - The causal tests and independent reference plan are in
   [thermal coherence](../projects/native-map-controls/thermal-coherence.md).
+
+## ADR-022: Complete The Baseline Thermal Handoff Under Existing Artifact Law
+
+**Status:** Accepted
+**Date:** 2026-09-29
+**Context:** July's pressure-field experiment implemented a named-object
+`thermalField` and explicitly deferred refinement's consumption migration.
+That experimental branch did not merge; July 31 reconstructed pressure/wind
+without the thermal handoff. January's final `climateIndices` descriptor set
+remained. Neither survival nor omission establishes rejection of the other
+design. The enforced artifact blueprint governs schema authority and admission,
+not a minimum or maximum number of payload properties.
+**Decision:** Publish baseline's annual ground/SST temperature as
+`artifact:hydrology._internal.thermalField`, with an inline
+`Type.Object({ surfaceTemperatureC: ... })` payload and finite map-cardinality
+admission. Refinement consumes it and applies declared feedback, publishing
+the final temperature through the existing `climateIndices` descriptor product.
+There is no temperature member in `baselineClimateField`, no independently
+recomputed refinement temperature and no duplicate standalone final artifact.
+**Consequences:**
+- Preserve the single thermal calibration and strict removal of obsolete
+  refinement controls from ADR-021.
+- Restore the original artifact source-shape rule; no raw-array-root exception
+  or alternate publication mechanism is needed.
+- A physical field and a coherent final descriptor set are both valid products.
+  Their owners, vintages and consumers establish boundaries, not array count.
+- Complete the concrete historical deferral without importing the old program's
+  broader intermediate-publication rule as current repository-wide law.
+- Numerical calibration and native water qualification remain independent work.
+- Provenance, counterevidence and the consumer graph are retained in
+  [climate artifact lineage](../projects/native-map-controls/climate-artifact-lineage.md).

@@ -24,7 +24,6 @@ type Float32VizValues = Extract<VizScalarSource, { format: "f32" }>["values"];
 type ClimateRefineVizEvidence = Readonly<{
   climateField: ClimateField;
   climateIndices: ClimateIndices;
-  surfaceTemperature: ArtifactReadValueOf<typeof climateArtifacts.surfaceTemperature>;
   cryosphere: Cryosphere;
   diagnostics: Readonly<{
     rainShadowIndex: Float32VizValues;
@@ -67,12 +66,12 @@ export function buildClimateRefineVizProjections(
       }),
     },
     ...buildScalarFieldProjections({
-      dataTypeKey: "hydrology.climate.surfaceTemperature",
+      dataTypeKey: "hydrology.climate.indices.surfaceTemperatureC",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "f32", values: observation.surfaceTemperature },
+      field: { format: "f32", values: observation.climateIndices.surfaceTemperatureC },
       meta: defineStandardVizMeta(
-        "hydrology.climate.surfaceTemperature",
+        "hydrology.climate.indices.surfaceTemperatureC",
         "climate.temperature",
         { label: "Surface Temperature (C)", group: GROUP_INDICES }
       ),

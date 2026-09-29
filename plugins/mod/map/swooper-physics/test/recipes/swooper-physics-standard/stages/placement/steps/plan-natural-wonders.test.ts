@@ -98,9 +98,8 @@ function publishPlacementInputs(context: MapContext): void {
     plannedLakeTileCount: 0,
     sinkLakeCount: 0,
   });
-  publishTestArtifact(context, climateArtifacts.surfaceTemperature,
-    new Float32Array(size).fill(PLANNER_SURFACE_SENTINELS.surfaceTemperature));
   publishTestArtifact(context, climateArtifacts.climateIndices, {
+    surfaceTemperatureC: new Float32Array(size).fill(PLANNER_SURFACE_SENTINELS.surfaceTemperature),
     effectiveMoisture: new Float32Array(size).fill(PLANNER_SURFACE_SENTINELS.effectiveMoisture),
     pet: new Float32Array(size),
     aridityIndex: new Float32Array(size).fill(PLANNER_SURFACE_SENTINELS.aridityIndex),

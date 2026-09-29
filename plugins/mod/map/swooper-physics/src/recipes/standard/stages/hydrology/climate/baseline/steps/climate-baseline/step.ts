@@ -789,13 +789,12 @@ export const ClimateBaselineStep = createStep(config, {
       currentU: meanCurrentU,
       currentV: meanCurrentV,
     };
-    const baselineSurfaceTemperature = deps.artifacts.baselineSurfaceTemperature.publish(
-      meanOfF32Fields(seasonalSurfaceTemperatureC)
-    );
-
+    const thermalField = deps.artifacts.thermalField.publish({
+      surfaceTemperatureC: meanOfF32Fields(seasonalSurfaceTemperatureC),
+    });
     return {
       baselineClimateField,
-      baselineSurfaceTemperature,
+      thermalField,
       landMask,
       seasonalAmplitudes,
       pressureField,

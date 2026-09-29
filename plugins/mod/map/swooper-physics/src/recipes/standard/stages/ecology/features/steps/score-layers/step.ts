@@ -14,7 +14,6 @@ export const ScoreLayersStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const classification = deps.artifacts.biomeClassification.read();
     const climateIndices = deps.artifacts.climateIndices.read();
-    const surfaceTemperature = deps.artifacts.surfaceTemperature.read();
     const pedology = deps.artifacts.pedology.read();
     const topography = deps.artifacts.topography.read();
     const coastline = deps.artifacts.shelf.read();
@@ -51,7 +50,7 @@ export const ScoreLayersStep = createStep(config, {
         height,
         landMask: ecologyLandMask,
         effectiveMoisture: climateIndices.effectiveMoisture,
-        surfaceTemperature: surfaceTemperature,
+        surfaceTemperature: climateIndices.surfaceTemperatureC,
         aridityIndex: climateIndices.aridityIndex,
         freezeIndex: climateIndices.freezeIndex,
         vegetationDensity: classification.vegetationDensity,
@@ -104,7 +103,7 @@ export const ScoreLayersStep = createStep(config, {
         hydromorphicMask: featureSubstrate.hydromorphicMask,
         water01: vegetationSubstrate.water01,
         fertility01: vegetationSubstrate.fertility01,
-        surfaceTemperature: surfaceTemperature,
+        surfaceTemperature: climateIndices.surfaceTemperatureC,
         aridityIndex: climateIndices.aridityIndex,
       },
       stepConfig.scoreWetMarsh
@@ -118,7 +117,7 @@ export const ScoreLayersStep = createStep(config, {
         hydromorphicMask: featureSubstrate.hydromorphicMask,
         water01: vegetationSubstrate.water01,
         fertility01: vegetationSubstrate.fertility01,
-        surfaceTemperature: surfaceTemperature,
+        surfaceTemperature: climateIndices.surfaceTemperatureC,
         freezeIndex: climateIndices.freezeIndex,
       },
       stepConfig.scoreWetTundraBog
@@ -132,7 +131,7 @@ export const ScoreLayersStep = createStep(config, {
         intertidalCoastMask: featureSubstrate.intertidalCoastMask,
         water01: vegetationSubstrate.water01,
         fertility01: vegetationSubstrate.fertility01,
-        surfaceTemperature: surfaceTemperature,
+        surfaceTemperature: climateIndices.surfaceTemperatureC,
         aridityIndex: climateIndices.aridityIndex,
       },
       stepConfig.scoreWetMangrove
@@ -146,7 +145,7 @@ export const ScoreLayersStep = createStep(config, {
         isolatedWaterPointMask: featureSubstrate.isolatedWaterPointMask,
         water01: vegetationSubstrate.water01,
         aridityIndex: climateIndices.aridityIndex,
-        surfaceTemperature: surfaceTemperature,
+        surfaceTemperature: climateIndices.surfaceTemperatureC,
       },
       stepConfig.scoreWetOasis
     ).score01;
@@ -160,7 +159,7 @@ export const ScoreLayersStep = createStep(config, {
         water01: vegetationSubstrate.water01,
         fertility01: vegetationSubstrate.fertility01,
         aridityIndex: climateIndices.aridityIndex,
-        surfaceTemperature: surfaceTemperature,
+        surfaceTemperature: climateIndices.surfaceTemperatureC,
       },
       stepConfig.scoreWetWateringHole
     ).score01;
@@ -170,7 +169,7 @@ export const ScoreLayersStep = createStep(config, {
         width,
         height,
         landMask: topography.landMask,
-        surfaceTemperature: surfaceTemperature,
+        surfaceTemperature: climateIndices.surfaceTemperatureC,
         bathymetry: topography.bathymetry,
         shelfMask: coastline.shelfMask,
         coastalWater: coastline.coastalWater,
@@ -184,7 +183,7 @@ export const ScoreLayersStep = createStep(config, {
         width,
         height,
         landMask: topography.landMask,
-        surfaceTemperature: surfaceTemperature,
+        surfaceTemperature: climateIndices.surfaceTemperatureC,
         bathymetry: topography.bathymetry,
         shelfMask: coastline.shelfMask,
         coastalWater: coastline.coastalWater,
@@ -198,7 +197,7 @@ export const ScoreLayersStep = createStep(config, {
         width,
         height,
         landMask: topography.landMask,
-        surfaceTemperature: surfaceTemperature,
+        surfaceTemperature: climateIndices.surfaceTemperatureC,
         bathymetry: topography.bathymetry,
         shelfMask: coastline.shelfMask,
         openOceanMask,
@@ -213,7 +212,7 @@ export const ScoreLayersStep = createStep(config, {
         width,
         height,
         landMask: topography.landMask,
-        surfaceTemperature: surfaceTemperature,
+        surfaceTemperature: climateIndices.surfaceTemperatureC,
         bathymetry: topography.bathymetry,
         lakeMask: lakePlan.lakeMask,
         shelfMask: coastline.shelfMask,
@@ -228,7 +227,7 @@ export const ScoreLayersStep = createStep(config, {
         width,
         height,
         landMask: topography.landMask,
-        surfaceTemperature: surfaceTemperature,
+        surfaceTemperature: climateIndices.surfaceTemperatureC,
         elevation: topography.elevation,
         freezeIndex: climateIndices.freezeIndex,
       },

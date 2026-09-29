@@ -71,11 +71,9 @@ describe("hydrology climate-refine demand ownership", () => {
           potentialDemand: new Float32Array(size).fill(999),
           demandParameters: parameters,
         });
-        publishTestArtifact(
-          stepContext,
-          climateArtifacts.baselineSurfaceTemperature,
-          baselineTemperature
-        );
+        publishTestArtifact(stepContext, climateArtifacts.thermalField, {
+          surfaceTemperatureC: baselineTemperature,
+        });
         publishTestArtifact(stepContext, climateArtifacts.windField, {
           windU: new Int8Array(size),
           windV: new Int8Array(size),
@@ -145,7 +143,7 @@ describe("hydrology climate-refine demand ownership", () => {
 
       expect(demandCalls).toBe(1);
       const indices = readArtifact(context, climateArtifacts.climateIndices);
-      const surfaceTemperature = readArtifact(context, climateArtifacts.surfaceTemperature);
+      const surfaceTemperature = indices.surfaceTemperatureC;
       const expected = hydrology.climate.ops.computePotentialDemand.run(
         {
           width,

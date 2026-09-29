@@ -3,7 +3,7 @@ import { artifacts } from "../../../src/domain/hydrology/modules/climate/artifac
 import { standardStageContractManifest } from "../../../src/recipes/standard/contract-manifest.js";
 import { config as refineConfig } from "../../../src/recipes/standard/stages/hydrology/climate/refine/steps/climate-refine/config.js";
 
-describe("Standard singular thermal ownership", () => {
+describe("Standard causal thermal ownership", () => {
   it("declares one producer per vintage and exact downstream thermal dependencies", () => {
     const steps = standardStageContractManifest.flatMap((stage) =>
       stage.steps.map(({ contract }) => ({ stage: stage.id, contract }))
@@ -11,18 +11,20 @@ describe("Standard singular thermal ownership", () => {
     const baseline = steps.find(({ contract }) => contract.id === "climate-baseline")!;
     const refine = steps.find(({ contract }) => contract.id === "climate-refine")!;
     expect(
-      steps.filter(({ contract }) =>
-        contract.provides.includes(artifacts.baselineSurfaceTemperature)
-      )
+      steps.filter(({ contract }) => contract.provides.includes(artifacts.thermalField))
     ).toEqual([baseline]);
     expect(
-      steps.filter(({ contract }) => contract.provides.includes(artifacts.surfaceTemperature))
+      steps.filter(({ contract }) => contract.provides.includes(artifacts.climateIndices))
     ).toEqual([refine]);
-    expect(refine.contract.requires).toContain(artifacts.baselineSurfaceTemperature);
+    expect(refine.contract.requires).toContain(artifacts.baselineClimateField);
+    expect(refine.contract.requires).toContain(artifacts.thermalField);
+    expect(
+      steps.filter(({ contract }) => contract.requires.includes(artifacts.thermalField))
+    ).toEqual([refine]);
     expect(refineConfig.ops).not.toHaveProperty("computeThermalState");
     expect(refineConfig.ops).not.toHaveProperty("computeRadiativeForcing");
     const consumers = steps.filter(({ contract }) =>
-      contract.requires.includes(artifacts.surfaceTemperature)
+      contract.requires.includes(artifacts.climateIndices)
     );
     expect(consumers.map(({ contract }) => contract.id).sort()).toEqual([
       "assign-starts",
@@ -39,6 +41,13 @@ describe("Standard singular thermal ownership", () => {
     }
     expect(
       consumers.find(({ contract }) => contract.id === "plot-biomes")!.contract.requires
-    ).not.toContain(artifacts.climateIndices);
+    ).toContain(artifacts.climateIndices);
+    const declaredIds = steps.flatMap(({ contract }) =>
+      [...contract.requires, ...contract.provides].map((dependency) =>
+        typeof dependency === "string" ? dependency : dependency.id
+      )
+    );
+    expect(declaredIds).not.toContain("artifact:hydrology.baselineSurfaceTemperature");
+    expect(declaredIds).not.toContain("artifact:hydrology.surfaceTemperature");
   });
 });

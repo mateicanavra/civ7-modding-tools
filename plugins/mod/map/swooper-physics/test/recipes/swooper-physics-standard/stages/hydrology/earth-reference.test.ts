@@ -143,7 +143,7 @@ function climateFixture(removeContinents = false) {
     topography,
     shelf,
     baseline: readArtifact(context, climateArtifacts.baselineClimateField),
-    baselineSurfaceTemperature: readArtifact(context, climateArtifacts.baselineSurfaceTemperature),
+    thermal: readArtifact(context, climateArtifacts.thermalField),
     pressure: readArtifact(context, climateArtifacts.pressureField),
     wind: readArtifact(context, climateArtifacts.windField),
     observation,
@@ -407,7 +407,7 @@ describe("fixed Earth-coast flat-relief climate ablation", () => {
     expect(earth.shelf.coastalLand.some((value) => value === 1)).toBe(true);
     expect(earth.shelf.distanceToCoast.some((value) => value > 0 && value < 65535)).toBe(true);
     expect(earth.baseline).toEqual(repeated.baseline);
-    expect(earth.baselineSurfaceTemperature).toEqual(repeated.baselineSurfaceTemperature);
+    expect(earth.thermal.surfaceTemperatureC).toEqual(repeated.thermal.surfaceTemperatureC);
     expect(earth.pressure).toEqual(repeated.pressure);
     expect(earth.wind).toEqual(repeated.wind);
     expect(earth.observation.currentField).toEqual(repeated.observation.currentField);
@@ -417,14 +417,14 @@ describe("fixed Earth-coast flat-relief climate ablation", () => {
     expect(earth.observation.seasonalRainfall).toHaveLength(earth.config.seasonality.modeCount);
     const seasonalTemperature = earth.observation.seasonalSurfaceTemperatureC;
     expect(seasonalTemperature).toHaveLength(earth.config.seasonality.modeCount);
-    expect(earth.observation.baselineSurfaceTemperature).toBe(earth.baselineSurfaceTemperature);
+    expect(earth.observation.thermalField).toBe(earth.thermal);
     expect(earth.observation.oceanThermal).not.toBeNull();
-    for (let cell = 0; cell < earth.baselineSurfaceTemperature.length; cell++) {
+    for (let cell = 0; cell < earth.thermal.surfaceTemperatureC.length; cell++) {
       const mean = seasonalTemperature.reduce((sum, field) => sum + field[cell]!, 0)
         / seasonalTemperature.length;
-      expect(earth.baselineSurfaceTemperature[cell]).toBe(Math.fround(mean));
+      expect(earth.thermal.surfaceTemperatureC[cell]).toBe(Math.fround(mean));
       if (!earth.topography.landMask[cell]) {
-        expect(earth.baselineSurfaceTemperature[cell]).toBe(earth.observation.oceanThermal!.sstC[cell]);
+        expect(earth.thermal.surfaceTemperatureC[cell]).toBe(earth.observation.oceanThermal!.sstC[cell]);
       }
     }
     expect(earth.baseline.rainfall.every((value) => value >= 0 && value <= 200)).toBe(true);

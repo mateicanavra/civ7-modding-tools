@@ -524,7 +524,7 @@ describe("hydrology climate-baseline composition", () => {
       expect(demandInputs[season]!.parameters).toEqual(config.potentialDemand);
     }
     const baseline = readArtifact(context, climateArtifacts.baselineClimateField);
-    const baselineSurfaceTemperature = readArtifact(context, climateArtifacts.baselineSurfaceTemperature);
+    const baselineSurfaceTemperature = readArtifact(context, climateArtifacts.thermalField).surfaceTemperatureC;
     expect(observedSeasonalSurfaceTemperatureC).toHaveLength(modeCount);
     for (let season = 0; season < modeCount; season++) {
       expect(observedSeasonalSurfaceTemperatureC[season]).toBe(

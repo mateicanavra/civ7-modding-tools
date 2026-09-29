@@ -1,20 +1,18 @@
 import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
 
 import { artifact as baselineClimateField } from "./baseline-climate-field.artifact.js";
-import { artifact as baselineSurfaceTemperature } from "./baseline-surface-temperature.artifact.js";
 import { artifact as climateField } from "./climate-field.artifact.js";
 import { artifact as climateIndices } from "./climate-indices.artifact.js";
 import { artifact as pressureField } from "./pressure-field.artifact.js";
-import { artifact as surfaceTemperature } from "./surface-temperature.artifact.js";
+import { artifact as thermalField } from "./thermal-field.artifact.js";
 import { artifact as windField } from "./wind-field.artifact.js";
 
 /** Immutable atmospheric and climate evidence owned by the Hydrology climate branch. */
 export const artifacts = defineArtifactCatalog({
   baselineClimateField,
-  baselineSurfaceTemperature,
   climateField,
   climateIndices,
   pressureField,
-  surfaceTemperature,
+  thermalField,
   windField,
 });

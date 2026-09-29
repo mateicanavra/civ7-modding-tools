@@ -83,7 +83,7 @@ export const ClimateRefineStep = createStep(config, {
       : topography.landMask;
 
     const baselineClimateField = deps.artifacts.baselineClimateField.read();
-    const baselineSurfaceTemperature = deps.artifacts.baselineSurfaceTemperature.read();
+    const thermalField = deps.artifacts.thermalField.read();
 
     const { topLatitude, bottomLatitude } = context.setup.latitudeBounds;
     const latitudeByRow = new Float32Array(height);
@@ -116,7 +116,7 @@ export const ClimateRefineStep = createStep(config, {
         height,
         landMask: topography.landMask,
         rainfall: refined.rainfall,
-        surfaceTemperatureC: baselineSurfaceTemperature,
+        surfaceTemperatureC: thermalField.surfaceTemperatureC,
       },
       stepConfig.applyAlbedoFeedback
     );
@@ -174,10 +174,8 @@ export const ClimateRefineStep = createStep(config, {
       rainfall: new Uint8Array(refined.rainfall),
       humidity: new Uint8Array(refined.humidity),
     });
-    const surfaceTemperature = deps.artifacts.surfaceTemperature.publish(
-      albedoFeedback.surfaceTemperatureC
-    );
     const climateIndices = deps.artifacts.climateIndices.publish({
+      surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,
       effectiveMoisture: waterBudget.effectiveMoisture,
       pet: waterBudget.pet,
       aridityIndex: waterBudget.aridityIndex,
@@ -195,7 +193,6 @@ export const ClimateRefineStep = createStep(config, {
     return {
       climateField,
       climateIndices,
-      surfaceTemperature,
       cryosphere: publishedCryosphere,
       diagnostics,
     };

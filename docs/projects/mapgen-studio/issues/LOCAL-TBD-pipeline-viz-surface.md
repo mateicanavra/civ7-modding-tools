@@ -210,7 +210,7 @@ related_to: []
 - `hydrology.climate.seasonality.humidityAmplitude` (grid, u8)
 - `hydrology.wind.windU` / `hydrology.wind.windV` (grid, i8; debug)
 - `hydrology.current.currentU` / `hydrology.current.currentV` (grid, i8; debug)
-- `hydrology.climate.surfaceTemperature` (grid, f32; independent refined thermal artifact)
+- `hydrology.climate.indices.surfaceTemperatureC` (grid, f32)
 - `hydrology.climate.indices.pet` (grid, f32)
 - `hydrology.climate.indices.aridityIndex` (grid, f32)
 - `hydrology.climate.indices.freezeIndex` (grid, f32)

@@ -542,7 +542,6 @@ function copyCompletedRun(
           })
         : (() => { throw new Error("Capture requires certified lake and river evidence."); })();
   const climateIndicesValue = readArtifact(context, climateArtifacts.climateIndices);
-  const surfaceTemperature = readArtifact(context, climateArtifacts.surfaceTemperature);
   const baselineClimateValue = readArtifact(context, climateArtifacts.baselineClimateField);
   const climateValue = readArtifact(context, climateArtifacts.climateField);
   const windFieldValue = readArtifact(context, climateArtifacts.windField);
@@ -700,8 +699,8 @@ function copyCompletedRun(
         gridSize
       ),
       surfaceTemperature: copyFloat32Grid(
-        "hydrology.surfaceTemperature",
-        surfaceTemperature,
+        "hydrology.climateIndices.surfaceTemperatureC",
+        climateIndicesValue.surfaceTemperatureC,
         gridSize
       ),
       baselineRainfall: copyUint8Grid(

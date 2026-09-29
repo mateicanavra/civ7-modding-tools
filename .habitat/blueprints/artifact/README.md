@@ -37,10 +37,9 @@ to every valid artifact value or contract.
 - `require_artifact_file_shape`: source-shape contract for artifact owner files.
   Every `plugins/mod/map/*/src/domain/*/modules/*/artifacts/*.artifact.ts` file exports one
   `artifact = defineArtifact({ schema, ... })` authority. The artifact owns its
-  complete payload schema as a direct inline `Type.*(...)` or Core
-  `TypedArraySchemas.*(...)` expression. Exact
+  complete payload schema as a direct inline `Type.*(...)` expression. Exact
   imported atoms may supply smaller primitives and cohesive subentities inside
-  that root; an imported whole schema may not become the artifact payload.
+  that root; an imported whole schema may not become the artifact container.
   Any optional relational refinement is likewise inline on the definition.
   Core binds structural TypeBox admission and that refinement into the same
   frozen authority. The file's authoring import, remaining dependencies, and

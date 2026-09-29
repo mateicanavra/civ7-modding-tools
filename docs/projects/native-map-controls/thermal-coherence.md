@@ -29,29 +29,27 @@ when no alternative legal site can satisfy both obligations.
 
 ## Selected Design
 
-Publish a domain-owned `baselineSurfaceTemperature` artifact with a direct,
-finite, map-cardinality `Float32Array` payload in degrees C. It is the
-equal-season annual mean of the actual seasonal ground-surface temperatures
-already computed in baseline, before albedo feedback. Preserve water SST
-authority. Retain seasonal samples in the step observation for aggregation
-proof; do not add an unused seasonal downstream contract.
+Publish domain-owned `thermalField` with a named `{ surfaceTemperatureC }`
+payload, finite map-cardinality Float32 values in degrees C. It is the
+equal-season annual mean of actual seasonal ground/SST temperatures already
+computed in baseline, before albedo feedback. Retain seasonal samples in the
+step observation for aggregation proof, not an unused seasonal contract.
 
-The initial design added temperature to the older `baselineClimateField`
-bundle. The user identified that as the wrong direction: a property field
-should itself be the published artifact, not strengthen coupling through a
-multi-property climate container. Canonical artifact admission already
-supports a direct typed-array schema, including map cardinality and semantic
-refinement. No Core change or alternate buffer storage is needed.
+The [comparative lineage audit](climate-artifact-lineage.md) supersedes the
+initial publication-shape rationale. The user's concern was an investigation
+prompt, not a settled instruction that every property must be a standalone
+artifact. July's pressure-field work did explicitly implement this baseline
+thermal handoff on a local branch and defer refinement's consumption. Its
+mainline reconstruction omitted both. The artifact blueprint was intentional
+kind-wide law, not stale syntax; a named-object thermal product fits it.
 
-Publish the refined temperature as a separate `surfaceTemperature` artifact
-with an explicit post-feedback vintage. Remove temperature from the old
-`climateIndices` bundle and migrate all temperature consumers and observers
-to exact artifact requirements/reads. Do not retain a duplicate bundled alias.
-Baseline and refined products are successive causal vintages, not independent
-climate algorithms. Existing rainfall/demand/moisture bundles are outside this
-bounded thermal migration; neither silently extend them nor claim all legacy
-artifact grouping is already normalized. Local computation arrays are not a
-competing cross-step publication mechanism.
+Refinement publishes the post-feedback temperature in the existing
+`climateIndices` descriptor product. Consumers and observers read that one
+final authority. Do not retain either a standalone final temperature alias or
+temperature in `baselineClimateField`. The baseline field and final descriptor
+are successive causal vintages, not independent climate algorithms. This
+completes the concrete documented deferral without universal scalar splitting
+or a competing field/buffer publication mechanism.
 
 Refine consumes this field directly and applies only declared feedback.
 Remove its radiative-forcing and thermal-state operations, temperature knob
@@ -89,9 +87,10 @@ equivalence or expand this repair into a new seasonal simulator.
 - All profiles compile with one thermal owner; obsolete refine input fails
   at canonical admission. No vegetation, placement or integrity threshold is
   loosened to adopt the change.
-- Temperature is independently published and required from baseline through
-  refinement, ecology, placement, visualization and metrics. No copy remains
-  in either climate bundle and no ambient field/cache supplies consumers.
+- Baseline temperature is published/read through `thermalField`; refinement
+  publishes its later vintage through `climateIndices`. Exact declared
+  dependencies gate both. No duplicate final authority or ambient field/cache
+  supplies consumers. The original artifact kind rule passes unchanged.
 - Repeat the fixed-Earth diagnostic, Standard cohorts and canonical study
   bank. Record changed temperature, rain, runoff, biome and river outcomes
   rather than assuming current absolute coefficients are valid.
@@ -118,9 +117,9 @@ is not complete merely because the duplicate computation is removed.
 
 ## Implementation And Measured Acceptance
 
-The singular thermal chain is implemented. Independent review finds no
-blocking ownership or publication defect. Source/test typechecks, generated
-recipe/catalog builds and the realization build pass. The owning graph runs
+Before the lineage correction, the causal thermal repair was implemented and
+independently reviewed. Source/test typechecks, generated recipe/catalog builds
+and the realization build passed. That owning graph ran
 887 definition tests (886 pass, one product-study aggregate fails) and 175
 realization tests (all pass). Focused tests establish actual seasonal/SST
 aggregation, exact dependencies, disabled-feedback identity, nonmutation and
@@ -133,13 +132,42 @@ expectations rather than disguising changed climate with relaxed targets:
 - Mountains of Time Earthlike/Original, Latest Juicy and Mountain Patch:
   vegetation-family variety and taiga presence.
 
-The old local source-shape rule rejected direct typed-array artifact roots
-even though canonical Core admission and public artifact tests support them.
-That stale syntactic restriction is corrected in the existing qualified rule:
-the root builder must come from the canonical Core contract import. Seventeen
-positive/negative fixtures pass, including lookalike builder imports, detached
-schemas/refinements and runtime dependencies/exports. Both owning policy
-targets pass. No wrapper, alias, waiver or shared Habitat-pack fork was added.
+The first implementation unnecessarily expanded the kind-level source-shape
+rule for raw typed-array roots. Core support alone did not justify treating the
+existing rule as stale. ADR-022 restores its original admitted named-schema
+shape and corrects that overreach. Verification for the corrected publication
+shape is recorded separately below; earlier pass receipts are not substituted
+for that run.
+
+### Corrected Publication Proof
+
+On September 29, the corrected named-object thermal handoff passed 77 focused
+tests (67,452 assertions); independent review also ran 12 focused tests
+(476 assertions) without findings. A fresh owning graph ran:
+
+```sh
+nx run-many --projects=swooper-physics,swooper-physics-mod --targets=check,test,build,check:policy --outputStyle=static
+```
+
+All typechecks, builds and original kind-policy checks passed. Definition tests
+were again 886 pass / one product-study aggregate failure with the same twelve
+expectations listed above; all 175 realization tests passed. The graph is not
+fully green, and this correction does not claim to resolve calibration.
+
+An independent canonical capture replay then matched 120 of 120 SHA-256 field
+hashes across the ten retained current arms: all eight Huge seed1018 profiles
+and Earthlike Standard seeds1018 and3. Admitted configs, effective operation
+configs and scenario provenance also matched. The captured surfaces were
+elevation, original land, planned lakes, flow direction, river class, final
+temperature, baseline/final rain, pressure, wind U/V and sea level. Neither
+source nor retained evidence changed during the replay.
+
+The receipt is retained at the stable atlas root documented in
+`docs/process/LOCAL-VIEWERS.md`, under
+`huge-1018/earth-calibration/thermal-publication-parity-replay.json`; its sibling
+`.mjs` is the rerunnable script. This establishes exact parity for those
+twelve portable captured fields and ten scenarios, not every field or seed
+and not native-engine parity.
 
 The [independent thermal reference](earth-thermal-reference.md) now replays
 literal old profiles and a frozen, held-out low-relief annual fit through the

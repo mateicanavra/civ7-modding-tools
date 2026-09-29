@@ -123,9 +123,13 @@ Selected base: `agent-root-civ7-capability-migration-frame`,
 `10e6b74493bd5aae7d0016389dd09bd8f12d2512`, 31 commits above main
 `fd60a16ad7605ad34c8afa9668aa847b52931022`.
 
-- Main already contains the latest accepted physical climate/resource/lake work
-  (`299dbac3e7`) and seed-stateless latitude change (`bfe11d752c`). The old
-  `claude/wind-field-rca` branch is not missing accepted algorithm work.
+- Main contains the reconstructed physical climate/resource/lake work
+  (`299dbac3e7`) and seed-stateless latitude change (`bfe11d752c`). The earlier
+  claim that no accepted work remained on `claude/wind-field-rca` was too broad:
+  its implemented baseline thermal publication and named refinement follow-up
+  were not reconstructed. The [lineage audit](climate-artifact-lineage.md)
+  records this gap and its current-topology completion; the old branch remains
+  evidence, not a branch to merge wholesale.
 - Domain, Core, and committed map-config trees are identical between main and
   the selected tip. Runtime migration `aef45dd515` places native implementation
   in the realization app; that newer owner is why this work extends the tip.

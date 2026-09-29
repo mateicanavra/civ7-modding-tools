@@ -73,15 +73,18 @@ export const artifact = defineArtifact({
 });
 ```
 
-A scalar property distributed across the map can itself be an artifact: use a
-direct `TypedArraySchemas.f32({ cardinality: "map-grid" })` schema when that is
-the complete product. A multi-property wrapper is not required. Keep
-independently consumed properties separate rather than extending an older
-climate or terrain bundle for convenience. A cohesive relational product such
-as the plate graph above can still have multiple members; this is semantic
-cohesion, not a rule that every artifact must have exactly one object key.
-Successive physical vintages use distinct artifact identities and declared
-producer/consumer dependencies, never mutation or a duplicate ambient field.
+A field is spatial data; an artifact is an admitted published product. Neither
+the number of arrays nor the producing step alone determines that product's
+boundary. Independently meaningful handoffs can be field-sized, such as
+pressure or baseline temperature; cohesive consumer products can contain
+several fields, such as refined climate indices. Name the owner, meaning,
+publication vintage and consumer contract before choosing the boundary.
+Existing field products use inline named `Type.Object` payloads, including
+single-property products. This fits the artifact kind without changing its
+source-shape law. Successive physical vintages use distinct identities and
+declared dependencies, never mutation or a duplicate ambient field. The
+climate-specific decision is recorded in ADR-022; it is not a mandate to split
+every existing bundle or publish every invocation-local intermediate.
 
 `defineArtifact` is the only artifact-authority constructor. It binds structural admission to the
 supplied schema and validates in three strict phases: TypeBox structure, exact typed-array
