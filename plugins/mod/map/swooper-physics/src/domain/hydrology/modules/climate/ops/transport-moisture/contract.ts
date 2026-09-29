@@ -2,7 +2,7 @@ import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authorin
 import cardinalDefinition from "./strategies/cardinal/config.js";
 import vectorAdvectionDefinition from "./strategies/vector-advection/config.js";
 
-/** Moisture-transport contract with vector advection as the product default and cardinal fallback. */
+/** Moisture transport with supplied-wind vector advection by default and a separate cardinal strategy. */
 const TransportMoistureContract = defineOp({
   kind: "compute",
   id: "hydrology/transport-moisture",
@@ -22,10 +22,10 @@ const TransportMoistureContract = defineOp({
       width: Type.Integer({ minimum: 1, description: "Tile grid width (columns)." }),
       /** Tile grid height. */
       height: Type.Integer({ minimum: 1, description: "Tile grid height (rows)." }),
-      /** Latitude by row in degrees; length must equal `height`. */
+      /** Latitude fallback for the cardinal strategy only; length must equal `height`. */
       latitudeByRow: TypedArraySchemas.f32({
         cardinality: ["height"],
-        description: "Latitude per row (degrees).",
+        description: "Latitude per row (degrees), used only by the cardinal strategy's calm-wind fallback.",
       }),
       /** Land mask per tile (1=land, 0=water). */
       landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
@@ -42,7 +42,7 @@ const TransportMoistureContract = defineOp({
     {
       additionalProperties: false,
       description:
-        "Evaporation supply, quantized winds, and latitude fallback evidence used to advect moisture across the map.",
+        "Evaporation and supplied winds for vector transport across land and water; latitude fallback evidence is used only by the separate cardinal strategy.",
     }
   ),
   /**

@@ -301,3 +301,155 @@ changes are not waived or attributed to the independent temperature fit.
 `ocean-stencil-owning-proof-20260929.log` retains the complete graph result.
 The numerical rule shrank from 195 to 178 lines; the 860-line climate step was
 unchanged by this repair.
+
+## Moisture Transport Follow-Through
+
+Fifty-four unsaturated public-operation cases in
+`moisture-vector-discriminators-20260929/receipt.json` reproduce the analogous
+ranked-axis bias and isolate the cutoff jump. They also establish that calm
+wind triggers full zonal movement chosen by latitude, and a bounded-edge miss
+can override an available aligned donor with that same fallback. The fallback
+was deliberately authored in February and its trigger broadened in the June
+odd-R correction; removing it is an explicit semantic change, not claimed
+backwards compatibility. These fixtures do not establish its share of the
+whole-map rainfall or biome failures.
+
+The accepted correction makes the vector strategy honor the supplied
+phase/weather-member wind. Circulation remains the owner of latitude belts;
+the transport consumer no longer substitutes a second wind interpretation.
+Use adjacent geometric rays, exact-zero self, and unavailable bounded-Y share
+at self. Unlike ocean transport, moisture crosses both land and water. Preserve
+the existing `(local + advection * priorDonor) * retention` recurrence,
+initialization, clamping, pass count and direction-only interpretation. Calm
+means no advection, not no humidity change under continuing source injection.
+Retire only this strategy's cutoff and all eight matching authored fields.
+The separate cardinal strategy and its latitude input remain unchanged.
+
+Extract the now-shared angular bracket into the existing Core grid/vector
+primitive owner: canonical direction slots and normalized weights only, with
+no dimensions, masks, latitude, donor values or transport law. Zero/nonfinite
+vectors have no bracket; finite extreme inputs must not yield invalid weights.
+Preserve ordinary signed-byte arithmetic exactly. Ocean and moisture keep
+their own donor admission and scalar evolution. Move the moisture numerical
+loop into its operation rules and leave the strategy as a binding; no new
+algorithm belongs in a recipe step.
+
+Gate this change on independent Core angular/edge/extreme tests, exact replay
+of the already-corrected ocean operator, quantitative unsaturated moisture
+fixtures, unchanged cardinal behavior, strict removed-option rejection and
+all-eight canonical configuration admission. A focused held Earth-coast
+24/96-phase comparison must preserve thermal/pressure/wind/current/SST fields
+exactly while measuring moisture, rainfall and demand changes. Run the full
+unchanged product study bank and owning Core/definition/realization graph;
+do not tune around new failures. The separately identified coupled-SST tails
+still need their actual causal-vintage discriminator, not a guessed speed law.
+
+### Moisture Repair Results
+
+The correction and shared Core geometry are implemented. Independent review
+found no actionable issue. Exhaustive signed-byte tests preserve the corrected
+ocean's raw weights at both parities; independent angular and extreme-exponent
+checks cover the generic primitive. Public moisture tests cover axis/sector
+continuity, calm and bounded-edge self shares, wrapped/narrow grids, source
+recurrence, input nonmutation, unchanged cardinal behavior and removed-option
+refusal. The numerical rule is 67 lines and its strategy binding is 27; the
+860-line baseline step remains unchanged.
+
+`periodic-moisture-repair-20260929/receipt.json` retains twelve exact ocean
+SST/ice replays, all fifty-four passing unsaturated moisture fixtures, and
+three Earth-coast smoke captures. All fixture expected-value errors are zero;
+the six cardinal fixtures and zero-pass control remain exact. The former
+bounded-edge cutoff witness now changes humidity from 0.046999 to 0.046785
+across wind `[-127,36]` to `[-127,37]`, rather than 0.080345 to 0.056000.
+Calm cases match self-retention at every tested latitude. This proves the
+specified behavior, not a physical moisture mass budget.
+
+At 24/96 phases, land annual rain changes by MAE 1.673/1.665 and maxima 21/20
+encoded units; humidity MAE is 2.133/2.108 with maximum 26. Demand MAE is
+0.2015/0.2018 in its existing model units. Thermal, pressure, wind, current,
+SST, ice and clipping fields remain byte-exact. Two/four observations again
+leave annual fields, integration arrays and metadata unchanged. All captures
+are retained losslessly with compressed and uncompressed hashes, and source
+identity remained stable. This three-run smoke is not renewed full coupled
+resolution qualification.
+
+`moisture-stencil-seven-profile-20260929/receipt.json` repeats the seven legacy
+Huge/1018 maps against their retained post-ocean full fields. Elevation, land
+mask and sea level remain exact as required. Lake mask, flow receivers,
+temperature, pressure and winds also remain exact as measured downstream
+outcomes, not assumed invariants. Rainfall changes on 465-1,612 cells per map;
+refined-rainfall MAE is 0.136-0.481 encoded units and maximum delta 35. River
+classification changes on 0/19/2/16/14/17/10 cells for Desert Mountains,
+Shattered Ring, Sundered Archipelago, Mountains of Time Earthlike, Latest
+Juicy, Mountain Patch and Mountains of Time Original respectively. Total
+river-tile and lake counts are unchanged. All retained fields and 115/118
+available per-map scalar metrics are compared; no unavailable old discharge,
+humidity, demand or body-ledger arrays are invented. These profiles use the
+legacy sink-budget strategy, not the complete Earthlike basin coordinator.
+All values are finite, source identity is stable, and fourteen new compressed
+artifacts pass hash verification. Historical compiled plans were unavailable;
+the proof instead verifies reversible cutoff-only config migration and exact
+current compilation of migrated versus current authored configurations.
+
+The single owning Core/definition/realization Nx graph passes types, builds
+and Habitat policy. Core tests pass 369/369; realization tests pass 175/175;
+definition tests pass 1000/1001. The only failing test is the unchanged study
+bank, now with eleven expectations: Mountains of Time Earthlike forest
+presence recovers; the other eleven expectations from the ocean proof remain.
+No new expectation fails and none was relaxed. The complete graph log is
+`moisture-stencil-owning-proof-20260929.log` in the research directory. These
+operator repairs do not close the ecological calibration or native water work.
+
+## Weak-Current Thermal Amplification
+
+The remaining SST tails now have a separate causal discriminator, not an
+inference from the final current field. Four actual-step prefixes in
+`periodic-residual-vintage-20260929/receipt.json` reproduce the repaired final
+SST exactly while retaining the actual two driving current vintages, raw
+weighted means, rounded vectors and thermal inputs. Reciprocal cell/one-ring
+transplants and two common-S1 counterfactuals retain all other inputs. Shared
+phase winds/currents and coarse-subsampled annual reductions agree exactly
+under common SST; tiny Earth pressure differences come from Float32 thermal
+centering. This is not phase-key drift.
+
+At Earth cell 4596, the second driving current changes from `[0,-1]` to
+`[-1,-1]` between 48 and 96 phases. Changing only that cell reproduces 2.80650 C
+of the observed 2.80668 C SST change. At aquaplanet cells 5290 and 1793, weak
+vectors likewise rotate and produce roughly five-degree single-cell responses.
+The current SST rule moves a full donor share for any nonzero vector, even
+though the current producer encodes relative strength. Angular interpolation
+is now continuous away from zero; discarding that strength is a different
+problem.
+
+The common-S1 control attributes Earth4596's change to 2.76124 C of resolution
+response plus 0.04544 C further feedback. Aqua5290 divides into -1.27713 C and
+-3.61434 C, and Aqua1793 into -0.35827 C and -4.43354 C. These are path-specific
+counterfactual differences, not a linear physical decomposition. Earth's
+seasonal vectors largely cancel; both aquaplanet witnesses have weak phase
+currents too. Moving transport ahead of annual aggregation would not by itself
+remove the weak-current full-strength response.
+
+### Bounded Strength Correction
+
+Honor the supplied relative strength inside the existing ocean operation:
+`alpha = min(1, hypot(U, V) / I8_VECTOR_MAX_ABS)` and
+`advected = self + alpha * (geometricDonor - self)`, followed by the unchanged
+diffusion. This is an explicit dimensionless consumer policy. The producer
+encodes components against `maxSpeed` but clamps each component, so radial
+saturation at 127 is a new, stated policy rather than an existing norm bound.
+It is not a velocity in m/s, an elapsed timestep, or conservative heat flux.
+Do not change producer quantization, phase reduction, coefficients, source
+temperature, pass count, ice classification or moisture transport in this
+ablation. No new knob or competing strategy is needed.
+
+The alternative of more phases alone leaves the incorrect small-vector limit;
+phase-wise thermal transport is a larger closure choice and does not resolve
+the weak aquaplanet phase currents. The bounded correction has independent
+design review and is the next implementation under the delegated calibration
+scope. Acceptance requires zero/full-strength endpoint controls, proportional
+one-pass weak response, radial saturation, finite convex bounds, blocked shares
+and diffusion separation; repeat the actual causal witnesses, the same twenty
+coupled runs, seven-profile collateral and unchanged product study bank.
+Improved stability does not automatically validate Earth SST or any sampling
+count. Qualify those outcomes separately rather than fitting this blend to the
+observed temperature deltas.

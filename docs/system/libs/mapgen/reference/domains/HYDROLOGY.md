@@ -120,6 +120,15 @@ diffusion, shelf mixing and SST-derived ice threshold. Current magnitude does
 not set a travel distance or timestep: this remains a direction-only proxy, not
 a physical speed integration or globally heat-conserving transport scheme.
 
+Vector moisture transport uses the same Core angular bracket while retaining
+its own transport law and donor admission. Air crosses both land and water;
+off-map Y shares remain at self. Supplied phase/weather-member winds are
+authoritative: calm wind samples self, and no latitude-band fallback or
+secondary-donor cutoff overrides the vector. Local evaporation is still
+injected on every fixed pass before retention and clamping, so calm conditions
+do not imply constant humidity. The separately selected cardinal strategy
+retains its original latitude fallback and bounded cardinal sampling behavior.
+
 Aggregate river benchmark evidence is calculated and emitted by the Standard
 recipe's Network metrics projector rather than retained as pipeline state.
 Advisory terrain/wind climate diagnostics are derived by the climate module's

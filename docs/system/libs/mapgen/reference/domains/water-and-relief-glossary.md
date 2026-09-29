@@ -18,8 +18,10 @@ Learn: [USGS elevation-model terminology](https://www.usgs.gov/publications/digi
 
 ### Water Surface
 
-The top of water, distinct from its bed. Certified lakes use their spill height;
-the study uses sea level for marine cells and ground for dry cells. This is the
+The top of water, distinct from its bed. The stationary basin coordinator solves
+this surface from supply, demand and available outlets; an overflowing open
+body reaches its spill height, while a closed body can settle below it.
+The study uses sea level for marine cells and ground for dry cells. This is the
 height to compare across a lake outlet, otherwise a submerged floor can create
 a fictitious uphill connection. [Measurement](../../../../../../plugins/mod/map/swooper-physics/src/recipes/standard/metrics/families/hydrology/network-coherence.ts).
 Learn: [USGS water level and discharge](https://www.usgs.gov/water-science-school/science/how-streamflow-measured).
@@ -28,7 +30,7 @@ Learn: [USGS water level and discharge](https://www.usgs.gov/water-science-schoo
 
 A depression is inward-draining terrain; its geometry exists even without a
 sustainable lake. Our hierarchy groups nested depressions; an admitted lake wets
-only cells strictly below its spill surface. **Basin area is not lake area.**
+only cells strictly below its solved water surface. **Basin area is not lake area.**
 [Basin geometry](../../../../../projects/native-map-controls/basin-geometry.md).
 Learn: [Barnes et al., depression hierarchies](https://esurf.copernicus.org/articles/8/431/2020/).
 
@@ -46,7 +48,7 @@ The sill is the low threshold where a depression can overflow. Our adjacent-cell
 saddle uses the higher of the two ground heights; that spill height sets an open
 lake's surface. Exact-sill cells remain dry, and recorded connectors carry its
 outflow. This matters at narrow lake-to-river transitions.
-[Open-network operation](../../../../../../plugins/mod/map/swooper-physics/src/domain/hydrology/modules/hydrography/ops/compute-open-basin-network/rules/index.ts).
+[Basin-network operation](../../../../../../plugins/mod/map/swooper-physics/src/domain/hydrology/modules/hydrography/ops/compute-basin-network/rules/index.ts).
 Learn: [depression outlets and merging](https://esurf.copernicus.org/articles/8/431/2020/).
 
 ### Receiver
@@ -88,8 +90,9 @@ Learn: [EPA streams and headwaters](https://www.epa.gov/cwa-404/learn-about-stre
 
 ### Surface Temperature And Thermal Vintage
 
-A temperature field is one property over the map. Baseline publishes the mean
-of its seasonal ground-temperature samples as `thermalField`; refinement
+A temperature field is one property over the map. Baseline publishes its annual
+ground-temperature result as `thermalField`: a dense cycle integral for the
+periodic strategy, or the original sample mean for legacy strategies. Refinement
 applies albedo feedback and publishes the later temperature in the immutable
 `climateIndices` descriptor product. Ecology and placement consume that final
 product, not another temperature calculation. Field and artifact describe
@@ -108,6 +111,29 @@ meter. A familiar-looking value such as 0.0065 does not establish a physical
 meter conversion. Independent lowland temperature can constrain latitude and
 thermal gain, but cannot determine that relief conversion or replace missing
 maritime heat transport. [Calibration limits](../../../../../projects/native-map-controls/earth-thermal-reference.md).
+
+### Seasonal Integration Versus Observation
+
+Integration phases are the times sampled to calculate annual atmospheric and
+moisture outcomes. Observation phases are selected views for inspection; choosing
+two or four must not change the world. Periodic thermal temperature has its own
+dense annual integral, independent of these display views. More phases are not
+automatically more accurate when downstream transport is discontinuous.
+[Sampling and qualification](../../../../../projects/native-map-controls/periodic-thermal-response.md).
+
+### Advection, Donor And Stencil
+
+Advection transports a quantity with a flow. A donor is the upstream cell from
+which an update samples that quantity; a stencil is the neighbor/weight pattern
+used for the update. Our ocean and vector-moisture stencils bracket the supplied
+flow with adjacent hex rays. Both keep off-map shares at self; only ocean
+transport blocks land donors. Calm vectors sample self rather than inventing
+latitude-based movement. Their fixed passes are not elapsed seconds, and
+weighted sampling is not proof of total heat or moisture conservation. These
+distinctions matter when small directional changes cause large temperature or
+moisture jumps.
+[Operation semantics](HYDROLOGY.md).
+Contrast: [ECMWF conservative transport](https://www.ecmwf.int/en/newsletter/158/meteorology/nonhydrostatic-finite-volume-option-ifs).
 
 ## Shaping The Terrain
 
@@ -176,8 +202,9 @@ An open lake exports water through an outlet; a closed lake has no surface
 outflow. Neither lake size nor a river connection alone determines salinity
 or marine exchange. "Inland sea" is not a single hydrologic category: some
 are ocean-connected; other named seas are closed lakes. Our certified path
-models admitted open-basin spill surfaces and directed connectors, not a
-general salinity, tidal or closed-lake equilibrium model. Preserve physical
+models stationary open, closed, subtile and dry basin states plus directed
+connectors and equal-head exchanges, not salinity, tides or a transient
+lake-storage simulation. Preserve physical
 body identity separately from Civ's size-based native `Lake` flag; a NAV tile
 does not by itself make two water bodies one marine surface.
 Learn: [USGS lake hydrology](https://www.usgs.gov/water-science-school/science/lakes-and-reservoirs)

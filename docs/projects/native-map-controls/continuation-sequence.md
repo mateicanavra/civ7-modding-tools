@@ -36,6 +36,11 @@ publication mechanism, or bypassing an enforced kind blueprint.
    frozen monthly-reference replay. Correct the witnessed geometric ocean
    donor discontinuity and repeat the same coupled resolution controls before
    accepting the atmospheric sampling count or advancing relief calibration.
+   The ocean correction is implemented and measured. Its follow-through
+   removes the independently reproduced ranked-donor defect and calm-wind
+   latitude override in moisture transport, sharing only geometric bracketing
+   in Core. Preserve the distinction between these proven operator defects and
+   the remaining coupled-SST resolution tails or ecological calibration gaps.
 3. **Complete missing downstream mechanisms exposed by that baseline.**
    [Reef spatial thinning](reef-spatial-thinning.md) removes an independently
    demonstrated coordinate-phase rejection while leaving habitat scoring
@@ -89,7 +94,9 @@ Graphite sequencing and live execution. Independent reviews use bounded
 ownership scopes. Steps compose domain operations; they do not absorb newly
 discovered physics or grow fallback implementations.
 
-The current eleven failed calibration expectations (after the independently
-qualified reef correction) are an explicit starting
-point, not accepted final quality. A successful handoff repair or reference
+The eleven calibration expectations following the reef/reference work were
+an explicit starting point, not accepted final quality. The periodic and ocean
+changes alter that membership; the current proof receipts in
+[periodic thermal response](periodic-thermal-response.md) retain each change
+without weakening the study bank. A successful handoff repair or reference
 fixture is not completion of the Earth calibration or water workstream.

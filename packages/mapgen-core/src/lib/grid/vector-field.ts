@@ -173,6 +173,57 @@ export function getHexNeighborDirectionVectorsOddQ(isOddRow: boolean): readonly 
   return isOddRow ? HEX_NEIGHBOR_DIRS_ODD : HEX_NEIGHBOR_DIRS_EVEN;
 }
 
+function angularNeighborDirections(isOddRow: boolean) {
+  return getHexNeighborDirectionVectorsOddQ(isOddRow)
+    .map((vector, directionIndex) => ({ vector, directionIndex }))
+    .sort((a, b) => Math.atan2(a.vector.y, a.vector.x) - Math.atan2(b.vector.y, b.vector.x));
+}
+
+const ANGULAR_DIRECTIONS_EVEN = angularNeighborDirections(false);
+const ANGULAR_DIRECTIONS_ODD = angularNeighborDirections(true);
+
+/**
+ * Brackets a direction between adjacent odd-R hex rays and returns their normalized weights.
+ * Direction indices match the canonical neighbor iterator, not angular array positions. Parity
+ * is keyed by row despite the legacy `OddQ` name. No grid bounds or donor admission is implied.
+ *
+ * Exact zero and nonfinite components return `null`; no near-zero cutoff is applied. The weights
+ * depend only on direction. Extreme finite exponents are rescaled to avoid binary64 overflow or
+ * underflow, while ordinary inputs (including every signed-byte vector) retain raw arithmetic.
+ */
+export function bracketHexNeighborDirectionsOddQ(
+  direction: Vec2,
+  isOddRow: boolean
+): Readonly<{ direction0: number; weight0: number; direction1: number; weight1: number }> | null {
+  let x = direction.x;
+  let y = direction.y;
+  if (!Number.isFinite(x) || !Number.isFinite(y) || (x === 0 && y === 0)) return null;
+
+  const magnitude = Math.max(Math.abs(x), Math.abs(y));
+  // Leave a wide exponent margin around the cross products and their normalization sum.
+  if (magnitude < 2 ** -500 || magnitude > 2 ** 500) {
+    x /= magnitude;
+    y /= magnitude;
+  }
+
+  const directions = isOddRow ? ANGULAR_DIRECTIONS_ODD : ANGULAR_DIRECTIONS_EVEN;
+  for (let k = 0; k < directions.length; k++) {
+    const d0 = directions[k]!;
+    const d1 = directions[(k + 1) % directions.length]!;
+    const a = x * d1.vector.y - y * d1.vector.x;
+    const b = d0.vector.x * y - d0.vector.y * x;
+    if (a < 0 || b < 0) continue;
+    const sum = a + b;
+    return {
+      direction0: d0.directionIndex,
+      weight0: a / sum,
+      direction1: d1.directionIndex,
+      weight1: b / sum,
+    };
+  }
+  return null;
+}
+
 /**
  * Choose the best-matching neighbor direction for a velocity vector (in hex space).
  * Returns the neighbor direction index [0..5].

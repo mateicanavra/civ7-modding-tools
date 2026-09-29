@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 
 import hydrologyOpsPublic from "../../../../../../src/domain/hydrology/router.js";
 
@@ -27,11 +28,12 @@ describe("hydrology/transport-moisture (vector-advection)", () => {
     const evaporation = new Float32Array(size);
     for (let y = 0; y < height; y++) evaporation[idx(0, y, width)] = 1;
 
-    const out = transportMoisture.run(
+    const out = runAdmittedOperationForTest(
+      transportMoisture,
       { width, height, latitudeByRow, landMask, windU, windV, evaporation },
       {
         strategy: "vector-advection",
-        config: { iterations: 48, advection: 1, retention: 1, secondaryWeightMin: 0.2 },
+        config: { iterations: 48, advection: 1, retention: 1 },
       }
     );
 

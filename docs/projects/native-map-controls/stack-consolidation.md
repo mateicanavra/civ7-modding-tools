@@ -113,3 +113,22 @@ The new periodic implementation tip remained
 `8cfb5312665fe7f777ab176fee955624c845b887`, through the fold. All descendants
 required no content restack. The 31 prerequisites and occupied migration
 worktree are unchanged; the resulting chain has 50 non-trunk branches.
+
+Subsequent updates hit the server's 50-branch limit even though GitHub received
+the committed tip. Native `submit --update-only --always` did not resolve it.
+A further independently reviewed `fold --keep --close` absorbed
+`physics-coherence-frame` into `basin-geometry`, retaining PR #2206 and closing
+#2203 through Graphite. This is the six-commit investigation-to-geometry group
+from `9848e4bc16` through `d0cbb06615`: framing, native lake constraints, joint
+measurements, depression geometry, coherent relief/shelves and elevated-lake
+qualification. Their original commit-level reviews and proof distinctions
+remain intact. No basin-routing or water-conservation acceptance is inferred
+from geometry, and neither the preceding native capability layer nor the
+following climate publication layer was absorbed.
+
+The ocean-correction tip/tree stayed
+`7567769f6c66883b7b22b3993bbe263b1eb5eb25` /
+`aeb35fcffd96b69485d331ebe5b1dffc9a5eab05`. No descendant needed a content
+restack. At 49 non-trunk branches, native `submit --stack --draft --no-edit
+--no-interactive --always` completed and reconciled all existing PRs. No PR was
+manually reopened and no occupied prerequisite, main edit or source was changed.
