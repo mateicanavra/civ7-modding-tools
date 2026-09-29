@@ -123,3 +123,36 @@ response separate. Fitting annual lowland temperature does not validate polar
 day length, thermal lag, maritime transport, or a lapse per physical meter.
 Changing vegetation quotas or inflating lapse to repair within-row variance
 would not answer those missing mechanisms.
+
+## Solar Geometry Discriminator
+
+The test-owned `fixtures/earth-thermal/solar-*` extension compares the current
+shifted-latitude curve with daily-mean top-of-atmosphere solar geometry from
+[FAO-56 equations 21, 25 and 34](https://www.fao.org/4/x0490e/x0490e07.htm).
+It keeps the harmonic 23.44-degree declination schedule and explicitly assumes
+circular orbital distance. Independent hour-angle integration, global
+area-mean irradiance of one quarter of the solar constant, equinox/equator
+irradiance of one over pi, polar transitions and hemisphere symmetries qualify
+the geometry. The source HTML and unchanged NOAA cohort are pinned.
+
+Each candidate fits only its annual affine intercept and gain on the same
+196 training cells, then evaluates the existing admitted thermal operation
+on the 215 held-out cells. Four, 48 and 384 phases distinguish geometry from
+sampling error. No seasonal attenuation is fitted. Clipping and float32
+roundoff are reported separately; none of the fitted cases physically clips.
+
+At 384 phases the current curve's annual held-out RMSE is 2.928 C and daily
+geometry's is 2.971 C. Daily geometry reduces the tropical phase range from
+14.512 to 11.142 C, still well above the reference monthly range of 3.278 C.
+At 60-75 degrees it increases the range from 31.364 to 74.433 C, versus the
+reference's 35.322 C. Phase ranges and monthly means are not identical temporal
+quantities, but these results reject a geometry-only production replacement:
+an annual spatial fit applied instantaneously is not a qualified seasonal
+thermal response. The experiment does not identify a physical heat capacity.
+
+The final capture is
+`earth-calibration/solar-geometry-20260929/run-2026-09-29T16-41-21.588Z/`
+under the same external evidence root. Its receipt SHA-256 is
+`fbb5c7dd9d9fc8b7845ff45bc0650b7ede80f47952db8ac8072c4f0e79cd5c97`.
+See the adjacent `solar-study.md` for the complete protocol and rerun command.
+This is a discriminator, not adopted coefficients or a new production strategy.

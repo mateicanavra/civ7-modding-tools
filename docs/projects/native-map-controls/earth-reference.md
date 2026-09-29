@@ -80,12 +80,39 @@ artifact has its ordinary schema/cardinality validation. No private artifact
 store writes, Foundation history or upstream producer evidence is invented.
 
 An aquaplanet control removes the continents and authored shelf while holding
-grid, latitudes, seed, normalized forcing and flat relief fixed. Pressure, wind
-and rainfall must respond to that geography change, repeat exactly for fixed
-inputs, and remain finite/in-domain. These are causal and interface checks,
-not observed-Earth accuracy scores. This climate arm is not fed into the native
+grid, latitudes, seed, normalized forcing and flat relief fixed. Pressure and
+wind respond to that geography change, repeat exactly for fixed inputs, and
+remain finite/in-domain. Rainfall, humidity and potential demand are land-only
+published products: their zero aquaplanet arrays do not prove a precipitation
+response or mean that its atmosphere has no moisture. These are causal and
+interface checks, not observed-Earth accuracy scores. This climate arm is not fed into the native
 relief drainage arm; combining their incompatible relief conventions would
 pretend to prove a coupled Earth reconstruction.
+
+## Retained Climate Captures
+
+`fixtures/earth/climate.ts` composes the real step once for both the tests and
+`fixtures/earth/capture.ts`. The capture retains compiled configuration,
+validated input artifacts, published baseline artifacts, and step-returned
+seasonal/ocean observations. Observation fields are labeled explicitly; they
+are not alternative artifacts. JSON arrays carry their storage type, units,
+owner and byte hash. The script creates a new output directory and refuses an
+existing one, with production and fixture source identities before and after.
+
+The 2026-09-29 capture is retained at
+`~/Library/Application Support/Civ7Tools/VisualAtlas/huge-1018/earth-calibration/earth-coast-baseline-20260929/`.
+Both arms have exact repeat payloads and 59/59 repeated field hashes; inputs
+and source remained unchanged. The 3,158 source-land cells average 25.20 C,
+rainfall 106.89, humidity 136.82 and potential demand 49.36 in their declared
+model units. These are unweighted fixture statistics, not Earth's global mean
+or physical water fluxes. Aquaplanet land statistics are not applicable.
+
+All 65 rows containing at least two land cells have **zero within-row land
+temperature range** in this flat-relief baseline. Continents already influence
+circulation and ocean transport, but not horizontal land heat transport.
+Neither annual coefficient fitting nor restoring the correct tilt supplies
+that missing relationship. This capture deliberately preserves the omission
+so a subsequent thermal-response change has a discriminating control.
 
 ## Reproduction And Limits
 
@@ -93,10 +120,12 @@ From the Swooper definition directory, after normal dependency preparation:
 
 ```sh
 bun test test/recipes/swooper-physics-standard/stages/hydrology/earth-reference.test.ts
+bun test test/recipes/swooper-physics-standard/stages/hydrology/earth-climate-capture.test.ts
+bun test/recipes/swooper-physics-standard/fixtures/earth/capture.ts /path/to/new-output-directory
 bun test/recipes/swooper-physics-standard/fixtures/earth/extract.ts
 ```
 
-The second command requires the pinned local source checkout and compares the
+The extraction command requires the pinned local source checkout and compares the
 extraction to the checked-in fixture. An explicit source directory is supported
 as the first argument; adding `--write` regenerates the JSON from admitted
 sources. The test separately pins its complete canonical payload digest and
