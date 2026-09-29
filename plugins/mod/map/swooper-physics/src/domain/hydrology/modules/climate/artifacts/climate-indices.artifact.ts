@@ -1,7 +1,7 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Registers refined per-tile temperature, evapotranspiration, aridity, freeze, and related
+ * Registers refined per-tile evapotranspiration, aridity, freeze, and related
  * climate indices. Ecology consumes these normalized physical signals instead of deriving
  * parallel climate policy.
  */
@@ -10,11 +10,6 @@ export const artifact = defineArtifact({
   id: "artifact:hydrology.climateIndices",
   schema: Type.Object(
     {
-      surfaceTemperatureC: TypedArraySchemas.f32({
-        cardinality: "map-grid",
-        description:
-          "Surface temperature proxy in degrees Celsius used for biome gating and freeze behavior.",
-      }),
       effectiveMoisture: TypedArraySchemas.f32({
         cardinality: "map-grid",
         description:

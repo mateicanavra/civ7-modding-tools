@@ -58,7 +58,7 @@ This catalog documents the visualization layers that MapGen Studio surfaces from
 - `hydrology.wind.windV` (debug)
 - `hydrology.current.currentU` (debug)
 - `hydrology.current.currentV` (debug)
-- `hydrology.climate.indices.surfaceTemperatureC`
+- `hydrology.climate.surfaceTemperature` (independent refined thermal artifact)
 - `hydrology.climate.indices.pet`
 - `hydrology.climate.indices.aridityIndex`
 - `hydrology.climate.indices.freezeIndex`

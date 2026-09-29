@@ -1,6 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import type { StepFacetSinks } from "@swooper/mapgen-core";
+import { readArtifact } from "@swooper/mapgen-core/authoring";
 import type { VizLayerMeta, VizProjection } from "@swooper/mapgen-viz";
+import { artifacts as climateArtifacts } from "../../../../src/domain/hydrology/modules/climate/artifacts/index.js";
 
 import { runStandardRecipeTestMap } from "../fixtures/standard-recipe.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../setup.js";
@@ -36,6 +38,8 @@ describe("standard pipeline viz emissions", () => {
       "map.morphology.coasts.coastRingMask",
       "morphology.mountains.mountainMask",
       "hydrology.climate.rainfall",
+      "hydrology.climate.baselineSurfaceTemperature",
+      "hydrology.climate.surfaceTemperature",
       "hydrology.hydrography.discharge",
       "map.hydrology.lakes.plannedLakeMask",
       "map.hydrology.lakes.engineLakeMask",
@@ -90,8 +94,7 @@ describe("standard pipeline viz emissions", () => {
       pressureGrids.push(
         ...projections.filter(
           (projection) =>
-            projection.kind === "grid" &&
-            projection.dataTypeKey === "hydrology.pressure.pressure"
+            projection.kind === "grid" && projection.dataTypeKey === "hydrology.pressure.pressure"
         )
       );
     };
@@ -138,6 +141,62 @@ describe("standard pipeline viz emissions", () => {
         },
       });
     }
+  });
+
+  it("projects singular thermal artifacts and seasonal baseline evidence", () => {
+    const grids: VizProjection[] = [];
+    const { context } = runStandardRecipeTestMap({
+      execution: {
+        facets: {
+          viz: (projections) => {
+            grids.push(
+              ...projections.filter(
+                (projection) =>
+                  projection.kind === "grid" && projection.dataTypeKey.includes("urfaceTemperature")
+              )
+            );
+          },
+        },
+      },
+    });
+    for (const [key, artifact, label] of [
+      [
+        "hydrology.climate.baselineSurfaceTemperature",
+        climateArtifacts.baselineSurfaceTemperature,
+        "Surface Temperature (Baseline C)",
+      ],
+      [
+        "hydrology.climate.surfaceTemperature",
+        climateArtifacts.surfaceTemperature,
+        "Surface Temperature (C)",
+      ],
+    ] as const) {
+      const annual = grids.find(
+        (projection) => projection.dataTypeKey === key && projection.variantKey === undefined
+      );
+      expect(annual).toMatchObject({
+        kind: "grid",
+        dataTypeKey: key,
+        field: { format: "f32" },
+        meta: { label, visibility: "default" },
+      });
+      if (annual?.kind !== "grid") throw new Error("Expected annual thermal grid.");
+      expect(annual.field.values).toBe(readArtifact(context, artifact));
+    }
+    const seasonal = grids.filter((projection) => projection.variantKey !== undefined);
+    expect(seasonal.map((projection) => projection.variantKey)).toEqual([
+      "season:0",
+      "season:1",
+      "season:2",
+      "season:3",
+    ]);
+    expect(
+      seasonal.every(
+        (projection) =>
+          projection.dataTypeKey === "hydrology.climate.baselineSurfaceTemperature" &&
+          projection.meta?.visibility === "debug"
+      )
+    ).toBe(true);
   });
 
   it("declutters noisy layers behind debug visibility", () => {
@@ -256,7 +315,7 @@ describe("standard pipeline viz emissions", () => {
       )
     ).toBe(true);
 
-    const temperatureMetas = metasByKey.get("hydrology.climate.indices.surfaceTemperatureC");
+    const temperatureMetas = metasByKey.get("hydrology.climate.surfaceTemperature");
     expect(temperatureMetas?.some((m) => m?.visibility === "default")).toBe(true);
     expect(
       temperatureMetas?.some(

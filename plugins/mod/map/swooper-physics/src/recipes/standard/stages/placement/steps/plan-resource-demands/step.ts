@@ -16,6 +16,7 @@ export const PlanResourceDemandsStep = createStep(config, {
     const lakePlan = deps.artifacts.lakePlan.read();
     const projectedRivers = deps.artifacts.projectedRivers.read();
     const climateIndices = deps.artifacts.climateIndices.read();
+    const surfaceTemperature = deps.artifacts.surfaceTemperature.read();
     const cryosphere = deps.artifacts.cryosphere.read();
     const biomeClassification = deps.artifacts.biomeClassification.read();
     const pedology = deps.artifacts.pedology.read();
@@ -33,7 +34,7 @@ export const PlanResourceDemandsStep = createStep(config, {
         coastalWater: shelf.coastalWater,
         shelfWater: shelf.shelfMask,
         riverClass: hydrography.riverClass,
-        surfaceTemperature: climateIndices.surfaceTemperatureC,
+        surfaceTemperature: surfaceTemperature,
         aridityIndex: climateIndices.aridityIndex,
         effectiveMoisture: climateIndices.effectiveMoisture,
         vegetationDensity: biomeClassification.vegetationDensity,

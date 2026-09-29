@@ -24,7 +24,7 @@ parallel benchmark harness. Supporting design: [Earth calibration](earth-calibra
 
 | Question group | What is established | What must discriminate the remaining hypotheses |
 | --- | --- | --- |
-| Baseline calibration | Current Earthlike hot/high controls compile to 28.44-degree tilt and warm thermal offsets | Correct effective Earthlike inputs first; hold geography and other identities; measure climate/hydrology consequences rather than declare empirical calibration complete |
+| Baseline calibration | The retained Earthlike hot/high controls compile to 28.44-degree tilt; the neutral candidate exposed conflicting thermal owners | Establish one independently published thermal chain, then calibrate with held geography and external references rather than accept knob names as empirical proof |
 | Physical versus native lake height | All 55 V11 bodies match converted physical spill heights under observed native water encoding; no wet-footprint expansion | Qualify encoding and preservation beyond this open-basin cohort, including altered shoreline, sea-level and closed-basin controls |
 | Bounded lake classification | Unlimited cutoff reclassifies oceans; bounded20 succeeds on Huge1018; Huge42 has a 33-cell physical lake | Native classification/height fidelity and gameplay consequences under bounded controls, not just bigger cutoff or nicer rendering |
 | Derived cutoff and inland seas | A largest-lake bound is a projection requirement, not a physical lake-size limit; one global threshold may not separate all intended categories | Derive both the required lake bound and the protected non-lake bound after hydrology; verify native component semantics, strictness and when the setting can be applied; report an unrepresentable overlap rather than alter physical geography |
@@ -173,4 +173,41 @@ targets to accept the new baseline. A failed physical or collateral guard
 requires causal investigation before acceptance. Native water behavior is a
 separate domino and is not tested by this config-only change.
 
-Results and dispositions will be appended as each complete slice is verified.
+### Baseline Acceptance Findings
+
+The four authored edits compile to exactly the seven declared changes. Three
+same-seed comparisons (Huge1018, Huge42, Standard1018) preserve physical ground,
+original water mask, sea datum, drainage receivers, lake footprints and water
+surfaces exactly. Huge1018 repeats with identical field hashes and all metrics.
+Discharge and river classification respond; mountains/hills also respond to
+the changed river exposure constraints, without changing physical ground.
+
+The full owner test run found two adoption failures, not a completed baseline:
+Standard seed1354 crosses the resource-density spread limit (1.408137 before,
+2.006947 after; limit2), and seed3 loses dry/seasonal habitats and drops from
+five vegetation families to three (minimum4). Paired retained/current config
+replays reproduce both; the other seven presets did not fail. No target is
+being weakened and neutral knob names are not evidence of empirical calibration.
+
+The resource failure exposes an existing inconsistency: rotation and target
+completion enforce density equity, but the later regional-minimum pass bypasses
+the same guard. Repair that pass in its domain operation, admitting an alternate
+legal site where possible and otherwise recording an explicit regional shortfall
+like its existing spacing/exclusion refusals. Do not add unrelated resources
+above target merely to repair a ratio. Preconditions: a synthetic crossing case
+fails first; a valid alternate-site case succeeds; repeat the full placement
+cohort with unchanged bounds. The repair now passes the placement cohort and
+88 resource-domain tests, including validated regional shortfall reasons.
+This shared repair is measured separately from
+the configuration-only B5 hold, not hidden inside it.
+
+The ecological discriminator finds two independent thermal owners: baseline
+seasonal temperature drives evaporation/demand, while refine recomputes the
+ecology field with different sunlight and 23-times stronger elevation cooling.
+Their land means differ by roughly 28 degrees C in the retained seed3 case.
+The [thermal coherence design](thermal-coherence.md) supersedes accepting the
+config-only candidate as the next complete domino. Establish one thermal
+handoff, repair independently demonstrated defects, then calibrate against
+Earth evidence. B1-B7 above remain the historical config-only expectations,
+not a false unchanged-output promise for this shared repair. A `hot` label
+alone did not establish that the previous generated map was empirically warm.

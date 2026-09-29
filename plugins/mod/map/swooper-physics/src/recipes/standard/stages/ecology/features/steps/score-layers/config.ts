@@ -20,6 +20,7 @@ export const config = defineStep({
     biomeArtifacts.biomeClassification,
     pedologyArtifacts.pedology,
     climateArtifacts.climateIndices,
+    climateArtifacts.surfaceTemperature,
     hydrographyArtifacts.hydrography,
     hydrographyArtifacts.lakePlan,
     hydrographyArtifacts.projectedRivers,

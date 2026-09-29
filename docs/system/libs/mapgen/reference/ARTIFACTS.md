@@ -73,6 +73,16 @@ export const artifact = defineArtifact({
 });
 ```
 
+A scalar property distributed across the map can itself be an artifact: use a
+direct `TypedArraySchemas.f32({ cardinality: "map-grid" })` schema when that is
+the complete product. A multi-property wrapper is not required. Keep
+independently consumed properties separate rather than extending an older
+climate or terrain bundle for convenience. A cohesive relational product such
+as the plate graph above can still have multiple members; this is semantic
+cohesion, not a rule that every artifact must have exactly one object key.
+Successive physical vintages use distinct artifact identities and declared
+producer/consumer dependencies, never mutation or a duplicate ambient field.
+
 `defineArtifact` is the only artifact-authority constructor. It binds structural admission to the
 supplied schema and validates in three strict phases: TypeBox structure, exact typed-array
 constructor/cardinality metadata, then optional semantic refinement. A failed phase returns its

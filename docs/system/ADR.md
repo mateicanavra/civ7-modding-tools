@@ -635,3 +635,30 @@ maps explicitly retain their legacy model pending qualification.
   physical water surface or from successful river-class writes.
 - The integration and bounded support/proof contract are maintained in
   [Earthlike basin integration](../projects/native-map-controls/basin-integration.md).
+
+## ADR-021: Surface Temperature Is An Independently Published Thermal Product
+
+**Status:** Accepted
+**Date:** 2026-09-29
+**Context:** Baseline water forcing and later ecology independently recomputed
+ground temperature with incompatible solar and lapse calibrations. Extending
+older multi-property climate bundles would also preserve avoidable consumer
+coupling, contrary to the intended property-as-artifact direction.
+**Decision:** The climate module owns independent, map-cardinality temperature
+artifacts with direct Float32 payloads. Baseline publishes the annual mean of
+its seasonal ground-temperature samples. Refine consumes that product, applies
+declared feedback and publishes the refined vintage. Consumers require the
+exact thermal artifact; climate bundles do not retain temperature aliases.
+Sea-level thermal forcing for pressure remains datum-specific computation under
+the same calibration, not another ground-temperature owner.
+**Consequences:**
+- Remove refine's duplicate solar/thermal operations and controls strictly from
+  all authored profiles; do not retain ignored legacy settings or fallbacks.
+- Artifact identity, publication, admission and immutable read semantics remain
+  in the existing Core framework. No ambient field or buffer registry is added.
+- Cohesive relational artifacts may still contain multiple members; unrelated
+  climate property decomposition is not required by this bounded migration.
+- Coherent ownership does not itself establish Earth calibration. Ground relief
+  remains in model units and seasonal nonlinear responses need explicit study.
+- The causal tests and independent reference plan are in
+  [thermal coherence](../projects/native-map-controls/thermal-coherence.md).

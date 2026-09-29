@@ -161,6 +161,67 @@ describe("Shipped map configs", () => {
     }
   });
 
+  it("compiles Earthlike to neutral thermal controls and an explicit four-season Earth tilt", async () => {
+    const configs = await loadSwooperMapConfigRegistry();
+    const earthlike = configs.find((entry) => entry.canonicalConfig.id === "swooper-earthlike");
+    if (!earthlike) throw new Error("Expected the shipped Earthlike config");
+    const canonicalConfig = earthlike.canonicalConfig;
+    const compiled = standardRecipe.compileConfig(
+      createStandardRecipeTestInitialSetup({ mapConfig: canonicalConfig }),
+      canonicalConfig.config
+    );
+    const baseline = compiled["hydrology-climate-baseline"]["climate-baseline"];
+    const refine = compiled["hydrology-climate-refine"]["climate-refine"];
+    if (
+      baseline.computeThermalState.strategy !== "insolation-lapse-rate" ||
+      baseline.computeAtmosphericCirculation.strategy !== "geostrophic-proxy" ||
+      baseline.computePrecipitation.strategy !== "vector"
+    ) {
+      throw new Error("Expected Earthlike's authored thermal, circulation, and precipitation strategies");
+    }
+
+    // Check effective values so a broad knob cannot silently stack on exact authored controls.
+    expect({
+      seasonality: baseline.seasonality,
+      baselineBaseTemperatureC: baseline.computeThermalState.config.baseTemperatureC,
+      baselineInsolationScaleC: baseline.computeThermalState.config.insolationScaleC,
+      pressureDrivenRms: baseline.computeAtmosphericCirculation.config.pressureDrivenRms,
+      precipitationNoiseAmplitude: baseline.computePrecipitation.config.noiseAmplitude,
+    }).toEqual({
+      seasonality: { modeCount: 4, axialTiltDeg: 23.44 },
+      baselineBaseTemperatureC: 8,
+      baselineInsolationScaleC: 50,
+      pressureDrivenRms: 95,
+      precipitationNoiseAmplitude: 14,
+    });
+    expect(refine).not.toHaveProperty("computeRadiativeForcing");
+    expect(refine).not.toHaveProperty("computeThermalState");
+  });
+
+  it("rejects retired refinement thermal controls through public admission", async () => {
+    const configs = await loadSwooperMapConfigRegistry();
+    for (const { canonicalConfig } of configs) {
+      const stage = canonicalConfig.config["hydrology-climate-refine"];
+      const baseline = canonicalConfig.config["hydrology-climate-baseline"]["climate-baseline"];
+      const obsoleteStages = [
+        { ...stage, knobs: { ...stage.knobs, temperature: "temperate" } },
+        ...["computeRadiativeForcing", "computeThermalState"].map((key) => ({
+          ...stage,
+          "climate-refine": {
+            ...stage["climate-refine"],
+            [key]: baseline[key as "computeRadiativeForcing" | "computeThermalState"],
+          },
+        })),
+      ];
+      for (const obsolete of obsoleteStages) {
+        expect(() => admitStandardMapConfig({
+          ...canonicalConfig,
+          config: { ...canonicalConfig.config, "hydrology-climate-refine": obsolete },
+        })).toThrow("Unknown key");
+      }
+    }
+  });
+
   it("rejects mismatched physical-water and native-river selections", async () => {
     const configs = await loadSwooperMapConfigRegistry();
     const earthlike = configs.find((entry) => entry.canonicalConfig.id === "swooper-earthlike")!;

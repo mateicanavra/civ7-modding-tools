@@ -63,9 +63,9 @@ describe("ecology-features plan-vegetation step", () => {
         vegetationDensity: new Float32Array(size).fill(0.4),
         treeLine01: new Float32Array(size),
       });
+      publishTestArtifact(stepContext, climateArtifacts.surfaceTemperature, new Float32Array(size).fill(20));
       publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
         effectiveMoisture: new Float32Array(size).fill(120),
-        surfaceTemperatureC: new Float32Array(size).fill(20),
         aridityIndex: new Float32Array(size).fill(0.4),
         freezeIndex: new Float32Array(size),
         pet: new Float32Array(size),

@@ -35,6 +35,7 @@ export const config = defineStep({
     hydrographyArtifacts.lakePlan,
     hydrographyArtifacts.projectedRivers,
     climateArtifacts.climateIndices,
+    climateArtifacts.surfaceTemperature,
     cryosphereArtifacts.cryosphere,
     biomeArtifacts.biomeClassification,
     pedologyArtifacts.pedology,

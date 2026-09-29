@@ -21,8 +21,6 @@ const climate = hydrology.climate.ops;
 const cryosphere = hydrology.cryosphere.ops;
 const climateConfig = {
   refinePrecipitation: climate.refinePrecipitation.defaultConfig,
-  computeRadiativeForcing: climate.computeRadiativeForcing.defaultConfig,
-  computeThermalState: climate.computeThermalState.defaultConfig,
   applyAlbedoFeedback: cryosphere.applyAlbedoFeedback.defaultConfig,
   computeCryosphereState: cryosphere.computeCryosphereState.defaultConfig,
   computeLandWaterBudget: climate.computeLandWaterBudget.defaultConfig,
@@ -46,9 +44,22 @@ function runSurfaceConsumers(model: "certified-sill-spill" | "legacy-sink-budget
   const expectedExposure = topography.landMask.slice();
   if (model === "certified-sill-spill") expectedExposure[wetCell] = 0;
   const calls: string[] = [];
-  let thermalWet = Number.NaN;
-  let thermalDry = Number.NaN;
-  let marineTreatment = Number.NaN;
+  const thermalInput = {
+    width, height,
+    landMask: topography.landMask,
+    elevation: topography.elevation,
+    seaLevel: topography.seaLevel,
+    insolation: new Float32Array(size).fill(0.9),
+  };
+  const baselineTemperature = climate.computeThermalState.run(
+    thermalInput, climate.computeThermalState.defaultConfig
+  ).surfaceTemperatureC;
+  const beforeTemperature = baselineTemperature.slice();
+  const incorrectMarineMask = topography.landMask.slice();
+  incorrectMarineMask[wetCell] = 0;
+  const marineTreatment = climate.computeThermalState.run(
+    { ...thermalInput, landMask: incorrectMarineMask }, climate.computeThermalState.defaultConfig
+  ).surfaceTemperatureC[wetCell]!;
 
   withMapContextExecutionForTest(context, (stepContext) => {
     publishTestArtifact(stepContext, landformsArtifacts.topography, topography);
@@ -64,27 +75,16 @@ function runSurfaceConsumers(model: "certified-sill-spill" | "legacy-sink-budget
       potentialDemand: new Float32Array(size).fill(100),
       demandParameters: { tMinC: -10, tMaxC: 30, petBase: 40, petTemperatureWeight: 100, humidityDampening: 0.3 },
     });
+    publishTestArtifact(stepContext, climateArtifacts.baselineSurfaceTemperature, baselineTemperature);
     publishTestArtifact(stepContext, climateArtifacts.windField, {
       windU: new Int8Array(size), windV: new Int8Array(size),
     });
     ClimateRefineStep.run(stepContext, climateConfig, {
       refinePrecipitation: climate.refinePrecipitation.run,
-      computeRadiativeForcing: climate.computeRadiativeForcing.run,
-      computeThermalState: (...[input, config]: Parameters<typeof climate.computeThermalState.run>) => {
-        calls.push("thermal");
-        expect(input.landMask).toBe(topography.landMask);
-        expect(input.elevation).toBe(topography.elevation);
-        expect(input.seaLevel).toBe(topography.seaLevel);
-        const output = climate.computeThermalState.run(input, config);
-        const incorrectMarineMask = Uint8Array.from(input.landMask);
-        incorrectMarineMask[wetCell] = 0;
-        marineTreatment = climate.computeThermalState.run({ ...input, landMask: incorrectMarineMask }, config).surfaceTemperatureC[wetCell]!;
-        thermalWet = output.surfaceTemperatureC[wetCell]!;
-        thermalDry = output.surfaceTemperatureC[fixture.dryCell]!;
-        return output;
-      },
       applyAlbedoFeedback: (...[input, config]: Parameters<typeof cryosphere.applyAlbedoFeedback.run>) => {
+        calls.push("albedo");
         expect(input.landMask).toBe(topography.landMask);
+        expect(input.surfaceTemperatureC).toBe(baselineTemperature);
         return cryosphere.applyAlbedoFeedback.run(input, config);
       },
       computeCryosphereState: (...[input, config]: Parameters<typeof cryosphere.computeCryosphereState.run>) => {
@@ -124,13 +124,15 @@ function runSurfaceConsumers(model: "certified-sill-spill" | "legacy-sink-budget
     }, buildStepTestDependencies(BiomesStep, stepContext));
   });
 
-  expect(calls).toEqual(["thermal", "water-budget", "pedology", "biomes"]);
+  expect(calls).toEqual(["albedo", "water-budget", "pedology", "biomes"]);
   expect(fixture).toEqual(before);
-  expect(thermalWet).toBe(thermalDry);
-  expect(thermalWet).toBeLessThan(marineTreatment);
+  expect(baselineTemperature).toEqual(beforeTemperature);
+  expect(baselineTemperature[wetCell]).toBe(baselineTemperature[fixture.dryCell]);
+  expect(baselineTemperature[wetCell]).toBeLessThan(marineTreatment);
   return {
     ...fixture,
     climateIndices: readArtifact(context, climateArtifacts.climateIndices),
+    surfaceTemperature: readArtifact(context, climateArtifacts.surfaceTemperature),
     pedology: readArtifact(context, pedologyArtifacts.pedology),
     biomes: readArtifact(context, biomeArtifacts.biomeClassification),
   };
@@ -147,7 +149,7 @@ describe("elevated lake exposure across climate and terrestrial consumers", () =
     expect(certified.biomes.vegetationDensity[wetCell]).toBe(0);
     expect(certified.climateIndices.effectiveMoisture[wetCell]).toBe(0);
     expect(certified.climateIndices.pet[wetCell]).toBe(0);
-    expect(certified.climateIndices.surfaceTemperatureC).toEqual(legacy.climateIndices.surfaceTemperatureC);
+    expect(certified.surfaceTemperature).toEqual(legacy.surfaceTemperature);
     for (const cell of [dryCell, minorChannel, majorChannel]) {
       expect(certified.pedology.fertility[cell]).toBeGreaterThan(0);
       expect(certified.biomes.biomeIndex[cell]).not.toBe(255);

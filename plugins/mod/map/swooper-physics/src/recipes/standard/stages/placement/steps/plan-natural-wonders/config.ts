@@ -27,6 +27,7 @@ export const config = defineStep({
     STANDARD_COMPLETIONS.riversPlotted,
     morphologyLandformsArtifacts.topography,
     climateArtifacts.climateIndices,
+    climateArtifacts.surfaceTemperature,
     hydrographyArtifacts.hydrography,
     hydrographyArtifacts.riverNetwork,
     hydrographyArtifacts.lakePlan,

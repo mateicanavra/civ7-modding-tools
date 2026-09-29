@@ -84,6 +84,29 @@ spontaneously originating beside lakes.
 [Metric owner](../../../../../../plugins/mod/map/swooper-physics/src/recipes/standard/metrics/families/hydrology/network-coherence.ts).
 Learn: [EPA streams and headwaters](https://www.epa.gov/cwa-404/learn-about-streams).
 
+## Temperature And Water Supply
+
+### Surface Temperature And Thermal Vintage
+
+A temperature field is one property over the map, published as its own
+artifact. Baseline publishes the mean of its seasonal ground-temperature
+samples; refinement applies albedo feedback and publishes a new immutable
+vintage. Ecology and placement consume that refined product, not another
+temperature calculation. Pressure separately uses sea-level thermal forcing,
+which deliberately excludes terrain cooling. Our Celsius-valued surface proxy
+is not automatically equivalent to observed ground skin or two-meter air
+temperature. [Thermal ownership and reference](../../../../../projects/native-map-controls/thermal-coherence.md).
+Learn: [NOAA reference-variable classification](https://www.cpc.ncep.noaa.gov/products/precip/atlas_2/cont_data.html).
+
+### Lapse Rate And Model Relief
+
+A lapse rate describes temperature change with height. Our thermal operation
+uses degrees C per model relief unit above the sea datum, not degrees C per
+meter. A familiar-looking value such as 0.0065 does not establish a physical
+meter conversion. Independent lowland temperature can constrain latitude and
+thermal gain, but cannot determine that relief conversion or replace missing
+maritime heat transport. [Calibration limits](../../../../../projects/native-map-controls/earth-thermal-reference.md).
+
 ## Shaping The Terrain
 
 ### Incision And Stream Power

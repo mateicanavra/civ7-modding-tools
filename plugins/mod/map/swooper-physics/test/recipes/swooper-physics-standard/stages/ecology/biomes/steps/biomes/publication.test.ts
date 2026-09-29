@@ -78,8 +78,8 @@ describe("biomes step", () => {
         meltPotential01: new Float32Array(size),
       });
 
+      publishTestArtifact(stepContext, climateArtifacts.surfaceTemperature, surfaceTemperatureC);
       publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
-        surfaceTemperatureC,
         effectiveMoisture: effectiveMoistureIn,
         pet: new Float32Array(size),
         aridityIndex,
@@ -156,8 +156,8 @@ describe("biomes step", () => {
           permafrost01: new Float32Array(size),
           meltPotential01: new Float32Array(size),
         });
+        publishTestArtifact(stepContext, climateArtifacts.surfaceTemperature, new Float32Array(size).fill(15));
         publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
-          surfaceTemperatureC: new Float32Array(size).fill(15),
           effectiveMoisture: effectiveMoistureIn,
           pet: new Float32Array(size),
           aridityIndex: new Float32Array(size).fill(0.2),

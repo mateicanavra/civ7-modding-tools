@@ -28,6 +28,7 @@ export const config = defineStep({
     morphologyLandformsArtifacts.volcanoes,
     morphologyShelfArtifacts.shelf,
     climateArtifacts.climateIndices,
+    climateArtifacts.surfaceTemperature,
     hydrographyArtifacts.hydrography,
     hydrographyArtifacts.lakePlan,
     pedologyArtifacts.pedology,

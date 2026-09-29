@@ -87,6 +87,7 @@ export const config = defineStep({
   requires: [morphologyLandformsArtifacts.topography, morphologyShelfArtifacts.shelf],
   provides: [
     climateArtifacts.baselineClimateField,
+    climateArtifacts.baselineSurfaceTemperature,
     climateArtifacts.pressureField,
     climateArtifacts.windField,
   ],

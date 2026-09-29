@@ -1,14 +1,10 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
-import {
-  HYDROLOGY_DRYNESS_WETNESS_SCALE,
-  HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C,
-} from "../../../model/policy/climate-knob-policy.js";
+import { HYDROLOGY_DRYNESS_WETNESS_SCALE } from "../../../model/policy/climate-knob-policy.js";
 import { config } from "./config.js";
 import { buildClimateRefineVizProjections } from "./viz.js";
 
 type HydrologyCryosphereKnob = "off" | "on";
 type HydrologyDrynessKnob = "wet" | "mix" | "dry";
-type HydrologyTemperatureKnob = "cold" | "temperate" | "hot";
 
 /**
  * Refines baseline climate against topography and hydrography, publishing physical products while
@@ -16,35 +12,14 @@ type HydrologyTemperatureKnob = "cold" | "temperate" | "hot";
  */
 export const ClimateRefineStep = createStep(config, {
   normalize: (stepConfig, ctx) => {
-    const { dryness, temperature, cryosphere } = ctx.knobs as {
+    const { dryness, cryosphere } = ctx.knobs as {
       dryness: HydrologyDrynessKnob;
-      temperature: HydrologyTemperatureKnob;
       cryosphere: HydrologyCryosphereKnob;
     };
 
     const wetnessScale = HYDROLOGY_DRYNESS_WETNESS_SCALE[dryness];
-    const baseTemperatureC = HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C[temperature];
 
     const next = { ...stepConfig };
-
-    if (next.computeThermalState.strategy === "insolation-lapse-rate") {
-      const deltaC = baseTemperatureC - HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C.temperate;
-      if (deltaC !== 0) {
-        next.computeThermalState = {
-          ...next.computeThermalState,
-          config: {
-            ...next.computeThermalState.config,
-            // Temperature knobs should not simply warm/cool the whole world uniformly (that erases tundra/snow).
-            // Instead, bias the baseline modestly and put most of the adjustment into the equator-to-pole contrast.
-            baseTemperatureC: next.computeThermalState.config.baseTemperatureC + deltaC * 0.5,
-            insolationScaleC: Math.max(
-              0,
-              Math.min(80, next.computeThermalState.config.insolationScaleC + deltaC * 2)
-            ),
-          },
-        };
-      }
-    }
 
     const precipitationRefinement = next.refinePrecipitation.config;
     next.refinePrecipitation = {
@@ -108,6 +83,7 @@ export const ClimateRefineStep = createStep(config, {
       : topography.landMask;
 
     const baselineClimateField = deps.artifacts.baselineClimateField.read();
+    const baselineSurfaceTemperature = deps.artifacts.baselineSurfaceTemperature.read();
 
     const { topLatitude, bottomLatitude } = context.setup.latitudeBounds;
     const latitudeByRow = new Float32Array(height);
@@ -134,29 +110,13 @@ export const ClimateRefineStep = createStep(config, {
       stepConfig.refinePrecipitation
     );
 
-    const forcing = ops.computeRadiativeForcing(
-      { width, height, latitudeByRow },
-      stepConfig.computeRadiativeForcing
-    );
-    const thermal = ops.computeThermalState(
-      {
-        width,
-        height,
-        insolation: forcing.insolation,
-        elevation: topography.elevation,
-        seaLevel: topography.seaLevel,
-        landMask: topography.landMask,
-      },
-      stepConfig.computeThermalState
-    );
-
     const albedoFeedback = ops.applyAlbedoFeedback(
       {
         width,
         height,
         landMask: topography.landMask,
         rainfall: refined.rainfall,
-        surfaceTemperatureC: thermal.surfaceTemperatureC,
+        surfaceTemperatureC: baselineSurfaceTemperature,
       },
       stepConfig.applyAlbedoFeedback
     );
@@ -214,8 +174,10 @@ export const ClimateRefineStep = createStep(config, {
       rainfall: new Uint8Array(refined.rainfall),
       humidity: new Uint8Array(refined.humidity),
     });
+    const surfaceTemperature = deps.artifacts.surfaceTemperature.publish(
+      albedoFeedback.surfaceTemperatureC
+    );
     const climateIndices = deps.artifacts.climateIndices.publish({
-      surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,
       effectiveMoisture: waterBudget.effectiveMoisture,
       pet: waterBudget.pet,
       aridityIndex: waterBudget.aridityIndex,
@@ -233,6 +195,7 @@ export const ClimateRefineStep = createStep(config, {
     return {
       climateField,
       climateIndices,
+      surfaceTemperature,
       cryosphere: publishedCryosphere,
       diagnostics,
     };

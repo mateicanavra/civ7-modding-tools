@@ -184,6 +184,7 @@ export const AssignStartsStep = createStep(config, {
     const hydrography = deps.artifacts.hydrography.read();
     const lakePlan = deps.artifacts.lakePlan.read();
     const climateIndices = deps.artifacts.climateIndices.read();
+    const surfaceTemperature = deps.artifacts.surfaceTemperature.read();
     const pedology = deps.artifacts.pedology.read();
     const currentFeatureTypes = deps.engine.readCurrentMapFeatureTypes(context);
     const slotByTile = landmassRegionSlotByTile.slotByTile as Uint8Array;
@@ -204,7 +205,7 @@ export const AssignStartsStep = createStep(config, {
         elevation: topography.elevation as Int16Array,
         fertility: pedology.fertility as Float32Array,
         effectiveMoisture: climateIndices.effectiveMoisture as Float32Array,
-        surfaceTemperature: climateIndices.surfaceTemperatureC as Float32Array,
+        surfaceTemperature: surfaceTemperature as Float32Array,
         aridityIndex: climateIndices.aridityIndex as Float32Array,
         riverClass: hydrography.riverClass as Uint8Array,
         lakeMask: lakePlan.lakeMask as Uint8Array,

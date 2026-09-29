@@ -19,6 +19,7 @@ export const config = defineStep({
   requires: [
     morphologyLandformsArtifacts.topography,
     climateArtifacts.climateIndices,
+    climateArtifacts.surfaceTemperature,
     biomeArtifacts.biomeClassification,
   ],
   provides: [plotEffectArtifacts.plotEffectPlan],
