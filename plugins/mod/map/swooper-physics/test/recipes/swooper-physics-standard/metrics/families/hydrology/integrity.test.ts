@@ -59,7 +59,7 @@ describe("Standard hydrology metric integrity", () => {
     const sample = measureEarthlikeSample();
     const ids = [
       "certified-basin-conservation",
-      "certified-basin-certificates",
+      "certified-basin-ledgers",
       "certified-basin-footprints",
       "certified-basin-exposure",
       "certified-lake-projection",

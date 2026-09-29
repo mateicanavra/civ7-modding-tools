@@ -15,6 +15,7 @@ import {
 import { BuildElevationStep } from "../../../../../../../src/recipes/standard/stages/morphology/elevation/steps/build-elevation/step.js";
 import { projectStandardElevation } from "../../../../../../../src/recipes/standard/elevation-projection.js";
 import { TEST_MAP_SEED } from "../../../../../../setup.js";
+import { closedLakeProjectionFixture } from "../../../../fixtures/closed-lake-projection.js";
 
 const SYNTHETIC_BOUNDED_DRIFT_DIMENSIONS = { width: 10, height: 10 } as const;
 const SYNTHETIC_EXCESSIVE_DRIFT_DIMENSIONS = { width: 4, height: 3 } as const;
@@ -43,13 +44,8 @@ function publishBuildElevationInputs(
   const wetCells = Array.from(projectedLakeMask.keys()).filter((cell) => projectedLakeMask[cell] === 1);
   publishTestArtifact(context, hydrographyArtifacts.lakePlan, {
     width, height, lakeMask: projectedLakeMask, plannedLakeTileCount: wetCells.length,
-    ...(certified ? {
-      model: "certified-sill-spill" as const,
-      bodyId: Int32Array.from(projectedLakeMask), waterSurface: new Int16Array(size),
-      bodies: wetCells.length === 0 ? [] : [{ nodeId: 1, wetCells, spillElevation: 0, outletCell: wetCells[0]!, receiverCell: projectedLakeMask.indexOf(0), connectorCells: [], flux: { incomingOverflow: 1, dryRunoff: 0, wetPrecipitation: 0, wetDemand: 0, balance: 1 }, outflow: 1, floorCell: wetCells[0]!, floorElevation: -1 }],
-      certificates: wetCells.length === 0 ? [] : [{ nodeId: 1, spillBalance: 1 }], marineExits: [],
-      conservation: { dryRunoff: 1, wetPrecipitation: 0, wetDemand: 0, externalDischarge: 1, residual: 0, roundoffBound: 0 },
-    } : { model: "legacy-sink-budget" as const, sinkLakeCount: wetCells.length }),
+    ...(certified ? closedLakeProjectionFixture(width, height, projectedLakeMask)
+      : { model: "legacy-sink-budget" as const, sinkLakeCount: wetCells.length }),
   });
 }
 

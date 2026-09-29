@@ -166,6 +166,12 @@ describe("map-rivers/plot-rivers", () => {
         flowDir[cell] = cell + 1;
         if (cell !== lake) riverClass[cell] = cell === source ? 1 : 2;
       }
+      const bodyId = lake + 1;
+      const componentId = bodyId;
+      const flux = { incomingOverflow: 1, dryRunoff: 0, wetPrecipitation: 1, wetDemand: 1, balance: 1 };
+      const memberCells = [...wetCells, lake + 1].sort((a, b) => a - b);
+      const transfers = [{ componentId, cellA: lake, cellB: lake + 1, bodyA: bodyId, bodyB: 0, signedDischarge: 1 }];
+      if (multiCell) transfers.push({ componentId, cellA: lake, cellB: lake + width, bodyA: bodyId, bodyB: bodyId, signedDischarge: 0 });
       const run = () => withMapContextExecutionForTest(context, (stepContext) => {
         publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
           model: "certified-sill-spill", runoff: Array<number>(size).fill(0), discharge: Array<number>(size).fill(0),
@@ -176,9 +182,19 @@ describe("map-rivers/plot-rivers", () => {
         });
         publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, {
           model: "certified-sill-spill", width, height, lakeMask, plannedLakeTileCount: wetCells.length,
-          bodyId: Int32Array.from(lakeMask), waterSurface: new Int16Array(size),
-          bodies: [{ nodeId: 1, wetCells, spillElevation: 0, outletCell: lake, receiverCell: lake + 1, connectorCells: [lake + 1], flux: { incomingOverflow: 1, dryRunoff: 0, wetPrecipitation: 1, wetDemand: 1, balance: 1 }, outflow: 1, floorCell: lake, floorElevation: -1 }],
-          certificates: [{ nodeId: 1, spillBalance: 1 }], marineExits: [{ fromCell: marine - 1, marineCell: marine, discharge: 1 }], conservation: { dryRunoff: 1, wetPrecipitation: 1, wetDemand: 1, externalDischarge: 1, residual: 0, roundoffBound: 0 },
+          bodyId: Int32Array.from(lakeMask, (value) => value * bodyId), waterSurface: Array.from(lakeMask),
+          componentId: Int32Array.from({ length: size }, (_, cell) => memberCells.includes(cell) ? componentId : 0),
+          pools: [{ poolId: 1, componentId, leafIds: [1], catchmentCells: memberCells, wetCells, state: "open", level: 1,
+            flux, outflow: 1, unresolvedResidual: 0, closure: null }],
+          bodies: [{ bodyId, componentId, poolId: 1, wetCells, level: 1, flux, outflow: 1, unresolvedResidual: 0 }],
+          components: [{ componentId, poolId: 1, bodyIds: [bodyId], memberCells, junctionCells: [lake + 1],
+            anchorCell: lake + 1, level: 1, state: "open", flux, outflow: 1, unresolvedResidual: 0, terminalId: marine + 1 }],
+          transfers,
+          ports: [{ kind: "adjacent", componentId, fromCell: lake + 1, toCell: lake + 2, destination: "dry-reach", destinationComponentId: 0, discharge: 1 }],
+          terminals: [{ terminalId: marine + 1, role: "marine", anchorCell: marine, componentId: 0 }],
+          marineExits: [{ fromCell: marine - 1, marineCell: marine, discharge: 1 }], boundaryExits: [],
+          conservation: { dryRunoff: 1, wetPrecipitation: 1, wetDemand: 1, marineDischarge: 1, boundaryDischarge: 0,
+            externalDischarge: 1, unresolvedResidual: 0, normalizedUnresolvedResidual: 0, residual: 0, roundoffBound: 0 },
         });
         publishTestArtifact(stepContext, hydrographyArtifacts.projectedLakes, { lakeMask: acceptedLakeMask });
         publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, { elevation: new Int16Array(size), seaLevel: 0, landMask, bathymetry: new Int16Array(size) });
@@ -214,7 +230,7 @@ describe("map-rivers/plot-rivers", () => {
         if (projected.model !== "certified-sill-spill") throw new Error("Expected authored projection.");
         expect(projected.authoredSourceCount).toBe(4);
         expect(projected.writes).toHaveLength(4);
-        expect(projected.wetTransitionWrites).toEqual([{ bodyId: 1, role: "outlet", sourceCell: lake,
+        expect(projected.wetTransitionWrites).toEqual([{ bodyId, role: "outlet", sourceCell: lake,
           receiverCell: lake + 1, direction: "EAST", riverClass: "NAVIGABLE" }]);
         expect(projected.nativeMinorRiverMask[source]).toBe(1);
         expect(projected.riverMask[lake]).toBe(0);

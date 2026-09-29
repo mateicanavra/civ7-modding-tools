@@ -29,7 +29,7 @@ export const config = defineStep({
     classifyRiverNetwork: hydrology.hydrography.ops.classifyRiverNetwork,
     computeLocalRunoff: hydrology.hydrography.ops.computeLocalRunoff,
     computeDrainageBasins: hydrology.hydrography.ops.computeDrainageBasins,
-    computeOpenBasinNetwork: hydrology.hydrography.ops.computeOpenBasinNetwork,
+    computeBasinNetwork: hydrology.hydrography.ops.computeBasinNetwork,
     classifyBasinRiverNetwork: hydrology.hydrography.ops.classifyBasinRiverNetwork,
   },
 });

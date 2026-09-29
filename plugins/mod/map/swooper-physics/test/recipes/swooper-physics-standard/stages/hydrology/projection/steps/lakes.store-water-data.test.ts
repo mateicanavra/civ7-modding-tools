@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { closedLakeProjectionFixture } from "../../../../fixtures/closed-lake-projection.js";
 import { type LakeProjectionResult, MockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { artifacts as hydrographyArtifacts } from "../../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
@@ -150,15 +151,7 @@ function seedLakeProjectionInputs(
     height,
     lakeMask,
     plannedLakeTileCount: lakeMask.reduce((count, value) => count + (value === 1 ? 1 : 0), 0),
-    ...(certified ? {
-      model: "certified-sill-spill" as const,
-      bodyId: Int32Array.from(lakeMask, (value) => value === 1 ? 1 : 0),
-      waterSurface: new Int16Array(size),
-      bodies: [{ nodeId: 1, wetCells: Array.from(lakeMask.keys()).filter((cell) => lakeMask[cell] === 1), spillElevation: 0, outletCell: lakeMask.indexOf(1), receiverCell: 0, connectorCells: [], outflow: 1, floorCell: lakeMask.indexOf(1), floorElevation: -1, flux: { incomingOverflow: 1, dryRunoff: 0, wetPrecipitation: 1, wetDemand: 1, balance: 1 } }],
-      certificates: [{ nodeId: 1, spillBalance: 1 }],
-      marineExits: [{ fromCell: 1, marineCell: 0, discharge: 1 }],
-      conservation: { dryRunoff: 1, wetPrecipitation: 1, wetDemand: 1, externalDischarge: 1, residual: 0, roundoffBound: 0 },
-    } : {
+    ...(certified ? closedLakeProjectionFixture(width, height, lakeMask) : {
       model: "legacy-sink-budget" as const,
       sinkLakeCount: lakeMask.reduce((count, value) => count + (value === 1 ? 1 : 0), 0),
     }),

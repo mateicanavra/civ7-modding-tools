@@ -43,7 +43,7 @@ describe("observational coherence comparison", () => {
     const data: CoherenceViewData = {
       width: 3, height: 2, seaLevel: 0, elevation: [1, 2, 3, 4, 5, 6], land: empty,
       wet: empty, mountain: empty, hill: empty, volcano: empty, river: empty, receiver: empty,
-      discharge: empty, bodyId: empty, waterSurface: empty, bodies: [],
+      discharge: empty, bodyId: empty, waterSurface: empty, bodies: [], exchanges: [],
     };
     const html = renderCoherenceViewer({ seed: 1018, size: "MAPSIZE_HUGE", records: [], variants: [{ id: "baseline", label: "</script><bad>", kind: "baseline", data }] });
     expect(html).not.toContain("</script><bad>");
@@ -88,7 +88,7 @@ describe("observational coherence comparison", () => {
                 landMask: new Uint8Array([1, 0]), plannedLakeMask: new Uint8Array(2), riverClass: new Uint8Array([2, 0]),
                 mountainMask: new Uint8Array(2), hillMask: new Uint8Array(2), foothillMask: new Uint8Array(2), roughLandMask: new Uint8Array(2), volcanoMask: new Uint8Array(2),
                 physicalHydrology: { model: "certified-sill-spill", discharge: [changed && ${JSON.stringify(failure)} === "discharge" ? 2 : 1, 0],
-                  bodyId: new Int32Array(2), waterSurface: new Int16Array([changed && ${JSON.stringify(failure)} === "waterSurface" ? 11 : 10, 0]), bodies: [] }
+                  bodyId: new Int32Array(2), waterSurface: [changed && ${JSON.stringify(failure)} === "waterSurface" ? 10.25 : 10, 0], bodies: [], transfers: [], ports: [] }
               } };
             }
           }));

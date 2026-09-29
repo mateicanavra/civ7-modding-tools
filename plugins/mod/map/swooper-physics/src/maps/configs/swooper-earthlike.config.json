@@ -499,8 +499,8 @@
             "allowExternalEdgeOutlets": false
           }
         },
-        "computeOpenBasinNetwork": {
-          "strategy": "certified-sill-spill",
+        "computeBasinNetwork": {
+          "strategy": "stationary-sill-spill",
           "config": {}
         },
         "classifyBasinRiverNetwork": {

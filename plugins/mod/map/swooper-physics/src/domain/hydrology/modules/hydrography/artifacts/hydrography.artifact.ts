@@ -8,7 +8,7 @@ const common = {
   flowDir: TypedArraySchemas.i32({
     cardinality: "map-grid",
     description:
-      "Final adjacent receiver. Certified wet edges express connectivity, not cell-wise discharge.",
+      "Ordinary/principal receiver: adjacent channel, -1 terminal/marine, or certified -2 component-internal sentinel. Complete hydraulic exchange belongs to lakePlan, not this grid.",
   }),
   basinId: TypedArraySchemas.i32({
     cardinality: "map-grid",
@@ -17,7 +17,8 @@ const common = {
   }),
   terminalType: TypedArraySchemas.u8({
     cardinality: "map-grid",
-    description: "0 nonterminal, 1 marine outlet, 2 legacy closed basin.",
+    description:
+      "Legacy: 0 nonterminal, 1 marine outlet, 2 closed. Certified resolved source role: 0 marine/non-source, 1 marine, 2 boundary export, 3 closed wet, 4 subtile, 5 dry.",
   }),
 };
 
@@ -49,7 +50,7 @@ export const artifact = defineArtifact({
         }),
         discharge: Type.Array(Type.Number({ minimum: 0 }), {
           description:
-            "Map-grid Number-precision dry-cell outflow. Zero wet/marine entries are sentinels; body ledgers own mixed outflow.",
+            "Map-grid Number-precision ordinary/principal dry-edge flux, not a junction's total transfers. Zero wet/marine entries are sentinels; lakePlan owns complete exchange and boundary export.",
         }),
       },
       { additionalProperties: false }
@@ -69,7 +70,13 @@ export const artifact = defineArtifact({
           issues.add(`Expected finite nonnegative hydrography.${key}.`);
       }
     }
-    if (value.terminalType.some((cell) => cell > (value.model === "certified-sill-spill" ? 1 : 2)))
+    if (value.riverClass.some((cell) => cell > 2)) issues.add("Invalid hydrography.riverClass.");
+    if (
+      value.model === "certified-sill-spill" &&
+      value.flowDir.some((dest, cell) => dest < 0 && value.riverClass[cell] !== 0)
+    )
+      issues.add("Certified river classes require an adjacent principal edge.");
+    if (value.terminalType.some((cell) => cell > (value.model === "certified-sill-spill" ? 5 : 2)))
       issues.add("Invalid hydrography.terminalType for selected physical model.");
   },
 });

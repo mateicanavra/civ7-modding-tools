@@ -384,7 +384,7 @@ export const STANDARD_INTEGRITY_TARGET = {
     ),
     equalTo<StandardMapProductSample>(
       "river-network-closure",
-      "Every modeled land tile belongs to a closed river basin with valid, nondecreasing downstream routing.",
+      "Every modeled land tile resolves to a terminal with valid routing; ordinary dry-channel discharge does not decrease downstream.",
       (sample) => {
         const summary = sample.metrics.hydrology.networkSummary;
         return (
@@ -491,11 +491,11 @@ export const STANDARD_INTEGRITY_TARGET = {
       true
     ),
     equalTo<StandardMapProductSample>(
-      "certified-basin-certificates",
-      "Every certified body has positive certificate support and finite nonnegative mixed outflow.",
+      "certified-basin-ledgers",
+      "Completed pool, component and terminal partitions conserve signed transfers, exports and explicit unresolved supply.",
       (sample) => sample.metrics.hydrology.model === "legacy-sink-budget"
         ? sample.metrics.hydrology.basinNetwork === null
-        : sample.metrics.hydrology.basinNetwork?.certificatesAndLedgersValid === true,
+        : sample.metrics.hydrology.basinNetwork?.partitionsAndLedgersValid === true,
       true
     ),
     equalTo<StandardMapProductSample>(

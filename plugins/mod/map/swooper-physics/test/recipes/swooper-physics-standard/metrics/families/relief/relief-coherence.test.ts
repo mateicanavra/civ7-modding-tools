@@ -10,7 +10,7 @@ import { RELIEF_COHERENCE_STUDY } from "../../../../../../src/recipes/standard/m
 import { RELIEF_COHERENCE_COHORT_TARGET } from "../../../../../../src/recipes/standard/metrics/targets/relief-coherence.js";
 import { reliefCoherenceFixture } from "../../fixtures/relief-coherence.js";
 import {
-  captureEarthlikeScenario,
+  captureFreshEarthlikeScenario,
   measureEarthlikeSample,
 } from "../../fixtures/standard-product.js";
 
@@ -311,22 +311,45 @@ describe("Standard neutral relief coherence", () => {
   });
 
   it("captures datum and independent routing arrays and composes the family", () => {
-    const capture = captureEarthlikeScenario();
+    const capture = captureFreshEarthlikeScenario();
     expect(Number.isFinite(capture.model.seaLevel)).toBe(true);
     expect(capture.model.flowDir).toBeInstanceOf(Int32Array);
     const water = capture.model.physicalHydrology;
     if (water.model !== "certified-sill-spill") throw new Error("Earthlike must use certified physical water");
-    expect(water.waterSurface).toBeInstanceOf(Int16Array);
+    expect(Array.isArray(water.waterSurface)).toBe(true);
+    expect(Object.isFrozen(water.waterSurface)).toBe(true);
+    for (const pool of water.pools) {
+      expect(Object.isFrozen(pool)).toBe(true);
+      expect(Object.isFrozen(pool.catchmentCells)).toBe(true);
+      expect(Object.isFrozen(pool.flux)).toBe(true);
+      if (pool.closure) {
+        expect(Object.isFrozen(pool.closure)).toBe(true);
+        if (pool.closure.resolution === "exact-balance") expect(Object.isFrozen(pool.closure.levels)).toBe(true);
+        else {
+          expect(Object.isFrozen(pool.closure.cohortCells)).toBe(true);
+          expect(Object.isFrozen(pool.closure.before)).toBe(true);
+          expect(Object.isFrozen(pool.closure.after)).toBe(true);
+        }
+      }
+    }
     expect(capture.model.flowDir.length).toBe(capture.model.elevation.length);
     const expected = measureStandardReliefCoherence(capture);
     expect(measureStandardMapCapture(capture).metrics.relief.coherence).toEqual(expected);
-    const fresh = captureEarthlikeScenario();
+    const fresh = captureFreshEarthlikeScenario();
     const freshWater = fresh.model.physicalHydrology;
     if (freshWater.model !== "certified-sill-spill") throw new Error("Earthlike must use certified physical water");
     capture.model.flowDir[0] = 123;
-    water.waterSurface[0] = -123;
+    expect(() => Reflect.set(water.waterSurface, "0", -123)).not.toThrow();
+    expect(Reflect.set(water.waterSurface, "0", -123)).toBe(false);
+    water.componentId[0] = 123;
+    water.basinId[0] = 123;
+    water.potentialDemand[0] = 123;
     expect(fresh.model.flowDir[0]).not.toBe(123);
     expect(freshWater.waterSurface[0]).not.toBe(-123);
+    expect(freshWater.componentId[0]).not.toBe(123);
+    expect(freshWater.basinId[0]).not.toBe(123);
+    expect(freshWater.potentialDemand[0]).not.toBe(123);
+    expect(freshWater.pools).not.toBe(water.pools);
   }, 30_000);
 
   it("registers exactly twelve cases with structural targets, rejecting missing or invalid populations", () => {

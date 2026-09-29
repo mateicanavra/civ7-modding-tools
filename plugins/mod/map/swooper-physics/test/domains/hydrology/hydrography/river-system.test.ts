@@ -31,6 +31,7 @@ function runRiverSystem(input: {
   );
   const projected = projectRiverNetwork.run(
     {
+      channelSemantics: "legacy-routed",
       width: input.width,
       height: input.height,
       landMask: input.landMask,

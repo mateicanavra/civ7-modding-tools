@@ -8,7 +8,7 @@ import computeLocalRunoff from "./ops/compute-local-runoff/index.js";
 import computeBasinWaterBudget from "./ops/compute-basin-water-budget/index.js";
 import computeDrainageBasins from "./ops/compute-drainage-basins/index.js";
 import computeDrainageRouting from "./ops/compute-drainage-routing/index.js";
-import computeOpenBasinNetwork from "./ops/compute-open-basin-network/index.js";
+import computeBasinNetwork from "./ops/compute-basin-network/index.js";
 import planLakes from "./ops/plan-lakes/index.js";
 import projectRiverNetwork from "./ops/project-river-network/index.js";
 
@@ -23,7 +23,7 @@ const hydrography = createDomainSubdomainRouter(contract, {
   computeBasinWaterBudget,
   computeDrainageBasins,
   computeDrainageRouting,
-  computeOpenBasinNetwork,
+  computeBasinNetwork,
   accumulateDischarge,
   projectRiverNetwork,
   planLakes,

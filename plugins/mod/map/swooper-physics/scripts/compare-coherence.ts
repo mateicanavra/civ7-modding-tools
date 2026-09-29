@@ -126,7 +126,17 @@ function viewData(capture: StandardMapCapture): CoherenceViewData {
     mountain: Array.from(model.mountainMask), hill: Array.from(model.hillMask), volcano: Array.from(model.volcanoMask),
     river: Array.from(model.riverClass), receiver: Array.from(model.flowDir), discharge: Array.from(hydro.discharge),
     bodyId: Array.from(hydro.bodyId), waterSurface: Array.from(hydro.waterSurface),
-    bodies: hydro.bodies.map((body) => ({ id: body.nodeId, outlet: body.outletCell, receiver: body.receiverCell, surface: body.spillElevation, outflow: body.outflow, wetTiles: body.wetCells.length })),
+    bodies: hydro.bodies.map((body) => ({ id: body.bodyId, component: body.componentId, surface: body.level,
+      outflow: body.outflow, unresolved: body.unresolvedResidual, wetTiles: body.wetCells.length })),
+    exchanges: [
+      ...hydro.transfers.filter((edge) => edge.signedDischarge !== 0).map((edge) => ({
+        source: edge.signedDischarge > 0 ? edge.cellA : edge.cellB,
+        receiver: edge.signedDischarge > 0 ? edge.cellB : edge.cellA,
+        discharge: Math.abs(edge.signedDischarge), kind: "internal" as const,
+      })),
+      ...hydro.ports.flatMap((port) => port.kind === "adjacent" ? [{ source: port.fromCell, receiver: port.toCell,
+        discharge: port.discharge, kind: "external" as const }] : []),
+    ],
   };
 }
 
@@ -165,7 +175,7 @@ export async function runCoherenceComparison(argv: string[]): Promise<number> {
       await writeFile(resolve(output, `${variant.id}.data.json`), json(data));
       const hashes = {
         elevation: digest(capture.model.elevation), flowDir: digest(capture.model.flowDir), lakeMask: digest(capture.model.plannedLakeMask), riverClass: digest(capture.model.riverClass),
-        discharge: digest(Float64Array.from(data.discharge)), waterSurface: digest(Int16Array.from(data.waterSurface)),
+        discharge: digest(Float64Array.from(data.discharge)), waterSurface: digest(Float64Array.from(data.waterSurface)),
         landMask: digest(capture.model.landMask), seaLevel: digest(new Float64Array([capture.model.seaLevel])),
         mountainMask: digest(capture.model.mountainMask), hillMask: digest(capture.model.hillMask), foothillMask: digest(capture.model.foothillMask), roughLandMask: digest(capture.model.roughLandMask), volcanoMask: digest(capture.model.volcanoMask),
       };

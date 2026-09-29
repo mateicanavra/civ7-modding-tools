@@ -8,6 +8,12 @@ export const HYDROLOGY_MOUTH_ACCEPTED_LAKE = 2;
 export const HYDROLOGY_MOUTH_CLOSED_BASIN = 3;
 /** Marks an ocean- or lake-bound path that crosses priority-flood depression conditioning. */
 export const HYDROLOGY_MOUTH_SPILL_PATH = 4;
+/** Marks a certified original-land north/south boundary export without an adjacent receiver. */
+export const HYDROLOGY_MOUTH_BOUNDARY_EXPORT = 5;
+/** Marks a resolved stationary basin without a positive-depth wet tile. */
+export const HYDROLOGY_MOUTH_SUBTILE = 6;
+/** Marks a resolved basin with no supported surface water. */
+export const HYDROLOGY_MOUTH_DRY = 7;
 
 /** Reserves slope code zero for water and other non-land cells without a routed slope. */
 export const HYDROLOGY_SLOPE_NONE = 0;

@@ -9,11 +9,16 @@ import {
   HYDROLOGY_FLOW_INTERMITTENT,
   HYDROLOGY_FLOW_PERENNIAL,
   HYDROLOGY_MOUTH_ACCEPTED_LAKE,
+  HYDROLOGY_MOUTH_BOUNDARY_EXPORT,
+  HYDROLOGY_MOUTH_SUBTILE,
+  HYDROLOGY_MOUTH_DRY,
   HYDROLOGY_MOUTH_CLOSED_BASIN,
   HYDROLOGY_MOUTH_OCEAN,
   HYDROLOGY_MOUTH_SPILL_PATH,
   HYDROLOGY_MOUTH_UNRESOLVED,
 } from "../../../../../domain/hydrology/modules/hydrography/model/policy/river-network-classification.js";
+import { BASIN_INTERNAL_RECEIVER, BASIN_TERMINAL } from "../../../../../domain/hydrology/modules/hydrography/model/atoms/basin-network.schema.js";
+import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import { type Static, Type } from "typebox";
 
 /** Closed payload emitted by the Standard recipe's river-network metrics facet. */
@@ -141,6 +146,9 @@ export const StandardRiverNetworkMeasurementsSchema = Type.Object(
       minimum: 0,
       description: "Number of land tiles whose drainage path terminates in a closed basin.",
     }),
+    boundaryExportMouthTileCount: Type.Integer({ minimum: 0, description: "Dry sources resolving to admitted north/south boundary export, not marine water." }),
+    subtileMouthTileCount: Type.Integer({ minimum: 0, description: "Dry sources resolving to a stationary subtile basin without strict wet cells." }),
+    dryBasinMouthTileCount: Type.Integer({ minimum: 0, description: "Dry sources resolving to a basin with no supported surface water." }),
     spillPathMouthTileCount: Type.Integer({
       minimum: 0,
       description:
@@ -169,7 +177,7 @@ export const StandardRiverNetworkMeasurementsSchema = Type.Object(
     downstreamDischargeDropEdgeCount: Type.Integer({
       minimum: 0,
       description:
-        "Number of land-to-land flow edges where accumulated discharge decreases downstream.",
+        "Number of ordinary dry land-to-land edges where accumulated discharge decreases; component principal attachments are not complete transport.",
     }),
     closedOrLakeTerminalLandShare: Type.Number({
       minimum: 0,
@@ -206,7 +214,6 @@ export type StandardRiverNetworkMeasurements = Static<
 
 /** Causal Hydrology evidence required to project the Standard river-network measurements. */
 export type StandardRiverNetworkMeasurementInput = Readonly<{
-  model: "legacy-sink-budget" | "certified-sill-spill";
   width: number;
   height: number;
   landMask: ArrayLike<number>;
@@ -219,7 +226,11 @@ export type StandardRiverNetworkMeasurementInput = Readonly<{
   streamOrderProxy: ArrayLike<number>;
   mouthType: ArrayLike<number>;
   flowPermanenceProxy: ArrayLike<number>;
-}>;
+} & ({ model: "legacy-sink-budget" } | {
+  model: "certified-sill-spill";
+  componentId: ArrayLike<number>;
+  terminalType: ArrayLike<number>;
+})>;
 
 function safeShare(numerator: number, denominator: number): number {
   if (!Number.isFinite(numerator) || !Number.isFinite(denominator) || denominator <= 0) {
@@ -255,6 +266,7 @@ export function measureStandardRiverNetwork(
   let mouthSourceTileCount = 0;
   let acceptedLakeMouthTileCount = 0;
   let closedBasinMouthTileCount = 0;
+  let boundaryExportMouthTileCount = 0, subtileMouthTileCount = 0, dryBasinMouthTileCount = 0;
   let spillPathMouthTileCount = 0;
   let unresolvedMouthTileCount = 0;
   let resolvedMouthTileCount = 0;
@@ -274,11 +286,16 @@ export function measureStandardRiverNetwork(
     const discharge = Math.max(0, input.discharge[index] ?? 0);
     if ((input.lakeMask[index] ?? 0) === 1) lakeTileCount += 1;
 
-    if ((input.basinId[index] ?? -1) >= 0) assignedBasinLandTileCount += 1;
+    if ((input.basinId[index] ?? -1) >= (input.model === "certified-sill-spill" ? 1 : 0)) assignedBasinLandTileCount += 1;
     else unassignedBasinLandTileCount += 1;
 
     const rawReceiver = input.flowDir[index] ?? -1;
-    const hasInvalidReceiver = rawReceiver < -1 || rawReceiver >= size;
+    const certifiedComponent = input.model === "certified-sill-spill" && input.componentId[index]! > 0;
+    const hasInvalidReceiver = input.model === "legacy-sink-budget" ? rawReceiver < -1 || rawReceiver >= size
+      : rawReceiver >= 0 ? !getHexNeighborIndicesOddQ(index % input.width, Math.floor(index / input.width), input.width, input.height).includes(rawReceiver)
+        : rawReceiver === BASIN_INTERNAL_RECEIVER ? !certifiedComponent || discharge !== 0
+          : rawReceiver !== -1 || input.terminalType[index] !== BASIN_TERMINAL["boundary-export"] ||
+            (index >= input.width && index < size - input.width);
     if (hasInvalidReceiver) invalidReceiverTileCount += 1;
     const landReceiver =
       rawReceiver >= 0 && rawReceiver < size && input.landMask[rawReceiver] === 1
@@ -286,10 +303,11 @@ export function measureStandardRiverNetwork(
         : -1;
     const certifiedWetSource = input.model === "certified-sill-spill" && input.lakeMask[index] === 1;
     const certifiedWetReceiver = input.model === "certified-sill-spill" && landReceiver >= 0 && input.lakeMask[landReceiver] === 1;
-    // Wet connectivity has no per-cell discharge allocation; compare dry
-    // edges only and count dry lake inlets as reach endpoints.
+    const certifiedComponentReceiver = input.model === "certified-sill-spill" && landReceiver >= 0 && input.componentId[landReceiver]! > 0;
+    // Equal-head junctions can split flow. Their principal channel is only one
+    // attachment; complete conservation is independently checked on the ledger.
     if (
-      landReceiver >= 0 && !certifiedWetSource && !certifiedWetReceiver &&
+      landReceiver >= 0 && !certifiedWetSource && !certifiedWetReceiver && !certifiedComponent && !certifiedComponentReceiver &&
       Math.max(0, input.discharge[landReceiver] ?? 0) + Number.EPSILON < discharge
     ) {
       downstreamDischargeDropEdgeCount += 1;
@@ -342,6 +360,15 @@ export function measureStandardRiverNetwork(
       } else if (mouth === HYDROLOGY_MOUTH_CLOSED_BASIN) {
         closedBasinMouthTileCount += 1;
         resolvedMouthTileCount += 1;
+      } else if (input.model === "certified-sill-spill" && mouth === HYDROLOGY_MOUTH_BOUNDARY_EXPORT) {
+        boundaryExportMouthTileCount += 1;
+        resolvedMouthTileCount += 1;
+      } else if (input.model === "certified-sill-spill" && mouth === HYDROLOGY_MOUTH_SUBTILE) {
+        subtileMouthTileCount += 1;
+        resolvedMouthTileCount += 1;
+      } else if (input.model === "certified-sill-spill" && mouth === HYDROLOGY_MOUTH_DRY) {
+        dryBasinMouthTileCount += 1;
+        resolvedMouthTileCount += 1;
       } else if (mouth === HYDROLOGY_MOUTH_SPILL_PATH) {
         spillPathMouthTileCount += 1;
         resolvedMouthTileCount += 1;
@@ -356,7 +383,7 @@ export function measureStandardRiverNetwork(
 
   const nonDryFlowTileCount =
     ephemeralFlowTileCount + intermittentFlowTileCount + perennialFlowTileCount;
-  const closedOrLakeTerminalTileCount = acceptedLakeMouthTileCount + closedBasinMouthTileCount;
+  const closedOrLakeTerminalTileCount = acceptedLakeMouthTileCount + closedBasinMouthTileCount + subtileMouthTileCount + dryBasinMouthTileCount;
 
   return Object.freeze({
     model: input.model,
@@ -391,6 +418,7 @@ export function measureStandardRiverNetwork(
     oceanMouthTileCount,
     acceptedLakeMouthTileCount,
     closedBasinMouthTileCount,
+    boundaryExportMouthTileCount, subtileMouthTileCount, dryBasinMouthTileCount,
     spillPathMouthTileCount,
     unresolvedMouthTileCount,
     resolvedMouthTileCount,

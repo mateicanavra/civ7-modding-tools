@@ -30,6 +30,7 @@ export const NetworkStep = createStep(config, {
         const projected = ops.projectRiverNetwork(
           {
             ...dimensions,
+            channelSemantics: "legacy-routed",
             landMask: topography.landMask,
             discharge: Array.from(discharge.discharge),
             flowDir: routing.flowDir,
@@ -92,7 +93,7 @@ export const NetworkStep = createStep(config, {
         { ...dimensions, elevation: topography.elevation, landMask: topography.landMask },
         stepConfig.computeDrainageBasins
       );
-      const result = ops.computeOpenBasinNetwork(
+      const result = ops.computeBasinNetwork(
         {
           ...dimensions,
           elevation: topography.elevation,
@@ -102,11 +103,11 @@ export const NetworkStep = createStep(config, {
           rainfall: climate.rainfall,
           potentialDemand: climate.potentialDemand,
         },
-        stepConfig.computeOpenBasinNetwork
+        stepConfig.computeBasinNetwork
       );
-      if (result.status === "unsupported")
+      if (result.status === "no-stationary-solution")
         throw new Error(
-          `[Hydrology] Unsupported certified-sill-spill network: ${JSON.stringify(result.witness)}`,
+          `[Hydrology] No stationary certified-sill-spill network: ${JSON.stringify(result.witness)}`,
           { cause: result.witness }
         );
       const plan = result.plan;
@@ -116,13 +117,14 @@ export const NetworkStep = createStep(config, {
       const projected = ops.projectRiverNetwork(
         {
           ...dimensions,
+          channelSemantics: "principal-adjacent",
           landMask: exposedLand,
           discharge: plan.dryDischarge,
           flowDir: plan.receiver,
         },
         stepConfig.projectRiverNetwork
       );
-      const { basinId, ...metadata } = ops.classifyBasinRiverNetwork(
+      const metadata = ops.classifyBasinRiverNetwork(
         {
           ...dimensions,
           landMask: topography.landMask,
@@ -130,26 +132,20 @@ export const NetworkStep = createStep(config, {
           lakeMask: plan.wetMask,
           waterSurface: plan.waterSurface,
           bodyId: plan.bodyId,
+          componentId: plan.componentId,
+          terminalId: plan.terminalId,
+          terminalType: plan.terminalType,
           bodies: plan.bodies,
+          components: plan.components,
+          transfers: plan.transfers,
+          ports: plan.ports,
+          terminals: plan.terminals,
           discharge: plan.dryDischarge,
           riverClass: projected.riverClass,
           flowDir: plan.receiver,
         },
         stepConfig.classifyBasinRiverNetwork
       );
-      const bodies = plan.bodies.map((body) => {
-        const node = geometry.nodes[body.nodeId - 1]!;
-        return { ...body, floorCell: node.floorCell, floorElevation: node.floorElevation };
-      });
-      for (let cell = 0; cell < width * height; cell++) {
-        if (
-          plan.wetMask[cell] &&
-          (projected.riverClass[cell] !== 0 || plan.dryDischarge[cell] !== 0)
-        )
-          throw new Error("Certified wet cells cannot own dry river classes or discharge.");
-        if (!plan.wetMask[cell] && plan.waterSurface[cell] !== topography.elevation[cell])
-          throw new Error("Certified routing must preserve dry ground.");
-      }
       return {
         hydrography: {
           model: "certified-sill-spill" as const,
@@ -158,18 +154,24 @@ export const NetworkStep = createStep(config, {
           riverClass: projected.riverClass,
           flowDir: plan.receiver,
           terminalType: plan.terminalType,
-          basinId,
+          basinId: plan.terminalId,
         },
         lakePlan: {
           model: "certified-sill-spill" as const,
           ...dimensions,
           lakeMask: plan.wetMask,
-          plannedLakeTileCount: bodies.reduce((sum, body) => sum + body.wetCells.length, 0),
+          plannedLakeTileCount: plan.bodies.reduce((sum, body) => sum + body.wetCells.length, 0),
           bodyId: plan.bodyId,
+          componentId: plan.componentId,
           waterSurface: plan.waterSurface,
-          bodies,
-          certificates: plan.certificates,
+          bodies: plan.bodies,
+          pools: plan.pools,
+          components: plan.components,
+          transfers: plan.transfers,
+          ports: plan.ports,
+          terminals: plan.terminals,
           marineExits: plan.marineExits,
+          boundaryExits: plan.boundaryExits,
           conservation: plan.conservation,
         },
         riverNetwork: { model: "certified-sill-spill" as const, ...metadata },
@@ -188,24 +190,32 @@ export const NetworkStep = createStep(config, {
     const hydrography = deps.artifacts.hydrography.publish(physical.hydrography);
     const lakePlan = deps.artifacts.lakePlan.publish(physical.lakePlan);
     const riverNetwork = deps.artifacts.riverNetwork.publish(physical.riverNetwork);
+    const measurement = {
+      ...dimensions,
+      landMask: topography.landMask,
+      discharge: hydrography.discharge,
+      riverClass: hydrography.riverClass,
+      flowDir: hydrography.flowDir,
+      basinId: hydrography.basinId,
+      lakeMask: lakePlan.lakeMask,
+      upstreamArea: riverNetwork.upstreamArea,
+      streamOrderProxy: riverNetwork.streamOrderProxy,
+      mouthType: riverNetwork.mouthType,
+      flowPermanenceProxy: riverNetwork.flowPermanenceProxy,
+    };
     return {
       hydrography,
       lakePlan,
       riverNetwork,
-      riverNetworkMeasurementInput: {
-        model: hydrography.model,
-        ...dimensions,
-        landMask: topography.landMask,
-        discharge: hydrography.discharge,
-        riverClass: hydrography.riverClass,
-        flowDir: hydrography.flowDir,
-        basinId: hydrography.basinId,
-        lakeMask: lakePlan.lakeMask,
-        upstreamArea: riverNetwork.upstreamArea,
-        streamOrderProxy: riverNetwork.streamOrderProxy,
-        mouthType: riverNetwork.mouthType,
-        flowPermanenceProxy: riverNetwork.flowPermanenceProxy,
-      },
+      riverNetworkMeasurementInput:
+        lakePlan.model === "certified-sill-spill"
+          ? {
+              ...measurement,
+              model: "certified-sill-spill" as const,
+              componentId: lakePlan.componentId,
+              terminalType: hydrography.terminalType,
+            }
+          : { ...measurement, model: "legacy-sink-budget" as const },
     };
   },
   metrics: ({ observation }) => ({

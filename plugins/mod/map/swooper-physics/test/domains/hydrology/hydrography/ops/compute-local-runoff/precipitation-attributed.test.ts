@@ -62,6 +62,7 @@ describe("hydrology/compute-local-runoff", () => {
     expect(Math.fround(low)).toBe(Math.fround(high));
     const result = projectRiverNetwork.run(
       {
+        channelSemantics: "principal-adjacent",
         width: 3,
         height: 1,
         landMask: Uint8Array.of(0, 1, 1),

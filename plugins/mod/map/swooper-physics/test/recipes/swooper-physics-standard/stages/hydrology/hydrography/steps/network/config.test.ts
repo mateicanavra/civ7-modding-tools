@@ -15,6 +15,11 @@ import { NetworkStep } from "../../../../../../../../src/recipes/standard/stages
 import { artifacts as waterArtifacts } from "../../../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as climateArtifacts } from "../../../../../../../../src/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as landArtifacts } from "../../../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import {
+  hugeRoot17,
+  standardRoots37And39,
+} from "../../../../../../../domains/hydrology/hydrography/ops/compute-basin-network/fixtures/retained-fixtures.js";
+import { projectNetworkViz } from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/steps/network/viz.js";
 
 const ops = hydrology.hydrography.ops;
 const dimensions = { width: 9, height: 1 };
@@ -47,7 +52,7 @@ function authored(model: "legacy-sink-budget" | "certified-sill-spill") {
       model,
       computeLocalRunoff: structuredClone(ops.computeLocalRunoff.defaultConfig),
       computeDrainageBasins: structuredClone(ops.computeDrainageBasins.defaultConfig),
-      computeOpenBasinNetwork: structuredClone(ops.computeOpenBasinNetwork.defaultConfig),
+      computeBasinNetwork: structuredClone(ops.computeBasinNetwork.defaultConfig),
       classifyBasinRiverNetwork: structuredClone(ops.classifyBasinRiverNetwork.defaultConfig),
     },
   };
@@ -80,9 +85,41 @@ function forcing() {
     },
   };
 }
-function execute(model: "legacy-sink-budget" | "certified-sill-spill", unsupported = false) {
-  const context = createMapContext({ setup, adapter: new MockAdapter(dimensions) });
-  const input = forcing(),
+function execute(
+  model: "legacy-sink-budget" | "certified-sill-spill",
+  unsupported = false,
+  retained?: ReturnType<typeof hugeRoot17>,
+  corruptPlan = false
+) {
+  const runDimensions = retained ? { width: retained.width, height: retained.height } : dimensions;
+  const runSetup = admitMapSetup({ ...setup, dimensions: runDimensions });
+  const context = createMapContext({ setup: runSetup, adapter: new MockAdapter(runDimensions) });
+  const input = retained
+      ? {
+          topography: {
+            elevation: Int16Array.from(retained.elevation),
+            landMask: Uint8Array.from(retained.landMask),
+            seaLevel: 0,
+            bathymetry: new Int16Array(retained.width * retained.height),
+          },
+          climate: {
+            ...forcing().climate,
+            rainfall: Uint8Array.from(retained.rainfall),
+            potentialDemand: Float32Array.from(retained.potentialDemand),
+            // Recover the unique admitted byte from the exact retained source arithmetic, not a new forcing fit.
+            humidity: Uint8Array.from(retained.localRunoff, (runoff, cell) => {
+              if (!retained.landMask[cell]) return 0;
+              for (let humidity = 0; humidity < 256; humidity++)
+                if (
+                  retained.rainfall[cell]! * (1 - 0.18) * (1 - 0.22 * (humidity / 255)) ===
+                  runoff
+                )
+                  return humidity;
+              throw new Error(`No exact retained source humidity at ${cell}.`);
+            }),
+          },
+        }
+      : forcing(),
     calls: string[] = [];
   function record<A extends unknown[], R>(name: string, run: (...args: A) => R) {
     return (...args: A): R => {
@@ -98,14 +135,43 @@ function execute(model: "legacy-sink-budget" | "certified-sill-spill", unsupport
     classifyRiverNetwork: record("classifyRiverNetwork", ops.classifyRiverNetwork.run),
     computeLocalRunoff: record("computeLocalRunoff", ops.computeLocalRunoff.run),
     computeDrainageBasins: record("computeDrainageBasins", ops.computeDrainageBasins.run),
-    computeOpenBasinNetwork: record(
-      "computeOpenBasinNetwork",
-      unsupported
-        ? () => ({
-            status: "unsupported" as const,
-            witness: { kind: "outlet-free-root" as const, nodeId: 1 },
-          })
-        : ops.computeOpenBasinNetwork.run
+    computeBasinNetwork: record(
+      "computeBasinNetwork",
+      (
+        input: Parameters<typeof ops.computeBasinNetwork.run>[0],
+        config: Parameters<typeof ops.computeBasinNetwork.run>[1]
+      ): ReturnType<typeof ops.computeBasinNetwork.run> => {
+        if (unsupported)
+          return {
+            status: "no-stationary-solution" as const,
+            witness: {
+              kind: "persistent-surplus" as const,
+              leafIds: [1],
+              catchmentCells: [2],
+              response: {
+                state: "no-stationary-solution" as const,
+                wetCells: [2],
+                evaluatedLevels: {
+                  lower: 0,
+                  lowerInclusive: false,
+                  upper: null,
+                  upperInclusive: false,
+                },
+                unresolvedSurplus: 1,
+                flux: {
+                  incomingOverflow: 0,
+                  dryRunoff: 0,
+                  wetPrecipitation: 2,
+                  wetDemand: 1,
+                  balance: 1,
+                },
+              },
+            },
+          };
+        const result = ops.computeBasinNetwork.run(input, config);
+        if (corruptPlan && result.status === "supported") result.plan.waterSurface[2] = NaN;
+        return result;
+      }
     ),
     classifyBasinRiverNetwork: record(
       "classifyBasinRiverNetwork",
@@ -119,7 +185,18 @@ function execute(model: "legacy-sink-budget" | "certified-sill-spill", unsupport
       publishTestArtifact(stepContext, climateArtifacts.baselineClimateField, input.climate);
       NetworkStep.run(
         stepContext,
-        compile(authored(model)),
+        (() => {
+          const compiled = compile(authored(model));
+          return retained
+            ? {
+                ...compiled,
+                computeLocalRunoff: {
+                  ...compiled.computeLocalRunoff,
+                  config: { infiltrationFraction: 0.18, humidityDampening: 0.22 },
+                },
+              }
+            : compiled;
+        })(),
         bindings,
         buildStepTestDependencies(NetworkStep, stepContext)
       );
@@ -131,6 +208,66 @@ function execute(model: "legacy-sink-budget" | "certified-sill-spill", unsupport
 }
 
 describe("hydrology network authoring and dispatch", () => {
+  it("publishes the retained quantized closure and inward312 ledger through all actual operations", () => {
+    for (const retained of [hugeRoot17(), standardRoots37And39()]) {
+      const before = structuredClone(retained),
+        result = execute("certified-sill-spill", false, retained);
+      expect(result.failure).toBeUndefined();
+      const hydro = readArtifact(result.context, waterArtifacts.hydrography);
+      const lake = readArtifact(result.context, waterArtifacts.lakePlan);
+      const metadata = readArtifact(result.context, waterArtifacts.riverNetwork);
+      if (lake.model !== "certified-sill-spill" || metadata.model !== "certified-sill-spill")
+        throw new Error("Wrong model.");
+      expect(hydro.runoff).toEqual(retained.localRunoff);
+      expect(retained).toEqual(before);
+      expect("certificates" in lake).toBe(false);
+      expect(lake.waterSurface.every(Number.isFinite)).toBe(true);
+      const viz = projectNetworkViz(
+        { hydrography: hydro, lakePlan: lake, riverNetwork: metadata },
+        { width: retained.width, height: retained.height }
+      );
+      const residualLayer = viz.find(
+        (layer) => layer.dataTypeKey === "hydrology.hydrography.unresolvedResidual"
+      )!;
+      expect(residualLayer.field.format).toBe("f32");
+      for (let cell = 0; cell < lake.lakeMask.length; cell++)
+        expect(residualLayer.field.values[cell]).toBe(
+          Math.fround(
+            lake.components.find((component) => component.anchorCell === cell)
+              ?.unresolvedResidual ?? 0
+          )
+        );
+      expect(
+        viz.find((layer) => layer.dataTypeKey === "hydrology.hydrography.componentId")!.field.values
+      ).toBe(lake.componentId);
+      if (retained.width === 106) {
+        expect(lake.bodies[0]!.wetCells).toEqual([43]);
+        expect(lake.waterSurface[43]).toBe(24);
+        expect(lake.conservation.unresolvedResidual).toBe(14.902249320942005);
+        expect(hydro.terminalType[43]).toBe(3);
+        expect(metadata.mouthType[149]).toBe(2);
+      } else {
+        expect(
+          lake.transfers.find((edge) => edge.cellA === 228 && edge.cellB === 312)!.signedDischarge
+        ).toBeCloseTo(-5.586530981337614, 12);
+        expect(lake.bodies.find((body) => body.wetCells.includes(228))!.outflow).toBe(0);
+        expect(hydro.flowDir[312]).toBe(396);
+        expect(hydro.discharge[312]).toBeCloseTo(1.7170643127800531, 12);
+        expect(metadata.upstreamArea[312]).toBe(17);
+      }
+    }
+  });
+
+  it("rejects a contradictory cross-product before the first publication", () => {
+    const result = execute("certified-sill-spill", false, undefined, true);
+    expect(result.failure).toBeDefined();
+    for (const artifact of [
+      waterArtifacts.hydrography,
+      waterArtifacts.lakePlan,
+      waterArtifacts.riverNetwork,
+    ])
+      expect(() => readArtifact(result.context, artifact)).toThrow();
+  });
   it("rejects inactive public controls and forwards only the selected authored envelopes", () => {
     const selected = authored("certified-sill-spill");
     if (selected.water.model !== "certified-sill-spill") throw new Error("Wrong fixture branch.");
@@ -197,7 +334,7 @@ describe("hydrology network authoring and dispatch", () => {
     expect(result.calls).toEqual([
       "computeLocalRunoff",
       "computeDrainageBasins",
-      "computeOpenBasinNetwork",
+      "computeBasinNetwork",
       "projectRiverNetwork",
       "classifyBasinRiverNetwork",
     ]);
@@ -258,11 +395,11 @@ describe("hydrology network authoring and dispatch", () => {
 
   it("retains unsupported evidence and publishes none of the physical products or later classifications", () => {
     const result = execute("certified-sill-spill", true);
-    expect(String(result.failure)).toContain("outlet-free-root");
+    expect(String(result.failure)).toContain("persistent-surplus");
     expect(result.calls).toEqual([
       "computeLocalRunoff",
       "computeDrainageBasins",
-      "computeOpenBasinNetwork",
+      "computeBasinNetwork",
     ]);
     for (const artifact of [
       waterArtifacts.hydrography,

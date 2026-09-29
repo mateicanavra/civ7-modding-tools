@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { createHash } from "node:crypto";
 import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import hydrology from "../../../../../src/domain/hydrology/router.js";
-import { riverDirectionToReceiver } from "../../../../../src/recipes/standard/stages/hydrology/rivers/model/policy/authored-river-projection.js";
+import { riverDirectionToReceiver } from "../../../../../src/domain/hydrology/modules/hydrography/model/policy/river-direction.js";
 import { runEarthCoastBaseline } from "../../fixtures/earth/climate.js";
 import { extractEarthScript } from "../../fixtures/earth/extract.js";
 import {
@@ -153,18 +153,15 @@ describe("fixed Earth native-index drainage diagnostic", () => {
   it("routes controlled supply through real basins, certification and classes with no input repair", () => {
     const input = drainageFixture();
     const held = structuredClone(input);
-    const first = hydro.computeOpenBasinNetwork.run(
-      input,
-      hydro.computeOpenBasinNetwork.defaultConfig
-    );
+    const first = hydro.computeBasinNetwork.run(input, hydro.computeBasinNetwork.defaultConfig);
     expect(first.status).toBe("supported");
     if (first.status !== "supported") throw new Error(JSON.stringify(first.witness));
-    expect(
-      hydro.computeOpenBasinNetwork.run(input, hydro.computeOpenBasinNetwork.defaultConfig)
-    ).toEqual(first);
+    expect(hydro.computeBasinNetwork.run(input, hydro.computeBasinNetwork.defaultConfig)).toEqual(
+      first
+    );
     expect(input).toEqual(held);
     expect(input.geometry.nodes.length).toBeGreaterThan(0);
-    expect(first.plan.bodies).toHaveLength(input.geometry.roots.length);
+    expect(first.plan.pools.length).toBeGreaterThan(0);
     const network = first.plan;
     expect(Math.abs(network.conservation.residual)).toBeLessThanOrEqual(
       network.conservation.roundoffBound
@@ -179,15 +176,17 @@ describe("fixed Earth native-index drainage diagnostic", () => {
         continue;
       }
       const receiver = network.receiver[cell]!;
-      expect(
-        getHexNeighborIndicesOddQ(
-          cell % input.width,
-          Math.floor(cell / input.width),
-          input.width,
-          input.height
-        )
-      ).toContain(receiver);
-      expect(network.waterSurface[receiver]!).toBeLessThanOrEqual(network.waterSurface[cell]!);
+      if (receiver >= 0)
+        expect(
+          getHexNeighborIndicesOddQ(
+            cell % input.width,
+            Math.floor(cell / input.width),
+            input.width,
+            input.height
+          )
+        ).toContain(receiver);
+      if (receiver >= 0)
+        expect(network.waterSurface[receiver]!).toBeLessThanOrEqual(network.waterSurface[cell]!);
       if (network.wetMask[cell]) {
         expect(network.dryDischarge[cell]).toBe(0);
         wetPrecipitation += input.rainfall[cell]!;
@@ -196,14 +195,10 @@ describe("fixed Earth native-index drainage diagnostic", () => {
         dryRunoff += input.localRunoff[cell]!;
         expect(network.waterSurface[cell]).toBe(input.elevation[cell]);
       }
-      const visited = new Set<number>();
-      let at = cell;
-      while (input.landMask[at]) {
-        expect(visited.has(at)).toBe(false);
-        visited.add(at);
-        at = network.receiver[at]!;
-      }
-      expect(input.landMask[at]).toBe(0);
+      expect(network.terminalId[cell]).toBeGreaterThan(0);
+      expect(
+        network.terminals.some((terminal) => terminal.terminalId === network.terminalId[cell])
+      ).toBe(true);
     }
     expect(Math.abs(network.conservation.dryRunoff - dryRunoff)).toBeLessThanOrEqual(
       network.conservation.roundoffBound
@@ -211,7 +206,11 @@ describe("fixed Earth native-index drainage diagnostic", () => {
     expect(network.conservation.wetPrecipitation).toBe(wetPrecipitation);
     expect(network.conservation.wetDemand).toBe(wetDemand);
     expect(
-      Math.abs(network.conservation.externalDischarge - (dryRunoff + wetPrecipitation - wetDemand))
+      Math.abs(
+        network.conservation.externalDischarge +
+          network.conservation.unresolvedResidual -
+          (dryRunoff + wetPrecipitation - wetDemand)
+      )
     ).toBeLessThanOrEqual(network.conservation.roundoffBound);
     const waterComponents = sourceWaterComponents();
     const oceanReference = new Set(waterComponents[0]);
@@ -225,6 +224,7 @@ describe("fixed Earth native-index drainage diagnostic", () => {
       )
     ).toBe(true);
     const classInput = {
+      channelSemantics: "principal-adjacent" as const,
       width: input.width,
       height: input.height,
       landMask: input.landMask,
@@ -245,40 +245,53 @@ describe("fixed Earth native-index drainage diagnostic", () => {
     expect(fewerMajor.riverClass).not.toEqual(normal.riverClass);
     const metadata = hydro.classifyBasinRiverNetwork.run(
       {
-        ...classInput,
+        width: input.width,
+        height: input.height,
+        landMask: input.landMask,
+        discharge: network.dryDischarge,
+        flowDir: network.receiver,
         elevation: input.elevation,
         lakeMask: network.wetMask,
         waterSurface: network.waterSurface,
         bodyId: network.bodyId,
+        componentId: network.componentId,
+        terminalId: network.terminalId,
+        terminalType: network.terminalType,
         bodies: network.bodies,
+        components: network.components,
+        transfers: network.transfers,
+        ports: network.ports,
+        terminals: network.terminals,
         riverClass: normal.riverClass,
       },
       hydro.classifyBasinRiverNetwork.defaultConfig
     );
-    expect(metadata.basinId).toHaveLength(input.landMask.length);
+    expect(metadata.upstreamArea).toHaveLength(input.landMask.length);
     expect(network).toEqual(physicalBefore);
     expect(input).toEqual(held);
   });
 
-  it("keeps dry and balanced closed cases unsupported instead of synthesizing an open network", () => {
+  it("resolves dry and balanced closed terminals without synthesizing an open network", () => {
     for (const [rain, demand, state] of [
       [0, 10, "dry"],
       [100, 100, "closed"],
     ] as const) {
       const input = drainageFixture(rain, demand);
       const before = structuredClone(input);
-      const result = hydro.computeOpenBasinNetwork.run(
-        input,
-        hydro.computeOpenBasinNetwork.defaultConfig
-      );
-      expect(result.status).toBe("unsupported");
-      if (result.status !== "unsupported" || result.witness.kind !== "uncertified-node")
-        throw new Error("Expected an explicit uncertified basin witness.");
-      expect(result.witness.response.state).toBe(state);
-      expect("plan" in result).toBe(false);
+      const result = hydro.computeBasinNetwork.run(input, hydro.computeBasinNetwork.defaultConfig);
+      expect(result.status).toBe("supported");
+      if (result.status !== "supported") throw new Error(JSON.stringify(result.witness));
+      expect(result.plan.pools.some((pool) => pool.state === state)).toBe(true);
       expect(
-        hydro.computeOpenBasinNetwork.run(input, hydro.computeOpenBasinNetwork.defaultConfig)
-      ).toEqual(result);
+        result.plan.terminals.some(
+          (terminal) => terminal.role === (state === "closed" ? "closed-wet" : "dry")
+        )
+      ).toBe(true);
+      for (let cell = 0; cell < input.landMask.length; cell++)
+        if (input.landMask[cell]) expect(result.plan.terminalId[cell]).toBeGreaterThan(0);
+      expect(hydro.computeBasinNetwork.run(input, hydro.computeBasinNetwork.defaultConfig)).toEqual(
+        result
+      );
       expect(input).toEqual(before);
     }
   });

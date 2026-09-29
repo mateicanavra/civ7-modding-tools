@@ -27,3 +27,17 @@ export const BasinLevelIntervalSchema = Type.Object(
 
 export type BasinFlux = Static<typeof BasinFluxSchema>;
 export type BasinLevelInterval = Static<typeof BasinLevelIntervalSchema>;
+
+export const BasinShorelineBracketSchema = Type.Object({
+  cohortCells: Type.Array(Type.Integer({ minimum: 0 })), before: BasinFluxSchema, after: BasinFluxSchema,
+  jumpMagnitude: Type.Number({ exclusiveMinimum: 0 }),
+}, { additionalProperties: false });
+
+export const BasinNonstationaryResponseSchema = Type.Object({
+  wetCells: Type.Array(Type.Integer({ minimum: 0 })), flux: BasinFluxSchema,
+  state: Type.Literal("no-stationary-solution"), evaluatedLevels: BasinLevelIntervalSchema,
+  unresolvedSurplus: Type.Number({ exclusiveMinimum: 0 }),
+}, { additionalProperties: false });
+
+export type BasinShorelineBracket = Static<typeof BasinShorelineBracketSchema>;
+export type BasinNonstationaryResponse = Static<typeof BasinNonstationaryResponseSchema>;

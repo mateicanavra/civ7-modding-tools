@@ -12,6 +12,8 @@ export function validateNetworkInput(input: NetworkInput, neighbors: readonly nu
   const validNode = (id: number) => Number.isSafeInteger(id) && id >= 1 && id <= g.nodes.length;
   const indegree = new Int32Array(size), landCells: number[] = [];
   for (let cell = 0; cell < size; cell++) {
+    requireValid(Number.isInteger(ground[cell]) && ground[cell]! >= -32768 && ground[cell]! <= 32767, `original Int16 ground at ${cell}`);
+    requireValid(Number.isInteger(input.rainfall[cell]) && input.rainfall[cell]! >= 0 && input.rainfall[cell]! <= 255, `baseline precipitation at ${cell}`);
     requireValid(landMask[cell] === 0 || landMask[cell] === 1, `binary land mask at ${cell}`);
     for (const [name, value] of [["localRunoff", input.localRunoff[cell]!], ["potentialDemand", input.potentialDemand[cell]!]] as const) {
       requireValid(finite(value, `${name} at ${cell}`) >= 0, `negative ${name} at ${cell}`);
@@ -95,8 +97,11 @@ export function validateNetworkInput(input: NetworkInput, neighbors: readonly nu
     covered[cell] = 1;
   }
   requireValid(landCells.every(cell => covered[cell] === 1), "uncovered land");
+  const pairs = new Set<string>();
   for (const saddle of g.saddles) {
     requireValid(validCell(saddle.cellA) && validCell(saddle.cellB) && neighbors[saddle.cellA]!.includes(saddle.cellB), "saddle adjacency");
     requireValid(saddle.leafA < saddle.leafB && saddle.leafA === g.leafId[saddle.cellA] && saddle.leafB === g.leafId[saddle.cellB] && saddle.elevation === Math.max(ground[saddle.cellA]!, ground[saddle.cellB]!), "saddle labels/height");
+    const pair = `${saddle.leafA}:${saddle.leafB}`;
+    requireValid(!pairs.has(pair), "duplicate raw-leaf saddle pair"); pairs.add(pair);
   }
 }
