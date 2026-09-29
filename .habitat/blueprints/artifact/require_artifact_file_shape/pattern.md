@@ -4,11 +4,12 @@ level: error
 # Require Artifact File Shape
 
 An artifact owner exports one canonical `artifact`. Its complete payload schema
-is a direct inline `Type.*(...)` expression inside `defineArtifact`; imported
-model atoms may compose smaller fields inside that root but never stand in for
-the complete container. Any optional refinement is an inline arrow function on
-the same definition. The artifact authority therefore visibly owns identity,
-structure, and complete semantic admission without detached local authorities.
+is a direct inline `Type.*(...)` or Core `TypedArraySchemas.*(...)` expression
+inside `defineArtifact`; imported model atoms may compose smaller fields inside
+that root but never stand in for the complete payload. Any optional refinement
+is an inline arrow function on the same definition. The artifact authority
+therefore visibly owns identity, structure, and complete semantic admission
+without detached local authorities.
 
 ```grit
 language js(typescript)
@@ -16,8 +17,10 @@ language js(typescript)
 predicate is_canonical_artifact_contract_import($import) {
   or {
     $import <: `import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts"`,
+    $import <: `import { defineArtifact, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts"`,
     $import <: `import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts"`,
     $import <: `import { defineArtifact, type Static, Type } from "@swooper/mapgen-core/authoring/contracts"`,
+    $import <: `import { defineArtifact, type Static, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts"`,
     $import <: `import { defineArtifact, type Static, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts"`
   }
 }
@@ -35,8 +38,24 @@ predicate lacks_required_artifact_surface($body) {
   }
 }
 
-predicate is_type_schema_expression($value) {
-  $value <: `Type.$constructor($args)`
+predicate imports_canonical_artifact_schema_builder($body, $builder) {
+  $body <: contains import_statement() as $import where {
+    is_canonical_artifact_contract_import($import),
+    $import <: contains import_specifier(name=$builder)
+  }
+}
+
+predicate is_inline_artifact_schema_expression($value, $body) {
+  or {
+    and {
+      $value <: `Type.$constructor($args)`,
+      imports_canonical_artifact_schema_builder($body, `Type`)
+    },
+    and {
+      $value <: `TypedArraySchemas.$constructor($args)`,
+      imports_canonical_artifact_schema_builder($body, `TypedArraySchemas`)
+    }
+  }
 }
 
 predicate is_inline_artifact_refinement($value) {
@@ -53,7 +72,7 @@ or {
   },
   program(statements=$body) where {
     $body <: contains `export const artifact = defineArtifact({ $..., schema: $schema, $... })`,
-    ! is_type_schema_expression($schema)
+    ! is_inline_artifact_schema_expression($schema, $body)
   },
   program(statements=$body) where {
     $body <: contains `export const artifact = defineArtifact({ $..., refine: $refine, $... })`,
@@ -113,6 +132,26 @@ export const artifact = defineArtifact({
 });
 export const runMutation = () => undefined;
 
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/strata/artifacts/non-core-array-builder.artifact.ts
+import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { TypedArraySchemas } from "../model/atoms/typed-arrays.schema.js";
+
+export const artifact = defineArtifact({
+  name: "nonCoreArrayBuilder",
+  id: "artifact:geology.nonCoreArrayBuilder",
+  schema: TypedArraySchemas.f32({ cardinality: "map-grid" }),
+});
+
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/strata/artifacts/non-core-type-builder.artifact.ts
+import { defineArtifact, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { Type } from "../model/atoms/types.schema.js";
+
+export const artifact = defineArtifact({
+  name: "nonCoreTypeBuilder",
+  id: "artifact:geology.nonCoreTypeBuilder",
+  schema: Type.Object({}),
+});
+
 // @filename: plugins/mod/map/example-mod/src/domain/geology/modules/strata/artifacts/detached-refinement.artifact.ts
 import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
 
@@ -156,6 +195,60 @@ export const artifact = defineArtifact({
   id: "artifact:geology.privateOperationContract",
   schema: Type.Object({ contract: Type.Unknown({ default: Contract }) }),
 });
+
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/strata/artifacts/imported-array-payload.artifact.ts
+import { defineArtifact, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { SurfaceTemperatureSchema } from "../model/atoms/surface-temperature.schema.js";
+
+export const artifact = defineArtifact({
+  name: "importedArrayPayload",
+  id: "artifact:geology.importedArrayPayload",
+  schema: SurfaceTemperatureSchema,
+});
+
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/strata/artifacts/detached-array-payload.artifact.ts
+import { defineArtifact, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+
+const SurfaceTemperatureSchema = TypedArraySchemas.f32({ cardinality: "map-grid" });
+export const artifact = defineArtifact({
+  name: "detachedArrayPayload",
+  id: "artifact:geology.detachedArrayPayload",
+  schema: SurfaceTemperatureSchema,
+});
+
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/strata/artifacts/detached-array-refinement.artifact.ts
+import { defineArtifact, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+
+const validateTemperature = (value: Float32Array) => value.every(Number.isFinite);
+export const artifact = defineArtifact({
+  name: "detachedArrayRefinement",
+  id: "artifact:geology.detachedArrayRefinement",
+  schema: TypedArraySchemas.f32({ cardinality: "map-grid" }),
+  refine: validateTemperature,
+});
+
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/strata/artifacts/array-runtime-dependency.artifact.ts
+import { createArtifactRuntime } from "@swooper/mapgen-core/authoring";
+import { defineArtifact, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+
+export const artifact = defineArtifact({
+  name: "arrayRuntimeDependency",
+  id: "artifact:geology.arrayRuntimeDependency",
+  schema: TypedArraySchemas.f32({ cardinality: "map-grid" }),
+  refine: (_value, { issues }) => {
+    if (createArtifactRuntime) issues.add("Artifact owners do not construct framework runtimes.");
+  },
+});
+
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/strata/artifacts/array-runtime-export.artifact.ts
+import { defineArtifact, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+
+export const artifact = defineArtifact({
+  name: "arrayRuntimeExport",
+  id: "artifact:geology.arrayRuntimeExport",
+  schema: TypedArraySchemas.f32({ cardinality: "map-grid" }),
+});
+export const runMutation = () => undefined;
 ```
 
 ## Ignores Fixture
@@ -206,4 +299,31 @@ export const artifact = defineArtifact({
 
 type PlateNetwork = Static<typeof artifact.schema>;
 const _plateNetworkTypeWitness: PlateNetwork | undefined = undefined;
+
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/strata/artifacts/surface-temperature.artifact.ts
+import { defineArtifact, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+
+/** Publishes a singular thermal property through Core's typed-array schema admission. */
+export const artifact = defineArtifact({
+  name: "surfaceTemperature",
+  id: "artifact:geology.surfaceTemperature",
+  schema: TypedArraySchemas.f32({
+    cardinality: "map-grid",
+    description: "Ground-surface temperature in degrees Celsius.",
+  }),
+  refine: (value, { issues }) => {
+    if (value.some((sample) => !Number.isFinite(sample))) issues.add("Temperature must be finite.");
+  },
+});
+
+// @filename: plugins/mod/map/example-mod/src/domain/geology/modules/strata/artifacts/baseline-temperature.artifact.ts
+import { defineArtifact, type Static, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+
+export const artifact = defineArtifact({
+  name: "baselineTemperature",
+  id: "artifact:geology.baselineTemperature",
+  schema: TypedArraySchemas.f32({ cardinality: "map-grid" }),
+});
+type BaselineTemperature = Static<typeof artifact.schema>;
+const _baselineTemperatureTypeWitness: BaselineTemperature | undefined = undefined;
 ```
