@@ -28,6 +28,15 @@ competing thermal owners; [thermal coherence](thermal-coherence.md) defines
 the corrective handoff and independent calibration requirements. Accepted
 fixes remain in this isolated stack, not merged to main.
 
+The [climate artifact lineage](climate-artifact-lineage.md) settles publication
+ownership under the existing blueprint; it does not choose new physical
+coefficients. Two concrete follow-through packets preserve the calibration
+loop: [reef spatial thinning](reef-spatial-thinning.md) removes origin-only
+habitat rejection, and [basin coordinator completion](basin-coordinator-completion.md)
+admits the closed/subtile and equal-sill supply cases exposed by cooler forcing.
+Their tests hold upstream terrain and climate fixed. Neither authorizes biome
+quotas, softened study targets or hidden native projection compensation.
+
 Map authors should see the physical heightfield and connected minor/navigable
 river network produced by Swooper realized faithfully in Civ7, rather than
 reconstructed by unrelated native generators. Studio must remain usable from
