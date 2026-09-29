@@ -2,8 +2,8 @@ import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Defines equatorial and polar SST anchors, fixed advection and diffusion controls,
- * and the shared sea-ice threshold. Defaults use 28 bounded passes so current coupling is visible
- * without convergence-dependent output.
+ * and the shared sea-ice threshold. Relative current magnitude controls the self/donor blend;
+ * defaults use 28 bounded passes without convergence-dependent output or an elapsed-time claim.
  */
 export default defineStrategy({
   id: "latitude-current-advection",
@@ -48,7 +48,7 @@ export default defineStrategy({
     {
       additionalProperties: false,
       description:
-        "Sets the latitude SST baseline and bounded current advection and diffusion, then classifies sea ice from the resulting temperature field.",
+        "Sets the latitude SST baseline, fixed relative-strength advection passes and subsequent diffusion, then classifies sea ice from the resulting temperature field.",
     }
   ),
 });

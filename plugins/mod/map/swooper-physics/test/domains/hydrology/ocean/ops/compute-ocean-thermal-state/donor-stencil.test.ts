@@ -68,6 +68,11 @@ function initialSst(input: OceanInput, index: number): number {
   return Math.fround(30 - 36 * Math.abs(input.latitudeByRow[y]!) / 90);
 }
 
+function strengthBlend(self: number, donor: number, u: number, v: number): number {
+  const alpha = Math.min(1, Math.hypot(u, v) / 127);
+  return alpha === 0 ? self : alpha === 1 ? donor : self + alpha * (donor - self);
+}
+
 const BOUNDARY_VECTORS = [
   [80, -1], [80, 0], [80, 1],
   [46, 79], [46, 80], [46, 81],
@@ -96,7 +101,10 @@ describe("ocean thermal adjacent-ray transport", () => {
             (sum, donor) => sum + initialSst(input, donor.index) * donor.weight,
             0
           );
-          expect(run(input).sstC[center]).toBeCloseTo(Math.fround(expected), 5);
+          expect(run(input).sstC[center]).toBeCloseTo(
+            Math.fround(strengthBlend(initialSst(input, center), expected, upX, upY)),
+            5
+          );
         }
       }
     }
@@ -122,7 +130,7 @@ describe("ocean thermal adjacent-ray transport", () => {
         input.currentU[center] = u!;
         input.currentV[center] = v!;
         const diagonalWeight = 2 / (Math.sqrt(3) * Math.abs(u!) + 1);
-        const expected = 12 + (v! < 0 ? 18 : -18) * diagonalWeight;
+        const expected = strengthBlend(12, 12 + (v! < 0 ? 18 : -18) * diagonalWeight, u!, v!);
         expect(run(input).sstC[center]).toBeCloseTo(expected, 5);
         expect(Math.abs(run(input).sstC[center]! - 12)).toBeLessThan(0.26);
       }
@@ -155,15 +163,17 @@ describe("ocean thermal adjacent-ray transport", () => {
       latitudes[y + 1] = 0;
       const input = inputFor(5, latitudes);
       const center = y * input.width;
-      input.currentV[center + 1] = -80;
-      input.currentV[center + 4] = 80;
-      input.currentU[center] = -80;
+      input.currentV[center + 1] = -127;
+      input.currentV[center + 4] = 127;
+      input.currentU[center] = -127;
       const first = run(input);
       expect(first.sstC[center]).toBe(12);
       expect(first.sstC[center + 1]).toBe(30);
       expect(first.sstC[center + 4]).toBe(-6);
       expect(run(input, { advectIters: 2 }).sstC[center]).toBe(30);
-      input.currentU[center] = 80;
+      input.currentU[center] = -128;
+      expect(run(input, { advectIters: 2 }).sstC[center]).toBe(30);
+      input.currentU[center] = 127;
       expect(run(input, { advectIters: 2 }).sstC[center]).toBe(-6);
     }
   });
@@ -178,10 +188,11 @@ describe("ocean thermal adjacent-ray transport", () => {
       input.currentV[center] = 47 * inward;
       const donors = expectedDonors(input, 2, y, 80, -47 * inward);
       const first = run(input).sstC;
-      const expected = donors.reduce(
+      const donorTemperature = donors.reduce(
         (sum, donor) => sum + first[donor.index]! * donor.weight,
         0
       );
+      const expected = strengthBlend(first[center]!, donorTemperature, -80, 47 * inward);
       expect(expected).toBeGreaterThan(-6);
       expect(expected).toBeLessThan(30);
       expect(run(input, { advectIters: 2 }).sstC[center]).toBeCloseTo(expected, 5);
@@ -201,25 +212,123 @@ describe("ocean thermal adjacent-ray transport", () => {
               (sum, donor) => sum + initialSst(input, donor.index) * donor.weight,
               0
             );
-            expect(run(input).sstC[center]).toBeCloseTo(Math.fround(expected), 5);
+            expect(run(input).sstC[center]).toBeCloseTo(
+              Math.fround(strengthBlend(initialSst(input, center), expected, upX, upY)),
+              5
+            );
           }
         }
       }
     }
   });
 
-  it("keeps the direction-only magnitude convention and the exact-zero advection identity", () => {
+  it("keeps the exact-zero advection identity over repeated passes", () => {
     const input = inputFor(7, [90, 70, 25, 0, 45, 85]);
     const baseline = run(input, { advectIters: 0 });
     expect(run(input, { advectIters: 30 }).sstC).toEqual(baseline.sstC);
-    input.currentU.fill(3);
-    input.currentV.fill(-2);
-    const weak = run(input, { advectIters: 30 });
-    input.currentU.fill(120);
-    input.currentV.fill(-80);
-    const strong = run(input, { advectIters: 30 });
-    for (let i = 0; i < input.width * input.height; i++) {
-      expect(strong.sstC[i]).toBeCloseTo(weak.sstC[i]!, 5);
+  });
+
+  it("scales one-pass meridional response by relative strength with exact zero and full endpoints", () => {
+    for (const y of [2, 3]) {
+      const latitudes = [45, 45, 45, 45, 45, 45];
+      latitudes[y - 1] = 90;
+      latitudes[y + 1] = 0;
+      const input = inputFor(7, latitudes);
+      const center = y * input.width + 3;
+      for (const v of [-128, -127, -126, -64, -2, -1, 0, 1, 2, 64, 126, 127]) {
+        input.currentV[center] = v;
+        const alpha = Math.min(1, Math.abs(v) / 127);
+        const expected = Math.fround(12 + (v < 0 ? 18 : -18) * alpha);
+        expect(run(input).sstC[center]).toBe(expected);
+      }
+    }
+  });
+
+  it("uses radial rather than componentwise strength and saturates admitted -128 diagonals", () => {
+    for (const y of [2, 3]) {
+      const input = inputFor(7, [80, 12, 60, 32, 85, 24]);
+      const center = y * input.width + 3;
+      const self = initialSst(input, center);
+      for (const signX of [-1, 1]) {
+        for (const signY of [-1, 1]) {
+          const donors = expectedDonors(input, 3, y, signX, signY);
+          const geometric = donors.reduce((sum, donor) => sum + initialSst(input, donor.index) * donor.weight, 0);
+          const outputs: number[] = [];
+          for (const component of [1, 30, 60, 89, 90, 127, 128]) {
+            // Positive 128 is not admitted by i8; the -128 endpoint is tested in its own quadrant.
+            if (component === 128 && (signX < 0 || signY < 0)) continue;
+            input.currentU[center] = -signX * component;
+            input.currentV[center] = -signY * component;
+            const expected = strengthBlend(self, geometric, component, component);
+            const actual = run(input).sstC[center]!;
+            expect(actual).toBeCloseTo(Math.fround(expected), 5);
+            if (component >= 90) outputs.push(actual);
+          }
+          expect(new Set(outputs).size).toBe(1);
+        }
+      }
+      for (const [u, v] of [[-128, 127], [127, -128], [-128, 1], [1, -128]]) {
+        input.currentU[center] = u!;
+        input.currentV[center] = v!;
+        const geometric = expectedDonors(input, 3, y, -u!, -v!).reduce(
+          (sum, donor) => sum + initialSst(input, donor.index) * donor.weight,
+          0
+        );
+        expect(run(input).sstC[center]).toBeCloseTo(Math.fround(geometric), 5);
+      }
+    }
+  });
+
+  it("reapplies the weak blend to the previous pass rather than the initial temperature", () => {
+    const input = inputFor(5, [90, 45, 0]);
+    const center = input.width + 2;
+    input.currentV[center] = -63;
+    const first = Math.fround(12 + (30 - 12) * 63 / 127);
+    const second = Math.fround(first + (30 - first) * 63 / 127);
+    expect(run(input).sstC[center]).toBe(first);
+    expect(run(input, { advectIters: 2 }).sstC[center]).toBe(second);
+  });
+
+  it("bounds the response to weak currents rotating around zero by their small donor fraction", () => {
+    for (const y of [2, 3]) {
+      const input = inputFor(7, [90, 90, 45, 45, 0, 0]);
+      const center = y * input.width + 3;
+      const self = initialSst(input, center);
+      for (const [u, v] of [[0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1]]) {
+        input.currentU[center] = u!;
+        input.currentV[center] = v!;
+        const geometric = expectedDonors(input, 3, y, -u!, -v!).reduce(
+          (sum, donor) => sum + initialSst(input, donor.index) * donor.weight,
+          0
+        );
+        const actual = run(input).sstC[center]!;
+        expect(actual).toBeCloseTo(Math.fround(strengthBlend(self, geometric, u!, v!)), 5);
+        expect(Math.abs(actual - self)).toBeLessThan(0.21);
+      }
+    }
+  });
+
+  it("applies diffusion after the strength blend, including calm and shelf controls", () => {
+    for (const y of [2, 3]) {
+      const latitudes = [45, 45, 45, 45, 45, 45];
+      latitudes[y - 1] = 90;
+      latitudes[y + 1] = 15;
+      const input = inputFor(7, latitudes);
+      const center = y * input.width + 3;
+      // Two cold, two same-row and two warm neighbors; the old-time average is 10 C.
+      const neighborAverage = (-6 * 2 + 12 * 2 + 24 * 2) / 6;
+      for (const v of [0, -1, -64, -127, -128]) {
+        input.currentV[center] = v;
+        for (const shelf of [0, 1]) {
+          input.shelfMask[center] = shelf;
+          for (const diffusion of [0, 0.2, 1]) {
+            const advected = strengthBlend(12, 24, 0, v);
+            const mixing = shelf ? Math.min(1, diffusion * 1.35) : diffusion;
+            const expected = Math.fround(advected + (neighborAverage - advected) * mixing);
+            expect(run(input, { diffusion }).sstC[center]).toBe(expected);
+          }
+        }
+      }
     }
   });
 
@@ -233,6 +342,7 @@ describe("ocean thermal adjacent-ray transport", () => {
         input.shelfMask[i] = i % 2;
       }
       for (const diffusion of [0, 0.18, 1]) {
+        const before = structuredClone(input);
         for (const constant of [-1, 20]) {
           const out = run(input, {
             advectIters: 30,
@@ -249,6 +359,7 @@ describe("ocean thermal adjacent-ray transport", () => {
         }
         const out = run(input, { advectIters: 30, diffusion });
         expect(run(input, { advectIters: 30, diffusion })).toEqual(out);
+        expect(input).toEqual(before);
         for (let i = 0; i < input.width * input.height; i++) {
           expect(Number.isFinite(out.sstC[i])).toBe(true);
           expect(out.sstC[i]).toBeGreaterThanOrEqual(-6);

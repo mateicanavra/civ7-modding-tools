@@ -453,3 +453,72 @@ coupled runs, seven-profile collateral and unchanged product study bank.
 Improved stability does not automatically validate Earth SST or any sampling
 count. Qualify those outcomes separately rather than fitting this blend to the
 observed temperature deltas.
+
+### Strength Correction Results
+
+The ocean-owned blend is implemented without a new option or changed input
+shape. Exact zero/full-strength branches preserve their previous arithmetic;
+all intermediate strengths blend before the unchanged diffusion. Independent
+review found no actionable issue. Nineteen focused public-operation tests pass
+2,240 assertions, and an independent one-pass oracle matches all 131,072
+signed-byte/parity combinations exactly, including storage value -128. The
+numerical rule is 161 lines; no recipe step, producer, reduction, moisture rule
+or authored map envelope changed.
+
+`periodic-ocean-strength-20260929/receipt.json` retains twenty repeated coupled
+captures, four frozen causal-current replays, six single-cell transplants and
+four actual first-current prefixes. The prefixes preserve initialization,
+thermal samples, phase atmosphere/current fields and the first annual current
+exactly. Two/four-observation controls remain exact. All 34 compressed artifacts
+pass compressed/uncompressed hash verification and source identity is stable.
+
+The Earth4596 single-cell transplant effect falls from 2.80650 to 0.04881 C;
+Aqua5290 from -5.02998 to -0.68095 C; Aqua1793 from -5.33393 to -0.65589 C.
+These are changes in controlled intervention responses, not claims that those
+cells now match measured Earth SST.
+
+| Arm | 24-to-96 water SST MAE / P99 / max C | 48-to-96 water SST MAE / P99 / max C |
+| --- | --- | --- |
+| Earth coast, weather 0 | 0.0242 / 0.2138 / 0.6101 | 0.0161 / 0.1177 / 0.3783 |
+| Earth coast, weather 14 | 0.0302 / 0.2703 / 0.6769 | 0.0203 / 0.1509 / 0.3098 |
+| Aquaplanet, weather 0 | 0.0362 / 0.3142 / 0.5321 | 0.0310 / 0.1516 / 0.5362 |
+| Aquaplanet, weather 14 | 0.0802 / 0.6504 / 1.5210 | 0.0501 / 0.3882 / 1.2073 |
+
+This is a material model correction, not merely a harmless rounding repair.
+At 24 phases, old-to-new water SST MAE spans 0.759-1.438 C and maxima
+9.304-11.255 C across the four arms. Earth changes one or two ice cells;
+aquaplanet ice is unchanged. Annual land thermal/clipping fields remain exact.
+The three retained post-moisture baselines isolate strength-only downstream
+effects: forced Earth land rainfall MAE/max is 0.472/14 encoded units at 24
+phases and 0.471/13 at 96. Other moisture comparisons are labeled combined
+moisture-plus-strength effects because a strength-only old baseline is absent.
+Neither smaller tails nor larger thermal changes automatically qualify a
+phase count or establish physical SST accuracy.
+
+`ocean-strength-seven-profile-20260929/receipt.json` compares all seven legacy
+Huge/1018 maps against the complete post-moisture captures, with exact authored
+configuration, compiled configuration and setup identity and no migration.
+All retain their upstream relief, lake masks, flow receivers, routing elevation
+and outlet masks; land temperatures are exact. Water final-temperature MAE is
+0.426-1.178 C with a 10.133 C maximum. Refined rainfall MAE is 0.048-0.221
+encoded units with maximum 27. Sundered Archipelago gains three river tiles
+(179 to 182); the others retain their total counts while classifications
+change. Biomes change on 3-53 cells per profile, with corresponding feature
+and resource-placement changes. Latest Juicy cell (53,8) changes from navigable
+river to flat as its river class changes from major to none; its drainage
+receiver and upstream relief remain exact. This accounts for the profile's
+single realized terrain change and navigable count 57 to 56. These downstream
+effects are measured, not hidden behind an upstream-equality claim.
+
+The collateral compares 36 typed fields plus all shared numeric capture and
+metric scalars, preserves explicit sparse-key availability, and validates all
+fourteen compressed artifacts. Values are finite and source identity is
+stable. Standard captures still do not retain raw ocean SST or physical
+runoff/discharge arrays; those unavailable comparisons are not invented. Native
+projection and full Earthlike basin-coordinator replay remain separate gates.
+
+The owning Core/definition/realization graph passes types, builds and policy;
+Core tests pass 369/369, realization 175/175, definition 1005/1006. The sole
+failing study-bank test retains exactly the same eleven expectations as the
+moisture proof. No targets were relaxed. The complete log is retained as
+`ocean-strength-owning-proof-20260929.log` in the research directory.
