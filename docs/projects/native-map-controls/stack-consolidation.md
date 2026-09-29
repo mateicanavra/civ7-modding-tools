@@ -98,3 +98,18 @@ The basin tip before/after both folds remained
 `10e6b74493bd5aae7d0016389dd09bd8f12d2512`. Descendants required no content
 restack. The chain is back within the 50-PR bound. No prerequisite worktree,
 main edits, merge state or repository policy was changed.
+
+## Periodic Thermal Publication
+
+Native `gt fold --keep --close` consolidated `materializer-stylesheets` into
+`150-source-compatibility`, retaining PR #2191 and both original commits
+(`8611850b8d`, `6d8c463db3`). Graphite closed superseded #2190. Independent review
+identified one installed-source compatibility story: the stylesheet provenance
+support is a direct prerequisite of the adopted 1.5 corpus and its loader
+dispositions. Startup dependencies and native elevation remain separate.
+
+The new periodic implementation tip remained
+`d1265684a51b404c2a391ed3c37704e28b3645e0`, tree
+`8cfb5312665fe7f777ab176fee955624c845b887`, through the fold. All descendants
+required no content restack. The 31 prerequisites and occupied migration
+worktree are unchanged; the resulting chain has 50 non-trunk branches.
