@@ -6,6 +6,12 @@ Continues [coherence completion](coherence-completion.md). The user proposes a
 fixed Earth baseline to separate downstream climate/drainage quality from
 generated continent and relief variability.
 
+The user has now delegated implementation and asked for one consolidated
+[question sheet](calibration-question-sheet.md). Its sequence begins with
+effective Earthlike input correction and distinguishes physical lake surface
+fidelity from preservation of Civ7's initial setter result. This packet remains
+the supporting benchmark design, not a claim that those implementations exist.
+
 ## Investigation Frame
 
 **Decision:** select a durable benchmark that can calibrate physical behavior
