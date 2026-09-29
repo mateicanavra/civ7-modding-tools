@@ -105,14 +105,21 @@ component size as the classifier, not to infer semantics from visual width.
 Cutoff 6,996 may simply admit the whole connected ocean component because it
 fits under the limit. That result does not reject a bounded cutoff of 100.
 
-The next minimal native discriminator holds basin geometry and elevation fixed
+The completed bounded [native discriminator](water-height-maintenance.md#paired-native-results) holds basin geometry and elevation fixed
 and changes only its ocean connection: ordinary water-tile strait, dry NAV
 corridor, dry MINOR corridor, or no outlet. Cross with bounded cutoffs and an
 exact-boundary size case. Record ordinary water connectivity, native area IDs,
 `isLake`, initial/final heights and river ocean connectivity separately. If
 connectivity plus size explains the result, use that simple native contract;
 do not invent additional salinity or lake/sea rules to solve this projection
-problem. Real-world terminology remains context, not a new implementation gate.
+problem. The paired cutoff5/10 runs confirm inclusive size boundaries and the
+ordinary-water versus dry-river distinction in the held controls. Native lake
+classification preserves heights without creating wet tiles. A NAV-connected
+lake can gain ocean-access metadata while retaining a separate water area;
+that is not ship-traversal proof. No confirmed runtime cutoff setter was found,
+so exact per-run sizing remains a timing/ownership question rather than a
+reason to mutate a returned database row. Real-world terminology remains
+context, not a new implementation gate.
 
 ## Execution Order
 

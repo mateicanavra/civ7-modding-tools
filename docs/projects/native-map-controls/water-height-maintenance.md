@@ -11,8 +11,8 @@ traversal is yet qualified.
 
 ## Bounded Connectivity Controls
 
-V13/V14 are built, source-tested Tiny diagnostics, not native findings yet.
-The existing app-owned river probe now admits
+V13/V14 are now paired native observations, following the source-tested Tiny
+diagnostics. The existing app-owned river probe admits
 `water-connectivity-cutoff-5` and `water-connectivity-cutoff-10`. Each contains
 translated 5/6-cell basins joined to the exterior ocean by ordinary COAST
 tiles, dry NAV, dry MINOR, or no outlet. Isolated 4/5/6/9/10/11-cell controls
@@ -27,10 +27,90 @@ regions are labeled separately from water connectivity. Native call failures
 are retained as unavailable evidence, never negative classification results.
 
 The focused source suite passes 32 tests (26,287 assertions), including legacy
-probe preservation and generated manifest scope. This proves fixture structure
-and build routing only. Native classification, water heights and ship passage
-still require the paired live runs; neither arbitrary cutoff100 nor a dynamic
-runtime cutoff is selected by these unit tests.
+probe preservation and generated manifest scope. That source proof establishes
+fixture structure and build routing only; the live observations below establish
+the tested classification and height behavior, not ship passage.
+
+### Paired Native Results
+
+Both successful live runs completed all nine checkpoints, 342 row batches per
+run, 30 ordered writes and two wet NAV writes, with zero write failures or
+unavailable grid observations. The four deployed diagnostic files matched the
+retained build before each launch. Exact proof IDs, revisions, fixture hash and
+fresh run windows were checked. The built JavaScript differs only at the
+registration line selecting the proof and arm; native map metadata differs only
+at cutoff. The exterior marine geometry is held fixed.
+
+| Control | Cutoff 5 | Cutoff 10 |
+| --- | --- | --- |
+| 5/6-cell basin connected by ordinary COAST strait | Nonlake, height 0 | Identical |
+| NAV, MINOR or no-river 5-cell basin | Lake, height 322 retained | Identical |
+| NAV, MINOR or no-river 6-cell basin | Nonlake, 322 -> 194 -> 66 | Lake, height 322 retained |
+| Isolated 4/5-cell body | Lake, height 572 retained | Identical |
+| Isolated 6/9/10-cell body | Nonlake, 572 -> 444 -> 316 | Lake, height 572 retained |
+| Isolated 11-cell body | Nonlake, 572 -> 444 -> 316 | Identical |
+
+The tested size rule is **inclusive** at both boundaries. Across every cell and
+checkpoint, terrain, river class, water flag, native area ID, area-water flag
+and authored player landmass region agree between runs. Exactly 43 cells switch
+from nonlake to lake at cutoff10. Their initial heights agree, then classification
+preserves 128 native units at river finalization and another 128 at terrain
+validation. No new wet cells are created and the marine controls are unchanged.
+
+NAV-connected lakes retain a separate water area and lake identity while their
+area's ocean-access flag becomes true after `storeWaterData`. MINOR and closed
+lake controls do not gain that flag. Conversely, isolated nonlake controls can
+already report ocean-connected at initialization. Therefore
+`AreaBuilder.isAreaConnectedToOcean` is not a literal path-of-water-tiles test,
+and neither it nor a river ocean flag proves ship passage. These observations
+support the user's ordinary-water-strait versus river-connector distinction
+without conflating marine classification, river access and vessel movement.
+
+Evidence lives under
+`earth-calibration/native-water-connectivity-20260929/` in the documented
+VisualAtlas root. The bounded Bun analyzer and comparison retain raw logs,
+builds, per-cell observations and the two successful live receipts. Comparison
+receipt SHA-256:
+`7cd7e6b0dacc997cde5a8b73e307844207545adbaa24f5d603cae4fc8941dcf4`.
+The first attempt timed out returning the previous Huge game to the menu before
+test generation; it is retained separately and excluded from native outcomes.
+
+### Cutoff Policy Boundary
+
+A cutoff should cover intended native lake components without swallowing
+protected non-lake water components. The tested ordinary-water component rule,
+not the mere presence of a river outlet, determines the useful size comparison.
+The paired experiment does not yet select a universal 40/100 cap or establish
+that one threshold separates those sets on every generated map.
+
+No confirmed runtime cutoff setter was found in the inspected shipped scripts,
+embedded declarations, generated API declarations or adapter. The qualified
+mechanism is the map-scoped, pre-generation `Maps` database update used here.
+Our production entrypoint captures map metadata before the recipe runs, while
+actual lake sizes are produced later. Assigning to a returned `GameInfo` row is
+not an admitted native update. An exact per-seed maximum therefore needs a
+qualified pre-start computation path; it is not currently a free runtime fix.
+A bounded map/size policy can use the demonstrated database path, but modified
+metadata must have truthful custom setup admission. Keep official-preset
+validation strict, as the earlier V10 refusal demonstrated.
+
+### Playable Restoration And Iteration
+
+The latest normal mod was deployed after the paired test and Huge Earthlike
+successfully loaded with `ToT_NoModsExceptMaps`, both seeds 1018 and its saved
+12-player count. The built/deployed script SHA-256 is
+`b2b2b7383d39166f4a95d2b5c7a388409fc372e4abc966b4fa7d33e6548c5abb`.
+Fresh completion and runtime identity passed; native Huge cutoff remains 10.
+The retained `restore-{deploy.log,live.log,scripting.log,map-info.json}` files
+separate this playable latest-code handback from final calibration acceptance.
+
+For an already registered mod, deploy changed files and restart/regenerate the
+game while leaving the Civ application open. Full application restarts are not
+a normal deployment requirement; reserve them for newly introduced mod
+registration or demonstrated recovery needs. The first menu-transition timeout
+did not justify the repeated process restarts used during this investigation.
+The launcher uses the same `engine.call("exitToMainMenu")` as shipped Firaxis
+automation; the retained timeout does not yet establish its underlying cause.
 
 ## Current Discriminator
 

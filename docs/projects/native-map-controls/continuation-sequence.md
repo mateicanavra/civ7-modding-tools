@@ -77,6 +77,12 @@ publication mechanism, or bypassing an enforced kind blueprint.
    scale controls qualify input conversion, not precipitation, generated
    geology or a universal physical lapse rate. Keep those residual mechanisms
    separate rather than promote the illustrative lapse as calibrated truth.
+   A bounded eight-seed Standard replay isolates the newly failing forest
+   expectation to seed 1234: eligible humid habitats fail the separate forest
+   moisture score, while score-eligible cells have excluded biomes. Review that
+   Ecology relationship at its domain owners; do not repair it with a presence
+   quota or another ocean-transport change. See the retained discriminator in
+   [periodic thermal response](periodic-thermal-response.md#remaining-forest-admission-discriminator).
 5. **Qualify the native water boundary.** The controlled connectivity/cutoff
    probes can proceed independently of climate and generated-relief calibration:
    held synthetic geometry and native readbacks test engine semantics. Follow
@@ -84,6 +90,11 @@ publication mechanism, or bypassing an enforced kind blueprint.
    Distinguish direct marine-tile connectivity, a river
    outlet, body size and native maintenance. Prove actual naval access in an
    appropriate era independently of a visually connected mouth.
+   The paired cutoff5/10 runs now qualify the inclusive size boundary and
+   ordinary-water versus river-connector distinction. The latest Huge saved
+   setup loads successfully, still with normal cutoff10. General bounded
+   cutoff policy and its pre-generation setup admission, closed/below-sea
+   surface coverage and era-qualified movement remain separate open work.
 6. **Close the integrated loop.** Run the complete study bank, review new
    causal and projection behavior, refresh the full-map atlas with correlated
    data and native views, and remove compensation only where replacement
