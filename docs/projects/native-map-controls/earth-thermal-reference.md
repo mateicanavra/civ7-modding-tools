@@ -101,22 +101,25 @@ differently averaged quantities should be identical.
 
 ## Reproduction
 
-Download the three pinned URLs from the fixture into a local source directory.
-The extractor requires Python, NumPy, and h5py, not production dependencies.
-The original bounded analysis used Python 3.11, NumPy 2.2.4, and h5py 3.11.0.
-With those available in the selected Python environment:
+The repository owns the frozen JSON references, source pins, TypeScript
+consumers and Bun checks. It does not own a Python environment, extraction
+runtime, package cache or Python test target. Ordinary development and CI use:
 
 ```sh
-python3 plugins/mod/map/swooper-physics/test/recipes/swooper-physics-standard/fixtures/earth-thermal/extract.py /path/to/pinned-noaa-files
 bun test plugins/mod/map/swooper-physics/test/recipes/swooper-physics-standard/stages/hydrology/earth-thermal-reference.test.ts
+bun test plugins/mod/map/swooper-physics/test/recipes/swooper-physics-standard/stages/hydrology/earth-monthly-reference.test.ts
 ```
 
-The extractor refuses source-pin drift and deterministically recreates the
-frozen cohort. It does not download data, install packages, or fit parameters.
-The broader local analysis, including the least-squares protocol and exponent
-sensitivity, is retained as `noaa-thermal-reference.py` and
-`noaa-thermal-reference-summary.json` under the workstream's external
-`VisualAtlas/huge-1018/earth-calibration` evidence directory.
+The one-off extraction tools, their source-backed checks and reference copies
+are retained outside the checkout at `noaa-extraction/` under
+`~/Library/Application Support/Civ7Tools/VisualAtlas/huge-1018/earth-calibration/`.
+Its README records the offline replay command. The three source files and
+temporary analysis dependencies also remain outside the checkout. Extraction
+refuses source-pin drift; monthly replay preserves the original annual cohort
+byte-for-byte and does not refit it. The original bounded analysis used Python
+3.11, NumPy 2.2.4 and h5py 3.11.0; this is historical provenance, not a repository
+toolchain requirement. The broader analysis and receipts remain in that same
+external evidence directory, discoverable through [local viewers](../../process/LOCAL-VIEWERS.md).
 
 Next calibration work should keep annual error, seasonal contrast, and relief
 response separate. Fitting annual lowland temperature does not validate polar
