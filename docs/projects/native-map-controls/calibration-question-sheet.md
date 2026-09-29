@@ -25,8 +25,9 @@ parallel benchmark harness. Supporting design: [Earth calibration](earth-calibra
 | Question group | What is established | What must discriminate the remaining hypotheses |
 | --- | --- | --- |
 | Baseline calibration | Current Earthlike hot/high controls compile to 28.44-degree tilt and warm thermal offsets | Correct effective Earthlike inputs first; hold geography and other identities; measure climate/hydrology consequences rather than declare empirical calibration complete |
-| Physical versus native lake height | Cutoff20 preserves initial native water heights and fixes the tested cliffs; no wet-footprint expansion | Compare physical bed, physical spill/water surface, sea datum, projected setter input, immediate native level and final level for each body |
+| Physical versus native lake height | All 55 V11 bodies match converted physical spill heights under observed native water encoding; no wet-footprint expansion | Qualify encoding and preservation beyond this open-basin cohort, including altered shoreline, sea-level and closed-basin controls |
 | Bounded lake classification | Unlimited cutoff reclassifies oceans; bounded20 succeeds on Huge1018; Huge42 has a 33-cell physical lake | Native classification/height fidelity and gameplay consequences under bounded controls, not just bigger cutoff or nicer rendering |
+| Derived cutoff and inland seas | A largest-lake bound is a projection requirement, not a physical lake-size limit; one global threshold may not separate all intended categories | Derive both the required lake bound and the protected non-lake bound after hydrology; verify native component semantics, strictness and when the setting can be applied; report an unrepresentable overlap rather than alter physical geography |
 | Rivers and scale | Huge1018 has 1.93 times Firaxis Earth's land-normalized dry NAV density, with shorter dry components | Separate total drainage density, major-class policy, wet-connected trunks, terrain barriers and real vessel/era usability |
 | Fixed Earth geography | Finished relief constrains routing but does not uniquely determine climate, water availability or lake beds | Reference-forcing and predicted-climate arms on the same admitted surface; declare units, materials, epoch, conditioning and missing processes |
 | Network maturity and relief | Current incision uses preliminary routing; C3 design is not implemented | After baseline qualification, compare the climate-fed certified network with terrain evolution; preserve genuine closed basins and Earth irregularity |
@@ -39,21 +40,79 @@ parallel benchmark harness. Supporting design: [Earth calibration](earth-calibra
   Compare physical surface intent to the pre-maintenance native water level;
   preserving an already wrong level cannot pass this test.
 - H2: our writer supplies submerged ground where a water-surface projection is
-  needed, leaving Civ to infer a different level. Current source supports this
-  as a real contract gap: `projectStandardElevation` does not consume physical
-  `waterSurface` or spill elevation. Quantify it before choosing a correction.
+  needed, leaving Civ to infer a different level. The writer does not consume
+  physical `waterSurface` or spill elevation, but the completed all-body census
+  finds correct converted physical spill heights on all 55 V11 bodies. That
+  rejects a mismatch on this cohort, not every future surface or lake regime.
 - H3: cutoff changes both water category and leveling behavior, potentially
   making a visual improvement physically wrong. V11 did not expand water and
-  did not change the initial post-setter height array, but that does not reject
-  H2 or establish physical surface fidelity. V12 proves category changes can
+  did not change the initial post-setter height array. The separate physical
+  surface census qualifies the numeric relation for this cohort. V12 proves category changes can
   also affect marine height/features; it does not invalidate every finite cutoff.
 - H4: some apparent disconnections are legitimate divides, steep channels or
   distinct water surfaces. Directed physical paths, slopes, body identities
   and native evidence distinguish these from missing writes or unsupported joins.
 
-No added water footprints in V11 is a resolved non-problem. Physical lake-height
-fidelity, every gameplay effect and ship traversal are not resolved by it.
+No added water footprints and no physical-sill mismatch in V11's 55-body census
+are resolved non-problems for that tested map. General surface semantics,
+every gameplay effect and ship traversal are not resolved by it.
 See [native water-height evidence](water-height-maintenance.md).
+
+## Derived Classification Policy
+
+The user's follow-up proposes deriving `LakeSizeCutoff` from the generated
+water bodies. Prefer a derived requirement to an arbitrary authored constant,
+but do not equate it with an implementable native runtime setter. Inspected
+shipped source exposes this value in the `Maps` database rows; the successful
+diagnostics change a map-scoped database component before generation. No
+runtime mutation contract has yet been established.
+
+Derivation belongs after physical basin/water-budget resolution, not solely
+after Foundation or Morphology. It needs realized connected wet components,
+their intended category and protected marine/non-lake components, including
+connections or splits introduced by projection. A valid size threshold must
+include every intended native lake while excluding every protected non-lake
+component. Inclusive versus exclusive comparison and native component rules
+remain measured questions. If those requirements overlap, no global size
+threshold can express the requested classification; silently choosing the
+largest lake anyway is not a solution. Do not clip lakes to make the threshold
+convenient or turn marine water into lakes to preserve heights.
+
+River outflow does not define lake versus sea. Open lakes have an outlet;
+closed lakes do not. Salinity, water balance and exchange with marine water
+are separate properties; even the term inland sea spans different hydrologic
+settings. At our current resolution, retain basin identity, marine provenance,
+surface and directed connections rather than infer a physical category from
+the presence of a Civ NAV tile. Some marine provenance itself may be a model
+limitation, not ground truth, and must be exposed in the fixed-Earth study.
+References: [USGS lake hydrology](https://www.usgs.gov/water-science-school/science/lakes-and-reservoirs),
+[NOAA/FGDC coastal and marine classification](https://coast.noaa.gov/data/digitalcoast/pdf/cmecs.pdf).
+
+Required discriminators: an outflow lake, a closed lake, a narrow marine
+connection, two basins linked by river tiles, and an intended lake larger than
+a protected enclosed marine component. Test the classification request and
+native realization separately. A host preflight/two-pass path is an option
+only if necessary and compatible with ordinary in-game generation; it is not
+assumed or authorized as a new default architecture by this hypothesis.
+
+**Civ-specific connectivity hypothesis:** the user correctly distinguishes a
+strait of ordinary water tiles from a visually wide navigable river. Shipped
+`terrain.xml` marks COAST/OCEAN as water; NAVIGABLE_RIVER does not set that flag
+(the schema default is false). Shipped `map-utilities.js` also checks a NAV
+river's ocean connectivity separately from an ordinary water area's ocean
+connectivity. These are source-backed reasons to test ordinary connected water
+component size as the classifier, not to infer semantics from visual width.
+Cutoff 6,996 may simply admit the whole connected ocean component because it
+fits under the limit. That result does not reject a bounded cutoff of 100.
+
+The next minimal native discriminator holds basin geometry and elevation fixed
+and changes only its ocean connection: ordinary water-tile strait, dry NAV
+corridor, dry MINOR corridor, or no outlet. Cross with bounded cutoffs and an
+exact-boundary size case. Record ordinary water connectivity, native area IDs,
+`isLake`, initial/final heights and river ocean connectivity separately. If
+connectivity plus size explains the result, use that simple native contract;
+do not invent additional salinity or lake/sea rules to solve this projection
+problem. Real-world terminology remains context, not a new implementation gate.
 
 ## Execution Order
 
