@@ -79,3 +79,22 @@ remains `d5a9377f9fc0fa11ad7aa1077f1b37be3e3e8429`; the occupied prerequisite
 remains `10e6b74493bd5aae7d0016389dd09bd8f12d2512`. No physics, contract or
 native-proof boundary was collapsed. The owned chain is now 49 non-trunk
 branches including its 31 unchanged prerequisites, before the next layer.
+
+## Basin Coordinator Publication
+
+The Earth response reference and completed basin coordinator brought the chain
+to 52 non-trunk branches. Two further native `gt fold --keep --close` operations
+consolidated the completed elevation implementation and its launch prerequisite
+into `authored-elevation`, retaining PR #2196. Graphite closed superseded
+`saved-map-preset` #2195 and `native-elevation-contract` #2192. All six original
+commits remain available inside the retained elevation story, including native
+probe and production qualification evidence. This intentionally combines the
+adapter/definition review boundary of the already completed elevation feature;
+it does not combine later rivers, climate or basin mechanisms.
+
+The basin tip before/after both folds remained
+`00af8b22d7328287a7ff02bc0fac8942e8158c59`, with tree
+`dab029d80373adb46b2b025e162c3df95ed42a3c`; the occupied prerequisite remains
+`10e6b74493bd5aae7d0016389dd09bd8f12d2512`. Descendants required no content
+restack. The chain is back within the 50-PR bound. No prerequisite worktree,
+main edits, merge state or repository policy was changed.
