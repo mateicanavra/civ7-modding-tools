@@ -437,7 +437,6 @@
             "poleTempC": -2,
             "advectIters": 28,
             "diffusion": 0.18,
-            "secondaryWeightMin": 0.25,
             "seaIceThresholdC": -1
           }
         },

@@ -22,6 +22,9 @@ publication mechanism, or bypassing an enforced kind blueprint.
    observations as distinct references. Inspect source registration, units,
    latitude range, seasonal convention and all required producer inputs before
    broadening the fixed-Earth climate experiment.
+   Extraction-only tooling and downloaded scientific sources remain in the
+   discoverable Civ research user-data directory; the repo retains admitted
+   JSON fixtures and Bun checks, not a Python toolchain or caches.
 2. **Run the climate reference without unknown relief units.** The existing
    actual-operation Earth-coast/flat-relief arm and aquaplanet control remain
    valid. Extend reusable, test-owned capture and comparison where needed.
@@ -29,6 +32,10 @@ publication mechanism, or bypassing an enforced kind blueprint.
    infer physical altitude from Firaxis render indices or claim a flat-relief
    arm is a full Earth reconstruction. A corrected forcing hypothesis is a
    diagnostic until held-out and downstream guards pass.
+   The [periodic implementation](periodic-thermal-response.md) passes its
+   frozen monthly-reference replay. Correct the witnessed geometric ocean
+   donor discontinuity and repeat the same coupled resolution controls before
+   accepting the atmospheric sampling count or advancing relief calibration.
 3. **Complete missing downstream mechanisms exposed by that baseline.**
    [Reef spatial thinning](reef-spatial-thinning.md) removes an independently
    demonstrated coordinate-phase rejection while leaving habitat scoring

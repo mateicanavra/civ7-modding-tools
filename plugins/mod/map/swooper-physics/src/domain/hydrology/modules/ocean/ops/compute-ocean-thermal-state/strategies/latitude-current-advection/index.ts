@@ -30,7 +30,6 @@ const latitudeCurrentAdvectionStrategy = createStrategy(
           poleTempC: config.poleTempC,
           advectIters: config.advectIters,
           diffusion: config.diffusion,
-          secondaryWeightMin: config.secondaryWeightMin,
           seaIceThresholdC: config.seaIceThresholdC,
         }
       );
