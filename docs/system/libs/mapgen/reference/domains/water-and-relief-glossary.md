@@ -145,6 +145,19 @@ Area size is not a real-world salinity model. Keep physical provenance, native
 classification and visible surface height distinct.
 [Source and measured behavior](../../../../../projects/native-map-controls/water-height-maintenance.md).
 
+### Open Lakes, Closed Lakes And Inland Seas
+
+An open lake exports water through an outlet; a closed lake has no surface
+outflow. Neither lake size nor a river connection alone determines salinity
+or marine exchange. "Inland sea" is not a single hydrologic category: some
+are ocean-connected; other named seas are closed lakes. Our certified path
+models admitted open-basin spill surfaces and directed connectors, not a
+general salinity, tidal or closed-lake equilibrium model. Preserve physical
+body identity separately from Civ's size-based native `Lake` flag; a NAV tile
+does not by itself make two water bodies one marine surface.
+Learn: [USGS lake hydrology](https://www.usgs.gov/water-science-school/science/lakes-and-reservoirs)
+and [NOAA/FGDC marine settings](https://coast.noaa.gov/data/digitalcoast/pdf/cmecs.pdf).
+
 ### River Class And Navigable River
 
 Our minor/major classes come from exposed-land discharge percentiles plus

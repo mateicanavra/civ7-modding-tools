@@ -236,6 +236,43 @@ No physical terrain grading was performed. This is visual continuity, not
 naval traversal. The phone viewer's `#lake-classification` section retains the
 matched before/after images and capture receipts.
 
+### Physical Surface Cross-Check
+
+The user's follow-up distinguishes a retained native level from a faithful
+physical water surface. The writer supplies submerged ground, not the physical
+`waterSurface` array: `128 + round(max(0, ground - seaLevel) * 10)`.
+That source fact alone does not prove wrong leveling. A complete body census
+now verifies that all 55 bodies / 203 wet cells in V11 are flat and exactly
+equal `round((physical spillElevation - seaLevel) * 10)`, without the land
+floor of 128. Model sea level is 11. Every minimum physical shoreline and outlet
+receiver ground equals the corresponding spill elevation. V11 preserves all
+post-setter wet heights; V9 subsequently changes 48.
+
+| Body | Wet cells | Physical ground range | Physical surface | V11 water | Dry outlet receiver |
+| --- | ---: | --- | ---: | ---: | ---: |
+| 42 | 5 | 31-36 | 37 | 260 | 388 |
+| 56 | 1 | 56 | 57 | 460 | 588 |
+| 63 | 17 | 15-21 | 22 | 110 | 238 |
+| 67 | 16 | 30-33 | 34 | 230 | 358 |
+| 69 | 15 | 58-63 | 64 | 530 | 658 |
+
+Thus cutoff 20 did not merely preserve unexplained heights: the native water
+numbers agree with the physical spill surfaces under the observed encoding.
+The land/water readback offset 128 is not by itself a geometric waterfall.
+This is numerical equivalence, not proof that `getElevation` equals rendered
+world Z or that closed/below-sea-level lakes behave identically. Initial V9
+and V11 full native arrays are identical; the cutoff changes later preservation.
+The original marine intent is 0; 4,275 cells remain 0, while one preexisting
+native-lake cell at plot 976 remains 10. It is not an ocean reclassification.
+
+Retained evidence is `earth-calibration/lake-surface-projection-census.{mjs,json}`
+under the VisualAtlas root, including source/receipt hashes and all 55 records.
+Root replay passes its assertions. The existing elevation-contract fixture's
+wet-input versus shoreline-height controls can qualify causal leveling: vary
+wet inputs at fixed shore, then shore height and a low outlet. Do not invent
+a compensating height constant or replace the native setter before those
+controls demonstrate a real mismatch.
+
 ## Generalization Discriminator
 
 The shipped Earth Huge database has 34 isolated all-COAST components, none larger

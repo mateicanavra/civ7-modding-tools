@@ -1,8 +1,8 @@
 import type { RiverDirection } from "@civ7/adapter";
 import type { ArtifactReadValueOf } from "@swooper/mapgen-core/authoring";
-import type { artifact as lakePlanArtifact } from "../../../../../../../domain/hydrology/modules/hydrography/artifacts/lake-plan.artifact.js";
+import type { artifacts as hydrographyArtifacts } from "../../../../../../../domain/hydrology/modules/hydrography/artifacts/index.js";
 
-type CertifiedLakePlan = Extract<ArtifactReadValueOf<typeof lakePlanArtifact>, { model: "certified-sill-spill" }>;
+type CertifiedLakePlan = Extract<ArtifactReadValueOf<typeof hydrographyArtifacts.lakePlan>, { model: "certified-sill-spill" }>;
 
 /** Converts one physical adjacent receiver into the adapter's geographic symbols. */
 export function riverDirectionToReceiver(width: number, height: number, sourceCell: number, receiverCell: number): RiverDirection {
