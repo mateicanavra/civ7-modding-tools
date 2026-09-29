@@ -49,6 +49,11 @@ type ClimateBaselineVizEvidence = Readonly<{
   seasonalWindV: readonly Int8VizValues[];
   seasonalCurrentU: readonly Int8VizValues[];
   seasonalCurrentV: readonly Int8VizValues[];
+  seasonalIntegration?: Readonly<{
+    phaseOrigin: "northward-equinox";
+    phases: readonly number[];
+    observationIndices: readonly number[];
+  }>;
   oceanGeometry: Readonly<{
     basinId: Int32VizValues;
     coastDistance: Uint16VizValues;
@@ -78,6 +83,12 @@ export function buildClimateBaselineVizProjections(
   const projections: VizProjection[] = [];
   const { baselineClimateField, seasonalAmplitudes, pressureField, windField, currentField } =
     observation;
+  const seasonLabel = (season: number): string => {
+    const integration = observation.seasonalIntegration;
+    if (!integration) return `Season ${season + 1}`;
+    const phase = integration.phases[integration.observationIndices[season]!];
+    return `Phase ${phase} From Northward Equinox`;
+  };
 
   if (observation.oceanGeometry) {
     projections.push(
@@ -193,7 +204,7 @@ export function buildClimateBaselineVizProjections(
           "hydrology.climate.baselineSurfaceTemperature",
           "climate.temperature",
           {
-            label: `Surface Temperature (Season ${season + 1} C)`,
+            label: `Surface Temperature (${seasonLabel(season)}, C)`,
             group: GROUP_SEASONALITY,
             visibility: "debug",
           }
@@ -213,7 +224,7 @@ export function buildClimateBaselineVizProjections(
         dims: dimensions,
         field: { format: "f32", values: pressure },
         meta: defineStandardVizMeta("hydrology.pressure.pressure", "field.signed", {
-          label: `Circulation Pressure Anomaly (Season ${season + 1})`,
+          label: `Circulation Pressure Anomaly (${seasonLabel(season)})`,
           group: GROUP_PRESSURE,
           visibility: "debug",
         }),
@@ -347,7 +358,7 @@ export function buildClimateBaselineVizProjections(
         dims: dimensions,
         field: { format: "u8", values: rainfall },
         meta: defineStandardVizMeta("hydrology.climate.rainfall", "climate.moisture", {
-          label: `Rainfall (Season ${season + 1})`,
+          label: `Rainfall (${seasonLabel(season)})`,
           group: GROUP_SEASONALITY,
           visibility: "debug",
         }),
@@ -359,7 +370,7 @@ export function buildClimateBaselineVizProjections(
         dims: dimensions,
         field: { format: "u8", values: humidity },
         meta: defineStandardVizMeta("hydrology.climate.humidity", "climate.moisture", {
-          label: `Humidity (Season ${season + 1})`,
+          label: `Humidity (${seasonLabel(season)})`,
           group: GROUP_SEASONALITY,
           visibility: "debug",
         }),
@@ -461,7 +472,7 @@ export function buildClimateBaselineVizProjections(
         u: { format: "i8", values: windSeasonU },
         v: { format: "i8", values: windSeasonV },
         meta: defineStandardVizMeta("hydrology.wind.wind", "field.intensity", {
-          label: "Wind",
+          label: `Wind (${seasonLabel(season)})`,
           group: GROUP_WIND,
           visibility: "debug",
         }),
@@ -476,7 +487,7 @@ export function buildClimateBaselineVizProjections(
         u: { format: "i8", values: currentSeasonU },
         v: { format: "i8", values: currentSeasonV },
         meta: defineStandardVizMeta("hydrology.current.current", "field.intensity", {
-          label: "Current",
+          label: `Current (${seasonLabel(season)})`,
           group: GROUP_CURRENT,
           visibility: "debug",
         }),

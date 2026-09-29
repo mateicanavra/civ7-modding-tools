@@ -162,7 +162,7 @@ describe("Shipped map configs", () => {
     }
   });
 
-  it("compiles Earthlike to neutral thermal controls and an explicit four-season Earth tilt", async () => {
+  it("compiles Earthlike to neutral periodic thermal controls with 24 integration phases and four observations", async () => {
     const configs = await loadSwooperMapConfigRegistry();
     const earthlike = configs.find((entry) => entry.canonicalConfig.id === "swooper-earthlike");
     if (!earthlike) throw new Error("Expected the shipped Earthlike config");
@@ -174,24 +174,32 @@ describe("Shipped map configs", () => {
     const baseline = compiled["hydrology-climate-baseline"]["climate-baseline"];
     const refine = compiled["hydrology-climate-refine"]["climate-refine"];
     if (
-      baseline.computeThermalState.strategy !== "insolation-lapse-rate" ||
+      baseline.computeThermalState.strategy !== "periodic-response" ||
+      baseline.computeRadiativeForcing.strategy !== "daily-solar-fourier" ||
+      baseline.computeSeasonalSampling.strategy !== "periodic-cycle" ||
       baseline.computeAtmosphericCirculation.strategy !== "geostrophic-proxy" ||
       baseline.computePrecipitation.strategy !== "vector"
     ) {
-      throw new Error("Expected Earthlike's authored thermal, circulation, and precipitation strategies");
+      throw new Error("Expected Earthlike's matching periodic thermal, solar, sampling, circulation, and precipitation strategies");
     }
 
     // Check effective values so a broad knob cannot silently stack on exact authored controls.
     expect({
       seasonality: baseline.seasonality,
-      baselineBaseTemperatureC: baseline.computeThermalState.config.baseTemperatureC,
-      baselineInsolationScaleC: baseline.computeThermalState.config.insolationScaleC,
+      integrationPhaseCount: baseline.computeSeasonalSampling.config.phaseCount,
+      solarConfig: baseline.computeRadiativeForcing.config,
+      thermalConfig: baseline.computeThermalState.config,
+      atmosphericAggregate: baseline.computeAtmosphericAggregate,
+      moistureAggregate: baseline.computeMoistureAggregate,
       pressureDrivenRms: baseline.computeAtmosphericCirculation.config.pressureDrivenRms,
       precipitationNoiseAmplitude: baseline.computePrecipitation.config.noiseAmplitude,
     }).toEqual({
       seasonality: { modeCount: 4, axialTiltDeg: 23.44 },
-      baselineBaseTemperatureC: 8,
-      baselineInsolationScaleC: 50,
+      integrationPhaseCount: 24,
+      solarConfig: {},
+      thermalConfig: { annualOffsetC: 0, lapseRateCPerElevationUnit: -0.0065, minC: -40, maxC: 50 },
+      atmosphericAggregate: { strategy: "phase-reduction", config: {} },
+      moistureAggregate: { strategy: "phase-reduction", config: {} },
       pressureDrivenRms: 95,
       precipitationNoiseAmplitude: 14,
     });

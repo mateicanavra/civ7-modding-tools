@@ -391,6 +391,18 @@
         "coupling": {
           "iterations": 2
         },
+        "computeSeasonalSampling": {
+          "strategy": "legacy-snapshots",
+          "config": {}
+        },
+        "computeAtmosphericAggregate": {
+          "strategy": "phase-reduction",
+          "config": {}
+        },
+        "computeMoistureAggregate": {
+          "strategy": "phase-reduction",
+          "config": {}
+        },
         "computeRadiativeForcing": {
           "strategy": "latitude-insolation",
           "config": {

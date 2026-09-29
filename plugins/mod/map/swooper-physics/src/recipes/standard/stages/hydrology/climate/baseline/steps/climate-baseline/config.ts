@@ -28,10 +28,11 @@ const ClimateBaselineStepConfigSchema = Type.Object(
      */
     seasonality: Type.Object(
       {
-        /** Seasonal mode count sampled internally when computing annual mean + amplitude. */
+        /** Observation count; only the legacy sampling strategy also uses it for integration. */
         modeCount: Type.Union([Type.Literal(2), Type.Literal(4)], {
           default: 2,
-          description: "Seasonal mode count sampled internally (2=solstices, 4=quarter-year).",
+          description:
+            "Seasonal observations (2=solstices, 4=quarter-year); periodic integration is independent.",
         }),
         /** Effective axial tilt (declination amplitude) in degrees for seasonal forcing. */
         axialTiltDeg: Type.Number({
@@ -50,8 +51,8 @@ const ClimateBaselineStepConfigSchema = Type.Object(
     /**
      * Fixed atmosphere-ocean coupling controls.
      *
-     * Every iteration re-derives temperature, pressure, wind, currents, and SST. Only SST, the
-     * ocean's slow thermal memory, crosses the iteration boundary.
+     * Every iteration re-derives temperature, pressure, wind, currents, and prescribed annual
+     * SST. These are spatial fixed-point iterations, not elapsed seasonal time.
      */
     coupling: Type.Object(
       {
@@ -60,7 +61,7 @@ const ClimateBaselineStepConfigSchema = Type.Object(
           minimum: 1,
           maximum: 4,
           description:
-            "Fixed atmosphere-ocean coupling iterations. One is an SST-free first guess; later iterations consume only the preceding SST field.",
+            "Fixed atmosphere-ocean coupling iterations. Legacy starts without SST; periodic response starts with prescribed SST. Later iterations consume only the preceding SST field.",
         }),
       },
       {
@@ -93,6 +94,9 @@ export const config = defineStep({
   ],
 
   ops: {
+    computeSeasonalSampling: hydrology.climate.ops.computeSeasonalSampling,
+    computeAtmosphericAggregate: hydrology.climate.ops.computeAtmosphericAggregate,
+    computeMoistureAggregate: hydrology.climate.ops.computeMoistureAggregate,
     computeRadiativeForcing: hydrology.climate.ops.computeRadiativeForcing,
     computeThermalState: hydrology.climate.ops.computeThermalState,
     computePressureField: hydrology.climate.ops.computePressureField,

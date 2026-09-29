@@ -8,6 +8,7 @@ import {
   type StandardClimateStructureInput,
   StandardSeasonalRainfallMeasurementsSchema,
 } from "../../../../../../src/recipes/standard/metrics/families/hydrology/climate-structure.js";
+import { captureFreshEarthlikeScenario } from "../../fixtures/standard-product.js";
 
 function controlledClimateInput(): StandardClimateStructureInput {
   const landMask = Uint8Array.from([1, 1, 0, 0, 1, 1, 1, 1]);
@@ -30,6 +31,78 @@ function controlledClimateInput(): StandardClimateStructureInput {
 }
 
 describe("Standard climate-structure measurements", () => {
+  it("captures immutable complete periodic sampling metadata", () => {
+    const measurement = captureFreshEarthlikeScenario().model.seasonalRainfall;
+    if (measurement.version !== 2)
+      throw new Error("Earthlike must retain periodic integration evidence.");
+    expect(measurement.saturatedLandTileCounts).toHaveLength(24);
+    expect(measurement.sampling.phases).toEqual(
+      Array.from({ length: 24 }, (_, index) => index / 24)
+    );
+    expect(measurement.sampling.observationIndices).toEqual([0, 6, 12, 18]);
+    for (const record of [
+      measurement,
+      measurement.sampling,
+      measurement.saturatedLandTileCounts,
+      measurement.sampling.phases,
+      measurement.sampling.weights,
+      measurement.sampling.observationIndices,
+    ]) {
+      expect(Object.isFrozen(record)).toBe(true);
+    }
+    expect(Reflect.set(measurement.sampling.phases, "0", 0.5)).toBe(false);
+    expect(measurement.sampling.phases[0]).toBe(0);
+  }, 30_000);
+
+  it("retains full periodic integration counts independently of selected observations", () => {
+    const input = controlledClimateInput();
+    const rainfall = Array.from({ length: 24 }, () => new Uint8Array(8));
+    rainfall[5]!.fill(200);
+    const phases = Array.from({ length: 24 }, (_, index) => index / 24);
+    const weights = new Array<number>(24).fill(1 / 24);
+    const measurement = measureStandardSeasonalRainfall({
+      landMask: input.model.landMask,
+      seasonalRainfall: [rainfall[6]!, rainfall[18]!],
+      seasonalIntegration: {
+        model: "periodic-cycle",
+        phaseOrigin: "northward-equinox",
+        phases,
+        weights,
+        observationIndices: [6, 18],
+        rainfall,
+      },
+    });
+    expect(measurement.version).toBe(2);
+    expect(Value.Check(StandardSeasonalRainfallMeasurementsSchema, measurement)).toBe(true);
+    expect(measurement.saturatedLandTileCounts).toHaveLength(24);
+    expect(measurement.saturatedLandTileCounts[5]).toBe(6);
+    expect(
+      measureStandardClimateStructure({
+        ...input,
+        model: { ...input.model, seasonalRainfall: measurement },
+      }).maximumSeasonalLandSaturationFraction
+    ).toBe(1);
+    if (measurement.version !== 2) throw new Error("Expected periodic evidence.");
+    phases[0] = 0.1;
+    weights[0] = 0;
+    expect(measurement.sampling.phases[0]).toBe(0);
+    expect(measurement.sampling.weights[0]).toBe(1 / 24);
+    expect(Object.isFrozen(measurement.sampling.phases)).toBe(true);
+    expect(Object.isFrozen(measurement.sampling.observationIndices)).toBe(true);
+    for (const sampling of [
+      { ...measurement.sampling, phases: [0] },
+      { ...measurement.sampling, weights: new Array<number>(24).fill(1) },
+      { ...measurement.sampling, observationIndices: [6, 24] },
+    ]) {
+      expect(() =>
+        measureStandardClimateStructure({
+          ...input,
+          model: { ...input.model, seasonalRainfall: { ...measurement, sampling } },
+        })
+      ).toThrow("Seasonal integration");
+    }
+  });
+
   it("counts land saturation inclusively and retains the worst season", () => {
     const input = controlledClimateInput();
     expect(input.model.seasonalRainfall).toEqual({

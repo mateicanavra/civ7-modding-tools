@@ -60,6 +60,7 @@ export function captureEarthCoastBaseline(run: EarthCoastBaseline) {
   const rainfallUnits = "Civ7 precipitation intensity index 0..200; not mm/year";
   const humidityUnits = "atmospheric moisture index 0..255; not relative-humidity percent";
   const pressureUnits = "circulation-pressure anomaly proxy in hPa; not absolute surface pressure";
+  const integration = observation.seasonalIntegration;
   const fields: Record<string, ReturnType<typeof field>> = {
     "topography.elevation": field(
       topography.elevation,
@@ -82,7 +83,7 @@ export function captureEarthCoastBaseline(run: EarthCoastBaseline) {
     "topography.landMask": field(
       topography.landMask,
       "u8",
-      "0 source water / 1 source land",
+      "0 model water / 1 model land; source geography in earth-coast, all water in aquaplanet",
       artifact(landformArtifacts.topography.id, "landMask")
     ),
     "shelf.shelfMask": field(
@@ -218,8 +219,31 @@ export function captureEarthCoastBaseline(run: EarthCoastBaseline) {
       observed("oceanThermal.seaIceMask")
     );
   }
+  if (integration) {
+    for (const [member, storage, units] of [
+      ["rainfall", "u8", rainfallUnits], ["humidity", "u8", humidityUnits],
+      ["potentialDemand", "f64", "empirical PET in rainfall-index units; not open-water evaporation"],
+      ["surfaceTemperatureC", "f32", "degrees Celsius, sampled ground response"],
+      ["pressure", "f32", pressureUnits],
+      ["windU", "i8", vectorUnits], ["windV", "i8", vectorUnits],
+      ["currentU", "i8", vectorUnits], ["currentV", "i8", vectorUnits],
+    ] as const) {
+      integration[member].forEach((values, phase) => {
+        fields[`seasonalIntegration.${member}.${phase}`] = field(
+          values, storage, units, observed(`seasonalIntegration.${member}[${phase}]`)
+        );
+      });
+    }
+  }
+  if (observation.thermalResponse) {
+    for (const member of ["annualUnclippedSurfaceTemperatureC", "annualClippingDeltaC"] as const) {
+      fields[`thermalResponse.${member}`] = field(
+        observation.thermalResponse[member], "f32", "degrees Celsius", observed(`thermalResponse.${member}`)
+      );
+    }
+  }
   return {
-    format: "earth-coast-flat-relief-baseline-capture-v1",
+    format: "earth-coast-flat-relief-baseline-capture-v2",
     arm: run.arm,
     source: earthReference.provenance,
     sourcePayloadSha256: sha256(JSON.stringify(earthReference)),
@@ -236,7 +260,9 @@ export function captureEarthCoastBaseline(run: EarthCoastBaseline) {
       },
       transform: "y' = 65 - y; x' = (x + (y & 1)) % 106",
       longitude: "unqualified; no geographic longitude correspondence claimed",
-      latitude: "+90/-90 declared bounds; production climate clamps polar samples to +/-89.999",
+      latitude: integration
+        ? "+90/-90 declared bounds; solar geometry retains exact poles; circulation frames retain their own polar clamp"
+        : "+90/-90 declared bounds; legacy climate clamps polar samples to +/-89.999",
     },
     semantics: {
       relief:
@@ -247,16 +273,25 @@ export function captureEarthCoastBaseline(run: EarthCoastBaseline) {
         "Authored TERRAIN_COAST mask; adjacency and distance derived by actual Morphology operations.",
       aquaplanet:
         "Removes land and authored shelf; holds setup, normalized forcing and flat relief.",
-      temperature:
-        "thermalField is the baseline annual mean of seasonal ground thermal; no refinement/albedo feedback.",
-      aggregation:
-        "Equal seasonal weights: thermal and PET store a double-precision sum/mean in f32; pressure uses an f32 running sum then f32 division; rainfall/humidity/winds round to their integer domains.",
+      temperature: integration
+        ? "thermalField is the independently dense-integrated clipped annual ground response; no refinement/albedo feedback."
+        : "thermalField is the baseline annual mean of seasonal ground thermal; no refinement/albedo feedback.",
+      aggregation: integration
+        ? "Atmosphere/moisture use the recorded integration phases and weights, not the observation subset; thermal has an independent dense integral. Integer domains round after weighted reduction."
+        : "Equal seasonal weights: thermal and PET store a double-precision sum/mean in f32; pressure uses an f32 running sum then f32 division; rainfall/humidity/winds round to their integer domains.",
       scope:
         "Baseline-only test composition; no coupled drainage, biomes, empirical Earth accuracy or native parity claim.",
       seasonSamples:
         "Step-returned samples after transient-member aggregation; not every internal solver iterate.",
-      unavailable: ["seasonal PET samples", "pre-clamp thermal samples"],
+      unavailable: integration ? ["pre-clamp thermal phase samples"] : ["seasonal PET samples", "pre-clamp thermal phase samples"],
     },
+    sampling: integration ? {
+      model: integration.model,
+      phaseOrigin: integration.phaseOrigin,
+      phases: [...integration.phases],
+      weights: [...integration.weights],
+      observationIndices: [...integration.observationIndices],
+    } : { model: "legacy-snapshots" as const, observationCount: run.config.seasonality.modeCount },
     initialSetup: run.initial,
     setup: run.setup,
     authoredMapConfig: run.mapConfig,
@@ -272,7 +307,7 @@ export function captureEarthCoastBaseline(run: EarthCoastBaseline) {
     fields,
     summary: {
       landCells: topography.landMask.reduce((sum, value) => sum + value, 0),
-      sourceWaterCells: topography.landMask.reduce((sum, value) => sum + (value === 0 ? 1 : 0), 0),
+      modelWaterCells: topography.landMask.reduce((sum, value) => sum + (value === 0 ? 1 : 0), 0),
       surfaceTemperatureC: summary(thermal.surfaceTemperatureC),
       rainfall: summary(baseline.rainfall),
       humidity: summary(baseline.humidity),

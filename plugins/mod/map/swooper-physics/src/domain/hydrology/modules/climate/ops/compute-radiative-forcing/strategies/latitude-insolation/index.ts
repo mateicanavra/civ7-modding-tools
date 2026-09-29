@@ -13,6 +13,8 @@ const latitudeInsolationStrategy = createStrategy(
   LatitudeInsolationDefinition,
   {
     run: (input, config) => {
+      if (input.model !== "latitude-insolation")
+        throw new RangeError("latitude-insolation requires its matching input model.");
       const width = input.width;
       const height = input.height;
       const size = width * height;
@@ -32,7 +34,7 @@ const latitudeInsolationStrategy = createStrategy(
         }
       }
 
-      return { insolation } as const;
+      return { model: "latitude-insolation", insolation } as const;
     },
   }
 );

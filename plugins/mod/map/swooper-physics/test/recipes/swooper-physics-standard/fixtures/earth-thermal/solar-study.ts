@@ -153,20 +153,24 @@ export function evaluateSolarCase(geometry: SolarGeometry, phaseCount: number, f
   let thermalParityMaxAbsoluteErrorC = 0;
   const clipped = forcing.map((field, phaseIndex) => {
     const phase = phaseIndex / phaseCount;
-    const insolation = geometry === "shifted-curve"
+    const legacyForcing = geometry === "shifted-curve"
       ? runAdmittedOperationForTest(hydrology.climate.ops.computeRadiativeForcing, {
-        width, height,
+        model: "latitude-insolation", width, height,
         latitudeByRow: Float32Array.from(reference.samples, (sample) =>
           Math.max(-89.999, Math.min(89.999, sample.latitudeDegrees - declinationAtPhase(phase)))
         ),
-      }, solarStudyProtocol.fixedForcing).insolation
-      : Float32Array.from(field, (value) => value * unitScale);
+      }, solarStudyProtocol.fixedForcing)
+      : null;
+    if (legacyForcing && legacyForcing.model !== "latitude-insolation") throw new Error("Expected legacy reference forcing.");
+    const insolation = legacyForcing?.insolation ?? Float32Array.from(field, (value) => value * unitScale);
     field.forEach((value, index) => {
       forcingParityMaxAbsoluteError = Math.max(forcingParityMaxAbsoluteError, Math.abs(insolation[index]! / unitScale - value));
     });
-    const result = runAdmittedOperationForTest(hydrology.climate.ops.computeThermalState, {
-      width, height, elevation, seaLevel: 0, landMask, insolation,
-    }, { strategy: "insolation-lapse-rate", config: thermalConfig }).surfaceTemperatureC;
+    const thermal = runAdmittedOperationForTest(hydrology.climate.ops.computeThermalState, {
+      model: "insolation-lapse-rate", width, height, elevation, seaLevel: 0, landMask, insolation,
+    }, { strategy: "insolation-lapse-rate", config: thermalConfig });
+    if (thermal.model !== "insolation-lapse-rate") throw new Error("Expected legacy reference thermal field.");
+    const result = thermal.surfaceTemperatureC;
     result.forEach((value, index) => {
       const expected = Math.max(-40, Math.min(50, unclipped[phaseIndex]![index]!));
       thermalParityMaxAbsoluteErrorC = Math.max(thermalParityMaxAbsoluteErrorC, Math.abs(value - expected));
