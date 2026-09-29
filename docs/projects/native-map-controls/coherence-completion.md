@@ -18,7 +18,7 @@ is a baseline and discriminator, not the finished solution.
 | Mountains, hills and coasts | Coherent relief, shelf repair, relief-supported landforms; old peak-chain proxy removed | Preserve relief support as terrain evolves |
 | Basin-aware lakes and rivers | Certified static drainage, budgets, footprints, dry minor/NAV authorship; generalized wet NAV outlet declarations | Cliff-transition regime and actual traversal |
 | Time/erosion/network coherence | Same-seed causal comparisons identified weak incision and fixed preliminary routing | Final climate-fed basin network does not yet shape the terrain it drains |
-| Density and scale | Land-area denominators, map-size cohorts and independent channel-class controls | Select and qualify a gameplay density policy; no invented km-per-tile calibration |
+| Density and scale | Same-grid Firaxis census: 191 versus 294 dry NAV tiles, 6.05% versus 11.68% of exposed land; current-config identity verified | Fixed-Earth physical benchmark and separately qualified gameplay policy; no invented km-per-tile calibration |
 | Cliffs and navigation | Late cliff generation prevents observed NAV-to-MINOR demotions | Normally produced stock-unit positive control, then Swooper traversal |
 | Lake junctions at (87,31) and larger lake | Outlet-only production repair; controlled lake-classification change repairs the artificial large-lake cliffs | General production height-lifecycle repair; unlimited cutoff rejected because it reclassifies oceans |
 | Whole-map studies and images | Reusable comparison script, 28 native frames, diagnostic PNGs, flow arrows, phone viewer | Update with final accepted implementation, not just candidate captures |
@@ -75,6 +75,14 @@ mechanism fixes so density cannot conceal broken joins or ineffective erosion.
 The independently reviewed [basin evolution design](basin-evolution-design.md)
 pins the initial/final artifact migration and contributing-area semantics;
 it is not an implemented result.
+The [Earth calibration design](earth-calibration.md) now separates a frozen
+physical surface with reference forcing from that same surface with predicted
+climate. Build this baseline before tuning C3 evolution and C4 class density;
+the independent C2 native height repair need not wait. Firaxis's Earth provides
+a measured gameplay reference, not physical truth. Current Earthlike hot/high
+controls yield an effective 28.44-degree tilt and index-valued runoff, so the
+preset name is not evidence of empirical Earth calibration. The benchmark is
+proposed, not implemented, and is not a second generation or study harness.
 The accepted [wet outlet implementation](wet-river-continuity.md) preserves all
 physical fields and dry sources across three cohorts. Production native evidence
 separates the repaired lake joins from the remaining cliff-transition case.
