@@ -525,3 +525,35 @@ eight-seed Standard cohort, not the seven-profile Huge collateral capture.
 The original eleven-count summary was incorrect; the retained ocean-strength
 log already contains this twelfth failure. No targets were relaxed. The log is retained as
 `ocean-strength-owning-proof-20260929.log` in the research directory.
+
+## Remaining Forest Admission Discriminator
+
+A fresh replay of the eight-seed Standard Earthlike cohort isolates its forest
+presence failure to seed 1234. Counts for 1018, 1, 2, 3, 42, 99, 1234 and 7777
+are respectively 3, 3, 3, 3, 2, 4, 0 and 3. The failing run has zero forest
+intents and projection attempts, not native placement rejection.
+
+Of its 52 eligible forest-biome habitats, 26 are flat and 24 unoccupied. Twenty-two
+of those 24 receive zero forest confidence because effective moisture at or
+above 214.2 reaches the wet-side bandpass cutoff (`238 * 0.9`). The other two
+score 0.020544 and 0.012012, below the authored 0.04 floor. Conversely, 727 land
+cells pass that score floor but belong to excluded biomes: 700 desert, 21
+temperate-dry and six tundra. Actual public substrate/forest-operation replay
+matches the published artifact. This is a misaligned biome/suitability admission
+relationship exposed by current climate, not evidence for a presence quota or
+another transport correction.
+
+The best remaining habitat, tile 885, has baseline/refined rain 119/135,
+humidity 172, potential demand 20.9217, effective moisture 199.2, aridity 0.1333
+and temperature 5.5177 C. Demand affects aridity; it is not subtracted from the
+effective-moisture index. Keep those concepts distinct when reviewing the
+forest scoring curve and biome gate. No pre-strength seed-1234 arrays were
+retained, so the exact former winning cell and its rainfall delta are unknown.
+
+Eight complete captures and `1234.trace.json` are retained at
+`earth-calibration/earthlike-forest-cohort-20260929/`. The trace reproduces 11
+fields exactly, verifies 3,340,978 finite numeric values and unchanged source
+identity. Trace receipt SHA-256:
+`0c6be8ab5929028739726306baa1809da284d148d09718ba798a3135fb5db747`.
+This is a localized follow-through finding; no ecological coefficients or
+study targets have been changed on its basis yet.
