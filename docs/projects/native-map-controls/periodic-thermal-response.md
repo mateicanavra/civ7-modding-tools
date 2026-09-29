@@ -519,6 +519,9 @@ projection and full Earthlike basin-coordinator replay remain separate gates.
 
 The owning Core/definition/realization graph passes types, builds and policy;
 Core tests pass 369/369, realization 175/175, definition 1005/1006. The sole
-failing study-bank test retains exactly the same eleven expectations as the
-moisture proof. No targets were relaxed. The complete log is retained as
+failing study-bank test reports twelve expectations: the eleven from the
+moisture proof plus Earthlike `ecology-cohort/forest-presence`. This is the
+eight-seed Standard cohort, not the seven-profile Huge collateral capture.
+The original eleven-count summary was incorrect; the retained ocean-strength
+log already contains this twelfth failure. No targets were relaxed. The log is retained as
 `ocean-strength-owning-proof-20260929.log` in the research directory.

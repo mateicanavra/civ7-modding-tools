@@ -207,7 +207,8 @@ model units. A meter-based atmospheric lapse rate cannot be inserted unchanged.
 
 An independent, area-weighted comparison of the three retained maps with
 NOAA model orography, cropped to their +/-80-degree latitude domain, finds a
-shape mismatch rather than just an unknown scale:
+shape mismatch rather than just an unknown scale. The following rounded table
+uses cumulative-midweight interpolated quantiles on both populations:
 
 | Land distribution | Median | P90 | P99 | P99 / median |
 | --- | ---: | ---: | ---: | ---: |
@@ -216,29 +217,81 @@ shape mismatch rather than just an unknown scale:
 | Huge 42, model units | 19 | 44 | 64 | 3.37 |
 | Standard 1018, model units | 17 | 51 | 65 | 3.82 |
 
+The 2026-09-29 pinned re-extraction reproduces the NOAA row under that
+convention: P90 1844.6727, P99 4470.5216, ratio 9.846964. Inverse empirical-CDF
+quantiles instead give 454/1845/4449 and ratio 9.799559; this is a method
+difference, not changed source data. The original calculation's receipt was
+not recovered, so the new receipt qualifies this numerical reproduction only.
+
 Matching medians would require 18.9-26.7 metres per model unit; matching P99
-would require 61.8-69.9. The distinction persists after excluding polar land
-and area-conservatively coarsening the reference to the generated grid sizes.
-[GMT SRTM15+ relief](https://www.generic-mapping-tools.org/remote-datasets/earth-relief.html)
-independently corroborates the long upper tail after matched coarsening.
-That comparison uses positive terrain, not a qualified below-sea-level land
-mask; it is corroboration, not a completed physical-height benchmark.
+would require 61.8-69.9. These incompatible fits are diagnostics, not admitted
+scales. Using the same inverse-CDF convention, generated ratios remain
+3.0000/3.3684/3.8235. Positive source-land aggregation at Huge and Standard
+center spacings retains ratios 8.58-8.93 across two longitude registrations.
+Each source cell retains its Gaussian land mass once; bins average admitted
+land heights without ocean-zero dilution or a land-fraction threshold. This
+is source-mass aggregation sensitivity, not geometric area-overlap resampling
+or exact hex-cell equivalence. Weighting, quantile convention, negative-height
+land exclusion and this coarsening do not explain the gap. The earlier GMT
+corroboration is not part of this newly verified evidence.
 
 These retained maps use a young, low-erosion, one-era configuration. The result
 does not imply that every generated world must match modern Earth, nor justify
 per-map quantile remapping. It does rule out treating their present relief as
-Earth-calibrated through a single undocumented multiplier. A stagewise
-hypsometry study should distinguish base-topography tail production, margin
-sculpting, land-mask reconciliation and erosion. In particular, reconciliation
-raises submerged admitted land to one unit above sea level; 11.70-16.67 percent
-of weighted land sits at that height in these cases. That is a measured
-low-end feature to trace, not proof of the upper-tail cause.
+Earth-calibrated through a single undocumented multiplier.
+
+The held-config stagewise study now localizes that shape. It captures raw
+base-operation output before margin mutation, post-margin ground, reconciled
+base topography, eroded topography and final islands. Actual public-operation
+replay and a Huge/1018 repeat are exact; 212 retained typed-field hashes pass.
+On the same final-land population and final sea datum, raw-to-final P99/median
+is 3.0417 to 3.0154, 3.4018 to 3.3684, and 3.8235 to 3.8235. Margin and
+reconciliation preserve the upper quantiles; erosion changes P99 by less than
+one model unit. No Int16 saturation occurs. Changing the erosion posture is
+therefore not a justified remedy for this upper-tail limitation.
+
+The separate low-end effect is real: reconciliation admits floor-height land,
+erosion reduces its occupancy, and islands add low land. Final area-weighted
+floor shares are 11.68%, 16.63% and 16.34%. These describe a different mechanism
+from missing high terrain.
+
+The base-operation decomposition also rejects an uplift-clipping explanation:
+the held config bounds its uplift blend below 0.82, and zero cells clip.
+Removing smoothing raises P99 by only 1.0/2.37/2.0 model units. Removing uplift
+instead lowers P99 by 26/20.63/27 while medians fall only 4/5/5. Uplift is
+already the main tail-producing contribution. Four reconstructions match the
+retained inputs and actual operation exactly; 128 field hashes pass. The
+bounded Foundation crust distribution and additive relief law precede this
+shape, but this does not establish a defective geological coefficient. No
+coefficient search, quantile remapping or production tuning follows from it.
+
+All receipts live under the discoverable `earth-calibration/` user-data root:
+
+- `noaa-orography-reference-20260929/analysis-receipt.json`:
+  `6c65b3200f4cd987b8e311c8ca515ff4ce43f15e69fdbf68169f92e71013a066`.
+- `noaa-orography-comparability-20260929/receipt.json`:
+  `4262b5999d045d38b6eefcab013b6fd0be00dfb7030b3da56baa11e23f2b71a6`.
+- `relief-stagewise-20260929/run-20260929-1/receipt.json`:
+  `8808dac262f2ad4009b9d1282bbf2c693cdb73b2aaef58a81505a06a443bb51c`.
+- `relief-base-decomposition-20260929/receipt.json`:
+  `bfee9955b68a99425229b3c46f9c1f40e5e4ce7767a4e22326084a0e58fdec23`.
 
 Keep low-relief temperature calibration independent. A common physical relief
 scale is admissible only after lowland, middle-elevation and high-tail implied
 scale ranges overlap across held seeds, sizes and reference sensitivities.
 No production scale, lapse coefficient, biome quota or study bound is changed
 on the strength of this diagnostic alone.
+
+That production-scale question does not block a fixed-Earth thermal diagnostic.
+The existing thermal operation can accept source heights under an explicit
+test-only encoding and matching lapse coefficient. For `q` geopotential metres
+per diagnostic model unit, encode `round(height / q)` and use `q * lapsePerMetre`.
+This supplies one input field, not a second artifact or a claim that generated
+relief has those units. Paired encodings can verify covariance up to stated
+quantization error. Keep the frozen lowland response unchanged; report its
+nonzero source-height/intercept ambiguity, below-sea clamp, and uncalibrated
+maritime response rather than fitting them away. This arm excludes Foundation,
+Morphology and precipitation, as intended by the fixed-reference experiment.
 
 ### Atoll Regression Is A Placement Assumption, Not A Thermal Handoff Bug
 

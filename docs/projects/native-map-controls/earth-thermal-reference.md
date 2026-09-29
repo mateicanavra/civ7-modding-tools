@@ -159,3 +159,103 @@ under the same external evidence root. Its receipt SHA-256 is
 `fbb5c7dd9d9fc8b7845ff45bc0650b7ede80f47952db8ac8072c4f0e79cd5c97`.
 See the adjacent `solar-study.md` for the complete protocol and rerun command.
 This is a discriminator, not adopted coefficients or a new production strategy.
+
+## Fixed-Height Thermal Discriminator
+
+The follow-through admits the same pinned NOAA sources over all source-mask
+land, retaining the original 411-cell cohort and its exact train/holdout
+identities. It freezes the accepted periodic response and asks how known source
+height changes its predictions. The remaining land is **out of fit**, not an
+independent validation sample: neighboring cells and climatological regimes
+remain dependent, and polar/high-terrain samples extend the fitted domain.
+
+Each source cell is an independent input row to the actual admitted solar and
+thermal operations. This is not a new Earth grid, complete map, pressure
+simulation or hydrological reconstruction. No Foundation artifact is fabricated
+and no production height field acquires a physical unit implicitly.
+
+The zero-height control is compared with two diagnostic encodings:
+`round(sourceGeopotentialHeight / q)`, for `q = 1` and `q = 10` geopotential
+metres per model unit. Sea datum is zero and the lapse coefficient is multiplied
+by the same `q`. The illustrative lapse is -0.0065 C per geopotential metre,
+following the lower-layer convention in [NASA/TM-2005-213659, Table 1](https://ntrs.nasa.gov/api/citations/20050207438/downloads/20050207438.pdf).
+That standard vertical profile is not evidence for a universal geographical
+surface-temperature lapse. This experiment neither estimates that coefficient
+nor adopts either encoding for generated maps.
+
+The paired runs must agree within height-rounding and Float32 reconstruction
+error; their sea-level thermal samples and means must remain exact. The latter
+are pressure inputs, not evaluated pressure fields. Negative source heights
+remain in the evidence and are reported separately because the existing
+operation clamps height-above-sea at zero. Broad diagnostic clipping bounds
+must be demonstrated inactive, not presumed so.
+
+Actual operation-derived harmonics are integrated over the existing frozen
+Gregorian month windows and equinox alignment. Monthly observations are never
+compared with month-center instantaneous temperatures. Annual publication stays
+independent of monthly reconstruction. Error summaries distinguish altitude,
+latitude, original training/holdout, out-of-fit land and the +/-80-degree crop.
+These describe sensitivity, not new pass/fail Earth accuracy targets.
+
+The lowland fit already includes some nonzero heights, which can affect its
+annual intercept and geographic gain. Both remain frozen; no compensating
+refit is allowed. Source geopotential height is coarse model orography and the
+temperature reference is 2 m air, not terrain-surface skin temperature. Missing
+land heat transport and maritime behavior remain separate model limitations.
+Precipitation, runoff and native river projection are outside this diagnostic;
+their other raw-height coefficients are not made physical by this conversion.
+
+### Results And Reproduction
+
+The pinned JSON contains 5,914 source-mask land cells, including 4,970 within
+the +/-80-degree crop, all original 196 training and 215 holdout cells, and
+80 below-sea-level source heights. The latter remain signed in the reference;
+the q10 encoding rounds 12 of them to zero rather than silently dropping them.
+Source height ranges from -276 to 5,760 geopotential metres. The full fixture
+SHA-256 is
+`11827210fcde734c4c3e1a9497e03ec21c516e6eec9aef364fe6236ec2943282`.
+
+| Diagnostic | Zero height | Known height, q1 |
+| --- | ---: | ---: |
+| Global land annual RMSE, C | 9.680 | 5.494 |
+| Global land monthly RMSE, C | 10.241 | 6.432 |
+| +/-80 land annual RMSE, C | 8.541 | 5.108 |
+| Original lowland holdout annual RMSE, C | 2.971 | 3.377 |
+| Height >=4,000 m annual bias, C | +24.256 | -7.248 |
+
+Known height removes a substantial warm error at altitude, but the assumed
+lapse overshoots there and worsens the original lowland holdout. This rejects
+both treating the global error as purely a solar problem and treating a larger
+uniform lapse as a completed calibration. The remaining residuals do not by
+themselves identify a unique lapse, heat-transport law or relief scale.
+
+All three arms remain unclipped. Maximum calendar-reconstructed versus
+published annual difference is 0.000002265 C; maximum q1/q10 difference is
+0.0325021 C against a 0.03575 C height-rounding bound plus 0.0001 C Float32
+budget. Sea-level thermal pressure inputs remain exact. Independent review
+and the focused old-replay/new-height tests passed: eight tests and 47,337
+assertions. Neither frozen coefficients nor product metric targets changed.
+The owning definition/realization graph passes types, builds and policy, with
+1,012 definition tests and all 175 realization tests passing. The sole failing
+definition test is the aggregate study bank: its twelve failed expectations
+are exactly the ocean-strength baseline, including Standard Earthlike forest
+presence. That unresolved calibration bank is not presented as green.
+See `earth-height-owning-proof-20260929.log` in the external evidence root.
+
+Run from the repository root after the owning dependency build:
+
+```sh
+bun test plugins/mod/map/swooper-physics/test/recipes/swooper-physics-standard/stages/hydrology/earth-height-reference.test.ts
+bun plugins/mod/map/swooper-physics/test/recipes/swooper-physics-standard/fixtures/earth-thermal/height-capture.ts "$HOME/Library/Application Support/Civ7Tools/VisualAtlas/huge-1018/earth-calibration/fixed-earth-height-20260929"
+```
+
+The capture requires an explicit external destination, creates a fresh run,
+and checks pins, numerical controls and source stability before publishing its
+receipt. The post-build capture is
+`fixed-earth-height-20260929/run-2026-09-29T20-49-33.947Z/` under the external
+Earth-calibration evidence root; receipt SHA-256
+`318596f411ad506a515e21aabb13ae033ec54ea76d43c355f7ca8a16ccb57e6c`.
+The numerical report is byte-identical to the preceding reviewed capture,
+SHA-256 `384979c922569875141d46e1c072c5f59ec790da5ae79167eb28223d9704ee4c`.
+The repo contains only the pinned JSON and Bun/TypeScript consumer; no Python
+toolchain, dependency directory, cache or extraction target is introduced.
