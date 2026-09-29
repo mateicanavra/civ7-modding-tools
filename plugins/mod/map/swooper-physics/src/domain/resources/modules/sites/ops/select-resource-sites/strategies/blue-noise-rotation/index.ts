@@ -303,8 +303,7 @@ const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
       // Co-eligible demands at this plot.
       const coEligible: DemandState[] = [];
       for (const demand of demands) {
-        if (demand.rotationCount + demand.rangeFloorCount >= demand.effectiveTargetCount)
-          continue;
+        if (demand.rotationCount + demand.rangeFloorCount >= demand.effectiveTargetCount) continue;
         if (eligibleByDemand[demand.index]![plotIndex] === 0) continue;
         if (violatesSpacing(plotIndex, demand.plannedPlots, demand.spacingFloorTiles)) continue;
         const ruleState = ruleStateAt(demand, plotIndex);
@@ -430,6 +429,7 @@ const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
       fromRotation: number;
       forced: number;
       shortfall: number;
+      shortfallReason?: "max-count" | "density-equity" | "no-admitted-site";
     }> = [];
     for (const demand of demands) {
       if (demand.regionMinimumRequirement.kind !== "required") continue;
@@ -445,18 +445,32 @@ const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
         ).length;
         let forced = 0;
         let deficit = Math.max(0, required - have);
+        let terminalDensityBlocked = false;
         while (deficit > 0 && demand.plannedPlots.length < demand.maxCount) {
           let best = -1;
           let bestScore = Number.NEGATIVE_INFINITY;
+          terminalDensityBlocked = false;
           for (let plotIndex = 0; plotIndex < size; plotIndex++) {
             if ((regionSlotByTile[plotIndex] ?? 0) !== regionSlot) continue;
             if (demand.legalMask[plotIndex] === 0 || usedPlots.has(plotIndex)) continue;
             // Official force-pass semantics relax cross-type spacing to
             // adjacency avoidance, but the per-type floor still holds (E2.6
             // dominates; unreachable minimums become recorded shortfalls).
+            // Regional completion also preserves the plan's density-equity law.
             if (violatesSpacing(plotIndex, sitePlots, 2)) continue;
             if (violatesSpacing(plotIndex, demand.plannedPlots, demand.spacingFloorTiles)) continue;
             if (ruleStateAt(demand, plotIndex).excluded) continue;
+            if (
+              !admitsQualifyingLandmassDensityChange({
+                qualifyingRows: totalQualifyingLand,
+                resourceCountByLandmass: placedByLandmass,
+                maxDensityRatio: equityMaxDensityRatio,
+                addedLandmassId: landmassIdByTile[plotIndex] ?? -1,
+              })
+            ) {
+              terminalDensityBlocked = true;
+              continue;
+            }
             const score =
               (demand.habitatMask[plotIndex] !== 0 ? 1 : 0) +
               (demand.intensity[plotIndex] ?? 0) +
@@ -480,6 +494,16 @@ const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
           fromRotation: have,
           forced,
           shortfall,
+          ...(shortfall > 0
+            ? {
+                shortfallReason:
+                  demand.plannedPlots.length >= demand.maxCount
+                    ? ("max-count" as const)
+                    : terminalDensityBlocked
+                      ? ("density-equity" as const)
+                      : ("no-admitted-site" as const),
+              }
+            : {}),
         });
       }
     }

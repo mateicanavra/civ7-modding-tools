@@ -64,6 +64,19 @@ export const ResourcePlanRegionMinimumSchema = Type.Object(
     fromRotation: Type.Integer({ minimum: 0 }),
     forced: Type.Integer({ minimum: 0 }),
     shortfall: Type.Integer({ minimum: 0 }),
+    shortfallReason: Type.Optional(
+      Type.Union(
+        [
+          Type.Literal("max-count"),
+          Type.Literal("density-equity"),
+          Type.Literal("no-admitted-site"),
+        ],
+        {
+          description:
+            "Present for a terminal regional deficit. Density equity means at least one otherwise admitted candidate was refused in the final search; it is not a count of missing placements caused by density.",
+        }
+      )
+    ),
   },
   { additionalProperties: false }
 );

@@ -49,7 +49,7 @@ export default defineStrategy({
         maximum: 4,
         default: 1.8,
         description:
-          "Maximum resource-density spread across qualifying landmasses (>=10% of land); required target/range placements and support adjustments avoid crossing a healthy spread or worsening an unhealthy one.",
+          "Maximum resource-density spread across qualifying landmasses (>=10% of land); target/range placements, regional minimums and support adjustments avoid crossing a healthy spread or worsening an unhealthy one. Unreachable regional minimums remain explicit shortfalls.",
       }),
       familyDensity: Type.Object(
         {

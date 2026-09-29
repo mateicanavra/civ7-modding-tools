@@ -46,6 +46,18 @@ export const artifact = defineArtifact({
       );
     }
 
+    for (const row of value.regionMinimums) {
+      if (row.shortfall > 0 && row.shortfallReason === undefined) {
+        issues.add(
+          `resourcePlan region minimum ${row.resourceType} slot ${row.regionSlot} requires a shortfall reason.`
+        );
+      } else if (row.shortfall === 0 && row.shortfallReason !== undefined) {
+        issues.add(
+          `resourcePlan region minimum ${row.resourceType} slot ${row.regionSlot} has a stale shortfall reason.`
+        );
+      }
+    }
+
     const seenPlots = new Set<number>();
     const countsByType = new Map<string, number>();
     for (const intent of value.intents) {

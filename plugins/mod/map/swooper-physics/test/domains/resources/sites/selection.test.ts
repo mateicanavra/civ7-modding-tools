@@ -168,10 +168,12 @@ describe("select-resource-sites operation contract", () => {
           phase: "rotation",
           plotIndex: testCase.anchor,
         });
-        expect(result.intents.find((row) => row.resourceType === "RESOURCE_CHOOSER")).toMatchObject({
-          phase: "range-floor",
-          plotIndex: preferredPlot,
-        });
+        expect(result.intents.find((row) => row.resourceType === "RESOURCE_CHOOSER")).toMatchObject(
+          {
+            phase: "range-floor",
+            plotIndex: preferredPlot,
+          }
+        );
       });
     }
 
@@ -696,6 +698,153 @@ describe("select-resource-sites operation contract", () => {
     });
   });
 
+  for (const alternativeSite of [false, true]) {
+    it(`keeps regional minimums inside density equity with alternate site ${alternativeSite}`, () => {
+      const boundary = width / 2;
+      const left = [-26, -18, -10, -2].map((x) => 10 * width + boundary + x);
+      const right = [6, 14].map((x) => 10 * width + boundary + x);
+      const denseCandidate = 20 * width + 4;
+      const sparseCandidate = 20 * width + boundary + 14;
+      const landmassIdByTile = Int32Array.from({ length: cellCount }, (_, i) =>
+        i % width < width / 2 ? 0 : 1
+      );
+      const regionSlotByTile = new Uint8Array(cellCount).fill(1);
+      regionSlotByTile[denseCandidate] = 2;
+      regionSlotByTile[sparseCandidate] = 2;
+      const intensity = new Float32Array(cellCount);
+      intensity[denseCandidate] = 1;
+      const input = buildInput({
+        landmassIdByTile,
+        landmassTileCounts: [cellCount / 2, cellCount / 2],
+        regionSlotByTile,
+        demands: [
+          {
+            resourceType: "RESOURCE_A",
+            weight: 1,
+            targetCount: 6,
+            minCount: 6,
+            maxCount: 6,
+            habitatMask: maskFromPlots(...left, ...right),
+            legalMask: maskFromPlots(...left, ...right),
+          },
+          {
+            resourceType: "RESOURCE_B",
+            weight: 1,
+            targetCount: 0,
+            minCount: 0,
+            maxCount: 1,
+            habitatMask: new Uint8Array(cellCount),
+            legalMask: maskFromPlots(denseCandidate, ...(alternativeSite ? [sparseCandidate] : [])),
+            intensity,
+            regionMinimumRequirement: {
+              kind: "required",
+              minimumPerLandmass: admitPositiveResourceRegionMinimum(1),
+              source: "official-resource",
+            },
+          },
+        ],
+      });
+      const configure = (
+        config: (typeof resources.sites.ops.selectResourceSites.defaultConfig)["config"]
+      ) => {
+        config.perTypeSpacingFloorScale = 0.5;
+        config.equityMaxDensityRatio = 2;
+      };
+      const result = run(input, configure);
+      expect(result.intents.filter((row) => row.resourceType === "RESOURCE_A")).toHaveLength(6);
+      expect(result.intents.filter((row) => row.resourceType === "RESOURCE_B")).toEqual(
+        alternativeSite
+          ? [expect.objectContaining({ plotIndex: sparseCandidate, phase: "region-minimum" })]
+          : []
+      );
+      expect(result.regionMinimums).toEqual([
+        expect.objectContaining({
+          regionSlot: 2,
+          required: 1,
+          forced: alternativeSite ? 1 : 0,
+          shortfall: alternativeSite ? 0 : 1,
+          ...(alternativeSite ? {} : { shortfallReason: "density-equity" }),
+        }),
+      ]);
+      if (alternativeSite) expect(result.regionMinimums[0]?.shortfallReason).toBeUndefined();
+      expect(run(input, configure)).toEqual(result);
+    });
+  }
+
+  it("records density exhaustion after a successful placement in the same regional minimum", () => {
+    const boundary = width / 2;
+    const left = [-26, -18, -10].map((x) => 10 * width + boundary + x);
+    const right = [6, 14].map((x) => 10 * width + boundary + x);
+    const acceptedCandidate = 20 * width + 4;
+    const blockedCandidate = 20 * width + 12;
+    const regionSlotByTile = new Uint8Array(cellCount).fill(1);
+    regionSlotByTile[acceptedCandidate] = 2;
+    regionSlotByTile[blockedCandidate] = 2;
+    const intensity = new Float32Array(cellCount);
+    intensity[acceptedCandidate] = 1;
+    intensity[blockedCandidate] = 0.5;
+    const input = buildInput({
+      landmassIdByTile: Int32Array.from({ length: cellCount }, (_, i) =>
+        i % width < boundary ? 0 : 1
+      ),
+      landmassTileCounts: [cellCount / 2, cellCount / 2],
+      regionSlotByTile,
+      demands: [
+        {
+          resourceType: "RESOURCE_A",
+          weight: 1,
+          targetCount: 5,
+          minCount: 5,
+          maxCount: 5,
+          habitatMask: maskFromPlots(...left, ...right),
+          legalMask: maskFromPlots(...left, ...right),
+        },
+        {
+          resourceType: "RESOURCE_B",
+          weight: 1,
+          targetCount: 0,
+          minCount: 0,
+          maxCount: 3,
+          habitatMask: new Uint8Array(cellCount),
+          legalMask: maskFromPlots(acceptedCandidate, blockedCandidate),
+          intensity,
+          regionMinimumRequirement: {
+            kind: "required",
+            minimumPerLandmass: admitPositiveResourceRegionMinimum(2),
+            source: "official-resource",
+          },
+        },
+      ],
+    });
+    const configure = (
+      config: (typeof resources.sites.ops.selectResourceSites.defaultConfig)["config"]
+    ) => {
+      config.perTypeSpacingFloorScale = 0.5;
+      config.equityMaxDensityRatio = 2;
+    };
+    const result = run(input, configure);
+
+    expect(result.intents.filter((row) => row.resourceType === "RESOURCE_A")).toHaveLength(5);
+    expect(result.intents.filter((row) => row.resourceType === "RESOURCE_B")).toEqual([
+      expect.objectContaining({ plotIndex: acceptedCandidate, phase: "region-minimum" }),
+    ]);
+    // The first addition reaches 4:2; the second would cross the same density limit at 5:2.
+    expect(result.intents.filter((row) => row.landmassId === 0)).toHaveLength(4);
+    expect(result.intents.filter((row) => row.landmassId === 1)).toHaveLength(2);
+    expect(result.regionMinimums).toEqual([
+      {
+        resourceType: "RESOURCE_B",
+        regionSlot: 2,
+        required: 2,
+        fromRotation: 0,
+        forced: 1,
+        shortfall: 1,
+        shortfallReason: "density-equity",
+      },
+    ]);
+    expect(run(input, configure)).toEqual(result);
+  });
+
   it("keeps required range completion intensity-scored while density admission is open", () => {
     const landmassBoundary = Math.floor(width / 2);
     const landmassIdByTile = new Int32Array(cellCount);
@@ -867,8 +1016,44 @@ describe("select-resource-sites operation contract", () => {
         fromRotation: 0,
         forced: 1,
         shortfall: 2,
+        shortfallReason: "no-admitted-site",
       },
     ]);
+  });
+
+  it("attributes a regional shortfall to the resource count cap", () => {
+    const result = run(
+      buildInput({
+        regionSlotByTile: new Uint8Array(cellCount).fill(1),
+        demands: [
+          {
+            resourceType: "RESOURCE_FISH",
+            weight: 1,
+            targetCount: 0,
+            minCount: 0,
+            maxCount: 1,
+            legalMask: maskFromPlots(0, 8, 16),
+            regionMinimumRequirement: {
+              kind: "required",
+              minimumPerLandmass: admitPositiveResourceRegionMinimum(3),
+              source: "official-resource",
+            },
+          },
+        ],
+      })
+    );
+    expect(result.regionMinimums).toEqual([
+      {
+        resourceType: "RESOURCE_FISH",
+        regionSlot: 1,
+        required: 3,
+        fromRotation: 0,
+        forced: 1,
+        shortfall: 2,
+        shortfallReason: "max-count",
+      },
+    ]);
+    expect(result.intents).toHaveLength(1);
   });
 
   it("keeps exclusion hard during the region-minimum force pass", () => {
@@ -922,6 +1107,7 @@ describe("select-resource-sites operation contract", () => {
         fromRotation: 0,
         forced: 0,
         shortfall: 1,
+        shortfallReason: "no-admitted-site",
       },
       {
         resourceType: "RESOURCE_B",
@@ -930,6 +1116,7 @@ describe("select-resource-sites operation contract", () => {
         fromRotation: 0,
         forced: 0,
         shortfall: 1,
+        shortfallReason: "no-admitted-site",
       },
     ]);
     expect(result.perType.find((row) => row.resourceType === "RESOURCE_B")?.shortfalls).toEqual([]);
