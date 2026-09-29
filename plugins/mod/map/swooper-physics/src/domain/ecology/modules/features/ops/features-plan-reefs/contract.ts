@@ -1,6 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { ReefFeaturePlacementSchema } from "../../model/atoms/index.js";
-import diagonalStrideDefinition from "./strategies/diagonal-stride/config.js";
 import habitatDefinition from "./strategies/habitat/config.js";
 
 /** Chooses reef, cold-reef, atoll, or lake-lotus intent while preserving occupancy and lake habitat laws. Every implementation shares this admitted input and output boundary. */
@@ -32,8 +31,7 @@ const PlanReefsContract = defineOp({
   output: Type.Object({
     placements: Type.Array(ReefFeaturePlacementSchema),
   }),
-  defaultStrategy: "habitat",
-  strategies: [habitatDefinition, diagonalStrideDefinition],
+  strategies: [habitatDefinition],
 });
 
 export default PlanReefsContract;

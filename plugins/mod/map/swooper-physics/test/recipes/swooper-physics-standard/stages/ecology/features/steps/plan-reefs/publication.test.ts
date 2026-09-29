@@ -20,7 +20,7 @@ import {
 import { createEmptyFeatureScoreLayers } from "../../fixtures/feature-score-layers.js";
 
 describe("ecology-features plan-reefs step", () => {
-  it("publishes reef intent after admitted upstream feature intents", () => {
+  it("uses the real spatial planner with upstream ice occupancy and published lake truth", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const setup = admitMapSetup({
@@ -40,7 +40,12 @@ describe("ecology-features plan-reefs step", () => {
 
     withMapContextExecutionForTest(ctx, (stepContext) => {
       const layers = createEmptyFeatureScoreLayers(size);
-      layers.reef.fill(1);
+      layers.reef[0] = 1;
+      layers.reef[1] = 0.875;
+      layers.lotus[3] = 1;
+      layers.lotus[4] = 0.75;
+      const lakeMask = new Uint8Array(size);
+      lakeMask[4] = 1;
 
       publishTestArtifact(stepContext, featureArtifacts.featureSuitability, {
         width,
@@ -48,20 +53,20 @@ describe("ecology-features plan-reefs step", () => {
         layers,
       });
       publishTestArtifact(stepContext, featureArtifacts.floodplainIntents, []);
-      publishTestArtifact(stepContext, featureArtifacts.iceIntents, []);
+      publishTestArtifact(stepContext, featureArtifacts.iceIntents, [{ x: 0, y: 0, feature: "ice" }]);
       publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, {
         model: "legacy-sink-budget",
         width,
         height,
-        lakeMask: new Uint8Array(size),
-        plannedLakeTileCount: 0,
-        sinkLakeCount: 0,
+        lakeMask,
+        plannedLakeTileCount: 1,
+        sinkLakeCount: 1,
       });
 
       const config = {
         planReefs: normalizeOperationSelectionForTest(
           ecology.features.ops.planReefs,
-          ecology.features.ops.planReefs.defaultConfig
+          { strategy: "habitat", config: { minConfidence01: 0.5, minSpacingTiles: 2 } }
         ),
       };
       const ops = ecology.features.ops.bind(planReefsStep.contract.ops!);
@@ -74,8 +79,10 @@ describe("ecology-features plan-reefs step", () => {
     });
 
     const intents = readArtifact(ctx, featureArtifacts.reefIntents);
-    expect(intents.length).toBeGreaterThan(0);
-    expect(intents.every(({ feature }) => feature === "reef")).toBe(true);
+    expect(intents).toEqual([
+      { x: 1, y: 0, feature: "reef" },
+      { x: 4, y: 0, feature: "lotus" },
+    ]);
   });
 
   it("refuses an upstream collision before publishing reef intent", () => {
