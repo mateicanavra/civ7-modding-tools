@@ -3,8 +3,11 @@
 The wet-outlet authoring correction is accepted. V11 establishes that native
 lake classification prevents the measured inland-water height loss and repairs
 the visible cliff-ring defect without physical grading. V12 rejects removing
-the size limit globally: it also reclassifies the ocean. A general production
-height-lifecycle repair and actual naval traversal remain unqualified.
+the size limit globally: it also reclassifies the ocean. It does not reject a
+bounded map-scoped cutoff. Qualifying that simpler classification policy is
+the next discriminator; late height reapplication remains an alternative, not
+the selected repair. Neither general production policy nor actual naval
+traversal is yet qualified.
 
 ## Current Discriminator
 
@@ -67,11 +70,78 @@ physical fields, all dry heights/terrain/river classes, original ocean, and the
 existing lake controls. V11 meets these comparisons; the nonmatching normal
 map's cutoff10 is separately verified after V12 below.
 
-This tests a classification cause; cutoff20 is not a proposed universal lake
-policy. V11 passes its causal and visual comparisons. V12 rejects removing the
-size boundary globally; maintenance ordering is the next production candidate.
+This tests a classification cause; cutoff20 is not yet a qualified universal
+lake policy. V11 passes its causal and visual comparisons. V12 rejects removing
+the size boundary globally, not bounded classification. The earlier inference
+that this made maintenance reapplication preferable was too strong.
 
-## Next Production Candidate
+## Bounded Classification First
+
+The user's cutoff20 wide-network image represents a successful treatment, not
+an observed overfill. All initial height inputs and post-setter observations
+hold. The same 48 existing wet cells keep their original post-setter heights
+110/230/530 instead of falling to 0/0/18. No extra land becomes water, no lake
+footprint grows, and all other recorded surface fields remain unchanged. This
+does not independently establish physical bed depth or naval passage, but
+there is no measured defect in V11 that warrants rejecting its visual repair.
+
+The reason not to adopt 20 as the final universal value is coverage, not
+overfilling: the retained Huge42 map contains a 33-cell physical lake. Nor is
+the engine's classification input proven to equal raw wet connected components
+or native area IDs. The `MapInUse` mechanism is qualified and scopes the
+database update to the selected map script; it is still a map-size-wide
+threshold, not a per-body override. Normal restored Earthlike still uses 10.
+
+The retained component census adds a concrete discriminator:
+
+| Cohort | Largest intended wet component | Original model-water component sizes |
+| --- | ---: | --- |
+| Huge1018 | 17 | 1, 88, 109, 395, 3683 |
+| Huge42 | 33 | 1, 10, 68, 4318 |
+| Standard1018 | 17 | 134, 2658 |
+
+Intended physical bodies and wet components are one-to-one in these samples,
+with no component mixing intended wet cells and original model water. That is
+not a general invariant. Existing tiny original-water components may already
+be native lakes; preserve their baseline identity rather than demanding every
+original-water cell be non-lake. The interior range 34-67 separates sampled
+intended components from original-water components above the stock ten-cell
+class, but is only a candidate range: an 88-cell original-water component has
+native area partitions of 30/31/27, proving those partitions are not the raw
+water graph. Only a native run qualifies the actual classifier outcome.
+
+Next compare stock cutoff 10 against the predeclared bounded treatment 40 on
+Huge42, then use 40 unchanged on Huge1018. It lies inside the candidate range
+and is not an authored default chosen from one screenshot. Extend to
+Standard1018 and retained whole-map size/body cohorts before selecting product
+policy. Require exact
+physical/intended-write parity, native coverage of accepted lake footprints,
+preserved original marine classification/heights, and unchanged unrelated
+features/resources/terrain, then inspect the same wide and outlet views.
+Do not shrink lakes, regenerate until a seed fits, or add a seed-failure gate.
+
+Lake classification has gameplay consequences beyond rendering: shipped
+`terrain.xml` includes `IN_LAKE` feature eligibility. Treat any feature change
+as a measured policy consequence requiring review, not automatically a reason
+to hide it or a claim of perfect parity. Traversal retains its independent
+era-qualified test. Admit modified map metadata truthfully as custom rather
+than weakening official-preset admission.
+
+If bounded classification satisfies the selected supported regimes, prefer
+the native classification control over a new compensating height pass. If
+lake and marine regimes cannot be separated reliably, or intended gameplay
+categories conflict, return to height maintenance with that concrete evidence.
+V12 alone does not establish either failure.
+
+The offline census script and hashed JSON are retained beside the Earth census
+under `huge-1018/earth-calibration/lake-cutoff-component-census.{mjs,json}` in
+the documented VisualAtlas root. Syntax, assertions, current config equality
+and deterministic replay pass. Only Huge1018 has native cross-references in
+this census; cutoff40 and Huge42 native classification remain untested.
+Independent design review confirms that V11 supplies no overfill evidence and
+that rejecting V12 does not establish preference for reapplication.
+
+## Alternative Height-Lifecycle Repair
 
 Keep the initial canonical height write: native feature legality and wonder
 planning already consume it, and shipped Earth writes before rivers/wonders.
@@ -87,7 +157,7 @@ native wonders can legitimately change footprint elevations (the retained
 Redwood case is 638 -> 598). Neither blindly merging current readbacks nor
 reapplying every canonical value is a qualified preservation policy.
 
-The next complete change must qualify that conversion, retain protected
+Any adoption of this alternative must qualify that conversion, retain protected
 feature/wonder geometry, and compare the complete pre-write, post-write,
 post-maintenance and completed-game surfaces with stock cutoff10. Hold the
 physical arrays, 693 river declarations, marine classification, dry NAV

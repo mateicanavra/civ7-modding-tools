@@ -20,7 +20,7 @@ is a baseline and discriminator, not the finished solution.
 | Time/erosion/network coherence | Same-seed causal comparisons identified weak incision and fixed preliminary routing | Final climate-fed basin network does not yet shape the terrain it drains |
 | Density and scale | Same-grid Firaxis census: 191 versus 294 dry NAV tiles, 6.05% versus 11.68% of exposed land; current-config identity verified | Fixed-Earth physical benchmark and separately qualified gameplay policy; no invented km-per-tile calibration |
 | Cliffs and navigation | Late cliff generation prevents observed NAV-to-MINOR demotions | Normally produced stock-unit positive control, then Swooper traversal |
-| Lake junctions at (87,31) and larger lake | Outlet-only production repair; controlled lake-classification change repairs the artificial large-lake cliffs | General production height-lifecycle repair; unlimited cutoff rejected because it reclassifies oceans |
+| Lake junctions at (87,31) and larger lake | Outlet-only production repair; cutoff20 preserves existing water heights and repairs large-lake cliffs without expanding water | Qualify bounded map-scoped classification across cohorts; unlimited cutoff is rejected, height reapplication remains an alternative |
 | Whole-map studies and images | Reusable comparison script, 28 native frames, diagnostic PNGs, flow arrows, phone viewer | Update with final accepted implementation, not just candidate captures |
 | Domain operations / step size | Inventory completed; basin and erosion algorithms already have domain operations | Climate coupling, mountain noise and treeline computation remain extraction candidates |
 | Glossary | Functional glossary with model owners and source links | Extend only for newly introduced concepts |
@@ -92,10 +92,14 @@ ten-cell lake cutoff. V11's cutoff20 treatment changes only those 48 cells and
 repairs the artificial cliffs visually without terrain grading. V12 rejects
 an unlimited cutoff: all 4,276 original-marine cells become native lakes, with
 collateral height, feature and resource changes. Normal Earthlike is restored
-and its actual cutoff10 verified. Next is a reviewed height-lifecycle change
-at the last terrain-maintenance boundary, not a seed-specific cutoff or
-physical carving. Setter reapplication and native feature/wonder preservation
-must be qualified before claiming that candidate works. Navigation is separate.
+and its actual cutoff10 verified. The cutoff20 treatment had no measured
+overfill or collateral surface defect. Unlimited classification failure does
+not establish that late reapplication is preferable. Next qualify a bounded,
+map-scoped cutoff against the retained larger-lake and map-size cohorts;
+do not select a seed-specific default or grade physical terrain. Height
+reapplication is an alternative only if that simpler policy cannot cover the
+intended regime, and still needs setter/wonder preservation proof. Navigation
+is separate. The updated maintenance packet records this design correction.
 
 Refreshing strict-descent receivers between early erosion eras is not the next
 main fix: shipped Earthlike uses one era, so that change cannot alter its
