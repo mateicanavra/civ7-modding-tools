@@ -56,7 +56,7 @@ describe("Hydrology climate-field artifacts", () => {
     }
   });
 
-  it("rejects thermal properties on climate bundles instead of retaining aliases", () => {
+  it("keeps baseline thermal evidence separate while final indices retain their temperature", () => {
     const baseline = {
       rainfall: new Uint8Array(cellCount),
       humidity: new Uint8Array(cellCount),
@@ -74,6 +74,7 @@ describe("Hydrology climate-field artifacts", () => {
       )
     ).not.toEqual([]);
     const indices = {
+      surfaceTemperatureC: new Float32Array(cellCount),
       effectiveMoisture: new Float32Array(cellCount),
       pet: new Float32Array(cellCount),
       aridityIndex: new Float32Array(cellCount),
@@ -84,6 +85,16 @@ describe("Hydrology climate-field artifacts", () => {
       climateArtifacts.climateIndices.validate(
         {
           ...indices,
+          surfaceTemperatureC: undefined,
+        },
+        { dimensions }
+      )
+    ).not.toEqual([]);
+    expect(
+      climateArtifacts.climateField.validate(
+        {
+          rainfall: baseline.rainfall,
+          humidity: baseline.humidity,
           surfaceTemperatureC: new Float32Array(cellCount),
         },
         { dimensions }

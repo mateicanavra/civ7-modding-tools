@@ -14,7 +14,7 @@ export const config = defineStep({
   engine: ["getBiomeGlobal", "setBiomeType", "readCurrentMapWaterMask"] as const,
   requires: [
     biomeArtifacts.biomeClassification,
-    climateArtifacts.surfaceTemperature,
+    climateArtifacts.climateIndices,
     morphologyLandformsArtifacts.topography,
   ],
   provides: [STANDARD_COMPLETIONS.biomesApplied],

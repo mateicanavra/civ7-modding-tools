@@ -30,9 +30,7 @@ type Float32VizValues = Extract<VizScalarSource, { format: "f32" }>["values"];
 /** Completed baseline-climate evidence observed by the optional visualization facet. */
 type ClimateBaselineVizEvidence = Readonly<{
   baselineClimateField: BaselineClimateField;
-  baselineSurfaceTemperature: ArtifactReadValueOf<
-    typeof climateArtifacts.baselineSurfaceTemperature
-  >;
+  thermalField: ArtifactReadValueOf<typeof climateArtifacts.thermalField>;
   seasonalAmplitudes: Readonly<{
     rainfallAmplitude: Uint8VizValues;
     humidityAmplitude: Uint8VizValues;
@@ -158,7 +156,7 @@ export function buildClimateBaselineVizProjections(
       dataTypeKey: "hydrology.climate.baselineSurfaceTemperature",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "f32", values: observation.baselineSurfaceTemperature },
+      field: { format: "f32", values: observation.thermalField.surfaceTemperatureC },
       meta: defineStandardVizMeta(
         "hydrology.climate.baselineSurfaceTemperature",
         "climate.temperature",

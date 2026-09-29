@@ -21,7 +21,7 @@ Groups correspond to `layer.meta.group`.
 
 **Default**
 - `hydrology.climate.rainfall` — `tile.hexOddR::grid` + `points:centroids` (scalar render variants).
-- `hydrology.climate.surfaceTemperature` — `tile.hexOddR::grid` + `points:centroids` (scalar render variants; independent refined thermal artifact).
+- `hydrology.climate.indices.surfaceTemperatureC` — `tile.hexOddR::grid` + `points:centroids` (scalar render variants).
 
 **Debug**
 - Secondary climate baseline fields (e.g. baseline humidity), and deep diagnostics from refine steps.

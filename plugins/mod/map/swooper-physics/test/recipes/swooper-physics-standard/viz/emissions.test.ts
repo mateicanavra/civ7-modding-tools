@@ -39,7 +39,7 @@ describe("standard pipeline viz emissions", () => {
       "morphology.mountains.mountainMask",
       "hydrology.climate.rainfall",
       "hydrology.climate.baselineSurfaceTemperature",
-      "hydrology.climate.surfaceTemperature",
+      "hydrology.climate.indices.surfaceTemperatureC",
       "hydrology.hydrography.discharge",
       "map.hydrology.lakes.plannedLakeMask",
       "map.hydrology.lakes.engineLakeMask",
@@ -143,7 +143,7 @@ describe("standard pipeline viz emissions", () => {
     }
   });
 
-  it("projects singular thermal artifacts and seasonal baseline evidence", () => {
+  it("projects baseline thermal evidence and final climate indices", () => {
     const grids: VizProjection[] = [];
     const { context } = runStandardRecipeTestMap({
       execution: {
@@ -162,12 +162,12 @@ describe("standard pipeline viz emissions", () => {
     for (const [key, artifact, label] of [
       [
         "hydrology.climate.baselineSurfaceTemperature",
-        climateArtifacts.baselineSurfaceTemperature,
+        climateArtifacts.thermalField,
         "Surface Temperature (Baseline C)",
       ],
       [
-        "hydrology.climate.surfaceTemperature",
-        climateArtifacts.surfaceTemperature,
+        "hydrology.climate.indices.surfaceTemperatureC",
+        climateArtifacts.climateIndices,
         "Surface Temperature (C)",
       ],
     ] as const) {
@@ -181,7 +181,7 @@ describe("standard pipeline viz emissions", () => {
         meta: { label, visibility: "default" },
       });
       if (annual?.kind !== "grid") throw new Error("Expected annual thermal grid.");
-      expect(annual.field.values).toBe(readArtifact(context, artifact));
+      expect(annual.field.values).toBe(readArtifact(context, artifact).surfaceTemperatureC);
     }
     const seasonal = grids.filter((projection) => projection.variantKey !== undefined);
     expect(seasonal.map((projection) => projection.variantKey)).toEqual([
@@ -315,7 +315,7 @@ describe("standard pipeline viz emissions", () => {
       )
     ).toBe(true);
 
-    const temperatureMetas = metasByKey.get("hydrology.climate.surfaceTemperature");
+    const temperatureMetas = metasByKey.get("hydrology.climate.indices.surfaceTemperatureC");
     expect(temperatureMetas?.some((m) => m?.visibility === "default")).toBe(true);
     expect(
       temperatureMetas?.some(

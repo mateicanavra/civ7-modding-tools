@@ -22,7 +22,7 @@ export const PlotBiomesStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
     const { width, height } = context.setup.dimensions;
     const classification = deps.artifacts.biomeClassification.read();
-    const surfaceTemperature = deps.artifacts.surfaceTemperature.read();
+    const climateIndices = deps.artifacts.climateIndices.read();
     const topography = deps.artifacts.topography.read();
     const engineBiomeIds = resolveEngineBiomeIds({
       getBiomeGlobal: (key) => deps.engine.getBiomeGlobal(context, key),
@@ -53,7 +53,7 @@ export const PlotBiomesStep = createStep(config, {
           deps.engine.setBiomeType(context, x, y, marineBiome);
           projectedBiomeId[idx] = marineBiome;
           projectedTemperature[idx] = clampU8(
-            Math.round(surfaceTemperature[idx]! + 50)
+            Math.round(climateIndices.surfaceTemperatureC[idx]! + 50)
           );
           bindingClass[idx] = 0;
           continue;
@@ -65,7 +65,7 @@ export const PlotBiomesStep = createStep(config, {
         deps.engine.setBiomeType(context, x, y, engineId);
         projectedBiomeId[idx] = engineId;
         projectedTemperature[idx] = clampU8(
-          Math.round(surfaceTemperature[idx]! + 50)
+          Math.round(climateIndices.surfaceTemperatureC[idx]! + 50)
         );
         if (collidingEngineBiomeIds.has(engineId)) {
           bindingClass[idx] = 2;

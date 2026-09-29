@@ -20,7 +20,6 @@ export const BiomesStep = createStep(config, {
     const { width, height } = context.setup.dimensions;
 
     const climateIndices = deps.artifacts.climateIndices.read();
-    const surfaceTemperature = deps.artifacts.surfaceTemperature.read();
     const topography = deps.artifacts.topography.read();
     const lakePlan = deps.artifacts.lakePlan.read();
     const landMask = lakePlan.model === "certified-sill-spill"
@@ -34,7 +33,7 @@ export const BiomesStep = createStep(config, {
         width,
         height,
         effectiveMoisture: climateIndices.effectiveMoisture,
-        surfaceTemperatureC: surfaceTemperature,
+        surfaceTemperatureC: climateIndices.surfaceTemperatureC,
         aridityIndex: climateIndices.aridityIndex,
         freezeIndex: climateIndices.freezeIndex,
         landMask,

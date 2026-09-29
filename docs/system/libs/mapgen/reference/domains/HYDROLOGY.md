@@ -61,10 +61,9 @@ Hydrology provides:
 
 - `artifact:hydrology.baselineClimateField` (annual-mean rainfall, humidity,
   potential demand, and its admitted parameters used by hydrography/refinement)
-- `artifact:hydrology.baselineSurfaceTemperature` (the annual mean of seasonal
-  ground temperatures before feedback, as an independent map-grid Float32 array)
-- `artifact:hydrology.surfaceTemperature` (post-feedback temperature in degrees C,
-  independently required by Ecology, placement, visualization and metrics)
+- `artifact:hydrology._internal.thermalField` (the annual mean of seasonal
+  ground/SST temperature before feedback, published as `surfaceTemperatureC`
+  in a named map-grid product consumed by refinement)
 - `artifact:hydrology.climateField` (final-refined rainfall/humidity used by Ecology and engine projection)
 - `artifact:hydrology.hydrography` (model-tagged drainage, discharge, and river
   classes; certified discharge is dry-cell evidence, with whole-body mixing in
@@ -78,8 +77,8 @@ Hydrology provides:
   legacy navigable selection or complete authored dry-source writes;
   `map.rivers` identifies the product lane, not stage catalog ownership, and
   mutable engine readback is not retained)
-- `artifact:hydrology.climateIndices` (moisture, demand, aridity and freezing
-  indices; temperature is not duplicated in this bundle)
+- `artifact:hydrology.climateIndices` (final post-feedback temperature, moisture,
+  demand, aridity and freezing descriptors for Ecology, placement and analysis)
 - `artifact:hydrology.cryosphere` (cryosphere products; neutralized when knob disables it)
 
 Hydrology projection also provides two payload-free external-state completions:
@@ -129,10 +128,10 @@ while published climate arrays remain Float32. Demand uses empirical rainfall
 index units, not calibrated open-water evaporation or a depth-storage rate.
 
 There is one ground-temperature computation owner: baseline climate. Refine
-consumes its annual temperature artifact and applies declared albedo feedback;
+consumes `thermalField` and applies declared albedo feedback;
 it does not recompute sunlight or elevation cooling with a second calibration.
 Pressure's sea-level temperature calculation remains separate because its datum
-deliberately excludes ground lapse. The two ground-temperature artifacts are
+deliberately excludes ground lapse. Baseline thermal and final climate indices are
 successive immutable vintages, not competing algorithms. Refined demand uses
 annual refined temperature and is therefore not generally equal to mean
 seasonal demand under a nonlinear law; that approximation remains explicit.

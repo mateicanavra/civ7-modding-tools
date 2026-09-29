@@ -10,7 +10,6 @@ export const PlanPlotEffectsStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const classification = deps.artifacts.biomeClassification.read();
     const climateIndices = deps.artifacts.climateIndices.read();
-    const surfaceTemperature = deps.artifacts.surfaceTemperature.read();
     const topography = deps.artifacts.topography.read();
     const { width, height } = context.setup.dimensions;
     const scoreSnow = ops.scoreSnow(
@@ -20,7 +19,7 @@ export const PlanPlotEffectsStep = createStep(config, {
         landMask: topography.landMask,
         elevation: topography.elevation,
         effectiveMoisture: climateIndices.effectiveMoisture,
-        surfaceTemperature: surfaceTemperature,
+        surfaceTemperature: climateIndices.surfaceTemperatureC,
         aridityIndex: climateIndices.aridityIndex,
         freezeIndex: climateIndices.freezeIndex,
       },
@@ -34,7 +33,7 @@ export const PlanPlotEffectsStep = createStep(config, {
         biomeIndex: classification.biomeIndex,
         vegetationDensity: classification.vegetationDensity,
         effectiveMoisture: climateIndices.effectiveMoisture,
-        surfaceTemperature: surfaceTemperature,
+        surfaceTemperature: climateIndices.surfaceTemperatureC,
         aridityIndex: climateIndices.aridityIndex,
         freezeIndex: climateIndices.freezeIndex,
       },
@@ -48,7 +47,7 @@ export const PlanPlotEffectsStep = createStep(config, {
         biomeIndex: classification.biomeIndex,
         vegetationDensity: classification.vegetationDensity,
         effectiveMoisture: climateIndices.effectiveMoisture,
-        surfaceTemperature: surfaceTemperature,
+        surfaceTemperature: climateIndices.surfaceTemperatureC,
         aridityIndex: climateIndices.aridityIndex,
         freezeIndex: climateIndices.freezeIndex,
       },
@@ -62,7 +61,7 @@ export const PlanPlotEffectsStep = createStep(config, {
         biomeIndex: classification.biomeIndex,
         vegetationDensity: classification.vegetationDensity,
         effectiveMoisture: climateIndices.effectiveMoisture,
-        surfaceTemperature: surfaceTemperature,
+        surfaceTemperature: climateIndices.surfaceTemperatureC,
       },
       stepConfig.scoreJungle
     );

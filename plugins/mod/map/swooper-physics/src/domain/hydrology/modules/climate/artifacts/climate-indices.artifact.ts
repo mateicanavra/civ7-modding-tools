@@ -1,7 +1,7 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Registers refined per-tile evapotranspiration, aridity, freeze, and related
+ * Registers refined per-tile temperature, evapotranspiration, aridity, freeze, and related
  * climate indices. Ecology consumes these normalized physical signals instead of deriving
  * parallel climate policy.
  */
@@ -10,6 +10,11 @@ export const artifact = defineArtifact({
   id: "artifact:hydrology.climateIndices",
   schema: Type.Object(
     {
+      surfaceTemperatureC: TypedArraySchemas.f32({
+        cardinality: "map-grid",
+        description:
+          "Ground-surface temperature in degrees Celsius after bounded albedo feedback on the annual baseline, consumed by Ecology, placement, projection, and analysis.",
+      }),
       effectiveMoisture: TypedArraySchemas.f32({
         cardinality: "map-grid",
         description:
@@ -35,4 +40,12 @@ export const artifact = defineArtifact({
         "Derived Hydrology climate signals consumed by Ecology and product analysis without re-deriving climate policy.",
     }
   ),
+  refine: (value, { issues }) => {
+    const invalidIndex = value.surfaceTemperatureC.findIndex((sample) => !Number.isFinite(sample));
+    if (invalidIndex >= 0) {
+      issues.add(
+        `Expected climateIndices.surfaceTemperatureC[${invalidIndex}] to be finite (received ${value.surfaceTemperatureC[invalidIndex]}).`
+      );
+    }
+  },
 });
