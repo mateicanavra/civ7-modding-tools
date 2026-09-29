@@ -12,6 +12,8 @@ const insolationLapseRateStrategy = createStrategy(
   InsolationLapseRateDefinition,
   {
     run: (input, config) => {
+      if (input.model !== "insolation-lapse-rate")
+        throw new RangeError("insolation-lapse-rate requires its matching input model.");
       const width = input.width;
       const height = input.height;
       const size = width * height;
@@ -38,7 +40,7 @@ const insolationLapseRateStrategy = createStrategy(
         surfaceTemperatureC[i] = clampNumber(temp, minC, maxC);
       }
 
-      return { surfaceTemperatureC } as const;
+      return { model: "insolation-lapse-rate", surfaceTemperatureC } as const;
     },
   }
 );

@@ -21,23 +21,28 @@ const selection = {
   },
 } as const;
 
-function runThermal(input: Readonly<{
-  elevation: Int16Array;
-  seaLevel: number;
-  landMask: Uint8Array;
-  insolation?: Float32Array;
-  sstC?: Float32Array;
-}>) {
-  return runAdmittedOperationForTest(
+function runThermal(
+  input: Readonly<{
+    elevation: Int16Array;
+    seaLevel: number;
+    landMask: Uint8Array;
+    insolation?: Float32Array;
+    sstC?: Float32Array;
+  }>
+) {
+  const result = runAdmittedOperationForTest(
     computeThermalState,
     {
+      model: "insolation-lapse-rate",
       width: input.elevation.length,
       height: 1,
       insolation: new Float32Array(input.elevation.length).fill(0.5),
       ...input,
     },
     selection
-  ).surfaceTemperatureC;
+  );
+  if (result.model !== "insolation-lapse-rate") throw new Error("Expected legacy thermal result.");
+  return result.surfaceTemperatureC;
 }
 
 describe("hydrology/compute-thermal-state insolation-lapse-rate", () => {
@@ -46,6 +51,7 @@ describe("hydrology/compute-thermal-state insolation-lapse-rate", () => {
       validateSchemaValueForTest(
         hydrologyContract.climate.ops.computeThermalState.input,
         {
+          model: "insolation-lapse-rate",
           width: 1,
           height: 1,
           insolation: new Float32Array([0.5]),
@@ -140,9 +146,10 @@ describe("hydrology/compute-thermal-state insolation-lapse-rate", () => {
   });
 
   it("bounds insolation and relief temperatures without SST", () => {
-    const temperature = runAdmittedOperationForTest(
+    const result = runAdmittedOperationForTest(
       computeThermalState,
       {
+        model: "insolation-lapse-rate",
         width: 3,
         height: 1,
         elevation: new Int16Array([1000, 0, 0]),
@@ -151,7 +158,10 @@ describe("hydrology/compute-thermal-state insolation-lapse-rate", () => {
         insolation: new Float32Array([0, 1, 1]),
       },
       { ...selection, config: { ...selection.config, baseTemperatureC: 60 } }
-    ).surfaceTemperatureC;
+    );
+    if (result.model !== "insolation-lapse-rate")
+      throw new Error("Expected legacy thermal result.");
+    const temperature = result.surfaceTemperatureC;
 
     expect(Array.from(temperature)).toEqual([-40, 50, 50]);
   });

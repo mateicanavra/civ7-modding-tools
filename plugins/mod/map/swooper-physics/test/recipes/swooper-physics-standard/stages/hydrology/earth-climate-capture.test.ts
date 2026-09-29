@@ -63,6 +63,13 @@ describe("retained Earth-coast baseline evidence", () => {
           );
           expect(capture.setup.latitudeBounds).toEqual({ topLatitude: 90, bottomLatitude: -90 });
           expect(capture.compiledConfigs.climateBaseline.seasonality.axialTiltDeg).toBe(23.44);
+          expect(capture.sampling.model).toBe("periodic-cycle");
+          if (capture.sampling.model !== "periodic-cycle") throw new Error("Expected periodic Earth evidence.");
+          expect(capture.sampling.phases).toHaveLength(24);
+          expect(capture.sampling.observationIndices).toEqual([0, 6, 12, 18]);
+          expect(capture.registration.latitude).toContain("retains exact poles");
+          expect(capture.semantics.temperature).toContain("dense-integrated");
+          expect(capture.semantics.aggregation).toContain("not the observation subset");
           expect(capture.registration.longitude).toContain("unqualified");
           expect(capture.semantics.water).toContain("including enclosed water");
           expect(capture.fields["thermalField.surfaceTemperatureC"]!.authority).toBe(
@@ -74,6 +81,11 @@ describe("retained Earth-coast baseline evidence", () => {
             "not open-water evaporation"
           );
           expect(capture.fields["topography.elevation"]!.units).toContain("not metres");
+          expect(capture.fields["thermalResponse.annualClippingDeltaC"]).toBeDefined();
+          for (let phase = 0; phase < 24; phase++) {
+            expect(capture.fields[`seasonalIntegration.rainfall.${phase}`]).toBeDefined();
+            expect(capture.fields[`seasonalIntegration.potentialDemand.${phase}`]).toBeDefined();
+          }
           const constructors = {
             u8: Uint8Array,
             i8: Int8Array,

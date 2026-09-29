@@ -133,3 +133,77 @@ failures at their causal owner rather than changing vegetation targets.
 This design follows the user's delegated continuation. Its prerequisites are
 the complete basin coordinator and accepted reference fixtures; neither the
 reference study alone nor an improved screenshot closes the workstream.
+
+## Implemented Boundary And Qualification
+
+The tagged operations, sampling/reduction extraction, prescribed first SST,
+single periodic thermal family per coupling vintage, annual publication and
+independent observation subsets are implemented. Earthlike explicitly selects
+the periodic path. Seven other profiles retain every previous setting, with
+only the three complete legacy/default operation envelopes added for canonical
+admission. No artifact blueprint or admission rule was relaxed.
+
+Independent public-operation tests reproduce the frozen monthly reference:
+the held-out monthly RMSE remains 3.57295 C without refitting. The separate
+continuous-solar representation delta stays below 0.006 C. Solar and clipped
+thermal primitives pass dense-reference and extreme-case checks; these do not
+by themselves qualify the coupled climate.
+
+Retained research lives under the discoverable Civ user-data location documented
+in [LOCAL-VIEWERS](../../process/LOCAL-VIEWERS.md):
+`VisualAtlas/huge-1018/earth-calibration/`.
+
+- `periodic-legacy-parity-20260929-v3.json`: seven legacy Huge/1018 maps match
+  all 84 captured upstream field hashes exactly. The replay explicitly applies
+  the already-qualified reef admission migration and new default envelopes,
+  then checks equality with each current authored configuration.
+- `periodic-convergence-20260929/receipt.json`: twenty flat-Earth-coast and
+  aquaplanet runs at 12/24/48/96 phases, with weather amplitude 0/14 and paired
+  2/4-observation controls. All annual, integration-array and integration-plan
+  comparisons for observation independence are exact. Inputs and source are
+  unchanged within the run. Full integration fields, clipping effects,
+  configuration and runtime identity are retained, not just screenshots.
+- The capture protocol is v2: periodic exact-pole solar registration, dense
+  annual thermal authority, weighted atmospheric/moisture integration, and
+  2/4 observation subsets are labeled separately. Legacy metadata preserves
+  its original arithmetic semantics. Step observations are not new artifacts.
+
+**24 atmospheric phases remain provisional.** The coupled study found a real
+ocean-transport discontinuity. With weather disabled, aquaplanet SST differs by
+11.36 C maximum between 24 and 96 phases. Forced Earth water-only P99 difference
+is 2.880 C; including land zeros conceals part of that error. The 48-to-96
+difference is not consistently smaller, so 96 is not established truth either.
+Do not increase phase count or refit temperature coefficients to conceal this.
+
+Actual-operation vintage tracing isolates the first cause: the initialized SST
+and shared-phase atmosphere/current fields are identical, but small differences
+in reduced current direction make the existing top-two-ranked donor selection
+switch between nonadjacent upcurrent neighbors with finite weight. On the
+zero-weather aquaplanet, cell (80,8) changes from current (-80,-1) to (-82,1),
+switching a roughly one-third-weight donor north/south and changing the first SST
+update by 12.28 C. Both weights exceed the old secondary-donor cutoff. A coastal
+Earth witness additionally renormalizes a near-zero surviving water projection
+to full-speed transport. These are numerical transport problems, not evidence
+against the independently qualified inland thermal response.
+
+The next domino therefore qualifies and repairs ocean transport before relief
+calibration or river-density tuning. Preserve the witnessed operator inputs,
+test axial and near-axis directions, no-current limits, blocked coasts and
+bounded constant-field transport, then repeat the same coupled study. Keep
+physical current speed/time claims out of the numerical repair unless their
+units and input authority have actually been established.
+
+The unchanged full coherence bank still reports eleven calibration failures,
+but their membership changed: Earthlike rainforest presence now passes while
+row biome dominance newly fails. Eight legacy-profile identity failures,
+Earthlike within-row thermal variation and forest presence remain. This is not
+a green climate acceptance or permission to weaken ecological expectations.
+
+The final owning proof (`periodic-owning-proof-20260929.log` in the same
+research directory) ran both definition and realization `check`, `test`,
+`build` and `check:policy` targets in one Nx graph. Types, builds and policy
+passed without exceptions. Definition tests passed 979/980; the sole failing
+test is the aggregate coherence bank with the eleven expectations above.
+Realization tests passed 175/175. No tolerance or study expectation was relaxed.
+The periodic implementation is reviewable independently of the unresolved
+coupled-climate qualification; it is not the completed Earth benchmark.

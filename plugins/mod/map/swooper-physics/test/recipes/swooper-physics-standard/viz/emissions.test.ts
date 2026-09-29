@@ -135,7 +135,7 @@ describe("standard pipeline viz emissions", () => {
         dims: TEST_MAP_SIZE.dimensions,
         field: { format: "f32" },
         meta: {
-          label: `Circulation Pressure Anomaly (Season ${index + 1})`,
+          label: `Circulation Pressure Anomaly (Phase ${index / 4} From Northward Equinox)`,
           group: "Hydrology / Pressure",
           visibility: "debug",
         },

@@ -22,14 +22,17 @@ function evaluate(profile: Profile) {
     );
     const forcing = runAdmittedOperationForTest(
       hydrology.climate.ops.computeRadiativeForcing,
-      { width, height, latitudeByRow },
+      { model: "latitude-insolation", width, height, latitudeByRow },
       profile.forcing
     );
-    return runAdmittedOperationForTest(
+    if (forcing.model !== "latitude-insolation") throw new Error("Expected legacy reference forcing.");
+    const thermal = runAdmittedOperationForTest(
       hydrology.climate.ops.computeThermalState,
-      { width, height, elevation, seaLevel: 0, landMask, insolation: forcing.insolation },
+      { model: "insolation-lapse-rate", width, height, elevation, seaLevel: 0, landMask, insolation: forcing.insolation },
       profile.thermal
-    ).surfaceTemperatureC;
+    );
+    if (thermal.model !== "insolation-lapse-rate") throw new Error("Expected legacy reference thermal field.");
+    return thermal.surfaceTemperatureC;
   });
   const annual = Float32Array.from(reference.samples, (_, index) =>
     seasonal.reduce((sum, field) => sum + field[index]!, 0) / seasonal.length

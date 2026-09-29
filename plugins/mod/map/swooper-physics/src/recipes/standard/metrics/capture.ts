@@ -737,6 +737,12 @@ function copyCompletedRun(
       seasonalRainfall: Object.freeze({
         ...seasonalRainfall,
         saturatedLandTileCounts: Object.freeze([...seasonalRainfall.saturatedLandTileCounts]),
+        ...(seasonalRainfall.version === 2 ? { sampling: Object.freeze({
+          ...seasonalRainfall.sampling,
+          phases: Object.freeze([...seasonalRainfall.sampling.phases]),
+          weights: Object.freeze([...seasonalRainfall.sampling.weights]),
+          observationIndices: Object.freeze([...seasonalRainfall.sampling.observationIndices]),
+        }) } : {}),
       }),
       aridityIndex: copyFloat32Grid(
         "hydrology.climateIndices.aridityIndex",

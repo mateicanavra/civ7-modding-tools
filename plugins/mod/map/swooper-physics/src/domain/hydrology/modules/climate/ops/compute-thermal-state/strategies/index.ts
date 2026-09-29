@@ -1,4 +1,5 @@
 import insolationLapseRate from "./insolation-lapse-rate/index.js";
+import periodicResponse from "./periodic-response/index.js";
 
-/** Insolation lapse rate is the sole thermal posture so radiative and elevation effects share one temperature scale. */
-export default [insolationLapseRate] as const;
+/** Legacy instantaneous arithmetic remains default; periodic response requires explicit selection. */
+export default [insolationLapseRate, periodicResponse] as const;

@@ -1,6 +1,5 @@
 import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { I8_VECTOR_MAX_ABS } from "@swooper/mapgen-core/lib/grid";
 import {
   measureStandardSeasonalRainfall,
   STANDARD_SEASONAL_RAINFALL_METRIC_KEY,
@@ -27,19 +26,7 @@ type HydrologySeasonalityKnob = "low" | "normal" | "high";
 type HydrologyTemperatureKnob = "cold" | "temperate" | "hot";
 
 const QUARTER_YEAR_MODE_COUNT_THRESHOLD = 3;
-const CIRCULATION_MIGRATION_FRACTION = 0.35;
-const SEASON_TRANSIENT_SALT_MULTIPLIER = 0x9e3779b1;
 const TRANSIENT_POLARITIES = [1, -1] as const;
-
-function clampLatitudeDeg(latitudeDeg: number): number {
-  if (!Number.isFinite(latitudeDeg)) return 0;
-  return Math.max(-89.999, Math.min(89.999, latitudeDeg));
-}
-
-function getSeasonPhases(modeCount: 2 | 4): readonly number[] {
-  if (modeCount === 4) return [0, 0.25, 0.5, 0.75];
-  return [0.25, 0.75];
-}
 
 /**
  * Orchestrates deterministic atmosphere-ocean forcing and moisture transport over final
@@ -47,6 +34,15 @@ function getSeasonPhases(modeCount: 2 | 4): readonly number[] {
  */
 export const ClimateBaselineStep = createStep(config, {
   normalize: (stepConfig, ctx) => {
+    const periodic = stepConfig.computeThermalState.strategy === "periodic-response";
+    if (
+      periodic !== (stepConfig.computeRadiativeForcing.strategy === "daily-solar-fourier") ||
+      periodic !== (stepConfig.computeSeasonalSampling.strategy === "periodic-cycle")
+    ) {
+      throw new Error(
+        "Climate solar, thermal, and seasonal sampling strategies must select the same model."
+      );
+    }
     const { dryness, temperature, seasonality, oceanCoupling } = ctx.knobs as Readonly<{
       dryness: HydrologyDrynessKnob;
       temperature: HydrologyTemperatureKnob;
@@ -109,7 +105,14 @@ export const ClimateBaselineStep = createStep(config, {
               ),
             },
           }
-        : stepConfig.computeThermalState;
+        : {
+            ...stepConfig.computeThermalState,
+            config: {
+              ...stepConfig.computeThermalState.config,
+              annualOffsetC:
+                stepConfig.computeThermalState.config.annualOffsetC + temperatureDeltaC,
+            },
+          };
 
     const computeAtmosphericCirculation = (() => {
       if (stepConfig.computeAtmosphericCirculation.strategy === "latitude") {
@@ -140,21 +143,13 @@ export const ClimateBaselineStep = createStep(config, {
             // Ocean coupling controls the circulation backbone; seasonality controls the
             // decorrelated weather budget. Keeping those axes separate preserves the authored
             // zonal-to-meridional ratio and avoids double-scaling transient pressure texture.
-            zonalStrength: clampNumber(
-              circulation.zonalStrength * jetStrengthFactor,
-              0,
-              300
-            ),
+            zonalStrength: clampNumber(circulation.zonalStrength * jetStrengthFactor, 0, 300),
             meridionalStrength: clampNumber(
               circulation.meridionalStrength * jetStrengthFactor,
               0,
               200
             ),
-            pressureDrivenRms: clampNumber(
-              circulation.pressureDrivenRms * varianceFactor,
-              0,
-              400
-            ),
+            pressureDrivenRms: clampNumber(circulation.pressureDrivenRms * varianceFactor, 0, 400),
           },
         };
       }
@@ -362,16 +357,6 @@ export const ClimateBaselineStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
     const { topLatitude, bottomLatitude } = context.setup.latitudeBounds;
-    const latitudeByRow = new Float32Array(height);
-    if (height <= 1) {
-      const mid = (topLatitude + bottomLatitude) / 2;
-      for (let y = 0; y < height; y++) latitudeByRow[y] = clampLatitudeDeg(mid);
-    } else {
-      const step = (bottomLatitude - topLatitude) / (height - 1);
-      for (let y = 0; y < height; y++) {
-        latitudeByRow[y] = clampLatitudeDeg(topLatitude + step * y);
-      }
-    }
 
     const topography = deps.artifacts.topography.read();
     const shelf = deps.artifacts.shelf.read();
@@ -398,7 +383,11 @@ export const ClimateBaselineStep = createStep(config, {
 
     const modeCount = stepConfig.seasonality.modeCount;
     const axialTiltDeg = stepConfig.seasonality.axialTiltDeg;
-    const phases = getSeasonPhases(modeCount);
+    const sampling = ops.computeSeasonalSampling(
+      { width, height, topLatitude, bottomLatitude, modeCount, axialTiltDeg, rngSeed },
+      stepConfig.computeSeasonalSampling
+    );
+    const { latitudeByRow } = sampling;
 
     const seasonalRainfall: Uint8Array[] = [];
     const seasonalHumidity: Uint8Array[] = [];
@@ -434,104 +423,98 @@ export const ClimateBaselineStep = createStep(config, {
       );
     }
 
-    // Per-phase forcing is static across the fixed-point cycle. Circulation belts follow only
-    // part of solar declination because atmospheric and oceanic inertia keeps their seasonal
-    // migration narrower than direct insolation.
-    const hasSeasons = Math.abs(axialTiltDeg) >= 1e-6;
-    const seasonalForcing = phases.map((phase, seasonIndex) => {
-      const declinationDeg = axialTiltDeg * Math.sin(2 * Math.PI * phase);
-      const circulationLatitude = new Float32Array(height);
-      const thermalLatitude = new Float32Array(height);
-      for (let y = 0; y < height; y++) {
-        circulationLatitude[y] = clampLatitudeDeg(
-          latitudeByRow[y] - declinationDeg * CIRCULATION_MIGRATION_FRACTION
-        );
-        thermalLatitude[y] = clampLatitudeDeg(latitudeByRow[y] - declinationDeg);
-      }
-
-      return {
-        circulationLatitude,
-        thermalLatitude,
-        insolation: ops.computeRadiativeForcing(
-          { width, height, latitudeByRow: thermalLatitude },
-          stepConfig.computeRadiativeForcing
-        ).insolation,
-        transientSalt: hasSeasons
-          ? (Math.imul(
-              rngSeed ^ (seasonIndex + 1),
-              SEASON_TRANSIENT_SALT_MULTIPLIER
-            ) >>>
-              1) |
-            0
-          : 0,
-      };
+    // Solar forcing is fixed across coupling vintages; the domain sampling plan separately
+    // owns the circulation and moisture latitude frames.
+    const solar =
+      sampling.model === "periodic-cycle"
+        ? ops.computeRadiativeForcing(
+            { model: "daily-solar-fourier", width, height, latitudeByRow, axialTiltDeg },
+            stepConfig.computeRadiativeForcing
+          )
+        : null;
+    if (solar && solar.model !== "daily-solar-fourier")
+      throw new Error("Expected periodic solar forcing.");
+    const seasonalForcing = sampling.frames.map((frame) => {
+      if (solar) return { ...frame, insolation: undefined };
+      const forcing = ops.computeRadiativeForcing(
+        { model: "latitude-insolation", width, height, latitudeByRow: frame.thermalLatitude },
+        stepConfig.computeRadiativeForcing
+      );
+      if (forcing.model !== "latitude-insolation")
+        throw new Error("Expected legacy solar forcing.");
+      return { ...frame, insolation: forcing.insolation };
     });
 
-    const seasonCount = seasonalForcing.length;
-    const meanRainfall = new Uint8Array(size);
-    const meanHumidity = new Uint8Array(size);
-    const rainfallAmplitude = new Uint8Array(size);
-    const humidityAmplitude = new Uint8Array(size);
-    const clampI8 = (value: number): number =>
-      Math.max(-I8_VECTOR_MAX_ABS, Math.min(I8_VECTOR_MAX_ABS, value));
-    const meanOfF32Fields = (fields: readonly Float32Array[]): Float32Array<ArrayBuffer> => {
-      const mean = new Float32Array(size);
-      const fieldCount = Math.max(1, fields.length);
-      for (let index = 0; index < size; index++) {
-        let sum = 0;
-        for (const field of fields) sum += field[index] ?? 0;
-        mean[index] = sum / fieldCount;
-      }
-      return mean;
-    };
-    const meanOfI8Fields = (fields: readonly Int8Array[]): Int8Array<ArrayBuffer> => {
-      const mean = new Int8Array(size);
-      const fieldCount = Math.max(1, fields.length);
-      for (let index = 0; index < size; index++) {
-        let sum = 0;
-        for (const field of fields) sum += field[index] ?? 0;
-        mean[index] = clampI8(Math.round(sum / fieldCount));
-      }
-      return mean;
-    };
-    const meanOfU8Fields = (fields: readonly Uint8Array[]): Uint8Array<ArrayBuffer> => {
-      const mean = new Uint8Array(size);
-      const fieldCount = Math.max(1, fields.length);
-      for (let index = 0; index < size; index++) {
-        let sum = 0;
-        for (const field of fields) sum += field[index] ?? 0;
-        mean[index] = Math.max(0, Math.min(255, Math.round(sum / fieldCount)));
-      }
-      return mean;
-    };
-
     const computeSeasonalAtmosphere = (sstC?: Float32Array) => {
+      if (solar && !sstC)
+        throw new Error(
+          "Periodic climate requires prescribed ocean SST before atmosphere evaluation."
+        );
+      const periodicThermal = solar
+        ? ops.computeThermalState(
+            {
+              model: "periodic-response",
+              width,
+              height,
+              solarByRow: solar.solarByRow,
+              phases: sampling.phases,
+              weights: sampling.weights,
+              elevation,
+              seaLevel: topography.seaLevel,
+              landMask,
+              sstC: sstC!,
+            },
+            stepConfig.computeThermalState
+          )
+        : null;
+      if (periodicThermal && periodicThermal.model !== "periodic-response")
+        throw new Error("Expected periodic thermal response.");
       const zeroElevation = new Int16Array(size);
-      const thermalSamples = seasonalForcing.map((forcing) => ({
-        ...forcing,
-        surfaceTemperatureC: ops.computeThermalState(
+      const thermalSamples = seasonalForcing.map((forcing, index) => {
+        if (periodicThermal)
+          return {
+            ...forcing,
+            seaLevelTemperatureC: periodicThermal.samples[index]!.seaLevelTemperatureC,
+            groundTemperatureC: periodicThermal.samples[index]!.surfaceTemperatureC,
+          };
+        const thermal = ops.computeThermalState(
           {
+            model: "insolation-lapse-rate",
             width,
             height,
-            insolation: forcing.insolation,
+            insolation: forcing.insolation!,
             elevation: zeroElevation,
             seaLevel: 0,
             landMask,
             ...(sstC ? { sstC } : {}),
           },
           stepConfig.computeThermalState
-        ).surfaceTemperatureC,
-      }));
-
-      const meanSeaLevelTemperatureC = new Float32Array(size);
-      for (const sample of thermalSamples) {
-        for (let index = 0; index < size; index++) {
-          meanSeaLevelTemperatureC[index] += sample.surfaceTemperatureC[index] ?? 0;
-        }
-      }
-      for (let index = 0; index < size; index++) {
-        meanSeaLevelTemperatureC[index] /= Math.max(1, thermalSamples.length);
-      }
+        );
+        if (thermal.model !== "insolation-lapse-rate")
+          throw new Error("Expected legacy thermal response.");
+        return {
+          ...forcing,
+          seaLevelTemperatureC: thermal.surfaceTemperatureC,
+          groundTemperatureC: undefined,
+        };
+      });
+      const centering = periodicThermal
+        ? null
+        : ops.computeAtmosphericAggregate(
+            {
+              reduction: "thermal-centering",
+              width,
+              height,
+              model: sampling.model,
+              weights: sampling.weights,
+              samples: thermalSamples.map((sample) => sample.seaLevelTemperatureC),
+            },
+            stepConfig.computeAtmosphericAggregate
+          );
+      if (centering && centering.reduction !== "thermal-centering")
+        throw new Error("Expected thermal centering reduction.");
+      const meanSeaLevelTemperatureC =
+        periodicThermal?.meanSeaLevelTemperatureC ?? centering!.meanSurfaceTemperatureC;
 
       const samples = thermalSamples.map((sample) => {
         const weatherMembers = TRANSIENT_POLARITIES.map((transientPolarity) => {
@@ -540,7 +523,7 @@ export const ClimateBaselineStep = createStep(config, {
               width,
               height,
               latitudeByRow: sample.circulationLatitude,
-              surfaceTemperatureC: sample.surfaceTemperatureC,
+              surfaceTemperatureC: sample.seaLevelTemperatureC,
               meanSurfaceTemperatureC: meanSeaLevelTemperatureC,
               landMask,
               rngSeed,
@@ -575,7 +558,6 @@ export const ClimateBaselineStep = createStep(config, {
             stepConfig.computeOceanSurfaceCurrents
           );
           return {
-            transientPolarity,
             pressure,
             windU: winds.windU,
             windV: winds.windV,
@@ -583,23 +565,45 @@ export const ClimateBaselineStep = createStep(config, {
             currentV: currents.currentV,
           };
         });
+        const aggregate = ops.computeAtmosphericAggregate(
+          { reduction: "weather-members", width, height, samples: weatherMembers },
+          stepConfig.computeAtmosphericAggregate
+        );
+        if (aggregate.reduction !== "weather-members")
+          throw new Error("Expected weather-member reduction.");
         return {
           ...sample,
           weatherMembers,
-          pressure: meanOfF32Fields(weatherMembers.map((member) => member.pressure)),
-          windU: meanOfI8Fields(weatherMembers.map((member) => member.windU)),
-          windV: meanOfI8Fields(weatherMembers.map((member) => member.windV)),
-          currentU: meanOfI8Fields(weatherMembers.map((member) => member.currentU)),
-          currentV: meanOfI8Fields(weatherMembers.map((member) => member.currentV)),
+          ...aggregate,
         };
       });
-
+      const aggregate = ops.computeAtmosphericAggregate(
+        {
+          reduction: "annual",
+          width,
+          height,
+          model: sampling.model,
+          weights: sampling.weights,
+          samples: samples.map(({ pressure, windU, windV, currentU, currentV }) => ({
+            pressure,
+            windU,
+            windV,
+            currentU,
+            currentV,
+          })),
+        },
+        stepConfig.computeAtmosphericAggregate
+      );
+      if (aggregate.reduction !== "annual")
+        throw new Error("Expected annual atmosphere reduction.");
       return {
         samples,
-        meanWindU: meanOfI8Fields(samples.map((sample) => sample.windU)),
-        meanWindV: meanOfI8Fields(samples.map((sample) => sample.windV)),
-        meanCurrentU: meanOfI8Fields(samples.map((sample) => sample.currentU)),
-        meanCurrentV: meanOfI8Fields(samples.map((sample) => sample.currentV)),
+        meanWindU: aggregate.windU,
+        meanWindV: aggregate.windV,
+        meanCurrentU: aggregate.currentU,
+        meanCurrentV: aggregate.currentV,
+        meanPressure: aggregate.pressure,
+        periodicThermal,
       };
     };
 
@@ -611,9 +615,24 @@ export const ClimateBaselineStep = createStep(config, {
     let carriedSstC: Float32Array | undefined;
     let oceanThermal: { sstC: Float32Array; seaIceMask: Uint8Array } | null = null;
 
-    // Temperature -> pressure -> wind -> currents -> SST advances the slow ocean state. A final
-    // atmosphere evaluation then consumes that state without advancing it again, so every
-    // published atmospheric field and the downstream moisture pass share one climate vintage.
+    if (solar) {
+      oceanThermal = ops.computeOceanThermalState(
+        {
+          width,
+          height,
+          latitudeByRow,
+          isWaterMask,
+          shelfMask: shelf.shelfMask,
+          currentU: new Int8Array(size),
+          currentV: new Int8Array(size),
+        },
+        stepConfig.computeOceanThermalState
+      );
+      carriedSstC = oceanThermal.sstC;
+    }
+
+    // Fixed-point passes update the prescribed annual SST. The final atmosphere consumes it
+    // without another ocean advance, preserving one vintage for pressure and moisture.
     for (let iteration = 0; iteration < couplingIterations; iteration++) {
       const iterationAtmosphere = computeSeasonalAtmosphere(carriedSstC);
       oceanThermal = ops.computeOceanThermalState(
@@ -637,38 +656,30 @@ export const ClimateBaselineStep = createStep(config, {
     const seasonalWindV = atmosphere.samples.map((sample) => sample.windV);
     const seasonalCurrentU = atmosphere.samples.map((sample) => sample.currentU);
     const seasonalCurrentV = atmosphere.samples.map((sample) => sample.currentV);
-    const {
-      meanWindU,
-      meanWindV,
-      meanCurrentU,
-      meanCurrentV,
-    } = atmosphere;
-    const meanPressure = new Float32Array(size);
-    for (const pressure of seasonalPressure) {
-      for (let index = 0; index < size; index++) {
-        meanPressure[index] += pressure[index] ?? 0;
-      }
-    }
-    for (let index = 0; index < size; index++) {
-      meanPressure[index] /= Math.max(1, seasonalPressure.length);
-    }
+    const { meanWindU, meanWindV, meanCurrentU, meanCurrentV, meanPressure } = atmosphere;
 
     // Moisture and precipitation consume the same final atmosphere vintage. The uncoupled path
     // intentionally omits ocean-only inputs rather than manufacturing an empty ocean state.
     for (const sample of atmosphere.samples) {
-      const thermal = ops.computeThermalState(
-        {
-          width,
-          height,
-          insolation: sample.insolation,
-          elevation,
-          seaLevel: topography.seaLevel,
-          landMask,
-          ...(oceanThermal ? { sstC: oceanThermal.sstC } : {}),
-        },
-        stepConfig.computeThermalState
-      );
-      seasonalSurfaceTemperatureC.push(thermal.surfaceTemperatureC);
+      const legacyThermal = sample.groundTemperatureC
+        ? null
+        : ops.computeThermalState(
+            {
+              model: "insolation-lapse-rate",
+              width,
+              height,
+              insolation: sample.insolation!,
+              elevation,
+              seaLevel: topography.seaLevel,
+              landMask,
+              ...(oceanThermal ? { sstC: oceanThermal.sstC } : {}),
+            },
+            stepConfig.computeThermalState
+          );
+      if (legacyThermal && legacyThermal.model !== "insolation-lapse-rate")
+        throw new Error("Expected legacy ground thermal response.");
+      const surfaceTemperatureC = sample.groundTemperatureC ?? legacyThermal!.surfaceTemperatureC;
+      seasonalSurfaceTemperatureC.push(surfaceTemperatureC);
       const weatherPrecipitation = sample.weatherMembers.map((member) => {
         const evaporation = ops.computeEvaporationSources(
           oceanThermal
@@ -676,7 +687,7 @@ export const ClimateBaselineStep = createStep(config, {
                 width,
                 height,
                 landMask,
-                surfaceTemperatureC: thermal.surfaceTemperatureC,
+                surfaceTemperatureC,
                 windU: member.windU,
                 windV: member.windV,
                 sstC: oceanThermal.sstC,
@@ -686,7 +697,7 @@ export const ClimateBaselineStep = createStep(config, {
                 width,
                 height,
                 landMask,
-                surfaceTemperatureC: thermal.surfaceTemperatureC,
+                surfaceTemperatureC,
               },
           stepConfig.computeEvaporationSources
         );
@@ -718,10 +729,14 @@ export const ClimateBaselineStep = createStep(config, {
         );
       });
 
-      seasonalRainfall.push(
-        meanOfU8Fields(weatherPrecipitation.map((member) => member.rainfall))
+      const precipitation = ops.computeMoistureAggregate(
+        { reduction: "weather-members", width, height, samples: weatherPrecipitation },
+        stepConfig.computeMoistureAggregate
       );
-      const humidity = meanOfU8Fields(weatherPrecipitation.map((member) => member.humidity));
+      if (precipitation.reduction !== "weather-members")
+        throw new Error("Expected weather precipitation reduction.");
+      seasonalRainfall.push(precipitation.rainfall);
+      const humidity = precipitation.humidity;
       seasonalHumidity.push(humidity);
       seasonalDemand.push(
         ops.computePotentialDemand(
@@ -729,7 +744,7 @@ export const ClimateBaselineStep = createStep(config, {
             width,
             height,
             landMask,
-            surfaceTemperatureC: thermal.surfaceTemperatureC,
+            surfaceTemperatureC,
             humidity,
             parameters: stepConfig.potentialDemand,
           },
@@ -738,45 +753,33 @@ export const ClimateBaselineStep = createStep(config, {
       );
     }
 
-    // Recompute annual mean + amplitude now that we have seasonal rainfall/humidity.
-    const meanPotentialDemand = new Float32Array(size);
-    for (let i = 0; i < size; i++) {
-      let rainSum = 0;
-      let humidSum = 0;
-      let demandSum = 0;
-      let rainMin = 255;
-      let rainMax = 0;
-      let humidMin = 255;
-      let humidMax = 0;
-
-      for (let s = 0; s < seasonCount; s++) {
-        const rain = seasonalRainfall[s]?.[i] ?? 0;
-        const humid = seasonalHumidity[s]?.[i] ?? 0;
-        rainSum += rain;
-        humidSum += humid;
-        demandSum += seasonalDemand[s]![i]!;
-        if (rain < rainMin) rainMin = rain;
-        if (rain > rainMax) rainMax = rain;
-        if (humid < humidMin) humidMin = humid;
-        if (humid > humidMax) humidMax = humid;
-      }
-
-      meanRainfall[i] = Math.max(0, Math.min(200, Math.round(rainSum / seasonCount)));
-      meanHumidity[i] = Math.max(0, Math.min(255, Math.round(humidSum / seasonCount)));
-      meanPotentialDemand[i] = demandSum / seasonCount;
-      rainfallAmplitude[i] = Math.max(0, Math.min(255, Math.round((rainMax - rainMin) / 2)));
-      humidityAmplitude[i] = Math.max(0, Math.min(255, Math.round((humidMax - humidMin) / 2)));
-    }
+    const annualMoisture = ops.computeMoistureAggregate(
+      {
+        reduction: "annual",
+        width,
+        height,
+        model: sampling.model,
+        weights: sampling.weights,
+        samples: seasonalRainfall.map((rainfall, index) => ({
+          rainfall,
+          humidity: seasonalHumidity[index]!,
+          potentialDemand: seasonalDemand[index]!,
+        })),
+      },
+      stepConfig.computeMoistureAggregate
+    );
+    if (annualMoisture.reduction !== "annual")
+      throw new Error("Expected annual moisture reduction.");
 
     const baselineClimateField = deps.artifacts.baselineClimateField.publish({
-      rainfall: meanRainfall,
-      humidity: meanHumidity,
-      potentialDemand: meanPotentialDemand,
+      rainfall: annualMoisture.rainfall,
+      humidity: annualMoisture.humidity,
+      potentialDemand: annualMoisture.potentialDemand,
       demandParameters: { ...stepConfig.potentialDemand },
     });
     const seasonalAmplitudes = {
-      rainfallAmplitude,
-      humidityAmplitude,
+      rainfallAmplitude: annualMoisture.rainfallAmplitude,
+      humidityAmplitude: annualMoisture.humidityAmplitude,
     };
     const pressureField = deps.artifacts.pressureField.publish({
       pressure: meanPressure,
@@ -789,9 +792,21 @@ export const ClimateBaselineStep = createStep(config, {
       currentU: meanCurrentU,
       currentV: meanCurrentV,
     };
+    const legacyGround = atmosphere.periodicThermal
+      ? null
+      : ops.computeAtmosphericAggregate(
+          { reduction: "ground-thermal-mean", width, height, samples: seasonalSurfaceTemperatureC },
+          stepConfig.computeAtmosphericAggregate
+        );
+    if (legacyGround && legacyGround.reduction !== "ground-thermal-mean")
+      throw new Error("Expected legacy ground thermal reduction.");
     const thermalField = deps.artifacts.thermalField.publish({
-      surfaceTemperatureC: meanOfF32Fields(seasonalSurfaceTemperatureC),
+      surfaceTemperatureC:
+        atmosphere.periodicThermal?.annualSurfaceTemperatureC ??
+        legacyGround!.meanSurfaceTemperatureC,
     });
+    const observe = <T>(samples: readonly T[]): T[] =>
+      sampling.observationIndices.map((index) => samples[index]!);
     return {
       baselineClimateField,
       thermalField,
@@ -800,14 +815,40 @@ export const ClimateBaselineStep = createStep(config, {
       pressureField,
       windField,
       currentField,
-      seasonalRainfall,
-      seasonalHumidity,
-      seasonalSurfaceTemperatureC,
-      seasonalPressure,
-      seasonalWindU,
-      seasonalWindV,
-      seasonalCurrentU,
-      seasonalCurrentV,
+      seasonalRainfall: observe(seasonalRainfall),
+      seasonalHumidity: observe(seasonalHumidity),
+      seasonalSurfaceTemperatureC: observe(seasonalSurfaceTemperatureC),
+      seasonalPressure: observe(seasonalPressure),
+      seasonalWindU: observe(seasonalWindU),
+      seasonalWindV: observe(seasonalWindV),
+      seasonalCurrentU: observe(seasonalCurrentU),
+      seasonalCurrentV: observe(seasonalCurrentV),
+      seasonalIntegration:
+        sampling.model === "periodic-cycle"
+          ? {
+              model: sampling.model,
+              phaseOrigin: "northward-equinox" as const,
+              phases: sampling.phases,
+              weights: sampling.weights,
+              observationIndices: sampling.observationIndices,
+              rainfall: seasonalRainfall,
+              humidity: seasonalHumidity,
+              potentialDemand: seasonalDemand,
+              surfaceTemperatureC: seasonalSurfaceTemperatureC,
+              pressure: seasonalPressure,
+              windU: seasonalWindU,
+              windV: seasonalWindV,
+              currentU: seasonalCurrentU,
+              currentV: seasonalCurrentV,
+            }
+          : undefined,
+      thermalResponse: atmosphere.periodicThermal
+        ? {
+            annualUnclippedSurfaceTemperatureC:
+              atmosphere.periodicThermal.annualUnclippedSurfaceTemperatureC,
+            annualClippingDeltaC: atmosphere.periodicThermal.annualClippingDeltaC,
+          }
+        : undefined,
       oceanGeometry,
       oceanThermal,
     };

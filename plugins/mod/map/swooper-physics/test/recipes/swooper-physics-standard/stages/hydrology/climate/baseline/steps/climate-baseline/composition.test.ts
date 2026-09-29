@@ -48,11 +48,41 @@ type PotentialDemandInput = Parameters<
   typeof hydrologyDomain.climate.ops.computePotentialDemand.run
 >[0];
 
-function climateBaselineConfig(options: Readonly<{ axialTiltDeg?: number }> = {}) {
+const aggregateOps = {
+  computeSeasonalSampling: hydrologyDomain.climate.ops.computeSeasonalSampling.run,
+  computeAtmosphericAggregate: hydrologyDomain.climate.ops.computeAtmosphericAggregate.run,
+  computeMoistureAggregate: hydrologyDomain.climate.ops.computeMoistureAggregate.run,
+};
+
+function climateBaselineConfig(
+  options: Readonly<{ axialTiltDeg?: number; periodic?: boolean }> = {}
+) {
   if (!ClimateBaselineStep.normalize) {
     throw new Error("Climate baseline must normalize its authored configuration.");
   }
   const stageConfig = createStandardRecipeTestConfig()["hydrology-climate-baseline"];
+  // These original composition assertions retain the pre-periodic numerical path.
+  if (!options.periodic) {
+    stageConfig["climate-baseline"].computeSeasonalSampling = {
+      strategy: "legacy-snapshots",
+      config: {},
+    };
+    stageConfig["climate-baseline"].computeRadiativeForcing = {
+      strategy: "latitude-insolation",
+      config: { equatorInsolation: 1.5, poleInsolation: 0.22, latitudeExponent: 1.2 },
+    };
+    stageConfig["climate-baseline"].computeThermalState = {
+      strategy: "insolation-lapse-rate",
+      config: {
+        baseTemperatureC: 8,
+        insolationScaleC: 50,
+        lapseRateCPerElevationUnit: -0.0065,
+        landCoolingC: 3.2,
+        minC: -40,
+        maxC: 50,
+      },
+    };
+  }
   if (options.axialTiltDeg !== undefined) {
     stageConfig.knobs.seasonality = "normal";
     stageConfig["climate-baseline"].seasonality.axialTiltDeg = options.axialTiltDeg;
@@ -112,6 +142,7 @@ function captureSeasonalEvidence(axialTiltDeg: number) {
       stepContext,
       config,
       {
+        ...aggregateOps,
         computeOceanGeometry: () => ({
           basinId: new Int32Array(size),
           coastDistance: new Uint16Array(size),
@@ -141,8 +172,14 @@ function captureSeasonalEvidence(axialTiltDeg: number) {
           sstC: new Float32Array(size),
           seaIceMask: new Uint8Array(size),
         }),
-        computeRadiativeForcing: () => ({ insolation: new Float32Array(size) }),
-        computeThermalState: () => ({ surfaceTemperatureC: new Float32Array(size) }),
+        computeRadiativeForcing: () => ({
+          model: "latitude-insolation",
+          insolation: new Float32Array(size),
+        }),
+        computeThermalState: () => ({
+          model: "insolation-lapse-rate",
+          surfaceTemperatureC: new Float32Array(size),
+        }),
         computeEvaporationSources: () => ({ evaporation: new Float32Array(size) }),
         computePotentialDemand: hydrologyDomain.climate.ops.computePotentialDemand.run,
         transportMoisture: () => ({ humidity: new Float32Array(size) }),
@@ -189,7 +226,260 @@ function captureSeasonalEvidence(axialTiltDeg: number) {
   };
 }
 
+function capturePeriodicComposition(modeCount: 2 | 4, uncoupled = false) {
+  const width = 4,
+    height = 3,
+    size = width * height;
+  let config = climateBaselineConfig({ periodic: true });
+  config.seasonality.modeCount = modeCount;
+  if (uncoupled)
+    config = validateSchemaValueForTest(
+      climateBaselineStepConfig.schema,
+      {
+        ...config,
+        computeAtmosphericCirculation: {
+          strategy: "latitude",
+          config: { windJetStreaks: 0, windJetStrength: 0, windVariance: 0 },
+        },
+        computeOceanSurfaceCurrents: { strategy: "latitude", config: { strength: 0 } },
+        transportMoisture: {
+          strategy: "cardinal",
+          config: { iterations: 0, advection: 0.65, retention: 0.92 },
+        },
+        computePrecipitation: {
+          strategy: "baseline",
+          config: {
+            rainfallScale: 180,
+            humidityExponent: 1,
+            noiseAmplitude: 0,
+            noiseScale: 0.12,
+            waterGradient: {
+              radius: 5,
+              perRingBonus: 4,
+              lowlandBonus: 2,
+              lowlandElevationMax: 150,
+            },
+            orographic: { steps: 4, reductionBase: 8, reductionPerStep: 6, barrierElevationM: 500 },
+          },
+        },
+      },
+      "/periodic/uncoupled"
+    );
+  const context = createMapContext({
+    setup: admitMapSetup({
+      mapSeed: TEST_MAP_SEED,
+      dimensions: { width, height },
+      latitudeBounds: { topLatitude: 50, bottomLatitude: -50 },
+    }),
+    adapter: createMockAdapter({ width, height }),
+  });
+  const events: string[] = [];
+  const oceanInputs: OceanThermalInput[] = [];
+  const thermalInputs: ThermalStateInput[] = [];
+  const thermalOutputs: Extract<
+    ReturnType<typeof hydrologyDomain.climate.ops.computeThermalState.run>,
+    { model: "periodic-response" }
+  >[] = [];
+  const pressureInputs: PressureFieldInput[] = [];
+  const demandInputs: PotentialDemandInput[] = [];
+  let observation: ReturnType<typeof ClimateBaselineStep.run> | undefined;
+  withMapContextExecutionForTest(context, (stepContext) => {
+    const landMask = new Uint8Array(size).fill(1);
+    landMask[0] = 0;
+    publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
+      elevation: new Int16Array(size).fill(100),
+      seaLevel: 0,
+      landMask,
+      bathymetry: new Int16Array(size),
+    });
+    publishTestArtifact(stepContext, morphologyShelfArtifacts.shelf, {
+      shelfMask: new Uint8Array(size),
+      coastalLand: new Uint8Array(size),
+      coastalWater: new Uint8Array(size),
+      distanceToCoast: new Uint16Array(size),
+    });
+    observation = ClimateBaselineStep.run(
+      stepContext,
+      config,
+      {
+        ...aggregateOps,
+        computeRadiativeForcing: hydrologyDomain.climate.ops.computeRadiativeForcing.run,
+        computeThermalState: (
+          input: ThermalStateInput,
+          thermalConfig: Parameters<typeof hydrologyDomain.climate.ops.computeThermalState.run>[1]
+        ) => {
+          events.push("thermal");
+          thermalInputs.push(input);
+          const output = hydrologyDomain.climate.ops.computeThermalState.run(input, thermalConfig);
+          if (output.model !== "periodic-response")
+            throw new Error("Periodic composition must not invoke legacy thermal physics.");
+          thermalOutputs.push(output);
+          return output;
+        },
+        computeOceanGeometry: () => ({
+          basinId: new Int32Array(size),
+          coastDistance: new Uint16Array(size),
+          coastNormalU: new Int8Array(size),
+          coastNormalV: new Int8Array(size),
+          coastTangentU: new Int8Array(size),
+          coastTangentV: new Int8Array(size),
+        }),
+        computeOceanThermalState: (input: OceanThermalInput) => {
+          events.push("ocean");
+          oceanInputs.push(input);
+          return {
+            sstC: new Float32Array(size).fill(10 + oceanInputs.length),
+            seaIceMask: new Uint8Array(size),
+          };
+        },
+        computePressureField: (input: PressureFieldInput) => {
+          pressureInputs.push(input);
+          return {
+            pressure: Float32Array.from(
+              input.surfaceTemperatureC,
+              (value, index) => value - input.meanSurfaceTemperatureC[index]!
+            ),
+          };
+        },
+        computeAtmosphericCirculation: () => ({
+          windU: new Int8Array(size).fill(6),
+          windV: new Int8Array(size),
+        }),
+        computeOceanSurfaceCurrents: () => ({
+          currentU: new Int8Array(size).fill(3),
+          currentV: new Int8Array(size),
+        }),
+        computeEvaporationSources: () => ({ evaporation: new Float32Array(size) }),
+        transportMoisture: () => ({ humidity: new Float32Array(size) }),
+        computePrecipitation: () => ({
+          rainfall: new Uint8Array(size).fill(20),
+          humidity: new Uint8Array(size).fill(90),
+        }),
+        computePotentialDemand: (
+          input: PotentialDemandInput,
+          demandConfig: Parameters<typeof hydrologyDomain.climate.ops.computePotentialDemand.run>[1]
+        ) => {
+          demandInputs.push(input);
+          return hydrologyDomain.climate.ops.computePotentialDemand.run(input, demandConfig);
+        },
+      },
+      buildStepTestDependencies(ClimateBaselineStep, stepContext)
+    );
+  });
+  if (!observation || observation instanceof Promise)
+    throw new Error("Expected synchronous periodic climate.");
+  return {
+    observation,
+    config,
+    events,
+    oceanInputs,
+    thermalInputs,
+    thermalOutputs,
+    pressureInputs,
+    demandInputs,
+  };
+}
+
 describe("hydrology climate-baseline composition", () => {
+  it("maps periodic temperature knobs only to the explicit annual offset", () => {
+    const config = climateBaselineConfig({ periodic: true });
+    const knobs = createStandardRecipeTestConfig()["hydrology-climate-baseline"].knobs;
+    if (config.computeThermalState.strategy !== "periodic-response")
+      throw new Error("Expected periodic configuration.");
+    for (const [temperature, offset] of [
+      ["cold", -5],
+      ["temperate", 0],
+      ["hot", 5],
+    ] as const) {
+      const normalized = validateSchemaValueForTest(
+        climateBaselineStepConfig.schema,
+        ClimateBaselineStep.normalize!(config, { setup, knobs: { ...knobs, temperature } }),
+        "/periodic/temperature-knob"
+      );
+      expect(normalized.computeThermalState).toEqual({
+        ...config.computeThermalState,
+        config: {
+          ...config.computeThermalState.config,
+          annualOffsetC: config.computeThermalState.config.annualOffsetC + offset,
+        },
+      });
+      expect(normalized.computeRadiativeForcing).toEqual(config.computeRadiativeForcing);
+      expect(normalized.computeSeasonalSampling).toEqual(config.computeSeasonalSampling);
+    }
+  });
+
+  it("rejects mixed solar, thermal and sampling strategies during normalization", () => {
+    const periodic = climateBaselineConfig({ periodic: true });
+    const legacy = climateBaselineConfig();
+    const knobs = createStandardRecipeTestConfig()["hydrology-climate-baseline"].knobs;
+    for (const key of [
+      "computeSeasonalSampling",
+      "computeRadiativeForcing",
+      "computeThermalState",
+    ] as const) {
+      expect(() =>
+        ClimateBaselineStep.normalize!({ ...periodic, [key]: legacy[key] }, { setup, knobs })
+      ).toThrow("same model");
+    }
+  });
+
+  it("initializes prescribed SST and reuses one periodic family per complete coupling vintage", () => {
+    const run = capturePeriodicComposition(4);
+    const phaseCount = 24,
+      vintages = run.config.coupling.iterations + 1;
+    expect(run.events[0]).toBe("ocean");
+    expect(run.events.at(-1)).toBe("thermal");
+    expect(run.oceanInputs).toHaveLength(vintages);
+    expect([...run.oceanInputs[0]!.currentU]).toEqual(new Array(12).fill(0));
+    expect(run.thermalInputs).toHaveLength(vintages);
+    expect(run.pressureInputs).toHaveLength(vintages * phaseCount * 2);
+    for (let vintage = 0; vintage < vintages; vintage++) {
+      const family = run.thermalOutputs[vintage]!;
+      expect(run.thermalInputs[vintage]!.sstC?.[0]).toBe(11 + vintage);
+      for (let phase = 0; phase < phaseCount; phase++) {
+        const input = run.pressureInputs[(vintage * phaseCount + phase) * 2]!;
+        expect(input.surfaceTemperatureC).toBe(family.samples[phase]!.seaLevelTemperatureC);
+        expect(input.meanSurfaceTemperatureC).toBe(family.meanSeaLevelTemperatureC);
+      }
+    }
+    const final = run.thermalOutputs.at(-1)!;
+    expect(run.demandInputs).toHaveLength(phaseCount);
+    for (let phase = 0; phase < phaseCount; phase++) {
+      expect(run.demandInputs[phase]!.surfaceTemperatureC).toBe(
+        final.samples[phase]!.surfaceTemperatureC
+      );
+    }
+    expect(run.observation.thermalField.surfaceTemperatureC).toEqual(
+      final.annualSurfaceTemperatureC
+    );
+    expect(run.observation.seasonalIntegration?.rainfall).toHaveLength(phaseCount);
+    expect(run.observation.seasonalSurfaceTemperatureC).toHaveLength(4);
+  });
+
+  it("keeps all annual fields independent of observation count and initializes SST without coupling", () => {
+    const two = capturePeriodicComposition(2),
+      four = capturePeriodicComposition(4);
+    for (const key of [
+      "baselineClimateField",
+      "thermalField",
+      "pressureField",
+      "windField",
+      "currentField",
+      "seasonalAmplitudes",
+      "thermalResponse",
+    ] as const) {
+      expect(two.observation[key]).toEqual(four.observation[key]);
+    }
+    expect(two.observation.seasonalSurfaceTemperatureC).toEqual([
+      four.observation.seasonalSurfaceTemperatureC[1]!,
+      four.observation.seasonalSurfaceTemperatureC[3]!,
+    ]);
+    const uncoupled = capturePeriodicComposition(2, true);
+    expect(uncoupled.events).toEqual(["ocean", "thermal"]);
+    expect(uncoupled.observation.oceanThermal?.sstC[0]).toBe(11);
+    expect(uncoupled.observation.thermalField.surfaceTemperatureC[0]).toBe(11);
+  });
+
   it("publishes one final pressure-wind-current vintage from the converged SST", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
@@ -334,7 +624,11 @@ describe("hydrology climate-baseline composition", () => {
               seaIceMask: new Uint8Array(size),
             };
           },
-          computeRadiativeForcing: () => ({ insolation: new Float32Array(size) }),
+          ...aggregateOps,
+          computeRadiativeForcing: () => ({
+            model: "latitude-insolation",
+            insolation: new Float32Array(size),
+          }),
           computeThermalState: (input: ThermalStateInput) => {
             const output = new Float32Array(size).fill(thermalInputs.length + 1);
             thermalInputs.push({
@@ -343,7 +637,7 @@ describe("hydrology climate-baseline composition", () => {
               seaLevel: input.seaLevel,
               output,
             });
-            return { surfaceTemperatureC: output };
+            return { model: "insolation-lapse-rate", surfaceTemperatureC: output };
           },
           computeEvaporationSources: () => ({ evaporation: new Float32Array(size) }),
           computePotentialDemand: (
@@ -524,7 +818,10 @@ describe("hydrology climate-baseline composition", () => {
       expect(demandInputs[season]!.parameters).toEqual(config.potentialDemand);
     }
     const baseline = readArtifact(context, climateArtifacts.baselineClimateField);
-    const baselineSurfaceTemperature = readArtifact(context, climateArtifacts.thermalField).surfaceTemperatureC;
+    const baselineSurfaceTemperature = readArtifact(
+      context,
+      climateArtifacts.thermalField
+    ).surfaceTemperatureC;
     expect(observedSeasonalSurfaceTemperatureC).toHaveLength(modeCount);
     for (let season = 0; season < modeCount; season++) {
       expect(observedSeasonalSurfaceTemperatureC[season]).toBe(
@@ -533,8 +830,10 @@ describe("hydrology climate-baseline composition", () => {
     }
     const expectedTemperature = Float32Array.from(
       { length: size },
-      (_, i) => thermalInputs.slice(atmosphereSeasonCalls)
-        .reduce((sum, sample) => sum + sample.output[i]!, 0) / modeCount
+      (_, i) =>
+        thermalInputs
+          .slice(atmosphereSeasonCalls)
+          .reduce((sum, sample) => sum + sample.output[i]!, 0) / modeCount
     );
     expect(baselineSurfaceTemperature).toEqual(expectedTemperature);
     for (const seasonalTemperature of observedSeasonalSurfaceTemperatureC) {

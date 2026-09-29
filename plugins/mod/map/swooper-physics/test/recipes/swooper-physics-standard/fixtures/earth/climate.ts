@@ -25,12 +25,16 @@ export type EarthCoastClimateArm = "earth-coast" | "aquaplanet";
  * Test-owned composition of the actual baseline step, not a new recipe or a completed Earth map.
  * Source water (including enclosed water) receives SST; flat relief has no physical height claim.
  */
-export function runEarthCoastBaseline(arm: EarthCoastClimateArm = "earth-coast") {
+export function runEarthCoastBaseline(
+  arm: EarthCoastClimateArm = "earth-coast",
+  recipeConfig = standardMapConfig.config
+) {
   const source = createEarthReferenceSurface();
   const { width, height } = source;
   const size = width * height;
   const mapConfig = {
     ...standardMapConfig,
+    config: recipeConfig,
     latitudeBounds: {
       topLatitude: earthReference.grid.topLatitude,
       bottomLatitude: earthReference.grid.bottomLatitude,
@@ -40,7 +44,7 @@ export function runEarthCoastBaseline(arm: EarthCoastClimateArm = "earth-coast")
     preset: getCiv7StandardMapSizePreset("MAPSIZE_HUGE"),
     mapConfig,
   });
-  const plan = recipe.compile(initial, standardMapConfig.config);
+  const plan = recipe.compile(initial, recipeConfig);
   const node = plan.nodes.find((step) => step.stageId === "hydrology-climate-baseline");
   if (!node) throw new Error("The public Standard plan must contain baseline climate.");
   const config = validateSchemaValueForTest(
@@ -84,6 +88,9 @@ export function runEarthCoastBaseline(arm: EarthCoastClimateArm = "earth-coast")
       stepContext,
       config,
       {
+        computeSeasonalSampling: hydrology.climate.ops.computeSeasonalSampling.run,
+        computeAtmosphericAggregate: hydrology.climate.ops.computeAtmosphericAggregate.run,
+        computeMoistureAggregate: hydrology.climate.ops.computeMoistureAggregate.run,
         computeOceanGeometry: hydrology.ocean.ops.computeOceanGeometry.run,
         computeOceanSurfaceCurrents: hydrology.ocean.ops.computeOceanSurfaceCurrents.run,
         computeOceanThermalState: hydrology.ocean.ops.computeOceanThermalState.run,

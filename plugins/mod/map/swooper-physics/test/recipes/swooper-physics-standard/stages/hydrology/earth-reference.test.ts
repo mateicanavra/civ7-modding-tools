@@ -333,7 +333,14 @@ describe("fixed Earth-coast flat-relief climate ablation", () => {
     expect(earth.observation.seasonalRainfall).toHaveLength(earth.config.seasonality.modeCount);
     const seasonalTemperature = earth.observation.seasonalSurfaceTemperatureC;
     expect(seasonalTemperature).toHaveLength(earth.config.seasonality.modeCount);
-    const seasonalDemand = seasonalTemperature.map(
+    const integration = earth.observation.seasonalIntegration;
+    if (!integration)
+      throw new Error("Earthlike must expose its complete periodic integration evidence.");
+    expect(integration.phases).toHaveLength(24);
+    expect(
+      integration.observationIndices.map((index) => integration.surfaceTemperatureC[index])
+    ).toEqual(seasonalTemperature);
+    const seasonalDemand = integration.surfaceTemperatureC.map(
       (surfaceTemperatureC, season) =>
         hydrology.climate.ops.computePotentialDemand.run(
           {
@@ -341,7 +348,7 @@ describe("fixed Earth-coast flat-relief climate ablation", () => {
             height: earthReference.grid.height,
             landMask: earth.topography.landMask,
             surfaceTemperatureC,
-            humidity: earth.observation.seasonalHumidity[season]!,
+            humidity: integration.humidity[season]!,
             parameters: earth.baseline.demandParameters,
           },
           earth.config.computePotentialDemand
@@ -350,36 +357,21 @@ describe("fixed Earth-coast flat-relief climate ablation", () => {
     expect(earth.observation.thermalField).toBe(earth.thermal);
     expect(earth.observation.oceanThermal).not.toBeNull();
     for (let cell = 0; cell < earth.thermal.surfaceTemperatureC.length; cell++) {
-      const mean =
-        seasonalTemperature.reduce((sum, field) => sum + field[cell]!, 0) /
-        seasonalTemperature.length;
-      expect(earth.thermal.surfaceTemperatureC[cell]).toBe(Math.fround(mean));
       const seasonMean = (fields: readonly ArrayLike<number>[]) =>
-        fields.reduce((sum, field) => sum + field[cell]!, 0) / fields.length;
+        fields.reduce((sum, field, phase) => sum + field[cell]! * integration.weights[phase]!, 0);
       expect(earth.baseline.rainfall[cell]).toBe(
-        Math.max(0, Math.min(200, Math.round(seasonMean(earth.observation.seasonalRainfall))))
+        Math.max(0, Math.min(200, Math.round(seasonMean(integration.rainfall))))
       );
       expect(earth.baseline.humidity[cell]).toBe(
-        Math.max(0, Math.min(255, Math.round(seasonMean(earth.observation.seasonalHumidity))))
+        Math.max(0, Math.min(255, Math.round(seasonMean(integration.humidity))))
       );
       expect(earth.baseline.potentialDemand[cell]).toBe(Math.fround(seasonMean(seasonalDemand)));
-      // Pressure accumulates in an f32 buffer, unlike the thermal mean's double-precision sum.
-      const pressureSum = earth.observation.seasonalPressure.reduce(
-        (sum, field) => Math.fround(sum + field[cell]!),
-        0
-      );
-      expect(earth.pressure.pressure[cell]).toBe(
-        Math.fround(pressureSum / earth.observation.seasonalPressure.length)
-      );
+      expect(earth.pressure.pressure[cell]).toBe(Math.fround(seasonMean(integration.pressure)));
       expect(earth.wind.windU[cell]).toBe(
-        new Int8Array([
-          Math.max(-127, Math.min(127, Math.round(seasonMean(earth.observation.seasonalWindU)))),
-        ])[0]
+        new Int8Array([Math.max(-127, Math.min(127, Math.round(seasonMean(integration.windU))))])[0]
       );
       expect(earth.wind.windV[cell]).toBe(
-        new Int8Array([
-          Math.max(-127, Math.min(127, Math.round(seasonMean(earth.observation.seasonalWindV)))),
-        ])[0]
+        new Int8Array([Math.max(-127, Math.min(127, Math.round(seasonMean(integration.windV))))])[0]
       );
       if (!earth.topography.landMask[cell]) {
         expect(earth.thermal.surfaceTemperatureC[cell]).toBe(

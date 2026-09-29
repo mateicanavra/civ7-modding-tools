@@ -45,21 +45,27 @@ function runSurfaceConsumers(model: "certified-sill-spill" | "legacy-sink-budget
   if (model === "certified-sill-spill") expectedExposure[wetCell] = 0;
   const calls: string[] = [];
   const forcing = climate.computeRadiativeForcing.run({
-    width, height, latitudeByRow: Float32Array.of(0),
+    model: "latitude-insolation", width, height, latitudeByRow: Float32Array.of(0),
   }, climate.computeRadiativeForcing.defaultConfig);
+  if (forcing.model !== "latitude-insolation") throw new Error("Expected legacy forcing.");
   const thermalInput = {
+    model: "insolation-lapse-rate" as const,
     width, height, insolation: forcing.insolation,
     elevation: topography.elevation, seaLevel: topography.seaLevel,
     landMask: topography.landMask,
   };
-  const baselineTemperature = climate.computeThermalState.run(
+  const baselineThermal = climate.computeThermalState.run(
     thermalInput, climate.computeThermalState.defaultConfig
-  ).surfaceTemperatureC;
+  );
+  if (baselineThermal.model !== "insolation-lapse-rate") throw new Error("Expected legacy thermal field.");
+  const baselineTemperature = baselineThermal.surfaceTemperatureC;
   const incorrectMarineMask = topography.landMask.slice();
   incorrectMarineMask[wetCell] = 0;
-  const marineTreatment = climate.computeThermalState.run(
+  const marineThermal = climate.computeThermalState.run(
     { ...thermalInput, landMask: incorrectMarineMask }, climate.computeThermalState.defaultConfig
-  ).surfaceTemperatureC[wetCell]!;
+  );
+  if (marineThermal.model !== "insolation-lapse-rate") throw new Error("Expected legacy marine thermal field.");
+  const marineTreatment = marineThermal.surfaceTemperatureC[wetCell]!;
 
   withMapContextExecutionForTest(context, (stepContext) => {
     publishTestArtifact(stepContext, landformsArtifacts.topography, topography);
