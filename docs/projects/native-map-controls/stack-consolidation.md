@@ -61,3 +61,21 @@ the bounded wet-outlet correction is
 [PR #2213](https://github.com/mateicanavra/civ7-modding-tools/pull/2213).
 All newly created PRs are attached to the task. No branch was merged as part of
 this publication repair.
+
+## September 29 Continuation
+
+Continuing beyond the thermal handoff requires space for the next meaningful
+implementation layer. A second independent semantic review selected the
+small workstream-enablement pair, not the already substantive basin integration
+branch: native `gt fold --keep --close` absorbed `native-map-controls-frame`
+into `studio-startup-deps`, retaining the latter name and PR #2189. Graphite
+closed superseded #2188. The five frame documents and the four-line Studio
+dependency/lockfile prerequisite retain both original commits.
+
+The operation left every descendant commit unchanged. The thermal tip remains
+`cacc0f7c1ccc7caa7c7e14b1795576b41cb5c3a2`, tree
+`2f42174f1e7d557325a4fcb83e14bf3d4a87656c`, before this receipt. The survivor
+remains `d5a9377f9fc0fa11ad7aa1077f1b37be3e3e8429`; the occupied prerequisite
+remains `10e6b74493bd5aae7d0016389dd09bd8f12d2512`. No physics, contract or
+native-proof boundary was collapsed. The owned chain is now 49 non-trunk
+branches including its 31 unchanged prerequisites, before the next layer.
