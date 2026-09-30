@@ -259,3 +259,53 @@ The numerical report is byte-identical to the preceding reviewed capture,
 SHA-256 `384979c922569875141d46e1c072c5f59ec790da5ae79167eb28223d9704ee4c`.
 The repo contains only the pinned JSON and Bun/TypeScript consumer; no Python
 toolchain, dependency directory, cache or extraction target is introduced.
+
+### Source-Latitude Variance Follow-Through
+
+The next sealed study groups those same retained samples by their **original
+Gaussian source row**, not by the helper's artificial independent input rows.
+It preserves all source land weights, original training/holdout identities,
+frozen thermal response and zero/q1/q10 arms. Each cohort is demeaned within
+its selected source rows. Singleton rows retain their area mass and contribute
+zero variance; their support and paired-row-only results are reported.
+
+| Annual Within-Latitude RMS, C | Observed | Known Height q1 | Residual |
+| --- | ---: | ---: | ---: |
+| All source land | 5.3114 | 4.8909 | 2.7081 |
+| +/-80 source land | 5.1287 | 4.8513 | 2.6548 |
+| Original low-relief cohort | 2.2038 | 0.3567 | 2.0809 |
+| Original low-relief holdout | 2.3148 | 0.3617 | 2.1618 |
+
+Zero-height predictions have numerically zero within-row variation. Known
+height reduces paired row-demeaned error variance by 74.0% across all source
+land but only 10.8% in the original low-relief cohort. These are error reductions,
+not independent causal variance shares: the retained budget includes covariance.
+Day-weighted monthly residual RMS remains 3.5181 C globally and 2.5186 C in
+original low-relief. Monthly fields are separately demeaned before weighting,
+not replaced by annual means or month-center instantaneous predictions.
+
+Height improves within-row structure while worsening total original holdout
+RMSE from 2.9710 to 3.3768 C; the row-mean bias is a different error axis. The
+high-altitude overcooling likewise remains. The reference therefore supports
+two separate questions: missing height-linked variation and missing low-relief
+land inputs/processes. It does not select a stronger lapse, invent a physical
+scale for generated relief, or uniquely identify maritime exchange. The
+[generated four-case budget](land-thermal-variance.md) is a different population
+and geometry, not a matched-grid Earth accuracy test.
+
+Full source copies, actual admitted inputs/outputs, per-month/per-source-row
+moments and repeat receipts live at
+`earth-calibration/earth-height-latitude-variance-20260930/`. Root reran five
+analysis tests (34 assertions) and the read-only verifier: both independent
+processes match all ten retained artifacts, and 232,440 independent pairwise
+moment checks pass with maximum discrepancy `4.733e-12 C^2`. Clipping is
+inactive, sea-level thermal pressure inputs remain byte-exact, and q1/q10
+differences remain within the original rounding budget. The executed 910-file
+source inventory SHA-256 is
+`5d08cfe481d4f70a2ff7494016ace4ec108c56922ecb66a8e7cb50efc55e2e24`;
+it is not a whole-checkout identity. The adjacent README gives repeatable Bun
+commands. No procedural recipe, product coefficient or expectation changes.
+Independent eight-file review found no actionable grouping, weighting,
+covariance-sign, temporal-aggregation or membership defect. It did not rerun
+the verifier or independently rehash retained arrays; the execution proof
+above remains root-owned.

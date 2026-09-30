@@ -70,15 +70,13 @@ or assume every individually dominant row violates the global weighted target.
 
 ## Next Discriminator
 
-Use the existing [fixed-height Earth thermal reference](earth-thermal-reference.md#fixed-height-thermal-discriminator)
-to measure observed, zero-height-predicted, known-height-predicted and residual
-within-latitude variance. Group by actual source Gaussian row, not the helper's
-artificial independent input rows. Preserve source land weights, original
-train/holdout identities, frozen gains, q1/q10 encoding controls and inactive
-clipping; report annual/monthly and altitude cohorts separately.
-
-That comparison can distinguish height-supplied variation from unexplained
-low-relief variation. It does not uniquely identify maritime exchange. A
+The [fixed-height source-latitude comparison](earth-thermal-reference.md#source-latitude-variance-follow-through)
+now measures those populations with source Gaussian-row grouping, original
+land weights and frozen response. Known height reduces row-demeaned error
+variance by 74.0% globally but only 10.8% in the original low-relief cohort;
+the latter retains 2.0809 C annual and 2.5186 C monthly residual RMS. This
+separates height-supplied variation from unexplained low-relief variation.
+It does not uniquely identify maritime exchange. A
 directional thermal-exchange design needs matched monthly SST, coastal/inland
 air and wind evidence, plus an explicit driving vintage because phase winds
 are themselves downstream of thermal pressure. No new production strategy,
