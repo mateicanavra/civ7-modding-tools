@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "habitat",
+  "ownerProject": "civ7-workspace",
   "lane": "enforced",
   "forbids": "workspace map-mod projects without the package, Nx project, and source spine or with loose project-root children outside the finite project topology",
   "why": "A workspace map-mod project is one constructible package and Nx project with authored source. Closing both the reusable definition and deployable realization project families prevents loose root cabinets and compatibility surfaces from becoming accidental peers of that spine.",

@@ -1,0 +1,90 @@
+{
+  "$schema": "./node_modules/nx/schemas/project-schema.json",
+  "name": "civ7-workspace",
+  "tags": ["kind:tooling"],
+  "targets": {
+    "build": {
+      "executor": "nx:noop",
+      "cache": false,
+      "dependsOn": [],
+      "outputs": []
+    },
+    "clean": {
+      "executor": "nx:noop",
+      "cache": false,
+      "dependsOn": [],
+      "outputs": []
+    },
+    "test": {
+      "executor": "nx:noop",
+      "cache": false,
+      "dependsOn": [],
+      "outputs": []
+    },
+    "typecheck": {
+      "executor": "nx:noop",
+      "cache": false,
+      "dependsOn": [],
+      "outputs": []
+    },
+    "serve:project-docs": {
+      "command": "./.habitat/docs/_blueprints/docs-site/generate_docs_sidebar_from_docs_tree/generate.sh && bunx docsify-cli serve ./docs --port 7979",
+      "cache": false,
+      "continuous": true
+    },
+    "format": {
+      "command": "sort-package-json package.json apps/*/package.json apps/mods/*/*/package.json mods/*/package.json packages/*/package.json packages/civ7-map-policy/scripts/package.json packages/plugins/*/package.json services/*/package.json plugins/mod/map/*/package.json 'plugins/cli/topics/*/package.json' && biome check --write .",
+      "cache": false
+    },
+    "lint": {
+      "command": "biome lint --config-path=biome.effect.json .",
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/**/*.{js,jsx,ts,tsx,cjs,mjs,cts,mts}",
+        "{workspaceRoot}/biome.json",
+        "{workspaceRoot}/biome.effect.json",
+        "{workspaceRoot}/package.json",
+        "{workspaceRoot}/bun.lock",
+        "{workspaceRoot}/patches/@catenarycloud%2Flinteffect@0.0.6.patch",
+        "{workspaceRoot}/.gitignore"
+      ],
+      "outputs": []
+    },
+    "check:hygiene": {
+      "command": "sort-package-json --check --quiet package.json apps/*/package.json apps/mods/*/*/package.json mods/*/package.json packages/*/package.json packages/civ7-map-policy/scripts/package.json packages/plugins/*/package.json services/*/package.json plugins/mod/map/*/package.json 'plugins/cli/topics/*/package.json' && biome ci --diagnostic-level=error .",
+      "cache": true,
+      "inputs": ["{workspaceRoot}/**/*"],
+      "outputs": []
+    },
+    "check:boundaries": {
+      "command": "FORCE_COLOR=0 eslint . --quiet --config eslint.boundaries.config.mjs --no-config-lookup",
+      "cache": true,
+      "inputs": ["{workspaceRoot}/**/*"],
+      "outputs": []
+    },
+    "check:dead-code": {
+      "command": "knip --no-progress",
+      "cache": true,
+      "inputs": ["{workspaceRoot}/**/*", "{workspaceRoot}/.gitignore"],
+      "outputs": []
+    },
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": [],
+      "dependsOn": ["check:hygiene", "check:boundaries", "check:dead-code"]
+    },
+    "verify": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": [],
+      "dependsOn": ["verify:mapgen-docs"]
+    },
+    "verify:mapgen-docs": {
+      "command": "python3 docs/system/libs/mapgen/tools/validate-anchors-and-references.py",
+      "cache": true,
+      "inputs": ["{workspaceRoot}/docs/system/libs/mapgen/**"],
+      "outputs": []
+    }
+  }
+}

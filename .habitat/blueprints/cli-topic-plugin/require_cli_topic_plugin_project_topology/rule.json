@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "habitat",
+  "ownerProject": "civ7-workspace",
   "lane": "enforced",
   "forbids": "CLI topic plugin project, source, command, adapter, and test trees that omit required spine members or contain undeclared direct children",
   "why": "A CLI topic plugin has one closed project root, a required source and command spine, optional closed source and test adapter trees, and a required closed test spine with optional closed support.",

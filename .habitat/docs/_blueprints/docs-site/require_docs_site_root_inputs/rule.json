@@ -20,9 +20,6 @@
     {
       "kind": "exact-path",
       "patterns": ["apps/docs/docs.json", "apps/docs/index.mdx", "apps/docs/public/llms.txt"]
-    },
-    {
-      "kind": "project-owner"
     }
   ],
   "supportFiles": {

@@ -14,7 +14,7 @@
   "lane": "enforced",
   "forbids": "domain source importing or re-exporting recipe modules",
   "why": "Domain code defines reusable public surfaces; recipe composition stays in recipes and must not flow back into domain implementation.",
-  "remediate": null,
+  "remediate": "Domain source must not import recipe modules; move composition to recipes or expose a domain surface.",
   "message": "Domain source must not import recipe modules; move composition to recipes or expose a domain surface.",
   "pathCoverage": [
     {
@@ -22,10 +22,10 @@
       "patterns": ["plugins/mod/map/*/src/domain/**/*.ts"]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

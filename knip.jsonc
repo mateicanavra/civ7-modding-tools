@@ -4,27 +4,28 @@
   "treatConfigHintsAsErrors": true,
   "workspaces": {
     ".": {
-      "entry": [
-        ".habitat/**/{check,fix,generate}.{ts,mts,cts,js,mjs,cjs}",
-        ".habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/lint-react-compiler.mjs"
-      ],
-      "project": [".habitat/**/*.{ts,mts,cts,js,mjs,cjs}", "*.{ts,mts,cts,js,mjs,cjs}"],
+      "project": ["*.{ts,mts,cts,js,mjs,cjs}"],
       // Habitat acquires the pinned Grit binary through provider construction. TypeBox
       // supports root-level TypeScript references, while string-width deliberately anchors
       // the yargs 17 CommonJS dependency path.
-      "ignoreDependencies": ["@getgrit/cli", "string-width", "typebox"],
+      "ignoreDependencies": ["@getgrit/cli", "oclif", "string-width", "typebox"],
       "biome": {
         "config": ["biome.json", "biome.effect.json"]
       },
       "nx": {
-        "config": ["nx.json", "{apps,mods,packages,plugins,tools}/**/project.json", "package.json"]
+        "config": [
+          "nx.json",
+          "project.json",
+          "{apps,mods,packages,plugins,services}/**/project.json",
+          "package.json"
+        ]
       },
       // Restrict Vitest's otherwise workspace-global defaults so the source-only Effect
       // reference under .repos is never misclassified as authored workspace code.
       "vitest": {
         "config": ["vitest.config.ts"],
         "entry": [
-          "{apps,mods,packages,plugins,tools}/**/*.{bench,test,test-d,spec,spec-d}.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"
+          "{apps,mods,packages,plugins,services}/**/*.{bench,test,test-d,spec,spec-d}.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"
         ]
       }
     },
@@ -58,7 +59,9 @@
       "entry": ["src/maps/generated/*.ts"]
     },
     "packages/civ7-adapter": {
-      "ignoreUnresolved": ["^/base-standard/"]
+      "ignoreUnresolved": ["^/base-standard/"],
+      // The map-script builder resolves uri-js dynamically into an esbuild virtual module.
+      "ignoreDependencies": ["uri-js"]
     },
     "packages/civ7-map-policy": {
       // Generated setup policy is inspected through its source generator and currentness
@@ -109,12 +112,6 @@
     },
     "packages/mapgen-viz": {
       "entry": ["test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"]
-    },
-    "tools/habitat": {
-      // The project-boundary Habitat rule invokes this owner through its checked-in shell adapter.
-      "entry": ["scripts/validate-boundary-taxonomy-against-workspace-graph.ts"],
-      // Command tests pass `fix` to Habitat's own CLI; it is not an external executable.
-      "ignoreBinaries": ["fix"]
     }
   }
 }

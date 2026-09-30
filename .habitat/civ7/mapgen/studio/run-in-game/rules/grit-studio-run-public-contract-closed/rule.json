@@ -23,14 +23,12 @@
         "packages/studio-contract/src/runInGame.ts",
         "packages/studio-server/src/operationRuntime/projection.ts"
       ]
-    },
-    {
-      "kind": "project-owner"
     }
   ],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-public-contract-closed/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

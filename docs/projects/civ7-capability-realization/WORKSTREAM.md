@@ -1,7 +1,6 @@
 # Civ7 Capability Realization Workstream
 
-**Status:** Ground active and refused at shared kind construction; release
-provenance and initializer idempotence verified, target source stationary
+**Status:** Ground sealed; Core Platform 1.1 Swooper construction active
 **Frame:** [FRAME.md](./FRAME.md)
 **Model progression:** [MODEL-PROGRESSION.md](./MODEL-PROGRESSION.md)
 **Product authority:** [PRODUCT-AUTHORITY.md](./PRODUCT-AUTHORITY.md)
@@ -80,6 +79,9 @@ The following are complete evidence, not open work containers:
   behind the recorded same-realm consumer and lifecycle trigger.
 - MapGen remains portable. A network-shaped MapGen generation service and a
   manufactured MapGen-run resource remain excluded.
+- Habitat 0.5.1 is installed and self-consumed through its released CLI/SDK
+  boundary. The local producer and bootstrap architecture are deleted; all six
+  selected shared kinds and all 97 local compatibility applications pass.
 
 Historical semantic cuts under `docs/projects/engine-refactor-v1` remain
 behavior and decision evidence. They are not reopened merely because their
@@ -118,42 +120,25 @@ Platform exit receipt closes.
 
 ## Container 0: Ground
 
-**Outcome:** Civ7 can construct and enforce the selected platform kinds using
-one versioned upstream Habitat consumer release, without local substrate forks
-or copied policy.
+**Status:** sealed by [GROUND-RECEIPT.md](./GROUND-RECEIPT.md).
 
-**Entry:** the four model receipts and selected topology remain current.
+**Outcome:** Civ7 constructs and enforces its selected platform kinds using the
+versioned Habitat 0.5.1 consumer release, without local substrate forks or
+copied shared policy.
 
-**Contained work:**
+**Proof:** the exact release provenance, frozen install, initializer
+idempotence, six selected closed-kind fixtures, loose-member falsifiers,
+unsupported-service refusal, 97 local compatibility applications, Knip,
+OpenSpec, and the ordinary Nx check/build/test/verify graphs pass. The local
+Habitat producer, bootstrap paths, and temporal authority tree are deleted.
 
-1. Receive the direct Habitat-lane handoff and verify the exact package version,
-   source identity, digest, release provenance, and supported Bun/Nx/Oclif
-   surface.
-2. Run the consumer initializer in a disposable or no-write mode and prove that
-   repeated application is idempotent.
-3. Admit and prove only the shared generic package, resource, provider, service,
-   API, CLI-topic, and app blueprint kinds required by the initiative. Prove
-   their shared construction and initializer mechanics separately. Each product
-   slice owns admission of its qualified Civ7 laws immediately before source
-   movement.
-4. Receive and verify the exact shared vendor-transition manifest for the root
-   catalog, patched dependency, patch file, lockfile, and Habitat package. Do
-   not mutate the root or strand current consumers during Ground.
-5. Prove blueprint-owned instance anchors, generated `habitat.toml` facts,
-   positive and negative injected fixtures, construction success, and
-   unsupported-kind empty-write refusal.
-6. Freeze the exact Core Platform source and proof census from `CORPUS.md` and
-   `PROOF-CORPUS.md` before opening its red corpus.
+**Selection boundary:** shared authority supplies `app@1`, `package@1`,
+`plugin@1`, `plugin-nx@1`, `provider@1`, and `resource@1`. `service@1` is
+intentionally unselected. Civ7's existing service and domain-specific laws
+remain local compatibility authority rather than copied substrate.
 
-**Exit receipt:** the pinned substrate constructs every shared kind needed by
-the Core Platform parent, the vendor transition is exact and ready for its
-coupled Interactive branch, the live estate is classified without source
-relocation, and no generic law contains Civ7 instance names.
-
-**Refusal:** one missing kind, non-idempotent initializer, unverified artifact,
-or need for a Civ7-local approximation keeps all target source stationary.
-The current refusal and exact re-entry trigger are recorded in
-[GROUND-RECEIPT.md](./GROUND-RECEIPT.md).
+**Exit:** no generic law contains Civ7 instance names, no product source moved
+as part of Ground, and Core Platform 1.1 is admitted.
 
 ## Container 1: Core Platform
 
@@ -172,10 +157,9 @@ Studio source, and its live proofs consume the target control client, Studio
 API, MapGen-runs service, app adapters, and Tuner provisioning. Coupling the
 execution seal removes that knot without merging the products' semantic owners.
 
-**Entry:** Ground closes. The Swooper child uses the admitted substrate without
-applying a dependency-only root transition. The effective vendor change occurs
-with native service and error migration in the Interactive slice; no old patch
-line survives the joint seal.
+**Entry:** Ground is closed. The Swooper child uses the admitted substrate. The
+remaining service and error vendor change occurs with native service migration
+in the Interactive slice; no old patch line survives the joint seal.
 
 ### 1.1 Swooper Product
 

@@ -14,7 +14,7 @@
   "lane": "enforced",
   "forbids": "runtime handlers hiding config normalization behind local empty-object merge/default syntax",
   "why": "Config normalization belongs to recipe compilation and policy helpers; runtime handlers consume canonical config.",
-  "remediate": null,
+  "remediate": "Move empty-object config defaulting to the owning compile/policy boundary instead of runtime step/op code.",
   "message": "Move empty-object config defaulting to the owning compile/policy boundary instead of runtime step/op code.",
   "pathCoverage": [
     {
@@ -25,10 +25,10 @@
       ]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_local_config_default_merging/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

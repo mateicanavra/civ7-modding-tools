@@ -20,15 +20,12 @@
     {
       "kind": "exact-path",
       "patterns": ["packages/civ7-map-policy/src/**"]
-    },
-    {
-      "kind": "project-owner"
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

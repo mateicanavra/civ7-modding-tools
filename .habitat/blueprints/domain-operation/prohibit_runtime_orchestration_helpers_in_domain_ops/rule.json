@@ -14,7 +14,7 @@
   "lane": "enforced",
   "forbids": "domain op runtime entrypoints calling ops.bind or runValidated",
   "why": "Domain ops are atomic runtime units; orchestration belongs in step/stage composition, not inside op entrypoints.",
-  "remediate": null,
+  "remediate": "Domain op runtime entrypoints must not call ops.bind or runValidated.",
   "message": "Domain op runtime entrypoints must not call ops.bind or runValidated.",
   "pathCoverage": [
     {
@@ -22,10 +22,10 @@
       "patterns": ["plugins/mod/map/*/src/domain/*/modules/*/ops/*/index.ts"]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain-operation/prohibit_runtime_orchestration_helpers_in_domain_ops/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

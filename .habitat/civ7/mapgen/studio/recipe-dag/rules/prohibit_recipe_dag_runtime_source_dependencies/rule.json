@@ -23,15 +23,12 @@
         "apps/mapgen-studio/src/server/recipeDag/service.ts",
         "plugins/mod/map/swooper-physics/src/recipes/studio-contracts/**/*.ts"
       ]
-    },
-    {
-      "kind": "project-owner"
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/recipe-dag/rules/prohibit_recipe_dag_runtime_source_dependencies/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

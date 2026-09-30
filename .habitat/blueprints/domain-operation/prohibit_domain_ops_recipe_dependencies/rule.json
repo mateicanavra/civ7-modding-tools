@@ -14,7 +14,7 @@
   "lane": "enforced",
   "forbids": "domain operations naming recipe projection artifacts or completion ids",
   "why": "Domain operations consume admitted domain data; projection artifacts and completions belong to recipe orchestration.",
-  "remediate": null,
+  "remediate": "Remove the recipe dependency and pass required domain data through the operation contract.",
   "message": "Remove the recipe dependency and pass required domain data through the operation contract.",
   "pathCoverage": [
     {
@@ -22,10 +22,10 @@
       "patterns": ["plugins/mod/map/*/src/domain/*/modules/*/ops/**/*.ts"]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain-operation/prohibit_domain_ops_recipe_dependencies/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

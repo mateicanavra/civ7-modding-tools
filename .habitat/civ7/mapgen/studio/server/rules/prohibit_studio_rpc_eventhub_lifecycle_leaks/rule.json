@@ -26,15 +26,12 @@
         "packages/studio-server/src/handler.ts",
         "packages/studio-server/src/runtime.ts"
       ]
-    },
-    {
-      "kind": "project-owner"
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "habitat",
+  "ownerProject": "control-orpc",
   "lane": "enforced",
   "forbids": "global Error or a same-source subclass of global Error in an explicit two- or three-argument Effect.Effect failure slot in service production source",
   "why": "Each fallible service capability must expose a typed failure vocabulary at its owning port or error owner. The pinned effect-orpc provider then maps declared public ORPCTaggedError outcomes without an untyped Error tunnel.",
@@ -22,10 +22,10 @@
       "patterns": ["services/*/src/**/*.ts"]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/service/require_service_effect_error_authority/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

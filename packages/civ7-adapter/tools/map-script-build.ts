@@ -147,10 +147,9 @@ export const civ7TypeBoxCompatibilityPlugin: Plugin = {
       contents: TYPEBOX_URL_MODULE,
       loader: "js",
     }));
-    build.onResolve(
-      { filter: /^uri-js$/, namespace: TYPEBOX_URL_NAMESPACE },
-      () => ({ path: TYPEBOX_URI_JS_PATH })
-    );
+    build.onResolve({ filter: /^uri-js$/, namespace: TYPEBOX_URL_NAMESPACE }, () => ({
+      path: TYPEBOX_URI_JS_PATH,
+    }));
     build.onResolve({ filter: /^typebox\/format$/ }, () => ({
       path: "format",
       namespace: TYPEBOX_FORMAT_NAMESPACE,
@@ -183,8 +182,7 @@ export const civ7TypeBoxCompatibilityPlugin: Plugin = {
     });
     build.onLoad(
       {
-        filter:
-          /[/\\]typebox[/\\]build[/\\]schema[/\\](?:engine[/\\]_stack|resolve[/\\]ref)\.mjs$/,
+        filter: /[/\\]typebox[/\\]build[/\\]schema[/\\](?:engine[/\\]_stack|resolve[/\\]ref)\.mjs$/,
       },
       async (args) => ({
         contents: adaptTypeBoxURLSource(args.path, await readFile(args.path, "utf8")),

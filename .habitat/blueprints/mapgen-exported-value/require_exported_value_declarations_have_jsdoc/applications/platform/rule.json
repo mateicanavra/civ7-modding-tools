@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 2,
+  "id": "require_mapgen_platform_exported_value_declarations_have_jsdoc",
+  "title": "Require MapGen Platform Exported Value Declarations To Have JSDoc",
+  "placement": {
+    "niche": "civ7/mapgen/platform",
+    "blueprint": "mapgen-exported-value",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "civ7-workspace",
+  "lane": "enforced",
+  "forbids": "authored MapGen SDK, Studio, policy, or diagnostic capability value exports without adjacent nonempty declaration-site JSDoc or with an obvious placeholder JSDoc block",
+  "why": "Exported values are cross-module contracts; declaration-site documentation keeps their owner and intended semantics visible through reuse and relocation, while review owns the document's semantic quality.",
+  "remediate": "Delete an unused export or add adjacent nonempty, non-placeholder JSDoc before its defining declaration. Document purpose, behavior, or invariants when they are not already obvious. A direct anonymous default value is documented at the export statement; re-export barrels inherit the owner's documentation.",
+  "message": "Exported MapGen platform value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "apps/mapgen-studio/src/**/*.ts",
+        "apps/mapgen-studio/src/**/*.tsx",
+        "packages/civ7-adapter/src/**/*.ts",
+        "packages/civ7-adapter/src/**/*.tsx",
+        "packages/civ7-map-policy/scripts/*.[tj]s",
+        "packages/civ7-map-policy/scripts/*.cjs",
+        "packages/civ7-map-policy/scripts/*.mjs",
+        "packages/civ7-map-policy/scripts/*.tsx",
+        "packages/civ7-map-policy/src/**/*.ts",
+        "packages/civ7-map-policy/src/**/*.tsx",
+        "packages/mapgen-core/src/**/*.ts",
+        "packages/mapgen-core/src/**/*.tsx",
+        "packages/mapgen-diagnostics/src/**/*.ts",
+        "packages/mapgen-diagnostics/src/**/*.tsx",
+        "packages/mapgen-metrics/src/**/*.ts",
+        "packages/mapgen-metrics/src/**/*.tsx",
+        "packages/mapgen-studio-ui/scripts/**/*.[tj]s",
+        "packages/mapgen-studio-ui/scripts/**/*.cjs",
+        "packages/mapgen-studio-ui/scripts/**/*.mjs",
+        "packages/mapgen-studio-ui/scripts/**/*.tsx",
+        "packages/mapgen-studio-ui/src/**/*.ts",
+        "packages/mapgen-studio-ui/src/**/*.tsx",
+        "packages/mapgen-viz/src/**/*.ts",
+        "packages/mapgen-viz/src/**/*.tsx",
+        "packages/sdk/src/**/*.ts",
+        "packages/sdk/src/**/*.tsx",
+        "packages/studio-contract/src/**/*.ts",
+        "packages/studio-contract/src/**/*.tsx",
+        "packages/studio-run-workspace/src/**/*.ts",
+        "packages/studio-run-workspace/src/**/*.tsx",
+        "packages/studio-server/src/**/*.ts",
+        "packages/studio-server/src/**/*.tsx"
+      ]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/mapgen-exported-value/require_exported_value_declarations_have_jsdoc/baseline.json"
+  },
+  "hookCheck": true,
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/mapgen-exported-value/require_exported_value_declarations_have_jsdoc/pattern.md"
+    },
+    "patternName": "require_exported_value_declarations_have_jsdoc",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "apps/mapgen-studio/src",
+        "packages/civ7-adapter/src",
+        "packages/civ7-map-policy/scripts",
+        "packages/civ7-map-policy/src",
+        "packages/mapgen-core/src",
+        "packages/mapgen-diagnostics/src",
+        "packages/mapgen-metrics/src",
+        "packages/mapgen-studio-ui/scripts",
+        "packages/mapgen-studio-ui/src",
+        "packages/mapgen-viz/src",
+        "packages/sdk/src",
+        "packages/studio-contract/src",
+        "packages/studio-run-workspace/src",
+        "packages/studio-server/src"
+      ]
+    }
+  }
+}

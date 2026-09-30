@@ -1,8 +1,7 @@
 # Civ7 Capability Realization Frame
 
-**Status:** Ground active and refused at shared kind construction; four-model
-packet and current product receipts remain sealed
-**Date:** 2026-08-02
+**Status:** Ground sealed; Core Platform 1.1 Swooper construction active
+**Date:** 2026-08-05
 **Owner:** Civ7 platform architecture and product stewardship
 
 ## Intent
@@ -53,34 +52,44 @@ route. It is a funnel, not commit chronology and not another production layer.
 Structure selects Owner. Boundary. Direction. Lifecycle. Closure. Descent
 selects Ground. Chain. Ratchet. Delete. Seal.
 
-**Current container:** hold the final product-led descent at its external
-admission gate. The four models, exact corpora, Explore Live Map oracle, Studio
-design synchronization, wind and pressure reconstruction, and seed-stateless
-latitude fallback are sealed current-product receipts. The remaining work is
-recomposed in [WORKSTREAM.md](./WORKSTREAM.md) as Ground -> Core Platform ->
-Dacia Product -> Estate Reconciliation -> Platform Seal. Core Platform contains
-Swooper construction, Interactive construction, and one joint seal. Historical
-numbered phases are absorbed evidence rather than a competing execution
-sequence.
+**Current container:** construct the complete Swooper definition and realization
+chain on the admitted Habitat consumer substrate. The four models, exact
+corpora, Ground receipt, Explore Live Map oracle, Studio design synchronization,
+wind and pressure reconstruction, and seed-stateless latitude fallback are
+sealed inputs. Habitat source and shared law remain upstream; Civ7 authors only
+instances, qualified overlays, product policy, and compatibility rules.
 
-Habitat source, package, blueprint, and release ownership lives upstream and is
-accepted as external authority. Ground proved the release provenance and
-initializer idempotence of `@habitat-ai/cli@0.2.3`, but its exact peer
-`@habitat-ai/blueprints@0.2.1` publishes an empty blueprint set and no shared
-kind-construction surface. [The Ground receipt](./GROUND-RECEIPT.md) therefore
-refuses source movement without a Civ7-local kind, copied packet,
-compatibility law, or other approximation. The Swooper chain remains staged as
-the first construction slice after a complete upstream handoff earns a passing
-Ground exit receipt: admitted config -> generated entrypoint/digests ->
-materialized tree -> installation receipt ->
-loader/runtime evidence -> final-surface parity. It does not seal alone: its
-source writer, deployment path, and fresh-live proof consume Interactive owners.
-Interactive construction therefore follows inside the same Core Platform
-parent, and both close through one joint proof and deletion receipt.
+`@habitat-ai/cli@0.5.1` and its exact `@habitat-ai/sdk@0.5.1` dependency now
+supply the selected `app@1`, `package@1`, `plugin@1`, `plugin-nx@1`,
+`provider@1`, and `resource@1` laws. The local Habitat producer and bootstrap
+architecture are gone. `service@1` remains intentionally unselected, so
+current Civ7 service law stays local rather than being disguised as shared
+substrate.
 
-**Gradient:** qualified upstream Habitat handoff -> passing Ground exit receipt
--> Core Platform (Swooper -> Interactive -> joint seal) -> Dacia Product ->
-Estate Reconciliation -> Platform Seal.
+The active chain is admitted config -> generated entrypoint/digests ->
+materialized tree -> installation receipt -> loader/runtime evidence ->
+final-surface parity. Swooper does not seal alone: its source writer,
+deployment path, and fresh-live proof consume Interactive owners. Interactive
+construction therefore follows inside the same Core Platform parent, and both
+close through one joint proof and deletion receipt.
+
+**Gradient:** Swooper definition -> Civ7 realization -> Interactive construction
+-> joint Core Platform seal -> Dacia Product -> Estate Reconciliation ->
+Platform Seal.
+
+<details>
+<summary>Prior focus pivots</summary>
+
+### 2026-08-05 - Ground Closed
+
+The earlier shared-kind refusal is superseded by the exact Habitat 0.5.1
+handoff. Civ7 proved the installed consumer face, all six selected closed kinds,
+unsupported service refusal, initializer idempotence, 97 local compatibility
+applications, and the ordinary Nx product graph. The local Habitat producer was
+deleted. Focus moved from substrate admission to the first complete product
+construction chain.
+
+</details>
 
 ## Settled Evidence
 
@@ -146,8 +155,9 @@ The following work is complete and is not reopened by this frame:
     the service in process.
 11. Civ7's current service blueprint and implementation are pinned to oRPC 1
     and the patched `effect-orpc` bridge. They are migration corpus, not target
-    authority. The published Habitat CLI points toward native oRPC 2 and its
-    official Effect integration, but its peer blueprint pack is empty.
+    authority. Habitat 0.5.1 intentionally publishes no shared service kind, so
+    their replacement must remain a Civ7-owned Interactive decision until an
+    upstream service law is deliberately selected.
     Destination law requires a complete qualified successor whose Ground proofs
     pass rather than a dependency-only transition.
 12. `packages/civ7-adapter` is hybrid: its port, mock, and static metadata are
@@ -184,12 +194,11 @@ has one generic blueprint. Independent Habitat packets select the exact depths
 they govern; qualified Civ7 niches own only product-specific law where the
 shared substrate has no generic packet. RAWR HQ Template owns the Habitat
 packets, package, and canonical runtime realization model upstream, and Civ7
-accepts that external destination authority. The published release provenance,
-initializer idempotence, empty-catalog resolution, and unsupported-generator
-refusal are accepted evidence; the empty shared blueprint pack is an explicit
-Ground refusal. Magic Migration is executable corroboration, not a competing
-source. Existing Civ7 mechanics do not earn a local approximation merely
-because they already work.
+accepts that external destination authority. Habitat 0.5.1 release provenance,
+initializer idempotence, six selected closed-kind fixtures, and unsupported
+service refusal are accepted Ground evidence. Magic Migration is executable
+corroboration, not a competing source. Existing Civ7 mechanics do not earn a
+local approximation merely because they already work.
 
 ## Authority Order
 
@@ -377,7 +386,8 @@ or CLI adapters because they have no independent acquire/release lifetime.
 - Current capability-chain authority and canonical architecture alignment.
 - Shared or qualified Habitat kind-law adoption for packages, resources,
   providers, services, caller projections, mod definitions, and apps.
-- Shared service/API law adoption and oRPC/Effect vendor convergence.
+- Civ7 service/API law normalization and oRPC/Effect vendor convergence;
+  shared service adoption waits for a deliberately selected upstream kind.
 - Shared runtime-realization adoption for app definitions, profiles,
   entrypoints, provisioning, service binding, mounting, and disposal.
 - Tuner resource/provider extraction.
@@ -447,9 +457,9 @@ projections exist; the four models decide which complete product chain may move
 next.
 
 After model acceptance, the bounded Explore oracle proceeds in current topology.
-Structural implementation waits for a complete upstream handoff and passing
-Ground exit receipt, then proceeds one complete chain at a time: positive
-destination law, injected fixtures, promotion/enforcement in
+Structural implementation proceeds from the passing Ground exit receipt one
+complete chain at a time: positive destination law, injected fixtures,
+promotion/enforcement in
 the exact burn-down branch, observed live red, qualified dispositions, zero,
 behavior
 proof, source deletion, and Graphite seal.

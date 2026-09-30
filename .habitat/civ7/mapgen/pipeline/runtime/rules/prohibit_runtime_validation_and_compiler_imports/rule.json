@@ -14,7 +14,7 @@
   "lane": "enforced",
   "forbids": "runtime layers importing TypeBox Value/TypeCompiler or mapgen compiler validation helpers",
   "why": "Runtime layers rely on compile-time normalization, not live schema/default mutation.",
-  "remediate": null,
+  "remediate": "Runtime layers must not import TypeBox runtime validation or compiler normalization helpers.",
   "message": "Runtime layers must not import TypeBox runtime validation or compiler normalization helpers.",
   "pathCoverage": [
     {
@@ -25,10 +25,10 @@
       ]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_validation_and_compiler_imports/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

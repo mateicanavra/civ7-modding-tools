@@ -2,12 +2,6 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "plugins": [
     {
-      "plugin": "./tools/habitat/src/nx-plugin.ts",
-      "options": {
-        "checkTargetName": "check:policy"
-      }
-    },
-    {
       "plugin": "@nx/storybook/plugin",
       "options": {
         "serveStorybookTargetName": "storybook",
@@ -17,27 +11,13 @@
         "buildDepsTargetName": "build-deps",
         "watchDepsTargetName": "watch-deps"
       }
-    }
+    },
+    "@habitat-ai/cli/nx-plugin"
   ],
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "sharedGlobals": ["{workspaceRoot}/tsconfig*.json"],
-    "typescriptRuntime": ["{workspaceRoot}/package.json", "{workspaceRoot}/bun.lock"],
-    "habitatRuntime": [
-      "{workspaceRoot}/package.json",
-      "{workspaceRoot}/bun.lock",
-      "{workspaceRoot}/bunfig.toml",
-      "{workspaceRoot}/tsconfig*.json",
-      "{workspaceRoot}/tools/habitat/bin/**",
-      "{workspaceRoot}/tools/habitat/src/**",
-      "{workspaceRoot}/tools/habitat/package.json",
-      "{workspaceRoot}/tools/habitat/tsconfig*.json",
-      { "env": "HABITAT_HARNESS_ROOT" },
-      { "env": "HABITAT_CACHE_ROOT" },
-      { "env": "HABITAT_PATTERN_CACHE_ROOT" },
-      { "env": "HABITAT_TELEMETRY_DISABLED" },
-      { "env": "HABITAT_COMMAND_TIMEOUT_MS" }
-    ]
+    "typescriptRuntime": ["{workspaceRoot}/package.json", "{workspaceRoot}/bun.lock"]
   },
   "targetDefaults": {
     "build": {

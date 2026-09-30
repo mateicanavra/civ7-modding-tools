@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "habitat",
+  "ownerProject": "civ7-docs",
   "lane": "enforced",
   "forbids": "canonical MapGen Markdown docs whose first non-empty line does not start with <toc>",
   "why": "MapGen docs are navigational enforcement inputs; their mini table-of-contents block must remain a static Markdown shape invariant.",
@@ -25,6 +25,7 @@
   "supportFiles": {
     "baseline": ".habitat/docs/_blueprints/mapgen-canonical-docs/require_mapgen_doc_mini_toc_shape/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

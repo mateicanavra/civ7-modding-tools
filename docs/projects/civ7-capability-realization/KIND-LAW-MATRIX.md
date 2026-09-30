@@ -1,9 +1,8 @@
 # Civ7 Capability Realization Kind-Law Matrix
 
-**Status:** Accepted target; implementation waits for the corrected shared
-successor
-**Verdict:** `LAW_CORRECTION`
-**Date:** 2026-07-30
+**Status:** Accepted target on the Habitat 0.5.1 consumer substrate
+**Verdict:** `GROUND_PASSED`
+**Date:** 2026-08-05
 **Scope:** Kinds required by the selected capability-port topology only
 
 ## Purpose
@@ -35,69 +34,41 @@ An older Magic topology never overrides the latest shared Template law.
 - A bare composition kind is not generable when a specialization is required to
   close its source interior.
 
-## Shared Service Substrate And Exact Gap
+## Shared Substrate And Qualified Gap
 
-The inspected RAWR HQ Template audit baseline is `origin/main` at
-`33eabdd741d8961dbb2be0b6d4c7284ac58aad52` (2026-07-30). It establishes the
-selected vendor and service direction, but it is not the implementation pin:
-its CLI, provider-family, service-module collection, and proof interiors require
-the corrections recorded below. Implementation pins the accepted successor
-commit after those changes land. The audit baseline selects:
+The accepted consumer authority is Habitat CLI release `0.5.1`, source
+`75d816fbece0be47edc6a45b0c05957321d1fc25`, with canonical Template consumer
+merge `0f61751cbab8ba41c0fbbe0b12fb4a3129cc7b58`. Civ7 installs only
+`@habitat-ai/cli@0.5.1`; its exact ordinary `@habitat-ai/sdk@0.5.1` dependency
+supplies the shared policy pack.
 
-- `@orpc/*` `2.0.0-beta.20`, including the official
-  `@orpc/experimental-effect` extension;
-- Effect `4.0.0-beta.101`;
-- TypeBox `1.3.8`;
-- a native oRPC declaration-to-implementation lineage with native error maps
-  and handler-supplied error constructors;
-- the standalone semantic-service topology and distinct projection-only API
-  topology specified below.
+The selected pack owns `app@1`, `package@1`, `plugin@1`, `plugin-nx@1`,
+`provider@1`, and `resource@1`. Their manifests define instance anchors and
+closed generic project shells. Ground proved clean and loose-member fixtures
+for all six and an empty-write refusal for unsupported `service@1`.
 
-The audit baseline keeps the service construction packets for spine,
-anchors, context, composition, module isolation, and router authorship under
-`.habitat/staged/blueprints/service` while its own corpus burns down. That
-staging status means the packets are not yet enforced shared law; it does not
-authorize Civ7 to substitute its current residue. This initiative proposes
-adopting the corrected shared destination, importing the portable packets, and
-promoting them in the same branches that expose and burn down their live red.
-Magic Migration at
-`a96c84f4ffa7b927b9dc5bdb5e72d0be9b7ec83d` proves the oRPC 2 and Effect 4
-substrate in a product migration, but its older module-router and API-shell
-topologies remain prior art only.
+This matrix therefore distinguishes two things:
 
-The accepted Template successor must additionally close the resource
-`providers/` family, standalone service `modules/`, API projection `modules/`,
-the platform-neutral TypeBox `entity` source packet used by service model
-categories, and every admitted proof interior. It must define blueprint
-instance anchors and generated manifest facts. Loose-file, invalid-child,
-empty/nonempty, and missing-manifest fixtures prove those corrections before
-Civ7 imports them.
+- **shared kind authority**, which Civ7 consumes without copying; and
+- **qualified product law**, which Civ7 authors locally only where a selected
+  shared shell cannot express MapGen, CLI-topic, service, API, mod-family, or
+  app-role semantics.
 
-The canonical runtime realization spec remains authoritative for ownership and
-lifecycle: plugins declare service requirements, profiles select providers,
-and runtime realization binds, mounts, observes, and releases. The API
-composition reuses the shared oRPC service-source construction packet at
-`src/service`, but that selected depth remains the API's caller projection. It
-does not gain independent semantic service authority.
+`service@1` is intentionally unselected. Current Civ7 service packets remain
+local migration corpus and enforcement authority; they are not treated as
+shared substrate. Native oRPC/Effect convergence remains an Interactive
+product decision and must not be inferred from transitive dependencies inside
+the Habitat SDK.
 
-Civ7 has **not** vendored this latest substrate. Its affirmed service blueprint,
-service package, Habitat tool, catalog, lockfile, and patch still encode
-`@orpc/*` `1.14.6`, Effect `3.21.3`, TypeBox `1.3.6`, and the patched community
-`effect-orpc` `0.5.0`. Its topology additionally requires public
-`contract.ts`/`index.ts`, service `context.ts`/`schema/`, and module
-`router/index.ts`, none of which defines the destination. Those files,
-dependencies, patch, and source relationships are migration corpus.
+The canonical runtime realization model remains authoritative for ownership
+and lifecycle: plugins declare requirements, profiles select providers, and
+runtime realization binds, mounts, observes, and releases. API projections do
+not gain independent semantic service authority.
 
-The Habitat tool's own vendor migration and source topology belong to the
-shared Habitat workstream that produces the accepted successor. This Civ7
-capability program consumes that sealed substrate; it does not redesign or
-half-migrate `tools/habitat` as an unowned third service composition.
-
-No oRPC 1 or community-bridge exception is admitted by default. An exception
-requires a bounded incompatibility proof against the exact official oRPC 2 and
-Effect 4 substrate, an explicit product-authority decision, and a revised
-positive generic law. Migration cost, current tests, or a patched dependency
-are not such proof.
+Magic Migration remains executable corroboration, not a source of Civ7 roots,
+instance inventories, or package names. No local producer, compatibility
+facade, or copied shared structure is admitted because an existing Civ7 shape
+is expensive to move.
 
 ## Native Owners
 
@@ -238,64 +209,53 @@ therefore define:
 - allowed capability and niche facts;
 - validation and migration behavior.
 
-Generators materialize those facts; Nx only corroborates graph identity and
-schedules proof. Existing locked CLI path selectors remain operative for the
-already-present shell and topic corpus, but this initiative creates no new CLI
-instance through them and does not treat them as a generic admission bridge.
+The instance author materializes those facts; Habitat admits them and Nx
+corroborates graph identity and schedules proof. Existing locked CLI path
+selectors remain operative for the already-present shell and topic corpus, but
+this initiative does not treat them as a generic admission bridge.
 Every new package, resource, provider, service, API, web, app, or mod
 destination waits for its manifest-bearing packet. Exact instance names in
 generic `structure.toml`, Grit patterns, or generator tables remain rejected.
 
-### T3: Generator Interface
+### T3: Construction Interface
 
-After T1 and T2 close, the project generator must accept:
+Habitat 0.5.1 exposes the workspace `init` and `remove-hook` generators. It does
+not promise a generic project generator, and Civ7 does not recreate one as
+local substrate. A product slice may use ordinary Nx generation, a bounded
+product template, or direct construction, but the semantic write is admitted
+only when the complete destination and its blueprint-defined `habitat.toml`
+arrive together and pass the selected closed law.
 
-```text
-nx g @habitat/cli:project <name> \
-  --kind=<admitted-blueprint-kind> \
-  --surface=<optional-specialization> \
-  --family=<optional-mod-family> \
-  --parent=<required-parent-anchor>
-```
-
-Only fields required by the selected kind are accepted. `--parent` is required
-for nested providers. A bare plugin or app request is refused when its source
-interior is not closed until a specialization is selected. Refusals produce an
-empty write set. Generated Nx schemas are regenerated from the TypeScript
-schema rather than edited by hand. Every successful write also emits the
-blueprint-defined `habitat.toml` with id, blueprint version, governed roots,
-selected capabilities, and accepted niche facts. It refuses before writing if
-the selected blueprint has no accepted anchor contract.
-
-The current generator supports only the legacy helper `plugin` scaffold at
-`packages/plugins/plugin-*`. It is not authority or implementation support for
-any proposed row below.
+Construction refuses before product source moves when the kind is unselected,
+the qualified overlay is missing, the manifest names unsupported facts, or the
+closed destination would leave loose members. Tool convenience never becomes
+admission authority.
 
 ## Kind Summary
 
 | Kind at selected depth | State | Root grammar | Habitat selection |
 | --- | --- | --- | --- |
-| Package project | Proposed upstream closure, then shared-law adoption | `packages/<package>` | pending shared `package` packet |
-| Resource contract project | Proposed upstream closure, then shared-law adoption | `resources/<resource>` | `resource` |
-| Provider project | Proposed upstream closure, then shared-law adoption | `resources/<resource>/providers/<provider>` | `provider` at the nested root |
-| Semantic service project | Proposed shared-law adoption | `services/<service>` | service project at root; private implementation packet at `src/service` |
+| Package project | Shared shell selected; qualified semantics remain product-owned | `packages/<package>` | shared `package@1` |
+| Resource contract project | Shared shell selected; concrete capability remains product-owned | `resources/<resource>` | shared `resource@1` |
+| Provider project | Shared shell selected; provider/resource identity remains product-owned | `resources/<resource>/providers/<provider>` | shared `provider@1` at the nested root |
+| Semantic service project | Local law; shared kind intentionally unselected | `services/<service>` | current qualified service packet |
 | CLI topic plugin | Settled ownership law; legacy roots pending anchor and proof correction | `plugins/cli/topics/<topic>` | current `cli-topic-plugin` packet after correction |
-| Server API projection plugin | Proposed upstream closure, then shared-law adoption | `plugins/server/api/<plugin>` | `plugin-server-api` at project root plus reusable `service` source packet at the API-owned `src/service` projection depth |
+| Server API projection plugin | Shared plugin shell selected; qualified API law remains product-owned | `plugins/server/api/<plugin>` | shared `plugin@1` plus qualified API packet |
 | Web app projection | `UNCONSTRUCTIBLE` until qualified closed law | `plugins/web/app/<app>` | pending qualified web-app packet |
-| CLI app | Settled commandless ownership; proposed shared-app composition and anchor correction | `apps/cli` | corrected `cli-shell` specialization composed with the shared `app` packet |
-| MapGen Studio app | `UNCONSTRUCTIBLE` until generic app and qualified role laws exist | `apps/mapgen-studio` | pending shared app packet plus Studio specialization |
+| CLI app | Settled commandless ownership; shared shell selected and qualification pending | `apps/cli` | shared `app@1` plus corrected `cli-shell` specialization |
+| MapGen Studio app | Shared shell selected; qualified role law pending | `apps/mapgen-studio` | shared `app@1` plus Studio specialization |
 | Existing Swooper mod split | Legacy product owners; unadmitted until the qualified map envelopes, proof roots, and anchors close | `plugins/mod/map/swooper-physics`, `apps/mods/map/swooper-physics` | pending corrected map definition/realization packets plus nested laws |
 | Civilization mod definition | `UNCONSTRUCTIBLE` until qualified closed law | `plugins/mod/civ/<mod>` | pending qualified definition packet |
 | Civilization mod realization | `UNCONSTRUCTIBLE` until qualified closed law | `apps/mods/civ/<mod>` | pending qualified realization packet |
 
 ## Package Project
 
-**State:** Proposed upstream closure, then direct shared-law adoption.
+**State:** Shared `package@1` shell selected; qualified package semantics remain
+product-owned.
 
-Magic Migration provides useful package-shell evidence, but RAWR HQ Template
-does not yet publish a generic package blueprint. Civ7 does not make the
-candidate authoritative locally. The shape below is the proposed upstream
-shared packet required before this workstream creates or reclassifies a package.
+Habitat 0.5.1 supplies the generic closed package shell. The shape below
+describes Civ7's selected package role and any stronger qualified proof, not a
+replacement for the shared blueprint.
 
 **Selected depth and root grammar**
 
@@ -1585,7 +1545,7 @@ broaden a kind:
 | --- | --- | --- |
 | `.habitat/blueprints/service/**` | Civ7's oRPC 1/community-bridge topology and source relations differ from the selected shared substrate | Replace with the portable shared packets, adapt only repository path selectors, prove injected fixtures, promote in the burn-down branch, and eliminate the resulting live red before landing |
 | `package.json`, `bun.lock`, `patches/**`, `services/**` | Old oRPC, Effect, TypeBox, and community-bridge dependency family remains reachable in Civ7 product code | Upgrade atomically after the independently sealed Habitat successor is pinned, migrate native construction/error relations, and delete the obsolete patch and bridge only after no product consumer remains |
-| `tools/habitat/**` | The shared tool must migrate with the substrate it enforces | Consume the independently reviewed shared-Habitat result; do not treat tool source as Civ7 capability migration corpus |
+| `tools/habitat/**` | Closed Ground disposition: the local producer was not Civ7 product capability | Deleted after installing and proving the Habitat 0.5.1 consumer face; never recreate it as migration corpus |
 | `packages/**` | Resource contract, provider, and service concerns are combined or proposed service-adapter/parallel-contract packages lack a native owner | Relocate to the qualified owner, retain only proven shared non-oRPC models, inline owner-local residue, combine duplicate public faces, or delete dead residue |
 | `resources/**` | Selected resource/provider roots and their closed laws do not yet exist | Construct only after T1/T2; never move implementation into the resource contract |
 | `services/**` | Existing service source and proof follow the legacy spine; the additional selected service root is absent | Migrate behavior into the shared spine or construct the missing service; do not baseline legacy files |

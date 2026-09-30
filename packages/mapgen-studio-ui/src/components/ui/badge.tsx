@@ -36,6 +36,7 @@ export interface BadgeProps
   asChild?: boolean;
 }
 
+/** Renders a compact status badge or delegates its chrome to one semantic child. */
 function Badge({ className, variant, asChild = false, ...props }: BadgeProps) {
   const Comp = asChild ? Slot : "span";
   return <Comp className={cn(badgeVariants({ variant }), className)} {...props} />;

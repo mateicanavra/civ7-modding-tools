@@ -14,7 +14,7 @@
   "lane": "enforced",
   "forbids": "UnknownRecord and INTERNAL_METADATA_KEY in domain source",
   "why": "Domain config should stay typed and explicit rather than relying on unknown bag metadata escape hatches.",
-  "remediate": null,
+  "remediate": "Do not use unknown-bag config escape hatches in domain source.",
   "message": "Do not use unknown-bag config escape hatches in domain source.",
   "pathCoverage": [
     {
@@ -22,10 +22,10 @@
       "patterns": ["plugins/mod/map/*/src/domain/**/*.ts"]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain/prohibit_unknown_bag_config_usage/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

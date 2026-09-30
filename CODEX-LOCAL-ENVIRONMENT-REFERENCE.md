@@ -44,7 +44,10 @@ Automatic setup follows the repository's ordinary clean-worktree bootstrap:
 4. `bun run build` builds the Nx workspace.
 5. `bun run check` verifies the workspace's static checks.
 
-There is no environment-specific build path. In particular, setup does not copy generated output or prebuild Habitat. The source-configured Habitat Nx plugin must be able to load before `tools/habitat/dist` exists, just like every clean checkout.
+There is no environment-specific build path. In particular, setup does not copy
+generated output or prebuild Habitat. The pinned `@habitat-ai/cli` development
+dependency supplies Habitat's Nx plugin in every clean checkout; this repository
+does not build or bootstrap a local Habitat producer.
 
 This trades creation speed for a fully primed worktree. `bun run check` includes
 project typechecking and Habitat policy through one Nx graph. Lint and tests

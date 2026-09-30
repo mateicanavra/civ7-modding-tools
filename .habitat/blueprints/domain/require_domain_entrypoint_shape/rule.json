@@ -22,10 +22,10 @@
       "patterns": ["plugins/mod/map/*/src/domain/*/index.ts"]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain/require_domain_entrypoint_shape/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

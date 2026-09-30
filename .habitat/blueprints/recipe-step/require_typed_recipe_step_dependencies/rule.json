@@ -14,7 +14,7 @@
   "lane": "enforced",
   "forbids": "string literal entries in recipe-step requires or provides lists",
   "why": "Recipe steps select exact Artifact authorities or owned typed CompletionId constants so dependency identity cannot drift from its owner.",
-  "remediate": null,
+  "remediate": "Select the exact Artifact authority or an owned typed CompletionId constant instead of a string literal.",
   "message": "Select the exact Artifact authority or an owned typed CompletionId constant instead of a string literal.",
   "pathCoverage": [
     {
@@ -22,10 +22,10 @@
       "patterns": ["plugins/mod/map/*/src/recipes/*/stages/**/steps/*/config.ts"]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/recipe-step/require_typed_recipe_step_dependencies/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

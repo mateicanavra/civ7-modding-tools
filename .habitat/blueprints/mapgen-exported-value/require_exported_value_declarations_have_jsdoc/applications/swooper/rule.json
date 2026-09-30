@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 2,
+  "id": "require_swooper_exported_value_declarations_have_jsdoc",
+  "title": "Require Swooper Exported Value Declarations To Have JSDoc",
+  "placement": {
+    "niche": "civ7/mapgen/swooper",
+    "blueprint": "mapgen-exported-value",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "civ7-workspace",
+  "lane": "enforced",
+  "forbids": "authored Swooper product or realization value exports without adjacent nonempty declaration-site JSDoc or with an obvious placeholder JSDoc block",
+  "why": "Exported values are cross-module contracts; declaration-site documentation keeps their owner and intended semantics visible through reuse and relocation, while review owns the document's semantic quality.",
+  "remediate": "Delete an unused export or add adjacent nonempty, non-placeholder JSDoc before its defining declaration. Document purpose, behavior, or invariants when they are not already obvious. A direct anonymous default value is documented at the export statement; re-export barrels inherit the owner's documentation.",
+  "message": "Exported Swooper value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "apps/mods/map/*/scripts/**/*.ts",
+        "apps/mods/map/*/scripts/**/*.tsx",
+        "apps/mods/map/*/src/**/*.ts",
+        "apps/mods/map/*/src/**/*.tsx",
+        "plugins/mod/map/*/scripts/**/*.ts",
+        "plugins/mod/map/*/scripts/**/*.tsx",
+        "plugins/mod/map/*/src/**/*.ts",
+        "plugins/mod/map/*/src/**/*.tsx"
+      ]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/mapgen-exported-value/require_exported_value_declarations_have_jsdoc/baseline.json"
+  },
+  "hookCheck": true,
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/mapgen-exported-value/require_exported_value_declarations_have_jsdoc/pattern.md"
+    },
+    "patternName": "require_exported_value_declarations_have_jsdoc",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["apps/mods/map", "plugins/mod/map"]
+    }
+  }
+}

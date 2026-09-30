@@ -24,14 +24,12 @@
         "apps/mapgen-studio/src/**/*.tsx",
         "packages/studio-server/src/liveGame/watcher.ts"
       ]
-    },
-    {
-      "kind": "project-owner"
     }
   ],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

@@ -28,14 +28,12 @@
         "packages/studio-run-workspace/src/paths.ts",
         "apps/mapgen-studio/src/server/studio/engines.ts"
       ]
-    },
-    {
-      "kind": "project-owner"
     }
   ],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-copy-deploy-boundary/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

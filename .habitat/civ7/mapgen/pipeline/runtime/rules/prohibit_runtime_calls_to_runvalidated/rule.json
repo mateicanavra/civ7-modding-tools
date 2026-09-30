@@ -14,7 +14,7 @@
   "lane": "enforced",
   "forbids": "runtime layers calling runValidated",
   "why": "Validation belongs to authoring/compile time, not runtime op execution.",
-  "remediate": null,
+  "remediate": "Runtime layers must not call runValidated.",
   "message": "Runtime layers must not call runValidated.",
   "pathCoverage": [
     {
@@ -25,10 +25,10 @@
       ]
     }
   ],
-  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_calls_to_runvalidated/baseline.json"
   },
+  "hookCheck": true,
   "runner": {
     "name": "grit",
     "files": {

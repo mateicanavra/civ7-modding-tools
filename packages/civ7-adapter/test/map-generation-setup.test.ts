@@ -303,8 +303,7 @@ describe("Civ7 GenerateMap setup capture", () => {
     }
 
     installGlobal("Configuration", {
-      getGameValue: (key: string) =>
-        key === GAME_RANDOM_SEED_KEY ? 0x1_0000_0000 : undefined,
+      getGameValue: (key: string) => (key === GAME_RANDOM_SEED_KEY ? 0x1_0000_0000 : undefined),
     });
     expect(() => captureCiv7MapGenerationSetup(captureInput())).toThrow(
       "Civ7 game seed must be between"

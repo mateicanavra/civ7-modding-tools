@@ -8,9 +8,9 @@ named concrete command class. The command is the module's singular default
 runtime export. The class name preserves useful stack and diagnostic identity;
 oclif derives the canonical command id from the module's relative path,
 including the native `index.ts` topic-command form. Exact singularity,
-additional value exports, authored static identity, resolved command
-assignability, and dependency destinations are owned by
-`require_cli_command_module_semantics`.
+resolved command assignability, and package dependency destinations remain
+owned by TypeScript, Oclif discovery, and the workspace boundary graph rather
+than a second source parser.
 
 ```grit
 language js(typescript)
