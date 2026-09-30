@@ -148,10 +148,15 @@ lineage. A specialist does not create another worktree, stack or alternate
 recipe. The completed basin coordinator is already an ancestor of the thermal
 and periodic-biome changes, not a separate branch waiting to be recombined.
 
-The next concrete unit-contract domino corrects verified false metre/native
-labels without changing numerical laws, authored keys, defaults or admission.
-The source-pinned geographic thermal investigation proceeds in parallel using
-external references. Neither is a reason to block held native-water probes on
+The unit-contract domino corrects verified false metre/native labels without
+changing numerical laws, authored keys, defaults or admission. Its repeated
+four-case captures hold 48 physical fields and 20 climate-index arrays exactly.
+The source-pinned geographic thermal investigation completed its first
+[discriminator without selecting a maritime law](land-geography-investigation.md#first-discriminator-nonselection).
+The next concrete handoff repair is
+[certified lake habitat](lake-habitat-handoff.md): existing lake head/identity
+must reach the existing Lotus domain scorer instead of ocean-only gates and
+sea-relative depth. Neither is a reason to block held native-water probes on
 fixed synthetic geometry. Their results converge before whole-map calibration
 and final atlas acceptance, because climate changes lake supply and river
 discharge even when native projection semantics do not change.
@@ -163,6 +168,16 @@ merge readiness. Do not merge the entire prerequisite stack merely to remove
 its branches, manually reopen PRs, or modify the protected dirty main checkout.
 The single integration lane prevents duplicate repairs while preserving the
 distinction between convergence and a proved, merge-ready final result.
+
+The server's 50-branch publication limit was reached by the unit-contract
+branch. That branch had no PR; Graphite-native `gt fold --no-interactive`
+adopted it into its calibration parent `agent-root-civ7-biome-periodic-edges`
+(PR #2220). Both commits, the parent's existing PR association and the exact
+tree `0a42092b7ed288286d41e05ce09a5f390bbc04af` survive. The source branch
+`agent-root-civ7-relief-unit-contracts` is superseded locally, not a competing
+implementation. No open PR was manually closed, reopened or recreated. Further
+room must come from qualified native bottom-to-top drain or reviewed semantic
+consolidation, not another integration worktree or an empty branch.
 
 ## Evidence That Survives The Artifact Correction
 

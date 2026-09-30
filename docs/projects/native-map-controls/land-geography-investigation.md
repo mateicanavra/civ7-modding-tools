@@ -111,3 +111,42 @@ fit a maritime term to conceal a height/datum mismatch, treat the native x10
 display calibration as a metre conversion, or use stock `SeaLevel` variant
 selection as a renderer datum. Reference-only geographic discrimination can
 proceed while a generated physical scale remains unresolved.
+
+## First Discriminator: Nonselection
+
+The matched NOAA monthly U/V and skin-temperature references are admitted for
+external reference analysis, not recipe inputs. The sealed study retains exact
+source pins, Gaussian grid/calendar joins, the original 411 cells and 196/215
+split, and a separate 136-cell immediate-coastal cohort. Skin temperature in
+this derived file is already Celsius. Monthly mean wind and a static marine
+mask do not establish time-resolved heat transport or open-water SST everywhere.
+
+The predeclared 500/1000 km directional supports do not select a production
+maritime law. After source-row/height/month controls, all-lowland exposure
+correlations are +0.0449/+0.1057; the potential cold-marine exclusion gives
+-0.0449/+0.0239. The original holdout has no matched coastal onshore/offshore
+strata. Added-coast pooled correlations +0.2062/+0.3505 collapse to
++0.0019/-0.0806 when Europe/Africa/west-Asia is withheld. Support and regional
+signs matter more than the attractive pooled association.
+
+Changing the reference convention from 2 m air to skin does not explain away
+the lowland residual: held annual row-height RMS is 1.7414 C for air and
+1.7439 C for skin; annual prediction error increases rather than disappears.
+This does not reject heterogeneous local surface-energy forcing, because skin
+minus air is not an energy-budget measurement.
+
+The next physical discriminator is signed, ice-qualified/time-resolved maritime
+heat transport versus local surface-energy forcing in supported held geographic
+strata. No gain, lapse conversion, thermal noise or additional recipe field is
+admitted by this result. Continue concrete causal-handoff and native-water
+repairs independently; do not hold them behind an unsupported climate shortcut.
+
+Retained under the discoverable Civ research user-data root:
+`earth-calibration/maritime-geography-discriminator-20260930/REPORT.md`,
+`DESIGN.md`, `run1/`, `repeat2/` and `verification.json`. The report pin is
+`aa0186fb009be21e7e3de9e61b56f0419b299db17e37b824490369486e357caa`.
+Both complete analyses are byte-identical. The coordinator reran all seven Bun
+tests (9,487 assertions) and independently checked input, source and output pins
+plus two-run byte identity. The source specialist's retained verifier additionally
+checks 46,678 marine assignments per run. No extraction toolchain or cache was
+added to the repo.
