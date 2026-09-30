@@ -28,7 +28,7 @@ const ComputeShelfMaskContract = defineOp({
     }),
     bathymetry: TypedArraySchemas.i16({
       description:
-        "Bathymetry per tile in engine elevation units (elevation - seaLevel), not real metres: 0 on land; <=0 in water; closer to 0 is shallower.",
+        "Bathymetry per tile in quantized normalized model relief units (elevation - seaLevel), not meters or native display units: 0 on land; <=0 in water; closer to 0 is shallower.",
     }),
     distanceToCoast: TypedArraySchemas.u16({
       description:
@@ -61,7 +61,7 @@ const ComputeShelfMaskContract = defineOp({
     }),
     shelfBreakDepthByTile: TypedArraySchemas.i16({
       description:
-        "Per-tile bathymetry (engine elevation units, <=0) at the read shelf break: the local seabed depth where the gradient first steepens past the threshold. 0 where no break was read.",
+        "Per-tile bathymetry (quantized normalized model relief units, <=0) at the read shelf break: the local seabed depth where the gradient first steepens past the threshold. 0 where no break was read; not meters or native display units.",
     }),
   }),
   strategies: [strategyDefinition],

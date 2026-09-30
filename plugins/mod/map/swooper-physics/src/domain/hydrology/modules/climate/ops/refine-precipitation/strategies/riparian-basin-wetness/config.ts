@@ -32,7 +32,8 @@ export default defineStrategy({
             default: 250,
             minimum: -2000,
             maximum: 9000,
-            description: "Highest elevation that receives the lowland river-corridor bonus.",
+            description:
+              "Highest absolute elevation in quantized normalized model relief units that receives the lowland river-corridor bonus; not height above sea level.",
           }),
         },
         {
@@ -58,14 +59,15 @@ export default defineStrategy({
             default: 200,
             minimum: -2000,
             maximum: 9000,
-            description: "Highest elevation eligible for enclosed-basin wetness.",
+            description:
+              "Highest absolute elevation in quantized normalized model relief units eligible for enclosed-basin wetness; not height above sea level.",
           }),
           openThresholdM: Type.Integer({
             default: 20,
             minimum: 0,
             maximum: 500,
             description:
-              "Relief margin above the candidate elevation below which a neighbor opens the basin.",
+              "Relief margin in quantized normalized model units above the candidate elevation below which a neighbor opens the basin; not meters. The legacy M key is retained.",
           }),
         },
         {

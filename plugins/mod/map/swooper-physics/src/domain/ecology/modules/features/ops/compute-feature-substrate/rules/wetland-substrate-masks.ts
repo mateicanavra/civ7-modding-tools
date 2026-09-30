@@ -55,6 +55,7 @@ export function computeWetlandSubstrateMasks(args: {
       const i = y * width + x;
       if (args.landMask[i] !== 1) continue;
 
+      // The legacy M identifiers compare model relief differences, not meters or native display units.
       const heightAboveSeaM = (args.elevation[i] ?? 0) - args.seaLevel;
       const isLowland = heightAboveSeaM >= 0 && heightAboveSeaM <= lowlandMax;
       lowlandMask[i] = isLowland ? 1 : 0;

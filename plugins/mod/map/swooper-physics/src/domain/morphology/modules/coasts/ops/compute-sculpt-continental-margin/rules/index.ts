@@ -87,8 +87,8 @@ export function computeApronLengthScale(params: {
 }
 
 /**
- * Derives the shelf BREAK elevation (absolute engine int16 units) from the input hypsometric
- * scale: the drowned outer continental edge sits at a physical mid-relief crust fraction.
+ * Derives the shelf BREAK elevation in absolute quantized normalized model relief units from the
+ * input hypsometric scale: the drowned outer continental edge sits at a physical mid-relief crust fraction.
  * breakElevation = (oceanicHeight + reliefSpan*breakCrustFraction)*elevationScale. No foreign
  * magic depth — re-derives against the map's REAL (single-sourced) relief datums.
  */
@@ -100,7 +100,8 @@ export function deriveBreakElevation(relief: Relief, config: Config): number {
 }
 
 /**
- * Derives the oceanic FLOOR elevation (absolute engine int16 units) = oceanicHeight*elevationScale.
+ * Derives the oceanic FLOOR elevation in absolute quantized normalized model relief units
+ * as oceanicHeight*elevationScale.
  * This is the real deep-ocean floor base topography already laid down; the slope descends to it
  * and the carve-down min never invents anything deeper. No foreign magic depth.
  */
@@ -109,8 +110,8 @@ function deriveOceanicFloor(relief: Relief): number {
 }
 
 /**
- * Derives the apron-top shore anchor CEILING (absolute engine int16 units): the submerged outer
- * continental shelf sits above the break but below land.
+ * Derives the apron-top shore anchor CEILING in absolute quantized normalized model relief units:
+ * the submerged outer continental shelf sits above the break but below land.
  * ceiling = (oceanicHeight + reliefSpan*apronTopCrustFraction)*elevationScale. By construction
  * (apronTopCrustFraction > breakCrustFraction and < ~1) it satisfies oceanicFloor < break <
  * ceiling, so it bounds the apron RAMP above the break. It is NOT a hard guarantee that the apron

@@ -10,7 +10,10 @@ const ScoreIceContract = defineOp({
     height: Type.Integer({ minimum: 1 }),
     landMask: TypedArraySchemas.u8({ description: "Land mask (1 = land, 0 = water)." }),
     surfaceTemperature: TypedArraySchemas.f32({ description: "Surface temperature (C)." }),
-    elevation: TypedArraySchemas.i16({ description: "Elevation in meters." }),
+    elevation: TypedArraySchemas.i16({
+      description:
+        "Signed elevation in quantized normalized model relief units, not meters or native display units; no sea-level subtraction.",
+    }),
     freezeIndex: TypedArraySchemas.f32({ description: "Freeze index (0..1)." }),
   }),
   output: Type.Object({

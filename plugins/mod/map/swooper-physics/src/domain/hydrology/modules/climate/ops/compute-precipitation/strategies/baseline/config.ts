@@ -84,12 +84,13 @@ export default defineStrategy({
             maximum: 40,
             description: "Extra rainfall bonus for low-elevation coastal land.",
           }),
-          /** Maximum elevation to qualify for lowlandBonus. */
+          /** Maximum absolute model relief elevation to qualify for lowlandBonus. */
           lowlandElevationMax: Type.Integer({
             default: 150,
             minimum: -2000,
             maximum: 8000,
-            description: "Maximum elevation to qualify for lowlandBonus.",
+            description:
+              "Maximum absolute elevation in quantized normalized model relief units to qualify for lowlandBonus; not height above sea level.",
           }),
         },
         {
@@ -122,12 +123,13 @@ export default defineStrategy({
             maximum: 80,
             description: "Additional reduction per upwind barrier step.",
           }),
-          /** Elevation threshold treated as a barrier if terrain is not mountainous. */
+          /** Absolute model relief threshold for an upwind land barrier; the legacy M key is retained. */
           barrierElevationM: Type.Integer({
             default: 500,
             minimum: 0,
             maximum: 9000,
-            description: "Elevation threshold treated as a barrier if terrain is not mountainous.",
+            description:
+              "Absolute elevation threshold in quantized normalized model relief units for an upwind land barrier; not meters. The legacy M key is retained.",
           }),
         },
         {

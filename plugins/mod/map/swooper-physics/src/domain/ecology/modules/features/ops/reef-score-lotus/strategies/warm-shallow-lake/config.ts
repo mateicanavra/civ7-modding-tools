@@ -24,13 +24,15 @@ export default defineStrategy({
         default: 0,
         minimum: 0,
         maximum: 12000,
-        description: "Shallow-water depth used for lotus scoring.",
+        description:
+          "Shallow-depth threshold on sea-level-relative Morphology bathymetry in quantized normalized model relief units used for lotus scoring; not meters or lake-surface depth. The legacy M key is retained.",
       }),
       deepDepthM: Type.Integer({
         default: 40,
         minimum: 0,
         maximum: 12000,
-        description: "Deep-water limit used for lotus scoring.",
+        description:
+          "Deep-depth threshold on sea-level-relative Morphology bathymetry in quantized normalized model relief units used for lotus scoring; not meters or lake-surface depth. The legacy M key is retained.",
       }),
       maxDistanceToCoast: Type.Integer({
         default: 2,

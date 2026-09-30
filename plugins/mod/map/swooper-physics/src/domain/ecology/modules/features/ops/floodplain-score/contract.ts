@@ -52,7 +52,8 @@ const FloodplainScoreContract = defineOp({
         description: "Hydrology discharge proxy per tile.",
       }),
       elevation: TypedArraySchemas.i16({
-        description: "Final topographic elevation in meters per tile.",
+        description:
+          "Final signed elevation per tile in quantized normalized model relief units, not meters or native display units; local relief comparisons use differences in these units.",
       }),
       mountainMask: TypedArraySchemas.u8({
         description: "Mountain exclusion mask per tile.",

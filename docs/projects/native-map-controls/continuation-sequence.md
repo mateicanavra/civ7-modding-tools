@@ -138,6 +138,32 @@ This order is not a request for another approval at each item. Consequential
 design choices outside the delegated Earthlike intent should be raised; normal
 domain implementation, discriminating experiments and review fixes proceed.
 
+## Integration Lane
+
+All accepted MapGen changes continue in the existing
+`wt-agent-root-civ7-native-map-controls` worktree and its Graphite ancestry.
+Thermal, relief, Ecology and basin specialists may investigate disjoint owners
+in parallel; the coordinator admits their changes sequentially onto that same
+lineage. A specialist does not create another worktree, stack or alternate
+recipe. The completed basin coordinator is already an ancestor of the thermal
+and periodic-biome changes, not a separate branch waiting to be recombined.
+
+The next concrete unit-contract domino corrects verified false metre/native
+labels without changing numerical laws, authored keys, defaults or admission.
+The source-pinned geographic thermal investigation proceeds in parallel using
+external references. Neither is a reason to block held native-water probes on
+fixed synthetic geometry. Their results converge before whole-map calibration
+and final atlas acceptance, because climate changes lake supply and river
+discharge even when native projection semantics do not change.
+
+Graphite owns submission and eventual bottom-to-top merge. Retain draft review
+layers until the accepted checks and remaining quality expectations are
+resolved; an empty PR status-check list or successful local deployment is not
+merge readiness. Do not merge the entire prerequisite stack merely to remove
+its branches, manually reopen PRs, or modify the protected dirty main checkout.
+The single integration lane prevents duplicate repairs while preserving the
+distinction between convergence and a proved, merge-ready final result.
+
 ## Evidence That Survives The Artifact Correction
 
 - The ten-map publication replay matches all 120 captured field hashes. The

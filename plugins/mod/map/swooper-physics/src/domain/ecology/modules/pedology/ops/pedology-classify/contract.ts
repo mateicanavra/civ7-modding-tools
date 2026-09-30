@@ -11,12 +11,17 @@ const PedologyClassifyContract = defineOp({
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
     landMask: TypedArraySchemas.u8({ description: "Land mask (1 = land, 0 = water)." }),
-    elevation: TypedArraySchemas.i16({ description: "Elevation in meters above sea level." }),
+    elevation: TypedArraySchemas.i16({
+      description:
+        "Signed elevation in quantized normalized model relief units, not meters or native display units; no sea-level subtraction.",
+    }),
     rainfall: TypedArraySchemas.u8({ description: "Rainfall per tile (0..255)." }),
     humidity: TypedArraySchemas.u8({ description: "Humidity per tile (0..255)." }),
     sedimentDepth: Type.Optional(
       Type.Union([
-        TypedArraySchemas.f32({ description: "Optional sediment depth proxy (meters)." }),
+        TypedArraySchemas.f32({
+          description: "Optional Morphology loose-sediment depth proxy in model units, not meters.",
+        }),
         Type.Undefined(),
       ])
     ),

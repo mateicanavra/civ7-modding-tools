@@ -20,8 +20,11 @@ const ComputePrecipitationContract = defineOp({
         cardinality: ["height"],
         description: "Latitude per row (degrees).",
       }),
-      /** Elevation (meters) per tile. */
-      elevation: TypedArraySchemas.i16({ description: "Elevation (meters) per tile." }),
+      /** Signed elevation in quantized normalized model relief units, without sea-level subtraction. */
+      elevation: TypedArraySchemas.i16({
+        description:
+          "Signed elevation per tile in quantized normalized model relief units, not meters or native display units; no sea-level subtraction.",
+      }),
       /** Land mask per tile (1=land, 0=water). */
       landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
       /** Wind U component per tile (-127..127). */

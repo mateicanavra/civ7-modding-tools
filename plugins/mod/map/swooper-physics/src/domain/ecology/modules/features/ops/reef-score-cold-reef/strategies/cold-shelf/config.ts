@@ -24,19 +24,22 @@ export default defineStrategy({
         default: 8,
         minimum: 0,
         maximum: 12000,
-        description: "Minimum water depth for cold-reef suitability.",
+        description:
+          "Minimum water depth in quantized normalized model relief units below seaLevel for cold-reef suitability; not meters. The legacy M key is retained.",
       }),
       peakDepthM: Type.Integer({
         default: 24,
         minimum: 0,
         maximum: 12000,
-        description: "Water depth of peak cold-reef suitability.",
+        description:
+          "Water depth in quantized normalized model relief units below seaLevel of peak cold-reef suitability; not meters. The legacy M key is retained.",
       }),
       maxDepthM: Type.Integer({
         default: 48,
         minimum: 0,
         maximum: 12000,
-        description: "Maximum water depth for cold-reef suitability.",
+        description:
+          "Maximum water depth in quantized normalized model relief units below seaLevel for cold-reef suitability; not meters. The legacy M key is retained.",
       }),
       minDistanceToCoast: Type.Integer({
         default: 1,

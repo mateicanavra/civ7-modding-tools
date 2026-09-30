@@ -15,7 +15,8 @@ export default defineStrategy({
         default: 500,
         minimum: 0,
         maximum: 9000,
-        description: "Minimum elevation in meters considered an upwind terrain barrier.",
+        description:
+          "Minimum absolute elevation in quantized normalized model relief units considered an upwind land barrier; not meters. The legacy M key is retained.",
       }),
       continentalityMaxDist: Type.Integer({
         default: 12,

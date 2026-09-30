@@ -24,13 +24,15 @@ export default defineStrategy({
         default: 0,
         minimum: 0,
         maximum: 12000,
-        description: "Shallow-water depth used for atoll scoring.",
+        description:
+          "Shallow-water depth in quantized normalized model relief units below seaLevel used for atoll scoring; not meters. The legacy M key is retained.",
       }),
       deepDepthM: Type.Integer({
         default: 100,
         minimum: 0,
         maximum: 12000,
-        description: "Deep-water limit used for atoll scoring.",
+        description:
+          "Deep-water limit in quantized normalized model relief units below seaLevel used for atoll scoring; not meters. The legacy M key is retained.",
       }),
       minDistanceToCoast: Type.Integer({
         default: 4,

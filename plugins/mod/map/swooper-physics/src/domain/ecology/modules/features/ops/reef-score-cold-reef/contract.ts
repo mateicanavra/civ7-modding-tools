@@ -11,7 +11,8 @@ const ScoreColdReefContract = defineOp({
     landMask: TypedArraySchemas.u8({ description: "Land mask (1 = land, 0 = water)." }),
     surfaceTemperature: TypedArraySchemas.f32({ description: "Surface temperature (C)." }),
     bathymetry: TypedArraySchemas.i16({
-      description: "Bathymetry in meters (0 on land; <=0 in water; more negative is deeper).",
+      description:
+        "Sea-level-relative bathymetry in quantized normalized model relief units (0 on Morphology land; <=0 in water; more negative is deeper), not meters or native display units.",
     }),
     shelfMask: TypedArraySchemas.u8({
       description: "Mask (1/0): water tile is on continental shelf or edge.",
