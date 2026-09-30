@@ -452,6 +452,14 @@ gt sync
 
 ---
 
+## Push Check Input Boundary
+
+The Husky pre-push hook runs the repository-owned `bun run check` graph with
+stdin closed. Git supplies ref-update records to the hook; those records are
+not build-tool arguments or input. Forwarding them can make CLI manifest
+generation interpret a branch record as a package path. Keep this boundary
+inside the hook, without disabling checks or depending on cached manifests.
+
 ## Commit Hygiene Best Practices
 
 ### One Logical Change Per Branch

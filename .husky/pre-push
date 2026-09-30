@@ -1,3 +1,4 @@
 # Nested Git work must discover its own repository.
 unset $(git rev-parse --local-env-vars)
-bun run check
+# Git's ref-update input is not build-tool input.
+bun run check </dev/null
