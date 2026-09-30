@@ -29,7 +29,7 @@ export async function loadSwooperStudioDeployConfigRegistry(
     catalogConfigIds?: unknown;
     deployConfigId?: string;
   }> = {}
-): Promise<ValidatedMapConfig[]> {
+): Promise<readonly ValidatedMapConfig[]> {
   const catalogConfigIds = admitMapConfigCatalogIds(
     options.catalogConfigIds ?? MAP_CONFIG_CATALOG_IDS
   );

@@ -3,7 +3,9 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "bun:test";
 import { inspectGeneratedFilePlan } from "@civ7/plugin-files/generated-file-plan";
 import { authoringTargets } from "../../authoring/index.js";
+import { studioRecipeUiMeta } from "../../dist/recipes/standard-artifacts.js";
 import { loadSwooperMapConfigCatalog } from "../../scripts/catalog-source.js";
+import standardRecipe from "../../src/recipes/standard/recipe.js";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const configs = await loadSwooperMapConfigCatalog();
@@ -46,5 +48,11 @@ describe("Swooper definition authoring targets", () => {
     await expect(
       inspectGeneratedFilePlan(recipePlan, { outputRoot: packageRoot })
     ).resolves.toEqual({ kind: "current" });
+  });
+
+  it("matches generated step identities to the runtime recipe", () => {
+    expect(
+      studioRecipeUiMeta.stages.flatMap((stage) => stage.steps.map((step) => step.fullStepId))
+    ).toEqual(standardRecipe.recipe.steps.map((step) => step.id));
   });
 });
