@@ -279,6 +279,16 @@ not five independent reviewers. The editor accepted its structure finding:
 authority conflicts need an owner decision, not an invented simpler API.
 Intent, model-fit, concision, and tone reads found no material defects.
 
+The frozen final prompt subsequently received five independent, bounded reads,
+one each for intent preservation, behavioral fit, structure, concision and
+tone. Available slots staged that fanout without changing the candidate between
+reads. All five found no material defect. The editor retained the prompt:
+its apparent repeated boundaries separately govern routing, execution and
+recommendations, while the legitimate-private-types exception and evidenced
+alternative requirement directly counter the user's reported failure mode.
+This completes the per-dimension prompt review; it does not establish runtime
+discovery or eliminate the need for review on a materially revised prompt.
+
 The parent independently reviewed the final prompt, validated its standalone
 TOML and unique registration, and corrected the triggering scope to cover each
 substantive pipeline authoring domino rather than a per-file audit. A bounded
