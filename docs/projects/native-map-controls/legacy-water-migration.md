@@ -179,6 +179,12 @@ marine identity; treat incomplete correlation as inadmissible evidence and
 an admitted coverage/height/collateral failure as a negative result. Do not
 raise the treatment, shrink a body or regenerate the pair to find a pass.
 This is neither product-cutoff adoption nor naval traversal qualification.
+The current app diagnostic observes those existing physical artifacts only
+after successful recipe execution, before the completion record. Its complete
+accepted-cell/body/head and component/pool census replaces the old base-recipe
+lake logger for new evidence. It does not change native calls, the physical
+plan or ordinary product instrumentation. Exact pinned historical receipts
+remain readable; their old observation format is not a current-run fallback.
 
 ## Retained Evidence
 

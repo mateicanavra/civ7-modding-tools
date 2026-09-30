@@ -13,17 +13,6 @@ export const HYDROLOGY_MOUTH_SUBTILE = 6;
 /** Marks a resolved basin with no supported surface water. */
 export const HYDROLOGY_MOUTH_DRY = 7;
 
-/** Reserves slope code zero for water and other non-land cells without a routed slope. */
-export const HYDROLOGY_SLOPE_NONE = 0;
-/** Classifies a terminal or effectively level routed land segment. */
-export const HYDROLOGY_SLOPE_FLAT = 1;
-/** Classifies a routed land segment with a small physical-ground drop. */
-export const HYDROLOGY_SLOPE_LOW = 2;
-/** Classifies a routed land segment with an intermediate physical-ground drop. */
-export const HYDROLOGY_SLOPE_MODERATE = 3;
-/** Classifies a routed land segment with the largest ordinary physical-ground drop. */
-export const HYDROLOGY_SLOPE_STEEP = 4;
-
 /** Marks cells whose specific discharge does not support modeled surface flow. */
 export const HYDROLOGY_FLOW_DRY = 0;
 /** Marks low-persistence flow supported only by limited area or specific discharge. */

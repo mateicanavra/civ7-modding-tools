@@ -11,7 +11,10 @@ import {
   LAKE_LEVEL_CONTROLS,
   probeTerrainAt,
 } from "./elevation-contract-map.fixture.js";
-import { buildElevationProbePlan, elevationProbeMapScript } from "./elevation-contract-probe.fixture.js";
+import {
+  buildElevationProbePlan,
+  elevationProbeMapScript,
+} from "./elevation-contract-probe.fixture.js";
 
 describe("elevation diagnostic artifact (not native behavior proof)", () => {
   test("full asymmetric JS arrays cover bounded scale, fractional and water probes", () => {
@@ -147,10 +150,11 @@ describe("elevation diagnostic artifact (not native behavior proof)", () => {
     for (const control of LAKE_LEVEL_CONTROLS) {
       const input = buildLakeElevationProbeInput(control);
       expect(input).toHaveLength(original.length);
-      for (const y of [18, 19]) for (const x of [22, 23]) {
-        expect(input[x + y * 60]).toBe(control.lake);
-        expect(probeTerrainAt(x, y)).toBe("COAST");
-      }
+      for (const y of [18, 19])
+        for (const x of [22, 23]) {
+          expect(input[x + y * 60]).toBe(control.lake);
+          expect(probeTerrainAt(x, y)).toBe("COAST");
+        }
       expect(input[21 + 18 * 60]).toBe(control.shore);
       expect(input[24 + 18 * 60]).toBe(control.outlet);
       expect(input[8 + 8 * 60]).toBe(original[8 + 8 * 60]);

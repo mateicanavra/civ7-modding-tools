@@ -56,9 +56,12 @@ export function useConfigAuthoring(args: UseConfigAuthoringArgs): UseConfigAutho
   );
   useEffect(() => {
     if (!configIsAdmitted) {
-      toast("Saved config is no longer supported. Export it or select a current config before running.", {
-        variant: "error",
-      });
+      toast(
+        "Saved config is no longer supported. Export it or select a current config before running.",
+        {
+          variant: "error",
+        }
+      );
     }
   }, [configIsAdmitted, toast]);
 

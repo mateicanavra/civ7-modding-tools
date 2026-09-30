@@ -325,20 +325,27 @@ describe("Studio authoring-state persistence", () => {
   });
 
   it("does not recover unregistered recipes or malformed config envelopes", () => {
-    const persisted = (candidate: unknown) => JSON.stringify({
-      schemaVersion: 5,
-      savedAt: "2026-09-30T00:00:00.000Z",
-      worldSettings,
-      seed: "123",
-      gameSeed: "456",
-      setupConfig,
-      canonicalConfig: candidate,
-    });
-    expect(parseStudioAuthoringState(persisted({ ...canonicalConfig, recipe: "unknown" }))).toBeNull();
-    expect(parseStudioAuthoringState(persisted({ ...canonicalConfig, unexpected: true }))).toBeNull();
+    const persisted = (candidate: unknown) =>
+      JSON.stringify({
+        schemaVersion: 5,
+        savedAt: "2026-09-30T00:00:00.000Z",
+        worldSettings,
+        seed: "123",
+        gameSeed: "456",
+        setupConfig,
+        canonicalConfig: candidate,
+      });
+    expect(
+      parseStudioAuthoringState(persisted({ ...canonicalConfig, recipe: "unknown" }))
+    ).toBeNull();
+    expect(
+      parseStudioAuthoringState(persisted({ ...canonicalConfig, unexpected: true }))
+    ).toBeNull();
   });
 
-  it.each([3, 4] as const)("keeps unsupported v%i config outside setup-only migration", (schemaVersion) => {
+  it.each([
+    3, 4,
+  ] as const)("keeps unsupported v%i config outside setup-only migration", (schemaVersion) => {
     const storage = memoryStorage();
     const raw = JSON.stringify({
       schemaVersion,

@@ -135,7 +135,12 @@ type Civ7TerrainBuilder = Readonly<{
   setElevation?: (values: number[]) => void;
   generateCliffsFromElevation?: () => void;
   setRiverInfo?: (x: number, y: number, direction: number, riverType: number) => void;
-  finalizeRivers?: (aesthetic: boolean, percent: number, minLength: number, upstream: number) => void;
+  finalizeRivers?: (
+    aesthetic: boolean,
+    percent: number,
+    minLength: number,
+    upstream: number
+  ) => void;
   modelRivers(minLength: number, maxLength: number, navigableTerrain: number): void;
   storeWaterData(): void;
 }>;
@@ -181,21 +186,42 @@ const NATIVE_RIVER_DIRECTIONS: Readonly<Record<RiverDirection, string>> = {
 const MAX_NATIVE_RIVER_INTEGER = 0x7fffffff;
 
 function nativeRiverWriterAvailability(): RiverCapabilityAvailability {
-  if (typeof TerrainBuilder === "undefined" || !TerrainBuilder || typeof TerrainBuilder.setRiverInfo !== "function") {
+  if (
+    typeof TerrainBuilder === "undefined" ||
+    !TerrainBuilder ||
+    typeof TerrainBuilder.setRiverInfo !== "function"
+  ) {
     return { status: "unavailable", reason: "TerrainBuilder.setRiverInfo is unavailable." };
   }
   const missing = [
-    ...Object.values(NATIVE_RIVER_DIRECTIONS).map((name) => [
-      `DirectionTypes.${name}`,
-      typeof DirectionTypes === "undefined" || !DirectionTypes ? undefined : DirectionTypes[name],
-    ] as const),
-    ...["RIVER_MINOR", "RIVER_NAVIGABLE"].map((name) => [
-      `RiverTypes.${name}`,
-      typeof RiverTypes === "undefined" || !RiverTypes ? undefined : RiverTypes[name],
-    ] as const),
-  ].filter(([, value]) => typeof value !== "number" || !Number.isInteger(value) || value < -0x80000000 || value > MAX_NATIVE_RIVER_INTEGER);
+    ...Object.values(NATIVE_RIVER_DIRECTIONS).map(
+      (name) =>
+        [
+          `DirectionTypes.${name}`,
+          typeof DirectionTypes === "undefined" || !DirectionTypes
+            ? undefined
+            : DirectionTypes[name],
+        ] as const
+    ),
+    ...["RIVER_MINOR", "RIVER_NAVIGABLE"].map(
+      (name) =>
+        [
+          `RiverTypes.${name}`,
+          typeof RiverTypes === "undefined" || !RiverTypes ? undefined : RiverTypes[name],
+        ] as const
+    ),
+  ].filter(
+    ([, value]) =>
+      typeof value !== "number" ||
+      !Number.isInteger(value) ||
+      value < -0x80000000 ||
+      value > MAX_NATIVE_RIVER_INTEGER
+  );
   return missing.length
-    ? { status: "unavailable", reason: `Native river enum integers are unavailable: ${missing.map(([name]) => name).join(", ")}.` }
+    ? {
+        status: "unavailable",
+        reason: `Native river enum integers are unavailable: ${missing.map(([name]) => name).join(", ")}.`,
+      }
     : { status: "available" };
 }
 
@@ -699,12 +725,18 @@ export class Civ7Adapter implements EngineAdapter {
     return {
       source: "native",
       setRiverInfo: nativeRiverWriterAvailability(),
-      finalizeRivers: typeof TerrainBuilder !== "undefined" && TerrainBuilder && typeof TerrainBuilder.finalizeRivers === "function"
-        ? { status: "available" }
-        : { status: "unavailable", reason: "TerrainBuilder.finalizeRivers is unavailable." },
-      riverTypeReadback: typeof GameplayMap !== "undefined" && GameplayMap && typeof GameplayMap.getRiverType === "function"
-        ? { status: "available" }
-        : { status: "unavailable", reason: "GameplayMap.getRiverType is unavailable." },
+      finalizeRivers:
+        typeof TerrainBuilder !== "undefined" &&
+        TerrainBuilder &&
+        typeof TerrainBuilder.finalizeRivers === "function"
+          ? { status: "available" }
+          : { status: "unavailable", reason: "TerrainBuilder.finalizeRivers is unavailable." },
+      riverTypeReadback:
+        typeof GameplayMap !== "undefined" &&
+        GameplayMap &&
+        typeof GameplayMap.getRiverType === "function"
+          ? { status: "available" }
+          : { status: "unavailable", reason: "GameplayMap.getRiverType is unavailable." },
     };
   }
 
@@ -712,11 +744,25 @@ export class Civ7Adapter implements EngineAdapter {
     if (!intent || typeof intent !== "object" || Array.isArray(intent))
       throw new TypeError("[Adapter] River write intent must be an object.");
     const { x, y, direction, riverClass } = intent;
-    if (![this.width, this.height].every((value) => Number.isInteger(value) && value > 0 && value <= MAX_NATIVE_RIVER_INTEGER))
+    if (
+      ![this.width, this.height].every(
+        (value) => Number.isInteger(value) && value > 0 && value <= MAX_NATIVE_RIVER_INTEGER
+      )
+    )
       throw new RangeError("[Adapter] River dimensions must be positive signed-32-bit integers.");
-    if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || y < 0 || x >= this.width || y >= this.height)
+    if (
+      !Number.isInteger(x) ||
+      !Number.isInteger(y) ||
+      x < 0 ||
+      y < 0 ||
+      x >= this.width ||
+      y >= this.height
+    )
       throw new RangeError("[Adapter] River coordinates must be in-bounds integers.");
-    if (typeof direction !== "string" || !Object.prototype.hasOwnProperty.call(NATIVE_RIVER_DIRECTIONS, direction))
+    if (
+      typeof direction !== "string" ||
+      !Object.prototype.hasOwnProperty.call(NATIVE_RIVER_DIRECTIONS, direction)
+    )
       throw new TypeError("[Adapter] River direction must be a geographic symbol.");
     if (riverClass !== "MINOR" && riverClass !== "NAVIGABLE")
       throw new TypeError("[Adapter] River class must be MINOR or NAVIGABLE.");
@@ -732,13 +778,21 @@ export class Civ7Adapter implements EngineAdapter {
 
   finalizeRivers(args: RiverFinalizationArgs): void {
     if (!Array.isArray(args) || args.length !== 4 || typeof args[0] !== "boolean")
-      throw new TypeError("[Adapter] River finalization requires [boolean, percent, minLength, upstream].");
+      throw new TypeError(
+        "[Adapter] River finalization requires [boolean, percent, minLength, upstream]."
+      );
     for (const [offset, value] of args.slice(1).entries()) {
       const max = offset === 0 ? 100 : MAX_NATIVE_RIVER_INTEGER;
       if (typeof value !== "number" || !Number.isInteger(value) || value < 0 || value > max)
-        throw new RangeError(`[Adapter] River finalization argument ${offset + 1} must be an integer in [0, ${max}].`);
+        throw new RangeError(
+          `[Adapter] River finalization argument ${offset + 1} must be an integer in [0, ${max}].`
+        );
     }
-    if (typeof TerrainBuilder === "undefined" || !TerrainBuilder || typeof TerrainBuilder.finalizeRivers !== "function")
+    if (
+      typeof TerrainBuilder === "undefined" ||
+      !TerrainBuilder ||
+      typeof TerrainBuilder.finalizeRivers !== "function"
+    )
       throw new Error("[Adapter] TerrainBuilder.finalizeRivers is unavailable.");
     TerrainBuilder.finalizeRivers(args[0], args[1], args[2], args[3]);
   }

@@ -1,7 +1,7 @@
 import { computeBasinWaterBudget, type BasinWaterBudgetResponse } from "../../../model/policy/basin-water-budget.js";
 import { requireValid, type NetworkInput } from "./types.js";
 
-export type Crossing = { elevation: number; fromCell: number; toCell: number };
+type Crossing = { elevation: number; fromCell: number; toCell: number };
 export type Pool = {
   id: number; generation: number; leaves: number[]; base: number; cells: number[];
   junctions: Set<number>; response: BasinWaterBudgetResponse; level: number;
@@ -21,7 +21,7 @@ export function sum(values: Iterable<number>): number {
 }
 
 /** Exact next binary64, not a tolerance or a fractional stationary root. */
-export function nextUp(value: number): number {
+function nextUp(value: number): number {
   if (value === 0) return Number.MIN_VALUE;
   const view = new DataView(new ArrayBuffer(8));
   view.setFloat64(0, value);
@@ -31,7 +31,7 @@ export function nextUp(value: number): number {
 }
 
 /** Selects the least representable head in an exact-balance interval, or retains the response head or attained base. */
-export function responseLevel(response: BasinWaterBudgetResponse, base: number): number {
+function responseLevel(response: BasinWaterBudgetResponse, base: number): number {
   if ("level" in response) return response.level;
   if (response.state === "closed") {
     const { lower, lowerInclusive, upper, upperInclusive } = response.levels;
@@ -43,7 +43,7 @@ export function responseLevel(response: BasinWaterBudgetResponse, base: number):
 }
 
 /** Joins active catchment cells to unchanged ground and their attributed runoff, rainfall, and demand. */
-export function budgetRows(input: NetworkInput, cells: readonly number[]) {
+function budgetRows(input: NetworkInput, cells: readonly number[]) {
   return cells.map(cell => ({ cell, ground: input.elevation[cell]!, localRunoff: input.localRunoff[cell]!, precipitation: input.rainfall[cell]!, potentialDemand: input.potentialDemand[cell]! }));
 }
 

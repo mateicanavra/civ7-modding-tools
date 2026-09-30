@@ -13,7 +13,7 @@ const RAY_SLOTS = {
 function angularOracle(x: number, y: number, odd: boolean): number[] {
   const angle = (Math.atan2(y, x) + TAU) % TAU;
   const sector = Math.min(5, Math.floor(angle / (Math.PI / 3)));
-  const offset = angle - sector * Math.PI / 3;
+  const offset = angle - (sector * Math.PI) / 3;
   const a = Math.sin(Math.PI / 3 - offset);
   const b = Math.sin(offset);
   const slots = odd ? RAY_SLOTS.odd : RAY_SLOTS.even;
@@ -64,8 +64,10 @@ describe("grid adjacent angular bracket", () => {
             const b = d0.x * y - d0.y * x;
             if (a < 0 || b < 0) continue;
             expect(bracket).toEqual({
-              direction0: slots[k]!, weight0: a / (a + b),
-              direction1: slots[(k + 1) % 6]!, weight1: b / (a + b),
+              direction0: slots[k]!,
+              weight0: a / (a + b),
+              direction1: slots[(k + 1) % 6]!,
+              weight1: b / (a + b),
             });
             break;
           }
@@ -98,7 +100,12 @@ describe("grid adjacent angular bracket", () => {
   it("handles finite extremes without an epsilon calm band or invalid weights", () => {
     for (const odd of [false, true]) {
       for (const scale of [Number.MIN_VALUE, 2 ** -501, 1e-18, 1, 2 ** 501, Number.MAX_VALUE]) {
-        for (const [x, y] of [[1, 0], [0, -1], [1, 1], [-1, 1]]) {
+        for (const [x, y] of [
+          [1, 0],
+          [0, -1],
+          [1, 1],
+          [-1, 1],
+        ]) {
           const bracket = bracketHexNeighborDirectionsOddQ({ x: x! * scale, y: y! * scale }, odd)!;
           const unit = bracketHexNeighborDirectionsOddQ({ x: x!, y: y! }, odd)!;
           expect(bracket).not.toBeNull();
@@ -115,9 +122,13 @@ describe("grid adjacent angular bracket", () => {
   it("returns no bracket for exact zero or nonfinite components", () => {
     for (const odd of [false, true]) {
       for (const direction of [
-        { x: 0, y: 0 }, { x: -0, y: 0 }, { x: 0, y: -0 },
-        { x: NaN, y: 1 }, { x: 1, y: NaN },
-        { x: Infinity, y: 1 }, { x: 1, y: -Infinity },
+        { x: 0, y: 0 },
+        { x: -0, y: 0 },
+        { x: 0, y: -0 },
+        { x: NaN, y: 1 },
+        { x: 1, y: NaN },
+        { x: Infinity, y: 1 },
+        { x: 1, y: -Infinity },
       ]) {
         expect(bracketHexNeighborDirectionsOddQ(direction, odd)).toBeNull();
       }

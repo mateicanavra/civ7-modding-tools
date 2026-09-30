@@ -1,7 +1,7 @@
 import type { SolarHarmonics } from "../../../model/atoms/solar-harmonics.schema.js";
 
 /** Fixed midpoint quadrature resolution for the circular-orbit solar Fourier coefficients. */
-export const SOLAR_FOURIER_QUADRATURE_COUNT = 384;
+const SOLAR_FOURIER_QUADRATURE_COUNT = 384;
 const RADIANS_PER_DEGREE = Math.PI / 180;
 
 function requireAngle(value: number, name: string): void {
@@ -11,7 +11,7 @@ function requireAngle(value: number, name: string): void {
 }
 
 /** FAO-56 equations 21/25, normalized by the solar constant with circular distance factor 1. */
-export function dailyMeanSolarQ(latitudeDegrees: number, declinationDegrees: number): number {
+function dailyMeanSolarQ(latitudeDegrees: number, declinationDegrees: number): number {
   requireAngle(latitudeDegrees, "Latitude");
   requireAngle(declinationDegrees, "Declination");
   const latitude = latitudeDegrees * RADIANS_PER_DEGREE;

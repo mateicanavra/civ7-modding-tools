@@ -386,7 +386,12 @@ describe("MockAdapter explicit river intent (not native proof)", () => {
     const navigable = adapter.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER");
     adapter.setTerrainType(0, 1, mountain);
     const minor = { x: 0, y: 1, direction: "EAST", riverClass: "MINOR" } satisfies RiverWriteIntent;
-    const nav = { x: 1, y: 1, direction: "WEST", riverClass: "NAVIGABLE" } satisfies RiverWriteIntent;
+    const nav = {
+      x: 1,
+      y: 1,
+      direction: "WEST",
+      riverClass: "NAVIGABLE",
+    } satisfies RiverWriteIntent;
     adapter.setRiverInfo(minor);
     adapter.setRiverInfo(nav);
     expect(adapter.getRiverType(0, 1)).toBe(NO_RIVER_TYPE);
@@ -429,15 +434,22 @@ describe("MockAdapter explicit river intent (not native proof)", () => {
       expect(adapter.getElevation(x, 1)).toBe(25);
     }
     expect(adapter.getRiverType(2, 1)).toBe(RIVER_TYPE_NAVIGABLE);
-    expect(adapter.getTerrainType(2, 1)).toBe(adapter.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER"));
+    expect(adapter.getTerrainType(2, 1)).toBe(
+      adapter.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER")
+    );
   });
 
   it("supports all geographic symbols without inventing receiver, slope or ocean connectivity", () => {
     const adapter = createMockAdapter({ width: 8, height: 3 });
     const symbols: RiverDirection[] = [
-      "EAST", "NORTHEAST", "NORTHWEST", "WEST", "SOUTHWEST", "SOUTHEAST",
+      "EAST",
+      "NORTHEAST",
+      "NORTHWEST",
+      "WEST",
+      "SOUTHWEST",
+      "SOUTHEAST",
     ];
-    adapter.setElevation(Array.from({ length: 24 }, (_, i) => i % 8 === 1 ? 1 : 700));
+    adapter.setElevation(Array.from({ length: 24 }, (_, i) => (i % 8 === 1 ? 1 : 700)));
     symbols.forEach((direction, x) =>
       adapter.setRiverInfo({ x: x + 1, y: 1, direction, riverClass: "NAVIGABLE" })
     );
@@ -457,7 +469,10 @@ describe("MockAdapter explicit river intent (not native proof)", () => {
     adapter.setRiverInfo({ x: 1, y: 1, direction: "WEST", riverClass: "MINOR" });
     adapter.finalizeRivers([false, 0, 0, 0]);
     adapter.finalizeRivers([true, 100, 4, 0]);
-    expect(adapter.calls.finalizeRivers).toEqual([[false, 0, 0, 0], [true, 100, 4, 0]]);
+    expect(adapter.calls.finalizeRivers).toEqual([
+      [false, 0, 0, 0],
+      [true, 100, 4, 0],
+    ]);
     expect(adapter.getRiverType(1, 1)).toBe(RIVER_TYPE_MINOR);
     expect(adapter.getTerrainType(1, 1)).toBe(terrain);
     adapter.reset();
@@ -470,19 +485,44 @@ describe("MockAdapter explicit river intent (not native proof)", () => {
   it("invalid inputs change neither recorded calls nor simulated state", () => {
     const adapter = createMockAdapter({ width: 3, height: 2 });
     const valid: RiverWriteIntent = { x: 1, y: 1, direction: "EAST", riverClass: "MINOR" };
-    const invalid: unknown[] = [null, [], {}, { ...valid, x: -1 }, { ...valid, y: 2 },
-      { ...valid, x: 3 }, { ...valid, x: 0.5 }, { ...valid, y: NaN }, { ...valid, y: "1" },
-      { ...valid, direction: 0 }, { ...valid, direction: "east" }, { ...valid, direction: "toString" },
-      { ...valid, direction: { toString: () => "EAST" } }, { ...valid, riverClass: 1 },
+    const invalid: unknown[] = [
+      null,
+      [],
+      {},
+      { ...valid, x: -1 },
+      { ...valid, y: 2 },
+      { ...valid, x: 3 },
+      { ...valid, x: 0.5 },
+      { ...valid, y: NaN },
+      { ...valid, y: "1" },
+      { ...valid, direction: 0 },
+      { ...valid, direction: "east" },
+      { ...valid, direction: "toString" },
+      { ...valid, direction: { toString: () => "EAST" } },
+      { ...valid, riverClass: 1 },
     ];
-    for (const intent of invalid) expect(() => adapter.setRiverInfo(intent as RiverWriteIntent)).toThrow();
-    const invalidArgs: unknown[] = [undefined, [], [false, 25, 2], [false, 25, 2, 2, 2],
-      [1, 25, 2, 2], [false, -1, 2, 2], [false, 101, 2, 2], [false, 0.5, 2, 2],
-      [false, 25, -1, 2], [false, 25, 2, -1], [false, 25, NaN, 2], [false, 25, 2, Infinity],
-      [false, 25, 0x80000000, 2], [false, 25, 2, 0x80000000], [false, "25", 2, 2],
+    for (const intent of invalid)
+      expect(() => adapter.setRiverInfo(intent as RiverWriteIntent)).toThrow();
+    const invalidArgs: unknown[] = [
+      undefined,
+      [],
+      [false, 25, 2],
+      [false, 25, 2, 2, 2],
+      [1, 25, 2, 2],
+      [false, -1, 2, 2],
+      [false, 101, 2, 2],
+      [false, 0.5, 2, 2],
+      [false, 25, -1, 2],
+      [false, 25, 2, -1],
+      [false, 25, NaN, 2],
+      [false, 25, 2, Infinity],
+      [false, 25, 0x80000000, 2],
+      [false, 25, 2, 0x80000000],
+      [false, "25", 2, 2],
       Object.assign(new Array(4), { 0: false, 1: 25, 3: 2 }),
     ];
-    for (const args of invalidArgs) expect(() => adapter.finalizeRivers(args as RiverFinalizationArgs)).toThrow();
+    for (const args of invalidArgs)
+      expect(() => adapter.finalizeRivers(args as RiverFinalizationArgs)).toThrow();
     expect(adapter.calls.setRiverInfo).toEqual([]);
     expect(adapter.calls.finalizeRivers).toEqual([]);
     expect(adapter.isRiver(1, 1)).toBe(false);

@@ -70,7 +70,12 @@ const RiverStep = createStep(
       const capabilities = dependencies.engine.getRiverCapabilities(context);
       type CapabilitiesAreExact = Expect<IsEqual<typeof capabilities, RiverCapabilities>>;
       void (undefined as unknown as CapabilitiesAreExact);
-      dependencies.engine.setRiverInfo(context, { x: 1, y: 1, direction: "NORTHWEST", riverClass: "MINOR" } as const);
+      dependencies.engine.setRiverInfo(context, {
+        x: 1,
+        y: 1,
+        direction: "NORTHWEST",
+        riverClass: "MINOR",
+      } as const);
       dependencies.engine.finalizeRivers(context, [false, 25, 2, 2] as const);
       // @ts-expect-error A writer declaration does not grant procedural river generation.
       dependencies.engine.modelRivers(context, 5, 15, 5);

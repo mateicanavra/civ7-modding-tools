@@ -5,7 +5,7 @@ import type {
   BasinNonstationaryResponse,
 } from "../atoms/basin-water-budget.schema.js";
 
-export type BasinWaterBudgetInput = Readonly<{
+type BasinWaterBudgetInput = Readonly<{
   cells: readonly Readonly<{
     cell: number;
     ground: number;

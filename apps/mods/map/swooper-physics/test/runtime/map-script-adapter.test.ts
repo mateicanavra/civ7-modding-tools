@@ -332,12 +332,21 @@ describe("Civ7Adapter exact elevation capabilities", () => {
 
 describe("Civ7Adapter explicit river intent", () => {
   const directions: Readonly<Record<RiverDirection, number>> = {
-    EAST: 14, NORTHEAST: 8, NORTHWEST: 21, WEST: 3, SOUTHWEST: 25, SOUTHEAST: 11,
+    EAST: 14,
+    NORTHEAST: 8,
+    NORTHWEST: 21,
+    WEST: 3,
+    SOUTHWEST: 25,
+    SOUTHEAST: 11,
   };
   const intent: RiverWriteIntent = { x: 1, y: 1, direction: "EAST", riverClass: "MINOR" };
   function install() {
-    const setRiverInfo = mock((_x: number, _y: number, _direction: number, _riverClass: number) => {});
-    const finalizeRivers = mock((_aesthetic: boolean, _percent: number, _minLength: number, _upstream: number) => {});
+    const setRiverInfo = mock(
+      (_x: number, _y: number, _direction: number, _riverClass: number) => {}
+    );
+    const finalizeRivers = mock(
+      (_aesthetic: boolean, _percent: number, _minLength: number, _upstream: number) => {}
+    );
     const modelRivers = mock(() => {});
     const getRiverType = mock(() => 40);
     const directionTypes: Record<string, unknown> = Object.fromEntries(
@@ -345,8 +354,21 @@ describe("Civ7Adapter explicit river intent", () => {
     );
     const riverTypes: Record<string, unknown> = { RIVER_MINOR: 40, RIVER_NAVIGABLE: 90 };
     const terrainBuilder = { setRiverInfo, finalizeRivers, modelRivers };
-    Object.assign(globalThis, { TerrainBuilder: terrainBuilder, GameplayMap: { getRiverType }, DirectionTypes: directionTypes, RiverTypes: riverTypes });
-    return { setRiverInfo, finalizeRivers, modelRivers, getRiverType, directionTypes, riverTypes, terrainBuilder };
+    Object.assign(globalThis, {
+      TerrainBuilder: terrainBuilder,
+      GameplayMap: { getRiverType },
+      DirectionTypes: directionTypes,
+      RiverTypes: riverTypes,
+    });
+    return {
+      setRiverInfo,
+      finalizeRivers,
+      modelRivers,
+      getRiverType,
+      directionTypes,
+      riverTypes,
+      terrainBuilder,
+    };
   }
 
   it("translates all six symbols using native enum names, preserving both classes and exact arguments", () => {
@@ -355,7 +377,12 @@ describe("Civ7Adapter explicit river intent", () => {
     for (const direction of Object.keys(directions) as RiverDirection[]) {
       for (const riverClass of ["MINOR", "NAVIGABLE"] as const) {
         adapter.setRiverInfo(Object.freeze({ ...intent, direction, riverClass }));
-        expect(runtime.setRiverInfo).toHaveBeenLastCalledWith(1, 1, directions[direction], riverClass === "MINOR" ? 40 : 90);
+        expect(runtime.setRiverInfo).toHaveBeenLastCalledWith(
+          1,
+          1,
+          directions[direction],
+          riverClass === "MINOR" ? 40 : 90
+        );
       }
     }
     expect(runtime.setRiverInfo).toHaveBeenCalledTimes(12);
@@ -367,7 +394,12 @@ describe("Civ7Adapter explicit river intent", () => {
   it("keeps write, finalization and raw type-readback availability independent", () => {
     const runtime = install();
     const adapter = new Civ7AdapterCtor(4, 3);
-    expect(adapter.getRiverCapabilities()).toEqual({ source: "native", setRiverInfo: { status: "available" }, finalizeRivers: { status: "available" }, riverTypeReadback: { status: "available" } });
+    expect(adapter.getRiverCapabilities()).toEqual({
+      source: "native",
+      setRiverInfo: { status: "available" },
+      finalizeRivers: { status: "available" },
+      riverTypeReadback: { status: "available" },
+    });
     expect(runtime.getRiverType).not.toHaveBeenCalled();
     delete (globalThis as Record<string, unknown>).GameplayMap;
     expect(adapter.getRiverCapabilities().riverTypeReadback.status).toBe("unavailable");
@@ -381,7 +413,9 @@ describe("Civ7Adapter explicit river intent", () => {
     expect(adapter.getRiverCapabilities().setRiverInfo.status).toBe("unavailable");
     expect(adapter.getRiverCapabilities().riverTypeReadback.status).toBe("available");
     expect(() => adapter.setRiverInfo(intent)).toThrow("setRiverInfo is unavailable");
-    expect(() => adapter.finalizeRivers([false, 25, 2, 2])).toThrow("finalizeRivers is unavailable");
+    expect(() => adapter.finalizeRivers([false, 25, 2, 2])).toThrow(
+      "finalizeRivers is unavailable"
+    );
     expect(runtime.modelRivers).not.toHaveBeenCalled();
   });
 
@@ -411,16 +445,34 @@ describe("Civ7Adapter explicit river intent", () => {
   it("rejects malformed intent before dispatch without coercion, wrapping or class repair", () => {
     const runtime = install();
     const adapter = new Civ7AdapterCtor(4, 3);
-    const invalid: unknown[] = [null, [], {},
-      { ...intent, x: -1 }, { ...intent, y: 3 }, { ...intent, x: 4 },
-      { ...intent, x: 0.5 }, { ...intent, y: NaN }, { ...intent, x: "1" },
-      { ...intent, direction: 0 }, { ...intent, direction: "east" },
-      { ...intent, direction: "toString" }, { ...intent, direction: { toString: () => "EAST" } },
-      { ...intent, riverClass: "RIVER_MINOR" }, { ...intent, riverClass: 40 },
+    const invalid: unknown[] = [
+      null,
+      [],
+      {},
+      { ...intent, x: -1 },
+      { ...intent, y: 3 },
+      { ...intent, x: 4 },
+      { ...intent, x: 0.5 },
+      { ...intent, y: NaN },
+      { ...intent, x: "1" },
+      { ...intent, direction: 0 },
+      { ...intent, direction: "east" },
+      { ...intent, direction: "toString" },
+      { ...intent, direction: { toString: () => "EAST" } },
+      { ...intent, riverClass: "RIVER_MINOR" },
+      { ...intent, riverClass: 40 },
     ];
-    for (const value of invalid) expect(() => adapter.setRiverInfo(value as RiverWriteIntent)).toThrow();
-    for (const [width, height] of [[0, 3], [4, NaN], [4.5, 3], [0x80000000, 3]])
-      expect(() => new Civ7AdapterCtor(width!, height!).setRiverInfo(intent)).toThrow("River dimensions");
+    for (const value of invalid)
+      expect(() => adapter.setRiverInfo(value as RiverWriteIntent)).toThrow();
+    for (const [width, height] of [
+      [0, 3],
+      [4, NaN],
+      [4.5, 3],
+      [0x80000000, 3],
+    ])
+      expect(() => new Civ7AdapterCtor(width!, height!).setRiverInfo(intent)).toThrow(
+        "River dimensions"
+      );
     expect(runtime.setRiverInfo).not.toHaveBeenCalled();
     expect(runtime.finalizeRivers).not.toHaveBeenCalled();
     expect(runtime.modelRivers).not.toHaveBeenCalled();
@@ -439,19 +491,36 @@ describe("Civ7Adapter explicit river intent", () => {
     const adapter = new Civ7AdapterCtor(4, 3);
     adapter.finalizeRivers(Object.freeze([false, 25, 2, 2] as const));
     adapter.finalizeRivers([true, 100, 0, 0x7fffffff]);
-    expect(calls).toEqual([[false, 25, 2, 2], [true, 100, 0, 0x7fffffff]]);
+    expect(calls).toEqual([
+      [false, 25, 2, 2],
+      [true, 100, 0, 0x7fffffff],
+    ]);
   });
 
   it("rejects invalid finalization arguments before dispatch, including sparse and overflowing values", () => {
     const runtime = install();
     const adapter = new Civ7AdapterCtor(4, 3);
-    const invalid: unknown[] = [undefined, [], [false, 25, 2], [false, 25, 2, 2, 2],
-      [0, 25, 2, 2], [false, -1, 2, 2], [false, 101, 2, 2], [false, 1.5, 2, 2],
-      [false, 25, -1, 2], [false, 25, 2, -1], [false, 25, NaN, 2], [false, 25, 2, Infinity],
-      [false, 25, 0x80000000, 2], [false, 25, 2, 0x80000000], [false, "25", 2, 2],
-      Object.assign(new Array(4), { 0: false, 1: 25, 3: 2 }), new Int32Array([0, 25, 2, 2]),
+    const invalid: unknown[] = [
+      undefined,
+      [],
+      [false, 25, 2],
+      [false, 25, 2, 2, 2],
+      [0, 25, 2, 2],
+      [false, -1, 2, 2],
+      [false, 101, 2, 2],
+      [false, 1.5, 2, 2],
+      [false, 25, -1, 2],
+      [false, 25, 2, -1],
+      [false, 25, NaN, 2],
+      [false, 25, 2, Infinity],
+      [false, 25, 0x80000000, 2],
+      [false, 25, 2, 0x80000000],
+      [false, "25", 2, 2],
+      Object.assign(new Array(4), { 0: false, 1: 25, 3: 2 }),
+      new Int32Array([0, 25, 2, 2]),
     ];
-    for (const args of invalid) expect(() => adapter.finalizeRivers(args as RiverFinalizationArgs)).toThrow();
+    for (const args of invalid)
+      expect(() => adapter.finalizeRivers(args as RiverFinalizationArgs)).toThrow();
     expect(runtime.finalizeRivers).not.toHaveBeenCalled();
     expect(runtime.modelRivers).not.toHaveBeenCalled();
   });
@@ -459,12 +528,23 @@ describe("Civ7Adapter explicit river intent", () => {
   it("retains native errors without fallback or retry", () => {
     const runtime = install();
     const failure = new Error("native river dispatch failed");
-    runtime.setRiverInfo.mockImplementation(() => { throw failure; });
-    runtime.finalizeRivers.mockImplementation(() => { throw failure; });
+    runtime.setRiverInfo.mockImplementation(() => {
+      throw failure;
+    });
+    runtime.finalizeRivers.mockImplementation(() => {
+      throw failure;
+    });
     const adapter = new Civ7AdapterCtor(4, 3);
-    for (const call of [() => adapter.setRiverInfo(intent), () => adapter.finalizeRivers([false, 25, 2, 2])]) {
+    for (const call of [
+      () => adapter.setRiverInfo(intent),
+      () => adapter.finalizeRivers([false, 25, 2, 2]),
+    ]) {
       let caught: unknown;
-      try { call(); } catch (cause) { caught = cause; }
+      try {
+        call();
+      } catch (cause) {
+        caught = cause;
+      }
       expect(caught).toBe(failure);
     }
     expect(runtime.setRiverInfo).toHaveBeenCalledTimes(1);

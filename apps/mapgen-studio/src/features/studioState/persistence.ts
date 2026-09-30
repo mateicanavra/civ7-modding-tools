@@ -2,11 +2,12 @@ import {
   freezeSnapshot,
   type MapConfigEnvelope,
   serializeMapConfigEnvelope,
-  snapshotMapConfigEnvelope,
   setupConfig as setupConfigSchema,
+  snapshotMapConfigEnvelope,
 } from "@civ7/studio-contract";
 import type { WorldSettings } from "@swooper/mapgen-studio-ui/types";
 import { Value } from "typebox/value";
+import { findRecipeArtifacts } from "../../recipes/catalog";
 import { CIV7_STUDIO_MIN_PLAYER_COUNT, normalizeCiv7WorldSettings } from "../civ7Setup/mapSizes";
 import { parseCiv7StudioSeed } from "../civ7Setup/seedPolicy";
 import {
@@ -15,7 +16,6 @@ import {
   normalizeStudioSetupConfig,
 } from "../civ7Setup/setupConfig";
 import { admitCanonicalConfig } from "../configAuthoring/canonicalConfig";
-import { findRecipeArtifacts } from "../../recipes/catalog";
 
 /** Current browser-storage key for the closed v5 Studio authoring snapshot. */
 export const STUDIO_AUTHORING_STATE_KEY = "mapgen-studio.authoring-state.v5";

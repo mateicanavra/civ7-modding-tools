@@ -132,7 +132,9 @@ export function buildElevationProbeInput(probeCase: ProbeCase): number[] {
 }
 
 /** Independent lake and shore controls; no assumed native leveling formula in the fixture. */
-export function buildLakeElevationProbeInput(control: typeof LAKE_LEVEL_CONTROLS[number]): number[] {
+export function buildLakeElevationProbeInput(
+  control: (typeof LAKE_LEVEL_CONTROLS)[number]
+): number[] {
   const values = buildElevationProbeInput("positive");
   for (let y = 17; y <= 20; y++) {
     for (let x = 21; x <= 24; x++) {

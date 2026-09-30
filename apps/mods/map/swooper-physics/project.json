@@ -11,7 +11,9 @@
     },
     "build:river-contract-probe": {
       "command": "bun ./test/runtime/river-contract-probe.fixture.ts",
-      "dependsOn": [{ "target": "build", "projects": ["mapgen-core", "plugin-files", "swooper-physics"] }],
+      "dependsOn": [
+        { "target": "build", "projects": ["mapgen-core", "plugin-files", "swooper-physics"] }
+      ],
       "outputs": ["{projectRoot}/dist/river-contract-probe/**"],
       "cache": false,
       "options": { "cwd": "apps/mods/map/swooper-physics" }

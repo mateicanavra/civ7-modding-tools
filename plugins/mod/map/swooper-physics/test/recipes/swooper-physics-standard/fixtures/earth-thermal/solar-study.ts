@@ -42,7 +42,7 @@ export function buildSolarForcing(geometry: SolarGeometry, phaseCount: number, s
   });
 }
 
-export function annualMean(fields: readonly ArrayLike<number>[]) {
+function annualMean(fields: readonly ArrayLike<number>[]) {
   if (fields.length === 0) throw new Error("At least one phase is required.");
   const count = fields[0]!.length;
   if (fields.some((field) => field.length !== count)) throw new Error("Phase cardinality mismatch.");

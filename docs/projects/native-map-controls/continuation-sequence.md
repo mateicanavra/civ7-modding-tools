@@ -211,6 +211,68 @@ the locally restacked construction branch exactly; a second native sync and
 targeted downstack restack reconciled that parent without force. Stack
 submission then updated the retained PRs and created habitat PR #2221.
 
+The next construction prerequisite PR #2158 is also independently qualified
+and merged through native `gt merge`, merge
+`b659939004b5a132a39a783f325c5d6624568b10`. Its CLI report now flushes one
+complete JSON result before exit and keeps evaluator telemetry on stderr.
+The exact-prefix owner graph passes 53 tasks; the public complete report
+parses 1,328,651 bytes for 91 scenarios and all 147 targets. Three retained
+early-pipe-close runs exit successfully; the first incompletely retained
+attempt remains unclassified, not a passing witness. Native submission also
+passes the repository's 32-project, 164-task check graph. These are that
+prefix's receipts, not the latest definition bank's calibration acceptance.
+
+Native sync, deletion of the merged branch and a targeted downstack restack
+reconcile Graphite's updated next parent without force. Main's five protected
+WIP files remain byte-identical. The older worktree is restored to its original
+migration-frame branch and declared resource gitlink; its only inherited tree
+change is the two-file CLI correction. Its own generated build leftovers are
+removed. The current-only water source is published as draft PR #2222 in the
+same lineage, with no empty layer or new worktree. All other retained review
+layers stay draft pending their own qualification.
+
+The next native evidence reader must follow the current app diagnostic, not
+depend on the retired unconditional physical-lake logger in the production
+recipe. A bounded app-owned post-recipe observation reads the existing public
+lake-plan and projected-lake artifacts after successful execution. It retains
+complete accepted footprint, original body/component/pool identities and
+Number-precision heads, without changing the plan or native calls. Historical
+receipts retain their exact old observation admission; current runs cannot
+fall back to it. Standard and Huge probes use the generated proof descriptor
+and the same public preset/catalog selection as ordinary product setup.
+
+The app-only observer and generalized external reader are now implemented and
+independently reviewed. They do not restore the production logger. The fresh
+root check passes all 186 tasks across 37 projects, including types, Habitat,
+boundaries, hygiene and the full Knip inventory. The owning test graph passes
+Studio, the realization app (212 tests), MapGen Core (369) and the adapter
+(57). The definition has 1,025 passing tests and one unchanged aggregate failure
+containing the same eleven calibration expectations; none are waived. The
+fresh 49-case replay holds all 2,695 artifact comparisons exactly. Its receipt
+is `earth-calibration/current-water-closure-final-20260930/receipt.json`, SHA256
+`38511d1dfe2c371306543b31b4c37ac5d1a70686d4527af13f1de2e608c2fcbb`,
+under the documented VisualAtlas root. The external reader's 24 tests use
+synthetic and pinned historical inputs, not fresh native evidence.
+
+The next native comparison selects Earthlike Standard 1018/1018, eight players,
+stock cutoff8 versus40, then Shattered Ring Huge 1337/1337, ten players, stock10
+versus the same40. Actual public preset/catalog metadata, not a second dimension
+or map-type table, supplies each generated setup/proof. Complete accepted
+footprints, Number heads and original body/component/pool records are held.
+An admitted native coverage, retention or marine/collateral difference is a
+negative result, not permission to enlarge the cutoff or replace the seed.
+
+The latest no-competing-legacy direction also supersedes the temporary
+seven-profile climate retention in the periodic design. Those profiles still
+select `legacy-snapshots` + `latitude-insolation` + `insolation-lapse-rate`;
+that is a different active physical computation, not merely a historical
+input label. Qualify the coherent periodic triplet across the existing study
+bank as the next migration, preserving each profile's authoring intent rather
+than copying Earthlike's entire tuning. Remove the old operation strategies,
+defaults, composition/reduction branches and current capture fallbacks only
+with that migration. The water retirement and its exact replay remain a
+separately completed prerequisite; no older water computation is reopened.
+
 ## Evidence That Survives The Artifact Correction
 
 - The ten-map publication replay matches all 120 captured field hashes. The

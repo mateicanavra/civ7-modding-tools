@@ -56,7 +56,12 @@ import type {
 
 type MockRandomFn = (max: number, label: string) => number;
 const MOCK_RIVER_DIRECTIONS: Readonly<Record<RiverDirection, true>> = {
-  EAST: true, NORTHEAST: true, NORTHWEST: true, WEST: true, SOUTHWEST: true, SOUTHEAST: true,
+  EAST: true,
+  NORTHEAST: true,
+  NORTHWEST: true,
+  WEST: true,
+  SOUTHWEST: true,
+  SOUTHEAST: true,
 };
 const MAX_MOCK_RIVER_INTEGER = 0x7fffffff;
 type ResourceValidPlacementRow = readonly [
@@ -1037,11 +1042,27 @@ export class MockAdapter implements EngineAdapter {
     if (!intent || typeof intent !== "object" || Array.isArray(intent))
       throw new TypeError("[MockAdapter] River write intent must be an object.");
     const { x, y, direction, riverClass } = intent;
-    if (![this.width, this.height].every((value) => Number.isInteger(value) && value > 0 && value <= MAX_MOCK_RIVER_INTEGER))
-      throw new RangeError("[MockAdapter] River dimensions must be positive signed-32-bit integers.");
-    if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || y < 0 || x >= this.width || y >= this.height)
+    if (
+      ![this.width, this.height].every(
+        (value) => Number.isInteger(value) && value > 0 && value <= MAX_MOCK_RIVER_INTEGER
+      )
+    )
+      throw new RangeError(
+        "[MockAdapter] River dimensions must be positive signed-32-bit integers."
+      );
+    if (
+      !Number.isInteger(x) ||
+      !Number.isInteger(y) ||
+      x < 0 ||
+      y < 0 ||
+      x >= this.width ||
+      y >= this.height
+    )
       throw new RangeError("[MockAdapter] River coordinates must be in-bounds integers.");
-    if (typeof direction !== "string" || !Object.prototype.hasOwnProperty.call(MOCK_RIVER_DIRECTIONS, direction))
+    if (
+      typeof direction !== "string" ||
+      !Object.prototype.hasOwnProperty.call(MOCK_RIVER_DIRECTIONS, direction)
+    )
       throw new TypeError("[MockAdapter] River direction must be a geographic symbol.");
     if (riverClass !== "MINOR" && riverClass !== "NAVIGABLE")
       throw new TypeError("[MockAdapter] River class must be MINOR or NAVIGABLE.");
@@ -1052,11 +1073,15 @@ export class MockAdapter implements EngineAdapter {
 
   finalizeRivers(args: RiverFinalizationArgs): void {
     if (!Array.isArray(args) || args.length !== 4 || typeof args[0] !== "boolean")
-      throw new TypeError("[MockAdapter] River finalization requires [boolean, percent, minLength, upstream].");
+      throw new TypeError(
+        "[MockAdapter] River finalization requires [boolean, percent, minLength, upstream]."
+      );
     for (const [offset, value] of args.slice(1).entries()) {
       const max = offset === 0 ? 100 : MAX_MOCK_RIVER_INTEGER;
       if (typeof value !== "number" || !Number.isInteger(value) || value < 0 || value > max)
-        throw new RangeError(`[MockAdapter] River finalization argument ${offset + 1} must be an integer in [0, ${max}].`);
+        throw new RangeError(
+          `[MockAdapter] River finalization argument ${offset + 1} must be an integer in [0, ${max}].`
+        );
     }
     this.calls.finalizeRivers.push(Object.freeze([args[0], args[1], args[2], args[3]] as const));
     // Declared intent only: no drainage, slope, class demotion, or ocean-connectivity simulation.
@@ -1064,9 +1089,14 @@ export class MockAdapter implements EngineAdapter {
       // Wet direction declarations do not turn water into dry river terrain.
       if (this.isWater(intent.x, intent.y)) continue;
       this.riverMask[plotIndex] = 1;
-      this.riverTypes[plotIndex] = intent.riverClass === "MINOR" ? MOCK_RIVER_MINOR : MOCK_RIVER_NAVIGABLE;
+      this.riverTypes[plotIndex] =
+        intent.riverClass === "MINOR" ? MOCK_RIVER_MINOR : MOCK_RIVER_NAVIGABLE;
       if (intent.riverClass === "NAVIGABLE")
-        this.setTerrainType(intent.x, intent.y, this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER"));
+        this.setTerrainType(
+          intent.x,
+          intent.y,
+          this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER")
+        );
     }
   }
 
