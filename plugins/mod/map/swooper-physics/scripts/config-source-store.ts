@@ -1,13 +1,9 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import type { MapConfigId } from "@civ7/studio-contract";
-import { admitMapConfigCatalogConfig } from "../src/maps/catalog/admission.js";
 import { admitMapConfigCatalogIds } from "../src/maps/catalog/membership.js";
-import {
-  admitStandardMapConfig,
-  type ValidatedMapConfig,
-} from "../src/maps/configs/canonical.js";
-import { STANDARD_RECIPE_CONFIG_SCHEMA } from "../src/recipes/standard/artifacts.js";
+import type { ValidatedMapConfig } from "../src/maps/configs/canonical.js";
+import { projectSwooperMapConfigCatalog, serializeSwooperMapConfig } from "../authoring/index.js";
 
 export type PreparedSwooperMapConfigSourceWrite = Readonly<{
   configId: MapConfigId;
@@ -31,23 +27,16 @@ function isNodeNotFound(error: unknown): boolean {
  */
 export function createSwooperMapConfigSourceStore(sourceDirectory: string) {
   return {
-    async loadCatalog(catalogConfigIds: unknown): Promise<ValidatedMapConfig[]> {
+    async loadCatalog(catalogConfigIds: unknown): Promise<readonly ValidatedMapConfig[]> {
       const configIds = admitMapConfigCatalogIds(catalogConfigIds);
-      const configsById = new Map<MapConfigId, ValidatedMapConfig>();
+      const configsById = new Map<MapConfigId, unknown>();
       const readErrors: string[] = [];
 
       for (const configId of configIds) {
         const sourcePath = resolve(sourceDirectory, `${configId}.config.json`);
         try {
           const raw = JSON.parse(await readFile(sourcePath, "utf-8")) as unknown;
-          configsById.set(
-            configId,
-            admitMapConfigCatalogConfig({
-              configId,
-              canonicalConfig: raw,
-              recipeSchema: STANDARD_RECIPE_CONFIG_SCHEMA,
-            })
-          );
+          configsById.set(configId, raw);
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           readErrors.push(`${sourcePath}: ${message}`);
@@ -62,30 +51,25 @@ export function createSwooperMapConfigSourceStore(sourceDirectory: string) {
         );
       }
 
-      const configs = configIds.map((configId) => {
-        const config = configsById.get(configId);
-        if (!config) throw new Error(`Catalog config was not loaded: ${configId}`);
-        return config;
+      return projectSwooperMapConfigCatalog({
+        catalogConfigIds: configIds,
+        configsById,
       });
-      if (configs.length === 0) {
-        throw new Error(`No canonical map configs found in ${sourceDirectory}`);
-      }
-      return configs;
     },
 
     async prepareWrite(value: unknown): Promise<PreparedSwooperMapConfigSourceWrite> {
-      const canonicalConfig = admitStandardMapConfig(value);
-      const target = resolve(sourceDirectory, `${canonicalConfig.id}.config.json`);
+      const serialized = serializeSwooperMapConfig(value);
+      const target = resolve(sourceDirectory, `${serialized.configId}.config.json`);
       const previous = await readFile(target, "utf8").catch((error: unknown) => {
         if (isNodeNotFound(error)) return null;
         throw error;
       });
 
       return Object.freeze({
-        configId: canonicalConfig.id,
+        configId: serialized.configId,
         write: async () => {
           await mkdir(dirname(target), { recursive: true });
-          await writeFile(target, `${JSON.stringify(canonicalConfig, null, 2)}\n`);
+          await writeFile(target, serialized.content);
         },
         rollback: async () => {
           if (previous === null) {

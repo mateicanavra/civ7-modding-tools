@@ -27,6 +27,6 @@ export async function loadSwooperMapConfigCatalog(
   options: Readonly<{
     catalogConfigIds?: unknown;
   }> = {}
-): Promise<ValidatedMapConfig[]> {
+): Promise<readonly ValidatedMapConfig[]> {
   return authoredConfigSource.loadCatalog(options.catalogConfigIds ?? MAP_CONFIG_CATALOG_IDS);
 }
