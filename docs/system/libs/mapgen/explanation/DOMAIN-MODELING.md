@@ -68,15 +68,14 @@ domain/<domain>/
         policy/
       artifacts/         # products owned by this module
       ops/
-        contract.ts      # singular operation-contract registry
-        index.ts         # operation implementations
         <operation>/
 ```
 
 `contract.ts` describes what can be composed. `router.ts` supplies executable
 implementations. `index.ts` is the small public gateway. Artifact catalogs live
 with the module that produces their data products rather than in a second
-domain-wide registry.
+domain-wide registry. The module contract and router import leaf operations
+directly; `ops/` contains semantic operation directories, not another registry.
 
 ## Model vocabulary ownership
 
@@ -115,11 +114,12 @@ independently author their complete payload schema in `defineArtifact`, compose
 smaller atoms inside it, and add identity plus any runtime refinement;
 `artifacts/index.ts` remains the artifact aggregation surface.
 
-Strategy configuration has a separate leaf authority under the semantic
-strategy directory. Detached `StrategySchema` declarations in an operation
-contract are transitional, not model atoms and not the destination. The exact
-typed registration API is being ratcheted in the dedicated strategy-topology
-slice; until then, do not create new detached strategy schema authorities.
+Strategy configuration has a separate leaf `defineStrategy` authority in
+`strategies/<semantic-id>/config.ts`. The operation contract imports those
+definitions directly; each sibling strategy implementation binds its definition
+and the operation contract through `createStrategy`. Detached `StrategySchema`
+declarations and strategy-root contract/config aggregates are not authoring
+surfaces. See [operation authoring](../reference/OPS-MODULE-CONTRACT.md#strategies-how-variability-is-encoded).
 
 Operation and artifact ids are stable, namespaced identities owned by their respective contracts.
 Completion ids are typed constants owned by the recipe whose external-state transactions they

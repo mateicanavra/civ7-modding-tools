@@ -138,6 +138,15 @@ Graphite sequencing and live execution. Independent reviews use bounded
 ownership scopes. Steps compose domain operations; they do not absorb newly
 discovered physics or grow fallback implementations.
 
+For each substantive domain or recipe authoring domino, run
+`mapgen-sdk-simplicity-steward` against its sealed design and patch as part of
+that same bounded loop. Supply intended behavior, preservation obligations,
+current SDK/policy sources and available proof; group related files into one
+review instead of launching per-file audits. Resolve evidenced simplifications
+or retain the existing design with a stated reason before accepting the domino.
+This complements the Earth stewards' physical review rather than replacing it.
+See [the reviewer design](steward-design.md#sdk-authoring-reviewer).
+
 The eleven calibration expectations following the reef/reference work were
 an explicit starting point, not accepted final quality. The periodic and ocean
 changes alter that membership; the current proof receipts in
