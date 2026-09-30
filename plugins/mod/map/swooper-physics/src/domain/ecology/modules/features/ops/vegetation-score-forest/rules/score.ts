@@ -39,10 +39,11 @@ export function scoreForestSuitability(args: {
     const coldStress = args.coldStress01[i];
     const fertility = args.fertility01[i];
 
+    // Retain the dry-side band's arithmetic exactly; ample supply is not waterlogging.
     const score =
       biomass *
       bandpass(energy, 0.35, 0.8, 0.1) *
-      bandpass(water, 0.35, 0.8, 0.1) *
+      smoothstep(0.35 - 0.1, 0.35 + 0.1, water) *
       (1 - waterStress) *
       (1 - coldStress) *
       (0.6 + 0.4 * fertility);

@@ -555,5 +555,66 @@ Eight complete captures and `1234.trace.json` are retained at
 fields exactly, verifies 3,340,978 finite numeric values and unchanged source
 identity. Trace receipt SHA-256:
 `0c6be8ab5929028739726306baa1809da284d148d09718ba798a3135fb5db747`.
-This is a localized follow-through finding; no ecological coefficients or
-study targets have been changed on its basis yet.
+This is a localized follow-through finding, not a reason to change study targets.
+
+### Forest Availability Repair
+
+Ecology's public substrate and scorer contracts define `water01` as supply,
+not waterlogging. The classifier permits humid/perhumid temperate habitat,
+and the planner does not transfer it to rainforest merely because water is
+abundant. The repaired forest operation therefore retains the existing
+dry-side smoothstep and removes only the declining wet-side factor. Thermal
+limits, biomass, aridity/cold stress, fertility, normalization, biome gates,
+flat-land/occupancy exclusions and the 0.04 recipe threshold remain unchanged.
+No production recipe, fixture import, quota or additional strategy is added.
+
+The exact lower-edge arithmetic is preserved rather than replacing it with
+rounded literals. Adversarial public-operation tests retain legacy Float32
+outputs through water01 <= 0.7, monotonic wet supply, saturation, thermal and
+stress exclusions, masks, boundedness, determinism and input immutability.
+Actual classifier -> substrate -> forest/rainforest scorer -> planner replay
+tests both default normalization 230 and recipe-scale 238. The focused six-file
+suite passes 14 tests / 7,008 assertions.
+
+The same eight Standard seeds now produce 27, 35, 29, 34, 25, 30, 24 and 29
+forests, with zero projection rejections. All 34 captured upstream model
+members, native water/lake/terrain/biome observations, and captured elevation,
+lake and river projection records remain exact. Added forests change resource
+choices (31..76 realized resource tiles per map), start-seat evidence and some
+fairness records. Seed 7777 also changes natural-wonder placement. These are
+measured downstream consequences, not an assertion that every downstream
+field remains fixed; the unchanged study bank qualifies them separately.
+
+Seed 1234's retained public artifact replay covers 23 authorities: 21 remain
+exact, while only `featureSuitability` (forest layer alone) and
+`vegetationIntents` change. Substrate, compiled config and other feature-family
+intents are exact. Its 24 previously available humid habitats now pass the
+unchanged confidence floor and become 24 forest intents. This is not an
+exhaustive 55-artifact or eight-seed artifact claim.
+
+Before/after captures, raw logs, source identities and comparisons live in
+`earth-calibration/earthlike-forest-after-20260930/`. The eight-seed comparison
+receipt SHA256 is
+`696e1d13a8148e637238c2d01710683ee8700327bc7eb147de28f5ef8ffd4f74`;
+the corrected artifact comparison is `artifact-comparison-v2.json` there.
+The owning definition graph passes typechecking, build and Habitat policy,
+with 1,027 tests passing. Its aggregate product-study test still reports 11
+unchanged calibration expectations: the former seed-1234 forest-presence
+failure is removed, with no new failures and no relaxed targets. The separate
+app graph passes 187 tests / 31,847 assertions, typechecking and Habitat policy.
+Independent operation review and its repeated focused suite found no material
+issues. Whole-bank quality acceptance is still open, not hidden by the bounded
+repair.
+
+The deployed ordinary Huge1018 map reaches turn 1 and completes on Civ7 hotfix
+1.5.0 (1311346), with stock cutoff10 and ten observed major players. It attempts
+and applies 54 forests with no feature rejections; a coherent completed-game
+read of all 6,996 plots independently retains 54 native forest tiles (feature
+index 6), with no missing plots or identity drift. Built and installed ordinary
+script SHA256 is
+`5dcd4760d88a8f06541955d46e1c9eac86f3475f88183da1238d2155822827f1`.
+The recovered live verifier, raw scripting log, full native observation and
+elevation receipt are retained in the same dated evidence directory. This
+qualifies native feature acceptance for this case, not all seeds or ship
+traversal. The preceding hung session's engine was build1306154; do not combine
+its native observations with this hotfix as a same-engine paired experiment.
