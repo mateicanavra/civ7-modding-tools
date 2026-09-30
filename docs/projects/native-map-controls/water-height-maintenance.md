@@ -116,6 +116,8 @@ automation; the retained timeout does not yet establish its underlying cause.
 
 All values below are native units, not model metres. The production whole-map
 read and the original atlas agree; the issue predates the wet-outlet repair.
+These are the original atlas body labels, not the cell-based physical body IDs
+used by the later current-source replay.
 
 | Body | Native lake | Post elevation setter | Final water | Final NAV receiver |
 | --- | --- | ---: | ---: | ---: |
@@ -178,6 +180,85 @@ lake policy. V11 passes its causal and visual comparisons. V12 rejects removing
 the size boundary globally, not bounded classification. The earlier inference
 that this made maintenance reapplication preferable was too strong.
 
+## Bounded Whole-Map Replay
+
+V15 adds the predeclared cutoff40 arm to the existing app-owned diagnostic,
+with explicit signed-32-bit seed metadata for paired Huge42 and Huge1018.
+It changes only diagnostic native classification and truthful setup admission;
+the procedural recipe, operation configuration, physical lake geometry,
+elevation encoding and ordered river declarations are unchanged. Off seed1018,
+the retained focus coordinates are labeled coordinate controls rather than
+reusing seed1018's body IDs or hydraulic roles. Legacy V9/V11/V12 observations
+remain covered by exact digest tests. The focused suite passes 59 tests and
+27,479 assertions; the app-owned graph passes 187 tests, typecheck and Habitat.
+
+The admitted Huge42 stock10/cutoff40 pair completes all 17 before/after
+maintenance observations and reads all 6,996 native cells with bounded chunks.
+Before comparison, a current-source portable replay uses the captured native
+initial setup and actual map seed. All logged elevation intents, accepted wet
+cells/body IDs and ordered river declarations must match exactly before its
+original marine mask is admitted as a model witness. This is not a claim that
+every portable model value has been observed inside Civ.
+
+| Huge42 Guard | Measured Result |
+| --- | --- |
+| Intended and post-setter native elevations | All 6,996 exact between arms |
+| Ordered river writes | All 656 exact: 618 dry, 38 wet |
+| Accepted lake cells | All 224 remain water and become/remain native lakes |
+| Larger lake bodies | 15/33/14 cells retain native heights 270/330/300, instead of final 0 |
+| Original model marine cells | All 4,397 preserve baseline lake identity and native height |
+| Terrain, biome, features, resources, rainfall, fertility and river class | Zero changes |
+| Native area/region/landmass identity and partition | Zero changes |
+
+Exactly 62 accepted cells change final lake identity and retain their initial
+setter height. Eleven original model-water cells were already native lakes;
+preserving their baseline identity is intentional, not reclassifying them as
+ocean to make the comparison pass. All 55 portable contract-provided artifacts
+also match between the admitted replays. Final projected river parity has zero
+missing/extra/wrong-class writes or terrain mismatches. These numeric results
+support bounded classification without terrain grading or another height pass;
+they do not prove rendered world-space height, naval traversal, universal
+cutoff coverage or production adoption.
+
+Evidence is retained in `earth-calibration/bounded-lake-cutoff-20260930/` under
+the documented VisualAtlas root. The independent Bun comparison has 14 tests
+and 40 assertions, including retained V9/V11 replay and negative admission
+cases. Huge42 comparison receipt SHA-256:
+`b1ce0405e66b6d00cba3564d6e59b0a3ab7a0bda3ef094073c98cfc3cee57467`.
+Retained build/installation receipts, raw scripting logs, fresh live receipts
+and native full-grid captures are separate from the comparison result.
+
+The same treatment then passes the unchanged Huge1018 holdout. All 6,996
+intended/post-setter elevations, 693 ordered declarations (656 dry, 37 wet),
+203 accepted lake cells in 55 physical bodies and 55 provided portable
+artifacts agree between arms. Exactly 48 cells change lake identity and retain
+their initial setter heights: 16/15/17-cell bodies preserve 230/530/110 rather
+than falling to 0/18/0. All 4,276 original model marine cells preserve baseline
+classification and height, including one pre-existing native lake. Every other
+native field and area/region/landmass partition is unchanged; final river
+parity has zero missing/extra/wrong-class writes or terrain mismatches.
+All twelve admission/preservation guards pass, with no unavailable evidence.
+Huge1018 comparison receipt SHA-256:
+`ddbe45b0ef8d76fe90361c4b9d2f1c053c2e53fc2f57605f81df2f487ede0992`.
+This extends numeric preservation to the second held map; it does not turn
+two Huge maps into a universal lake policy or establish ship movement.
+
+The initial target-mod reconciliation crash occurred before generation and is
+excluded. Two cutoff40 activation attempts retained cutoff10 and refused before
+mutation; a graceful application reload was needed for the newly introduced
+database ActionGroup registration. The successful Huge42 live receipt completes
+at `2026-09-30T15:15:40.929Z` on build1311346. Ordinary registered JavaScript
+deployment still uses in-game restart. See the separate
+[Tuner boundary audit](tuner-runtime-boundary.md) rather than attributing these
+distinct lifecycle failures to hydrology or request size.
+
+The normal Earthlike map was restored after these observations. Fresh live
+completion at `2026-09-30T15:44:25.077Z` confirms Huge, both seeds1018, ten
+players and normal cutoff10. Built and installed script SHA-256:
+`5dcd4760d88a8f06541955d46e1c9eac86f3475f88183da1238d2155822827f1`.
+The `normal-earthlike-restored-fresh-{live,scripting}.log` receipts in the same
+directory distinguish playable latest code from the diagnostic treatment.
+
 ## Bounded Classification First
 
 The user's cutoff20 wide-network image represents a successful treatment, not
@@ -213,11 +294,10 @@ class, but is only a candidate range: an 88-cell original-water component has
 native area partitions of 30/31/27, proving those partitions are not the raw
 water graph. Only a native run qualifies the actual classifier outcome.
 
-Next compare stock cutoff 10 against the predeclared bounded treatment 40 on
-Huge42, then use 40 unchanged on Huge1018. It lies inside the candidate range
-and is not an authored default chosen from one screenshot. Extend to
-Standard1018 and retained whole-map size/body cohorts before selecting product
-policy. Require exact
+The stock10/cutoff40 comparisons now pass on Huge42 and Huge1018 as recorded
+above. Forty lies inside the candidate range and is not an authored default
+chosen from one screenshot. Next extend to Standard1018 and retained whole-map
+size/body cohorts before selecting product policy. Require exact
 physical/intended-write parity, native coverage of accepted lake footprints,
 preserved original marine classification/heights, and unchanged unrelated
 features/resources/terrain, then inspect the same wide and outlet views.
@@ -239,8 +319,10 @@ V12 alone does not establish either failure.
 The offline census script and hashed JSON are retained beside the Earth census
 under `huge-1018/earth-calibration/lake-cutoff-component-census.{mjs,json}` in
 the documented VisualAtlas root. Syntax, assertions, current config equality
-and deterministic replay pass. Only Huge1018 has native cross-references in
-this census; cutoff40 and Huge42 native classification remain untested.
+and deterministic replay pass. The census alone did not qualify native
+classification; the subsequent paired Huge42/Huge1018 observations now do so
+at the bounded scope above. Standard, closed/below-sea controls and actual
+era-qualified movement remain separate follow-through.
 Independent design review confirms that V11 supplies no overfill evidence and
 that rejecting V12 does not establish preference for reapplication.
 
