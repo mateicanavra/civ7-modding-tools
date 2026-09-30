@@ -30,6 +30,8 @@ parallel benchmark harness. Supporting design: [Earth calibration](earth-calibra
 | Derived cutoff and inland seas | A largest-lake bound is a projection requirement, not a physical lake-size limit; one global threshold may not separate all intended categories | Derive both the required lake bound and the protected non-lake bound after hydrology; verify native component semantics, strictness and when the setting can be applied; report an unrepresentable overlap rather than alter physical geography |
 | Rivers and scale | Huge1018 has 1.93 times Firaxis Earth's land-normalized dry NAV density, with shorter dry components | Separate total drainage density, major-class policy, wet-connected trunks, terrain barriers and real vessel/era usability |
 | Fixed Earth geography | Finished relief constrains routing but does not uniquely determine climate, water availability or lake beds | Reference-forcing and predicted-climate arms on the same admitted surface; declare units, materials, epoch, conditioning and missing processes |
+| Sea-level scripting | Current installed stock `SeaLevel` selects geography variants; no numeric native sea-datum operation was found in the searched sources | Keep physical hypsometry, native elevation and renderer datum separate; do not infer an engine setter from a setup label |
+| Units and conversion fidelity | Morphology uses quantized normalized relief, not metres; native x10 is a display calibration; downstream metre labels are inconsistent with the traced input | Qualify datum, coefficient and dimensional support at each causal owner; distinguish physical quantization, intentional projection collapse and native maintenance |
 | Network maturity and relief | Current incision uses preliminary routing; C3 design is not implemented | After baseline qualification, compare the climate-fed certified network with terrain evolution; preserve genuine closed basins and Earth irregularity |
 | Native versus model defects | Wet outlet declarations are implemented; native category/height effects remain distinct | Change the earliest incorrect owner: config, physical operation, projection or native policy; never tune physics just to conceal realization loss |
 | Completion and gameplay | Elevation/climate/relief/static basins/dry rivers/wet outlets exist in the local stack, not merged | State which fixes are default versus diagnostics; qualify ship passage with era-appropriate stock control; run full studies and refresh visible evidence |
@@ -57,6 +59,8 @@ No added water footprints and no physical-sill mismatch in V11's 55-body census
 are resolved non-problems for that tested map. General surface semantics,
 every gameplay effect and ship traversal are not resolved by it.
 See [native water-height evidence](water-height-maintenance.md).
+See [sea-level and scale qualification](sea-level-and-scales.md) for the current
+installed-source audit, scale ledger and consumer-calibration obligations.
 
 ## Derived Classification Policy
 

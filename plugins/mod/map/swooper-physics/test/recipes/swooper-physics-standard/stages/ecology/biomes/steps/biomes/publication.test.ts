@@ -13,6 +13,7 @@ import {
   buildStepTestDependencies,
   normalizeOperationSelectionForTest,
   publishTestArtifact,
+  runAdmittedOperationForTest,
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { BiomesStep as biomesStep } from "../../../../../../../../src/recipes/standard/stages/ecology/biomes/steps/biomes/step.js";
@@ -107,8 +108,24 @@ describe("biomes step", () => {
     });
 
     const classification = readArtifact(ctx, biomeArtifacts.biomeClassification);
+    const expected = runAdmittedOperationForTest(
+      ecology.biomes.ops.classifyBiomes,
+      {
+        width,
+        height,
+        landMask,
+        effectiveMoisture: effectiveMoistureIn,
+        surfaceTemperatureC,
+        aridityIndex,
+        freezeIndex,
+        soilType: new Uint8Array(size).fill(0),
+        fertility: new Float32Array(size).fill(0.5),
+      },
+      ecology.biomes.ops.classifyBiomes.defaultConfig
+    );
+    expect(classification.biomeIndex).toEqual(expected.biomeIndex);
+    expect(classification.vegetationDensity).toEqual(expected.vegetationDensity);
     expect(Array.from(classification.biomeIndex)).not.toContain(255);
-    expect(new Set(classification.biomeIndex).size).toBeGreaterThan(1);
     expect(new Set(classification.vegetationDensity).size).toBeGreaterThan(1);
   });
 
