@@ -8,6 +8,7 @@ import type { FullMapProbeIdentity } from "./river-full-map.fixture.js";
 export const WATER_HEIGHT_MAINTENANCE_ATLAS = "full-map-maintenance";
 export const WATER_HEIGHT_LAKE_CUTOFF_ATLAS = "full-map-lake-cutoff";
 export const WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS = "full-map-max-lake-cutoff";
+export const WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS = "full-map-bounded-lake-cutoff";
 export const WATER_HEIGHT_MAINTENANCE_PROBE = {
   diagnosticRevision: 9, displayLabel: "Water Height Maintenance V9", atlasKind: WATER_HEIGHT_MAINTENANCE_ATLAS,
   width: 106, height: 66, mapSize: "MAPSIZE_HUGE", mapSeed: 1018, gameSeed: 1018,
@@ -22,7 +23,13 @@ export const WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE = {
   atlasKind: WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS,
   expectedLakeSizeCutoff: WATER_HEIGHT_MAINTENANCE_PROBE.width * WATER_HEIGHT_MAINTENANCE_PROBE.height,
 } as const;
-type ProbeOptions = typeof WATER_HEIGHT_MAINTENANCE_PROBE | typeof WATER_HEIGHT_LAKE_CUTOFF_PROBE | typeof WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE;
+export const WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE = {
+  ...WATER_HEIGHT_MAINTENANCE_PROBE, diagnosticRevision: 15, displayLabel: "Water Bounded Lake Cutoff V15",
+  atlasKind: WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS, expectedLakeSizeCutoff: 40,
+} as const;
+type ProbeOptions = Omit<typeof WATER_HEIGHT_MAINTENANCE_PROBE | typeof WATER_HEIGHT_LAKE_CUTOFF_PROBE
+  | typeof WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE | typeof WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE, "mapSeed" | "gameSeed">
+  & Readonly<{ mapSeed: number; gameSeed: number }>;
 const focus = [
   { body: 56, role: "wet-outlet", x: 86, y: 32 }, { body: 56, role: "dry-receiver", x: 85, y: 33 },
   { body: 42, role: "wet-outlet", x: 85, y: 9 }, { body: 42, role: "dry-receiver", x: 84, y: 9 },
@@ -42,7 +49,8 @@ export function projectLakeCutoffInitialSetup(
   expectedLakeSizeCutoff: number = WATER_HEIGHT_LAKE_CUTOFF_PROBE.expectedLakeSizeCutoff
 ): ReturnType<typeof projectStandardInitialSetup> {
   if (expectedLakeSizeCutoff !== WATER_HEIGHT_LAKE_CUTOFF_PROBE.expectedLakeSizeCutoff
-    && expectedLakeSizeCutoff !== WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE.expectedLakeSizeCutoff)
+    && expectedLakeSizeCutoff !== WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE.expectedLakeSizeCutoff
+    && expectedLakeSizeCutoff !== WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE.expectedLakeSizeCutoff)
     throw new Error("Unsupported diagnostic lake cutoff.");
   const setup = projectStandardInitialSetup(capture);
   const selection = setup.map.selection;
@@ -80,6 +88,9 @@ export function installWaterHeightMaintenanceProbe(
   if (typeof prototype.getMapSizeId !== "function" || typeof prototype.lookupMapInfo !== "function")
     throw new Error("Missing maintenance map metadata method.");
   installed.add(prototype);
+  const observationFocus = options.mapSeed === WATER_HEIGHT_MAINTENANCE_PROBE.mapSeed
+    && options.gameSeed === WATER_HEIGHT_MAINTENANCE_PROBE.gameSeed
+    ? focus : focus.map(({ x, y }) => ({ role: "fixed-coordinate-control", x, y }));
   let owner: Adapter | undefined;
   let admissionComplete = false;
   let admissionFailure: { error: unknown } | undefined;
@@ -114,7 +125,7 @@ export function installWaterHeightMaintenanceProbe(
       admissionComplete = true;
     }
   };
-  const snapshot = (adapter: Adapter) => focus.map((point) => ({ ...point,
+  const snapshot = (adapter: Adapter) => observationFocus.map((point) => ({ ...point,
     elevation: adapter.getElevation(point.x, point.y), terrain: adapter.getTerrainType(point.x, point.y),
     riverClass: adapter.getRiverType(point.x, point.y), water: adapter.isWater(point.x, point.y),
     lake: adapter.isLake(point.x, point.y),
@@ -158,6 +169,6 @@ export function installWaterHeightMaintenanceProbe(
       elevations, finalizationTuple: args });
     return observe(this, "finalizeRivers", () => finalizeRivers.call(this, args));
   };
-  emit("installed", { ...options, focus,
+  emit("installed", { ...options, focus: observationFocus,
     qualification: "Read-only observation after measured cutoff admission; installation is not activation or success. Admitted runs add, suppress or retry no river, elevation or maintenance calls." });
 }

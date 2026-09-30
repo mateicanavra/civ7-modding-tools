@@ -100,11 +100,15 @@ general algorithms and authored configuration, not special-case Earth replay.
    Distinguish direct marine-tile connectivity, a river
    outlet, body size and native maintenance. Prove actual naval access in an
    appropriate era independently of a visually connected mouth.
-   The paired cutoff5/10 runs now qualify the inclusive size boundary and
-   ordinary-water versus river-connector distinction. The latest Huge saved
-   setup loads successfully, still with normal cutoff10. General bounded
-   cutoff policy and its pre-generation setup admission, closed/below-sea
-   surface coverage and era-qualified movement remain separate open work.
+   The paired cutoff5/10 runs qualify the inclusive size boundary and
+   ordinary-water versus river-connector distinction. A bounded stock10/cutoff40
+   replay now passes on held Huge42 and Huge1018: intended writes, physical
+   artifacts and protected original marine cells hold while 62/48 larger-lake
+   cells retain their setter heights. Treatment metadata is truthfully admitted
+   as custom only in the diagnostic. The latest normal Huge saved setup loads
+   successfully, still with cutoff10. Extend the bounded policy to Standard and
+   size/body cohorts before product adoption; closed/below-sea surface coverage
+   and era-qualified movement remain separate open work.
 6. **Close the integrated loop.** Run the complete study bank, review new
    causal and projection behavior, refresh the full-map atlas with correlated
    data and native views, and remove compensation only where replacement
