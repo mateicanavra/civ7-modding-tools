@@ -93,6 +93,14 @@ general algorithms and authored configuration, not special-case Earth replay.
    coherence with a presence quota or another ocean-transport change. See the
    retained discriminator and repair in
    [periodic thermal response](periodic-thermal-response.md#remaining-forest-admission-discriminator).
+   The [land thermal variance budget](land-thermal-variance.md) now measures
+   the four actual Earthlike cases at 0.128-0.181 C. Actual-operation replay
+   closes the published-field budget: clipping is inactive and available
+   relief/albedo contributions are both small. Do not reinterpret generated
+   relief as metres or fit lapse to the authored 1 C floor. Next compare known
+   Earth height against observed source-latitude variance under the frozen
+   thermal response. Desert-driven biome dominance has a separate measured
+   moisture/category axis; thermal repair alone is not its demonstrated cure.
 5. **Qualify the native water boundary.** The controlled connectivity/cutoff
    probes can proceed independently of climate and generated-relief calibration:
    held synthetic geometry and native readbacks test engine semantics. Follow

@@ -66,6 +66,26 @@ bytes, and external stacks. Exclude explore and lifecycle transitions.
 Only add a same-source-size no-op if transfer/parsing remains suspect.
 That chunk-size experiment has not been run.
 
+The subsequent attempt on the freshly restored normal Huge1018 map failed at
+its first `LSQ` state discovery, before an observation command was dispatched.
+It produces no result for either cap. Independent read-only health also failed;
+Escape/menu inputs did not advance the displayed game. A completed three-second
+sample of build1311346 recorded all 2,029 AppHost samples waiting for a Metal
+command buffer to complete. MainWorker1-8 were in condition-variable waits;
+the macOS main thread was predominantly in the AppKit event loop. Other native
+thread activity remains, so this is not a claim that the whole process was idle.
+No explore was requested by the experiment. The persistent native progress
+stall is not attributable to its undispatched large read, and explore is not
+established as a necessary trigger. Unsymbolicated game frames leave the
+submitted rendering operation and underlying engine/GPU cause unknown.
+
+Generation completion at 15:44:25Z established generation then, not continuing
+responsiveness. Steam's computer-use recovery surface timed out. The authorized
+TERM route stopped the confirmed Civ PID79497 without KILL; Steam launch and
+two startup clicks returned the application to its observed main menu. This
+recovery does not qualify either chunk cap or justify a resident controller
+as a rendering-stall fix.
+
 ## Recovery Rule
 
 For ordinary same-name JavaScript changes, use the established in-game
@@ -105,3 +125,6 @@ B=/Users/mateicanavra/Library/Application Support/Civ7Tools/VisualAtlas/huge-101
 - `B/cutoff40-huge42-fresh-setup-live.log`
 - `B/cutoff40-huge42-live.log`
 - `B/normal-earthlike-restored-fresh-live.log`
+- `B/read-cap-pair/live.log`
+- `B/normal-readonly-health-after-cap-attempt.log`
+- `B/normal-restored-unresponsive-sample.txt`
