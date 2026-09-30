@@ -103,3 +103,11 @@ its upstream driving wind vintage; same-pass thermal-pressure-wind feedback
 cannot be introduced accidentally. It then needs owner-local semantics,
 independent physics and SDK review, held Huge/Standard generated cohorts and
 downstream water/ecology guards. Native projection stays a separate gate.
+
+The [scale ledger](sea-level-and-scales.md) is a parallel boundary qualification,
+not another thermal forcing. Scientific height uses its admitted physical
+units; generated Morphology relief remains normalized model units. Do not
+fit a maritime term to conceal a height/datum mismatch, treat the native x10
+display calibration as a metre conversion, or use stock `SeaLevel` variant
+selection as a renderer datum. Reference-only geographic discrimination can
+proceed while a generated physical scale remains unresolved.

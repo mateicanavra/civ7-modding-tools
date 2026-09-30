@@ -1,4 +1,5 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
+import { wrapX } from "@swooper/mapgen-core/lib/grid";
 
 import Contract from "../../contract.js";
 import { classifyBiomesFromFields } from "../../rules/classify.js";
@@ -51,11 +52,7 @@ function refineBiomeIndexGaussian(args: {
             continue;
           }
           for (let dx = -radius; dx <= radius; dx++) {
-            const nx = x + dx;
-            if (nx < 0 || nx >= width) {
-              idxKernel += 1;
-              continue;
-            }
+            const nx = wrapX(x + dx, width);
             const nIdx = ny * width + nx;
             if (args.landMask[nIdx] === 0) {
               idxKernel += 1;
