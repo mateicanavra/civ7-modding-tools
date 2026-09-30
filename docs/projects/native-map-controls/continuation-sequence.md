@@ -153,13 +153,24 @@ changing numerical laws, authored keys, defaults or admission. Its repeated
 four-case captures hold 48 physical fields and 20 climate-index arrays exactly.
 The source-pinned geographic thermal investigation completed its first
 [discriminator without selecting a maritime law](land-geography-investigation.md#first-discriminator-nonselection).
-The next concrete handoff repair is
-[certified lake habitat](lake-habitat-handoff.md): existing lake head/identity
-must reach the existing Lotus domain scorer instead of ocean-only gates and
-sea-relative depth. Neither is a reason to block held native-water probes on
+The [certified lake habitat](lake-habitat-handoff.md) repair is implemented,
+independently reviewed and deployed: existing lake head/identity now reaches
+the Lotus domain scorer instead of ocean-only gates and sea-relative depth.
+Two four-case captures preserve every other published artifact exactly;
+unchanged planner confidence still excludes Lotus intents in those cases.
+Neither repair is a reason to block held native-water probes on
 fixed synthetic geometry. Their results converge before whole-map calibration
 and final atlas acceptance, because climate changes lake supply and river
 discharge even when native projection semantics do not change.
+
+The [remaining legacy-profile qualification](legacy-water-migration.md)
+now admits all 49 cases using their own forcing and density policy. The old
+closed/subtile excuse is superseded. Current migration gates are the common
+native height/category boundary and one Archipelago lake-identity discrepancy;
+the unchanged candidate bank adds that one failure to the same eleven baseline
+calibration failures. Complete those bounded gates, activate callers, then
+retire old execution and compatibility evidence. Do not create a parallel
+recipe, fabricate lakes or soften expectations to accelerate the migration.
 
 Graphite owns submission and eventual bottom-to-top merge. Retain draft review
 layers until the accepted checks and remaining quality expectations are
@@ -178,6 +189,18 @@ tree `0a42092b7ed288286d41e05ce09a5f390bbc04af` survive. The source branch
 implementation. No open PR was manually closed, reopened or recreated. Further
 room must come from qualified native bottom-to-top drain or reviewed semantic
 consolidation, not another integration worktree or an empty branch.
+
+The independently qualified Ground prerequisite PR #2157 is now merged through
+native `gt merge`, merge `c1bc0925136ee2dfb6804779c103f509669d754b`.
+`gt sync --no-restack` fast-forwarded main without changing any of its five
+protected WIP files or its index. Native deletion of that merged local branch
+restacked only its descendant integration lineage. The complete habitat-repair
+tree remains exactly `df310e40d47f324ab27fd6c63e4b0a4a07382b5d`.
+The clean older migration worktree was temporarily detached at its unchanged
+HEAD to release branch occupancy, then reattached to its restacked branch;
+its tree remains exactly `d84d874122fbf88147c36a76b0c5c777e264a6cf`.
+No new worktree, empty layer, manual PR reopen or wholesale unqualified merge
+was used. Further drain still requires each next prerequisite's own receipt.
 
 ## Evidence That Survives The Artifact Correction
 

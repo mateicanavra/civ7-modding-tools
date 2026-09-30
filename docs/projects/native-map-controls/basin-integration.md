@@ -1,5 +1,11 @@
 # Earthlike Basin Integration
 
+Historical integration snapshot: the all-open operation and its closed/subtile
+limits below were superseded by [coordinator completion](basin-coordinator-completion.md).
+The current-source [legacy migration qualification](legacy-water-migration.md)
+admits all 49 remaining shipped-profile cases. Preserve the original refusals
+as historical witnesses, not present-day reasons to keep two physical models.
+
 Status: implemented and independently reviewed; the complete headless bank and
 owner check/test/build/deploy graph pass. Production-native footprint/class
 qualification passes; actual naval traversal remains open. This packet implements the selected direction in
