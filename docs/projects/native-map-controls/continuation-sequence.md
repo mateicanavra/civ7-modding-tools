@@ -86,9 +86,12 @@ general algorithms and authored configuration, not special-case Earth replay.
    separate rather than promote the illustrative lapse as calibrated truth.
    A bounded eight-seed Standard replay isolates the newly failing forest
    expectation to seed 1234: eligible humid habitats fail the separate forest
-   moisture score, while score-eligible cells have excluded biomes. Review that
-   Ecology relationship at its domain owners; do not repair it with a presence
-   quota or another ocean-transport change. See the retained discriminator in
+   moisture score, while score-eligible cells have excluded biomes. The bounded
+   Ecology repair removes the abundance penalty from water availability;
+   unchanged classifier/planner gates now produce forests in every cohort map.
+   All captured upstream physical fields remain exact. Do not repair ecological
+   coherence with a presence quota or another ocean-transport change. See the
+   retained discriminator and repair in
    [periodic thermal response](periodic-thermal-response.md#remaining-forest-admission-discriminator).
 5. **Qualify the native water boundary.** The controlled connectivity/cutoff
    probes can proceed independently of climate and generated-relief calibration:
