@@ -61,12 +61,13 @@ export default defineStrategy({
             maximum: 40,
             description: "Extra rainfall bonus for low-elevation coastal land.",
           }),
-          /** Maximum elevation to qualify for lowlandBonus. */
+          /** Maximum absolute model relief elevation to qualify for lowlandBonus. */
           lowlandElevationMax: Type.Integer({
             default: 150,
             minimum: -2000,
             maximum: 8000,
-            description: "Maximum elevation to qualify for lowlandBonus.",
+            description:
+              "Maximum absolute elevation in quantized normalized model relief units to qualify for lowlandBonus; not height above sea level.",
           }),
         },
         {

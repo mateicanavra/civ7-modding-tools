@@ -13,7 +13,10 @@ const ComputeClimateDiagnosticsContract = defineOp({
         cardinality: ["height"],
         description: "Latitude in degrees for each admitted map row.",
       }),
-      elevation: TypedArraySchemas.i16({ description: "Elevation in meters for each tile." }),
+      elevation: TypedArraySchemas.i16({
+        description:
+          "Signed elevation per tile in quantized normalized model relief units, not meters or native display units; no sea-level subtraction.",
+      }),
       landMask: TypedArraySchemas.u8({ description: "Land membership for each tile." }),
       windU: TypedArraySchemas.i8({ description: "Zonal wind component for each tile." }),
       windV: TypedArraySchemas.i8({ description: "Meridional wind component for each tile." }),

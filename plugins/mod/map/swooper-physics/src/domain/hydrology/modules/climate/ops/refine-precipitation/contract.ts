@@ -10,7 +10,8 @@ const RefinePrecipitationContract = defineOp({
       width: Type.Integer({ minimum: 1, description: "Tile grid width in columns." }),
       height: Type.Integer({ minimum: 1, description: "Tile grid height in rows." }),
       elevation: TypedArraySchemas.i16({
-        description: "Terrain elevation in meters for each map tile.",
+        description:
+          "Signed elevation per tile in quantized normalized model relief units, not meters or native display units; no sea-level subtraction.",
       }),
       landMask: TypedArraySchemas.u8({
         description: "Land membership for each map tile, encoded as 1 for land and 0 for water.",

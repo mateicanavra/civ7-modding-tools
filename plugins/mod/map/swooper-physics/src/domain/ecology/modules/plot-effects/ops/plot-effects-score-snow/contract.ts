@@ -9,7 +9,10 @@ const PlotEffectsScoreSnowContract = defineOp({
     width: Type.Integer({ minimum: 1, description: "Map width in tiles." }),
     height: Type.Integer({ minimum: 1, description: "Map height in tiles." }),
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
-    elevation: TypedArraySchemas.i16({ description: "Elevation per tile (meters)." }),
+    elevation: TypedArraySchemas.i16({
+      description:
+        "Signed elevation per tile in quantized normalized model relief units, not meters or native display units; no sea-level subtraction.",
+    }),
     effectiveMoisture: TypedArraySchemas.f32({ description: "Effective moisture per tile." }),
     surfaceTemperature: TypedArraySchemas.f32({ description: "Surface temperature per tile (C)." }),
     aridityIndex: TypedArraySchemas.f32({ description: "Aridity index per tile (0..1)." }),

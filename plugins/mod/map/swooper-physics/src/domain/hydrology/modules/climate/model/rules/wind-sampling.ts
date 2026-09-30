@@ -22,6 +22,7 @@ export function upwindOffset(
  * Finds the first qualifying terrain barrier along a bounded cardinal wind trace.
  * This is the single Hydrology rule used by precipitation behavior and its advisory visualization,
  * keeping diagnostic evidence aligned with the algorithm it explains.
+ * Elevation and the legacy barrierElevationM threshold are absolute model relief units, not meters.
  */
 export function upwindBarrierDistance(
   x: number,

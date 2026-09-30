@@ -52,20 +52,22 @@ export default defineStrategy({
       }),
       elevationStrategy: Type.Union([Type.Literal("absolute"), Type.Literal("percentile")], {
         description:
-          "Elevation normalization strategy for snow scoring: absolute meters or percentile-based land elevation.",
+          "Elevation normalization strategy for snow scoring: absolute quantized normalized model relief units or percentile-based land elevation; neither establishes meters.",
         default: "absolute",
       }),
       elevationMin: Type.Number({
         default: 200,
         minimum: -12000,
         maximum: 12000,
-        description: "Minimum elevation used for elevation normalization (m).",
+        description:
+          "Minimum absolute elevation in quantized normalized model relief units used for elevation normalization, including the empty-land percentile fallback; not meters.",
       }),
       elevationMax: Type.Number({
         default: 2400,
         minimum: -12000,
         maximum: 12000,
-        description: "Maximum elevation used for elevation normalization (m).",
+        description:
+          "Maximum absolute elevation in quantized normalized model relief units used for elevation normalization, including the empty-land percentile fallback; not meters.",
       }),
       elevationPercentileMin: Type.Number({
         default: 0.7,

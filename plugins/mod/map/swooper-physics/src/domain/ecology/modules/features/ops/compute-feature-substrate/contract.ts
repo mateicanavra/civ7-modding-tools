@@ -20,10 +20,12 @@ const ComputeFeatureSubstrateContract = defineOp({
         description: "Land mask per tile (1=land, 0=water).",
       }),
       elevation: TypedArraySchemas.i16({
-        description: "Elevation in meters, using the same datum as seaLevel.",
+        description:
+          "Signed elevation in quantized normalized model relief units, using the same datum as seaLevel; not meters or native display units.",
       }),
       seaLevel: Type.Number({
-        description: "Global sea-level datum in meters.",
+        description:
+          "Global sea-level datum in the same normalized model relief units as elevation; not meters or a native display setting.",
       }),
       discharge: Type.Array(Type.Number({ minimum: 0 }), {
         description: "Hydrology discharge proxy per tile.",
