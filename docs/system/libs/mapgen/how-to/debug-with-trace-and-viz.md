@@ -30,7 +30,7 @@ Routes to:
 - You’re adding/modifying a step/op and want proof that the pipeline is doing what you think.
 - You want a persistent artifact+layer dump for review (rather than transient console logs).
 
-## Workflow: produce a dump (node/dev)
+## Workflow: produce a dump
 
 This workflow produces a replayable folder containing:
 - `trace.jsonl` (all trace events), and
@@ -41,12 +41,13 @@ This workflow produces a replayable folder containing:
 From the repo root:
 
 ```bash
-nx run swooper-physics:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7
+civ7 mapgen diagnostics dump --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7
 ```
 
 Notes:
 - Canonical deploy-equivalent builds use Nx from repo root (see `nx run mapgen-studio:dev` / `nx run mapgen-studio:build`).
-- Nx owns the runner's workspace dependency build through `diag:dump`.
+- The `mapgen` CLI topic owns argument admission and presentation; Swooper and
+  `@swooper/mapgen-diagnostics` retain recipe and evidence behavior.
 - `--map-size` accepts an official Civ7 map-size id and defaults to
   `MAPSIZE_STANDARD`; `--map-seed`, `--game-seed`, and the ordered `--players`
   list are required. For a negative signed seed, use `--map-seed=-1337` or
@@ -85,8 +86,8 @@ both the trace sink and visualization facet sink and reports facet failures on s
 Use the Swooper commands, backed by `@swooper/mapgen-diagnostics`, against the run directory:
 
 ```bash
-nx run swooper-physics:diag:list -- <runDir> --prefix hydrology.
-nx run swooper-physics:diag:trace -- <runDir> --event-prefix hydrology.
+civ7 mapgen diagnostics list <runDir> --prefix hydrology.
+civ7 mapgen diagnostics trace <runDir> --event-prefix morphology.
 ```
 
 Studio's Explore panel is the live deck.gl viewer. It consumes worker emissions and does not load
@@ -123,5 +124,5 @@ Routing:
 - Step facet dispatch: `packages/mapgen-core/src/engine/step-facets.ts`
 - Portable visualization contracts: `packages/mapgen-viz/src/index.ts`
 - Local trace+viz dump capability (writes `trace.jsonl` + `manifest.json`): `packages/mapgen-diagnostics/src/dump.ts`
-- Standard capture runner: `plugins/mod/map/swooper-physics/scripts/diagnostics/run-standard-dump.ts`
+- Standard capture command: `plugins/cli/topics/mapgen/src/commands/mapgen/diagnostics/dump.ts`
 - Studio live visualization entrypoint: `apps/mapgen-studio/src/App.tsx`

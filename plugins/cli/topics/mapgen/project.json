@@ -1,0 +1,42 @@
+{
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "name": "cli-mapgen",
+  "tags": ["kind:cli-topic-plugin"],
+  "targets": {
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    },
+    "build:tsc": {
+      "command": "tsc -b --force",
+      "dependsOn": ["clean:dist", "^build"],
+      "cache": true,
+      "outputs": ["{projectRoot}/dist/**", "{projectRoot}/tsconfig.tsbuildinfo"],
+      "options": {
+        "cwd": "plugins/cli/topics/mapgen"
+      }
+    },
+    "build:manifest": {
+      "command": "bun run --bun oclif manifest",
+      "dependsOn": ["build:tsc"],
+      "cache": true,
+      "outputs": ["{projectRoot}/oclif.manifest.json"],
+      "options": {
+        "cwd": "plugins/cli/topics/mapgen"
+      }
+    },
+    "build": {
+      "command": "bun -e \"void 0\"",
+      "dependsOn": ["build:manifest"],
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "cwd": "plugins/cli/topics/mapgen"
+      }
+    },
+    "test": {
+      "dependsOn": ["build:manifest"]
+    }
+  }
+}

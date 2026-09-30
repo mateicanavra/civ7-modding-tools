@@ -28,6 +28,6 @@ the periodic odd-Q grid. These bounds define the Earthlike orogeny product.
 ## Proof
 
 ```bash
-nx run swooper-physics:metrics:report
+civ7 mapgen metrics report
 nx run swooper-physics:test
 ```

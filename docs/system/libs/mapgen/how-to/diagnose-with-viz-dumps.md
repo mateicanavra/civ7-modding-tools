@@ -44,10 +44,10 @@ From repo root:
 
 ```bash
 # baseline
-nx run swooper-physics:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7 --label probe-baseline
+civ7 mapgen diagnostics dump --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7 --label probe-baseline
 
 # variant (example: change plateCount)
-nx run swooper-physics:diag:dump -- --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7 --label probe-platecount6 --override '{"foundation-lithosphere":{"plate-graph":{"computePlateGraph":{"config":{"plateCount":6}}}}}'
+civ7 mapgen diagnostics dump --map-size MAPSIZE_STANDARD --map-seed 1337 --game-seed 7331 --players 0,1,2,3,4,5,6,7 --label probe-platecount6 --override '{"foundation-lithosphere":{"plate-graph":{"computePlateGraph":{"config":{"plateCount":6}}}}}'
 ```
 
 Each run prints:
@@ -63,7 +63,7 @@ expectations belong to the Standard recipe metric study bank so tests and report
 authority:
 
 ```bash
-nx run swooper-physics:metrics:report
+civ7 mapgen metrics report
 ```
 
 ## A/B diff workflow
@@ -72,18 +72,18 @@ Use diffs to localize where the causal chain breaks:
 
 1) Confirm the upstream layers changed (Foundation)
 ```bash
-nx run swooper-physics:diag:diff -- <runDirA> <runDirB> --prefix foundation.
+civ7 mapgen diagnostics diff <runDirA> <runDirB> --prefix foundation.
 ```
 
 2) Confirm Morphology fields changed (elevation, landmask)
 ```bash
-nx run swooper-physics:diag:diff -- <runDirA> <runDirB> --data-type-key morphology.topography.elevation
-nx run swooper-physics:diag:diff -- <runDirA> <runDirB> --data-type-key morphology.topography.landMask
+civ7 mapgen diagnostics diff <runDirA> <runDirB> --data-type-key morphology.topography.elevation
+civ7 mapgen diagnostics diff <runDirA> <runDirB> --data-type-key morphology.topography.landMask
 ```
 
 3) Extract step summaries from trace (landmask, sea level, etc.)
 ```bash
-nx run swooper-physics:diag:trace -- <runDirA> --event-prefix morphology.
+civ7 mapgen diagnostics trace <runDirA> --event-prefix morphology.
 ```
 
 If Foundation layers change but landmask doesn’t, the problem is usually one of:
@@ -93,12 +93,8 @@ If Foundation layers change but landmask doesn’t, the problem is usually one o
 
 ## Ground truth anchors
 
-- Dump writer / pipeline entry:
-  - `plugins/mod/map/swooper-physics/scripts/diagnostics/run-standard-dump.ts`
-- Dump readers:
-  - `plugins/mod/map/swooper-physics/scripts/diagnostics/diff-layers.ts`
-  - `plugins/mod/map/swooper-physics/scripts/diagnostics/list-layers.ts`
-  - `plugins/mod/map/swooper-physics/scripts/diagnostics/extract-trace.ts`
+- Dump and readback commands:
+  - `plugins/cli/topics/mapgen/src/commands/mapgen/diagnostics/`
 - Reusable evidence admission, exact binary reads, inventory, and neutral diffing:
   - `packages/mapgen-diagnostics/src/index.ts`
 - Swooper product metric studies:
@@ -114,7 +110,7 @@ If Foundation layers change but landmask doesn’t, the problem is usually one o
 - Use `diag:list` to enumerate layers for a run:
 
 ```bash
-nx run swooper-physics:diag:list -- <runDirA> --prefix foundation.
+civ7 mapgen diagnostics list <runDirA> --prefix foundation.
 ```
 
 - Keep comparisons deterministic: select one canonical Civ7 map-size preset,

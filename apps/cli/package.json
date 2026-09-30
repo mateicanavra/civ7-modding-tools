@@ -28,7 +28,8 @@
       "@civ7/cli-data",
       "@civ7/cli-docs",
       "@civ7/cli-game",
-      "@civ7/cli-git-mod"
+      "@civ7/cli-git-mod",
+      "@civ7/cli-mapgen"
     ],
     "topicSeparator": " "
   },
@@ -37,6 +38,7 @@
     "@civ7/cli-docs": "workspace:*",
     "@civ7/cli-game": "workspace:*",
     "@civ7/cli-git-mod": "workspace:*",
+    "@civ7/cli-mapgen": "workspace:*",
     "@oclif/core": "^4.11.4",
     "@oclif/plugin-help": "^6.2.50"
   }

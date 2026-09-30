@@ -272,7 +272,7 @@ categorical layers declare transparent zero categories. Coverage is pinned by
   The Standard recipe's executable twenty-seed placement/resource study, exact
   targets, dimensions, expectations, and measurement-family links live in its
   [Earthlike placement study sheet](../../../../../../plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/earthlike-placement.md).
-  Run it through `nx run swooper-physics:metrics:report`; the ordinary mod test
+  Run it through `civ7 mapgen metrics report`; the ordinary mod test
   target is the behavioral gate. This is completed headless evidence, not a
   live-engine claim.
 - The old live legality and required-for-age scripts were milestone-scoped
