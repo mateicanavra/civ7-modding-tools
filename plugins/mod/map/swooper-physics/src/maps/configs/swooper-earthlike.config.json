@@ -895,11 +895,7 @@
     "map-morphology": {},
     "map-hydrology": {},
     "map-elevation": {},
-    "map-rivers": {
-      "projection": {
-        "model": "authored-network"
-      }
-    },
+    "map-rivers": {},
     "ecology-features": {
       "score-layers": {
         "vegetationSubstrate": {

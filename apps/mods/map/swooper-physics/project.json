@@ -10,7 +10,7 @@
       "options": { "cwd": "apps/mods/map/swooper-physics" }
     },
     "build:river-contract-probe": {
-      "command": "bun ./test/live/river-contract-probe.ts",
+      "command": "bun ./test/runtime/river-contract-probe.fixture.ts",
       "dependsOn": [{ "target": "build", "projects": ["mapgen-core", "plugin-files", "swooper-physics"] }],
       "outputs": ["{projectRoot}/dist/river-contract-probe/**"],
       "cache": false,
@@ -26,7 +26,7 @@
       "options": { "cwd": "apps/mods/map/swooper-physics" }
     },
     "build:elevation-contract-probe": {
-      "command": "bun ./test/live/elevation-contract-probe.ts elevation-native-1018-v1",
+      "command": "bun ./test/runtime/elevation-contract-probe.fixture.ts elevation-native-1018-v1",
       "dependsOn": [{ "target": "build", "projects": ["mapgen-core", "plugin-files"] }],
       "outputs": ["{projectRoot}/dist/elevation-contract-probe/**"],
       "cache": false,

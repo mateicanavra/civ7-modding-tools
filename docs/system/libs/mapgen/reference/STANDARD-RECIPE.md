@@ -115,7 +115,6 @@ by an admitted outcome artifact.
 | `plot-continents` | `map.continents-plotted` | `plot-mountains`, `plot-volcanoes` | validated continent terrain |
 | `plot-mountains` | `map.mountains-plotted` | `build-elevation` | projected mountain terrain |
 | `plot-volcanoes` | `map.volcanoes-plotted` | `build-elevation` | projected volcano terrain |
-| `project-rainfall` | `map.rainfall-projected` | `plot-rivers` | written Civ7 rainfall; consumed by legacy native river modeling |
 | `build-elevation` | `map.elevation-built` | `plot-rivers` | current Civ7 elevation |
 | `plot-rivers` | `map.rivers-plotted` | `plan-natural-wonders` | final native river surface |
 | `plot-biomes` | `engine.biomes-applied` | `features-apply` | current engine biome classification |
@@ -146,18 +145,16 @@ Stage-level posture:
 - Wrapper-only `advanced` stage surfaces have been removed. Step overrides live
   at `<stageId>.<stepId>`.
 - Fixed projection `map-*` stages do not expose fictional empty knobs.
-  `hydrology-hydrography.water` explicitly selects `legacy-sink-budget` or
-  `certified-sill-spill`; only the former exposes `lakeiness` and lake-budget
-  controls. The shared `knobs.riverDensity` controls physical classification.
-- `map-rivers.projection` selects `legacy-procedural` with its
-  `navigableRiverDensity`/threshold controls, or `authored-network` without a
-  selection quota. Earthlike authors the certified/authored pair; other shipped
-  maps retain the legacy pair. Admission rejects incompatible pairs rather than
-  falling back when a certified case is unsupported.
+  `hydrology-hydrography.water` contains the `certified-sill-spill` identity
+  and its four physical operation envelopes. `knobs.riverDensity` controls
+  physical classification. There is no legacy solver, lake quota or fallback.
+- `map-rivers` is configurationless: Core supplies its closed empty surface,
+  with no redundant projection identity or selection controls. All shipped maps use this physical/native
+  chain, preserving their own forcing and density settings. Retired config
+  identities are refused rather than silently interpreted as current physics.
 - `map-hydrology` projects final-refined rainfall and accepted lake water before
   `map-elevation` submits authored numeric elevation. `map-rivers` then writes
-  either the legacy navigable subset plus procedural native rivers or every
-  certified dry MINOR/NAVIGABLE source, finalizing the authored network once.
+  every admitted dry MINOR/NAVIGABLE source, finalizing the authored network once.
   Immutable projection intent and later engine readback remain separate.
   Physical water, native lake category, and native numeric water level are not
   interchangeable. Final river-class readback does not establish directed-edge,

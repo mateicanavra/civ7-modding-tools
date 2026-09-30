@@ -162,7 +162,6 @@ function compareTerminalPlacementParity(
     };
   }
   const exactCounters = exact.placementParity.value;
-  const certified = local.hydrology.rivers.model === "certified-sill-spill";
   const fields = [
     "waterDriftCount",
     "acceptedLakeTileCount",
@@ -173,7 +172,7 @@ function compareTerminalPlacementParity(
   // The mock does not emulate native water-area classification. Keep that difference visible
   // without mistaking a certified body's native class for its physical water footprint.
   const blockingMismatches = mismatchedFields.filter((field) =>
-    !certified || field !== "finalLakeClassificationDriftCount"
+    field !== "finalLakeClassificationDriftCount"
   );
   if (blockingMismatches.length > 0) {
     return {
@@ -189,8 +188,7 @@ function compareTerminalPlacementParity(
   }
   if (
     localCounters.waterDriftCount !== 0 ||
-    localCounters.finalLakeWaterDriftCount !== 0 ||
-    (!certified && localCounters.finalLakeClassificationDriftCount !== 0)
+    localCounters.finalLakeWaterDriftCount !== 0
   ) {
     return {
       claim: {
@@ -206,9 +204,7 @@ function compareTerminalPlacementParity(
   return {
     claim: {
       status: "pass",
-      reason: certified
-        ? "Exact and local physical-water counters match with zero final water drift; native lake classification remains separate evidence."
-        : "Exact and local terminal placement counters match with zero final water drift.",
+      reason: "Exact and local physical-water counters match with zero final water drift; native lake classification remains separate evidence.",
       evidenceLinks: ["placement-parity"],
     },
     local: localCounters,

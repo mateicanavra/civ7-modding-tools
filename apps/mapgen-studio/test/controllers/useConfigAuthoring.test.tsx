@@ -37,6 +37,30 @@ function importEvent(text: string): ChangeEvent<HTMLInputElement> {
 }
 
 describe("useConfigAuthoring", () => {
+  it("reports unsupported saved values without installing defaults, and allows explicit catalog recovery", () => {
+    const current = getRecipeArtifacts("standard").catalogConfigs[0];
+    if (current === undefined) throw new Error("Standard catalog fixture is missing");
+    const retired = {
+      ...current,
+      config: { ...current.config, hydrography: { water: { model: "legacy-sink-mask" } } },
+    };
+    const { result, args, rerender } = setup(retired);
+    expect(args.toast).toHaveBeenCalledWith(expect.stringContaining("no longer supported"), {
+      variant: "error",
+    });
+    expect(args.installCanonicalConfig).not.toHaveBeenCalled();
+    expect(result.current.pipelineConfig).toBe(retired.config);
+    expect(result.current.configIsAdmitted).toBe(false);
+    rerender(args);
+    expect(args.toast).toHaveBeenCalledTimes(1);
+    act(() => result.current.setPipelineConfig(current.config));
+    expect(args.setCanonicalConfig).not.toHaveBeenCalled();
+
+    act(() => result.current.selectConfig(current.id));
+    expect(args.installCanonicalConfig).toHaveBeenCalledWith(current);
+    expect(args.setCanonicalConfig).not.toHaveBeenCalled();
+  });
+
   it("installs exact frozen catalog and recipe configs atomically", () => {
     const artifacts = getRecipeArtifacts("standard");
     const catalogConfig = artifacts.catalogConfigs.find((config) => config.id !== defaultConfig.id);

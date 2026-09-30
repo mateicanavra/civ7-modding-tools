@@ -6,7 +6,7 @@ import { STANDARD_INTEGRITY_TARGET } from "../../../../../../src/recipes/standar
 import { captureEarthlikeScenario } from "../../fixtures/standard-product.js";
 
 describe("Standard ecology metrics", () => {
-  it("excludes certified lake footprints from terrestrial populations without changing legacy measurement", () => {
+  it("excludes complete physical lake footprints from terrestrial populations", () => {
     const capture = captureEarthlikeScenario();
     expect(capture.model.physicalHydrology.model).toBe("certified-sill-spill");
     const originalLandCount = capture.model.landMask.reduce((count, land) => count + land, 0);
@@ -25,21 +25,6 @@ describe("Standard ecology metrics", () => {
     expect(certified.unclassifiedModeledLand).toEqual({ count: 0, population: originalLandCount - wetLandCount });
     for (const metric of [certified.coldBiomeTiles, certified.wetlandTiles, certified.vegetationTiles]) {
       expect(metric.population).toBe(originalLandCount - wetLandCount);
-    }
-    const legacy = measureStandardEcology({
-      ...capture,
-      model: {
-        ...capture.model,
-        physicalHydrology: {
-          model: "legacy-sink-budget",
-          routingElevation: Float32Array.from(capture.model.elevation),
-          outletMask: new Uint8Array(capture.model.landMask.length),
-        },
-      },
-    });
-    expect(legacy.unclassifiedModeledLand).toEqual({ count: wetLandCount, population: originalLandCount });
-    for (const metric of [legacy.coldBiomeTiles, legacy.wetlandTiles, legacy.vegetationTiles]) {
-      expect(metric.population).toBe(originalLandCount);
     }
   }, 30_000);
 

@@ -3,7 +3,7 @@ import { metricShare } from "@swooper/mapgen-metrics";
 
 import { measureStandardBiomeRows } from "../../../../../../src/recipes/standard/metrics/families/ecology.js";
 
-function controlledBiomeRows(model: "legacy-sink-budget" | "certified-sill-spill" = "legacy-sink-budget") {
+function controlledBiomeRows() {
   const width = 40;
   const height = 3;
   const landMask = new Uint8Array(width * height);
@@ -18,26 +18,22 @@ function controlledBiomeRows(model: "legacy-sink-budget" | "certified-sill-spill
       landMask,
       biomeIndex,
       plannedLakeMask: new Uint8Array(width * height),
-      physicalHydrology: { model },
+      physicalHydrology: { model: "certified-sill-spill" as const },
     },
   };
 }
 
 describe("Standard biome-row measurements", () => {
-  it("uses certified exposed land for row qualification and shares while retaining legacy populations", () => {
-    const certified = controlledBiomeRows("certified-sill-spill");
-    const legacy = controlledBiomeRows();
-    for (const input of [certified, legacy]) {
-      input.model.plannedLakeMask.fill(1, 0, 10);
-      input.model.plannedLakeMask[40] = 1;
-      input.model.biomeIndex.fill(255, 0, 10);
-      input.model.biomeIndex[40] = 255;
-    }
+  it("uses exposed land for row qualification and shares without mutating original land", () => {
+    const certified = controlledBiomeRows();
+    const landBefore = certified.model.landMask.slice();
+    certified.model.plannedLakeMask.fill(1, 0, 10);
+    certified.model.plannedLakeMask[40] = 1;
+    certified.model.biomeIndex.fill(255, 0, 10);
+    certified.model.biomeIndex[40] = 255;
     expect(measureStandardBiomeRows(certified).dominantBiomeTiles).toEqual({ count: 20, population: 30 });
     expect(measureStandardBiomeRows(certified).qualifiedRainforestRowCount).toBe(1);
-    expect(measureStandardBiomeRows(legacy).dominantBiomeTiles).toEqual({ count: 30, population: 60 });
-    expect(measureStandardBiomeRows(legacy).qualifiedRainforestRowCount).toBe(2);
-    expect(certified.model.landMask).toEqual(legacy.model.landMask);
+    expect(certified.model.landMask).toEqual(landBefore);
   });
 
   it("weights row dominance by land population and qualifies exactly twenty land tiles", () => {

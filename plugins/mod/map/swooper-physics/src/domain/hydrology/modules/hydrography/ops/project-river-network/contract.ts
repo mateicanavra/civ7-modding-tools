@@ -20,13 +20,6 @@ const ProjectRiverNetworkContract = defineOp({
    */
   input: Type.Object(
     {
-      channelSemantics: Type.Union(
-        [Type.Literal("legacy-routed"), Type.Literal("principal-adjacent")],
-        {
-          description:
-            "Composition-owned edge interpretation: retain legacy terminal classification, or classify only real adjacent principal edges without inventing boundary directions.",
-        }
-      ),
       /** Tile grid width. */
       width: Type.Integer({ minimum: 1, description: "Tile grid width (columns)." }),
       /** Tile grid height. */
@@ -36,11 +29,11 @@ const ProjectRiverNetworkContract = defineOp({
       /** Discharge proxy per tile. */
       discharge: Type.Array(Type.Number({ minimum: 0 }), {
         description:
-          "Map-grid Number discharge; callers widen legacy Float32 values exactly without recomputing them.",
+          "Map-grid Number-precision discharge on actual adjacent principal edges.",
       }),
-      /** Hydrology-conditioned receiver index per tile (or -1 for typed terminals). */
+      /** Adjacent principal receiver or a typed terminal/component sentinel. */
       flowDir: TypedArraySchemas.i32({
-        description: "Hydrology-conditioned receiver index per tile (or -1 for typed terminals).",
+        description: "Adjacent principal receiver index, -1 for terminal/marine, or -2 for hydraulic-component internal membership.",
       }),
     },
     {

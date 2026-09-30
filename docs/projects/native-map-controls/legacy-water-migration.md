@@ -2,13 +2,13 @@
 
 ## Decision
 
-The remaining seven legacy water/projection selections are an unfinished
+The seven former legacy water/projection selections were an unfinished
 product migration, not demonstrated present-day solver incompatibilities.
 The completed coordinator superseded the original all-open refusal reason.
 Do not retain two permanent physical models merely because their evidence can
-be represented by an operation union. The union in the Lotus handoff supports
-actual remaining callers during migration; a certified lake never runs the
-legacy equation or borrows marine masks.
+be represented by an operation union. The temporary Lotus union supported
+actual callers during the earlier migration; it is not the destination
+contract. A physical lake never runs a sea-relative equation or borrows marine masks.
 
 The older selections use the same current operation/step SDK and artifact
 publication machinery. Their difference is physical semantics and native
@@ -76,12 +76,15 @@ seas, reefs, volcanic terrain and naval passage, not mandatory inland lakes.
 Preserve other products' lake expectations until their own evidence warrants a
 change. This one-roll witness does not establish that every old lake is artificial.
 
-## Remaining Migration Gates
+## Qualification And Migration Order
 
-The actual remaining questions are now bounded:
+The original migration sequence remains recorded below. Items 2 through 4
+are implemented in the current-only source change; item 1 and representative
+native acceptance remain open. Source admission is not native qualification:
 
 1. Complete the common native water-category/height qualification. The normal
-   product still uses cutoff10; the held cutoff40 diagnostic is qualified only
+   held Huge product uses stock cutoff10; other sizes retain their official
+   preset values, including Standard cutoff8. The held cutoff40 diagnostic is qualified only
    for two Huge Earthlike cases. A Ring body of 252 tiles demonstrates why
    neither a guessed fixed40 nor old body-size exclusions qualify all products.
    Preserve original marine identity and physical heads; do not shrink a
@@ -102,6 +105,80 @@ native-map-controls worktree/Graphite lineage, with one complete owner-level
 change at a time. Native qualification is the remaining runtime prerequisite;
 the Archipelago cause is now discriminated. Admission success is not native
 behavior or final calibration acceptance.
+
+## Current-Only Implementation
+
+The seven remaining shipped configs now select the existing certified basin
+operations and authored native projection, preserving the declared mapping.
+The superseded routing, accumulation, quota-based lake planning and river
+classification operations are removed, together with procedural subset
+selection and all associated runtime/evidence union arms. Physical contracts
+retain their stable artifact identities and Number-precision head/discharge.
+Strict footprint, conservation, classification, terrain and readback guards
+remain. Steps use the existing operation-composed schema; they do not gain
+duplicated model fields, empty authored projection controls or physical algorithms.
+
+Lotus consumes physical lake identity, surface and ground only. The unused
+legacy sink-mask wetland cue and lake-pruning compensation are removed, not
+replaced by another proxy. Native classification cannot redefine physical wetness.
+Archipelago's unconditional lake floor is retired with its zero-storage witness;
+the other seven products' lake floors and unrelated calibration targets remain.
+
+Old custom configs are refused at recipe admission. Studio preserves a
+structurally valid known-recipe v5 saved envelope read-only for export, reports
+that it is unsupported and requires an explicit current-config install. It
+does not silently load default physics, overwrite old values through ordinary
+setup edits or accept the form library's synthesized defaults as migration.
+Import, save, generation and live launch remain current-schema strict.
+
+The app-owned water diagnostic now accepts catalog profile, official map size,
+independent map/game seeds, player count and measured cutoff using the existing
+catalog and preset setup. Its default retains the historical Huge Earthlike
+selection; the test matrix includes Tiny/Standard/Huge across two profiles and
+all five preset defaults. Huge-only named body focus is not applied to other
+selections. Historical fixture contrasts are diagnostics, not production fallbacks.
+
+The river stage has no public projection selector or empty compiler; the SDK
+supplies its closed empty configuration. Rainfall still projects every tile,
+but no stale completion edge claims that authored rivers consume engine rainfall.
+
+This implementation is source migration, not a declaration that the pending
+native body-size/category/height cohort or the eleven climate expectations
+have passed. No cutoff40 product policy, universal metres conversion, lake
+size quota or new Earth-fixture dependency is introduced.
+
+## Current-Only Qualification
+
+The sealed owner graph passes builds, types, Habitat, import boundaries,
+all 408 Studio tests and all 207 realization-app tests. The definition suite
+passes 1,025 tests; its one aggregate study test still reports the same eleven
+calibration expectations. No expectation was softened for this retirement.
+The generator's resource-normalization test is now owned by its existing tools
+project rather than importing tools back into the library and forming a cycle.
+Diagnostic builders and deterministic transport tests live in the realization's
+closed runtime-proof scope, distinct from actual uncached native acceptance.
+
+The independent closure replay uses the existing public study bank, recipe,
+presets and artifacts, matching all 49 formerly migrated scenarios against their
+prior admitted certified payloads. All 55 published artifacts per scenario hold
+exactly: 2,695 full-payload comparisons, with no added or removed artifact.
+Authoring fingerprints change with the retired selector/completion surfaces;
+that does not authorize a physical output change. The receipt is retained under
+`earth-calibration/current-water-closure-20260930/receipt.json`, SHA-256
+`c50e123442cb6e9359cb6522cdf81ce0faa9dc7fa0d9bdb31659c07e1db30d15`.
+The final graph log is `earth-calibration/current-water-retirement-final-proof-20260930.log`.
+
+Next native discrimination reuses the generated proof descriptor and public
+preset, not a parallel test configuration. Compare Earthlike Standard1018
+(eight players, stock8) with cutoff40, then Ring Huge1337 (ten players,
+stock10) with the same held cutoff40 treatment. The current closure confirms
+Ring's 252-cell body remains unchanged; it shares a physical component with
+two other bodies, so neither body size nor component size establishes native
+classification size. Preserve all physical inputs, declarations and original
+marine identity; treat incomplete correlation as inadmissible evidence and
+an admitted coverage/height/collateral failure as a negative result. Do not
+raise the treatment, shrink a body or regenerate the pair to find a pass.
+This is neither product-cutoff adoption nor naval traversal qualification.
 
 ## Retained Evidence
 

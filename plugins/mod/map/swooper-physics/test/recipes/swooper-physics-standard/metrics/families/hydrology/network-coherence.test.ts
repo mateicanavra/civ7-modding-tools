@@ -130,13 +130,14 @@ describe("network coherence measurements", () => {
       dryHydraulicDrops: { count: 2, min: 2, max: 2 } });
   });
 
-  it("preserves absent evidence and empty-channel distributions", () => {
+  it("preserves empty-channel distributions and rejects retired evidence", () => {
     const input = fixture();
     input.model.riverClass.fill(0);
     expect(measureStandardNetworkCoherence(input)?.majorHydraulicDrops).toEqual({
       count: 0, min: null, p50: null, p90: null, max: null });
-    expect(measureStandardNetworkCoherence({ ...input, model: { ...input.model,
+    expect(() => measureStandardNetworkCoherence({ ...input, model: { ...input.model,
       physicalHydrology: { model: "legacy-sink-budget", routingElevation: new Float32Array(5),
-        outletMask: new Uint8Array(5) } } })).toBeNull();
+        outletMask: new Uint8Array(5) } } } as unknown as Parameters<typeof measureStandardNetworkCoherence>[0]))
+      .toThrow("Expected completed basin evidence");
   });
 });

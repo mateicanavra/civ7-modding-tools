@@ -20,7 +20,6 @@ function metadataInput(input: Parameters<typeof network.run>[0]) {
     {
       width: input.width,
       height: input.height,
-      channelSemantics: "principal-adjacent",
       landMask: Uint8Array.from(input.landMask, (land, cell) =>
         land && !plan.wetMask[cell] ? 1 : 0
       ),

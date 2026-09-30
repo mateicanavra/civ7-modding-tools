@@ -13,7 +13,7 @@ export const artifact = defineArtifact({
       lakeMask: TypedArraySchemas.u8({
         cardinality: "map-grid",
         description:
-          "Accepted inland-water footprint: legacy filtered candidates or the complete certified physical footprint; not a claim that every cell has native isLake classification.",
+          "Complete accepted certified inland-water footprint; not a claim that every cell has native isLake classification.",
       }),
     },
     {

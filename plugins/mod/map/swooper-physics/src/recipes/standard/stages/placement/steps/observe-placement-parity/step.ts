@@ -81,45 +81,34 @@ export const ObservePlacementParityStep = createStep(config, {
     }));
     emitStandardPlacementParityExactLog(placementParity);
 
-    const finalRiverParity =
-      projectedRivers.model === "certified-sill-spill"
-        ? measureStandardFinalRiverParity({
-            width,
-            height,
-            intendedMinor: projectedRivers.nativeMinorRiverMask,
-            intendedNavigable: projectedRivers.riverMask,
-            readback: (() => {
-              try {
-                return {
-                  status: "available" as const,
-                  value: deps.engine.readRiverProjection(
-                    context,
-                    width,
-                    height,
-                    projectedRivers.riverMask
-                  ),
-                };
-              } catch (error) {
-                return {
-                  status: "unavailable" as const,
-                  reason: `Final river read failed: ${String(error).slice(0, 500)}`,
-                };
-              }
-            })(),
-          })
-        : null;
-    if (finalRiverParity !== null) {
-      for (const line of encodeBoundedJsonLogLines({
-        prefix: "[SWOOPER_MOD]",
-        marker: "FINAL_RIVER_PARITY_V1",
-        payload: {
-          mapSeed: context.setup.mapSeed,
-          dimensions: { width, height },
-          ...finalRiverParity,
-        },
-      }))
-        console.log(line);
-    }
+    const finalRiverParity = measureStandardFinalRiverParity({
+      width,
+      height,
+      intendedMinor: projectedRivers.nativeMinorRiverMask,
+      intendedNavigable: projectedRivers.riverMask,
+      readback: (() => {
+        try {
+          return {
+            status: "available" as const,
+            value: deps.engine.readRiverProjection(context, width, height, projectedRivers.riverMask),
+          };
+        } catch (error) {
+          return {
+            status: "unavailable" as const,
+            reason: `Final river read failed: ${String(error).slice(0, 500)}`,
+          };
+        }
+      })(),
+    });
+    for (const line of encodeBoundedJsonLogLines({
+      prefix: "[SWOOPER_MOD]",
+      marker: "FINAL_RIVER_PARITY_V1",
+      payload: {
+        mapSeed: context.setup.mapSeed,
+        dimensions: { width, height },
+        ...finalRiverParity,
+      },
+    })) console.log(line);
 
     // Recreate intent from immutable physics plus accepted lakes, never from an earlier engine
     // observation. Final numeric drift remains evidence while native preservation is calibrated.
@@ -172,9 +161,7 @@ export const ObservePlacementParityStep = createStep(config, {
   metrics: ({ observation }) => ({
     "placement.parity": observation.placementParity,
     [STANDARD_ELEVATION_FINAL_METRIC_KEY]: observation.elevationProjection,
-    ...(observation.finalRiverParity === null
-      ? {}
-      : { [STANDARD_FINAL_RIVER_PARITY_METRIC_KEY]: observation.finalRiverParity }),
+    [STANDARD_FINAL_RIVER_PARITY_METRIC_KEY]: observation.finalRiverParity,
   }),
   viz: ({ observation, dimensions }) => projectPlacementParityViz(observation, dimensions),
 });

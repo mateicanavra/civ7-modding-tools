@@ -1,3 +1,4 @@
+import { createEmptyWaterFixture } from "../../../../morphology/features/fixtures/surface-water.js";
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { BIOME_SYMBOL_TO_INDEX } from "../../../../../../../../src/domain/ecology/index.js";
@@ -61,27 +62,8 @@ describe("ecology-features plan-wetlands step", () => {
       publishTestArtifact(stepContext, featureArtifacts.floodplainIntents, []);
       publishTestArtifact(stepContext, featureArtifacts.iceIntents, []);
       publishTestArtifact(stepContext, featureArtifacts.reefIntents, []);
-      publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
-        model: "legacy-sink-budget",
-        runoff: new Float32Array(size),
-        discharge: new Float32Array(size),
-        riverClass: new Uint8Array(size),
-        flowDir: new Int32Array(size).fill(-1),
-        sinkMask: new Uint8Array(size),
-        outletMask: new Uint8Array(size),
-        basinId: new Int32Array(size).fill(-1),
-        routingElevation: new Float32Array(size),
-        depressionDepth: new Float32Array(size),
-        terminalType: new Uint8Array(size),
-      });
-      publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, {
-        model: "legacy-sink-budget",
-        width,
-        height,
-        lakeMask: new Uint8Array(size),
-        plannedLakeTileCount: 0,
-        sinkLakeCount: 0,
-      });
+      publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, createEmptyWaterFixture(width, height).hydrography);
+      publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, createEmptyWaterFixture(width, height).lakePlan);
       publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,

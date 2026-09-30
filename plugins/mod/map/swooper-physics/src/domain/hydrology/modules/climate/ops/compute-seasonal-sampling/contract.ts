@@ -3,6 +3,7 @@ import { ClimatePhaseFrameSchema, ClimateSamplingModelSchema } from "../../model
 import legacySnapshots from "./strategies/legacy-snapshots/config.js";
 import periodicCycle from "./strategies/periodic-cycle/config.js";
 
+/** Owns latitude and phase sampling identity while leaving thermal forcing to its separate operation. */
 export default defineOp({
   kind: "compute",
   id: "hydrology/compute-seasonal-sampling",

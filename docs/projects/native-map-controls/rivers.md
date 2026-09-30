@@ -52,7 +52,7 @@ Custom names are downstream decoration, not a prerequisite for network identity.
 
 ## Native Qualification In Progress
 
-The app-owned `test/live/river-contract-*` diagnostic builds one disposable
+The app-owned `test/runtime/river-contract-*` diagnostic builds one disposable
 Tiny 60x38 map (four players, map/game seeds 1018/1019). Every rebuild has a
 unique proof ID, finalizer settings, and script SHA; installation equality and
 fresh digest-valid native logs are checked separately from launcher success.

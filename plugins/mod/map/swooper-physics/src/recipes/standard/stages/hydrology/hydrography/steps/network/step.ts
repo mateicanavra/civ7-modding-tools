@@ -4,7 +4,7 @@ import { measureStandardRiverNetwork } from "../../../../../metrics/families/hyd
 import { projectNetworkViz } from "./viz.js";
 import { config } from "./config.js";
 
-/** Refuse unsupported physics before publishing any of the three products; no inactive branch executes. */
+/** Complete the physical computation before publishing its mutually consistent products. */
 export const NetworkStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
@@ -12,74 +12,6 @@ export const NetworkStep = createStep(config, {
     const climate = deps.artifacts.baselineClimateField.read();
     const dimensions = { width, height };
     const physical = (() => {
-      if (stepConfig.model === "legacy-sink-budget") {
-        const routing = ops.drainageRouting(
-          { ...dimensions, elevation: topography.elevation, landMask: topography.landMask },
-          stepConfig.drainageRouting
-        );
-        const discharge = ops.accumulateDischarge(
-          {
-            ...dimensions,
-            landMask: topography.landMask,
-            flowDir: routing.flowDir,
-            rainfall: climate.rainfall,
-            humidity: climate.humidity,
-          },
-          stepConfig.accumulateDischarge
-        );
-        const projected = ops.projectRiverNetwork(
-          {
-            ...dimensions,
-            channelSemantics: "legacy-routed",
-            landMask: topography.landMask,
-            discharge: Array.from(discharge.discharge),
-            flowDir: routing.flowDir,
-          },
-          stepConfig.projectRiverNetwork
-        );
-        const lake = ops.planLakes(
-          {
-            ...dimensions,
-            landMask: topography.landMask,
-            flowDir: routing.flowDir,
-            discharge: discharge.discharge,
-            sinkMask: routing.sinkMask,
-          },
-          stepConfig.planLakes
-        );
-        const metadata = ops.classifyRiverNetwork(
-          {
-            ...dimensions,
-            landMask: topography.landMask,
-            elevation: topography.elevation,
-            routingElevation: routing.routingElevation,
-            depressionDepth: routing.depressionDepth,
-            discharge: discharge.discharge,
-            riverClass: projected.riverClass,
-            flowDir: routing.flowDir,
-            terminalType: routing.terminalType,
-            lakeMask: lake.lakeMask,
-          },
-          stepConfig.classifyRiverNetwork
-        );
-        return {
-          hydrography: {
-            model: "legacy-sink-budget" as const,
-            runoff: discharge.runoff,
-            discharge: discharge.discharge,
-            flowDir: routing.flowDir,
-            basinId: routing.basinId,
-            sinkMask: routing.sinkMask,
-            outletMask: routing.outletMask,
-            terminalType: routing.terminalType,
-            routingElevation: routing.routingElevation,
-            depressionDepth: routing.depressionDepth,
-            riverClass: projected.riverClass,
-          },
-          lakePlan: { model: "legacy-sink-budget" as const, ...dimensions, ...lake },
-          riverNetwork: { model: "legacy-sink-budget" as const, ...metadata },
-        };
-      }
       const { runoff } = ops.computeLocalRunoff(
         {
           ...dimensions,
@@ -117,7 +49,6 @@ export const NetworkStep = createStep(config, {
       const projected = ops.projectRiverNetwork(
         {
           ...dimensions,
-          channelSemantics: "principal-adjacent",
           landMask: exposedLand,
           discharge: plan.dryDischarge,
           flowDir: plan.receiver,
@@ -207,15 +138,12 @@ export const NetworkStep = createStep(config, {
       hydrography,
       lakePlan,
       riverNetwork,
-      riverNetworkMeasurementInput:
-        lakePlan.model === "certified-sill-spill"
-          ? {
-              ...measurement,
-              model: "certified-sill-spill" as const,
-              componentId: lakePlan.componentId,
-              terminalType: hydrography.terminalType,
-            }
-          : { ...measurement, model: "legacy-sink-budget" as const },
+      riverNetworkMeasurementInput: {
+        ...measurement,
+        model: "certified-sill-spill" as const,
+        componentId: lakePlan.componentId,
+        terminalType: hydrography.terminalType,
+      },
     };
   },
   metrics: ({ observation }) => ({

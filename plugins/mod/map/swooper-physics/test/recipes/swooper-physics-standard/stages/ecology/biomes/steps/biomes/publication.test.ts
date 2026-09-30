@@ -17,7 +17,7 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { BiomesStep as biomesStep } from "../../../../../../../../src/recipes/standard/stages/ecology/biomes/steps/biomes/step.js";
-import { createSurfaceWaterFixture } from "../../../../morphology/features/fixtures/surface-water.js";
+import { createEmptyWaterFixture } from "../../../../morphology/features/fixtures/surface-water.js";
 import {
   TEST_MAP_LATITUDE_BOUNDS,
   TEST_MAP_SEED,
@@ -63,7 +63,7 @@ describe("biomes step", () => {
 
     withMapContextExecutionForTest(ctx, (stepContext) => {
       publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan,
-        createSurfaceWaterFixture("legacy-sink-budget", width, height).lakePlan);
+        createEmptyWaterFixture(width, height).lakePlan);
       publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation,
         seaLevel: 0,
@@ -158,7 +158,7 @@ describe("biomes step", () => {
 
       withMapContextExecutionForTest(ctx, (stepContext) => {
         publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan,
-          createSurfaceWaterFixture("legacy-sink-budget", width, height).lakePlan);
+          createEmptyWaterFixture(width, height).lakePlan);
         publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
           elevation,
           seaLevel: 0,

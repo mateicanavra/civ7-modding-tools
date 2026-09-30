@@ -22,7 +22,7 @@ export async function buildElevationProbePlan(proofId: string): Promise<Generate
   if (!/^[a-zA-Z0-9-]{1,100}$/.test(proofId))
     throw new Error("Use a short alphanumeric/hyphen proof ID.");
   const content = await bundleCiv7MapScript({
-    source: `import { registerElevationContractProbe } from "./test/live/elevation-contract-map.fixture.ts";\nregisterElevationContractProbe(${JSON.stringify(proofId)});`,
+    source: `import { registerElevationContractProbe } from "./test/runtime/elevation-contract-map.fixture.ts";\nregisterElevationContractProbe(${JSON.stringify(proofId)});`,
     sourceName: "elevation-contract-probe.ts",
     appRoot: elevationProbeAppRoot,
   });
@@ -75,7 +75,7 @@ if (import.meta.main) {
   const proofId = process.argv[2];
   if (!proofId || process.argv.length !== 3)
     throw new Error(
-      "Usage: bun test/live/elevation-contract-probe.ts <proof-id> (build only; never deploys or launches)"
+      "Usage: bun test/runtime/elevation-contract-probe.fixture.ts <proof-id> (build only; never deploys or launches)"
     );
   await applyGeneratedFilePlan(await buildElevationProbePlan(proofId), {
     outputRoot: elevationProbeOutputRoot,

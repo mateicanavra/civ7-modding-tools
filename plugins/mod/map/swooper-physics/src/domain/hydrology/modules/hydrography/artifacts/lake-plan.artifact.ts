@@ -12,63 +12,43 @@ import {
   WaterConservationSchema,
 } from "../model/atoms/basin-network.schema.js";
 
-const common = {
-  width: Type.Integer({ minimum: 1 }),
-  height: Type.Integer({ minimum: 1 }),
-  lakeMask: TypedArraySchemas.u8({
-    cardinality: "map-grid",
-    description:
-      "Complete strict positive-depth footprint; sole lake-mask authority before projection.",
-  }),
-  plannedLakeTileCount: Type.Integer({
-    minimum: 0,
-    description: "Footprint diagnostic, never a selection cap.",
-  }),
-};
-
 /** Complete stationary water intent and signed transport, not native readback or clipped projection. */
 export const artifact = defineArtifact({
   name: "lakePlan",
   id: "artifact:hydrology.lakePlan",
-  schema: Type.Union([
-    Type.Object(
-      {
-        model: Type.Literal("legacy-sink-budget"),
-        ...common,
-        sinkLakeCount: Type.Integer({ minimum: 0 }),
-      },
-      { additionalProperties: false }
-    ),
-    Type.Object(
-      {
-        model: Type.Literal("certified-sill-spill"),
-        ...common,
-        bodyId: TypedArraySchemas.i32({
-          cardinality: "map-grid",
-          description:
-            "Minimum strict wet member + 1; zero outside wet bodies, never a geometry node identity.",
-        }),
-        componentId: TypedArraySchemas.i32({
-          cardinality: "map-grid",
-          description: "Minimum hydraulic member + 1; zero on ordinary dry reaches and marine.",
-        }),
-        waterSurface: Type.Array(Type.Number(), {
-          description:
-            "Finite map-grid binary64 head on wet cells, unchanged ground elsewhere; not native lake elevation.",
-        }),
-        pools: Type.Array(BasinPoolSchema),
-        bodies: Type.Array(BasinWetBodySchema),
-        components: Type.Array(BasinHydraulicComponentSchema),
-        transfers: Type.Array(BasinInternalTransferSchema),
-        ports: Type.Array(BasinPortSchema),
-        terminals: Type.Array(BasinTerminalSchema),
-        marineExits: Type.Array(MarineDischargeExitSchema),
-        boundaryExits: Type.Array(BoundaryDischargeExitSchema),
-        conservation: WaterConservationSchema,
-      },
-      { additionalProperties: false }
-    ),
-  ]),
+  schema: Type.Object({
+    model: Type.Literal("certified-sill-spill"),
+    width: Type.Integer({ minimum: 1 }),
+    height: Type.Integer({ minimum: 1 }),
+    lakeMask: TypedArraySchemas.u8({
+      cardinality: "map-grid",
+      description: "Complete strict positive-depth footprint; sole lake-mask authority before projection.",
+    }),
+    plannedLakeTileCount: Type.Integer({
+      minimum: 0,
+      description: "Footprint diagnostic, never a selection cap.",
+    }),
+    bodyId: TypedArraySchemas.i32({
+      cardinality: "map-grid",
+      description: "Minimum strict wet member + 1; zero outside wet bodies, never a geometry node identity.",
+    }),
+    componentId: TypedArraySchemas.i32({
+      cardinality: "map-grid",
+      description: "Minimum hydraulic member + 1; zero on ordinary dry reaches and marine.",
+    }),
+    waterSurface: Type.Array(Type.Number(), {
+      description: "Finite map-grid binary64 head on wet cells, unchanged ground elsewhere; not native lake elevation.",
+    }),
+    pools: Type.Array(BasinPoolSchema),
+    bodies: Type.Array(BasinWetBodySchema),
+    components: Type.Array(BasinHydraulicComponentSchema),
+    transfers: Type.Array(BasinInternalTransferSchema),
+    ports: Type.Array(BasinPortSchema),
+    terminals: Type.Array(BasinTerminalSchema),
+    marineExits: Type.Array(MarineDischargeExitSchema),
+    boundaryExits: Type.Array(BoundaryDischargeExitSchema),
+    conservation: WaterConservationSchema,
+  }, { additionalProperties: false }),
   refine: (value, { issues }) => {
     const size = value.width * value.height;
     const check = (valid: unknown, message: string) => {
@@ -84,7 +64,6 @@ export const artifact = defineArtifact({
       value.plannedLakeTileCount === plannedTileCount,
       `plannedLakeTileCount ${value.plannedLakeTileCount} does not match the ${plannedTileCount} planned tiles in lakeMask.`
     );
-    if (value.model !== "certified-sill-spill") return;
     const finite = (item: unknown): boolean =>
       typeof item === "number"
         ? Number.isFinite(item)

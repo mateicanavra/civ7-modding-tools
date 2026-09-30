@@ -15,23 +15,8 @@ const common = {
 const ScoreLotusContract = defineOp({
   kind: "compute",
   id: "ecology/reef/score/lotus",
-  input: Type.Union([
-    Type.Object({
+  input: Type.Object({
       ...common,
-      model: Type.Literal("legacy-sink-budget"),
-      bathymetry: TypedArraySchemas.i16({
-        description:
-          "Legacy sea-level-relative Morphology bathymetry in quantized normalized model relief units (0 on Morphology land; <=0 in water), not meters, native display units, or lake-surface-relative depth.",
-      }),
-      shelfMask: TypedArraySchemas.u8({ description: "Mask (1/0): water tile is on shallow shelf." }),
-      coastalWater: TypedArraySchemas.u8({
-        description: "Mask (1/0): water tile is adjacent to land.",
-      }),
-      distanceToCoast: TypedArraySchemas.u16({ description: "Tile distance from nearest coast." }),
-    }),
-    Type.Object({
-      ...common,
-      model: Type.Literal("certified-sill-spill"),
       elevation: TypedArraySchemas.i16({
         description: "Unchanged physical ground in normalized model relief units, not meters.",
       }),
@@ -42,7 +27,6 @@ const ScoreLotusContract = defineOp({
         description: "Map-grid binary64 certified lake head, unchanged ground elsewhere; never quantized or native display elevation.",
       }),
     }),
-  ]),
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Lotus suitability score per tile (0..1)." }),
   }),

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { Value } from "typebox/value";
 import ecology from "../../../../../../src/domain/ecology/router.js";
 import {
   RIVER_CLASS_MAJOR,
@@ -48,7 +49,6 @@ describe("ecology feature substrate", () => {
       riverClass: new Uint8Array(size).fill(RIVER_CLASS_MAJOR),
       navigableRiverMask: new Uint8Array(size),
       discharge: Array<number>(size).fill(160),
-      sinkMask: new Uint8Array(size).fill(1),
     };
     const operation = ecology.features.ops.computeFeatureSubstrate;
     const defaultSelection = normalizeOperationSelectionForTest(operation, operation.defaultConfig);
@@ -69,7 +69,6 @@ describe("ecology feature substrate", () => {
     expect(Array.from(custom.intertidalCoastMask.slice(width))).toEqual([0, 1, 1, 0, 0, 0, 0, 0]);
     for (const result of [defaults, custom]) {
       expect(result.floodplainMask[width]).toBe(0);
-      expect(result.sinkBasinMask[width]).toBe(0);
       expect(result.hydromorphicMask[width]).toBe(0);
     }
 
@@ -83,15 +82,13 @@ describe("ecology feature substrate", () => {
     expect(operation.run(translatedInput, customSelection)).toEqual(custom);
   });
 
-  it("does not invent sink substrate when certified inputs omit legacy sink evidence", () => {
+  it("admits only current substrate evidence and never invents retired sink substrate", () => {
     const input = { width: 5, height: 5, riverClass: new Uint8Array(25), navigableRiverMask: new Uint8Array(25), landMask: new Uint8Array(25).fill(1), elevation: new Int16Array(25).fill(10), seaLevel: 0, discharge: Array<number>(25).fill(0) };
     const selection = normalizeOperationSelectionForTest(ecology.features.ops.computeFeatureSubstrate, ecology.features.ops.computeFeatureSubstrate.defaultConfig);
     const without = ecology.features.ops.computeFeatureSubstrate.run(input, selection);
-    const sinkMask = new Uint8Array(25);
-    sinkMask[12] = 1;
-    const legacy = ecology.features.ops.computeFeatureSubstrate.run({ ...input, sinkMask }, selection);
-    expect(without.sinkBasinMask[12]).toBe(0);
-    expect(legacy.sinkBasinMask[12]).toBe(1);
+    expect(without.hydromorphicMask).toEqual(new Uint8Array(25));
+    expect(Object.hasOwn(without, "sinkBasinMask")).toBe(false);
+    expect(Value.Check(ecology.features.ops.computeFeatureSubstrate.input, { ...input, sinkMask: new Uint8Array(25) })).toBe(false);
   });
   it("separates minor river adjacency from projected navigable terrain", () => {
     const syntheticDimensions = { width: 3, height: 3 } as const;
@@ -116,7 +113,6 @@ describe("ecology feature substrate", () => {
         elevation: new Int16Array(size).fill(40),
         seaLevel: 0,
         discharge: Array<number>(size).fill(100),
-        sinkMask: new Uint8Array(size),
       },
       selection
     );
@@ -153,7 +149,6 @@ describe("ecology feature substrate", () => {
         elevation: new Int16Array(size).fill(24),
         seaLevel: 0,
         discharge: Array<number>(size).fill(8),
-        sinkMask: new Uint8Array(size),
       },
       selection
     );
@@ -193,7 +188,6 @@ describe("ecology feature substrate", () => {
         elevation: new Int16Array(size).fill(24),
         seaLevel: 0,
         discharge,
-        sinkMask: new Uint8Array(size),
       },
       selection
     );

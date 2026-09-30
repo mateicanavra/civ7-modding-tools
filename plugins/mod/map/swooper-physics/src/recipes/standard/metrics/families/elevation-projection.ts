@@ -1,7 +1,9 @@
 import type { CurrentMapElevationSnapshot } from "@civ7/adapter";
 import { type Static, Type } from "typebox";
 
+/** Metric identity for post-write elevation intent and adapter readback measurements. */
 export const STANDARD_ELEVATION_POST_WRITE_METRIC_KEY = "map.elevation.postWrite";
+/** Metric identity for elevation intent and adapter readback at final map observation. */
 export const STANDARD_ELEVATION_FINAL_METRIC_KEY = "map.elevation.final";
 
 const common = {

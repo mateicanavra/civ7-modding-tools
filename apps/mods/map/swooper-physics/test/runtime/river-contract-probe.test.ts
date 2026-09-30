@@ -4,7 +4,7 @@ import { runInNewContext } from "node:vm";
 import { transformSync } from "esbuild";
 
 import { decodeBoundedJsonLogSeries } from "@swooper/mapgen-core/lib/log";
-import { expectCiv7MapScriptCompatibility } from "../runtime/civ7-map-script-compatibility.fixture.js";
+import { expectCiv7MapScriptCompatibility } from "./civ7-map-script-compatibility.fixture.js";
 import {
   buildRiverProbeAtlas, buildRiverProbeElevation, RIVER_CHECKPOINTS, RIVER_DIRECTIONS, RIVER_ELEVATED_LAKE_CONTROLS, RIVER_LAKE_CASES,
   RIVER_PROBE, RIVER_PROBE_VARIANTS, RIVER_SLOPE_CONTROLS, riverProbeExpectedReceiver, riverProbeTerrainAt,
@@ -13,10 +13,45 @@ import {
   RIVER_LAKE_NAVIGATION_CONTROLS, RIVER_LAKE_MARINE_CONTROLS, RIVER_LAKE_NAVIGATION_PROBE,
   type RiverProbeAtlas, type RiverProbeVariant,
 } from "./river-contract-map.fixture.js";
-import { buildRiverProbePlan, riverProbeDeployFlags, riverProbeInstallDirectoryName, riverProbeMapScript, riverProbeOutputRoot } from "./river-contract-probe.js";
+import { buildRiverProbePlan, parseRiverProbeArguments, riverProbeDeployFlags, riverProbeInstallDirectoryName, riverProbeMapScript, riverProbeOutputRoot } from "./river-contract-probe.fixture.js";
 import { WATER_CONNECTIVITY_ATLASES, buildWaterConnectivityWrites } from "./water-connectivity.fixture.js";
 
 type LogEntry = { stage: string; payload: Record<string, any>; proofId: string; variant: string };
+
+describe("build-only river diagnostic selectors", () => {
+  test("retains default legacy atlas and positional paired maintenance seed", () => {
+    expect(parseRiverProbeArguments(["historical"])).toEqual({ proofId: "historical", variant: "authored", atlasKind: "legacy", selection: undefined });
+    expect(parseRiverProbeArguments(["historical", "authored", "full-map-maintenance", "-42"]))
+      .toEqual({ proofId: "historical", variant: "authored", atlasKind: "full-map-maintenance", selection: -42 });
+  });
+
+  test("parses independent seeds, shipped profile, public size, players and stock or integer cutoff", () => {
+    const prefix = ["selected", "authored", "full-map-maintenance"];
+    const flags = ["--profile", "sundered-archipelago", "--map-size", "MAPSIZE_STANDARD",
+      "--map-seed=-42", "--game-seed", "7331", "--player-count", "2"];
+    expect(parseRiverProbeArguments([...prefix, ...flags, "--lake-cutoff", "stock"]).selection).toEqual({
+      sourceConfigId: "sundered-archipelago", mapSize: "MAPSIZE_STANDARD", mapSeed: -42, gameSeed: 7331,
+      playerCount: 2, lakeSizeCutoff: "stock",
+    });
+    expect(parseRiverProbeArguments([...prefix, "--lake-cutoff", "100"]).selection).toEqual({ lakeSizeCutoff: 100 });
+    expect(parseRiverProbeArguments([...prefix, "--game-seed", "42"]).selection).toEqual({ gameSeed: 42 });
+  });
+
+  test("refuses ambiguous positional/flag choices, unknown flags and noninteger selectors", () => {
+    const prefix = ["bad-selection", "authored", "full-map-maintenance"];
+    for (const tail of [["42", "--map-size", "MAPSIZE_TINY"], ["--unknown", "42"], ["extra-position"],
+      ["--map-seed", "1.5"], ["--game-seed", "NaN"], ["--player-count", "many"], ["--lake-cutoff", "unsupported"], ["--profile"]])
+      expect(() => parseRiverProbeArguments([...prefix, ...tail])).toThrow();
+    for (const args of [[], ["bad", "not-a-variant"], ["bad", "authored", "not-an-atlas"]])
+      expect(() => parseRiverProbeArguments(args)).toThrow("Usage:");
+  });
+
+  test("does not turn named legacy old-tuple measurement into a profile fallback", async () => {
+    for (const atlas of ["legacy", "terrain-admission", "full-map-observe"] as const)
+      await expect(buildRiverProbePlan("unrelated-selection", "authored", atlas, { sourceConfigId: "swooper-earthlike" }))
+        .rejects.toThrow("only for maintenance atlases");
+  });
+});
 
 async function compiled(variant: RiverProbeVariant = "authored", atlas: RiverProbeAtlas = "legacy") {
   const plan = await buildRiverProbePlan("unit-artifact-only", variant, atlas);

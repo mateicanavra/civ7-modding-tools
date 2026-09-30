@@ -5,8 +5,8 @@ import { decodeBoundedJsonLogSeries } from "@swooper/mapgen-core/lib/log";
 import { sha256Hex, stableStringify } from "@swooper/mapgen-core/trace";
 import { loadSwooperMapConfigCatalog } from "@swooper/swooper-physics/tooling/catalog-source";
 import { canonicalMapConfigContentDigest, canonicalMapConfigDigest } from "@swooper/swooper-physics/standard/map-config";
-import { expectCiv7MapScriptCompatibility } from "../runtime/civ7-map-script-compatibility.fixture.js";
-import { buildRiverProbePlan } from "./river-contract-probe.js";
+import { expectCiv7MapScriptCompatibility } from "./civ7-map-script-compatibility.fixture.js";
+import { buildRiverProbePlan } from "./river-contract-probe.fixture.js";
 import {
   FULL_MAP_BODY42, FULL_MAP_RIVER_PROBE_ATLASES, FULL_MAP_WET_OUTLETS, installFullMapRiverProbe,
   type FullMapProbeBindings, type FullMapRiverProbeAtlas,

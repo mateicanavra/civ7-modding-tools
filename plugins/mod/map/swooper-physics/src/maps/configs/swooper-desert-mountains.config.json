@@ -481,33 +481,26 @@
         "riverDensity": "normal"
       },
       "water": {
-        "model": "legacy-sink-budget",
-        "lakeiness": "normal",
-        "drainageRouting": {
-          "strategy": "priority-flood",
+        "model": "certified-sill-spill",
+        "computeLocalRunoff": {
+          "strategy": "precipitation-attributed",
+          "config": {
+            "infiltrationFraction": 0.15,
+            "humidityDampening": 0.25
+          }
+        },
+        "computeDrainageBasins": {
+          "strategy": "plateau-saddle-hierarchy",
           "config": {
             "allowExternalEdgeOutlets": false
           }
         },
-        "accumulateDischarge": {
-          "strategy": "topological-runoff",
-          "config": {
-            "runoffScale": 1,
-            "infiltrationFraction": 0.15,
-            "humidityDampening": 0.25,
-            "minRunoff": 0
-          }
+        "computeBasinNetwork": {
+          "strategy": "stationary-sill-spill",
+          "config": {}
         },
-        "planLakes": {
-          "strategy": "sink-discharge-budget",
-          "config": {
-            "maxUpstreamSteps": 1,
-            "sinkDischargePercentileMin": 0.94,
-            "maxLakeLandFraction": 0.003
-          }
-        },
-        "classifyRiverNetwork": {
-          "strategy": "hydrographic-classification",
+        "classifyBasinRiverNetwork": {
+          "strategy": "body-aware",
           "config": {
             "highOrderConfluenceUpstreamAreaMin": 64
           }
@@ -1179,14 +1172,7 @@
     "map-morphology": {},
     "map-hydrology": {},
     "map-elevation": {},
-    "map-rivers": {
-      "projection": {
-        "model": "legacy-procedural",
-        "navigableRiverDensity": "sparse",
-        "endpointDischargePercentileMin": 0.97,
-        "targetMajorTileFraction": 0.18
-      }
-    },
+    "map-rivers": {},
     "map-ecology": {
       "features-apply": {
         "apply": {

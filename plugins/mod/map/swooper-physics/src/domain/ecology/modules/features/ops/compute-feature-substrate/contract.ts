@@ -30,9 +30,6 @@ const ComputeFeatureSubstrateContract = defineOp({
       discharge: Type.Array(Type.Number({ minimum: 0 }), {
         description: "Hydrology discharge proxy per tile.",
       }),
-      sinkMask: Type.Optional(TypedArraySchemas.u8({
-        description: "Legacy local drainage sink evidence; absent for certified open bodies, not a synthesized zero mask.",
-      })),
     },
     { additionalProperties: false }
   ),
@@ -58,11 +55,8 @@ const ComputeFeatureSubstrateContract = defineOp({
     intertidalCoastMask: TypedArraySchemas.u8({
       description: "Mask (1/0): low coastal land adjacent to water.",
     }),
-    sinkBasinMask: TypedArraySchemas.u8({
-      description: "Mask (1/0): lowland drainage sinks/depressions.",
-    }),
     hydromorphicMask: TypedArraySchemas.u8({
-      description: "Mask (1/0): floodplain, intertidal, or sink-basin wetland substrate.",
+      description: "Mask (1/0): floodplain or intertidal wetland substrate.",
     }),
     wellDrainedMask: TypedArraySchemas.u8({
       description: "Mask (1/0): land outside hydromorphic substrate.",

@@ -9,6 +9,7 @@ export type Pool = {
 };
 export type Solved = { pools: Pool[]; owner: Int32Array };
 
+/** Compensated finite flux accumulation for basin deliveries and conservation totals. */
 export function sum(values: Iterable<number>): number {
   let total = 0, correction = 0;
   for (const value of values) {
@@ -29,6 +30,7 @@ export function nextUp(value: number): number {
   return view.getFloat64(0);
 }
 
+/** Selects the least representable head in an exact-balance interval, or retains the response head or attained base. */
 export function responseLevel(response: BasinWaterBudgetResponse, base: number): number {
   if ("level" in response) return response.level;
   if (response.state === "closed") {
@@ -40,6 +42,7 @@ export function responseLevel(response: BasinWaterBudgetResponse, base: number):
   return base;
 }
 
+/** Joins active catchment cells to unchanged ground and their attributed runoff, rainfall, and demand. */
 export function budgetRows(input: NetworkInput, cells: readonly number[]) {
   return cells.map(cell => ({ cell, ground: input.elevation[cell]!, localRunoff: input.localRunoff[cell]!, precipitation: input.rainfall[cell]!, potentialDemand: input.potentialDemand[cell]! }));
 }

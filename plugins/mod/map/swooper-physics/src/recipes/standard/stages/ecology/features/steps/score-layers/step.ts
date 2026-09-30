@@ -89,8 +89,7 @@ export const ScoreLayersStep = createStep(config, {
         landMask: ecologyLandMask,
         elevation: topography.elevation,
         seaLevel: topography.seaLevel,
-        discharge: Array.from(hydrography.discharge),
-        ...(hydrography.model === "legacy-sink-budget" ? { sinkMask: hydrography.sinkMask } : {}),
+        discharge: hydrography.discharge,
       },
       stepConfig.featureSubstrate
     );
@@ -208,8 +207,7 @@ export const ScoreLayersStep = createStep(config, {
     ).score01;
 
     const lotusScore = ops.scoreReefLotus(
-      lakePlan.model === "certified-sill-spill" ? {
-        model: lakePlan.model,
+      {
         width,
         height,
         landMask: topography.landMask,
@@ -218,17 +216,6 @@ export const ScoreLayersStep = createStep(config, {
         lakeMask: lakePlan.lakeMask,
         bodyId: lakePlan.bodyId,
         waterSurface: lakePlan.waterSurface,
-      } : {
-        model: lakePlan.model,
-        width,
-        height,
-        landMask: topography.landMask,
-        surfaceTemperature: climateIndices.surfaceTemperatureC,
-        bathymetry: topography.bathymetry,
-        lakeMask: lakePlan.lakeMask,
-        shelfMask: coastline.shelfMask,
-        coastalWater: coastline.coastalWater,
-        distanceToCoast: coastline.distanceToCoast,
       },
       stepConfig.scoreReefLotus
     ).score01;
@@ -255,7 +242,7 @@ export const ScoreLayersStep = createStep(config, {
         fertility: pedology.fertility,
         floodplainMask: featureSubstrate.floodplainMask,
         navigableRiverMask: featureSubstrate.navigableRiverMask,
-        discharge: Array.from(hydrography.discharge),
+        discharge: hydrography.discharge,
         elevation: topography.elevation,
         mountainMask: mountains.mountainMask,
         hillMask: mountains.hillMask,

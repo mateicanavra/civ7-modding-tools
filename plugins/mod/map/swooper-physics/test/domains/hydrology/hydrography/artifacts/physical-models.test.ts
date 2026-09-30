@@ -29,7 +29,29 @@ function certifiedLake(input = hugeRoot17()) {
     ...records,
   };
 }
-describe("model-discriminated physical water artifacts", () => {
+describe("certified physical water artifacts", () => {
+  it("refuses retired lake models and a planned count inconsistent with the complete certified footprint", () => {
+    const valid = certifiedLake();
+    const dimensions = { width: valid.width, height: valid.height };
+    expect(artifacts.lakePlan.validate(valid, { dimensions })).toEqual([]);
+    expect(
+      artifacts.lakePlan.validate({ ...valid, model: "legacy-sink-budget" }, { dimensions }).length
+    ).toBeGreaterThan(0);
+    const retired = {
+      model: "legacy-sink-budget",
+      ...dimensions,
+      lakeMask: new Uint8Array(dimensions.width * dimensions.height),
+      plannedLakeTileCount: 0,
+      sinkLakeCount: 0,
+    };
+    expect(artifacts.lakePlan.validate(retired, { dimensions }).length).toBeGreaterThan(0);
+    const wrongCount = { ...valid, plannedLakeTileCount: valid.plannedLakeTileCount + 1 };
+    expect(
+      artifacts.lakePlan.validate(wrongCount, { dimensions }).some(issue =>
+        issue.message.includes("does not match")
+      )
+    ).toBe(true);
+  });
   it("preserves the exact binary64 representative inside a zero interval", () => {
     const terrain = {
       width: 6,
@@ -116,6 +138,28 @@ describe("model-discriminated physical water artifacts", () => {
       terminalType: Uint8Array.of(0, 1, 0),
     };
     expect(artifacts.hydrography.validate(value, { dimensions })).toEqual([]);
+    expect(
+      artifacts.hydrography.validate({ ...value, model: "legacy-sink-budget" }, { dimensions }).length
+    ).toBeGreaterThan(0);
+    const retired = {
+      model: "legacy-sink-budget",
+      runoff: new Float32Array(3),
+      discharge: new Float32Array(3),
+      riverClass: new Uint8Array(3),
+      flowDir: new Int32Array(3).fill(-1),
+      basinId: new Int32Array(3).fill(-1),
+      terminalType: new Uint8Array(3),
+      sinkMask: new Uint8Array(3),
+      outletMask: new Uint8Array(3),
+      routingElevation: new Float32Array(3),
+      depressionDepth: new Float32Array(3),
+    };
+    expect(artifacts.hydrography.validate(retired, { dimensions }).length).toBeGreaterThan(0);
+    for (const retired of ["outletMask", "sinkMask", "depressionDepth"]) {
+      expect(
+        artifacts.hydrography.validate({ ...value, [retired]: new Uint8Array(3) }, { dimensions }).length
+      ).toBeGreaterThan(0);
+    }
     expect(value.runoff[2]).not.toBe(Math.fround(value.runoff[2]!));
     expect(
       artifacts.hydrography.validate({ ...value, discharge: [0] }, { dimensions }).length
@@ -129,5 +173,35 @@ describe("model-discriminated physical water artifacts", () => {
     expect(
       artifacts.hydrography.validate({ ...value, runoff: [0, 0, NaN] }, { dimensions }).length
     ).toBeGreaterThan(0);
+    for (const invalid of [
+      { ...value, terminalType: Uint8Array.of(0, 6, 0) },
+      { ...value, riverClass: Uint8Array.of(0, 0, 3) },
+      { ...value, riverClass: Uint8Array.of(1, 0, 1) },
+      { ...value, discharge: new Float32Array(3) },
+    ]) expect(artifacts.hydrography.validate(invalid, { dimensions }).length).toBeGreaterThan(0);
+  });
+
+  it("admits certified mouth ownership and rejects retired river models, spill tags, and mountain conditioning", () => {
+    const value = {
+      model: "certified-sill-spill" as const,
+      upstreamArea: Int32Array.of(1, 2, 3),
+      streamOrderProxy: Uint8Array.of(1, 1, 1),
+      mouthType: Uint8Array.of(1, 2, 5),
+      mouthBodyId: Int32Array.of(0, 7, 0),
+      slopeClass: Uint8Array.of(1, 2, 3),
+      flowPermanenceProxy: Uint8Array.of(1, 2, 3),
+    };
+    expect(artifacts.riverNetwork.validate(value, { dimensions })).toEqual([]);
+    const { mouthBodyId: _mouthBodyId, ...retiredFields } = value;
+    expect(
+      artifacts.riverNetwork.validate({ ...retiredFields, model: "legacy-sink-budget" }, { dimensions }).length
+    ).toBeGreaterThan(0);
+    for (const invalid of [
+      { ...value, model: "legacy-sink-budget" },
+      { ...value, mouthBodyId: Int32Array.of(0, 0, 0) },
+      { ...value, mouthBodyId: Int32Array.of(7, 7, 0) },
+      { ...value, mouthType: Uint8Array.of(4, 2, 5) },
+      { ...value, slopeClass: Uint8Array.of(5, 2, 3) },
+    ]) expect(artifacts.riverNetwork.validate(invalid, { dimensions }).length).toBeGreaterThan(0);
   });
 });

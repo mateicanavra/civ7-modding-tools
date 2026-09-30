@@ -12,6 +12,13 @@ after resolving thermal publication. It owns current dependency order and
 which retained experiments remain valid; no repeated approval is required for
 work inside the user's delegated scope.
 
+The [current-only water migration](legacy-water-migration.md#current-only-implementation)
+retires the old sink-budget/procedural paths across all eight shipped profiles.
+The existing catalog, official size presets and seed/setup contracts also drive
+the app's diagnostic selection; native qualification remains separate from
+portable recipe proof. Unsupported saved custom configs are recoverable for
+export, not an active legacy execution lane.
+
 The [calibration question sheet](calibration-question-sheet.md) consolidates
 the user's 2026-09-29 questions and delegated continuation: first correct the
 effective Earthlike baseline, then establish fixed-Earth references and

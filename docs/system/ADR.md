@@ -696,3 +696,32 @@ recomputed refinement temperature and no duplicate standalone final artifact.
 - Numerical calibration and native water qualification remain independent work.
 - Provenance, counterevidence and the consumer graph are retained in
   [climate artifact lineage](../projects/native-map-controls/climate-artifact-lineage.md).
+
+## ADR-023: Retire Superseded Water Computation And Projection
+
+**Status:** Accepted
+**Date:** 2026-09-30
+**Context:** The completed stationary basin coordinator admits every shipped
+profile's held scenario bank. The remaining sink-budget/procedural paths are
+unfinished caller migration, not demonstrated current solver requirements.
+An exact flat-plateau witness also shows why preserving their mandatory lake
+appearance would require fabricating physical storage.
+**Decision:** Use one ground-preserving basin/whole-body water chain and one
+complete authored native river projection across all eight shipped profiles.
+Retire the displaced operations, runtime branches, evidence unions, projection
+quotas and their obsolete tests. Keep profile-specific forcing and physical
+river-density parameters. Reject retired authored config rather than silently
+translating its semantics. Studio can recover a known recipe's unsupported v5
+envelope read-only for export and explicit current-config selection, never run it.
+**Consequences:**
+- Domain operations retain physical computation; steps compose their current
+  contracts through the existing SDK. There is no new solver or fallback.
+- Physical lake footprint, native lake category and native numeric height
+  remain separate proof surfaces. A successful source migration does not
+  establish native cutoff or navigation qualification.
+- Retire only Archipelago's witnessed unconditional lake floor; preserve the
+  other product expectations and outstanding Earth calibration failures.
+- Existing catalog, preset, setup and study selection own profile/size axes;
+  live diagnostics extend those selectors instead of defining a second bank.
+- The physical mapping and retained before/after witnesses are in
+  [legacy water migration](../projects/native-map-controls/legacy-water-migration.md).

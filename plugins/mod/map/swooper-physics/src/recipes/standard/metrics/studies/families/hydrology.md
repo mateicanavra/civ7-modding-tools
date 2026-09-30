@@ -4,13 +4,13 @@
 
 This family measures modeled river coverage by minor and major class, outlet and
 ocean-terminal coverage, the published river-network summary, navigable-river
-selection, and final headless readback reconciliation.
+intent, and final headless readback reconciliation.
 
-The physical model tag distinguishes legacy sink-budget selection from certified
-sill-spill bodies. Certified basin measurements retain conservation, certificate
+The single physical contract identifies certified sill-spill bodies.
+Basin measurements retain conservation, certificate
 and body ledgers, exact footprints/outlets, exposed landform eligibility, and
-complete intended/native source-class reconciliation. Legacy absence is `null`,
-not fabricated passing certified evidence. Wet-body internal connectivity has
+complete intended/native source-class reconciliation. Missing observations remain
+explicit, not fabricated passing evidence. Wet-body internal connectivity has
 no independent river mouth: `mouthSourceTileCount` counts exposed dry sources,
 while catchment coverage still includes every original land cell.
 
@@ -54,9 +54,8 @@ the product bounds.
   the named Civ7 dimensions and must state any latitude assumption used for a
   tile-to-kilometer translation. A tile is never compared directly to a 30 m
   river pixel.
-- Hidden drainage may sit below Civ terrain visibility. The legacy path selects
-  a navigable subset and delegates native river metadata to Civ7. Certified
-  Earthlike writes every classified dry source: minor to native MINOR and major
+- Hidden drainage may sit below Civ terrain visibility. Authored projection
+  writes every classified dry source: minor to native MINOR and major
   to native NAVIGABLE. Physical class, authored native class and observed class
   remain separate; membership does not prove directed edges or through-lake travel.
 - An Earth-referenced target names its climate/relief regime: `wet`, `normal`,

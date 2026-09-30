@@ -32,8 +32,8 @@ export function basinCapture() {
       },
     },
     projection: {
-      lakes: { version: 1 as const, plannedLakeTileCount: 1, stampedLakeTileCount: 1, morphologyProtectedLakeTileCount: 0,
-        isolatedFragmentProtectedLakeTileCount: 0, rejectedLakeTileCount: 0, nonLakeTileCount: 0, terrainMismatchTileCount: 0,
+      lakes: { version: 1 as const, plannedLakeTileCount: 1, stampedLakeTileCount: 1,
+        rejectedLakeTileCount: 0, nonLakeTileCount: 0, terrainMismatchTileCount: 0,
         components: { componentCount: 1, largestComponentSize: 1, maximumComponentDiameter: 0, singleTileComponentCount: 1 } },
       navigableRivers: {
         model: "certified-sill-spill" as const, authoredSourceCount: 1, plannedMinorRiverTileCount: 0, plannedMajorRiverTileCount: 1,

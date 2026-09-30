@@ -26,7 +26,6 @@ export const BuildElevationStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
     const topography = deps.artifacts.topography.read();
     const projectedLakes = deps.artifacts.projectedLakes.read();
-    const certifiedLakes = deps.artifacts.lakePlan.read().model === "certified-sill-spill";
     const { width, height } = context.setup.dimensions;
 
     const expectedLandMask = Uint8Array.from(topography.landMask);
@@ -34,12 +33,10 @@ export const BuildElevationStep = createStep(config, {
       if (projectedLakes.lakeMask[index] === 1) expectedLandMask[index] = 0;
     }
     const projectedWaterMask = deps.engine.readCurrentMapWaterMask(context);
-    if (certifiedLakes) {
-      assertAcceptedLakeFootprint(
-        context.setup.dimensions, projectedLakes.lakeMask, projectedWaterMask,
-        deps.engine.readCurrentMapTerrainTypes(context), "map-elevation/build-elevation/pre-build"
-      );
-    }
+    assertAcceptedLakeFootprint(
+      context.setup.dimensions, projectedLakes.lakeMask, projectedWaterMask,
+      deps.engine.readCurrentMapTerrainTypes(context), "map-elevation/build-elevation/pre-build"
+    );
     assertWaterDriftWithinPolicy(
       context.setup.dimensions,
       context.trace,
@@ -54,32 +51,26 @@ export const BuildElevationStep = createStep(config, {
       seaLevel: topography.seaLevel,
       acceptedLakeMask: projectedLakes.lakeMask,
     });
-    // Legacy cliffs consume this numeric write here. Certified cliffs wait for finalized
-    // NAV terrain in PlotRivers; neither path calls stock buildElevation over authored heights.
+    // Cliffs wait for finalized NAV terrain in PlotRivers; stock buildElevation never rewrites these heights.
     deps.engine.recalculateAreas(context);
     const beforeWaterMask = deps.engine.readCurrentMapWaterMask(context);
     const beforeLakeMask = deps.engine.readCurrentMapLakeMask(context);
     const beforeTerrain = deps.engine.readCurrentMapTerrainTypes(context);
-    if (certifiedLakes) {
-      assertAcceptedLakeFootprint(
-        context.setup.dimensions, projectedLakes.lakeMask, beforeWaterMask, beforeTerrain,
-        "map-elevation/build-elevation/pre-write-area"
-      );
-    }
+    assertAcceptedLakeFootprint(
+      context.setup.dimensions, projectedLakes.lakeMask, beforeWaterMask, beforeTerrain,
+      "map-elevation/build-elevation/pre-write-area"
+    );
     deps.engine.setElevation(context, intended);
-    if (!certifiedLakes) deps.engine.generateCliffsFromElevation(context);
     deps.engine.recalculateAreas(context);
 
     const snapshot = deps.engine.readCurrentMapElevationSnapshot(context);
     const engineWaterMask = deps.engine.readCurrentMapWaterMask(context);
     const engineLakeMask = deps.engine.readCurrentMapLakeMask(context);
     const engineTerrain = deps.engine.readCurrentMapTerrainTypes(context);
-    if (certifiedLakes) {
-      assertAcceptedLakeFootprint(
-        context.setup.dimensions, projectedLakes.lakeMask, engineWaterMask, engineTerrain,
-        "map-elevation/build-elevation/post-build"
-      );
-    }
+    assertAcceptedLakeFootprint(
+      context.setup.dimensions, projectedLakes.lakeMask, engineWaterMask, engineTerrain,
+      "map-elevation/build-elevation/post-build"
+    );
     if (snapshot.width !== width || snapshot.height !== height) {
       throw new Error("Elevation projection readback dimensions differ from the current map.");
     }

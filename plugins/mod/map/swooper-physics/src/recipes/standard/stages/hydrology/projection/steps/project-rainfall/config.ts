@@ -1,6 +1,5 @@
 import { artifacts as climateArtifacts } from "../../../../../../../domain/hydrology/modules/climate/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
-import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
 
 /**
  * Declares the sole engine projection boundary for Hydrology rainfall. It consumes the
@@ -11,5 +10,5 @@ export const config = defineStep({
   description: "Materializes the admitted final climate rainfall surface exactly once.",
   engine: ["setRainfall"] as const,
   requires: [climateArtifacts.climateField],
-  provides: [STANDARD_COMPLETIONS.rainfallProjected],
+  provides: [],
 });

@@ -11,7 +11,7 @@ type WorldIdentityTargetSpec = Readonly<{
   wetlandShareMaximum: number;
   reefShareMaximum: number;
   deepOceanShareMinimum: number | null;
-  largestLakeComponentMinimum: number;
+  largestLakeComponentMinimum: number | null;
   requiredFeatures: readonly string[];
   vegetationFamilyMinimum: number;
   requiresAtolls: boolean;
@@ -65,7 +65,7 @@ const IDENTITY_SPECS = {
     wetlandShareMaximum: 0.22,
     reefShareMaximum: 0.02,
     deepOceanShareMinimum: null,
-    largestLakeComponentMinimum: 2,
+    largestLakeComponentMinimum: null,
     requiredFeatures: ["FEATURE_FOREST", "FEATURE_RAINFOREST", "FEATURE_MANGROVE"],
     vegetationFamilyMinimum: 2,
     requiresAtolls: true,
@@ -174,14 +174,16 @@ function createIdentityTarget(
       configurationId
     ),
   ];
-  expectations.push(
-    atLeast(
+  if (spec.largestLakeComponentMinimum !== null) {
+    expectations.push(atLeast(
       "largest-lake-component",
       "At least one projected lake forms the basin scale required by this map identity.",
       (sample: StandardMapProductSample) =>
         sample.metrics.geography.projectedLakeComponents.largestComponentSize,
       spec.largestLakeComponentMinimum
-    ),
+    ));
+  }
+  expectations.push(
     atMost(
       "wetland-share",
       "Wetlands remain a bounded accent on playable land.",

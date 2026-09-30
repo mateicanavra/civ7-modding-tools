@@ -22,8 +22,7 @@ Hydrology produces climate and water-cycle products for downstream consumption:
 
 - baseline and final-refined climate fields (rainfall, humidity, and potential demand),
 - atmospheric wind and moisture-transport state,
-- explicitly selected legacy conditioned drainage or certified ground-preserving
-  basin routing over final Morphology topography,
+- ground-preserving basin routing over final Morphology topography,
 - discharge and hydrography evidence,
 - refined terrestrial indices (effective moisture, aridity, and freeze) and optional cryosphere products,
   and related diagnostics.
@@ -31,10 +30,9 @@ Hydrology produces climate and water-cycle products for downstream consumption:
 Hydrology also feeds engine-facing projection steps, which are explicitly
 **projection-only**: `map-hydrology` materializes final-refined rainfall and
 accepted lake water before engine elevation, and `map-rivers` materializes
-either legacy procedural rivers or the complete certified dry-source network
-after elevation. Earthlike selects the certified path; other shipped maps
-explicitly retain legacy behavior. Unsupported certified cases are not
-automatically rerouted into the legacy model.
+the complete admitted dry-source network after elevation. All shipped maps
+use this single physical/native chain. Unsupported cases are refused, not
+automatically rerouted into another solver.
 
 ## Stages (standard recipe)
 
@@ -74,20 +72,22 @@ Hydrology provides:
 - `artifact:hydrology.lakePlan` (model-tagged lake intent; certified strict wet
   footprints, water surfaces, bodies, budgets, and conservation evidence)
 - `artifact:map.rivers.projectedRivers` (stable runtime id for the immutable
-  legacy navigable selection or complete authored dry-source writes;
+  complete authored dry-source writes;
   `map.rivers` identifies the product lane, not stage catalog ownership, and
   mutable engine readback is not retained)
 - `artifact:hydrology.climateIndices` (final post-feedback temperature, moisture,
   demand, aridity and freezing descriptors for Ecology, placement and analysis)
 - `artifact:hydrology.cryosphere` (cryosphere products; neutralized when knob disables it)
 
-Hydrology projection also provides two payload-free external-state completions:
+Hydrology projection also provides a payload-free external-state completion:
 
-- `completion:map.rainfall-projected` orders rivers after final rainfall has
-  been written into Civ7; legacy native river modeling consumes that surface.
 - `completion:map.rivers-plotted` gates consumers of final native river state.
   `artifact:map.rivers.projectedRivers` remains pre-materialization intent and
   therefore cannot substitute for this completion.
+
+Rainfall projection has no completion: authored rivers consume physical
+Hydrography artifacts, not native rainfall. Recipe order alone does not justify
+an external-state dependency.
 
 Accepted lake projection has no parallel completion:
 `artifact:hydrology.projectedLakes` carries the immutable accepted physical
@@ -185,29 +185,22 @@ The Standard recipe uses operation contracts such as:
 - `transportMoisture`
 - `computePrecipitation` (`vector` and `baseline` synthesis strategies)
 - `refinePrecipitation` (post-hydrography riparian and closed-basin wetness)
-- `computeDrainageRouting`
-- `accumulateDischarge`
 - `projectRiverNetwork`
-- `planLakes`
-- `classifyRiverNetwork`
 - `computeLocalRunoff`
 - `computeDrainageBasins`
-- `computeOpenBasinNetwork`
+- `computeBasinNetwork`
 - `classifyBasinRiverNetwork`
 - `computeLandWaterBudget`
 - `computePotentialDemand`
 - `computeCryosphereState`, `applyAlbedoFeedback`
 
-The single Standard `network` step orchestrates only the selected model's
-operations; operations do not call one another. The legacy branch retains
-conditioned routing, accumulation, sink-budget lakes, and legacy classification.
-The certified branch uses attributed double-precision local runoff, exact basin
+The single Standard `network` step orchestrates the bound operations;
+operations do not call one another. It uses attributed Number-precision local runoff, exact basin
 geometry, baseline rainfall/demand, and whole-body conservation before publishing
 consistent hydrography, lake, and river-network products. An unsupported result
 publishes no partial authoritative network.
 
-River projection is not a second physical model. Legacy projection selects a
-navigable subset under terrain constraints. Certified projection preserves every
+River projection is not a second physical model. Authored projection preserves every
 classified dry source and receiver, rejecting blocked or invalid intent instead
 of clipping sources or rerouting them. Mutation and readback remain local to
 projection and observation steps.
@@ -221,15 +214,12 @@ small set of stage knobs for product-level posture:
 - `hydrology-hydrography` knobs: `riverDensity` (physical river-network classification density)
 - `hydrology-climate-refine` knobs: `dryness`, `cryosphere`
 
-`hydrology-hydrography.water` is a closed, model-tagged public selection:
-`legacy-sink-budget` exposes its operation envelopes and relative `lakeiness`,
-while `certified-sill-spill` exposes only its four physical operation envelopes.
-`map-rivers.projection` similarly selects `legacy-procedural` with optional
-`navigableRiverDensity` and advanced thresholds, or `authored-network` without
-selection controls. Cross-stage admission requires compatible pairs. Earthlike
-authors the certified/authored pair; no lake count, area, or singleton quota is
-part of that physical selection. Legacy controls and acceptance remain scoped
-to legacy maps.
+`hydrology-hydrography.water` is a closed `certified-sill-spill` contract with
+four physical operation envelopes. `map-rivers` is configurationless and uses
+Core's closed empty surface, not a redundant projection identity. All shipped profiles
+use these contracts; lake count, area and singleton quotas are not physical
+inputs. Retired solver/projection identities and their controls are rejected
+by the owning schemas, not migrated into new physical coefficients.
 
 Step schemas and their bound operation contracts remain the advanced
 configuration surface. Knobs transform those admitted configs; they do not
@@ -258,7 +248,7 @@ The `map-hydrology` stage:
 - then projects static `artifact:hydrology.lakePlan` intent before engine elevation,
 - and does not compute a second rainfall or lake model.
 
-Legacy lake selection retains its landform constraints. Certified water is
+Physical water is
 computed after erosion/islands but before exposed mountain/volcano selection;
 that later selection reserves complete wet bodies and classified dry channels.
 Projection admits whole certified footprints or fails, never removes lake cells
@@ -271,12 +261,11 @@ then keeps mutable Civ7 mutation/readback as local trace, metrics, and
 visualization evidence. This matches Civ7's terrain lifecycle: static water
 before elevation, rivers after elevation.
 
-Hydrology routing is the canonical water-movement graph. Legacy routing uses a
-depression-conditioned surface. Certified routing preserves original dry-ground
+Hydrology routing is the canonical water-movement graph. It preserves original dry-ground
 receivers except explicit exact-sill outlet connectors, mixes wet-body supply
 and demand in body ledgers, and requires nonnegative outflows, acyclicity, and
 marine termination. Its interior wet connectivity is not a per-cell signed
-discharge budget. Neither branch consumes `artifact:morphology.routing`, which
+discharge budget. Hydrology does not consume `artifact:morphology.routing`, which
 remains a terrain-shaping proxy for Morphology consumers.
 
 Physical ground, certified spill-level water surface, and native numeric height
@@ -297,7 +286,7 @@ Hydrology river classes have distinct projection meanings:
   stream-order hierarchy and remain eligible for major-river projection.
 - `riverClass=1` is minor-river intent and must not be promoted into
   `TERRAIN_NAVIGABLE_RIVER`. Certified projection writes native MINOR for every
-  such dry source; legacy procedural metadata remains independently observed.
+  such dry source.
 - `riverClass>=2` is major-river intent and is the only hydrology class eligible
   for MapGen-owned navigable terrain projection. Major truth is routed trunk
   truth, not a set of isolated discharge-threshold outlet tiles. Certified
@@ -321,9 +310,7 @@ re-exported by `CIV7_RIVER_TYPES_V0`. A same-run Studio/Civ proof
 historical evidence that terrain rows and river metadata are separate surfaces;
 it is not the current product closure path.
 
-The explicitly legacy branch retains navigable terrain selection followed by
-`TerrainBuilder.modelRivers` and legacy maintenance. The certified authored
-branch instead lowers every dry source/receiver to `setRiverInfo`, invokes
+The authored projection lowers every dry source/receiver to `setRiverInfo`, invokes
 `finalizeRivers` once, and maintains native water data without procedural river
 generation. It emits no river writes inside wet bodies. Final placement rereads
 river classes against immutable `projectedRivers` intent and always emits a

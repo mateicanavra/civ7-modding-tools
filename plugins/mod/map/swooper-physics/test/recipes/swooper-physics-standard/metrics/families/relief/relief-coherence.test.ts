@@ -54,7 +54,7 @@ describe("Standard neutral relief coherence", () => {
         elevation: Int16Array.from(base.model.elevation, (e) => e + 200),
         physicalHydrology: {
           ...base.model.physicalHydrology,
-          routingElevation: Float32Array.from(base.model.physicalHydrology.routingElevation, (e) => e + 200),
+          waterSurface: base.model.physicalHydrology.waterSurface.map((e) => e + 200),
         },
       },
     };
@@ -266,7 +266,7 @@ describe("Standard neutral relief coherence", () => {
   it("separates physical uphill from downhill routing with terrain and lake overlap", () => {
     const input = reliefCoherenceFixture(6, 1);
     input.model.elevation.set([10, 30, 60, 100, 150, 210]);
-    input.model.physicalHydrology.routingElevation.set([100, 90, 80, 70, 60, 50]);
+    input.model.physicalHydrology.waterSurface = [100, 90, 80, 70, 60, 50];
     input.model.riverClass.fill(1);
     input.model.flowDir.set([1, 2, 3, 4, -1, 0]);
     input.model.mountainMask[0] = 1;
@@ -302,7 +302,7 @@ describe("Standard neutral relief coherence", () => {
     expect(river.invalidReceiverTiles.count).toBe(4);
     expect(river.validReceiverTiles.count).toBe(1);
     expect(river.representatives.invalidReceiverSources).toEqual([1, 2, 3, 4]);
-    input.model.physicalHydrology.routingElevation[0] = Number.NaN;
+    input.model.physicalHydrology.waterSurface[0] = Number.NaN;
     river = measureStandardReliefCoherence(input).authoredRiverEdges;
     expect(river.validReceiverTiles.count).toBe(1);
     expect(river.finiteDropEdges.count).toBe(0);
@@ -318,6 +318,12 @@ describe("Standard neutral relief coherence", () => {
     if (water.model !== "certified-sill-spill") throw new Error("Earthlike must use certified physical water");
     expect(Array.isArray(water.waterSurface)).toBe(true);
     expect(Object.isFrozen(water.waterSurface)).toBe(true);
+    for (const grid of [water.runoff, water.discharge]) {
+      expect(Array.isArray(grid)).toBe(true);
+      expect(Object.isFrozen(grid)).toBe(true);
+      expect(grid.length).toBe(capture.model.elevation.length);
+      expect(grid.some((value) => value !== Math.fround(value))).toBe(true);
+    }
     for (const pool of water.pools) {
       expect(Object.isFrozen(pool)).toBe(true);
       expect(Object.isFrozen(pool.catchmentCells)).toBe(true);
@@ -338,6 +344,9 @@ describe("Standard neutral relief coherence", () => {
     const fresh = captureFreshEarthlikeScenario();
     const freshWater = fresh.model.physicalHydrology;
     if (freshWater.model !== "certified-sill-spill") throw new Error("Earthlike must use certified physical water");
+    expect(freshWater.runoff).toEqual(water.runoff);
+    expect(freshWater.discharge).toEqual(water.discharge);
+    expect(freshWater.waterSurface).toEqual(water.waterSurface);
     capture.model.flowDir[0] = 123;
     expect(() => Reflect.set(water.waterSurface, "0", -123)).not.toThrow();
     expect(Reflect.set(water.waterSurface, "0", -123)).toBe(false);

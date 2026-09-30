@@ -1,5 +1,6 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
+/** Local rainfall withholding fractions for infiltration and humidity, without an independent runoff floor. */
 export default defineStrategy({
   id: "precipitation-attributed",
   config: Type.Object(

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import { createHash } from "node:crypto";
 import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
-import { expectCiv7MapScriptCompatibility } from "../runtime/civ7-map-script-compatibility.fixture.js";
+import { expectCiv7MapScriptCompatibility } from "./civ7-map-script-compatibility.fixture.js";
 import { RIVER_PROBE } from "./river-contract-map.fixture.js";
-import { buildRiverProbePlan, riverProbeMapScript } from "./river-contract-probe.js";
+import { buildRiverProbePlan, riverProbeMapScript } from "./river-contract-probe.fixture.js";
 import {
   buildWaterConnectivityElevation,
   buildWaterConnectivityFixture,

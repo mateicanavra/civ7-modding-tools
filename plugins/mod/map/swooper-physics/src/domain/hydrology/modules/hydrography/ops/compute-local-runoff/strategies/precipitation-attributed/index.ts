@@ -2,6 +2,7 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import contract from "../../contract.js";
 import definition from "./config.js";
 
+/** Attributes runoff to original-land rainfall after infiltration and humidity withholding; marine cells remain zero. */
 export default createStrategy(contract, definition, {
   run: (input, config) => {
     const size = input.width * input.height;

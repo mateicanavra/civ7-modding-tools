@@ -19,7 +19,6 @@ export type StandardGeographyMetrics = Readonly<{
   plannedLakes: CountMetric;
   projectedLakes: CountMetric;
   lakeProjectionCandidateCount: number;
-  lakeProjectionProtectedCount: number;
   projectedLakeComponents: ComponentMetricSummary;
   singleTileLakeTiles: CountMetric;
   lakeProjectionRejectedCount: number;
@@ -72,7 +71,6 @@ export function measureStandardGeography(capture: StandardMapCapture): StandardG
     ),
     projectedLakes: measureMetricCount(projectedLakeCount, plannedLand.count),
     lakeProjectionCandidateCount: capture.projection.lakes.plannedLakeTileCount,
-    lakeProjectionProtectedCount: capture.projection.lakes.morphologyProtectedLakeTileCount,
     projectedLakeComponents,
     singleTileLakeTiles: measureMetricCount(
       projectedLakeComponents.singleTileComponentCount,

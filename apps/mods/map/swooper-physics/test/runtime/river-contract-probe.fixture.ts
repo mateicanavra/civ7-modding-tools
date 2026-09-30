@@ -3,9 +3,11 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseArgs } from "node:util";
 
 import { applyGeneratedFilePlan, type GeneratedFilePlan } from "@civ7/plugin-files/generated-file-plan";
 import { assessCiv7SignedIntSeed } from "@civ7/map-policy/setup";
+import { findCiv7StandardMapSizePreset } from "@civ7/map-policy";
 import { loadSwooperMapConfigCatalog } from "@swooper/swooper-physics/tooling/catalog-source";
 import { canonicalMapConfigContentDigest, canonicalMapConfigDigest } from "@swooper/swooper-physics/standard/map-config";
 import { renderSwooperCatalogMapSource } from "../../src/runtime/file-plan.js";
@@ -26,41 +28,77 @@ const atlases: readonly string[] = ["legacy", "terrain-admission", "lake-navigat
 const isFullMapAtlas = (atlas: string): atlas is FullMapRiverProbeAtlas =>
   (FULL_MAP_RIVER_PROBE_ATLASES as readonly string[]).includes(atlas);
 
+/** Optional maintenance selection; omitted fields retain the historical Earthlike Huge diagnostic. */
+export type WaterHeightDiagnosticSelection = Readonly<{
+  sourceConfigId?: string;
+  mapSize?: string;
+  mapSeed?: number;
+  gameSeed?: number;
+  playerCount?: number;
+  lakeSizeCutoff?: "stock" | number;
+}>;
+
 /** Builds one diagnostic mod tree; installation identity and duplicate detection are separate concerns. */
-export async function buildRiverProbePlan(proofId: string, variant: RiverProbeVariant = "authored", atlasKind: RiverProbeAtlasSelection = "legacy", seed?: number): Promise<GeneratedFilePlan> {
+export async function buildRiverProbePlan(proofId: string, variant: RiverProbeVariant = "authored", atlasKind: RiverProbeAtlasSelection = "legacy", seedOrSelection?: number | WaterHeightDiagnosticSelection): Promise<GeneratedFilePlan> {
   if (!/^[a-zA-Z0-9-]{1,100}$/.test(proofId)) throw new Error("Use a short alphanumeric/hyphen proof ID.");
   if (!Object.hasOwn(RIVER_PROBE_VARIANTS, variant)) throw new Error(`Unknown river probe variant: ${variant}`);
   if (!atlases.includes(atlasKind)) throw new Error(`Unknown river probe atlas: ${atlasKind}`);
   if (atlasKind !== "legacy" && variant !== "authored") throw new Error("Adapter atlases require the authored finalization tuple.");
   const maxLakeCutoff = atlasKind === WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS;
   const boundedLakeCutoff = atlasKind === WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS;
-  const lakeCutoff = atlasKind === WATER_HEIGHT_LAKE_CUTOFF_ATLAS || maxLakeCutoff || boundedLakeCutoff;
-  const maintenance = atlasKind === WATER_HEIGHT_MAINTENANCE_ATLAS || lakeCutoff;
-  if (seed !== undefined && (!maintenance || !assessCiv7SignedIntSeed(seed).ok))
+  const cutoffAtlas = atlasKind === WATER_HEIGHT_LAKE_CUTOFF_ATLAS || maxLakeCutoff || boundedLakeCutoff;
+  const maintenance = atlasKind === WATER_HEIGHT_MAINTENANCE_ATLAS || cutoffAtlas;
+  const selection = typeof seedOrSelection === "number"
+    ? { mapSeed: seedOrSelection, gameSeed: seedOrSelection } : seedOrSelection ?? {};
+  if (seedOrSelection !== undefined && !maintenance)
     throw new Error("An explicit signed 32-bit seed is supported only for maintenance atlases.");
-  // This selects truthful launch metadata, not a seed-specific generation admission or cutoff.
-  const maintenanceProbe = { ...(boundedLakeCutoff ? WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE : maxLakeCutoff ? WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE : lakeCutoff ? WATER_HEIGHT_LAKE_CUTOFF_PROBE : WATER_HEIGHT_MAINTENANCE_PROBE),
-    ...(seed === undefined ? {} : { mapSeed: seed, gameSeed: seed }) };
+  const preset = findCiv7StandardMapSizePreset(selection.mapSize ?? WATER_HEIGHT_MAINTENANCE_PROBE.mapSize);
+  if (!preset) throw new Error(`Unknown diagnostic map size: ${selection.mapSize}`);
+  const mapSeed = selection.mapSeed ?? WATER_HEIGHT_MAINTENANCE_PROBE.mapSeed;
+  const gameSeed = selection.gameSeed ?? WATER_HEIGHT_MAINTENANCE_PROBE.gameSeed;
+  if (!assessCiv7SignedIntSeed(mapSeed).ok || !assessCiv7SignedIntSeed(gameSeed).ok)
+    throw new Error("Maintenance diagnostics require independent signed 32-bit seeds.");
+  const playerCount = selection.playerCount ?? preset.defaultPlayers;
+  if (!Number.isSafeInteger(playerCount) || playerCount <= 0
+    || playerCount > preset.mapInfo.PlayersLandmass1 + preset.mapInfo.PlayersLandmass2)
+    throw new Error("Diagnostic playerCount must be a positive integer within the selected start-slot capacity.");
+  const defaultCutoff = maxLakeCutoff ? preset.dimensions.width * preset.dimensions.height
+    : boundedLakeCutoff ? WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE.expectedLakeSizeCutoff
+    : cutoffAtlas ? WATER_HEIGHT_LAKE_CUTOFF_PROBE.expectedLakeSizeCutoff : preset.mapInfo.LakeSizeCutoff;
+  const expectedLakeSizeCutoff = selection.lakeSizeCutoff === "stock"
+    ? preset.mapInfo.LakeSizeCutoff : selection.lakeSizeCutoff ?? defaultCutoff;
+  if (!Number.isSafeInteger(expectedLakeSizeCutoff) || expectedLakeSizeCutoff <= 0
+    || expectedLakeSizeCutoff > preset.dimensions.width * preset.dimensions.height)
+    throw new Error("Diagnostic lake cutoff must be a positive integer no greater than the selected cell count.");
+  // Resolve once for the observer, scoped treatment, proof, and launch receipt.
+  const maintenanceProbe = { ...(boundedLakeCutoff ? WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE : maxLakeCutoff ? WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE : cutoffAtlas ? WATER_HEIGHT_LAKE_CUTOFF_PROBE : WATER_HEIGHT_MAINTENANCE_PROBE),
+    width: preset.dimensions.width, height: preset.dimensions.height, mapSize: preset.id,
+    mapSeed, gameSeed, playerCount, sourceConfigId: selection.sourceConfigId ?? WATER_HEIGHT_MAINTENANCE_PROBE.sourceConfigId,
+    expectedLakeSizeCutoff };
+  const lakeCutoff = maintenance && expectedLakeSizeCutoff !== preset.mapInfo.LakeSizeCutoff;
   const fullMap = isFullMapAtlas(atlasKind) || maintenance;
   const waterConnectivity = isWaterConnectivityAtlas(atlasKind);
   const probe = waterConnectivity ? waterConnectivityProbe(atlasKind) : fullMap ? { ...RIVER_PROBE, ...(maintenance ? maintenanceProbe : FULL_MAP_RIVER_PROBE) } : atlasKind === "terrain-admission" ? RIVER_TERRAIN_PROBE : atlasKind === "lake-navigation" ? RIVER_LAKE_NAVIGATION_PROBE : RIVER_PROBE;
   const scopedCutoff = waterConnectivity ? waterConnectivityProbe(atlasKind).expectedLakeSizeCutoff : lakeCutoff ? maintenanceProbe.expectedLakeSizeCutoff : undefined;
-  const cutoffMapSize = waterConnectivity ? "MAPSIZE_TINY" : "MAPSIZE_HUGE";
+  const cutoffMapSize = waterConnectivity ? "MAPSIZE_TINY" : preset.id;
+  const launchMapSize = maintenance ? preset.id : fullMap ? "MAPSIZE_HUGE" : "MAPSIZE_TINY";
+  const launchDescription = maintenance ? `${preset.label}, ${playerCount} players` : fullMap ? "Huge, ten players" : "Tiny, four players";
   const displayLabel = "displayLabel" in probe ? probe.displayLabel : "River Contract Probe";
   const adapterImport = atlasKind !== "legacy" ? 'import { Civ7Adapter } from "./src/runtime/map-script/adapter.ts";\n' : "";
   const adapterFactory = atlasKind !== "legacy" ? ", (width, height) => new Civ7Adapter(width, height)" : "";
-  let source = `${adapterImport}import { registerRiverContractProbe } from "./test/live/river-contract-map.fixture.ts";\nregisterRiverContractProbe(${JSON.stringify(proofId)}, ${JSON.stringify(variant)}, ${JSON.stringify(atlasKind)}${adapterFactory});`;
+  let source = `${adapterImport}import { registerRiverContractProbe } from "./test/runtime/river-contract-map.fixture.ts";\nregisterRiverContractProbe(${JSON.stringify(proofId)}, ${JSON.stringify(variant)}, ${JSON.stringify(atlasKind)}${adapterFactory});`;
   let waterFixtureSourceSha256: string | undefined;
   if (waterConnectivity) {
     waterFixtureSourceSha256 = createHash("sha256").update(await readFile(new URL("./water-connectivity.fixture.ts", import.meta.url))).digest("hex");
-    source = `${adapterImport}import { registerRiverContractProbe } from "./test/live/river-contract-map.fixture.ts";
-import { buildWaterConnectivityFixture } from "./test/live/water-connectivity.fixture.ts";
+    source = `${adapterImport}import { registerRiverContractProbe } from "./test/runtime/river-contract-map.fixture.ts";
+import { buildWaterConnectivityFixture } from "./test/runtime/water-connectivity.fixture.ts";
 registerRiverContractProbe(${JSON.stringify(proofId)}, ${JSON.stringify(variant)}, ${JSON.stringify(atlasKind)}${adapterFactory}, buildWaterConnectivityFixture(${JSON.stringify(atlasKind)}, ${JSON.stringify(waterFixtureSourceSha256)}));`;
   }
   let identity: FullMapProbeIdentity | undefined;
   if (fullMap) {
-    const [config] = await loadSwooperMapConfigCatalog({ catalogConfigIds: ["swooper-earthlike"] });
-    if (!config || config.canonicalConfig.id !== "swooper-earthlike") throw new Error("Missing canonical swooper-earthlike config.");
+    const sourceConfigId = maintenance ? maintenanceProbe.sourceConfigId : FULL_MAP_RIVER_PROBE.sourceConfigId;
+    const [config] = await loadSwooperMapConfigCatalog({ catalogConfigIds: [sourceConfigId] });
+    if (!config || config.canonicalConfig.id !== sourceConfigId) throw new Error(`Missing canonical ${sourceConfigId} config.`);
     identity = { configHash: canonicalMapConfigContentDigest(config.canonicalConfig),
       envelopeHash: canonicalMapConfigDigest(config.canonicalConfig),
       fixtureSourceSha256: createHash("sha256").update(await readFile(new URL(maintenance ? "./water-height-maintenance.fixture.ts" : "./river-full-map.fixture.ts", import.meta.url))).digest("hex") };
@@ -71,7 +109,7 @@ import standardRecipe, {
   STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
   STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
 } from "@swooper/swooper-physics/standard";
-import { projectLakeCutoffInitialSetup } from "./test/live/water-height-maintenance.fixture.ts";
+import { projectLakeCutoffInitialSetup } from "./test/runtime/water-height-maintenance.fixture.ts";
 const mapConfig = ${JSON.stringify(config.canonicalConfig, null, 2)} as unknown as StandardMapConfigEnvelope;
 export default createMap({
   ...mapConfig,
@@ -84,12 +122,12 @@ export default createMap({
     requestedMapOptions: STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
     requestedGameOptions: STANDARD_INITIAL_GAME_OPTION_DESCRIPTORS,
     requestedPlayerOptions: STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
-    project: ${maxLakeCutoff || boundedLakeCutoff ? `(capture) => projectLakeCutoffInitialSetup(capture, ${maintenanceProbe.expectedLakeSizeCutoff})` : "projectLakeCutoffInitialSetup"},
+    project: (capture) => projectLakeCutoffInitialSetup(capture, ${maintenanceProbe.expectedLakeSizeCutoff}, ${JSON.stringify(preset.id)}),
   },
 });` : renderSwooperCatalogMapSource(config);
-    source = maintenance ? `${adapterImport}import { installWaterHeightMaintenanceProbe } from "./test/live/water-height-maintenance.fixture.ts";
+    source = maintenance ? `${adapterImport}import { installWaterHeightMaintenanceProbe } from "./test/runtime/water-height-maintenance.fixture.ts";
 installWaterHeightMaintenanceProbe(Civ7Adapter.prototype, ${JSON.stringify(proofId)}, ${JSON.stringify(identity)}, ${JSON.stringify(maintenanceProbe)});
-${mapSource}` : `${adapterImport}import { installFullMapRiverProbe } from "./test/live/river-full-map.fixture.ts";
+${mapSource}` : `${adapterImport}import { installFullMapRiverProbe } from "./test/runtime/river-full-map.fixture.ts";
 installFullMapRiverProbe(Civ7Adapter.prototype, ${JSON.stringify(proofId)}, ${JSON.stringify(atlasKind)}, ${JSON.stringify(identity)});
 ${renderSwooperCatalogMapSource(config)}`;
   }
@@ -107,7 +145,7 @@ ${renderSwooperCatalogMapSource(config)}`;
       ...(scopedCutoff !== undefined ? [{ relativePath: "config/lake-cutoff.xml", content: `<?xml version="1.0" encoding="utf-8"?>
 <Database><Maps><Update><Where MapSizeType="${cutoffMapSize}"/><Set LakeSizeCutoff="${scopedCutoff}"/></Update></Maps></Database>` }] : []),
       { relativePath: "text/en_us/MapText.xml", content: `<?xml version="1.0" encoding="utf-8"?>
-<Database><EnglishText><Row Tag="LOC_RIVER_CONTRACT_NAME"><Text>${displayLabel}</Text></Row><Row Tag="LOC_RIVER_CONTRACT_DESCRIPTION"><Text>Disposable native river diagnostic. ${fullMap ? "Huge, ten players" : "Tiny, four players"}. Revision ${probe.diagnosticRevision}.</Text></Row></EnglishText></Database>` },
+<Database><EnglishText><Row Tag="LOC_RIVER_CONTRACT_NAME"><Text>${displayLabel}</Text></Row><Row Tag="LOC_RIVER_CONTRACT_DESCRIPTION"><Text>Disposable native river diagnostic. ${launchDescription}. Revision ${probe.diagnosticRevision}.</Text></Row></EnglishText></Database>` },
       { relativePath: `${RIVER_PROBE.id}.modinfo`, content: `<?xml version="1.0" encoding="utf-8"?>
 <Mod id="${RIVER_PROBE.id}" version="1" xmlns="ModInfo">
   <Properties><Name>${displayLabel}</Name><Description>Disposable native river diagnostic revision ${probe.diagnosticRevision}</Description><Authors>Swooper</Authors><Package>Mod</Package></Properties>
@@ -127,15 +165,17 @@ ${renderSwooperCatalogMapSource(config)}`;
         ...(isFullMapAtlas(atlasKind) ? { intervention: { riverClass: "NAVIGABLE",
           extraWriteCount: FULL_MAP_RIVER_PROBE_EDGES[atlasKind].length, edges: FULL_MAP_RIVER_PROBE_EDGES[atlasKind] } } : {}),
         ...(lakeCutoff ? { intervention: { kind: "source-qualified-classification-only", scope: "game",
-          criterion: { MapInUse: riverProbeMapScript }, table: "Maps", where: { MapSizeType: "MAPSIZE_HUGE" },
+          criterion: { MapInUse: riverProbeMapScript }, table: "Maps", where: { MapSizeType: preset.id },
           set: { LakeSizeCutoff: maintenanceProbe.expectedLakeSizeCutoff },
-          setupSelection: `custom; captured Huge metadata differs only at numeric LakeSizeCutoff ${maintenanceProbe.expectedLakeSizeCutoff}`,
+          setupSelection: `custom; captured ${preset.label} metadata differs only at numeric LakeSizeCutoff ${maintenanceProbe.expectedLakeSizeCutoff}`,
           qualification: `Activation requires measured MapInfo cutoff ${maintenanceProbe.expectedLakeSizeCutoff}; no height, visual or navigation success claimed.`,
-          ...(maxLakeCutoff ? { discriminator: "Huge cell-count stress treatment only, not a product cutoff; changed marine lake identity is a result, not an activation refusal." } : {}),
-          ...(boundedLakeCutoff ? { discriminator: "Predeclared bounded cutoff40 versus stock10 on Huge42, then unchanged on Huge1018; not a product cutoff. Native lake coverage, original marine identity/heights and collateral fields require measured comparison; changed classifications are results, not activation refusals." } : {}),
+          ...(maxLakeCutoff ? { discriminator: `${preset.label} cell-count stress atlas, selected cutoff ${expectedLakeSizeCutoff}; not a product cutoff; changed marine lake identity is a result, not an activation refusal.` } : {}),
+          ...(boundedLakeCutoff ? { discriminator: `Predeclared bounded cutoff40 versus stock10 on Huge42, then unchanged on Huge1018 is the legacy reference. Selected ${maintenanceProbe.sourceConfigId}/${preset.id} cutoff${expectedLakeSizeCutoff} versus stock${preset.mapInfo.LakeSizeCutoff}; not a product cutoff. Native lake coverage, original marine identity/heights and collateral fields require measured comparison; changed classifications are results, not activation refusals.` } : {}),
         } } : {}),
         settings: RIVER_PROBE_VARIANTS[variant], scriptSha256: createHash("sha256").update(content).digest("hex"),
         mapScript: riverProbeMapScript, installDirectoryName: riverProbeInstallDirectoryName,
+        liveVerifierFlags: ["--mutate", "--map-script", riverProbeMapScript, "--map-size", launchMapSize,
+          "--seed", String(probe.mapSeed), "--game-seed", String(probe.gameSeed), "--player-count", String(probe.playerCount)],
         evidence: "built-only; no native observations",
         qualification: "completion means all diagnostic phases ran, not river parity or successful writes",
         networkWitness: "experimental bounded ordinal-to-ID-to-plots lookup; no shipped argument contract",
@@ -144,23 +184,45 @@ ${renderSwooperCatalogMapSource(config)}`;
   };
 }
 
+/** Parses build-only selectors while retaining the original positional maintenance seed. */
+export function parseRiverProbeArguments(args: readonly string[]) {
+  const [proofId, variant = "authored", atlasKind = "legacy", ...rest] = args;
+  if (!proofId || !Object.hasOwn(RIVER_PROBE_VARIANTS, variant) || !atlases.includes(atlasKind))
+    throw new Error("Usage: river-contract-probe <proof-id> [variant] [atlas] [maintenance-seed] [--profile id --map-size id --map-seed n --game-seed n --player-count n --lake-cutoff stock|n] (build only)");
+  const seedArgument = rest[0] !== undefined && /^-?\d+$/.test(rest[0]) ? rest.shift() : undefined;
+  const { values } = parseArgs({ args: rest, options: {
+    profile: { type: "string" }, "map-size": { type: "string" }, "map-seed": { type: "string" },
+    "game-seed": { type: "string" }, "player-count": { type: "string" }, "lake-cutoff": { type: "string" },
+  } });
+  if (seedArgument !== undefined && Object.keys(values).length > 0)
+    throw new Error("Choose the legacy maintenance seed or explicit selection flags, not both.");
+  const integer = (value: string): number => {
+    if (!/^-?\d+$/.test(value)) throw new Error(`Expected an integer diagnostic selector: ${value}`);
+    return Number(value);
+  };
+  const selection: WaterHeightDiagnosticSelection | number | undefined = seedArgument !== undefined
+    ? integer(seedArgument) : Object.keys(values).length === 0 ? undefined : {
+      ...(values.profile === undefined ? {} : { sourceConfigId: values.profile }),
+      ...(values["map-size"] === undefined ? {} : { mapSize: values["map-size"] }),
+      ...(values["map-seed"] === undefined ? {} : { mapSeed: integer(values["map-seed"]) }),
+      ...(values["game-seed"] === undefined ? {} : { gameSeed: integer(values["game-seed"]) }),
+      ...(values["player-count"] === undefined ? {} : { playerCount: integer(values["player-count"]) }),
+      ...(values["lake-cutoff"] === undefined ? {} : { lakeSizeCutoff: values["lake-cutoff"] === "stock" ? "stock" : integer(values["lake-cutoff"]) }),
+    };
+  return { proofId, variant: variant as RiverProbeVariant, atlasKind: atlasKind as RiverProbeAtlasSelection, selection };
+}
+
 if (import.meta.main) {
-  const proofId = process.argv[2];
-  const variant = process.argv[3] ?? "authored";
-  const atlasKind = process.argv[4] ?? "legacy";
-  const seedArgument = process.argv[5];
-  if (!proofId || process.argv.length > 6 || !Object.hasOwn(RIVER_PROBE_VARIANTS, variant) || !atlases.includes(atlasKind)
-    || seedArgument !== undefined && !/^-?\d+$/.test(seedArgument))
-    throw new Error(`Usage: bun test/live/river-contract-probe.ts <proof-id> [authored|aesthetic|length|upstream|percent] [${atlases.join("|")}] [maintenance-seed] (build only)`);
-  const seed = seedArgument === undefined ? undefined : Number(seedArgument);
-  await applyGeneratedFilePlan(await buildRiverProbePlan(proofId, variant as RiverProbeVariant, atlasKind as RiverProbeAtlasSelection, seed), { outputRoot: riverProbeOutputRoot });
-  const fullMap = isFullMapAtlas(atlasKind) || atlasKind === WATER_HEIGHT_MAINTENANCE_ATLAS || atlasKind === WATER_HEIGHT_LAKE_CUTOFF_ATLAS || atlasKind === WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS || atlasKind === WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS;
-  const probe = { ...(isWaterConnectivityAtlas(atlasKind) ? waterConnectivityProbe(atlasKind) : atlasKind === WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS ? WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE : atlasKind === WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS ? WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE : atlasKind === WATER_HEIGHT_LAKE_CUTOFF_ATLAS ? WATER_HEIGHT_LAKE_CUTOFF_PROBE : atlasKind === WATER_HEIGHT_MAINTENANCE_ATLAS ? WATER_HEIGHT_MAINTENANCE_PROBE : fullMap ? FULL_MAP_RIVER_PROBE : RIVER_PROBE),
-    ...(seed === undefined ? {} : { mapSeed: seed, gameSeed: seed }) };
+  const { proofId, variant, atlasKind, selection } = parseRiverProbeArguments(process.argv.slice(2));
+  const plan = await buildRiverProbePlan(proofId, variant, atlasKind, selection);
+  const proofContent = plan.files.find((file) => file.relativePath === "proof.json")?.content;
+  if (typeof proofContent !== "string") throw new Error("Missing diagnostic proof receipt.");
+  const proof = JSON.parse(proofContent);
+  await applyGeneratedFilePlan(plan, { outputRoot: riverProbeOutputRoot });
   console.log(JSON.stringify({ outputRoot: riverProbeOutputRoot, proofId, variant, atlasKind,
     mapScript: riverProbeMapScript, installDirectoryName: riverProbeInstallDirectoryName,
     deployFlags: riverProbeDeployFlags,
-    liveVerifierFlags: ["--mutate", "--map-script", riverProbeMapScript, "--map-size", fullMap ? "MAPSIZE_HUGE" : "MAPSIZE_TINY", "--seed", String(probe.mapSeed), "--game-seed", String(probe.gameSeed), "--player-count", String(probe.playerCount)],
+    liveVerifierFlags: proof.liveVerifierFlags,
     status: "built-only; installation and live launch require separate authorization",
   }, null, 2));
 }

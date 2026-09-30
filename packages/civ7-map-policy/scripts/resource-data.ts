@@ -1,5 +1,6 @@
 import { Database } from "bun:sqlite";
 
+/** Gameplay SQL schema path relative to the official resource corpus, which owns omitted XML defaults. */
 export const RESOURCE_GAMEPLAY_SCHEMA = "Base/Assets/schema/gameplay/01_GameplaySchema.sql";
 
 type Attributes = Readonly<Record<string, string>>;
@@ -49,6 +50,7 @@ export function readResourceDefaults(schema: string): ResourceDefaults {
   }
 }
 
+/** Resolve resource XML facts using schema defaults only for omitted attributes; reject invalid authored values. */
 export function resolveResourceFacts(attributes: Attributes, defaults: ResourceDefaults) {
   const context = attributes.ResourceType ?? "Resources row";
   return {
@@ -67,6 +69,7 @@ export function resolveResourceFacts(attributes: Attributes, defaults: ResourceD
   };
 }
 
+/** Resolve a positive finite placement weight, preserving fractions and defaulting only when the XML omits it. */
 export function resolveResourcePlacementWeight(
   attributes: Attributes,
   defaults: ResourceDefaults

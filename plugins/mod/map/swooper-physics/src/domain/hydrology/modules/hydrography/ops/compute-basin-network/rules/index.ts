@@ -4,6 +4,7 @@ import { validateNetworkInput } from "./validate.js";
 import { solvePools } from "./solve.js";
 import { assembleNetwork } from "./assemble.js";
 
+/** Validates geometry and forcing, resolves pools, and assembles a full ledger only for supported responses. */
 export function computeBasinNetwork(input: NetworkInput) {
   const size = input.width * input.height;
   requireValid(Number.isSafeInteger(size) && size > 0 && size <= 0x7fffffff && size === input.elevation.length, "grid cardinality");

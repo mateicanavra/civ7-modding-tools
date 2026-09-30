@@ -3,6 +3,7 @@ import { AtmosphericSampleSchema } from "../../model/atoms/atmospheric-sample.sc
 import { ClimateSamplingModelSchema } from "../../model/atoms/climate-phase.schema.js";
 import phaseReduction from "./strategies/phase-reduction/config.js";
 
+/** Owns tagged atmospheric reductions, keeping thermal centering distinct from weather and annual means. */
 export default defineOp({
   kind: "compute",
   id: "hydrology/compute-atmospheric-aggregate",

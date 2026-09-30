@@ -25,13 +25,13 @@ function distribution(values: readonly number[]) {
 export function measureStandardNetworkCoherence(capture: NetworkCoherenceInput) {
   const { model } = capture;
   const physical = model.physicalHydrology;
-  if (physical.model !== "certified-sill-spill") return null;
+  if (physical.model !== "certified-sill-spill") throw new Error("Expected completed basin evidence.");
   const { width, height } = capture.provenance;
   const size = width * height;
   const upstreamMajorCount = new Uint16Array(size);
   const transitions = measureWetTransitions(capture);
   const wetTransitions = transitions.writes;
-  const wetWrites = wetTransitions === null ? null : new Map(wetTransitions.map((write) => [write.sourceCell, write]));
+  const wetWrites = new Map(wetTransitions.map((write) => [write.sourceCell, write]));
   let originalLand = 0, exposedLand = 0, nonMountainExposedLand = 0;
   let minorSources = 0, majorSources = 0, equalHeightDryReceivers = 0;
   let invalidDryReceivers = 0, ascendingHydraulicReceivers = 0;
@@ -96,7 +96,7 @@ export function measureStandardNetworkCoherence(capture: NetworkCoherenceInput) 
       if (model.riverClass[cell]! > 0 && receiver >= 0 && physical.bodyId[receiver] === body.bodyId)
         incoming.push(cell);
     }
-    const write = wetWrites?.get(edge.wetCell);
+    const write = wetWrites.get(edge.wetCell);
     return {
       bodyId: body.bodyId,
       transportKind: edge.transportKind,
@@ -108,7 +108,7 @@ export function measureStandardNetworkCoherence(capture: NetworkCoherenceInput) 
       receiverClass: model.riverClass[edge.adjacentCell]!,
       outflow: edge.outwardDischarge,
       classifiedInletCells: incoming,
-      wetOutletWritePresent: wetWrites === null ? null : write?.receiverCell === edge.adjacentCell
+      wetOutletWritePresent: write?.receiverCell === edge.adjacentCell
         && write.bodyId === body.bodyId && write.role === "outlet" && write.riverClass === "NAVIGABLE",
       selectedForNativeWrite: transitions.selected.get(edge.wetCell) === edge,
     };
@@ -132,14 +132,12 @@ export function measureStandardNetworkCoherence(capture: NetworkCoherenceInput) 
     equalHeightDryReceivers, invalidDryReceivers, ascendingHydraulicReceivers,
     majorSegmentStarts, lakeOutlets, lowerAdjacentLakeBypasses,
     classifiedLakeOutletCount: classifiedOutlets.length,
-    unauthoredClassifiedWetOutletCount: wetWrites === null ? null
-      : classifiedOutlets.filter((outlet) => !outlet.wetOutletWritePresent).length,
-    wetTransitionWriteCount: wetTransitions?.length ?? null,
+    unauthoredClassifiedWetOutletCount: classifiedOutlets.filter((outlet) => !outlet.wetOutletWritePresent).length,
+    wetTransitionWriteCount: wetTransitions.length,
     inwardOrZeroWetExchangeCount: transitions.exchanges.filter((edge) => edge.outwardDischarge <= 0).length,
     secondaryWetExchangeCount: navigableOutlets.filter((outlet) => !outlet.selectedForNativeWrite).length,
     wetTransitionsComplete: transitions.wetTransitionsComplete,
     navigableLakeOutletCount: navigableOutlets.length,
-    unauthoredNavigableWetOutletCount: wetWrites === null ? null
-      : navigableOutlets.filter((outlet) => outlet.selectedForNativeWrite && !outlet.wetOutletWritePresent).length,
+    unauthoredNavigableWetOutletCount: navigableOutlets.filter((outlet) => outlet.selectedForNativeWrite && !outlet.wetOutletWritePresent).length,
   };
 }

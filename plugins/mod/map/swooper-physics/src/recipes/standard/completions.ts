@@ -6,7 +6,6 @@ export const STANDARD_COMPLETIONS = {
   continentsPlotted: "completion:map.continents-plotted",
   mountainsPlotted: "completion:map.mountains-plotted",
   volcanoesPlotted: "completion:map.volcanoes-plotted",
-  rainfallProjected: "completion:map.rainfall-projected",
   elevationBuilt: "completion:map.elevation-built",
   riversPlotted: "completion:map.rivers-plotted",
   biomesApplied: "completion:engine.biomes-applied",

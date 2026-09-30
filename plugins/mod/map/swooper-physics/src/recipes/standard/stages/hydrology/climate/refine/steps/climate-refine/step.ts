@@ -78,9 +78,7 @@ export const ClimateRefineStep = createStep(config, {
     const topography = deps.artifacts.topography.read();
     const lakePlan = deps.artifacts.lakePlan.read();
     // Thermal water means sea-level ocean, not elevated lake exposure; only the land budget uses this mask.
-    const exposedLandMask = lakePlan.model === "certified-sill-spill"
-      ? Uint8Array.from(topography.landMask, (land, i) => land === 1 && lakePlan.lakeMask[i] === 0 ? 1 : 0)
-      : topography.landMask;
+    const exposedLandMask = Uint8Array.from(topography.landMask, (land, i) => land === 1 && lakePlan.lakeMask[i] === 0 ? 1 : 0);
 
     const baselineClimateField = deps.artifacts.baselineClimateField.read();
     const thermalField = deps.artifacts.thermalField.read();

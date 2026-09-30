@@ -29,11 +29,11 @@ export function measureWetTransitions({ model, projection }: Input) {
       (edge.outwardDischarge === prior.outwardDischarge && edge.adjacentCell < prior.adjacentCell)) selected.set(edge.wetCell, edge);
   }
   const projected = projection.navigableRivers;
-  const writes = projected.model === "certified-sill-spill" ? projected.wetTransitionWrites : null;
-  const dispositions = projected.model === "certified-sill-spill" ? projected.wetTransitionDispositions : null;
+  const writes = projected.wetTransitionWrites;
+  const dispositions = projected.wetTransitionDispositions;
   let invalidWetTransitionWriteCount = 0, invalidWetTransitionDispositionCount = 0;
   const seenWrites = new Set<number>();
-  for (const write of writes ?? []) {
+  for (const write of writes) {
     const edge = selected.get(write.sourceCell);
     if (!edge || seenWrites.has(write.sourceCell) || edge.bodyId !== write.bodyId || edge.adjacentCell !== write.receiverCell ||
       write.role !== "outlet" || write.riverClass !== "NAVIGABLE") invalidWetTransitionWriteCount++;
@@ -43,7 +43,7 @@ export function measureWetTransitions({ model, projection }: Input) {
   const key = (edge: Exchange) => `${edge.transportKind}:${edge.wetCell}:${edge.adjacentCell}`;
   const expected = new Map(exchanges.map((edge) => [key(edge), edge]));
   const seenDispositions = new Set<string>();
-  for (const row of dispositions ?? []) {
+  for (const row of dispositions) {
     const edge = expected.get(key(row));
     const disposition = !edge || edge.outwardDischarge <= 0 ? "inward-or-zero" : !eligible(edge) ? "receiver-not-dry-nav"
       : selected.get(edge.wetCell) === edge ? "authored" : "same-source-secondary";
@@ -56,7 +56,7 @@ export function measureWetTransitions({ model, projection }: Input) {
     exchanges, selected, writes,
     invalidWetTransitionWriteCount, missingWetTransitionWriteCount,
     invalidWetTransitionDispositionCount, missingWetTransitionDispositionCount,
-    wetTransitionsComplete: writes !== null && dispositions !== null && invalidWetTransitionWriteCount === 0 &&
+    wetTransitionsComplete: invalidWetTransitionWriteCount === 0 &&
       missingWetTransitionWriteCount === 0 && invalidWetTransitionDispositionCount === 0 && missingWetTransitionDispositionCount === 0,
   };
 }

@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { runInNewContext } from "node:vm";
 
 import { decodeBoundedJsonLogSeries } from "@swooper/mapgen-core/lib/log";
-import { expectCiv7MapScriptCompatibility } from "../runtime/civ7-map-script-compatibility.fixture.js";
+import { expectCiv7MapScriptCompatibility } from "./civ7-map-script-compatibility.fixture.js";
 import {
   buildElevationProbeInput,
   buildLakeElevationProbeInput,
@@ -11,7 +11,7 @@ import {
   LAKE_LEVEL_CONTROLS,
   probeTerrainAt,
 } from "./elevation-contract-map.fixture.js";
-import { buildElevationProbePlan, elevationProbeMapScript } from "./elevation-contract-probe.js";
+import { buildElevationProbePlan, elevationProbeMapScript } from "./elevation-contract-probe.fixture.js";
 
 describe("elevation diagnostic artifact (not native behavior proof)", () => {
   test("full asymmetric JS arrays cover bounded scale, fractional and water probes", () => {

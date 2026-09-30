@@ -143,12 +143,8 @@ export const MountainsStep = createStep(config, {
     const topography = deps.artifacts.topography.read();
     const lakePlan = deps.artifacts.lakePlan.read();
     const hydrography = deps.artifacts.hydrography.read();
-    const landMask = lakePlan.model === "certified-sill-spill"
-      ? Uint8Array.from(topography.landMask, (land, i) => land === 1 && lakePlan.lakeMask[i] === 0 ? 1 : 0)
-      : topography.landMask;
-    const candidateMask = lakePlan.model === "certified-sill-spill"
-      ? Uint8Array.from(landMask, (land, i) => land === 1 && hydrography.riverClass[i] === 0 ? 1 : 0)
-      : landMask;
+    const landMask = Uint8Array.from(topography.landMask, (land, i) => land === 1 && lakePlan.lakeMask[i] === 0 ? 1 : 0);
+    const candidateMask = Uint8Array.from(landMask, (land, i) => land === 1 && hydrography.riverClass[i] === 0 ? 1 : 0);
     const beltDrivers = deps.artifacts.beltDrivers.read();
     const substrate = deps.artifacts.substrate.read();
     const routing = deps.artifacts.routing.read();

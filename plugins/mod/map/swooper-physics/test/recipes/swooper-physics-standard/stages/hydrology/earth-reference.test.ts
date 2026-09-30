@@ -224,7 +224,6 @@ describe("fixed Earth native-index drainage diagnostic", () => {
       )
     ).toBe(true);
     const classInput = {
-      channelSemantics: "principal-adjacent" as const,
       width: input.width,
       height: input.height,
       landMask: input.landMask,

@@ -102,7 +102,7 @@ Notes:
 Representative example (artifact and completion dependencies; excerpt; see full file in anchors):
 
 ```ts
-import { Type, defineStep } from "@swooper/mapgen-core/authoring";
+import { defineStep } from "@swooper/mapgen-core/authoring";
 import { artifacts as hydrologyHydrographyArtifacts } from "../../../../../../../domain/hydrology/modules/hydrography/artifacts/index.js";
 
 import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
@@ -110,28 +110,25 @@ import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
 /** Contract and compiled configuration boundary for Civ7 river projection. */
 export const config = defineStep({
   id: "plot-rivers",
+  description: "Projects the admitted physical river sources with their authored receivers.",
   requires: [
     STANDARD_COMPLETIONS.elevationBuilt,
-    STANDARD_COMPLETIONS.rainfallProjected,
     hydrologyHydrographyArtifacts.hydrography,
   ],
   provides: [
     STANDARD_COMPLETIONS.riversPlotted,
-    hydrologyHydrographyArtifacts.projectedNavigableRivers,
+    hydrologyHydrographyArtifacts.projectedRivers,
   ],
-  schema: Type.Object({
-    endpointDischargePercentileMin: Type.Number({ minimum: 0, maximum: 1 }),
-    targetMajorTileFraction: Type.Number({ minimum: 0, maximum: 1 }),
-  }),
 });
 ```
 
-`plot-rivers` deliberately has no domain operation for engine-constrained
-navigable selection. Its `step.ts` calls the stage-owned
-`model/policy/navigable-river-projection.ts` policy using thresholds compiled
-from the same owner. Use the same distinction when behavior belongs to one
-recipe projection rather than the reusable domain model; do not create a
-step-local `rules/` or helper cabinet.
+`plot-rivers` has no second navigable selection or authored thresholds:
+Hydrography's domain operations already classify the physical network. The
+step preflights that completed network against the native write contract,
+writes the admitted sources, then finalizes it. The excerpt omits additional
+artifacts and engine capabilities; consult the full contract in the anchors.
+Keep projection policy with its qualified owner, not a step-local `rules/`
+or helper cabinet.
 
 ### 3) Implement the step (`createStep`)
 

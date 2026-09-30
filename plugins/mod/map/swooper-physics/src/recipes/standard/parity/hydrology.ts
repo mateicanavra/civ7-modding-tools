@@ -81,8 +81,7 @@ function compareStandardRivers(
   live: StandardLiveParityCapture
 ): StandardRiverParityComparison {
   const projection = local.hydrology.rivers;
-  // Legacy comparison retains physical-plan diagnostics; certified parity closes native intent.
-  const expectedMinor = projection.model === "certified-sill-spill" ? projection.nativeMinor : projection.plannedMinor;
+  const expectedMinor = projection.nativeMinor;
   const readback = live.hydrology.rivers;
   const terrainShapeMatches = gridsHaveSameShape(
     projection.projectedNavigableTerrain,

@@ -163,16 +163,18 @@ fixed synthetic geometry. Their results converge before whole-map calibration
 and final atlas acceptance, because climate changes lake supply and river
 discharge even when native projection semantics do not change.
 
-The [remaining legacy-profile qualification](legacy-water-migration.md)
+The [legacy-profile qualification and retirement](legacy-water-migration.md)
 now admits all 49 cases using their own forcing and density policy. The old
 closed/subtile excuse is superseded. The unchanged candidate bank adds one
 Archipelago lake-identity failure to the same eleven baseline calibration
 failures. Exact lineage traces its old eleven wet cells to zero-depression flat
 ground with raw nonascending paths to original marine; the certified physical
 and projected masks both contain zero. Do not fabricate lakes to reproduce
-that older computation. Qualify the common native height/category boundary,
-activate callers with the declared model-specific identity retirement, then
-remove old execution and compatibility evidence. Do not create a parallel
+that older computation. The current-only source change activates all eight
+shipped profiles, retires the old execution and evidence union arms, and
+removes the Archipelago floor with that witness. Unsupported saved custom
+configs remain exportable but are not silently reinterpreted. Qualify the
+common native height/category boundary next. Do not create a parallel
 recipe or soften unrelated expectations to accelerate the migration.
 
 Graphite owns submission and eventual bottom-to-top merge. Retain draft review

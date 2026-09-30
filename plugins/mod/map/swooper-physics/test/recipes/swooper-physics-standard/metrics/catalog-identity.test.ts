@@ -69,6 +69,20 @@ describe("Standard catalog identity proof", () => {
     ]);
   });
 
+  it("retires only the Archipelago unconditional lake floor", () => {
+    for (const id of MAP_CONFIG_CATALOG_IDS) {
+      const floor = SHIPPED_IDENTITY_TARGETS[id].expectations.find(
+        (expectation) => expectation.id === "largest-lake-component"
+      );
+      if (id === "sundered-archipelago") expect(floor).toBeUndefined();
+      else expect(floor?.comparator).toEqual({ kind: "at-least", value: 4 });
+    }
+    expect(SHIPPED_IDENTITY_TARGETS["sundered-archipelago"].expectations.map(({ id }) => id))
+      .toEqual(["configuration-identity", "wetland-share", "reef-family-share", "vegetation-family-variety",
+        "required-feature/feature_atoll", "required-feature/feature_forest", "required-feature/feature_rainforest",
+        "required-feature/feature_mangrove"]);
+  });
+
   it("pins the matched mountain-drama axes and exact plate activity contrast", () => {
     expect(MOUNTAIN_DRAMA_STUDY.scenarios).toHaveLength(12);
     expect(new Set(MOUNTAIN_DRAMA_STUDY.scenarios.map(({ config }) => config.id))).toEqual(

@@ -1,6 +1,7 @@
 import type { RiverProjectionResult } from "@civ7/adapter";
 import { type Static, Type } from "typebox";
 
+/** Metric identity for final authored river-source and class comparisons against adapter readback. */
 export const STANDARD_FINAL_RIVER_PARITY_METRIC_KEY = "map.rivers.finalParity";
 
 const intendedClass = Type.Union([Type.Literal("MINOR"), Type.Literal("NAVIGABLE")]);

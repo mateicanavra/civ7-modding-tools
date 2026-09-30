@@ -7,9 +7,7 @@ const lotusOp = ecology.features.ops.scoreReefLotus;
 
 function createCertifiedLakeInput(width: number, height: number) {
   const size = width * height;
-  const model: "certified-sill-spill" = "certified-sill-spill";
   return {
-    model,
     width,
     height,
     landMask: new Uint8Array(size).fill(1),
@@ -33,6 +31,7 @@ describe("ecology reef-family habitats", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const landMask = new Uint8Array(size);
+    landMask[0] = landMask[width] = 1;
     const warm = new Float32Array(size).fill(28);
     const cold = new Float32Array(size).fill(8);
     const shallow = new Int16Array(size).fill(-10);
@@ -89,16 +88,10 @@ describe("ecology reef-family habitats", () => {
     ).score01;
     const lotus = ecology.features.ops.scoreReefLotus.run(
       {
-        model: "legacy-sink-budget",
-        width,
-        height,
-        landMask,
-        surfaceTemperature: warm,
-        bathymetry: shallow,
-        lakeMask,
-        shelfMask,
-        coastalWater,
-        distanceToCoast,
+        width, height, landMask, surfaceTemperature: warm, lakeMask,
+        elevation: new Int16Array(size).fill(100),
+        bodyId: Int32Array.from(lakeMask, (wet) => wet),
+        waterSurface: Array<number>(size).fill(100.25),
       },
       normalizeOperationSelectionForTest(
         ecology.features.ops.scoreReefLotus,
@@ -143,48 +136,16 @@ describe("ecology reef-family habitats", () => {
       )
     ).score01;
 
-    expect(reef[0]).toBeGreaterThan(0.5);
+    expect(reef[0]).toBe(0);
+    expect(reef[2]).toBeGreaterThan(0.5);
     expect(reef[1]).toBe(0);
     expect(atoll[0]).toBe(0);
     expect(atoll[1]).toBeGreaterThan(0.5);
     expect(lotus[0]).toBeGreaterThan(0.5);
     expect(lotus[1]).toBe(0);
-    expect(coldReef[0]).toBeGreaterThan(0.5);
+    expect(coldReef[0]).toBe(0);
+    expect(coldReef[2]).toBeGreaterThan(0.5);
     expect(abyssalColdReef[0]).toBe(0);
-  });
-
-  it("preserves every legacy Lotus gate and the exact old depth formula", () => {
-    const width = 12;
-    const height = 1;
-    const model: "legacy-sink-budget" = "legacy-sink-budget";
-    const input = {
-      model,
-      width, height,
-      landMask: new Uint8Array(width),
-      surfaceTemperature: new Float32Array(width).fill(28),
-      bathymetry: new Int16Array(width).fill(-10),
-      lakeMask: new Uint8Array(width).fill(1),
-      shelfMask: new Uint8Array(width).fill(1),
-      coastalWater: new Uint8Array(width).fill(1),
-      distanceToCoast: new Uint16Array(width).fill(2),
-    };
-    input.landMask[1] = 1;
-    input.lakeMask[2] = 0;
-    input.shelfMask[3] = 0;
-    input.coastalWater[4] = 0;
-    input.distanceToCoast[5] = 3;
-    input.surfaceTemperature[6] = 16;
-    input.bathymetry[7] = -40;
-    input.bathymetry[8] = 0;
-    input.surfaceTemperature[9] = 32;
-    input.bathymetry[9] = -20;
-    input.surfaceTemperature[10] = 20;
-    input.bathymetry[10] = 10;
-    input.surfaceTemperature[11] = 8;
-    const before = structuredClone(input);
-    const expected = Float32Array.of(0.5625, 0, 0, 0, 0, 0, 0, 0, 0.75, 0.5, 0.25, 0);
-    expect(lotusOp.run(input, lotusOp.defaultConfig).score01).toEqual(expected);
-    expect(input).toEqual(before);
   });
 
   it("scores positive fractional lake depth over unchanged physical land without marine masks", () => {
@@ -297,16 +258,15 @@ describe("ecology reef-family habitats", () => {
     expect(scoreCertifiedLake(input, 512).every((value) => value === 0)).toBe(true);
   });
 
-  it("fails closed for missing or malformed explicitly certified evidence without legacy fallthrough", () => {
+  it("fails closed for missing or malformed physical lake evidence without retired input fallthrough", () => {
     const input = createCertifiedLakeInput(3, 1);
     input.lakeMask[1] = 1;
     input.bodyId[1] = 2;
     const { bodyId, waterSurface, ...missingEvidence } = input;
-    const { model, ...missingDiscriminator } = input;
     const malformed: readonly unknown[] = [
       missingEvidence,
-      missingDiscriminator,
-      { ...input, model: "unknown-lake-model" },
+      { ...input, model: "legacy-sink-budget" },
+      { ...input, bathymetry: new Int16Array(3) },
       { ...input, bodyId: new Int32Array(2) },
       { ...input, bodyId: new Int32Array(3) },
       { ...input, bodyId: Int32Array.of(2, 2, 0) },
@@ -317,7 +277,6 @@ describe("ecology reef-family habitats", () => {
       { ...input, waterSurface: [100, NaN, 100] },
       { ...input, waterSurface: [100, Infinity, 100] },
       {
-        model: input.model,
         width: 3, height: 1,
         landMask: new Uint8Array(3),
         surfaceTemperature: input.surfaceTemperature,
@@ -332,6 +291,5 @@ describe("ecology reef-family habitats", () => {
       expect(() => Reflect.apply(lotusOp.run, undefined, [candidate, lotusOp.defaultConfig])).toThrow();
     }
     expect(bodyId).toEqual(Int32Array.of(0, 2, 0));
-    expect(model).toBe("certified-sill-spill");
   });
 });

@@ -2,6 +2,7 @@ import type { SolarHarmonics } from "../../../model/atoms/solar-harmonics.schema
 import { EARTH_PERIODIC_RESPONSE } from "../../../model/policy/earth-periodic-response.js";
 import { clampNumber } from "./index.js";
 
+/** Fixed midpoint resolution for independent annual integration of clipped periodic temperatures. */
 export const ANNUAL_THERMAL_QUADRATURE_COUNT = 384;
 
 type Params = Readonly<{

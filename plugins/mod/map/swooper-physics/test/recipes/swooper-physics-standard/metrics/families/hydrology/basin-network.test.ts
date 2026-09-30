@@ -50,9 +50,9 @@ describe("certified basin-network integrity measurements", () => {
     });
   });
 
-  it("returns explicit absence for legacy rather than invented certified counters", () => {
+  it("rejects retired evidence instead of inventing certified counters", () => {
     const input = capture();
-    expect(
+    expect(() =>
       measureStandardBasinNetwork({
         ...input,
         model: {
@@ -63,8 +63,8 @@ describe("certified basin-network integrity measurements", () => {
             outletMask: new Uint8Array(3),
           },
         },
-      })
-    ).toBeNull();
+      } as unknown as Parameters<typeof measureStandardBasinNetwork>[0])
+    ).toThrow("Expected completed basin evidence");
   });
 
   it("detects changed supplied runoff, reported residuals, and body ledger demand independently", () => {

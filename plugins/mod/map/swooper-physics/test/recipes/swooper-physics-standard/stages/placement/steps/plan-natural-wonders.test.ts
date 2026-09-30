@@ -30,6 +30,7 @@ import {
   createStandardRecipeTestInitialSetup,
   standardMapConfig,
 } from "../../../fixtures/standard-recipe.js";
+import { createEmptyWaterFixture } from "../../morphology/features/fixtures/surface-water.js";
 
 const { biomeGlobals, featureTypes, terrainTypeIndices } = CIV7_BROWSER_TABLES_V0;
 const PLANNER_SURFACE_SENTINELS = {
@@ -63,6 +64,7 @@ function placementConfig() {
 function publishPlacementInputs(context: MapContext): void {
   const { width, height } = context.setup.dimensions;
   const size = width * height;
+  const water = createEmptyWaterFixture(width, height);
   publishTestArtifact(context, morphologyLandformsArtifacts.topography, {
     elevation: new Int16Array(size).fill(PLANNER_SURFACE_SENTINELS.elevation),
     seaLevel: 0,
@@ -70,34 +72,19 @@ function publishPlacementInputs(context: MapContext): void {
     bathymetry: new Int16Array(size),
   });
   publishTestArtifact(context, hydrographyArtifacts.hydrography, {
-    model: "legacy-sink-budget",
-    runoff: new Float32Array(size),
-    discharge: new Float32Array(size).fill(PLANNER_SURFACE_SENTINELS.discharge),
+    ...water.hydrography,
+    discharge: Array<number>(size).fill(PLANNER_SURFACE_SENTINELS.discharge),
     riverClass: new Uint8Array(size).fill(PLANNER_SURFACE_SENTINELS.riverClass),
-    flowDir: new Int32Array(size).fill(-1),
-    sinkMask: new Uint8Array(size),
-    outletMask: new Uint8Array(size),
-    basinId: new Int32Array(size).fill(-1),
-    routingElevation: new Float32Array(size),
-    depressionDepth: new Float32Array(size),
-    terminalType: new Uint8Array(size),
+    flowDir: Int32Array.from(
+      { length: size },
+      (_, cell) => Math.floor(cell / width) * width + (cell + 1) % width
+    ),
   });
   publishTestArtifact(context, hydrographyArtifacts.riverNetwork, {
-    model: "legacy-sink-budget",
-    upstreamArea: new Int32Array(size),
-    streamOrderProxy: new Uint8Array(size),
-    mouthType: new Uint8Array(size),
+    ...water.riverNetwork,
     slopeClass: new Uint8Array(size).fill(PLANNER_SURFACE_SENTINELS.slopeClass),
-    flowPermanenceProxy: new Uint8Array(size),
   });
-  publishTestArtifact(context, hydrographyArtifacts.lakePlan, {
-    model: "legacy-sink-budget",
-    width,
-    height,
-    lakeMask: new Uint8Array(size).fill(PLANNER_SURFACE_SENTINELS.lakeMask),
-    plannedLakeTileCount: 0,
-    sinkLakeCount: 0,
-  });
+  publishTestArtifact(context, hydrographyArtifacts.lakePlan, water.lakePlan);
   publishTestArtifact(context, climateArtifacts.climateIndices, {
     surfaceTemperatureC: new Float32Array(size).fill(PLANNER_SURFACE_SENTINELS.surfaceTemperature),
     effectiveMoisture: new Float32Array(size).fill(PLANNER_SURFACE_SENTINELS.effectiveMoisture),

@@ -6,8 +6,6 @@ export const HYDROLOGY_MOUTH_OCEAN = 1;
 export const HYDROLOGY_MOUTH_ACCEPTED_LAKE = 2;
 /** Marks a drainage path that terminates in an internally closed land basin. */
 export const HYDROLOGY_MOUTH_CLOSED_BASIN = 3;
-/** Marks an ocean- or lake-bound path that crosses priority-flood depression conditioning. */
-export const HYDROLOGY_MOUTH_SPILL_PATH = 4;
 /** Marks a certified original-land north/south boundary export without an adjacent receiver. */
 export const HYDROLOGY_MOUTH_BOUNDARY_EXPORT = 5;
 /** Marks a resolved stationary basin without a positive-depth wet tile. */
@@ -19,14 +17,12 @@ export const HYDROLOGY_MOUTH_DRY = 7;
 export const HYDROLOGY_SLOPE_NONE = 0;
 /** Classifies a terminal or effectively level routed land segment. */
 export const HYDROLOGY_SLOPE_FLAT = 1;
-/** Classifies a routed land segment with a small conditioned-elevation drop. */
+/** Classifies a routed land segment with a small physical-ground drop. */
 export const HYDROLOGY_SLOPE_LOW = 2;
-/** Classifies a routed land segment with an intermediate conditioned-elevation drop. */
+/** Classifies a routed land segment with an intermediate physical-ground drop. */
 export const HYDROLOGY_SLOPE_MODERATE = 3;
-/** Classifies a routed land segment with the largest ordinary conditioned-elevation drop. */
+/** Classifies a routed land segment with the largest ordinary physical-ground drop. */
 export const HYDROLOGY_SLOPE_STEEP = 4;
-/** Classifies a closed terminal whose surrounding relief indicates a mountain-blocked basin. */
-export const HYDROLOGY_SLOPE_MOUNTAIN_BLOCKED = 5;
 
 /** Marks cells whose specific discharge does not support modeled surface flow. */
 export const HYDROLOGY_FLOW_DRY = 0;

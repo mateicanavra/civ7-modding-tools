@@ -6,39 +6,41 @@ import { TEST_MAP_SIZE } from "../../../../setup.js";
 const TEST_DIMENSIONS = TEST_MAP_SIZE.dimensions;
 const TEST_CARDINALITY = TEST_DIMENSIONS.width * TEST_DIMENSIONS.height;
 
-function projectedNavigableRiverPayload(selectedChainLengths: Uint16Array) {
-  return {
-    model: "legacy-sink-budget" as const,
-    ...TEST_DIMENSIONS,
-    riverMask: new Uint8Array(TEST_CARDINALITY),
-    nativeMinorRiverMask: new Uint8Array(TEST_CARDINALITY),
-    plannedMinorRiverMask: new Uint8Array(TEST_CARDINALITY),
-    plannedMajorRiverMask: new Uint8Array(TEST_CARDINALITY),
-    selectedTileCount: 2,
-    eligibleTileCount: 2,
-    plannedMinorRiverTileCount: 0,
-    plannedMajorRiverTileCount: 2,
-    candidateEndpointCount: 1,
-    selectedChainCount: 1,
-    selectedChainLengths,
-    longestSelectedChainLength: 2,
-    meanSelectedChainLength: 2,
-    targetTileCount: 2,
-    targetMajorTileFraction: 1,
-    selectedEndpointDischargeFloor: 1,
-    nonProjectableMajorTileCount: 0,
-    unselectedEligibleMajorTileCount: 0,
-    selectedEligibleMajorTileFraction: 1,
-    majorDurableTileCount: 2,
-    majorPerennialTileCount: 2,
-    majorClosedBasinTileCount: 0,
-    majorOceanMouthTileCount: 2,
-    projectionSignalStatus: "normal-signal" as const,
-    projectionSignalReason: "Representative navigable-river projection.",
-  };
-}
-
 describe("Hydrology projected-rivers artifact", () => {
+  it("refuses complete retired quota-based river intent instead of admitting another physical model", () => {
+    const retired = {
+      model: "legacy-sink-budget",
+      ...TEST_DIMENSIONS,
+      riverMask: new Uint8Array(TEST_CARDINALITY),
+      nativeMinorRiverMask: new Uint8Array(TEST_CARDINALITY),
+      plannedMinorRiverMask: new Uint8Array(TEST_CARDINALITY),
+      plannedMajorRiverMask: new Uint8Array(TEST_CARDINALITY),
+      selectedTileCount: 0,
+      eligibleTileCount: 0,
+      plannedMinorRiverTileCount: 0,
+      plannedMajorRiverTileCount: 0,
+      candidateEndpointCount: 0,
+      selectedChainCount: 0,
+      selectedChainLengths: new Uint16Array(0),
+      longestSelectedChainLength: 0,
+      meanSelectedChainLength: 0,
+      targetTileCount: 0,
+      targetMajorTileFraction: 0,
+      selectedEndpointDischargeFloor: 0,
+      nonProjectableMajorTileCount: 0,
+      unselectedEligibleMajorTileCount: 0,
+      selectedEligibleMajorTileFraction: 0,
+      majorDurableTileCount: 0,
+      majorPerennialTileCount: 0,
+      majorClosedBasinTileCount: 0,
+      majorOceanMouthTileCount: 0,
+      projectionSignalStatus: "arid-low-signal",
+      projectionSignalReason: "Retired empty quota-based evidence.",
+    };
+    expect(
+      hydrographyArtifacts.projectedRivers.validate(retired, { dimensions: TEST_DIMENSIONS }).length
+    ).toBeGreaterThan(0);
+  });
   it("admits only complete uniquely written certified source masks without legacy quotas", () => {
     const minor = new Uint8Array(TEST_CARDINALITY);
     const major = new Uint8Array(TEST_CARDINALITY);
@@ -58,6 +60,8 @@ describe("Hydrology projected-rivers artifact", () => {
     };
     const validate = (value: unknown) => hydrographyArtifacts.projectedRivers.validate(value, { dimensions: TEST_DIMENSIONS });
     expect(validate(valid)).toEqual([]);
+    expect(validate({ ...valid, model: "legacy-sink-budget" }).length).toBeGreaterThan(0);
+    expect(validate({ ...valid, selectedChainLengths: Uint16Array.of(2) }).length).toBeGreaterThan(0);
     expect(validate({ ...valid, writes: valid.writes.slice(0, 1) }).length).toBeGreaterThan(0);
     expect(validate({ ...valid, writes: [valid.writes[0], valid.writes[0]] }).length).toBeGreaterThan(0);
     expect(validate({ ...valid, nativeMinorRiverMask: new Uint8Array(TEST_CARDINALITY) }).length).toBeGreaterThan(0);
@@ -96,20 +100,5 @@ describe("Hydrology projected-rivers artifact", () => {
       [{ ...disposition, disposition: "same-source-secondary" }],
       [{ ...disposition, wetCell: 2 }], [{ ...disposition, outwardDischarge: Number.NaN }],
     ]) expect(validate({ ...withWet, wetTransitionDispositions: invalid }).length).toBeGreaterThan(0);
-  });
-  it("couples chain-length cardinality to chain count rather than map size", () => {
-    const valid = projectedNavigableRiverPayload(new Uint16Array([2]));
-    expect(
-      hydrographyArtifacts.projectedRivers.validate(valid, {
-        dimensions: TEST_DIMENSIONS,
-      })
-    ).toEqual([]);
-
-    const invalid = projectedNavigableRiverPayload(new Uint16Array([2, 1]));
-    expect(
-      hydrographyArtifacts.projectedRivers
-        .validate(invalid, { dimensions: TEST_DIMENSIONS })
-        .some((issue) => issue.message.includes("selectedChainLengths"))
-    ).toBe(true);
   });
 });

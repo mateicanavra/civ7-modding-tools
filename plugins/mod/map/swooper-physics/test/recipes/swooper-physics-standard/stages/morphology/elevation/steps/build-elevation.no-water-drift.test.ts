@@ -28,8 +28,7 @@ function publishBuildElevationInputs(
   landMask: Uint8Array,
   projectedLakeMask: Uint8Array,
   elevation = new Int16Array(width * height),
-  seaLevel = 0,
-  certified = false
+  seaLevel = 0
 ): void {
   const size = width * height;
   publishTestArtifact(context, morphologyLandformsArtifacts.topography, {
@@ -41,12 +40,7 @@ function publishBuildElevationInputs(
   publishTestArtifact(context, hydrographyArtifacts.projectedLakes, {
     lakeMask: projectedLakeMask,
   });
-  const wetCells = Array.from(projectedLakeMask.keys()).filter((cell) => projectedLakeMask[cell] === 1);
-  publishTestArtifact(context, hydrographyArtifacts.lakePlan, {
-    width, height, lakeMask: projectedLakeMask, plannedLakeTileCount: wetCells.length,
-    ...(certified ? closedLakeProjectionFixture(width, height, projectedLakeMask)
-      : { model: "legacy-sink-budget" as const, sinkLakeCount: wetCells.length }),
-  });
+  publishTestArtifact(context, hydrographyArtifacts.lakePlan, closedLakeProjectionFixture(width, height, projectedLakeMask));
 }
 
 function executeBuildElevation(
@@ -56,8 +50,7 @@ function executeBuildElevation(
   landMask: Uint8Array,
   projectedLakeMask = new Uint8Array(width * height),
   elevation = new Int16Array(width * height),
-  seaLevel = 0,
-  certified = false
+  seaLevel = 0
 ) {
   return withMapContextExecutionForTest(context, (stepContext) => {
     publishBuildElevationInputs(
@@ -67,8 +60,7 @@ function executeBuildElevation(
       landMask,
       projectedLakeMask,
       elevation,
-      seaLevel,
-      certified
+      seaLevel
     );
     const observation = BuildElevationStep.run(
       stepContext,
@@ -106,16 +98,16 @@ class ExplicitElevationAdapter extends MockAdapter {
 }
 
 class DriftAfterBuildElevationAdapter extends ExplicitElevationAdapter {
-  override generateCliffsFromElevation(): void {
-    super.generateCliffsFromElevation();
+  override setElevation(values: readonly number[]): void {
+    super.setElevation(values);
     // Simulate engine drift: cached water tables say "water" even though terrain remains land.
     this.setWater(0, 0, true);
   }
 }
 
 class ExcessiveDriftAfterBuildElevationAdapter extends ExplicitElevationAdapter {
-  override generateCliffsFromElevation(): void {
-    super.generateCliffsFromElevation();
+  override setElevation(values: readonly number[]): void {
+    super.setElevation(values);
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
         this.setWater(x, y, true);
@@ -128,8 +120,8 @@ class ReliefAfterBuildElevationAdapter extends ExplicitElevationAdapter {
   stampContinentsCalls = 0;
   storeWaterDataCalls = 0;
 
-  override generateCliffsFromElevation(): void {
-    super.generateCliffsFromElevation();
+  override setElevation(values: readonly number[]): void {
+    super.setElevation(values);
     // Simulate engine terrain differentiation without any water drift.
     this.setTerrainType(1, 1, this.getTerrainTypeIndex("TERRAIN_HILL"));
   }
@@ -221,8 +213,8 @@ function createUnplannedNativeLakeFixture(
         : (options.afterWater ?? true);
     }
 
-    override generateCliffsFromElevation(): void {
-      super.generateCliffsFromElevation();
+    override setElevation(values: readonly number[]): void {
+      super.setElevation(values);
       if (options.changeTerrain)
         this.setTerrainType(0, 0, this.getTerrainTypeIndex("TERRAIN_OCEAN"));
     }
@@ -258,7 +250,7 @@ function createUnplannedNativeLakeFixture(
 describe("map-elevation/build-elevation", () => {
   for (const phase of ["write", "cliffs", "area"] as const) {
     for (const lost of ["water", "terrain"] as const) {
-      it(`preserves model-specific ${phase} ownership and accepted-water policy for ${lost} loss`, () => {
+      it(`preserves physical projection ${phase} ownership and accepted-water policy for ${lost} loss`, () => {
         class LakeDriftAdapter extends ExplicitElevationAdapter {
           private changed = false;
           private areaCalls = 0;
@@ -286,7 +278,7 @@ describe("map-elevation/build-elevation", () => {
               ? this.getTerrainTypeIndex("TERRAIN_OCEAN") : super.getTerrainType(x, y);
           }
         }
-        for (const certified of [true, false]) {
+        {
           const width = 10;
           const height = 10;
           const adapter = new LakeDriftAdapter({ width, height });
@@ -297,10 +289,10 @@ describe("map-elevation/build-elevation", () => {
           for (let cell = 0; cell < landMask.length; cell++) adapter.setTerrainType(cell % width, Math.floor(cell / width), adapter.getTerrainTypeIndex(cell === 11 ? "TERRAIN_COAST" : "TERRAIN_FLAT"));
           adapter.stampLakes(width, height, lakeMask);
           adapter.beginProjection();
-          const run = () => executeBuildElevation(context, width, height, landMask, lakeMask, new Int16Array(width * height), 0, certified);
-          if (certified && phase !== "cliffs") expect(run).toThrow(/post-build.*certified accepted lake footprint lost/);
+          const run = () => executeBuildElevation(context, width, height, landMask, lakeMask, new Int16Array(width * height), 0);
+          if (phase !== "cliffs") expect(run).toThrow(/post-build.*certified accepted lake footprint lost/);
           else expect(run).not.toThrow();
-          expect(adapter.calls.generateCliffsFromElevation).toBe(certified ? 0 : 1);
+          expect(adapter.calls.generateCliffsFromElevation).toBe(0);
         }
       });
     }
@@ -324,7 +316,7 @@ describe("map-elevation/build-elevation", () => {
     }
     const adapter = new ClassifiedWaterAdapter({ width: 3, height: 2 });
     const fixture = createExactProjectionFixture(adapter);
-    const run = () => executeBuildElevation(fixture.context, 3, 2, fixture.landMask, fixture.lakeMask, fixture.elevation, fixture.seaLevel, true);
+    const run = () => executeBuildElevation(fixture.context, 3, 2, fixture.landMask, fixture.lakeMask, fixture.elevation, fixture.seaLevel);
     if (state.expected) expect(run).toThrow(state.expected);
     else {
       const result = run();
@@ -338,16 +330,14 @@ describe("map-elevation/build-elevation", () => {
     }
     expect(Array.from(fixture.lakeMask)).toEqual([0, 0, 0, 0, 1, 0]);
   });
-  it.each([true, false])("writes elevation once with model-specific cliff ownership: certified=%s", (certified) => {
+  it("writes elevation once and leaves cliffs to finalized authored rivers", () => {
     const adapter = new ExplicitElevationAdapter({ width: 3, height: 2 });
     const fixture = createExactProjectionFixture(adapter);
     executeBuildElevation(fixture.context, 3, 2, fixture.landMask, fixture.lakeMask,
-      fixture.elevation, fixture.seaLevel, certified);
-    expect(adapter.elevationEvents).toEqual(certified
-      ? ["setElevation", "readCurrentMapElevationSnapshot"]
-      : ["setElevation", "generateCliffsFromElevation", "readCurrentMapElevationSnapshot"]);
+      fixture.elevation, fixture.seaLevel);
+    expect(adapter.elevationEvents).toEqual(["setElevation", "readCurrentMapElevationSnapshot"]);
     expect(adapter.calls.setElevation).toHaveLength(1);
-    expect(adapter.calls.generateCliffsFromElevation).toBe(certified ? 0 : 1);
+    expect(adapter.calls.generateCliffsFromElevation).toBe(0);
     expect(adapter.calls.setRiverInfo).toEqual([]);
     expect(adapter.calls.finalizeRivers).toEqual([]);
   });
@@ -361,13 +351,13 @@ describe("map-elevation/build-elevation", () => {
     const adapter = new LeveledLakeAdapter({ width: 3, height: 2 });
     const fixture = createExactProjectionFixture(adapter);
     adapter.stampLakes(3, 2, fixture.lakeMask);
-    const observation = executeBuildElevation(fixture.context, 3, 2, fixture.landMask, fixture.lakeMask, fixture.elevation, fixture.seaLevel, true);
+    const observation = executeBuildElevation(fixture.context, 3, 2, fixture.landMask, fixture.lakeMask, fixture.elevation, fixture.seaLevel);
     expect(observation.elevationProjection.lakeAdjustmentCount).toBe(1);
     expect(observation.elevationProjection.nonLakeMismatchCount).toBe(0);
   });
 
   it.each(["land-before", "land-after", "terrain-before", "terrain-after", "original-water"] as const)(
-    "refuses an accepted-mask numeric adjustment with unqualified %s even without certified footprint guards",
+    "refuses an accepted-mask numeric adjustment with unqualified %s with complete physical footprint guards",
     (mutation) => {
       class UnqualifiedAcceptedAdapter extends ExplicitElevationAdapter {
         override isLake(): boolean { return false; }
@@ -406,7 +396,7 @@ describe("map-elevation/build-elevation", () => {
     fixture.lakeMask[3] = 1;
     adapter.setTerrainType(0, 1, adapter.getTerrainTypeIndex("TERRAIN_COAST"));
     const result = executeBuildElevation(fixture.context, 3, 2, fixture.landMask, fixture.lakeMask,
-      fixture.elevation, fixture.seaLevel, true);
+      fixture.elevation, fixture.seaLevel);
     expect(result.elevationProjection).toMatchObject({
       mismatchCount: 2, acceptedInlandWaterAdjustmentCount: 2, lakeAdjustmentCount: 0,
       nonLakeMismatchCount: 0, unplannedNativeLakeMismatchCount: 0,
@@ -414,7 +404,7 @@ describe("map-elevation/build-elevation", () => {
     expect(result.engine.elevation[3]).not.toBe(result.engine.elevation[4]);
     expect(Array.from(fixture.lakeMask)).toEqual([0, 0, 0, 1, 1, 0]);
   });
-  it("writes immutable physics-derived heights before cliffs and exact observation", () => {
+  it("writes immutable physics-derived heights before exact observation without early cliff mutation", () => {
     const adapter = new ExplicitElevationAdapter({ width: 3, height: 2 });
     const { observation, elevation, landMask, lakeMask, seaLevel } =
       executeExactProjectionFixture(adapter);
@@ -426,7 +416,6 @@ describe("map-elevation/build-elevation", () => {
     });
     expect(adapter.elevationEvents).toEqual([
       "setElevation",
-      "generateCliffsFromElevation",
       "readCurrentMapElevationSnapshot",
     ]);
     expect(BuildElevationStep.contract.engine).not.toContain("buildElevation");
@@ -468,7 +457,7 @@ describe("map-elevation/build-elevation", () => {
       "requires available exact numeric readback"
     );
     expect(adapter.calls.setElevation.length).toBe(1);
-    expect(adapter.calls.generateCliffsFromElevation).toBe(1);
+    expect(adapter.calls.generateCliffsFromElevation).toBe(0);
   });
 
   it("refuses fractional non-lake readback drift instead of truncating or tolerating it", () => {
@@ -633,11 +622,6 @@ describe("map-elevation/build-elevation", () => {
 
       override setElevation(values: readonly number[]): void {
         super.setElevation(values);
-        this.phase = 1;
-      }
-
-      override generateCliffsFromElevation(): void {
-        super.generateCliffsFromElevation();
         this.phase = 2;
         this.setTerrainType(0, 0, this.getTerrainTypeIndex("TERRAIN_FLAT"));
       }
@@ -693,7 +677,6 @@ describe("map-elevation/build-elevation", () => {
       );
       expect(adapter.elevationEvents).toEqual([
         "setElevation",
-        "generateCliffsFromElevation",
         "readCurrentMapElevationSnapshot",
       ]);
       expect(BuildElevationStep.contract.engine).toContain("readCurrentMapLakeMask");
@@ -719,7 +702,7 @@ describe("map-elevation/build-elevation", () => {
     }
   });
 
-  it("allows bounded post-cliff land/water drift and logs the policy report", () => {
+  it("allows bounded post-write land/water drift and logs the policy report", () => {
     const { width, height } = SYNTHETIC_BOUNDED_DRIFT_DIMENSIONS;
     const mapInfo = { GridWidth: width, GridHeight: height };
     const setup = admitMapSetup({
@@ -764,13 +747,13 @@ describe("map-elevation/build-elevation", () => {
       console.log = originalLog;
     }
 
-    expect(adapter.calls.generateCliffsFromElevation).toBe(1);
+    expect(adapter.calls.generateCliffsFromElevation).toBe(0);
     expect(logs.some((line) => line.includes("WATER_DRIFT_POLICY_V1"))).toBe(true);
     expect(logs.some((line) => line.includes('"mismatchCount":1'))).toBe(true);
     expect(logs.some((line) => line.includes('"withinPolicy":true'))).toBe(true);
   });
 
-  it("fails when post-cliff drift exceeds the policy budget", () => {
+  it("fails when post-write drift exceeds the policy budget", () => {
     const { width, height } = SYNTHETIC_EXCESSIVE_DRIFT_DIMENSIONS;
     const mapInfo = { GridWidth: width, GridHeight: height };
     const setup = admitMapSetup({
@@ -806,10 +789,10 @@ describe("map-elevation/build-elevation", () => {
       console.log = originalLog;
     }
 
-    expect(adapter.calls.generateCliffsFromElevation).toBe(1);
+    expect(adapter.calls.generateCliffsFromElevation).toBe(0);
   });
 
-  it("keeps post-cliff terrain when no water drift is detected", () => {
+  it("keeps post-write terrain when no water drift is detected", () => {
     const { width, height } = SYNTHETIC_READBACK_DIMENSIONS;
     const mapInfo = { GridWidth: width, GridHeight: height };
     const setup = admitMapSetup({
@@ -836,7 +819,7 @@ describe("map-elevation/build-elevation", () => {
     }
     executeBuildElevation(context, width, height, new Uint8Array(width * height).fill(1));
 
-    expect(adapter.calls.generateCliffsFromElevation).toBe(1);
+    expect(adapter.calls.generateCliffsFromElevation).toBe(0);
     expect(adapter.getTerrainType(1, 1)).toBe(hillTerrain);
     expect(adapter.stampContinentsCalls).toBe(0);
     expect(adapter.storeWaterDataCalls).toBe(0);
@@ -909,7 +892,7 @@ describe("map-elevation/build-elevation", () => {
     }
     executeBuildElevation(context, width, height, new Uint8Array(width * height).fill(1), lakeMask);
 
-    expect(adapter.calls.generateCliffsFromElevation).toBe(1);
+    expect(adapter.calls.generateCliffsFromElevation).toBe(0);
     expect(adapter.isWater(0, 0)).toBe(true);
   });
 
@@ -940,7 +923,7 @@ describe("map-elevation/build-elevation", () => {
     }
     executeBuildElevation(context, width, height, new Uint8Array(width * height).fill(1));
 
-    expect(adapter.calls.generateCliffsFromElevation).toBe(1);
+    expect(adapter.calls.generateCliffsFromElevation).toBe(0);
     expect(adapter.isWater(0, 0)).toBe(false);
   });
 });

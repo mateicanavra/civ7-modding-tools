@@ -3,10 +3,9 @@ import { describe, expect, it } from "bun:test";
 import hydrologyOpsPublic from "../../../../../../src/domain/hydrology/router.js";
 
 const { projectRiverNetwork } = hydrologyOpsPublic.hydrography.ops;
-describe("hydrology/project-river-network (default strategy)", () => {
+describe("hydrology/project-river-network (principal adjacent channels)", () => {
   it("keeps incoming principal channels but excludes off-map ports from samples and native classes", () => {
     const input = {
-      channelSemantics: "principal-adjacent" as const,
       width: 4,
       height: 1,
       landMask: new Uint8Array(4).fill(1),
@@ -26,9 +25,10 @@ describe("hydrology/project-river-network (default strategy)", () => {
     expect(output.minorThreshold).toBe(10);
     expect(output.majorThreshold).toBe(20);
     expect(Array.from(output.riverClass)).toEqual([2, 2, 0, 0]);
-    expect(
-      projectRiverNetwork.run({ ...input, channelSemantics: "legacy-routed" }, config).riverClass[2]
-    ).toBe(2);
+    for (const retired of ["legacy-routed", "principal-adjacent"]) {
+      const retiredInput = { ...input, channelSemantics: retired };
+      expect(() => projectRiverNetwork.run(retiredInput, config)).toThrow();
+    }
     expect(() =>
       projectRiverNetwork.run({ ...input, flowDir: Int32Array.of(2, 2, -1, -2) }, config)
     ).toThrow("adjacent");
@@ -43,7 +43,6 @@ describe("hydrology/project-river-network (default strategy)", () => {
 
     const out = projectRiverNetwork.run(
       {
-        channelSemantics: "legacy-routed",
         width,
         height,
         landMask: new Uint8Array(size).fill(1),
@@ -76,12 +75,11 @@ describe("hydrology/project-river-network (default strategy)", () => {
 
     const out = projectRiverNetwork.run(
       {
-        channelSemantics: "legacy-routed",
         width,
         height,
         landMask: new Uint8Array(size).fill(1),
         discharge: Array.from(discharge),
-        flowDir: new Int32Array(size).fill(-1),
+        flowDir: Int32Array.from({ length: size }, (_, cell) => cell === 0 ? 1 : -1),
       },
       {
         strategy: "discharge-percentiles",
@@ -101,20 +99,20 @@ describe("hydrology/project-river-network (default strategy)", () => {
   });
 
   it("extends major-river classification upstream along the strongest routed minor trunk", () => {
-    const syntheticDimensions = { width: 6, height: 1 } as const;
+    const syntheticDimensions = { width: 3, height: 3 } as const;
     const { width, height } = syntheticDimensions;
     const size = width * height;
     const landMask = new Uint8Array(size).fill(1);
-    const discharge = new Float32Array([30, 40, 70, 50, 90, 120]);
-    const flowDir = new Int32Array([2, 2, 4, 4, 5, -1]);
+    landMask[8] = 0;
+    const discharge = [30, 70, 40, 50, 120, 0, 0, 150, 0];
+    const flowDir = Int32Array.of(1, 4, 1, 4, 7, -1, -1, 8, -1);
 
     const out = projectRiverNetwork.run(
       {
-        channelSemantics: "legacy-routed",
         width,
         height,
         landMask,
-        discharge: Array.from(discharge),
+        discharge,
         flowDir,
       },
       {
@@ -123,13 +121,13 @@ describe("hydrology/project-river-network (default strategy)", () => {
           minorPercentile: 0,
           majorPercentile: 1,
           minMinorDischarge: 30,
-          minMajorDischarge: 120,
+          minMajorDischarge: 150,
         },
       }
     );
 
     expect(out.minorThreshold).toBe(30);
-    expect(out.majorThreshold).toBe(120);
-    expect(Array.from(out.riverClass)).toEqual([1, 2, 2, 1, 2, 2]);
+    expect(out.majorThreshold).toBe(150);
+    expect(Array.from(out.riverClass)).toEqual([1, 2, 2, 1, 2, 0, 0, 2, 0]);
   });
 });

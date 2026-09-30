@@ -1,7 +1,8 @@
 import { describe, expect, it } from "bun:test";
+import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 import hydrology from "../../../../../../src/domain/hydrology/router.js";
 
-const { computeLocalRunoff, accumulateDischarge, projectRiverNetwork } = hydrology.hydrography.ops;
+const { computeLocalRunoff, projectRiverNetwork } = hydrology.hydrography.ops;
 const config = {
   strategy: "precipitation-attributed",
   config: { infiltrationFraction: 0.15, humidityDampening: 0.25 },
@@ -19,13 +20,6 @@ describe("hydrology/compute-local-runoff", () => {
     const forcing = input();
     const before = structuredClone(forcing);
     const { runoff } = computeLocalRunoff.run(forcing, config);
-    const legacy = accumulateDischarge.run(
-      { ...forcing, flowDir: Int32Array.of(-1, 0, 1, 2) },
-      {
-        strategy: "topological-runoff",
-        config: { ...config.config, runoffScale: 1, minRunoff: 0 },
-      }
-    );
     expect(Array.isArray(runoff)).toBe(true);
     expect(runoff[0]).toBe(0);
     expect(runoff[3]).toBe(0);
@@ -34,7 +28,6 @@ describe("hydrology/compute-local-runoff", () => {
     for (let cell = 0; cell < runoff.length; cell++) {
       expect(runoff[cell]).toBeGreaterThanOrEqual(0);
       expect(runoff[cell]).toBeLessThanOrEqual(forcing.rainfall[cell]!);
-      expect(Math.fround(runoff[cell]!)).toBe(legacy.runoff[cell]!);
     }
     expect(computeLocalRunoff.run(forcing, config)).toEqual({ runoff });
     expect(forcing).toEqual(before);
@@ -50,10 +43,12 @@ describe("hydrology/compute-local-runoff", () => {
     ).toEqual([0, 0, 0, 0]);
     forcing.landMask[1] = 2;
     expect(() => computeLocalRunoff.run(forcing, config)).toThrow("binary");
-    expect(Object.keys(computeLocalRunoff.defaultConfig.config)).toEqual([
-      "infiltrationFraction",
-      "humidityDampening",
-    ]);
+    for (const retired of [{ minRunoff: 0 }, { runoffScale: 1 }]) {
+      const retiredSelection = { ...config, config: { ...config.config, ...retired } };
+      expect(() =>
+        runAdmittedOperationForTest(computeLocalRunoff, input(), retiredSelection)
+      ).toThrow();
+    }
   });
 
   it("classifies supplied Number discharge without a Float32 threshold round-trip", () => {
@@ -62,7 +57,6 @@ describe("hydrology/compute-local-runoff", () => {
     expect(Math.fround(low)).toBe(Math.fround(high));
     const result = projectRiverNetwork.run(
       {
-        channelSemantics: "principal-adjacent",
         width: 3,
         height: 1,
         landMask: Uint8Array.of(0, 1, 1),

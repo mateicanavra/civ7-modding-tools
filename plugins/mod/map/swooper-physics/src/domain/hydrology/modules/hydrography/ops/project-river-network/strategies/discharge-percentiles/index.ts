@@ -58,8 +58,7 @@ const dischargePercentilesStrategy = createStrategy(
       const eligible = new Uint8Array(size);
       for (let i = 0; i < size; i++) {
         if (input.landMask[i] !== 1) continue;
-        if (input.channelSemantics === "legacy-routed") eligible[i] = 1;
-        else if (input.flowDir[i]! >= 0) {
+        if (input.flowDir[i]! >= 0) {
           if (
             !getHexNeighborIndicesOddQ(i % width, Math.floor(i / width), width, height).includes(
               input.flowDir[i]!

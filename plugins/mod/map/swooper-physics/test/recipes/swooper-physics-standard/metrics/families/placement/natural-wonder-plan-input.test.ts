@@ -34,7 +34,7 @@ function measurementInput(
   const effectiveMoisture = new Float32Array(plotCount).fill(0.75);
   const surfaceTemperature = new Float32Array(plotCount).fill(18.25);
   const fertility = new Float32Array(plotCount).fill(0.625);
-  const discharge = new Float32Array(plotCount).fill(12.5);
+  const discharge = Array<number>(plotCount).fill(12.5);
   const slopeClass = new Uint8Array(plotCount).fill(3);
   const naturalWonderBlockedMask = new Uint8Array(plotCount);
   const terrainType = new Int32Array(plotCount).fill(4);
@@ -112,10 +112,8 @@ function measurementInput(
 
 type MeasurementInput = ReturnType<typeof measurementInput>;
 
-it("preserves legacy discharge bytes and distinguishes certified Number precision", () => {
+it("preserves Number precision in canonical discharge bytes", () => {
   const input = measurementInput();
-  const legacy = measureStandardNaturalWonderPlanInput(input).plannerInput.surfaceDigests.dischargeHash32;
-  expect(legacy).toBe(fnv1a32BytesHex(input.plannerInput.discharge));
   const discharge = Array.from(input.plannerInput.discharge);
   const baseline = measureStandardNaturalWonderPlanInput({ ...input, plannerInput: { ...input.plannerInput, discharge } }).plannerInput.surfaceDigests.dischargeHash32;
   discharge[0] = discharge[0]! + 1e-9;

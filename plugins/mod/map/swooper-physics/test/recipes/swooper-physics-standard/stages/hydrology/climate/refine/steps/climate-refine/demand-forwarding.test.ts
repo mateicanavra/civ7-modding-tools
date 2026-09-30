@@ -14,7 +14,7 @@ import { artifacts as morphologyArtifacts } from "../../../../../../../../../src
 import standardRecipe from "../../../../../../../../../src/recipes/standard/recipe.js";
 import { ClimateRefineStep } from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/refine/steps/climate-refine/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../../setup.js";
-import { createSurfaceWaterFixture } from "../../../../../morphology/features/fixtures/surface-water.js";
+import { createEmptyWaterFixture } from "../../../../../morphology/features/fixtures/surface-water.js";
 import {
   createStandardRecipeTestConfig,
   createStandardRecipeTestInitialSetup,
@@ -78,23 +78,11 @@ describe("hydrology climate-refine demand ownership", () => {
           windU: new Int8Array(size),
           windV: new Int8Array(size),
         });
-        publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
-          model: "legacy-sink-budget",
-          runoff: new Float32Array(size),
-          discharge: new Float32Array(size),
-          riverClass: new Uint8Array(size),
-          flowDir: new Int32Array(size).fill(-1),
-          sinkMask: new Uint8Array(size),
-          outletMask: new Uint8Array(size),
-          basinId: new Int32Array(size).fill(-1),
-          routingElevation: new Float32Array(size),
-          depressionDepth: new Float32Array(size),
-          terminalType: new Uint8Array(size),
-        });
+        publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, createEmptyWaterFixture(width, height).hydrography);
         publishTestArtifact(
           stepContext,
           hydrographyArtifacts.lakePlan,
-          createSurfaceWaterFixture("legacy-sink-budget", width, height).lakePlan
+          createEmptyWaterFixture(width, height).lakePlan
         );
         const result = ClimateRefineStep.run(
           stepContext,

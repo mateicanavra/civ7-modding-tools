@@ -321,16 +321,23 @@ describe("Shipped map configs", () => {
     }
   });
 
-  it("rejects mismatched physical-water and native-river selections", async () => {
+  it("rejects retired physical-water models and projection selectors across the catalog", async () => {
     const configs = await loadSwooperMapConfigRegistry();
-    const earthlike = configs.find((entry) => entry.canonicalConfig.id === "swooper-earthlike")!;
-    const legacy = configs.find((entry) => entry.canonicalConfig.id === "latest-juicy")!;
-    for (const [physical, projection] of [[earthlike, legacy], [legacy, earthlike]]) {
-      const raw = structuredClone(physical!.canonicalConfig);
-      const config = { ...raw.config, "map-rivers": projection!.canonicalConfig.config["map-rivers"] };
-      expect(() => admitStandardMapConfig({ ...raw, config })).toThrow(
-        "water model and river projection must select the same physical path"
-      );
+    for (const { canonicalConfig } of configs) {
+      const raw = structuredClone(canonicalConfig);
+      for (const model of ["legacy-procedural", "authored-network"]) {
+        expect(() => admitStandardMapConfig({
+          ...raw,
+          config: { ...raw.config, "map-rivers": { projection: { model } } },
+        })).toThrow("Unknown key");
+      }
+      const waterStage = raw.config["hydrology-hydrography"];
+      expect(() => admitStandardMapConfig({
+        ...raw,
+        config: { ...raw.config, "hydrology-hydrography": {
+          ...waterStage, water: { ...waterStage.water, model: "legacy-sink-budget" },
+        } },
+      })).toThrow();
     }
   });
 

@@ -68,12 +68,10 @@ export function measureStandardRelief(capture: StandardReliefInput): StandardRel
   const population = countMetricMask(capture.model.landMask).count;
   // Certified surface selection budgets exposed land, not terrain inundated by accepted bodies.
   // Original marine-land remains the population for geological and existing observed diagnostics.
-  const plannedSurfacePopulation = capture.model.physicalHydrology.model === "certified-sill-spill"
-    ? capture.model.landMask.reduce(
+  const plannedSurfacePopulation = capture.model.landMask.reduce(
         (count, land, index) => count + Number(land === 1 && capture.model.plannedLakeMask[index] !== 1),
         0
-      )
-    : population;
+      );
   const finalMountainMask = new Uint8Array(width * height);
   const finalHillMask = new Uint8Array(width * height);
   let finalMountainCount = 0;

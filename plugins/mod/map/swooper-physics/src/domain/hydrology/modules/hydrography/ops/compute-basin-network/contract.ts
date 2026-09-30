@@ -3,6 +3,7 @@ import { RawReceiverSchema, DrainagePlateauIdSchema, DrainageLeafIdSchema, Basin
 import { BasinPoolSchema, BasinWetBodySchema, BasinHydraulicComponentSchema, BasinPortSchema, BasinInternalTransferSchema, BasinTerminalSchema, MarineDischargeExitSchema, BoundaryDischargeExitSchema, WaterConservationSchema } from "../../model/atoms/basin-network.schema.js";
 import stationarySillSpill from "./strategies/stationary-sill-spill/config.js";
 
+/** Basin solver contract: a complete supported physical ledger or an explicit persistent-surplus witness. */
 const ComputeBasinNetworkContract = defineOp({
   kind: "compute", id: "hydrology/compute-basin-network",
   input: Type.Object({

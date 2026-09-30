@@ -29,27 +29,12 @@ const setup = admitMapSetup({
   latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
 });
 
-function authored(model: "legacy-sink-budget" | "certified-sill-spill") {
-  const common = {
-    knobs: { riverDensity: "normal" as const },
-    projectRiverNetwork: structuredClone(ops.projectRiverNetwork.defaultConfig),
-  };
-  if (model === "legacy-sink-budget")
-    return {
-      ...common,
-      water: {
-        model,
-        lakeiness: "normal" as const,
-        drainageRouting: structuredClone(ops.computeDrainageRouting.defaultConfig),
-        accumulateDischarge: structuredClone(ops.accumulateDischarge.defaultConfig),
-        planLakes: structuredClone(ops.planLakes.defaultConfig),
-        classifyRiverNetwork: structuredClone(ops.classifyRiverNetwork.defaultConfig),
-      },
-    };
+function authored(riverDensity: "normal" | "dense" = "normal") {
   return {
-    ...common,
+    knobs: { riverDensity },
+    projectRiverNetwork: structuredClone(ops.projectRiverNetwork.defaultConfig),
     water: {
-      model,
+      model: "certified-sill-spill" as const,
       computeLocalRunoff: structuredClone(ops.computeLocalRunoff.defaultConfig),
       computeDrainageBasins: structuredClone(ops.computeDrainageBasins.defaultConfig),
       computeBasinNetwork: structuredClone(ops.computeBasinNetwork.defaultConfig),
@@ -86,7 +71,6 @@ function forcing() {
   };
 }
 function execute(
-  model: "legacy-sink-budget" | "certified-sill-spill",
   unsupported = false,
   retained?: ReturnType<typeof hugeRoot17>,
   corruptPlan = false
@@ -128,11 +112,7 @@ function execute(
     };
   }
   const bindings: Parameters<typeof NetworkStep.run>[2] = {
-    drainageRouting: record("drainageRouting", ops.computeDrainageRouting.run),
-    accumulateDischarge: record("accumulateDischarge", ops.accumulateDischarge.run),
     projectRiverNetwork: record("projectRiverNetwork", ops.projectRiverNetwork.run),
-    planLakes: record("planLakes", ops.planLakes.run),
-    classifyRiverNetwork: record("classifyRiverNetwork", ops.classifyRiverNetwork.run),
     computeLocalRunoff: record("computeLocalRunoff", ops.computeLocalRunoff.run),
     computeDrainageBasins: record("computeDrainageBasins", ops.computeDrainageBasins.run),
     computeBasinNetwork: record(
@@ -186,7 +166,7 @@ function execute(
       NetworkStep.run(
         stepContext,
         (() => {
-          const compiled = compile(authored(model));
+          const compiled = compile(authored());
           return retained
             ? {
                 ...compiled,
@@ -211,7 +191,7 @@ describe("hydrology network authoring and dispatch", () => {
   it("publishes the retained quantized closure and inward312 ledger through all actual operations", () => {
     for (const retained of [hugeRoot17(), standardRoots37And39()]) {
       const before = structuredClone(retained),
-        result = execute("certified-sill-spill", false, retained);
+        result = execute(false, retained);
       expect(result.failure).toBeUndefined();
       const hydro = readArtifact(result.context, waterArtifacts.hydrography);
       const lake = readArtifact(result.context, waterArtifacts.lakePlan);
@@ -259,7 +239,7 @@ describe("hydrology network authoring and dispatch", () => {
   });
 
   it("rejects a contradictory cross-product before the first publication", () => {
-    const result = execute("certified-sill-spill", false, undefined, true);
+    const result = execute(false, undefined, true);
     expect(result.failure).toBeDefined();
     for (const artifact of [
       waterArtifacts.hydrography,
@@ -269,12 +249,12 @@ describe("hydrology network authoring and dispatch", () => {
       expect(() => readArtifact(result.context, artifact)).toThrow();
   });
   it("rejects inactive public controls and forwards only the selected authored envelopes", () => {
-    const selected = authored("certified-sill-spill");
+    const selected = authored();
     if (selected.water.model !== "certified-sill-spill") throw new Error("Wrong fixture branch.");
     selected.water.computeLocalRunoff.config.infiltrationFraction = 0.37;
     const compiled = compile(selected);
     expect(compiled.computeLocalRunoff.config.infiltrationFraction).toBe(0.37);
-    expect(compiled.accumulateDischarge).toEqual(ops.accumulateDischarge.defaultConfig);
+    expect(Object.keys(compiled).sort()).toEqual(["classifyBasinRiverNetwork", "computeBasinNetwork", "computeDrainageBasins", "computeLocalRunoff", "projectRiverNetwork"]);
     expect(
       Value.Check(stage.surfaceSchema, {
         ...selected,
@@ -284,7 +264,7 @@ describe("hydrology network authoring and dispatch", () => {
     expect(
       Value.Check(stage.surfaceSchema, {
         ...selected,
-        water: { ...selected.water, accumulateDischarge: ops.accumulateDischarge.defaultConfig },
+        water: { ...selected.water, accumulateDischarge: { strategy: "topological-runoff", config: {} } },
       })
     ).toBe(false);
     expect(
@@ -296,40 +276,35 @@ describe("hydrology network authoring and dispatch", () => {
     ).toBe(false);
   });
 
-  it("preserves relative river density and legacy lakeiness transforms", () => {
-    const neutral = authored("legacy-sink-budget");
-    if (neutral.water.model !== "legacy-sink-budget") throw new Error("Wrong fixture branch.");
+  it("preserves relative river density without introducing water-footprint quotas", () => {
+    const neutral = authored();
     neutral.projectRiverNetwork.config.minorPercentile = 0.86;
     neutral.projectRiverNetwork.config.majorPercentile = 0.96;
-    neutral.water.planLakes.config.maxUpstreamSteps = 2;
-    neutral.water.planLakes.config.sinkDischargePercentileMin = 0.83;
-    neutral.water.planLakes.config.maxLakeLandFraction = 0.02;
     const normal = compile(neutral);
-    const dense = validateSchemaValueForTest(
-      stage.surfaceSchema,
-      {
-        ...neutral,
-        knobs: { riverDensity: "dense" },
-        water: { ...neutral.water, lakeiness: "many" },
-      },
-      "/stage"
-    );
-    const many = validateSchemaValueForTest(
-      NetworkStep.contract.schema,
-      stage.toInternal({ setup, stageConfig: dense }).rawSteps.network,
-      "/network"
-    );
+    const dense = compile({ ...neutral, knobs: { riverDensity: "dense" } });
     expect(normal.projectRiverNetwork.config.minorPercentile).toBe(0.86);
     expect(normal.projectRiverNetwork.config.majorPercentile).toBe(0.96);
-    expect(many.projectRiverNetwork.config.minorPercentile).toBeCloseTo(0.79);
-    expect(many.projectRiverNetwork.config.majorPercentile).toBeCloseTo(0.92);
-    expect(many.planLakes.config.maxUpstreamSteps).toBe(2);
-    expect(many.planLakes.config.sinkDischargePercentileMin).toBeCloseTo(0.79);
-    expect(many.planLakes.config.maxLakeLandFraction).toBeCloseTo(0.04);
+    expect(dense.projectRiverNetwork.config.minorPercentile).toBeCloseTo(0.79);
+    expect(dense.projectRiverNetwork.config.majorPercentile).toBeCloseTo(0.92);
+    expect(dense.computeBasinNetwork).toEqual(normal.computeBasinNetwork);
+  });
+
+  it("strictly rejects retired models, private selectors, strategies and old water controls", () => {
+    const selected = authored();
+    for (const water of [
+      { ...selected.water, model: "legacy-sink-budget" },
+      { ...selected.water, model: "unknown-model" },
+      { ...selected.water, planLakes: { strategy: "sink-discharge-budget", config: {} } },
+      { ...selected.water, computeBasinNetwork: { strategy: "sink-discharge-budget", config: {} } },
+      { ...selected.water, computeDrainageBasins: { strategy: "priority-flood", config: {} } },
+    ]) expect(Value.Check(stage.surfaceSchema, { ...selected, water })).toBe(false);
+    const config = compile(selected);
+    expect(Value.Check(NetworkStep.contract.schema, { ...config, model: "certified-sill-spill" })).toBe(false);
+    expect(Value.Check(NetworkStep.contract.schema, { ...config, planLakes: {} })).toBe(false);
   });
 
   it("executes only the certified operations and publishes one consistent preserved-ground generation", () => {
-    const result = execute("certified-sill-spill");
+    const result = execute();
     expect(result.failure).toBeUndefined();
     expect(result.calls).toEqual([
       "computeLocalRunoff",
@@ -357,44 +332,8 @@ describe("hydrology network authoring and dispatch", () => {
     expect(result.input.topography).toEqual(forcing().topography);
   });
 
-  it("preserves legacy computation order and values while never calling certified operations", () => {
-    const result = execute("legacy-sink-budget");
-    expect(result.failure).toBeUndefined();
-    expect(result.calls).toEqual([
-      "drainageRouting",
-      "accumulateDischarge",
-      "projectRiverNetwork",
-      "planLakes",
-      "classifyRiverNetwork",
-    ]);
-    const hydro = readArtifact(result.context, waterArtifacts.hydrography);
-    const cfg = compile(authored("legacy-sink-budget"));
-    const routing = ops.computeDrainageRouting.run(
-      {
-        ...dimensions,
-        elevation: result.input.topography.elevation,
-        landMask: result.input.topography.landMask,
-      },
-      cfg.drainageRouting
-    );
-    const discharge = ops.accumulateDischarge.run(
-      {
-        ...dimensions,
-        landMask: result.input.topography.landMask,
-        flowDir: routing.flowDir,
-        rainfall: result.input.climate.rainfall,
-        humidity: result.input.climate.humidity,
-      },
-      cfg.accumulateDischarge
-    );
-    expect(hydro.model).toBe("legacy-sink-budget");
-    expect(hydro.flowDir).toEqual(routing.flowDir);
-    expect(hydro.runoff).toEqual(discharge.runoff);
-    expect(hydro.discharge).toEqual(discharge.discharge);
-  });
-
   it("retains unsupported evidence and publishes none of the physical products or later classifications", () => {
-    const result = execute("certified-sill-spill", true);
+    const result = execute(true);
     expect(String(result.failure)).toContain("persistent-surplus");
     expect(result.calls).toEqual([
       "computeLocalRunoff",

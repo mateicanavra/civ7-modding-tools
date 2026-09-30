@@ -3,6 +3,7 @@ import { Type } from "typebox";
 
 import type { StandardMapCapture } from "../../capture.js";
 
+/** Metric identity for seasonal rainfall saturation evidence over the full integration population. */
 export const STANDARD_SEASONAL_RAINFALL_METRIC_KEY = "hydrology.seasonalRainfall";
 const RAINFALL_CEILING = 200;
 

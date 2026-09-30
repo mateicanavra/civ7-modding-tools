@@ -1,18 +1,23 @@
 import { describe, expect, it } from "bun:test";
 import { decodeBoundedJsonLogSeries } from "@swooper/mapgen-core/lib/log";
 import { sha256Hex, stableStringify } from "@swooper/mapgen-core/trace";
-import { CIV7_MAP_INFO_KEYS, getCiv7StandardMapSizePreset } from "@civ7/map-policy";
+import { CIV7_MAP_INFO_KEYS, getCiv7StandardMapSizePreset, type Civ7StandardMapSizeId } from "@civ7/map-policy";
 import standardRecipe, { createUnavailableStandardInitialOptionEvidence, projectStandardInitialSetup } from "@swooper/swooper-physics/standard";
 import { loadSwooperMapConfigCatalog } from "@swooper/swooper-physics/tooling/catalog-source";
 import { installWaterHeightMaintenanceProbe, projectLakeCutoffInitialSetup, WATER_HEIGHT_MAINTENANCE_PROBE, WATER_HEIGHT_LAKE_CUTOFF_PROBE, WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE, WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE } from "./water-height-maintenance.fixture.js";
-import { buildRiverProbePlan, riverProbeMapScript } from "./river-contract-probe.js";
+import { buildRiverProbePlan, riverProbeMapScript, type WaterHeightDiagnosticSelection } from "./river-contract-probe.fixture.js";
+import { canonicalMapConfigContentDigest, canonicalMapConfigDigest } from "@swooper/swooper-physics/standard/map-config";
 
 const identity = { configHash: "a".repeat(64), envelopeHash: "b".repeat(64), fixtureSourceSha256: "c".repeat(64) };
+const selectedSizes = ["MAPSIZE_TINY", "MAPSIZE_STANDARD", "MAPSIZE_HUGE"] as const;
 type Adapter = Parameters<typeof installWaterHeightMaintenanceProbe>[0];
 type MapInfo = ReturnType<Adapter["lookupMapInfo"]>;
-const mapInfo = (cutoff: number): MapInfo => ({ MapSizeType: "MAPSIZE_HUGE", LakeSizeCutoff: cutoff, GridWidth: 106, GridHeight: 66 });
-function cutoffCapture(cutoff = 20): Parameters<typeof projectLakeCutoffInitialSetup>[0] {
-  const preset = getCiv7StandardMapSizePreset("MAPSIZE_HUGE");
+const mapInfo = (cutoff: number, mapSize: Civ7StandardMapSizeId = "MAPSIZE_HUGE"): MapInfo => {
+  const preset = getCiv7StandardMapSizePreset(mapSize);
+  return { MapSizeType: preset.id, LakeSizeCutoff: cutoff, GridWidth: preset.dimensions.width, GridHeight: preset.dimensions.height };
+};
+function cutoffCapture(cutoff = 20, mapSize: Civ7StandardMapSizeId = "MAPSIZE_HUGE"): Parameters<typeof projectLakeCutoffInitialSetup>[0] {
+  const preset = getCiv7StandardMapSizePreset(mapSize);
   const aliveMajorPlayerIds = [7, 2, 11];
   return {
     mapSeed: 1018, gameSeed: 1018, dimensions: preset.dimensions,
@@ -26,12 +31,13 @@ function cutoffCapture(cutoff = 20): Parameters<typeof projectLakeCutoffInitialS
 function fixture(info: MapInfo = mapInfo(10)) {
   const calls: Array<{ method: string; arg?: unknown }> = [];
   const metadataCalls: Array<{ method: string; arg?: unknown }> = [];
+  const observedCoordinates: Array<{ x: number; y: number }> = [];
   const lines: string[] = [];
   let height = 10;
   const adapter: Adapter = {
-    getMapSizeId: () => { metadataCalls.push({ method: "getMapSizeId" }); return "MAPSIZE_HUGE"; },
+    getMapSizeId: () => { metadataCalls.push({ method: "getMapSizeId" }); return typeof info?.MapSizeType === "string" ? info.MapSizeType : "MAPSIZE_HUGE"; },
     lookupMapInfo: (id) => { metadataCalls.push({ method: "lookupMapInfo", arg: id }); return info; },
-    getElevation: () => height, getTerrainType: () => 3, getRiverType: () => -1,
+    getElevation: (x, y) => { observedCoordinates.push({ x, y }); return height; }, getTerrainType: () => 3, getRiverType: () => -1,
     isWater: (x) => x === 93, isLake: () => false,
     setElevation: (values) => { calls.push({ method: "setElevation", arg: values }); height = 20; },
     setRiverInfo: (intent) => { calls.push({ method: "setRiverInfo", arg: intent }); },
@@ -48,7 +54,7 @@ function fixture(info: MapInfo = mapInfo(10)) {
       writes?: Array<{ wet: boolean; intent: unknown }>; elevations?: Array<{ count: number; sha256: string }>;
       mapSizeId?: string; mapInfo?: MapInfo; expectedLakeSizeCutoff?: number; observedLakeSizeCutoff?: unknown; activation?: string };
   });
-  return { adapter, calls, metadataCalls, lines, decode };
+  return { adapter, calls, metadataCalls, observedCoordinates, lines, decode };
 }
 
 describe("water height maintenance observation (not native semantics)", () => {
@@ -78,7 +84,7 @@ describe("water height maintenance observation (not native semantics)", () => {
     expect(() => projectLakeCutoffInitialSetup({ ...capture, startSlotCapacity: { ...capture.startSlotCapacity, total: 11 } }, cutoff)).toThrow("Huge start-slot capacity");
     expect(() => projectLakeCutoffInitialSetup({ ...capture, mapSizeId: "MAPSIZE_STANDARD" }, cutoff)).toThrow("disagrees");
     expect(() => projectLakeCutoffInitialSetup({ ...capture, mapInfo: { ...capture.mapInfo, LakeSizeCutoff: 10 } }, cutoff)).toThrow(`LakeSizeCutoff=${cutoff}`);
-    expect(() => projectLakeCutoffInitialSetup(capture, 100)).toThrow("Unsupported diagnostic lake cutoff");
+    expect(() => projectLakeCutoffInitialSetup(capture, 100)).toThrow("LakeSizeCutoff=100");
   });
 
   it("keeps the V11 projector default at 20 and defines V12 from the Huge cell count", () => {
@@ -89,6 +95,35 @@ describe("water height maintenance observation (not native semantics)", () => {
     expect(WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE).toEqual({ ...WATER_HEIGHT_MAINTENANCE_PROBE,
       diagnosticRevision: 15, displayLabel: "Water Bounded Lake Cutoff V15",
       atlasKind: "full-map-bounded-lake-cutoff", expectedLakeSizeCutoff: 40 });
+  });
+
+  it.each([...selectedSizes])("preserves the complete %s capture and changes only the treatment kind", (mapSize) => {
+    const preset = getCiv7StandardMapSizePreset(mapSize);
+    const capture = { ...cutoffCapture(100, mapSize), mapSeed: -42, gameSeed: 7331 };
+    const before = structuredClone(capture);
+    const official = projectStandardInitialSetup(capture);
+    const diagnostic = projectLakeCutoffInitialSetup(capture, 100, mapSize);
+    expect(diagnostic).toEqual({ ...official, map: { ...official.map, selection: { ...official.map.selection, kind: "custom" } } });
+    expect(capture).toEqual(before);
+    expect(CIV7_MAP_INFO_KEYS.filter((key) => diagnostic.map.selection.mapInfo[key] !== preset.mapInfo[key])).toEqual(["LakeSizeCutoff"]);
+    const stock = cutoffCapture(preset.mapInfo.LakeSizeCutoff, mapSize);
+    expect(projectLakeCutoffInitialSetup(stock, preset.mapInfo.LakeSizeCutoff, mapSize)).toEqual(projectStandardInitialSetup(stock));
+    expect(projectLakeCutoffInitialSetup(stock, preset.mapInfo.LakeSizeCutoff, mapSize).map.selection.kind).toBe("civ7-preset");
+    const cells = preset.dimensions.width * preset.dimensions.height;
+    expect(projectLakeCutoffInitialSetup(cutoffCapture(cells, mapSize), cells, mapSize).map.selection.mapInfo.LakeSizeCutoff).toBe(cells);
+    for (const cutoff of [0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, cells + 1])
+      expect(() => projectLakeCutoffInitialSetup(capture, cutoff, mapSize)).toThrow("positive integer");
+    for (const key of CIV7_MAP_INFO_KEYS) {
+      const value = capture.mapInfo[key];
+      const changed = typeof value === "number" ? value + 1 : typeof value === "boolean" ? !value : `${String(value)}-drift`;
+      expect(() => projectLakeCutoffInitialSetup({ ...capture, mapInfo: { ...capture.mapInfo, [key]: changed } }, 100, mapSize)).toThrow();
+    }
+    expect(() => projectLakeCutoffInitialSetup(capture, 99, mapSize)).toThrow("LakeSizeCutoff=99");
+    expect(() => projectLakeCutoffInitialSetup({ ...capture, dimensions: { ...preset.dimensions, width: preset.dimensions.width - 1 } }, 100, mapSize)).toThrow("selection and dimensions");
+    for (const key of ["west", "east", "total"] as const)
+      expect(() => projectLakeCutoffInitialSetup({ ...capture, startSlotCapacity: { ...capture.startSlotCapacity, [key]: capture.startSlotCapacity[key] + 1 } }, 100, mapSize)).toThrow("start-slot capacity");
+    const otherSize = mapSize === "MAPSIZE_HUGE" ? "MAPSIZE_TINY" : "MAPSIZE_HUGE";
+    expect(() => projectLakeCutoffInitialSetup(capture, 100, otherSize)).toThrow("selection and dimensions");
   });
 
   it.each([42, 1018, 1234])("admits cutoff40 unchanged for seed %s without a per-seed gate", (seed) => {
@@ -181,6 +216,50 @@ describe("water height maintenance observation (not native semantics)", () => {
     }
   });
 
+  it.each([...selectedSizes])("bounds all %s observer coordinates while preserving original calls and failures", (mapSize) => {
+    const preset = getCiv7StandardMapSizePreset(mapSize);
+    const options = { ...WATER_HEIGHT_MAINTENANCE_PROBE, mapSize, ...preset.dimensions,
+      mapSeed: -42, gameSeed: 7331, playerCount: preset.defaultPlayers, expectedLakeSizeCutoff: preset.mapInfo.LakeSizeCutoff };
+    const observed = fixture(mapInfo(options.expectedLakeSizeCutoff, mapSize));
+    installWaterHeightMaintenanceProbe(observed.adapter, "bounded-observer", identity, options, (line) => observed.lines.push(line));
+    const points = observed.decode()[0]!.payload.focus!;
+    expect(points.length).toBeGreaterThan(0);
+    expect(points.every((point) => point.role === "fixed-coordinate-control" && !Object.hasOwn(point, "body"))).toBe(true);
+    const values = Array(preset.dimensions.width * preset.dimensions.height).fill(20);
+    const intent = { x: 10, y: 10, direction: "WEST", riverClass: "NAVIGABLE" } as const;
+    const args = [false, 25, 2, 2] as const;
+    observed.adapter.setElevation(values);
+    observed.adapter.setRiverInfo(intent);
+    observed.adapter.finalizeRivers(args);
+    observed.adapter.validateAndFixTerrain();
+    observed.adapter.generateCliffsFromElevation();
+    observed.adapter.recalculateAreas();
+    observed.adapter.storeWaterData();
+    expect(observed.calls.map(({ method }) => method)).toEqual(["setElevation", "setRiverInfo", "finalizeRivers",
+      "validateAndFixTerrain", "generateCliffsFromElevation", "recalculateAreas", "storeWaterData"]);
+    expect(observed.calls[0]!.arg).toBe(values);
+    expect(observed.calls[1]!.arg).toBe(intent);
+    expect(observed.calls[2]!.arg).toBe(args);
+    expect(observed.observedCoordinates.every(({ x, y }) => x >= 0 && y >= 0 && x < preset.dimensions.width && y < preset.dimensions.height)).toBe(true);
+    expect(observed.decode().find((record) => record.stage === "map-info")!.payload.activation).toBe("accepted");
+    const failure = fixture(mapInfo(options.expectedLakeSizeCutoff, mapSize));
+    const sentinel = new Error("original native failure");
+    let attempts = 0;
+    failure.adapter.finalizeRivers = (received) => { expect(received).toBe(args); attempts++; throw sentinel; };
+    installWaterHeightMaintenanceProbe(failure.adapter, "bounded-failure", identity, options, (line) => failure.lines.push(line));
+    let thrown: unknown;
+    try { failure.adapter.finalizeRivers(args); } catch (error) { thrown = error; }
+    expect(thrown).toBe(sentinel);
+    expect(attempts).toBe(1);
+    expect(failure.decode().map(({ stage }) => stage)).toEqual(["installed", "map-info", "inputs", "before", "failed"]);
+  });
+
+  it.each([{ sourceConfigId: "sundered-archipelago" }, { playerCount: 2 }])("uses no body identities outside the exact historical profile/player selection %j", (selection) => {
+    const observed = fixture();
+    installWaterHeightMaintenanceProbe(observed.adapter, "different-selection", identity, { ...WATER_HEIGHT_MAINTENANCE_PROBE, ...selection }, (line) => observed.lines.push(line));
+    expect(observed.decode()[0]!.payload.focus!.every((point) => point.role === "fixed-coordinate-control" && !Object.hasOwn(point, "body"))).toBe(true);
+  });
+
   it("preserves an original failure without retries or a successful after observation", () => {
     const { adapter, lines, decode } = fixture();
     const error = new Error("native failure");
@@ -205,7 +284,8 @@ describe("water height maintenance observation (not native semantics)", () => {
     const invalid: Array<{ options: NonNullable<Parameters<typeof installWaterHeightMaintenanceProbe>[3]>; info: MapInfo }> = [
       { options: WATER_HEIGHT_MAINTENANCE_PROBE, info: mapInfo(20) },
       ...[mapInfo(10), { ...mapInfo(20), LakeSizeCutoff: "20" }, { MapSizeType: "MAPSIZE_HUGE" },
-        null, mapInfo(Number.NaN), { ...mapInfo(20), MapSizeType: "MAPSIZE_STANDARD" }]
+        null, mapInfo(Number.NaN), { ...mapInfo(20), MapSizeType: "MAPSIZE_STANDARD" },
+        { ...mapInfo(20), GridWidth: 105 }, { ...mapInfo(20), GridHeight: 65 }]
         .map((info) => ({ options: WATER_HEIGHT_LAKE_CUTOFF_PROBE, info: info as MapInfo })),
       ...[mapInfo(10), mapInfo(20), { ...mapInfo(6996), LakeSizeCutoff: "6996" }, { MapSizeType: "MAPSIZE_HUGE" },
         null, mapInfo(Number.NaN), { ...mapInfo(6996), MapSizeType: "MAPSIZE_STANDARD" }]
@@ -291,7 +371,7 @@ describe("water height maintenance observation (not native semantics)", () => {
       expect(proof.intervention.discriminator).toContain("cutoff40 versus stock10 on Huge42, then unchanged on Huge1018");
       expect(proof.intervention.discriminator).toContain("not a product cutoff");
       expect(proof.intervention.discriminator).toContain("changed classifications are results, not activation refusals");
-      expect(content(plan.files, "maps/river-contract.js")).toContain("projectLakeCutoffInitialSetup(capture, 40)");
+      expect(content(plan.files, "maps/river-contract.js").includes('projectLakeCutoffInitialSetup(capture, 40, "MAPSIZE_HUGE")')).toBe(true);
     } else {
       expect(proof.intervention.discriminator).toBeUndefined();
     }
@@ -319,6 +399,59 @@ describe("water height maintenance observation (not native semantics)", () => {
       const registration = source.slice(source.lastIndexOf("installWaterHeightMaintenanceProbe(Civ7Adapter.prototype"));
       expect(new RegExp(`"mapSeed": ${seed}, "gameSeed": ${seed}`).test(registration)).toBe(true);
     }
+  });
+
+  it.each(["swooper-earthlike", "sundered-archipelago"].flatMap((sourceConfigId) => selectedSizes.map((mapSize) => ({ sourceConfigId, mapSize }))))(
+    "resolves one canonical $sourceConfigId/$mapSize choice for stock and explicit-cutoff receipts", async ({ sourceConfigId, mapSize }) => {
+      const preset = getCiv7StandardMapSizePreset(mapSize);
+      const selection = { sourceConfigId, mapSize, mapSeed: -42, gameSeed: 7331, lakeSizeCutoff: "stock" } as const;
+      const control = await buildRiverProbePlan("selected-control", "authored", "full-map-bounded-lake-cutoff", selection);
+      const treatment = await buildRiverProbePlan("selected-treatment", "authored", "full-map-maintenance", { ...selection, playerCount: 2, lakeSizeCutoff: 100 });
+      const content = (plan: typeof control, path: string) => String(plan.files.find((file) => file.relativePath === path)!.content);
+      const controlProof = JSON.parse(content(control, "proof.json"));
+      const treatmentProof = JSON.parse(content(treatment, "proof.json"));
+      const [config] = await loadSwooperMapConfigCatalog({ catalogConfigIds: [sourceConfigId] });
+      for (const [proof, players, cutoff] of [[controlProof, preset.defaultPlayers, preset.mapInfo.LakeSizeCutoff], [treatmentProof, 2, 100]] as const) {
+        expect(proof).toMatchObject({ sourceConfigId, mapSize, ...preset.dimensions, mapSeed: -42, gameSeed: 7331,
+          playerCount: players, expectedLakeSizeCutoff: cutoff, configHash: canonicalMapConfigContentDigest(config!.canonicalConfig),
+          envelopeHash: canonicalMapConfigDigest(config!.canonicalConfig), evidence: "built-only; no native observations" });
+        expect(proof.liveVerifierFlags).toEqual(["--mutate", "--map-script", riverProbeMapScript, "--map-size", mapSize,
+          "--seed", "-42", "--game-seed", "7331", "--player-count", String(players)]);
+      }
+      for (const key of ["configHash", "envelopeHash", "fixtureSourceSha256", "settings"])
+        expect(treatmentProof[key]).toEqual(controlProof[key]);
+      expect(controlProof.intervention).toBeUndefined();
+      expect(control.files.some((file) => file.relativePath === "config/lake-cutoff.xml")).toBe(false);
+      expect(content(control, "swooper-river-contract-v1.modinfo")).not.toContain("MapInUse");
+      expect(treatmentProof.intervention).toMatchObject({ criterion: { MapInUse: riverProbeMapScript },
+        where: { MapSizeType: mapSize }, set: { LakeSizeCutoff: 100 },
+        setupSelection: `custom; captured ${preset.label} metadata differs only at numeric LakeSizeCutoff 100` });
+      expect(content(treatment, "config/lake-cutoff.xml")).toBe(`<?xml version="1.0" encoding="utf-8"?>\n<Database><Maps><Update><Where MapSizeType="${mapSize}"/><Set LakeSizeCutoff="100"/></Update></Maps></Database>`);
+      expect(content(treatment, "swooper-river-contract-v1.modinfo")).toContain(`<Criteria id="diagnostic-map"><MapInUse>${riverProbeMapScript}</MapInUse></Criteria>`);
+      expect(content(treatment, "swooper-river-contract-v1.modinfo").match(/<Item>config\/lake-cutoff\.xml<\/Item>/g)).toHaveLength(1);
+      expect(content(treatment, "config/config.xml")).toBe(content(control, "config/config.xml"));
+      expect(content(treatment, "maps/river-contract.js").includes(`projectLakeCutoffInitialSetup(capture, 100, "${mapSize}")`)).toBe(true);
+    });
+
+  it("uses each public preset's defaults and cell count rather than historical Huge constants", async () => {
+    for (const mapSize of ["MAPSIZE_SMALL", "MAPSIZE_LARGE"] as const) {
+      const preset = getCiv7StandardMapSizePreset(mapSize);
+      const plan = await buildRiverProbePlan("other-preset", "authored", "full-map-max-lake-cutoff", { mapSize });
+      const proof = JSON.parse(String(plan.files.find((file) => file.relativePath === "proof.json")!.content));
+      expect(proof).toMatchObject({ mapSize, ...preset.dimensions, playerCount: preset.defaultPlayers,
+        expectedLakeSizeCutoff: preset.dimensions.width * preset.dimensions.height });
+    }
+  });
+
+  it("refuses unknown selectors, inadmissible players, cutoffs and either invalid seed before bundling", async () => {
+    const invalid: WaterHeightDiagnosticSelection[] = [
+      { sourceConfigId: "not-a-shipped-profile" }, { mapSize: "MAPSIZE_CUSTOM" },
+      ...[0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, 2281].map((lakeSizeCutoff) => ({ mapSize: "MAPSIZE_TINY", lakeSizeCutoff })),
+      ...[0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, 5].map((playerCount) => ({ mapSize: "MAPSIZE_TINY", playerCount })),
+      ...[Number.NaN, Number.POSITIVE_INFINITY, 1.5, 0x8000_0000, -0x8000_0001].flatMap((seed) => [{ mapSeed: seed }, { gameSeed: seed }]),
+    ];
+    for (const selection of invalid)
+      await expect(buildRiverProbePlan("bad-selection", "authored", "full-map-maintenance", selection)).rejects.toThrow();
   });
 
   it("rejects invalid or unrelated explicit seed metadata before bundling", async () => {

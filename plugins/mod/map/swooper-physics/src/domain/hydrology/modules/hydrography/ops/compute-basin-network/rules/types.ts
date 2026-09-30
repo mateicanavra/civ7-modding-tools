@@ -34,10 +34,12 @@ export type NetworkInput = Readonly<{
   potentialDemand: ArrayLike<number>;
 }>;
 
+/** Rejects invalid basin geometry, forcing, or conservation evidence before a supported ledger can be published. */
 export function requireValid(condition: unknown, message: string): asserts condition {
   if (!condition) throw new RangeError(`Invalid basin network input: ${message}.`);
 }
 
+/** Requires a finite network scalar while returning its original value unchanged. */
 export function finite(value: number, name: string): number {
   requireValid(Number.isFinite(value), `nonfinite ${name}`);
   return value;

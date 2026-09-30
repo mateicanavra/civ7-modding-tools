@@ -7,7 +7,7 @@ import {
 } from "../../../../../../src/recipes/standard/metrics/families/hydrology/lake-projection.js";
 
 describe("Standard lake-projection measurements", () => {
-  it("admits historical v1 records without the additive fragment diagnostic", () => {
+  it("rejects retired suppression evidence in the closed measurement record", () => {
     expect(
       Value.Check(StandardLakeProjectionMeasurementsSchema, {
         version: 1,
@@ -24,23 +24,23 @@ describe("Standard lake-projection measurements", () => {
           singleTileComponentCount: 0,
         },
       })
-    ).toBe(true);
+    ).toBe(false);
   });
 
-  it("emits isolated-fragment evidence for current v1 measurements", () => {
+  it("emits complete projection topology and native outcome evidence", () => {
     const measurement = measureStandardLakeProjection({
       dimensions: { width: 3, height: 1 },
       projectedLakeMask: new Uint8Array([1, 1, 0]),
-      plannedLakeTileCount: 3,
-      morphologyProtectedLakeTileCount: 1,
-      isolatedFragmentProtectedLakeTileCount: 1,
+      plannedLakeTileCount: 2,
       stampedLakeTileCount: 2,
       rejectedLakeTileCount: 0,
       nonLakeTileCount: 0,
       terrainMismatchTileCount: 0,
     });
 
-    expect(measurement.isolatedFragmentProtectedLakeTileCount).toBe(1);
+    expect(measurement).toMatchObject({ plannedLakeTileCount: 2, stampedLakeTileCount: 2,
+      rejectedLakeTileCount: 0, nonLakeTileCount: 0, terrainMismatchTileCount: 0,
+      components: { componentCount: 1, largestComponentSize: 2, singleTileComponentCount: 0 } });
     expect(Value.Check(StandardLakeProjectionMeasurementsSchema, measurement)).toBe(true);
   });
 });

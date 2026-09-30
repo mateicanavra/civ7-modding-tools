@@ -1,7 +1,8 @@
 import type { MapConfigEnvelope } from "@civ7/studio-contract";
 import type { PipelineConfig, SelectOption } from "@swooper/mapgen-studio-ui/types";
-import { type ChangeEvent, useCallback, useMemo, useRef } from "react";
+import { type ChangeEvent, useCallback, useEffect, useMemo, useRef } from "react";
 import {
+  admitCanonicalConfig,
   getRecipeDefaultCanonicalConfig,
   replaceCanonicalConfig,
 } from "../../features/configAuthoring/canonicalConfig";
@@ -33,6 +34,7 @@ export type UseConfigAuthoringResult = Readonly<{
   recipeOptions: ReadonlyArray<SelectOption>;
   configOptions: ReadonlyArray<SelectOption>;
   pipelineConfig: PipelineConfig;
+  configIsAdmitted: boolean;
   setPipelineConfig: (next: PipelineConfig) => void;
   selectRecipe: (recipeId: string) => void;
   selectConfig: (configId: string) => void;
@@ -48,6 +50,17 @@ export function useConfigAuthoring(args: UseConfigAuthoringArgs): UseConfigAutho
   const importInputRef = useRef<HTMLInputElement | null>(null);
   const recipeArtifacts = getRecipeArtifacts(canonicalConfig.recipe);
   const pipelineConfig = canonicalConfig.config;
+  const configIsAdmitted = useMemo(
+    () => admitCanonicalConfig(canonicalConfig) !== undefined,
+    [canonicalConfig]
+  );
+  useEffect(() => {
+    if (!configIsAdmitted) {
+      toast("Saved config is no longer supported. Export it or select a current config before running.", {
+        variant: "error",
+      });
+    }
+  }, [configIsAdmitted, toast]);
 
   const recipeOptions = useMemo(
     () => STUDIO_RECIPE_OPTIONS.map((recipe) => ({ value: recipe.id, label: recipe.label })),
@@ -75,6 +88,7 @@ export function useConfigAuthoring(args: UseConfigAuthoringArgs): UseConfigAutho
 
   const setPipelineConfig = useCallback(
     (next: PipelineConfig) => {
+      if (!configIsAdmitted) return;
       const updated = replaceCanonicalConfig(canonicalConfig, next);
       if (updated === undefined) {
         toast("Config edit failed: the value is invalid for this recipe.", { variant: "error" });
@@ -82,7 +96,7 @@ export function useConfigAuthoring(args: UseConfigAuthoringArgs): UseConfigAutho
       }
       setCanonicalConfig(updated);
     },
-    [canonicalConfig, setCanonicalConfig, toast]
+    [canonicalConfig, configIsAdmitted, setCanonicalConfig, toast]
   );
 
   const selectRecipe = useCallback(
@@ -99,7 +113,7 @@ export function useConfigAuthoring(args: UseConfigAuthoringArgs): UseConfigAutho
 
   const selectConfig = useCallback(
     (configId: string) => {
-      if (configId === canonicalConfig.id) return;
+      if (configId === canonicalConfig.id && configIsAdmitted) return;
       const next = findCatalogConfig(canonicalConfig.recipe, configId);
       if (next === null) {
         toast(`Config is not available: ${configId}`, { variant: "error" });
@@ -107,7 +121,7 @@ export function useConfigAuthoring(args: UseConfigAuthoringArgs): UseConfigAutho
       }
       install(next);
     },
-    [canonicalConfig.id, canonicalConfig.recipe, install, toast]
+    [canonicalConfig.id, canonicalConfig.recipe, configIsAdmitted, install, toast]
   );
 
   const exportConfig = useCallback(() => {
@@ -138,6 +152,7 @@ export function useConfigAuthoring(args: UseConfigAuthoringArgs): UseConfigAutho
     recipeOptions,
     configOptions,
     pipelineConfig,
+    configIsAdmitted,
     setPipelineConfig,
     selectRecipe,
     selectConfig,

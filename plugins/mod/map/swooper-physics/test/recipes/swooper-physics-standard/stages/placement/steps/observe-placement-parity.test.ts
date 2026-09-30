@@ -26,7 +26,7 @@ import { StandardFinalRiverParityMeasurementsSchema } from "../../../../../../sr
 type ProjectedRivers = ArtifactValueOf<typeof hydrographyArtifacts.projectedRivers>;
 function riverIntent(
   sources: readonly (readonly [number, "MINOR" | "NAVIGABLE"])[] = []
-): Extract<ProjectedRivers, { model: "certified-sill-spill" }> {
+): ProjectedRivers {
   const { width, height } = TEST_MAP_SIZE.dimensions;
   const minor = new Uint8Array(width * height),
     major = new Uint8Array(width * height);
@@ -281,47 +281,32 @@ describe("placement/observe-placement-parity", () => {
     }
   });
 
-  it("does not read or emit certified river evidence for legacy projection", () => {
-    class NoRiverReadAdapter extends MockAdapter {
+  it("reads and emits final river evidence even for an empty authored network", () => {
+    class CountingRiverReadAdapter extends MockAdapter {
+      readCount = 0;
       override readRiverProjection(): RiverProjectionResult {
-        throw new Error("legacy must not read rivers");
+        this.readCount++;
+        const { width, height } = TEST_MAP_SIZE.dimensions;
+        return super.readRiverProjection(width, height, new Uint8Array(width * height));
       }
     }
     const { width, height } = TEST_MAP_SIZE.dimensions;
-    const { authoredSourceCount: _, writes: __, wetTransitionWrites: ___, wetTransitionDispositions: ____, ...empty } = riverIntent();
-    const legacy: ProjectedRivers = {
-      ...empty,
-      model: "legacy-sink-budget",
-      selectedTileCount: 0,
-      eligibleTileCount: 0,
-      candidateEndpointCount: 0,
-      selectedChainCount: 0,
-      selectedChainLengths: new Uint16Array(),
-      longestSelectedChainLength: 0,
-      meanSelectedChainLength: 0,
-      targetTileCount: 0,
-      targetMajorTileFraction: 0,
-      selectedEndpointDischargeFloor: 0,
-      nonProjectableMajorTileCount: 0,
-      unselectedEligibleMajorTileCount: 0,
-      selectedEligibleMajorTileFraction: 0,
-      majorDurableTileCount: 0,
-      majorPerennialTileCount: 0,
-      majorClosedBasinTileCount: 0,
-      majorOceanMouthTileCount: 0,
-      projectionSignalStatus: "arid-low-signal",
-      projectionSignalReason: "Empty legacy fixture.",
-    };
-    const result = executeParity(
-      createLandAdapter(NoRiverReadAdapter),
-      new Uint8Array(width * height),
-      undefined,
-      undefined,
-      undefined,
-      legacy
-    );
-    expect(result.result.finalRiverParity).toBeNull();
-    expect(result.riverMessages).toEqual([]);
+    const adapter = createLandAdapter(CountingRiverReadAdapter) as CountingRiverReadAdapter;
+    const result = executeParity(adapter, new Uint8Array(width * height));
+    expect(adapter.readCount).toBe(1);
+    expect(result.result.finalRiverParity).toMatchObject({
+      status: "observed",
+      intendedMinorSourceCount: 0,
+      intendedNavigableSourceCount: 0,
+      observedMinorSourceCount: 0,
+      observedNavigableSourceCount: 0,
+      missingSourceCount: 0,
+      extraSourceCount: 0,
+      wrongClassCount: 0,
+      navigableTerrainMismatchCount: 0,
+    });
+    expect(Value.Check(StandardFinalRiverParityMeasurementsSchema, result.result.finalRiverParity)).toBe(true);
+    expect(result.riverMessages.length).toBeGreaterThan(0);
   });
 
   it("reports final land drift, accepted lake/coast-water and unplanned lake adjustments without rewriting", () => {

@@ -3,6 +3,7 @@ import { ClimateSamplingModelSchema } from "../../model/atoms/climate-phase.sche
 import { MoistureSampleSchema } from "../../model/atoms/moisture-sample.schema.js";
 import phaseReduction from "./strategies/phase-reduction/config.js";
 
+/** Owns weather-member and annual moisture reductions, including phase-resolved demand evidence. */
 export default defineOp({
   kind: "compute",
   id: "hydrology/compute-moisture-aggregate",

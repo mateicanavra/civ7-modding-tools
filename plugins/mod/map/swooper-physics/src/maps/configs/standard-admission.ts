@@ -37,27 +37,6 @@ export function validateStandardMapConfigSnapshotForSchema(
         .join("\n")}`
     );
   }
-  const hydrography = envelope.config["hydrology-hydrography"];
-  const rivers = envelope.config["map-rivers"];
-  const water =
-    hydrography && typeof hydrography === "object" && "water" in hydrography
-      ? hydrography.water
-      : undefined;
-  const projection =
-    rivers && typeof rivers === "object" && "projection" in rivers
-      ? rivers.projection
-      : undefined;
-  const waterModel = water && typeof water === "object" && "model" in water ? water.model : undefined;
-  const projectionModel =
-    projection && typeof projection === "object" && "model" in projection
-      ? projection.model
-      : undefined;
-  if (
-    !((waterModel === "certified-sill-spill" && projectionModel === "authored-network") ||
-      (waterModel === "legacy-sink-budget" && projectionModel === "legacy-procedural"))
-  ) {
-    throw new Error("Standard water model and river projection must select the same physical path.");
-  }
   if (envelope.latitudeBounds.topLatitude <= envelope.latitudeBounds.bottomLatitude) {
     throw new Error("Map config latitudeBounds.topLatitude must exceed bottomLatitude.");
   }

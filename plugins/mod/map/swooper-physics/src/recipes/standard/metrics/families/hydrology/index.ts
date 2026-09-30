@@ -30,7 +30,7 @@ export type StandardHydrologyMetrics = Readonly<{
   outletTiles: CountMetric;
   terminalOceanTiles: CountMetric;
   model: StandardMapCapture["model"]["physicalHydrology"]["model"];
-  basinNetwork: StandardBasinNetworkMetrics | null;
+  basinNetwork: StandardBasinNetworkMetrics;
   networkCoherence: ReturnType<typeof measureStandardNetworkCoherence>;
   networkSummary: StandardMapCapture["model"]["riverNetworkSummary"];
   navigable: StandardMapCapture["projection"]["navigableRivers"] &
@@ -47,7 +47,7 @@ export function measureStandardHydrology(capture: StandardMapCapture): StandardH
   let riverTiles = 0;
   let minorRiverTiles = 0;
   let majorRiverTiles = 0;
-  let outletTiles = physical.model === "certified-sill-spill" ? physical.marineExits.length + physical.boundaryExits.length : 0;
+  const outletTiles = physical.marineExits.length + physical.boundaryExits.length;
   let terminalOceanTiles = 0;
 
   for (let index = 0; index < tileCount; index += 1) {
@@ -55,8 +55,6 @@ export function measureStandardHydrology(capture: StandardMapCapture): StandardH
     if (isAnyRiverClass(riverClass)) riverTiles += 1;
     if (isMinorRiverClass(riverClass)) minorRiverTiles += 1;
     if (isMajorRiverClass(riverClass)) majorRiverTiles += 1;
-    if (physical.model === "legacy-sink-budget" && physical.outletMask[index] === 1)
-      outletTiles += 1;
     if (capture.model.terminalType[index] === BASIN_TERMINAL.marine) terminalOceanTiles += 1;
   }
 

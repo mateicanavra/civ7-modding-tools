@@ -242,9 +242,7 @@ describe("Standard parity report state", () => {
     expect(report.failureLinks).toContain("placement-parity.drift");
   });
 
-  test.each(["legacy-sink-budget", "certified-sill-spill"] as const)(
-    "keeps native classification differences visible with model-scoped physical closure: %s",
-    (model) => {
+  test("keeps native classification differences visible without confusing physical closure", () => {
       const base = captures();
       const localCounters = {
         ...base.local.placement.terminalParity,
@@ -263,22 +261,19 @@ describe("Standard parity report state", () => {
           ...base.local,
           hydrology: {
             ...base.local.hydrology,
-            rivers: { ...base.local.hydrology.rivers, model },
+            rivers: { ...base.local.hydrology.rivers },
           },
           placement: { ...base.local.placement, terminalParity: localCounters },
         },
       });
 
-      expect(report.placement.terminalParity.claim.status).toBe(
-        model === "certified-sill-spill" ? "pass" : "fail"
-      );
+      expect(report.placement.terminalParity.claim.status).toBe("pass");
       expect(report.placement.terminalParity.mismatchedFields).toEqual([
         "finalLakeClassificationDriftCount",
       ]);
       expect(report.placement.terminalParity.exact?.finalLakeClassificationDriftCount).toBe(48);
       expect(report.placement.terminalParity.local.finalLakeClassificationDriftCount).toBe(0);
-    }
-  );
+  });
 
   test("never waives certified physical water loss alongside native class differences", () => {
     const base = captures();
@@ -594,7 +589,7 @@ function captures(): Readonly<{
       surface: finalSurface(0),
       hydrology: {
         rivers: {
-          model: "legacy-sink-budget",
+          model: "certified-sill-spill",
           nativeMinor: emptyGrid,
           plannedMinor: emptyGrid,
           plannedMajor: emptyGrid,

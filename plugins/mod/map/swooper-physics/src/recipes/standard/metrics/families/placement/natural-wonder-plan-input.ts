@@ -26,7 +26,7 @@ export type StandardNaturalWonderPlannerMeasurementSurface = Readonly<{
   effectiveMoisture: PlannerNumericSurface;
   surfaceTemperature: PlannerNumericSurface;
   fertility: PlannerNumericSurface;
-  discharge: PlannerNumericSurface | readonly number[];
+  discharge: readonly number[];
   slopeClass: PlannerNumericSurface;
   coastTerrainType: number;
   mountainTerrainType: number;
@@ -133,7 +133,7 @@ const PlannerSurfaceDigestsSchema = Type.Object(
       "Raw-byte digest of Pedology fertility admitted as a wonder suitability signal."
     ),
     dischargeHash32: digest(
-      "Discharge digest: original Float32 bytes for legacy typed evidence, canonical little-endian Float64 bytes for Number-array evidence."
+      "Discharge digest: canonical little-endian Float64 bytes preserving Number-array precision."
     ),
     slopeClassHash32: digest(
       "Raw-byte digest of Hydrology slope classes admitted as a wonder suitability signal."
@@ -476,8 +476,7 @@ export function measureStandardNaturalWonderPlanInput({
   });
 }
 
-function hashDischarge(discharge: PlannerNumericSurface | readonly number[]): string {
-  if (!Array.isArray(discharge)) return fnv1a32BytesHex(discharge as PlannerNumericSurface);
+function hashDischarge(discharge: readonly number[]): string {
   const bytes = new Uint8Array(discharge.length * 8);
   const view = new DataView(bytes.buffer);
   for (let index = 0; index < discharge.length; index++) {

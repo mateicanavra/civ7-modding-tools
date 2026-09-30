@@ -28,11 +28,11 @@ const climateConfig = {
   computeClimateDiagnostics: climate.computeClimateDiagnostics.defaultConfig,
 };
 
-function runSurfaceConsumers(model: "certified-sill-spill" | "legacy-sink-budget") {
+function runSurfaceConsumers() {
   const width = 8;
   const height = 1;
   const size = width * height;
-  const fixture = createSurfaceWaterFixture(model, width, height);
+  const fixture = createSurfaceWaterFixture(width, height);
   const before = structuredClone(fixture);
   const setup = admitMapSetup({
     mapSeed: TEST_MAP_SEED,
@@ -42,7 +42,7 @@ function runSurfaceConsumers(model: "certified-sill-spill" | "legacy-sink-budget
   const context = createMapContext({ setup, adapter: createMockAdapter({ width, height }) });
   const { topography, wetCell } = fixture;
   const expectedExposure = topography.landMask.slice();
-  if (model === "certified-sill-spill") expectedExposure[wetCell] = 0;
+  expectedExposure[wetCell] = 0;
   const calls: string[] = [];
   const forcing = climate.computeRadiativeForcing.run({
     model: "latitude-insolation", width, height, latitudeByRow: Float32Array.of(0),
@@ -106,7 +106,6 @@ function runSurfaceConsumers(model: "certified-sill-spill" | "legacy-sink-budget
       computeLandWaterBudget: (...[input, config]: Parameters<typeof climate.computeLandWaterBudget.run>) => {
         calls.push("water-budget");
         expect(input.landMask).toEqual(expectedExposure);
-        if (model === "legacy-sink-budget") expect(input.landMask).toBe(topography.landMask);
         return climate.computeLandWaterBudget.run(input, config);
       },
       computeClimateDiagnostics: climate.computeClimateDiagnostics.run,
@@ -117,7 +116,6 @@ function runSurfaceConsumers(model: "certified-sill-spill" | "legacy-sink-budget
         calls.push("pedology");
         expect(input.landMask).toEqual(expectedExposure);
         expect(input.elevation).toBe(topography.elevation);
-        if (model === "legacy-sink-budget") expect(input.landMask).toBe(topography.landMask);
         return ecology.pedology.ops.classifyPedology.run(input, config);
       },
     }, buildStepTestDependencies(PedologyStep, stepContext));
@@ -126,7 +124,6 @@ function runSurfaceConsumers(model: "certified-sill-spill" | "legacy-sink-budget
       classify: (...[input, config]: Parameters<typeof ecology.biomes.ops.classifyBiomes.run>) => {
         calls.push("biomes");
         expect(input.landMask).toEqual(expectedExposure);
-        if (model === "legacy-sink-budget") expect(input.landMask).toBe(topography.landMask);
         return ecology.biomes.ops.classifyBiomes.run(input, config);
       },
     }, buildStepTestDependencies(BiomesStep, stepContext));
@@ -146,8 +143,7 @@ function runSurfaceConsumers(model: "certified-sill-spill" | "legacy-sink-budget
 
 describe("elevated lake exposure across climate and terrestrial consumers", () => {
   it("excludes certified wet ground from soil, vegetation and land budgets without marine thermal treatment", () => {
-    const certified = runSurfaceConsumers("certified-sill-spill");
-    const legacy = runSurfaceConsumers("legacy-sink-budget");
+    const certified = runSurfaceConsumers();
     const { wetCell, dryCell, minorChannel, majorChannel } = certified;
 
     expect(certified.pedology.fertility[wetCell]).toBe(0);
@@ -155,17 +151,12 @@ describe("elevated lake exposure across climate and terrestrial consumers", () =
     expect(certified.biomes.vegetationDensity[wetCell]).toBe(0);
     expect(certified.climateIndices.effectiveMoisture[wetCell]).toBe(0);
     expect(certified.climateIndices.pet[wetCell]).toBe(0);
-    expect(certified.climateIndices.surfaceTemperatureC).toEqual(legacy.climateIndices.surfaceTemperatureC);
+    expect(certified.climateIndices.surfaceTemperatureC[wetCell]).toBe(certified.climateIndices.surfaceTemperatureC[dryCell]);
     for (const cell of [dryCell, minorChannel, majorChannel]) {
       expect(certified.pedology.fertility[cell]).toBeGreaterThan(0);
       expect(certified.biomes.biomeIndex[cell]).not.toBe(255);
       expect(certified.biomes.vegetationDensity[cell]).toBeGreaterThan(0);
       expect(certified.climateIndices.effectiveMoisture[cell]).toBeGreaterThan(0);
     }
-    expect(legacy.pedology.fertility[wetCell]).toBeGreaterThan(0);
-    expect(legacy.biomes.biomeIndex[wetCell]).not.toBe(255);
-    expect(legacy.biomes.vegetationDensity[wetCell]).toBeGreaterThan(0);
-    expect(legacy.climateIndices.effectiveMoisture[wetCell]).toBeGreaterThan(0);
-    expect(legacy.climateIndices.pet[wetCell]).toBeGreaterThan(0);
   });
 });

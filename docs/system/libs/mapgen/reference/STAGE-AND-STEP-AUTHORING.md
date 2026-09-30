@@ -60,7 +60,7 @@ stage-local artifact catalogs as compatibility surfaces.
 import { artifacts as hydrologyHydrographyArtifacts } from "../../../../../../../domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "../../../../../../../domain/morphology/modules/shelf/artifacts/index.js";
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
 
@@ -71,30 +71,26 @@ export const config = defineStep({
     "isWater",
     "getTerrainType",
     "setTerrainType",
-    "modelRivers",
+    "getRiverCapabilities",
+    "setRiverInfo",
+    "finalizeRivers",
     "validateAndFixTerrain",
     "storeWaterData",
-    "defineNamedRivers",
     "recalculateAreas",
     "readRiverProjection",
   ] as const,
   requires: [
     STANDARD_COMPLETIONS.elevationBuilt,
-    STANDARD_COMPLETIONS.rainfallProjected,
     hydrologyHydrographyArtifacts.hydrography,
     hydrologyHydrographyArtifacts.lakePlan,
-    hydrologyHydrographyArtifacts.riverNetwork,
+    hydrologyHydrographyArtifacts.projectedLakes,
     morphologyShelfArtifacts.shelf,
     morphologyLandformsArtifacts.topography,
   ],
   provides: [
     STANDARD_COMPLETIONS.riversPlotted,
-    hydrologyHydrographyArtifacts.projectedNavigableRivers,
+    hydrologyHydrographyArtifacts.projectedRivers,
   ],
-  schema: Type.Object({
-    endpointDischargePercentileMin: Type.Number({ minimum: 0, maximum: 1 }),
-    targetMajorTileFraction: Type.Number({ minimum: 0, maximum: 1 }),
-  }),
 });
 ```
 
@@ -133,37 +129,26 @@ Representative example (createStep boundary; excerpt; see full file in anchors):
 
 ```ts
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { selectNavigableRiverTerrain } from "../../model/policy/navigable-river-projection.js";
 import { config } from "./config.js";
 
 /** Projects admitted river evidence into Civ7 and captures engine readback. */
 export const PlotRiversStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const hydrography = deps.artifacts.hydrography.read();
-    const projected = selectNavigableRiverTerrain(
-      {
-        width: context.setup.dimensions.width,
-        height: context.setup.dimensions.height,
-        riverClass: hydrography.riverClass,
-        discharge: hydrography.discharge,
-        flowDir: hydrography.flowDir,
-        projectableLandMask: /* finalized projectable terrain mask */,
-      },
-      stepConfig
-    );
-    // ... stamp projected.riverMask through deps.engine.setTerrainType(context, ...) ...
-    // ... refresh Civ caches, publish immutable intent, and keep current readback local ...
+    const lakePlan = deps.artifacts.lakePlan.read();
+    // ... preflight the complete dry-source network against physical water and native capabilities ...
+    // ... publish exact projectedRivers intent, submit setRiverInfo writes, and finalize once ...
+    // ... maintain Civ caches and retain mutable readback only at the proof boundary ...
   },
 });
 ```
 
 Do not use the old `TerrainBuilder.modelRivers` delegation pattern as a new
-MapGen truth template. Hydrology owns river truth; `map-rivers` projects the
-Civ-visible navigable terrain subset and records planned minor/major intent.
-Mutable engine readback is observed at the decision or proof boundary that needs it; it is not a
-later-consumed artifact. A bounded
-realization-owned `modelRivers(...)` call is allowed only after Hydrology-selected
-terrain stamping, as native Civ materialization for metadata/model/cache state.
+MapGen truth template. Hydrology owns river truth; `map-rivers` projects every
+admitted dry minor/major source through `setRiverInfo` and finalizes once.
+It does not select a visible subset or run procedural native river generation.
+Mutable engine readback is observed at the decision or proof boundary that
+needs it; it is not a later-consumed artifact.
 
 ## Stage contract (config compilation boundary)
 

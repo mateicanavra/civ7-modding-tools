@@ -10,10 +10,9 @@ export type StandardBasinNetworkMeasurementInput = Readonly<{
   observation: Pick<StandardMapCapture["observation"], "isWater" | "isLake" | "terrain" | "coastTerrain">;
 }>;
 
-/** Measures certified facts without quotas; legacy absence is null, not fabricated passing evidence. */
+/** Measures completed physical facts without selection quotas. */
 export function measureStandardBasinNetwork(capture: StandardBasinNetworkMeasurementInput) {
   const physical = capture.model.physicalHydrology;
-  if (physical.model === "legacy-sink-budget") return null;
   const ledger = measureBasinLedger(capture);
   const { exchanges: _exchanges, selected: _selected, writes: _wetWrites, ...wetTransitions } = measureWetTransitions(capture);
   const { width, height } = capture.provenance;
@@ -50,7 +49,6 @@ export function measureStandardBasinNetwork(capture: StandardBasinNetworkMeasure
   }
   const projection = capture.projection.navigableRivers;
   const writes = (() => {
-    if (projection.model !== "certified-sill-spill") return null;
     const seen = new Set<number>();
     let duplicateSourceCount = 0, extraSourceCount = 0, wrongReceiverCount = 0, wrongClassCount = 0;
     for (const write of projection.writes) {
@@ -71,7 +69,6 @@ export function measureStandardBasinNetwork(capture: StandardBasinNetworkMeasure
   const lakes = capture.projection.lakes;
   const lakeProjectionComplete = lakeFootprintMismatchCount === 0 && physicalWaterTerrainMismatchCount === 0 &&
     lakes.plannedLakeTileCount === wetTileCount && lakes.stampedLakeTileCount === wetTileCount &&
-    lakes.morphologyProtectedLakeTileCount === 0 && lakes.isolatedFragmentProtectedLakeTileCount === 0 &&
     lakes.rejectedLakeTileCount === 0 && lakes.terrainMismatchTileCount === 0;
   const readback = capture.projection.riverReadback;
   const nativeClassesMatch = readback.terrainNavigableRiverTileCount === majorSourceCount && readback.riverMismatchCount === 0 &&
@@ -84,8 +81,8 @@ export function measureStandardBasinNetwork(capture: StandardBasinNetworkMeasure
     physicalWaterTerrainMismatchCount,
     exposureValid: blockingWetTileCount === 0 && blockingDryChannelCount === 0 && wetChannelClassCount === 0,
     lakeProjectionComplete, writes, ...wetTransitions,
-    authoredSourcesComplete: writes !== null && writes.complete && wetTransitions.wetTransitionsComplete, nativeClassesMatch,
+    authoredSourcesComplete: writes.complete && wetTransitions.wetTransitionsComplete, nativeClassesMatch,
   });
 }
 
-export type StandardBasinNetworkMetrics = NonNullable<ReturnType<typeof measureStandardBasinNetwork>>;
+export type StandardBasinNetworkMetrics = ReturnType<typeof measureStandardBasinNetwork>;

@@ -1,6 +1,6 @@
 import { encodeBoundedJsonLogLines } from "@swooper/mapgen-core/lib/log";
 import { sha256Hex, stableStringify } from "@swooper/mapgen-core/trace";
-import { CIV7_MAP_INFO_KEYS, getCiv7StandardMapSizePreset } from "@civ7/map-policy";
+import { CIV7_MAP_INFO_KEYS, getCiv7StandardMapSizePreset, type Civ7StandardMapSizeId } from "@civ7/map-policy";
 import { projectStandardInitialSetup } from "@swooper/swooper-physics/standard";
 import type { Civ7Adapter } from "../../src/runtime/map-script/adapter.js";
 import type { FullMapProbeIdentity } from "./river-full-map.fixture.js";
@@ -27,9 +27,12 @@ export const WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE = {
   ...WATER_HEIGHT_MAINTENANCE_PROBE, diagnosticRevision: 15, displayLabel: "Water Bounded Lake Cutoff V15",
   atlasKind: WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS, expectedLakeSizeCutoff: 40,
 } as const;
-type ProbeOptions = Omit<typeof WATER_HEIGHT_MAINTENANCE_PROBE | typeof WATER_HEIGHT_LAKE_CUTOFF_PROBE
-  | typeof WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE | typeof WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE, "mapSeed" | "gameSeed">
-  & Readonly<{ mapSeed: number; gameSeed: number }>;
+type ProbeOptions = Readonly<{
+  diagnosticRevision: number; displayLabel: string; atlasKind: string;
+  width: number; height: number; mapSize: Civ7StandardMapSizeId;
+  mapSeed: number; gameSeed: number; playerCount: number;
+  sourceConfigId: string; expectedLakeSizeCutoff: number;
+}>;
 const focus = [
   { body: 56, role: "wet-outlet", x: 86, y: 32 }, { body: 56, role: "dry-receiver", x: 85, y: 33 },
   { body: 42, role: "wet-outlet", x: 85, y: 9 }, { body: 42, role: "dry-receiver", x: 84, y: 9 },
@@ -43,21 +46,21 @@ type Adapter = Pick<Civ7Adapter, typeof maintenanceMethods[number] | "setElevati
 const installed = new WeakSet<object>();
 const digest = (value: unknown) => sha256Hex(stableStringify(value));
 
-/** The diagnostic changes one official field, so its truthful selection is custom, not a preset. */
+/** Admits only the selected official row with its measured diagnostic cutoff; only treatments are custom. */
 export function projectLakeCutoffInitialSetup(
   capture: Parameters<typeof projectStandardInitialSetup>[0],
-  expectedLakeSizeCutoff: number = WATER_HEIGHT_LAKE_CUTOFF_PROBE.expectedLakeSizeCutoff
+  expectedLakeSizeCutoff: number = WATER_HEIGHT_LAKE_CUTOFF_PROBE.expectedLakeSizeCutoff,
+  mapSize: Civ7StandardMapSizeId = "MAPSIZE_HUGE"
 ): ReturnType<typeof projectStandardInitialSetup> {
-  if (expectedLakeSizeCutoff !== WATER_HEIGHT_LAKE_CUTOFF_PROBE.expectedLakeSizeCutoff
-    && expectedLakeSizeCutoff !== WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE.expectedLakeSizeCutoff
-    && expectedLakeSizeCutoff !== WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE.expectedLakeSizeCutoff)
-    throw new Error("Unsupported diagnostic lake cutoff.");
+  const preset = getCiv7StandardMapSizePreset(mapSize);
+  if (!Number.isSafeInteger(expectedLakeSizeCutoff) || expectedLakeSizeCutoff <= 0
+    || expectedLakeSizeCutoff > preset.dimensions.width * preset.dimensions.height)
+    throw new Error("Diagnostic lake cutoff must be a positive integer no greater than the selected cell count.");
   const setup = projectStandardInitialSetup(capture);
   const selection = setup.map.selection;
-  const preset = getCiv7StandardMapSizePreset("MAPSIZE_HUGE");
   if (selection.id !== preset.id || selection.dimensions.width !== preset.dimensions.width
     || selection.dimensions.height !== preset.dimensions.height)
-    throw new Error("Lake cutoff diagnostic requires the captured Huge selection and dimensions.");
+    throw new Error(`Lake cutoff diagnostic requires the captured ${preset.label} selection and dimensions.`);
   for (const key of CIV7_MAP_INFO_KEYS) {
     const expected = key === "LakeSizeCutoff" ? expectedLakeSizeCutoff : preset.mapInfo[key];
     if (selection.mapInfo[key] !== expected)
@@ -66,7 +69,8 @@ export function projectLakeCutoffInitialSetup(
   if (selection.startSlotCapacity.west !== preset.mapInfo.PlayersLandmass1
     || selection.startSlotCapacity.east !== preset.mapInfo.PlayersLandmass2
     || selection.startSlotCapacity.total !== preset.mapInfo.PlayersLandmass1 + preset.mapInfo.PlayersLandmass2)
-    throw new Error("Lake cutoff diagnostic requires the captured Huge start-slot capacity.");
+    throw new Error(`Lake cutoff diagnostic requires the captured ${preset.label} start-slot capacity.`);
+  if (expectedLakeSizeCutoff === preset.mapInfo.LakeSizeCutoff) return setup;
   return Object.freeze({ ...setup, map: Object.freeze({ ...setup.map,
     selection: Object.freeze({ ...selection, kind: "custom" as const }),
   }) });
@@ -88,9 +92,15 @@ export function installWaterHeightMaintenanceProbe(
   if (typeof prototype.getMapSizeId !== "function" || typeof prototype.lookupMapInfo !== "function")
     throw new Error("Missing maintenance map metadata method.");
   installed.add(prototype);
-  const observationFocus = options.mapSeed === WATER_HEIGHT_MAINTENANCE_PROBE.mapSeed
+  const observationFocus = options.sourceConfigId === WATER_HEIGHT_MAINTENANCE_PROBE.sourceConfigId
+    && options.mapSize === WATER_HEIGHT_MAINTENANCE_PROBE.mapSize
+    && options.width === WATER_HEIGHT_MAINTENANCE_PROBE.width
+    && options.height === WATER_HEIGHT_MAINTENANCE_PROBE.height
+    && options.playerCount === WATER_HEIGHT_MAINTENANCE_PROBE.playerCount
+    && options.mapSeed === WATER_HEIGHT_MAINTENANCE_PROBE.mapSeed
     && options.gameSeed === WATER_HEIGHT_MAINTENANCE_PROBE.gameSeed
-    ? focus : focus.map(({ x, y }) => ({ role: "fixed-coordinate-control", x, y }));
+    ? focus : focus.filter(({ x, y }) => x >= 0 && y >= 0 && x < options.width && y < options.height)
+      .map(({ x, y }) => ({ role: "fixed-coordinate-control", x, y }));
   let owner: Adapter | undefined;
   let admissionComplete = false;
   let admissionFailure: { error: unknown } | undefined;
@@ -114,6 +124,7 @@ export function installWaterHeightMaintenanceProbe(
       const mapInfo = adapter.lookupMapInfo(mapSizeId);
       const observedLakeSizeCutoff = mapInfo?.LakeSizeCutoff;
       const accepted = mapInfo?.MapSizeType === options.mapSize
+        && mapInfo.GridWidth === options.width && mapInfo.GridHeight === options.height
         && typeof observedLakeSizeCutoff === "number" && observedLakeSizeCutoff === options.expectedLakeSizeCutoff;
       emit("map-info", { mapSizeId, mapInfo, expectedLakeSizeCutoff: options.expectedLakeSizeCutoff,
         observedLakeSizeCutoff: observedLakeSizeCutoff ?? null, activation: accepted ? "accepted" : "refused" });

@@ -12,45 +12,20 @@ const setup = admitMapSetup({
   latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
 });
 
-function normalizeNavigableDensity(navigableRiverDensity: "normal" | "dense" | null) {
-  const authored = { projection: { model: "legacy-procedural", navigableRiverDensity, endpointDischargePercentileMin: 0.82, targetMajorTileFraction: 0.61 } };
-  const stageConfig = validateSchemaValueForTest(
-    mapRiversStage.surfaceSchema,
-    authored,
-    "/map-rivers"
-  );
-  const { rawSteps } = mapRiversStage.toInternal({ setup, stageConfig });
-  const config = validateSchemaValueForTest(
-    plotRiversConfig.schema,
-    rawSteps["plot-rivers"],
-    "/map-rivers/plot-rivers"
-  );
-  if (config.projection.model !== "legacy-procedural") throw new Error("Expected legacy compiler branch.");
-  return config.projection;
-}
-
 describe("map-rivers plot-rivers authoring", () => {
-  it("admits authored-network without competing legacy knobs or quotas", () => {
-    const authored = { projection: { model: "authored-network" } };
+  it("uses the SDK's configurationless stage and rejects retired projection controls", () => {
+    const authored = {};
     const stageConfig = validateSchemaValueForTest(mapRiversStage.surfaceSchema, authored, "/map-rivers");
-    expect(mapRiversStage.toInternal({ setup, stageConfig }).rawSteps).toEqual({ "plot-rivers": authored });
-    expect(() => validateSchemaValueForTest(mapRiversStage.surfaceSchema, { projection: { model: "authored-network", targetMajorTileFraction: 0.2 } }, "/map-rivers")).toThrow();
+    const { rawSteps } = mapRiversStage.toInternal({ setup, stageConfig });
+    expect(rawSteps).toEqual({});
+    expect(validateSchemaValueForTest(plotRiversConfig.schema, {}, "/plot-rivers")).toEqual({});
+    for (const projection of [
+      { model: "legacy-procedural" }, { model: "unknown-model" }, { model: "authored-network" },
+      { model: "authored-network", targetMajorTileFraction: 0.2 },
+      { model: "authored-network", endpointDischargePercentileMin: 0.94 },
+      { model: "authored-network", navigableRiverDensity: "dense" },
+    ]) expect(() => validateSchemaValueForTest(mapRiversStage.surfaceSchema, { projection }, "/map-rivers")).toThrow();
     expect(() => validateSchemaValueForTest(mapRiversStage.surfaceSchema, { ...authored, knobs: { navigableRiverDensity: "dense" } }, "/map-rivers")).toThrow();
-  });
-  it("selects more Civ-visible river coverage for the dense posture", () => {
-    const normal = normalizeNavigableDensity("normal");
-    const dense = normalizeNavigableDensity("dense");
-
-    expect(dense.endpointDischargePercentileMin).toBeLessThan(
-      normal.endpointDischargePercentileMin
-    );
-    expect(dense.targetMajorTileFraction).toBeGreaterThan(normal.targetMajorTileFraction);
-  });
-
-  it("preserves advanced projection thresholds when density authoring is disabled", () => {
-    const advanced = normalizeNavigableDensity(null);
-
-    expect(advanced.endpointDischargePercentileMin).toBe(0.82);
-    expect(advanced.targetMajorTileFraction).toBe(0.61);
+    expect(() => validateSchemaValueForTest(plotRiversConfig.schema, { projection: { model: "authored-network" } }, "/plot-rivers")).toThrow();
   });
 });

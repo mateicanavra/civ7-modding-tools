@@ -195,7 +195,7 @@ export function measureStandardBiomeRows(
 /** Certified freshwater removes terrestrial habitat, not original marine geography. */
 function isModeledTerrestrialLand(model: EcologyLandModel, index: number): boolean {
   return model.landMask[index] === 1 &&
-    (model.physicalHydrology.model === "legacy-sink-budget" || model.plannedLakeMask[index] === 0);
+    model.plannedLakeMask[index] === 0;
 }
 
 function medianOrNull(values: readonly number[]): number | null {

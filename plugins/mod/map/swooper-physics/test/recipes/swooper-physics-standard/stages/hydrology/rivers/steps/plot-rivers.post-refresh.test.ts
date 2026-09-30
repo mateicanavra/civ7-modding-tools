@@ -1,3 +1,4 @@
+import { createEmptyWaterFixture } from "../../../morphology/features/fixtures/surface-water.js";
 import { describe, expect, it } from "bun:test";
 import { MockAdapter, type RiverFinalizationArgs, type RiverWriteIntent } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0, RIVER_TYPE_NAVIGABLE } from "@civ7/map-policy";
@@ -199,7 +200,7 @@ describe("map-rivers/plot-rivers", () => {
         publishTestArtifact(stepContext, hydrographyArtifacts.projectedLakes, { lakeMask: acceptedLakeMask });
         publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, { elevation: new Int16Array(size), seaLevel: 0, landMask, bathymetry: new Int16Array(size) });
         publishTestArtifact(stepContext, morphologyShelfArtifacts.shelf, { shelfMask: Uint8Array.from(landMask, (value) => 1 - value), coastalLand: new Uint8Array(size), coastalWater: Uint8Array.from(landMask, (value) => 1 - value), distanceToCoast: new Uint16Array(size) });
-        PlotRiversStep.run(stepContext, { projection: { model: "authored-network" } }, {}, buildStepTestDependencies(PlotRiversStep, stepContext));
+        PlotRiversStep.run(stepContext, {}, {}, buildStepTestDependencies(PlotRiversStep, stepContext));
       });
       if (blocker || preflightFailure) {
         expect(run).toThrow(/blocked by native terrain|preflight.*certified accepted|complete accepted/);
@@ -252,7 +253,7 @@ describe("map-rivers/plot-rivers", () => {
     expect(PlotRiversStep.contract.engine).not.toContain("setElevation");
     expect(PlotRiversStep.contract.engine).not.toContain("isLake");
   });
-  it("stamps MapGen-projected navigable rivers and refreshes downstream caches", () => {
+  it("projects every physical dry source without a second quota and refreshes downstream caches", () => {
     expect(hydrographyArtifacts.projectedRivers.id).toBe(
       "artifact:map.rivers.projectedRivers"
     );
@@ -280,58 +281,31 @@ describe("map-rivers/plot-rivers", () => {
     }
 
     const size = width * height;
-    const discharge = new Float32Array(size);
+    const discharge = Array<number>(size).fill(0);
     const riverClass = new Uint8Array(size);
     const flowDir = new Int32Array(size).fill(-1);
-    for (let x = 0; x < width; x++) {
+    for (let x = 0; x < width - 1; x++) {
       const index = x;
       discharge[index] = x + 1;
       riverClass[index] = RIVER_CLASS_MAJOR;
-      flowDir[index] = x < width - 1 ? x + 1 : -1;
+      flowDir[index] = x + 1;
     }
-    for (let x = 0; x < width; x++) {
+    for (let x = 0; x < width - 1; x++) {
       const index = width + x;
       discharge[index] = 100 + x;
       riverClass[index] = RIVER_CLASS_MINOR;
-      flowDir[index] = x < width - 1 ? width + x + 1 : -1;
+      flowDir[index] = width + x + 1;
     }
 
     expect(adapter.getTerrainType(0, 0)).toBe(flatTerrain);
 
     withMapContextExecutionForTest(context, (stepContext) => {
+      const fixture = createEmptyWaterFixture(width, height);
       publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
-        model: "legacy-sink-budget",
-        runoff: new Float32Array(size),
-        discharge,
-        riverClass,
-        flowDir,
-        sinkMask: new Uint8Array(size),
-        outletMask: new Uint8Array(size),
-        basinId: new Int32Array(size).fill(-1),
-        routingElevation: new Float32Array(size),
-        depressionDepth: new Float32Array(size),
-        terminalType: new Uint8Array(size),
+        ...fixture.hydrography, discharge, riverClass, flowDir,
       });
-      publishTestArtifact(stepContext, hydrographyArtifacts.riverNetwork, {
-        model: "legacy-sink-budget",
-        upstreamArea: Int32Array.from({ length: size }, (_value, index) =>
-          index < width ? index + 1 : 1
-        ),
-        streamOrderProxy: new Uint8Array(size),
-        mouthType: Uint8Array.from({ length: size }, (_value, index) => (index < width ? 1 : 0)),
-        slopeClass: new Uint8Array(size),
-        flowPermanenceProxy: Uint8Array.from({ length: size }, (_value, index) =>
-          index < width ? 3 : index < width * 2 ? 2 : 0
-        ),
-      });
-      publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, {
-        model: "legacy-sink-budget",
-        width,
-        height,
-        lakeMask: new Uint8Array(size),
-        plannedLakeTileCount: 0,
-        sinkLakeCount: 0,
-      });
+      publishTestArtifact(stepContext, hydrographyArtifacts.riverNetwork, fixture.riverNetwork);
+      publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, fixture.lakePlan);
       publishTestArtifact(stepContext, hydrographyArtifacts.projectedLakes, { lakeMask: new Uint8Array(size) });
       publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
         elevation: new Int16Array(size),
@@ -348,50 +322,48 @@ describe("map-rivers/plot-rivers", () => {
 
       PlotRiversStep.run(
         stepContext,
-        { projection: { model: "legacy-procedural", endpointDischargePercentileMin: 0.94, targetMajorTileFraction: 0.28 } },
+        {},
         {},
         buildStepTestDependencies(PlotRiversStep, stepContext)
       );
     });
 
     expect(adapter.callOrder).toEqual([
-      "modelRivers",
-      "validateAndFixTerrain",
-      "recalculateAreas",
-      "storeWaterData",
+      ...Array<string>(2 * (width - 1)).fill("setRiverInfo"),
+      "finalizeRivers", "validateAndFixTerrain", "generateCliffsFromElevation", "recalculateAreas", "storeWaterData",
     ]);
-    expect(adapter.calls.generateCliffsFromElevation).toBe(0);
+    expect(adapter.calls.generateCliffsFromElevation).toBe(1);
     expect(adapter.calls.setElevation).toEqual([]);
-    expect(adapter.calls.finalizeRivers).toEqual([]);
+    expect(adapter.calls.finalizeRivers).toEqual([[false, 25, 2, 2]]);
     expect(adapter.getTerrainType(0, 0)).toBe(navigableRiverTerrain);
-    expect(adapter.getTerrainType(width - 1, 0)).toBe(navigableRiverTerrain);
+    expect(adapter.getTerrainType(width - 2, 0)).toBe(navigableRiverTerrain);
+    expect(adapter.getTerrainType(width - 1, 0)).toBe(flatTerrain);
     expect(adapter.getTerrainType(0, 1)).toBe(flatTerrain);
 
     const projected = readArtifact(context, hydrographyArtifacts.projectedRivers);
-    if (projected.model !== "legacy-sink-budget") throw new Error("Expected legacy projection.");
+    expect(projected.model).toBe("certified-sill-spill");
     const readback = adapter.readRiverProjection(width, height, projected.riverMask);
     expect(projected.riverMask[0]).toBe(1);
     expect(projected.riverMask[width]).toBe(0);
     expect(projected.plannedMajorRiverMask[0]).toBe(1);
     expect(projected.plannedMinorRiverMask[width]).toBe(1);
-    expect(projected.plannedMajorRiverTileCount).toBe(width);
-    expect(projected.plannedMinorRiverTileCount).toBe(width);
-    expect(Array.from(projected.selectedChainLengths)).toEqual([width]);
-    expect(projected.longestSelectedChainLength).toBe(width);
-    expect(projected.meanSelectedChainLength).toBe(width);
-    expect(projected.selectedEligibleMajorTileFraction).toBe(1);
-    expect(projected.majorDurableTileCount).toBe(width);
-    expect(projected.majorPerennialTileCount).toBe(width);
-    expect(projected.projectionSignalStatus).toBe("normal-signal");
-    expect(projected.projectionSignalReason).toContain("normal Earthlike");
+    expect(projected.plannedMajorRiverTileCount).toBe(width - 1);
+    expect(projected.plannedMinorRiverTileCount).toBe(width - 1);
+    expect(projected.authoredSourceCount).toBe(2 * (width - 1));
+    expect(projected.writes).toHaveLength(2 * (width - 1));
+    expect(projected.writes.map(({ sourceCell }) => sourceCell)).toEqual([
+      ...Array.from({ length: width - 1 }, (_, cell) => cell),
+      ...Array.from({ length: width - 1 }, (_, cell) => width + cell),
+    ]);
+    expect(projected.wetTransitionWrites).toEqual([]);
     expect(readback.terrainNavigableRiverMask[0]).toBe(1);
     expect(readback.engineNavigableRiverMask[0]).toBe(1);
     expect(readback.engineRiverType[0]).toBe(RIVER_TYPE_NAVIGABLE);
-    expect(readback.terrainNavigableRiverTileCount).toBe(width);
-    expect(readback.engineRiverTileCount).toBe(width);
-    expect(readback.engineNavigableRiverTileCount).toBe(width);
-    expect(readback.engineMinorRiverTileCount).toBe(0);
+    expect(readback.terrainNavigableRiverTileCount).toBe(width - 1);
+    expect(readback.engineRiverTileCount).toBe(2 * (width - 1));
+    expect(readback.engineNavigableRiverTileCount).toBe(width - 1);
+    expect(readback.engineMinorRiverTileCount).toBe(width - 1);
     expect(readback.minorRiverStampingSupported).toBe(true);
-    expect(readback.minorRiverUnsupportedReason).toContain("engineMinorRiverMask");
+    expect(readback.engineMinorRiverMask[width]).toBe(1);
   });
 });

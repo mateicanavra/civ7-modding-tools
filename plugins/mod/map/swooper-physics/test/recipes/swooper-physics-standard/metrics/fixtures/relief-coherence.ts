@@ -17,9 +17,7 @@ export function reliefCoherenceFixture(width = 6, height = 3) {
       riverClass: new Uint8Array(size),
       flowDir: new Int32Array(size).fill(-1),
       physicalHydrology: {
-        model: "legacy-sink-budget",
-        routingElevation: new Float32Array(size).fill(100),
-        outletMask: new Uint8Array(size),
+        waterSurface: Array<number>(size).fill(100),
       },
       surfaceTemperature: new Float32Array(size).fill(20),
       baselineRainfall: new Uint8Array(size).fill(100),

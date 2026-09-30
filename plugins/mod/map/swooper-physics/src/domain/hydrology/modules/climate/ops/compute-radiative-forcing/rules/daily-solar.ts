@@ -1,5 +1,6 @@
 import type { SolarHarmonics } from "../../../model/atoms/solar-harmonics.schema.js";
 
+/** Fixed midpoint quadrature resolution for the circular-orbit solar Fourier coefficients. */
 export const SOLAR_FOURIER_QUADRATURE_COUNT = 384;
 const RADIANS_PER_DEGREE = Math.PI / 180;
 

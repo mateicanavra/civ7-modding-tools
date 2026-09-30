@@ -1,3 +1,4 @@
+import { createEmptyWaterFixture } from "../../../../morphology/features/fixtures/surface-water.js";
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { artifacts as featureArtifacts } from "../../../../../../../../src/domain/ecology/modules/features/artifacts/index.js";
@@ -54,14 +55,7 @@ describe("ecology-features plan-reefs step", () => {
       });
       publishTestArtifact(stepContext, featureArtifacts.floodplainIntents, []);
       publishTestArtifact(stepContext, featureArtifacts.iceIntents, [{ x: 0, y: 0, feature: "ice" }]);
-      publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, {
-        model: "legacy-sink-budget",
-        width,
-        height,
-        lakeMask,
-        plannedLakeTileCount: 1,
-        sinkLakeCount: 1,
-      });
+      publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, createEmptyWaterFixture(width, height, lakeMask).lakePlan);
 
       const config = {
         planReefs: normalizeOperationSelectionForTest(
@@ -112,14 +106,7 @@ describe("ecology-features plan-reefs step", () => {
           { ...collision, feature: "grassland-floodplain-minor" },
         ]);
         publishTestArtifact(stepContext, featureArtifacts.iceIntents, []);
-        publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, {
-          model: "legacy-sink-budget",
-          width,
-          height,
-          lakeMask: new Uint8Array(size),
-          plannedLakeTileCount: 0,
-          sinkLakeCount: 0,
-        });
+        publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, createEmptyWaterFixture(width, height).lakePlan);
 
         const config = {
           planReefs: normalizeOperationSelectionForTest(

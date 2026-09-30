@@ -26,13 +26,12 @@ export type StandardReliefCoherenceInput = Readonly<{
     | "plannedLakeMask"
     | "riverClass"
     | "flowDir"
-    | "physicalHydrology"
     | "surfaceTemperature"
     | "baselineRainfall"
     | "refinedRainfall"
     | "windU"
     | "windV"
-  >;
+  > & { physicalHydrology: Pick<StandardMapCapture["model"]["physicalHydrology"], "waterSurface"> };
   observation: Pick<
     StandardMapCapture["observation"],
     | "isWater"
@@ -122,7 +121,7 @@ type RiverEdge = Readonly<{
   routingReceiverMinusSource: number;
 }>;
 type RiverMetrics = Readonly<{
-  routingSurfaceKind: "legacy-conditioned" | "certified-water-surface";
+  routingSurfaceKind: "certified-water-surface";
   authoredTiles: number;
   terminalTiles: CountMetric;
   invalidReceiverTiles: CountMetric;
@@ -630,9 +629,7 @@ function measureRiverEdges(
   observedClass: (i: number) => ObservedClass | "nonLand"
 ): RiverMetrics {
   const physicalHydrology = input.model.physicalHydrology;
-  const routingSurface = physicalHydrology.model === "legacy-sink-budget"
-    ? physicalHydrology.routingElevation
-    : physicalHydrology.waterSurface;
+  const routingSurface = physicalHydrology.waterSurface;
   const edges: RiverEdge[] = [],
     terminals: number[] = [],
     invalid: number[] = [];
@@ -691,7 +688,7 @@ function measureRiverEdges(
         .map((e) => Object.freeze(e))
     );
   return Object.freeze({
-    routingSurfaceKind: physicalHydrology.model === "legacy-sink-budget" ? "legacy-conditioned" : "certified-water-surface",
+    routingSurfaceKind: "certified-water-surface",
     authoredTiles,
     terminalTiles: measureMetricCount(terminals.length, authoredTiles),
     invalidReceiverTiles: measureMetricCount(invalid.length, authoredTiles),

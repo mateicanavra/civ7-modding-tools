@@ -30,7 +30,7 @@ export type StandardFinalSurfaceCapture = Readonly<{
 
 /** Replay-owned river plan and adapter capability evidence needed for live comparison. */
 export type StandardRiverProjectionCapture = Readonly<{
-  model: "legacy-sink-budget" | "certified-sill-spill";
+  model: "certified-sill-spill";
   plannedMinor: StandardParityGrid;
   nativeMinor: StandardParityGrid;
   plannedMajor: StandardParityGrid;
