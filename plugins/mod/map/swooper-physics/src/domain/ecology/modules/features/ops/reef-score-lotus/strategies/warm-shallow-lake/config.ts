@@ -25,20 +25,20 @@ export default defineStrategy({
         minimum: 0,
         maximum: 12000,
         description:
-          "Shallow-depth threshold on sea-level-relative Morphology bathymetry in quantized normalized model relief units used for lotus scoring; not meters or lake-surface depth. The legacy M key is retained.",
+          "Shallow-depth threshold in normalized model relief units: certified lake head minus physical ground, or legacy sea-level-relative Morphology bathymetry. Not meters; the legacy M key is retained.",
       }),
       deepDepthM: Type.Integer({
         default: 40,
         minimum: 0,
         maximum: 12000,
         description:
-          "Deep-depth threshold on sea-level-relative Morphology bathymetry in quantized normalized model relief units used for lotus scoring; not meters or lake-surface depth. The legacy M key is retained.",
+          "Deep-depth threshold in normalized model relief units: certified lake head minus physical ground, or legacy sea-level-relative Morphology bathymetry. Not meters; the legacy M key is retained.",
       }),
       maxDistanceToCoast: Type.Integer({
         default: 2,
         minimum: 0,
         maximum: 512,
-        description: "Maximum tile distance from coast for lotus suitability.",
+        description: "Maximum body-local hex distance from physical dry shoreline for certified lakes, or legacy coast distance.",
       }),
     },
     {

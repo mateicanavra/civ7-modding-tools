@@ -93,3 +93,56 @@ water-surface/depth owner to reuse. The certified lake artifact already owns
 the required exact head and identity; no physical artifact or publication
 mechanism needs changing. Normal native cutoff10 and lake/navigation proof
 remain open; neither is fixed by accepting aquatic habitat inputs.
+
+## Implemented Portable Handoff
+
+The existing scorer now admits both explicitly tagged evidence paths. The
+certified rule uses actual lake head minus ground and body-local wrapped hex
+shore distance; the step only forwards the existing arrays. No new SDK
+machinery, physical artifact, coefficient, lake quota or native cutoff was
+introduced. The legacy arm is transitional support for seven still-shipped
+legacy profiles, not a second computation applied to a certified lake.
+The independent twelve-file SDK patch review is ALIGNED with no established
+defect: existing tagged-union admission, unchanged input references, fractional
+depth, body-local topology and operation-owned calculation all satisfy the
+current authoring approach. Native placement remains outside that verdict.
+
+Focused semantics/publication verification passes 12 tests and 94 assertions.
+The single owning Nx check/test/policy/deploy graph passes types, Habitat,
+build/deploy and all 187 app tests. Definition tests report 1,051 pass and
+the same one study-bank aggregate failure with eleven existing calibration
+expectations; none were relaxed. The installed Earthlike script and generated
+script match SHA-256
+`6ec5dde9365d1532d17b40b8ef955f9463c50763f3a1d403d8b4dd1c96cf0eb9`.
+This is deployment evidence, not a fresh live-generation claim.
+
+The held complete-recipe comparison changes only the Lotus suitability layer:
+
+| Case | Certified wet cells | Positive Lotus suitability cells | Lotus intents |
+| --- | ---: | ---: | ---: |
+| Huge1018 | 203 | 94 | 0 |
+| Standard1018 | 77 | 36 | 0 |
+| Standard1 | 140 | 47 | 0 |
+| Standard42 | 95 | 28 | 0 |
+
+All other 54 published artifacts and all 24 non-Lotus suitability layers hold
+exactly. Two independent repeated captures agree on all 55 artifacts. Maximum
+Lotus scores are approximately 0.585/0.570/0.580/0.577, below the unchanged
+reef-family planner's confidence threshold 0.84. Thus corrected habitat does
+not establish actual Lotus placement; no presence target was manufactured.
+
+The retained external comparison and complete payloads live under
+`~/Library/Application Support/Civ7Tools/VisualAtlas/huge-1018/earth-calibration/lake-habitat-handoff-20260930/`.
+Its `comparison.json` pins baseline receipt
+`de36c310561d78781599b5494aef933de382648f937639223dbba0328d264f00`,
+repaired receipt
+`314a42ec296d1e0cec2e54d298dd7e47dcadabbabf062e93cfce4a3e108ed9ea`,
+and repeat receipt
+`745a0982490db4a85caa1dce6cb38d90b8439f4c73377cf5c5e060b99f7a5cbf`.
+
+The original all-open refusal is no longer sufficient to justify retaining
+the seven legacy products: the completed coordinator supports closed/subtile
+and equal-head coordination. Qualify their current-source activation with
+each map's own runoff, morphology, climate and density policy before migration.
+Remove legacy execution once its supported callers have migrated; do not keep
+the older model merely because a compatibility input can be represented.

@@ -208,7 +208,18 @@ export const ScoreLayersStep = createStep(config, {
     ).score01;
 
     const lotusScore = ops.scoreReefLotus(
-      {
+      lakePlan.model === "certified-sill-spill" ? {
+        model: lakePlan.model,
+        width,
+        height,
+        landMask: topography.landMask,
+        surfaceTemperature: climateIndices.surfaceTemperatureC,
+        elevation: topography.elevation,
+        lakeMask: lakePlan.lakeMask,
+        bodyId: lakePlan.bodyId,
+        waterSurface: lakePlan.waterSurface,
+      } : {
+        model: lakePlan.model,
         width,
         height,
         landMask: topography.landMask,
