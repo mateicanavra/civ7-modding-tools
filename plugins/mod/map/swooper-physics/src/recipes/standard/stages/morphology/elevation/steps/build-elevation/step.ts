@@ -116,11 +116,6 @@ export const BuildElevationStep = createStep(config, {
         "Elevation projection requires available exact numeric readback after writing."
       );
     }
-    if (elevationProjection.nonLakeMismatchCount > 0) {
-      throw new Error(
-        `Elevation projection has ${elevationProjection.nonLakeMismatchCount} non-lake numeric mismatches after writing.`
-      );
-    }
     for (let plotIndex = 0; plotIndex < intended.length; plotIndex += 1) {
       if (intended[plotIndex] === snapshot.values[plotIndex]) continue;
       // Accepted inland water may be native lake or coast water. The immutable footprint
@@ -139,17 +134,17 @@ export const BuildElevationStep = createStep(config, {
         }
         continue;
       }
-      // Outside that footprint, only preexisting native lakes on original water qualify.
+      // Native water leveling is independent of the size-based lake category. Keep its
+      // numeric delta in metrics, but require exact dry-land writes and stable wet identity.
       if (
         topography.landMask[plotIndex] !== 0 ||
         beforeWaterMask[plotIndex] !== 1 ||
-        beforeLakeMask[plotIndex] !== 1 ||
-        engineLakeMask[plotIndex] !== 1 ||
+        beforeLakeMask[plotIndex] !== engineLakeMask[plotIndex] ||
         engineWaterMask[plotIndex] !== 1 ||
         beforeTerrain[plotIndex] !== engineTerrain[plotIndex]
       ) {
         throw new Error(
-          `Elevation projection has an unqualified unplanned native-lake numeric mismatch at plot ${plotIndex} after writing.`
+          `Elevation projection has an unqualified original-surface numeric mismatch at plot ${plotIndex} after writing.`
         );
       }
     }

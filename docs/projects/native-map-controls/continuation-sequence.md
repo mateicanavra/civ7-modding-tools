@@ -16,6 +16,13 @@ publication mechanism, or bypassing an enforced kind blueprint.
 
 ## Dependency Order
 
+Production playability takes precedence over the study queue. The September 29
+random-seed startup failure was a Civ projection admission defect: the residual
+non-lake error metric was incorrectly used as a fatal dry-land write assertion.
+Keep benchmark assertions in test/study owners. Fixed Earth geography and NOAA
+fixtures never become procedural recipe inputs; calibration changes may inform
+general algorithms and authored configuration, not special-case Earth replay.
+
 1. **Admit the reference and effective configuration.** Keep the already
    corrected Earthlike temperate/normal forcing and verify compiled values,
    not labels. Retain the pinned Firaxis source geometry and independent NOAA

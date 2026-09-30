@@ -110,20 +110,73 @@ heights and keep that authored footprint distinct from native lake classificatio
 and physical spill height. Measurements partition every numeric mismatch into
 accepted native-lake adjustments, accepted inland-COAST adjustments, unplanned
 native-lake mismatches, and other mismatches; raw errors remain intact.
-An accepted adjustment requires original physical land plus stable local native
-water, COAST terrain and category before/after the write. The separate unplanned
-lake exception requires original physical water, native water and lake before
-and after the immediate write maintenance, and unchanged terrain. Legacy cliffs
+An accepted-footprint adjustment requires original physical land plus stable local native
+water, COAST terrain and category before/after the write. Outside that footprint,
+original physical water must remain native water with unchanged terrain and
+native lake category before and after immediate write maintenance. A true lake
+flag is not required: native leveling also affects enclosed non-lake water.
+Legacy cliffs
 occur before this admission read; certified late-cliff qualification occurs
 after river finalization and does not redefine immediate numeric admission.
-Ordinary land and ocean
-mismatches still refuse. Final classification describes current evidence only,
+Dry-land numeric mismatches still refuse. Stable wet numeric differences remain
+measurements, including those in the residual `nonLakeMismatchCount` bucket,
+not generation failures or declarations of physically correct water heights.
+Final classification describes current evidence only,
 not preservation. Uniform water levels are observations, not an inferred native
 formula or a newly enforced flat-body constraint.
 Compare post-write and final native arrays outside the generator. Do not
 reproduce native lake leveling or feed readback into physical truth.
 
 ## Native Qualification
+
+### Original Water Restart Regression
+
+On September 29, new Huge Earthlike seeds `1886926342` and `-978072323`
+failed immediately after the elevation write. Their residual mismatch sets
+were whole enclosed original-water components of 16 and 18 tiles, respectively:
+every requested height was zero and every observed height was 10. The latter
+seed's diagnostic replay proved water, non-lake class and COAST terrain were
+unchanged before/after for all 18 cells. Surrounding dry-land writes were exact.
+Neither case was an Earth-reference test or a failed dry-land projection.
+
+The production repair removes the fatal aggregate `nonLakeMismatchCount` gate
+and makes original wet numeric observation independent of a true native lake
+flag. It preserves direct per-cell dry-land and categorical integrity checks,
+all raw error measurements, and immutable physics/intent. It adds no leveling
+formula, cutoff change, fixture dependency, or compensating height write.
+Temporary surface instrumentation used for diagnosis is removed.
+
+The regression receipt is
+`~/Library/Application Support/Civ7Tools/VisualAtlas/huge-1018/earth-calibration/earthlike-restart-20260929/elevation-failure-receipt.json`
+(SHA256 `9794881180e206da5ce5917bcfe8ebae39cfe6da8266c0bd9d8e265947f288b3`).
+This distinguishes generation admission from the still-open physical question
+of the correct native height for original enclosed water. Allowing generation
+does not qualify that height as physically correct.
+
+The normal deployed repair is now verified on both failing seeds at Huge
+106 x 66, using `ToT_NoModsExceptMaps` and its saved 12-player setup. Both
+reach turn 1 with fresh digest-valid completion. Seed `-978072323` retains
+exactly the failed diagnostic's physical intent, post-write arrays, masks and
+measurements across all 6,996 cells. Its 18 residual wet differences remain
+visible. Seed `1886926342` retains 16 post-write residual differences and
+completes with zero final residual differences; accepted inland-water height
+adjustments remain measured, not certified as correct.
+
+A separate ordinary `Network.restartGame()` / Begin Game test also completes
+at turn 1 on fresh seed `1705605149`, without exiting the Civ application.
+The native restart resolves a ten-player roster rather than the saved
+12-player setup; it is a lifecycle coverage arm, not an identical-config
+replay. Deployed normal script SHA256:
+`a6ac28a76994a2414d0fd55d2dc954d9fd85c696c7c97a92031ba0edcb25b461`.
+The corresponding `fixed-seed*` and `fixed-native-restart*` raw logs and
+independently decoded receipts live beside the failure receipt above.
+
+Focused elevation/measurement proof passes 80 tests / 287 assertions.
+The owning definition/app typechecks, build and Habitat policies pass;
+definition tests pass 1,022 cases except the study-bank aggregate's same
+12 preexisting quality expectations, and app tests pass all 175 cases.
+No study target was relaxed. Those climate/ecology/map-identity gaps remain
+separate from restored generation admission.
 
 On 2026-09-27, Civ7 1.5.0 (1306154), the ordinary diagnostic mod completed a
 Tiny 60x38 game with map seed 1018, game seed 1019, and four players. The public

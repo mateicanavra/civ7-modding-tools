@@ -31,10 +31,12 @@ false native lake flag; an accepted mask alone cannot create that category.
 All exact values, errors, extrema, and example counts remain unnormalized.
 
 These measurement categories are not admission authority. The elevation-writing
-step requires finite complete numeric readback, unchanged ordinary land/ocean,
+step requires finite complete numeric readback, exact dry-land numeric writes,
 and locally stable water, COAST terrain, and native classification for adjusted
-accepted inland water. Outside that footprint, only stable preexisting native
-lakes on original water qualify. Native leveling is not the physical basin spill
+accepted inland water. Outside that footprint, stable preexisting water on
+original physical water qualifies independently of the native lake category.
+`nonLakeMismatchCount` includes these observed wet adjustments; it is not a
+dry-land integrity assertion or an automatic generation failure. Native leveling is not the physical basin spill
 height; uniform body height is diagnostic, not a guard. Final measurements retain
 later changes, including placement effects, without rewriting physics or water
 masks or retroactively granting a write exception.

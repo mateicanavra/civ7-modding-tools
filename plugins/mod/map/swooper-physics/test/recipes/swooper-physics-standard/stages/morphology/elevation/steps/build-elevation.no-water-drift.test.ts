@@ -198,11 +198,13 @@ function createUnplannedNativeLakeFixture(
     afterWater?: boolean;
     physicalLand?: boolean;
     changeTerrain?: boolean;
+    terrain?: "TERRAIN_COAST" | "TERRAIN_OCEAN";
+    adjustment?: number;
   } = {}
 ) {
   class NativeLakeAdapter extends ExplicitElevationAdapter {
     override getElevation(x: number, y: number): number {
-      return super.getElevation(x, y) + (x === 0 && y === 0 ? 10 : 0);
+      return super.getElevation(x, y) + (x === 0 && y === 0 ? (options.adjustment ?? 10) : 0);
     }
 
     override isLake(x: number, y: number): boolean {
@@ -238,7 +240,7 @@ function createUnplannedNativeLakeFixture(
     adapter.setTerrainType(
       index % width,
       Math.floor(index / width),
-      adapter.getTerrainTypeIndex(index === 0 ? "TERRAIN_COAST" : "TERRAIN_FLAT")
+      adapter.getTerrainTypeIndex(index === 0 ? (options.terrain ?? "TERRAIN_COAST") : "TERRAIN_FLAT")
     );
   }
   const context = createMapContext({
@@ -479,7 +481,7 @@ describe("map-elevation/build-elevation", () => {
     }
     expect(() =>
       executeExactProjectionFixture(new DriftingReadbackAdapter({ width: 3, height: 2 }))
-    ).toThrow("1 non-lake numeric mismatches");
+    ).toThrow("unqualified original-surface numeric mismatch at plot 1");
   });
 
   it("records stable preexisting native-lake leveling without changing authored intent or masks", () => {
@@ -508,16 +510,57 @@ describe("map-elevation/build-elevation", () => {
     }
   });
 
-  for (const { name, options, error } of [
+  for (const terrain of ["TERRAIN_COAST", "TERRAIN_OCEAN"] as const) {
+    for (const adjustment of [10, 0.25, -128]) {
+      it(`observes stable original ${terrain} adjustment ${adjustment} without requiring lake classification`, () => {
+        const { adapter, context, landMask, lakeMask, width, height } =
+          createUnplannedNativeLakeFixture({ beforeLake: false, afterLake: false, terrain, adjustment });
+        const originalLog = console.log;
+        console.log = () => {};
+        try {
+          const observation = executeBuildElevation(context, width, height, landMask, lakeMask);
+          expect(observation.intended[0]).toBe(0);
+          expect(adapter.calls.setElevation[0]?.[0]).toBe(0);
+          expect(observation.engine.elevation[0]).toBe(adjustment);
+          expect(observation.elevationProjection).toMatchObject({
+            mismatchCount: 1, nonLakeMismatchCount: 1, lakeAdjustmentCount: 0,
+            unplannedNativeLakeMismatchCount: 0, acceptedInlandWaterAdjustmentCount: 0,
+            maximumAbsoluteError: Math.abs(adjustment),
+          });
+          expect(landMask[0]).toBe(0);
+          expect(Array.from(lakeMask)).toEqual(new Array(width * height).fill(0));
+        } finally {
+          console.log = originalLog;
+        }
+      });
+    }
+  }
+
+  for (const { name, options } of [
     { name: "newly classified native lake", options: { beforeLake: false } },
     { name: "physical land hidden by native lake classification", options: { physicalLand: true } },
     { name: "native lake with changed terrain", options: { changeTerrain: true } },
     { name: "native lake without preexisting water", options: { beforeWater: false } },
     { name: "native lake no longer classified as water", options: { afterWater: false } },
     {
-      name: "ordinary ocean numeric drift",
-      options: { beforeLake: false, afterLake: false },
-      error: "1 non-lake numeric mismatches",
+      name: "non-lake water hiding physical land",
+      options: { beforeLake: false, afterLake: false, physicalLand: true },
+    },
+    {
+      name: "non-lake water changing terrain",
+      options: { beforeLake: false, afterLake: false, changeTerrain: true },
+    },
+    {
+      name: "non-lake water disappearing",
+      options: { beforeLake: false, afterLake: false, afterWater: false },
+    },
+    {
+      name: "non-lake water appearing during the write",
+      options: { beforeLake: false, afterLake: false, beforeWater: false },
+    },
+    {
+      name: "native lake becoming non-lake water",
+      options: { beforeLake: true, afterLake: false },
     },
   ]) {
     it(`refuses ${name}`, () => {
@@ -527,7 +570,7 @@ describe("map-elevation/build-elevation", () => {
       console.log = () => {};
       try {
         expect(() => executeBuildElevation(context, width, height, landMask, lakeMask)).toThrow(
-          error ?? "unqualified unplanned native-lake numeric mismatch at plot 0"
+          "unqualified original-surface numeric mismatch at plot 0"
         );
       } finally {
         console.log = originalLog;
@@ -646,7 +689,7 @@ describe("map-elevation/build-elevation", () => {
     };
     try {
       expect(() => executeBuildElevation(context, width, height, landMask, lakeMask)).toThrow(
-        "1 non-lake numeric mismatches"
+        "unqualified original-surface numeric mismatch at plot 0"
       );
       expect(adapter.elevationEvents).toEqual([
         "setElevation",
