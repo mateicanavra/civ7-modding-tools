@@ -45,10 +45,15 @@ are concrete review candidates, not proof of either crash's cause. Preserve
 complete saved-configuration mod selection and uncertain/no-repeat behavior
 in any repair; inspect the frozen migration owner before changing that path.
 
-Separately, an observed main-menu transition destroyed the Tuner state and
-left menu actions unresponsive. The retained sample/recovery records do not
-establish a chunk-size cause. Neither this transition nor reconciliation is
-included in the successful bounded full-grid evidence.
+Returning to the main menu retires the in-game scripting scope. Loss of that
+Tuner realm is expected; menu work belongs to the existing App Shell path.
+The earlier scope-loss report is not a lifecycle regression or failed water
+experiment. Menu responsiveness would require a separate witness through the
+appropriate shell owner; the retained in-game-realm failures do not provide
+that proof. Do not spend further work on this expected transition unless a
+previously working CLI/Studio/shell path demonstrably regresses. Neither a
+menu transition nor reconciliation is part of the successful bounded full-grid
+read evidence.
 
 ## Destination And Discriminator
 
@@ -65,6 +70,8 @@ bounded chunk sizes on one stable, unrevealed game, recording latency, result
 bytes, and external stacks. Exclude explore and lifecycle transitions.
 Only add a same-source-size no-op if transfer/parsing remains suspect.
 That chunk-size experiment has not been run.
+Such a game-scope reader is not a menu health check; do not use it to infer a
+menu failure after the game scope has ended.
 
 The subsequent attempt on the freshly restored normal Huge1018 map failed at
 its first `LSQ` state discovery, before an observation command was dispatched.
