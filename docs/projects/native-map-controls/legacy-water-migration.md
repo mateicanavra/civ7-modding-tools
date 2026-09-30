@@ -48,10 +48,33 @@ and candidate configs. Baseline has eleven failing calibration expectations;
 candidate retains those eleven and adds one Sundered Archipelago identity
 failure: Huge1018 has no projected lake, while its declared identity expects
 a largest lake component of at least two tiles. This is not a solver refusal
-or proof that a physical lake must be fabricated. Discern whether its intended
-geography/forcing needs repair or that identity expectation encodes the old
-planner's forced water, before selecting a production change. No expectation
-has been weakened.
+or proof that a physical lake must be fabricated. No expectation has been
+weakened in these before/after evaluations.
+
+The pinned follow-through establishes that the discrepancy originates in the
+old computation, not projection loss or native cutoff. Old planning and
+projection both contain eleven wet cells. All eleven have physical ground43
+with sea level42, conditioned height43 and zero depression depth. Every one
+has an actual raw nonascending receiver path to original marine water. The
+certified result has no wet cells, bodies or pools, and its projected mask is
+also empty. Original ground is byte-identical. Legacy routing labels each
+tile with no immediately lower land neighbor as a sink, even on an open flat
+plateau; the discharge-ranked budget planner can select and expand those
+labels without positive storage geometry or a physical head.
+
+The selected migration direction is not to recreate those eleven tiles. Retire
+the Archipelago unconditional lake-presence floor in the certified activation
+change, preserving its other identity requirements and the existing direct
+physical, footprint and playability guards. Do not add a compensating lake
+quota, a second solver or a duplicate proxy target. This is a model-specific
+acceptance change with an explicit physical witness, not retroactive weakening
+of the unchanged study that discovered the difference. Persisted legacy config
+semantics remain separately accounted until their migration.
+The independent owner review corroborates this direction and the script/receipt
+pins. Retire only Archipelago's floor: its authored identity requires islands,
+seas, reefs, volcanic terrain and naval passage, not mandatory inland lakes.
+Preserve other products' lake expectations until their own evidence warrants a
+change. This one-roll witness does not establish that every old lake is artificial.
 
 ## Remaining Migration Gates
 
@@ -63,9 +86,9 @@ The actual remaining questions are now bounded:
    neither a guessed fixed40 nor old body-size exclusions qualify all products.
    Preserve original marine identity and physical heads; do not shrink a
    physical lake to fit a native cutoff.
-2. Resolve the Archipelago identity discrepancy at its geography/forcing or
-   target owner using the retained same-seed before/after pair. Do not add a
-   lake quota, fallback or retry to the certified solver to satisfy it.
+2. Apply the declared Archipelago identity retirement together with its
+   certified activation and the retained no-fabricated-lake witness. Do not
+   patch the old solver or alter forcing merely to restore an artificial lake.
 3. Activate the shipped profiles through existing authored water/projection
    selection, retaining each map's distinct parameters. Replay the complete
    bank, body-size/state cohort and representative native realizations.
@@ -76,9 +99,9 @@ The actual remaining questions are now bounded:
 
 These gates replace the historical closed-basin excuse. They stay in the one
 native-map-controls worktree/Graphite lineage, with one complete owner-level
-change at a time. Native qualification and the held Archipelago discrimination
-can be investigated independently; admission success is not native behavior
-or final calibration acceptance.
+change at a time. Native qualification is the remaining runtime prerequisite;
+the Archipelago cause is now discriminated. Admission success is not native
+behavior or final calibration acceptance.
 
 ## Retained Evidence
 
@@ -89,6 +112,10 @@ External directory:
 `b7c9dee032baf7623a1c4f2dc9542374c61158f210876898a78dafdff84af7f2`.
 `metrics1/{baseline,candidate,comparison}.json` pins both unchanged public
 metric-bank evaluations. This is portable source/recipe proof only.
+`archipelago-lineage.json` independently checks both complete payload pins,
+unchanged ground, exact planned/projected masks, zero conditioned depression
+and each receiver path to original marine. Its replay receipt pin is
+`685605e1fbd5bc28cfd1ae69d0868934dd9d384ab2f1e37358ac659fefdf8e63`.
 
 The first external capture attempt failed because a slash-bearing public
 scenario ID was used as a filename. Its log is retained; opaque SHA-256

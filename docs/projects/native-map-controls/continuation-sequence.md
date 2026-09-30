@@ -165,12 +165,15 @@ discharge even when native projection semantics do not change.
 
 The [remaining legacy-profile qualification](legacy-water-migration.md)
 now admits all 49 cases using their own forcing and density policy. The old
-closed/subtile excuse is superseded. Current migration gates are the common
-native height/category boundary and one Archipelago lake-identity discrepancy;
-the unchanged candidate bank adds that one failure to the same eleven baseline
-calibration failures. Complete those bounded gates, activate callers, then
-retire old execution and compatibility evidence. Do not create a parallel
-recipe, fabricate lakes or soften expectations to accelerate the migration.
+closed/subtile excuse is superseded. The unchanged candidate bank adds one
+Archipelago lake-identity failure to the same eleven baseline calibration
+failures. Exact lineage traces its old eleven wet cells to zero-depression flat
+ground with raw nonascending paths to original marine; the certified physical
+and projected masks both contain zero. Do not fabricate lakes to reproduce
+that older computation. Qualify the common native height/category boundary,
+activate callers with the declared model-specific identity retirement, then
+remove old execution and compatibility evidence. Do not create a parallel
+recipe or soften unrelated expectations to accelerate the migration.
 
 Graphite owns submission and eventual bottom-to-top merge. Retain draft review
 layers until the accepted checks and remaining quality expectations are
@@ -201,6 +204,10 @@ HEAD to release branch occupancy, then reattached to its restacked branch;
 its tree remains exactly `d84d874122fbf88147c36a76b0c5c777e264a6cf`.
 No new worktree, empty layer, manual PR reopen or wholesale unqualified merge
 was used. Further drain still requires each next prerequisite's own receipt.
+Graphite's native merge also updated the next remote branch. Its tree matched
+the locally restacked construction branch exactly; a second native sync and
+targeted downstack restack reconciled that parent without force. Stack
+submission then updated the retained PRs and created habitat PR #2221.
 
 ## Evidence That Survives The Artifact Correction
 
