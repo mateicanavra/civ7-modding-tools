@@ -601,6 +601,74 @@ all 14 currently inventoried main WIP files are protected. This is cold
 app-composition acceptance, not current climate or native-water acceptance.
 Receipt: `earth-calibration/core-app-composition-2162-20261001/receipt.json`.
 
+### Height Repair And Next Qualification
+
+The existing preparation owner now restores wet requests from immutable
+topography/accepted lakes while preserving current native dry heights after
+wonder placement. Fresh authentic-owner Huge1018 evidence restores all 48
+previously lowered wet cells, holds every dry/wonder height and fourteen other
+final facts, and retains all 191 complete native river objects. All 48 cells
+still report nonlake. Height preservation is therefore repaired independently
+of classification; no post-recipe replay, legacy fallback, cutoff exception or
+new recipe architecture is adopted. The normal Huge Earthlike deployment and
+saved setup are restored and successfully generated afterward.
+
+Continue with these bounded discriminators rather than more global tuning:
+
+1. Qualify stock10 versus the already-held cutoff40 diagnostic on this repaired
+   authentic Earthlike/Huge1018 recipe. Hold physical artifacts, height intent
+   and dry edits; observe the expected 48 classification changes, protected
+   marine cells, freshwater and finalized river/water-area ocean connectivity.
+   Record category-sensitive feature/resource changes rather than demanding
+   false all-field identity. This is not adoption of forty as a product default.
+2. Refresh current-source biome attribution on the four existing
+   `earthlike/climate-structure` scenarios. The older detailed decomposition
+   predates the current 0.45 aridity shift and periodic-X refinement. Compare
+   current raw category allocation with final refinement on the exact existing
+   dominance population, holding thresholds and upstream fields. A diagnostic
+   raw rule is not an alternative production strategy; zero iterations are not
+   an admitted configuration.
+3. Investigate land-geographic thermal variation and stationary pressure
+   contrast together. Pressure intentionally reads sea-level thermal samples,
+   so increasing ground lapse cannot repair its uniform land-row input. Retained
+   controls already exclude phase resolution, transient-noise cancellation and
+   a demonstrated pressure-centering defect. The incomplete annual reference
+   does not select a new land-process law. Preserve the current coefficient,
+   filter and scientific floors until a supported mechanism is qualified.
+4. Qualify cliff/minor/NAV outlets and era-appropriate actual ship movement
+   against stock positive controls separately. Lake identity and ocean-access
+   flags are not movement proof. Converge those results with the unchanged
+   generated-map bank before final density calibration and atlas refresh.
+
+No authored lake-size maximum currently exists: the selected water operations
+are parameter-free and actual footprints follow generated basins and supply.
+Sampled study maxima are not bounds. A native cutoff would need resolved
+projected ordinary-water connectivity and protected marine categories before
+database activation; a new two-pass host preflight is not implied by this
+workstream. Existing catalog, official presets, independent seeds and setup
+contracts remain the common selection machinery. Fixed Standard-size cohorts
+are deliberate held tests, not a retired recipe or competing harness.
+
+The next two prerequisites are now merged natively: Tuner-resource PR #2164
+at `5c7fb7e9202218485d9f2a83baf1c892d28ec412`, then window-classification PR
+#2165 at `296079e0e217f39641626e7e28b7b71ff4b02edf`. A concrete scoped-release
+race was repaired in the former before merge: release is terminal and joins
+pending connection/socket retirement without changing ordinary open-scope
+reset or typed dispatch semantics. Independent source reviews and the exact
+prefix checks pass under Effect 3.21.3 / Habitat 0.5.2, including real native
+LSQ; the retained leaf also passes its fresh twelve-task resource/provider/
+workspace graph and all sixteen provider tests under Effect 4 beta.101 /
+Habitat 0.5.5. These are infrastructure receipts, not MapGen science claims.
+
+The native sequential merge/delete loop preserves every retained source tree
+and reduces the common lineage from 52 to 50 branches. Main receives only
+those qualified prerequisites; MapGen fixes remain in the retained review
+lineage. The protected main files and external branches are not discarded.
+The full-stack dry run now names exactly the retained fifty nodes and the two
+new height-repair PRs; actual publication remains distinct from this dry run.
+Receipts: `earth-calibration/tuner-release-and-classification-qualification-20261001.json`
+and the `qualified-*` / `converged-leaf-*` logs in Civ research user data.
+
 ## Evidence That Survives The Artifact Correction
 
 - The ten-map publication replay matches all 120 captured field hashes. The

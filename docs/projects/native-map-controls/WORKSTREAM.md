@@ -1,6 +1,14 @@
 # Native Map Controls
 
-Status: active coherence completion. Elevation, climate, relief and generalized wet NAV outlet declarations are accepted in this stack. Cutoff20 preserves existing lake heights and repairs artificial large-lake cliffs without enlarging water footprints. Unlimited classification is rejected; a bounded map-scoped policy remains viable and should be qualified before preferring height reapplication. General production coverage, basin-aware terrain evolution, density calibration and actual naval traversal remain open. See [request accounting and solution path](coherence-completion.md).
+Status: active coherence completion. Current-only climate and basin-aware water
+generation now serve all eight shipped profiles. Elevation, relief and minor/NAV
+declarations are integrated; the existing surface-preparation owner now preserves
+physical wet heights without overwriting native dry/wonder edits. A fresh normal
+Huge Earthlike map is deployed and loaded. Native lake classification, cliff
+continuity, era-qualified naval traversal and three unchanged scientific
+expectations remain open. No unlimited cutoff or alternate legacy execution
+path is adopted. See [the current continuation](continuation-sequence.md#height-repair-and-next-qualification)
+and [request accounting and solution path](coherence-completion.md).
 DRA: root. Opened: 2026-09-27.
 Opening branch: `agent-root-civ7-native-map-controls-frame`.
 
@@ -448,6 +456,11 @@ references here rather than dumping generated evidence into documentation.
 
 ## Integration Acceptance
 
+This section retains the September 28 integration vintage, including its
+then-active profiles and publication gates. Subsequent current-only retirement,
+native-height repair and Graphite drain below supersede those activation and
+publication states; historical receipts are not executable fallback paths.
+
 The [Earthlike integration packet](basin-integration.md) is implemented through
 one water/network publication, subsequent exposed-landform selection, whole
 physical body projection, and all classified dry river-source writes. Earthlike
@@ -709,6 +722,15 @@ definition suite retains the same three unresolved scientific expectations,
 without weaker gates. Adopt this owner repair, not a post-recipe production
 path. See [the checks](water-height-maintenance.md#existing-preparation-owner-candidate)
 and [the bounded native result](water-height-maintenance.md#authentic-owner-native-result).
+
+The ordinary `swooper-maps` deployment is restored after the diagnostic. A fresh
+normal Huge Earthlike generation with map/game seeds 1018/1018 and twelve-player
+saved setup completes in 43.6 seconds. Its built and installed script hashes
+match (`4f6d4cc6325d97245b192ab3a25c954a04847d38c26b7b036583a5d1b304345e`),
+and the public summary reports 106 x 66 / 6,996 plots. This establishes current
+normal launch and deployment, not full normal-grid parity or scientific
+acceptance. Receipts are under `earth-calibration/water-prepare-owner-normal-`
+in the discoverable Civ research user-data home.
 
 The admitted V18/V19 generated-map comparison rejects unconditional
 post-recipe whole-array replay. It restores 48 accepted inland-water cells to
