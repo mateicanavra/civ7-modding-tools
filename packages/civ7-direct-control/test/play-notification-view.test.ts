@@ -1,13 +1,16 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
+import { Script } from "node:vm";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
 import {
   Civ7PlayNotificationViewInputSchema,
+  type Civ7PlayNotificationViewResult,
   Civ7PlayNotificationViewResultSchema,
   getCiv7PlayNotificationView,
 } from "../src/index";
+import { jsonPayloadFromCommandResult } from "../src/session/command-result";
 
 type FakeTunerServer = {
   received: string[];
@@ -16,6 +19,75 @@ type FakeTunerServer = {
 };
 
 describe("getCiv7PlayNotificationView", () => {
+  test.each([
+    undefined,
+    1,
+    100,
+  ])("generated notification command parses with maxNotifications=%s", async (maxNotifications) => {
+    await getCiv7PlayNotificationView(
+      { maxNotifications },
+      {
+        executeAppUiCommand: async ({ command }) => {
+          expect(() => new Script(command)).not.toThrow();
+          return {
+            host: "127.0.0.1",
+            port: 4318,
+            state: { id: "65535", name: "App UI" },
+            output: [JSON.stringify(playNotificationView())],
+          };
+        },
+        parsePlayNotificationView: (result, label) =>
+          jsonPayloadFromCommandResult<Civ7PlayNotificationViewResult>(result, label),
+      }
+    );
+  });
+
+  test("generated first-meet hint preserves the quoted neutral response argument", async () => {
+    const notificationId = { owner: 0, id: 42, type: 20 };
+    const view = await getCiv7PlayNotificationView(
+      {},
+      {
+        executeAppUiCommand: async ({ command }) => ({
+          host: "127.0.0.1",
+          port: 4318,
+          state: { id: "65535", name: "App UI" },
+          output: [
+            String(
+              new Script(command).runInNewContext({
+                GameContext: { localPlayerID: 0, hasSentTurnComplete: () => false },
+                Game: {
+                  turn: 80,
+                  getTurnDate: () => "2025 BCE",
+                  Notifications: {
+                    getIdsForPlayer: () => [notificationId],
+                    getEndTurnBlockingType: () => -123,
+                    findEndTurnBlocking: () => notificationId,
+                    find: () => ({ Player: 1 }),
+                    getType: () => -123,
+                    getTypeName: () => "NOTIFICATION_PLAYER_MET",
+                  },
+                },
+                Players: { get: () => null },
+                UI: { Player: {} },
+                document: {
+                  querySelector: () => ({ maybeComponent: { canEndTurn: () => false } }),
+                },
+              })
+            ),
+          ],
+        }),
+        parsePlayNotificationView: (result, label) =>
+          jsonPayloadFromCommandResult<Civ7PlayNotificationViewResult>(result, label),
+      }
+    );
+
+    expect(Value.Check(Civ7PlayNotificationViewResultSchema, view)).toBe(true);
+    expect(view.notifications[0]?.decision).toMatchObject({
+      category: "first-meet-diplomacy",
+      commonActions: [{ argsShape: '{ metPlayerId, response: "neutral" }' }],
+    });
+  });
+
   test("keeps procedure input bounded and context-owned", () => {
     expect(Value.Check(Civ7PlayNotificationViewInputSchema, {})).toBe(true);
     expect(Value.Check(Civ7PlayNotificationViewInputSchema, { maxNotifications: 25 })).toBe(true);

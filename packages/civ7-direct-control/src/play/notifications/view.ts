@@ -1389,7 +1389,7 @@ function playNotificationViewSource(): string {
             requiredInput("response", "caller choice", "Choose friendly, neutral, or unfriendly; the native response type and local player are runtime-owned."),
           ],
           [
-            action("request neutral first-meet greeting through the diplomacy service", undefined, undefined, "{ metPlayerId, response: \"neutral\" }", "after the exact service check admits the greeting"),
+            action("request neutral first-meet greeting through the diplomacy service", undefined, undefined, ${jsLiteral('{ metPlayerId, response: "neutral" }')}, "after the exact service check admits the greeting"),
           ],
           ["Use diplomacy.firstMeet.response.check/request rather than generic player-operation dispatch or notification dismissal. Neutral is the conservative default when Influence cost or strategic payoff is not proven."],
         );
