@@ -723,6 +723,46 @@ valid for deterministic execution, not native proof; production does not copy
 the fixture's native-only admission. Qualify that actual slot and subsequent
 maintenance before declaring the water repair shipped.
 
+### Existing Preparation Owner Candidate
+
+The candidate is implemented in `prepare-placement-surface`, after the
+manifest's existing natural-wonder completion. It uses the existing projection
+helper and `projectedLakes` artifact to create a detached canonical elevation
+request before native mutation. After the existing terrain validation and
+wrapped coast restoration, it retains exact current native heights on dry
+plots and canonical requests on wet plots, then performs the existing area
+recalculation and water-cache write. The original elevation write, authored
+river finalization, cliff generation and recipe order are unchanged.
+
+Current elevation must be available with the actual map dimensions and cell
+count; current water reads must be booleans and every current height finite.
+These are necessary input checks for the whole-array setter, not physical
+parity instrumentation or Earth-fixture admission. An invalid input refuses
+before that write, with no fallback to stale heights or a legacy recipe.
+Available mock snapshots remain supported. No new domain operation, artifact,
+SDK abstraction, configuration property or cutoff is introduced.
+
+Focused tests exercise canonical wet requests despite lowered readbacks,
+exact dry preservation including signed/fractional heights and later feature
+edits, immutable physical inputs, coast restoration, mutation order, and
+unavailable/malformed native inputs. Generation coverage uses all eight current
+catalog configurations and the existing selectable size/seed setup; it now
+expects the original write and this maintenance write, with one unchanged
+cliff-generation call. The focused run passes 41 tests and 492 assertions.
+The fresh 37-task owning graph passes types, Habitat, boundaries, dead-code and
+hygiene. The realization suite passes 266 tests / 48,848 assertions; the
+definition suite passes 1,068 tests and retains one study-bank aggregate
+failure with its same three scientific expectations (within-row thermal
+variation, biome-row dominance and pressure zonal RMS). None is weakened or
+attributed to this projection-only repair. The initially interrupted graph's
+two new-test TypeScript errors were repaired using the existing complete
+feature payload and ES2022 array methods, without SDK/configuration changes.
+The complete recheck is retained as
+`earth-calibration/water-prepare-owner-recheck-20261001.log`.
+
+A fresh Huge1018 pair at this actual owner remains required before adoption;
+the V20 post-recipe experiment is not substituted for it.
+
 ## V9 Verification
 
 The app check/test graph passed (156 tests, 20,486 assertions), and the native

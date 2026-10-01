@@ -700,6 +700,12 @@ existing subsequent area/cache transaction. No legacy fallback, global cutoff,
 physical artifact mutation, cliff/order change or new SDK surface is selected.
 See [the native result and bounded production design](water-height-maintenance.md#v20-native-result-and-production-follow-through).
 
+The preparation-owner candidate is now implemented with those boundaries.
+Focused tests pass across the current catalog and existing size/seed selector;
+the next acceptance is the authentic owner transaction and its subsequent
+native maintenance, not another post-recipe production path. See
+[the owner candidate and checks](water-height-maintenance.md#existing-preparation-owner-candidate).
+
 The admitted V18/V19 generated-map comparison rejects unconditional
 post-recipe whole-array replay. It restores 48 accepted inland-water cells to
 their first native write heights, but leaves those cells classified as nonlake

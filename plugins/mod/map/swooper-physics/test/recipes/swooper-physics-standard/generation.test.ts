@@ -40,7 +40,11 @@ const catalogCases = (await loadSwooperMapConfigCatalog()).map(({ canonicalConfi
 }));
 
 describe("Standard recipe generation", () => {
-  it.each(catalogCases)("uses one explicit elevation write with authored-network cliff ordering for $id", ({ mapConfig }) => {
+  it.each(
+    catalogCases
+  )("uses the original and wet-maintenance elevation writes with authored-network cliff ordering for $id", ({
+    mapConfig,
+  }) => {
     class ExplicitElevationRecipeAdapter extends MockAdapter {
       readonly elevationEvents: string[] = [];
       rainfallWrites = 0;
@@ -70,6 +74,20 @@ describe("Standard recipe generation", () => {
       override modelRivers(minLength: number, maxLength: number, navigableTerrain: number): void {
         this.elevationEvents.push("modelRivers");
         super.modelRivers(minLength, maxLength, navigableTerrain);
+      }
+      override placeNaturalWonder(
+        x: number,
+        y: number,
+        featureType: number,
+        direction: number,
+        elevation?: number
+      ) {
+        this.elevationEvents.push("placeNaturalWonder");
+        return super.placeNaturalWonder(x, y, featureType, direction, elevation);
+      }
+      override validateAndFixTerrain(): void {
+        if (this.calls.setElevation.length > 0) this.elevationEvents.push("validateAndFixTerrain");
+        super.validateAndFixTerrain();
       }
       override readCurrentMapElevationSnapshot(): CurrentMapElevationSnapshot {
         this.elevationEvents.push("readCurrentMapElevationSnapshot");
@@ -110,7 +128,7 @@ describe("Standard recipe generation", () => {
       },
     });
     if (metricFailure !== undefined) throw metricFailure;
-    expect(adapter.calls.setElevation.length).toBe(1);
+    expect(adapter.calls.setElevation.length).toBe(2);
     expect(adapter.rainfallWrites).toBe(preset.dimensions.width * preset.dimensions.height);
     expect(adapter.calls.generateCliffsFromElevation).toBe(1);
     expect(adapter.elevationEvents.slice(0, 2)).toEqual([
@@ -127,6 +145,17 @@ describe("Standard recipe generation", () => {
     expect(adapter.elevationEvents.indexOf("generateCliffsFromElevation")).toBeGreaterThan(
       adapter.elevationEvents.indexOf("finalizeRivers")
     );
+    const maintenanceWrite = adapter.elevationEvents.lastIndexOf("setElevation");
+    expect(maintenanceWrite).toBeGreaterThan(
+      adapter.elevationEvents.indexOf("generateCliffsFromElevation")
+    );
+    expect(maintenanceWrite).toBeGreaterThan(
+      adapter.elevationEvents.lastIndexOf("placeNaturalWonder")
+    );
+    expect(maintenanceWrite).toBeGreaterThan(
+      adapter.elevationEvents.lastIndexOf("validateAndFixTerrain")
+    );
+    expect(adapter.elevationEvents[maintenanceWrite - 1]).toBe("readCurrentMapElevationSnapshot");
     expect(adapter.elevationEvents.lastIndexOf("readCurrentMapElevationSnapshot")).toBeGreaterThan(
       adapter.elevationEvents.indexOf("generateCliffsFromElevation")
     );
