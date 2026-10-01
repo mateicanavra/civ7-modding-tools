@@ -1,0 +1,17 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "resource-proof"
+root = "resources/*/test"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["contract"]
+
+[[scopes]]
+name = "resource-contract-proof"
+root = "resources/*/test/contract"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["*.typecheck.ts"]

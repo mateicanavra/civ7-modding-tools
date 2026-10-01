@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "require_resource_proof_topology",
+  "title": "Require Resource Proof Topology",
+  "placement": {
+    "niche": "global/workspace",
+    "blueprint": "resource-proof",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "civ7-workspace",
+  "lane": "enforced",
+  "forbids": "resource proof outside the provider-neutral contract axis",
+  "why": "A resource owns only the neutral capability contract. Closing its proof tree around compile-time consumer and provider assignability prevents provider execution, product policy, or service behavior from collecting beside that contract.",
+  "remediate": "Keep provider-neutral assignability proof under test/contract. Move concrete acquisition and collaboration proof to the provider, and move semantic product outcomes to the consuming service.",
+  "message": "Resource proof must remain closed around its provider-neutral contract.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["resources/*/test", "resources/*/test/**"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/resource-proof/require_resource_proof_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/resource-proof/require_resource_proof_topology/structure.toml"
+    }
+  }
+}

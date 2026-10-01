@@ -3,7 +3,7 @@
  *
  * Exactly one rule lives here: @nx/enforce-module-boundaries, enforcing the
  * dependency-constraint table of docs/projects/habitat-harness/taxonomy.md §3
- * over the kind:* tags in each project's package.json. Nothing else may be
+ * over project-plane tags in each project's Nx metadata. Nothing else may be
  * added to this config (FRAME hard core #2: one owner per layer — syntax
  * rules belong to GritQL, hygiene to Biome).
  *
@@ -29,6 +29,8 @@ const depConstraints = [
       "kind:plugin",
       "kind:mod",
       "kind:tooling",
+      "type:provider",
+      "type:resource",
     ],
   },
   { sourceTag: "kind:library", onlyDependOnLibsWithTags: ["kind:library"] },
@@ -62,7 +64,13 @@ const depConstraints = [
   },
   {
     sourceTag: "kind:control",
-    onlyDependOnLibsWithTags: ["kind:control", "kind:library", "kind:adapter", "kind:engine"],
+    onlyDependOnLibsWithTags: [
+      "kind:control",
+      "kind:library",
+      "kind:adapter",
+      "kind:engine",
+      "type:resource",
+    ],
   },
   {
     sourceTag: "kind:mod",
@@ -89,7 +97,17 @@ const depConstraints = [
       "kind:control",
       "kind:mod",
       "kind:tooling",
+      "type:provider",
+      "type:resource",
     ],
+  },
+  {
+    sourceTag: "type:resource",
+    onlyDependOnLibsWithTags: ["kind:library"],
+  },
+  {
+    sourceTag: "type:provider",
+    onlyDependOnLibsWithTags: ["type:resource", "kind:library"],
   },
   { sourceTag: "kind:tooling", onlyDependOnLibsWithTags: ["kind:tooling", "kind:library"] },
   {

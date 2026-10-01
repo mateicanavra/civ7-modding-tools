@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "require_provider_proof_topology",
+  "title": "Require Provider Proof Topology",
+  "placement": {
+    "niche": "global/workspace",
+    "blueprint": "provider-proof",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "civ7-workspace",
+  "lane": "enforced",
+  "forbids": "provider proof outside independent semantics, execution, and real collaboration axes",
+  "why": "A provider must separately prove its interpretation of vendor facts, its managed acquisition and release behavior, and its real collaboration with the supported substrate. Closed disjoint layers prevent service policy, public API projection, or unclassified integration tests from accumulating in the provider.",
+  "remediate": "Place deterministic vendor/config interpretation under semantics, managed lifecycle behavior under execution, and opt-in real-substrate proof under collaboration. Move product outcomes to the consuming service or application.",
+  "message": "Provider proof must preserve its closed semantics, execution, and collaboration axes.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["resources/*/providers/*/test", "resources/*/providers/*/test/**"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/provider-proof/require_provider_proof_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/provider-proof/require_provider_proof_topology/structure.toml"
+    }
+  }
+}

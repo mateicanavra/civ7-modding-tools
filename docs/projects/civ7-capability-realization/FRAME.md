@@ -60,7 +60,7 @@ fallback are sealed inputs. Habitat source and shared law remain upstream;
 Civ7 authors only instances, qualified overlays, product policy, adapters, and
 compatibility rules.
 
-`@habitat-ai/cli@0.5.1` and its exact `@habitat-ai/sdk@0.5.1` dependency now
+`@habitat-ai/cli@0.5.2` and its exact `@habitat-ai/sdk@0.5.2` dependency now
 supply the selected `app@1`, `package@1`, `plugin@1`, `plugin-nx@1`,
 `provider@1`, and `resource@1` laws. The local Habitat producer and bootstrap
 architecture are gone. `service@1` remains intentionally unselected, so
@@ -69,12 +69,23 @@ substrate.
 
 The active chain is provider-neutral resource -> concrete provider -> semantic
 service -> caller projection -> real host composition -> observation. Habitat
-0.5.1 closes the shared structural shells but publishes neither a product app
+0.5.2 closes the shared structural shells but publishes neither a product app
 runtime nor a selected service kind. Provider selection, acquisition, public-
 client binding, host mounting, observation, and disposal therefore belong to
 the qualified CLI or Studio app composition that actually performs them;
 services retain Civ7-owned law. Decorative app descriptors, profiles,
 `startApp` wrappers, and copied shared-service packets are refused.
+
+The first Interactive managed capability is now constructed. The
+provider-neutral Civ7 Tuner contract owns ready-state, execution, observation,
+and typed transport-failure vocabulary. Its local-socket provider privately
+owns endpoint discovery, framing, multiplexing, connection epochs, raw
+dispatch evidence, reset, and scoped release. Blind semantic retry, readiness
+thresholds, and command-output interpretation were refused from the provider;
+they remain service concerns. Closed contract, semantics, execution, and
+opt-in collaboration proof are active, and the Nx graph now sees resource and
+provider as distinct one-way project roles. The collaboration leaf has not run
+against a live Civ7 process and is not claimed as passed.
 
 The first definition ownership reduction is closed: diagnostics and metric
 commands now live in the closed `mapgen` CLI topic, consume public Swooper and
@@ -108,7 +119,7 @@ proves 29 tests. Published Habitat and canonical Template expose no generic
 product app-runtime constructor, so no inert app descriptor or profile was
 authored.
 
-**Gradient:** Tuner and window-capture resources -> local semantic services ->
+**Gradient:** window-capture resource -> local semantic services ->
 CLI and Studio projections/composition -> joint Core Platform seal -> Dacia
 Product -> Estate Reconciliation -> Platform Seal.
 
@@ -171,7 +182,7 @@ The following work is complete and is not reopened by this frame:
   generated entrypoints, build output, deployment, and live proof. Its
   corrected destination composes shared `app@1` root law with closed qualified
   build, deploy, runtime, artifact, deployment, compatibility, and live axes.
-  Habitat 0.5.1 supplies no product app-runtime constructor, so the finite
+  Habitat 0.5.2 supplies no product app-runtime constructor, so the finite
   build/deploy targets remain Nx entrypoints rather than decorative
   `defineApp` or profile objects. No live target has passed yet.
 - `packages/mapgen-core` owns the portable MapGen authoring and execution SDK,
@@ -212,7 +223,7 @@ The following work is complete and is not reopened by this frame:
     the service in process.
 11. Civ7's current service blueprint and implementation are pinned to oRPC 1
     and the patched `effect-orpc` bridge. They are migration corpus, not target
-    authority. Habitat 0.5.1 intentionally publishes no shared service kind, so
+    authority. Habitat 0.5.2 intentionally publishes no shared service kind, so
     their replacement must remain a Civ7-owned Interactive decision until an
     upstream service law is deliberately selected.
     Destination law requires a complete qualified successor whose Ground proofs
@@ -249,7 +260,7 @@ has one generic blueprint. Independent Habitat packets select the exact depths
 they govern; qualified Civ7 niches own only product-specific law where the
 shared substrate has no generic packet. RAWR HQ Template owns the Habitat
 packets, package, and canonical runtime realization model upstream, and Civ7
-accepts that external destination authority. Habitat 0.5.1 release provenance,
+accepts that external destination authority. Habitat 0.5.2 release provenance,
 initializer idempotence, six selected closed-kind fixtures, and unsupported
 service refusal are accepted Ground evidence. Magic Migration is executable
 corroboration, not a competing source. Existing Civ7 mechanics do not earn a
@@ -328,7 +339,7 @@ consumer proves that public boundary.
 
 ### Retain one local service substrate
 
-Habitat 0.5.1 deliberately leaves `service@1` unselected. Interactive
+Habitat 0.5.2 deliberately leaves `service@1` unselected. Interactive
 construction therefore reuses and tightens the existing local Civ7 service
 packet rather than copying the dormant SDK packet, extending the old mixed
 facade, or waiting on a fictitious shared runtime. The service owns contract,

@@ -15,7 +15,7 @@ Two enforcement planes — do not conflate them:
   generated zones). Nx cannot see inside one project; these are grit/file rules
   and are listed here only as `scope:*` rule families for provenance.
 
-## 1. `kind:*` tags (project plane)
+## 1. Project-plane tags
 
 | Tag | Definition | Provenance (existing rule/doc) |
 |---|---|---|
@@ -32,6 +32,8 @@ Two enforcement planes — do not conflate them:
 | `kind:package-tool` | Package-owned, non-runtime build, generation, and currentness programs; callable through Nx targets but not imported by product source | package-local `scripts/project.json`; root `AGENTS.md` task ownership |
 | `kind:mod` | Reusable authored mod definitions: domains, recipes, product config, and public mod contracts; deployable realization belongs to an app | `plugins/mod/**`; `docs/system/ARCHITECTURE.md` |
 | `kind:tooling` | Repo-local dev tooling (the habitat harness itself) | new with this workstream |
+| `type:resource` | Provider-neutral contract for one managed foreign capability; owns no provider selection or product semantics | `docs/projects/civ7-capability-realization/KIND-LAW-MATRIX.md`; shared Habitat `resource@1` |
+| `type:provider` | One concrete acquire/use/release realization of its matching resource contract | `docs/projects/civ7-capability-realization/KIND-LAW-MATRIX.md`; shared Habitat `provider@1` |
 
 ### Control lifecycle note
 
@@ -81,6 +83,8 @@ treatment without adding a concrete tag or constraint row.
 | Project | Path | Tags |
 |---|---|---|
 | civ7-modding-tools | `.` | `kind:workspace` |
+| resource-civ7-tuner | `resources/civ7-tuner` | `type:resource`, `resource:civ7-tuner` |
+| provider-civ7-tuner-local-socket | `resources/civ7-tuner/providers/local-socket` | `type:provider`, `resource:civ7-tuner`, `provider:local-socket` |
 | civ7-cli | `apps/cli` | `kind:app` |
 | cli-data | `plugins/cli/topics/data` | `kind:cli-topic-plugin` |
 | cli-docs | `plugins/cli/topics/docs` | `kind:cli-topic-plugin` |
@@ -143,7 +147,7 @@ owned by their Grit/file-layer rules.
 
 | sourceTag | onlyDependOnLibsWithTags | Generalizes |
 |---|---|---|
-| `kind:workspace` | `kind:sdk`, `kind:engine`, `kind:mapgen-tool`, `kind:adapter`, `kind:control`, `kind:library`, `kind:plugin`, `kind:mod`, `kind:tooling` | root orchestration/proof scripts may consume public package surfaces, but app code remains a caller surface rather than a library |
+| `kind:workspace` | `kind:sdk`, `kind:engine`, `kind:mapgen-tool`, `kind:adapter`, `kind:control`, `kind:library`, `kind:plugin`, `kind:mod`, `kind:tooling`, `type:resource`, `type:provider` | root orchestration/proof scripts may consume public package and managed-resource surfaces, but app code remains a caller surface rather than a library |
 | `kind:library` | `kind:library` | leaf purity (types/config/policy/viz import nothing higher) |
 | `kind:adapter` | `kind:library` | adapter translates engine↔types; owns `/base-standard/` exclusively (`lint-adapter-boundary.sh`) |
 | `kind:engine` | `kind:adapter`, `kind:library` | core purity: mapgen-core sees adapter *types* only, never runtime values (`mapgen-core-runtime-civ7`, G3) |
@@ -152,10 +156,12 @@ owned by their Grit/file-layer rules.
 | `kind:cli-topic-plugin` | `kind:sdk`, `kind:engine`, `kind:mapgen-tool`, `kind:adapter`, `kind:library`, `kind:plugin`, `kind:control`, `kind:mod` | topic packages project public reusable or product capabilities into one oclif command surface without depending on the shell, another topic, an app, or workspace tooling. The `game` topic adapts live control; the `mapgen` topic adapts the Swooper definition and neutral MapGen packages without taking ownership of either. |
 | `kind:package-tool` | `kind:library`, `kind:plugin` | package build/generation programs consume only leaf contracts and reusable CLI/file helpers; no source kind may import package tools |
 | `kind:sdk` | `kind:engine`, `kind:adapter`, `kind:library`, `kind:plugin` | SDK composes engine+adapter; mapgen subpath isolation (G11) stays grit-owned |
-| `kind:control` | `kind:control`, `kind:library`, `kind:adapter`, `kind:engine` | control service layering (`control-orpc` over `direct-control`); lifecycle ownership remains governed by the control note above, and contract-ownership rules stay grit-owned. Architecture review 2026-06-12: no control→mod edge exists, and main `331534895` (studio-server) explicitly forbids that direction in code comments — the previously drafted `kind:mod` allowance was dropped pre-lock as falsely provenanced |
+| `kind:control` | `kind:control`, `kind:library`, `kind:adapter`, `kind:engine`, `type:resource` | semantic control may consume ready provider-neutral capabilities but never construct or select their providers; lifecycle ownership remains governed by the control note above |
 | `kind:mod` | `kind:sdk`, `kind:engine`, `kind:mapgen-tool`, `kind:adapter`, `kind:library`, `kind:control`, `kind:plugin` | mods consume SDK/engine/MapGen tooling/adapter/policy/control and plugin utilities needed for mod package workflows |
-| `kind:app` | `kind:sdk`, `kind:engine`, `kind:mapgen-tool`, `kind:adapter`, `kind:library`, `kind:plugin`, `kind:cli-topic-plugin`, `kind:control`, `kind:mod`, `kind:tooling` | apps are top of the graph and may consume product-neutral MapGen development capabilities for app-owned generation, diagnostics, and live proof; nothing imports apps or the workspace root |
+| `kind:app` | `kind:sdk`, `kind:engine`, `kind:mapgen-tool`, `kind:adapter`, `kind:library`, `kind:plugin`, `kind:cli-topic-plugin`, `kind:control`, `kind:mod`, `kind:tooling`, `type:resource`, `type:provider` | apps are top of the graph and own concrete provider selection and scoped acquisition; nothing imports apps or the workspace root |
 | `kind:tooling` | `kind:tooling`, `kind:library` | harness stays out of product graph |
+| `type:resource` | `kind:library` | resource contracts may reuse product-free value types but never import providers, services, projections, or apps |
+| `type:provider` | `type:resource`, `kind:library` | providers implement their matching resource contract and may reuse product-free packages, but never import service or app policy |
 | `habitat:runtime` | `habitat:runtime`, `habitat:service` | runtime owns resource/provider integration and may consume service-owned structural facts needed to translate Habitat requests into vendor calls |
 | `habitat:service` | `habitat:runtime`, `habitat:service` | service modules own Habitat logic and consume runtime resources/providers |
 | `habitat:cli` | `habitat:runtime`, `habitat:service`, `habitat:cli` | CLI commands parse user flags, acquire runtime-backed service context, and call service routers while keeping command output at the edge |

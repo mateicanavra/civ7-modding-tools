@@ -1,0 +1,10 @@
+schemaVersion = 1
+id = "civ7-tuner"
+ownerProject = "resource-civ7-tuner"
+blueprint = "resource"
+blueprintVersion = 1
+
+[roots]
+project = "resources/civ7-tuner"
+
+[selections]

@@ -50,15 +50,21 @@ any row's terminal disposition.
 
 | Exact source | Disposition | Exact destination | Proof owner |
 | --- | --- | --- | --- |
-| `packages/civ7-direct-control/src/session/{config,constants,discovery,execute,framing,health,listener-id,reconnect,session,socket,state}.ts` | relocate | `resources/civ7-tuner/providers/local-socket` | Provider `semantics`, `execution`, and `collaboration` proof |
+| `packages/civ7-direct-control/src/session/{config,constants,discovery,framing,listener-id,session,socket,state}.ts` | combine | `resources/civ7-tuner/providers/local-socket` | Provider `semantics`, `execution`, and `collaboration` proof |
 | `packages/civ7-direct-control/src/session/types.ts` | combine | `resources/civ7-tuner/contract.ts` | Resource contract proof |
-| `packages/civ7-direct-control/src/session/command-result.ts` | relocate | `resources/civ7-tuner/providers/local-socket/protocol.ts` | Provider semantics |
+| `packages/civ7-direct-control/src/session/execute.ts` | delete | Qualified apps acquire the provider once; the control service consumes the ready resource contract directly | App assembly and service execution proof |
+| `packages/civ7-direct-control/src/session/health.ts` | combine | `services/civ7-control/src/service/modules/readiness` | Readiness semantics and service execution proof |
+| `packages/civ7-direct-control/src/session/reconnect.ts` | delete | Provider reconnection remains physical and transparent; semantic retry is rebuilt only where dispatch evidence makes repetition lawful | Control-service no-repeat semantics |
+| `packages/civ7-direct-control/src/session/command-result.ts` | combine | `services/civ7-control/src/service/model/policy/tuner-result.ts` and the consuming module policies | Service semantics |
 | `packages/civ7-direct-control/src/session/request-id.ts` | delete | Callers use the platform UUID facility directly | Calling command and live-proof suites |
 
-The provider owns discovery, framing, socket lifetime, state selection,
-reconnection, health, execution, and release. It exposes one ready Tuner value
-through the resource contract. It does not expose gameplay helpers or a raw
-package facade.
+The provider owns endpoint discovery, framing, socket lifetime, state
+selection, physical reconnection, transport health observations, raw
+execution, and release. It exposes one ready Tuner value through the resource
+contract. It does not own readiness thresholds, command-output interpretation,
+semantic retry, gameplay helpers, or a raw package facade. In particular, the
+legacy six-attempt reconnect helper is not provider lifecycle: it can repeat an
+indeterminately dispatched mutation and is deleted rather than relocated.
 
 ## Direct Control: Civ7 Control Service
 

@@ -920,7 +920,7 @@ behavior does not qualify merely because it has multiple steps.
 
 ## Law Adoption
 
-Adopt only the selected Habitat 0.5.1 consumer packets, never dormant or
+Adopt only the selected Habitat 0.5.2 consumer packets, never dormant or
 unselected SDK material:
 
 - resource/provider separation;
@@ -932,7 +932,7 @@ unselected SDK material:
 - structure and source relationships in Habitat, graph scheduling in Nx,
   types in TypeScript, and behavior in tests.
 
-Habitat 0.5.1 does not select service or product-runtime law. Existing local
+Habitat 0.5.2 does not select service or product-runtime law. Existing local
 Civ7 service authority therefore remains the destination for service source,
 while qualified app overlays govern native Oclif, Bun, Vite, server, web, and
 finite Nx task composition. This is an explicit authority reconciliation, not

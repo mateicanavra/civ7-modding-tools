@@ -1,0 +1,9 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "civ7-tuner-live-collaboration-proof"
+root = "resources/civ7-tuner/providers/local-socket/test/collaboration"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["provider.live.test.ts"]

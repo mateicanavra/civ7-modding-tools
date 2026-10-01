@@ -1,0 +1,31 @@
+{
+  "name": "@civ7/tuner",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Provider-neutral managed access to Civilization VII Tuner states",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./contract.ts",
+      "bun-source": "./contract.ts",
+      "import": "./dist/contract.js"
+    },
+    "./providers/local-socket": {
+      "types": "./providers/local-socket/index.ts",
+      "bun-source": "./providers/local-socket/index.ts",
+      "import": "./dist/providers/local-socket/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "check:test": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
+    "clean": "rimraf dist tsconfig.tsbuildinfo",
+    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
+  },
+  "dependencies": {
+    "effect": "3.21.3"
+  },
+  "engines": {
+    "node": "22.22.0"
+  }
+}

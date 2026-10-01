@@ -1,0 +1,39 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "resource-civ7-tuner",
+  "projectType": "library",
+  "sourceRoot": "resources/civ7-tuner",
+  "tags": ["type:resource", "resource:civ7-tuner"],
+  "targets": {
+    "build": {
+      "command": "tsc -p tsconfig.build.json",
+      "options": {
+        "cwd": "resources/civ7-tuner"
+      },
+      "cache": true,
+      "inputs": ["default", "{projectRoot}/providers/**/*.ts"],
+      "outputs": ["{projectRoot}/dist/**", "{projectRoot}/tsconfig.tsbuildinfo"]
+    },
+    "typecheck": {
+      "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
+      "options": {
+        "cwd": "resources/civ7-tuner"
+      },
+      "cache": true,
+      "outputs": []
+    },
+    "check:test": {
+      "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
+      "options": {
+        "cwd": "resources/civ7-tuner"
+      },
+      "cache": true,
+      "outputs": []
+    },
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    }
+  }
+}
