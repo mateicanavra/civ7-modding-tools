@@ -2,6 +2,56 @@
 
 ## Frame
 
+The current [delivery inventory](delivery-inventory.md) accounts separately for
+the original request, delivered owner repairs and unresolved discoveries.
+Earthlike is the primary calibration/playability target. Desert Mountains and
+Sundered Archipelago are retained stress products; the five development-only
+profiles and their profile-specific comparison arms retire. Existing Earthlike
+cases and scientific requirements remain unchanged. Historical eight-product
+results below retain their original scope and are not current membership claims.
+
+### Three-Product Convergence
+
+The existing definition catalog remains the sole membership owner for portable
+configs, generated Studio metadata and Civ map artifacts. Retain the three
+configuration files byte-for-byte. Remove retired official configurations and
+their exclusive study/target code, not domain computations, independent atoll
+tests or valid user-authored current-schema envelopes. No retired-profile alias,
+ID blacklist or migration of persisted custom configs is introduced.
+
+Retain all thirteen `earthlike/*` studies and all forty-seven existing Earthlike
+scenarios. The relief-coherence comparison becomes its existing six Earthlike
+cases: Standard/Huge crossed with seeds 1/42/1018. Retain each stress product's
+identity and four Huge geography cases, plus the existing Desert Mountains arid
+study. The expected common bank is fifty-seven unique scenarios and twenty-two
+studies. Removing Latest Juicy's wind-study arm retires its pressure failure,
+not the physical deficiency; the shared Earthlike pressure target and all its
+existing applications remain unchanged. Earthlike's thermal failure remains
+active. This is scope convergence, not a claim that science is now green.
+
+The native Graphite source adoption owner is the existing Ring/catalog-policy layer,
+above its earlier Ring configuration adjustment. The new product policy
+supersedes that adjustment without deleting a config below a descendant that
+still edits it. No new worktree, empty branch, competing stack or PR reopening
+is needed. The delivery inventory and current evidence account remain at the
+continuation leaf because they describe later height repairs, not the earlier
+catalog-policy prefix. Generated artifacts are rebuilt by their owners, and the existing
+whole-mod installer removes obsolete installed scripts. Only a fresh recorded
+live run can qualify a later deployed build.
+
+The October 1 owner graph now regenerates the three-product artifacts and runs
+build/check/test for definition, Civ realization and Studio together. Build and
+owner checks pass. Definition tests pass 1,065 with one aggregate failure,
+containing only the unchanged Earthlike within-row temperature expectation;
+app tests pass 271 and Studio tests pass 412. No scientific requirement is
+waived. The graph is therefore not an all-green science proof. Independent
+definition/app/Studio review reports no actionable finding. Root compares the
+public generated bank with the frozen 96-case selection: all fifty-seven
+retained scenario inputs match exactly, and all forty-seven original Earthlike
+cases remain. The three authored configuration files also match their prior
+committed bytes exactly. Evidence:
+`earth-calibration/three-product-owner-proof-20261001.log`.
+
 The user has accepted the thermal lineage resolution and delegated subsequent
 causal ownership repairs under the existing architecture. Continue the full
 design, implementation, independent review and measured acceptance loop. The

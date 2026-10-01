@@ -1,14 +1,19 @@
 # Native Map Controls
 
-Status: active coherence completion. Current-only climate and basin-aware water
-generation now serve all eight shipped profiles. Elevation, relief and minor/NAV
+Status: active Earthlike-first coherence completion. The supported catalog is
+Earthlike, Desert Mountains and Sundered Archipelago; the latter two are stress
+products, not parallel calibration targets. The [delivery inventory](delivery-inventory.md)
+separates implemented, deployed, live-tested and merged claims, original goals
+and discoveries. Historical eight-profile studies below remain evidence, not
+current product membership. Current-only climate and basin-aware water
+generation serve the retained profiles. Elevation, relief and minor/NAV
 declarations are integrated; the existing surface-preparation owner now preserves
 native wet heights without overwriting native dry/wonder edits. A fresh normal
 Huge Earthlike map is deployed and loaded. Matched Huge1018 runs now distinguish
 native lake identity from height preservation: cutoff40 changes the remaining
 48 accepted cells to lakes without changing any final height. General lake
 classification policy, cliff continuity, era-qualified naval traversal and
-two unchanged scientific expectations remain open. The existing Earthlike
+the unchanged Earthlike thermal expectation remain open. The existing Earthlike
 moisture classifier boundary is now calibrated against the complete product
 bank, deployed and live-generated at Huge1018 with the normal saved setup.
 No universal forty,
@@ -27,7 +32,7 @@ which retained experiments remain valid; no repeated approval is required for
 work inside the user's delegated scope.
 
 The [current-only water migration](legacy-water-migration.md#current-only-implementation)
-retires the old sink-budget/procedural paths across all eight shipped profiles.
+retired the old sink-budget/procedural paths across the then-eight shipped profiles.
 The existing catalog, official size presets and seed/setup contracts also drive
 the app's diagnostic selection; native qualification remains separate from
 portable recipe proof. Unsupported saved custom configs are recoverable for
@@ -101,8 +106,9 @@ Proceed in the existing worktree and stack through these complete changes:
    then study, inspect in Civ7 and retire displaced generation/compensation.
 
 Each change receives independent review and actual verification before the
-next depends on it. The initial coherence cohort is Earthlike and the shipped
-mountain-focused identity at Standard and Huge, with seeds 1, 42 and 1018.
+next depends on it. The current relief coherence cohort is Earthlike at Standard
+and Huge, with seeds 1, 42 and 1018. The original mountain-focused comparison
+retired with its development-only product; its captures remain historical evidence.
 Broaden a regime only when evidence identifies a missing discriminating case.
 The existing full study bank remains the collateral guard; thresholds are not
 loosened to make a new model pass.
