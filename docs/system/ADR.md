@@ -141,108 +141,50 @@ renames that artifact.
 
 ## ADR-007: Civ7 intelligence separates live control from native policy
 
-**Status:** Accepted (amended 2026-07-30)
+**Status:** Accepted (recast 2026-08-06)
 **Date:** 2026-06-03
-**2026-07-30 amendment:** The game-scoped controller candidate and
-`globalThis.Civ7IntelligenceBridge` ingress are superseded. The bridge was never
-consumed by a production caller and never earned deployment, lifecycle,
-correlation, timeout, or live compatibility proof. Its project and
-instance-specific enforcement are retired. The exact native operation and
-service-ownership decisions below remain authoritative until the coupled
-capability-realization cutover. A future in-game controller is a new capability
-admitted only when the trigger in DEF-022 is met; it does not inherit the
-retired bridge's shape.
+**Context:** The Civ7 intelligence investigation exposed two distinct product
+lanes: generated native policy that shapes the game, and live actor control that
+observes or changes one running game. Raw Tuner execution, UI helper scripts,
+aggregate facades, and a proposed `globalThis.Civ7IntelligenceBridge` blurred
+foreign-resource mechanics, foundational control, gameplay policy, and caller
+projection. The bridge never earned a production consumer or lifecycle proof.
 
-**Context:** The Civ7 intelligence-layer investigation found several tempting but
-unsafe ways to describe live AI influence: raw `game exec` as an agent API,
-companion UI scripts as a third control plane, Tuner-loaded mod claims, and a
-generic "bridge" architecture. Later live probes materially changed the
-implementation target: App UI game context exposed the same major gameplay roots
-checked in Tuner, plus App UI-only lifecycle/UI/storage roots. Generated static
-profiles already own the native AI policy lane.
-**Decision:** Civ7 intelligence uses a two-sided authority architecture:
-live external play through the public control service, and native policy
-shaping through generated static AI profiles. `@civ7/direct-control` owns the
-currently admitted one-shot Tuner transport and exact Civ7 command atoms;
-`@civ7/control-orpc` owns the public service contract, router, admission, and
-composed behavior. For production choices, that service
-authority includes semantic check/request orchestration, dispatch uncertainty,
-bounded post-send checking, postcondition classification, and
-no-repeat-after-unverified policy. `@civ7/direct-control` owns the exact
-production check/send wire atoms: command serialization, runtime
-validator/send adaptation, and raw evidence snapshots. Those atoms invoke
-`CityOperations.BUILD` directly without selecting a city, moving a cursor, or
-closing UI, and treat a non-throwing `sendRequest` invocation as dispatch rather
-than synchronous engine acknowledgement. The generic city-operation surface
-rejects `BUILD`; it cannot form a second production path around the exact atoms
-or service policy. Direct-control retains the currently mixed low-level Tuner
-and Civ7-side JavaScript responsibilities until those nodes are extracted. A
-future same-realm controller may provide those service ports only after DEF-022
-is resolved; it never becomes a second semantic policy owner.
+**Decision:** Generated static AI profiles remain the native policy lane. Live
+capabilities use the platform roles selected in ADR-018:
 
-Town focus follows the same ownership. The city service owns semantic
-change/review checks, already-satisfied guards, bounded post-send observation,
-classification, and no-repeat policy. Direct-control owns exact
-`CHANGE_GROWTH_MODE` check/send atoms, an exact
-`CONSIDER_TOWN_PROJECT` send atom, and raw town/blocker snapshots. Official
-Civ7 code does not validate project review with `CityOperations.canStart`, so
-review availability is derived from native town and
-`NOTIFICATION_CHOOSE_TOWN_PROJECT` state instead. Generic operation surfaces
-reject both identities, and the CLI does not compose a second `--closeout`
-workflow.
+- a Tuner resource and qualified provider own connection, epoch, raw execution,
+  interruption, and release facts;
+- `civ7-control` owns closed foundational `{app,game,map,ui}` operations and
+  Civ7 interpretation over app-supplied ready capabilities;
+- `civ7-play` owns actor-facing checks, requests, reconciliation, dispatch
+  uncertainty, no-repeat policy, and next-action meaning over the public
+  control client;
+- qualified apps acquire providers and bind public clients; CLI, API, and web
+  plugins project those clients without selecting resources or extracting
+  private service contracts.
 
-Notification dismissal follows the same split. Direct-control owns one exact
-native check/send pair around
-`Game.Notifications.canUserDismissNotification(id)` and
-`Game.Notifications.dismiss(id)`, plus raw engine notification snapshots.
-`NotificationModel.manager.dismiss/onDismiss` is downstream handler and
-presentation bookkeeping reached through the engine's `NotificationDismissed`
-event; it is not an alternate mutation path or sufficient dismissal proof. The
-notification service owns reviewed admission, specialized advisor-warning
-exclusion, guarded dispatch, bounded post-send observation, semantic
-postconditions, dispatch uncertainty, and no-repeat policy. Item and queue
-dismissal use that same service owner, and queue execution stops when an
-uncertain result makes its prior selection stale.
-
-Advisor-warning acknowledgement is a separate notification operation with the
-same ownership split. Direct-control owns exact
-`PlayerOperations.canStart(..., VIEWED_ADVISOR_WARNING, { Target }, false)` and
-`sendRequest(..., VIEWED_ADVISOR_WARNING, { Target })` atoms plus raw target
-observations. The notification service alone admits the four official
-advisor-warning identities, derives the ambient local player, guards dispatch,
-polls bounded native state, classifies clearance and uncertainty, and issues
-no-repeat guidance. Generic player-operation dispatch rejects this operation,
-and neither the controller nor the CLI emulates notification-handler UI
-bookkeeping.
-
-Unit plot targeting follows the same split while preserving Civ7's conditional
-right-click order. Direct-control owns focused unit/target observation, one
-exact action check, and one guarded action send. The unit service alone walks
-naval, air, combat-gated ranged, overrun, same-tile stop, swap, and move
-candidates; admits the ambient local player; refuses native war-start evidence
-in favor of the dedicated confirmation workflow; and owns bounded observation,
-semantic classification, dispatch uncertainty, and no-repeat policy.
-`canStart(...).Plots` belongs to dedicated interface-mode target enumeration
-and is not an additional right-click admission rule. Generic unit-operation
-dispatch rejects the identities owned by these exact atoms, and both CLI modes
-call the unit service rather than bypassing it for read-only resolution.
+Exact native findings for production, town focus, notification dismissal,
+advisor acknowledgement, and unit targeting remain engine evidence. They do
+not grant ownership to the package in which they were first discovered. The
+current direct-control package and aggregate facade are migration corpus with
+no destination role. A same-realm controller mod is a future capability only
+if separately admitted by a concrete consumer and lifecycle proof; it inherits
+neither the retired bridge nor a second semantic policy surface.
 
 **Consequences:**
-- Raw `CMD:<stateId>:<javascript>` / `game exec` stays a diagnostic and probe
-  transport, not the agent-facing product API.
-- oRPC/Effect is the shared control substrate. No production App UI controller
-  is installed; current callers use the public control service through its
-  admitted host path. Any future same-realm ingress must be independently
-  justified and must not reconstruct service schemas or policy.
-- `UIScripts` proof is App UI game-context proof unless shell or Tuner
-  availability is separately demonstrated. Shell requires its own entrypoint;
-  Tuner is not a modinfo deployment target in the baseline.
-- A future same-realm controller could reduce repeated raw-wrapper verification,
-  but it would not remove lifecycle, approval, action legality, hotseat,
-  age-transition, or semantic outcome proof.
-- Controller-owned independent gameplay sends remain eliminated. Exact
-  direct-control wire results are raw evidence; the control service owns
-  semantic production completion and postcondition decisions.
+- Raw execution remains a bounded maintainer diagnostic, never the actor API.
+- Native dispatch is not synchronous acknowledgement. Play preserves uncertain
+  outcomes and forbids blind repetition until fresh foundational facts permit
+  reconciliation.
+- Official UI code is evidence for native operation order, not an alternate
+  owner or a UI-choreography requirement.
+- The exact native evidence ledger lives in
+  [SIEVE-ENGINE-REFERENCE](direct-control/SIEVE-ENGINE-REFERENCE.md); the
+  construction and epoch law lives in
+  [GAME-DOOR-INVARIANT](direct-control/GAME-DOOR-INVARIANT.md).
+- No facade, reciprocal client, service-owned transport mount, or private
+  contract extraction survives the capability-realization cutover.
 
 ## ADR-008: domain/resources owns resource planning
 
@@ -504,8 +446,15 @@ emitting or storing completion state.
 
 ## ADR-016: Swooper Physics definition and Civ7 realization are separate projects
 
-**Status:** Accepted
+**Status:** Accepted (amended 2026-08-06)
 **Date:** 2026-07-28
+**2026-08-06 amendment:** The production realization app owns only the
+deployable artifact and outcome of its own Nx targets. Studio's dynamic run
+path does not import or invoke that app. The qualified Studio
+`swooper-map-realization` adapter composes the public Swooper definition with
+pure run-workspace and mod-install packages, owns ephemeral materialization and
+installation effects, and returns receipts to MapGen-runs. MapGen-runs owns the
+semantic operation order, state, correlation, reconciliation, and outcome.
 **Context:** `mods/mod-swooper-maps` combined the reusable Swooper domain and
 Standard recipe product with Civ7 file rendering, generated map entrypoints,
 bundling, deployment, Studio run-mod materialization, and live verification.
@@ -521,11 +470,12 @@ metrics and visualization authorship, and product-specific diagnostic
 commands. The Civ7 realization lives at `apps/mods/map/swooper-physics` as
 package `@swooper/swooper-physics-mod`, Nx project `swooper-physics-mod`, and
 `kind:app`. It owns generated map entrypoints, Civ7 metadata and output files,
-bundling, deployment, request-local Studio mod generation, and live proof.
+bundling, deployment, and live proof for its own production realization.
 The app imports only finite public definition entrypoints. The definition never
-imports the app, and Studio imports definition contracts while invoking app Nx
-targets for materialization. Existing Civ7 mod ids and serialized recipe ids
-remain product behavior and do not change with repository paths.
+imports the app. Studio imports public definition contracts and composes its
+own qualified ephemeral realization adapter without importing or invoking the
+production app. Existing Civ7 mod ids and serialized recipe ids remain product
+behavior and do not change with repository paths.
 **Consequences:**
 - `kind:app -> kind:mod` is the definition dependency. The app may also consume
   a product-neutral `kind:mapgen-tool` for application-owned generation,
@@ -539,8 +489,9 @@ remain product behavior and do not change with repository paths.
   regenerated at the new root. No compatibility package, proxy target, or
   second output location remains under `mods/`.
 - MapGen Studio consumes recipe runtime, authoring artifacts, DAG, map-config,
-  and catalog entrypoints from the definition. It may orchestrate the app's
-  build/deploy targets but does not import app source.
+  and catalog entrypoints from the definition. Its qualified app adapter owns
+  ephemeral materialization/install effects and returns receipts to
+  MapGen-runs; it neither imports nor invokes the production realization app.
 - CLI topic plugins under `plugins/cli/topics` are a separate normalization;
   this decision does not broaden `kind:plugin` or its dependency allowances.
 
@@ -584,29 +535,33 @@ independent plugins.
 
 ## ADR-018: Civ7 capability realization composes the shared Habitat substrate
 
-**Status:** Accepted
+**Status:** Accepted (amended 2026-08-06)
 **Date:** 2026-07-31
+**2026-08-06 amendment:** Habitat 0.5.2 is installed and Ground is sealed.
+Habitat owns generic closed kind law and Nx integration, not provider
+acquisition, service binding, role mounting, process observation, disposal, or
+a generic shared runtime. Qualified apps own provider selection/acquisition,
+public-client binding, plugin mounting, native host entrypoints, process
+lifetime, observation, and shutdown. `service@1` remains deliberately
+unselected; Civ7's service law stays local.
 **Context:** Civ7 packages historically mixed pure contracts, acquired foreign
 capabilities, semantic policy, caller projection, and process startup. The
-shared Habitat platform now supplies the generic package, resource/provider,
-service, plugin, app, profile, entrypoint, and runtime-realization grammar. Civ7
-needs a stable role model without copying that substrate or presenting target
-paths as already shipped.
+shared Habitat platform supplies generic package, resource/provider, plugin,
+and app shells. Civ7 needs a stable role model without copying that substrate
+or presenting target paths as already shipped.
 **Decision:** Civ7 product capabilities use the shared Habitat roles and
-one-way relationships recorded in `docs/system/ARCHITECTURE.md`. Civ7 owns its
-product capabilities, qualified niches, app compositions, and behavior proof.
-The upstream Habitat owner retains kind construction, generation, compilation,
-provider acquisition, capability binding, role mounting, process observation,
-and disposal. Current behavior, selected ownership, constructibility,
-migration, and proof remain independent facts. Target source does not move
-until the corrected, constructible, consumer-usable Habitat pin and the
-required qualified kinds are admitted.
+one-way relationships recorded in `docs/system/ARCHITECTURE.md`. Habitat owns
+kind construction and generic law. Civ7 owns its product capabilities,
+qualified overlays, service law, adapters, app compositions, and behavior
+proof. Current behavior, shared substrate readiness, qualified admission,
+migration, and proof remain independent facts. Target source moves only after
+the required qualified kind and proof topology are admitted.
 **Consequences:**
 - Civ7 does not fork, copy, weaken, or locally approximate missing generic
   Habitat law.
 - Packages remain pure; resources define foreign lifecycles; providers emit
-  concrete foreign facts; services own product semantics; plugins project;
-  apps declare cold composition; shared runtime realizes it.
+  concrete foreign facts; services own product semantics; plugins project; apps
+  select, bind, mount, run, observe, and dispose their native process graph.
 - A complete product capability chain moves and proves together. A known
   destination does not authorize an isolated package, adapter, service,
   projection, or app move.

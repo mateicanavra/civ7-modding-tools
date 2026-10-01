@@ -10,8 +10,7 @@ pure package or product definition
   -> managed foreign capability where needed
   -> semantic service where product transitions exist
   -> caller projection
-  -> app-declared composition
-  -> shared runtime realization
+  -> qualified app composition and native host entrypoint
   -> external system and owner-issued evidence
 ```
 
@@ -25,11 +24,11 @@ only when work must outlive one request.
 | Role | Owns | Does not own |
 | --- | --- | --- |
 | Package | Pure contracts, algorithms, parsing, planning, comparison, static policy | Host acquisition, product write authority, projection, process startup |
-| Resource/provider | Provider-neutral readiness/failure plus one concrete acquire/use/release implementation | Product policy, caller UX, app profile selection |
+| Resource | Provider-neutral external-capability contract, lifecycle vocabulary, ready value, and typed failures | Concrete acquisition, product policy, caller projection, or provider selection |
+| Provider | One concrete acquisition, health, interruption, and release implementation | Product policy, provider selection, process composition, or caller UX |
 | Service | Semantic facts, admission, policy, transitions, correction, private implementation, public client | Transport mounting, provider selection, process startup |
 | Plugin | CLI/API/web/workflow/mod-definition projection | Reusable product truth, private service implementation, process lifetime |
-| App | Cold composition, profiles, role entrypoints, qualified adapters, realization proof | Reusable semantics, provider lifecycle implementation, a second service contract |
-| Shared runtime | Interpret app composition, acquire providers, bind clients, mount roles, observe and dispose process scope | Civ7 product policy |
+| App | Runtime configuration, provider selection, ready-capability acquisition, public-client binding, plugin mounting, native role entrypoints, qualified adapters, process lifetime, and realization proof | Reusable semantics, provider implementation, or a second service contract |
 
 Every relation must read in one direction: `defines`, `derives`, `acquires`,
 `selects`, `binds`, `calls`, `projects`, `realizes`, `observes`, or `proves`.
@@ -47,10 +46,12 @@ Imports are evidence of those relations, not the architecture itself.
   visualization.
 - A MapGen artifact is deterministic pipeline truth. A Civ7 readback is
   epoch-scoped engine observation.
-- The control service owns live gameplay meaning. The current
-  `@civ7/direct-control` package still mixes Tuner lifecycle, native lowering,
-  and diagnostics; it remains a documented hybrid until the whole consumer
-  corpus can move together.
+- `services/civ7-control` owns foundational `{app,game,map,ui}` interpretation
+  and native operations over app-supplied ready resources.
+  `services/civ7-play` owns actor-facing attention, planning, gameplay
+  decisions, reconciliation, no-repeat policy, and next-action meaning over the
+  public control client. The current `packages/civ7-direct-control` tree is
+  frozen migration corpus, not continuing architecture authority.
 - The CLI app owns oclif startup and topic registration only. Topic plugins own
   command UX and call public clients or qualified adapters.
 - Studio's browser, API projection, semantic run operations, cold host adapters,
@@ -59,10 +60,11 @@ Imports are evidence of those relations, not the architecture itself.
 
 ## Construction Gate
 
-The shared Habitat platform owns the construction grammar upstream. Civ7
-selects and composes accepted kinds; it does not fork or approximate them.
-Target source moves wait until the corrected usable substrate pin and selected
-kind law are constructible in this repository.
+The shared Habitat platform owns generic construction grammar upstream. Civ7
+consumes the installed 0.5.2 release, selects and composes accepted kinds, and
+does not fork or approximate them. Shared shells being ready does not admit a
+missing Civ7-qualified overlay; target source moves only after its exact local
+law and proof topology are closed.
 
 Current behavior, accepted destination ownership, constructibility, migration,
 and proof remain separate claims. The normative packet, exact source corpus,
@@ -75,4 +77,4 @@ and proof ledger are under
 - [CLI](cli/overview.md)
 - [MapGen](libs/mapgen/)
 - [Swooper Physics](mods/swooper-maps/architecture.md)
-- [Direct Control](direct-control/)
+- [Live Control Evidence And Migration](direct-control/)

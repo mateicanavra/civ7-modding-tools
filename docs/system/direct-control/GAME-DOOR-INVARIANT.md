@@ -2,50 +2,74 @@
 
 ## Invariant
 
-**ID:** `studio-runtime/CIV7-GAME-DOOR`
+**ID:** `civ7-live/CIV7-GAME-DOOR`
 
-**Owner:** `@civ7/direct-control` owns socket protocol mechanics; `@civ7/studio-server` owns the Studio daemon's shared runtime session.
+**Owners:** `resources/civ7-tuner` owns the provider-neutral capability;
+`resources/civ7-tuner/providers/local-socket` owns concrete socket acquisition,
+epochs, interruption, and release; each qualified app owns provider selection
+and one ready-capability binding for its process.
 
-**Scope:** MapGen Studio daemon runtime, `@civ7/studio-server`, `@civ7/control-orpc` consumers hosted by Studio, and `@civ7/direct-control` session helpers.
+**Scope:** CLI and MapGen Studio app composition, `civ7-control`, `civ7-play`,
+MapGen-runs, and their CLI/API projections.
 
-**Rule:** Every Studio game-wire call flows through one sanctioned door:
+**Rule:** Every product call into a running Civ7 process follows one direction:
 
-- Long-lived daemon reads use `Civ7TunerSession.use(...)`; complete control-oRPC procedures and mutation lifecycles hold its scoped `lease` for their full duration.
-- Per-flow direct-control operations use `withCiv7DirectControlSession` in `packages/civ7-direct-control/src/session/session.ts`, which constructs, owns, and closes the bounded session.
+```text
+qualified app
+  -> acquire one selected Tuner provider scope
+  -> bind its ready capability into the civ7-control client
+  -> bind play and MapGen-runs through public clients where selected
+  -> supply only bound public capabilities to CLI/API projections
+  -> drain admitted work and release the provider during app shutdown
+```
+
+Raw Tuner health, epochs, dispatch evidence, and transport failures remain
+resource/provider facts. Foundational `{app,game,map,ui}` interpretation belongs
+to control. Actor-facing decisions and no-repeat reconciliation belong to play;
+run correlation and terminal operation outcomes belong to MapGen-runs.
 
 ## Forbids
 
-- Constructing `Civ7DirectControlSession` directly in app code, router leaves, feature modules, operation engines, or caller-local utility scripts.
-- Adding alternate Studio runtime transports for FireTuner calls.
-- Keeping a second session owner as a compatibility path beside the daemon runtime.
-- Reintroducing client-side polling or request-id recovery that treats the browser as owner of daemon truth.
+- Tuner/provider acquisition inside a service, API plugin, CLI topic, router
+  leaf, browser code, or ordinary caller.
+- Importing a service-private router, context, implementation, or contract leaf.
+- Exposing a service router directly over HTTP instead of projecting a bound
+  client through API-owned caller contracts.
+- A direct-control facade, caller-local socket, alternate transport, or second
+  session owner retained as compatibility.
+- Treating provider dispatch as semantic gameplay or run success.
 
-## Detection
+## Detection And Proof
 
-- Guard test: `packages/studio-server/test/gameDoorInvariant.test.ts`.
-- Focused scan:
+The accepted destination is proved by disjoint owners:
 
-```bash
-rg -n "new Civ7DirectControlSession" apps packages -g '*.{ts,tsx}'
-```
+- local-socket provider lifecycle and collaboration proof closes exact
+  acquisition, concurrency, interruption, epoch, and release behavior;
+- `civ7-control/test/execution/root.test.ts` closes once-only binding,
+  request isolation, and resource-fact interpretation;
+- `civ7-play/test/execution/root.test.ts` closes public-client delegation and
+  actor-facing reconciliation;
+- qualified app assembly and host suites close provider selection, client
+  binding, mounting, process shutdown, and drain order;
+- API projection suites prove caller routes delegate bound clients without
+  private service or provider imports.
 
-The only production matches may be:
-
-- `packages/studio-server/src/services/Civ7TunerSession.ts`
-- `packages/civ7-direct-control/src/session/session.ts`
-
-Test-only constructors are allowed when they exercise the session package or assert the shared owner path.
+`packages/civ7-direct-control`, `packages/studio-server`, and their session-door
+tests are frozen migration evidence. They may remain temporarily only while the
+matching target proof is absent; they do not authorize new imports or behavior.
 
 ## Remediation
 
-If a new constructor appears outside the sanctioned paths, remove it rather than wrapping it in a second owner. Route atomic daemon reads through `Civ7TunerSession.use(...)`, admit complete daemon procedures through its scoped `lease`, and route bounded direct-control package workflows through `withCiv7DirectControlSession(...)`. If a workflow genuinely needs a new ownership mode, add a dedicated OpenSpec change and update this invariant, the guard test, and the direct-control docs in the same slice before implementation.
+When a second acquisition, transport, session, or service-private import
+appears, remove it rather than wrap it. Put provider-neutral lifecycle in the
+resource contract, concrete socket behavior in the selected provider, Civ7
+meaning in control or play, caller translation in a plugin, and binding or host
+lifetime in the app. A genuinely new ownership mode must first change the
+accepted capability-realization model and its consumer/lifecycle evidence.
 
 ## Rationale
 
-The runtime simplification program made the daemon the owner of ephemeral truth. FireTuner socket ownership follows the same rule: the daemon owns shared polling state and pushes observations; bounded package workflows may own a short-lived session only inside the direct-control package wrapper. This keeps descriptor lifetime, backoff, shutdown release, event publishing, and restart behavior visible in one place instead of being redistributed across callers.
-
-Event publication follows the same ownership model. The Studio runtime owns
-`StudioEventHubLive` as a scoped Effect service; app/daemon host code does not
-create or shut down a separate EventHub. The oRPC watch procedure may adapt the
-Effect subscription to an `AsyncIterator`, but that transport edge is not a
-second event lifecycle owner.
+One physical provider scope does not imply one semantic owner. Keeping the
+door singular at app composition lets resources, control, play, run operations,
+and projections each retain their own facts without duplicating the wire or
+turning a process singleton into a facade-shaped architecture.

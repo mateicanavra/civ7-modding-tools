@@ -2,27 +2,30 @@
 
 Status: Normative
 
-Audience: agents working on placement, `@civ7/direct-control`, CLI game
-commands, Studio runtime proof, or Civ7 operational debugging.
+Audience: agents working on placement, Tuner resource/provider behavior,
+foundational control, actor-facing play, CLI game commands, Studio runtime
+proof, or Civ7 operational debugging.
 
 This document records the operational facts discovered while probing live map
 mutation, save/load boundaries, and native WorldBuilder command objects. It is
 an implementation reference, not a project log. Use it to decide what belongs
-in the direct-control package and CLI, what belongs in placement/map-generation
-code, and what remains a research-only native bridge.
+in resources/providers, control, play, app adapters, caller projections, or
+placement/map-generation code, and what remains a research-only native bridge.
 
-In this reference, "sieve engine" means the direct-control-driven operational
-loop that connects to a live Civ7 process, selects a scripting state, executes a
-bounded probe or mutation, waits for the relevant command boundary, and rereads
-runtime state to classify what actually changed. It is a proof and debugging
-surface, not a replacement for placement or MapGen source authority.
+In this reference, "sieve engine" means the live-control diagnostic loop that
+connects to a Civ7 process, selects a scripting state, executes a bounded probe
+or mutation, waits for the relevant command boundary, and rereads runtime state
+to classify what actually changed. It is proof evidence, not a package owner
+and not a replacement for placement or MapGen source authority.
 
 ## Authority
 
-`@civ7/direct-control` owns runtime control of a running Civ7 process through
-the tuner socket. CLI, Studio, placement proof tooling, and agent workflows must
-call direct-control package helpers instead of owning raw socket frames or
-caller-local JavaScript snippets.
+`resources/civ7-tuner` owns the provider-neutral live capability and its
+`local-socket` provider owns concrete framing, epochs, interruption, and
+release. Qualified apps acquire that provider once and bind the public
+`civ7-control` client. CLI, Studio, placement proof tooling, and agent workflows
+consume bound public clients or explicit qualified diagnostics; they never own
+raw socket frames or caller-local product JavaScript.
 
 Placement and MapGen code own map truth, recipes, deterministic artifacts, and
 map-script authoring. They must not depend on live WorldBuilder or native binary
@@ -30,7 +33,8 @@ mutation to make generated maps correct.
 
 Official resources, Civ7 logs, live tuner reads, and binary inspection are
 evidence. They do not by themselves define a public repo API. Promote a runtime
-primitive into `@civ7/direct-control` only when the package can provide:
+primitive only when its qualified resource, control, play, adapter, or
+projection owner can provide:
 
 - a state-scoped wrapper (`App UI` vs `Tuner`);
 - bounded inputs and structured JSON output;
@@ -50,8 +54,9 @@ available in another without a fresh probe.
 | `Tuner` | Gameplay/map canary and map-builder surface after Begin Game | `GameplayMap`, `TerrainBuilder`, `AreaBuilder`, `MapRivers`, `Game`, `Players`, `Autoplay` |
 
 Command execution has a frame boundary. Some native/UI mutations are stale when
-read back inside the same JavaScript command. After writes, direct-control
-wrappers must reread in a later command before reporting a postcondition.
+read back inside the same JavaScript command. After writes, the owning control
+or play operation must reread in a later command before reporting a
+postcondition.
 
 ## App UI Gameplay Evidence
 
@@ -131,17 +136,18 @@ Representative official owners in that snapshot are
 `ui/production-chooser/production-chooser-helpers.js:865-878`, and
 `ui/production-chooser/panel-town-focus.js:96-99`.
 
-The executable forms of these operations remain owned by direct-control atoms;
-the control service owns admission, orchestration, ambiguity handling,
-postconditions, and no-repeat policy. Do not reconstruct either layer in a
-deployed mod. Mutation completion always requires command-boundary readback,
-and an ambiguous dispatch is never replayed automatically.
+The foundational executable forms of these operations belong to the control
+service over app-supplied ready resources. Actor-facing admission,
+reconciliation, no-repeat policy, and next-action meaning belong to play. Do
+not reconstruct either layer in a deployed mod. Mutation completion always
+requires command-boundary readback, and an ambiguous dispatch is never replayed
+automatically.
 
-## Useful Direct-Control And CLI Endpoints
+## Useful Live-Control And CLI Endpoints
 
-These endpoints are useful enough to keep or promote into core direct-control
-and CLI surfaces. Names below distinguish repo commands from Civ7 runtime
-methods.
+These endpoints are current evidence for qualified resource, control, play,
+diagnostic, and CLI owners. Names below distinguish repo commands from Civ7
+runtime methods; current command existence does not preserve a legacy package.
 
 | Endpoint | State | Use | Normative handling |
 |---|---|---|---|
@@ -321,20 +327,20 @@ Native-call findings:
   metadata.
 
 Normative rule: native binary command object calls are research tools, not a
-direct-control product surface. A native call returning success is not proof of
+product control surface. A native call returning success is not proof of
 game-state mutation. Every native bridge experiment must verify state through
 public gameplay reads across a command boundary.
 
 Do not bake LLDB expressions, absolute binary addresses, ASLR slides, vtable
-slots, or guessed object layouts into `@civ7/direct-control` or CLI. A native
+slots, or guessed object layouts into a resource, service, API, or CLI. A native
 river bridge would require a purpose-built injected/native layer with version
 gating, symbol discovery, argument schema, crash containment, and postcondition
-proof. Until then, the direct-control package should expose the negative
-capability clearly rather than offering a fake river-stamp wrapper.
+proof. Until then, foundational control should expose the negative capability
+clearly rather than offering a fake river-stamp wrapper.
 
 ## Operational Debugging Rules
 
-Use this checklist for sieve/direct-control debugging:
+Use this checklist for live-control diagnostic debugging:
 
 1. Start with `civ7 game health --json`; confirm the listener and state names.
 2. Use `App UI` for lifecycle, save/load, UI, WorldBuilder, and `Network`.
@@ -356,15 +362,20 @@ Use this checklist for sieve/direct-control debugging:
 
 ## Promotion Guidance
 
-Bake these into core direct-control/CLI:
+Route these to their qualified owners:
 
-- state-scoped health and readiness gates;
-- explicit save-game and load-game wrappers with completion/readiness proof;
-- structured map and plot readbacks that include hydrology/native river fields;
+- raw state-scoped health to the Tuner resource/provider and semantic readiness
+  to `control.app`;
+- explicit save-game and load-game native operations with completion/readiness
+  proof to `control.game`;
+- structured map and plot readbacks that include hydrology/native river fields
+  to `control.map`;
 - a disposable-session WorldBuilder plot edit wrapper only if it reports delayed
-  readback and mutation class honestly;
-- a negative-capability result for targeted native river stamping until a real
-  graph writer is exposed or built.
+  readback and mutation class honestly, with acquisition remaining provider-
+  owned;
+- a control-owned negative-capability result for targeted native river stamping
+  until a real graph writer is exposed or built;
+- CLI/API presentation only after the corresponding public capability exists.
 
 Keep these as raw/elevated research:
 
@@ -377,7 +388,7 @@ Keep these as raw/elevated research:
 
 Do not add:
 
-- caller-local tuner socket implementations outside `@civ7/direct-control`;
+- caller-local Tuner socket implementations outside the selected provider;
 - placement logic that depends on live WorldBuilder edits;
 - silent same-command readback after native/UI mutations;
 - automatic retries for save/load, WorldBuilder writes, or native bridge calls;
