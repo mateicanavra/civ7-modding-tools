@@ -59,7 +59,7 @@ export const PlanNaturalWondersStep = createStep(config, {
       width,
       height,
       wondersCount,
-      landMask: topography.landMask,
+      landMask: hydrography.exposedLandMask,
       elevation: topography.elevation,
       engineElevations: Array.from(engineElevation.values),
       aridityIndex: climateIndices.aridityIndex,

@@ -4,7 +4,7 @@ import { measureWetTransitions } from "./wet-transitions.js";
 
 export type StandardBasinNetworkMeasurementInput = Readonly<{
   provenance: Pick<StandardMapCapture["provenance"], "width" | "height">;
-  model: Pick<StandardMapCapture["model"], "physicalHydrology" | "landMask" | "elevation" | "plannedLakeMask" |
+  model: Pick<StandardMapCapture["model"], "physicalHydrology" | "externalWaterMask" | "exposedLandMask" | "seaLevel" | "elevation" | "plannedLakeMask" |
     "riverClass" | "flowDir" | "terminalType" | "mountainMask" | "volcanoMask" | "baselineRainfall">;
   projection: Pick<StandardMapCapture["projection"], "lakes" | "navigableRivers" | "riverReadback">;
   observation: Pick<StandardMapCapture["observation"], "isWater" | "isLake" | "terrain" | "coastTerrain">;
@@ -16,7 +16,7 @@ export function measureStandardBasinNetwork(capture: StandardBasinNetworkMeasure
   const ledger = measureBasinLedger(capture);
   const { exchanges: _exchanges, selected: _selected, writes: _wetWrites, ...wetTransitions } = measureWetTransitions(capture);
   const { width, height } = capture.provenance;
-  const { landMask, plannedLakeMask: wet, riverClass, flowDir, mountainMask, volcanoMask } = capture.model;
+  const { externalWaterMask, exposedLandMask, plannedLakeMask: wet, riverClass, flowDir, mountainMask, volcanoMask } = capture.model;
   let wetTileCount = 0, dryChannelSourceCount = 0, wetChannelClassCount = 0;
   let minorSourceCount = 0, majorSourceCount = 0;
   let blockingWetTileCount = 0, blockingDryChannelCount = 0, lakeFootprintMismatchCount = 0;
@@ -24,8 +24,8 @@ export function measureStandardBasinNetwork(capture: StandardBasinNetworkMeasure
   let observedPhysicalWaterNativeLakeTileCount = 0, observedPhysicalWaterNonLakeTileCount = 0, physicalWaterTerrainMismatchCount = 0;
   const expectedSources = new Set<number>();
   for (let cell = 0; cell < width * height; cell++) {
-    // Native lake categories on original marine water do not create physical bodies.
-    if (landMask[cell] || wet[cell]) {
+    // Native lake categories on prescribed external water do not create physical bodies.
+    if (externalWaterMask[cell] === 0) {
       if (wet[cell] !== capture.observation.isWater[cell]) lakeFootprintMismatchCount++;
     } else if (capture.observation.isLake[cell]) observedOriginalMarineNativeLakeTileCount++;
     if (wet[cell]) {
@@ -37,7 +37,7 @@ export function measureStandardBasinNetwork(capture: StandardBasinNetworkMeasure
       if (capture.observation.terrain[cell] !== capture.observation.coastTerrain) physicalWaterTerrainMismatchCount++;
       if (mountainMask[cell] || volcanoMask[cell]) blockingWetTileCount++;
       if (riverClass[cell] !== 0 || physical.discharge[cell] !== 0) wetChannelClassCount++;
-    } else if (landMask[cell]) {
+    } else if (exposedLandMask[cell] === 1) {
       if (riverClass[cell]! > 0) {
         dryChannelSourceCount++;
         expectedSources.add(cell);

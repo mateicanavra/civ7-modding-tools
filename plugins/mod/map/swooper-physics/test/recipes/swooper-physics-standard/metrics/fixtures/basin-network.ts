@@ -7,7 +7,7 @@ export function basinCapture() {
     provenance: { width: 3, height: 1 },
     model: {
       seaLevel: 0,
-      landMask: Uint8Array.of(0, 1, 1), elevation: Int16Array.of(-1, 2, 0),
+      landMask: Uint8Array.of(0, 1, 1), externalWaterMask: Uint8Array.of(1, 0, 0), exposedLandMask: Uint8Array.of(0, 1, 0), elevation: Int16Array.of(-1, 2, 0),
       plannedLakeMask: Uint8Array.of(0, 0, 1), riverClass: Uint8Array.of(0, 2, 0),
       flowDir: Int32Array.of(-1, 0, -2), terminalType: Uint8Array.of(0, 1, 1),
       mountainMask: new Uint8Array(3), volcanoMask: new Uint8Array(3), baselineRainfall: Uint8Array.of(0, 10, 10),
@@ -15,7 +15,7 @@ export function basinCapture() {
         model: "certified-sill-spill" as const,
         runoff: [0, 2, 3], discharge: [0, 11, 0], potentialDemand: Float32Array.of(0, 1, 1),
         bodyId: Int32Array.of(0, 0, 3), componentId: Int32Array.of(0, 2, 2), basinId: Int32Array.of(-1, 2, 2),
-        waterSurface: [-1, 2, 2], mouthBodyId: new Int32Array(3),
+        waterSurface: [0, 2, 2], mouthBodyId: new Int32Array(3),
         pools: [{ poolId: 1, componentId: 2, leafIds: [1], catchmentCells: [1, 2], wetCells: [2],
           level: 2, state: "open", flux: { ...flux }, outflow: 11, unresolvedResidual: 0, closure: null }] as BasinPool[],
         bodies: [{ bodyId: 3, componentId: 2, poolId: 1, wetCells: [2], level: 2,
@@ -47,7 +47,7 @@ export function basinCapture() {
         extraEngineRiverCount: 0, minorRiverMismatchCount: 0, navigableMetadataMismatchCount: 0 },
     },
     observation: { isLake: Uint8Array.of(0, 0, 1), isWater: Uint8Array.of(1, 0, 1), terrain: Int32Array.of(4, 2, 3), coastTerrain: 3 },
-  } satisfies StandardBasinNetworkMeasurementInput & { model: { seaLevel: number } };
+  } satisfies StandardBasinNetworkMeasurementInput & { model: { seaLevel: number; landMask: Uint8Array } };
 }
 
 export function quantizedCapture() {
@@ -55,7 +55,7 @@ export function quantizedCapture() {
   const flux = { incomingOverflow: 0, dryRunoff: 2, wetPrecipitation: 10, wetDemand: 9, balance: 3 };
   capture.provenance.width = 4;
   Object.assign(capture.model, {
-    landMask: Uint8Array.of(0, 1, 1, 1), elevation: Int16Array.of(-1, 4, 0, 2),
+    landMask: Uint8Array.of(0, 1, 1, 1), externalWaterMask: Uint8Array.of(1, 0, 0, 0), exposedLandMask: Uint8Array.of(0, 1, 0, 1), elevation: Int16Array.of(-1, 4, 0, 2),
     plannedLakeMask: Uint8Array.of(0, 0, 1, 0), riverClass: new Uint8Array(4),
     flowDir: Int32Array.of(-1, 2, -2, 2), terminalType: Uint8Array.of(0, 3, 3, 3),
     mountainMask: new Uint8Array(4), volcanoMask: new Uint8Array(4), baselineRainfall: Uint8Array.of(0, 0, 10, 0),
@@ -63,7 +63,7 @@ export function quantizedCapture() {
   Object.assign(capture.model.physicalHydrology, {
     runoff: [0, 1, 1, 1], discharge: [0, 1, 0, 1], potentialDemand: Float32Array.of(0, 0, 9, 5),
     bodyId: Int32Array.of(0, 0, 3, 0), componentId: Int32Array.of(0, 0, 3, 0), basinId: Int32Array.of(-1, 3, 3, 3),
-    waterSurface: [-1, 4, 2, 2], mouthBodyId: new Int32Array(4),
+    waterSurface: [0, 4, 2, 2], mouthBodyId: new Int32Array(4),
   });
   const physical = capture.model.physicalHydrology;
   physical.pools = [{ poolId: 1, componentId: 3, leafIds: [1], catchmentCells: [1, 2, 3], wetCells: [2], level: 2,

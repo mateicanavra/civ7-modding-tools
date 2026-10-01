@@ -15,6 +15,7 @@ function certifiedLake(input = hugeRoot17()) {
   if (result.status !== "supported") throw new Error(JSON.stringify(result));
   const {
     wetMask,
+    exposedLandMask: _exposedLandMask,
     receiver: _receiver,
     terminalId: _terminalId,
     terminalType: _terminalType,
@@ -32,10 +33,16 @@ function certifiedLake(input = hugeRoot17()) {
 }
 describe("certified physical water artifacts", () => {
   it("admits Desert root19's complete body and component despite binary64 delivery regrouping", () => {
-    const value = certifiedLake(desertHugeRoot19());
+    const input = desertHugeRoot19(), value = certifiedLake(input);
     const dimensions = { width: value.width, height: value.height };
     expect(value.plannedLakeTileCount).toBe(14);
-    expect(value.pools[0]!.catchmentCells).toHaveLength(42);
+    expect(value.pools[0]!.catchmentCells).toHaveLength(44);
+    const barrierCells = value.pools[0]!.catchmentCells.filter(cell => input.elevation[cell] === 1000);
+    expect(barrierCells).toHaveLength(2);
+    for (const cell of barrierCells) {
+      expect(input.externalWaterMask[cell]).toBe(0);
+      expect([input.localRunoff[cell], input.rainfall[cell], input.potentialDemand[cell]]).toEqual([0, 0, 0]);
+    }
     expect(value.bodies[0]!.bodyId).toBe(2636);
     expect(value.components[0]!.componentId).toBe(2636);
     for (const record of [value.bodies[0]!, value.components[0]!]) {
@@ -145,7 +152,8 @@ describe("certified physical water artifacts", () => {
       width: 6,
       height: 1,
       elevation: Int16Array.of(-1, 5, 0, 1, 6, -1),
-      landMask: Uint8Array.of(0, 1, 1, 1, 1, 0),
+      externalWaterMask: Uint8Array.of(1, 0, 0, 0, 0, 1),
+      externalWaterHead: -1,
     };
     const value = certifiedLake({
       ...terrain,
@@ -153,7 +161,7 @@ describe("certified physical water artifacts", () => {
         strategy: "plateau-saddle-hierarchy",
         config: { allowExternalEdgeOutlets: false },
       }),
-      localRunoff: Array.from(terrain.landMask),
+      localRunoff: Array.from(terrain.externalWaterMask, (external) => external ? 0 : 1),
       rainfall: new Uint8Array(6),
       potentialDemand: Float32Array.of(0, 0, 1, 0, 0, 0),
     });
@@ -218,6 +226,7 @@ describe("certified physical water artifacts", () => {
   it("retains Number precision without admitting legacy conditioning fields or missing grid entries", () => {
     const value = {
       model: "certified-sill-spill" as const,
+      exposedLandMask: Uint8Array.of(0, 1, 1),
       runoff: [0, 0, 1 + 2 ** -26],
       discharge: [0, 0, 1 + 2 ** -26],
       riverClass: Uint8Array.of(0, 0, 1),

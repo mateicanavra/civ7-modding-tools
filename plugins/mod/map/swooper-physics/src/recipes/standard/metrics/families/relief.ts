@@ -65,13 +65,8 @@ export type StandardReliefMetrics = Readonly<{
 /** Measures relief relationships from one closed Standard capture without applying thresholds. */
 export function measureStandardRelief(capture: StandardReliefInput): StandardReliefMetrics {
   const { width, height } = capture.provenance;
-  const population = countMetricMask(capture.model.landMask).count;
-  // Certified surface selection budgets exposed land, not terrain inundated by accepted bodies.
-  // Original marine-land remains the population for geological and existing observed diagnostics.
-  const plannedSurfacePopulation = capture.model.landMask.reduce(
-        (count, land, index) => count + Number(land === 1 && capture.model.plannedLakeMask[index] !== 1),
-        0
-      );
+  const population = countMetricMask(capture.model.exposedLandMask).count;
+  const plannedSurfacePopulation = population;
   const finalMountainMask = new Uint8Array(width * height);
   const finalHillMask = new Uint8Array(width * height);
   let finalMountainCount = 0;
@@ -159,8 +154,8 @@ export function measureStandardRelief(capture: StandardReliefInput): StandardRel
 
 function summarizeFinalLandElevation(capture: StandardReliefInput): NumericMetricSummary {
   const elevations: number[] = [];
-  for (let index = 0; index < capture.model.landMask.length; index += 1) {
-    if (capture.model.landMask[index] !== 1) continue;
+  for (let index = 0; index < capture.model.exposedLandMask.length; index += 1) {
+    if (capture.model.exposedLandMask[index] !== 1) continue;
     const elevation = capture.model.elevation[index];
     if (elevation === undefined) {
       throw new Error(`Final Morphology elevation is missing at land tile ${index}.`);
@@ -186,7 +181,7 @@ function measureMountainRegion(
   let flatInteriorTiles = 0;
 
   for (let index = 0; index < width * height; index += 1) {
-    if (capture.model.landMask[index] !== 1 || capture.model.mountainRegionMask[index] !== 1) {
+    if (capture.model.exposedLandMask[index] !== 1 || capture.model.mountainRegionMask[index] !== 1) {
       continue;
     }
     regionTiles += 1;

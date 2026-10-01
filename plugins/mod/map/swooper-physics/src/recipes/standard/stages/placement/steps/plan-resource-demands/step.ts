@@ -10,6 +10,7 @@ export const PlanResourceDemandsStep = createStep(config, {
     const { width, height } = context.setup.dimensions;
     const topography = deps.artifacts.topography.read();
     const shelf = deps.artifacts.shelf.read();
+    const coastline = deps.artifacts.resolvedCoastline.read();
     const mountains = deps.artifacts.mountains.read();
     const beltDrivers = deps.artifacts.beltDrivers.read();
     const hydrography = deps.artifacts.hydrography.read();
@@ -28,10 +29,10 @@ export const PlanResourceDemandsStep = createStep(config, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask: hydrography.exposedLandMask,
         lakeMask: lakePlan.lakeMask,
-        coastalWater: shelf.coastalWater,
-        shelfWater: shelf.shelfMask,
+        coastalWater: Uint8Array.from(coastline.coastalWater, (coastal, cell) => coastal === 1 && topography.externalWaterMask[cell] === 1 ? 1 : 0),
+        shelfWater: Uint8Array.from(shelf.shelfMask, (shelf, cell) => shelf === 1 && topography.externalWaterMask[cell] === 1 ? 1 : 0),
         riverClass: hydrography.riverClass,
         surfaceTemperature: climateIndices.surfaceTemperatureC,
         aridityIndex: climateIndices.aridityIndex,

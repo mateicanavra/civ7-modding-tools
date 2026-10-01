@@ -1,6 +1,7 @@
-/** Exact rows promoted from qualified refusal receipts, with outside receiving
- * reaches replaced by inert original-marine boundary stubs. */
+/** Exact finite forcing rows from refusal receipts, enclosed by explicit
+ * zero-forcing finite barriers and a prescribed fixed-head outlet. */
 import type { OperationInput, Static } from "@swooper/mapgen-core/authoring";
+import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import hydrologyOpsPublic from "../../../../../../../src/domain/hydrology/router.js";
 
 const { computeBasinNetwork: contract, computeDrainageBasins: geometry } = hydrologyOpsPublic.hydrography.ops;
@@ -15,12 +16,12 @@ export function largerGrid(startSeed = -1835942095) {
   const random = () => ((seed = Math.imul(seed, 1664525) + 1013904223 | 0) >>> 0) / 2 ** 32;
   const width = 40, height = 30, size = width * height;
   const elevation = Int16Array.from({ length: size }, (_, cell) => cell < width ? -10 : Math.floor(random() * 9));
-  const landMask = Uint8Array.from(elevation, value => value === -10 ? 0 : 1);
-  const terrain = { width, height, elevation, landMask };
+  const externalWaterMask = Uint8Array.from(elevation, value => value === -10 ? 1 : 0);
+  const terrain = { width, height, elevation, externalWaterMask, externalWaterHead: -10 };
   const input = {
     ...terrain,
     geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: false } }),
-    localRunoff: Array.from(landMask, land => land ? random() * 4 : 0),
+    localRunoff: Array.from(externalWaterMask, prescribed => prescribed ? 0 : random() * 4),
     rainfall: Uint8Array.from({ length: size }, () => Math.floor(random() * 15)),
     potentialDemand: Float32Array.from({ length: size }, () => random() * 30),
   };
@@ -28,25 +29,54 @@ export function largerGrid(startSeed = -1835942095) {
 }
 
 function retained(width: number, height: number, groups: Array<{ rows: Row[]; from: number; to: number; target: number; sill: number }>): Static<typeof contract.input> {
-  const size = width * height, elevation = new Int16Array(size).fill(1000), landMask = new Uint8Array(size), rainfall = new Uint8Array(size), potentialDemand = new Float32Array(size), localRunoff = new Array<number>(size).fill(0);
-  const rawReceiver = new Int32Array(size).fill(-1), leafId = new Int32Array(size), plateauId = new Int32Array(size).fill(-1), catchmentCells: number[] = [];
-  const nodes: Geometry["nodes"] = [], hypsometry: Geometry["hypsometry"] = [], saddles: Geometry["saddles"] = [];
+  const size = width * height, elevation = new Int16Array(size).fill(1000), externalWaterMask = new Uint8Array(size), rainfall = new Uint8Array(size), potentialDemand = new Float32Array(size), localRunoff = new Array<number>(size).fill(0);
+  const neighbors = (cell: number) => getHexNeighborIndicesOddQ(cell % width, Math.floor(cell / width), width, height);
+  const rows = groups.flatMap(group => group.rows), rowCells = new Set(rows.map(row => row[0]));
+  for (const [cell, ground, runoff, rain, demand] of rows) {
+    elevation[cell] = ground; localRunoff[cell] = runoff; rainfall[cell] = rain; potentialDemand[cell] = demand;
+  }
+  for (const group of groups) if (!group.target) {
+    elevation[group.to] = group.sill;
+    const external = neighbors(group.to).filter(cell => !rowCells.has(cell) && cell !== group.to && !neighbors(cell).some(neighbor => rowCells.has(neighbor) && elevation[neighbor]! < group.sill)).sort((a, b) => a - b)[0];
+    if (external === undefined) throw new Error("Retained fixture has no protected receiving-head outlet.");
+    externalWaterMask[external] = 1; elevation[external] = -100;
+  }
+  const terrain = { width, height, elevation, externalWaterMask, externalWaterHead: 0 };
+  const full = geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: false } });
+  // Keep the retained source/edge attribution. New finite barrier rows carry
+  // zero forcing and inherit the destination of their complete raw route.
+  const { rawReceiver, plateauId } = full, leafId = new Int32Array(size).fill(-1);
+  for (let cell = 0; cell < size; cell++) if (externalWaterMask[cell]) leafId[cell] = 0;
+  for (const [index, group] of groups.entries()) for (const [cell, , , , , receiver, plateau] of group.rows) {
+    rawReceiver[cell] = receiver; plateauId[cell] = plateau; leafId[cell] = index + 1;
+  }
+  for (let start = 0; start < size; start++) {
+    let cell = start;
+    const path: number[] = [];
+    while (leafId[cell] === -1) {
+      path.push(cell);
+      const target = rawReceiver[cell]!;
+      if (target < 0) { leafId[cell] = 0; break; }
+      cell = target;
+    }
+    for (const member of path) leafId[member] = leafId[cell]!;
+  }
+  const nodes: Geometry["nodes"] = [], saddles: Geometry["saddles"] = [], hypsometry: Geometry["hypsometry"] = [], catchmentCells: number[] = [];
   for (const [index, group] of groups.entries()) {
     const id = index + 1, cellStart = catchmentCells.length, hypsometryStart = hypsometry.length, bins = new Map<number, number>();
-    for (const [cell, ground, runoff, rain, demand, receiver, plateau] of group.rows) {
-      elevation[cell] = ground; landMask[cell] = 1; localRunoff[cell] = runoff; rainfall[cell] = rain; potentialDemand[cell] = demand;
-      rawReceiver[cell] = receiver; leafId[cell] = id; plateauId[cell] = plateau; catchmentCells.push(cell); bins.set(ground, (bins.get(ground) ?? 0) + 1);
+    for (let cell = 0; cell < size; cell++) if (leafId[cell] === id) {
+      catchmentCells.push(cell); bins.set(elevation[cell]!, (bins.get(elevation[cell]!) ?? 0) + 1);
     }
     hypsometry.push(...[...bins].sort(([a], [b]) => a - b).map(([elevation, cellCount]) => ({ elevation, cellCount })));
     nodes.push({ id, kind: "leaf", floorCell: group.rows[0]![0], floorElevation: group.rows[0]![1], baseElevation: group.rows[0]![1], parentId: -1, children: [],
       spill: { elevation: group.sill, fromCell: group.from, toCell: group.to, targetLeafId: group.target }, cellStart, cellEnd: catchmentCells.length, hypsometryStart, hypsometryEnd: hypsometry.length });
-    if (!group.target) elevation[group.to] = group.sill;
     saddles.push(group.target < id
       ? { leafA: group.target, leafB: id, cellA: group.to, cellB: group.from, elevation: group.sill }
       : { leafA: id, leafB: group.target, cellA: group.from, cellB: group.to, elevation: group.sill });
   }
-  return { width, height, elevation, landMask, localRunoff, rainfall, potentialDemand,
-    geometry: { rawReceiver, leafId, plateauId, nodes, roots: nodes.map(node => node.id), saddles, catchmentCells: Int32Array.from(catchmentCells), externalCatchmentCells: new Int32Array(), hypsometry } } satisfies Input;
+  const externalCatchmentCells = Int32Array.from({ length: size }, (_, cell) => cell).filter(cell => !externalWaterMask[cell] && leafId[cell] === 0);
+  return { ...terrain, localRunoff, rainfall, potentialDemand,
+    geometry: { rawReceiver, plateauId, leafId, nodes, saddles, roots: nodes.map(node => node.id), catchmentCells: Int32Array.from(catchmentCells), externalCatchmentCells, hypsometry } } satisfies Input;
 }
 
 export const hugeRoot17 = () => retained(106, 3, [{ from: 43, to: 148, target: 0, sill: 25, rows: [

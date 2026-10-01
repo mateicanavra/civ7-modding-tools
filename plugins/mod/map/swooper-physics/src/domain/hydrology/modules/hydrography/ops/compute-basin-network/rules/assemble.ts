@@ -1,5 +1,5 @@
 import { BASIN_INTERNAL_RECEIVER, BASIN_TERMINAL, type BasinPool, type BasinWetBody, type BasinHydraulicComponent, type BasinPort, type BasinInternalTransfer, type BasinTerminal } from "../../../model/atoms/basin-network.schema.js";
-import { finite, requireValid, type NetworkInput } from "./types.js";
+import { finite, hydraulicElevation, requireValid, type NetworkInput } from "./types.js";
 import { sum, type Solved, type Pool } from "./solve.js";
 
 type Flux = BasinPool["flux"];
@@ -7,9 +7,10 @@ const flux = (incomingOverflow: number, dryRunoff: number, wetPrecipitation: num
 
 /** Recomputes all transport from original rows on the final, disjoint partition. */
 export function assembleNetwork(input: NetworkInput, neighbors: readonly number[][], solved: Solved) {
-  const { elevation: z, geometry: g, landMask, localRunoff: runoff, rainfall, potentialDemand: demand } = input;
+  const { elevation: z, geometry: g, externalWaterMask, localRunoff: runoff, rainfall, potentialDemand: demand } = input;
+  const landMask = Uint8Array.from(externalWaterMask, prescribed => prescribed === 0 ? 1 : 0);
   const size = z.length, wetMask = new Uint8Array(size), bodyId = new Int32Array(size), componentId = new Int32Array(size);
-  const waterSurface = Array.from(z), receiver = Int32Array.from(g.rawReceiver), dryDischarge = new Array<number>(size).fill(0);
+  const waterSurface = Array.from(z, (ground, cell) => externalWaterMask[cell] ? input.externalWaterHead : ground), receiver = Int32Array.from(g.rawReceiver), dryDischarge = new Array<number>(size).fill(0);
   const terminalId = new Int32Array(size).fill(-1), terminalType = new Uint8Array(size);
   const pools: BasinPool[] = [], bodies: BasinWetBody[] = [], components: BasinHydraulicComponent[] = [], ports: BasinPort[] = [], transfers: BasinInternalTransfer[] = [];
   const terminals: BasinTerminal[] = [], marineExits: Array<{ fromCell: number; marineCell: number; discharge: number }> = [], boundaryExits: Array<{ fromCell: number; side: "north" | "south"; discharge: number }> = [];
@@ -93,6 +94,7 @@ export function assembleNetwork(input: NetworkInput, neighbors: readonly number[
       if (--indegree[vertex.target] === 0) order.push(vertex.target);
     } else if (vertex.targetCell >= 0) {
       requireValid(!landMask[vertex.targetCell], "untyped external receiver");
+      requireValid(hydraulicElevation(input, vertex.targetCell) <= (component?.level ?? z[vertex.cell]!), `uphill external export at ${vertex.cell}`);
       marineExits.push({ fromCell: vertex.cell, marineCell: vertex.targetCell, discharge: vertex.outflow });
       vertex.terminal = addTerminal("marine", vertex.cell, component?.componentId ?? 0);
     } else if (component && component.state !== "open") {
@@ -214,7 +216,7 @@ export function assembleNetwork(input: NetworkInput, neighbors: readonly number[
     requireValid(terminalId[cell]! > 0 && terminalType[cell]! > 0, `missing terminal at ${cell}`);
     if (receiver[cell]! >= 0) {
       requireValid(neighbors[cell]!.includes(receiver[cell]!), `nonadjacent principal channel at ${cell}`);
-      if (!wetMask[cell]) requireValid(z[receiver[cell]!]! <= z[cell]!, `ascending principal channel at ${cell}`);
+      if (!wetMask[cell]) requireValid(hydraulicElevation(input, receiver[cell]!) <= z[cell]!, `ascending principal channel at ${cell}`);
     }
   }
   const dryRunoff = sum(Array.from({ length: size }, (_, cell) => landMask[cell] && !wetMask[cell] ? runoff[cell]! : 0));
@@ -224,6 +226,7 @@ export function assembleNetwork(input: NetworkInput, neighbors: readonly number[
   const residual = dryRunoff + wetPrecipitation - wetDemand - externalDischarge - unresolvedResidual;
   close(residual, 0, "global conservation");
   terminals.sort((a, b) => a.terminalId - b.terminalId);
-  return { wetMask, waterSurface, receiver, terminalType, terminalId, bodyId, componentId, dryDischarge, pools, bodies, components, ports, transfers, terminals, marineExits, boundaryExits,
+  const exposedLandMask = Uint8Array.from(landMask, (finiteCell, cell) => finiteCell && !wetMask[cell] ? 1 : 0);
+  return { wetMask, exposedLandMask, waterSurface, receiver, terminalType, terminalId, bodyId, componentId, dryDischarge, pools, bodies, components, ports, transfers, terminals, marineExits, boundaryExits,
     conservation: { dryRunoff, wetPrecipitation, wetDemand, marineDischarge, boundaryDischarge, externalDischarge, unresolvedResidual, normalizedUnresolvedResidual: dryRunoff + wetPrecipitation ? unresolvedResidual / (dryRunoff + wetPrecipitation) : 0, residual, roundoffBound } };
 }

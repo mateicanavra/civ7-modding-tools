@@ -5,7 +5,7 @@ import { measureWetTransitions } from "./wet-transitions.js";
 
 type NetworkCoherenceInput = Readonly<{
   provenance: Pick<StandardMapCapture["provenance"], "width" | "height">;
-  model: Pick<StandardMapCapture["model"], "physicalHydrology" | "landMask" | "plannedLakeMask" | "elevation" | "seaLevel" | "flowDir" | "terminalType" | "riverClass" | "mountainMask" | "volcanoMask">;
+  model: Pick<StandardMapCapture["model"], "physicalHydrology" | "landMask" | "externalWaterMask" | "exposedLandMask" | "plannedLakeMask" | "elevation" | "seaLevel" | "flowDir" | "terminalType" | "riverClass" | "mountainMask" | "volcanoMask">;
   projection: Pick<StandardMapCapture["projection"], "navigableRivers">;
 }>;
 
@@ -32,20 +32,23 @@ export function measureStandardNetworkCoherence(capture: NetworkCoherenceInput) 
   const transitions = measureWetTransitions(capture);
   const wetTransitions = transitions.writes;
   const wetWrites = new Map(wetTransitions.map((write) => [write.sourceCell, write]));
-  let originalLand = 0, exposedLand = 0, nonMountainExposedLand = 0;
+  let originalLand = 0, finiteGround = 0, exposedLand = 0, nonMountainExposedLand = 0, originalLandLakeTiles = 0;
   let minorSources = 0, majorSources = 0, equalHeightDryReceivers = 0;
   let invalidDryReceivers = 0, ascendingHydraulicReceivers = 0;
   const majorDrops: number[] = [];
   const minorDrops: number[] = [];
   const dryDrops: number[] = [];
   const lowerAdjacentLakeBypasses: { sourceCell: number; receiverCell: number; bodyId: number; adjacentWetCell: number; ground: number; waterSurface: number; riverClass: number }[] = [];
-  const hydraulicHeight = (cell: number) => !model.landMask[cell] ? model.seaLevel
+  const hydraulicHeight = (cell: number) => model.externalWaterMask[cell] === 1 ? model.seaLevel
     : model.plannedLakeMask[cell] === 1 ? physical.waterSurface[cell]! : model.elevation[cell]!;
 
   for (let cell = 0; cell < size; cell++) {
-    if (!model.landMask[cell]) continue;
-    originalLand++;
-    if (model.plannedLakeMask[cell]) continue;
+    if (model.landMask[cell] === 1) {
+      originalLand++;
+      if (model.plannedLakeMask[cell] === 1) originalLandLakeTiles++;
+    }
+    if (model.externalWaterMask[cell] === 0) finiteGround++;
+    if (model.exposedLandMask[cell] !== 1) continue;
     exposedLand++;
     if (!model.mountainMask[cell] && !model.volcanoMask[cell]) nonMountainExposedLand++;
     const riverClass = model.riverClass[cell]!;
@@ -62,7 +65,7 @@ export function measureStandardNetworkCoherence(capture: NetworkCoherenceInput) 
     const drop = hydraulicHeight(cell) - hydraulicHeight(receiver);
     dryDrops.push(drop);
     if (drop < 0) ascendingHydraulicReceivers++;
-    if (model.landMask[receiver] && !model.plannedLakeMask[receiver] && drop === 0)
+    if (model.exposedLandMask[receiver] === 1 && drop === 0)
       equalHeightDryReceivers++;
     if (riverClass === 1) minorDrops.push(drop);
     if (riverClass === 2) {
@@ -115,14 +118,14 @@ export function measureStandardNetworkCoherence(capture: NetworkCoherenceInput) 
   });
   const classifiedOutlets = lakeOutlets.filter((outlet) => outlet.receiverClass > 0);
   const navigableOutlets = lakeOutlets.filter((outlet) => outlet.outflow > 0 && outlet.receiverClass === 2
-    && model.landMask[outlet.receiverCell] === 1 && model.plannedLakeMask[outlet.receiverCell] === 0);
+    && model.exposedLandMask[outlet.receiverCell] === 1);
   return {
     units: "Tile counts and model elevation units; not km, metres, m3/s or native movement proof.",
-    originalLand, exposedLand, nonMountainExposedLand,
+    originalLand, finiteGround, exposedLand, nonMountainExposedLand,
     minorSources, majorSources,
     riverSourceFractionOfExposedLand: exposedLand ? (minorSources + majorSources) / exposedLand : 0,
     majorSourceFractionOfExposedLand: exposedLand ? majorSources / exposedLand : 0,
-    lakeFractionOfOriginalLand: originalLand ? (originalLand - exposedLand) / originalLand : 0,
+    lakeFractionOfOriginalLand: originalLand ? originalLandLakeTiles / originalLand : 0,
     bodyCount: physical.bodies.length,
     singleTileBodyCount: physical.bodies.filter((body) => body.wetCells.length === 1).length,
     bodySizes: distribution(physical.bodies.map((body) => body.wetCells.length)),

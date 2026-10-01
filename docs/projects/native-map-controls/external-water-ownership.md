@@ -2,14 +2,15 @@
 
 ## Decision And Scope
 
-Selected for the next complete implementation story on October 1. This is a
-design selection, not an implemented or calibrated production outcome.
+Selected and implemented as one water-owner repair on October 1. Owner-level
+verification and the complete consumer handoff pass; scientific acceptance,
+native projection and gameplay qualification remain distinct open outcomes.
 Earthlike is the primary procedural product; Desert Mountains and Archipelago
 are collateral stress cases. Scientific Earth and Firaxis Earth remain
 separate benchmarks, not hidden recipe inputs.
 
-The demonstrated defect is boundary-condition ownership, not a missing basin
-solver. Initial wet geography currently implies an external drainage recipient,
+The demonstrated defect was boundary-condition ownership, not a missing basin
+solver. Initial wet geography previously implied an external drainage recipient,
 structural-zero precipitation/demand and permanent projected wetness. Those
 are three different decisions. The ten-cell Standard1346 discriminator proves
 the existing solver can conserve and route that pocket as finite storage; it
@@ -57,8 +58,8 @@ the recipe step only forwards it through the supported SDK.
 
 ## Hydraulic Head Is Required
 
-The current drainage and network rules compare reservoir bed elevations and
-have no prescribed receiving head. An external mask alone creates an absorbing
+The former drainage and network rules compared reservoir bed elevations and
+had no prescribed receiving head. An external mask alone creates an absorbing
 sink, not the promised fixed-head ocean. Do not attach an unused head label or
 rewrite physical ground to conceal that missing contract.
 
@@ -141,3 +142,50 @@ Sources: [single question sheet](calibration-question-sheet.md#derived-classific
 `compute-precipitation`, `compute-potential-demand`, the current network step,
 and the SDK's `collectMaskComponentsOddQ`. See the
 [delivery inventory](delivery-inventory.md) for implemented versus open work.
+
+## Implemented Handoff And Evidence
+
+The topography producer now declares `externalWaterMask` independently of its
+initial land mask. Existing drainage, storage and network operations consume
+that required declaration and the receiving head. The network publishes
+`exposedLandMask`; consumers no longer reconstruct it from initial geography.
+There is no optional legacy fallback or second lake solver.
+
+Final landmass identity and shoreline are computed after Hydrology with the
+existing domain operations. The new resolved-shoreline step is sixteen lines
+of composition, not a new coastline algorithm. Terrain, ecology, coast/shelf,
+resources, starts, projection and parity use the appropriate initial,
+external or resolved vintage. Late Civ maintenance reapplies this same resolved
+coast policy instead of restoring initial water over newly resolved lakes.
+
+Independent Earth-basin and SDK-simplicity reviews accepted the actual owner
+patch. The SDK review found one stale shelf/shoreline metric population; its
+external-water guard and regression test are repaired. Source, test and script
+types pass, as do the app's 271 realization tests and Studio's 412 tests.
+Focused owner and composition tests cover prescribed ties, wrapped connectivity,
+head and bathymetry invariance, unsupported inward supply, all-surface forcing,
+final exposure and shoreline publication. No scientific target changed.
+
+The pinned public bank was executed twice for separate purposes: 57 complete
+artifact captures and 57 public metric evaluations. All 56 artifacts per case
+are retained with reconstructible typed-array payloads (3,192 artifact records).
+Independent checks pass for finite/external/exposed/wet partition, once-only
+finite source ownership, wet-body coverage, unchanged dry ground and conservation.
+All 28 unaffected upstream artifacts match the immutable preceding capture;
+initial topography matches after excluding only the added declaration.
+
+The 22-study evaluator retains six failures: Standard1337 lake share
+`0.442667574 > 0.2`; annual within-row thermal variation `0.133519731 < 1 C`;
+mountain-region flat share `0.333919156 < 0.35`; and three start-resource
+floor/equity/shortfall expectations. These are calibration and placement work,
+not permission to waive gates or pretend conservation alone proves playability.
+
+Receipts and exact per-case payloads are in the durable Civ user-data location:
+`VisualAtlas/huge-1018/earth-calibration/water-owner-cohort-20261001/`.
+`capture/receipt.json` SHA256 is
+`9f7bd51d44a0eeeb883dbde72a518b93a94c9389a6fd33fc5d8a6d631003610e`;
+`capture/public-metric-failures.json` records unchanged comparators and complete
+scenario membership. `payload-verification.json` independently reconstructs
+all 3,192 artifact hashes. The [current generated Huge1018 viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/water-owner-huge-1018/index.html)
+shows this resolved network; it is not a new native screenshot or navigation
+proof. Native low-head, cliff and through-water qualification follows this repair.

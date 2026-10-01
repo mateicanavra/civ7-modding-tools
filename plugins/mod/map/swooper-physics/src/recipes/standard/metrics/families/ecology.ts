@@ -26,7 +26,7 @@ const VEGETATION_FEATURES = new Set([
 ]);
 const MINIMUM_LAND_TILES_PER_LATITUDE_ROW = 20;
 
-type EcologyLandModel = Pick<StandardMapCapture["model"], "landMask" | "plannedLakeMask"> & {
+type EcologyLandModel = Pick<StandardMapCapture["model"], "exposedLandMask"> & {
   physicalHydrology: Pick<StandardMapCapture["model"]["physicalHydrology"], "model">;
 };
 
@@ -192,10 +192,9 @@ export function measureStandardBiomeRows(
   });
 }
 
-/** Certified freshwater removes terrestrial habitat, not original marine geography. */
+/** Terrestrial habitat follows Hydrology's resolved exposure, regardless of initial wetness. */
 function isModeledTerrestrialLand(model: EcologyLandModel, index: number): boolean {
-  return model.landMask[index] === 1 &&
-    model.plannedLakeMask[index] === 0;
+  return model.exposedLandMask[index] === 1;
 }
 
 function medianOrNull(values: readonly number[]): number | null {

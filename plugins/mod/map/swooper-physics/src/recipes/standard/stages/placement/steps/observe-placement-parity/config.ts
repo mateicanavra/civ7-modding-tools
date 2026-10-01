@@ -22,6 +22,7 @@ export const config = defineStep({
     STANDARD_COMPLETIONS.surfacePrepared,
     morphologyLandformsArtifacts.topography,
     hydrographyArtifacts.projectedLakes,
+    hydrographyArtifacts.hydrography,
     hydrographyArtifacts.projectedRivers,
   ],
   provides: [],

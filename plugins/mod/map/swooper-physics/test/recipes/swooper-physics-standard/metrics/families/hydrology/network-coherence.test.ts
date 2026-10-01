@@ -11,6 +11,7 @@ function fixture() {
       ...base.model,
       seaLevel: 0,
       landMask: Uint8Array.of(0, 1, 1, 1, 1),
+      externalWaterMask: Uint8Array.of(1, 0, 0, 0, 0), exposedLandMask: Uint8Array.of(0, 1, 0, 1, 1),
       elevation: Int16Array.of(-1, 3, 1, 3, 4),
       plannedLakeMask: Uint8Array.of(0, 0, 1, 0, 0),
       riverClass: Uint8Array.of(0, 2, 0, 1, 0),
@@ -85,7 +86,7 @@ describe("network coherence measurements", () => {
       if (regime === "minor") input.model.riverClass[1] = 1;
       if (regime === "unclassified") input.model.riverClass[1] = 0;
       if (regime === "zero") input.model.physicalHydrology.transfers[0]!.signedDischarge = 0;
-      if (regime === "marine") input.model.landMask[1] = 0;
+      if (regime === "marine") { input.model.externalWaterMask[1] = 1; input.model.exposedLandMask[1] = 0; }
       expect(measureStandardNetworkCoherence(input)).toMatchObject({ navigableLakeOutletCount: 0,
         unauthoredNavigableWetOutletCount: 0, wetTransitionWriteCount: 0 });
     }
@@ -118,6 +119,7 @@ describe("network coherence measurements", () => {
       provenance: { width: 3, height: 2 },
       model: { ...input.model,
         landMask: Uint8Array.of(1, 0, 0, 1, 0, 0),
+        externalWaterMask: Uint8Array.of(0, 1, 1, 0, 1, 1), exposedLandMask: Uint8Array.of(1, 0, 0, 1, 0, 0),
         elevation: Int16Array.of(2, -9, -9, 2, -9, -9),
         plannedLakeMask: new Uint8Array(6), riverClass: Uint8Array.of(1, 0, 0, 2, 0, 0),
         flowDir: Int32Array.of(2, -1, -1, 1, -1, -1),

@@ -27,22 +27,24 @@ export const StandardRiverNetworkMeasurementsSchema = Type.Object(
     version: Type.Literal(1, {
       description: "Schema version for the Standard river-network measurement record.",
     }),
+    exposedLandTileCount: Type.Integer({ minimum: 0, description: "Resolved dry finite tiles available to terrestrial channels." }),
+    externalWaterTileCount: Type.Integer({ minimum: 0, description: "Prescribed external receiving surface tiles." }),
     landTileCount: Type.Integer({
       minimum: 0,
-      description: "Number of tiles classified as land by Hydrology.",
+      description: "Number of finite-ground tiles in the basin domain, including finite lake beds.",
     }),
     waterTileCount: Type.Integer({
       minimum: 0,
-      description: "Number of grid tiles not classified as land by Hydrology.",
+      description: "Number of resolved wet grid tiles, including prescribed external water and finite lakes.",
     }),
     lakeTileCount: Type.Integer({
       minimum: 0,
-      description: "Number of land tiles admitted into accepted lake surfaces.",
+      description: "Number of finite-ground tiles admitted into accepted lake surfaces, regardless of initial wetness.",
     }),
     lakeLandShare: Type.Number({
       minimum: 0,
       maximum: 1,
-      description: "Accepted lake-tile count divided by total land-tile count.",
+      description: "Accepted lake-tile count divided by finite basin-domain tile count.",
     }),
     riverTileCount: Type.Integer({
       minimum: 0,
@@ -59,7 +61,7 @@ export const StandardRiverNetworkMeasurementsSchema = Type.Object(
     riverLandShare: Type.Number({
       minimum: 0,
       maximum: 1,
-      description: "River-tile count divided by total land-tile count.",
+      description: "River-tile count divided by resolved exposed-land tile count.",
     }),
     minorRiverShareOfRiverTiles: Type.Number({
       minimum: 0,
@@ -104,7 +106,7 @@ export const StandardRiverNetworkMeasurementsSchema = Type.Object(
       minimum: 0,
       maximum: 1,
       description:
-        "Ephemeral, intermittent, and perennial flow-tile count divided by total land-tile count.",
+        "Ephemeral, intermittent, and perennial flow-tile count divided by resolved exposed-land tile count.",
     }),
     riverDryTileCount: Type.Integer({
       minimum: 0,
@@ -177,7 +179,7 @@ export const StandardRiverNetworkMeasurementsSchema = Type.Object(
       minimum: 0,
       maximum: 1,
       description:
-        "Land tiles draining to accepted lakes or closed basins divided by total land-tile count.",
+        "Land tiles draining to accepted lakes or closed basins divided by resolved exposed-land tile count.",
     }),
     lakeConnectedTerminalDischargeShare: Type.Number({
       minimum: 0,
@@ -211,7 +213,8 @@ export type StandardRiverNetworkMeasurementInput = Readonly<{
   model: "certified-sill-spill";
   width: number;
   height: number;
-  landMask: ArrayLike<number>;
+  externalWaterMask: ArrayLike<number>;
+  exposedLandMask: ArrayLike<number>;
   discharge: ArrayLike<number>;
   riverClass: ArrayLike<number>;
   flowDir: ArrayLike<number>;
@@ -240,7 +243,7 @@ export function measureStandardRiverNetwork(
   input: StandardRiverNetworkMeasurementInput
 ): StandardRiverNetworkMeasurements {
   const size = input.width * input.height;
-  let landTileCount = 0;
+  let landTileCount = 0, exposedLandTileCount = 0, externalWaterTileCount = 0;
   let lakeTileCount = 0;
   let riverTileCount = 0;
   let minorRiverTileCount = 0;
@@ -272,7 +275,10 @@ export function measureStandardRiverNetwork(
   let lakeConnectedTerminalDischarge = 0;
 
   for (let index = 0; index < size; index += 1) {
-    if (input.landMask[index] !== 1) continue;
+    if (input.externalWaterMask[index] === 1) {
+      externalWaterTileCount += 1;
+      continue;
+    }
     landTileCount += 1;
 
     const discharge = Math.max(0, input.discharge[index] ?? 0);
@@ -289,7 +295,7 @@ export function measureStandardRiverNetwork(
             (index >= input.width && index < size - input.width);
     if (hasInvalidReceiver) invalidReceiverTileCount += 1;
     const landReceiver =
-      rawReceiver >= 0 && rawReceiver < size && input.landMask[rawReceiver] === 1
+      rawReceiver >= 0 && rawReceiver < size && input.externalWaterMask[rawReceiver] === 0
         ? rawReceiver
         : -1;
     const certifiedWetSource = input.lakeMask[index] === 1;
@@ -311,6 +317,13 @@ export function measureStandardRiverNetwork(
       }
     }
 
+    maxUpstreamArea = Math.max(maxUpstreamArea, input.upstreamArea[index] ?? 0);
+    maxStreamOrderProxy = Math.max(maxStreamOrderProxy, input.streamOrderProxy[index] ?? 0);
+
+    // Complete basin coverage includes finite wet beds, but channel and flow
+    // populations are terrestrial resolved exposure, not historical geometry.
+    if (input.exposedLandMask[index] !== 1) continue;
+    exposedLandTileCount += 1;
     const riverClass = input.riverClass[index] ?? 0;
     const riverTile = isAnyRiverClass(riverClass);
     if (isMinorRiverClass(riverClass)) {
@@ -365,8 +378,6 @@ export function measureStandardRiverNetwork(
       }
     }
 
-    maxUpstreamArea = Math.max(maxUpstreamArea, input.upstreamArea[index] ?? 0);
-    maxStreamOrderProxy = Math.max(maxStreamOrderProxy, input.streamOrderProxy[index] ?? 0);
   }
 
   const nonDryFlowTileCount =
@@ -377,13 +388,15 @@ export function measureStandardRiverNetwork(
     model: input.model,
     version: 1,
     landTileCount,
-    waterTileCount: Math.max(0, size - landTileCount),
+    exposedLandTileCount,
+    externalWaterTileCount,
+    waterTileCount: Math.max(0, size - exposedLandTileCount),
     lakeTileCount,
     lakeLandShare: safeShare(lakeTileCount, landTileCount),
     riverTileCount,
     minorRiverTileCount,
     majorRiverTileCount,
-    riverLandShare: safeShare(riverTileCount, landTileCount),
+    riverLandShare: safeShare(riverTileCount, exposedLandTileCount),
     minorRiverShareOfRiverTiles: safeShare(minorRiverTileCount, riverTileCount),
     majorRiverShareOfRiverTiles: safeShare(majorRiverTileCount, riverTileCount),
     streamOrder1RiverTileCount,
@@ -393,7 +406,7 @@ export function measureStandardRiverNetwork(
     ephemeralFlowTileCount,
     intermittentFlowTileCount,
     perennialFlowTileCount,
-    nonDryFlowLandShare: safeShare(nonDryFlowTileCount, landTileCount),
+    nonDryFlowLandShare: safeShare(nonDryFlowTileCount, exposedLandTileCount),
     riverDryTileCount,
     riverEphemeralTileCount,
     riverIntermittentTileCount,
@@ -413,7 +426,7 @@ export function measureStandardRiverNetwork(
     unassignedBasinLandTileCount,
     invalidReceiverTileCount,
     downstreamDischargeDropEdgeCount,
-    closedOrLakeTerminalLandShare: safeShare(closedOrLakeTerminalTileCount, landTileCount),
+    closedOrLakeTerminalLandShare: safeShare(closedOrLakeTerminalTileCount, exposedLandTileCount),
     lakeConnectedTerminalDischargeShare: safeShare(
       lakeConnectedTerminalDischarge,
       terminalDischarge

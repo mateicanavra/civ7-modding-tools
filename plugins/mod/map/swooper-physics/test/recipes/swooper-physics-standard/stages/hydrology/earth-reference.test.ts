@@ -15,7 +15,13 @@ import {
 const hydro = hydrology.hydrography.ops;
 
 function drainageFixture(rainfallIndex = 100, demandIndex = 10) {
-  const { sourceShelfMask: _sourceShelfMask, ...terrain } = createEarthReferenceSurface();
+  const { sourceShelfMask: _sourceShelfMask, landMask: _initialLandMask, ...ground } = createEarthReferenceSurface();
+  const ocean = new Set(sourceWaterComponents()[0]);
+  const terrain = {
+    ...ground,
+    externalWaterMask: Uint8Array.from(ground.elevation, (_, cell) => ocean.has(cell) ? 1 : 0),
+    externalWaterHead: 0,
+  };
   const size = terrain.width * terrain.height;
   const rainfall = new Uint8Array(size).fill(rainfallIndex);
   const humidity = new Uint8Array(size).fill(128);
@@ -23,7 +29,7 @@ function drainageFixture(rainfallIndex = 100, demandIndex = 10) {
     {
       width: terrain.width,
       height: terrain.height,
-      landMask: terrain.landMask,
+      externalWaterMask: terrain.externalWaterMask,
       rainfall,
       humidity,
     },
@@ -169,8 +175,8 @@ describe("fixed Earth native-index drainage diagnostic", () => {
     let dryRunoff = 0;
     let wetPrecipitation = 0;
     let wetDemand = 0;
-    for (let cell = 0; cell < input.landMask.length; cell++) {
-      if (!input.landMask[cell]) {
+    for (let cell = 0; cell < input.externalWaterMask.length; cell++) {
+      if (input.externalWaterMask[cell]) {
         expect(network.receiver[cell]).toBe(-1);
         expect(network.dryDischarge[cell]).toBe(0);
         continue;
@@ -216,17 +222,16 @@ describe("fixed Earth native-index drainage diagnostic", () => {
     const oceanReference = new Set(waterComponents[0]);
     const inlandReference = new Set(waterComponents.slice(1).flat());
     const inlandExits = network.marineExits.filter((exit) => inlandReference.has(exit.marineCell));
-    // The operation's marine-exit name is not a marine-origin certificate for source lake water.
-    expect(inlandExits.length).toBeGreaterThan(0);
+    expect(inlandExits).toEqual([]);
     expect(
       network.marineExits.every(
-        (exit) => oceanReference.has(exit.marineCell) || inlandReference.has(exit.marineCell)
+        (exit) => oceanReference.has(exit.marineCell)
       )
     ).toBe(true);
     const classInput = {
       width: input.width,
       height: input.height,
-      landMask: input.landMask,
+      landMask: network.exposedLandMask,
       discharge: network.dryDischarge,
       flowDir: network.receiver,
     };
@@ -246,7 +251,7 @@ describe("fixed Earth native-index drainage diagnostic", () => {
       {
         width: input.width,
         height: input.height,
-        landMask: input.landMask,
+        externalWaterMask: input.externalWaterMask,
         discharge: network.dryDischarge,
         flowDir: network.receiver,
         elevation: input.elevation,
@@ -265,7 +270,7 @@ describe("fixed Earth native-index drainage diagnostic", () => {
       },
       hydro.classifyBasinRiverNetwork.defaultConfig
     );
-    expect(metadata.upstreamArea).toHaveLength(input.landMask.length);
+    expect(metadata.upstreamArea).toHaveLength(input.externalWaterMask.length);
     expect(network).toEqual(physicalBefore);
     expect(input).toEqual(held);
   });
@@ -286,8 +291,8 @@ describe("fixed Earth native-index drainage diagnostic", () => {
           (terminal) => terminal.role === (state === "closed" ? "closed-wet" : "dry")
         )
       ).toBe(true);
-      for (let cell = 0; cell < input.landMask.length; cell++)
-        if (input.landMask[cell]) expect(result.plan.terminalId[cell]).toBeGreaterThan(0);
+      for (let cell = 0; cell < input.externalWaterMask.length; cell++)
+        if (!input.externalWaterMask[cell]) expect(result.plan.terminalId[cell]).toBeGreaterThan(0);
       expect(hydro.computeBasinNetwork.run(input, hydro.computeBasinNetwork.defaultConfig)).toEqual(
         result
       );
@@ -345,7 +350,6 @@ describe("fixed Earth-coast flat-relief climate ablation", () => {
           {
             width: earthReference.grid.width,
             height: earthReference.grid.height,
-            landMask: earth.topography.landMask,
             surfaceTemperatureC,
             humidity: integration.humidity[season]!,
             parameters: earth.baseline.demandParameters,
@@ -382,10 +386,9 @@ describe("fixed Earth-coast flat-relief climate ablation", () => {
     expect(earth.pressure.pressure.every(Number.isFinite)).toBe(true);
     expect(
       earth.baseline.potentialDemand.every(
-        (value, cell) =>
+        (value) =>
           Number.isFinite(value) &&
-          value >= 0 &&
-          (earth.topography.landMask[cell] === 1 || value === 0)
+          value >= 0
       )
     ).toBe(true);
   }, 30_000);

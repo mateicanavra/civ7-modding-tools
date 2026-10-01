@@ -25,13 +25,11 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
 export const BuildElevationStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
     const topography = deps.artifacts.topography.read();
+    const hydrography = deps.artifacts.hydrography.read();
     const projectedLakes = deps.artifacts.projectedLakes.read();
     const { width, height } = context.setup.dimensions;
 
-    const expectedLandMask = Uint8Array.from(topography.landMask);
-    for (let index = 0; index < expectedLandMask.length; index += 1) {
-      if (projectedLakes.lakeMask[index] === 1) expectedLandMask[index] = 0;
-    }
+    const expectedLandMask = hydrography.exposedLandMask;
     const projectedWaterMask = deps.engine.readCurrentMapWaterMask(context);
     assertAcceptedLakeFootprint(
       context.setup.dimensions, projectedLakes.lakeMask, projectedWaterMask,
@@ -47,7 +45,7 @@ export const BuildElevationStep = createStep(config, {
 
     const intended = projectStandardElevation({
       elevation: topography.elevation,
-      landMask: topography.landMask,
+      landMask: hydrography.exposedLandMask,
       seaLevel: topography.seaLevel,
       acceptedLakeMask: projectedLakes.lakeMask,
     });
@@ -113,7 +111,7 @@ export const BuildElevationStep = createStep(config, {
       // alone grants no exception: require stable local water, COAST and native class.
       if (projectedLakes.lakeMask[plotIndex] === 1) {
         if (
-          topography.landMask[plotIndex] !== 1 ||
+          topography.externalWaterMask[plotIndex] !== 0 ||
           beforeWaterMask[plotIndex] !== 1 || engineWaterMask[plotIndex] !== 1 ||
           beforeTerrain[plotIndex] !== CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST ||
           engineTerrain[plotIndex] !== CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST ||
@@ -128,14 +126,14 @@ export const BuildElevationStep = createStep(config, {
       // Native water leveling is independent of the size-based lake category. Keep its
       // numeric delta in metrics, but require exact dry-land writes and stable wet identity.
       if (
-        topography.landMask[plotIndex] !== 0 ||
+        topography.externalWaterMask[plotIndex] !== 1 ||
         beforeWaterMask[plotIndex] !== 1 ||
         beforeLakeMask[plotIndex] !== engineLakeMask[plotIndex] ||
         engineWaterMask[plotIndex] !== 1 ||
         beforeTerrain[plotIndex] !== engineTerrain[plotIndex]
       ) {
         throw new Error(
-          `Elevation projection has an unqualified original-surface numeric mismatch at plot ${plotIndex} after writing.`
+            `Elevation projection has an unqualified external-water numeric mismatch at plot ${plotIndex} after writing.`
         );
       }
     }

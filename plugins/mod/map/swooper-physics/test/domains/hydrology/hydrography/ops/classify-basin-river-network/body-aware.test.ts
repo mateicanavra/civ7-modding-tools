@@ -20,9 +20,7 @@ function metadataInput(input: Parameters<typeof network.run>[0]) {
     {
       width: input.width,
       height: input.height,
-      landMask: Uint8Array.from(input.landMask, (land, cell) =>
-        land && !plan.wetMask[cell] ? 1 : 0
-      ),
+      landMask: plan.exposedLandMask,
       discharge: plan.dryDischarge,
       flowDir: plan.receiver,
     },
@@ -39,7 +37,7 @@ function metadataInput(input: Parameters<typeof network.run>[0]) {
   return {
     width: input.width,
     height: input.height,
-    landMask: Uint8Array.from(input.landMask),
+    externalWaterMask: Uint8Array.from(input.externalWaterMask),
     elevation: Int16Array.from(input.elevation),
     lakeMask: plan.wetMask,
     waterSurface: plan.waterSurface,
@@ -62,7 +60,8 @@ function simple(runoff: number, demand: number, boundary = false) {
     width: 5,
     height: 1,
     elevation: Int16Array.of(-1, 5, 0, 1, 6),
-    landMask: Uint8Array.of(0, 1, 1, 1, 1),
+    externalWaterMask: Uint8Array.of(1, 0, 0, 0, 0),
+    externalWaterHead: -1,
   };
   return {
     ...terrain,
@@ -70,7 +69,7 @@ function simple(runoff: number, demand: number, boundary = false) {
       strategy: "plateau-saddle-hierarchy",
       config: { allowExternalEdgeOutlets: boundary },
     }),
-    localRunoff: Array.from(terrain.landMask, (land) => land * runoff),
+    localRunoff: Array.from(terrain.externalWaterMask, (external) => external ? 0 : runoff),
     rainfall: new Uint8Array(5),
     potentialDemand: Float32Array.of(0, 0, demand, 0, 0),
   };
@@ -81,7 +80,8 @@ describe("component-aware basin river metadata", () => {
       width: 6,
       height: 1,
       elevation: Int16Array.of(-1, 1, 2, 0, 3, -1),
-      landMask: Uint8Array.of(0, 1, 1, 1, 1, 0),
+      externalWaterMask: Uint8Array.of(1, 0, 0, 0, 0, 1),
+      externalWaterHead: -1,
     };
     const input = metadataInput({
       ...terrain,
@@ -108,7 +108,7 @@ describe("component-aware basin river metadata", () => {
     expect(unclassifiedOutput.upstreamArea).toEqual(output.upstreamArea);
     expect(unclassifiedOutput.streamOrderProxy[2]).toBe(0);
   });
-  it("counts each original source once across inward reservoir exchange and preserves terminal authority", () => {
+  it("counts each finite source once across inward reservoir exchange and preserves terminal authority", () => {
     const source = standardRoots37And39(),
       input = metadataInput(source),
       before = structuredClone(input);
@@ -117,9 +117,15 @@ describe("component-aware basin river metadata", () => {
     expect(
       input.transfers.find((edge) => edge.cellA === 228 && edge.cellB === 312)!.signedDischarge
     ).toBeLessThan(0);
-    for (const cell of component.memberCells) expect(output.upstreamArea[cell]).toBe(17);
-    expect(output.mouthType[312]).toBe(1);
-    expect(output.mouthBodyId[312]).toBe(0);
+    // The 17 retained finite rows now meet an explicit finite sill at 396,
+    // which contributes one source area while supplying no additional water.
+    expect(source.externalWaterMask[396]).toBe(0);
+    expect([source.localRunoff[396], source.rainfall[396], source.potentialDemand[396]]).toEqual([0, 0, 0]);
+    for (const cell of component.memberCells) expect(output.upstreamArea[cell]).toBe(18);
+    expect(output.mouthType[312]).toBe(2);
+    expect(output.mouthBodyId[312]).toBe(input.bodyId[228]);
+    expect(output.mouthType[396]).toBe(1);
+    expect(output.mouthBodyId[396]).toBe(0);
     expect(output.mouthType[61]).toBe(2);
     expect(output.mouthBodyId[61]).toBe(input.bodyId[60]);
     expect(component.junctionCells.some((cell) => input.riverClass[cell]! > 0)).toBe(true);
@@ -146,8 +152,8 @@ describe("component-aware basin river metadata", () => {
       const input = metadataInput(simple(runoff, demand)),
         output = classify.run(input, classify.defaultConfig);
       expect(output.mouthType[2]).toBe(mouth);
-      for (let cell = 0; cell < input.landMask.length; cell++)
-        if (input.landMask[cell] && !input.lakeMask[cell])
+      for (let cell = 0; cell < input.externalWaterMask.length; cell++)
+        if (!input.externalWaterMask[cell] && !input.lakeMask[cell])
           expect(output.mouthType[cell]).toBeGreaterThan(0);
     }
   });
@@ -156,7 +162,8 @@ describe("component-aware basin river metadata", () => {
       width: 3,
       height: 3,
       elevation: Int16Array.of(3, 3, 3, 3, 2, 3, 3, 1, 3),
-      landMask: new Uint8Array(9).fill(1),
+      externalWaterMask: new Uint8Array(9),
+      externalWaterHead: 0,
     };
     const input = metadataInput({
       ...terrain,

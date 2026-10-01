@@ -76,9 +76,7 @@ export const ClimateRefineStep = createStep(config, {
     const windField = deps.artifacts.windField.read();
     const hydrography = deps.artifacts.hydrography.read();
     const topography = deps.artifacts.topography.read();
-    const lakePlan = deps.artifacts.lakePlan.read();
-    // Thermal water means sea-level ocean, not elevated lake exposure; only the land budget uses this mask.
-    const exposedLandMask = Uint8Array.from(topography.landMask, (land, i) => land === 1 && lakePlan.lakeMask[i] === 0 ? 1 : 0);
+    const exposedLandMask = hydrography.exposedLandMask;
 
     const baselineClimateField = deps.artifacts.baselineClimateField.read();
     const thermalField = deps.artifacts.thermalField.read();
@@ -100,7 +98,7 @@ export const ClimateRefineStep = createStep(config, {
         width,
         height,
         elevation: topography.elevation,
-        landMask: topography.landMask,
+        landMask: exposedLandMask,
         rainfall: baselineClimateField.rainfall,
         humidity: baselineClimateField.humidity,
         riverClass: hydrography.riverClass,
@@ -134,7 +132,6 @@ export const ClimateRefineStep = createStep(config, {
       {
         width,
         height,
-        landMask: topography.landMask,
         surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,
         humidity: refined.humidity,
         parameters: baselineClimateField.demandParameters,
@@ -160,7 +157,7 @@ export const ClimateRefineStep = createStep(config, {
         height,
         latitudeByRow,
         elevation: topography.elevation,
-        landMask: topography.landMask,
+        landMask: exposedLandMask,
         windU: windField.windU,
         windV: windField.windV,
         rainfall: refined.rainfall,

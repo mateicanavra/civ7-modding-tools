@@ -69,6 +69,7 @@ function publishPlacementInputs(context: MapContext): void {
     elevation: new Int16Array(size).fill(PLANNER_SURFACE_SENTINELS.elevation),
     seaLevel: 0,
     landMask: new Uint8Array(size).fill(PLANNER_SURFACE_SENTINELS.landMask),
+    externalWaterMask: new Uint8Array(size),
     bathymetry: new Int16Array(size),
   });
   publishTestArtifact(context, hydrographyArtifacts.hydrography, {

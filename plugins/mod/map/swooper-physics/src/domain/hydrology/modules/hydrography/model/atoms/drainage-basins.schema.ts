@@ -54,21 +54,21 @@ const BasinNodeSchema = Type.Object(
   { additionalProperties: false }
 );
 
-/** Geometry-owned adjacent nonascending routes on preserved ground, not a lake-conditioned surface. */
+/** Adjacent routes on preserved finite ground and prescribed external head, not a lake-conditioned surface. */
 export const RawReceiverSchema = TypedArraySchemas.i32({
   description:
-    "Adjacent nonascending raw receiver; -1 on marine water, admitted edge exits, and one pit per minimum plateau.",
+    "Adjacent nonascending raw receiver; -1 on prescribed external water, admitted edge exits, and one pit per minimum plateau.",
 });
 
-/** Canonical equal-height original-land plateau identity; marine cells retain the negative sentinel. */
+/** Canonical equal-height finite-ground plateau identity; external cells retain the negative sentinel. */
 export const DrainagePlateauIdSchema = TypedArraySchemas.i32({
-  description: "Minimum cell index of the equal-height land plateau; -1 on water.",
+  description: "Minimum cell index of the equal-height finite plateau; -1 on prescribed external water.",
 });
 
-/** Raw depression-catchment ownership per tile, reserving zero for marine water and direct external drainage. */
+/** Raw depression-catchment ownership per tile, reserving zero for external water and direct external drainage. */
 export const DrainageLeafIdSchema = TypedArraySchemas.i32({
   description:
-    "Raw depression leaf per tile; 0 for water or direct external drainage. Distinct from hydrography.basinId.",
+    "Raw depression leaf per tile; 0 for prescribed external water or direct external drainage. Distinct from hydrography.basinId.",
 });
 
 /** Containment forest of pit leaves and simultaneous saddle mergers with nested catchment and hypsometry ranges. */
@@ -79,7 +79,7 @@ export const BasinRootsSchema = Type.Array(Type.Integer({ minimum: 1 }), {
   description: "Containment forest roots; roots with a spill drain externally, others remain closed.",
 });
 
-/** Lowest original-ground adjacent crossing per raw leaf pair, deterministically ordered for spill and merge events. */
+/** Lowest adjacent crossing using finite ground and external head, ordered for spill and merge events. */
 export const BasinSaddlesSchema = Type.Array(
   Type.Object(
     {
@@ -97,17 +97,17 @@ export const BasinSaddlesSchema = Type.Array(
   }
 );
 
-/** Depression-catchment land stored once in leaf order so parent ranges cover descendants without duplicating tiles. */
+/** Finite catchment cells stored once in leaf order so parent ranges cover descendants without duplicating tiles. */
 export const BasinCatchmentCellsSchema = TypedArraySchemas.i32({
   cardinality: "constructor-only",
   description:
-    "Depression-catchment land cells stored once in forest leaf order; node ranges nest without duplication.",
+    "Finite depression-catchment cells stored once in forest leaf order; node ranges nest without duplication.",
 });
 
-/** Original-land source cells routed externally before entering any raw depression. */
+/** Finite source cells routed externally before entering any raw depression. */
 export const ExternalCatchmentCellsSchema = TypedArraySchemas.i32({
   cardinality: "constructor-only",
-  description: "Land cells that drain externally without entering any raw depression; water is excluded.",
+  description: "Finite cells that drain externally without entering any raw depression; prescribed external water is excluded.",
 });
 
 /** Exact whole-tile area by preserved ground height; parent ranges concatenate descendant leaf histograms. */

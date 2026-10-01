@@ -124,12 +124,16 @@ function capturePeriodicComposition(modeCount: 2 | 4, axialTiltDeg?: number) {
   const landMask = new Uint8Array(size).fill(1);
   landMask[0] = 0;
   const elevation = new Int16Array(size).fill(100);
+  elevation[0] = 0;
+  const externalWaterMask = new Uint8Array(size);
+  externalWaterMask[0] = 1;
   let observation: ReturnType<typeof ClimateBaselineStep.run> | undefined;
   withMapContextExecutionForTest(context, (stepContext) => {
     publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
       elevation,
       seaLevel: 0,
       landMask,
+      externalWaterMask,
       bathymetry: new Int16Array(size),
     });
     publishTestArtifact(stepContext, morphologyShelfArtifacts.shelf, {
@@ -472,8 +476,9 @@ describe("hydrology climate-baseline composition", () => {
       }, run.config.computeMoistureAggregate);
       expect(run.demandInputs[phase]!.humidity).toEqual(moisture.humidity);
       expect(run.demandInputs[phase]!.humidity).toBe(run.observation.seasonalIntegration.humidity[phase]);
-      expect(run.demandInputs[phase]!.landMask).toBe(run.landMask);
+      expect(Object.hasOwn(run.demandInputs[phase]!, "landMask")).toBe(false);
       expect(run.demandInputs[phase]!.parameters).toEqual(run.config.potentialDemand);
+      expect(run.demandOutputs[phase]![0]).toBeGreaterThan(0);
       return { rainfall: moisture.rainfall, humidity: moisture.humidity, potentialDemand: run.demandOutputs[phase]! };
     });
     const annual = hydrologyDomain.climate.ops.computeMoistureAggregate.run({
@@ -485,7 +490,7 @@ describe("hydrology climate-baseline composition", () => {
     expect(run.observation.baselineClimateField.rainfall).toEqual(annual.rainfall);
     expect(run.observation.baselineClimateField.humidity).toEqual(annual.humidity);
     expect(run.observation.baselineClimateField.potentialDemand).toEqual(annual.potentialDemand);
-    expect(annual.potentialDemand[0]).toBe(0);
+    expect(annual.potentialDemand[0]).toBeGreaterThan(0);
     expect(run.observation.baselineClimateField.demandParameters).toEqual(run.config.potentialDemand);
     expect(readArtifact(run.context, climateArtifacts.thermalField)).toEqual(run.observation.thermalField);
     for (let index = 0; index < observationIndices.length; index++) {

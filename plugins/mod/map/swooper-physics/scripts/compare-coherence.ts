@@ -122,7 +122,7 @@ function viewData(capture: StandardMapCapture): CoherenceViewData {
   if (hydro.model !== "certified-sill-spill") throw new Error("Coherence comparison requires certified-sill-spill evidence");
   return {
     width: provenance.width, height: provenance.height, seaLevel: model.seaLevel,
-    elevation: Array.from(model.elevation), land: Array.from(model.landMask), wet: Array.from(model.plannedLakeMask),
+    elevation: Array.from(model.elevation), land: Array.from(model.externalWaterMask, (external) => external === 0 ? 1 : 0), wet: Array.from(model.plannedLakeMask),
     mountain: Array.from(model.mountainMask), hill: Array.from(model.hillMask), volcano: Array.from(model.volcanoMask),
     river: Array.from(model.riverClass), receiver: Array.from(model.flowDir), discharge: Array.from(hydro.discharge),
     bodyId: Array.from(hydro.bodyId), waterSurface: Array.from(hydro.waterSurface),
@@ -177,6 +177,7 @@ export async function runCoherenceComparison(argv: string[]): Promise<number> {
         elevation: digest(capture.model.elevation), flowDir: digest(capture.model.flowDir), lakeMask: digest(capture.model.plannedLakeMask), riverClass: digest(capture.model.riverClass),
         discharge: digest(Float64Array.from(data.discharge)), waterSurface: digest(Float64Array.from(data.waterSurface)),
         landMask: digest(capture.model.landMask), seaLevel: digest(new Float64Array([capture.model.seaLevel])),
+        externalWaterMask: digest(capture.model.externalWaterMask), exposedLandMask: digest(capture.model.exposedLandMask),
         mountainMask: digest(capture.model.mountainMask), hillMask: digest(capture.model.hillMask), foothillMask: digest(capture.model.foothillMask), roughLandMask: digest(capture.model.roughLandMask), volcanoMask: digest(capture.model.volcanoMask),
       };
       records.push({ ...variant, status: "complete", config, configurationDigest: canonicalMapConfigDigest(config), scenario, provenance: capture.provenance, hashes, integrity, metrics: sample.metrics, networkCoherence, dataFile: `${variant.id}.data.json`, logFile: `${variant.id}.log` });

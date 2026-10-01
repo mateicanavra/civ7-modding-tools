@@ -28,11 +28,15 @@ const climateConfig = {
   computeClimateDiagnostics: climate.computeClimateDiagnostics.defaultConfig,
 };
 
-function runSurfaceConsumers() {
+function runSurfaceConsumers(initiallyWet = false) {
   const width = 8;
   const height = 1;
   const size = width * height;
   const fixture = createSurfaceWaterFixture(width, height);
+  if (initiallyWet) {
+    fixture.topography.landMask[fixture.wetCell] = 0;
+    fixture.topography.landMask[fixture.dryCell] = 0;
+  }
   const before = structuredClone(fixture);
   const setup = admitMapSetup({
     mapSeed: TEST_MAP_SEED,
@@ -41,8 +45,7 @@ function runSurfaceConsumers() {
   });
   const context = createMapContext({ setup, adapter: createMockAdapter({ width, height }) });
   const { topography, wetCell } = fixture;
-  const expectedExposure = topography.landMask.slice();
-  expectedExposure[wetCell] = 0;
+  const expectedExposure = fixture.hydrography.exposedLandMask;
   const calls: string[] = [];
   const forcing = climate.computeRadiativeForcing.run({
     model: "daily-solar-fourier", width, height, latitudeByRow: Float32Array.of(0), axialTiltDeg: 23.44,
@@ -99,8 +102,11 @@ function runSurfaceConsumers() {
         return cryosphere.computeCryosphereState.run(input, config);
       },
       computePotentialDemand: (...[input, config]: Parameters<typeof climate.computePotentialDemand.run>) => {
-        expect(input.landMask).toBe(topography.landMask);
-        return climate.computePotentialDemand.run(input, config);
+        expect(Object.hasOwn(input, "landMask")).toBe(false);
+        const demand = climate.computePotentialDemand.run(input, config);
+        expect(demand.pet[wetCell]).toBeGreaterThan(0);
+        expect(demand.pet[0]).toBeGreaterThan(0);
+        return demand;
       },
       computeLandWaterBudget: (...[input, config]: Parameters<typeof climate.computeLandWaterBudget.run>) => {
         calls.push("water-budget");
@@ -131,7 +137,8 @@ function runSurfaceConsumers() {
   expect(calls).toEqual(["albedo", "water-budget", "pedology", "biomes"]);
   expect(fixture).toEqual(before);
   expect(baselineTemperature[wetCell]).toBe(baselineTemperature[fixture.dryCell]);
-  expect(baselineTemperature[wetCell]).toBeLessThan(marineTreatment);
+  if (!initiallyWet) expect(baselineTemperature[wetCell]).toBeLessThan(marineTreatment);
+  else expect(baselineTemperature[wetCell]).toBe(marineTreatment);
   return {
     ...fixture,
     climateIndices: readArtifact(context, climateArtifacts.climateIndices),
@@ -141,6 +148,21 @@ function runSurfaceConsumers() {
 }
 
 describe("elevated lake exposure across climate and terrestrial consumers", () => {
+  it("classifies a newly dry initially wet finite cell and excludes its retained wet neighbor", () => {
+    const resolved = runSurfaceConsumers(true);
+    const { dryCell, wetCell } = resolved;
+    expect(resolved.topography.landMask[dryCell]).toBe(0);
+    expect(resolved.topography.landMask[wetCell]).toBe(0);
+    expect(resolved.topography.externalWaterMask[dryCell]).toBe(0);
+    expect(resolved.topography.externalWaterMask[wetCell]).toBe(0);
+    expect(resolved.hydrography.exposedLandMask[dryCell]).toBe(1);
+    expect(resolved.pedology.fertility[dryCell]).toBeGreaterThan(0);
+    expect(resolved.biomes.biomeIndex[dryCell]).not.toBe(255);
+    expect(resolved.biomes.vegetationDensity[dryCell]).toBeGreaterThan(0);
+    expect(resolved.pedology.fertility[wetCell]).toBe(0);
+    expect(resolved.biomes.biomeIndex[wetCell]).toBe(255);
+    expect(resolved.lakePlan.lakeMask[wetCell]).toBe(1);
+  });
   it("excludes certified wet ground from soil, vegetation and land budgets without marine thermal treatment", () => {
     const certified = runSurfaceConsumers();
     const { wetCell, dryCell, minorChannel, majorChannel } = certified;

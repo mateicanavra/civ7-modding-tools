@@ -86,6 +86,7 @@ describe("observational coherence comparison", () => {
               return { provenance: { width: 2, height: 1 }, model: {
                 seaLevel: 0, elevation: new Int16Array([10, -10]), flowDir: new Int32Array([1, -1]),
                 landMask: new Uint8Array([1, 0]), plannedLakeMask: new Uint8Array(2), riverClass: new Uint8Array([2, 0]),
+                externalWaterMask: new Uint8Array([0, 1]), exposedLandMask: new Uint8Array([1, 0]),
                 mountainMask: new Uint8Array(2), hillMask: new Uint8Array(2), foothillMask: new Uint8Array(2), roughLandMask: new Uint8Array(2), volcanoMask: new Uint8Array(2),
                 physicalHydrology: { model: "certified-sill-spill", discharge: [changed && ${JSON.stringify(failure)} === "discharge" ? 2 : 1, 0],
                   bodyId: new Int32Array(2), waterSurface: [changed && ${JSON.stringify(failure)} === "waterSurface" ? 10.25 : 10, 0], bodies: [], transfers: [], ports: [] }

@@ -1,11 +1,29 @@
-import { finite, requireValid, type NetworkInput } from "./types.js";
+import { finite, hydraulicElevation, requireValid, type NetworkInput } from "./types.js";
+
+/** Admits the fixed-head declaration and witnesses inward exchange outside this outflow-only model. */
+export function validateExternalWaterBoundary(input: NetworkInput, neighbors: readonly number[][]) {
+  const { elevation: ground, externalWaterMask, externalWaterHead } = input;
+  requireValid(externalWaterMask.length === ground.length, "externalWaterMask cardinality");
+  finite(externalWaterHead, "external water head");
+  for (let cell = 0; cell < ground.length; cell++) {
+    requireValid(externalWaterMask[cell] === 0 || externalWaterMask[cell] === 1, `binary external water mask at ${cell}`);
+    requireValid(Number.isInteger(ground[cell]) && ground[cell]! >= -32768 && ground[cell]! <= 32767, `original Int16 ground at ${cell}`);
+  }
+  for (let finiteCell = 0; finiteCell < ground.length; finiteCell++) {
+    if (externalWaterMask[finiteCell] || ground[finiteCell]! >= externalWaterHead) continue;
+    const externalCell = neighbors[finiteCell]!.find(cell => externalWaterMask[cell] === 1);
+    if (externalCell !== undefined) return { kind: "below-head-connection" as const, externalCell, finiteCell, finiteGround: ground[finiteCell]!, externalWaterHead };
+  }
+  return null;
+}
 
 /** Checks the geometry this consumer relies on, not the upstream minimal-saddle optimization. */
 export function validateNetworkInput(input: NetworkInput, neighbors: readonly number[][]): void {
-  const { width, height, elevation: ground, landMask, geometry: g } = input;
+  const { width, height, elevation: ground, externalWaterMask, geometry: g } = input;
+  const landMask = Uint8Array.from(externalWaterMask, prescribed => prescribed === 0 ? 1 : 0);
   const size = width * height;
   requireValid(Number.isSafeInteger(width) && width > 0 && Number.isSafeInteger(height) && height > 0 && Number.isSafeInteger(size), "grid dimensions");
-  for (const [name, values] of Object.entries({ ground, landMask, localRunoff: input.localRunoff, rainfall: input.rainfall, potentialDemand: input.potentialDemand, rawReceiver: g.rawReceiver, plateauId: g.plateauId, leafId: g.leafId })) {
+  for (const [name, values] of Object.entries({ ground, externalWaterMask, localRunoff: input.localRunoff, rainfall: input.rainfall, potentialDemand: input.potentialDemand, rawReceiver: g.rawReceiver, plateauId: g.plateauId, leafId: g.leafId })) {
     requireValid(values.length === size, `${name} cardinality`);
   }
   const validCell = (cell: number) => Number.isSafeInteger(cell) && cell >= 0 && cell < size;
@@ -14,7 +32,6 @@ export function validateNetworkInput(input: NetworkInput, neighbors: readonly nu
   for (let cell = 0; cell < size; cell++) {
     requireValid(Number.isInteger(ground[cell]) && ground[cell]! >= -32768 && ground[cell]! <= 32767, `original Int16 ground at ${cell}`);
     requireValid(Number.isInteger(input.rainfall[cell]) && input.rainfall[cell]! >= 0 && input.rainfall[cell]! <= 255, `baseline precipitation at ${cell}`);
-    requireValid(landMask[cell] === 0 || landMask[cell] === 1, `binary land mask at ${cell}`);
     for (const [name, value] of [["localRunoff", input.localRunoff[cell]!], ["potentialDemand", input.potentialDemand[cell]!]] as const) {
       requireValid(finite(value, `${name} at ${cell}`) >= 0, `negative ${name} at ${cell}`);
     }
@@ -31,7 +48,7 @@ export function validateNetworkInput(input: NetworkInput, neighbors: readonly nu
       requireValid(leaf === 0 ? cell < width || cell >= size - width : g.nodes[leaf - 1]!.floorCell === cell, `untyped raw terminal ${cell}`);
     } else {
       requireValid(validCell(target) && neighbors[cell]!.includes(target), `nonadjacent raw receiver at ${cell}`);
-      requireValid(ground[target]! <= ground[cell]!, `ascending raw receiver at ${cell}`);
+      requireValid(hydraulicElevation(input, target) <= ground[cell]!, `ascending raw receiver at ${cell}`);
       requireValid(g.leafId[target] === leaf, `raw receiver changes leaf at ${cell}`);
       if (landMask[target]) indegree[target]++;
     }
@@ -59,7 +76,7 @@ export function validateNetworkInput(input: NetworkInput, neighbors: readonly nu
     else {
       const spill = node.spill;
       requireValid(membership.has(spill.fromCell) && validCell(spill.toCell) && !membership.has(spill.toCell) && neighbors[spill.fromCell]!.includes(spill.toCell), `spill endpoints for node ${node.id}`);
-      requireValid(spill.elevation === Math.max(ground[spill.fromCell]!, ground[spill.toCell]!) && spill.elevation > node.baseElevation, `spill height for node ${node.id}`);
+      requireValid(spill.elevation === Math.max(hydraulicElevation(input, spill.fromCell), hydraulicElevation(input, spill.toCell)) && spill.elevation > node.baseElevation, `spill height for node ${node.id}`);
       requireValid(spill.targetLeafId === g.leafId[spill.toCell], `spill target leaf for node ${node.id}`);
     }
     if (node.kind === "leaf") {
@@ -100,7 +117,7 @@ export function validateNetworkInput(input: NetworkInput, neighbors: readonly nu
   const pairs = new Set<string>();
   for (const saddle of g.saddles) {
     requireValid(validCell(saddle.cellA) && validCell(saddle.cellB) && neighbors[saddle.cellA]!.includes(saddle.cellB), "saddle adjacency");
-    requireValid(saddle.leafA < saddle.leafB && saddle.leafA === g.leafId[saddle.cellA] && saddle.leafB === g.leafId[saddle.cellB] && saddle.elevation === Math.max(ground[saddle.cellA]!, ground[saddle.cellB]!), "saddle labels/height");
+    requireValid(saddle.leafA < saddle.leafB && saddle.leafA === g.leafId[saddle.cellA] && saddle.leafB === g.leafId[saddle.cellB] && saddle.elevation === Math.max(hydraulicElevation(input, saddle.cellA), hydraulicElevation(input, saddle.cellB)), "saddle labels/height");
     const pair = `${saddle.leafA}:${saddle.leafB}`;
     requireValid(!pairs.has(pair), "duplicate raw-leaf saddle pair"); pairs.add(pair);
   }

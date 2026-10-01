@@ -1,7 +1,6 @@
-import { deriveCiv7CoastProjection } from "@civ7/map-policy";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { projectStandardElevation } from "../../../../elevation-projection.js";
-import { restoreProjectedCoastTerrain } from "../../../../water-surface-parity.js";
+import { deriveResolvedCoastProjection, restoreProjectedCoastTerrain } from "../../../../water-surface-parity.js";
 import { config } from "./config.js";
 import { projectPlacementSurfaceViz } from "./viz.js";
 
@@ -23,21 +22,25 @@ export const PreparePlacementSurfaceStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
     const shelf = deps.artifacts.shelf.read();
     const topography = deps.artifacts.topography.read();
+    const hydrography = deps.artifacts.hydrography.read();
     const projectedLakes = deps.artifacts.projectedLakes.read();
+    const coastline = deps.artifacts.resolvedCoastline.read();
     const elevationRequest = projectStandardElevation({
       elevation: topography.elevation,
-      landMask: topography.landMask,
+      landMask: hydrography.exposedLandMask,
       seaLevel: topography.seaLevel,
       acceptedLakeMask: projectedLakes.lakeMask,
     });
     const { width, height } = context.setup.dimensions;
     const dimensions = context.setup.dimensions;
-    const coastProjection = deriveCiv7CoastProjection({
+    const coastProjection = deriveResolvedCoastProjection({
       width,
       height,
-      landMask: topography.landMask,
+      exposedLandMask: hydrography.exposedLandMask,
+      externalWaterMask: topography.externalWaterMask,
+      lakeMask: projectedLakes.lakeMask,
       shelfMask: shelf.shelfMask,
-      coastalWater: shelf.coastalWater,
+      coastalWater: coastline.coastalWater,
     });
     const readTerrainValidationBoundary = (stage: string): TerrainValidationBoundaryReadback => ({
       stage,

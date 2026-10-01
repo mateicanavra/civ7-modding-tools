@@ -1,6 +1,7 @@
 import { artifacts as hydrographyArtifacts } from "../../../../../../../domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "../../../../../../../domain/morphology/modules/shelf/artifacts/index.js";
+import { artifacts as morphologyCoastsArtifacts } from "../../../../../../../domain/morphology/modules/coasts/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
 
@@ -35,6 +36,7 @@ export const config = defineStep({
     hydrographyArtifacts.projectedLakes,
     morphologyShelfArtifacts.shelf,
     morphologyLandformsArtifacts.topography,
+    morphologyCoastsArtifacts.resolvedCoastline,
   ],
   provides: [STANDARD_COMPLETIONS.riversPlotted, hydrographyArtifacts.projectedRivers],
 });

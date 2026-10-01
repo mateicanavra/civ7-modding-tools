@@ -61,7 +61,7 @@ describe("post-water surface landform eligibility", () => {
       publishTestArtifact(stepContext, routingArtifacts.routing, {
         flowDir: new Int32Array(size).fill(-1), flowAccum: new Float32Array(size), basinId: new Int32Array(size).fill(-1),
       });
-      publishTestArtifact(stepContext, coastsArtifacts.baseCoastline, {
+      publishTestArtifact(stepContext, coastsArtifacts.resolvedCoastline, {
         coastalLand: new Uint8Array(size), coastalWater: new Uint8Array(size), distanceToCoast,
       });
       publishTestArtifact(stepContext, foundationArtifacts.plates, {

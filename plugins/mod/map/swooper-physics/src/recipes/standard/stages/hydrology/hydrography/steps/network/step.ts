@@ -15,21 +15,27 @@ export const NetworkStep = createStep(config, {
       const { runoff } = ops.computeLocalRunoff(
         {
           ...dimensions,
-          landMask: topography.landMask,
+          externalWaterMask: topography.externalWaterMask,
           rainfall: climate.rainfall,
           humidity: climate.humidity,
         },
         stepConfig.computeLocalRunoff
       );
       const geometry = ops.computeDrainageBasins(
-        { ...dimensions, elevation: topography.elevation, landMask: topography.landMask },
+        {
+          ...dimensions,
+          elevation: topography.elevation,
+          externalWaterMask: topography.externalWaterMask,
+          externalWaterHead: topography.seaLevel,
+        },
         stepConfig.computeDrainageBasins
       );
       const result = ops.computeBasinNetwork(
         {
           ...dimensions,
           elevation: topography.elevation,
-          landMask: topography.landMask,
+          externalWaterMask: topography.externalWaterMask,
+          externalWaterHead: topography.seaLevel,
           geometry,
           localRunoff: runoff,
           rainfall: climate.rainfall,
@@ -37,19 +43,16 @@ export const NetworkStep = createStep(config, {
         },
         stepConfig.computeBasinNetwork
       );
-      if (result.status === "no-stationary-solution")
+      if (result.status !== "supported")
         throw new Error(
           `[Hydrology] No stationary certified-sill-spill network: ${JSON.stringify(result.witness)}`,
           { cause: result.witness }
         );
       const plan = result.plan;
-      const exposedLand = Uint8Array.from(topography.landMask, (land, cell) =>
-        land === 1 && plan.wetMask[cell] === 0 ? 1 : 0
-      );
       const projected = ops.projectRiverNetwork(
         {
           ...dimensions,
-          landMask: exposedLand,
+          landMask: plan.exposedLandMask,
           discharge: plan.dryDischarge,
           flowDir: plan.receiver,
         },
@@ -58,7 +61,7 @@ export const NetworkStep = createStep(config, {
       const metadata = ops.classifyBasinRiverNetwork(
         {
           ...dimensions,
-          landMask: topography.landMask,
+          externalWaterMask: topography.externalWaterMask,
           elevation: topography.elevation,
           lakeMask: plan.wetMask,
           waterSurface: plan.waterSurface,
@@ -80,6 +83,7 @@ export const NetworkStep = createStep(config, {
       return {
         hydrography: {
           model: "certified-sill-spill" as const,
+          exposedLandMask: plan.exposedLandMask,
           runoff,
           discharge: plan.dryDischarge,
           riverClass: projected.riverClass,
@@ -123,7 +127,8 @@ export const NetworkStep = createStep(config, {
     const riverNetwork = deps.artifacts.riverNetwork.publish(physical.riverNetwork);
     const measurement = {
       ...dimensions,
-      landMask: topography.landMask,
+      externalWaterMask: topography.externalWaterMask,
+      exposedLandMask: hydrography.exposedLandMask,
       discharge: hydrography.discharge,
       riverClass: hydrography.riverClass,
       flowDir: hydrography.flowDir,

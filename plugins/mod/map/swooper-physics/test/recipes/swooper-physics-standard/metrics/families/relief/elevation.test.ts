@@ -25,8 +25,8 @@ describe("Standard relief elevation evidence", () => {
     const capture = captureEarthlikeScenario();
     const sample = measureEarthlikeSample();
     const landElevations: number[] = [];
-    for (let index = 0; index < capture.model.landMask.length; index += 1) {
-      if (capture.model.landMask[index] === 1) landElevations.push(capture.model.elevation[index]!);
+    for (let index = 0; index < capture.model.exposedLandMask.length; index += 1) {
+      if (capture.model.exposedLandMask[index] === 1) landElevations.push(capture.model.elevation[index]!);
     }
 
     const measured = sample.metrics.relief.finalLandElevation;

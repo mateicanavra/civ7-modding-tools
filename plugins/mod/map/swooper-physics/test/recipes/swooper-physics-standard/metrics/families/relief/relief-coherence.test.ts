@@ -128,7 +128,7 @@ describe("Standard neutral relief coherence", () => {
     expect(
       measureStandardReliefCoherence(single).windRainfallAssociation.groups.unscored.tiles.count
     ).toBe(1);
-    single.model.landMask.fill(0);
+    single.model.exposedLandMask.fill(0);
     single.observation.isWater.fill(1);
     const water = measureStandardReliefCoherence(single);
     expect(water.plannedLandTiles).toBe(0);
@@ -140,7 +140,7 @@ describe("Standard neutral relief coherence", () => {
     const input = reliefCoherenceFixture(4, 1);
     input.model.elevation.set([100, 50, 100, -20]);
     input.model.plannedLakeMask[1] = 1;
-    input.model.landMask[3] = 0;
+    input.model.exposedLandMask[3] = 0;
     input.observation.isWater.set([0, 1, 0, 1]);
     input.observation.terrain[3] = input.observation.oceanTerrain;
     input.observation.isLake[1] = 1;
@@ -173,7 +173,7 @@ describe("Standard neutral relief coherence", () => {
     input.model.foothillMask[1] = 1;
     input.model.roughLandMask[2] = 1;
     input.model.volcanoMask[0] = 1;
-    input.model.landMask[5] = 0;
+    input.model.exposedLandMask[5] = 0;
     const result = measureStandardReliefCoherence(input);
     expect(result.authoredRiverEdges.authoredTiles).toBe(0);
     expect(result.plannedLakeOverlap.tiles).toEqual({ count: 6, population: 6 });

@@ -1,3 +1,4 @@
+import { artifacts as hydrographyArtifacts } from "../../../../../../../domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
@@ -17,7 +18,7 @@ export const config = defineStep({
   ] as const,
   requires: [
     STANDARD_COMPLETIONS.continentsPlotted,
-    morphologyLandformsArtifacts.topography,
+    hydrographyArtifacts.hydrography,
     morphologyLandformsArtifacts.volcanoes,
   ],
   provides: [STANDARD_COMPLETIONS.volcanoesPlotted],

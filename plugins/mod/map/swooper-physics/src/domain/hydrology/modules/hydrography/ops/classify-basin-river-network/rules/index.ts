@@ -20,7 +20,7 @@ import {
 type ClassificationInput = Readonly<{
   width: number;
   height: number;
-  landMask: ArrayLike<number>;
+  externalWaterMask: ArrayLike<number>;
   elevation: ArrayLike<number>;
   lakeMask: ArrayLike<number>;
   waterSurface: readonly number[];
@@ -44,8 +44,14 @@ function requireValid(value: unknown, message: string): asserts value {
 /** Counts each source once on the external component DAG, never on branching internal exchanges. */
 export function classifyBasinRiverNetwork(input: ClassificationInput, orderAreaMin: number) {
   const size = input.width * input.height;
+  requireValid(
+    input.externalWaterMask.length === size &&
+      Array.from(input.externalWaterMask).every((cell) => cell === 0 || cell === 1),
+    "binary map-grid external water declaration"
+  );
+  const landMask = Uint8Array.from(input.externalWaterMask, (external) => external === 0 ? 1 : 0);
   for (const field of [
-    input.landMask,
+    landMask,
     input.elevation,
     input.lakeMask,
     input.waterSurface,
@@ -104,7 +110,7 @@ export function classifyBasinRiverNetwork(input: ClassificationInput, orderAreaM
         cell >= 0 &&
           cell < size &&
           vertexOf[cell] === -1 &&
-          input.landMask[cell] === 1 &&
+          landMask[cell] === 1 &&
           input.componentId[cell] === component.componentId,
         "complete disjoint component membership"
       );
@@ -135,7 +141,7 @@ export function classifyBasinRiverNetwork(input: ClassificationInput, orderAreaM
   }
   for (let cell = 0; cell < size; cell++) {
     requireValid(
-      (input.landMask[cell] === 0 || input.landMask[cell] === 1) &&
+      (landMask[cell] === 0 || landMask[cell] === 1) &&
         (input.lakeMask[cell] === 0 || input.lakeMask[cell] === 1),
       "binary masks"
     );
@@ -150,7 +156,7 @@ export function classifyBasinRiverNetwork(input: ClassificationInput, orderAreaM
         (input.lakeMask[cell] === 1 || input.bodyId[cell] === 0),
       "complete wet membership"
     );
-    if (!input.landMask[cell]) {
+    if (!landMask[cell]) {
       requireValid(
         input.lakeMask[cell] === 0 &&
           input.componentId[cell] === 0 &&
@@ -230,7 +236,7 @@ export function classifyBasinRiverNetwork(input: ClassificationInput, orderAreaM
             vertexOf[port.toCell] !== vertex &&
             port.destinationComponentId === input.componentId[port.toCell] &&
             port.destination ===
-              (input.landMask[port.toCell] === 0
+              (landMask[port.toCell] === 0
                 ? "marine"
                 : input.componentId[port.toCell]! > 0
                   ? "component"
@@ -278,7 +284,7 @@ export function classifyBasinRiverNetwork(input: ClassificationInput, orderAreaM
     }
   }
   for (let cell = 0; cell < size; cell++) {
-    if (!input.landMask[cell] || input.componentId[cell]) continue;
+    if (!landMask[cell] || input.componentId[cell]) continue;
     const dest = input.flowDir[cell]!;
     if (dest >= 0) {
       requireValid(
@@ -286,7 +292,7 @@ export function classifyBasinRiverNetwork(input: ClassificationInput, orderAreaM
         "adjacent nonascending ordinary receiver"
       );
       receiver[cell] = vertexOf[dest]!;
-      if (!input.landMask[dest])
+      if (!landMask[dest])
         requireValid(
           terminals.get(input.terminalId[cell]!)?.role === "marine",
           "marine edge terminal role"
@@ -381,7 +387,7 @@ export function classifyBasinRiverNetwork(input: ClassificationInput, orderAreaM
         body = input.bodyId[dest]!;
         break;
       }
-      if (dest < 0 || !input.landMask[dest]) {
+      if (dest < 0 || !landMask[dest]) {
         mouth = terminalMouth[terminals.get(input.terminalId[cell]!)!.role];
         break;
       }

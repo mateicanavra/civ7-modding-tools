@@ -15,6 +15,7 @@ import { artifacts as climateArtifacts } from "../../../../../../../../src/domai
 import { artifacts as hydrographyArtifacts } from "../../../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as landformsArtifacts } from "../../../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as shelfArtifacts } from "../../../../../../../../src/domain/morphology/modules/shelf/artifacts/index.js";
+import { artifacts as coastsArtifacts } from "../../../../../../../../src/domain/morphology/modules/coasts/artifacts/index.js";
 import { ScoreLayersStep } from "../../../../../../../../src/recipes/standard/stages/ecology/features/steps/score-layers/step.js";
 import { TEST_MAP_SEED } from "../../../../../../../setup.js";
 import { createSurfaceWaterFixture } from "../../../../morphology/features/fixtures/surface-water.js";
@@ -42,12 +43,17 @@ const config = {
 };
 
 describe("ecology-features score-layers step", () => {
-  it("publishes actual Lotus suitability from zero-copy physical water evidence", () => {
+  for (const initiallyWet of [false, true]) {
+  it(`publishes Lotus and resolved terrestrial suitability independently of initial wetness: ${initiallyWet}`, () => {
     const width = 8;
     const height = 1;
     const size = width * height;
     const fixture = createSurfaceWaterFixture(width, height);
-    const { topography, lakePlan, hydrography, wetCell } = fixture;
+    const { topography, lakePlan, hydrography, wetCell, dryCell } = fixture;
+    if (initiallyWet) {
+      topography.landMask[wetCell] = 0;
+      topography.landMask[dryCell] = 0;
+    }
     lakePlan.waterSurface[wetCell] = 800.25;
     for (const body of lakePlan.bodies) body.level = 800.25;
     for (const pool of lakePlan.pools) pool.level = 800.25;
@@ -102,6 +108,9 @@ describe("ecology-features score-layers step", () => {
       publishTestArtifact(stepContext, shelfArtifacts.shelf, {
         shelfMask, coastalWater, distanceToCoast, coastalLand: new Uint8Array(size),
       });
+      publishTestArtifact(stepContext, coastsArtifacts.resolvedCoastline, {
+        coastalWater, distanceToCoast, coastalLand: new Uint8Array(size),
+      });
       publishTestArtifact(stepContext, landformsArtifacts.mountains, {
         mountainMask: new Uint8Array(size), mountainRegionMask: new Uint8Array(size),
         mountainRegionIdByTile: new Int32Array(size).fill(-1), hillMask: new Uint8Array(size),
@@ -116,10 +125,11 @@ describe("ecology-features score-layers step", () => {
       const ops = features.bind(ScoreLayersStep.contract.ops!);
       const scoreReefLotus: typeof ops.scoreReefLotus = (input, operationConfig) => {
         lotusCalls++;
-        expect(input.landMask).toBe(topography.landMask);
+        expect(input.landMask).toBe(hydrography.exposedLandMask);
         expect(input.lakeMask).toBe(lakePlan.lakeMask);
         expect(input.surfaceTemperature).toBe(surfaceTemperatureC);
-        expect(input.landMask[wetCell]).toBe(1);
+        expect(input.landMask[wetCell]).toBe(0);
+        expect(input.landMask[dryCell]).toBe(1);
         expect(shelfMask[wetCell]).toBe(0);
         expect(coastalWater[wetCell]).toBe(0);
         expect(input.elevation).toBe(topography.elevation);
@@ -128,7 +138,13 @@ describe("ecology-features score-layers step", () => {
         expect(input.waterSurface[wetCell]).toBe(800.25);
         return ops.scoreReefLotus(input, operationConfig);
       };
-      ScoreLayersStep.run(stepContext, config, { ...ops, scoreReefLotus },
+      const vegetationSubstrate: typeof ops.vegetationSubstrate = (input, operationConfig) => {
+        expect(input.landMask).toBe(hydrography.exposedLandMask);
+        expect(input.landMask[dryCell]).toBe(1);
+        expect(input.landMask[wetCell]).toBe(0);
+        return ops.vegetationSubstrate(input, operationConfig);
+      };
+      ScoreLayersStep.run(stepContext, config, { ...ops, scoreReefLotus, vegetationSubstrate },
         buildStepTestDependencies(ScoreLayersStep, stepContext));
     });
 
@@ -144,4 +160,5 @@ describe("ecology-features score-layers step", () => {
     }
     expect(fixture).toEqual(before);
   });
+  }
 });

@@ -12,10 +12,10 @@ function supported(input: Input) {
   if (output.status !== "supported") throw new Error(JSON.stringify(output));
   return output.plan;
 }
-function fixture(heights: number[], marine = [0], externalEdges = false) {
-  const terrain = { width: heights.length, height: 1, elevation: Int16Array.from(heights), landMask: Uint8Array.from(heights.map((_, cell) => marine.includes(cell) ? 0 : 1)) };
+function fixture(heights: number[], marine = [0], externalEdges = false, externalWaterHead = 0) {
+  const terrain = { width: heights.length, height: 1, elevation: Int16Array.from(heights), externalWaterMask: Uint8Array.from(heights.map((_, cell) => marine.includes(cell) ? 1 : 0)), externalWaterHead };
   return { ...terrain, geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: externalEdges } }),
-    localRunoff: Array.from(terrain.landMask), rainfall: new Uint8Array(heights.length).fill(10), potentialDemand: new Float32Array(heights.length).fill(1) } satisfies Input;
+    localRunoff: Array.from(terrain.externalWaterMask, (prescribed): number => prescribed ? 0 : 1), rainfall: new Uint8Array(heights.length).fill(10), potentialDemand: new Float32Array(heights.length).fill(1) } satisfies Input;
 }
 function verify(input: Input) {
   const before = structuredClone(input), plan = supported(input);
@@ -27,15 +27,16 @@ function verify(input: Input) {
   for (let cell = 0; cell < input.elevation.length; cell++) {
     expect(plan.wetMask[cell]).toBe(wet.includes(cell) ? 1 : 0);
     expect(Number.isFinite(plan.waterSurface[cell])).toBe(true);
-    if (input.landMask[cell]) { expect(plan.terminalId[cell]).toBeGreaterThan(0); expect(plan.terminalType[cell]).toBeGreaterThan(0); }
+    if (!input.externalWaterMask[cell]) { expect(plan.terminalId[cell]).toBeGreaterThan(0); expect(plan.terminalType[cell]).toBeGreaterThan(0); }
+    expect(plan.exposedLandMask[cell]).toBe(!input.externalWaterMask[cell] && !plan.wetMask[cell] ? 1 : 0);
     if (plan.wetMask[cell]) { expect(plan.waterSurface[cell]!).toBeGreaterThan(input.elevation[cell]!); expect(plan.dryDischarge[cell]).toBe(0); }
-    else expect(plan.waterSurface[cell]).toBe(input.elevation[cell]);
+    else expect(plan.waterSurface[cell]).toBe(input.externalWaterMask[cell] ? input.externalWaterHead : input.elevation[cell]);
     const receiver = plan.receiver[cell]!;
     if (receiver >= 0) {
       expect(getHexNeighborIndicesOddQ(cell % input.width, Math.floor(cell / input.width), input.width, input.height)).toContain(receiver);
-      if (!plan.wetMask[cell]) expect(input.elevation[receiver]!).toBeLessThanOrEqual(input.elevation[cell]!);
+      if (!plan.wetMask[cell]) expect(input.externalWaterMask[receiver] ? input.externalWaterHead : input.elevation[receiver]!).toBeLessThanOrEqual(input.elevation[cell]!);
     }
-    if (input.landMask[cell] && !plan.componentId[cell]) expect(receiver).toBe(input.geometry.rawReceiver[cell]);
+    if (!input.externalWaterMask[cell] && !plan.componentId[cell]) expect(receiver).toBe(input.geometry.rawReceiver[cell]);
   }
   for (const component of plan.components) {
     expect(component.componentId).toBe(Math.min(...component.memberCells) + 1);
@@ -50,6 +51,63 @@ function verify(input: Input) {
 }
 
 describe("hydrology/compute-basin-network", () => {
+  it("keeps full finite storage, transport, exposure and conservation independent of external beds", () => {
+    const input = fixture([-100, 5, 1, 3, 0, 8, -50], [0, 6]);
+    const before = structuredClone(input), plan = verify(input), alternate = structuredClone(input);
+    alternate.elevation[0] = 32767;
+    alternate.elevation[6] = -32768;
+    const { width, height, elevation, externalWaterMask, externalWaterHead } = alternate;
+    alternate.geometry = geometry.run({ width, height, elevation, externalWaterMask, externalWaterHead }, geometry.defaultConfig);
+    expect(alternate.geometry).toEqual(input.geometry);
+    expect(verify(alternate)).toEqual(plan);
+    expect(input).toEqual(before);
+    expect(plan.conservation.marineDischarge).toBeGreaterThan(0);
+    for (const exit of plan.marineExits) {
+      expect(plan.waterSurface[exit.marineCell]).toBe(input.externalWaterHead);
+      const component = plan.components.find(item => item.memberCells.includes(exit.fromCell));
+      expect(component?.level ?? input.elevation[exit.fromCell]!).toBeGreaterThanOrEqual(input.externalWaterHead);
+    }
+  });
+
+  it("resolves hydraulic geometry at lower and tied receiving heads without exporting uphill", () => {
+    const low = fixture([-100, 5, 2, 7], [0], false, 0);
+    const below = fixture([-100, 5, 2, 7], [0], false, 4.5);
+    const equal = fixture([-100, 5, 2, 7], [0], false, 5);
+    expect(low.geometry.rawReceiver[1]).toBe(0);
+    expect(below.geometry.rawReceiver[1]).toBe(2);
+    const belowPlan = verify(below), equalPlan = verify(equal);
+    expect(equalPlan.pools).toEqual(belowPlan.pools);
+    for (const input of [low, below, equal]) {
+      const plan = verify(input);
+      for (const exit of plan.marineExits) expect(plan.waterSurface[exit.fromCell]!).toBeGreaterThanOrEqual(input.externalWaterHead);
+    }
+  });
+
+  it("returns an explicit unsupported inward connection rather than lifting its sill or exporting uphill", () => {
+    const input = fixture([-100, 5, 2, 7]);
+    input.externalWaterHead = 6;
+    const before = structuredClone(input);
+    expect(run(input)).toEqual({ status: "unsupported-external-inundation", witness: { kind: "below-head-connection", externalCell: 0, finiteCell: 1, finiteGround: 5, externalWaterHead: 6 } });
+    expect(input).toEqual(before);
+    input.elevation[0] = 1000;
+    expect(run(input)).toEqual(run(before));
+  });
+
+  it("validates saddle and outlet heights against receiving head, never the reservoir bed", () => {
+    const input = fixture([-100, 5, 2, 7], [0], false, 5);
+    expect(input.geometry.nodes[0]!.spill?.elevation).toBe(5);
+    const wrongSaddle = structuredClone(input);
+    wrongSaddle.geometry.saddles[0]!.elevation = 100;
+    expect(() => run(wrongSaddle)).toThrow(/saddle labels\/height/);
+    const wrongOutlet = structuredClone(input);
+    wrongOutlet.geometry.nodes[0]!.spill!.elevation = 100;
+    expect(() => run(wrongOutlet)).toThrow(/spill height/);
+    const nonbinary = structuredClone(input);
+    nonbinary.externalWaterMask[0] = 2;
+    expect(() => run(nonbinary)).toThrow();
+    expect(() => run({ ...input, externalWaterHead: NaN })).toThrow();
+  });
+
   it("does not commit a lower merger against an unsettled higher-sill export", () => {
     const { input, nextSeed } = largerGrid();
     expect(nextSeed).toBe(-397855455);
@@ -96,7 +154,7 @@ describe("hydrology/compute-basin-network", () => {
     expect(input.localRunoff[2740]).not.toBe(Math.fround(input.localRunoff[2740]!));
     expect(input.potentialDemand).toBeInstanceOf(Float32Array);
     expect(plan.pools).toHaveLength(1); expect(pool.leafIds).toEqual([1]);
-    expect(pool.catchmentCells).toHaveLength(42);
+    expect(pool.catchmentCells.filter(cell => input.elevation[cell]! < 1000)).toHaveLength(42);
     expect(pool.state).toBe("closed"); expect(pool.level).toBe(30);
     expect(pool.wetCells).toEqual([2635, 2636, 2739, 2740, 2741, 2742, 2845, 2846, 2847, 2848, 2849, 2951, 2952, 2953]);
     expect(pool.outflow).toBe(0); expect(pool.unresolvedResidual).toBe(3.2292057291665515);
@@ -127,7 +185,8 @@ describe("hydrology/compute-basin-network", () => {
     expect(plan.bodies).toHaveLength(2);
     const exchange = plan.transfers.find(edge => edge.cellA === 228 && edge.cellB === 312)!;
     expect(exchange.signedDischarge).toBeCloseTo(-5.586530981337614, 12);
-    expect(plan.receiver[312]).toBe(396); expect(plan.dryDischarge[312]).toBe(plan.pools[0]!.outflow);
+    expect(plan.receiver[312]).toBe(228); expect(plan.dryDischarge[312]).toBeCloseTo(5.586530981337614, 12);
+    expect(plan.receiver[396]).toBe(395); expect(plan.dryDischarge[396]).toBe(plan.pools[0]!.outflow);
     expect(plan.bodies.find(body => body.wetCells.includes(228))!.outflow).toBe(0);
     const reversed = structuredClone(input); reversed.geometry.saddles.reverse();
     expect(supported(reversed)).toEqual(plan); expect(supported(input)).toEqual(plan);
@@ -147,7 +206,7 @@ describe("hydrology/compute-basin-network", () => {
     const plan = verify(input);
     expect(plan.bodies[0]!.wetCells).toEqual([2, 3]);
     expect(plan.bodies[0]!.flux.wetDemand).toBe(9);
-    expect(plan.dryDischarge[1]).toBe(2 + 2 ** -30);
+    expect(plan.dryDischarge[1]).toBe(3 + 2 ** -30);
     expect(plan.dryDischarge[1]).not.toBe(Math.fround(plan.dryDischarge[1]!));
   });
   it("keeps a saturated partial multifurcation below its unsaturated sibling", () => {
@@ -184,7 +243,7 @@ describe("hydrology/compute-basin-network", () => {
     for (const exit of plan.boundaryExits) { expect(plan.receiver[exit.fromCell]).toBe(-1); expect(plan.dryDischarge[exit.fromCell]).toBe(0); expect(plan.terminalType[exit.fromCell]).toBe(2); }
   });
   it("gives a boundary-connected hydraulic component a port without a receiver", () => {
-    const terrain = { width: 3, height: 3, elevation: Int16Array.from([2, 2, 2, 2, 0, 2, 2, 2, 2]), landMask: new Uint8Array(9).fill(1) };
+    const terrain = { width: 3, height: 3, elevation: Int16Array.from([2, 2, 2, 2, 0, 2, 2, 2, 2]), externalWaterMask: new Uint8Array(9), externalWaterHead: 0 };
     const plan = verify({ ...terrain, geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: true } }), localRunoff: new Array(9).fill(1), rainfall: new Uint8Array(9).fill(10), potentialDemand: new Float32Array(9).fill(1) });
     expect(plan.ports).toHaveLength(1); expect(plan.ports[0]!.kind).toBe("boundary-export");
     expect("toCell" in plan.ports[0]!).toBe(false);
@@ -194,9 +253,9 @@ describe("hydrology/compute-basin-network", () => {
   it("handles marine grids and deterministic varied wet, closed and wrapped-hex hierarchies", () => {
     expect(verify(fixture([-1, -1], [0, 1])).pools).toEqual([]);
     for (let sample = 0; sample < 40; sample++) {
-      const width = 8, height = 5, elevation = Int16Array.from({ length: 40 }, (_, cell) => cell < 8 ? -10 : (cell * 17 + sample * 7 + cell * cell) % 13), landMask = Uint8Array.from(elevation, value => value === -10 ? 0 : 1);
-      const terrain = { width, height, elevation, landMask };
-      verify({ ...terrain, geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: false } }), localRunoff: Array.from(landMask, (_, cell) => landMask[cell] ? 1 + (cell * sample) % 7 : 0), rainfall: Uint8Array.from({ length: 40 }, (_, cell) => (sample + cell) % 21), potentialDemand: Float32Array.from({ length: 40 }, (_, cell) => (sample * cell) % 30) });
+      const width = 8, height = 5, elevation = Int16Array.from({ length: 40 }, (_, cell) => cell < 8 ? -10 : (cell * 17 + sample * 7 + cell * cell) % 13), externalWaterMask = Uint8Array.from(elevation, value => value === -10 ? 1 : 0);
+      const terrain = { width, height, elevation, externalWaterMask, externalWaterHead: -10 };
+      verify({ ...terrain, geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: false } }), localRunoff: Array.from(externalWaterMask, (_, cell) => externalWaterMask[cell] ? 0 : 1 + (cell * sample) % 7), rainfall: Uint8Array.from({ length: 40 }, (_, cell) => (sample + cell) % 21), potentialDemand: Float32Array.from({ length: 40 }, (_, cell) => (sample * cell) % 30) });
     }
   });
   it("rejects malformed forcing, duplicate sources and root dependency cycles", () => {
@@ -209,9 +268,9 @@ describe("hydrology/compute-basin-network", () => {
     let seed = 19219;
     const random = () => ((seed = Math.imul(seed, 1664525) + 1013904223 | 0) >>> 0) / 2 ** 32;
     for (let sample = 0; sample < 4000; sample++) {
-      const width = 8, height = 7, elevation = Int16Array.from({ length: 56 }, (_, cell) => cell < 8 ? -10 : Math.floor(random() * 9)), landMask = Uint8Array.from(elevation, value => value === -10 ? 0 : 1);
-      const terrain = { width, height, elevation, landMask };
-      const input = { ...terrain, geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: false } }), localRunoff: Array.from(landMask, value => value ? random() * 4 : 0), rainfall: Uint8Array.from({ length: 56 }, () => Math.floor(random() * 15)), potentialDemand: Float32Array.from({ length: 56 }, () => random() * 30) };
+      const width = 8, height = 7, elevation = Int16Array.from({ length: 56 }, (_, cell) => cell < 8 ? -10 : Math.floor(random() * 9)), externalWaterMask = Uint8Array.from(elevation, value => value === -10 ? 1 : 0);
+      const terrain = { width, height, elevation, externalWaterMask, externalWaterHead: -10 };
+      const input = { ...terrain, geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: false } }), localRunoff: Array.from(externalWaterMask, value => value ? 0 : random() * 4), rainfall: Uint8Array.from({ length: 56 }, () => Math.floor(random() * 15)), potentialDemand: Float32Array.from({ length: 56 }, () => random() * 30) };
       const plan = supported(input);
       expect(Math.abs(plan.conservation.residual)).toBeLessThanOrEqual(plan.conservation.roundoffBound);
       // These exact generations found stale response, unrelated shoreline, and

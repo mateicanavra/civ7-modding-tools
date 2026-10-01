@@ -14,8 +14,7 @@ export const PedologyStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const climateField = deps.artifacts.climateField.read();
     const topography = deps.artifacts.topography.read();
-    const lakePlan = deps.artifacts.lakePlan.read();
-    const landMask = Uint8Array.from(topography.landMask, (land, i) => land === 1 && lakePlan.lakeMask[i] === 0 ? 1 : 0);
+    const { exposedLandMask: landMask } = deps.artifacts.hydrography.read();
     const substrate = deps.artifacts.substrate.read();
     const { width, height } = context.setup.dimensions;
 

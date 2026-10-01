@@ -50,7 +50,7 @@ autoplay or complete scientific calibration. The gallery remains dated evidence.
 | Show the physical elevation directly in Civ | Direct elevation projection; correct native dry-height retention; authored wet heights reapplied around native maintenance without erasing native dry/wonder edits; deployed and recorded Huge live runs | Closed/below-sea/low-head water qualification and units-based physical relief calibration |
 | Make mountains and hills agree with the physical relief | Relief-supported landforms and class-conditioned coherence measurements, rather than using landform labels as a substitute heightfield | Further Earth relief calibration; no conversion from model relief to metres by fitting a quantile |
 | Author minor and navigable river networks | Native direction/class declarations follow the authored network; wet terminal writes repair a demonstrated mouth-continuity defect; implemented, deployed and inspected live | Cliff mouths, between-water-body transitions and actual era-qualified ship movement remain unqualified |
-| Use coherent lakes, basins and drainage | Basin geometry, finite storage/supply budgets, outlets, conservation and network coordination; closed/subtile and equal-sill cases completed | Initial water still lacks independent external-reservoir provenance and can bypass the finite budget; native lake classification policy is not yet adopted |
+| Use coherent lakes, basins and drainage | Basin geometry, finite storage/supply budgets, outlets and network coordination; independent prescribed world-ocean head, all-surface forcing, finite inland water and final exposure now pass the 57-case owning proof | Changed lake-area and placement outcomes need calibration; native lake classification policy is not yet adopted |
 | Remove obsolete compensation after replacing it | Current-only water model and current climate algorithms; retired sink/procedural and four fallback climate paths; no parallel legacy execution lane | Remove only additional compensation whose replacement is proven; do not infer that all native-water work is finished |
 | Let the user inspect and play the result | Same-worktree Studio preview, drainage/elevation diagnostics, native galleries and reachable mobile viewer exist | Refresh milestone evidence against the actual current build, then complete navigation/autoplay qualification |
 
@@ -72,7 +72,8 @@ Details: [elevation](elevation.md), [relief](relief-coherence.md),
 | Reef selection rejected valid habitats by coordinate phase | Spatial-selection repair and independent wrapped-distance regressions | Retiring the Ring preset does not retire those algorithm tests |
 | Some consumer contracts falsely called model relief metres | Owner-local descriptions corrected across 27 production files with numerical syntax held; legacy authored key names remain explicit model-unit controls | Physical dimensional laws and thresholds need independent owner-level calibration; native render scale is not a metre conversion |
 | Native maintenance changed water/dry heights after direct writes | Surface-preparation owner repairs water-height preservation while retaining native dry/wonder changes | Classification cutoff, level preservation, apparent connection and gameplay navigation remain different claims |
-| Initial geographic wetness was treated as an admitted external drainage recipient | Exact ten-cell counterfactual routes its formerly external exports into finite storage while holding other bodies/conservation | Implement and qualify the selected producer-prescription/forcing/resolved-exposure handoff; the counterfactual itself is not a marine policy |
+| Initial geographic wetness was treated as an admitted external drainage recipient | The selected producer prescription, receiving-head rules, wet forcing and complete resolved-exposure consumer handoff are implemented and independently reviewed; full public-cohort conservation and ownership pass | The principal-ocean area prescription is deliberate intent, not salinity or ancestry; native qualification and scientific calibration remain open |
+| Resolved water can invalidate a previously plausible start | Standard1337 has a selected seat with only one unique legal support plot against a floor of two; Huge1234 has spacing/type-limited support | Repair start admission at the domain owner using the existing resource habitat/policy and support radius, not extra resource gains or a weakened floor |
 | Historical fallback algorithms and development presets obscured current ownership | Four climate fallback algorithms retired with 96-scenario, 55-artifact exact identity proof; official catalog narrowed to three products | Latest Juicy's pressure failure is retired-product evidence, not a physics repair or weakened Earthlike pressure requirement |
 
 Source packets: [thermal lineage](climate-artifact-lineage.md),
@@ -87,13 +88,13 @@ Source packets: [thermal lineage](climate-artifact-lineage.md),
    Studio and Civ artifacts; three supported profiles, unchanged retained
    parameter bytes, all existing Earthlike scenarios/targets retained. No
    blacklist or destructive migration of saved current-schema authoring.
-2. **Complete water ownership.** Distinguish prescribed external reservoirs
-   from finite inland storage using justified provenance; admit wet forcing
-   and publish the resolved physical exposure through the same current model.
-   No mask alias, disconnected partial migration or native carving substitute.
-   The [selected repair design](external-water-ownership.md) combines the
-   final producer prescription, receiving-head semantics, all-surface empirical
-   forcing and resolved exposure in one complete story. It is not implemented.
+2. **Complete water ownership: owner repair implemented and verified.**
+   The [water-owner ledger](external-water-ownership.md) records the final
+   producer prescription, receiving-head semantics, all-surface empirical
+   forcing and complete resolved-exposure handoff. No mask alias, optional
+   legacy path, second solver or native carving substitute was added. All
+   57 physical cases pass independently; this does not waive the six retained
+   quality expectations or qualify the later native projection.
 3. **Qualify native projection.** From those resolved bodies, discriminate
    ordinary-water components, river connections, lake identities and height
    maintenance. Test closed/low-head/below-sea cases and minor versus navigable
@@ -137,3 +138,33 @@ their local refs; no new branch or worktree was created. The protected fourteen
 main-checkout files retain their bytes and hashes. Closing receipt:
 `earth-calibration/three-product-convergence-publication-20261001.json`, in the
 existing [Civ research user-data location](../../process/LOCAL-VIEWERS.md).
+
+## Current Water-Owner Milestone
+
+The subsequent full owner graph passes source/test/tool types, 271 realization
+tests and 412 Studio tests. Definition tests report 1,093 passes and three
+failures: a coherence-viewer fixture mismatch subsequently repaired and
+focused-tested, plus two science aggregates retaining their actual failures.
+The separate public evaluator identifies six expectations across four studies:
+lake area, annual geographic thermal variation, mountain-region flat share,
+and the three placement floor/equity/shortfall checks. None was weakened.
+
+The pinned 57-case artifact pass retains all 56 artifacts per case, and a
+separate 57-case public evaluator pass records quality outcomes. All 3,192
+artifact payloads independently reconstruct to their hashes; finite water
+partition, once-only sources, dry-ground preservation and conservation pass.
+All 28 unaffected upstream products retain their preceding values. Evidence:
+`earth-calibration/water-owner-cohort-20261001/` in the durable Civ user data.
+
+The [current generated Huge1018 viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/water-owner-huge-1018/index.html)
+is a fresh visible milestone for the resolved network, not a fresh native image.
+This water-owner build is not yet deployed or live-qualified. The earlier
+installed Huge run and gallery remain explicitly historical evidence.
+
+The remaining thermal resolution discriminator also ran 112 bounded remap
+arms twice against pinned Earth observations. Ordinary Standard/Huge averaging
+and coast-population selection do not explain the missing annual geographic
+response within that surrogate. No new production thermal law is selected;
+the annual local-energy and time-resolved transport candidates still require
+source discrimination and held-error checks. This is not permission to add
+noise, fit the observed residual into the recipe, or manufacture a metre scale.

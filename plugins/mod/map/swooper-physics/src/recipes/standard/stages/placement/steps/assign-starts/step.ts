@@ -181,6 +181,7 @@ export const AssignStartsStep = createStep(config, {
     const mountains = deps.artifacts.mountains.read();
     const volcanoes = deps.artifacts.volcanoes.read();
     const shelf = deps.artifacts.shelf.read();
+    const coastline = deps.artifacts.resolvedCoastline.read();
     const hydrography = deps.artifacts.hydrography.read();
     const lakePlan = deps.artifacts.lakePlan.read();
     const climateIndices = deps.artifacts.climateIndices.read();
@@ -194,12 +195,12 @@ export const AssignStartsStep = createStep(config, {
         gameSeed: context.initialSetup.gameSeed,
         width,
         height,
-        landMask: topography.landMask as Uint8Array,
+        landMask: hydrography.exposedLandMask as Uint8Array,
         slotByTile,
         landmassIdByTile: landmasses.landmassIdByTile as Int32Array,
         landmassTileCounts: landmasses.landmasses.map((landmass) => landmass.tileCount),
-        coastalLand: shelf.coastalLand as Uint8Array,
-        distanceToCoast: shelf.distanceToCoast as Uint16Array,
+        coastalLand: coastline.coastalLand as Uint8Array,
+        distanceToCoast: coastline.distanceToCoast as Uint16Array,
         shelfMask: shelf.shelfMask as Uint8Array,
         elevation: topography.elevation as Int16Array,
         fertility: pedology.fertility as Float32Array,

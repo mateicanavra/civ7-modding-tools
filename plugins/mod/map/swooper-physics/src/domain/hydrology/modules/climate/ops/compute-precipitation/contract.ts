@@ -24,8 +24,10 @@ const ComputePrecipitationContract = defineOp({
         description:
           "Signed elevation per tile in quantized normalized model relief units, not meters or native display units; no sea-level subtraction.",
       }),
-      /** Land mask per tile (1=land, 0=water). */
-      landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
+      /** Initial land geometry gates only terrestrial bonuses and orographic uplift. */
+      landMask: TypedArraySchemas.u8({
+        description: "Initial land mask (1=land, 0=water), not an atmospheric forcing eligibility mask.",
+      }),
       /** Wind U component per tile (-127..127). */
       windU: TypedArraySchemas.i8({ description: "Wind U component per tile (-127..127)." }),
       /** Wind V component per tile (-127..127). */
@@ -58,7 +60,7 @@ const ComputePrecipitationContract = defineOp({
     {
       additionalProperties: false,
       description:
-        "Civ7-scale rainfall and quantized humidity projected from one precipitation result for water-budget and cryosphere consumers.",
+        "All-surface empirical Civ7-scale rainfall and quantized humidity projected from one precipitation result for water-budget and cryosphere consumers.",
     }
   ),
   strategies: [vectorDefinition],

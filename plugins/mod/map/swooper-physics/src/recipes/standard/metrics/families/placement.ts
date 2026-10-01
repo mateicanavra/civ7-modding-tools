@@ -151,8 +151,8 @@ export function measureStandardPlacement(capture: StandardMapCapture): StandardP
   }
 
   const landFertilityValues: number[] = [];
-  for (let index = 0; index < capture.model.landMask.length; index += 1) {
-    if (capture.model.landMask[index] === 1)
+  for (let index = 0; index < capture.model.exposedLandMask.length; index += 1) {
+    if (capture.model.exposedLandMask[index] === 1)
       landFertilityValues.push(capture.model.fertility[index]!);
   }
   const startFertilityValues = startPlots.map((plotIndex) => {
@@ -161,7 +161,7 @@ export function measureStandardPlacement(capture: StandardMapCapture): StandardP
       width,
       height,
       FERTILITY_RADIUS_TILES
-    ).filter((index) => capture.model.landMask[index] === 1);
+    ).filter((index) => capture.model.exposedLandMask[index] === 1);
     return mean(
       requireNonEmpty(
         neighborhood.map((index) => capture.model.fertility[index]!),
@@ -189,8 +189,8 @@ export function measureStandardPlacement(capture: StandardMapCapture): StandardP
 
   const landAridity: number[] = [];
   const landTemperature: number[] = [];
-  for (let index = 0; index < capture.model.landMask.length; index += 1) {
-    if (capture.model.landMask[index] !== 1) continue;
+  for (let index = 0; index < capture.model.exposedLandMask.length; index += 1) {
+    if (capture.model.exposedLandMask[index] !== 1) continue;
     landAridity.push(capture.model.aridityIndex[index]!);
     landTemperature.push(capture.model.surfaceTemperature[index]!);
   }
@@ -348,9 +348,9 @@ function measureHomelandDistribution(
   const regions = Object.freeze(
     regionSlots.map((regionSlot): StandardHomelandRegionMeasurement => {
       let landTileCount = 0;
-      for (let index = 0; index < capture.model.landMask.length; index += 1) {
+      for (let index = 0; index < capture.model.exposedLandMask.length; index += 1) {
         if (
-          capture.model.landMask[index] === 1 &&
+          capture.model.exposedLandMask[index] === 1 &&
           capture.model.regionSlotByTile[index] === regionSlot
         ) {
           landTileCount += 1;

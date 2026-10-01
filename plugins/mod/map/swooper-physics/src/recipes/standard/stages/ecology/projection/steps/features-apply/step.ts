@@ -85,7 +85,7 @@ function isFloodplainFeatureKey(feature: string): boolean {
  */
 export const FeaturesApplyStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const topography = deps.artifacts.topography.read();
+    const hydrography = deps.artifacts.hydrography.read();
     const placements = {
       vegetation: Array.from(deps.artifacts.vegetationIntents.read()),
       wetlands: Array.from(deps.artifacts.wetlandIntents.read()),
@@ -259,7 +259,7 @@ export const FeaturesApplyStep = createStep(config, {
       featureType,
       featureEngineIdsByKey: lookups.byKey,
       projectionMeasurementInput,
-      topographyLandMask: applied > 0 ? topography.landMask : undefined,
+      exposedLandMask: applied > 0 ? hydrography.exposedLandMask : undefined,
       engine,
     };
   },

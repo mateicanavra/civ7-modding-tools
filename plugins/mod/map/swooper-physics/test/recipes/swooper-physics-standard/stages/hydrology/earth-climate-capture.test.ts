@@ -142,7 +142,7 @@ describe("retained Earth-coast baseline evidence", () => {
       );
       expect(
         aquaplanet.fields["baselineClimateField.potentialDemand"]!.values.every(
-          (value) => value === 0
+          (value) => Number.isFinite(value) && value >= 0
         )
       ).toBe(true);
     } finally {

@@ -27,12 +27,18 @@ export type NetworkInput = Readonly<{
   width: number;
   height: number;
   elevation: ArrayLike<number>;
-  landMask: ArrayLike<number>;
+  externalWaterMask: ArrayLike<number>;
+  externalWaterHead: number;
   geometry: GeometryInput;
   localRunoff: readonly number[];
   rainfall: ArrayLike<number>;
   potentialDemand: ArrayLike<number>;
 }>;
+
+/** Only finite cells use physical ground for hydraulic comparisons. */
+export function hydraulicElevation(input: NetworkInput, cell: number): number {
+  return input.externalWaterMask[cell] ? input.externalWaterHead : input.elevation[cell]!;
+}
 
 /** Rejects invalid basin geometry, forcing, or conservation evidence before a supported ledger can be published. */
 export function requireValid(condition: unknown, message: string): asserts condition {

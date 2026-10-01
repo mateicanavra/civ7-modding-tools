@@ -15,6 +15,7 @@ import {
 import { BuildElevationStep } from "../../../../../../../src/recipes/standard/stages/morphology/elevation/steps/build-elevation/step.js";
 import { projectStandardElevation } from "../../../../../../../src/recipes/standard/elevation-projection.js";
 import { TEST_MAP_SEED } from "../../../../../../setup.js";
+import { createEmptyWaterFixture } from "../../features/fixtures/surface-water.js";
 import { closedLakeProjectionFixture } from "../../../../fixtures/closed-lake-projection.js";
 
 const SYNTHETIC_BOUNDED_DRIFT_DIMENSIONS = { width: 10, height: 10 } as const;
@@ -28,14 +29,20 @@ function publishBuildElevationInputs(
   landMask: Uint8Array,
   projectedLakeMask: Uint8Array,
   elevation = new Int16Array(width * height),
-  seaLevel = 0
+  seaLevel = 0,
+  externalWaterMask = Uint8Array.from(landMask, (land) => land === 1 ? 0 : 1)
 ): void {
   const size = width * height;
   publishTestArtifact(context, morphologyLandformsArtifacts.topography, {
     elevation,
     seaLevel,
     landMask,
+    externalWaterMask,
     bathymetry: new Int16Array(size),
+  });
+  publishTestArtifact(context, hydrographyArtifacts.hydrography, {
+    ...createEmptyWaterFixture(width, height).hydrography,
+    exposedLandMask: Uint8Array.from(externalWaterMask, (external, cell) => external === 0 && projectedLakeMask[cell] === 0 ? 1 : 0),
   });
   publishTestArtifact(context, hydrographyArtifacts.projectedLakes, {
     lakeMask: projectedLakeMask,
@@ -50,7 +57,8 @@ function executeBuildElevation(
   landMask: Uint8Array,
   projectedLakeMask = new Uint8Array(width * height),
   elevation = new Int16Array(width * height),
-  seaLevel = 0
+  seaLevel = 0,
+  externalWaterMask = Uint8Array.from(landMask, (land) => land === 1 ? 0 : 1)
 ) {
   return withMapContextExecutionForTest(context, (stepContext) => {
     publishBuildElevationInputs(
@@ -60,7 +68,8 @@ function executeBuildElevation(
       landMask,
       projectedLakeMask,
       elevation,
-      seaLevel
+      seaLevel,
+      externalWaterMask
     );
     const observation = BuildElevationStep.run(
       stepContext,
@@ -248,6 +257,39 @@ function createUnplannedNativeLakeFixture(
 }
 
 describe("map-elevation/build-elevation", () => {
+  it("writes newly dry initially wet finite ground and qualifies retained initially wet lake leveling", () => {
+    class ResolvedNativeAdapter extends ExplicitElevationAdapter {
+      override getElevation(x: number, y: number): number {
+        return super.getElevation(x, y) + (x === 2 && y === 0 ? 0.25 : 0);
+      }
+      override readCurrentMapElevationSnapshot(): CurrentMapElevationSnapshot {
+        return { ...super.readCurrentMapElevationSnapshot(), source: "native" };
+      }
+    }
+    const width = 3, height = 2;
+    const adapter = new ResolvedNativeAdapter({ width, height });
+    const landMask = Uint8Array.of(0, 0, 0, 1, 1, 1);
+    const externalWaterMask = Uint8Array.of(1, 0, 0, 0, 0, 0);
+    const lakeMask = Uint8Array.of(0, 0, 1, 0, 0, 0);
+    const elevation = Int16Array.of(-20, -5, -8, 1, 2, 3);
+    const context = createMapContext({ adapter, setup: admitMapSetup({
+      mapSeed: TEST_MAP_SEED, dimensions: { width, height }, latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    }) });
+    for (let cell = 0; cell < landMask.length; cell++) {
+      const terrain = externalWaterMask[cell] === 1 ? "TERRAIN_OCEAN" : lakeMask[cell] === 1 ? "TERRAIN_COAST" : "TERRAIN_FLAT";
+      adapter.setTerrainType(cell % width, Math.floor(cell / width), adapter.getTerrainTypeIndex(terrain));
+    }
+    const before = landMask.slice();
+    const observation = executeBuildElevation(context, width, height, landMask, lakeMask, elevation, 0, externalWaterMask);
+    expect(observation.intended[0]).toBe(0);
+    expect(observation.intended[1]).toBe(128);
+    expect(observation.expectedLandMask[1]).toBe(1);
+    expect(observation.expectedLandMask[2]).toBe(0);
+    expect(adapter.isWater(1, 0)).toBe(false);
+    expect(adapter.isWater(2, 0)).toBe(true);
+    expect(observation.elevationProjection).toMatchObject({ acceptedInlandWaterAdjustmentCount: 1, nonLakeMismatchCount: 0 });
+    expect(landMask).toEqual(before);
+  });
   for (const phase of ["write", "cliffs", "area"] as const) {
     for (const lost of ["water", "terrain"] as const) {
       it(`preserves physical projection ${phase} ownership and accepted-water policy for ${lost} loss`, () => {
@@ -470,7 +512,7 @@ describe("map-elevation/build-elevation", () => {
     }
     expect(() =>
       executeExactProjectionFixture(new DriftingReadbackAdapter({ width: 3, height: 2 }))
-    ).toThrow("unqualified original-surface numeric mismatch at plot 1");
+    ).toThrow("unqualified external-water numeric mismatch at plot 1");
   });
 
   it("records stable preexisting native-lake leveling without changing authored intent or masks", () => {
@@ -559,7 +601,7 @@ describe("map-elevation/build-elevation", () => {
       console.log = () => {};
       try {
         expect(() => executeBuildElevation(context, width, height, landMask, lakeMask)).toThrow(
-          "unqualified original-surface numeric mismatch at plot 0"
+          "unqualified external-water numeric mismatch at plot 0"
         );
       } finally {
         console.log = originalLog;
@@ -673,7 +715,7 @@ describe("map-elevation/build-elevation", () => {
     };
     try {
       expect(() => executeBuildElevation(context, width, height, landMask, lakeMask)).toThrow(
-        "unqualified original-surface numeric mismatch at plot 0"
+        "unqualified external-water numeric mismatch at plot 0"
       );
       expect(adapter.elevationEvents).toEqual([
         "setElevation",

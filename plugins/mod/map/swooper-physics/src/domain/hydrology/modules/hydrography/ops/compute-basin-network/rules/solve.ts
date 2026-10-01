@@ -1,5 +1,5 @@
 import { computeBasinWaterBudget, type BasinWaterBudgetResponse } from "../../../model/policy/basin-water-budget.js";
-import { requireValid, type NetworkInput } from "./types.js";
+import { hydraulicElevation, requireValid, type NetworkInput } from "./types.js";
 
 type Crossing = { elevation: number; fromCell: number; toCell: number };
 export type Pool = {
@@ -89,7 +89,8 @@ function validateRootDag(input: NetworkInput): Map<number, number> {
  * response graph is a DAG; repeated identical deliveries do not enqueue work.
  */
 export function solvePools(input: NetworkInput, neighbors: readonly number[][]): Solved {
-  const { geometry: g, elevation: z, landMask } = input, size = z.length;
+  const { geometry: g, elevation: z, externalWaterMask } = input, size = z.length;
+  const landMask = Uint8Array.from(externalWaterMask, prescribed => prescribed === 0 ? 1 : 0);
   const rootRank = validateRootDag(input);
   const nodeLeaves = new Map<number, number[]>();
   for (const node of g.nodes) nodeLeaves.set(node.id, node.kind === "leaf" ? [node.id] : node.children.flatMap(id => nodeLeaves.get(id)!).sort((a, b) => a - b));
@@ -232,7 +233,7 @@ export function solvePools(input: NetworkInput, neighbors: readonly number[][]):
         const candidates: Array<{ fromCell: number; toCell: number }> = [];
         for (const fromCell of membership) {
           if (g.rawReceiver[fromCell] === -1 && g.leafId[fromCell] === 0) candidates.push({ fromCell, toCell: -1 });
-          for (const toCell of neighbors[fromCell]!) if (!membership.has(toCell) && z[toCell]! <= head && owner[toCell] !== pool.id) candidates.push({ fromCell, toCell });
+          for (const toCell of neighbors[fromCell]!) if (!membership.has(toCell) && hydraulicElevation(input, toCell) <= head && owner[toCell] !== pool.id) candidates.push({ fromCell, toCell });
         }
         candidates.sort((a, b) => {
           const preferred = (edge: typeof a) => edge.fromCell === recordedPort?.fromCell && edge.toCell === recordedPort.toCell ? 0 : 1;

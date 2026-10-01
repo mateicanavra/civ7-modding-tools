@@ -24,11 +24,13 @@ function fixture(width = 6, height = 2) {
 const plannedCategories = ["plannedMountains", "plannedHills", "plannedFoothills", "plannedRoughLandHills", "plannedRoughTerrain"] as const;
 
 describe("Standard planned relief surface population", () => {
-  it("uses exposed land for every certified planned category, without changing geological or observed diagnostics", () => {
+  it("uses exposed land for every certified planned category, while preserving published geological masks", () => {
     const input = fixture();
-    input.model.landMask[11] = 0;
+    input.model.exposedLandMask[11] = 0;
     input.model.plannedLakeMask.set([1, 1, 1]);
-    // A malformed wet mark on original marine terrain must not subtract land a second time.
+    input.model.exposedLandMask.fill(0, 0, 3);
+    input.model.externalWaterMask[11] = 1;
+    // A malformed wet mark on prescribed external water cannot subtract exposed land a second time.
     input.model.plannedLakeMask[11] = 1;
     input.model.mountainMask[3] = 1;
     input.model.hillMask.set([1, 1, 1], 4);
@@ -39,11 +41,12 @@ describe("Standard planned relief surface population", () => {
     input.observation.terrain.set([1, 2, 2, 2], 3);
     input.observation.isWater.set([1, 1, 1]);
     input.observation.isWater[11] = 1;
-    const beforeLand = Uint8Array.from(input.model.landMask);
+    const beforeLand = Uint8Array.from(input.model.exposedLandMask);
     const beforeLakes = Uint8Array.from(input.model.plannedLakeMask);
 
     const noLakes = measureStandardRelief({ ...input, model: { ...input.model,
-      plannedLakeMask: new Uint8Array(input.model.plannedLakeMask.length) } });
+      plannedLakeMask: new Uint8Array(input.model.plannedLakeMask.length),
+      exposedLandMask: Uint8Array.from(input.model.externalWaterMask, (external) => Number(external === 0)) } });
     const result = measureStandardRelief(input);
     for (const key of plannedCategories) {
       expect(noLakes[key].population).toBe(11);
@@ -51,16 +54,17 @@ describe("Standard planned relief surface population", () => {
       expect(result[key].count).toBe(noLakes[key].count);
     }
     expect(plannedCategories.map((key) => result[key].count)).toEqual([1, 3, 2, 1, 4]);
-    expect(result.mountainRegion).toEqual(noLakes.mountainRegion);
-    expect(result.mountainRegion.tiles).toBe(7);
-    expect(result.finalLandElevation).toEqual(noLakes.finalLandElevation);
-    expect(result.finalLandElevation.maximum).toBe(500);
-    expect(result.coherence.plannedLandTiles).toBe(11);
+    expect(result.mountainRegion.components).toEqual(noLakes.mountainRegion.components);
+    expect(noLakes.mountainRegion.tiles).toBe(7);
+    expect(result.mountainRegion.tiles).toBe(4);
+    expect(noLakes.finalLandElevation.maximum).toBe(500);
+    expect(result.finalLandElevation.maximum).toBe(100);
+    expect(result.coherence.plannedLandTiles).toBe(8);
     for (const key of ["finalMountains", "finalNonVolcanoMountains", "finalHills", "finalRoughTerrain", "finalNonVolcanoRoughTerrain", "finalFlatTerrain"] as const) {
-      expect(result[key]).toEqual(noLakes[key]);
-      expect(result[key].population).toBe(11);
+      expect(result[key].count).toBe(noLakes[key].count);
+      expect(result[key].population).toBe(8);
     }
-    expect(input.model.landMask).toEqual(beforeLand);
+    expect(input.model.exposedLandMask).toEqual(beforeLand);
     expect(input.model.plannedLakeMask).toEqual(beforeLakes);
   });
 
@@ -70,8 +74,9 @@ describe("Standard planned relief surface population", () => {
   ]) {
     it(`quantifies the seed ${seed} population correction without fitting counts or thresholds`, () => {
       const input = fixture(68, 40);
-      input.model.landMask.fill(0, originalLand);
-      input.observation.isWater.fill(1, originalLand);
+      input.model.externalWaterMask.fill(1, originalLand);
+      input.model.exposedLandMask.fill(0, exposedLand);
+      input.observation.isWater.fill(1, exposedLand);
       input.model.plannedLakeMask.fill(1, exposedLand, originalLand);
       input.model.foothillMask.fill(1, 0, foothills);
       input.model.hillMask.fill(1, 0, foothills);
@@ -89,6 +94,8 @@ describe("Standard planned relief surface population", () => {
     input.model.foothillMask[1] = 1;
     const before = measureStandardRelief(input);
     input.model.plannedLakeMask.fill(1, 3, 8);
+    input.model.exposedLandMask.fill(0, 3, 8);
+    input.observation.isWater.fill(1, 3, 8);
     const after = measureStandardRelief(input);
     for (const key of plannedCategories) {
       expect(after[key].count).toBe(before[key].count);

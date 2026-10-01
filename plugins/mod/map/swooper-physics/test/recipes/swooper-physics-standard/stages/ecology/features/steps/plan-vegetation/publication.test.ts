@@ -99,6 +99,7 @@ describe("ecology-features plan-vegetation step", () => {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask: new Uint8Array(size).fill(1),
+        externalWaterMask: new Uint8Array(size),
         bathymetry: new Int16Array(size),
       });
       publishTestArtifact(stepContext, morphologyLandformsArtifacts.mountains, {

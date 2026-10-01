@@ -8,6 +8,7 @@ import { artifacts as climateArtifacts } from "../../../../../../src/domain/hydr
 import { artifacts as hydrographyArtifacts } from "../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "../../../../../../src/domain/morphology/modules/shelf/artifacts/index.js";
+import { artifacts as morphologyCoastsArtifacts } from "../../../../../../src/domain/morphology/modules/coasts/artifacts/index.js";
 import { artifacts as placementRegionArtifacts } from "../../../../../../src/domain/placement/modules/regions/artifacts/index.js";
 import { artifacts as placementStartArtifacts } from "../../../../../../src/domain/placement/modules/starts/artifacts/index.js";
 import placement from "../../../../../../src/domain/placement/router.js";
@@ -137,9 +138,10 @@ function publishAssignStartsInputs(context: MapContext, landTiles: readonly Land
     slotByTile,
   });
   publishTestArtifact(context, morphologyLandformsArtifacts.topography, {
-    elevation: new Int16Array(size).fill(500),
+    elevation: Int16Array.from(landMask, (land) => land === 1 ? 500 : 0),
     seaLevel: 0,
     landMask,
+    externalWaterMask: Uint8Array.from(landMask, (land) => land === 0 ? 1 : 0),
     bathymetry: new Int16Array(size),
   });
   publishTestArtifact(context, morphologyLandformsArtifacts.landmasses, {
@@ -167,7 +169,12 @@ function publishAssignStartsInputs(context: MapContext, landTiles: readonly Land
     coastalWater: new Uint8Array(size),
     distanceToCoast: new Uint16Array(size),
   });
-  publishTestArtifact(context, hydrographyArtifacts.hydrography, createEmptyWaterFixture(width, height).hydrography);
+  publishTestArtifact(context, morphologyCoastsArtifacts.resolvedCoastline, {
+    coastalLand,
+    coastalWater: new Uint8Array(size),
+    distanceToCoast: new Uint16Array(size),
+  });
+  publishTestArtifact(context, hydrographyArtifacts.hydrography, { ...createEmptyWaterFixture(width, height).hydrography, exposedLandMask: landMask });
   publishTestArtifact(context, hydrographyArtifacts.lakePlan, createEmptyWaterFixture(width, height).lakePlan);
   publishTestArtifact(context, climateArtifacts.climateIndices, {
     surfaceTemperatureC: new Float32Array(size).fill(16),

@@ -364,7 +364,7 @@ export const STANDARD_INTEGRITY_TARGET = {
         return (
           summary.unresolvedMouthTileCount === 0 &&
           summary.resolvedMouthTileCount === summary.mouthSourceTileCount &&
-          summary.mouthSourceTileCount === summary.landTileCount - summary.lakeTileCount &&
+          summary.mouthSourceTileCount === summary.exposedLandTileCount &&
           summary.invalidReceiverTileCount === 0 &&
           summary.downstreamDischargeDropEdgeCount === 0 &&
           summary.unassignedBasinLandTileCount === 0 &&

@@ -23,6 +23,7 @@ export const config = defineStep({
     STANDARD_COMPLETIONS.mountainsPlotted,
     STANDARD_COMPLETIONS.volcanoesPlotted,
     hydrographyArtifacts.projectedLakes,
+    hydrographyArtifacts.hydrography,
     morphologyLandformsArtifacts.topography,
   ],
   provides: [STANDARD_COMPLETIONS.elevationBuilt],

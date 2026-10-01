@@ -12,6 +12,7 @@ function body(wetCells: number[], componentId = Math.min(...wetCells) + 1): Basi
 function fixture() {
   const input = {
     width: 8, height: 4, landMask: new Uint8Array(32).fill(1),
+    externalWaterMask: new Uint8Array(32),
     lakePlan: { lakeMask: new Uint8Array(32), bodyId: new Int32Array(32), componentId: new Int32Array(32),
       bodies: [body([12])],
       transfers: [{ componentId: 13, cellA: 12, cellB: 13, bodyA: 13, bodyB: 0, signedDischarge: 1 }],
@@ -19,6 +20,8 @@ function fixture() {
     acceptedLakeMask: new Uint8Array(32), riverClass: new Uint8Array(32), flowDir: new Int32Array(32).fill(-1),
   };
   input.landMask[15] = 0;
+  input.externalWaterMask[15] = 1;
+  input.landMask[12] = 0;
   input.lakePlan.lakeMask[12] = input.acceptedLakeMask[12] = 1;
   input.lakePlan.bodyId[12] = 13;
   input.lakePlan.componentId[12] = input.lakePlan.componentId[13] = 13;
@@ -159,7 +162,7 @@ describe("authored river lowering", () => {
     const faults: ((input: ReturnType<typeof fixture>) => void)[] = [
       (input) => { input.acceptedLakeMask[12] = 0; },
       (input) => { input.acceptedLakeMask[15] = 1; },
-      (input) => { input.landMask[12] = 0; },
+      (input) => { input.externalWaterMask[12] = 1; },
       (input) => { input.lakePlan.bodies.push(input.lakePlan.bodies[0]!); },
       (input) => { input.lakePlan.bodyId[12] = 8; },
       (input) => { input.lakePlan.bodies[0]!.wetCells.push(12); },

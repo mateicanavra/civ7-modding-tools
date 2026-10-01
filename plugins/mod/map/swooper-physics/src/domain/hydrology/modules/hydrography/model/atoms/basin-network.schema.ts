@@ -23,7 +23,7 @@ export const BasinClosureSchema = Type.Union([
 /** Active storage pool retaining descendant geometry leaves, its complete catchment, and stationary response. */
 export const BasinPoolSchema = object({
   poolId: Type.Integer({ minimum: 1, description: "Minimum descendant geometry leaf ID; provenance, never a terminal identity." }), componentId: id(), leafIds: ids(),
-  catchmentCells: Type.Array(cell(), { description: "Disjoint original-land sources assigned to their first active component, including dry uplands." }), wetCells: cells(),
+  catchmentCells: Type.Array(cell(), { description: "Disjoint finite sources assigned to their first active component, including dry uplands and initially wet inland cells." }), wetCells: cells(),
   state: Type.Union([Type.Literal("open"), Type.Literal("closed"), Type.Literal("subtile"), Type.Literal("dry")]),
   level: Type.Number(), flux: BasinFluxSchema, outflow: flux(), unresolvedResidual: flux(), closure: BasinClosureSchema,
 });
@@ -49,9 +49,9 @@ export const BasinHydraulicComponentSchema = object({
   state: Type.Union([Type.Literal("open"), Type.Literal("closed"), Type.Literal("subtile"), Type.Literal("dry")]),
   flux: BasinFluxSchema, outflow: flux(), unresolvedResidual: flux(), terminalId: id(),
 });
-/** Canonical resolved endpoint identity and role used to trace every original-land source. */
+/** Canonical resolved endpoint identity and role used to trace every finite source. */
 export const BasinTerminalSchema = object({ terminalId: id(), role: BasinTerminalRoleSchema, anchorCell: cell(), componentId: Type.Integer({ minimum: 0 }) });
-/** Actual directed discharge from an original-land source into adjacent original marine water. */
+/** Actual directed discharge from a finite source into adjacent prescribed external water. */
 export const MarineDischargeExitSchema = object({ fromCell: cell(), marineCell: cell(), discharge: flux() });
 /** Actual north/south land-boundary discharge without a fabricated off-grid receiver. */
 export const BoundaryDischargeExitSchema = object({ fromCell: cell(), side: Type.Union([Type.Literal("north"), Type.Literal("south")]), discharge: flux() });

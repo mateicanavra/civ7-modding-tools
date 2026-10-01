@@ -6,13 +6,17 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import {
   buildStepTestDependencies,
   publishTestArtifact,
+  runAdmittedOperationForTest,
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { artifacts as hydrographyArtifacts } from "../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "../../../../../../src/domain/morphology/modules/shelf/artifacts/index.js";
+import { artifacts as morphologyCoastsArtifacts } from "../../../../../../src/domain/morphology/modules/coasts/artifacts/index.js";
+import morphology from "../../../../../../src/domain/morphology/router.js";
 import { projectStandardElevation } from "../../../../../../src/recipes/standard/elevation-projection.js";
 import { PreparePlacementSurfaceStep } from "../../../../../../src/recipes/standard/stages/placement/steps/prepare-placement-surface/step.js";
+import { createEmptyWaterFixture } from "../../morphology/features/fixtures/surface-water.js";
 import { TEST_MAP_LATITUDE_BOUNDS, TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
 
 const { width, height } = TEST_MAP_SIZE.dimensions;
@@ -114,6 +118,7 @@ function createFixture() {
     elevation: new Int16Array(size).fill(30),
     seaLevel: 20,
     landMask: new Uint8Array(size).fill(1),
+    externalWaterMask: new Uint8Array(size),
     bathymetry: new Int16Array(size),
   };
   const projectedLakes = { lakeMask: new Uint8Array(size) };
@@ -133,6 +138,16 @@ function executePreparation(fixture: ReturnType<typeof createFixture>) {
     publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, topography);
     publishTestArtifact(stepContext, morphologyShelfArtifacts.shelf, shelf);
     publishTestArtifact(stepContext, hydrographyArtifacts.projectedLakes, projectedLakes);
+    const exposedLandMask = Uint8Array.from(topography.landMask, (land, cell) => land === 1 && projectedLakes.lakeMask[cell] === 0 ? 1 : 0);
+    publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
+      ...createEmptyWaterFixture(width, height).hydrography,
+      exposedLandMask,
+    });
+    publishTestArtifact(stepContext, morphologyCoastsArtifacts.resolvedCoastline, {
+      ...runAdmittedOperationForTest(morphology.coasts.ops.computeCoastalAdjacency,
+        { width, height, landMask: exposedLandMask }, { strategy: "wrapped-hex-adjacency", config: {} }),
+      distanceToCoast: new Uint16Array(size),
+    });
     const deps = buildStepTestDependencies(PreparePlacementSurfaceStep, stepContext);
     const before = structuredClone({
       topography: deps.artifacts.topography.read(),
@@ -252,6 +267,12 @@ describe("placement/prepare-placement-surface", () => {
     topography.landMask[width * 3] = 1;
     topography.landMask[becomesWater] = 1;
     topography.landMask[becomesDry] = 1;
+    for (let cell = 0; cell < size; cell++) {
+      if (topography.landMask[cell] === 0) {
+        topography.externalWaterMask[cell] = 1;
+        topography.elevation[cell] = topography.seaLevel;
+      }
+    }
     shelf.coastalWater[restoredWater] = 1;
     for (let index = 0; index < size; index += 1) {
       adapter.setTerrainType(
@@ -262,7 +283,7 @@ describe("placement/prepare-placement-surface", () => {
         )
       );
     }
-    for (const index of [becomesWater, becomesDry]) projectedLakes.lakeMask[index] = 1;
+    projectedLakes.lakeMask[becomesWater] = 1;
     adapter.setTerrainType(becomesDry % width, 2, adapter.getTerrainTypeIndex("TERRAIN_COAST"));
     adapter.validationMutation = () => {
       adapter.setTerrainType(restoredWater % width, 2, adapter.getTerrainTypeIndex("TERRAIN_FLAT"));

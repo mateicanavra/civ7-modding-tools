@@ -2,6 +2,7 @@ import { artifacts as morphologyLandformsArtifacts } from "../../../../../../dom
 import placement from "../../../../../../domain/placement/index.js";
 import { artifacts as placementRegionArtifacts } from "../../../../../../domain/placement/modules/regions/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
+import { artifacts as hydrographyArtifacts } from "../../../../../../domain/hydrology/modules/hydrography/artifacts/index.js";
 
 /**
  * Defines the single landmass-region projection from admitted topology,
@@ -10,7 +11,7 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 export const config = defineStep({
   id: "plot-landmass-regions",
   engine: ["getLandmassId", "setLandmassRegionId"] as const,
-  requires: [morphologyLandformsArtifacts.topography, morphologyLandformsArtifacts.landmasses],
+  requires: [hydrographyArtifacts.hydrography, morphologyLandformsArtifacts.landmasses],
   provides: [placementRegionArtifacts.landmassRegionSlotByTile],
 
   ops: {

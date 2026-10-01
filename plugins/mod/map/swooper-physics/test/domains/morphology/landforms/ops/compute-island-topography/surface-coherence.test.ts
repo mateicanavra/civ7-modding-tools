@@ -42,6 +42,8 @@ describe("compute-island-topography surface coherence", () => {
     expect(first.topography.elevation).toEqual(second.topography.elevation);
     expect(first.topography.landMask).toEqual(second.topography.landMask);
     expect(first.topography.bathymetry).toEqual(second.topography.bathymetry);
+    expect(first.topography.externalWaterMask).not.toBe(first.topography.landMask);
+    expect(first.topography.externalWaterMask).toEqual(second.topography.externalWaterMask);
     expect(first.islandClass).toEqual(second.islandClass);
 
     let formedTileCount = 0;

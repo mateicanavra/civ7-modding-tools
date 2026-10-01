@@ -17,7 +17,9 @@ describe("certified basin-network integrity measurements", () => {
       if (output.status !== "supported") throw new Error("Expected supported retained basin.");
       const { plan } = output, size = input.width * input.height, base = capture();
       const measured = measureBasinLedger({ ...base, provenance: { width: input.width, height: input.height }, model: {
-        ...base.model, landMask: input.landMask, elevation: input.elevation, baselineRainfall: input.rainfall,
+        ...base.model, externalWaterMask: input.externalWaterMask, seaLevel: input.externalWaterHead,
+        exposedLandMask: Uint8Array.from(input.externalWaterMask, (external, cell) => external === 0 && plan.wetMask[cell] === 0 ? 1 : 0),
+        elevation: input.elevation, baselineRainfall: input.rainfall,
         plannedLakeMask: plan.wetMask, flowDir: plan.receiver, terminalType: plan.terminalType, riverClass: new Uint8Array(size),
         mountainMask: new Uint8Array(size), volcanoMask: new Uint8Array(size),
         physicalHydrology: { model: "certified-sill-spill", runoff: input.localRunoff, potentialDemand: input.potentialDemand,
@@ -47,6 +49,20 @@ describe("certified basin-network integrity measurements", () => {
       lakeProjectionComplete: true,
       authoredSourcesComplete: true,
       nativeClassesMatch: true,
+    });
+  });
+
+  it("keeps initially wet finite source and retained-lake cells in the basin domain", () => {
+    const input = capture();
+    const expected = measureStandardBasinNetwork(input);
+    input.model.landMask.fill(0);
+    expect(input.model.externalWaterMask).toEqual(Uint8Array.of(1, 0, 0));
+    expect(input.model.exposedLandMask).toEqual(Uint8Array.of(0, 1, 0));
+    expect(measureStandardBasinNetwork(input)).toEqual(expected);
+    expect(measureStandardBasinNetwork(input)).toMatchObject({
+      wetTileCount: 1, dryChannelSourceCount: 1,
+      conservationValid: true, partitionsAndLedgersValid: true,
+      physicalFootprintsValid: true, exposureValid: true,
     });
   });
 
@@ -188,10 +204,11 @@ describe("certified basin-network integrity measurements", () => {
     for (const state of ["subtile", "dry"] as const) {
       const input = capture(), physical = input.model.physicalHydrology;
       input.model.elevation.set([-1, 2, 0]); input.model.plannedLakeMask.fill(0);
+      input.model.exposedLandMask.set([0, 1, 1]);
       input.model.riverClass.fill(0); input.model.flowDir.set([-1, 2, -2]);
       input.model.terminalType.set([0, state === "subtile" ? 4 : 5, state === "subtile" ? 4 : 5]);
       input.model.baselineRainfall.fill(0);
-      physical.waterSurface = [-1, 2, 0]; physical.bodyId.fill(0); physical.componentId.set([0, 0, 3]); physical.basinId.set([-1, 3, 3]);
+      physical.waterSurface = [0, 2, 0]; physical.bodyId.fill(0); physical.componentId.set([0, 0, 3]); physical.basinId.set([-1, 3, 3]);
       physical.runoff = state === "subtile" ? [0, 1, 1] : [0, 0, 0]; physical.discharge = state === "subtile" ? [0, 1, 0] : [0, 0, 0];
       physical.potentialDemand.set([0, 0, 4]);
       const amount = state === "subtile" ? 2 : 0;
@@ -242,7 +259,7 @@ describe("certified basin-network integrity measurements", () => {
       physicalFootprintsValid: false,
     });
     const uphill = capture();
-    uphill.model.elevation[0] = 3;
+    uphill.model.seaLevel = 3;
     expect(measureStandardBasinNetwork(uphill)).toMatchObject({
       nonascendingGroundViolationCount: 1,
       physicalFootprintsValid: false,

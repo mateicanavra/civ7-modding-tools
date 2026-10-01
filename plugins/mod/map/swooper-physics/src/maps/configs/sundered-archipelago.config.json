@@ -301,12 +301,6 @@
             "microcontinentChance": 0.2
           }
         }
-      },
-      "landmasses": {
-        "landmasses": {
-          "strategy": "wrapped-hex-components",
-          "config": {}
-        }
       }
     },
     "morphology-shelf": {
@@ -513,6 +507,22 @@
       }
     },
     "morphology-features": {
+      "resolved-coastline": {
+        "adjacency": {
+          "strategy": "wrapped-hex-adjacency",
+          "config": {}
+        },
+        "distanceToCoast": {
+          "strategy": "multi-source-hex-bfs",
+          "config": {}
+        }
+      },
+      "landmasses": {
+        "landmasses": {
+          "strategy": "wrapped-hex-components",
+          "config": {}
+        }
+      },
       "knobs": {
         "orogeny": "normal",
         "volcanism": "normal",

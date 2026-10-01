@@ -39,6 +39,8 @@ describe("hydrology climate-refine demand ownership", () => {
       ]["climate-refine"];
       const landMask = new Uint8Array(size).fill(1);
       landMask[0] = 0;
+      const externalWaterMask = new Uint8Array(size);
+      externalWaterMask[0] = 1;
       const baselineTemperature = new Float32Array(size).fill(20);
       baselineTemperature[0] = -10;
       baselineTemperature[1] = -15;
@@ -63,6 +65,7 @@ describe("hydrology climate-refine demand ownership", () => {
           elevation: new Int16Array(size),
           seaLevel: 0,
           landMask,
+          externalWaterMask,
           bathymetry: new Int16Array(size),
         });
         publishTestArtifact(stepContext, climateArtifacts.baselineClimateField, {
@@ -78,11 +81,13 @@ describe("hydrology climate-refine demand ownership", () => {
           windU: new Int8Array(size),
           windV: new Int8Array(size),
         });
-        publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, createEmptyWaterFixture(width, height).hydrography);
+        const waterFixture = createEmptyWaterFixture(width, height);
+        waterFixture.hydrography.exposedLandMask[0] = 0;
+        publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, waterFixture.hydrography);
         publishTestArtifact(
           stepContext,
           hydrographyArtifacts.lakePlan,
-          createEmptyWaterFixture(width, height).lakePlan
+          waterFixture.lakePlan
         );
         const result = ClimateRefineStep.run(
           stepContext,
@@ -107,7 +112,7 @@ describe("hydrology climate-refine demand ownership", () => {
               demandConfig: typeof hydrology.climate.ops.computePotentialDemand.defaultConfig
             ) => {
               demandCalls++;
-              expect(input.landMask).toBe(landMask);
+              expect(Object.hasOwn(input, "landMask")).toBe(false);
               expect(input.surfaceTemperatureC).toBe(refinedTemperature);
               expect(input.humidity).toBe(refinedHumidity);
               expect(input.parameters).toEqual(parameters);
@@ -136,14 +141,17 @@ describe("hydrology climate-refine demand ownership", () => {
         {
           width,
           height,
-          landMask,
           surfaceTemperatureC: refinedTemperature,
           humidity: refinedHumidity,
           parameters,
         },
         hydrology.climate.ops.computePotentialDemand.defaultConfig
       );
-      expect(indices.pet).toEqual(Float32Array.from(expected.pet));
+      expect(computedPet).toEqual(expected.pet);
+      expect(computedPet[0]).toBeGreaterThan(0);
+      const expectedTerrestrialPet = Float32Array.from(expected.pet);
+      expectedTerrestrialPet[0] = 0;
+      expect(indices.pet).toEqual(expectedTerrestrialPet);
       expect(indices.pet[0]).toBe(0);
       expect(indices.effectiveMoisture[1]).toBe(75);
       expect(indices.aridityIndex[1]).toBe(Math.fround(expected.pet[1]! / (expected.pet[1]! + 41)));

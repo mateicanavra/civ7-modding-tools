@@ -136,13 +136,16 @@ describe("hydrology/compute-precipitation (bounded vector convergence)", () => {
     expect(Math.max(...out.rainfall)).toBeLessThanOrEqual(200);
   });
 
-  it("keeps water rainfall and projected humidity at zero under convergent winds", () => {
+  it("supplies the same atmospheric response over water without terrestrial modifiers", () => {
     const field = radialWind();
+    const config = { rainfallScale: 180, convergenceStrength: 200, noiseAmplitude: 14 };
+    const land = run(field, config);
     field.landMask.fill(0);
-    const out = run(field, { rainfallScale: 180, convergenceStrength: 200, noiseAmplitude: 14 });
+    const out = run(field, config);
 
-    expect(new Set(out.rainfall)).toEqual(new Set([0]));
-    expect(new Set(out.humidity)).toEqual(new Set([0]));
+    expect(out).toEqual(land);
+    expect(out.rainfall[CENTER]).toBe(200);
+    expect(out.humidity[CENTER]).toBe(255);
   });
 
   it("is deterministic without mutating inputs when seeded texture is enabled", () => {

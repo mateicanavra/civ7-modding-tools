@@ -2,6 +2,7 @@ import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authorin
 import {
   BathymetryFieldSchema,
   ElevationFieldSchema,
+  ExternalWaterMaskSchema,
   LandMaskSchema,
   SeaLevelDatumSchema,
 } from "../../../../model/atoms/index.js";
@@ -61,11 +62,13 @@ const ComputeIslandTopographyContract = defineOp({
           elevation: ElevationFieldSchema,
           seaLevel: SeaLevelDatumSchema,
           landMask: LandMaskSchema,
+          externalWaterMask: ExternalWaterMaskSchema,
           bathymetry: BathymetryFieldSchema,
         },
         {
           additionalProperties: false,
-          description: "Coherent post-island topography with newly admitted island land applied.",
+          description:
+            "Coherent post-island topography with island land applied and maximum-area initial-water components prescribed at seaLevel.",
         }
       ),
       islandClass: TypedArraySchemas.u8({

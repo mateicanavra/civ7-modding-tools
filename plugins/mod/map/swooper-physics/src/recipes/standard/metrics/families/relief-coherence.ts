@@ -16,7 +16,8 @@ export type StandardReliefCoherenceInput = Readonly<{
   provenance: Pick<StandardMapCapture["provenance"], "width" | "height">;
   model: Pick<
     StandardMapCapture["model"],
-    | "landMask"
+    | "exposedLandMask"
+    | "externalWaterMask"
     | "seaLevel"
     | "elevation"
     | "mountainMask"
@@ -191,7 +192,7 @@ export function measureStandardReliefCoherence(
   if (!Number.isFinite(input.model.seaLevel))
     throw new Error("Relief coherence requires finite seaLevel.");
   const size = input.provenance.width * input.provenance.height;
-  const plannedLand = Array.from({ length: size }, (_, i) => input.model.landMask[i] === 1);
+  const plannedLand = Array.from({ length: size }, (_, i) => input.model.exposedLandMask[i] === 1);
   const observedLand = Array.from({ length: size }, (_, i) => input.observation.isWater[i] !== 1);
   const neighbors = Array.from({ length: size }, (_, index) => uniqueNeighbors(input, index));
   const plannedTiles = reliefTiles(input, plannedLand, neighbors);
@@ -664,7 +665,8 @@ function measureRiverEdges(
     const physicalReceiverMinusSource =
       input.model.elevation[receiver]! - input.model.elevation[source]!;
     const routingReceiverMinusSource =
-      routingSurface[receiver]! - routingSurface[source]!;
+      (input.model.externalWaterMask[receiver] === 1 ? input.model.seaLevel : routingSurface[receiver]!) -
+      routingSurface[source]!;
     if (
       Number.isFinite(physicalReceiverMinusSource) &&
       Number.isFinite(routingReceiverMinusSource)

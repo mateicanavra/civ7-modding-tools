@@ -7,7 +7,8 @@ export function reliefCoherenceFixture(width = 6, height = 3) {
     provenance: { width, height },
     model: {
       seaLevel: 0,
-      landMask: new Uint8Array(size).fill(1),
+      exposedLandMask: new Uint8Array(size).fill(1),
+      externalWaterMask: new Uint8Array(size),
       elevation: new Int16Array(size).fill(100),
       mountainMask: new Uint8Array(size),
       foothillMask: new Uint8Array(size),

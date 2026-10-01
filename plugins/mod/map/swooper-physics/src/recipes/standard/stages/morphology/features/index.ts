@@ -1,6 +1,8 @@
 import { createStage, type Static, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../../contract-manifest.js";
 import { MountainsStep } from "./steps/mountains/step.js";
+import { LandmassesStep } from "./steps/landmasses/step.js";
+import { ResolvedCoastlineStep } from "./steps/resolved-coastline/step.js";
 import { VolcanoesStep } from "./steps/volcanoes/step.js";
 
 /** Authored orogeny posture applied after any coupled mountain-range control. */
@@ -147,6 +149,8 @@ export default createStage({
   id: "morphology-features",
   knobsSchema,
   steps: orderStandardStageSteps("morphology-features", {
+    landmasses: LandmassesStep,
+    "resolved-coastline": ResolvedCoastlineStep,
     mountains: MountainsStep,
     volcanoes: VolcanoesStep,
   }),

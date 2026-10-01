@@ -9,6 +9,7 @@ import {
 } from "../../../../../../../src/domain/hydrology/modules/hydrography/model/policy/river-class.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "../../../../../../../src/domain/morphology/modules/shelf/artifacts/index.js";
+import { artifacts as morphologyCoastsArtifacts } from "../../../../../../../src/domain/morphology/modules/coasts/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readArtifact } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
@@ -177,6 +178,7 @@ describe("map-rivers/plot-rivers", () => {
         publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
           model: "certified-sill-spill", runoff: Array<number>(size).fill(0), discharge: Array<number>(size).fill(0),
           riverClass, flowDir, basinId: new Int32Array(size), terminalType: new Uint8Array(size),
+          exposedLandMask: Uint8Array.from(landMask, (land, cell) => land === 1 && lakeMask[cell] === 0 ? 1 : 0),
         });
         publishTestArtifact(stepContext, hydrographyArtifacts.riverNetwork, {
           model: "certified-sill-spill", upstreamArea: new Int32Array(size), streamOrderProxy: new Uint8Array(size), mouthType: new Uint8Array(size), slopeClass: new Uint8Array(size), flowPermanenceProxy: new Uint8Array(size), mouthBodyId: new Int32Array(size),
@@ -198,8 +200,13 @@ describe("map-rivers/plot-rivers", () => {
             externalDischarge: 1, unresolvedResidual: 0, normalizedUnresolvedResidual: 0, residual: 0, roundoffBound: 0 },
         });
         publishTestArtifact(stepContext, hydrographyArtifacts.projectedLakes, { lakeMask: acceptedLakeMask });
-        publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, { elevation: new Int16Array(size), seaLevel: 0, landMask, bathymetry: new Int16Array(size) });
+        publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, { elevation: new Int16Array(size), seaLevel: 0, landMask, externalWaterMask: Uint8Array.from(landMask, (land) => land === 0 ? 1 : 0), bathymetry: new Int16Array(size) });
         publishTestArtifact(stepContext, morphologyShelfArtifacts.shelf, { shelfMask: Uint8Array.from(landMask, (value) => 1 - value), coastalLand: new Uint8Array(size), coastalWater: Uint8Array.from(landMask, (value) => 1 - value), distanceToCoast: new Uint16Array(size) });
+        publishTestArtifact(stepContext, morphologyCoastsArtifacts.resolvedCoastline, {
+          coastalLand: new Uint8Array(size),
+          coastalWater: Uint8Array.from(landMask, (value) => 1 - value),
+          distanceToCoast: new Uint16Array(size),
+        });
         PlotRiversStep.run(stepContext, {}, {}, buildStepTestDependencies(PlotRiversStep, stepContext));
       });
       if (blocker || preflightFailure) {
@@ -311,10 +318,16 @@ describe("map-rivers/plot-rivers", () => {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask: new Uint8Array(size).fill(1),
+        externalWaterMask: new Uint8Array(size),
         bathymetry: new Int16Array(size),
       });
       publishTestArtifact(stepContext, morphologyShelfArtifacts.shelf, {
         shelfMask: new Uint8Array(size),
+        coastalLand: new Uint8Array(size),
+        coastalWater: new Uint8Array(size),
+        distanceToCoast: new Uint16Array(size),
+      });
+      publishTestArtifact(stepContext, morphologyCoastsArtifacts.resolvedCoastline, {
         coastalLand: new Uint8Array(size),
         coastalWater: new Uint8Array(size),
         distanceToCoast: new Uint16Array(size),

@@ -11,6 +11,7 @@
 - **Interactive same-seed study:** [Huge/1018 comparison](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherence-huge-1018/index.html)
 - **Independent repetitions:** [Huge/42](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherence-huge-42/index.html), [Standard/1018](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherence-standard-1018/index.html)
 - **Complete basin coordinator:** [Huge/1018 baseline and sparse-river comparison](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coordinator-complete-huge-1018/index.html), with signed hydraulic exchanges and closed-body support; portable evidence, not a new native run.
+- **Resolved water ownership:** [Current generated Huge/1018 network](https://mateis-macbook-pro.taild8da1c.ts.net/civ/water-owner-huge-1018/index.html), with prescribed ocean head, finite inland storage and final exposure. Generated evidence only; scientific and native qualification are recorded in the [water-owner ledger](../projects/native-map-controls/external-water-ownership.md).
 
 The current gallery contains 28 Huge Earthlike/1018 game screenshots and five
 analytical maps. Original PNGs, mobile thumbnails, manifests, data tables and

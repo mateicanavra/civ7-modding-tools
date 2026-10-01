@@ -1,13 +1,14 @@
 import morphology from "../../../../../../../domain/morphology/index.js";
+import { artifacts as hydrographyArtifacts } from "../../../../../../../domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Publishes original marine landmass identity before freshwater exposure changes.
+ * Publishes landmass identity from the resolved dry surface.
  */
 export const config = defineStep({
   id: "landmasses",
-  requires: [morphologyLandformsArtifacts.topography],
+  requires: [hydrographyArtifacts.hydrography],
   provides: [morphologyLandformsArtifacts.landmasses],
 
   ops: {

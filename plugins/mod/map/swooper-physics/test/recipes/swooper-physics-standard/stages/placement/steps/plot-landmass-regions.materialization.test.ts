@@ -2,6 +2,8 @@ import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as hydrographyArtifacts } from "../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
+import { createEmptyWaterFixture } from "../../morphology/features/fixtures/surface-water.js";
 import { artifacts as placementRegionArtifacts } from "../../../../../../src/domain/placement/modules/regions/artifacts/index.js";
 import placement from "../../../../../../src/domain/placement/router.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
@@ -57,11 +59,16 @@ describe("landmass-region materialization", () => {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask: new Uint8Array(size),
+        externalWaterMask: new Uint8Array(size).fill(1),
         bathymetry: new Int16Array(size),
       });
       publishTestArtifact(stepContext, morphologyLandformsArtifacts.landmasses, {
         landmasses: [],
         landmassIdByTile: new Int32Array(size).fill(-1),
+      });
+      publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
+        ...createEmptyWaterFixture(width, height).hydrography,
+        exposedLandMask: new Uint8Array(size),
       });
       PlotLandmassRegionsStep.run(
         stepContext,

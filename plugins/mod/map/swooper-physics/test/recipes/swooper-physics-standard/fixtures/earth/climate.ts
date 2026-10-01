@@ -76,6 +76,7 @@ export function runEarthCoastBaseline(
     elevation: new Int16Array(size),
     seaLevel: 0,
     landMask,
+    externalWaterMask: Uint8Array.from(landMask, (land) => land === 0 ? 1 : 0),
     bathymetry: new Int16Array(size),
   };
   const shelf = { shelfMask, coastalLand, coastalWater, distanceToCoast };

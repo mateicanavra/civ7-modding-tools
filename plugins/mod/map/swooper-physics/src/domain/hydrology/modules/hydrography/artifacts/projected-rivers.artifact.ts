@@ -35,7 +35,7 @@ export const artifact = defineArtifact({
       direction: RiverDirectionSchema,
       riverClass: Type.Literal("NAVIGABLE"),
     }, { additionalProperties: false }), {
-      description: "Qualified accepted original-land lake outlets to existing dry NAV sources; neither wet river terrain intent nor navigation proof.",
+      description: "Qualified accepted finite lake outlets to existing dry NAV sources; neither wet river terrain intent nor navigation proof.",
     }),
     wetTransitionDispositions: Type.Array(Type.Object({
       bodyId: Type.Integer({ minimum: 1 }),

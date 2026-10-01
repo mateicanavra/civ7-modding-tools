@@ -10,6 +10,7 @@ export function projectAuthoredRiverNetwork(input: Readonly<{
   width: number;
   height: number;
   landMask: ArrayLike<number>;
+  externalWaterMask: ArrayLike<number>;
   lakePlan: Pick<CertifiedLakePlan, "lakeMask" | "bodyId" | "bodies" | "componentId" | "transfers" | "ports">;
   acceptedLakeMask: ArrayLike<number>;
   riverClass: ArrayLike<number>;
@@ -18,7 +19,7 @@ export function projectAuthoredRiverNetwork(input: Readonly<{
   const { width, height } = input;
   const size = width * height;
   const { lakeMask, bodyId, bodies, componentId, transfers, ports } = input.lakePlan;
-  for (const key of ["landMask", "acceptedLakeMask", "riverClass", "flowDir"] as const) {
+  for (const key of ["landMask", "externalWaterMask", "acceptedLakeMask", "riverClass", "flowDir"] as const) {
     if (input[key].length !== size) throw new Error(`Authored river ${key} must cover the map.`);
   }
   if (lakeMask.length !== size || bodyId.length !== size || componentId.length !== size) throw new Error("Authored river lake plan must cover the map.");
@@ -53,8 +54,8 @@ export function projectAuthoredRiverNetwork(input: Readonly<{
     if ((lakeMask[cell] !== 0 && lakeMask[cell] !== 1) || input.acceptedLakeMask[cell] !== lakeMask[cell]) {
       throw new Error(`Authored wet outlets require the complete accepted physical lake footprint at ${cell}.`);
     }
-    if (lakeMask[cell] === 1 && input.landMask[cell] !== 1) {
-      throw new Error(`Authored wet outlet footprint ${cell} must be original land, never marine.`);
+    if (lakeMask[cell] === 1 && input.externalWaterMask[cell] !== 0) {
+      throw new Error(`Authored wet outlet footprint ${cell} must be finite, never prescribed external water.`);
     }
   }
   for (const body of bodies) {

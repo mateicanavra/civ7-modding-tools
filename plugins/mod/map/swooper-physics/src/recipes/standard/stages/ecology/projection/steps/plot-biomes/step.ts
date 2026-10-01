@@ -23,7 +23,7 @@ export const PlotBiomesStep = createStep(config, {
     const { width, height } = context.setup.dimensions;
     const classification = deps.artifacts.biomeClassification.read();
     const climateIndices = deps.artifacts.climateIndices.read();
-    const topography = deps.artifacts.topography.read();
+    const hydrography = deps.artifacts.hydrography.read();
     const engineBiomeIds = resolveEngineBiomeIds({
       getBiomeGlobal: (key) => deps.engine.getBiomeGlobal(context, key),
     });
@@ -49,7 +49,7 @@ export const PlotBiomesStep = createStep(config, {
       const rowOffset = y * width;
       for (let x = 0; x < width; x++) {
         const idx = rowOffset + x;
-        if (topography.landMask[idx] === 0) {
+        if (hydrography.exposedLandMask[idx] === 0) {
           deps.engine.setBiomeType(context, x, y, marineBiome);
           projectedBiomeId[idx] = marineBiome;
           projectedTemperature[idx] = clampU8(
@@ -79,7 +79,7 @@ export const PlotBiomesStep = createStep(config, {
     const engineWaterMask = deps.engine.readCurrentMapWaterMask(context);
     let landWaterMismatchCount = 0;
     for (let i = 0; i < size; i++) {
-      const wantsLand = topography.landMask[i] === 1;
+      const wantsLand = hydrography.exposedLandMask[i] === 1;
       const isLand = engineWaterMask[i] !== 1;
       if (wantsLand !== isLand) landWaterMismatchCount += 1;
     }

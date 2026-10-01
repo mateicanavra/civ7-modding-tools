@@ -14,14 +14,14 @@ type RegionSlot = 0 | 1 | 2;
  */
 export const PlotLandmassRegionsStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const topography = deps.artifacts.topography.read();
+    const hydrography = deps.artifacts.hydrography.read();
     const landmasses = deps.artifacts.landmasses.read();
     const { width, height } = context.setup.dimensions;
     const { slotByTile } = ops.regions(
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask: hydrography.exposedLandMask,
         landmassIdByTile: landmasses.landmassIdByTile,
         landmasses: landmasses.landmasses.map(({ id, bbox }) => ({
           id,

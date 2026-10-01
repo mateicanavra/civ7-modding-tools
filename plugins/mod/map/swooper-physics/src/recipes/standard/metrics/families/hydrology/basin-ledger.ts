@@ -8,12 +8,14 @@ export function measureBasinLedger(capture: StandardBasinNetworkMeasurementInput
   if (physical.model !== "certified-sill-spill") throw new Error("Expected completed basin evidence.");
   const { width, height } = capture.provenance;
   const size = width * height;
-  const { landMask, elevation, plannedLakeMask: wet, flowDir, terminalType, baselineRainfall } = capture.model;
+  const { externalWaterMask, exposedLandMask, seaLevel, elevation, plannedLakeMask: wet, flowDir, terminalType, baselineRainfall } = capture.model;
   const { potentialDemand, runoff, discharge, conservation } = physical;
+  const finiteGround = Uint8Array.from(externalWaterMask, (external) => external === 1 ? 0 : 1);
+  const hydraulicHeight = (cell: number) => externalWaterMask[cell] === 1 ? seaLevel : physical.waterSurface[cell]!;
   // Bound arithmetic accumulation from source magnitudes and graph cardinality;
   // neither a claimed larger bound nor unresolved supply can hide lost water.
   let absolute = 0, correction = 0, ordinaryVertexCount = 0;
-  for (let cell = 0; cell < size; cell++) if (landMask[cell]) {
+  for (let cell = 0; cell < size; cell++) if (finiteGround[cell]) {
     const adjusted = runoff[cell]! + baselineRainfall[cell]! + potentialDemand[cell]! - correction;
     const next = absolute + adjusted;
     correction = (next - absolute) - adjusted; absolute = next;
@@ -51,12 +53,12 @@ export function measureBasinLedger(capture: StandardBasinNetworkMeasurementInput
   let dryGroundMismatchCount = 0, nonascendingGroundViolationCount = 0, ordinaryDryLedgerMismatchCount = 0;
   const leaves = new Set<number>();
   if ([physical.waterSurface, physical.bodyId, physical.componentId, physical.basinId, potentialDemand, runoff, discharge,
-    wet, landMask, elevation, flowDir, terminalType, baselineRainfall].some((grid) => grid.length !== size)) poolPartitionMismatchCount++;
+    wet, finiteGround, exposedLandMask, elevation, flowDir, terminalType, baselineRainfall].some((grid) => grid.length !== size)) poolPartitionMismatchCount++;
   for (const pool of physical.pools) {
     if (!pool.leafIds.length || pool.poolId !== Math.min(...pool.leafIds)) poolPartitionMismatchCount++;
     for (const leaf of pool.leafIds) { if (leaves.has(leaf)) poolPartitionMismatchCount++; leaves.add(leaf); }
     for (const cell of pool.catchmentCells) {
-      if (!inGrid(cell) || landMask[cell] !== 1 || poolAt[cell]) poolPartitionMismatchCount++;
+      if (!inGrid(cell) || finiteGround[cell] !== 1 || poolAt[cell]) poolPartitionMismatchCount++;
       if (inGrid(cell)) poolAt[cell] = pool.poolId;
     }
     if (!sameMembers(pool.wetCells, pool.catchmentCells.filter((cell) => wet[cell] === 1))) poolPartitionMismatchCount++;
@@ -65,7 +67,7 @@ export function measureBasinLedger(capture: StandardBasinNetworkMeasurementInput
     if (!connected(body.wetCells) || body.bodyId !== Math.min(...body.wetCells) + 1 ||
       components.get(body.componentId)?.poolId !== body.poolId || !Number.isFinite(body.level)) bodyFootprintMismatchCount++;
     for (const cell of body.wetCells) {
-      if (!inGrid(cell) || bodyAt[cell] || landMask[cell] !== 1 || wet[cell] !== 1 ||
+      if (!inGrid(cell) || bodyAt[cell] || finiteGround[cell] !== 1 || wet[cell] !== 1 ||
         physical.bodyId[cell] !== body.bodyId || physical.waterSurface[cell] !== body.level ||
         elevation[cell]! >= body.level || poolAt[cell] !== body.poolId) bodyFootprintMismatchCount++;
       if (inGrid(cell)) bodyAt[cell] = body.bodyId;
@@ -82,7 +84,7 @@ export function measureBasinLedger(capture: StandardBasinNetworkMeasurementInput
       !sameMembers(component.junctionCells, component.memberCells.filter((cell) => !wet[cell])) ||
       expectedBodies.some((body) => body.level !== component.level)) componentPartitionMismatchCount++;
     for (const cell of component.memberCells) {
-      if (!inGrid(cell) || componentAt[cell] || landMask[cell] !== 1 || physical.componentId[cell] !== component.componentId ||
+      if (!inGrid(cell) || componentAt[cell] || finiteGround[cell] !== 1 || physical.componentId[cell] !== component.componentId ||
         poolAt[cell] !== component.poolId || (wet[cell] && bodies.get(bodyAt[cell]!)?.componentId !== component.componentId) ||
         (!wet[cell] && component.bodyIds.length > 0 && elevation[cell] !== component.level)) componentPartitionMismatchCount++;
       if (inGrid(cell)) componentAt[cell] = component.componentId;
@@ -95,13 +97,13 @@ export function measureBasinLedger(capture: StandardBasinNetworkMeasurementInput
   const boundaryAt = new Map<number, number>();
   const marineEdges = new Map<string, number>();
   for (const exit of physical.boundaryExits) {
-    if (!inGrid(exit.fromCell) || landMask[exit.fromCell] !== 1 || !nonnegative(exit.discharge) || boundaryAt.has(exit.fromCell) ||
+    if (!inGrid(exit.fromCell) || finiteGround[exit.fromCell] !== 1 || !nonnegative(exit.discharge) || boundaryAt.has(exit.fromCell) ||
       Math.floor(exit.fromCell / width) !== (exit.side === "north" ? 0 : height - 1)) invalidPortCount++;
     boundaryAt.set(exit.fromCell, exit.discharge);
   }
   for (const exit of physical.marineExits) {
     const key = `${exit.fromCell}:${exit.marineCell}`;
-    if (!adjacent(exit.fromCell, exit.marineCell) || landMask[exit.fromCell] !== 1 || landMask[exit.marineCell] !== 0 ||
+    if (!adjacent(exit.fromCell, exit.marineCell) || finiteGround[exit.fromCell] !== 1 || finiteGround[exit.marineCell] !== 0 ||
       !nonnegative(exit.discharge) || marineEdges.has(key)) invalidPortCount++;
     marineEdges.set(key, exit.discharge);
   }
@@ -110,7 +112,7 @@ export function measureBasinLedger(capture: StandardBasinNetworkMeasurementInput
     if (!component || componentAt[port.fromCell] !== port.componentId || !nonnegative(port.discharge) || port.discharge <= 0 ||
       component.state !== "open" || !close(port.discharge, component.outflow)) invalidPortCount++;
     if (port.kind === "adjacent") {
-      const destination = !landMask[port.toCell] ? "marine" : componentAt[port.toCell] ? "component" : "dry-reach";
+      const destination = !finiteGround[port.toCell] ? "marine" : componentAt[port.toCell] ? "component" : "dry-reach";
       if (!adjacent(port.fromCell, port.toCell) || componentAt[port.toCell] === port.componentId || port.destination !== destination ||
         port.destinationComponentId !== componentAt[port.toCell]) invalidPortCount++;
       external.push({ from: port.fromCell, to: port.toCell, amount: port.discharge });
@@ -131,8 +133,11 @@ export function measureBasinLedger(capture: StandardBasinNetworkMeasurementInput
   for (let cell = 0; cell < size; cell++) {
     if (bodyAt[cell] !== physical.bodyId[cell] || (bodyAt[cell]! > 0) !== (wet[cell] === 1)) bodyFootprintMismatchCount++;
     if (componentAt[cell] !== physical.componentId[cell]) componentPartitionMismatchCount++;
-    if (!Number.isFinite(physical.waterSurface[cell]) || (!wet[cell] && physical.waterSurface[cell] !== elevation[cell])) dryGroundMismatchCount++;
-    if (!landMask[cell]) {
+    if (!Number.isFinite(physical.waterSurface[cell]) ||
+      (externalWaterMask[cell] === 1 ? physical.waterSurface[cell] !== seaLevel
+        : !wet[cell] && physical.waterSurface[cell] !== elevation[cell])) dryGroundMismatchCount++;
+    if (exposedLandMask[cell] !== Number(externalWaterMask[cell] === 0 && wet[cell] === 0)) bodyFootprintMismatchCount++;
+    if (!finiteGround[cell]) {
       if (physical.basinId[cell] !== -1 || terminalType[cell] !== BASIN_TERMINAL.none || componentAt[cell] || bodyAt[cell]) terminalPartitionMismatchCount++;
       continue;
     }
@@ -145,8 +150,8 @@ export function measureBasinLedger(capture: StandardBasinNetworkMeasurementInput
     }
     const receiver = flowDir[cell]!;
     if (receiver >= 0) {
-      if (!adjacent(cell, receiver) || elevation[receiver]! > elevation[cell]!) nonascendingGroundViolationCount++;
-      if (landMask[receiver] && physical.basinId[receiver] !== physical.basinId[cell]) terminalPartitionMismatchCount++;
+      if (!adjacent(cell, receiver) || hydraulicHeight(receiver) > hydraulicHeight(cell)) nonascendingGroundViolationCount++;
+      if (finiteGround[receiver] && physical.basinId[receiver] !== physical.basinId[cell]) terminalPartitionMismatchCount++;
     } else if (componentAt[cell]) {
       if (receiver !== BASIN_INTERNAL_RECEIVER || discharge[cell] !== 0) nonascendingGroundViolationCount++;
     } else if (receiver !== -1 || !boundaryAt.has(cell) || terminal?.role !== "boundary-export" || terminal.anchorCell !== cell) {
@@ -187,14 +192,14 @@ export function measureBasinLedger(capture: StandardBasinNetworkMeasurementInput
     vertices.push({ cells: component.memberCells, target: -1,
       terminal: component.state === "open" ? 0 : component.anchorCell + 1 });
   }
-  for (let cell = 0; cell < size; cell++) if (landMask[cell] && !componentAt[cell]) {
+  for (let cell = 0; cell < size; cell++) if (finiteGround[cell] && !componentAt[cell]) {
     vertexAt[cell] = vertices.length; vertices.push({ cells: [cell], target: -1, terminal: 0 });
   }
   const indegree = new Int32Array(vertices.length);
   for (const edge of external) {
     const vertex = vertices[vertexAt[edge.from]!];
     if (!vertex) continue;
-    if (landMask[edge.to]) {
+    if (finiteGround[edge.to]) {
       const target = vertexAt[edge.to]!;
       if (target < 0 || vertex.target !== -1 || vertexAt[edge.from] === target) terminalPartitionMismatchCount++;
       else { vertex.target = target; indegree[target]!++; }
@@ -272,7 +277,7 @@ export function measureBasinLedger(capture: StandardBasinNetworkMeasurementInput
     }
   }
   for (let cell = 0; cell < size; cell++) {
-    if (!landMask[cell] || componentAt[cell]) continue;
+    if (!finiteGround[cell] || componentAt[cell]) continue;
     if (!close(runoff[cell]! + externalIncoming[cell]!, externalOutgoing[cell]!)) ordinaryDryLedgerMismatchCount++;
     const receiver = flowDir[cell]!;
     if (!poolAt[cell] && receiver >= 0 && poolAt[receiver]) poolPartitionMismatchCount++;
@@ -305,7 +310,7 @@ export function measureBasinLedger(capture: StandardBasinNetworkMeasurementInput
   for (const terminal of physical.terminals) {
     const component = components.get(terminal.componentId);
     if (!inGrid(terminal.anchorCell) || terminal.terminalId !== terminal.anchorCell + 1 ||
-      landMask[terminal.anchorCell] !== 1 || physical.basinId[terminal.anchorCell] !== terminal.terminalId ||
+      finiteGround[terminal.anchorCell] !== 1 || physical.basinId[terminal.anchorCell] !== terminal.terminalId ||
       componentAt[terminal.anchorCell] !== terminal.componentId) terminalPartitionMismatchCount++;
     if (terminal.role === "marine") {
       if (!physical.marineExits.some((exit) => exit.fromCell === terminal.anchorCell)) terminalPartitionMismatchCount++;
@@ -314,14 +319,14 @@ export function measureBasinLedger(capture: StandardBasinNetworkMeasurementInput
     } else if (!component || component.state !== (terminal.role === "closed-wet" ? "closed" : terminal.role) ||
       component.anchorCell !== terminal.anchorCell || component.outflow !== 0) terminalPartitionMismatchCount++;
   }
-  const realizedMarine = external.filter((edge) => landMask[edge.to] === 0);
+  const realizedMarine = external.filter((edge) => finiteGround[edge.to] === 0);
   if (realizedMarine.length !== marineEdges.size) invalidPortCount++;
   for (const edge of realizedMarine) if (!close(edge.amount, marineEdges.get(`${edge.from}:${edge.to}`) ?? Number.NaN)) invalidPortCount++;
   for (const cell of boundaryAt.keys()) {
     if (componentAt[cell] ? !physical.ports.some((port) => port.kind === "boundary-export" && port.fromCell === cell)
       : flowDir[cell] !== -1) invalidPortCount++;
   }
-  const allLand = Array.from({ length: size }, (_, cell) => cell).filter((cell) => landMask[cell] === 1);
+  const allLand = Array.from({ length: size }, (_, cell) => cell).filter((cell) => finiteGround[cell] === 1);
   const total = sourceFlux(allLand, 0);
   const marineDischarge = physical.marineExits.reduce((sum, exit) => sum + exit.discharge, 0);
   const boundaryDischarge = physical.boundaryExits.reduce((sum, exit) => sum + exit.discharge, 0);

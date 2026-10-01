@@ -317,8 +317,8 @@ export function measureStandardResources(capture: StandardMapCapture): StandardR
       .map((row) => row.spacingFloorTiles)
   );
   const landPlots: number[] = [];
-  for (let plotIndex = 0; plotIndex < capture.model.landMask.length; plotIndex += 1) {
-    if (capture.model.landMask[plotIndex] === 1) landPlots.push(plotIndex);
+  for (let plotIndex = 0; plotIndex < capture.model.exposedLandMask.length; plotIndex += 1) {
+    if (capture.model.exposedLandMask[plotIndex] === 1) landPlots.push(plotIndex);
   }
 
   const totalLandTiles = capture.model.landmasses.reduce(

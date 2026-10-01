@@ -15,10 +15,14 @@ function run(input: Input, allowExternalEdgeOutlets = false): Result {
   });
 }
 
-function syntheticProfile(heights: number[], marineCells = [0]): Input {
-  const landMask = new Uint8Array(heights.length).fill(1);
-  for (const cell of marineCells) landMask[cell] = 0;
-  return { width: heights.length, height: 1, elevation: Int16Array.from(heights), landMask };
+function syntheticProfile(heights: number[], marineCells = [0]) {
+  const externalWaterMask = new Uint8Array(heights.length);
+  for (const cell of marineCells) externalWaterMask[cell] = 1;
+  return { width: heights.length, height: 1, elevation: Int16Array.from(heights), externalWaterMask, externalWaterHead: 0 } satisfies Input;
+}
+
+function hydraulicElevation(input: Input, cell: number): number {
+  return input.externalWaterMask[cell] ? input.externalWaterHead : input.elevation[cell]!;
 }
 
 function cellsOf(result: Result, node: Node): number[] {
@@ -32,10 +36,10 @@ function volumeAt(result: Result, node: Node, level: number): number {
 }
 
 function expectGeometry(input: Input, result: Result, allowExternalEdgeOutlets = false): void {
-  const { width, height, elevation, landMask } = input;
+  const { width, height, elevation, externalWaterMask } = input;
   const neighbors = (cell: number): number[] =>
     getHexNeighborIndicesOddQ(cell % width, Math.floor(cell / width), width, height);
-  const land = [...landMask.keys()].filter((cell) => landMask[cell] === 1);
+  const land = [...externalWaterMask.keys()].filter((cell) => externalWaterMask[cell] === 0);
   expect([...result.catchmentCells, ...result.externalCatchmentCells].sort((a, b) => a - b)).toEqual(land);
   expect(result.roots).toEqual(result.nodes.filter((node) => node.parentId === -1).map((node) => node.id));
 
@@ -43,7 +47,7 @@ function expectGeometry(input: Input, result: Result, allowExternalEdgeOutlets =
     const receiver = result.rawReceiver[cell]!;
     if (receiver >= 0) {
       expect(neighbors(cell)).toContain(receiver);
-      expect(elevation[receiver]!).toBeLessThanOrEqual(elevation[cell]!);
+      expect(hydraulicElevation(input, receiver)).toBeLessThanOrEqual(elevation[cell]!);
       expect(result.leafId[receiver]).toBe(result.leafId[cell]);
     }
     const seen = new Set<number>();
@@ -55,7 +59,7 @@ function expectGeometry(input: Input, result: Result, allowExternalEdgeOutlets =
     }
     if (result.leafId[cell]! > 0) {
       expect(terminal).toBe(result.nodes[result.leafId[cell]! - 1]!.floorCell);
-    } else if (landMask[terminal] === 1) {
+    } else if (externalWaterMask[terminal] === 0) {
       expect(allowExternalEdgeOutlets).toBe(true);
       expect([0, height - 1]).toContain(Math.floor(terminal / width));
     }
@@ -88,7 +92,7 @@ function expectGeometry(input: Input, result: Result, allowExternalEdgeOutlets =
       expect(members).toContain(node.spill.fromCell);
       expect(members).not.toContain(node.spill.toCell);
       expect(neighbors(node.spill.fromCell)).toContain(node.spill.toCell);
-      expect(node.spill.elevation).toBe(Math.max(elevation[node.spill.fromCell]!, elevation[node.spill.toCell]!));
+      expect(node.spill.elevation).toBe(Math.max(hydraulicElevation(input, node.spill.fromCell), hydraulicElevation(input, node.spill.toCell)));
       expect(node.spill.targetLeafId).toBe(result.leafId[node.spill.toCell]);
       expect(node.spill.elevation).toBeGreaterThanOrEqual(node.baseElevation);
     } else {
@@ -114,20 +118,20 @@ function expectGeometry(input: Input, result: Result, allowExternalEdgeOutlets =
 }
 
 function expectThresholdComponents(input: Input, result: Result, level: number, externalEdges: boolean): void {
-  const { width, height, elevation, landMask } = input;
+  const { width, height, elevation, externalWaterMask } = input;
   const expected = new Map<number, number[]>();
   const seen = new Set<number>();
   for (let start = 0; start < elevation.length; start++) {
-    if (elevation[start]! > level || seen.has(start)) continue;
+    if (hydraulicElevation(input, start) > level || seen.has(start)) continue;
     const cells = [start];
     seen.add(start);
     let external = false;
     for (let head = 0; head < cells.length; head++) {
       const cell = cells[head]!;
       const y = Math.floor(cell / width);
-      if (landMask[cell] === 0 || (externalEdges && (y === 0 || y === height - 1))) external = true;
+      if (externalWaterMask[cell] === 1 || (externalEdges && (y === 0 || y === height - 1))) external = true;
       for (const neighbor of getHexNeighborIndicesOddQ(cell % width, y, width, height)) {
-        if (elevation[neighbor]! > level || seen.has(neighbor)) continue;
+        if (hydraulicElevation(input, neighbor) > level || seen.has(neighbor)) continue;
         seen.add(neighbor);
         cells.push(neighbor);
       }
@@ -138,7 +142,7 @@ function expectThresholdComponents(input: Input, result: Result, level: number, 
 
   const actual = new Map<number, number[]>();
   for (let cell = 0; cell < elevation.length; cell++) {
-    if (elevation[cell]! > level) continue;
+    if (hydraulicElevation(input, cell) > level) continue;
     let key = result.leafId[cell]!;
     if (key !== 0) {
       let node = result.nodes[key - 1]!;
@@ -157,14 +161,61 @@ function expectThresholdComponents(input: Input, result: Result, level: number, 
 }
 
 describe("hydrology/compute-drainage-basins", () => {
+  it("keeps every finite hydraulic result invariant under fixed-footprint external bathymetry", () => {
+    const input = syntheticProfile([-200, 5, 1, 3, 0, 8, -50], [0, 6]);
+    const before = structuredClone(input), first = run(input);
+    const alternate = structuredClone(input);
+    alternate.elevation[0] = 32767;
+    alternate.elevation[6] = -32768;
+    expect(run(alternate)).toEqual(first);
+    expect(input).toEqual(before);
+    expectGeometry(input, first);
+    expectGeometry(alternate, first);
+    for (const bin of first.hypsometry) expect(bin.elevation).toBeGreaterThanOrEqual(0);
+  });
+
+  it("uses the receiving head in raw descent and admits below-head and exact-head outlets", () => {
+    const input = syntheticProfile([-100, 5, 2, 7]);
+    const low = run(input);
+    const higher = run({ ...input, externalWaterHead: 4.5 });
+    const equal = run({ ...input, externalWaterHead: 5 });
+    expect(low.rawReceiver[1]).toBe(0);
+    expect(higher.rawReceiver[1]).toBe(2);
+    expect(equal.rawReceiver[1]).toBe(2);
+    expect(higher.nodes[0]!.spill).toEqual({ elevation: 5, fromCell: 1, toCell: 0, targetLeafId: 0 });
+    expect(equal.nodes[0]!.spill).toEqual(higher.nodes[0]!.spill);
+    expect(higher.hypsometry).toEqual(equal.hypsometry);
+    expectGeometry({ ...input, externalWaterHead: 4.5 }, higher);
+    expectGeometry({ ...input, externalWaterHead: 5 }, equal);
+  });
+
+  it("refuses above-ground receiving heads with explicit inward-exchange facts, without changing ground", () => {
+    const input = { ...syntheticProfile([-100, 5, 2, 7]), externalWaterHead: 6 };
+    const before = structuredClone(input);
+    expect(() => run(input)).toThrow(/Unsupported external inundation.*"externalCell":0.*"finiteCell":1.*"finiteGround":5.*"externalWaterHead":6/);
+    expect(input).toEqual(before);
+  });
+
+  it("admits only complete finite-head, exact-binary declarations", () => {
+    const input = syntheticProfile([-100, 5, 2, 7]);
+    expect(() => run({ ...input, externalWaterHead: NaN })).toThrow();
+    expect(() => run({ ...input, externalWaterHead: Infinity })).toThrow();
+    const malformed = structuredClone(input);
+    malformed.externalWaterMask[1] = 2;
+    expect(() => run(malformed)).toThrow();
+    const { externalWaterHead: _head, ...missing } = input;
+    // @ts-expect-error The required receiving head is deliberately absent.
+    expect(() => run(missing)).toThrow();
+  });
+
   it("handles aliased neighbors on a one-column grid and an entirely marine grid", () => {
     const syntheticDimensions = { width: 1, height: 3 };
-    const input = { ...syntheticDimensions, elevation: new Int16Array([4, 1, 3]), landMask: new Uint8Array(3).fill(1) };
+    const input = { ...syntheticDimensions, elevation: new Int16Array([4, 1, 3]), externalWaterMask: new Uint8Array(3), externalWaterHead: 0 };
     const result = run(input);
     expect([...result.rawReceiver]).toEqual([1, -1, 1]);
     expect(result.nodes).toHaveLength(1);
     expectGeometry(input, result);
-    const marineInput = { ...input, landMask: new Uint8Array(3) };
+    const marineInput = { ...input, externalWaterMask: new Uint8Array(3).fill(1) };
     const marine = run(marineInput);
     expect(marine.nodes).toEqual([]);
     expect(marine.saddles).toEqual([]);
@@ -174,7 +225,7 @@ describe("hydrology/compute-drainage-basins", () => {
 
   it("collapses a minimum flat to one pit and adjacent acyclic receiver tree", () => {
     const syntheticDimensions = { width: 4, height: 3 };
-    const input = { ...syntheticDimensions, elevation: new Int16Array(12).fill(5), landMask: new Uint8Array(12).fill(1) };
+    const input = { ...syntheticDimensions, elevation: new Int16Array(12).fill(5), externalWaterMask: new Uint8Array(12), externalWaterHead: 0 };
     const result = run(input);
     expect(result.nodes).toHaveLength(1);
     expect(result.nodes[0]!.floorCell).toBe(0);
@@ -187,7 +238,7 @@ describe("hydrology/compute-drainage-basins", () => {
   });
 
   it("routes a level coastal flat to water without inventing a flat depression", () => {
-    const input = syntheticProfile([2, 2, 2, 2], [0]);
+    const input = { ...syntheticProfile([2, 2, 2, 2], [0]), externalWaterHead: 2 };
     const result = run(input);
     expect(result.nodes).toEqual([]);
     expect([...result.leafId]).toEqual([0, 0, 0, 0]);
@@ -249,9 +300,9 @@ describe("hydrology/compute-drainage-basins", () => {
   it("connects equal-height cells and spills across the cylindrical seam", () => {
     const syntheticDimensions = { width: 5, height: 3 };
     const elevation = new Int16Array([9, 9, 9, 9, 9, 1, 7, -5, 4, 1, 9, 9, 9, 9, 9]);
-    const landMask = new Uint8Array(15).fill(1);
-    landMask[7] = 0;
-    const input = { ...syntheticDimensions, elevation, landMask };
+    const externalWaterMask = new Uint8Array(15);
+    externalWaterMask[7] = 1;
+    const input = { ...syntheticDimensions, elevation, externalWaterMask, externalWaterHead: 0 };
     const result = run(input);
     expect(result.plateauId[9]).toBe(5);
     expect(result.rawReceiver[9]).toBe(5);
@@ -274,7 +325,7 @@ describe("hydrology/compute-drainage-basins", () => {
     const syntheticDimensions = { width: 3, height: 3 };
     const elevation = new Int16Array(9).fill(5);
     elevation[4] = 1;
-    const input = { ...syntheticDimensions, elevation, landMask: new Uint8Array(9).fill(1) };
+    const input = { ...syntheticDimensions, elevation, externalWaterMask: new Uint8Array(9), externalWaterHead: 0 };
     const closed = run(input);
     const open = run(input, true);
     expect(closed.nodes[0]!.spill).toBeNull();
@@ -308,12 +359,12 @@ describe("hydrology/compute-drainage-basins", () => {
   it("is deterministic at tied heights and leaves the exact input buffers untouched", () => {
     const input = syntheticProfile([-5, 4, 0, 4, 1, 4, 2, 4]);
     const ground = input.elevation.slice();
-    const land = input.landMask.slice();
+    const external = input.externalWaterMask.slice();
     const first = run(input);
-    const second = run({ ...input, elevation: input.elevation.slice(), landMask: input.landMask.slice() });
+    const second = run({ ...input, elevation: input.elevation.slice(), externalWaterMask: input.externalWaterMask.slice() });
     expect(first).toEqual(second);
     expect(input.elevation).toEqual(ground);
-    expect(input.landMask).toEqual(land);
+    expect(input.externalWaterMask).toEqual(external);
     expectGeometry(input, first);
   });
 
@@ -323,13 +374,13 @@ describe("hydrology/compute-drainage-basins", () => {
       const elevation = Int16Array.from({ length: 20 }, (_, cell) =>
         (cell * 17 + sample * 13 + cell * cell * 7 + ((cell * sample) % 11)) % 7
       );
-      const landMask = new Uint8Array(20).fill(1);
+      const externalWaterMask = new Uint8Array(20);
       const allowExternalEdgeOutlets = sample % 3 === 2;
       if (sample % 3 === 0) {
-        landMask[0] = 0;
+        externalWaterMask[0] = 1;
         elevation[0] = -1;
       }
-      const input = { ...syntheticDimensions, elevation, landMask };
+      const input = { ...syntheticDimensions, elevation, externalWaterMask, externalWaterHead: -1 };
       const result = run(input, allowExternalEdgeOutlets);
       expectGeometry(input, result, allowExternalEdgeOutlets);
       for (let level = 0; level <= 7; level++) {

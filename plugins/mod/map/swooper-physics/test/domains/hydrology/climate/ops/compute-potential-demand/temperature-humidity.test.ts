@@ -16,7 +16,6 @@ function fixture(parameters: PotentialDemandParameters = defaults) {
   return {
     width,
     height,
-    landMask: Uint8Array.from({ length: size }, (_, i) => (i % 13 === 0 ? 0 : 1)),
     surfaceTemperatureC: Float32Array.from({ length: size }, (_, i) => -60 + i / 3),
     humidity: Uint8Array.from({ length: size }, (_, i) => i % 256),
     parameters,
@@ -51,16 +50,13 @@ describe("hydrology/compute-potential-demand", () => {
       const before = structuredClone(input);
       const demand = computePotentialDemand.run(input, computePotentialDemand.defaultConfig);
       const size = input.width * input.height;
+      const landMask = Uint8Array.from({ length: size }, (_, i) => (i % 13 === 0 ? 0 : 1));
       const rainfall = Uint8Array.from({ length: size }, (_, i) => i % 201);
       const expectedPet = new Float32Array(size);
       const expectedAridity = new Float32Array(size);
       const expectedMoisture = new Float32Array(size);
       const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
       for (let i = 0; i < size; i++) {
-        if (input.landMask[i] !== 1) {
-          expect(demand.pet[i]).toBe(0);
-          continue;
-        }
         // Frozen reference arithmetic from the original combined land-water budget.
         const tMax = Math.max(parameters.tMinC + 1e-6, parameters.tMaxC);
         const range = tMax - parameters.tMinC;
@@ -75,6 +71,7 @@ describe("hydrology/compute-potential-demand", () => {
         const petValue =
           (parameters.petBase + parameters.petTemperatureWeight * tempFactor) * clamp01(damp);
         expect(demand.pet[i]).toBe(petValue);
+        if (landMask[i] !== 1) continue;
         expectedPet[i] = petValue;
         const denominator = petValue + rainfall[i]! + 1;
         expectedAridity[i] = denominator <= 0 ? 0 : clamp01(petValue / denominator);
@@ -88,7 +85,7 @@ describe("hydrology/compute-potential-demand", () => {
         {
           width: input.width,
           height: input.height,
-          landMask: input.landMask,
+          landMask,
           humidity: input.humidity,
           rainfall,
           pet: demand.pet,
@@ -123,7 +120,7 @@ describe("hydrology/compute-potential-demand", () => {
         {
           width: input.width,
           height: input.height,
-          landMask: input.landMask,
+          landMask: new Uint8Array(input.width * input.height).fill(1),
           humidity: input.humidity,
           rainfall: new Uint8Array(input.width * input.height),
           pet: [1],
@@ -134,12 +131,31 @@ describe("hydrology/compute-potential-demand", () => {
     ).toThrow("potential-demand samples");
   });
 
-  it("rejects non-finite land temperatures instead of publishing invalid forcing", () => {
+  it("evaluates the unchanged demand law on every surface without a land mask", () => {
+    const input = {
+      width: 3,
+      height: 1,
+      surfaceTemperatureC: new Float32Array([0, 17.5, 35]),
+      humidity: new Uint8Array([0, 128, 255]),
+      parameters: defaults,
+    };
+    const demand = computePotentialDemand.run(input, computePotentialDemand.defaultConfig);
+    expect(demand.pet).toEqual([
+      defaults.petBase,
+      (defaults.petBase + defaults.petTemperatureWeight * 0.5) *
+        (1 - defaults.humidityDampening * (128 / 255)),
+      (defaults.petBase + defaults.petTemperatureWeight) * (1 - defaults.humidityDampening),
+    ]);
+    const obsoleteInput = { ...input, landMask: new Uint8Array(3) };
+    expect(() => computePotentialDemand.run(obsoleteInput, computePotentialDemand.defaultConfig)).toThrow();
+  });
+
+  it("rejects non-finite temperatures on any surface instead of publishing invalid forcing", () => {
     for (const sample of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
       const input = fixture();
-      input.surfaceTemperatureC[1] = sample;
+      input.surfaceTemperatureC[0] = sample;
       expect(() => computePotentialDemand.run(input, computePotentialDemand.defaultConfig)).toThrow(
-        "finite potential-demand temperature at land tile 1"
+        "finite potential-demand temperature at tile 0"
       );
     }
   });

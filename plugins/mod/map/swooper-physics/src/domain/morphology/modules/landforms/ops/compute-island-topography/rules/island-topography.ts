@@ -21,6 +21,9 @@ export function materializeIslandTopography(params: {
   const landElevation = clampInt16(Math.floor(params.seaLevel) + 1);
 
   for (let index = 0; index < params.islandClass.length; index += 1) {
+    if (params.landMask[index] !== 0 && params.landMask[index] !== 1) {
+      throw new RangeError(`Expected binary initial landMask at tile ${index}; received ${params.landMask[index]}.`);
+    }
     if (params.islandClass[index] === 0) continue;
     landMask[index] = 1;
     elevation[index] = Math.max(elevation[index]!, landElevation);

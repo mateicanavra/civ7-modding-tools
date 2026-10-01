@@ -16,7 +16,7 @@ const ClassifyBasinRiverNetworkContract = defineOp({
     {
       width: Type.Integer({ minimum: 1 }),
       height: Type.Integer({ minimum: 1 }),
-      landMask: TypedArraySchemas.u8(),
+      externalWaterMask: TypedArraySchemas.u8(),
       elevation: TypedArraySchemas.i16(),
       lakeMask: TypedArraySchemas.u8(),
       waterSurface: Type.Array(Type.Number()),

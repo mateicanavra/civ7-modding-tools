@@ -18,7 +18,7 @@ export const config = defineStep({
     morphologyLandformsArtifacts.topography,
     morphologyErosionArtifacts.substrate,
     climateArtifacts.climateField,
-    hydrographyArtifacts.lakePlan,
+    hydrographyArtifacts.hydrography,
   ],
   provides: [pedologyArtifacts.pedology],
 

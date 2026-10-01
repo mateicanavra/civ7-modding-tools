@@ -16,12 +16,11 @@ describe("Standard physical water and surface order", () => {
       expect(stages.indexOf(ordered[i]!)).toBeGreaterThan(stages.indexOf(ordered[i - 1]!));
     }
     expect(standardStageContractManifest.find(({ id }) => id === "hydrology-hydrography")?.steps.map(({ contract }) => contract.id)).toEqual(["network"]);
-    expect(standardStageContractManifest.find(({ id }) => id === "morphology-islands")?.steps.map(({ contract }) => contract.id)).toEqual(["islands", "landmasses"]);
+    expect(standardStageContractManifest.find(({ id }) => id === "morphology-islands")?.steps.map(({ contract }) => contract.id)).toEqual(["islands"]);
     const features = standardStageContractManifest.find(({ id }) => id === "morphology-features")!;
-    expect(features.steps.map(({ contract }) => contract.id)).toEqual(["mountains", "volcanoes"]);
+    expect(features.steps.map(({ contract }) => contract.id)).toEqual(["landmasses", "resolved-coastline", "mountains", "volcanoes"]);
     for (const { contract } of features.steps) {
       expect(contract.requires).toContain(artifacts.hydrography);
-      expect(contract.requires).toContain(artifacts.lakePlan);
     }
   });
 });

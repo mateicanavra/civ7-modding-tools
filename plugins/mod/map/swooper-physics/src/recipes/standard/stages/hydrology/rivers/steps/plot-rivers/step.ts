@@ -1,9 +1,8 @@
 import {
   CIV7_BROWSER_TABLES_V0,
-  deriveCiv7CoastProjection,
 } from "@civ7/map-policy";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { assertAcceptedLakeFootprint, restoreProjectedCoastTerrain } from "../../../../../water-surface-parity.js";
+import { assertAcceptedLakeFootprint, deriveResolvedCoastProjection, restoreProjectedCoastTerrain } from "../../../../../water-surface-parity.js";
 import { projectAuthoredRiverNetwork } from "../../model/policy/authored-river-projection.js";
 import { config } from "./config.js";
 import { buildPlotRiversVizProjections, type PlotRiversVizEvidence } from "./viz.js";
@@ -17,18 +16,22 @@ export const PlotRiversStep = createStep(config, {
     const lakePlan = deps.artifacts.lakePlan.read();
     const shelf = deps.artifacts.shelf.read();
     const topography = deps.artifacts.topography.read();
+    const coastline = deps.artifacts.resolvedCoastline.read();
     const { width, height } = context.setup.dimensions;
     const terrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
-    const coastProjection = deriveCiv7CoastProjection({
+    const coastProjection = deriveResolvedCoastProjection({
       width,
       height,
-      landMask: topography.landMask,
+      exposedLandMask: hydrography.exposedLandMask,
+      externalWaterMask: topography.externalWaterMask,
+      lakeMask: lakePlan.lakeMask,
       shelfMask: shelf.shelfMask,
-      coastalWater: shelf.coastalWater,
+      coastalWater: coastline.coastalWater,
     });
     const acceptedLakeMask = deps.artifacts.projectedLakes.read().lakeMask;
     const materialized = projectAuthoredRiverNetwork({
-      width, height, landMask: topography.landMask, lakePlan, acceptedLakeMask,
+      width, height, landMask: hydrography.exposedLandMask, lakePlan, acceptedLakeMask,
+      externalWaterMask: topography.externalWaterMask,
       riverClass: hydrography.riverClass, flowDir: hydrography.flowDir,
     });
     const capabilities = deps.engine.getRiverCapabilities(context);
@@ -105,7 +108,7 @@ export const PlotRiversStep = createStep(config, {
     return {
       riverClass: hydrography.riverClass,
       discharge: Float32Array.from(hydrography.discharge), // Visualization only; the physical ledger stays Number-precision.
-      materialized, topographyLandMask: topography.landMask, engineEvidence: { riverReadback },
+      materialized, topographyLandMask: hydrography.exposedLandMask, engineEvidence: { riverReadback },
     } satisfies PlotRiversVizEvidence;
 },
   viz: ({ observation, dimensions }) => buildPlotRiversVizProjections(observation, dimensions),

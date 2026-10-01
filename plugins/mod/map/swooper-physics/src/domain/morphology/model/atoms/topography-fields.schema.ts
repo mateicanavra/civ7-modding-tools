@@ -17,6 +17,13 @@ export const LandMaskSchema = TypedArraySchemas.u8({
   description: "Per-tile land classification where 1 is land and 0 is water.",
 });
 
+/** Final Morphology prescription, independent of initial wetness and finite storage. */
+export const ExternalWaterMaskSchema = TypedArraySchemas.u8({
+  cardinality: "map-grid",
+  description:
+    "Binary external-water prescription, a subset of initial water held at the existing seaLevel datum.",
+});
+
 /** Per-tile submerged relief retained alongside each Morphology topography vintage. */
 export const BathymetryFieldSchema = TypedArraySchemas.i16({
   cardinality: "map-grid",

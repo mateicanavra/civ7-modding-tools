@@ -52,7 +52,7 @@ describe("hydrology/compute-land-water-budget riparian moisture", () => {
       rainfall,
       humidity,
       pet: computePotentialDemand.run(
-        { width, height, landMask, humidity, surfaceTemperatureC, parameters },
+        { width, height, humidity, surfaceTemperatureC, parameters },
         computePotentialDemand.defaultConfig
       ).pet,
       riverClass,
@@ -70,6 +70,7 @@ describe("hydrology/compute-land-water-budget riparian moisture", () => {
     expect(first.effectiveMoisture[waterTile]).toBe(0);
     expect(first.effectiveMoisture[saturatedTile]).toBeCloseTo(297.25, 5);
     const expectedPet = (18 + 75 * (20 / 35)) * (1 - 0.55 * (100 / 255));
+    expect(input.pet[waterTile]).toBe(expectedPet);
     expect(first.pet[dryTile]).toBeCloseTo(expectedPet, 5);
     expect(first.aridityIndex[dryTile]).toBeCloseTo(expectedPet / (expectedPet + 41), 5);
     expect(first.pet[minorTile]).toBe(first.pet[dryTile]);

@@ -22,7 +22,7 @@ export function createSurfaceWaterFixture(
   elevation[wetCell] = 800;
   elevation[dryCell] = 800;
   elevation[minorChannel] = 801;
-  const topography = { landMask, elevation, seaLevel: 0, bathymetry: new Int16Array(size) };
+  const topography = { landMask, externalWaterMask: Uint8Array.from(landMask, (land) => land === 0 ? 1 : 0), elevation, seaLevel: 0, bathymetry: new Int16Array(size) };
   const lakeMask = new Uint8Array(size);
   lakeMask[wetCell] = 1;
   const commonLake = { width, height, lakeMask, plannedLakeTileCount: 1 };
@@ -34,6 +34,7 @@ export function createSurfaceWaterFixture(
   flowDir[wetCell] = minorChannel;
   flowDir[minorChannel] = 0;
   const commonHydrography = {
+    exposedLandMask: Uint8Array.from(landMask, (land, cell) => land === 1 && cell !== wetCell ? 1 : 0),
     riverClass,
     flowDir,
     basinId: new Int32Array(size).fill(-1),
@@ -85,6 +86,7 @@ export function createEmptyWaterFixture(width: number, height: number, lakeMask 
   return {
     hydrography: {
       model: "certified-sill-spill" as const,
+      exposedLandMask: Uint8Array.from(lakeMask, (wet) => wet === 0 ? 1 : 0),
       riverClass: new Uint8Array(size), flowDir: new Int32Array(size).fill(-1),
       basinId: new Int32Array(size).fill(-1), terminalType: new Uint8Array(size),
       runoff: Array<number>(size).fill(0), discharge: Array<number>(size).fill(0),

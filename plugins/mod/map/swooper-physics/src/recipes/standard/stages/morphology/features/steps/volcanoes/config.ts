@@ -9,8 +9,7 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "volcanoes",
-  requires: [foundationProjectionArtifacts.plates, morphologyLandformsArtifacts.topography,
-    hydrographyArtifacts.hydrography, hydrographyArtifacts.lakePlan],
+  requires: [foundationProjectionArtifacts.plates, hydrographyArtifacts.hydrography],
 
   provides: [morphologyLandformsArtifacts.volcanoes],
   ops: {

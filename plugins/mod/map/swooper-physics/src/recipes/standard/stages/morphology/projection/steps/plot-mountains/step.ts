@@ -9,7 +9,7 @@ import { config } from "./config.js";
  */
 export const PlotMountainsStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
-    const topography = deps.artifacts.topography.read();
+    const hydrography = deps.artifacts.hydrography.read();
     const mountains = deps.artifacts.mountains.read();
     const { width, height } = context.setup.dimensions;
 
@@ -19,7 +19,7 @@ export const PlotMountainsStep = createStep(config, {
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const idx = y * width + x;
-        if (topography.landMask[idx] !== 1) continue;
+        if (hydrography.exposedLandMask[idx] !== 1) continue;
         if (mountains.mountainMask[idx] === 1) {
           deps.engine.setTerrainType(
             context,
@@ -44,7 +44,7 @@ export const PlotMountainsStep = createStep(config, {
     assertNoWaterDrift(
       context.setup.dimensions,
       engineWaterMask,
-      topography.landMask,
+      hydrography.exposedLandMask,
       "map-morphology/plot-mountains"
     );
   },

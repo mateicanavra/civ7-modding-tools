@@ -58,7 +58,8 @@ function elevationGradientOddQ(
 /**
  * Combines transported humidity with coastal moisture, seeded texture, windward elevation
  * gradients, and wind convergence over the shared engine-compatible hex neighborhood. Rainfall is
- * land-only, clamped to Civ7's range, and is the sole source of returned humidity.
+ * all-surface, with terrestrial bonuses and uplift restricted to initial land. It is clamped to
+ * Civ7's range and is the sole source of returned humidity.
  */
 const vectorStrategy = createStrategy(ComputePrecipitationContract, VectorDefinition, {
   run: (input, config) => {
@@ -99,13 +100,13 @@ const vectorStrategy = createStrategy(ComputePrecipitationContract, VectorDefini
       const row = y * width;
       for (let x = 0; x < width; x++) {
         const i = row + x;
-        if (input.landMask[i] === 0) continue;
+        const isInitialLand = input.landMask[i] === 1;
 
         const hum = clamp01(input.humidityF32[i] ?? 0);
         let rf = Math.pow(hum, humidityExponent) * rainfallScale;
 
         const dist = distToWater[i] | 0;
-        if (dist >= 0 && dist <= waterRadius) {
+        if (isInitialLand && dist >= 0 && dist <= waterRadius) {
           const elev = input.elevation[i] | 0;
           rf += Math.max(0, waterRadius - dist) * waterPerRingBonus;
           if (elev < waterLowlandElevationMax) rf += waterLowlandBonus;
@@ -114,7 +115,7 @@ const vectorStrategy = createStrategy(ComputePrecipitationContract, VectorDefini
         const wx = input.windU[i] | 0;
         const wy = input.windV[i] | 0;
         const speed = Math.sqrt(wx * wx + wy * wy);
-        if (speed > 1e-6) {
+        if (isInitialLand && speed > 1e-6) {
           const grad = elevationGradientOddQ(x, y, width, height, input.elevation);
           const whx = wx / speed;
           const why = wy / speed;

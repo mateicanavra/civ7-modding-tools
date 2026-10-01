@@ -23,6 +23,7 @@ import { projectPlacementParityViz } from "./viz.js";
 export const ObservePlacementParityStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
     const topography = deps.artifacts.topography.read();
+    const hydrography = deps.artifacts.hydrography.read();
     const projectedLakes = deps.artifacts.projectedLakes.read();
     const projectedRivers = deps.artifacts.projectedRivers.read();
     const { width, height } = context.setup.dimensions;
@@ -57,7 +58,7 @@ export const ObservePlacementParityStep = createStep(config, {
     const waterDrift = new Uint8Array(engineObservation.landMask.length);
     for (let i = 0; i < engineObservation.landMask.length; i++) {
       const acceptedLake = (projectedLakes.lakeMask[i] ?? 0) === 1;
-      const expectedWater = (topography.landMask[i] ?? 0) !== 1 || acceptedLake;
+      const expectedWater = hydrography.exposedLandMask[i] !== 1;
       const engineWater = (terminalSnapshot.waterMask[i] ?? 0) === 1;
       if (engineWater !== expectedWater) {
         waterDriftCount++;
@@ -114,7 +115,7 @@ export const ObservePlacementParityStep = createStep(config, {
     // observation. Final numeric drift remains evidence while native preservation is calibrated.
     const intended = projectStandardElevation({
       elevation: topography.elevation,
-      landMask: topography.landMask,
+      landMask: hydrography.exposedLandMask,
       seaLevel: topography.seaLevel,
       acceptedLakeMask: projectedLakes.lakeMask,
     });

@@ -4,7 +4,8 @@ type Input = Readonly<{
   width: number;
   height: number;
   elevation: ArrayLike<number>;
-  landMask: ArrayLike<number>;
+  externalWaterMask: ArrayLike<number>;
+  externalWaterHead: number;
 }>;
 type Spill = {
   elevation: number;
@@ -60,8 +61,17 @@ type Connection = { neighbor: number; outward: Spill; inward: Spill };
  * @returns Raw receivers, leaves, saddle connections, containment, and exact area-height evidence.
  */
 export function computeDrainageBasins(input: Input, allowExternalEdgeOutlets: boolean): Result {
-  const { width, height, elevation, landMask } = input;
+  const { width, height, elevation, externalWaterMask, externalWaterHead } = input;
   const size = width * height;
+  if (!Number.isSafeInteger(width) || width <= 0 || !Number.isSafeInteger(height) || height <= 0 || !Number.isSafeInteger(size) || size > 0x7fffffff || elevation.length !== size || externalWaterMask.length !== size || !Number.isFinite(externalWaterHead)) {
+    throw new RangeError("Invalid drainage basin input: grid cardinality or external water head.");
+  }
+  const landMask = Uint8Array.from({ length: size }, (_, cell) => {
+    if (externalWaterMask[cell] !== 0 && externalWaterMask[cell] !== 1) throw new RangeError(`Invalid drainage basin input: binary external water mask at ${cell}.`);
+    if (!Number.isInteger(elevation[cell]) || elevation[cell]! < -32768 || elevation[cell]! > 32767) throw new RangeError(`Invalid drainage basin input: original Int16 ground at ${cell}.`);
+    return externalWaterMask[cell] === 0 ? 1 : 0;
+  });
+  const hydraulicElevation = (cell: number): number => externalWaterMask[cell] ? externalWaterHead : elevation[cell]!;
   const plateauId = new Int32Array(size).fill(-1);
   const rawReceiver = new Int32Array(size).fill(-1);
   const leafId = new Int32Array(size);
@@ -72,6 +82,16 @@ export function computeDrainageBasins(input: Input, allowExternalEdgeOutlets: bo
       visit(y * width + x);
     });
   };
+
+  // The coordinator models outward deliveries only. A below-head shoreline
+  // needs inward supply, not a fabricated head-height sill over unchanged ground.
+  for (let finiteCell = 0; finiteCell < size; finiteCell++) {
+    if (!landMask[finiteCell] || elevation[finiteCell]! >= externalWaterHead) continue;
+    neighbors(finiteCell, (externalCell) => {
+      if (!externalWaterMask[externalCell]) return;
+      throw new RangeError(`Unsupported external inundation: ${JSON.stringify({ kind: "below-head-connection", externalCell, finiteCell, finiteGround: elevation[finiteCell], externalWaterHead })}.`);
+    });
+  }
 
   for (let start = 0; start < size; start++) {
     if (landMask[start] !== 1 || plateauId[start] !== -1) continue;
@@ -106,13 +126,13 @@ export function computeDrainageBasins(input: Input, allowExternalEdgeOutlets: bo
         if (edgeExit === -1 || cell < edgeExit) edgeExit = cell;
       }
       neighbors(cell, (neighbor) => {
-        const lower = elevation[neighbor]! < plateau.elevation;
-        const levelWater = landMask[neighbor] === 0 && elevation[neighbor] === plateau.elevation;
+        const lower = hydraulicElevation(neighbor) < plateau.elevation;
+        const levelWater = landMask[neighbor] === 0 && hydraulicElevation(neighbor) === plateau.elevation;
         if (!lower && !levelWater) return;
         if (
           receiver === -1 ||
-          elevation[neighbor]! < elevation[receiver]! ||
-          (elevation[neighbor] === elevation[receiver] &&
+          hydraulicElevation(neighbor) < hydraulicElevation(receiver) ||
+          (hydraulicElevation(neighbor) === hydraulicElevation(receiver) &&
             (neighbor < receiver || (neighbor === receiver && cell < source)))
         ) {
           source = cell;
@@ -162,7 +182,7 @@ export function computeDrainageBasins(input: Input, allowExternalEdgeOutlets: bo
         leafB: leafId[cellB]!,
         cellA,
         cellB,
-        elevation: Math.max(elevation[cell]!, elevation[neighbor]!),
+        elevation: Math.max(hydraulicElevation(cell), hydraulicElevation(neighbor)),
       };
       const key = `${saddle.leafA}:${saddle.leafB}`;
       const previous = byLeafPair.get(key);
@@ -316,7 +336,7 @@ function collectMembership(
   roots: number[],
   leafId: Int32Array,
   elevation: Input["elevation"],
-  landMask: Input["landMask"]
+  landMask: ArrayLike<number>
 ): Pick<Result, "catchmentCells" | "externalCatchmentCells" | "hypsometry"> {
   const leafCells = new Map<number, number[]>();
   const external: number[] = [];

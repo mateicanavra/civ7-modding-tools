@@ -4,6 +4,7 @@ import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 
 import { ISLAND_FORMATION_CLASS } from "../../../../model/policy/island-formation.js";
 import ComputeIslandTopographyContract from "../../contract.js";
+import { declareExternalWater } from "../../rules/external-water.js";
 import { resolveIslandPatchSize, shouldSeedIsland } from "../../rules/island-admission.js";
 import { growIslandPatch } from "../../rules/island-patch.js";
 import { materializeIslandTopography } from "../../rules/island-topography.js";
@@ -140,14 +141,24 @@ export default createStrategy(ComputeIslandTopographyContract, StrategyDefinitio
       }
     }
 
+    const topography = materializeIslandTopography({
+      elevation,
+      seaLevel,
+      landMask,
+      bathymetry,
+      islandClass,
+    });
     return {
-      topography: materializeIslandTopography({
-        elevation,
-        seaLevel,
-        landMask,
-        bathymetry,
-        islandClass,
-      }),
+      topography: {
+        ...topography,
+        externalWaterMask: declareExternalWater({
+          width,
+          height,
+          landMask: topography.landMask,
+          elevation: topography.elevation,
+          seaLevel: topography.seaLevel,
+        }),
+      },
       islandClass,
     };
   },

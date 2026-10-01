@@ -9,7 +9,7 @@ const ComputeLocalRunoffContract = defineOp({
     {
       width: Type.Integer({ minimum: 1 }),
       height: Type.Integer({ minimum: 1 }),
-      landMask: TypedArraySchemas.u8(),
+      externalWaterMask: TypedArraySchemas.u8(),
       rainfall: TypedArraySchemas.u8(),
       humidity: TypedArraySchemas.u8(),
     },
@@ -19,7 +19,7 @@ const ComputeLocalRunoffContract = defineOp({
     {
       runoff: Type.Array(Type.Number({ minimum: 0 }), {
         description:
-          "Map-grid Number-precision precipitation-attributed supply; zero on original marine water and never greater than local rainfall.",
+          "Map-grid Number-precision precipitation-attributed supply on all finite ground; zero on prescribed external water and never greater than local rainfall.",
       }),
     },
     { additionalProperties: false }

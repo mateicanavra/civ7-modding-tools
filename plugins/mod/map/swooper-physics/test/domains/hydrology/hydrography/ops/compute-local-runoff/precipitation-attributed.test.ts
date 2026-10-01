@@ -10,7 +10,7 @@ const config = {
 const input = () => ({
   width: 4,
   height: 1,
-  landMask: Uint8Array.of(0, 1, 1, 1),
+  externalWaterMask: Uint8Array.of(1, 0, 0, 0),
   rainfall: Uint8Array.of(200, 51, 99, 0),
   humidity: Uint8Array.of(0, 56, 121, 255),
 });
@@ -41,7 +41,7 @@ describe("hydrology/compute-local-runoff", () => {
         config: { infiltrationFraction: 1, humidityDampening: 0 },
       }).runoff
     ).toEqual([0, 0, 0, 0]);
-    forcing.landMask[1] = 2;
+    forcing.externalWaterMask[1] = 2;
     expect(() => computeLocalRunoff.run(forcing, config)).toThrow("binary");
     for (const retired of [{ minRunoff: 0 }, { runoffScale: 1 }]) {
       const retiredSelection = { ...config, config: { ...config.config, ...retired } };

@@ -6,6 +6,10 @@ export const artifact = defineArtifact({
   id: "artifact:hydrology.hydrography",
   schema: Type.Object({
     model: Type.Literal("certified-sill-spill"),
+    exposedLandMask: TypedArraySchemas.u8({
+      cardinality: "map-grid",
+      description: "Resolved dry finite ground: excludes prescribed external water and every stationary finite wet cell. Initial wetness does not determine final exposure.",
+    }),
     riverClass: TypedArraySchemas.u8({
       cardinality: "map-grid",
       description: "Physical river class: 0 none, 1 minor, 2 major; not native navigability.",
@@ -23,13 +27,15 @@ export const artifact = defineArtifact({
       description: "Resolved source role: 0 marine/non-source, 1 marine, 2 boundary export, 3 closed wet, 4 subtile, 5 dry.",
     }),
     runoff: Type.Array(Type.Number({ minimum: 0 }), {
-      description: "Map-grid local precipitation-attributed runoff at Number precision; zero on original marine cells.",
+      description: "Map-grid local precipitation-attributed runoff at Number precision; zero on prescribed external water. Finite wet cells replace this supply with their wet budget.",
     }),
     discharge: Type.Array(Type.Number({ minimum: 0 }), {
       description: "Map-grid Number-precision ordinary/principal dry-edge flux, not a junction's total transfers. Zero wet/marine entries are sentinels; lakePlan owns complete exchange and boundary export.",
     }),
   }, { additionalProperties: false }),
   refine: (value, { issues }) => {
+    if (value.exposedLandMask.some((cell) => cell !== 0 && cell !== 1))
+      issues.add("Expected binary hydrography.exposedLandMask.");
     for (const key of ["runoff", "discharge"] as const) {
       if (value[key].length !== value.flowDir.length)
         issues.add(`Expected map-grid hydrography.${key} length.`);

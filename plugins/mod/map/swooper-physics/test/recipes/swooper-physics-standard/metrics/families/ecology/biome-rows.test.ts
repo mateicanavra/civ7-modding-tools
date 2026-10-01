@@ -6,16 +6,16 @@ import { measureStandardBiomeRows } from "../../../../../../src/recipes/standard
 function controlledBiomeRows() {
   const width = 40;
   const height = 3;
-  const landMask = new Uint8Array(width * height);
-  landMask.fill(1, 0, 60);
-  landMask.fill(1, 80, 99);
+  const exposedLandMask = new Uint8Array(width * height);
+  exposedLandMask.fill(1, 0, 60);
+  exposedLandMask.fill(1, 80, 99);
   const biomeIndex = new Uint8Array(width * height).fill(5);
   biomeIndex.fill(0, 0, 30);
   biomeIndex.fill(0, 40, 50);
   return {
     provenance: { width, height },
     model: {
-      landMask,
+      exposedLandMask,
       biomeIndex,
       plannedLakeMask: new Uint8Array(width * height),
       physicalHydrology: { model: "certified-sill-spill" as const },
@@ -24,16 +24,19 @@ function controlledBiomeRows() {
 }
 
 describe("Standard biome-row measurements", () => {
-  it("uses exposed land for row qualification and shares without mutating original land", () => {
+  it("uses exposed land for row qualification and shares without interpreting initial geography", () => {
     const certified = controlledBiomeRows();
-    const landBefore = certified.model.landMask.slice();
+    const landBefore = certified.model.exposedLandMask.slice();
     certified.model.plannedLakeMask.fill(1, 0, 10);
     certified.model.plannedLakeMask[40] = 1;
+    certified.model.exposedLandMask.fill(0, 0, 10);
+    certified.model.exposedLandMask[40] = 0;
     certified.model.biomeIndex.fill(255, 0, 10);
     certified.model.biomeIndex[40] = 255;
     expect(measureStandardBiomeRows(certified).dominantBiomeTiles).toEqual({ count: 20, population: 30 });
     expect(measureStandardBiomeRows(certified).qualifiedRainforestRowCount).toBe(1);
-    expect(certified.model.landMask).toEqual(landBefore);
+    expect(landBefore.reduce((count, value) => count + value, 0)).toBe(79);
+    expect(certified.model.exposedLandMask.reduce((count, value) => count + value, 0)).toBe(68);
   });
 
   it("weights row dominance by land population and qualifies exactly twenty land tiles", () => {
@@ -54,8 +57,8 @@ describe("Standard biome-row measurements", () => {
   it("counts horizontally uniform classified rows as fully dominant and excludes water", () => {
     const input = controlledBiomeRows();
     input.model.biomeIndex.fill(0);
-    for (let index = 0; index < input.model.landMask.length; index += 1) {
-      if (input.model.landMask[index] === 0) input.model.biomeIndex[index] = 5;
+    for (let index = 0; index < input.model.exposedLandMask.length; index += 1) {
+      if (input.model.exposedLandMask[index] === 0) input.model.biomeIndex[index] = 5;
     }
     expect(measureStandardBiomeRows(input).dominantBiomeTiles).toEqual({
       count: 60,
@@ -69,8 +72,8 @@ describe("Standard biome-row measurements", () => {
     const rows = measureStandardBiomeRows(input);
     expect(rows.dominantBiomeTiles).toEqual({ count: 0, population: 60 });
     expect(rows.maximumBiomeDiversity).toBe(0);
-    input.model.landMask.fill(0);
-    input.model.landMask.fill(1, 0, 19);
+    input.model.exposedLandMask.fill(0);
+    input.model.exposedLandMask.fill(1, 0, 19);
     const unqualified = measureStandardBiomeRows(input);
     expect(unqualified.dominantBiomeTiles).toEqual({ count: 0, population: 0 });
     expect(metricShare(unqualified.dominantBiomeTiles)).toBeNull();

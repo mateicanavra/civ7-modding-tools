@@ -11,7 +11,7 @@ export const SelectResourceSitesStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
     const demandPlan = deps.artifacts.resourceDemandPlan.read();
-    const topography = deps.artifacts.topography.read();
+    const hydrography = deps.artifacts.hydrography.read();
     const landmasses = deps.artifacts.landmasses.read();
     const lakePlan = deps.artifacts.lakePlan.read();
     const regionSlots = deps.artifacts.landmassRegionSlotByTile.read();
@@ -33,7 +33,7 @@ export const SelectResourceSitesStep = createStep(config, {
         width,
         height,
         seed: deriveStepSeed(context.initialSetup.gameSeed, "resources:selectResourceSites"),
-        landMask: topography.landMask,
+        landMask: hydrography.exposedLandMask,
         lakeMask: lakePlan.lakeMask,
         landmassIdByTile: landmasses.landmassIdByTile,
         landmassTileCounts,

@@ -461,7 +461,6 @@ export const ClimateBaselineStep = createStep(config, {
           {
             width,
             height,
-            landMask,
             surfaceTemperatureC,
             humidity,
             parameters: stepConfig.potentialDemand,

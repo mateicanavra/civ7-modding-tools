@@ -19,6 +19,7 @@ import {
 } from "@swooper/mapgen-core/testing";
 
 import { ObservePlacementParityStep } from "../../../../../../src/recipes/standard/stages/placement/steps/observe-placement-parity/step.js";
+import { createEmptyWaterFixture } from "../../morphology/features/fixtures/surface-water.js";
 import { projectStandardElevation } from "../../../../../../src/recipes/standard/elevation-projection.js";
 import { TEST_MAP_LATITUDE_BOUNDS, TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
 import { StandardFinalRiverParityMeasurementsSchema } from "../../../../../../src/recipes/standard/metrics/families/hydrology/final-river-parity.js";
@@ -102,10 +103,15 @@ function executeParity(
         elevation,
         seaLevel,
         landMask,
+        externalWaterMask: Uint8Array.from(landMask, (land) => land === 0 ? 1 : 0),
         bathymetry: new Int16Array(size),
       });
       publishTestArtifact(stepContext, hydrographyArtifacts.projectedLakes, {
         lakeMask: projectedLakeMask,
+      });
+      publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
+        ...createEmptyWaterFixture(width, height).hydrography,
+        exposedLandMask: Uint8Array.from(landMask, (land, cell) => land === 1 && projectedLakeMask[cell] === 0 ? 1 : 0),
       });
       publishTestArtifact(stepContext, hydrographyArtifacts.projectedRivers, projectedRivers);
       const executionResult = ObservePlacementParityStep.run(
@@ -329,6 +335,7 @@ describe("placement/observe-placement-parity", () => {
     adapter.setTerrainType(3, 0, adapter.getTerrainTypeIndex("TERRAIN_COAST"));
     const landMask = new Uint8Array(size).fill(1);
     landMask[2] = 0;
+    elevation[2] = seaLevel;
     const intended = projectStandardElevation({
       elevation,
       seaLevel,

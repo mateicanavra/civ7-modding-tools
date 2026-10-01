@@ -11,6 +11,7 @@ import { artifacts as pedologyArtifacts } from "../../../domain/ecology/modules/
 import { artifacts as climateArtifacts } from "../../../domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "../../../domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyCoastsArtifacts } from "../../../domain/morphology/modules/coasts/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "../../../domain/morphology/modules/shelf/artifacts/index.js";
 import { artifacts as placementRegionArtifacts } from "../../../domain/placement/modules/regions/artifacts/index.js";
 import { artifacts as placementStartArtifacts } from "../../../domain/placement/modules/starts/artifacts/index.js";
@@ -174,7 +175,10 @@ export type StandardMapCapture = Readonly<{
     bottomLatitude: number;
   }>;
   model: Readonly<{
+    /** Immutable initial morphology geometry, including finite initially wet pockets. */
     landMask: Uint8Array;
+    externalWaterMask: Uint8Array;
+    exposedLandMask: Uint8Array;
     seaLevel: number;
     elevation: Int16Array;
     regionSlotByTile: Uint8Array;
@@ -498,6 +502,7 @@ function copyCompletedRun(
   const { width, height } = selection.dimensions;
   const gridSize = width * height;
   const topographyValue = readArtifact(context, morphologyLandformsArtifacts.topography);
+  const resolvedCoastlineValue = readArtifact(context, morphologyCoastsArtifacts.resolvedCoastline);
   const landmassesValue = readArtifact(context, morphologyLandformsArtifacts.landmasses);
   const mountainsValue = readArtifact(context, morphologyLandformsArtifacts.mountains);
   const shelfValue = readArtifact(context, morphologyShelfArtifacts.shelf);
@@ -607,6 +612,12 @@ function copyCompletedRun(
     }),
     model: Object.freeze({
       landMask,
+      externalWaterMask: copyUint8Grid(
+        "morphology.topography.externalWaterMask", topographyValue.externalWaterMask, gridSize
+      ),
+      exposedLandMask: copyUint8Grid(
+        "hydrology.hydrography.exposedLandMask", hydrographyValue.exposedLandMask, gridSize
+      ),
       seaLevel: requireFinite("morphology.topography.seaLevel", topographyValue.seaLevel),
       elevation: copyInt16Grid(
         "morphology.topography.elevation",
@@ -649,13 +660,13 @@ function copyCompletedRun(
       ),
       shelfMask: copyUint8Grid("morphology.shelf.shelfMask", shelfValue.shelfMask, gridSize),
       coastalWater: copyUint8Grid(
-        "morphology.shelf.coastalWater",
-        shelfValue.coastalWater,
+        "morphology.resolvedCoastline.coastalWater",
+        resolvedCoastlineValue.coastalWater,
         gridSize
       ),
       distanceToCoast: copyUint16Grid(
-        "morphology.shelf.distanceToCoast",
-        shelfValue.distanceToCoast,
+        "morphology.resolvedCoastline.distanceToCoast",
+        resolvedCoastlineValue.distanceToCoast,
         gridSize
       ),
       volcanoMask: copyUint8Grid(

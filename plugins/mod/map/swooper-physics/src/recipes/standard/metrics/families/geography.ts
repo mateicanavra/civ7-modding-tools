@@ -31,7 +31,8 @@ export type StandardGeographyMetrics = Readonly<{
 export function measureStandardGeography(capture: StandardMapCapture): StandardGeographyMetrics {
   const { width, height } = capture.provenance;
   const tileCount = width * height;
-  const plannedLand = countMetricMask(capture.model.landMask);
+  const plannedLand = countMetricMask(capture.model.exposedLandMask);
+  const finiteTileCount = tileCount - countMetricMask(capture.model.externalWaterMask).count;
   const projectedLakeCount = capture.projection.placementParity.acceptedLakeTileCount;
   let realizedWaterCount = 0;
   let coastWaterCount = 0;
@@ -47,6 +48,7 @@ export function measureStandardGeography(capture: StandardMapCapture): StandardG
       if (terrain === capture.observation.oceanTerrain) deepOceanCount += 1;
     }
     if (
+      capture.model.externalWaterMask[index] === 1 &&
       capture.model.shelfMask[index] === 1 &&
       capture.model.coastalWater[index] === 0 &&
       (capture.model.distanceToCoast[index] ?? 0) >= 2
@@ -67,9 +69,9 @@ export function measureStandardGeography(capture: StandardMapCapture): StandardG
     shelfBeyondShoreline: measureMetricCount(shelfBeyondShorelineCount, realizedWaterCount),
     plannedLakes: measureMetricCount(
       countMetricMask(capture.model.plannedLakeMask).count,
-      plannedLand.count
+      finiteTileCount
     ),
-    projectedLakes: measureMetricCount(projectedLakeCount, plannedLand.count),
+    projectedLakes: measureMetricCount(projectedLakeCount, finiteTileCount),
     lakeProjectionCandidateCount: capture.projection.lakes.plannedLakeTileCount,
     projectedLakeComponents,
     singleTileLakeTiles: measureMetricCount(

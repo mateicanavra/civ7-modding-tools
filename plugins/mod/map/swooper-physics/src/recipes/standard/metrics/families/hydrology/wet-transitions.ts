@@ -1,7 +1,7 @@
 import type { StandardMapCapture } from "../../capture.js";
 
 type Input = Readonly<{
-  model: Pick<StandardMapCapture["model"], "physicalHydrology" | "riverClass" | "landMask" | "plannedLakeMask">;
+  model: Pick<StandardMapCapture["model"], "physicalHydrology" | "riverClass" | "exposedLandMask" | "plannedLakeMask">;
   projection: Pick<StandardMapCapture["projection"], "navigableRivers">;
 }>;
 
@@ -20,7 +20,7 @@ export function measureWetTransitions({ model, projection }: Input) {
   for (const port of physical.ports) if (port.kind === "adjacent" && physical.bodyId[port.fromCell]! > 0)
     exchanges.push({ bodyId: physical.bodyId[port.fromCell]!, transportKind: "external",
       wetCell: port.fromCell, adjacentCell: port.toCell, outwardDischarge: port.discharge });
-  const eligible = (edge: Exchange) => edge.outwardDischarge > 0 && model.landMask[edge.adjacentCell] === 1 &&
+  const eligible = (edge: Exchange) => edge.outwardDischarge > 0 && model.exposedLandMask[edge.adjacentCell] === 1 &&
     model.plannedLakeMask[edge.adjacentCell] === 0 && model.riverClass[edge.adjacentCell] === 2;
   const selected = new Map<number, Exchange>();
   for (const edge of exchanges.filter(eligible)) {

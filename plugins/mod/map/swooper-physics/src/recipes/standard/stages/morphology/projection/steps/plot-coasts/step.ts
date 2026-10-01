@@ -1,7 +1,6 @@
 import {
   CIV7_BROWSER_TABLES_V0,
   CIV7_COAST_RING_POLICY_V0,
-  deriveCiv7CoastProjection,
   WATER_CLASS_COAST,
   WATER_CLASS_LAND,
 } from "@civ7/map-policy";
@@ -11,7 +10,7 @@ import {
   defineStandardVizMeta,
   STANDARD_VIZ_COLORS,
 } from "../../../../../viz.js";
-import { assertWaterDriftWithinPolicy } from "../../../../../water-surface-parity.js";
+import { assertWaterDriftWithinPolicy, deriveResolvedCoastProjection } from "../../../../../water-surface-parity.js";
 import { config } from "./config.js";
 
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
@@ -23,16 +22,21 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  */
 export const PlotCoastsStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
+    const hydrography = deps.artifacts.hydrography.read();
     const topography = deps.artifacts.topography.read();
+    const lakePlan = deps.artifacts.lakePlan.read();
     const shelf = deps.artifacts.shelf.read();
+    const resolvedCoastline = deps.artifacts.resolvedCoastline.read();
     const { width, height } = context.setup.dimensions;
 
-    const coastProjection = deriveCiv7CoastProjection({
+    const coastProjection = deriveResolvedCoastProjection({
       width,
       height,
-      landMask: topography.landMask,
+      exposedLandMask: hydrography.exposedLandMask,
+      externalWaterMask: topography.externalWaterMask,
+      lakeMask: lakePlan.lakeMask,
       shelfMask: shelf.shelfMask,
-      coastalWater: shelf.coastalWater,
+      coastalWater: resolvedCoastline.coastalWater,
     });
     const { waterClass, promotedOceanToCoast } = coastProjection;
 
@@ -62,13 +66,13 @@ export const PlotCoastsStep = createStep(config, {
       context.setup.dimensions,
       context.trace,
       engineWaterMask,
-      topography.landMask,
+      hydrography.exposedLandMask,
       "map-morphology/plot-coasts"
     );
     return {
       coastProjection,
-      coastalLand: shelf.coastalLand,
-      coastalWater: shelf.coastalWater,
+      coastalLand: resolvedCoastline.coastalLand,
+      coastalWater: resolvedCoastline.coastalWater,
       shelfMask: shelf.shelfMask,
     };
   },
