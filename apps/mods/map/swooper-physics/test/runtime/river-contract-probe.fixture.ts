@@ -50,6 +50,10 @@ import {
   WATER_HEIGHT_MAINTENANCE_PROBE,
   WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS,
   WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE,
+  WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS,
+  WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_PROBE,
+  WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS,
+  WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_PROBE,
 } from "./water-height-maintenance.fixture.js";
 
 export const riverProbeAppRoot = fileURLToPath(new URL("../../", import.meta.url));
@@ -69,7 +73,9 @@ export type RiverProbeAtlasSelection =
   | typeof WATER_HEIGHT_MAINTENANCE_ATLAS
   | typeof WATER_HEIGHT_LAKE_CUTOFF_ATLAS
   | typeof WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS
-  | typeof WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS;
+  | typeof WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS
+  | typeof WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS
+  | typeof WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS;
 const atlases: readonly string[] = [
   "legacy",
   "terrain-admission",
@@ -79,6 +85,8 @@ const atlases: readonly string[] = [
   WATER_HEIGHT_LAKE_CUTOFF_ATLAS,
   WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS,
   WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS,
+  WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS,
+  WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS,
   ...WATER_CONNECTIVITY_ATLASES,
   WATER_CONNECTIVITY_STOCK_ATLAS,
   WATER_CONNECTIVITY_REPLAY_ATLAS,
@@ -115,7 +123,10 @@ export async function buildRiverProbePlan(
   const boundedLakeCutoff = atlasKind === WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS;
   const cutoffAtlas =
     atlasKind === WATER_HEIGHT_LAKE_CUTOFF_ATLAS || maxLakeCutoff || boundedLakeCutoff;
-  const maintenance = atlasKind === WATER_HEIGHT_MAINTENANCE_ATLAS || cutoffAtlas;
+  const originalInput =
+    atlasKind === WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS ||
+    atlasKind === WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS;
+  const maintenance = atlasKind === WATER_HEIGHT_MAINTENANCE_ATLAS || cutoffAtlas || originalInput;
   const selection =
     typeof seedOrSelection === "number"
       ? { mapSeed: seedOrSelection, gameSeed: seedOrSelection }
@@ -158,15 +169,21 @@ export async function buildRiverProbePlan(
     throw new Error(
       "Diagnostic lake cutoff must be a positive integer no greater than the selected cell count."
     );
+  if (originalInput && expectedLakeSizeCutoff !== preset.mapInfo.LakeSizeCutoff)
+    throw new Error("Original-input diagnostics require the selected public stock lake cutoff.");
   // Resolve once for the observer, scoped treatment, proof, and launch receipt.
   const maintenanceProbe = {
-    ...(boundedLakeCutoff
-      ? WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE
-      : maxLakeCutoff
-        ? WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE
-        : cutoffAtlas
-          ? WATER_HEIGHT_LAKE_CUTOFF_PROBE
-          : WATER_HEIGHT_MAINTENANCE_PROBE),
+    ...(originalInput
+      ? atlasKind === WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS
+        ? WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_PROBE
+        : WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_PROBE
+      : boundedLakeCutoff
+        ? WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE
+        : maxLakeCutoff
+          ? WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE
+          : cutoffAtlas
+            ? WATER_HEIGHT_LAKE_CUTOFF_PROBE
+            : WATER_HEIGHT_MAINTENANCE_PROBE),
     width: preset.dimensions.width,
     height: preset.dimensions.height,
     mapSize: preset.id,
@@ -269,6 +286,7 @@ export default createMap({
     ...standardRecipe,
     execute: (context, plan, options) => {
       standardRecipe.execute(context, plan, options);
+      ${originalInput ? "finishOriginalElevation();" : ""}
       observeWaterHeightPhysicalLakes(context, plan, ${JSON.stringify(proofId)}, ${JSON.stringify(identity)}, ${JSON.stringify(maintenanceProbe)});
     },
   },
@@ -286,7 +304,7 @@ export default createMap({
       : renderSwooperCatalogMapSource(config);
     source = maintenance
       ? `${adapterImport}import { installWaterHeightMaintenanceProbe, observeWaterHeightPhysicalLakes } from "./test/runtime/water-height-maintenance.fixture.ts";
-installWaterHeightMaintenanceProbe(Civ7Adapter.prototype, ${JSON.stringify(proofId)}, ${JSON.stringify(identity)}, ${JSON.stringify(maintenanceProbe)});
+${originalInput ? "const finishOriginalElevation = " : ""}installWaterHeightMaintenanceProbe(Civ7Adapter.prototype, ${JSON.stringify(proofId)}, ${JSON.stringify(identity)}, ${JSON.stringify(maintenanceProbe)});
 ${mapSource}`
       : `${adapterImport}import { installFullMapRiverProbe } from "./test/runtime/river-full-map.fixture.ts";
 installFullMapRiverProbe(Civ7Adapter.prototype, ${JSON.stringify(proofId)}, ${JSON.stringify(atlasKind)}, ${JSON.stringify(identity)});
@@ -385,6 +403,22 @@ ${renderSwooperCatalogMapSource(config)}`;
                             qualification:
                               "Activation requires measured Tiny metadata; all-cell native water/lake/area evidence is observed, never inferred from authored terrain. No movement success claimed.",
                           }),
+                  },
+                }
+              : {}),
+            ...(originalInput
+              ? {
+                  intervention: {
+                    kind: "post-authentic-recipe-original-input-replay",
+                    databaseTreatment: "none; selected public stock row held",
+                    originalElevationReplayed:
+                      atlasKind === WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS,
+                    input:
+                      "protected Number[] snapshot before the first authentic setter; never native readbacks",
+                    slot: "post-authentic-recipe, before physical-lakes observation and mapgen-complete; not the internal prepare-surface slot",
+                    checkpoints: ["before-original-replay", "after-original-replay"],
+                    qualification:
+                      "Two-arm preservation discriminator only. Replay adds one original-request setter and no validation, cliffs, area/cache refresh or retries. Native wonder/NAV/terrain changes remain measured outcomes, not selected product policy.",
                   },
                 }
               : {}),

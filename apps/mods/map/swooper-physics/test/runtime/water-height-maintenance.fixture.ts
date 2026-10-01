@@ -53,6 +53,24 @@ export const WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE = {
   atlasKind: WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS,
   expectedLakeSizeCutoff: 40,
 } as const;
+/** Stock metadata control for the post-authentic-recipe preservation discriminator. */
+export const WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS = "full-map-original-input-control";
+/** Reapplies protected original requests after authentic recipe success, never getter values. */
+export const WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS = "full-map-original-input-replay";
+/** Finite control identity; its finishing slots observe without additional native maintenance. */
+export const WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_PROBE = {
+  ...WATER_HEIGHT_MAINTENANCE_PROBE,
+  diagnosticRevision: 18,
+  displayLabel: "Post-Recipe Original Input Control V18",
+  atlasKind: WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS,
+} as const;
+/** Finite treatment identity; only one original elevation replay differs from the control. */
+export const WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_PROBE = {
+  ...WATER_HEIGHT_MAINTENANCE_PROBE,
+  diagnosticRevision: 19,
+  displayLabel: "Post-Recipe Original Input Replay V19",
+  atlasKind: WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS,
+} as const;
 type ProbeOptions = Readonly<{
   diagnosticRevision: number;
   displayLabel: string;
@@ -92,6 +110,7 @@ type Adapter = Pick<
   | "finalizeRivers"
   | "getElevation"
   | "getTerrainType"
+  | "getFeatureType"
   | "getRiverType"
   | "isWater"
   | "isLake"
@@ -259,14 +278,14 @@ export function projectLakeCutoffInitialSetup(
   });
 }
 
-/** Read-only instrumentation: admitted runs preserve every original call and its arguments. */
+/** Preserves authentic calls; V18/V19 return a separately invoked post-recipe discriminator. */
 export function installWaterHeightMaintenanceProbe(
   prototype: Adapter,
   proofId: string,
   identity: FullMapProbeIdentity,
   options: ProbeOptions = WATER_HEIGHT_MAINTENANCE_PROBE,
   log: (line: string) => void = (line) => console.log(line)
-): void {
+) {
   if (installed.has(prototype))
     throw new Error("Water height maintenance probe already installed.");
   if (
@@ -306,6 +325,12 @@ export function installWaterHeightMaintenanceProbe(
   const occurrences = new Map<string, number>();
   const writes: Array<{ wet: boolean; intent: Parameters<Adapter["setRiverInfo"]>[0] }> = [];
   const elevations: Array<{ count: number; sha256: string }> = [];
+  const originalInputArm =
+    options.atlasKind === WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS ||
+    options.atlasKind === WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS;
+  let originalElevation: number[] | undefined;
+  let originalElevationSucceeded = false;
+  let finished = false;
   const emit = (stage: string, payload: unknown) => {
     for (const line of encodeBoundedJsonLogLines({
       marker: "[water-height-maintenance]",
@@ -389,8 +414,32 @@ export function installWaterHeightMaintenanceProbe(
   const setElevation = prototype.setElevation;
   prototype.setElevation = function (values) {
     admit(this);
+    if (originalInputArm && originalElevation === undefined) {
+      originalElevation = Array.from(values);
+      if (
+        originalElevation.length !== options.width * options.height ||
+        !originalElevation.every(Number.isFinite)
+      )
+        throw new Error("Original elevation evidence requires a complete finite Number[] request.");
+      for (let row = 0; row < options.height; row++) {
+        const startCell = row * options.width;
+        emit("original-elevation-input-grid", {
+          row,
+          startCell,
+          values: originalElevation.slice(startCell, startCell + options.width),
+        });
+      }
+      emit("original-elevation-input", {
+        count: originalElevation.length,
+        sha256: digest(originalElevation),
+        input:
+          "protected Number[] snapshot before the first authentic setter; never native readbacks",
+      });
+    }
     elevations.push({ count: values.length, sha256: digest(Array.from(values)) });
-    return observe(this, "setElevation", () => setElevation.call(this, values));
+    const result = observe(this, "setElevation", () => setElevation.call(this, values));
+    if (originalInputArm) originalElevationSucceeded = true;
+    return result;
   };
   const setRiverInfo = prototype.setRiverInfo;
   prototype.setRiverInfo = function (intent) {
@@ -413,7 +462,55 @@ export function installWaterHeightMaintenanceProbe(
   emit("installed", {
     ...options,
     focus: observationFocus,
-    qualification:
-      "Read-only observation after measured cutoff admission; installation is not activation or success. Admitted runs add, suppress or retry no river, elevation or maintenance calls.",
+    qualification: originalInputArm
+      ? "Authentic calls are preserved. The generated wrapper invokes equal post-recipe observation slots only after success; V19 adds one original-request setter, no other maintenance. This is not the internal prepare-surface repair slot."
+      : "Read-only observation after measured cutoff admission; installation is not activation or success. Admitted runs add, suppress or retry no river, elevation or maintenance calls.",
   });
+  return () => {
+    if (!originalInputArm)
+      throw new Error("This maintenance atlas has no original-input finishing slot.");
+    if (finished) throw new Error("Original-input finishing slot already attempted.");
+    if (!owner || !originalElevation || !originalElevationSucceeded)
+      throw new Error("Original-input finishing requires a successful authentic elevation setter.");
+    finished = true;
+    const adapter = owner;
+    const retainedOriginal = originalElevation;
+    const replay = options.atlasKind === WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS;
+    const capture = (checkpoint: string) => {
+      for (let row = 0; row < options.height; row++) {
+        const points = Array.from({ length: options.width }, (_, x) => ({ x, y: row }));
+        emit("original-replay-grid", {
+          checkpoint,
+          row,
+          startCell: row * options.width,
+          elevation: points.map(({ x, y }) => adapter.getElevation(x, y)),
+          terrain: points.map(({ x, y }) => adapter.getTerrainType(x, y)),
+          feature: points.map(({ x, y }) => adapter.getFeatureType(x, y)),
+          riverType: points.map(({ x, y }) => adapter.getRiverType(x, y)),
+          water: points.map(({ x, y }) => adapter.isWater(x, y)),
+          lake: points.map(({ x, y }) => adapter.isLake(x, y)),
+        });
+      }
+      emit(checkpoint, {
+        phase: "post-authentic-recipe",
+        action: replay ? "replay-original-requests" : "none",
+        cellCount: options.width * options.height,
+        rowCount: options.height,
+        originalInputSha256: digest(retainedOriginal),
+        qualification:
+          "Original requests only; no validation, cliffs, area/cache refresh or preservation policy is selected.",
+      });
+    };
+    try {
+      capture("before-original-replay");
+      if (replay)
+        observe(adapter, "setElevation-original-replay", () =>
+          setElevation.call(adapter, [...retainedOriginal])
+        );
+      capture("after-original-replay");
+    } catch (error) {
+      emit("original-replay-failed", { phase: "post-authentic-recipe", error: String(error) });
+      throw error;
+    }
+  };
 }

@@ -549,12 +549,32 @@ and final capture. Evidence under `earth-calibration/bounded-lake-cutoff-2026093
 audit SHA256
 `41793fbd211084afd75dece11b31fdad561c2a4c76f23970487b38825a1b6b01`.
 
-Next qualify a generated-map pair at the final terrain-maintenance boundary,
+Next qualify a generated-map preservation pair after authentic recipe success,
 including actual wonder-modified terrain and NAV grades. These synthetic NAV
 cells already matched original requests, so their unchanged values cannot
 prove preservation of legitimate later edits. Cliff flags may also precede
 the final height loss: restoring a number is not yet a visual cliff repair.
 Keep a further cliff-generation treatment and era-qualified movement separate.
+
+The V18/V19 discriminator belongs in the existing realization fixture, not the
+ordinary physical recipe. Its wrapper executes the authentic recipe once and
+only then invokes equal before/after observation slots. V18 observes without
+writing; V19 adds one bulk setter using a fresh copy of the protected actual
+first-setter Number array, captured before that authentic call. No readback
+becomes input and no validation, cliffs, area/cache refresh or retry is added.
+Retain complete original, before and after elevation arrays; feature, terrain,
+river, water and lake rows; the existing call sequence; and final tooling
+readback. Resolve native protected feature footprints from the current run,
+not remembered coordinates. A cohort without an actual later native edit
+cannot establish its preservation.
+
+This is intentionally a post-recipe preservation discriminator, not the final
+`prepare-placement-surface` internal repair slot. The current SDK exposes
+observation through trace/facets, not an execution hook at that slot. Do not
+steer writes through observers, clone the recipe, count validators as a proxy
+for step identity, or add a generic SDK hook merely for this experiment.
+The experiment can reject unsafe whole-map replay before a production repair
+is selected. It does not itself repair cliffs or prove navigation.
 
 ## V9 Verification
 

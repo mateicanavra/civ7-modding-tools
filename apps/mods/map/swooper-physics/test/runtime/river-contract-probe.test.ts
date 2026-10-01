@@ -54,10 +54,94 @@ import {
   WATER_LOWER_BOUND_ATLAS,
   WATER_LOWER_BOUND_CONTROLS,
 } from "./water-connectivity.fixture.js";
+import {
+  WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS,
+  WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS,
+} from "./water-height-maintenance.fixture.js";
 
 type LogEntry = { stage: string; payload: Record<string, any>; proofId: string; variant: string };
 
 describe("build-only river diagnostic selectors", () => {
+  test.each([
+    [WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS, 18, false],
+    [WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS, 19, true],
+  ] as const)("builds finite stock-only post-recipe arm %s", async (atlas, revision, replay) => {
+    const args = [
+      "post-recipe-input",
+      "authored",
+      atlas,
+      "--profile",
+      "swooper-earthlike",
+      "--map-size",
+      "MAPSIZE_TINY",
+      "--map-seed",
+      "42",
+      "--game-seed",
+      "7331",
+      "--player-count",
+      "3",
+      "--lake-cutoff",
+      "stock",
+    ];
+    const parsed = parseRiverProbeArguments(args);
+    expect(parsed.atlasKind).toBe(atlas);
+    expect(parsed.selection).toEqual({
+      sourceConfigId: "swooper-earthlike",
+      mapSize: "MAPSIZE_TINY",
+      mapSeed: 42,
+      gameSeed: 7331,
+      playerCount: 3,
+      lakeSizeCutoff: "stock",
+    });
+    const built = await buildRiverProbePlan(
+      parsed.proofId,
+      parsed.variant,
+      parsed.atlasKind,
+      parsed.selection
+    );
+    const proof = JSON.parse(
+      String(built.files.find((file) => file.relativePath === "proof.json")!.content)
+    );
+    expect(proof).toMatchObject({
+      atlasKind: atlas,
+      diagnosticRevision: revision,
+      sourceConfigId: "swooper-earthlike",
+      mapSize: "MAPSIZE_TINY",
+      width: 60,
+      height: 38,
+      playerCount: 3,
+      mapSeed: 42,
+      gameSeed: 7331,
+      expectedLakeSizeCutoff: 6,
+      settings: [false, 25, 2, 2],
+      intervention: {
+        kind: "post-authentic-recipe-original-input-replay",
+        originalElevationReplayed: replay,
+        databaseTreatment: "none; selected public stock row held",
+        checkpoints: ["before-original-replay", "after-original-replay"],
+      },
+    });
+    const manifest = String(
+      built.files.find((file) => file.relativePath.endsWith(".modinfo"))!.content
+    );
+    expect(built.files.some((file) => file.relativePath === "config/lake-cutoff.xml")).toBe(false);
+    for (const forbidden of [
+      "game-lake-cutoff",
+      "diagnostic-map",
+      "MapInUse",
+      "config/lake-cutoff.xml",
+    ])
+      expect(manifest).not.toContain(forbidden);
+    expect(proof.intervention).not.toHaveProperty("set");
+    expect(proof.intervention).not.toHaveProperty("criterion");
+    await expect(
+      buildRiverProbePlan("nonstock-input", "authored", atlas, {
+        mapSize: "MAPSIZE_TINY",
+        lakeSizeCutoff: 40,
+      })
+    ).rejects.toThrow("public stock lake cutoff");
+  });
+
   test("replaces diagnostic XML when switching from a cutoff treatment to stock metadata", async () => {
     const root = await mkdtemp(join(tmpdir(), "river-probe-output-"));
     try {

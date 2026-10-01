@@ -36,6 +36,10 @@ import {
   WATER_HEIGHT_LAKE_CUTOFF_PROBE,
   WATER_HEIGHT_MAINTENANCE_PROBE,
   WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE,
+  WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS,
+  WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_PROBE,
+  WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS,
+  WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_PROBE,
 } from "./water-height-maintenance.fixture.js";
 
 const identity = {
@@ -100,6 +104,7 @@ function fixture(info: MapInfo = mapInfo(10)) {
       return height;
     },
     getTerrainType: () => 3,
+    getFeatureType: () => -1,
     getRiverType: () => -1,
     isWater: (x) => x === 93,
     isLake: () => false,
@@ -155,6 +160,23 @@ function fixture(info: MapInfo = mapInfo(10)) {
             expectedLakeSizeCutoff?: number;
             observedLakeSizeCutoff?: unknown;
             activation?: string;
+            checkpoint?: string;
+            row?: number;
+            startCell?: number;
+            values?: number[];
+            elevation?: number[];
+            terrain?: number[];
+            feature?: number[];
+            riverType?: number[];
+            water?: boolean[];
+            lake?: boolean[];
+            count?: number;
+            sha256?: string;
+            phase?: string;
+            action?: string;
+            cellCount?: number;
+            rowCount?: number;
+            originalInputSha256?: string;
           };
         }
     );
@@ -164,7 +186,8 @@ function fixture(info: MapInfo = mapInfo(10)) {
 function generatedMaintenanceExecute(
   script: string,
   delegate: typeof standardRecipe.execute,
-  observe: typeof observeWaterHeightPhysicalLakes
+  observe: typeof observeWaterHeightPhysicalLakes,
+  finish?: () => void
 ): typeof standardRecipe.execute {
   const source = ts.createSourceFile(
     "diagnostic.js",
@@ -181,7 +204,7 @@ function generatedMaintenanceExecute(
       ts.isArrowFunction(node.initializer) &&
       ts.isBlock(node.initializer.body)
     ) {
-      const second = node.initializer.body.statements[1];
+      const second = node.initializer.body.statements.at(-1);
       if (
         second &&
         ts.isExpressionStatement(second) &&
@@ -196,9 +219,9 @@ function generatedMaintenanceExecute(
   expect(matches).toHaveLength(1);
   const arrow = matches[0]!;
   if (!ts.isBlock(arrow.body)) throw new Error("Expected a generated execute body.");
-  expect(arrow.body.statements).toHaveLength(2);
+  expect(arrow.body.statements).toHaveLength(finish ? 3 : 2);
   const first = arrow.body.statements[0]!,
-    second = arrow.body.statements[1]!;
+    second = arrow.body.statements.at(-1)!;
   if (
     !ts.isExpressionStatement(first) ||
     !ts.isCallExpression(first.expression) ||
@@ -214,11 +237,24 @@ function generatedMaintenanceExecute(
     arrow.parameters.map((parameter) => parameter.name.getText(source))
   );
   expect(arrow.parameters).toHaveLength(3);
+  let finishingName = "unusedFinishingCallback";
+  if (finish) {
+    const finishing = arrow.body.statements[1]!;
+    if (
+      !ts.isExpressionStatement(finishing) ||
+      !ts.isCallExpression(finishing.expression) ||
+      !ts.isIdentifier(finishing.expression.expression)
+    )
+      throw new Error("Unexpected generated finishing callback.");
+    expect(finishing.expression.arguments).toHaveLength(0);
+    finishingName = finishing.expression.expression.text;
+  }
   return new Function(
     first.expression.expression.expression.text,
     second.expression.expression.text,
+    finishingName,
     `return (${arrow.getText(source)});`
-  )({ execute: delegate }, observe);
+  )({ execute: delegate }, observe, finish);
 }
 
 async function physicalLakeRun(
@@ -538,6 +574,272 @@ describe("post-recipe physical lake maintenance evidence", () => {
     expect(() => observe(run.options, other.context)).toThrow("exact selected recipe plan");
     expect(lines).toEqual([]);
   });
+});
+
+describe("V18/V19 post-recipe original-input transport (not native preservation)", () => {
+  const preset = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
+  const selection = {
+    ...preset.dimensions,
+    mapSize: preset.id,
+    playerCount: preset.defaultPlayers,
+    expectedLakeSizeCutoff: preset.mapInfo.LakeSizeCutoff,
+  };
+
+  it.each([
+    WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_PROBE,
+    WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_PROBE,
+  ])("protects first-setter Number requests and observes both finishing slots in V%s", (probe) => {
+    const options = { ...probe, ...selection };
+    const replay = probe.atlasKind === WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS;
+    const run = fixture(mapInfo(options.expectedLakeSizeCutoff, options.mapSize));
+    const requests = Array.from({ length: options.width * options.height }, () => 638);
+    requests[1] = Math.PI;
+    const original = [...requests];
+    let native = [...requests];
+    const supplied: Array<Parameters<Adapter["setElevation"]>[0]> = [];
+    const suppliedCopies: number[][] = [];
+    run.adapter.getElevation = (x, y) => native[x + y * options.width]!;
+    run.adapter.getFeatureType = (x, y) => (x === 0 && y === 0 ? 77 : -1);
+    run.adapter.setElevation = (values) => {
+      run.calls.push({ method: "setElevation", arg: values });
+      supplied.push(values);
+      suppliedCopies.push([...values]);
+      native = [...values];
+      if (supplied.length === 1) native[0] = 598;
+      Reflect.set(values, 0, -999);
+    };
+    const finish = installWaterHeightMaintenanceProbe(
+      run.adapter,
+      "original-input-test",
+      identity,
+      options,
+      (line) => run.lines.push(line)
+    );
+    run.adapter.setElevation(requests);
+    run.adapter.validateAndFixTerrain();
+    const genuineCalls = [...run.calls];
+    finish();
+    expect(supplied).toHaveLength(replay ? 2 : 1);
+    expect(supplied[0]).toBe(requests);
+    if (replay) {
+      expect(supplied[1]).not.toBe(requests);
+      expect(suppliedCopies[1]).toEqual(original);
+    }
+    expect(run.calls.slice(0, genuineCalls.length)).toEqual(genuineCalls);
+    expect(run.calls.slice(genuineCalls.length).map((call) => call.method)).toEqual(
+      replay ? ["setElevation"] : []
+    );
+    const records = run.decode();
+    const inputs = records.filter((record) => record.stage === "original-elevation-input-grid");
+    expect(inputs).toHaveLength(options.height);
+    expect(inputs.flatMap((record) => record.payload.values ?? [])).toEqual(original);
+    expect(
+      records.find((record) => record.stage === "original-elevation-input")?.payload
+    ).toMatchObject({
+      count: original.length,
+      sha256: sha256Hex(stableStringify(original)),
+    });
+    for (const checkpoint of ["before-original-replay", "after-original-replay"]) {
+      const rows = records.filter(
+        (record) =>
+          record.stage === "original-replay-grid" && record.payload.checkpoint === checkpoint
+      );
+      expect(rows).toHaveLength(options.height);
+      rows.forEach((record, row) => {
+        expect(record.payload.row).toBe(row);
+        expect(record.payload.startCell).toBe(row * options.width);
+        for (const field of [
+          "elevation",
+          "terrain",
+          "feature",
+          "riverType",
+          "water",
+          "lake",
+        ] as const)
+          expect(record.payload[field]).toHaveLength(options.width);
+      });
+      expect(rows[0]?.payload.elevation?.slice(0, 2)).toEqual([
+        checkpoint === "after-original-replay" && replay ? 638 : 598,
+        Math.PI,
+      ]);
+      expect(rows[0]?.payload.feature?.[0]).toBe(77);
+      expect(records.find((record) => record.stage === checkpoint)?.payload).toMatchObject({
+        phase: "post-authentic-recipe",
+        action: replay ? "replay-original-requests" : "none",
+        cellCount: original.length,
+        rowCount: options.height,
+        originalInputSha256: sha256Hex(stableStringify(original)),
+      });
+    }
+    expect(run.lines.every((line) => line.length <= BOUNDED_JSON_LOG_MAX_LINE_LENGTH)).toBe(true);
+    const callCount = run.calls.length;
+    expect(() => finish()).toThrow("already attempted");
+    expect(run.calls).toHaveLength(callCount);
+  });
+
+  it("preserves replay setter failure without retries, after evidence or extra maintenance", () => {
+    const options = { ...WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_PROBE, ...selection };
+    const run = fixture(mapInfo(options.expectedLakeSizeCutoff, options.mapSize));
+    const failure = new Error("replay setter failure");
+    let calls = 0;
+    run.adapter.setElevation = () => {
+      calls++;
+      if (calls === 2) throw failure;
+    };
+    const finish = installWaterHeightMaintenanceProbe(
+      run.adapter,
+      "failed-replay",
+      identity,
+      options,
+      (line) => run.lines.push(line)
+    );
+    run.adapter.setElevation(Array(options.width * options.height).fill(638));
+    let observedFailure: unknown;
+    try {
+      finish();
+    } catch (error) {
+      observedFailure = error;
+    }
+    expect(observedFailure).toBe(failure);
+    expect(calls).toBe(2);
+    expect(run.decode().filter((record) => record.stage === "after-original-replay")).toEqual([]);
+    expect(run.decode().filter((record) => record.stage === "original-replay-failed")).toHaveLength(
+      1
+    );
+    expect(() => finish()).toThrow("already attempted");
+    expect(calls).toBe(2);
+    expect(run.calls).toEqual([]);
+  });
+
+  it("requires a successful authentic setter and preserves first-setter failure", () => {
+    const options = { ...WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_PROBE, ...selection };
+    const run = fixture(mapInfo(options.expectedLakeSizeCutoff, options.mapSize));
+    const failure = new Error("authentic setter failure");
+    let calls = 0;
+    run.adapter.setElevation = () => {
+      calls++;
+      throw failure;
+    };
+    const finish = installWaterHeightMaintenanceProbe(
+      run.adapter,
+      "failed-authentic",
+      identity,
+      options,
+      (line) => run.lines.push(line)
+    );
+    expect(() => finish()).toThrow("successful authentic elevation setter");
+    expect(() => run.adapter.setElevation(Array(options.width * options.height).fill(638))).toThrow(
+      failure
+    );
+    expect(() => finish()).toThrow("successful authentic elevation setter");
+    expect(calls).toBe(1);
+    expect(run.decode().filter((record) => record.stage === "original-replay-grid")).toEqual([]);
+  });
+
+  it("refuses incomplete native finishing observations without replaying", () => {
+    const options = { ...WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_PROBE, ...selection };
+    const run = fixture(mapInfo(options.expectedLakeSizeCutoff, options.mapSize));
+    const failure = new Error("feature observation unavailable");
+    run.adapter.getFeatureType = () => {
+      throw failure;
+    };
+    const finish = installWaterHeightMaintenanceProbe(
+      run.adapter,
+      "failed-observation",
+      identity,
+      options,
+      (line) => run.lines.push(line)
+    );
+    run.adapter.setElevation(Array(options.width * options.height).fill(638));
+    let observedFailure: unknown;
+    try {
+      finish();
+    } catch (error) {
+      observedFailure = error;
+    }
+    expect(observedFailure).toBe(failure);
+    expect(run.calls.map((call) => call.method)).toEqual(["setElevation"]);
+    expect(run.decode().filter((record) => record.stage === "after-original-replay")).toEqual([]);
+  });
+
+  it.each([
+    WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS,
+    WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS,
+  ])("finishes only after authentic generated recipe success for %s", async (atlas) => {
+    const built = await buildRiverProbePlan("original-execute", "authored", atlas, {
+      mapSize: "MAPSIZE_TINY",
+      mapSeed: 42,
+      gameSeed: 7331,
+      playerCount: 3,
+    });
+    const script = String(
+      built.files.find((file) => file.relativePath === "maps/river-contract.js")!.content
+    );
+    const run = await physicalLakeRun();
+    const events: string[] = [];
+    const execute = generatedMaintenanceExecute(
+      script,
+      (context, plan, options) => {
+        standardRecipe.execute(context, plan, options);
+        events.push("authentic-returned");
+      },
+      () => {
+        events.push("physical-lakes");
+      },
+      () => {
+        events.push("finishing-slot");
+      }
+    );
+    const originalLog = console.log;
+    try {
+      console.log = () => {};
+      execute(run.context, run.plan, { log: () => {} });
+    } finally {
+      console.log = originalLog;
+    }
+    expect(events).toEqual(["authentic-returned", "finishing-slot", "physical-lakes"]);
+
+    const failedRun = await physicalLakeRun();
+    const failure = new Error("authentic native boundary failure");
+    failedRun.adapter.setElevation = () => {
+      throw failure;
+    };
+    let delegatedFailure: unknown;
+    let finishingCalls = 0,
+      observations = 0;
+    const failing = generatedMaintenanceExecute(
+      script,
+      (context, plan, options) => {
+        try {
+          standardRecipe.execute(context, plan, options);
+        } catch (error) {
+          delegatedFailure = error;
+          throw error;
+        }
+      },
+      () => {
+        observations++;
+      },
+      () => {
+        finishingCalls++;
+      }
+    );
+    let observedFailure: unknown;
+    try {
+      console.log = () => {};
+      try {
+        failing(failedRun.context, failedRun.plan, { log: () => {} });
+      } catch (error) {
+        observedFailure = error;
+      }
+    } finally {
+      console.log = originalLog;
+    }
+    expect(observedFailure).toBe(delegatedFailure);
+    expect(observedFailure).toHaveProperty("cause", failure);
+    expect(finishingCalls).toBe(0);
+    expect(observations).toBe(0);
+  }, 30_000);
 });
 
 describe("water height maintenance observation (not native semantics)", () => {
