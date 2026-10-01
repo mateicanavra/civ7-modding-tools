@@ -7,11 +7,10 @@ import {
 } from "@swooper/mapgen-core/lib/grid";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 
-import { computeDistanceToWater } from "../../../../../../src/domain/hydrology/modules/climate/model/rules/coastal-distance.js";
 import hydrology from "../../../../../../src/domain/hydrology/router.js";
 import { deriveTestOperationSeed } from "../../../../../setup.js";
 
-const { computePrecipitation } = hydrology.climate.ops;
+const { computeClimateDiagnostics, computePrecipitation } = hydrology.climate.ops;
 const SYNTHETIC_WIDTH = 9;
 const SYNTHETIC_HEIGHT = 5;
 const CELL_COUNT = SYNTHETIC_WIDTH * SYNTHETIC_HEIGHT;
@@ -38,7 +37,21 @@ type Configuration = typeof computePrecipitation.defaultConfig.config;
 function formerInitialLandResult(input: ReturnType<typeof fixture>, config: Configuration) {
   const rainfall = new Uint8Array(CELL_COUNT);
   const humidity = new Uint8Array(CELL_COUNT);
-  const distance = computeDistanceToWater(input.width, input.height, input.landMask);
+  // Power-of-two normalization keeps this fixture's coastal distances exact in Float32.
+  const continentalityMaxDist = 64;
+  const { continentalityIndex } = computeClimateDiagnostics.run({
+    width: input.width,
+    height: input.height,
+    latitudeByRow: input.latitudeByRow,
+    landMask: input.landMask,
+    elevation: input.elevation,
+    windU: input.windU,
+    windV: input.windV,
+    rainfall: new Uint8Array(CELL_COUNT),
+  }, {
+    ...computeClimateDiagnostics.defaultConfig,
+    config: { ...computeClimateDiagnostics.defaultConfig.config, continentalityMaxDist },
+  });
   const perlin = new PerlinNoise(input.perlinSeed);
   const windX = Float32Array.from(input.windU, (sample) => sample / I8_VECTOR_MAX_ABS);
   const windY = Float32Array.from(input.windV, (sample) => sample / I8_VECTOR_MAX_ABS);
@@ -51,7 +64,7 @@ function formerInitialLandResult(input: ReturnType<typeof fixture>, config: Conf
       if (input.landMask[index] === 0) continue;
       const hum = clamp01(input.humidityF32[index]!);
       let rf = Math.pow(hum, config.humidityExponent) * config.rainfallScale;
-      const dist = distance[index]! | 0;
+      const dist = continentalityIndex[index]! * continentalityMaxDist;
       if (dist >= 0 && dist <= waterRadius) {
         rf += Math.max(0, waterRadius - dist) * config.waterGradient.perRingBonus;
         if ((input.elevation[index]! | 0) < lowlandThreshold) rf += config.waterGradient.lowlandBonus;

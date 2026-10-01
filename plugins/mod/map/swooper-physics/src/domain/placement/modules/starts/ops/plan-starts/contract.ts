@@ -1,5 +1,4 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { ResourceSupportSettingsSchema } from "../../../../../resources/modules/support/model/atoms/resource-support-evidence.schema.js";
 import { StartFairnessReportSchema } from "../../model/atoms/start-fairness.schema.js";
 import {
   StartInputCoverageRowSchema,
@@ -120,11 +119,16 @@ const PlanStartsContract = defineOp({
       description:
         "Exact planned resource site indices used for radius-matched floor/equity admission and nearby scoring. Resource stamping follows start selection and support adjustment.",
     }),
-    resourceSupportRequirements: Type.Pick(ResourceSupportSettingsSchema, [
-      "supportFloor",
-      "supportRadiusTiles",
-      "equityTolerance",
-    ]),
+    resourceSupportRequirements: Type.Object(
+      {
+        supportFloor: Type.Integer({ minimum: 0, maximum: 6 }),
+        supportRadiusTiles: Type.Integer({ minimum: 1, maximum: 8 }),
+        equityTolerance: Type.Integer({ minimum: 0, maximum: 8 }),
+      },
+      {
+        description: "Admitted resource support floor, radius, and equity bounds for start selection.",
+      }
+    ),
   }),
   output: Type.Object({
     playersLandmass1: Type.Integer({

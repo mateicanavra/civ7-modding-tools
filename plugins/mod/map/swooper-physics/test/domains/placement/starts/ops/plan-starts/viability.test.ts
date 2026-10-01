@@ -4,8 +4,8 @@ import type { Static } from "@swooper/mapgen-core/authoring";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 import { TEST_GAME_SEED } from "../../../../../setup.js";
 import { getHexRadiusIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
-import standard1337 from "./fixtures/standard-1337.json";
-import huge1234 from "./fixtures/huge-1234.json";
+import standard1337 from "../../../../../recipes/swooper-physics-standard/fixtures/starts/standard-1337.json";
+import huge1234 from "../../../../../recipes/swooper-physics-standard/fixtures/starts/huge-1234.json";
 
 const { planStarts } = placementDomain.starts.ops;
 

@@ -2,7 +2,6 @@ import { describe, expect, it } from "bun:test";
 
 import morphology from "../../../../../../src/domain/morphology/router.js";
 import { artifacts } from "../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
-import { declareExternalWater } from "../../../../../../src/domain/morphology/modules/landforms/ops/compute-island-topography/rules/external-water.js";
 import {
   createIslandTopographyInput,
   createIslandTopographySelection,
@@ -12,13 +11,17 @@ const { computeIslandTopography } = morphology.landforms.ops;
 const SYNTHETIC_WIDTH = 12;
 const SYNTHETIC_HEIGHT = 5;
 const CELL_COUNT = SYNTHETIC_WIDTH * SYNTHETIC_HEIGHT;
+const preserveTopographySelection = {
+  ...computeIslandTopography.defaultConfig,
+  config: { ...computeIslandTopography.defaultConfig.config, minDistFromLandRadius: 1 },
+};
 
-function run(waterCells: readonly number[]) {
+function createInput(waterCells: readonly number[]) {
   const landMask = new Uint8Array(CELL_COUNT).fill(1);
   for (const index of waterCells) landMask[index] = 0;
   const elevation = Int16Array.from(landMask, (land) => (land === 1 ? 7 : -8));
   const bathymetry = Int16Array.from(landMask, (land) => (land === 1 ? 0 : -8));
-  const input = {
+  return {
     width: SYNTHETIC_WIDTH,
     height: SYNTHETIC_HEIGHT,
     seaLevel: 0,
@@ -31,11 +34,13 @@ function run(waterCells: readonly number[]) {
     volcanism: new Uint8Array(CELL_COUNT),
     rngSeed: 41,
   };
+}
+
+function run(waterCells: readonly number[]) {
+  const input = createInput(waterCells);
+  const { elevation, landMask, bathymetry } = input;
   const before = structuredClone(input);
-  const output = computeIslandTopography.run(input, {
-    ...computeIslandTopography.defaultConfig,
-    config: { ...computeIslandTopography.defaultConfig.config, minDistFromLandRadius: 1 },
-  });
+  const output = computeIslandTopography.run(input, preserveTopographySelection);
   expect(input).toEqual(before);
   expect(output.topography.elevation).toEqual(elevation);
   expect(output.topography.landMask).toEqual(landMask);
@@ -108,13 +113,18 @@ describe("compute-island-topography external-water declaration", () => {
   it("declares the completed post-island water rather than the pre-island mask", () => {
     const input = createIslandTopographyInput();
     const output = computeIslandTopography.run(input, createIslandTopographySelection(1));
-    expect(output.topography.externalWaterMask).toEqual(declareExternalWater({
-      width: input.width,
-      height: input.height,
+    const redeclared = computeIslandTopography.run({
+      ...input,
       landMask: output.topography.landMask,
       elevation: output.topography.elevation,
       seaLevel: output.topography.seaLevel,
-    }));
+      bathymetry: output.topography.bathymetry,
+      distanceToCoast: new Uint16Array(input.width * input.height),
+    }, preserveTopographySelection);
+    expect(redeclared.islandClass).toEqual(new Uint8Array(input.width * input.height));
+    expect(redeclared.topography.landMask).toEqual(output.topography.landMask);
+    expect(redeclared.topography.elevation).toEqual(output.topography.elevation);
+    expect(output.topography.externalWaterMask).toEqual(redeclared.topography.externalWaterMask);
     let islandCount = 0;
     for (let index = 0; index < output.islandClass.length; index += 1) {
       if (output.islandClass[index] === 0) continue;
@@ -125,28 +135,22 @@ describe("compute-island-topography external-water declaration", () => {
   });
 
   it("refuses nonbinary initial-water classification rather than treating it as water", () => {
-    const landMask = new Uint8Array(CELL_COUNT).fill(1);
-    landMask[4] = 2;
-    expect(() => declareExternalWater({
-      width: SYNTHETIC_WIDTH,
-      height: SYNTHETIC_HEIGHT,
-      landMask,
-      elevation: new Int16Array(CELL_COUNT),
-      seaLevel: 0,
-    })).toThrow("binary initial landMask at tile 4");
+    const input = createInput([]);
+    input.landMask[4] = 2;
+    const before = structuredClone(input);
+    expect(() => computeIslandTopography.run(input, preserveTopographySelection))
+      .toThrow("binary initial landMask at tile 4");
+    expect(input).toEqual(before);
   });
 
   it("refuses prescribed ground above the existing receiving head without altering it", () => {
-    const landMask = new Uint8Array(CELL_COUNT);
-    const elevation = new Int16Array(CELL_COUNT).fill(-2);
-    elevation[4] = 1;
-    expect(() => declareExternalWater({
-      width: SYNTHETIC_WIDTH,
-      height: SYNTHETIC_HEIGHT,
-      landMask,
-      elevation,
-      seaLevel: 0,
-    })).toThrow("ground at tile 4 exceeds the seaLevel datum");
-    expect(elevation[4]).toBe(1);
+    const input = createInput(Array.from({ length: CELL_COUNT }, (_, index) => index));
+    input.elevation.fill(-2);
+    input.elevation[4] = 1;
+    const before = structuredClone(input);
+    expect(() => computeIslandTopography.run(input, preserveTopographySelection))
+      .toThrow("ground at tile 4 exceeds the seaLevel datum");
+    expect(input.elevation[4]).toBe(1);
+    expect(input).toEqual(before);
   });
 });

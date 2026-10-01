@@ -71,7 +71,7 @@
     },
     "check": {
       "executor": "nx:noop",
-      "dependsOn": ["typecheck"],
+      "dependsOn": ["typecheck", "check:policy"],
       "outputs": []
     },
     "test": {
