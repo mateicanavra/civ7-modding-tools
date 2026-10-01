@@ -27,7 +27,12 @@ These labels are deliberately separate:
 
 As of October 1, the core MapGen work below is in the retained review lineage,
 not merged to main. The qualified Tuner-release and window-classification
-prerequisites, PRs #2164 and #2165, are merged. See the exact publication and
+prerequisites, PRs #2164 and #2165, are merged. The contiguous authority
+prerequisite, PRs #2171 through #2186, is also merged: Graphite natively folded
+the fifteen descendants into #2171, preserving the qualified final source tree,
+then merged that survivor. Native branch retirement restacked this MapGen
+lineage onto the resulting main commit without changing its source tree.
+No unrelated stack or protected main-checkout file was incorporated. See the exact publication and
 protected-checkout accounting in [the continuation](continuation-sequence.md).
 Before catalog cleanup, a recorded normal playable run used Huge Earthlike,
 map/game seeds 1018/1018, the existing ToT_NoModsExceptMaps setup and twelve
@@ -52,7 +57,7 @@ autoplay or complete scientific calibration. The gallery remains dated evidence.
 | Author minor and navigable river networks | Native direction/class declarations follow the authored network; wet terminal writes repair demonstrated mouth discontinuities; normally granted Cogs qualify bidirectional NAV travel, marine exit and one lake crossing | Cliff-mouth traversal remains unqualified; vessel witnesses are bounded routes, not universal passage claims |
 | Use coherent lakes, basins and drainage | Finite storage/supply/outlets and network coordination; prescribed ocean head, all-surface forcing and resolved exposure pass the 57-case proof; native Huge1018 retains all 204 finite heads and 4,275 external heads | Broader closed/below-sea and distinct surface/spill-head cases; no global lake-size policy follows from one seed; thermal/relief calibration is separate |
 | Remove obsolete compensation after replacing it | Current-only water model and current climate algorithms; retired sink/procedural and four fallback climate paths; no parallel legacy execution lane | Remove only additional compensation whose replacement is proven; do not infer that all native-water work is finished |
-| Let the user inspect and play the result | Same-worktree Studio preview, drainage/elevation diagnostics, native galleries and reachable mobile viewer exist | Refresh milestone evidence against the actual current build, then complete navigation/autoplay qualification |
+| Let the user inspect and play the result | Same-worktree Studio preview, drainage/elevation diagnostics, reachable mobile viewer; final-height milestone has seventeen fresh normal-map photographs and three matched controls; bounded autoplay and actual Cog arrivals recorded | Complete the remaining cliff-route and physical-head qualifications; scientific calibration is not established by images |
 
 Details: [elevation](elevation.md), [relief](relief-coherence.md),
 [rivers](rivers.md), [wet continuity](wet-river-continuity.md),
@@ -223,3 +228,56 @@ and exact twelve-player run pass the retained flat-share and placement gates.
 All 4,430 original comparators remain unchanged. Only the within-row thermal
 gate remains, at `0.12980530053589956 < 1 C`; no new failures appear. Details
 and immutable receipts are in [the relief ledger](relief-coherence.md).
+
+## Final-Height Cliffs And Playable Milestone
+
+The latest normal three-product build includes the sole cliff pass after final
+retained elevation, plus the transferred accepted-water refusal. No extra cliff
+pass, setter, physical field, carving or cutoff policy was added. The matched
+V24 stock10/finite17 experiment removes all 114 earlier cutoff-dependent
+directed cliff flags; fifteen sampled final properties over all 6,996 cells
+remain identical to each arm's preceding run. That is an ordering result, not
+unique proof of the engine's undocumented internal mechanism.
+
+The root check now includes definition policy and passes all 187 tasks.
+The owning cliff/catalog regressions pass 30 tests and 598 assertions, including
+lost-water/lost-coast refusal and preserved native lake identity. Source/test/tool
+types and all 56 definition policy rules pass. This is not a rerun or waiver of
+the retained thermal science aggregate. The two completed changes are published
+as [definition policy closure #2234](https://github.com/mateicanavra/civ7-modding-tools/pull/2234)
+and [final-height cliffs #2235](https://github.com/mateicanavra/civ7-modding-tools/pull/2235).
+
+Fresh normal generation through `ToT_NoModsExceptMaps`, Huge1018/1018, twelve
+players and Exploration Age passes in 41.5s, ending at
+`2026-10-01T21:46:50.326Z`. The built and installed eight-file package matches;
+Earthlike script SHA256 is
+`a20e7f6fe2c0e86c6303ccd96577eae586d6490f3daf3e71e3fa8fe07d4f02e3`.
+This later normal run includes the additive refusal, unlike the earlier sealed
+V24 pair. Redeployment used in-game restart, not a full application exit.
+
+The [new native gallery](https://mateis-macbook-pro.taild8da1c.ts.net/civ/cliff-retention-v24-1018/index.html)
+contains seventeen fresh normal-map images, mostly at maximum zoom-out, plus
+three retained same-center finite17 controls. Arc rendering and the existing
+private Tailscale route are verified. Its manifest preserves source identity,
+camera centers, zoom, native PNG hashes, clean-frame restoration and timestamps.
+The [directed physical drainage viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/water-start-earthlike-1018/index.html)
+remains separate generated evidence; the cliff ordering does not alter its
+physical fields. The reachable paths are also indexed in
+[Local And Private Viewers](../../process/LOCAL-VIEWERS.md).
+
+Normal Cogs Advanced Start vessels have separately completed bidirectional NAV
+travel, marine exit and coast-to-NAV-to-four-cell-lake-to-different-NAV travel,
+with actual arrivals and two bounded one-turn autoplay returns. These gameplay
+receipts are detailed in [native navigation](native-navigation.md); they do not
+qualify cliff-mouth passage. Closed, below-sea and distinct surface-versus-shore
+head cases remain the next native discriminator. The Earthlike within-row
+thermal expectation remains intact, with the missing directed temperature
+response being investigated at its causal owner rather than through biome
+quotas, noise or fitted residual gains.
+
+Evidence is in `earth-calibration/final-height-cliff-*`,
+`earth-calibration/native-water-v24-20261001/` and
+`cliff-retention-v24-1018/` under the durable Civ atlas. The native prefix-fold,
+merge and retirement logs use `earth-calibration/authority-prefix-*`.
+All fourteen protected main-checkout files retain their original hashes after
+the merge and resource-submodule reconciliation.

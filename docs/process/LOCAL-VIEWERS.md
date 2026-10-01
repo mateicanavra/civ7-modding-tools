@@ -8,14 +8,16 @@
 - **Logs:** `~/Library/Application Support/Civ7Tools/logs/`
 - **Current-login process:** launchd job `com.mateicanavra.civ7-gallery`
 - **Generation / interpretation:** [native-map-controls visual audit](../projects/native-map-controls/visual-audit.md)
+- **Latest native milestone, October 1:** [Final-height cliffs: seventeen fresh views and three matched lake controls](https://mateis-macbook-pro.taild8da1c.ts.net/civ/cliff-retention-v24-1018/index.html). The normal saved Huge1018/1018, twelve-player Exploration run includes final-height cliff ordering and the reviewed water-preservation check. PNGs, mobile thumbnails and per-view receipts are retained together. The comparison controls are separately sealed experiments, not the production lake-size policy.
 - **Interactive same-seed study:** [Huge/1018 comparison](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherence-huge-1018/index.html)
 - **Independent repetitions:** [Huge/42](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherence-huge-42/index.html), [Standard/1018](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherence-standard-1018/index.html)
 - **Complete basin coordinator:** [Huge/1018 baseline and sparse-river comparison](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coordinator-complete-huge-1018/index.html), with signed hydraulic exchanges and closed-body support; portable evidence, not a new native run.
 - **Resolved water ownership:** [Current generated Huge/1018 network](https://mateis-macbook-pro.taild8da1c.ts.net/civ/water-owner-huge-1018/index.html), with prescribed ocean head, finite inland storage and final exposure. Generated evidence only; scientific and native qualification are recorded in the [water-owner ledger](../projects/native-map-controls/external-water-ownership.md).
 - **Water and resource-backed starts, October 1:** [Generated full-map drainage viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/water-start-earthlike-1018/index.html) and [fourteen fresh native images](https://mateis-macbook-pro.taild8da1c.ts.net/civ/water-start-earthlike-1018/native-gallery.html), twelve wide views and two detail views. The native run uses Huge1018/1018, twelve players, the saved setup and stock cutoff ten. These images precede the separately qualified marine-coast relief correction; they prove neither completed scientific calibration nor vessel movement.
 
-The current gallery contains 28 Huge Earthlike/1018 game screenshots and five
-analytical maps. Original PNGs, mobile thumbnails, manifests, data tables and
+The original survey contains 28 Huge Earthlike/1018 game screenshots and five
+analytical maps; the linked milestones retain their own later build identities.
+Original PNGs, mobile thumbnails, manifests, data tables and
 reproduction scripts are retained together. This is user data, not a temporary
 worktree dependency or a 500 MB Git asset. Worktree `.civ7/outputs/` and `/tmp/`
 copies are working copies, not the hosting authority.
