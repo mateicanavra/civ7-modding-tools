@@ -696,7 +696,11 @@ describe("post-recipe input transport and bounded-cutoff observation (not native
   });
 
   it("observes the two authentic setters without replay in the bounded cutoff arm", () => {
-    const options = { ...WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE, ...selection, expectedLakeSizeCutoff: 40 };
+    const options = {
+      ...WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE,
+      ...selection,
+      expectedLakeSizeCutoff: 40,
+    };
     const run = fixture(mapInfo(options.expectedLakeSizeCutoff, options.mapSize));
     const first = Array<number>(options.width * options.height).fill(638);
     const second = Array<number>(first.length).fill(788);
@@ -707,7 +711,11 @@ describe("post-recipe input transport and bounded-cutoff observation (not native
       native = [...values];
     };
     const finish = installWaterHeightMaintenanceProbe(
-      run.adapter, "bounded-two-setters", identity, options, (line) => run.lines.push(line)
+      run.adapter,
+      "bounded-two-setters",
+      identity,
+      options,
+      (line) => run.lines.push(line)
     );
     run.adapter.setElevation(first);
     run.adapter.validateAndFixTerrain();
@@ -718,12 +726,20 @@ describe("post-recipe input transport and bounded-cutoff observation (not native
     finish();
     expect(run.calls).toEqual(calls);
     const records = run.decode();
-    expect(records.filter((record) => record.stage === "original-elevation-input-grid")
-      .flatMap((record) => record.payload.values ?? [])).toEqual(first);
+    expect(
+      records
+        .filter((record) => record.stage === "original-elevation-input-grid")
+        .flatMap((record) => record.payload.values ?? [])
+    ).toEqual(first);
     for (const checkpoint of ["before-original-replay", "after-original-replay"])
-      expect(records.filter((record) => record.stage === "original-replay-grid"
-        && record.payload.checkpoint === checkpoint).flatMap((record) => record.payload.elevation ?? []))
-        .toEqual(second);
+      expect(
+        records
+          .filter(
+            (record) =>
+              record.stage === "original-replay-grid" && record.payload.checkpoint === checkpoint
+          )
+          .flatMap((record) => record.payload.elevation ?? [])
+      ).toEqual(second);
   });
 
   it("constructs detached V20 requests from exact dry heights and only original wet inputs", () => {
