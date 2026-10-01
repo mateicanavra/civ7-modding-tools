@@ -8,7 +8,10 @@ Huge Earthlike map is deployed and loaded. Matched Huge1018 runs now distinguish
 native lake identity from height preservation: cutoff40 changes the remaining
 48 accepted cells to lakes without changing any final height. General lake
 classification policy, cliff continuity, era-qualified naval traversal and
-three unchanged scientific expectations remain open. No universal forty,
+two unchanged scientific expectations remain open. The existing Earthlike
+moisture classifier boundary is now calibrated against the complete product
+bank, deployed and live-generated at Huge1018 with the normal saved setup.
+No universal forty,
 unlimited cutoff or alternate legacy execution path is adopted.
 See [the current continuation](continuation-sequence.md#height-repair-and-next-qualification)
 and [request accounting and solution path](coherence-completion.md).

@@ -682,11 +682,31 @@ Continue with these bounded discriminators rather than more global tuning:
    (`1e38c3731cfd5e5bf1363e3fc0960b956057e2d8f0aa2c70a9d38401652a1688`).
    Independent evidence review verifies all94 capture pins and the complete
    expectation comparison; the physical steward supports the bounded empirical
-   classification change, not a climate-law repair. Adopt163.5 at the existing
-   Ecology config owner, then rebuild/deploy/restart the registered normal mod.
+   classification change, not a climate-law repair. The163.5 boundary is now
+   adopted at the existing Ecology config owner through native Graphite
+   `modify --into` on the existing positive-vegetation-support branch (PR #2225).
+   Its four descendants restack without another branch or worktree. The sole
+   production delta is that authored scalar; all eight current map products
+   retain their existing selection and admission machinery.
    No new operation, step, strategy, global control or legacy lane is required.
    This is calibration of the existing empirical index, not annual rainfall
    units, native parity or permission to leave thermal/pressure failures unresolved.
+   Post-adoption realization tests pass270 cases /50,123 assertions. Definition
+   tests pass1,068 cases, with one aggregate failure retaining exactly the two
+   unwaived thermal/pressure expectations; the biome expectation is resolved.
+   The owning deploy target installs13 files into the registered mod. A fresh
+   normal Huge1018 /12-player run passes the existing live realization gate,
+   resolves ToT_NoModsExceptMaps, observes a6,996-cell turn-one map and records
+   mapgen completion. Generated and deployed Earthlike scripts match SHA-256
+   `c1b5671ef5bdbf3ad638c181a556c01dabb6c5f4ba4fba42d5986202513f82bc`.
+   This is loader/generation qualification, not full final-surface or ship
+   traversal proof. The registered mod uses the normal game restart; no
+   application exit or diagnostic cutoff remains active. Logs:
+   `earthlike-moisture-adopted-{definition-test,realization-test,deploy,normal-huge1018-live}-20261001.log`
+   under the same research user data. The native local reconciliation is sealed
+   in `earthlike-moisture-calibration-reconciliation-20261001.json`
+   (`fb7f5ac33b267172b1b93b219671ea2047a960d50dc8d24b9e1ba077be76c9cf`);
+   it precedes publication and does not replace the earlier receipts.
 3. Investigate land-geographic thermal variation and stationary pressure
    contrast together. Pressure intentionally reads sea-level thermal samples,
    so increasing ground lapse cannot repair its uniform land-row input. Retained
