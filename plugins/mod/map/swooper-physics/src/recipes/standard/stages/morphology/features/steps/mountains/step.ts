@@ -147,7 +147,8 @@ export const MountainsStep = createStep(config, {
     const beltDrivers = deps.artifacts.beltDrivers.read();
     const substrate = deps.artifacts.substrate.read();
     const routing = deps.artifacts.routing.read();
-    const coastline = deps.artifacts.resolvedCoastline.read();
+    // Final wetness controls exposure; the existing upland law keeps its pre-lake coast reference.
+    const shelf = deps.artifacts.shelf.read();
     const { width, height } = context.setup.dimensions;
     const baseSeed = deriveStepSeed(context.setup.mapSeed, "morphology:planMountains");
 
@@ -215,7 +216,7 @@ export const MountainsStep = createStep(config, {
         erodibilityK: substrate.erodibilityK,
         sedimentDepth: substrate.sedimentDepth,
         flowAccum: routing.flowAccum,
-        distanceToCoast: coastline.distanceToCoast,
+        distanceToCoast: shelf.distanceToCoast,
         fractalRoughLand,
       },
       stepConfig.roughLands

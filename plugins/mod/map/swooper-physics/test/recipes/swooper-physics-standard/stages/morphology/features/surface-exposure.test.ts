@@ -10,6 +10,7 @@ import { artifacts as coastsArtifacts } from "../../../../../../src/domain/morph
 import { artifacts as erosionArtifacts } from "../../../../../../src/domain/morphology/modules/erosion/artifacts/index.js";
 import { artifacts as landformsArtifacts } from "../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as routingArtifacts } from "../../../../../../src/domain/morphology/modules/routing/artifacts/index.js";
+import { artifacts as shelfArtifacts } from "../../../../../../src/domain/morphology/modules/shelf/artifacts/index.js";
 import { artifacts as terrainArtifacts } from "../../../../../../src/domain/morphology/modules/terrain/artifacts/index.js";
 import morphology from "../../../../../../src/domain/morphology/router.js";
 import { MountainsStep } from "../../../../../../src/recipes/standard/stages/morphology/features/steps/mountains/step.js";
@@ -20,7 +21,7 @@ import { createSurfaceWaterFixture } from "./fixtures/surface-water.js";
 const { planRidges, planFoothills, planRoughLands, planVolcanoes } = morphology.landforms.ops;
 
 describe("post-water surface landform eligibility", () => {
-  it("forwards distinct substrate and candidate masks from the complete physical footprint", () => {
+  it("forwards final exposure and channel reservations while retaining the pre-lake rough-land coast reference", () => {
     const width = 8;
     const height = 1;
     const size = width * height;
@@ -42,6 +43,7 @@ describe("post-water surface landform eligibility", () => {
     const boundaryType = new Uint8Array(size).fill(BOUNDARY_TYPE.convergent);
     const elevation = topography.elevation;
     const distanceToCoast = new Uint16Array(size).fill(9);
+    const resolvedDistanceToCoast = new Uint16Array(size);
     const calls: string[] = [];
 
     withMapContextExecutionForTest(context, (stepContext) => {
@@ -62,7 +64,10 @@ describe("post-water surface landform eligibility", () => {
         flowDir: new Int32Array(size).fill(-1), flowAccum: new Float32Array(size), basinId: new Int32Array(size).fill(-1),
       });
       publishTestArtifact(stepContext, coastsArtifacts.resolvedCoastline, {
-        coastalLand: new Uint8Array(size), coastalWater: new Uint8Array(size), distanceToCoast,
+        coastalLand: new Uint8Array(size), coastalWater: new Uint8Array(size), distanceToCoast: resolvedDistanceToCoast,
+      });
+      publishTestArtifact(stepContext, shelfArtifacts.shelf, {
+        shelfMask: new Uint8Array(size), coastalLand: new Uint8Array(size), coastalWater: new Uint8Array(size), distanceToCoast,
       });
       publishTestArtifact(stepContext, foundationArtifacts.plates, {
         id: new Int16Array(size), boundaryCloseness: strong(), boundaryType,
@@ -98,6 +103,7 @@ describe("post-water surface landform eligibility", () => {
           expect(input.landMask[majorChannel]).toBe(1);
           expect(input.elevation).toBe(elevation);
           expect(input.distanceToCoast).toBe(distanceToCoast);
+          expect(input.distanceToCoast).not.toBe(resolvedDistanceToCoast);
           expect(input.seaLevel).toBe(topography.seaLevel);
           return planRoughLands.run(input, config);
         },
@@ -127,5 +133,7 @@ describe("post-water surface landform eligibility", () => {
     expect(mountains.mountainMask[minorChannel]).toBe(0);
     expect(mountains.mountainMask[majorChannel]).toBe(0);
     expect(fixture).toEqual(before);
+    expect(MountainsStep.contract.requires).toContain(shelfArtifacts.shelf);
+    expect(MountainsStep.contract.requires).not.toContain(coastsArtifacts.resolvedCoastline);
   });
 });

@@ -433,3 +433,91 @@ this seed, not a substitute for the cohort or native navigation proof.
 Receipts and frames: `/tmp/civ7-coherent-relief-native-{deploy.log,live.log,observations.json}`,
 `/tmp/civ7-coherence-mountain-foothills.png`, and
 `/tmp/civ7-coherence-high-coast.png`.
+
+## Post-Water Coast Input Lineage
+
+The October 1 water/Starts v2 public bank retains the flat-share expectation
+at 0.35. Huge Earthlike 1018 has 405 flat cells in 1,168 exposed mountain-region
+cells (0.3467465753), versus the accepted predecessor's 409/1,168. Ground,
+initial land, final exposed land and province membership are identical. The
+net loss is seven old flats selected as rough land, offset by three old rough
+cells becoming flat, not four uniquely identifiable cells.
+
+Bounded direct replays of the existing PlanRidges, PlanFoothills and
+PlanRoughLands operations use the exact captured normalized configurations,
+drivers, substrate, morphology routing, seed and derived fractals. The current
+control reproduces every published mountains array exactly. Changing only
+PlanRoughLands' coast distance to the retained pre-lake value reproduces the
+predecessor rough mask exactly, including all 56 changed rough-mask bits, and
+restores 409/1,168 flats. The rough target remains 193 in every arm; this is a
+selection redistribution, not added terrain or a relaxed limit.
+
+The first changed authoritative input is the coastline vintage. The
+predecessor distance array is byte-identical to the still-published
+`morphology.shelf.distanceToCoast`, not `baseCoastline`. Resolved lake shores
+lower `coastInterior` in the existing rolling-upland, plateau and escarpment
+terms. For example, tile 2333 changes distance 3 to 0, score 1 to
+0.8986438513, and zero-based candidate rank 123 to 246; the fixed rough target
+fills before reaching it. Tile 5574 changes score 1 to 0.9926462770 and is
+instead excluded by the existing local-density rule after six nearby sites
+have been selected. Six of the seven newly selected rough cells have unchanged
+local scores but earlier global rank. Exact score/selector source was read-only
+instrumented and its outputs checked against the direct operations; those
+diagnostic traces are reconstructed, not claimed predecessor intermediate
+arrays, which the older portable packet does not retain.
+
+The separate observed-old/current river cross demonstrates a valid channel
+response, not the flat-share cause. Old river candidates reproduce the old
+peak and foothill masks but put a peak on tile 2103, now a class-2 physical
+channel. Current channel reservation moves three peaks to three eligible
+neighbors, with no net flat-count change. Removing all channel reservations
+is neither old truth nor an acceptable repair.
+
+The [accepted Surface Landforms design](basin-integration.md#surface-landforms)
+explicitly holds original marine coast distance while final wetness controls
+surface exposure and current rivers reserve blocking peaks. The repaired
+mountains caller therefore uses the existing shelf distance for the rough-land
+law, while retaining current `exposedLandMask` and river candidate exclusions.
+Resolved shoreline remains authoritative for coastal projection and other
+actual-water consumers. No relief law, budget, fraction, threshold, seed,
+ground, water result or artifact producer changes, and no new coastline is
+computed. A future modeled lake-driven geomorphic feedback would require its
+own physical law and evidence rather than silently substituting present-day
+lake proximity for the held upland reference.
+
+Evidence is retained outside the repository at
+`earth-calibration/relief-owner-causal-20261001/`: `BRIEF.md`,
+`replay-admitted/receipt.json`, `observed-river-replay.json`, and
+`selection-trace.json`. The first study-reader attempt passed extra ridge
+diagnostic fields to foothill admission and stopped after one direct ridge
+call; that stopped packet and reader correction are preserved separately.
+There were no counterfactual outputs before that refusal and no recipe
+executions in the direct owner study. Full cohort acceptance remains pending
+the next fresh owner proof, including the unchanged thermal target.
+The bounded repair passes 20 focused tests with 250 assertions and the owning
+source/test TypeScript checks. A TEST-OWNED source caller replay against the
+immutable current Huge 1018 artifact inputs confirms 409/1,168 flats and exact
+equality to the held coast-only direct arm, without a public build or recipe
+rerun.
+
+The fresh v3 public proof now completes 115 executions: 57 full artifact
+captures, 57 separate public evaluations and the exact saved twelve-player
+case. All 4,430 original expectation identities and comparators are unchanged.
+Flat share passes at `409/1,168 = 0.3501712328767123`; the only remaining
+expectation failure is the unchanged within-row thermal response
+`0.12980530053589956 < 1 C`. No new failures occur. All held physical,
+climate and water artifacts and every compiled configuration value are
+byte-identical to v2. Independent typed reconstruction verifies all 3,192
+artifact payloads. The exact twelve-player case has twelve full, regional,
+unique seats, minimum spacing nine, resource support minimum three against
+floor two, support gap two and no shortfalls or adjustments.
+
+The correction passes independent SDK/architecture review and the complete
+owning check graph (37 tasks). The proof is retained at
+`earth-calibration/water-start-relief-owner-cohort-v3-20261001/` in the
+[Civ research user-data location](../../process/LOCAL-VIEWERS.md), with capture
+receipt SHA256
+`d56cb67df9d7f5deb43e189658a1243b0471ede550a582e9cca808d219d1144f`.
+This closes the narrow landform-input defect, not complete scientific
+calibration or native navigation. The new fourteen-image gallery predates
+this relief correction and is not post-correction native proof.
