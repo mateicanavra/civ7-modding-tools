@@ -6,6 +6,8 @@
   framed socket protocol.
 - Translate configuration, connection, framing, state, timeout, and dispatch
   facts into the parent resource's typed vocabulary.
+- Reset may reconnect within an acquired scope. Scope release is terminal:
+  refuse further work and await pending connection and socket retirement.
 
 ## Boundary
 

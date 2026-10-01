@@ -8,7 +8,9 @@ import { acquireLocalSocketCiv7Tuner } from "../../index.js";
 type TestServer = Readonly<{
   port: number;
   connections(): number;
+  activeConnections(): number;
   finReceived(): boolean;
+  finishPeers(): void;
   received(): readonly string[];
   close(): Promise<void>;
 }>;
@@ -16,6 +18,7 @@ type TestServer = Readonly<{
 type TestServerOptions = Readonly<{
   closeAfterFirstCommandWithoutResponse?: boolean;
   endAfterFirstCommand?: boolean;
+  holdFinOpen?: boolean;
   silentCommands?: readonly string[];
 }>;
 
@@ -42,7 +45,7 @@ describe("local-socket Civ7 Tuner lifecycle", () => {
     const scoped = Effect.scoped(program);
     const result = await Effect.runPromise(scoped);
 
-    await new Promise((resolve) => setTimeout(resolve, 20));
+    await waitUntil(() => server.finReceived());
     expect(result).toMatchObject({
       states: [
         { id: "65535", name: "App UI" },
@@ -57,6 +60,126 @@ describe("local-socket Civ7 Tuner lifecycle", () => {
     expect(server.connections()).toBe(1);
     expect(server.received()).toEqual(["LSQ:", "LSQ:", "CMD:65535:1 + 1"]);
     expect(server.finReceived()).toBe(true);
+  });
+
+  test("reconnects after reset but refuses escaped operations after scope release", async () => {
+    const server = await startServer();
+    const acquisition = acquireLocalSocketCiv7Tuner({
+      host: "127.0.0.1",
+      port: server.port,
+      env: {},
+    });
+    const program = Effect.gen(function* () {
+      const tuner = yield* acquisition;
+      yield* tuner.reset();
+      const states = yield* tuner.queryStates();
+      return { tuner, states, status: tuner.inspect() };
+    });
+    const { tuner, states, status } = await Effect.runPromise(Effect.scoped(program));
+
+    expect(states).toContainEqual({ id: "65535", name: "App UI" });
+    expect(status).toMatchObject({ connected: true, connectionEpoch: 2 });
+    await waitUntil(() => server.activeConnections() === 0);
+    const queryFailure = await Effect.runPromise(Effect.flip(tuner.queryStates()));
+    const executionFailure = await Effect.runPromise(
+      Effect.flip(tuner.execute({ command: "after-release" }))
+    );
+    const resetFailure = await Effect.runPromise(Effect.flip(tuner.reset()));
+
+    expect(queryFailure).toMatchObject({
+      _tag: "Civ7TunerFailure",
+      operation: "query-states",
+      reason: "connection-lost",
+    });
+    expect(executionFailure).toMatchObject({
+      _tag: "Civ7TunerFailure",
+      operation: "execute",
+      reason: "connection-lost",
+      dispatchStatus: "not-dispatched",
+    });
+    expect(resetFailure).toMatchObject({
+      _tag: "Civ7TunerFailure",
+      operation: "reset",
+      reason: "connection-lost",
+    });
+    expect(tuner.inspect()).toMatchObject({ connected: false, connectionEpoch: 2 });
+    expect(server.connections()).toBe(2);
+    expect(server.activeConnections()).toBe(0);
+    expect(server.received()).toEqual(["LSQ:"]);
+  });
+
+  test("drains a pending reconnect without installing or dispatching after scope release", async () => {
+    const server = await startServer();
+    const acquisition = acquireLocalSocketCiv7Tuner({
+      host: "127.0.0.1",
+      port: server.port,
+      env: {},
+    });
+    const program = Effect.gen(function* () {
+      const tuner = yield* acquisition;
+      yield* tuner.reset();
+      const query = Effect.runPromise(Effect.flip(tuner.queryStates()));
+      yield* Effect.promise(() => Promise.resolve());
+      return { tuner, query };
+    });
+    const { tuner, query } = await Effect.runPromise(Effect.scoped(program));
+    const failure = await query;
+
+    expect(failure).toMatchObject({
+      _tag: "Civ7TunerFailure",
+      operation: "query-states",
+      reason: "connection-lost",
+    });
+    expect(tuner.inspect()).toMatchObject({ connected: false, connectionEpoch: 1 });
+    expect(server.received()).toEqual([]);
+    expect(server.connections()).toBe(2);
+    await waitUntil(() => server.activeConnections() === 0);
+  });
+
+  test("joins an in-flight reset retirement before completing an aborted owning scope", async () => {
+    const server = await startServer({ holdFinOpen: true });
+    const acquisition = acquireLocalSocketCiv7Tuner({
+      host: "127.0.0.1",
+      port: server.port,
+      env: {},
+    });
+    const controller = new AbortController();
+    const resets: Promise<void>[] = [];
+    const program = Effect.gen(function* () {
+      const tuner = yield* acquisition;
+      resets.push(Effect.runPromise(tuner.reset()));
+      return yield* Effect.never;
+    });
+    let settled = false;
+    const completion = Effect.runPromiseExit(Effect.scoped(program), {
+      signal: controller.signal,
+    }).then((exit) => {
+      settled = true;
+      return exit;
+    });
+
+    try {
+      await waitUntil(() => server.finReceived());
+      expect(server.activeConnections()).toBe(1);
+      controller.abort();
+      await new Promise<void>((resolve) => setImmediate(resolve));
+
+      expect(settled).toBe(false);
+      expect(server.activeConnections()).toBe(1);
+      server.finishPeers();
+      const exit = await completion;
+      await Promise.all(resets);
+
+      expect(exit._tag).toBe("Failure");
+      expect(server.connections()).toBe(1);
+      expect(server.received()).toEqual([]);
+      await waitUntil(() => server.activeConnections() === 0);
+    } finally {
+      controller.abort();
+      server.finishPeers();
+      await completion;
+      await Promise.all(resets);
+    }
   });
 
   test("multiplexes a concurrent command burst over one acquired connection", async () => {
@@ -214,13 +337,13 @@ async function startServer(options: TestServerOptions = {}): Promise<TestServer>
   let finReceived = false;
   const received: string[] = [];
   const sockets = new Set<Socket>();
-  const server = createServer((socket) => {
+  const server = createServer({ allowHalfOpen: options.holdFinOpen === true }, (socket) => {
     connections += 1;
     sockets.add(socket);
     socket.on("close", () => sockets.delete(socket));
     socket.on("end", () => {
       finReceived = true;
-      socket.end();
+      if (!options.holdFinOpen) socket.end();
     });
     socket.on("error", () => {});
     let buffer = Buffer.alloc(0);
@@ -248,7 +371,11 @@ async function startServer(options: TestServerOptions = {}): Promise<TestServer>
   return {
     port: (server.address() as { port: number }).port,
     connections: () => connections,
+    activeConnections: () => sockets.size,
     finReceived: () => finReceived,
+    finishPeers: () => {
+      for (const socket of sockets) socket.end();
+    },
     received: () => received,
     close,
   };
@@ -290,7 +417,7 @@ async function waitUntil(predicate: () => boolean): Promise<void> {
   const deadline = Date.now() + 1_000;
   while (!predicate()) {
     if (Date.now() >= deadline) throw new Error("Timed out waiting for test condition.");
-    await new Promise((resolve) => setTimeout(resolve, 5));
+    await new Promise<void>((resolve) => setImmediate(resolve));
   }
 }
 

@@ -36,6 +36,8 @@ export class LocalSocketCiv7TunerSession {
   private buffer = Buffer.alloc(0);
   private readonly pending = new Map<number, PendingRequest>();
   private connecting: Promise<void> | undefined;
+  private retiring: Promise<void> | undefined;
+  private released = false;
   private connectionEpoch = 0;
   private consecutiveResponseTimeouts = 0;
   private totalResponseTimeouts = 0;
@@ -52,6 +54,7 @@ export class LocalSocketCiv7TunerSession {
   }
 
   async connect(): Promise<void> {
+    this.assertOpen("acquire");
     if (this.socket && isReusable(this.socket)) return;
     if (this.connecting) {
       await this.connecting;
@@ -80,6 +83,7 @@ export class LocalSocketCiv7TunerSession {
   }): Promise<Civ7TunerCommandResult> {
     let dispatchStatus: Civ7TunerDispatchStatus = "not-dispatched";
     try {
+      this.assertOpen("execute");
       const command = options.command.trim();
       if (!command) {
         throw new Civ7TunerFailure({
@@ -109,10 +113,15 @@ export class LocalSocketCiv7TunerSession {
   }
 
   async reset(): Promise<void> {
+    this.assertOpen("reset");
+    await this.connecting?.catch(() => {});
+    this.assertOpen("reset");
     await this.retireConnection();
   }
 
   async close(): Promise<void> {
+    this.released = true;
+    await this.connecting?.catch(() => {});
     await this.retireConnection();
   }
 
@@ -120,12 +129,17 @@ export class LocalSocketCiv7TunerSession {
     await this.retireConnection();
     const failures: Array<{ host: string; message: string }> = [];
     for (const host of this.config.hosts) {
+      this.assertOpen("acquire");
       try {
         const socket = await openSocket({
           host,
           port: this.config.port,
           timeoutMs: this.config.timeoutMs,
         });
+        if (this.released) {
+          await this.closeSocket(socket);
+          this.assertOpen("acquire");
+        }
         this.socket = socket;
         this.connectionEpoch += 1;
         this.buffer = Buffer.alloc(0);
@@ -146,6 +160,7 @@ export class LocalSocketCiv7TunerSession {
         socket.once("close", () => this.invalidateConnection(socket, connectionLost("closed")));
         return;
       } catch (cause) {
+        this.assertOpen("acquire");
         failures.push({ host, message: failureMessage(cause) });
       }
     }
@@ -159,9 +174,23 @@ export class LocalSocketCiv7TunerSession {
   }
 
   private async retireConnection(): Promise<void> {
+    if (this.retiring) {
+      await this.retiring;
+      return;
+    }
     const socket = this.socket;
     if (!socket) return;
     this.invalidateConnection(socket, connectionLost("released"));
+    const retirement = this.closeSocket(socket);
+    this.retiring = retirement;
+    try {
+      await retirement;
+    } finally {
+      if (this.retiring === retirement) this.retiring = undefined;
+    }
+  }
+
+  private async closeSocket(socket: Socket): Promise<void> {
     if (socket.destroyed || socket.readyState === "closed") return;
 
     await new Promise<void>((resolve) => {
@@ -180,7 +209,14 @@ export class LocalSocketCiv7TunerSession {
     operation: Civ7TunerFailureOperation,
     timeoutMs = this.config.timeoutMs
   ): Promise<Civ7TunerFrame> {
-    await this.connect();
+    this.assertOpen(operation);
+    try {
+      await this.connect();
+    } catch (cause) {
+      this.assertOpen(operation);
+      throw cause;
+    }
+    this.assertOpen(operation);
     const socket = this.socket;
     if (!socket || !isReusable(socket)) {
       throw new Civ7TunerFailure({
@@ -198,6 +234,7 @@ export class LocalSocketCiv7TunerSession {
     timeoutMs = this.config.timeoutMs,
     onWrite?: () => void
   ): Promise<Civ7TunerFrame> {
+    this.assertOpen("execute");
     const socket = this.socket;
     if (this.connectionEpoch !== expectedEpoch || !socket || !isReusable(socket)) {
       throw new Civ7TunerFailure({
@@ -278,6 +315,16 @@ export class LocalSocketCiv7TunerSession {
           cause: failure,
         })
       );
+    }
+  }
+
+  private assertOpen(operation: Civ7TunerFailureOperation): void {
+    if (this.released) {
+      throw new Civ7TunerFailure({
+        operation,
+        reason: "connection-lost",
+        message: "The Civ7 Tuner session was released.",
+      });
     }
   }
 }
