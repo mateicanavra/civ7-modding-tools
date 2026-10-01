@@ -325,9 +325,9 @@ function manifestInput(
     recipe?: string;
   }> = {}
 ): StudioRunGenerationManifestInput {
-  const sourceCanonicalConfig = standardMapConfigs.find((entry) => entry.id === "swooper-earthlike") as
-    | StandardMapConfigEnvelope
-    | undefined;
+  const sourceCanonicalConfig = standardMapConfigs.find(
+    (entry) => entry.id === "swooper-earthlike"
+  ) as StandardMapConfigEnvelope | undefined;
   if (!sourceCanonicalConfig) throw new Error("swooper-earthlike config fixture is missing");
   const canonicalConfig = sourceCanonicalConfig;
   const launchEnvelope = {

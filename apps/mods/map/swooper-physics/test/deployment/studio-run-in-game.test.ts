@@ -214,7 +214,10 @@ describe("studio run-in-game live verifier", () => {
         "/repo/apps/mods/map/swooper-physics/dist/mod/maps/swooper-earthlike.js",
         "current"
       ),
-      deployed: identity("/Users/test/Civ Mods/mod-swooper-maps/maps/swooper-earthlike.js", "stale"),
+      deployed: identity(
+        "/Users/test/Civ Mods/mod-swooper-maps/maps/swooper-earthlike.js",
+        "stale"
+      ),
     });
 
     expect(stage.ok).toBe(false);
