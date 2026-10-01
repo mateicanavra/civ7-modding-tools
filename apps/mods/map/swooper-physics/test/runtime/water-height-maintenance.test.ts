@@ -353,141 +353,151 @@ describe("post-recipe physical lake maintenance evidence", () => {
     ["full-map-maintenance", 40],
     ["full-map-bounded-lake-cutoff", "stock"],
     ["full-map-bounded-lake-cutoff", 40],
-  ] as const)("decorates the actual %s/%s generated execute once with complete terminal evidence", async (atlasKind, cutoff) => {
-    const selection = {
-      sourceConfigId: "swooper-earthlike",
-      mapSize: "MAPSIZE_TINY",
-      mapSeed: 42,
-      gameSeed: 7331,
-      playerCount: 3,
-      lakeSizeCutoff: cutoff,
-    } as const;
-    const built = await buildRiverProbePlan(
-      "physical-lakes-test",
-      "authored",
-      atlasKind,
-      selection
-    );
-    const script = String(
-      built.files.find((file) => file.relativePath === "maps/river-contract.js")!.content
-    );
-    const proof = JSON.parse(
-      String(built.files.find((file) => file.relativePath === "proof.json")!.content)
-    );
-    const run = await physicalLakeRun(
-      selection.sourceConfigId,
-      selection.mapSize,
-      selection.mapSeed,
-      selection.gameSeed,
-      proof.expectedLakeSizeCutoff
-    );
-    const lines: string[] = [],
-      events: string[] = [];
-    const executionOptions = { log: () => {} };
-    let delegationCount = 0,
-      observationCount = 0,
-      finishingCount = 0;
-    const execute = generatedMaintenanceExecute(
-      script,
-      (context, plan, options) => {
-        delegationCount++;
-        expect(context).toBe(run.context);
-        expect(plan).toBe(run.plan);
-        expect(options).toBe(executionOptions);
-        standardRecipe.execute(context, plan, options);
-        events.push("recipe-returned");
-      },
-      (context, plan, proofId, identity, options) => {
-        observationCount++;
-        const before = stableStringify([run.lakes(), run.topography(), run.hydrography()]);
-        expect(context).toBe(run.context);
-        expect(plan).toBe(run.plan);
-        observeWaterHeightPhysicalLakes(context, plan, proofId, identity, options, (line) =>
-          lines.push(line)
-        );
-        expect(stableStringify([run.lakes(), run.topography(), run.hydrography()])).toBe(before);
-        events.push("physical-lakes");
-      },
-      atlasKind === "full-map-bounded-lake-cutoff" ? () => { finishingCount++; } : undefined
-    );
-    const originalLog = console.log;
-    try {
-      console.log = () => {};
-      execute(run.context, run.plan, executionOptions);
-    } finally {
-      console.log = originalLog;
-    }
-    events.push("execute-returned");
-    expect(delegationCount).toBe(1);
-    expect(observationCount).toBe(1);
-    expect(finishingCount).toBe(atlasKind === "full-map-bounded-lake-cutoff" ? 1 : 0);
-    expect(events).toEqual(["recipe-returned", "physical-lakes", "execute-returned"]);
-    expect(lines.every((line) => line.length <= BOUNDED_JSON_LOG_MAX_LINE_LENGTH)).toBe(true);
-    const records = decodeBoundedJsonLogSeries(lines, "[water-height-maintenance]");
-    expect(records).toHaveLength(1);
-    expect(records[0]!.partCount).toBeGreaterThan(1);
-    const lakes = run.lakes(),
-      accepted = run.accepted();
-    const cells = Array.from(accepted.lakeMask).flatMap((wet, cell) =>
-      wet === 1 ? [[cell, lakes.bodyId[cell]!, lakes.waterSurface[cell]!]] : []
-    );
-    expect(cells.length).toBeGreaterThan(0);
-    const currentCensus = atlasKind === "full-map-bounded-lake-cutoff";
-    expect(records[0]!.payload).toEqual({
-      proofId: proof.proofId,
-      stage: "physical-lakes",
-      diagnosticRevision: proof.diagnosticRevision,
-      atlasKind: proof.atlasKind,
-      configHash: proof.configHash,
-      envelopeHash: proof.envelopeHash,
-      fixtureSourceSha256: proof.fixtureSourceSha256,
-      payload: {
-        phase: "post-recipe",
+  ] as const)(
+    "decorates the actual %s/%s generated execute once with complete terminal evidence",
+    async (atlasKind, cutoff) => {
+      const selection = {
+        sourceConfigId: "swooper-earthlike",
+        mapSize: "MAPSIZE_TINY",
         mapSeed: 42,
         gameSeed: 7331,
-        dimensions: run.context.setup.dimensions,
-        ...(currentCensus ? {
-          seaLevel: run.topography().seaLevel,
-          ground: Array.from(run.topography().elevation),
-          externalWaterMask: Array.from(run.topography().externalWaterMask),
-          exposedLandMask: Array.from(run.hydrography().exposedLandMask),
-        } : {}),
-        plannedLakeTileCount: lakes.plannedLakeTileCount,
-        columns: ["cell", "body", "head"],
-        cells,
-        bodies: lakes.bodies
-          .map((body) => ({
-            bodyId: body.bodyId,
-            componentId: body.componentId,
-            poolId: body.poolId,
-            level: body.level,
-            wetCells: [...body.wetCells],
-          }))
-          .sort((a, b) => a.bodyId - b.bodyId),
-        components: lakes.components
-          .map((component) => ({
-            componentId: component.componentId,
-            poolId: component.poolId,
-            state: component.state,
-            level: component.level,
-            bodyIds: [...component.bodyIds],
-            memberCells: [...component.memberCells],
-          }))
-          .sort((a, b) => a.componentId - b.componentId),
-        pools: lakes.pools
-          .map((pool) => ({
-            poolId: pool.poolId,
-            componentId: pool.componentId,
-            state: pool.state,
-            level: pool.level,
-            leafIds: [...pool.leafIds],
-            wetCells: [...pool.wetCells],
-            ...(currentCensus ? { closure: pool.closure ?? null } : {}),
-          }))
-          .sort((a, b) => a.poolId - b.poolId),
-      },
-    });
-  }, 30_000);
+        playerCount: 3,
+        lakeSizeCutoff: cutoff,
+      } as const;
+      const built = await buildRiverProbePlan(
+        "physical-lakes-test",
+        "authored",
+        atlasKind,
+        selection
+      );
+      const script = String(
+        built.files.find((file) => file.relativePath === "maps/river-contract.js")!.content
+      );
+      const proof = JSON.parse(
+        String(built.files.find((file) => file.relativePath === "proof.json")!.content)
+      );
+      const run = await physicalLakeRun(
+        selection.sourceConfigId,
+        selection.mapSize,
+        selection.mapSeed,
+        selection.gameSeed,
+        proof.expectedLakeSizeCutoff
+      );
+      const lines: string[] = [],
+        events: string[] = [];
+      const executionOptions = { log: () => {} };
+      let delegationCount = 0,
+        observationCount = 0,
+        finishingCount = 0;
+      const execute = generatedMaintenanceExecute(
+        script,
+        (context, plan, options) => {
+          delegationCount++;
+          expect(context).toBe(run.context);
+          expect(plan).toBe(run.plan);
+          expect(options).toBe(executionOptions);
+          standardRecipe.execute(context, plan, options);
+          events.push("recipe-returned");
+        },
+        (context, plan, proofId, identity, options) => {
+          observationCount++;
+          const before = stableStringify([run.lakes(), run.topography(), run.hydrography()]);
+          expect(context).toBe(run.context);
+          expect(plan).toBe(run.plan);
+          observeWaterHeightPhysicalLakes(context, plan, proofId, identity, options, (line) =>
+            lines.push(line)
+          );
+          expect(stableStringify([run.lakes(), run.topography(), run.hydrography()])).toBe(before);
+          events.push("physical-lakes");
+        },
+        atlasKind === "full-map-bounded-lake-cutoff"
+          ? () => {
+              finishingCount++;
+            }
+          : undefined
+      );
+      const originalLog = console.log;
+      try {
+        console.log = () => {};
+        execute(run.context, run.plan, executionOptions);
+      } finally {
+        console.log = originalLog;
+      }
+      events.push("execute-returned");
+      expect(delegationCount).toBe(1);
+      expect(observationCount).toBe(1);
+      expect(finishingCount).toBe(atlasKind === "full-map-bounded-lake-cutoff" ? 1 : 0);
+      expect(events).toEqual(["recipe-returned", "physical-lakes", "execute-returned"]);
+      expect(lines.every((line) => line.length <= BOUNDED_JSON_LOG_MAX_LINE_LENGTH)).toBe(true);
+      const records = decodeBoundedJsonLogSeries(lines, "[water-height-maintenance]");
+      expect(records).toHaveLength(1);
+      expect(records[0]!.partCount).toBeGreaterThan(1);
+      const lakes = run.lakes(),
+        accepted = run.accepted();
+      const cells = Array.from(accepted.lakeMask).flatMap((wet, cell) =>
+        wet === 1 ? [[cell, lakes.bodyId[cell]!, lakes.waterSurface[cell]!]] : []
+      );
+      expect(cells.length).toBeGreaterThan(0);
+      const currentCensus = atlasKind === "full-map-bounded-lake-cutoff";
+      expect(records[0]!.payload).toEqual({
+        proofId: proof.proofId,
+        stage: "physical-lakes",
+        diagnosticRevision: proof.diagnosticRevision,
+        atlasKind: proof.atlasKind,
+        configHash: proof.configHash,
+        envelopeHash: proof.envelopeHash,
+        fixtureSourceSha256: proof.fixtureSourceSha256,
+        payload: {
+          phase: "post-recipe",
+          mapSeed: 42,
+          gameSeed: 7331,
+          dimensions: run.context.setup.dimensions,
+          ...(currentCensus
+            ? {
+                seaLevel: run.topography().seaLevel,
+                ground: Array.from(run.topography().elevation),
+                externalWaterMask: Array.from(run.topography().externalWaterMask),
+                exposedLandMask: Array.from(run.hydrography().exposedLandMask),
+              }
+            : {}),
+          plannedLakeTileCount: lakes.plannedLakeTileCount,
+          columns: ["cell", "body", "head"],
+          cells,
+          bodies: lakes.bodies
+            .map((body) => ({
+              bodyId: body.bodyId,
+              componentId: body.componentId,
+              poolId: body.poolId,
+              level: body.level,
+              wetCells: [...body.wetCells],
+            }))
+            .sort((a, b) => a.bodyId - b.bodyId),
+          components: lakes.components
+            .map((component) => ({
+              componentId: component.componentId,
+              poolId: component.poolId,
+              state: component.state,
+              level: component.level,
+              bodyIds: [...component.bodyIds],
+              memberCells: [...component.memberCells],
+            }))
+            .sort((a, b) => a.componentId - b.componentId),
+          pools: lakes.pools
+            .map((pool) => ({
+              poolId: pool.poolId,
+              componentId: pool.componentId,
+              state: pool.state,
+              level: pool.level,
+              leafIds: [...pool.leafIds],
+              wetCells: [...pool.wetCells],
+              ...(currentCensus ? { closure: pool.closure ?? null } : {}),
+            }))
+            .sort((a, b) => a.poolId - b.poolId),
+        },
+      });
+    },
+    30_000
+  );
 
   it("preserves an actual native-boundary failure and emits no physical observation", async () => {
     const built = await buildRiverProbePlan(
