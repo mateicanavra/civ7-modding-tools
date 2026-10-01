@@ -35,10 +35,22 @@ user or agent
   -> structured result
 ```
 
-The service owns semantic admission, policy, bounded postcondition checks,
-dispatch uncertainty, and no-repeat outcomes. The mixed direct-control package
-owns both the managed socket and exact native lowering. Preserve connection
-epochs, guarded native sends, raw observations, and semantic result behavior.
+The current service mixes two capabilities: foundational app/game/map/UI
+control and actor-facing play policy. The mixed direct-control package owns the
+managed socket, exact native lowering, and additional convenience surfaces.
+Preserve resource/provider-owned connection epochs, Tuner health, exact raw
+command facts, guarded native sends, raw observations, and semantic result
+behavior while separating the destination chains:
+
+```text
+ready resources -> civ7-control -> exact live/native facts
+civ7-control -> civ7-play -> gameplay situation, decision, and next action
+```
+
+The destination service inventories are finite: control has exactly
+`{app,game,map,ui}`; play has exactly `{attention,automation,city,diplomacy,
+notifications,progression,planning,turn,unit}`. Actor reconciliation,
+no-repeat policy, and next-action policy belong to play.
 
 Raw execution, Tuner health, catalog, inspection, map reads, watch, restart,
 and several focused readiness/play helpers intentionally do not all pass
@@ -102,7 +114,7 @@ process-lifetime run operation
   -> verified run manifest
   -> Swooper realization materialize/deploy targets
   -> exact mod-install mechanics
-  -> in-process control service client
+  -> in-process foundational control-service client
   -> lifecycle demand
   -> fresh logs and live readback
 ```
@@ -129,7 +141,8 @@ Autoplay participates in the same active-operation admission gate. An active
 Run in Game or Save & Deploy operation must reject autoplay with the current
 `AUTOPLAY_BLOCKED` outcome before any control mutation executes. The
 cross-operation mutex is MapGen-runs policy even though the admitted autoplay
-mutation is delegated to the control service.
+native mutation is delegated to the control service; actor-facing autoplay
+policy belongs to play, while the cross-operation mutex belongs to MapGen-runs.
 
 ## 6. Official Data Authority
 
@@ -197,6 +210,9 @@ truth-versus-engine-projection boundary.
 - CLI raw diagnostic and read commands consume that package outside the
   semantic service.
 - `Civ7ControlOrpcDirectControlFacade` mirrors that hybrid inside the service.
+- The current flat control router places readiness/setup/world/view and
+  city/diplomacy/progression/strategy beside each other, erasing the
+  foundational-control -> play direction already visible in consumers.
 - The host Tuner and generic selected-window capture resources are implemented.
   Civ7 selection policy and image meaning still remain in the hybrid control
   path until the next service burn-down binds both ready capabilities directly.
@@ -221,7 +237,8 @@ truth-versus-engine-projection boundary.
 | CLI | Command discovery, stable nouns, structured output, local in-process calls |
 | Tuner | Framing, state selection, reconnect, epochs, health, exact command result |
 | Diagnostics | Raw execution and inspection remain explicit escape hatches rather than semantic service methods |
-| Control | Admission, native checks, guarded sends, bounded observation, uncertainty, no-repeat policy |
+| Foundational control | Civ7 interpretation and resource-epoch-correlated app/game/map/UI facts, closed typed native operations, semantic dispatch, and readback without gameplay interpretation; exactly `{app,game,map,ui}` |
+| Play | Attention and situation views, gameplay checks/requests, bounded postconditions, actor reconciliation, uncertainty, no-repeat policy, and next lawful action; exactly `{attention,automation,city,diplomacy,notifications,progression,planning,turn,unit}` |
 | Studio | Exact merged `/rpc` procedure/error surface, one mount/session, event ordering/latest-live replay/subscriber closure, operation adoption/retention, autoplay mutex, cancellation, drain, correlated proof, same-origin access |
 | Official data | Explicit extraction/publication, generated-currentness, submodule integrity |
 | Mods | Exact rendered tree, wholesale deployment, game loader acceptance |

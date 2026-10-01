@@ -22,11 +22,17 @@ them. Each accepted kind closes its own proof topology around disjoint
 confidence axes; domain-qualified kinds such as MapGen keep their stronger
 domain-shaped testing grammar.
 
-**Current container:** Core Platform 1.2, constructing the Interactive platform
-chain. Ground, the complete Swooper cold construction, the Civ7 product,
-system, outcome, and actor-role-outcome models, their exact corpora, the Explore
-Live Map oracle, Studio design synchronization, physical wind and pressure
-reconstruction, and seed-stateless latitude fallback are sealed inputs.
+**Current container:** active-guidance ratchet against the sealed destination
+platform. Product, system, outcome, actor, topology, corpus, proof, and vendor
+models now agree on the complete package/resource/provider/service/plugin/app
+chain. Interactive source movement remains paused while every repo-local skill,
+AGENTS router, ADR, and architecture guide receives a
+keep/repair/consolidate/delete disposition. Generic vendor guidance comes only
+from the published global skills; local guidance survives only when it adds
+durable Civ7 authority. Ground, the complete Swooper cold construction, the
+exact corpora, the Explore Live Map oracle, Studio design synchronization,
+physical wind and pressure reconstruction, and seed-stateless latitude
+fallback remain sealed inputs.
 
 Habitat source, package, blueprint, and release ownership lives upstream.
 `@habitat-ai/cli@0.5.2` and its exact `@habitat-ai/sdk@0.5.2` dependency supply
@@ -57,6 +63,25 @@ ScreenCaptureKit provider owns helper preparation, platform/TCC translation,
 atomic PNG installation, and the scoped lifetime of every in-flight child.
 Cancellation and atomicity are target upgrades, not current-source claims. The
 control service owns only Civ7 matching, appshot policy, and semantic outcomes.
+
+The current service cut is native oRPC 2 plus Effect 4 over ready Tuner and
+window-capture resources. Procedure-local errors replace one root-global error
+surface. The direct-control aggregate facade, controller capability mirror,
+host admission, generic mutation wrappers, and transport-address leakage are
+displaced rather than recreated under new names; concrete semantic procedures
+retain their own readiness and reconciliation laws.
+
+Active skills, AGENTS routers, ADRs, and architecture guidance are executable
+inputs to this migration. Their keep/repair/consolidate/delete pass is now the
+active ratchet; no legacy vendor or ownership lesson remains available as
+hidden drift when source movement resumes.
+
+The construction loop is continuous: focused semantics, TypeScript, Biome, and
+selected Habitat law close each module before focus advances. The ordinary Nx
+`check` graph then composes Effect diagnostics, Knip, boundaries, policy,
+verification, and upstream checks into the container seal. Civ7 owns its
+explicit target selection while Habitat evaluates the separately routed,
+opt-in generic aggregation capability.
 
 Two definition reductions are sealed. The closed `mapgen` CLI topic owns
 diagnostic and metric commands while Swooper and neutral MapGen packages retain
@@ -90,11 +115,12 @@ cold filesystem effects, while CLI topics project their bound capabilities.
 MapGen run records, cancellation, retention, and events remain scoped
 MapGen-runs service state rather than a manufactured resource.
 
-**Gradient:** generic window-capture resource -> local semantic services ->
-CLI and Studio projections/composition -> joint Core Platform seal -> Dacia
-Product -> Estate Reconciliation -> Platform Seal. The Tuner protocol remains
-private to its sole provider unless another independent consumer earns a public
-package.
+**Gradient:** guidance seal -> qualified law red state -> generic
+window-capture and Tuner resource closure -> foundational control ->
+actor-facing play -> MapGen-runs -> CLI and Studio projections/composition ->
+joint Core Platform seal -> Dacia Product -> Estate Reconciliation -> Platform
+Seal. The Tuner protocol remains private to its sole provider unless another
+independent consumer earns a public package.
 
 **Detailed frame:** [Civ7 Capability Realization](../civ7-capability-realization/FRAME.md).
 
@@ -139,6 +165,25 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-08-06 - Destination Platform Re-ratified
+
+The whole-platform falsification loop is closed. The accepted destination
+separates foundational control from actor-facing play, gives Studio's qualified
+adapter the ephemeral realization effects, keeps MapGen-runs semantic, refuses
+the legacy facade and generic shared runtime, and gates exact Effect-oRPC
+mechanics on installed beta.23 proof. The next forcing surface is active
+guidance: delete global-skill copies and old Habitat recovery teaching, repair
+the Civ7 overlays that encode stale owners or paths, then turn the qualified
+destination laws red.
+
+### 2026-08-06 - Interactive Construction Paused For Platform Re-ratification
+
+The prior focus had begun the local service source burn-down after repairing
+the control/play split. The recovered proposal showed that resources, public
+API projections, workflows, runtime apps, and categorical facade deletion must
+be visible together before any one implementation becomes destination law.
+Source is stationary while that whole-platform model seals.
 
 ### 2026-08-06 - Window Capture Resource Generalized
 

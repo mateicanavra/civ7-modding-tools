@@ -51,7 +51,7 @@ apps/
 | `packages/civ7-tuner-protocol` | Pure Tuner framing and messages | Tuner provider | Cannot make App UI promises awaitable |
 | `resources/civ7-tuner` | Managed Tuner capability | Server and CLI apps | Cannot share globals across Civ7 states |
 | `services/civ7-live` | App, game, and UI live controls | Play service and HQ API | Risks becoming a forwarding catalog |
-| `services/civ7-play` | Gameplay policy and outcomes | Play API and CLI | Duplicates the current control service boundary |
+| `services/civ7-play` | Gameplay policy and outcomes | Play API and CLI | Sound owner, but this alternative unnecessarily couples it to an unearned controller/API stack |
 | `plugins/mod/ui/civ7-controller` | App UI controller projection | Controller mod app | Requires shell/game lifecycle and async ingress |
 | `plugins/server/api/civ7-hq` | Live/data/mod/log API aggregation | Control-plane app | Broad API before a caller contract |
 | `plugins/server/api/civ7-play` | Network gameplay projection | Browser/network play clients | Unearned alongside in-process CLI |
@@ -124,7 +124,7 @@ apps/
 | `resources/desktop-app` | OS process control | Control service | No current implementation |
 | `services/civ7-control` | App/game/UI/session authority | Live and play services | Too low-level to own semantic outcomes |
 | `services/civ7-live` | Readiness/observation/log authority | Live/HQ APIs | Mostly forwards other owners |
-| `services/civ7-play` | Gameplay policy | Play API | Splits the present service without a new authority |
+| `services/civ7-play` | Gameplay policy | Play API | Earned owner paired here with several unearned forwarding/API layers |
 | `services/civ7-mapgen` | Recipe and generation truth | Studio, mod, workflow | Breaks portable in-browser/in-mod ownership |
 | `services/civ7-resources` | Data/mod/log operations | Data API | No coherent semantic state owner |
 | `plugins/server/api/civ7-live` | Live network projection | Studio and external tools | No non-Studio caller yet |
@@ -150,20 +150,29 @@ MapGen portability. It confuses structural expansion with state collapse.
 **Selected.**
 
 This selects semantic owners and realization chains, not permission to create
-every shown root. Paths marked as law gates remain `UNCONSTRUCTIBLE` until
-their independently closed Habitat packets are accepted.
+every shown root. Ground is already sealed on the installed Habitat 0.5.2
+consumer release: shared `app@1`, `package@1`, `plugin@1`, `plugin-nx@1`,
+`provider@1`, and `resource@1` shells are ready. A path marked as a law gate
+remains `UNCONSTRUCTIBLE` only when its Civ7-qualified overlay is still
+unaccepted; that is a local destination gate rather than a shared-substrate
+readiness claim.
 
 ```text
 packages/
-  mapgen-core/
-  mapgen-config/
+  civ7-types/
   civ7-adapter/
   civ7-map-policy/
   civ7-mod-install/
   civ7-save-files/
+  mapgen-core/
+  mapgen-diagnostics/
+  mapgen-metrics/
+  mapgen-viz/
+  mapgen-config/
+  mapgen-studio-ui/
   sdk/
   studio-run-workspace/
-  ...other proven pure/support packages
+  typebox-standard-schema/
 
 resources/
   civ7-tuner/
@@ -237,9 +246,35 @@ services/
         impl.ts
         router.ts
         modules/
-          {attention,city,diplomacy,display,government,lifecycle,
-           narrative,notifications,progression,readiness,strategy,
-           turn,unit,view,world}/
+          {app,game,map,ui}/
+            AGENTS.md
+            contract/{index.ts,...}
+            module.ts
+            router.ts
+            router/*.router.ts
+            [middleware/]
+            [model/]
+  civ7-play/
+    habitat.toml
+    package.json
+    project.json
+    test/
+      contract/client.typecheck.ts
+      semantics/modules/<module>/<operation>.test.ts
+      [semantics/<selected-service-invariant>.test.ts]
+      execution/root.test.ts
+    tsconfig.json
+    src/
+      client.ts
+      service/
+        habitat.toml
+        base.ts
+        contract.ts
+        impl.ts
+        router.ts
+        modules/
+          {attention,automation,city,diplomacy,notifications,
+           progression,planning,turn,unit}/
             AGENTS.md
             contract/{index.ts,...}
             module.ts
@@ -295,20 +330,20 @@ plugins/
       project.json
       tsconfig.json
       src/
-        api.ts
-        client.ts
-        context.ts
-        contract.ts
-        router.ts
-        modules/
-          {authoring,control,runs,studio}/
-            AGENTS.md
-            contract/{index.ts,...}
-            module.ts
-            router.ts
-            router/*.router.ts
-            [middleware/]
-            [model/]
+        api.ts                    # public server-registration face
+        client.ts                 # public caller face
+        service/                  # private API-owned projection packet
+          habitat.toml
+          {base,contract,impl,router}.ts
+          modules/
+            {authoring,control,runs,studio}/
+              AGENTS.md
+              contract/{index.ts,...}
+              module.ts
+              router.ts
+              router/*.router.ts
+              [middleware/]
+              [model/]
       test/
         contract/client.typecheck.ts
         projection/{authoring,control,errors,router,runs}.test.ts
@@ -364,6 +399,7 @@ apps/
           fresh-log-files.ts
           studio-run-files.ts
           swooper-map-config-source.ts
+          swooper-map-realization.ts
     test/
       assembly/
         composition.test.ts
@@ -375,6 +411,7 @@ apps/
           fresh-log-files.test.ts
           studio-run-files.test.ts
           swooper-map-config-source.test.ts
+          swooper-map-realization.test.ts
       tsconfig.json
   docs/
   playground/
@@ -405,11 +442,14 @@ apps/
     civ/dacia/                 # semantic destination; law gate required
 ```
 
-The topology intentionally contains no controller mod, MapGen generation
-service, HQ API, generic catalog resource, macOS app-control resource, public
-Tuner protocol package, or durable workflow plugin. Those remain admissible
-future kinds, not empty placeholders. Docs and Playground retain their current
-roots until their distinct app shapes are classified.
+The topology intentionally contains no third `civ7-live` forwarding service,
+controller mod, MapGen generation service, HQ API, generic catalog resource,
+macOS app-control resource, public Tuner protocol package, or durable workflow
+plugin. Foundational live control is already the responsibility of
+`services/civ7-control`; actor-facing play is independently owned by
+`services/civ7-play`. The other candidates remain admissible future kinds, not
+empty placeholders. Docs and Playground retain their current roots until their
+distinct app shapes are classified.
 
 Services remain governed by the established local Civ7 packet because
 `service@1` is unselected. Standalone service roots own their contract,
@@ -421,6 +461,30 @@ wildcard suffix grammar never discover or admit proof. Every admitted test root
 is closed by its blueprint around a small set of disjoint, meaningful
 confidence axes. Generic kinds reuse generic layers; qualified and domain kinds
 refine them rather than opening case-by-case test cabinets.
+
+### Selected Package Spine Ledger
+
+This finite ledger closes the package inventory shown above. It records the
+destination owner boundary, direct consumer class, and the proof that must
+close for each selected pure or support package. The proof column is an
+obligation, not a claim that product migration or live behavior has passed.
+
+| Package | Owner boundary | Selected consumers | Required closure evidence |
+| --- | --- | --- | --- |
+| `packages/civ7-types` | Type-only declarations for the Civ7 scripting/runtime environment and generated river declarations | Civ7 adapter, SDK, Swooper definition and realization | Public typecheck plus exact generated-currentness delegated to the `civ7-map-policy` generator; no runtime export |
+| `packages/civ7-adapter` | Portable engine-adapter contract, static capability vocabulary, deterministic mock | MapGen core, Swooper definition/realization, tests | Contract/type proof and deterministic mock/static semantics after engine-global implementation leaves the package; negative live-import proof |
+| `packages/civ7-map-policy` | Pure official-source-derived Civ7 map, setup, placement, and legality facts | Civ7 adapter, Swooper definition, control setup semantics, policy/type generation | Contract and policy semantics, deterministic regeneration/currentness against the identified official source, and no runtime acquisition |
+| `packages/civ7-mod-install` | Pure rendered-tree admission, comparison, digest, replacement plan, and receipt construction | Swooper, Studio, and CLI app filesystem adapters | Package contract and semantics over supplied observations; adapter execution, deployment, and live acceptance close at qualified owners |
+| `packages/civ7-save-files` | Pure saved-configuration byte parsing and bounded candidate classification | Studio `civ7-save-files` adapter and Swooper proof | Package contract and parsing/selection semantics; directory discovery and byte reads close in the Studio app adapter |
+| `packages/mapgen-core` | Portable MapGen authoring, compilation, execution, artifact, trace, and algorithm SDK | Swooper definition, Studio browser worker, SDK and neutral MapGen support packages | Public contract and deterministic execution/trace semantics; Swooper recipe and product-target proof remain with the definition |
+| `packages/mapgen-diagnostics` | Neutral diagnostic evidence, binary admission, dump/diff mechanics, and the qualified path-publication support niche | MapGen CLI topic and Swooper parity/diagnostic consumers | Evidence and diff semantics plus qualified publication execution; no Swooper recipe, threshold, report, or command-presentation ownership |
+| `packages/mapgen-metrics` | Product-neutral measurements, component summaries, projections, and target-evaluation mechanics | MapGen core and Swooper metric owners | Type/projection contract and deterministic numeric/evaluation semantics; product thresholds and report meaning remain with Swooper |
+| `packages/mapgen-viz` | Environment-neutral visualization representations, geometry, projection, and injected materialization | MapGen core, diagnostics, Swooper definition, Studio web projection | Portable representation/type proof and deterministic projection/materialization semantics; host persistence and rendering prove at consumers |
+| `packages/mapgen-config` | Portable MapGen JSON envelope and canonical configuration identity | Swooper definition/realization, MapGen-runs, Studio API and web projection | Public schema/type contract plus exact JSON admission, snapshot ownership, and canonical serialization semantics |
+| `packages/mapgen-studio-ui` | Retained reusable Studio component and style library, not the browser application owner | MapGen Studio web projection | Package build/type proof, component behavior, style artifact verification, and design-sync receipt; no route, provider, or process authority |
+| `packages/sdk` | Generic Civ7 mod builders, definition contracts, and deterministic render plan | Mod definitions, Playground, external SDK consumers, Swooper realization boundary during cutover | Public type/contract and deterministic builder/render semantics; engine-bound `createMap`, filesystem realization, loader, and live proof close elsewhere |
+| `packages/studio-run-workspace` | Pure run-workspace paths, manifests, correlation contracts, and snapshot/marker comparison | MapGen-runs, Studio app adapters, Swooper realization/parity proof | Package contract and pure manifest/correlation/comparison semantics; filesystem observation and timeout policy close at their qualified owners |
+| `packages/typebox-standard-schema` | Product-free TypeBox-to-Standard-Schema projection | Control/play service contracts and other TypeBox schema consumers | Adapter contract typecheck and strict validation/recovery semantics; no product, service, transport, or runtime imports |
 
 ### Capability Cards
 
@@ -525,7 +589,8 @@ generic capability.
   installation
 - **Produces:** `WindowCapture` resource value
 - **Consumes:** the generic window-capture contract and macOS host APIs
-- **Consumers:** qualified app composition and control-service binding
+- **Consumers:** qualified app composition, which supplies the resulting
+  resource value to control-service binding
 - **Forbids:** Civ7 matching, appshot semantics, app activation, whole-display
   capture, provider selection, and caller projection
 
@@ -552,7 +617,8 @@ public surface.
   Civ7 Tuner socket
 - **Produces:** `Civ7Tuner` resource value
 - **Consumes:** resource contract; keeps its single-consumer protocol private
-- **Consumers:** qualified app composition and control-service binding
+- **Consumers:** qualified app composition, which supplies the resulting
+  resource value to control-service binding
 - **Forbids:** provider selection, app policy, control-service policy
 
 #### `packages/civ7-mod-install`
@@ -562,8 +628,9 @@ public surface.
   wholesale installation plan
 - **Produces:** path grammar, tree comparison, replacement plans, digest
   algorithms, and typed receipt construction over supplied observations
-- **Consumers:** the Swooper realization's `local-mod-install` adapter and the
-  CLI app's `local-mods` adapter
+- **Consumers:** the Swooper realization's `local-mod-install` adapter, the
+  Studio app's `swooper-map-realization` adapter, and the CLI app's
+  `local-mods` adapter
 - **Forbids:** rendering, mod identity, target selection, deployment semantics,
   filesystem access, compatibility, live proof, provider selection, and
   process lifecycle
@@ -571,8 +638,9 @@ public surface.
 The app adapters own directory discovery, reads, writes, and atomic
 replacement. A CLI topic calls the CLI app-bound capability and owns no
 filesystem writer. The package computes what an exact replacement means from
-caller-supplied tree observations; deployment remains an outcome owned by the
-matching mod realization app.
+caller-supplied tree observations. The Swooper realization app owns its
+deployable-mod outcome; the Studio app adapter separately owns the physical
+materialization and installation receipts for an ephemeral Studio run.
 
 This package selects the generic package kind's `contract/` and `semantics/`
 proof layers. Contract proves the narrow receipt and input surface; semantics
@@ -584,32 +652,80 @@ owners.
 #### `services/civ7-control`
 
 - **Kind:** service
-- **Role:** own live-game capability admission, policy, semantic operations,
-  postcondition classification, uncertainty, and no-repeat outcomes
-- **Produces:** contract-derived client
-- **Consumes:** runtime-supplied ready Tuner and window-capture resources
-  through its public client constructor
-- **Consumers:** CLI topic adapters and Studio API projection
-- **Forbids:** Tuner acquisition, ambient Civ7 globals, HTTP mounting
+- **Role:** own foundational live Civ7 control across the app, game, map, and UI
+  execution domains
+- **Produces:** one public contract and callable client surface over one
+  private complete router
+- **Consumes:** ready Tuner and window-capture capabilities supplied by the
+  app composition through the service's typed dependency/Effect Context
+  channel; consumers receive an already bound client and never supply resources
+- **Consumers:** `services/civ7-play`, MapGen-runs, CLI status/map/view/setup
+  topics, Studio API projection, and Swooper realization proof
+- **Forbids:** Tuner acquisition, ambient Civ7 globals, HTTP mounting, actor-
+  facing gameplay strategy, or next-action policy
 
-The current modules remain one service because they share one live-game
-authority. Public `lifecycle` and `readiness` routes are retained through the
-port migration. A later product-authority decision may rename or combine them;
-relocation does not silently change the contract. OS application lifecycle is
-not implied.
+The four public modules are execution-domain owners, not mirrors of the
+legacy source tree:
 
-The service is rewritten directly onto the shared Habitat oRPC 2/Effect
-substrate. Its public `client.ts` exports the contract, client factory, and
-client type; it maps ready runtime-supplied dependencies into private module ports.
-The aggregate router and implementation remain private service authority. No
-facade or service-adapter project exists between the resource and this client
-boundary.
+```text
+app -> readiness and current-application facts
+game -> setup/start and current-game facts
+map -> observation, visibility, plot, grid, and surface facts
+ui -> display queue, camera, and Civ7 appshot meaning
+```
+
+`lifecycle`, `readiness`, `world`, `display`, and `view` are therefore migration
+inputs, not permanent peer roots. Arbitrary runtime inspection, GameInfo table
+queries, Tuner health, and app restart stay qualified diagnostics or app-owned
+effects. Control exposes only closed typed native families required by a public
+consumer; it does not publish generic JavaScript execution.
+
+The service is rewritten directly onto the installed oRPC 2/Effect vendor lane
+inside Civ7's local service law. The public client face re-exports the owned
+contract and derives its callable client from the private complete router. The
+app supplies ready dependencies and typed context, binds the client, and gives
+ordinary consumers only that result. A concrete Effect runtime is constructed
+only if the exact beta.23 source and lifecycle fixtures require and prove one;
+it is not part of the portable topology. No facade, service-adapter project, or
+non-composition caller dependency bag exists between the resource, service,
+and consumer boundaries.
+
+#### `services/civ7-play`
+
+- **Kind:** service
+- **Role:** own actor-facing gameplay observation, checks, requests,
+  reconciliation, no-repeat policy, and next lawful action
+- **Produces:** one public contract and callable play client surface over one
+  private complete router
+- **Consumes:** only the public `civ7-control` capability
+- **Consumers:** the `game play` CLI topic and selected MapGen Studio API route
+  delegations; any standalone general public Play API is future-only
+- **Forbids:** Tuner, window capture, provider state, arbitrary JavaScript,
+  private control source, app lifecycle, or transport mounting
+
+The outer play boundary is the authority that makes narrower gameplay nouns
+coherent. Its modules are `attention`, `automation`, `city`, `diplomacy`,
+`notifications`, `progression`, `planning`, `turn`, and `unit`. Government,
+celebration, narrative, technology, culture, attributes, and traditions compose
+beneath `progression`; tactical and strategic summaries compose beneath `planning`.
+No city, diplomacy, or unit module may appear as a peer of foundational control
+domains.
+
+Play may preserve exact native refusal and dispatch evidence returned by
+control, but it alone interprets those facts as a gameplay outcome and next
+action. Sharing one live-ready prerequisite does not merge the two services.
+Physical separation makes the dependency enforceable rather than relying on a
+route prefix while both sides retain Tuner access.
+
+MapGen Studio's selected route delegations are part of its caller-specific API
+contract. They do not select `plugins/server/api/civ7-play`, which still needs
+an independent browser or network-agent caller contract before admission.
 
 #### `services/mapgen-runs`
 
 - **Kind:** service
 - **Role:** own host-scoped Save & Deploy and Run in Game admission, operation
-  policy, adoption semantics, diagnostics, and public outcomes
+  policy, correlation, reconciliation, diagnostics, and final semantic outcomes
 - **Produces:** a contract-derived client and operation events
 - **Consumes:** runtime-supplied authored-config, run-files, fresh-log,
   mod-realization, control, and clock capabilities
@@ -638,8 +754,10 @@ prepared write carrying the admitted config identity plus `write()` and
 the Studio app's `swooper-map-config-source` adapter. Its mod-realization
 dependency preserves
 distinct materialize, deploy materialization, deploy saved configuration, and
-release operations. The matching mod app owns realization outcomes, host
-installation effects, and its Nx targets.
+release operations. The Studio `swooper-map-realization` adapter owns those
+physical dynamic materialization and installation effects and returns opaque
+receipts. The separate Swooper realization app owns only the deployable
+realization outcomes produced by its own Nx targets.
 
 MapGen-runs owns the transaction order and public phase evidence: prepare,
 write, transition from saving to deploying, deploy, and exact rollback after
@@ -647,14 +765,19 @@ either save or deploy failure. Folding source mutation into
 `deploySavedConfiguration` is rejected because it would hide the saving phase
 and combine definition and realization authority.
 
-The MapGen-runs public construction face owns its typed semantic
-dependency descriptors, their operation signatures, and their failure
-vocabulary. The Studio app selects and binds exact config-source, run-files,
-and fresh-log adapter identities; the Swooper realization selects and invokes
-the exact local installation adapter and finite execution targets. This is
-neither resource acquisition nor provider selection. The service imports no
-app implementation, Node filesystem API, generated output, target
-implementation, or installation package.
+The MapGen-runs public construction face owns its typed semantic dependency
+descriptors, their operation signatures, and their failure vocabulary. The
+Studio app selects and directly constructs the exact config-source, run-files,
+fresh-log, and `swooper-map-realization` adapters. The realization adapter
+implements the public mod-realization descriptor directly from the Swooper
+definition's public authoring face plus the pure run-workspace and mod-install
+packages. It owns the dynamic host effects and returns receipts; MapGen-runs
+orders and correlates those calls and interprets their receipts into its final
+semantic operation outcome. Studio composition passes the ready adapter value
+to the MapGen-runs client constructor without a facade, shared runtime, dynamic
+descriptor compiler, Nx call into another app, or private cross-app import.
+The service imports no app implementation, Node filesystem API, generated
+output, target implementation, or installation package.
 
 #### `plugins/server/api/mapgen-studio`
 
@@ -662,36 +785,40 @@ implementation, or installation package.
 - **Role:** project Studio and control capabilities across the Studio
   same-origin caller boundary
 - **Produces:** client and API-registration faces
-- **Consumes:** public `civ7-control` and `mapgen-runs` clients plus
+- **Consumes:** public `civ7-control`, `civ7-play`, and `mapgen-runs` clients plus
   official-data and saved-configuration capabilities supplied through
   app-materialized request context
 - **Consumers:** MapGen Studio app
 - **Forbids:** Tuner construction, product truth, process startup
 
 The internal modules express caller-facing Studio groupings, not an independent
-semantic service: `authoring` projects recipe/config work, `control` preserves
-the caller-facing `civ7.*` surface, `runs` projects the MapGen runs service, and
-`studio` projects host identity and event observation. The `civ7.autoplay`
+semantic service: `authoring` projects recipe/config work, `control` may
+preserve the frozen caller-facing `civ7.*` namespace across separately bound
+control and play clients, `runs` projects the MapGen runs service, and `studio`
+projects host identity and event observation. The `civ7.autoplay`
 contract remains in the API's caller-facing `control` grouping but invokes the
 MapGen-runs `autoplay` operation, which owns mutex admission and delegates the
 accepted mutation to the control client. The API adopts the shared plugin shell
 plus a qualified Civ7 API projection law. It declares narrow API-owned client
-requirements; the Studio app binds public control and run-service clients and
-materializes the API `Context`. It owns no domain truth, operation registry, or
-run-retention state. Its caller-facing source owns the
-`studio.events.watch` projection. The Studio server composition supplies one
-immutable `{ serverInstanceId, serverStartedAt }` identity per process scope;
-the API emits its immediate `hello` first, then combines
+requirements; the Studio app binds public control, play, and run-service
+clients and materializes the API `Context`. It owns no domain truth, operation
+registry, or run-retention state. Its caller-facing source owns the
+`studio.events.watch` projection. The API's frozen `civ7.*` ledger receives an
+explicit control-versus-play disposition; whole-contract composition never
+recombines the two owners into one private router. The Studio server composition
+supplies one immutable `{ serverInstanceId, serverStartedAt }` identity per
+process scope; the API emits its immediate `hello` first, then combines
 operation and control observation streams, preserves ordering, replays the
 latest live-game event, and closes subscriptions when its app-owned process
 scope ends.
 
-The 70 existing routes beneath the merged control-service namespaces retain
-their public service contract as one indivisible subtree. The API control
-module composes that subtree once and delegates through the public control
-client; only Studio-specific control routes author API-local schemas. This
-preserves the caller tree without a facade, type extraction, or duplicate
-contract authority.
+The 70 existing routes beneath the merged namespaces receive exact
+control-versus-play dispositions. The API owns each caller-facing contract leaf
+and delegates to the matching bound client through an explicit projection. It
+does not compose a service contract subtree or expose a service router. A
+frozen legacy path may remain only when a real Studio consumer proves it. The
+former one-subtree shortcut is deleted because it would recreate the model
+collapse at the projection layer.
 
 The API kind fixes `contract/client.typecheck.ts`. The API manifest selects the
 `authoring`, `control`, `errors`, `router`, and `runs` projection identities
@@ -787,8 +914,9 @@ Native oclif command selection is the discovery event; app-owned binding then
 satisfies only that command's requirements. The descriptors are neither a
 second registry nor topic hooks. Commands do not import the app, provider, or a
 topic-local client factory. Invocation facts from parsed flags remain command-
-scoped views and never enter binding identity. The game topic receives only
-the bound control client and never imports a resource or provider.
+scoped views and never enter binding identity. Each game command receives only
+its required bound public control or play client; the topic never imports a
+resource or provider.
 
 Help, version, and unknown-command paths acquire no live capability. Success,
 command failure, binding failure, partial startup, and interruption all reach
@@ -833,22 +961,28 @@ This destination receives browser application source from
   invented generic runtime layer
 
 The app selects and acquires the Tuner and macOS window-capture providers,
-constructs the control and MapGen-runs public clients, materializes API context,
-mounts its native roles, observes them, and disposes the process scope. These
-are host composition responsibilities, not semantic product truth. No Studio
-source moves until the qualified Studio source and proof overlays close these
-exact roles.
+constructs the control, play, and MapGen-runs public clients, materializes API
+context, mounts its native roles, observes them, and disposes the process scope.
+These are host composition responsibilities, not semantic product truth. No
+Studio source moves until the qualified Studio source and proof overlays close
+these exact roles.
 
-The Studio app additionally selects the Swooper definition-authoring and
-realization bindings used by MapGen-runs plus the cold official-data,
-saved-configuration, run-files, and fresh-log bindings its selected
-capabilities declare. Each semantic selection names one exact
-`runtime/adapters/` identity. Those adapters derive qualified host paths from
-app configuration and own filesystem effects while delegating pure
-parsing, planning, and comparison to packages. The realization app owns opaque
-deployment target references. The app selects its Tuner and window-capture
-providers, configuration roots, and adapter identities exactly once. Cold
-filesystem adapters never become managed providers.
+The Studio app additionally selects the Swooper definition-authoring binding
+used by MapGen-runs plus the cold official-data, saved-configuration,
+run-files, fresh-log, and dynamic Swooper realization bindings its
+selected capabilities declare. Each semantic selection names one exact
+`src/runtime/adapters/` identity. The filesystem adapters derive qualified
+host paths from app configuration and own filesystem effects while delegating
+pure parsing, planning, and comparison to packages. The
+`swooper-map-realization` adapter implements the exact MapGen-runs public
+dependency descriptor from the public Swooper definition plus
+`studio-run-workspace` and `civ7-mod-install`. It owns the ephemeral run's
+physical materialization/install effects and receipts, but not MapGen-runs'
+semantic operation outcome or the mod realization app's deployable outcome.
+Studio composition constructs these adapter values directly and supplies them
+to public client constructors. The app selects its Tuner and window-capture
+providers, configuration roots, and adapter identities exactly once. Cold app
+adapters never become managed providers or reusable facades.
 
 Each authored `server.ts`, `web.ts`, or `dev.ts` host entrypoint has one exact
 `test/execution/hosts/<role>.test.ts`. Every selected runtime adapter has one exact
@@ -866,12 +1000,14 @@ terminal filename grammar.
 - **Forbids:** duplicate product definition and hand-authored generated output
 
 The Swooper realization retains `gen:run-manifest` and `deploy:studio`
-behavior and adds the corresponding app-owned deployment target for a
-transient run materialization. Its `local-mod-install` adapter owns host
-filesystem observation and replacement while consuming
+behavior as finite app-owned Nx entrypoints for its own deployable realization
+and proof. They are not the supplier for Studio's ephemeral run. The
+`local-mod-install` adapter owns this app's host filesystem observation and
+replacement while consuming
 the current installation package pending its Estate Reconciliation
 reclassification. It exposes no reusable production module and no second CLI
-process owns its deployment.
+process owns its deployment. Studio imports neither this app nor its targets;
+its own qualified adapter composes the public definition and pure packages.
 
 The closed runtime interior admits `src/runtime/file-plan.ts` for deterministic
 mod-tree planning and
@@ -952,8 +1088,8 @@ behavior does not qualify merely because it has multiple steps.
 
 ## Law Adoption
 
-Adopt only the selected Habitat 0.5.2 consumer packets, never dormant or
-unselected SDK material:
+Consume only the installed, Ground-proven Habitat 0.5.2 packets, never dormant
+or unselected SDK material:
 
 - resource/provider separation;
 - independent selected-depth blueprint law;

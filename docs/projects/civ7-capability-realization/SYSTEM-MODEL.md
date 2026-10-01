@@ -172,25 +172,51 @@ map author intent
 Portable generation and Civ7 realization remain separate proof classes even
 when one finite app realizes them together.
 
-### Live Civ7 Control
+### Foundational Live Civ7 Control
 
 ```text
-CLI or Studio actor intent
-  -> topic or API projection
+CLI, Studio, MapGen-runs, Swooper proof, or play-service intent
+  -> caller projection or public service dependency
   -> civ7-control public client
-  -> semantic admission and policy
   -> runtime-bound ready Tuner and window-capture resources
-  -> exact native Civ7 command or observation
-  -> semantic result or reconciliation state
-  -> same caller projection
+  -> closed app, game, map, or UI operation
+  -> exact epoch-correlated native fact, dispatch, or readback
+  -> requesting owner
 ```
 
-The Tuner provider owns connection and session mechanics; the window-capture
-provider owns raw ScreenCaptureKit execution and scoped children. The service
-owns gameplay and appshot meaning. The qualified CLI or Studio app selects and
-acquires both providers, constructs the service client with both ready
-capabilities, and owns process-scope disposal. No direct-control facade,
-service-adapter package, or caller-owned contract sits between them.
+The Tuner resource defines health, epoch, raw-command, and failure vocabulary;
+the selected Tuner provider owns the concrete connection/session mechanics and
+emits those facts. The window-capture provider owns raw ScreenCaptureKit
+execution and scoped children. The control service has exactly the finite
+module set `{app,game,map,ui}` and owns only Civ7 interpretation plus
+epoch-correlated semantic facts and closed native operations in those modules.
+It does not own raw Tuner health, epoch, or command facts, actor intent,
+gameplay strategy, or next-action policy. The qualified CLI or Studio app
+selects and acquires both providers, constructs the service client with both
+ready capabilities, and owns process-scope disposal. No direct-control facade,
+service-adapter package, caller-owned contract, arbitrary JavaScript executor,
+or provider state crosses this boundary.
+
+### Civ7 Play
+
+```text
+human or agent gameplay intent
+  -> game-play CLI or selected API projection
+  -> civ7-play public client
+  -> actor-facing observation, check, request, and reconciliation policy
+  -> civ7-control public client
+  -> exact native control fact or transition
+  -> play-owned outcome and next lawful action
+  -> caller projection
+```
+
+The play service owns gameplay meaning and composes the foundational control
+capability. It has exactly the finite module set `{attention,automation,city,
+diplomacy,notifications,progression,planning,turn,unit}`. Actor reconciliation,
+no-repeat policy, and next-action policy remain play-owned across those
+modules. It never receives `Civ7Tuner`, provider configuration, raw runtime
+inspection, or a private control router. Shared live admission is one
+dependency, not one semantic owner.
 
 ### Map Configuration And Realization
 
@@ -203,7 +229,7 @@ Studio actor intent
        mapgen-runs public client for operation authority
      }
   -> runtime-bound source/run/log adapters and control capabilities
-  -> MapGen-runs semantic transitions and civ7-control client calls
+  -> MapGen-runs semantic transitions and foundational control-client calls
   -> operation facts and correlated live evidence
   -> Studio API and web outcome view
 ```
@@ -241,8 +267,8 @@ service-owned state rather than a workflow by analogy.
 
 | Current mixed owner | Destination authorities |
 | --- | --- |
-| `@civ7/direct-control` | `resources/civ7-tuner`, `resources/window-capture`, their providers, `services/civ7-control`, and owner-qualified diagnostic projections |
-| Control facade and parallel contract shapes | One `services/civ7-control` public client; private router and implementation |
+| `@civ7/direct-control` | `resources/civ7-tuner`, `resources/window-capture`, their providers, `services/civ7-control`, `services/civ7-play`, qualified app adapters, and owner-qualified diagnostic projections |
+| Control facade and parallel contract shapes | Delete; control and play each expose one public contract/client face over one private router authority, and callers use the public client without picking types from another surface |
 | `packages/studio-contract` | Portable MapGen config package plus Studio API caller contract |
 | `packages/studio-server` | MapGen-runs service, Studio API plugin, and qualified Studio host composition/adapters |
 | `packages/mapgen-studio-ui` | Retained component library; no relocation is selected. The separate Studio browser application source moves to the web projection |
@@ -261,7 +287,8 @@ does not move on the strength of this table.
 | --- | --- | --- | --- |
 | Tuner socket/session epoch | Local-socket provider | Acquire the selected provider once for the required scope and release it | Reconnect creates a new epoch; release closes provider-owned socket state |
 | Window-capture provider scope | macOS ScreenCaptureKit provider | Acquire one ready generic capture capability, track every invocation child, and release the scope | Target law: release closes admission, applies bounded child termination, and drains admitted capture operations; the helper cache is inert |
-| Live control decision | Civ7 control service | Bind ready Tuner and window-capture resources to the public client and dispose the binding | Unverified dispatch is explicit and must not be blindly repeated |
+| Foundational live-control scope | Civ7 control service | Bind ready Tuner and window-capture resources to the public control client and dispose the binding | Provider-owned epoch changes invalidate control observations; raw dispatch never becomes gameplay acceptance |
+| Gameplay decision | Civ7 play service | Bind the public control client to the public play client; no provider enters play context | Unverified dispatch is explicit, retains its no-repeat key, and must be reconciled through fresh control facts |
 | Studio process identity | MapGen Studio app | Create, observe, and dispose its native host roles | Stable for one process scope; never product state |
 | MapGen operation record | MapGen-runs service | Bind and scope the service client; dispose process-scoped service state after drain | Request-correlated, adoptable during the retained process scope, cancellable, and terminal according to owner policy |
 | Authored config source write | Swooper definition for admitted content; qualified Studio adapter for the exact write/rollback effect | Bind the app-selected adapter using app-owned roots and scope its execution | Preserve the prepared write and exact write or rollback receipt |
@@ -279,6 +306,12 @@ merely because an app must eventually dispose it.
 
 - A service does not acquire its own provider, import its app, or cede
   semantic decisions to the runtime that binds it.
+- The play service does not receive Tuner, window capture, provider state,
+  arbitrary JavaScript execution, or private control source; it depends on the
+  public foundational control capability.
+- The control service does not own actor-facing gameplay strategy, next-action
+  policy, or a second copy of play outcomes merely because it performs the
+  native operation.
 - A projection calls public clients or pure package contracts. It does not
   import private service source, construct providers, or become a second
   semantic service.
