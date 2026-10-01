@@ -361,8 +361,14 @@ describe("Standard neutral relief coherence", () => {
     expect(freshWater.pools).not.toBe(water.pools);
   }, 30_000);
 
-  it("registers exactly twelve cases with structural targets, rejecting missing or invalid populations", () => {
-    expect(RELIEF_COHERENCE_STUDY.scenarios.length).toBe(12);
+  it("registers exactly six Earthlike cases with structural targets, rejecting missing or invalid populations", () => {
+    expect(RELIEF_COHERENCE_STUDY.scenarios.length).toBe(6);
+    expect(new Set(RELIEF_COHERENCE_STUDY.scenarios.map(({ config }) => config.id)))
+      .toEqual(new Set(["swooper-earthlike"]));
+    expect(new Set(RELIEF_COHERENCE_STUDY.scenarios.map(({ preset }) => preset.id)))
+      .toEqual(new Set(["MAPSIZE_STANDARD", "MAPSIZE_HUGE"]));
+    expect(RELIEF_COHERENCE_STUDY.scenarios.map(({ mapSeed, gameSeed }) => [mapSeed, gameSeed]))
+      .toEqual([[1, 1], [42, 42], [1018, 1018], [1, 1], [42, 42], [1018, 1018]]);
     const base = measureEarthlikeSample();
     const samples = RELIEF_COHERENCE_STUDY.scenarios.map((scenario) => ({
       ...base,

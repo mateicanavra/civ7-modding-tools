@@ -7,9 +7,10 @@ Measurements: `sample.metrics.relief.coherence`, from the closed capture.
 
 | Configurations | Sizes | Map/game seed pairs |
 | --- | --- | --- |
-| `swooper-earthlike`, `mountain-patch` | Standard (84 x 54), Huge (106 x 66) | 1/1, 42/42, 1018/1018 |
+| `swooper-earthlike` | Standard (84 x 54), Huge (106 x 66) | 1/1, 42/42, 1018/1018 |
 
-The 12 cases use `STANDARD_INTEGRITY_TARGET` per sample and
+The six cases retain the existing Earthlike size/seed axes without expanding
+relief accounting to the two stress profiles. They use `STANDARD_INTEGRITY_TARGET` per sample and
 `RELIEF_COHERENCE_COHORT_TARGET` for exact unique coverage, disjoint land-group
 accounting, and valid diagnostic populations. No height, relief, coast, lapse,
 rainfall, or uphill-river goodness thresholds are introduced.

@@ -223,20 +223,8 @@ describe("Shipped map configs", () => {
     }
   });
 
-  it("retains mountain habitat calibration and Earthlike's supported seasonal habitat", async () => {
+  it("retains Earthlike's supported seasonal habitat", async () => {
     const configs = await loadSwooperMapConfigRegistry();
-    const calibrated = configs.filter(({ canonicalConfig }) =>
-      canonicalConfig.config["hydrology-climate-baseline"]["climate-baseline"].computeThermalState.config.annualOffsetC === -1
-    );
-    expect(calibrated).toHaveLength(4);
-    for (const { canonicalConfig } of calibrated) {
-      const classifier = canonicalConfig.config["ecology-biomes"].biomes.classify.config;
-      expect(classifier.aridity.moistureShiftThresholds[0]).toBe(
-        ecology.biomes.ops.classifyBiomes.defaultConfig.config.aridity.moistureShiftThresholds[0]
-      );
-      expect(classifier.aridity.moistureShiftThresholds[0]).toBe(0.45);
-      expect(classifier.temperature.tropicalThreshold).toBe(24);
-    }
     const earthlike = configs.find(({ canonicalConfig }) => canonicalConfig.id === "swooper-earthlike")!.canonicalConfig;
     const classifier = earthlike.config["ecology-biomes"].biomes.classify.config;
     expect(classifier.aridity.moistureShiftThresholds[0]).toBe(
@@ -291,7 +279,7 @@ describe("Shipped map configs", () => {
     expect(refine).not.toHaveProperty("computeThermalState");
   });
 
-  it("compiles all eight reef selections with Ring's atoll bound and unchanged planner controls", async () => {
+  it("compiles all three reef selections with unchanged atoll and planner controls", async () => {
     const configs = await loadSwooperMapConfigRegistry();
     expect(configs).toHaveLength(MAP_CONFIG_CATALOG_IDS.length);
     expect(ecology.features.ops.scoreReefAtoll.defaultConfig).toEqual({
@@ -320,11 +308,8 @@ describe("Shipped map configs", () => {
         tempWarmEndC: 30,
         shallowDepthM: 0,
         deepDepthM: 100,
-        minDistanceToCoast: canonicalConfig.id === "shattered-ring" ? 3 : 4,
+        minDistanceToCoast: 4,
       });
-      if (canonicalConfig.id === "shattered-ring") {
-        expect(atoll.config.maxDistanceToCoast).toBe(8);
-      }
       const reef = compiled["ecology-features"]["plan-reefs"].planReefs;
       expect(reef.strategy).toBe("habitat");
       expect(reef.config).not.toHaveProperty("stride");
@@ -332,14 +317,22 @@ describe("Shipped map configs", () => {
     }
     expect(actual).toEqual({
       "swooper-earthlike": { minConfidence01: 0.84, minSpacingTiles: 2 },
-      "mountains-of-time-earthlike": { minConfidence01: 0.84, minSpacingTiles: 2 },
-      "mountains-of-time-original": { minConfidence01: 0.84, minSpacingTiles: 2 },
-      "latest-juicy": { minConfidence01: 0.84, minSpacingTiles: 2 },
-      "mountain-patch": { minConfidence01: 0.84, minSpacingTiles: 2 },
       "swooper-desert-mountains": { minConfidence01: 0.62, minSpacingTiles: 2 },
-      "shattered-ring": { minConfidence01: 0.58, minSpacingTiles: 2 },
       "sundered-archipelago": { minConfidence01: 0.52, minSpacingTiles: 3 },
     });
+  });
+
+  it("admits historical ids only as explicitly supplied current-schema user envelopes", async () => {
+    const [fixture] = await loadSwooperMapConfigRegistry();
+    if (!fixture) throw new Error("Expected the shipped Earthlike config");
+    for (const id of [
+      "shattered-ring", "mountains-of-time-earthlike", "latest-juicy",
+      "mountain-patch", "mountains-of-time-original",
+    ]) {
+      const submitted = { ...structuredClone(fixture.canonicalConfig), id };
+      expect(admitStandardMapConfig(submitted)).toEqual(submitted);
+      expect(MAP_CONFIG_CATALOG_IDS).not.toContain(id);
+    }
   });
 
   it("rejects retired reef strategy and stride controls through canonical admission", async () => {

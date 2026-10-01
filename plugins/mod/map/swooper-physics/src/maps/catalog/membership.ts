@@ -2,14 +2,9 @@ import { isMapConfigId, type MapConfigId } from "@civ7/studio-contract";
 
 /** Ordered identities of the map configurations shipped in the durable Swooper catalog. */
 export const MAP_CONFIG_CATALOG_IDS = [
-  "swooper-desert-mountains",
   "swooper-earthlike",
-  "shattered-ring",
+  "swooper-desert-mountains",
   "sundered-archipelago",
-  "mountains-of-time-earthlike",
-  "latest-juicy",
-  "mountain-patch",
-  "mountains-of-time-original",
 ] as const satisfies readonly MapConfigId[];
 
 /**

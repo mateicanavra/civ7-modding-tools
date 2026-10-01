@@ -1,10 +1,9 @@
 import { describe, expect, it } from "bun:test";
 
 import { MAP_CONFIG_CATALOG_IDS } from "../../../../src/maps/catalog/membership.js";
-import { MOUNTAIN_DRAMA_STUDY } from "../../../../src/recipes/standard/metrics/studies/benchmarks/mountain-drama.study.js";
 import { SHIPPED_IDENTITY_STUDIES } from "../../../../src/recipes/standard/metrics/studies/benchmarks/shipped-identities.study.js";
 import { SHIPPED_IDENTITY_TARGETS } from "../../../../src/recipes/standard/metrics/targets/identities.js";
-import { MOUNTAIN_DRAMA_COHORT_IDENTITY } from "../../../../src/recipes/standard/metrics/targets/relief.js";
+import { STANDARD_METRIC_STUDIES } from "../../../../src/recipes/standard/metrics/studies/catalog.js";
 import { EARTHLIKE_CLIMATE_STRUCTURE_STUDY } from "../../../../src/recipes/standard/metrics/studies/benchmarks/earthlike-climate-structure.study.js";
 import { EARTHLIKE_WIND_STRUCTURE_STUDY } from "../../../../src/recipes/standard/metrics/studies/benchmarks/earthlike-wind-structure.study.js";
 import { standardMetricScenarioSignature } from "../../../../src/recipes/standard/metrics/studies/scenarios.js";
@@ -60,8 +59,10 @@ describe("Standard catalog identity proof", () => {
     expect(sampleTargets.map(({ id }) => id)).toContain("standard/integrity");
   });
 
-  it("exhausts the eight-config durable catalog without presence filtering", () => {
-    expect(MAP_CONFIG_CATALOG_IDS).toHaveLength(8);
+  it("exhausts the three-config durable catalog without presence filtering", () => {
+    expect(MAP_CONFIG_CATALOG_IDS).toEqual([
+      "swooper-earthlike", "swooper-desert-mountains", "sundered-archipelago",
+    ]);
     expect(MAP_CONFIG_CATALOG_IDS).not.toContain("mountain-rivers-patch");
     expect(Object.keys(SHIPPED_IDENTITY_TARGETS)).toEqual([...MAP_CONFIG_CATALOG_IDS]);
     expect(SHIPPED_IDENTITY_STUDIES.map(({ scenario }) => scenario.config.id)).toEqual([
@@ -83,25 +84,24 @@ describe("Standard catalog identity proof", () => {
         "required-feature/feature_mangrove"]);
   });
 
-  it("pins the matched mountain-drama axes and exact plate activity contrast", () => {
-    expect(MOUNTAIN_DRAMA_STUDY.scenarios).toHaveLength(12);
-    expect(new Set(MOUNTAIN_DRAMA_STUDY.scenarios.map(({ config }) => config.id))).toEqual(
-      new Set([
-        MOUNTAIN_DRAMA_COHORT_IDENTITY.referenceConfigurationId,
-        ...MOUNTAIN_DRAMA_COHORT_IDENTITY.mountainConfigurationIds,
-      ])
-    );
-    expect(new Set(MOUNTAIN_DRAMA_STUDY.scenarios.map(({ mapSeed }) => mapSeed))).toEqual(
-      new Set(MOUNTAIN_DRAMA_COHORT_IDENTITY.seeds)
-    );
-
-    for (const scenario of MOUNTAIN_DRAMA_STUDY.scenarios) {
-      const expected =
-        scenario.config.id === MOUNTAIN_DRAMA_COHORT_IDENTITY.referenceConfigurationId ? 0.5 : 0.85;
-      expect(
-        scenario.config.config["foundation-tectonics"].knobs.plateActivity,
-        scenario.config.id
-      ).toBe(expected);
+  it("retains all thirteen Earthlike studies inside the 22-study, 57-scenario bank", () => {
+    expect(STANDARD_METRIC_STUDIES).toHaveLength(22);
+    expect(STANDARD_METRIC_STUDIES.filter(({ id }) => id.startsWith("earthlike/")).map(({ id }) => id))
+      .toEqual([
+        "earthlike/geography", "earthlike/biome-structure", "earthlike/climate-structure",
+        "earthlike/deep-ocean", "earthlike/river-network", "earthlike/wind-structure",
+        "earthlike/ecology", "earthlike/cold-reef", "earthlike/floodplain", "earthlike/orogeny",
+        "earthlike/relief-representative", "earthlike/huge-relief-cohort", "earthlike/placement",
+      ]);
+    const scenarios = new Map(STANDARD_METRIC_STUDIES.flatMap((study) =>
+      study.kind === "sample" ? [study.scenario] : study.scenarios
+    ).map((scenario) => [scenario.id, scenario]));
+    expect(scenarios.size).toBe(57);
+    for (const [configurationId, count] of [
+      ["swooper-earthlike", 47], ["swooper-desert-mountains", 5], ["sundered-archipelago", 5],
+    ] as const) {
+      expect([...scenarios.values()].filter(({ config }) => config.id === configurationId))
+        .toHaveLength(count);
     }
   });
 });

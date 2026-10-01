@@ -137,7 +137,7 @@ describe("Swooper run manifest generator", () => {
         await generateSwooperRunGeneratedModFromManifestPath(manifestRef.path);
 
         expect(manifest.payload.launchEnvelope.canonicalConfig).toMatchObject({
-          id: "latest-juicy",
+          id: "swooper-earthlike",
         });
       } finally {
         await rm(workspaceRoot, { recursive: true, force: true });
@@ -325,10 +325,10 @@ function manifestInput(
     recipe?: string;
   }> = {}
 ): StudioRunGenerationManifestInput {
-  const sourceCanonicalConfig = standardMapConfigs.find((entry) => entry.id === "latest-juicy") as
+  const sourceCanonicalConfig = standardMapConfigs.find((entry) => entry.id === "swooper-earthlike") as
     | StandardMapConfigEnvelope
     | undefined;
-  if (!sourceCanonicalConfig) throw new Error("latest-juicy config fixture is missing");
+  if (!sourceCanonicalConfig) throw new Error("swooper-earthlike config fixture is missing");
   const canonicalConfig = sourceCanonicalConfig;
   const launchEnvelope = {
     seed: TEST_MAP_SEED,

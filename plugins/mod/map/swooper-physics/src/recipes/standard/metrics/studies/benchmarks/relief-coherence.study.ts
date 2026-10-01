@@ -14,7 +14,7 @@ import {
   standardProductMetricScenario,
 } from "../scenarios.js";
 
-/** Neutral twelve-map comparison; only cohort coverage and evidence accounting are gated. */
+/** Neutral six-map Earthlike cohort; only coverage and evidence accounting are gated. */
 export const RELIEF_COHERENCE_STUDY = defineStandardMetricCohortStudy(
   "shipped/relief-coherence",
   requireNonEmptyMetricStudyValues(

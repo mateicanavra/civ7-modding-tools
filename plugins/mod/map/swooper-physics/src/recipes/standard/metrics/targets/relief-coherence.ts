@@ -6,7 +6,7 @@ import { equalTo } from "./support.js";
 
 /** Matched configuration, size, and seed axes; this protocol imposes no terrain goodness bounds. */
 export const RELIEF_COHERENCE_COHORT_IDENTITY = {
-  configurationIds: ["swooper-earthlike", "mountain-patch"],
+  configurationIds: ["swooper-earthlike"],
   mapSizeIds: ["MAPSIZE_STANDARD", "MAPSIZE_HUGE"],
   seeds: [1, 42, 1018],
 } as const;

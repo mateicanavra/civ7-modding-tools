@@ -168,13 +168,13 @@ describe("studio run-in-game live verifier", () => {
   test("resolves Swooper map script paths into local and deployed bundles", () => {
     expect(
       resolveSwooperMapScriptPaths({
-        mapScript: "{swooper-maps}/maps/mountain-patch.js",
+        mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
         repoRoot: "/repo",
         modsDir: "/Users/test/Civ Mods",
       })
     ).toEqual({
-      localPath: "/repo/apps/mods/map/swooper-physics/dist/mod/maps/mountain-patch.js",
-      deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-patch.js",
+      localPath: "/repo/apps/mods/map/swooper-physics/dist/mod/maps/swooper-earthlike.js",
+      deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/swooper-earthlike.js",
     });
 
     expect(
@@ -188,14 +188,14 @@ describe("studio run-in-game live verifier", () => {
 
   test("passes when the current local and deployed scripts match without legacy markers", () => {
     const stage = buildSwooperMapScriptDeploymentStage({
-      mapScript: "{swooper-maps}/maps/mountain-patch.js",
-      localPath: "/repo/apps/mods/map/swooper-physics/dist/mod/maps/mountain-patch.js",
-      deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-patch.js",
+      mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
+      localPath: "/repo/apps/mods/map/swooper-physics/dist/mod/maps/swooper-earthlike.js",
+      deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/swooper-earthlike.js",
       local: identity(
-        "/repo/apps/mods/map/swooper-physics/dist/mod/maps/mountain-patch.js",
+        "/repo/apps/mods/map/swooper-physics/dist/mod/maps/swooper-earthlike.js",
         "same"
       ),
-      deployed: identity("/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-patch.js", "same"),
+      deployed: identity("/Users/test/Civ Mods/mod-swooper-maps/maps/swooper-earthlike.js", "same"),
     });
 
     expect(stage).toMatchObject({
@@ -207,14 +207,14 @@ describe("studio run-in-game live verifier", () => {
 
   test("blocks stale deployed scripts before mutating a live game", () => {
     const stage = buildSwooperMapScriptDeploymentStage({
-      mapScript: "{swooper-maps}/maps/mountain-patch.js",
-      localPath: "/repo/apps/mods/map/swooper-physics/dist/mod/maps/mountain-patch.js",
-      deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-patch.js",
+      mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
+      localPath: "/repo/apps/mods/map/swooper-physics/dist/mod/maps/swooper-earthlike.js",
+      deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/swooper-earthlike.js",
       local: identity(
-        "/repo/apps/mods/map/swooper-physics/dist/mod/maps/mountain-patch.js",
+        "/repo/apps/mods/map/swooper-physics/dist/mod/maps/swooper-earthlike.js",
         "current"
       ),
-      deployed: identity("/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-patch.js", "stale"),
+      deployed: identity("/Users/test/Civ Mods/mod-swooper-maps/maps/swooper-earthlike.js", "stale"),
     });
 
     expect(stage.ok).toBe(false);
@@ -223,10 +223,10 @@ describe("studio run-in-game live verifier", () => {
   });
 
   test.each(["local", "deployed"] as const)("blocks a missing %s script", (missing) => {
-    const localPath = "/repo/apps/mods/map/swooper-physics/dist/mod/maps/mountain-patch.js";
-    const deployedPath = "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-patch.js";
+    const localPath = "/repo/apps/mods/map/swooper-physics/dist/mod/maps/swooper-earthlike.js";
+    const deployedPath = "/Users/test/Civ Mods/mod-swooper-maps/maps/swooper-earthlike.js";
     const stage = buildSwooperMapScriptDeploymentStage({
-      mapScript: "{swooper-maps}/maps/mountain-patch.js",
+      mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
       localPath,
       deployedPath,
       ...(missing === "local" ? {} : { local: identity(localPath, "same") }),

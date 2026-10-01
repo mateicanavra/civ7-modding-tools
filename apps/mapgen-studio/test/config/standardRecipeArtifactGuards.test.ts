@@ -99,7 +99,11 @@ describe("standard recipe generated artifact guardrails", () => {
       })),
     ];
 
-    expect(catalogConfigs.length).toBeGreaterThan(0);
+    expect(catalogConfigs.map((canonicalConfig) => canonicalConfig.id)).toEqual([
+      "swooper-earthlike",
+      "swooper-desert-mountains",
+      "sundered-archipelago",
+    ]);
     expect(catalogConfigs.map((canonicalConfig) => canonicalConfig.id)).toEqual(
       standardMapConfigs.map((config) => config.id)
     );

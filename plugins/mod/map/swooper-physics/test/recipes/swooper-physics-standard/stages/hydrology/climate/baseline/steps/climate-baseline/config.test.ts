@@ -56,7 +56,11 @@ describe("hydrology climate-baseline authoring", () => {
   it("preserves each shipped map's demand coefficients at the baseline owner", () => {
     const directory = new URL("../../../../../../../../../src/maps/configs/", import.meta.url);
     const filenames = readdirSync(directory).filter((name) => name.endsWith(".config.json"));
-    expect(filenames).toHaveLength(8);
+    expect(filenames.sort()).toEqual([
+      "sundered-archipelago.config.json",
+      "swooper-desert-mountains.config.json",
+      "swooper-earthlike.config.json",
+    ]);
     for (const filename of filenames) {
       const map = admitStandardMapConfig(
         JSON.parse(readFileSync(new URL(filename, directory), "utf8"))
@@ -66,7 +70,7 @@ describe("hydrology climate-baseline authoring", () => {
       const expected =
         filename === "swooper-desert-mountains.config.json"
           ? [0, 35, 40, 140, 0.45]
-          : ["shattered-ring.config.json", "sundered-archipelago.config.json"].includes(filename)
+          : filename === "sundered-archipelago.config.json"
             ? [0, 35, 18, 75, 0.55]
             : [0, 36, 19, 82, 0.5];
       const parameters = baseline.potentialDemand;
