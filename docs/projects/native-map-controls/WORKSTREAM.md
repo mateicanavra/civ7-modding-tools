@@ -601,8 +601,10 @@ solver indiscriminately on all map identities.
 The selected [Earthlike integration packet](basin-integration.md) implements
 one complete path: explicit authored selection, consistent water/network
 publication, subsequent exposed-landform selection, whole-body lake admission,
-and all classified dry river writes. Other identities remain explicitly legacy,
-not automatic fallbacks. The user's delegated design authority covers the
+and all classified dry river writes. That initial activation was Earthlike-only;
+the subsequent current-only migration moved all eight identities and removed
+the superseded executable paths rather than retaining automatic fallbacks.
+The user's delegated design authority covers the
 model-scoped retirement of the old 24-component/8%-area proxy budgets; preserve
 their measurements and replace those assertions with physical invariants plus
 existing playability, placement, ecology and relief guards, not fitted caps.
@@ -639,3 +641,20 @@ Publication remains deferred
 by the unrelated ancestor. Preserve the separate main edits and discover current
 owner commands rather than historical aliases. Studio remains available at
 `http://127.0.0.1:5173/` from this worktree.
+
+### Current-Only Live Verification
+
+The 2026-10-01 normal Ring native check exposed a stale verifier requirement:
+the realization live target and Studio Run in Game demanded the retired
+`authoredTerrainMaterialization` trace and `POST-AUTHORED-RIVERS` checkpoint
+inside otherwise current, byte-identical map bundles. The first live attempt
+correctly stopped before mutation, but its marker requirement was obsolete.
+Remove that requirement rather than restoring old river paths or adding a new
+marker alias. The realization check still requires both files and matching
+SHA-256 identities. Studio additionally retains its current request id,
+canonical-config digest and launch-envelope digest correlation requirements;
+those are current authorship contracts, not compatibility with old algorithms.
+Focused tests cover matching marker-free scripts, missing/stale installations,
+and failure when any current Studio correlation marker is absent. The same
+Ring native launch succeeds after this correction. Native behavioral readback
+remains a separate proof from deployment identity.

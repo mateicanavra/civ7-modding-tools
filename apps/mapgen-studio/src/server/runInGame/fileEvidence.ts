@@ -10,17 +10,6 @@ export type RunInGameRequiredContentMarker = Readonly<{
   marker: string;
 }>;
 
-const AUTHORED_RIVER_MATERIALIZATION_CONTENT_MARKERS: readonly RunInGameRequiredContentMarker[] = [
-  {
-    id: "authored-river-materialization-trace",
-    marker: "map.rivers.authoredTerrainMaterialization",
-  },
-  {
-    id: "authored-river-materialization-checkpoint",
-    marker: "POST-AUTHORED-RIVERS",
-  },
-] as const;
-
 /** Reads a stable file snapshot and returns its content hash plus filesystem identity. */
 export async function fileIdentity(args: {
   repoRoot: string;
@@ -77,7 +66,6 @@ export function runInGameRequiredMaterializationMarkers(args: {
       id: "run-launch-envelope-digest",
       marker: args.launchEnvelopeDigest,
     },
-    ...AUTHORED_RIVER_MATERIALIZATION_CONTENT_MARKERS,
   ];
 }
 

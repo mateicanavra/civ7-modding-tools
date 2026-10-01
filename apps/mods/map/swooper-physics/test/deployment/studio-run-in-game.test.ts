@@ -186,7 +186,7 @@ describe("studio run-in-game live verifier", () => {
     ).toBeUndefined();
   });
 
-  test("passes only when local and deployed map scripts match and carry river markers", () => {
+  test("passes when the current local and deployed scripts match without legacy markers", () => {
     const stage = buildSwooperMapScriptDeploymentStage({
       mapScript: "{swooper-maps}/maps/mountain-patch.js",
       localPath: "/repo/apps/mods/map/swooper-physics/dist/mod/maps/mountain-patch.js",
@@ -196,14 +196,6 @@ describe("studio run-in-game live verifier", () => {
         "same"
       ),
       deployed: identity("/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-patch.js", "same"),
-      localMarkers: [
-        { marker: "map.rivers.authoredTerrainMaterialization", present: true },
-        { marker: "POST-AUTHORED-RIVERS", present: true },
-      ],
-      deployedMarkers: [
-        { marker: "map.rivers.authoredTerrainMaterialization", present: true },
-        { marker: "POST-AUTHORED-RIVERS", present: true },
-      ],
     });
 
     expect(stage).toMatchObject({
@@ -223,22 +215,24 @@ describe("studio run-in-game live verifier", () => {
         "current"
       ),
       deployed: identity("/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-patch.js", "stale"),
-      localMarkers: [
-        { marker: "map.rivers.authoredTerrainMaterialization", present: true },
-        { marker: "POST-AUTHORED-RIVERS", present: true },
-      ],
-      deployedMarkers: [
-        { marker: "map.rivers.authoredTerrainMaterialization", present: false },
-        { marker: "POST-AUTHORED-RIVERS", present: false },
-      ],
     });
 
     expect(stage.ok).toBe(false);
-    expect(stage.unresolvedLinks).toEqual([
-      "deployed-mod-script.hash-mismatch",
-      "deployed-mod-script.marker-missing.map-rivers-authoredterrainmaterialization",
-      "deployed-mod-script.marker-missing.post-authored-rivers",
-    ]);
+    expect(stage.unresolvedLinks).toEqual(["deployed-mod-script.hash-mismatch"]);
     expect(stage.recoveryHint).toContain("nx run swooper-physics-mod:deploy");
+  });
+
+  test.each(["local", "deployed"] as const)("blocks a missing %s script", (missing) => {
+    const localPath = "/repo/apps/mods/map/swooper-physics/dist/mod/maps/mountain-patch.js";
+    const deployedPath = "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-patch.js";
+    const stage = buildSwooperMapScriptDeploymentStage({
+      mapScript: "{swooper-maps}/maps/mountain-patch.js",
+      localPath,
+      deployedPath,
+      ...(missing === "local" ? {} : { local: identity(localPath, "same") }),
+      ...(missing === "deployed" ? {} : { deployed: identity(deployedPath, "same") }),
+    });
+    expect(stage.ok).toBe(false);
+    expect(stage.unresolvedLinks).toEqual([`${missing}-mod-script.missing`]);
   });
 });

@@ -43,19 +43,13 @@ describe("Run in Game exact authorship evidence identity", () => {
     }
   });
 
-  it("proves required materialization markers from generated script content", async () => {
+  it("proves current request correlation from generated content without legacy river markers", async () => {
     const dir = await mkdtemp(join(tmpdir(), "studio-evidence-markers-"));
     try {
       const path = join(dir, "studio-current.js");
       await writeFile(
         path,
-        [
-          requestId,
-          configHash,
-          launchEnvelopeDigest,
-          "map.rivers.authoredTerrainMaterialization",
-          "POST-AUTHORED-RIVERS",
-        ].join("\n"),
+        [requestId, configHash, launchEnvelopeDigest].join("\n"),
         "utf8"
       );
 
@@ -74,8 +68,6 @@ describe("Run in Game exact authorship evidence identity", () => {
         ["run-request-id", true],
         ["run-canonical-config-digest", true],
         ["run-launch-envelope-digest", true],
-        ["authored-river-materialization-trace", true],
-        ["authored-river-materialization-checkpoint", true],
       ]);
     } finally {
       await rm(dir, { recursive: true, force: true });
@@ -833,7 +825,11 @@ describe("Run in Game exact authorship evidence identity", () => {
     expect(evidence.unresolvedLinks).not.toContain("civ-setup.map-seed-mismatch");
   });
 
-  it("keeps exact authorship unresolved when the deployed script lacks current river materialization markers", () => {
+  it.each([
+    "run-request-id",
+    "run-canonical-config-digest",
+    "run-launch-envelope-digest",
+  ])("keeps exact authorship unresolved when the deployed script lacks %s", (markerId) => {
     const args = completeEvidenceArgs();
     const evidence = buildRunInGameExactAuthorshipEvidence({
       ...args,
@@ -841,14 +837,14 @@ describe("Run in Game exact authorship evidence identity", () => {
         ...args.materialization,
         deployedModScriptContent: contentEvidence(
           "/Users/test/Civ Mods/Swooper Maps/maps/studio-current.js",
-          { "authored-river-materialization-checkpoint": false }
+          { [markerId]: false }
         ),
       },
     });
 
     expect(evidence.status).toBe("unresolved");
     expect(evidence.unresolvedLinks).toContain(
-      "materialization.deployed-mod-script-marker.authored-river-materialization-checkpoint"
+      `materialization.deployed-mod-script-marker.${markerId}`
     );
   });
 

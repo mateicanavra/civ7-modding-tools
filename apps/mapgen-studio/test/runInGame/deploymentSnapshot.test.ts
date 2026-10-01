@@ -85,8 +85,6 @@ async function writeGeneratedRunMod(root: string): Promise<void> {
     "run-deploy-snapshot",
     "config-hash-test",
     "envelope-hash-test",
-    "map.rivers.authoredTerrainMaterialization",
-    "POST-AUTHORED-RIVERS",
   ].join("\n");
   await mkdir(join(root, "maps"), { recursive: true });
   await mkdir(join(root, "config"), { recursive: true });
