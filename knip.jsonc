@@ -58,7 +58,7 @@
       // Nx invokes these cold app and uncached proof entrypoints. The build compiles
       // virtual map sources that import the SDK, so no authored import can expose that
       // runtime dependency to static analysis.
-      "entry": ["src/build.ts", "src/run-manifest.ts", "test/live/*.live.ts"],
+      "entry": ["test/live/*.live.ts"],
       "ignoreDependencies": ["@mateicanavra/civ7-sdk"]
     },
     "packages/civ7-adapter": {
