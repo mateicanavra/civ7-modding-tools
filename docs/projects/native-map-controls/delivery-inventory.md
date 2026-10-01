@@ -71,6 +71,7 @@ Details: [elevation](elevation.md), [relief](relief-coherence.md),
 | Early hydrology and later biome temperature were competing owners | Baseline thermal publication and final climate refinement now form one causal artifact chain; wind and pressure remain their own intended artifacts | Repair other demonstrated ownership gaps at their actual domains, not by splitting every object or adding buffer aliases |
 | Earthlike forcing/configuration did not represent the intended temperate baseline | Effective configuration corrected and measured, not just relabeled | Coupled scientific Earth agreement remains incomplete |
 | Seasonal response and ocean/moisture donor discontinuities | Periodic integration plus geometric donor bracketing and weak-current transfer corrections implemented and studied | Primitive fits and numerical stability do not establish every physical transport coefficient |
+| Ocean rotation treated increasing map rows as geographic north | Existing current owner now translates geographic handedness through the declared latitude ramp; both hemispheres, reversed ramps, actual basin geometry and unchanged ascending behavior are verified | Corrected marine SST improves the frozen Earth comparison, but land geographic response remains unselected and native generation must qualify the new build |
 | Lowland land-temperature variation remains too small | Measured thermal budget and independent Earth-reference discriminators; a simple signed monthly inland-advection candidate was rejected | Active Earthlike within-row temperature expectation remains unwaived; no fitted noise, arbitrary gain or lapse tuning |
 | Biome refinement did not wrap longitude | SDK periodic-X correction implemented and deployed; exact-input studies show a small boundary repair | This was not the explanation for all broad biome banding |
 | Vegetation admission and later biome moisture boundaries suppressed supported habitats | Domain-owner scoring repair and bounded classifier calibration implemented; upstream physical captures held; normal Huge Earthlike loaded | Continue coherent ecology calibration against the physical fields rather than adding quotas |
@@ -88,6 +89,16 @@ Source packets: [thermal lineage](climate-artifact-lineage.md),
 [land thermal investigation](land-geography-investigation.md),
 [scale ledger](sea-level-and-scales.md),
 [single question sheet](calibration-question-sheet.md).
+
+The current-coordinate repair is a completed causal owner change, not a new
+climate pipeline. Its fresh graph passes 1,128 definition tests, 293 realization
+tests and owner policy/type/build checks; the unchanged within-row-temperature
+aggregate still fails. The independently reviewed Graphite source-prefix repair
+moves the existing tools-owned resource test and duplicate dependency removal
+to their original source owners. All 186 repaired-prefix root checks pass.
+The final leaf tree is exactly preserved by that reorder; all fourteen protected
+main files retain their bytes and hashes. Publication, merge, fresh native
+generation and full Earth calibration remain separate claims.
 
 ## Next Testable Outcomes
 

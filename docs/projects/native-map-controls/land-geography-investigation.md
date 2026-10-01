@@ -339,3 +339,46 @@ change is made. Retained under
 `37f150010ee0d5a1333e1ccf7c124ef5a0f096bd33df98d9e7697cbc89f750a7`;
 `REPORT.md` SHA256
 `9d28f99405059bb67b71e363828864273f1ed0607e713a5aa2eaabb3754f92e6`.
+
+## Coordinate-Law Repair Before Thermal Selection
+
+The surface-current producer had a demonstrated geographic handedness defect:
+U points east and V points toward increasing map rows, but Ekman, basin-gyre
+and coastal steering assumed that increasing rows always meant north. The
+operational descending latitude ramp therefore reversed these terms. The
+existing owner now derives handedness from the latitude ramp, matching the
+atmospheric coordinate convention. Ascending-ramp behavior, strengths, geometry,
+smoothing, divergence projection and signed-byte encoding are preserved. No
+new operation, artifact, recipe computation or fitted thermal term is introduced.
+NOAA's [Ekman description](https://oceanservice.noaa.gov/education/tutorial_currents/04currents4.html)
+and [boundary-current description](https://oceanservice.noaa.gov/education/tutorial_currents/04currents3.html)
+support the direction contract, not the proxy's magnitude or transport scale.
+
+The source-based replay holds the original Gaussian geography, all 547 land
+receivers, configuration, bootstrap source, two coupling passes and preceding
+wind vintage. Corrected primary marine SST RMSE falls from 6.799300 to
+4.544887 C. The already frozen directional-response scale of 1/8 improves held
+annual and monthly errors to 3.158407 and 3.885195 C, versus incumbent
+3.376797 and 3.916841 C. It is still **not selected**: held row-mean error is
+2.666222 versus 2.594111 C, and retained regional/seasonal guards fail. No new
+scale search, observational forcing or acceptance waiver follows from this
+upstream correction. The old matched-baseline attribution loses much of its
+apparent gain, demonstrating why correction must precede thermal selection.
+
+The established local land response cannot change its same-row annual variance
+from this current repair: it does not consume ocean temperature or wind. The
+generated 1 C floor remains an open product requirement. Constant marine SST
+and land-only seasonal pressure are explicit current approximations, not an
+accidentally discarded seasonal ocean artifact. A future geographic thermal
+response must admit its marine-air boundary and driving vintage rather than
+silently transferring inland empirical coefficients to the ocean or adding
+physics inside a recipe step.
+
+Retained, rerunnable external evidence is under
+`earth-calibration/earth-ocean-current-coordinate-admission-20261001/` and
+`earth-calibration/earth-corrected-current-producer-replay-20261001/` in the
+[Civ research user-data location](../../process/LOCAL-VIEWERS.md). The earlier
+D4/D5 nonselection packets remain immutable. The fresh owner graph passes
+1,128 definition tests with the one retained science aggregate failure,
+293 realization tests and the definition policy/type/build checks. Those
+results are not a new native-generation or marine-air calibration claim.

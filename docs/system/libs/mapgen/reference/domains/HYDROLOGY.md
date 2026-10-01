@@ -108,6 +108,18 @@ Hydrology's semantic products are cataloged by their owning module:
 The `modules/ocean` branch currently supplies invocation-local geometry, current,
 and thermal state to climate composition; it does not publish a durable ocean artifact.
 
+Surface-current U is eastward/increasing columns; V follows increasing rows,
+not necessarily geographic north. The `wind-gyre-projection` owner derives row
+orientation from the signed first-to-last latitude difference, with the same
+descending/north-up fallback as atmospheric circulation for a flat ramp.
+Ekman drift is geographically right of wind in the northern hemisphere and
+left in the southern hemisphere. Basin gyres are clockwise in the north and
+counterclockwise in the south; geometry-produced advisory coast tangents use
+that same handedness. Zero latitude retains the existing northern-hemisphere
+choice. This coordinate law does not change strengths, quantization, water
+topology, smoothing or divergence projection, and does not establish an ocean
+speed calibration or a boundary-current latitude-regime model.
+
 Ocean thermal transport uses the existing `latitude-current-advection` strategy.
 Its advection stencil interpolates the two adjacent hex rays bracketing the
 upcurrent direction before applying water masks or bounded Y edges. A blocked

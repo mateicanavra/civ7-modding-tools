@@ -207,8 +207,9 @@ function computeBasinCenters(
 /**
  * Synthesizes the default surface-current proxy from wind, basin gyres, and coastal steering.
  *
- * Wind imprint and hemisphere-dependent Ekman deflection form the base field. Optional basin and
- * coast geometry add gyre/tangent flow before hex-space smoothing and a divergence-reduction pass.
+ * Wind imprint and hemisphere-dependent Ekman deflection form the base field. Latitude-ramp
+ * orientation translates geographic handedness into tile-space U/V, including basin and coast flow.
+ * Optional geometry adds gyre/tangent flow before smoothing and a divergence-reduction pass.
  * `maxSpeed` defines the final physical-to-i8 quantization scale; land always remains zero.
  *
  * @param width - Number of tile columns to populate.
@@ -257,10 +258,14 @@ export function computeCurrentsEarthlike(
   const centers = options.basinId
     ? computeBasinCenters(width, height, isWaterMask, options.basinId)
     : null;
+  const latitudeRampSign =
+    Math.sign((latitudeByRow[height - 1] ?? 0) - (latitudeByRow[0] ?? 0)) || -1;
 
   for (let y = 0; y < height; y++) {
     const latDeg = latitudeByRow[y] ?? 0;
     const hemi = latDeg >= 0 ? 1 : -1;
+    // +V follows rows, not geographic north; flat ramps use the atmospheric north-up fallback.
+    const handedness = hemi * latitudeRampSign;
 
     for (let x = 0; x < width; x++) {
       const i = idx(x, y, width);
@@ -272,7 +277,7 @@ export function computeCurrentsEarthlike(
 
       const w = vec2(windU[i] ?? 0, windV[i] ?? 0);
       const along = vec2Scale(w, windStrength);
-      const ekman = vec2Scale(hemi > 0 ? rotateRight(w) : rotateLeft(w), ekmanStrength);
+      const ekman = vec2Scale(handedness > 0 ? rotateRight(w) : rotateLeft(w), ekmanStrength);
       let cur = vec2Add(along, ekman);
 
       if (centers && options.basinId) {
@@ -286,7 +291,7 @@ export function computeCurrentsEarthlike(
           const dy = y - cy;
           const radial = vec2(dx, dy);
           const rHat = vec2Normalize(radial);
-          const tangential = hemi > 0 ? rotateRight(rHat) : rotateLeft(rHat);
+          const tangential = handedness > 0 ? rotateRight(rHat) : rotateLeft(rHat);
           cur = vec2Add(cur, vec2Scale(tangential, gyreStrength));
         }
       }
@@ -299,7 +304,7 @@ export function computeCurrentsEarthlike(
           options.coastDistance && (options.coastDistance[i] ?? 0xffff) !== 0xffff
             ? clamp01(1 - (options.coastDistance[i] ?? 0) / 12)
             : 1;
-        const dir = hemi > 0 ? 1 : -1;
+        const dir = handedness;
         cur = vec2Add(cur, vec2Scale(tHat, coastStrength * coastFactor * dir));
       }
 
