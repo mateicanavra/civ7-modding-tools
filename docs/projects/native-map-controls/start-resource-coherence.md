@@ -167,3 +167,25 @@ Independent final SDK review is aligned, with no open finding after the exact
 integer-identity correction. The owning Nx check and its 22 dependencies pass.
 Full generated cohort proof still does not establish native resource placement,
 vessel movement or complete scientific calibration.
+
+The final graph passes all 271 Civ realization tests. Definition tests pass
+1,106 with one aggregate failure retaining the two independent thermal and
+relief expectations. Studio passes 411 tests but initially rejects the explicit
+placement public schema's six missing descriptions. The supported SDK schema
+composition now supplies those descriptions without changing configuration
+values or algorithms; the focused Studio schema suite passes both tests and
+the fresh definition check passes. Evidence is retained in
+`water-start-final-graph-20261001.log` and
+`start-public-schema-metadata-check-20261001.log`. This fixes authoring metadata,
+not a scientific expectation.
+
+An additional exact saved-setup replay uses Huge Earthlike, seeds 1018/1018 and
+all twelve player IDs. Every seat is unique, full and regional; there are no
+unseated players or resource-support shortfalls. Realized support counts are
+`[5,4,3,3,5,3,5,3,3,4,3,5]`: the minimum is three against the held floor two,
+and the gap is two against the held tolerance two. Resource additions and
+moves are zero. Every non-placement published artifact is byte-identical to
+the pinned ten-player v2 capture. The receipt is
+`relief-owner-causal-20261001/exact12/receipt.json`, SHA256
+`2c4bf3b141a06168cdab77bffbd6edab36d22fbd26497f022ffcebeb18b3864c`.
+This is deterministic full-recipe mock proof, not a native runtime claim.

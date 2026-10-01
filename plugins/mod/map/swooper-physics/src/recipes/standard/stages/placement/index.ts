@@ -44,12 +44,24 @@ export default createStage({
     "observe-placement-parity": ObservePlacementParityStep,
   }),
   public: Type.Object({
-    "plot-landmass-regions": PlotLandmassRegionsStep.contract.schema,
-    "plan-natural-wonders": PlanNaturalWondersStep.contract.schema,
-    "plan-resource-demands": PlanResourceDemandsStep.contract.schema,
-    "select-resource-sites": SelectResourceSitesStep.contract.schema,
-    "assign-starts": Type.Omit(AssignStartsStep.contract.schema, ["supportRequirements"]),
-    "adjust-resources": AdjustResourcesStep.contract.schema,
+    "plot-landmass-regions": Type.With(PlotLandmassRegionsStep.contract.schema, {
+      description: "Project landmass regions into the game's start slots.",
+    }),
+    "plan-natural-wonders": Type.With(PlanNaturalWondersStep.contract.schema, {
+      description: "Plan natural wonders on the prepared playable surface.",
+    }),
+    "plan-resource-demands": Type.With(PlanResourceDemandsStep.contract.schema, {
+      description: "Plan resource demand by region and admitted habitat.",
+    }),
+    "select-resource-sites": Type.With(SelectResourceSitesStep.contract.schema, {
+      description: "Select legal resource sites before choosing supported starts.",
+    }),
+    "assign-starts": Type.Omit(AssignStartsStep.contract.schema, ["supportRequirements"], {
+      description: "Choose player starts supported by the planned resource sites.",
+    }),
+    "adjust-resources": Type.With(AdjustResourcesStep.contract.schema, {
+      description: "Set the shared start-support requirements and adjust resource support.",
+    }),
   }),
   compile: ({ config }) => {
     const support = config["adjust-resources"].support.config;
