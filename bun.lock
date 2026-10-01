@@ -123,8 +123,6 @@
         "@civ7/direct-control": "workspace:*",
         "@civ7/types": "workspace:*",
         "@orpc/client": "1.14.6",
-        "@orpc/contract": "1.14.6",
-        "@swooper/mapgen-diagnostics": "workspace:*",
       },
     },
     "apps/playground": {
@@ -441,6 +439,8 @@
       "devDependencies": {
         "@civ7/direct-control": "workspace:*",
         "@civ7/types": "workspace:*",
+        "@orpc/client": "1.14.6",
+        "@orpc/contract": "1.14.6",
         "@swooper/mapgen-diagnostics": "workspace:*",
         "type-fest": "^5.7.0",
       },

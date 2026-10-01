@@ -68,7 +68,7 @@
       }
     },
     "test:studio-run-in-game": {
-      "command": "bun test test/build/map-bundle-runtime-compatibility.test.ts test/maps/run-manifest-generation.test.ts",
+      "command": "bun test test/runtime/map-bundle-runtime-compatibility.test.ts test/artifact/run-manifest.test.ts",
       "dependsOn": ["build"],
       "cache": true,
       "options": {
@@ -76,7 +76,7 @@
       }
     },
     "verify:studio-run-in-game-live": {
-      "command": "bun ./test/live/verify-studio-run-in-game.live.ts",
+      "command": "bun ./test/live/studio-run-in-game.live.test.ts",
       "dependsOn": ["build"],
       "cache": false,
       "options": {
@@ -84,7 +84,7 @@
       }
     },
     "verify:final-surface-parity": {
-      "command": "bun ./test/live/verify-final-surface-parity.live.ts",
+      "command": "bun ../../../../plugins/mod/map/swooper-physics/test/recipes/swooper-physics-standard/parity/final-surface-parity.live.test.ts",
       "dependsOn": ["build"],
       "cache": false,
       "options": {

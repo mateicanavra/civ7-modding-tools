@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "require_map_mod_realization_proof_topology",
+  "title": "Require Map Mod Realization Proof Topology",
+  "placement": {
+    "niche": "global/workspace",
+    "blueprint": "map-mod-realization",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "civ7-workspace",
+  "lane": "enforced",
+  "forbids": "map-mod realization tests outside the artifact, deployment, runtime-compatibility, and live-observation confidence axes",
+  "why": "A map-mod realization must independently prove deterministic output identity, deployment interpretation, generated-module compatibility, and real Civ7 loader behavior. Closed disjoint layers prevent architecture wiring checks or live scripts from collecting in generic test and scripts cabinets.",
+  "remediate": "Classify each proof by the independent fact it establishes: artifact plan, deployment behavior, runtime compatibility, or uncached live observation. Move product-definition behavior back to its product owner and delete duplicate provider or wiring tests.",
+  "message": "Map-mod realization proofs must preserve their closed layered topology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["apps/mods/map/*/test", "apps/mods/map/*/test/**"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/map-mod-realization/require_map_mod_realization_proof_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/map-mod-realization/require_map_mod_realization_proof_topology/structure.toml"
+    }
+  }
+}

@@ -24,13 +24,9 @@ import {
   loadFinalSurfaceParityEvidence,
   parseFinalSurfaceParityArgs,
   type StudioRunInGameClientFactory,
-} from "../live/verify-final-surface-parity.live.js";
-import {
-  createStandardRecipeTestInitialSetup,
-  TEST_GAME_SEED,
-  TEST_MAP_SEED,
-  TEST_MAP_SIZE,
-} from "../setup.js";
+} from "./final-surface-parity.live.test.js";
+import { createStandardRecipeTestInitialSetup } from "../fixtures/standard-recipe.js";
+import { TEST_GAME_SEED, TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../setup.js";
 
 const REQUEST_ID = "run-final-surface-parity";
 const DIAGNOSTICS_ID = "diagnostics-final-surface-parity";

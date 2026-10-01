@@ -22,7 +22,7 @@ import {
   generateSwooperRunGeneratedModFromManifestPath,
   verifySwooperStandardRunManifest,
 } from "../../src/runtime/run-manifest";
-import { expectCiv7MapScriptCompatibility } from "../build/fixtures/civ7-map-script-compatibility";
+import { expectCiv7MapScriptCompatibility } from "../runtime/civ7-map-script-compatibility.fixture";
 import { TEST_GAME_SEED, TEST_MAP_SEED, TEST_MAP_SIZE } from "../setup.js";
 
 describe("Swooper run manifest generator", () => {

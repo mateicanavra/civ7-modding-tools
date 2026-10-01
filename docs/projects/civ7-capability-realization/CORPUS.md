@@ -142,7 +142,7 @@ service client.
 | --- | --- | --- |
 | `apps/mapgen-studio/src/server/studio/context.ts` | delete | Shared runtime supplies control and MapGen-runs clients to the Studio API context selected by `rawr.mapgen-studio.ts` and its profile |
 | `apps/mapgen-studio/src/server/studio/engines.ts` | combine | Pure parsing/plans/comparison in `packages/studio-run-workspace`, MapGen-runs bindings, and Studio filesystem adapters `{studio-run-files,fresh-log-files,swooper-map-config-source}`; mod installation moves to the Swooper realization adapter; the mixed source file then disappears |
-| `apps/mods/map/swooper-physics/scripts/live/verify-final-surface-parity.ts` | combine | Recipe-owned `plugins/mod/map/swooper-physics/test/recipes/standard/parity/final-surface-parity.live.test.ts`, consuming the control world client and Studio API client through the realization-owned live target |
+| `apps/mods/map/swooper-physics/scripts/live/verify-final-surface-parity.ts` | combine | Recipe-owned `plugins/mod/map/swooper-physics/test/recipes/swooper-physics-standard/parity/final-surface-parity.live.test.ts`, consuming the control world client and Studio API client through the realization-owned live target |
 | `apps/mods/map/swooper-physics/scripts/live/verify-studio-run-in-game-live.ts` | combine | The Studio API client through the realization-owned live target; the Studio app selects control, MapGen-runs, and `{civ7-save-files,studio-run-files,fresh-log-files}`, while the shared runtime binds those capabilities and provisions Tuner |
 | `plugins/mod/map/swooper-physics/src/recipes/standard/parity/live.ts` | relocate | `apps/mods/map/swooper-physics/src/runtime/parity/live.ts`, consuming the control world client at realization time |
 | `packages/studio-contract/src/{civ7,live}.ts` `†` | combine | Exact Studio API control-module contracts over the public control-service client |
@@ -537,7 +537,7 @@ service, provider, or deployment implementation.
 | `apps/mods/map/swooper-physics/scripts/run-manifest-generator.ts` | relocate | `apps/mods/map/swooper-physics/src/runtime/run-manifest.ts` | Realization artifact and runtime proof |
 | `apps/mods/map/swooper-physics/scripts/generate-map-artifacts.ts` plus tracked generated map sources and mod files | combine | `apps/mods/map/swooper-physics/src/build.ts` and `src/runtime/map-script/compiler.ts` build the final ignored `dist/mod` tree directly from virtual sources |
 | `apps/mods/map/swooper-physics/scripts/generate-run-manifest.ts` | relocate | `apps/mods/map/swooper-physics/src/run-manifest.ts` | Thin request-local manifest entrypoint |
-| `apps/mods/map/swooper-physics/scripts/live/verify-final-surface-parity.ts` | combine | `plugins/mod/map/swooper-physics/test/recipes/standard/parity/final-surface-parity.live.test.ts` | Recipe-owned proof executed by the uncached realization live target |
+| `apps/mods/map/swooper-physics/scripts/live/verify-final-surface-parity.ts` | combine | `plugins/mod/map/swooper-physics/test/recipes/swooper-physics-standard/parity/final-surface-parity.live.test.ts` | Recipe-owned proof executed by the uncached realization live target |
 | `apps/mods/map/swooper-physics/scripts/live/verify-studio-run-in-game-live.ts` | combine | `apps/mods/map/swooper-physics/test/live/studio-run-in-game.live.test.ts` | Uncached realization live proof |
 | `apps/mods/map/swooper-physics/scripts/{tsconfig.json,tsup.config.ts}` | delete | App source typecheck and realization-local virtual-source compiler |
 
