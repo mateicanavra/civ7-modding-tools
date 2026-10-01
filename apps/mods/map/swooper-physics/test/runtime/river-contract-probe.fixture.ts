@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
@@ -10,6 +10,7 @@ import {
   applyGeneratedFilePlan,
   type GeneratedFilePlan,
 } from "@civ7/plugin-files/generated-file-plan";
+import { sha256Hex, stableStringify } from "@swooper/mapgen-core/trace";
 import {
   canonicalMapConfigContentDigest,
   canonicalMapConfigDigest,
@@ -42,8 +43,11 @@ import {
   waterConnectivityProbe,
 } from "./water-connectivity.fixture.js";
 import {
+  DIRECTIONAL_CLIFF_WAYPOINTS,
+  readDirectionalCliffStudy,
   WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS,
   WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE,
+  WATER_HEIGHT_CLIFF_OBSERVATION_REVISION,
   WATER_HEIGHT_DRY_RETENTION_REPLAY_ATLAS,
   WATER_HEIGHT_DRY_RETENTION_REPLAY_PROBE,
   WATER_HEIGHT_LAKE_CUTOFF_ATLAS,
@@ -107,6 +111,7 @@ export type WaterHeightDiagnosticSelection = Readonly<{
   gameSeed?: number;
   playerCount?: number;
   lakeSizeCutoff?: "stock" | number;
+  cliffStudyPath?: string;
 }>;
 
 /** Builds one diagnostic mod tree; installation identity and duplicate detection are separate concerns. */
@@ -159,6 +164,33 @@ export async function buildRiverProbePlan(
     throw new Error(
       "Diagnostic playerCount must be a positive integer within the selected start-slot capacity."
     );
+  let cliffStudyInputSha256: string | undefined;
+  const directionalCliffs =
+    selection.cliffStudyPath === undefined
+      ? undefined
+      : await (async () => {
+          if (
+            !boundedLakeCutoff ||
+            typeof selection.cliffStudyPath !== "string" ||
+            !selection.cliffStudyPath.trim()
+          )
+            throw new Error(
+              "A cliff study path requires explicitly selected bounded-cutoff diagnostics."
+            );
+          const path = resolve(selection.cliffStudyPath);
+          const metadata = await stat(path);
+          if (!metadata.isFile() || metadata.size > 65536)
+            throw new Error(
+              "Directional cliff study must be a regular JSON file no larger than 65536 bytes."
+            );
+          const bytes = await readFile(path);
+          if (bytes.length > 65536)
+            throw new Error("Directional cliff study exceeds the 65536-byte input limit.");
+          const parsed: unknown = JSON.parse(bytes.toString("utf8"));
+          const study = readDirectionalCliffStudy(parsed, preset.dimensions);
+          cliffStudyInputSha256 = createHash("sha256").update(bytes).digest("hex");
+          return study;
+        })();
   const defaultCutoff = maxLakeCutoff
     ? preset.dimensions.width * preset.dimensions.height
     : boundedLakeCutoff
@@ -203,6 +235,13 @@ export async function buildRiverProbePlan(
     playerCount,
     sourceConfigId: selection.sourceConfigId ?? WATER_HEIGHT_MAINTENANCE_PROBE.sourceConfigId,
     expectedLakeSizeCutoff,
+    ...(directionalCliffs
+      ? {
+          diagnosticRevision: WATER_HEIGHT_CLIFF_OBSERVATION_REVISION,
+          displayLabel: "Water Directional Cliff Observation V23",
+          directionalCliffs,
+        }
+      : {}),
   };
   const lakeCutoff = maintenance && expectedLakeSizeCutoff !== preset.mapInfo.LakeSizeCutoff;
   const fullMap = isFullMapAtlas(atlasKind) || maintenance;
@@ -374,6 +413,24 @@ ${renderSwooperCatalogMapSource(config)}`;
             ...identity,
             variant,
             atlasKind,
+            ...(directionalCliffs
+              ? {
+                  observation: {
+                    kind: "read-only-directional-cliffs",
+                    inputSha256: cliffStudyInputSha256,
+                    manifestSha256: sha256Hex(stableStringify(directionalCliffs)),
+                    physicalPayloadSha256: directionalCliffs.physicalPayloadSha256,
+                    shoreEdgeCount: directionalCliffs.shoreEdges.length,
+                    dryControlEdgeCount: directionalCliffs.dryControls.length,
+                    directionalRecordCountPerWaypoint:
+                      2 *
+                      (directionalCliffs.shoreEdges.length + directionalCliffs.dryControls.length),
+                    waypoints: DIRECTIONAL_CLIFF_WAYPOINTS,
+                    qualification:
+                      "Selected app-owned diagnostic only. Native adjacency and boolean flags require observed qualification. Adds no elevation, cliff generation, validation, river, area or cache mutation; no movement or cliff-threshold claim.",
+                  },
+                }
+              : {}),
             ...(waterConnectivity
               ? {
                   fixtureSourceSha256: waterFixtureSourceSha256,
@@ -513,7 +570,7 @@ export function parseRiverProbeArguments(args: readonly string[]) {
     !atlases.includes(atlasKind)
   )
     throw new Error(
-      "Usage: river-contract-probe <proof-id> <variant> <atlas> [--profile id --map-size id --map-seed n --game-seed n --player-count n --lake-cutoff stock|n] (build only)"
+      "Usage: river-contract-probe <proof-id> <variant> <atlas> [--profile id --map-size id --map-seed n --game-seed n --player-count n --lake-cutoff stock|n --cliff-study path] (build only)"
     );
   const { values } = parseArgs({
     args: rest,
@@ -524,6 +581,7 @@ export function parseRiverProbeArguments(args: readonly string[]) {
       "game-seed": { type: "string" },
       "player-count": { type: "string" },
       "lake-cutoff": { type: "string" },
+      "cliff-study": { type: "string" },
     },
   });
   const integer = (value: string): number => {
@@ -548,6 +606,7 @@ export function parseRiverProbeArguments(args: readonly string[]) {
                 lakeSizeCutoff:
                   values["lake-cutoff"] === "stock" ? "stock" : integer(values["lake-cutoff"]),
               }),
+          ...(values["cliff-study"] === undefined ? {} : { cliffStudyPath: values["cliff-study"] }),
         };
   return {
     proofId,

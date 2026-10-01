@@ -29,11 +29,17 @@ import {
   type WaterHeightDiagnosticSelection,
 } from "./river-contract-probe.fixture.js";
 import {
+  DIRECTIONAL_CLIFF_MAX_SHORE_EDGES,
+  DIRECTIONAL_CLIFF_WAYPOINTS,
+  type DirectionalCliffBindings,
+  type DirectionalCliffStudy,
   installWaterHeightMaintenanceProbe,
   observeWaterHeightPhysicalLakes,
   projectLakeCutoffInitialSetup,
+  readDirectionalCliffStudy,
   WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS,
   WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE,
+  WATER_HEIGHT_CLIFF_OBSERVATION_REVISION,
   WATER_HEIGHT_DRY_RETENTION_REPLAY_ATLAS,
   WATER_HEIGHT_DRY_RETENTION_REPLAY_PROBE,
   WATER_HEIGHT_LAKE_CUTOFF_PROBE,
@@ -50,6 +56,397 @@ const identity = {
   envelopeHash: "b".repeat(64),
   fixtureSourceSha256: "c".repeat(64),
 };
+const cliffStudy: DirectionalCliffStudy = {
+  studyId: "bounded-cliff-test",
+  physicalPayloadSha256: "d".repeat(64),
+  dimensions: { width: 106, height: 66 },
+  shoreEdges: [
+    { from: { x: 1, y: 1 }, to: { x: 2, y: 1 }, role: "finite-shore" },
+    { from: { x: 105, y: 0 }, to: { x: 0, y: 0 }, role: "external-shore" },
+  ],
+  dryControls: [
+    { from: { x: 3, y: 3 }, to: { x: 4, y: 3 }, role: "dry-steep" },
+    { from: { x: 5, y: 5 }, to: { x: 6, y: 5 }, role: "dry-flat" },
+  ],
+};
+const cliffOptions = {
+  ...WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE,
+  diagnosticRevision: WATER_HEIGHT_CLIFF_OBSERVATION_REVISION,
+  displayLabel: "Water Directional Cliff Observation V23",
+  directionalCliffs: cliffStudy,
+};
+
+function cliffFixture() {
+  const base = fixture(mapInfo(40));
+  const flagCalls: Array<{ x: number; y: number; direction: number }> = [];
+  const symbols = ["EAST", "NORTHEAST", "NORTHWEST", "WEST", "SOUTHWEST", "SOUTHEAST"];
+  const nativeIds = [11, 17, 23, 29, 31, 37];
+  const bindings: DirectionalCliffBindings = {
+    DirectionTypes: Object.fromEntries(
+      symbols.map((symbol, index) => [`DIRECTION_${symbol}`, nativeIds[index]])
+    ),
+    GameplayMap: {
+      getAdjacentPlotLocation: ({ x, y }: { x: number; y: number }, direction: number) => {
+        const offsets = [
+          [1, 0],
+          [1, -1],
+          [0, -1],
+          [-1, 0],
+          [0, 1],
+          [1, 1],
+        ];
+        const offset = offsets[nativeIds.indexOf(direction)];
+        if (!offset) throw new Error("unexpected native direction");
+        return { x: (x + offset[0]! + 106) % 106, y: y + offset[1]! };
+      },
+      getElevation: (x: number, y: number) => base.adapter.getElevation(x, y),
+      getTerrainType: (x: number, y: number) => base.adapter.getTerrainType(x, y),
+      getRiverType: (x: number, y: number) => base.adapter.getRiverType(x, y),
+      isWater: (x: number, y: number) => base.adapter.isWater(x, y),
+      isLake: (x: number, y: number) => base.adapter.isLake(x, y),
+      isCliffCrossing: function (x: number, y: number, direction: number) {
+        expect(this).toBe(bindings.GameplayMap);
+        flagCalls.push({ x, y, direction });
+        return direction === 11;
+      },
+    },
+  };
+  const observations = () =>
+    decodeBoundedJsonLogSeries(base.lines, "[water-height-maintenance]")
+      .map(
+        ({ payload }) =>
+          payload as {
+            stage: string;
+            payload: {
+              waypoint: string;
+              authenticCall: { call: number; method: string; occurrence: number };
+              manifestSha256: string;
+              observedFlagCount: number;
+              directedRecordCount: number;
+              records: Array<{
+                role: string;
+                reverse: boolean;
+                cliff: boolean | { status: string; reason: string };
+                from: { x: number; y: number; elevation: number };
+                to: { x: number; y: number };
+                nativeDirection: { symbol?: string; value?: number; reason?: string };
+                nativeAdjacent: { x?: number; y?: number; reason?: string };
+                directionResolution?: Array<{ adjacent: { reason?: string } }>;
+              }>;
+            };
+          }
+      )
+      .filter(({ stage }) => stage === "directional-cliffs")
+      .map(({ payload }) => payload);
+  return { ...base, bindings, flagCalls, observations };
+}
+describe("opt-in directional cliff observations", () => {
+  it("protects a bounded structured manifest without choosing native directions or a cliff threshold", () => {
+    const parsed = readDirectionalCliffStudy(cliffStudy, cliffStudy.dimensions);
+    expect(parsed).toEqual(cliffStudy);
+    expect(parsed).not.toBe(cliffStudy);
+    expect(Object.isFrozen(parsed.shoreEdges[0]!.from)).toBe(true);
+    const shoreEdges = Array.from({ length: DIRECTIONAL_CLIFF_MAX_SHORE_EDGES }, (_, index) => ({
+      from: { x: index % 103, y: 10 + 2 * Math.floor(index / 103) },
+      to: { x: (index % 103) + 1, y: 10 + 2 * Math.floor(index / 103) },
+      role: "finite-shore",
+    }));
+    expect(
+      readDirectionalCliffStudy({ ...cliffStudy, shoreEdges }, cliffStudy.dimensions).shoreEdges
+    ).toHaveLength(206);
+    expect(() =>
+      readDirectionalCliffStudy(
+        { ...cliffStudy, shoreEdges: [...shoreEdges, cliffStudy.shoreEdges[0]] },
+        cliffStudy.dimensions
+      )
+    ).toThrow("manifest");
+    const invalid: unknown[] = [
+      null,
+      { ...cliffStudy, extra: true },
+      { ...cliffStudy, physicalPayloadSha256: "not-a-hash" },
+      { ...cliffStudy, shoreEdges: [] },
+      { ...cliffStudy, shoreEdges: [{ ...cliffStudy.shoreEdges[0], from: { x: 1.5, y: 1 } }] },
+      { ...cliffStudy, shoreEdges: [{ ...cliffStudy.shoreEdges[0], from: { x: -1, y: 1 } }] },
+      { ...cliffStudy, shoreEdges: [{ ...cliffStudy.shoreEdges[0], from: { x: 106, y: 1 } }] },
+      {
+        ...cliffStudy,
+        shoreEdges: [{ ...cliffStudy.shoreEdges[0], to: cliffStudy.shoreEdges[0]!.from }],
+      },
+      {
+        ...cliffStudy,
+        shoreEdges: [
+          cliffStudy.shoreEdges[0],
+          {
+            ...cliffStudy.shoreEdges[0],
+            from: cliffStudy.shoreEdges[0]!.to,
+            to: cliffStudy.shoreEdges[0]!.from,
+          },
+        ],
+      },
+      { ...cliffStudy, dryControls: [cliffStudy.dryControls[0]] },
+      {
+        ...cliffStudy,
+        dryControls: [
+          cliffStudy.dryControls[0],
+          { ...cliffStudy.dryControls[1], role: "dry-steep" },
+        ],
+      },
+      { ...cliffStudy, dimensions: { width: 60, height: 38 } },
+    ];
+    for (const value of invalid)
+      expect(() => readDirectionalCliffStudy(value, cliffStudy.dimensions)).toThrow();
+  });
+
+  it("reads both native directions at five authentic waypoints with unchanged calls, arguments and complete bounded transport", () => {
+    const { adapter, calls, bindings, flagCalls, lines, observations } = cliffFixture();
+    const finish = installWaterHeightMaintenanceProbe(
+      adapter,
+      "cliff-five-slots",
+      identity,
+      cliffOptions,
+      (line) => lines.push(line),
+      bindings
+    );
+    const values = Array(6996).fill(20),
+      laterValues = Array(6996).fill(30);
+    const args = [false, 25, 2, 2] as const;
+    adapter.validateAndFixTerrain();
+    adapter.recalculateAreas();
+    adapter.recalculateAreas();
+    adapter.storeWaterData();
+    adapter.recalculateAreas();
+    adapter.setElevation(values);
+    adapter.recalculateAreas();
+    adapter.finalizeRivers(args);
+    adapter.validateAndFixTerrain();
+    adapter.generateCliffsFromElevation();
+    adapter.recalculateAreas();
+    adapter.storeWaterData();
+    adapter.validateAndFixTerrain();
+    adapter.recalculateAreas();
+    adapter.validateAndFixTerrain();
+    adapter.setElevation(laterValues);
+    adapter.recalculateAreas();
+    adapter.storeWaterData();
+    finish();
+    expect(calls.map(({ method }) => method)).toEqual([
+      "validateAndFixTerrain",
+      "recalculateAreas",
+      "recalculateAreas",
+      "storeWaterData",
+      "recalculateAreas",
+      "setElevation",
+      "recalculateAreas",
+      "finalizeRivers",
+      "validateAndFixTerrain",
+      "generateCliffsFromElevation",
+      "recalculateAreas",
+      "storeWaterData",
+      "validateAndFixTerrain",
+      "recalculateAreas",
+      "validateAndFixTerrain",
+      "setElevation",
+      "recalculateAreas",
+      "storeWaterData",
+    ]);
+    expect(calls[5]!.arg).toBe(values);
+    expect(calls[7]!.arg).toBe(args);
+    expect(calls[15]!.arg).toBe(laterValues);
+    const observed = observations();
+    expect(observed.map(({ waypoint }) => waypoint)).toEqual([...DIRECTIONAL_CLIFF_WAYPOINTS]);
+    expect(observed.map(({ authenticCall }) => authenticCall)).toEqual([
+      { call: 6, method: "setElevation", occurrence: 1 },
+      { call: 10, method: "generateCliffsFromElevation", occurrence: 1 },
+      { call: 10, method: "generateCliffsFromElevation", occurrence: 1 },
+      { call: 16, method: "setElevation", occurrence: 2 },
+      { call: 18, method: "storeWaterData", occurrence: 3 },
+    ]);
+    for (const payload of observed) {
+      expect(payload.manifestSha256).toBe(sha256Hex(stableStringify(cliffStudy)));
+      expect(payload.directedRecordCount).toBe(8);
+      expect(payload.observedFlagCount).toBe(8);
+      expect(payload.records).toHaveLength(8);
+      expect(payload.records.filter(({ cliff }) => cliff === true)).toHaveLength(4);
+      expect(payload.records.filter(({ cliff }) => cliff === false)).toHaveLength(4);
+      expect(
+        payload.records.every(
+          ({ nativeDirection }) => nativeDirection.value === 11 || nativeDirection.value === 29
+        )
+      ).toBe(true);
+      const seam = payload.records.filter(({ role }) => role === "external-shore");
+      expect(seam.map(({ nativeAdjacent }) => nativeAdjacent)).toEqual([
+        { x: 0, y: 0 },
+        { x: 105, y: 0 },
+      ]);
+    }
+    expect(
+      observed[0]!.records[2]!.directionResolution?.some(
+        ({ adjacent }) => adjacent.reason === "outside-selected-grid"
+      )
+    ).toBe(true);
+    expect(flagCalls).toHaveLength(40);
+    expect(lines.every((line) => line.length <= BOUNDED_JSON_LOG_MAX_LINE_LENGTH)).toBe(true);
+    const firstSeries = decodeBoundedJsonLogSeries(lines, "[water-height-maintenance]").find(
+      ({ payload }) => (payload as { stage: string }).stage === "directional-cliffs"
+    )!;
+    expect(firstSeries.partCount).toBeGreaterThan(1);
+    const incomplete = decodeBoundedJsonLogSeries(
+      lines.filter((_, index) => index !== firstSeries.startIndex),
+      "[water-height-maintenance]"
+    );
+    expect(
+      incomplete.filter(
+        ({ payload }) => (payload as { stage: string }).stage === "directional-cliffs"
+      )
+    ).toHaveLength(4);
+  });
+
+  it.each([
+    "missing",
+    "throws",
+    "number",
+    "object",
+  ])("preserves %s cliff getter evidence instead of substituting false", (kind) => {
+    const { adapter, bindings, flagCalls, lines, observations } = cliffFixture();
+    bindings.GameplayMap.isCliffCrossing =
+      kind === "missing"
+        ? undefined
+        : () => {
+            if (kind === "throws") throw new Error("cliff getter unavailable in realm");
+            return kind === "number" ? 0 : { status: "looks-supported" };
+          };
+    installWaterHeightMaintenanceProbe(
+      adapter,
+      "cliff-unavailable",
+      identity,
+      cliffOptions,
+      (line) => lines.push(line),
+      bindings
+    );
+    adapter.setElevation(Array(6996).fill(20));
+    const observed = observations()[0]!;
+    expect(observed.observedFlagCount).toBe(0);
+    expect(
+      observed.records.every(
+        ({ cliff }) => typeof cliff === "object" && cliff.status === "unavailable"
+      )
+    ).toBe(true);
+    expect(observed.records[0]!.cliff).toMatchObject({
+      reason:
+        kind === "missing"
+          ? "missing-callable"
+          : kind === "throws"
+            ? "threw: Error: cliff getter unavailable in realm"
+            : `unexpected-${kind}`,
+    });
+    expect(flagCalls).toHaveLength(0);
+  });
+
+  it.each([
+    "missing-enum",
+    "thrown-enum",
+    "duplicate-enum",
+    "missing-adjacency",
+    "thrown-adjacency",
+    "wrong-adjacency",
+  ])("does not query flags when %s prevents native edge confirmation", (kind) => {
+    const { adapter, bindings, flagCalls, lines, observations } = cliffFixture();
+    if (kind === "missing-enum") bindings.DirectionTypes.DIRECTION_EAST = undefined;
+    if (kind === "thrown-enum")
+      Object.defineProperty(bindings.DirectionTypes, "DIRECTION_EAST", {
+        get() {
+          throw new Error("enum getter failed");
+        },
+      });
+    if (kind === "duplicate-enum")
+      bindings.DirectionTypes.DIRECTION_EAST = bindings.DirectionTypes.DIRECTION_WEST;
+    if (kind === "missing-adjacency") bindings.GameplayMap.getAdjacentPlotLocation = undefined;
+    if (kind === "thrown-adjacency")
+      bindings.GameplayMap.getAdjacentPlotLocation = () => {
+        throw new Error("adjacency failed");
+      };
+    if (kind === "wrong-adjacency")
+      bindings.GameplayMap.getAdjacentPlotLocation = () => ({ x: 50, y: 50 });
+    installWaterHeightMaintenanceProbe(
+      adapter,
+      "cliff-adjacency",
+      identity,
+      cliffOptions,
+      (line) => lines.push(line),
+      bindings
+    );
+    adapter.setElevation(Array(6996).fill(20));
+    const observed = observations()[0]!;
+    expect(observed.observedFlagCount).toBe(0);
+    expect(
+      observed.records.every(
+        ({ cliff }) => typeof cliff === "object" && cliff.status === "unavailable"
+      )
+    ).toBe(true);
+    expect(flagCalls).toHaveLength(0);
+    if (kind === "thrown-adjacency")
+      expect(observed.records[0]!.directionResolution?.[0]!.adjacent.reason).toBe(
+        "threw: Error: adjacency failed"
+      );
+  });
+
+  it("refuses non-V23 study installation before mutation and reads no cliff bindings without opt-in", () => {
+    for (const options of [
+      { ...cliffOptions, diagnosticRevision: 22 },
+      { ...cliffOptions, atlasKind: "full-map-maintenance" },
+    ]) {
+      const { adapter, calls } = fixture(mapInfo(40));
+      const original = adapter.setElevation;
+      expect(() =>
+        installWaterHeightMaintenanceProbe(adapter, "bad-cliff-arm", identity, options)
+      ).toThrow("explicitly selected bounded V23");
+      expect(adapter.setElevation).toBe(original);
+      expect(calls).toHaveLength(0);
+    }
+    const { adapter, lines, decode } = fixture(mapInfo(40));
+    const forbidden = new Proxy(
+      {},
+      {
+        get() {
+          throw new Error("unselected cliff getter read");
+        },
+      }
+    );
+    installWaterHeightMaintenanceProbe(
+      adapter,
+      "no-cliff-opt-in",
+      identity,
+      WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE,
+      (line) => lines.push(line),
+      { GameplayMap: forbidden, DirectionTypes: forbidden }
+    );
+    adapter.setElevation(Array(6996).fill(20));
+    expect(decode().some(({ stage }) => stage === "directional-cliffs")).toBe(false);
+  });
+
+  it("does not invent an after-cliffs observation when the authentic native mutation throws", () => {
+    const { adapter, lines, bindings, observations } = cliffFixture();
+    adapter.generateCliffsFromElevation = () => {
+      throw new Error("authentic cliff generation failed");
+    };
+    installWaterHeightMaintenanceProbe(
+      adapter,
+      "cliff-native-failure",
+      identity,
+      cliffOptions,
+      (line) => lines.push(line),
+      bindings
+    );
+    adapter.setElevation(Array(6996).fill(20));
+    expect(() => adapter.generateCliffsFromElevation()).toThrow(
+      "authentic cliff generation failed"
+    );
+    expect(observations().map(({ waypoint }) => waypoint)).toEqual(
+      DIRECTIONAL_CLIFF_WAYPOINTS.slice(0, 2)
+    );
+  });
+});
+
 const selectedSizes = ["MAPSIZE_TINY", "MAPSIZE_STANDARD", "MAPSIZE_HUGE"] as const;
 type Adapter = Parameters<typeof installWaterHeightMaintenanceProbe>[0];
 type MapInfo = ReturnType<Adapter["lookupMapInfo"]>;
@@ -1457,6 +1854,8 @@ describe("water height maintenance observation (not native semantics)", () => {
       "full-map-lake-cutoff": "678067441c3d8db02518d486e461d1592a3adc00f7f0fd744ea45d2725da8e49",
       "full-map-max-lake-cutoff":
         "379f3e3aa6147464702457d60776aae3ab38f67bd7fa4d1d95c00bf6a2f9957c",
+      "full-map-bounded-lake-cutoff":
+        "4c5355d38b1cce1821ebe862eb305df9ed03ea3adca22afc0abec4921b77b697",
     };
     if (legacyLogDigests[options.atlasKind])
       expect(sha256Hex(stableStringify(records))).toBe(legacyLogDigests[options.atlasKind]);

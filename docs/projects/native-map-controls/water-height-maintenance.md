@@ -1042,3 +1042,86 @@ The diagnostic extension passes 85 tests with 4,593 assertions and the full
 Fresh native observations are still required. Evidence will be retained in
 `earth-calibration/native-water-v22-20261001/` under the existing
 [Civ research user-data location](../../process/LOCAL-VIEWERS.md).
+
+### V22 Observed Result And V23 Cliff Qualification
+
+The fresh saved Huge Earthlike 1018/1018 twelve-player pair completed both
+stock10 and finite17 arms. Its sealed external `pair-joined-analysis.json`
+joins all built/installed files, physical V3 products, first setter requests,
+immediate post-write and final native grids, and complete current CLI censuses.
+Each census returned 6,996 plots in 17 serial chunks with held identity.
+Both arms performed the same 18 authentic maintenance calls, without replay.
+All eight bounded pair checks passed; this is not general gameplay acceptance.
+
+Stock10 already preserved every one of the 204 intended finite physical heads.
+Its native lake coverage was 156/204; finite17 changed precisely the remaining
+48 flags on the size16/body1643, size15/body3384 and size17/body3899 components.
+All 4,275 external cells remained native water and nonlake, and all 2,517
+exposed cells remained dry. Elevation, terrain, feature, riverType, water,
+biome, resource, rainfall, fertility, river, navigableRiver, areaId, regionId
+and landmassId had zero changed cells. Thus seventeen is a classification
+discriminator in this packet, not a height repair. Retain the stock production
+cutoff: the broader cohort contains protected external components inside
+finite-coverage size ranges, so this favorable seed cannot prescribe a global
+or automatic maximum-finite-size rule.
+
+The concrete low-head witness is body977/cell976: model H12, sea11, ground6,
+minimum adjacent exposed dry B12; observed native head10 and first setter
+ground request128. Ground is not intended head. Huge1018 has no closed body,
+below-sea physical head, at-sea head or H-distinct-from-B witness. Its 56 bodies
+are open with H=B; the three retained Earthlike closed examples also have
+B-H=0. Pool closure accounting intervals do not export numeric escape spill.
+
+V23 adds read-only directional observations only when `--cliff-study <path>`
+is supplied to the existing `river-contract-probe` builder with
+`full-map-bounded-lake-cutoff`. It introduces no new atlas registry, controller
+facade, Tuner sender, production adapter API or ordinary recipe instrumentation.
+The current CLI implementation remains transitional; its frozen legacy
+`world.grid` owner must not gain new public behavior for this study.
+
+The JSON study input contains `studyId`, immutable `physicalPayloadSha256`,
+selected `dimensions`, `shoreEdges` and `dryControls`. Each edge declares
+`from` and `to` integer `{x,y}` endpoints and an explanatory `role`:
+`finite-shore`/`external-shore`, or `dry-steep`/`dry-flat` respectively. Input is
+capped at 65,536 bytes and 206 undirected shore edges, with exactly one of each
+dry control. Unknown fields, wrong dimensions, out-of-grid endpoints, self
+edges, reversed duplicates and malformed hashes are refused before observer
+installation. The accepted value is copied and frozen; no mutable external
+array becomes a recipe input. Raw input and canonical manifest hashes are
+recorded separately in `proof.json`.
+
+The predeclared full study has 206 shoreline edges from bodies1643,3384,3899,
+977 and protected external first-cell51/size88, plus the two dry controls.
+Native `DirectionTypes.DIRECTION_*` symbols and actual
+`GameplayMap.getAdjacentPlotLocation({x,y}, direction)` resolve both directions
+of every supplied edge, including X wrapping and clipped-Y validity. The
+fixture calls `GameplayMap.isCliffCrossing(x,y,nativeDirection)` only after
+native adjacency is confirmed. This three-argument usage is grounded in
+extracted shipped `maps/elevation-terrain-generator.js:43-46`; generated API
+declarations do not independently declare it. Missing or duplicate enums,
+unavailable/thrown adjacency, nonboolean flags and other getter errors stay
+explicit unavailable evidence, never false defaults or height-derived flags.
+
+The five observation waypoints are after the first authentic `setElevation`,
+immediately before and after authentic `generateCliffsFromElevation`, after
+the second authentic `setElevation`, and post-authentic-recipe after the last
+water cache call. Each bounded `directional-cliffs` payload carries source
+identity, physical and manifest hashes, actual call/occurrence, all directional
+records, and endpoint elevation/water/lake/terrain/riverType. The full manifest
+produces 412 shoreline records plus four control records per waypoint:
+2,060 shoreline and twenty control flag observations per arm. Native direction
+resolution also makes bounded read-only adjacency calls; these are not extra
+maintenance calls. Original setter arguments and the complete authentic
+mutation schedule remain unchanged, with no retries or compensating calls.
+An authentic mutation failure never acquires an invented successful after
+checkpoint. An unavailable read cannot qualify the experiment.
+
+Without the explicit opt-in, V22 keeps its existing revision and record shapes;
+the retained absent-opt-in observation digest and historical digests are
+focused regressions. The V23 hypothesis is classification-only cliff
+invariance despite equal heights; the counter-hypothesis is a classification
+or late-cache cliff change. Compare truth, native water, head, complete flags
+and waypoint stability independently. Source presence and unit transport do
+not prove native getter availability, cliff thresholds, movement, freshwater
+semantics or rendering. Fresh native execution and independent visual/path
+evidence remain separate qualifications owned by the live verifier.

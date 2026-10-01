@@ -55,6 +55,7 @@ import {
   WATER_LOWER_BOUND_CONTROLS,
 } from "./water-connectivity.fixture.js";
 import {
+  DIRECTIONAL_CLIFF_WAYPOINTS,
   WATER_HEIGHT_DRY_RETENTION_REPLAY_ATLAS,
   WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS,
   WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS,
@@ -63,6 +64,123 @@ import {
 type LogEntry = { stage: string; payload: Record<string, any>; proofId: string; variant: string };
 
 describe("build-only river diagnostic selectors", () => {
+  test("admits a named cliff-study JSON path only for the existing bounded diagnostic and records read-only V23 identity", async () => {
+    const root = await mkdtemp(join(tmpdir(), "cliff-study-input-"));
+    try {
+      const study = {
+        studyId: "build-cliff-study",
+        physicalPayloadSha256: "d".repeat(64),
+        dimensions: { width: 106, height: 66 },
+        shoreEdges: [{ from: { x: 1, y: 1 }, to: { x: 2, y: 1 }, role: "finite-shore" }],
+        dryControls: [
+          { from: { x: 3, y: 3 }, to: { x: 4, y: 3 }, role: "dry-steep" },
+          { from: { x: 5, y: 5 }, to: { x: 6, y: 5 }, role: "dry-flat" },
+        ],
+      };
+      const path = join(root, "predeclared cliffs.json");
+      const json = JSON.stringify(study);
+      await writeFile(path, json);
+      const parsed = parseRiverProbeArguments([
+        "cliff-read-only",
+        "authored",
+        "full-map-bounded-lake-cutoff",
+        "--cliff-study",
+        path,
+        "--player-count",
+        "12",
+        "--lake-cutoff",
+        "stock",
+      ]);
+      expect(parsed.selection).toEqual({
+        cliffStudyPath: path,
+        playerCount: 12,
+        lakeSizeCutoff: "stock",
+      });
+      const plan = await buildRiverProbePlan(
+        parsed.proofId,
+        parsed.variant,
+        parsed.atlasKind,
+        parsed.selection
+      );
+      const proof = JSON.parse(
+        String(plan.files.find(({ relativePath }) => relativePath === "proof.json")!.content)
+      );
+      expect(proof).toMatchObject({
+        diagnosticRevision: 23,
+        atlasKind: "full-map-bounded-lake-cutoff",
+        playerCount: 12,
+        expectedLakeSizeCutoff: 10,
+        directionalCliffs: study,
+        observation: {
+          kind: "read-only-directional-cliffs",
+          inputSha256: createHash("sha256").update(json).digest("hex"),
+          physicalPayloadSha256: study.physicalPayloadSha256,
+          shoreEdgeCount: 1,
+          dryControlEdgeCount: 2,
+          directionalRecordCountPerWaypoint: 6,
+          waypoints: DIRECTIONAL_CLIFF_WAYPOINTS,
+        },
+      });
+      expect(proof.observation.manifestSha256).toMatch(/^[0-9a-f]{64}$/);
+      expect(proof.intervention).toBeUndefined();
+      expect(plan.files.some(({ relativePath }) => relativePath === "config/lake-cutoff.xml")).toBe(
+        false
+      );
+      const script = String(
+        plan.files.find(({ relativePath }) => relativePath === "maps/river-contract.js")!.content
+      );
+      expect(script).toContain("isCliffCrossing");
+      expect(script).toContain("directional-cliffs");
+      await expectCiv7MapScriptCompatibility(script, "directional-cliff-v23");
+      const v22 = await buildRiverProbePlan(
+        "cliff-unselected",
+        "authored",
+        "full-map-bounded-lake-cutoff",
+        { playerCount: 12, lakeSizeCutoff: "stock" }
+      );
+      const oldProof = JSON.parse(
+        String(v22.files.find(({ relativePath }) => relativePath === "proof.json")!.content)
+      );
+      expect(oldProof.diagnosticRevision).toBe(22);
+      expect(oldProof.observation).toBeUndefined();
+      expect(oldProof.directionalCliffs).toBeUndefined();
+      expect(oldProof.configHash).toBe(proof.configHash);
+      expect(oldProof.envelopeHash).toBe(proof.envelopeHash);
+      expect(oldProof.settings).toEqual(proof.settings);
+      await expect(
+        buildRiverProbePlan("wrong-cliff-atlas", "authored", "full-map-maintenance", {
+          cliffStudyPath: path,
+        })
+      ).rejects.toThrow("explicitly selected bounded-cutoff");
+      await expect(
+        buildRiverProbePlan("wrong-cliff-size", "authored", "full-map-bounded-lake-cutoff", {
+          cliffStudyPath: path,
+          mapSize: "MAPSIZE_TINY",
+        })
+      ).rejects.toThrow("dimensions");
+      await writeFile(path, " ".repeat(65537));
+      await expect(
+        buildRiverProbePlan("oversized-cliff-input", "authored", "full-map-bounded-lake-cutoff", {
+          cliffStudyPath: path,
+        })
+      ).rejects.toThrow("65536");
+      await writeFile(path, JSON.stringify({ ...study, unexpected: true }));
+      await expect(
+        buildRiverProbePlan("invalid-cliff-input", "authored", "full-map-bounded-lake-cutoff", {
+          cliffStudyPath: path,
+        })
+      ).rejects.toThrow("manifest");
+      await writeFile(path, "not-json");
+      await expect(
+        buildRiverProbePlan("malformed-cliff-input", "authored", "full-map-bounded-lake-cutoff", {
+          cliffStudyPath: path,
+        })
+      ).rejects.toThrow();
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
   test.each([
     [WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS, 18, false],
     [WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS, 19, true],

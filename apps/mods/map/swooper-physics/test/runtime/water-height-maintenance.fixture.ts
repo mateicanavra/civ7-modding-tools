@@ -11,6 +11,8 @@ import standardRecipe, {
   projectStandardInitialSetup,
   STANDARD_STAGES,
 } from "@swooper/swooper-physics/standard";
+import { Type } from "typebox";
+import { Check } from "typebox/value";
 import type { Civ7Adapter } from "../../src/runtime/map-script/adapter.js";
 import type { FullMapProbeIdentity } from "./river-full-map.fixture.js";
 
@@ -18,6 +20,111 @@ export const WATER_HEIGHT_MAINTENANCE_ATLAS = "full-map-maintenance";
 export const WATER_HEIGHT_LAKE_CUTOFF_ATLAS = "full-map-lake-cutoff";
 export const WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS = "full-map-max-lake-cutoff";
 export const WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS = "full-map-bounded-lake-cutoff";
+export const WATER_HEIGHT_CLIFF_OBSERVATION_REVISION = 23;
+export const DIRECTIONAL_CLIFF_MAX_SHORE_EDGES = 206;
+export const DIRECTIONAL_CLIFF_WAYPOINTS = [
+  "after-first-setElevation",
+  "before-generateCliffsFromElevation",
+  "after-generateCliffsFromElevation",
+  "after-second-setElevation",
+  "post-authentic-recipe",
+] as const;
+const cliffLocationSchema = Type.Object(
+  { x: Type.Integer({ minimum: 0 }), y: Type.Integer({ minimum: 0 }) },
+  { additionalProperties: false }
+);
+const directionalCliffStudySchema = Type.Object(
+  {
+    studyId: Type.String({ pattern: "^[a-zA-Z0-9-]{1,100}$" }),
+    physicalPayloadSha256: Type.String({ pattern: "^[0-9a-f]{64}$" }),
+    dimensions: Type.Object(
+      {
+        width: Type.Integer({ minimum: 1, maximum: 10000 }),
+        height: Type.Integer({ minimum: 1, maximum: 10000 }),
+      },
+      { additionalProperties: false }
+    ),
+    shoreEdges: Type.Array(
+      Type.Object(
+        {
+          from: cliffLocationSchema,
+          to: cliffLocationSchema,
+          role: Type.Union([Type.Literal("finite-shore"), Type.Literal("external-shore")]),
+        },
+        { additionalProperties: false }
+      ),
+      { minItems: 1, maxItems: DIRECTIONAL_CLIFF_MAX_SHORE_EDGES }
+    ),
+    dryControls: Type.Array(
+      Type.Object(
+        {
+          from: cliffLocationSchema,
+          to: cliffLocationSchema,
+          role: Type.Union([Type.Literal("dry-steep"), Type.Literal("dry-flat")]),
+        },
+        { additionalProperties: false }
+      ),
+      { minItems: 2, maxItems: 2 }
+    ),
+  },
+  { additionalProperties: false }
+);
+type CliffLocation = Readonly<{ x: number; y: number }>;
+type CliffEdge<Role extends string> = Readonly<{
+  from: CliffLocation;
+  to: CliffLocation;
+  role: Role;
+}>;
+export type DirectionalCliffStudy = Readonly<{
+  studyId: string;
+  physicalPayloadSha256: string;
+  dimensions: Readonly<{ width: number; height: number }>;
+  shoreEdges: readonly CliffEdge<"finite-shore" | "external-shore">[];
+  dryControls: readonly CliffEdge<"dry-steep" | "dry-flat">[];
+}>;
+/** Private diagnostic bindings, not generated native API declarations or a public control facade. */
+export type DirectionalCliffBindings = Readonly<{
+  GameplayMap: Record<string, unknown>;
+  DirectionTypes: Record<string, unknown>;
+}>;
+
+/** Parses supplied study data before installing observers; geometry and native flags are not inferred. */
+export function readDirectionalCliffStudy(
+  value: unknown,
+  dimensions: Readonly<{ width: number; height: number }>
+): DirectionalCliffStudy {
+  if (!Check(directionalCliffStudySchema, value))
+    throw new Error("Invalid directional cliff study manifest.");
+  if (value.dimensions.width !== dimensions.width || value.dimensions.height !== dimensions.height)
+    throw new Error("Directional cliff study dimensions must match the selected diagnostic.");
+  const pairs = new Set<string>();
+  for (const edge of [...value.shoreEdges, ...value.dryControls]) {
+    for (const point of [edge.from, edge.to])
+      if (point.x >= dimensions.width || point.y >= dimensions.height)
+        throw new Error("Directional cliff study endpoint is outside the selected grid.");
+    const from = edge.from.x + edge.from.y * dimensions.width;
+    const to = edge.to.x + edge.to.y * dimensions.width;
+    const pair = `${Math.min(from, to)}:${Math.max(from, to)}`;
+    if (from === to || pairs.has(pair))
+      throw new Error("Directional cliff study contains a self-edge or duplicate undirected edge.");
+    pairs.add(pair);
+  }
+  if (new Set(value.dryControls.map((edge) => edge.role)).size !== 2)
+    throw new Error("Directional cliff study requires one dry-steep and one dry-flat control.");
+  const protect = <Role extends string>(edge: CliffEdge<Role>): CliffEdge<Role> =>
+    Object.freeze({
+      ...edge,
+      from: Object.freeze({ ...edge.from }),
+      to: Object.freeze({ ...edge.to }),
+    });
+  return Object.freeze({
+    studyId: value.studyId,
+    physicalPayloadSha256: value.physicalPayloadSha256,
+    dimensions: Object.freeze({ ...value.dimensions }),
+    shoreEdges: Object.freeze(value.shoreEdges.map(protect)),
+    dryControls: Object.freeze(value.dryControls.map(protect)),
+  });
+}
 export const WATER_HEIGHT_MAINTENANCE_PROBE = {
   diagnosticRevision: 9,
   displayLabel: "Water Height Maintenance V9",
@@ -91,6 +198,7 @@ type ProbeOptions = Readonly<{
   playerCount: number;
   sourceConfigId: string;
   expectedLakeSizeCutoff: number;
+  directionalCliffs?: DirectionalCliffStudy;
 }>;
 const focus = [
   { body: 56, role: "wet-outlet", x: 86, y: 32 },
@@ -128,6 +236,187 @@ type Adapter = Pick<
 >;
 const installed = new WeakSet<object>();
 const digest = (value: unknown) => sha256Hex(stableStringify(value));
+const cliffDirections = [
+  "EAST",
+  "NORTHEAST",
+  "NORTHWEST",
+  "WEST",
+  "SOUTHWEST",
+  "SOUTHEAST",
+] as const;
+type CliffUnavailable = Readonly<{ status: "unavailable"; member: string; reason: string }>;
+type AuthenticCall = Readonly<{ call: number; method: string; occurrence: number }>;
+const cliffUnavailable = (member: string, reason: string): CliffUnavailable => ({
+  status: "unavailable",
+  member,
+  reason,
+});
+function nativeCliffBindings(): DirectionalCliffBindings {
+  const host = globalThis as unknown as Partial<DirectionalCliffBindings>;
+  return { GameplayMap: host.GameplayMap ?? {}, DirectionTypes: host.DirectionTypes ?? {} };
+}
+
+function directionalCliffObserver(
+  study: DirectionalCliffStudy,
+  bindings: DirectionalCliffBindings,
+  emit: (stage: string, payload: unknown) => void
+) {
+  const { GameplayMap: map, DirectionTypes: enums } = bindings;
+  const manifestSha256 = digest(study);
+  const resolved = new Map<string, (typeof cliffDirections)[number]>();
+  const invoke = (
+    member: string,
+    args: readonly unknown[]
+  ): { ok: true; value: unknown } | { ok: false; error: CliffUnavailable } => {
+    try {
+      const getter = map[member];
+      return typeof getter === "function"
+        ? { ok: true, value: getter.apply(map, args) }
+        : { ok: false, error: cliffUnavailable(member, "missing-callable") };
+    } catch (error) {
+      return {
+        ok: false,
+        error: cliffUnavailable(member, `threw: ${String(error).slice(0, 180)}`),
+      };
+    }
+  };
+  const fact = (member: string, args: readonly unknown[], kind: "number" | "boolean") => {
+    const result = invoke(member, args);
+    if (!result.ok) return result.error;
+    const { value } = result;
+    if (typeof value === kind && (typeof value !== "number" || Number.isFinite(value)))
+      return value;
+    return cliffUnavailable(member, `unexpected-${typeof value}`);
+  };
+  const pointFacts = (point: CliffLocation) => ({
+    ...point,
+    elevation: fact("getElevation", [point.x, point.y], "number"),
+    terrain: fact("getTerrainType", [point.x, point.y], "number"),
+    riverType: fact("getRiverType", [point.x, point.y], "number"),
+    water: fact("isWater", [point.x, point.y], "boolean"),
+    lake: fact("isLake", [point.x, point.y], "boolean"),
+  });
+  const adjacent = (from: CliffLocation, direction: number): CliffLocation | CliffUnavailable => {
+    const result = invoke("getAdjacentPlotLocation", [from, direction]);
+    if (!result.ok) return result.error;
+    const { value } = result;
+    if (
+      typeof value === "object" &&
+      value !== null &&
+      "x" in value &&
+      "y" in value &&
+      typeof value.x === "number" &&
+      Number.isSafeInteger(value.x) &&
+      typeof value.y === "number" &&
+      Number.isSafeInteger(value.y)
+    ) {
+      if (
+        value.x < 0 ||
+        value.x >= study.dimensions.width ||
+        value.y < 0 ||
+        value.y >= study.dimensions.height
+      )
+        return cliffUnavailable("getAdjacentPlotLocation", "outside-selected-grid");
+      return { x: value.x, y: value.y };
+    }
+    return cliffUnavailable("getAdjacentPlotLocation", "unexpected-location");
+  };
+  return (waypoint: string, authenticCall: AuthenticCall) => {
+    const nativeDirections = cliffDirections.map((symbol) => {
+      const member = `DIRECTION_${symbol}`;
+      let value: unknown;
+      try {
+        value = enums[member];
+      } catch (error) {
+        return {
+          symbol,
+          value: cliffUnavailable(
+            `DirectionTypes.${member}`,
+            `threw: ${String(error).slice(0, 180)}`
+          ),
+        };
+      }
+      return {
+        symbol,
+        value:
+          typeof value === "number" && Number.isSafeInteger(value) && value >= 0
+            ? value
+            : cliffUnavailable(`DirectionTypes.${member}`, "missing-or-invalid-enum"),
+      };
+    });
+    const enumValues = nativeDirections.map(({ value }) => value);
+    const validEnums =
+      enumValues.every((value) => typeof value === "number") &&
+      new Set(enumValues).size === cliffDirections.length;
+    const records = [...study.shoreEdges, ...study.dryControls].flatMap((edge, edgeOrdinal) =>
+      ([false, true] as const).map((reverse) => {
+        const from = reverse ? edge.to : edge.from;
+        const to = reverse ? edge.from : edge.to;
+        const key = `${from.x},${from.y}:${to.x},${to.y}`;
+        let symbol = resolved.get(key);
+        const directionResolution: Array<{
+          symbol: string;
+          adjacent: CliffLocation | CliffUnavailable;
+        }> = [];
+        if (validEnums && !symbol) {
+          const matches = nativeDirections.filter(({ symbol: candidate, value }) => {
+            if (typeof value !== "number") return false;
+            const receiver = adjacent(from, value);
+            directionResolution.push({ symbol: candidate, adjacent: receiver });
+            return "x" in receiver && receiver.x === to.x && receiver.y === to.y;
+          });
+          if (matches.length === 1) {
+            symbol = matches[0]!.symbol;
+            resolved.set(key, symbol);
+          }
+        }
+        const direction = nativeDirections.find((entry) => entry.symbol === symbol);
+        const nativeDirection =
+          validEnums && typeof direction?.value === "number"
+            ? { symbol: direction.symbol, value: direction.value }
+            : cliffUnavailable(
+                "DirectionTypes",
+                validEnums ? "no-unique-native-adjacency" : "incomplete-or-duplicate-enums"
+              );
+        const receiver =
+          "value" in nativeDirection
+            ? adjacent(from, nativeDirection.value)
+            : cliffUnavailable("getAdjacentPlotLocation", "direction-unavailable");
+        const receiverMatches = "x" in receiver && receiver.x === to.x && receiver.y === to.y;
+        return {
+          edgeOrdinal,
+          reverse,
+          role: edge.role,
+          from: pointFacts(from),
+          to: pointFacts(to),
+          nativeDirection,
+          nativeAdjacent: receiver,
+          ...(directionResolution.length > 0 ? { directionResolution } : {}),
+          cliff:
+            receiverMatches && "value" in nativeDirection
+              ? fact("isCliffCrossing", [from.x, from.y, nativeDirection.value], "boolean")
+              : cliffUnavailable("isCliffCrossing", "native-adjacency-not-confirmed"),
+        };
+      })
+    );
+    emit("directional-cliffs", {
+      waypoint,
+      authenticCall,
+      studyId: study.studyId,
+      physicalPayloadSha256: study.physicalPayloadSha256,
+      manifestSha256,
+      dimensions: study.dimensions,
+      shoreEdgeCount: study.shoreEdges.length,
+      dryControlEdgeCount: study.dryControls.length,
+      directedRecordCount: records.length,
+      nativeDirections,
+      observedFlagCount: records.filter((record) => typeof record.cliff === "boolean").length,
+      records,
+      qualification:
+        "Read-only native directional flags and endpoint facts. Roles are prescribed study membership, not inferred native class, cliff thresholds, movement or freshwater semantics.",
+    });
+  };
+}
 const lakePlanDefinition = (() => {
   for (const stage of STANDARD_STAGES)
     for (const step of stage.steps) {
@@ -324,7 +613,8 @@ export function installWaterHeightMaintenanceProbe(
   proofId: string,
   identity: FullMapProbeIdentity,
   options: ProbeOptions = WATER_HEIGHT_MAINTENANCE_PROBE,
-  log: (line: string) => void = (line) => console.log(line)
+  log: (line: string) => void = (line) => console.log(line),
+  cliffBindings?: DirectionalCliffBindings
 ) {
   if (installed.has(prototype))
     throw new Error("Water height maintenance probe already installed.");
@@ -335,6 +625,18 @@ export function installWaterHeightMaintenanceProbe(
     )
   )
     throw new Error("Invalid maintenance probe identity.");
+  const cliffStudy =
+    options.directionalCliffs === undefined
+      ? undefined
+      : readDirectionalCliffStudy(options.directionalCliffs, options);
+  if (
+    cliffStudy &&
+    (options.atlasKind !== WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS ||
+      options.diagnosticRevision !== WATER_HEIGHT_CLIFF_OBSERVATION_REVISION)
+  )
+    throw new Error(
+      "Directional cliff observations require explicitly selected bounded V23 diagnostics."
+    );
   const originals = Object.fromEntries(
     [...maintenanceMethods, "setElevation", "setRiverInfo", "finalizeRivers"].map((key) => [
       key,
@@ -362,6 +664,7 @@ export function installWaterHeightMaintenanceProbe(
   let admissionComplete = false;
   let admissionFailure: { error: unknown } | undefined;
   let sequence = 0;
+  let lastAuthenticCall: AuthenticCall | undefined;
   const occurrences = new Map<string, number>();
   const writes: Array<{ wet: boolean; intent: Parameters<Adapter["setRiverInfo"]>[0] }> = [];
   const elevations: Array<{ count: number; sha256: string }> = [];
@@ -388,6 +691,9 @@ export function installWaterHeightMaintenanceProbe(
     }))
       log(line);
   };
+  const observeCliffs = cliffStudy
+    ? directionalCliffObserver(cliffStudy, cliffBindings ?? nativeCliffBindings(), emit)
+    : undefined;
   const admit = (adapter: Adapter) => {
     if (owner && owner !== adapter)
       throw new Error("Maintenance probe requires one adapter instance.");
@@ -438,10 +744,21 @@ export function installWaterHeightMaintenanceProbe(
     const occurrence = (occurrences.get(method) ?? 0) + 1;
     occurrences.set(method, occurrence);
     const call = ++sequence;
+    const authenticCall = { call, method, occurrence };
     emit("before", { call, method, occurrence, points: snapshot(adapter) });
+    if (method === "generateCliffsFromElevation" && occurrence === 1)
+      observeCliffs?.("before-generateCliffsFromElevation", authenticCall);
     try {
       const result = action();
+      lastAuthenticCall = authenticCall;
       emit("after", { call, method, occurrence, points: snapshot(adapter) });
+      if (method === "setElevation" && occurrence <= 2)
+        observeCliffs?.(
+          occurrence === 1 ? "after-first-setElevation" : "after-second-setElevation",
+          authenticCall
+        );
+      if (method === "generateCliffsFromElevation" && occurrence === 1)
+        observeCliffs?.("after-generateCliffsFromElevation", authenticCall);
       return result;
     } catch (error) {
       emit("failed", { call, method, occurrence, error: String(error) });
@@ -615,6 +932,7 @@ export function installWaterHeightMaintenanceProbe(
           () => setElevation.call(adapter, request)
         );
       capture("after-original-replay");
+      if (lastAuthenticCall) observeCliffs?.("post-authentic-recipe", lastAuthenticCall);
     } catch (error) {
       emit("original-replay-failed", { phase: "post-authentic-recipe", error: String(error) });
       throw error;
