@@ -1006,3 +1006,39 @@ live verifier. With the diagnostic mod still installed but its map criterion
 not selected, actual native Huge cutoff is 10. `v12-normal-restore-live.log`,
 `v12-normal-map-info.json` and `v12-normal-scripting.log` retain this successful
 nonmatching-map guard. The rejected unlimited cutoff is not production policy.
+
+## Resolved-Owner V22 Pair
+
+The October 1 owner repair changes the accepted water partition. Historical
+V9/V11/V12 results remain immutable and do not qualify this new partition.
+The next paired experiment uses the authentic Huge Earthlike recipe,
+map/game seeds 1018/1018, twelve players and the existing saved setup.
+V22 adds only diagnostic copies of published sea level, ground, external-water
+membership, final exposed-land membership and canonical pool closure to the
+bounded-cutoff physical atlas. It introduces no base-pipeline instrumentation,
+physical computation, extra native maintenance, river replay or spill estimate.
+The historical payloads and log digests do not acquire those fields.
+
+The current physical census predicts largest finite body 17 cells, stock Huge
+cutoff ten, and smallest protected external component 88 cells. The pair is
+therefore **stock ten versus seventeen**, not an arbitrary forty, global 256
+or unlimited cap. That physical size gap is only experiment admission: actual
+native components, lake flags and heads must be measured independently before
+any production policy is selected. The map-scoped database treatment must be
+observed active before accepting its result.
+
+Both arms hold source, seeds, setup, all river declarations/finalization,
+elevation writes and authentic maintenance. Join the copied physical products
+to existing immediate-post-write and final native arrays. Keep footprint,
+ordinary-water/native-lake classification and water height as separate
+outcomes. Protect every external-water component and report native feature,
+resource and class collateral. Do not call submerged ground the intended
+water head, derive a spill from a closure interval, or infer vessel movement
+from a lake flag or screenshot. No native terrain carving or cliff reorder
+belongs in this first pair.
+
+The diagnostic extension passes 85 tests with 4,593 assertions and the full
+37-task owning check graph, plus independent current-SDK boundary review.
+Fresh native observations are still required. Evidence will be retained in
+`earth-calibration/native-water-v22-20261001/` under the existing
+[Civ research user-data location](../../process/LOCAL-VIEWERS.md).

@@ -48,8 +48,8 @@ export const WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE = {
 } as const;
 export const WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE = {
   ...WATER_HEIGHT_MAINTENANCE_PROBE,
-  diagnosticRevision: 21,
-  displayLabel: "Water Bounded Lake Cutoff V21",
+  diagnosticRevision: 22,
+  displayLabel: "Water Bounded Lake Cutoff V22",
   atlasKind: WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS,
   expectedLakeSizeCutoff: 40,
 } as const;
@@ -148,6 +148,22 @@ const projectedLakesDefinition = (() => {
     }
   throw new Error("Standard recipe does not provide accepted lake projection.");
 })();
+const topographyDefinition = (() => {
+  for (const stage of STANDARD_STAGES)
+    for (const step of stage.steps)
+      for (const provided of step.contract.provides)
+        if (typeof provided !== "string" && provided.id === "artifact:morphology.topography")
+          return provided;
+  throw new Error("Standard recipe does not provide physical topography.");
+})();
+const hydrographyDefinition = (() => {
+  for (const stage of STANDARD_STAGES)
+    for (const step of stage.steps)
+      for (const provided of step.contract.provides)
+        if (typeof provided !== "string" && provided.id === "artifact:hydrology.hydrography")
+          return provided;
+  throw new Error("Standard recipe does not provide resolved physical exposure.");
+})();
 
 /** Observes complete physical lake membership and Number heads only after authentic recipe success. */
 export function observeWaterHeightPhysicalLakes(
@@ -179,6 +195,19 @@ export function observeWaterHeightPhysicalLakes(
     );
   const lakePlan = readArtifact(context, lakePlanDefinition);
   const projectedLakes = readArtifact(context, projectedLakesDefinition);
+  const currentCensus = options.atlasKind === WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS;
+  const physicalBoundary = currentCensus
+    ? (() => {
+        const topography = readArtifact(context, topographyDefinition);
+        const hydrography = readArtifact(context, hydrographyDefinition);
+        return {
+          seaLevel: topography.seaLevel,
+          ground: Array.from(topography.elevation),
+          externalWaterMask: Array.from(topography.externalWaterMask),
+          exposedLandMask: Array.from(hydrography.exposedLandMask),
+        };
+      })()
+    : {};
   const cells: [number, number, number][] = [];
   for (let cell = 0; cell < projectedLakes.lakeMask.length; cell++) {
     if (projectedLakes.lakeMask[cell] === 1)
@@ -189,6 +218,7 @@ export function observeWaterHeightPhysicalLakes(
     mapSeed: setup.map.mapSeed,
     gameSeed: setup.gameSeed,
     dimensions: { width, height },
+    ...physicalBoundary,
     plannedLakeTileCount: lakePlan.plannedLakeTileCount,
     columns: ["cell", "body", "head"],
     cells,
@@ -219,6 +249,7 @@ export function observeWaterHeightPhysicalLakes(
         level: pool.level,
         leafIds: [...pool.leafIds],
         wetCells: [...pool.wetCells],
+        ...(currentCensus ? { closure: pool.closure ?? null } : {}),
       }))
       .sort((a, b) => a.poolId - b.poolId),
   };

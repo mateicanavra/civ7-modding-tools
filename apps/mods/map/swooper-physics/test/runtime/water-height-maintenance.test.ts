@@ -319,6 +319,22 @@ async function physicalLakeRun(
             return provided;
     throw new Error("Missing public projectedLakes provider.");
   })();
+  const topographyDefinition = (() => {
+    for (const stage of STANDARD_STAGES)
+      for (const step of stage.steps)
+        for (const provided of step.contract.provides)
+          if (typeof provided !== "string" && provided.id === "artifact:morphology.topography")
+            return provided;
+    throw new Error("Missing public topography provider.");
+  })();
+  const hydrographyDefinition = (() => {
+    for (const stage of STANDARD_STAGES)
+      for (const step of stage.steps)
+        for (const provided of step.contract.provides)
+          if (typeof provided !== "string" && provided.id === "artifact:hydrology.hydrography")
+            return provided;
+    throw new Error("Missing public hydrography provider.");
+  })();
   return {
     plan,
     adapter,
@@ -326,14 +342,18 @@ async function physicalLakeRun(
     options,
     lakes: () => readArtifact(context, lakePlanDefinition),
     accepted: () => readArtifact(context, projectedLakesDefinition),
+    topography: () => readArtifact(context, topographyDefinition),
+    hydrography: () => readArtifact(context, hydrographyDefinition),
   };
 }
 
 describe("post-recipe physical lake maintenance evidence", () => {
   it.each([
-    "stock",
-    40,
-  ] as const)("decorates the actual %s generated execute once with complete terminal evidence", async (cutoff) => {
+    ["full-map-maintenance", "stock"],
+    ["full-map-maintenance", 40],
+    ["full-map-bounded-lake-cutoff", "stock"],
+    ["full-map-bounded-lake-cutoff", 40],
+  ] as const)("decorates the actual %s/%s generated execute once with complete terminal evidence", async (atlasKind, cutoff) => {
     const selection = {
       sourceConfigId: "swooper-earthlike",
       mapSize: "MAPSIZE_TINY",
@@ -345,7 +365,7 @@ describe("post-recipe physical lake maintenance evidence", () => {
     const built = await buildRiverProbePlan(
       "physical-lakes-test",
       "authored",
-      "full-map-maintenance",
+      atlasKind,
       selection
     );
     const script = String(
@@ -365,7 +385,8 @@ describe("post-recipe physical lake maintenance evidence", () => {
       events: string[] = [];
     const executionOptions = { log: () => {} };
     let delegationCount = 0,
-      observationCount = 0;
+      observationCount = 0,
+      finishingCount = 0;
     const execute = generatedMaintenanceExecute(
       script,
       (context, plan, options) => {
@@ -378,15 +399,16 @@ describe("post-recipe physical lake maintenance evidence", () => {
       },
       (context, plan, proofId, identity, options) => {
         observationCount++;
-        const before = stableStringify(run.lakes());
+        const before = stableStringify([run.lakes(), run.topography(), run.hydrography()]);
         expect(context).toBe(run.context);
         expect(plan).toBe(run.plan);
         observeWaterHeightPhysicalLakes(context, plan, proofId, identity, options, (line) =>
           lines.push(line)
         );
-        expect(stableStringify(run.lakes())).toBe(before);
+        expect(stableStringify([run.lakes(), run.topography(), run.hydrography()])).toBe(before);
         events.push("physical-lakes");
-      }
+      },
+      atlasKind === "full-map-bounded-lake-cutoff" ? () => { finishingCount++; } : undefined
     );
     const originalLog = console.log;
     try {
@@ -398,6 +420,7 @@ describe("post-recipe physical lake maintenance evidence", () => {
     events.push("execute-returned");
     expect(delegationCount).toBe(1);
     expect(observationCount).toBe(1);
+    expect(finishingCount).toBe(atlasKind === "full-map-bounded-lake-cutoff" ? 1 : 0);
     expect(events).toEqual(["recipe-returned", "physical-lakes", "execute-returned"]);
     expect(lines.every((line) => line.length <= BOUNDED_JSON_LOG_MAX_LINE_LENGTH)).toBe(true);
     const records = decodeBoundedJsonLogSeries(lines, "[water-height-maintenance]");
@@ -409,6 +432,7 @@ describe("post-recipe physical lake maintenance evidence", () => {
       wet === 1 ? [[cell, lakes.bodyId[cell]!, lakes.waterSurface[cell]!]] : []
     );
     expect(cells.length).toBeGreaterThan(0);
+    const currentCensus = atlasKind === "full-map-bounded-lake-cutoff";
     expect(records[0]!.payload).toEqual({
       proofId: proof.proofId,
       stage: "physical-lakes",
@@ -422,6 +446,12 @@ describe("post-recipe physical lake maintenance evidence", () => {
         mapSeed: 42,
         gameSeed: 7331,
         dimensions: run.context.setup.dimensions,
+        ...(currentCensus ? {
+          seaLevel: run.topography().seaLevel,
+          ground: Array.from(run.topography().elevation),
+          externalWaterMask: Array.from(run.topography().externalWaterMask),
+          exposedLandMask: Array.from(run.hydrography().exposedLandMask),
+        } : {}),
         plannedLakeTileCount: lakes.plannedLakeTileCount,
         columns: ["cell", "body", "head"],
         cells,
@@ -452,6 +482,7 @@ describe("post-recipe physical lake maintenance evidence", () => {
             level: pool.level,
             leafIds: [...pool.leafIds],
             wetCells: [...pool.wetCells],
+            ...(currentCensus ? { closure: pool.closure ?? null } : {}),
           }))
           .sort((a, b) => a.poolId - b.poolId),
       },
@@ -1228,8 +1259,8 @@ describe("water height maintenance observation (not native semantics)", () => {
     expect(() => projectLakeCutoffInitialSetup(cutoffCapture(40))).toThrow("LakeSizeCutoff=20");
     expect(WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE).toEqual({
       ...WATER_HEIGHT_MAINTENANCE_PROBE,
-      diagnosticRevision: 21,
-      displayLabel: "Water Bounded Lake Cutoff V21",
+      diagnosticRevision: 22,
+      displayLabel: "Water Bounded Lake Cutoff V22",
       atlasKind: "full-map-bounded-lake-cutoff",
       expectedLakeSizeCutoff: 40,
     });
