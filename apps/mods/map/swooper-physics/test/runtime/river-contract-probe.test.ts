@@ -9,6 +9,7 @@ import {
   inspectGeneratedFilePlan,
 } from "@civ7/plugin-files/generated-file-plan";
 import { decodeBoundedJsonLogSeries } from "@swooper/mapgen-core/lib/log";
+import { sha256Hex, stableStringify } from "@swooper/mapgen-core/trace";
 import { transformSync } from "esbuild";
 import { expectCiv7MapScriptCompatibility } from "./civ7-map-script-compatibility.fixture.js";
 import {
@@ -46,11 +47,15 @@ import {
   riverProbeOutputRoot,
 } from "./river-contract-probe.fixture.js";
 import {
+  assertDeclaredFiniteHeadModel,
+  buildDeclaredFiniteHeadModel,
   buildWaterConnectivityElevation,
   buildWaterConnectivityWrites,
+  buildWaterDeclaredFiniteHeadFixture,
   WATER_CONNECTIVITY_ATLASES,
   WATER_CONNECTIVITY_REPLAY_ATLAS,
   WATER_CONNECTIVITY_STOCK_ATLAS,
+  WATER_DECLARED_FINITE_HEAD_ATLAS,
   WATER_LOWER_BOUND_ATLAS,
   WATER_LOWER_BOUND_CONTROLS,
 } from "./water-connectivity.fixture.js";
@@ -487,6 +492,9 @@ function mockRuntime(
     repairSetupTerrain?: boolean;
     lakeCutoff?: number | string;
     waterAreaReadbacks?: boolean;
+    waterFromTerrain?: boolean;
+    lakeReadback?: boolean;
+    elevationReadbackAt?: (x: number, y: number) => number | undefined;
   } = {}
 ) {
   const callbacks = new Map<string, (...args: any[]) => void>();
@@ -521,6 +529,7 @@ function mockRuntime(
     getTerrainType: (x: number, y: number) => options.terrainReadback ?? terrain[x + y * 60],
     getRiverType: (x: number, y: number) => options.riverClassReadback ?? rivers[x + y * 60],
     getElevation: (x: number, y: number) =>
+      options.elevationReadbackAt?.(x, y) ??
       (validations > 1 && elevationInputs.length === 1
         ? options.elevationReadbackAfterValidation
         : undefined) ??
@@ -528,8 +537,9 @@ function mockRuntime(
       options.elevationReadback ??
       heights[x + y * 60],
     getFeatureType: (x: number, y: number) => options.featureReadback ?? features[x + y * 60],
-    isWater: () => false,
-    isLake: () => false,
+    isWater: (x: number, y: number) =>
+      options.waterFromTerrain ? terrain[x + y * 60] === 0 || terrain[x + y * 60] === 1 : false,
+    isLake: () => options.lakeReadback ?? false,
     isRiver: () => false,
     getAreaId: () => 7,
     getAreaIsWater: () => options.waterAreaReadbacks ?? false,
@@ -1324,6 +1334,382 @@ describe("V15 closed water lower-bound transport (not native setter acceptance)"
     expect(failed.entries().some(({ stage }) => stage === "after-elevation-write")).toBe(true);
     expect(failed.calls.filter(({ name }) => name === "storeWaterData")).toHaveLength(1);
     expect(decodeBoundedJsonLogSeries(failed.lines, "[mapgen-complete]")).toHaveLength(0);
+  });
+});
+
+describe("V25 declared finite heads (source proof, not native capability acceptance)", () => {
+  test("admits the complete six-regime physical declaration and rejects malformed or marine outlets", () => {
+    const model = buildDeclaredFiniteHeadModel();
+    const before = structuredClone(model);
+    expect(() => assertDeclaredFiniteHeadModel(model)).not.toThrow();
+    expect(model).toEqual(before);
+    expect(
+      model.controls.map(({ state, head, spill, ground }) => [state, ground, head, spill])
+    ).toEqual([
+      ["closed", 7, 11, 13],
+      ["open", 7, 11, 11],
+      ["closed", 7, 10, 13],
+      ["open", 7, 10, 10],
+      ["closed", 7, 9, 13],
+      ["open", 7, 9, 9],
+    ]);
+    expect(model.acceptedWaterMask.reduce((sum, wet) => sum + wet, 0)).toBe(36);
+    for (const control of [...model.controls, ...model.receivers]) {
+      expect(control.shore).toHaveLength(10);
+      expect(
+        control.shore.every(
+          ({ x, y, ground }) =>
+            model.ground[x + y * 60] === ground &&
+            model.externalWaterMask[x + y * 60] === 0 &&
+            model.acceptedWaterMask[x + y * 60] === 0
+        )
+      ).toBe(true);
+    }
+    for (const control of model.controls.filter(({ state }) => state === "open")) {
+      const receiver = model.receivers.find(({ caseId }) => caseId === control.receiverCaseId)!;
+      expect(receiver.head).toBeLessThan(control.head);
+      expect(control.connector.every(({ x, y }) => model.externalWaterMask[x + y * 60] === 0)).toBe(
+        true
+      );
+      expect(receiver.cells.every(({ x, y }) => model.externalWaterMask[x + y * 60] === 0)).toBe(
+        true
+      );
+    }
+    const mutations = [
+      (value: typeof model) => {
+        value.ground.pop();
+      },
+      (value: typeof model) => {
+        value.ground[0] = Number.NaN;
+      },
+      (value: typeof model) => {
+        value.acceptedWaterMask[0] = 2;
+      },
+      (value: typeof model) => {
+        value.controls[0]!.shore.pop();
+      },
+      (value: typeof model) => {
+        value.controls[0]!.cells[1] = value.controls[0]!.cells[0]!;
+      },
+      (value: typeof model) => {
+        value.controls[0]!.head = 13;
+      },
+      (value: typeof model) => {
+        value.controls[1]!.receiverCaseId = "marine";
+      },
+      (value: typeof model) => {
+        value.controls[5]!.connector[0] = { ...value.controls[5]!.connector[0]!, x: 2 };
+      },
+      (value: typeof model) => {
+        value.receivers[2]!.head = 9;
+      },
+      (value: typeof model) => {
+        value.acceptedWaterMask[20 + 20 * 60] = 1;
+      },
+    ];
+    for (const mutate of mutations) {
+      const malformed = structuredClone(model);
+      mutate(malformed);
+      expect(() => assertDeclaredFiniteHeadModel(malformed)).toThrow();
+    }
+  });
+
+  test("builds authentic public Standard requests with separate immutable physical and request identities", async () => {
+    const parsed = parseRiverProbeArguments([
+      "declared-head",
+      "authored",
+      WATER_DECLARED_FINITE_HEAD_ATLAS,
+    ]);
+    expect(parsed.atlasKind).toBe(WATER_DECLARED_FINITE_HEAD_ATLAS);
+    const { plan, script } = await compiled("authored", WATER_DECLARED_FINITE_HEAD_ATLAS);
+    const proof = JSON.parse(
+      String(plan.files.find(({ relativePath }) => relativePath === "proof.json")!.content)
+    );
+    const { physical, physicalPayloadSha256, standardProjection } = proof.declaredFiniteHead;
+    expect(physical).toEqual(buildDeclaredFiniteHeadModel());
+    expect(physicalPayloadSha256).toBe(sha256Hex(stableStringify(physical)));
+    expect(standardProjection.nativeRequestsSha256).toBe(
+      sha256Hex(stableStringify(standardProjection.nativeRequests))
+    );
+    expect(standardProjection).toMatchObject({
+      stageId: "map-elevation",
+      stepId: "build-elevation",
+    });
+    expect(proof).toMatchObject({
+      diagnosticRevision: 25,
+      mapSize: "MAPSIZE_TINY",
+      width: 60,
+      height: 38,
+      playerCount: 4,
+      mapSeed: 1018,
+      gameSeed: 1019,
+      expectedLakeSizeCutoff: 6,
+      intervention: {
+        kind: "declared-physical-finite-head",
+        databaseTreatment: "none; public Tiny stock row held",
+      },
+    });
+    expect(plan.files.some(({ relativePath }) => relativePath === "config/lake-cutoff.xml")).toBe(
+      false
+    );
+    for (const control of physical.controls) {
+      for (const { x, y } of control.cells)
+        expect(standardProjection.nativeRequests[x + y * 60]).toBe(128);
+      if (control.state === "closed")
+        for (const { x, y } of control.shore)
+          expect(standardProjection.nativeRequests[x + y * 60]).toBe(158);
+    }
+    const before = structuredClone(proof.declaredFiniteHead);
+    const fixture = buildWaterDeclaredFiniteHeadFixture(
+      proof.fixtureSourceSha256,
+      standardProjection.nativeRequests,
+      physicalPayloadSha256,
+      standardProjection.nativeRequestsSha256
+    );
+    fixture.heights.fill(-123);
+    expect(proof.declaredFiniteHead).toEqual(before);
+    expect(fixture.declaredFiniteHead.standardProjection.nativeRequests).toEqual(
+      standardProjection.nativeRequests
+    );
+    expect(fixture.writes).toHaveLength(21);
+    expect(fixture.writes.filter(({ role }) => role === "qualified-wet-nav-outlet")).toHaveLength(
+      3
+    );
+    expect(() =>
+      buildWaterDeclaredFiniteHeadFixture(
+        proof.fixtureSourceSha256,
+        standardProjection.nativeRequests,
+        "0".repeat(64),
+        standardProjection.nativeRequestsSha256
+      )
+    ).toThrow("identity");
+    expect(() =>
+      buildWaterDeclaredFiniteHeadFixture(
+        proof.fixtureSourceSha256,
+        standardProjection.nativeRequests.map(() => 0),
+        physicalPayloadSha256,
+        standardProjection.nativeRequestsSha256
+      )
+    ).toThrow("identity");
+    await expect(
+      buildRiverProbePlan("wrong-head-arm", "aesthetic", WATER_DECLARED_FINITE_HEAD_ATLAS)
+    ).rejects.toThrow("authored");
+    await expect(
+      buildRiverProbePlan("wrong-head-selection", "authored", WATER_DECLARED_FINITE_HEAD_ATLAS, {
+        lakeSizeCutoff: 10,
+      })
+    ).rejects.toThrow("only for maintenance");
+    await expectCiv7MapScriptCompatibility(script, "declared-finite-head-v25");
+    expect(script).not.toContain("withMapContextExecutionForTest");
+    expect(script).not.toContain("projectStandardElevation");
+  });
+
+  test("retains complete immediate and maintenance observations, signed targets and independent native lake class", async () => {
+    const { script, plan } = await compiled("authored", WATER_DECLARED_FINITE_HEAD_ATLAS);
+    const proof = JSON.parse(
+      String(plan.files.find(({ relativePath }) => relativePath === "proof.json")!.content)
+    );
+    const model = buildDeclaredFiniteHeadModel();
+    const headByCell = new Map(
+      [...model.controls, ...model.receivers].flatMap((control) =>
+        control.cells.map(({ x, y }) => [x + y * 60, 10 * (control.head - model.seaLevel)] as const)
+      )
+    );
+    for (const lakeReadback of [false, true]) {
+      const runtime = mockRuntime(script, {
+        lakeCutoff: 6,
+        waterFromTerrain: true,
+        lakeReadback,
+        mutateElevationInput: true,
+        elevationReadbackAt: (x, y) => headByCell.get(x + y * 60),
+      });
+      runtime.run();
+      const entries = runtime.entries();
+      const checkpoints = ["after-elevation-write", ...RIVER_CHECKPOINTS];
+      for (const checkpoint of checkpoints) {
+        const entry = entries.find(({ stage }) => stage === checkpoint)!;
+        const observed = entry.payload.waterConnectivity.declaredFiniteHead;
+        expect(observed).toMatchObject({
+          physicalPayloadSha256: proof.declaredFiniteHead.physicalPayloadSha256,
+          nativeRequestsSha256: proof.declaredFiniteHead.standardProjection.nativeRequestsSha256,
+          datum: { qualified: true, observedNativeLevels: [0] },
+        });
+        const rows = entries.filter(
+          ({ stage, payload }) =>
+            stage === "water-connectivity-grid" && payload.checkpoint === checkpoint
+        );
+        expect(rows).toHaveLength(38);
+        expect(observed.cases).toHaveLength(9);
+        for (const control of [...model.controls, ...model.receivers]) {
+          const actual = observed.cases.find(({ caseId }: any) => caseId === control.caseId);
+          expect(actual).toMatchObject({
+            ground: control.ground,
+            head: control.head,
+            seaLevel: 10,
+            spill: control.spill,
+            intendedNativeLevel: 10 * (control.head - model.seaLevel),
+          });
+          for (const cell of actual.cells)
+            expect(cell).toMatchObject({
+              ground: control.ground,
+              nativeRequest: 128,
+              actualNativeLevel: actual.intendedNativeLevel,
+              water: true,
+              lake: lakeReadback,
+              numericHeadMatch: true,
+            });
+          for (const point of [...control.cells, ...control.shore])
+            expect(
+              entry.payload.surfaces.some(({ x, y }: any) => x === point.x && y === point.y)
+            ).toBe(true);
+          for (const point of control.cells)
+            expect(
+              entry.payload.surfaces.find(({ x, y }: any) => x === point.x && y === point.y)
+                .requested.elevation
+            ).toBe(128);
+        }
+      }
+      const immediate = entries.find(({ stage }) => stage === "after-elevation-write")!;
+      for (const control of [...model.controls, ...model.receivers]) {
+        const adjacency = immediate.payload.declaredFiniteHeadAdjacency.find(
+          ({ caseId }: any) => caseId === control.caseId
+        );
+        const body = new Set(control.cells.map(({ x, y }) => `${x},${y}`));
+        const observedShore = new Set(
+          adjacency.cells
+            .flatMap(({ neighbors }: any) =>
+              neighbors.map(({ location }: any) => `${location.x},${location.y}`)
+            )
+            .filter((point: any) => !body.has(point))
+        );
+        expect([...observedShore].sort()).toEqual(
+          control.shore.map(({ x, y }) => `${x},${y}`).sort()
+        );
+      }
+      expect(runtime.elevationInputs).toEqual([
+        proof.declaredFiniteHead.standardProjection.nativeRequests,
+      ]);
+      expect(runtime.calls.filter(({ name }) => name === "setRiverInfo")).toHaveLength(21);
+      expect(
+        runtime.calls.filter(({ name }) => name === "finalizeRivers").map(({ args }) => args)
+      ).toEqual([[false, 25, 2, 2]]);
+      expect(runtime.calls.filter(({ name }) => name === "setElevation")).toHaveLength(1);
+      expect(
+        runtime.calls
+          .filter(({ name }) =>
+            [
+              "validateAndFixTerrain",
+              "areas",
+              "stampContinents",
+              "setElevation",
+              "storeWaterData",
+              "setRiverInfo",
+              "finalizeRivers",
+              "addFloodplains",
+              "fertility",
+              "start",
+            ].includes(name)
+          )
+          .map(({ name }) => name)
+      ).toEqual([
+        "validateAndFixTerrain",
+        "areas",
+        "stampContinents",
+        "setElevation",
+        "storeWaterData",
+        ...Array<string>(21).fill("setRiverInfo"),
+        "finalizeRivers",
+        "addFloodplains",
+        "validateAndFixTerrain",
+        "areas",
+        "storeWaterData",
+        "fertility",
+        "start",
+        "start",
+        "start",
+        "start",
+      ]);
+      expect(runtime.lines.every((line) => line.length <= 900)).toBe(true);
+      expect(
+        decodeBoundedJsonLogSeries(runtime.lines, "[mapgen-complete]")[0]!.payload
+      ).toMatchObject({
+        diagnosticRevision: 25,
+        immediateElevationCheckpoint: "after-elevation-write",
+        writeFailures: 0,
+      });
+    }
+  });
+
+  test("records numeric failure or unavailable evidence without compensation, retries or false completion", async () => {
+    const { script } = await compiled("authored", WATER_DECLARED_FINITE_HEAD_ATLAS);
+    const model = buildDeclaredFiniteHeadModel();
+    const finite = new Set(
+      model.controls.flatMap(({ cells }) => cells.map(({ x, y }) => x + y * 60))
+    );
+    const mismatch = mockRuntime(script, {
+      lakeCutoff: 6,
+      waterFromTerrain: true,
+      elevationReadbackAt: (x, y) => (finite.has(x + y * 60) ? 0 : undefined),
+    });
+    mismatch.run();
+    const cases = mismatch.entries().find(({ stage }) => stage === "after-starts")!.payload
+      .waterConnectivity.declaredFiniteHead.cases;
+    expect(
+      cases
+        .find(({ caseId }: any) => caseId === "closed-head-9")
+        .cells.every(({ numericHeadMatch }: any) => numericHeadMatch === false)
+    ).toBe(true);
+    expect(
+      cases
+        .find(({ caseId }: any) => caseId === "closed-head-10")
+        .cells.every(({ numericHeadMatch }: any) => numericHeadMatch === true)
+    ).toBe(true);
+    expect(mismatch.elevationInputs).toHaveLength(1);
+    const changedDatum = mockRuntime(script, {
+      lakeCutoff: 6,
+      waterFromTerrain: true,
+      elevationReadbackAfterWaterCache: 4321,
+    });
+    changedDatum.run();
+    expect(
+      changedDatum.entries().find(({ stage }) => stage === "after-elevation-write")!.payload
+        .waterConnectivity.declaredFiniteHead.datum.qualified
+    ).toBe(true);
+    expect(
+      changedDatum.entries().find(({ stage }) => stage === "initialized")!.payload.waterConnectivity
+        .declaredFiniteHead.datum.qualified
+    ).toBe(false);
+    const missing = mockRuntime(script, {
+      lakeCutoff: 6,
+      missing: ["getElevation", "getAdjacentPlotLocation"],
+    });
+    missing.run();
+    const immediate = missing.entries().find(({ stage }) => stage === "after-elevation-write")!;
+    expect(immediate.payload.waterConnectivity.declaredFiniteHead.datum.qualified).toBe(false);
+    for (const control of immediate.payload.waterConnectivity.declaredFiniteHead.cases)
+      expect(
+        control.cells.every(
+          ({ actualNativeLevel, numericHeadMatch }: any) =>
+            actualNativeLevel.status === "unavailable" && numericHeadMatch.status === "unavailable"
+        )
+      ).toBe(true);
+    expect(
+      immediate.payload.declaredFiniteHeadAdjacency.every(({ cells }: any) =>
+        cells.every(({ neighbors }: any) =>
+          neighbors.every(({ location }: any) => location.status === "unavailable")
+        )
+      )
+    ).toBe(true);
+    const failed = mockRuntime(script, { lakeCutoff: 6, failPhase: "storeWaterData" });
+    expect(failed.run).toThrow("mock failed storeWaterData");
+    expect(failed.entries().some(({ stage }) => stage === "after-elevation-write")).toBe(true);
+    expect(failed.calls.filter(({ name }) => name === "storeWaterData")).toHaveLength(1);
+    expect(decodeBoundedJsonLogSeries(failed.lines, "[mapgen-complete]")).toHaveLength(0);
+    for (const lakeCutoff of [5, "6"]) {
+      const refused = mockRuntime(script, { lakeCutoff });
+      expect(refused.run).toThrow("numeric LakeSizeCutoff=6");
+      expect(refused.calls).toHaveLength(0);
+    }
   });
 });
 

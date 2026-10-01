@@ -4,13 +4,21 @@ import { readFile, stat } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
+import { createMockAdapter } from "@civ7/adapter";
 import { findCiv7StandardMapSizePreset } from "@civ7/map-policy";
 import { assessCiv7SignedIntSeed } from "@civ7/map-policy/setup";
 import {
   applyGeneratedFilePlan,
   type GeneratedFilePlan,
 } from "@civ7/plugin-files/generated-file-plan";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
+import {
+  buildStepTestDependencies,
+  publishTestArtifact,
+  withMapContextExecutionForTest,
+} from "@swooper/mapgen-core/testing";
 import { sha256Hex, stableStringify } from "@swooper/mapgen-core/trace";
+import { STANDARD_STAGES } from "@swooper/swooper-physics/standard";
 import {
   canonicalMapConfigContentDigest,
   canonicalMapConfigDigest,
@@ -34,10 +42,15 @@ import {
   type FullMapRiverProbeAtlas,
 } from "./river-full-map.fixture.js";
 import {
+  assertDeclaredFiniteHeadModel,
+  buildDeclaredFiniteHeadModel,
+  type DeclaredFiniteHeadModel,
   isWaterConnectivityAtlas,
   WATER_CONNECTIVITY_ATLASES,
   WATER_CONNECTIVITY_REPLAY_ATLAS,
   WATER_CONNECTIVITY_STOCK_ATLAS,
+  WATER_DECLARED_FINITE_HEAD_ATLAS,
+  WATER_DECLARED_FINITE_HEAD_PROBE,
   WATER_LOWER_BOUND_ATLAS,
   WATER_LOWER_BOUND_PROBE,
   waterConnectivityProbe,
@@ -99,6 +112,7 @@ const atlases: readonly string[] = [
   WATER_CONNECTIVITY_STOCK_ATLAS,
   WATER_CONNECTIVITY_REPLAY_ATLAS,
   WATER_LOWER_BOUND_ATLAS,
+  WATER_DECLARED_FINITE_HEAD_ATLAS,
 ];
 const isFullMapAtlas = (atlas: string): atlas is FullMapRiverProbeAtlas =>
   (FULL_MAP_RIVER_PROBE_ATLASES as readonly string[]).includes(atlas);
@@ -113,6 +127,94 @@ export type WaterHeightDiagnosticSelection = Readonly<{
   lakeSizeCutoff?: "stock" | number;
   cliffStudyPath?: string;
 }>;
+
+/** Public Standard step invocation supplies requests only; mock storage is never native proof. */
+function projectDeclaredFiniteHeadRequests(physical: DeclaredFiniteHeadModel): number[] {
+  assertDeclaredFiniteHeadModel(physical);
+  const stage = STANDARD_STAGES.find((stage) => stage.id === "map-elevation");
+  const step = stage?.steps.find((step) => step.contract.id === "build-elevation");
+  if (!step) throw new Error("Standard map-elevation/build-elevation authority is unavailable.");
+  const topography = step.contract.requires.find(
+    (dependency) =>
+      typeof dependency !== "string" && dependency.id === "artifact:morphology.topography"
+  );
+  const hydrography = step.contract.requires.find(
+    (dependency) =>
+      typeof dependency !== "string" && dependency.id === "artifact:hydrology.hydrography"
+  );
+  const projectedLakes = step.contract.requires.find(
+    (dependency) =>
+      typeof dependency !== "string" && dependency.id === "artifact:map.hydrology.projectedLakes"
+  );
+  if (!topography || !hydrography || !projectedLakes)
+    throw new Error(
+      "Standard elevation projection requires its exact declared physical artifacts."
+    );
+  const { width, height } = physical;
+  const size = width * height;
+  const physicalBefore = stableStringify(physical);
+  const adapter = createMockAdapter({ width, height });
+  for (let cell = 0; cell < size; cell++) {
+    const terrain =
+      physical.acceptedWaterMask[cell] === 1
+        ? "TERRAIN_COAST"
+        : physical.externalWaterMask[cell] === 1
+          ? "TERRAIN_OCEAN"
+          : "TERRAIN_FLAT";
+    adapter.setTerrainType(
+      cell % width,
+      Math.floor(cell / width),
+      adapter.getTerrainTypeIndex(terrain)
+    );
+  }
+  const context = createMapContext({
+    setup: admitMapSetup({
+      mapSeed: WATER_DECLARED_FINITE_HEAD_PROBE.mapSeed,
+      dimensions: { width, height },
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    }),
+    adapter,
+  });
+  const intended = withMapContextExecutionForTest(context, (stepContext) => {
+    publishTestArtifact(stepContext, topography, {
+      elevation: Int16Array.from(physical.ground),
+      seaLevel: physical.seaLevel,
+      landMask: Uint8Array.from(physical.externalWaterMask, (external) => (external === 0 ? 1 : 0)),
+      externalWaterMask: Uint8Array.from(physical.externalWaterMask),
+      bathymetry: Int16Array.from(physical.ground, (ground, cell) =>
+        physical.externalWaterMask[cell] === 1 ? physical.seaLevel - ground : 0
+      ),
+    });
+    publishTestArtifact(stepContext, hydrography, {
+      model: "certified-sill-spill",
+      exposedLandMask: Uint8Array.from(physical.externalWaterMask, (external, cell) =>
+        external === 0 && physical.acceptedWaterMask[cell] === 0 ? 1 : 0
+      ),
+      riverClass: new Uint8Array(size),
+      flowDir: new Int32Array(size).fill(-1),
+      basinId: new Int32Array(size).fill(-1),
+      terminalType: new Uint8Array(size),
+      runoff: Array<number>(size).fill(0),
+      discharge: Array<number>(size).fill(0),
+    });
+    publishTestArtifact(stepContext, projectedLakes, {
+      lakeMask: Uint8Array.from(physical.acceptedWaterMask),
+    });
+    const observation = step.run(stepContext, {}, {}, buildStepTestDependencies(step, stepContext));
+    if (observation instanceof Promise)
+      throw new Error("Standard elevation projection must remain synchronous.");
+    return [...observation.intended];
+  });
+  if (
+    adapter.calls.setElevation.length !== 1 ||
+    stableStringify(physical) !== physicalBefore ||
+    stableStringify(adapter.calls.setElevation[0]) !== stableStringify(intended)
+  )
+    throw new Error(
+      "Standard declared projection must preserve physical bytes and write its authentic requests once."
+    );
+  return intended;
+}
 
 /** Builds one diagnostic mod tree; installation identity and duplicate detection are separate concerns. */
 export async function buildRiverProbePlan(
@@ -246,20 +348,23 @@ export async function buildRiverProbePlan(
   const lakeCutoff = maintenance && expectedLakeSizeCutoff !== preset.mapInfo.LakeSizeCutoff;
   const fullMap = isFullMapAtlas(atlasKind) || maintenance;
   const lowerBound = atlasKind === WATER_LOWER_BOUND_ATLAS;
+  const declaredFiniteHead = atlasKind === WATER_DECLARED_FINITE_HEAD_ATLAS;
   const stockConnectivity =
     atlasKind === WATER_CONNECTIVITY_STOCK_ATLAS || atlasKind === WATER_CONNECTIVITY_REPLAY_ATLAS;
-  const waterConnectivity = isWaterConnectivityAtlas(atlasKind) || lowerBound;
-  const probe = lowerBound
-    ? WATER_LOWER_BOUND_PROBE
-    : isWaterConnectivityAtlas(atlasKind)
-      ? waterConnectivityProbe(atlasKind)
-      : fullMap
-        ? { ...RIVER_PROBE, ...(maintenance ? maintenanceProbe : FULL_MAP_RIVER_PROBE) }
-        : atlasKind === "terrain-admission"
-          ? RIVER_TERRAIN_PROBE
-          : atlasKind === "lake-navigation"
-            ? RIVER_LAKE_NAVIGATION_PROBE
-            : RIVER_PROBE;
+  const waterConnectivity = isWaterConnectivityAtlas(atlasKind) || lowerBound || declaredFiniteHead;
+  const probe = declaredFiniteHead
+    ? WATER_DECLARED_FINITE_HEAD_PROBE
+    : lowerBound
+      ? WATER_LOWER_BOUND_PROBE
+      : isWaterConnectivityAtlas(atlasKind)
+        ? waterConnectivityProbe(atlasKind)
+        : fullMap
+          ? { ...RIVER_PROBE, ...(maintenance ? maintenanceProbe : FULL_MAP_RIVER_PROBE) }
+          : atlasKind === "terrain-admission"
+            ? RIVER_TERRAIN_PROBE
+            : atlasKind === "lake-navigation"
+              ? RIVER_LAKE_NAVIGATION_PROBE
+              : RIVER_PROBE;
   const scopedCutoff =
     isWaterConnectivityAtlas(atlasKind) && !stockConnectivity
       ? waterConnectivityProbe(atlasKind).expectedLakeSizeCutoff
@@ -284,7 +389,38 @@ export async function buildRiverProbePlan(
     atlasKind !== "synthetic-river-v4" ? ", (width, height) => new Civ7Adapter(width, height)" : "";
   let source = `${adapterImport}import { registerRiverContractProbe } from "./test/runtime/river-contract-map.fixture.ts";\nregisterRiverContractProbe(${JSON.stringify(proofId)}, ${JSON.stringify(variant)}, ${JSON.stringify(atlasKind)}${adapterFactory});`;
   let waterFixtureSourceSha256: string | undefined;
-  if (lowerBound) {
+  let declaredHeadProof:
+    | {
+        physical: DeclaredFiniteHeadModel;
+        physicalPayloadSha256: string;
+        standardProjection: {
+          stageId: string;
+          stepId: string;
+          nativeRequests: number[];
+          nativeRequestsSha256: string;
+        };
+      }
+    | undefined;
+  if (declaredFiniteHead) {
+    waterFixtureSourceSha256 = createHash("sha256")
+      .update(await readFile(new URL("./water-connectivity.fixture.ts", import.meta.url)))
+      .digest("hex");
+    const physical = buildDeclaredFiniteHeadModel();
+    const nativeRequests = projectDeclaredFiniteHeadRequests(physical);
+    declaredHeadProof = {
+      physical,
+      physicalPayloadSha256: sha256Hex(stableStringify(physical)),
+      standardProjection: {
+        stageId: "map-elevation",
+        stepId: "build-elevation",
+        nativeRequests,
+        nativeRequestsSha256: sha256Hex(stableStringify(nativeRequests)),
+      },
+    };
+    source = `${adapterImport}import { registerRiverContractProbe } from "./test/runtime/river-contract-map.fixture.ts";
+import { buildWaterDeclaredFiniteHeadFixture } from "./test/runtime/water-connectivity.fixture.ts";
+registerRiverContractProbe(${JSON.stringify(proofId)}, ${JSON.stringify(variant)}, ${JSON.stringify(atlasKind)}${adapterFactory}, buildWaterDeclaredFiniteHeadFixture(${JSON.stringify(waterFixtureSourceSha256)}, ${JSON.stringify(nativeRequests)}, ${JSON.stringify(declaredHeadProof.physicalPayloadSha256)}, ${JSON.stringify(declaredHeadProof.standardProjection.nativeRequestsSha256)}));`;
+  } else if (lowerBound) {
     waterFixtureSourceSha256 = createHash("sha256")
       .update(await readFile(new URL("./water-connectivity.fixture.ts", import.meta.url)))
       .digest("hex");
@@ -415,6 +551,7 @@ ${scopedCutoff === undefined ? "<Database/>" : `<Database><Maps><Update><Where M
             ...identity,
             variant,
             atlasKind,
+            ...(declaredHeadProof ? { declaredFiniteHead: declaredHeadProof } : {}),
             ...(directionalCliffs
               ? {
                   observation: {
@@ -437,42 +574,52 @@ ${scopedCutoff === undefined ? "<Database/>" : `<Database><Maps><Update><Where M
               ? {
                   fixtureSourceSha256: waterFixtureSourceSha256,
                   intervention: {
-                    ...(lowerBound
+                    ...(declaredFiniteHead
                       ? {
-                          kind: "closed-water-native-lower-bound",
-                          mapSize: WATER_LOWER_BOUND_PROBE.mapSize,
-                          expectedLakeSizeCutoff: WATER_LOWER_BOUND_PROBE.expectedLakeSizeCutoff,
+                          kind: "declared-physical-finite-head",
                           databaseTreatment: "none; public Tiny stock row held",
-                          elevationUnits: "native numeric setter requests",
+                          projection:
+                            "actual public Standard map-elevation/build-elevation step; build-time mock only",
                           immediateCheckpoint: "after-elevation-write",
                           qualification:
-                            "Wet requests may be ignored. Complete body and adjacent dry-shore native observations immediately after the setter and through the existing nine maintenance checkpoints are evidence, not physical-head or product-policy acceptance.",
+                            "Six declared physical cases, not procedural hydrology. Ground and heads remain separate; numeric native faithfulness is independent of lake category. Below-sea open cases have lower finite receivers, never marine destinations. Failure records a capability limit without ground, terrain, head or datum compensation.",
                         }
-                      : stockConnectivity
+                      : lowerBound
                         ? {
-                            kind: "stock-tiny-original-input-replay-diagnostic",
+                            kind: "closed-water-native-lower-bound",
+                            mapSize: WATER_LOWER_BOUND_PROBE.mapSize,
+                            expectedLakeSizeCutoff: WATER_LOWER_BOUND_PROBE.expectedLakeSizeCutoff,
                             databaseTreatment: "none; public Tiny stock row held",
-                            originalElevationReplayed:
-                              atlasKind === WATER_CONNECTIVITY_REPLAY_ATLAS,
-                            input: "original fixture Number[] snapshot; never native readbacks",
-                            slot: "after genuine after-validate capture, before area and water-cache refresh",
-                            replaySlotCheckpoints: [
-                              "before-original-replay-slot",
-                              "after-original-replay-slot",
-                            ],
+                            elevationUnits: "native numeric setter requests",
+                            immediateCheckpoint: "after-elevation-write",
                             qualification:
-                              "Diagnostic only. Original requests may be non-idempotent after river classification. Full native observations qualify wet, marine and dry collateral effects; no wonder, NAV-grade, movement or production preservation claim.",
+                              "Wet requests may be ignored. Complete body and adjacent dry-shore native observations immediately after the setter and through the existing nine maintenance checkpoints are evidence, not physical-head or product-policy acceptance.",
                           }
-                        : {
-                            kind: "paired-source-water-connectivity",
-                            scope: "game",
-                            criterion: { MapInUse: riverProbeMapScript },
-                            table: "Maps",
-                            where: { MapSizeType: "MAPSIZE_TINY" },
-                            set: { LakeSizeCutoff: scopedCutoff },
-                            qualification:
-                              "Activation requires measured Tiny metadata; all-cell native water/lake/area evidence is observed, never inferred from authored terrain. No movement success claimed.",
-                          }),
+                        : stockConnectivity
+                          ? {
+                              kind: "stock-tiny-original-input-replay-diagnostic",
+                              databaseTreatment: "none; public Tiny stock row held",
+                              originalElevationReplayed:
+                                atlasKind === WATER_CONNECTIVITY_REPLAY_ATLAS,
+                              input: "original fixture Number[] snapshot; never native readbacks",
+                              slot: "after genuine after-validate capture, before area and water-cache refresh",
+                              replaySlotCheckpoints: [
+                                "before-original-replay-slot",
+                                "after-original-replay-slot",
+                              ],
+                              qualification:
+                                "Diagnostic only. Original requests may be non-idempotent after river classification. Full native observations qualify wet, marine and dry collateral effects; no wonder, NAV-grade, movement or production preservation claim.",
+                            }
+                          : {
+                              kind: "paired-source-water-connectivity",
+                              scope: "game",
+                              criterion: { MapInUse: riverProbeMapScript },
+                              table: "Maps",
+                              where: { MapSizeType: "MAPSIZE_TINY" },
+                              set: { LakeSizeCutoff: scopedCutoff },
+                              qualification:
+                                "Activation requires measured Tiny metadata; all-cell native water/lake/area evidence is observed, never inferred from authored terrain. No movement success claimed.",
+                            }),
                   },
                 }
               : {}),

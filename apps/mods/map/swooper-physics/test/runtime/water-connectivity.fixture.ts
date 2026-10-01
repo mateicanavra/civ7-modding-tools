@@ -1,4 +1,5 @@
 import { getCiv7StandardMapSizePreset } from "@civ7/map-policy";
+import { sha256Hex, stableStringify } from "@swooper/mapgen-core/trace";
 import {
   RIVER_DIRECTIONS,
   RIVER_PROBE,
@@ -277,3 +278,297 @@ export function buildWaterLowerBoundFixture(fixtureSourceSha256: string) {
 
 /** The sole finite lower-bound fixture accepted by the existing atlas registration. */
 export type WaterLowerBoundFixture = ReturnType<typeof buildWaterLowerBoundFixture>;
+
+/** Declared physical heads, not generated hydrology or native setter acceptance. */
+export const WATER_DECLARED_FINITE_HEAD_ATLAS = "water-declared-finite-head";
+export type WaterDeclaredFiniteHeadAtlas = typeof WATER_DECLARED_FINITE_HEAD_ATLAS;
+export const WATER_DECLARED_FINITE_HEAD_PROBE = {
+  ...WATER_LOWER_BOUND_PROBE,
+  diagnosticRevision: 25,
+  displayLabel: "Declared Finite Water Head V25",
+  atlasKind: WATER_DECLARED_FINITE_HEAD_ATLAS,
+} as const;
+
+/** Six primary cases hold physical ground separately from water head and complete shore ground. */
+export function buildDeclaredFiniteHeadModel() {
+  const { width, height } = lowerBoundTiny.dimensions;
+  const ground = Array<number>(width * height).fill(70);
+  const externalWaterMask = Array<number>(width * height).fill(0);
+  const acceptedWaterMask = Array<number>(width * height).fill(0);
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++)
+      if (x <= 2 || x >= 57 || y <= 1 || y >= 36) {
+        ground[x + y * width] = 0;
+        externalWaterMask[x + y * width] = 1;
+      }
+  const seaLevel = 10;
+  const body = (caseId: string, x: number, y: number, bed: number, head: number) => {
+    const cells = Array.from({ length: 4 }, (_, cell) => ({
+      x: x + (cell % 2),
+      y: y + Math.floor(cell / 2),
+    }));
+    const wet = new Set(cells.map(key));
+    const shore = new Map<string, XY>();
+    for (const point of cells)
+      for (const direction of RIVER_DIRECTIONS) {
+        const adjacent = riverProbeExpectedReceiver(point, direction, false);
+        if (!wet.has(key(adjacent))) shore.set(key(adjacent), adjacent);
+      }
+    for (const point of cells) {
+      ground[point.x + point.y * width] = bed;
+      acceptedWaterMask[point.x + point.y * width] = 1;
+    }
+    for (const point of shore.values()) ground[point.x + point.y * width] = 13;
+    return { caseId, size: cells.length, cells, shore: [...shore.values()], ground: bed, head };
+  };
+  const controls = ([11, 10, 9] as const).flatMap((head, row) => {
+    const y = 4 + row * 10;
+    return [
+      {
+        ...body(`closed-head-${head}`, 30, y, 7, head),
+        state: "closed" as const,
+        outlet: null,
+        connector: [] as Array<XY & { ground: number }>,
+        receiverCaseId: null,
+      },
+      {
+        ...body(`open-head-${head}`, 16, y, 7, head),
+        state: "open" as const,
+        outlet: { x: 16, y },
+        connector: [head, head, head - 1, head - 1, 8, 8].map((value, cell) => ({
+          x: 15 - cell,
+          y,
+          ground: value,
+        })),
+        receiverCaseId: `finite-receiver-${head}`,
+      },
+    ];
+  });
+  const receivers = ([11, 10, 9] as const).map((head, row) => ({
+    ...body(`finite-receiver-${head}`, 8, 4 + row * 10, 6, 8),
+    state: "closed" as const,
+  }));
+  for (const control of controls)
+    for (const point of control.connector) ground[point.x + point.y * width] = point.ground;
+  const complete = <T extends { shore: XY[] }>(control: T) => {
+    const { shore, ...body } = control;
+    return {
+      ...body,
+      shore: shore.map((point) => ({ ...point, ground: ground[point.x + point.y * width]! })),
+      spill: Math.min(...shore.map((point) => ground[point.x + point.y * width]!)),
+    };
+  };
+  return {
+    width,
+    height,
+    seaLevel,
+    nativeHeadScale: 10,
+    ground,
+    externalWaterMask,
+    acceptedWaterMask,
+    controls: controls.map(complete),
+    receivers: receivers.map(complete),
+    qualification:
+      "Declared projection-consumer data only, not a procedural or certified hydrology solve. Primary closed heads lie below complete shore sills; open heads equal their outlet sill and drain toward lower finite receivers, never the higher marine datum. Native class and native numeric water level remain independent observations.",
+  };
+}
+export type DeclaredFiniteHeadModel = ReturnType<typeof buildDeclaredFiniteHeadModel>;
+
+/** Refuses malformed declarations before the existing atlas can mutate the native map. */
+export function assertDeclaredFiniteHeadModel(model: DeclaredFiniteHeadModel): void {
+  const size = model.width * model.height;
+  if (
+    model.width !== 60 ||
+    model.height !== 38 ||
+    model.seaLevel !== 10 ||
+    model.nativeHeadScale !== 10
+  )
+    throw new Error("Declared finite-head witness requires the fixed stock Tiny physical datum.");
+  for (const values of [model.ground, model.externalWaterMask, model.acceptedWaterMask])
+    if (values.length !== size)
+      throw new Error("Incomplete declared finite-head physical surface.");
+  for (let cell = 0; cell < size; cell++) {
+    if (
+      !Number.isInteger(model.ground[cell]) ||
+      model.ground[cell]! < -32768 ||
+      model.ground[cell]! > 32767
+    )
+      throw new Error("Declared physical ground must retain exact Int16 samples.");
+    for (const mask of [model.externalWaterMask, model.acceptedWaterMask])
+      if (mask[cell] !== 0 && mask[cell] !== 1) throw new Error("Nonbinary declared water mask.");
+    if (model.externalWaterMask[cell] === 1 && model.acceptedWaterMask[cell] === 1)
+      throw new Error("External and finite water declarations overlap.");
+  }
+  if (model.controls.length !== 6 || model.receivers.length !== 3)
+    throw new Error(
+      "Declared finite-head witness requires six primary bodies and three finite receivers."
+    );
+  const primaryKinds = new Set(model.controls.map(({ state, head }) => `${state}/${head}`));
+  if (
+    ["closed", "open"].some((state) =>
+      [9, 10, 11].some((head) => !primaryKinds.has(`${state}/${head}`))
+    )
+  )
+    throw new Error(
+      "Declared finite-head witness requires every closed/open head regime exactly once."
+    );
+  const membership = new Set<string>();
+  const ids = new Set<string>();
+  for (const control of [...model.controls, ...model.receivers]) {
+    if (
+      ids.has(control.caseId) ||
+      control.cells.length !== 4 ||
+      control.size !== 4 ||
+      !Number.isFinite(control.head) ||
+      !Number.isFinite(control.spill) ||
+      !(control.ground < control.head)
+    )
+      throw new Error("Invalid declared finite-water body or head.");
+    ids.add(control.caseId);
+    const wet = new Set(control.cells.map(key));
+    const expectedShore = new Set<string>();
+    for (const point of control.cells) {
+      const cell = point.x + point.y * model.width;
+      if (
+        !Number.isInteger(point.x) ||
+        !Number.isInteger(point.y) ||
+        point.x < 3 ||
+        point.x > 56 ||
+        point.y < 2 ||
+        point.y > 35 ||
+        membership.has(key(point)) ||
+        model.acceptedWaterMask[cell] !== 1 ||
+        model.externalWaterMask[cell] !== 0 ||
+        model.ground[cell] !== control.ground
+      )
+        throw new Error("Declared finite-water membership is not exact and disjoint.");
+      membership.add(key(point));
+      for (const direction of RIVER_DIRECTIONS) {
+        const adjacent = riverProbeExpectedReceiver(point, direction, false);
+        if (!wet.has(key(adjacent))) expectedShore.add(key(adjacent));
+      }
+    }
+    const actualShore = new Set(control.shore.map(key));
+    if (
+      actualShore.size !== control.shore.length ||
+      actualShore.size !== expectedShore.size ||
+      [...expectedShore].some((point) => !actualShore.has(point)) ||
+      control.shore.some(
+        (point) =>
+          model.acceptedWaterMask[point.x + point.y * model.width] !== 0 ||
+          model.externalWaterMask[point.x + point.y * model.width] !== 0 ||
+          point.ground !== model.ground[point.x + point.y * model.width]
+      ) ||
+      Math.min(...control.shore.map((point) => point.ground)) !== control.spill ||
+      control.head > control.spill
+    )
+      throw new Error("Declared finite-water shore or sill is incomplete or inconsistent.");
+  }
+  if (model.acceptedWaterMask.reduce((sum, value) => sum + value, 0) !== membership.size)
+    throw new Error("Unowned declared finite-water cells.");
+  for (const control of model.controls) {
+    if (control.state === "closed") {
+      if (
+        !(control.head < control.spill) ||
+        control.outlet !== null ||
+        control.connector.length !== 0 ||
+        control.receiverCaseId !== null
+      )
+        throw new Error("Invalid closed partial-fill declaration.");
+      continue;
+    }
+    const receiver = model.receivers.find(({ caseId }) => caseId === control.receiverCaseId);
+    if (
+      !receiver ||
+      !(receiver.head < control.head) ||
+      control.head !== control.spill ||
+      !control.outlet ||
+      !control.cells.some((point) => key(point) === key(control.outlet!)) ||
+      control.connector.length !== 6
+    )
+      throw new Error(
+        "Open water requires its exact sill and a lower finite receiver, not marine water."
+      );
+    let from: XY = control.outlet;
+    let previousGround = control.head;
+    for (const point of control.connector) {
+      if (
+        key(riverProbeExpectedReceiver(from, "WEST", false)) !== key(point) ||
+        model.ground[point.x + point.y * model.width] !== point.ground ||
+        point.ground > previousGround ||
+        model.acceptedWaterMask[point.x + point.y * model.width] !== 0 ||
+        model.externalWaterMask[point.x + point.y * model.width] !== 0
+      )
+        throw new Error("Invalid finite descending outlet geometry.");
+      from = point;
+      previousGround = point.ground;
+    }
+    const destination = riverProbeExpectedReceiver(from, "WEST", false);
+    if (!receiver.cells.some((point) => key(point) === key(destination)))
+      throw new Error("Declared outlet does not terminate in its lower finite receiver.");
+  }
+}
+
+/** Runtime consumes the authentic build-time Standard requests; it never reimplements projection. */
+export function buildWaterDeclaredFiniteHeadFixture(
+  fixtureSourceSha256: string,
+  nativeRequests: readonly number[],
+  physicalPayloadSha256: string,
+  nativeRequestsSha256: string
+) {
+  const physical = buildDeclaredFiniteHeadModel();
+  assertDeclaredFiniteHeadModel(physical);
+  if (
+    ![fixtureSourceSha256, physicalPayloadSha256, nativeRequestsSha256].every((hash) =>
+      /^[0-9a-f]{64}$/.test(hash)
+    ) ||
+    sha256Hex(stableStringify(physical)) !== physicalPayloadSha256 ||
+    nativeRequests.length !== physical.width * physical.height ||
+    nativeRequests.some((value) => !Number.isSafeInteger(value) || value < 0 || value > 65535) ||
+    sha256Hex(stableStringify(nativeRequests)) !== nativeRequestsSha256
+  )
+    throw new Error("Declared finite-head physical or Standard request identity is invalid.");
+  const writes: RiverProbeWrite[] = physical.controls.flatMap((control) =>
+    control.outlet
+      ? [control.outlet, ...control.connector].map((point, index) => ({
+          x: point.x,
+          y: point.y,
+          caseId: control.caseId,
+          role: index === 0 ? "qualified-wet-nav-outlet" : "dry-finite-outlet",
+          directionSymbol: "WEST" as const,
+          riverClass: "NAVIGABLE" as const,
+          expectedReceiver: riverProbeExpectedReceiver(point, "WEST", true),
+        }))
+      : []
+  );
+  return {
+    probe: WATER_DECLARED_FINITE_HEAD_PROBE,
+    fixtureSourceSha256,
+    terrainAt: (x: number, y: number): Terrain =>
+      physical.acceptedWaterMask[x + y * physical.width] === 1
+        ? "COAST"
+        : waterLowerBoundTerrainAt(x, y) === "OCEAN"
+          ? "OCEAN"
+          : physical.externalWaterMask[x + y * physical.width] === 1
+            ? "COAST"
+            : "FLAT",
+    heights: [...nativeRequests],
+    writes,
+    controls: physical.controls,
+    isolated: physical.receivers,
+    declaredFiniteHead: {
+      physical,
+      physicalPayloadSha256,
+      standardProjection: {
+        stageId: "map-elevation",
+        stepId: "build-elevation",
+        invocation:
+          "public STANDARD_STAGES step with existing SDK test dependencies; build-time mock only",
+        nativeRequests: [...nativeRequests],
+        nativeRequestsSha256,
+      },
+    },
+    qualification: physical.qualification,
+  };
+}
+export type WaterDeclaredFiniteHeadFixture = ReturnType<typeof buildWaterDeclaredFiniteHeadFixture>;

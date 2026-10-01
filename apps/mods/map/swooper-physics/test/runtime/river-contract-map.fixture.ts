@@ -3,6 +3,8 @@ import type { Civ7Adapter } from "../../src/runtime/map-script/adapter.js";
 import type {
   WaterConnectivityAtlas,
   WaterConnectivityFixture,
+  WaterDeclaredFiniteHeadAtlas,
+  WaterDeclaredFiniteHeadFixture,
   WaterLowerBoundAtlas,
   WaterLowerBoundFixture,
 } from "./water-connectivity.fixture.js";
@@ -33,7 +35,8 @@ export type RiverProbeAtlas =
   | "terrain-admission"
   | "lake-navigation"
   | WaterConnectivityAtlas
-  | WaterLowerBoundAtlas;
+  | WaterLowerBoundAtlas
+  | WaterDeclaredFiniteHeadAtlas;
 
 // Argument order comes from shipped scripts/common-generation.js, not the adapter.
 export const RIVER_PROBE_VARIANTS = {
@@ -707,11 +710,16 @@ export function registerRiverContractProbe(
     height: number
   ) => Pick<Civ7Adapter, "getRiverCapabilities" | "setRiverInfo" | "finalizeRivers"> &
     Partial<Pick<Civ7Adapter, "getMapSizeId" | "lookupMapInfo">>,
-  waterConnectivity?: WaterConnectivityFixture | WaterLowerBoundFixture
+  waterConnectivity?:
+    | WaterConnectivityFixture
+    | WaterLowerBoundFixture
+    | WaterDeclaredFiniteHeadFixture
 ): void {
   const settings = RIVER_PROBE_VARIANTS[variant];
   if (!settings) throw new Error(`Unknown river probe variant: ${variant}`);
   const isLowerBoundAtlas = atlasKind === "water-closed-lower-bound";
+  const isDeclaredFiniteHeadAtlas = atlasKind === "water-declared-finite-head";
+  const immediateElevationCheckpoint = isLowerBoundAtlas || isDeclaredFiniteHeadAtlas;
   const isOriginalReplayAtlas = atlasKind === "water-connectivity-stock-6-original-replay";
   const isStockConnectivityAtlas =
     atlasKind === "water-connectivity-stock-6" || isOriginalReplayAtlas;
@@ -719,7 +727,8 @@ export function registerRiverContractProbe(
     atlasKind === "water-connectivity-cutoff-5" ||
     atlasKind === "water-connectivity-cutoff-10" ||
     isStockConnectivityAtlas ||
-    isLowerBoundAtlas;
+    isLowerBoundAtlas ||
+    isDeclaredFiniteHeadAtlas;
   if (
     atlasKind !== "synthetic-river-v4" &&
     atlasKind !== "terrain-admission" &&
@@ -914,7 +923,8 @@ export function registerRiverContractProbe(
             ? buildRiverLakeNavigationElevation(wrapX)
             : buildRiverProbeElevation(wrapX));
       // A native setter may consume or mutate its argument; never replay a getter or altered request.
-      const originalHeightRequests = isStockConnectivityAtlas ? [...heights] : heights;
+      const originalHeightRequests =
+        isStockConnectivityAtlas || isDeclaredFiniteHeadAtlas ? [...heights] : heights;
       const elevatedLakeControls = (
         isTerrainAtlas || isWaterAtlas
           ? []
@@ -981,6 +991,9 @@ export function registerRiverContractProbe(
                 isolated: waterConnectivity.isolated,
                 qualification: waterConnectivity.qualification,
                 fixtureSourceSha256: waterConnectivity.fixtureSourceSha256,
+                ...("declaredFiniteHead" in waterConnectivity
+                  ? { declaredFiniteHead: waterConnectivity.declaredFiniteHead }
+                  : {}),
               },
             }
           : {}),
@@ -1080,17 +1093,22 @@ export function registerRiverContractProbe(
       AreaBuilder.recalculateAreas();
       TerrainBuilder.stampContinents();
       TerrainBuilder.setElevation(heights);
-      if (!isLowerBoundAtlas) TerrainBuilder.storeWaterData();
+      if (!immediateElevationCheckpoint) TerrainBuilder.storeWaterData();
       const samplePoints = new Map<string, XY>();
       for (const point of [
         ...writes,
         ...writes.map((write) => write.expectedReceiver),
         ...lakeCases.flatMap((entry) => entry.cells),
         ...elevatedLakeControls.flatMap((entry) => entry.shore),
-        ...(isLowerBoundAtlas && waterConnectivity
-          ? waterConnectivity.isolated.flatMap((control) =>
-              "shore" in control ? control.shore : []
-            )
+        ...(immediateElevationCheckpoint && waterConnectivity
+          ? "declaredFiniteHead" in waterConnectivity
+            ? [
+                ...waterConnectivity.declaredFiniteHead.physical.controls,
+                ...waterConnectivity.declaredFiniteHead.physical.receivers,
+              ].flatMap((control) => control.shore)
+            : waterConnectivity.isolated.flatMap((control) =>
+                "shore" in control ? control.shore : []
+              )
           : []),
         ...starts,
       ])
@@ -1199,6 +1217,88 @@ export function registerRiverContractProbe(
           riverOceanConnectivityGate: finalized
             ? "observed-navigable-cells-only"
             : "before-finalization",
+          ...(waterConnectivity && "declaredFiniteHead" in waterConnectivity
+            ? (() => {
+                const { physical, physicalPayloadSha256, standardProjection } =
+                  waterConnectivity.declaredFiniteHead;
+                const marineCells = physical.externalWaterMask.flatMap((external, cell) =>
+                  external === 1 ? [cell] : []
+                );
+                const datumQualified = marineCells.every(
+                  (cell) => elevation[cell] === 0 && water[cell] === true
+                );
+                const facts = (point: XY) => {
+                  const cell = index(point);
+                  return {
+                    ...point,
+                    ground: physical.ground[cell],
+                    nativeRequest: standardProjection.nativeRequests[cell],
+                    actualNativeLevel: elevation[cell],
+                    water: water[cell],
+                    lake: lake[cell],
+                    areaId: areaId[cell],
+                  };
+                };
+                return {
+                  declaredFiniteHead: {
+                    physicalPayloadSha256,
+                    nativeRequestsSha256: standardProjection.nativeRequestsSha256,
+                    datum: {
+                      physicalSeaLevel: physical.seaLevel,
+                      expectedNativeSeaLevel: 0,
+                      nativeHeadScale: physical.nativeHeadScale,
+                      qualified: datumQualified,
+                      marineCellCount: marineCells.length,
+                      unavailableNativeLevelCount: marineCells.filter(
+                        (cell) => typeof elevation[cell] !== "number"
+                      ).length,
+                      observedNativeLevels: [
+                        ...new Set(
+                          marineCells.flatMap((cell) =>
+                            typeof elevation[cell] === "number" ? [elevation[cell]] : []
+                          )
+                        ),
+                      ],
+                    },
+                    cases: [...physical.controls, ...physical.receivers].map((control) => {
+                      const intendedNativeLevel =
+                        physical.nativeHeadScale * (control.head - physical.seaLevel);
+                      return {
+                        caseId: control.caseId,
+                        state: control.state,
+                        ground: control.ground,
+                        seaLevel: physical.seaLevel,
+                        head: control.head,
+                        spill: control.spill,
+                        intendedNativeLevel,
+                        cells: control.cells.map((point) => {
+                          const observed = facts(point);
+                          return {
+                            ...observed,
+                            numericHeadMatch:
+                              !datumQualified || typeof observed.actualNativeLevel !== "number"
+                                ? unavailable(
+                                    "declared-physical-head",
+                                    "numeric-readback-or-fixed-datum-unqualified"
+                                  )
+                                : observed.actualNativeLevel === intendedNativeLevel,
+                          };
+                        }),
+                        shore: control.shore.map(facts),
+                        ...("connector" in control
+                          ? {
+                              connector: control.connector.map(facts),
+                              receiverCaseId: control.receiverCaseId,
+                            }
+                          : {}),
+                      };
+                    }),
+                    qualification:
+                      "Signed intended heads are not clamped. Numeric comparison requires observed original marine water at native zero; native lake category does not alter it. Footprint, terrain, outlet and unavailable observations remain separate evidence. No physical or native compensation is applied.",
+                  },
+                };
+              })()
+            : {}),
           qualification:
             "All arrays use x+y*width. Terrain and riverClass are the adjacent full-grid arrays. LandmassRegionId is the authored player region, not a connected-water identity. Area ocean calls require observed water-area membership; river ocean calls require finalized observed NAV. Omitted cells are not negative connectivity observations.",
         };
@@ -1216,24 +1316,28 @@ export function registerRiverContractProbe(
                 },
               }
             : {}),
-          ...(isLowerBoundAtlas && stage === "after-elevation-write" && waterConnectivity
+          ...(immediateElevationCheckpoint && stage === "after-elevation-write" && waterConnectivity
             ? {
-                lowerBoundAdjacency: waterConnectivity.isolated.map(({ caseId, cells }) => ({
-                  caseId,
-                  cells: cells.map((point) => ({
-                    ...point,
-                    neighbors: RIVER_DIRECTIONS.map((directionSymbol) => ({
-                      directionSymbol,
-                      location: observe(
-                        GameplayMap,
-                        "GameplayMap",
-                        "getAdjacentPlotLocation",
-                        [point, directions[directionSymbol]],
-                        "xy"
-                      ),
+                [isLowerBoundAtlas ? "lowerBoundAdjacency" : "declaredFiniteHeadAdjacency"]:
+                  (isDeclaredFiniteHeadAtlas
+                    ? [...waterConnectivity.controls, ...waterConnectivity.isolated]
+                    : waterConnectivity.isolated
+                  ).map(({ caseId, cells }) => ({
+                    caseId,
+                    cells: cells.map((point) => ({
+                      ...point,
+                      neighbors: RIVER_DIRECTIONS.map((directionSymbol) => ({
+                        directionSymbol,
+                        location: observe(
+                          GameplayMap,
+                          "GameplayMap",
+                          "getAdjacentPlotLocation",
+                          [point, directions[directionSymbol]],
+                          "xy"
+                        ),
+                      })),
                     })),
                   })),
-                })),
               }
             : {}),
           ...(isTerrainAtlas && stage === "initialized"
@@ -1307,7 +1411,7 @@ export function registerRiverContractProbe(
           networks: observeNetworks(nativeRivers, finalized),
           edgeDirectionReadback: unavailable("river-edge/direction", "no-confirmed-getter"),
         });
-      if (isLowerBoundAtlas) {
+      if (immediateElevationCheckpoint) {
         stage = "after-elevation-write";
         capture();
         stage = "initialize-water-cache";
@@ -1443,7 +1547,9 @@ export function registerRiverContractProbe(
           fixture: probe.id,
           observationsOnly: true,
           completedCheckpoints: RIVER_CHECKPOINTS,
-          ...(isLowerBoundAtlas ? { immediateElevationCheckpoint: "after-elevation-write" } : {}),
+          ...(immediateElevationCheckpoint
+            ? { immediateElevationCheckpoint: "after-elevation-write" }
+            : {}),
           ...(isStockConnectivityAtlas
             ? {
                 replaySlotCheckpoints: [

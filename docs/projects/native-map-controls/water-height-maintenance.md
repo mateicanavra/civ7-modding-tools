@@ -454,6 +454,97 @@ universal prohibition on negative native water. Preserve physical below-sea
 truth; do not raise physical terrain, add an offset or alter cutoff to hide
 this bounded native limitation.
 
+### Declared Finite-Head Projection Witness
+
+The existing realization probe also admits `water-declared-finite-head` (V25),
+a declared consumer-data witness rather than a procedural hydrology run.
+Six translated four-cell primary bodies hold ground `G=7` and sea datum `S=10`.
+Closed heads `H=11/10/9` lie below their complete shore sill `B=13`; open heads
+use sills `B=H` and qualified NAV outlets to lower finite receivers at `H=8`.
+Below-sea outlets never terminate in the higher marine datum. Three supporting
+receivers and every adjacent dry shore are declared explicitly.
+
+The build-only fixture invokes the actual public Standard
+`map-elevation/build-elevation` step using existing SDK test dependencies.
+Its authentic Number requests are serialized into the existing native atlas
+lifecycle; the mock invocation establishes request construction, not native
+acceptance. Physical ground, masks, heads and shores have a separate SHA256
+identity from the native request array. No private projector import, copied
+ground projection, new controller API, extra native elevation write or ordinary
+recipe instrumentation is introduced. Stock Tiny metadata and cutoff6 remain
+unchanged, and older selectors and revisions retain their behavior.
+
+Signed intended wet levels are `10/0/-10`, separately recorded from requested
+bed elevations and actual native levels. The immediate post-setter checkpoint
+precedes water caching, then all nine existing maintenance checkpoints record
+complete native grids, body/shore facts and independent lake classification.
+Numeric comparison requires the original marine footprint observed at native
+zero; unavailable reads or a changed datum do not become a negative comparison
+or an offset. Native adjacency qualifies the complete authored shores.
+
+Equal outcomes for the three identically shaped closed ground/shore controls
+cannot faithfully realize their three distinct declared heads. A numeric
+mismatch is a bounded capability result, not permission to raise ground,
+alter terrain, clamp intended heads or shift the datum. A numeric match alone
+also does not admit wet-footprint, terrain or outlet preservation. Native
+qualification is now complete for this bounded fixture. The corrected installed
+package passes 322 admission checks: 413 public-log records, all ten complete
+checkpoint grids, 21 returned NAV calls, and an independent 2,280-cell final
+surface join with zero mismatches. Both independent reviewers agree with the
+source-qualified numeric comparison. The diagnostic is not a production lake
+solver or a new ordinary-recipe verification gate.
+
+| Declared body | Intended native head | Observed native head |
+| --- | ---: | ---: |
+| Closed, H=11 / 10 / 9 | 10 / 0 / -10 | 30 / 30 / 30 |
+| Open, H=11 / 10 / 9 | 10 / 0 / -10 | 10 / 0 / 0 |
+| Three lower receivers, H=8 | -20 | 0 |
+
+These heights already differ immediately after the genuine Standard elevation
+setter and remain unchanged through all nine subsequent maintenance phases.
+All 36 finite cells remain nine separate four-cell COAST lakes. All 444 original
+marine cells remain non-lake water at native zero, and each body has its complete
+ten-cell dry shore. The 18 dry connector cells retain NAV class and receive NAV
+terrain. The three wet outlet calls return but their plots remain COAST/NO_RIVER;
+that does not itself establish missing rendered geometry or failed movement.
+
+The Standard projector consumes ground, not this fixture's independently
+declared H. Thus these observations bound the **current projection**, not every
+possible undocumented native setter. Do not infer a universal engine inability,
+replace wet bed with water-surface height, lower physical shores, shift sea datum,
+or add a new solver from this result.
+
+The current procedural water owner uses a different, important representation:
+its finite-storage solution resolves wet footprints at shoreline height cohorts.
+In the retained 47-map Earthlike study, all 1,554 water bodies (8,495 wet cells)
+have accepted head equal to their lowest adjacent resolved dry shore; all heads
+are above the map's physical sea datum. This includes the three closed wet pools.
+The studied Huge1018 realization preserves all 204 accepted finite-water heights.
+It therefore does not demonstrate the partial-fill failure constructed here.
+Keep that distinction explicit: shoreline-supported procedural heads have a
+qualified path; arbitrary under-rim and below-sea heads remain a projection
+capability limit to revisit if an actual product case requires them.
+
+Canonical receipts are in `earth-calibration/native-water-v25-20261001/`:
+`corrected-package-identity.json`, `corrected-scripting.log`,
+`corrected-native-surface.json`, `analyze-v25.mjs`, and `corrected-analysis.json`.
+The admitted script SHA256 is
+`50389784b6344e85cbc3bca589759466b7094cd154ae06903bb69fe8b4420c01`;
+analysis SHA256 is
+`cae3c82a06d60d3b9c99764da194678224a98f6ad0cd975519fc9f8c8083f58d`.
+The initial wrong-directory deployment and preformat run are retained separately,
+not treated as script caching or as corrected-package qualification. A restart
+that selected a different map seed was excluded by the existing fixture guard;
+the corrected exact-seed fresh setup completed normally.
+
+Build through the existing owner target, then deploy and retain its exact tree
+before the separately authorized native launch:
+
+```sh
+nx run swooper-physics-mod:build:river-contract-probe declared-finite-head-1018-v25 authored water-declared-finite-head
+nx run swooper-physics-mod:verify:river-contract-probe-live --mutate --map-script '{swooper-river-contract-v1}/maps/river-contract.js' --map-size MAPSIZE_TINY --seed 1018 --game-seed 1019 --player-count 4
+```
+
 ## Alternative Height-Lifecycle Repair
 
 Keep the initial canonical height write: native feature legality and wonder
