@@ -1,6 +1,13 @@
 import { describe, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
+import { mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { runInNewContext } from "node:vm";
+import {
+  applyGeneratedFilePlan,
+  inspectGeneratedFilePlan,
+} from "@civ7/plugin-files/generated-file-plan";
 import { decodeBoundedJsonLogSeries } from "@swooper/mapgen-core/lib/log";
 import { transformSync } from "esbuild";
 import { expectCiv7MapScriptCompatibility } from "./civ7-map-script-compatibility.fixture.js";
@@ -51,6 +58,40 @@ import {
 type LogEntry = { stage: string; payload: Record<string, any>; proofId: string; variant: string };
 
 describe("build-only river diagnostic selectors", () => {
+  test("replaces diagnostic XML when switching from a cutoff treatment to stock metadata", async () => {
+    const root = await mkdtemp(join(tmpdir(), "river-probe-output-"));
+    try {
+      const treatment = await buildRiverProbePlan(
+        "output-cutoff",
+        "authored",
+        "water-connectivity-cutoff-10"
+      );
+      await applyGeneratedFilePlan(treatment, { outputRoot: root });
+      expect((await readdir(join(root, "config"))).sort()).toEqual([
+        "config.xml",
+        "lake-cutoff.xml",
+      ]);
+      await writeFile(join(root, "config", "preserved.log"), "not generated XML");
+
+      const stock = await buildRiverProbePlan(
+        "output-stock",
+        "authored",
+        WATER_CONNECTIVITY_STOCK_ATLAS
+      );
+      await applyGeneratedFilePlan(stock, { outputRoot: root });
+      expect((await readdir(join(root, "config"))).sort()).toEqual(["config.xml", "preserved.log"]);
+      expect(await inspectGeneratedFilePlan(stock, { outputRoot: root })).toEqual({
+        kind: "current",
+      });
+      await applyGeneratedFilePlan(stock, { outputRoot: root });
+      expect(await inspectGeneratedFilePlan(stock, { outputRoot: root })).toEqual({
+        kind: "current",
+      });
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
   test("retains default legacy atlas and positional paired maintenance seed", () => {
     expect(parseRiverProbeArguments(["historical"])).toEqual({
       proofId: "historical",

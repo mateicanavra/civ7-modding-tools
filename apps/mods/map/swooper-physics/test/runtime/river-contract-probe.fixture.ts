@@ -298,7 +298,10 @@ ${renderSwooperCatalogMapSource(config)}`;
     appRoot: riverProbeAppRoot,
   });
   return {
-    exclusiveSets: [{ relativeDir: "maps", fileExtension: ".js" }],
+    exclusiveSets: [
+      { relativeDir: "maps", fileExtension: ".js" },
+      { relativeDir: "config", fileExtension: ".xml" },
+    ],
     files: [
       { relativePath: "maps/river-contract.js", content },
       {

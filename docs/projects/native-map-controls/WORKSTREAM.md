@@ -110,7 +110,10 @@ Elevation-first execution is complete. On 2026-09-27 the user authorized an
 [Earthlike climate correction](earthlike-climate.md) before proceeding directly
 into native river integration. Procedural river behavior was the downstream
 preservation check during elevation/climate work. Earthlike now explicitly
-selects the authored network; the other seven identities remain legacy.
+selects the authored network. The subsequent current-only migration now selects
+the completed basin-aware network across all eight identities and removes the
+superseded executable paths; historical diagnostic observations are not an
+alternative production lane.
 
 Non-goals: redesign geophysics, disguise climate defects with cosmetic noise, finish the
 unrelated Controller/Play migration, upgrade Habitat wholesale, invent generic

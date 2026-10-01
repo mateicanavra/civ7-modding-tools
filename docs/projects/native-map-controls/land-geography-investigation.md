@@ -222,3 +222,32 @@ eleven sealed artifacts. The source verifier independently reread 1,736,000
 raw selected values and repeated the matched counts; two complete runs are
 byte-identical. These are January process claims, not an annual calibration
 acceptance or a new production thermal law.
+
+## Annual Source Admission: Partial, No Law Selected
+
+The staged acquisition stopped immediately on NOAA PSL HTTP429 at March U.
+Ten February fields and March air were received before the refusal, using
+18,608,775 additional source-payload bytes of the 250 MB cap. There was no retry,
+alternate source, production change or new repository dependency. January and
+February provide 236 common references; March air alone cannot join the process
+fields. Annual persistence, additional seasons and annual ice support remain
+unqualified. This is incomplete source admission, not scientific falsification.
+
+The retained two-month diagnostic is explicitly nonannual. In matched held
+six-hour cases, net surface energy agrees with air change in 76.526%, incident
+radiation in 62.031%, and full signed advection in 58.959%. Incoming-net radiation
+wins only 50.914% where its sign opposes full advection. The stronger complete
+budget includes outgoing and turbulent state responses; it does not select an
+independent production forcing law. No gain or temperature conversion is fitted.
+
+The external verifier reread 3,304,000 selected raw values and fourteen original
+GRIB values; fifteen Bun tests and 33 assertions passed. Three offline outputs
+are byte-identical. The coordinator independently rehashed all 31 sealed files.
+Retained under `earth-calibration/ncep-1991-annual-component-discriminator-20261001/`:
+`REPORT.md` SHA256
+`5808d6e2724f588656242fb983463831b6a93a4dfcf12dd61c788e32d7aae9c0`;
+`SEAL.json` SHA256
+`56a1e34decfd55be7818b1180d6a7f5b5d9395591e677498605692ec42aeec65`.
+The next source pass must reuse admitted inputs and the unchanged annual brief
+after service cooldown; this result cannot close the three climate expectations.
+Continue independently qualified native-water and authored-map repairs meanwhile.

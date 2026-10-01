@@ -518,6 +518,44 @@ the owning app graph precede native use. The stock Exploration Cog movement
 control remains separate and uses the ordinary Advanced Start grant, not a
 debug-created Galley.
 
+### Stock-Tiny Replay Result
+
+Both arms now complete in Civ7 with stock cutoff6, all eleven checkpoints,
+30 river writes, six-file installed/build identity and stable 2,280-cell final
+observations. Every logged field agrees before the replay slot. Exactly thirty
+final elevation values differ: isolated bodies9/10/11 lose572 -> 444 -> 316 in
+the control, while replay restores572 and retains it through area/cache,
+fertility and starts. Water and native nonlake identity are unchanged.
+
+All fourteen other final native facts hold on every cell. The 444 original
+marine cells remain zero; fourteen NAV cells on authored dry land retain their
+graded160-450 requests; 1,719 other dry cells hold. Existing lake controls,
+ordinary-COAST straits, NAV/MINOR outlets, connectivity observations and native
+river objects also hold. This qualifies this synthetic original-input replay,
+not universal setter idempotence, feature preservation or naval movement.
+
+The initial reader refusal is retained: both archived bundles include stale,
+unreferenced `config/lake-cutoff.xml`. Existence is not activation; the revised
+reader pins that file and requires absent manifest references/actions/criteria
+and actual stock6 metadata. Separately, the builder now declares `config/*.xml`
+as an exclusive set using the existing public file-plan helper. A transition
+test materializes cutoff then stock plans and proves stale XML removal and
+repeat currentness. The immutable native archives are not cleaned retroactively.
+
+The independently audited comparison rejoined469,680 values from the raw logs
+and final capture. Evidence under `earth-calibration/bounded-lake-cutoff-20260930/`:
+`water-stock6-original-replay-20261001-analysis-v2.json` SHA256
+`12179ed6fb8180f7bce19f8ca061c14372b2d64dde6bfa57c92accb31e7438d0`;
+audit SHA256
+`41793fbd211084afd75dece11b31fdad561c2a4c76f23970487b38825a1b6b01`.
+
+Next qualify a generated-map pair at the final terrain-maintenance boundary,
+including actual wonder-modified terrain and NAV grades. These synthetic NAV
+cells already matched original requests, so their unchanged values cannot
+prove preservation of legitimate later edits. Cliff flags may also precede
+the final height loss: restoring a number is not yet a visual cliff repair.
+Keep a further cliff-generation treatment and era-qualified movement separate.
+
 ## V9 Verification
 
 The app check/test graph passed (156 tests, 20,486 assertions), and the native
