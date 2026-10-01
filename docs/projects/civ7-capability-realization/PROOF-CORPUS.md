@@ -603,9 +603,9 @@ capability-realization census.
 | Exact current source | Disposition | Exact destination |
 | --- | --- | --- |
 | `packages/plugins/plugin-mods/test/basic.test.ts#deployMod validates input and id then copies` pure validation, path-plan, and receipt assertions | combine | `packages/civ7-mod-install/test/semantics/installation-plan.test.ts` |
-| `packages/plugins/plugin-mods/test/basic.test.ts#{resolveModsDir returns darwin path on mac,resolveModsDir returns Documents/My Games path on win32}` | combine | `apps/mods/map/swooper-physics/test/profiles/local-civ7.test.ts` |
+| `packages/plugins/plugin-mods/test/basic.test.ts#{resolveModsDir returns darwin path on mac,resolveModsDir returns Documents/My Games path on win32}` | combine | The eventual qualified local-mod installation provider during Estate Reconciliation; no decorative app profile destination |
 | `packages/plugins/plugin-mods/test/basic.test.ts#listMods filters to directories` | combine | `apps/cli/test/execution/adapters/local-mods.test.ts` |
-| `packages/plugins/plugin-mods/test/basic.test.ts#deployMod validates input and id then copies` host replacement/copy assertions | combine | `apps/mods/map/swooper-physics/test/execution/adapters/local-mod-install.test.ts` |
+| `packages/plugins/plugin-mods/test/basic.test.ts#deployMod validates input and id then copies` Swooper identity binding | combine | `apps/mods/map/swooper-physics/test/deployment/local-mod-install.test.ts`; generic copy/provider proof remains with the transitional package until Estate Reconciliation |
 | `packages/plugins/plugin-mods/test/tsconfig.json` | delete | No destination; the pure package, mod realization, and CLI app adapter own their exact proof compilers |
 
 ### Completed intelligence-bridge retirement
@@ -683,11 +683,8 @@ execution proof set below.
 | `apps/mapgen-studio/test/execution/adapters/{civ7-save-files,studio-run-files,fresh-log-files,civ7-official-data,swooper-map-config-source}.test.ts` | Each selected Studio cold adapter alone owns its exact filesystem effects and release/failure behavior |
 | `plugins/mod/map/swooper-physics/test/definition.test.ts` | Product identity, public definition face, and finite authored capability membership |
 | `plugins/mod/map/swooper-physics/test/authoring/targets.test.ts` | Exact cold authoring target table and deterministic currentness contract |
-| `apps/mods/map/swooper-physics/test/definition.test.ts` | Matching definition identity plus exact semantic target and adapter identities |
-| `apps/mods/map/swooper-physics/test/profiles/local-civ7.test.ts` | Civ7 installation, configuration, and process facts only |
-| `apps/mods/map/swooper-physics/test/entrypoints/{build,deploy}.test.ts` | Each entrypoint selects app/profile/role and calls `startApp` once without repeating target behavior |
 | `apps/mods/map/swooper-physics/test/runtime/{map-script-adapter,map-script-setup,map-script-entrypoint}.test.ts` | The exact manifest-selected runtime subjects prove engine-global adapter/setup and map-loader execution only at the mod realization; the entrypoint suite also compiles its definition/EngineAdapter boundary |
-| `apps/mods/map/swooper-physics/test/execution/adapters/local-mod-install.test.ts` | Host discovery, exact-tree replacement, failure translation, and cleanup are owned by the deployment realization while pure validation, planning, digest, and receipt mechanics remain in `packages/civ7-mod-install` |
+| `apps/mods/map/swooper-physics/test/deployment/local-mod-install.test.ts` | The finite app binds its built tree to the exact Swooper Civ7 mod identity through the qualified local-install adapter |
 | `plugins/mod/map/swooper-physics/test/recipes/swooper-physics-standard/parity/final-surface-parity.live.test.ts` | Recipe-owned uncached real-Civ7 final-surface parity, executed by the realization's live target |
 | `apps/mods/map/swooper-physics/test/live/studio-run-in-game.live.test.ts` | Uncached real loader/runtime acceptance of the Studio-run realization |
 

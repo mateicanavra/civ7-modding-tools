@@ -381,38 +381,21 @@ apps/
       package.json
       project.json
       src/
-        rawr.swooper-physics.ts
         build.ts
         deploy.ts
         run-manifest.ts
         runtime/
           adapters/
             local-mod-install.ts
-          config.ts
-          processes.ts
-          profiles/
-            local-civ7.ts
           file-plan.ts
           map-script/
-            adapter.ts
             compiler.ts
-            entrypoint.ts
-            setup.ts
           run-manifest.ts
-          targets.ts
       test/
-        definition.test.ts
-        profiles/
-          local-civ7.test.ts
-        entrypoints/
-          build.test.ts
-          deploy.test.ts
-        execution/
-          adapters/
-            local-mod-install.test.ts
+        setup.ts
         artifact/<selected-artifact-id>.test.ts
         deployment/<selected-deployment-id>.test.ts
-        [runtime/<selected-runtime-id>.test.ts]
+        runtime/<selected-runtime-id>.test.ts
         live/<selected-live-id>.live.test.ts
         tsconfig.json
       tsconfig.json
@@ -862,10 +845,8 @@ terminal filename grammar.
 
 #### `apps/mods/{map/swooper-physics,civ/dacia}`
 
-- **State:** Swooper is an existing legacy realization owner under the partial
-  map envelope plus independently enforced product laws; it remains unadmitted
-  until the qualified realization root, proof interior, and anchor close. Dacia
-  remains `UNCONSTRUCTIBLE` at the proposed destination
+- **State:** Swooper is admitted by shared `app@1` plus closed qualified source
+  and proof laws. Dacia remains unconstructed at its proposed destination
 - **Role:** render, bundle, verify, and deploy one Civ7 mod identity
 - **Produces:** generated mod artifact and live proof
 - **Consumes:** matching mod definition plugin and runtime SDK
@@ -875,30 +856,25 @@ The Swooper realization retains `gen:run-manifest` and `deploy:studio`
 behavior and adds the corresponding app-owned deployment target for a
 transient run materialization. Its `local-mod-install` adapter owns host
 filesystem observation and replacement while consuming
-`packages/civ7-mod-install` for pure validation, planning, and receipt
-construction. It exposes no reusable production module; shared runtime binds
-only the selected semantic target.
+the current installation package pending its Estate Reconciliation
+reclassification. It exposes no reusable production module and no second CLI
+process owns its deployment.
 
-Its `src/rawr.swooper-physics.ts` descriptor declares the matching definition and
-implements the public MapGen-runs realization dependency through
-`src/runtime/targets.ts`. The closed runtime interior also admits
-`src/runtime/file-plan.ts` for deterministic mod-tree planning and
+The closed runtime interior admits `src/runtime/file-plan.ts` for deterministic
+mod-tree planning and
 `src/runtime/run-manifest.ts` for transient manifest materialization. Concrete
 Civ7 engine globals, setup, and the map-script loader live only under
 `runtime/map-script/`; the reusable `packages/civ7-adapter` supplies their
 contract, static metadata, and mock. These files are cold compiler or qualified
 runtime input. They are not a service facade, provider, or callable app export.
 
-The realization root composes the generic app law rather than replacing it:
-`local-civ7.ts` is the selected profile and `src/build.ts` plus `src/deploy.ts` are the
-selected role entrypoints, with exact matching generic app suites. Its
-qualified manifest and `src/runtime/targets.ts` then select the exact
-`local-mod-install` adapter plus artifact, deployment, optional
-generated-runtime, and live proof identities. Each identity maps to one suite;
-wildcard suffixes are grammar only. No current
-Swooper test exercises a real Civ7 loader or runtime observation, so none is
-genuine live proof; the `.live.test.ts` leaves must be newly authored and run
-only through the uncached live target.
+The realization root composes shared `app@1` law rather than replacing it.
+Published Habitat supplies structural authority but no product app-runtime
+constructor. Accordingly, `src/build.ts` and `src/deploy.ts` are finite Nx
+entrypoints, not wrappers around an invented descriptor/profile runtime. The
+qualified law closes the `local-mod-install` adapter plus artifact, deployment,
+runtime-compatibility, and live axes. No live target has passed; the
+`.live.test.ts` leaves run only through uncached live targets.
 
 #### `apps/docs` and `apps/playground`
 

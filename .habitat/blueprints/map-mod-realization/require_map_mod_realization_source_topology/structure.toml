@@ -8,6 +8,7 @@ mode = "closed"
 allowEmpty = false
 required = [
   "build.ts",
+  "deploy.ts",
   "runtime",
 ]
 allowed = ["run-manifest.ts"]
@@ -19,10 +20,19 @@ kind = "directory"
 mode = "closed"
 allowEmpty = false
 required = [
+  "adapters",
   "file-plan.ts",
   "map-script",
 ]
 allowed = ["run-manifest.ts"]
+
+[[scopes]]
+name = "map-mod-realization-adapters"
+root = "apps/mods/map/*/src/runtime/adapters"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["local-mod-install.ts"]
 
 [[scopes]]
 name = "map-mod-realization-map-script"
