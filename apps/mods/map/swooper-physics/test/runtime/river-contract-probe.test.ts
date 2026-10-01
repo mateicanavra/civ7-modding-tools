@@ -123,9 +123,9 @@ describe("build-only river diagnostic selectors", () => {
       });
       expect(proof.observation.manifestSha256).toMatch(/^[0-9a-f]{64}$/);
       expect(proof.intervention).toBeUndefined();
-      expect(plan.files.some(({ relativePath }) => relativePath === "config/lake-cutoff.xml")).toBe(
-        false
-      );
+      expect(
+        plan.files.find(({ relativePath }) => relativePath === "config/lake-cutoff.xml")!.content
+      ).toBe('<?xml version="1.0" encoding="utf-8"?>\n<Database/>');
       const script = String(
         plan.files.find(({ relativePath }) => relativePath === "maps/river-contract.js")!.content
       );
@@ -176,6 +176,64 @@ describe("build-only river diagnostic selectors", () => {
           cliffStudyPath: path,
         })
       ).rejects.toThrow();
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
+  test("keeps bounded stock and treatment components registered without a stock database override", async () => {
+    const root = await mkdtemp(join(tmpdir(), "bounded-cutoff-output-"));
+    try {
+      const treatment = await buildRiverProbePlan(
+        "bounded-treatment",
+        "authored",
+        "full-map-bounded-lake-cutoff",
+        { playerCount: 12, lakeSizeCutoff: 17 }
+      );
+      const stock = await buildRiverProbePlan(
+        "bounded-stock",
+        "authored",
+        "full-map-bounded-lake-cutoff",
+        { playerCount: 12, lakeSizeCutoff: "stock" }
+      );
+      expect(stock.files.map(({ relativePath }) => relativePath)).toEqual(
+        treatment.files.map(({ relativePath }) => relativePath)
+      );
+      for (const plan of [stock, treatment]) {
+        const manifest = String(
+          plan.files.find(({ relativePath }) => relativePath.endsWith(".modinfo"))!.content
+        );
+        expect(manifest).toContain(
+          `<Criteria id="diagnostic-map"><MapInUse>${riverProbeMapScript}</MapInUse></Criteria>`
+        );
+        expect(manifest).toContain(
+          '<ActionGroup id="game-lake-cutoff" scope="game" criteria="diagnostic-map"><Actions><UpdateDatabase><Item>config/lake-cutoff.xml</Item></UpdateDatabase></Actions></ActionGroup>'
+        );
+      }
+      const stockProof = JSON.parse(
+        String(stock.files.find(({ relativePath }) => relativePath === "proof.json")!.content)
+      );
+      const treatmentProof = JSON.parse(
+        String(treatment.files.find(({ relativePath }) => relativePath === "proof.json")!.content)
+      );
+      expect(stockProof.expectedLakeSizeCutoff).toBe(10);
+      expect(stockProof.intervention).toBeUndefined();
+      expect(treatmentProof.expectedLakeSizeCutoff).toBe(17);
+      expect(treatmentProof.intervention).toBeDefined();
+      expect(stockProof.configHash).toBe(treatmentProof.configHash);
+      expect(stockProof.envelopeHash).toBe(treatmentProof.envelopeHash);
+      expect(
+        treatment.files.find(({ relativePath }) => relativePath === "config/lake-cutoff.xml")!
+          .content
+      ).toContain('<Set LakeSizeCutoff="17"/>');
+      await applyGeneratedFilePlan(treatment, { outputRoot: root });
+      await applyGeneratedFilePlan(stock, { outputRoot: root });
+      expect(
+        stock.files.find(({ relativePath }) => relativePath === "config/lake-cutoff.xml")!.content
+      ).toBe('<?xml version="1.0" encoding="utf-8"?>\n<Database/>');
+      expect(await inspectGeneratedFilePlan(stock, { outputRoot: root })).toEqual({
+        kind: "current",
+      });
     } finally {
       await rm(root, { recursive: true, force: true });
     }

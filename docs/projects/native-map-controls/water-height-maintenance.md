@@ -1125,3 +1125,20 @@ and waypoint stability independently. Source presence and unit transport do
 not prove native getter availability, cliff thresholds, movement, freshwater
 semantics or rendering. Fresh native execution and independent visual/path
 evidence remain separate qualifications owned by the live verifier.
+
+### Warm-Restart Package Identity
+
+The first V23 stock launch stopped before map generation: Civ's mod registration
+still referenced the previous finite arm's `game-lake-cutoff` component, but
+the stock package had removed `config/lake-cutoff.xml`. `Modding.log` recorded
+the missing file and configuration rollback. This is diagnostic package
+lifecycle evidence, not a water-height or recipe failure.
+
+The bounded stock/finite diagnostic family now keeps the same file membership,
+map-scoped criterion and component in both arms. Stock supplies a neutral
+`<Database/>`, retains `projectStandardInitialSetup`, and declares no cutoff
+intervention. The finite arm retains its existing explicit scoped update and
+setup projection. Other historical atlas package shapes are unchanged. A
+fresh stock run must still observe actual `MapInfo.LakeSizeCutoff = 10`; a
+neutral file is not proof that a previous database treatment was cleared.
+Keep the failed launch and the corrected package seals separately.

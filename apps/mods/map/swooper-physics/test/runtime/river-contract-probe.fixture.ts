@@ -267,6 +267,8 @@ export async function buildRiverProbePlan(
         ? maintenanceProbe.expectedLakeSizeCutoff
         : undefined;
   const cutoffMapSize = waterConnectivity ? "MAPSIZE_TINY" : preset.id;
+  // Civ retains registered components across warm restarts; keep this pair's file present.
+  const cutoffComponent = scopedCutoff !== undefined || boundedLakeCutoff;
   const launchMapSize = maintenance ? preset.id : fullMap ? "MAPSIZE_HUGE" : "MAPSIZE_TINY";
   const launchDescription = maintenance
     ? `${preset.label}, ${playerCount} players`
@@ -377,12 +379,12 @@ ${renderSwooperCatalogMapSource(config)}`;
         content: `<?xml version="1.0" encoding="utf-8"?>
 <Database><Maps><Row File="${riverProbeMapScript}" Name="LOC_RIVER_CONTRACT_NAME" Description="LOC_RIVER_CONTRACT_DESCRIPTION" SortIndex="999"/></Maps></Database>`,
       },
-      ...(scopedCutoff !== undefined
+      ...(cutoffComponent
         ? [
             {
               relativePath: "config/lake-cutoff.xml",
               content: `<?xml version="1.0" encoding="utf-8"?>
-<Database><Maps><Update><Where MapSizeType="${cutoffMapSize}"/><Set LakeSizeCutoff="${scopedCutoff}"/></Update></Maps></Database>`,
+${scopedCutoff === undefined ? "<Database/>" : `<Database><Maps><Update><Where MapSizeType="${cutoffMapSize}"/><Set LakeSizeCutoff="${scopedCutoff}"/></Update></Maps></Database>`}`,
             },
           ]
         : []),
@@ -397,10 +399,10 @@ ${renderSwooperCatalogMapSource(config)}`;
 <Mod id="${RIVER_PROBE.id}" version="1" xmlns="ModInfo">
   <Properties><Name>${displayLabel}</Name><Description>Disposable native river diagnostic revision ${probe.diagnosticRevision}</Description><Authors>Swooper</Authors><Package>Mod</Package></Properties>
   <Dependencies><Mod id="base-standard" title="LOC_MODULE_BASE_STANDARD_NAME"/>${fullMap ? '<Mod id="swooper-maps" title="LOC_MODULE_SWOOPER_MAPS_NAME"/>' : ""}</Dependencies>
-  <ActionCriteria><Criteria id="always"><AlwaysMet/></Criteria>${scopedCutoff !== undefined ? `<Criteria id="diagnostic-map"><MapInUse>${riverProbeMapScript}</MapInUse></Criteria>` : ""}</ActionCriteria>
+  <ActionCriteria><Criteria id="always"><AlwaysMet/></Criteria>${cutoffComponent ? `<Criteria id="diagnostic-map"><MapInUse>${riverProbeMapScript}</MapInUse></Criteria>` : ""}</ActionCriteria>
   <ActionGroups>
     <ActionGroup id="game-river-contract" scope="game" criteria="always"><Actions><UpdateText><Item>text/en_us/MapText.xml</Item></UpdateText><ImportFiles><Item>maps/river-contract.js</Item></ImportFiles></Actions></ActionGroup>
-    <ActionGroup id="shell-river-contract" scope="shell" criteria="always"><Actions><UpdateDatabase><Item>config/config.xml</Item></UpdateDatabase><UpdateText><Item>text/en_us/MapText.xml</Item></UpdateText></Actions></ActionGroup>${scopedCutoff !== undefined ? '\n    <ActionGroup id="game-lake-cutoff" scope="game" criteria="diagnostic-map"><Actions><UpdateDatabase><Item>config/lake-cutoff.xml</Item></UpdateDatabase></Actions></ActionGroup>' : ""}
+    <ActionGroup id="shell-river-contract" scope="shell" criteria="always"><Actions><UpdateDatabase><Item>config/config.xml</Item></UpdateDatabase><UpdateText><Item>text/en_us/MapText.xml</Item></UpdateText></Actions></ActionGroup>${cutoffComponent ? '\n    <ActionGroup id="game-lake-cutoff" scope="game" criteria="diagnostic-map"><Actions><UpdateDatabase><Item>config/lake-cutoff.xml</Item></UpdateDatabase></Actions></ActionGroup>' : ""}
   </ActionGroups>
 </Mod>`,
       },

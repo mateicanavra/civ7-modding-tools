@@ -2386,10 +2386,12 @@ describe("water height maintenance observation (not native semantics)", () => {
     for (const key of ["configHash", "envelopeHash", "fixtureSourceSha256", "settings"])
       expect(treatmentProof[key]).toEqual(controlProof[key]);
     expect(controlProof.intervention).toBeUndefined();
-    expect(control.files.some((file) => file.relativePath === "config/lake-cutoff.xml")).toBe(
-      false
+    expect(content(control, "config/lake-cutoff.xml")).toBe(
+      '<?xml version="1.0" encoding="utf-8"?>\n<Database/>'
     );
-    expect(content(control, "swooper-river-contract-v1.modinfo")).not.toContain("MapInUse");
+    expect(content(control, "swooper-river-contract-v1.modinfo")).toContain(
+      `<Criteria id="diagnostic-map"><MapInUse>${riverProbeMapScript}</MapInUse></Criteria>`
+    );
     expect(treatmentProof.intervention).toMatchObject({
       criterion: { MapInUse: riverProbeMapScript },
       where: { MapSizeType: mapSize },
