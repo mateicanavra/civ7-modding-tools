@@ -1,0 +1,46 @@
+{
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "name": "provider-window-capture-macos-screencapturekit",
+  "projectType": "library",
+  "sourceRoot": "resources/window-capture/providers/macos-screencapturekit",
+  "tags": ["type:provider", "resource:window-capture", "provider:macos-screencapturekit"],
+  "targets": {
+    "typecheck": {
+      "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
+      "options": {
+        "cwd": "resources/window-capture/providers/macos-screencapturekit"
+      },
+      "cache": true,
+      "outputs": []
+    },
+    "check:test": {
+      "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
+      "options": {
+        "cwd": "resources/window-capture/providers/macos-screencapturekit"
+      },
+      "cache": true,
+      "outputs": []
+    },
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    },
+    "test": {
+      "command": "vitest run --config vitest.config.ts test/semantics test/execution",
+      "options": {
+        "cwd": "resources/window-capture/providers/macos-screencapturekit"
+      },
+      "cache": true,
+      "outputs": []
+    },
+    "verify:live": {
+      "command": "vitest run --config vitest.config.ts test/collaboration/provider.live.test.ts",
+      "options": {
+        "cwd": "resources/window-capture/providers/macos-screencapturekit"
+      },
+      "cache": false,
+      "outputs": []
+    }
+  }
+}

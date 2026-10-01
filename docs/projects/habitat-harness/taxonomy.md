@@ -85,6 +85,8 @@ treatment without adding a concrete tag or constraint row.
 | civ7-modding-tools | `.` | `kind:workspace` |
 | resource-civ7-tuner | `resources/civ7-tuner` | `type:resource`, `resource:civ7-tuner` |
 | provider-civ7-tuner-local-socket | `resources/civ7-tuner/providers/local-socket` | `type:provider`, `resource:civ7-tuner`, `provider:local-socket` |
+| resource-window-capture | `resources/window-capture` | `type:resource`, `resource:window-capture` |
+| provider-window-capture-macos-screencapturekit | `resources/window-capture/providers/macos-screencapturekit` | `type:provider`, `resource:window-capture`, `provider:macos-screencapturekit` |
 | civ7-cli | `apps/cli` | `kind:app` |
 | cli-data | `plugins/cli/topics/data` | `kind:cli-topic-plugin` |
 | cli-docs | `plugins/cli/topics/docs` | `kind:cli-topic-plugin` |

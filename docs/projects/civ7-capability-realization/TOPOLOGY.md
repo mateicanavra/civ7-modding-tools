@@ -505,13 +505,17 @@ nor this package.
 The resource is window capture, not Civ7 capture and not generic desktop
 control. The current helper cache is inert and does not itself earn lifecycle.
 The target macOS provider earns its kind only by acquiring one scoped process
-supervisor: every compile or capture child is registered there, interruption
-terminates and awaits that child, provider release terminates and awaits all
-remaining children exactly once, and work after release is refused. Atomic PNG
-installation and cancellation are target repairs; the current direct-control
-implementation proves neither. CLI and Studio select the same provider rather
-than copy its effectful implementation. The control service supplies Civ7
-selection, destination, and result meaning over the ready generic capability.
+supervisor. Acquisition strictly probes cached or newly compiled helper
+compatibility before returning. Every compile or capture child is registered
+there; interruption or release closes admission, requests `SIGTERM` then `SIGKILL` as needed within
+bounded waits, and drains every admitted operation before scope release returns.
+An operating-system child that never reports closure is explicitly marked timed
+out rather than hanging the uninterruptible finalizer. Work after release is
+refused. Atomic PNG installation and cancellation are target repairs; the
+current direct-control implementation proves neither. CLI and Studio select the
+same provider rather than copy its effectful implementation. The control
+service supplies Civ7 selection, destination, and result meaning over the ready
+generic capability.
 
 #### `resources/window-capture/providers/macos-screencapturekit`
 

@@ -260,7 +260,7 @@ does not move on the strength of this table.
 | State or lifecycle | Fact or behavior owner | App-composition responsibility | Replay/crash law |
 | --- | --- | --- | --- |
 | Tuner socket/session epoch | Local-socket provider | Acquire the selected provider once for the required scope and release it | Reconnect creates a new epoch; release closes provider-owned socket state |
-| Window-capture provider scope | macOS ScreenCaptureKit provider | Acquire one ready generic capture capability, track every invocation child, and release the scope | Target law: completion or interruption terminates each child; provider release cancels any in-flight capture; the helper cache is inert |
+| Window-capture provider scope | macOS ScreenCaptureKit provider | Acquire one ready generic capture capability, track every invocation child, and release the scope | Target law: release closes admission, applies bounded child termination, and drains admitted capture operations; the helper cache is inert |
 | Live control decision | Civ7 control service | Bind ready Tuner and window-capture resources to the public client and dispose the binding | Unverified dispatch is explicit and must not be blindly repeated |
 | Studio process identity | MapGen Studio app | Create, observe, and dispose its native host roles | Stable for one process scope; never product state |
 | MapGen operation record | MapGen-runs service | Bind and scope the service client; dispose process-scoped service state after drain | Request-correlated, adoptable during the retained process scope, cancellable, and terminal according to owner policy |
