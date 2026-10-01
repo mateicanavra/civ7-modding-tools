@@ -914,8 +914,9 @@ Native oclif command selection is the discovery event; app-owned binding then
 satisfies only that command's requirements. The descriptors are neither a
 second registry nor topic hooks. Commands do not import the app, provider, or a
 topic-local client factory. Invocation facts from parsed flags remain command-
-scoped views and never enter binding identity. The game topic receives only
-the bound control client and never imports a resource or provider.
+scoped views and never enter binding identity. Each game command receives only
+its required bound public control or play client; the topic never imports a
+resource or provider.
 
 Help, version, and unknown-command paths acquire no live capability. Success,
 command failure, binding failure, partial startup, and interruption all reach
