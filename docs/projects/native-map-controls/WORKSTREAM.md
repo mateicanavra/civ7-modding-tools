@@ -700,7 +700,11 @@ feature table also lacks the reader's natural-wonder classification property.
 See [the bounded result and evidence limits](water-height-maintenance.md#v18v19-generated-map-preservation-result).
 
 This result narrows the next repair design at the existing surface-preparation
-owner, before native feature placement. It does not authorize a whole-map
-post-recipe setter, physical basin changes, additional legacy paths or a new
-execution hook. Classification, water-height retention, cliff rendering and
-era-qualified traversal remain distinct acceptance claims.
+owner. The canonical manifest places that owner after natural-wonder stamping;
+its current dependency requires placed wonders. Retaining legitimate native
+height edits there is necessary, not merely a post-recipe concern. Changing
+that order would itself require explicit design and verification. The result
+does not authorize a whole-map post-recipe setter, physical basin changes,
+additional legacy paths or a new execution hook. Classification, water-height
+retention, cliff rendering and era-qualified traversal remain distinct
+acceptance claims.
