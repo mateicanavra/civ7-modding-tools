@@ -249,5 +249,52 @@ Retained under `earth-calibration/ncep-1991-annual-component-discriminator-20261
 `SEAL.json` SHA256
 `56a1e34decfd55be7818b1180d6a7f5b5d9395591e677498605692ec42aeec65`.
 The next source pass must reuse admitted inputs and the unchanged annual brief
-after service cooldown; this result cannot close the three climate expectations.
+after service cooldown; this result cannot close the remaining climate expectations.
 Continue independently qualified native-water and authored-map repairs meanwhile.
+
+## Annual Follow-Through And Temporal Discriminator
+
+The controlled source attempt after cooldown retained the same annual brief,
+eleven admitted partial responses, original January numeric bridges and transfer
+cap. Its first fresh March U request returned HTTP502/ProxyError; acquisition
+stopped immediately, with no retry, alternate source or new admitted payload.
+This preserves incomplete source admission, not rejection of either physical
+mechanism. Retained under
+`earth-calibration/ncep-1991-annual-component-discriminator-attempt2-20261001/`:
+`SEAL.json` SHA256
+`4e5c6bedb8da86d7050c56c96322ea4f7b08657a8fa98b9ac5ea6ef86c3e9b81`.
+Native-water work does not wait for that acquisition, and no extraction
+toolchain or cache enters the repository.
+
+A separate finite discriminator uses the already admitted411 monthly reference
+identities and unchanged196/215 split. Actual current solar/thermal operations
+establish the known-height control; external oracle arms apply annual residual
+only or explicitly zero-mean seasonal residual only through the existing
+independent sea-level/ground clipping primitive. No production fitting or
+Earth-data transplant is admitted. All three arms remain unclipped at24 phases
+and384 midpoint samples. Seasonal-only annual change is Float32 roundoff
+(maximum2.7816e-7 C); it cannot supply the missing annual geography through
+clipping in this population. Annual-only within-source-row thermal RMS is
+2.080867 C overall and2.161792 C held out.
+
+The corresponding2.492456/2.588498 hPa values are only the unchanged closed-form
+source-row-centered pressure potential. They are not a completed hex pressure
+field, Earth pressure observations or quantities to add to the generated-map
+3.590680 hPa result. Observed2m air minus the diagnostic q1 ground response is
+not measured sea-level temperature or a generated-relief unit calibration.
+The result selects an annual geographic responsibility, not local energy
+versus maritime transport or a production law. Those causal alternatives
+remain the next design discriminator; seasonal noise, ground lapse and pressure
+gain/filter retuning remain unsupported shortcuts.
+
+Run and repeat have byte-identical summaries and complete records. All2,165
+source/input/runtime pins hold; the separate verifier checks5,862,308 finite
+numeric values,1,644 raw zero-mean comparisons and36 row-potential calculations.
+Root independently rehashes all pins and four compressed/payload outputs.
+The initial import-only export lookup refusal remains recorded; only the
+external reader lookup was corrected. Retained under
+`earth-calibration/annual-seasonal-residual-rectification-20261001/`:
+`REPORT.md` SHA256
+`f0540086c63a18e645ee69ae041cf72b19ba7ebce382c1f6034e980dcfc48173`;
+`attempt2/verification.json` SHA256
+`2e2754eae5dc2389a22a34399b125caa083818d6d3ae1c47d29596adbf71714c`.

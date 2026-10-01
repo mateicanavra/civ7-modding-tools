@@ -27,11 +27,11 @@ parallel benchmark harness. Supporting design: [Earth calibration](earth-calibra
 | Baseline calibration | The retained Earthlike hot/high controls compile to 28.44-degree tilt; the neutral candidate exposed conflicting thermal owners | Establish one independently published thermal chain, then calibrate with held geography and external references rather than accept knob names as empirical proof |
 | Physical versus native lake height | All 55 V11 bodies match converted physical spill heights under observed native water encoding; no wet-footprint expansion | Qualify encoding and preservation beyond this open-basin cohort, including altered shoreline, sea-level and closed-basin controls |
 | Bounded lake classification | Unlimited cutoff reclassifies oceans; bounded20 succeeds on Huge1018; Huge42 has a 33-cell physical lake | Native classification/height fidelity and gameplay consequences under bounded controls, not just bigger cutoff or nicer rendering |
-| Derived cutoff and inland seas | A largest-lake bound is a projection requirement, not a physical lake-size limit; one global threshold may not separate all intended categories | Derive both the required lake bound and the protected non-lake bound after hydrology; verify native component semantics, strictness and when the setting can be applied; report an unrepresentable overlap rather than alter physical geography |
+| Derived cutoff and inland seas | A largest-lake bound is a projection requirement, not a physical lake-size limit; original wetness does not establish marine provenance | Resolve external-reservoir versus inland-storage ownership first, then derive intended-lake and protected-non-lake requirements; qualify native connectivity and activation timing without repairing physical geography to fit a threshold |
 | Rivers and scale | Huge1018 has 1.93 times Firaxis Earth's land-normalized dry NAV density, with shorter dry components | Separate total drainage density, major-class policy, wet-connected trunks, terrain barriers and real vessel/era usability |
 | Fixed Earth geography | Finished relief constrains routing but does not uniquely determine climate, water availability or lake beds | Reference-forcing and predicted-climate arms on the same admitted surface; declare units, materials, epoch, conditioning and missing processes |
 | Sea-level scripting | Current installed stock `SeaLevel` selects geography variants; no numeric native sea-datum operation was found in the searched sources | Keep physical hypsometry, native elevation and renderer datum separate; do not infer an engine setter from a setup label |
-| Units and conversion fidelity | Morphology uses quantized normalized relief, not metres; native x10 is a display calibration; the owner-local declaration repair preserves legacy keys and all numerical laws | Qualify numerical support and datum at each causal owner; separate inactive gates, unrepresentable native features and lake-surface depth from mere false labels; distinguish quantization, projection collapse and maintenance |
+| Units and conversion fidelity | Morphology uses quantized normalized relief, not metres; native x10 is a display calibration; the owner-local declaration repair preserves existing authored keys and numerical laws, not a legacy execution path | Qualify numerical support and datum at each causal owner; separate inactive gates, unrepresentable native features and lake-surface depth from mere false labels; distinguish quantization, projection collapse and maintenance |
 | Network maturity and relief | Current incision uses preliminary routing; C3 design is not implemented | After baseline qualification, compare the climate-fed certified network with terrain evolution; preserve genuine closed basins and Earth irregularity |
 | Native versus model defects | Wet outlet declarations are implemented; native category/height effects remain distinct | Change the earliest incorrect owner: config, physical operation, projection or native policy; never tune physics just to conceal realization loss |
 | Completion and gameplay | Elevation/climate/relief/static basins/dry rivers/wet outlets exist in the local stack, not merged | State which fixes are default versus diagnostics; qualify ship passage with era-appropriate stock control; run full studies and refresh visible evidence |
@@ -81,6 +81,66 @@ remain measured questions. If those requirements overlap, no global size
 threshold can express the requested classification; silently choosing the
 largest lake anyway is not a solution. Do not clip lakes to make the threshold
 convenient or turn marine water into lakes to preserve heights.
+
+The current provenance census narrows this requirement: `topography.landMask`
+declares initial wetness, but the drainage contract treats every zero as an
+admitted external recipient. Those are not equivalent physical claims.
+Across47 paired Earthlike captures,16 maps have raw size overlaps between
+original ordinary-water components and accepted bodies. No original/accepted
+mixtures or merged physical bodies occur in this census. Therefore the overlap
+is not yet evidence of an unrepresentable intended marine/lake classification.
+
+The held Standard1346 witness is an enclosed ten-cell original-water pocket,
+with beds23..27 at sea datum27 and surrounding land28..38. It receives eight
+modeled marine exits totaling1063.7878007843137, but has no physical pool,
+body or wet-budget receipt. Its rainfall and potential demand are structurally
+zero. A prescribed external reservoir remains a legitimate rival explanation;
+component size, largest-component selection, edge contact and the operation's
+own marine label cannot establish that prescription.
+
+Next qualification changes only this pocket's storage eligibility in the
+existing geometry/network operations, using captured Number-precision supply
+and held climate/ground. Exact exposed-plan control reproduction is required
+before the treatment. This is a routing/storage capability discriminator,
+not water-evaporation calibration or a selected production marine-admission
+law. Do not choose cutoff8/13 or a universal cutoff while this physical owner
+distinction is unresolved. Evidence:
+`earth-calibration/ordinary-water-provenance-census-20261001/receipt.json`
+(`383b9ab65ff3fe73d36dd4a8f8f466c34bdfe4c9c81b06ed413522430d95e6f5`).
+
+That storage discriminator is now executed. Control reproduces all17 exposed
+physical plan fields exactly. Four finite owner replays produce byte-identical
+control/treatment repeats, with all265 source/Core pins held. Only the ten
+diagnostic mask entries change. The solver admits body/component3838 at head28,
+with an85-cell catchment and26 dry junction members. Geometric overflow is
+`4007 -> 3924` at28; the actual final external port is `4258 -> 4342`.
+The original eight exports1063.7878007843137 and the existing downstream export
+3324.995066392152 become one export4388.782867176466. No discharge is created.
+All28 existing bodies/components retain their physical fields apart from
+pool-ID reassignment; global supply, wet demand and total export are exact.
+The independently summed residual2.9103830456733704e-11 is within the declared
+1.012395262001493e-5 arithmetic bound. An initial verifier's mistaken exact
+naive-versus-compensated-sum check remains recorded; correcting that check
+does not alter or rerun the solver.
+
+This rejects the need for another lake solver or terrain carving to route this
+case. It does not choose an external-reservoir prescription or qualify head28
+under full forcing. The ten cells still receive structural zero rainfall/PET.
+Head28 is only one model unit above sea27; native factor10/dry floor128 and
+prior higher-lake qualification do not establish this low-head projection.
+Receipt: `earth-calibration/initial-water-storage-discriminator-20261001/SEAL.json`
+(`2f971ca9f8c040094c2490f937471f1b9b0e0582bd68994b3c135673f8fd881e`).
+
+The next source design separates initial wetness from prescribed external-water
+authority at the existing Morphology-to-Hydrology handoff. An existing connected
+component ID is lineage, not a reservoir prescription. A second mask aliased
+to the first would add machinery without resolving the question. A grounded
+producer rule and the actual pre-hydro forcing must be qualified before the
+current-only solver or final-water consumers change. If newly eligible initial
+water can dry, exposure and native projection must use resolved physical wetness;
+leaving it permanently water in projection would be an incomplete migration.
+Keep one geometry/budget/network owner and the existing artifact/operation SDK;
+no new global authoring knob or parallel production fallback is selected.
 
 River outflow does not define lake versus sea. Open lakes have an outlet;
 closed lakes do not. Salinity, water balance and exchange with marine water

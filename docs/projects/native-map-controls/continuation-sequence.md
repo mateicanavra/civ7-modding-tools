@@ -712,8 +712,14 @@ Continue with these bounded discriminators rather than more global tuning:
    so increasing ground lapse cannot repair its uniform land-row input. Retained
    controls already exclude phase resolution, transient-noise cancellation and
    a demonstrated pressure-centering defect. The incomplete annual reference
-   does not select a new land-process law. Preserve the current coefficient,
-   filter and scientific floors until a supported mechanism is qualified.
+   does not select a new land-process law. The completed411-identity temporal
+   discriminator now rejects zero-mean seasonal clipping rectification as the
+   missing annual response: all arms remain unclipped and the seasonal-only
+   mean change is Float32 roundoff. It selects annual geographic responsibility,
+   not independent annual-only forcing or a transport/energy law. A signed
+   seasonal process can itself have a nonzero annual mean. Preserve the current
+   coefficient, filter and scientific floors until a supported mechanism is
+   qualified. See [the finite result](land-geography-investigation.md#annual-follow-through-and-temporal-discriminator).
 4. Qualify cliff/minor/NAV outlets and era-appropriate actual ship movement
    against stock positive controls separately. Lake identity and ocean-access
    flags are not movement proof. Converge those results with the unchanged
@@ -727,6 +733,17 @@ database activation; a new two-pass host preflight is not implied by this
 workstream. Existing catalog, official presets, independent seeds and setup
 contracts remain the common selection machinery. Fixed Standard-size cohorts
 are deliberate held tests, not a retired recipe or competing harness.
+
+The47-map ordinary-water census exposes a prerequisite to cutoff selection:
+original wetness is not independently established marine/external provenance.
+The Standard1346 ten-cell witness receives eight external exports without a
+storage budget. Its exact-control storage counterfactual succeeds through the
+current solver, joins those exports to a finite body and overflow port, and
+holds existing bodies and global conservation. This is routing capability,
+not full wet forcing, marine policy or low-head native-height qualification.
+Continue at the existing Morphology/Hydrology boundary before adopting a
+native size rule. The [single question sheet](calibration-question-sheet.md#derived-classification-policy)
+records the complete accounting, forcing gap and current-only design gates.
 
 The next two prerequisites are now merged natively: Tuner-resource PR #2164
 at `5c7fb7e9202218485d9f2a83baf1c892d28ec412`, then window-classification PR
@@ -753,6 +770,20 @@ and `earth-calibration/converged-reconciliation-20261001.json`
 plus the `qualified-*` / `converged-leaf-*` / `converged-fifty-stack-submit-*`
 logs in Civ research user data. That reconciliation receipt is explicitly the
 7755f575 publication snapshot, before the subsequent fixture-only qualification.
+
+The later Ecology calibration is published on the same existing lineage:
+native `modify --into` updates PR #2225 and restacks only its four descendants.
+The first submission stopped before push on fixture formatting; the formatter
+repair retains83 passing cases. The next push passes all186 hook tasks and
+updates branches, then the PR-metadata API reports its fifty-branch limit.
+Native `submit --stack --update-only --draft --no-edit --no-restack` reconciles
+the existing PRs successfully. No empty branches, split stacks or manual PR
+reopening are used. All fifty published heads match their local refs at the
+a60a0605 snapshot, and all other146 local refs remain unchanged.
+Receipt: `earth-calibration/earthlike-moisture-adopted-publication-reconciliation-20261001.json`
+(`651bbaf637bc0ce4dca8bdf7fbeedf44dbb26cde8b88a4334438b9711ed54b26`).
+This snapshot precedes subsequent documentation-only study records, not the
+deployed classifier or fresh normal live generation.
 
 Studio's current persistent Tuner realization is unqualified for these runs:
 the current daemon accumulates response timeouts while fresh CLI observations
