@@ -213,3 +213,50 @@ part of the subsequent integrated qualification, not this operation proof.
 - `src/recipes/standard/metrics/studies/` owns the study bank and its target
   registrations; paths beginning `src/` above are relative to the Swooper
   definition package, `plugins/mod/map/swooper-physics`.
+
+## Current Ring Calibration And Native Receipt
+
+The 2026-10-01 current-only thermal cohort exposed a different admission gap
+after the thinning correction above: Ring Huge/1018 has an isolated eligible
+warm ocean bank at `(39,35)`, cell `3749`, three hex edges from land. Its score
+under the existing scorer is `0.6121392250061035`, above Ring's unchanged `0.58`
+planner floor, but Ring's authored minimum coast distance `4` excludes it.
+This is not a reason to restore stride sampling or manufacture an atoll quota.
+
+Change only Ring's `scoreReefAtoll.config.minDistanceToCoast` from `4` to `3`.
+Hold its warm-ocean-bank strategy, maximum distance `8`, temperature/depth
+bounds, confidence floor and spacing. Keep the public default minimum `4` and
+the other seven profile selections. An eleven-cell public-operation test
+holds invalid/occupied habitat and the existing distance-four/eight scores;
+the catalog test compiles all eight authored selections through the existing
+initial-setup helper. Both tests pass with the existing Tiny and Huge size
+selectors: 25 tests, 327 assertions for each size. No new test registry,
+fixed-size runner, operation, recipe step, or global configuration is needed.
+
+The retained five-seed Ring Huge scorer/planner ablation admits `1/0/7/1/2`
+atolls, eleven additions with no removal or displacement of existing reef
+intents. Upstream physical inputs and other reef placement are held. The
+existing `shipped/identity/shattered-ring` study now passes at Huge/1018/1018
+with ten players, including its unchanged density and integrity targets.
+The complete definition graph passes types and Habitat policy, with 1,049
+tests passing and one aggregate study test failing on three unchanged climate
+expectations: Earthlike within-row thermal variation and biome dominance,
+and Latest Juicy pressure anomaly RMS. Those are still open, not waived.
+
+Native verification uses the normal `shattered-ring` map, the saved
+`ToT_NoModsExceptMaps` setup with explicit Huge, seeds `1018/1018`, ten players,
+and stock lake cutoff `10`. The current generated and installed script hashes
+match. A digest-valid completion agrees with the current configuration digest
+and setup. Its fresh `FEATURE_APPLY_V1` reports one attempted/applied atoll
+and no feature rejection; the complete 6,996-cell native readback confirms
+that the only `FEATURE_ATOLL` (`27`) persists at `(39,35)` after generation.
+No application exit/relaunch was needed.
+
+Receipts are under the documented VisualAtlas `earth-calibration` root:
+`ring-atoll-current-bank-20261001.json`,
+`ring-atoll-definition-owner-proof-20261001.log`, and
+`ring-atoll-native-20261001-{qualification.json,native-surface.json,scripting.log,decoded-log.json,live-recheck.log}`.
+The native qualification digest is
+`b0c1db18bc93d328b2a9c44ef01782d5d5fd36c77765cb4f21c2372c0aef3370`.
+This closes the Ring atoll calibration/persistence claim, not general lake
+height, cliff rendering, or navigable passage.

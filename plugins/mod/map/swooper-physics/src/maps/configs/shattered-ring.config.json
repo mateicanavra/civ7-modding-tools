@@ -1002,7 +1002,7 @@
             "tempWarmEndC": 30,
             "shallowDepthM": 0,
             "deepDepthM": 100,
-            "minDistanceToCoast": 4,
+            "minDistanceToCoast": 3,
             "maxDistanceToCoast": 8
           }
         },

@@ -291,14 +291,40 @@ describe("Shipped map configs", () => {
     expect(refine).not.toHaveProperty("computeThermalState");
   });
 
-  it("compiles all eight reef selections to explicit hex spacing without changing confidence floors", async () => {
+  it("compiles all eight reef selections with Ring's atoll bound and unchanged planner controls", async () => {
     const configs = await loadSwooperMapConfigRegistry();
+    expect(configs).toHaveLength(MAP_CONFIG_CATALOG_IDS.length);
+    expect(ecology.features.ops.scoreReefAtoll.defaultConfig).toEqual({
+      strategy: "warm-ocean-bank",
+      config: {
+        tempWarmStartC: 18,
+        tempWarmEndC: 30,
+        shallowDepthM: 0,
+        deepDepthM: 100,
+        minDistanceToCoast: 4,
+        maxDistanceToCoast: 8,
+      },
+    });
     const actual: Record<string, unknown> = {};
     for (const { canonicalConfig } of configs) {
       const compiled = standardRecipe.compileConfig(
-        createStandardRecipeTestInitialSetup({ mapConfig: canonicalConfig }),
+        createStandardRecipeTestInitialSetup({ preset: TEST_MAP_SIZE, mapConfig: canonicalConfig }),
         canonicalConfig.config
       );
+      const authoredAtoll = canonicalConfig.config["ecology-features"]["score-layers"].scoreReefAtoll;
+      const atoll = compiled["ecology-features"]["score-layers"].scoreReefAtoll;
+      expect(atoll, canonicalConfig.id).toEqual(authoredAtoll);
+      expect(atoll.strategy, canonicalConfig.id).toBe("warm-ocean-bank");
+      expect(atoll.config, canonicalConfig.id).toMatchObject({
+        tempWarmStartC: 18,
+        tempWarmEndC: 30,
+        shallowDepthM: 0,
+        deepDepthM: 100,
+        minDistanceToCoast: canonicalConfig.id === "shattered-ring" ? 3 : 4,
+      });
+      if (canonicalConfig.id === "shattered-ring") {
+        expect(atoll.config.maxDistanceToCoast).toBe(8);
+      }
       const reef = compiled["ecology-features"]["plan-reefs"].planReefs;
       expect(reef.strategy).toBe("habitat");
       expect(reef.config).not.toHaveProperty("stride");

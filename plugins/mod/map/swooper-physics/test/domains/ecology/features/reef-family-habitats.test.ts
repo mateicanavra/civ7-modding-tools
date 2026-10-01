@@ -148,6 +148,52 @@ describe("ecology reef-family habitats", () => {
     expect(abyssalColdReef[0]).toBe(0);
   });
 
+  it("admits distance-three atoll banks without widening other habitat bounds or mutating inputs", () => {
+    const op = ecology.features.ops.scoreReefAtoll;
+    const size = 11;
+    const input = {
+      width: size,
+      height: 1,
+      landMask: new Uint8Array(size),
+      surfaceTemperature: new Float32Array(size).fill(25.898571),
+      bathymetry: new Int16Array(size).fill(-7),
+      shelfMask: new Uint8Array(size),
+      openOceanMask: new Uint8Array(size).fill(1),
+      coastalWater: new Uint8Array(size),
+      distanceToCoast: Uint16Array.of(2, 3, 4, 8, 9, 3, 3, 3, 3, 3, 3),
+    };
+    input.landMask[5] = 1;
+    input.openOceanMask[6] = 0;
+    input.shelfMask[7] = 1;
+    input.coastalWater[8] = 1;
+    input.surfaceTemperature[9] = 18;
+    input.bathymetry[10] = -100;
+    const before = structuredClone(input);
+    const defaultScores = op.run(
+      input,
+      normalizeOperationSelectionForTest(op, op.defaultConfig)
+    ).score01;
+    const calibratedScores = op.run(
+      input,
+      normalizeOperationSelectionForTest(op, {
+        ...op.defaultConfig,
+        config: { ...op.defaultConfig.config, minDistanceToCoast: 3 },
+      })
+    ).score01;
+
+    expect(defaultScores[1]).toBe(0);
+    expect(calibratedScores[1]).toBeGreaterThan(0.58);
+    for (const index of [2, 3]) {
+      expect(defaultScores[index]).toBeGreaterThan(0);
+      expect(calibratedScores[index]).toBe(defaultScores[index]);
+    }
+    for (const index of [0, 4, 5, 6, 7, 8, 9, 10]) {
+      expect(defaultScores[index]).toBe(0);
+      expect(calibratedScores[index]).toBe(0);
+    }
+    expect(input).toEqual(before);
+  });
+
   it("scores positive fractional lake depth over unchanged physical land without marine masks", () => {
     const input = createCertifiedLakeInput(6, 1);
     input.lakeMask.set([1, 1, 1, 1, 1, 0]);
