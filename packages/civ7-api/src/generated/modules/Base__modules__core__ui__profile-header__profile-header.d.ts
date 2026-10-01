@@ -12,10 +12,13 @@ export declare const giftboxButtonName: string;
 export declare class ProfileHeader extends Component {
     private progressionHeader;
     private progressionHeaderButtonContainer;
+    private progressionHeaderNavhelp;
     private socialButtonContainer;
     private socialButton;
+    private socialButtonNavhelp;
     private giftboxButton;
     private giftboxButtonContainer;
+    private giftboxButtonNavhelp;
     private socialNotification;
     private rewardsNotification;
     private inputHandler;
@@ -34,10 +37,14 @@ export declare class ProfileHeader extends Component {
     private spoPCompleteListener;
     private spopHeartBeatReceivedListener;
     private accountInfoUpdatedListener;
+    private notificationListUpdatedListener;
     private accountLoggedOutListener;
     private engineInputListener;
     private navigateInputListener;
     private connectionStatusChangedListener;
+    private contextManagerCloseListener;
+    private inputDeviceChangedListener;
+    private prevFocus;
     onInitialize(): void;
     onAttach(): void;
     onDetach(): void;
@@ -61,11 +68,14 @@ export declare class ProfileHeader extends Component {
      */
     handleNavigation(navigationEvent: NavigateInputEvent): boolean;
     private onAccountUpdated;
+    private onNotificationListUpdated;
     private onLogoutResults;
     private onProfileHeaderButtonClicked;
     private onProgressionHeaderActivate;
     private onSocialButtonActivate;
     private onGiftboxButtonActivate;
+    private onContextManagerClose;
+    private onInputDeviceChanged;
     private showDialogBox;
 }
 declare global {

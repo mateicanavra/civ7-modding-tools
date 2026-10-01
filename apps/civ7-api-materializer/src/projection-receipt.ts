@@ -9,17 +9,22 @@ import {
   projectMapScriptModuleResolution,
   renderMapScriptModuleResolution,
 } from "./module-resolution.js";
-import { projectDeclarationRealms, type RealmProjection } from "./realms.js";
+import {
+  EXPECTED_BASE_MAP_SCRIPT_ROOT_COUNT,
+  projectDeclarationRealms,
+  type RealmProjection,
+} from "./realms.js";
 import { collectBaseSourceMapEvidence, compareUtf8 } from "./source-maps.js";
 
-const DECLARATION_PROJECTION_SCHEMA_VERSION = 3 as const;
+const DECLARATION_PROJECTION_SCHEMA_VERSION = 5 as const;
 
-const EXPECTED_EMBEDDED_TYPESCRIPT_SOURCE_COUNT = 940;
-const EXPECTED_EMBEDDED_TS_SOURCE_COUNT = 715;
-const EXPECTED_EMBEDDED_TSX_SOURCE_COUNT = 225;
+const EXPECTED_BASE_SOURCE_MAP_COUNT = 1433;
+const EXPECTED_EMBEDDED_TYPESCRIPT_SOURCE_COUNT = 960;
+const EXPECTED_EMBEDDED_TS_SOURCE_COUNT = 716;
+const EXPECTED_EMBEDDED_TSX_SOURCE_COUNT = 244;
 const EXPECTED_COMPILED_BARREL_COUNT = 3;
+const EXPECTED_COMPILED_IMPORT_BARREL_COUNT = 2;
 const EXPECTED_UNRESOLVED_TARGET_COUNT = 5;
-const EXPECTED_MAP_ROOT_COUNT = 12;
 
 interface ProjectionSourceSnapshot {
   readonly receiptPath: ".civ7-source-receipt.json";
@@ -48,6 +53,7 @@ export interface DeclarationProjectionReceipt {
     readonly shardCount: number;
     readonly embeddedTypeScriptCount: number;
     readonly compiledBarrelCount: number;
+    readonly compiledImportBarrelCount: number;
     readonly flatOutputFileNameMaxLength: number;
     readonly unresolvedTargets: DeclarationEmission["unresolvedTargets"];
     readonly compiledOnlyEdgeTargets: readonly string[];
@@ -59,6 +65,7 @@ export interface DeclarationProjectionReceipt {
     readonly globalAugmentationCount: number;
     readonly globalAugmentationsSha256: string;
     readonly edgesSha256: string;
+    readonly runtimeStylesheetImports: DeclarationEmission["runtimeStylesheetImports"];
     readonly anyKeywordCount: number;
   };
   readonly externalTypeEvidence: ModuleCatalog["solidTypeEvidence"];
@@ -66,6 +73,7 @@ export interface DeclarationProjectionReceipt {
     readonly shell: { readonly rootCount: number; readonly moduleCount: number };
     readonly game: { readonly rootCount: number; readonly moduleCount: number };
     readonly map: { readonly rootCount: number; readonly moduleCount: number };
+    readonly nonScriptMaps: RealmProjection["nonScriptMaps"];
     readonly sha256: string;
   };
   readonly moduleResolution: {
@@ -163,6 +171,7 @@ function shardManifest(declarations: DeclarationEmission): string {
 function realmManifest(realms: RealmProjection): string {
   return `${JSON.stringify({
     roots: realms.rootEvidence,
+    nonScriptMaps: realms.nonScriptMaps,
     shell: realms.shell.moduleIds,
     game: realms.game.moduleIds,
     map: realms.map.moduleIds,
@@ -219,6 +228,9 @@ export async function buildDeclarationProjectionReceipt(
       shardCount: declarations.shards.length,
       embeddedTypeScriptCount: embeddedSources.length,
       compiledBarrelCount,
+      compiledImportBarrelCount: catalog.declarationModules.filter(
+        (module) => module.evidenceKind === "compiled-import-barrel"
+      ).length,
       flatOutputFileNameMaxLength: declarations.shards.reduce(
         (maximum, shard) => Math.max(maximum, shard.outputFileName.length),
         0
@@ -233,6 +245,7 @@ export async function buildDeclarationProjectionReceipt(
       globalAugmentationCount: declarations.globalAugmentationCount,
       globalAugmentationsSha256: sha256(globalAugmentationManifest(declarations)),
       edgesSha256: sha256(`${JSON.stringify(declarations.edges)}\n`),
+      runtimeStylesheetImports: declarations.runtimeStylesheetImports,
       anyKeywordCount: declarations.anyKeywordCount,
     },
     externalTypeEvidence: catalog.solidTypeEvidence,
@@ -240,6 +253,7 @@ export async function buildDeclarationProjectionReceipt(
       shell: { rootCount: realms.shell.roots.length, moduleCount: realms.shell.moduleIds.length },
       game: { rootCount: realms.game.roots.length, moduleCount: realms.game.moduleIds.length },
       map: { rootCount: realms.map.roots.length, moduleCount: realms.map.moduleIds.length },
+      nonScriptMaps: realms.nonScriptMaps,
       sha256: sha256(realmManifest(realms)),
     },
     moduleResolution: {
@@ -253,11 +267,17 @@ export async function buildDeclarationProjectionReceipt(
   };
 }
 
-function assertOfficialProjectionProfile(
+/** Refuses corpus drift instead of accepting a historical profile alongside the current one. */
+export function assertOfficialProjectionProfile(
   catalog: ModuleCatalog,
   declarations: DeclarationEmission,
   realms: RealmProjection
 ): void {
+  if (catalog.sourceMaps.mapCount !== EXPECTED_BASE_SOURCE_MAP_COUNT) {
+    throw new Error(
+      `Official Base declaration corpus changed: expected ${EXPECTED_BASE_SOURCE_MAP_COUNT} source maps; found ${catalog.sourceMaps.mapCount}`
+    );
+  }
   const sources = catalog.sourceMaps.embeddedTypeScriptSources;
   const tsCount = sources.filter((source) => source.sourceKind === "ts").length;
   const tsxCount = sources.filter((source) => source.sourceKind === "tsx").length;
@@ -278,14 +298,22 @@ function assertOfficialProjectionProfile(
       `Official Base declaration corpus changed: expected ${EXPECTED_COMPILED_BARREL_COUNT} compiled-only barrels; found ${compiledBarrelCount}`
     );
   }
+  const compiledImportBarrelCount = catalog.declarationModules.filter(
+    (module) => module.evidenceKind === "compiled-import-barrel"
+  ).length;
+  if (compiledImportBarrelCount !== EXPECTED_COMPILED_IMPORT_BARREL_COUNT) {
+    throw new Error(
+      `Official Base declaration corpus changed: expected ${EXPECTED_COMPILED_IMPORT_BARREL_COUNT} compiled import barrels; found ${compiledImportBarrelCount}`
+    );
+  }
   if (declarations.unresolvedTargets.length !== EXPECTED_UNRESOLVED_TARGET_COUNT) {
     throw new Error(
       `Official Base declaration corpus changed: expected ${EXPECTED_UNRESOLVED_TARGET_COUNT} absent declaration targets; found ${declarations.unresolvedTargets.length}`
     );
   }
-  if (realms.map.roots.length !== EXPECTED_MAP_ROOT_COUNT) {
+  if (realms.map.roots.length !== EXPECTED_BASE_MAP_SCRIPT_ROOT_COUNT) {
     throw new Error(
-      `Official Base map-root projection changed: expected ${EXPECTED_MAP_ROOT_COUNT}; found ${realms.map.roots.length}`
+      `Official Base map-root projection changed: expected ${EXPECTED_BASE_MAP_SCRIPT_ROOT_COUNT}; found ${realms.map.roots.length}`
     );
   }
 }

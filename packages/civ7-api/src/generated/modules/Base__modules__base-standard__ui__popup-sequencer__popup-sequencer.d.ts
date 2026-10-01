@@ -21,11 +21,11 @@ declare class PopupSequencerClass extends DisplayHandlerBase<PopupSequencerData>
     constructor();
     isShowing(): boolean;
     /**
-     * @implements {IDisplayQueue}
+     * @implements {IDisplayHandler}
      */
     show(request: PopupSequencerData): void;
     /**
-     * @implements {IDisplayQueue}
+     * @implements {IDisplayHandler}
      */
     hide(_request: PopupSequencerData, options?: DisplayHideOptions): void;
     closePopup: (screenId: string) => void;

@@ -8,7 +8,7 @@ const EXPECTED_PARAMETER_SOURCES = [
 ] as const;
 const PARAMETERS_SCHEMA = "Base/Assets/schema/frontend/schema-frontend-10-setup-parameters.sql";
 const EXPECTED_PARAMETER_COLUMN_COUNT = 31;
-const EXPECTED_PARAMETER_ROW_COUNT = 63;
+const EXPECTED_PARAMETER_ROW_COUNT = 65;
 const EXPECTED_UNIQUE_PARAMETER_ID_COUNT = 56;
 const EXPECTED_PARAMETER_GROUP_COUNT = 16;
 const GAME_LIFECYCLE_PARAMETER_IDS = ["GameRandomSeed"] as const;

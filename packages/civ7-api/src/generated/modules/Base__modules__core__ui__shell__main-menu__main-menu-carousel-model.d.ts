@@ -30,6 +30,7 @@ export interface PromoCarouselContextModel {
     onCarouselInteract: () => void;
     onCarouselUpdate: () => void;
     onTelemetryPromoAction: (promoAction: PromoAction, promoId: string, promoLocation: string, interactionDestination: string) => void;
+    onShowExpandedCarousel: () => void;
 }
 export declare function createPromoCarouselModel(): any;
 export declare const PromoCarouselModel: any;

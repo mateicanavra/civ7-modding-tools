@@ -58,7 +58,7 @@ export declare class ScreenProfilePage extends Panel {
     private cancelRewardsUpdate;
     private rewardsUpdateBusy;
     private readonly isOfflineMemento;
-    private readonly isMobileViewExperience;
+    private readonly isMobile;
     private panelOptions;
     private selectedLeaderEle?;
     /**

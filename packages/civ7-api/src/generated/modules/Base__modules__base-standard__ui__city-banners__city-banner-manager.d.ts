@@ -11,9 +11,13 @@ declare global {
         banners: Map<BitfieldComponentID, CityBannerComponent>;
     }
 }
+export interface ICityBannerMod {
+    addModContent(city: City | null, player: PlayerLibrary | null): DocumentFragment;
+}
 declare class CityBannerManager extends Component {
     private citiesNotFullyCreated;
     private banners;
+    private modCallback;
     private cityIntegratedListener;
     private cityAddedToMapListener;
     private cityInitializedListener;
@@ -46,6 +50,8 @@ declare class CityBannerManager extends Component {
     onInitialize(): void;
     onAttach(): void;
     onDetach(): void;
+    setModCallback(callback: ICityBannerMod): void;
+    callModCallback(city: City | null, player: PlayerLibrary | null): DocumentFragment;
     /**
      * Determine if a city/town already has a banner associated with it.
      * @param {ComponentID} cityComponentID - An component ID related to a city

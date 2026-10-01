@@ -7,6 +7,7 @@ export declare class Heap<T> {
     push(value: T): void;
     pop(): T | undefined;
     clear(): void;
+    rescore(itemFinder: (item: T) => boolean, updateScore: (item: T) => void): void;
     private bubbleUp;
     private bubbleDown;
 }

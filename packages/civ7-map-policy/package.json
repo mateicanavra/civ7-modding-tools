@@ -27,7 +27,7 @@
     "build": "tsup --config tsup.config.ts",
     "check:test": "tsc -p test/tsconfig.json --noEmit",
     "check:tools": "tsc -p scripts/tsconfig.json --noEmit",
-    "test": "bun test",
+    "test": "bun test ./test",
     "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
   },
   "dependencies": {

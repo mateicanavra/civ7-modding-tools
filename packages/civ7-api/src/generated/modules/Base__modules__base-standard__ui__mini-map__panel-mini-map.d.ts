@@ -1,6 +1,6 @@
 /**
  * @file panel-mini-map.ts
- * @copyright 2021 - 2025, Firaxis Games
+ * @copyright 2021 - 2026, Firaxis Games
  * @description Mini-map panel, and lens/pennant dispaly
  */
 import FxsActivatable from "/core/ui/components/fxs-activatable.js";
@@ -66,7 +66,7 @@ export declare class PanelMiniMap extends Panel {
     onAttach(): void;
     onDetach(): void;
     addSubpanel<T extends keyof HTMLElementTagNameMap>(targetClassName: T, tooltipKey: string, iconPath: string): void;
-    private onContextChange;
+    private onContextClose;
     private onActiveLensChanged;
     private panInProgress;
     private onMinimapImageEngineInput;
@@ -133,11 +133,7 @@ export declare class LensPanel extends MinimapSubpanel {
     private lensPanel;
     private readonly lensRadioButtonContainer;
     private readonly layerCheckboxContainer;
-    private readonly miniMapLensDisplayOptionName;
-    private lensRadioButtons;
-    private lensElementMap;
     private layerElementMap;
-    private onActiveLensChangedListener;
     constructor(root: ComponentRoot);
     onInitialize(): void;
     onAttach(): void;
@@ -145,10 +141,7 @@ export declare class LensPanel extends MinimapSubpanel {
     onReceiveFocus(): void;
     createShowMinimapCheckbox(): any;
     createLayerCheckbox(caption: string, layerType: LensLayerName, tooltip?: string): void;
-    createLensButton(caption: string, lens: string, group: string): void;
-    close(): void;
-    private onLensChange;
-    private onActiveLensChanged;
+    private createLensButton;
     private onLensLayerEnabled;
     private onLensLayerDisabled;
 }

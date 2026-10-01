@@ -1,14 +1,14 @@
 /**
  * @file utility-serialize.ts
  * @copyright 2024-2026, Firaxis Games
- * @description Provides a "catalog" to Store and retrieve arbitrary key/values for the world or per-player.
+ * @description Provides a "catalog" to store and retrieve arbitrary key/values.
  *
- *	TWO MODES
- * 	A catalog will behave in one of two ways: as a "world" catalog or "player" catalog.
- *	Which mode is set by the constructor.  If a player is provided, it will be a player catalog, otherwise it will be a world catalog.
- *	World catalogs are local only, but their values can be immediately read back after writing.
- *	Player catalogs are written to the cache via player operation, and so you must wait until the value is committed before reading it back.
- *	You CANNOT write values for other players if it's not their turn! (The player operation code in the App will say, "not your turn" and ignore the write.)
+ * 	A catalog will behave in one of two ways: as a "game" catalog or "player" catalog.
+ *
+ *	Which mode is set by what is passed to the constructor.
+ * 		- If a player is provided, it will be a player catalog, otherwise a game catalog.
+ *		- Game catalogs are local only, and their values can be immediately read back after writing.
+ *		- Player catalogs are internally written to the cache via a "player operation"; requiring a wait until the value is committed for reading back.
  *
  *	OFFERS
  *	- A way to store and retrieve simple typed value using a key (string).
@@ -22,29 +22,23 @@
  *
  *	IN SUMMARY
  *	A top level "catalog" object tracks all the objects in the store.
- *	Each object can have multiple properties read/writen
+ *	Each object can have multiple properties read/written
  *
  *	LAYOUT EXAMPLE
  *	Full Key (as string):			Data:								Description
  * 	------------------------------- ----------------------------------- ---------------------
+ *  _catalogs_index					<catalogid1>,...,<catalogidN>		Comma separated list of catalog names.
  *	_MyStuff__KEYS					<objid1>,<objid2>, ... ,<objidN>	Comma separated list of objects in this catalog by their ID.
  *	_MyStuff_OBJ_<objid1>_KEYS		<key1>,<key2, ... ,<keyN>			Comma separated list of properties for object 1 by their key.
  *	_MyStuff_OBJ_<objid1>_<key1>	<value1>							key and value of first item on this object
- *	_MyStuff_OBJ_<objid1>_<key2>	<value2>
- * :
+ * 		:
  *	_MyStuff_OBJ_<objid1>_<keyN>	<valueN>
- *	_MyStuff_OBJ_<objid2>_KEYS		<key1>,<key2, ... ,<keyN>
- *	_MyStuff_OBJ_<objid2>_<key1>	<value1>
- *	_MyStuff_OBJ_<objid2>_<key2>	<value2>
- * :
- *	_MyStuff_OBJ_<objid2>_<keyN>	<valueN>
- * :
- * :
- *	_MyStuff_OBJ_<objidN>_KEYS		<key1>,<key2, ... ,<keyN>
- *	_MyStuff_OBJ_<objidN>_<key1>	<value1>
- *	_MyStuff_OBJ_<objidN>_<key2>	<value2>
- * :
- * _MyStuff_OBJ_<objidN>_<keyN>		<valueN>
+ * 		:
+ * 		:
+ *	_MyStuff_OBJ_<objidN>_KEYS		<key1>,<key2, ... ,<keyN>			The keys written for object N.
+ *	_MyStuff_OBJ_<objidN>_<key1>	<value1>							key and value of first item on object N
+ * 		:
+ *  _MyStuff_OBJ_<objidN>_<keyN>	<valueN>							key and value of last item on object N
  *
  * @usage
  * // World Exanmple
@@ -109,7 +103,7 @@ export declare class SerialObject {
     read(key: string): SerializeType;
     /**
      * Request a write of a single value.
-     * If the global store, the write happens immediate.
+     * If the game store, the write happens immediate.
      * If a player store, the write is queued to be committed by the cache.
      * The commited value is signaled from the App side by an event.
      */
@@ -121,7 +115,7 @@ export interface CatalogProperties {
     player?: PlayerLibrary | null;
 }
 /**
- * Top level class that maintains the catalog of serial objects.
+ * Top level class that maintains the catalog of serialized objects.
  */
 export declare class Catalog {
     readonly name: string;
@@ -144,7 +138,18 @@ export declare class Catalog {
     dispose(): void;
     /** Names of the objects stored in the catalog */
     getObjectIds(): Set<string>;
+    /**
+     * Register this catalog with the index, so that it can be enumerated.
+     * This may be used in the future; such as if we prevent catalogs from
+     * being copied across an age transition boundary, etc.
+     */
+    private registerWithCatalogIndex;
+    /** Listener for player property changes having been committed. */
     private onPlayerDynamicPropertyChanged;
+    /**
+     * Read/Write the meta information for this catalog.
+     * @param version (0) The version of system-specific information.
+     */
     private realizeInfoBlock;
     getObject(id: string): SerialObject;
     exists(id: string): boolean;

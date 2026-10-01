@@ -94,6 +94,9 @@ afterEach(async () => {
 describe("official source profile", () => {
   test("admits source maps while excluding large and host-specific assets", () => {
     expect(isAdmittedSourcePath("Base/modules/core/ui/cohtml.js.map")).toBe(true);
+    expect(
+      isAdmittedSourcePath("Base/modules/base-standard/maps/EarthMaps/Earth_Huge.Civ7Map")
+    ).toBe(true);
     expect(isAdmittedSourcePath("DLC/example/data/rules.xml")).toBe(true);
     expect(isAdmittedSourcePath("Base/Platforms/Mac/runtime.bin")).toBe(false);
     expect(isAdmittedSourcePath("Base/modules/core/data/icons/icon.png")).toBe(false);

@@ -1,5 +1,5 @@
 /**
- * @file utilities-overlay.ts			// TODO: Re-evaluate what is a generic text provider and what is specific for a type of file (e.g., trees), break out functions.
+ * @file utilities-overlay.ts
  * @copyright 2020-2025, Firaxis Games
  *
  * Helpful Constants that are used with overlays.

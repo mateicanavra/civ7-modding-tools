@@ -1,4 +1,4 @@
-import { IEngineInputHandler, InputEngineEvent, NavigateInputEvent } from "/core/ui/input/input-support.js";
+import { IEngineInputHandler, InputEngineEvent, InputHandlerState, NavigateInputEvent } from "/core/ui/input/input-support.js";
 export declare const PlotCursorUpdatedEventName: "plot-cursor-coords-updated";
 export declare class PlotCursorUpdatedEvent extends CustomEvent<{
     plotCoords: float2 | null;
@@ -55,8 +55,8 @@ declare class PlotCursorSingleton implements IEngineInputHandler {
     private isOnUI;
     private handleTouchTap;
     private handleTouchPress;
-    handleInput(inputEvent: InputEngineEvent): boolean;
-    handleNavigation(_navigationEvent: NavigateInputEvent): boolean;
+    handleInput(inputEvent: InputEngineEvent): InputHandlerState;
+    handleNavigation(_navigationEvent: NavigateInputEvent): InputHandlerState;
 }
 declare global {
     interface WindowEventMap {

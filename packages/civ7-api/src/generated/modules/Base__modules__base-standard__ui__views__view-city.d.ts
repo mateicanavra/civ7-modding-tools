@@ -3,7 +3,7 @@
  * @copyright 2021 - 2024, Firaxis Games
  * @description When viewing a particular city.
  */
-import { InputEngineEvent } from "/core/ui/input/input-support.js";
+import { InputEngineEvent, InputHandlerState } from "/core/ui/input/input-support.js";
 import { IGameView, ViewCallback, ViewRules } from "/core/ui/views/view-manager.js";
 export declare const FocusCityViewEventName: "focus-city-view";
 interface FocusCityViewEventDetail {
@@ -24,7 +24,7 @@ export declare class CityView implements IGameView {
     /**
      * @returns true if still live, false if input should stop.
      */
-    readInputEvent(inputEvent: InputEngineEvent): boolean;
+    handleInputEvent(inputEvent: InputEngineEvent): InputHandlerState;
     getRules(): ViewRules[];
     handleReceiveFocus(): void;
     handleLoseFocus(): void;

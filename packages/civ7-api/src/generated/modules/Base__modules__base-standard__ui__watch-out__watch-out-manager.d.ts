@@ -19,13 +19,13 @@ declare class WatchOutManagerClass extends DisplayHandlerBase<WatchOutPopupData>
     currentWatchOutPopupData: WatchOutPopupData | null;
     get isManagerActive(): boolean;
     constructor();
-    isShowing(): boolean;
+    private isShowing;
     /**
-     * @implements {IDisplayQueue}
+     * @implements {IDisplayHandler}
      */
     show(request: WatchOutPopupData): void;
     /**
-     * @implements {IDisplayQueue}
+     * @implements {IDisplayHandler}
      */
     hide(_request: WatchOutPopupData, _options?: DisplayHideOptions): void;
     canShow(_request: WatchOutPopupData, _activeRequests: readonly IDisplayRequest[]): boolean;

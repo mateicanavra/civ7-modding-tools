@@ -27,6 +27,7 @@ export interface ScrollAreaBaseProps {
     setClientHeight?: Setter<number>;
 }
 export type ScrollAreaProps = ScrollAreaBaseProps & JSX.HTMLAttributes<HTMLDivElement>;
+export declare const ScrollAreaContext: any;
 /**
  * A vertically scrollable area.
  * ```tsx

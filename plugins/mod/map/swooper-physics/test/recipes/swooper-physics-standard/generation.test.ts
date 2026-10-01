@@ -122,7 +122,7 @@ describe("Standard recipe generation", () => {
     );
   }, 30_000);
 
-  it("distinguishes an official map-size selection from custom maps with identical dimensions", () => {
+  it("uses the same official resource policy for preset and custom maps with identical dimensions", () => {
     const tinyPreset = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
     const official = runStandardRecipeTestMap({ presetId: tinyPreset.id });
     const custom = runStandardRecipeTestMap({ presetId: tinyPreset.id, mapInfo: {} });
@@ -133,7 +133,6 @@ describe("Standard recipe generation", () => {
     const customDemand = readArtifact(custom.context, resourceDemandArtifacts.resourceDemandPlan);
 
     expect(custom.context.setup.dimensions).toEqual(official.context.setup.dimensions);
-    expect(officialDemand.minimumAmountModifier).toBe(-4);
-    expect(customDemand.minimumAmountModifier).toBe(0);
+    expect(customDemand).toEqual(officialDemand);
   }, 30_000);
 });

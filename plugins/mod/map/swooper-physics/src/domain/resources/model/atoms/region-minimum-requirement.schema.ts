@@ -7,26 +7,12 @@ export type PositiveResourceRegionMinimum = Tagged<number, "PositiveResourceRegi
 const PositiveMinimumSchema = Type.Unsafe<PositiveResourceRegionMinimum>({
   type: "integer",
   minimum: 1,
-  description: "Official per-region resource floor before the active map-size modifier is applied.",
+  description: "Official resource floor for each positive landmass region with legal candidates.",
 });
-
-const StaticRequirementBasisSchema = Type.Union(
-  [
-    Type.Immutable(Type.Tuple([Type.Literal("staple")])),
-    Type.Immutable(Type.Tuple([Type.Literal("unlocks-civ")])),
-    Type.Immutable(Type.Tuple([Type.Literal("staple"), Type.Literal("unlocks-civ")])),
-  ],
-  {
-    description:
-      "Canonical nonempty roster-independent official flags that justify the headless requirement decision.",
-  }
-);
 
 /**
  * Closed admission state for the official resource region-minimum pass.
- *
- * Engine observations preserve roster-dependent decisions. Headless execution may admit only
- * roster-independent official flags; unavailable conditional decisions remain unresolved.
+ * Every admitted resource carries its official minimum, independent of age-requirement queries.
  */
 export const ResourceRegionMinimumRequirementSchema = Type.Union([
   Type.Object(
@@ -39,33 +25,8 @@ export const ResourceRegionMinimumRequirementSchema = Type.Union([
   Type.Object(
     {
       kind: Type.Literal("required"),
-      minimumPerHemisphere: PositiveMinimumSchema,
-      source: Type.Literal("engine"),
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      kind: Type.Literal("required"),
-      minimumPerHemisphere: PositiveMinimumSchema,
-      source: Type.Literal("static-unconditional"),
-      basis: StaticRequirementBasisSchema,
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      kind: Type.Literal("not-required"),
-      minimumPerHemisphere: PositiveMinimumSchema,
-      source: Type.Literal("engine"),
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      kind: Type.Literal("unresolved"),
-      minimumPerHemisphere: PositiveMinimumSchema,
-      source: Type.Literal("engine-unavailable"),
+      minimumPerLandmass: PositiveMinimumSchema,
+      source: Type.Literal("official-resource"),
     },
     { additionalProperties: false }
   ),

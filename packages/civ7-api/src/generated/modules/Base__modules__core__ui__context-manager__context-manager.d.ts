@@ -145,5 +145,5 @@ declare class ContextManagerSingleton {
     shouldShowModalEvent(playerId: PlayerId): any;
     noUserInput(): any;
 }
-declare const ContextManager: ContextManagerSingleton;
+export declare const ContextManager: ContextManagerSingleton;
 export { ContextManager as default };

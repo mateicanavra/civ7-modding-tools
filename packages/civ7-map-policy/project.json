@@ -27,6 +27,9 @@
       "outputs": [],
       "dependsOn": [{ "projects": ["civ7-map-policy-tools"], "target": "check:tools" }]
     },
+    "test": {
+      "dependsOn": ["^build", { "projects": ["civ7-map-policy-tools"], "target": "test" }]
+    },
     "check": {
       "executor": "nx:noop",
       "cache": false,

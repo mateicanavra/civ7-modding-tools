@@ -3,7 +3,7 @@
  * @copyright 2021-2023, Firaxis Games
  * @description Base interface mode used for interface modes that require plot selection
  */
-import { InputEngineEvent } from "/core/ui/input/input-support.js";
+import { InputEngineEvent, InputHandlerState } from "/core/ui/input/input-support.js";
 import { PlotCursorUpdatedEvent } from "/core/ui/input/plot-cursor.js";
 import { InterfaceMode } from "/core/ui/interface-modes/interface-modes.js";
 import { PlotSelectionHandler } from "/base-standard/ui/world-input/world-input.js";
@@ -27,7 +27,7 @@ declare abstract class ChoosePlotInterfaceMode implements InterfaceMode.Handler 
     /** Check if this mode can be safely transitioned from */
     canLeaveMode?(newMode: InterfaceMode.ModeId): boolean;
     selectPlot(plot: PlotCoord, _previousPlot: PlotCoord | null): boolean;
-    handleInput(inputEvent: InputEngineEvent): boolean;
+    handleInput(inputEvent: InputEngineEvent): InputHandlerState;
     onPlotCursorCoordsUpdated(event: PlotCursorUpdatedEvent): void;
     /**
      * Decorate an overlay with details.

@@ -1,9 +1,11 @@
 import { HexTile, VoronoiValidationSettings } from "/base-standard/scripts/hex-map.js";
-import { UnifiedContinentsBase, UnifiedContinentsBaseSettings } from "/base-standard/scripts/voronoi_maps/unified-continents-base.js";
+import { SectionSettings, UnifiedContinentsBase, UnifiedContinentsBaseSettings } from "/base-standard/scripts/voronoi_maps/unified-continents-base.js";
 export interface VoronoiShatteredSeasSettings extends UnifiedContinentsBaseSettings {
     landmassFactor: number;
     distantFactor: number;
 }
+export declare const shatteredSeasMapSchema: MapSettingSchema;
+export declare function buildShatteredSeasSettings(source: VoronoiShatteredSeasSettings, hexDims: float2): SectionSettings;
 export declare class VoronoiShatteredSeas extends UnifiedContinentsBase<VoronoiShatteredSeasSettings> {
     constructor();
     init(hexDims: float2): void;

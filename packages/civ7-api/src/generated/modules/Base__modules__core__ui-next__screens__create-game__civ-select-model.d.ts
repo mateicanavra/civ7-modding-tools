@@ -4,6 +4,7 @@
  * @description Age and civ support functions/classes used by shell screens
  */
 import { Accessor, Setter } from "solid-js";
+import { SyncretismData } from "/core/ui-next/screens/create-game/syncretism-model.js";
 export interface CivBonusData {
     title: string;
     icon: string;
@@ -51,6 +52,7 @@ export interface CivInfo {
     introText: string;
     unlocks: string[];
     unlockedBy: UnlockedByData[];
+    syncretismUnlocks?: SyncretismData[];
     isCurrentCiv?: boolean;
     isPreviousCiv?: boolean;
 }

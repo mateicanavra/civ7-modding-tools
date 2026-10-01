@@ -3,7 +3,7 @@
  * @copyright 2021-2023, Firaxis Games
  * @description Tracks the "view" while in game.
  */
-import { InputEngineEvent, NavigateInputEvent } from "/core/ui/input/input-support.js";
+import { InputEngineEvent, InputHandlerState, NavigateInputEvent } from "/core/ui/input/input-support.js";
 export type ViewCallback = () => void;
 export declare enum UISystem {
     HUD = 0,
@@ -45,12 +45,12 @@ export interface IGameView {
     addEnterCallback(func: ViewCallback): void;
     addExitCallback(func: ViewCallback): void;
     getRules(): ViewRules[];
-    readInputEvent?(inputEvent: InputEngineEvent): boolean;
+    handleInputEvent?(inputEvent: InputEngineEvent): InputHandlerState;
     /**
      * (optional) Handle a navigation request
      * @returns true if still live, false if input should stop.
      */
-    handleNavigation?(navigationEvent: NavigateInputEvent): boolean;
+    handleNavigation?(navigationEvent: NavigateInputEvent): InputHandlerState;
     handleReceiveFocus?(): void;
     handleLoseFocus?(): void;
 }
@@ -118,6 +118,11 @@ declare class ViewManagerSingleton {
      */
     get isWorldSelectingAllowed(): boolean;
     /**
+     * Should plot selection via world input be listened to in this view?
+     * @returns true if should, false otherwise
+     */
+    get isPlotSelectionAllowed(): boolean;
+    /**
      * Should other world input (zooming, panning, rotating) be listened to in this view or context?
      * @returns true if should, false otherwise
      */
@@ -154,7 +159,7 @@ declare class ViewManagerSingleton {
      * @param {InputEngineEvent} inputEvent An input event
      * @returns true if the input is still "live" and not yet cancelled.
      */
-    handleInput(inputEvent: InputEngineEvent): boolean;
+    handleInput(inputEvent: InputEngineEvent): InputHandlerState;
     /**
      * Obtain the active view's harness DOM element.
      * @returns the HTMLElement for the harness element or null if unable to be found.
@@ -166,7 +171,7 @@ declare class ViewManagerSingleton {
      * @returns true if still live, false if input should stop.
      * @implements NavigateInputEvent
      */
-    handleNavigation(navigationEvent: NavigateInputEvent): boolean;
+    handleNavigation(navigationEvent: NavigateInputEvent): InputHandlerState;
     handleReceiveFocus(): void;
     handleLoseFocus(): void;
     private getSlotByAnchors;

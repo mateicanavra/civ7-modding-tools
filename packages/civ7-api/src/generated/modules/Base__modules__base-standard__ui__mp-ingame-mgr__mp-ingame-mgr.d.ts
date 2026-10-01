@@ -5,7 +5,6 @@ declare class MultiplayerIngameSingleton {
     private multiplayerGameLastPlayerListener;
     private localPlayerChangedListener;
     private loadingStartCurtainRemoveListener;
-    private multiplayerGamePauseStateChangedListener;
     /**
      * CTOR
      */
@@ -23,7 +22,6 @@ declare class MultiplayerIngameSingleton {
      * Engine Event - Last player in the game.
      */
     onMultiplayerGameLastPlayer(): void;
-    onMultiplayerPauseStatus(data: GenericDataInt32): void;
     onAbandonedConfirm(): void;
     /**
      * Is the hotseat curtain up (attached to the DOM and showing?)

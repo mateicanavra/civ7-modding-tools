@@ -21,11 +21,11 @@ declare class AgeProgressionPopupManagerClass extends DisplayHandlerBase<AgeProg
     get currentAgeProgressionPopupData(): AgeProgressionPopupData | null;
     constructor();
     /**
-     * @implements {IDisplayQueue}
+     * @implements {IDisplayHandler}
      */
     show(request: AgeProgressionPopupData): void;
     /**
-     * @implements {IDisplayQueue}
+     * @implements {IDisplayHandler}
      */
     hide(_request: AgeProgressionPopupData, _options?: DisplayHideOptions): void;
     private onAgeProgression;

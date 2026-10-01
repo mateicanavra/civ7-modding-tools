@@ -5,6 +5,7 @@ export declare class RuleNearMapCenter extends Rule {
     configValues: any;
     name: string;
     description: string;
+    isStatic: boolean;
     static getName(): string;
     static getSchema(): ParameterSpecRecord;
     score(regionCell: RegionCell, ctx: ScoringContext): number;

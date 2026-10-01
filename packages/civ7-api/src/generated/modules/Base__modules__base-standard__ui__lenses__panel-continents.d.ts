@@ -1,6 +1,6 @@
 /**
  * @file panel-continents.ts
- * @copyright 2024, Firaxis Games
+ * @copyright 2024-2026, Firaxis Games
  * @description Panel providing additional continent information
  */
 import { LensActivationEvent } from "/core/ui/lenses/lens-manager.js";

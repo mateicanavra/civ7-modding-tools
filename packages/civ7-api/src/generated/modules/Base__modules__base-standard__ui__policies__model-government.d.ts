@@ -28,6 +28,7 @@ export interface GovermentScreenData {
     happinessNextCelebrationThreshold: number;
     hasGovtBeenChosen: boolean;
     govtTraditions: TraditionDisplayItem[];
+    inCelebration: boolean;
     settlementHappiness: () => HappinessStage[];
     displayCrisisTab: () => void;
 }

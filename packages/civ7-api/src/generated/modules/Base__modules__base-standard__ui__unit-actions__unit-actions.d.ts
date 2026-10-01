@@ -29,6 +29,7 @@ declare class UnitActions extends Panel {
     private isCommander;
     private isInArmy;
     private shelfButton;
+    private shelfButtonIcon;
     private animTimer;
     static readonly ANIM_DELAY: number;
     private isSubscribed;

@@ -3,7 +3,6 @@
  * @copyright 2020-2026, Firaxis Games
  * @description Input point for inputs gestures raised as 'actions'; includes all gamepad input.
  */
-import { ActiveDeviceTypeChangedEvent, MoveSoftCursorEvent } from "/core/ui/input/input-events.js";
 import { InputEngineEvent } from "/core/ui/input/input-support.js";
 declare class ActionHandlerSingleton {
     private static Instance;
@@ -70,11 +69,5 @@ declare class ActionHandlerSingleton {
     forceCursorCheck(): void;
     set deviceLayout(inputDeviceLayout: InputDeviceLayout);
 }
-declare global {
-    interface WindowEventMap {
-        "active-device-type-changed": ActiveDeviceTypeChangedEvent;
-        "move-soft-cursor": MoveSoftCursorEvent;
-    }
-}
-declare const ActionHandler: ActionHandlerSingleton;
-export { ActionHandler as default };
+export declare const ActionHandler: ActionHandlerSingleton;
+export default ActionHandler;

@@ -1,11 +1,12 @@
-import { Component } from "solid-js";
+import { Component, type Accessor, type Setter } from "solid-js";
 import { PreloadedImage } from "/core/ui-next/utilities/image-cache.js";
 import { PreloadedStyle } from "/core/ui-next/utilities/style-cache.js";
 type WrappedComponent<T extends Record<string, any>, U extends Component<T>> = {
     factoryName: string;
-    factory: U;
+    factory: Accessor<U>;
+    setFactory: Setter<U>;
     overridePriority: number;
-    cachedImages: Promise<PreloadedImage[]> | undefined;
+    cachedImages: Promise<PromiseSettledResult<PreloadedImage>[]> | undefined;
     cachedStyles: Promise<PreloadedStyle[]> | undefined;
 } & U;
 export declare const componentRegistered: any, setComponentRegistered: any;

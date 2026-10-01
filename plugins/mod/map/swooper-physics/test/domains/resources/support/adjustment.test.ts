@@ -55,7 +55,7 @@ function perTypeRow(args: {
     family: "geological",
     laneId: "probe",
     laneKind: "land",
-    weight: 10,
+    weight: 1,
     effectiveWeight: 1,
     authoredTargetCount: args.plannedCount,
     effectiveTargetCount: args.plannedCount,
@@ -549,6 +549,42 @@ describe("adjust-resource-support operation contract", () => {
     );
   });
 
+  it.each([
+    1, 3,
+  ])("protects a regional requirement of %i against cross-region support moves", (required) => {
+    const input = buildInput({
+      intents: [intentAt({ x: 2, y: 2, resourceType: "RESOURCE_FISH", order: 0 })],
+      perType: [
+        perTypeRow({ resourceType: "RESOURCE_FISH", plannedCount: 1, minCount: 0, maxCount: 1 }),
+      ],
+      starts: [{ seatIndex: 0, playerId: 0, plotIndex: plotAt(width / 2 + 8, 12) }],
+    });
+    const unprotected = run(input);
+    expect(unprotected.moveCount).toBe(1);
+    expect(unprotected.intents[0]?.regionSlot).toBe(2);
+
+    const protectedPlan = run({
+      ...input,
+      plan: {
+        ...input.plan,
+        regionMinimums: [
+          {
+            resourceType: "RESOURCE_FISH",
+            regionSlot: 1,
+            required,
+            fromRotation: 1,
+            forced: 0,
+            shortfall: required - 1,
+          },
+        ],
+      },
+    });
+    expect(protectedPlan.moveCount).toBe(0);
+    expect(protectedPlan.addCount).toBe(0);
+    expect(protectedPlan.intents.filter((intent) => intent.regionSlot === 1)).toHaveLength(1);
+    expect(protectedPlan.shortfalls.length).toBeGreaterThan(0);
+  });
+
   it("records typed shortfalls instead of forcing when no movable source or headroom exists", () => {
     // All sites sit inside the rich seat's radius (so a move would strip its
     // own support guard) and region minimums pin type A to the west; no
@@ -661,10 +697,7 @@ describe("adjust-resource-support operation contract", () => {
         legalMaskByType: { RESOURCE_A: legalMask },
         intensityByType: { RESOURCE_A: intensity },
         landmassIdByTile,
-        landmassTileCounts: [
-          landmassBoundary * height,
-          (width - landmassBoundary) * height,
-        ],
+        landmassTileCounts: [landmassBoundary * height, (width - landmassBoundary) * height],
       });
     };
     const configure = (
@@ -676,10 +709,7 @@ describe("adjust-resource-support operation contract", () => {
 
     // 3:2 is within the 1.8 maximum and 4:2 is already above it.
     for (const startingIntents of [intents.slice(1), intents]) {
-      const blocked = run(
-        buildScenario(startingIntents, [worseningCandidate]),
-        configure
-      );
+      const blocked = run(buildScenario(startingIntents, [worseningCandidate]), configure);
       expect(blocked.adjustments).toEqual([]);
       expect(blocked.shortfalls).toContainEqual({
         seatIndex: 1,
@@ -756,10 +786,7 @@ describe("adjust-resource-support operation contract", () => {
           RESOURCE_BAD: legalBad,
         },
         landmassIdByTile,
-        landmassTileCounts: [
-          landmassBoundary * height,
-          (width - landmassBoundary) * height,
-        ],
+        landmassTileCounts: [landmassBoundary * height, (width - landmassBoundary) * height],
       }),
       configure
     );
@@ -773,9 +800,9 @@ describe("adjust-resource-support operation contract", () => {
         seatIndex: 1,
       },
     ]);
-    expect(
-      moved.intents.find((intent) => intent.resourceType === "RESOURCE_BAD")?.plotIndex
-    ).toBe(badSource.plotIndex);
+    expect(moved.intents.find((intent) => intent.resourceType === "RESOURCE_BAD")?.plotIndex).toBe(
+      badSource.plotIndex
+    );
   });
 
   it("adds within maxCount headroom when moves are blocked, with support phase provenance", () => {

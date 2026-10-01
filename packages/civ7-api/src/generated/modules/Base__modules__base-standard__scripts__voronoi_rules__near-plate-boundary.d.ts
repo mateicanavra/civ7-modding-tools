@@ -6,6 +6,7 @@ export declare class RuleNearPlateBoundary extends Rule {
     configValues: any;
     name: string;
     description: string;
+    isStatic: boolean;
     private m_plateBoundaries;
     static getName(): string;
     static getSchema(): ParameterSpecRecord;

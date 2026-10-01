@@ -24,7 +24,8 @@ export type ResolvedResourceRuntimeId = {
   readonly resourceType: OfficialResourceType;
   readonly resourceTypeId: number;
   readonly weight: number;
-  readonly minimumPerHemisphere: number;
+  readonly minimumPerLandmass: number;
+  readonly landmassUnique: boolean;
   readonly classType: string;
 };
 
@@ -76,11 +77,20 @@ export function resolveResourceRuntimeIds(): ResourceRuntimeIdResolution {
       );
       continue;
     }
+    if (
+      row.weight !== entry.weight ||
+      row.minimumPerLandmass !== entry.minimumPerLandmass ||
+      row.landmassUnique !== entry.landmassUnique
+    ) {
+      failures.push(`${resourceType}: corpus resource facts disagree with generated policy`);
+      continue;
+    }
     const resolved: ResolvedResourceRuntimeId = {
       resourceType,
       resourceTypeId: tableIndex,
       weight: row.weight,
-      minimumPerHemisphere: row.minimumPerHemisphere,
+      minimumPerLandmass: row.minimumPerLandmass,
+      landmassUnique: row.landmassUnique,
       classType: row.classType,
     };
     byType.set(resourceType, resolved);

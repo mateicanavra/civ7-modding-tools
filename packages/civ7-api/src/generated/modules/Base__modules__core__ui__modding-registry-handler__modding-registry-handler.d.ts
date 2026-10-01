@@ -6,7 +6,8 @@
 export interface ModComponentRegistryData {
     componentTag: string;
     parentID: string;
-    modSlot: string;
+    modSlot?: string;
+    attributes?: Record<string, string>;
 }
 declare class ModdingRegistryManager {
     private modElements;
@@ -22,6 +23,11 @@ declare class ModdingRegistryManager {
      * @param requestingPanelID Which panel/component is requesting mod elements
      */
     attachModElements(requestingPanelID: string): void;
+    /**
+     * Called by the panel that modding components attach to
+     * @param requestingPanelID Which panel/component is requesting mod elements
+     */
+    attachModElementsTo(requestingPanelID: string, modSlot: HTMLElement): void;
 }
 export declare const ModdingRegistry: ModdingRegistryManager;
 export {};

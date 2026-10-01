@@ -74,6 +74,26 @@ describe("initial map resource authoring policy", () => {
     }
   });
 
+  it("admits no landmass-unique resource in the current Antiquity authoring age", () => {
+    const unique = OFFICIAL_RESOURCE_CORPUS.filter((entry) => entry.landmassUnique);
+    expect(unique.map((entry) => entry.resourceType).sort()).toEqual([
+      "RESOURCE_COCOA",
+      "RESOURCE_SPICES",
+      "RESOURCE_SUGAR",
+      "RESOURCE_TEA",
+    ]);
+    for (const entry of unique) {
+      expect(entry.validAges).not.toContain(INITIAL_MAP_RESOURCE_AUTHORING_AGE);
+      expect(INITIAL_MAP_RESOURCE_TYPES).not.toContain(entry.resourceType);
+    }
+    for (const resourceType of INITIAL_MAP_RESOURCE_TYPES) {
+      expect(
+        OFFICIAL_RESOURCE_CORPUS.find((entry) => entry.resourceType === resourceType)
+          ?.landmassUnique
+      ).toBe(false);
+    }
+  });
+
   it("derives symbolic authoring policy for an explicit age", () => {
     const modern = INITIAL_MAP_RESOURCE_AUTHORING_POLICY.filter((entry) => {
       const policy = getInitialMapResourcePolicyForType(entry.resourceType, "AGE_MODERN");

@@ -21,6 +21,22 @@ export declare enum FeatureType {
     Volcano = 1,
     _Length = 2
 }
+export declare enum RiverSize {
+    None = 0,
+    Minor = 1,
+    Major = 2,
+    _Length = 3
+}
+export declare enum HexDirection {
+    No_Direction = -1,
+    NorthEast = 0,
+    East = 1,
+    SouthEast = 2,
+    SouthWest = 3,
+    West = 4,
+    NorthWest = 5,
+    _Length = 6
+}
 export declare function isLand(terrainType: TerrainType): terrainType is TerrainType.Flat | TerrainType.Rough | TerrainType.Mountainous;
 export declare function isWater(terrainType: TerrainType): terrainType is TerrainType.Ocean | TerrainType.Coast | TerrainType.NavRiver;
 export declare enum BiomeType {
