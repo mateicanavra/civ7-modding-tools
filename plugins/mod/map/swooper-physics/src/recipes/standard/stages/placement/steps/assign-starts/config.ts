@@ -7,8 +7,9 @@ import { artifacts as morphologyCoastsArtifacts } from "../../../../../../domain
 import placement from "../../../../../../domain/placement/index.js";
 import { artifacts as placementRegionArtifacts } from "../../../../../../domain/placement/modules/regions/artifacts/index.js";
 import { artifacts as placementStartArtifacts } from "../../../../../../domain/placement/modules/starts/artifacts/index.js";
+import { ResourceSupportSettingsSchema } from "../../../../../../domain/resources/modules/support/model/atoms/resource-support-evidence.schema.js";
 import { artifacts as resourceSiteArtifacts } from "../../../../../../domain/resources/modules/sites/artifacts/index.js";
-import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { STANDARD_INITIAL_SETUP } from "../../../../initial-setup.js";
 
 /**
@@ -39,4 +40,11 @@ export const config = defineStep({
   ops: {
     starts: placement.starts.ops.planStarts,
   },
+  schema: Type.Object({
+    supportRequirements: Type.Pick(ResourceSupportSettingsSchema, [
+      "supportFloor",
+      "supportRadiusTiles",
+      "equityTolerance",
+    ]),
+  }),
 });

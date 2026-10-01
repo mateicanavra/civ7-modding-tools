@@ -52,6 +52,7 @@ function assignStartsConfig(
   configure?.(selection.config);
   return {
     starts: normalizeOperationSelectionForTest(placement.starts.ops.planStarts, selection),
+    supportRequirements: { supportFloor: 0, supportRadiusTiles: 4, equityTolerance: 8 },
   };
 }
 
@@ -138,10 +139,10 @@ function publishAssignStartsInputs(context: MapContext, landTiles: readonly Land
     slotByTile,
   });
   publishTestArtifact(context, morphologyLandformsArtifacts.topography, {
-    elevation: Int16Array.from(landMask, (land) => land === 1 ? 500 : 0),
+    elevation: Int16Array.from(landMask, (land) => (land === 1 ? 500 : 0)),
     seaLevel: 0,
     landMask,
-    externalWaterMask: Uint8Array.from(landMask, (land) => land === 0 ? 1 : 0),
+    externalWaterMask: Uint8Array.from(landMask, (land) => (land === 0 ? 1 : 0)),
     bathymetry: new Int16Array(size),
   });
   publishTestArtifact(context, morphologyLandformsArtifacts.landmasses, {
@@ -174,8 +175,15 @@ function publishAssignStartsInputs(context: MapContext, landTiles: readonly Land
     coastalWater: new Uint8Array(size),
     distanceToCoast: new Uint16Array(size),
   });
-  publishTestArtifact(context, hydrographyArtifacts.hydrography, { ...createEmptyWaterFixture(width, height).hydrography, exposedLandMask: landMask });
-  publishTestArtifact(context, hydrographyArtifacts.lakePlan, createEmptyWaterFixture(width, height).lakePlan);
+  publishTestArtifact(context, hydrographyArtifacts.hydrography, {
+    ...createEmptyWaterFixture(width, height).hydrography,
+    exposedLandMask: landMask,
+  });
+  publishTestArtifact(
+    context,
+    hydrographyArtifacts.lakePlan,
+    createEmptyWaterFixture(width, height).lakePlan
+  );
   publishTestArtifact(context, climateArtifacts.climateIndices, {
     surfaceTemperatureC: new Float32Array(size).fill(16),
     effectiveMoisture: new Float32Array(size).fill(0.5),
@@ -282,6 +290,31 @@ describe("assign starts step", () => {
       unseatedCount: 1,
       status: "degraded",
     });
+  });
+
+  it("publishes resource refusal evidence before rejecting a landful but resource-free map", () => {
+    const { adapter, context } = createAssignStartsContext([4]);
+    const config = assignStartsConfig();
+    config.supportRequirements = { supportFloor: 2, supportRadiusTiles: 4, equityTolerance: 2 };
+
+    expect(() =>
+      runAssignStartsStep(
+        context,
+        [
+          [2, 2],
+          [3, 2],
+          [3, 3],
+        ],
+        config
+      )
+    ).toThrow(/No complete start set meets the admitted resource support floor and equity band/);
+    const assignment = readArtifact(context, placementStartArtifacts.startAssignment);
+    expect(assignment.assigned).toBe(0);
+    expect(assignment.seats[0]!.imputedFlags).toContain("resource-support-unresolved");
+    expect(
+      assignment.rejectionCounts.find((row) => row.reason === "resource-support-floor")?.count
+    ).toBe(3);
+    expect(adapter.calls.setStartPosition).toHaveLength(0);
   });
 
   it("publishes partial assignment evidence before refusing to complete", () => {

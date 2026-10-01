@@ -3,6 +3,9 @@ import placementDomain from "../../../../../../src/domain/placement/router.js";
 import type { Static } from "@swooper/mapgen-core/authoring";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 import { TEST_GAME_SEED } from "../../../../../setup.js";
+import { getHexRadiusIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
+import standard1337 from "./fixtures/standard-1337.json";
+import huge1234 from "./fixtures/huge-1234.json";
 
 const { planStarts } = placementDomain.starts.ops;
 
@@ -71,6 +74,8 @@ function makeInput(
     aridityIndex: new Float32Array(size).fill(0.35),
     riverClass: new Uint8Array(size),
     lakeMask: new Uint8Array(size),
+    plannedResourcePlotIndices: [],
+    resourceSupportRequirements: { supportFloor: 0, supportRadiusTiles: 4, equityTolerance: 8 },
   };
 }
 
@@ -676,5 +681,194 @@ describe("start selection ladder (op-owned, S4)", () => {
     expect(fertilityRow?.status).toBe("imputed");
     expect(result.seats[0]!.imputedFlags).toContain("fertility-imputed");
     expect(result.seats[0]!.imputedFlags).toContain("climate-imputed");
+  });
+});
+
+describe("resource-backed start admission", () => {
+  const supportCounts = (input: PlanStartsInput, seats: readonly { plotIndex: number }[]) => {
+    const sites = new Set(input.plannedResourcePlotIndices);
+    return seats.map((seat) =>
+      seat.plotIndex < 0
+        ? 0
+        : getHexRadiusIndicesOddQ(
+            seat.plotIndex,
+            input.width,
+            input.height,
+            input.resourceSupportRequirements.supportRadiusTiles
+          ).filter((plot) => sites.has(plot)).length
+    );
+  };
+
+  for (const [name, fixture] of [
+    ["Standard/1337", standard1337],
+    ["Huge/1234", huge1234],
+  ] as const) {
+    it(`seats the retained ${name} witness from distinct planned sites without resource repair`, () => {
+      const raw = fixture.input;
+      const input = {
+        ...raw,
+        landMask: Uint8Array.from(raw.landMask),
+        slotByTile: Uint8Array.from(raw.slotByTile),
+        landmassIdByTile: Int32Array.from(raw.landmassIdByTile),
+        coastalLand: Uint8Array.from(raw.coastalLand),
+        distanceToCoast: Uint16Array.from(raw.distanceToCoast),
+        shelfMask: Uint8Array.from(raw.shelfMask),
+        elevation: Int16Array.from(raw.elevation),
+        fertility: Float32Array.from(raw.fertility),
+        effectiveMoisture: Float32Array.from(raw.effectiveMoisture),
+        surfaceTemperature: Float32Array.from(raw.surfaceTemperature),
+        aridityIndex: Float32Array.from(raw.aridityIndex),
+        riverClass: Uint8Array.from(raw.riverClass),
+        lakeMask: Uint8Array.from(raw.lakeMask),
+        mountainMask: Uint8Array.from(raw.mountainMask),
+        volcanoMask: Uint8Array.from(raw.volcanoMask),
+      };
+      const before = structuredClone(input);
+      const selection = {
+        strategy: "viability-fairness" as const,
+        config: fixture.selection.config,
+      };
+      const result = runAdmittedOperationForTest(planStarts, input, selection);
+      const counts = supportCounts(input, result.seats);
+
+      expect(result.seats.map((seat) => seat.playerId)).toEqual(input.playerIds);
+      expect(result.seats.every((seat) => seat.plotIndex >= 0)).toBe(true);
+      expect(Math.min(...counts)).toBeGreaterThanOrEqual(2);
+      expect(Math.max(...counts) - Math.min(...counts)).toBeLessThanOrEqual(2);
+      expect(result.seats.every((seat) => seat.achievedSpacing >= 6)).toBe(true);
+      expect(result.seats.map((seat) => seat.plotIndex)).not.toContain(
+        fixture.formerlyUnsupportedSeat
+      );
+      expect(input).toEqual(before);
+      expect(runAdmittedOperationForTest(planStarts, input, selection)).toEqual(result);
+    });
+  }
+
+  it("counts overlapping seat radii jointly and deduplicates actual resource plots", () => {
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid20x10, 2);
+    addLandmass(
+      input,
+      0,
+      1,
+      Array.from({ length: 120 }, (_value, i) => [1 + (i % 15), 1 + Math.floor(i / 15)] as const)
+    );
+    input.plannedResourcePlotIndices = [idx(input.width, 8, 5), idx(input.width, 10, 5)];
+    input.resourceSupportRequirements = {
+      supportFloor: 2,
+      supportRadiusTiles: 4,
+      equityTolerance: 0,
+    };
+
+    const result = plan(input);
+    expect(result.seats.every((seat) => seat.plotIndex >= 0)).toBe(true);
+    expect(supportCounts(input, result.seats)).toEqual([2, 2]);
+    input.plannedResourcePlotIndices.push(...input.plannedResourcePlotIndices);
+    expect(plan(input)).toEqual(result);
+  });
+
+  it("does not assign an unsupported island a quota from unfiltered regional capacity", () => {
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid20x10, 2);
+    addLandmass(input, 0, 1, [
+      [1, 3],
+      [2, 3],
+      [2, 4],
+    ]);
+    addLandmass(
+      input,
+      1,
+      2,
+      Array.from({ length: 48 }, (_value, i) => [10 + (i % 6), 1 + Math.floor(i / 6)] as const)
+    );
+    input.plannedResourcePlotIndices = [idx(input.width, 12, 3), idx(input.width, 14, 5)];
+    input.resourceSupportRequirements = {
+      supportFloor: 2,
+      supportRadiusTiles: 4,
+      equityTolerance: 0,
+    };
+
+    const result = plan(input);
+    expect(result.playersLandmass1).toBe(0);
+    expect(result.playersLandmass2).toBe(2);
+    expect(result.seats.every((seat) => seat.realizedRegionSlot === 2)).toBe(true);
+    expect(supportCounts(input, result.seats)).toEqual([2, 2]);
+  });
+
+  it("does not count repeated type alternatives at one plot as support-floor capacity", () => {
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid12x8, 2);
+    addLandmass(
+      input,
+      0,
+      1,
+      Array.from({ length: 48 }, (_value, i) => [1 + (i % 8), 1 + Math.floor(i / 8)] as const)
+    );
+    input.plannedResourcePlotIndices = Array(3).fill(idx(input.width, 4, 3));
+    input.resourceSupportRequirements = {
+      supportFloor: 2,
+      supportRadiusTiles: 4,
+      equityTolerance: 2,
+    };
+
+    const result = plan(input);
+    expect(result.seats.map((seat) => seat.playerId)).toEqual([...input.playerIds]);
+    expect(result.seats.every((seat) => seat.plotIndex === -1)).toBe(true);
+    expect(
+      result.seats.every((seat) => seat.imputedFlags.includes("resource-support-unresolved"))
+    ).toBe(true);
+    expect(result.status).toBe("degraded");
+    expect(
+      result.rejectionCounts.find((row) => row.reason === "resource-support-floor")?.count
+    ).toBe(48);
+  });
+
+  it("does not alias out-of-grid integer indices into distinct planned resource sites", () => {
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid12x8, 2);
+    addLandmass(
+      input,
+      0,
+      1,
+      Array.from({ length: 48 }, (_value, i) => [1 + (i % 8), 1 + Math.floor(i / 8)] as const)
+    );
+    input.plannedResourcePlotIndices = [0];
+    input.resourceSupportRequirements = {
+      supportFloor: 2,
+      supportRadiusTiles: 4,
+      equityTolerance: 2,
+    };
+    const oneResource = plan(input);
+    input.plannedResourcePlotIndices.push(4294967296);
+
+    const result = plan(input);
+    expect(result).toEqual(oneResource);
+    expect(result.seats.every((seat) => seat.plotIndex === -1)).toBe(true);
+    expect(
+      result.rejectionCounts.find((entry) => entry.reason === "resource-support-floor")?.count
+    ).toBe(48);
+  });
+
+  it("records an unseated player when individually supported sites have no complete equity band", () => {
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid24x10, 2);
+    addLandmass(input, 0, 1, [[2, 4]]);
+    addLandmass(input, 1, 2, [[16, 4]]);
+    input.plannedResourcePlotIndices = [
+      idx(input.width, 3, 4),
+      idx(input.width, 2, 5),
+      idx(input.width, 15, 4),
+      idx(input.width, 16, 3),
+      idx(input.width, 17, 4),
+      idx(input.width, 16, 5),
+    ];
+    input.resourceSupportRequirements = {
+      supportFloor: 2,
+      supportRadiusTiles: 1,
+      equityTolerance: 0,
+    };
+
+    const result = plan(input);
+    expect(result.seats.map((seat) => seat.playerId)).toEqual([...input.playerIds]);
+    expect(result.seats.filter((seat) => seat.plotIndex >= 0)).toHaveLength(1);
+    expect(
+      result.seats.filter((seat) => seat.imputedFlags.includes("resource-support-unresolved"))
+    ).toHaveLength(1);
+    expect(result.status).toBe("degraded");
   });
 });

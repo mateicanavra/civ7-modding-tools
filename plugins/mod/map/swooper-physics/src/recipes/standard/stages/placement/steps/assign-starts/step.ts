@@ -164,7 +164,10 @@ function requireCompleteStartAssignment(assignment: DeepReadonly<StartAssignment
   }
   throw new Error(
     `[Placement] Start assignment incomplete: assigned ${assignment.assigned} of ${seatCount} ` +
-      `seat(s), with ${assignment.unseatedCount} unseated.`
+      `seat(s), with ${assignment.unseatedCount} unseated.` +
+      (assignment.seats.some((seat) => seat.imputedFlags.includes("resource-support-unresolved"))
+        ? " No complete start set meets the admitted resource support floor and equity band."
+        : "")
   );
 }
 
@@ -215,6 +218,7 @@ export const AssignStartsStep = createStep(config, {
         // Starts consume planned sites because resource stamping follows the
         // support-adjustment pass.
         plannedResourcePlotIndices: resourcePlan.intents.map((intent) => intent.plotIndex),
+        resourceSupportRequirements: stepConfig.supportRequirements,
       },
       stepConfig.starts
     );

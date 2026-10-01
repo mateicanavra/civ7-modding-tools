@@ -1,4 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { ResourceSupportSettingsSchema } from "../../../../../resources/modules/support/model/atoms/resource-support-evidence.schema.js";
 import { StartFairnessReportSchema } from "../../model/atoms/start-fairness.schema.js";
 import {
   StartInputCoverageRowSchema,
@@ -115,12 +116,15 @@ const PlanStartsContract = defineOp({
         description: "Per-tile nearby planned-resource support score (0..255).",
       })
     ),
-    plannedResourcePlotIndices: Type.Optional(
-      Type.Array(Type.Integer({ minimum: 0 }), {
-        description:
-          "PLANNED resource site plot indices (select-resource-sites intents) used to derive nearby start support. Planned, not placed: since S5 (D3 contract change) resource stamping runs after starts + the support pass, so plan intents are the only resource signal that exists at start time.",
-      })
-    ),
+    plannedResourcePlotIndices: Type.Array(Type.Integer({ minimum: 0 }), {
+      description:
+        "Exact planned resource site indices used for radius-matched floor/equity admission and nearby scoring. Resource stamping follows start selection and support adjustment.",
+    }),
+    resourceSupportRequirements: Type.Pick(ResourceSupportSettingsSchema, [
+      "supportFloor",
+      "supportRadiusTiles",
+      "equityTolerance",
+    ]),
   }),
   output: Type.Object({
     playersLandmass1: Type.Integer({

@@ -1,4 +1,5 @@
 import { createStage } from "@swooper/mapgen-core/authoring";
+import { Type } from "@swooper/mapgen-core/authoring/contracts";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { AdjustResourcesStep } from "./steps/adjust-resources/step.js";
 import { AssignAdvancedStartsStep } from "./steps/assign-advanced-starts/step.js";
@@ -42,4 +43,26 @@ export default createStage({
     "assign-advanced-starts": AssignAdvancedStartsStep,
     "observe-placement-parity": ObservePlacementParityStep,
   }),
-} as const);
+  public: Type.Object({
+    "plot-landmass-regions": PlotLandmassRegionsStep.contract.schema,
+    "plan-natural-wonders": PlanNaturalWondersStep.contract.schema,
+    "plan-resource-demands": PlanResourceDemandsStep.contract.schema,
+    "select-resource-sites": SelectResourceSitesStep.contract.schema,
+    "assign-starts": Type.Omit(AssignStartsStep.contract.schema, ["supportRequirements"]),
+    "adjust-resources": AdjustResourcesStep.contract.schema,
+  }),
+  compile: ({ config }) => {
+    const support = config["adjust-resources"].support.config;
+    return {
+      ...config,
+      "assign-starts": {
+        ...config["assign-starts"],
+        supportRequirements: {
+          supportFloor: support.supportFloor,
+          supportRadiusTiles: support.supportRadiusTiles,
+          equityTolerance: support.equityTolerance,
+        },
+      },
+    };
+  },
+});
