@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import hydrologyOpsPublic from "../../../../../../src/domain/hydrology/router.js";
-import { hugeRoot17, largerGrid, standardRoots37And39 } from "./fixtures/retained-fixtures.js";
+import { desertHugeRoot19, hugeRoot17, largerGrid, standardRoots37And39 } from "./fixtures/retained-fixtures.js";
 
 const { computeBasinNetwork: network, computeDrainageBasins: geometry } = hydrologyOpsPublic.hydrography.ops;
 
@@ -89,6 +89,36 @@ describe("hydrology/compute-basin-network", () => {
     if (pool.closure?.resolution !== "shoreline-quantization") throw new Error("Missing bracket");
     expect(pool.closure.cohortCells).toEqual([149]); expect(pool.closure.after.balance).toBe(-3.3123185752120605);
     expect(plan.ports).toEqual([]); expect(plan.terminalType[43]).toBe(3);
+  });
+  it("retains Desert root19's original Number delivery and quantized unresolved supply", () => {
+    const input = desertHugeRoot19(), plan = verify(input), pool = plan.pools[0]!;
+    expect(Array.isArray(input.localRunoff)).toBe(true);
+    expect(input.localRunoff[2740]).not.toBe(Math.fround(input.localRunoff[2740]!));
+    expect(input.potentialDemand).toBeInstanceOf(Float32Array);
+    expect(plan.pools).toHaveLength(1); expect(pool.leafIds).toEqual([1]);
+    expect(pool.catchmentCells).toHaveLength(42);
+    expect(pool.state).toBe("closed"); expect(pool.level).toBe(30);
+    expect(pool.wetCells).toEqual([2635, 2636, 2739, 2740, 2741, 2742, 2845, 2846, 2847, 2848, 2849, 2951, 2952, 2953]);
+    expect(pool.outflow).toBe(0); expect(pool.unresolvedResidual).toBe(3.2292057291665515);
+    expect(pool.flux).toEqual({ incomingOverflow: 0, dryRunoff: 1184.3766666666666, wetPrecipitation: 749, wetDemand: 1930.1474609375, balance: 3.2292057291665515 });
+    expect(pool.closure).toEqual({ resolution: "shoreline-quantization", level: 30,
+      cohortCells: [2528, 2529, 2530, 2634, 2637, 2738, 2743, 2844, 2950, 2954],
+      before: pool.flux,
+      after: { incomingOverflow: 0, dryRunoff: 755.3058333333332, wetPrecipitation: 1291, wetDemand: 3297.9371490478516, balance: -1251.6313157145182 },
+      jumpMagnitude: 1254.8605214436848, unresolvedResidual: pool.unresolvedResidual });
+    expect(plan.bodies).toHaveLength(1); expect(plan.components).toHaveLength(1);
+    const body = plan.bodies[0]!, component = plan.components[0]!;
+    expect(body.bodyId).toBe(2636); expect(component.componentId).toBe(2636);
+    expect(body.wetCells).toEqual(pool.wetCells); expect(component.memberCells).toEqual(pool.wetCells);
+    expect(body.flux).toEqual({ incomingOverflow: 1184.3766666666668, dryRunoff: 0, wetPrecipitation: 749, wetDemand: 1930.1474609375, balance: 3.229205729166779 });
+    expect(component.flux).toEqual(body.flux);
+    for (const record of [body, component]) {
+      expect(record.outflow).toBe(0); expect(record.unresolvedResidual).toBe(pool.unresolvedResidual);
+      expect(record.flux.balance - record.outflow - record.unresolvedResidual).toBe(2 ** -42);
+    }
+    // The original source/edge oracle sums exactly to this binary64-representable dyadic.
+    expect(227235151852769 * 2 ** -46 - pool.unresolvedResidual).toBe(2 ** -46);
+    expect(plan.ports).toEqual([]); expect(plan.transfers).toEqual([]);
   });
   it("absorbs the root39 delivery once and supports root37 inward at dry junction312", () => {
     const input = standardRoots37And39(), plan = verify(input);

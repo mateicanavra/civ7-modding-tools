@@ -432,3 +432,67 @@ hydraulic exchanges in each arm, separately from principal dry channels.
 Desktop and mobile browser checks pass with nonblank canvases, no page errors,
 no page overflow and functional detail coordinates. This is portable evidence,
 not a fresh Civ7 screenshot, lake-height qualification or naval-traversal proof.
+
+## Local Ledger Numerical Admission
+
+The seven-profile periodic-climate candidate exposed a numerical admission
+defect in Desert Mountains Huge, seed `1538316523`. Closed pool 19 has 42
+owned catchment cells and 14 wet cells. Its body/component 2636 accounts for
+incoming supply `1184.3766666666668`, wet precipitation `749`, and wet demand
+`1930.1474609375`; their emitted balance is `3.229205729166779`. The same
+source tree leaves physical unresolved supply `3.2292057291665515` after the
+pool's stationary shoreline solve. No port, missing source, or unexplained
+water connection was found.
+
+An independent exact-dyadic reconstruction attributes their `2^-42`
+discrepancy to original source summation (`2^-46`), dry-edge rounding (`2^-43`),
+and incoming aggregation (`7 * 2^-46`). The former artifact check scaled its
+tolerance by the small net balance after roughly 1,930-unit terms cancel.
+That rejects this represented ledger despite retaining every physical source.
+
+The repair changes only the two record-local ledger comparisons. Keep the
+existing `64 * Number.EPSILON` factor, but scale it by the sum of local incoming
+supply, dry runoff, wet precipitation, wet demand, outflow, and unresolved
+supply, with a minimum scale of one. Require finite terms and derived balances
+and scale; overflow is refusal, never unlimited tolerance. The retained case's
+local tolerance is approximately `5.49e-11`, not the much larger mapwide
+assembly bound. A `1e-8` accounting defect must still refuse admission.
+
+Do not change the producer's balance, unresolved supply, closure bracket,
+membership, transport, rainfall, or terrain. Keep generic identity, closure,
+port and global-conservation checks unchanged. This is a local backward-error
+criterion for represented sums, not a formal routing-tree error bound or a
+new physical residual. No new operation, recipe instrumentation, numerical
+knob, or executable compatibility path is warranted.
+
+The regression uses the existing retained-row fixture and public certified
+artifact projection. It preserves original binary64 runoff and Float32 demand,
+the exact bracket and incoming-edge discrepancy. Independent source, demand,
+balance, outflow and unresolved-supply mutations, highly cancelling missing
+terms, low forcing, and gross-scale overflow must remain refusals. The full
+periodic-profile study is rerun afterward with unchanged scenarios and targets;
+the prior negative capture is retained, not rewritten as a success.
+
+Sealed owner replay and independent reconstruction live in the discoverable
+atlas at `earth-calibration/periodic-profile-ledger-discriminator-20260930/`.
+The original incomplete climate comparison remains in
+`earth-calibration/periodic-profile-retirement-20260930/`; unavailable candidate
+metrics mean unavailable comparisons, not zero additional failures.
+
+The implemented comparison and retained 42-cell fixture are independently
+reviewed. All 294 original cell properties, floor and spill match the sealed
+producer input. Focused verification passes 30 tests and 44,374 assertions,
+including material corruption of every local ledger term, both cancelling
+equalities, finite overflow, low forcing and independent membership refusals.
+The six-owner `check,test,build,check:policy` graph completes 73 tasks: all
+types, builds, policy and other test targets pass. Definition tests have 1,035
+passes and one aggregate failure containing exactly the existing eleven
+expectations: Ring atoll; vegetation variety and taiga in four mountain
+profiles; and Earthlike row-temperature variation and biome dominance. Those
+expectations are unchanged, not waived. The complete log is
+`earth-calibration/local-ledger-owner-proof-20260930.log`.
+
+This admits represented numerical sums; it does not change the physics or
+qualify the profile migration by itself. The fresh public-bank comparison
+and complete artifact cohort remain the next gate, with full calibration
+reported separately from replacement eligibility.

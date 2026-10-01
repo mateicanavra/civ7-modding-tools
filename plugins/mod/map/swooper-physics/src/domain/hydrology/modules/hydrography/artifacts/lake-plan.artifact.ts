@@ -295,11 +295,21 @@ export const artifact = defineArtifact({
       );
     for (const record of [...value.pools, ...value.bodies, ...value.components]) {
       const flux = record.flux;
+      // Source and routed sums can round differently before large terms cancel.
+      const ledgerScale = Math.max(
+        1,
+        flux.incomingOverflow + flux.dryRunoff + flux.wetPrecipitation + flux.wetDemand +
+          record.outflow + record.unresolvedResidual
+      );
+      const tolerance = 64 * Number.EPSILON * ledgerScale;
+      const sourceBalance =
+        flux.incomingOverflow + flux.dryRunoff + flux.wetPrecipitation - flux.wetDemand;
+      const dispositionBalance = record.outflow + record.unresolvedResidual;
       check(
-        close(
-          flux.balance,
-          flux.incomingOverflow + flux.dryRunoff + flux.wetPrecipitation - flux.wetDemand
-        ) && close(flux.balance, record.outflow + record.unresolvedResidual),
+        Number.isFinite(ledgerScale) && Number.isFinite(flux.balance) &&
+          Number.isFinite(sourceBalance) && Number.isFinite(dispositionBalance) &&
+          Math.abs(flux.balance - sourceBalance) <= tolerance &&
+          Math.abs(flux.balance - dispositionBalance) <= tolerance,
         "Physical ledger does not balance with explicit unresolved supply."
       );
     }

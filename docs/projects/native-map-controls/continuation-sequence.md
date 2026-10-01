@@ -273,6 +273,23 @@ defaults, composition/reduction branches and current capture fallbacks only
 with that migration. The water retirement and its exact replay remain a
 separately completed prerequisite; no older water computation is reopened.
 
+The first complete-profile climate attempt completed 48 of 49 portable
+artifact captures and held all 26 preclimate artifacts in every case. Its
+Desert Mountains Huge refusal is the record-local numerical admission defect
+described in [basin coordinator completion](basin-coordinator-completion.md#local-ledger-numerical-admission),
+not a reason to retain the old climate algorithms. Repair that comparison
+without changing physical outputs, then repeat the public study bank and
+artifact cohort. Full capture, no additional target or expectation failures,
+unchanged Earthlike members and held upstream products qualify replacement;
+existing calibration failures remain reported and unwaived. Removing old
+strategies is not conditional on fixing unrelated preexisting failures.
+
+Use the existing catalog, preset, seed and setup authorities throughout. The
+Standard recipe identity is not a fixed Standard-size test selection. No new
+map-type table, generic scenario harness or global property is needed for
+this migration. Native lake policy and navigation qualification remain a
+separate downstream gate after physical forcing and basin behavior settle.
+
 ## Evidence That Survives The Artifact Correction
 
 - The ten-map publication replay matches all 120 captured field hashes. The
