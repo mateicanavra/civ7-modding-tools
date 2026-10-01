@@ -1,5 +1,11 @@
 # Solar Geometry Discriminator
 
+This retained protocol describes an archived pre-periodic measurement. Its
+`solar-study.ts` and `solar-capture.ts` execution paths are retired; historical
+capture bytes and scientific sources remain unchanged. Current thermal studies
+use the periodic response owner, while `solar-geometry.ts` remains an independent
+FAO geometry oracle rather than an alternate production forcing path.
+
 Test-owned evidence only. Nothing here selects a production strategy, changes
 Earth's tilt or lapse rate, adjusts biome targets, or calibrates a full climate.
 The original thermal reference and its 411-cell cohort are unchanged.

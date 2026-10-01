@@ -1,7 +1,11 @@
 # Independent Earth Thermal Reference
 
-This diagnostic compares actual radiative-forcing and thermal-state operations
-with a pinned external low-relief land reference. It does not adopt a new map
+This reference retains the historical instantaneous-temperature diagnosis and
+its pinned external low-relief land data. The current admitted computation is
+the [periodic response](periodic-thermal-response.md), verified by the frozen
+monthly response study; live reproductions of the retired algorithms are
+removed rather than maintained as another executable climate path. Historical
+source values, fits and receipts below remain unchanged. It does not adopt a new map
 profile, establish a physical relief scale, or change a metric-study target.
 
 ## Source And Meaning
@@ -70,12 +74,12 @@ The frozen fit has `insolationScaleC = 72.58464582463931` and
 this gauge with zero land cooling. This is diagnostic parameterization, not
 a recommendation to set an authored world profile to these values.
 
-The test calls the real admitted `computeRadiativeForcing` and
-`computeThermalState` operations. Every source point is a separate test row;
+The original diagnostic called the then-admitted `computeRadiativeForcing` and
+`computeThermalState` operations. Every source point was a separate test row;
 this is not a reconstructed map. Model elevation and sea level are both zero,
 all samples are land, and albedo is excluded. No source meters or native
 Firaxis elevation indices are converted into model relief units. Seasonal
-outputs are averaged equally, matching the model's four-phase convention,
+outputs were averaged equally, matching the model's four-phase convention,
 not pretending those phases are monthly observations.
 
 | Diagnostic | Bias C | RMSE C | MAE C |
@@ -92,7 +96,7 @@ retains its actual single unshifted phase, 0.9/0.1 endpoints, exponent 1,
 9 C base, 50 C gain, 0.32 C land cooling, and -60/50 C clipping. Its severe
 old lapse does not participate at zero relief.
 
-Numerical assertions allow 0.0001 C error against the external float64
+The original numerical assertions allowed 0.0001 C error against the external float64
 analysis to accommodate production float32 fields. That is a computation
 parity tolerance, not a scientific realism threshold. The frozen fit also
 predicts a 12.272 C tropical four-phase range versus a 3.278 C source monthly

@@ -157,12 +157,25 @@ index units, not calibrated open-water evaporation or a depth-storage rate.
 There is one ground-temperature computation owner: baseline climate. Refine
 consumes `thermalField` and applies declared albedo feedback;
 it does not recompute sunlight or elevation cooling with a second calibration.
-Pressure's sea-level temperature calculation remains separate because its datum
-deliberately excludes ground lapse. Baseline thermal and final climate indices are
+Pressure consumes the same thermal operation's sea-level response separately
+because that datum deliberately excludes ground lapse. It is not another
+temperature algorithm. Baseline thermal and final climate indices are
 successive immutable vintages, not competing algorithms. Refined demand uses
 annual refined temperature and is therefore not generally equal to mean
 seasonal demand under a nonlinear law; that approximation remains explicit.
 Elevation lapse is per normalized model relief unit, not per physical meter.
+
+All shipped profiles use Climate's sole `periodic-cycle` sampling,
+`daily-solar-fourier` forcing and `periodic-response` temperature strategies.
+Pressure consumes the weighted mean and phase sea-level temperature from that
+same family; ground temperature applies model-relief lapse once and prescribed
+SST on water. Atmospheric and moisture reductions use the full weighted cycle,
+while visualization selects two/four observations without changing annual
+fields. Seasonal saturation metrics require the complete cycle and its explicit
+phase/weight metadata. Superseded snapshot/instantaneous strategies and legacy
+capture fallbacks are not production alternatives; historical receipts are
+retained separately. Algorithm retirement is not full Earth/profile quality
+acceptance, which the existing metric study bank continues to measure.
 
 ## Ops surface
 

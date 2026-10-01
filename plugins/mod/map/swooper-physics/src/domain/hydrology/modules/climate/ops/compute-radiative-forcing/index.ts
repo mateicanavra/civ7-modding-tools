@@ -3,5 +3,5 @@ import { createOp } from "@swooper/mapgen-core/authoring";
 import ComputeRadiativeForcingContract from "./contract.js";
 import strategies from "./strategies/index.js";
 
-/** Converts latitude and seasonal phase into a bounded per-tile insolation field. */
+/** Converts true latitude and axial tilt into daily-mean solar harmonics. */
 export default createOp(ComputeRadiativeForcingContract, { strategies });

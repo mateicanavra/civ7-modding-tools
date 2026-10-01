@@ -15,32 +15,26 @@ const seasonalCountFields = {
   }),
 };
 /** Full integration counts and their measure remain distinct from optional visualization samples. */
-export const StandardSeasonalRainfallMeasurementsSchema = Type.Union([
-  Type.Object(
-    { version: Type.Literal(1), ...seasonalCountFields },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      version: Type.Literal(2),
-      ...seasonalCountFields,
-      sampling: Type.Object(
-        {
-          model: Type.Literal("periodic-cycle"),
-          phaseOrigin: Type.Literal("northward-equinox"),
-          phases: Type.Array(Type.Number({ minimum: 0, exclusiveMaximum: 1 }), { minItems: 1 }),
-          weights: Type.Array(Type.Number({ exclusiveMinimum: 0 }), { minItems: 1 }),
-          observationIndices: Type.Array(Type.Integer({ minimum: 0 }), {
-            minItems: 2,
-            maxItems: 4,
-          }),
-        },
-        { additionalProperties: false }
-      ),
-    },
-    { additionalProperties: false }
-  ),
-]);
+export const StandardSeasonalRainfallMeasurementsSchema = Type.Object(
+  {
+    version: Type.Literal(2),
+    ...seasonalCountFields,
+    sampling: Type.Object(
+      {
+        model: Type.Literal("periodic-cycle"),
+        phaseOrigin: Type.Literal("northward-equinox"),
+        phases: Type.Array(Type.Number({ minimum: 0, exclusiveMaximum: 1 }), { minItems: 1 }),
+        weights: Type.Array(Type.Number({ exclusiveMinimum: 0 }), { minItems: 1 }),
+        observationIndices: Type.Array(Type.Integer({ minimum: 0 }), {
+          minItems: 2,
+          maxItems: 4,
+        }),
+      },
+      { additionalProperties: false }
+    ),
+  },
+  { additionalProperties: false }
+);
 
 type PeriodicSampling = Readonly<{
   model: "periodic-cycle";
@@ -50,20 +44,21 @@ type PeriodicSampling = Readonly<{
   observationIndices: readonly number[];
 }>;
 export type StandardSeasonalRainfallMeasurements = Readonly<{
+  version: 2;
   landTileCount: number;
   saturatedLandTileCounts: readonly number[];
-}> &
-  (Readonly<{ version: 1 }> | Readonly<{ version: 2; sampling: PeriodicSampling }>);
+  sampling: PeriodicSampling;
+}>;
 
 /** Projects the seasonal saturation evidence before the baseline observation is discarded. */
 export function measureStandardSeasonalRainfall(
   input: Readonly<{
     landMask: ArrayLike<number>;
-    seasonalRainfall: readonly ArrayLike<number>[];
-    seasonalIntegration?: PeriodicSampling & Readonly<{ rainfall: readonly ArrayLike<number>[] }>;
+    seasonalIntegration: PeriodicSampling & Readonly<{ rainfall: readonly ArrayLike<number>[] }>;
   }>
 ): StandardSeasonalRainfallMeasurements {
-  const rainfall = input.seasonalIntegration?.rainfall ?? input.seasonalRainfall;
+  const { rainfall, model, phaseOrigin, phases, weights, observationIndices } =
+    input.seasonalIntegration;
   if (rainfall.length === 0) {
     throw new Error("Seasonal rainfall measurement requires at least one observed season.");
   }
@@ -75,27 +70,25 @@ export function measureStandardSeasonalRainfall(
     countSaturatedLandTiles(input.landMask, rainfall)
   );
   Object.freeze(saturatedLandTileCounts);
-  if (input.seasonalIntegration) {
-    const { model, phaseOrigin, phases, weights, observationIndices } = input.seasonalIntegration;
-    validatePeriodicSampling(input.seasonalIntegration, rainfall.length);
-    return Object.freeze({
-      version: 2,
-      landTileCount,
-      saturatedLandTileCounts,
-      sampling: Object.freeze({
-        model,
-        phaseOrigin,
-        phases: Object.freeze([...phases]),
-        weights: Object.freeze([...weights]),
-        observationIndices: Object.freeze([...observationIndices]),
-      }),
-    });
-  }
-  return Object.freeze({ version: 1, landTileCount, saturatedLandTileCounts });
+  validatePeriodicSampling(input.seasonalIntegration, rainfall.length);
+  return Object.freeze({
+    version: 2,
+    landTileCount,
+    saturatedLandTileCounts,
+    sampling: Object.freeze({
+      model,
+      phaseOrigin,
+      phases: Object.freeze([...phases]),
+      weights: Object.freeze([...weights]),
+      observationIndices: Object.freeze([...observationIndices]),
+    }),
+  });
 }
 
 function validatePeriodicSampling(sampling: PeriodicSampling, count: number): void {
   if (
+    sampling.model !== "periodic-cycle" ||
+    sampling.phaseOrigin !== "northward-equinox" ||
     sampling.phases.length !== count ||
     sampling.weights.length !== count ||
     sampling.phases.some(
@@ -154,12 +147,10 @@ export function measureStandardClimateStructure(
   ) {
     throw new Error("Climate structure requires complete rainfall, land, and temperature grids.");
   }
-  if (seasonalRainfall.version === 2) {
-    validatePeriodicSampling(
-      seasonalRainfall.sampling,
-      seasonalRainfall.saturatedLandTileCounts.length
-    );
-  }
+  validatePeriodicSampling(
+    seasonalRainfall.sampling,
+    seasonalRainfall.saturatedLandTileCounts.length
+  );
   let landTileCount = 0;
   let withinRowSquaredDeparture = 0;
   for (let row = 0; row < height; row += 1) {

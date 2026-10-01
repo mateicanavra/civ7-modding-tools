@@ -49,7 +49,7 @@ type ClimateBaselineVizEvidence = Readonly<{
   seasonalWindV: readonly Int8VizValues[];
   seasonalCurrentU: readonly Int8VizValues[];
   seasonalCurrentV: readonly Int8VizValues[];
-  seasonalIntegration?: Readonly<{
+  seasonalIntegration: Readonly<{
     phaseOrigin: "northward-equinox";
     phases: readonly number[];
     observationIndices: readonly number[];
@@ -63,7 +63,7 @@ type ClimateBaselineVizEvidence = Readonly<{
   oceanThermal: Readonly<{
     sstC: Float32VizValues;
     seaIceMask: Uint8VizValues;
-  }> | null;
+  }>;
 }>;
 
 function toFloat32(values: ArrayLike<number>): Float32Array {
@@ -85,7 +85,6 @@ export function buildClimateBaselineVizProjections(
     observation;
   const seasonLabel = (season: number): string => {
     const integration = observation.seasonalIntegration;
-    if (!integration) return `Season ${season + 1}`;
     const phase = integration.phases[integration.observationIndices[season]!];
     return `Phase ${phase} From Northward Equinox`;
   };
@@ -133,34 +132,32 @@ export function buildClimateBaselineVizProjections(
     );
   }
 
-  if (observation.oceanThermal) {
-    projections.push(
-      ...buildScalarFieldProjections({
-        dataTypeKey: "hydrology.ocean.sstC",
-        spaceId: TILE_SPACE_ID,
-        dims: dimensions,
-        field: { format: "f32", values: observation.oceanThermal.sstC },
-        meta: defineStandardVizMeta("hydrology.ocean.sstC", "climate.temperature", {
-          label: "Ocean SST (C)",
-          group: GROUP_OCEAN,
-          visibility: "debug",
-        }),
-        points: {},
+  projections.push(
+    ...buildScalarFieldProjections({
+      dataTypeKey: "hydrology.ocean.sstC",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "f32", values: observation.oceanThermal.sstC },
+      meta: defineStandardVizMeta("hydrology.ocean.sstC", "climate.temperature", {
+        label: "Ocean SST (C)",
+        group: GROUP_OCEAN,
+        visibility: "debug",
       }),
-      ...buildScalarFieldProjections({
-        dataTypeKey: "hydrology.ocean.seaIceMask",
-        spaceId: TILE_SPACE_ID,
-        dims: dimensions,
-        field: { format: "u8", values: observation.oceanThermal.seaIceMask },
-        meta: defineStandardVizMeta("hydrology.ocean.seaIceMask", "category.distinct", {
-          label: "Ocean Sea Ice Mask",
-          group: GROUP_OCEAN,
-          visibility: "debug",
-        }),
-        points: {},
-      })
-    );
-  }
+      points: {},
+    }),
+    ...buildScalarFieldProjections({
+      dataTypeKey: "hydrology.ocean.seaIceMask",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "u8", values: observation.oceanThermal.seaIceMask },
+      meta: defineStandardVizMeta("hydrology.ocean.seaIceMask", "category.distinct", {
+        label: "Ocean Sea Ice Mask",
+        group: GROUP_OCEAN,
+        visibility: "debug",
+      }),
+      points: {},
+    })
+  );
 
   projections.push(
     ...buildScalarFieldProjections({

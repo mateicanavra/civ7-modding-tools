@@ -359,8 +359,10 @@
           "iterations": 2
         },
         "computeSeasonalSampling": {
-          "strategy": "legacy-snapshots",
-          "config": {}
+          "strategy": "periodic-cycle",
+          "config": {
+            "phaseCount": 24
+          }
         },
         "computeAtmosphericAggregate": {
           "strategy": "phase-reduction",
@@ -371,20 +373,14 @@
           "config": {}
         },
         "computeRadiativeForcing": {
-          "strategy": "latitude-insolation",
-          "config": {
-            "equatorInsolation": 1.5,
-            "poleInsolation": 0.22,
-            "latitudeExponent": 1.2
-          }
+          "strategy": "daily-solar-fourier",
+          "config": {}
         },
         "computeThermalState": {
-          "strategy": "insolation-lapse-rate",
+          "strategy": "periodic-response",
           "config": {
-            "baseTemperatureC": 8,
-            "insolationScaleC": 50,
+            "annualOffsetC": -1,
             "lapseRateCPerElevationUnit": -0.0065,
-            "landCoolingC": 3.2,
             "minC": -40,
             "maxC": 50
           }
@@ -854,7 +850,7 @@
               "polarCutoff": -1,
               "tundraCutoff": 4,
               "midLatitude": 10,
-              "tropicalThreshold": 30
+              "tropicalThreshold": 24
             },
             "moisture": {
               "thresholds": [
@@ -866,7 +862,7 @@
             },
             "aridity": {
               "moistureShiftThresholds": [
-                0.2,
+                0.45,
                 0.66
               ],
               "vegetationPenalty": 0.78

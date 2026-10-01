@@ -333,8 +333,8 @@ describe("fixed Earth-coast flat-relief climate ablation", () => {
     const seasonalTemperature = earth.observation.seasonalSurfaceTemperatureC;
     expect(seasonalTemperature).toHaveLength(earth.config.seasonality.modeCount);
     const integration = earth.observation.seasonalIntegration;
-    if (!integration)
-      throw new Error("Earthlike must expose its complete periodic integration evidence.");
+    expect(integration.model).toBe("periodic-cycle");
+    expect(integration.phaseOrigin).toBe("northward-equinox");
     expect(integration.phases).toHaveLength(24);
     expect(
       integration.observationIndices.map((index) => integration.surfaceTemperatureC[index])

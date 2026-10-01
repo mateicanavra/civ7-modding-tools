@@ -20,11 +20,9 @@ export function reduceMoisture(input: Reduction) {
   }
   if (input.reduction !== "weather-members" && input.reduction !== "annual") throw new RangeError("Unknown moisture reduction.");
   if (input.reduction === "annual") {
-    if (input.model !== "legacy-snapshots" && input.model !== "periodic-cycle") throw new RangeError("Unknown climate sampling model.");
     if (input.weights.length !== count || input.weights.some((value) => !Number.isFinite(value) || value <= 0) ||
-        Math.abs(input.weights.reduce((sum, value) => sum + value, 0) - 1) > Number.EPSILON * Math.max(8, count * 4) ||
-        (input.model === "legacy-snapshots" && input.weights.some((value) => value !== 1 / count))) {
-      throw new RangeError("Moisture samples require aligned, normalized weights; legacy weights must be equal.");
+        Math.abs(input.weights.reduce((sum, value) => sum + value, 0) - 1) > Number.EPSILON * Math.max(8, count * 4)) {
+      throw new RangeError("Moisture samples require aligned, normalized weights.");
     }
     for (const sample of input.samples) {
       if (!Array.isArray(sample.potentialDemand) || sample.potentialDemand.length !== size ||
@@ -39,7 +37,7 @@ export function reduceMoisture(input: Reduction) {
       throw new RangeError("Moisture fields must be grid-aligned Uint8Arrays.");
     }
   }
-  const weights = input.reduction === "annual" && input.model === "periodic-cycle" ? input.weights : undefined;
+  const weights = input.reduction === "annual" ? input.weights : undefined;
   const rainfall = new Uint8Array(size);
   const humidity = new Uint8Array(size);
   const potentialDemand = new Float32Array(size);

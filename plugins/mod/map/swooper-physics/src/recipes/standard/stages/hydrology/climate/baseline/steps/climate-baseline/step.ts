@@ -34,15 +34,6 @@ const TRANSIENT_POLARITIES = [1, -1] as const;
  */
 export const ClimateBaselineStep = createStep(config, {
   normalize: (stepConfig, ctx) => {
-    const periodic = stepConfig.computeThermalState.strategy === "periodic-response";
-    if (
-      periodic !== (stepConfig.computeRadiativeForcing.strategy === "daily-solar-fourier") ||
-      periodic !== (stepConfig.computeSeasonalSampling.strategy === "periodic-cycle")
-    ) {
-      throw new Error(
-        "Climate solar, thermal, and seasonal sampling strategies must select the same model."
-      );
-    }
     const { dryness, temperature, seasonality, oceanCoupling } = ctx.knobs as Readonly<{
       dryness: HydrologyDrynessKnob;
       temperature: HydrologyTemperatureKnob;
@@ -88,31 +79,13 @@ export const ClimateBaselineStep = createStep(config, {
     const clampNumber = (value: number, min: number, max: number): number =>
       Math.max(min, Math.min(max, value));
 
-    const computeThermalState =
-      stepConfig.computeThermalState.strategy === "insolation-lapse-rate"
-        ? {
-            ...stepConfig.computeThermalState,
-            config: {
-              ...stepConfig.computeThermalState.config,
-              // Temperature knobs should not simply warm/cool the whole world uniformly (that erases tundra/snow).
-              // Instead, bias the baseline modestly and put most of the adjustment into the equator-to-pole contrast.
-              baseTemperatureC:
-                stepConfig.computeThermalState.config.baseTemperatureC + temperatureDeltaC * 0.5,
-              insolationScaleC: clampNumber(
-                stepConfig.computeThermalState.config.insolationScaleC + temperatureDeltaC * 2,
-                0,
-                80
-              ),
-            },
-          }
-        : {
-            ...stepConfig.computeThermalState,
-            config: {
-              ...stepConfig.computeThermalState.config,
-              annualOffsetC:
-                stepConfig.computeThermalState.config.annualOffsetC + temperatureDeltaC,
-            },
-          };
+    const computeThermalState = {
+      ...stepConfig.computeThermalState,
+      config: {
+        ...stepConfig.computeThermalState.config,
+        annualOffsetC: stepConfig.computeThermalState.config.annualOffsetC + temperatureDeltaC,
+      },
+    };
 
     const computeAtmosphericCirculation = (() => {
       if (stepConfig.computeAtmosphericCirculation.strategy === "latitude") {
@@ -425,96 +398,33 @@ export const ClimateBaselineStep = createStep(config, {
 
     // Solar forcing is fixed across coupling vintages; the domain sampling plan separately
     // owns the circulation and moisture latitude frames.
-    const solar =
-      sampling.model === "periodic-cycle"
-        ? ops.computeRadiativeForcing(
-            { model: "daily-solar-fourier", width, height, latitudeByRow, axialTiltDeg },
-            stepConfig.computeRadiativeForcing
-          )
-        : null;
-    if (solar && solar.model !== "daily-solar-fourier")
-      throw new Error("Expected periodic solar forcing.");
-    const seasonalForcing = sampling.frames.map((frame) => {
-      if (solar) return { ...frame, insolation: undefined };
-      const forcing = ops.computeRadiativeForcing(
-        { model: "latitude-insolation", width, height, latitudeByRow: frame.thermalLatitude },
-        stepConfig.computeRadiativeForcing
-      );
-      if (forcing.model !== "latitude-insolation")
-        throw new Error("Expected legacy solar forcing.");
-      return { ...frame, insolation: forcing.insolation };
-    });
+    const solar = ops.computeRadiativeForcing(
+      { model: "daily-solar-fourier", width, height, latitudeByRow, axialTiltDeg },
+      stepConfig.computeRadiativeForcing
+    );
 
-    const computeSeasonalAtmosphere = (sstC?: Float32Array) => {
-      if (solar && !sstC)
-        throw new Error(
-          "Periodic climate requires prescribed ocean SST before atmosphere evaluation."
-        );
-      const periodicThermal = solar
-        ? ops.computeThermalState(
-            {
-              model: "periodic-response",
-              width,
-              height,
-              solarByRow: solar.solarByRow,
-              phases: sampling.phases,
-              weights: sampling.weights,
-              elevation,
-              seaLevel: topography.seaLevel,
-              landMask,
-              sstC: sstC!,
-            },
-            stepConfig.computeThermalState
-          )
-        : null;
-      if (periodicThermal && periodicThermal.model !== "periodic-response")
-        throw new Error("Expected periodic thermal response.");
-      const zeroElevation = new Int16Array(size);
-      const thermalSamples = seasonalForcing.map((forcing, index) => {
-        if (periodicThermal)
-          return {
-            ...forcing,
-            seaLevelTemperatureC: periodicThermal.samples[index]!.seaLevelTemperatureC,
-            groundTemperatureC: periodicThermal.samples[index]!.surfaceTemperatureC,
-          };
-        const thermal = ops.computeThermalState(
-          {
-            model: "insolation-lapse-rate",
-            width,
-            height,
-            insolation: forcing.insolation!,
-            elevation: zeroElevation,
-            seaLevel: 0,
-            landMask,
-            ...(sstC ? { sstC } : {}),
-          },
-          stepConfig.computeThermalState
-        );
-        if (thermal.model !== "insolation-lapse-rate")
-          throw new Error("Expected legacy thermal response.");
-        return {
-          ...forcing,
-          seaLevelTemperatureC: thermal.surfaceTemperatureC,
-          groundTemperatureC: undefined,
-        };
-      });
-      const centering = periodicThermal
-        ? null
-        : ops.computeAtmosphericAggregate(
-            {
-              reduction: "thermal-centering",
-              width,
-              height,
-              model: sampling.model,
-              weights: sampling.weights,
-              samples: thermalSamples.map((sample) => sample.seaLevelTemperatureC),
-            },
-            stepConfig.computeAtmosphericAggregate
-          );
-      if (centering && centering.reduction !== "thermal-centering")
-        throw new Error("Expected thermal centering reduction.");
-      const meanSeaLevelTemperatureC =
-        periodicThermal?.meanSeaLevelTemperatureC ?? centering!.meanSurfaceTemperatureC;
+    const computeSeasonalAtmosphere = (sstC: Float32Array) => {
+      const periodicThermal = ops.computeThermalState(
+        {
+          model: "periodic-response",
+          width,
+          height,
+          solarByRow: solar.solarByRow,
+          phases: sampling.phases,
+          weights: sampling.weights,
+          elevation,
+          seaLevel: topography.seaLevel,
+          landMask,
+          sstC,
+        },
+        stepConfig.computeThermalState
+      );
+      const thermalSamples = sampling.frames.map((frame, index) => ({
+        ...frame,
+        seaLevelTemperatureC: periodicThermal.samples[index]!.seaLevelTemperatureC,
+        groundTemperatureC: periodicThermal.samples[index]!.surfaceTemperatureC,
+      }));
+      const meanSeaLevelTemperatureC = periodicThermal.meanSeaLevelTemperatureC;
 
       const samples = thermalSamples.map((sample) => {
         const weatherMembers = TRANSIENT_POLARITIES.map((transientPolarity) => {
@@ -612,24 +522,19 @@ export const ClimateBaselineStep = createStep(config, {
         ? stepConfig.coupling.iterations
         : 1
       : 0;
-    let carriedSstC: Float32Array | undefined;
-    let oceanThermal: { sstC: Float32Array; seaIceMask: Uint8Array } | null = null;
-
-    if (solar) {
-      oceanThermal = ops.computeOceanThermalState(
-        {
-          width,
-          height,
-          latitudeByRow,
-          isWaterMask,
-          shelfMask: shelf.shelfMask,
-          currentU: new Int8Array(size),
-          currentV: new Int8Array(size),
-        },
-        stepConfig.computeOceanThermalState
-      );
-      carriedSstC = oceanThermal.sstC;
-    }
+    let oceanThermal = ops.computeOceanThermalState(
+      {
+        width,
+        height,
+        latitudeByRow,
+        isWaterMask,
+        shelfMask: shelf.shelfMask,
+        currentU: new Int8Array(size),
+        currentV: new Int8Array(size),
+      },
+      stepConfig.computeOceanThermalState
+    );
+    let carriedSstC = oceanThermal.sstC;
 
     // Fixed-point passes update the prescribed annual SST. The final atmosphere consumes it
     // without another ocean advance, preserving one vintage for pressure and moisture.
@@ -658,47 +563,22 @@ export const ClimateBaselineStep = createStep(config, {
     const seasonalCurrentV = atmosphere.samples.map((sample) => sample.currentV);
     const { meanWindU, meanWindV, meanCurrentU, meanCurrentV, meanPressure } = atmosphere;
 
-    // Moisture and precipitation consume the same final atmosphere vintage. The uncoupled path
-    // intentionally omits ocean-only inputs rather than manufacturing an empty ocean state.
+    // Moisture and precipitation consume the same final atmosphere and prescribed SST vintage.
     for (const sample of atmosphere.samples) {
-      const legacyThermal = sample.groundTemperatureC
-        ? null
-        : ops.computeThermalState(
-            {
-              model: "insolation-lapse-rate",
-              width,
-              height,
-              insolation: sample.insolation!,
-              elevation,
-              seaLevel: topography.seaLevel,
-              landMask,
-              ...(oceanThermal ? { sstC: oceanThermal.sstC } : {}),
-            },
-            stepConfig.computeThermalState
-          );
-      if (legacyThermal && legacyThermal.model !== "insolation-lapse-rate")
-        throw new Error("Expected legacy ground thermal response.");
-      const surfaceTemperatureC = sample.groundTemperatureC ?? legacyThermal!.surfaceTemperatureC;
+      const surfaceTemperatureC = sample.groundTemperatureC;
       seasonalSurfaceTemperatureC.push(surfaceTemperatureC);
       const weatherPrecipitation = sample.weatherMembers.map((member) => {
         const evaporation = ops.computeEvaporationSources(
-          oceanThermal
-            ? {
-                width,
-                height,
-                landMask,
-                surfaceTemperatureC,
-                windU: member.windU,
-                windV: member.windV,
-                sstC: oceanThermal.sstC,
-                seaIceMask: oceanThermal.seaIceMask,
-              }
-            : {
-                width,
-                height,
-                landMask,
-                surfaceTemperatureC,
-              },
+          {
+            width,
+            height,
+            landMask,
+            surfaceTemperatureC,
+            windU: member.windU,
+            windV: member.windV,
+            sstC: oceanThermal.sstC,
+            seaIceMask: oceanThermal.seaIceMask,
+          },
           stepConfig.computeEvaporationSources
         );
         const moisture = ops.transportMoisture(
@@ -792,18 +672,8 @@ export const ClimateBaselineStep = createStep(config, {
       currentU: meanCurrentU,
       currentV: meanCurrentV,
     };
-    const legacyGround = atmosphere.periodicThermal
-      ? null
-      : ops.computeAtmosphericAggregate(
-          { reduction: "ground-thermal-mean", width, height, samples: seasonalSurfaceTemperatureC },
-          stepConfig.computeAtmosphericAggregate
-        );
-    if (legacyGround && legacyGround.reduction !== "ground-thermal-mean")
-      throw new Error("Expected legacy ground thermal reduction.");
     const thermalField = deps.artifacts.thermalField.publish({
-      surfaceTemperatureC:
-        atmosphere.periodicThermal?.annualSurfaceTemperatureC ??
-        legacyGround!.meanSurfaceTemperatureC,
+      surfaceTemperatureC: atmosphere.periodicThermal.annualSurfaceTemperatureC,
     });
     const observe = <T>(samples: readonly T[]): T[] =>
       sampling.observationIndices.map((index) => samples[index]!);
@@ -823,32 +693,27 @@ export const ClimateBaselineStep = createStep(config, {
       seasonalWindV: observe(seasonalWindV),
       seasonalCurrentU: observe(seasonalCurrentU),
       seasonalCurrentV: observe(seasonalCurrentV),
-      seasonalIntegration:
-        sampling.model === "periodic-cycle"
-          ? {
-              model: sampling.model,
-              phaseOrigin: "northward-equinox" as const,
-              phases: sampling.phases,
-              weights: sampling.weights,
-              observationIndices: sampling.observationIndices,
-              rainfall: seasonalRainfall,
-              humidity: seasonalHumidity,
-              potentialDemand: seasonalDemand,
-              surfaceTemperatureC: seasonalSurfaceTemperatureC,
-              pressure: seasonalPressure,
-              windU: seasonalWindU,
-              windV: seasonalWindV,
-              currentU: seasonalCurrentU,
-              currentV: seasonalCurrentV,
-            }
-          : undefined,
-      thermalResponse: atmosphere.periodicThermal
-        ? {
-            annualUnclippedSurfaceTemperatureC:
-              atmosphere.periodicThermal.annualUnclippedSurfaceTemperatureC,
-            annualClippingDeltaC: atmosphere.periodicThermal.annualClippingDeltaC,
-          }
-        : undefined,
+      seasonalIntegration: {
+        model: sampling.model,
+        phaseOrigin: "northward-equinox" as const,
+        phases: sampling.phases,
+        weights: sampling.weights,
+        observationIndices: sampling.observationIndices,
+        rainfall: seasonalRainfall,
+        humidity: seasonalHumidity,
+        potentialDemand: seasonalDemand,
+        surfaceTemperatureC: seasonalSurfaceTemperatureC,
+        pressure: seasonalPressure,
+        windU: seasonalWindU,
+        windV: seasonalWindV,
+        currentU: seasonalCurrentU,
+        currentV: seasonalCurrentV,
+      },
+      thermalResponse: {
+        annualUnclippedSurfaceTemperatureC:
+          atmosphere.periodicThermal.annualUnclippedSurfaceTemperatureC,
+        annualClippingDeltaC: atmosphere.periodicThermal.annualClippingDeltaC,
+      },
       oceanGeometry,
       oceanThermal,
     };

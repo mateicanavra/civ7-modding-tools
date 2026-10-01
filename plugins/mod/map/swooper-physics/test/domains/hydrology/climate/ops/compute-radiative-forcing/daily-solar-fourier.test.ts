@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
+import { normalizeOperationSelectionForTest, runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 import hydrology from "../../../../../../src/domain/hydrology/router.js";
 
 const { computeRadiativeForcing: operation } = hydrology.climate.ops;
@@ -67,36 +67,25 @@ function run(latitudes: readonly number[], axialTiltDeg: number) {
 }
 
 describe("daily solar geometry and Fourier forcing", () => {
-  it("retains the declared legacy default and exact latitude arithmetic", () => {
-    expect(operation.defaultConfig.strategy).toBe("latitude-insolation");
+  it("defaults to daily solar forcing and refuses retired models, selectors and controls", () => {
+    expect(operation.defaultConfig).toEqual(periodic);
     const latitudeByRow = new Float32Array([0, 30, -60, 90]);
     const result = runAdmittedOperationForTest(
       operation,
-      { model: "latitude-insolation", width: 2, height: 4, latitudeByRow },
+      { model: "daily-solar-fourier", width: 2, height: 4, latitudeByRow, axialTiltDeg: 23.44 },
       operation.defaultConfig
     );
-    if (result.model !== "latitude-insolation") throw new Error("Expected legacy forcing.");
-    const config = operation.defaultConfig.config;
-    const expected = Float32Array.from(
-      Array.from(latitudeByRow).flatMap((latitude) => {
-        const curve = Math.pow(
-          Math.max(0, Math.min(1, Math.abs(latitude) / 90)),
-          Math.max(0.0001, config.latitudeExponent)
-        );
-        const value = config.equatorInsolation * (1 - curve) + config.poleInsolation * curve;
-        return [value, value];
-      })
-    );
-    expect(result.insolation).toEqual(expected);
+    expect(result.model).toBe("daily-solar-fourier");
+    expect(result.solarByRow).toHaveLength(4);
     expect(() =>
-      operation.run({ model: "latitude-insolation", width: 2, height: 4, latitudeByRow }, periodic)
-    ).toThrow(/matching input model/);
-    expect(() =>
-      operation.run(
-        { model: "daily-solar-fourier", width: 2, height: 4, latitudeByRow, axialTiltDeg: 23.44 },
-        operation.defaultConfig
-      )
-    ).toThrow(/matching input model/);
+      operation.run({ model: "latitude-insolation", width: 2, height: 4, latitudeByRow } as never, periodic)
+    ).toThrow(/input admission/);
+    expect(() => normalizeOperationSelectionForTest(operation, {
+      strategy: "latitude-insolation", config: {},
+    })).toThrow();
+    expect(() => normalizeOperationSelectionForTest(operation, {
+      strategy: "daily-solar-fourier", config: { equatorInsolation: 1, poleInsolation: 0.25, latitudeExponent: 1.2 },
+    })).toThrow();
   });
 
   it("handles equinox and polar day/night against an independent hourly integral", () => {

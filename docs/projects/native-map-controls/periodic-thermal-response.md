@@ -15,8 +15,12 @@ are temperature response per dimensionless solar forcing, not inferred heat
 capacities. The fixture is geographically uneven low-relief inland reanalysis;
 it is not an ocean, global-mean or far-southern calibration.
 
-The change is explicitly selected by the Earthlike configuration. Other
-authored profiles retain their existing strategy until separately qualified.
+Daily solar geometry and periodic response are now the sole supported climate
+algorithms for all shipped profiles. The user's no-legacy direction supersedes
+the original temporary Earthlike-only selection and exact old-profile parity
+requirement. Current-only retirement does not imply every authored profile or
+Earth calibration is accepted; the unchanged study bank remains authoritative.
+See [the retirement decision and discriminators](continuation-sequence.md#current-only-retirement-versus-quality-acceptance).
 Selection is ordinary operation configuration, never a map-name conditional.
 Existing circulation migration and moisture-latitude heuristics are not solar
 geometry and must not be silently retuned with it.
@@ -40,19 +44,18 @@ geometry and must not be silently retuned with it.
 - The baseline step composes operations, performs the existing fixed coupling
   schedule and publishes artifacts. Numerical phase generation, solar
   integration, harmonic response and seasonal aggregation belong in domain
-  operations/rules, not additional closures inside the 819-line step.
+  operations/rules, not additional physical computations inside the step.
 - Publication stays `thermalField` baseline into refinement's final
   `climateIndices`. These are successive causal products, not parallel
   competing temperatures. No Core blueprint or artifact policy is weakened.
 
 ## Sampling And Datums
 
-The radiative and thermal contracts gain explicit tagged legacy/periodic
-branches. Legacy strategies remain their declared defaults and retain numerical
-arithmetic and iteration order; callers gain tags mechanically. Every strategy
-refuses the other input branch, and recipe admission refuses a mismatched solar,
-thermal or sampling selection. Root input/output unions stay inline in their
-operation contracts. Only cohesive harmonic/phase subentities become model
+The radiative, thermal and sampling contracts admit only their current periodic
+shapes; the SDK infers each sole strategy. Retired selectors are refused by
+normal recipe admission, not interpreted by compatibility branches. Complete
+input/output envelopes stay inline in their operation contracts. Only cohesive
+harmonic/phase subentities become model
 atoms; neither whole operation envelopes nor artifact-shaped aliases do.
 
 A narrow Climate sampling operation owns phase plans, normalized weights,
@@ -83,8 +86,9 @@ or extra physical tuning parameters. The two/four observation modes select
 exact subsets `[6,18]` or `[0,6,12,18]` of the 24 endpoint samples and cannot
 change any annual field. Keep visualization arrays at two/four entries; supply
 the full integration evidence and its explicit sampling metadata separately to
-rainfall metrics. Annual amplitudes also use the integration samples. Legacy
-strategies retain their original sampling and metric semantics.
+rainfall metrics. Annual amplitudes also use the integration samples. Current
+rainfall metrics require this full integration and its sampling metadata;
+historical snapshot receipts remain evidence, not another executable schema.
 
 Pressure's centering field is the weighted mean of the exact sea-level samples
 used by its atmosphere evaluations and annual aggregation, not the dense ground
@@ -101,8 +105,7 @@ The existing SST operation remains a prescribed annual ocean field, with zero
 seasonal ocean anomaly for this bounded change. Before the first periodic
 atmosphere evaluation, initialize it with zero currents and the actual water
 and shelf masks. Periodic thermal input requires SST, even with zero coupling,
-so the inland fit is never used to initialize marine temperatures. Legacy
-initialization is unchanged. Its coupling passes are spatial
+so the inland fit is never used to initialize marine temperatures. Its coupling passes are spatial
 fixed-point iterations. The final atmosphere still consumes the final SST
 without advancing it again. Do not add unidentifiable maritime damping on top
 of the inland fitted gains. A future directional exchange model needs matched

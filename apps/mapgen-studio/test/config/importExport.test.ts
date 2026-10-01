@@ -34,4 +34,62 @@ describe("map config import and export", () => {
       ).ok
     ).toBe(false);
   });
+
+  it("exports admitted current thermal selections without compatibility fields", () => {
+    const parsed = parseMapConfigFile(serializeMapConfigFile(canonicalConfig).json);
+    if (!parsed.ok) throw new Error(parsed.message);
+    const stage = parsed.value.config["hydrology-climate-baseline"] as Record<string, unknown>;
+    const baseline = stage["climate-baseline"] as Record<
+      string,
+      { strategy: string; config: Record<string, unknown> }
+    >;
+    expect(baseline.computeSeasonalSampling!.strategy).toBe("periodic-cycle");
+    expect(baseline.computeRadiativeForcing!).toEqual({
+      strategy: "daily-solar-fourier",
+      config: {},
+    });
+    expect(baseline.computeThermalState!.strategy).toBe("periodic-response");
+    expect(baseline.computeThermalState!.config).not.toHaveProperty("baseTemperatureC");
+    expect(baseline.computeThermalState!.config).not.toHaveProperty("insolationScaleC");
+    expect(baseline.computeThermalState!.config).not.toHaveProperty("landCoolingC");
+    expect(JSON.parse(serializeMapConfigFile(parsed.value).json)).toEqual(parsed.value);
+  });
+
+  it("refuses saved retired thermal selectors and controls without automatic migration", () => {
+    const stage = canonicalConfig.config["hydrology-climate-baseline"] as Record<string, unknown>;
+    const baseline = stage["climate-baseline"] as Record<
+      string,
+      { strategy: string; config: Record<string, unknown> }
+    >;
+    for (const [key, obsolete] of [
+      ["computeSeasonalSampling", { strategy: "legacy-snapshots", config: {} }],
+      ["computeRadiativeForcing", { strategy: "latitude-insolation", config: {} }],
+      ["computeThermalState", { strategy: "insolation-lapse-rate", config: {} }],
+      [
+        "computeRadiativeForcing",
+        { ...baseline.computeRadiativeForcing, config: { poleInsolation: 0.22 } },
+      ],
+      [
+        "computeThermalState",
+        {
+          ...baseline.computeThermalState,
+          config: { ...baseline.computeThermalState!.config, baseTemperatureC: 8 },
+        },
+      ],
+    ] as const) {
+      const saved = {
+        ...canonicalConfig,
+        config: {
+          ...canonicalConfig.config,
+          "hydrology-climate-baseline": {
+            ...stage,
+            "climate-baseline": { ...baseline, [key]: obsolete },
+          },
+        },
+      };
+      const before = JSON.stringify(saved);
+      expect(parseMapConfigFile(before).ok).toBe(false);
+      expect(JSON.stringify(saved)).toBe(before);
+    }
+  });
 });

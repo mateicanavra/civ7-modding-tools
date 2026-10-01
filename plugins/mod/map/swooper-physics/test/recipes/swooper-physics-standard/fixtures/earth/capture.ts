@@ -219,7 +219,7 @@ export function captureEarthCoastBaseline(run: EarthCoastBaseline) {
       observed("oceanThermal.seaIceMask")
     );
   }
-  if (integration) {
+  {
     for (const [member, storage, units] of [
       ["rainfall", "u8", rainfallUnits], ["humidity", "u8", humidityUnits],
       ["potentialDemand", "f64", "empirical PET in rainfall-index units; not open-water evaporation"],
@@ -235,7 +235,7 @@ export function captureEarthCoastBaseline(run: EarthCoastBaseline) {
       });
     }
   }
-  if (observation.thermalResponse) {
+  {
     for (const member of ["annualUnclippedSurfaceTemperatureC", "annualClippingDeltaC"] as const) {
       fields[`thermalResponse.${member}`] = field(
         observation.thermalResponse[member], "f32", "degrees Celsius", observed(`thermalResponse.${member}`)
@@ -260,9 +260,7 @@ export function captureEarthCoastBaseline(run: EarthCoastBaseline) {
       },
       transform: "y' = 65 - y; x' = (x + (y & 1)) % 106",
       longitude: "unqualified; no geographic longitude correspondence claimed",
-      latitude: integration
-        ? "+90/-90 declared bounds; solar geometry retains exact poles; circulation frames retain their own polar clamp"
-        : "+90/-90 declared bounds; legacy climate clamps polar samples to +/-89.999",
+      latitude: "+90/-90 declared bounds; solar geometry retains exact poles; circulation frames retain their own polar clamp",
     },
     semantics: {
       relief:
@@ -273,25 +271,21 @@ export function captureEarthCoastBaseline(run: EarthCoastBaseline) {
         "Authored TERRAIN_COAST mask; adjacency and distance derived by actual Morphology operations.",
       aquaplanet:
         "Removes land and authored shelf; holds setup, normalized forcing and flat relief.",
-      temperature: integration
-        ? "thermalField is the independently dense-integrated clipped annual ground response; no refinement/albedo feedback."
-        : "thermalField is the baseline annual mean of seasonal ground thermal; no refinement/albedo feedback.",
-      aggregation: integration
-        ? "Atmosphere/moisture use the recorded integration phases and weights, not the observation subset; thermal has an independent dense integral. Integer domains round after weighted reduction."
-        : "Equal seasonal weights: thermal and PET store a double-precision sum/mean in f32; pressure uses an f32 running sum then f32 division; rainfall/humidity/winds round to their integer domains.",
+      temperature: "thermalField is the independently dense-integrated clipped annual ground response; no refinement/albedo feedback.",
+      aggregation: "Atmosphere/moisture use the recorded integration phases and weights, not the observation subset; thermal has an independent dense integral. Integer domains round after weighted reduction.",
       scope:
         "Baseline-only test composition; no coupled drainage, biomes, empirical Earth accuracy or native parity claim.",
       seasonSamples:
         "Step-returned samples after transient-member aggregation; not every internal solver iterate.",
-      unavailable: integration ? ["pre-clamp thermal phase samples"] : ["seasonal PET samples", "pre-clamp thermal phase samples"],
+      unavailable: ["pre-clamp thermal phase samples"],
     },
-    sampling: integration ? {
+    sampling: {
       model: integration.model,
       phaseOrigin: integration.phaseOrigin,
       phases: [...integration.phases],
       weights: [...integration.weights],
       observationIndices: [...integration.observationIndices],
-    } : { model: "legacy-snapshots" as const, observationCount: run.config.seasonality.modeCount },
+    },
     initialSetup: run.initial,
     setup: run.setup,
     authoredMapConfig: run.mapConfig,

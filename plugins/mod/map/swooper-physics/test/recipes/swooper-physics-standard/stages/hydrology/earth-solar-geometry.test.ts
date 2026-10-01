@@ -1,5 +1,4 @@
 import { describe, expect, it } from "bun:test";
-import { earthThermalReference as reference } from "../../fixtures/earth-thermal/reference.js";
 import {
   dailyMeanSolar,
   declinationAtPhase,
@@ -8,12 +7,6 @@ import {
   seasonalPhases,
   solarGeometrySource,
 } from "../../fixtures/earth-thermal/solar-geometry.js";
-import {
-  buildSolarForcing,
-  evaluateSolarCase,
-  fitSolarAnnual,
-  runSolarStudy,
-} from "../../fixtures/earth-thermal/solar-study.js";
 
 describe("Earth daily-mean solar geometry reference (not production adoption)", () => {
   it("pins FAO provenance and qualifies equatorial, polar and equinox boundaries", () => {
@@ -82,68 +75,5 @@ describe("Earth daily-mean solar geometry reference (not production adoption)", 
     expect(solstice.daylightHours).toBeGreaterThan(equinox.daylightHours);
     expect(solstice.fluxOverSolarConstant).toBeGreaterThan(equinox.fluxOverSolarConstant);
     expect(dailyMeanSolar(80, -23.44).fluxOverSolarConstant).toBe(0);
-  });
-});
-
-describe("Earth annual calibration versus seasonal geometry discriminator", () => {
-  it("does not fit holdout responses or a seasonal amplitude", () => {
-    const forcing = buildSolarForcing("daily-mean-toa", 48);
-    const fitted = fitSolarAnnual(forcing);
-    const changedHoldout = reference.samples.map((sample) => sample.split === "holdout"
-      ? { ...sample, annualAirTemperatureC: sample.annualAirTemperatureC + 1000,
-        monthlyAirTemperatureRangeC: sample.monthlyAirTemperatureRangeC + 1000 }
-      : { ...sample, monthlyAirTemperatureRangeC: sample.monthlyAirTemperatureRangeC + 1000 });
-    expect(fitSolarAnnual(forcing, changedHoldout)).toEqual(fitted);
-    const scaledWeights = reference.samples.map((sample) => ({ ...sample, areaWeight: sample.areaWeight * 7 }));
-    const scaled = fitSolarAnnual(forcing, scaledWeights);
-    expect(scaled.interceptC).toBeCloseTo(fitted.interceptC, 10);
-    expect(scaled.gainC).toBeCloseTo(fitted.gainC, 10);
-    const constant = [new Float64Array(reference.samples.length).fill(1)];
-    expect(() => fitSolarAnnual(constant)).toThrow(/variance/);
-  });
-
-  it("recovers a known affine law using the frozen training cohort", () => {
-    const forcing = buildSolarForcing("daily-mean-toa", 4);
-    const known = reference.samples.map((sample, index) => ({
-      ...sample,
-      annualAirTemperatureC: -25 + 140 * forcing.reduce((sum, field) => sum + field[index]!, 0) / forcing.length,
-    }));
-    const fit = fitSolarAnnual(forcing, known);
-    expect(fit.interceptC).toBeCloseTo(-25, 11);
-    expect(fit.gainC).toBeCloseTo(140, 10);
-  });
-
-  it("replays original forcing/clipping and all fits through the admitted production operations", () => {
-    for (const result of runSolarStudy()) {
-      expect(result.cohorts.train!.unclipped.count).toBe(196);
-      expect(result.cohorts.holdout!.unclipped.count).toBe(215);
-      expect(result.numericalParity.forcingMaxAbsoluteError).toBeLessThan(2e-7);
-      expect(result.numericalParity.thermalMaxAbsoluteErrorC).toBeLessThan(0.00002);
-      if (result.fitted) expect(Math.abs(result.cohorts.train!.unclipped.biasC)).toBeLessThan(1e-10);
-      if (!result.fitted) {
-        expect(result.cohorts.all!.clipped.rmseC).toBeCloseTo(16.769517771418894, 4);
-        expect(result.cohorts.all!.clipping.highPhaseAreaFraction).toBeGreaterThan(0);
-        expect(result.cohorts.all!.unclipped.rmseC).toBeGreaterThan(result.cohorts.all!.clipped.rmseC);
-      }
-      expect(result.samples.every((sample) => sample.phaseClippedC.every((value) => value >= -40 && value <= 50))).toBe(true);
-    }
-  });
-
-  it("exposes phase-density sensitivity without disguising it as monthly climatology", () => {
-    const shifted = evaluateSolarCase("shifted-curve", 4);
-    const daily4 = evaluateSolarCase("daily-mean-toa", 4);
-    const daily48 = evaluateSolarCase("daily-mean-toa", 48);
-    const daily384 = evaluateSolarCase("daily-mean-toa", 384);
-    expect(shifted.bands[0]!.clippedPhaseRangeC).toBeCloseTo(12.272106190929465, 4);
-    expect(daily4.bands[0]!.clippedPhaseRangeC).toBeLessThan(shifted.bands[0]!.clippedPhaseRangeC);
-    expect(daily384.bands[0]!.referenceMonthlyRangeC).toBeCloseTo(3.2777380996719816, 8);
-    expect(daily384.bands[0]!.clippedPhaseRangeC).toBeGreaterThan(daily384.bands[0]!.referenceMonthlyRangeC);
-    // Frozen diagnostic values are reproducibility evidence, not climate acceptance targets.
-    expect(daily384.cohorts.train!.unclipped.rmseC).toBeCloseTo(2.5137835145323186, 8);
-    expect(daily384.cohorts.holdout!.unclipped.rmseC).toBeCloseTo(2.971039240208174, 8);
-    expect(daily384.bands[0]!.unclippedPhaseRangeC).toBeCloseTo(11.14201778924753, 8);
-    expect(daily384.bands[4]!.unclippedPhaseRangeC).toBeCloseTo(74.43300372665131, 8);
-    expect(Math.abs(daily48.fit.gainC - daily384.fit.gainC)).toBeLessThan(0.01);
-    expect(Math.abs(daily48.cohorts.holdout!.unclipped.rmseC - daily384.cohorts.holdout!.unclipped.rmseC)).toBeLessThan(0.001);
   });
 });

@@ -61,8 +61,7 @@
         "scripts/compare-coherence.ts",
         "test/recipes/swooper-physics-standard/fixtures/earth/extract.ts",
         "test/recipes/swooper-physics-standard/fixtures/earth-thermal/height-capture.ts",
-        "test/recipes/swooper-physics-standard/fixtures/earth-thermal/response-capture.ts",
-        "test/recipes/swooper-physics-standard/fixtures/earth-thermal/solar-capture.ts"
+        "test/recipes/swooper-physics-standard/fixtures/earth-thermal/response-capture.ts"
       ]
     },
     "apps/mods/map/swooper-physics": {

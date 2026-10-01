@@ -159,6 +159,22 @@ describe("Storage-only conditional null versus identifiable periodic proxy", () 
     expect(fitted.storageOnly.atInfiniteRelaxationLimit).toBe(false);
   });
 
+  it("keeps fitted laws invariant under area rescaling and refuses unidentifiable forcing", () => {
+    const original = fitResponseModels(samples);
+    const scaled = fitResponseModels(samples.map((sample) => ({ ...sample, areaWeight: sample.areaWeight * 7 })));
+    expect(scaled.geographic.interceptC).toBeCloseTo(original.geographic.interceptC, 10);
+    expect(scaled.geographic.gainCPerQ).toBeCloseTo(original.geographic.gainCPerQ, 10);
+    for (let harmonic = 0; harmonic < 2; harmonic++) {
+      expect(scaled.periodic[harmonic]!.real).toBeCloseTo(original.periodic[harmonic]!.real, 10);
+      expect(scaled.periodic[harmonic]!.imaginary).toBeCloseTo(original.periodic[harmonic]!.imaginary, 10);
+    }
+    expect(() => fitResponseModels(samples.map((sample) => ({ ...sample, areaWeight: 0 })))).toThrow("positive area");
+    expect(() => fitResponseModels(samples.map((sample) => ({ ...sample, forcingAnnual: 1 })))).toThrow("variance");
+    expect(() => fitResponseModels(samples.map((sample) => ({
+      ...sample, forcing: { ...sample.forcing, coefficients: [sample.forcing.coefficients[0], 0, 0, 0, 0] as HarmonicCoefficients },
+    })))).toThrow("unidentifiable");
+  });
+
   it("replays frozen source results as numerical evidence, not empirical acceptance quotas", () => {
     expect(study.cohortErrors.map(({ count }) => count)).toEqual([196, 215, 411]);
     expect(study.models.geographic.gainCPerQ).toBeCloseTo(206.8113096845454, 8);

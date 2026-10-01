@@ -159,7 +159,63 @@ describe("Shipped map configs", () => {
       );
 
       expect(Object.keys(compiled).length, canonicalConfig.id).toBeGreaterThan(0);
+      const authored = canonicalConfig.config["hydrology-climate-baseline"];
+      const baseline = compiled["hydrology-climate-baseline"]["climate-baseline"];
+      const thermal = authored["climate-baseline"].computeThermalState;
+      expect(authored["climate-baseline"].computeSeasonalSampling).toEqual({
+        strategy: "periodic-cycle", config: { phaseCount: 24 },
+      });
+      expect(authored["climate-baseline"].computeRadiativeForcing).toEqual({
+        strategy: "daily-solar-fourier", config: {},
+      });
+      expect(thermal.strategy).toBe("periodic-response");
+      const temperatureOffset = authored.knobs.temperature === "hot" ? 5 : authored.knobs.temperature === "cold" ? -5 : 0;
+      expect(baseline.computeThermalState.config).toEqual({
+        ...thermal.config, annualOffsetC: thermal.config.annualOffsetC + temperatureOffset,
+      });
     }
+  });
+
+  it("refuses saved pre-periodic selectors and controls rather than translating them", async () => {
+    const configs = await loadSwooperMapConfigRegistry();
+    for (const { canonicalConfig } of configs) {
+      const stage = canonicalConfig.config["hydrology-climate-baseline"];
+      const baseline = stage["climate-baseline"];
+      for (const [key, obsolete] of [
+        ["computeSeasonalSampling", { strategy: "legacy-snapshots", config: {} }],
+        ["computeRadiativeForcing", { strategy: "latitude-insolation", config: {} }],
+        ["computeThermalState", { strategy: "insolation-lapse-rate", config: {} }],
+        ["computeRadiativeForcing", { ...baseline.computeRadiativeForcing, config: { latitudeExponent: 1.2 } }],
+        ["computeThermalState", { ...baseline.computeThermalState, config: { ...baseline.computeThermalState.config, landCoolingC: 3.2 } }],
+      ] as const) {
+        expect(() => admitStandardMapConfig({
+          ...canonicalConfig,
+          config: { ...canonicalConfig.config, "hydrology-climate-baseline": {
+            ...stage, "climate-baseline": { ...baseline, [key]: obsolete },
+          } },
+        })).toThrow();
+      }
+    }
+  });
+
+  it("retains the released mountain habitat calibration without changing Earthlike", async () => {
+    const configs = await loadSwooperMapConfigRegistry();
+    const calibrated = configs.filter(({ canonicalConfig }) =>
+      canonicalConfig.config["hydrology-climate-baseline"]["climate-baseline"].computeThermalState.config.annualOffsetC === -1
+    );
+    expect(calibrated).toHaveLength(4);
+    for (const { canonicalConfig } of calibrated) {
+      const classifier = canonicalConfig.config["ecology-biomes"].biomes.classify.config;
+      expect(classifier.aridity.moistureShiftThresholds[0]).toBe(
+        ecology.biomes.ops.classifyBiomes.defaultConfig.config.aridity.moistureShiftThresholds[0]
+      );
+      expect(classifier.aridity.moistureShiftThresholds[0]).toBe(0.45);
+      expect(classifier.temperature.tropicalThreshold).toBe(24);
+    }
+    const earthlike = configs.find(({ canonicalConfig }) => canonicalConfig.id === "swooper-earthlike")!.canonicalConfig;
+    const classifier = earthlike.config["ecology-biomes"].biomes.classify.config;
+    expect(classifier.aridity.moistureShiftThresholds).toEqual([0.2, 0.66]);
+    expect(classifier.temperature.tropicalThreshold).toBe(24);
   });
 
   it("compiles Earthlike to neutral periodic thermal controls with 24 integration phases and four observations", async () => {

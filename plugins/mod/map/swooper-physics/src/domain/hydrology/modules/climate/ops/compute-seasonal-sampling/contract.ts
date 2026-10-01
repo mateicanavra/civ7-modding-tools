@@ -1,6 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { ClimatePhaseFrameSchema, ClimateSamplingModelSchema } from "../../model/atoms/climate-phase.schema.js";
-import legacySnapshots from "./strategies/legacy-snapshots/config.js";
 import periodicCycle from "./strategies/periodic-cycle/config.js";
 
 /** Owns latitude and phase sampling identity while leaving thermal forcing to its separate operation. */
@@ -24,6 +23,5 @@ export default defineOp({
     observationIndices: Type.Array(Type.Integer({ minimum: 0 }), { minItems: 2, maxItems: 4 }),
     frames: Type.Array(ClimatePhaseFrameSchema, { minItems: 1 }),
   }, { additionalProperties: false }),
-  strategies: [legacySnapshots, periodicCycle],
-  defaultStrategy: "legacy-snapshots",
+  strategies: [periodicCycle],
 });

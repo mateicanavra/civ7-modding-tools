@@ -96,9 +96,12 @@ function forcingForTemperature(mean: number, cosine: number, sine: number, harmo
 }
 
 describe("empirical periodic thermal response", () => {
-  it("keeps the declared legacy default, explicit branch tags and strict new config", () => {
-    expect(operation.defaultConfig.strategy).toBe("insolation-lapse-rate");
-    expect(() => operation.run(fixture(), operation.defaultConfig)).toThrow(/matching input model/);
+  it("defaults to the sole periodic model and refuses retired models, selectors and controls", () => {
+    expect(operation.defaultConfig.strategy).toBe("periodic-response");
+    expect(operation.run(fixture(), operation.defaultConfig).model).toBe("periodic-response");
+    expect(() => normalizeOperationSelectionForTest(operation, {
+      strategy: "insolation-lapse-rate", config: {},
+    })).toThrow();
     expect(() =>
       operation.run(
         {
@@ -109,10 +112,10 @@ describe("empirical periodic thermal response", () => {
           elevation: new Int16Array(1),
           seaLevel: 0,
           landMask: new Uint8Array([1]),
-        },
+        } as never,
         selection
       )
-    ).toThrow(/matching input model/);
+    ).toThrow(/input admission/);
     for (const key of [
       "landCoolingC",
       "baseTemperatureC",
@@ -126,6 +129,49 @@ describe("empirical periodic thermal response", () => {
         })
       ).toThrow();
     }
+  });
+
+  it("requires an explicit sea-level datum and bounds empirical relief cooling", () => {
+    const { seaLevel: _seaLevel, ...missingDatum } = fixture();
+    expect(() => validateSchemaValueForTest(
+      hydrologyContract.climate.ops.computeThermalState.input, missingDatum, "/thermal"
+    )).toThrow(/seaLevel/);
+    for (const lapseRateCPerElevationUnit of [-0.5, -0.15, -0.0065, 0]) {
+      expect(normalizeOperationSelectionForTest(operation, {
+        ...selection, config: { ...selection.config, lapseRateCPerElevationUnit },
+      }).config.lapseRateCPerElevationUnit).toBe(lapseRateCPerElevationUnit);
+    }
+    for (const lapseRateCPerElevationUnit of [-0.5001, 0.0001]) {
+      expect(() => normalizeOperationSelectionForTest(operation, {
+        ...selection, config: { ...selection.config, lapseRateCPerElevationUnit },
+      })).toThrow(/lapseRateCPerElevationUnit/);
+    }
+  });
+
+  it("cools land by 15 C per 100 relief units and never warms below-datum depressions", () => {
+    const input = { ...fixture(), solarByRow: [forcingForTemperature(28, 0, 0, 1)],
+      elevation: new Int16Array([17, 37, 117]), seaLevel: 17, landMask: new Uint8Array([1, 1, 1]) };
+    for (const sample of run(input).samples) {
+      expect(Array.from(sample.surfaceTemperatureC)).toEqual([28, 25, 13]);
+    }
+    const below = run({ ...input, solarByRow: [forcingForTemperature(18, 0, 0, 1)],
+      elevation: new Int16Array([-30, 20, 21]), seaLevel: 20 });
+    for (const sample of below.samples) {
+      expect(Array.from(sample.surfaceTemperatureC.slice(0, 2))).toEqual([18, 18]);
+      expect(sample.surfaceTemperatureC[2]).toBeCloseTo(17.85, 5);
+    }
+  });
+
+  it("uses bounded prescribed SST without bathymetric warming and ignores SST on land", () => {
+    const input = { ...fixture(), elevation: new Int16Array([50, 0, -500]), seaLevel: 50,
+      landMask: new Uint8Array([0, 0, 0]), sstC: new Float32Array([-100, 12, 100]) };
+    const result = run(input);
+    for (const sample of result.samples) {
+      expect(Array.from(sample.surfaceTemperatureC)).toEqual([-40, 12, 50]);
+      expect(sample.surfaceTemperatureC).toEqual(sample.seaLevelTemperatureC);
+    }
+    expect(Array.from(result.annualSurfaceTemperatureC)).toEqual([-40, 12, 50]);
+    expect(run({ ...fixture(), sstC: new Float32Array([-100, 100, 12]) })).toEqual(run());
   });
 
   it("evaluates the complex signs once, applies one ground lapse, and preserves inputs", () => {

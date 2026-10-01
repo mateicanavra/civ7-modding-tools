@@ -290,6 +290,139 @@ map-type table, generic scenario harness or global property is needed for
 this migration. Native lake policy and navigation qualification remain a
 separate downstream gate after physical forcing and basin behavior settle.
 
+The ledger-fixed C1 rerun completes the full bank and all 49 candidate cases:
+2,695 artifacts are admitted, and every 26-artifact preclimate prefix holds.
+Existing Earthlike metric members remain exact. Its seven-profile migration
+is nevertheless negative: seven new expectations and five resolved ones leave
+13 failures rather than the baseline 11. The complete, independently checked
+result is retained at
+`earth-calibration/periodic-profile-retirement-ledger-fixed-20260930/`;
+qualification SHA256
+`c1cfcedfcbeb804cac0375aeaebcf476402485572200965640e0396f6702ff26`.
+Do not reinterpret the earlier refusal as a physics defect or this completed
+negative as a qualified replacement.
+
+The next profile repair targets demonstrated legacy compensation, not the
+current thermal law. Three mountain profiles still classify tropical habitat
+at 30 C, above their current 28.53667 C land maximum and even the classifier's
+28.75 C transition boundary. Latest Juicy uses the public 24 C default with
+the same thermal fields and retains both tropical categories. A classifier-only
+24 C ablation holds all forcing, feature scores, confidence floors, quotas and
+Earthlike authoring. Separately inspect positive-scored savanna availability:
+zero confidence floors can admit zero-score intents, and the authored first
+aridity shift of 0.2 conflicts with the scorer's moisture/aridity support.
+Test the public 0.45 default as a distinct owner-policy ablation, not part of
+the temperature intervention or a minimum-presence shortcut.
+
+Latest Juicy also loses stationary annual pressure contrast as its former
+30-35 C global land averages become physically cooler. Its three Standard
+cases have non-zonal pressure RMS 3.59068/3.82098/4.28572 hPa, and the retained
+cohort floor is 4. Paired weather pressure cancels before annual reduction;
+increasing transient noise is not a direct repair. Freeze final prescribed
+SST and replay public pressure/reduction operations at 12/24/48 phases before
+selecting any pressure/profile calibration. No pressure coefficient or
+expectation is changed merely to reach the old floor. This remaining owner
+decision is not permission to preserve superseded executable climate paths.
+
+The classifier-only C2 study completes the unchanged 29-study/96-scenario/
+166-target bank. It resolves nine expectations on the three affected mountain
+profiles without adding failures; 39 preclassifier artifacts per profile hold
+exactly. Four expectations remain: the original Ring atoll and two Earthlike
+climate-structure guards, plus Latest Juicy pressure. C2 does not establish
+positive-scored savanna: all its admitted savanna still have score zero.
+Receipt SHA256 is
+`8c111c7302a44e91f787601af3f2344a9f383cd9b599327d929aa2d570822a15` in
+`earth-calibration/periodic-profile-classifier-20260930/`.
+
+The separate actual-step habitat replay holds forcing and all physical inputs.
+Combining the three 24 C classifier repairs with the public 0.45 aridity-shift
+default creates 13/16/12 positive-scored savanna intents, rather than zero;
+Latest Juicy gets 33 rather than zero. Positive taiga remains 108/108/111 and
+113 respectively. The 0.45 change alone cannot overcome the unreachable 30 C
+classification. Adopt both demonstrated owner-policy repairs for the affected
+non-Earthlike profiles, preserving Earthlike, score laws, confidence floors and
+all study expectations. Full-bank and downstream consequences still require
+the final production replay. Receipt SHA256 is
+`b2c2d2c2248f34c91f930c6d5a8b358682eece094c3e1d66c8f2dbe2edc51980` in
+`earth-calibration/periodic-profile-habitat-support-20260930/`.
+
+The frozen-final-SST pressure replay reproduces C1 exactly at 24 phases. At
+12/24/48 phases its RMS values remain 3.59068/3.82098/4.28572 hPa across the
+three seeds. Removing direct transient noise or seasonal thermal contributions
+changes the annual result only at Float32 roundoff. Neither sampling resolution
+nor uncancelled noise explains the pressure guard. Preserve coefficient 1.2
+and floor 4; local zonal thermal contrast, not global land-water averages, is
+the next calibration discriminator. Receipt SHA256 is
+`a34fdac56db90625d104593ad55d7f652c865414b85620199b72fa3d9e6ad622` in
+`earth-calibration/periodic-profile-pressure-common-sst-20260930/`.
+
+### Current-Only Retirement Versus Quality Acceptance
+
+The user's explicit no-legacy direction supersedes conditioning source
+retirement on the original no-additional-failures migration gate. Do not
+reinterpret that gate as passed: C1 remains negative, and C2 is not final
+migration admission. The supported periodic law becomes the sole executable
+climate path, while the unchanged bank continues to report unresolved quality.
+Deleting alternate algorithms, validating their selected-current equivalence,
+and qualifying every authored profile are separate claims. Retain this change
+as a draft until its implementation proofs and remaining quality obligations
+are satisfied; no scientific expectation is waived or silently weakened.
+
+Remove old strategies, aggregate union arms, live historical reproductions
+and current capture fallbacks, preserving archived source data and receipts.
+Saved configs selecting retired algorithms are refused through existing
+admission, not translated into guessed physics. No new scenario harness,
+global knob, map table, SDK architecture or production fixture input is needed.
+Native-water qualification follows physical closure in the same lineage.
+
+The fresh current-only owner graph completes all 73 tasks with one retained
+scientific test failure, not an implementation or timeout failure. Types,
+builds, Habitat, boundaries, hygiene and Knip pass; Studio passes 410 tests,
+the realization app 212, Core 369 and the adapter 57. The definition has
+1,028 passing tests. Its complete atomic bank now reports four unchanged
+expectation failures: Ring atoll, Earthlike within-row temperature variation,
+Earthlike row-biome dominance and Latest Juicy stationary pressure contrast.
+The aggregate test keeps its complete scenario reconciliation and unique
+captures; only its execution budget grows to accommodate periodic integration.
+No scientific assertion, coefficient, scenario or expected threshold changes.
+The log is `earth-calibration/current-climate-retirement-owner-proof-rerun-20260930.log`.
+Final selected-current artifact equivalence and downstream consequences still
+require the independently authenticated after-retirement replay.
+
+That replay is now complete and independently sealed at revision
+`1139071aefe50868d2a5e168046f111e78f42b77`. All 49 cases admit all 55 artifacts
+(2,695 captures); every 26-artifact upstream prefix holds. The 34 cases with
+Ecology edits hold their 42 unaffected artifacts; the other 15 hold all 55.
+There are no unexpected changes, no new failures against C1, and nine resolved
+expectations. Earthlike authoring and complete metric members remain exact.
+The original-baseline pressure regression and the three original calibration
+failures remain open, not waived by this selected-current equivalence.
+Qualification SHA256 is
+`99c7a2eb94851c4c0c788d36be8dc60a41fbc9d4af6aec0b09927b1c15c46a03`
+in `earth-calibration/periodic-profile-after-retirement-20260930/`.
+
+The complete selected-tile habitat census also finds zero-suitability intents.
+Their total decreases from 27,444 to 12,608, but zero-score savanna and taiga
+increase while sagebrush declines. A presence expectation does not establish
+positive habitat support. Inspect the planner's declared eligibility meaning
+at its owner before accepting that population or introducing another authored
+confidence threshold. No existing suitability or planner law was changed by
+the retirement replay.
+
+The separate frozen-pressure decomposition reproduces all original and
+stationary inputs/outputs and passes seven quantitative controls. Smoothing
+removes 10.69-14.76 percent of anomaly energy; its removal still leaves seed1018
+below the unchanged 4 hPa floor. Within-class annual thermal variance is
+entirely water variance: each land row is exactly uniform in the pressure's
+sea-level thermal input. No pressure sign, centering, organization, pairing or
+indexing defect is established. Do not change its coefficient, remove its
+filter, or reintroduce ground lapse to pass the target. This links the pressure
+residual to the existing land-geographic thermal investigation, not a new
+independent tuning queue. The held native-water boundary can proceed without
+waiting for an unsupported land-process selection. Verification SHA256 is
+`40e75ef783a7f71a417b90503c87cd0a4bad261884f38743c4874c4cb8c5f82b`
+in `earth-calibration/periodic-pressure-contrast-decomposition-20260930/`.
+
 ## Evidence That Survives The Artifact Correction
 
 - The ten-map publication replay matches all 120 captured field hashes. The
