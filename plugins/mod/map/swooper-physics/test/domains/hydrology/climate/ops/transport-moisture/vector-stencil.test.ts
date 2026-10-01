@@ -10,8 +10,6 @@ function inputFor(width: number, height: number) {
   return {
     width,
     height,
-    latitudeByRow: new Float32Array(height),
-    landMask: new Uint8Array(size).fill(1),
     windU: new Int8Array(size),
     windV: new Int8Array(size),
     evaporation: Float32Array.from({ length: size }, (_, i) => 0.01 + 0.01 * ((i * 17) % 9)),
@@ -125,7 +123,7 @@ describe("moisture vector transport stencil", () => {
     }
   });
 
-  it("keeps calm sources local while preserving repeated injection and ignoring latitude", () => {
+  it("keeps calm sources local while preserving repeated injection", () => {
     const input = inputFor(7, 6);
     input.evaporation.fill(0);
     const source = 2 * input.width + 3;
@@ -135,10 +133,6 @@ describe("moisture vector transport stencil", () => {
     expect(reference[source]).toBeGreaterThan(input.evaporation[source]!);
     for (let i = 0; i < reference.length; i++) {
       if (i !== source) expect(reference[i]).toBe(0);
-    }
-    for (const latitude of [-90, -60, -45, -30, 0, 29, 30, 59, 60, 90]) {
-      input.latitudeByRow.fill(latitude);
-      expect(run(input, { iterations: 8 })).toEqual(reference);
     }
   });
 
@@ -173,8 +167,6 @@ describe("moisture vector transport stencil", () => {
       const result = run(input)[center]!;
       expect(result).toBeCloseTo(expected, 7);
       expect(result).toBeLessThan(0.061);
-      input.latitudeByRow.fill(45);
-      expect(run(input)[center]).toBe(result);
     }
   });
 
@@ -195,19 +187,15 @@ describe("moisture vector transport stencil", () => {
     }
   });
 
-  it("crosses land and water alike and depends on direction rather than wind magnitude", () => {
+  it("depends on direction rather than wind magnitude without terrain gating", () => {
     const input = inputFor(7, 6);
     input.windU.fill(3);
     input.windV.fill(-2);
     const weak = run(input, { iterations: 6 });
     input.windU.fill(120);
     input.windV.fill(-80);
-    for (let i = 0; i < input.landMask.length; i++) input.landMask[i] = i % 2;
     const strong = run(input, { iterations: 6 });
     for (let i = 0; i < strong.length; i++) expect(strong[i]).toBeCloseTo(weak[i]!, 7);
-    input.landMask.fill(0);
-    expect(run(input, { iterations: 6 })).toEqual(strong);
-    input.landMask.fill(1);
     expect(run(input, { iterations: 6 })).toEqual(strong);
   });
 
@@ -241,26 +229,14 @@ describe("moisture vector transport stencil", () => {
     }
   });
 
-  it("keeps the separate cardinal strategy's calm latitude bands and bounded sampling unchanged", () => {
+  it("refuses retired latitude and terrain inputs rather than silently accepting them", () => {
     const input = inputFor(5, 3);
-    input.evaporation.fill(0);
-    const center = 7;
-    input.evaporation[center + 1] = 0.25;
-    input.evaporation[center - 1] = 0.5;
-    const cardinal = () => runAdmittedOperationForTest(transportMoisture, input, {
-      strategy: "cardinal",
-      config: { iterations: 1, advection: 1, retention: 1 },
-    }).humidity;
-    for (const [latitude, expected] of [[0, 0.25], [29, 0.25], [30, 0.5], [59, 0.5], [60, 0.25]]) {
-      input.latitudeByRow.fill(latitude!);
-      expect(cardinal()[center]).toBe(expected!);
+    for (const obsolete of [
+      { latitudeByRow: new Float32Array(input.height) },
+      { landMask: new Uint8Array(input.width * input.height) },
+    ]) {
+      expect(() => run({ ...input, ...obsolete })).toThrow();
     }
-    input.evaporation[0] = 0.125;
-    input.windU[0] = 80;
-    expect(cardinal()[0]).toBe(0.25);
-    input.windU[0] = 0;
-    input.windV[0] = 80;
-    expect(cardinal()[0]).toBe(0.25);
   });
 
   it("rejects the removed vector cutoff rather than silently accepting a dead control", () => {

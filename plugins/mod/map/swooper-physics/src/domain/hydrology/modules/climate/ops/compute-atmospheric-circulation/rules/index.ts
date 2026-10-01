@@ -1,6 +1,5 @@
 import {
   type Vec2,
-  I8_VECTOR_MAX_ABS,
   forEachHexNeighborOddQWithDirection,
   getHexNeighborDirectionVectorsOddQ,
   getHexNeighborIndicesOddQ,
@@ -11,8 +10,7 @@ import {
   vec2LengthSquared,
   vec2Scale,
 } from "@swooper/mapgen-core/lib/grid";
-import { fnv1a32Int32Values, fnv1a32String } from "@swooper/mapgen-core/lib/hash";
-import { clamp01, clampInt, lerp } from "@swooper/mapgen-core/lib/math";
+import { clamp01, lerp } from "@swooper/mapgen-core/lib/math";
 
 /**
  * Per-sample perturbation ceiling relative to the analytic circulation backbone.
@@ -27,108 +25,10 @@ const MAX_MERIDIONAL_TO_ZONAL_RATIO = 0.35;
 const HADLEY_CELL_END_DEG = 30;
 const FERREL_CELL_END_DEG = 60;
 const POLE_LATITUDE_DEG = 90;
-const LATITUDE_FALLBACK_BASE_SPEED = 80;
-const JET_STREAK_MIN_LATITUDE_DEG = 15;
-const JET_STREAK_MAX_LATITUDE_DEG = 75;
-const JET_STREAK_JITTER_RANGE_DEG = 12;
-const JET_STREAK_INFLUENCE_RADIUS_DEG = 12;
-const JET_STREAK_BOOST = 32;
-const WIND_U_VARIANCE_ROLL_SIZE = 21;
-const WIND_V_VARIANCE_ROLL_SIZE = 11;
 const FERREL_MERIDIONAL_WEIGHT = 0.6;
 const POLAR_MERIDIONAL_WEIGHT = 0.5;
 const EQUATORIAL_TAPER_DEFAULT_DEG = 18;
 const PRESSURE_SMOOTHING_BLEND = 0.55;
-const JET_STREAK_ROLL_SALT = fnv1a32String("hydrology:circulation:jet-streak");
-const WIND_U_VARIANCE_ROLL_SALT = fnv1a32String("hydrology:circulation:wind-u-variance");
-const WIND_V_VARIANCE_ROLL_SALT = fnv1a32String("hydrology:circulation:wind-v-variance");
-
-function seededRoll(seed: number, salt: number, sampleIndex: number, rollSize: number): number {
-  return fnv1a32Int32Values([seed, salt, sampleIndex]) % Math.max(1, rollSize | 0);
-}
-
-/**
- * Builds the inexpensive latitude-band wind field used by the fallback circulation strategy.
- *
- * Each row shares a deterministic zonal scaffold and seeded variance, with jet streaks perturbing
- * the prevailing direction before both components are clamped to the signed-byte field contract.
- *
- * @param width - Number of tile columns to populate.
- * @param height - Number of tile rows to populate.
- * @param latitudeByRow - Signed latitude in degrees for each row.
- * @param options - Seed and latitude-band tuning applied to the row-uniform field.
- * @returns Quantized U/V wind components in the `[-127, 127]` range.
- */
-export function computeWinds(
-  width: number,
-  height: number,
-  latitudeByRow: ArrayLike<number>,
-  options: { seed: number; jetStreaks: number; jetStrength: number; variance: number }
-): { windU: Int8Array; windV: Int8Array } {
-  const size = width * height;
-  const windU = new Int8Array(size);
-  const windV = new Int8Array(size);
-
-  const streaks = options.jetStreaks | 0;
-  const jetStrength = options.jetStrength;
-  const variance = options.variance;
-
-  const streakLats: number[] = [];
-  for (let s = 0; s < streaks; s++) {
-    const base =
-      HADLEY_CELL_END_DEG +
-      s * ((FERREL_CELL_END_DEG - HADLEY_CELL_END_DEG) / Math.max(1, streaks - 1));
-    const jitter =
-      seededRoll(options.seed, JET_STREAK_ROLL_SALT, s, JET_STREAK_JITTER_RANGE_DEG) -
-      JET_STREAK_JITTER_RANGE_DEG / 2;
-    streakLats.push(
-      Math.max(
-        JET_STREAK_MIN_LATITUDE_DEG,
-        Math.min(JET_STREAK_MAX_LATITUDE_DEG, base + jitter)
-      )
-    );
-  }
-
-  for (let y = 0; y < height; y++) {
-    const latDeg = Math.abs(latitudeByRow[y] ?? 0);
-
-    let u =
-      latDeg < HADLEY_CELL_END_DEG || latDeg >= FERREL_CELL_END_DEG
-        ? -LATITUDE_FALLBACK_BASE_SPEED
-        : LATITUDE_FALLBACK_BASE_SPEED;
-    const v = 0;
-
-    for (let k = 0; k < streakLats.length; k++) {
-      const d = Math.abs(latDeg - streakLats[k]);
-      const f = Math.max(0, 1 - d / JET_STREAK_INFLUENCE_RADIUS_DEG);
-      if (f > 0) {
-        const boost = Math.round(JET_STREAK_BOOST * jetStrength * f);
-        u += latDeg < streakLats[k] ? boost : -boost;
-      }
-    }
-
-    const varU =
-      Math.round(
-        (seededRoll(options.seed, WIND_U_VARIANCE_ROLL_SALT, y, WIND_U_VARIANCE_ROLL_SIZE) -
-          (WIND_U_VARIANCE_ROLL_SIZE - 1) / 2) *
-          variance
-      ) | 0;
-    const varV =
-      Math.round(
-        (seededRoll(options.seed, WIND_V_VARIANCE_ROLL_SALT, y, WIND_V_VARIANCE_ROLL_SIZE) -
-          (WIND_V_VARIANCE_ROLL_SIZE - 1) / 2) *
-          variance
-      ) | 0;
-
-    for (let x = 0; x < width; x++) {
-      const i = idx(x, y, width);
-      windU[i] = clampInt(u + varU, -I8_VECTOR_MAX_ABS, I8_VECTOR_MAX_ABS);
-      windV[i] = clampInt(v + varV, -I8_VECTOR_MAX_ABS, I8_VECTOR_MAX_ABS);
-    }
-  }
-
-  return { windU, windV };
-}
 
 function rotateRight(v: Vec2): Vec2 {
   return { x: v.y, y: -v.x };
@@ -216,7 +116,8 @@ function centerFieldRows(
  * at the Hadley/Ferrel and Ferrel/Polar boundaries. Meridional half-sine cells retain equatorward
  * tropical and polar flow plus poleward temperate flow. Pressure departures add a hemisphere-aware
  * geostrophic perturbation that becomes down-gradient near the equator, is normalized to an RMS
- * budget, and cannot rewrite the authored row-mean circulation.
+ * budget, and centered before encoding. Unsaturated row means retain the analytic carrier within
+ * rounding error; nonlinear speed projection need not preserve saturated component means.
  */
 export function computeWindsEarthlike(
   width: number,

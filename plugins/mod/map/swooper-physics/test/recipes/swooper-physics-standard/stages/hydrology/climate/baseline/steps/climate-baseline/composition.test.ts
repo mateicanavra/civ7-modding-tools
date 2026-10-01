@@ -33,6 +33,8 @@ type OceanCurrentsInput = Parameters<
 type OceanThermalInput = Parameters<
   typeof hydrologyDomain.ocean.ops.computeOceanThermalState.run
 >[0];
+type OceanGeometryInput = Parameters<typeof hydrologyDomain.ocean.ops.computeOceanGeometry.run>[0];
+type MoistureInput = Parameters<typeof hydrologyDomain.climate.ops.transportMoisture.run>[0];
 type ThermalStateInput = Parameters<typeof hydrologyDomain.climate.ops.computeThermalState.run>[0];
 type PressureFieldInput = Parameters<
   typeof hydrologyDomain.climate.ops.computePressureField.run
@@ -85,45 +87,12 @@ function climateBaselineConfig(
   );
 }
 
-function capturePeriodicComposition(modeCount: 2 | 4, uncoupled = false, axialTiltDeg?: number) {
+function capturePeriodicComposition(modeCount: 2 | 4, axialTiltDeg?: number) {
   const width = 4,
     height = 3,
     size = width * height;
-  let config = climateBaselineConfig({ axialTiltDeg });
+  const config = climateBaselineConfig({ axialTiltDeg });
   config.seasonality.modeCount = modeCount;
-  if (uncoupled)
-    config = validateSchemaValueForTest(
-      climateBaselineStepConfig.schema,
-      {
-        ...config,
-        computeAtmosphericCirculation: {
-          strategy: "latitude",
-          config: { windJetStreaks: 0, windJetStrength: 0, windVariance: 0 },
-        },
-        computeOceanSurfaceCurrents: { strategy: "latitude", config: { strength: 0 } },
-        transportMoisture: {
-          strategy: "cardinal",
-          config: { iterations: 0, advection: 0.65, retention: 0.92 },
-        },
-        computePrecipitation: {
-          strategy: "baseline",
-          config: {
-            rainfallScale: 180,
-            humidityExponent: 1,
-            noiseAmplitude: 0,
-            noiseScale: 0.12,
-            waterGradient: {
-              radius: 5,
-              perRingBonus: 4,
-              lowlandBonus: 2,
-              lowlandElevationMax: 150,
-            },
-            orographic: { steps: 4, reductionBase: 8, reductionPerStep: 6, barrierElevationM: 500 },
-          },
-        },
-      },
-      "/periodic/uncoupled"
-    );
   const context = createMapContext({
     setup: admitMapSetup({
       mapSeed: TEST_MAP_SEED,
@@ -133,6 +102,7 @@ function capturePeriodicComposition(modeCount: 2 | 4, uncoupled = false, axialTi
     adapter: createMockAdapter({ width, height }),
   });
   const events: string[] = [];
+  const geometryInputs: OceanGeometryInput[] = [];
   const oceanInputs: OceanThermalInput[] = [];
   const thermalInputs: ThermalStateInput[] = [];
   const thermalOutputs: Extract<
@@ -148,6 +118,7 @@ function capturePeriodicComposition(modeCount: 2 | 4, uncoupled = false, axialTi
   const precipitationInputs: PrecipitationInput[] = [];
   const precipitationOutputs: ReturnType<typeof hydrologyDomain.climate.ops.computePrecipitation.run>[] = [];
   const evaporationInputs: Parameters<typeof hydrologyDomain.climate.ops.computeEvaporationSources.run>[0][] = [];
+  const moistureInputs: MoistureInput[] = [];
   const demandInputs: PotentialDemandInput[] = [];
   const demandOutputs: number[][] = [];
   const landMask = new Uint8Array(size).fill(1);
@@ -183,14 +154,17 @@ function capturePeriodicComposition(modeCount: 2 | 4, uncoupled = false, axialTi
           thermalOutputs.push(output);
           return output;
         },
-        computeOceanGeometry: () => ({
-          basinId: new Int32Array(size),
-          coastDistance: new Uint16Array(size),
-          coastNormalU: new Int8Array(size),
-          coastNormalV: new Int8Array(size),
-          coastTangentU: new Int8Array(size),
-          coastTangentV: new Int8Array(size),
-        }),
+        computeOceanGeometry: (input: OceanGeometryInput) => {
+          geometryInputs.push(input);
+          return {
+            basinId: new Int32Array(size),
+            coastDistance: new Uint16Array(size),
+            coastNormalU: new Int8Array(size),
+            coastNormalV: new Int8Array(size),
+            coastTangentU: new Int8Array(size),
+            coastTangentV: new Int8Array(size),
+          };
+        },
         computeOceanThermalState: (input: OceanThermalInput) => {
           events.push("ocean");
           oceanInputs.push(input);
@@ -234,7 +208,10 @@ function capturePeriodicComposition(modeCount: 2 | 4, uncoupled = false, axialTi
           evaporationInputs.push(input);
           return { evaporation: new Float32Array(size) };
         },
-        transportMoisture: () => ({ humidity: new Float32Array(size) }),
+        transportMoisture: (input: MoistureInput) => {
+          moistureInputs.push(input);
+          return { humidity: new Float32Array(size) };
+        },
         computePrecipitation: (input: PrecipitationInput) => {
           precipitationInputs.push(input);
           const output = {
@@ -266,6 +243,7 @@ function capturePeriodicComposition(modeCount: 2 | 4, uncoupled = false, axialTi
     elevation,
     config,
     events,
+    geometryInputs,
     oceanInputs,
     thermalInputs,
     thermalOutputs,
@@ -278,6 +256,7 @@ function capturePeriodicComposition(modeCount: 2 | 4, uncoupled = false, axialTi
     precipitationInputs,
     precipitationOutputs,
     evaporationInputs,
+    moistureInputs,
     demandInputs,
     demandOutputs,
   };
@@ -317,6 +296,8 @@ describe("hydrology climate-baseline composition", () => {
       vintages = run.config.coupling.iterations + 1;
     expect(run.events[0]).toBe("ocean");
     expect(run.events.at(-1)).toBe("thermal");
+    expect(run.geometryInputs).toHaveLength(1);
+    expect(run.observation.oceanGeometry).toBeDefined();
     expect(run.oceanInputs).toHaveLength(vintages);
     expect([...run.oceanInputs[0]!.currentU]).toEqual(new Array(12).fill(0));
     expect(run.thermalInputs).toHaveLength(vintages);
@@ -350,12 +331,53 @@ describe("hydrology climate-baseline composition", () => {
       ["computeSeasonalSampling", { strategy: "legacy-snapshots", config: {} }],
       ["computeRadiativeForcing", { strategy: "latitude-insolation", config: {} }],
       ["computeThermalState", { strategy: "insolation-lapse-rate", config: {} }],
+      ["computeAtmosphericCirculation", {
+        strategy: "latitude",
+        config: { windJetStreaks: 0, windJetStrength: 0, windVariance: 0 },
+      }],
+      ["computeOceanSurfaceCurrents", { strategy: "latitude", config: { strength: 0 } }],
+      ["transportMoisture", {
+        strategy: "cardinal", config: { iterations: 0, advection: 0.65, retention: 0.92 },
+      }],
+      ["computePrecipitation", {
+        strategy: "baseline",
+        config: {
+          rainfallScale: 180, humidityExponent: 1, noiseAmplitude: 0, noiseScale: 0.12,
+          waterGradient: { radius: 5, perRingBonus: 4, lowlandBonus: 2, lowlandElevationMax: 150 },
+          orographic: { steps: 4, reductionBase: 8, reductionPerStep: 6, barrierElevationM: 500 },
+        },
+      }],
       ["computeRadiativeForcing", { ...config.computeRadiativeForcing, config: { equatorInsolation: 1 } }],
       ["computeThermalState", { ...config.computeThermalState, config: { ...config.computeThermalState.config, baseTemperatureC: 9 } }],
     ] as const) {
       expect(() => validateSchemaValueForTest(
         climateBaselineStepConfig.schema, { ...config, [key]: retired }, "/retired-climate"
       )).toThrow();
+    }
+  });
+
+  it("refuses the four retired selectors at operation admission", () => {
+    for (const [schema, retired] of [
+      [hydrologyDomain.climate.ops.computeAtmosphericCirculation.config, {
+        strategy: "latitude",
+        config: { windJetStreaks: 0, windJetStrength: 0, windVariance: 0 },
+      }],
+      [hydrologyDomain.ocean.ops.computeOceanSurfaceCurrents.config, {
+        strategy: "latitude", config: { strength: 0 },
+      }],
+      [hydrologyDomain.climate.ops.transportMoisture.config, {
+        strategy: "cardinal", config: { iterations: 0, advection: 0.65, retention: 0.92 },
+      }],
+      [hydrologyDomain.climate.ops.computePrecipitation.config, {
+        strategy: "baseline",
+        config: {
+          rainfallScale: 180, humidityExponent: 1, noiseAmplitude: 0, noiseScale: 0.12,
+          waterGradient: { radius: 5, perRingBonus: 4, lowlandBonus: 2, lowlandElevationMax: 150 },
+          orographic: { steps: 4, reductionBase: 8, reductionPerStep: 6, barrierElevationM: 500 },
+        },
+      }],
+    ] as const) {
+      expect(() => validateSchemaValueForTest(schema, retired, "/retired-climate-operation")).toThrow();
     }
   });
 
@@ -379,10 +401,14 @@ describe("hydrology climate-baseline composition", () => {
           expect("elevation" in run.pressureInputs[call]!).toBe(false);
           expect("elevationScale" in run.pressureInputs[call]!).toBe(false);
           expect("seasonSalt" in run.circulationInputs[call]!).toBe(false);
-          expect(run.circulationInputs[call]!.rngSeed).toBe(run.pressureInputs[call]!.rngSeed);
+          expect("rngSeed" in run.circulationInputs[call]!).toBe(false);
           expect(run.circulationInputs[call]!.pressureField).toBe(run.pressureOutputs[call]);
           expect(run.currentInputs[call]!.windU).toBe(run.windOutputs[call]!.windU);
           expect(run.currentInputs[call]!.windV).toBe(run.windOutputs[call]!.windV);
+          expect(run.currentInputs[call]!.basinId).toBe(run.observation.oceanGeometry.basinId);
+          expect(run.currentInputs[call]!.coastDistance).toBe(run.observation.oceanGeometry.coastDistance);
+          expect(run.currentInputs[call]!.coastTangentU).toBe(run.observation.oceanGeometry.coastTangentU);
+          expect(run.currentInputs[call]!.coastTangentV).toBe(run.observation.oceanGeometry.coastTangentV);
         }
       }
       if (vintage > 0) {
@@ -426,12 +452,19 @@ describe("hydrology climate-baseline composition", () => {
       for (const member of [0, 1]) {
         expect(run.precipitationInputs[phase * 2 + member]!.windU).toBe(run.windOutputs[start + phase * 2 + member]!.windU);
         const evaporation = run.evaporationInputs[phase * 2 + member]!;
+        if (evaporation.windU === undefined || evaporation.windV === undefined) {
+          throw new Error("Expected final weather-member winds at evaporation.");
+        }
         expect(evaporation.windU).toBe(run.windOutputs[start + phase * 2 + member]!.windU);
         expect(evaporation.windV).toBe(run.windOutputs[start + phase * 2 + member]!.windV);
         expect(evaporation.sstC).toBe(run.thermalInputs.at(-1)!.sstC);
         expect(evaporation.seaIceMask).toBe(run.observation.oceanThermal.seaIceMask);
         expect(evaporation.surfaceTemperatureC).toBe(run.thermalOutputs.at(-1)!.samples[phase]!.surfaceTemperatureC);
         expect(evaporation.landMask).toBe(run.landMask);
+        const transport = run.moistureInputs[phase * 2 + member]!;
+        expect(Object.keys(transport).sort()).toEqual(["evaporation", "height", "width", "windU", "windV"]);
+        expect(transport.windU).toBe(evaporation.windU);
+        expect(transport.windV).toBe(evaporation.windV);
       }
       const moisture = hydrologyDomain.climate.ops.computeMoistureAggregate.run({
         width: 4, height: 3, reduction: "weather-members",
@@ -469,7 +502,7 @@ describe("hydrology climate-baseline composition", () => {
 
   it("retains zero-tilt salts and zero amplitudes without erasing weather members", () => {
     for (const axialTiltDeg of [0, 18]) {
-      const run = capturePeriodicComposition(4, false, axialTiltDeg);
+      const run = capturePeriodicComposition(4, axialTiltDeg);
       const phaseCount = run.observation.seasonalIntegration.phases.length;
       const salts = new Set(run.pressureInputs.map((input) => input.seasonSalt));
       const latitudes = new Set(run.circulationInputs.map((input) => input.latitudeByRow[0]));
@@ -489,7 +522,7 @@ describe("hydrology climate-baseline composition", () => {
     }
   });
 
-  it("keeps all annual fields independent of observation count and initializes SST without coupling", () => {
+  it("keeps all annual fields independent of observation count", () => {
     const two = capturePeriodicComposition(2),
       four = capturePeriodicComposition(4);
     for (const key of [
@@ -507,10 +540,6 @@ describe("hydrology climate-baseline composition", () => {
       four.observation.seasonalSurfaceTemperatureC[1]!,
       four.observation.seasonalSurfaceTemperatureC[3]!,
     ]);
-    const uncoupled = capturePeriodicComposition(2, true);
-    expect(uncoupled.events).toEqual(["ocean", "thermal"]);
-    expect(uncoupled.observation.oceanThermal.sstC[0]).toBe(11);
-    expect(uncoupled.observation.thermalField.surfaceTemperatureC[0]).toBe(11);
   });
 
 });

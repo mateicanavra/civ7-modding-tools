@@ -375,6 +375,67 @@ admission, not translated into guessed physics. No new scenario harness,
 global knob, map table, SDK architecture or production fixture input is needed.
 Native-water qualification follows physical closure in the same lineage.
 
+#### Remaining Fallback Retirement
+
+The subsequent source-currency review finds four still-admitted alternate
+algorithms: atmosphere `latitude`, currents `latitude`, moisture `cardinal`
+and precipitation `baseline`. All eight shipped catalog configurations instead
+select `geostrophic-proxy`, `wind-gyre-projection`, `vector-advection` and
+`vector`. No shipped scenario, app caller or qualified performance requirement
+needs the fallback algorithms. Historical preservation tests and generic config
+editing establish that they are reachable, not that they remain product intent.
+Complete current-only retirement at these existing operation owners.
+
+Remove only the four fallback registrations, implementations and exclusive
+rules. Compose current normalization directly, compute ocean geometry
+unconditionally and retain the authored coupling count. Preserve current
+formulae, initialization, operation order, seed draws/labels, weather and phase
+reductions, final prescribed-SST vintage, artifact identities, visualization
+and all eight authored configurations. Meaningful optional wind/gyre geometry,
+the selected ocean thermal law, diagnostic wind sampling and broad knob
+postures remain current capabilities, not fallback paths to delete by name.
+
+Legacy-only input properties may disappear where the selected implementation
+does not consume them; do not remove the shared seed draw merely because one
+operation stops accepting it. Saved fallback selectors are rejected through
+existing step/public admission. Update the generated schema through its owner
+and replace preservation-only fixtures with explicit refusal coverage, keeping
+current composition and numerical tests. No aliases or silent translations.
+
+Freeze the existing complete public study-bank selection before editing. Compare
+all declared terminal artifacts for the same admitted catalog configuration,
+Civ7 preset, map/game seeds and players afterward. Run current-owner types,
+policy, build, tests, unchanged study expectations and independent SDK review.
+This is selected-current identity proof, not a new climate mechanism or a cure
+for the two remaining scientific floors. It requires no new test harness,
+fixed-size map table, SDK machinery or global property. Keep it on the existing
+current-climate retirement branch and restack its dependent layers natively.
+
+The complete 2026-10-01 fallback-retirement replay passes: all 96 existing
+public-bank scenarios execute once per arm, covering all eight catalog maps
+and five official sizes. All 55 terminal artifacts per case, their shapes and
+all compiled provenance remain identical (5,280 artifact comparisons). The
+independent SDK review is aligned. The baseline and after receipts are in
+`earth-calibration/current-climate-fallback-retirement-20261001/`, with SHA256
+`78ab6d7d5d4bb39e99d5edb8d45a14a7129671b3bfc0d9e5b2091a0d84c0cc3b`
+and `5e9069b13cfc0efa98303611acbb0084c44059bf75e882630965f0702d551b7e`.
+The owning build/check graph passes. The definition suite has 1,069 passes and
+the unchanged aggregate failure for the Earthlike thermal and Latest Juicy
+pressure expectations; app tests pass 270 and Studio tests pass 412. The
+baseline composition decreases from 725 to 563 lines without changing a
+selected numerical law. These results establish source simplification and
+current-output preservation, not resolution of those scientific expectations.
+
+The existing `SWOOPER_TEST_MAP_SIZE` selector also exposes two old wind-test
+assumptions: an equatorial quarter-of-sampled-peak ceiling is not the analytic
+half-sine at every admitted latitude, and magnitude clipping need not preserve
+component row means. Replace those fixture assumptions with the analytic
+profile's signed-byte rounding envelope, a provably unsaturated row-mean arm
+and the original saturated carrier-direction stress. No production formula or
+scientific floor changes. The same focused five-file group passes 48 tests at
+each of Tiny, Small, Standard, Large and Huge (240 passes); no new selector,
+fixed-size harness or size-specific exception is introduced.
+
 The fresh current-only owner graph completes all 73 tasks with one retained
 scientific test failure, not an implementation or timeout failure. Types,
 builds, Habitat, boundaries, hygiene and Knip pass; Studio passes 410 tests,

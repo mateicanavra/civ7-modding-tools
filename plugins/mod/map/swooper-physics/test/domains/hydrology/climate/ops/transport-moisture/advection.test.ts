@@ -14,12 +14,6 @@ describe("hydrology/transport-moisture (vector-advection)", () => {
     const { width, height } = syntheticDimensions;
     const size = width * height;
 
-    const latitudeByRow = new Float32Array(height);
-    latitudeByRow.fill(0);
-
-    const landMask = new Uint8Array(size);
-    landMask.fill(1);
-
     const windU = new Int8Array(size);
     const windV = new Int8Array(size);
     windU.fill(80);
@@ -30,7 +24,7 @@ describe("hydrology/transport-moisture (vector-advection)", () => {
 
     const out = runAdmittedOperationForTest(
       transportMoisture,
-      { width, height, latitudeByRow, landMask, windU, windV, evaporation },
+      { width, height, windU, windV, evaporation },
       {
         strategy: "vector-advection",
         config: { iterations: 48, advection: 1, retention: 1 },

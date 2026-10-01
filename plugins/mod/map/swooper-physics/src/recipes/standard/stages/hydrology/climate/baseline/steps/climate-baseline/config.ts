@@ -28,7 +28,7 @@ const ClimateBaselineStepConfigSchema = Type.Object(
      */
     seasonality: Type.Object(
       {
-        /** Observation count; only the legacy sampling strategy also uses it for integration. */
+        /** Observation count; periodic integration is independent. */
         modeCount: Type.Union([Type.Literal(2), Type.Literal(4)], {
           default: 2,
           description:
@@ -61,7 +61,7 @@ const ClimateBaselineStepConfigSchema = Type.Object(
           minimum: 1,
           maximum: 4,
           description:
-            "Fixed atmosphere-ocean coupling iterations. Legacy starts without SST; periodic response starts with prescribed SST. Later iterations consume only the preceding SST field.",
+            "Fixed atmosphere-ocean coupling iterations. Periodic response starts with prescribed SST; later iterations consume only the preceding SST field.",
         }),
       },
       {

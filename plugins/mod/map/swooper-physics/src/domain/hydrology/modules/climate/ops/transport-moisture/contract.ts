@@ -1,8 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import cardinalDefinition from "./strategies/cardinal/config.js";
 import vectorAdvectionDefinition from "./strategies/vector-advection/config.js";
 
-/** Moisture transport with supplied-wind vector advection by default and a separate cardinal strategy. */
+/** Moisture transport with supplied-wind vector advection as its sole strategy. */
 const TransportMoistureContract = defineOp({
   kind: "compute",
   id: "hydrology/transport-moisture",
@@ -22,13 +21,6 @@ const TransportMoistureContract = defineOp({
       width: Type.Integer({ minimum: 1, description: "Tile grid width (columns)." }),
       /** Tile grid height. */
       height: Type.Integer({ minimum: 1, description: "Tile grid height (rows)." }),
-      /** Latitude fallback for the cardinal strategy only; length must equal `height`. */
-      latitudeByRow: TypedArraySchemas.f32({
-        cardinality: ["height"],
-        description: "Latitude per row (degrees), used only by the cardinal strategy's calm-wind fallback.",
-      }),
-      /** Land mask per tile (1=land, 0=water). */
-      landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
       /** Wind U component per tile (-127..127). */
       windU: TypedArraySchemas.i8({ description: "Wind U component per tile (-127..127)." }),
       /** Wind V component per tile (-127..127). */
@@ -42,7 +34,7 @@ const TransportMoistureContract = defineOp({
     {
       additionalProperties: false,
       description:
-        "Evaporation and supplied winds for vector transport across land and water; latitude fallback evidence is used only by the separate cardinal strategy.",
+        "Evaporation and supplied winds for vector transport across the complete tile grid.",
     }
   ),
   /**
@@ -59,8 +51,7 @@ const TransportMoistureContract = defineOp({
         "Normalized humidity field consumed by precipitation generation without engine-state readback.",
     }
   ),
-  defaultStrategy: "vector-advection",
-  strategies: [vectorAdvectionDefinition, cardinalDefinition],
+  strategies: [vectorAdvectionDefinition],
 });
 
 export default TransportMoistureContract;

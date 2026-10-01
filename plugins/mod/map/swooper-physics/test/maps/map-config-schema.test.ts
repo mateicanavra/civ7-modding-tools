@@ -169,6 +169,15 @@ describe("Shipped map configs", () => {
         strategy: "daily-solar-fourier", config: {},
       });
       expect(thermal.strategy).toBe("periodic-response");
+      for (const [key, strategy] of [
+        ["computeAtmosphericCirculation", "geostrophic-proxy"],
+        ["computeOceanSurfaceCurrents", "wind-gyre-projection"],
+        ["transportMoisture", "vector-advection"],
+        ["computePrecipitation", "vector"],
+      ] as const) {
+        expect(authored["climate-baseline"][key].strategy).toBe(strategy);
+        expect(baseline[key].strategy).toBe(strategy);
+      }
       const temperatureOffset = authored.knobs.temperature === "hot" ? 5 : authored.knobs.temperature === "cold" ? -5 : 0;
       expect(baseline.computeThermalState.config).toEqual({
         ...thermal.config, annualOffsetC: thermal.config.annualOffsetC + temperatureOffset,
@@ -176,7 +185,7 @@ describe("Shipped map configs", () => {
     }
   });
 
-  it("refuses saved pre-periodic selectors and controls rather than translating them", async () => {
+  it("refuses saved retired climate selectors and controls rather than translating them", async () => {
     const configs = await loadSwooperMapConfigRegistry();
     for (const { canonicalConfig } of configs) {
       const stage = canonicalConfig.config["hydrology-climate-baseline"];
@@ -185,6 +194,22 @@ describe("Shipped map configs", () => {
         ["computeSeasonalSampling", { strategy: "legacy-snapshots", config: {} }],
         ["computeRadiativeForcing", { strategy: "latitude-insolation", config: {} }],
         ["computeThermalState", { strategy: "insolation-lapse-rate", config: {} }],
+        ["computeAtmosphericCirculation", {
+          strategy: "latitude",
+          config: { windJetStreaks: 0, windJetStrength: 0, windVariance: 0 },
+        }],
+        ["computeOceanSurfaceCurrents", { strategy: "latitude", config: { strength: 0 } }],
+        ["transportMoisture", {
+          strategy: "cardinal", config: { iterations: 0, advection: 0.65, retention: 0.92 },
+        }],
+        ["computePrecipitation", {
+          strategy: "baseline",
+          config: {
+            rainfallScale: 180, humidityExponent: 1, noiseAmplitude: 0, noiseScale: 0.12,
+            waterGradient: { radius: 5, perRingBonus: 4, lowlandBonus: 2, lowlandElevationMax: 150 },
+            orographic: { steps: 4, reductionBase: 8, reductionPerStep: 6, barrierElevationM: 500 },
+          },
+        }],
         ["computeRadiativeForcing", { ...baseline.computeRadiativeForcing, config: { latitudeExponent: 1.2 } }],
         ["computeThermalState", { ...baseline.computeThermalState, config: { ...baseline.computeThermalState.config, landCoolingC: 3.2 } }],
       ] as const) {

@@ -24,17 +24,8 @@ export const HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C = {
 } as const satisfies Record<HydrologyTemperatureKnob, number>;
 
 /**
- * Latitude-strategy jet counts whose delta from `normal` controls seasonal circulation complexity.
- */
-export const HYDROLOGY_SEASONALITY_WIND_JET_STREAKS = {
-  low: 2,
-  normal: 3,
-  high: 4,
-} as const satisfies Record<HydrologySeasonalityKnob, number>;
-
-/**
- * Relative wind-variance calibration used to scale either latitude noise or geostrophic pressure
- * variability without replacing the selected strategy's base configuration.
+ * Relative wind-variance calibration used to scale geostrophic pressure variability without
+ * replacing its authored base configuration.
  */
 export const HYDROLOGY_SEASONALITY_WIND_VARIANCE = {
   low: 0.45,

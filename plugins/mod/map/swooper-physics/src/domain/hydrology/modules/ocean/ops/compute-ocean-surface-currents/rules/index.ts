@@ -6,63 +6,6 @@ import {
 } from "@swooper/mapgen-core/lib/grid";
 import { clamp01 } from "@swooper/mapgen-core/lib/math";
 
-/**
- * Builds the inexpensive latitude-band current field used by the fallback ocean strategy.
- *
- * The result is zonal, row-uniform, zeroed on land, and saturated to the signed-byte vector
- * contract after applying the nonnegative strength scalar.
- *
- * @param width - Number of tile columns to populate.
- * @param height - Number of tile rows to populate.
- * @param latitudeByRow - Signed latitude in degrees for each row.
- * @param isWaterMask - Binary mask restricting currents to water cells.
- * @param strength - Nonnegative multiplier for the authored latitude bands.
- * @returns Quantized U/V surface-current components aligned with the tile grid.
- */
-export function computeCurrents(
-  width: number,
-  height: number,
-  latitudeByRow: ArrayLike<number>,
-  isWaterMask: ArrayLike<number>,
-  strength: number
-): { currentU: Int8Array; currentV: Int8Array } {
-  const size = width * height;
-  const currentU = new Int8Array(size);
-  const currentV = new Int8Array(size);
-  const scaledStrength = Math.max(0, strength);
-
-  for (let y = 0; y < height; y++) {
-    const latDeg = Math.abs(latitudeByRow[y] ?? 0);
-
-    let baseU = 0;
-    const baseV = 0;
-
-    if (latDeg < 12) {
-      baseU = -50;
-    } else if (latDeg >= 45 && latDeg < 60) {
-      baseU = 20;
-    } else if (latDeg >= 60) {
-      baseU = -15;
-    }
-
-    const u = clampInt(Math.round(baseU * scaledStrength), -127, 127);
-    const v = clampInt(Math.round(baseV * scaledStrength), -127, 127);
-
-    for (let x = 0; x < width; x++) {
-      const i = idx(x, y, width);
-      if (isWaterMask[i] === 1) {
-        currentU[i] = u;
-        currentV[i] = v;
-      } else {
-        currentU[i] = 0;
-        currentV[i] = 0;
-      }
-    }
-  }
-
-  return { currentU, currentV };
-}
-
 type Vec2 = Readonly<{ x: number; y: number }>;
 
 function vec2(x: number, y: number): Vec2 {

@@ -132,8 +132,9 @@ authoritative: calm wind samples self, and no latitude-band fallback or
 secondary-donor cutoff overrides the vector. Local evaporation is still
 injected on every fixed pass before retention and clamping, so calm conditions
 do not imply constant humidity. Moisture remains direction-only; it does not
-use the ocean's relative-strength blend. The separately selected cardinal strategy
-retains its original latitude fallback and bounded cardinal sampling behavior.
+use the ocean's relative-strength blend. Its input contains only dimensions,
+supplied winds and evaporation; neither latitude nor a terrain mask gates air
+transport. The former cardinal algorithm is no longer selectable.
 
 Aggregate river benchmark evidence is calculated and emitted by the Standard
 recipe's Network metrics projector rather than retained as pipeline state.
@@ -167,14 +168,25 @@ Elevation lapse is per normalized model relief unit, not per physical meter.
 
 All shipped profiles use Climate's sole `periodic-cycle` sampling,
 `daily-solar-fourier` forcing and `periodic-response` temperature strategies.
+Circulation, surface currents, moisture transport and precipitation likewise
+have one strategy each: `geostrophic-proxy`, `wind-gyre-projection`,
+`vector-advection` and `vector`. The baseline always derives ocean geometry and
+performs the authored fixed coupling iterations, initializing prescribed SST
+before the first atmosphere pass. Surface-current inputs still permit genuinely
+optional basin/coast evidence within that one algorithm; the selected ocean
+thermal `latitude-current-advection` law remains unchanged.
 Pressure consumes the weighted mean and phase sea-level temperature from that
 same family; ground temperature applies model-relief lapse once and prescribed
 SST on water. Atmospheric and moisture reductions use the full weighted cycle,
 while visualization selects two/four observations without changing annual
 fields. Seasonal saturation metrics require the complete cycle and its explicit
 phase/weight metadata. Superseded snapshot/instantaneous strategies and legacy
-capture fallbacks are not production alternatives; historical receipts are
-retained separately. Algorithm retirement is not full Earth/profile quality
+capture fallbacks are not production alternatives. The former atmosphere/current
+`latitude`, moisture `cardinal` and precipitation `baseline` selectors are also
+refused at existing operation, step and saved-config admission boundaries, not
+translated into guessed physics. Circulation takes no seed input; deterministic
+pressure and sampling still consume their original step-owned seed. Historical
+receipts are retained separately. Algorithm retirement is not full Earth/profile quality
 acceptance, which the existing metric study bank continues to measure.
 
 ## Ops surface
@@ -196,7 +208,7 @@ The Standard recipe uses operation contracts such as:
 - `computeOceanSurfaceCurrents`
 - `computeEvaporationSources`
 - `transportMoisture`
-- `computePrecipitation` (`vector` and `baseline` synthesis strategies)
+- `computePrecipitation` (`vector` synthesis)
 - `refinePrecipitation` (post-hydrography riparian and closed-basin wetness)
 - `projectRiverNetwork`
 - `computeLocalRunoff`

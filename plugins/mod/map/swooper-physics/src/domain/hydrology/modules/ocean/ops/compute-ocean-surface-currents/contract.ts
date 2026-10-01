@@ -1,8 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import latitudeDefinition from "./strategies/latitude/config.js";
 import windGyreProjectionDefinition from "./strategies/wind-gyre-projection/config.js";
 
-/** Surface-current contract whose wind/gyre projection is the product default and latitude is the fallback. */
+/** Surface-current contract with wind/gyre projection as its sole strategy. */
 const ComputeOceanSurfaceCurrentsContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-ocean-surface-currents",
@@ -13,7 +12,8 @@ const ComputeOceanSurfaceCurrentsContract = defineOp({
    * influence downstream moisture transport and coastal climate moderation.
    *
    * Practical guidance:
-   * - If you want to disable ocean influence entirely, set strategy `strength` to 0 (or select a knob preset that does so).
+   * - To suppress current-driven influence, set the wind, Ekman, gyre, and coast strengths to 0
+   *   (or select the ocean-coupling knob posture that does so).
    */
   input: Type.Object(
     {
@@ -58,7 +58,7 @@ const ComputeOceanSurfaceCurrentsContract = defineOp({
     {
       additionalProperties: false,
       description:
-        "Water and latitude plus winds and optional basin/coast evidence; the latitude fallback intentionally ignores optional geometry.",
+        "Water and latitude plus winds and optional basin/coast evidence.",
     }
   ),
   /**
@@ -77,8 +77,7 @@ const ComputeOceanSurfaceCurrentsContract = defineOp({
         "Quantized water-only currents consumed by ocean thermal state and downstream climate coupling.",
     }
   ),
-  defaultStrategy: "wind-gyre-projection",
-  strategies: [windGyreProjectionDefinition, latitudeDefinition],
+  strategies: [windGyreProjectionDefinition],
 });
 
 export default ComputeOceanSurfaceCurrentsContract;

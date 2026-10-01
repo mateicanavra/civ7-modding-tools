@@ -1,8 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import baselineDefinition from "./strategies/baseline/config.js";
 import vectorDefinition from "./strategies/vector/config.js";
 
-/** Precipitation-generation contract with vector transport as the product default. */
+/** Precipitation-generation contract with vector synthesis as its sole strategy. */
 const ComputePrecipitationContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-precipitation",
@@ -62,8 +61,7 @@ const ComputePrecipitationContract = defineOp({
         "Civ7-scale rainfall and quantized humidity projected from one precipitation result for water-budget and cryosphere consumers.",
     }
   ),
-  defaultStrategy: "vector",
-  strategies: [vectorDefinition, baselineDefinition],
+  strategies: [vectorDefinition],
 });
 
 export default ComputePrecipitationContract;
