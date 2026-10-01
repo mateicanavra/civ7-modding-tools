@@ -196,3 +196,28 @@ SHA256 is `e8cb9c05496b70db18d8720fb79fd511bfec4413dc98bb3a6b4661e43c984ede`.
 The earlier captures remain immutable. This closes the generated owner repair,
 not faithful native water head, new screenshots, actual navigation, full Earth
 calibration or merge.
+
+## Visible Water And Starts Milestone
+
+The normal v2 water/Starts product is deployed and freshly generated in Civ7
+through the saved twelve-player Huge1018/1018 setup. The October 1 correlated
+live run completes in 43.9s, generated and installed script SHA256
+`2416af2bb651c0eb6050336295f31328a0dcc9516b64aeffea9c9c7db7fe8c55`.
+Explore reveals all 6,996 plots and verifies queue suspension/resumption and
+quiescence. Its 69,960ms size-derived settle interval is not a measured hang.
+
+The [new generated drainage viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/water-start-earthlike-1018/index.html)
+and [fourteen native screenshots](https://mateis-macbook-pro.taild8da1c.ts.net/civ/water-start-earthlike-1018/native-gallery.html)
+are retained in the existing phone-accessible atlas. Twelve views use the
+maximum zoom-out setting; two are lake/river and cliff detail views. Native
+images, thumbnails, hashes, camera receipts and capture scripts remain in
+user data rather than Git. These views precede the later relief correction
+and do not qualify water-head fidelity, navigation or scientific completion.
+
+The subsequent v3 relief repair restores the intended pre-lake marine coast
+input for rough-land selection without changing water, climate, configurations
+or current channel reservations. Its complete 57-case artifact/evaluator proof
+and exact twelve-player run pass the retained flat-share and placement gates.
+All 4,430 original comparators remain unchanged. Only the within-row thermal
+gate remains, at `0.12980530053589956 < 1 C`; no new failures appear. Details
+and immutable receipts are in [the relief ledger](relief-coherence.md).
