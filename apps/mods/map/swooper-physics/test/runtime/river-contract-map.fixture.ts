@@ -29,7 +29,7 @@ export const RIVER_LAKE_NAVIGATION_PROBE = {
   displayLabel: "River Lake Navigation V6",
 } as const;
 export type RiverProbeAtlas =
-  | "legacy"
+  | "synthetic-river-v4"
   | "terrain-admission"
   | "lake-navigation"
   | WaterConnectivityAtlas
@@ -701,7 +701,7 @@ function observeNetworks(owner: NativeObject | undefined, finalized: boolean): u
 export function registerRiverContractProbe(
   proofId: string,
   variant: RiverProbeVariant,
-  atlasKind: RiverProbeAtlas = "legacy",
+  atlasKind: RiverProbeAtlas,
   createAdapter?: (
     width: number,
     height: number
@@ -721,7 +721,7 @@ export function registerRiverContractProbe(
     isStockConnectivityAtlas ||
     isLowerBoundAtlas;
   if (
-    atlasKind !== "legacy" &&
+    atlasKind !== "synthetic-river-v4" &&
     atlasKind !== "terrain-admission" &&
     atlasKind !== "lake-navigation" &&
     !isWaterAtlas
@@ -732,13 +732,13 @@ export function registerRiverContractProbe(
     (waterConnectivity && waterConnectivity.probe.atlasKind !== atlasKind)
   )
     throw new Error("Water-connectivity atlas requires its matching fixture.");
-  if (atlasKind !== "legacy" && variant !== "authored")
+  if (atlasKind !== "synthetic-river-v4" && variant !== "authored")
     throw new Error("Adapter atlases require the authored finalization tuple.");
-  if (atlasKind !== "legacy" && !createAdapter)
+  if (atlasKind !== "synthetic-river-v4" && !createAdapter)
     throw new Error("Adapter atlases require the app adapter factory.");
   const isTerrainAtlas = atlasKind === "terrain-admission";
   const isLakeAtlas = atlasKind === "lake-navigation";
-  const usesAdapter = atlasKind !== "legacy";
+  const usesAdapter = atlasKind !== "synthetic-river-v4";
   const probe =
     waterConnectivity?.probe ??
     (isTerrainAtlas

@@ -176,21 +176,21 @@ describe("build-only river diagnostic selectors", () => {
     }
   });
 
-  test("retains default legacy atlas and positional paired maintenance seed", () => {
-    expect(parseRiverProbeArguments(["historical"])).toEqual({
-      proofId: "historical",
+  test("requires an explicit factual atlas and rejects positional maintenance seeds", () => {
+    expect(parseRiverProbeArguments(["synthetic", "authored", "synthetic-river-v4"])).toEqual({
+      proofId: "synthetic",
       variant: "authored",
-      atlasKind: "legacy",
+      atlasKind: "synthetic-river-v4",
       selection: undefined,
     });
-    expect(
-      parseRiverProbeArguments(["historical", "authored", "full-map-maintenance", "-42"])
-    ).toEqual({
-      proofId: "historical",
-      variant: "authored",
-      atlasKind: "full-map-maintenance",
-      selection: -42,
-    });
+    for (const args of [
+      ["implicit"],
+      ["implicit", "authored"],
+      ["retired", "authored", "legacy"],
+      ["positional", "authored", "full-map-maintenance", "42"],
+      ["positional", "authored", "full-map-maintenance", "-42"],
+    ])
+      expect(() => parseRiverProbeArguments(args)).toThrow();
   });
 
   test("parses independent seeds, shipped profile, public size, players and stock or integer cutoff", () => {
@@ -224,7 +224,7 @@ describe("build-only river diagnostic selectors", () => {
     });
   });
 
-  test("refuses ambiguous positional/flag choices, unknown flags and noninteger selectors", () => {
+  test("refuses positional selectors, unknown flags and noninteger selectors", () => {
     const prefix = ["bad-selection", "authored", "full-map-maintenance"];
     for (const tail of [
       ["42", "--map-size", "MAPSIZE_TINY"],
@@ -241,19 +241,31 @@ describe("build-only river diagnostic selectors", () => {
       expect(() => parseRiverProbeArguments(args)).toThrow("Usage:");
   });
 
-  test("does not turn named legacy old-tuple measurement into a profile fallback", async () => {
-    for (const atlas of ["legacy", "terrain-admission", "full-map-observe"] as const)
+  test("does not turn synthetic measurement into a profile fallback", async () => {
+    for (const atlas of ["synthetic-river-v4", "terrain-admission", "full-map-observe"] as const)
       await expect(
         buildRiverProbePlan("unrelated-selection", "authored", atlas, {
           sourceConfigId: "swooper-earthlike",
         })
       ).rejects.toThrow("only for maintenance atlases");
   });
+
+  test("rejects numeric and non-object runtime selections instead of silently using defaults", async () => {
+    for (const selection of [42, null, "42", true, []])
+      await expect(
+        Reflect.apply(buildRiverProbePlan, undefined, [
+          "invalid-runtime-selection",
+          "authored",
+          "full-map-maintenance",
+          selection,
+        ])
+      ).rejects.toThrow("Diagnostic selection must be an object.");
+  });
 });
 
 async function compiled(
   variant: RiverProbeVariant = "authored",
-  atlas: RiverProbeAtlas = "legacy"
+  atlas: RiverProbeAtlas = "synthetic-river-v4"
 ) {
   const plan = await buildRiverProbePlan("unit-artifact-only", variant, atlas);
   const script = plan.files.find((file) => file.relativePath === "maps/river-contract.js")!.content;
@@ -1728,10 +1740,12 @@ describe("river diagnostic artifact (not native semantics proof)", () => {
   });
 
   test("invalid builder selectors and unexpected map sizes fail closed", async () => {
-    await expect(buildRiverProbePlan("bad/id")).rejects.toThrow("proof ID");
-    await expect(buildRiverProbePlan("valid", "unknown" as RiverProbeVariant)).rejects.toThrow(
-      "Unknown river probe variant"
+    await expect(buildRiverProbePlan("bad/id", "authored", "synthetic-river-v4")).rejects.toThrow(
+      "proof ID"
     );
+    await expect(
+      buildRiverProbePlan("valid", "unknown" as RiverProbeVariant, "synthetic-river-v4")
+    ).rejects.toThrow("Unknown river probe variant");
     const runtime = mockRuntime((await compiled()).script);
     expect(() => runtime.callbacks.get("RequestMapInitData")!({ width: 44, height: 26 })).toThrow(
       "Tiny 60x38"
@@ -1901,7 +1915,7 @@ describe("V6 lake navigation artifact (not native semantics proof)", () => {
       String(plan.files.find(({ relativePath }) => relativePath.endsWith(".modinfo"))!.content)
     ).toContain("River Lake Navigation V6");
     for (const [atlasKind, revision] of [
-      ["legacy", 4],
+      ["synthetic-river-v4", 4],
       ["terrain-admission", 5],
     ] as const) {
       const old = await compiled("authored", atlasKind);
@@ -2149,7 +2163,7 @@ describe("V5 terrain admission artifact (native qualification pending)", () => {
       expect(neighborhood).toEqual(neighborhoods[0]!);
   });
 
-  test("V5 is an explicit uniquely labeled digest-bound selector; legacy remains V4", async () => {
+  test("V5 is an explicit uniquely labeled digest-bound selector distinct from synthetic V4", async () => {
     const { plan, script } = await compiled("authored", "terrain-admission");
     await expectCiv7MapScriptCompatibility(script, "river-terrain-admission-v5.js");
     const manifest = JSON.parse(
@@ -2175,16 +2189,18 @@ describe("V5 terrain admission artifact (native qualification pending)", () => {
     expect(
       String(plan.files.find(({ relativePath }) => relativePath.endsWith(".modinfo"))!.content)
     ).toContain("River Terrain Admission V5");
-    const legacy = await compiled();
-    const legacyManifest = JSON.parse(
-      String(legacy.plan.files.find(({ relativePath }) => relativePath === "proof.json")!.content)
+    const synthetic = await compiled("authored", "synthetic-river-v4");
+    const syntheticManifest = JSON.parse(
+      String(
+        synthetic.plan.files.find(({ relativePath }) => relativePath === "proof.json")!.content
+      )
     );
-    expect(legacyManifest).toMatchObject({
+    expect(syntheticManifest).toMatchObject({
       diagnosticRevision: 4,
-      atlasKind: "legacy",
+      atlasKind: "synthetic-river-v4",
       id: manifest.id,
     });
-    expect(legacyManifest.scriptSha256).not.toBe(manifest.scriptSha256);
+    expect(syntheticManifest.scriptSha256).not.toBe(manifest.scriptSha256);
     for (const variant of ["aesthetic", "length", "upstream", "percent"] as const)
       await expect(compiled(variant, "terrain-admission")).rejects.toThrow(
         "authored finalization tuple"

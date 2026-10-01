@@ -1529,13 +1529,13 @@ describe("water height maintenance observation (not native semantics)", () => {
       "bounded-control",
       "authored",
       "full-map-maintenance",
-      seed
+      { mapSeed: seed, gameSeed: seed }
     );
     const treatment = await buildRiverProbePlan(
       "bounded-treatment",
       "authored",
       "full-map-bounded-lake-cutoff",
-      seed
+      { mapSeed: seed, gameSeed: seed }
     );
     const content = (plan: typeof control, path: string) =>
       String(plan.files.find((file) => file.relativePath === path)!.content);
@@ -1713,17 +1713,20 @@ describe("water height maintenance observation (not native semantics)", () => {
   it("rejects invalid or unrelated explicit seed metadata before bundling", async () => {
     for (const seed of [Number.NaN, Number.POSITIVE_INFINITY, 1.5, 0x8000_0000, -0x8000_0001])
       await expect(
-        buildRiverProbePlan("bad-seed", "authored", "full-map-bounded-lake-cutoff", seed)
+        buildRiverProbePlan("bad-seed", "authored", "full-map-bounded-lake-cutoff", {
+          mapSeed: seed,
+          gameSeed: seed,
+        })
       ).rejects.toThrow("signed 32-bit seed");
     for (const atlas of [
-      "legacy",
+      "synthetic-river-v4",
       "terrain-admission",
       "full-map-observe",
       "water-connectivity-cutoff-10",
     ] as const)
-      await expect(buildRiverProbePlan("unrelated-seed", "authored", atlas, 42)).rejects.toThrow(
-        "only for maintenance atlases"
-      );
+      await expect(
+        buildRiverProbePlan("unrelated-seed", "authored", atlas, { mapSeed: 42, gameSeed: 42 })
+      ).rejects.toThrow("only for maintenance atlases");
     await expect(
       buildRiverProbePlan("unsupported", "aesthetic", "full-map-bounded-lake-cutoff")
     ).rejects.toThrow("authored finalization tuple");

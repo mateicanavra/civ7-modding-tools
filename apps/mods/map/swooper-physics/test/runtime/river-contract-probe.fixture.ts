@@ -77,7 +77,7 @@ export type RiverProbeAtlasSelection =
   | typeof WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS
   | typeof WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS;
 const atlases: readonly string[] = [
-  "legacy",
+  "synthetic-river-v4",
   "terrain-admission",
   "lake-navigation",
   ...FULL_MAP_RIVER_PROBE_ATLASES,
@@ -109,15 +109,15 @@ export type WaterHeightDiagnosticSelection = Readonly<{
 export async function buildRiverProbePlan(
   proofId: string,
   variant: RiverProbeVariant = "authored",
-  atlasKind: RiverProbeAtlasSelection = "legacy",
-  seedOrSelection?: number | WaterHeightDiagnosticSelection
+  atlasKind: RiverProbeAtlasSelection,
+  selectionInput?: WaterHeightDiagnosticSelection
 ): Promise<GeneratedFilePlan> {
   if (!/^[a-zA-Z0-9-]{1,100}$/.test(proofId))
     throw new Error("Use a short alphanumeric/hyphen proof ID.");
   if (!Object.hasOwn(RIVER_PROBE_VARIANTS, variant))
     throw new Error(`Unknown river probe variant: ${variant}`);
   if (!atlases.includes(atlasKind)) throw new Error(`Unknown river probe atlas: ${atlasKind}`);
-  if (atlasKind !== "legacy" && variant !== "authored")
+  if (atlasKind !== "synthetic-river-v4" && variant !== "authored")
     throw new Error("Adapter atlases require the authored finalization tuple.");
   const maxLakeCutoff = atlasKind === WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS;
   const boundedLakeCutoff = atlasKind === WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS;
@@ -127,12 +127,14 @@ export async function buildRiverProbePlan(
     atlasKind === WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS ||
     atlasKind === WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS;
   const maintenance = atlasKind === WATER_HEIGHT_MAINTENANCE_ATLAS || cutoffAtlas || originalInput;
-  const selection =
-    typeof seedOrSelection === "number"
-      ? { mapSeed: seedOrSelection, gameSeed: seedOrSelection }
-      : (seedOrSelection ?? {});
-  if (seedOrSelection !== undefined && !maintenance)
-    throw new Error("An explicit signed 32-bit seed is supported only for maintenance atlases.");
+  if (
+    selectionInput !== undefined &&
+    (selectionInput === null || typeof selectionInput !== "object" || Array.isArray(selectionInput))
+  )
+    throw new Error("Diagnostic selection must be an object.");
+  const selection = selectionInput ?? {};
+  if (selectionInput !== undefined && !maintenance)
+    throw new Error("An explicit diagnostic selection is supported only for maintenance atlases.");
   const preset = findCiv7StandardMapSizePreset(
     selection.mapSize ?? WATER_HEIGHT_MAINTENANCE_PROBE.mapSize
   );
@@ -225,11 +227,11 @@ export async function buildRiverProbePlan(
       : "Tiny, four players";
   const displayLabel = "displayLabel" in probe ? probe.displayLabel : "River Contract Probe";
   const adapterImport =
-    atlasKind !== "legacy"
+    atlasKind !== "synthetic-river-v4"
       ? 'import { Civ7Adapter } from "./src/runtime/map-script/adapter.ts";\n'
       : "";
   const adapterFactory =
-    atlasKind !== "legacy" ? ", (width, height) => new Civ7Adapter(width, height)" : "";
+    atlasKind !== "synthetic-river-v4" ? ", (width, height) => new Civ7Adapter(width, height)" : "";
   let source = `${adapterImport}import { registerRiverContractProbe } from "./test/runtime/river-contract-map.fixture.ts";\nregisterRiverContractProbe(${JSON.stringify(proofId)}, ${JSON.stringify(variant)}, ${JSON.stringify(atlasKind)}${adapterFactory});`;
   let waterFixtureSourceSha256: string | undefined;
   if (lowerBound) {
@@ -486,14 +488,19 @@ ${renderSwooperCatalogMapSource(config)}`;
   };
 }
 
-/** Parses build-only selectors while retaining the original positional maintenance seed. */
+/** Requires an explicit atlas and accepts maintenance selectors only as named flags. */
 export function parseRiverProbeArguments(args: readonly string[]) {
-  const [proofId, variant = "authored", atlasKind = "legacy", ...rest] = args;
-  if (!proofId || !Object.hasOwn(RIVER_PROBE_VARIANTS, variant) || !atlases.includes(atlasKind))
+  const [proofId, variant, atlasKind, ...rest] = args;
+  if (
+    !proofId ||
+    !variant ||
+    !atlasKind ||
+    !Object.hasOwn(RIVER_PROBE_VARIANTS, variant) ||
+    !atlases.includes(atlasKind)
+  )
     throw new Error(
-      "Usage: river-contract-probe <proof-id> [variant] [atlas] [maintenance-seed] [--profile id --map-size id --map-seed n --game-seed n --player-count n --lake-cutoff stock|n] (build only)"
+      "Usage: river-contract-probe <proof-id> <variant> <atlas> [--profile id --map-size id --map-seed n --game-seed n --player-count n --lake-cutoff stock|n] (build only)"
     );
-  const seedArgument = rest[0] !== undefined && /^-?\d+$/.test(rest[0]) ? rest.shift() : undefined;
   const { values } = parseArgs({
     args: rest,
     options: {
@@ -505,35 +512,29 @@ export function parseRiverProbeArguments(args: readonly string[]) {
       "lake-cutoff": { type: "string" },
     },
   });
-  if (seedArgument !== undefined && Object.keys(values).length > 0)
-    throw new Error("Choose the legacy maintenance seed or explicit selection flags, not both.");
   const integer = (value: string): number => {
     if (!/^-?\d+$/.test(value))
       throw new Error(`Expected an integer diagnostic selector: ${value}`);
     return Number(value);
   };
-  const selection: WaterHeightDiagnosticSelection | number | undefined =
-    seedArgument !== undefined
-      ? integer(seedArgument)
-      : Object.keys(values).length === 0
-        ? undefined
-        : {
-            ...(values.profile === undefined ? {} : { sourceConfigId: values.profile }),
-            ...(values["map-size"] === undefined ? {} : { mapSize: values["map-size"] }),
-            ...(values["map-seed"] === undefined ? {} : { mapSeed: integer(values["map-seed"]) }),
-            ...(values["game-seed"] === undefined
-              ? {}
-              : { gameSeed: integer(values["game-seed"]) }),
-            ...(values["player-count"] === undefined
-              ? {}
-              : { playerCount: integer(values["player-count"]) }),
-            ...(values["lake-cutoff"] === undefined
-              ? {}
-              : {
-                  lakeSizeCutoff:
-                    values["lake-cutoff"] === "stock" ? "stock" : integer(values["lake-cutoff"]),
-                }),
-          };
+  const selection: WaterHeightDiagnosticSelection | undefined =
+    Object.keys(values).length === 0
+      ? undefined
+      : {
+          ...(values.profile === undefined ? {} : { sourceConfigId: values.profile }),
+          ...(values["map-size"] === undefined ? {} : { mapSize: values["map-size"] }),
+          ...(values["map-seed"] === undefined ? {} : { mapSeed: integer(values["map-seed"]) }),
+          ...(values["game-seed"] === undefined ? {} : { gameSeed: integer(values["game-seed"]) }),
+          ...(values["player-count"] === undefined
+            ? {}
+            : { playerCount: integer(values["player-count"]) }),
+          ...(values["lake-cutoff"] === undefined
+            ? {}
+            : {
+                lakeSizeCutoff:
+                  values["lake-cutoff"] === "stock" ? "stock" : integer(values["lake-cutoff"]),
+              }),
+        };
   return {
     proofId,
     variant: variant as RiverProbeVariant,

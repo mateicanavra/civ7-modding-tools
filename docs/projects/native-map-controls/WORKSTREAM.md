@@ -658,3 +658,32 @@ Focused tests cover matching marker-free scripts, missing/stale installations,
 and failure when any current Studio correlation marker is absent. The same
 Ring native launch succeeds after this correction. Native behavioral readback
 remains a separate proof from deployment identity.
+
+### Explicit Diagnostic Selection
+
+The 2026-10-01 follow-through removes the remaining executable compatibility
+forms from the existing native diagnostic builder. Atlas selection is required;
+the frozen V4 synthetic geometry is named `synthetic-river-v4`, with no `legacy`
+alias or implicit atlas fallback. Maintenance selections use the existing
+object contract or named CLI flags. The old positional number no longer
+silently supplies both seeds, and non-object runtime selections are refused
+before defaults are interpreted.
+
+This does not add another test harness or alter physical recipe execution.
+Shipped map identity still comes from the current catalog; map size and stock
+metadata come from the official preset; map/game seeds remain independent;
+player setup uses the existing projector. `standard` names the recipe, not a
+fixed Standard-size world. Definition tests retain `test/setup.ts` and its
+existing size/seed selectors, whose default size is Tiny. Historical receipts
+remain evidence, not callable compatibility paths. Fixed Earth references
+remain test-owned baselines, never inputs to the procedural Earthlike recipe.
+
+The four existing focused native fixture suites pass 134 tests and 47,539
+assertions after retirement, including explicit synthetic selection, missing
+and retired selector refusals, positional/scalar rejection, unchanged V4 native
+geometry, current catalog selection and complete preset admission. The full
+realization-app suite also passes 241 tests and 48,463 assertions. Owning types,
+policy, boundary and dead-code checks pass. The first hygiene run identified
+formatting in two changed files; formatting those files and rerunning the
+owning type/hygiene graph passes. No new global game or test setting is
+introduced by this cleanup.
