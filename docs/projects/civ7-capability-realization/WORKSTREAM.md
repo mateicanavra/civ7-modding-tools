@@ -25,9 +25,9 @@ The destination authority is read in this order:
 
 ### Attractor Cubes
 
-- Meaning: Actor. Intent. Outcome. Refusal. Trust.
-- Structure: Owner. Boundary. Direction. Lifecycle. Closure.
-- Descent: Ground. Chain. Ratchet. Delete. Seal.
+- Selection: Outcome. Corpus. Disposition. Falsifier.
+- Structure: Owner. Kind. Relation. Boundary. Constructor.
+- Descent: Admit. Migrate. Prove. Delete. Seal.
 
 ### Layer Weight
 
@@ -91,6 +91,126 @@ authorities.
 agree; every baseline behavior has one disposition; the owner graph is acyclic;
 the final descent is resequenced against this model.
 
+## Final-Descent N=1 Capability Loop
+
+Every remaining capability chain crosses the same monotone loop. The loop is
+process law, not a second product model or a backlog. A later observation may
+falsify an earlier gate; work returns to that gate rather than adding an
+exception below a broken premise.
+
+### 1. Select And Frame
+
+Select one unresolved model-authorized outcome from the difference between the
+normative models and the observed estate. The unit is one complete actor-facing
+chain or one independently constructible system handoff that preserves its
+enclosing actor receipt and claims only its narrower result. It is never a file
+batch, module, project shell, or visible violation class. Freeze the controlling
+model receipts, source and destination boundaries, exterior, accepted behavior,
+non-goals, falsifier, and closure condition.
+
+**Admission evidence:** one authorized actor outcome or system handoff, its
+semantic owner, its enclosing actor receipt, and no contradictory Product,
+System, Outcome, or Actor/Outcome receipt.
+
+**Smallest falsifier:** the capability meaning, owner, execution realm, or
+promised result is unsettled.
+
+### 2. Extract And Classify
+
+Build a bounded row corpus for every behavior, state, contract, caller,
+runtime/build concern, protected fact, evidence source, deferral, and residue in
+the selected chain. Preserve the sealed capability decomposition; split only
+the source inventory into stable rows needed for one-destination accounting.
+Trace every row's meaning, owner, relation, and disposition to a stable parent
+receipt. Give every source row exactly one `preserve`, `reshape`, `replace`,
+`retire`, or `defer` disposition, or mark it as a blocking decision gap that
+cannot enter migration. Every row records its intentional destination or
+absence, source consequence, proof or deletion obligation, and controlling
+receipt. Deferred rows also name an owner and re-entry trigger. Admitted rows
+add their destination kind or role, public relation, allowed dependencies,
+forbidden owners, enforcement owner, proof class, and migration slice. Grouping
+may reduce explanation but cannot hide a row.
+
+Classification may refine source accounting, not the accepted capability
+meaning, owner, relation, or disposition. A conflict returns to the earliest
+controlling model rather than becoming local classification authority.
+
+**Admission evidence:** a row-complete mapping over a commit-identified source
+and destination snapshot, with rejected alternatives, no unresolved decision
+gap, and every exterior deferral owned and triggered.
+
+**Smallest falsifier:** one row lacks a controlling receipt, intentional
+destination or absence, owner, dependency direction, source consequence, proof
+or deletion obligation, or required defer trigger.
+
+### 3. Profile And Rail
+
+Translate the accepted mapping into one legal Habitat realization chain. Name
+each independently sealed link, its constructor, public face, positive
+structural and dependency law, red corpus, write and protected sets, and
+independent proof. Shared kind law must already be published and selected;
+qualified Civ7 law may constrain only Civ7-owned variance. Rails and
+constructors land before product source moves.
+
+**Admission evidence:** the destination is constructible from installed Habitat
+and repository-native Nx, TypeScript, diagnostic, test, and hook owners.
+Missing generic construction or check orchestration is routed upstream as one
+sealed substrate proposal; it is not approximated locally.
+
+**Smallest falsifier:** a missing shared kind, reciprocal edge, unqualified
+container, stale snapshot, or proposed local substitute for generic Habitat law.
+
+### 4. Migrate The Chain
+
+Build each link in dependency order as one bounded semantic sub-container. Move
+only mapped behavior, migrate every admitted caller, and apply each row's mapped
+source consequence in the same N=1 iteration. Deletion is authorized only by an
+explicit retirement or replacement obligation and its required proof; `defer`
+creates no destination implementation but does not itself delete existing
+source. Each link may close its own structure and behavior proof, but no link
+claims the actor outcome before the complete chain does. A transition path may
+exist only inside its assigned slice and must be absent when that slice seals.
+Habitat and the owning Nx graph run throughout construction, not only at final
+acceptance. Before a link or declared semantic slice seals, its focused red
+corpus reaches zero, no baseline or exception grows, and the owning Nx graph is
+green.
+
+**Admission evidence:** the frozen map remains applicable; every mutating row is
+inside the declared write set; every protected, nonmutating, and external row
+has explicit accounting and proof; and destination law is already red or green
+for the expected reason.
+
+**Smallest falsifier:** implementation requires a compatibility switchboard,
+unmapped helper, weakened rail, second mature path, or adjacent capability.
+
+### 5. Accept And Seal
+
+Prove the selected result through the installed realization while keeping the
+Outcome model's claims independent: Generated, Installed, Loaded,
+Controller-ready, Admitted, Dispatched, Immediate evidence, Observed,
+Reconciled, and Behavior-confirmed. An internal system chain proves only its
+narrow handoff and never claims its enclosing actor outcome. Run focused checks
+plus the owning Nx graph, reconcile every row, prove the deletion receipt from
+the pre-migration inventory, independently disposition review findings, and
+leave one clean Graphite story. Then remove the iteration from rolling focus and
+select the next N=1 chain. A refusal or stop condition returns to the earliest
+owning model before another capability is selected.
+
+**Acceptance evidence:** the complete chain answers the selected outcome, every
+row has its final disposition, superseded authority is absent, and the worktree,
+branch, proofs, and initiative index agree.
+
+**Smallest falsifier:** any accepted behavior, caller, proof axis, deletion row,
+or P1/P2 finding remains unresolved.
+
+The director selects and freezes stage 1 with the model stewards. The read-only
+classification steward validates that selection and owns stable row accounting
+in stage 2; it cannot change a parent receipt. Habitat Designer owns unresolved
+generic or qualified law design. The migration steward executes only accepted
+stages 3-5 from the frozen mapping and fresh execution envelope. Product,
+System, Outcome, Actor/Outcome, vendor, testing, and closure stewards remain
+independent reviewers rather than becoming steps in the implementation agent.
+
 ## Container 1: Controller Foundation
 
 This is the structural Jenga piece. It proves the selected execution model
@@ -123,6 +243,9 @@ split before admission.
 that selects a complete `service@1`. The candidate bundled with the installed
 `0.5.5` substrate is structure-only and explicitly has no release-pack
 acceptance. Civ7 does not instantiate it or supply generic replacement law.
+After the published kind is consumed, the destination snapshot and this
+capability's row map, rails, and deletion inventory are re-attested before
+source construction begins. The deletion receipt is earned only at closure.
 
 Construct the smallest complete service authority:
 
@@ -199,7 +322,7 @@ Port the already classified native capability verticals from
 order. Container 2 may refine implementation grouping from official Civ7
 domains, but it may not defer or reopen semantic ownership.
 
-Each vertical contains:
+Each vertical is one N=1 iteration and contains:
 
 ```text
 generated official API evidence
@@ -312,22 +435,6 @@ opportunity to invent generic owners for isolated helpers.
 - submit and merge the single linear Graphite stack bottom to top;
 - after the contiguous merge run, sweep merged branches and detached worktrees
   with the repository's documented non-interactive Graphite process.
-
-## Continuous Ratchet
-
-Habitat and the ordinary Nx graph run during construction, not only at the end.
-Before each semantic branch is created:
-
-1. the destination law is active;
-2. the focused red corpus is exact;
-3. implementation burns violations to zero;
-4. product behavior and independent proof pass;
-5. displaced code and guidance are deleted;
-6. the worktree and branch tell one complete story.
-
-If a generic check orchestration capability is missing, it is proposed to the
-Habitat owner as a sealed upstream container. Civ7 does not fork the substrate
-while waiting.
 
 ## Stop Conditions
 

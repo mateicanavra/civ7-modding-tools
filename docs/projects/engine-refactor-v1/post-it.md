@@ -2,9 +2,9 @@
 
 ## Rolling Focus
 
-**Attractor cubes:** Meaning selects Actor. Intent. Outcome. Refusal. Trust.
-Structure selects Owner. Boundary. Direction. Lifecycle. Closure. Descent
-selects Ground. Chain. Ratchet. Delete. Seal.
+**Attractor cubes:** Selection admits Outcome. Corpus. Disposition. Falsifier.
+Structure admits Owner. Kind. Relation. Boundary. Constructor. Descent admits
+Admit. Migrate. Prove. Delete. Seal.
 
 **Frame:** the corrected platform models are ratified, and Habitat is the sole
 constitutional owner of every generic kind. Civ7 layers only qualified product
@@ -38,13 +38,23 @@ map-script kernel; the adapter is portable; authored setup DTOs live with the
 definition; map policy emits no ambient declarations; the SDK has no runtime
 mapgen surface; and `civ7-types` is deleted without a shim or second path.
 
-**Current container:** hold the controller construction boundary until Habitat
-publishes selected, constructible `service@1`, then build the smallest complete
-in-engine controller: versioned identity, readiness, realm, lifecycle, boot
-identity, and typed ping. Civ7 will consume only the published kind and will not
-copy its candidate rules. The controller owns its contract, implementation,
-router, and callable client and admits no Tuner transport, host lifecycle, Play
-policy, facade, or generated JavaScript operation body.
+**Active N=1 capability:** the Controller Foundation identity/readiness chain is
+selected under the repeatable
+[capability loop](../civ7-capability-realization/WORKSTREAM.md#final-descent-n1-capability-loop).
+Admission remains refused until Habitat publishes selected, constructible
+`service@1`; no second capability is selected and no local candidate law is
+copied. Once admitted, the iteration first refreshes its destination snapshot
+and seals the row map, rails, and deletion inventory, then constructs versioned
+identity, readiness, realm, lifecycle, boot identity, and typed ping through the
+controller-owned contract, implementation, router, and callable client. The
+complete container proves Generated, Installed, Loaded, and Controller-ready as
+separate claims; invokes exact identity and ping through the public client in
+both shell and game; and accounts for loading, return-to-shell, boot/global,
+Tuner-state, Promise, continued-work, and later-visibility observations. This is
+an internal system handoff and does not claim a gameplay actor outcome. Its
+deletion receipt is earned only at closure. Tuner transport, host lifecycle,
+Play policy, facade, and generated JavaScript operation bodies remain outside
+the service.
 
 **Stack:** only the linear Civ7 stack descending from
 `agent-root-civ7-habitat-051-ground` through the active HEAD is in motion.
