@@ -637,6 +637,48 @@ Reader `analyze-water-original-post-recipe-20261001-v3.mjs`
 SHA256: `f28919faa376ae2e433b21a89a0df730b34e689234561f6c333346c24f7505fc`.
 Both remain frozen, including the explicitly bounded classification limitation.
 
+### V20 Native Dry-Retention Discriminator
+
+Independent review selects one smaller follow-through in the existing fixture:
+retain each current native dry elevation in the added bulk setter request,
+while every native-wet input remains the protected original caller request.
+Select on native water, never the lake flag. This explicitly tests retention
+of native projection edits; no native value becomes physical artifact truth,
+and native wet readbacks are never used as setter inputs. No fallback to blind
+original replay is admitted if the required complete snapshot is unavailable.
+
+Use fresh V18 control and V20 treatment runs built from the same current
+fixture source, Earthlike catalog configuration, official Huge preset,
+map/game seeds 1018/1018, ten players and stock cutoff 10. The authentic recipe
+still runs exactly once, and the added setter still runs only after success.
+V20 adds no cutoff change, validation, cliff generation, area/cache refresh,
+new execution hook or physical computation. Preserve the sealed V18/V19
+archives separately.
+
+The prediction is exactly 48 water-height recoveries, preserving both later
+Kilimanjaro edits, all dry NAV elevations and every other captured native
+fact/river object. A different result rejects or narrows this hypothesis;
+it is not normalized away. Source tests separately exercise dry feature and
+NAV edits, negative/below-floor/fractional inputs, detached arrays, and
+unavailable/nonfinite/incomplete/mismatched observations before mutation.
+Those tests qualify caller construction, not native setter idempotence.
+
+A passed V20 pair would justify designing this conversion at the actual
+surface-preparation owner, whose canonical dependency is after wonder
+placement. It would not qualify that internal slot, later maintenance,
+protected wet-feature edits, native lake classification or naval traversal.
+Keep cliff reconstruction separate: current wonder stamping can depend on
+native cliff edges, so moving the sole cliff generation after preparation is
+not an innocuous order cleanup.
+
+The app-only implementation is independently reviewed. The two focused suites
+pass 125 tests and 41,167 assertions; the full realization suite passes 266
+tests and 48,848 assertions. Owning types, policy, boundaries, dead-code and
+hygiene checks pass. The existing exact elevation snapshot and raw native
+boolean reads are sufficient; no SDK extension or global setting is added.
+These results qualify the constructed request and lifecycle, not the pending
+native outcome.
+
 ## V9 Verification
 
 The app check/test graph passed (156 tests, 20,486 assertions), and the native

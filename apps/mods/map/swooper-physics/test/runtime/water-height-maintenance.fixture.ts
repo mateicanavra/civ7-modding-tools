@@ -57,6 +57,8 @@ export const WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE = {
 export const WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS = "full-map-original-input-control";
 /** Reapplies protected original requests after authentic recipe success, never getter values. */
 export const WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS = "full-map-original-input-replay";
+/** Retains exact native dry heights while replaying only protected original wet requests. */
+export const WATER_HEIGHT_DRY_RETENTION_REPLAY_ATLAS = "full-map-dry-retention-replay";
 /** Finite control identity; its finishing slots observe without additional native maintenance. */
 export const WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_PROBE = {
   ...WATER_HEIGHT_MAINTENANCE_PROBE,
@@ -70,6 +72,12 @@ export const WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_PROBE = {
   diagnosticRevision: 19,
   displayLabel: "Post-Recipe Original Input Replay V19",
   atlasKind: WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS,
+} as const;
+export const WATER_HEIGHT_DRY_RETENTION_REPLAY_PROBE = {
+  ...WATER_HEIGHT_MAINTENANCE_PROBE,
+  diagnosticRevision: 20,
+  displayLabel: "Post-Recipe Dry Retention Replay V20",
+  atlasKind: WATER_HEIGHT_DRY_RETENTION_REPLAY_ATLAS,
 } as const;
 type ProbeOptions = Readonly<{
   diagnosticRevision: number;
@@ -109,6 +117,7 @@ type Adapter = Pick<
   | "setRiverInfo"
   | "finalizeRivers"
   | "getElevation"
+  | "readCurrentMapElevationSnapshot"
   | "getTerrainType"
   | "getFeatureType"
   | "getRiverType"
@@ -278,7 +287,7 @@ export function projectLakeCutoffInitialSetup(
   });
 }
 
-/** Preserves authentic calls; V18/V19 return a separately invoked post-recipe discriminator. */
+/** Preserves authentic calls; V18-V20 return a separately invoked post-recipe discriminator. */
 export function installWaterHeightMaintenanceProbe(
   prototype: Adapter,
   proofId: string,
@@ -325,9 +334,11 @@ export function installWaterHeightMaintenanceProbe(
   const occurrences = new Map<string, number>();
   const writes: Array<{ wet: boolean; intent: Parameters<Adapter["setRiverInfo"]>[0] }> = [];
   const elevations: Array<{ count: number; sha256: string }> = [];
+  const dryRetention = options.atlasKind === WATER_HEIGHT_DRY_RETENTION_REPLAY_ATLAS;
   const originalInputArm =
     options.atlasKind === WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS ||
-    options.atlasKind === WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS;
+    options.atlasKind === WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS ||
+    dryRetention;
   let originalElevation: number[] | undefined;
   let originalElevationSucceeded = false;
   let finished = false;
@@ -463,7 +474,9 @@ export function installWaterHeightMaintenanceProbe(
     ...options,
     focus: observationFocus,
     qualification: originalInputArm
-      ? "Authentic calls are preserved. The generated wrapper invokes equal post-recipe observation slots only after success; V19 adds one original-request setter, no other maintenance. This is not the internal prepare-surface repair slot."
+      ? dryRetention
+        ? "Authentic calls are preserved. After recipe success, V20 adds one setter retaining exact native dry heights and protected original wet requests, no other maintenance. This is not the internal prepare-surface repair slot."
+        : "Authentic calls are preserved. The generated wrapper invokes equal post-recipe observation slots only after success; V19 adds one original-request setter, no other maintenance. This is not the internal prepare-surface repair slot."
       : "Read-only observation after measured cutoff admission; installation is not activation or success. Admitted runs add, suppress or retry no river, elevation or maintenance calls.",
   });
   return () => {
@@ -475,7 +488,7 @@ export function installWaterHeightMaintenanceProbe(
     finished = true;
     const adapter = owner;
     const retainedOriginal = originalElevation;
-    const replay = options.atlasKind === WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS;
+    const replay = options.atlasKind === WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS || dryRetention;
     const capture = (checkpoint: string) => {
       for (let row = 0; row < options.height; row++) {
         const points = Array.from({ length: options.width }, (_, x) => ({ x, y: row }));
@@ -493,19 +506,79 @@ export function installWaterHeightMaintenanceProbe(
       }
       emit(checkpoint, {
         phase: "post-authentic-recipe",
-        action: replay ? "replay-original-requests" : "none",
+        action: dryRetention
+          ? "replay-original-wet-retain-native-dry"
+          : replay
+            ? "replay-original-requests"
+            : "none",
         cellCount: options.width * options.height,
         rowCount: options.height,
         originalInputSha256: digest(retainedOriginal),
-        qualification:
-          "Original requests only; no validation, cliffs, area/cache refresh or preservation policy is selected.",
+        qualification: dryRetention
+          ? "Exact native dry heights and original wet requests; no validation, cliffs, area/cache refresh or selected product preservation policy."
+          : "Original requests only; no validation, cliffs, area/cache refresh or preservation policy is selected.",
       });
     };
     try {
+      let request = [...retainedOriginal];
+      if (dryRetention) {
+        if (typeof adapter.readCurrentMapElevationSnapshot !== "function")
+          throw new Error("Dry retention requires the exact native elevation snapshot method.");
+        const current = adapter.readCurrentMapElevationSnapshot();
+        if (
+          current?.source !== "native" ||
+          current.status !== "available" ||
+          current.width !== options.width ||
+          current.height !== options.height ||
+          !(current.values instanceof Float64Array) ||
+          current.values.length !== retainedOriginal.length
+        )
+          throw new Error(
+            "Dry retention requires a complete available exact native elevation snapshot."
+          );
+        const nativeElevation = Array.from(current.values);
+        if (!nativeElevation.every(Number.isFinite))
+          throw new Error("Dry retention requires finite native elevations at every cell.");
+        const water = Array.from({ length: retainedOriginal.length }, (_, cell) => {
+          const value = adapter.isWater(cell % options.width, Math.floor(cell / options.width));
+          if (typeof value !== "boolean")
+            throw new Error(
+              `Dry retention requires a native boolean water observation at cell ${cell}.`
+            );
+          return value;
+        });
+        request = nativeElevation.map((value, cell) =>
+          water[cell] ? retainedOriginal[cell]! : value
+        );
+        for (let row = 0; row < options.height; row++) {
+          const startCell = row * options.width,
+            endCell = startCell + options.width;
+          emit("dry-retention-input-grid", {
+            row,
+            startCell,
+            values: request.slice(startCell, endCell),
+            nativeElevation: nativeElevation.slice(startCell, endCell),
+            water: water.slice(startCell, endCell),
+          });
+        }
+        emit("dry-retention-input", {
+          phase: "post-authentic-recipe",
+          source: current.source,
+          dimensions: { width: current.width, height: current.height },
+          count: request.length,
+          rowCount: options.height,
+          sha256: digest(request),
+          originalInputSha256: digest(retainedOriginal),
+          selection:
+            "isWater=true: protected original request; isWater=false: exact current native elevation; isLake is not a selector",
+        });
+      }
       capture("before-original-replay");
       if (replay)
-        observe(adapter, "setElevation-original-replay", () =>
-          setElevation.call(adapter, [...retainedOriginal])
+        observe(
+          adapter,
+          dryRetention ? "setElevation-dry-retention-replay" : "setElevation-original-replay",
+          () => setElevation.call(adapter, request)
         );
       capture("after-original-replay");
     } catch (error) {

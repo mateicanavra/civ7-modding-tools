@@ -33,6 +33,8 @@ import {
   observeWaterHeightPhysicalLakes,
   projectLakeCutoffInitialSetup,
   WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE,
+  WATER_HEIGHT_DRY_RETENTION_REPLAY_ATLAS,
+  WATER_HEIGHT_DRY_RETENTION_REPLAY_PROBE,
   WATER_HEIGHT_LAKE_CUTOFF_PROBE,
   WATER_HEIGHT_MAINTENANCE_PROBE,
   WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE,
@@ -103,6 +105,13 @@ function fixture(info: MapInfo = mapInfo(10)) {
       observedCoordinates.push({ x, y });
       return height;
     },
+    readCurrentMapElevationSnapshot: () => ({
+      source: "native",
+      status: "available",
+      width: info?.GridWidth ?? 106,
+      height: info?.GridHeight ?? 66,
+      values: new Float64Array((info?.GridWidth ?? 106) * (info?.GridHeight ?? 66)).fill(height),
+    }),
     getTerrainType: () => 3,
     getFeatureType: () => -1,
     getRiverType: () => -1,
@@ -165,6 +174,7 @@ function fixture(info: MapInfo = mapInfo(10)) {
             startCell?: number;
             values?: number[];
             elevation?: number[];
+            nativeElevation?: number[];
             terrain?: number[];
             feature?: number[];
             riverType?: number[];
@@ -177,6 +187,7 @@ function fixture(info: MapInfo = mapInfo(10)) {
             cellCount?: number;
             rowCount?: number;
             originalInputSha256?: string;
+            selection?: string;
           };
         }
     );
@@ -576,7 +587,7 @@ describe("post-recipe physical lake maintenance evidence", () => {
   });
 });
 
-describe("V18/V19 post-recipe original-input transport (not native preservation)", () => {
+describe("V18-V20 post-recipe input transport (not native preservation)", () => {
   const preset = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
   const selection = {
     ...preset.dimensions,
@@ -598,6 +609,9 @@ describe("V18/V19 post-recipe original-input transport (not native preservation)
     let native = [...requests];
     const supplied: Array<Parameters<Adapter["setElevation"]>[0]> = [];
     const suppliedCopies: number[][] = [];
+    run.adapter.readCurrentMapElevationSnapshot = () => {
+      throw new Error("V18/V19 must not read the V20 input snapshot.");
+    };
     run.adapter.getElevation = (x, y) => native[x + y * options.width]!;
     run.adapter.getFeatureType = (x, y) => (x === 0 && y === 0 ? 77 : -1);
     run.adapter.setElevation = (values) => {
@@ -633,6 +647,7 @@ describe("V18/V19 post-recipe original-input transport (not native preservation)
     const inputs = records.filter((record) => record.stage === "original-elevation-input-grid");
     expect(inputs).toHaveLength(options.height);
     expect(inputs.flatMap((record) => record.payload.values ?? [])).toEqual(original);
+    expect(records.filter((record) => record.stage.startsWith("dry-retention-input"))).toEqual([]);
     expect(
       records.find((record) => record.stage === "original-elevation-input")?.payload
     ).toMatchObject({
@@ -677,8 +692,247 @@ describe("V18/V19 post-recipe original-input transport (not native preservation)
     expect(run.calls).toHaveLength(callCount);
   });
 
-  it("preserves replay setter failure without retries, after evidence or extra maintenance", () => {
-    const options = { ...WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_PROBE, ...selection };
+  it("constructs detached V20 requests from exact dry heights and only original wet inputs", () => {
+    const options = { ...WATER_HEIGHT_DRY_RETENTION_REPLAY_PROBE, ...selection };
+    const run = fixture(mapInfo(options.expectedLakeSizeCutoff, options.mapSize));
+    const requests = Array<number>(options.width * options.height).fill(638);
+    requests.splice(0, 8, 638, 228, 129, 1, 0, 777.25, -4.125, 300);
+    const original = [...requests];
+    let native = Float64Array.from(requests);
+    const supplied: Array<Parameters<Adapter["setElevation"]>[0]> = [];
+    const suppliedCopies: number[][] = [];
+    let snapshotReads = 0;
+    run.adapter.getElevation = (x, y) => native[x + y * options.width]!;
+    run.adapter.getFeatureType = (x, y) => (x === 0 && y === 0 ? 77 : -1);
+    run.adapter.getRiverType = (x, y) => (x === 1 && y === 0 ? 9 : -1);
+    run.adapter.isWater = (x, y) => y === 0 && x >= 4 && x <= 6;
+    // A contradictory dry lake flag proves that isLake cannot choose setter inputs.
+    run.adapter.isLake = (x, y) => y === 0 && (x === 0 || x === 5);
+    run.adapter.readCurrentMapElevationSnapshot = () => {
+      snapshotReads++;
+      return {
+        source: "native",
+        status: "available",
+        width: options.width,
+        height: options.height,
+        values: native,
+      };
+    };
+    run.adapter.setElevation = (values) => {
+      run.calls.push({ method: "setElevation", arg: values });
+      supplied.push(values);
+      suppliedCopies.push([...values]);
+      native = Float64Array.from(values);
+      Reflect.set(values, 0, -999);
+    };
+    const finish = installWaterHeightMaintenanceProbe(
+      run.adapter,
+      "dry-retention-input",
+      identity,
+      options,
+      (line) => run.lines.push(line)
+    );
+    run.adapter.setElevation(requests);
+    native.set([598, -7.5, 127.25, 0, 17, 43, 0, Math.PI]);
+    const retainedSnapshotValues = native;
+    const before = Array.from(native);
+    const expected = [...before];
+    for (const cell of [4, 5, 6]) expected[cell] = original[cell]!;
+    finish();
+    expect(snapshotReads).toBe(1);
+    expect(run.calls.map((call) => call.method)).toEqual(["setElevation", "setElevation"]);
+    expect(supplied).toHaveLength(2);
+    expect(supplied[0]).toBe(requests);
+    expect(supplied[1]).not.toBe(requests);
+    expect(supplied[1]).not.toBe(retainedSnapshotValues);
+    expect(Array.isArray(supplied[1])).toBe(true);
+    expect(suppliedCopies[1]).toEqual(expected);
+    expect(Array.from(retainedSnapshotValues)).toEqual(before);
+    expect(Array.from(native)).toEqual(expected);
+    const records = run.decode();
+    expect(
+      records
+        .filter((record) => record.stage === "original-elevation-input-grid")
+        .flatMap((record) => record.payload.values ?? [])
+    ).toEqual(original);
+    const inputRows = records.filter((record) => record.stage === "dry-retention-input-grid");
+    expect(inputRows).toHaveLength(options.height);
+    inputRows.forEach((record, row) => {
+      expect(record.payload.row).toBe(row);
+      expect(record.payload.startCell).toBe(row * options.width);
+      for (const field of ["values", "nativeElevation", "water"] as const)
+        expect(record.payload[field]).toHaveLength(options.width);
+    });
+    expect(inputRows.flatMap((record) => record.payload.values ?? [])).toEqual(expected);
+    expect(inputRows.flatMap((record) => record.payload.nativeElevation ?? [])).toEqual(before);
+    expect(inputRows.flatMap((record) => record.payload.water ?? [])).toEqual(
+      original.map((_, cell) => cell >= 4 && cell <= 6)
+    );
+    expect(records.find((record) => record.stage === "dry-retention-input")?.payload).toMatchObject(
+      {
+        phase: "post-authentic-recipe",
+        source: "native",
+        dimensions: preset.dimensions,
+        count: original.length,
+        rowCount: options.height,
+        sha256: sha256Hex(stableStringify(expected)),
+        originalInputSha256: sha256Hex(stableStringify(original)),
+        selection:
+          "isWater=true: protected original request; isWater=false: exact current native elevation; isLake is not a selector",
+      }
+    );
+    for (const checkpoint of ["before-original-replay", "after-original-replay"]) {
+      const rows = records.filter(
+        (record) =>
+          record.stage === "original-replay-grid" && record.payload.checkpoint === checkpoint
+      );
+      expect(rows).toHaveLength(options.height);
+      expect(rows.flatMap((record) => record.payload.elevation ?? [])).toEqual(
+        checkpoint === "before-original-replay" ? before : expected
+      );
+      expect(rows[0]?.payload.feature?.[0]).toBe(77);
+      expect(rows[0]?.payload.riverType?.[1]).toBe(9);
+      expect(records.find((record) => record.stage === checkpoint)?.payload.action).toBe(
+        "replay-original-wet-retain-native-dry"
+      );
+    }
+    const addedBefore = records.findIndex(
+      (record) =>
+        record.stage === "before" && record.payload.method === "setElevation-dry-retention-replay"
+    );
+    expect(addedBefore).toBeGreaterThan(
+      records.findIndex((record) => record.stage === "dry-retention-input")
+    );
+    expect(addedBefore).toBeGreaterThan(
+      records.findIndex((record) => record.stage === "before-original-replay")
+    );
+    expect(run.lines.every((line) => line.length <= BOUNDED_JSON_LOG_MAX_LINE_LENGTH)).toBe(true);
+    expect(() => finish()).toThrow("already attempted");
+    expect(supplied).toHaveLength(2);
+  });
+
+  it.each([
+    "unavailable",
+    "mock",
+    "unknown-source",
+    "unknown-status",
+    "missing-snapshot",
+    "missing-method",
+    "non-finite",
+    "infinite",
+    "truncated",
+    "overlong",
+    "width",
+    "height",
+    "non-exact-storage",
+  ])("refuses V20 %s snapshot before the added setter without original fallback", (invalid) => {
+    const options = { ...WATER_HEIGHT_DRY_RETENTION_REPLAY_PROBE, ...selection };
+    const run = fixture(mapInfo(options.expectedLakeSizeCutoff, options.mapSize));
+    const current = {
+      source: "native" as const,
+      status: "available" as const,
+      width: options.width,
+      height: options.height,
+      values: new Float64Array(options.width * options.height).fill(598),
+    };
+    if (invalid === "unavailable") Reflect.set(current, "status", "unavailable");
+    if (invalid === "mock") Reflect.set(current, "source", "mock");
+    if (invalid === "unknown-source") Reflect.set(current, "source", "unknown");
+    if (invalid === "unknown-status") Reflect.set(current, "status", "partial");
+    if (invalid === "non-finite") current.values[current.values.length - 1] = Number.NaN;
+    if (invalid === "infinite")
+      current.values[current.values.length - 1] = Number.POSITIVE_INFINITY;
+    if (invalid === "truncated") current.values = current.values.slice(0, -1);
+    if (invalid === "overlong") current.values = new Float64Array(current.values.length + 1);
+    if (invalid === "width") current.width++;
+    if (invalid === "height") current.height++;
+    if (invalid === "non-exact-storage") Reflect.set(current, "values", Array.from(current.values));
+    run.adapter.readCurrentMapElevationSnapshot = () => current;
+    if (invalid === "missing-snapshot")
+      Reflect.set(run.adapter, "readCurrentMapElevationSnapshot", () => undefined);
+    if (invalid === "missing-method")
+      Reflect.set(run.adapter, "readCurrentMapElevationSnapshot", undefined);
+    const finish = installWaterHeightMaintenanceProbe(
+      run.adapter,
+      "dry-retention-refused",
+      identity,
+      options,
+      (line) => run.lines.push(line)
+    );
+    run.adapter.setElevation(Array(options.width * options.height).fill(638));
+    expect(() => finish()).toThrow("Dry retention requires");
+    expect(run.calls.map((call) => call.method)).toEqual(["setElevation"]);
+    expect(run.decode().filter((record) => record.stage === "dry-retention-input")).toEqual([]);
+    expect(run.decode().filter((record) => record.stage === "after-original-replay")).toEqual([]);
+    expect(() => finish()).toThrow("already attempted");
+    expect(run.calls).toHaveLength(1);
+  });
+
+  it.each([
+    0,
+    1,
+    undefined,
+    null,
+    {},
+    "false",
+  ])("refuses V20 nonboolean water %j across the complete grid", (invalid) => {
+    const options = { ...WATER_HEIGHT_DRY_RETENTION_REPLAY_PROBE, ...selection };
+    const run = fixture(mapInfo(options.expectedLakeSizeCutoff, options.mapSize));
+    Reflect.set(run.adapter, "isWater", (x: number, y: number) =>
+      x === options.width - 1 && y === options.height - 1 ? invalid : false
+    );
+    const finish = installWaterHeightMaintenanceProbe(
+      run.adapter,
+      "dry-retention-water-refused",
+      identity,
+      options,
+      (line) => run.lines.push(line)
+    );
+    run.adapter.setElevation(Array(options.width * options.height).fill(638));
+    expect(() => finish()).toThrow(
+      `native boolean water observation at cell ${options.width * options.height - 1}`
+    );
+    expect(run.calls.map((call) => call.method)).toEqual(["setElevation"]);
+    expect(run.decode().filter((record) => record.stage === "dry-retention-input-grid")).toEqual(
+      []
+    );
+    expect(run.decode().filter((record) => record.stage === "after-original-replay")).toEqual([]);
+    expect(() => finish()).toThrow("already attempted");
+    expect(run.calls).toHaveLength(1);
+  });
+
+  it("preserves a V20 snapshot failure without fallback, retry or added maintenance", () => {
+    const options = { ...WATER_HEIGHT_DRY_RETENTION_REPLAY_PROBE, ...selection };
+    const run = fixture(mapInfo(options.expectedLakeSizeCutoff, options.mapSize));
+    const failure = new Error("native elevation snapshot failed");
+    run.adapter.readCurrentMapElevationSnapshot = () => {
+      throw failure;
+    };
+    const finish = installWaterHeightMaintenanceProbe(
+      run.adapter,
+      "dry-retention-snapshot-failed",
+      identity,
+      options,
+      (line) => run.lines.push(line)
+    );
+    run.adapter.setElevation(Array(options.width * options.height).fill(638));
+    let observed: unknown;
+    try {
+      finish();
+    } catch (error) {
+      observed = error;
+    }
+    expect(observed).toBe(failure);
+    expect(run.calls.map((call) => call.method)).toEqual(["setElevation"]);
+    expect(run.decode().filter((record) => record.stage === "after-original-replay")).toEqual([]);
+    expect(() => finish()).toThrow("already attempted");
+  });
+
+  it.each([
+    WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_PROBE,
+    WATER_HEIGHT_DRY_RETENTION_REPLAY_PROBE,
+  ])("preserves V%s replay setter failure without retries, after evidence or extra maintenance", (probe) => {
+    const options = { ...probe, ...selection };
     const run = fixture(mapInfo(options.expectedLakeSizeCutoff, options.mapSize));
     const failure = new Error("replay setter failure");
     let calls = 0;
@@ -711,8 +965,11 @@ describe("V18/V19 post-recipe original-input transport (not native preservation)
     expect(run.calls).toEqual([]);
   });
 
-  it("requires a successful authentic setter and preserves first-setter failure", () => {
-    const options = { ...WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_PROBE, ...selection };
+  it.each([
+    WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_PROBE,
+    WATER_HEIGHT_DRY_RETENTION_REPLAY_PROBE,
+  ])("requires a successful authentic setter and preserves V%s first-setter failure", (probe) => {
+    const options = { ...probe, ...selection };
     const run = fixture(mapInfo(options.expectedLakeSizeCutoff, options.mapSize));
     const failure = new Error("authentic setter failure");
     let calls = 0;
@@ -765,6 +1022,7 @@ describe("V18/V19 post-recipe original-input transport (not native preservation)
   it.each([
     WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS,
     WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS,
+    WATER_HEIGHT_DRY_RETENTION_REPLAY_ATLAS,
   ] as const)("finishes only after authentic generated recipe success for %s", async (atlas) => {
     const built = await buildRiverProbePlan("original-execute", "authored", atlas, {
       mapSize: "MAPSIZE_TINY",

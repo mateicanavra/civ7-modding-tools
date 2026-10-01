@@ -55,6 +55,7 @@ import {
   WATER_LOWER_BOUND_CONTROLS,
 } from "./water-connectivity.fixture.js";
 import {
+  WATER_HEIGHT_DRY_RETENTION_REPLAY_ATLAS,
   WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS,
   WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS,
 } from "./water-height-maintenance.fixture.js";
@@ -65,6 +66,7 @@ describe("build-only river diagnostic selectors", () => {
   test.each([
     [WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS, 18, false],
     [WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS, 19, true],
+    [WATER_HEIGHT_DRY_RETENTION_REPLAY_ATLAS, 20, false],
   ] as const)("builds finite stock-only post-recipe arm %s", async (atlas, revision, replay) => {
     const args = [
       "post-recipe-input",
@@ -115,12 +117,21 @@ describe("build-only river diagnostic selectors", () => {
       expectedLakeSizeCutoff: 6,
       settings: [false, 25, 2, 2],
       intervention: {
-        kind: "post-authentic-recipe-original-input-replay",
+        kind:
+          atlas === WATER_HEIGHT_DRY_RETENTION_REPLAY_ATLAS
+            ? "post-authentic-recipe-dry-retention-replay"
+            : "post-authentic-recipe-original-input-replay",
         originalElevationReplayed: replay,
         databaseTreatment: "none; selected public stock row held",
         checkpoints: ["before-original-replay", "after-original-replay"],
       },
     });
+    if (atlas === WATER_HEIGHT_DRY_RETENTION_REPLAY_ATLAS) {
+      expect(proof.intervention.nativeDryElevationRetained).toBe(true);
+      expect(proof.intervention.input).toBe(
+        "native isWater selects protected original wet requests and exact available current native dry elevations; never wet readbacks"
+      );
+    } else expect(proof.intervention).not.toHaveProperty("nativeDryElevationRetained");
     const manifest = String(
       built.files.find((file) => file.relativePath.endsWith(".modinfo"))!.content
     );
