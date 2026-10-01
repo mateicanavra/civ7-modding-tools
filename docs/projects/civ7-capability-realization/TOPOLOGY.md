@@ -380,23 +380,26 @@ apps/
       habitat.toml
       package.json
       project.json
-      rawr.swooper-physics.ts
-      build.ts
-      deploy.ts
-      runtime/
-        adapters/
-          local-mod-install.ts
-        config.ts
-        processes.ts
-        profiles/
-          local-civ7.ts
-        file-plan.ts
-        map-script/
-          adapter.ts
-          entrypoint.ts
-          setup.ts
+      src/
+        rawr.swooper-physics.ts
+        build.ts
+        deploy.ts
         run-manifest.ts
-        targets.ts
+        runtime/
+          adapters/
+            local-mod-install.ts
+          config.ts
+          processes.ts
+          profiles/
+            local-civ7.ts
+          file-plan.ts
+          map-script/
+            adapter.ts
+            compiler.ts
+            entrypoint.ts
+            setup.ts
+          run-manifest.ts
+          targets.ts
       test/
         definition.test.ts
         profiles/
@@ -876,20 +879,20 @@ filesystem observation and replacement while consuming
 construction. It exposes no reusable production module; shared runtime binds
 only the selected semantic target.
 
-Its `rawr.swooper-physics.ts` descriptor declares the matching definition and
+Its `src/rawr.swooper-physics.ts` descriptor declares the matching definition and
 implements the public MapGen-runs realization dependency through
-`runtime/targets.ts`. The closed runtime interior also admits
-`runtime/file-plan.ts` for deterministic mod-tree planning and
-`runtime/run-manifest.ts` for transient manifest materialization. Concrete
+`src/runtime/targets.ts`. The closed runtime interior also admits
+`src/runtime/file-plan.ts` for deterministic mod-tree planning and
+`src/runtime/run-manifest.ts` for transient manifest materialization. Concrete
 Civ7 engine globals, setup, and the map-script loader live only under
 `runtime/map-script/`; the reusable `packages/civ7-adapter` supplies their
 contract, static metadata, and mock. These files are cold compiler or qualified
 runtime input. They are not a service facade, provider, or callable app export.
 
 The realization root composes the generic app law rather than replacing it:
-`local-civ7.ts` is the selected profile and `build.ts` plus `deploy.ts` are the
+`local-civ7.ts` is the selected profile and `src/build.ts` plus `src/deploy.ts` are the
 selected role entrypoints, with exact matching generic app suites. Its
-qualified manifest and `runtime/targets.ts` then select the exact
+qualified manifest and `src/runtime/targets.ts` then select the exact
 `local-mod-install` adapter plus artifact, deployment, optional
 generated-runtime, and live proof identities. Each identity maps to one suite;
 wildcard suffixes are grammar only. No current

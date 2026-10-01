@@ -20,8 +20,6 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "apps/mods/map/*/scripts/**/*.ts",
-        "apps/mods/map/*/scripts/**/*.tsx",
         "apps/mods/map/*/src/**/*.ts",
         "apps/mods/map/*/src/**/*.tsx",
         "plugins/mod/map/*/authoring/**/*.ts",

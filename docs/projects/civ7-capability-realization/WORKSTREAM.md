@@ -211,6 +211,18 @@ this receipt advances but does not claim slice 1.1.
 - Preserve MapGen's separate map seed, game seed, setup, artifacts, trace,
   metrics, diagnostics, and visualization contracts.
 
+**Realization-shell receipt:** the Swooper app is now an admitted shared
+`app@1` instance with one closed qualified `src` interior. Its build compiles
+virtual TypeScript entries directly from admitted configs and writes only the
+ignored final `dist/mod` tree; the root `scripts/`, checked-in mod tree, and
+eight generated source entries are gone. The pure file plan requires exactly
+one compiled script identity per admitted config. App build/check and 38 tests,
+the shared app law, qualified source law, both filesystem-boundary laws, the
+exported-value JSDoc law, and scoped Knip pass. This receipt does not harden the
+current transitional proof folders or claim loader/live success: proof-layer
+normalization, app definition/profile/entrypoint construction, qualified
+installation, and the held Interactive dependencies remain in this slice.
+
 #### 1.1.3 Slice Construction And Evidence
 
 ```text

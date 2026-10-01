@@ -17,12 +17,13 @@ import { loadSwooperMapConfigCatalog } from "@swooper/swooper-physics/tooling/ca
 import {
   loadSwooperStudioDeployConfigRegistry,
   selectSwooperStudioDeployConfigIds,
-} from "../../scripts/generate-map-artifacts";
+} from "../../src/build";
 import {
   buildSwooperCatalogModFilePlan,
   buildSwooperRunGeneratedModFilePlan,
+  renderSwooperCatalogMapSource,
   renderSwooperRunMapSource,
-} from "../../scripts/map-artifacts/file-plan";
+} from "../../src/runtime/file-plan";
 import { TEST_MAP_SEED } from "../setup.js";
 
 const recipeSchema = STANDARD_RECIPE_CONFIG_SCHEMA;
@@ -32,7 +33,13 @@ async function buildCurrentPlans() {
   const configs = await loadSwooperMapConfigCatalog();
   return {
     configs,
-    modPlan: buildSwooperCatalogModFilePlan({ configs }),
+    modPlan: buildSwooperCatalogModFilePlan({
+      configs,
+      mapScripts: configs.map((config) => ({
+        configId: config.canonicalConfig.id,
+        content: `// bundled ${config.canonicalConfig.id}\n`,
+      })),
+    }),
   };
 }
 
@@ -54,11 +61,11 @@ function plannedFile<
   return file;
 }
 
-function buildFixtureConfig(): ValidatedMapConfig {
+function buildFixtureConfig(id = "fixture-map"): ValidatedMapConfig {
   return validateCanonicalMapConfig({
-    fileName: "fixture-map.config.json",
+    fileName: `${id}.config.json`,
     raw: {
-      id: "fixture-map",
+      id,
       name: "Fixture & Map <One>",
       description: "Wet & dry edge",
       recipe: "standard",
@@ -78,31 +85,30 @@ describe("Swooper map artifact file plan", () => {
 
     expect(modPlan.exclusiveSets).toEqual([
       {
-        relativeDir: "src/maps/generated",
-        fileExtension: ".ts",
+        relativeDir: "maps",
+        fileExtension: ".js",
       },
+      { relativeDir: "config", fileExtension: ".xml" },
+      { relativeDir: "data", fileExtension: ".xml" },
+      { relativeDir: "text/en_us", fileExtension: ".xml" },
     ]);
     for (const config of configs) {
-      expect(paths.has(`src/maps/generated/${config.canonicalConfig.id}.ts`)).toBe(true);
+      expect(paths.has(`maps/${config.canonicalConfig.id}.js`)).toBe(true);
     }
-    expect(paths.has("mod/config/config.xml")).toBe(true);
-    expect(paths.has(`mod/${SWOOPER_MAPS_MOD_DEFINITION.id}.modinfo`)).toBe(true);
-    expect(paths.has("mod/data/biome-hazards.xml")).toBe(true);
-    expect(paths.has("mod/text/en_us/MapText.xml")).toBe(true);
-    expect(paths.has("mod/text/en_us/ModuleText.xml")).toBe(true);
+    expect(paths.has("config/config.xml")).toBe(true);
+    expect(paths.has(`${SWOOPER_MAPS_MOD_DEFINITION.id}.modinfo`)).toBe(true);
+    expect(paths.has("data/biome-hazards.xml")).toBe(true);
+    expect(paths.has("text/en_us/MapText.xml")).toBe(true);
+    expect(paths.has("text/en_us/ModuleText.xml")).toBe(true);
     expect(files).toHaveLength(configs.length + 5);
     expect(files.every((file) => file.content.length > 0)).toBe(true);
   });
 
   it("feeds every schema-materialized catalog envelope directly into its generated artifact", async () => {
-    const { configs, modPlan } = await buildCurrentPlans();
+    const { configs } = await buildCurrentPlans();
 
     for (const config of configs) {
-      const generatedMap = plannedFile(
-        modPlan,
-        `src/maps/generated/${config.canonicalConfig.id}.ts`
-      );
-      expect(textContent(generatedMap), config.canonicalConfig.id).toContain(
+      expect(renderSwooperCatalogMapSource(config), config.canonicalConfig.id).toContain(
         JSON.stringify(config.canonicalConfig, null, 2)
       );
     }
@@ -142,19 +148,23 @@ describe("Swooper map artifact file plan", () => {
 
   it("renders exact file-plan content for a schema-valid fixture config", () => {
     const fixtureConfig = buildFixtureConfig();
-    const plan = buildSwooperCatalogModFilePlan({ configs: [fixtureConfig] });
+    const bundledMapScript = "// bundled fixture map\n";
+    const plan = buildSwooperCatalogModFilePlan({
+      configs: [fixtureConfig],
+      mapScripts: [{ configId: fixtureConfig.canonicalConfig.id, content: bundledMapScript }],
+    });
 
     expect(plan.files.map((file) => file.relativePath)).toEqual([
-      "src/maps/generated/fixture-map.ts",
-      "mod/config/config.xml",
-      `mod/${SWOOPER_MAPS_MOD_DEFINITION.id}.modinfo`,
-      "mod/data/biome-hazards.xml",
-      "mod/text/en_us/MapText.xml",
-      "mod/text/en_us/ModuleText.xml",
+      "maps/fixture-map.js",
+      "config/config.xml",
+      `${SWOOPER_MAPS_MOD_DEFINITION.id}.modinfo`,
+      "data/biome-hazards.xml",
+      "text/en_us/MapText.xml",
+      "text/en_us/ModuleText.xml",
     ]);
 
-    const generatedMap = plannedFile(plan, "src/maps/generated/fixture-map.ts");
-    const generatedMapText = textContent(generatedMap);
+    expect(textContent(plannedFile(plan, "maps/fixture-map.js"))).toBe(bundledMapScript);
+    const generatedMapText = renderSwooperCatalogMapSource(fixtureConfig);
     expect(generatedMapText).toContain(
       `configHash: ${JSON.stringify(canonicalMapConfigContentDigest(fixtureConfig.canonicalConfig))}`
     );
@@ -170,7 +180,7 @@ describe("Swooper map artifact file plan", () => {
     expect(generatedMapText).toContain("project: projectStandardInitialSetup");
 
     expect(
-      textContent(plannedFile(plan, "mod/config/config.xml"))
+      textContent(plannedFile(plan, "config/config.xml"))
     ).toBe(`<?xml version="1.0" encoding="utf-8"?>
 <Database>
 \t<Maps>
@@ -183,13 +193,13 @@ describe("Swooper map artifact file plan", () => {
 \t</Maps>
 </Database>
 `);
-    const mapText = textContent(plannedFile(plan, "mod/text/en_us/MapText.xml"));
+    const mapText = textContent(plannedFile(plan, "text/en_us/MapText.xml"));
     expect(mapText).toContain("<Text>Fixture &amp; Map &lt;One&gt;</Text>");
     expect(mapText).toContain("<Text>Wet &amp; dry edge</Text>");
     expect(mapText).toContain("LOC_PLOTEFFECT_DESERT_HEAT_NAME");
     expect(mapText).toContain("LOC_PLOTEFFECT_FROSTBITE_NAME");
     expect(mapText).toContain("LOC_PLOTEFFECT_JUNGLE_FEVER_NAME");
-    const modInfo = textContent(plannedFile(plan, `mod/${SWOOPER_MAPS_MOD_DEFINITION.id}.modinfo`));
+    const modInfo = textContent(plannedFile(plan, `${SWOOPER_MAPS_MOD_DEFINITION.id}.modinfo`));
     const moduleTag = SWOOPER_MAPS_MOD_DEFINITION.id.toUpperCase().replaceAll("-", "_");
     expect(modInfo).toContain(
       `<Mod id="${SWOOPER_MAPS_MOD_DEFINITION.id}" version="${SWOOPER_MAPS_MOD_DEFINITION.version}" xmlns="ModInfo">`
@@ -205,20 +215,55 @@ describe("Swooper map artifact file plan", () => {
     }
     expect(modInfo).toContain("<File>text/en_us/ModuleText.xml</File>");
     expect(modInfo).toContain("\t\t\t\t\t<Item>maps/fixture-map.js</Item>");
-    expect(textContent(plannedFile(plan, "mod/data/biome-hazards.xml"))).toContain(
+    expect(textContent(plannedFile(plan, "data/biome-hazards.xml"))).toContain(
       '<Row PlotEffectType="PLOTEFFECT_DESERT_HEAT" Name="LOC_PLOTEFFECT_DESERT_HEAT_NAME"'
     );
-    const moduleText = textContent(plannedFile(plan, "mod/text/en_us/ModuleText.xml"));
+    const moduleText = textContent(plannedFile(plan, "text/en_us/ModuleText.xml"));
     expect(moduleText).toContain(
       `<Text>${SWOOPER_MAPS_MOD_DEFINITION.name.replaceAll("'", "&apos;")}</Text>`
     );
     expect(moduleText).toContain(`<Text>${SWOOPER_MAPS_MOD_DEFINITION.description}</Text>`);
   });
 
+  it("requires one exact bundled script identity for every admitted catalog config", () => {
+    const fixtureConfig = buildFixtureConfig();
+    const foreignConfig = buildFixtureConfig("foreign-map");
+    const fixtureScript = {
+      configId: fixtureConfig.canonicalConfig.id,
+      content: "// bundled fixture map\n",
+    } as const;
+
+    expect(() =>
+      buildSwooperCatalogModFilePlan({ configs: [fixtureConfig], mapScripts: [] })
+    ).toThrow("Missing bundled map script for config: fixture-map");
+    expect(() =>
+      buildSwooperCatalogModFilePlan({
+        configs: [fixtureConfig],
+        mapScripts: [fixtureScript, fixtureScript],
+      })
+    ).toThrow("Duplicate bundled map script for config: fixture-map");
+    expect(() =>
+      buildSwooperCatalogModFilePlan({
+        configs: [fixtureConfig],
+        mapScripts: [
+          fixtureScript,
+          {
+            configId: foreignConfig.canonicalConfig.id,
+            content: "// bundled foreign map\n",
+          },
+        ],
+      })
+    ).toThrow("Bundled map script has no admitted catalog config: foreign-map");
+  });
+
   it("projects every custom hazard definition into matching localization and gameplay rows", () => {
-    const plan = buildSwooperCatalogModFilePlan({ configs: [buildFixtureConfig()] });
-    const mapText = textContent(plannedFile(plan, "mod/text/en_us/MapText.xml"));
-    const hazardData = textContent(plannedFile(plan, "mod/data/biome-hazards.xml"));
+    const fixture = buildFixtureConfig();
+    const plan = buildSwooperCatalogModFilePlan({
+      configs: [fixture],
+      mapScripts: [{ configId: fixture.canonicalConfig.id, content: "// bundled\n" }],
+    });
+    const mapText = textContent(plannedFile(plan, "text/en_us/MapText.xml"));
+    const hazardData = textContent(plannedFile(plan, "data/biome-hazards.xml"));
 
     for (const { customHazard } of CUSTOM_PLOT_EFFECT_HAZARD_PROJECTIONS) {
       expect(mapText).toContain(`\t\t<Row Tag="${customHazard.localizationTag}">
@@ -242,15 +287,10 @@ describe("Swooper map artifact file plan", () => {
   });
 
   it("embeds catalog-only config identity in every generated map entry", async () => {
-    const { modPlan } = await buildCurrentPlans();
-    const generatedMapFiles = modPlan.files.filter(
-      (file) =>
-        file.relativePath.startsWith("src/maps/generated/") && file.relativePath.endsWith(".ts")
-    );
+    const { configs } = await buildCurrentPlans();
 
-    for (const file of generatedMapFiles) {
-      expect(typeof file.content).toBe("string");
-      const text = typeof file.content === "string" ? file.content : "";
+    for (const config of configs) {
+      const text = renderSwooperCatalogMapSource(config);
       expect(text).toContain("configHash:");
       expect(text).toContain("envelopeHash:");
       expect(text).not.toContain("runCorrelation");
@@ -261,7 +301,7 @@ describe("Swooper map artifact file plan", () => {
   });
 
   it("keeps transient Studio identity out of every shipped catalog artifact", async () => {
-    const { modPlan } = await buildCurrentPlans();
+    const { configs, modPlan } = await buildCurrentPlans();
 
     for (const file of modPlan.files) {
       const content = textContent(file);
@@ -269,6 +309,12 @@ describe("Swooper map artifact file plan", () => {
       expect(content, file.relativePath).not.toContain("STUDIO_CURRENT");
       expect(content, file.relativePath).not.toContain("launchEnvelopeDigest");
       expect(content, file.relativePath).not.toContain("generationManifestDigest");
+    }
+    for (const config of configs) {
+      const source = renderSwooperCatalogMapSource(config);
+      expect(source).not.toContain("studio-current");
+      expect(source).not.toContain("launchEnvelopeDigest");
+      expect(source).not.toContain("generationManifestDigest");
     }
   });
 

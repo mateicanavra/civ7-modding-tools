@@ -1,9 +1,5 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  civ7MapScriptTextEncoderBanner,
-  civ7TypeBoxCompatibilityPlugin,
-} from "@civ7/adapter/map-script-build";
 import { assessCiv7SignedIntSeed } from "@civ7/map-policy/setup";
 import { applyGeneratedFilePlan } from "@civ7/plugin-files/generated-file-plan";
 import {
@@ -12,14 +8,14 @@ import {
 } from "@civ7/studio-run-workspace";
 import { STANDARD_RECIPE_ID } from "@swooper/swooper-physics/standard";
 import { admitStandardMapConfig } from "@swooper/swooper-physics/standard/map-config";
-import { build } from "esbuild";
 import {
   buildSwooperRunGeneratedModFilePlan,
   renderSwooperRunMapSource,
   type SwooperRunGeneratedModPlanInput,
-} from "./map-artifacts/file-plan.js";
+} from "./file-plan.js";
+import { bundleCiv7MapScript } from "./map-script/compiler.js";
 
-const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
 type SwooperRunGeneratedMod = Readonly<{
   runArtifactId: string;
@@ -52,9 +48,10 @@ export async function generateSwooperRunGeneratedModFromManifestPath(
   const verifiedRun = verifySwooperStandardRunManifest(manifest);
   const { manifest: verifiedManifest, renderInput } = verifiedRun;
   const generatedModRoot = resolveSwooperRunGeneratedModRoot(manifestPath, verifiedManifest);
-  const bundledMapScript = await bundleRunMapScript({
+  const bundledMapScript = await bundleCiv7MapScript({
     source: renderSwooperRunMapSource(renderInput),
     sourceName: `${renderInput.correlation.runArtifactId}.ts`,
+    appRoot,
   });
   const plan = buildSwooperRunGeneratedModFilePlan(renderInput, bundledMapScript);
   await applyGeneratedFilePlan(plan, { outputRoot: generatedModRoot });
@@ -102,33 +99,4 @@ function numericLaunchSeed(value: number | string): number {
     throw new Error("Swooper run manifest seed must be a supported integer.");
   }
   return seed;
-}
-
-async function bundleRunMapScript(
-  args: Readonly<{
-    source: string;
-    sourceName: string;
-  }>
-): Promise<string> {
-  const result = await build({
-    stdin: {
-      contents: args.source,
-      loader: "ts",
-      resolveDir: pkgRoot,
-      sourcefile: args.sourceName,
-    },
-    bundle: true,
-    write: false,
-    format: "esm",
-    target: "esnext",
-    platform: "neutral",
-    banner: { js: civ7MapScriptTextEncoderBanner },
-    external: ["/base-standard/*"],
-    absWorkingDir: pkgRoot,
-    nodePaths: [resolve(pkgRoot, "node_modules")],
-    plugins: [civ7TypeBoxCompatibilityPlugin],
-  });
-  const output = result.outputFiles[0];
-  if (!output) throw new Error("Swooper run manifest bundler produced no map script.");
-  return output.text;
 }

@@ -1,7 +1,7 @@
 {
   "extends": "../../../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "./mod/maps",
+    "outDir": "./dist/types",
     "rootDir": "../../../..",
     "declaration": false,
     "noEmit": true,
@@ -12,7 +12,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    "types": ["@civ7/types"]
+    "types": ["@civ7/types", "bun-types"]
   },
   "include": ["src/**/*.ts"]
 }

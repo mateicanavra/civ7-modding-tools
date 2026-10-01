@@ -144,7 +144,7 @@ service client.
 | `apps/mapgen-studio/src/server/studio/engines.ts` | combine | Pure parsing/plans/comparison in `packages/studio-run-workspace`, MapGen-runs bindings, and Studio filesystem adapters `{studio-run-files,fresh-log-files,swooper-map-config-source}`; mod installation moves to the Swooper realization adapter; the mixed source file then disappears |
 | `apps/mods/map/swooper-physics/scripts/live/verify-final-surface-parity.ts` | combine | Recipe-owned `plugins/mod/map/swooper-physics/test/recipes/standard/parity/final-surface-parity.live.test.ts`, consuming the control world client and Studio API client through the realization-owned live target |
 | `apps/mods/map/swooper-physics/scripts/live/verify-studio-run-in-game-live.ts` | combine | The Studio API client through the realization-owned live target; the Studio app selects control, MapGen-runs, and `{civ7-save-files,studio-run-files,fresh-log-files}`, while the shared runtime binds those capabilities and provisions Tuner |
-| `plugins/mod/map/swooper-physics/src/recipes/standard/parity/live.ts` | relocate | `apps/mods/map/swooper-physics/runtime/parity/live.ts`, consuming the control world client at realization time |
+| `plugins/mod/map/swooper-physics/src/recipes/standard/parity/live.ts` | relocate | `apps/mods/map/swooper-physics/src/runtime/parity/live.ts`, consuming the control world client at realization time |
 | `packages/studio-contract/src/{civ7,live}.ts` `†` | combine | Exact Studio API control-module contracts over the public control-service client |
 | `packages/studio-contract/src/shared.ts` `†` | inline | Exact owning Studio API module contracts |
 | `packages/studio-server/src/context.ts` `†` | combine | Studio API context containing runtime-supplied public clients |
@@ -496,7 +496,7 @@ relocation or web-plugin identity for that separate package.
 | Pure evidence schemas, digesting, marker and failure classification, bounded-log parsing, and comparison in `apps/mapgen-studio/src/server/runInGame/{authorshipEvidence,evidenceTypes,fileEvidence,logFailure,swooperLogEvidence}.ts` | combine | `packages/studio-run-workspace/src/{authorship-evidence,log-failure,materialization-evidence,run-evidence}.ts` | Package contract and semantics |
 | Exact-authorship acceptance, unresolved-link, recovery, timeout, retry, and polling policy in the same Run-in-Game sources | combine | `services/mapgen-runs/src/service/modules/run-in-game/model/policy` | Run-in-game semantics |
 | Filesystem reads in `apps/mapgen-studio/src/server/runInGame/{fileEvidence,logFailure,swooperLogEvidence}.ts` | combine | `apps/mapgen-studio/runtime/adapters/{studio-run-files,fresh-log-files}.ts` | Studio cold-adapter execution |
-| `apps/mapgen-studio/src/server/mapConfigs/deploy.ts` | combine | `apps/mods/map/swooper-physics/runtime/targets.ts` using `runtime/adapters/local-mod-install.ts`; `src/server/studio/engines.ts` is already classified as one mixed source in Direct-Control Consumer Closure | Mod realization artifact, deployment, and live proof |
+| `apps/mapgen-studio/src/server/mapConfigs/deploy.ts` | combine | `apps/mods/map/swooper-physics/src/runtime/targets.ts` using `src/runtime/adapters/local-mod-install.ts`; `src/server/studio/engines.ts` is already classified as one mixed source in Direct-Control Consumer Closure | Mod realization artifact, deployment, and live proof |
 | Caller-facing setup-catalog DTO and route projection in `apps/mapgen-studio/src/server/civ7Resources/catalog.ts` | combine | Studio API authoring module | API authoring projection |
 | Official-root selection, traversal, reads, XML parsing, admission, and ordering in `apps/mapgen-studio/src/server/civ7Resources/catalog.ts` | combine | `apps/mapgen-studio/runtime/adapters/civ7-official-data.ts` | Studio cold-adapter execution and profile proof |
 | `apps/mapgen-studio/src/server/studio/{context,engines}.ts` manual construction | delete | Shared runtime compiler and exact app adapter selection |
@@ -533,12 +533,13 @@ service, provider, or deployment implementation.
 | `plugins/mod/map/swooper-physics/scripts/diagnostics/run-standard-dump.ts` | relocate | `plugins/cli/topics/mapgen/src/commands/mapgen/diagnostics/dump.ts` | Mirrored CLI command proof and Swooper diagnostic integration |
 | `plugins/mod/map/swooper-physics/scripts/metrics/report.ts` | relocate | `plugins/cli/topics/mapgen/src/commands/mapgen/metrics/report.ts` | Mirrored CLI command proof and metric-bank integration |
 | `plugins/mod/map/swooper-physics/scripts/{tsconfig.json,tsup.studio-recipes.config.ts}` and `scripts/diagnostics/README.md` | delete | Qualified compiler programs, shared build targets, command help, and canonical diagnostics docs |
-| `apps/mods/map/swooper-physics/scripts/map-artifacts/file-plan.ts` | relocate | `apps/mods/map/swooper-physics/runtime/file-plan.ts` | Realization artifact proof |
-| `apps/mods/map/swooper-physics/scripts/run-manifest-generator.ts` | relocate | `apps/mods/map/swooper-physics/runtime/run-manifest.ts` | Realization artifact and runtime proof |
-| `apps/mods/map/swooper-physics/scripts/{generate-map-artifacts,generate-run-manifest}.ts` | delete | Shared runtime invokes the cold realization target table directly |
+| `apps/mods/map/swooper-physics/scripts/map-artifacts/file-plan.ts` | relocate | `apps/mods/map/swooper-physics/src/runtime/file-plan.ts` | Realization artifact proof |
+| `apps/mods/map/swooper-physics/scripts/run-manifest-generator.ts` | relocate | `apps/mods/map/swooper-physics/src/runtime/run-manifest.ts` | Realization artifact and runtime proof |
+| `apps/mods/map/swooper-physics/scripts/generate-map-artifacts.ts` plus tracked generated map sources and mod files | combine | `apps/mods/map/swooper-physics/src/build.ts` and `src/runtime/map-script/compiler.ts` build the final ignored `dist/mod` tree directly from virtual sources |
+| `apps/mods/map/swooper-physics/scripts/generate-run-manifest.ts` | relocate | `apps/mods/map/swooper-physics/src/run-manifest.ts` | Thin request-local manifest entrypoint |
 | `apps/mods/map/swooper-physics/scripts/live/verify-final-surface-parity.ts` | combine | `plugins/mod/map/swooper-physics/test/recipes/standard/parity/final-surface-parity.live.test.ts` | Recipe-owned proof executed by the uncached realization live target |
 | `apps/mods/map/swooper-physics/scripts/live/verify-studio-run-in-game-live.ts` | combine | `apps/mods/map/swooper-physics/test/live/studio-run-in-game.live.test.ts` | Uncached realization live proof |
-| `apps/mods/map/swooper-physics/scripts/{tsconfig.json,tsup.config.ts}` | delete | Qualified realization compiler program and shared runtime execution |
+| `apps/mods/map/swooper-physics/scripts/{tsconfig.json,tsup.config.ts}` | delete | App source typecheck and realization-local virtual-source compiler |
 
 The definition retains only pure config admission, catalog membership and
 projection, and serialization. The Studio app owns authored-source filesystem
@@ -556,12 +557,12 @@ together to the Swooper realization that runs inside the engine.
 | Exact current source | Disposition | Exact destination | Proof owner |
 | --- | --- | --- | --- |
 | `packages/civ7-adapter/src/{types,mock-adapter,map-metadata,current-map-surface}.ts` | combine | Pure EngineAdapter contract/types, deterministic mock, static metadata, and private detached-comparison support under `packages/civ7-adapter/src` | Package contract and semantics |
-| `packages/civ7-adapter/src/resource-age-policy.ts` | combine | `apps/mods/map/swooper-physics/runtime/map-script/adapter.ts`; the runtime query and answer validation are concrete adapter behavior | Mod realization runtime proof |
-| `packages/civ7-adapter/src/civ7-adapter.ts` | relocate | `apps/mods/map/swooper-physics/runtime/map-script/adapter.ts` | Mod realization runtime proof |
-| `packages/civ7-adapter/src/map-generation-setup.ts` | relocate | `apps/mods/map/swooper-physics/runtime/map-script/setup.ts` | Mod realization runtime proof |
+| `packages/civ7-adapter/src/resource-age-policy.ts` | combine | `apps/mods/map/swooper-physics/src/runtime/map-script/adapter.ts`; the runtime query and answer validation are concrete adapter behavior | Mod realization runtime proof |
+| `packages/civ7-adapter/src/civ7-adapter.ts` | relocate | `apps/mods/map/swooper-physics/src/runtime/map-script/adapter.ts` | Mod realization runtime proof |
+| `packages/civ7-adapter/src/map-generation-setup.ts` | relocate | `apps/mods/map/swooper-physics/src/runtime/map-script/setup.ts` | Mod realization runtime proof |
 | `packages/civ7-adapter/src/index.ts` | combine | Pure package exports only; engine-global exports disappear | Package contract typecheck |
 | Pure map-definition/config-admission types in `packages/sdk/src/mapgen/{createMap,index}.ts` | combine | Swooper definition authoring contract | Definition typecheck and config admission |
-| Engine globals, adapter creation, `RequestMapInitData`/`GenerateMap` registration, and live execution in `packages/sdk/src/mapgen/createMap.ts` | relocate | `apps/mods/map/swooper-physics/runtime/map-script/entrypoint.ts` | Mod realization runtime and map-entrypoint proof |
+| Engine globals, adapter creation, `RequestMapInitData`/`GenerateMap` registration, and live execution in `packages/sdk/src/mapgen/createMap.ts` | relocate | `apps/mods/map/swooper-physics/src/runtime/map-script/entrypoint.ts` | Mod realization runtime and map-entrypoint proof |
 
 The package exports no live `createCiv7Adapter`, setup capture, engine-global
 map entrypoint, or SDK `createMap` implementation after cutover.
@@ -571,7 +572,7 @@ map entrypoint, or SDK `createMap` implementation after cutover.
 | Exact source | Disposition | Exact destination | Proof owner |
 | --- | --- | --- | --- |
 | Pure mod-id/path grammar, supplied-tree validation, wholesale replacement planning, digest comparison, and receipt construction latent in `packages/plugins/plugin-mods/src/index.ts#deployMod` | combine | `packages/civ7-mod-install/src/{index,installation-plan}.ts` | Package contract and semantics |
-| Host root resolution, directory observation, replacement, copy, and receipt materialization in `packages/plugins/plugin-mods/src/index.ts#{resolveModsDir,listMods,deployMod}` used by the Swooper deployment target | combine | `apps/mods/map/swooper-physics/runtime/adapters/local-mod-install.ts` | Mod realization adapter and deployment proof |
+| Host root resolution, directory observation, replacement, copy, and receipt materialization in `packages/plugins/plugin-mods/src/index.ts#{resolveModsDir,listMods,deployMod}` used by the Swooper deployment target | combine | `apps/mods/map/swooper-physics/src/runtime/adapters/local-mod-install.ts` | Mod realization adapter and deployment proof |
 | Host root resolution, directory observation, replacement, status, and copy in `packages/plugins/plugin-mods/src/index.ts#{resolveModsDir,listMods,deployMod,getModStatus}` used by CLI commands | combine | `apps/cli/runtime/adapters/local-mods.ts` | CLI app adapter execution and exact topic command mirrors |
 | `packages/plugins/plugin-mods/src/index.ts` remote-link/subtree wrappers, planning stubs, validation stub, packaging stub, Steam stub, default export, and package root | delete | Existing `plugin-git` command paths, Knip, and negative consumer search |
 

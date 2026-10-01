@@ -85,7 +85,17 @@ reads, writes, rollback, and plan application. Those effects remain held for
 the qualified Interactive app adapter rather than being hidden in definition
 authorship.
 
-**Gradient:** Civ7 realization -> Interactive construction
+The first realization reduction is also closed. Swooper is an admitted shared
+`app@1` instance with a closed qualified source interior. Its build now compiles
+virtual map entries directly into an ignored final `dist/mod` tree; no root
+scripts cabinet, checked-in mod tree, or generated TypeScript entries survive.
+Exact config-to-script identity is proved before materialization. The current
+proof folders remain deliberately unratcheted because their accepted
+`artifact`, `deployment`, `runtime`, and `live` destinations are the next
+mechanical normalization, not today's accidental paths.
+
+**Gradient:** realization proof normalization -> app profile/entrypoints and
+qualified installation -> Interactive construction
 -> joint Core Platform seal -> Dacia Product -> Estate Reconciliation ->
 Platform Seal.
 

@@ -35,14 +35,11 @@ apps/docs/dist/
 apps/playground/example-generated-mod/
 
 # Built mod outputs
-# mods/*/mod/
 mods/mod-swooper-civ-dacia/mod/
-apps/mods/map/swooper-physics/mod/maps/
 
 # MapGen Studio live-run config. This is written by Studio for ad hoc launches
 # and must not become a shipped built-in map preset.
 plugins/mod/map/swooper-physics/src/maps/configs/studio-current.config.json
-apps/mods/map/swooper-physics/src/maps/generated/studio-current.ts
 
 # MapGen Studio runtime diagnostics are private local evidence, not source.
 .mapgen-studio/

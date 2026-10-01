@@ -1,0 +1,10 @@
+schemaVersion = 1
+id = "swooper-physics-mod"
+ownerProject = "swooper-physics-mod"
+blueprint = "app"
+blueprintVersion = 1
+
+[roots]
+project = "apps/mods/map/swooper-physics"
+
+[selections]

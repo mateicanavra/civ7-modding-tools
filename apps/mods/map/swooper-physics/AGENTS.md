@@ -5,7 +5,7 @@ Scope: `apps/mods/map/swooper-physics/**`
 ## Ownership
 
 - This `kind:app` project owns the Civ7 realization of the reusable Swooper
-  Physics definition: generated map entrypoints, mod files, bundling,
+  Physics definition: virtual map entrypoints, mod files, bundling,
   deployment, request-local Studio mod generation, and live proof.
 - Import Swooper product behavior only through finite
   `@swooper/swooper-physics/*` entrypoints. Do not reach into the definition's
@@ -15,8 +15,9 @@ Scope: `apps/mods/map/swooper-physics/**`
 
 ## Generated Output
 
-- Treat `src/maps/generated/**` and `mod/**` as generated output. Regenerate
-  them with `nx run swooper-physics-mod:gen:maps`; do not edit them by hand.
+- `nx run swooper-physics-mod:build` materializes the complete deployable tree
+  under ignored `dist/mod/**`. No generated map source or mod output belongs in
+  the authored tree.
 
 ## Authority
 

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "require_map_mod_realization_source_topology",
+  "title": "Require Map Mod Realization Source Topology",
+  "placement": {
+    "niche": "global/workspace",
+    "blueprint": "map-mod-realization",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "civ7-workspace",
+  "lane": "enforced",
+  "forbids": "map-mod realization source files outside their finite application, runtime, and map-script owners",
+  "why": "The released app blueprint closes the package-backed application root. This qualified map-mod overlay closes only the reusable Civ7 realization source interior: application entrypoints invoke runtime file planning and map-script compilation instead of accumulating root scripts, checked-in output, or generated source.",
+  "remediate": "Place application entrypoints under src, pure realization mechanics under src/runtime, and map-script compilation under src/runtime/map-script. Remove loose siblings, root scripts, tracked generated sources, and checked-in mod output. Product-specific proof inventories belong to their owning niche rather than this kind law.",
+  "message": "Map-mod realizations must preserve their closed qualified source topology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["apps/mods/map/*/src", "apps/mods/map/*/src/**"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/map-mod-realization/require_map_mod_realization_source_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/map-mod-realization/require_map_mod_realization_source_topology/structure.toml"
+    }
+  }
+}

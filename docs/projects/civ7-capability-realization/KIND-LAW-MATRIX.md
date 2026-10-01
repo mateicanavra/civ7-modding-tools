@@ -1389,7 +1389,7 @@ enforced nested product laws; it is not a manifest-admitted realization kind.
 apps/mods/<family>/<mod>
 ```
 
-A realization must identify one matching definition in `rawr.<mod>.ts`; Nx
+A realization must identify one matching definition in `src/rawr.<mod>.ts`; Nx
 corroborates the project edge and schedules its targets. Directory-name
 equality is not the authority relation.
 
@@ -1397,10 +1397,10 @@ equality is not the authority relation.
 
 The realization is an app that consumes exactly one matching definition and
 has no reusable production export. It owns rendering, bundling,
-generated-currentness, deployment, compatibility, and live proof. Recognized
-outputs include `dist/`, `mod/`, and any explicitly protected generated-source
-slot selected by the qualified family law; outputs are regenerated, never moved
-as authored source or edited by hand.
+generated-currentness, deployment, compatibility, and live proof. Generated
+output exists only under `dist/`. Virtual map entrypoints are bundled directly
+into the final mod tree; no tracked deployment tree or generated-source slot
+survives as authored source.
 
 The qualified packet composes the generic app law with additional finite
 delivery law. It selects a cold typed app descriptor rather than a reusable
@@ -1410,23 +1410,26 @@ production module:
 habitat.toml
 package.json
 project.json
-rawr.<mod>.ts
-build.ts
-deploy.ts
-runtime/
-  adapters/
-    local-mod-install.ts
-  config.ts
-  processes.ts
-  profiles/
-    local-civ7.ts
-  map-script/
-    adapter.ts
-    entrypoint.ts
-    setup.ts
-  file-plan.ts
+src/
+  rawr.<mod>.ts
+  build.ts
+  deploy.ts
   run-manifest.ts
-  targets.ts
+  runtime/
+    adapters/
+      local-mod-install.ts
+    config.ts
+    processes.ts
+    profiles/
+      local-civ7.ts
+    file-plan.ts
+    map-script/
+      adapter.ts
+      compiler.ts
+      entrypoint.ts
+      setup.ts
+    run-manifest.ts
+    targets.ts
 test/
   definition.test.ts
   profiles/
@@ -1449,24 +1452,23 @@ test/
 tsconfig.json
 ```
 
-`rawr.<mod>.ts` declares the exact matching definition identity and the
+`src/rawr.<mod>.ts` declares the exact matching definition identity and the
 realization's cold semantic target bindings. The `local-civ7` profile selects
-the local Civ7 installation/deployment configuration; `build.ts` and
-`deploy.ts` are the selected app roles and delegate through the shared runtime
-rather than constructing their own harness. `runtime/targets.ts` implements
+the local Civ7 installation/deployment configuration; `src/build.ts` and
+`src/deploy.ts` are the selected app roles and delegate through the shared runtime
+rather than constructing their own harness. `src/runtime/targets.ts` implements
 the cold bindings with typed non-portable execution descriptor references;
-`runtime/file-plan.ts` owns the deterministic rendered mod-tree plan and
-`runtime/run-manifest.ts` owns transient run-manifest materialization. These
+`src/runtime/file-plan.ts` owns the deterministic rendered mod-tree plan and
+`src/runtime/run-manifest.ts` owns transient run-manifest materialization. These
 runtime leaves are compiler input, not reusable public exports.
-`runtime/adapters/local-mod-install.ts` performs the host filesystem
-installation selected by the app definition. `runtime/map-script/` contains
+`src/runtime/adapters/local-mod-install.ts` performs the host filesystem
+installation selected by the app definition. `src/runtime/map-script/` contains
 the only engine-global implementation: the concrete adapter, setup capture,
 and generated Civ7 map entrypoint. It consumes the pure
 `packages/civ7-adapter` port/static/mock package plus static Civ7 policy; the
 package and portable definition import none of these engine-global leaves. The
-map-family packet
-may select finite generated-source slots, but generic `scripts/`, `src/`, and
-open test interiors remain excluded.
+map-family packet admits no root `scripts/`, checked-in mod tree, or open test
+interior.
 
 **Qualified selection**
 
