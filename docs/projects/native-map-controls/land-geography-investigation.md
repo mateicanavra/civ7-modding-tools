@@ -150,3 +150,36 @@ tests (9,487 assertions) and independently checked input, source and output pins
 plus two-run byte identity. The source specialist's retained verifier additionally
 checks 46,678 marine assignments per run. No extraction toolchain or cache was
 added to the repo.
+
+## Original R1 State And Flux Time Join
+
+Six original January1991 R1 GRIB records are decoded with vendor ecCodes2.49.0
+and matched to the retained native-Gaussian NCSS values at row25/column1.
+Air2m and U10m are instantaneous forecasts valid six hours after their stored
+reference labels. Downward shortwave is the interval mean from the reference
+time through reference+6h. All six numeric joins pass at declared precision;
+the air file's `Mean` attribute does not override the original instant record.
+
+For flux labeled R, its interval is [R,R+6h]; start air is stored at R-6h and
+end air at R. The corresponding observed tendency is
+`(T[R]-T[R-6h])/21600` seconds. This finite bridge qualifies three variables,
+two cycles and one coordinate, not all fields or an annual heat budget.
+V, ice and the remaining five flux mappings require numeric admission in the
+next finite extraction chunk. All original ranges, headers, decoder outputs
+and coordinate/precision checks are retained under
+`earth-calibration/ncep-1991-value-bridge-20261001/`;
+`REPORT.md` SHA256 is
+`eab5f95a592abc1d893468ee7b5cbe16ddc99fa4fac0e986f1fb6c8ea6347466`.
+The authorized decoder is installed in the external host toolchain, not the
+repository. No parser, Python dependency or cache is introduced here.
+
+The next bounded pilot uses January1991, the unchanged 411 low-relief identities
+and 196/215 split, plus the separate 136 coastal identities and native one-cell
+gradient halos. Its two unfitted diagnostics are signed `-u*dT/dx-v*dT/dy`
+(marine-face and full contributions separately) and component-resolved surface
+energy `DSWRF-USWRF+DLWRF-ULWRF-SHTFL-LHTFL`. Require interval alignment,
+finite ice-free marine donors, row/height/month/hour controls and geographic
+holdouts. Do not infer heat capacity, fit a gain or equate air with prescribed
+SST/model surface temperature. January signatures cannot establish persistent
+annual geography; the annual follow-through remains a distinct acceptance gate.
+Production thermal/pressure/wind/SST owners remain fixed during source admission.

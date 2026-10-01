@@ -552,8 +552,33 @@ has receipt SHA256
 `264b0a88578bb4eb6a24ab1f4dd50c5ea4b63ab19ef79b1a8a0fe65d661e13b0`
 under `earth-calibration/bounded-lake-cutoff-20260930/`. This extends the
 bounded cutoff experiment, not product-policy adoption, closed/below-sea
-qualification or naval-movement acceptance. Ring Huge remains the next
-predeclared native member.
+qualification or naval-movement acceptance.
+
+That Ring Huge member now supplies the intended counterexample: cutoff 40
+preserves the smaller bodies but not the separate 252-cell accepted lake.
+Physical authority and original marine guards hold. Follow the predeclared
+footprint-sized diagnostic and native-control/maintenance investigation in
+[water height maintenance](water-height-maintenance.md#ring-footprint-counterexample).
+Do not promote an Earthlike-only cap to a global default or compensate by
+changing physical water. Existing native observations remain independent of
+the later Ring reef-isolation calibration.
+
+The predeclared Ring cutoff252 follow-through now passes all 14 guards: the
+252-cell body retains1180, all 4,877 original marine cells remain nonlake at0,
+and all 55 portable artifacts/unrelated native facts hold. This is a qualified
+diagnostic lever, not a general policy: candidate separation intervals differ
+between maps. The installed source/API and generated policy provenance are
+refreshed through their owners; relevant map-generation/control source bytes
+remain unchanged. The next finite native discriminator is the existing app
+probe's stock-Tiny closed-water lower-bound arm, followed by height-lifecycle
+repair rather than map-type cap exceptions or retired water algorithms.
+
+Testing continues through the existing authored catalog, public size presets,
+setup seed/player selection and study-bank scenarios. The `standard` recipe
+identifier is not a fixed-size policy. The eight-map Standard-size cohort
+remains a deliberate held baseline alongside Huge cases, not a legacy runner
+to fork or remove merely because its dimensions are fixed. No new global
+test property is needed for the current interventions.
 
 The next prerequisite, proof-topology PR #2161, is independently qualified and
 merged through native Graphite, merge
@@ -564,6 +589,17 @@ acceptance. The same-worktree restore and targeted Graphite reconciliation
 preserve the integration tree, the adjacent migration tree and all five
 protected main WIP files exactly. Receipt:
 `earth-calibration/core-proof-topology-2161-20260930/receipt.json`.
+
+The next app-composition prerequisite, PR #2162, is also independently
+qualified and merged through native Graphite at
+`eb456ab56a790f7966576a1e0136433bb92d4939`. Exact-prefix tests pass 528 definition,
+29 realization, four installation-provider and 25 filesystem-provider cases;
+types, policy, boundaries, hygiene and full-inventory Knip pass. Frozen install
+passes without a lock rewrite. The one additional identity assertion propagates
+through the existing lineage; both owned trees remain otherwise identical and
+all 14 currently inventoried main WIP files are protected. This is cold
+app-composition acceptance, not current climate or native-water acceptance.
+Receipt: `earth-calibration/core-app-composition-2162-20261001/receipt.json`.
 
 ## Evidence That Survives The Artifact Correction
 

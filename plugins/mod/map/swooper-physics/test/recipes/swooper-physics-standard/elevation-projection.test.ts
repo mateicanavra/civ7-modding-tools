@@ -72,6 +72,15 @@ describe("Standard physical-to-native elevation policy", () => {
     ).toEqual([0, 0, 228, 328, 428]);
   });
 
+  it("clamps accepted-lake requests below the physical datum to 128 on either modeled mask", () => {
+    expect(projectStandardElevation({
+      elevation: Int16Array.of(-1, 0, 1, -1, 0, 1, -1),
+      seaLevel: 0,
+      landMask: Uint8Array.of(1, 1, 1, 0, 0, 0, 0),
+      acceptedLakeMask: Uint8Array.of(1, 1, 1, 1, 1, 1, 0),
+    })).toEqual([128, 128, 138, 128, 128, 138, 0]);
+  });
+
   it("rejects empty, incomplete, and nonbinary surfaces", () => {
     for (const invalid of [
       input([]),

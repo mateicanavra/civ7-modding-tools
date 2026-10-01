@@ -35,6 +35,8 @@ import {
 import {
   isWaterConnectivityAtlas,
   WATER_CONNECTIVITY_ATLASES,
+  WATER_LOWER_BOUND_ATLAS,
+  WATER_LOWER_BOUND_PROBE,
   waterConnectivityProbe,
 } from "./water-connectivity.fixture.js";
 import {
@@ -76,6 +78,7 @@ const atlases: readonly string[] = [
   WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS,
   WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS,
   ...WATER_CONNECTIVITY_ATLASES,
+  WATER_LOWER_BOUND_ATLAS,
 ];
 const isFullMapAtlas = (atlas: string): atlas is FullMapRiverProbeAtlas =>
   (FULL_MAP_RIVER_PROBE_ATLASES as readonly string[]).includes(atlas);
@@ -171,17 +174,20 @@ export async function buildRiverProbePlan(
   };
   const lakeCutoff = maintenance && expectedLakeSizeCutoff !== preset.mapInfo.LakeSizeCutoff;
   const fullMap = isFullMapAtlas(atlasKind) || maintenance;
-  const waterConnectivity = isWaterConnectivityAtlas(atlasKind);
-  const probe = waterConnectivity
-    ? waterConnectivityProbe(atlasKind)
-    : fullMap
-      ? { ...RIVER_PROBE, ...(maintenance ? maintenanceProbe : FULL_MAP_RIVER_PROBE) }
-      : atlasKind === "terrain-admission"
-        ? RIVER_TERRAIN_PROBE
-        : atlasKind === "lake-navigation"
-          ? RIVER_LAKE_NAVIGATION_PROBE
-          : RIVER_PROBE;
-  const scopedCutoff = waterConnectivity
+  const lowerBound = atlasKind === WATER_LOWER_BOUND_ATLAS;
+  const waterConnectivity = isWaterConnectivityAtlas(atlasKind) || lowerBound;
+  const probe = lowerBound
+    ? WATER_LOWER_BOUND_PROBE
+    : isWaterConnectivityAtlas(atlasKind)
+      ? waterConnectivityProbe(atlasKind)
+      : fullMap
+        ? { ...RIVER_PROBE, ...(maintenance ? maintenanceProbe : FULL_MAP_RIVER_PROBE) }
+        : atlasKind === "terrain-admission"
+          ? RIVER_TERRAIN_PROBE
+          : atlasKind === "lake-navigation"
+            ? RIVER_LAKE_NAVIGATION_PROBE
+            : RIVER_PROBE;
+  const scopedCutoff = isWaterConnectivityAtlas(atlasKind)
     ? waterConnectivityProbe(atlasKind).expectedLakeSizeCutoff
     : lakeCutoff
       ? maintenanceProbe.expectedLakeSizeCutoff
@@ -202,7 +208,14 @@ export async function buildRiverProbePlan(
     atlasKind !== "legacy" ? ", (width, height) => new Civ7Adapter(width, height)" : "";
   let source = `${adapterImport}import { registerRiverContractProbe } from "./test/runtime/river-contract-map.fixture.ts";\nregisterRiverContractProbe(${JSON.stringify(proofId)}, ${JSON.stringify(variant)}, ${JSON.stringify(atlasKind)}${adapterFactory});`;
   let waterFixtureSourceSha256: string | undefined;
-  if (waterConnectivity) {
+  if (lowerBound) {
+    waterFixtureSourceSha256 = createHash("sha256")
+      .update(await readFile(new URL("./water-connectivity.fixture.ts", import.meta.url)))
+      .digest("hex");
+    source = `${adapterImport}import { registerRiverContractProbe } from "./test/runtime/river-contract-map.fixture.ts";
+import { buildWaterLowerBoundFixture } from "./test/runtime/water-connectivity.fixture.ts";
+registerRiverContractProbe(${JSON.stringify(proofId)}, ${JSON.stringify(variant)}, ${JSON.stringify(atlasKind)}${adapterFactory}, buildWaterLowerBoundFixture(${JSON.stringify(waterFixtureSourceSha256)}));`;
+  } else if (isWaterConnectivityAtlas(atlasKind)) {
     waterFixtureSourceSha256 = createHash("sha256")
       .update(await readFile(new URL("./water-connectivity.fixture.ts", import.meta.url)))
       .digest("hex");
@@ -326,14 +339,27 @@ ${renderSwooperCatalogMapSource(config)}`;
               ? {
                   fixtureSourceSha256: waterFixtureSourceSha256,
                   intervention: {
-                    kind: "paired-source-water-connectivity",
-                    scope: "game",
-                    criterion: { MapInUse: riverProbeMapScript },
-                    table: "Maps",
-                    where: { MapSizeType: "MAPSIZE_TINY" },
-                    set: { LakeSizeCutoff: scopedCutoff },
-                    qualification:
-                      "Activation requires measured Tiny metadata; all-cell native water/lake/area evidence is observed, never inferred from authored terrain. No movement success claimed.",
+                    ...(lowerBound
+                      ? {
+                          kind: "closed-water-native-lower-bound",
+                          mapSize: WATER_LOWER_BOUND_PROBE.mapSize,
+                          expectedLakeSizeCutoff: WATER_LOWER_BOUND_PROBE.expectedLakeSizeCutoff,
+                          databaseTreatment: "none; public Tiny stock row held",
+                          elevationUnits: "native numeric setter requests",
+                          immediateCheckpoint: "after-elevation-write",
+                          qualification:
+                            "Wet requests may be ignored. Complete body and adjacent dry-shore native observations immediately after the setter and through the existing nine maintenance checkpoints are evidence, not physical-head or product-policy acceptance.",
+                        }
+                      : {
+                          kind: "paired-source-water-connectivity",
+                          scope: "game",
+                          criterion: { MapInUse: riverProbeMapScript },
+                          table: "Maps",
+                          where: { MapSizeType: "MAPSIZE_TINY" },
+                          set: { LakeSizeCutoff: scopedCutoff },
+                          qualification:
+                            "Activation requires measured Tiny metadata; all-cell native water/lake/area evidence is observed, never inferred from authored terrain. No movement success claimed.",
+                        }),
                   },
                 }
               : {}),

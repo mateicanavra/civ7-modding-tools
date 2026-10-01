@@ -1,4 +1,6 @@
+import { getCiv7StandardMapSizePreset } from "@civ7/map-policy";
 import {
+  RIVER_DIRECTIONS,
   RIVER_PROBE,
   type RiverProbeWrite,
   riverProbeExpectedReceiver,
@@ -153,3 +155,95 @@ export function buildWaterConnectivityFixture(
 
 /** The narrowly scoped extension accepted by the existing atlas registration function. */
 export type WaterConnectivityFixture = ReturnType<typeof buildWaterConnectivityFixture>;
+
+/** A separate stock-Tiny arm measures native wet and dry requests around the observed land floor. */
+export const WATER_LOWER_BOUND_ATLAS = "water-closed-lower-bound";
+export type WaterLowerBoundAtlas = typeof WATER_LOWER_BOUND_ATLAS;
+const lowerBoundTiny = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
+
+/** Public Tiny metadata is held; this arm introduces no lake-cutoff database treatment. */
+export const WATER_LOWER_BOUND_PROBE = {
+  ...RIVER_PROBE,
+  diagnosticRevision: 15,
+  displayLabel: "Closed Water Lower Bound V15",
+  atlasKind: WATER_LOWER_BOUND_ATLAS,
+  width: lowerBoundTiny.dimensions.width,
+  height: lowerBoundTiny.dimensions.height,
+  playerCount: lowerBoundTiny.defaultPlayers,
+  mapSize: lowerBoundTiny.id,
+  expectedLakeSizeCutoff: lowerBoundTiny.mapInfo.LakeSizeCutoff,
+} as const;
+
+/** Translations preserve row parity and body shape; every adjacent dry shore is requested explicitly. */
+export const WATER_LOWER_BOUND_CONTROLS = [
+  { caseId: "wet-0-shore-129", wetElevationInput: 0, shoreElevationInput: 129 },
+  { caseId: "wet-0-shore-128", wetElevationInput: 0, shoreElevationInput: 128 },
+  { caseId: "wet-0-shore-127", wetElevationInput: 0, shoreElevationInput: 127 },
+  { caseId: "wet-minus-1-shore-128", wetElevationInput: -1, shoreElevationInput: 128 },
+].map((control, index) => {
+  const cells = Array.from({ length: 4 }, (_, cell) => ({
+    x: 10 + (index % 2) * 12 + (cell % 2),
+    y: 8 + Math.floor(index / 2) * 12 + Math.floor(cell / 2),
+  }));
+  const water = new Set(cells.map(key));
+  const shore = new Map<string, XY>();
+  for (const cell of cells) {
+    for (const direction of RIVER_DIRECTIONS) {
+      const point = riverProbeExpectedReceiver(cell, direction, false);
+      if (!water.has(key(point))) shore.set(key(point), point);
+    }
+  }
+  return { ...control, size: cells.length, cells, shore: [...shore.values()] };
+});
+
+const lowerBoundBasinCells = new Set(
+  WATER_LOWER_BOUND_CONTROLS.flatMap(({ cells }) => cells.map(key))
+);
+
+/** The four closed COAST bodies share an otherwise fixed land interior and original marine border. */
+export function waterLowerBoundTerrainAt(x: number, y: number): Terrain {
+  if (lowerBoundBasinCells.has(key({ x, y }))) return "COAST";
+  if (x < 2 || x >= 58 || y < 1 || y >= 37) return "OCEAN";
+  if (x === 2 || x === 57 || y === 1 || y === 36) return "COAST";
+  return "FLAT";
+}
+
+/** These are native numeric setter requests, not physical terrain, water heads, or product calibration. */
+export function buildWaterLowerBoundElevation(): number[] {
+  const values: number[] = Array.from(
+    { length: lowerBoundTiny.dimensions.width * lowerBoundTiny.dimensions.height },
+    (_, cell) => {
+      const x = cell % lowerBoundTiny.dimensions.width;
+      const y = Math.floor(cell / lowerBoundTiny.dimensions.width);
+      return x <= 2 || x >= 57 || y <= 1 || y >= 36 ? 0 : 700;
+    }
+  );
+  for (const control of WATER_LOWER_BOUND_CONTROLS) {
+    for (const point of control.cells)
+      values[point.x + point.y * lowerBoundTiny.dimensions.width] = control.wetElevationInput;
+    for (const point of control.shore)
+      values[point.x + point.y * lowerBoundTiny.dimensions.width] = control.shoreElevationInput;
+  }
+  return values;
+}
+
+/** Reuses the existing diagnostic lifecycle and bounded observations without river writes or a new harness. */
+export function buildWaterLowerBoundFixture(fixtureSourceSha256: string) {
+  if (!/^[0-9a-f]{64}$/.test(fixtureSourceSha256))
+    throw new Error("Invalid water-lower-bound source identity.");
+  const writes: RiverProbeWrite[] = [];
+  return {
+    probe: WATER_LOWER_BOUND_PROBE,
+    fixtureSourceSha256,
+    terrainAt: waterLowerBoundTerrainAt,
+    heights: buildWaterLowerBoundElevation(),
+    writes,
+    controls: [],
+    isolated: WATER_LOWER_BOUND_CONTROLS,
+    qualification:
+      "Native numeric requests only: four translated closed 4-cell COAST bodies and complete adjacent dry shores under the declared odd-row geometry. The wet setter may ignore a requested value; all body and shore native readbacks immediately after setElevation and at every maintenance checkpoint are independent evidence. Stock Tiny metadata is held. No physical terrain, lake-head policy, movement, or lower-bound acceptance claim.",
+  };
+}
+
+/** The sole finite lower-bound fixture accepted by the existing atlas registration. */
+export type WaterLowerBoundFixture = ReturnType<typeof buildWaterLowerBoundFixture>;

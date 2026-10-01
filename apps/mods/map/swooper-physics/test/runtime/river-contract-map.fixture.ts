@@ -3,6 +3,8 @@ import type { Civ7Adapter } from "../../src/runtime/map-script/adapter.js";
 import type {
   WaterConnectivityAtlas,
   WaterConnectivityFixture,
+  WaterLowerBoundAtlas,
+  WaterLowerBoundFixture,
 } from "./water-connectivity.fixture.js";
 
 export const RIVER_PROBE = {
@@ -30,7 +32,8 @@ export type RiverProbeAtlas =
   | "legacy"
   | "terrain-admission"
   | "lake-navigation"
-  | WaterConnectivityAtlas;
+  | WaterConnectivityAtlas
+  | WaterLowerBoundAtlas;
 
 // Argument order comes from shipped scripts/common-generation.js, not the adapter.
 export const RIVER_PROBE_VARIANTS = {
@@ -704,12 +707,15 @@ export function registerRiverContractProbe(
     height: number
   ) => Pick<Civ7Adapter, "getRiverCapabilities" | "setRiverInfo" | "finalizeRivers"> &
     Partial<Pick<Civ7Adapter, "getMapSizeId" | "lookupMapInfo">>,
-  waterConnectivity?: WaterConnectivityFixture
+  waterConnectivity?: WaterConnectivityFixture | WaterLowerBoundFixture
 ): void {
   const settings = RIVER_PROBE_VARIANTS[variant];
   if (!settings) throw new Error(`Unknown river probe variant: ${variant}`);
+  const isLowerBoundAtlas = atlasKind === "water-closed-lower-bound";
   const isWaterAtlas =
-    atlasKind === "water-connectivity-cutoff-5" || atlasKind === "water-connectivity-cutoff-10";
+    atlasKind === "water-connectivity-cutoff-5" ||
+    atlasKind === "water-connectivity-cutoff-10" ||
+    isLowerBoundAtlas;
   if (
     atlasKind !== "legacy" &&
     atlasKind !== "terrain-admission" &&
@@ -1068,13 +1074,18 @@ export function registerRiverContractProbe(
       AreaBuilder.recalculateAreas();
       TerrainBuilder.stampContinents();
       TerrainBuilder.setElevation(heights);
-      TerrainBuilder.storeWaterData();
+      if (!isLowerBoundAtlas) TerrainBuilder.storeWaterData();
       const samplePoints = new Map<string, XY>();
       for (const point of [
         ...writes,
         ...writes.map((write) => write.expectedReceiver),
         ...lakeCases.flatMap((entry) => entry.cells),
         ...elevatedLakeControls.flatMap((entry) => entry.shore),
+        ...(isLowerBoundAtlas && waterConnectivity
+          ? waterConnectivity.isolated.flatMap((control) =>
+              "shore" in control ? control.shore : []
+            )
+          : []),
         ...starts,
       ])
         samplePoints.set(key(point), { x: point.x, y: point.y });
@@ -1189,6 +1200,26 @@ export function registerRiverContractProbe(
       const capture = () =>
         emit(stage, {
           ...(waterConnectivity ? { waterConnectivity: captureWaterConnectivity() } : {}),
+          ...(isLowerBoundAtlas && stage === "after-elevation-write" && waterConnectivity
+            ? {
+                lowerBoundAdjacency: waterConnectivity.isolated.map(({ caseId, cells }) => ({
+                  caseId,
+                  cells: cells.map((point) => ({
+                    ...point,
+                    neighbors: RIVER_DIRECTIONS.map((directionSymbol) => ({
+                      directionSymbol,
+                      location: observe(
+                        GameplayMap,
+                        "GameplayMap",
+                        "getAdjacentPlotLocation",
+                        [point, directions[directionSymbol]],
+                        "xy"
+                      ),
+                    })),
+                  })),
+                })),
+              }
+            : {}),
           ...(isTerrainAtlas && stage === "initialized"
             ? {
                 setupTerrainAdmission: {
@@ -1260,6 +1291,12 @@ export function registerRiverContractProbe(
           networks: observeNetworks(nativeRivers, finalized),
           edgeDirectionReadback: unavailable("river-edge/direction", "no-confirmed-getter"),
         });
+      if (isLowerBoundAtlas) {
+        stage = "after-elevation-write";
+        capture();
+        stage = "initialize-water-cache";
+        TerrainBuilder.storeWaterData();
+      }
       stage = "initialized";
       capture();
       stage = "write";
@@ -1380,6 +1417,7 @@ export function registerRiverContractProbe(
           fixture: probe.id,
           observationsOnly: true,
           completedCheckpoints: RIVER_CHECKPOINTS,
+          ...(isLowerBoundAtlas ? { immediateElevationCheckpoint: "after-elevation-write" } : {}),
           writeFailures,
           ...(waterConnectivity
             ? {

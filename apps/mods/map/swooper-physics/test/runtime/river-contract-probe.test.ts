@@ -41,6 +41,8 @@ import {
 import {
   buildWaterConnectivityWrites,
   WATER_CONNECTIVITY_ATLASES,
+  WATER_LOWER_BOUND_ATLAS,
+  WATER_LOWER_BOUND_CONTROLS,
 } from "./water-connectivity.fixture.js";
 
 type LogEntry = { stage: string; payload: Record<string, any>; proofId: string; variant: string };
@@ -146,6 +148,7 @@ function mockRuntime(
     missingRiverId?: boolean;
     riverPlotCount?: number;
     elevationReadback?: number;
+    elevationReadbackAfterWaterCache?: number;
     terrainReadback?: number;
     featureReadback?: number;
     riverClassReadback?: number;
@@ -163,6 +166,7 @@ function mockRuntime(
   const elevationInputs: number[][] = [];
   let finalizations = 0;
   let validations = 0;
+  let waterCacheCalls = 0;
   const terrain = new Array<number>(2280).fill(0);
   const rivers = new Array<number>(2280).fill(-1);
   const heights = new Array<number>(2280).fill(0);
@@ -176,6 +180,7 @@ function mockRuntime(
     calls.push({ name, args });
     if (name === options.failPhase) throw new Error(`mock failed ${name}`);
     if (name === "finalizeRivers") finalizations++;
+    if (name === "storeWaterData") waterCacheCalls++;
   };
   const gameplayMap: Record<string, unknown> = {
     getGridWidth: () => 60,
@@ -185,7 +190,10 @@ function mockRuntime(
     getIndexFromXY: (x: number, y: number) => x + y * 60,
     getTerrainType: (x: number, y: number) => options.terrainReadback ?? terrain[x + y * 60],
     getRiverType: (x: number, y: number) => options.riverClassReadback ?? rivers[x + y * 60],
-    getElevation: (x: number, y: number) => options.elevationReadback ?? heights[x + y * 60],
+    getElevation: (x: number, y: number) =>
+      (waterCacheCalls > 0 ? options.elevationReadbackAfterWaterCache : undefined) ??
+      options.elevationReadback ??
+      heights[x + y * 60],
     getFeatureType: (x: number, y: number) => options.featureReadback ?? features[x + y * 60],
     isWater: () => false,
     isLake: () => false,
@@ -547,6 +555,206 @@ describe("V13/V14 water connectivity native-call transport (not native semantics
     const failedFinalizer = mockRuntime(script, { failPhase: "finalizeRivers" });
     expect(failedFinalizer.run).toThrow("mock failed finalizeRivers");
     expect(decodeBoundedJsonLogSeries(failedFinalizer.lines, "[mapgen-complete]")).toHaveLength(0);
+  });
+});
+
+describe("V15 closed water lower-bound transport (not native setter acceptance)", () => {
+  test("observes complete bodies and shores before the first water-cache call and at all nine checkpoints", async () => {
+    const { script, plan } = await compiled("authored", WATER_LOWER_BOUND_ATLAS);
+    const proof = JSON.parse(
+      String(plan.files.find(({ relativePath }) => relativePath === "proof.json")!.content)
+    );
+    const runtime = mockRuntime(script, {
+      lakeCutoff: 6,
+      elevationReadback: 1234,
+      elevationReadbackAfterWaterCache: 4321,
+    });
+    runtime.run();
+    const entries = runtime.entries();
+    expect(entries[0]).toMatchObject({
+      stage: "map-info",
+      payload: { activation: "accepted", expectedLakeSizeCutoff: 6 },
+    });
+    for (const entry of entries)
+      expect(entry).toMatchObject({
+        proofId: "unit-artifact-only",
+        diagnosticRevision: 15,
+        atlasKind: WATER_LOWER_BOUND_ATLAS,
+        fixtureSourceSha256: proof.fixtureSourceSha256,
+      });
+    const immediate = entries.find(({ stage }) => stage === "after-elevation-write")!;
+    const checkpoints = entries.filter(({ stage }) =>
+      RIVER_CHECKPOINTS.includes(stage as (typeof RIVER_CHECKPOINTS)[number])
+    );
+    expect(checkpoints.map(({ stage }) => stage)).toEqual([...RIVER_CHECKPOINTS]);
+    expect(entries.indexOf(immediate)).toBeLessThan(entries.indexOf(checkpoints[0]!));
+    for (const { stage, payload } of [immediate, ...checkpoints]) {
+      const expectedElevation = stage === "after-elevation-write" ? 1234 : 4321;
+      const rows = entries
+        .filter(
+          (entry) => entry.stage === "water-connectivity-grid" && entry.payload.checkpoint === stage
+        )
+        .map(({ payload }) => payload);
+      expect(rows.map((row) => row.row)).toEqual(Array.from({ length: 38 }, (_, row) => row));
+      for (const row of rows) {
+        expect(row.startCell).toBe(row.row * 60);
+        for (const field of [
+          "water",
+          "lake",
+          "elevation",
+          "areaId",
+          "areaIsWater",
+          "landmassRegionId",
+        ])
+          expect(row[field]).toHaveLength(60);
+        expect(row.elevation.every((value: unknown) => value === expectedElevation)).toBe(true);
+        expect(row.water.every((value: unknown) => value === false)).toBe(true);
+        expect(row.lake.every((value: unknown) => value === false)).toBe(true);
+      }
+      for (const control of WATER_LOWER_BOUND_CONTROLS) {
+        for (const point of [...control.cells, ...control.shore]) {
+          const surface = payload.surfaces.find(
+            (value: any) => value.x === point.x && value.y === point.y
+          );
+          expect(surface).toMatchObject({
+            ...point,
+            elevation: expectedElevation,
+            water: false,
+            lake: false,
+            requested: {
+              elevation: control.cells.some(({ x, y }) => x === point.x && y === point.y)
+                ? control.wetElevationInput
+                : control.shoreElevationInput,
+            },
+          });
+        }
+      }
+    }
+    for (const control of WATER_LOWER_BOUND_CONTROLS) {
+      const observed = immediate.payload.lowerBoundAdjacency.find(
+        (entry: any) => entry.caseId === control.caseId
+      );
+      expect(observed.cells).toHaveLength(4);
+      const body = new Set(control.cells.map(({ x, y }) => `${x},${y}`));
+      const shore = new Set(
+        observed.cells
+          .flatMap((point: any) => {
+            expect(point.neighbors).toHaveLength(6);
+            return point.neighbors.map(({ location }: any) => `${location.x},${location.y}`);
+          })
+          .filter((point: string) => !body.has(point))
+      );
+      expect([...shore].sort()).toEqual(control.shore.map(({ x, y }) => `${x},${y}`).sort());
+    }
+    expect(runtime.elevationInputs).toHaveLength(1);
+    for (const control of WATER_LOWER_BOUND_CONTROLS) {
+      for (const { x, y } of control.cells)
+        expect(runtime.elevationInputs[0]![x + y * 60]).toBe(control.wetElevationInput);
+      for (const { x, y } of control.shore)
+        expect(runtime.elevationInputs[0]![x + y * 60]).toBe(control.shoreElevationInput);
+    }
+    expect(runtime.calls.filter(({ name }) => name === "setRiverInfo")).toHaveLength(0);
+    expect(
+      runtime.calls.filter(({ name }) => name === "finalizeRivers").map(({ args }) => args)
+    ).toEqual([[false, 25, 2, 2]]);
+    expect(
+      runtime.calls
+        .filter(({ name }) =>
+          [
+            "validateAndFixTerrain",
+            "areas",
+            "stampContinents",
+            "setElevation",
+            "storeWaterData",
+            "finalizeRivers",
+            "addFloodplains",
+            "fertility",
+            "start",
+          ].includes(name)
+        )
+        .map(({ name }) => name)
+    ).toEqual([
+      "validateAndFixTerrain",
+      "areas",
+      "stampContinents",
+      "setElevation",
+      "storeWaterData",
+      "finalizeRivers",
+      "addFloodplains",
+      "validateAndFixTerrain",
+      "areas",
+      "storeWaterData",
+      "fertility",
+      "start",
+      "start",
+      "start",
+      "start",
+    ]);
+    expect(runtime.lines.every((line) => line.length <= 900)).toBe(true);
+    expect(
+      decodeBoundedJsonLogSeries(runtime.lines, "[mapgen-complete]")[0]!.payload
+    ).toMatchObject({
+      diagnosticRevision: 15,
+      atlasKind: WATER_LOWER_BOUND_ATLAS,
+      expectedLakeSizeCutoff: 6,
+      immediateElevationCheckpoint: "after-elevation-write",
+      completedCheckpoints: [...RIVER_CHECKPOINTS],
+      observationsOnly: true,
+      writeFailures: 0,
+    });
+  });
+
+  test("refuses wrong or nonnumeric stock metadata before mutation and wrong Tiny dimensions", async () => {
+    const { script } = await compiled("authored", WATER_LOWER_BOUND_ATLAS);
+    for (const cutoff of [5, 10, "6"]) {
+      const runtime = mockRuntime(script, { lakeCutoff: cutoff });
+      expect(runtime.run).toThrow("numeric LakeSizeCutoff=6");
+      expect(runtime.calls).toHaveLength(0);
+      expect(runtime.entries()[0]).toMatchObject({
+        stage: "map-info",
+        payload: { activation: "refused" },
+      });
+      expect(decodeBoundedJsonLogSeries(runtime.lines, "[mapgen-complete]")).toHaveLength(0);
+    }
+    const runtime = mockRuntime(script, { lakeCutoff: 6 });
+    expect(() => runtime.callbacks.get("RequestMapInitData")!({ width: 59, height: 38 })).toThrow(
+      "stock Tiny 60x38"
+    );
+    expect(runtime.calls).toHaveLength(0);
+  });
+
+  test("retains unavailable elevation and adjacency evidence and never retries a failing maintenance call", async () => {
+    const { script } = await compiled("authored", WATER_LOWER_BOUND_ATLAS);
+    const runtime = mockRuntime(script, {
+      lakeCutoff: 6,
+      missing: ["getElevation", "getAdjacentPlotLocation"],
+    });
+    runtime.run();
+    const entries = runtime.entries();
+    const immediate = entries.find(({ stage }) => stage === "after-elevation-write")!;
+    for (const { payload } of entries.filter(
+      ({ stage, payload }) =>
+        stage === "water-connectivity-grid" && payload.checkpoint === "after-elevation-write"
+    ))
+      expect(
+        payload.elevation.every(
+          (value: any) => value.status === "unavailable" && value.reason === "missing-callable"
+        )
+      ).toBe(true);
+    for (const body of immediate.payload.lowerBoundAdjacency)
+      for (const point of body.cells)
+        expect(
+          point.neighbors.every(
+            ({ location }: any) =>
+              location.status === "unavailable" && location.reason === "missing-callable"
+          )
+        ).toBe(true);
+    expect(runtime.lines.every((line) => line.length <= 900)).toBe(true);
+    const failed = mockRuntime(script, { lakeCutoff: 6, failPhase: "storeWaterData" });
+    expect(failed.run).toThrow("mock failed storeWaterData");
+    expect(failed.entries().some(({ stage }) => stage === "after-elevation-write")).toBe(true);
+    expect(failed.calls.filter(({ name }) => name === "storeWaterData")).toHaveLength(1);
+    expect(decodeBoundedJsonLogSeries(failed.lines, "[mapgen-complete]")).toHaveLength(0);
   });
 });
 

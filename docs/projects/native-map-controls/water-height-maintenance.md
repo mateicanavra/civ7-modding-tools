@@ -326,6 +326,133 @@ era-qualified movement remain separate follow-through.
 Independent design review confirms that V11 supplies no overfill evidence and
 that rejecting V12 does not establish preference for reapplication.
 
+### Ring Footprint Counterexample
+
+The current-source Shattered Ring Huge1337 stock10/cutoff40 pair is admitted
+but fails complete accepted-lake coverage and height retention. The 19-, 27-
+and 38-cell bodies retain 1250, 1210 and 1180 native units respectively at 40.
+One separate 252-cell body remains nonlake and falls from 1180 to 668 in both
+arms. Every missing coverage cell and remaining maintenance-height change is
+in that body. It has no ordinary-water adjacency to marine or another body.
+
+The physical hydraulic group is not the native classification footprint:
+three bodies share physical head 33 and a 318-member component, including
+27 dry junctions, but the smaller bodies qualify independently. All original
+4,877 marine cells remain nonlake at 0. Only the 84 repaired cells change lake
+flag and elevation; all 13 unrelated native readback facts and all 55 portable
+artifacts hold. The complete physical identities, Number heads, declarations,
+post-setter arrays and maintenance schedule agree. Intermediate focus points
+are outside accepted lakes, so this pair does not attribute the 252-cell loss
+to individual maintenance calls. Receipt:
+`earth-calibration/bounded-lake-cutoff-20260930/ring-huge1337-stock10-vs40-current-20261001.json`,
+SHA256 `3a52d07ce15c63ef432b9325ec44f60cb2213fa39b936dab1dba92e0419aceab`.
+
+Predeclare one cutoff 252 diagnostic arm on the identical Ring/Huge/1337 setup,
+using the existing catalog, public preset and whole-map fixture. Predict that
+the existing 252-cell footprint becomes native lake and retains 1180, the other
+111 accepted cells remain unchanged, and original marine identity/height,
+physical artifacts, ordered writes and unrelated facts hold. Compare against
+the sealed stock10 arm and retain 40 as the intermediate negative control.
+Failure at 252 is a discriminator, not permission to enlarge the cap until it
+passes. This does not prove an exact 251/252 boundary or select product policy.
+
+The predeclared 252 arm passes all 14 guards. The 252-cell body becomes native
+lake and retains 1180; the other 111 accepted cells retain their intended
+heights. Against stock10, exactly 336 cells change native lake flag and height;
+all 13 unrelated native facts and all 55 portable artifacts hold. All 4,877
+original marine cells remain nonlake at 0. The full-grid capture is complete,
+stable at turn1, and joined to the proof and fresh completed log, not inferred
+from the authored footprint. Receipt:
+`earth-calibration/bounded-lake-cutoff-20260930/ring-huge1337-stock10-vs252-current-20261001.json`,
+SHA256 `07be2e7fa9f77bc11c62452f0177c858eda98e26ff4b29968b92a66a3cb2f040`.
+This confirms a class-dependent height-preservation lever in this member, not
+a universal cap, exact classifier boundary, shoreline appearance or navigation.
+
+The candidate separation interval for this sample is 252 through 4876. It does
+not overlap the earlier Earthlike component-census interval 34 through 67.
+Counts alone do not qualify those cross-map native outcomes, but they prevent
+claiming a universal 40 or 252 policy. Per-seed footprints are available after
+physical generation; the qualified database control is selected before it.
+Investigate direct native controls and maintenance sequencing rather than
+inventing a second generator, clipping lakes, adding map-type exceptions or
+reviving retired water algorithms. Closed below-sea encoding and era-qualified
+ship movement retain their separate discriminators.
+
+### Refreshed Native Source
+
+The installed 1.5.0.43 build1311346 snapshot is now materialized through the
+resource/API owner and published as resource commit
+`9f6b93e129d47faf96ed6814f652560e7b7573d0`. Its source snapshot SHA256 is
+`53565e40b47ecb374555868508a639175f8d64d793661c182c03dfc0620de391`.
+All 18 relevant map/elevation/control source files and maps are byte-identical
+to the previous snapshot; independent checks match 20 actual installed files.
+The changed age-transition code handles Earth resources/district cleanup;
+its `storeWaterData()` call remains. Current source adds no qualified direct
+per-body lake classifier, water-head setter or numeric sea datum control.
+This bounded source finding does not exhaust undocumented native exports.
+
+A separate read-only `game inspect` on the current Tuner realm enumerates
+`TerrainBuilder`, `AreaBuilder` and `MapRivers`. The exposed own/prototype
+members add no per-body lake-classification, water-head or sea-datum setter.
+Native function `length:0` and `[native code]` do not establish signatures.
+Retained observation:
+`earth-calibration/bounded-lake-cutoff-20260930/current-native-water-api-inspection-20261001.json`.
+This closes the obvious exported-control alternative for these three roots,
+not every possible engine root or a proof that another native control cannot
+exist.
+
+Generated API and policy provenance are regenerated through their owners.
+No preset, table value or map selection is manually rewritten. This refresh
+does not retroactively qualify save/reload or age-transition height durability.
+
+### Closed Water Lower-Bound Discriminator
+
+The existing app-owned probe selector gains one diagnostic-only stock-Tiny
+arm, `water-closed-lower-bound`. Four translated isolated 2x2 COAST bodies
+have identical complete dry-shore geometry and native wet/shore requests
+`(0,129)`, `(0,128)`, `(0,127)` and `(-1,128)`. Stock Tiny metadata, including
+cutoff6 and four players, stays unchanged; there is no database treatment.
+An immediate post-setter observation precedes the ordinary initial water cache,
+followed by the same nine maintenance checkpoints. Native adjacency/readbacks
+qualify the authored shores and requested-value acceptance independently.
+
+This separates native wet-request handling and the observed dry-land floor
+from physical below-sea lake encoding. The source-only projection regression
+explicitly records that the current policy collapses accepted lake relief below
+and at the physical datum to native128 on either modeled land mask. That is a
+loss of physical distinctions, not a native acceptance claim or a completed
+repair. The experiment may falsify a direct lower-bound encoding; it must not
+introduce readback gates, compensating offsets, a second height law or any
+instrumentation into the ordinary physics recipe.
+
+The arm passes its owning types/tests/Habitat graph and loads without a full
+application restart. The closed app topology refused a separate fixture file;
+the controls now extend the existing `water-connectivity.fixture.ts` instead,
+without weakening the law or creating a parallel harness. Existing5/10
+geometry/native-call semantics hold; rebuilt source identities are fresh, while
+archived proofs remain immutable.
+
+All 143 analysis admission checks pass across ten checkpoints, 38 complete
+rows each and a stable final 2,280-cell native capture. The four requested
+wet/shore pairs respectively read back `(1,129)`, `(0,128)`, `(0,128)` and
+`(0,128)` immediately after the setter. Each observed body is a four-cell
+COAST lake with its own four-cell water area, no ocean connection and a
+complete ten-cell dry shore qualified by native adjacency. All eight logged
+full-grid fields hold through every later checkpoint; the 444-cell marine
+area remains nonlake at0. Receipt:
+`earth-calibration/bounded-lake-cutoff-20260930/water-closed-lower-bound-20261001-analysis.json`,
+SHA256 `87bbef459a493c695b8549fc3262ea4477251ece697ab2b719ebaad9917ea173`.
+
+Zero native lake height is valid here, so water height alone cannot classify
+lake versus sea. The wet request is not direct water-head authorship: wet0
+with shore129 becomes1 before any subsequent maintenance. The shore127
+request already reads128, and wet-1 already reads0. This separates the initial
+projection loss from the later nonlake maintenance defect. It does not
+distinguish ignored input from internal clamping/recomputation or establish a
+universal prohibition on negative native water. Preserve physical below-sea
+truth; do not raise physical terrain, add an offset or alter cutoff to hide
+this bounded native limitation.
+
 ## Alternative Height-Lifecycle Repair
 
 Keep the initial canonical height write: native feature legality and wonder
