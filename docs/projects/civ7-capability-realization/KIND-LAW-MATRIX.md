@@ -12,12 +12,10 @@ destination law, generator, or source move in this initiative. It distinguishes
 current Civ7 law from proposed generic law and assigns every invariant to its
 native owner.
 
-The selected shared service direction comes from the corrected successor to the
-RAWR HQ Template audit baseline described below. Magic Migration is executable
-prior art for
-selected-depth law, owner separation, and migration proof. It is not a source
-of Civ7 roots, product vocabulary, package manifests, or instance inventories.
-An older Magic topology never overrides the latest shared Template law.
+The selected shared direction is the released Habitat 0.5.1 consumer pack.
+Magic Migration is executable prior art for selected-depth law, owner
+separation, and migration proof. It is not a source of Civ7 roots, product
+vocabulary, package manifests, or instance inventories.
 
 ## Reading The Matrix
 
@@ -60,10 +58,11 @@ shared substrate. Native oRPC/Effect convergence remains an Interactive
 product decision and must not be inferred from transitive dependencies inside
 the Habitat SDK.
 
-The canonical runtime realization model remains authoritative for ownership
-and lifecycle: plugins declare requirements, profiles select providers, and
-runtime realization binds, mounts, observes, and releases. API projections do
-not gain independent semantic service authority.
+The product model remains authoritative for ownership and lifecycle. Qualified
+host apps select providers and plugins, bind public clients, mount their native
+hosts, observe, and release. API projections do not gain independent semantic
+service authority. No generic runtime or profile layer is inferred from
+Habitat's structural app shell.
 
 Magic Migration remains executable corroboration, not a source of Civ7 roots,
 instance inventories, or package names. No local producer, compatibility
@@ -102,14 +101,14 @@ The reusable confidence axes are:
 | Execution | Lifecycle, isolation, ordering, cancellation, and once-only effects |
 | Collaboration | Compatibility with one concrete external substrate |
 | Projection | Faithful mapping between caller input/output and declared capability |
-| Assembly | Exact members, profiles, roles, and bootstrap plan |
+| Assembly | Exact members, host roles, bindings, and bootstrap plan |
 | Delivery | Rendered artifact, currentness, placement, deployment, and live compatibility |
 
 These axes decide who owns an oracle, not how many assertions to write.
 Within an admitted leaf, cases remain risk-proportional and falsification-first:
 they target durable public behavior, failure boundaries, and state transitions,
 not implementation keys or coverage quotas. Exact source mirrors make public
-command, operation, profile, entrypoint, and adapter subjects visible; they do
+command, operation, host, binding, and adapter subjects visible; they do
 not require duplicating SDK guarantees or freezing every internal detail.
 
 The selected proof constraints are below. A proof shape never admits its kind;
@@ -117,15 +116,15 @@ the state column remains authoritative:
 
 | Kind | Admission state | Closed proof shape |
 | --- | --- | --- |
-| Package | Proposed shared packet | Optional closed `test/contract/` and `test/semantics/` axes; the instance manifest selects exact component ids in each admitted axis and at least one axis is nonempty |
-| Resource | Proposed shared correction | Required `test/contract/contract.typecheck.ts`; optional colocated `contract.test.ts` only for runtime schema/failure values |
-| Provider | Proposed shared correction | Required exact `test/semantics/provider.test.ts` and `test/execution/lifecycle.test.ts`; optional exact `test/collaboration/provider.live.test.ts` only for real substrate compatibility |
-| Standalone service | Proposed shared correction | Required exact `test/contract/client.typecheck.ts`, operation-mirrored `test/semantics/modules/<module>/<operation>.test.ts`, and exact `test/execution/root.test.ts`; manifest-selected direct semantics suites are optional and reserved for cross-module service invariants |
-| Server API plugin | Proposed shared correction | Required exact `test/contract/client.typecheck.ts` plus manifest-selected `test/projection/<component>.test.ts`; optional manifest-selected `test/execution/<component>.test.ts` only for API-owned scoped behavior; its selected service-source interior owns no proof or independent semantic authority |
+| Package | Selected shared `package@1` plus qualified proof overlay where needed | Optional closed `test/contract/` and `test/semantics/` axes selected by exact component ids; at least one admitted axis is nonempty |
+| Resource | Selected shared `resource@1` plus qualified proof overlay | Required `test/contract/contract.typecheck.ts`; optional colocated `contract.test.ts` only for runtime schema/failure values |
+| Provider | Selected shared `provider@1` plus qualified proof overlay | Required exact `test/semantics/provider.test.ts` and `test/execution/lifecycle.test.ts`; optional exact `test/collaboration/provider.live.test.ts` only for real substrate compatibility |
+| Standalone service | Established local Civ7 packet; shared `service@1` unselected | Required exact `test/contract/client.typecheck.ts`, operation-mirrored `test/semantics/modules/<module>/<operation>.test.ts`, and exact `test/execution/root.test.ts`; direct semantics suites are reserved for cross-module service invariants |
+| Server API plugin | Selected shared `plugin@1` plus qualified API overlay | Required exact `test/contract/client.typecheck.ts` plus manifest-selected `test/projection/<component>.test.ts`; optional selected `test/execution/<component>.test.ts` only for API-owned scoped behavior |
 | CLI topic | Accepted ownership; proof correction pending | Required `test/tsconfig.json` plus an exact source-derived mirror in `test/commands`; optional source-derived `test/adapters`; fixtures stay beside their consumer |
-| CLI shell | Accepted ownership; shared-app composition/proof/anchor correction pending | Shared app `definition`, `profiles`, and `entrypoints` layers plus exact `test/assembly/shell.test.ts` and one `test/tsconfig.json`; shared runtime owns Oclif lifecycle proof |
+| CLI shell | Shared `app@1`; qualified CLI overlay pending | Exact `test/assembly/shell.test.ts`, app-binding/finalization execution proof, selected adapter proof, and one `test/tsconfig.json` |
 | Web projection | `UNCONSTRUCTIBLE` candidate minimum | Required nonempty `test/views/*.test.tsx`; optional nonempty `test/interactions/*.test.tsx` and `test/execution/*.test.tsx` selected by the qualified product |
-| App realization | `UNCONSTRUCTIBLE` candidate minimum | Required `test/definition.test.ts` and `test/tsconfig.json` plus exact source mirrors for profiles and entrypoints; selected cold adapters add an exact `test/execution/adapters/<adapter>.test.ts` mirror |
+| App realization | Shared `app@1`; qualified host overlay required | Required closed host-composition and adapter execution axes plus one `test/tsconfig.json`; exact selected host and adapter identities determine proof leaves |
 | Mod definition | `UNCONSTRUCTIBLE` candidate minimum | Required `test/definition.test.ts`; each qualified family packet closes its semantic layers; the selected map packet uses domain/module/artifact/operation/strategy and recipe/stage/step ownership |
 | Mod realization | Accepted shared `app@1` root plus qualified local overlay | Required closed `test/artifact/*.test.ts`, `test/deployment/*.test.ts`, `test/runtime/{*.fixture.ts,*.test.ts}`, and `test/live/*.live.test.ts`; currentness, deployment, compatibility, and live remain distinct Nx targets |
 
@@ -136,8 +135,8 @@ those names are admitted only when a kind gives them one unambiguous oracle.
 
 Closed layer grammar is not proof membership. Each kind also names the
 authority that selects its finite proof leaves. A source-shaped kind may
-require an exact source-to-proof mirror; an app mirrors admitted profiles and
-entrypoints; a product-qualified kind records exact proof-component identities
+require an exact source-to-proof mirror; an app mirrors admitted hosts and
+adapters; a product-qualified kind records exact proof-component identities
 in its instance manifest or an already-authoritative product manifest.
 An instance may select members only inside its kind's declared confidence
 axes; it cannot invent another layer or redefine the oracle for an existing
@@ -192,9 +191,9 @@ kind, select source topology, or replace blueprint membership. Gate T1 closes
 when the target table, complete dependency matrix, workspace project metadata,
 and graph proof are accepted together. Reusing current `kind:plugin`,
 `kind:adapter`, or `kind:control` as a local graph exception is rejected.
-Nx targets schedule entrypoints. `defineApp(...)` owns plugin membership,
-profiles own provider selection, and each `startApp(...)` entrypoint owns its
-process-role selection.
+Nx targets schedule concrete entrypoints. The qualified app packet owns plugin
+and provider selection plus host-role composition; no descriptor or profile
+object is required by shared `app@1`.
 
 ### T2: Instance Admission Carrier
 
@@ -693,23 +692,21 @@ while a containing API owns its distinct contract/projection/execution axes.
 
 **Generator**
 
-No supported service generator exists today. Continue refusing service
-scaffolds until the shared spine and source packets are imported, the oRPC 2
-and Effect 4 dependency family is selected, and target fixtures pass. The law
-is then promoted in the coupled burn-down branch so the live red corpus can be
-observed and eliminated before that branch lands. The generator must not emit a
-compatibility oRPC 1 spine.
+No supported shared service generator exists today. Construct or migrate
+services only through the established local Civ7 service packet, in the same
+semantic cut that proves native oRPC/Effect construction and behavior. A
+generator is not required for that move and must not be invented as a
+transition owner.
 
 ## Plugin Specialization Selection
 
-**State:** Settled Civ7 CLI law, proposed shared API adoption after upstream
-closure, and unconstructible qualified mod destinations.
+**State:** Shared `plugin@1` shell is accepted; qualified CLI, API, web, and mod
+packets own their distinct local source and proof law.
 
-The shared broad `plugin` concept intentionally has no universal structural
-packet: CLI commands, server APIs, workflows, and mod definitions do not share
-one honest source interior. Civ7 does not introduce a `projection-plugin`
-super-kind or another generic shell, and does not require a non-enforcing
-parent blueprint as ceremony.
+The shared broad `plugin@1` packet owns only the universal closed project shell.
+CLI commands, server APIs, workflows, and mod definitions do not share one
+honest source interior, so each Civ7 instance also requires one qualified
+specialization that closes its source and proof topology.
 
 Each plugin can be admitted only by one qualified specialization that owns its
 complete closed source, proof topology, and instance anchor. The broad `plugin`
@@ -718,16 +715,17 @@ concept is ontology, not an additional executable blueprint selection:
 | Root grammar | Qualified selection | Public role |
 | --- | --- | --- |
 | `plugins/cli/topics/<topic>` | current Civ7 `cli-topic-plugin` packet | oclif topic package |
-| `plugins/server/api/<plugin>` | `plugin-server-api` at root; shared `service` source packet at the API-owned `src/service` projection depth | caller-facing API |
+| `plugins/server/api/<plugin>` | shared `plugin@1` plus qualified API projection packet | caller-facing API |
 | `plugins/mod/<family>/<plugin>` | pending qualified definition packet + family | authored mod definition |
 
 An app imports a plugin through its specialization's declared public face. A
 plugin may consume public packages, resource contracts, and service clients,
 but imports no app, provider implementation, private service source, or
-unrelated plugin interior. Provider selection remains runtime-profile-owned.
+unrelated plugin interior. Provider selection remains app-owned.
 
-The selected specialization owns proof and generation. A bare `plugin`
-generation request is refused because no universal source shape exists.
+The selected specialization owns proof and any source generation. A bare
+shared plugin instance is structurally valid but cannot admit product source
+until a qualified local packet closes its interior.
 
 Civ7's CLI packets already express the accepted ownership law: `apps/cli` is a
 commandless `cli-shell`, while each topic is a package and owns its commands
@@ -738,50 +736,47 @@ construction. The Template packets inspected for this frame incorrectly place
 packages below `plugins/cli/commands/*` and require app-owned `src/commands`.
 Those are upstream defects to correct, not destination law to import into Civ7.
 
-The terminal CLI root independently selects the corrected shared `app` packet
-and the qualified `cli-shell` specialization. Their composed root is closed to:
+The terminal CLI root selects shared `app@1` and the qualified `cli-shell`
+specialization. Their composed root is closed to:
 
 ```text
 apps/cli/
   habitat.toml
   package.json
   project.json
-  rawr.civ7.ts
-  civ7.ts
   bin/
     run.js
-  runtime/
-    config.ts
-    processes.ts
-    profiles/
-      <profile>.ts
+  src/
+    cli.ts
+    runtime/
+      composition.ts
+      context.ts
+      adapters/
+        local-mods.ts
   test/
-    definition.test.ts
     assembly/
       shell.test.ts
-    profiles/
-      <profile>.test.ts
-    entrypoints/
-      civ7.test.ts
+    execution/
+      binding.test.ts
+      finalization.test.ts
+      adapters/
+        local-mods.test.ts
     tsconfig.json
   tsconfig.json
 ```
 
-`rawr.civ7.ts` owns app identity, plugin membership, and semantic-adapter
-identities. `runtime/profiles/<profile>.ts` owns provider, configuration-root,
-and process-default selection.
-`civ7.ts` is the sole authored CLI role entrypoint. `bin/run.js` is the oclif
-executable shim and delegates to that same entrypoint; it contains no second
-startup plan. The profile proof mirror is derived from exact admitted profile
-identities. Root optional documentation is limited to `AGENTS.md`,
+`package.json#oclif.plugins` owns topic membership. `src/runtime/composition.ts`
+owns provider, public-client, configuration-root, and process-scope selection;
+`src/cli.ts` is the sole authored native Oclif entrypoint. `bin/run.js` is the
+executable shim and contains no second startup plan. Root optional
+documentation is limited to `AGENTS.md`,
 `CHANGELOG.md`, and `README.md`; `TESTING.md` moves to canonical testing
 documentation. Recognized output remains `node_modules`,
 `oclif.manifest.json`, and `tsconfig.tsbuildinfo`.
 
-This composed packet is proposed law, not an exception to the current
-`cli-shell` structure. The burn-down branch replaces the old root structure
-atomically after the shared app packet is accepted; it does not make
-`runtime/` legal by weakening the current blueprint.
+This composed packet is qualified local law over the accepted shared app shell,
+not an exception to it. The burn-down branch replaces the old root structure
+atomically after the local source and proof overlay is fixture-proved.
 
 The CLI proof topology is likewise kind-owned. The shell test root is closed to
 the `assembly/` layer within that app proof:
@@ -794,11 +789,10 @@ assembly/
 Habitat topology owns commandless app source. A bounded source relation owns
 the sole authored `package.json#oclif.plugins` registry and the absence of a
 second topic enumeration. The shell suite observes only runtime assembly:
-collision-free command discovery, help catalog, executable-shim equivalence,
-and delegation to the shared harness. The app's `test/tsconfig.json` is the
-sole compiler program. Generic app definition, profile, and entrypoint layers
-retain their distinct oracles; the shell does not repeat static structure or
-harness lifecycle proof.
+collision-free command discovery, help catalog, and executable-shim
+equivalence. The app's `test/tsconfig.json` is the sole compiler program.
+Binding and finalization execution suites own command-process lifecycle proof;
+the shell does not repeat it.
 
 A topic test root is closed to:
 
@@ -828,36 +822,31 @@ closed; `*.fixture.ts` may stay beside its sole consumer and carries no
 membership authority. A Habitat source-relation rule owns exact mirror
 membership; `structure.toml` owns the finite test-root and leaf grammar.
 
-Each runtime-aware topic base carries cold, runtime-readable service/resource
-requirement descriptors using the shared authoring helpers. A selected command
-inherits exactly one approved semantic or diagnostic base. Native oclif class
-loading discovers the selected class; `RuntimeCommand.init()` hands its static
-requirements to the surrounding harness before binding. This metadata is not a
+Each runtime-aware topic base carries static service/resource requirement
+descriptors. A selected command inherits exactly one approved semantic or
+diagnostic base. Native Oclif class loading discovers the selected class; the
+app-owned command context binds those requirements. This metadata is not a
 command registry or topic hook. Help, version, and unknown-command paths never
 enter command initialization and therefore acquire no live capability.
 
-Shared runtime owns Oclif harness execution proof for lazy requirement
-discovery, scoped client access, exact-one session reuse, and once-only
-finalization across success, command failure, binding failure, partial startup,
-help, version, unknown command, interruption, and sequential invocation.
-Shell and topic proof do not repeat those lifecycle guarantees or provider and
-service behavior. The current recursive `test/support/**` allowance is a
-same-kind law defect to remove before this cutover. It is not retained as a
-generic helper cabinet.
+The CLI app owns harness execution proof for lazy requirement discovery,
+scoped client access, exact-one session reuse, and once-only finalization across
+success, command failure, binding failure, partial startup, help, version,
+unknown command, interruption, and sequential invocation. Shell and topic proof
+do not repeat provider or service behavior. The current recursive
+`test/support/**` allowance is a same-kind law defect to remove before this
+cutover, not a generic helper cabinet.
 
 ## Server API Projection Plugin
 
-**State:** Proposed upstream source and proof closure, then shared-law
-adoption. The current Civ7 oRPC 1 shell and older Magic shells are migration
-evidence rather than target authority.
+**State:** Shared `plugin@1` is accepted; qualified Civ7 API source and proof
+closure remains required before construction.
 
 **Selected depth and root grammar**
 
 - Project root: `plugins/server/api/<plugin>`.
-- `plugin-server-api` selects the project root.
-- The reusable shared `service` source packet independently selects
-  `plugins/server/api/<plugin>/src/service`. This is structural reuse for the
-  API's own oRPC projection, not an embedded domain service.
+- Shared `plugin@1` selects the project root.
+- A qualified Civ7 API packet closes the caller projection inside `src/`.
 
 **Required spine**
 
@@ -867,22 +856,18 @@ project.json
 src/
   api.ts
   client.ts
-  service/
-    habitat.toml
-    base.ts
-    contract.ts
-    impl.ts
-    modules/
-    router.ts
+  context.ts
+  contract.ts
+  modules/
+  router.ts
 test/
 tsconfig.json
 ```
 
-The selected service-source packet supplies the same closed module spine and
-contract/router relations as the shared service law. Its modules are
-caller-facing projection groups. They consume context-supplied public clients
-and adapters; they own no domain state, actors, provider lifecycle, database,
-or semantic service policy. The API project root owns all proof.
+The qualified API packet owns its caller-facing contract/router relations. Its
+modules are projection groups that consume context-supplied public clients and
+adapters; they own no domain state, actors, provider lifecycle, database, or
+semantic service policy. The API project root owns all proof.
 
 **Finite optional authored interiors**
 
@@ -890,17 +875,16 @@ or semantic service policy. The API project root owns all proof.
 AGENTS.md
 ```
 
-No `package.json`, provider, runtime, process, transport, operation registry,
+No `package.json`, provider, app process, operation registry,
 semantic service state, database, or nested proof interior is admitted.
 
 **Public face and import direction**
 
 - `client.ts` is the caller face derived from the complete API contract.
-- `api.ts` is the server-side projection face over the selected service-source
-  router.
-- `src/service/base.ts` owns the exact public service-client and cold-adapter
-  context required by projections.
-- `src/service/contract.ts` aggregates module contracts and owns the sole
+- `api.ts` is the server-side projection face over the API router.
+- `src/context.ts` owns the exact public service-client and app-adapter context
+  required by projections.
+- `src/contract.ts` aggregates module contracts and owns the sole
   caller-facing route tree.
 - The application host owns Elysia and oRPC transport realization; neither API
   face chooses a transport, process, or provider.
@@ -911,8 +895,8 @@ semantic service state, database, or nested proof interior is admitted.
   route identities, one module contract leaf may compose that subtree whole
   and delegate through its public client. It may not pick types or procedures
   from the contract, redeclare its schemas, or import the service router.
-- Runtime realization materializes `Context` from public service clients and
-  app-selected cold adapters before mounting `api.ts`. Browser callers import
+- The host app materializes `Context` from public service clients and selected
+  adapters before mounting `api.ts`. Browser callers import
   only `client.ts`.
 
 **Proof topology**
@@ -933,7 +917,7 @@ The contract leaf is fixed. Projection is nonempty and proves mapping from API
 input and context capabilities to exact caller output/error behavior without
 choosing transport. Execution is selected only when the API itself owns a
 scoped stream or projection lifecycle; cross-host startup, mounting, request
-transport, service lifecycle, and shared-runtime disposal are never API proof.
+transport, service lifecycle, and app-process disposal are never API proof.
 Fixtures remain beside their sole consumer.
 
 The API instance manifest selects a finite set of projection and optional
@@ -949,22 +933,22 @@ only.
 - Observed graph metadata may include `type:plugin`, `role:server`,
   `surface:api`, and one capability identity. These facts do not select the
   Habitat packet.
-- `plugin-server-api` and the selected `service` source packet are Habitat
-  selections, not Nx admission tags.
+- Shared `plugin@1` and the qualified API packet are Habitat selections, not Nx
+  admission tags.
 - The API imports public service clients and package types. It never imports a
   provider, app, private domain-service source, or generated output.
 
 **Generator**
 
-Unsupported today. The API generator must compose the package-less projection
-root, public faces, and selected shared service-source packet atomically. It
-refuses partial or source-only roots and never emits `server.ts`,
-`package.json`, the community Effect bridge, or an oRPC 1 compatibility layer.
+No API generator is required for this migration. If one is later earned, it
+must compose the shared plugin shell and qualified projection atomically. It
+must refuse partial roots and never emit `server.ts`, `package.json`, a service
+implementation, a community Effect bridge, or an oRPC 1 compatibility layer.
 
 ## Web Projection Authority
 
-**State:** `UNCONSTRUCTIBLE` until a shared web-projection packet and the
-qualified Studio additions are accepted.
+**State:** Shared `plugin@1` is available, but the destination remains
+`UNCONSTRUCTIBLE` until the qualified Studio web packet is accepted.
 
 The generic web projection owns accessible view projection and user
 interaction mapping. Its required closed `test/views/` layer proves declared
@@ -991,87 +975,47 @@ disjoint even when they observe the same user capability.
 
 ## App Realization Authority
 
-**State:** Canonical shared runtime model; generic Habitat packet not yet
-affirmed, so new app instances remain `UNCONSTRUCTIBLE`.
+**State:** Shared `app@1` is accepted. It owns only the closed generic app
+shell. Qualified Civ7 app packets own actual host composition and proof.
 
-RAWR HQ Template's canonical runtime realization spec owns the app semantics:
-
-```text
-habitat.toml                 # blueprint-defined instance anchor
-rawr.<app>.ts              # app identity and plugin membership
-runtime/profiles/*         # provider selection, configuration roots, and defaults
-runtime/config.ts          # app-owned config selection/default facts
-runtime/processes.ts       # app-owned process defaults
-[runtime/adapters/*]       # exact qualified cold effect bindings
-<role>.ts / dev.ts         # one startApp(...) entrypoint selection
-```
-
-Apps and profiles select. They do not acquire resources, construct service
-clients, build API context, mount plugins, or dispose runtime state. The shared
-runtime compiler, provisioning kernel, process runtime, adapters, and harnesses
-derive membership, acquire selected providers, bind service dependencies,
-materialize contexts, mount roles, observe, and release.
+Habitat 0.5.1 does not provide `defineApp`, profiles, `startApp`, provider
+provisioning, client binding, or a process runtime. An app therefore uses its
+real host directly: finite Nx tasks for mod realization, native Oclif for the
+CLI, and Bun/Vite/server/web entrypoints for Studio. The app selects providers
+and plugins, acquires ready resources, constructs public service clients,
+materializes projection context, mounts its roles, observes the process, and
+disposes its scope. These mechanics do not transfer semantic authority out of
+resources, services, or plugins.
 
 An app may select one semantic adapter identity for each requirement declared
-by its selected services and projections. The finite requirement set may
-contain more than one adapter; each requirement still resolves to exactly one
-compatible identity. The realizing app owns its opaque execution-descriptor
-references. The runtime compiler rejects missing, ambiguous, or incompatible
-selections and lowers each exact selection into the corresponding ready port.
-The consuming app does not import service-private port types or target
-implementation; the service does not import either app or realization project.
-Semantic adapter selection does not make its targets a managed resource.
-When a qualified app realizes a cold external effect, its manifest may select
-an exact lower-kebab adapter identity at
-`runtime/adapters/<adapter>.ts`. The app definition selects that identity;
-profiles do not. The adapter may use its qualified host APIs and must implement
-the public capability descriptor without exposing paths, prior bytes, handles,
-or host-specific failures to the caller. `runtime/adapters/` is closed and
-source-derived, never a generic integration cabinet.
+by its services and projections. The consuming service imports no app
+implementation or service-private adapter surrogate. The adapter may use its
+qualified host APIs and must implement the public capability descriptor without
+exposing paths, prior bytes, handles, or host-specific failures to the caller.
+`src/runtime/adapters/` is closed and source-derived, never a generic
+integration cabinet.
 
-For the CLI role, the shared harness surrounds native oclif `run(...)` with one
-managed process scope and exposes bound clients through a scoped runtime command
-context. A shared runtime-aware command base reads that context; topic-local
-bases carry static cold requirement descriptors and narrow access to their
-declared clients. Native oclif selection of the command class is the discovery
-event; base initialization asks the already-surrounding harness to provision
-and bind only those requirements. `apps/cli/package.json#oclif.plugins` remains
-the sole authored topic registry. The app definition, runtime profile,
-entrypoints, and topic packages must not recreate that list.
-Construction-bound clients are process-cached; parsed flags and other
-invocation facts remain outside binding identity. Oclif completion or failure
-is reported only after the idempotent resource and service finalizer has run.
-
-The full generic app Habitat packet is not affirmed at the Template audit
-baseline. Civ7 therefore does not create a local `app`, `app-web-daemon`, or
-equivalent super-kind. It first imports or accepts the shared generic app law
-for the common definition/profile/entrypoint/proof grammar; a qualified product
-packet may only narrow roles and membership facts after that parent kind is
-constructible. Product specialization cannot compensate for a missing generic
-app law:
+For the CLI role, the app-owned harness surrounds native Oclif `run(...)` with
+one managed process scope and exposes bound clients through a scoped command
+context. Topic-local bases carry static requirement descriptors and narrow
+access to their declared clients. Native Oclif command selection is the
+discovery event. `apps/cli/package.json#oclif.plugins` remains the sole authored
+topic registry. Parsed flags remain outside binding identity, and Oclif success
+or failure is reported only after the idempotent app finalizer runs.
 
 | Root | Authority |
 | --- | --- |
-| `apps/cli` | commandless ownership is settled; terminal root composes the proposed shared `app` packet with the qualified `cli-shell` specialization and remains unconstructible until both are accepted |
-| `apps/mapgen-studio` | semantic destination only; `UNCONSTRUCTIBLE` until the generic app law and its qualified role packet are accepted |
-| `apps/mods/map/swooper-physics` | existing legacy product owner under a partial map envelope; not a manifest-admitted or constructible precedent |
-| `apps/mods/civ/<mod>` | semantic destination only; `UNCONSTRUCTIBLE` until its qualified family packet is accepted |
+| `apps/cli` | shared `app@1` plus a qualified commandless Oclif packet; the local overlay must close source and proof before migration |
+| `apps/mapgen-studio` | shared `app@1` plus a qualified Bun/Vite/server/web packet; the local overlay must close source and proof before migration |
+| `apps/mods/map/swooper-physics` | admitted shared `app@1` plus sealed map-mod source and proof laws |
+| `apps/mods/civ/<mod>` | semantic destination only until its qualified civilization-realization packet is accepted |
 
-The MapGen Studio browser is a web plugin projection, not a browser directory
-that gives the app a second product truth. Its app definition selects that web
-plugin and the Studio API plugin. Separate `server.ts` and `web.ts` entrypoints
-may select production roles; `dev.ts` may cohost `server` and `web` without
-creating an `app-web-daemon` kind.
-
-Nx records project identity, edges, and tasks. `defineApp(...)`, runtime
-profiles, and `startApp(...)` own membership, provider selection, and process
-role selection. No Nx tag admits app kind or replaces those authorities.
-
-No Studio browser extraction, app-definition rewrite, profile creation, or
-entrypoint relocation begins until the generic app law, independently closed
-web-projection law, and Studio role specialization define their manifest
-anchors and are accepted. Generation remains refused until those packets and
-the shared runtime realization substrate are accepted together.
+The MapGen Studio browser remains a web plugin projection, not a browser
+directory that gives the app a second product truth. The Studio app selects
+that web plugin and the Studio API plugin. Separate server and web entrypoints
+may run production roles; a development entrypoint may cohost them without
+creating another app kind. Nx records graph identity and schedules entrypoints;
+it does not admit app kind.
 
 The qualified Studio packet selects exactly these cold app adapters:
 
@@ -1084,52 +1028,39 @@ runtime/adapters/
   swooper-map-config-source.ts
 ```
 
-The app definition owns those semantic adapter identities.
-`runtime/profiles/local-civ7.ts` owns their concrete roots plus Tuner and
-window-capture provider selection. `civ7-official-data.ts` satisfies the
+The app composition owns those semantic adapter identities, their concrete
+roots, and Tuner/window-capture provider selection exactly once.
+`civ7-official-data.ts` satisfies the
 Studio API's explicit `OfficialDataCatalog` requirement; it is separate from
 saved-game configuration access. The other adapters implement bounded
 filesystem effects for MapGen-runs or API context while importing pure
 parser/planner packages and the Swooper definition's pure authoring surface.
-No adapter identity or implementation is duplicated in a profile, service, or
-API module.
+No adapter identity or implementation is duplicated in a service or API
+module.
 
 Every qualified app packet owns a required closed proof interior:
 
 ```text
 test/
-  definition.test.ts
-  profiles/
-    *.test.ts
-  entrypoints/
-    *.test.ts
-  execution/                # optional; only when app adapters are selected
+  assembly/
+    composition.test.ts
+  execution/
+    hosts/
+      *.test.ts
     adapters/
       *.test.ts
   tsconfig.json
 ```
 
-The definition suite proves exact plugin membership and every authored semantic
-adapter identity. Profile suites prove provider, configuration-root, and
-process-default selection only. Entrypoint suites prove one app, one profile,
-one role, and delegation to the shared harness; they do not repeat startup,
-mounting, disposal, or provider lifecycle. Profiles and entrypoints are
-nonempty. Shared runtime compiler proof owns exact-one success and missing,
-ambiguous, or incompatible semantic binding rejection; shared binding
-execution proof proves the resolved adapter reaches the intended service port
-once. Definition, profile, and entrypoint proof do not repeat adapter effects,
-hosting, projection, provider behavior, or runtime lifecycle.
-
-Proof membership is source-derived: every admitted
-`runtime/profiles/<profile>.ts` requires exactly
-`test/profiles/<profile>.test.ts`, and every authored `<role>.ts` or `dev.ts`
-entrypoint requires exactly `test/entrypoints/<role>.test.ts`. Unmatched suites
-are forbidden. `definition.test.ts` is the one fixed app-definition proof
-leaf and `test/tsconfig.json` is the fixed compiler program. Every selected
-`runtime/adapters/<adapter>.ts` requires exactly
+Assembly proves exact plugin/provider/adapter selection and public-client
+construction. Host execution proves startup, mounting, observation, and
+disposal without repeating provider internals or service semantics. Proof
+membership is source-derived: every selected `src/runtime/adapters/<adapter>.ts`
+requires exactly
 `test/execution/adapters/<adapter>.test.ts`, which proves the adapter's host
-effect, failure translation, and cleanup but not service policy. The app packet
-never uses nonempty wildcards as membership authority.
+effect, failure translation, and cleanup but not service policy. Every admitted
+host entrypoint has one exact execution suite. Unmatched suites are forbidden,
+and the app packet never uses nonempty wildcards as membership authority.
 
 ## Mod Definition Project
 
@@ -1379,9 +1310,9 @@ definition shell.
 
 ## Mod Realization Project
 
-**State:** `UNCONSTRUCTIBLE` for new families. The current Swooper realization
-is a legacy product owner under the partial map envelope and independently
-enforced nested product laws; it is not a manifest-admitted realization kind.
+**State:** Swooper is admitted under shared `app@1` plus qualified map-mod law.
+New families remain `UNCONSTRUCTIBLE` until their qualified realization packet
+is accepted.
 
 **Candidate depth and root grammar, not admitted law**
 
@@ -1389,9 +1320,9 @@ enforced nested product laws; it is not a manifest-admitted realization kind.
 apps/mods/<family>/<mod>
 ```
 
-A realization must identify one matching definition in `src/rawr.<mod>.ts`; Nx
-corroborates the project edge and schedules its targets. Directory-name
-equality is not the authority relation.
+A realization must identify one matching definition through its exact package
+dependency and stable product identity. Nx corroborates the project edge and
+schedules its targets. Directory-name equality is not the authority relation.
 
 **Selected qualified realization spine**
 
@@ -1503,16 +1434,16 @@ broaden a kind:
 
 | Corpus root | Expected disagreement | Allowed disposition |
 | --- | --- | --- |
-| `.habitat/blueprints/service/**` | Civ7's oRPC 1/community-bridge topology and source relations differ from the selected shared substrate | Replace with the portable shared packets, adapt only repository path selectors, prove injected fixtures, promote in the burn-down branch, and eliminate the resulting live red before landing |
-| `package.json`, `bun.lock`, `patches/**`, `services/**` | Old oRPC, Effect, TypeBox, and community-bridge dependency family remains reachable in Civ7 product code | Upgrade atomically after the independently sealed Habitat successor is pinned, migrate native construction/error relations, and delete the obsolete patch and bridge only after no product consumer remains |
+| `.habitat/blueprints/service/**` | Existing local service law remains the selected authority while `service@1` is unselected | Tighten only when the Interactive service cut proves a generic local gap; never copy dormant SDK service packets |
+| `package.json`, `bun.lock`, `patches/**`, `services/**` | Old oRPC, Effect, TypeBox, and community-bridge dependency family remains reachable in Civ7 product code | Upgrade atomically with native local service construction/error relations, then delete the obsolete patch and bridge only after no product consumer remains |
 | `tools/habitat/**` | Closed Ground disposition: the local producer was not Civ7 product capability | Deleted after installing and proving the Habitat 0.5.1 consumer face; never recreate it as migration corpus |
 | `packages/**` | Resource contract, provider, and service concerns are combined or proposed service-adapter/parallel-contract packages lack a native owner | Relocate to the qualified owner, retain only proven shared non-oRPC models, inline owner-local residue, combine duplicate public faces, or delete dead residue |
-| `resources/**` | Selected resource/provider roots and their closed laws do not yet exist | Construct only after T1/T2; never move implementation into the resource contract |
-| `services/**` | Existing service source and proof follow the legacy spine; the additional selected service root is absent | Migrate behavior into the shared spine or construct the missing service; do not baseline legacy files |
+| `resources/**` | Selected resource/provider roots do not yet exist under the released shared shells | Construct manifest-backed instances and qualified proof overlays; never move implementation into the resource contract |
+| `services/**` | Existing service source and proof require local normalization; MapGen-runs is absent | Migrate behavior under the established local service packet or construct the missing local service; do not baseline legacy files |
 | `plugins/cli/topics/**` | Current topic packages are already governed by the accepted Civ7 `cli-topic-plugin` ownership law, but its recursive `test/support/**` allowance remains an open proof-cabinet defect | Preserve the topic boundary, correct proof to mirrored command/adapter layers with colocated fixtures, burn instance red down, and do not import Template's command-root defect |
-| `plugins/server/api/**` | The selected package-less API composition is absent | Construct the complete API root plus its shared service-source projection depth atomically; do not create an independent domain service |
+| `plugins/server/api/**` | The qualified API projection is absent | Construct the shared plugin root plus its closed caller projection atomically; call public clients and do not embed an independent domain service |
 | `plugins/web/app/**` | The qualified Studio browser projection law is absent | Design and accept the closed qualified packet before creating the root or moving browser source |
-| `apps/cli`, `apps/mapgen-studio` | Current app code manually owns provider, service, API-context, mounting, and lifecycle realization | Preserve the CLI law; keep Studio in place until its qualified packet is accepted, then move provisioning, binding, mounting, observation, and disposal into shared runtime |
+| `apps/cli`, `apps/mapgen-studio` | Current app roots lack admitted shared anchors and qualified closed host-composition law | Preserve their real native hosts; add shared `app@1` manifests and qualified source/proof overlays, then normalize provider selection, binding, mounting, observation, and disposal inside each app |
 | `plugins/mod/{map,civ}/**` | Swooper remains a legacy definition owner under a partial envelope; qualified map and civilization definition laws are absent | Preserve Swooper behavior and ownership in place until the qualified map definition packet closes its domain-shaped proof and manifest anchor; do not create or move Dacia until the civilization packet is accepted |
 | `apps/mods/{map,civ}/**` | Swooper is admitted by shared app root law plus qualified map-mod source/proof law; Dacia's civilization realization law is absent | Preserve the sealed Swooper grammar, do not construct Dacia realization until its packet is accepted, and never move generated output as source |
 
@@ -1522,7 +1453,7 @@ negative niche cabinets are rejected.
 
 ## Preserved Behavior And Exclusions
 
-This slice changes structural ownership and service substrate, not product
+This slice changes structural ownership and local service construction, not product
 behavior. Preserve:
 
 - current public control lifecycle, readiness, cancellation, and failure
@@ -1532,7 +1463,7 @@ behavior. Preserve:
 - map generation semantics, deterministic outputs, mod identity, build
   products, deployment behavior, and live-game proof;
 - all currently accepted service operations and public error outcomes, even
-  when their implementation moves to native oRPC 2 and Effect 4.
+  when their implementation moves to the accepted native oRPC/Effect family.
 
 Outside this slice:
 
@@ -1601,8 +1532,8 @@ until their own accepted closed packets and manifest anchors exist.
 Stop the burn-down and return `LAW_CORRECTION` if execution needs an instance
 name in generic law, leaves a selected child open, reveals a missing
 constructible kind, assigns an invariant to the wrong native owner, or produces
-credible incompatibility evidence against the accepted successor shared service
-substrate.
+credible incompatibility evidence against the accepted shared structural
+substrate or established local Civ7 service law.
 
 ## Admission And Seal Order
 
@@ -1637,9 +1568,9 @@ fixture-proved destination laws
   -> seal and land
 ```
 
-Provider waits for resource. API source waits for both the API-root and shared
-service-source packets, while consuming domain capabilities only through
-public clients. Qualified apps wait for shared runtime realization.
+Provider waits for resource. API source waits for its shared plugin root and
+qualified API packet while consuming domain capabilities only through public
+clients. Qualified apps wait for their local host-composition packets.
 Mod realization waits for mod definition. No later row weakens or bypasses an
 earlier row's public/private boundary.
 
@@ -1657,9 +1588,8 @@ Stop and return to design if:
   specializations apply;
 - a package role becomes a substitute for a missing resource, service,
   projection, or app kind;
-- a standalone service or API-selected service source diverges from the selected shared oRPC 2 and
-  Effect 4 substrate without the required incompatibility proof and explicit
-  product decision;
+- a service or API projection duplicates contract authority, imports private
+  service source, or reintroduces a facade;
 - a definition law admits generated realization output;
 - an app or plugin starts exporting reusable domain truth;
 - a provider, service, or plugin selects its own runtime lifetime;

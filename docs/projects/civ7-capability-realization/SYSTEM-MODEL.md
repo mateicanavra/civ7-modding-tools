@@ -1,20 +1,20 @@
 # Civ7 System Model
 
 **Status:** Normative project system model for the capability-realization cutover
-**Date:** 2026-07-31
+**Date:** 2026-08-05
 **Owner:** Civ7 platform architecture
 
 This model places the capabilities authorized by
 [PRODUCT-AUTHORITY.md](./PRODUCT-AUTHORITY.md) against the shared Habitat
-substrate. Shared Habitat is external authority for construction law and runtime
-realization; Civ7 selects and composes it rather than forking, weakening, or
-reimplementing it.
+substrate. Shared Habitat is external authority for the selected structural
+kinds; Civ7 selects and composes them rather than forking, weakening, or
+reimplementing them. Habitat 0.5.1 does not supply a generic product runtime and
+does not select `service@1`. Concrete host composition and service law therefore
+remain explicit Civ7 responsibilities.
 
-The inspected Habitat baseline is not a usable implementation pin. Its accepted
-corrected successor has not landed, and the kinds identified as pending in
-[KIND-LAW-MATRIX.md](./KIND-LAW-MATRIX.md) are not yet constructible. The
-destinations below are therefore authority selections, not permission to move
-source. Exact current-source dispositions remain in [CORPUS.md](./CORPUS.md).
+The selected shared kinds are constructible at the Ground-proven 0.5.1 pin.
+Qualified Civ7 overlays still must close each destination before source moves.
+Exact current-source dispositions remain in [CORPUS.md](./CORPUS.md).
 
 ## System Boundary
 
@@ -24,8 +24,7 @@ Inside the Civ7 Modding Tools system:
 - managed foreign resources and their concrete providers;
 - semantic product services;
 - CLI, API, web, and mod-definition projections;
-- cold app definitions, runtime profiles, role entrypoints, and qualified
-  adapter declarations.
+- runtime apps, concrete host entrypoints, and qualified adapters.
 
 Outside the system:
 
@@ -34,36 +33,33 @@ Outside the system:
   resource corpus;
 - the host operating system and filesystem;
 - remote source repositories and network consumers;
-- shared Habitat kind law, generators, runtime compiler, provisioning kernel,
-  process runtime, and role harnesses.
+- shared Habitat kind law and its consumer tooling.
 
 The shared Habitat platform is a sealed external substrate beneath the Civ7
 system boundary. It is neither a Civ7 product capability nor a local migration
-owner. Civ7 app source supplies cold declarations to that substrate; it does not
-become a second runtime implementation.
+owner. Civ7 app source implements its real host composition; Habitat closes the
+app shell but does not execute the product.
 
 ## Placement Laws
 
-An app is one finite cold composition packet: definition, profile, role
-entrypoint, and any selected qualified adapters. The following rows keep those
-declarations distinct from the external runtime that realizes them.
+An app is one finite runtime composition for an actual host or task: concrete
+entrypoints, selected providers and plugins, client construction, qualified
+adapters, and owned process lifetime. The following rows keep that composition
+distinct from reusable capabilities.
 
 | Kind or role | Owns | Does not own |
 | --- | --- | --- |
 | Package | Pure reusable contracts, algorithms, parsing, planning, comparison, static policy, and deterministic test implementations | Foreign acquisition, product write authority, projection, process startup, or host effects |
 | Resource | Provider-neutral acquire/use/release contract and typed readiness/failure vocabulary for one foreign capability | Provider selection, product semantics, caller projection, or app policy |
-| Provider | One concrete resource acquisition and release implementation | Product policy, profile selection, semantic service operations, or projection |
+| Provider | One concrete resource acquisition and release implementation | Product policy, app selection, semantic service operations, or projection |
 | Service | One semantic capability and its facts, policy, transitions, correction law, contract, private implementation/router, and public in-process client | Transport mounting, resource acquisition, provider selection, UI/CLI presentation, or process startup |
 | CLI topic plugin | One command-topic projection, cold capability requirements, and qualified command-local adapters | Binary startup, reusable semantic truth, provider construction, or alternate transport |
 | Server API plugin | One caller-facing contract, request policy, context projection, transport metadata, and calls to public clients | Product state, provider construction, app startup, or private service implementation |
 | Web plugin | Browser views, interactions, and client-side projection | Server startup, provider selection, product write authority, or private service source |
 | Mod definition plugin | Portable authored mod identity, content, product configuration, and cold metadata | Generated output, installation, engine globals, process lifecycle, or live proof |
 | Workflow plugin | Available shared grammar for durable orchestration that outlives one request and earns replay/retry ownership; no Civ7 instance is selected | Product facts, service policy, synchronous request composition, or current Studio run state |
-| App definition | Cold product/runtime identity, plugin membership, and selected qualified adapter identities | Provider selection, acquisition, binding, mounting, observation, disposal, or reusable product truth |
-| Runtime profile | Cold provider selection, configuration roots, and process/harness defaults | Plugin membership, semantic adapter identity, acquisition, or service policy |
-| Role entrypoint | One cold app, profile, and role selection delegated through the shared start surface | A second startup plan, provider acquisition, manual mounting, or product semantics |
-| Qualified app adapter | One cold environment-specific effect implementation selected by the app definition | Managed foreign-resource lifecycle, provider selection, service policy, or a generic integration cabinet |
-| Shared runtime substrate (external) | Derivation, compilation, provider acquisition, capability and client binding, context materialization, role mounting, observation, and disposal | Civ7 product truth, plugin membership, provider choice, or semantic policy |
+| App | Product/runtime identity, concrete host entrypoints, selected plugins and providers, public-client construction, qualified adapters, mounting, observation, and disposal | Reusable product truth, semantic service policy, or plugin-owned interaction meaning |
+| Qualified app adapter | One environment-specific effect implementation selected by the app | Managed foreign-resource lifecycle, provider selection, service policy, or a generic integration cabinet |
 
 All selected kinds are closed. Required leaves define the spine; optional
 leaves are finite, explicitly admitted capabilities. An open interior is not an
@@ -84,16 +80,16 @@ Every cross-container edge uses one of these meanings:
 | --- | --- |
 | `defines` | Owns portable product or contract truth consumed elsewhere |
 | `derives` | Produces static output from identified source evidence |
-| `declares` | Records cold plugin membership, capability requirements, or qualified adapter identities without executing them |
-| `selects` | Chooses without constructing: an app definition selects plugins and qualified adapters, a profile selects providers and defaults, and an entrypoint selects one app/profile/role tuple |
-| `acquires` | The shared runtime invokes a profile-selected provider and owns the resulting resource scope |
-| `binds` | The shared runtime supplies ready resources and qualified adapter capabilities to a public service client or projection context |
-| `mounts` | The shared runtime starts the role and projection selected by the entrypoint and app definition |
+| `declares` | Records plugin membership, capability requirements, or qualified adapter identities without transferring their authority |
+| `selects` | An app chooses the concrete provider, plugin, adapter, or host role it will realize |
+| `acquires` | An app invokes its selected provider and owns the resulting process-local resource scope |
+| `binds` | An app supplies ready resources and qualified adapters to a public service client or projection context |
+| `mounts` | An app starts its selected native host and projections |
 | `calls` | Invokes a public client or pure package contract |
 | `projects` | Presents an owner capability to a caller without acquiring its authority |
 | `realizes` | Applies a runtime-bound qualified effect to a portable definition without transferring definition authority |
 | `observes` | Reads owner facts or runtime state without creating or deciding them |
-| `disposes` | The shared runtime closes mounted roles, bound clients, and acquired resources in its owned process scope |
+| `disposes` | The app closes mounted roles, bound clients, and acquired resources in its process scope |
 | `proves` | Supplies evidence for one named claim class |
 
 Imports are implementation evidence, not a system relationship. A dependency
@@ -108,27 +104,22 @@ flowchart LR
   P -->|calls| S[Public client of semantic service]
   S -->|calls| K[Pure package]
 
-  A[Cold app definition] -->|declares plugins and adapters| H[Shared Habitat runtime]
-  F[Runtime profile] -->|selects providers| H
-  E[Role entrypoint] -->|selects app profile role| H
-  H -->|acquires| R[Selected resource provider]
-  H -->|binds ready capabilities| S
-  H -->|mounts| P
-  H -->|observes and disposes| L[Process scope]
+  A[Qualified host app] -->|selects and acquires| R[Selected resource provider]
+  A -->|binds ready capabilities| S
+  A -->|mounts| P
+  A -->|observes and disposes| L[Process scope]
 
   D[Portable definition] -->|calls| K
-  H -->|realizes through qualified adapter| G
+  A -->|realizes through qualified adapter| G
   P -->|projects owner facts| X
 ```
 
 Authority flows inward through admitted intent and outward through owner facts.
-The app, profile, and role entrypoint are cold inputs to shared runtime
-realization. Profiles select providers; only the shared runtime acquires them,
-binds ready capabilities and public clients, mounts roles, observes the process,
-and disposes the scope. Services retain semantic authority, and projections call
-their public clients. No projection, provider, app declaration, or runtime
-profile reaches inward to extract private service contracts or implementation
-types.
+The qualified host app selects providers and plugins, acquires ready
+capabilities, constructs public clients, mounts native roles, observes the
+process, and disposes the scope. Services retain semantic authority, and
+projections call their public clients. No projection, provider, or app reaches
+inward to extract private service contracts or implementation types.
 
 ## Capability Realization Chains
 
@@ -153,8 +144,8 @@ contract.
 mod author intent
   -> SDK plus mod definition plugin
   -> deterministic render/file plan
-  -> cold realization definition, profile, and role selection
-  -> shared runtime binds the qualified install adapter and mounts the role
+  -> finite realization build/deploy entrypoint
+  -> realization app invokes its qualified install adapter
   -> Civ7 Mods tree
   -> independent installation, loader, and live evidence
 ```
@@ -195,10 +186,10 @@ CLI or Studio actor intent
 ```
 
 The Tuner provider owns connection and session mechanics. The service owns
-gameplay meaning. A cold profile selects the provider, while the shared runtime
-acquires it, binds the service client, and owns process-scope disposal. No
-direct-control facade, service-adapter package, or caller-owned contract sits
-between them.
+gameplay meaning. The qualified CLI or Studio app selects and acquires the
+provider, constructs the service client with the ready capability, and owns
+process-scope disposal. No direct-control facade, service-adapter package, or
+caller-owned contract sits between them.
 
 ### Map Configuration And Realization
 
@@ -223,10 +214,9 @@ their receipts remain distinct owner transitions.
 
 ```text
 terminal actor
-  -> cold commandless CLI definition, profile, and CLI role
-  -> shared runtime mounts native oclif
+  -> commandless CLI app starts native oclif
   -> native discovery selects one registered topic projection
-  -> shared runtime binds that command's declared public client or adapter
+  -> app-owned command context binds the required public client or adapter
   -> topic projection calls the public client or pure package contract
   -> owner capability
   -> structured terminal projection
@@ -234,10 +224,9 @@ terminal actor
 
 The CLI app is already commandless: `apps/cli/package.json#oclif.plugins` is the
 sole topic-membership authority, and topic plugins already own command UX. The
-cutover migrates only the app anchor, definition/profile/entrypoint proof, and
-delegation to the shared runtime harness; it does not move command logic out of
-the app because none is owned there. Neither app declarations nor topics own
-service policy or resource acquisition.
+cutover seals the app anchor, native Oclif entrypoint, topic registry, and
+command-scope binding/finalization proof; it does not move command logic into
+the app. Topics own neither service policy nor provider construction.
 
 ### Durable Workflows
 
@@ -254,43 +243,44 @@ service-owned state rather than a workflow by analogy.
 | `@civ7/direct-control` | `resources/civ7-tuner`, its provider, `services/civ7-control`, and owner-qualified diagnostic adapters/projections |
 | Control facade and parallel contract shapes | One `services/civ7-control` public client; private router and implementation |
 | `packages/studio-contract` | Portable MapGen config package plus Studio API caller contract |
-| `packages/studio-server` | MapGen-runs service, Studio API plugin, and cold Studio app declarations/adapters selected for shared runtime realization |
+| `packages/studio-server` | MapGen-runs service, Studio API plugin, and qualified Studio host composition/adapters |
 | `packages/mapgen-studio-ui` | Retained component library; no relocation is selected. The separate Studio browser application source moves to the web projection |
 | Concrete `packages/civ7-adapter` engine code | Matching mod realization's map-script runtime |
 | `packages/plugins/plugin-mods` | Pure installation plan package plus qualified app effects; CLI topics only project the app-bound capability |
 | Swooper/Dacia mixed mod roots | Definition plugins plus matching realization apps |
-| `apps/cli` runtime anchor and shell proof | Corrected shared app anchor, definition/profile/entrypoint proof, and runtime-harness delegation; commands remain in their existing topic owners |
+| `apps/cli` runtime anchor and shell proof | Shared app anchor plus qualified native Oclif startup, command binding, and finalization proof; commands remain in their topic owners |
 
-These are authority selections, not permission to create an unconstructible kind
+These are authority selections, not permission to create an unselected kind
 or a complete source-disposition ledger. In particular, the Studio UI package
 does not move on the strength of this table.
 
 ## State And Lifecycle Ownership
 
-| State or lifecycle | Fact or behavior owner | Shared-runtime responsibility | Replay/crash law |
+| State or lifecycle | Fact or behavior owner | App-composition responsibility | Replay/crash law |
 | --- | --- | --- | --- |
-| Tuner socket/session epoch | Local-socket provider | Acquire the profile-selected provider once for the required scope and release it | Reconnect creates a new epoch; release closes provider-owned socket state |
+| Tuner socket/session epoch | Local-socket provider | Acquire the selected provider once for the required scope and release it | Reconnect creates a new epoch; release closes provider-owned socket state |
 | Live control decision | Civ7 control service | Bind ready Tuner/window capabilities to the public client and dispose the binding | Unverified dispatch is explicit and must not be blindly repeated |
-| Studio process identity | Shared process runtime | Create, observe, and dispose one role process selected by the entrypoint | Stable for one process scope; never product state |
+| Studio process identity | MapGen Studio app | Create, observe, and dispose its native host roles | Stable for one process scope; never product state |
 | MapGen operation record | MapGen-runs service | Bind and scope the service client; dispose process-scoped service state after drain | Request-correlated, adoptable during the retained process scope, cancellable, and terminal according to owner policy |
-| Authored config source write | Swooper definition for admitted content; qualified Studio adapter for the exact write/rollback effect | Bind the app-selected adapter using profile-supplied roots and scope its execution | Preserve the prepared write and exact write or rollback receipt |
+| Authored config source write | Swooper definition for admitted content; qualified Studio adapter for the exact write/rollback effect | Bind the app-selected adapter using app-owned roots and scope its execution | Preserve the prepared write and exact write or rollback receipt |
 | Mod installation | Qualified app adapter emits the exact replacement-effect receipt; the matching mod realization owns deployment meaning | Bind the selected adapter and scope its execution; CLI topics call the bound capability without becoming writers | Retry compares supplied tree state and never infers loader acceptance |
 | Generated policy | Generator/package owner | None; this is deterministic static derivation, not runtime acquisition | Reproduce from the identified official source revision |
-| Browser preview | Studio web projection and browser worker | Mount the selected web role and dispose its scope | Ephemeral projection; reproducible from exact admitted inputs and independently cancellable |
+| Browser preview | Studio web projection and browser worker | Mount the web host and dispose its scope | Ephemeral projection; reproducible from exact admitted inputs and independently cancellable |
 
-Cold app definitions, profiles, and role entrypoints select or declare; they are
-never lifecycle owners. A runtime cache, registry, or actor exists only when its
-semantic or mechanical owner needs that lifecycle. Process state is not promoted
-into a resource merely because the shared runtime must eventually dispose it.
+Apps own their concrete process composition and lifetime without gaining the
+semantic authority of the services, resources, or plugins they compose. A
+runtime cache, registry, or actor exists only when its semantic or mechanical
+owner needs that lifecycle. Process state is not promoted into a resource
+merely because an app must eventually dispose it.
 
 ## Forbidden Relations
 
-- A service does not acquire its own provider, import an app profile, or cede
+- A service does not acquire its own provider, import its app, or cede
   semantic decisions to the runtime that binds it.
 - A projection calls public clients or pure package contracts. It does not
   import private service source, construct providers, or become a second
   semantic service.
-- A CLI command does not construct Tuner, service, or app runtime state.
+- A CLI command does not construct Tuner, service, or app process state.
 - The already-commandless CLI app does not receive commands during migration;
   only its app anchor, cold composition proof, and runtime delegation change.
 - A facade does not use `Parameters<OtherSurface["method"]>` as contract
@@ -298,14 +288,10 @@ into a resource merely because the shared runtime must eventually dispose it.
 - A definition plugin does not write generated files or install itself.
 - A package does not hide host filesystem or ambient engine access.
 - A provider does not name gameplay operations or caller routes.
-- An app definition does not acquire, bind, mount, observe, dispose, duplicate
-  service contracts, or own semantic capability state.
-- A profile selects providers and roots only. It does not select plugins or
-  semantic adapter identities and does not perform acquisition.
-- A role entrypoint selects one app/profile/role tuple and delegates once; it
-  does not contain a second startup or mounting plan.
-- Shared runtime acquires, binds, mounts, observes, and disposes, but it does not
-  gain Civ7 product facts or policy.
+- An app does not duplicate service contracts or own semantic capability state
+  merely because it selects, binds, mounts, observes, and disposes them.
+- No descriptor, profile, or `startApp` wrapper is authored without a concrete
+  runtime capability that consumes it.
 - No current source, including Studio run state, is classified as a workflow.
   Workflow grammar remains available and a Civ7 instance remains deferred until
   request/process lifetime is demonstrably insufficient.
@@ -322,18 +308,18 @@ into a resource merely because the shared runtime must eventually dispose it.
 Before moving source into a destination:
 
 1. the product capability and semantic owner are authorized;
-2. the corrected shared kind and selected-depth laws have landed upstream at a
-   usable implementation pin;
-3. the exact root is constructible through that shared generator or an accepted
-   manifest-backed instance path;
+2. the selected shared kind is published at the accepted 0.5.1 pin, or the
+   destination is governed by an already-accepted local Civ7 kind;
+3. the exact root is constructible through an accepted manifest-backed
+   instance path;
 4. its public faces, dependencies, proof topology, and runtime role are closed;
 5. current consumers and behavior evidence are frozen; and
 6. the same implementation container deletes the displaced owner.
 
-The corrected shared successor has not landed, so this gate remains closed for
-target source moves. If a kind is unconstructible, keep current behavior stable.
-Do not create a local approximation, move source speculatively, or harden a
-transition architecture.
+The gate is open only for the six Ground-proven shared kinds and established
+local Civ7 kinds. If a destination kind is not selected, keep current behavior
+stable. Do not create a local approximation, move source speculatively, or
+harden a transition architecture.
 
 ## Transition Test
 
@@ -343,9 +329,8 @@ The system model is stable enough to open outcome modeling only when:
 - every relationship has a named direction;
 - no service, resource, provider, plugin, app, or workflow shares a writer;
 - no reciprocal client or private-source dependency is required;
-- app definitions, profiles, and role entrypoints remain cold declarations;
 - provider, process, binding, mounting, operation, and effect lifecycles have
-  one owner, with shared runtime responsible for acquisition and disposal;
+  one owner, with each qualified app responsible for its concrete composition
+  and disposal;
 - current and destination topology remain visibly distinct; and
-- every unconstructible destination remains blocked rather than locally
-  emulated.
+- every unselected destination remains blocked rather than locally emulated.

@@ -26,12 +26,13 @@ Every participating source has exactly one terminal disposition:
 Brace notation names an exact finite set. A directory path names one intact
 subtree only when every current member has the same disposition and
 destination; it is not recursive discovery authority for future members.
-Destination paths use the selected shared service spine:
+Standalone service destinations use the established local Civ7 service spine:
 `src/service/modules/<module>`. No compatibility facade, parallel oRPC
 contract package, or alternate runtime constructor survives the cutover.
-The Studio API selects that shared source packet at `src/service`, but the
-selected depth remains caller projection: it owns no independent semantic
-service state, provider lifecycle, process startup, or nested proof.
+The Studio API instead uses the qualified caller-projection interior
+`src/{api,client,context,contract,router,modules}`; it selects no shared service
+source packet and owns no independent semantic service state, provider
+lifecycle, process startup, or nested proof.
 
 The first structural migration is one Core Platform parent. Its first nested
 construction slice selects rows from the Swooper definition/realization,
@@ -103,12 +104,12 @@ contract is extracted through a facade or reconstructed by a consumer.
 | Filesystem snapshot, rewrite detection, and fresh-byte mechanics in `packages/civ7-direct-control/src/proof/log-markers.ts` | combine | `apps/mapgen-studio/runtime/adapters/fresh-log-files.ts` | Studio cold-adapter execution |
 | Marker selection, timeout, acceptance, and result policy in `packages/civ7-direct-control/src/proof/log-markers.ts` | combine | `services/mapgen-runs/src/service/modules/run-in-game` | Run-in-game semantics |
 | Pure saved-configuration DTO, byte parsing, admission, and ordering in `packages/civ7-direct-control/src/setup/prepare.ts` | combine | `packages/civ7-save-files/src/{index,saved-config}.ts` | Package contract and semantics |
-| Default-root selection, directory traversal, metadata reads, and byte reads behind `packages/civ7-direct-control/src/setup/prepare.ts#{DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR,listCiv7SavedGameConfigurations}` | combine | `apps/mapgen-studio/runtime/adapters/civ7-save-files.ts` | Studio cold-adapter execution and profile proof |
+| Default-root selection, directory traversal, metadata reads, and byte reads behind `packages/civ7-direct-control/src/setup/prepare.ts#{DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR,listCiv7SavedGameConfigurations}` | combine | `apps/mapgen-studio/src/runtime/adapters/civ7-save-files.ts` | Studio adapter execution and composition proof |
 | `packages/civ7-direct-control/src/runtime/{inspection,inspection-constants,root-inspection}.ts` | inline | `plugins/cli/topics/game/src/adapters/tuner-inspection.ts` | CLI adapter proof |
 | Runtime capability projection in `packages/civ7-direct-control/src/catalog/capabilities.ts` | inline | `plugins/cli/topics/game/src/commands/game/catalog.ts` | Catalog command proof |
 | `packages/civ7-direct-control/src/setup/restart.ts#{restartCiv7Game,restartCiv7GameAndBegin}` | inline | `plugins/cli/topics/game/src/commands/game/restart.ts` | Restart command proof |
 
-Runtime profiles select the Tuner and window-capture providers. The Studio app
+Qualified CLI and Studio apps select the Tuner and window-capture providers. The Studio app
 selects the cold saved-config and fresh-log bindings. The API, services, and
 CLI commands consume only ready typed clients or capabilities.
 
@@ -140,10 +141,10 @@ service client.
 
 | Exact current consumer | Disposition | Terminal consumer boundary |
 | --- | --- | --- |
-| `apps/mapgen-studio/src/server/studio/context.ts` | delete | Shared runtime supplies control and MapGen-runs clients to the Studio API context selected by `rawr.mapgen-studio.ts` and its profile |
+| `apps/mapgen-studio/src/server/studio/context.ts` | combine | Studio app composition supplies control and MapGen-runs clients to the qualified API context |
 | `apps/mapgen-studio/src/server/studio/engines.ts` | combine | Pure parsing/plans/comparison in `packages/studio-run-workspace`, MapGen-runs bindings, and Studio filesystem adapters `{studio-run-files,fresh-log-files,swooper-map-config-source}`; mod installation moves to the Swooper realization adapter; the mixed source file then disappears |
 | `apps/mods/map/swooper-physics/scripts/live/verify-final-surface-parity.ts` | combine | Recipe-owned `plugins/mod/map/swooper-physics/test/recipes/swooper-physics-standard/parity/final-surface-parity.live.test.ts`, consuming the control world client and Studio API client through the realization-owned live target |
-| `apps/mods/map/swooper-physics/scripts/live/verify-studio-run-in-game-live.ts` | combine | The Studio API client through the realization-owned live target; the Studio app selects control, MapGen-runs, and `{civ7-save-files,studio-run-files,fresh-log-files}`, while the shared runtime binds those capabilities and provisions Tuner |
+| `apps/mods/map/swooper-physics/scripts/live/verify-studio-run-in-game-live.ts` | combine | The Studio API client through the realization-owned live target; the Studio app selects and binds control, MapGen-runs, `{civ7-save-files,studio-run-files,fresh-log-files}`, and the Tuner provider |
 | `plugins/mod/map/swooper-physics/src/recipes/standard/parity/live.ts` | relocate | `apps/mods/map/swooper-physics/src/runtime/parity/live.ts`, consuming the control world client at realization time |
 | `packages/studio-contract/src/{civ7,live}.ts` `†` | combine | Exact Studio API control-module contracts over the public control-service client |
 | `packages/studio-contract/src/shared.ts` `†` | inline | Exact owning Studio API module contracts |
@@ -153,9 +154,9 @@ service client.
 | `packages/studio-server/src/router/index.ts` | combine | Studio API authoring, control, runs, and studio module routers |
 | `packages/studio-server/src/services/Civ7TunerClient.ts` | delete | Runtime-supplied control client and API-owned cold requirements |
 | `packages/studio-server/src/services/Civ7TunerSession.ts` | delete | Runtime-provisioned local-socket Tuner provider |
-| `packages/studio-server/src/services/StudioConfig.ts` `†` | combine | Studio app profile and API cold configuration projection |
+| `packages/studio-server/src/services/StudioConfig.ts` `†` | combine | Studio app configuration and API caller projection |
 | `plugins/cli/topics/game/src/adapters/control/service-client.ts` | delete | Runtime-supplied public control-service client |
-| `plugins/cli/topics/game/src/adapters/play/direct-control.ts` | combine | Topic-local play-input projection over control DTOs; endpoint selection moves to the runtime profile |
+| `plugins/cli/topics/game/src/adapters/play/direct-control.ts` | combine | Topic-local play-input projection over control DTOs; endpoint selection moves to CLI app composition |
 | `plugins/cli/topics/game/src/commands/game/{ai/loaded-levers,gameinfo,map/starts,map/visibility}.ts` | combine | Control world client, with display client added for visibility |
 | `plugins/cli/topics/game/src/commands/game/autoplay.ts` | combine | MapGen-runs autoplay client |
 | `plugins/cli/topics/game/src/commands/game/catalog.ts` | inline | Command-owned catalog projection over the ready Tuner resource |
@@ -309,22 +310,21 @@ second topic-membership authority.
 | --- | --- | --- |
 | `apps/cli/{AGENTS.md,CHANGELOG.md,package.json,project.json,tsconfig.json}` | combine | Accepted composed app and CLI-shell envelope at `apps/cli` |
 | `apps/cli/TESTING.md` | combine | `docs/system/TESTING.md` and CLI-specific links under `docs/system/cli` |
-| `apps/cli/civ7.ts` | combine | `apps/cli/civ7.ts`, the sole authored role entrypoint using native Oclif `run` through the shared harness |
-| `apps/cli/bin/run.js` | combine | One executable shim delegating to `apps/cli/civ7.ts`; it owns no startup plan |
-| `plugins/cli/topics/{data,docs,git-mod}/{AGENTS.md,package.json,project.json,tsconfig.json,src}` | combine | Matching accepted topic roots under `plugins/cli/topics`; git-mod retains command projection while local-mod filesystem operations move to `apps/cli/runtime/adapters/local-mods.ts` |
+| `apps/cli/civ7.ts` | combine | `apps/cli/src/cli.ts`, the sole authored native Oclif entrypoint through the app-owned process scope |
+| `apps/cli/bin/run.js` | combine | One executable shim delegating to `apps/cli/src/cli.ts`; it owns no startup plan |
+| `plugins/cli/topics/{data,docs,git-mod}/{AGENTS.md,package.json,project.json,tsconfig.json,src}` | combine | Matching accepted topic roots under `plugins/cli/topics`; git-mod retains command projection while local-mod filesystem operations move to `apps/cli/src/runtime/adapters/local-mods.ts` |
 | `plugins/cli/topics/game/{AGENTS.md,package.json,project.json,tsconfig.json,src/index.ts}` | combine | Accepted `game` topic envelope and public plugin entry |
 | `plugins/cli/topics/game/src/adapters/control/service-client.ts` | delete | Runtime command context supplies the public control-service client |
-| `plugins/cli/topics/game/src/adapters/play/direct-control.ts` | combine | `plugins/cli/topics/game/src/adapters/play/semantic-envelope.ts`; endpoint and provider selection move to the app profile |
+| `plugins/cli/topics/game/src/adapters/play/direct-control.ts` | combine | `plugins/cli/topics/game/src/adapters/play/semantic-envelope.ts`; endpoint and provider selection move to CLI app composition |
 | `plugins/cli/topics/game/src/adapters/{local-data,map,view}` and `src/adapters/play/semantic-envelope.ts` | combine | Matching topic-local projection adapters |
 | `plugins/cli/topics/game/src/commands/game` | combine | Same nested command tree consuming declared runtime requirements and public clients |
 
-`rawr.civ7.ts`, `runtime/config.ts`, `runtime/processes.ts`, and exact selected
-profile leaves are generated from the accepted app packet rather than migrated
-from an existing owner. `rawr.civ7.ts` alone owns topic membership and semantic
-adapter identities. Profiles own only provider, configuration, and process
-facts. `civ7.ts` selects one app, one profile, and the CLI role and delegates
-exactly once to `startApp`; it owns no assembly or runtime behavior beyond that
-selection. The shell uses one shared Oclif harness and one managed command
+`src/runtime/composition.ts`, `context.ts`, and exact selected adapter leaves are
+authored under the qualified app packet rather than migrated from an existing
+owner. `package.json#oclif.plugins` alone owns topic membership; composition
+owns provider, public-client, configuration, and process facts. `src/cli.ts`
+enters native Oclif through the one app-owned composition and owns no commands
+or semantic behavior. The shell uses one app-owned harness and one managed command
 scope. Help, version, and unknown-command paths acquire no live capability; a
 selected command binds only its declared clients. No topic constructs a control
 client, chooses a provider, imports the app, or introduces a second command or
@@ -340,42 +340,42 @@ explicitly replaces one. No compatibility alias or second contract is added.
 
 | Exact public route | Route disposition | Exact API contract owner | Underlying authority |
 | --- | --- | --- | --- |
-| `civ7.status` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/status.ts` | Control-service readiness client |
-| `civ7.mapSummary` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/map-summary.ts` | Control-service world client |
-| `civ7.gameInfo` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/game-info.ts` | Control-service world client |
-| `civ7.autoplay` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/autoplay.ts` | MapGen-runs autoplay client |
-| `civ7.setupConfig` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/setup-config.ts` | Control-service lifecycle client |
-| `civ7.savedConfigs` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/authoring/contract/saved-configs.ts` | App-selected `civ7-save-files` adapter |
-| `civ7.setupCatalog` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/authoring/contract/setup-catalog.ts` | App-selected `civ7-official-data` adapter and profile-selected roots |
-| `civ7.live.status` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/live-status.ts` | Control-service readiness and lifecycle clients |
-| `civ7.live.snapshot` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/live-snapshot.ts` | Control-service world client |
-| `civ7.live.entities` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/live-entities.ts` | Control-service world client |
-| `civ7.live.gameInfo` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/live-game-info.ts` | Control-service world client |
-| `civ7.attention.{current,priorities}` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/civ7-control.ts` | Public control-service `attention` contract and client |
-| `civ7.city.population.place.{check,request}`; `civ7.city.production.choice.{check,request}`; `civ7.city.townFocus.{change,review}.{check,request}` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/civ7-control.ts` | Public control-service `city` contract and client |
-| `civ7.diplomacy.firstMeet.response.{check,request}`; `civ7.diplomacy.response.{check,request}` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/civ7-control.ts` | Public control-service `diplomacy` contract and client |
-| `civ7.display.queue.{current,close}`; `civ7.display.explore.request` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/civ7-control.ts` | Public control-service `display` contract and client |
-| `civ7.government.choice.{check,request}`; `civ7.government.celebration.choice.{check,request}` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/civ7-control.ts` | Public control-service `government` contract and client |
-| `civ7.lifecycle.singlePlayer.start` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/civ7-control.ts` | Public control-service `lifecycle` contract and client |
-| `civ7.narrative.choice.{check,request}` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/civ7-control.ts` | Public control-service `narrative` contract and client |
-| `civ7.notifications.advisorWarning.viewed.{check,request}`; `civ7.notifications.dismiss.{check,request}`; `civ7.notifications.queue.current`; `civ7.notifications.queue.dismiss.request` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/civ7-control.ts` | Public control-service `notifications` contract and client |
-| `civ7.progression.{dashboard,traditions}.current`; `civ7.progression.{technology,culture}.choice.{options,check,request}`; `civ7.progression.{technology,culture}.target.{check,request}`; `civ7.progression.attribute.{purchase,review}.{check,request}`; `civ7.progression.tradition.{change,review}.{check,request}` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/civ7-control.ts` | Public control-service `progression` contract and client |
-| `civ7.readiness.current` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/civ7-control.ts` | Public control-service `readiness` contract and client |
-| `civ7.strategy.{civilianRouteTriage,formationSnapshot,frontSummary,battlefieldScan,destinationAnalysis,targetCandidates}` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/civ7-control.ts` | Public control-service `strategy` contract and client |
-| `civ7.turn.complete.{check,request}` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/civ7-control.ts` | Public control-service `turn` contract and client |
-| `civ7.unit.{resettle,upgrade}.{check,request}`; `civ7.unit.target.action.{check,request}` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/civ7-control.ts` | Public control-service `unit` contract and client |
-| `civ7.view.appshot.capture`; `civ7.view.camera.focus` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/civ7-control.ts` | Public control-service `view` contract and client |
-| `civ7.world.{current,plot,grid}` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/service/modules/control/contract/civ7-control.ts` | Public control-service `world` contract and client |
-| `mapConfigs.status` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/runs/contract/map-config-status.ts` | MapGen-runs save-deploy client |
-| `mapConfigs.saveDeploy` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/runs/contract/map-config-save-deploy.ts` | MapGen-runs save-deploy client |
-| `runInGame.status` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/runs/contract/run-in-game-status.ts` | MapGen-runs run-in-game client |
-| `runInGame.cancel` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/runs/contract/run-in-game-cancel.ts` | MapGen-runs run-in-game client |
-| `runInGame.diagnostics` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/runs/contract/run-in-game-diagnostics.ts` | MapGen-runs run-in-game client |
-| `runInGame.start` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/runs/contract/run-in-game-start.ts` | MapGen-runs run-in-game client |
-| `studio.serverInfo` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/studio/contract/server-info.ts` | Shared process identity in API context |
-| `studio.operations.current` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/studio/contract/operations-current.ts` | MapGen-runs client |
-| `studio.events.watch` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/studio/contract/events-watch.ts` | API-owned projection over run and control observations |
-| `recipeDag.get` | relocate | `plugins/server/api/mapgen-studio/src/service/modules/authoring/contract/recipe-dag.ts` | Swooper definition-authoring projection |
+| `civ7.status` | relocate | `plugins/server/api/mapgen-studio/src/modules/control/contract/status.ts` | Control-service readiness client |
+| `civ7.mapSummary` | relocate | `plugins/server/api/mapgen-studio/src/modules/control/contract/map-summary.ts` | Control-service world client |
+| `civ7.gameInfo` | relocate | `plugins/server/api/mapgen-studio/src/modules/control/contract/game-info.ts` | Control-service world client |
+| `civ7.autoplay` | relocate | `plugins/server/api/mapgen-studio/src/modules/control/contract/autoplay.ts` | MapGen-runs autoplay client |
+| `civ7.setupConfig` | relocate | `plugins/server/api/mapgen-studio/src/modules/control/contract/setup-config.ts` | Control-service lifecycle client |
+| `civ7.savedConfigs` | relocate | `plugins/server/api/mapgen-studio/src/modules/authoring/contract/saved-configs.ts` | App-selected `civ7-save-files` adapter |
+| `civ7.setupCatalog` | relocate | `plugins/server/api/mapgen-studio/src/modules/authoring/contract/setup-catalog.ts` | App-selected `civ7-official-data` adapter and app-owned roots |
+| `civ7.live.status` | relocate | `plugins/server/api/mapgen-studio/src/modules/control/contract/live-status.ts` | Control-service readiness and lifecycle clients |
+| `civ7.live.snapshot` | relocate | `plugins/server/api/mapgen-studio/src/modules/control/contract/live-snapshot.ts` | Control-service world client |
+| `civ7.live.entities` | relocate | `plugins/server/api/mapgen-studio/src/modules/control/contract/live-entities.ts` | Control-service world client |
+| `civ7.live.gameInfo` | relocate | `plugins/server/api/mapgen-studio/src/modules/control/contract/live-game-info.ts` | Control-service world client |
+| `civ7.attention.{current,priorities}` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/modules/control/contract/civ7-control.ts` | Public control-service `attention` contract and client |
+| `civ7.city.population.place.{check,request}`; `civ7.city.production.choice.{check,request}`; `civ7.city.townFocus.{change,review}.{check,request}` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/modules/control/contract/civ7-control.ts` | Public control-service `city` contract and client |
+| `civ7.diplomacy.firstMeet.response.{check,request}`; `civ7.diplomacy.response.{check,request}` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/modules/control/contract/civ7-control.ts` | Public control-service `diplomacy` contract and client |
+| `civ7.display.queue.{current,close}`; `civ7.display.explore.request` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/modules/control/contract/civ7-control.ts` | Public control-service `display` contract and client |
+| `civ7.government.choice.{check,request}`; `civ7.government.celebration.choice.{check,request}` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/modules/control/contract/civ7-control.ts` | Public control-service `government` contract and client |
+| `civ7.lifecycle.singlePlayer.start` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/modules/control/contract/civ7-control.ts` | Public control-service `lifecycle` contract and client |
+| `civ7.narrative.choice.{check,request}` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/modules/control/contract/civ7-control.ts` | Public control-service `narrative` contract and client |
+| `civ7.notifications.advisorWarning.viewed.{check,request}`; `civ7.notifications.dismiss.{check,request}`; `civ7.notifications.queue.current`; `civ7.notifications.queue.dismiss.request` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/modules/control/contract/civ7-control.ts` | Public control-service `notifications` contract and client |
+| `civ7.progression.{dashboard,traditions}.current`; `civ7.progression.{technology,culture}.choice.{options,check,request}`; `civ7.progression.{technology,culture}.target.{check,request}`; `civ7.progression.attribute.{purchase,review}.{check,request}`; `civ7.progression.tradition.{change,review}.{check,request}` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/modules/control/contract/civ7-control.ts` | Public control-service `progression` contract and client |
+| `civ7.readiness.current` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/modules/control/contract/civ7-control.ts` | Public control-service `readiness` contract and client |
+| `civ7.strategy.{civilianRouteTriage,formationSnapshot,frontSummary,battlefieldScan,destinationAnalysis,targetCandidates}` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/modules/control/contract/civ7-control.ts` | Public control-service `strategy` contract and client |
+| `civ7.turn.complete.{check,request}` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/modules/control/contract/civ7-control.ts` | Public control-service `turn` contract and client |
+| `civ7.unit.{resettle,upgrade}.{check,request}`; `civ7.unit.target.action.{check,request}` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/modules/control/contract/civ7-control.ts` | Public control-service `unit` contract and client |
+| `civ7.view.appshot.capture`; `civ7.view.camera.focus` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/modules/control/contract/civ7-control.ts` | Public control-service `view` contract and client |
+| `civ7.world.{current,plot,grid}` | retain through whole-contract composition | `plugins/server/api/mapgen-studio/src/modules/control/contract/civ7-control.ts` | Public control-service `world` contract and client |
+| `mapConfigs.status` | relocate | `plugins/server/api/mapgen-studio/src/modules/runs/contract/map-config-status.ts` | MapGen-runs save-deploy client |
+| `mapConfigs.saveDeploy` | relocate | `plugins/server/api/mapgen-studio/src/modules/runs/contract/map-config-save-deploy.ts` | MapGen-runs save-deploy client |
+| `runInGame.status` | relocate | `plugins/server/api/mapgen-studio/src/modules/runs/contract/run-in-game-status.ts` | MapGen-runs run-in-game client |
+| `runInGame.cancel` | relocate | `plugins/server/api/mapgen-studio/src/modules/runs/contract/run-in-game-cancel.ts` | MapGen-runs run-in-game client |
+| `runInGame.diagnostics` | relocate | `plugins/server/api/mapgen-studio/src/modules/runs/contract/run-in-game-diagnostics.ts` | MapGen-runs run-in-game client |
+| `runInGame.start` | relocate | `plugins/server/api/mapgen-studio/src/modules/runs/contract/run-in-game-start.ts` | MapGen-runs run-in-game client |
+| `studio.serverInfo` | relocate | `plugins/server/api/mapgen-studio/src/modules/studio/contract/server-info.ts` | Shared process identity in API context |
+| `studio.operations.current` | relocate | `plugins/server/api/mapgen-studio/src/modules/studio/contract/operations-current.ts` | MapGen-runs client |
+| `studio.events.watch` | relocate | `plugins/server/api/mapgen-studio/src/modules/studio/contract/events-watch.ts` | API-owned projection over run and control observations |
+| `recipeDag.get` | relocate | `plugins/server/api/mapgen-studio/src/modules/authoring/contract/recipe-dag.ts` | Swooper definition-authoring projection |
 
 The finite brace expressions above expand to all 70 current control-service
 route leaves, including `lifecycle`, which the legacy composition comment
@@ -396,7 +396,7 @@ a provider implementation or app.
 | Run phases, status, diagnostics, admission, cancellation, and public outcome in `packages/studio-contract/src/{runInGame,runInGamePublic}.ts` | combine | `services/mapgen-runs/src/service/modules/run-in-game/contract` | MapGen-runs contract and semantics |
 | Save/deploy phases, status, and failure evidence in `packages/studio-contract/src/mapConfigs.ts` | combine | `services/mapgen-runs/src/service/modules/save-deploy/contract` | MapGen-runs contract and semantics |
 | Studio runtime failure vocabulary in `packages/studio-contract/src/errors/failure.ts` | combine | `services/mapgen-runs/src/service/model/errors/failure.ts` | MapGen-runs contract |
-| oRPC procedures in `packages/studio-contract/src/{civ7,live,mapConfigs,runInGame,studio}.ts` | combine | Exact `plugins/server/api/mapgen-studio/src/service/modules/{control,runs,studio}/contract` owner | API contract and projection |
+| oRPC procedures in `packages/studio-contract/src/{civ7,live,mapConfigs,runInGame,studio}.ts` | combine | Exact `plugins/server/api/mapgen-studio/src/modules/{control,runs,studio}/contract` owner | API contract and projection |
 | `packages/studio-contract/src/liveGame/model.ts` | combine | API control module model | API projection |
 | `packages/studio-contract/src/recipeDag/{contract,errors,schema}.ts` | relocate | API authoring module contract | API contract and projection |
 | `packages/studio-contract/src/shared.ts` | inline | Exact owning API module contracts | API contract proof |
@@ -415,7 +415,7 @@ vocabulary, child source directory, or broad barrel. The
 | `packages/studio-server/src/workflows/{AutoplayWorkflow,RunInGameWorkflow,SaveDeployWorkflow}.ts` | combine | Exact `services/mapgen-runs/src/service/modules/{autoplay,run-in-game,save-deploy}` service | Module semantics |
 | `packages/studio-server/src/workflows/workflowTransitions.ts` | inline | The three owning modules | Module semantics |
 | `packages/studio-server/src/ports/Civ7WorkflowControl.ts` | combine | MapGen-runs public control dependency plus private module ports | Service contract and module semantics |
-| `packages/studio-server/src/ports/{DeployRunner,EvidenceBuilder,MapConfigStore,RunInGameArtifactGenerator,ScriptingLog}.ts` | combine | MapGen-runs public authored-config, realization, and fresh-log dependency descriptors plus matching service-private ports; Studio selects `{swooper-map-config-source,studio-run-files,fresh-log-files}`, the realization selects `local-mod-install`, and the shared runtime performs both bindings | Service contract, fake-port semantics, and runtime binding proof |
+| `packages/studio-server/src/ports/{DeployRunner,EvidenceBuilder,MapConfigStore,RunInGameArtifactGenerator,ScriptingLog}.ts` | combine | MapGen-runs public authored-config, realization, and fresh-log dependency descriptors plus matching service-private ports; Studio binds `{swooper-map-config-source,studio-run-files,fresh-log-files}` and the realization binds `local-mod-install` | Service contract, fake-port semantics, and app binding proof |
 | `packages/studio-server/src/ports/RuntimeObservation.ts` | combine | Run-in-game module observation port | Run-in-game semantics |
 | `packages/studio-server/src/operationRuntime/launchEnvelope.ts` | combine | `services/mapgen-runs/src/service/modules/run-in-game/model/policy/launch-admission.ts` | Run-in-game semantics |
 | `packages/studio-server/src/operationRuntime/{attributionReport,diagnostics,privateJson}.ts` | combine | `services/mapgen-runs/src/service/modules/run-in-game` | Run-in-game diagnostics semantics |
@@ -461,24 +461,23 @@ absorbs source mutation.
 
 | Exact source | Disposition | Exact destination | Proof owner |
 | --- | --- | --- | --- |
-| `packages/studio-server/src/context.ts` | combine | `plugins/server/api/mapgen-studio/src/service/base.ts` | API contract and projection |
-| `packages/studio-server/src/contract/index.ts` | combine | `plugins/server/api/mapgen-studio/src/service/contract.ts` plus exact module contracts | API contract and projection |
-| `packages/studio-server/src/router/index.ts` | combine | `plugins/server/api/mapgen-studio/src/api.ts` plus `src/service/{impl,router}.ts` and exact module composition | API router projection |
-| `packages/studio-server/src/errors.ts` and `src/errors` | combine | Exact API projection errors under `src/service/modules` | API error projection |
-| `packages/studio-server/src/services/StudioEventHub.ts` | combine | API studio projection module under `src/service/modules/studio` | API-owned scoped execution |
-| `packages/studio-server/src/liveGame/statusRead.ts` | combine | API control projection module under `src/service/modules/control` | API control projection |
-| `packages/studio-server/src/liveGame/watcher.ts` | combine | API control watcher under `src/service/modules/control` | API-owned scoped execution |
-| `packages/studio-server/src/recipeDag/service.ts` and `apps/mapgen-studio/src/server/recipeDag/service.ts` | combine | API authoring projection module under `src/service/modules/authoring` | API authoring projection |
-| `packages/studio-server/src/services/{Civ7TunerClient,Civ7TunerSession}.ts` | delete | Runtime-supplied control client and Tuner provider |
-| `packages/studio-server/src/services/StudioConfig.ts` | combine | Studio runtime configuration and exact profile facts; no semantic service state enters the API projection |
-| `packages/studio-server/src/{handler,index,runtime}.ts`, `src/workflows/index.ts`, and the package root | delete | Shared API/runtime harness, Knip, and coupled graph |
+| `packages/studio-server/src/context.ts` | combine | `plugins/server/api/mapgen-studio/src/context.ts` | API contract and projection |
+| `packages/studio-server/src/contract/index.ts` | combine | `plugins/server/api/mapgen-studio/src/contract.ts` plus exact module contracts | API contract and projection |
+| `packages/studio-server/src/router/index.ts` | combine | `plugins/server/api/mapgen-studio/src/{api,router}.ts` plus exact module composition | API router projection |
+| `packages/studio-server/src/errors.ts` and `src/errors` | combine | Exact API projection errors under `src/modules` | API error projection |
+| `packages/studio-server/src/services/StudioEventHub.ts` | combine | API studio projection module under `src/modules/studio` | API-owned scoped execution |
+| `packages/studio-server/src/liveGame/statusRead.ts` | combine | API control projection module under `src/modules/control` | API control projection |
+| `packages/studio-server/src/liveGame/watcher.ts` | combine | API control watcher under `src/modules/control` | API-owned scoped execution |
+| `packages/studio-server/src/recipeDag/service.ts` and `apps/mapgen-studio/src/server/recipeDag/service.ts` | combine | API authoring projection module under `src/modules/authoring` | API authoring projection |
+| `packages/studio-server/src/services/{Civ7TunerClient,Civ7TunerSession}.ts` | delete | App-supplied control client and Tuner provider |
+| `packages/studio-server/src/services/StudioConfig.ts` | combine | Studio runtime configuration and exact app-composition facts; no semantic service state enters the API projection |
+| `packages/studio-server/src/{handler,index,runtime}.ts`, `src/workflows/index.ts`, and the package root | delete | Qualified API/app host composition, Knip, and coupled graph |
 
 The API plugin owns caller projection only at the closed source surface
-`src/{api,client,service}` with the selected shared packet at
-`src/service/{base,contract,impl,router,modules}`. That selected service-source
-depth imports public service clients, not service-private source, and owns no
-nested proof or independent semantic service authority. It chooses no
-provider, transport, server mount, process, or application lifecycle.
+`src/{api,client,context,contract,router,modules}`. It imports public service
+clients, not service-private source, and owns no independent semantic service
+authority. It chooses no provider, transport, server mount, process, or
+application lifecycle.
 
 ## Studio Web And App
 
@@ -498,25 +497,25 @@ relocation or web-plugin identity for that separate package.
 | Filesystem reads in `apps/mapgen-studio/src/server/runInGame/{fileEvidence,logFailure,swooperLogEvidence}.ts` | combine | `apps/mapgen-studio/runtime/adapters/{studio-run-files,fresh-log-files}.ts` | Studio cold-adapter execution |
 | `apps/mapgen-studio/src/server/mapConfigs/deploy.ts` | combine | `apps/mods/map/swooper-physics/src/runtime/targets.ts` using `src/runtime/adapters/local-mod-install.ts`; `src/server/studio/engines.ts` is already classified as one mixed source in Direct-Control Consumer Closure | Mod realization artifact, deployment, and live proof |
 | Caller-facing setup-catalog DTO and route projection in `apps/mapgen-studio/src/server/civ7Resources/catalog.ts` | combine | Studio API authoring module | API authoring projection |
-| Official-root selection, traversal, reads, XML parsing, admission, and ordering in `apps/mapgen-studio/src/server/civ7Resources/catalog.ts` | combine | `apps/mapgen-studio/runtime/adapters/civ7-official-data.ts` | Studio cold-adapter execution and profile proof |
+| Official-root selection, traversal, reads, XML parsing, admission, and ordering in `apps/mapgen-studio/src/server/civ7Resources/catalog.ts` | combine | `apps/mapgen-studio/src/runtime/adapters/civ7-official-data.ts` | Studio adapter execution and composition proof |
 | `apps/mapgen-studio/src/server/studio/{context,engines}.ts` manual construction | delete | Shared runtime compiler and exact app adapter selection |
 | `apps/mapgen-studio/src/server/daemon/daemon.ts` server construction, mounts, static serving, and disposal | delete | Shared server/web harness execution proof |
-| Daemon configuration/process facts and role selection in `apps/mapgen-studio/src/server/daemon/daemon.ts` | combine | `apps/mapgen-studio/{runtime/config.ts,runtime/processes.ts,server.ts,web.ts,dev.ts}` | App profile and entrypoint proof |
+| Daemon configuration/process facts and role selection in `apps/mapgen-studio/src/server/daemon/daemon.ts` | combine | `apps/mapgen-studio/src/{runtime/config.ts,runtime/composition.ts,server.ts,web.ts,dev.ts}` | App composition and host execution proof |
 | `apps/mapgen-studio/{Caddyfile,railway.json}` | combine | Qualified Studio app deployment configuration | App definition and delivery proof |
-| `apps/mapgen-studio/{package.json,project.json}` | combine | Qualified app spine selected in `TOPOLOGY.md` | App definition, profile, and entrypoint proof |
-| `apps/mapgen-studio/tsconfig.test.json` | combine | `apps/mapgen-studio/test/tsconfig.json`, narrowed to the app definition, profile, entrypoint, and selected adapter axes |
+| `apps/mapgen-studio/{package.json,project.json}` | combine | Qualified app spine selected in `TOPOLOGY.md` | App assembly and host execution proof |
+| `apps/mapgen-studio/tsconfig.test.json` | combine | `apps/mapgen-studio/test/tsconfig.json`, narrowed to app composition, host, and selected-adapter axes |
 | `apps/mapgen-studio/.gitignore` | combine | Root ignore authority, then delete the app-local file | Generated/output hygiene proof |
 | `apps/mapgen-studio/system.md` | combine | `docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`, then delete the app-local file | Documentation link/currentness proof |
 | `apps/mapgen-studio/README.md` | combine | `docs/projects/mapgen-studio/RUNBOOK.md`, then delete the app-local file | Documentation link/currentness proof |
 
-The terminal app is a realization shell. `rawr.mapgen-studio.ts` alone selects
-the Studio API and web plugins plus the exact semantic adapter identities
+The terminal app is a realization shell. Its qualified composition selects the
+Studio API and web plugins plus the exact semantic adapter identities
 `{civ7-save-files,studio-run-files,fresh-log-files,civ7-official-data,swooper-map-config-source}`.
-Profiles select only provider, configuration-root, and process facts. Each of
-`server.ts`, `web.ts`, and `dev.ts` selects one app, one profile,
-and one role and delegates exactly once to `startApp`; entrypoints own no mount,
-provider acquisition, or service execution. The app owns no feature, router,
-service, provider, or deployment implementation.
+That composition also selects provider, configuration-root, public-client, and
+process facts. `src/server.ts`, `src/web.ts`, and `src/dev.ts` each enter one
+native host role; host entrypoints own no semantic service truth. The app owns
+no feature, API router, semantic service, provider implementation, or portable
+definition truth.
 
 ## Swooper Definition And Realization
 

@@ -255,10 +255,10 @@ These sections cover five Studio-contract files and ten Studio-server files.
 
 | Exact current source | Disposition | Exact destination |
 | --- | --- | --- |
-| `apps/mapgen-studio/test/civ7Resources/catalog.test.ts` | combine | XML parsing, admission, ordering, traversal, and file-read assertions move to `apps/mapgen-studio/test/execution/adapters/civ7-official-data.test.ts`; root selection moves to `apps/mapgen-studio/test/profiles/local-civ7.test.ts` |
+| `apps/mapgen-studio/test/civ7Resources/catalog.test.ts` | combine | XML parsing, admission, ordering, traversal, and file-read assertions move to `apps/mapgen-studio/test/execution/adapters/civ7-official-data.test.ts`; root selection moves to `apps/mapgen-studio/test/assembly/composition.test.ts` |
 | `apps/mapgen-studio/test/contracts/mapConfigEnvelope.test.ts` | combine | `packages/mapgen-config/test/semantics/map-config-envelope.test.ts` |
 | `apps/mapgen-studio/test/devServer/daemonDeployIsolation.test.ts` | combine | `apps/mods/map/swooper-physics/test/deployment/save-deploy.test.ts` |
-| `apps/mapgen-studio/test/devServer/viteProxyStream.test.ts` | delete | Shared web-runtime transport execution owns streaming; an entrypoint proves only one `startApp` delegation |
+| `apps/mapgen-studio/test/devServer/viteProxyStream.test.ts` | combine | Preserve observable proxy streaming in `apps/mapgen-studio/test/execution/hosts/web.test.ts`; do not preserve Vite wiring details |
 | `apps/mapgen-studio/test/mapConfigSave/deployCommand.test.ts` | combine | `apps/mods/map/swooper-physics/test/deployment/save-deploy.test.ts` |
 | `apps/mapgen-studio/test/mapConfigSave/requestValidation.test.ts` | combine | `services/mapgen-runs/test/semantics/modules/save-deploy/start.test.ts` |
 | `apps/mapgen-studio/test/recipeDag/artifactDomainCoverage.test.ts` | combine | `plugins/server/api/mapgen-studio/test/projection/authoring.test.ts` |
@@ -270,10 +270,10 @@ These sections cover five Studio-contract files and ten Studio-server files.
 | The same log-failure suite's dismissal, recovery-boundary, hint, timeout, retry, and polling-policy assertions | combine | `services/mapgen-runs/test/semantics/modules/run-in-game/start.test.ts`; host log observation remains in the selected `fresh-log-files` adapter proof |
 | `apps/mapgen-studio/test/runInGame/materializationStatus.test.ts` | combine | `packages/studio-run-workspace/test/semantics/materialization-evidence.test.ts` |
 | `apps/mapgen-studio/test/runInGame/runtimeObservation.test.ts` | combine | `services/mapgen-runs/test/semantics/modules/run-in-game/start.test.ts` |
-| `apps/mapgen-studio/test/server/daemonFetch.test.ts` daemon argument, environment, and process-configuration assertions | combine | `apps/mapgen-studio/test/profiles/local-civ7.test.ts` |
-| `apps/mapgen-studio/test/server/daemonFetch.test.ts` health, static serving, route mounting, HTTP status, and retired-path assertions | delete | Shared server-runtime transport execution replaces these assertions; the server entrypoint owns only app/profile/role selection and one `startApp` call |
+| `apps/mapgen-studio/test/server/daemonFetch.test.ts` daemon argument, environment, and process-configuration assertions | combine | `apps/mapgen-studio/test/assembly/composition.test.ts` |
+| `apps/mapgen-studio/test/server/daemonFetch.test.ts` health, static serving, route mounting, HTTP status, and retired-path assertions | combine | Preserve public host behavior in `apps/mapgen-studio/test/execution/hosts/server.test.ts`; delete implementation-shaped assertions |
 | `apps/mapgen-studio/test/server/engineErrorSpine.test.ts` | combine | `plugins/server/api/mapgen-studio/test/projection/errors.test.ts` |
-| `apps/mapgen-studio/test/server/oneMount.test.ts` app/profile/role selection and delegation setup | combine | `apps/mapgen-studio/test/entrypoints/server.test.ts` |
+| `apps/mapgen-studio/test/server/oneMount.test.ts` app/client/provider selection and delegation setup | combine | `apps/mapgen-studio/test/assembly/composition.test.ts` and `test/execution/hosts/server.test.ts` |
 | `apps/mapgen-studio/test/server/oneMount.test.ts#studio, civ7-control, and recipeDag namespaces answer over one handler` app-host mount assertion | combine | Shared server-runtime execution proof |
 | The same test's `civ7.setupCatalog` and `recipeDag.get` route-projection assertions | combine | `plugins/server/api/mapgen-studio/test/projection/authoring.test.ts` |
 | The same test's readiness, lifecycle-error, and sanitization route-projection assertions | combine | `plugins/server/api/mapgen-studio/test/projection/control.test.ts` |
@@ -283,9 +283,9 @@ These sections cover five Studio-contract files and ten Studio-server files.
 | The same test's lifecycle-admission assertions | combine | `services/civ7-control/test/execution/root.test.ts` |
 | The same test's provider acquisition and release assertions | combine | `resources/civ7-tuner/providers/local-socket/test/execution/lifecycle.test.ts` |
 | `apps/mapgen-studio/test/server/oneMount.test.ts#{serializes complete public control procedures on the daemon Tuner lease,removes an aborted queued control procedure before it can enter,drains an admitted control procedure before cancellation releases its lease}` | combine | `services/civ7-control/test/execution/root.test.ts` |
-| `apps/mapgen-studio/test/server/oneMount.test.ts#daemon disposal drains an admitted control procedure before closing the session` | combine | `services/civ7-control/test/execution/root.test.ts`, local-socket provider release proof, and shared runtime disposal proof |
+| `apps/mapgen-studio/test/server/oneMount.test.ts#daemon disposal drains an admitted control procedure before closing the session` | combine | `services/civ7-control/test/execution/root.test.ts`, local-socket provider release proof, and Studio host disposal proof |
 | `apps/mapgen-studio/test/server/oneMount.test.ts#the civ7 namespace merge is collision-free` | combine | `plugins/server/api/mapgen-studio/test/projection/router.test.ts` |
-| `apps/mapgen-studio/test/server/oneMount.test.ts#out-of-scope paths fall through to the host 404` | delete | Transport-only assertion; shared runtime owns host fallthrough |
+| `apps/mapgen-studio/test/server/oneMount.test.ts#out-of-scope paths fall through to the host 404` | combine | `apps/mapgen-studio/test/execution/hosts/server.test.ts`; this is app-host behavior, not API semantics |
 | `apps/mapgen-studio/test/studioErrors/definedErrorProjection.test.ts` | combine | `plugins/server/api/mapgen-studio/test/projection/errors.test.ts` |
 
 ### Deleted app-local proof machinery
@@ -297,7 +297,7 @@ These sections cover five Studio-contract files and ten Studio-server files.
 | `apps/mapgen-studio/test/controllers/{_setup.ts,harness.smoke.test.tsx,useLatestRef.test.tsx}` | delete | No destination; colocated fixtures and product behavior replace generic harness proof |
 | `apps/mapgen-studio/test/server/tunerSession.test.ts` | delete | No destination; Tuner provider proof owns session lifecycle |
 | `apps/mapgen-studio/test/setup.ts` | delete | No destination; fixtures colocate with their exact consumer |
-| `apps/mapgen-studio/tsconfig.test.json` | combine | `apps/mapgen-studio/test/tsconfig.json`, narrowed to the app's closed definition, profile, entrypoint, and selected-adapter proof |
+| `apps/mapgen-studio/tsconfig.test.json` | combine | `apps/mapgen-studio/test/tsconfig.json`, narrowed to the app's closed assembly, host, and selected-adapter proof |
 
 The section covers 69 app test/support files and one compiler file.
 
@@ -674,12 +674,10 @@ execution proof set below.
 | `packages/civ7-mod-install/test/semantics/installation-plan.test.ts` | Invalid identifiers and paths are rejected; supplied observations deterministically yield wholesale replacement plans, digest comparisons, counts, and typed receipts without reading or mutating a host filesystem |
 | `packages/civ7-save-files/test/contract/contract.typecheck.ts` | Consumers compile against pure saved-config parsing and DTO contracts without filesystem capability |
 | `packages/studio-run-workspace/test/contract/contract.typecheck.ts` | Consumers compile against pure correlation, path-plan, manifest parse/serialize, and comparison contracts without filesystem capability |
-| `apps/cli/test/definition.test.ts` | Commandless CLI identity, exact topic membership, and semantic-adapter identities |
-| `apps/cli/test/profiles/local-civ7.test.ts` | Exact Tuner/window-capture provider, configuration, and process facts only |
-| `apps/cli/test/entrypoints/civ7.test.ts` | The Civ7 entrypoint selects one app, one profile, and the CLI role and calls `startApp` exactly once |
-| `apps/mapgen-studio/test/definition.test.ts` | Exact Studio API/web membership and semantic-adapter identities |
-| `apps/mapgen-studio/test/profiles/local-civ7.test.ts` | Exact provider, configuration-root, and process facts, including official-data roots; no semantic-adapter membership |
-| `apps/mapgen-studio/test/entrypoints/{server,web,dev}.test.ts` | Each entrypoint selects only its app, profile, and role and calls `startApp` exactly once |
+| `apps/cli/test/assembly/shell.test.ts` | Native discovery, sole-topic-registry assembly, help catalog, and executable-shim equivalence |
+| `apps/cli/test/execution/{binding,finalization}.test.ts` | Actual provider, public-client, semantic-adapter and configuration binding; native Oclif demand binding and once-only command-process finalization |
+| `apps/mapgen-studio/test/assembly/composition.test.ts` | Exact API/web membership, adapter selection, provider, public-client, configuration-root, plugin and process facts, including official-data roots |
+| `apps/mapgen-studio/test/execution/hosts/{server,web,dev}.test.ts` | Each native host starts, mounts, observes, and disposes only its selected roles |
 | `apps/mapgen-studio/test/execution/adapters/{civ7-save-files,studio-run-files,fresh-log-files,civ7-official-data,swooper-map-config-source}.test.ts` | Each selected Studio cold adapter alone owns its exact filesystem effects and release/failure behavior |
 | `plugins/mod/map/swooper-physics/test/definition.test.ts` | Product identity, public definition face, and finite authored capability membership |
 | `plugins/mod/map/swooper-physics/test/authoring/targets.test.ts` | Exact cold authoring target table and deterministic currentness contract |
