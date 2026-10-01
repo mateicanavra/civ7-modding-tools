@@ -1142,3 +1142,71 @@ setup projection. Other historical atlas package shapes are unchanged. A
 fresh stock run must still observe actual `MapInfo.LakeSizeCutoff = 10`; a
 neutral file is not proof that a previous database treatment was cleared.
 Keep the failed launch and the corrected package seals separately.
+
+### Retained Directional Result And Ordering Discriminator
+
+The corrected V23 stock10/finite17 pair completed fresh Huge/1018 Exploration
+games, every authentic maintenance call and five directional waypoints. Each
+arm has a sealed six-file built/installed package and a complete 6,996-plot
+controller census acquired in bounded serial chunks. The independent retained
+reader accepted source, physical-payload, package, raw-output and call identity.
+Evidence: `earth-calibration/native-water-v23-20261001/`;
+`pair-joined-analysis.json` SHA-256
+`a1e372f1770fbadc2fad120ff58d07222abf9f5499d8d991100ec0f82b82f5ca`.
+
+Exactly 48 cells change lake identity. Final elevation, water, terrain, feature,
+river class and the other controller facts agree across the entire map. All
+204 finite-water heads and 4,275 protected external-water heads retain intent.
+Nevertheless 114 directed cliff flags (57 undirected edges) differ: all are
+finite-water shores, stock true versus finite17 false. External shores, the
+one-cell lake control and dry controls remain identical.
+
+The final-height equality does **not** mean cliffs saw equal heights. Immediately
+before cliff generation, the three affected bodies have stock/finite water heads
+0/230, 274/530 and 0/110. Authentic river finalization and terrain validation
+produce the observed lowering. The later second elevation setter restores
+230/230, 530/530 and 110/110, but the already generated cliff flags persist.
+Thus the classification-only invariance hypothesis is rejected; transient
+height timing remains confounded with native lake classification.
+
+The next bounded candidate relocates the sole existing cliff call to immediately
+after the final preparation-owner setter, before its existing area/water calls.
+It adds no maintenance pass, elevation write, carving, threshold, state or
+physical computation. Shipped Earth/Huge also calls its explicit setter directly
+before cliffs. Admission requires matched pre-cliff endpoint heights, direct
+measurement of any height effect of the moved call, unchanged final truth and
+whole-map collateral, then fresh visual and movement witnesses. Converged flags
+would support transient timing; persistent differences would reject that sole
+explanation without claiming whether lake classification or opaque native state
+is responsible. The frozen V23 reader/receipts remain unchanged; the intentional
+new call chronology belongs to a separate V24 experiment.
+
+### V24 Final-Height Cliff Pass
+
+The separate V24 stock10/finite17 pair completed both fresh saved Huge/1018
+Exploration games and full 6,996-plot native censuses. The same bounded observer
+transport, physical payload and 416 directed records per waypoint were retained.
+Only the existing cliff call moved: final `setElevation` is authentic call 15,
+cliffs call 16, followed by the existing area and water calls. There are still
+18 authentic maintenance calls, two setters and one cliff pass; no extra repair,
+carving, classifier, configuration policy or ordinary-recipe observer was added.
+
+Before cliffs, both arms now have equal endpoint elevations and the exact
+intended finite/external water heads. All 114 prior cutoff-dependent cliff flags
+converge: zero differences across all 416 directed records at every waypoint.
+The moved call changes no observed endpoint/focus elevation, terrain, river
+class or wetness, and its flags remain stable through the final cache call.
+All fifteen sampled native properties across the complete map are unchanged
+against each arm's frozen V23 final census. Between V24 arms, only the same
+48 lake-classification cells differ; elevation and the other fourteen properties
+remain identical.
+
+This supports transient height timing as the demonstrated repair target, not
+a unique explanation of undocumented engine internals. Retain stock cutoff
+ten. Finite17 remains an experiment, not a production size rule. Evidence lives
+in `earth-calibration/native-water-v24-20261001/pair-joined-analysis.json`, with
+the strict reader, package/source pins, raw logs and complete censuses beside it.
+The existing accepted-lake refusal is transferred to the final preparation
+owner using its already-read snapshots, so moving cliffs does not weaken its
+previous preservation boundary. Visual appearance and vessel cliff admission
+remain separate qualifications; this source/native-result proof is not either.

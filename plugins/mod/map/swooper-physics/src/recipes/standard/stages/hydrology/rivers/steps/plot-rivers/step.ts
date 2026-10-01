@@ -82,8 +82,6 @@ export const PlotRiversStep = createStep(config, {
       setTerrainType: (x, y, value) => deps.engine.setTerrainType(context, x, y, value),
       storeWaterData: () => deps.engine.storeWaterData(context),
     }, coastProjection, "map-rivers/plot-rivers");
-    // Cliffs consume finalized native river terrain, not the earlier dry channel substrate.
-    deps.engine.generateCliffsFromElevation(context);
     deps.engine.recalculateAreas(context);
     deps.engine.storeWaterData(context);
     assertAcceptedLakeFootprint(

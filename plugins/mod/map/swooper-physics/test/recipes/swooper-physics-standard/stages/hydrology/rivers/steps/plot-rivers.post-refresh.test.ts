@@ -21,7 +21,7 @@ import {
 import { PlotRiversStep } from "../../../../../../../src/recipes/standard/stages/hydrology/rivers/steps/plot-rivers/step.js";
 import { TEST_MAP_LATITUDE_BOUNDS, TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../setup.js";
 
-type LakeDrift = Readonly<{ cell: number; marineCell: number; lost: "water" | "terrain" | "lake"; at: "validate" | "restore" | "cliffs" | "area" | "cache" }>;
+type LakeDrift = Readonly<{ cell: number; marineCell: number; lost: "water" | "terrain" | "lake"; at: "validate" | "restore" | "area" | "cache" }>;
 
 class RiverCacheRefreshAdapter extends MockAdapter {
   private cachedWater: Uint8Array;
@@ -104,7 +104,6 @@ class RiverCacheRefreshAdapter extends MockAdapter {
   override generateCliffsFromElevation(): void {
     this.callOrder.push("generateCliffsFromElevation");
     super.generateCliffsFromElevation();
-    if (this.lakeDrift?.at === "cliffs") this.lakeDrifted = true;
   }
 
   override storeWaterData(): void {
@@ -130,7 +129,7 @@ describe("map-rivers/plot-rivers", () => {
     for (const preflightFailure of ["lake-water", "lake-terrain", "receiver-water", "partial-acceptance"] as const) {
       cases.push({ blocker: false, multiCell: true, preflightFailure });
     }
-    for (const at of ["validate", "restore", "cliffs", "area", "cache"] as const) {
+    for (const at of ["validate", "restore", "area", "cache"] as const) {
       for (const lost of ["water", "terrain", "lake"] as const) cases.push({ blocker: false, drift: { cell: lake, marineCell: marine, at, lost } });
     }
     for (const { blocker, drift, nativeLakeClass = true, multiCell = false, preflightFailure } of cases) {
@@ -232,7 +231,7 @@ describe("map-rivers/plot-rivers", () => {
         ]);
         expect(adapter.calls.finalizeRivers).toEqual([[false, 25, 2, 2]]);
         expect(adapter.callOrder).not.toContain("modelRivers");
-        expect(adapter.callOrder).toEqual(["setRiverInfo", "setRiverInfo", "setRiverInfo", "setRiverInfo", "setRiverInfo", "finalizeRivers", "validateAndFixTerrain", "generateCliffsFromElevation", "recalculateAreas", "storeWaterData"]);
+        expect(adapter.callOrder).toEqual(["setRiverInfo", "setRiverInfo", "setRiverInfo", "setRiverInfo", "setRiverInfo", "finalizeRivers", "validateAndFixTerrain", "recalculateAreas", "storeWaterData"]);
         const projected = readArtifact(context, hydrographyArtifacts.projectedRivers);
         expect(projected.model).toBe("certified-sill-spill");
         if (projected.model !== "certified-sill-spill") throw new Error("Expected authored projection.");
@@ -246,18 +245,18 @@ describe("map-rivers/plot-rivers", () => {
         expect(adapter.isLake(lake % width, 1)).toBe(nativeLakeClass);
       }
       expect(adapter.calls.setElevation).toEqual([]);
-      expect(adapter.calls.generateCliffsFromElevation).toBe(blocker || preflightFailure ? 0 : 1);
+      expect(adapter.calls.generateCliffsFromElevation).toBe(0);
       if (!blocker && !preflightFailure) {
-        const cliffs = adapter.callOrder.indexOf("generateCliffsFromElevation");
-        expect(cliffs).toBeGreaterThan(adapter.callOrder.indexOf("finalizeRivers"));
-        expect(cliffs).toBeGreaterThan(adapter.callOrder.indexOf("validateAndFixTerrain"));
-        if (drift?.at === "restore") expect(cliffs).toBeGreaterThan(adapter.callOrder.indexOf("restoreCoastTerrain"));
-        expect(cliffs).toBeLessThan(adapter.callOrder.indexOf("recalculateAreas"));
-        expect(cliffs).toBeLessThan(adapter.callOrder.lastIndexOf("storeWaterData"));
+        const areas = adapter.callOrder.indexOf("recalculateAreas");
+        expect(areas).toBeGreaterThan(adapter.callOrder.indexOf("finalizeRivers"));
+        expect(areas).toBeGreaterThan(adapter.callOrder.indexOf("validateAndFixTerrain"));
+        if (drift?.at === "restore") expect(areas).toBeGreaterThan(adapter.callOrder.indexOf("restoreCoastTerrain"));
+        expect(areas).toBeLessThan(adapter.callOrder.lastIndexOf("storeWaterData"));
       }
     }
     expect(PlotRiversStep.contract.engine).not.toContain("readCurrentMapElevationSnapshot");
     expect(PlotRiversStep.contract.engine).not.toContain("setElevation");
+    expect(PlotRiversStep.contract.engine).not.toContain("generateCliffsFromElevation");
     expect(PlotRiversStep.contract.engine).not.toContain("isLake");
   });
   it("projects every physical dry source without a second quota and refreshes downstream caches", () => {
@@ -343,9 +342,9 @@ describe("map-rivers/plot-rivers", () => {
 
     expect(adapter.callOrder).toEqual([
       ...Array<string>(2 * (width - 1)).fill("setRiverInfo"),
-      "finalizeRivers", "validateAndFixTerrain", "generateCliffsFromElevation", "recalculateAreas", "storeWaterData",
+      "finalizeRivers", "validateAndFixTerrain", "recalculateAreas", "storeWaterData",
     ]);
-    expect(adapter.calls.generateCliffsFromElevation).toBe(1);
+    expect(adapter.calls.generateCliffsFromElevation).toBe(0);
     expect(adapter.calls.setElevation).toEqual([]);
     expect(adapter.calls.finalizeRivers).toEqual([[false, 25, 2, 2]]);
     expect(adapter.getTerrainType(0, 0)).toBe(navigableRiverTerrain);

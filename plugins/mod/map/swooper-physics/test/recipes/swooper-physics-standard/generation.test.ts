@@ -42,7 +42,7 @@ const catalogCases = (await loadSwooperMapConfigCatalog()).map(({ canonicalConfi
 describe("Standard recipe generation", () => {
   it.each(
     catalogCases
-  )("uses the original and wet-maintenance elevation writes with authored-network cliff ordering for $id", ({
+  )("generates cliffs once after final elevation retention, river finalization, and wonder placement for $id", ({
     mapConfig,
   }) => {
     class ExplicitElevationRecipeAdapter extends MockAdapter {
@@ -88,6 +88,14 @@ describe("Standard recipe generation", () => {
       override validateAndFixTerrain(): void {
         if (this.calls.setElevation.length > 0) this.elevationEvents.push("validateAndFixTerrain");
         super.validateAndFixTerrain();
+      }
+      override recalculateAreas(): void {
+        if (this.calls.setElevation.length === 2) this.elevationEvents.push("recalculateAreas");
+        super.recalculateAreas();
+      }
+      override storeWaterData(): void {
+        if (this.calls.setElevation.length === 2) this.elevationEvents.push("storeWaterData");
+        super.storeWaterData();
       }
       override readCurrentMapElevationSnapshot(): CurrentMapElevationSnapshot {
         this.elevationEvents.push("readCurrentMapElevationSnapshot");
@@ -146,9 +154,12 @@ describe("Standard recipe generation", () => {
       adapter.elevationEvents.indexOf("finalizeRivers")
     );
     const maintenanceWrite = adapter.elevationEvents.lastIndexOf("setElevation");
-    expect(maintenanceWrite).toBeGreaterThan(
-      adapter.elevationEvents.indexOf("generateCliffsFromElevation")
-    );
+    expect(adapter.elevationEvents.slice(maintenanceWrite, maintenanceWrite + 4)).toEqual([
+      "setElevation",
+      "generateCliffsFromElevation",
+      "recalculateAreas",
+      "storeWaterData",
+    ]);
     expect(maintenanceWrite).toBeGreaterThan(
       adapter.elevationEvents.lastIndexOf("placeNaturalWonder")
     );

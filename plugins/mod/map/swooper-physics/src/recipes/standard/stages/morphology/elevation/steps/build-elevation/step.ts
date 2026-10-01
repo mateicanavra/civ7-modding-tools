@@ -49,7 +49,7 @@ export const BuildElevationStep = createStep(config, {
       seaLevel: topography.seaLevel,
       acceptedLakeMask: projectedLakes.lakeMask,
     });
-    // Cliffs wait for finalized NAV terrain in PlotRivers; stock buildElevation never rewrites these heights.
+    // Cliffs wait for final surface preparation; stock buildElevation never rewrites these heights.
     deps.engine.recalculateAreas(context);
     const beforeWaterMask = deps.engine.readCurrentMapWaterMask(context);
     const beforeLakeMask = deps.engine.readCurrentMapLakeMask(context);

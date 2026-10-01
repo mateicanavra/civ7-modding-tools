@@ -27,9 +27,12 @@ class PreparationAdapter extends MockAdapter {
   readonly currentElevation = new Float64Array(size).fill(456.75);
   readonly selectionReads: number[] = [];
   receivedRequest?: readonly number[];
+  elevationAtCliffs?: Float64Array;
+  terrainAtCliffs?: Int32Array;
   snapshot?: CurrentMapElevationSnapshot;
   snapshotOverride?: CurrentMapElevationSnapshot;
   validationMutation?: () => void;
+  cliffMutation?: () => void;
   lakeOverride?: (x: number, y: number) => boolean;
   private selecting = false;
   private boundaryReadCount = 0;
@@ -83,6 +86,14 @@ class PreparationAdapter extends MockAdapter {
   override recalculateAreas(): void {
     this.events.push("recalculateAreas");
     super.recalculateAreas();
+  }
+
+  override generateCliffsFromElevation(): void {
+    this.events.push("generateCliffsFromElevation");
+    this.elevationAtCliffs = Float64Array.from(this.currentElevation);
+    this.terrainAtCliffs = super.readCurrentMapTerrainTypes();
+    super.generateCliffsFromElevation();
+    this.cliffMutation?.();
   }
 
   override storeWaterData(): void {
@@ -170,7 +181,7 @@ function executePreparation(fixture: ReturnType<typeof createFixture>) {
 }
 
 describe("placement/prepare-placement-surface", () => {
-  it("restores original wet requests and retains every exact dry edit without changing physical artifacts", () => {
+  it("generates cliffs after restoring wet requests and retaining exact dry and wonder edits without changing physical artifacts", () => {
     const fixture = createFixture();
     const { adapter, topography, projectedLakes } = fixture;
     const wetCells = [width + 2, width + 4, width + 6];
@@ -208,6 +219,10 @@ describe("placement/prepare-placement-surface", () => {
     const result = executePreparation(fixture);
 
     expect(adapter.calls.setElevation).toEqual([expected]);
+    expect(adapter.elevationAtCliffs).toEqual(Float64Array.from(expected));
+    expect(adapter.terrainAtCliffs?.[width + 9]).toBe(
+      adapter.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER")
+    );
     expect(Array.isArray(adapter.receivedRequest)).toBe(true);
     expect(adapter.receivedRequest).not.toBe(originalProjection);
     expect(adapter.receivedRequest).not.toBe(
@@ -235,14 +250,73 @@ describe("placement/prepare-placement-surface", () => {
       "boundary:2",
       "elevation-snapshot",
       "setElevation",
+      "generateCliffsFromElevation",
       "recalculateAreas",
       "storeWaterData",
       "boundary:3",
     ]);
-    expect(adapter.calls.generateCliffsFromElevation).toBe(0);
+    expect(adapter.calls.generateCliffsFromElevation).toBe(1);
+    expect(PreparePlacementSurfaceStep.contract.engine).toContain("generateCliffsFromElevation");
     expect(adapter.calls.setRiverInfo).toEqual([]);
     expect(adapter.calls.finalizeRivers).toEqual([]);
   });
+
+  it.each(["water", "terrain", "lake"] as const)(
+    "preserves the accepted lake footprint against cliff-generated %s drift",
+    (lost) => {
+      const fixture = createFixture();
+      const { adapter, projectedLakes } = fixture;
+      const lakeCell = width + 2;
+      const coast = adapter.getTerrainTypeIndex("TERRAIN_COAST");
+      const ocean = adapter.getTerrainTypeIndex("TERRAIN_OCEAN");
+      projectedLakes.lakeMask[lakeCell] = 1;
+      adapter.stampLakes(width, height, projectedLakes.lakeMask);
+      expect(adapter.isLake(2, 1)).toBe(true);
+      const readWater = adapter.isWater.bind(adapter);
+      const readTerrain = adapter.getTerrainType.bind(adapter);
+      adapter.cliffMutation = () => {
+        if (lost === "water") {
+          Reflect.set(adapter, "isWater", (x: number, y: number) =>
+            y * width + x === lakeCell ? false : readWater(x, y)
+          );
+        } else if (lost === "terrain") {
+          Reflect.set(adapter, "getTerrainType", (x: number, y: number) =>
+            y * width + x === lakeCell ? ocean : readTerrain(x, y)
+          );
+        } else {
+          adapter.lakeOverride = () => false;
+        }
+      };
+      adapter.events.length = 0;
+
+      if (lost === "lake") {
+        const { observation } = executePreparation(fixture);
+        expect(observation.afterMaintenance.lakeMask[lakeCell]).toBe(0);
+        expect(observation.afterMaintenance.waterMask[lakeCell]).toBe(1);
+        expect(observation.afterMaintenance.terrain[lakeCell]).toBe(coast);
+      } else {
+        expect(() => executePreparation(fixture)).toThrow(
+          /placement\/prepare-surface\/after-maintenance.*certified accepted lake footprint lost/
+        );
+        if (lost === "terrain") expect(adapter.isWater(2, 1)).toBe(true);
+        if (lost === "water") expect(adapter.getTerrainType(2, 1)).toBe(coast);
+      }
+      expect(adapter.calls.setElevation).toHaveLength(1);
+      expect(adapter.calls.generateCliffsFromElevation).toBe(1);
+      expect(adapter.events).toEqual([
+        "boundary:1",
+        "validate",
+        "storeWaterData",
+        "boundary:2",
+        "elevation-snapshot",
+        "setElevation",
+        "generateCliffsFromElevation",
+        "recalculateAreas",
+        "storeWaterData",
+        "boundary:3",
+      ]);
+    }
+  );
 
   it("returns independent ordinary requests on repeated deterministic preparation", () => {
     const first = createFixture();
@@ -320,13 +394,18 @@ describe("placement/prepare-placement-surface", () => {
     expect(adapter.events.indexOf("elevation-snapshot")).toBeLessThan(
       adapter.events.indexOf("setElevation")
     );
-    expect(adapter.events.slice(-4)).toEqual([
+    expect(adapter.events.slice(-5)).toEqual([
       "setElevation",
+      "generateCliffsFromElevation",
       "recalculateAreas",
       "storeWaterData",
       "boundary:3",
     ]);
     expect(adapter.calls.setElevation).toHaveLength(1);
+    expect(adapter.calls.generateCliffsFromElevation).toBe(1);
+    expect(adapter.elevationAtCliffs).toEqual(Float64Array.from(adapter.calls.setElevation[0]!));
+    expect(adapter.terrainAtCliffs?.[restoredWater]).toBe(adapter.getTerrainTypeIndex("TERRAIN_COAST"));
+    expect(adapter.terrainAtCliffs?.[wrappedWater]).toBe(adapter.getTerrainTypeIndex("TERRAIN_COAST"));
   });
 
   it.each([
@@ -354,6 +433,7 @@ describe("placement/prepare-placement-surface", () => {
       invalid === "unavailable" ? /unavailable/ : /dimensions and cardinality/
     );
     expect(adapter.calls.setElevation).toEqual([]);
+    expect(adapter.calls.generateCliffsFromElevation).toBe(0);
     expect(adapter.events).not.toContain("recalculateAreas");
     expect(adapter.events.at(-1)).toBe("elevation-snapshot");
   });
@@ -373,6 +453,7 @@ describe("placement/prepare-placement-surface", () => {
         adapter.setTerrainType(width - 1, height - 1, adapter.getTerrainTypeIndex("TERRAIN_COAST"));
       expect(() => executePreparation(fixture)).toThrow(/Current elevation is not finite/);
       expect(adapter.calls.setElevation).toEqual([]);
+      expect(adapter.calls.generateCliffsFromElevation).toBe(0);
       expect(adapter.events).not.toContain("recalculateAreas");
     }
   });
@@ -391,6 +472,7 @@ describe("placement/prepare-placement-surface", () => {
     }
     expect(received).toBe(failure);
     expect(fixture.adapter.calls.setElevation).toEqual([]);
+    expect(fixture.adapter.calls.generateCliffsFromElevation).toBe(0);
     expect(fixture.adapter.events).not.toContain("recalculateAreas");
     expect(fixture.adapter.events.at(-1)).toBe("boundary:2");
   });
@@ -409,6 +491,7 @@ describe("placement/prepare-placement-surface", () => {
     );
     expect(() => executePreparation(fixture)).toThrow(/Current water read is not boolean/);
     expect(fixture.adapter.calls.setElevation).toEqual([]);
+    expect(fixture.adapter.calls.generateCliffsFromElevation).toBe(0);
     expect(fixture.adapter.events).not.toContain("recalculateAreas");
   });
 
@@ -419,5 +502,6 @@ describe("placement/prepare-placement-surface", () => {
     expect(() => executePreparation(fixture)).toThrow(/Native projection exceeds 65535/);
     expect(fixture.adapter.events).not.toContain("validate");
     expect(fixture.adapter.calls.setElevation).toEqual([]);
+    expect(fixture.adapter.calls.generateCliffsFromElevation).toBe(0);
   });
 });

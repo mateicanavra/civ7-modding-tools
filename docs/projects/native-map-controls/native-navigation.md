@@ -1,9 +1,11 @@
 # Native Navigation Qualification
 
 This investigation belongs to [the basin integration](basin-integration.md)
-and [the river lane](rivers.md). Native class parity passes for the late-cliff
-candidate; actual naval traversal remains unqualified. Class retention alone
-is not a successful movement test.
+and [the river lane](rivers.md). Native class parity passes; a normal
+Exploration-age Cog now qualifies entry, bidirectional interior travel and exit
+on one authored corridor. A separate normally granted Cog also qualifies
+marine-to-NAV-to-lake-to-NAV travel through one four-cell body. Cliff admission
+remains unqualified. Class retention alone is not a successful movement test.
 
 ## Observations
 
@@ -84,8 +86,8 @@ Paths are relative to `.civ7/outputs/resources/Base/modules/`.
 
 Use an era-appropriate, normally granted or produced vessel, followed by an
 equivalent stock witness where the tested failure needs an independent control.
-Actual arrival and movement expenditure are required, not forced placement. Through-lake navigation and
-exact directed-edge parity are also unqualified. Do not fit a height cutoff,
+Actual arrival and movement expenditure are required, not forced placement.
+General cliff navigation remains unqualified. Do not fit a height cutoff,
 clear cliffs, grant broad unlocks, or waive intended classes to obtain green
 receipts. The physical and native-category integration may be reviewed and
 committed separately from this explicitly open gameplay qualification.
@@ -123,14 +125,49 @@ Actual native controls then succeeded through public `game play unit target`:
 - Cog 983054 moved from coast (72,47) through (73,48) to coast (73,49), spending
   two of its three movement points.
 - The same Cog then entered authored NAV (73,50), native elevation 138, spending
-  its last point. Native readback confirmed (73,50); this qualifies river entry,
-  not cliff admission, river exit, or through-lake movement.
+  its last point. Native readback confirmed (73,50).
+- One bounded autoplay turn advanced turn 1/400 CE to turn 2/410 CE, stopped
+  autoplay and returned local control. Only then was the same Cog moved from
+  NAV (73,50) to NAV (72,51), native elevation 168, spending one point; back to
+  NAV (73,50), spending one point; then to coast (73,49), spending its last
+  point. Every request was sent once and reconciled against actual arrival.
+- A read-only preview for adjacent MINOR (72,50) was empty. No forced movement
+  was sent to make this negative control pass.
 
 Receipts are in the durable `Civ7Tools/VisualAtlas/huge-1018/earth-calibration`
 user-data directory: `target-appui-owner-proof-20261001.log`,
 `v3-cog-coastal-control-{send,arrival}-20261001.json`,
 `v3-cog-2-mouth-approach-{send,arrival}-20261001.json`, and
 `v3-cog-2-nav-mouth-{preview,send,arrival}-20261001.json`.
+Interior, return and exit are retained as
+`v3-cog-2-nav-{interior,return,exit}-{send,arrival}-20261001.json`; the autoplay
+receipts are `v3-navigation-one-turn-autoplay-{start,status,status2,status3}-20261001.json`.
 The bounded 108-plot fleet grid records the receiving terrain independently.
-Current directional cliff flags and additional traversal remain separate proof;
-do not infer them from native height, render appearance, or this successful entry.
+This is a complete one-corridor traversal witness, not a cliff-mouth or
+through-lake witness. Do not infer either from native height or render appearance.
+
+## Four-Cell Lake Traversal
+
+The V23 finite17 saved Huge/1018 Exploration game supplied a second normal
+Cogs Advanced Start vessel, `{owner: 0, id: 131073, type: 26}`. Public
+`game play unit target` checks and single sends confirmed these arrivals:
+
+- Turn 1: coast (70,46) to NAV mouth (68,48), spending all three points.
+- Turn 2: NAV (68,48) through previewed NAV (68,49) into lake (68,50),
+  spending two points; then lake (67,51), spending the remaining point.
+- Turn 3: lake (67,51) through previewed lake (66,51) onto NAV (66,50),
+  spending two points and retaining one.
+
+Two bounded one-turn autoplay runs stopped and returned local player zero.
+The first interior read was too early and still showed (68,50); it is retained,
+not counted as arrival. The next turn-ready read independently confirms
+(67,51). Intermediate route cells are requested-path evidence, not separate
+arrival reads. The sealed native grid confirms lake head 80 and the receiving
+NAV classes. This qualifies one real through-water route; it does not establish
+cliff traversal, a lake-size policy, or a universal head threshold.
+
+Durable receipts use `v23-cog-lake-*` and
+`v23-finite17-navigation-grid2-20261001.json` in the existing Earth-calibration
+user-data directory. `native-water-v23-20261001/cog-through-lake.png` is the
+native visual supplement. No administrative placement, broad unlock, raw
+movement JavaScript or forced successful route was used.

@@ -23,6 +23,7 @@ export const config = defineStep({
     "isWater",
     "setTerrainType",
     "setElevation",
+    "generateCliffsFromElevation",
     "storeWaterData",
     "recalculateAreas",
   ] as const,

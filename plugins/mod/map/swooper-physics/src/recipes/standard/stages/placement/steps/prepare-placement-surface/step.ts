@@ -1,6 +1,6 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { projectStandardElevation } from "../../../../elevation-projection.js";
-import { deriveResolvedCoastProjection, restoreProjectedCoastTerrain } from "../../../../water-surface-parity.js";
+import { assertAcceptedLakeFootprint, deriveResolvedCoastProjection, restoreProjectedCoastTerrain } from "../../../../water-surface-parity.js";
 import { config } from "./config.js";
 import { projectPlacementSurfaceViz } from "./viz.js";
 
@@ -14,9 +14,9 @@ type TerrainValidationBoundaryReadback = Readonly<{
 
 /**
  * Validates terrain and restores coast and wet elevation requests while
- * retaining current dry heights, then rebuilds areas and water storage before
- * downstream placement reads Civ7. Snapshots diagnose this transaction only;
- * they do not claim final product parity.
+ * retaining current dry heights, then generates cliffs and rebuilds areas and
+ * water storage before downstream placement reads Civ7. Snapshots diagnose
+ * this transaction only; they do not claim final product parity.
  */
 export const PreparePlacementSurfaceStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
@@ -96,10 +96,19 @@ export const PreparePlacementSurfaceStep = createStep(config, {
       if (!isWater) elevationRequest[index] = current;
     }
     deps.engine.setElevation(context, elevationRequest);
+    // Cliffs consume finalized river terrain and the retained final elevation request.
+    deps.engine.generateCliffsFromElevation(context);
     deps.engine.recalculateAreas(context);
     deps.engine.storeWaterData(context);
     const afterMaintenance = readTerrainValidationBoundary(
       "placement/prepare-surface/after-maintenance"
+    );
+    assertAcceptedLakeFootprint(
+      dimensions,
+      projectedLakes.lakeMask,
+      afterMaintenance.waterMask,
+      afterMaintenance.terrain,
+      afterMaintenance.stage
     );
 
     return {

@@ -27,7 +27,6 @@ export const config = defineStep({
     "readRiverProjection",
     "readCurrentMapWaterMask",
     "readCurrentMapTerrainTypes",
-    "generateCliffsFromElevation",
   ] as const,
   requires: [
     STANDARD_COMPLETIONS.elevationBuilt,
