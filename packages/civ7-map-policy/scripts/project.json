@@ -10,6 +10,18 @@
         "command": "tsc -p packages/civ7-map-policy/scripts/tsconfig.json --noEmit"
       }
     },
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/.civ7/outputs/resources/Base/Assets/schema/gameplay/01_GameplaySchema.sql"
+      ],
+      "options": {
+        "command": "bun test packages/civ7-map-policy/scripts/test"
+      }
+    },
     "generate": {
       "executor": "nx:run-commands",
       "cache": false,

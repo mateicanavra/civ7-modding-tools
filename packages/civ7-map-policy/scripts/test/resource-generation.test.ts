@@ -6,10 +6,10 @@ import {
   readResourceDefaults,
   resolveResourceFacts,
   resolveResourcePlacementWeight,
-} from "../scripts/resource-data.js";
+} from "../resource-data.js";
 
 const schema = readFileSync(
-  join(import.meta.dir, "../../../.civ7/outputs/resources", RESOURCE_GAMEPLAY_SCHEMA),
+  join(import.meta.dir, "../../../../.civ7/outputs/resources", RESOURCE_GAMEPLAY_SCHEMA),
   "utf8"
 );
 
