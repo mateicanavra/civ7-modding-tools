@@ -13,9 +13,9 @@ into a later outcome.
 | Generated artifact | Exact source/config produced recorded files or digests | Installation or execution |
 | Installation receipt | Exact tree replacement at the selected Mods root | Loader acceptance or live behavior |
 | Provider health/epoch | Concrete resource acquisition state at one epoch | Civ7 semantic readiness or gameplay success |
-| Raw Tuner result | Command disposition in one named scripting state and epoch | Typed control meaning or actor outcome |
-| Window-capture receipt | Selected raw window/image evidence | Correct Civ7 appshot meaning or gameplay state |
-| Foundational control result | Typed Civ7 app/game/map/UI fact, dispatch, or readback at one correlation | Gameplay recommendation or final run outcome |
+| Raw Tuner result | Command disposition in one named scripting state and epoch | Typed controller meaning or actor outcome |
+| Window-capture receipt | Selected raw window/image evidence | Controller readiness or gameplay state |
+| Controller result | Typed native Civ7 fact, dispatch, or readback for one realm/boot/operation correlation | Gameplay recommendation or final run outcome |
 | Play result | Actor-facing check/request/reconciliation and next action | Unobserved engine or external effects |
 | App-adapter receipt | One exact physical filesystem/process effect | Service-owned semantic outcome |
 | MapGen-runs result | Request-correlated run state and final semantic operation outcome | Unrecorded loader/live behavior |

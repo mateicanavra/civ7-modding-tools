@@ -1,5 +1,9 @@
 # SPEC: Target Architecture (Canonical)
 
+Status: superseded as package/runtime topology by
+`docs/projects/civ7-capability-realization/`. Domain-interior guidance below
+remains historical design evidence until separately reconciled.
+
 ## 2. Target Packaging & File Structure (Core SDK + Standard Content Package)
 
 ### 2.0 Notation
@@ -143,7 +147,7 @@ STANDARD_CONTENT_ROOT/
 - Domain modules may be used by a single step; reuse is not the criterion for domain placement. The criterion is recipe-independence and a clean separation between step orchestration and content logic.
 - Domain must not import from `recipes/**` or `maps/**`.
 - Dependency IDs (tags/artifacts/effects) are recipe-owned; domain modules must not re-export recipe shims.
-- Reusable/generated Civ7 policy tables, shared resource/feature catalogs, engine declarations, and adapter behavior are not domain model data. They belong to `@civ7/map-policy`, `@civ7/types`, or `@civ7/adapter` by owner.
+- Reusable/generated Civ7 policy tables, shared resource/feature catalogs, official engine declarations, and adapter contracts are not domain model data. They belong to `@civ7/map-policy`, `@civ7/api`, or `@civ7/adapter` by owner; concrete engine behavior belongs to the qualified realization app.
 - Rules never import `contract.ts` and never export types; shared op types live in `types.ts`.
 
 **Barrels (`index.ts`)**

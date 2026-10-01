@@ -42,7 +42,7 @@
     },
     "check": {
       "executor": "nx:noop",
-      "dependsOn": ["typecheck"],
+      "dependsOn": ["typecheck", "check:policy"],
       "cache": false,
       "outputs": []
     },

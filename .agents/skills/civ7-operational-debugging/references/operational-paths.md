@@ -11,8 +11,10 @@ targets through Nx before running anything.
 | Local Tuner acquisition/session/epoch | `resources/civ7-tuner/providers/local-socket` |
 | Generic selected-window capture contract | `resources/window-capture` |
 | macOS capture/helper/process execution | `resources/window-capture/providers/macos-screencapturekit` |
-| Civ7 app/game/map/UI interpretation | `services/civ7-control` |
+| Typed native Civ7 facts and operations | `services/civ7-controller`, running inside the controller mod |
 | Actor-facing gameplay outcomes | `services/civ7-play` |
+| Controller-client transport binding | qualified host app over selected Tuner provider |
+| Raw JavaScript diagnostics | explicit qualified app adapter and diagnostic projection |
 | Save & Deploy / Run in Game operation outcomes | `services/mapgen-runs` |
 | Swooper portable definition | `plugins/mod/map/swooper-physics` |
 | Swooper deployable realization | `apps/mods/map/swooper-physics` |
@@ -80,6 +82,7 @@ permissions, child processes, and image installation belong to the selected
 capture provider. Discover these through their resource/provider source and
 app composition, not through a service or command implementation.
 
-Raw health or execution belongs to the Tuner resource surface. Civ7 readiness,
-map observation, and appshot meaning belong to foundational control. Gameplay
-meaning belongs to play. Preserve that distinction in every report.
+Raw health or execution belongs to the Tuner resource surface. Typed native
+Civ7 readiness and map observation belong to the controller. Window capture is
+separate generic diagnostic/app evidence, and gameplay meaning belongs to Play.
+Preserve that distinction in every report.

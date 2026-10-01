@@ -1,5 +1,3 @@
-/// <reference types="@civ7/types" />
-
 import { createMockAdapter, type EngineAdapter } from "@civ7/adapter";
 import { artifacts as hydrographyArtifacts } from "../../../domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as placementWonderArtifacts } from "../../../domain/placement/modules/wonders/artifacts/index.js";

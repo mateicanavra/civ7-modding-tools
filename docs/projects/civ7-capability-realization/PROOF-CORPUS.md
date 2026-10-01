@@ -1,9 +1,18 @@
 # Civ7 Capability Realization Proof Corpus
 
-**Status:** Frozen proof classification at Ground source snapshot
+**Status:** Superseded destination ledger; frozen proof census only
 **Date:** 2026-08-02
 **Scope:** Current proof and proof-support files participating in the final
 platform initiative
+
+> **Authority notice (2026-08-06):** the file identities and source assertions
+> below remain baseline evidence. Destination paths and target proof ownership
+> predate the ratified in-engine Controller, access, and Play model and are not
+> construction authority. Each workstream vertical must preserve, reconstruct,
+> or delete the selected assertions against the current
+> [Outcome Model](./OUTCOME-MODEL.md),
+> [Source Reconciliation](./SOURCE-RECONCILIATION.md), and
+> [Public Surface Disposition](./PUBLIC-SURFACE-DISPOSITION.md).
 
 **Proof snapshot:** commit
 `b89db91f40604905ce502a20fd0ea95ff5c2676f`, repository tree
@@ -17,8 +26,9 @@ feed; object rows are the unmodified `git ls-tree -r <snapshot> --
 
 ## Authority
 
-This ledger classifies the complete current 461-file proof/support corpus. Each
-current file has one terminal disposition:
+This ledger records the complete 461-file proof/support census selected by the
+earlier model. Its source assertions remain evidence; its terminal destination
+choices must be re-ratified inside the owning vertical:
 
 - `relocate`: preserve the file's coherent oracle at the named owner;
 - `combine`: preserve its useful assertions by reconstructing them at the named
@@ -99,34 +109,34 @@ reconfirms that completed census against the materialized estate.
 
 | Exact current source | Disposition | Exact destination |
 | --- | --- | --- |
-| `packages/civ7-direct-control/test/advisor-warning.test.ts` | combine | `services/civ7-play/test/semantics/modules/notifications/advisor-warning-request.test.ts` |
+| `packages/civ7-direct-control/test/advisor-warning.test.ts` | decompose | Exact control `game/notifications-advisor-warning-viewed-{check,send}.test.ts` plus Play notification request/reconciliation proof |
 | `packages/civ7-direct-control/test/autoplay.test.ts` | decompose | `services/civ7-play/test/semantics/modules/automation/autoplay.test.ts` plus MapGen-runs autoplay-admission proof |
-| `packages/civ7-direct-control/test/diplomacy-response-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/diplomacy/response.test.ts` |
-| `packages/civ7-direct-control/test/display-queue.test.ts` | combine | `services/civ7-control/test/semantics/modules/ui/display-queue.test.ts` |
-| `packages/civ7-direct-control/test/first-meet-response-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/diplomacy/first-meet-response.test.ts` |
-| `packages/civ7-direct-control/test/government-choice-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/progression/{celebration-choice,government-choice}.test.ts` |
-| `packages/civ7-direct-control/test/map-and-visibility.test.ts#map and visibility reads` | combine | `services/civ7-control/test/semantics/modules/map/map-reads.test.ts` |
-| `packages/civ7-direct-control/test/map-and-visibility.test.ts#explore grant atoms` | combine | `services/civ7-control/test/semantics/modules/map/visibility-explore.test.ts` |
-| `packages/civ7-direct-control/test/map-surface-observation.test.ts` | combine | `services/civ7-control/test/semantics/modules/map/map-surface-observation.test.ts` |
-| `packages/civ7-direct-control/test/narrative-choice-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/progression/narrative-choice.test.ts` |
-| `packages/civ7-direct-control/test/notification-dismissal.test.ts` | combine | `services/civ7-play/test/semantics/modules/notifications/dismiss.test.ts` |
-| `packages/civ7-direct-control/test/play-notification-view.test.ts` | combine | `services/civ7-play/test/semantics/modules/notifications/queue.test.ts` |
-| `packages/civ7-direct-control/test/population-placement.test.ts` | combine | `services/civ7-play/test/semantics/modules/city/population-placement.test.ts` |
-| `packages/civ7-direct-control/test/production-choice-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/city/production-choice.test.ts` |
-| `packages/civ7-direct-control/test/progression-native-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/progression/{attribute,choice,target,tradition}.test.ts` |
-| `packages/civ7-direct-control/test/progression-reads.test.ts` | combine | `services/civ7-play/test/semantics/modules/progression/{dashboard-current,traditions-current}.test.ts` |
-| `packages/civ7-direct-control/test/ready-city-view.test.ts` | combine | `services/civ7-play/test/semantics/modules/attention/current.test.ts` |
-| `packages/civ7-direct-control/test/ready-unit-view.test.ts` | combine | `services/civ7-play/test/semantics/modules/attention/current.test.ts` |
+| `packages/civ7-direct-control/test/diplomacy-response-atoms.test.ts` | decompose | Exact control `game/diplomacy-response-{check,send}.test.ts` plus Play diplomacy request/reconciliation proof |
+| `packages/civ7-direct-control/test/display-queue.test.ts` | decompose | Exact `services/civ7-control/test/semantics/modules/ui/{display-queue-current,display-queue-close}.test.ts` |
+| `packages/civ7-direct-control/test/first-meet-response-atoms.test.ts` | decompose | Exact control `game/diplomacy-first-meet-response-{check,send}.test.ts` plus Play diplomacy request/reconciliation proof |
+| `packages/civ7-direct-control/test/government-choice-atoms.test.ts` | decompose | Exact control game-progression native leaf proofs plus Play progression request/reconciliation proof |
+| `packages/civ7-direct-control/test/map-and-visibility.test.ts#map and visibility reads` | decompose | Exact control map `{current,plot,grid,visibility-current}.test.ts` proofs |
+| `packages/civ7-direct-control/test/map-and-visibility.test.ts#explore grant atoms` | decompose | Exact control map `{visibility-grant-set,visibility-grant-remove}.test.ts` proofs; display choreography is not preserved here |
+| `packages/civ7-direct-control/test/map-surface-observation.test.ts` | combine | `services/civ7-control/test/semantics/modules/map/surface.test.ts` |
+| `packages/civ7-direct-control/test/narrative-choice-atoms.test.ts` | decompose | Exact control game-progression native leaf proofs plus Play progression request/reconciliation proof |
+| `packages/civ7-direct-control/test/notification-dismissal.test.ts` | decompose | Exact control `game/notifications-dismissal-{check,send}.test.ts` plus Play notification request/reconciliation proof |
+| `packages/civ7-direct-control/test/play-notification-view.test.ts` | decompose | Exact control `game/notifications-observe.test.ts` plus Play notification/attention interpretation proof |
+| `packages/civ7-direct-control/test/population-placement.test.ts` | decompose | Exact control game city worker/expansion check/send proofs plus Play city request/reconciliation proof |
+| `packages/civ7-direct-control/test/production-choice-atoms.test.ts` | decompose | Exact control `game/city-production-choice-{check,send}.test.ts` plus Play city request/reconciliation proof |
+| `packages/civ7-direct-control/test/progression-native-atoms.test.ts` | decompose | Exact control game-progression observe/check/send leaf proofs plus Play progression request/reconciliation proof |
+| `packages/civ7-direct-control/test/progression-reads.test.ts` | decompose | Exact control game-progression observation proofs plus Play progression interpretation proof |
+| `packages/civ7-direct-control/test/ready-city-view.test.ts` | decompose | Exact control game-city observation proof plus Play attention interpretation proof |
+| `packages/civ7-direct-control/test/ready-unit-view.test.ts` | decompose | Exact control game-unit observation proof plus Play attention interpretation proof |
 | `packages/civ7-direct-control/test/settlement-recommendations.test.ts` | combine | `services/civ7-play/test/semantics/modules/planning/civilian-route-triage.test.ts` |
-| `packages/civ7-direct-control/test/start-positions.test.ts` | combine | `services/civ7-control/test/semantics/modules/map/current.test.ts` |
-| `packages/civ7-direct-control/test/summary-reads.test.ts` | combine | `services/civ7-control/test/semantics/modules/map/current.test.ts` |
+| `packages/civ7-direct-control/test/start-positions.test.ts` | combine | `services/civ7-control/test/semantics/modules/map/start-positions.test.ts` |
+| `packages/civ7-direct-control/test/summary-reads.test.ts` | decompose | Exact `services/civ7-control/test/semantics/modules/game/{player,city,unit}-observe.test.ts`; caller-shaped combined summary behavior stays in the qualified projection proof |
 | `packages/civ7-direct-control/test/tactical-reads.test.ts` | combine | `services/civ7-play/test/semantics/modules/planning/tactical-reads.test.ts` |
-| `packages/civ7-direct-control/test/town-focus-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/city/town-focus.test.ts` |
-| `packages/civ7-direct-control/test/turn-completion-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/turn/complete.test.ts` |
-| `packages/civ7-direct-control/test/unit-command-admission.test.ts` | combine | `services/civ7-play/test/semantics/modules/unit/command.test.ts` |
-| `packages/civ7-direct-control/test/unit-command-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/unit/command.test.ts` |
+| `packages/civ7-direct-control/test/town-focus-atoms.test.ts` | decompose | Exact control game city town-focus check/send proofs plus Play city request/reconciliation proof |
+| `packages/civ7-direct-control/test/turn-completion-atoms.test.ts` | decompose | Exact control `game/turn-completion-{observe,send}.test.ts` plus Play turn request/reconciliation proof |
+| `packages/civ7-direct-control/test/unit-command-admission.test.ts` | decompose | Exact control game unit upgrade/resettle and target-action check proofs plus Play unit admission proof |
+| `packages/civ7-direct-control/test/unit-command-atoms.test.ts` | decompose | Exact control game unit upgrade/resettle and target-action check/send proofs plus Play unit request/reconciliation proof |
 | `packages/civ7-direct-control/test/unit-move-preview.test.ts` | combine | `services/civ7-play/test/semantics/modules/planning/tactical-reads.test.ts` |
-| `packages/civ7-direct-control/test/unit-target-atoms.test.ts` | combine | `services/civ7-play/test/semantics/modules/unit/target-action.test.ts` |
+| `packages/civ7-direct-control/test/unit-target-atoms.test.ts` | decompose | Exact control game unit-target observe and action-specific check/send proofs plus Play unit request/reconciliation proof |
 | `packages/civ7-direct-control/test/view-camera.test.ts` | combine | `services/civ7-control/test/semantics/modules/ui/camera-focus.test.ts` |
 | `packages/civ7-direct-control/test/view-clean-frame.test.ts` | combine | `services/civ7-control/test/semantics/modules/ui/appshot-capture.test.ts` |
 
@@ -304,10 +314,10 @@ These sections cover five Studio-contract files and ten Studio-server files.
 | The same test's `studio.serverInfo` route-projection assertion | combine | `plugins/server/api/mapgen-studio/test/projection/router.test.ts` |
 | The same test's `studio.operations.current` route-projection assertion | combine | `plugins/server/api/mapgen-studio/test/projection/runs.test.ts` |
 | The same test's exact-one session binding and reuse assertions | combine | `apps/mapgen-studio/test/assembly/composition.test.ts` proves one app-bound ready client/session selection, and `test/execution/hosts/server.test.ts` proves reuse across the mounted host lifetime |
-| The same test's lifecycle-admission assertions | combine | `services/civ7-control/test/execution/root.test.ts` |
+| The same test's lifecycle-admission assertions | delete | The superseded controller-admission middleware has no target service obligation |
 | The same test's provider acquisition and release assertions | combine | `resources/civ7-tuner/providers/local-socket/test/execution/lifecycle.test.ts` |
-| `apps/mapgen-studio/test/server/oneMount.test.ts#{serializes complete public control procedures on the daemon Tuner lease,removes an aborted queued control procedure before it can enter,drains an admitted control procedure before cancellation releases its lease}` | decompose | `services/civ7-control/test/execution/root.test.ts` for foundational native execution and `services/civ7-play/test/execution/root.test.ts` for actor-facing delegation over the bound control client |
-| `apps/mapgen-studio/test/server/oneMount.test.ts#daemon disposal drains an admitted control procedure before closing the session` | combine | `services/civ7-control/test/execution/root.test.ts`, local-socket provider release proof, and Studio host disposal proof |
+| `apps/mapgen-studio/test/server/oneMount.test.ts#{serializes complete public control procedures on the daemon Tuner lease,removes an aborted queued control procedure before it can enter,drains an admitted control procedure before cancellation releases its lease}` | delete | The target public client has no controller lease or admission queue; provider concurrency and interruption remain provider-owned |
+| `apps/mapgen-studio/test/server/oneMount.test.ts#daemon disposal drains an admitted control procedure before closing the session` | combine | Local-socket provider release proof and Studio host disposal proof; Control owns neither provider nor host lifetime |
 | `apps/mapgen-studio/test/server/oneMount.test.ts#the civ7 namespace merge is collision-free` | combine | `plugins/server/api/mapgen-studio/test/projection/router.test.ts` |
 | `apps/mapgen-studio/test/server/oneMount.test.ts#out-of-scope paths fall through to the host 404` | combine | `apps/mapgen-studio/test/execution/hosts/server.test.ts`; this is app-host behavior, not API semantics |
 | `apps/mapgen-studio/test/studioErrors/definedErrorProjection.test.ts` | combine | `plugins/server/api/mapgen-studio/test/projection/errors.test.ts` |
@@ -682,7 +692,7 @@ bound clients, and owns the projection and selected execution proof below.
 | `resources/window-capture/providers/macos-screencapturekit/test/execution/lifecycle.test.ts` | New target law: interruption and release close admission, apply bounded `SIGTERM`/`SIGKILL` escalation, and drain admitted work without escaping filesystem effects; released providers refuse work; interrupted writes leave no partial destination, while an entered publication commit completes atomically |
 | `resources/window-capture/providers/macos-screencapturekit/test/collaboration/provider.live.test.ts` | One opt-in real ScreenCaptureKit/TCC/window proof on macOS without Civ7-specific matching or semantic claims |
 | `services/civ7-control/test/contract/client.typecheck.ts` | The sole public client face, including any owned-contract re-export, exposes exactly `{app,game,map,ui}` without router, implementation, facade, or provider leakage |
-| `services/civ7-control/test/execution/root.test.ts` | Private-router middleware order, request isolation, raw-resource interpretation, and once-only direct Effect-to-procedure adaptation; typed context/dependencies, declared failures, defects, request interruption, cancellation, and finalization retain their lineage without a shared runtime |
+| `services/civ7-control/test/execution/root.test.ts` | App-supplied dependency binding, per-call correlation isolation, and once-only execution through the public client with distinct fake dependencies; provider lifecycle and generic oRPC/Effect internals remain with their owning proofs |
 | `services/civ7-play/test/contract/client.typecheck.ts` | The sole public client face, including any owned-contract re-export, exposes exactly `{attention,automation,city,diplomacy,notifications,progression,planning,turn,unit}` over the public control client with no Tuner-backed port, router, implementation, or provider leakage |
 | `services/civ7-play/test/execution/root.test.ts` | Private-router middleware order, request isolation, one-way delegation through the bound control client, and once-only direct Effect-to-procedure adaptation with typed dependency, error, interruption, cancellation, and finalization lineage |
 | `services/mapgen-runs/test/contract/client.typecheck.ts` | Save/Deploy and Run-in-Game clients expose only the accepted public service contract |

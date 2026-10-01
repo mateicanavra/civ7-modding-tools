@@ -4,7 +4,7 @@ description: |
   Use in the Civ7 Modding Tools repo when designing, migrating, or reviewing
   Civ7 oRPC service boundaries, service clients, API projections, app binding,
   or durable-workflow candidates. Trigger phrases include "where should this
-  oRPC router live", "is this control or play", "should this service mount
+  oRPC router live", "is this controller or Play", "should this service mount
   HTTP", "who acquires the provider", "can this API expose the service router",
   "does this need Inngest", and "remove the facade". This is a Civ7 ownership
   and proof overlay; generic oRPC, Effect, and Inngest mechanisms belong to the
@@ -23,11 +23,11 @@ Inngest APIs.
 
 Ground decisions in the sealed platform packet before following current source:
 
-- `docs/projects/civ7-capability-realization/destination-platform-reference.md`
 - `docs/projects/civ7-capability-realization/PRODUCT-AUTHORITY.md`
 - `docs/projects/civ7-capability-realization/SYSTEM-MODEL.md`
+- `docs/projects/civ7-capability-realization/OUTCOME-MODEL.md`
 - `docs/projects/civ7-capability-realization/TOPOLOGY.md`
-- `docs/projects/civ7-capability-realization/KIND-LAW-MATRIX.md`
+- `docs/projects/civ7-capability-realization/WORKSTREAM.md`
 
 ## Vendor Authority
 
@@ -51,24 +51,37 @@ dependency, or remembered examples.
 Each service is one semantic authority with a public contract and callable
 client over one private complete router. `src/client.ts` is the public caller
 and qualified construction face; `src/service/**` is private implementation.
-Qualified app composition constructs the bound client and supplies it to API
-context when needed. Ordinary consumers receive that client and do not supply
-dependencies, extract private types, or import router source.
+The controller mod app constructs the in-engine service; qualified host apps
+bind its public client through a narrow Tuner-backed transport and supply that
+client to callers or API context. Ordinary consumers receive the client and do
+not supply dependencies, extract private types, import router source, or know
+the transport.
 
-- `services/civ7-control` owns foundational Civ7 interpretation and closed
-  native operations in exactly `{app, game, map, ui}`.
-- `services/civ7-play` owns actor-facing gameplay meaning in exactly
-  `{attention, automation, city, diplomacy, notifications, progression,
-  planning, turn, unit}` and consumes only the public control client.
-- `services/mapgen-runs` remains a separate operation authority in exactly
-  `{autoplay, operations, run-in-game, save-deploy}`.
+- `services/civ7-controller` owns typed native operations executed inside Civ7.
+  Its root groups follow the official runtime realms and APIs; narrower gameplay
+  nouns stay nested beneath the gameplay group.
+- `services/civ7-play` owns actor-facing gameplay meaning in the modules proven
+  by baseline behavior and consumes only the public controller client.
+- `services/mapgen-runs` remains the separate request-correlated run-operation
+  authority.
 
-Control owns native admission, lowering, dispatch, bounded readback, and exact
-native uncertainty. It does not own gameplay goals, no-repeat policy, or next
-action. Play may preserve native evidence returned by control, but only play
-interprets it as a gameplay outcome. MapGen-runs owns run intent, ordering,
-state, correlation, reconciliation, and final semantic outcome; it does not own
-portable MapGen definition truth or app-qualified physical effects.
+The controller's gameplay group composes explicit native subdomains such as `city`,
+`diplomacy`, `notifications`, `player`, `progression`, `turn`, and `unit`; those nouns do
+not become peer platform modules. Native leaves use `observe`, `check`, and
+`send`. A `send` performs one fresh native check and at most one invocation,
+then returns exact dispatch evidence and optional same-evaluation
+`immediateAfter` readback. A generic operation union or caller-authored
+operation name is the deleted facade under another spelling.
+
+Those native action leaves do not own polling, gameplay postconditions,
+no-repeat policy, actor-facing `request`, reconciliation, or next action. A
+separately named controller operation may perform bounded observation
+required by its own explicit contract, but cannot replay a mutation or decide
+actor meaning. Play may preserve native evidence returned by the controller,
+but only Play interprets it as a gameplay outcome. MapGen-runs owns run intent, ordering,
+state, correlation,
+reconciliation, and final semantic outcome; it does not own portable MapGen
+definition truth or app-qualified physical effects.
 
 ### API Plugins
 
@@ -109,19 +122,19 @@ effect identities; it never becomes the writer of service-owned facts.
 - Preserve stale, partial, unavailable, refused, and uncertain results rather
   than translating them into success.
 - An uncertain gameplay mutation retains a no-repeat identity and is reconciled
-  through fresh control facts before retry.
+  through fresh controller facts before retry.
 - Owner mismatch, proximity, or attack legality is not proof of
   hostile/enemy/opponent/threat status. Require official relationship, team,
   war, suzerain, or equivalent validator evidence.
-- Raw resource health, epoch, command, and capture facts remain owned by their
-  resource/provider boundary. Control may interpret them into Civ7 meaning but
-  does not rewrite them.
+- Raw Tuner health, epoch, and command facts remain owned by their
+  resource/provider boundary. Window capture remains separate diagnostic/app
+  evidence. Neither is a controller dependency.
 - Type, schema, service, projection, assembly, installation, and live-game
   evidence prove different claims. Report only the strongest proof collected.
 
 ## Default Workflow
 
-1. Read the sealed model and classify the actor outcome as control, play,
+1. Read the sealed model and classify the actor outcome as Controller, Play,
    MapGen-runs, API projection, app composition, or a still-deferred workflow.
 2. Load the applicable global vendor skills and complete the exact-source gate
    before choosing an implementation mechanism.
@@ -153,11 +166,13 @@ non-trivial service or API slice.
 ## Core Invariants
 
 <invariants>
-<invariant name="one-semantic-owner">Control, play, and MapGen-runs retain distinct facts, transitions, and correction laws.</invariant>
+<invariant name="one-semantic-owner">Controller, Play, and MapGen-runs retain distinct facts, transitions, and correction laws.</invariant>
+<invariant name="native-controller-kernel">Controller TypeScript executes inside Civ7, exposes realm/boot identity, and nests explicit native gameplay subdomains whose leaves are observe, check, or single-dispatch send, never generic operation unions.</invariant>
 <invariant name="public-client-private-router">Consumers call public service clients; complete service routers and implementation stay private.</invariant>
-<invariant name="apps-compose">Qualified apps acquire providers and supply ready typed dependencies, bound clients, and API context.</invariant>
+<invariant name="apps-compose">The controller mod app constructs the in-engine service; qualified host apps acquire providers and bind its public client without regenerating operation bodies.</invariant>
 <invariant name="api-owns-caller-contract">An API owns its caller contract and delegates to bound public clients without copying service authority.</invariant>
-<invariant name="play-depends-on-control">Play consumes only the public control capability and never receives a resource, provider, or private control source.</invariant>
+<invariant name="play-depends-on-controller">Play consumes only the public controller client and never receives a resource, provider, transport, or private controller source.</invariant>
+<invariant name="raw-execution-is-diagnostic">Caller-authored JavaScript exists only behind an explicit qualified diagnostic adapter and never implements a mature Controller, Play, or MapGen-runs operation.</invariant>
 <invariant name="uncertainty-survives">Dispatch is not acceptance; uncertainty and no-repeat reconciliation remain explicit.</invariant>
 <invariant name="vendor-mechanism-is-source-gated">Concrete vendor APIs are selected only from the exact installed source, declarations, and discriminating fixtures.</invariant>
 <invariant name="proof-stays-scoped">Contract, semantics, execution, projection, assembly, generated, installed, and live evidence are not interchangeable.</invariant>

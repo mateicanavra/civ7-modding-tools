@@ -23,7 +23,7 @@ if [[ -d "$SUBMODULE_REL" && -n "$(find "$SUBMODULE_REL" -mindepth 1 -maxdepth 1
   ACTUAL_TOPLEVEL="$(git -C "$SUBMODULE_REL" rev-parse --show-toplevel 2>/dev/null || true)"
   if [[ -n "$ACTUAL_TOPLEVEL" && "$ACTUAL_TOPLEVEL" != "$EXPECTED_TOPLEVEL" ]]; then
     echo "Submodule '$SUBMODULE_REL' exists but is not a git checkout."
-    echo "This usually means the directory was overwritten (e.g., by data unzip)."
+    echo "This usually means the directory was overwritten outside the managed materializer."
     echo "Move it aside or delete it, then re-run: bun run resources:init"
     exit 1
   fi
@@ -37,7 +37,7 @@ EXPECTED_TOPLEVEL="$(cd "$SUBMODULE_REL" && pwd -P)"
 ACTUAL_TOPLEVEL="$(git -C "$SUBMODULE_REL" rev-parse --show-toplevel 2>/dev/null || true)"
 if [[ -z "$ACTUAL_TOPLEVEL" || "$ACTUAL_TOPLEVEL" != "$EXPECTED_TOPLEVEL" ]]; then
   echo "Submodule '$SUBMODULE_REL' exists but is not a git checkout."
-  echo "This usually means the directory was overwritten (e.g., by data unzip)."
+  echo "This usually means the directory was overwritten outside the managed materializer."
   echo "Move it aside or delete it, then re-run: bun run resources:init"
   exit 1
 fi

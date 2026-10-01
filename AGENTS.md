@@ -94,11 +94,14 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
   provider-neutral external capability, providers own concrete acquisition and
   release, services own semantic policy and operations, plugins own caller
   projection, and apps own selection, binding, mounting, and process lifetime.
-  `services/civ7-control` owns foundational `{app,game,map,ui}` control over
-  app-supplied ready resources; `services/civ7-play` owns actor-facing gameplay
-  over the public control client. `packages/civ7-direct-control`, aggregate
-  facades, private contract picking, service routers exposed over the wire, and
-  caller-owned resource acquisition have no destination shape.
+  `services/civ7-controller` owns typed native operations executed inside Civ7
+  and is realized through a dedicated controller mod; host apps bind its public
+  client through selected Tuner access without regenerating operation bodies.
+  `services/civ7-play` owns actor-facing gameplay over that public client. Raw
+  JavaScript is an explicit app-owned diagnostic escape hatch only.
+  `packages/civ7-direct-control`, `services/civ7-control`, aggregate facades,
+  private contract picking, service routers exposed over the wire, and
+  service-owned resource acquisition have no destination shape.
 - Global `dev:orpc`, `dev:effect-orpc`, `dev:effect-ts`, `dev:inngest`, and
   `dev:effect-inngest` skills own generic vendor guidance. Repo-local skills may
   add Civ7 product and boundary law only; they must not freeze or copy vendor

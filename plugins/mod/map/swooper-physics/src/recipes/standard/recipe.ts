@@ -103,5 +103,22 @@ export {
   STANDARD_INITIAL_MAP_OPTION_DESCRIPTORS,
   STANDARD_INITIAL_PLAYER_OPTION_DESCRIPTORS,
 } from "./initial-setup.js";
+export type {
+  Civ7MapGenerationSetupCapture,
+  Civ7MapGenerationSetupCaptureInput,
+  Civ7MapInfoSnapshot,
+  Civ7PlayerSetupOptionEvidence,
+  Civ7SetupOptionEvidence,
+  Civ7SetupOptionEvidenceForDescriptor,
+  Civ7SetupOptionEvidenceForDescriptors,
+  Civ7SetupOptionUnavailableReason,
+  Civ7SetupOptionValue,
+  Civ7StartSlotCapacity,
+  MapDefinition,
+  MapInitialSetupProjection,
+  MapLatitudeBounds,
+  MapRecipeDefinition,
+  MapRunCorrelation,
+} from "./initial-setup.js";
 
 export default standardRecipe;

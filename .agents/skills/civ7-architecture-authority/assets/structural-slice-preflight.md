@@ -41,7 +41,10 @@ and `proves`.
 
 - Package purity:
 - Resource/provider split:
-- Foundational control versus actor-facing play:
+- Realm-local controller versus actor-facing Play:
+- Host controller-client binding versus controller implementation:
+- Raw JavaScript diagnostic boundary:
+- Window-capture evidence kept outside Controller and Play:
 - Swooper definition versus production realization:
 - Studio ephemeral realization adapter:
 - MapGen-runs semantic operation ownership:

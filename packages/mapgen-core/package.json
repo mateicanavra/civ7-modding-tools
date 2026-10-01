@@ -93,7 +93,6 @@
   },
   "dependencies": {
     "@civ7/adapter": "workspace:*",
-    "@civ7/types": "workspace:*",
     "@swooper/mapgen-metrics": "workspace:*",
     "@swooper/mapgen-viz": "workspace:*",
     "d3-delaunay": "^6.0.4",

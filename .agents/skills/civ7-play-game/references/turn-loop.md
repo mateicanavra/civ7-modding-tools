@@ -23,15 +23,15 @@ bun apps/cli/bin/run.js game play --help
 Ask every selected leaf for `--help`. The command examples below name current
 leaves only; their flags and result fields come from live discovery.
 
-## 1. Gate On Foundational Readiness
+## 1. Gate On Controller Readiness
 
-Select the foundational readiness read from native game help. Proceed only when
+Select the controller readiness read from native game help. Proceed only when
 it reports a playable,
 mutation-capable, current observation. Otherwise use
 `setup-and-recovery.md`.
 
-Do not query the Tuner resource directly for gameplay readiness. Foundational
-control owns the Civ7 interpretation.
+Do not query the Tuner resource directly for gameplay readiness. The controller
+owns typed native readiness; Play owns the actor-facing readiness decision.
 
 ## 2. Read The Play Situation
 
@@ -131,7 +131,7 @@ Send the named request once. Require the turn procedure's own result:
 
 Read the play situation again or use the current watch projection. Resume only
 when fresh state identifies the actor's turn and exposes decisions or lawful
-turn completion. If progress stalls, check foundational status and use
+turn completion. If progress stalls, check controller status and use
 `setup-and-recovery.md`.
 
 ## Stop Conditions

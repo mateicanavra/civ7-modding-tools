@@ -1,5 +1,5 @@
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
-import type { FeatureData } from "@civ7/types";
+import type { FeatureData } from "@civ7/adapter";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { assertNoWaterDrift } from "../../../../../water-surface-parity.js";
 import { config } from "./config.js";

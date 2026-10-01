@@ -442,30 +442,31 @@ the owning step only.
 - **AND** guardrails reject private-step visualization hubs or cross-step
   imports
 
-### Requirement: SDK Root Does Not Load Civ7 Map Runtime
+### Requirement: SDK Remains Runtime-Neutral
 
-The SDK root SHALL remain safe for Node/Bun build-tool consumers and SHALL NOT
-load Civ7 map runtime adapter modules as a side effect of importing general SDK
-mod-authoring APIs.
+The SDK SHALL remain safe for Node/Bun build-tool consumers and SHALL NOT own
+or load Civ7 map-script execution, official runtime API, adapter, or Swooper
+runtime modules from any public or private subpath.
 
 #### Scenario: A build-tool consumer imports SDK root
 - **WHEN** a package imports builders, nodes, constants, files, or `Mod` from
   `@mateicanavra/civ7-sdk`
-- **THEN** that import does not transitively load `@civ7/adapter/civ7`
+- **THEN** that import does not transitively load `@civ7/adapter`,
+  `@civ7/api`, or a Swooper map runtime
 - **AND** it does not require Civ7 `/base-standard/...` modules to resolve
 
-#### Scenario: A map entrypoint uses createMap
-- **WHEN** a Civ7 map file uses the SDK map authoring helper
-- **THEN** it imports `createMap` from `@mateicanavra/civ7-sdk/mapgen`
-- **AND** the explicit mapgen subpath owns the opt-in to Civ7 map runtime
-  adapter binding
+#### Scenario: A map definition is realized in Civ7
+- **WHEN** a deployable map application realizes a portable map definition
+- **THEN** the application owns its engine adapter, setup capture, entrypoint,
+  and final-bundle compatibility
+- **AND** it does not route that execution through the general mod-authoring SDK
 
 #### Scenario: A guardrail protects the boundary
 - **WHEN** normalization guardrails run
-- **THEN** they reject SDK root exports/imports that reintroduce the mapgen
-  runtime into `@mateicanavra/civ7-sdk`
-- **AND** they continue allowing Civ7 runtime imports inside the explicit SDK
-  mapgen subpath and adapter implementation
+- **THEN** they reject SDK imports or exports that reintroduce map-script
+  execution into `@mateicanavra/civ7-sdk`
+- **AND** the qualified deployable map application remains the sole admitted
+  owner of its Civ7 runtime realization
 
 ### Requirement: Studio Preset Wrappers Keep Stage Config Under Config
 

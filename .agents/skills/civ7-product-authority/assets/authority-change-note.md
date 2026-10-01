@@ -23,7 +23,8 @@ workstream. Do not keep completed notes in the skill directory.
 ## Boundary Effects
 
 - Package/resource/provider/service/plugin/app roles affected:
-- Foundational-control versus play effect:
+- Controller versus Play effect:
+- Host access/raw diagnostic/window-evidence effect:
 - Swooper definition/production/Studio-realization effect:
 - MapGen-runs semantic/effect split:
 - Upstream Habitat law involved:

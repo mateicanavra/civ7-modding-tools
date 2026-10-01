@@ -34,6 +34,11 @@ const depConstraints = [
     ],
   },
   { sourceTag: "kind:library", onlyDependOnLibsWithTags: ["kind:library"] },
+  {
+    sourceTag: "runtime:civ7-v8",
+    onlyDependOnLibsWithTags: ["runtime:civ7-v8"],
+    allowedExternalImports: [],
+  },
   { sourceTag: "kind:adapter", onlyDependOnLibsWithTags: ["kind:library"] },
   { sourceTag: "kind:engine", onlyDependOnLibsWithTags: ["kind:adapter", "kind:library"] },
   {
@@ -60,7 +65,7 @@ const depConstraints = [
   },
   {
     sourceTag: "kind:sdk",
-    onlyDependOnLibsWithTags: ["kind:engine", "kind:adapter", "kind:library", "kind:plugin"],
+    onlyDependOnLibsWithTags: ["kind:library", "kind:plugin"],
   },
   {
     sourceTag: "kind:control",

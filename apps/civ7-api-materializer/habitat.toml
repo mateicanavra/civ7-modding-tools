@@ -1,0 +1,10 @@
+schemaVersion = 1
+id = "civ7-api-materializer"
+ownerProject = "civ7-api-materializer"
+blueprint = "app"
+blueprintVersion = 1
+
+[roots]
+project = "apps/civ7-api-materializer"
+
+[selections]

@@ -1,0 +1,18 @@
+schemaVersion = 1
+id = "civ7-adapter"
+ownerProject = "civ7-adapter"
+blueprint = "package"
+blueprintVersion = 1
+
+[roots]
+project = "packages/civ7-adapter"
+
+[selections]
+contract = ["contract"]
+semantics = [
+  "map-metadata",
+  "mock-adapter",
+  "mock-adapter-rng",
+  "mock-terrain-policy",
+  "placement-outcomes",
+]

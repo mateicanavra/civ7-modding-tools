@@ -28,14 +28,18 @@ Hold these boundaries throughout the work:
   reconciliation, and semantic outcome: `services/mapgen-runs`.
 - Exact physical host effects and receipts: qualified app adapters.
 - Tuner and window acquisition: selected resource providers.
-- Typed Civ7 app/game/map/UI facts: `services/civ7-control`.
+- Typed native Civ7 facts and operations executed in Civ7:
+  `services/civ7-controller` through its dedicated controller mod.
 - Actor-facing gameplay meaning: `services/civ7-play`.
+- Tuner transport and raw diagnostics: selected resource/provider plus qualified
+  app binding; raw JavaScript never implements a mature operation.
 - Caller interaction and presentation: CLI/API/web projections.
 - Provider selection, client binding, mounting, and disposal: qualified apps.
 
 Read the accepted platform packet before changing an owner boundary:
 `docs/projects/civ7-capability-realization/{destination-platform-reference.md,
-PRODUCT-AUTHORITY.md,SYSTEM-MODEL.md,TOPOLOGY.md,CORPUS.md}`.
+PRODUCT-AUTHORITY.md,SYSTEM-MODEL.md,TOPOLOGY.md,SOURCE-RECONCILIATION.md,
+PUBLIC-SURFACE-DISPOSITION.md}`.
 
 ## Orientation
 

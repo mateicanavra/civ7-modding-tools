@@ -1,15 +1,15 @@
 # Civ7 oRPC Failure Patterns
 
-## Control And Play Collapse
+## Controller And Play Collapse
 
 **Symptom:** actor-facing city, diplomacy, planning, or turn policy is placed
-beside foundational app/game/map/UI operations in one service.
+beside native controller operations in one service.
 
 **Why it fails:** sharing live prerequisites does not make the facts, writers,
 or correction laws identical.
 
-**Repair:** keep control at exactly `{app,game,map,ui}`. Place gameplay meaning
-under the finite play inventory and depend only on the public control client.
+**Repair:** keep typed native operations in the realm-local controller. Place
+gameplay meaning in Play and depend only on the public controller client.
 
 ## Provider Leakage
 
@@ -70,6 +70,22 @@ semantics proof disappear.
 **Repair:** expose only closed typed operations owned by a selected service
 module. Keep raw diagnostics explicit and owner-qualified.
 
+## Family Dispatcher Recreates The Facade
+
+**Symptom:** a control leaf accepts a generic operation name, argument bag, or
+discriminated union covering several native operations.
+
+**Why it fails:** the route is nominally typed but still transfers native
+selection, lowering, and authority to the caller. It preserves the aggregate
+facade under a family-shaped name.
+
+**Repair:** keep controller groups aligned to official runtime realms/APIs;
+nest explicit native gameplay subdomains under `game`, and expose exact `observe`, `check`, or
+single-dispatch `send` leaves. Put actor-facing `request`, polling,
+postconditions, no-repeat behavior, and reconciliation in Play. A separately
+named controller operation may own bounded observation required by its own
+contract, but must not replay a mutation or decide an actor outcome.
+
 ## Vendor Mechanism By Memory
 
 **Symptom:** implementation chooses a builder chain, adapter, error tunnel,
@@ -114,7 +130,7 @@ accepted gameplay success, and retry can repeat an ambiguous mutation.
 observation, acceptance, and final outcome.
 
 **Repair:** preserve refused, partial, stale, unavailable, and uncertain
-states. Retain a no-repeat identity and reconcile through fresh control facts.
+states. Retain a no-repeat identity and reconcile through fresh controller facts.
 
 ## Relationship Label Regression
 

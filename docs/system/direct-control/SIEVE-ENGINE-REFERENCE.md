@@ -2,15 +2,16 @@
 
 Status: Normative
 
-Audience: agents working on placement, Tuner resource/provider behavior,
-foundational control, actor-facing play, CLI game commands, Studio runtime
-proof, or Civ7 operational debugging.
+Audience: agents working on placement, generated Civ7 API authority, Tuner
+resource/provider behavior, the realm-local controller, actor-facing Play, CLI
+game commands, Studio runtime proof, or Civ7 operational debugging.
 
 This document records the operational facts discovered while probing live map
 mutation, save/load boundaries, and native WorldBuilder command objects. It is
 an implementation reference, not a project log. Use it to decide what belongs
-in resources/providers, control, play, app adapters, caller projections, or
-placement/map-generation code, and what remains a research-only native bridge.
+in resources/providers, the controller, Play, app diagnostic adapters, caller
+projections, or placement/map-generation code, and what remains research-only
+native evidence.
 
 In this reference, "sieve engine" means the live-control diagnostic loop that
 connects to a Civ7 process, selects a scripting state, executes a bounded probe
@@ -22,10 +23,20 @@ and not a replacement for placement or MapGen source authority.
 
 `resources/civ7-tuner` owns the provider-neutral live capability and its
 `local-socket` provider owns concrete framing, epochs, interruption, and
-release. Qualified apps acquire that provider once and bind the public
-`civ7-control` client. CLI, Studio, placement proof tooling, and agent workflows
-consume bound public clients or explicit qualified diagnostics; they never own
-raw socket frames or caller-local product JavaScript.
+release. Qualified host apps acquire that provider once, discover the current
+realm-local ingress, and bind the public `services/civ7-controller` client
+through a narrow transport. That transport carries typed envelopes,
+correlation, and realm/boot validation; it never regenerates an operation body.
+Play and MapGen-runs consume only the public controller client. CLI, Studio,
+placement proof tooling, and agent workflows consume bound public clients or
+explicit qualified diagnostics; they never own raw socket frames or
+caller-local mature operation JavaScript.
+
+Arbitrary JavaScript over Tuner is a separate app-owned diagnostic and
+prototyping surface with exact source, target state, epoch, response, and audit
+evidence. Window capture is a separate generic managed diagnostic or app
+evidence capability. Neither surface owns controller semantics or enters Play
+as an unnamed dependency.
 
 Placement and MapGen code own map truth, recipes, deterministic artifacts, and
 map-script authoring. They must not depend on live WorldBuilder or native binary
@@ -33,10 +44,10 @@ mutation to make generated maps correct.
 
 Official resources, Civ7 logs, live tuner reads, and binary inspection are
 evidence. They do not by themselves define a public repo API. Promote a runtime
-primitive only when its qualified resource, control, play, adapter, or
+primitive only when its qualified resource, controller, Play, adapter, or
 projection owner can provide:
 
-- a state-scoped wrapper (`App UI` vs `Tuner`);
+- a state- and realm-scoped wrapper (`App UI` vs `Tuner`);
 - bounded inputs and structured JSON output;
 - mutation classification;
 - command-boundary readback;
@@ -50,21 +61,23 @@ available in another without a fresh probe.
 
 | State | Role | Useful roots observed |
 |---|---|---|
-| `App UI` | Lifecycle, UI, save/load, WorldBuilder, many developer controls | `Network`, `UI`, `GameContext`, `Autoplay`, `WorldBuilder`, `WorldBuilderContext`, `GameplayMap`, `Players`, `Game`, `Database`, `GameInfo` |
+| `App UI` | Controller execution realm; lifecycle, UI, save/load, WorldBuilder, many developer controls | `Network`, `UI`, `GameContext`, `Autoplay`, `WorldBuilder`, `WorldBuilderContext`, `GameplayMap`, `Players`, `Game`, `Database`, `GameInfo` |
 | `Tuner` | Gameplay/map canary and map-builder surface after Begin Game | `GameplayMap`, `TerrainBuilder`, `AreaBuilder`, `MapRivers`, `Game`, `Players`, `Autoplay` |
 
 Command execution has a frame boundary. Some native/UI mutations are stale when
-read back inside the same JavaScript command. After writes, the owning control
-or play operation must reread in a later command before reporting a
-postcondition.
+read back inside the same evaluation. A controller mutation reports only the
+immediate evidence it can establish. Play or MapGen-runs must obtain a fresh
+later controller observation before reporting a reconciled actor or run
+outcome.
 
 ## App UI Gameplay Evidence
 
-The retired game-scoped controller experiment had no production consumer and
-does not remain as an implementation owner. Its durable contribution is this
-finite App UI evidence. Official-source corroboration uses the pinned resource
-gitlink `c9f612ba19242a4add63acf9e5a344178898b725` (snapshot 2026-07-11,
-accessed 2026-07-30).
+The retired intelligence-bridge/controller experiment is excluded from the
+evidence set and supplies no design or implementation authority. This section
+retains only independently corroborated official-source and bounded live-probe
+facts. Official-source corroboration uses the pinned resource gitlink
+`c9f612ba19242a4add63acf9e5a344178898b725` (snapshot 2026-07-11, accessed
+2026-07-30).
 
 - App UI/game scope exposes `UI`, `Game`, `GameplayMap`, `Players`, `GameInfo`,
   `Database`, `ComponentID`, and `InterfaceMode`. These are realm observations,
@@ -72,7 +85,7 @@ accessed 2026-07-30).
   lifecycle.
 - Observed official `Game.PlayerOperations.canStart(...)` and
   `Game.UnitCommands.canStart(...)` callers inspect the returned `.Success`
-  member. Owning command atoms preserve and interpret their operation's raw
+  member. The owning controller operation preserves and interprets its raw
   result rather than globally normalizing it. A non-throwing
   `sendRequest(...)` is dispatch evidence, not an acceptance receipt or
   completed effect.
@@ -80,7 +93,7 @@ accessed 2026-07-30).
   selected-unit/city heads are native observations. Selection is not
   readiness. Treating first-ready-unit as positive readiness evidence and
   requiring blocker or population evidence for city readiness are repo-owned
-  service policies, not native protocol facts.
+  Play policies, not native protocol facts.
 - Advisor warning acknowledgement is
   `VIEWED_ADVISOR_WARNING` with `{ Target }`.
 - Ordinary diplomacy response is `RESPOND_DIPLOMATIC_ACTION` with
@@ -136,30 +149,32 @@ Representative official owners in that snapshot are
 `ui/production-chooser/production-chooser-helpers.js:865-878`, and
 `ui/production-chooser/panel-town-focus.js:96-99`.
 
-The foundational executable forms of these operations belong to the control
-service over app-supplied ready resources. Actor-facing admission,
-reconciliation, no-repeat policy, and next-action meaning belong to play. Do
-not reconstruct either layer in a deployed mod. Mutation completion always
-requires command-boundary readback, and an ambiguous dispatch is never replayed
-automatically.
+The mature mechanical forms of these operations belong in the TypeScript
+controller service bundled into the dedicated controller mod. Host apps invoke
+them through the unchanged public controller contract and never resend their
+implementation bodies. Actor-facing admission, reconciliation, no-repeat
+policy, and next-action meaning belong to Play. Do not transplant the retired
+bridge or retain a host-injected duplicate. Controller dispatch and immediate
+evidence remain distinct from later Play reconciliation, and an ambiguous
+dispatch is never replayed automatically.
 
 ## Useful Live-Control And CLI Endpoints
 
-These endpoints are current evidence for qualified resource, control, play,
+These endpoints are current evidence for qualified resource, controller, Play,
 diagnostic, and CLI owners. Names below distinguish repo commands from Civ7
 runtime methods; current command existence does not preserve a legacy package.
 
 | Endpoint | State | Use | Normative handling |
 |---|---|---|---|
 | `civ7 game health --json` | socket / state discovery | Check listener and available states. | Keep as first diagnostic gate. |
-| `civ7 game health --tuner --json` | `Tuner` | Verify post-Begin gameplay command readiness. | Use before `GameplayMap`, `TerrainBuilder`, or `MapRivers` probes. |
-| `civ7 game exec "<js>" --state ... --json` | chosen state | Raw research/probe transport. | Keep diagnostic-only; do not make it the product API for repeated workflows. |
-| `civ7 game restart --begin --wait-tuner --json` | `App UI` then `Tuner` | Restart current setup, run Begin Game, wait for gameplay canary. | Keep as core operational loop for disposable map runs. |
-| `civ7 game map ... --json` | package wrapper | Structured map summaries, plot snapshots, grids. | Prefer over raw `GameplayMap` snippets in CLI/Studio. |
-| `civ7 game visibility ... --json` | package wrapper | Structured visibility reads and disposable reveal control. | Keep player-scoped and proof-returning. |
-| `civ7 game catalog --json` | package wrapper | Runtime/static capability catalogue. | Catalogue entries must carry state, provenance, confidence, and mutation class. |
-| `Network.saveGame(params)` | `App UI` | Save a game/config/state for sandboxing and reload-boundary tests. | Promote as an explicit game-control wrapper, not a gameplay action. Wait for completion evidence when possible. |
-| `Network.loadGame(params, serverType)` | `App UI` | Load a saved game/config/state. | Promote as an explicit game-control wrapper. Treat the tuner listener/states as unstable until rediscovered. |
+| `civ7 game health --tuner --json` | `Tuner` | Verify a post-Begin diagnostic canary. | Use before raw `GameplayMap`, `TerrainBuilder`, or `MapRivers` probes; it does not prove controller readiness. |
+| `civ7 game exec "<js>" --state ... --json` | chosen state | Raw research/probe transport. | Keep as an explicit app-owned diagnostic with audit identity and no automatic retry; never use it for a mature operation. |
+| `civ7 game restart --begin --wait-tuner --json` | `App UI` then `Tuner` | Restart current setup, run Begin Game, wait for gameplay canary. | Preserve as a qualified app operational effect composed with fresh access/controller readiness, not as controller or Tuner semantics. |
+| `civ7 game map ... --json` | legacy package wrapper | Structured map summaries, plot snapshots, grids. | Preserve mature behavior only through the public controller client; delete the host-generated wrapper body when migrated. |
+| `civ7 game visibility ... --json` | legacy package wrapper | Structured visibility reads and disposable reveal control. | Keep player-scoped and proof-returning; controller owns mechanics and Play owns actor policy where admitted. |
+| `civ7 game catalog --json` | static authority plus live diagnostic | Runtime/static capability catalogue. | Generated official knowledge owns static facts; live inventory remains explicitly state-, epoch-, provenance-, and confidence-scoped evidence. |
+| `Network.saveGame(params)` | `App UI` | Save a game/config/state for sandboxing and reload-boundary tests. | Graduate as an explicit controller game operation, not a gameplay action. Wait for completion evidence when possible. |
+| `Network.loadGame(params, serverType)` | `App UI` | Load a saved game/config/state. | Graduate as an explicit controller game operation. Treat access, realm, and controller identity as unstable until rediscovered. |
 | `UI.reloadUI()` | `App UI` | Reload UI modules/resources. | Keep as raw/elevated debugging unless a narrow UI recovery wrapper needs it. It does not rebuild GameCore map state. |
 
 ### Save And Load Parameters
@@ -335,8 +350,8 @@ Do not bake LLDB expressions, absolute binary addresses, ASLR slides, vtable
 slots, or guessed object layouts into a resource, service, API, or CLI. A native
 river bridge would require a purpose-built injected/native layer with version
 gating, symbol discovery, argument schema, crash containment, and postcondition
-proof. Until then, foundational control should expose the negative capability
-clearly rather than offering a fake river-stamp wrapper.
+proof. Until then, the controller should expose the native refusal or negative
+capability clearly rather than offering a fake river-stamp wrapper.
 
 ## Operational Debugging Rules
 
@@ -365,16 +380,17 @@ Use this checklist for live-control diagnostic debugging:
 Route these to their qualified owners:
 
 - raw state-scoped health to the Tuner resource/provider and semantic readiness
-  to `control.app`;
+  to the controller identity/readiness contract exposed through the host access
+  binding;
 - explicit save-game and load-game native operations with completion/readiness
-  proof to `control.game`;
+  proof to the controller's game module;
 - structured map and plot readbacks that include hydrology/native river fields
-  to `control.map`;
+  to the controller's map module;
 - a disposable-session WorldBuilder plot edit wrapper only if it reports delayed
-  readback and mutation class honestly, with acquisition remaining provider-
-  owned;
-- a control-owned negative-capability result for targeted native river stamping
-  until a real graph writer is exposed or built;
+  readback and mutation class honestly, with host access remaining provider-
+  owned and the mechanical operation implemented in controller TypeScript;
+- a controller-owned native-refusal or negative-capability result for targeted
+  native river stamping until a real graph writer is exposed or built;
 - CLI/API presentation only after the corresponding public capability exists.
 
 Keep these as raw/elevated research:
@@ -389,6 +405,8 @@ Keep these as raw/elevated research:
 Do not add:
 
 - caller-local Tuner socket implementations outside the selected provider;
+- host-generated mature operation bodies, a direct-control compatibility path,
+  or an aggregate controller facade;
 - placement logic that depends on live WorldBuilder edits;
 - silent same-command readback after native/UI mutations;
 - automatic retries for save/load, WorldBuilder writes, or native bridge calls;

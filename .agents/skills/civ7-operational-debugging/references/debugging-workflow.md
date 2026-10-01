@@ -50,30 +50,33 @@ in question.
 4. After reconnect, treat all prior observations as stale and rediscover states.
 5. Do not infer Civ7 gameplay success from a raw command result.
 
-## Window Capture And Appshot
+## Window Capture
 
 Use when capture is blank, stale, denied, or targets the wrong window.
 
-1. Separate generic provider facts (platform, permission, selected window,
-   helper/process result, image receipt) from control-owned Civ7 appshot meaning.
+1. Keep generic provider facts (platform, permission, selected window,
+   helper/process result, image receipt) separate from controller and gameplay
+   claims.
 2. Confirm acquisition and capture occur inside the qualified app scope.
 3. Record provider interruption or timeout explicitly; do not hang waiting for
    an unbounded child process.
-4. Validate the captured file/image receipt, then separately validate that
-   foundational control selected the intended Civ7 window and requested frame.
+4. Validate the captured file/image receipt and any qualified app
+   interpretation separately. The controller neither selects the window nor
+   consumes the frame.
 
-## Foundational Control
+## Civ7 Controller
 
 Use when Civ7 readiness, setup, game, map, UI, dispatch, or readback is wrong.
 
-1. Start from a ready app-bound control client, never the provider.
-2. Select the finite owner module: `app`, `game`, `map`, or `ui`.
-3. Record the resource epoch and request/operation correlation emitted by the
-   capability.
+1. Start from the public controller client bound by the host app, never the
+   provider or private router.
+2. Select the official runtime realm/API group that owns the native operation.
+3. Record host-access epoch plus controller realm/boot and request/operation
+   correlation.
 4. Distinguish admission, dispatch, readback, stale/partial/unavailable, and
    uncertain results.
 5. If the desired result is a gameplay recommendation or next action, move to
-   the play workflow instead of adding policy to control.
+   the Play workflow instead of adding policy to the controller.
 
 ## Actor-Facing Play
 
@@ -82,7 +85,7 @@ bad next action.
 
 1. Re-read the situation from the public play client/CLI projection.
 2. Preserve the check/request/no-repeat identity and exact candidate values.
-3. If the request may have dispatched, reconcile through fresh control facts;
+3. If the request may have dispatched, reconcile through fresh controller facts;
    do not retry blindly.
 4. Classify refusal, postcondition, uncertainty, and next action as play-owned
    outcomes.
@@ -94,7 +97,7 @@ with receipts.
 
 1. Record the operation/request id and current MapGen-runs phase/state.
 2. Inspect each dependency result separately: authored-config write,
-   materialization, installation, setup/control, run-files, and fresh-log
+   materialization, installation, setup/controller, run-files, and fresh-log
    evidence.
 3. Keep app-adapter physical receipts distinct from the service's semantic
    outcome.

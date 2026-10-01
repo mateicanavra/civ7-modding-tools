@@ -12,7 +12,7 @@ implementation topology, platform law, or framework mechanics into authority.
 | `docs/projects/civ7-capability-realization/OUTCOME-MODEL.md` | Honest owner facts, refusals, uncertainty, reconciliation, and proof composition |
 | `docs/projects/civ7-capability-realization/ACTOR-ROLE-OUTCOME-MODEL.md` | External Actors, contextual Roles, Tasks, Questions, scenes, and channel parity |
 | `docs/projects/civ7-capability-realization/TOPOLOGY.md` | Selected owner graph, exact package/consumer/proof ledger, and conditional candidates |
-| `docs/projects/civ7-capability-realization/destination-platform-reference.md` | Durable kind grammar, capability chains, service/API boundaries, and required deletion direction |
+| `docs/projects/civ7-capability-realization/WORKSTREAM.md` | Ratified migration sequence, quarantine law, deletion receipts, and stop conditions |
 
 Open the exact section for the decision. This overlay must not copy the
 packet's current readiness, admission, migration, or proof status.

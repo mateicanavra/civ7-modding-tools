@@ -3,4 +3,11 @@ env = false
 [install]
 linker = "isolated"
 hoistPattern = ["typescript"]
-minimumReleaseAgeExcludes = ["@orpc/client", "@orpc/contract", "@orpc/server", "effect-orpc"]
+minimumReleaseAgeExcludes = [
+  "@habitat-ai/cli",
+  "@habitat-ai/sdk",
+  "@orpc/client",
+  "@orpc/contract",
+  "@orpc/server",
+  "effect-orpc",
+]

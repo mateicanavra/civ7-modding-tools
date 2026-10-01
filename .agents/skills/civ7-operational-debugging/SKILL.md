@@ -1,7 +1,7 @@
 ---
 name: civ7-operational-debugging
 description: |
-  Use in the Civ7 Modding Tools repo for "check the deployed mod", "inspect Civ7 logs", "did Civ7 load this", "is the Tuner healthy", "capture the Civ7 window", "debug a live run", "why did Run in Game fail", "compare generated and deployed files", "what proof do we have", or "verify this in game". Routes evidence through resources/providers, public control and play capabilities, MapGen-runs, projections, and qualified apps.
+  Use in the Civ7 Modding Tools repo for "check the deployed mod", "inspect Civ7 logs", "did Civ7 load this", "is the Tuner healthy", "capture the Civ7 window", "debug a live run", "why did Run in Game fail", "compare generated and deployed files", "what proof do we have", or "verify this in game". Routes evidence through resources/providers, the public controller and Play clients, MapGen-runs, projections, and qualified apps.
 ---
 
 # Civ7 Operational Debugging
@@ -13,9 +13,9 @@ durable live chain is:
 
 ```text
 qualified app
-  -> selects/acquires Tuner and window-capture providers
-  -> binds provider-neutral resource values to foundational control
-  -> optionally binds actor-facing play and MapGen-runs
+  -> selects/acquires Tuner and optional window-capture providers
+  -> binds the public controller client to the realm-local ingress through Tuner
+  -> constructs actor-facing Play and MapGen-runs over public clients
   -> mounts CLI/API/web projections
   -> observes and disposes the process scope
 ```
@@ -26,8 +26,8 @@ Each owner reports only its facts:
   release, and foreign failures.
 - Window-capture resource/provider: selected-window/image evidence and capture
   failures.
-- Foundational control: Civ7 app/game/map/UI interpretation and closed native
-  operations correlated to the resource epoch.
+- Controller: typed native operations executed inside the dedicated controller
+  mod, with realm/boot and operation evidence.
 - Actor-facing play: gameplay checks, requests, reconciliation, no-repeat
   policy, and next-action meaning.
 - MapGen-runs: Save & Deploy and Run in Game operation state, correlation,
@@ -39,7 +39,7 @@ Each owner reports only its facts:
 
 - Generated artifact, install, loader, log, capture, and live-behavior checks.
 - Tuner connectivity or resource-epoch diagnosis.
-- Window capture and Civ7 appshot diagnosis.
+- Generic window capture and qualified app evidence diagnosis.
 - Save & Deploy or Run in Game failures across operation and adapter receipts.
 - Determining the strongest honest proof available for a claim.
 
@@ -59,7 +59,7 @@ Each owner reports only its facts:
 1. **Name the claim.** Choose one: contract, deterministic execution,
    generated artifact, installation, loader, log, capture, live observation, or
    actor outcome.
-2. **Name the owner.** Map the fact to resource/provider, control, play,
+2. **Name the owner.** Map the fact to resource/provider, Controller, Play,
    MapGen-runs, adapter, projection, or app.
 3. **Discover current surfaces.** Use Nx project descriptions and CLI `--help`;
    never begin from a remembered target or script.

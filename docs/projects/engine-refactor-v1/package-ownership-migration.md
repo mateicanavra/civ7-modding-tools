@@ -1,6 +1,11 @@
 # MapGen Package Ownership Migration
 
-Status: `accepted-pre-a2-migration`
+Status: `superseded-by-civ7-capability-realization`
+
+This document is retained as migration evidence. Current package and runtime
+ownership is defined by `docs/projects/civ7-capability-realization/`; in
+particular, the reusable adapter package is runtime-free and the deployable
+Swooper app owns its concrete map-script adapter and compiler.
 
 This document defines the package and tooling correction that must land before
 A.2 begins. It refines the package-boundary work in the architecture

@@ -11,7 +11,6 @@ export default defineConfig([
     ...shared,
     entry: {
       index: "src/index.ts",
-      "mapgen/index": "src/mapgen/index.ts",
     },
     format: ["esm"],
     dts: true,

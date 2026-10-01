@@ -62,15 +62,18 @@ Do not infer loader acceptance from file presence.
 
 1. Confirm Civ7 Tuner support is enabled.
 2. Have the qualified app select/acquire the local-socket Tuner provider and
-   generic window-capture provider when capture is needed.
+   bind the public controller client. Acquire generic window capture separately
+   only when exterior visual evidence is needed.
 3. Record the Tuner resource epoch and selected endpoint from provider facts.
-4. Confirm foundational control reports the required app/game readiness.
+4. Confirm the controller reports the required realm/boot and native readiness
+   facts; keep any Play readiness interpretation separate.
 5. Snapshot the relevant logs before any launch/mutation.
 6. If Studio is involved, record the Studio app process identity and the
    MapGen-runs operation/request identity.
 
-Raw resource health does not mean a game is mutation-ready. Foundational
-control owns the semantic readiness interpretation.
+Raw resource health does not mean a controller is current or that an actor
+mutation is lawful. Controller identity and native readiness remain distinct
+from Play admission.
 
 ## 6. Run The Live Operation
 
@@ -90,7 +93,7 @@ Record:
 - setup/map inputs;
 - request/proof id;
 - fresh log window;
-- control admission, dispatch, and readback results;
+- controller admission, dispatch, and readback results;
 - terminal status and exit code.
 
 ### Studio Save & Deploy / Run In Game
@@ -103,7 +106,7 @@ operation intent
   -> authored config prepare/write receipt
   -> materialization receipt
   -> installation receipt
-  -> setup/control facts
+  -> setup/controller facts
   -> fresh run/log evidence
   -> reconciliation
   -> terminal MapGen-runs outcome
@@ -120,9 +123,10 @@ definition and pure packages.
   log facts, not as a substitute for the complete outcome.
 - Treat any current-run engine/runtime exception as a failed or unresolved live
   gate even when deterministic tests passed.
-- Read the live map through the public foundational control `map` capability.
-- Require the observation to stay on one resource epoch and one coherent map
-  identity; if the owner reports stale or changed state, reacquire/reconcile.
+- Read the live map through the public controller `map` capability.
+- Require the observation to retain one controller realm/boot identity, one
+  host-access epoch, and one coherent map identity; if either owner reports
+  stale or changed state, reacquire/reconcile.
 - Keep window-capture evidence separate. A modal, occluded window, permission
   failure, or stale frame can block visual QA without invalidating unrelated
   log/readback evidence.
@@ -139,8 +143,8 @@ Parity must join:
 - generation/materialization manifest;
 - MapGen-runs operation or diagnostics identity;
 - exact realization/install identity;
-- one coherent foundational control map observation;
-- resource epoch and game/map/process identity.
+- one coherent controller map observation;
+- controller realm/boot, access epoch, and game/map/process identity.
 
 Report outcomes without weakening them:
 
@@ -165,7 +169,7 @@ Route the first failed layer to its owner:
 | Generated artifact/runtime incompatibility | realization compiler/runtime |
 | Installed-tree mismatch | qualified install adapter and app config |
 | Tuner acquisition/epoch failure | Tuner provider/resource and app scope |
-| Wrong Civ7 readiness/map/UI fact | foundational control module |
+| Wrong native Civ7 readiness/map/UI fact | controller module |
 | Wrong operation phase/reconciliation | MapGen-runs |
 | Wrong API/browser translation | projection plugin |
 | Missing identity link | preserve unresolved; add owner-issued identity capability rather than guessing |
@@ -183,7 +187,7 @@ repeat an uncertain mutation until fresh owner facts make repetition lawful.
 - MapGen-runs request/operation identity: `<...>`
 - Tuner resource epoch: `<...>`
 - Fresh log boundary and findings: `<...>`
-- Foundational map/UI observation: `<...>`
+- Controller realm/boot and map/UI observation: `<...>`
 - Window-capture evidence, if used: `<...>`
 - Parity result and unresolved links: `<...>`
 - Supported proof classes: `<...>`

@@ -1,0 +1,79 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "civ7-api-source"
+root = "packages/civ7-api/src"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "app-ui-game.d.ts",
+  "app-ui-shell.d.ts",
+  "catalog.ts",
+  "generated",
+  "index.ts",
+  "map-resolution.json",
+  "map-script.d.ts",
+  "provenance.ts",
+]
+allowed = []
+
+[[scopes]]
+name = "civ7-api-generated"
+root = "packages/civ7-api/src/generated"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["modules", "realms"]
+allowed = []
+
+[[scopes]]
+name = "civ7-api-generated-modules"
+root = "packages/civ7-api/src/generated/modules"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["*.d.ts"]
+allowed = []
+
+[[scopes]]
+name = "civ7-api-generated-realms"
+root = "packages/civ7-api/src/generated/realms"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["app-ui-game", "app-ui-shell", "map-script"]
+allowed = []
+
+[[scopes]]
+name = "civ7-api-generated-realm-members"
+root = "packages/civ7-api/src/generated/realms/*"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["modules.d.ts"]
+allowed = []
+
+[[scopes]]
+name = "civ7-api-proof"
+root = "packages/civ7-api/test"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["contract"]
+allowed = []
+
+[[scopes]]
+name = "civ7-api-contract-proof"
+root = "packages/civ7-api/test/contract"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "app-ui-game.typecheck.ts",
+  "app-ui-shell.typecheck.ts",
+  "civ7-v8.typecheck.ts",
+  "map-script.typecheck.ts",
+  "public-surface.typecheck.ts",
+]
+allowed = []

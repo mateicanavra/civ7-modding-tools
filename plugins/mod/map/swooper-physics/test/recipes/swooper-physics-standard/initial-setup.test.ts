@@ -1,5 +1,4 @@
 import { describe, expect, it } from "bun:test";
-import type { Civ7SetupOptionEvidence } from "@civ7/adapter";
 import {
   BOUNDED_JSON_LOG_MAX_LINE_LENGTH,
   decodeBoundedJsonLogSeries,
@@ -13,6 +12,7 @@ import {
 import swooperEarthlikeRaw from "../../../src/maps/configs/swooper-earthlike.config.json";
 import {
   createUnavailableStandardInitialOptionEvidence,
+  type Civ7SetupOptionEvidence,
   projectStandardInitialSetup,
   STANDARD_INITIAL_SETUP,
   type StandardCiv7SetupCapture,

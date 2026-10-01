@@ -1,4 +1,8 @@
-import type { Civ7MapGenerationSetupCapture } from "@civ7/adapter";
+import type {
+  MapDimensions,
+  MapInfo,
+  MapSizeId,
+} from "@civ7/adapter";
 import {
   admitCiv7StandardMapInfo,
   CIV7_MAP_INFO_KEYS,
@@ -17,14 +21,275 @@ import {
   Civ7MapOptionEvidenceSchema,
   Civ7PlayerOptionEvidenceSchema,
   Civ7SignedIntSeedSchema,
+  type Civ7GameOptionDescriptor,
+  type Civ7MapOptionDescriptor,
+  type Civ7PlayerOptionDescriptor,
+  type Civ7SetupOptionDescriptor,
+  type Civ7SetupOptionUnavailableReason,
 } from "@civ7/map-policy/setup";
 import {
+  type BasePhysicalInitialSetupDefinition,
   defineInitialSetup,
+  type InitialSetupDefinition,
   type InitialSetupInputOf,
   type InitialSetupValueOf,
   MapSetupSchema,
   Type,
 } from "@swooper/mapgen-core/authoring/contracts";
+import type {
+  RecipeInitialSetupDefinitionOf,
+  RecipeInitialSetupInputOf,
+  RecipeModule,
+} from "@swooper/mapgen-core/authoring";
+
+/** Recipe surface accepted by one authored Civ7 map declaration. */
+export type MapRecipeDefinition = Readonly<{
+  id: string;
+  initialSetup: InitialSetupDefinition;
+  compile(setup: unknown, config: unknown): ReturnType<RecipeModule["compile"]>;
+  inspectPlan: RecipeModule<any, any, InitialSetupDefinition>["inspectPlan"];
+  execute: RecipeModule["execute"];
+}>;
+
+type RecipePublicConfigOfRecipe<TRecipe extends MapRecipeDefinition> = Parameters<
+  TRecipe["compile"]
+>[1];
+
+type MapSetupOptionDescriptor = Civ7MapOptionDescriptor;
+type GameSetupOptionDescriptor = Civ7GameOptionDescriptor;
+type PlayerSetupOptionDescriptor = Civ7PlayerOptionDescriptor;
+type SetupOptionDescriptor =
+  | MapSetupOptionDescriptor
+  | GameSetupOptionDescriptor
+  | PlayerSetupOptionDescriptor;
+type SetupOptionDescriptorForGroup<Group extends "Game" | "Map" | "Player"> = Group extends "Game"
+  ? GameSetupOptionDescriptor
+  : Group extends "Map"
+    ? MapSetupOptionDescriptor
+    : PlayerSetupOptionDescriptor;
+type SetupOptionParameterId<Descriptor extends Civ7SetupOptionDescriptor> =
+  Descriptor["parameterId"] & string;
+type SetupOptionValueForDescriptor<Descriptor extends SetupOptionDescriptor> =
+  Descriptor extends unknown
+    ? Descriptor["cardinality"] extends "array"
+      ? readonly string[]
+      : Descriptor["valueKind"] extends "boolean"
+        ? boolean
+        : Descriptor["valueKind"] extends "integer"
+          ? number
+          : string
+    : never;
+
+/** Geographic bounds a map declaration may use to override Civ7's initialization bounds. */
+export type MapLatitudeBounds = Readonly<{
+  topLatitude: number;
+  bottomLatitude: number;
+}>;
+
+/** Detached projection of Civ7's complete gameplay `GameInfo.Maps` row. */
+export type Civ7MapInfoSnapshot = Readonly<Partial<Civ7MapInfo>>;
+
+/** Portable authored option value exposed by Civ7's configuration getters. */
+export type Civ7SetupOptionValue = boolean | number | string | readonly string[];
+
+export type { Civ7SetupOptionUnavailableReason } from "@civ7/map-policy/setup";
+
+/** Detached evidence whose key remains the authored Civ7 ParameterID. */
+export type Civ7SetupOptionEvidence<
+  Key extends string = string,
+  Value extends Civ7SetupOptionValue = Civ7SetupOptionValue,
+  UnavailableReason extends Civ7SetupOptionUnavailableReason = Civ7SetupOptionUnavailableReason,
+> = Readonly<
+  | {
+      status: "available";
+      key: Key;
+      value: Value;
+    }
+  | {
+      status: "unavailable";
+      key: Key;
+      reason: UnavailableReason;
+    }
+>;
+
+/** Exact detached evidence for one generated setup-option descriptor. */
+export type Civ7SetupOptionEvidenceForDescriptor<Descriptor extends SetupOptionDescriptor> =
+  Descriptor extends SetupOptionDescriptor
+    ? Civ7SetupOptionEvidence<
+        SetupOptionParameterId<Descriptor>,
+        SetupOptionValueForDescriptor<Descriptor>
+      >
+    : never;
+
+/** Descriptor-position-preserving evidence for one requested setup-option tuple. */
+export type Civ7SetupOptionEvidenceForDescriptors<
+  Descriptors extends readonly SetupOptionDescriptor[],
+> = Readonly<{
+  [Index in keyof Descriptors]: Descriptors[Index] extends SetupOptionDescriptor
+    ? Civ7SetupOptionEvidenceForDescriptor<Descriptors[Index]>
+    : never;
+}>;
+
+/** Exact ordered option evidence captured for one alive Civ7 player identity. */
+export type Civ7PlayerSetupOptionEvidence<
+  Descriptors extends readonly PlayerSetupOptionDescriptor[],
+> = Readonly<{
+  playerId: number;
+  options: Civ7SetupOptionEvidenceForDescriptors<Descriptors>;
+}>;
+
+/** Static placement-slot capacity declared by the resolved Civ7 map-info row. */
+export type Civ7StartSlotCapacity = Readonly<{
+  west: number;
+  east: number;
+  total: number;
+}>;
+
+/**
+ * Inputs resolved by the map-script realization before Civ7 enters `GenerateMap`.
+ */
+export type Civ7MapGenerationSetupCaptureInput<
+  MapOptions extends
+    readonly SetupOptionDescriptorForGroup<"Map">[] = readonly SetupOptionDescriptorForGroup<"Map">[],
+  GameOptions extends
+    readonly SetupOptionDescriptorForGroup<"Game">[] = readonly SetupOptionDescriptorForGroup<"Game">[],
+  PlayerOptions extends
+    readonly SetupOptionDescriptorForGroup<"Player">[] = readonly SetupOptionDescriptorForGroup<"Player">[],
+> = Readonly<{
+  mapSeed: number;
+  dimensions: Readonly<MapDimensions>;
+  latitudeBounds: MapLatitudeBounds;
+  mapSizeId: MapSizeId;
+  mapInfo: MapInfo;
+  requestedMapOptions: MapOptions;
+  requestedGameOptions: GameOptions;
+  requestedPlayerOptions: PlayerOptions;
+}>;
+
+/** Immutable one-shot setup evidence captured at the Civ7 `GenerateMap` boundary. */
+export type Civ7MapGenerationSetupCapture<
+  MapOptions extends
+    readonly SetupOptionDescriptorForGroup<"Map">[] = readonly SetupOptionDescriptorForGroup<"Map">[],
+  GameOptions extends
+    readonly SetupOptionDescriptorForGroup<"Game">[] = readonly SetupOptionDescriptorForGroup<"Game">[],
+  PlayerOptions extends
+    readonly SetupOptionDescriptorForGroup<"Player">[] = readonly SetupOptionDescriptorForGroup<"Player">[],
+> = Readonly<{
+  mapSeed: number;
+  gameSeed: number;
+  dimensions: Readonly<MapDimensions>;
+  latitudeBounds: MapLatitudeBounds;
+  mapSizeId: MapSizeId;
+  mapInfo: Civ7MapInfoSnapshot;
+  aliveMajorPlayerIds: readonly number[];
+  startSlotCapacity: Civ7StartSlotCapacity;
+  options: Readonly<{
+    map: Civ7SetupOptionEvidenceForDescriptors<MapOptions>;
+    game: Civ7SetupOptionEvidenceForDescriptors<GameOptions>;
+    player: readonly Civ7PlayerSetupOptionEvidence<PlayerOptions>[];
+  }>;
+}>;
+
+/** Exact request and artifact identities required to correlate a Studio-generated map run. */
+export type MapRunCorrelation = Readonly<{
+  requestId: string;
+  runArtifactId: string;
+  canonicalConfigDigest: string;
+  launchEnvelopeDigest: string;
+  generationManifestDigest: string;
+}>;
+
+type MapDefinitionCore<TRecipe extends MapRecipeDefinition> = Readonly<{
+  id: string;
+  name: string;
+  recipe: TRecipe;
+  config: RecipePublicConfigOfRecipe<TRecipe>;
+  description?: string;
+  latitudeBounds?: MapLatitudeBounds;
+  logPrefix?: string;
+  sourceConfigId?: string;
+  seed?: number;
+}>;
+
+/**
+ * Civ7 capture request and product projection for one recipe-owned initial setup authority.
+ *
+ * Generated option descriptors preserve authored ParameterID identity while declaring whether and
+ * how Civ7's physical configuration can reconstruct each authored value. The projector consumes
+ * detached capture evidence and must return the exact full setup input inferred from the recipe's
+ * TypeBox authority.
+ */
+export type MapInitialSetupProjection<
+  TRecipe extends MapRecipeDefinition,
+  TMapOptions extends readonly MapSetupOptionDescriptor[] = readonly MapSetupOptionDescriptor[],
+  TGameOptions extends readonly GameSetupOptionDescriptor[] = readonly GameSetupOptionDescriptor[],
+  TPlayerOptions extends
+    readonly PlayerSetupOptionDescriptor[] = readonly PlayerSetupOptionDescriptor[],
+> = Readonly<{
+  requestedMapOptions: TMapOptions;
+  requestedGameOptions: TGameOptions;
+  requestedPlayerOptions: TPlayerOptions;
+  project: (
+    capture: Civ7MapGenerationSetupCapture<TMapOptions, TGameOptions, TPlayerOptions>
+  ) => RecipeInitialSetupInputOf<TRecipe>;
+}>;
+
+type MapDefinitionInitialSetup<
+  TRecipe extends MapRecipeDefinition,
+  TMapOptions extends readonly MapSetupOptionDescriptor[],
+  TGameOptions extends readonly GameSetupOptionDescriptor[],
+  TPlayerOptions extends readonly PlayerSetupOptionDescriptor[],
+> =
+  RecipeInitialSetupDefinitionOf<TRecipe> extends BasePhysicalInitialSetupDefinition
+    ? Readonly<{
+        initialSetup?: MapInitialSetupProjection<
+          TRecipe,
+          TMapOptions,
+          TGameOptions,
+          TPlayerOptions
+        >;
+      }>
+    : Readonly<{
+        initialSetup: MapInitialSetupProjection<TRecipe, TMapOptions, TGameOptions, TPlayerOptions>;
+      }>;
+
+type MapDefinitionCatalogEvidence = Readonly<{
+  requestId?: never;
+  runArtifactId?: never;
+  canonicalConfigDigest?: never;
+  configHash?: string;
+  envelopeHash?: string;
+  launchEnvelopeDigest?: never;
+  generationManifestDigest?: never;
+  runCorrelation?: never;
+}>;
+
+type MapDefinitionRunSource = Readonly<{
+  runCorrelation: MapRunCorrelation;
+  requestId?: never;
+  runArtifactId?: never;
+  canonicalConfigDigest?: never;
+  launchEnvelopeDigest?: never;
+  generationManifestDigest?: never;
+  configHash?: never;
+  envelopeHash?: never;
+}>;
+
+/**
+ * Complete Civ7 map-loader declaration for one recipe and its public authoring configuration.
+ *
+ * Catalog maps carry static evidence, while request-generated maps require the full run
+ * correlation tuple so deployment and in-game diagnostics cannot silently cross runs.
+ */
+export type MapDefinition<
+  TRecipe extends MapRecipeDefinition,
+  TMapOptions extends readonly MapSetupOptionDescriptor[] = readonly MapSetupOptionDescriptor[],
+  TGameOptions extends readonly GameSetupOptionDescriptor[] = readonly GameSetupOptionDescriptor[],
+  TPlayerOptions extends
+    readonly PlayerSetupOptionDescriptor[] = readonly PlayerSetupOptionDescriptor[],
+> = MapDefinitionCore<TRecipe> &
+  MapDefinitionInitialSetup<TRecipe, TMapOptions, TGameOptions, TPlayerOptions> &
+  (MapDefinitionCatalogEvidence | MapDefinitionRunSource);
 
 const CustomMapSelectionIdSchema = Type.Union(
   [

@@ -26,11 +26,9 @@ for XML mod builders, nodes, files, constants, presets, and `Mod` output. It
 must remain importable by build tools such as the playground and CLI without
 loading Civ7 engine globals.
 
-Civ7 map generation is exposed from the explicit subpath
-`@mateicanavra/civ7-sdk/mapgen`. That subpath owns `createMap(...)`, which is
-shared SDK functionality for all map mods, but it intentionally binds to the
-Civ7 runtime adapter and should only be imported by map files that execute
-inside the game map loader.
+Map-script execution is not an SDK capability. Concrete engine adaptation,
+setup capture, entrypoint execution, and final-bundle compatibility belong to
+the deployable map application that realizes a portable map definition.
 
 ## 2. Architecture Overview
 

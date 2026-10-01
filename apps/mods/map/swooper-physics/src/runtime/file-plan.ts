@@ -57,9 +57,8 @@ export function renderSwooperCatalogMapSource(config: ValidatedMapConfig): strin
  * Do not edit by hand; rebuild the Swooper Physics mod application.
  */
 
-/// <reference types="@civ7/types" />
 
-import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
+import { createMap } from "./src/runtime/map-script/entrypoint.js";
 import type { StandardMapConfigEnvelope } from "@swooper/swooper-physics/standard/map-config";
 import standardRecipe, {
   projectStandardInitialSetup,
@@ -100,9 +99,8 @@ export function renderSwooperRunMapSource(input: SwooperRunGeneratedModPlanInput
  * Do not edit by hand; re-run the manifest generator.
  */
 
-/// <reference types="@civ7/types" />
 
-import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
+import { createMap } from "./src/runtime/map-script/entrypoint.js";
 import type { StandardMapConfigEnvelope } from "@swooper/swooper-physics/standard/map-config";
 import standardRecipe, {
   projectStandardInitialSetup,

@@ -40,9 +40,6 @@
     "@swooper/swooper-physics": "workspace:*",
     "tslib": "^2.8.1"
   },
-  "devDependencies": {
-    "@civ7/types": "workspace:*"
-  },
   "engines": {
     "node": "22.22.0"
   }

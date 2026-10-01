@@ -6,6 +6,146 @@
 Structure selects Owner. Boundary. Direction. Lifecycle. Closure. Descent
 selects Ground. Chain. Ratchet. Delete. Seal.
 
+**Frame:** the corrected platform models are ratified, and Habitat is the sole
+constitutional owner of every generic kind. Civ7 layers only qualified product
+law over the released substrate. Installed Habitat `0.5.5` does not yet select
+`service@1`; the bundled candidate is structure-only and has no release-pack
+acceptance. No local generic substitute is admitted. oRPC 2 and Effect 4 remain
+fixed vendor substrate, not compatibility questions. The obsolete local service
+compatibility packet is retired rather than repaired around `control-orpc`.
+
+**Authority order:** actor outcome -> product authority -> execution realm ->
+relationship direction -> shared Habitat kind -> qualified Civ7 overlay ->
+public contract -> app composition -> behavior proof.
+
+**Sealed authority:** the identified Civ7 `1.4.2.26` / Steam `24410208` corpus
+projects deterministically into `packages/civ7-api`. Its original Base digest
+was `bc109467b0f55be1cf6b7d866eb77d11c35909f53c67cef957e7e251bce7cc8d`.
+Its 943 direct declaration shards preserve 153 source-owned global
+augmentations, 685 emitted `any` keywords, diagnostics, unresolved edges,
+provenance, and disjoint realm manifests. Positive Nx and qualified Habitat law
+close the first `runtime:civ7-v8` project.
+
+The exact map-module resolution transfer is sealed at tree digest
+`98718b72b1e558db07175c452e111560906e31396c3cb6e6f7f0e7cc3033c573`;
+the adapter consumes ten exact official map-module roots and their 23-module
+closure without a wildcard, `baseUrl`, or import suppression. The canonical
+Habitat `0.5.5` owner gate evaluates the complete 1,815-subject corpus with zero
+findings. No local narrowing or provider fork remains.
+
+Ambient authority is now retired. The Swooper realization owns its complete
+map-script kernel; the adapter is portable; authored setup DTOs live with the
+definition; map policy emits no ambient declarations; the SDK has no runtime
+mapgen surface; and `civ7-types` is deleted without a shim or second path.
+
+**Current container:** hold the controller construction boundary until Habitat
+publishes selected, constructible `service@1`, then build the smallest complete
+in-engine controller: versioned identity, readiness, realm, lifecycle, boot
+identity, and typed ping. Civ7 will consume only the published kind and will not
+copy its candidate rules. The controller owns its contract, implementation,
+router, and callable client and admits no Tuner transport, host lifecycle, Play
+policy, facade, or generated JavaScript operation body.
+
+**Stack:** only the linear Civ7 stack descending from
+`agent-root-civ7-habitat-051-ground` through the active HEAD is in motion.
+Sibling Fluree worktrees are parked external workstreams. No parallel Civ7
+implementation branch is admitted.
+
+**Gradient:** kernel -> mod -> ingress -> live proof -> native verticals -> Play
+-> projections -> direct-control deletion -> estate reconciliation -> seal.
+
+<details>
+<summary>Previous rolling focus before generated API authority sealed</summary>
+
+**Current container:** the official Base/DLC evidence snapshot and its installed
+identity were sealed. Project its complete Base TypeScript corpus into one
+generated `packages/civ7-api` package with disjoint realm activation, explicit
+diagnostics, exact provenance, and no hidden runtime claims. The package was the
+first `runtime:civ7-v8` member; Nx closed workspace/npm edges and qualified Civ7
+law closed source forms.
+
+**Gradient:** declarations -> realms -> receipt -> package contract -> V8
+closure -> ambient replacement -> service adoption -> kernel -> mod -> ingress
+-> live proof -> native verticals -> Play -> projections -> direct-control
+deletion -> estate reconciliation -> seal.
+
+</details>
+
+<details>
+<summary>Previous rolling focus before official source acquisition sealed</summary>
+
+**Current container:** the oRPC 2, Effect 4, and TypeBox vendor plane was sealed.
+One `app@1` official-knowledge materializer selected an identified Civ7
+installation, staged an exact provenance-bearing Base/DLC snapshot including
+source maps, and prepared the first complete `packages/civ7-api` authority.
+Host acquisition and generation remained outside the isolate.
+
+**Gradient:** source receipt -> materializer -> official API -> V8 closure ->
+service adoption -> kernel -> mod -> ingress -> live proof -> native verticals
+-> Play -> projections -> direct-control deletion -> estate reconciliation ->
+seal.
+
+</details>
+
+<details>
+<summary>Previous rolling focus before Habitat service authority correction</summary>
+
+**Frame:** the corrected actor/outcome, product, system, topology, source, and
+public-surface models were ratified. The exact pre-substrate estate remained
+behavior evidence; later transition code and the deleted controller experiment
+remained non-authoritative. Construction followed the accepted separation of
+official Civ7 knowledge, in-engine Controller, host access, actor-facing Play,
+and protected raw diagnostics.
+
+**Authority order:** actor outcome -> product authority -> execution realm ->
+relationship direction -> Habitat kind -> public contract -> app composition ->
+behavior proof. Controller operations execute inside Civ7; host Tuner transport
+carries only a typed envelope; Play owns intent, reconciliation, no-repeat, and
+next action.
+
+**Current container:** seal active repository guidance against the corrected
+model, then turn the smallest complete Controller Foundation chain red:
+official API authority -> identity/ping kernel -> controller mod -> typed ingress
+-> live realm proof. Existing host-injected operations remain only inside the
+finite transition quarantine and receive no new mature behavior.
+
+**Gradient:** guidance seal -> law red -> official API -> kernel -> mod ->
+ingress -> live proof -> native verticals -> Play -> projections ->
+direct-control deletion -> estate reconciliation -> seal.
+
+</details>
+
+<details>
+<summary>Previous rolling focus before corrected Model Ground ratification</summary>
+
+**Frame:** source migration was paused at a genuine product-model falsifier. The
+exact pre-substrate estate was behavior evidence; later transition code and the
+deleted controller experiment were not authority. The proposed platform split
+generated official Civ7 knowledge, an in-engine TypeScript controller, managed
+host access, actor-facing Play, and a protected raw-JavaScript diagnostic.
+
+**Authority order:** actor outcome -> product authority -> execution realm ->
+relationship direction -> Habitat kind -> public contract -> app composition ->
+behavior proof.
+
+**Current container:** close Product, System, Outcome, and Actor/Outcome as one
+internally consistent model packet; compare full topology alternatives,
+classify the baseline corpus, and resequence the final descent before source or
+Habitat law moved again.
+
+**Gradient:** model ratification -> topology/source reconciliation -> descent
+resequence -> law red -> controller chain -> Play -> projections ->
+direct-control deletion -> estate reconciliation -> seal.
+
+</details>
+
+<details>
+<summary>Previous rolling focus before the controller-model falsifier</summary>
+
+**Attractor cubes:** Meaning selects Actor. Intent. Outcome. Refusal. Trust.
+Structure selects Owner. Boundary. Direction. Lifecycle. Closure. Descent
+selects Ground. Chain. Ratchet. Delete. Seal.
+
 **Frame:** the final platform pass operates on product capability realization
 chains, not current package names. Pure packages, managed resources, semantic
 services, qualified projections, and runtime apps each own one kind of authority.
@@ -22,15 +162,24 @@ them. Each accepted kind closes its own proof topology around disjoint
 confidence axes; domain-qualified kinds such as MapGen keep their stronger
 domain-shaped testing grammar.
 
-**Current container:** qualified Civ7 service law before service-source
-admission. Product, system, outcome, actor, topology, corpus, proof, and vendor
-models agree on the package/resource/provider/service/plugin/app chain, and the
-active guidance corpus is sealed against that model. The existing local service
-blueprint is work-in-progress rather than inherited authority: close the exact
-public/private service spine, finite module grammar, and proof topology; turn
-the flat control corpus red; then burn down foundational control and
-actor-facing play without recreating the facade, acquiring providers in a
-service, or freezing prerelease vendor mechanics.
+**Current container:** exact service-corpus burn-down. Product, system, outcome,
+actor, topology, corpus, proof, and vendor models agree on the
+package/resource/provider/service/plugin/app chain, and the active guidance
+corpus is sealed against that model. The local compatibility law now closes the
+public client, private service spine, finite module/model grammar, and
+contract/semantics/execution proof axes without claiming shared-kind admission.
+Its qualified inventory has turned the flat control corpus red. Burn down
+foundational control `{app,game,map,ui}` first, then actor-facing play, without
+recreating the facade, acquiring providers in a service, or freezing vendor
+mechanics.
+
+The four foundational roots are now the only physical Control modules in the
+working buffer. Certification is deliberately held on two exact gates: three
+raw observations required by Play, and the accepted native-send findings around
+admission, operand identity, invocation timing, and single-check ownership.
+After those close, Control seals before Play is reconstructed from the actor and
+outcome model; deleted legacy peer roots remain historical inputs, not a live
+transition architecture.
 
 Habitat source, package, blueprint, and release ownership lives upstream.
 `@habitat-ai/cli@0.5.2` and its exact `@habitat-ai/sdk@0.5.2` dependency supply
@@ -67,7 +216,18 @@ window-capture resources. Procedure-local errors replace one root-global error
 surface. The direct-control aggregate facade, controller capability mirror,
 host admission, generic mutation wrappers, and transport-address leakage are
 displaced rather than recreated under new names; concrete semantic procedures
-retain their own readiness and reconciliation laws.
+retain their own native admission and dispatch laws.
+
+Control remains exactly `{app,game,map,ui}` at the root. `game` nests explicit
+native city, diplomacy, notification, player, progression, turn, and unit
+subdomains; its leaves are exact `observe`, `check`, and `send`
+operations, never generic operation unions or caller-authored operation names.
+A `send` performs one fresh native check and at most one invocation, returning
+dispatch evidence and optional same-evaluation `immediateAfter` readback.
+Polling, postconditions, no-repeat policy, actor-facing `request`, and outcome
+reconciliation are refused from those native action leaves. Separately named
+foundational operations may own bounded observation required by their explicit
+contract, but never replay a mutation or decide actor meaning.
 
 Active skills, AGENTS routers, ADRs, and architecture guidance are executable
 inputs to this migration. Their keep/repair/consolidate/delete pass is sealed:
@@ -160,6 +320,8 @@ nearest module/domain `model/policy` only when multiple consumers prove that
 scope. The generic kind law targets the authoring sites that create hidden
 behavior, not incidental indexes, arithmetic identities, schema metadata, or
 tests.
+
+</details>
 
 <details>
 <summary>Prior focus pivots</summary>

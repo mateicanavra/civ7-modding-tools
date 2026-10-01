@@ -2,6 +2,11 @@
   "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
   "includeEntryExports": false,
   "treatConfigHintsAsErrors": true,
+  // The root catalog is repository vendor-plane authority. A version remains valid even
+  // while no current project selects it directly during an atomic vendor migration.
+  "ignoreIssues": {
+    "package.json": ["catalog"]
+  },
   "workspaces": {
     ".": {
       "project": ["*.{ts,mts,cts,js,mjs,cjs}"],
@@ -55,10 +60,10 @@
       ]
     },
     "apps/mods/map/swooper-physics": {
-      // Nx already exposes the app entrypoints. Knip needs only the uncached live proof;
-      // the build compiles virtual map sources whose SDK import is invisible to static analysis.
+      // Nx already exposes the app entrypoints. Knip needs the uncached live proof and
+      // cannot observe the compiler's dynamic resolution of uri-js into an esbuild module.
       "entry": ["test/live/*.live.test.ts"],
-      "ignoreDependencies": ["@mateicanavra/civ7-sdk"]
+      "ignoreDependencies": ["uri-js"]
     },
     "resources/civ7-tuner": {
       "entry": ["test/**/*.typecheck.ts"]
@@ -67,9 +72,16 @@
       "entry": ["test/**/*.typecheck.ts"]
     },
     "packages/civ7-adapter": {
-      "ignoreUnresolved": ["^/base-standard/"],
-      // The map-script builder resolves uri-js dynamically into an esbuild virtual module.
-      "ignoreDependencies": ["uri-js"]
+      // Habitat compiles this declaration-only public contract independently.
+      "entry": ["test/contract/*.typecheck.ts"]
+    },
+    "packages/civ7-api": {
+      // Habitat selects these independently compiled realm and public-surface contracts.
+      "entry": ["test/contract/*.typecheck.ts"],
+      // Generated declarations are exact protected vendor evidence. Projection currentness
+      // and semantic contracts own them; dead-code analysis must not reinterpret their
+      // unresolved Civ7 runtime module IDs as workspace imports.
+      "ignore": ["src/generated/**/*.d.ts"]
     },
     "packages/civ7-map-policy": {
       // Generated setup policy is inspected through its source generator and currentness
@@ -94,9 +106,6 @@
       "entry": ["src/commands/**/*.ts"]
     },
     "packages/mapgen-core": {
-      "entry": ["test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"]
-    },
-    "packages/sdk": {
       "entry": ["test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"]
     },
     "packages/mapgen-metrics": {

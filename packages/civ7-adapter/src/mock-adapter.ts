@@ -178,28 +178,28 @@ const DEFAULT_VORONOI_UTILS: VoronoiUtils = {
 /**
  * Default biome globals for testing
  */
-export const DEFAULT_BIOME_GLOBALS: Record<string, number> = {
+const DEFAULT_BIOME_GLOBALS: Record<string, number> = {
   ...CIV7_BROWSER_TABLES_V0.biomeGlobals,
 };
 
 /**
  * Default feature type indices for testing
  */
-export const DEFAULT_FEATURE_TYPES: Record<string, number> = {
+const DEFAULT_FEATURE_TYPES: Record<string, number> = {
   ...CIV7_BROWSER_TABLES_V0.featureTypes,
 };
 
 /**
  * Default terrain type indices for testing
  */
-export const DEFAULT_TERRAIN_TYPE_INDICES: Record<string, number> = {
+const DEFAULT_TERRAIN_TYPE_INDICES: Record<string, number> = {
   ...CIV7_BROWSER_TABLES_V0.terrainTypeIndices,
 };
 
 /**
  * Default plot tag values for testing
  */
-export const DEFAULT_PLOT_TAGS: Record<PlotTagName, number> = {
+const DEFAULT_PLOT_TAGS: Record<PlotTagName, number> = {
   NONE: 0,
   LANDMASS: 1,
   WATER: 2,
@@ -213,7 +213,7 @@ export const DEFAULT_PLOT_TAGS: Record<PlotTagName, number> = {
 /**
  * Default landmass region values for testing
  */
-export const DEFAULT_LANDMASS_IDS: Record<LandmassIdName, number> = {
+const DEFAULT_LANDMASS_IDS: Record<LandmassIdName, number> = {
   NONE: 0,
   WEST: 2,
   EAST: 1,
@@ -1538,7 +1538,7 @@ export class MockAdapter implements EngineAdapter {
     _eastContinent: { west: number; east: number; south: number; north: number },
     startSectorRows: number,
     startSectorCols: number,
-    _startSectors: number[]
+    _startSectors: boolean[]
   ): number[] {
     this.calls.assignStartPositions.push({
       playersLandmass1,
@@ -1584,7 +1584,7 @@ export class MockAdapter implements EngineAdapter {
     _rows: number,
     _cols: number,
     _humanNearEquator: boolean
-  ): unknown[] {
+  ): boolean[] {
     // Mock: empty; callers can supply custom behavior if they need it.
     return [];
   }

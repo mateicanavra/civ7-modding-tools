@@ -1,0 +1,48 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "civ7-api-materializer-source"
+root = "apps/civ7-api-materializer/src"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "declaration-emit.ts",
+  "index.ts",
+  "materialize.ts",
+  "model.ts",
+  "module-catalog.ts",
+  "module-resolution.ts",
+  "projection-receipt.ts",
+  "projection.ts",
+  "realms.ts",
+  "snapshot.ts",
+  "source-maps.ts",
+]
+allowed = []
+
+[[scopes]]
+name = "civ7-api-materializer-proof"
+root = "apps/civ7-api-materializer/test"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = ["semantics", "tsconfig.json"]
+allowed = []
+
+[[scopes]]
+name = "civ7-api-materializer-semantics"
+root = "apps/civ7-api-materializer/test/semantics"
+kind = "directory"
+mode = "closed"
+allowEmpty = false
+required = [
+  "declaration-projection.test.ts",
+  "module-resolution.test.ts",
+  "projection-receipt.test.ts",
+  "projection-tree.test.ts",
+  "realms-projection.test.ts",
+  "runtime-boundary.test.ts",
+  "snapshot.test.ts",
+]
+allowed = []

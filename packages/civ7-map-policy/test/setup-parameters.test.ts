@@ -39,9 +39,9 @@ describe("official Civ7 setup parameter authority", () => {
       schema: "Base/Assets/schema/frontend/schema-frontend-10-setup-parameters.sql",
     });
     expect(CIV7_SETUP_PARAMETER_SOURCE.commit).toMatch(/^[0-9a-f]{40}$/);
-    expect(CIV7_SETUP_PARAMETER_FACTS).toHaveLength(61);
-    expect(new Set(CIV7_SETUP_PARAMETER_FACTS.map(parameterId)).size).toBe(54);
-    expect(CIV7_SETUP_PARAMETER_GROUPS).toHaveLength(14);
+    expect(CIV7_SETUP_PARAMETER_FACTS).toHaveLength(63);
+    expect(new Set(CIV7_SETUP_PARAMETER_FACTS.map(parameterId)).size).toBe(56);
+    expect(CIV7_SETUP_PARAMETER_GROUPS).toHaveLength(16);
   });
 
   test("retains contextual and multiplayer variants instead of manufacturing one default", () => {
@@ -88,7 +88,7 @@ describe("official Civ7 setup parameter authority", () => {
   });
 
   test("keeps exclusion-set arrays and dynamic domains explicit", () => {
-    for (const id of ["Crises", "LegacyPaths"]) {
+    for (const id of ["Crises", "LegacyPaths", "Victories"]) {
       const row = CIV7_SETUP_PARAMETER_FACTS.find((candidate) => parameterId(candidate) === id);
       expect(row?.columns.Array).toBe(true);
       expect(row?.columns.UxHint).toBe("InvertSelection");
@@ -119,6 +119,7 @@ describe("authored Civ7 setup option schemas", () => {
         Difficulty: "DIFFICULTY_PRINCE",
         Ruleset: "RULESET_FROM_FUTURE_DLC",
         Crises: ["CRISIS_ONE", "CRISIS_TWO"],
+        Victories: ["VICTORY_ONE", "VICTORY_TWO"],
       })
     ).toBe(true);
   });
@@ -157,6 +158,8 @@ describe("authored Civ7 setup option schemas", () => {
     expect(mapIds).toEqual(Object.keys(Civ7MapOptionsSchema.properties));
     expect(playerIds).toEqual(Object.keys(Civ7PlayerOptionsSchema.properties));
     expect(CIV7_GAME_OPTION_IDS).toContain("Crises");
+    expect(CIV7_GAME_OPTION_IDS).toContain("TurnTimerExtendedTime");
+    expect(CIV7_GAME_OPTION_IDS).toContain("Victories");
     expect(CIV7_MAP_OPTION_IDS).toContain("StartPosition");
     expect(CIV7_PLAYER_OPTION_IDS).toContain("PlayerTeam");
     expect(CIV7_GAME_OPTION_IDS as readonly string[]).toEqual(
@@ -222,6 +225,24 @@ describe("authored Civ7 setup option schemas", () => {
       authoredValueRead: {
         kind: "configuration",
         key: "ExcludeCrises",
+        source: "configuration-key",
+      },
+    });
+    expect(gameDescriptor("Victories")).toMatchObject({
+      cardinality: "array",
+      valueKind: "string",
+      authoredValueRead: {
+        kind: "configuration",
+        key: "ExcludeVictories",
+        source: "configuration-key",
+      },
+    });
+    expect(gameDescriptor("TurnTimerExtendedTime")).toMatchObject({
+      cardinality: "scalar",
+      valueKind: "integer",
+      authoredValueRead: {
+        kind: "configuration",
+        key: "TurnTimerExtendedTime",
         source: "configuration-key",
       },
     });

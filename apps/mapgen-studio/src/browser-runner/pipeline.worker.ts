@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 
-import { createMockAdapter } from "@civ7/adapter/mock";
+import { createMockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import {
   createLabelRng,

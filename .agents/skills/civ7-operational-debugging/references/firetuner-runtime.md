@@ -10,13 +10,15 @@ Tuner is a managed foreign resource, not the product-control API.
 | Provider-neutral session, health, epoch, raw-command, and failure vocabulary | `resources/civ7-tuner` |
 | Endpoint discovery, socket framing, state discovery, reconnect, command execution, and release | `resources/civ7-tuner/providers/local-socket` |
 | Provider selection, acquisition scope, client binding, and disposal | qualified app |
-| Civ7 interpretation and closed app/game/map/UI operations | `services/civ7-control` |
+| Closed typed native operations executed inside Civ7 | `services/civ7-controller` through the controller mod |
 | Gameplay policy and next action | `services/civ7-play` |
+| Typed controller-client transport binding | qualified host app over the selected Tuner provider |
 | Raw diagnostic presentation | an explicitly qualified CLI/API diagnostic projection |
 
 A service or ordinary command never opens its own socket. A caller consumes an
-app-bound resource value for raw diagnostics or an app-bound control/play client
-for semantic work.
+app-bound resource value for raw diagnostics or an app-bound controller/Play
+client for semantic work. The host transport sends typed envelopes to the
+deployed controller; it never sends a mature operation implementation body.
 
 ## Connection And Epoch
 
@@ -51,8 +53,8 @@ evidence:
 4. Record the state and epoch with the result.
 
 A successful state listing does not prove that gameplay globals are ready.
-Foundational control owns the semantic readiness interpretation and must use
-closed typed operations for product behavior.
+The controller owns native readiness facts inside Civ7. The host binding keeps
+Tuner state and epoch evidence distinct from controller realm and boot identity.
 
 ## Raw Execution Boundary
 
@@ -65,9 +67,10 @@ global or native primitive exists in one state at one epoch. It does not prove:
 - the CLI, Studio, or a mod should publish the primitive directly.
 
 If a native primitive is needed by a product capability, add a closed typed
-operation to the appropriate foundational control module and prove its
-admission, dispatch, and readback. Actor-facing checks, no-repeat policy, and
-next-action meaning then belong to play.
+operation to the appropriate controller module, compile it into the controller
+mod, and prove its admission, dispatch, and readback through the public client.
+Actor-facing checks, no-repeat policy, and next-action meaning then belong to
+Play.
 
 ## Runtime Evidence
 
@@ -76,12 +79,12 @@ For each probe record:
 - qualified app/process identity;
 - resource epoch and scripting state;
 - command/request identity and input;
-- raw disposition or typed control result;
+- raw disposition or typed controller result;
 - pre-action log boundary and fresh matching lines;
 - whether mutation may have occurred;
 - required reconciliation before retry.
 
-For MapGen, pair Tuner/control evidence with the exact MapGen-runs operation and
+For MapGen, pair host-access/controller evidence with the exact MapGen-runs operation and
 realization receipt. Fresh `Scripting.log` context creation, authored completion,
 context destruction, and absence of a matching failure in the bounded window
 are useful log facts. They do not by themselves prove surface parity or a
@@ -94,11 +97,12 @@ When an actor-facing blocker lacks a public operation:
 1. Find the official UI handler and the native game mutation it invokes.
 2. Find the corresponding UI/display closeout or observation primitive.
 3. Determine which scripting state owns each primitive.
-4. Decide whether this is foundational app/game/map/UI control or gameplay
+4. Decide whether this is a native controller operation or actor-facing Play
    policy.
 5. Add one closed typed operation at the correct owner, then expose it through
    play and the caller projection only when a concrete actor task requires it.
-6. Prove exact dispatch and postcondition; preserve uncertainty and no-repeat
-   behavior.
+6. Prove the controller leaf's exact check, single dispatch, and same-evaluation
+   readback. Then prove actor-facing postcondition, uncertainty, and no-repeat
+   policy in Play rather than adding them to the native leaf.
 
 Do not leave users with a raw script recipe as the permanent workflow.

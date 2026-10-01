@@ -21,8 +21,9 @@ preserving the destination ownership model:
   state, ordering, correlation, reconciliation, and semantic outcomes.
 - Qualified app adapters own physical host effects and receipts. Projections
   present public capabilities; they do not become product owners.
-- Foundational control supplies typed live app/game/map/UI facts. Actor-facing
-  play supplies gameplay decisions. Neither is MapGen definition authority.
+- The in-engine controller supplies typed native app/game/map/UI facts.
+  Actor-facing Play supplies gameplay decisions. Neither is MapGen definition
+  authority.
 
 Read the accepted platform packet before changing an owner boundary:
 `docs/projects/civ7-capability-realization/{destination-platform-reference.md,
@@ -59,7 +60,7 @@ PRODUCT-AUTHORITY.md,SYSTEM-MODEL.md,TOPOLOGY.md,CORPUS.md}`.
 | Change generated map-script or Civ7 engine integration | Swooper realization app | artifact/runtime proof, deploy receipt, then loader/live proof |
 | Save & Deploy or Run in Game behavior | `services/mapgen-runs`; physical effects at the qualified app adapter | service semantics, adapter execution receipts, projection proof, live reconciliation where claimed |
 | Wrong browser rendering with correct diagnostic values | Studio web projection or retained UI package | diagnostic-value comparison plus browser display/interaction proof |
-| Wrong live map readback | foundational control `map` capability or realization proof | resource-epoch-correlated observation; never a caller-local Tuner script |
+| Wrong live map readback | controller `map` capability or realization proof | controller realm/boot plus host-access epoch correlation; never a caller-local Tuner script |
 
 When a symptom could be generation or display, prove the branch before editing.
 See `references/facet-verification.md`.
@@ -76,7 +77,7 @@ See `references/facet-verification.md`.
    inventories from this skill.
 4. **Diagnose.** Compare causal artifacts and diagnostic layers before blaming
    rendering. For live disagreement, preserve correlation and use the public
-   MapGen-runs/control path.
+   MapGen-runs/controller path.
 5. **Design alternatives.** Carry at least one meaningfully different model or
    placement. For behavioral work, fill
    `assets/earthlike-expectation-ledger.md` before tuning.
@@ -88,7 +89,7 @@ See `references/facet-verification.md`.
    separate claims. Use `assets/live-verification-runbook.md` when Civ7 proof is
    required.
 8. **Review boundaries.** Confirm definition/realization, truth/projection,
-   resource/control/play, service/app, and evidence/outcome separation.
+   access/controller/Play, service/app, and evidence/outcome separation.
 9. **Record the result.** Report what changed, exact inputs, proof labels,
    unresolved links, and the narrowest remaining risk.
 
@@ -131,5 +132,5 @@ not a remembered script path.
 <invariant name="source-before-snapshot">Re-derive paths, stage order, operation keys, target names, and command flags from current source, Nx, and CLI discovery.</invariant>
 <invariant name="expectations-before-tuning">Behavioral changes declare target movements and hold guards before implementation.</invariant>
 <invariant name="proof-stays-disjoint">Tests, generated files, deployment receipts, logs, readback, and live behavior support different claims.</invariant>
-<invariant name="no-private-live-bypass">MapGen work consumes public control, play, run, definition, and diagnostic capabilities. It never acquires a provider or invents caller-local live control.</invariant>
+<invariant name="no-private-live-bypass">MapGen work consumes public controller, Play, run, definition, and diagnostic capabilities. It never acquires a provider or invents caller-local live control.</invariant>
 </invariants>

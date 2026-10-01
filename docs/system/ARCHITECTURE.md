@@ -46,12 +46,21 @@ Imports are evidence of those relations, not the architecture itself.
   visualization.
 - A MapGen artifact is deterministic pipeline truth. A Civ7 readback is
   epoch-scoped engine observation.
-- `services/civ7-control` owns foundational `{app,game,map,ui}` interpretation
-  and native operations over app-supplied ready resources.
-  `services/civ7-play` owns actor-facing attention, planning, gameplay
-  decisions, reconciliation, no-repeat policy, and next-action meaning over the
-  public control client. The current `packages/civ7-direct-control` tree is
-  frozen migration corpus, not continuing architecture authority.
+- `services/civ7-controller` owns typed mechanical Civ7 operations executed as
+  TypeScript inside the dedicated controller mod. Qualified host apps acquire
+  the selected Tuner provider and bind the controller's public client through a
+  bounded transport that carries typed envelopes without regenerating operation
+  bodies. `services/civ7-play` owns actor-facing attention, planning, gameplay
+  decisions, reconciliation, no-repeat policy, and next-action meaning while
+  consuming only that public controller client.
+- Raw Tuner JavaScript is an explicit app-owned diagnostic and prototyping
+  surface, never a mature controller or Play path. Window capture remains a
+  generic managed diagnostic or app-evidence capability; it carries no
+  controller or Play semantics.
+- `services/civ7-control`, `packages/civ7-direct-control`, and aggregate
+  facades are migration corpus with no destination role. Their native findings
+  may inform reconstruction, but their containers and host-injected execution
+  model do not.
 - The CLI app owns oclif startup and topic registration only. Topic plugins own
   command UX and call public clients or qualified adapters.
 - Studio's browser, API projection, semantic run operations, cold host adapters,
@@ -77,4 +86,5 @@ and proof ledger are under
 - [CLI](cli/overview.md)
 - [MapGen](libs/mapgen/)
 - [Swooper Physics](mods/swooper-maps/architecture.md)
-- [Live Control Evidence And Migration](direct-control/)
+- [Civ7 Controller And Access Invariant](direct-control/GAME-DOOR-INVARIANT.md)
+- [Native Civ7 Engine Evidence](direct-control/SIEVE-ENGINE-REFERENCE.md)

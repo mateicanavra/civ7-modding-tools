@@ -19,7 +19,7 @@ source. The durable splits are:
 
 | Package | Durable ownership |
 | --- | --- |
-| `packages/civ7-types` | Type-only Civ7 scripting/runtime declarations and generated declaration surfaces |
+| `packages/civ7-api` | Generated, state-scoped official Civ7 API declarations and provenance |
 | `packages/civ7-adapter` | Portable engine-adapter contract, static capability vocabulary, and deterministic mock only; ambient engine implementation belongs to a qualified realization |
 | `packages/civ7-map-policy` | Pure official-source-derived setup, placement, legality, and map facts |
 | `packages/civ7-mod-install` | Pure rendered-tree admission, comparison, digest, replacement planning, and receipt construction over caller-supplied observations |
@@ -46,10 +46,13 @@ process effects.
   raw-command, and foreign-failure vocabulary.
 - `resources/civ7-tuner/providers/local-socket` owns connection, reconnect,
   execution, health, interruption, and release mechanics.
-- A qualified app selects and acquires the provider, then supplies the ready
-  value when constructing the control client.
-- Control owns Civ7 interpretation; play owns gameplay meaning. Neither
-  resource nor provider owns either.
+- A qualified host app selects and acquires the provider, then uses the ready
+  value to bind the controller-owned public client to the realm-local ingress.
+- The binding carries typed envelopes, correlation, realm/boot validation, and
+  the live-proven completion mechanism only. It never regenerates a mature
+  operation body.
+- The controller owns native Civ7 semantics; Play owns gameplay meaning.
+  Neither resource nor provider owns either.
 
 ### Window Capture
 
@@ -58,57 +61,64 @@ process effects.
 - `resources/window-capture/providers/macos-screencapturekit` owns
   ScreenCaptureKit, permission translation, helper execution, child
   supervision, capture, interruption, and release.
-- Control alone interprets raw capture evidence as a Civ7 appshot.
-- Civ7 matching, app activation, and restart remain qualified app concerns,
-  not generic capture-resource policy.
+- Window capture is generic diagnostic or qualified app evidence. It is not a
+  Controller or Play dependency and does not acquire controller semantics.
+- Civ7 matching, evidence interpretation, app activation, and restart remain
+  qualified app concerns, not generic capture-resource policy.
 
 ## Semantic Services
 
-### Foundational Control
+### Civ7 Controller
 
-`services/civ7-control` owns exactly the execution domains `{app, game, map,
-ui}`:
+`services/civ7-controller` owns typed native observation, check, and
+single-dispatch operation semantics executed inside Civ7. Its outer modules
+follow official Civ7 runtime realms and APIs; narrower city, diplomacy,
+notification, player, progression, turn, and unit nouns stay nested beneath
+the game boundary rather than becoming peer platform domains.
 
-- readiness and current-application facts;
-- setup/start and current-game facts;
-- observation, visibility, plot, grid, and surface facts;
-- display queue, camera, and semantic Civ7 appshot behavior;
-- native admission, dispatch, bounded readback, and exact native uncertainty.
-
-It consumes app-supplied ready Tuner and window-capture capabilities. It does
-not acquire providers, expose arbitrary JavaScript, own raw resource facts,
-interpret actor goals, recommend actions, or mount a transport.
+The service contract exposes bootstrap-issued API version, realm, and boot
+identity alongside exact native evidence, refusal, failure, and uncertainty.
+Its TypeScript implementation and private router are bundled into the
+dedicated controller mod. It acquires no Tuner or window-capture capability,
+executes no caller-authored JavaScript, owns no actor strategy or gameplay
+reconciliation, and mounts no host transport. A named controller operation may
+perform bounded native observation required by its own contract, but never
+replays a mutation or decides actor meaning.
 
 ### Actor-Facing Play
 
-`services/civ7-play` owns exactly `{attention, automation, city, diplomacy,
-notifications, progression, planning, turn, unit}`:
+`services/civ7-play` owns actor-facing modules such as attention, city,
+diplomacy, notifications, progression, planning, turn, and unit only where
+baseline behavior proves the capability:
 
 - actor-facing situation and observation;
 - checks and semantic requests;
 - gameplay reconciliation and no-repeat policy;
 - next lawful action.
 
-It consumes only the public control capability. It receives no provider,
-resource state, arbitrary runtime execution, or private control source.
+It consumes only the public controller client. It receives no provider,
+resource state, transport, arbitrary runtime execution, or private controller
+source.
 Narrower gameplay nouns compose beneath play rather than becoming peer
 foundational services.
 
 ### MapGen Runs
 
-`services/mapgen-runs` owns exactly `{autoplay, operations, run-in-game,
-save-deploy}` and the semantic operation model:
+`services/mapgen-runs` owns request-correlated Save & Deploy, Run in Game,
+autoplay, adoption, inspection, and cancellation semantics:
 
 - intent admission and request identity;
 - transaction order and public phase evidence;
 - process-scoped operation records, retention, adoption, cancellation, and
   events;
 - correlation, timeout policy, reconciliation, and terminal outcome;
-- autoplay admission/mutex policy and delegation to control.
+- autoplay admission/mutex policy and admitted live setup or observation
+  through the public controller client.
 
 It consumes exact app-bound authored-config, run-files, fresh-log,
-mod-realization, control, and clock capabilities. It does not own recipe truth,
-filesystem effects, deployment receipts, HTTP projection, or app startup.
+mod-realization, and clock capabilities plus the public controller client. It
+does not own recipe truth, filesystem effects, deployment receipts, controller
+semantics, HTTP projection, or app startup.
 
 ## Projection Plugins
 
@@ -117,7 +127,7 @@ filesystem effects, deployment receipts, HTTP projection, or app startup.
   public capabilities.
 - `plugins/server/api/mapgen-studio` owns its caller-shaped contract, request
   context, projection, public caller client, and server-registration face. It
-  delegates through bound control, play, and MapGen-runs clients; it owns no
+  delegates through bound controller, Play, and MapGen-runs clients; it owns no
   operation registry or semantic service state.
 - `plugins/web/app/mapgen-studio` owns browser views and interactions over
   public API and definition clients. It does not own the retained Studio
@@ -141,10 +151,11 @@ and idempotent finalization. Topic plugins keep command ownership.
 
 ### MapGen Studio App
 
-`apps/mapgen-studio` owns its concrete Bun, Vite, server, and web hosts; selects and
-acquires providers; constructs control, play, and MapGen-runs clients; binds
-API context; mounts roles; selects qualified adapters; and disposes the process
-scope. It owns no Swooper truth or service policy.
+`apps/mapgen-studio` owns its concrete Bun, Vite, server, and web hosts; selects
+and acquires providers; binds the public controller client through selected
+Tuner access; constructs Play and MapGen-runs clients; binds API context;
+mounts roles; selects qualified adapters; and disposes the process scope. It
+owns no Swooper truth, controller operation semantics, or service policy.
 
 `apps/mapgen-studio/src/runtime/adapters/swooper-map-realization.ts` composes
 the public Swooper definition with pure run-workspace and mod-install packages.
@@ -162,15 +173,23 @@ its qualified install adapter, and its own deployment/loader/live proof. It
 consumes the portable definition but never becomes its owner or a reusable
 runtime for Studio.
 
+### Controller Mod Realization App
+
+`apps/mods/ui/civ7-controller` bundles `services/civ7-controller` with the
+portable controller mod definition, installs the exact artifact, publishes the
+versioned shell/game ingress, creates realm/boot instance identity, and keeps
+generated, installed, loader, and live proof separate. It owns no Play policy
+or host Tuner lifecycle.
+
 ## Required Deletions
 
 - The legacy control facade and direct-control convenience shape have no target
   owner. Preserve their capability inventory only as migration evidence.
-- Consumers call independently bound public control or play clients; no
+- Consumers call independently bound public controller or Play clients; no
   successor facade, parallel method interface, private contract picking, or
   forwarding service-adapter layer survives.
 - Tuner acquisition leaves services and ordinary commands.
-- Gameplay policy leaves foundational control.
+- Gameplay policy leaves the controller.
 - Semantic operation state leaves Studio API and host code for MapGen-runs.
 - Physical Studio realization effects leave MapGen-runs and remain in the
   qualified Studio adapter.

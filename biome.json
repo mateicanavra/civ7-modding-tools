@@ -23,7 +23,7 @@
       "!openspec/changes/**/workstream/*.json",
       "!openspec/changes/**/workstream/**/*.json",
       "!apps/mods/map/swooper-physics/src/maps/generated/**",
-      "!packages/civ7-types/generated/**",
+      "!packages/civ7-api/src/**",
       "!packages/civ7-map-policy/src/civ7-tables.gen.ts",
       "!packages/civ7-map-policy/src/setup-parameters.gen.ts",
       "!.repos/effect/**",

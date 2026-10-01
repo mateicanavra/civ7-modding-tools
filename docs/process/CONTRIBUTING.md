@@ -60,7 +60,7 @@ bun run test
   ```bash
   nx run civ7-cli:run -- <civ7-command-and-args>
   # example
-  nx run civ7-cli:run -- data unzip default
+  bun run refresh:data
   ```
 
 ## Outputs policy
@@ -75,7 +75,10 @@ bun run test
 - The unzip directory is a git submodule that publishes snapshots to `mateicanavra/civ7-official-resources`.
   - One-time setup: `bun install` (Husky installs Habitat hooks via the root `prepare` script)
   - Init on a fresh clone: `bun run resources:init` (or `git submodule update --init --recursive`)
-  - `civ7 data unzip` writes into the submodule working tree; diffs show up in the submodule. Pre-commit validates resource state only: `bun run resources:publish` is the explicit and sole resource commit/push path.
+  - `bun run refresh:data` stages and validates an exact installed-source
+    snapshot before replacing the submodule working tree; diffs show up in the
+    submodule. `bun run resources:publish` is the explicit and sole resource
+    commit/push path.
 - Docs: served directly from `apps/docs/site` (no build/dist by default)
 - SDK: emits to `packages/sdk/dist`
 - Playground: generated content remains under its app directory

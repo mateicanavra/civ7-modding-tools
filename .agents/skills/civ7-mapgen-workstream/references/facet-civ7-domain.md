@@ -12,8 +12,9 @@ setup fact, runtime row, placement constraint, or gameplay-intent judgment.
 - The portable adapter package owns only its contract/static vocabulary/mock.
 - The realization app owns engine globals, loader entrypoints, and live map
   execution.
-- The Tuner provider owns raw runtime acquisition and command facts.
-- Foundational control owns typed Civ7 app/game/map/UI interpretation.
+- The Tuner provider owns raw runtime acquisition, transport, and epoch facts.
+- The in-engine controller owns typed native Civ7 app/game/map/UI facts and
+  exposes realm/boot identity through its public client.
 - Play owns gameplay choice and next-action meaning.
 - Generated, installed, loader, and live evidence remain separate.
 
@@ -64,7 +65,7 @@ bun apps/cli/bin/run.js game --help
 ```
 
 Ask the selected leaf for `--help`. This is a qualified raw diagnostic over
-the app-bound Tuner resource. It is not a foundational control promise and must
+the app-bound Tuner resource. It is not a controller promise and must
 not be imported into ordinary play or MapGen domain logic. Record provider
 epoch, scripting state, game build/context, table, query bounds, and result.
 
@@ -76,13 +77,13 @@ Ask the selected leaf for help before use. Filesystem roots and reads belong to
 the qualified app adapter/projection, not to the Swooper definition or a
 semantic service.
 
-### 5. Foundational Semantic Observation
+### 5. Controller Observation
 
-Use the public control client when the needed fact is a typed Civ7 readiness,
+Use the public controller client when the needed fact is a typed Civ7 readiness,
 setup, current-game, map, or UI observation rather than an arbitrary table row.
 Map live readback belongs to the `map` module and must be correlated to the
-resource epoch and run identity. Actor recommendations belong to play, not
-control.
+controller realm/boot identity, host-access epoch, and run identity. Actor
+recommendations belong to Play, not the controller.
 
 ## Evidence Order
 
@@ -92,7 +93,7 @@ Use the cheapest sufficient modality:
 2. Generated policy with source/currentness receipt.
 3. Identified official corpus.
 4. Qualified installed-state diagnostic.
-5. Resource-epoch-correlated foundational observation.
+5. Controller-identity and access-epoch-correlated native observation.
 6. Exact live realization proof.
 7. External/community material as discovery only, followed by corroboration.
 
@@ -152,7 +153,7 @@ bounded live proof.
 | Field not captured by policy | identified official-resource corpus |
 | Exact installed table row | qualified table-inspection diagnostic selected from native help |
 | Installed SQLite/save/log fact | installed-state diagnostic projection and app adapter |
-| Current setup/game/map/UI meaning | public foundational control client |
+| Current setup/game/map/UI native fact | public controller client |
 | What action is best or lawful for the actor | public play client |
 | Swooper habitat, fairness, or threshold | Swooper definition domain/metric study |
-| Did Civ7 accept the generated surface | realization/MapGen-runs proof plus correlated control readback |
+| Did Civ7 accept the generated surface | realization/MapGen-runs proof plus correlated controller readback |

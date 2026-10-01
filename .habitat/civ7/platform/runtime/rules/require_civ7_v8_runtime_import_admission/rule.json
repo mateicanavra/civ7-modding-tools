@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_civ7_v8_runtime_import_admission",
+  "title": "Require Civ7 V8 Runtime Import Admission",
+  "placement": {
+    "niche": "civ7/platform/runtime",
+    "blueprint": "_self",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "civ7-api",
+  "lane": "enforced",
+  "forbids": "a runtime:civ7-v8 production source edge that is not positively admitted for the embedded isolate",
+  "why": "Civ7 isolate compatibility is a whole-project closure. Production source may use only local production members and exact official declaration dependencies; host, Node, Bun, Tuner, and unresolved imports are excluded by construction.",
+  "remediate": "Keep generated API imports local, or use only the exact type-only official module and Solid declaration specifiers admitted by the projection. Split host behavior into an untagged project instead of adding an exception.",
+  "message": "This import is outside the positively admitted Civ7 V8 runtime realm.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["packages/civ7-api/src/**/*.ts"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/platform/runtime/rules/require_civ7_v8_runtime_import_admission/baseline.json"
+  },
+  "hookCheck": true,
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/platform/runtime/rules/require_civ7_v8_runtime_import_admission/pattern.md"
+    },
+    "patternName": "require_civ7_v8_runtime_import_admission",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["packages/civ7-api/src"]
+    }
+  }
+}
