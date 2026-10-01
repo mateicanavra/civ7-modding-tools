@@ -1,6 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { biomeSymbolFromIndex } from "../../../../../../src/domain/ecology/index.js";
 import ecology from "../../../../../../src/domain/ecology/router.js";
+import { admitStandardMapConfig } from "../../../../../../src/maps/configs/canonical.js";
+import swooperEarthlikeRaw from "../../../../../../src/maps/configs/swooper-earthlike.config.json";
 import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
 import { TEST_MAP_SIZE } from "../../../../../setup.js";
 
@@ -55,6 +57,56 @@ describe("classifyBiomes operation", () => {
       expect(result.surfaceTemperature).toEqual(surfaceTemperatureC);
       expect(result.aridityIndex).toEqual(aridityIndex);
     }
+  });
+
+  it("keeps Earthlike's supported warm seasonal habitat without changing its climate or biomass", () => {
+    const { width, height } = TEST_MAP_SIZE.dimensions;
+    const size = width * height;
+    const authored = admitStandardMapConfig(swooperEarthlikeRaw)
+      .config["ecology-biomes"].biomes.classify;
+    const waterTile = size - 1;
+    const input = {
+      width,
+      height,
+      effectiveMoisture: new Float32Array(size).fill(150),
+      surfaceTemperatureC: new Float32Array(size).fill(30),
+      aridityIndex: new Float32Array(size).fill(0.35),
+      freezeIndex: new Float32Array(size),
+      landMask: new Uint8Array(size).fill(1),
+      soilType: new Uint8Array(size),
+      fertility: new Float32Array(size).fill(0.5),
+    };
+    input.landMask[waterTile] = 0;
+
+    const runWithFirstShift = (firstShift: number) =>
+      ecology.biomes.ops.classifyBiomes.run(
+        input,
+        normalizeOperationSelectionForTest(ecology.biomes.ops.classifyBiomes, {
+          ...authored,
+          config: {
+            ...authored.config,
+            aridity: {
+              ...authored.config.aridity,
+              moistureShiftThresholds: [firstShift, authored.config.aridity.moistureShiftThresholds[1]],
+            },
+          },
+        })
+      );
+    const overShifted = runWithFirstShift(0.2);
+    const supported = runWithFirstShift(authored.config.aridity.moistureShiftThresholds[0]);
+
+    expect(biomeSymbolFromIndex(overShifted.biomeIndex[0]!)).toBe("desert");
+    expect(biomeSymbolFromIndex(supported.biomeIndex[0]!)).toBe("tropicalSeasonal");
+    expect(supported.surfaceTemperature).toEqual(input.surfaceTemperatureC);
+    expect(supported.aridityIndex).toEqual(input.aridityIndex);
+    expect(supported.vegetationDensity).toEqual(overShifted.vegetationDensity);
+    expect(supported.biomeIndex[waterTile]).toBe(255);
+    expect(overShifted.biomeIndex[waterTile]).toBe(255);
+
+    input.aridityIndex.fill(0.8);
+    const dry = runWithFirstShift(authored.config.aridity.moistureShiftThresholds[0]);
+    expect(biomeSymbolFromIndex(dry.biomeIndex[0]!)).toBe("desert");
+    expect(dry.biomeIndex[waterTile]).toBe(255);
   });
 
   it("maps temperature + moisture into biome symbols", () => {

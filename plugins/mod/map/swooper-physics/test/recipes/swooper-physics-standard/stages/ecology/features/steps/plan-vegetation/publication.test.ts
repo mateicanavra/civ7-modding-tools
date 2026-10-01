@@ -25,7 +25,26 @@ import {
 import { createEmptyFeatureScoreLayers } from "../../fixtures/feature-score-layers.js";
 
 describe("ecology-features plan-vegetation step", () => {
-  it("publishes terminal forest intent from admitted feature suitability", () => {
+  it.each([
+    {
+      name: "publishes terminal forest intent from admitted feature suitability",
+      forestScore01: 1,
+      zeroFloor: false,
+      upstreamOccupancy: false,
+    },
+    {
+      name: "publishes empty vegetation intent for zero score layers at authored zero floors",
+      forestScore01: 0,
+      zeroFloor: true,
+      upstreamOccupancy: false,
+    },
+    {
+      name: "preserves upstream occupancy when publishing positive vegetation at zero floors",
+      forestScore01: 1,
+      zeroFloor: true,
+      upstreamOccupancy: true,
+    },
+  ])("$name", ({ forestScore01, zeroFloor, upstreamOccupancy }) => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const setup = admitMapSetup({
@@ -43,10 +62,13 @@ describe("ecology-features plan-vegetation step", () => {
     adapter.fillWater(false);
 
     const ctx = createMapContext({ setup, adapter });
+    const wetlandIntents = upstreamOccupancy
+      ? [{ x: 0, y: 0, feature: "marsh" as const }]
+      : [];
 
     withMapContextExecutionForTest(ctx, (stepContext) => {
       const layers = createEmptyFeatureScoreLayers(size);
-      layers.forest.fill(1);
+      layers.forest.fill(forestScore01);
 
       publishTestArtifact(stepContext, featureArtifacts.featureSuitability, {
         width,
@@ -56,7 +78,7 @@ describe("ecology-features plan-vegetation step", () => {
       publishTestArtifact(stepContext, featureArtifacts.floodplainIntents, []);
       publishTestArtifact(stepContext, featureArtifacts.iceIntents, []);
       publishTestArtifact(stepContext, featureArtifacts.reefIntents, []);
-      publishTestArtifact(stepContext, featureArtifacts.wetlandIntents, []);
+      publishTestArtifact(stepContext, featureArtifacts.wetlandIntents, wetlandIntents);
       publishTestArtifact(stepContext, biomeArtifacts.biomeClassification, {
         width,
         height,
@@ -98,7 +120,19 @@ describe("ecology-features plan-vegetation step", () => {
       const config = {
         planVegetation: normalizeOperationSelectionForTest(
           ecology.features.ops.planVegetation,
-          ecology.features.ops.planVegetation.defaultConfig
+          zeroFloor
+            ? {
+                ...ecology.features.ops.planVegetation.defaultConfig,
+                config: {
+                  ...ecology.features.ops.planVegetation.defaultConfig.config,
+                  forestMinConfidence01: 0,
+                  rainforestMinConfidence01: 0,
+                  taigaMinConfidence01: 0,
+                  savannaWoodlandMinConfidence01: 0,
+                  sagebrushSteppeMinConfidence01: 0,
+                },
+              }
+            : ecology.features.ops.planVegetation.defaultConfig
         ),
       };
       const ops = ecology.features.ops.bind(planVegetationStep.contract.ops!);
@@ -111,7 +145,14 @@ describe("ecology-features plan-vegetation step", () => {
     });
 
     const intents = readArtifact(ctx, featureArtifacts.vegetationIntents);
-    expect(intents.length).toBeGreaterThan(0);
+    if (forestScore01 === 0) {
+      expect(intents).toEqual([]);
+    } else {
+      expect(intents.length).toBe(size - wetlandIntents.length);
+      expect(intents[0]).toEqual({ x: upstreamOccupancy ? 1 : 0, y: 0, feature: "forest" });
+      expect(intents.at(-1)).toEqual({ x: width - 1, y: height - 1, feature: "forest" });
+    }
     expect(intents.every(({ feature }) => feature === "forest")).toBe(true);
+    expect(readArtifact(ctx, featureArtifacts.wetlandIntents)).toEqual(wetlandIntents);
   });
 });

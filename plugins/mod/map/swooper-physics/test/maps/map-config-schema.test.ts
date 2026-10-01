@@ -223,7 +223,7 @@ describe("Shipped map configs", () => {
     }
   });
 
-  it("retains the released mountain habitat calibration without changing Earthlike", async () => {
+  it("retains mountain habitat calibration and Earthlike's supported seasonal habitat", async () => {
     const configs = await loadSwooperMapConfigRegistry();
     const calibrated = configs.filter(({ canonicalConfig }) =>
       canonicalConfig.config["hydrology-climate-baseline"]["climate-baseline"].computeThermalState.config.annualOffsetC === -1
@@ -239,7 +239,10 @@ describe("Shipped map configs", () => {
     }
     const earthlike = configs.find(({ canonicalConfig }) => canonicalConfig.id === "swooper-earthlike")!.canonicalConfig;
     const classifier = earthlike.config["ecology-biomes"].biomes.classify.config;
-    expect(classifier.aridity.moistureShiftThresholds).toEqual([0.2, 0.66]);
+    expect(classifier.aridity.moistureShiftThresholds[0]).toBe(
+      ecology.biomes.ops.classifyBiomes.defaultConfig.config.aridity.moistureShiftThresholds[0]
+    );
+    expect(classifier.aridity.moistureShiftThresholds).toEqual([0.45, 0.66]);
     expect(classifier.temperature.tropicalThreshold).toBe(24);
   });
 

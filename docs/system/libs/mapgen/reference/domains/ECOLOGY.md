@@ -115,6 +115,9 @@ rates, and PET derivation remain Hydrology-owned, not Ecology authoring controls
 Feature scoring and planning stay separate:
 - Score ops produce continuous physical suitability fields. A positive score is not itself a placement command.
 - Planner-local policies decide whether a suitability candidate is strong enough to become an intent.
+- Vegetation admission requires positive physical confidence as well as its feature-local floor.
+  An authored zero floor admits every positively supported candidate that passes the other habitat
+  and availability gates, not unsupported zero-score candidates.
 - Vegetation substrate `water01` is normalized effective-moisture availability, not waterlogging.
   Forest suitability retains its dry-side transition around `0.25..0.45`, then saturates rather than
   falling on wet land. Thermal suitability, aridity and cold stress, biomass, and fertility still

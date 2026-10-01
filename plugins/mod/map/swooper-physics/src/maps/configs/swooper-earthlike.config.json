@@ -874,7 +874,7 @@
             },
             "aridity": {
               "moistureShiftThresholds": [
-                0.2,
+                0.45,
                 0.66
               ],
               "vegetationPenalty": 0.78

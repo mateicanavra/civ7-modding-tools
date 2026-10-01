@@ -484,6 +484,87 @@ waiting for an unsupported land-process selection. Verification SHA256 is
 `40e75ef783a7f71a417b90503c87cd0a4bad261884f38743c4874c4cb8c5f82b`
 in `earth-calibration/periodic-pressure-contrast-decomposition-20260930/`.
 
+### Positive Habitat Support
+
+The bounded Ecology review establishes that zero suitability means no support
+from the represented physical evidence, not a special weakest eligible rank.
+The planner currently admits that value when an authored confidence floor is
+zero. Correct its existing feature-local admission rule to require positive
+confidence as well as the inclusive authored floor. A zero floor therefore
+admits every positively supported candidate, including the smallest positive
+Float32 value; it does not bypass physical support. Do not add an epsilon,
+quota, threshold knob, shared-chooser change, new artifact or step computation.
+
+Hold score equations, authored profiles, broad habitat gates, occupancy,
+terrain eligibility and deterministic ordering. Verify all five families
+through the public operation and actual step publication. Replay the existing
+map-selected study bank without changing its expectations. Earthlike authoring
+and upstream physical truth remain held; corrected Ecology and downstream
+placement outputs need not reproduce unsupported C3 placements. In particular,
+vegetation presence, variety, share and rainforest ceilings remain active
+quality obligations rather than being weakened after removing unsupported
+intents.
+
+The strict-positive admission repair exposes an existing Earthlike classifier
+conflict: its first aridity moisture-zone shift at `0.2` makes every positively
+scored savanna candidate desert in the nine existing identity/cohort cases.
+Earthlike's broad tropical-seasonal candidates instead have zero support.
+The isolated actual-step replay changes only this first shift to the public
+default `0.45`, preserving the second shift `0.66`, physical inputs, upstream
+occupancy, vegetation density and all five vegetation score fields. Huge1018
+then has 27 supported savanna intents and five vegetation families; the eight
+Standard ecology members move from zero to six maps with savanna. Two members
+still have none: this is not a presence quota. Floodplain scores do change;
+the held-intent replay does not qualify final occupancy or downstream output.
+
+Adopt that one existing classifier setting with a public-operation regression
+and the unchanged complete study bank, recomputing earlier feature intents.
+Keep thermal forcing, scorer laws, confidence floors, map/catalog selection,
+and all scientific expectations unchanged. No legacy algorithm, alternate
+recipe, new global knob or fixed-size harness is needed. The independent
+owner/SDK review accepts this candidate, subject to full re-planning.
+Retained diagnostic SHA256:
+`988b38c763e787c01220c427e079fdde114ce40f8c90f4e5af65d1bccd22caae`.
+
+The complete re-planned owner graph now runs 1,048 definition tests: 1,047
+pass and the unchanged aggregate study test retains four scientific failures.
+All three savanna presence/variety failures exposed by strict-positive
+admission are repaired, including the eight-map cohort with final upstream
+feature occupancy. Ring atoll, Earthlike within-row temperature variation,
+Earthlike row-biome dominance and Latest Juicy pressure contrast remain open.
+Types, policy, dead-code and hygiene checks pass. The public classifier/router
+and step-publication group also passes all 29 tests at `MAPSIZE_HUGE` through
+the existing `SWOOPER_TEST_MAP_SIZE` selector. Standard is the recipe identity,
+not a hard-coded test size; no alternate fixture table or new global test
+property is introduced. The full log is
+`earth-calibration/positive-vegetation-earthlike-owner-proof-20261001.log`.
+
+Before the Earthlike classifier calibration, the source-frozen Standard
+Earthlike1018 stock8/cutoff40 native pair passes all 14 measured guards.
+Its portable replay, correlated with native accepted body/head/height
+observations, holds all 55 artifacts; these are not in-game artifact captures.
+Intended dry/wet writes, accepted lake identities and original 2,792 marine
+cells hold. Exactly 35 native cells change lake identity and retain intended
+elevation; all other 13 readback facts hold. The first redeployment's new database action group
+did not activate until application registration reload; preserve its observed
+cutoff8 refusal separately, not as a failed physics arm. The successful pair
+has receipt SHA256
+`264b0a88578bb4eb6a24ab1f4dd50c5ea4b63ab19ef79b1a8a0fe65d661e13b0`
+under `earth-calibration/bounded-lake-cutoff-20260930/`. This extends the
+bounded cutoff experiment, not product-policy adoption, closed/below-sea
+qualification or naval-movement acceptance. Ring Huge remains the next
+predeclared native member.
+
+The next prerequisite, proof-topology PR #2161, is independently qualified and
+merged through native Graphite, merge
+`089b51d9563e7720a55065719ed1b75f69cf54e8`. Its exact-prefix fresh graph passes
+528 definition tests and 28 realization tests, types, policies and full-inventory
+Knip. This is proof relocation acceptance, not newer climate or native-water
+acceptance. The same-worktree restore and targeted Graphite reconciliation
+preserve the integration tree, the adjacent migration tree and all five
+protected main WIP files exactly. Receipt:
+`earth-calibration/core-proof-topology-2161-20260930/receipt.json`.
+
 ## Evidence That Survives The Artifact Correction
 
 - The ten-map publication replay matches all 120 captured field hashes. The
