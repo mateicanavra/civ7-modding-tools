@@ -12,7 +12,7 @@ import {
 } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
 import { schemaBodyFromCommandResult } from "../../session/command-result.js";
-import { executeCiv7TunerCommand } from "../../session/execute.js";
+import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import type { Civ7DirectControlOptions } from "../../session/types.js";
 
 const Civ7UnitTargetJsonValueSchema = Type.Cyclic(
@@ -242,7 +242,7 @@ export async function observeCiv7UnitTarget(
   options: Civ7DirectControlOptions = {}
 ): Promise<Civ7UnitTargetSnapshot> {
   const wireInput = admittedUnitTargetObservationInput(input);
-  const command = await executeCiv7TunerCommand({
+  const command = await executeCiv7AppUiCommand({
     ...options,
     command: buildUnitTargetWireCommand("observeUnitTarget", wireInput),
   });
@@ -259,7 +259,7 @@ export async function checkCiv7UnitTargetAction(
   options: Civ7DirectControlOptions = {}
 ): Promise<Civ7UnitTargetActionCheckResult> {
   const wireInput = admittedUnitTargetCheckInput(input);
-  const command = await executeCiv7TunerCommand({
+  const command = await executeCiv7AppUiCommand({
     ...options,
     command: buildUnitTargetWireCommand("checkUnitTargetAction", wireInput),
   });
@@ -276,10 +276,10 @@ export async function sendCiv7UnitTargetAction(
   options: Civ7DirectControlOptions = {}
 ): Promise<Civ7UnitTargetActionSendResult> {
   const wireInput = admittedUnitTargetSendInput(input);
-  let command: Awaited<ReturnType<typeof executeCiv7TunerCommand>>;
+  let command: Awaited<ReturnType<typeof executeCiv7AppUiCommand>>;
   let envelope: Static<typeof Civ7UnitTargetActionSendEnvelopeSchema>;
   try {
-    command = await executeCiv7TunerCommand({
+    command = await executeCiv7AppUiCommand({
       ...options,
       command: buildUnitTargetWireCommand("sendUnitTargetAction", wireInput),
     });

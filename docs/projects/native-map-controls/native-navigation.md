@@ -82,9 +82,9 @@ Paths are relative to `.civ7/outputs/resources/Base/modules/`.
 
 ## Remaining Boundary
 
-A normally produced Galley on a stock map is the next independent control,
-followed by the equivalent Swooper witness. Actual arrival and movement
-expenditure are required, not forced placement. Through-lake navigation and
+Use an era-appropriate, normally granted or produced vessel, followed by an
+equivalent stock witness where the tested failure needs an independent control.
+Actual arrival and movement expenditure are required, not forced placement. Through-lake navigation and
 exact directed-edge parity are also unqualified. Do not fit a height cutoff,
 clear cliffs, grant broad unlocks, or waive intended classes to obtain green
 receipts. The physical and native-category integration may be reviewed and
@@ -97,3 +97,40 @@ An earlier immediate post-spawn stock preview crashed AppHost at 0x278
 in AppUI before previewing it. Neither crash is river-path proof or a
 demonstrated generator defect. Final user-facing maps use the normal saved
 Huge Swooper configuration, not these stock controls or diagnostic fixtures.
+
+## Exploration-Age Control And Command Realm
+
+The normal V3 Huge Earthlike map (106 by 66, map/game seed 1018, twelve players,
+saved `ToT_NoModsExceptMaps` configuration, stock lake cutoff 10) was freshly
+generated in Exploration Age. Selecting the normal Cogs Advanced Start legacy
+granted the vessels; no administrative placement or broad technology grant was
+used. Cartography was selected through normal setup, not assumed to unlock
+naval river movement.
+
+The existing unit-target observe/check/send path incorrectly ran the stock
+right-click atoms in Tuner, where `GameContext` is absent. Those unchanged atoms
+now run through the existing App UI executor. This preservation repair adds no
+fallback, retry, facade, or new operation. A state-aware socket fixture withholds
+`GameContext` from Tuner and requires all three atoms to select App UI with
+exactly one native send. The full owner graph passed: 480 direct-control tests,
+432 service tests, types, builds, and owner checks (26 tasks).
+
+Actual native controls then succeeded through public `game play unit target`:
+
+- Cog 196610 moved from (73,48) to ordinary water (74,48). Arrival was confirmed;
+  all three movement points were spent. The destination is native ocean terrain,
+  not coast, so this is not a one-point coastal-cost claim.
+- Cog 983054 moved from coast (72,47) through (73,48) to coast (73,49), spending
+  two of its three movement points.
+- The same Cog then entered authored NAV (73,50), native elevation 138, spending
+  its last point. Native readback confirmed (73,50); this qualifies river entry,
+  not cliff admission, river exit, or through-lake movement.
+
+Receipts are in the durable `Civ7Tools/VisualAtlas/huge-1018/earth-calibration`
+user-data directory: `target-appui-owner-proof-20261001.log`,
+`v3-cog-coastal-control-{send,arrival}-20261001.json`,
+`v3-cog-2-mouth-approach-{send,arrival}-20261001.json`, and
+`v3-cog-2-nav-mouth-{preview,send,arrival}-20261001.json`.
+The bounded 108-plot fleet grid records the receiving terrain independently.
+Current directional cliff flags and additional traversal remain separate proof;
+do not infer them from native height, render appearance, or this successful entry.

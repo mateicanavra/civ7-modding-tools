@@ -15,6 +15,24 @@ const targetUnitId = { owner: 1, id: 131_072, type: 26 };
 const target = { x: 11, y: 10 };
 
 describe("exact unit target wire atoms", () => {
+  test("observes, checks, and sends in App UI where the right-click GameContext exists", async () => {
+    const runtime = await startRuntime();
+    try {
+      const input = { unitId, ...target, actionId: "move-to" as const };
+      const snapshot = await observeCiv7UnitTarget(input, runtime.options());
+      const expected = await checkCiv7UnitTargetAction(input, runtime.options());
+      const result = await sendCiv7UnitTargetAction({ ...input, expected }, runtime.options());
+
+      expect(snapshot.localPlayerId).toBe(unitId.owner);
+      expect(expected.valid).toBe(true);
+      expect(result.sent).toBe(true);
+      expect(runtime.commandStates).toEqual(["65535", "65535", "65535"]);
+      expect(runtime.sendCalls).toHaveLength(1);
+    } finally {
+      await runtime.close();
+    }
+  });
+
   test("observes immutable actor, target, combat, war, and modifier evidence", async () => {
     const runtime = await startRuntime({
       warResult: { Success: true, Player2: 1 },
@@ -367,6 +385,7 @@ type NativeCall = {
 
 type RuntimeHarness = {
   state: RuntimeState;
+  commandStates: string[];
   combatCalls: Array<{
     unitId: typeof unitId;
     args: { X: number; Y: number; Modifiers: number };
@@ -390,6 +409,7 @@ async function startRuntime(options: RuntimeOptions = {}): Promise<RuntimeHarnes
   const canStartCalls: NativeCall[] = [];
   const combatCalls: RuntimeHarness["combatCalls"] = [];
   const sendCalls: Omit<NativeCall, "includeDetails">[] = [];
+  const commandStates: string[] = [];
   const canStart = (
     family: NativeCall["family"],
     id: typeof unitId,
@@ -471,6 +491,10 @@ async function startRuntime(options: RuntimeOptions = {}): Promise<RuntimeHarnes
       get: (id: typeof unitId) => state.units.get(id.id) ?? null,
     },
   };
+  // Native Tuner exposes gameplay bindings, but GameContext belongs to App UI.
+  const tunerContext = Object.fromEntries(
+    Object.entries(context).filter(([key]) => key !== "GameContext")
+  );
 
   const server = createServer((socket) => {
     let buffer = Buffer.alloc(0);
@@ -484,10 +508,18 @@ async function startRuntime(options: RuntimeOptions = {}): Promise<RuntimeHarnes
           socket.write(encodeResponse(frame.listenerId, ["65535", "App UI", "1", "Tuner"]));
           continue;
         }
-        const match = frame.message.match(/^CMD:\d+:(.*)$/s);
-        const output = match
-          ? String(runInNewContext(match[1], context))
-          : JSON.stringify({ error: "unexpected command" });
+        const match = frame.message.match(/^CMD:(\d+):(.*)$/s);
+        let output = JSON.stringify({ error: "unexpected command" });
+        if (match) {
+          commandStates.push(match[1]);
+          try {
+            output = String(
+              runInNewContext(match[2], match[1] === "65535" ? context : tunerContext)
+            );
+          } catch (error) {
+            output = String(error);
+          }
+        }
         socket.write(encodeResponse(frame.listenerId, [output]));
       }
     });
@@ -496,6 +528,7 @@ async function startRuntime(options: RuntimeOptions = {}): Promise<RuntimeHarnes
 
   return {
     state,
+    commandStates,
     combatCalls,
     canStartCalls,
     sendCalls,
