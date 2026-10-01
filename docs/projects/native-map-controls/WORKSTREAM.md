@@ -690,6 +690,16 @@ introduced by this cleanup.
 
 ### Generated-Map Height Preservation
 
+The fresh V18/V20 follow-through now restores exactly 48 wet heights while
+preserving every dry height, including both demonstrated native wonder edits.
+All fourteen other final facts and 191 complete native river objects hold.
+The admitted result selects a narrow candidate at the existing preparation
+owner, not a post-recipe production hook: rederive wet requests from immutable
+topography/accepted lakes, retain current dry projection edits, and qualify the
+existing subsequent area/cache transaction. No legacy fallback, global cutoff,
+physical artifact mutation, cliff/order change or new SDK surface is selected.
+See [the native result and bounded production design](water-height-maintenance.md#v20-native-result-and-production-follow-through).
+
 The admitted V18/V19 generated-map comparison rejects unconditional
 post-recipe whole-array replay. It restores 48 accepted inland-water cells to
 their first native write heights, but leaves those cells classified as nonlake

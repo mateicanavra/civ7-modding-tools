@@ -1,13 +1,14 @@
 # Inland Water Height Maintenance
 
-The wet-outlet authoring correction is accepted. V11 establishes that native
-lake classification prevents the measured inland-water height loss and repairs
-the visible cliff-ring defect without physical grading. V12 rejects removing
-the size limit globally: it also reclassifies the ocean. It does not reject a
-bounded map-scoped cutoff. Qualifying that simpler classification policy is
-the next discriminator; late height reapplication remains an alternative, not
-the selected repair. Neither general production policy nor actual naval
-traversal is yet qualified.
+The wet-outlet authoring correction is accepted. Native classification and
+water-height retention are separate projection concerns. V11 qualifies bounded
+classification on the measured cohort; V12 rejects an unlimited cutoff, and the
+Ring counterexample prevents selecting one arbitrary global cap. V20 now
+qualifies restoring original wet elevation requests while retaining exact
+current native dry heights, including later wonder edits. The next production
+candidate belongs at the existing surface-preparation owner and must survive
+its subsequent area/cache transaction. Neither general production policy,
+cliff reconstruction nor actual naval traversal is yet qualified.
 
 ## Bounded Connectivity Controls
 
@@ -678,6 +679,49 @@ hygiene checks pass. The existing exact elevation snapshot and raw native
 boolean reads are sufficient; no SDK extension or global setting is added.
 These results qualify the constructed request and lifecycle, not the pending
 native outcome.
+
+### V20 Native Result And Production Follow-Through
+
+The fresh Huge Earthlike V18/V20 pair passes 421 admission guards and all 15
+predeclared prediction checks. Both arms use stock cutoff10, independent
+map/game seeds1018/1018, ten players and source revision
+`8d1501b13b76dfc98bdafffdbae151fa66aadb0d`. Across all 6,996 cells, the logged
+native elevation and raw boolean water inputs agree exactly with the independent
+before-replay grids; independently reconstructed requests match the emitted
+digest. Each installed five-file bundle matches its archived bytes.
+
+Exactly 48 wet cells recover their first-write native heights: physical bodies
+1643/3384/3899 retain 230/530/110 across 16/15/17 cells instead of 0/18/0. All
+48 remain native nonlake. All 2,517 dry cells hold their heights and other facts,
+including the demonstrated Kilimanjaro edits at (83,27) and (84,28): their
+current height788 is retained instead of replaying original requests688/778.
+The other fourteen final facts have no changes, all 155 accepted native-lake
+cells and 4,276 outside-accepted wet controls hold, and the complete 191 native
+river objects / 659 plot entries match exactly. No extra maintenance is added.
+
+Evidence is sealed under the documented VisualAtlas root in
+`earth-calibration/bounded-lake-cutoff-20260930/`, with fresh
+`water-dry-{control,treatment}-huge1018-20261001-*` inputs. Analysis receipt
+`water-dry-retention-huge1018-20261001-analysis.json` SHA-256:
+`75ee23eec8bd061823364745d04ee30d80dcadd9b91c1a8e226c92d5c72ae3b8`.
+Reader SHA-256:
+`6dc35312aa10cfaac39755900ffd4725a173234327373c1588e4e5c4d83f0501`.
+Source revision labeling and capture chronology remain operator authority;
+client-local connection epochs are not shared game identities. One initial
+deployment-directory mistake and refused lifecycle attempt are retained
+separately and excluded, not substituted into successful-run fields.
+
+This closes dry setter idempotence on the measured cohort, not universal
+feature protection: Redwood is absent, later dry NAV mismatches are unexercised,
+and no wet-feature height-mismatch trigger is present. Native classification,
+cliffs and actual naval movement remain separate. The production candidate
+reuses `projectStandardElevation` and the existing accepted-lake artifact,
+selects wet-original/dry-current after terrain validation/coast restoration,
+then uses the existing area/cache refresh. No physical artifact, recipe order,
+SDK surface, cutoff or global setting changes. Available mock snapshots remain
+valid for deterministic execution, not native proof; production does not copy
+the fixture's native-only admission. Qualify that actual slot and subsequent
+maintenance before declaring the water repair shipped.
 
 ## V9 Verification
 
