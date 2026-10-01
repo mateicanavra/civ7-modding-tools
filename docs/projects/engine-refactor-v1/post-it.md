@@ -40,8 +40,8 @@ providers -> semantic services -> caller projections -> real host composition
 -> observation. Habitat closes the shared structural shells but provides no
 product app runtime and deliberately omits `service@1`. Qualified CLI and
 Studio apps therefore own their actual host composition and lifecycle;
-services retain Civ7-owned law and consume ready resources. Both product chains
-still close through one joint proof and deletion receipt.
+services retain Civ7-owned law and consume ready resources. Both product
+chains still close through one joint proof and deletion receipt.
 
 The first managed capability is now constructed. `resources/civ7-tuner` owns
 only the provider-neutral ready capability and typed transport failures; its
@@ -50,6 +50,13 @@ epochs, dispatch evidence, reset, and scoped release. Readiness, output
 interpretation, and semantic retry remain service-owned. Closed proof and Nx
 direction are active. The live collaboration leaf exists but has not run and
 is not claimed as passed.
+
+Window capture is generic rather than Civ7-specific. The provider-neutral
+resource owns selected-window evidence and failures; its macOS
+ScreenCaptureKit provider owns helper preparation, platform/TCC translation,
+atomic PNG installation, and the scoped lifetime of every in-flight child.
+Cancellation and atomicity are target upgrades, not current-source claims. The
+control service owns only Civ7 matching, appshot policy, and semantic outcomes.
 
 Two definition reductions are sealed. The closed `mapgen` CLI topic owns
 diagnostic and metric commands while Swooper and neutral MapGen packages retain
@@ -71,9 +78,9 @@ owners or claim live proof early.
 **Stable ownership:** Swooper remains a portable mod definition realized by
 its mod app. The CLI remains a commandless `cli-shell` composed from
 `plugins/cli/topics/*`; each topic package owns its nested commands. The control
-service remains callable in process. Studio is the only current HTTP host. The
-Tuner session and narrow Civ7 window-capture helper are the earned managed
-resources. Commit `8d0d4983ba` is the completed intelligence-bridge deletion
+service remains callable in process. Studio is the only current HTTP host.
+Tuner and generic window capture are the earned managed resources. Commit
+`8d0d4983ba` is the completed intelligence-bridge deletion
 receipt, not a current provider; a future controller remains deferred behind
 its same-realm-consumer or proven-async-ingress trigger. A MapGen service, an HQ
 API, and generic catalog or desktop-control resources are not current
@@ -83,7 +90,7 @@ cold filesystem effects, while CLI topics project their bound capabilities.
 MapGen run records, cancellation, retention, and events remain scoped
 MapGen-runs service state rather than a manufactured resource.
 
-**Gradient:** window-capture resource -> local semantic services ->
+**Gradient:** generic window-capture resource -> local semantic services ->
 CLI and Studio projections/composition -> joint Core Platform seal -> Dacia
 Product -> Estate Reconciliation -> Platform Seal. The Tuner protocol remains
 private to its sole provider unless another independent consumer earns a public
@@ -132,6 +139,21 @@ tests.
 
 <details>
 <summary>Prior focus pivots</summary>
+
+### 2026-08-06 - Window Capture Resource Generalized
+
+Rejecting a Civ7-specific resource was correct, but duplicating the effectful
+implementation across CLI and Studio was not. The actual owner is the generic
+window-capture capability. Its macOS provider owns an acquired scope over
+in-flight capture children; apps select it and the control service gives its raw
+facts Civ7 meaning.
+
+### 2026-08-06 - Window Capture Resource Refused
+
+The prior focus treated ScreenCaptureKit helper preparation as provider
+acquisition. The implementation proved no foreign state survives one capture,
+so the resource/provider destination was removed before commit. The service
+now owns the capability requirement and qualified apps own host execution.
 
 ### 2026-08-05 - Interactive Runtime Substrate Rebased
 
