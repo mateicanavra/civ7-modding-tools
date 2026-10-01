@@ -47,11 +47,7 @@ describe("Run in Game exact authorship evidence identity", () => {
     const dir = await mkdtemp(join(tmpdir(), "studio-evidence-markers-"));
     try {
       const path = join(dir, "studio-current.js");
-      await writeFile(
-        path,
-        [requestId, configHash, launchEnvelopeDigest].join("\n"),
-        "utf8"
-      );
+      await writeFile(path, [requestId, configHash, launchEnvelopeDigest].join("\n"), "utf8");
 
       const evidence = await fileContentMarkerEvidence({
         repoRoot: dir,

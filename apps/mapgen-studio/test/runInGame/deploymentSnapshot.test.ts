@@ -81,11 +81,7 @@ describe("Run in Game deployment snapshot", () => {
 });
 
 async function writeGeneratedRunMod(root: string): Promise<void> {
-  const script = [
-    "run-deploy-snapshot",
-    "config-hash-test",
-    "envelope-hash-test",
-  ].join("\n");
+  const script = ["run-deploy-snapshot", "config-hash-test", "envelope-hash-test"].join("\n");
   await mkdir(join(root, "maps"), { recursive: true });
   await mkdir(join(root, "config"), { recursive: true });
   await writeFile(join(root, "maps", "studio-run.js"), script, "utf8");

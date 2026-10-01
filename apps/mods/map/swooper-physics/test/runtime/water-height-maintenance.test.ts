@@ -765,7 +765,7 @@ describe("V18/V19 post-recipe original-input transport (not native preservation)
   it.each([
     WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS,
     WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS,
-  ])("finishes only after authentic generated recipe success for %s", async (atlas) => {
+  ] as const)("finishes only after authentic generated recipe success for %s", async (atlas) => {
     const built = await buildRiverProbePlan("original-execute", "authored", atlas, {
       mapSize: "MAPSIZE_TINY",
       mapSeed: 42,
