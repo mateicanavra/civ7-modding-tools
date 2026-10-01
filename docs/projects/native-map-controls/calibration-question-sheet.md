@@ -202,6 +202,15 @@ physical model permits it to dry. Preserve one current solver and artifact chain
 an unqualified producer rule is not permission for a fallback implementation,
 native cutoff default or renderer-driven physical terrain adjustment.
 
+The subsequent [external-water design](external-water-ownership.md) selects a
+final-geometry principal-body prescription instead of the unaccepted
+oceanic-substrate candidate. This is deliberate generator authority, not area
+proving marine truth. Independent physical/SDK review also establishes that a
+mask-only change would ignore receiving surface head. The selected complete
+story therefore includes head-aware drainage/ports, empirical wet forcing and
+resolved exposure. It is a design selection, not a production implementation
+or qualification of the newly finite low-head bodies.
+
 River outflow does not define lake versus sea. Open lakes have an outlet;
 closed lakes do not. Salinity, water balance and exchange with marine water
 are separate properties; even the term inland sea spans different hydrologic

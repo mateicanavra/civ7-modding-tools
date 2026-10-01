@@ -29,9 +29,18 @@ As of October 1, the core MapGen work below is in the retained review lineage,
 not merged to main. The qualified Tuner-release and window-classification
 prerequisites, PRs #2164 and #2165, are merged. See the exact publication and
 protected-checkout accounting in [the continuation](continuation-sequence.md).
-The latest recorded normal playable run is Huge Earthlike, map/game seeds
-1018/1018, the existing ToT_NoModsExceptMaps setup and twelve players. Later
-source-only cleanup is not retroactively live-qualified by that run.
+Before catalog cleanup, a recorded normal playable run used Huge Earthlike,
+map/game seeds 1018/1018, the existing ToT_NoModsExceptMaps setup and twelve
+players. That earlier run does not retroactively live-qualify later source changes.
+
+The subsequent three-product build is now installed and freshly loaded through
+that same saved setup. The normal Huge1018 run completes on October 1 in 44.3s
+with all seven setup/install/generation stages passing, under Earthlike script
+SHA256 `585d820ed23be7b1c185fb910d7f495f60ee2f97f4a45dc957c0f50ef897b5b9`.
+All eight generated files match the installed tree exactly; its three managed
+map scripts are Earthlike and the two stress products. This proves deployment
+and normal generation after cleanup, not fresh visual parity, navigation,
+autoplay or complete scientific calibration. The gallery remains dated evidence.
 
 ## Original Goals
 
@@ -63,7 +72,7 @@ Details: [elevation](elevation.md), [relief](relief-coherence.md),
 | Reef selection rejected valid habitats by coordinate phase | Spatial-selection repair and independent wrapped-distance regressions | Retiring the Ring preset does not retire those algorithm tests |
 | Some consumer contracts falsely called model relief metres | Owner-local descriptions corrected across 27 production files with numerical syntax held; legacy authored key names remain explicit model-unit controls | Physical dimensional laws and thresholds need independent owner-level calibration; native render scale is not a metre conversion |
 | Native maintenance changed water/dry heights after direct writes | Surface-preparation owner repairs water-height preservation while retaining native dry/wonder changes | Classification cutoff, level preservation, apparent connection and gameplay navigation remain different claims |
-| Initial geographic wetness was treated as already-established marine supply | Exact ten-cell counterfactual routes its formerly external exports into finite storage while holding other bodies/conservation | Select and implement one complete provenance/forcing/resolved-exposure handoff; the counterfactual is not a selected marine policy |
+| Initial geographic wetness was treated as an admitted external drainage recipient | Exact ten-cell counterfactual routes its formerly external exports into finite storage while holding other bodies/conservation | Implement and qualify the selected producer-prescription/forcing/resolved-exposure handoff; the counterfactual itself is not a marine policy |
 | Historical fallback algorithms and development presets obscured current ownership | Four climate fallback algorithms retired with 96-scenario, 55-artifact exact identity proof; official catalog narrowed to three products | Latest Juicy's pressure failure is retired-product evidence, not a physics repair or weakened Earthlike pressure requirement |
 
 Source packets: [thermal lineage](climate-artifact-lineage.md),
@@ -74,7 +83,7 @@ Source packets: [thermal lineage](climate-artifact-lineage.md),
 
 ## Next Testable Outcomes
 
-1. **Converge the supported product surface.** One definition catalog drives
+1. **Converge the supported product surface: completed.** One definition catalog drives
    Studio and Civ artifacts; three supported profiles, unchanged retained
    parameter bytes, all existing Earthlike scenarios/targets retained. No
    blacklist or destructive migration of saved current-schema authoring.
@@ -82,6 +91,9 @@ Source packets: [thermal lineage](climate-artifact-lineage.md),
    from finite inland storage using justified provenance; admit wet forcing
    and publish the resolved physical exposure through the same current model.
    No mask alias, disconnected partial migration or native carving substitute.
+   The [selected repair design](external-water-ownership.md) combines the
+   final producer prescription, receiving-head semantics, all-surface empirical
+   forcing and resolved exposure in one complete story. It is not implemented.
 3. **Qualify native projection.** From those resolved bodies, discriminate
    ordinary-water components, river connections, lake identities and height
    maintenance. Test closed/low-head/below-sea cases and minor versus navigable
@@ -119,4 +131,9 @@ realization tests and 412 Studio tests, plus builds and owner checks. The
 definition's one aggregate failure retains the Earthlike thermal requirement.
 All 57 retained scenario inputs and the three authored configs match the prior
 selection exactly; all 47 Earthlike cases survive. This qualifies retirement,
-not scientific completion, native navigation or a refreshed gallery.
+not scientific completion, native navigation or a refreshed gallery. Native
+Graphite publication is reconciled, with all fifty published heads matching
+their local refs; no new branch or worktree was created. The protected fourteen
+main-checkout files retain their bytes and hashes. Closing receipt:
+`earth-calibration/three-product-convergence-publication-20261001.json`, in the
+existing [Civ research user-data location](../../process/LOCAL-VIEWERS.md).

@@ -848,6 +848,36 @@ Receipt: `earth-calibration/earthlike-moisture-adopted-publication-reconciliatio
 This snapshot precedes subsequent documentation-only study records, not the
 deployed classifier or fresh normal live generation.
 
+The three-product convergence is now complete on that same lineage. Catalog
+source and its app/Studio fixtures are adopted into the existing #2227 layer;
+the delivery inventory remains at the continuation leaf. All186 pre-push tasks
+pass, native no-op submission reconciles the existing fifty PRs, and all fifty
+remote heads match their local refs. Only that catalog layer and its two
+descendants change among151 local refs; no branch is added or removed, and the
+fourteen protected main files remain byte/hash-identical. This is publication,
+not merge. The closing receipt records the aba7513155f3 snapshot:
+`earth-calibration/three-product-convergence-publication-20261001.json`.
+
+Normal deployment replaces only the known mod identity and leaves exactly
+three managed scripts; all eight generated/installed files match. A subsequent
+fresh normal Huge Earthlike/1018/1018 run uses ToT_NoModsExceptMaps and twelve
+players, without fully exiting Civ. It passes all seven verification stages in
+44.3s, including exact installed script identity and the fresh completion log.
+Verification id: `studio-run-in-game-live-verification-mupogff5-1nq4`; Earthlike
+script SHA256: `585d820ed23be7b1c185fb910d7f495f60ee2f97f4a45dc957c0f50ef897b5b9`.
+The retired products are not native-play or science repair results; the active
+Earthlike thermal expectation remains unwaived. No current gallery, actual
+ship path or autoplay result is claimed from this setup/generation receipt.
+
+The next complete story is selected in
+[external water ownership](external-water-ownership.md): final-geometry
+principal-body prescription, explicit receiving-head semantics, all-surface
+empirical forcing and resolved exposure. Both bounded reviews reject a
+mask-only absorbing-sink patch; the selected head-aware design preserves one
+current solver and one-way initial-wet climate approximation. It remains
+unimplemented, so this publication does not claim the initial-water defect is
+repaired or a new native cutoff is ready.
+
 Studio's current persistent Tuner realization is unqualified for these runs:
 the current daemon accumulates response timeouts while fresh CLI observations
 and Civ UI respond. Local deterministic preview remains usable. This is a
