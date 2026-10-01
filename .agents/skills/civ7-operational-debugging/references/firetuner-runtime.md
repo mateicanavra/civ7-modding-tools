@@ -1,140 +1,104 @@
 # Civ7 Tuner Runtime
 
-Use the Civ7 tuner socket when the proof requires live Civ7 runtime behavior,
-JS globals, or fast in-game iteration. Repo tooling should call
-`@civ7/direct-control`; FireTuner is native-control evidence only, not a
-parallel caller-local transport.
+Use this reference when live evidence depends on the Civ7 Tuner capability.
+Tuner is a managed foreign resource, not the product-control API.
 
-## Connection
+## Ownership
 
-- Civ7 must have tuner support enabled in the game's user options before the
-  socket is available. On Windows this is `AppOptions.txt` under
-  `%LOCALAPPDATA%\Firaxis Games\Sid Meier's Civilization VII`; set
-  `EnableTuner 1` without the leading semicolon.
-- The default tuner port is `4318`.
-- The repo-owned direct path is local to the machine running Civ7:
-  `civ7 game restart`, `civ7 game exec`, `civ7 game health`, or package
-  callers of `@civ7/direct-control`.
-- Do not route repo-owned runtime proof through the retired Windows
-  VM/Parallels bridge path. `127.0.0.1` means the local Civ7 tuner socket on the
-  machine running Civ7.
+| Concern | Owner |
+| --- | --- |
+| Provider-neutral session, health, epoch, raw-command, and failure vocabulary | `resources/civ7-tuner` |
+| Endpoint discovery, socket framing, state discovery, reconnect, command execution, and release | `resources/civ7-tuner/providers/local-socket` |
+| Provider selection, acquisition scope, client binding, and disposal | qualified app |
+| Civ7 interpretation and closed app/game/map/UI operations | `services/civ7-control` |
+| Gameplay policy and next action | `services/civ7-play` |
+| Raw diagnostic presentation | an explicitly qualified CLI/API diagnostic projection |
+
+A service or ordinary command never opens its own socket. A caller consumes an
+app-bound resource value for raw diagnostics or an app-bound control/play client
+for semantic work.
+
+## Connection And Epoch
+
+- Tuner support must be enabled in the user's Civ7 configuration before the
+  local-socket provider can acquire it.
+- Host, port, connection timeouts, and endpoint discovery come from provider
+  configuration. Inspect the selected app composition and provider source
+  rather than hard-coding them in a task.
+- Acquisition returns a resource epoch. Reconnect creates a new epoch; every
+  observation tied to the previous epoch is stale.
+- Release closes admission, socket/session state, and any provider-owned work.
+  Post-release commands must be refused.
+
+Use current app/CLI discovery for health or bounded raw execution:
+
+```bash
+bun apps/cli/bin/run.js game --help
+```
+
+Only use command leaves present in that output, and ask the leaf for `--help`
+before recording flags.
 
 ## Scripting States
 
-- After Civ7 starts, a tuner client may connect before states are populated.
-  Direct tooling should query `LSQ:` again or call the package readiness helpers.
-  In FireTuner, use `Connection -> Refresh Lua States`.
-- The main menu may expose only `App UI`.
-- In-game sessions should expose both `App UI` and `Tuner`. Treat them as
-  separate API surfaces. Current evidence places `Network.restartGame()` and
-  the native Begin Game action (`UI.notifyUIReady()`) on `App UI`; `Tuner` is
-  command-ready only after Begin Game and is the better canary for gameplay
-  globals such as `Game`, `GameplayMap`, and `Players`.
-- Refresh states again after leaving to main menu or starting/restarting a game.
+Civ7 exposes named scripting states whose availability changes across main
+menu, loading, game start, restart, and exit. Treat state inventory as runtime
+evidence:
 
-## Fast Runtime Loops
+1. Discover states after acquisition.
+2. Refresh after every game lifecycle transition or provider epoch change.
+3. Execute a raw probe only in the named state that owns the inspected global.
+4. Record the state and epoch with the result.
 
-Use direct commands through `@civ7/direct-control`; old Civ6 tuner panels are
-not reliable authority for Civ7 even when some still open.
+A successful state listing does not prove that gameplay globals are ready.
+Foundational control owns the semantic readiness interpretation and must use
+closed typed operations for product behavior.
 
-CLI restart example:
+## Raw Execution Boundary
 
-```bash
-civ7 game restart --agent Codex --begin --wait-tuner
-```
+Raw execution is a maintainer diagnostic. It may establish that one exact
+global or native primitive exists in one state at one epoch. It does not prove:
 
-Read-only direct command probes should use the package API or purpose-built
-scripts, not caller-local socket implementations.
+- a gameplay request was lawful;
+- an uncertain mutation was accepted;
+- another scripting state exposes the same API;
+- the CLI, Studio, or a mod should publish the primitive directly.
 
-Restart the current setup with a fresh seed when restart is enabled:
+If a native primitive is needed by a product capability, add a closed typed
+operation to the appropriate foundational control module and prove its
+admission, dispatch, and readback. Actor-facing checks, no-repeat policy, and
+next-action meaning then belong to play.
 
-```bash
-civ7 game restart --agent Codex --begin --wait-tuner
-```
+## Runtime Evidence
 
-Check whether the Tuner state can actually execute gameplay API probes:
+For each probe record:
 
-```bash
-civ7 game health --tuner --json
-```
+- qualified app/process identity;
+- resource epoch and scripting state;
+- command/request identity and input;
+- raw disposition or typed control result;
+- pre-action log boundary and fresh matching lines;
+- whether mutation may have occurred;
+- required reconciliation before retry.
 
-Run direct JavaScript:
+For MapGen, pair Tuner/control evidence with the exact MapGen-runs operation and
+realization receipt. Fresh `Scripting.log` context creation, authored completion,
+context destruction, and absence of a matching failure in the bounded window
+are useful log facts. They do not by themselves prove surface parity or a
+gameplay outcome.
 
-```bash
-civ7 game exec "1+1"
-```
+## Native Primitive Discovery
 
-Treat raw exec as a maintainer/debugging instrument, not a play-agent surface.
-When a raw probe discovers a useful native primitive, promote that primitive
-into `@civ7/direct-control` or a CLI command instead of teaching players to
-repeat the probe.
+When an actor-facing blocker lacks a public operation:
 
-Run bounded autoplay from `App UI` unless a fresh probe proves a different
-state exposes the required `Autoplay` methods:
+1. Find the official UI handler and the native game mutation it invokes.
+2. Find the corresponding UI/display closeout or observation primitive.
+3. Determine which scripting state owns each primitive.
+4. Decide whether this is foundational app/game/map/UI control or gameplay
+   policy.
+5. Add one closed typed operation at the correct owner, then expose it through
+   play and the caller projection only when a concrete actor task requires it.
+6. Prove exact dispatch and postcondition; preserve uncertainty and no-repeat
+   behavior.
 
-```js
-Autoplay.setTurns(5);
-Autoplay.setReturnAsPlayer(0);
-Autoplay.setObserveAsPlayer(PlayerIds.OBSERVER_ID);
-Autoplay.setActive(true);
-```
-
-Stop autoplay:
-
-```js
-Autoplay.setActive(false);
-```
-
-When constants are unavailable or uncertain, verify them in the connected
-context before using numeric literals. Community evidence says observer is
-`1000` and no-player is `-1`, but official runtime constants are preferred.
-
-## Runtime Proof
-
-For map-generation claims, bound the run with:
-
-- deployed map/mod file mtime before the command,
-- `Scripting.log` mtime before and after the command,
-- a fresh `Creating Context -  MapGeneration`,
-- the expected final stage, such as
-  `[50/50] ok mod-swooper-maps.standard.placement.placement`,
-- `Destroying Context -  MapGeneration`,
-- no current-run `TextEncoder`, `Uncaught`, `Error`, or `Exception` failure.
-
-Inspect sibling logs when the question is not purely map script execution:
-
-- `Modding.log` for mod discovery/load.
-- `Database.log` for XML import/schema issues.
-- `UI.log` for UI JS/module failures.
-- `GameCore.log` and `Game.log` for game-flow/simulation signals.
-- `General.log`, `output.log`, and net logs for engine/process context.
-
-## Official Resource Anchors
-
-- Installed game Tuner panels may live under
-  `Base/Platforms/Windows/Config/TunerPanels`; the repo resource mirror may not
-  include that directory.
-- Official automation scripts demonstrate `Autoplay.setTurns`,
-  `setReturnAsPlayer`, `setObserveAsPlayer`, and `setActive`.
-- Official pause-menu UI calls `Network.restartGame()` for restart.
-- Official map scripts import `maps/map-debug-helpers.js` to dump terrain,
-  elevation, rainfall, biomes, features, resources, and related map diagnostics.
-
-## Native Control Discovery
-
-When operation-bearing blockers, popups, or screens behave like a split between
-game state and App UI state, exhaust native control paths before adding
-repo-owned orchestration:
-
-1. Find the shipped notification handler, screen/panel module, and model or
-   manager used by the official UI.
-2. Identify the primary game mutation primitive, usually
-   `Game.PlayerOperations`, `Game.CityOperations`, `Game.UnitOperations`,
-   `Game.UnitCommands`, or a domain-specific manager.
-3. Identify the UI/display primitive, such as `DisplayQueueManager`,
-   `NotificationModel.manager`, `NarrativePopupManager`, or the screen manager
-   used by the official handler.
-4. Compose those primitives inside one repo command only when the official UI
-   composes them for the same player decision.
-5. Verify repo composition at the command boundary. Do not make the play agent
-   run separate closeout, refresh, or proof commands for normal forward play.
+Do not leave users with a raw script recipe as the permanent workflow.

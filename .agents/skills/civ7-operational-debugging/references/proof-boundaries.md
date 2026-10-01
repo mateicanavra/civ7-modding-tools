@@ -1,37 +1,71 @@
 # Proof Boundaries
 
+Use the product authority's disjoint proof classes. Never promote one receipt
+into a later outcome.
+
 ## Evidence Classes
 
-| Evidence | Proves | Does Not Prove |
-|---|---|---|
-| Typecheck/test | Source-level contracts exercised by that command | Generated output, deployment, or Civ7 runtime behavior |
-| Package build | The package build command completed and emitted expected local artifacts | The mod was deployed, selected, loaded, or executed by Civ7 |
-| Generated `mods/<mod-slug>/mod/` files | Source generation produced local mod files | The deployed copy matches or Civ7 loaded the files |
-| Deploy command | Files were copied into `<game-data>/Mods/<mod-id>/` | Civ7 discovered, enabled, or executed the mod |
-| Deployed file inspection | The OS-level Mods directory contains specific files | The game used those files in a run |
-| Log lines | Civ7 emitted the observed message in the bounded log window | A missing message means the behavior is impossible |
-| Direct tuner command result | The connected runtime accepted or rejected that direct command in the selected scripting state | Other scripting states expose the same globals or the UI panel path works |
-| In-game observation | The exercised game path behaved as observed | Unexercised maps, settings, eras, or mod combinations behave the same |
-| Official resources | Current game data has the inspected shape | Repo SDK, adapter, MapGen, CLI, or mod policy |
+| Evidence | Supports | Does not support |
+| --- | --- | --- |
+| Type/schema proof | Tested contract admission and rejection | Runtime behavior |
+| Semantics test | Owner-local policy and transitions under supplied dependencies | External acquisition or host effects |
+| Deterministic MapGen run | Exact portable artifact, metric, trace, or diagnostic result | Civ7 projection or loader acceptance |
+| Generated artifact | Exact source/config produced recorded files or digests | Installation or execution |
+| Installation receipt | Exact tree replacement at the selected Mods root | Loader acceptance or live behavior |
+| Provider health/epoch | Concrete resource acquisition state at one epoch | Civ7 semantic readiness or gameplay success |
+| Raw Tuner result | Command disposition in one named scripting state and epoch | Typed control meaning or actor outcome |
+| Window-capture receipt | Selected raw window/image evidence | Correct Civ7 appshot meaning or gameplay state |
+| Foundational control result | Typed Civ7 app/game/map/UI fact, dispatch, or readback at one correlation | Gameplay recommendation or final run outcome |
+| Play result | Actor-facing check/request/reconciliation and next action | Unobserved engine or external effects |
+| App-adapter receipt | One exact physical filesystem/process effect | Service-owned semantic outcome |
+| MapGen-runs result | Request-correlated run state and final semantic operation outcome | Unrecorded loader/live behavior |
+| Projection test | Caller contract and translation behave as tested | Underlying owner correctness outside supplied facts |
+| Fresh log window | Civ7 emitted the recorded lines during the bounded window | Absence of unsearched behavior or general success |
+| Live observation | Exact exercised build/config/game path behaved as observed | Other seeds, sizes, patches, eras, or mod sets |
+| Official resource corpus | Identified source revision contains the inspected facts | Current installed runtime or repo product policy |
 
-## Closure Labels
+## Report Labels
 
-Use these labels in final reports and handoffs:
+Prefer the normative proof-set vocabulary when recording durable evidence:
 
-- `built`: the relevant build command completed.
-- `generated`: expected files exist in `mods/<mod-slug>/mod/`.
-- `deployed`: expected files exist in `<game-data>/Mods/<mod-id>/`.
-- `logged`: bounded Civ7 logs contain the named signal.
-- `tuner-exercised`: a direct tuner command ran in a named scripting state.
-- `in-game observed`: the relevant path was exercised inside Civ7.
-- `resource-backed`: official resources support the stated game-data fact.
-- `unresolved`: the available evidence does not prove the claim.
+- `contract`
+- `semantics`
+- `execution`
+- `projection`
+- `assembly`
+- `generated`
+- `installed`
+- `loader`
+- `live-behavior`
 
-## Claim Discipline
+Operational prose may add precise qualifiers such as `resource-epoch-observed`,
+`capture-receipt`, `logged`, or `unresolved`, but those qualifiers do not
+collapse the normative classes.
 
-- If only source checks ran, say source checks passed.
-- If a build ran, name the package and artifact inspected.
-- If deploy ran, name the target Mods directory and mod id.
-- If logs were read, name the files and how the log window was bounded.
-- If in-game behavior was checked, name the map/mod/settings path exercised.
-- If official resources were inspected, name the resource files or directories.
+## Honest Outcome Chain
+
+For mutations, record each stage separately:
+
+```text
+intent admitted
+  -> effect requested
+  -> dispatch disposition
+  -> physical receipt or native readback
+  -> consumer acceptance
+  -> reconciliation
+  -> final product outcome
+```
+
+Not every capability has every stage, but no missing stage may be inferred. An
+ambiguous dispatch remains uncertain until its owner supplies fresh
+reconciliation evidence.
+
+## Minimum Closeout
+
+- Name the owner and public capability.
+- Name exact input/config/build/resource epoch and operation/request identity.
+- Name the target or command as discovered at execution time.
+- Explain how the evidence window was bounded.
+- State the strongest proof class supported.
+- State the nearest stronger claim that remains unproved.
+- State whether a retry is lawful.

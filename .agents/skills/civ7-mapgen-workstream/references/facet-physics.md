@@ -1,185 +1,193 @@
-# Facet 1 — Earth-Science / Physics
+# Physics And Earth-Science Facet
 
-> Open when a request is **behavioral** — "improve rivers", "the rain shadows look blocky", "make coastlines feel like real continental margins", "biomes are wrong for this latitude" — or any change judged by whether the map is *physically grounded*. This is the deepest, net-new facet: no other skill owns physical-realism reasoning end-to-end. It grounds the **behavioral arm** of the loop (`SKILL.md`, steps 3–5). Pair with `references/facet-verification.md` (how you *prove* a behavioral change held) and `references/pipeline-map.md` (where the stages/artifacts live).
+Open this reference for behavioral requests such as realistic coasts, mountain
+belts, rainfall, rivers, lakes, biomes, soils, or resource habitats.
 
----
+The goal is not to reproduce Earth at full resolution. The goal is a coherent,
+legible, strategically useful Civ7 world whose simplifications are explicit.
 
-## Facet charter
+## Working Method
 
-You are an Earth-science / physics agent obsessed with how the planet actually works — radiative balance and atmospheric cells, ocean gyres and Ekman transport, plate kinematics and continental margins, the stream-power law and the Whittaker climate envelope. Your job is **not** to reproduce Earth. It is to bring *physical realism in service of beautiful, civilization-appropriate maps* (FRAMING philosophy: the team serves the map, the map serves the player). At Civ tile scale, real processes get stylized — your distinctive contribution is to know **which simplification is load-bearing and which is cosmetic**, to ground every candidate model in a real physical process, and to **pre-declare a stylization ledger** wherever the tile scale forces a visible departure from Earth (see `assets/earthlike-expectation-ledger.md`).
+For every proposed change:
 
-Three disciplines define the facet:
+1. **Name the observed failure.** Use an artifact, metric, diagnostic layer, or
+   correlated live readback rather than a screenshot alone.
+2. **Name the physical process.** Explain the real causal mechanism the model
+   approximates.
+3. **Classify the current model.** Record what is `modeled`, `approximated`, and
+   `absent` after reading the live operation/strategy source under
+   `plugins/mod/map/swooper-physics/src/domain`.
+4. **Locate the control point.** Decide whether to re-tune configuration,
+   select an existing strategy, add a same-transition strategy, or add a new
+   operation.
+5. **Declare regimes and guards.** Fill the expectation ledger before editing.
+   Use families such as wet/arid, active/passive margin, high/low relief,
+   closed/open basin, tropical/polar, or continental/maritime.
+6. **Check Civ7 legality and playability.** A physical target must remain
+   placeable and strategically useful.
+7. **Verify causal and projected outcomes separately.** Metrics and artifacts
+   prove the portable model; Civ7 realization/readback proves only the exact
+   live projection exercised.
 
-1. **Read the model as physics.** Every domain operation encodes a genuine
-   Earth-science abstraction. Start at
-   `mods/mod-swooper-maps/src/domain/<domain>/modules/<module>/ops/<operation>/`:
-   `contract.ts` defines the shared operation boundary, `rules/` holds private
-   mechanics, and `strategies/<semantic-id>/{config.ts,index.ts}` binds each
-   replaceable model. Read that aggregate as the *physical model*, not as code.
-   Live source is the read-truth — never the `mapgen:*` cache skills
-   (philosophy-only / outdated architecture).
-2. **Hold the three buckets.** For any behavioral change, state explicitly what is **MODELED** (a real process is simulated), **APPROXIMATED** (a process is present but stylized/proxied), and **ABSENT** (a real process is not represented at all). The buckets are how you avoid "improving" a model in a direction the pipeline cannot currently express, and how you locate the right op to touch.
-3. **Translate constants to regime families, not scalars.** Earth anchors (below) become tile-scale *regime families* (wet / arid / mountain / closed-basin / archipelago), never single global numbers. The subsystem contract is `docs/system/libs/mapgen/benchmarks/BENCHMARKS.md`; actual Standard regimes belong to the recipe's `metrics/studies/STUDIES.md` bank.
+## Model Layers
 
-Background-only physics reading (philosophy, NOT canonical architecture): `docs/system/libs/mapgen/research/SPIKE-earth-physics-systems-modeling.md` and `SPIKE-synthesis-earth-physics-systems-swooper-engine.md`. Domain *philosophy* (not arch): `mapgen:{foundation,morphology,hydrology,ecology}` — label them "philosophy-only / outdated arch" whenever cited.
+### Foundation: Tectonic Prior
 
----
+Foundation should explain where continents, ocean basins, plate boundaries,
+uplift, rifts, volcanoes, and inherited tectonic signals come from.
 
-## How a behavioral change reaches the model (the strategy mechanism)
+Useful physical questions:
 
-Behavioral realism is tuned or swapped at the **operation / strategy** layer.
-An operation contract (`defineOp`) composes the semantic strategy definitions
-implemented by that operation; every strategy satisfies the same operation
-input/output contract. A sole strategy is inferred as the default, while a
-multi-strategy operation names its default explicitly. The runtime envelope is
-`{ strategy: "<id>", config: {...} }` (a TypeBox discriminated union). You
-change behavior three ways, in increasing depth:
+- Does the model distinguish convergent, divergent, transform, and quiet
+  boundaries?
+- Does crust type influence subduction polarity or margin character?
+- Does plate motion create coherent provenance that downstream terrain can
+  consume?
+- Are continent scale and fragmentation consequences of the forcing model, or
+  post-hoc morphology tuning?
 
-1. **Re-tune** — keep the strategy, change `config` values in the map config or stage `compile()`. Cheapest; most behavioral asks start here.
-2. **Swap strategy** — select a different existing key (e.g. precipitation `baseline` instead of `vector`; atmospheric circulation `latitude` instead of `geostrophic-proxy`). Selection happens through one of the two authoring paths below.
-3. **Add a strategy** — author a new physical model as a semantic leaf under
-   `strategies/<id>/{config.ts,index.ts}`, leaving the incumbent intact. The
-   operation contract imports the leaf definition, `strategies/index.ts`
-   aggregates executable implementations, and `createOp` seals their identity
-   symmetry. The complete flow is in `assets/recipe-scaffolds.md`. This is the
-   preferred shape for a genuinely new physical model because it remains
-   reversible and A/B-testable.
+Typical approximations include planar/wrapped geometry, fitted plate motion,
+discrete eras, and proxy forcing rather than a coupled mantle/plate solver.
+Typical absent mechanisms include spherical geometry, explicit slab pull,
+ridge push, and self-consistent plate creation/destruction.
 
-**Where a strategy is selected** (verified in `packages/mapgen-core/src/authoring/operation/create.ts` runtime dispatch `runtimeStrategies[cfg.strategy].run(...)`):
-- **(a)** the operation envelope authored directly in an ordinary stage's step config; or
-- **(b)** a rare inline public stage `compile()` that meaningfully translates an intentionally different external surface into internal operation envelopes.
+Route continent topology and belt placement changes here. Do not use coastal
+or biome parameters to compensate for a faulty tectonic prior.
 
-The operation contract alone owns the inferred or explicit default materialized when an envelope is omitted. A step selects the canonical operation contract directly; it cannot replace that default. For a public stage with `compile()`, the config JSON does not carry the internal strategy envelope because `compile()` creates it. **Always confirm which control point governs the op you intend to change before editing** — editing config that `compile()` overwrites is a classic dead-edit.
+### Morphology: Terrain Response
 
-If a proposed variant does not satisfy the exact same input/output transition, it is not a strategy. Give the semantic transition its own operation. `hydrology/refine-precipitation`, for example, consumes an admitted precipitation vintage plus river evidence after hydrography rather than pretending to be a step-local default of `compute-precipitation`.
+Morphology should turn tectonic provenance into topography, coastlines,
+routing, erosion, deposition, islands, landforms, and shelf geometry.
 
----
+The central checks are:
 
-## FOUNDATION — mantle dynamics & plate tectonics
+- uplift and belt width follow admitted provenance;
+- erosion responds to slope, discharge, substrate/erodibility, and maturity;
+- deposition and smoothing do not erase causal relief;
+- sea level and land/water reconciliation stay coherent;
+- shelf geometry distinguishes margin regimes instead of using one distance
+  band everywhere;
+- downstream projection does not overwrite the authoritative surface.
 
-`src/domain/foundation/modules/*/ops/*` — 18 operations. The deep "why"
-beneath every landform. Reads nothing upstream; each semantic module owns the
-immutable products it publishes for Morphology.
+A stream-power-style incision model plus hillslope diffusion and routed
+deposition is a useful tile-scale abstraction. Fixed cycles, graph-based slope,
+and global sea level are approximations. Glacial erosion, isostatic rebound,
+aeolian transport, flexure, and karst may be absent; confirm before promising
+them.
 
-The physical chain: a **mesh** (flat/periodic, not a sphere) → **mantle potential** (`compute-mantle-potential`: Gaussian-plume up/down-welling sources, Poisson-disk placed) → **mantle forcing** (`compute-mantle-forcing`: gradient of the potential → a velocity field) → **crust** + **crust-evolution** (oceanic vs continental lithosphere, aging) → **plate graph** (`compute-plate-graph`) → **plate motion** (`compute-plate-motion`: a rigid-body solver fitting per-plate translation + 2-D rotation `plateOmega` by least-squares to the mantle velocity field) → **tectonic segments** (`compute-tectonic-segments`: boundary regime per segment `0=none, 1=convergent, 2=divergent, 3=transform` from relative normal/tangential velocities, with subduction `polarity -1/+1/0` — oceanic subducts under continental) → **segment/hotspot events** → an **era loop** (`compute-era-plate-membership`, `compute-era-tectonic-fields`) advancing membership over time → **tracer advection** (`compute-tracer-advection`, Lagrangian) → **tectonic provenance** (`compute-tectonic-provenance`: per-tile inherited tectonic history — the bridge into morphology's belt drivers).
+### Hydrology And Climate
 
-- **MODELED:** Gaussian-plume mantle convection sources; rigid-body plate kinematics (translation + angular velocity); boundary classification (convergent/divergent/transform) with subduction polarity by crust type; an era loop with provenance inheritance via Lagrangian tracers; the **passive vs active margin** distinction (a continental edge facing a divergent/quiet boundary vs a convergent/subducting one — the load-bearing input to shelf width and coastline character downstream).
-- **APPROXIMATED:** Plate motion is fit to a static mantle field, not a self-consistent force balance; "events" stand in for discrete tectonic episodes; the mesh is flat/periodic, so polar convergence of meridians and true great-circle distances are absent.
-- **ABSENT:** Viscous mantle–plate coupling; slab-pull / ridge-push as *separate* mechanisms; true spherical geometry; self-consistent plate creation/destruction (plates do not actually nucleate at ridges or vanish at trenches).
+Hydrology is a coupled chain, not an isolated river-density knob:
 
-**Behavioral levers:** mantle source placement/strength → number, size, and arrangement of continents and the location of orogenic belts. Provenance → where morphology can grow mountains/rifts/volcanoes. A "more Pangaea-like" or "more fragmented" world is a foundation-mantle ask, not a morphology ask. Foundation ops are **single-strategy with semantic identities** today — a new tectonic model is an *add-a-strategy* on the relevant op (e.g. an alternative mantle-potential or plate-motion strategy), or new config on the existing one.
+```text
+radiative forcing
+  -> temperature and pressure
+  -> atmospheric and ocean circulation
+  -> evaporation and moisture transport
+  -> precipitation and orographic response
+  -> cryosphere/albedo and water budget
+  -> drainage, discharge, lakes, and river hierarchy
+  -> climate refinement and diagnostics
+```
 
----
+Investigate the whole causal path before changing a downstream threshold.
 
-## MORPHOLOGY — landforms & erosion
+Key physical checks:
 
-`src/domain/morphology/modules/*/ops/*` — 17 operations. Turns tectonic
-provenance into terrain. Producing modules own the immutable terrain vintages
-and products consumed by downstream Hydrology and recipe projection.
+- latitude and elevation affect energy/temperature coherently;
+- pressure and circulation create meaningful transport directions;
+- ocean currents and continentality influence coastal/interior regimes;
+- moisture is transported, precipitated, and, where modeled, depleted;
+- windward enhancement and leeward drying follow wind/topography rather than
+  grid direction alone;
+- drainage is depression-aware and discharge is conserved;
+- lake/closed-basin behavior and river hierarchy use terminal routing evidence;
+- aridity and freeze indices are owned once and consumed downstream.
 
-The physical chain: **belt drivers** (`compute-belt-drivers`: maps `FoundationTectonicProvenanceTiles` → mountain / rift / volcano *belt seeds* with uplift intensity, width, decay sigma — config-light, "derived fields are physics outputs") → continental-margin sculpting, **base topography**, substrate, sea-level solve, and coherent land/water reconciliation → pre-island `baseCoastline` adjacency/distance evidence → flow routing → **geomorphic cycle** (`compute-geomorphic-cycle`: the erosion engine, below), which publishes the eroded-topography vintage → complete island formation (`compute-island-topography`, returning coherent topography plus exact formation classes) alongside discrete landform planners (`plan-foothills`, `plan-ridges`, `plan-rough-lands`, `plan-volcanoes`) → final post-island **shelf mask** (`compute-shelf-mask`) and `shelf` artifact.
+Common approximations include a circulation scaffold, geostrophic proxies,
+fixed albedo passes, simplified potential evapotranspiration, and graph-based
+orographic sampling. Candidate gaps to check in live source include seasonal
+ITCZ/monsoons, deep-ocean circulation, moisture drawdown, glacial hydrology,
+and fully coupled atmosphere-ocean feedback.
 
-**The erosion model (`compute-geomorphic-cycle/rules/index.ts`) is a Stream Power Incision Model.** Verified in source: per land tile, `streamPower = clamp(discharge · slope, 0, 1)`; `erosion = erosionRate · erodibility[i] · streamPower`; plus Laplacian **hillslope diffusion** (`diffusionDelta = (neighborAvg − elev) · diffusionRate`) and **sediment deposition** routed downslope (`settles = baseSediment · depositionRate · (1 − streamPower)`). All three rates carry an `ageScale` for **young / mature / old** world-age scaling. This is the SPIM family `E = K·A^m·S^n` in discharge·slope form (the discharge term is the drainage-area proxy `A^m`; slope is `S^n` with the exponents folded into the clamped product).
+### Ecology And Pedology
 
-- **MODELED:** Stream-power fluvial incision; hillslope diffusion; sediment transport/deposition with conservation; world-age maturity; tectonic-belt-driven uplift; shelf-mask-based continental-shelf geometry; coastline metrics (distance-to-coast, coastal land/water).
-- **APPROXIMATED:** Erosion runs a fixed number of cycles (not to steady state); slope and discharge are hex-graph proxies; sea level is a global scalar threshold; the SPIM exponents are baked into the clamped `discharge·slope` product rather than exposed as free `m`/`n`.
-- **ABSENT:** Glacial (U-valley) erosion; isostatic rebound; lithospheric flexure; aeolian (wind) erosion; chemical/karst weathering.
+Ecology should consume admitted climate, hydrology, relief, and substrate
+evidence rather than recomputing them privately.
 
-**Behavioral levers:** `erodibilityK`, erosion/diffusion/deposition rates, and world-age `ageScale` tune how sharp vs worn the terrain reads. Shelf-mask + sea-level config govern how broad and shallow the **continental shelves** are — the physical substrate for the coast-projection work (see worked example below and `references/worked-examples.md`). Coast character that should differ between **passive and active margins** is a foundation-provenance → morphology-shelf chain, not a single coast op.
+Check:
 
----
+- biome classification follows temperature/moisture/aridity regimes;
+- soils reflect relief, sediment, moisture, substrate, and any admitted
+  tectonic history;
+- features are planned from habitat evidence before materialization;
+- occupancy and mutual-exclusion policies are explicit;
+- transitions are soft enough to avoid blocky categorical bands;
+- Civ7 feature/terrain legality is applied at the policy/projection boundary.
 
-## HYDROLOGY — the coupled climate–water–ocean system (deepest domain)
+Coarse climate envelopes and score-based habitats are appropriate tile-scale
+models. Altitudinal zonation, succession, nutrient cycles, fire, and lithologic
+soil inheritance may be absent; treat those as model additions, not tuning.
 
-`src/domain/hydrology/modules/*/ops/*` — 19 ops. The longest physical chain and the most multi-strategy ops — most behavioral climate/river asks land here. The recipe runs it as **hydrology-climate-baseline → hydrology-hydrography → hydrology-climate-refine** (climate is computed, drainage/rivers solved, then climate refined). Publishes routing/refinement vintage `artifact:hydrology.baselineClimateField`, final consumer vintage `artifact:hydrology.climateField`, and `artifact:hydrology.{climateIndices,cryosphere,hydrography,lakePlan,riverNetwork}`. Seasonal amplitudes and climate-diagnostic fields remain invocation-local visualization evidence; river benchmark summaries go to the metrics sink.
+### Placement And Resources
 
-The physical chain (op by op):
+Placement is where physical plausibility, Civ7 legality, fairness, and gameplay
+intent meet.
 
-1. **Radiative forcing** (`compute-radiative-forcing`): insolation as a power-law of `|latitude|` — the energy input.
-2. **Thermal state** (`compute-thermal-state`): `surfaceTemperatureC ≈ base + insolation·scale + elevation·lapse − land-cooling` — outputs the `surfaceTemperatureC` field every downstream temperature consumer reads.
-3. **Ocean geometry** (`compute-ocean-geometry`) → **ocean surface currents** (`compute-ocean-surface-currents`): wind stress + hemisphere-aware **Ekman transport** + basin **gyres** + coastal boundary currents + a divergence-free **Helmholtz projection**. Strategies: **`wind-gyre-projection`** (earthlike default) and **`latitude`** (legacy zonal model).
-4. **Ocean thermal state** (`compute-ocean-thermal-state`): SST advected/diffused along currents; sea-ice.
-5. **Evaporation sources** (`compute-evaporation-sources`): where moisture enters the atmosphere.
-6. **Atmospheric circulation** (`compute-atmospheric-circulation`): `computeWindsEarthlike` builds a **3-cell Hadley / Ferrel / Polar** zonal scaffold + a **geostrophic-proxy** wind from `∇pressure` (verified: `wind = (zonalBase, meridionalBase) + geo·geostrophicStrength`) + optional seasonal modulation. Strategies: **`geostrophic-proxy`** (default) and **`latitude`** (legacy latitude-band model).
-7. **Moisture transport** (`transport-moisture`): advects humidity along the wind field. Strategies: **`vector-advection`** (default; follows the full U/V wind vector) and **`cardinal`** (legacy cardinal-only walk).
-8. **Baseline precipitation** (`compute-precipitation`): `humidity^exp · scale + coastal gradient − orographic rain shadow` (rain shadow via a **cardinal upwind-barrier walk**). Strategies: **`vector`** (default; consumes full wind U/V for uplift + convergence proxies) and **`baseline`**.
-9. **Cryosphere** (`compute-cryosphere-state`): outputs `freezeIndex` (ramped between `freezeIndexStartC`/`freezeIndexFullC`) and permafrost thresholds from `surfaceTemperatureC`.
-10. **Albedo feedback** (`apply-albedo-feedback`): iterative ice/temperature feedback (fixed-iteration, not to convergence).
-11. **Hydrography** (`compute-drainage-routing` → `accumulate-discharge` → `project-river-network` → `plan-lakes` → `classify-river-network`): drainage is solved on the terrain, discharge is accumulated, accepted lakes are planned, and the causal river hierarchy is classified against that terminal evidence. **`riverClass` (u8: 0=none, 1=minor, ≥2=major/projectable)** is the gate consumed later by the recipe-owned Civ projection selector.
-12. **Precipitation refinement, land water budget, and observation** (`refine-precipitation` → `compute-land-water-budget` → `compute-climate-diagnostics`): the post-hydrography refinement operation adds river-corridor and enclosed-basin wetness to the admitted baseline vintage. The remaining pass combines rainfall, humidity, and hex-local river hierarchy into `effectiveMoisture`, derives the simplified **PET** proxy and `aridityIndex` = PET/(PET + precip + 1)-style ratio, then produces invocation-local rain-shadow, continentality, and convergence evidence for optional visualization.
+Use a staged reasoning shape:
 
-**The climate index outputs you reason against** (where each lives — do not re-derive locally): `surfaceTemperatureC` ← thermal-state; `effectiveMoisture` + `pet` + `aridityIndex` ← land-water-budget; `freezeIndex` ← cryosphere; `rainShadowIndex` / `continentalityIndex` / `convergenceIndex` ← the climate module's `compute-climate-diagnostics` observation operation. Ecology `classify-biomes` consumes `effectiveMoisture` + `aridityIndex` as advisory indices and does not recompute them.
+```text
+admitted physical habitat and map policy
+  -> demand/intent
+  -> candidate selection
+  -> fairness and spacing reconciliation
+  -> engine materialization
+  -> exact live readback
+```
 
-- **MODELED:** Latitudinal insolation; lapse-rate + land-cooling temperature; 3-cell circulation scaffold; geostrophic wind from pressure gradient; wind-driven ocean gyres with Ekman transport and a divergence-free current field; SST advection + sea-ice; vector moisture advection; humidity-driven precipitation with a coastal gradient; orographic rain shadow; cryosphere/permafrost; PET-based aridity; river-corridor/low-basin precipitation refinement (`refine-precipitation`).
-- **APPROXIMATED:** Winds are a geostrophic *proxy* (no momentum equation); rain shadow is a **cardinal upwind barrier walk** (blocky, direction-quantized); albedo feedback is a **fixed-iteration** pass, not iterated to convergence; PET is a temperature-driven proxy, not Penman-Monteith; "seasonality" is a modulation, not a true seasonal cycle.
-- **ABSENT:** Navier–Stokes atmosphere/ocean; ITCZ seasonal migration; monsoon mechanism; thermohaline / deep-overturning circulation; ENSO; greenhouse forcing beyond a fixed bias; **moisture depletion en route** (humidity is advected but not drawn down by the precipitation it produces); SST→atmosphere back-coupling.
+Do not let materialization become the planning authority. Preserve explainable
+evidence for why a start, wonder, discovery, or resource was selected or
+rejected.
 
-**Behavioral levers:** this is where most river/climate asks resolve. "Rivers too sparse/dense" → discharge accumulation + `riverClass` thresholds in hydrography + `refine-precipitation` river-corridor bonuses. "Rain shadows blocky/wrong direction" → the cardinal upwind-barrier walk in `compute-precipitation` (this is the flagged orographic gap, below — the right shape is *add a vector-orographic strategy*, not re-tune the cardinal one). "Deserts in the wrong place" → atmospheric-circulation + moisture-transport strategy choice + aridity. "Continental interiors not dry/cold enough" → transport, precipitation, and thermal-state land cooling; the visualization-only continentality index is evidence, not an authoring lever.
+## Regime Families, Not One Earth Number
 
----
+Literature values can orient a study, but they are research inputs, not product
+policy. Translate them into named tile-scale regimes and cite the source in the
+study sheet. Useful families include:
 
-## ECOLOGY — biomes, pedology, features
+- active versus passive continental margins;
+- perennial versus intermittent drainage;
+- open versus endorheic basins;
+- maritime versus continental climates;
+- tropical, temperate, polar, and montane envelopes;
+- wetland, reef, forest, steppe, desert, and ice habitat regimes;
+- core versus frontier settlement regions.
 
-`src/domain/ecology/modules/*/ops/*` — 32 operations (the most granular
-domain). The pedology, biomes, features, and plot-effects modules own their
-contracts, replaceable strategies, and immutable products. Resource planning
-consumes admitted Ecology and Hydrology evidence directly; Ecology does not
-publish a parallel resource-basin artifact.
+Measure distributions, correlations, and contrasts. A global average can hide
+that every local regime is wrong.
 
-- **Biome classification** (`classify-biomes`): a **Whittaker / Holdridge** envelope — a temperature zone {polar, cold, temperate, tropical} × moisture zone {arid, semiArid, subhumid, humid, perhumid} lookup, with an **aridity-index downshift** (`aridityShiftForIndex`) and a soft tropical/temperate transition band. It consumes hydrology's `effectiveMoisture` + `aridityIndex` as advisory inputs (does not recompute them).
-- **Pedology** (`ecology/pedology/classify` → `ecology/pedology/aggregate`; dirs: `pedology-classify/`, `pedology-aggregate/`): soil fertility from rainfall/humidity/relief/sediment-depth/bedrock-age. **Strategies: `balanced` (default), `coastal-shelf`, `orogeny-boosted`** — one multi-strategy point in ecology. `orogeny-boosted` weights tectonic relief into fertility; `coastal-shelf` weights shelf proximity. The resulting `artifact:ecology.soils` is consumed directly by later product planning.
-- **Feature planners** score candidates against climate/hydrology fields: vegetation (forest, rainforest, taiga, savanna-woodland, sagebrush-steppe), wetlands (marsh, mangrove, oasis, tundra-bog, watering-hole), reefs (reef, atoll, cold-reef, lotus), ice (`ecology/features/plan-ice`, sole **`score-threshold`** strategy), and floodplains. `features-apply` materializes intents.
+## Choosing The Implementation Shape
 
-- **MODELED:** Whittaker/Holdridge temperature × moisture biome envelope; aridity downshift; soft biome transition bands; multi-factor soil fertility; climate-scored vegetation/wetland/reef/ice/floodplain feature placement.
-- **APPROXIMATED:** Biomes are a coarse 4×5 lookup (not a continuous climate space); features are scored heuristics, not ecological succession; pedology proxies bedrock age rather than tracking lithology through tectonic history.
-- **ABSENT:** Altitudinal / montane biome zonation (no temperature-by-elevation biome banding); permafrost → hydrology feedback; soil carbon/nutrient cycles; ecological succession; fire–climate coupling; crust-type lithological inheritance in pedology (the `orogeny-boosted` strategy is the *closest existing* hook).
+| Need | Shape |
+| --- | --- |
+| Same mechanism, wrong strength | Re-tune admitted config |
+| Existing same-transition model should be selectable | Choose existing strategy |
+| New model with identical input/output transition | Add semantic strategy and A/B study |
+| New evidence vintage or later causal transition | Add operation and artifact/step wiring |
+| Host projection is overwriting correct truth | Repair projection/realization, not physics |
+| Browser colors or geometry are wrong while values match | Repair web projection/UI |
 
-**Behavioral levers:** biome temperature/moisture thresholds + aridity shift in `classify-biomes` config; pedology strategy choice (`orogeny-boosted` / `coastal-shelf`) for "soils feel wrong near mountains/coasts"; feature-planner scoring for "too much/little forest, reefs in the wrong water". A "montane forests above a treeline" ask is **ABSENT** — it needs new biome zonation, not a re-tune (state this in the stylization ledger rather than forcing it into the 4×5 lookup).
+Before adding a strategy, confirm the candidate truly satisfies the same
+operation contract. Before adding an operation, confirm its result is causal
+product truth rather than diagnostic evidence.
 
----
+## Behavioral Review Checklist
 
-## Earth anchors & the eight flagged realism gaps
-
-**Earth anchors** (translate to *regime families*, never single global scalars): HydroRIVERS (8.5M reaches / 35.9M km), GRWL (2.1M km of wide rivers), HydroLAKES (~1.8% of land is lake), non-perennial river share **51–60%**, endorheic (closed) basins ~**1/5** of land; **passive vs active continental-margin** shelf-width contrast (passive margins → broad shallow shelves; active/subducting margins → narrow steep ones). Encode admitted expectations as `MetricTarget`s, bind them in named Standard `*.study.ts` modules, document the protocol beside the module, and run `nx run mod-swooper-maps:metrics:report` (see `references/facet-verification.md`).
-
-**The eight realism gaps Facet 1 must know** (evidence-backed; each is a candidate behavioral workstream and a known ABSENT/APPROXIMATED bucket):
-
-1. **Orographic uplift enhancement absent** — only cardinal rain-shadow *subtraction* exists; windward uplift precipitation is not added, and the rain shadow is direction-quantized. (`docs/projects/mapgen-orographic-precipitation/spike-feasibility.md`.) Fix shape: add a vector-orographic strategy to `compute-precipitation`.
-2. **Moisture not depleted by precipitation en route** — humidity advects without drawdown, so leeward drying is understated.
-3. **No thermohaline / deep-water ocean circulation** — currents are wind-driven surface only.
-4. **No glacial erosion** — morphology has no U-valley / cirque carving.
-5. **No explicit ITCZ migration or monsoon mechanism** — tropical rainfall is static, not seasonally migrating.
-6. **Albedo feedback is a fixed-iteration pass** — ice-albedo does not iterate to a self-consistent equilibrium.
-7. **Pedology ignores crust / tectonic lithology** — soil fertility proxies bedrock age, not actual crust type from foundation provenance.
-8. **No montane / altitudinal biome zonation** — biomes are temperature × moisture only; elevation does not band vegetation.
-
-For any of these, the move is the same: confirm the bucket from live source, decide re-tune vs swap vs add-a-strategy, and **pre-declare the regime-family expectations** before touching code.
-
----
-
-## Coupling to the other arm (do not reason in isolation)
-
-A behavioral change almost always has a structural locus the technical arm must find — the arms are coupled (FRAMING hard core 4). Two worked illustrations (full detail in `references/worked-examples.md`):
-
-- **Coasts-by-erosion / coast projection** (behavioral) chose a margin-aware shelf model grounded in **passive-vs-active-margin physics** — but the load-bearing fix was *structural*: adapter terrain maintenance in `map-morphology`/`map-rivers`/`placement` was silently demoting coast→ocean. Each boundary now re-derives the same Civ7 projection from authoritative `artifact:morphology.{topography,shelf}` truth and the shared map-policy function instead of persisting a mutable projection artifact. Good physics, defeated downstream until the structural locus was found.
-- **Orographic precipitation** is simultaneously a behavioral deficiency (blocky, directionally wrong rain shadows) and a structural change (it touches the `compute-precipitation` contract + strategies). You cannot reason about the fix from physics alone.
-
-Always: ground the model in a real process → locate the op (and whether its canonical default, authored envelope, or rare inline stage compiler governs it) → decide re-tune / swap / add-strategy / separate-operation → pre-declare regime-family expectations → hand the structural shape to the technical arm → prove behaviorally **and** in-game (`references/facet-verification.md`; in-game is the closure test).
-
----
-
-## Quick reference — selected physics operation strategies (verified keys)
-
-> Structural detail (selection control points, runtime dispatch) lives in `references/pipeline-map.md`; this table adds the physics gloss.
-
-| Op | Strategy keys (live) | What the non-default model does |
-|---|---|---|
-| `hydrology/compute-atmospheric-circulation` | `geostrophic-proxy` (default), `latitude` | `latitude` = legacy latitude-band winds (no ∇pressure geostrophic term) |
-| `hydrology/compute-ocean-surface-currents` | `wind-gyre-projection` (default), `latitude` | `latitude` = legacy zonal current model |
-| `hydrology/transport-moisture` | `vector-advection` (default), `cardinal` | `cardinal` = legacy cardinal-only humidity walk |
-| `hydrology/compute-precipitation` | `vector` (default), `baseline` | `baseline` = scalar-wind baseline rainfall model |
-| `hydrology/refine-precipitation` | `riparian-basin-wetness` (sole inferred default) | separate post-hydrography transition adding river-corridor and enclosed-basin wetness |
-| `ecology/pedology/classify` | `balanced` (default), `coastal-shelf`, `orogeny-boosted` | weight shelf proximity / tectonic relief into soil fertility |
-| `ecology/features/plan-reefs` | `habitat` (default), `diagonal-stride` | `diagonal-stride` = deterministic geometric fallback placement |
-
-All **foundation** ops and **most morphology** ops have one inferred semantic strategy: a new physical model there is an *add-a-strategy* (`assets/recipe-scaffolds.md`) or new config, never a rename to `default`. Every key above is the runtime dispatch key and matches its strategy module identity. `refine-precipitation` appears because it is the semantic operation split that replaced the former cross-contract `refine` variant.
+- The physical mechanism and simplification are named.
+- Modeled/approximated/absent claims were re-derived from current source.
+- The change sits at the earliest truthful causal locus.
+- Expectations and collateral guards were declared before tuning.
+- Multiple stable seeds and relevant map-size/regime cohorts were measured.
+- Civ7 legality and player value were checked independently of realism.
+- Diagnostic, generated, installed, and live claims carry separate proof.
+- Any unresolved projection or correlation link remains visible.

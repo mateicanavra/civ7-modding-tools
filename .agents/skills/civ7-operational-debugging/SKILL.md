@@ -1,108 +1,114 @@
 ---
 name: civ7-operational-debugging
 description: |
-  Use in the Civ7 Modding Tools repo when debugging operational behavior across official resources, generated mod output, deployed Mods folders, Civ7 logs, FireTuner, build/deploy scripts, or in-game verification. Trigger phrases include "check the deployed mod", "inspect Civ7 logs", "did deploy copy this", "is this in-game verified", "what did the game load", "verify build deploy logs", "debug mod runtime", "FireTuner", "restart from tuner", "autoplay", "compare resources to deployed output", and "what proof do we have from logs".
+  Use in the Civ7 Modding Tools repo for "check the deployed mod", "inspect Civ7 logs", "did Civ7 load this", "is the Tuner healthy", "capture the Civ7 window", "debug a live run", "why did Run in Game fail", "compare generated and deployed files", "what proof do we have", or "verify this in game". Routes evidence through resources/providers, public control and play capabilities, MapGen-runs, projections, and qualified apps.
 ---
 
 # Civ7 Operational Debugging
 
 ## Purpose
 
-Use this skill when the question is operational: what was built, what was
-deployed, what Civ7 loaded, what the logs say, and what can honestly be proven
-from those observations.
+Answer operational questions without confusing evidence with authority. The
+durable live chain is:
 
-This skill complements `civ7-architecture-authority` and
-`civ7-product-authority`. Architecture/product skills decide ownership and
-promises; this skill verifies runtime evidence without turning logs or generated
-files into source authority.
+```text
+qualified app
+  -> selects/acquires Tuner and window-capture providers
+  -> binds provider-neutral resource values to foundational control
+  -> optionally binds actor-facing play and MapGen-runs
+  -> mounts CLI/API/web projections
+  -> observes and disposes the process scope
+```
 
-## When To Use
+Each owner reports only its facts:
 
-- Inspecting `mods/<mod-slug>/mod/` output or the OS-level Civ7 `Mods/`
-  directory.
-- Checking whether `nx run <mod-project>:build`,
-  `nx run <mod-project>:deploy`, or root `bun run deploy:mods` actually
-  produced the expected files.
-- Reading Civ7 `Logs/` files after launching the game or loading a map/mod.
-- Using the direct Civ7 tuner socket to inspect a running Civ7 session, switch
-  scripting states, restart a map, run autoplay, or inspect runtime JavaScript
-  globals.
-- Comparing official resources in `.civ7/outputs/resources` to repo modeling or
-  generated mod behavior.
-- Closing a claim that depends on build, deploy, log, or in-game evidence.
+- Tuner resource/provider: connection epoch, health, raw command, interruption,
+  release, and foreign failures.
+- Window-capture resource/provider: selected-window/image evidence and capture
+  failures.
+- Foundational control: Civ7 app/game/map/UI interpretation and closed native
+  operations correlated to the resource epoch.
+- Actor-facing play: gameplay checks, requests, reconciliation, no-repeat
+  policy, and next-action meaning.
+- MapGen-runs: Save & Deploy and Run in Game operation state, correlation,
+  reconciliation, and semantic outcome.
+- Qualified app adapters: exact filesystem/process effects and receipts.
+- Projections: caller-shaped presentation of those public capabilities.
+
+## Use This For
+
+- Generated artifact, install, loader, log, capture, and live-behavior checks.
+- Tuner connectivity or resource-epoch diagnosis.
+- Window capture and Civ7 appshot diagnosis.
+- Save & Deploy or Run in Game failures across operation and adapter receipts.
+- Determining the strongest honest proof available for a claim.
 
 ## Non-Goals
 
-- Do not use this as a task log, design record, project plan, or issue ledger.
-- Do not edit `dist/`, `mod/`, deployed Mods files, official resource outputs,
-  or logs by hand.
-- Do not use logs or deployed files to override source, architecture authority,
-  product authority, ADRs, accepted project baselines, or OpenSpec records.
-- Do not claim in-game correctness from build success, file presence, or a quiet
-  log alone.
-- Do not store task-specific debugging notes in this skill.
+- Do not make product or ownership decisions from logs.
+- Do not edit generated output, deployed Mods trees, logs, or official-resource
+  output by hand.
+- Do not acquire Tuner or window capture inside a service, command, or test
+  helper that should consume an app-bound capability.
+- Do not interpret raw execution as gameplay success.
+- Do not duplicate installed oRPC or Effect mechanics here; use owning source
+  and the applicable global vendor skills.
 
 ## Default Workflow
 
-1. **Ground repo state.** Check branch, stack/worktree, dirty files, and the
-   closest `AGENTS.md` for the source files involved.
-2. **Name the operational question.** State whether you are proving build,
-   generated output, deployment, log behavior, resource evidence, or in-game
-   behavior.
-3. **Locate the surfaces.** Use `references/operational-paths.md` for source
-   mod paths, generated output, deployed mod locations, logs, and official
-   resources.
-4. **Run the narrow gate.** Use the smallest command or inspection that
-   exercises the named surface: package build, package deploy, root deploy,
-   deployed file inspection, log scan, direct tuner command, or in-game run.
-5. **Compare source to output.** If inspecting generated or deployed files,
-   connect every claim back to source inputs and scripts. Generated output is
-   evidence, not the edit surface.
-6. **Read logs after the action.** Use timestamps, file mtimes, or a before/after
-   snapshot so stale log lines are not mistaken for the latest run.
-7. **Classify proof.** Use `references/proof-boundaries.md` to label the result
-   as build proof, deploy proof, log proof, in-game proof, resource evidence, or
-   unresolved.
-8. **Escalate to authority only when needed.** If the evidence implies a product
-   or architecture change, switch to the corresponding authority skill before
-   editing source or docs.
+1. **Name the claim.** Choose one: contract, deterministic execution,
+   generated artifact, installation, loader, log, capture, live observation, or
+   actor outcome.
+2. **Name the owner.** Map the fact to resource/provider, control, play,
+   MapGen-runs, adapter, projection, or app.
+3. **Discover current surfaces.** Use Nx project descriptions and CLI `--help`;
+   never begin from a remembered target or script.
+4. **Bound the evidence window.** Record input identity, resource epoch where
+   available, file digest/mtime, log offset or timestamp, operation/request id,
+   and process/game identity.
+5. **Run the narrowest owner gate.** Prefer a read-only check. Mutate only when
+   the requested proof requires it and the selected public capability admits it.
+6. **Reconcile across owners.** Keep accepted intent, physical effect receipt,
+   dispatch, observation, and final outcome separate. Preserve ambiguity rather
+   than retrying an uncertain mutation.
+7. **Classify proof.** Apply `references/proof-boundaries.md` and state what the
+   evidence does not prove.
+8. **Recover at the owner.** Fix source/configuration at the semantic or effect
+   owner, regenerate/redeploy through Nx, and repeat with a fresh evidence
+   window.
+
+## Discovery First
+
+The following discovery commands are current and non-mutating:
+
+```bash
+bunx nx show projects
+bunx nx show project civ7-cli --json
+bun apps/cli/bin/run.js game --help
+bun apps/cli/bin/run.js game play --help
+```
+
+For Swooper live work, also inspect `swooper-physics` and
+`swooper-physics-mod`. Use the target names returned by Nx. Use exact CLI leaf
+syntax only after its current `--help` confirms it.
 
 ## Reference Map
 
-| Reference | Path | Open When |
-|---|---|---|
-| Operational paths | `references/operational-paths.md` | Finding repo output, deployed Mods, logs, official resources, or scripts |
-| Proof boundaries | `references/proof-boundaries.md` | Closing claims from build, deploy, log, resource, or in-game evidence |
-| Debugging workflow | `references/debugging-workflow.md` | Running an end-to-end operational pass without overclaiming |
-| Tuner runtime | `references/firetuner-runtime.md` | Connecting through direct Civ7 control, choosing scripting states, restart/autoplay loops |
+| Reference | Open when |
+| --- | --- |
+| `references/operational-paths.md` | Locating owner roots, generated/deployed evidence, logs, and resource/provider source |
+| `references/debugging-workflow.md` | Running build/deploy, live-resource, MapGen-run, or projection diagnosis |
+| `references/firetuner-runtime.md` | Diagnosing Tuner acquisition, scripting states, raw evidence, or native primitive discovery |
+| `references/proof-boundaries.md` | Labeling claims and separating receipts from outcomes |
 
-## Core Invariants
+## Invariants
 
 <invariants>
-<invariant name="operation-before-theory">Name the exact runtime surface being inspected before drawing conclusions from files or logs.</invariant>
-<invariant name="generated-output-is-evidence">`dist/`, `mod/`, deployed Mods folders, logs, and resource outputs are evidence surfaces. They are not hand-editable source authority.</invariant>
-<invariant name="deploy-proves-copy-not-load">A successful deploy proves files were copied into the game data Mods directory. It does not prove Civ7 loaded or executed them.</invariant>
-<invariant name="logs-prove-observation-not-absence">A log line proves an observed event. A quiet log only proves no matching line was found in the searched window.</invariant>
-<invariant name="in-game-proof-requires-game-action">In-game proof requires launching Civ7 and exercising the relevant mod/map behavior, then tying the observation to logs or visible behavior from that run.</invariant>
-<invariant name="tuner-state-matters">Direct tuner commands run against the selected Civ7 scripting state. Rediscover states and treat `App UI` and `Tuner` as separate API surfaces; `Network.restartGame()` and current autoplay control belong to `App UI` unless fresh evidence says otherwise.</invariant>
-<invariant name="resource-evidence-stays-separate">Official resources describe game data facts. Repo source decides how those facts become SDK, adapter, MapGen, CLI, or mod behavior.</invariant>
-<invariant name="proof-labels-are-mandatory">Close operational debugging by labeling each claim with the strongest evidence actually collected: built, generated, deployed, logged, in-game observed, or unresolved.</invariant>
+<invariant name="one-fact-one-owner">Raw resource facts, Civ7 semantic facts, gameplay outcomes, run outcomes, physical receipts, and projection results remain distinct.</invariant>
+<invariant name="app-composes-live-capabilities">Qualified apps select providers, acquire resources, bind public clients, mount projections, and dispose the scope. Ordinary commands and services do not.</invariant>
+<invariant name="generated-output-is-evidence">Generated and deployed files are evidence surfaces, never hand-edited source authority.</invariant>
+<invariant name="deploy-does-not-prove-load">Installation proves the selected files were replaced. Loader acceptance and live behavior require separate evidence.</invariant>
+<invariant name="correlation-is-required">A live claim records the resource epoch or other owner-issued identity, operation/request identity, exact inputs, and bounded observation window available for that capability.</invariant>
+<invariant name="uncertain-mutations-are-not-repeated">An ambiguous dispatch is reconciled through fresh owner facts before any retry.</invariant>
+<invariant name="commands-are-discovered">Nx and native CLI discovery are command authority; this skill does not preserve obsolete invocation syntax.</invariant>
 </invariants>
-
-## Anti-Patterns To Avoid
-
-- Editing generated or deployed files to test a source hypothesis.
-- Treating `bun run build` as proof that Civ7 can load the mod.
-- Treating a copied mod directory as proof that the game selected the mod.
-- Reading old log lines without bounding the run window.
-- Treating official resources as proof of this repo's intended product contract.
-- Turning a one-off incident into durable skill guidance.
-
-## Quick Start
-
-1. Open `references/operational-paths.md`.
-2. State the proof surface: build, generated output, deploy, logs, resources, or
-   in-game.
-3. Run the matching gate from `references/debugging-workflow.md`.
-4. Close with evidence-scoped claims from `references/proof-boundaries.md`.

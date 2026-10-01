@@ -1,101 +1,104 @@
 ---
 name: civ7-architecture-authority
 description: |
-  Use in the Civ7 Modding Tools repo when deciding architecture authority, package or module ownership, MapGen stage/step/domain boundaries, generated artifact boundaries, adapter/core/mod separation, docs authority routing, or "where should this logic live". Trigger phrases include "what owns this code", "where should this logic live", "is this MapGen core or mod code", "can adapter import this", "is this generated output", "does this belong in docs/system or docs/projects", "fix architecture drift", and "before refactoring this boundary". Pair with civ7-product-authority when product/domain behavior or consumer-facing contracts are changing.
+  Use in the Civ7 Modding Tools repo when deciding capability placement or ownership across packages, resources, providers, services, plugins, apps, and qualified app adapters. Trigger phrases include "what owns this code", "where should this capability live", "is this a resource or service", "who acquires this provider", "is this control or play", "where does Swooper realization live", "who owns MapGen run state", "delete this facade", "which Habitat law applies", and "before moving this boundary". Pair with civ7-product-authority when actor outcomes, public behavior, or consumer contracts are changing.
 ---
 
 # Civ7 Architecture Authority
 
 ## Purpose
 
-Use this skill before and during structural changes in Civ7 Modding Tools. It keeps agents aligned to the repo's durable ownership model: controlling docs and accepted project baselines route authority, packages own distinct concerns, generated artifacts are outputs, official game resources are evidence, and current code is implementation evidence rather than target architecture.
+Use this durable local overlay to apply the sealed Civ7 capability-realization
+model during structural work. It routes placement to the accepted product,
+system, outcome, actor, topology, and destination authorities; it does not
+restate migration status or preserve a container because it exists today.
 
-For MapGen / Swooper Maps normalization work, the active baseline is
-`docs/projects/engine-refactor-v1/architecture-normalization-packet.md`. This
-skill frames implementation against that packet; it should not restate it as a
-second spec.
-
-This skill is not a task list and does not replace the active project plan. It is the architecture guardrail layer for code and docs changes.
+For the shared kinds selected by the sealed model, generic law comes from
+upstream Habitat. Civ7 service law and qualified product overlays remain
+repo-owned. Generic Effect and oRPC mechanics come from the global vendor
+skills and, for version-sensitive details, the exact installed source. This
+overlay adds only Civ7-specific ownership and composition constraints.
 
 ## When To Use
 
-- Moving code between packages, mods, apps, or domain folders.
-- Changing MapGen stages, steps, recipes, artifacts, domains, or config contracts.
-- Touching `@swooper/mapgen-core`, `@civ7/adapter`, `@civ7/sdk`, CLI/plugin packages, MapGen Studio, or generated mod output boundaries.
-- Reconciling stale docs, routers, or stage ids with live architecture.
-- Responding to guard, lint, typecheck, or test failures that appear to imply a structural change.
+- Selecting or changing a package, resource, provider, service, plugin, app, or
+  qualified app-adapter boundary.
+- Separating foundational live control from actor-facing play.
+- Changing Swooper definition, production realization, or Studio ephemeral
+  realization responsibilities.
+- Moving MapGen operation state, host effects, API projection, or process
+  composition.
+- Removing a facade, direct-control convenience path, mixed owner, or private
+  cross-boundary dependency.
+- Deciding whether a structural rule belongs upstream in Habitat, in a
+  Civ7-qualified overlay, or in generic vendor guidance.
 
 ## Non-Goals
 
-- Do not use this as a migration plan or project status log.
-- Do not use it to preserve current file topology when canonical docs or accepted decisions say otherwise.
-- Do not use it to justify behavior changes without product/domain authority.
-- Do not hand-edit generated artifacts to satisfy an architecture claim.
+- Do not use this skill as a project status ledger, migration backlog, or
+  substitute for the sealed model.
+- Do not infer target authority from current paths, imports, tests, or package
+  names.
+- Do not reproduce generic Habitat blueprints or generic Effect/oRPC teaching
+  locally.
+- Do not change product meaning without using `civ7-product-authority`.
+- Do not hand-edit generated output or treat proof artifacts as architecture.
 
 ## Default Workflow
 
-1. **Ground repo state.** Check branch, Graphite stack, dirty files, and relevant `AGENTS.md` routers.
-2. **Resolve authority.** Read `references/source-map.md` and the controlling docs or accepted project baseline for the affected owner.
-3. **Classify the concern.** Name whether each concern belongs to SDK, CLI, plugin library, config, Civ7 types, adapter, MapGen core, MapGen viz, app runtime, Swooper Maps mod, generated output, docs, OpenSpec change management, or official resource evidence.
-4. **Name forbidden owners.** State where the concern must not live.
-5. **Design before editing.** For structural work, write the intended owner/import/export/file shape and verification gates before code.
-6. **Implement the bounded slice.** Move by authority, not by current containers.
-7. **Use enforcement honestly.** Tool failures are evidence. They do not authorize shims, broad barrels, hand-edits to generated output, or boundary collapse.
-8. **Disposition review findings.** Accepted material findings block dependent implementation until repaired or rejected with source evidence.
-9. **Close with evidence labels.** State what is implemented, locally verified, in-game verified, documented, deferred, or excluded.
+1. **Resolve the authority lane.** Read `references/source-map.md` and the
+   relevant sealed model sections.
+2. **Name the capability and fact writer.** Start from the actor outcome and
+   owner-local facts, not the current container.
+3. **Classify the owner.** Use `references/ownership-boundaries.md` to select
+   the package, resource, provider, service, plugin, app, or qualified adapter.
+4. **Name every edge.** Express each cross-owner relation as `defines`,
+   `derives`, `declares`, `selects`, `acquires`, `binds`, `mounts`, `calls`,
+   `projects`, `realizes`, `observes`, `disposes`, or `proves`.
+5. **Disposition current evidence.** Treat current source as behavior and
+   migration evidence. Record what moves, consolidates, or deletes; never make
+   a facade or compatibility wrapper the destination.
+6. **Resolve external authority.** Take generic kind structure from upstream
+   Habitat and generic vendor mechanics from the global skills plus exact
+   installed source. Keep only qualified Civ7 facts local.
+7. **Preflight the slice.** Copy
+   `assets/structural-slice-preflight.md` and close the applicable gates in
+   `references/implementation-gates.md`.
+8. **Implement and prove one owner chain.** Update consumers and deletion
+   obligations in the same slice, then state only the proof classes exercised.
 
 ## Reference Map
 
 | Reference | Path | Open When |
-|---|---|---|
-| Source map | `references/source-map.md` | Resolving authority order, stale inputs, and evidence classes |
-| Mental model | `references/mental-model.md` | You need first-principles architecture rules |
-| Ownership boundaries | `references/ownership-boundaries.md` | Placing logic across packages, mods, apps, docs, generated outputs, and resources |
-| Implementation gates | `references/implementation-gates.md` | Before structural edits, review, verification, or closure |
-| Failure patterns | `references/failure-patterns.md` | Work feels awkward, wrappers appear, or stale docs/code are pulling the shape |
+| --- | --- | --- |
+| Source map | `references/source-map.md` | Resolving sealed, upstream, vendor, and evidence authority |
+| Mental model | `references/mental-model.md` | Separating semantic ownership, construction, projection, and proof |
+| Ownership boundaries | `references/ownership-boundaries.md` | Selecting an exact kind or Civ7 owner |
+| Implementation gates | `references/implementation-gates.md` | Designing, reviewing, or closing structural work |
+| Failure patterns | `references/failure-patterns.md` | Current topology, wrappers, or mechanics are pulling the design |
 
 ## Asset Map
 
 | Asset | Path | Use When |
-|---|---|---|
-| Structural slice preflight | `assets/structural-slice-preflight.md` | Copy into a project/workstream packet before architecture implementation |
+| --- | --- | --- |
+| Structural slice preflight | `assets/structural-slice-preflight.md` | Recording an owner chain, write set, deletions, and proof before implementation |
 
 ## Core Invariants
 
 <invariants>
-<invariant name="authority-before-path">Name the owning boundary before moving or creating a file. Current paths are evidence, not architecture.</invariant>
-<invariant name="authority-records-route-work">Root and subtree AGENTS route agents to controlling docs, accepted project baselines, and canonical docs; they do not store task status or volatile implementation notes.</invariant>
-<invariant name="generated-output-is-read-only">Generated artifacts such as `dist/`, `mod/`, resource outputs, generated manifests, and lockfiles are outputs. Regenerate them through scripts instead of hand-editing them.</invariant>
-<invariant name="official-resources-are-evidence">`.civ7/outputs/resources` is official game-data evidence. It does not by itself define SDK, MapGen, adapter, or mod architecture.</invariant>
-<invariant name="core-stays-substrate">`packages/mapgen-core` owns the MapGen authoring/compiler/executor/artifact/trace substrate and generic primitives. Swooper owns its domains and recipes; purity or possible reuse alone never transfers N=1 product ownership into Core. Core must not import Civ7 engine globals or game runtime APIs directly.</invariant>
-<invariant name="adapter-is-engine-boundary">Civ7 engine globals, `base-standard` APIs, and runtime-specific calls belong behind `packages/civ7-adapter` or explicit mod runtime integration.</invariant>
-<invariant name="truth-and-projection-separate">MapGen truth products and game-engine projection/materialization are separate concerns. If current behavior delegates a surface to the engine, do not describe it as deterministic pipeline truth without a controlling decision.</invariant>
-<invariant name="recipe-owns-ordering">MapGen recipes own stage order and enablement. Independent stage lists or docs must be checked against live recipe authority.</invariant>
-<invariant name="steps-have-explicit-contracts">Steps should expose explicit config, exact artifact/completion dependencies, engine capabilities, and verification boundaries instead of hidden sub-pipelines.</invariant>
-<invariant name="stage-needs-stage-surface">Promote a stage only for a real authoring, input/handoff, placement, enablement, trace, helper-ownership, or projection surface. Do not promote for implementation variants, Studio grouping, debug navigation, or plausible future knobs alone.</invariant>
-<invariant name="flat-stage-config-default">The default stage config surface is flat: `{ knobs?, [stepId]?: stepConfig }`. Persisted SDK-native `advanced` wrappers require a real surface transform, not boilerplate unwrap compiles.</invariant>
-<invariant name="map-stages-project">`map-*` stages are projection/materialization lanes. They do not own upstream truth, scoring, planning, or Studio-only grouping.</invariant>
-<invariant name="no-dumping-ground">`shared`, `common`, `utils`, `internal`, `support`, and broad barrels are not owners. Cross-owner support needs a named invariant and concrete consumers.</invariant>
-<invariant name="tooling-enforces-not-designs">Lint/type/test failures identify mismatch. They do not design the target shape.</invariant>
-<invariant name="proof-is-observation">Doc lint, unit tests, generated XML, local mod builds, and in-game checks each prove only the boundary they actually exercised.</invariant>
+<invariant name="capability-before-container">Name the actor outcome and sole writer for every durable fact, policy, transition, and correction before selecting a container.</invariant>
+<invariant name="current-paths-are-evidence">Current paths, imports, tests, and working behavior describe the estate; the sealed model defines destination authority.</invariant>
+<invariant name="control-and-play-stay-distinct">Foundational control owns closed app/game/map/UI native facts and operations. Play owns actor-facing observation, checks, requests, reconciliation, no-repeat policy, and next lawful action over the public control client.</invariant>
+<invariant name="swooper-has-three-boundaries">The Swooper definition owns portable authored truth. The Swooper realization app owns its production build/deploy outcome. The Studio app's qualified adapter owns only ephemeral physical materialization/install effects and receipts.</invariant>
+<invariant name="mapgen-runs-owns-operation-meaning">MapGen-runs owns accepted operation intent, order, state, correlation, cancellation, retention, reconciliation, and final semantic outcome. App adapters own exact host effects and receipts; API and web surfaces only project the service result.</invariant>
+<invariant name="facades-delete">The legacy facade and direct-control convenience shape are deletion evidence only. No successor facade, parallel contract, private contract picking, or service-adapter forwarding layer is allowed.</invariant>
+<invariant name="external-authority-stays-external">Use upstream Habitat for selected shared-kind law and global vendor guidance plus exact installed source for generic Effect/oRPC mechanics. This overlay owns only Civ7 service law and qualified product boundaries.</invariant>
+<invariant name="proof-is-bounded">Contract, semantics, execution, projection, assembly, generated, installed, loader, and live-behavior evidence remain independent claims.</invariant>
 </invariants>
-
-## Anti-Patterns To Avoid
-
-- Preserving a mixed legacy file by adding wrappers, aliases, compatibility paths, or broad exports.
-- Moving Civ7-bound code into pure core because it is convenient.
-- Treating a generated `dist/` or `mod/` file as source authority.
-- Treating old docs, archived project notes, or stale stage ids as current architecture.
-- Creating a `shared` folder before naming the real owner.
-- Using official game-resource shape as a reason to leak adapter/runtime concerns into SDK or MapGen core.
-- Splitting stages because variants or helper families exist rather than because the recipe needs separate stage-level surfaces.
-- Keeping `map-ecology` or other `map-*` stages for Studio grouping when SDK/Studio metadata would satisfy presentation needs.
-- Claiming in-game correctness from TypeScript checks alone.
 
 ## Quick Start
 
 1. Read `references/source-map.md`.
-2. Read `references/ownership-boundaries.md` for the owner rows involved.
-3. Fill `assets/structural-slice-preflight.md` for structural work.
-4. Run the relevant review axes in `references/implementation-gates.md`.
-5. Implement, verify, update adjacent docs/tests, and close with evidence-scoped claims.
+2. Select the owner row in `references/ownership-boundaries.md`.
+3. Record the full owner chain and deletion obligations in the preflight asset.
+4. Run the applicable gates and close with evidence-scoped claims.

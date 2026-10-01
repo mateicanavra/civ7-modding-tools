@@ -2,11 +2,11 @@
 
 > Open when you are about to *author* a new op, strategy, step, stage, or artifact in the recipe — and want a minimal-correct skeleton plus the exact registration points so the recipe still compiles and runs. This is the technical-arm copy-paste surface; the conceptual map of how these pieces relate lives in `references/pipeline-map.md`.
 
-These skeletons are distilled from LIVE source (the reference op is
-`mods/mod-swooper-maps/src/domain/foundation/modules/mesh/ops/compute-mesh/`; the
-reference stage is `.../recipes/standard/stages/morphology/projection/`). They are not invented —
+These skeletons are distilled from live definition source (the reference op is
+`plugins/mod/map/swooper-physics/src/domain/foundation/modules/mesh/ops/compute-mesh/`;
+the reference stage is `.../recipes/standard/stages/morphology/projection/`). They are not invented —
 re-derive any detail from those files if a skeleton looks stale. **Recipe-domain
-authoring lands in `mods/mod-swooper-maps/src/{domain,recipes}` — never in
+authoring lands in `plugins/mod/map/swooper-physics/src/{domain,recipes}` — never in
 `packages/mapgen-core`** (that is engine substrate). See `references/pipeline-map.md`
 for the truth-vs-projection stage split and the vocabulary.
 
@@ -327,8 +327,8 @@ Optional `viz` and `metrics` projectors are siblings of `run` in this same
 admission; they do not run inside domain logic. Keep one-step projection helpers
 in `steps/<step>/viz.ts`; promote helpers shared by multiple owner-stage steps
 or external consumers to `stages/<semantic-stage-path>/viz.ts`. Do not create a shared
-`steps/viz.ts` hub. The canonical ownership model and migration posture for
-legacy direct `context.viz` calls live in
+`steps/viz.ts` hub. Existing `context.viz` calls are not scaffolds for new
+work; the canonical visualization ownership model lives in
 `docs/system/libs/mapgen/reference/VISUALIZATION.md`.
 
 **Registration (two files, same step-id string):**
@@ -395,14 +395,11 @@ const recipe = createRecipe({
 });
 ```
 
-> Decide the lane before authoring. Manifest stages 1–15 are adapter-free
-> physics/truth (`foundation-*` through `ecology-biomes`, including
-> `morphology-shelf`; `foundation-projection` is still physics). `map-*` stages
-> are engine-facing projection, `ecology-features` is an adapter-free planner,
-> and `placement` mixes product planning with Civ7 materialization. The exact
-> 22-stage order is owned by `standardStageContractManifest` in
-> `contract-manifest.ts` — read it, do not trust a snapshot. See
-> `references/pipeline-map.md`.
+> Decide the lane before authoring. Classify the stage from its current imports,
+> artifacts, operations, and effects as truth, planning, projection, or
+> realization-adjacent. The exact stage order is owned by
+> `standardStageContractManifest` in `contract-manifest.ts`; read it instead of
+> trusting a copied inventory. See `references/pipeline-map.md`.
 
 ---
 
@@ -524,8 +521,10 @@ there is no authored provider runtime, map, or cache.
 | pass a new domain to `collectOperations` | recipe construction or compilation cannot resolve that domain's operations |
 | keep `default` strategy key | `defineOp`/`buildOpEnvelopeSchema` throws at module load |
 
-After authoring, the technical arm is only half done: a recipe that *compiles* is not a
-recipe that produces good maps. Hand the change to the behavioral arm and the in-game
-verification gate — see `references/facet-verification.md`,
-`assets/earthlike-expectation-ledger.md`, and `assets/live-verification-runbook.md`. The
-closure test is the live engine, not a passing build.
+After authoring, compilation proves only the contract/structure layer. Run the
+focused semantics and deterministic recipe proof described in
+`references/facet-verification.md`. Behavioral changes also use
+`assets/earthlike-expectation-ledger.md`; claims about Civ7 loader or live
+behavior additionally use `assets/live-verification-runbook.md`. An
+output-preserving structural change may close without a live run only when its
+declared output and identity invariants are actually proven.

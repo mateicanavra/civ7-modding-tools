@@ -1,56 +1,74 @@
 # Source Map
 
-Use this file to decide what can support product and domain claims.
+Use this map to resolve product meaning and evidence without promoting
+implementation topology, platform law, or framework mechanics into authority.
 
-## Authority Source Order
+## Sealed Product Packet
 
-Use this order when sources conflict:
+| Source | Product use |
+| --- | --- |
+| `docs/projects/civ7-capability-realization/PRODUCT-AUTHORITY.md` | Authorized capabilities, semantic owners, non-owners, consumer gates, and proof sets |
+| `docs/projects/civ7-capability-realization/SYSTEM-MODEL.md` | Realization roles, relationship direction, lifecycle, and forbidden ownership |
+| `docs/projects/civ7-capability-realization/OUTCOME-MODEL.md` | Honest owner facts, refusals, uncertainty, reconciliation, and proof composition |
+| `docs/projects/civ7-capability-realization/ACTOR-ROLE-OUTCOME-MODEL.md` | External Actors, contextual Roles, Tasks, Questions, scenes, and channel parity |
+| `docs/projects/civ7-capability-realization/TOPOLOGY.md` | Selected owner graph, exact package/consumer/proof ledger, and conditional candidates |
+| `docs/projects/civ7-capability-realization/destination-platform-reference.md` | Durable kind grammar, capability chains, service/API boundaries, and required deletion direction |
 
-1. Direct current user/project-owner decisions.
-2. Root and subtree `AGENTS.md` plus repo process docs.
-3. Accepted project baseline artifacts when they explicitly declare the active target for the work:
-   - project specs, consolidated packets, decision packets, and review-disposition records under `docs/projects/<project>/`
-   - accepted project-local deferrals and triage records
-   - for MapGen / Swooper Maps normalization:
-     `docs/projects/engine-refactor-v1/architecture-normalization-packet.md`
-4. Canonical repo docs:
-   - `docs/PRODUCT.md`
-   - `docs/SYSTEM.md`
-   - `docs/PROCESS.md`
-   - `docs/system/ARCHITECTURE.md`
-   - `docs/system/TESTING.md`
-5. Canonical domain docs for the product area:
-   - `docs/system/sdk/**`
-   - `docs/system/cli/**`
-   - `docs/system/libs/mapgen/**`
-   - `docs/system/mods/swooper-maps/**`
-6. Accepted ADRs and durable deferrals.
-7. Active project notes and reviews after their status is classified.
-8. Official Civ7 resources in `.civ7/outputs/resources` for game-data facts and examples.
-9. Current package/mod/app source and tests for implementation behavior.
-10. Generated artifacts as proof of generation only.
-11. In-game validation as runtime behavior evidence for the exact mod/game setup checked.
-12. OpenSpec artifacts under `openspec/` as downstream change-management
-    records unless a completed promotion explicitly makes a spec canonical.
-13. External examples, community knowledge, archived docs, and chat/session summaries as discovery material only.
+Open the exact section for the decision. This overlay must not copy the
+packet's current readiness, admission, migration, or proof status.
+
+## Authority Lanes
+
+1. Explicit current user decisions and applicable repo instructions control the
+   task and scope.
+2. The sealed packet controls Civ7 actor outcomes, semantic owners, result
+   meaning, consumer gates, and destination direction.
+3. Promoted canonical docs and ADRs control durable guidance only where they
+   incorporate or do not conflict with the sealed packet.
+4. Official resources support identified external game facts.
+5. Current source, tests, routes, and exports support current behavior and
+   consumer discovery only.
+6. Generated artifacts support the exact source-to-artifact relation inspected.
+7. Installation, loader, and live checks support only their exact setup and
+   independent proof class.
+8. Upstream Habitat supports selected shared-kind structural law, not Civ7
+   product meaning or local service law.
+9. Global vendor skills support generic Effect/oRPC mechanics; exact installed
+   source controls version-sensitive details. Neither supports a Civ7 product
+   decision.
 
 ## Evidence Classes
 
-| Evidence | Can Support |
-|---|---|
-| User/project-owner decision | Product policy, priorities, ownership, or accepted behavior when recorded durably |
-| Canonical docs/ADRs | Durable repo intent and accepted architecture/product decisions |
-| Official resources | Game identifiers, XML shapes, schemas, and game-data relationships |
-| Source code plus tests | Current implementation behavior |
-| Generated output | That source generated a particular artifact at a point in time |
-| In-game check | Runtime behavior for the checked mod/game version/config |
-| Docs examples | Promised usage only when canonical and current |
-| External examples | Discovery leads until promoted into repo docs or tests |
+| Evidence | Allowed claim | Forbidden promotion |
+| --- | --- | --- |
+| Sealed model | Accepted Civ7 capability, owner, outcome, topology, or deletion direction | Migration/proof completion unless the exact live status is read |
+| Official corpus | Identifier, schema, relationship, and source-revision facts | SDK/service/app ownership |
+| Source and tests | Current implementation behavior and known consumers | Destination authority from path alone |
+| Generated artifact | Exact generation output and digest relation | Installation, loader, or live behavior |
+| Installation receipt | Exact tree replacement | Loader acceptance |
+| Loader evidence | Exact selected setup observed the artifact | Unobserved gameplay outcome |
+| Live evidence | Exact build/config/environment behavior observed | General behavior outside that setup |
+| Upstream Habitat | Selected shared-kind/structure rules | Civ7 capability, product policy, or local service law |
+| Global vendor guidance | Generic framework mechanics within its verified profile | Different-version behavior or product ownership |
+| Exact installed vendor source | Installed-version API/lifecycle behavior | Actor outcome or semantic owner |
 
 ## Re-Grounding Procedure
 
-1. Check branch, Graphite stack, and dirty state.
-2. Read the relevant capability, flow, policy, and failure-pattern records.
-3. Classify every input as product authority, game-data evidence, implementation evidence, generated-output proof, runtime proof, stale input, or discovery material.
-4. If an input conflicts with this skill, controlling docs, or canonical docs, update authority or record a decision/deferral before dependent implementation proceeds.
-5. Do not convert open questions into fallbacks, silent compatibility, or optional public behavior.
+1. Name the Actor, Role, Goal, Task or Question, and authorized surface.
+2. Read the relevant capability, system placement, outcome, and topology cards.
+3. Assign each fact and receipt to one owner; name explicit non-owners.
+4. Classify current paths and tests as behavior/consumer evidence.
+5. Trace the proof set and identify missing facts without choosing a strongest
+   status.
+6. Resolve container placement with `civ7-architecture-authority`.
+7. If new evidence falsifies accepted product meaning, update the owning sealed
+   or promoted authority before changing consumers.
+
+## Inputs That Cannot Define Product Meaning
+
+- facade/direct-control inventories and compatibility wrappers;
+- package, route, UI, framework, or generated-artifact names;
+- local generic Habitat rules or dormant upstream material;
+- vendor examples from a different version;
+- archived docs, scratch notes, summaries, and chat carry-forward;
+- a passing projection test that does not prove the semantic owner result.

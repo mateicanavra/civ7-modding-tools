@@ -1,186 +1,185 @@
 # Ownership Boundaries
 
-Use this reference when placing a symbol, file, helper, generated artifact, doc, test, or runtime call.
+Use this reference to place a capability after its actor outcome and sole fact
+writers are known. The sealed topology remains normative; this is a compact
+routing map, not a status ledger.
 
-## SDK
+## Shared Kind Authority
 
-Owns:
+Do not derive generic kind law from this file. Use the installed Habitat pack
+for selected package/resource/provider/plugin/app structure and the sealed Civ7
+topology for the qualified relationship. Civ7 keeps its unselected service law
+and the product-specific owner maps below.
 
-- public TypeScript mod authoring APIs;
-- builders, nodes, XML file abstractions, localizations, and mod output contracts;
-- SDK constants and type-level ergonomics for mod authors.
+## Package Ownership
 
-Does not own:
+Use the exact selected-package ledger in
+`docs/projects/civ7-capability-realization/TOPOLOGY.md` before placing package
+source. The durable splits are:
 
-- CLI command UX;
-- MapGen pipeline internals;
-- Civ7 engine runtime calls;
-- generated `dist/` output as editable source;
-- official resource extraction mechanics.
+| Package | Durable ownership |
+| --- | --- |
+| `packages/civ7-types` | Type-only Civ7 scripting/runtime declarations and generated declaration surfaces |
+| `packages/civ7-adapter` | Portable engine-adapter contract, static capability vocabulary, and deterministic mock only; ambient engine implementation belongs to a qualified realization |
+| `packages/civ7-map-policy` | Pure official-source-derived setup, placement, legality, and map facts |
+| `packages/civ7-mod-install` | Pure rendered-tree admission, comparison, digest, replacement planning, and receipt construction over caller-supplied observations |
+| `packages/civ7-save-files` | Pure saved-configuration byte parsing and bounded candidate classification |
+| `packages/mapgen-core` | Portable authoring, compilation, execution, artifacts, trace, and product-neutral algorithms |
+| `packages/mapgen-diagnostics` | Product-neutral diagnostic evidence, binary admission, dump/diff, and qualified publication mechanics |
+| `packages/mapgen-metrics` | Product-neutral measurements, summaries, projections, and target-evaluation mechanics |
+| `packages/mapgen-viz` | Environment-neutral visualization representations, geometry, projection, and injected materialization |
+| `packages/mapgen-config` | Portable configuration envelope, identity, admission, snapshot, and serialization vocabulary |
+| `packages/mapgen-studio-ui` | Reusable components and styles, not browser routes, providers, or process authority |
+| `packages/sdk` | Generic Civ7 mod builders, definition contracts, and deterministic render plans |
+| `packages/studio-run-workspace` | Pure paths, manifests, correlation, marker, and comparison mechanics over supplied values |
+| `packages/typebox-standard-schema` | Product-free schema projection and validation mechanics |
 
-## CLI
+A package may support several owner chains. Reuse does not give it semantic
+product authority or permission to hide filesystem, socket, engine-global, or
+process effects.
 
-Owns:
+## Managed External Capabilities
 
-- user-facing commands, flags, help, command errors, and command orchestration;
-- config/root resolution for command execution;
-- integration of plugin workflows into command I/O.
+### Tuner
 
-Does not own:
+- `resources/civ7-tuner` owns provider-neutral session value, epoch, health,
+  raw-command, and foreign-failure vocabulary.
+- `resources/civ7-tuner/providers/local-socket` owns connection, reconnect,
+  execution, health, interruption, and release mechanics.
+- A qualified app selects and acquires the provider, then supplies the ready
+  value when constructing the control client.
+- Control owns Civ7 interpretation; play owns gameplay meaning. Neither
+  resource nor provider owns either.
 
-- reusable graph/file/git/mod logic that belongs in plugin packages;
-- SDK builder semantics;
-- game runtime adapter calls;
-- generated resources or generated docs as source.
+### Window Capture
 
-## Plugin Libraries
+- `resources/window-capture` owns generic selected-window capture value and
+  failure vocabulary.
+- `resources/window-capture/providers/macos-screencapturekit` owns
+  ScreenCaptureKit, permission translation, helper execution, child
+  supervision, capture, interruption, and release.
+- Control alone interprets raw capture evidence as a Civ7 appshot.
+- Civ7 matching, app activation, and restart remain qualified app concerns,
+  not generic capture-resource policy.
 
-Own:
+## Semantic Services
 
-- reusable pure mechanics such as files, graph crawling/rendering, git helpers, and mod management primitives.
+### Foundational Control
 
-Do not own:
+`services/civ7-control` owns exactly the execution domains `{app, game, map,
+ui}`:
 
-- CLI argument parsing and command UX;
-- SDK domain concepts unless the plugin is explicitly SDK-facing;
-- package-specific side effects unless named by the plugin contract.
+- readiness and current-application facts;
+- setup/start and current-game facts;
+- observation, visibility, plot, grid, and surface facts;
+- display queue, camera, and semantic Civ7 appshot behavior;
+- native admission, dispatch, bounded readback, and exact native uncertainty.
 
-## Config Package
+It consumes app-supplied ready Tuner and window-capture capabilities. It does
+not acquire providers, expose arbitrary JavaScript, own raw resource facts,
+interpret actor goals, recommend actions, or mount a transport.
 
-Owns:
+### Actor-Facing Play
 
-- workspace config schema, parsing, validation, and path resolution shared across tools.
+`services/civ7-play` owns exactly `{attention, automation, city, diplomacy,
+notifications, progression, planning, turn, unit}`:
 
-Does not own:
+- actor-facing situation and observation;
+- checks and semantic requests;
+- gameplay reconciliation and no-repeat policy;
+- next lawful action.
 
-- command-specific policy;
-- package-specific defaults that belong to the package or mod;
-- generated artifact content.
+It consumes only the public control capability. It receives no provider,
+resource state, arbitrary runtime execution, or private control source.
+Narrower gameplay nouns compose beneath play rather than becoming peer
+foundational services.
 
-## Civ7 Types
+### MapGen Runs
 
-Owns:
+`services/mapgen-runs` owns exactly `{autoplay, operations, run-in-game,
+save-deploy}` and the semantic operation model:
 
-- type definitions for Civ7 runtime scripting and engine globals.
+- intent admission and request identity;
+- transaction order and public phase evidence;
+- process-scoped operation records, retention, adoption, cancellation, and
+  events;
+- correlation, timeout policy, reconciliation, and terminal outcome;
+- autoplay admission/mutex policy and delegation to control.
 
-Does not own:
+It consumes exact app-bound authored-config, run-files, fresh-log,
+mod-realization, control, and clock capabilities. It does not own recipe truth,
+filesystem effects, deployment receipts, HTTP projection, or app startup.
 
-- runtime adapter implementation;
-- MapGen or SDK behavior;
-- generated mod output.
+## Projection Plugins
 
-## Civ7 Adapter
+- `plugins/cli/topics/{data,docs,game,git-mod,mapgen}` own command names,
+  flags, parsing, help, command-local presentation, and calls to app-bound
+  public capabilities.
+- `plugins/server/api/mapgen-studio` owns its caller-shaped contract, request
+  context, projection, public caller client, and server-registration face. It
+  delegates through bound control, play, and MapGen-runs clients; it owns no
+  operation registry or semantic service state.
+- `plugins/web/app/mapgen-studio` owns browser views and interactions over
+  public API and definition clients. It does not own the retained Studio
+  component package.
+- `plugins/mod/map/swooper-physics` owns portable domains, recipe,
+  configuration, diagnostics, metrics, trace, visualization, and cold
+  authoring metadata. It performs no filesystem, deployment, provider, or
+  live-runtime work.
 
-Current operational ownership, until ADR-019's complete Swooper realization
-cutover:
+A projection preserves the owner result vocabulary. A caller-specific API
+grouping does not merge the services it projects or select a general-purpose
+API for another caller.
 
-- direct imports of Civ7 engine globals and `base-standard` APIs;
-- translation from engine/runtime APIs into stable adapter methods.
+## Apps And Qualified Adapters
 
-Selected destination:
+### CLI App
 
-- the portable package retains the `EngineAdapter` contract, static capability
-  metadata, and deterministic mocks;
-- the matching mod realization owns its concrete Civ7-global adapter, setup
-  capture, and loader/map entrypoint as one closed runtime slice;
-- target source does not move before the full consumer and proof gate closes.
+`apps/cli` owns the commandless Oclif process, sole topic-membership
+declaration, command-scope capability binding, provider selection when needed,
+and idempotent finalization. Topic plugins keep command ownership.
 
-Neither current nor destination ownership admits:
+### MapGen Studio App
 
-- MapGen algorithms or recipe semantics;
-- mod tuning/content decisions;
-- pure SDK XML generation logic.
+`apps/mapgen-studio` owns its concrete Bun, Vite, server, and web hosts; selects and
+acquires providers; constructs control, play, and MapGen-runs clients; binds
+API context; mounts roles; selects qualified adapters; and disposes the process
+scope. It owns no Swooper truth or service policy.
 
-## MapGen Core
+`apps/mapgen-studio/src/runtime/adapters/swooper-map-realization.ts` composes
+the public Swooper definition with pure run-workspace and mod-install packages.
+The adapter owns Studio's ephemeral physical materialization/install effects
+and opaque receipts. Studio constructs it directly and passes it to
+MapGen-runs. It does not import the production realization app, call another
+app's targets, create a shared runtime, or decide the semantic operation
+result.
 
-Owns:
+### Swooper Production Realization App
 
-- stage/step/recipe authoring APIs, config compilation, and plan/execution contracts;
-- artifact admission/publication, deterministic execution, tracing, and generic
-  algorithm/data-structure primitives.
+`apps/mods/map/swooper-physics` owns finite production build/deploy
+entrypoints, the deployable artifact, realization-local engine-global code,
+its qualified install adapter, and its own deployment/loader/live proof. It
+consumes the portable definition but never becomes its owner or a reusable
+runtime for Studio.
 
-Does not own:
+## Required Deletions
 
-- direct Civ7 engine imports;
-- game-facing bootstrap files;
-- generated mod output;
-- MapGen Studio UI;
-- Swooper domain models, operations, recipes, or product tuning. Purity and
-  possible reuse do not make N=1 product logic part of the SDK.
+- The legacy control facade and direct-control convenience shape have no target
+  owner. Preserve their capability inventory only as migration evidence.
+- Consumers call independently bound public control or play clients; no
+  successor facade, parallel method interface, private contract picking, or
+  forwarding service-adapter layer survives.
+- Tuner acquisition leaves services and ordinary commands.
+- Gameplay policy leaves foundational control.
+- Semantic operation state leaves Studio API and host code for MapGen-runs.
+- Physical Studio realization effects leave MapGen-runs and remain in the
+  qualified Studio adapter.
 
-## MapGen Viz And Apps
+## Documentation And Evidence
 
-Own:
-
-- visualization contract types, viewers, workers, streaming/dump protocols, and UI behavior.
-
-Do not own:
-
-- MapGen generation truth;
-- game runtime projection;
-- generated mod artifacts.
-
-## Swooper Maps Mod
-
-Owns:
-
-- Foundation, Morphology, Hydrology, Ecology, Resources, and Placement domain
-  models and operations;
-- recipes, product policy, game-facing map integration, mod package scripts,
-  and Civ7 deployment output generation.
-
-Does not own:
-
-- generic SDK/runtime mechanics already owned by a named substrate;
-- adapter internals;
-- hand-edited `mod/` output.
-
-## MapGen Domain Module Layout
-
-Normalized internal layout for `mods/mod-swooper-maps/src/domain/<domain>/`:
-
-- The domain root is an aggregate semantic router: `contract.ts`, `router.ts`,
-  public `index.ts`, `modules/`, and an optional `model/` for vocabulary proven
-  shared by multiple direct modules.
-- Each `modules/<module>/` is the cohesive owner of one operation family. It
-  owns `contract.ts`, `router.ts`, `index.ts`, `ops/`, any immutable artifacts
-  it produces, and an optional local `model/`.
-- `ops/<op-id>/` owns one operation contract and implementation. Its complete
-  input/output envelopes are inline in `contract.ts`; strategies and rules do
-  not reconstruct types from those envelopes or from artifact schemas.
-- `model/atoms/` owns only small composable schema primitives or cohesive
-  subentities. `model/policy/` owns stable decisions at the lowest domain or
-  module scope that covers every real consumer. Neither is a helper or config
-  cabinet.
-- `artifacts/` lives with the direct producing module. Each
-  `<artifact>.artifact.ts` owns one inline `defineArtifact` authority, and the
-  adjacent `index.ts` is that module's sole artifact catalog.
-
-The accepted positive kind laws live under `.habitat/blueprints/domain*` and
-`.habitat/blueprints/artifact`; use those structures rather than preserving a
-flat compatibility layout.
-
-## Official Resources
-
-Own:
-
-- external game-data facts used as evidence and fixtures.
-
-Do not own:
-
-- repo architecture;
-- SDK public API names;
-- MapGen stage topology;
-- generated-output edit authority.
-
-## Docs
-
-Own:
-
-- durable architecture, product, process, testing, ADR, deferral, and project-control records.
-
-Do not own:
-
-- executable behavior unless paired with source/tests;
-- volatile chat status in canonical docs;
-- project scratch as evergreen authority.
+The sealed project packet owns the accepted model. Upstream Habitat owns
+selected shared-kind law; Civ7 retains local service law and qualified product
+overlays. Global vendor skills plus exact installed source own generic
+Effect/oRPC mechanics. Canonical docs receive promoted stable knowledge.
+Current source, tests, generated files, and live checks remain scoped
+evidence; none can silently reassign an owner.

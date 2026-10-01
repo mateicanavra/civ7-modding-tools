@@ -1,47 +1,92 @@
 # Structural Slice Preflight
 
-Copy this into a project/workstream artifact before structural implementation.
+Copy this into the owning workstream artifact before structural implementation.
+Do not use the completed copy as a second project-status ledger.
 
 ## Slice
 
 - Objective:
-- Branch/Graphite stack:
-- Pre-existing dirty state:
-- Write set:
+- Allowed write set:
 - Protected paths:
+- Current paths inspected as evidence:
+- Current behavior/consumer evidence:
 
-## Authority
+## Sealed Authority
 
-- Root/subtree `AGENTS.md`:
-- Canonical docs:
-- ADRs/deferrals:
-- Active project specs/reviews:
-- Stale or excluded inputs:
+- Product capability and actor outcome:
+- Controlling `PRODUCT-AUTHORITY.md` section:
+- Controlling `SYSTEM-MODEL.md` section:
+- Controlling `OUTCOME-MODEL.md` section:
+- Controlling `ACTOR-ROLE-OUTCOME-MODEL.md` section:
+- Controlling `TOPOLOGY.md` / destination-reference section:
+- Facts that would falsify this selection:
 
-## Ownership
+## Owner Chain
 
-- Target owner:
-- Forbidden owners:
-- Consumer impact:
-- Generated outputs affected:
-- Official resource evidence affected:
+| Fact, policy, transition, effect, or proof | Sole owner | Kind | Explicit non-owners | Public face |
+| --- | --- | --- | --- | --- |
+| | | | | |
+
+## Relationships
+
+| From | Edge | To | Why this edge preserves authority |
+| --- | --- | --- | --- |
+| | | | |
+
+Allowed edges: `defines`, `derives`, `declares`, `selects`, `acquires`,
+`binds`, `mounts`, `calls`, `projects`, `realizes`, `observes`, `disposes`,
+and `proves`.
+
+## Boundary Checks
+
+- Package purity:
+- Resource/provider split:
+- Foundational control versus actor-facing play:
+- Swooper definition versus production realization:
+- Studio ephemeral realization adapter:
+- MapGen-runs semantic operation ownership:
+- Projection versus semantic owner:
+- App composition and process disposal:
+
+## External Authority
+
+- Upstream Habitat kind/relationship law:
+- Qualified Civ7 overlay:
+- Global vendor skills consulted:
+- Exact installed source/fixtures required:
+- Generic mechanics intentionally not duplicated:
+
+## Consumer And Deletion Gate
+
+- Known consumers:
+- Owner result/error vocabulary to preserve:
+- Paths/contracts moving:
+- Facade or direct-control shapes deleting:
+- Private/parallel contracts deleting:
+- Forwarding adapters or cross-app calls deleting:
+- Unknown-consumer search:
 
 ## Proposed Shape
 
-| Path | Action (`read`/`edit`/`add`/`move`/`delete`/`protect`) | Owner | Consumer impact | Required verification | Stop trigger |
-|---|---|---|---|---|---|
-| | | | | | |
+| Path or root | Action (`add`/`move`/`edit`/`delete`/`protect`) | Owner | Consumer effect | Verification |
+| --- | --- | --- | --- | --- |
+| | | | | |
 
-## Review
+## Proof
 
-- Review lanes:
-- Material findings:
-- Disposition:
-- Unresolved blockers:
+- Contract:
+- Semantics:
+- Execution:
+- Projection:
+- Assembly:
+- Generated:
+- Installed:
+- Loader:
+- Live behavior:
+- Claims still forbidden:
 
-## Verification
+## Stop Conditions
 
-- Commands to run:
-- Expected evidence labels:
-- Skipped gates and rationale:
-
+- Ambiguities that require a sealed-model decision:
+- Construction/admission gates not yet satisfied:
+- Evidence that would stop source movement:

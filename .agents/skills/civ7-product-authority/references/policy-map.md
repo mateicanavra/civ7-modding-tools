@@ -1,99 +1,139 @@
 # Policy Map
 
-## Official Resource Policy
+## Capability And Fact Policy
 
-- Treat `.civ7/outputs/resources` as read-only official game-data evidence.
-- Do not hand-edit resource outputs.
-- When game data changes, update source modeling, tests, and generated outputs through documented scripts.
-- Do not infer repo architecture from resource file layout alone.
+- Start from the actor outcome, not the channel or container.
+- Assign one writer to every durable fact, decision, transition, correction,
+  effect receipt, and semantic result.
+- A projection may compose several owner facts for a Question; it never gains
+  their write authority.
+- Current paths and method inventories are evidence. They do not create a
+  product promise or destination owner.
 
-## Generated Artifact Policy
+## Official Facts And Generated Policy
 
-- `dist/`, `mod/`, generated manifests, and generated resource outputs are outputs.
-- Change source files and regenerate outputs through package scripts.
-- Generated output can be cited only for the generation run and artifact inspected.
+- An identified official corpus owns external Civ7 facts for its revision.
+- Repo-owned generators and packages own derived static contracts.
+- Official resource layout cannot decide SDK, MapGen, service, or app
+  boundaries.
+- Generated files, bundles, manifests, and resource outputs are evidence, not
+  editable product policy.
 
-## Public Contract Policy
+## Definition And Realization Policy
 
-Before changing public SDK exports, CLI commands/flags, plugin APIs, docs tutorials, mod entrypoints, or recipe config contracts:
+- A portable definition owns authored identity, content, configuration, and
+  deterministic products.
+- A matching production realization app owns its own build/deploy outcome,
+  qualified engine/host effects, and deployment/loader/live proof.
+- The Studio app's Swooper realization adapter is a separate ephemeral
+  realizer. It consumes the public definition plus pure workspace/install
+  packages and returns exact physical receipts.
+- Studio does not import the production app or call its targets. The production
+  app does not become a shared runtime.
+- Definition, materialized artifact, installed tree, loader acceptance, and
+  live behavior remain independent facts.
 
-- identify consumers;
-- record expected compatibility or breakage;
-- update adjacent docs/tests;
-- run focused verification;
-- state whether the change is compatible, breaking, experimental, or internal.
+## Foundational Control Policy
 
-Caller projections preserve the exact owner result vocabulary. A projection
-must not translate refusal, uncertainty, stale evidence, or unverified dispatch
-into a generic success response.
+- Control owns closed app/game/map/UI native interpretation, admission,
+  dispatch, bounded readback, and exact uncertainty.
+- Resource-owned epoch, health, raw command, and capture facts remain resource
+  or provider facts; control references and interprets them without re-owning
+  them.
+- Arbitrary runtime execution, generic GameInfo inspection, app restart, and
+  raw diagnostics remain exact supporting capabilities, not semantic control
+  or play results.
+- The legacy facade/direct-control shape is deleted. No successor facade,
+  parallel method interface, private contract picking, or convenience surface
+  becomes product authority.
 
-For MapGen recipe config, the default accepted stage surface is flat:
-`{ knobs?, [stepId]?: stepConfig }`. Treat persisted `advanced.<stepId>` as a
-migration concern unless a controlling decision names a genuine public surface
-transform.
+## Actor-Facing Play Policy
 
-## Native Control Primitive Policy
+- Play owns situation, attention, checks, semantic requests, bounded
+  postconditions, reconciliation, no-repeat keys, and next lawful actions.
+- Play consumes only the public control capability; it receives no Tuner,
+  provider, raw JavaScript, or private control implementation.
+- A native refusal or dispatch may be preserved as evidence, but only play
+  interprets it as gameplay meaning.
+- Uncertain dispatch prevents unsafe repetition until the named fresh
+  observation or reconciliation.
 
-For live Civ7 play-control behavior, official native primitives are the first
-authority. Before inventing a workaround, inspect the shipped App UI scripts,
-official GameInfo/runtime APIs, FireTuner/dev-tool resources, and relevant
-community mod scripts as evidence for the native state machine and control
-surface.
+## MapGen-Runs Policy
 
-- Prefer official operations, commands, UI managers, display queues, notification
-  managers, and story/progression/city/unit controllers over caller-side
-  reconciliation.
-- A CLI mutation should be one forward player decision. If Civ7 uses multiple
-  native primitives for that decision, compose them inside the command.
-- Do not expose "closeout", duplicate verification, or manual state repair as
-  the default play-agent task. Keep those as diagnostics or compatibility debt
-  only until the native workflow is owned by one command.
-- Verification exists to prove repo-owned composition, newly modeled surfaces,
-  or non-native lenses. Do not build verification theater around native state
-  transitions that Civ7 itself already owns and trusts.
-- If no native primitive exists, state that proof boundary explicitly before
-  adding repo-owned orchestration.
+- MapGen-runs owns Save & Deploy, Run in Game, autoplay, adoption, inspection,
+  and cancellation as request-correlated semantic operations.
+- It owns admission, transaction order, operation records, phase evidence,
+  retention, cancellation, correlation, timeout, reconciliation, and final
+  semantic outcome.
+- Authored-config, source-write, run-file, fresh-log, realization, control, and
+  clock capabilities are exact app-bound dependencies.
+- Qualified adapters own source/filesystem/materialization/install effects and
+  their receipts. They do not decide the operation outcome.
+- API and web surfaces project MapGen-runs facts; they own no operation
+  registry or run-retention state.
+- Process-local retained operation state is not a durable workflow. A workflow
+  requires a separately authorized process-independent resume/retry/replay
+  need.
 
-## MapGen Truth/Projection Policy
+## Projection And Public Contract Policy
 
-- Truth stages publish deterministic domain artifacts and fields.
-- Projection/materialization stages write to Civ7 engine/mod surfaces.
-- `map-*` stages are product-visible only as projection/materialization,
-  effects, adapter writes, map artifacts, projection knobs, or parity evidence.
-  Studio grouping and debug navigation are presentation needs, not truth-stage
-  ownership.
-- If current behavior delegates to a Civ7 engine generator for a surface, document that as projection/materialization or telemetry until a controlling decision gives the pipeline deterministic ownership.
-- If the pipeline claims truth ownership, add deterministic artifacts and fail/verification gates that prove materialization matches.
+Before changing an SDK export, CLI command/flag, API route, web interaction,
+docs promise, mod entrypoint, or package identity:
 
-## Adapter Policy
+- identify current and searched consumers;
+- name the semantic owner and projection owner separately;
+- preserve exact owner results, typed errors, refusals, and uncertainty;
+- record compatibility, transfer, or deletion disposition;
+- update adjacent contracts, tests, and docs; and
+- prove the exact channel behavior without upgrading its proof class.
 
-- ADR-019 selects direct Civ7 engine imports and `base-standard` APIs for the
-  qualified game-facing realization runtime. The current adapter package
-  remains the sole operational boundary until the complete Swooper consumer
-  and proof cutover; it is not split early. After that cutover, reusable
-  adapter packages retain only pure contracts, static facts, and deterministic
-  mocks.
-- Adapter methods should stay thin and stable.
-- MapGen algorithms and mod tuning do not move into the adapter.
+A caller-shaped API may group control, play, and run routes. It must delegate to
+independently bound public clients rather than merge contracts or mount private
+service routers.
 
-## Construction Policy
+## Outcome Policy
 
-- Habitat owns shared kind construction upstream; Civ7 selects and composes
-  accepted kinds.
-- Do not move target source until the corrected shared substrate pin and
-  selected kind are constructible in this repository.
-- Do not create a local approximation or harden a transition container while a
-  target kind is unconstructible.
-
-## Documentation Policy
-
-- Canonical evergreen docs live under `docs/`, `docs/system/**`, `docs/product/**`, and `docs/process/**`.
-- Project specs, reviews, phase notes, and handoffs live under `docs/projects/<project>/`.
-- Promote durable knowledge from project docs to canonical docs when it becomes stable.
-- Move superseded docs to archive rather than leaving stale authority in live paths.
+- Intent is not admission.
+- Admission or a deterministic plan is not an external effect.
+- Dispatch, file write, or process start is not consumer acceptance.
+- Observation is evidence; only the semantic owner interprets it.
+- Refusal preserves the exact owner, reason, input/revision, and lawful next
+  action.
+- Uncertainty preserves correlation and retry/no-repeat law.
+- A projection never manufactures a global success flag or normalizes
+  owner-specific uncertainty into success.
 
 ## Proof Policy
 
-Track proof as an independent set: contract, semantics, execution, projection,
-assembly, generated, installed, loader, and live behavior. No member supersedes
-another, and no single "strongest" status summarizes the set honestly.
+Track proof as a set:
+
+- `contract`: admitted public values and types;
+- `semantics`: owner-local policy and transitions;
+- `execution`: selected implementation/lifecycle behavior;
+- `projection`: channel fidelity to owner results;
+- `assembly`: runtime selection, binding, mounting, and disposal;
+- `generated`: exact source-to-artifact relation;
+- `installed`: exact replacement receipt;
+- `loader`: observed loader acceptance;
+- `live-behavior`: exact build/config/environment behavior observed.
+
+No member subsumes another. Every claim includes the exact input, revision,
+epoch, environment, and owner needed to interpret it.
+
+## Structural And Vendor Authority Policy
+
+- Upstream Habitat owns the selected shared-kind and structural law. Civ7
+  retains local service law and adds only accepted qualified product facts.
+- Global vendor skills own generic Effect/oRPC guidance; exact installed source
+  resolves version-sensitive behavior.
+- Neither Habitat nor a vendor library defines Civ7 capabilities, actor
+  outcomes, or product policy.
+- Do not copy generic platform or framework mechanics into this overlay.
+
+## Documentation Policy
+
+- The sealed capability-realization packet owns the accepted project model.
+- This skill routes to that packet and contains only durable application
+  guardrails, never copied readiness, migration, or proof status.
+- Promote stable accepted knowledge to canonical docs through the owning
+  process; leave current workstream state in project records.
