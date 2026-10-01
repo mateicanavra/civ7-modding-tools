@@ -745,6 +745,19 @@ Continue at the existing Morphology/Hydrology boundary before adopting a
 native size rule. The [single question sheet](calibration-question-sheet.md#derived-classification-policy)
 records the complete accounting, forcing gap and current-only design gates.
 
+The subsequent [modeled-carrier signed-transport discriminator](land-geography-investigation.md#modeled-carrier-signed-transport-nonselection)
+closes with independently reviewed nonselection. Both repeated runs preserve the
+original population and reproduce current thermal controls; held sea-level
+agreement and supported geographic/seasonal partitions reject the represented
+simple monthly inland-advection candidate. No new production transport law,
+thermal knob or weakened floor follows. Continue the water-owner story without
+waiting for an unsupported climate addition. Source review identifies ranked
+geographic mask authorship rather than hydraulic sea flooding; qualify actual
+Foundation provenance through the existing catalog/setup/recipe/artifact capture
+rail before selecting a reservoir prescription. Keep forcing admission and final
+physical exposure in that same complete owner-level change, not a mask alias or
+parallel legacy fallback.
+
 The next two prerequisites are now merged natively: Tuner-resource PR #2164
 at `5c7fb7e9202218485d9f2a83baf1c892d28ec412`, then window-classification PR
 #2165 at `296079e0e217f39641626e7e28b7b71ff4b02edf`. A concrete scoped-release

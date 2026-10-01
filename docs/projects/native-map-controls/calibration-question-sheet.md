@@ -142,6 +142,66 @@ leaving it permanently water in projection would be an incomplete migration.
 Keep one geometry/budget/network owner and the existing artifact/operation SDK;
 no new global authoring knob or parallel production fallback is selected.
 
+Source review narrows the producer question: the current landmask uses relief
+above sea level to choose a target land count, then ranks tectonic continent
+potential to choose membership. Reconciliation raises selected land and lowers
+selected water as necessary. Published base/final topography therefore cannot
+reconstruct the pre-reconciliation pit or prove a hydraulic sea flood. This is
+current geography authorship, not a legacy solver that should be kept alongside
+its replacement.
+
+The bounded candidate is an explicitly declared oceanic-substrate reservoir
+approximation: seed external authority on authored wet oceanic crust, extend it
+through its connected water component, and re-admit connectivity against final
+Morphology topology after erosion/island formation. Neither size nor a map edge
+chooses the seeds. An isolated oceanic rift basin and a deliberately prescribed
+continental inland sea remain physical rivals; crust is not salinity or proof
+of hydraulic connection. The old admitted Standard1346 capture contains no crust
+arrays; a fresh ordinary-recipe observation now supplies that missing provenance
+without reconstructing absent evidence or selecting the producer policy.
+
+That observation needs no SDK or metric-capture extension: the public compiled
+recipe already exposes declared artifact authorities and terminal `readArtifact`.
+Select current catalog configuration, official preset, independent map/game seeds
+and preset player count through existing setup admission. `standard` names the
+shared recipe, not a fixed Standard-size map or a retired generator. Reproducible
+size-specific regression cases are selections of that same rail. New physics,
+forcing and final exposure belong to current domain contracts if justified, not
+another test framework, private artifact store or global tuning control.
+
+The frozen provenance cohort selects Standard1346 plus the lexicographically
+first existing public-bank scenario for each of the eight catalog profiles,
+deduplicated to nine cases. Two cohort replays complete exactly 18 recipe
+executions. Standard1346 first reproduces the prior exposed ground, mask, sea
+datum, lake and river/physical-network payloads exactly. All 18 compressed and
+decoded captures repeat byte-identically; 2,895 source/runtime/input pins and
+35 output pins hold. Root independently rehashes the pins and both encodings.
+Receipt: `earth-calibration/initial-water-producer-provenance-20261001/receipt.json`
+(`2bd64d24ffb108c56249fa6877d921d51b36c30fc3d543377a98ee02167c83d8`).
+
+All ten witness cells are continental crust with no oceanic seed. Their same
+connected wet footprint already exists in published base topography and survives
+erosion and island formation. The proposed seed/component rule would admit four
+continental-only components of 3/10/3/1 cells to finite storage in Standard1346;
+it changes no eligibility in the eight other selected cases. These are diagnostic
+membership results, not candidate solver/climate outputs or policy acceptance.
+Six scenario-component occurrences have oceanic seeds but neither touch a polar
+boundary nor cross the wrapped X boundary; their sizes are 7, 9, 17 or 59 cells.
+Repeated topology across profiles is not independent evidence. Those components
+retain external status under the candidate and expose its strongest finite-basin
+rival. Do not hide them with a size exception. Independent review reproduces
+the cohort selection, exact controls, source/output pins and component counts;
+it accepts the provenance result, not a production reservoir policy.
+
+The implementation story must resolve producer intent, newly eligible water
+forcing and final physical exposure together. Current precipitation skips initial
+water, and current PET is explicitly land-only. Reclassification alone cannot
+constitute a water-balance repair. Likewise coast, shelf, terrain, lake/elevation
+projection and surface parity must not enforce initial water permanently if the
+physical model permits it to dry. Preserve one current solver and artifact chain;
+an unqualified producer rule is not permission for a fallback implementation,
+native cutoff default or renderer-driven physical terrain adjustment.
+
 River outflow does not define lake versus sea. Open lakes have an outlet;
 closed lakes do not. Salinity, water balance and exchange with marine water
 are separate properties; even the term inland sea spans different hydrologic

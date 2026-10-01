@@ -298,3 +298,44 @@ external reader lookup was corrected. Retained under
 `f0540086c63a18e645ee69ae041cf72b19ba7ebce382c1f6034e980dcfc48173`;
 `attempt2/verification.json` SHA256
 `2e2754eae5dc2389a22a34399b125caa083818d6d3ae1c47d29596adbf71714c`.
+
+## Modeled-Carrier Signed Transport: Nonselection
+
+The next finite discriminator uses the already admitted twelve monthly wind
+fields, actual current solar/thermal operations and all 411 original low-relief
+receivers. No observed air, skin temperature, SST or residual enters a donor.
+The observed air residual is outcome only. Current sea-level and ground carriers
+remain separate; the reference Gaussian grid is not production hex geometry.
+
+Independent design review identified direction-even numerical curvature as a
+rival to signed transport. The frozen reader therefore compares forward and
+reversed winds, their odd/even decomposition, and a proper unequal-spacing
+centered derivative. Its curved-profile control exposes both the even term and
+unequal-spacing contamination of odd. Sea-level zonal contributions are exactly
+zero. This is a tendency diagnostic in K/s, not a temperature correction,
+integration time or proposed production operation.
+
+Both repeated runs return **NONSELECTION**. Sea-level odd and centered annual
+sign agreement is 0.574604 in training but 0.475038 in the held population.
+North America, South America, Europe/Africa/West Asia, Northern Asia/Pacific and
+MAM also reverse after their own frozen matching. Southern Africa is unsupported,
+not a pass. Positive pooled, direction-even or ground-only results cannot
+override the pressure-relevant held gates. Do not add this simple resolved
+monthly inland-advection law, fit its gain or weaken either scientific floor.
+The negative does not reject transient, maritime, vertical or coupled-energy
+transport; heterogeneous local energy remains a separate causal rival.
+
+The original q1 coefficient and annual-owner controls are exact. Prior monthly
+error is 8.88e-16 C; bounded monthly recovery remains inside the frozen 1e-4 C
+budget. No donor clips. Two complete owner replays and the separate read-only
+verifier pass with byte-identical summaries, records and archived phase fields.
+Independent review checks all 2,179 source/input/runtime pins, 18 sealed files,
+19,032 monthly reintegrations, 138,096 operator values and 882 sign/count
+comparisons, without another owner replay. Root also rehashes the complete seals
+and repeat outputs. No production, dependency, build, native or acquisition
+change is made. Retained under
+`earth-calibration/modeled-carrier-signed-advection-20261001/`:
+`SEAL.json` SHA256
+`37f150010ee0d5a1333e1ccf7c124ef5a0f096bd33df98d9e7697cbc89f750a7`;
+`REPORT.md` SHA256
+`9d28f99405059bb67b71e363828864273f1ed0607e713a5aa2eaabb3754f92e6`.
