@@ -1,6 +1,6 @@
 import { collectMaskComponentsOddQ } from "@swooper/mapgen-core/lib/grid";
 
-/** Prescribes every exact maximum-area final initial-water component at the existing sea datum. */
+/** Prescribes final initial water connected to a clipped-Y exterior at the existing sea datum. */
 export function declareExternalWater(params: {
   width: number;
   height: number;
@@ -26,12 +26,12 @@ export function declareExternalWater(params: {
     height: params.height,
     mask: waterMask,
   });
-  let maximumArea = 0;
-  for (const component of components) maximumArea = Math.max(maximumArea, component.size);
-
   const externalWaterMask = new Uint8Array(size);
   for (const component of components) {
-    if (component.size !== maximumArea) continue;
+    const reachesExterior = component.indices.some((index) =>
+      index < params.width || index >= size - params.width
+    );
+    if (!reachesExterior) continue;
     for (const index of component.indices) {
       if (params.elevation[index]! > params.seaLevel) {
         throw new RangeError(`External-water ground at tile ${index} exceeds the seaLevel datum.`);

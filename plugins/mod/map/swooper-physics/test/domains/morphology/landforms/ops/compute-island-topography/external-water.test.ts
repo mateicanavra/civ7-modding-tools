@@ -42,6 +42,11 @@ function run(waterCells: readonly number[]) {
   expect(output.topography.bathymetry).toEqual(bathymetry);
   expect(output.topography.seaLevel).toBe(input.seaLevel);
   expect(output.topography.externalWaterMask).not.toBe(input.landMask);
+  for (let index = 0; index < CELL_COUNT; index += 1) {
+    if (output.topography.externalWaterMask[index] !== 1) continue;
+    expect(output.topography.landMask[index]).toBe(0);
+    expect(output.topography.elevation[index]).toBeLessThanOrEqual(input.seaLevel);
+  }
   expect(artifacts.topography.validate(output.topography, {
     dimensions: { width: SYNTHETIC_WIDTH, height: SYNTHETIC_HEIGHT },
   })).toEqual([]);
@@ -67,19 +72,32 @@ describe("compute-island-topography external-water declaration", () => {
     );
   });
 
-  it("selects the largest connected initial-water area, wrapping X but clipping Y", () => {
-    const seamComponent = [24, 25, 35];
-    expect(memberships(run([...seamComponent, 5, 53]))).toEqual(seamComponent);
+  it("prescribes separate north and south seas without ranking their areas", () => {
+    const northSea = [0, 1, 11];
+    const southSea = [48, 49];
+    expect(memberships(run([...northSea, ...southSea, 29]))).toEqual([
+      ...northSea, ...southSea,
+    ]);
   });
 
-  it("selects every exact maximum-area tie, not the row-major discovery winner", () => {
-    expect(memberships(run([13, 14, 20, 21, 51]))).toEqual([13, 14, 20, 21]);
+  it("keeps a larger enclosed body finite beside a smaller boundary sea", () => {
+    expect(memberships(run([5, 24, 25, 26, 27, 35]))).toEqual([5]);
   });
 
-  it("preserves unequal and tied declarations under every wrapped X translation", () => {
+  it("keeps fully enclosed geometry finite even when it winds around X", () => {
+    expect(memberships(run([24, 25, 35]))).toEqual([]);
+    expect(memberships(run(Array.from({ length: SYNTHETIC_WIDTH }, (_, x) => 24 + x))))
+      .toEqual([]);
+  });
+
+  it("includes connected interior cells but does not connect north and south through Y", () => {
+    expect(memberships(run([5, 17, 53]))).toEqual([5, 17, 53]);
+  });
+
+  it("preserves boundary seas and enclosed seam pockets under every wrapped X translation", () => {
     for (const [water, expected] of [
-      [[24, 25, 35, 5, 53], [24, 25, 35]],
-      [[13, 14, 20, 21, 51], [13, 14, 20, 21]],
+      [[0, 1, 11, 48, 49, 29], [0, 1, 11, 48, 49]],
+      [[24, 25, 35, 5, 53], [5, 53]],
     ] as const) {
       for (let shift = 0; shift < SYNTHETIC_WIDTH; shift += 1) {
         expect(memberships(run(translateX(water, shift)))).toEqual(translateX(expected, shift));

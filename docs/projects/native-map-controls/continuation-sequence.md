@@ -869,17 +869,24 @@ The retired products are not native-play or science repair results; the active
 Earthlike thermal expectation remains unwaived. No current gallery, actual
 ship path or autoplay result is claimed from this setup/generation receipt.
 
-The next complete story is selected in
+The ensuing complete story is now implemented in
 [external water ownership](external-water-ownership.md): final-geometry
-principal-body prescription, explicit receiving-head semantics, all-surface
-empirical forcing and resolved exposure. Both bounded reviews reject a
-mask-only absorbing-sink patch; the selected head-aware design preserves one
-current solver and one-way initial-wet climate approximation. It remains
-unimplemented, so this publication does not claim the initial-water defect is
-repaired or a new native cutoff is ready.
+Y-exterior prescription, explicit receiving-head semantics, all-surface
+empirical forcing and resolved exposure. The principal-area candidate is
+retained as immutable counterexample evidence rather than a fallback. Both
+bounded reviews reject a mask-only absorbing-sink patch; the head-aware design
+preserves one current solver and one-way initial-wet climate approximation.
+Fresh 57-capture and separate 57-evaluator proof passes all owning invariants.
+Together with [resource-backed starts](start-resource-coherence.md), it resolves
+the lake-area and three placement failures. Thermal variation and the residual
+mountain-region flat-share expectation remain unwaived. Receipt:
+`earth-calibration/water-start-owner-cohort-v2-20261001/capture/receipt.json`
+(`e8cb9c05496b70db18d8720fb79fd511bfec4413dc98bb3a6b4661e43c984ede`).
+This generated proof does not adopt a new native cutoff or qualify water head,
+visual joins or vessel movement.
 
-Studio's current persistent Tuner realization is unqualified for these runs:
-the current daemon accumulates response timeouts while fresh CLI observations
+At the earlier publication, Studio's persistent Tuner realization was
+unqualified for those runs: its daemon accumulated response timeouts while fresh CLI observations
 and Civ UI respond. Local deterministic preview remains usable. This is a
 separate consumer-realization gap, not a physical MapGen failure or authority to
 patch the quarantined legacy session again. Existing app-owned diagnostic

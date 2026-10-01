@@ -18,25 +18,29 @@ does not select its forcing or native projection.
 
 ## One Boundary Prescription
 
-After final Morphology island formation, prescribe the maximum-area connected
-initial-water component as the procedural world ocean at the existing
-`seaLevel`. Select all exact maximum-area ties, not an arbitrary scan-order
-winner. Use the existing wrapped-X/clipped-Y hex component primitive. No wet
-cells means no prescribed ocean; all-water geometry has one prescribed ocean.
+After final Morphology island formation, prescribe every connected initial-water
+component that reaches the clipped north or south Y exterior at the existing
+`seaLevel`. Use the existing wrapped-X/clipped-Y hex component primitive. This
+is the procedural domain's explicit exterior boundary condition, independent
+of component area. Separate north and south seas are both external; a larger
+enclosed body remains finite beside a smaller exterior sea. No wet cells means
+no prescribed ocean; all-water geometry has one prescribed ocean. Fully
+enclosed/no-exterior geometry is entirely finite, without a maximum-area fallback.
 
-This is generator intent, not a scientific classifier. Area, crust, polar
-contact and seam contact do not prove salinity, hydraulic exchange or ocean
-ancestry. The deliberate approximation is an effectively infinite principal
-water body held at a fixed surface head. It can misdesignate a dominant closed
-sea and does not support independently prescribed smaller oceans. Near-ties
-can switch selection when geometry changes. Keep those policy counterexamples
-visible; do not add size exceptions to conceal them.
+This is generator intent, not a scientific classifier. Y-exterior contact,
+crust and seam contact do not prove salinity, hydraulic exchange or ocean
+ancestry. Only the selected boundary prescription gives those exterior-connected
+components effectively infinite supply at a fixed surface head. Enclosed
+below-sea pockets retain finite storage and forcing. A true longitude-winding
+water component with no Y contact also remains finite; independently declaring
+such a sea is a product limitation to reopen only with a demonstrated case,
+not a speculative extra winding algorithm.
 
 An early anchor lifecycle is rejected for this stationary final-world model:
 the current producer supplies no such lineage, so birth, burial, relocation
 and split-survival rules would be newly invented behavior. If the product
-later requires ocean ancestry or multiple independent oceans, reopen this
-decision rather than claim component area supplies that history.
+later requires ocean ancestry or a different exterior topology, reopen this
+decision rather than claim component connectivity supplies that history.
 
 ## Owned Quantities
 
@@ -107,7 +111,8 @@ law, not an unreviewed coupling loop inside this repair.
 1. Implement the final producer declaration and exact binary/subset/datum
    admission at the existing operation/artifact owners. Preserve all terrain,
    random draws, initial masks and formation laws. Test empty/all-water,
-   unequal components, exact ties and translated wrapped connectivity.
+   separated exterior seas, larger enclosed bodies, no-exterior geometry and
+   translated wrapped connectivity.
 2. Complete receiving-head semantics in the existing geometry/network and
    validators. Hold finite ground/hypsometry; vary only external bathymetry
    or head. Test no uphill exports and explicit unsupported inundation.
@@ -158,11 +163,12 @@ resources, starts, projection and parity use the appropriate initial,
 external or resolved vintage. Late Civ maintenance reapplies this same resolved
 coast policy instead of restoring initial water over newly resolved lakes.
 
-Independent Earth-basin and SDK-simplicity reviews accepted the actual owner
-patch. The SDK review found one stale shelf/shoreline metric population; its
+Independent Earth-basin and SDK-simplicity reviews accepted the first owner
+patch, which used the principal maximum-area declaration described below. The
+SDK review found one stale shelf/shoreline metric population; its
 external-water guard and regression test are repaired. Source, test and script
 types pass, as do the app's 271 realization tests and Studio's 412 tests.
-Focused owner and composition tests cover prescribed ties, wrapped connectivity,
+Focused owner and composition tests covered prescribed ties, wrapped connectivity,
 head and bathymetry invariance, unsupported inward supply, all-surface forcing,
 final exposure and shoreline publication. No scientific target changed.
 
@@ -189,3 +195,63 @@ scenario membership. `payload-verification.json` independently reconstructs
 all 3,192 artifact hashes. The [current generated Huge1018 viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/water-owner-huge-1018/index.html)
 shows this resolved network; it is not a new native screenshot or navigation
 proof. Native low-head, cliff and through-water qualification follows this repair.
+
+## Exterior Revision And Principal Capture History
+
+The first October 1 public capture used the principal maximum-area prescription,
+including exact area ties. Its immutable receipt and all 57 payloads above
+remain the evidence for that version, not results for the exterior revision.
+The ensuing diagnosis supplied a concrete product counterexample rather than
+a reason to change the finite solver, lake-share ceiling or relief floor.
+
+Standard1337's held final topography contains separate north and south initial
+sea sheets of 1,597 and 1,065 tiles. They were already separate before erosion
+and island formation. The principal rule prescribed only the north sheet;
+the south sheet became finite wet storage. Of the 1,301 planned lake tiles,
+1,211 were initially wet finite cells and only 90 were newly inundated initial
+land. The preceding same-ground capture contains those exact same 90 land-lake
+tiles. Two truly enclosed initial-water components, 142 and four tiles, remain
+finite under the exterior revision. No crust or salinity assertion follows.
+
+The existing formation chain selects a global hypsometric sea datum, reconciles
+land/water identity to it and admits volcanic islands. It publishes no ocean
+birth/ancestry distinction. The revised producer therefore states the bounded-Y
+exterior intent directly from its final geometry, without area thresholds,
+anchors, extra history or a compatibility fallback. An offline census of the
+57 pinned geometries changes 33 of 47 Earthlike and four of five Desert masks,
+and none of five Archipelago masks. Adding true longitude winding to Y contact
+would change none of those results; no such additional law is introduced.
+
+Huge1018 also traces part of the relief failure to that same boundary choice.
+All 19 newly wet cells removed from its old mountain-region population belong
+to the finite pool containing an 88-cell north-exterior sea sheet: ten old
+flats and nine old hills, with pool head 30 versus sea datum 11. The old ratio
+was 409/1,168; holding old terrain masks but applying new exposure gives
+399/1,149, already below 0.35. Recomputed provinces and roughland selection
+further change it to 380/1,138. This is an attribution, not a prediction that
+the exterior revision passes relief; rerun the unchanged public expectations
+before designing a relief-owner correction. Do not restore hidden wet flats
+to the denominator or tune a terrain quota to conceal the lost population.
+
+The new declaration changes only the existing final-Morphology helper and its
+focused tests. Finite receiving-head, storage, forcing, conservation and
+projection laws are held. Independent Earth-basin review is aligned. The
+rebuilt public proof now completes 57 artifact captures and 57 separate metric
+evaluations under stable source/runtime pins. All 3,192 artifact payloads
+reconstruct exactly, all 28 held upstream owners agree, and the partition,
+receiving-head, source-accounting, ground and conservation guards pass.
+
+This revision and the independently reviewed
+[resource-backed start selection](start-resource-coherence.md) resolve the
+prior lake-share and all three placement failures without changing their
+comparators. Two expectations remain: annual within-row temperature variation
+`0.1298053005 < 1 C` and mountain-region flat share
+`405/1,168 = 0.3467465753 < 0.35`. The latter is seven old-flat to roughland
+transitions offset by three reverse transitions on identical ground and
+province membership; it is not permission to tune a class quota.
+
+The separate revision receipt lives in
+`earth-calibration/water-start-owner-cohort-v2-20261001/capture/receipt.json`,
+SHA256 `e8cb9c05496b70db18d8720fb79fd511bfec4413dc98bb3a6b4661e43c984ede`.
+The principal capture and earlier baseline are unchanged. These are generated
+owner outcomes, not native lake classification, rendered head or ship passage.

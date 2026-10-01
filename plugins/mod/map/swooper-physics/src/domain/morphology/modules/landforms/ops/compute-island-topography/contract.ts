@@ -68,7 +68,7 @@ const ComputeIslandTopographyContract = defineOp({
         {
           additionalProperties: false,
           description:
-            "Coherent post-island topography with island land applied and maximum-area initial-water components prescribed at seaLevel.",
+            "Coherent post-island topography with island land applied and initial-water components reaching the clipped-Y exterior prescribed at seaLevel.",
         }
       ),
       islandClass: TypedArraySchemas.u8({
