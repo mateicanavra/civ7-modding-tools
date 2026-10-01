@@ -687,3 +687,20 @@ policy, boundary and dead-code checks pass. The first hygiene run identified
 formatting in two changed files; formatting those files and rerunning the
 owning type/hygiene graph passes. No new global game or test setting is
 introduced by this cleanup.
+
+### Generated-Map Height Preservation
+
+The admitted V18/V19 generated-map comparison rejects unconditional
+post-recipe whole-array replay. It restores 48 accepted inland-water cells to
+their first native write heights, but leaves those cells classified as nonlake
+and overwrites two later Kilimanjaro height edits. Other captured native facts
+and all 191 complete river objects hold. The absent Redwood footprint and
+unchanged NAV heights do not qualify their respective mismatch cases; the raw
+feature table also lacks the reader's natural-wonder classification property.
+See [the bounded result and evidence limits](water-height-maintenance.md#v18v19-generated-map-preservation-result).
+
+This result narrows the next repair design at the existing surface-preparation
+owner, before native feature placement. It does not authorize a whole-map
+post-recipe setter, physical basin changes, additional legacy paths or a new
+execution hook. Classification, water-height retention, cliff rendering and
+era-qualified traversal remain distinct acceptance claims.

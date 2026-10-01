@@ -576,6 +576,67 @@ for step identity, or add a generic SDK hook merely for this experiment.
 The experiment can reject unsafe whole-map replay before a production repair
 is selected. It does not itself repair cliffs or prove navigation.
 
+### V18/V19 Generated-Map Preservation Result
+
+The Earthlike Huge1018 pair uses stock cutoff 10, ten players and 6,996 cells.
+V18's selected evidence is a successful repeat from its exact archived
+five-file bundle, with that repeat's own installation, live and scripting
+records. V19 retains its original successful run and a later complete public
+controller capture of that game. Both complete captures exactly match their
+respective original captures across all fifteen per-cell facts and feature
+bindings. Original archives and the failed V18 process attempt remain intact;
+the latter is excluded from successful generation evidence. This is a measured
+same-input repeat, not a shared-epoch claim: client-local connection epochs do
+not establish cross-process identity.
+
+All 560 reader admission guards pass, including original and repeated actual
+installation inventories and complete 191-object river captures. The six-field
+pre-replay grids match; control changes nothing. Replay changes exactly fifty
+elevations, with no change to the other five immediate fields or fourteen
+other final native facts. Both arms' 191 river objects and 659 plot entries
+match exactly.
+
+| Observed footprint | Cells | Native height before replay | After replay |
+| --- | ---: | ---: | ---: |
+| Physical body 1643, pool 39 | 16 | 0 | 230 |
+| Physical body 3384, pool 57 | 15 | 18 | 530 |
+| Physical body 3899, pool 3 | 17 | 0 | 110 |
+| `FEATURE_KILIMANJARO`, cell 2945 `(83,27)` | 1 | 788 | 688 |
+| `FEATURE_KILIMANJARO`, cell 3052 `(84,28)` | 1 | 788 | 778 |
+
+The 48 water cells regain their first-write native heights, not their original
+request values, and all remain `lake=false`: classification is not repaired.
+The other 155 accepted physical-lake cells retain their native lake identity.
+At Kilimanjaro, replay removes two later native height edits while retaining
+feature ID 35; the third footprint cell 2946 remains 788. All 4,276 wet cells
+outside accepted physical lakes and all 310 dry native NAV cells hold their
+captured facts. Those NAV heights already matched their original requests,
+so this does not test preservation of a later NAV height mismatch.
+
+The frozen reader has a classification limitation: none of the 48 raw
+`GameInfo.Features` rows contains the `NaturalWonder` property it tests. Its
+zero natural-wonder group is therefore not absence or preservation proof.
+The exact Kilimanjaro ID binding and height changes remain valid. Redwood has
+no actual footprint in this run, leaving its historical protection trigger
+unqualified.
+
+This rejects blind whole-array post-recipe replay as a preservation-safe
+repair. It does not select a production solution or qualify the separate
+internal `prepare-placement-surface` slot. Any proposal there still needs a
+designed and tested conversion from authoritative wet intent to correct
+projected setter input, preserving legitimate dry feature and NAV edits.
+Cliff reconstruction, later maintenance and actual traversal remain separate
+proof obligations.
+
+Sealed evidence is under
+`~/Library/Application Support/Civ7Tools/VisualAtlas/huge-1018/earth-calibration/bounded-lake-cutoff-20260930/`.
+The reader pins 49 inputs, including the archived source and both capture
+generations. Receipt `water-original-post-recipe-huge1018-20261001-analysis-v3.json`
+SHA256: `d99c149147c6094b3abb2070ba4b577d55487fa396b5c0fc84820ebdde51100a`.
+Reader `analyze-water-original-post-recipe-20261001-v3.mjs`
+SHA256: `f28919faa376ae2e433b21a89a0df730b34e689234561f6c333346c24f7505fc`.
+Both remain frozen, including the explicitly bounded classification limitation.
+
 ## V9 Verification
 
 The app check/test graph passed (156 tests, 20,486 assertions), and the native
