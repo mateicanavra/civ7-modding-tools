@@ -132,6 +132,7 @@ export async function buildRiverProbePlan(
     atlasKind === WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS ||
     atlasKind === WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS ||
     dryRetention;
+  const observeOriginalInput = originalInput || boundedLakeCutoff;
   const maintenance = atlasKind === WATER_HEIGHT_MAINTENANCE_ATLAS || cutoffAtlas || originalInput;
   if (
     selectionInput !== undefined &&
@@ -296,7 +297,7 @@ export default createMap({
     ...standardRecipe,
     execute: (context, plan, options) => {
       standardRecipe.execute(context, plan, options);
-      ${originalInput ? "finishOriginalElevation();" : ""}
+      ${observeOriginalInput ? "finishOriginalElevation();" : ""}
       observeWaterHeightPhysicalLakes(context, plan, ${JSON.stringify(proofId)}, ${JSON.stringify(identity)}, ${JSON.stringify(maintenanceProbe)});
     },
   },
@@ -314,7 +315,7 @@ export default createMap({
       : renderSwooperCatalogMapSource(config);
     source = maintenance
       ? `${adapterImport}import { installWaterHeightMaintenanceProbe, observeWaterHeightPhysicalLakes } from "./test/runtime/water-height-maintenance.fixture.ts";
-${originalInput ? "const finishOriginalElevation = " : ""}installWaterHeightMaintenanceProbe(Civ7Adapter.prototype, ${JSON.stringify(proofId)}, ${JSON.stringify(identity)}, ${JSON.stringify(maintenanceProbe)});
+${observeOriginalInput ? "const finishOriginalElevation = " : ""}installWaterHeightMaintenanceProbe(Civ7Adapter.prototype, ${JSON.stringify(proofId)}, ${JSON.stringify(identity)}, ${JSON.stringify(maintenanceProbe)});
 ${mapSource}`
       : `${adapterImport}import { installFullMapRiverProbe } from "./test/runtime/river-full-map.fixture.ts";
 installFullMapRiverProbe(Civ7Adapter.prototype, ${JSON.stringify(proofId)}, ${JSON.stringify(atlasKind)}, ${JSON.stringify(identity)});

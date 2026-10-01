@@ -615,19 +615,78 @@ saved setup are restored and successfully generated afterward.
 
 Continue with these bounded discriminators rather than more global tuning:
 
-1. Qualify stock10 versus the already-held cutoff40 diagnostic on this repaired
-   authentic Earthlike/Huge1018 recipe. Hold physical artifacts, height intent
-   and dry edits; observe the expected 48 classification changes, protected
-   marine cells, freshwater and finalized river/water-area ocean connectivity.
-   Record category-sensitive feature/resource changes rather than demanding
-   false all-field identity. This is not adoption of forty as a product default.
-2. Refresh current-source biome attribution on the four existing
-   `earthlike/climate-structure` scenarios. The older detailed decomposition
-   predates the current 0.45 aridity shift and periodic-X refinement. Compare
-   current raw category allocation with final refinement on the exact existing
-   dominance population, holding thresholds and upstream fields. A diagnostic
-   raw rule is not an alternative production strategy; zero iterations are not
-   an admitted configuration.
+1. The repaired authentic Earthlike/Huge1018 stock10/cutoff40 pair now observes
+   exactly 48 accepted-cell lake-identity changes, with all 203 accepted cells
+   classified as lakes in the treatment. All 6,996 final heights and thirteen
+   other cell facts hold, including native dry/wonder edits and 4,276 protected
+   baseline native-water cells outside the accepted set. Native river count and
+   river ocean flags hold; three river memberships lose four plot entries
+   (three lake cells and one dry cell),
+   and body3384's water-area ocean flag changes true to false. These are
+   classification-sensitive outcomes, not evidence that ships can traverse the
+   connections. Freshwater observations on the 203 accepted cells do not
+   qualify shore freshwater. Preserve this bounded result, then design general
+   classification
+   against resolved ordinary-water components and protected marine categories.
+   This is not adoption of forty as a product default. See
+   [the matched result](water-height-maintenance.md#repaired-recipe-cutoff-qualification).
+2. Current-source biome attribution is complete on the four existing
+   `earthlike/climate-structure` scenarios, with every admitted operation output
+   reproduced cell-for-cell. Standard1018 already fails the unchanged 0.75
+   cohort ceiling before refinement: raw dominance is 0.766850, final 0.780605
+   over 1,454 qualified terrestrial cells. Refinement adds twenty modal cells;
+   it is not the origin of the failure. All those cells have zero aridity shift
+   (maximum 0.446916, below the current 0.45 threshold), so the older 0.20
+   overdrying explanation does not apply. Trace effective-moisture classes and
+   thermal/biome allocation together at their causal owners: 1,097 of 1,454
+   cells already occupy the `[90,188)` effective-moisture bucket. This index is
+   rainfall plus weighted humidity and bounded riparian bonus, not a declared
+   annual-precipitation measurement. Do not lower smoothing or add category
+   quotas to pass the ceiling. Receipt:
+   `earth-calibration/biome-row-dominance-current-20261001-analysis.json`
+   (`680367a2bd1c0be752d8350bc5f2eb2149da80ceeae654a583eec6346213145d`).
+   The prespecified frozen-input diagnostic varies only the existing second
+   moisture cutoff: control188 versus163.5/212.5, symmetric quarter-interval
+   perturbations of the current 98-unit bucket. All four control raw/final
+   arrays replay exactly. Lowering to163.5 reduces the cohort's final maximum
+   to0.693948; raising to212.5 increases it to0.840440. The lower arm changes
+   810 of 6,596 qualified cells' static native projection (806 PLAINS to
+   GRASSLAND, four TROPICAL to GRASSLAND); another23 are symbol-only changes.
+   Broad biome/density forest eligibility rises from653 to1,463, with no
+   actual placement or native readback established. Vegetation density and all
+   frozen physical inputs remain exact. Receipt:
+   `earth-calibration/biome-moisture-cutoff-frozen-20261001-analysis.json`
+   (`a890aa8e6ea0b6bcba77e691f9010ad3781f3f61deb80feae3095739e75b3555`).
+   This identifies a consequential classifier-calibration candidate, not a new
+   strategy or selected product cutoff. A passing statistic alone does not
+   establish ecological calibration.
+   History rules out a recent byte-scale regression: the rainfall-to-humidity
+   `0..200 -> 0..255` mapping predates the June-authored188 boundary; the
+   September PET extraction preserves the0.35 expression. Refined land humidity
+   remains rainfall-derived evidence, not measured relative humidity. Hydrology
+   computes the advisory index once and Ecology consumes it; no second local
+   derivation or competing legacy execution path is justified by this lineage.
+   The complete public bank comparison now retains all29 studies /96 unique
+   scenarios, with only Earthlike's existing property changed. All6,752 passing
+   expectation instances remain passing; biome dominance resolves and the
+   thermal/pressure failures remain exact. The47 paired Earthlike captures hold
+   all33 exposed upstream model fields and held terrain/water/lake/elevation/
+   river projection families. This is not every internal artifact: freezeIndex
+   and soilType are absent from the public capture. Actual headless forests
+   rise4,125 to8,383. Feature/resource cells change5,727/3,745;104 start seats
+   move across35 maps. Feature legality, resource legality/spacing and start
+   support remain inside their existing gates. Resource density spread worsens
+   1.535638 to1.764373, still below2; region-minimum placements outside habitat
+   rise232 to238 and remain separately accounted, not hidden as parity.
+   Receipt: `earth-calibration/biome-moisture-product-bank-20261001/receipt.json`
+   (`1e38c3731cfd5e5bf1363e3fc0960b956057e2d8f0aa2c70a9d38401652a1688`).
+   Independent evidence review verifies all94 capture pins and the complete
+   expectation comparison; the physical steward supports the bounded empirical
+   classification change, not a climate-law repair. Adopt163.5 at the existing
+   Ecology config owner, then rebuild/deploy/restart the registered normal mod.
+   No new operation, step, strategy, global control or legacy lane is required.
+   This is calibration of the existing empirical index, not annual rainfall
+   units, native parity or permission to leave thermal/pressure failures unresolved.
 3. Investigate land-geographic thermal variation and stationary pressure
    contrast together. Pressure intentionally reads sea-level thermal samples,
    so increasing ground lapse cannot repair its uniform land-row input. Retained
@@ -664,10 +723,27 @@ The native sequential merge/delete loop preserves every retained source tree
 and reduces the common lineage from 52 to 50 branches. Main receives only
 those qualified prerequisites; MapGen fixes remain in the retained review
 lineage. The protected main files and external branches are not discarded.
-The full-stack dry run now names exactly the retained fifty nodes and the two
-new height-repair PRs; actual publication remains distinct from this dry run.
+The complete retained fifty-node stack is now published through native Graphite
+with hooks enabled; all 186 check tasks passed. The two height-repair leaves are
+draft PRs #2228 and #2229, attached to the task. This is actual publication, not
+the earlier dry run, and it does not claim the MapGen lineage has merged to main.
 Receipts: `earth-calibration/tuner-release-and-classification-qualification-20261001.json`
-and the `qualified-*` / `converged-leaf-*` logs in Civ research user data.
+and `earth-calibration/converged-reconciliation-20261001.json`
+(`69dbfd72ccf3e3e5bd0a93463df856bd04179e05e370ac762c1aab0ddfaf36cb`),
+plus the `qualified-*` / `converged-leaf-*` / `converged-fifty-stack-submit-*`
+logs in Civ research user data. That reconciliation receipt is explicitly the
+7755f575 publication snapshot, before the subsequent fixture-only qualification.
+
+Studio's current persistent Tuner realization is unqualified for these runs:
+the current daemon accumulates response timeouts while fresh CLI observations
+and Civ UI respond. Local deterministic preview remains usable. This is a
+separate consumer-realization gap, not a physical MapGen failure or authority to
+patch the quarantined legacy session again. Existing app-owned diagnostic
+fixtures and finite operator observations remain bounded investigation evidence;
+they do not establish destination controller realm/boot or ship movement. The
+accepted capability migration retains its own dependency order and admission
+requirements; this physics/test-strategy continuation does not expand into that
+platform migration.
 
 ## Evidence That Survives The Artifact Correction
 

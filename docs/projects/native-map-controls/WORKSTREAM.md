@@ -3,11 +3,14 @@
 Status: active coherence completion. Current-only climate and basin-aware water
 generation now serve all eight shipped profiles. Elevation, relief and minor/NAV
 declarations are integrated; the existing surface-preparation owner now preserves
-physical wet heights without overwriting native dry/wonder edits. A fresh normal
-Huge Earthlike map is deployed and loaded. Native lake classification, cliff
-continuity, era-qualified naval traversal and three unchanged scientific
-expectations remain open. No unlimited cutoff or alternate legacy execution
-path is adopted. See [the current continuation](continuation-sequence.md#height-repair-and-next-qualification)
+native wet heights without overwriting native dry/wonder edits. A fresh normal
+Huge Earthlike map is deployed and loaded. Matched Huge1018 runs now distinguish
+native lake identity from height preservation: cutoff40 changes the remaining
+48 accepted cells to lakes without changing any final height. General lake
+classification policy, cliff continuity, era-qualified naval traversal and
+three unchanged scientific expectations remain open. No universal forty,
+unlimited cutoff or alternate legacy execution path is adopted.
+See [the current continuation](continuation-sequence.md#height-repair-and-next-qualification)
 and [request accounting and solution path](coherence-completion.md).
 DRA: root. Opened: 2026-09-27.
 Opening branch: `agent-root-civ7-native-map-controls-frame`.

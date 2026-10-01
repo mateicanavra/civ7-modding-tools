@@ -48,8 +48,8 @@ export const WATER_HEIGHT_MAX_LAKE_CUTOFF_PROBE = {
 } as const;
 export const WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE = {
   ...WATER_HEIGHT_MAINTENANCE_PROBE,
-  diagnosticRevision: 15,
-  displayLabel: "Water Bounded Lake Cutoff V15",
+  diagnosticRevision: 21,
+  displayLabel: "Water Bounded Lake Cutoff V21",
   atlasKind: WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS,
   expectedLakeSizeCutoff: 40,
 } as const;
@@ -338,7 +338,8 @@ export function installWaterHeightMaintenanceProbe(
   const originalInputArm =
     options.atlasKind === WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS ||
     options.atlasKind === WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS ||
-    dryRetention;
+    dryRetention ||
+    options.atlasKind === WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS;
   let originalElevation: number[] | undefined;
   let originalElevationSucceeded = false;
   let finished = false;
@@ -476,7 +477,9 @@ export function installWaterHeightMaintenanceProbe(
     qualification: originalInputArm
       ? dryRetention
         ? "Authentic calls are preserved. After recipe success, V20 adds one setter retaining exact native dry heights and protected original wet requests, no other maintenance. This is not the internal prepare-surface repair slot."
-        : "Authentic calls are preserved. The generated wrapper invokes equal post-recipe observation slots only after success; V19 adds one original-request setter, no other maintenance. This is not the internal prepare-surface repair slot."
+        : options.atlasKind === WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS
+          ? "Authentic calls are preserved. Both bounded cutoff arms protect first-setter requests and observe equal post-recipe grids without replay or additional maintenance. Classification and height are independent outcomes."
+          : "Authentic calls are preserved. The generated wrapper invokes equal post-recipe observation slots only after success; V19 adds one original-request setter, no other maintenance. This is not the internal prepare-surface repair slot."
       : "Read-only observation after measured cutoff admission; installation is not activation or success. Admitted runs add, suppress or retry no river, elevation or maintenance calls.",
   });
   return () => {

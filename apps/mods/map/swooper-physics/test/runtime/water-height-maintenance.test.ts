@@ -32,6 +32,7 @@ import {
   installWaterHeightMaintenanceProbe,
   observeWaterHeightPhysicalLakes,
   projectLakeCutoffInitialSetup,
+  WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS,
   WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE,
   WATER_HEIGHT_DRY_RETENTION_REPLAY_ATLAS,
   WATER_HEIGHT_DRY_RETENTION_REPLAY_PROBE,
@@ -587,7 +588,7 @@ describe("post-recipe physical lake maintenance evidence", () => {
   });
 });
 
-describe("V18-V20 post-recipe input transport (not native preservation)", () => {
+describe("post-recipe input transport and bounded-cutoff observation (not native preservation)", () => {
   const preset = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
   const selection = {
     ...preset.dimensions,
@@ -597,10 +598,12 @@ describe("V18-V20 post-recipe input transport (not native preservation)", () => 
   };
 
   it.each([
-    WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_PROBE,
-    WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_PROBE,
-  ])("protects first-setter Number requests and observes both finishing slots in V%s", (probe) => {
-    const options = { ...probe, ...selection };
+    { ...WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_PROBE, ...selection },
+    { ...WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_PROBE, ...selection },
+    { ...WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE, ...selection },
+    { ...WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE, ...selection, expectedLakeSizeCutoff: 40 },
+  ])("protects first-setter Number requests and observes both slots for $atlasKind/cutoff$expectedLakeSizeCutoff", (probe) => {
+    const options = probe;
     const replay = probe.atlasKind === WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS;
     const run = fixture(mapInfo(options.expectedLakeSizeCutoff, options.mapSize));
     const requests = Array.from({ length: options.width * options.height }, () => 638);
@@ -690,6 +693,37 @@ describe("V18-V20 post-recipe input transport (not native preservation)", () => 
     const callCount = run.calls.length;
     expect(() => finish()).toThrow("already attempted");
     expect(run.calls).toHaveLength(callCount);
+  });
+
+  it("observes the two authentic setters without replay in the bounded cutoff arm", () => {
+    const options = { ...WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE, ...selection, expectedLakeSizeCutoff: 40 };
+    const run = fixture(mapInfo(options.expectedLakeSizeCutoff, options.mapSize));
+    const first = Array<number>(options.width * options.height).fill(638);
+    const second = Array<number>(first.length).fill(788);
+    let native = first;
+    run.adapter.getElevation = (x, y) => native[x + y * options.width]!;
+    run.adapter.setElevation = (values) => {
+      run.calls.push({ method: "setElevation", arg: values });
+      native = [...values];
+    };
+    const finish = installWaterHeightMaintenanceProbe(
+      run.adapter, "bounded-two-setters", identity, options, (line) => run.lines.push(line)
+    );
+    run.adapter.setElevation(first);
+    run.adapter.validateAndFixTerrain();
+    run.adapter.setElevation(second);
+    run.adapter.recalculateAreas();
+    run.adapter.storeWaterData();
+    const calls = [...run.calls];
+    finish();
+    expect(run.calls).toEqual(calls);
+    const records = run.decode();
+    expect(records.filter((record) => record.stage === "original-elevation-input-grid")
+      .flatMap((record) => record.payload.values ?? [])).toEqual(first);
+    for (const checkpoint of ["before-original-replay", "after-original-replay"])
+      expect(records.filter((record) => record.stage === "original-replay-grid"
+        && record.payload.checkpoint === checkpoint).flatMap((record) => record.payload.elevation ?? []))
+        .toEqual(second);
   });
 
   it("constructs detached V20 requests from exact dry heights and only original wet inputs", () => {
@@ -1023,6 +1057,7 @@ describe("V18-V20 post-recipe input transport (not native preservation)", () => 
     WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS,
     WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS,
     WATER_HEIGHT_DRY_RETENTION_REPLAY_ATLAS,
+    WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS,
   ] as const)("finishes only after authentic generated recipe success for %s", async (atlas) => {
     const built = await buildRiverProbePlan("original-execute", "authored", atlas, {
       mapSize: "MAPSIZE_TINY",
@@ -1177,8 +1212,8 @@ describe("water height maintenance observation (not native semantics)", () => {
     expect(() => projectLakeCutoffInitialSetup(cutoffCapture(40))).toThrow("LakeSizeCutoff=20");
     expect(WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE).toEqual({
       ...WATER_HEIGHT_MAINTENANCE_PROBE,
-      diagnosticRevision: 15,
-      displayLabel: "Water Bounded Lake Cutoff V15",
+      diagnosticRevision: 21,
+      displayLabel: "Water Bounded Lake Cutoff V21",
       atlasKind: "full-map-bounded-lake-cutoff",
       expectedLakeSizeCutoff: 40,
     });
@@ -1762,7 +1797,7 @@ describe("water height maintenance observation (not native semantics)", () => {
       expect(proof.intervention.discriminator).toContain(
         "changed marine lake identity is a result"
       );
-    } else if (options.diagnosticRevision === 15) {
+    } else if (options.atlasKind === WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS) {
       expect(proof.intervention.discriminator).toContain(
         "cutoff40 versus stock10 on Huge42, then unchanged on Huge1018"
       );

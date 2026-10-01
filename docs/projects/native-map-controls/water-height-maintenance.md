@@ -798,6 +798,76 @@ Evidence prefix: `water-prepare-owner-huge1018-20261001-*` in
 Reader SHA-256:
 `8bf4beaf51b5d6d46a85e8eac56e703c439b18e60738f489879bfe6943da48bc`.
 
+### Repaired Recipe Cutoff Qualification
+
+V21 extends only the existing bounded-cutoff fixture's observations. Both arms
+protect the first authentic Number-array request and capture equal, no-action
+post-recipe grids. They add no setter, maintenance, suppression or replay; the
+real recipe retains its two authentic elevation writes. The existing catalog,
+official size presets, independent seeds and saved-setup selection drive both
+arms. Focused fixtures pass 129 tests / 42,442 assertions; the owning test-type
+graph passes. The full realization suite passes 270 tests / 50,123 assertions.
+No production computation or configuration property changes.
+
+The fresh Earthlike/Huge1018 pair uses map/game seeds1018/1018, ten players and
+`ToT_NoModsExceptMaps`, with actual native cutoffs10/40 separately admitted.
+Physical lake declarations remain 55 bodies / 203 wet cells. Cutoff40 changes
+exactly the previously nonlake 48 accepted cells to lakes: all 203 then classify
+as lakes. Every final native height and thirteen other full-grid facts hold
+across all 6,996 cells. Both arms retain the two actual dry/wonder edits at
+cells2945/3052 (native788) and all 4,276 baseline native-water cells outside the
+accepted set. This protected native-water population is not a new claim about
+the entire physical marine mask.
+
+All 191 river objects remain complete, and their `connectedToOcean` flags hold.
+Three memberships change, removing four plot entries (659 to 655): lake cells
+2177/3898/3697 and dry cell2071. Per-plot river/NAV facts still hold; the complete
+native object memberships do not.
+Body3384's fifteen water cells change their area-level ocean connectivity from
+true to false; the other two newly classified bodies retain true. Native lake
+identity, area connectivity and river membership are therefore distinct
+observations. On all 203 accepted cells, `isFreshWater` is false in both arms;
+that does not test adjacent settlement freshwater. No era-qualified vessel
+movement, rendered world-Z equivalence or cliff-continuity claim follows from
+this pair.
+
+The finite comparator initially assigned a wrong height outcome: it compared
+final water heights to raw first-setter requests. The request is projected
+per-cell ground with the native land offset, not the engine's flat water
+surface. All 203 cells differ from that request in both arms, while all 203
+exactly retain their own first post-setter native heights. The original failed
+outcome receipt is preserved; the correction belongs in a separate analysis,
+not a weaker production readback check. Current V21 lake observations do not
+independently capture the physical sea datum; a historical value of11 is not
+silently promoted into current physical-height proof.
+
+Evidence prefix: `earth-calibration/repaired-cutoff-huge1018-*` in the existing
+Civ research user-data root. The original comparison receipt is
+`repaired-cutoff-huge1018-stock10-vs-cutoff40-20261001-analysis.json`
+(`5bcb16d770e9f0a99a3e9a727ad0ced1eb9a246c20a64356419f898590bfa950`).
+Its raw MapInfo-row/public-projection and Nx log-prefix parser failures remain
+retained as distinct attempts, not native failures. The normal registered
+Earthlike mod was restored afterward; after reconciling one interrupted
+mod-selection lifecycle transition, its fresh Huge1018/12-player saved-setup
+generation passed and fresh public status reported playable.
+
+The separate `-height-supplement.json` receipt
+(`d46be5d216f1dbd404b3448896c7b112e9052588d9ba06999d072411db2e062b`)
+passes 104 guards and the corrected native-preservation/classification
+outcomes. It retains every raw-request mismatch, confirms all 55 bodies are
+flat and all 203 accepted cells preserve their own first-post-setter native
+height, and keeps the original 377-guard comparison byte-identical. Physical
+heads and native levels are retained separately; no sea datum is inferred.
+
+This qualifies forty for the held case, not a global policy or sampled maximum
+lake-size bound. The retained Ring case fails at40 and passes at252; its exact
+classification boundary remains unproven. Actual lake
+footprints are outputs of the basin/supply model. Choose any general native
+classification criterion from projected ordinary-water connectivity while
+protecting marine bodies; do not retain a competing legacy water path, change
+physical basins to fit a native constant, or introduce a host preflight by
+implication.
+
 ## V9 Verification
 
 The app check/test graph passed (156 tests, 20,486 assertions), and the native
