@@ -5,10 +5,10 @@ water-height retention are separate projection concerns. V11 qualifies bounded
 classification on the measured cohort; V12 rejects an unlimited cutoff, and the
 Ring counterexample prevents selecting one arbitrary global cap. V20 now
 qualifies restoring original wet elevation requests while retaining exact
-current native dry heights, including later wonder edits. The next production
-candidate belongs at the existing surface-preparation owner and must survive
-its subsequent area/cache transaction. Neither general production policy,
-cliff reconstruction nor actual naval traversal is yet qualified.
+current native dry heights, including later wonder edits. The preparation-owner
+repair now passes its authentic area/cache transaction on fresh Huge Earthlike
+evidence. Classification policy, universal feature protection, cliff
+reconstruction and actual naval traversal remain separately unqualified.
 
 ## Bounded Connectivity Controls
 
@@ -760,8 +760,43 @@ feature payload and ES2022 array methods, without SDK/configuration changes.
 The complete recheck is retained as
 `earth-calibration/water-prepare-owner-recheck-20261001.log`.
 
-A fresh Huge1018 pair at this actual owner remains required before adoption;
-the V20 post-recipe experiment is not substituted for it.
+### Authentic Owner Native Result
+
+The fresh Huge Earthlike candidate completed on 2026-10-01 at 08:27:08 UTC,
+with stock cutoff10, map/game seeds1018/1018 and ten players. Its five installed
+files matched the archived build before launch. Source revision
+`2f137560e9b380b692bcad1ef737669958c8fd05` and all four diagnostic/owner source
+pins are retained with the installation receipt. The independent frozen reader
+ran once: all 421 admission entries and 17 outcome checks pass, with 46 inputs
+byte-pinned and rechecked.
+
+Exactly 48 wet cells recover their first-write native heights: bodies
+1643/3384/3899 are 230/530/110 across 16/15/17 cells instead of 0/18/0. All
+2,517 dry heights and the other fourteen final facts hold. Kilimanjaro retains
+native788 at all three footprint cells, including the two actual edits from
+initial688/778. The 310 dry NAV cells, 155 accepted native-lake cells, 4,276
+outside-accepted wet cells, eleven wet feature cells and all 191 complete river
+objects (659 plot entries / 658 distinct cells) hold. Captured physical lake
+membership and levels hold for 55 bodies / 203 accepted cells; this does not
+claim comparison of every physical artifact.
+
+The second authentic setter is call16, before the existing recalculateAreas17
+and storeWaterData18. Removing it reproduces the control method sequence.
+Both terminal observation passes remain no-ops; all six observed facts hold
+through final capture. The full second setter input and full immediate
+preparation grid are not independently observed: their construction is source
+and focused-test evidence, while native evidence covers ordered focus
+observations and complete final outcomes.
+
+Adopt this narrow owner repair. All 48 cells remain native nonlake, so neither
+classification nor freshwater/navigation semantics is repaired. Absent Redwood
+and untriggered dry-NAV/wet-feature height mismatches do not qualify universal
+feature protection; cliffs, future maintenance and traversal remain separate.
+Evidence prefix: `water-prepare-owner-huge1018-20261001-*` in
+`earth-calibration/bounded-lake-cutoff-20260930/`. Analysis receipt SHA-256:
+`f5a54a85c6910b04044ffac6debf93de3e46ee571542d064f33d4fbb87d754d9`.
+Reader SHA-256:
+`8bf4beaf51b5d6d46a85e8eac56e703c439b18e60738f489879bfe6943da48bc`.
 
 ## V9 Verification
 
