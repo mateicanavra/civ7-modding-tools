@@ -484,6 +484,34 @@ non-navigable classification; the measured engine-created drop does not
 justify physical outlet grading. No candidate height-lifecycle change is
 implemented or claimed successful in this diagnostic slice.
 
+### Original-Input Replay Discriminator
+
+The existing connectivity fixture now admits a stock-Tiny control V16 and
+original-request replay V17. Both select the public 60x38, four-player,
+cutoff6 setup with seeds 1018/1019; neither introduces a database treatment.
+They share every original terrain request, height, 30 river declarations,
+start and finalization argument. Both retain the nine base checkpoints and
+observe the same additional slot immediately after the genuine
+`after-validate` capture and before area/water-cache refresh. Only V17 invokes
+one additional bulk setter there. Its Number-array input is copied from the
+original requests before the first setter, never constructed from readbacks.
+
+The primary prediction is that the isolated eleven-cell nonlake body's
+initial572 -> finalized444 -> validated316 sequence recovers to572 after
+replay and remains there through subsequent refresh. All native classification,
+terrain, original marine/dry heights, river classes and area/connectivity
+observations are collateral comparisons, not assumed invariants. In
+particular, the replay sees finalized NAV terrain that the first setter did
+not; non-idempotent dry/NAV changes would reject blind whole-map replay.
+
+This fixture is a discriminator, not a second projection law or a production
+recipe observer. No offset, new validation/finalization, retry, cutoff change,
+readback-as-input policy or wonder-preservation claim is introduced. Existing
+5/10 connectivity and lower-bound controls retain their native call sequence.
+Source tests qualify request equality, slot ordering and failure behavior;
+native retention, collateral geometry and later product suitability must be
+measured separately before a repair is selected.
+
 Numerical evolution stays with C3. The probe must not introduce a second river
 solver or move calculations into steps. Independent review, focused tests and
 the owning app graph precede native use. The stock Exploration Cog movement

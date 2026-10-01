@@ -39,8 +39,11 @@ import {
   riverProbeOutputRoot,
 } from "./river-contract-probe.fixture.js";
 import {
+  buildWaterConnectivityElevation,
   buildWaterConnectivityWrites,
   WATER_CONNECTIVITY_ATLASES,
+  WATER_CONNECTIVITY_REPLAY_ATLAS,
+  WATER_CONNECTIVITY_STOCK_ATLAS,
   WATER_LOWER_BOUND_ATLAS,
   WATER_LOWER_BOUND_CONTROLS,
 } from "./water-connectivity.fixture.js";
@@ -149,6 +152,9 @@ function mockRuntime(
     riverPlotCount?: number;
     elevationReadback?: number;
     elevationReadbackAfterWaterCache?: number;
+    elevationReadbackAfterValidation?: number;
+    mutateElevationInput?: boolean;
+    failElevationReplay?: boolean;
     terrainReadback?: number;
     featureReadback?: number;
     riverClassReadback?: number;
@@ -191,6 +197,9 @@ function mockRuntime(
     getTerrainType: (x: number, y: number) => options.terrainReadback ?? terrain[x + y * 60],
     getRiverType: (x: number, y: number) => options.riverClassReadback ?? rivers[x + y * 60],
     getElevation: (x: number, y: number) =>
+      (validations > 1 && elevationInputs.length === 1
+        ? options.elevationReadbackAfterValidation
+        : undefined) ??
       (waterCacheCalls > 0 ? options.elevationReadbackAfterWaterCache : undefined) ??
       options.elevationReadback ??
       heights[x + y * 60],
@@ -307,9 +316,12 @@ function mockRuntime(
       setElevation: (values: number[]) => {
         call("setElevation");
         elevationInputs.push([...values]);
+        if (options.failElevationReplay && elevationInputs.length === 2)
+          throw new Error("mock failed original elevation replay");
         values.forEach((value, i) => {
           heights[i] = value;
         });
+        if (options.mutateElevationInput) values.fill(-9876);
       },
       setRiverInfo: (x: number, y: number, direction: number, riverClass: number) => {
         call("setRiverInfo", [x, y, direction, riverClass]);
@@ -555,6 +567,239 @@ describe("V13/V14 water connectivity native-call transport (not native semantics
     const failedFinalizer = mockRuntime(script, { failPhase: "finalizeRivers" });
     expect(failedFinalizer.run).toThrow("mock failed finalizeRivers");
     expect(decodeBoundedJsonLogSeries(failedFinalizer.lines, "[mapgen-complete]")).toHaveLength(0);
+  });
+});
+
+describe("V16/V17 stock original-input replay transport (not native preservation)", () => {
+  test.each([
+    [WATER_CONNECTIVITY_STOCK_ATLAS, 16, false],
+    [WATER_CONNECTIVITY_REPLAY_ATLAS, 17, true],
+  ] as const)("%s retains the authentic calls and observes both sides of the after-validation slot", async (atlas, revision, replay) => {
+    const { script, plan } = await compiled("authored", atlas);
+    const proof = JSON.parse(
+      String(plan.files.find(({ relativePath }) => relativePath === "proof.json")!.content)
+    );
+    // Arbitrary getter evidence proves dispatch order, not the native maintenance law.
+    const runtime = mockRuntime(script, { lakeCutoff: 6, elevationReadbackAfterValidation: 3141 });
+    runtime.run();
+    const entries = runtime.entries();
+    for (const entry of entries)
+      expect(entry).toMatchObject({
+        proofId: "unit-artifact-only",
+        atlasKind: atlas,
+        diagnosticRevision: revision,
+        fixtureSourceSha256: proof.fixtureSourceSha256,
+      });
+    const slotCheckpoints = ["before-original-replay-slot", "after-original-replay-slot"];
+    const checkpointOrder = [
+      ...RIVER_CHECKPOINTS.slice(0, 5),
+      ...slotCheckpoints,
+      ...RIVER_CHECKPOINTS.slice(5),
+    ];
+    const checkpoints = entries.filter(({ stage }) => checkpointOrder.includes(stage));
+    expect(checkpoints.map(({ stage }) => stage)).toEqual(checkpointOrder);
+    for (const { stage, payload } of checkpoints) {
+      expect(payload.terrain).toHaveLength(2280);
+      expect(payload.riverClass).toHaveLength(2280);
+      const rows = entries.filter(
+        (entry) => entry.stage === "water-connectivity-grid" && entry.payload.checkpoint === stage
+      );
+      expect(rows.map(({ payload }) => payload.row)).toEqual(
+        Array.from({ length: 38 }, (_, row) => row)
+      );
+      for (const { payload: row } of rows) {
+        expect(row.startCell).toBe(row.row * 60);
+        for (const field of [
+          "water",
+          "lake",
+          "elevation",
+          "areaId",
+          "areaIsWater",
+          "landmassRegionId",
+        ])
+          expect(row[field]).toHaveLength(60);
+      }
+      if (slotCheckpoints.includes(stage))
+        expect(payload.originalElevationReplay).toMatchObject({
+          action: replay ? "replay-original-fixture-requests" : "none",
+          input: "original Number[] snapshot before the initial setter; never readbacks",
+        });
+    }
+    const evidence = (checkpoint: string) =>
+      entries
+        .filter(
+          ({ stage, payload }) =>
+            stage === "water-connectivity-grid" && payload.checkpoint === checkpoint
+        )
+        .flatMap(({ payload }) => payload.elevation);
+    expect(evidence("after-validate")).toEqual(Array<number>(2280).fill(3141));
+    expect(evidence("before-original-replay-slot")).toEqual(evidence("after-validate"));
+    expect(evidence("after-original-replay-slot")).toEqual(
+      replay ? buildWaterConnectivityElevation() : evidence("after-validate")
+    );
+    expect(evidence("after-water-cache")).toEqual(evidence("after-original-replay-slot"));
+    expect(runtime.elevationInputs).toEqual(
+      replay
+        ? [buildWaterConnectivityElevation(), buildWaterConnectivityElevation()]
+        : [buildWaterConnectivityElevation()]
+    );
+    expect(
+      runtime.calls.filter(({ name }) => name === "setRiverInfo").map(({ args }) => args)
+    ).toEqual(
+      buildWaterConnectivityWrites().map(({ x, y, riverClass }) => [
+        x,
+        y,
+        91,
+        riverClass === "MINOR" ? 11 : 23,
+      ])
+    );
+    expect(
+      runtime.calls.filter(({ name }) => name === "finalizeRivers").map(({ args }) => args)
+    ).toEqual([[false, 25, 2, 2]]);
+    const maintenanceCalls = runtime.calls
+      .filter(({ name }) =>
+        [
+          "validateAndFixTerrain",
+          "areas",
+          "stampContinents",
+          "setElevation",
+          "storeWaterData",
+          "finalizeRivers",
+          "addFloodplains",
+          "fertility",
+          "start",
+        ].includes(name)
+      )
+      .map(({ name }) => name);
+    expect(maintenanceCalls).toEqual([
+      "validateAndFixTerrain",
+      "areas",
+      "stampContinents",
+      "setElevation",
+      "storeWaterData",
+      "finalizeRivers",
+      "addFloodplains",
+      "validateAndFixTerrain",
+      ...(replay ? ["setElevation"] : []),
+      "areas",
+      "storeWaterData",
+      "fertility",
+      "start",
+      "start",
+      "start",
+      "start",
+    ]);
+    expect(runtime.unsafeOceanCalls).toEqual([]);
+    expect(runtime.lines.every((line) => line.length <= 900)).toBe(true);
+    expect(
+      decodeBoundedJsonLogSeries(runtime.lines, "[mapgen-complete]")[0]!.payload
+    ).toMatchObject({
+      diagnosticRevision: revision,
+      expectedLakeSizeCutoff: 6,
+      completedCheckpoints: RIVER_CHECKPOINTS,
+      replaySlotCheckpoints: slotCheckpoints,
+      originalElevationReplayed: replay,
+      observationsOnly: true,
+      writeFailures: 0,
+    });
+  });
+
+  test("replays the original Number requests even if the first native setter mutates its input", async () => {
+    const { script } = await compiled("authored", WATER_CONNECTIVITY_REPLAY_ATLAS);
+    const runtime = mockRuntime(script, {
+      lakeCutoff: 6,
+      mutateElevationInput: true,
+      elevationReadback: 4321,
+    });
+    runtime.run();
+    expect(runtime.elevationInputs).toEqual([
+      buildWaterConnectivityElevation(),
+      buildWaterConnectivityElevation(),
+    ]);
+    for (const entry of runtime
+      .entries()
+      .filter(
+        ({ stage }) =>
+          stage === "before-original-replay-slot" || stage === "after-original-replay-slot"
+      )) {
+      for (const surface of entry.payload.surfaces)
+        expect(surface.requested.elevation).toBe(
+          buildWaterConnectivityElevation()[surface.arrayIndex]
+        );
+    }
+  });
+
+  test.each([
+    WATER_CONNECTIVITY_STOCK_ATLAS,
+    WATER_CONNECTIVITY_REPLAY_ATLAS,
+  ] as const)("%s refuses non-stock activation before mutation", async (atlas) => {
+    const { script } = await compiled("authored", atlas);
+    for (const cutoff of [5, 10, "6"]) {
+      const runtime = mockRuntime(script, { lakeCutoff: cutoff });
+      expect(runtime.run).toThrow("numeric LakeSizeCutoff=6");
+      expect(runtime.calls).toHaveLength(0);
+      expect(decodeBoundedJsonLogSeries(runtime.lines, "[mapgen-complete]")).toHaveLength(0);
+    }
+    const runtime = mockRuntime(script, { lakeCutoff: 6 });
+    expect(() => runtime.callbacks.get("RequestMapInitData")!({ width: 59, height: 38 })).toThrow(
+      "stock Tiny 60x38"
+    );
+    expect(runtime.calls).toHaveLength(0);
+  });
+
+  test("unavailable getter evidence is retained on both sides and never becomes replay input", async () => {
+    const { script } = await compiled("authored", WATER_CONNECTIVITY_REPLAY_ATLAS);
+    const runtime = mockRuntime(script, {
+      lakeCutoff: 6,
+      missing: ["getElevation", "isLake", "getAreaId"],
+    });
+    runtime.run();
+    for (const checkpoint of [
+      "before-original-replay-slot",
+      "after-original-replay-slot",
+      "after-water-cache",
+    ]) {
+      const rows = runtime
+        .entries()
+        .filter(
+          ({ stage, payload }) =>
+            stage === "water-connectivity-grid" && payload.checkpoint === checkpoint
+        );
+      expect(rows).toHaveLength(38);
+      for (const { payload } of rows)
+        for (const field of ["elevation", "lake", "areaId"])
+          expect(
+            payload[field].every(
+              (value: any) => value.status === "unavailable" && value.reason === "missing-callable"
+            )
+          ).toBe(true);
+    }
+    expect(runtime.elevationInputs).toEqual([
+      buildWaterConnectivityElevation(),
+      buildWaterConnectivityElevation(),
+    ]);
+    expect(runtime.lines.every((line) => line.length <= 900)).toBe(true);
+  });
+
+  test("a failed replay is not retried and cannot run area/cache refresh or emit completion", async () => {
+    const { script } = await compiled("authored", WATER_CONNECTIVITY_REPLAY_ATLAS);
+    const runtime = mockRuntime(script, { lakeCutoff: 6, failElevationReplay: true });
+    expect(runtime.run).toThrow("mock failed original elevation replay");
+    const entries = runtime.entries();
+    expect(entries.some(({ stage }) => stage === "after-validate")).toBe(true);
+    expect(entries.some(({ stage }) => stage === "before-original-replay-slot")).toBe(true);
+    expect(entries.some(({ stage }) => stage === "after-original-replay-slot")).toBe(false);
+    expect(runtime.calls.filter(({ name }) => name === "setElevation")).toHaveLength(2);
+    expect(runtime.calls.filter(({ name }) => name === "areas")).toHaveLength(1);
+    expect(runtime.calls.filter(({ name }) => name === "storeWaterData")).toHaveLength(1);
+    expect(runtime.calls.some(({ name }) => name === "fertility" || name === "start")).toBe(false);
+    expect(decodeBoundedJsonLogSeries(runtime.lines, "[mapgen-failure]")[0]!.payload).toMatchObject(
+      {
+        stage: "original-elevation-replay",
+        payload: { message: "Error: mock failed original elevation replay" },
+      }
+    );
+    expect(decodeBoundedJsonLogSeries(runtime.lines, "[mapgen-complete]")).toHaveLength(0);
   });
 });
 

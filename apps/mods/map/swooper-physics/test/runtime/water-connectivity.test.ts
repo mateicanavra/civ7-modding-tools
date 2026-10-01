@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
 import { getCiv7StandardMapSizePreset } from "@civ7/map-policy";
 import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import { expectCiv7MapScriptCompatibility } from "./civ7-map-script-compatibility.fixture.js";
@@ -14,6 +15,8 @@ import {
   WATER_CONNECTIVITY_ATLASES,
   WATER_CONNECTIVITY_CONTROLS,
   WATER_CONNECTIVITY_ISOLATED,
+  WATER_CONNECTIVITY_REPLAY_ATLAS,
+  WATER_CONNECTIVITY_STOCK_ATLAS,
   WATER_LOWER_BOUND_ATLAS,
   WATER_LOWER_BOUND_CONTROLS,
   WATER_LOWER_BOUND_PROBE,
@@ -141,6 +144,107 @@ describe("water connectivity atlas source geometry (not native classification)",
     expect(first.writes).toEqual(second.writes);
     expect(first.controls).toEqual(second.controls);
     expect(first.isolated).toEqual(second.isolated);
+  });
+});
+
+describe("stock Tiny original-input replay source (not native preservation)", () => {
+  it("holds all existing connectivity inputs and public stock metadata in both finite arms", () => {
+    const source = buildWaterConnectivityFixture(WATER_CONNECTIVITY_ATLASES[0], "a".repeat(64));
+    const { probe: sourceProbe, ...sourceInputs } = source;
+    expect(sourceProbe.expectedLakeSizeCutoff).toBe(5);
+    const tiny = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
+    for (const [atlas, revision] of [
+      [WATER_CONNECTIVITY_STOCK_ATLAS, 16],
+      [WATER_CONNECTIVITY_REPLAY_ATLAS, 17],
+    ] as const) {
+      const { probe, ...inputs } = buildWaterConnectivityFixture(atlas, "a".repeat(64));
+      expect(inputs).toEqual(sourceInputs);
+      expect(inputs.heights).toEqual(buildWaterConnectivityElevation());
+      expect(inputs.writes).toEqual(buildWaterConnectivityWrites());
+      expect(inputs.writes).toHaveLength(30);
+      expect(probe).toMatchObject({
+        atlasKind: atlas,
+        diagnosticRevision: revision,
+        mapSize: tiny.id,
+        width: tiny.dimensions.width,
+        height: tiny.dimensions.height,
+        playerCount: tiny.defaultPlayers,
+        expectedLakeSizeCutoff: tiny.mapInfo.LakeSizeCutoff,
+      });
+      expect(probe.expectedLakeSizeCutoff).toBe(6);
+    }
+    expect(WATER_CONNECTIVITY_ATLASES).toEqual([
+      "water-connectivity-cutoff-5",
+      "water-connectivity-cutoff-10",
+    ]);
+  });
+
+  it.each([
+    [WATER_CONNECTIVITY_STOCK_ATLAS, 16, false],
+    [WATER_CONNECTIVITY_REPLAY_ATLAS, 17, true],
+  ] as const)("%s builds honest stock proof without a database action or criterion", async (atlas, revision, replay) => {
+    const plan = await buildRiverProbePlan("stock6-source-test", "authored", atlas);
+    const text = (name: string) =>
+      String(plan.files.find(({ relativePath }) => relativePath === name)!.content);
+    const script = text("maps/river-contract.js");
+    await expectCiv7MapScriptCompatibility(script, `${atlas}.js`);
+    const manifest = text(`${RIVER_PROBE.id}.modinfo`);
+    expect(plan.files.some(({ relativePath }) => relativePath === "config/lake-cutoff.xml")).toBe(
+      false
+    );
+    expect(manifest).not.toContain("game-lake-cutoff");
+    expect(manifest).not.toContain("diagnostic-map");
+    expect(manifest).not.toContain("MapInUse");
+    const proof = JSON.parse(text("proof.json"));
+    expect(proof).toMatchObject({
+      proofId: "stock6-source-test",
+      atlasKind: atlas,
+      diagnosticRevision: revision,
+      mapSize: "MAPSIZE_TINY",
+      width: 60,
+      height: 38,
+      playerCount: 4,
+      mapSeed: 1018,
+      gameSeed: 1019,
+      expectedLakeSizeCutoff: 6,
+      settings: [false, 25, 2, 2],
+      scriptSha256: createHash("sha256").update(script).digest("hex"),
+      intervention: {
+        kind: "stock-tiny-original-input-replay-diagnostic",
+        databaseTreatment: "none; public Tiny stock row held",
+        originalElevationReplayed: replay,
+        input: "original fixture Number[] snapshot; never native readbacks",
+        replaySlotCheckpoints: ["before-original-replay-slot", "after-original-replay-slot"],
+      },
+      liveVerifierFlags: [
+        "--mutate",
+        "--map-script",
+        riverProbeMapScript,
+        "--map-size",
+        "MAPSIZE_TINY",
+        "--seed",
+        "1018",
+        "--game-seed",
+        "1019",
+        "--player-count",
+        "4",
+      ],
+    });
+    for (const key of ["set", "table", "criterion", "where"])
+      expect(proof.intervention).not.toHaveProperty(key);
+    const source = await readFile(new URL("./water-connectivity.fixture.ts", import.meta.url));
+    expect(proof.fixtureSourceSha256).toBe(createHash("sha256").update(source).digest("hex"));
+    expect(script).toContain(proof.fixtureSourceSha256);
+    expect(proof.evidence).toContain("no native observations");
+    expect(proof.intervention.qualification).toContain("non-idempotent");
+    await expect(buildRiverProbePlan("stock6-source-test", "aesthetic", atlas)).rejects.toThrow(
+      "authored finalization tuple"
+    );
+    await expect(
+      buildRiverProbePlan("stock6-source-test", "authored", atlas, {
+        lakeSizeCutoff: 10,
+      })
+    ).rejects.toThrow("only for maintenance atlases");
   });
 });
 

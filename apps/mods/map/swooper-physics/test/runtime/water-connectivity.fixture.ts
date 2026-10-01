@@ -11,7 +11,14 @@ export const WATER_CONNECTIVITY_ATLASES = [
   "water-connectivity-cutoff-5",
   "water-connectivity-cutoff-10",
 ] as const;
-export type WaterConnectivityAtlas = (typeof WATER_CONNECTIVITY_ATLASES)[number];
+/** Stock Tiny control for the original-input replay slot, without a database treatment. */
+export const WATER_CONNECTIVITY_STOCK_ATLAS = "water-connectivity-stock-6";
+/** The sole treatment replays original requests after validation, not native readbacks. */
+export const WATER_CONNECTIVITY_REPLAY_ATLAS = "water-connectivity-stock-6-original-replay";
+export type WaterConnectivityAtlas =
+  | (typeof WATER_CONNECTIVITY_ATLASES)[number]
+  | typeof WATER_CONNECTIVITY_STOCK_ATLAS
+  | typeof WATER_CONNECTIVITY_REPLAY_ATLAS;
 type XY = Readonly<{ x: number; y: number }>;
 type Terrain = "OCEAN" | "COAST" | "FLAT";
 
@@ -53,13 +60,36 @@ export const WATER_CONNECTIVITY_ISOLATED = [4, 5, 6, 9, 10, 11].map((size, index
 
 /** Exact selector admission shared by the existing builder and registration path. */
 export function isWaterConnectivityAtlas(atlas: string): atlas is WaterConnectivityAtlas {
-  return (WATER_CONNECTIVITY_ATLASES as readonly string[]).includes(atlas);
+  return (
+    (WATER_CONNECTIVITY_ATLASES as readonly string[]).includes(atlas) ||
+    atlas === WATER_CONNECTIVITY_STOCK_ATLAS ||
+    atlas === WATER_CONNECTIVITY_REPLAY_ATLAS
+  );
 }
 
 /** Unique revisions leave every earlier river and water-height treatment unchanged. */
 export function waterConnectivityProbe(atlasKind: WaterConnectivityAtlas) {
   if (!isWaterConnectivityAtlas(atlasKind))
     throw new Error(`Unknown water-connectivity atlas: ${atlasKind}`);
+  if (
+    atlasKind === WATER_CONNECTIVITY_STOCK_ATLAS ||
+    atlasKind === WATER_CONNECTIVITY_REPLAY_ATLAS
+  ) {
+    const replay = atlasKind === WATER_CONNECTIVITY_REPLAY_ATLAS;
+    return {
+      ...RIVER_PROBE,
+      diagnosticRevision: replay ? 17 : 16,
+      displayLabel: replay
+        ? "Stock Tiny Original Elevation Replay V17"
+        : "Stock Tiny Water Control V16",
+      atlasKind,
+      width: lowerBoundTiny.dimensions.width,
+      height: lowerBoundTiny.dimensions.height,
+      playerCount: lowerBoundTiny.defaultPlayers,
+      mapSize: lowerBoundTiny.id,
+      expectedLakeSizeCutoff: lowerBoundTiny.mapInfo.LakeSizeCutoff,
+    } as const;
+  }
   const cutoff = atlasKind === "water-connectivity-cutoff-5" ? 5 : 10;
   return {
     ...RIVER_PROBE,

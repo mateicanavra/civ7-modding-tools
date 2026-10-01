@@ -35,6 +35,8 @@ import {
 import {
   isWaterConnectivityAtlas,
   WATER_CONNECTIVITY_ATLASES,
+  WATER_CONNECTIVITY_REPLAY_ATLAS,
+  WATER_CONNECTIVITY_STOCK_ATLAS,
   WATER_LOWER_BOUND_ATLAS,
   WATER_LOWER_BOUND_PROBE,
   waterConnectivityProbe,
@@ -78,6 +80,8 @@ const atlases: readonly string[] = [
   WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS,
   WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS,
   ...WATER_CONNECTIVITY_ATLASES,
+  WATER_CONNECTIVITY_STOCK_ATLAS,
+  WATER_CONNECTIVITY_REPLAY_ATLAS,
   WATER_LOWER_BOUND_ATLAS,
 ];
 const isFullMapAtlas = (atlas: string): atlas is FullMapRiverProbeAtlas =>
@@ -175,6 +179,8 @@ export async function buildRiverProbePlan(
   const lakeCutoff = maintenance && expectedLakeSizeCutoff !== preset.mapInfo.LakeSizeCutoff;
   const fullMap = isFullMapAtlas(atlasKind) || maintenance;
   const lowerBound = atlasKind === WATER_LOWER_BOUND_ATLAS;
+  const stockConnectivity =
+    atlasKind === WATER_CONNECTIVITY_STOCK_ATLAS || atlasKind === WATER_CONNECTIVITY_REPLAY_ATLAS;
   const waterConnectivity = isWaterConnectivityAtlas(atlasKind) || lowerBound;
   const probe = lowerBound
     ? WATER_LOWER_BOUND_PROBE
@@ -187,11 +193,12 @@ export async function buildRiverProbePlan(
           : atlasKind === "lake-navigation"
             ? RIVER_LAKE_NAVIGATION_PROBE
             : RIVER_PROBE;
-  const scopedCutoff = isWaterConnectivityAtlas(atlasKind)
-    ? waterConnectivityProbe(atlasKind).expectedLakeSizeCutoff
-    : lakeCutoff
-      ? maintenanceProbe.expectedLakeSizeCutoff
-      : undefined;
+  const scopedCutoff =
+    isWaterConnectivityAtlas(atlasKind) && !stockConnectivity
+      ? waterConnectivityProbe(atlasKind).expectedLakeSizeCutoff
+      : lakeCutoff
+        ? maintenanceProbe.expectedLakeSizeCutoff
+        : undefined;
   const cutoffMapSize = waterConnectivity ? "MAPSIZE_TINY" : preset.id;
   const launchMapSize = maintenance ? preset.id : fullMap ? "MAPSIZE_HUGE" : "MAPSIZE_TINY";
   const launchDescription = maintenance
@@ -350,16 +357,31 @@ ${renderSwooperCatalogMapSource(config)}`;
                           qualification:
                             "Wet requests may be ignored. Complete body and adjacent dry-shore native observations immediately after the setter and through the existing nine maintenance checkpoints are evidence, not physical-head or product-policy acceptance.",
                         }
-                      : {
-                          kind: "paired-source-water-connectivity",
-                          scope: "game",
-                          criterion: { MapInUse: riverProbeMapScript },
-                          table: "Maps",
-                          where: { MapSizeType: "MAPSIZE_TINY" },
-                          set: { LakeSizeCutoff: scopedCutoff },
-                          qualification:
-                            "Activation requires measured Tiny metadata; all-cell native water/lake/area evidence is observed, never inferred from authored terrain. No movement success claimed.",
-                        }),
+                      : stockConnectivity
+                        ? {
+                            kind: "stock-tiny-original-input-replay-diagnostic",
+                            databaseTreatment: "none; public Tiny stock row held",
+                            originalElevationReplayed:
+                              atlasKind === WATER_CONNECTIVITY_REPLAY_ATLAS,
+                            input: "original fixture Number[] snapshot; never native readbacks",
+                            slot: "after genuine after-validate capture, before area and water-cache refresh",
+                            replaySlotCheckpoints: [
+                              "before-original-replay-slot",
+                              "after-original-replay-slot",
+                            ],
+                            qualification:
+                              "Diagnostic only. Original requests may be non-idempotent after river classification. Full native observations qualify wet, marine and dry collateral effects; no wonder, NAV-grade, movement or production preservation claim.",
+                          }
+                        : {
+                            kind: "paired-source-water-connectivity",
+                            scope: "game",
+                            criterion: { MapInUse: riverProbeMapScript },
+                            table: "Maps",
+                            where: { MapSizeType: "MAPSIZE_TINY" },
+                            set: { LakeSizeCutoff: scopedCutoff },
+                            qualification:
+                              "Activation requires measured Tiny metadata; all-cell native water/lake/area evidence is observed, never inferred from authored terrain. No movement success claimed.",
+                          }),
                   },
                 }
               : {}),

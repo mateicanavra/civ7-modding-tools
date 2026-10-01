@@ -712,9 +712,13 @@ export function registerRiverContractProbe(
   const settings = RIVER_PROBE_VARIANTS[variant];
   if (!settings) throw new Error(`Unknown river probe variant: ${variant}`);
   const isLowerBoundAtlas = atlasKind === "water-closed-lower-bound";
+  const isOriginalReplayAtlas = atlasKind === "water-connectivity-stock-6-original-replay";
+  const isStockConnectivityAtlas =
+    atlasKind === "water-connectivity-stock-6" || isOriginalReplayAtlas;
   const isWaterAtlas =
     atlasKind === "water-connectivity-cutoff-5" ||
     atlasKind === "water-connectivity-cutoff-10" ||
+    isStockConnectivityAtlas ||
     isLowerBoundAtlas;
   if (
     atlasKind !== "legacy" &&
@@ -909,6 +913,8 @@ export function registerRiverContractProbe(
           : isLakeAtlas
             ? buildRiverLakeNavigationElevation(wrapX)
             : buildRiverProbeElevation(wrapX));
+      // A native setter may consume or mutate its argument; never replay a getter or altered request.
+      const originalHeightRequests = isStockConnectivityAtlas ? [...heights] : heights;
       const elevatedLakeControls = (
         isTerrainAtlas || isWaterAtlas
           ? []
@@ -936,7 +942,7 @@ export function registerRiverContractProbe(
       const requestedAt = (x: number, y: number) => ({
         terrainSymbol: terrainAt(x, y),
         terrain: terrainIds[terrainAt(x, y)],
-        elevation: heights[index({ x, y })],
+        elevation: originalHeightRequests[index({ x, y })],
         feature: requestedFeatureAt(x, y),
         riverClass: writes.find((write) => write.x === x && write.y === y)?.riverClass ?? null,
       });
@@ -1200,6 +1206,16 @@ export function registerRiverContractProbe(
       const capture = () =>
         emit(stage, {
           ...(waterConnectivity ? { waterConnectivity: captureWaterConnectivity() } : {}),
+          ...(isStockConnectivityAtlas &&
+          (stage === "before-original-replay-slot" || stage === "after-original-replay-slot")
+            ? {
+                originalElevationReplay: {
+                  action: isOriginalReplayAtlas ? "replay-original-fixture-requests" : "none",
+                  input: "original Number[] snapshot before the initial setter; never readbacks",
+                  slot: "after genuine after-validate capture, before area and water-cache refresh",
+                },
+              }
+            : {}),
           ...(isLowerBoundAtlas && stage === "after-elevation-write" && waterConnectivity
             ? {
                 lowerBoundAdjacency: waterConnectivity.isolated.map(({ caseId, cells }) => ({
@@ -1405,6 +1421,16 @@ export function registerRiverContractProbe(
         stage = name;
         run();
         capture();
+        if (isStockConnectivityAtlas && name === "after-validate") {
+          stage = "before-original-replay-slot";
+          capture();
+          if (isOriginalReplayAtlas) {
+            stage = "original-elevation-replay";
+            TerrainBuilder.setElevation([...originalHeightRequests]);
+          }
+          stage = "after-original-replay-slot";
+          capture();
+        }
       }
       for (const line of encodeBoundedJsonLogLines({
         marker: "[mapgen-complete]",
@@ -1418,6 +1444,15 @@ export function registerRiverContractProbe(
           observationsOnly: true,
           completedCheckpoints: RIVER_CHECKPOINTS,
           ...(isLowerBoundAtlas ? { immediateElevationCheckpoint: "after-elevation-write" } : {}),
+          ...(isStockConnectivityAtlas
+            ? {
+                replaySlotCheckpoints: [
+                  "before-original-replay-slot",
+                  "after-original-replay-slot",
+                ],
+                originalElevationReplayed: isOriginalReplayAtlas,
+              }
+            : {}),
           writeFailures,
           ...(waterConnectivity
             ? {

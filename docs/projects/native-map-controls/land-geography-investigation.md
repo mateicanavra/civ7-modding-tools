@@ -183,3 +183,42 @@ holdouts. Do not infer heat capacity, fit a gain or equate air with prescribed
 SST/model surface temperature. January signatures cannot establish persistent
 annual geography; the annual follow-through remains a distinct acceptance gate.
 Production thermal/pressure/wind/SST owners remain fixed during source admission.
+
+## January Process Pilot: Annual Follow-Through
+
+The finite January pilot is admitted and sealed. All ten fields reach the
+unchanged 411 original receivers, 196/215 split, 136 additional coastal
+receivers and 1,400 exact native halo cells. Fourteen further original GRIB
+numeric comparisons qualify V and the remaining flux mappings. The two ice
+records are globally identical, so their converter time shift remains
+nonidentifying; only donors ice-free over every acquired January record enter
+the marine attribution. No new production field or coefficient is introduced.
+
+Across 122 aligned intervals, stable onshore marine advection agrees with
+observed six-hour air change in 49.68% of supported cases. Net surface-energy
+signs agree in 77.67% of the held latitude cohort and 67.29-81.91% of separately
+recentered geographic sectors. In matched cases where marine and energy signs
+oppose, energy agrees in 64.91%. These unfitted signatures favor examining
+local energy first, not adopting a maritime gain or an energy-budget law.
+Outgoing longwave and turbulent fluxes respond to surface state; their
+association is not independent imposed forcing. January tendency cannot
+establish persistent annual geography, and summing it would telescope.
+
+The next admitted discriminator keeps the same receivers, source grid and
+held regions, reuses January, and acquires the remaining eleven months in
+bounded stages. Separate incoming, outgoing/storage and signed-transport
+contrasts under source-row/height/month/valid-hour controls before selecting a
+mechanism. Production thermal, pressure, wind, SST and all expectations remain
+fixed. A 250 MB additional-transfer cap and no retry after HTTP 429 bound this
+external-only acquisition; unavailable regions, boundary intervals and ice
+support remain explicit. No repository extraction toolchain or cache is added.
+
+Retained evidence:
+`earth-calibration/ncep-1991-january-process-pilot-20261001/REPORT.md` and
+`SEAL.json`. Report SHA256:
+`201ad992fc3b5f7b907fbc08a1a09c499150da7e53b79386a183d65be3bca9cf`.
+The coordinator reran all eight Bun tests (18 assertions) and rehashed all
+eleven sealed artifacts. The source verifier independently reread 1,736,000
+raw selected values and repeated the matched counts; two complete runs are
+byte-identical. These are January process claims, not an annual calibration
+acceptance or a new production thermal law.
