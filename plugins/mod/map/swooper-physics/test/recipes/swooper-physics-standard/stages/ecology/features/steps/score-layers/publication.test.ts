@@ -45,7 +45,8 @@ const config = {
 
 describe("ecology-features score-layers step", () => {
   for (const initiallyWet of [false, true]) {
-  it(`publishes Lotus and resolved terrestrial suitability independently of initial wetness: ${initiallyWet}`, () => {
+  for (const cold of [false, true]) {
+  it(`publishes separate marine ice, Lotus, and terrestrial evidence: initiallyWet=${initiallyWet}, cold=${cold}`, () => {
     const width = 8;
     const height = 1;
     const size = width * height;
@@ -62,6 +63,10 @@ describe("ecology-features score-layers step", () => {
     topography.bathymetry[0] = -10;
     const before = structuredClone(fixture);
     const surfaceTemperatureC = new Float32Array(size).fill(32);
+    if (cold) {
+      surfaceTemperatureC[0] = surfaceTemperatureC[wetCell] = surfaceTemperatureC[dryCell] = -10;
+    }
+    const beforeTemperature = surfaceTemperatureC.slice();
     const shelfMask = new Uint8Array(size);
     const coastalWater = new Uint8Array(size);
     shelfMask[0] = coastalWater[0] = 1;
@@ -74,6 +79,7 @@ describe("ecology-features score-layers step", () => {
     });
     const context = createMapContext({ setup, adapter: createMockAdapter({ width, height }) });
     let lotusCalls = 0;
+    let iceCalls = 0;
 
     withMapContextExecutionForTest(context, (stepContext) => {
       publishTestArtifact(stepContext, morphologyErosionArtifacts.topography, topography);
@@ -145,21 +151,46 @@ describe("ecology-features score-layers step", () => {
         expect(input.landMask[wetCell]).toBe(0);
         return ops.vegetationSubstrate(input, operationConfig);
       };
-      ScoreLayersStep.run(stepContext, config, { ...ops, scoreReefLotus, vegetationSubstrate },
+      const scoreIce: typeof ops.scoreIce = (input, operationConfig) => {
+        iceCalls++;
+        expect(Object.keys(input).sort()).toEqual([
+          "externalWaterMask", "height", "surfaceTemperature", "width",
+        ]);
+        expect(input.externalWaterMask).toBe(topography.externalWaterMask);
+        expect(input.surfaceTemperature).toBe(surfaceTemperatureC);
+        expect(input.externalWaterMask[0]).toBe(1);
+        expect(input.externalWaterMask[wetCell]).toBe(0);
+        expect(input.externalWaterMask[dryCell]).toBe(0);
+        return ops.scoreIce(input, operationConfig);
+      };
+      ScoreLayersStep.run(stepContext, config, {
+        ...ops,
+        scoreReefLotus,
+        vegetationSubstrate,
+        scoreIce,
+      },
         buildStepTestDependencies(ScoreLayersStep, stepContext));
     });
 
     const suitability = readArtifact(context, featureArtifacts.featureSuitability);
     expect(lotusCalls).toBe(1);
+    expect(iceCalls).toBe(1);
+    expect(suitability.layers.ice[0]).toBe(cold ? 1 : 0);
+    expect(suitability.layers.ice.every((score, cell) => score === 0 || topography.externalWaterMask[cell] === 1)).toBe(true);
+    expect(suitability.layers.ice[wetCell]).toBe(0);
+    expect(suitability.layers.ice[dryCell]).toBe(0);
     expect(suitability.layers.lotus[wetCell]).toBe(
-      Math.fround(1 - 0.25 / 40)
+      cold ? 0 : Math.fround(1 - 0.25 / 40)
     );
     expect(suitability.layers.lotus.every((score, cell) => score === 0 || lakePlan.lakeMask[cell] === 1)).toBe(true);
-    expect(suitability.layers.reef[0]).toBeGreaterThan(0);
+    if (cold) expect(suitability.layers.reef[0]).toBe(0);
+    else expect(suitability.layers.reef[0]).toBeGreaterThan(0);
     for (const feature of ["reef", "cold-reef", "atoll"] satisfies (keyof typeof suitability.layers)[]) {
       expect(suitability.layers[feature][wetCell]).toBe(0);
     }
     expect(fixture).toEqual(before);
+    expect(surfaceTemperatureC).toEqual(beforeTemperature);
   });
+  }
   }
 });

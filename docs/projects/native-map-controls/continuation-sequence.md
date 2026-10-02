@@ -34,6 +34,14 @@ The repair is merged through PR #2251. Its fresh session also completes ten
 normal autoplay turns, T1 to T11/500 CE, with player/observer zero returned and
 autoplay inactive and paused. Those are current-build receipts, distinct from
 the earlier Cog routes and eighteen-view atlas.
+The subsequent [marine-ice owner repair](marine-ice-eligibility.md) is implemented,
+deployed and freshly live-qualified on the same Huge1018 saved setup. Unsupported
+finite-water feature attempts/rejections fall from 26 to zero, with all river
+sources, native height measurements and the complete 57-case scientific
+evaluation exact. The alpine feature strategy and its authored keys are retired,
+not retained as a fallback; physical cryosphere and snow remain independent.
+Publication and merge remain separately confirmed outcomes. This does not close
+the thermal floor or establish a new photographic/navigation witness.
 Refused candidates do not install a new physical law or
 height codec. The current external coupled surface/air candidate's r4
 manufactured controls pass and both full-grid solves settle, but its annual
@@ -59,9 +67,15 @@ lifetime correction passes 7,628 manufactured checks with exact original
 physical results, but again reaches the deadline before completing even one
 reference year: 352 phases, 93,236 linear iterations and child high-water
 643.5 MiB. No full-grid refinement or Earth score is available. A bounded
-computational design/profile must now discriminate the expensive numerical
-work against a simpler physical alternative; more allocation tweaks or a
-larger cap are not an automatic solution. Neither prototype changes the
+computational profile now isolates 94.46% of first-stage sampled CPU inside
+GMRES: 504 iterations and 538 matrix-vector evaluations, with negligible
+source-law time. The next prospectively sealed discriminator replaces only
+early absolute direction tolerance with fixed relative inexact-Newton forcing;
+final original-equation accuracy, branch/descent, ledgers and resource caps
+remain unchanged. Independent review and manufactured controls precede one
+bounded first stage. It is not an automatic full-year retry or adoption, and
+a simpler physical alternative remains a separate decision if numerical work
+cannot qualify. Neither prototype changes the
 recipe pipeline. Coupled adoption also needs one explicit climate-to-water
 conversion rather than relabeling the existing index-based basin quantities.
 See the numerical record for the exact refusal and ownership dependencies.

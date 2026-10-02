@@ -13,7 +13,22 @@ benchmarks, not inputs hidden inside the procedural Earthlike recipe. A
 realistic Earthlike variant is the desired playable outcome, not literal Earth
 replay. Historical eight-product captures remain immutable comparison evidence.
 
-The latest merged owner repair is [savanna annual-supply admission](savanna-water-supply.md),
+The next completed owner repair is [marine ice eligibility](marine-ice-eligibility.md).
+It retires the unsupported alpine feature strategy and limits both ice scoring
+and planning to the existing physical external-water recipient. Physical
+freezing, snow, climate, drainage and heights remain unchanged. All 57 scenarios,
+2,166 captured physical-field hashes and 4,430 evaluation observations stay
+exact. Fresh saved Huge1018/1018, twelve-player Exploration generation completes
+at `2026-10-02T21:23:16Z`: invalid ice attempts/rejections fall from 26 to zero,
+all native feature rejections are zero, 23 savanna tiles remain applied, and all
+666 river sources and native height measurements remain exact. Installed
+Earthlike script SHA256 is
+`9180402573b831fde9dd4ce9146b8cc858b5c64acd83301d5a61b1feba453e71`.
+This is implemented, deployed and live-qualified; its merge is separately
+recorded when confirmed. The prior sixteen-view atlas remains photographic
+evidence for its own build, not a newly captured ice-repair atlas.
+
+The preceding merged owner repair is [savanna annual-supply admission](savanna-water-supply.md),
 [PR #2251](https://github.com/mateicanavra/civ7-modding-tools/pull/2251), merged at
 `2026-10-02T18:14:21Z` into main commit
 `b134ef300ffd56bc022f5447c5ec16a71e8b32e4`:
@@ -203,7 +218,8 @@ Details: [elevation](elevation.md), [relief](relief-coherence.md),
 | Biome refinement did not wrap longitude | SDK periodic-X correction implemented and deployed; exact-input studies show a small boundary repair | This was not the explanation for all broad biome banding |
 | Vegetation admission and later biome moisture boundaries suppressed supported habitats | Domain-owner scoring repair and bounded classifier calibration implemented; upstream physical captures held; normal Huge Earthlike loaded | Continue coherent ecology calibration against the physical fields rather than adding quotas |
 | Reef selection rejected valid habitats by coordinate phase | Spatial-selection repair and independent wrapped-distance regressions | Retiring the Ring preset does not retire those algorithm tests |
-| Some consumer contracts falsely called model relief metres | Owner-local descriptions corrected across 27 production files with numerical syntax held; legacy authored key names remain explicit model-unit controls | Physical dimensional laws and thresholds need independent owner-level calibration; native render scale is not a metre conversion |
+| Some consumer contracts falsely called model relief metres | Owner-local descriptions corrected across 27 production files with numerical syntax held; the subsequent ice repair strictly retires its unsupported alpine keys and strategy rather than preserving an obsolete compatibility lane | Other surviving authored key names remain explicitly model-unit controls; physical dimensional laws and thresholds need independent calibration, not the native render multiplier |
+| Ice feature intent included finite inland water and unsupported alpine land | Marine-temperature scoring and independent planner eligibility use the existing external-water mask; all 57 physical/evaluation captures remain exact, and fresh Huge1018 removes 26 native rejection attempts | Physical cryosphere stays separate; small external components can still meet Civ's approximate native lake classification |
 | Native maintenance changed water/dry heights after direct writes | Surface-preparation owner repairs water-height preservation while retaining native dry/wonder changes | Classification cutoff, level preservation, apparent connection and gameplay navigation remain different claims |
 | Cliffs were generated from transiently lowered water before its final retained height | The V24 stock10/finite17 native pair supports moving the sole cliff call after the final setter; 114 former directed flag differences disappear with all final map facts unchanged | Rendered joins and actor cliff admission are separate; no extra pass, carving or blanket cutoff increase |
 | Root checks omitted the definition policy target | Existing target wired into the root graph; public-operation test boundaries, operation-owned support shape and unchanged captured fixture locations repaired; 56 policy rules pass | This closes structural admission, not the retained science aggregate |

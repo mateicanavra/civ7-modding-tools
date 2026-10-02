@@ -452,6 +452,48 @@ describe("Shipped map configs", () => {
     }
   });
 
+  it("admits marine-temperature ice envelopes and strictly retires alpine feature authoring", async () => {
+    const configs = await loadSwooperMapConfigRegistry();
+    expect(configs).toHaveLength(3);
+    for (const { canonicalConfig } of configs) {
+      const stage = canonicalConfig.config["ecology-features"];
+      const scoring = stage["score-layers"];
+      const ice = scoring.scoreIce;
+      expect(ice).toEqual({
+        strategy: "marine-temperature",
+        config: { seaTempColdC: -10, seaTempWarmC: -2 },
+      });
+      expect(admitStandardMapConfig(canonicalConfig)).toEqual(canonicalConfig);
+      const before = structuredClone(canonicalConfig);
+      for (const obsolete of [
+        { ...ice, strategy: "thermal-elevation" },
+        { ...ice, config: { ...ice.config, alpineElevationMinM: 2200 } },
+        { ...ice, config: { ...ice.config, alpineElevationMaxM: 3400 } },
+        { ...ice, config: { ...ice.config, alpineFreezeMin01: 0.55 } },
+        {
+          strategy: "thermal-elevation",
+          config: {
+            ...ice.config, alpineElevationMinM: 2200, alpineElevationMaxM: 3400,
+            alpineFreezeMin01: 0.55,
+          },
+        },
+        { strategy: "marine-temperature", config: { seaTempColdC: -10 } },
+      ]) {
+        expect(() => admitStandardMapConfig({
+          ...canonicalConfig,
+          config: {
+            ...canonicalConfig.config,
+            "ecology-features": { ...stage, "score-layers": { ...scoring, scoreIce: obsolete } },
+          },
+        })).toThrow();
+      }
+      expect(canonicalConfig).toEqual(before);
+    }
+    expect(ecology.features.ops.scoreIce.defaultConfig).toEqual({
+      strategy: "marine-temperature", config: { seaTempColdC: -10, seaTempWarmC: -2 },
+    });
+  });
+
   it("bounds reef spacing to integers from one through twelve and provides a complete spacing-one default", async () => {
     const [fixture] = await loadSwooperMapConfigRegistry();
     if (!fixture) throw new Error("Expected a shipped Swooper map config");

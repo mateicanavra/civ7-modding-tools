@@ -7,12 +7,13 @@ import {
 import { config } from "./config.js";
 
 /**
- * Plans ice from shared suitability after admitted floodplain intents claim their tiles.
+ * Plans external-water ice from shared suitability after floodplain intents claim their tiles.
  */
 export const PlanIceStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const floodplainIntents = deps.artifacts.floodplainIntents.read();
     const suitability = deps.artifacts.featureSuitability.read();
+    const topography = deps.artifacts.topography.read();
     const { width, height } = context.setup.dimensions;
     const featureOccupancyMask = deriveFeatureOccupancy(
       context.setup.dimensions,
@@ -25,6 +26,7 @@ export const PlanIceStep = createStep(config, {
         width,
         height,
         seed,
+        externalWaterMask: topography.externalWaterMask,
         score01: suitability.layers.ice,
         featureOccupancyMask,
       },

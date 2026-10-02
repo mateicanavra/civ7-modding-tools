@@ -1,4 +1,4 @@
-import thermalElevation from "./thermal-elevation/index.js";
+import marineTemperature from "./marine-temperature/index.js";
 
-/** Scores sea and alpine ice suitability from temperature, elevation, freeze persistence, and land-water state. Implementations available to the recipe's semantic strategy selection. */
-export default [thermalElevation] as const;
+/** Scores marine ice suitability from climate temperature on physical external-water recipients. */
+export default [marineTemperature] as const;
