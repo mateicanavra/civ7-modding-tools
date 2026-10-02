@@ -101,3 +101,38 @@ status `LOCAL_ATTRIBUTION_COMPLETED_NO_PRODUCER_ADMISSION`.
 The eight attribution payloads retain their per-era/final tapes and distinct
 tile/angular-area summaries. Angular weights use the declared climate embedding,
 not physical crust area. No operation behavior, field, height law or playable build changes.
+
+## Matched Reference Support
+
+The next reference-only discriminator integrates retained NCEP surface
+geopotential height and CRUST1's ETOPO1-based first-boundary relief over the
+same angular NCEP-land/intersecting water-free, ice-free CRUST support. They
+remain separately named source quantities, not independent geological
+experiments or an exact geometric/geopotential datum conversion. Negative dry
+heights remain signed. All 1,536 comparison cells and all four longitude
+blocks are retained; no generated arm, gain fit or new admission guard is used.
+
+All `32,264` synthetic overlap controls pass before Earth statistics. Every
+original NCEP support cell reconstructs with exactly zero height/area error.
+Independent post-run review reproduces the complete five-population statistics,
+profiles, distributions, support partitions and sealed source/output identities.
+The whole run takes `0.714 s`; child high-water is `246,038,528 bytes`, below
+the unchanged 120-second/512-MiB reference-reduction limits.
+
+For the whole comparison, 561 cells have nonzero joint support. The shared
+majority-support shape population has 360 cells, 24 rows and 576 unique
+east/south pairs. The global-offset/positive-gain-invariant ratio of neighbor
+RMS to within-row-demeaned RMS is `0.92050` for NCEP and `0.94164` for CRUST.
+The four block pairs are `1.06442/1.09017`, `1.04068/1.05389`,
+`0.98380/0.99155` and `1.40284/1.42305`. These are descriptive similar shapes,
+not a newly thresholded agreement test, physical gradient or metre calibration.
+
+This supports investigating actual mesh-to-tile and represented-support
+semantics next. It does not identify a Foundation material/sign defect. The
+old scalar representativeness losses and their refused outcomes remain
+unchanged, not promoted to universal geophysical inequalities.
+
+Packet: `earth-calibration/earth-relief-reference-support-discriminator-20261002/`.
+OUTCOME SHA is `9653ca643f610cc707951134052e6b86b96695264cbae8074e4cc96eff24bf6e`;
+RESULT SHA is `cb7afd9dfdd780eb9f504e213df6137f9c50b1d273f2b1f41fc4d91b0775cced`.
+Status is `COMPLETED_DESCRIPTIVE_REFERENCE_DISCRIMINATION_NOT_PRODUCTION_ADMISSION`.
