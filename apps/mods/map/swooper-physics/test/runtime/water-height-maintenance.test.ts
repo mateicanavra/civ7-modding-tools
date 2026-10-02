@@ -26,6 +26,7 @@ import { loadSwooperMapConfigCatalog } from "@swooper/swooper-physics/tooling/ca
 import ts from "typescript";
 import {
   RIVER_AUTHORED_FINALIZATION_VARIANTS,
+  RIVER_AUTHORED_NEIGHBORHOOD_VARIANT,
   RIVER_AUTHORED_WRITE_ORDER_VARIANT,
   RIVER_DIRECTIONS,
   RIVER_PROBE_VARIANTS,
@@ -46,6 +47,7 @@ import {
   installWaterHeightMaintenanceProbe,
   observeWaterHeightPhysicalLakes,
   projectLakeCutoffInitialSetup,
+  RIVER_NEIGHBORHOOD_CLASS_INTERVENTION,
   readDirectionalCliffStudy,
   WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS,
   WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE,
@@ -819,8 +821,8 @@ function fixture(info: MapInfo = mapInfo(10)) {
       calls.push({ method: "storeWaterData" });
     },
   };
-  const decode = () =>
-    decodeBoundedJsonLogSeries(lines, "[water-height-maintenance]").map(
+  const decode = (inputLines = lines) =>
+    decodeBoundedJsonLogSeries(inputLines, "[water-height-maintenance]").map(
       (entry) =>
         entry.payload as {
           stage: string;
@@ -835,6 +837,14 @@ function fixture(info: MapInfo = mapInfo(10)) {
               appliedOrdinals: number[];
               receiverCells: number[];
               includedWetWriteCount: number;
+            };
+            riverNeighborhoodClassIntervention?: {
+              appliedOrdinals: number[];
+              receiverCells: number[];
+              appliedWrites: Array<{
+                wet: boolean;
+                intent: Parameters<Adapter["setRiverInfo"]>[0];
+              }>;
             };
             occurrence?: number;
             points?: Array<{
@@ -885,7 +895,7 @@ function fixture(info: MapInfo = mapInfo(10)) {
   return { adapter, calls, metadataCalls, observedCoordinates, lines, decode };
 }
 
-function writeOrderBindings(width = 106): DirectionalCliffBindings {
+function writeOrderBindings(width = 106) {
   const values = [11, 17, 23, 29, 31, 37];
   return {
     DirectionTypes: Object.fromEntries(
@@ -899,7 +909,7 @@ function writeOrderBindings(width = 106): DirectionalCliffBindings {
         return { x: (to.x + width) % width, y: to.y };
       },
     },
-  };
+  } satisfies DirectionalCliffBindings;
 }
 const writeOrderIntervention = {
   variant: RIVER_AUTHORED_WRITE_ORDER_VARIANT,
@@ -985,10 +995,27 @@ async function physicalLakeRun(
   mapSize: Civ7StandardMapSizeId = "MAPSIZE_TINY",
   mapSeed = 42,
   gameSeed = 7331,
-  cutoff = getCiv7StandardMapSizePreset(mapSize).mapInfo.LakeSizeCutoff
+  cutoff = getCiv7StandardMapSizePreset(mapSize).mapInfo.LakeSizeCutoff,
+  playerCount?: number,
+  latitudeBounds?: { topLatitude: number; bottomLatitude: number }
 ) {
   const preset = getCiv7StandardMapSizePreset(mapSize);
-  const capture = { ...cutoffCapture(cutoff, mapSize), mapSeed, gameSeed };
+  const captured = cutoffCapture(cutoff, mapSize);
+  const aliveMajorPlayerIds =
+    playerCount === undefined
+      ? captured.aliveMajorPlayerIds
+      : Array.from({ length: playerCount }, (_, id) => id);
+  const capture = {
+    ...captured,
+    mapSeed,
+    gameSeed,
+    latitudeBounds: latitudeBounds ?? captured.latitudeBounds,
+    aliveMajorPlayerIds,
+    options:
+      playerCount === undefined
+        ? captured.options
+        : createUnavailableStandardInitialOptionEvidence("value-unavailable", aliveMajorPlayerIds),
+  };
   const setup = projectLakeCutoffInitialSetup(capture, cutoff, mapSize);
   const [config] = await loadSwooperMapConfigCatalog({ catalogConfigIds: [sourceConfigId] });
   if (!config) throw new Error("Missing selected physical lake test config.");
@@ -1068,17 +1095,28 @@ describe("post-recipe physical lake maintenance evidence", () => {
     ["full-map-maintenance", "stock", "authored-length"],
     ["full-map-maintenance", "stock", "authored-minima"],
     ["full-map-maintenance", "stock", RIVER_AUTHORED_WRITE_ORDER_VARIANT],
+    ["full-map-maintenance", "stock", RIVER_AUTHORED_NEIGHBORHOOD_VARIANT],
   ] as const)(
     "decorates the actual %s/%s/%s generated execute once with complete terminal evidence",
     async (atlasKind, cutoff, variant) => {
-      const selection = {
-        sourceConfigId: "swooper-earthlike",
-        mapSize: "MAPSIZE_TINY",
-        mapSeed: 42,
-        gameSeed: 7331,
-        playerCount: 3,
-        lakeSizeCutoff: cutoff,
-      } as const;
+      const selection =
+        variant === RIVER_AUTHORED_NEIGHBORHOOD_VARIANT
+          ? ({
+              sourceConfigId: "swooper-earthlike",
+              mapSize: "MAPSIZE_HUGE",
+              mapSeed: 1018,
+              gameSeed: 1018,
+              playerCount: 12,
+              lakeSizeCutoff: cutoff,
+            } as const)
+          : ({
+              sourceConfigId: "swooper-earthlike",
+              mapSize: "MAPSIZE_TINY",
+              mapSeed: 42,
+              gameSeed: 7331,
+              playerCount: 3,
+              lakeSizeCutoff: cutoff,
+            } as const);
       const built = await buildRiverProbePlan("physical-lakes-test", variant, atlasKind, selection);
       const script = String(
         built.files.find((file) => file.relativePath === "maps/river-contract.js")!.content
@@ -1091,12 +1129,20 @@ describe("post-recipe physical lake maintenance evidence", () => {
         selection.mapSize,
         selection.mapSeed,
         selection.gameSeed,
-        proof.expectedLakeSizeCutoff
+        proof.expectedLakeSizeCutoff,
+        variant === RIVER_AUTHORED_NEIGHBORHOOD_VARIANT ? selection.playerCount : undefined,
+        variant === RIVER_AUTHORED_NEIGHBORHOOD_VARIANT
+          ? { topLatitude: 80, bottomLatitude: -80 }
+          : undefined
       );
       const lines: string[] = [],
         events: string[] = [];
       const finalizationCalls: Array<Parameters<Adapter["finalizeRivers"]>[0]> = [];
-      if (variant !== "authored" && variant !== RIVER_AUTHORED_WRITE_ORDER_VARIANT) {
+      if (
+        variant !== "authored" &&
+        variant !== RIVER_AUTHORED_WRITE_ORDER_VARIANT &&
+        variant !== RIVER_AUTHORED_NEIGHBORHOOD_VARIANT
+      ) {
         const finalizationIntervention = {
           variant,
           requestedTuple: RIVER_PROBE_VARIANTS.authored,
@@ -1133,6 +1179,33 @@ describe("post-recipe physical lake maintenance evidence", () => {
           },
           { ...run.options, riverWriteOrderIntervention: proof.riverWriteOrderIntervention },
           () => {},
+          writeOrderBindings(run.context.setup.dimensions.width)
+        );
+      }
+      const neighborhoodLines: string[] = [];
+      const neighborhoodCalls: Array<Parameters<Adapter["setRiverInfo"]>[0]> = [];
+      if (variant === RIVER_AUTHORED_NEIGHBORHOOD_VARIANT) {
+        expect(proof.riverNeighborhoodClassIntervention).toEqual(
+          RIVER_NEIGHBORHOOD_CLASS_INTERVENTION
+        );
+        const nativeWrite = run.adapter.setRiverInfo;
+        run.adapter.setRiverInfo = (intent) => {
+          neighborhoodCalls.push({ ...intent });
+          nativeWrite.call(run.adapter, intent);
+        };
+        installWaterHeightMaintenanceProbe(
+          run.adapter,
+          proof.proofId,
+          {
+            configHash: proof.configHash,
+            envelopeHash: proof.envelopeHash,
+            fixtureSourceSha256: proof.fixtureSourceSha256,
+          },
+          {
+            ...run.options,
+            riverNeighborhoodClassIntervention: RIVER_NEIGHBORHOOD_CLASS_INTERVENTION,
+          },
+          (line) => neighborhoodLines.push(line),
           writeOrderBindings(run.context.setup.dimensions.width)
         );
       }
@@ -1178,8 +1251,48 @@ describe("post-recipe physical lake maintenance evidence", () => {
       expect(delegationCount).toBe(1);
       expect(observationCount).toBe(1);
       expect(finishingCount).toBe(atlasKind === "full-map-bounded-lake-cutoff" ? 1 : 0);
-      if (variant !== "authored" && variant !== RIVER_AUTHORED_WRITE_ORDER_VARIANT)
+      if (
+        variant !== "authored" &&
+        variant !== RIVER_AUTHORED_WRITE_ORDER_VARIANT &&
+        variant !== RIVER_AUTHORED_NEIGHBORHOOD_VARIANT
+      )
         expect(finalizationCalls).toEqual([RIVER_AUTHORED_FINALIZATION_VARIANTS[variant]]);
+      if (variant === RIVER_AUTHORED_NEIGHBORHOOD_VARIANT) {
+        const records = fixture().decode(neighborhoodLines);
+        const inputs = records.find((record) => record.stage === "inputs")!.payload;
+        const applied = inputs.riverNeighborhoodClassIntervention!;
+        expect(inputs.writes).toHaveLength(705);
+        expect(sha256Hex(stableStringify(inputs.writes))).toBe(
+          RIVER_NEIGHBORHOOD_CLASS_INTERVENTION.originalDeclarationsSha256
+        );
+        expect(applied.appliedOrdinals).toEqual(
+          Array.from({ length: 705 }, (_, ordinal) => ordinal)
+        );
+        expect(sha256Hex(stableStringify(applied.appliedWrites))).toBe(
+          RIVER_NEIGHBORHOOD_CLASS_INTERVENTION.appliedDeclarationsSha256
+        );
+        expect(neighborhoodCalls).toEqual(applied.appliedWrites.map((write) => write.intent));
+        expect(inputs.finalizationTuple).toEqual([false, 25, 2, 2]);
+        expect(inputs.riverWriteOrderIntervention).toBeUndefined();
+        const before = records.filter((record) => record.stage === "before");
+        const after = records.filter((record) => record.stage === "after");
+        // The mock adapter nests water storage inside validation, so return order differs.
+        expect(
+          before
+            .map((record) => stableStringify([record.payload.method, record.payload.occurrence]))
+            .sort()
+        ).toEqual(
+          after
+            .map((record) => stableStringify([record.payload.method, record.payload.occurrence]))
+            .sort()
+        );
+        expect(before.filter((record) => record.payload.method === "finalizeRivers")).toHaveLength(
+          1
+        );
+        expect(after.filter((record) => record.payload.method === "finalizeRivers")).toHaveLength(
+          1
+        );
+      }
       expect(events).toEqual(["recipe-returned", "physical-lakes", "execute-returned"]);
       expect(lines.every((line) => line.length <= BOUNDED_JSON_LOG_MAX_LINE_LENGTH)).toBe(true);
       const records = decodeBoundedJsonLogSeries(lines, "[water-height-maintenance]");
@@ -1202,8 +1315,8 @@ describe("post-recipe physical lake maintenance evidence", () => {
         fixtureSourceSha256: proof.fixtureSourceSha256,
         payload: {
           phase: "post-recipe",
-          mapSeed: 42,
-          gameSeed: 7331,
+          mapSeed: selection.mapSeed,
+          gameSeed: selection.gameSeed,
           dimensions: run.context.setup.dimensions,
           ...(currentCensus
             ? {
@@ -1379,6 +1492,280 @@ describe("post-recipe physical lake maintenance evidence", () => {
     const other = await physicalLakeRun();
     expect(() => observe(run.options, other.context)).toThrow("exact selected recipe plan");
     expect(lines).toEqual([]);
+  });
+});
+
+describe("private pinned neighborhood class ablation", () => {
+  type Declaration = {
+    wet: boolean;
+    intent: Parameters<Adapter["setRiverInfo"]>[0];
+  };
+  let selectedDeclarations: Promise<readonly Declaration[]> | undefined;
+  function declarations() {
+    selectedDeclarations ??= (async () => {
+      const selected = await physicalLakeRun(
+        "swooper-earthlike",
+        "MAPSIZE_HUGE",
+        1018,
+        1018,
+        10,
+        12,
+        { topLatitude: 80, bottomLatitude: -80 }
+      );
+      const writes: Declaration[] = [];
+      const nativeWrite = selected.adapter.setRiverInfo;
+      selected.adapter.setRiverInfo = (intent) => {
+        writes.push(
+          Object.freeze({
+            wet: selected.adapter.isWater(intent.x, intent.y),
+            intent: Object.freeze({ ...intent }),
+          })
+        );
+        nativeWrite.call(selected.adapter, intent);
+      };
+      const originalLog = console.log;
+      try {
+        console.log = () => {};
+        standardRecipe.execute(selected.context, selected.plan, { log: () => {} });
+      } finally {
+        console.log = originalLog;
+      }
+      expect(writes).toHaveLength(705);
+      expect(writes.filter((write) => write.wet)).toHaveLength(39);
+      expect(sha256Hex(stableStringify(writes))).toBe(
+        RIVER_NEIGHBORHOOD_CLASS_INTERVENTION.originalDeclarationsSha256
+      );
+      return Object.freeze(writes);
+    })();
+    return selectedDeclarations;
+  }
+  const options = {
+    ...WATER_HEIGHT_MAINTENANCE_PROBE,
+    playerCount: 12,
+    riverNeighborhoodClassIntervention: RIVER_NEIGHBORHOOD_CLASS_INTERVENTION,
+  };
+  function prepared(writes: readonly Declaration[], bindings = writeOrderBindings()) {
+    const run = fixture();
+    const wet = new Set(
+      writes.filter((write) => write.wet).map(({ intent }) => intent.x + intent.y * 106)
+    );
+    run.adapter.isWater = (x, y) => wet.has(x + y * 106);
+    const observed = new Map<number, number>();
+    const nativeWrite = run.adapter.setRiverInfo;
+    run.adapter.setRiverInfo = (intent) => {
+      observed.set(intent.x + intent.y * 106, intent.riverClass === "NAVIGABLE" ? 7 : 9);
+      nativeWrite.call(run.adapter, intent);
+    };
+    run.adapter.getRiverType = (x, y) => observed.get(x + y * 106) ?? -1;
+    installWaterHeightMaintenanceProbe(
+      run.adapter,
+      "neighborhood-test",
+      identity,
+      options,
+      (line) => run.lines.push(line),
+      bindings
+    );
+    for (const { intent } of writes) run.adapter.setRiverInfo(intent);
+    expect(run.calls).toEqual([]);
+    return run;
+  }
+
+  it("neighborhood delivery changes exactly four classes in original order with honest original parity", async () => {
+    const writes = await declarations();
+    const original = stableStringify(writes);
+    const run = prepared(writes);
+    const requested = Object.freeze([false, 25, 2, 2] as const);
+    run.adapter.finalizeRivers(requested);
+    const inputs = run.decode().find(({ stage }) => stage === "inputs")!.payload;
+    const applied = inputs.riverNeighborhoodClassIntervention!;
+    expect(inputs.writes).toEqual([...writes]);
+    expect(inputs.riverWriteOrderIntervention).toBeUndefined();
+    expect(inputs.finalizationIntervention).toBeUndefined();
+    expect(applied.appliedOrdinals).toEqual(Array.from({ length: 705 }, (_, ordinal) => ordinal));
+    expect(applied.appliedWrites).toHaveLength(705);
+    expect(sha256Hex(stableStringify(applied.appliedWrites))).toBe(
+      RIVER_NEIGHBORHOOD_CLASS_INTERVENTION.appliedDeclarationsSha256
+    );
+    expect(applied.appliedWrites.filter((write) => write.wet)).toEqual(
+      writes.filter((write) => write.wet)
+    );
+    const differences = applied.appliedWrites.flatMap((write, ordinal) =>
+      write.intent.riverClass === writes[ordinal]!.intent.riverClass
+        ? []
+        : [write.intent.x + write.intent.y * 106]
+    );
+    expect(differences).toEqual(
+      RIVER_NEIGHBORHOOD_CLASS_INTERVENTION.changedRequests.map((point) => point.sourceCell)
+    );
+    for (const point of [
+      RIVER_NEIGHBORHOOD_CLASS_INTERVENTION.center,
+      ...RIVER_NEIGHBORHOOD_CLASS_INTERVENTION.changedRequests,
+    ]) {
+      const ordinal = writes.findIndex(
+        ({ intent }) => intent.x === point.x && intent.y === point.y
+      );
+      expect(applied.receiverCells[ordinal]).toBe(point.receiverCell);
+      expect(applied.appliedWrites[ordinal]!.intent.direction).toBe(point.direction);
+    }
+    expect(
+      applied.appliedWrites.find(({ intent }) => intent.x === 4 && intent.y === 35)!.intent
+        .riverClass
+    ).toBe("NAVIGABLE");
+    expect(run.calls.map(({ method }) => method)).toEqual([
+      ...Array.from({ length: 705 }, () => "setRiverInfo"),
+      "finalizeRivers",
+    ]);
+    expect(run.calls.slice(0, 705).map(({ arg }) => arg)).toEqual(
+      applied.appliedWrites.map((write) => write.intent)
+    );
+    expect(run.calls[705]!.arg).toBe(requested);
+    const before = run.decode().find(({ stage }) => stage === "before")!.payload.riverSourceRows!;
+    expect(
+      before.filter(
+        (row) =>
+          !writes.find(({ intent }) => intent.x === row.x && intent.y === row.y)!.wet &&
+          row.intendedClass === "NAVIGABLE"
+      )
+    ).toHaveLength(308);
+    for (const point of RIVER_NEIGHBORHOOD_CLASS_INTERVENTION.changedRequests)
+      expect(before.find((row) => row.x === point.x && row.y === point.y)).toMatchObject({
+        intendedClass: "NAVIGABLE",
+        observedClass: 9,
+      });
+    expect(stableStringify(writes)).toBe(original);
+    expect(requested).toEqual([false, 25, 2, 2]);
+    expect(Object.isFrozen(RIVER_NEIGHBORHOOD_CLASS_INTERVENTION)).toBe(true);
+    expect(Object.isFrozen(RIVER_NEIGHBORHOOD_CLASS_INTERVENTION.changedRequests)).toBe(true);
+    expect(RIVER_NEIGHBORHOOD_CLASS_INTERVENTION.changedRequests.every(Object.isFrozen)).toBe(true);
+    expect(() => run.adapter.finalizeRivers(requested)).toThrow("already attempted");
+    expect(() => run.adapter.setRiverInfo(writes[0]!.intent)).toThrow("single delivery attempt");
+    expect(run.calls).toHaveLength(706);
+  });
+
+  it.each([
+    "missing",
+    "duplicate",
+    "order",
+    "class",
+    "direction",
+    "wet",
+  ] as const)("neighborhood %s drift refuses before any native river delivery", async (drift) => {
+    const writes = (await declarations()).map((write) => ({
+      ...write,
+      intent: { ...write.intent },
+    }));
+    if (drift === "missing") writes.pop();
+    if (drift === "duplicate") writes[0] = { ...writes[1]!, intent: { ...writes[1]!.intent } };
+    if (drift === "order") [writes[0], writes[1]] = [writes[1]!, writes[0]!];
+    if (drift === "class")
+      writes[0]!.intent.riverClass =
+        writes[0]!.intent.riverClass === "MINOR" ? "NAVIGABLE" : "MINOR";
+    if (drift === "direction")
+      writes[0]!.intent.direction = writes[0]!.intent.direction === "EAST" ? "WEST" : "EAST";
+    if (drift === "wet") writes[0]!.wet = !writes[0]!.wet;
+    const run = prepared(writes);
+    expect(() => run.adapter.finalizeRivers(RIVER_PROBE_VARIANTS.authored)).toThrow();
+    expect(run.calls).toEqual([]);
+  });
+
+  it("neighborhood pinned receiver mismatch refuses before any native river delivery", async () => {
+    const bindings = writeOrderBindings(),
+      nativeAdjacent = bindings.GameplayMap.getAdjacentPlotLocation!;
+    bindings.GameplayMap.getAdjacentPlotLocation = (from, direction) =>
+      from.x === 4 && from.y === 35 ? { x: 5, y: 35 } : nativeAdjacent(from, direction);
+    const run = prepared(await declarations(), bindings);
+    expect(() => run.adapter.finalizeRivers(RIVER_PROBE_VARIANTS.authored)).toThrow(
+      "five pinned native receivers"
+    );
+    expect(run.calls).toEqual([]);
+  });
+
+  it.each([
+    { playerCount: 10 },
+    { mapSeed: 2 },
+    { gameSeed: 2 },
+    { width: 84 },
+    { sourceConfigId: "sundered-archipelago" },
+    { expectedLakeSizeCutoff: 40 },
+    { riverWriteOrderIntervention: writeOrderIntervention },
+  ])("neighborhood rejects a nonpinned or combined selection before installation: %j", (override) => {
+    const run = fixture(),
+      original = run.adapter.setRiverInfo;
+    expect(() =>
+      installWaterHeightMaintenanceProbe(
+        run.adapter,
+        "neighborhood-refused",
+        identity,
+        { ...options, ...override },
+        (line) => run.lines.push(line),
+        writeOrderBindings()
+      )
+    ).toThrow("exact pinned");
+    expect(run.adapter.setRiverInfo).toBe(original);
+    expect(run.lines).toEqual([]);
+    expect(run.calls).toEqual([]);
+  });
+
+  it("neighborhood buffering refuses interleaved mutations and a changed finalizer tuple", async () => {
+    const run = prepared(await declarations());
+    for (const mutate of [
+      () => run.adapter.setElevation([1]),
+      () => run.adapter.validateAndFixTerrain(),
+      () => run.adapter.generateCliffsFromElevation(),
+      () => run.adapter.recalculateAreas(),
+      () => run.adapter.storeWaterData(),
+    ])
+      expect(mutate).toThrow("interleaved authentic mutation");
+    expect(() => run.adapter.finalizeRivers([false, 25, 0, 2])).toThrow(
+      "authentic requested tuple"
+    );
+    expect(run.calls).toEqual([]);
+  });
+
+  it("neighborhood native write exception is preserved once without finalization or replay", async () => {
+    const writes = await declarations(),
+      run = fixture();
+    const wet = new Set(
+      writes.filter((write) => write.wet).map(({ intent }) => intent.x + intent.y * 106)
+    );
+    run.adapter.isWater = (x, y) => wet.has(x + y * 106);
+    const failure = new Error("neighborhood native write failure");
+    const failureOrdinal = writes.findIndex(({ intent }) => intent.x === 4 && intent.y === 34);
+    const nativeWrite = run.adapter.setRiverInfo;
+    let attempts = 0;
+    run.adapter.setRiverInfo = (intent) => {
+      const ordinal = attempts++;
+      if (ordinal === failureOrdinal) {
+        expect(intent).toEqual({ ...writes[ordinal]!.intent, riverClass: "MINOR" });
+        throw failure;
+      }
+      nativeWrite.call(run.adapter, intent);
+    };
+    installWaterHeightMaintenanceProbe(
+      run.adapter,
+      "neighborhood-error",
+      identity,
+      options,
+      (line) => run.lines.push(line),
+      writeOrderBindings()
+    );
+    for (const { intent } of writes) run.adapter.setRiverInfo(intent);
+    expect(() => run.adapter.finalizeRivers(RIVER_PROBE_VARIANTS.authored)).toThrow(failure);
+    expect(attempts).toBe(failureOrdinal + 1);
+    expect(run.calls).toHaveLength(failureOrdinal);
+    expect(run.calls.every(({ method }) => method === "setRiverInfo")).toBe(true);
+    expect(run.decode().find(({ stage }) => stage === "failed")!.payload).toMatchObject({
+      method: "setRiverInfo",
+      originalOrdinal: failureOrdinal,
+    });
+    expect(
+      run.decode().find(({ stage }) => stage === "inputs")!.payload
+        .riverNeighborhoodClassIntervention!.appliedWrites
+    ).toHaveLength(705);
+    expect(() => run.adapter.finalizeRivers(RIVER_PROBE_VARIANTS.authored)).toThrow(
+      "already attempted"
+    );
+    expect(attempts).toBe(failureOrdinal + 1);
   });
 });
 

@@ -712,3 +712,76 @@ Historical `-.15 C/model-unit` versus current `-.0065` is a separate empirical
 thermal diagnostic, not a physical metre conversion or an admitted default.
 True-cliff traversal, Earth dimensional/thermal calibration and final
 major-river density qualification remain open; ordinary lake traversal does not.
+
+## October 2 Native Discriminators And Fresh Survey
+
+The original C3 native grid independently confirms all 320 requested NAV cells
+as native NAV terrain. The supported-discharge candidate changes 62 additions
+and 74 removals while holding ground, routing and discharge. Its 62 native
+demotions include 34 additions and 28 previously qualified cells: this is not
+simply the new cells being rejected. The baseline, all three native minimum
+controls and receiver-before-source delivery produce exactly the same entire
+parity and maintenance observations. All 705 geographic receivers/directions
+match portable intention. No production setting or write-order repair is
+selected. See [major-river support](major-river-support.md).
+
+The [fresh native survey](https://mateis-macbook-pro.taild8da1c.ts.net/civ/supported-river-native-1018-v29-20261002/index.html)
+publishes seventeen actual 3456x2168 photographs from the completed v29 game:
+twelve maximum-zoom-out survey frames, one widest local channel-footprint view
+and four details. All 17 cameras, native clean-frame restoration and unchanged
+pre/post world summaries qualify; 54 files pass 108 local/tailnet byte checks.
+The page is visually verified in actual Arc and remains discoverable through
+the gallery and Local Viewers. Mobile DOM measurement is unavailable, not
+reported as passed. This is visible current-candidate evidence, not resolution
+of the 62 class substitutions or true-cliff navigation.
+
+Changed surrounding channel class geometry is the next explicit discriminator.
+A private local-neighborhood arm holds all 705 source locations/directions and
+39 wet declarations, the center NAV at `(4,35)`, all physical fields, heights,
+authentic call order and `[false,25,2,2]`. Only its four newly NAV neighbors
+are requested as their former MINOR classes. Original and applied requests
+remain separately observed; original 308-major intention stays the parity
+authority. Center recovery would establish surrounding-footprint influence,
+not a universal width rule or license to erase strong physical sources.
+No production class-neighborhood policy is selected in advance.
+
+## October 2 Closed Neighborhood, Lake Policy And Thermal Decisions
+
+The neighborhood arm now completes and is independently compared. Center
+`(4,35)` retains NAV terrain after finalization instead of being demoted;
+its own class request, direction, receiver and original elevation remain
+unchanged. Seven former demotions recover and two deliberately changed
+neighbor requests lose native NAV, net five; original-intention mismatches
+fall from 62 to 57. Every declaration receiver, authentic call/setup, sampled
+focus point and complete physical-lake payload holds. Unrelated full-grid and
+cliff invariance are not claimed. This establishes neighborhood sensitivity,
+not a universal width rule or production geometry filter. The realization
+graph passes 28 tasks, 390 tests and 56,021 assertions. The
+[matched detail/wide native comparison](https://mateis-macbook-pro.taild8da1c.ts.net/civ/native-channel-neighborhood-20261002/index.html)
+is published, byte-exact on local/tailnet HTTP and visibly verified in Arc.
+
+The semantic review also qualifies the earlier "unsupported promotion"
+description: main deliberately grows coherent trunks from strong endpoints.
+Per-source thresholding changes that intended reach-level meaning; its
+portable qualification does not establish scientifically correct widths or
+native realizability. Review that class/projection responsibility before
+adopting a new footprint. PR #2245 remains held, with no parallel fallback.
+
+Lake classification has a selected conservative projection decision, not
+another pending threshold sweep. Keep stock per-size cutoff and the accepted
+head-retention/final-height cliff transaction. Resolved physical size overlaps
+defeat automatic largest-finite-size classification, and no qualified runtime
+per-body setter exists. All 204 finite heads were already preserved at stock
+ten; native lake flags remain an explicitly separate gameplay approximation.
+See [the resolved question-sheet decision](calibration-question-sheet.md#resolved-decision-preserve-heads-keep-conservative-native-taxonomy).
+This does not close the independent true-cliff vessel test.
+
+The [directed-fetch thermal comparison](land-geography-investigation.md#directed-fetch-closed-without-a-production-change)
+is closed without production adoption. Held errors and arrangement controls
+reject that response; the independent reviewer reproduces the result. No
+temperature proxy, gain or expectation is changed. Current canonical authored
+height references are intentional; the COLUMN witness changed that policy,
+so its nonzero margin differences do not justify a coordinate-defect repair.
+The separate useful reference-height cleanup must preserve all numerical
+outputs and cannot be presented as Earth relief calibration. Annual geographic
+thermal response and dimensional relief remain actual open scientific owners.

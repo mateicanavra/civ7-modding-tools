@@ -28,6 +28,7 @@ import { renderSwooperCatalogMapSource } from "../../src/runtime/file-plan.js";
 import { bundleCiv7MapScript } from "../../src/runtime/map-script/compiler.js";
 import {
   RIVER_AUTHORED_FINALIZATION_VARIANTS,
+  RIVER_AUTHORED_NEIGHBORHOOD_VARIANT,
   RIVER_AUTHORED_WRITE_ORDER_VARIANT,
   RIVER_LAKE_NAVIGATION_PROBE,
   RIVER_PROBE,
@@ -59,6 +60,7 @@ import {
 } from "./water-connectivity.fixture.js";
 import {
   DIRECTIONAL_CLIFF_WAYPOINTS,
+  RIVER_NEIGHBORHOOD_CLASS_INTERVENTION,
   readDirectionalCliffStudy,
   WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS,
   WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_PROBE,
@@ -232,8 +234,9 @@ export async function buildRiverProbePlan(
   if (!atlases.includes(atlasKind)) throw new Error(`Unknown river probe atlas: ${atlasKind}`);
   const authoredFinalizationVariant = Object.hasOwn(RIVER_AUTHORED_FINALIZATION_VARIANTS, variant);
   const authoredWriteOrderVariant = variant === RIVER_AUTHORED_WRITE_ORDER_VARIANT;
+  const neighborhoodVariant = variant === RIVER_AUTHORED_NEIGHBORHOOD_VARIANT;
   if (
-    (authoredFinalizationVariant || authoredWriteOrderVariant) &&
+    (authoredFinalizationVariant || authoredWriteOrderVariant || neighborhoodVariant) &&
     atlasKind !== WATER_HEIGHT_MAINTENANCE_ATLAS
   )
     throw new Error("Authored finalizer ablations require the full-map-maintenance atlas.");
@@ -241,7 +244,8 @@ export async function buildRiverProbePlan(
     atlasKind !== "synthetic-river-v4" &&
     variant !== "authored" &&
     !authoredFinalizationVariant &&
-    !authoredWriteOrderVariant
+    !authoredWriteOrderVariant &&
+    !neighborhoodVariant
   )
     throw new Error("Adapter atlases require the authored finalization tuple.");
   const maxLakeCutoff = atlasKind === WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS;
@@ -328,6 +332,18 @@ export async function buildRiverProbePlan(
     );
   if (originalInput && expectedLakeSizeCutoff !== preset.mapInfo.LakeSizeCutoff)
     throw new Error("Original-input diagnostics require the selected public stock lake cutoff.");
+  if (
+    neighborhoodVariant &&
+    ((selection.sourceConfigId ?? "swooper-earthlike") !== "swooper-earthlike" ||
+      preset.id !== "MAPSIZE_HUGE" ||
+      mapSeed !== 1018 ||
+      gameSeed !== 1018 ||
+      playerCount !== 12 ||
+      expectedLakeSizeCutoff !== 10)
+  )
+    throw new Error(
+      "Neighborhood class ablation requires the exact pinned Huge1018/1018/12 stock selection."
+    );
   // Resolve once for the observer, scoped treatment, proof, and launch receipt.
   const maintenanceProbe = {
     ...(dryRetention
@@ -361,6 +377,9 @@ export async function buildRiverProbePlan(
               "Diagnostic-only authored finalizer minima ablation; no other authentic call changes.",
           },
         }
+      : {}),
+    ...(neighborhoodVariant
+      ? { riverNeighborhoodClassIntervention: RIVER_NEIGHBORHOOD_CLASS_INTERVENTION }
       : {}),
     ...(authoredWriteOrderVariant
       ? {

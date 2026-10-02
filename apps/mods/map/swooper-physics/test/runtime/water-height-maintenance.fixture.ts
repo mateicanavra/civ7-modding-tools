@@ -17,6 +17,7 @@ import { Check } from "typebox/value";
 import type { Civ7Adapter } from "../../src/runtime/map-script/adapter.js";
 import {
   RIVER_AUTHORED_FINALIZATION_VARIANTS,
+  RIVER_AUTHORED_NEIGHBORHOOD_VARIANT,
   RIVER_AUTHORED_WRITE_ORDER_VARIANT,
   RIVER_PROBE_VARIANTS,
 } from "./river-contract-map.fixture.js";
@@ -144,6 +145,63 @@ export const WATER_HEIGHT_MAINTENANCE_PROBE = {
   sourceConfigId: "swooper-earthlike",
   expectedLakeSizeCutoff: 10,
 } as const;
+/** Frozen private counterfactual, not a production navigability or geometry rule. */
+export const RIVER_NEIGHBORHOOD_CLASS_INTERVENTION = Object.freeze({
+  variant: RIVER_AUTHORED_NEIGHBORHOOD_VARIANT,
+  qualification:
+    "Diagnostic-only local requested-class restoration; physical major support and original308-major parity are unchanged.",
+  originalDeclarationsSha256: "a8c6d8ea0547053b8ce7366b1dd6a3fdee7585b83accba660c4f9e7090456f17",
+  appliedDeclarationsSha256: "c151f6aac8c1ce8cb441be3b0e4034f5fdcf97b59dd7d3311eccb22c851175a1",
+  originalDryCounts: Object.freeze({ MINOR: 358, NAVIGABLE: 308 }),
+  appliedDryCounts: Object.freeze({ MINOR: 362, NAVIGABLE: 304 }),
+  wetNavigableCount: 39,
+  center: Object.freeze({
+    sourceCell: 3714,
+    receiverCell: 3609,
+    x: 4,
+    y: 35,
+    direction: "SOUTHEAST",
+    riverClass: "NAVIGABLE",
+  } as const),
+  changedRequests: Object.freeze([
+    Object.freeze({
+      sourceCell: 3608,
+      receiverCell: 3502,
+      x: 4,
+      y: 34,
+      direction: "SOUTHEAST",
+      originalClass: "NAVIGABLE",
+      appliedClass: "MINOR",
+    } as const),
+    Object.freeze({
+      sourceCell: 3713,
+      receiverCell: 3608,
+      x: 3,
+      y: 35,
+      direction: "SOUTHEAST",
+      originalClass: "NAVIGABLE",
+      appliedClass: "MINOR",
+    } as const),
+    Object.freeze({
+      sourceCell: 3715,
+      receiverCell: 3609,
+      x: 5,
+      y: 35,
+      direction: "SOUTHWEST",
+      originalClass: "NAVIGABLE",
+      appliedClass: "MINOR",
+    } as const),
+    Object.freeze({
+      sourceCell: 3821,
+      receiverCell: 3715,
+      x: 5,
+      y: 36,
+      direction: "SOUTHEAST",
+      originalClass: "NAVIGABLE",
+      appliedClass: "MINOR",
+    } as const),
+  ]),
+} as const);
 export const WATER_HEIGHT_LAKE_CUTOFF_PROBE = {
   ...WATER_HEIGHT_MAINTENANCE_PROBE,
   diagnosticRevision: 11,
@@ -215,6 +273,7 @@ type ProbeOptions = Readonly<{
     variant: typeof RIVER_AUTHORED_WRITE_ORDER_VARIANT;
     qualification: string;
   }>;
+  riverNeighborhoodClassIntervention?: typeof RIVER_NEIGHBORHOOD_CLASS_INTERVENTION;
 }>;
 const focus = [
   { body: 56, role: "wet-outlet", x: 86, y: 32 },
@@ -502,6 +561,35 @@ function downstreamRiverDelivery(
   if (appliedOrdinals.length !== writes.length)
     throw new Error("Downstream delivery refuses a cyclic declaration graph.");
   return { appliedOrdinals, receiverCells };
+}
+
+function neighborhoodClassRequests(
+  writes: readonly { wet: boolean; intent: Parameters<Adapter["setRiverInfo"]>[0] }[],
+  receiverCells: readonly number[]
+) {
+  const intervention = RIVER_NEIGHBORHOOD_CLASS_INTERVENTION;
+  if (digest(writes) !== intervention.originalDeclarationsSha256)
+    throw new Error("Neighborhood class ablation requires the exact original705 declarations.");
+  for (const point of [intervention.center, ...intervention.changedRequests]) {
+    const ordinal = writes.findIndex(({ intent }) => intent.x === point.x && intent.y === point.y);
+    if (ordinal < 0 || receiverCells[ordinal] !== point.receiverCell)
+      throw new Error("Neighborhood class ablation requires the five pinned native receivers.");
+  }
+  const appliedWrites = writes.map((write) => {
+    const change = intervention.changedRequests.find(
+      ({ x, y }) => x === write.intent.x && y === write.intent.y
+    );
+    return {
+      ...write,
+      intent: {
+        ...write.intent,
+        riverClass: change ? change.appliedClass : write.intent.riverClass,
+      },
+    };
+  });
+  if (digest(appliedWrites) !== intervention.appliedDeclarationsSha256)
+    throw new Error("Neighborhood class ablation refuses an unpinned applied declaration.");
+  return appliedWrites;
 }
 
 function directionalCliffObserver(
@@ -875,6 +963,12 @@ export function installWaterHeightMaintenanceProbe(
     throw new Error("Invalid maintenance probe identity.");
   const intervention = options.finalizationIntervention;
   const writeOrderIntervention = options.riverWriteOrderIntervention;
+  const requestedNeighborhoodIntervention = options.riverNeighborhoodClassIntervention;
+  const neighborhoodIntervention =
+    requestedNeighborhoodIntervention === undefined
+      ? undefined
+      : RIVER_NEIGHBORHOOD_CLASS_INTERVENTION;
+  const bufferedDelivery = Boolean(writeOrderIntervention || neighborhoodIntervention);
   const sameTuple = (actual: unknown, expected: readonly unknown[]) =>
     Array.isArray(actual) &&
     actual.length === expected.length &&
@@ -908,6 +1002,26 @@ export function installWaterHeightMaintenanceProbe(
   )
     throw new Error(
       "Invalid downstream delivery intervention; only declared maintenance ordering is admitted."
+    );
+  if (
+    requestedNeighborhoodIntervention !== undefined &&
+    (requestedNeighborhoodIntervention === null ||
+      typeof requestedNeighborhoodIntervention !== "object" ||
+      intervention !== undefined ||
+      writeOrderIntervention !== undefined ||
+      options.atlasKind !== WATER_HEIGHT_MAINTENANCE_ATLAS ||
+      options.sourceConfigId !== "swooper-earthlike" ||
+      options.mapSize !== "MAPSIZE_HUGE" ||
+      options.width !== 106 ||
+      options.height !== 66 ||
+      options.mapSeed !== 1018 ||
+      options.gameSeed !== 1018 ||
+      options.playerCount !== 12 ||
+      options.expectedLakeSizeCutoff !== 10 ||
+      digest(requestedNeighborhoodIntervention) !== digest(RIVER_NEIGHBORHOOD_CLASS_INTERVENTION))
+  )
+    throw new Error(
+      "Neighborhood class ablation requires the exact pinned Huge1018/1018/12 stock maintenance selection."
     );
   const appliedTuple =
     intervention === undefined
@@ -958,7 +1072,7 @@ export function installWaterHeightMaintenanceProbe(
   let deliveryAttempted = false;
   let deliveryComplete = false;
   const refuseInterleavedMutation = () => {
-    if (writeOrderIntervention && writes.length > 0 && !deliveryComplete)
+    if (bufferedDelivery && writes.length > 0 && !deliveryComplete)
       throw new Error("Downstream delivery refuses an interleaved authentic mutation.");
   };
   const elevations: Array<{ count: number; sha256: string }> = [];
@@ -1146,26 +1260,31 @@ export function installWaterHeightMaintenanceProbe(
   };
   const setRiverInfo = prototype.setRiverInfo;
   prototype.setRiverInfo = function (intent) {
-    if (writeOrderIntervention && deliveryAttempted)
+    if (bufferedDelivery && deliveryAttempted)
       throw new Error("Downstream delivery refuses writes after its single delivery attempt.");
     admit(this);
     writes.push({ wet: this.isWater(intent.x, intent.y), intent: { ...intent } });
-    if (writeOrderIntervention) return;
+    if (bufferedDelivery) return;
     return setRiverInfo.call(this, intent);
   };
   const finalizeRivers = prototype.finalizeRivers;
   prototype.finalizeRivers = function (args) {
-    if ((appliedTuple || writeOrderIntervention) && !sameTuple(args, RIVER_PROBE_VARIANTS.authored))
+    if ((appliedTuple || bufferedDelivery) && !sameTuple(args, RIVER_PROBE_VARIANTS.authored))
       throw new Error(
         "Authored finalizer ablation requires the authentic requested tuple false,25,2,2."
       );
     admit(this);
     let delivery: ReturnType<typeof downstreamRiverDelivery> | undefined;
-    if (writeOrderIntervention) {
+    let appliedWrites: ReturnType<typeof neighborhoodClassRequests> | undefined;
+    if (bufferedDelivery) {
       if (deliveryAttempted)
         throw new Error("Downstream delivery already attempted; no replay is admitted.");
       // Preflight the complete graph before delivering any buffered native river write.
       delivery = downstreamRiverDelivery(writes, options, cliffBindings ?? nativeCliffBindings());
+      if (neighborhoodIntervention) {
+        appliedWrites = neighborhoodClassRequests(writes, delivery.receiverCells);
+        delivery.appliedOrdinals = writes.map((_, ordinal) => ordinal);
+      }
       deliveryAttempted = true;
     }
     emit("inputs", {
@@ -1175,7 +1294,7 @@ export function installWaterHeightMaintenanceProbe(
       elevations,
       finalizationTuple: args,
       ...(intervention ? { finalizationIntervention: intervention } : {}),
-      ...(delivery
+      ...(delivery && writeOrderIntervention
         ? {
             riverWriteOrderIntervention: {
               ...writeOrderIntervention,
@@ -1184,11 +1303,22 @@ export function installWaterHeightMaintenanceProbe(
             },
           }
         : {}),
+      ...(delivery && appliedWrites && neighborhoodIntervention
+        ? {
+            riverNeighborhoodClassIntervention: {
+              ...neighborhoodIntervention,
+              ...delivery,
+              appliedWrites,
+            },
+          }
+        : {}),
     });
     if (delivery) {
       for (const ordinal of delivery.appliedOrdinals) {
         try {
-          setRiverInfo.call(this, { ...writes[ordinal]!.intent });
+          const intent =
+            appliedWrites === undefined ? writes[ordinal]!.intent : appliedWrites[ordinal]!.intent;
+          setRiverInfo.call(this, { ...intent });
         } catch (error) {
           emit("failed", {
             method: "setRiverInfo",
@@ -1210,17 +1340,19 @@ export function installWaterHeightMaintenanceProbe(
   emit("installed", {
     ...options,
     focus: observationFocus,
-    qualification: writeOrderIntervention
-      ? "Experimental downstream-first native delivery permutation; every declaration and authored finalizer tuple are retained, with no replay."
-      : intervention
-        ? "Experimental authored finalizer minima ablation; forwards one selected native tuple, no other authentic call changes."
-        : originalInputArm
-          ? dryRetention
-            ? "Authentic calls are preserved. After recipe success, V20 adds one setter retaining exact native dry heights and protected original wet requests, no other maintenance. This is not the internal prepare-surface repair slot."
-            : options.atlasKind === WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS
-              ? "Authentic calls are preserved. Both bounded cutoff arms protect first-setter requests and observe equal post-recipe grids without replay or additional maintenance. Classification and height are independent outcomes."
-              : "Authentic calls are preserved. The generated wrapper invokes equal post-recipe observation slots only after success; V19 adds one original-request setter, no other maintenance. This is not the internal prepare-surface repair slot."
-          : "Read-only observation after measured cutoff admission; installation is not activation or success. Admitted runs add, suppress or retry no river, elevation or maintenance calls.",
+    qualification: neighborhoodIntervention
+      ? "Experimental four-neighbor requested-class restoration only; no source omission, physical major suppression or production policy. Original308-major intention remains the parity authority."
+      : writeOrderIntervention
+        ? "Experimental downstream-first native delivery permutation; every declaration and authored finalizer tuple are retained, with no replay."
+        : intervention
+          ? "Experimental authored finalizer minima ablation; forwards one selected native tuple, no other authentic call changes."
+          : originalInputArm
+            ? dryRetention
+              ? "Authentic calls are preserved. After recipe success, V20 adds one setter retaining exact native dry heights and protected original wet requests, no other maintenance. This is not the internal prepare-surface repair slot."
+              : options.atlasKind === WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS
+                ? "Authentic calls are preserved. Both bounded cutoff arms protect first-setter requests and observe equal post-recipe grids without replay or additional maintenance. Classification and height are independent outcomes."
+                : "Authentic calls are preserved. The generated wrapper invokes equal post-recipe observation slots only after success; V19 adds one original-request setter, no other maintenance. This is not the internal prepare-surface repair slot."
+            : "Read-only observation after measured cutoff admission; installation is not activation or success. Admitted runs add, suppress or retry no river, elevation or maintenance calls.",
   });
   return () => {
     if (!originalInputArm)

@@ -22,6 +22,12 @@ failed science expectations. Neither is waived. The completed eight-pair
 historical thermal-rate discriminator meets the within-row variation bounds
 but cools the population substantially and introduces two Huge1018 habitat
 failures. It is nonselected, not a production repair or a new coefficient sweep.
+The completed directed-fetch source comparison is also nonselected: its held
+errors and arrangement controls reject the tested response. No fitted land
+term, new temperature artifact or weakened requirement follows. The separate
+Morphology review preserves intentional canonical reference-height controls;
+the refused COLUMN witness did not establish a current coordinate defect.
+See [the closed geographic discriminator](land-geography-investigation.md#directed-fetch-closed-without-a-production-change).
 The previous C3 lake-passage
 milestone now has normally acquired vessel arrivals, while the genuine cliff
 edge retains its separate current-build test. The Foundation COLUMN candidate

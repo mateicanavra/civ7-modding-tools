@@ -210,6 +210,59 @@ The remaining discriminator concerns native channel geometry and supported
 realization, not an assumed difference in geographic direction or write order.
 Major discharge support and actual vessel navigability remain separate claims.
 
+## Controlled Native Neighborhood Result
+
+The private `authored-neighborhood` arm completes on the same Huge1018/1018,
+twelve-player, Exploration setup with stock cutoff ten. It changes only four
+neighbor requests from NAV to MINOR: cells 3608, 3713, 3715 and 3821. Center
+3714 `(4,35)` keeps its NAV request and SOUTHEAST receiver 3609. Original
+705 intentions, all 39 wet writes, directions, raster delivery, first setter
+and all eighteen authentic calls remain held. Applied requests are logged
+separately; original 358 MINOR / 308 NAV intention remains parity authority.
+No hidden successful 304-source production intention is substituted.
+
+Before finalization the center is NAV on flat terrain in both arms. Baseline
+finalization changes it to MINOR; the treatment retains NAV and produces
+navigable terrain. Seven formerly demoted sources recover: 3714, 3820, 3925,
+4031, 4134, 4135 and 4136. Two deliberately changed requests, 3715 and 3821,
+lose previously retained NAV. Net native NAV therefore rises by five and the
+original-intention mismatch count falls from 62 to 57. All nine class/terrain
+differences first appear at the sole finalizer and remain through later calls.
+This establishes sensitivity to requested-class footprint; it does not select
+a universal width, triangle prohibition or four-cell production filter.
+
+Independent comparison holds every native receiver against the portable
+declarations, the complete recipe/setup, all ten focus points at all 36 phase
+observations and the complete 165-cell physical-lake payload. The bounded
+packet does not contain a complete unrelated-native-grid or cliff comparison;
+do not claim their invariance from those sampled holds. Actual vessel movement
+is not tested by this arm.
+
+The full realization owner graph passes all 28 tasks, 390 tests and 56,021
+assertions, including both app TypeScript checks and policy admission. This
+intervention remains private diagnostic code, not base-recipe instrumentation.
+Evidence: `river-source-local-neighborhood-class-protocol-20261002/` and
+`river-source-authored-neighborhood-1018-v30-20261002/` under the documented
+Civ research root. Protocol SHA256:
+`de2cf515f897e995a19d408ffafe39ccaa29af6c7810a198eb88071cc6a80e17`.
+[The phone comparison](https://mateis-macbook-pro.taild8da1c.ts.net/civ/native-channel-neighborhood-20261002/index.html)
+contains actual matched detail and maximum-zoom screenshots, not a new
+production-qualified map.
+
+### Reconsider The Classification Meaning Before Adding Geometry Rules
+
+The previous main contract intentionally selected coherent major trunks
+upstream from strong endpoints. Its subthreshold upstream promotions were
+deliberate reach-level behavior, not automatically a per-tile discharge bug.
+The candidate changes that meaning to every-source threshold support. The
+native result requires reviewing that semantic choice, not simply forcing
+the new footprint through opaque finalization. Relative discharge percentiles
+do not establish physical channel width or vessel navigation. Preserve a
+single selected classification path; do not retain parallel legacy/candidate
+lanes, erase drainage sources, carve terrain or add late corrective setters.
+The treatment earns a source-backed design decision, not native qualification
+of PR #2245's tile-level law.
+
 Frozen baseline evidence:
 `river-source-maintenance-phase-scripting-20261002.log`,
 `river-source-maintenance-phase-proof-20261002.json`,
