@@ -1,7 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import biophysicalGaussianDefinition from "./strategies/biophysical-gaussian/config.js";
 
-/** Classifies admitted climate and soil fields into biome indices and vegetation density, then smooths only land-biome edges. Every implementation shares this admitted input and output boundary. */
+/** Classifies admitted climate, soil, and permafrost fields into biome, vegetation, and treeline truth, then smooths only land-biome edges. Every implementation shares this admitted input and output boundary. */
 const BiomeClassificationContract = defineOp({
   kind: "compute",
   id: "ecology/biomes/classify",
@@ -23,6 +23,9 @@ const BiomeClassificationContract = defineOp({
     freezeIndex: TypedArraySchemas.f32({
       description: "Freeze persistence index (0..1) per tile (from Hydrology climate indices).",
     }),
+    permafrost01: TypedArraySchemas.f32({
+      description: "Permafrost persistence (0..1) per tile (from Hydrology cryosphere truth).",
+    }),
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
     soilType: TypedArraySchemas.u8({
       description: "Soil type palette index per tile (from Ecology soils artifact).",
@@ -35,6 +38,9 @@ const BiomeClassificationContract = defineOp({
     biomeIndex: TypedArraySchemas.u8({ description: "Biome symbol indices per tile." }),
     vegetationDensity: TypedArraySchemas.f32({
       description: "Vegetation density per tile (0..1).",
+    }),
+    treeLine01: TypedArraySchemas.f32({
+      description: "Treeline suitability per tile (0..1), derived from admitted permafrost for all cells.",
     }),
     effectiveMoisture: TypedArraySchemas.f32({
       description: "Effective moisture per tile (forwarded from Hydrology climate indices).",

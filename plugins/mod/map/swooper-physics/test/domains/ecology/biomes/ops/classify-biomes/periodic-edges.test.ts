@@ -14,6 +14,7 @@ function inputFor(width: number, height: number) {
     surfaceTemperatureC: new Float32Array(size).fill(15),
     aridityIndex: new Float32Array(size),
     freezeIndex: new Float32Array(size),
+    permafrost01: new Float32Array(size),
     landMask: new Uint8Array(size).fill(1),
     soilType: new Uint8Array(size),
     fertility: new Float32Array(size).fill(0.5),
@@ -36,6 +37,7 @@ function translateInputX(input: ReturnType<typeof inputFor>, offset: number) {
     surfaceTemperatureC: new Float32Array(translateX(input.surfaceTemperatureC, width, offset)),
     aridityIndex: new Float32Array(translateX(input.aridityIndex, width, offset)),
     freezeIndex: new Float32Array(translateX(input.freezeIndex, width, offset)),
+    permafrost01: new Float32Array(translateX(input.permafrost01, width, offset)),
     landMask: new Uint8Array(translateX(input.landMask, width, offset)),
     soilType: new Uint8Array(translateX(input.soilType, width, offset)),
     fertility: new Float32Array(translateX(input.fertility, width, offset)),
@@ -54,6 +56,9 @@ describe("classifyBiomes periodic edges", () => {
   it.each([1, 2, 4])("commutes with cyclic X translations over %i refinement iterations", (iterations) => {
     const input = inputFor(9, 5);
     for (let y = 0; y < input.height; y++) input.effectiveMoisture[y * input.width] = 230;
+    for (let index = 0; index < input.permafrost01.length; index++) {
+      input.permafrost01[index] = (index % 5) / 4;
+    }
     const baseline = classify(input, 1, iterations);
 
     for (let offset = 1; offset < input.width; offset++) {
@@ -63,6 +68,9 @@ describe("classifyBiomes periodic edges", () => {
       );
       expect(Array.from(translated.vegetationDensity)).toEqual(
         translateX(baseline.vegetationDensity, input.width, offset)
+      );
+      expect(Array.from(translated.treeLine01)).toEqual(
+        translateX(baseline.treeLine01, input.width, offset)
       );
     }
   });
@@ -159,6 +167,7 @@ describe("classifyBiomes periodic edges", () => {
       input.surfaceTemperatureC[index] += index % 3;
       input.aridityIndex[index] = (index % 4) / 20;
       input.freezeIndex[index] = (index % 3) / 10;
+      input.permafrost01[index] = (index % 5) / 4;
       input.soilType[index] = index % 3;
       input.fertility[index] = (index % 5) / 5;
     }
@@ -170,6 +179,7 @@ describe("classifyBiomes periodic edges", () => {
     expect(input).toEqual(before);
     expect(classify(input, 5, 4)).toEqual(broad);
     expect(broad.vegetationDensity).toEqual(local.vegetationDensity);
+    expect(broad.treeLine01).toEqual(local.treeLine01);
     for (const result of [local, broad]) {
       expect(result.effectiveMoisture).toEqual(input.effectiveMoisture);
       expect(result.surfaceTemperature).toEqual(input.surfaceTemperatureC);

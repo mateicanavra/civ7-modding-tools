@@ -19,6 +19,7 @@ describe("ecology rainforest moisture flow", () => {
         surfaceTemperatureC: new Float32Array(size).fill(26),
         aridityIndex: new Float32Array(size).fill(0.1),
         freezeIndex: new Float32Array(size).fill(0.05),
+        permafrost01: new Float32Array(size),
         soilType: new Uint8Array(size),
         fertility,
       },

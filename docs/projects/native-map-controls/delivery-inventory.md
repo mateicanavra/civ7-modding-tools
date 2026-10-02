@@ -20,7 +20,9 @@ The same normal Cog crosses a cliff-free control and the genuine `(94,19)`
 mouth in both directions, with four independently confirmed arrivals. The
 native cliff flag remains true at `678/0`; no lowering or carving is needed
 for passage at this tested mouth. The still-apparent visual join is a separate
-rendering question. Final T11 control is player zero with autoplay stopped.
+rendering question. The trial's final T11 control is player zero with autoplay
+stopped. A [later ten-turn normal run](native-navigation.md#october-2-further-normal-autoplay)
+reaches T21/600 CE and again returns player zero, paused and responsive.
 This closes the bounded current-build cliff discriminator, not universal
 navigation or Earth thermal/dimensional calibration.
 
@@ -69,6 +71,20 @@ incumbent; none was deployed. Numerical correctness alone did not establish
 Earth transfer. The physical-scale investigation and native movement
 qualification remain separate owner stories. No appended temperature proxy,
 held refit, new fallback or repeated origin/skin-air study is selected.
+
+The subsequent fixed local-column relief hypothesis is also refused before
+production. All eight actual retained inputs complete; the candidate's raw,
+reconciled and eroded comparison means and every held row fail at least one
+unchanged relief family. In the raw comparison, height-CDF loss is `440.04`
+against `313.51`, and neighboring contrast loss `261.25` against `127.18`,
+under that hypothesis's proposed metre codec. Those are rejected hypothesis
+units, not an admitted scale. Ninety-one synthetic guards and 56 exact baseline
+owner replays pass, but do not rescue Earth transfer. No exact maturation
+saturation or duplicate-uplift defect is identified; replacing the whole height
+law was not an established redundancy fix. The sealed outcome and stopping
+rule remain in `earth-calibration/earth-local-column-qualification-20261002/`.
+No rejected physical law, codec, fallback or extraction toolchain is installed
+in the production pipeline.
 
 ## What Shipped Means
 
