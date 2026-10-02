@@ -88,6 +88,34 @@ function expectValidationMessage(value: ResourcePlan, fragment: string): void {
 }
 
 describe("resource plan artifact admission", () => {
+  it("requires a reason exactly when a regional minimum has a terminal shortfall", () => {
+    const plan = coherentResourcePlan();
+    plan.regionMinimums.push({
+      resourceType: "RESOURCE_A",
+      regionSlot: 1,
+      required: 2,
+      fromRotation: 1,
+      forced: 0,
+      shortfall: 1,
+      shortfallReason: "no-admitted-site",
+    });
+    for (const reason of ["max-count", "density-equity", "no-admitted-site"] as const) {
+      plan.regionMinimums[0]!.shortfallReason = reason;
+      expect(validationMessages(plan)).toEqual([]);
+    }
+
+    const missing = structuredClone(plan);
+    delete missing.regionMinimums[0]!.shortfallReason;
+    expectValidationMessage(missing, "region minimum RESOURCE_A slot 1 requires a shortfall reason");
+
+    const satisfied = structuredClone(plan);
+    satisfied.regionMinimums[0]!.required = 1;
+    satisfied.regionMinimums[0]!.shortfall = 0;
+    expectValidationMessage(satisfied, "region minimum RESOURCE_A slot 1 has a stale shortfall reason");
+    delete satisfied.regionMinimums[0]!.shortfallReason;
+    expect(validationMessages(satisfied)).toEqual([]);
+  });
+
   it("requires exact terminal shortfall evidence for each resource deficit", () => {
     expect(validationMessages(coherentResourcePlan())).toEqual([]);
 

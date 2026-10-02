@@ -141,10 +141,14 @@ export const MountainsStep = createStep(config, {
   },
   run: (context, stepConfig, ops, deps) => {
     const topography = deps.artifacts.topography.read();
+    const hydrography = deps.artifacts.hydrography.read();
+    const landMask = hydrography.exposedLandMask;
+    const candidateMask = Uint8Array.from(landMask, (land, i) => land === 1 && hydrography.riverClass[i] === 0 ? 1 : 0);
     const beltDrivers = deps.artifacts.beltDrivers.read();
     const substrate = deps.artifacts.substrate.read();
     const routing = deps.artifacts.routing.read();
-    const baseCoastline = deps.artifacts.baseCoastline.read();
+    // Final wetness controls exposure; the existing upland law keeps its pre-lake coast reference.
+    const shelf = deps.artifacts.shelf.read();
     const { width, height } = context.setup.dimensions;
     const baseSeed = deriveStepSeed(context.setup.mapSeed, "morphology:planMountains");
 
@@ -156,7 +160,9 @@ export const MountainsStep = createStep(config, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask,
+        candidateMask,
+        elevation: topography.elevation,
         boundaryCloseness: beltDrivers.boundaryCloseness,
         boundaryType: beltDrivers.boundaryType,
         upliftPotential: beltDrivers.upliftPotential,
@@ -173,7 +179,8 @@ export const MountainsStep = createStep(config, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask,
+        elevation: topography.elevation,
         mountainMask: ridges.mountainMask,
         mountainRegionMask: ridges.mountainRegionMask,
         mountainRegionIdByTile: ridges.mountainRegionIdByTile,
@@ -193,7 +200,7 @@ export const MountainsStep = createStep(config, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask,
         mountainMask: ridges.mountainMask,
         mountainRegionMask: ridges.mountainRegionMask,
         mountainRegionIdByTile: ridges.mountainRegionIdByTile,
@@ -209,7 +216,7 @@ export const MountainsStep = createStep(config, {
         erodibilityK: substrate.erodibilityK,
         sedimentDepth: substrate.sedimentDepth,
         flowAccum: routing.flowAccum,
-        distanceToCoast: baseCoastline.distanceToCoast,
+        distanceToCoast: shelf.distanceToCoast,
         fractalRoughLand,
       },
       stepConfig.roughLands
@@ -241,7 +248,7 @@ export const MountainsStep = createStep(config, {
       let foothillTiles = 0;
       let roughLandHillTiles = 0;
       for (let i = 0; i < size; i++) {
-        if (topography.landMask[i] !== 1) continue;
+        if (landMask[i] !== 1) continue;
         landTiles += 1;
         if (plan.mountainMask[i] === 1) mountainTiles += 1;
         if (plan.hillMask[i] === 1) hillTiles += 1;

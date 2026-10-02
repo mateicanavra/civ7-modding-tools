@@ -139,7 +139,7 @@ export type FeaturesApplyVizEvidence = Readonly<{
   applied: number;
   featureType: Int32VizValues;
   featureEngineIdsByKey: Readonly<Record<FeatureKey, number>>;
-  topographyLandMask?: Uint8VizValues;
+  exposedLandMask?: Uint8VizValues;
   engine?: Readonly<{
     terrain: Int32VizValues;
     landMask: Uint8VizValues;
@@ -226,7 +226,7 @@ export function buildFeaturesApplyVizProjections(
     }),
   });
 
-  if (!observation.engine || !observation.topographyLandMask) return projections;
+  if (!observation.engine || !observation.exposedLandMask) return projections;
   projections.push(
     {
       kind: "grid",
@@ -243,12 +243,12 @@ export function buildFeaturesApplyVizProjections(
     },
     {
       kind: "grid",
-      dataTypeKey: "morphology.topography.landMask",
+      dataTypeKey: "hydrology.hydrography.exposedLandMask",
       spaceId: "tile.hexOddQ",
       dims: dimensions,
-      field: { format: "u8", values: observation.topographyLandMask },
-      meta: defineStandardVizMeta("morphology.topography.landMask", "category.distinct", {
-        label: "Land Mask (Final Morphology)",
+      field: { format: "u8", values: observation.exposedLandMask },
+      meta: defineStandardVizMeta("hydrology.hydrography.exposedLandMask", "category.distinct", {
+        label: "Land Mask (Resolved Exposure)",
         group: "Map / Ecology (Engine)",
         role: "physics",
         visibility: "debug",

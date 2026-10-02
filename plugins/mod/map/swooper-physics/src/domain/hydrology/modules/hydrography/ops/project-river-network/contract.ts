@@ -27,10 +27,13 @@ const ProjectRiverNetworkContract = defineOp({
       /** Land mask per tile (1=land, 0=water). */
       landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
       /** Discharge proxy per tile. */
-      discharge: TypedArraySchemas.f32({ description: "Discharge proxy per tile." }),
-      /** Hydrology-conditioned receiver index per tile (or -1 for typed terminals). */
+      discharge: Type.Array(Type.Number({ minimum: 0 }), {
+        description:
+          "Map-grid Number-precision discharge on actual adjacent principal edges.",
+      }),
+      /** Adjacent principal receiver or a typed terminal/component sentinel. */
       flowDir: TypedArraySchemas.i32({
-        description: "Hydrology-conditioned receiver index per tile (or -1 for typed terminals).",
+        description: "Adjacent principal receiver index, -1 for terminal/marine, or -2 for hydraulic-component internal membership.",
       }),
     },
     {

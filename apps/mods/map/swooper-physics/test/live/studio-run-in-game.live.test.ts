@@ -5,7 +5,11 @@ import { readFile, stat } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { type Civ7ControlOrpcContext, createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
+import {
+  type Civ7ControlOrpcContext,
+  type Civ7LifecycleSinglePlayerStartInput,
+  createCiv7ControlOrpcServerClient,
+} from "@civ7/control-orpc";
 import {
   CIV7_SETUP_IDENTITY_SNAPSHOT_SELECTION,
   type Civ7DirectControlOptions,
@@ -85,12 +89,6 @@ export type MapScriptFileIdentity = Readonly<{
   mtimeIso: string;
 }>;
 
-/** Presence evidence for one product-specific marker in a Swooper map script. */
-export type MapScriptMarkerEvidence = Readonly<{
-  marker: string;
-  present: boolean;
-}>;
-
 /** Accepts only a complete digest-valid lifecycle completion carrying the requested map seed. */
 export function hasMapgenCompletionForSeed(text: string, mapSeed: number): boolean {
   return decodeBoundedJsonLogSeries(text.split(/\r?\n/), "[mapgen-complete]").some(
@@ -112,18 +110,11 @@ export type SwooperMapScriptDeploymentStage = Readonly<{
   deployedPath?: string;
   local?: MapScriptFileIdentity;
   deployed?: MapScriptFileIdentity;
-  localMarkers?: ReadonlyArray<MapScriptMarkerEvidence>;
-  deployedMarkers?: ReadonlyArray<MapScriptMarkerEvidence>;
   unresolvedLinks: ReadonlyArray<string>;
   recoveryHint?: string;
 }>;
 
 const SWOOPER_MAP_SCRIPT_PATTERN = /^\{swooper-maps\}\/maps\/([a-z0-9]+(?:-[a-z0-9]+)*\.js)$/;
-
-const REQUIRED_SWOOPER_RIVER_MATERIALIZATION_MARKERS = [
-  "map.rivers.authoredTerrainMaterialization",
-  "POST-AUTHORED-RIVERS",
-] as const;
 
 /** Parses the live verifier CLI without coupling the independently authored seed authorities. */
 export function parseStudioRunInGameLiveArgs(argv: readonly string[]): LiveVerificationArgs {
@@ -226,6 +217,34 @@ export function admitStudioRunInGameLiveMutationArgs(args: LiveVerificationArgs)
   };
 }
 
+/** Projects CLI demand onto the public lifecycle contract without overriding saved setup players. */
+export function buildStudioRunInGameLiveStartInput(
+  args: LiveMutationArgs,
+  savedConfig?: Civ7SavedGameConfigurationRef
+): Civ7LifecycleSinglePlayerStartInput {
+  return {
+    mapScript: args.mapScript,
+    mapSize: args.mapSize,
+    mapSeed: args.mapSeed,
+    gameSeed: args.gameSeed,
+    ...(args.playerCount === undefined ? {} : { playerCount: args.playerCount }),
+    targetModId: targetModIdFromMapScript(args.mapScript),
+    ...(savedConfig
+      ? {
+          savedConfig: {
+            id: savedConfig.id,
+            displayName: savedConfig.displayName,
+            fileName: savedConfig.fileName,
+          },
+        }
+      : {}),
+    gameOptions: args.options,
+    mapOptions: {},
+    playerOptions: [],
+    activeGamePolicy: "exit-active-game",
+  };
+}
+
 function parseInteger(value: string, label: string): number {
   const parsed = Number(value);
   if (!Number.isInteger(parsed)) {
@@ -298,15 +317,13 @@ export function resolveSwooperMapScriptPaths(args: {
   };
 }
 
-/** Compose deployment identity and marker evidence into the verifier's report stage. */
+/** Compare the current built script with its installed copy without assuming an implementation. */
 export function buildSwooperMapScriptDeploymentStage(args: {
   mapScript: string;
   localPath?: string;
   deployedPath?: string;
   local?: MapScriptFileIdentity;
   deployed?: MapScriptFileIdentity;
-  localMarkers?: ReadonlyArray<MapScriptMarkerEvidence>;
-  deployedMarkers?: ReadonlyArray<MapScriptMarkerEvidence>;
 }): SwooperMapScriptDeploymentStage {
   if (!args.localPath || !args.deployedPath) {
     return {
@@ -324,14 +341,6 @@ export function buildSwooperMapScriptDeploymentStage(args: {
   if (args.local && args.deployed && args.local.sha256 !== args.deployed.sha256) {
     unresolvedLinks.push("deployed-mod-script.hash-mismatch");
   }
-  for (const evidence of args.localMarkers ?? []) {
-    if (!evidence.present)
-      unresolvedLinks.push(`local-mod-script.marker-missing.${markerId(evidence.marker)}`);
-  }
-  for (const evidence of args.deployedMarkers ?? []) {
-    if (!evidence.present)
-      unresolvedLinks.push(`deployed-mod-script.marker-missing.${markerId(evidence.marker)}`);
-  }
 
   const ok = unresolvedLinks.length === 0;
   return {
@@ -343,8 +352,6 @@ export function buildSwooperMapScriptDeploymentStage(args: {
     deployedPath: args.deployedPath,
     ...(args.local ? { local: args.local } : {}),
     ...(args.deployed ? { deployed: args.deployed } : {}),
-    ...(args.localMarkers ? { localMarkers: args.localMarkers } : {}),
-    ...(args.deployedMarkers ? { deployedMarkers: args.deployedMarkers } : {}),
     unresolvedLinks,
     ...(ok
       ? {}
@@ -368,11 +375,9 @@ async function checkSwooperMapScriptDeployment(args: {
     return buildSwooperMapScriptDeploymentStage({ mapScript: args.mapScript });
   }
 
-  const [local, deployed, localText, deployedText] = await Promise.all([
+  const [local, deployed] = await Promise.all([
     fileIdentity(paths.localPath),
     fileIdentity(paths.deployedPath),
-    readFile(paths.localPath, "utf8").catch(() => undefined),
-    readFile(paths.deployedPath, "utf8").catch(() => undefined),
   ]);
 
   return buildSwooperMapScriptDeploymentStage({
@@ -380,8 +385,6 @@ async function checkSwooperMapScriptDeployment(args: {
     ...paths,
     ...(local ? { local } : {}),
     ...(deployed ? { deployed } : {}),
-    ...(localText !== undefined ? { localMarkers: markerEvidence(localText) } : {}),
-    ...(deployedText !== undefined ? { deployedMarkers: markerEvidence(deployedText) } : {}),
   });
 }
 
@@ -398,20 +401,6 @@ async function fileIdentity(path: string): Promise<MapScriptFileIdentity | undef
   } catch {
     return undefined;
   }
-}
-
-function markerEvidence(text: string): ReadonlyArray<MapScriptMarkerEvidence> {
-  return REQUIRED_SWOOPER_RIVER_MATERIALIZATION_MARKERS.map((marker) => ({
-    marker,
-    present: text.includes(marker),
-  }));
-}
-
-function markerId(marker: string): string {
-  return marker
-    .replace(/[^a-zA-Z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .toLowerCase();
 }
 
 /** Preserve declared oRPC evidence while excluding stacks, causes, and provider payloads. */
@@ -579,19 +568,9 @@ async function main(): Promise<number> {
       >,
       endpointDefaults: options,
       correlation: { correlationId },
-    }).lifecycle.singlePlayer.start({
-      mapScript: mutationArgs.mapScript,
-      mapSize: mutationArgs.mapSize,
-      mapSeed: mutationArgs.mapSeed,
-      gameSeed: mutationArgs.gameSeed,
-      playerCount: args.playerCount,
-      targetModId: targetModIdFromMapScript(mutationArgs.mapScript),
-      ...(savedConfigRef ? { savedConfig: savedConfigRef } : {}),
-      gameOptions: args.options,
-      mapOptions: {},
-      playerOptions: [],
-      activeGamePolicy: "exit-active-game",
-    });
+    }).lifecycle.singlePlayer.start(
+      buildStudioRunInGameLiveStartInput(mutationArgs, savedConfigRef)
+    );
     stages.push({
       name: "setup-start",
       ok: run.status === "started",

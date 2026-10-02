@@ -4,6 +4,7 @@ import {
   estimateDivergenceOddQ,
   forEachHexNeighborOddQWithDirection,
   getHexNeighborDirectionVectorsOddQ,
+  I8_VECTOR_MAX_ABS,
 } from "@swooper/mapgen-core/lib/grid";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 
@@ -16,6 +17,10 @@ import ComputePrecipitationContract from "../../contract.js";
 import VectorDefinition from "./config.js";
 
 type Vec2 = Readonly<{ x: number; y: number }>;
+
+// Empirical response scale: normalized convergence 1/16 reaches the wetting cap.
+// Apply before clamping so wind quantization cannot multiply the rainfall budget.
+const CONVERGENCE_RESPONSE_GAIN = 16;
 
 // Orographic uplift gradient over the engine's odd-R hex neighborhood. Uses the
 // shared neighbor iterator + hex-space direction vectors (parity keyed on the
@@ -53,7 +58,8 @@ function elevationGradientOddQ(
 /**
  * Combines transported humidity with coastal moisture, seeded texture, windward elevation
  * gradients, and wind convergence over the shared engine-compatible hex neighborhood. Rainfall is
- * land-only, clamped to Civ7's range, and is the sole source of returned humidity.
+ * all-surface, with terrestrial bonuses and uplift restricted to initial land. It is clamped to
+ * Civ7's range and is the sole source of returned humidity.
  */
 const vectorStrategy = createStrategy(ComputePrecipitationContract, VectorDefinition, {
   run: (input, config) => {
@@ -78,12 +84,12 @@ const vectorStrategy = createStrategy(ComputePrecipitationContract, VectorDefini
     const waterLowlandBonus = config.waterGradient.lowlandBonus;
     const waterLowlandElevationMax = config.waterGradient.lowlandElevationMax | 0;
 
-    // Compute a divergence proxy (convergence = -div).
+    // Divergence uses unit-scale wind components, not their signed-byte encoding.
     const windX = new Float32Array(size);
     const windY = new Float32Array(size);
     for (let i = 0; i < size; i++) {
-      windX[i] = input.windU[i] ?? 0;
-      windY[i] = input.windV[i] ?? 0;
+      windX[i] = (input.windU[i] ?? 0) / I8_VECTOR_MAX_ABS;
+      windY[i] = (input.windV[i] ?? 0) / I8_VECTOR_MAX_ABS;
     }
     const divergence = estimateDivergenceOddQ(width, height, windX, windY);
 
@@ -94,13 +100,13 @@ const vectorStrategy = createStrategy(ComputePrecipitationContract, VectorDefini
       const row = y * width;
       for (let x = 0; x < width; x++) {
         const i = row + x;
-        if (input.landMask[i] === 0) continue;
+        const isInitialLand = input.landMask[i] === 1;
 
         const hum = clamp01(input.humidityF32[i] ?? 0);
         let rf = Math.pow(hum, humidityExponent) * rainfallScale;
 
         const dist = distToWater[i] | 0;
-        if (dist >= 0 && dist <= waterRadius) {
+        if (isInitialLand && dist >= 0 && dist <= waterRadius) {
           const elev = input.elevation[i] | 0;
           rf += Math.max(0, waterRadius - dist) * waterPerRingBonus;
           if (elev < waterLowlandElevationMax) rf += waterLowlandBonus;
@@ -109,7 +115,7 @@ const vectorStrategy = createStrategy(ComputePrecipitationContract, VectorDefini
         const wx = input.windU[i] | 0;
         const wy = input.windV[i] | 0;
         const speed = Math.sqrt(wx * wx + wy * wy);
-        if (speed > 1e-6) {
+        if (isInitialLand && speed > 1e-6) {
           const grad = elevationGradientOddQ(x, y, width, height, input.elevation);
           const whx = wx / speed;
           const why = wy / speed;
@@ -117,11 +123,11 @@ const vectorStrategy = createStrategy(ComputePrecipitationContract, VectorDefini
           // Uplift proxy: positive when wind is blowing uphill.
           const uplift = Math.max(0, grad.x * whx + grad.y * why);
           rf += upliftStrength * uplift * 0.02;
-
-          // Convergence proxy: negative divergence.
-          const conv = Math.max(0, -(divergence[i] ?? 0));
-          rf += convergenceStrength * conv * 35;
         }
+
+        // Neighboring inflow can wet a calm center; available humidity bounds its contribution.
+        const convergence = clamp01(-CONVERGENCE_RESPONSE_GAIN * (divergence[i] ?? 0));
+        rf += convergenceStrength * convergence * hum;
 
         const noise = perlin.noise2D(x * noiseScale, y * noiseScale);
         rf += noise * noiseAmplitude;

@@ -11,6 +11,10 @@
 
 Canonical MapGen vocabulary used across docs (policies, reference, tutorials).
 
+For physical concepts, model assumptions and their practical use, see the
+[Water and Relief Glossary](domains/water-and-relief-glossary.md). It links each
+concept to its implementation owner and real-world learning sources.
+
 ## Terms
 
 - **`planFingerprint`**: Stable identity of an execution plan (hash of recipe id/schema, map setup, and each node's id, stage id, `requires`, `provides`, and config; observation policy is excluded by construction).

@@ -37,6 +37,17 @@ describe("step authoring", () => {
     expect(() => createStep(makeContract("alpha"), { run: () => {} })).not.toThrow();
   });
 
+  it("rejects the removed automatic river-naming capability", () => {
+    expect(() =>
+      defineStep({
+        id: "removed-river-naming",
+        requires: [],
+        provides: [],
+        engine: ["defineNamedRivers"],
+      } as never)
+    ).toThrow('declares unavailable authored engine method "defineNamedRivers"');
+  });
+
   it("creates a fresh closed empty schema when step-local authoring is omitted", () => {
     const first = defineStep({
       id: "omitted-schema-first",

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import type { StepFacetSinks } from "@swooper/mapgen-core";
+import { readArtifact } from "@swooper/mapgen-core/authoring";
 import type { VizLayerMeta, VizProjection } from "@swooper/mapgen-viz";
+import { artifacts as climateArtifacts } from "../../../../src/domain/hydrology/modules/climate/artifacts/index.js";
 
 import { runStandardRecipeTestMap } from "../fixtures/standard-recipe.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../setup.js";
@@ -36,6 +38,8 @@ describe("standard pipeline viz emissions", () => {
       "map.morphology.coasts.coastRingMask",
       "morphology.mountains.mountainMask",
       "hydrology.climate.rainfall",
+      "hydrology.climate.baselineSurfaceTemperature",
+      "hydrology.climate.indices.surfaceTemperatureC",
       "hydrology.hydrography.discharge",
       "map.hydrology.lakes.plannedLakeMask",
       "map.hydrology.lakes.engineLakeMask",
@@ -90,8 +94,7 @@ describe("standard pipeline viz emissions", () => {
       pressureGrids.push(
         ...projections.filter(
           (projection) =>
-            projection.kind === "grid" &&
-            projection.dataTypeKey === "hydrology.pressure.pressure"
+            projection.kind === "grid" && projection.dataTypeKey === "hydrology.pressure.pressure"
         )
       );
     };
@@ -132,12 +135,68 @@ describe("standard pipeline viz emissions", () => {
         dims: TEST_MAP_SIZE.dimensions,
         field: { format: "f32" },
         meta: {
-          label: `Circulation Pressure Anomaly (Season ${index + 1})`,
+          label: `Circulation Pressure Anomaly (Phase ${index / 4} From Northward Equinox)`,
           group: "Hydrology / Pressure",
           visibility: "debug",
         },
       });
     }
+  });
+
+  it("projects baseline thermal evidence and final climate indices", () => {
+    const grids: VizProjection[] = [];
+    const { context } = runStandardRecipeTestMap({
+      execution: {
+        facets: {
+          viz: (projections) => {
+            grids.push(
+              ...projections.filter(
+                (projection) =>
+                  projection.kind === "grid" && projection.dataTypeKey.includes("urfaceTemperature")
+              )
+            );
+          },
+        },
+      },
+    });
+    for (const [key, artifact, label] of [
+      [
+        "hydrology.climate.baselineSurfaceTemperature",
+        climateArtifacts.thermalField,
+        "Surface Temperature (Baseline C)",
+      ],
+      [
+        "hydrology.climate.indices.surfaceTemperatureC",
+        climateArtifacts.climateIndices,
+        "Surface Temperature (C)",
+      ],
+    ] as const) {
+      const annual = grids.find(
+        (projection) => projection.dataTypeKey === key && projection.variantKey === undefined
+      );
+      expect(annual).toMatchObject({
+        kind: "grid",
+        dataTypeKey: key,
+        field: { format: "f32" },
+        meta: { label, visibility: "default" },
+      });
+      if (annual?.kind !== "grid") throw new Error("Expected annual thermal grid.");
+      expect(annual.field.values).toBe(readArtifact(context, artifact).surfaceTemperatureC);
+    }
+    const seasonal = grids.filter((projection) => projection.variantKey !== undefined);
+    expect(seasonal.map((projection) => projection.variantKey)).toEqual([
+      "season:0",
+      "season:1",
+      "season:2",
+      "season:3",
+    ]);
+    expect(
+      seasonal.every(
+        (projection) =>
+          projection.dataTypeKey === "hydrology.climate.baselineSurfaceTemperature" &&
+          projection.meta?.visibility === "debug"
+      )
+    ).toBe(true);
   });
 
   it("declutters noisy layers behind debug visibility", () => {

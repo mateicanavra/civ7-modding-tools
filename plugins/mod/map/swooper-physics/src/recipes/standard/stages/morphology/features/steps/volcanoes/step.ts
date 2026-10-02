@@ -53,7 +53,9 @@ export const VolcanoesStep = createStep(config, {
   },
   run: (context, stepConfig, ops, deps) => {
     const plates = deps.artifacts.plates.read();
-    const topography = deps.artifacts.topography.read();
+    const hydrography = deps.artifacts.hydrography.read();
+    const landMask = hydrography.exposedLandMask;
+    const candidateMask = Uint8Array.from(landMask, (land, i) => land === 1 && hydrography.riverClass[i] === 0 ? 1 : 0);
     const { width, height } = context.setup.dimensions;
     const rngSeed = deriveStepSeed(context.setup.mapSeed, "morphology:planVolcanoes");
 
@@ -61,7 +63,8 @@ export const VolcanoesStep = createStep(config, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask,
+        candidateMask,
         boundaryCloseness: plates.boundaryCloseness,
         boundaryType: plates.boundaryType,
         shieldStability: plates.shieldStability,

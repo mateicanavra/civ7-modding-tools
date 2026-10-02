@@ -1,3 +1,4 @@
+import { artifacts as foundationProjectionArtifacts } from "../../../../../../../domain/foundation/modules/projection/artifacts/index.js";
 import morphology from "../../../../../../../domain/morphology/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "../../../../../../../domain/morphology/modules/shelf/artifacts/index.js";
@@ -13,7 +14,11 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const config = defineStep({
   id: "compute-shelf",
-  requires: [morphologyLandformsArtifacts.topography, morphologyTerrainArtifacts.beltDrivers],
+  requires: [
+    foundationProjectionArtifacts.crustTiles,
+    morphologyLandformsArtifacts.topography,
+    morphologyTerrainArtifacts.beltDrivers,
+  ],
   provides: [morphologyShelfArtifacts.shelf],
 
   ops: {

@@ -115,11 +115,19 @@ const PlanStartsContract = defineOp({
         description: "Per-tile nearby planned-resource support score (0..255).",
       })
     ),
-    plannedResourcePlotIndices: Type.Optional(
-      Type.Array(Type.Integer({ minimum: 0 }), {
-        description:
-          "PLANNED resource site plot indices (select-resource-sites intents) used to derive nearby start support. Planned, not placed: since S5 (D3 contract change) resource stamping runs after starts + the support pass, so plan intents are the only resource signal that exists at start time.",
-      })
+    plannedResourcePlotIndices: Type.Array(Type.Integer({ minimum: 0 }), {
+      description:
+        "Exact planned resource site indices used for radius-matched floor/equity admission and nearby scoring. Resource stamping follows start selection and support adjustment.",
+    }),
+    resourceSupportRequirements: Type.Object(
+      {
+        supportFloor: Type.Integer({ minimum: 0, maximum: 6 }),
+        supportRadiusTiles: Type.Integer({ minimum: 1, maximum: 8 }),
+        equityTolerance: Type.Integer({ minimum: 0, maximum: 8 }),
+      },
+      {
+        description: "Admitted resource support floor, radius, and equity bounds for start selection.",
+      }
     ),
   }),
   output: Type.Object({

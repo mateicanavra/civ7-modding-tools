@@ -606,3 +606,122 @@ independent adapter refactor.
   consumer and proof gate can move atomically.
 - A second independent map realization may earn a reusable qualified
   integration owner later; one hypothetical consumer does not justify it now.
+
+## ADR-020: Earthlike Water Precedes Exposed Landform Selection
+
+**Status:** Accepted (amends ADR-008's routing implementation, not ownership)
+**Date:** 2026-09-28
+**Context:** A conditioned per-cell drainage graph and seed-selected lake mask
+cannot express complete physical water bodies while preserving authored ground.
+Selecting blocking landforms first also makes native projection compensate by
+clipping lakes or suppressing channels. Civ7's direct river controls remove the
+need for a second procedural river-authoring pass.
+**Decision:** Earthlike explicitly selects a certified sill-spill water model.
+Final ground and original marine geography precede baseline climate, basin
+geometry, and one coherent body/dry-channel network. Exposed mountains and
+volcanoes are selected afterward, excluding wet bodies and classified channels;
+hills remain eligible on dry channels. Hydrology owns the physical products.
+Projection writes complete lake footprints and every authored dry river source,
+then separately observes Civ7's classes and numeric elevation. Other shipped
+maps explicitly retain their legacy model pending qualification.
+**Consequences:**
+- Preserve original ground, baseline forcing, and double-precision conserved
+  water budgets. Unsupported cases fail with evidence, without silent fallback.
+- Distinguish original marine geography used by thermal forcing from exposed
+  ground used by terrestrial ecology and surface-category budgets.
+- Do not clip certified lakes to legacy count, area, or singleton quotas.
+  Direct physical, placement, habitat, and parity guards remain mandatory.
+- Native lake height and through-lake navigation are not inferred from the
+  physical water surface or from successful river-class writes.
+- The integration and bounded support/proof contract are maintained in
+  [Earthlike basin integration](../projects/native-map-controls/basin-integration.md).
+
+## ADR-021: Surface Temperature Is An Independently Published Thermal Product
+
+**Status:** Superseded by ADR-022 (publication shape; causal repair retained)
+**Date:** 2026-09-29
+**Historical correction:** The original rationale below preceded the complete
+wind/pressure/thermal lineage audit. It must not be used as independent evidence
+of a prior repository-wide scalar-artifact mandate.
+**Context:** Baseline water forcing and later ecology independently recomputed
+ground temperature with incompatible solar and lapse calibrations. Extending
+older multi-property climate bundles would also preserve avoidable consumer
+coupling, contrary to the intended property-as-artifact direction.
+**Decision:** The climate module owns independent, map-cardinality temperature
+artifacts with direct Float32 payloads. Baseline publishes the annual mean of
+its seasonal ground-temperature samples. Refine consumes that product, applies
+declared feedback and publishes the refined vintage. Consumers require the
+exact thermal artifact; climate bundles do not retain temperature aliases.
+Sea-level thermal forcing for pressure remains datum-specific computation under
+the same calibration, not another ground-temperature owner.
+**Consequences:**
+- Remove refine's duplicate solar/thermal operations and controls strictly from
+  all authored profiles; do not retain ignored legacy settings or fallbacks.
+- Artifact identity, publication, admission and immutable read semantics remain
+  in the existing Core framework. No ambient field or buffer registry is added.
+- Cohesive relational artifacts may still contain multiple members; unrelated
+  climate property decomposition is not required by this bounded migration.
+- Coherent ownership does not itself establish Earth calibration. Ground relief
+  remains in model units and seasonal nonlinear responses need explicit study.
+- The causal tests and independent reference plan are in
+  [thermal coherence](../projects/native-map-controls/thermal-coherence.md).
+
+## ADR-022: Complete The Baseline Thermal Handoff Under Existing Artifact Law
+
+**Status:** Accepted
+**Date:** 2026-09-29
+**Context:** July's pressure-field experiment implemented a named-object
+`thermalField` and explicitly deferred refinement's consumption migration.
+That experimental branch did not merge; July 31 reconstructed pressure/wind
+without the thermal handoff. January's final `climateIndices` descriptor set
+remained. Neither survival nor omission establishes rejection of the other
+design. The enforced artifact blueprint governs schema authority and admission,
+not a minimum or maximum number of payload properties.
+**Decision:** Publish baseline's annual ground/SST temperature as
+`artifact:hydrology._internal.thermalField`, with an inline
+`Type.Object({ surfaceTemperatureC: ... })` payload and finite map-cardinality
+admission. Refinement consumes it and applies declared feedback, publishing
+the final temperature through the existing `climateIndices` descriptor product.
+There is no temperature member in `baselineClimateField`, no independently
+recomputed refinement temperature and no duplicate standalone final artifact.
+**Consequences:**
+- Preserve the single thermal calibration and strict removal of obsolete
+  refinement controls from ADR-021.
+- Restore the original artifact source-shape rule; no raw-array-root exception
+  or alternate publication mechanism is needed.
+- A physical field and a coherent final descriptor set are both valid products.
+  Their owners, vintages and consumers establish boundaries, not array count.
+- Complete the concrete historical deferral without importing the old program's
+  broader intermediate-publication rule as current repository-wide law.
+- Numerical calibration and native water qualification remain independent work.
+- Provenance, counterevidence and the consumer graph are retained in
+  [climate artifact lineage](../projects/native-map-controls/climate-artifact-lineage.md).
+
+## ADR-023: Retire Superseded Water Computation And Projection
+
+**Status:** Accepted
+**Date:** 2026-09-30
+**Context:** The completed stationary basin coordinator admits every shipped
+profile's held scenario bank. The remaining sink-budget/procedural paths are
+unfinished caller migration, not demonstrated current solver requirements.
+An exact flat-plateau witness also shows why preserving their mandatory lake
+appearance would require fabricating physical storage.
+**Decision:** Use one ground-preserving basin/whole-body water chain and one
+complete authored native river projection across all eight shipped profiles.
+Retire the displaced operations, runtime branches, evidence unions, projection
+quotas and their obsolete tests. Keep profile-specific forcing and physical
+river-density parameters. Reject retired authored config rather than silently
+translating its semantics. Studio can recover a known recipe's unsupported v5
+envelope read-only for export and explicit current-config selection, never run it.
+**Consequences:**
+- Domain operations retain physical computation; steps compose their current
+  contracts through the existing SDK. There is no new solver or fallback.
+- Physical lake footprint, native lake category and native numeric height
+  remain separate proof surfaces. A successful source migration does not
+  establish native cutoff or navigation qualification.
+- Retire only Archipelago's witnessed unconditional lake floor; preserve the
+  other product expectations and outstanding Earth calibration failures.
+- Existing catalog, preset, setup and study selection own profile/size axes;
+  live diagnostics extend those selectors instead of defining a second bank.
+- The physical mapping and retained before/after witnesses are in
+  [legacy water migration](../projects/native-map-controls/legacy-water-migration.md).

@@ -22,9 +22,10 @@ const COMPARISON_DIMENSIONS = TEST_MAP_SIZE.dimensions;
 const COMPARISON_PLOT_COUNT = COMPARISON_DIMENSIONS.width * COMPARISON_DIMENSIONS.height;
 const EMPTY_DIGEST = { count: 0, hash32: "811c9dc5" } as const;
 const EMPTY_INPUT_EVIDENCE = {
-  version: 2,
+  version: 3,
   plannerInput: {
-    version: 1,
+    version: 2,
+    engineElevationSource: "mock",
     dimensions: COMPARISON_DIMENSIONS,
     wondersCount: 0,
     engineConstants: {
@@ -44,10 +45,11 @@ const EMPTY_INPUT_EVIDENCE = {
       configHash32: "bbbbbbbb",
     },
     surfaceDigests: {
-      version: 1,
+      version: 2,
       plotCount: COMPARISON_PLOT_COUNT,
       landMaskHash32: "11111111",
       elevationHash32: "22222222",
+      engineElevationsHash32: "12341234",
       aridityIndexHash32: "33333333",
       riverClassHash32: "44444444",
       lakeMaskHash32: "55555555",
@@ -240,6 +242,73 @@ describe("Standard parity report state", () => {
     expect(report.failureLinks).toContain("placement-parity.drift");
   });
 
+  test("keeps native classification differences visible without confusing physical closure", () => {
+      const base = captures();
+      const localCounters = {
+        ...base.local.placement.terminalParity,
+        acceptedLakeTileCount: 203,
+      };
+      const report = buildStandardParityReport({
+        ...base,
+        exact: {
+          ...base.exact,
+          placementParity: {
+            status: "present",
+            value: { ...localCounters, finalLakeClassificationDriftCount: 48 },
+          },
+        },
+        local: {
+          ...base.local,
+          hydrology: {
+            ...base.local.hydrology,
+            rivers: { ...base.local.hydrology.rivers },
+          },
+          placement: { ...base.local.placement, terminalParity: localCounters },
+        },
+      });
+
+      expect(report.placement.terminalParity.claim.status).toBe("pass");
+      expect(report.placement.terminalParity.mismatchedFields).toEqual([
+        "finalLakeClassificationDriftCount",
+      ]);
+      expect(report.placement.terminalParity.exact?.finalLakeClassificationDriftCount).toBe(48);
+      expect(report.placement.terminalParity.local.finalLakeClassificationDriftCount).toBe(0);
+  });
+
+  test("never waives certified physical water loss alongside native class differences", () => {
+    const base = captures();
+    const counters = {
+      ...base.local.placement.terminalParity,
+      acceptedLakeTileCount: 203,
+      waterDriftCount: 1,
+      finalLakeWaterDriftCount: 1,
+    };
+    const report = buildStandardParityReport({
+      ...base,
+      exact: {
+        ...base.exact,
+        placementParity: {
+          status: "present",
+          value: { ...counters, finalLakeClassificationDriftCount: 48 },
+        },
+      },
+      local: {
+        ...base.local,
+        hydrology: {
+          ...base.local.hydrology,
+          rivers: { ...base.local.hydrology.rivers, model: "certified-sill-spill" },
+        },
+        placement: { ...base.local.placement, terminalParity: counters },
+      },
+    });
+
+    expect(report.placement.terminalParity.claim.status).toBe("fail");
+    expect(report.failureLinks).toContain("placement-parity.drift");
+    expect(report.placement.terminalParity.mismatchedFields).toEqual([
+      "finalLakeClassificationDriftCount",
+    ]);
+  });
+
   test("compares river terrain even when a metadata grid has incompatible cardinality", () => {
     const base = captures();
     const terrain = new Array<number | null>(COMPARISON_PLOT_COUNT).fill(0);
@@ -315,6 +384,65 @@ describe("Standard parity report state", () => {
     expect(report.failureLinks).toContain("resource-placement.placed");
     expect(report.unresolvedLinks).toContain(
       "exact-authorship.log.resource-placement.rejected-coordinates"
+    );
+  });
+
+  test("retains native versus mock provenance without treating it as a numeric planner mismatch", () => {
+    const base = captures();
+    const exactInput = base.exact.naturalWonderPlanInput;
+    if (exactInput.status !== "present") throw new Error("Expected exact planner input evidence.");
+    const report = buildStandardParityReport({
+      ...base,
+      exact: {
+        ...base.exact,
+        naturalWonderPlanInput: {
+          status: "present",
+          value: {
+            ...exactInput.value,
+            plannerInput: { ...exactInput.value.plannerInput, engineElevationSource: "native" },
+          },
+        },
+      },
+    });
+
+    expect(report.placement.naturalWonderPlanInput.claim.status).toBe("pass");
+    expect(report.failureLinks).toEqual([]);
+    expect(report.state).toBe("blocked-unresolved");
+    expect(report.placement.naturalWonderPlanInput.exact?.plannerInput.engineElevationSource).toBe(
+      "native"
+    );
+    const localInput = report.placement.naturalWonderPlanInput.local;
+    if (localInput.status !== "present") throw new Error("Expected local planner input evidence.");
+    expect(localInput.value.plannerInput.engineElevationSource).toBe("mock");
+  });
+
+  test("fails when exact native elevation numbers diverge despite matching physical elevation", () => {
+    const base = captures();
+    const exactInput = base.exact.naturalWonderPlanInput;
+    if (exactInput.status !== "present") throw new Error("Expected exact planner input evidence.");
+    const report = buildStandardParityReport({
+      ...base,
+      exact: {
+        ...base.exact,
+        naturalWonderPlanInput: {
+          status: "present",
+          value: {
+            ...exactInput.value,
+            plannerInput: {
+              ...exactInput.value.plannerInput,
+              surfaceDigests: {
+                ...exactInput.value.plannerInput.surfaceDigests,
+                engineElevationsHash32: "fedcba98",
+              },
+            },
+          },
+        },
+      },
+    });
+
+    expect(report.placement.naturalWonderPlanInput.claim.status).toBe("fail");
+    expect(report.failureLinks).toContain(
+      "natural-wonder-plan-input.surface-digests.engineElevationsHash32"
     );
   });
 
@@ -461,6 +589,8 @@ function captures(): Readonly<{
       surface: finalSurface(0),
       hydrology: {
         rivers: {
+          model: "certified-sill-spill",
+          nativeMinor: emptyGrid,
           plannedMinor: emptyGrid,
           plannedMajor: emptyGrid,
           projectedNavigableTerrain: emptyGrid,

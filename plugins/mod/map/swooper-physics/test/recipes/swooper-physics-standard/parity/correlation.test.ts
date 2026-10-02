@@ -724,11 +724,12 @@ function exactFixture(
         },
       },
       naturalWonderPlanInput: {
-        marker: "NATURAL_WONDER_PLAN_INPUT_V2",
+        marker: "NATURAL_WONDER_PLAN_INPUT_V3",
         payload: {
-          version: 2,
+          version: 3,
           plannerInput: {
-            version: 1,
+            version: 2,
+            engineElevationSource: "native",
             dimensions: { width, height },
             wondersCount: 0,
             engineConstants: {
@@ -748,10 +749,11 @@ function exactFixture(
               configHash32: "bbbbbbbb",
             },
             surfaceDigests: {
-              version: 1,
+              version: 2,
               plotCount: width * height,
               landMaskHash32: "11111111",
               elevationHash32: "22222222",
+              engineElevationsHash32: "12341234",
               aridityIndexHash32: "33333333",
               riverClassHash32: "44444444",
               lakeMaskHash32: "55555555",

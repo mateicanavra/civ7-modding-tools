@@ -1,4 +1,10 @@
 import { describe, expect, it } from "bun:test";
+import {
+  type CurrentMapElevationSnapshot,
+  MockAdapter,
+  type RiverFinalizationArgs,
+  type RiverWriteIntent,
+} from "@civ7/adapter";
 import { getCiv7StandardMapSizePreset } from "@civ7/map-policy";
 import { artifacts as placementStartArtifacts } from "../../../src/domain/placement/modules/starts/artifacts/index.js";
 import { artifacts as resourceDemandArtifacts } from "../../../src/domain/resources/modules/demand/artifacts/index.js";
@@ -7,6 +13,7 @@ import { artifacts as resourceSupportArtifacts } from "../../../src/domain/resou
 import { deriveStepSeed } from "@swooper/mapgen-core";
 import { readArtifact } from "@swooper/mapgen-core/authoring";
 import { Value } from "typebox/value";
+import { loadSwooperMapConfigCatalog } from "../../../scripts/catalog-source.js";
 
 import {
   STANDARD_NATURAL_WONDER_PLACEMENT_METRIC_KEY,
@@ -20,8 +27,162 @@ import {
 } from "../../../src/recipes/standard/metrics/families/placement/resource-placement.js";
 import { TEST_GAME_SEED, TEST_MAP_SEED } from "../../setup.js";
 import { runStandardRecipeTestMap, standardMapConfig } from "./fixtures/standard-recipe.js";
+import {
+  STANDARD_ELEVATION_POST_WRITE_METRIC_KEY,
+  STANDARD_ELEVATION_FINAL_METRIC_KEY,
+  type StandardElevationProjectionMeasurements,
+  StandardElevationProjectionMeasurementsSchema,
+} from "../../../src/recipes/standard/metrics/families/elevation-projection.js";
+
+const catalogCases = (await loadSwooperMapConfigCatalog()).map(({ canonicalConfig }) => ({
+  id: canonicalConfig.id,
+  mapConfig: canonicalConfig,
+}));
 
 describe("Standard recipe generation", () => {
+  it.each(
+    catalogCases
+  )("generates cliffs once after final elevation retention, river finalization, and wonder placement for $id", ({
+    mapConfig,
+  }) => {
+    class ExplicitElevationRecipeAdapter extends MockAdapter {
+      readonly elevationEvents: string[] = [];
+      rainfallWrites = 0;
+      override setRainfall(x: number, y: number, rainfall: number): void {
+        this.rainfallWrites += 1;
+        super.setRainfall(x, y, rainfall);
+      }
+      buildElevation(): void {
+        throw new Error("Stock elevation must not run in the Standard recipe.");
+      }
+      override setElevation(values: readonly number[]): void {
+        this.elevationEvents.push("setElevation");
+        super.setElevation(values);
+      }
+      override generateCliffsFromElevation(): void {
+        this.elevationEvents.push("generateCliffsFromElevation");
+        super.generateCliffsFromElevation();
+      }
+      override setRiverInfo(intent: RiverWriteIntent): void {
+        this.elevationEvents.push("setRiverInfo");
+        super.setRiverInfo(intent);
+      }
+      override finalizeRivers(args: RiverFinalizationArgs): void {
+        this.elevationEvents.push("finalizeRivers");
+        super.finalizeRivers(args);
+      }
+      override modelRivers(minLength: number, maxLength: number, navigableTerrain: number): void {
+        this.elevationEvents.push("modelRivers");
+        super.modelRivers(minLength, maxLength, navigableTerrain);
+      }
+      override placeNaturalWonder(
+        x: number,
+        y: number,
+        featureType: number,
+        direction: number,
+        elevation?: number
+      ) {
+        this.elevationEvents.push("placeNaturalWonder");
+        return super.placeNaturalWonder(x, y, featureType, direction, elevation);
+      }
+      override validateAndFixTerrain(): void {
+        if (this.calls.setElevation.length > 0) this.elevationEvents.push("validateAndFixTerrain");
+        super.validateAndFixTerrain();
+      }
+      override recalculateAreas(): void {
+        if (this.calls.setElevation.length === 2) this.elevationEvents.push("recalculateAreas");
+        super.recalculateAreas();
+      }
+      override storeWaterData(): void {
+        if (this.calls.setElevation.length === 2) this.elevationEvents.push("storeWaterData");
+        super.storeWaterData();
+      }
+      override readCurrentMapElevationSnapshot(): CurrentMapElevationSnapshot {
+        this.elevationEvents.push("readCurrentMapElevationSnapshot");
+        return super.readCurrentMapElevationSnapshot();
+      }
+    }
+    const measured = new Map<string, StandardElevationProjectionMeasurements>();
+    let metricFailure: unknown;
+    const { adapter, preset } = runStandardRecipeTestMap({
+      mapConfig,
+      createAdapter: ({ preset, mapInfo, mapSeed, aliveMajorPlayerIds, plotEffectTypes }) =>
+        new ExplicitElevationRecipeAdapter({
+          ...preset.dimensions,
+          mapInfo,
+          mapSizeId: preset.id,
+          rngSeed: mapSeed,
+          aliveMajorPlayerIds,
+          plotEffectTypes,
+        }),
+      execution: {
+        facets: {
+          metrics: (projection) => {
+            for (const key of [
+              STANDARD_ELEVATION_POST_WRITE_METRIC_KEY,
+              STANDARD_ELEVATION_FINAL_METRIC_KEY,
+            ]) {
+              if (projection[key] !== undefined)
+                measured.set(
+                  key,
+                  Value.Parse(StandardElevationProjectionMeasurementsSchema, projection[key])
+                );
+            }
+          },
+          onError: ({ facet, error }) => {
+            if (facet === "metrics") metricFailure = error;
+          },
+        },
+      },
+    });
+    if (metricFailure !== undefined) throw metricFailure;
+    expect(adapter.calls.setElevation.length).toBe(2);
+    expect(adapter.rainfallWrites).toBe(preset.dimensions.width * preset.dimensions.height);
+    expect(adapter.calls.generateCliffsFromElevation).toBe(1);
+    expect(adapter.elevationEvents.slice(0, 2)).toEqual([
+      "setElevation",
+      "readCurrentMapElevationSnapshot",
+    ]);
+    expect(adapter.calls.setRiverInfo.length).toBeGreaterThan(0);
+    expect(adapter.calls.finalizeRivers).toEqual([[false, 25, 2, 2]]);
+    expect(adapter.elevationEvents).not.toContain("modelRivers");
+    expect(adapter.elevationEvents.indexOf("setRiverInfo")).toBeGreaterThan(1);
+    expect(adapter.elevationEvents.lastIndexOf("setRiverInfo")).toBeLessThan(
+      adapter.elevationEvents.indexOf("finalizeRivers")
+    );
+    expect(adapter.elevationEvents.indexOf("generateCliffsFromElevation")).toBeGreaterThan(
+      adapter.elevationEvents.indexOf("finalizeRivers")
+    );
+    const maintenanceWrite = adapter.elevationEvents.lastIndexOf("setElevation");
+    expect(adapter.elevationEvents.slice(maintenanceWrite, maintenanceWrite + 4)).toEqual([
+      "setElevation",
+      "generateCliffsFromElevation",
+      "recalculateAreas",
+      "storeWaterData",
+    ]);
+    expect(maintenanceWrite).toBeGreaterThan(
+      adapter.elevationEvents.lastIndexOf("placeNaturalWonder")
+    );
+    expect(maintenanceWrite).toBeGreaterThan(
+      adapter.elevationEvents.lastIndexOf("validateAndFixTerrain")
+    );
+    expect(adapter.elevationEvents[maintenanceWrite - 1]).toBe("readCurrentMapElevationSnapshot");
+    expect(adapter.elevationEvents.lastIndexOf("readCurrentMapElevationSnapshot")).toBeGreaterThan(
+      adapter.elevationEvents.indexOf("generateCliffsFromElevation")
+    );
+    for (const key of [
+      STANDARD_ELEVATION_POST_WRITE_METRIC_KEY,
+      STANDARD_ELEVATION_FINAL_METRIC_KEY,
+    ]) {
+      expect(measured.get(key)).toMatchObject({
+        source: "mock",
+        status: "mock-only",
+        mismatchCount: 0,
+        unplannedNativeLakeMismatchCount: 0,
+      });
+    }
+  }, 30_000);
+
   it("runs the selected test map through terminal placement product evidence", () => {
     let naturalWonderPlacement: StandardNaturalWonderPlacementMeasurements | undefined;
     let resourcePlacement: StandardResourcePlacementMeasurements | undefined;

@@ -16,6 +16,10 @@ const PlanVolcanoesContract = defineOp({
         cardinality: ["width", "height"],
         description: "Land mask per tile (1=land, 0=water).",
       }),
+      candidateMask: TypedArraySchemas.u8({
+        cardinality: ["width", "height"],
+        description: "Volcano eligibility separate from exposed land, reserving dry channels without changing geography.",
+      }),
       boundaryCloseness: TypedArraySchemas.u8({
         cardinality: ["width", "height"],
         description: "Boundary proximity per tile (0..255).",

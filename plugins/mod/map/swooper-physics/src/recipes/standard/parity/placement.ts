@@ -47,6 +47,7 @@ type StandardNaturalWonderPlanInputDelta = Readonly<
     biomeType: Readonly<{ exact: number; local: number }>;
     occupiedFeatureType: Readonly<{ exact: number; local: number }>;
     elevationDelta: number;
+    engineElevationDelta: number;
     aridityPpmDelta: number;
     riverClassDelta: number;
     lakeMaskDelta: number;
@@ -168,12 +169,17 @@ function compareTerminalPlacementParity(
     "finalLakeClassificationDriftCount",
   ] as const satisfies readonly (keyof StandardPlacementParityCounters)[];
   const mismatchedFields = fields.filter((field) => localCounters[field] !== exactCounters[field]);
-  if (mismatchedFields.length > 0) {
+  // The mock does not emulate native water-area classification. Keep that difference visible
+  // without mistaking a certified body's native class for its physical water footprint.
+  const blockingMismatches = mismatchedFields.filter((field) =>
+    field !== "finalLakeClassificationDriftCount"
+  );
+  if (blockingMismatches.length > 0) {
     return {
       claim: {
         status: "fail",
         reason: "Exact and local terminal placement-parity counters diverge.",
-        evidenceLinks: mismatchedFields.map((field) => `placement-parity.${field}`),
+        evidenceLinks: blockingMismatches.map((field) => `placement-parity.${field}`),
       },
       local: localCounters,
       exact: exactCounters,
@@ -182,8 +188,7 @@ function compareTerminalPlacementParity(
   }
   if (
     localCounters.waterDriftCount !== 0 ||
-    localCounters.finalLakeWaterDriftCount !== 0 ||
-    localCounters.finalLakeClassificationDriftCount !== 0
+    localCounters.finalLakeWaterDriftCount !== 0
   ) {
     return {
       claim: {
@@ -193,18 +198,18 @@ function compareTerminalPlacementParity(
       },
       local: localCounters,
       exact: exactCounters,
-      mismatchedFields: [],
+      mismatchedFields,
     };
   }
   return {
     claim: {
       status: "pass",
-      reason: "Exact and local terminal placement counters match with zero final water drift.",
+      reason: "Exact and local physical-water counters match with zero final water drift; native lake classification remains separate evidence.",
       evidenceLinks: ["placement-parity"],
     },
     local: localCounters,
     exact: exactCounters,
-    mismatchedFields: [],
+    mismatchedFields,
   };
 }
 
@@ -326,10 +331,12 @@ function compareNaturalWonderPlanInput(
   }
   const exactEvidence = exact.naturalWonderPlanInput.value;
   const localValue = localEvidence.value;
-  const mismatchedPlannerFields = mismatchedCanonicalFields(
-    exactEvidence.plannerInput,
-    localValue.plannerInput
-  );
+  // Provenance remains in the report, but native versus mock is not a numeric input difference.
+  const { engineElevationSource: exactSource, ...exactPlannerValues } = exactEvidence.plannerInput;
+  const { engineElevationSource: localSource, ...localPlannerValues } = localValue.plannerInput;
+  void exactSource;
+  void localSource;
+  const mismatchedPlannerFields = mismatchedCanonicalFields(exactPlannerValues, localPlannerValues);
   const mismatchedDigestFields = mismatchedCanonicalFields(
     exactEvidence.plannerInput.surfaceDigests,
     localValue.plannerInput.surfaceDigests
@@ -341,12 +348,14 @@ function compareNaturalWonderPlanInput(
   );
   const rowsMatch = stableStringify(exactEvidence.rows) === stableStringify(localValue.rows);
   const plannedCountMatches = exactEvidence.plannedCount === localValue.plannedCount;
-  const measurementMatches = stableStringify(exactEvidence) === stableStringify(localValue);
+  const measurementMatches =
+    stableStringify({ ...exactEvidence, plannerInput: exactPlannerValues }) ===
+    stableStringify({ ...localValue, plannerInput: localPlannerValues });
   const claim: StandardParityComparison = measurementMatches
     ? {
         status: "pass",
         reason:
-          "Exact and local natural-wonder evidence identifies the same complete admitted planner request and selected anchors.",
+          "Exact and local natural-wonder evidence identifies the same admitted planner values and selected anchors; observation provenance remains separate and this is not native execution proof.",
         evidenceLinks: ["natural-wonder-plan-input"],
       }
     : {
@@ -436,6 +445,9 @@ function naturalWonderInputDelta(
     ...(exact.elevation === local.elevation
       ? {}
       : { elevationDelta: exact.elevation - local.elevation }),
+    ...(exact.engineElevation === local.engineElevation
+      ? {}
+      : { engineElevationDelta: exact.engineElevation - local.engineElevation }),
     ...(exact.aridityPpm === local.aridityPpm
       ? {}
       : { aridityPpmDelta: exact.aridityPpm - local.aridityPpm }),

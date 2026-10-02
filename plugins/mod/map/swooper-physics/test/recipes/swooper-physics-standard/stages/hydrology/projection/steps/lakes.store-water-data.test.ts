@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { closedLakeProjectionFixture } from "../../../../fixtures/closed-lake-projection.js";
 import { type LakeProjectionResult, MockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { artifacts as hydrographyArtifacts } from "../../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
@@ -69,8 +70,7 @@ class CachedWaterAdapter extends MockAdapter {
  * Readback-rejecting adapter double.
  *
  * This keeps the test focused on the projection contract: `map-hydrology/lakes`
- * records rejections as diagnostics and does not turn engine disagreement into
- * Hydrology model evidence or a runtime throw.
+ * refuses a partial native footprint before publishing downstream lake evidence.
  */
 class RejectingLakeAdapter extends MockAdapter {
   override stampLakes(width: number, height: number, lakeMask: Uint8Array): LakeProjectionResult {
@@ -144,13 +144,7 @@ function seedLakeProjectionInputs(
 ): void {
   const { width, height } = context.setup.dimensions;
   const size = width * height;
-  publishTestArtifact(context, hydrographyArtifacts.lakePlan, {
-    width,
-    height,
-    lakeMask,
-    plannedLakeTileCount: lakeMask.reduce((count, value) => count + (value === 1 ? 1 : 0), 0),
-    sinkLakeCount: lakeMask.reduce((count, value) => count + (value === 1 ? 1 : 0), 0),
-  });
+  publishTestArtifact(context, hydrographyArtifacts.lakePlan, closedLakeProjectionFixture(width, height, lakeMask));
   publishTestArtifact(context, morphologyLandformsArtifacts.mountains, {
     mountainMask,
     mountainRegionMask: Uint8Array.from(mountainMask),
@@ -196,6 +190,63 @@ function executeLakesStep(
 }
 
 describe("map-hydrology/lakes", () => {
+  it("keeps certified inland water when native lake classification differs", () => {
+    class InlandWaterAdapter extends CachedWaterAdapter {
+      override isLake(): boolean { return false; }
+    }
+    const { width, height } = TEST_DIMENSIONS;
+    const adapter = new InlandWaterAdapter({ width, height, mapInfo: TEST_MAP_SIZE.mapInfo, mapSizeId: TEST_MAP_SIZE.id, rng: createLabelRng(TEST_MAP_SEED) });
+    const context = createContext(adapter, TEST_DIMENSIONS, TEST_MAP_SEED);
+    const lakeMask = new Uint8Array(width * height);
+    lakeMask[width + 1] = 1;
+    const result = executeLakesStep(context, lakeMask);
+    expect(result.projection.stampedLakeTileCount).toBe(1);
+    expect(result.projection.nonLakeTileCount).toBe(1);
+    expect(result.projection.terrainMismatchTileCount).toBe(0);
+    expect(readArtifact(context, hydrographyArtifacts.projectedLakes).lakeMask).toEqual(lakeMask);
+    const layers = LakesStep.viz!({ observation: result, config: {}, dimensions: TEST_DIMENSIONS });
+    const nativeLakeLayer = layers.find((layer) => layer.dataTypeKey === "map.hydrology.lakes.engineLakeMask");
+    expect(nativeLakeLayer?.kind).toBe("grid");
+    if (nativeLakeLayer?.kind === "grid") expect(nativeLakeLayer.field.values[width + 1]).toBe(0);
+  });
+
+  it("refuses wrong terrain even when all certified water was accepted", () => {
+    class WrongTerrainAdapter extends CachedWaterAdapter {
+      override stampLakes(width: number, height: number, mask: Uint8Array): LakeProjectionResult {
+        const result = super.stampLakes(width, height, mask);
+        return { ...result, terrainMismatchTileCount: 1 };
+      }
+    }
+    const { width, height } = TEST_DIMENSIONS;
+    const adapter = new WrongTerrainAdapter({ width, height, mapInfo: TEST_MAP_SIZE.mapInfo, mapSizeId: TEST_MAP_SIZE.id, rng: createLabelRng(TEST_MAP_SEED) });
+    const context = createContext(adapter, TEST_DIMENSIONS, TEST_MAP_SEED);
+    const mask = new Uint8Array(width * height);
+    mask[width + 1] = 1;
+    expect(() => executeLakesStep(context, mask)).toThrow(/coast terrain mismatches/);
+    expect(() => readArtifact(context, hydrographyArtifacts.projectedLakes)).toThrow();
+  });
+
+  it("projects the entire certified footprint and rejects blockers or native partial acceptance", () => {
+    const { width, height } = TEST_DIMENSIONS;
+    const lakeMask = new Uint8Array(width * height);
+    for (let cell = width + 2; cell < width + 34; cell++) lakeMask[cell] = 1;
+    for (const [blocked, rejected] of [[false, false], [true, false], [false, true]] as const) {
+      const Adapter = rejected ? RejectingLakeAdapter : CachedWaterAdapter;
+      const adapter = new Adapter({ width, height, mapInfo: TEST_MAP_SIZE.mapInfo, mapSizeId: TEST_MAP_SIZE.id, rng: createLabelRng(TEST_MAP_SEED) });
+      const context = createContext(adapter, TEST_DIMENSIONS, TEST_MAP_SEED);
+      const mountains = new Uint8Array(width * height);
+      if (blocked) mountains[width + 3] = 1;
+      const run = () => executeLakesStep(context, lakeMask, mountains);
+      if (blocked || rejected) {
+        expect(run).toThrow(blocked ? /blocking landform/ : /footprint rejected/);
+        expect(adapter.calls.stampLakes.length).toBe(blocked ? 0 : 1);
+        expect(() => readArtifact(context, hydrographyArtifacts.projectedLakes)).toThrow();
+      } else {
+        expect(run().projection.stampedLakeTileCount).toBe(32);
+        expect(readArtifact(context, hydrographyArtifacts.projectedLakes).lakeMask).toEqual(lakeMask);
+      }
+    }
+  });
   it("refreshes engine water caches after stamping planned lakes", () => {
     const { width, height } = TEST_DIMENSIONS;
     const seed = TEST_MAP_SEED;
@@ -226,37 +277,18 @@ describe("map-hydrology/lakes", () => {
     expect(projectedLakes.lakeMask).toEqual(lakeMask);
   });
 
-  it("records projection rejection as diagnostics without throwing", () => {
+  it("refuses native projection rejection rather than publishing a clipped physical footprint", () => {
     const { width, height } = TEST_DIMENSIONS;
-    const seed = TEST_MAP_SEED;
-    const adapter = new RejectingLakeAdapter({
-      width,
-      height,
-      mapInfo: TEST_MAP_SIZE.mapInfo,
-      mapSizeId: TEST_MAP_SIZE.id,
-      rng: createLabelRng(seed),
-    });
-    const context = createContext(adapter, TEST_DIMENSIONS, seed);
+    const adapter = new RejectingLakeAdapter({ width, height });
+    const context = createContext(adapter, TEST_DIMENSIONS, TEST_MAP_SEED);
     const lakeMask = new Uint8Array(width * height);
-    lakeMask[1 + width] = 1;
-    const observation = executeLakesStep(context, lakeMask);
-
-    expect(observation.projection.rejectedLakeTileCount).toBe(1);
-    expect(observation.projection.nonLakeTileCount).toBe(1);
-    expect(observation.projection.terrainMismatchTileCount).toBe(0);
-    const projectedLakes = readArtifact(context, hydrographyArtifacts.projectedLakes);
-    expect(projectedLakes.lakeMask[1 + width]).toBe(0);
-    expect(projectedLakes.lakeMask.reduce((count, value) => count + value, 0)).toBe(0);
-
-    const projectViz = LakesStep.viz;
-    if (!projectViz) throw new Error("Expected the lakes step to expose its evidence projector");
-    const dataTypeKeys = projectViz({
-      observation,
-      config: {},
-      dimensions: TEST_DIMENSIONS,
-    }).map(({ dataTypeKey }) => dataTypeKey);
-    expect(dataTypeKeys).toContain("map.hydrology.lakes.engineLakeMask");
-    expect(dataTypeKeys).toContain("map.hydrology.lakes.rejectedLakeMask");
+    lakeMask[width + 1] = 1;
+    const before = lakeMask.slice();
+    expect(() => executeLakesStep(context, lakeMask)).toThrow(/footprint rejected/);
+    expect(adapter.calls.stampLakes).toHaveLength(1);
+    expect(adapter.calls.stampLakes[0]!.lakeMask).toEqual(lakeMask);
+    expect(lakeMask).toEqual(before);
+    expect(() => readArtifact(context, hydrographyArtifacts.projectedLakes)).toThrow();
   });
 
   it("stamps the projected lake mask instead of calling engine lake generation", () => {
@@ -281,107 +313,36 @@ describe("map-hydrology/lakes", () => {
     );
   });
 
-  it("protects final Morphology landforms from lake projection and measures the candidates", () => {
+  it.each(["mountain", "volcano"] as const)("refuses overlapping %s truth before stamping any physical lake cell", (blocker) => {
     const { width, height } = TEST_DIMENSIONS;
-    const adapter = new CachedWaterAdapter({
-      width,
-      height,
-      mapInfo: TEST_MAP_SIZE.mapInfo,
-      mapSizeId: TEST_MAP_SIZE.id,
-      rng: createLabelRng(TEST_MAP_SEED),
-    });
+    const adapter = new CachedWaterAdapter({ width, height });
     const context = createContext(adapter, TEST_DIMENSIONS, TEST_MAP_SEED);
-    const mountainTile = 2 + width;
-    const volcanoTile = 3 + width;
-    const plainLakeTile = 6 + width;
     const lakeMask = new Uint8Array(width * height);
-    lakeMask[mountainTile] = 1;
-    lakeMask[volcanoTile] = 1;
-    lakeMask[plainLakeTile] = 1;
-    const mountainMask = new Uint8Array(width * height);
-    mountainMask[mountainTile] = 1;
-    const volcanoMask = new Uint8Array(width * height);
-    volcanoMask[volcanoTile] = 1;
-
-    const observation = executeLakesStep(context, lakeMask, mountainMask, volcanoMask);
-
-    const projectedCandidates = adapter.calls.stampLakes.at(-1)?.lakeMask;
-    expect(projectedCandidates).toBeInstanceOf(Uint8Array);
-    expect(observation.plannedLakeMask[mountainTile]).toBe(1);
-    expect(projectedCandidates?.[mountainTile]).toBe(0);
-    expect(observation.plannedLakeMask[volcanoTile]).toBe(1);
-    expect(projectedCandidates?.[volcanoTile]).toBe(0);
-    expect(projectedCandidates?.[plainLakeTile]).toBe(1);
-    const projectedLakes = readArtifact(context, hydrographyArtifacts.projectedLakes);
-    expect(projectedLakes.lakeMask[mountainTile]).toBe(0);
-    expect(projectedLakes.lakeMask[volcanoTile]).toBe(0);
-    expect(projectedLakes.lakeMask[plainLakeTile]).toBe(1);
-    expect(observation.projection.plannedLakeTileCount).toBe(1);
-    expect(observation.morphologyProtectedLakeTileCount).toBe(2);
-    expect(
-      observation.projection.plannedLakeTileCount + observation.morphologyProtectedLakeTileCount
-    ).toBe(3);
-    expect(
-      observation.projection.stampedLakeTileCount + observation.projection.rejectedLakeTileCount
-    ).toBe(observation.projection.plannedLakeTileCount);
-
-    const projectMetrics = LakesStep.metrics;
-    if (!projectMetrics) throw new Error("Expected the lakes step to measure projection evidence");
-    const metrics = projectMetrics({
-      observation,
-      config: {},
-      dimensions: TEST_DIMENSIONS,
-    });
-    expect(metrics["map.hydrology.lakeProjection"]).toEqual(
-      expect.objectContaining({
-        plannedLakeTileCount: 1,
-        morphologyProtectedLakeTileCount: 2,
-        isolatedFragmentProtectedLakeTileCount: 0,
-      })
-    );
+    for (const cell of [width + 2, width + 3, width + 4, width + 12]) lakeMask[cell] = 1;
+    const before = lakeMask.slice();
+    const mountains = new Uint8Array(width * height);
+    const volcanoes = new Uint8Array(width * height);
+    (blocker === "mountain" ? mountains : volcanoes)[width + 3] = 1;
+    expect(() => executeLakesStep(context, lakeMask, mountains, volcanoes)).toThrow(/blocking landform/);
+    expect(adapter.calls.stampLakes).toEqual([]);
+    expect(lakeMask).toEqual(before);
+    expect(() => readArtifact(context, hydrographyArtifacts.projectedLakes)).toThrow();
   });
 
-  it("withholds isolated projection fragments caused by protected landforms", () => {
+  it("stamps disconnected groups and single-cell physical water unchanged without fragment pruning", () => {
     const { width, height } = TEST_DIMENSIONS;
-    const adapter = new CachedWaterAdapter({
-      width,
-      height,
-      mapInfo: TEST_MAP_SIZE.mapInfo,
-      mapSizeId: TEST_MAP_SIZE.id,
-      rng: createLabelRng(TEST_MAP_SEED),
-    });
+    const adapter = new CachedWaterAdapter({ width, height });
     const context = createContext(adapter, TEST_DIMENSIONS, TEST_MAP_SEED);
-    const rowOffset = width;
-    const fragmentedLakeTiles = [2, 3, 4].map((x) => x + rowOffset);
-    const retainedLakeTiles = [7, 8, 9].map((x) => x + rowOffset);
-    const standaloneLakeTile = 12 + rowOffset;
     const lakeMask = new Uint8Array(width * height);
-    for (const tileIndex of [
-      ...fragmentedLakeTiles,
-      ...retainedLakeTiles,
-      standaloneLakeTile,
-    ]) {
-      lakeMask[tileIndex] = 1;
-    }
-    const mountainMask = new Uint8Array(width * height);
-    mountainMask[fragmentedLakeTiles[1]!] = 1;
-    const volcanoMask = new Uint8Array(width * height);
-    volcanoMask[retainedLakeTiles[0]!] = 1;
-
-    const observation = executeLakesStep(context, lakeMask, mountainMask, volcanoMask);
-
-    const projectedCandidates = adapter.calls.stampLakes.at(-1)?.lakeMask;
-    expect(projectedCandidates).toBeInstanceOf(Uint8Array);
-    expect(fragmentedLakeTiles.map((tileIndex) => projectedCandidates?.[tileIndex])).toEqual([
-      0, 0, 0,
-    ]);
-    expect(retainedLakeTiles.map((tileIndex) => projectedCandidates?.[tileIndex])).toEqual([0, 1, 1]);
-    expect(projectedCandidates?.[standaloneLakeTile]).toBe(1);
-    expect(observation.isolatedFragmentProtectedLakeTileCount).toBe(2);
-    expect(observation.morphologyProtectedLakeTileCount).toBe(4);
-    expect(observation.projection.plannedLakeTileCount).toBe(3);
-    expect(
-      observation.projection.plannedLakeTileCount + observation.morphologyProtectedLakeTileCount
-    ).toBe(7);
+    for (const x of [2, 3, 4, 7, 8, 9, 12]) lakeMask[width + x] = 1;
+    const before = lakeMask.slice();
+    const observation = executeLakesStep(context, lakeMask);
+    expect(adapter.calls.stampLakes[0]!.lakeMask).toEqual(before);
+    expect(readArtifact(context, hydrographyArtifacts.projectedLakes).lakeMask).toEqual(before);
+    expect(lakeMask).toEqual(before);
+    expect(observation.projection.plannedLakeTileCount).toBe(7);
+    expect(observation.projection.stampedLakeTileCount).toBe(7);
+    expect(LakesStep.metrics!({ observation, config: {}, dimensions: TEST_DIMENSIONS })["map.hydrology.lakeProjection"])
+      .toMatchObject({ plannedLakeTileCount: 7, stampedLakeTileCount: 7, rejectedLakeTileCount: 0 });
   });
 });

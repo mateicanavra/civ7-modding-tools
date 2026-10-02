@@ -6,6 +6,13 @@ import {
 import { type CountMetric, measureMetricCount } from "@swooper/mapgen-metrics";
 
 import type { StandardMapCapture } from "../../capture.js";
+import { BASIN_TERMINAL } from "../../../../../domain/hydrology/modules/hydrography/model/atoms/basin-network.schema.js";
+import { measureStandardBasinNetwork, type StandardBasinNetworkMetrics } from "./basin-network.js";
+import { measureStandardNetworkCoherence } from "./network-coherence.js";
+import {
+  measureStandardClimateStructure,
+  type StandardClimateStructureMetrics,
+} from "./climate-structure.js";
 import {
   measureStandardPressureStructure,
   type StandardPressureStructureMetrics,
@@ -22,20 +29,25 @@ export type StandardHydrologyMetrics = Readonly<{
   majorRiverTiles: CountMetric;
   outletTiles: CountMetric;
   terminalOceanTiles: CountMetric;
+  model: StandardMapCapture["model"]["physicalHydrology"]["model"];
+  basinNetwork: StandardBasinNetworkMetrics;
+  networkCoherence: ReturnType<typeof measureStandardNetworkCoherence>;
   networkSummary: StandardMapCapture["model"]["riverNetworkSummary"];
   navigable: StandardMapCapture["projection"]["navigableRivers"] &
     StandardMapCapture["projection"]["riverReadback"];
   windStructure: StandardWindStructureMetrics;
   pressureStructure: StandardPressureStructureMetrics;
+  climateStructure: StandardClimateStructureMetrics;
 }>;
 
 /** Measures Hydrology structure and projection/readback evidence without deciding product budgets. */
 export function measureStandardHydrology(capture: StandardMapCapture): StandardHydrologyMetrics {
+  const physical = capture.model.physicalHydrology;
   const tileCount = capture.provenance.width * capture.provenance.height;
   let riverTiles = 0;
   let minorRiverTiles = 0;
   let majorRiverTiles = 0;
-  let outletTiles = 0;
+  const outletTiles = physical.marineExits.length + physical.boundaryExits.length;
   let terminalOceanTiles = 0;
 
   for (let index = 0; index < tileCount; index += 1) {
@@ -43,11 +55,13 @@ export function measureStandardHydrology(capture: StandardMapCapture): StandardH
     if (isAnyRiverClass(riverClass)) riverTiles += 1;
     if (isMinorRiverClass(riverClass)) minorRiverTiles += 1;
     if (isMajorRiverClass(riverClass)) majorRiverTiles += 1;
-    if (capture.model.outletMask[index] === 1) outletTiles += 1;
-    if (capture.model.terminalType[index] === 1) terminalOceanTiles += 1;
+    if (capture.model.terminalType[index] === BASIN_TERMINAL.marine) terminalOceanTiles += 1;
   }
 
   return Object.freeze({
+    model: physical.model,
+    basinNetwork: measureStandardBasinNetwork(capture),
+    networkCoherence: measureStandardNetworkCoherence(capture),
     riverTiles: measureMetricCount(riverTiles, tileCount),
     minorRiverTiles: measureMetricCount(minorRiverTiles, tileCount),
     majorRiverTiles: measureMetricCount(majorRiverTiles, tileCount),
@@ -60,5 +74,6 @@ export function measureStandardHydrology(capture: StandardMapCapture): StandardH
     }),
     windStructure: measureStandardWindStructure(capture),
     pressureStructure: measureStandardPressureStructure(capture),
+    climateStructure: measureStandardClimateStructure(capture),
   });
 }

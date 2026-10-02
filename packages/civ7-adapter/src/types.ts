@@ -208,6 +208,21 @@ export interface MapInitParams {
  */
 export type MapInfo = Partial<Civ7MapInfo>;
 
+/** Exact, detached row-major numeric observation; mock state is not native evidence. */
+export type CurrentMapElevationSnapshot = Readonly<{
+  source: "native" | "mock";
+  width: number;
+  height: number;
+}> &
+  (
+    | Readonly<{ status: "available"; values: Float64Array }>
+    | Readonly<{
+        status: "unavailable";
+        reason: "getter-unavailable" | "read-failed" | "non-finite-value";
+        plotIndex?: number;
+      }>
+  );
+
 /**
  * Adapter readback for deterministic lake projection.
  *
@@ -237,6 +252,45 @@ export interface LakeProjectionResult {
   nonWaterTileCount: number;
   nonLakeTileCount: number;
 }
+
+/** Geographic symbols, never native enum values or grid-helper neighbor slots. */
+export type RiverDirection =
+  | "EAST"
+  | "NORTHEAST"
+  | "NORTHWEST"
+  | "WEST"
+  | "SOUTHWEST"
+  | "SOUTHEAST";
+
+export type ProjectedRiverClass = "MINOR" | "NAVIGABLE";
+
+/** Admitted projection intent; dispatch does not guarantee native class or direction parity. */
+export type RiverWriteIntent = Readonly<{
+  x: number;
+  y: number;
+  direction: RiverDirection;
+  riverClass: ProjectedRiverClass;
+}>;
+
+/** Percent is an integer in [0, 100]; minimums are nonnegative signed-32-bit integers. */
+export type RiverFinalizationArgs = readonly [
+  aesthetic: boolean,
+  percent: number,
+  minLength: number,
+  upstream: number,
+];
+
+export type RiverCapabilityAvailability =
+  | Readonly<{ status: "available" }>
+  | Readonly<{ status: "unavailable"; reason: string }>;
+
+/** Independent call/read availability only, never native semantic or gameplay proof. */
+export type RiverCapabilities = Readonly<{
+  source: "native" | "mock";
+  setRiverInfo: RiverCapabilityAvailability;
+  finalizeRivers: RiverCapabilityAvailability;
+  riverTypeReadback: RiverCapabilityAvailability;
+}>;
 
 /**
  * Detached read of Civ7's current river and terrain classification at one instant.
@@ -412,6 +466,9 @@ export interface EngineAdapter {
 
   /** Reads current engine elevations into fresh row-major signed storage. */
   readCurrentMapElevations(): Int16Array;
+
+  /** Reads exact numeric heights at index y * width + x without integer coercion. */
+  readCurrentMapElevationSnapshot(): CurrentMapElevationSnapshot;
 
   /**
    * Reads current biome ids into fresh row-major storage.
@@ -660,8 +717,24 @@ export interface EngineAdapter {
   /** Stamp continent assignments */
   stampContinents(): void;
 
-  /** Build elevation layer */
-  buildElevation(): void;
+  /** Writes one finite ordinary-number array, indexed y * width + x, for the whole map. */
+  setElevation(values: readonly number[]): void;
+
+  /** Requests native cliff generation separately from elevation dispatch. */
+  generateCliffsFromElevation(): void;
+
+  /** Reports independent writer, finalizer and raw type-readback availability without invoking them. */
+  getRiverCapabilities(): RiverCapabilities;
+
+  /** Validates and dispatches one symbolic segment. Never reroutes or repairs projected intent. */
+  setRiverInfo(intent: RiverWriteIntent): void;
+
+  /**
+   * Dispatches the complete explicit tuple without defaults or procedural generation.
+   * Callers own the once-per-map boundary; repeated native finalization is not idempotent.
+   * The mock applies declared classes only, without simulating native connectivity or validation.
+   */
+  finalizeRivers(args: RiverFinalizationArgs): void;
 
   /**
    * Native wrapper for Civ7's high-level river materializer
@@ -672,9 +745,6 @@ export interface EngineAdapter {
    * objects/metadata, then verify the result through readback.
    */
   modelRivers(minLength: number, maxLength: number, navigableTerrain: number): void;
-
-  /** Define named rivers */
-  defineNamedRivers(): void;
 
   /** Store water data */
   storeWaterData(): void;

@@ -26,8 +26,7 @@ import { config as projectionConfig } from "./stages/foundation/projection/steps
 import { config as tectonicsConfig } from "./stages/foundation/tectonics/steps/tectonics/config.js";
 import { config as climateBaselineConfig } from "./stages/hydrology/climate/baseline/steps/climate-baseline/config.js";
 import { config as climateRefineConfig } from "./stages/hydrology/climate/refine/steps/climate-refine/config.js";
-import { config as hydrologyLakesConfig } from "./stages/hydrology/hydrography/steps/lakes/config.js";
-import { config as riversConfig } from "./stages/hydrology/hydrography/steps/rivers/config.js";
+import { config as networkConfig } from "./stages/hydrology/hydrography/steps/network/config.js";
 import { config as mapHydrologyLakesConfig } from "./stages/hydrology/projection/steps/lakes/config.js";
 import { config as projectRainfallConfig } from "./stages/hydrology/projection/steps/project-rainfall/config.js";
 import { config as plotRiversConfig } from "./stages/hydrology/rivers/steps/plot-rivers/config.js";
@@ -35,8 +34,9 @@ import { config as coastlineEvidenceConfig } from "./stages/morphology/coasts/st
 import { config as landmassPlatesConfig } from "./stages/morphology/coasts/steps/landmass-plates/config.js";
 import { config as buildElevationConfig } from "./stages/morphology/elevation/steps/build-elevation/config.js";
 import { config as geomorphologyConfig } from "./stages/morphology/erosion/steps/geomorphology/config.js";
-import { config as islandsConfig } from "./stages/morphology/features/steps/islands/config.js";
+import { config as islandsConfig } from "./stages/morphology/islands/steps/islands/config.js";
 import { config as landmassesConfig } from "./stages/morphology/features/steps/landmasses/config.js";
+import { config as resolvedCoastlineConfig } from "./stages/morphology/features/steps/resolved-coastline/config.js";
 import { config as mountainsConfig } from "./stages/morphology/features/steps/mountains/config.js";
 import { config as volcanoesConfig } from "./stages/morphology/features/steps/volcanoes/config.js";
 import { config as plotCoastsConfig } from "./stages/morphology/projection/steps/plot-coasts/config.js";
@@ -81,10 +81,11 @@ export const standardStageContractManifest = [
   stage("morphology-coasts", [landmassPlatesConfig, coastlineEvidenceConfig]),
   stage("morphology-routing", [routingConfig]),
   stage("morphology-erosion", [geomorphologyConfig]),
-  stage("morphology-features", [islandsConfig, mountainsConfig, volcanoesConfig, landmassesConfig]),
+  stage("morphology-islands", [islandsConfig]),
   stage("morphology-shelf", [computeShelfConfig]),
   stage("hydrology-climate-baseline", [climateBaselineConfig]),
-  stage("hydrology-hydrography", [riversConfig, hydrologyLakesConfig]),
+  stage("hydrology-hydrography", [networkConfig]),
+  stage("morphology-features", [landmassesConfig, resolvedCoastlineConfig, mountainsConfig, volcanoesConfig]),
   stage("hydrology-climate-refine", [climateRefineConfig]),
   stage("ecology-pedology", [pedologyConfig]),
   stage("ecology-biomes", [biomesConfig]),

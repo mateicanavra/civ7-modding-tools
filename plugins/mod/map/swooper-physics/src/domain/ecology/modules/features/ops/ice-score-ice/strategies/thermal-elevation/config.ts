@@ -24,13 +24,15 @@ export default defineStrategy({
         default: 2200,
         minimum: 0,
         maximum: 12000,
-        description: "Elevation where alpine ice suitability begins increasing.",
+        description:
+          "Absolute elevation in quantized normalized model relief units where alpine ice suitability begins increasing; not meters. The legacy M key is retained.",
       }),
       alpineElevationMaxM: Type.Integer({
         default: 3400,
         minimum: 0,
         maximum: 12000,
-        description: "Elevation where alpine ice suitability reaches its maximum.",
+        description:
+          "Absolute elevation in quantized normalized model relief units where alpine ice suitability reaches its maximum; not meters. The legacy M key is retained.",
       }),
       alpineFreezeMin01: Type.Number({
         default: 0.55,

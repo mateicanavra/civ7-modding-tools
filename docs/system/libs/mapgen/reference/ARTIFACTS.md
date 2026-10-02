@@ -73,6 +73,19 @@ export const artifact = defineArtifact({
 });
 ```
 
+A field is spatial data; an artifact is an admitted published product. Neither
+the number of arrays nor the producing step alone determines that product's
+boundary. Independently meaningful handoffs can be field-sized, such as
+pressure or baseline temperature; cohesive consumer products can contain
+several fields, such as refined climate indices. Name the owner, meaning,
+publication vintage and consumer contract before choosing the boundary.
+Existing field products use inline named `Type.Object` payloads, including
+single-property products. This fits the artifact kind without changing its
+source-shape law. Successive physical vintages use distinct identities and
+declared dependencies, never mutation or a duplicate ambient field. The
+climate-specific decision is recorded in ADR-022; it is not a mandate to split
+every existing bundle or publish every invocation-local intermediate.
+
 `defineArtifact` is the only artifact-authority constructor. It binds structural admission to the
 supplied schema and validates in three strict phases: TypeBox structure, exact typed-array
 constructor/cardinality metadata, then optional semantic refinement. A failed phase returns its

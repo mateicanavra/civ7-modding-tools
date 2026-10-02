@@ -4,7 +4,15 @@
 
 This family measures modeled river coverage by minor and major class, outlet and
 ocean-terminal coverage, the published river-network summary, navigable-river
-selection, and final headless readback reconciliation.
+intent, and final headless readback reconciliation.
+
+The single physical contract identifies certified sill-spill bodies.
+Basin measurements retain conservation, certificate
+and body ledgers, exact footprints/outlets, exposed landform eligibility, and
+complete intended/native source-class reconciliation. Missing observations remain
+explicit, not fabricated passing evidence. Wet-body internal connectivity has
+no independent river mouth: `mouthSourceTileCount` counts exposed dry sources,
+while catchment coverage still includes every original land cell.
 
 River classes remain model evidence: `0` is absent, `1` is minor, and `>=2` is
 major and eligible for navigable projection. Missing terminal classification is
@@ -29,16 +37,27 @@ check proves coordinate and broad-belt consistency, not that annual-mean
 pressure reconstructs the complete wind field. The anomaly is a field
 measurement in hPa, not a pressure-operation knob.
 
+The nested `climateStructure` measurement retains baseline and refined annual
+rainfall saturation as land counts/populations, the worst seasonal land
+saturation fraction, and pooled within-row land-temperature SD in Celsius.
+Annual rainfall is copied from the existing baseline/refined climate artifacts;
+the baseline metrics facet projects seasonal counts without publishing new
+climate artifacts. Saturation means rainfall >=200. Water is excluded, each
+temperature row mean uses only land, and squared departures are pooled over all
+land tiles. Empty land produces null fractions/SD rather than a passing zero.
+The [climate-structure study](../benchmarks/earthlike-climate-structure.md) owns
+the product bounds.
+
 ## Scale and interpretation
 
 - A Civ tile is a strategy-scale sample, not a geodetic cell. Study sheets record
   the named Civ7 dimensions and must state any latitude assumption used for a
   tile-to-kilometer translation. A tile is never compared directly to a 30 m
   river pixel.
-- Hidden drainage and minor/headwater intent may sit below Civ terrain
-  visibility. Only modeled `riverClass>=2` is eligible for
-  `TERRAIN_NAVIGABLE_RIVER`; `riverClass=1` remains hydrology model evidence unless a
-  separate native metadata writer is proven.
+- Hidden drainage may sit below Civ terrain visibility. Authored projection
+  writes every classified dry source: minor to native MINOR and major
+  to native NAVIGABLE. Physical class, authored native class and observed class
+  remain separate; membership does not prove directed edges or through-lake travel.
 - An Earth-referenced target names its climate/relief regime: `wet`, `normal`,
   `arid`, `mountain`, `closed`, `archipelago`, or an explicit extension. A dry or
   no-visible-river result is meaningful only with its regime and measured

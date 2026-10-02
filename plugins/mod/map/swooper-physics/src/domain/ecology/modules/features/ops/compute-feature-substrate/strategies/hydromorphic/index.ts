@@ -19,7 +19,6 @@ const hydromorphicStrategy = createStrategy(Contract, StrategyDefinition, {
     const landMask = input.landMask;
     const elevation = input.elevation;
     const discharge = input.discharge;
-    const sinkMask = input.sinkMask;
     const riverMask = new Uint8Array(riverClass.length);
     for (let index = 0; index < riverClass.length; index++) {
       riverMask[index] = isAnyRiverClass(riverClass[index]) ? 1 : 0;
@@ -54,7 +53,6 @@ const hydromorphicStrategy = createStrategy(Contract, StrategyDefinition, {
       seaLevel: input.seaLevel,
       riverMask,
       discharge,
-      sinkMask,
       nearRiverMask,
       isolatedRiverMask,
       coastalLandMask,

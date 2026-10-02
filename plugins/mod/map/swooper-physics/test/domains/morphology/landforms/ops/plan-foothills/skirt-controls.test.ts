@@ -37,6 +37,7 @@ describe("plan-foothills skirt controls", () => {
         width,
         height,
         landMask: new Uint8Array(size).fill(1),
+        elevation: Int16Array.from({ length: size }, (_, index) => index * 4),
         mountainMask,
         mountainRegionMask: mountainMask,
         mountainRegionIdByTile: Int32Array.from(mountainMask, (value) => (value === 1 ? 0 : -1)),

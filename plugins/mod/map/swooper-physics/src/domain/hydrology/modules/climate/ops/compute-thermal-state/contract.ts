@@ -1,66 +1,76 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import insolationLapseRateDefinition from "./strategies/insolation-lapse-rate/config.js";
+import { SolarHarmonicsSchema } from "../../model/atoms/solar-harmonics.schema.js";
+import periodicResponseDefinition from "./strategies/periodic-response/config.js";
 
-/** Computes bounded surface temperature from admitted insolation, elevation, land, and ocean state. */
+/** Owns thermal response, independent sea/ground clipping, and the integrated annual ground datum. */
 const ComputeThermalStateContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-thermal-state",
-  /**
-   * Computes a surface temperature proxy from insolation + elevation + land/ocean mask.
-   *
-   * Practical guidance:
-   * - If mountains are too cold/hot: adjust `lapseRateCPerElevationUnit` magnitude
-   *   (more negative = colder at altitude).
-   * - If land feels too continental: adjust `landCoolingC` (higher = cooler land relative to oceans).
-   * - If the entire world is too warm/cold: adjust `baseTemperatureC`.
-   */
   input: Type.Object(
     {
-      /** Tile grid width. */
-      width: Type.Integer({ minimum: 1, description: "Tile grid width (columns)." }),
-      /** Tile grid height. */
-      height: Type.Integer({ minimum: 1, description: "Tile grid height (rows)." }),
-      /** Insolation proxy (0..1) per tile. */
-      insolation: TypedArraySchemas.f32({ description: "Insolation proxy (0..1) per tile." }),
-      /** Upstream quantized relief elevation per tile. */
-      elevation: TypedArraySchemas.i16({
-        description: "Elevation per tile in the upstream topography artifact's relief units.",
+      model: Type.Literal("periodic-response"),
+      width: Type.Integer({ minimum: 1 }),
+      height: Type.Integer({ minimum: 1 }),
+      solarByRow: Type.Array(SolarHarmonicsSchema),
+      phases: Type.Array(Type.Number({ minimum: 0, exclusiveMaximum: 1 }), {
+        minItems: 1,
+        description:
+          "Requested equinox-relative phases in turns, aligned with weights and output samples.",
       }),
-      /** Land mask per tile (1=land, 0=water). */
-      landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
-      /**
-       * Optional ocean SST field (Celsius) to override water-tile temperatures.
-       *
-       * Intended use:
-       * - Coupling ocean currents/SST into downstream thermal + evap/cryosphere without breaking the default posture.
-       */
-      sstC: Type.Optional(
-        TypedArraySchemas.f32({ description: "Optional sea surface temperature (C) per tile." })
-      ),
+      weights: Type.Array(Type.Number({ exclusiveMinimum: 0, maximum: 1 }), {
+        minItems: 1,
+        description:
+          "Positive normalized climate integration weights, not solar quadrature weights.",
+      }),
+      elevation: TypedArraySchemas.i16({ cardinality: ["width", "height"] }),
+      seaLevel: Type.Number({
+        description: "Sea-level datum in model relief units, not meters.",
+      }),
+      landMask: TypedArraySchemas.u8({ cardinality: ["width", "height"] }),
+      sstC: TypedArraySchemas.f32({
+        cardinality: ["width", "height"],
+        description: "Required prescribed annual SST; water has no seasonal anomaly.",
+      }),
     },
-    {
-      additionalProperties: false,
-      description:
-        "Insolation, elevation, and land identity used for atmospheric temperature, with optional SST authoritative on water tiles.",
-    }
+    { additionalProperties: false }
   ),
-  /**
-   * Surface temperature proxy output, expressed in Celsius.
-   */
   output: Type.Object(
     {
-      /** Surface temperature proxy (Celsius) per tile. */
-      surfaceTemperatureC: TypedArraySchemas.f32({
-        description: "Surface temperature proxy (Celsius) per tile.",
+      model: Type.Literal("periodic-response"),
+      samples: Type.Array(
+        Type.Object(
+          {
+            seaLevelTemperatureC: TypedArraySchemas.f32({
+              description:
+                "Clipped raw sea-level response for pressure; not reconstructed from ground temperature.",
+            }),
+            surfaceTemperatureC: TypedArraySchemas.f32({
+              description:
+                "Clipped raw response plus one model-relief lapse for moisture and demand.",
+            }),
+          },
+          { additionalProperties: false }
+        )
+      ),
+      meanSeaLevelTemperatureC: TypedArraySchemas.f32({
+        description:
+          "Weighted mean of the exact admitted phase samples used for pressure centering.",
+      }),
+      annualSurfaceTemperatureC: TypedArraySchemas.f32({
+        description:
+          "Independent dense-cycle mean of clipped ground temperature; never an observation average.",
+      }),
+      annualUnclippedSurfaceTemperatureC: TypedArraySchemas.f32({
+        description:
+          "Dense-cycle ground mean before bounds, retaining prescribed SST over water.",
+      }),
+      annualClippingDeltaC: TypedArraySchemas.f32({
+        description: "Dense clipped mean minus dense unclipped mean, before f32 output rounding.",
       }),
     },
-    {
-      additionalProperties: false,
-      description:
-        "Bounded per-tile surface temperature consumed by evaporation and cryosphere passes.",
-    }
+    { additionalProperties: false }
   ),
-  strategies: [insolationLapseRateDefinition],
+  strategies: [periodicResponseDefinition],
 });
 
 export default ComputeThermalStateContract;

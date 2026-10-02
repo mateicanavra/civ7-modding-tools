@@ -453,6 +453,7 @@ function playNotificationViewSource(): string {
           civilizationName: civilization?.Name ?? civilization?.CivilizationType ?? null,
         };
       });
+      const localPlayerId = GameContext.localPlayerID;
       const responseRows = [
         ["friendly", "PLAYER_REALATIONSHIP_FIRSTMEET_FRIENDLY"],
         ["neutral", "PLAYER_REALATIONSHIP_FIRSTMEET_NEUTRAL"],
@@ -464,9 +465,12 @@ function playNotificationViewSource(): string {
           ?? null
         ));
         const typeValue = type.ok ? type.value : null;
-        const costAndRelationship = Number.isFinite(Number(typeValue))
-          ? probe(() => Game.Diplomacy.getFirstMeetResponseCostAndRelDelta(typeValue))
-          : { ok: false, error: "first-meet response type unavailable" };
+        const costAndRelationship = typeof typeValue === "number"
+          && Number.isFinite(typeValue)
+          && typeof localPlayerId === "number"
+          && Number.isFinite(localPlayerId)
+          ? probe(() => Game.Diplomacy.getFirstMeetResponseCostAndRelDelta(typeValue, localPlayerId))
+          : { ok: false, error: "first-meet response type or local player unavailable" };
         return {
           response,
           influenceCost: costAndRelationship.ok ? costAndRelationship.value?.[0] ?? null : null,
@@ -1389,7 +1393,7 @@ function playNotificationViewSource(): string {
             requiredInput("response", "caller choice", "Choose friendly, neutral, or unfriendly; the native response type and local player are runtime-owned."),
           ],
           [
-            action("request neutral first-meet greeting through the diplomacy service", undefined, undefined, "{ metPlayerId, response: \"neutral\" }", "after the exact service check admits the greeting"),
+            action("request neutral first-meet greeting through the diplomacy service", undefined, undefined, ${jsLiteral('{ metPlayerId, response: "neutral" }')}, "after the exact service check admits the greeting"),
           ],
           ["Use diplomacy.firstMeet.response.check/request rather than generic player-operation dispatch or notification dismissal. Neutral is the conservative default when Influence cost or strategic payoff is not proven."],
         );

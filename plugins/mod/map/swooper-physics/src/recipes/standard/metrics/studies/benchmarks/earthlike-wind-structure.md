@@ -1,4 +1,4 @@
-# Earthlike circulation-structure studies
+# Earthlike circulation-structure study
 
 **Executable authority:** [`earthlike-wind-structure.study.ts`](earthlike-wind-structure.study.ts)
 **Target IDs:** `swooper-earthlike/wind-structure` and
@@ -6,13 +6,11 @@
 
 ## Question and design
 
-Do shipped Earthlike and Latest Juicy retain recognizable large-scale
+Does shipped Earthlike retain recognizable large-scale
 atmospheric circulation and its published pressure-anomaly evidence without
 collapsing into quantizer saturation or small-scale texture?
-Each cohort runs three `MAPSIZE_STANDARD` scenarios
+The cohort runs three `MAPSIZE_STANDARD` scenarios
 (84 x 54, 8 players) using map/game seed pairs `1018/1018`, `1/1`, and `42/42`.
-The configurations share the authored wind posture while Latest Juicy supplies
-the drier, more mountainous live-feel oracle.
 
 The study reads the durable published `windU`, `windV`, and `pressure` grids.
 It measures aggregate structure rather than reproducing either operation:
@@ -50,8 +48,10 @@ sealed pressure experiment's final ratchets from `0.35` and `0.7` respectively
 (historical observations `0.0023` and `0.90`).
 Row-mean-removed pressure anomalies retain at least `4 hPa` RMS, preventing a
 latitude-only scaffold from satisfying the pressure contract. The floor is
-about half the measured six-scenario minimum (`7.963 hPa`), leaving room for
-calibration without turning the current pressure configuration into the oracle.
+about half the historical six-scenario minimum (`7.963 hPa`); that historical
+calibration evidence is not the current three-scenario cohort. The `4 hPa` floor
+remains unchanged rather than turning the current pressure configuration into
+the oracle.
 
 **Expectation IDs:** `pressure-belt-ridge-above-trough`,
 `pressure-belt-ridge-above-subpolar`, `pressure-hemispheric-mirror`,

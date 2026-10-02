@@ -48,11 +48,12 @@ const FloodplainScoreContract = defineOp({
       navigableRiverMask: TypedArraySchemas.u8({
         description: "Materialized navigable-river terrain mask per tile.",
       }),
-      discharge: TypedArraySchemas.f32({
+      discharge: Type.Array(Type.Number({ minimum: 0 }), {
         description: "Hydrology discharge proxy per tile.",
       }),
       elevation: TypedArraySchemas.i16({
-        description: "Final topographic elevation in meters per tile.",
+        description:
+          "Final signed elevation per tile in quantized normalized model relief units, not meters or native display units; local relief comparisons use differences in these units.",
       }),
       mountainMask: TypedArraySchemas.u8({
         description: "Mountain exclusion mask per tile.",

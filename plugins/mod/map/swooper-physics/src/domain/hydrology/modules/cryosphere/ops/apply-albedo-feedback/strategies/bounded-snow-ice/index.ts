@@ -31,7 +31,7 @@ const boundedSnowIceStrategy = createStrategy(
       const seaIceFullC = config.seaIceFullC;
 
       let temp = new Float32Array(input.surfaceTemperatureC);
-      const next = new Float32Array(size);
+      let next = new Float32Array(size);
 
       for (let iter = 0; iter < iterations; iter++) {
         for (let i = 0; i < size; i++) {
@@ -50,7 +50,7 @@ const boundedSnowIceStrategy = createStrategy(
         }
         const swap = temp;
         temp = next;
-        for (let i = 0; i < size; i++) next[i] = swap[i] ?? 0;
+        next = swap;
       }
 
       return { surfaceTemperatureC: temp } as const;

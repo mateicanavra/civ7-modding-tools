@@ -12,6 +12,9 @@
 
 # Morphology
 
+Learning companion: [Water and Relief Glossary](water-and-relief-glossary.md)
+distinguishes physical processes, current proxies and native presentation.
+
 > **Status:** Canonical (domain reference)
 >
 > **This doc is:** the contract surface and “what exists before what” meaning of the MapGen **MORPHOLOGY** domain (inputs, outputs, truth vs projections, and invariants).
@@ -74,7 +77,7 @@ artifact evidence consumed through declared step contracts.
 
 **Invariants**
 
-- **Projections must not drift land/water classification.** After calling engine-facing helpers (`stampContinents`, `buildElevation`, or any engine-side terrain fixups), the adapter's `isWater(x,y)` must still match the expected projected land mask. Before lake projection this is Morphology `topography.landMask`; after lake projection it includes Hydrology lake intent as expected water.
+- **Projections must not drift land/water classification.** After calling engine-facing helpers (`stampContinents`, `setElevation`, cliff generation, or any engine-side terrain fixups), the adapter's `isWater(x,y)` must still match the expected projected land mask. Before lake projection this is Morphology `topography.landMask`; after lake projection it includes accepted Hydrology lake intent as expected water. The standard recipe writes authored numeric heights directly; it does not ask stock `buildElevation` to regenerate them from terrain classes.
 
 **Ground truth anchors**
 
@@ -82,7 +85,8 @@ artifact evidence consumed through declared step contracts.
 - `plugins/mod/map/swooper-physics/src/recipes/standard/water-surface-parity.ts` (`restoreProjectedCoastTerrain`)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/projection/steps/plot-coasts/step.ts` (seeds source coast from post-island `shelf.coastalWater || shelf.shelfMask`, applies the Civ7 coast-ring policy, then guards with `assertWaterDriftWithinPolicy`)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/projection/steps/plot-continents/step.ts` (`deps.engine.stampContinents`, `assertWaterDriftWithinPolicy`)
-- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/elevation/steps/build-elevation/step.ts` (`deps.engine.buildElevation`, `assertWaterDriftWithinPolicy`)
+- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/elevation/steps/build-elevation/step.ts` (`deps.engine.setElevation`, `deps.engine.generateCliffsFromElevation`, exact numeric readback and `assertWaterDriftWithinPolicy`)
+- `plugins/mod/map/swooper-physics/src/recipes/standard/elevation-projection.ts` (physical-model to native-display conversion; no terrain-class-driven physical relief)
 
 ## Contract
 
@@ -274,7 +278,7 @@ engine-facing coast projection.
 
 Fields:
 
-- `shelfMask` (u8): `1` for shoreline-connected water on the gentle pre-break apron; eligible for `TERRAIN_COAST` projection
+- `shelfMask` (u8): `1` for gentle, shoreline-connected continental-crust water or the mandatory immediate shoreline ring; eligible for `TERRAIN_COAST` projection
 - `coastalLand` (u8): `1` where post-island land is adjacent to water
 - `coastalWater` (u8): `1` where post-island water is adjacent to land
 - `distanceToCoast` (u16): post-island minimum tile-graph distance to a coast tile
@@ -345,6 +349,13 @@ Computes substrate evidence from tile-space tectonic potentials and crust typing
 
 Converts crust isostasy baseline + tectonic potentials into an initial quantized elevation field.
 
+The `tectonic-relief` strategy adds independent crust and boundary-arc Perlin
+fields derived from the full seed. Sampling uses the canonical hex geometry on
+an X-periodic cylinder, not advancing RNG draws under repeated spatial labels.
+`fractalGrain` is the rounded number of hex-neighbor spacings per noise lattice
+unit: higher means coarser. Each offset stays inside half of its authored
+peak-to-peak amplitude; smooth samples need not fill that envelope uniformly.
+
 **Notable invariant (quantization scale)**
 
 - The default strategy quantizes a float “normalized units” elevation sample by multiplying by `DEFAULT_ELEVATION_SCALE = 100` before clamping to i16.
@@ -378,9 +389,10 @@ vintage reconciled against the selected sea-level datum.
 
 #### `morphology/compute-shelf-mask` → `{ shelfMask, activeMarginMask, depthGateMask, nearshoreCandidateMask, shelfBreakDepthByTile, shallowCutoff }`
 
-Classifies the post-island continental shelf as shoreline-connected water on the
-gentle side of the local bathymetric-gradient break. Boundary proximity is used
-only for the active-margin diagnostic; it does not determine shelf membership.
+Classifies gentle, shoreline-connected continental-crust water and retains the
+mandatory shoreline ring. Oceanic or steep ring cells cannot seed or bridge the
+continental flood. Boundary proximity is used only for the active-margin
+diagnostic; it does not determine shelf membership.
 
 **Ground truth anchors**
 
@@ -458,6 +470,11 @@ Plans mountain ridge intent from belt-driver and topography truth. This op is
 kept separate from foothills so the recipe can expose each strategy definition
 without preserving the retired combined op as a compatibility lane.
 
+The range-growth strategy admits mountains only where final ground descends
+by at least four model units to a land neighbor, with tectonic support. The
+same admission applies to shoulders, corridors and coverage recovery. A range
+can contain unsupported flat passes without turning them into mountains.
+
 **Ground truth anchors**
 
 - `plugins/mod/map/swooper-physics/src/domain/morphology/modules/landforms/ops/plan-ridges/contract.ts` (`PlanRidgesContract`)
@@ -468,6 +485,12 @@ without preserving the retired combined op as a compatibility lane.
 Plans foothill intent from the ridge mask and the same belt-driver/topography
 fields. The shared mountain config family remains named because ridge and
 foothill classification must use one invariant terrain-classification posture.
+
+Foothills and rough-land hills require at least two model units of absolute
+land-neighbor relief. All three planners share the radius-one relief measurement and
+16-unit support normalization. These are empirical gameplay classification
+floors, not calibrated Earth slope angles; water-only cliffs and absolute
+altitude cannot supply this admission. Classification never changes ground.
 
 **Ground truth anchors**
 
@@ -640,13 +663,17 @@ publishes volcano intent, and publishes the landmass decomposition snapshot.
 ### `morphology-shelf` (`compute-shelf`)
 
 Recomputes coastline adjacency and distance from the final post-island landmask,
-classifies the continental shelf from the sculpted bathymetric break, and
-publishes both as one coherent shelf artifact.
+classifies gentle shelf connectivity within Foundation's continental crust,
+and publishes both as one coherent shelf artifact. Immediate coast around
+oceanic islands is retained independently; it cannot seed or bridge shelf
+connectivity into the abyss. Crust support and local bathymetric gradient are
+distinct requirements, because a smooth ocean floor is not a continental shelf.
 
 **Requires**
 
 - `artifact:morphology.topography`
 - `artifact:morphology.beltDrivers`
+- `artifact:foundation.crustTiles`
 
 **Provides**
 
@@ -706,18 +733,18 @@ volcano, natural-wonder, and other land projection steps.
 
 ### Drift notes (only where it affects the contract surface)
 
-- **Elevation units are inconsistently described.** Relief config and base-topography quantization operate in “normalized units” scaled by `DEFAULT_ELEVATION_SCALE = 100`, while the `morphology.topography` artifact schema describes “integer meters”. Decide and make consistent.
+- **Elevation units are normalized model units, not meters.** Base-topography quantizes normalized relief with `DEFAULT_ELEVATION_SCALE = 100`; the shared topography atoms now describe this explicitly. Native display conversion is a downstream projection and does not mutate physical topography or establish a meter conversion.
 
 **Ground truth anchors**
 
 - `plugins/mod/map/swooper-physics/src/domain/morphology/modules/terrain/ops/compute-base-topography/contract.ts` (`ReliefConfigSchema` “normalized units”)
 - `plugins/mod/map/swooper-physics/src/domain/morphology/modules/terrain/ops/compute-base-topography/rules/index.ts` (`DEFAULT_ELEVATION_SCALE`)
-- `plugins/mod/map/swooper-physics/src/domain/morphology/modules/landforms/artifacts/topography.artifact.ts` (`artifact.schema` description)
+- `plugins/mod/map/swooper-physics/src/domain/morphology/model/atoms/topography-fields.schema.ts` (shared elevation, datum and bathymetry descriptions)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/coasts/steps/coastline-evidence/step.ts` (`computeDistanceToCoast`, publish under `baseCoastline`)
 
 ## Open Questions
 
-1. What is the canonical unit/datum for `morphology.topography.elevation` before (and after) engine `buildElevation`? Should the artifact schema say “normalized units \* 100” rather than “meters”, or should base-topography/hypsometry be reparameterized into meters?
+1. Which horizontal and vertical physical scales, if any, should a future calibrated model assign to the current normalized relief? Current climate and terrain interpretation must not assume meters or kilometers while this remains uncalibrated.
 2. Is `artifact:morphology.volcanoes` intended to be the only canonical volcanic intent surface, or should it also include a stable “volcanism driver” snapshot for downstream consumers?
 
 ## Ground truth anchors

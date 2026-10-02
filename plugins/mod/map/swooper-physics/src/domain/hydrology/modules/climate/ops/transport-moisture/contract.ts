@@ -1,8 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import cardinalDefinition from "./strategies/cardinal/config.js";
 import vectorAdvectionDefinition from "./strategies/vector-advection/config.js";
 
-/** Moisture-transport contract with vector advection as the product default and cardinal fallback. */
+/** Moisture transport with supplied-wind vector advection as its sole strategy. */
 const TransportMoistureContract = defineOp({
   kind: "compute",
   id: "hydrology/transport-moisture",
@@ -22,13 +21,6 @@ const TransportMoistureContract = defineOp({
       width: Type.Integer({ minimum: 1, description: "Tile grid width (columns)." }),
       /** Tile grid height. */
       height: Type.Integer({ minimum: 1, description: "Tile grid height (rows)." }),
-      /** Latitude by row in degrees; length must equal `height`. */
-      latitudeByRow: TypedArraySchemas.f32({
-        cardinality: ["height"],
-        description: "Latitude per row (degrees).",
-      }),
-      /** Land mask per tile (1=land, 0=water). */
-      landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
       /** Wind U component per tile (-127..127). */
       windU: TypedArraySchemas.i8({ description: "Wind U component per tile (-127..127)." }),
       /** Wind V component per tile (-127..127). */
@@ -42,7 +34,7 @@ const TransportMoistureContract = defineOp({
     {
       additionalProperties: false,
       description:
-        "Evaporation supply, quantized winds, and latitude fallback evidence used to advect moisture across the map.",
+        "Evaporation and supplied winds for vector transport across the complete tile grid.",
     }
   ),
   /**
@@ -59,8 +51,7 @@ const TransportMoistureContract = defineOp({
         "Normalized humidity field consumed by precipitation generation without engine-state readback.",
     }
   ),
-  defaultStrategy: "vector-advection",
-  strategies: [vectorAdvectionDefinition, cardinalDefinition],
+  strategies: [vectorAdvectionDefinition],
 });
 
 export default TransportMoistureContract;

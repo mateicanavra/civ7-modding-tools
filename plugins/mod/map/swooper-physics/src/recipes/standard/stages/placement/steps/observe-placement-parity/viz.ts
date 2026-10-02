@@ -1,5 +1,5 @@
 import type { VizProjection } from "@swooper/mapgen-viz";
-import { STANDARD_VIZ_COLORS } from "../../../../viz.js";
+import { defineStandardVizMeta, STANDARD_VIZ_COLORS } from "../../../../viz.js";
 import {
   definePlacementVizCategoryMeta,
   PLACEMENT_TILE_SPACE_ID,
@@ -9,7 +9,7 @@ import {
 type PlacementParityVizObservation = Readonly<{
   engineObservation: Readonly<{
     terrain: Int32Array;
-    elevation: Int16Array;
+    elevation?: Float64Array;
     landMask: Uint8Array;
   }>;
   waterDrift: Uint8Array;
@@ -24,6 +24,22 @@ export function projectPlacementParityViz(
   dimensions: Readonly<{ width: number; height: number }>
 ): readonly VizProjection[] {
   const projections: VizProjection[] = [];
+  if (observation.engineObservation.elevation !== undefined) {
+    projections.push({
+      kind: "grid",
+      dataTypeKey: "map.placement.engine.elevation",
+      spaceId: PLACEMENT_TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "f32", values: Float32Array.from(observation.engineObservation.elevation) },
+      meta: defineStandardVizMeta("map.placement.engine.elevation", "terrain.elevation", {
+        label: "Elevation (Engine After Placement)",
+        group: "Map / Elevation (Engine)",
+        role: "engine",
+        description:
+          "Float32 display of the exact terminal numeric observation; metrics retain full precision.",
+      }),
+    });
+  }
   if (observation.waterDrift.length === dimensions.width * dimensions.height) {
     projections.push({
       kind: "grid",

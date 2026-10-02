@@ -295,6 +295,74 @@ describe("Studio authoring-state persistence", () => {
     expect(storage.getItem(STUDIO_AUTHORING_STATE_KEY)).toBe(before);
   });
 
+  it("recovers retired recipe values for export without changing or overwriting their physics", () => {
+    const storage = memoryStorage();
+    const retired = {
+      ...canonicalConfig,
+      config: {
+        ...canonicalConfig.config,
+        hydrography: { water: { model: "legacy-sink-mask" } },
+      },
+    };
+    const raw = JSON.stringify({
+      schemaVersion: 5,
+      savedAt: "2026-09-30T00:00:00.000Z",
+      worldSettings,
+      seed: "1018",
+      gameSeed: "42",
+      setupConfig,
+      canonicalConfig: retired,
+    });
+    storage.setItem(STUDIO_AUTHORING_STATE_KEY, raw);
+
+    const recovered = loadStudioAuthoringState(storage);
+    expect(recovered?.canonicalConfig).toEqual(retired);
+    expect(Object.isFrozen(recovered?.canonicalConfig.config)).toBe(true);
+    expect(storage.getItem(STUDIO_AUTHORING_STATE_KEY)).toBe(raw);
+    if (recovered === null) throw new Error("Retired config recovery failed");
+    saveStudioAuthoringState({ ...recovered, gameSeed: "7" }, storage);
+    expect(storage.getItem(STUDIO_AUTHORING_STATE_KEY)).toBe(raw);
+  });
+
+  it("does not recover unregistered recipes or malformed config envelopes", () => {
+    const persisted = (candidate: unknown) =>
+      JSON.stringify({
+        schemaVersion: 5,
+        savedAt: "2026-09-30T00:00:00.000Z",
+        worldSettings,
+        seed: "123",
+        gameSeed: "456",
+        setupConfig,
+        canonicalConfig: candidate,
+      });
+    expect(
+      parseStudioAuthoringState(persisted({ ...canonicalConfig, recipe: "unknown" }))
+    ).toBeNull();
+    expect(
+      parseStudioAuthoringState(persisted({ ...canonicalConfig, unexpected: true }))
+    ).toBeNull();
+  });
+
+  it.each([
+    3, 4,
+  ] as const)("keeps unsupported v%i config outside setup-only migration", (schemaVersion) => {
+    const storage = memoryStorage();
+    const raw = JSON.stringify({
+      schemaVersion,
+      savedAt: "2026-06-01T00:00:00.000Z",
+      worldSettings,
+      seed: "123",
+      ...(schemaVersion === 4 ? { gameSeed: "456" } : {}),
+      setupConfig: legacySetupConfig,
+      canonicalConfig: { ...canonicalConfig, config: {} },
+    });
+    const key = `mapgen-studio.authoring-state.v${schemaVersion}`;
+    storage.setItem(key, raw);
+    expect(loadStudioAuthoringState(storage)).toBeNull();
+    expect(storage.getItem(STUDIO_AUTHORING_STATE_KEY)).toBeNull();
+    expect(storage.getItem(key)).toBe(raw);
+  });
+
   it("refuses invalid seeds without overwriting the last valid snapshot", () => {
     const storage = memoryStorage();
     const valid = { worldSettings, seed: "123", gameSeed: "456", setupConfig, canonicalConfig };

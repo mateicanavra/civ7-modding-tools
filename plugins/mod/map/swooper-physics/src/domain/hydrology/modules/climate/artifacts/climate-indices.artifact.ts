@@ -13,7 +13,7 @@ export const artifact = defineArtifact({
       surfaceTemperatureC: TypedArraySchemas.f32({
         cardinality: "map-grid",
         description:
-          "Surface temperature proxy in degrees Celsius used for biome gating and freeze behavior.",
+          "Ground-surface temperature in degrees Celsius after bounded albedo feedback on the annual baseline, consumed by Ecology, placement, projection, and analysis.",
       }),
       effectiveMoisture: TypedArraySchemas.f32({
         cardinality: "map-grid",
@@ -40,4 +40,12 @@ export const artifact = defineArtifact({
         "Derived Hydrology climate signals consumed by Ecology and product analysis without re-deriving climate policy.",
     }
   ),
+  refine: (value, { issues }) => {
+    const invalidIndex = value.surfaceTemperatureC.findIndex((sample) => !Number.isFinite(sample));
+    if (invalidIndex >= 0) {
+      issues.add(
+        `Expected climateIndices.surfaceTemperatureC[${invalidIndex}] to be finite (received ${value.surfaceTemperatureC[invalidIndex]}).`
+      );
+    }
+  },
 });

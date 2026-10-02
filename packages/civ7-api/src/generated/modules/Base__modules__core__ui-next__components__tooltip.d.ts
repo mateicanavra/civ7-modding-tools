@@ -28,6 +28,11 @@ export declare enum TooltipHorizontalPosition {
     RIGHT = "right"
 }
 export interface TooltipBaseProps extends JSX.HTMLAttributes<HTMLDivElement> {
+    /** Optional delegated trigger registration for callers that already own a concrete trigger element. */
+    delegatedTrigger?: {
+        root: HTMLElement;
+        element: HTMLElement;
+    };
     /** The vertical position of the tooltip. @default TooltipVerticalPosition.AUTO */
     initialVPosition?: TooltipVerticalPosition;
     /** The horizontal position of the tooltip. @default TooltipVerticalPosition.AUTO */

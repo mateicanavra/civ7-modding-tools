@@ -83,6 +83,22 @@ describe("Swooper map artifact file plan", () => {
     const files = modPlan.files;
     const paths = new Set(files.map((file) => file.relativePath));
 
+    expect(configs.map((config) => config.canonicalConfig.id)).toEqual([
+      "swooper-earthlike",
+      "swooper-desert-mountains",
+      "sundered-archipelago",
+    ]);
+    expect(
+      files
+        .filter((file) => file.relativePath.startsWith("maps/"))
+        .map((file) => file.relativePath)
+        .sort()
+    ).toEqual([
+      "maps/sundered-archipelago.js",
+      "maps/swooper-desert-mountains.js",
+      "maps/swooper-earthlike.js",
+    ]);
+
     expect(modPlan.exclusiveSets).toEqual([
       {
         relativeDir: "maps",

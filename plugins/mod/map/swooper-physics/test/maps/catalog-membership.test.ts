@@ -8,6 +8,11 @@ describe("Swooper catalog membership", () => {
   it("is an ordered unique list of shipped config ids", () => {
     const entries = admitMapConfigCatalogIds(MAP_CONFIG_CATALOG_IDS);
 
+    expect(entries).toEqual([
+      "swooper-earthlike",
+      "swooper-desert-mountains",
+      "sundered-archipelago",
+    ]);
     expect(entries).toEqual(MAP_CONFIG_CATALOG_IDS);
     expect(entries.every((entry) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(entry))).toBe(true);
     expect(new Set(entries)).toHaveLength(entries.length);

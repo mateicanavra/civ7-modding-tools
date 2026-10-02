@@ -18,6 +18,7 @@ export const config = defineStep({
     morphologyLandformsArtifacts.topography,
     morphologyLandformsArtifacts.landmasses,
     hydrographyArtifacts.lakePlan,
+    hydrographyArtifacts.hydrography,
     placementRegionArtifacts.landmassRegionSlotByTile,
   ],
   provides: [resourceSiteArtifacts.resourcePlan],

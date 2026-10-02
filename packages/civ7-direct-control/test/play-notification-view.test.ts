@@ -1,13 +1,16 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
+import { Script } from "node:vm";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
 import {
   Civ7PlayNotificationViewInputSchema,
+  type Civ7PlayNotificationViewResult,
   Civ7PlayNotificationViewResultSchema,
   getCiv7PlayNotificationView,
 } from "../src/index";
+import { jsonPayloadFromCommandResult } from "../src/session/command-result";
 
 type FakeTunerServer = {
   received: string[];
@@ -16,6 +19,191 @@ type FakeTunerServer = {
 };
 
 describe("getCiv7PlayNotificationView", () => {
+  test.each([
+    undefined,
+    1,
+    100,
+  ])("generated notification command parses with maxNotifications=%s", async (maxNotifications) => {
+    await getCiv7PlayNotificationView(
+      { maxNotifications },
+      {
+        executeAppUiCommand: async ({ command }) => {
+          expect(() => new Script(command)).not.toThrow();
+          return {
+            host: "127.0.0.1",
+            port: 4318,
+            state: { id: "65535", name: "App UI" },
+            output: [JSON.stringify(playNotificationView())],
+          };
+        },
+        parsePlayNotificationView: (result, label) =>
+          jsonPayloadFromCommandResult<Civ7PlayNotificationViewResult>(result, label),
+      }
+    );
+  });
+
+  test("generated first-meet hint preserves the quoted neutral response argument", async () => {
+    const notificationId = { owner: 0, id: 42, type: 20 };
+    const view = await getCiv7PlayNotificationView(
+      {},
+      {
+        executeAppUiCommand: async ({ command }) => ({
+          host: "127.0.0.1",
+          port: 4318,
+          state: { id: "65535", name: "App UI" },
+          output: [
+            String(
+              new Script(command).runInNewContext({
+                GameContext: { localPlayerID: 0, hasSentTurnComplete: () => false },
+                Game: {
+                  turn: 80,
+                  getTurnDate: () => "2025 BCE",
+                  Notifications: {
+                    getIdsForPlayer: () => [notificationId],
+                    getEndTurnBlockingType: () => -123,
+                    findEndTurnBlocking: () => notificationId,
+                    find: () => ({ Player: 1 }),
+                    getType: () => -123,
+                    getTypeName: () => "NOTIFICATION_PLAYER_MET",
+                  },
+                },
+                Players: { get: () => null },
+                UI: { Player: {} },
+                document: {
+                  querySelector: () => ({ maybeComponent: { canEndTurn: () => false } }),
+                },
+              })
+            ),
+          ],
+        }),
+        parsePlayNotificationView: (result, label) =>
+          jsonPayloadFromCommandResult<Civ7PlayNotificationViewResult>(result, label),
+      }
+    );
+
+    expect(Value.Check(Civ7PlayNotificationViewResultSchema, view)).toBe(true);
+    expect(view.notifications[0]?.decision).toMatchObject({
+      category: "first-meet-diplomacy",
+      commonActions: [{ argsShape: '{ metPlayerId, response: "neutral" }' }],
+    });
+  });
+
+  test.each([
+    0, 7,
+  ])("generated first-meet costs use all three response types and local player %s", async (localPlayerId) => {
+    const { view, nativeCalls } = await generatedFirstMeetView({
+      localPlayerId,
+      enums: {
+        PLAYER_REALATIONSHIP_FIRSTMEET_FRIENDLY: 0,
+        PLAYER_REALATIONSHIP_FIRSTMEET_NEUTRAL: 101,
+        PLAYER_REALATIONSHIP_FIRSTMEET_UNFRIENDLY: 202,
+      },
+    });
+
+    expect(nativeCalls).toEqual([
+      [0, localPlayerId],
+      [101, localPlayerId],
+      [202, localPlayerId],
+    ]);
+    expect(Value.Check(Civ7PlayNotificationViewResultSchema, view)).toBe(true);
+    expect(view.notifications[0]?.details).toMatchObject({
+      kind: "first-meet-diplomacy",
+      player2: 1,
+      responses: [
+        { response: "friendly", influenceCost: 3, relationshipDelta: 4 },
+        { response: "neutral", influenceCost: 0, relationshipDelta: 5 },
+        { response: "unfriendly", influenceCost: 2, relationshipDelta: -6 },
+      ],
+    });
+  });
+
+  test.each([
+    { label: "absent namespace", enums: undefined },
+    { label: "missing keys", enums: {} },
+    ...[
+      { label: "undefined", value: undefined },
+      { label: "null", value: null },
+      { label: "empty string", value: "" },
+      { label: "numeric string", value: "0" },
+      { label: "boolean", value: false },
+      { label: "object", value: {} },
+      { label: "array", value: [] },
+      { label: "NaN", value: Number.NaN },
+      { label: "positive infinity", value: Number.POSITIVE_INFINITY },
+      { label: "negative infinity", value: Number.NEGATIVE_INFINITY },
+    ].map(({ label, value }) => ({
+      label,
+      enums: {
+        PLAYER_REALATIONSHIP_FIRSTMEET_FRIENDLY: value,
+        PLAYER_REALATIONSHIP_FIRSTMEET_NEUTRAL: value,
+        PLAYER_REALATIONSHIP_FIRSTMEET_UNFRIENDLY: value,
+      },
+    })),
+  ])("generated first-meet costs never call native for unavailable enum: $label", async ({
+    enums,
+  }) => {
+    const { view, nativeCalls } = await generatedFirstMeetView({ localPlayerId: 7, enums });
+
+    expect(nativeCalls).toEqual([]);
+    expect(Value.Check(Civ7PlayNotificationViewResultSchema, view)).toBe(true);
+    expect(view.notifications[0]?.details).toMatchObject({
+      responses: [
+        { response: "friendly", influenceCost: null, relationshipDelta: null },
+        { response: "neutral", influenceCost: null, relationshipDelta: null },
+        { response: "unfriendly", influenceCost: null, relationshipDelta: null },
+      ],
+    });
+  });
+
+  test("generated first-meet costs skip only the unavailable response type", async () => {
+    const { nativeCalls } = await generatedFirstMeetView({
+      localPlayerId: 7,
+      enums: {
+        PLAYER_REALATIONSHIP_FIRSTMEET_FRIENDLY: 0,
+        PLAYER_REALATIONSHIP_FIRSTMEET_NEUTRAL: null,
+        PLAYER_REALATIONSHIP_FIRSTMEET_UNFRIENDLY: 202,
+      },
+    });
+
+    expect(nativeCalls).toEqual([
+      [0, 7],
+      [202, 7],
+    ]);
+  });
+
+  test.each([
+    { label: "undefined", value: undefined },
+    { label: "null", value: null },
+    { label: "empty string", value: "" },
+    { label: "numeric string", value: "7" },
+    { label: "boolean", value: false },
+    { label: "object", value: {} },
+    { label: "array", value: [] },
+    { label: "NaN", value: Number.NaN },
+    { label: "positive infinity", value: Number.POSITIVE_INFINITY },
+    { label: "negative infinity", value: Number.NEGATIVE_INFINITY },
+  ])("generated first-meet costs never call native for unavailable local player: $label", async ({
+    value,
+  }) => {
+    const { view, nativeCalls } = await generatedFirstMeetView({
+      localPlayerId: value,
+      enums: {
+        PLAYER_REALATIONSHIP_FIRSTMEET_FRIENDLY: 0,
+        PLAYER_REALATIONSHIP_FIRSTMEET_NEUTRAL: 101,
+        PLAYER_REALATIONSHIP_FIRSTMEET_UNFRIENDLY: 202,
+      },
+    });
+
+    expect(nativeCalls).toEqual([]);
+    expect(view.notifications[0]?.details).toMatchObject({
+      responses: [
+        { response: "friendly", influenceCost: null, relationshipDelta: null },
+        { response: "neutral", influenceCost: null, relationshipDelta: null },
+        { response: "unfriendly", influenceCost: null, relationshipDelta: null },
+      ],
+    });
+  });
+
   test("keeps procedure input bounded and context-owned", () => {
     expect(Value.Check(Civ7PlayNotificationViewInputSchema, {})).toBe(true);
     expect(Value.Check(Civ7PlayNotificationViewInputSchema, { maxNotifications: 25 })).toBe(true);
@@ -219,6 +407,67 @@ describe("getCiv7PlayNotificationView", () => {
     }
   });
 });
+
+async function generatedFirstMeetView(options: {
+  localPlayerId: unknown;
+  enums: Record<string, unknown> | undefined;
+}): Promise<{ view: Civ7PlayNotificationViewResult; nativeCalls: unknown[][] }> {
+  const notificationId = { owner: 0, id: 42, type: 20 };
+  const nativeCalls: unknown[][] = [];
+  const responseResults = [
+    [3, 4],
+    [0, 5],
+    [2, -6],
+  ];
+  const view = await getCiv7PlayNotificationView(
+    {},
+    {
+      executeAppUiCommand: async ({ command }) => ({
+        host: "127.0.0.1",
+        port: 4318,
+        state: { id: "65535", name: "App UI" },
+        output: [
+          String(
+            new Script(command).runInNewContext({
+              GameContext: {
+                localPlayerID: options.localPlayerId,
+                hasSentTurnComplete: () => false,
+              },
+              ...(options.enums === undefined ? {} : { DiplomacyPlayerFirstMeets: options.enums }),
+              Game: {
+                turn: 80,
+                getTurnDate: () => "2025 BCE",
+                Diplomacy: {
+                  getFirstMeetResponseCostAndRelDelta: (...args: unknown[]) => {
+                    // The generated probe catches exceptions; assert the recorded calls outside it.
+                    nativeCalls.push(args);
+                    return responseResults[nativeCalls.length - 1];
+                  },
+                },
+                Notifications: {
+                  getIdsForPlayer: () => [notificationId],
+                  getEndTurnBlockingType: () => -123,
+                  findEndTurnBlocking: () => notificationId,
+                  find: () => ({ Player: 1 }),
+                  getType: () => -123,
+                  getTypeName: () => "NOTIFICATION_PLAYER_MET",
+                },
+              },
+              Players: { get: () => null },
+              UI: { Player: {} },
+              document: {
+                querySelector: () => ({ maybeComponent: { canEndTurn: () => false } }),
+              },
+            })
+          ),
+        ],
+      }),
+      parsePlayNotificationView: (result, label) =>
+        jsonPayloadFromCommandResult<Civ7PlayNotificationViewResult>(result, label),
+    }
+  );
+  return { view, nativeCalls };
+}
 
 async function startPlayNotificationTunerServer(): Promise<FakeTunerServer> {
   const received: string[] = [];

@@ -3,30 +3,15 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { normalizeFractal } from "@swooper/mapgen-core/lib/noise";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
+import { computeLandNeighborRelief } from "../../../../model/policy/land-neighbor-relief.js";
 import { resolveDriverStrength } from "../../../../model/policy/driver-strength.js";
 import { encodeNormalizedToU8 } from "../../../../model/policy/normalized-byte.js";
+import {
+  HILL_ABSOLUTE_RELIEF_MIN,
+  normalizeReliefSupport,
+} from "../../../../model/policy/relief-support.js";
 import PlanRoughLandsContract from "../../contract.js";
 import StrategyDefinition from "./config.js";
-
-function computeLocalRelief(params: {
-  index: number;
-  width: number;
-  height: number;
-  elevation: ArrayLike<number>;
-  landMask: ArrayLike<number>;
-}): number {
-  const { index, width, height, elevation, landMask } = params;
-  const base = elevation[index] ?? 0;
-  const x = index % width;
-  const y = Math.floor(index / width);
-  let maxRelief = 0;
-  forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
-    const ni = ny * width + nx;
-    if (landMask[ni] !== 1) return;
-    maxRelief = Math.max(maxRelief, Math.abs(base - (elevation[ni] ?? base)));
-  });
-  return maxRelief;
-}
 
 function normalizeFlowAccum(value: number): number {
   return clampPct(Math.log1p(Math.max(0, value)) / 8, 0, 1, 0);
@@ -220,12 +205,9 @@ export default createStrategy(PlanRoughLandsContract, StrategyDefinition, {
       const thinSediment = clampPct(1 - (sedimentDepth[i] ?? 0.5), 0, 1, 0);
       const coastInterior = clampPct((distanceToCoast[i] ?? 0) / 8, 0, 1, 0);
       const elevationRelief = clampPct(((elevation[i] ?? 0) - input.seaLevel) / 35, 0, 1, 0);
-      const localRelief = clampPct(
-        computeLocalRelief({ index: i, width, height, elevation, landMask }) / 16,
-        0,
-        1,
-        0
-      );
+      const relief = computeLandNeighborRelief({ index: i, width, height, elevation, landMask });
+      const absoluteRelief = Math.max(relief.upward, relief.downward);
+      const localRelief = normalizeReliefSupport(absoluteRelief);
       const flowRelief = normalizeFlowAccum(flowAccum[i] ?? 0);
 
       const oldHighland =
@@ -292,7 +274,7 @@ export default createStrategy(PlanRoughLandsContract, StrategyDefinition, {
         1,
         0
       );
-      roughScoreByTile[i] = score;
+      roughScoreByTile[i] = score * localRelief;
       roughnessPotential[i] = encodeNormalizedToU8(score);
 
       const hasCausalSupport =
@@ -307,7 +289,14 @@ export default createStrategy(PlanRoughLandsContract, StrategyDefinition, {
           (localReliefSupport > 0.08 || activeDeformationSupport > 0.12 || flowRelief > 0.25));
       const textureGate =
         fractal > 0.42 || localReliefSupport > 0.2 || activeDeformationSupport > 0.28;
-      if (hasCausalSupport && textureGate && score >= threshold) candidates.push(i);
+      if (
+        absoluteRelief >= HILL_ABSOLUTE_RELIEF_MIN &&
+        hasCausalSupport &&
+        textureGate &&
+        roughScoreByTile[i]! >= threshold
+      ) {
+        candidates.push(i);
+      }
     }
 
     const hillBudgetRaw =

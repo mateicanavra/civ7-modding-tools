@@ -40,12 +40,28 @@ export const PlanNaturalWondersStep = createStep(config, {
     const terrainType = deps.engine.readCurrentMapTerrainTypes(context);
     const biomeType = deps.engine.readCurrentMapBiomeTypes(context);
     const featureType = deps.engine.readCurrentMapFeatureTypes(context);
+    const engineElevation = deps.engine.readCurrentMapElevationSnapshot(context);
+    if (engineElevation.status === "unavailable") {
+      throw new Error(
+        `[Placement] Natural-wonder engine elevation is unavailable (${engineElevation.source}: ${engineElevation.reason}${engineElevation.plotIndex === undefined ? "" : ` at plot ${engineElevation.plotIndex}`}).`
+      );
+    }
+    if (
+      engineElevation.width !== width ||
+      engineElevation.height !== height ||
+      engineElevation.values.length !== width * height
+    ) {
+      throw new Error(
+        "[Placement] Natural-wonder engine elevation dimensions do not match the map."
+      );
+    }
     const plannerInput = {
       width,
       height,
       wondersCount,
-      landMask: topography.landMask,
+      landMask: hydrography.exposedLandMask,
       elevation: topography.elevation,
+      engineElevations: Array.from(engineElevation.values),
       aridityIndex: climateIndices.aridityIndex,
       riverClass: hydrography.riverClass,
       lakeMask: lakePlan.lakeMask,
@@ -53,7 +69,7 @@ export const PlanNaturalWondersStep = createStep(config, {
       effectiveMoisture: climateIndices.effectiveMoisture,
       surfaceTemperature: climateIndices.surfaceTemperatureC,
       fertility: pedology.fertility,
-      discharge: hydrography.discharge,
+      discharge: Array.from(hydrography.discharge),
       slopeClass: riverNetwork.slopeClass,
       coastTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST,
       mountainTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_MOUNTAIN,
@@ -75,7 +91,8 @@ export const PlanNaturalWondersStep = createStep(config, {
     const naturalWonderPlan = ops.naturalWonders(plannerInput, strategySelection);
     deps.artifacts.naturalWonderPlan.publish(naturalWonderPlan);
     const naturalWonderPlanInput = measureStandardNaturalWonderPlanInput({
-      plannerInput,
+      plannerInput: { ...plannerInput, discharge: hydrography.discharge },
+      engineElevationSource: engineElevation.source,
       strategySelection,
       plan: naturalWonderPlan,
     });

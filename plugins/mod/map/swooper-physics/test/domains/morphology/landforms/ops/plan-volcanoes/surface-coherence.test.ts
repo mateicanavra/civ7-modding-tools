@@ -40,6 +40,7 @@ function createInput(candidates: readonly Candidate[]) {
     width,
     height,
     landMask,
+    candidateMask: landMask,
     boundaryCloseness,
     boundaryType,
     shieldStability,
@@ -62,6 +63,28 @@ function selection(overrides: Partial<typeof planVolcanoes.defaultConfig.config>
 }
 
 describe("plan-volcanoes surface coherence", () => {
+  it("excludes reserved candidates before ranking and spacing without changing physical land", () => {
+    const input = createInput([
+      { x: 5, y: 5, boundaryType: BOUNDARY_TYPE.convergent, volcanism: 255 },
+      { x: 6, y: 5, boundaryType: BOUNDARY_TYPE.convergent, volcanism: 200 },
+    ]);
+    const reserved = 5 * input.width + 5;
+    const eligible = reserved + 1;
+    const before = structuredClone(input);
+    const config = selection({ minVolcanoes: 2, maxVolcanoes: 2, minSpacing: 2 });
+    expect(runAdmittedOperationForTest(planVolcanoes, input, config).volcanoMask[reserved]).toBe(1);
+    input.candidateMask = input.landMask.slice();
+    input.candidateMask[reserved] = 0;
+
+    const result = runAdmittedOperationForTest(planVolcanoes, input, config);
+
+    expect(result.volcanoes.map(({ tileIndex }) => tileIndex)).toEqual([eligible]);
+    expect(result.volcanoMask[reserved]).toBe(0);
+    expect(input.landMask).toEqual(before.landMask);
+    expect(input.candidateMask[reserved]).toBe(0);
+    expect(input.landMask[reserved]).toBe(1);
+  });
+
   it("returns one deterministic exact mask/list product with honest tectonic settings", () => {
     const candidates = [
       {

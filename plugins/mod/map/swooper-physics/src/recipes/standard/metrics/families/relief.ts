@@ -10,11 +10,22 @@ import {
 } from "@swooper/mapgen-metrics";
 
 import type { StandardMapCapture } from "../capture.js";
+import {
+  measureStandardReliefCoherence,
+  type StandardReliefCoherenceInput,
+  type StandardReliefCoherenceMetrics,
+} from "./relief-coherence.js";
 
 type VolcanoKind = StandardMapCapture["model"]["volcanoes"][number]["kind"];
 
+type StandardReliefInput = StandardReliefCoherenceInput & Readonly<{
+  model: Pick<StandardMapCapture["model"], "hillMask" | "mountainRegionMask" | "volcanoes">;
+  observation: Pick<StandardMapCapture["observation"], "feature" | "volcanoFeature">;
+}>;
+
 /** Relief facts for authored landforms, orographic interiors, and realized Civ7 terrain. */
 export type StandardReliefMetrics = Readonly<{
+  coherence: StandardReliefCoherenceMetrics;
   plannedMountains: CountMetric;
   plannedMountainComponents: ComponentMetricSummary;
   mountainRegion: Readonly<{
@@ -52,9 +63,10 @@ export type StandardReliefMetrics = Readonly<{
 }>;
 
 /** Measures relief relationships from one closed Standard capture without applying thresholds. */
-export function measureStandardRelief(capture: StandardMapCapture): StandardReliefMetrics {
+export function measureStandardRelief(capture: StandardReliefInput): StandardReliefMetrics {
   const { width, height } = capture.provenance;
-  const population = countMetricMask(capture.model.landMask).count;
+  const population = countMetricMask(capture.model.exposedLandMask).count;
+  const plannedSurfacePopulation = population;
   const finalMountainMask = new Uint8Array(width * height);
   const finalHillMask = new Uint8Array(width * height);
   let finalMountainCount = 0;
@@ -108,15 +120,16 @@ export function measureStandardRelief(capture: StandardMapCapture): StandardReli
   for (const volcano of capture.model.volcanoes) volcanoKindCounts[volcano.kind] += 1;
 
   return Object.freeze({
-    plannedMountains: measureMetricCount(plannedMountainCount, population),
+    coherence: measureStandardReliefCoherence(capture),
+    plannedMountains: measureMetricCount(plannedMountainCount, plannedSurfacePopulation),
     plannedMountainComponents: summarizeMask(capture.model.mountainMask, width, height),
     mountainRegion: region,
-    plannedHills: measureMetricCount(plannedHillCount, population),
+    plannedHills: measureMetricCount(plannedHillCount, plannedSurfacePopulation),
     plannedHillComponents: summarizeMask(capture.model.hillMask, width, height),
-    plannedFoothills: measureMetricCount(plannedFoothillCount, population),
-    plannedRoughLandHills: measureMetricCount(plannedRoughLandCount, population),
+    plannedFoothills: measureMetricCount(plannedFoothillCount, plannedSurfacePopulation),
+    plannedRoughLandHills: measureMetricCount(plannedRoughLandCount, plannedSurfacePopulation),
     plannedRoughLandComponents: summarizeMask(capture.model.roughLandMask, width, height),
-    plannedRoughTerrain: measureMetricCount(plannedMountainCount + plannedHillCount, population),
+    plannedRoughTerrain: measureMetricCount(plannedMountainCount + plannedHillCount, plannedSurfacePopulation),
     plannedVolcanoes: countMetricMask(capture.model.volcanoMask).count,
     volcanoKindCounts: Object.freeze(volcanoKindCounts),
     plannedVolcanoMissingFeatureCount,
@@ -139,10 +152,10 @@ export function measureStandardRelief(capture: StandardMapCapture): StandardReli
   });
 }
 
-function summarizeFinalLandElevation(capture: StandardMapCapture): NumericMetricSummary {
+function summarizeFinalLandElevation(capture: StandardReliefInput): NumericMetricSummary {
   const elevations: number[] = [];
-  for (let index = 0; index < capture.model.landMask.length; index += 1) {
-    if (capture.model.landMask[index] !== 1) continue;
+  for (let index = 0; index < capture.model.exposedLandMask.length; index += 1) {
+    if (capture.model.exposedLandMask[index] !== 1) continue;
     const elevation = capture.model.elevation[index];
     if (elevation === undefined) {
       throw new Error(`Final Morphology elevation is missing at land tile ${index}.`);
@@ -157,7 +170,7 @@ function summarizeFinalLandElevation(capture: StandardMapCapture): NumericMetric
 }
 
 function measureMountainRegion(
-  capture: StandardMapCapture
+  capture: StandardReliefInput
 ): StandardReliefMetrics["mountainRegion"] {
   const { width, height } = capture.provenance;
   const flatInteriorMask = new Uint8Array(width * height);
@@ -168,7 +181,7 @@ function measureMountainRegion(
   let flatInteriorTiles = 0;
 
   for (let index = 0; index < width * height; index += 1) {
-    if (capture.model.landMask[index] !== 1 || capture.model.mountainRegionMask[index] !== 1) {
+    if (capture.model.exposedLandMask[index] !== 1 || capture.model.mountainRegionMask[index] !== 1) {
       continue;
     }
     regionTiles += 1;

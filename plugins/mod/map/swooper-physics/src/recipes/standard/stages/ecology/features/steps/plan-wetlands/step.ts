@@ -18,8 +18,6 @@ export const PlanWetlandsStep = createStep(config, {
     const reefIntents = deps.artifacts.reefIntents.read();
     const suitability = deps.artifacts.featureSuitability.read();
     const hydrography = deps.artifacts.hydrography.read();
-    const topography = deps.artifacts.topography.read();
-    const lakePlan = deps.artifacts.lakePlan.read();
     const mountains = deps.artifacts.mountains.read();
     const volcanoes = deps.artifacts.volcanoes.read();
     const { width, height } = context.setup.dimensions;
@@ -33,9 +31,8 @@ export const PlanWetlandsStep = createStep(config, {
     const flatLandMask = new Uint8Array(size);
     for (let i = 0; i < size; i++) {
       flatLandMask[i] =
-        topography.landMask[i] === 1 &&
+        hydrography.exposedLandMask[i] === 1 &&
         !isAnyRiverClass(hydrography.riverClass[i]) &&
-        lakePlan.lakeMask[i] !== 1 &&
         mountains.mountainMask[i] !== 1 &&
         mountains.hillMask[i] !== 1 &&
         volcanoes.volcanoMask[i] !== 1

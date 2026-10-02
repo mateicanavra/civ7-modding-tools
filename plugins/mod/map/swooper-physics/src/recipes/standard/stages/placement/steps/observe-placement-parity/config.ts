@@ -13,14 +13,17 @@ export const config = defineStep({
   id: "observe-placement-parity",
   engine: [
     "readCurrentMapTerrainTypes",
-    "readCurrentMapElevations",
+    "readCurrentMapElevationSnapshot",
     "readCurrentMapWaterMask",
     "readCurrentMapLakeMask",
+    "readRiverProjection",
   ] as const,
   requires: [
     STANDARD_COMPLETIONS.surfacePrepared,
     morphologyLandformsArtifacts.topography,
     hydrographyArtifacts.projectedLakes,
+    hydrographyArtifacts.hydrography,
+    hydrographyArtifacts.projectedRivers,
   ],
   provides: [],
 });

@@ -11,6 +11,7 @@ import { artifacts as pedologyArtifacts } from "../../../domain/ecology/modules/
 import { artifacts as climateArtifacts } from "../../../domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "../../../domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyCoastsArtifacts } from "../../../domain/morphology/modules/coasts/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "../../../domain/morphology/modules/shelf/artifacts/index.js";
 import { artifacts as placementRegionArtifacts } from "../../../domain/placement/modules/regions/artifacts/index.js";
 import { artifacts as placementStartArtifacts } from "../../../domain/placement/modules/starts/artifacts/index.js";
@@ -29,6 +30,12 @@ import {
   readArtifact,
 } from "@swooper/mapgen-core/authoring";
 import { Value } from "typebox/value";
+import {
+  STANDARD_ELEVATION_POST_WRITE_METRIC_KEY,
+  STANDARD_ELEVATION_FINAL_METRIC_KEY,
+  type StandardElevationProjectionMeasurements,
+  StandardElevationProjectionMeasurementsSchema,
+} from "./families/elevation-projection.js";
 import { canonicalRecipeConfig } from "../../../maps/configs/canonical.js";
 import {
   createStandardInitialSetupInput,
@@ -48,6 +55,11 @@ import {
   type StandardLakeProjectionMeasurements,
   StandardLakeProjectionMeasurementsSchema,
 } from "./families/hydrology/lake-projection.js";
+import {
+  STANDARD_SEASONAL_RAINFALL_METRIC_KEY,
+  type StandardSeasonalRainfallMeasurements,
+  StandardSeasonalRainfallMeasurementsSchema,
+} from "./families/hydrology/climate-structure.js";
 import {
   type StandardRiverNetworkMeasurements,
   StandardRiverNetworkMeasurementsSchema,
@@ -73,8 +85,10 @@ type Volcanoes = ArtifactReadValueOf<typeof morphologyLandformsArtifacts.volcano
 type Landmasses = ArtifactReadValueOf<typeof morphologyLandformsArtifacts.landmasses>;
 type Pedology = ArtifactReadValueOf<typeof pedologyArtifacts.pedology>;
 type ProjectedNavigableRivers = ArtifactReadValueOf<
-  typeof hydrographyArtifacts.projectedNavigableRivers
+  typeof hydrographyArtifacts.projectedRivers
 >;
+type CertifiedLakePlan = ArtifactReadValueOf<typeof hydrographyArtifacts.lakePlan>;
+type CertifiedRiverNetwork = ArtifactReadValueOf<typeof hydrographyArtifacts.riverNetwork>;
 type ResourceDemandPlan = ArtifactReadValueOf<typeof resourceDemandArtifacts.resourceDemandPlan>;
 type ResourcePlan = ArtifactReadValueOf<typeof resourceSiteArtifacts.resourcePlan>;
 type ResourcePlanAdjusted = ArtifactReadValueOf<
@@ -161,7 +175,11 @@ export type StandardMapCapture = Readonly<{
     bottomLatitude: number;
   }>;
   model: Readonly<{
+    /** Immutable initial morphology geometry, including finite initially wet pockets. */
     landMask: Uint8Array;
+    externalWaterMask: Uint8Array;
+    exposedLandMask: Uint8Array;
+    seaLevel: number;
     elevation: Int16Array;
     regionSlotByTile: Uint8Array;
     landmassIdByTile: Int32Array;
@@ -178,7 +196,17 @@ export type StandardMapCapture = Readonly<{
     volcanoes: Volcanoes["volcanoes"];
     plannedLakeMask: Uint8Array;
     riverClass: Uint8Array;
-    outletMask: Uint8Array;
+    flowDir: Int32Array;
+    physicalHydrology: Readonly<Pick<CertifiedLakePlan, "model" | "pools" | "bodies" | "components" | "transfers" | "ports" | "terminals" | "marineExits" | "boundaryExits" | "conservation"> & {
+          runoff: readonly number[];
+          discharge: readonly number[];
+          potentialDemand: Float32Array;
+          bodyId: Int32Array;
+          componentId: Int32Array;
+          basinId: Int32Array;
+          waterSurface: readonly number[];
+          mouthBodyId: CertifiedRiverNetwork["mouthBodyId"];
+        }>;
     terminalType: Uint8Array;
     riverNetworkSummary: StandardRiverNetworkMeasurements;
     biomeIndex: Uint8Array;
@@ -186,33 +214,31 @@ export type StandardMapCapture = Readonly<{
     fertility: Pedology["fertility"];
     effectiveMoisture: Float32Array;
     surfaceTemperature: Float32Array;
+    baselineRainfall: Uint8Array;
+    refinedRainfall: Uint8Array;
+    seasonalRainfall: StandardSeasonalRainfallMeasurements;
     aridityIndex: Float32Array;
     windU: Int8Array;
     windV: Int8Array;
     pressure: Float32Array;
   }>;
   projection: Readonly<{
+    elevation: Readonly<{
+      postWrite: StandardElevationProjectionMeasurements;
+      final: StandardElevationProjectionMeasurements;
+    }>;
     discoveryGeneration: StandardDiscoveryPlacementMeasurements;
     lakes: StandardLakeProjectionMeasurements;
     placementParity: StandardPlacementParityMeasurements;
-    navigableRivers: Pick<
-      ProjectedNavigableRivers,
-      | "selectedTileCount"
-      | "targetTileCount"
-      | "eligibleTileCount"
-      | "selectedChainCount"
-      | "longestSelectedChainLength"
-      | "meanSelectedChainLength"
-      | "selectedEligibleMajorTileFraction"
-      | "majorDurableTileCount"
-      | "projectionSignalStatus"
-      | "plannedMajorRiverTileCount"
-    >;
+    navigableRivers: Pick<ProjectedNavigableRivers,
+      "model" | "authoredSourceCount" | "plannedMinorRiverTileCount" | "plannedMajorRiverTileCount" | "writes" | "wetTransitionWrites" | "wetTransitionDispositions">;
     riverReadback: Readonly<{
       terrainNavigableRiverTileCount: number;
       riverMismatchCount: number;
       selectedRiverRejectedCount: number;
       extraEngineRiverCount: number;
+      minorRiverMismatchCount: number;
+      navigableMetadataMismatchCount: number;
     }>;
     featureAttempts: Readonly<Record<string, number>>;
     featureRejections: Readonly<Record<string, number>>;
@@ -326,6 +352,7 @@ export function captureStandardMapScenario(
 
   const context = createMapContext({ setup: plan.setup, adapter });
   let riverNetworkSummary: StandardRiverNetworkMeasurements | undefined;
+  let seasonalRainfall: StandardSeasonalRainfallMeasurements | undefined;
   let discoveryGeneration: StandardDiscoveryPlacementMeasurements | undefined;
   let featureProjection: StandardFeatureProjectionMeasurements | undefined;
   let lakeProjection: StandardLakeProjectionMeasurements | undefined;
@@ -333,10 +360,33 @@ export function captureStandardMapScenario(
   let naturalWonderPlacement: StandardNaturalWonderPlacementMeasurements | undefined;
   let resourcePlacement: StandardResourcePlacementMeasurements | undefined;
   let metricFailure: unknown;
+  let elevationPostWrite: StandardElevationProjectionMeasurements | undefined;
+  let elevationFinal: StandardElevationProjectionMeasurements | undefined;
   standardRecipe.execute(context, plan, {
     log: () => {},
     facets: {
       metrics: (projection) => {
+        const seasonalRainfallCandidate = projection[STANDARD_SEASONAL_RAINFALL_METRIC_KEY];
+        if (seasonalRainfallCandidate !== undefined) {
+          seasonalRainfall = Value.Parse(
+            StandardSeasonalRainfallMeasurementsSchema,
+            seasonalRainfallCandidate
+          );
+        }
+        const postWriteCandidate = projection[STANDARD_ELEVATION_POST_WRITE_METRIC_KEY];
+        if (postWriteCandidate !== undefined) {
+          elevationPostWrite = Value.Parse(
+            StandardElevationProjectionMeasurementsSchema,
+            postWriteCandidate
+          );
+        }
+        const finalElevationCandidate = projection[STANDARD_ELEVATION_FINAL_METRIC_KEY];
+        if (finalElevationCandidate !== undefined) {
+          elevationFinal = Value.Parse(
+            StandardElevationProjectionMeasurementsSchema,
+            finalElevationCandidate
+          );
+        }
         const discoveryCandidate = projection["placement.discoveryGeneration"];
         if (discoveryCandidate !== undefined) {
           discoveryGeneration = Value.Parse(
@@ -388,6 +438,12 @@ export function captureStandardMapScenario(
     },
   });
   if (metricFailure !== undefined) throw metricFailure;
+  if (!seasonalRainfall) {
+    throw new Error("Standard metric capture requires Hydrology seasonal-rainfall evidence.");
+  }
+  if (!elevationPostWrite || !elevationFinal) {
+    throw new Error("Standard metric capture requires post-write and final elevation evidence.");
+  }
   if (!riverNetworkSummary) {
     throw new Error("Standard metric capture requires Hydrology river-network benchmark evidence.");
   }
@@ -421,7 +477,9 @@ export function captureStandardMapScenario(
     lakeProjection,
     placementParity,
     naturalWonderPlacement,
-    resourcePlacement
+    resourcePlacement,
+    { postWrite: elevationPostWrite, final: elevationFinal },
+    seasonalRainfall
   );
 }
 
@@ -436,22 +494,62 @@ function copyCompletedRun(
   lakeProjection: StandardLakeProjectionMeasurements,
   placementParity: StandardPlacementParityMeasurements,
   naturalWonderPlacement: StandardNaturalWonderPlacementMeasurements,
-  resourcePlacement: StandardResourcePlacementMeasurements
+  resourcePlacement: StandardResourcePlacementMeasurements,
+  elevation: StandardMapCapture["projection"]["elevation"],
+  seasonalRainfall: StandardSeasonalRainfallMeasurements
 ): StandardMapCapture {
   const { selection } = initialSetup.map;
   const { width, height } = selection.dimensions;
   const gridSize = width * height;
   const topographyValue = readArtifact(context, morphologyLandformsArtifacts.topography);
+  const resolvedCoastlineValue = readArtifact(context, morphologyCoastsArtifacts.resolvedCoastline);
   const landmassesValue = readArtifact(context, morphologyLandformsArtifacts.landmasses);
   const mountainsValue = readArtifact(context, morphologyLandformsArtifacts.mountains);
   const shelfValue = readArtifact(context, morphologyShelfArtifacts.shelf);
   const volcanoesValue = readArtifact(context, morphologyLandformsArtifacts.volcanoes);
   const lakePlanValue = readArtifact(context, hydrographyArtifacts.lakePlan);
   const hydrographyValue = readArtifact(context, hydrographyArtifacts.hydrography);
+  const riverNetworkValue = readArtifact(context, hydrographyArtifacts.riverNetwork);
+  const baselineClimateValue = readArtifact(context, climateArtifacts.baselineClimateField);
+  if (hydrographyValue.model !== lakePlanValue.model || hydrographyValue.model !== riverNetworkValue.model) {
+    throw new Error("Capture requires one coherent physical water model.");
+  }
+  const physicalHydrology: StandardMapCapture["model"]["physicalHydrology"] =
+    Object.freeze({
+      model: hydrographyValue.model,
+      runoff: Object.freeze([...hydrographyValue.runoff]),
+      discharge: Object.freeze([...hydrographyValue.discharge]),
+      potentialDemand: copyFloat32Grid("hydrology.baselineClimateField.potentialDemand", baselineClimateValue.potentialDemand, gridSize),
+      bodyId: copyInt32Grid("hydrology.lakePlan.bodyId", lakePlanValue.bodyId, gridSize),
+      componentId: copyInt32Grid("hydrology.lakePlan.componentId", lakePlanValue.componentId, gridSize),
+      basinId: copyInt32Grid("hydrology.hydrography.basinId", hydrographyValue.basinId, gridSize),
+      waterSurface: Object.freeze([...lakePlanValue.waterSurface]),
+      mouthBodyId: copyInt32Grid("hydrology.riverNetwork.mouthBodyId", riverNetworkValue.mouthBodyId, gridSize),
+      pools: Object.freeze(lakePlanValue.pools.map((pool) => Object.freeze({ ...pool,
+        leafIds: Object.freeze([...pool.leafIds]), catchmentCells: Object.freeze([...pool.catchmentCells]),
+        wetCells: Object.freeze([...pool.wetCells]), flux: Object.freeze({ ...pool.flux }),
+        closure: pool.closure === null ? null : pool.closure.resolution === "exact-balance"
+          ? Object.freeze({ ...pool.closure, levels: Object.freeze({ ...pool.closure.levels }) })
+          : Object.freeze({ ...pool.closure, cohortCells: Object.freeze([...pool.closure.cohortCells]),
+              before: Object.freeze({ ...pool.closure.before }), after: Object.freeze({ ...pool.closure.after }) }),
+      }))),
+      bodies: Object.freeze(lakePlanValue.bodies.map((body) => Object.freeze({ ...body, wetCells: Object.freeze([...body.wetCells]), flux: Object.freeze({ ...body.flux }) }))),
+      components: Object.freeze(lakePlanValue.components.map((component) => Object.freeze({ ...component,
+        bodyIds: Object.freeze([...component.bodyIds]), memberCells: Object.freeze([...component.memberCells]),
+        junctionCells: Object.freeze([...component.junctionCells]), flux: Object.freeze({ ...component.flux }),
+      }))),
+      transfers: Object.freeze(lakePlanValue.transfers.map((value) => Object.freeze({ ...value }))),
+      ports: Object.freeze(lakePlanValue.ports.map((value) => Object.freeze({ ...value }))),
+      terminals: Object.freeze(lakePlanValue.terminals.map((value) => Object.freeze({ ...value }))),
+      marineExits: Object.freeze(lakePlanValue.marineExits.map((value) => Object.freeze({ ...value }))),
+      boundaryExits: Object.freeze(lakePlanValue.boundaryExits.map((value) => Object.freeze({ ...value }))),
+      conservation: Object.freeze({ ...lakePlanValue.conservation }),
+    });
   const climateIndicesValue = readArtifact(context, climateArtifacts.climateIndices);
+  const climateValue = readArtifact(context, climateArtifacts.climateField);
   const windFieldValue = readArtifact(context, climateArtifacts.windField);
   const pressureFieldValue = readArtifact(context, climateArtifacts.pressureField);
-  const navigableRiverValue = readArtifact(context, hydrographyArtifacts.projectedNavigableRivers);
+  const navigableRiverValue = readArtifact(context, hydrographyArtifacts.projectedRivers);
   const riverReadbackValue = adapter.readRiverProjection(
     width,
     height,
@@ -514,6 +612,13 @@ function copyCompletedRun(
     }),
     model: Object.freeze({
       landMask,
+      externalWaterMask: copyUint8Grid(
+        "morphology.topography.externalWaterMask", topographyValue.externalWaterMask, gridSize
+      ),
+      exposedLandMask: copyUint8Grid(
+        "hydrology.hydrography.exposedLandMask", hydrographyValue.exposedLandMask, gridSize
+      ),
+      seaLevel: requireFinite("morphology.topography.seaLevel", topographyValue.seaLevel),
       elevation: copyInt16Grid(
         "morphology.topography.elevation",
         topographyValue.elevation,
@@ -555,13 +660,13 @@ function copyCompletedRun(
       ),
       shelfMask: copyUint8Grid("morphology.shelf.shelfMask", shelfValue.shelfMask, gridSize),
       coastalWater: copyUint8Grid(
-        "morphology.shelf.coastalWater",
-        shelfValue.coastalWater,
+        "morphology.resolvedCoastline.coastalWater",
+        resolvedCoastlineValue.coastalWater,
         gridSize
       ),
       distanceToCoast: copyUint16Grid(
-        "morphology.shelf.distanceToCoast",
-        shelfValue.distanceToCoast,
+        "morphology.resolvedCoastline.distanceToCoast",
+        resolvedCoastlineValue.distanceToCoast,
         gridSize
       ),
       volcanoMask: copyUint8Grid(
@@ -582,11 +687,8 @@ function copyCompletedRun(
         hydrographyValue.riverClass,
         gridSize
       ),
-      outletMask: copyUint8Grid(
-        "hydrology.hydrography.outletMask",
-        hydrographyValue.outletMask,
-        gridSize
-      ),
+      flowDir: copyInt32Grid("hydrology.hydrography.flowDir", hydrographyValue.flowDir, gridSize),
+      physicalHydrology,
       terminalType: copyUint8Grid(
         "hydrology.hydrography.terminalType",
         hydrographyValue.terminalType,
@@ -610,6 +712,26 @@ function copyCompletedRun(
         climateIndicesValue.surfaceTemperatureC,
         gridSize
       ),
+      baselineRainfall: copyUint8Grid(
+        "hydrology.baselineClimateField.rainfall",
+        baselineClimateValue.rainfall,
+        gridSize
+      ),
+      refinedRainfall: copyUint8Grid(
+        "hydrology.climateField.rainfall",
+        climateValue.rainfall,
+        gridSize
+      ),
+      seasonalRainfall: Object.freeze({
+        ...seasonalRainfall,
+        saturatedLandTileCounts: Object.freeze([...seasonalRainfall.saturatedLandTileCounts]),
+        sampling: Object.freeze({
+          ...seasonalRainfall.sampling,
+          phases: Object.freeze([...seasonalRainfall.sampling.phases]),
+          weights: Object.freeze([...seasonalRainfall.sampling.weights]),
+          observationIndices: Object.freeze([...seasonalRainfall.sampling.observationIndices]),
+        }),
+      }),
       aridityIndex: copyFloat32Grid(
         "hydrology.climateIndices.aridityIndex",
         climateIndicesValue.aridityIndex,
@@ -624,6 +746,10 @@ function copyCompletedRun(
       ),
     }),
     projection: Object.freeze({
+      elevation: Object.freeze({
+        postWrite: copyElevationMeasurement(elevation.postWrite),
+        final: copyElevationMeasurement(elevation.final),
+      }),
       discoveryGeneration: Object.freeze({ ...discoveryGeneration }),
       lakes: Object.freeze({
         ...lakeProjection,
@@ -631,22 +757,21 @@ function copyCompletedRun(
       }),
       placementParity: Object.freeze({ ...placementParity }),
       navigableRivers: Object.freeze({
-        selectedTileCount: navigableRiverValue.selectedTileCount,
-        targetTileCount: navigableRiverValue.targetTileCount,
-        eligibleTileCount: navigableRiverValue.eligibleTileCount,
-        selectedChainCount: navigableRiverValue.selectedChainCount,
-        longestSelectedChainLength: navigableRiverValue.longestSelectedChainLength,
-        meanSelectedChainLength: navigableRiverValue.meanSelectedChainLength,
-        selectedEligibleMajorTileFraction: navigableRiverValue.selectedEligibleMajorTileFraction,
-        majorDurableTileCount: navigableRiverValue.majorDurableTileCount,
-        projectionSignalStatus: navigableRiverValue.projectionSignalStatus,
+        model: navigableRiverValue.model,
+        authoredSourceCount: navigableRiverValue.authoredSourceCount,
+        plannedMinorRiverTileCount: navigableRiverValue.plannedMinorRiverTileCount,
         plannedMajorRiverTileCount: navigableRiverValue.plannedMajorRiverTileCount,
+        writes: Object.freeze(navigableRiverValue.writes.map((write) => Object.freeze({ ...write }))),
+        wetTransitionWrites: Object.freeze(navigableRiverValue.wetTransitionWrites.map((write) => Object.freeze({ ...write }))),
+        wetTransitionDispositions: Object.freeze(navigableRiverValue.wetTransitionDispositions.map((row) => Object.freeze({ ...row }))),
       }),
       riverReadback: Object.freeze({
         terrainNavigableRiverTileCount: riverReadbackValue.terrainNavigableRiverTileCount,
         riverMismatchCount: riverReadbackValue.navigableRiverMismatchTileCount,
         selectedRiverRejectedCount: riverReadbackValue.rejectedNavigableRiverTileCount,
         extraEngineRiverCount: riverReadbackValue.extraNavigableRiverTileCount,
+        minorRiverMismatchCount: Array.from(navigableRiverValue.nativeMinorRiverMask).reduce((count, value, cell) => count + Number(value !== riverReadbackValue.engineMinorRiverMask[cell]), 0),
+        navigableMetadataMismatchCount: Array.from(navigableRiverValue.riverMask).reduce((count, value, cell) => count + Number(value !== riverReadbackValue.engineNavigableRiverMask[cell]), 0),
       }),
       featureAttempts: Object.freeze({ ...featureProjection.attemptedByFeature }),
       featureRejections: Object.freeze({
@@ -952,10 +1077,29 @@ function requireInt32(name: string, value: number): number {
   return value;
 }
 
+function requireFinite(name: string, value: number): number {
+  if (!Number.isFinite(value)) {
+    throw new Error(`Standard metric capture requires ${name} to be finite.`);
+  }
+  return value;
+}
+
 function requireRuntimeTypeId(name: string, value: number): number {
   const id = requireInt32(name, value);
   if (id < 0) throw new Error(`Standard metric capture could not resolve runtime type ${name}.`);
   return id;
+}
+
+function copyElevationMeasurement(
+  measurement: StandardElevationProjectionMeasurements
+): StandardElevationProjectionMeasurements {
+  if (measurement.status === "unavailable") return Object.freeze({ ...measurement });
+  const copy = {
+    ...measurement,
+    examples: measurement.examples.map((example) => Object.freeze({ ...example })),
+  };
+  Object.freeze(copy.examples);
+  return Object.freeze(copy);
 }
 
 function assertNever(value: never): never {

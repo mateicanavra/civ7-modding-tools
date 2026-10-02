@@ -6,18 +6,18 @@ const GROUP_LANDMASSES = "Morphology / Landmasses";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 /**
- * Decomposes the final post-feature landmask into stable landmass identities
+ * Decomposes resolved dry geography into stable landmass identities
  * and bounds used later by region projection and placement fairness.
  */
 export const LandmassesStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const topography = deps.artifacts.topography.read();
+    const hydrography = deps.artifacts.hydrography.read();
     const { width, height } = context.setup.dimensions;
     const snapshot = ops.landmasses(
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask: hydrography.exposedLandMask,
       },
       stepConfig.landmasses
     );

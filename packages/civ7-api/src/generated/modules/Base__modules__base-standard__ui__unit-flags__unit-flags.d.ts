@@ -10,12 +10,17 @@ export declare class GenericUnitFlag extends Component implements UnitFlagType {
     private MEDIUM_HEALTH_THRESHHOLD;
     private LOW_HEALTH_THRESHHOLD;
     private unitContainer;
-    private unitHealthBar;
-    private unitHealthBarInner;
     private unitFlagIcon;
     private readonly SPACING;
     private readonly BASE_OFFSET;
     private disposeTooltips;
+    private unitArmyStatsRoot;
+    private unitHealthRoot;
+    private unitHealthBar;
+    private unitHealthBarInner;
+    private unitLevelRoot;
+    private playerColorPrimary;
+    private playerColorSecondary;
     /**
      * A vertical offset when the unit is 'stacked' with other units.
      * TODO - The unit world anchor should be able to incorporate this offset in C++ to avoid constantly recalculating this in Script.
@@ -24,12 +29,16 @@ export declare class GenericUnitFlag extends Component implements UnitFlagType {
     onAttach(): void;
     onUnload(): void;
     onDetach(): void;
+    protected getArmyStatsRoot(): HTMLElement;
+    protected getUnitLevelRoot(): HTMLElement;
     private cleanup;
     private onEngineInput;
     hide(): void;
     show(): void;
     disable(): void;
     enable(): void;
+    protected ensureUnitHealthRoot(): HTMLElement;
+    protected destroyUnitHealthRoot(): void;
     private realizeUnitHealth;
     private realizeIcon;
     protected realizeTooltip(): void;

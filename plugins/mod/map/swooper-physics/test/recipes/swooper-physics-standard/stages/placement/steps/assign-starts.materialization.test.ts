@@ -1,3 +1,4 @@
+import { createEmptyWaterFixture } from "../../morphology/features/fixtures/surface-water.js";
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
@@ -7,6 +8,7 @@ import { artifacts as climateArtifacts } from "../../../../../../src/domain/hydr
 import { artifacts as hydrographyArtifacts } from "../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "../../../../../../src/domain/morphology/modules/shelf/artifacts/index.js";
+import { artifacts as morphologyCoastsArtifacts } from "../../../../../../src/domain/morphology/modules/coasts/artifacts/index.js";
 import { artifacts as placementRegionArtifacts } from "../../../../../../src/domain/placement/modules/regions/artifacts/index.js";
 import { artifacts as placementStartArtifacts } from "../../../../../../src/domain/placement/modules/starts/artifacts/index.js";
 import placement from "../../../../../../src/domain/placement/router.js";
@@ -50,6 +52,7 @@ function assignStartsConfig(
   configure?.(selection.config);
   return {
     starts: normalizeOperationSelectionForTest(placement.starts.ops.planStarts, selection),
+    supportRequirements: { supportFloor: 0, supportRadiusTiles: 4, equityTolerance: 8 },
   };
 }
 
@@ -136,9 +139,10 @@ function publishAssignStartsInputs(context: MapContext, landTiles: readonly Land
     slotByTile,
   });
   publishTestArtifact(context, morphologyLandformsArtifacts.topography, {
-    elevation: new Int16Array(size).fill(500),
+    elevation: Int16Array.from(landMask, (land) => (land === 1 ? 500 : 0)),
     seaLevel: 0,
     landMask,
+    externalWaterMask: Uint8Array.from(landMask, (land) => (land === 0 ? 1 : 0)),
     bathymetry: new Int16Array(size),
   });
   publishTestArtifact(context, morphologyLandformsArtifacts.landmasses, {
@@ -166,25 +170,20 @@ function publishAssignStartsInputs(context: MapContext, landTiles: readonly Land
     coastalWater: new Uint8Array(size),
     distanceToCoast: new Uint16Array(size),
   });
+  publishTestArtifact(context, morphologyCoastsArtifacts.resolvedCoastline, {
+    coastalLand,
+    coastalWater: new Uint8Array(size),
+    distanceToCoast: new Uint16Array(size),
+  });
   publishTestArtifact(context, hydrographyArtifacts.hydrography, {
-    runoff: new Float32Array(size),
-    discharge: new Float32Array(size),
-    riverClass: new Uint8Array(size),
-    flowDir: new Int32Array(size).fill(-1),
-    sinkMask: new Uint8Array(size),
-    outletMask: new Uint8Array(size),
-    basinId: new Int32Array(size).fill(-1),
-    routingElevation: new Float32Array(size),
-    depressionDepth: new Float32Array(size),
-    terminalType: new Uint8Array(size),
+    ...createEmptyWaterFixture(width, height).hydrography,
+    exposedLandMask: landMask,
   });
-  publishTestArtifact(context, hydrographyArtifacts.lakePlan, {
-    width,
-    height,
-    lakeMask: new Uint8Array(size),
-    plannedLakeTileCount: 0,
-    sinkLakeCount: 0,
-  });
+  publishTestArtifact(
+    context,
+    hydrographyArtifacts.lakePlan,
+    createEmptyWaterFixture(width, height).lakePlan
+  );
   publishTestArtifact(context, climateArtifacts.climateIndices, {
     surfaceTemperatureC: new Float32Array(size).fill(16),
     effectiveMoisture: new Float32Array(size).fill(0.5),
@@ -291,6 +290,31 @@ describe("assign starts step", () => {
       unseatedCount: 1,
       status: "degraded",
     });
+  });
+
+  it("publishes resource refusal evidence before rejecting a landful but resource-free map", () => {
+    const { adapter, context } = createAssignStartsContext([4]);
+    const config = assignStartsConfig();
+    config.supportRequirements = { supportFloor: 2, supportRadiusTiles: 4, equityTolerance: 2 };
+
+    expect(() =>
+      runAssignStartsStep(
+        context,
+        [
+          [2, 2],
+          [3, 2],
+          [3, 3],
+        ],
+        config
+      )
+    ).toThrow(/No complete start set meets the admitted resource support floor and equity band/);
+    const assignment = readArtifact(context, placementStartArtifacts.startAssignment);
+    expect(assignment.assigned).toBe(0);
+    expect(assignment.seats[0]!.imputedFlags).toContain("resource-support-unresolved");
+    expect(
+      assignment.rejectionCounts.find((row) => row.reason === "resource-support-floor")?.count
+    ).toBe(3);
+    expect(adapter.calls.setStartPosition).toHaveLength(0);
   });
 
   it("publishes partial assignment evidence before refusing to complete", () => {

@@ -31,20 +31,6 @@ export function admitReefIntent(
 }
 
 /**
- * Reef families are patch and bank features. A strong score identifies habitat;
- * the stride keeps repeated adjacent habitat from turning into a carpet while
- * preserving deterministic clusters that still look like reefs, atolls, or
- * lake lotus patches instead of random thinning.
- */
-export function admitReefStride(
-  candidate: Readonly<{ tileIndex: number }>,
-  policy: Readonly<{ stride: number }>
-): boolean {
-  const stride = Number.isFinite(policy.stride) ? Math.max(1, policy.stride | 0) : 1;
-  return candidate.tileIndex % stride === 0;
-}
-
-/**
  * Selects the strongest reef-family candidate for one tile under the shared habitat law.
  * Lotus is eligible only on admitted lake tiles, so spacing strategies cannot diverge on habitat.
  */

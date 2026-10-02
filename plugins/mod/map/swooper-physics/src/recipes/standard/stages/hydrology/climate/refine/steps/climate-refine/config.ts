@@ -8,7 +8,7 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 /**
  * Hydrology refinement step with optional diagnostic projection (bounded, deterministic).
  *
- * This step refines rainfall/temperature locally (still mechanism-driven), computes land water budget indices,
+ * This step refines rainfall and applies albedo feedback to baseline temperature, computes land water budget indices,
  * runs bounded cryosphere feedback when enabled, and publishes refined physical artifacts.
  *
  * Configuration posture:
@@ -27,8 +27,10 @@ export const config = defineStep({
   requires: [
     morphologyLandformsArtifacts.topography,
     climateArtifacts.baselineClimateField,
+    climateArtifacts.thermalField,
     climateArtifacts.windField,
     hydrographyArtifacts.hydrography,
+    hydrographyArtifacts.lakePlan,
   ],
   provides: [
     climateArtifacts.climateField,
@@ -38,11 +40,10 @@ export const config = defineStep({
 
   ops: {
     refinePrecipitation: hydrology.climate.ops.refinePrecipitation,
-    computeRadiativeForcing: hydrology.climate.ops.computeRadiativeForcing,
-    computeThermalState: hydrology.climate.ops.computeThermalState,
     applyAlbedoFeedback: hydrology.cryosphere.ops.applyAlbedoFeedback,
     computeCryosphereState: hydrology.cryosphere.ops.computeCryosphereState,
     computeLandWaterBudget: hydrology.climate.ops.computeLandWaterBudget,
+    computePotentialDemand: hydrology.climate.ops.computePotentialDemand,
     computeClimateDiagnostics: hydrology.climate.ops.computeClimateDiagnostics,
   },
 });

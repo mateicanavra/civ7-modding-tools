@@ -27,15 +27,3 @@ export const EARTHLIKE_WIND_STRUCTURE_STUDY = defineStandardMetricCohortStudy(
   [STANDARD_INTEGRITY_TARGET],
   [EARTHLIKE_WIND_STRUCTURE_TARGET, EARTHLIKE_PRESSURE_STRUCTURE_TARGET]
 );
-
-/** Proves the same Earthlike wind posture on the shipped Latest Juicy live-feel oracle. */
-export const LATEST_JUICY_WIND_STRUCTURE_STUDY = defineStandardMetricCohortStudy(
-  "latest-juicy/wind-structure",
-  standardMetricScenariosForSeedPairs(
-    requireShippedStandardConfig("latest-juicy"),
-    STANDARD_METRIC_PRESETS.standard,
-    REPRESENTATIVE_WIND_STRUCTURE_SEED_PAIRS
-  ),
-  [STANDARD_INTEGRITY_TARGET],
-  [EARTHLIKE_WIND_STRUCTURE_TARGET, EARTHLIKE_PRESSURE_STRUCTURE_TARGET]
-);

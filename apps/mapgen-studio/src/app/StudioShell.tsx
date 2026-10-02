@@ -150,6 +150,7 @@ export function StudioShell(props: StudioShellProps) {
     setPipelineConfig,
     selectRecipe,
     selectConfig,
+    configIsAdmitted,
     importInputRef,
     openImport,
     importFile,
@@ -507,7 +508,7 @@ export function StudioShell(props: StudioShellProps) {
       selectedStep={selectedStageId}
       recipeId={canonicalConfig.recipe}
       onRecipeChange={selectRecipe}
-      configId={canonicalConfig.id}
+      configId={configIsAdmitted ? canonicalConfig.id : ""}
       onConfigSelect={selectConfig}
       onSaveToCurrent={handleSaveToCurrent}
       onSaveAsNew={handleSaveAsNew}
@@ -517,7 +518,7 @@ export function StudioShell(props: StudioShellProps) {
       saveDeployStatus={saveDeployOperation}
       isSaveDisabled={browserRunning || runInGameRunning || saveDeployRunning}
       isDirty={isDirty}
-      configEditingEnabled={configEditingEnabled}
+      configEditingEnabled={configEditingEnabled && configIsAdmitted}
       onConfigEditingEnabledChange={setConfigEditingEnabled}
       recipeCollapsed={recipeSectionCollapsed}
       onRecipeCollapsedChange={setRecipeSectionCollapsed}

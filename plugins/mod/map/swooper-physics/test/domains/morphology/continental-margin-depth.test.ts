@@ -76,6 +76,7 @@ function runSyntheticMargin(posture: "active" | "passive") {
       width,
       height,
       landMask,
+      crustType,
       bathymetry: sculpted.elevation,
       distanceToCoast,
       boundaryCloseness,

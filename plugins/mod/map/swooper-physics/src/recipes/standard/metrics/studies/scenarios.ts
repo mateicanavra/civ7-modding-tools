@@ -11,11 +11,6 @@ import {
   type StandardMapConfigEnvelope,
 } from "../../../../maps/configs/canonical.js";
 import { MAP_CONFIG_CATALOG_IDS } from "../../../../maps/catalog/membership.js";
-import latestJuicyRaw from "../../../../maps/configs/latest-juicy.config.json" with { type: "json" };
-import mountainPatchRaw from "../../../../maps/configs/mountain-patch.config.json" with { type: "json" };
-import mountainsOfTimeEarthlikeRaw from "../../../../maps/configs/mountains-of-time-earthlike.config.json" with { type: "json" };
-import mountainsOfTimeOriginalRaw from "../../../../maps/configs/mountains-of-time-original.config.json" with { type: "json" };
-import shatteredRingRaw from "../../../../maps/configs/shattered-ring.config.json" with { type: "json" };
 import sunderedArchipelagoRaw from "../../../../maps/configs/sundered-archipelago.config.json" with { type: "json" };
 import swooperDesertMountainsRaw from "../../../../maps/configs/swooper-desert-mountains.config.json" with { type: "json" };
 import swooperEarthlikeRaw from "../../../../maps/configs/swooper-earthlike.config.json" with { type: "json" };
@@ -32,14 +27,9 @@ export type StandardMetricScenarioIdentity = Readonly<{
 export type ShippedStandardConfigurationId = (typeof MAP_CONFIG_CATALOG_IDS)[number];
 
 const SHIPPED_STANDARD_CONFIGURATION_SOURCES = {
-  "swooper-desert-mountains": swooperDesertMountainsRaw,
   "swooper-earthlike": swooperEarthlikeRaw,
-  "shattered-ring": shatteredRingRaw,
+  "swooper-desert-mountains": swooperDesertMountainsRaw,
   "sundered-archipelago": sunderedArchipelagoRaw,
-  "mountains-of-time-earthlike": mountainsOfTimeEarthlikeRaw,
-  "latest-juicy": latestJuicyRaw,
-  "mountain-patch": mountainPatchRaw,
-  "mountains-of-time-original": mountainsOfTimeOriginalRaw,
 } as const satisfies Readonly<Record<ShippedStandardConfigurationId, unknown>>;
 
 /**

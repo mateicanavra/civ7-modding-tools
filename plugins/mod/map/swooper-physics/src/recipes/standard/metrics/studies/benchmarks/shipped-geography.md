@@ -6,8 +6,9 @@
 ## Question and design
 
 Does every shipped Standard product generate nondegenerate land and water across
-stable seeds? One cohort study crosses all eight durable catalog configurations
-with seeds `123`, `1337`, `1538316415`, and `1538316523`: 32 `MAPSIZE_HUGE`
+stable seeds? One cohort study crosses the primary Earthlike profile and the
+Desert Mountains and Archipelago stress profiles with seeds `123`, `1337`,
+`1538316415`, and `1538316523`: twelve `MAPSIZE_HUGE`
 scenarios at 106 x 66 and 10 players. Shared scenarios are captured once across
 overlapping studies.
 
@@ -23,7 +24,7 @@ between `0.075` and `0.95` inclusive.
 `land-share-floor`, and `land-share-ceiling`.
 
 The broad bounds reject collapsed products without imposing one geography on all
-eight catalog configurations.
+three catalog configurations.
 
 ## Proof
 

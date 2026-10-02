@@ -1,8 +1,8 @@
 import { createStage, type Static, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../../contract-manifest.js";
-import { IslandsStep } from "./steps/islands/step.js";
-import { LandmassesStep } from "./steps/landmasses/step.js";
 import { MountainsStep } from "./steps/mountains/step.js";
+import { LandmassesStep } from "./steps/landmasses/step.js";
+import { ResolvedCoastlineStep } from "./steps/resolved-coastline/step.js";
 import { VolcanoesStep } from "./steps/volcanoes/step.js";
 
 /** Authored orogeny posture applied after any coupled mountain-range control. */
@@ -143,16 +143,15 @@ export type MorphologyMountainRangesKnob = Exclude<
 >;
 
 /**
- * Orders complete island formation, mountain intent, and volcano intent before decomposing
- * the final landmask, keeping landform production ahead of shelf and projection.
+ * Selects exposed surface landforms after physical water and channel intent.
  */
 export default createStage({
   id: "morphology-features",
   knobsSchema,
   steps: orderStandardStageSteps("morphology-features", {
-    islands: IslandsStep,
+    landmasses: LandmassesStep,
+    "resolved-coastline": ResolvedCoastlineStep,
     mountains: MountainsStep,
     volcanoes: VolcanoesStep,
-    landmasses: LandmassesStep,
   }),
 } as const);

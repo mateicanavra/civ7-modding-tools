@@ -81,6 +81,7 @@ function compareStandardRivers(
   live: StandardLiveParityCapture
 ): StandardRiverParityComparison {
   const projection = local.hydrology.rivers;
+  const expectedMinor = projection.nativeMinor;
   const readback = live.hydrology.rivers;
   const terrainShapeMatches = gridsHaveSameShape(
     projection.projectedNavigableTerrain,
@@ -90,7 +91,7 @@ function compareStandardRivers(
     projection.projectedNavigableTerrain,
     readback.navigableRiver
   );
-  const minorShapeMatches = gridsHaveSameShape(projection.plannedMinor, readback.minorRiver);
+  const minorShapeMatches = gridsHaveSameShape(expectedMinor, readback.minorRiver);
   const terrainMetadataShapeMatches = gridsHaveSameShape(
     readback.terrainNavigableRiver,
     readback.navigableRiver
@@ -154,8 +155,8 @@ function compareStandardRivers(
   }
 
   if (minorShapeMatches) {
-    for (let index = 0; index < projection.plannedMinor.values.length; index += 1) {
-      const plannedMinor = maskValue(projection.plannedMinor.values[index]);
+    for (let index = 0; index < expectedMinor.values.length; index += 1) {
+      const plannedMinor = maskValue(expectedMinor.values[index]);
       const liveMinor = maskValue(readback.minorRiver.values[index]);
       if (liveMinor === null) missingMetadataIndices.add(index);
       if (plannedMinor !== null && liveMinor !== null && plannedMinor !== liveMinor) {

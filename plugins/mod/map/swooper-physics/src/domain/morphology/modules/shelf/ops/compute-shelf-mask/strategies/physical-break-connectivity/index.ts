@@ -7,6 +7,7 @@ import StrategyDefinition from "./config.js";
 
 const BOUNDARY_CONVERGENT = 1;
 const BOUNDARY_TRANSFORM = 3;
+const CRUST_CONTINENTAL = 1;
 
 /** Binds the `physical-break-connectivity` algorithm to the shared `morphology/compute-shelf-mask` operation contract. */
 export default createStrategy(ComputeShelfMaskContract, StrategyDefinition, {
@@ -15,6 +16,7 @@ export default createStrategy(ComputeShelfMaskContract, StrategyDefinition, {
     const size = width * height;
 
     const landMask = input.landMask;
+    const crustType = input.crustType;
     const bathymetry = input.bathymetry;
     const boundaryCloseness = input.boundaryCloseness;
     const boundaryType = input.boundaryType;
@@ -24,15 +26,12 @@ export default createStrategy(ComputeShelfMaskContract, StrategyDefinition, {
     // of bathymetry between adjacent tiles, so the (unsolved-at-sculpt-time) sea-level datum
     // cancels: this never references the datum, a depth quantile, or a depth band. The
     // shelfWidth knob scales it (wider => more permissive => the gentle apron reaches further
-    // before the read break). Floor at a tiny positive value so a degenerate scale can't admit
-    // the entire ocean as "flat".
+    // before the read break). Floor above zero so a degenerate scale still admits flat water.
     const breakGradient = Math.max(0.5, config.breakGradient * config.breakGradientScale);
 
-    // 1) Read the physical break per tile from the SCULPTED terrain: classify each water tile
-    //    as pre-break (gentle apron) when its local seabed gradient — the steepest bathymetry
-    //    drop to any water neighbour — is below the break-gradient threshold, and post-break
-    //    (steep continental slope) once the gradient steepens past it. Record the bathymetry at
-    //    which the steepening is seen as the per-tile read break depth (diagnostic).
+    // 1) Read the physical break from the sculpted terrain. Only continental water with a
+    //    gentle seaward gradient can carry the flood: smooth oceanic floor is not an apron.
+    //    Record steepening on either crust type as the per-tile break-depth diagnostic.
     const depthGateMask = new Uint8Array(size);
     const activeMarginMask = new Uint8Array(size);
     const nearshoreCandidateMask = new Uint8Array(size);
@@ -72,38 +71,26 @@ export default createStrategy(ComputeShelfMaskContract, StrategyDefinition, {
           activeMarginMask[i] = 1;
         }
 
-        // Pre-break apron: gentle local gradient. Shoreline-adjacent water is always admitted
-        // (it is, by construction, the start of the apron) so the shelf has a guaranteed seed
-        // even where the immediate seaward gradient is steep (active margins).
-        if (maxDrop < breakGradient || adjacentToLand) {
+        if (crustType[i] === CRUST_CONTINENTAL && maxDrop < breakGradient) {
           depthGateMask[i] = 1;
-        } else {
+        }
+        if (maxDrop >= breakGradient) {
           // Post-break: record the depth at which the steepening is read (<=0, diagnostic).
           shelfBreakDepthByTile[i] = clampInt16(Math.min(0, steepestNeighborDepth));
         }
       }
     }
 
-    // 2) Connectivity to shore: shelf = pre-break (gentle) water reachable from a land-adjacent
-    //    water tile through contiguous pre-break water. This bounds extent at the read break
-    //    without any tile-distance cap, and excludes deep isolated gentle pockets.
+    // 2) Preserve the mandatory shoreline ring without allowing oceanic or steep ring tiles
+    //    to seed or bridge connectivity. Only eligible shore water starts the continental flood.
     const shelfMask = new Uint8Array(size);
     const queue = new Int32Array(size);
     let head = 0;
     let tail = 0;
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        const i = y * width + x;
-        if (landMask[i] === 1 || depthGateMask[i] !== 1) continue;
-        let adjacentToLand = false;
-        forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
-          if (adjacentToLand) return;
-          if (landMask[ny * width + nx] === 1) adjacentToLand = true;
-        });
-        if (!adjacentToLand) continue;
-        shelfMask[i] = 1;
-        queue[tail++] = i;
-      }
+    for (let i = 0; i < size; i++) {
+      if (nearshoreCandidateMask[i] !== 1) continue;
+      shelfMask[i] = 1;
+      if (depthGateMask[i] === 1) queue[tail++] = i;
     }
     while (head < tail) {
       const idx = queue[head++]!;

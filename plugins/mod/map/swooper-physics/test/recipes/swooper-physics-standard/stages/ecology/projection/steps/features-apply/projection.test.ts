@@ -1,8 +1,9 @@
+import { createEmptyWaterFixture } from "../../../../morphology/features/fixtures/surface-water.js";
 import { describe, expect, it, spyOn } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { artifacts as featureArtifacts } from "../../../../../../../../src/domain/ecology/modules/features/artifacts/index.js";
 import ecology from "../../../../../../../../src/domain/ecology/router.js";
-import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as hydrographyArtifacts } from "../../../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import {
   BOUNDED_JSON_LOG_MAX_LINE_LENGTH,
@@ -43,12 +44,9 @@ describe("map-ecology features-apply step", () => {
 
     const { result, lines } = captureConsoleLog(() =>
       withMapContextExecutionForTest(ctx, (stepContext) => {
-        publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
-          elevation: new Int16Array(width * height),
-          seaLevel: 0,
-          landMask: new Uint8Array(width * height).fill(1),
-          bathymetry: new Int16Array(width * height),
-        });
+        publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
+        ...createEmptyWaterFixture(width, height).hydrography, exposedLandMask: new Uint8Array(width * height).fill(1),
+      });
 
         publishTestArtifact(stepContext, featureArtifacts.vegetationIntents, [
           { x: 0, y: 0, feature: "forest" },
@@ -133,11 +131,8 @@ describe("map-ecology features-apply step", () => {
     const ctx = createMapContext({ setup, adapter });
 
     const result = withMapContextExecutionForTest(ctx, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
-        elevation: new Int16Array(width * height),
-        seaLevel: 0,
-        landMask: new Uint8Array(width * height).fill(1),
-        bathymetry: new Int16Array(width * height),
+      publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
+        ...createEmptyWaterFixture(width, height).hydrography, exposedLandMask: new Uint8Array(width * height).fill(1),
       });
       publishTestArtifact(stepContext, featureArtifacts.vegetationIntents, [
         { x: 0, y: 0, feature: "forest" },

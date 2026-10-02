@@ -1,4 +1,4 @@
-import latitudeInsolation from "./latitude-insolation/index.js";
+import dailySolarFourier from "./daily-solar-fourier/index.js";
 
-/** Latitude insolation is the sole radiative posture so seasonal forcing stays deterministic and bounded. */
-export default [latitudeInsolation] as const;
+/** The operation infers its sole daily solar geometry strategy. */
+export default [dailySolarFourier] as const;

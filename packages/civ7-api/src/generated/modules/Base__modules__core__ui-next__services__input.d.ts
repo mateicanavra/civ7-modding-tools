@@ -16,6 +16,7 @@ export declare const IsTouchActive: any;
 export declare const IsHybridActive: any;
 export declare const IsKeyboardActive: any;
 export declare const IsMouseActive: any;
+export declare const IsMouseKeyboardActive: any;
 export type EngineInputProxyHandler = (event: InputEngineEvent) => void;
 export declare class EngineInputProxyProvider {
     private handlers;

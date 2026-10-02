@@ -17,8 +17,6 @@ export const config = defineStep({
     featureArtifacts.iceIntents,
     featureArtifacts.reefIntents,
     hydrographyArtifacts.hydrography,
-    hydrographyArtifacts.lakePlan,
-    morphologyLandformsArtifacts.topography,
     morphologyLandformsArtifacts.mountains,
     morphologyLandformsArtifacts.volcanoes,
   ],

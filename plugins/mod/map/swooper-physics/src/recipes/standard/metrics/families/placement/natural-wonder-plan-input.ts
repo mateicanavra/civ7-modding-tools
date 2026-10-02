@@ -18,6 +18,7 @@ export type StandardNaturalWonderPlannerMeasurementSurface = Readonly<{
   wondersCount: number;
   landMask: PlannerNumericSurface;
   elevation: PlannerNumericSurface;
+  engineElevations: readonly number[];
   aridityIndex: PlannerNumericSurface;
   riverClass: PlannerNumericSurface;
   lakeMask: PlannerNumericSurface;
@@ -25,7 +26,7 @@ export type StandardNaturalWonderPlannerMeasurementSurface = Readonly<{
   effectiveMoisture: PlannerNumericSurface;
   surfaceTemperature: PlannerNumericSurface;
   fertility: PlannerNumericSurface;
-  discharge: PlannerNumericSurface;
+  discharge: readonly number[];
   slopeClass: PlannerNumericSurface;
   coastTerrainType: number;
   mountainTerrainType: number;
@@ -49,6 +50,7 @@ const STANDARD_NATURAL_WONDER_PLANNER_INPUT_EVIDENCE_OWNERS = {
   wondersCount: "plannerInput.wondersCount",
   landMask: "plannerInput.surfaceDigests.landMaskHash32",
   elevation: "plannerInput.surfaceDigests.elevationHash32",
+  engineElevations: "plannerInput.surfaceDigests.engineElevationsHash32",
   aridityIndex: "plannerInput.surfaceDigests.aridityIndexHash32",
   riverClass: "plannerInput.surfaceDigests.riverClassHash32",
   lakeMask: "plannerInput.surfaceDigests.lakeMaskHash32",
@@ -93,7 +95,7 @@ function digest(description: string) {
 
 const PlannerSurfaceDigestsSchema = Type.Object(
   {
-    version: Type.Literal(1, {
+    version: Type.Literal(2, {
       description: "Schema version for the natural-wonder planner surface digest set.",
     }),
     plotCount: Type.Integer({
@@ -105,6 +107,9 @@ const PlannerSurfaceDigestsSchema = Type.Object(
     ),
     elevationHash32: digest(
       "Raw-byte digest of the Morphology elevation field admitted by natural-wonder planning."
+    ),
+    engineElevationsHash32: digest(
+      "Canonical JSON digest of exact engine elevation numbers admitted for native constraints."
     ),
     aridityIndexHash32: digest(
       "Raw-byte digest of the Hydrology aridity field admitted by natural-wonder planning."
@@ -128,7 +133,7 @@ const PlannerSurfaceDigestsSchema = Type.Object(
       "Raw-byte digest of Pedology fertility admitted as a wonder suitability signal."
     ),
     dischargeHash32: digest(
-      "Raw-byte digest of Hydrology discharge admitted as a wonder suitability signal."
+      "Discharge digest: canonical little-endian Float64 bytes preserving Number-array precision."
     ),
     slopeClassHash32: digest(
       "Raw-byte digest of Hydrology slope classes admitted as a wonder suitability signal."
@@ -149,14 +154,18 @@ const PlannerSurfaceDigestsSchema = Type.Object(
   {
     additionalProperties: false,
     description:
-      "Bit-preserving digests of every complete typed-array surface admitted by the natural-wonder planner.",
+      "Digests of every complete planner surface, with exact engine numbers serialized separately from physical typed-array bytes.",
   }
 );
 
 const PlannerInputSchema = Type.Object(
   {
-    version: Type.Literal(1, {
+    version: Type.Literal(2, {
       description: "Schema version for the natural-wonder planner causal-input projection.",
+    }),
+    engineElevationSource: Type.Union([Type.Literal("native"), Type.Literal("mock")], {
+      description:
+        "Whether elevation admission used native observation or mock state; mock is not native proof.",
     }),
     dimensions: Type.Object(
       {
@@ -282,6 +291,9 @@ const PlanningInputRowSchema = Type.Object(
     elevation: Type.Integer({
       description: "Morphology elevation admitted at the selected anchor.",
     }),
+    engineElevation: Type.Number({
+      description: "Exact engine elevation admitted for native constraints at the selected anchor.",
+    }),
     aridityPpm: Type.Integer({
       minimum: 0,
       maximum: PARTS_PER_MILLION,
@@ -321,7 +333,7 @@ const PlanningInputRowSchema = Type.Object(
  */
 export const StandardNaturalWonderPlanInputMeasurementsSchema = Type.Object(
   {
-    version: Type.Literal(2, {
+    version: Type.Literal(3, {
       description: "Schema version for Standard natural-wonder planning-input measurements.",
     }),
     plannerInput: PlannerInputSchema,
@@ -354,6 +366,7 @@ export const STANDARD_NATURAL_WONDER_PLAN_INPUT_METRIC_KEY =
 /** Exact Standard planner request and selected strategy needed to measure one admitted plan. */
 export type StandardNaturalWonderPlanInputMeasurementInput = Readonly<{
   plannerInput: StandardNaturalWonderPlannerMeasurementSurface;
+  engineElevationSource: "native" | "mock";
   strategySelection: NaturalWonderStrategySelection;
   plan: NaturalWonderPlan;
 }>;
@@ -364,6 +377,7 @@ export type StandardNaturalWonderPlanInputMeasurementInput = Readonly<{
  */
 export function measureStandardNaturalWonderPlanInput({
   plannerInput,
+  engineElevationSource,
   strategySelection,
   plan,
 }: StandardNaturalWonderPlanInputMeasurementInput): StandardNaturalWonderPlanInputMeasurements {
@@ -388,6 +402,11 @@ export function measureStandardNaturalWonderPlanInput({
           "featureType"
         ),
         elevation: requiredSurfaceValue(plannerInput.elevation, plotIndex, "elevation"),
+        engineElevation: requiredSurfaceValue(
+          plannerInput.engineElevations,
+          plotIndex,
+          "engineElevations"
+        ),
         aridityPpm: quantizePpm(
           requiredSurfaceValue(plannerInput.aridityIndex, plotIndex, "aridityIndex")
         ),
@@ -404,9 +423,10 @@ export function measureStandardNaturalWonderPlanInput({
   );
 
   return Object.freeze({
-    version: 2,
+    version: 3,
     plannerInput: Object.freeze({
-      version: 1,
+      version: 2,
+      engineElevationSource,
       dimensions: Object.freeze({
         width: plannerInput.width,
         height: plannerInput.height,
@@ -431,10 +451,11 @@ export function measureStandardNaturalWonderPlanInput({
         configHash32: fnv1a32StringHex(configCanonicalJson),
       }),
       surfaceDigests: Object.freeze({
-        version: 1,
+        version: 2,
         plotCount,
         landMaskHash32: fnv1a32BytesHex(plannerInput.landMask),
         elevationHash32: fnv1a32BytesHex(plannerInput.elevation),
+        engineElevationsHash32: fnv1a32StringHex(stableStringify(plannerInput.engineElevations)),
         aridityIndexHash32: fnv1a32BytesHex(plannerInput.aridityIndex),
         riverClassHash32: fnv1a32BytesHex(plannerInput.riverClass),
         lakeMaskHash32: fnv1a32BytesHex(plannerInput.lakeMask),
@@ -442,7 +463,7 @@ export function measureStandardNaturalWonderPlanInput({
         effectiveMoistureHash32: fnv1a32BytesHex(plannerInput.effectiveMoisture),
         surfaceTemperatureHash32: fnv1a32BytesHex(plannerInput.surfaceTemperature),
         fertilityHash32: fnv1a32BytesHex(plannerInput.fertility),
-        dischargeHash32: fnv1a32BytesHex(plannerInput.discharge),
+        dischargeHash32: hashDischarge(plannerInput.discharge),
         slopeClassHash32: fnv1a32BytesHex(plannerInput.slopeClass),
         terrainTypeHash32: fnv1a32BytesHex(plannerInput.terrainType),
         biomeTypeHash32: fnv1a32BytesHex(plannerInput.biomeType),
@@ -453,6 +474,17 @@ export function measureStandardNaturalWonderPlanInput({
     plannedCount: plan.plannedCount,
     rows,
   });
+}
+
+function hashDischarge(discharge: readonly number[]): string {
+  const bytes = new Uint8Array(discharge.length * 8);
+  const view = new DataView(bytes.buffer);
+  for (let index = 0; index < discharge.length; index++) {
+    const value = discharge[index]!;
+    if (!Number.isFinite(value) || value < 0) throw new Error("Discharge digest requires finite nonnegative values.");
+    view.setFloat64(index * 8, value, true);
+  }
+  return fnv1a32BytesHex(bytes);
 }
 
 function requiredSurfaceValue(

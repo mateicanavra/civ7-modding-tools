@@ -24,6 +24,7 @@ function componentCount(mask: Uint8Array, width: number, height: number): number
 
 function createRidgeInput(width: number, height: number) {
   const size = width * height;
+  const landMask = new Uint8Array(size).fill(1);
   const boundaryCloseness = new Uint8Array(size).fill(180);
   const boundaryType = new Uint8Array(size).fill(BOUNDARY_TYPE.convergent);
   const upliftPotential = new Uint8Array(size).fill(180);
@@ -34,7 +35,12 @@ function createRidgeInput(width: number, height: number) {
   return {
     width,
     height,
-    landMask: new Uint8Array(size).fill(1),
+    landMask,
+    candidateMask: landMask,
+    elevation: Int16Array.from(
+      { length: size },
+      (_, index) => ((index % width) + Math.floor(index / width)) * 16
+    ),
     boundaryCloseness,
     boundaryType,
     upliftPotential,

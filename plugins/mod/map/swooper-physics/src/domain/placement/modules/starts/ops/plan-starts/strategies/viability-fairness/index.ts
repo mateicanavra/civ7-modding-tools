@@ -43,7 +43,8 @@ type RejectionReason =
   | "single-tile-island"
   | "insufficient-landmass"
   | "insufficient-expansion"
-  | "insufficient-island-cluster";
+  | "insufficient-island-cluster"
+  | "resource-support-floor";
 
 type InputCoverageRow = {
   input: string;
@@ -177,6 +178,23 @@ function roughnessPenalty(args: {
   return clamp01((max - min) / Math.max(1, args.roughnessDivisor));
 }
 
+function countResourceSupport(args: {
+  width: number;
+  height: number;
+  radius: number;
+  plannedResourcePlotIndices?: readonly number[];
+}): Uint16Array {
+  const size = args.width * args.height;
+  const counts = new Uint16Array(size);
+  for (const plotIndex of new Set(args.plannedResourcePlotIndices ?? [])) {
+    if (plotIndex < 0 || plotIndex >= size) continue;
+    for (const idx of getHexRadiusIndicesOddQ(plotIndex, args.width, args.height, args.radius)) {
+      counts[idx] += 1;
+    }
+  }
+  return counts;
+}
+
 function buildResourceSupport(args: {
   width: number;
   height: number;
@@ -184,20 +202,12 @@ function buildResourceSupport(args: {
   plannedResourcePlotIndices?: readonly number[];
 }): Uint8Array | undefined {
   if (!args.plannedResourcePlotIndices?.length || args.radius <= 0) return undefined;
-  const size = args.width * args.height;
-  const counts = new Uint16Array(size);
+  const counts = countResourceSupport(args);
   let maxCount = 0;
-  for (const raw of args.plannedResourcePlotIndices) {
-    const plotIndex = raw | 0;
-    if (plotIndex < 0 || plotIndex >= size) continue;
-    for (const idx of getHexRadiusIndicesOddQ(plotIndex, args.width, args.height, args.radius)) {
-      counts[idx] += 1;
-      if (counts[idx] > maxCount) maxCount = counts[idx];
-    }
-  }
+  for (const count of counts) maxCount = Math.max(maxCount, count);
   if (maxCount <= 0) return undefined;
-  const support = new Uint8Array(size);
-  for (let i = 0; i < size; i++) {
+  const support = new Uint8Array(counts.length);
+  for (let i = 0; i < counts.length; i++) {
     support[i] = Math.round(clamp01((counts[i] ?? 0) / maxCount) * 255);
   }
   return support;
@@ -606,16 +616,27 @@ const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessDe
 
     candidates.sort(compareSelectableTiles);
 
-    // --- pass 3a: capacity-proportional homeland allocation (D2) ---------------------------
-    // WHY: the legacy fixed playersLandmass1/playersLandmass2 split (default
-    // 4/4) ignored where the settleable land actually is, forcing half the civs
-    // into a land-poor homeland (the reported clustering). Apportion the SAME
-    // total across the two homelands by real capacity — admitted-candidate count
-    // (quality-aware) clamped to a spacing-feasibility ceiling from each region's
-    // land extent — then bias toward equal hemispheres when the land allows.
-    // Total seat count is preserved.
-    const candidatesBySlot = { 1: 0, 2: 0 };
-    for (const candidate of candidates) candidatesBySlot[candidate.regionSlot] += 1;
+    const supportRequirements = input.resourceSupportRequirements;
+    const supportCounts = countResourceSupport({
+      width,
+      height,
+      radius: supportRequirements.supportRadiusTiles,
+      plannedResourcePlotIndices: input.plannedResourcePlotIndices,
+    });
+    for (const tile of [...candidates, ...reserve]) {
+      if (supportCounts[tile.plotIndex]! >= supportRequirements.supportFloor) continue;
+      addRejection(rejectionCounts, "resource-support-floor");
+      if (tile.tier !== "none") tierCounts[tile.tier] -= 1;
+      tierByTile[tile.plotIndex] = 1;
+      scoreByTile[tile.plotIndex] = 0;
+    }
+    const supportedCandidates = candidates.filter(
+      (tile) => supportCounts[tile.plotIndex]! >= supportRequirements.supportFloor
+    );
+    const supportedReserve = reserve.filter(
+      (tile) => supportCounts[tile.plotIndex]! >= supportRequirements.supportFloor
+    );
+
     let landBySlot1 = 0;
     let landBySlot2 = 0;
     for (let i = 0; i < size; i++) {
@@ -624,89 +645,166 @@ const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessDe
       if (slot === 1) landBySlot1 += 1;
       else if (slot === 2) landBySlot2 += 1;
     }
-    const allocation = apportionStartsByCapacity({
-      capacities: [candidatesBySlot[1], candidatesBySlot[2]],
-      ceilings: [
-        feasibleStartCeiling(landBySlot1, spacingFloorTiles),
-        feasibleStartCeiling(landBySlot2, spacingFloorTiles),
-      ],
-      total: totalPlayers,
-      balanceBias: CIV7_START_PLACEMENT_POLICY_V0.balanceBias,
-    });
-    // Over-subscription top-up: when the map cannot feasibly hold `total`
-    // well-spaced starts, the excess still gets a seat in the homeland with the
-    // most remaining candidate headroom — degraded downstream by the ladder,
-    // never silently dropped.
-    let allocated = allocation[0]! + allocation[1]!;
-    while (allocated < totalPlayers) {
-      const headroom1 = candidatesBySlot[1] - allocation[0]!;
-      const headroom2 = candidatesBySlot[2] - allocation[1]!;
-      allocation[headroom1 >= headroom2 ? 0 : 1]! += 1;
-      allocated += 1;
-    }
-    const playersWest = allocation[0]!;
-    const playersEast = allocation[1]!;
 
-    // --- pass 3b: seat identities + four-rung selection ladder -----------------------------
-    const seatIdentities = buildSeatIdentities({
-      playersWest,
-      playersEast,
-      playerIds: input.playerIds,
-    });
-
-    // Region reassignment (recorded, never silent): a residual guard for any
-    // seat whose homeland still has ZERO admitted candidates after allocation
-    // (rare now that D2 allocates 0 players to a zero-capacity region). The seat
-    // is reassigned to the other region, recorded as a region relaxation, and
-    // its status degrades.
-    const preLadderRelaxations: RelaxationEntry[] = [];
-    const reassignedSeats = new Set<number>();
-    for (const seat of seatIdentities) {
-      const own = candidatesBySlot[seat.selectionRegionSlot];
-      const other = (seat.selectionRegionSlot === 1 ? 2 : 1) as 1 | 2;
-      if (own === 0 && candidatesBySlot[other] > 0) {
-        preLadderRelaxations.push({
-          seatIndex: seat.seatIndex,
-          kind: "region",
-          from: seat.selectionRegionSlot,
-          to: other,
-        });
-        seat.selectionRegionSlot = other;
-        reassignedSeats.add(seat.seatIndex);
+    const selectWithinBand = (
+      candidates: readonly StartCandidate[],
+      reserve: readonly SelectableTile[]
+    ) => {
+      // --- pass 3a: capacity-proportional homeland allocation (D2) ---------------------------
+      // WHY: the legacy fixed playersLandmass1/playersLandmass2 split (default
+      // 4/4) ignored where the settleable land actually is, forcing half the civs
+      // into a land-poor homeland (the reported clustering). Apportion the SAME
+      // total across the two homelands by real capacity — admitted-candidate count
+      // (quality-aware) clamped to a spacing-feasibility ceiling from each region's
+      // land extent — then bias toward equal hemispheres when the land allows.
+      // Total seat count is preserved.
+      const candidatesBySlot = { 1: 0, 2: 0 };
+      for (const candidate of candidates) candidatesBySlot[candidate.regionSlot] += 1;
+      const allocation = apportionStartsByCapacity({
+        capacities: [candidatesBySlot[1], candidatesBySlot[2]],
+        ceilings: [
+          Math.min(candidatesBySlot[1], feasibleStartCeiling(landBySlot1, spacingFloorTiles)),
+          Math.min(candidatesBySlot[2], feasibleStartCeiling(landBySlot2, spacingFloorTiles)),
+        ],
+        total: totalPlayers,
+        balanceBias: CIV7_START_PLACEMENT_POLICY_V0.balanceBias,
+      });
+      // Over-subscription top-up: when the map cannot feasibly hold `total`
+      // well-spaced starts, the excess still gets a seat in the homeland with the
+      // most remaining candidate headroom — degraded downstream by the ladder,
+      // never silently dropped.
+      let allocated = allocation[0]! + allocation[1]!;
+      while (allocated < totalPlayers) {
+        const headroom1 = candidatesBySlot[1] - allocation[0]!;
+        const headroom2 = candidatesBySlot[2] - allocation[1]!;
+        allocation[headroom1 >= headroom2 ? 0 : 1]! += 1;
+        allocated += 1;
       }
-    }
-    const ladder = runSelectionLadder({
-      seats: seatIdentities,
-      candidates,
-      reserve,
-      width,
-      spacingFloorTiles,
-      desiredSpacingTiles,
-      rankingBlend: config.rankingBlend,
-      gameSeed: input.gameSeed,
-      // D3: let dispersion reward fuller spread where a homeland has room.
-      landByRegion: { 1: landBySlot1, 2: landBySlot2 },
-    });
+      const playersWest = allocation[0]!;
+      const playersEast = allocation[1]!;
 
-    // --- pass 4: fairness balancing on the parity frame ------------------------------------
-    const fairness = balanceFairness({
-      selections: ladder.selections,
-      swapPoolsOf: (selection: SeatSelection) =>
-        selection.rung === "regional"
-          ? [
-              candidates.filter((tile) => tile.regionSlot === selection.seat.selectionRegionSlot),
-              candidates,
-            ]
-          : [candidates],
-      width,
-      spacingFloorTiles,
-      tolerance: config.fairnessTolerance,
-    });
-    const relaxations: RelaxationEntry[] = [
-      ...preLadderRelaxations,
-      ...ladder.relaxations,
-      ...fairness.relaxations,
-    ];
+      // --- pass 3b: seat identities + four-rung selection ladder -----------------------------
+      const seatIdentities = buildSeatIdentities({
+        playersWest,
+        playersEast,
+        playerIds: input.playerIds,
+      });
+
+      // Region reassignment (recorded, never silent): a residual guard for any
+      // seat whose homeland still has ZERO admitted candidates after allocation
+      // (rare now that D2 allocates 0 players to a zero-capacity region). The seat
+      // is reassigned to the other region, recorded as a region relaxation, and
+      // its status degrades.
+      const preLadderRelaxations: RelaxationEntry[] = [];
+      const reassignedSeats = new Set<number>();
+      for (const seat of seatIdentities) {
+        const own = candidatesBySlot[seat.selectionRegionSlot];
+        const other = (seat.selectionRegionSlot === 1 ? 2 : 1) as 1 | 2;
+        if (own === 0 && candidatesBySlot[other] > 0) {
+          preLadderRelaxations.push({
+            seatIndex: seat.seatIndex,
+            kind: "region",
+            from: seat.selectionRegionSlot,
+            to: other,
+          });
+          seat.selectionRegionSlot = other;
+          reassignedSeats.add(seat.seatIndex);
+        }
+      }
+      const ladder = runSelectionLadder({
+        seats: seatIdentities,
+        candidates,
+        reserve,
+        width,
+        spacingFloorTiles,
+        desiredSpacingTiles,
+        rankingBlend: config.rankingBlend,
+        gameSeed: input.gameSeed,
+        // D3: let dispersion reward fuller spread where a homeland has room.
+        landByRegion: { 1: landBySlot1, 2: landBySlot2 },
+      });
+
+      // --- pass 4: fairness balancing on the parity frame ------------------------------------
+      const fairness = balanceFairness({
+        selections: ladder.selections,
+        swapPoolsOf: (selection: SeatSelection) =>
+          selection.rung === "regional"
+            ? [
+                candidates.filter((tile) => tile.regionSlot === selection.seat.selectionRegionSlot),
+                candidates,
+              ]
+            : [candidates],
+        width,
+        spacingFloorTiles,
+        tolerance: config.fairnessTolerance,
+      });
+      const relaxations: RelaxationEntry[] = [
+        ...preLadderRelaxations,
+        ...ladder.relaxations,
+        ...fairness.relaxations,
+      ];
+      return { ladder, fairness, relaxations, reassignedSeats, playersWest, playersEast };
+    };
+
+    // Every selected tile in an observed count band already satisfies both
+    // resource objectives. Regional allocation and all selection rungs share
+    // that pool, rather than forcing unsupported regional seats afterward.
+    const lowerEdges = [
+      ...new Set(
+        [...supportedCandidates, ...supportedReserve].map((tile) => supportCounts[tile.plotIndex]!)
+      ),
+    ].sort((left, right) => left - right);
+    const evaluateSelection = (selection: ReturnType<typeof selectWithinBand>): number[] => {
+      const selected = selection.ladder.selections.filter((entry) => entry.tile !== null);
+      const regional = selected.filter(
+        (entry) =>
+          entry.rung === "regional" && !selection.reassignedSeats.has(entry.seat.seatIndex)
+      ).length;
+      const spaced = selected.filter((entry) =>
+        selected.every(
+          (other) =>
+            other === entry ||
+            hexDistanceOddQPeriodicX(entry.tile!.plotIndex, other.tile!.plotIndex, width) >=
+              spacingFloorTiles
+        )
+      ).length;
+      return [
+        selected.length,
+        spaced,
+        regional,
+        selection.fairness.balanced ? 1 : 0,
+        selected.length > 0 ? Math.min(...selected.map((entry) => entry.tile!.score)) : 0,
+        selected.reduce((total, entry) => total + entry.tile!.score, 0),
+        selected.length > 0
+          ? Math.min(...selected.map((entry) => supportCounts[entry.tile!.plotIndex]!))
+          : 0,
+      ];
+    };
+    const ranksBefore = (left: readonly number[], right: readonly number[]): boolean => {
+      for (let index = 0; index < left.length; index++) {
+        if (left[index] !== right[index]) return left[index]! > right[index]!;
+      }
+      return false;
+    };
+    let bestSelection = selectWithinBand([], []);
+    let bestRank = evaluateSelection(bestSelection);
+    for (const lower of lowerEdges) {
+      const upper = lower + supportRequirements.equityTolerance;
+      const inBand = (tile: SelectableTile): boolean => {
+        const count = supportCounts[tile.plotIndex]!;
+        return count >= lower && count <= upper;
+      };
+      const selection = selectWithinBand(
+        supportedCandidates.filter(inBand),
+        supportedReserve.filter(inBand)
+      );
+      const rank = evaluateSelection(selection);
+      if (!ranksBefore(rank, bestRank)) continue;
+      bestSelection = selection;
+      bestRank = rank;
+    }
+    const { ladder, fairness, relaxations, reassignedSeats, playersWest, playersEast } =
+      bestSelection;
 
     // --- pass 5: per-seat StartRecord intents ----------------------------------------------
     const seatedPlots = ladder.selections
@@ -732,6 +830,7 @@ const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessDe
       const imputedFlags = [...globalImputedFlags];
       if (reassignedSeats.has(entry.seat.seatIndex)) imputedFlags.push("region-reassigned");
       if (!seated) imputedFlags.push("unseated");
+      if (!seated && settleable.length > 0) imputedFlags.push("resource-support-unresolved");
       if (seated && achievedSpacing >= 0 && achievedSpacing < spacingFloorTiles) {
         imputedFlags.push("spacing-below-floor");
       }
@@ -772,13 +871,13 @@ const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessDe
       desiredSpacingTiles,
       width,
       height,
-      candidateCount: candidates.length,
+      candidateCount: supportedCandidates.length,
       settleableTileCount: settleable.length,
       rejectionCounts: orderedRejectionCounts,
       tierCounts,
       scoreByTile,
       tierByTile,
-      candidates: candidates.map((candidate) => ({
+      candidates: supportedCandidates.map((candidate) => ({
         plotIndex: candidate.plotIndex,
         regionSlot: candidate.regionSlot,
         tier: candidate.tier as StartTier,

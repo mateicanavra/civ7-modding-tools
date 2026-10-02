@@ -18,6 +18,7 @@ This repository began from [izica/civ7-modding-tools](https://github.com/izica/c
 - [Roadmap](docs/ROADMAP.md) — Direction and milestones
 
 **Getting Started:**
+- [Private Civ Gallery](docs/process/LOCAL-VIEWERS.md) - Phone URL, durable files, and start/stop instructions
 - [Installation](#installation-and-setup)
 - [Using the CLI](#using-the-cli)
 - [SDK Documentation](packages/sdk/README.md)

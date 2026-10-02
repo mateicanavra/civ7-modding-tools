@@ -22,9 +22,21 @@ mode = "closed"
 allowEmpty = false
 required = [
   "civ7-map-script-compatibility.fixture.ts",
+  "elevation-contract-map.fixture.ts",
+  "elevation-contract-probe.fixture.ts",
+  "elevation-contract-probe.test.ts",
   "map-bundle-runtime-compatibility.test.ts",
   "map-script-adapter.test.ts",
   "map-script-entrypoint.test.ts",
   "map-script-setup.test.ts",
+  "river-contract-map.fixture.ts",
+  "river-contract-probe.fixture.ts",
+  "river-contract-probe.test.ts",
+  "river-full-map.fixture.ts",
+  "river-full-map.test.ts",
+  "water-connectivity.fixture.ts",
+  "water-connectivity.test.ts",
+  "water-height-maintenance.fixture.ts",
+  "water-height-maintenance.test.ts",
 ]
 allowed = []

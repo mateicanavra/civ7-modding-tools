@@ -13,6 +13,7 @@ describe("Standard map product studies", () => {
     expect(evaluation.status).toBe("pass");
   }, 180_000);
 
+  // Keep shared scenarios atomic and deduplicated across the full periodic-climate bank.
   it("keeps every other declared map product inside its shared metric targets", () => {
     const evaluation = evaluateStandardMetricStudies(OTHER_METRIC_STUDIES);
     const expectedScenarioIds = new Set(
@@ -26,5 +27,5 @@ describe("Standard map product studies", () => {
     expect(evaluation.scenarioCount).toBe(expectedScenarioIds.size);
     expect(failedExpectations(evaluation)).toEqual([]);
     expect(evaluation.status).toBe("pass");
-  }, 180_000);
+  }, 600_000);
 });

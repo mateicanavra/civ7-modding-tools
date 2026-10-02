@@ -1,8 +1,10 @@
 import { describe, expect, test } from "bun:test";
+import { Civ7ControlOrpcContract } from "@civ7/control-orpc/contract";
 import { ORPCError } from "@orpc/client";
 import { encodeBoundedJsonLogLines } from "@swooper/mapgen-core/lib/log";
 import {
   admitStudioRunInGameLiveMutationArgs,
+  buildStudioRunInGameLiveStartInput,
   buildSwooperMapScriptDeploymentStage,
   hasMapgenCompletionForSeed,
   type MapScriptFileIdentity,
@@ -75,6 +77,57 @@ describe("studio run-in-game live verifier", () => {
     );
   });
 
+  test.each([
+    undefined,
+    6,
+  ])("projects saved setup identity without inventing players; explicit override %s", async (playerCount) => {
+    const savedConfig = {
+      id: "tot-nomodsexceptmaps",
+      displayName: "ToT_NoModsExceptMaps",
+      fileName: "ToT_NoModsExceptMaps.Civ7Cfg",
+      path: "/Civ7/Saves/Single/ToT_NoModsExceptMaps.Civ7Cfg",
+      summary: { playerCount: 12 },
+    };
+    const args = admitStudioRunInGameLiveMutationArgs(
+      parseStudioRunInGameLiveArgs([
+        "--mutate",
+        "--saved-config",
+        savedConfig.displayName,
+        "--map-script",
+        "{swooper-maps}/maps/swooper-earthlike.js",
+        "--map-size",
+        "MAPSIZE_HUGE",
+        "--seed",
+        "1018",
+        "--game-seed",
+        "1018",
+        ...(playerCount === undefined ? [] : ["--player-count", String(playerCount)]),
+      ])
+    );
+    const input = buildStudioRunInGameLiveStartInput(args, savedConfig);
+    expect(input.savedConfig).toEqual({
+      id: savedConfig.id,
+      displayName: savedConfig.displayName,
+      fileName: savedConfig.fileName,
+    });
+    expect(input.playerOptions).toEqual([]);
+    expect(input.playerCount).toBe(playerCount);
+    if (playerCount === undefined) expect(input).not.toHaveProperty("playerCount");
+    expect(savedConfig.summary.playerCount).toBe(12);
+
+    const schema = Civ7ControlOrpcContract.lifecycle.singlePlayer.start["~orpc"].inputSchema;
+    if (!schema) throw new Error("Lifecycle input schema is unavailable.");
+    expect((await schema["~standard"].validate(input)).issues).toBeUndefined();
+    expect(
+      (
+        await schema["~standard"].validate({
+          ...input,
+          savedConfig: { ...input.savedConfig, path: savedConfig.path },
+        })
+      ).issues
+    ).toBeDefined();
+  });
+
   test("projects bounded defined-error evidence without provider internals", () => {
     const error = new ORPCError("LIFECYCLE_MUTATION_UNCERTAIN", {
       defined: true,
@@ -115,13 +168,13 @@ describe("studio run-in-game live verifier", () => {
   test("resolves Swooper map script paths into local and deployed bundles", () => {
     expect(
       resolveSwooperMapScriptPaths({
-        mapScript: "{swooper-maps}/maps/mountain-patch.js",
+        mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
         repoRoot: "/repo",
         modsDir: "/Users/test/Civ Mods",
       })
     ).toEqual({
-      localPath: "/repo/apps/mods/map/swooper-physics/dist/mod/maps/mountain-patch.js",
-      deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-patch.js",
+      localPath: "/repo/apps/mods/map/swooper-physics/dist/mod/maps/swooper-earthlike.js",
+      deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/swooper-earthlike.js",
     });
 
     expect(
@@ -133,24 +186,16 @@ describe("studio run-in-game live verifier", () => {
     ).toBeUndefined();
   });
 
-  test("passes only when local and deployed map scripts match and carry river markers", () => {
+  test("passes when the current local and deployed scripts match without legacy markers", () => {
     const stage = buildSwooperMapScriptDeploymentStage({
-      mapScript: "{swooper-maps}/maps/mountain-patch.js",
-      localPath: "/repo/apps/mods/map/swooper-physics/dist/mod/maps/mountain-patch.js",
-      deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-patch.js",
+      mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
+      localPath: "/repo/apps/mods/map/swooper-physics/dist/mod/maps/swooper-earthlike.js",
+      deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/swooper-earthlike.js",
       local: identity(
-        "/repo/apps/mods/map/swooper-physics/dist/mod/maps/mountain-patch.js",
+        "/repo/apps/mods/map/swooper-physics/dist/mod/maps/swooper-earthlike.js",
         "same"
       ),
-      deployed: identity("/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-patch.js", "same"),
-      localMarkers: [
-        { marker: "map.rivers.authoredTerrainMaterialization", present: true },
-        { marker: "POST-AUTHORED-RIVERS", present: true },
-      ],
-      deployedMarkers: [
-        { marker: "map.rivers.authoredTerrainMaterialization", present: true },
-        { marker: "POST-AUTHORED-RIVERS", present: true },
-      ],
+      deployed: identity("/Users/test/Civ Mods/mod-swooper-maps/maps/swooper-earthlike.js", "same"),
     });
 
     expect(stage).toMatchObject({
@@ -162,30 +207,35 @@ describe("studio run-in-game live verifier", () => {
 
   test("blocks stale deployed scripts before mutating a live game", () => {
     const stage = buildSwooperMapScriptDeploymentStage({
-      mapScript: "{swooper-maps}/maps/mountain-patch.js",
-      localPath: "/repo/apps/mods/map/swooper-physics/dist/mod/maps/mountain-patch.js",
-      deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-patch.js",
+      mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
+      localPath: "/repo/apps/mods/map/swooper-physics/dist/mod/maps/swooper-earthlike.js",
+      deployedPath: "/Users/test/Civ Mods/mod-swooper-maps/maps/swooper-earthlike.js",
       local: identity(
-        "/repo/apps/mods/map/swooper-physics/dist/mod/maps/mountain-patch.js",
+        "/repo/apps/mods/map/swooper-physics/dist/mod/maps/swooper-earthlike.js",
         "current"
       ),
-      deployed: identity("/Users/test/Civ Mods/mod-swooper-maps/maps/mountain-patch.js", "stale"),
-      localMarkers: [
-        { marker: "map.rivers.authoredTerrainMaterialization", present: true },
-        { marker: "POST-AUTHORED-RIVERS", present: true },
-      ],
-      deployedMarkers: [
-        { marker: "map.rivers.authoredTerrainMaterialization", present: false },
-        { marker: "POST-AUTHORED-RIVERS", present: false },
-      ],
+      deployed: identity(
+        "/Users/test/Civ Mods/mod-swooper-maps/maps/swooper-earthlike.js",
+        "stale"
+      ),
     });
 
     expect(stage.ok).toBe(false);
-    expect(stage.unresolvedLinks).toEqual([
-      "deployed-mod-script.hash-mismatch",
-      "deployed-mod-script.marker-missing.map-rivers-authoredterrainmaterialization",
-      "deployed-mod-script.marker-missing.post-authored-rivers",
-    ]);
+    expect(stage.unresolvedLinks).toEqual(["deployed-mod-script.hash-mismatch"]);
     expect(stage.recoveryHint).toContain("nx run swooper-physics-mod:deploy");
+  });
+
+  test.each(["local", "deployed"] as const)("blocks a missing %s script", (missing) => {
+    const localPath = "/repo/apps/mods/map/swooper-physics/dist/mod/maps/swooper-earthlike.js";
+    const deployedPath = "/Users/test/Civ Mods/mod-swooper-maps/maps/swooper-earthlike.js";
+    const stage = buildSwooperMapScriptDeploymentStage({
+      mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
+      localPath,
+      deployedPath,
+      ...(missing === "local" ? {} : { local: identity(localPath, "same") }),
+      ...(missing === "deployed" ? {} : { deployed: identity(deployedPath, "same") }),
+    });
+    expect(stage.ok).toBe(false);
+    expect(stage.unresolvedLinks).toEqual([`${missing}-mod-script.missing`]);
   });
 });

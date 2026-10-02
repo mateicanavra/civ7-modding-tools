@@ -5,6 +5,7 @@ export {
 export {
   BathymetryFieldSchema,
   ElevationFieldSchema,
+  ExternalWaterMaskSchema,
   LandMaskSchema,
   SeaLevelDatumSchema,
 } from "./topography-fields.schema.js";

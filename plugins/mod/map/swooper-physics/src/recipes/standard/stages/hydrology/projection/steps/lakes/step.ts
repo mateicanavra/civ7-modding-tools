@@ -1,8 +1,4 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
-import {
-  collectMaskComponentsOddQ,
-  getHexNeighborIndicesOddQ,
-} from "@swooper/mapgen-core/lib/grid";
 import type { VizProjection } from "@swooper/mapgen-viz";
 import { measureStandardLakeProjection } from "../../../../../metrics/families/hydrology/lake-projection.js";
 import { defineStandardVizMeta } from "../../../../../viz.js";
@@ -12,39 +8,8 @@ import { config } from "./config.js";
 const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
-function pruneIsolatedMorphologyFragments(
-  projectionLakeMask: Uint8Array,
-  directlyProtectedLakeMask: Uint8Array,
-  width: number,
-  height: number
-): number {
-  let protectedCount = 0;
-  for (const component of collectMaskComponentsOddQ({
-    mask: projectionLakeMask,
-    width,
-    height,
-  })) {
-    if (component.size !== 1) continue;
-    const tileIndex = component.indices[0];
-    if (tileIndex === undefined) continue;
-    const x = tileIndex % width;
-    const y = Math.floor(tileIndex / width);
-    if (
-      !getHexNeighborIndicesOddQ(x, y, width, height).some(
-        (neighbor) => directlyProtectedLakeMask[neighbor] === 1
-      )
-    ) {
-      continue;
-    }
-    projectionLakeMask[tileIndex] = 0;
-    protectedCount += 1;
-  }
-  return protectedCount;
-}
-
 /**
- * Withholds final Morphology landforms and their isolated one-tile lake remnants
- * from projection, then keeps mutable engine readback invocation-local.
+ * Projects complete physical inland-water bodies. Native lake classification remains an observation.
  */
 export const LakesStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
@@ -53,39 +18,26 @@ export const LakesStep = createStep(config, {
     const volcanoes = deps.artifacts.volcanoes.read();
     const { width, height } = context.setup.dimensions;
     const size = width * height;
-
-    const projectionLakeMask = new Uint8Array(size);
-    const directlyProtectedLakeMask = new Uint8Array(size);
-    let morphologyProtectedLakeTileCount = 0;
-    let mountainProtectedLakeTileCount = 0;
-    let volcanoProtectedLakeTileCount = 0;
-    for (let i = 0; i < size; i++) {
-      if (lakePlan.lakeMask[i] !== 1) continue;
-      if (mountains.mountainMask[i] === 1) {
-        morphologyProtectedLakeTileCount += 1;
-        mountainProtectedLakeTileCount += 1;
-        directlyProtectedLakeMask[i] = 1;
-        continue;
+    const projectionLakeMask = Uint8Array.from(lakePlan.lakeMask);
+    for (let cell = 0; cell < size; cell++) {
+      if (lakePlan.lakeMask[cell] === 1 &&
+          (mountains.mountainMask[cell] === 1 || volcanoes.volcanoMask[cell] === 1)) {
+        throw new Error(`Physical lake cell ${cell} overlaps a blocking landform; refusing partial projection.`);
       }
-      if (volcanoes.volcanoMask[i] === 1) {
-        morphologyProtectedLakeTileCount += 1;
-        volcanoProtectedLakeTileCount += 1;
-        directlyProtectedLakeMask[i] = 1;
-        continue;
-      }
-      projectionLakeMask[i] = 1;
     }
-    const isolatedFragmentProtectedLakeTileCount = pruneIsolatedMorphologyFragments(
-      projectionLakeMask,
-      directlyProtectedLakeMask,
-      width,
-      height
-    );
-    morphologyProtectedLakeTileCount += isolatedFragmentProtectedLakeTileCount;
+
 
     // The adapter is the only engine boundary. Stamping plus readback stays there
     // so later steps observe current Civ7 state instead of consuming stale snapshots.
     const projection = deps.engine.stampLakes(context, width, height, projectionLakeMask);
+    for (let cell = 0; cell < size; cell++) {
+      if (projection.stampedLakeMask[cell] !== lakePlan.lakeMask[cell]) {
+        throw new Error(`Certified lake footprint rejected at cell ${cell}; no partial body is published.`);
+      }
+    }
+    if (projection.terrainMismatchTileCount !== 0) {
+      throw new Error(`Certified inland-water projection has ${projection.terrainMismatchTileCount} coast terrain mismatches.`);
+    }
     deps.artifacts.projectedLakes.publish({
       lakeMask: Uint8Array.from(projection.stampedLakeMask),
     });
@@ -97,10 +49,6 @@ export const LakesStep = createStep(config, {
       projectedCandidateLakeTileCount: projection.plannedLakeTileCount,
       stampedLakeTileCount: projection.stampedLakeTileCount,
       rejectedLakeTileCount: projection.rejectedLakeTileCount,
-      morphologyProtectedLakeTileCount,
-      mountainProtectedLakeTileCount,
-      volcanoProtectedLakeTileCount,
-      isolatedFragmentProtectedLakeTileCount,
       nonLakeTileCount: projection.nonLakeTileCount,
       terrainMismatchTileCount: projection.terrainMismatchTileCount,
       rejectedLakeShare: Number(
@@ -111,8 +59,6 @@ export const LakesStep = createStep(config, {
       plannedLakeMask: lakePlan.lakeMask,
       projection,
       engineLandMask,
-      morphologyProtectedLakeTileCount,
-      isolatedFragmentProtectedLakeTileCount,
     };
   },
   metrics: ({ observation, dimensions }) => ({
@@ -120,9 +66,6 @@ export const LakesStep = createStep(config, {
       dimensions,
       projectedLakeMask: observation.projection.stampedLakeMask,
       plannedLakeTileCount: observation.projection.plannedLakeTileCount,
-      morphologyProtectedLakeTileCount: observation.morphologyProtectedLakeTileCount,
-      isolatedFragmentProtectedLakeTileCount:
-        observation.isolatedFragmentProtectedLakeTileCount,
       stampedLakeTileCount: observation.projection.stampedLakeTileCount,
       rejectedLakeTileCount: observation.projection.rejectedLakeTileCount,
       nonLakeTileCount: observation.projection.nonLakeTileCount,
@@ -150,7 +93,7 @@ export const LakesStep = createStep(config, {
         dataTypeKey: "map.hydrology.lakes.engineLakeMask",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "u8", values: observation.projection.stampedLakeMask },
+        field: { format: "u8", values: observation.projection.engineLakeMask },
         meta: defineStandardVizMeta("map.hydrology.lakes.engineLakeMask", "category.distinct", {
           label: "Lake Mask (Engine)",
           group: GROUP_MAP_HYDROLOGY,

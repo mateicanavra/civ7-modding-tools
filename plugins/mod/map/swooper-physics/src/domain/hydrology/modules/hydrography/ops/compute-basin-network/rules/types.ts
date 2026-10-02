@@ -1,0 +1,52 @@
+import type { OperationInput } from "@swooper/mapgen-core/authoring";
+import type {
+  RawReceiverSchema,
+  DrainagePlateauIdSchema,
+  DrainageLeafIdSchema,
+  BasinNodesSchema,
+  BasinRootsSchema,
+  BasinSaddlesSchema,
+  BasinCatchmentCellsSchema,
+  ExternalCatchmentCellsSchema,
+  BasinHypsometrySchema,
+} from "../../../model/atoms/index.js";
+
+type GeometryInput = Readonly<{
+  rawReceiver: OperationInput<typeof RawReceiverSchema>;
+  plateauId: OperationInput<typeof DrainagePlateauIdSchema>;
+  leafId: OperationInput<typeof DrainageLeafIdSchema>;
+  nodes: OperationInput<typeof BasinNodesSchema>;
+  roots: OperationInput<typeof BasinRootsSchema>;
+  saddles: OperationInput<typeof BasinSaddlesSchema>;
+  catchmentCells: OperationInput<typeof BasinCatchmentCellsSchema>;
+  externalCatchmentCells: OperationInput<typeof ExternalCatchmentCellsSchema>;
+  hypsometry: OperationInput<typeof BasinHypsometrySchema>;
+}>;
+
+export type NetworkInput = Readonly<{
+  width: number;
+  height: number;
+  elevation: ArrayLike<number>;
+  externalWaterMask: ArrayLike<number>;
+  externalWaterHead: number;
+  geometry: GeometryInput;
+  localRunoff: readonly number[];
+  rainfall: ArrayLike<number>;
+  potentialDemand: ArrayLike<number>;
+}>;
+
+/** Only finite cells use physical ground for hydraulic comparisons. */
+export function hydraulicElevation(input: NetworkInput, cell: number): number {
+  return input.externalWaterMask[cell] ? input.externalWaterHead : input.elevation[cell]!;
+}
+
+/** Rejects invalid basin geometry, forcing, or conservation evidence before a supported ledger can be published. */
+export function requireValid(condition: unknown, message: string): asserts condition {
+  if (!condition) throw new RangeError(`Invalid basin network input: ${message}.`);
+}
+
+/** Requires a finite network scalar while returning its original value unchanged. */
+export function finite(value: number, name: string): number {
+  requireValid(Number.isFinite(value), `nonfinite ${name}`);
+  return value;
+}

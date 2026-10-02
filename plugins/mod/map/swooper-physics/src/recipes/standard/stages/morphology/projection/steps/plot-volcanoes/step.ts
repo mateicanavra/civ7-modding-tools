@@ -11,7 +11,7 @@ import { config } from "./config.js";
  */
 export const PlotVolcanoesStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
-    const topography = deps.artifacts.topography.read();
+    const hydrography = deps.artifacts.hydrography.read();
     const plan = deps.artifacts.volcanoes.read();
     const { width } = context.setup.dimensions;
 
@@ -56,7 +56,7 @@ export const PlotVolcanoesStep = createStep(config, {
     assertNoWaterDrift(
       context.setup.dimensions,
       engineWaterMask,
-      topography.landMask,
+      hydrography.exposedLandMask,
       "map-morphology/plot-volcanoes"
     );
   },

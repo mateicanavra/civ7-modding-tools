@@ -1,4 +1,4 @@
-import { createLabelRng } from "@swooper/mapgen-core";
+import { deriveStepSeed } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 
@@ -8,6 +8,7 @@ import {
   computeElevationRaw,
   quantizeElevation,
 } from "../../rules/index.js";
+import { createPeriodicReliefNoise } from "../../rules/periodic-noise.js";
 import StrategyDefinition from "./config.js";
 
 /** Binds the `tectonic-relief` algorithm to the shared `morphology/compute-base-topography` operation contract. */
@@ -23,11 +24,19 @@ export default createStrategy(ComputeBaseTopographyContract, StrategyDefinition,
     } = input;
     const size = width * height;
 
-    const rng = createLabelRng(input.rngSeed | 0);
     const noiseAmplitude = config.crustNoiseAmplitude;
     const edgeBlend = config.crustEdgeBlend;
     const arcNoiseWeight = config.tectonics.boundaryArcNoiseWeight;
-    const fractalGrain = Math.max(1, Math.round(config.tectonics.fractalGrain));
+    const noiseField = createPeriodicReliefNoise({
+      width,
+      grain: config.tectonics.fractalGrain,
+      seed: deriveStepSeed(input.rngSeed, "base-topography"),
+    });
+    const arcNoiseField = createPeriodicReliefNoise({
+      width,
+      grain: config.tectonics.fractalGrain,
+      seed: deriveStepSeed(input.rngSeed, "boundary-arc"),
+    });
 
     const elevationRaw = new Float32Array(size);
 
@@ -38,10 +47,8 @@ export default createStrategy(ComputeBaseTopographyContract, StrategyDefinition,
         const upliftNorm = (uplift[i] ?? 0) / 255;
         const riftNorm = (rift[i] ?? 0) / 255;
         const closenessNorm = (closeness[i] ?? 0) / 255;
-        const gx = (x / fractalGrain) | 0;
-        const gy = (y / fractalGrain) | 0;
-        const noise = (rng(1000, `base-topography:${gx},${gy}`) / 1000 - 0.5) * noiseAmplitude;
-        const arcNoise = (rng(1000, `boundary-arc:${gx},${gy}`) / 1000 - 0.5) * arcNoiseWeight;
+        const noise = noiseField(x, y) * noiseAmplitude;
+        const arcNoise = arcNoiseField(x, y) * arcNoiseWeight;
         elevationRaw[i] = computeElevationRaw({
           crustBaseElevationUnit: crustUnit,
           upliftNorm,

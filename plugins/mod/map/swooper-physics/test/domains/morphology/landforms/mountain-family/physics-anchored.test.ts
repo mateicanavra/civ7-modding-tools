@@ -16,6 +16,7 @@ describe("mountain-family orogeny gating", () => {
 
     const landMask = new Uint8Array(size);
     landMask.fill(1);
+    const elevation = Int16Array.from({ length: size }, (_, index) => (index % width) * 16);
 
     const boundaryCloseness = new Uint8Array(size);
     const boundaryType = new Uint8Array(size);
@@ -36,6 +37,8 @@ describe("mountain-family orogeny gating", () => {
         width,
         height,
         landMask,
+        candidateMask: landMask,
+        elevation,
         boundaryCloseness,
         boundaryType,
         upliftPotential,
@@ -64,6 +67,7 @@ describe("mountain-family orogeny gating", () => {
         width,
         height,
         landMask,
+        elevation,
         mountainMask: ridges.mountainMask,
         mountainRegionMask: ridges.mountainRegionMask,
         mountainRegionIdByTile: ridges.mountainRegionIdByTile,

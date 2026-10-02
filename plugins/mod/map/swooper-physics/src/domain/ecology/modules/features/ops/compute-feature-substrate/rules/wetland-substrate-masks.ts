@@ -3,7 +3,6 @@ export type WetlandSubstrateMasks = Readonly<{
   lowlandMask: Uint8Array;
   floodplainMask: Uint8Array;
   intertidalCoastMask: Uint8Array;
-  sinkBasinMask: Uint8Array;
   hydromorphicMask: Uint8Array;
   wellDrainedMask: Uint8Array;
   isolatedWaterPointMask: Uint8Array;
@@ -23,7 +22,6 @@ export function computeWetlandSubstrateMasks(args: {
   readonly seaLevel: number;
   readonly riverMask: ArrayLike<number>;
   readonly discharge: ArrayLike<number>;
-  readonly sinkMask: ArrayLike<number>;
   readonly nearRiverMask: ArrayLike<number>;
   readonly isolatedRiverMask: ArrayLike<number>;
   readonly coastalLandMask: ArrayLike<number>;
@@ -43,7 +41,6 @@ export function computeWetlandSubstrateMasks(args: {
   const lowlandMask = new Uint8Array(size);
   const floodplainMask = new Uint8Array(size);
   const intertidalCoastMask = new Uint8Array(size);
-  const sinkBasinMask = new Uint8Array(size);
   const hydromorphicMask = new Uint8Array(size);
   const wellDrainedMask = new Uint8Array(size);
   const isolatedWaterPointMask = new Uint8Array(size);
@@ -55,6 +52,7 @@ export function computeWetlandSubstrateMasks(args: {
       const i = y * width + x;
       if (args.landMask[i] !== 1) continue;
 
+      // The legacy M identifiers compare model relief differences, not meters or native display units.
       const heightAboveSeaM = (args.elevation[i] ?? 0) - args.seaLevel;
       const isLowland = heightAboveSeaM >= 0 && heightAboveSeaM <= lowlandMax;
       lowlandMask[i] = isLowland ? 1 : 0;
@@ -78,17 +76,14 @@ export function computeWetlandSubstrateMasks(args: {
       const isFloodplain = isLowland && args.nearRiverMask[i] === 1 && hasNearbyFlow;
       floodplainMask[i] = isFloodplain ? 1 : 0;
 
-      const isSinkBasin = isLowland && args.sinkMask[i] === 1;
-      sinkBasinMask[i] = isSinkBasin ? 1 : 0;
-
-      const hydromorphic = isFloodplain || isIntertidal || isSinkBasin;
+      const hydromorphic = isFloodplain || isIntertidal;
       hydromorphicMask[i] = hydromorphic ? 1 : 0;
       wellDrainedMask[i] = hydromorphic ? 0 : 1;
 
       // Oases and watering holes are point-scale arid water-source candidates:
       // isolated river influence is allowed, but broad floodplains are not.
       isolatedWaterPointMask[i] =
-        (isLowland && args.isolatedRiverMask[i] === 1 && !isFloodplain) || isSinkBasin ? 1 : 0;
+        isLowland && args.isolatedRiverMask[i] === 1 && !isFloodplain ? 1 : 0;
     }
   }
 
@@ -96,7 +91,6 @@ export function computeWetlandSubstrateMasks(args: {
     lowlandMask,
     floodplainMask,
     intertidalCoastMask,
-    sinkBasinMask,
     hydromorphicMask,
     wellDrainedMask,
     isolatedWaterPointMask,

@@ -44,7 +44,7 @@ function createInput() {
     fertility: new Float32Array(size).fill(1),
     floodplainMask: new Uint8Array(size),
     navigableRiverMask: new Uint8Array(size),
-    discharge: new Float32Array(size),
+    discharge: Array<number>(size).fill(0),
     elevation: new Int16Array(size).fill(100),
     mountainMask: new Uint8Array(size),
     hillMask: new Uint8Array(size),

@@ -1,4 +1,5 @@
 import ecology from "../../../../../../../domain/ecology/index.js";
+import { artifacts as morphologyCoastsArtifacts } from "../../../../../../../domain/morphology/modules/coasts/artifacts/index.js";
 import { artifacts as biomeArtifacts } from "../../../../../../../domain/ecology/modules/biomes/artifacts/index.js";
 import { artifacts as featureArtifacts } from "../../../../../../../domain/ecology/modules/features/artifacts/index.js";
 import { artifacts as pedologyArtifacts } from "../../../../../../../domain/ecology/modules/pedology/artifacts/index.js";
@@ -22,9 +23,10 @@ export const config = defineStep({
     climateArtifacts.climateIndices,
     hydrographyArtifacts.hydrography,
     hydrographyArtifacts.lakePlan,
-    hydrographyArtifacts.projectedNavigableRivers,
+    hydrographyArtifacts.projectedRivers,
     morphologyLandformsArtifacts.topography,
     morphologyShelfArtifacts.shelf,
+    morphologyCoastsArtifacts.resolvedCoastline,
     morphologyLandformsArtifacts.mountains,
     morphologyLandformsArtifacts.volcanoes,
   ],

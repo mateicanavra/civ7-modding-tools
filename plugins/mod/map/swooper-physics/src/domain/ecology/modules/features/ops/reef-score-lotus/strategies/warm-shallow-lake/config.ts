@@ -24,19 +24,21 @@ export default defineStrategy({
         default: 0,
         minimum: 0,
         maximum: 12000,
-        description: "Shallow-water depth used for lotus scoring.",
+        description:
+          "Shallow-depth threshold in normalized model relief units: certified lake head minus physical ground, or legacy sea-level-relative Morphology bathymetry. Not meters; the legacy M key is retained.",
       }),
       deepDepthM: Type.Integer({
         default: 40,
         minimum: 0,
         maximum: 12000,
-        description: "Deep-water limit used for lotus scoring.",
+        description:
+          "Deep-depth threshold in normalized model relief units: certified lake head minus physical ground, or legacy sea-level-relative Morphology bathymetry. Not meters; the legacy M key is retained.",
       }),
       maxDistanceToCoast: Type.Integer({
         default: 2,
         minimum: 0,
         maximum: 512,
-        description: "Maximum tile distance from coast for lotus suitability.",
+        description: "Maximum body-local hex distance from physical dry shoreline for certified lakes, or legacy coast distance.",
       }),
     },
     {

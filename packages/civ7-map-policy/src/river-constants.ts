@@ -25,10 +25,12 @@ export const RIVER_TYPE_NAVIGABLE = CIV7_RIVER_TYPES_V0.values.RIVER_NAVIGABLE;
  * Civ7 stock map-script river materialization policy.
  *
  * Source evidence:
- * - Every stock `base-standard/maps/*.js` river pass uses
+ * - Civ7 1.5 procedural map scripts use
  *   `TerrainBuilder.modelRivers(..., g_NavigableRiverTerrain)`, followed by
- *   `TerrainBuilder.validateAndFixTerrain()` and
- *   `TerrainBuilder.defineNamedRivers()`.
+ *   `TerrainBuilder.validateAndFixTerrain()`. Voronoi maps delegate these
+ *   passes to `base-standard/scripts/common-generation.js`.
+ * - These scripts no longer call the removed automatic river-naming API.
+ *   Earth's coordinate-specific custom names are a separate authored path.
  * - Most continental stock scripts use `(5, 15)`.
  * - Archipelago and shuffle use wider profiles for island-heavy maps.
  *
@@ -50,13 +52,10 @@ export const CIV7_RIVER_MODELING_POLICY_V0 = {
     "Base/modules/base-standard/maps/archipelago.js",
     "Base/modules/base-standard/maps/shuffle.js",
     "Base/modules/base-standard/maps/map-globals.js",
+    "Base/modules/base-standard/scripts/common-generation.js",
   ],
   navigableTerrain: "TERRAIN_NAVIGABLE_RIVER",
-  sequence: [
-    "TerrainBuilder.modelRivers",
-    "TerrainBuilder.validateAndFixTerrain",
-    "TerrainBuilder.defineNamedRivers",
-  ],
+  sequence: ["TerrainBuilder.modelRivers", "TerrainBuilder.validateAndFixTerrain"],
   profiles: {
     standardContinental: {
       minLength: 5,

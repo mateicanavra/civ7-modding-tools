@@ -3,9 +3,11 @@ import {
   type MapConfigEnvelope,
   serializeMapConfigEnvelope,
   setupConfig as setupConfigSchema,
+  snapshotMapConfigEnvelope,
 } from "@civ7/studio-contract";
 import type { WorldSettings } from "@swooper/mapgen-studio-ui/types";
 import { Value } from "typebox/value";
+import { findRecipeArtifacts } from "../../recipes/catalog";
 import { CIV7_STUDIO_MIN_PLAYER_COUNT, normalizeCiv7WorldSettings } from "../civ7Setup/mapSizes";
 import { parseCiv7StudioSeed } from "../civ7Setup/seedPolicy";
 import {
@@ -86,13 +88,17 @@ function admitPersistedSeed(value: unknown): string | undefined {
 function parseStudioAuthoringData(
   parsed: Record<string, unknown>,
   seed: string,
-  gameSeed: string
+  gameSeed: string,
+  recoverRecipeConfig = false
 ): StudioAuthoringData | null {
   const worldSettings = parseWorldSettings(parsed.worldSettings);
-  const canonicalConfig = admitCanonicalConfig(parsed.canonicalConfig);
+  const canonicalConfig = recoverRecipeConfig
+    ? snapshotMapConfigEnvelope(parsed.canonicalConfig)
+    : admitCanonicalConfig(parsed.canonicalConfig);
   if (
     worldSettings === undefined ||
     canonicalConfig === undefined ||
+    findRecipeArtifacts(canonicalConfig.recipe) === null ||
     !Value.Check(setupConfigSchema, parsed.setupConfig)
   ) {
     return null;
@@ -106,7 +112,7 @@ function parseStudioAuthoringData(
   };
 }
 
-/** Admits persisted authoring data across supported schema versions into the current snapshot. */
+/** Recovers current saved values without silently replacing a retired recipe config. */
 export function parseStudioAuthoringState(
   value: string | null
 ): StudioAuthoringStateSnapshot | null {
@@ -132,7 +138,8 @@ export function parseStudioAuthoringState(
     const seed = admitPersistedSeed(parsed.seed);
     const gameSeed = admitPersistedSeed(parsed.gameSeed);
     if (seed === undefined || gameSeed === undefined) return null;
-    const data = parseStudioAuthoringData(parsed, seed, gameSeed);
+    // Recipe admission still gates save/import/run; recovery keeps unsupported values exportable.
+    const data = parseStudioAuthoringData(parsed, seed, gameSeed, true);
     if (data === null) return null;
     return {
       schemaVersion: 5,
@@ -184,7 +191,7 @@ function parseLegacyStudioAuthoringState(
   }
 }
 
-/** Reads persisted authoring state and retires storage that cannot be safely migrated. */
+/** Reads current authoring state or migrates supported setup-only snapshot versions. */
 export function loadStudioAuthoringState(
   storage: KeyValueStorage | null = browserStorage()
 ): StudioAuthoringStateSnapshot | null {

@@ -275,75 +275,71 @@ const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
     );
 
     let rotationPlaced = 0;
-    // Two sweeps: the first is thinned by habitat intensity (inhomogeneous
-    // Poisson shaping, E2.5); the second fills remaining per-type deficits on
-    // the same blue-noise stream without the intensity gate so authored
-    // targets are reachable (E2.7). Spacing floors hold on both sweeps.
-    for (let sweep = 0; sweep < 2 && rotationPlaced < totalEffectiveTarget; sweep++) {
-      for (const plotIndex of plotOrder) {
-        if (rotationPlaced >= totalEffectiveTarget) break;
-        if (usedPlots.has(plotIndex)) continue;
+    // Habitat already owns the intensity baseline. Thin rotation directly by
+    // that signal; the intensity-ranked range pass below completes targets
+    // without an intensity-blind sweep erasing habitat preference.
+    for (const plotIndex of plotOrder) {
+      if (rotationPlaced >= totalEffectiveTarget) break;
+      if (usedPlots.has(plotIndex)) continue;
 
-        // Cross-type blue-noise floor between accepted sites.
-        if (violatesSpacing(plotIndex, sitePlots, siteSpacingTiles)) continue;
+      // Cross-type blue-noise floor between accepted sites.
+      if (violatesSpacing(plotIndex, sitePlots, siteSpacingTiles)) continue;
 
-        // Once the low-sample gate closes, prospective placements may not
-        // cross a healthy max/min spread or worsen one already above it.
-        const landmassId = landmassIdByTile[plotIndex] ?? -1;
-        if (
-          !admitsQualifyingLandmassDensityChange({
-            qualifyingRows: totalQualifyingLand,
-            resourceCountByLandmass: placedByLandmass,
-            maxDensityRatio: equityMaxDensityRatio,
-            addedLandmassId: landmassId,
-          })
-        ) {
-          equitySkippedSiteCount += 1;
-          continue;
-        }
-
-        // Co-eligible demands at this plot.
-        const coEligible: DemandState[] = [];
-        for (const demand of demands) {
-          if (demand.rotationCount + demand.rangeFloorCount >= demand.effectiveTargetCount)
-            continue;
-          if (eligibleByDemand[demand.index]![plotIndex] === 0) continue;
-          if (violatesSpacing(plotIndex, demand.plannedPlots, demand.spacingFloorTiles)) continue;
-          const ruleState = ruleStateAt(demand, plotIndex);
-          if (ruleState.excluded) continue;
-          const intensity = demand.intensity[plotIndex] ?? 0;
-          if (sweep === 0 && hash01(seed, plotIndex, 0x7417) > 0.3 + 0.7 * intensity) continue;
-          coEligible.push(demand);
-        }
-        if (coEligible.length === 0) continue;
-
-        // Official deficit rotation: max running weight wins; ties prefer the
-        // larger remaining deficit, then the deterministic hash.
-        let chosen: DemandState | null = null;
-        let chosenScore = Number.NEGATIVE_INFINITY;
-        for (const demand of coEligible) {
-          const ruleState = ruleStateAt(demand, plotIndex);
-          const deficit =
-            demand.effectiveTargetCount > 0
-              ? (demand.effectiveTargetCount - demand.rotationCount) / demand.effectiveTargetCount
-              : 0;
-          const score =
-            demand.runningWeight +
-            ruleState.affinityBonus +
-            deficit * 1e-3 +
-            hash01(seed, plotIndex, demand.resourceSalt) * 1e-6;
-          if (score > chosenScore) {
-            chosen = demand;
-            chosenScore = score;
-          }
-        }
-        if (!chosen) continue;
-
-        sitePlots.push(plotIndex);
-        place(chosen, plotIndex, "rotation");
-        chosen.runningWeight -= chosen.effectiveWeight;
-        rotationPlaced += 1;
+      // Once the low-sample gate closes, prospective placements may not
+      // cross a healthy max/min spread or worsen one already above it.
+      const landmassId = landmassIdByTile[plotIndex] ?? -1;
+      if (
+        !admitsQualifyingLandmassDensityChange({
+          qualifyingRows: totalQualifyingLand,
+          resourceCountByLandmass: placedByLandmass,
+          maxDensityRatio: equityMaxDensityRatio,
+          addedLandmassId: landmassId,
+        })
+      ) {
+        equitySkippedSiteCount += 1;
+        continue;
       }
+
+      // Co-eligible demands at this plot.
+      const coEligible: DemandState[] = [];
+      for (const demand of demands) {
+        if (demand.rotationCount + demand.rangeFloorCount >= demand.effectiveTargetCount) continue;
+        if (eligibleByDemand[demand.index]![plotIndex] === 0) continue;
+        if (violatesSpacing(plotIndex, demand.plannedPlots, demand.spacingFloorTiles)) continue;
+        const ruleState = ruleStateAt(demand, plotIndex);
+        if (ruleState.excluded) continue;
+        const intensity = demand.intensity[plotIndex] ?? 0;
+        if (hash01(seed, plotIndex, 0x7417) >= intensity) continue;
+        coEligible.push(demand);
+      }
+      if (coEligible.length === 0) continue;
+
+      // Official deficit rotation: max running weight wins; ties prefer the
+      // larger remaining deficit, then the deterministic hash.
+      let chosen: DemandState | null = null;
+      let chosenScore = Number.NEGATIVE_INFINITY;
+      for (const demand of coEligible) {
+        const ruleState = ruleStateAt(demand, plotIndex);
+        const deficit =
+          demand.effectiveTargetCount > 0
+            ? (demand.effectiveTargetCount - demand.rotationCount) / demand.effectiveTargetCount
+            : 0;
+        const score =
+          demand.runningWeight +
+          ruleState.affinityBonus +
+          deficit * 1e-3 +
+          hash01(seed, plotIndex, demand.resourceSalt) * 1e-6;
+        if (score > chosenScore) {
+          chosen = demand;
+          chosenScore = score;
+        }
+      }
+      if (!chosen) continue;
+
+      sitePlots.push(plotIndex);
+      place(chosen, plotIndex, "rotation");
+      chosen.runningWeight -= chosen.effectiveWeight;
+      rotationPlaced += 1;
     }
 
     // --- range-floor pass ------------------------------------------------------------------------
@@ -385,8 +381,25 @@ const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
             }
             let contested = 0;
             for (const other of demands) {
-              if (other === demand) continue;
-              if (eligibleByDemand[other.index]![plotIndex] !== 0) contested += 1;
+              if (other === demand || other.plannedPlots.length >= other.maxCount) continue;
+              const needsTargetSite =
+                other.plannedPlots.length < other.effectiveTargetCount &&
+                eligibleByDemand[other.index]![plotIndex] !== 0;
+              const regionSlot = regionSlotByTile[plotIndex] ?? 0;
+              const minimum = other.regionMinimumRequirement;
+              const needsRegionSite =
+                minimum.kind === "required" &&
+                regionSlot > 0 &&
+                other.legalMask[plotIndex] !== 0 &&
+                other.plannedPlots.filter((plot) => (regionSlotByTile[plot] ?? 0) === regionSlot)
+                  .length < minimum.minimumPerLandmass;
+              if (!needsTargetSite && !needsRegionSite) continue;
+              if (violatesSpacing(plotIndex, other.plannedPlots, other.spacingFloorTiles)) continue;
+              if (ruleStateAt(other, plotIndex).excluded) continue;
+              // Reserve only usable remaining capacity, including legal-only
+              // regional sites under that pass's cross-type spacing floor.
+              if (!needsTargetSite && violatesSpacing(plotIndex, sitePlots, 2)) continue;
+              contested += 1;
             }
             const score =
               (demand.intensity[plotIndex] ?? 0) -
@@ -416,6 +429,7 @@ const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
       fromRotation: number;
       forced: number;
       shortfall: number;
+      shortfallReason?: "max-count" | "density-equity" | "no-admitted-site";
     }> = [];
     for (const demand of demands) {
       if (demand.regionMinimumRequirement.kind !== "required") continue;
@@ -431,18 +445,32 @@ const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
         ).length;
         let forced = 0;
         let deficit = Math.max(0, required - have);
+        let terminalDensityBlocked = false;
         while (deficit > 0 && demand.plannedPlots.length < demand.maxCount) {
           let best = -1;
           let bestScore = Number.NEGATIVE_INFINITY;
+          terminalDensityBlocked = false;
           for (let plotIndex = 0; plotIndex < size; plotIndex++) {
             if ((regionSlotByTile[plotIndex] ?? 0) !== regionSlot) continue;
             if (demand.legalMask[plotIndex] === 0 || usedPlots.has(plotIndex)) continue;
             // Official force-pass semantics relax cross-type spacing to
             // adjacency avoidance, but the per-type floor still holds (E2.6
             // dominates; unreachable minimums become recorded shortfalls).
+            // Regional completion also preserves the plan's density-equity law.
             if (violatesSpacing(plotIndex, sitePlots, 2)) continue;
             if (violatesSpacing(plotIndex, demand.plannedPlots, demand.spacingFloorTiles)) continue;
             if (ruleStateAt(demand, plotIndex).excluded) continue;
+            if (
+              !admitsQualifyingLandmassDensityChange({
+                qualifyingRows: totalQualifyingLand,
+                resourceCountByLandmass: placedByLandmass,
+                maxDensityRatio: equityMaxDensityRatio,
+                addedLandmassId: landmassIdByTile[plotIndex] ?? -1,
+              })
+            ) {
+              terminalDensityBlocked = true;
+              continue;
+            }
             const score =
               (demand.habitatMask[plotIndex] !== 0 ? 1 : 0) +
               (demand.intensity[plotIndex] ?? 0) +
@@ -466,6 +494,16 @@ const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
           fromRotation: have,
           forced,
           shortfall,
+          ...(shortfall > 0
+            ? {
+                shortfallReason:
+                  demand.plannedPlots.length >= demand.maxCount
+                    ? ("max-count" as const)
+                    : terminalDensityBlocked
+                      ? ("density-equity" as const)
+                      : ("no-admitted-site" as const),
+              }
+            : {}),
         });
       }
     }

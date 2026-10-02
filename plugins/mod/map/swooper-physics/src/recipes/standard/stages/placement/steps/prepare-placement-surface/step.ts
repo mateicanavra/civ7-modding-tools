@@ -1,6 +1,6 @@
-import { deriveCiv7CoastProjection } from "@civ7/map-policy";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { restoreProjectedCoastTerrain } from "../../../../water-surface-parity.js";
+import { projectStandardElevation } from "../../../../elevation-projection.js";
+import { assertAcceptedLakeFootprint, deriveResolvedCoastProjection, restoreProjectedCoastTerrain } from "../../../../water-surface-parity.js";
 import { config } from "./config.js";
 import { projectPlacementSurfaceViz } from "./viz.js";
 
@@ -13,23 +13,34 @@ type TerrainValidationBoundaryReadback = Readonly<{
 }>;
 
 /**
- * Executes the transactional terrain validation, coast restoration, water
- * storage, and area rebuild required before downstream placement products read
- * Civ7. Its snapshots diagnose this transaction only; they do not claim final
- * product parity.
+ * Validates terrain and restores coast and wet elevation requests while
+ * retaining current dry heights, then generates cliffs and rebuilds areas and
+ * water storage before downstream placement reads Civ7. Snapshots diagnose
+ * this transaction only; they do not claim final product parity.
  */
 export const PreparePlacementSurfaceStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
     const shelf = deps.artifacts.shelf.read();
     const topography = deps.artifacts.topography.read();
+    const hydrography = deps.artifacts.hydrography.read();
+    const projectedLakes = deps.artifacts.projectedLakes.read();
+    const coastline = deps.artifacts.resolvedCoastline.read();
+    const elevationRequest = projectStandardElevation({
+      elevation: topography.elevation,
+      landMask: hydrography.exposedLandMask,
+      seaLevel: topography.seaLevel,
+      acceptedLakeMask: projectedLakes.lakeMask,
+    });
     const { width, height } = context.setup.dimensions;
     const dimensions = context.setup.dimensions;
-    const coastProjection = deriveCiv7CoastProjection({
+    const coastProjection = deriveResolvedCoastProjection({
       width,
       height,
-      landMask: topography.landMask,
+      exposedLandMask: hydrography.exposedLandMask,
+      externalWaterMask: topography.externalWaterMask,
+      lakeMask: projectedLakes.lakeMask,
       shelfMask: shelf.shelfMask,
-      coastalWater: shelf.coastalWater,
+      coastalWater: coastline.coastalWater,
     });
     const readTerrainValidationBoundary = (stage: string): TerrainValidationBoundaryReadback => ({
       stage,
@@ -55,10 +66,49 @@ export const PreparePlacementSurfaceStep = createStep(config, {
       "placement/prepare-surface/after-validate"
     );
     const afterValidate = readTerrainValidationBoundary("placement/prepare-surface/after-validate");
+    const currentElevation = deps.engine.readCurrentMapElevationSnapshot(context);
+    if (currentElevation.status !== "available") {
+      throw new Error("[PreparePlacementSurface] Current elevation snapshot is unavailable.");
+    }
+    if (
+      currentElevation.width !== width ||
+      currentElevation.height !== height ||
+      currentElevation.values.length !== width * height
+    ) {
+      throw new Error(
+        "[PreparePlacementSurface] Current elevation snapshot must match map dimensions and cardinality."
+      );
+    }
+    // Wet readbacks can already be lowered; only dry native edits are replayed.
+    for (let index = 0; index < elevationRequest.length; index += 1) {
+      const isWater = deps.engine.isWater(context, index % width, Math.floor(index / width));
+      const current = currentElevation.values[index]!;
+      if (typeof isWater !== "boolean") {
+        throw new Error(
+          `[PreparePlacementSurface] Current water read is not boolean at plot ${index}.`
+        );
+      }
+      if (!Number.isFinite(current)) {
+        throw new Error(
+          `[PreparePlacementSurface] Current elevation is not finite at plot ${index}.`
+        );
+      }
+      if (!isWater) elevationRequest[index] = current;
+    }
+    deps.engine.setElevation(context, elevationRequest);
+    // Cliffs consume finalized river terrain and the retained final elevation request.
+    deps.engine.generateCliffsFromElevation(context);
     deps.engine.recalculateAreas(context);
     deps.engine.storeWaterData(context);
     const afterMaintenance = readTerrainValidationBoundary(
       "placement/prepare-surface/after-maintenance"
+    );
+    assertAcceptedLakeFootprint(
+      dimensions,
+      projectedLakes.lakeMask,
+      afterMaintenance.waterMask,
+      afterMaintenance.terrain,
+      afterMaintenance.stage
     );
 
     return {

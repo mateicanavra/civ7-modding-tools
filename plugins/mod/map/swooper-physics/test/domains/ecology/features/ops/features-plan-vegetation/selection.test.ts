@@ -16,7 +16,132 @@ function broadHabitatFields(size: number) {
   };
 }
 
+function vegetationInputForTest(biome: number, temperature: number) {
+  const { width, height } = TEST_MAP_SIZE.dimensions;
+  const size = width * height;
+  const habitat = broadHabitatFields(size);
+  habitat.biomeIndex.fill(biome);
+  habitat.surfaceTemperature.fill(temperature);
+  return {
+    width,
+    height,
+    seed: TEST_MAP_SEED,
+    scoreForest01: new Float32Array(size),
+    scoreRainforest01: new Float32Array(size),
+    scoreTaiga01: new Float32Array(size),
+    scoreSavannaWoodland01: new Float32Array(size),
+    scoreSagebrushSteppe01: new Float32Array(size),
+    landMask: new Uint8Array(size).fill(1),
+    ...habitat,
+    featureOccupancyMask: new Uint8Array(size),
+  };
+}
+
+function vegetationSelectionWithFloor(floor: number) {
+  return normalizeOperationSelectionForTest(ecology.features.ops.planVegetation, {
+    ...ecology.features.ops.planVegetation.defaultConfig,
+    config: {
+      ...ecology.features.ops.planVegetation.defaultConfig.config,
+      forestMinConfidence01: floor,
+      rainforestMinConfidence01: floor,
+      taigaMinConfidence01: floor,
+      savannaWoodlandMinConfidence01: floor,
+      sagebrushSteppeMinConfidence01: floor,
+    },
+  });
+}
+
 describe("planVegetation (joint resolver)", () => {
+  const vegetationCases = [
+    {
+      feature: "forest",
+      scoreField: "scoreForest01",
+      biome: BIOME_SYMBOL_TO_INDEX.temperateHumid,
+      temperature: 20,
+    },
+    {
+      feature: "rainforest",
+      scoreField: "scoreRainforest01",
+      biome: BIOME_SYMBOL_TO_INDEX.tropicalRainforest,
+      temperature: 25,
+    },
+    {
+      feature: "taiga",
+      scoreField: "scoreTaiga01",
+      biome: BIOME_SYMBOL_TO_INDEX.boreal,
+      temperature: 2,
+    },
+    {
+      feature: "savanna-woodland",
+      scoreField: "scoreSavannaWoodland01",
+      biome: BIOME_SYMBOL_TO_INDEX.tropicalSeasonal,
+      temperature: 20,
+    },
+    {
+      feature: "sagebrush-steppe",
+      scoreField: "scoreSagebrushSteppe01",
+      biome: BIOME_SYMBOL_TO_INDEX.desert,
+      temperature: 20,
+    },
+  ] as const;
+
+  for (const { feature, scoreField, biome, temperature } of vegetationCases) {
+    it(`rejects unsupported ${feature} at an authored zero floor in valid broad habitat`, () => {
+      const input = vegetationInputForTest(biome, temperature);
+      const selection = vegetationSelectionWithFloor(0);
+
+      expect(selection.config).toMatchObject({
+        forestMinConfidence01: 0,
+        rainforestMinConfidence01: 0,
+        taigaMinConfidence01: 0,
+        savannaWoodlandMinConfidence01: 0,
+        sagebrushSteppeMinConfidence01: 0,
+      });
+      expect(ecology.features.ops.planVegetation.run(input, selection).placements).toEqual([]);
+    });
+
+    it(`admits small positive Float32 ${feature} support at an authored zero floor`, () => {
+      const input = vegetationInputForTest(biome, temperature);
+      input[scoreField][0] = 2 ** -149;
+      input[scoreField][1] = 1e-6;
+
+      expect(input[scoreField][0]).toBe(2 ** -149);
+      expect(input[scoreField][1]).toBeGreaterThan(0);
+      expect(
+        ecology.features.ops.planVegetation.run(input, vegetationSelectionWithFloor(0)).placements
+      ).toEqual([
+        { x: 0, y: 0, feature },
+        { x: 1, y: 0, feature },
+      ]);
+    });
+
+    it(`admits ${feature} exactly at a positive representable floor and rejects just below`, () => {
+      const input = vegetationInputForTest(biome, temperature);
+      const floor = 0.125;
+      input[scoreField][0] = floor;
+      input[scoreField][1] = floor - 2 ** -27;
+
+      expect(input[scoreField][0]).toBe(floor);
+      expect(input[scoreField][1]).toBe(floor - 2 ** -27);
+      expect(
+        ecology.features.ops.planVegetation.run(input, vegetationSelectionWithFloor(floor))
+          .placements
+      ).toEqual([{ x: 0, y: 0, feature }]);
+    });
+  }
+
+  it("keeps occupancy, flat-terrain, and land gates at an authored zero floor", () => {
+    const input = vegetationInputForTest(BIOME_SYMBOL_TO_INDEX.temperateHumid, 20);
+    input.scoreForest01.fill(1, 0, 4);
+    input.featureOccupancyMask[1] = 1;
+    input.flatLandMask[2] = 0;
+    input.landMask[3] = 0;
+
+    expect(
+      ecology.features.ops.planVegetation.run(input, vegetationSelectionWithFloor(0)).placements
+    ).toEqual([{ x: 0, y: 0, feature: "forest" }]);
+  });
+
   it("selects the highest-scoring vegetation feature per land tile and respects occupancy", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;

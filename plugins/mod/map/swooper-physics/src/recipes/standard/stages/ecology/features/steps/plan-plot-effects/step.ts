@@ -11,12 +11,13 @@ export const PlanPlotEffectsStep = createStep(config, {
     const classification = deps.artifacts.biomeClassification.read();
     const climateIndices = deps.artifacts.climateIndices.read();
     const topography = deps.artifacts.topography.read();
+    const hydrography = deps.artifacts.hydrography.read();
     const { width, height } = context.setup.dimensions;
     const scoreSnow = ops.scoreSnow(
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask: hydrography.exposedLandMask,
         elevation: topography.elevation,
         effectiveMoisture: climateIndices.effectiveMoisture,
         surfaceTemperature: climateIndices.surfaceTemperatureC,
@@ -29,7 +30,7 @@ export const PlanPlotEffectsStep = createStep(config, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask: hydrography.exposedLandMask,
         biomeIndex: classification.biomeIndex,
         vegetationDensity: classification.vegetationDensity,
         effectiveMoisture: climateIndices.effectiveMoisture,
@@ -43,7 +44,7 @@ export const PlanPlotEffectsStep = createStep(config, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask: hydrography.exposedLandMask,
         biomeIndex: classification.biomeIndex,
         vegetationDensity: classification.vegetationDensity,
         effectiveMoisture: climateIndices.effectiveMoisture,
@@ -57,7 +58,7 @@ export const PlanPlotEffectsStep = createStep(config, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask: hydrography.exposedLandMask,
         biomeIndex: classification.biomeIndex,
         vegetationDensity: classification.vegetationDensity,
         effectiveMoisture: climateIndices.effectiveMoisture,

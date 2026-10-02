@@ -2,8 +2,12 @@ import { describe, expect, it } from "bun:test";
 import { requireResourceRuntimeId } from "@civ7/map-policy";
 import { evaluateMetricTargets } from "@swooper/mapgen-metrics";
 import type { StandardMapCapture } from "../../../../../../src/recipes/standard/metrics/capture.js";
+import { measureStandardResourcePlacement } from "../../../../../../src/recipes/standard/metrics/families/placement/resource-placement.js";
 import { measureStandardResources } from "../../../../../../src/recipes/standard/metrics/families/resources.js";
-import { measureStandardMapCapture } from "../../../../../../src/recipes/standard/metrics/sample.js";
+import {
+  measureStandardMapCapture,
+  type StandardMapMetricCohort,
+} from "../../../../../../src/recipes/standard/metrics/sample.js";
 import { STANDARD_INTEGRITY_TARGET } from "../../../../../../src/recipes/standard/metrics/targets/integrity.js";
 import { EARTHLIKE_RESOURCE_DISTRIBUTION_TARGET } from "../../../../../../src/recipes/standard/metrics/targets/resources.js";
 import {
@@ -11,10 +15,107 @@ import {
   measureEarthlikeSample,
 } from "../../fixtures/standard-product.js";
 
-describe("Standard resource metrics", () => {
-  it("captures admitted demand and terminal placement as one closed resource population", () => {
-    const resources = measureEarthlikeSample().metrics.resources;
+function captureWithScenarioIneligibleDates(): StandardMapCapture {
+  const capture = captureEarthlikeScenario();
+  const resourceType = "RESOURCE_DATES";
+  const runtimeResourceTypeId = requireResourceRuntimeId(resourceType).resourceTypeId;
+  const dates = capture.resources.candidates.find(
+    (candidate) => candidate.resourceType === resourceType
+  );
+  if (!dates) throw new Error("Metric fixture has no dates candidate.");
+  const outcomes = capture.resources.outcomes.filter(
+    (outcome) => outcome.resourceType !== runtimeResourceTypeId
+  );
 
+  // Exercise exclusion measurement independently of the generated climate's dates eligibility.
+  return {
+    ...capture,
+    resources: {
+      ...capture.resources,
+      candidates: capture.resources.candidates.map((candidate) =>
+        candidate === dates
+          ? {
+              ...candidate,
+              runtimeResourceTypeId,
+              admission: {
+                kind: "scenario-ineligible",
+                targetIntentCount: 1,
+                habitatTileCount: 0,
+                reason: {
+                  kind: "no-legal-sites",
+                  legalMask: new Uint8Array(capture.observation.resource.length),
+                },
+              },
+            }
+          : candidate
+      ),
+      perType: capture.resources.perType.filter((row) => row.resourceType !== resourceType),
+      intents: capture.resources.intents.filter((intent) => intent.resourceType !== resourceType),
+      outcomes,
+      summary: measureStandardResourcePlacement(outcomes).summary,
+      regionMinimums: capture.resources.regionMinimums.filter(
+        (row) => row.resourceType !== resourceType
+      ),
+    },
+    observation: {
+      ...capture.observation,
+      resource: capture.observation.resource.map((observed) =>
+        observed === runtimeResourceTypeId ? capture.observation.noResource : observed
+      ),
+    },
+  };
+}
+
+describe("Standard resource metrics", () => {
+  it.each([
+    { label: "empty cohort", ratios: [], status: "fail" },
+    { label: "missing ratio", ratios: [1.5, null], status: "fail" },
+    { label: "NaN ratio", ratios: [1.5, Number.NaN], status: "fail" },
+    { label: "positive infinite ratio", ratios: [1.5, Number.POSITIVE_INFINITY], status: "fail" },
+    { label: "negative infinite ratio", ratios: [1.5, Number.NEGATIVE_INFINITY], status: "fail" },
+    { label: "mean below CSR", ratios: [0.5, 1.25], status: "fail" },
+    { label: "mean exactly CSR", ratios: [0.75, 1.25], status: "fail" },
+    { label: "twenty maps exactly CSR", ratios: new Array<number>(20).fill(1), status: "fail" },
+    { label: "mixed cohort above CSR", ratios: [0.75, 1.5], status: "pass" },
+    { label: "mean just above CSR", ratios: [1 + Number.EPSILON], status: "pass" },
+  ])("evaluates geological cohort aggregation: $label", ({ ratios, status }) => {
+    const sample = measureEarthlikeSample();
+    const samples = ratios.map((ratio, index) => ({
+      ...sample,
+      metrics: {
+        ...sample.metrics,
+        resources: {
+          ...sample.metrics.resources,
+          geologicalPairCorrelationAboveSpacing: {
+            ...sample.metrics.resources.geologicalPairCorrelationAboveSpacing,
+            // Maps have equal weight even when their resource populations differ.
+            placedCount: index === 0 ? 100 : 4,
+            ratioToCompleteSpatialRandomness: ratio,
+          },
+        },
+      },
+    }));
+    const [evaluation] = evaluateMetricTargets(
+      // Include malformed empty runtime input despite the public nonempty tuple type.
+      samples as unknown as StandardMapMetricCohort,
+      [EARTHLIKE_RESOURCE_DISTRIBUTION_TARGET]
+    );
+
+    expect(
+      evaluation?.expectations.find(({ id }) => id === "geological-aggregation-above-spacing")
+    ).toMatchObject({ status, observed: status === "pass" });
+    expect(
+      samples.map(
+        ({ metrics }) =>
+          metrics.resources.geologicalPairCorrelationAboveSpacing.ratioToCompleteSpatialRandomness
+      )
+    ).toEqual([...ratios]);
+  });
+
+  it("captures admitted demand and terminal placement as one closed resource population", () => {
+    const resources = measureStandardResources(captureWithScenarioIneligibleDates());
+
+    expect(resources.placedCount).toBeGreaterThan(0);
     expect(resources.candidateCount).toBe(
       resources.demandTypeCount +
         resources.scenarioIneligibleCandidateCount +
@@ -76,7 +177,11 @@ describe("Standard resource metrics", () => {
   }, 30_000);
 
   it("measures excluded candidate placement from resolved runtime observation", () => {
-    const capture = captureEarthlikeScenario();
+    const capture = captureWithScenarioIneligibleDates();
+    const baseline = measureStandardResources(capture);
+    expect(
+      baseline.candidates.find(({ resourceType }) => resourceType === "RESOURCE_DATES")
+    ).toMatchObject({ disposition: "scenario-ineligible", plannedCount: 0, placedCount: 0 });
     const emptyPlot = capture.observation.resource.findIndex(
       (resourceType) => resourceType === capture.observation.noResource
     );
@@ -92,8 +197,10 @@ describe("Standard resource metrics", () => {
       metrics.candidates.find(({ resourceType }) => resourceType === "RESOURCE_DATES")
     ).toMatchObject({
       disposition: "scenario-ineligible",
+      plannedCount: 0,
       placedCount: 1,
     });
+    expect(metrics.placedCount).toBe(baseline.placedCount);
   }, 30_000);
 
   it("recomputes hard-phase habitat membership and fails product authority on one violation", () => {

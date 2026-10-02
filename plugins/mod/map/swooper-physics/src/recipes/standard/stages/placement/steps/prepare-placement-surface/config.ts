@@ -1,5 +1,7 @@
+import { artifacts as hydrographyArtifacts } from "../../../../../../domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "../../../../../../domain/morphology/modules/shelf/artifacts/index.js";
+import { artifacts as morphologyCoastsArtifacts } from "../../../../../../domain/morphology/modules/coasts/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 import { STANDARD_COMPLETIONS } from "../../../../completions.js";
 
@@ -17,7 +19,11 @@ export const config = defineStep({
     "readCurrentMapWaterMask",
     "readCurrentMapLakeMask",
     "readCurrentMapAreaIds",
+    "readCurrentMapElevationSnapshot",
+    "isWater",
     "setTerrainType",
+    "setElevation",
+    "generateCliffsFromElevation",
     "storeWaterData",
     "recalculateAreas",
   ] as const,
@@ -25,6 +31,9 @@ export const config = defineStep({
     STANDARD_COMPLETIONS.naturalWondersPlaced,
     morphologyShelfArtifacts.shelf,
     morphologyLandformsArtifacts.topography,
+    hydrographyArtifacts.projectedLakes,
+    hydrographyArtifacts.hydrography,
+    morphologyCoastsArtifacts.resolvedCoastline,
   ],
   provides: [STANDARD_COMPLETIONS.surfacePrepared],
 });

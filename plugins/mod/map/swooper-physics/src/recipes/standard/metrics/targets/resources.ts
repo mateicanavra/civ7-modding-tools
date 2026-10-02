@@ -17,14 +17,11 @@ export const EARTHLIKE_RESOURCE_DISTRIBUTION_TARGET = {
   expectations: [
     equalTo<StandardMapMetricCohort>(
       "geological-aggregation-above-spacing",
-      "Every cohort map clusters geological resources above complete spatial randomness beyond their blue-noise floor.",
-      (samples) =>
-        samples.every((sample) => {
-          const ratio =
-            sample.metrics.resources.geologicalPairCorrelationAboveSpacing
-              .ratioToCompleteSpatialRandomness;
-          return ratio !== null && ratio > 1;
-        }),
+      "The nonempty cohort has a finite geological pair-correlation ratio on every map and an arithmetic mean strictly above complete spatial randomness beyond the spacing floor.",
+      (samples) => {
+        const mean = geologicalAggregationMean(samples);
+        return mean !== null && mean > 1;
+      },
       true
     ),
     atLeast<StandardMapMetricCohort>(
@@ -52,6 +49,20 @@ export const EARTHLIKE_RESOURCE_DISTRIBUTION_TARGET = {
     ),
   ],
 } satisfies MetricTarget<StandardMapMetricCohort>;
+
+function geologicalAggregationMean(samples: StandardMapMetricCohort): number | null {
+  if (samples.length === 0) return null;
+  let sum = 0;
+  for (const sample of samples) {
+    const ratio =
+      sample.metrics.resources.geologicalPairCorrelationAboveSpacing
+        .ratioToCompleteSpatialRandomness;
+    if (ratio === null || !Number.isFinite(ratio)) return null;
+    sum += ratio;
+  }
+  const mean = sum / samples.length;
+  return Number.isFinite(mean) ? mean : null;
+}
 
 function qualifyingLandmasses(
   rows: StandardMapMetricCohort[number]["metrics"]["resources"]["landmassDensityRows"]

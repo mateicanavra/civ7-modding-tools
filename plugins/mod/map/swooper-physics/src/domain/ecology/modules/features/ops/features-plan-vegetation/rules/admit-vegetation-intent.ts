@@ -5,6 +5,7 @@ import type { VegetationFeatureIntentKey } from "../../../model/atoms/index.js";
  * cold conifer forest, warm seasonal woodland, and semiarid shrubland are
  * different habitats. Admission is therefore feature-local policy, not one
  * family-wide threshold that lets rainforest erase lower-amplitude ecotypes.
+ * A zero floor admits every positively supported candidate, not unsupported ones.
  */
 export function admitVegetationIntent(
   candidate: Readonly<{ feature: VegetationFeatureIntentKey; confidence01: number }>,
@@ -17,7 +18,7 @@ export function admitVegetationIntent(
   }>
 ): boolean {
   const threshold = minConfidenceForFeature(candidate.feature, policy);
-  return candidate.confidence01 >= threshold;
+  return candidate.confidence01 > 0 && candidate.confidence01 >= threshold;
 }
 
 function clampThreshold(value: number): number {

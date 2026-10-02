@@ -3,6 +3,7 @@ import { artifacts as biomeArtifacts } from "../../../../../../../domain/ecology
 import { artifacts as plotEffectArtifacts } from "../../../../../../../domain/ecology/modules/plot-effects/artifacts/index.js";
 import { artifacts as climateArtifacts } from "../../../../../../../domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as hydrographyArtifacts } from "../../../../../../../domain/hydrology/modules/hydrography/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -18,6 +19,7 @@ export const config = defineStep({
     "Computes climate-driven plot-effect intent before the later engine-projection boundary.",
   requires: [
     morphologyLandformsArtifacts.topography,
+    hydrographyArtifacts.hydrography,
     climateArtifacts.climateIndices,
     biomeArtifacts.biomeClassification,
   ],

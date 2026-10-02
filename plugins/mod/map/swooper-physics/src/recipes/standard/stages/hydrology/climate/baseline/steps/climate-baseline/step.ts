@@ -1,6 +1,9 @@
 import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { I8_VECTOR_MAX_ABS } from "@swooper/mapgen-core/lib/grid";
+import {
+  measureStandardSeasonalRainfall,
+  STANDARD_SEASONAL_RAINFALL_METRIC_KEY,
+} from "../../../../../../metrics/families/hydrology/climate-structure.js";
 import {
   HYDROLOGY_DRYNESS_WETNESS_SCALE,
   HYDROLOGY_OCEAN_COUPLING_CURRENT_STRENGTH,
@@ -9,7 +12,6 @@ import {
   HYDROLOGY_OCEAN_COUPLING_WIND_JET_STRENGTH,
   HYDROLOGY_SEASONALITY_DEFAULTS,
   HYDROLOGY_SEASONALITY_PRECIP_NOISE_AMPLITUDE,
-  HYDROLOGY_SEASONALITY_WIND_JET_STREAKS,
   HYDROLOGY_SEASONALITY_WIND_VARIANCE,
   HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C,
   HYDROLOGY_WATER_GRADIENT_PER_RING_BONUS_BASE,
@@ -23,19 +25,7 @@ type HydrologySeasonalityKnob = "low" | "normal" | "high";
 type HydrologyTemperatureKnob = "cold" | "temperate" | "hot";
 
 const QUARTER_YEAR_MODE_COUNT_THRESHOLD = 3;
-const CIRCULATION_MIGRATION_FRACTION = 0.35;
-const SEASON_TRANSIENT_SALT_MULTIPLIER = 0x9e3779b1;
 const TRANSIENT_POLARITIES = [1, -1] as const;
-
-function clampLatitudeDeg(latitudeDeg: number): number {
-  if (!Number.isFinite(latitudeDeg)) return 0;
-  return Math.max(-89.999, Math.min(89.999, latitudeDeg));
-}
-
-function getSeasonPhases(modeCount: 2 | 4): readonly number[] {
-  if (modeCount === 4) return [0, 0.25, 0.5, 0.75];
-  return [0.25, 0.75];
-}
 
 /**
  * Orchestrates deterministic atmosphere-ocean forcing and moisture transport over final
@@ -65,9 +55,6 @@ export const ClimateBaselineStep = createStep(config, {
       stepConfig.seasonality.axialTiltDeg +
       (seasonalityDefaults.axialTiltDeg - normalSeasonalityDefaults.axialTiltDeg);
 
-    const jetStreakDelta =
-      HYDROLOGY_SEASONALITY_WIND_JET_STREAKS[seasonality] -
-      HYDROLOGY_SEASONALITY_WIND_JET_STREAKS.normal;
     const varianceFactor =
       HYDROLOGY_SEASONALITY_WIND_VARIANCE[seasonality] / HYDROLOGY_SEASONALITY_WIND_VARIANCE.normal;
     const noiseAmplitudeFactor =
@@ -88,261 +75,109 @@ export const ClimateBaselineStep = createStep(config, {
     const clampNumber = (value: number, min: number, max: number): number =>
       Math.max(min, Math.min(max, value));
 
-    const computeThermalState =
-      stepConfig.computeThermalState.strategy === "insolation-lapse-rate"
-        ? {
-            ...stepConfig.computeThermalState,
-            config: {
-              ...stepConfig.computeThermalState.config,
-              // Temperature knobs should not simply warm/cool the whole world uniformly (that erases tundra/snow).
-              // Instead, bias the baseline modestly and put most of the adjustment into the equator-to-pole contrast.
-              baseTemperatureC:
-                stepConfig.computeThermalState.config.baseTemperatureC + temperatureDeltaC * 0.5,
-              insolationScaleC: clampNumber(
-                stepConfig.computeThermalState.config.insolationScaleC + temperatureDeltaC * 2,
-                0,
-                80
-              ),
-            },
-          }
-        : stepConfig.computeThermalState;
+    const computeThermalState = {
+      ...stepConfig.computeThermalState,
+      config: {
+        ...stepConfig.computeThermalState.config,
+        annualOffsetC: stepConfig.computeThermalState.config.annualOffsetC + temperatureDeltaC,
+      },
+    };
 
-    const computeAtmosphericCirculation = (() => {
-      if (stepConfig.computeAtmosphericCirculation.strategy === "latitude") {
-        return {
-          ...stepConfig.computeAtmosphericCirculation,
-          config: {
-            ...stepConfig.computeAtmosphericCirculation.config,
-            windJetStreaks: Math.max(
-              0,
-              Math.round(
-                stepConfig.computeAtmosphericCirculation.config.windJetStreaks + jetStreakDelta
-              )
-            ),
-            windVariance:
-              stepConfig.computeAtmosphericCirculation.config.windVariance * varianceFactor,
-            windJetStrength:
-              stepConfig.computeAtmosphericCirculation.config.windJetStrength * jetStrengthFactor,
-          },
-        };
-      }
+    const circulation = stepConfig.computeAtmosphericCirculation.config;
+    const computeAtmosphericCirculation = {
+      ...stepConfig.computeAtmosphericCirculation,
+      config: {
+        ...circulation,
+        // Ocean coupling controls the circulation backbone; seasonality controls the
+        // decorrelated weather budget. Keeping those axes separate preserves the authored
+        // zonal-to-meridional ratio and avoids double-scaling transient pressure texture.
+        zonalStrength: clampNumber(circulation.zonalStrength * jetStrengthFactor, 0, 300),
+        meridionalStrength: clampNumber(circulation.meridionalStrength * jetStrengthFactor, 0, 200),
+        pressureDrivenRms: clampNumber(circulation.pressureDrivenRms * varianceFactor, 0, 400),
+      },
+    };
 
-      if (stepConfig.computeAtmosphericCirculation.strategy === "geostrophic-proxy") {
-        const circulation = stepConfig.computeAtmosphericCirculation.config;
-        return {
-          ...stepConfig.computeAtmosphericCirculation,
-          config: {
-            ...circulation,
-            // Ocean coupling controls the circulation backbone; seasonality controls the
-            // decorrelated weather budget. Keeping those axes separate preserves the authored
-            // zonal-to-meridional ratio and avoids double-scaling transient pressure texture.
-            zonalStrength: clampNumber(
-              circulation.zonalStrength * jetStrengthFactor,
-              0,
-              300
-            ),
-            meridionalStrength: clampNumber(
-              circulation.meridionalStrength * jetStrengthFactor,
-              0,
-              200
-            ),
-            pressureDrivenRms: clampNumber(
-              circulation.pressureDrivenRms * varianceFactor,
-              0,
-              400
-            ),
-          },
-        };
-      }
+    const computeOceanSurfaceCurrents = {
+      ...stepConfig.computeOceanSurfaceCurrents,
+      config: {
+        ...stepConfig.computeOceanSurfaceCurrents.config,
+        windStrength: clampNumber(
+          stepConfig.computeOceanSurfaceCurrents.config.windStrength * currentStrengthFactor,
+          0,
+          2
+        ),
+        ekmanStrength: clampNumber(
+          stepConfig.computeOceanSurfaceCurrents.config.ekmanStrength * currentStrengthFactor,
+          0,
+          2
+        ),
+        gyreStrength: clampNumber(
+          stepConfig.computeOceanSurfaceCurrents.config.gyreStrength * currentStrengthFactor,
+          0,
+          80
+        ),
+        coastStrength: clampNumber(
+          stepConfig.computeOceanSurfaceCurrents.config.coastStrength * currentStrengthFactor,
+          0,
+          80
+        ),
+      },
+    };
 
-      return stepConfig.computeAtmosphericCirculation;
-    })();
+    const computeEvaporationSources = {
+      ...stepConfig.computeEvaporationSources,
+      config: {
+        ...stepConfig.computeEvaporationSources.config,
+        oceanStrength: stepConfig.computeEvaporationSources.config.oceanStrength * wetnessScale,
+        landStrength: stepConfig.computeEvaporationSources.config.landStrength * wetnessScale,
+      },
+    };
 
-    const computeOceanSurfaceCurrents = (() => {
-      if (stepConfig.computeOceanSurfaceCurrents.strategy === "latitude") {
-        return {
-          ...stepConfig.computeOceanSurfaceCurrents,
-          config: {
-            ...stepConfig.computeOceanSurfaceCurrents.config,
-            strength:
-              stepConfig.computeOceanSurfaceCurrents.config.strength * currentStrengthFactor,
-          },
-        };
-      }
+    const transportMoisture = {
+      ...stepConfig.transportMoisture,
+      config: {
+        ...stepConfig.transportMoisture.config,
+        iterations: Math.max(
+          0,
+          Math.round(stepConfig.transportMoisture.config.iterations + transportIterationsDelta)
+        ),
+      },
+    };
 
-      if (stepConfig.computeOceanSurfaceCurrents.strategy === "wind-gyre-projection") {
-        return {
-          ...stepConfig.computeOceanSurfaceCurrents,
-          config: {
-            ...stepConfig.computeOceanSurfaceCurrents.config,
-            windStrength: clampNumber(
-              stepConfig.computeOceanSurfaceCurrents.config.windStrength * currentStrengthFactor,
-              0,
-              2
-            ),
-            ekmanStrength: clampNumber(
-              stepConfig.computeOceanSurfaceCurrents.config.ekmanStrength * currentStrengthFactor,
-              0,
-              2
-            ),
-            gyreStrength: clampNumber(
-              stepConfig.computeOceanSurfaceCurrents.config.gyreStrength * currentStrengthFactor,
-              0,
-              80
-            ),
-            coastStrength: clampNumber(
-              stepConfig.computeOceanSurfaceCurrents.config.coastStrength * currentStrengthFactor,
-              0,
-              80
-            ),
-          },
-        };
-      }
-
-      return stepConfig.computeOceanSurfaceCurrents;
-    })();
-
-    const computeEvaporationSources =
-      stepConfig.computeEvaporationSources.strategy === "thermal-surface"
-        ? {
-            ...stepConfig.computeEvaporationSources,
-            config: {
-              ...stepConfig.computeEvaporationSources.config,
-              oceanStrength:
-                stepConfig.computeEvaporationSources.config.oceanStrength * wetnessScale,
-              landStrength: stepConfig.computeEvaporationSources.config.landStrength * wetnessScale,
-            },
-          }
-        : stepConfig.computeEvaporationSources;
-
-    const transportMoisture = (() => {
-      if (stepConfig.transportMoisture.strategy === "vector-advection") {
-        return {
-          ...stepConfig.transportMoisture,
-          config: {
-            ...stepConfig.transportMoisture.config,
-            iterations: Math.max(
-              0,
-              Math.round(stepConfig.transportMoisture.config.iterations + transportIterationsDelta)
-            ),
-          },
-        };
-      }
-
-      if (stepConfig.transportMoisture.strategy === "cardinal") {
-        return {
-          ...stepConfig.transportMoisture,
-          config: {
-            ...stepConfig.transportMoisture.config,
-            iterations: Math.max(
-              0,
-              Math.round(stepConfig.transportMoisture.config.iterations + transportIterationsDelta)
-            ),
-          },
-        };
-      }
-
-      return stepConfig.transportMoisture;
-    })();
-
-    const computePrecipitation = (() => {
-      const waterGradientRadiusDelta =
-        HYDROLOGY_OCEAN_COUPLING_WATER_GRADIENT_RADIUS[oceanCoupling] -
-        HYDROLOGY_OCEAN_COUPLING_WATER_GRADIENT_RADIUS.earthlike;
-      const perRingBonusDelta =
-        HYDROLOGY_WATER_GRADIENT_PER_RING_BONUS_BASE[oceanCoupling] -
-        HYDROLOGY_WATER_GRADIENT_PER_RING_BONUS_BASE.earthlike;
-
-      if (stepConfig.computePrecipitation.strategy === "baseline") {
-        const scaleDenom = Math.max(0.1, wetnessScale);
-        return {
-          ...stepConfig.computePrecipitation,
-          config: {
-            ...stepConfig.computePrecipitation.config,
-            rainfallScale: stepConfig.computePrecipitation.config.rainfallScale * wetnessScale,
-            noiseAmplitude:
-              stepConfig.computePrecipitation.config.noiseAmplitude * noiseAmplitudeFactor,
-            waterGradient: {
-              ...stepConfig.computePrecipitation.config.waterGradient,
-              radius: Math.max(
-                1,
-                Math.round(
-                  stepConfig.computePrecipitation.config.waterGradient.radius +
-                    waterGradientRadiusDelta
-                )
-              ),
-              perRingBonus: Math.max(
-                0,
-                Math.round(
-                  (stepConfig.computePrecipitation.config.waterGradient.perRingBonus +
-                    perRingBonusDelta) *
-                    wetnessScale
-                )
-              ),
-              lowlandBonus: Math.max(
-                0,
-                Math.round(
-                  stepConfig.computePrecipitation.config.waterGradient.lowlandBonus * wetnessScale
-                )
-              ),
-            },
-            orographic: {
-              ...stepConfig.computePrecipitation.config.orographic,
-              reductionBase: Math.max(
-                0,
-                Math.round(
-                  stepConfig.computePrecipitation.config.orographic.reductionBase / scaleDenom
-                )
-              ),
-              reductionPerStep: Math.max(
-                0,
-                Math.round(
-                  stepConfig.computePrecipitation.config.orographic.reductionPerStep / scaleDenom
-                )
-              ),
-            },
-          },
-        };
-      }
-
-      if (stepConfig.computePrecipitation.strategy === "vector") {
-        return {
-          ...stepConfig.computePrecipitation,
-          config: {
-            ...stepConfig.computePrecipitation.config,
-            rainfallScale: stepConfig.computePrecipitation.config.rainfallScale * wetnessScale,
-            noiseAmplitude:
-              stepConfig.computePrecipitation.config.noiseAmplitude * noiseAmplitudeFactor,
-            waterGradient: {
-              ...stepConfig.computePrecipitation.config.waterGradient,
-              radius: Math.max(
-                1,
-                Math.round(
-                  stepConfig.computePrecipitation.config.waterGradient.radius +
-                    waterGradientRadiusDelta
-                )
-              ),
-              perRingBonus: Math.max(
-                0,
-                Math.round(
-                  (stepConfig.computePrecipitation.config.waterGradient.perRingBonus +
-                    perRingBonusDelta) *
-                    wetnessScale
-                )
-              ),
-              lowlandBonus: Math.max(
-                0,
-                Math.round(
-                  stepConfig.computePrecipitation.config.waterGradient.lowlandBonus * wetnessScale
-                )
-              ),
-            },
-          },
-        };
-      }
-
-      return stepConfig.computePrecipitation;
-    })();
+    const waterGradientRadiusDelta =
+      HYDROLOGY_OCEAN_COUPLING_WATER_GRADIENT_RADIUS[oceanCoupling] -
+      HYDROLOGY_OCEAN_COUPLING_WATER_GRADIENT_RADIUS.earthlike;
+    const perRingBonusDelta =
+      HYDROLOGY_WATER_GRADIENT_PER_RING_BONUS_BASE[oceanCoupling] -
+      HYDROLOGY_WATER_GRADIENT_PER_RING_BONUS_BASE.earthlike;
+    const computePrecipitation = {
+      ...stepConfig.computePrecipitation,
+      config: {
+        ...stepConfig.computePrecipitation.config,
+        rainfallScale: stepConfig.computePrecipitation.config.rainfallScale * wetnessScale,
+        noiseAmplitude: stepConfig.computePrecipitation.config.noiseAmplitude * noiseAmplitudeFactor,
+        waterGradient: {
+          ...stepConfig.computePrecipitation.config.waterGradient,
+          radius: Math.max(
+            1,
+            Math.round(
+              stepConfig.computePrecipitation.config.waterGradient.radius + waterGradientRadiusDelta
+            )
+          ),
+          perRingBonus: Math.max(
+            0,
+            Math.round(
+              (stepConfig.computePrecipitation.config.waterGradient.perRingBonus + perRingBonusDelta) *
+                wetnessScale
+            )
+          ),
+          lowlandBonus: Math.max(
+            0,
+            Math.round(stepConfig.computePrecipitation.config.waterGradient.lowlandBonus * wetnessScale)
+          ),
+        },
+      },
+    };
 
     return {
       ...stepConfig,
@@ -358,16 +193,6 @@ export const ClimateBaselineStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
     const { topLatitude, bottomLatitude } = context.setup.latitudeBounds;
-    const latitudeByRow = new Float32Array(height);
-    if (height <= 1) {
-      const mid = (topLatitude + bottomLatitude) / 2;
-      for (let y = 0; y < height; y++) latitudeByRow[y] = clampLatitudeDeg(mid);
-    } else {
-      const step = (bottomLatitude - topLatitude) / (height - 1);
-      for (let y = 0; y < height; y++) {
-        latitudeByRow[y] = clampLatitudeDeg(topLatitude + step * y);
-      }
-    }
 
     const topography = deps.artifacts.topography.read();
     const shelf = deps.artifacts.shelf.read();
@@ -394,137 +219,58 @@ export const ClimateBaselineStep = createStep(config, {
 
     const modeCount = stepConfig.seasonality.modeCount;
     const axialTiltDeg = stepConfig.seasonality.axialTiltDeg;
-    const phases = getSeasonPhases(modeCount);
+    const sampling = ops.computeSeasonalSampling(
+      { width, height, topLatitude, bottomLatitude, modeCount, axialTiltDeg, rngSeed },
+      stepConfig.computeSeasonalSampling
+    );
+    const { latitudeByRow } = sampling;
 
     const seasonalRainfall: Uint8Array[] = [];
     const seasonalHumidity: Uint8Array[] = [];
+    const seasonalDemand: number[][] = [];
+    const seasonalSurfaceTemperatureC: Float32Array[] = [];
 
-    const usesCoupledClimatePath =
-      stepConfig.computeAtmosphericCirculation.strategy === "geostrophic-proxy" ||
-      stepConfig.computeOceanSurfaceCurrents.strategy === "wind-gyre-projection" ||
-      stepConfig.transportMoisture.strategy === "vector-advection" ||
-      stepConfig.computePrecipitation.strategy === "vector";
+    const oceanGeometry = ops.computeOceanGeometry(
+      {
+        width,
+        height,
+        isWaterMask,
+        coastalWaterMask: shelf.coastalWater,
+        distanceToCoast: shelf.distanceToCoast,
+        shelfMask: shelf.shelfMask,
+      },
+      stepConfig.computeOceanGeometry
+    );
 
-    let oceanGeometry: {
-      basinId: Int32Array;
-      coastDistance: Uint16Array;
-      coastNormalU: Int8Array;
-      coastNormalV: Int8Array;
-      coastTangentU: Int8Array;
-      coastTangentV: Int8Array;
-    } | null = null;
+    // Solar forcing is fixed across coupling vintages; the domain sampling plan separately
+    // owns the circulation and moisture latitude frames.
+    const solar = ops.computeRadiativeForcing(
+      { model: "daily-solar-fourier", width, height, latitudeByRow, axialTiltDeg },
+      stepConfig.computeRadiativeForcing
+    );
 
-    if (usesCoupledClimatePath) {
-      oceanGeometry = ops.computeOceanGeometry(
+    const computeSeasonalAtmosphere = (sstC: Float32Array) => {
+      const periodicThermal = ops.computeThermalState(
         {
+          model: "periodic-response",
           width,
           height,
-          isWaterMask,
-          coastalWaterMask: shelf.coastalWater,
-          distanceToCoast: shelf.distanceToCoast,
-          shelfMask: shelf.shelfMask,
+          solarByRow: solar.solarByRow,
+          phases: sampling.phases,
+          weights: sampling.weights,
+          elevation,
+          seaLevel: topography.seaLevel,
+          landMask,
+          sstC,
         },
-        stepConfig.computeOceanGeometry
+        stepConfig.computeThermalState
       );
-    }
-
-    // Per-phase forcing is static across the fixed-point cycle. Circulation belts follow only
-    // part of solar declination because atmospheric and oceanic inertia keeps their seasonal
-    // migration narrower than direct insolation.
-    const hasSeasons = Math.abs(axialTiltDeg) >= 1e-6;
-    const seasonalForcing = phases.map((phase, seasonIndex) => {
-      const declinationDeg = axialTiltDeg * Math.sin(2 * Math.PI * phase);
-      const circulationLatitude = new Float32Array(height);
-      const thermalLatitude = new Float32Array(height);
-      for (let y = 0; y < height; y++) {
-        circulationLatitude[y] = clampLatitudeDeg(
-          latitudeByRow[y] - declinationDeg * CIRCULATION_MIGRATION_FRACTION
-        );
-        thermalLatitude[y] = clampLatitudeDeg(latitudeByRow[y] - declinationDeg);
-      }
-
-      return {
-        circulationLatitude,
-        thermalLatitude,
-        insolation: ops.computeRadiativeForcing(
-          { width, height, latitudeByRow: thermalLatitude },
-          stepConfig.computeRadiativeForcing
-        ).insolation,
-        transientSalt: hasSeasons
-          ? (Math.imul(
-              rngSeed ^ (seasonIndex + 1),
-              SEASON_TRANSIENT_SALT_MULTIPLIER
-            ) >>>
-              1) |
-            0
-          : 0,
-      };
-    });
-
-    const seasonCount = seasonalForcing.length;
-    const meanRainfall = new Uint8Array(size);
-    const meanHumidity = new Uint8Array(size);
-    const rainfallAmplitude = new Uint8Array(size);
-    const humidityAmplitude = new Uint8Array(size);
-    const clampI8 = (value: number): number =>
-      Math.max(-I8_VECTOR_MAX_ABS, Math.min(I8_VECTOR_MAX_ABS, value));
-    const meanOfF32Fields = (fields: readonly Float32Array[]): Float32Array<ArrayBuffer> => {
-      const mean = new Float32Array(size);
-      const fieldCount = Math.max(1, fields.length);
-      for (let index = 0; index < size; index++) {
-        let sum = 0;
-        for (const field of fields) sum += field[index] ?? 0;
-        mean[index] = sum / fieldCount;
-      }
-      return mean;
-    };
-    const meanOfI8Fields = (fields: readonly Int8Array[]): Int8Array<ArrayBuffer> => {
-      const mean = new Int8Array(size);
-      const fieldCount = Math.max(1, fields.length);
-      for (let index = 0; index < size; index++) {
-        let sum = 0;
-        for (const field of fields) sum += field[index] ?? 0;
-        mean[index] = clampI8(Math.round(sum / fieldCount));
-      }
-      return mean;
-    };
-    const meanOfU8Fields = (fields: readonly Uint8Array[]): Uint8Array<ArrayBuffer> => {
-      const mean = new Uint8Array(size);
-      const fieldCount = Math.max(1, fields.length);
-      for (let index = 0; index < size; index++) {
-        let sum = 0;
-        for (const field of fields) sum += field[index] ?? 0;
-        mean[index] = Math.max(0, Math.min(255, Math.round(sum / fieldCount)));
-      }
-      return mean;
-    };
-
-    const computeSeasonalAtmosphere = (sstC?: Float32Array) => {
-      const zeroElevation = new Int16Array(size);
-      const thermalSamples = seasonalForcing.map((forcing) => ({
-        ...forcing,
-        surfaceTemperatureC: ops.computeThermalState(
-          {
-            width,
-            height,
-            insolation: forcing.insolation,
-            elevation: zeroElevation,
-            landMask,
-            ...(sstC ? { sstC } : {}),
-          },
-          stepConfig.computeThermalState
-        ).surfaceTemperatureC,
+      const thermalSamples = sampling.frames.map((frame, index) => ({
+        ...frame,
+        seaLevelTemperatureC: periodicThermal.samples[index]!.seaLevelTemperatureC,
+        groundTemperatureC: periodicThermal.samples[index]!.surfaceTemperatureC,
       }));
-
-      const meanSeaLevelTemperatureC = new Float32Array(size);
-      for (const sample of thermalSamples) {
-        for (let index = 0; index < size; index++) {
-          meanSeaLevelTemperatureC[index] += sample.surfaceTemperatureC[index] ?? 0;
-        }
-      }
-      for (let index = 0; index < size; index++) {
-        meanSeaLevelTemperatureC[index] /= Math.max(1, thermalSamples.length);
-      }
+      const meanSeaLevelTemperatureC = periodicThermal.meanSeaLevelTemperatureC;
 
       const samples = thermalSamples.map((sample) => {
         const weatherMembers = TRANSIENT_POLARITIES.map((transientPolarity) => {
@@ -533,7 +279,7 @@ export const ClimateBaselineStep = createStep(config, {
               width,
               height,
               latitudeByRow: sample.circulationLatitude,
-              surfaceTemperatureC: sample.surfaceTemperatureC,
+              surfaceTemperatureC: sample.seaLevelTemperatureC,
               meanSurfaceTemperatureC: meanSeaLevelTemperatureC,
               landMask,
               rngSeed,
@@ -547,7 +293,6 @@ export const ClimateBaselineStep = createStep(config, {
               width,
               height,
               latitudeByRow: sample.circulationLatitude,
-              rngSeed,
               pressureField: pressure,
             },
             stepConfig.computeAtmosphericCirculation
@@ -560,15 +305,14 @@ export const ClimateBaselineStep = createStep(config, {
               isWaterMask,
               windU: winds.windU,
               windV: winds.windV,
-              basinId: oceanGeometry?.basinId,
-              coastDistance: oceanGeometry?.coastDistance,
-              coastTangentU: oceanGeometry?.coastTangentU,
-              coastTangentV: oceanGeometry?.coastTangentV,
+              basinId: oceanGeometry.basinId,
+              coastDistance: oceanGeometry.coastDistance,
+              coastTangentU: oceanGeometry.coastTangentU,
+              coastTangentV: oceanGeometry.coastTangentV,
             },
             stepConfig.computeOceanSurfaceCurrents
           );
           return {
-            transientPolarity,
             pressure,
             windU: winds.windU,
             windV: winds.windV,
@@ -576,38 +320,65 @@ export const ClimateBaselineStep = createStep(config, {
             currentV: currents.currentV,
           };
         });
+        const aggregate = ops.computeAtmosphericAggregate(
+          { reduction: "weather-members", width, height, samples: weatherMembers },
+          stepConfig.computeAtmosphericAggregate
+        );
+        if (aggregate.reduction !== "weather-members")
+          throw new Error("Expected weather-member reduction.");
         return {
           ...sample,
           weatherMembers,
-          pressure: meanOfF32Fields(weatherMembers.map((member) => member.pressure)),
-          windU: meanOfI8Fields(weatherMembers.map((member) => member.windU)),
-          windV: meanOfI8Fields(weatherMembers.map((member) => member.windV)),
-          currentU: meanOfI8Fields(weatherMembers.map((member) => member.currentU)),
-          currentV: meanOfI8Fields(weatherMembers.map((member) => member.currentV)),
+          ...aggregate,
         };
       });
-
+      const aggregate = ops.computeAtmosphericAggregate(
+        {
+          reduction: "annual",
+          width,
+          height,
+          model: sampling.model,
+          weights: sampling.weights,
+          samples: samples.map(({ pressure, windU, windV, currentU, currentV }) => ({
+            pressure,
+            windU,
+            windV,
+            currentU,
+            currentV,
+          })),
+        },
+        stepConfig.computeAtmosphericAggregate
+      );
+      if (aggregate.reduction !== "annual")
+        throw new Error("Expected annual atmosphere reduction.");
       return {
         samples,
-        meanWindU: meanOfI8Fields(samples.map((sample) => sample.windU)),
-        meanWindV: meanOfI8Fields(samples.map((sample) => sample.windV)),
-        meanCurrentU: meanOfI8Fields(samples.map((sample) => sample.currentU)),
-        meanCurrentV: meanOfI8Fields(samples.map((sample) => sample.currentV)),
+        meanWindU: aggregate.windU,
+        meanWindV: aggregate.windV,
+        meanCurrentU: aggregate.currentU,
+        meanCurrentV: aggregate.currentV,
+        meanPressure: aggregate.pressure,
+        periodicThermal,
       };
     };
 
-    const couplingIterations = usesCoupledClimatePath
-      ? stepConfig.computeAtmosphericCirculation.strategy === "geostrophic-proxy"
-        ? stepConfig.coupling.iterations
-        : 1
-      : 0;
-    let carriedSstC: Float32Array | undefined;
-    let oceanThermal: { sstC: Float32Array; seaIceMask: Uint8Array } | null = null;
+    let oceanThermal = ops.computeOceanThermalState(
+      {
+        width,
+        height,
+        latitudeByRow,
+        isWaterMask,
+        shelfMask: shelf.shelfMask,
+        currentU: new Int8Array(size),
+        currentV: new Int8Array(size),
+      },
+      stepConfig.computeOceanThermalState
+    );
+    let carriedSstC = oceanThermal.sstC;
 
-    // Temperature -> pressure -> wind -> currents -> SST advances the slow ocean state. A final
-    // atmosphere evaluation then consumes that state without advancing it again, so every
-    // published atmospheric field and the downstream moisture pass share one climate vintage.
-    for (let iteration = 0; iteration < couplingIterations; iteration++) {
+    // Fixed-point passes update the prescribed annual SST. The final atmosphere consumes it
+    // without another ocean advance, preserving one vintage for pressure and moisture.
+    for (let iteration = 0; iteration < stepConfig.coupling.iterations; iteration++) {
       const iterationAtmosphere = computeSeasonalAtmosphere(carriedSstC);
       oceanThermal = ops.computeOceanThermalState(
         {
@@ -630,63 +401,30 @@ export const ClimateBaselineStep = createStep(config, {
     const seasonalWindV = atmosphere.samples.map((sample) => sample.windV);
     const seasonalCurrentU = atmosphere.samples.map((sample) => sample.currentU);
     const seasonalCurrentV = atmosphere.samples.map((sample) => sample.currentV);
-    const {
-      meanWindU,
-      meanWindV,
-      meanCurrentU,
-      meanCurrentV,
-    } = atmosphere;
-    const meanPressure = new Float32Array(size);
-    for (const pressure of seasonalPressure) {
-      for (let index = 0; index < size; index++) {
-        meanPressure[index] += pressure[index] ?? 0;
-      }
-    }
-    for (let index = 0; index < size; index++) {
-      meanPressure[index] /= Math.max(1, seasonalPressure.length);
-    }
+    const { meanWindU, meanWindV, meanCurrentU, meanCurrentV, meanPressure } = atmosphere;
 
-    // Moisture and precipitation consume the same final atmosphere vintage. The uncoupled path
-    // intentionally omits ocean-only inputs rather than manufacturing an empty ocean state.
+    // Moisture and precipitation consume the same final atmosphere and prescribed SST vintage.
     for (const sample of atmosphere.samples) {
-      const thermal = ops.computeThermalState(
-        {
-          width,
-          height,
-          insolation: sample.insolation,
-          elevation,
-          landMask,
-          ...(oceanThermal ? { sstC: oceanThermal.sstC } : {}),
-        },
-        stepConfig.computeThermalState
-      );
+      const surfaceTemperatureC = sample.groundTemperatureC;
+      seasonalSurfaceTemperatureC.push(surfaceTemperatureC);
       const weatherPrecipitation = sample.weatherMembers.map((member) => {
         const evaporation = ops.computeEvaporationSources(
-          oceanThermal
-            ? {
-                width,
-                height,
-                landMask,
-                surfaceTemperatureC: thermal.surfaceTemperatureC,
-                windU: member.windU,
-                windV: member.windV,
-                sstC: oceanThermal.sstC,
-                seaIceMask: oceanThermal.seaIceMask,
-              }
-            : {
-                width,
-                height,
-                landMask,
-                surfaceTemperatureC: thermal.surfaceTemperatureC,
-              },
+          {
+            width,
+            height,
+            landMask,
+            surfaceTemperatureC,
+            windU: member.windU,
+            windV: member.windV,
+            sstC: oceanThermal.sstC,
+            seaIceMask: oceanThermal.seaIceMask,
+          },
           stepConfig.computeEvaporationSources
         );
         const moisture = ops.transportMoisture(
           {
             width,
             height,
-            latitudeByRow: sample.thermalLatitude,
-            landMask,
             windU: member.windU,
             windV: member.windV,
             evaporation: evaporation.evaporation,
@@ -709,47 +447,56 @@ export const ClimateBaselineStep = createStep(config, {
         );
       });
 
-      seasonalRainfall.push(
-        meanOfU8Fields(weatherPrecipitation.map((member) => member.rainfall))
+      const precipitation = ops.computeMoistureAggregate(
+        { reduction: "weather-members", width, height, samples: weatherPrecipitation },
+        stepConfig.computeMoistureAggregate
       );
-      seasonalHumidity.push(
-        meanOfU8Fields(weatherPrecipitation.map((member) => member.humidity))
+      if (precipitation.reduction !== "weather-members")
+        throw new Error("Expected weather precipitation reduction.");
+      seasonalRainfall.push(precipitation.rainfall);
+      const humidity = precipitation.humidity;
+      seasonalHumidity.push(humidity);
+      seasonalDemand.push(
+        ops.computePotentialDemand(
+          {
+            width,
+            height,
+            surfaceTemperatureC,
+            humidity,
+            parameters: stepConfig.potentialDemand,
+          },
+          stepConfig.computePotentialDemand
+        ).pet
       );
     }
 
-    // Recompute annual mean + amplitude now that we have seasonal rainfall/humidity.
-    for (let i = 0; i < size; i++) {
-      let rainSum = 0;
-      let humidSum = 0;
-      let rainMin = 255;
-      let rainMax = 0;
-      let humidMin = 255;
-      let humidMax = 0;
-
-      for (let s = 0; s < seasonCount; s++) {
-        const rain = seasonalRainfall[s]?.[i] ?? 0;
-        const humid = seasonalHumidity[s]?.[i] ?? 0;
-        rainSum += rain;
-        humidSum += humid;
-        if (rain < rainMin) rainMin = rain;
-        if (rain > rainMax) rainMax = rain;
-        if (humid < humidMin) humidMin = humid;
-        if (humid > humidMax) humidMax = humid;
-      }
-
-      meanRainfall[i] = Math.max(0, Math.min(200, Math.round(rainSum / seasonCount)));
-      meanHumidity[i] = Math.max(0, Math.min(255, Math.round(humidSum / seasonCount)));
-      rainfallAmplitude[i] = Math.max(0, Math.min(255, Math.round((rainMax - rainMin) / 2)));
-      humidityAmplitude[i] = Math.max(0, Math.min(255, Math.round((humidMax - humidMin) / 2)));
-    }
+    const annualMoisture = ops.computeMoistureAggregate(
+      {
+        reduction: "annual",
+        width,
+        height,
+        model: sampling.model,
+        weights: sampling.weights,
+        samples: seasonalRainfall.map((rainfall, index) => ({
+          rainfall,
+          humidity: seasonalHumidity[index]!,
+          potentialDemand: seasonalDemand[index]!,
+        })),
+      },
+      stepConfig.computeMoistureAggregate
+    );
+    if (annualMoisture.reduction !== "annual")
+      throw new Error("Expected annual moisture reduction.");
 
     const baselineClimateField = deps.artifacts.baselineClimateField.publish({
-      rainfall: meanRainfall,
-      humidity: meanHumidity,
+      rainfall: annualMoisture.rainfall,
+      humidity: annualMoisture.humidity,
+      potentialDemand: annualMoisture.potentialDemand,
+      demandParameters: { ...stepConfig.potentialDemand },
     });
     const seasonalAmplitudes = {
-      rainfallAmplitude,
-      humidityAmplitude,
+      rainfallAmplitude: annualMoisture.rainfallAmplitude,
+      humidityAmplitude: annualMoisture.humidityAmplitude,
     };
     const pressureField = deps.artifacts.pressureField.publish({
       pressure: meanPressure,
@@ -762,22 +509,54 @@ export const ClimateBaselineStep = createStep(config, {
       currentU: meanCurrentU,
       currentV: meanCurrentV,
     };
+    const thermalField = deps.artifacts.thermalField.publish({
+      surfaceTemperatureC: atmosphere.periodicThermal.annualSurfaceTemperatureC,
+    });
+    const observe = <T>(samples: readonly T[]): T[] =>
+      sampling.observationIndices.map((index) => samples[index]!);
     return {
       baselineClimateField,
+      thermalField,
+      landMask,
       seasonalAmplitudes,
       pressureField,
       windField,
       currentField,
-      seasonalRainfall,
-      seasonalHumidity,
-      seasonalPressure,
-      seasonalWindU,
-      seasonalWindV,
-      seasonalCurrentU,
-      seasonalCurrentV,
+      seasonalRainfall: observe(seasonalRainfall),
+      seasonalHumidity: observe(seasonalHumidity),
+      seasonalSurfaceTemperatureC: observe(seasonalSurfaceTemperatureC),
+      seasonalPressure: observe(seasonalPressure),
+      seasonalWindU: observe(seasonalWindU),
+      seasonalWindV: observe(seasonalWindV),
+      seasonalCurrentU: observe(seasonalCurrentU),
+      seasonalCurrentV: observe(seasonalCurrentV),
+      seasonalIntegration: {
+        model: sampling.model,
+        phaseOrigin: "northward-equinox" as const,
+        phases: sampling.phases,
+        weights: sampling.weights,
+        observationIndices: sampling.observationIndices,
+        rainfall: seasonalRainfall,
+        humidity: seasonalHumidity,
+        potentialDemand: seasonalDemand,
+        surfaceTemperatureC: seasonalSurfaceTemperatureC,
+        pressure: seasonalPressure,
+        windU: seasonalWindU,
+        windV: seasonalWindV,
+        currentU: seasonalCurrentU,
+        currentV: seasonalCurrentV,
+      },
+      thermalResponse: {
+        annualUnclippedSurfaceTemperatureC:
+          atmosphere.periodicThermal.annualUnclippedSurfaceTemperatureC,
+        annualClippingDeltaC: atmosphere.periodicThermal.annualClippingDeltaC,
+      },
       oceanGeometry,
       oceanThermal,
     };
   },
+  metrics: ({ observation }) => ({
+    [STANDARD_SEASONAL_RAINFALL_METRIC_KEY]: measureStandardSeasonalRainfall(observation),
+  }),
   viz: ({ observation, dimensions }) => buildClimateBaselineVizProjections(observation, dimensions),
 });

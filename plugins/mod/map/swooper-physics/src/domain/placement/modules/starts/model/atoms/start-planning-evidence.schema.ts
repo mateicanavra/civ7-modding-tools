@@ -11,6 +11,7 @@ export const StartRejectionReasonSchema = Type.Union([
   Type.Literal("insufficient-landmass"),
   Type.Literal("insufficient-expansion"),
   Type.Literal("insufficient-island-cluster"),
+  Type.Literal("resource-support-floor"),
 ]);
 
 /** Aggregate count for one start-candidate rejection reason. */

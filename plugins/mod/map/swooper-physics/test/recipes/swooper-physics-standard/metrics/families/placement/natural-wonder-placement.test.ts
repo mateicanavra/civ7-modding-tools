@@ -38,6 +38,19 @@ const REJECTED_OUTCOME = {
 } as const satisfies NaturalWonderPlacementOutcome;
 
 describe("Standard natural-wonder placement measurement", () => {
+  it("preserves fractional native elevation in placed and rejected evidence", () => {
+    const measurements = measureStandardNaturalWonderPlacement({
+      requestedCount: 2,
+      outcomes: [
+        { ...PLACED_OUTCOME, elevation: 900.125 },
+        { ...REJECTED_OUTCOME, elevation: 1000.625 },
+      ],
+    });
+    expect(Value.Check(StandardNaturalWonderPlacementMeasurementsSchema, measurements)).toBe(true);
+    expect(measurements.outcomes.map((outcome) => outcome.elevation)).toEqual([900.125, 1000.625]);
+    expect(measurements.summary.rejectionExamples[0]).toContain("elevation=1000.625");
+  });
+
   it("derives terminal counts, shortfall, rejection detail, and stable coordinate identities", () => {
     const measurements = measureStandardNaturalWonderPlacement({
       requestedCount: 3,

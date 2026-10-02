@@ -8,6 +8,7 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { ProjectRainfallStep } from "../../../../../../../src/recipes/standard/stages/hydrology/projection/steps/project-rainfall/step.js";
+import { PlotRiversStep } from "../../../../../../../src/recipes/standard/stages/hydrology/rivers/steps/plot-rivers/step.js";
 import { TEST_MAP_SEED } from "../../../../../../setup.js";
 
 const SYNTHETIC_DIMENSIONS = { width: 3, height: 2 } as const;
@@ -22,6 +23,12 @@ class RainfallRecordingAdapter extends MockAdapter {
 }
 
 describe("map-hydrology/project-rainfall", () => {
+  it("does not invent a native rainfall prerequisite for authored river projection", () => {
+    expect(ProjectRainfallStep.contract.provides).toEqual([]);
+    expect(PlotRiversStep.contract.requires).not.toContain("completion:map.rainfall-projected");
+    expect(PlotRiversStep.contract.engine).not.toContain("modelRivers");
+  });
+
   it("projects every final-refined rainfall sample exactly once in row-major order", () => {
     const { width, height } = SYNTHETIC_DIMENSIONS;
     const rainfall = new Uint8Array([0, 17, 200, 42, 81, 133]);

@@ -1,3 +1,4 @@
+import type { CurrentMapElevationSnapshot, RiverCapabilities } from "@civ7/adapter";
 import { createStep, defineStep, type StepEngineDecl, Type } from "@mapgen/authoring/index.js";
 import type { MapContext } from "@mapgen/core/map-context.js";
 import { buildStepTestDependencies } from "@mapgen/testing/index.js";
@@ -32,6 +33,62 @@ const SurfaceStep = createStep(
 );
 
 declare const context: MapContext;
+const ElevationStep = createStep(
+  defineStep({
+    id: "exact-elevation-projection",
+    requires: [],
+    provides: [],
+    engine: ["setElevation", "generateCliffsFromElevation", "readCurrentMapElevationSnapshot"],
+  }),
+  {
+    run: (context, _config, _ops, dependencies) => {
+      dependencies.engine.setElevation(context, [0, 0.125] as const);
+      dependencies.engine.generateCliffsFromElevation(context);
+      const snapshot = dependencies.engine.readCurrentMapElevationSnapshot(context);
+      type SnapshotIsExact = Expect<IsEqual<typeof snapshot, CurrentMapElevationSnapshot>>;
+      void (undefined as unknown as SnapshotIsExact);
+      // @ts-expect-error Numeric native intent must be an ordinary array.
+      dependencies.engine.setElevation(context, new Float64Array(2));
+      // @ts-expect-error Elevation writes require the exact occurrence context first.
+      dependencies.engine.setElevation([0, 0.125]);
+      // @ts-expect-error Declaring the explicit writer does not grant the stock generator.
+      dependencies.engine.buildElevation(context);
+      return snapshot;
+    },
+  }
+);
+buildStepTestDependencies(ElevationStep, context);
+const RiverStep = createStep(
+  defineStep({
+    id: "explicit-river-projection",
+    requires: [],
+    provides: [],
+    engine: ["getRiverCapabilities", "setRiverInfo", "finalizeRivers"],
+  }),
+  {
+    run: (context, _config, _ops, dependencies) => {
+      const capabilities = dependencies.engine.getRiverCapabilities(context);
+      type CapabilitiesAreExact = Expect<IsEqual<typeof capabilities, RiverCapabilities>>;
+      void (undefined as unknown as CapabilitiesAreExact);
+      dependencies.engine.setRiverInfo(context, {
+        x: 1,
+        y: 1,
+        direction: "NORTHWEST",
+        riverClass: "MINOR",
+      } as const);
+      dependencies.engine.finalizeRivers(context, [false, 25, 2, 2] as const);
+      // @ts-expect-error A writer declaration does not grant procedural river generation.
+      dependencies.engine.modelRivers(context, 5, 15, 5);
+      // @ts-expect-error Native enum integers are not portable river directions.
+      dependencies.engine.setRiverInfo(context, { x: 1, y: 1, direction: 0, riverClass: "MINOR" });
+      // @ts-expect-error Every finalization setting must be explicit.
+      dependencies.engine.finalizeRivers(context, [false, 25, 2]);
+      // @ts-expect-error River writes require the exact occurrence context first.
+      dependencies.engine.setRiverInfo({ x: 1, y: 1, direction: "EAST", riverClass: "MINOR" });
+    },
+  }
+);
+buildStepTestDependencies(RiverStep, context);
 buildStepTestDependencies(SurfaceStep, context);
 // @ts-expect-error Engine-declaring step test dependencies require their exact active context.
 buildStepTestDependencies(SurfaceStep);
@@ -83,6 +140,14 @@ defineStep({
   provides: [],
   // @ts-expect-error Unknown adapter methods cannot enter a step contract.
   engine: ["notAnEngineMethod"],
+});
+
+defineStep({
+  id: "removed-river-naming-method",
+  requires: [],
+  provides: [],
+  // @ts-expect-error Removed native operations cannot enter a step contract.
+  engine: ["defineNamedRivers"],
 });
 
 defineStep({

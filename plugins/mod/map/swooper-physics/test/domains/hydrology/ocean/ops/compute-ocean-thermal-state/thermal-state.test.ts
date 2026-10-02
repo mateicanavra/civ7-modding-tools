@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import hydrologyOpsPublic from "../../../../../../src/domain/hydrology/router.js";
 import { forEachHexNeighborOddQWithDirection } from "@swooper/mapgen-core/lib/grid";
+import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 import { TEST_MAP_SIZE } from "../../../../../setup.js";
 
 const { computeOceanThermalState } = hydrologyOpsPublic.ocean.ops;
@@ -43,11 +44,10 @@ function runOceanThermalState(
     poleTempC: number;
     advectIters: number;
     diffusion: number;
-    secondaryWeightMin: number;
     seaIceThresholdC: number;
   }>
 ) {
-  return computeOceanThermalState.run(input, {
+  return runAdmittedOperationForTest(computeOceanThermalState, input, {
     strategy: "latitude-current-advection",
     config,
   });
@@ -85,7 +85,6 @@ describe("hydrology/compute-ocean-thermal-state", () => {
         poleTempC: -2,
         advectIters: 0,
         diffusion: 0,
-        secondaryWeightMin: 0.25,
         seaIceThresholdC: -1,
       }
     );
@@ -135,7 +134,6 @@ describe("hydrology/compute-ocean-thermal-state", () => {
         poleTempC: -2,
         advectIters: 24,
         diffusion: 0.1,
-        secondaryWeightMin: 0.25,
         seaIceThresholdC: -1,
       }
     );
@@ -154,7 +152,6 @@ describe("hydrology/compute-ocean-thermal-state", () => {
         poleTempC: -2,
         advectIters: 24,
         diffusion: 0.1,
-        secondaryWeightMin: 0.25,
         seaIceThresholdC: -1,
       }
     );
@@ -162,13 +159,13 @@ describe("hydrology/compute-ocean-thermal-state", () => {
     expect(advected.sstC[idx(0, 1, width)]).toBeGreaterThan(still.sstC[idx(0, 1, width)]);
   });
 
-  it("does not advect SST from land tiles (water-only upcurrent sampling)", () => {
+  it("retains a blocked ray's share at self instead of renormalizing the water donor", () => {
     const syntheticDimensions = { width: 5, height: 5 } as const;
     const { width, height } = syntheticDimensions;
     const size = width * height;
 
     const latitudeByRow = new Float32Array(height);
-    latitudeByRow.fill(0);
+    latitudeByRow.fill(90);
 
     const isWaterMask = new Uint8Array(size);
     isWaterMask.fill(1);
@@ -177,14 +174,16 @@ describe("hydrology/compute-ocean-thermal-state", () => {
     const cx = 2;
     const cy = 2;
     const center = idx(cx, cy, width);
+    latitudeByRow[cy] = 45;
+    latitudeByRow[cy + 1] = 0;
 
-    // Make the primary upcurrent neighbor land (south), while leaving other diagonals as water.
+    // A meridional direction splits equally between the two southern hex rays.
     isWaterMask[idx(cx, cy + 1, width)] = 0;
 
     const currentU = new Int8Array(size);
     const currentV = new Int8Array(size);
-    // Negative y pulls from the south; previously this could select the land tile and inject 0.
-    currentV[center] = -80;
+    // The blocked half stays at 15 C; the admitted southern donor contributes 30 C.
+    currentV[center] = -127;
 
     const out = runOceanThermalState(
       {
@@ -197,16 +196,16 @@ describe("hydrology/compute-ocean-thermal-state", () => {
         currentV,
       },
       {
-        equatorTempC: 20,
-        poleTempC: 20,
+        equatorTempC: 30,
+        poleTempC: 0,
         advectIters: 1,
         diffusion: 0,
-        secondaryWeightMin: 0.25,
         seaIceThresholdC: -1,
       }
     );
 
-    expect(out.sstC[center]).toBeGreaterThan(10);
+    expect(out.sstC[center]).toBe(22.5);
+    expect(out.sstC[idx(cx, cy + 1, width)]).toBe(0);
   });
 
   it("uses shelfMask to increase local mixing", () => {
@@ -245,7 +244,6 @@ describe("hydrology/compute-ocean-thermal-state", () => {
         poleTempC: 0,
         advectIters: 1,
         diffusion: 0.5,
-        secondaryWeightMin: 0.25,
         seaIceThresholdC: -1,
       }
     );
@@ -256,7 +254,6 @@ describe("hydrology/compute-ocean-thermal-state", () => {
         poleTempC: 0,
         advectIters: 1,
         diffusion: 0.5,
-        secondaryWeightMin: 0.25,
         seaIceThresholdC: -1,
       }
     );

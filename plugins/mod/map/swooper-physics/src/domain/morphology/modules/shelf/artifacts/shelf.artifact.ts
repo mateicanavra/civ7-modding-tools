@@ -2,7 +2,7 @@ import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/au
 
 /**
  * Registers post-island coastline and gradient-break shelf truth consumed by
- * coast projection. Membership is gentle pre-break water connected to shore,
+ * coast projection. Membership is shore-connected gentle continental water plus the shoreline ring,
  * and every persistent mask or distance field is admitted at map cardinality.
  */
 export const artifact = defineArtifact({
@@ -13,7 +13,7 @@ export const artifact = defineArtifact({
       shelfMask: TypedArraySchemas.u8({
         cardinality: "map-grid",
         description:
-          "Mask (1/0): post-island water admitted by the gentle local-gradient gate and connected to a shoreline seed; eligible for TERRAIN_COAST projection.",
+          "Mask (1/0): post-island shoreline-ring water plus shore-connected gentle continental water; eligible for TERRAIN_COAST projection. Ineligible ring tiles do not seed or carry shelf connectivity.",
       }),
       coastalLand: TypedArraySchemas.u8({
         cardinality: "map-grid",

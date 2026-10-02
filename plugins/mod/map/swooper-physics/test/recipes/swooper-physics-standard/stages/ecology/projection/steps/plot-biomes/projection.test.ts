@@ -1,9 +1,10 @@
+import { createEmptyWaterFixture } from "../../../../morphology/features/fixtures/surface-water.js";
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { BIOME_SYMBOL_TO_INDEX } from "../../../../../../../../src/domain/ecology/index.js";
 import { artifacts as biomeArtifacts } from "../../../../../../../../src/domain/ecology/modules/biomes/artifacts/index.js";
 import { artifacts as climateArtifacts } from "../../../../../../../../src/domain/hydrology/modules/climate/artifacts/index.js";
-import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as hydrographyArtifacts } from "../../../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import {
   buildStepTestDependencies,
@@ -54,11 +55,8 @@ describe("plot biomes step", () => {
         vegetationDensity: new Float32Array(size).fill(0.5),
         treeLine01: new Float32Array(size).fill(0.75),
       });
-      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
-        elevation,
-        seaLevel: 0,
-        landMask,
-        bathymetry: new Int16Array(size),
+      publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
+        ...createEmptyWaterFixture(width, height).hydrography, exposedLandMask: landMask,
       });
       publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
         surfaceTemperatureC: new Float32Array(size).fill(15),

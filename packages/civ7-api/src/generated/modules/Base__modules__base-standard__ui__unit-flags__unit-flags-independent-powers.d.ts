@@ -12,6 +12,7 @@ export declare class IndependentPowersUnitFlag extends Component implements Unit
     private independentID;
     private privateerContainer;
     private disposeTooltips;
+    private tooltipRoot;
     private readonly SPACING;
     private readonly BASE_OFFSET;
     /**

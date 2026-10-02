@@ -61,12 +61,13 @@ export default defineStrategy({
             maximum: 40,
             description: "Extra rainfall bonus for low-elevation coastal land.",
           }),
-          /** Maximum elevation to qualify for lowlandBonus. */
+          /** Maximum absolute model relief elevation to qualify for lowlandBonus. */
           lowlandElevationMax: Type.Integer({
             default: 150,
             minimum: -2000,
             maximum: 8000,
-            description: "Maximum elevation to qualify for lowlandBonus.",
+            description:
+              "Maximum absolute elevation in quantized normalized model relief units to qualify for lowlandBonus; not height above sea level.",
           }),
         },
         {
@@ -82,13 +83,13 @@ export default defineStrategy({
         maximum: 200,
         description: "Strength of windward uplift rainfall boost derived from ∇elevation · wind.",
       }),
-      /** Strength of convergence rainfall boost derived from negative divergence (convergence). */
+      /** Maximum additive rainfall units from normalized convergence at full humidity. */
       convergenceStrength: Type.Number({
         default: 16,
         minimum: 0,
         maximum: 200,
         description:
-          "Strength of convergence rainfall boost derived from negative divergence (convergence).",
+          "Maximum additive rainfall units from unit-scale wind convergence, capped to 0..1 and multiplied by available humidity (0..1).",
       }),
     },
     {

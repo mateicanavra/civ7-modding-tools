@@ -30,6 +30,7 @@ import {
   createStandardRecipeTestInitialSetup,
   standardMapConfig,
 } from "../../../fixtures/standard-recipe.js";
+import { createEmptyWaterFixture } from "../../morphology/features/fixtures/surface-water.js";
 
 const { biomeGlobals, featureTypes, terrainTypeIndices } = CIV7_BROWSER_TABLES_V0;
 const PLANNER_SURFACE_SENTINELS = {
@@ -63,38 +64,28 @@ function placementConfig() {
 function publishPlacementInputs(context: MapContext): void {
   const { width, height } = context.setup.dimensions;
   const size = width * height;
+  const water = createEmptyWaterFixture(width, height);
   publishTestArtifact(context, morphologyLandformsArtifacts.topography, {
     elevation: new Int16Array(size).fill(PLANNER_SURFACE_SENTINELS.elevation),
     seaLevel: 0,
     landMask: new Uint8Array(size).fill(PLANNER_SURFACE_SENTINELS.landMask),
+    externalWaterMask: new Uint8Array(size),
     bathymetry: new Int16Array(size),
   });
   publishTestArtifact(context, hydrographyArtifacts.hydrography, {
-    runoff: new Float32Array(size),
-    discharge: new Float32Array(size).fill(PLANNER_SURFACE_SENTINELS.discharge),
+    ...water.hydrography,
+    discharge: Array<number>(size).fill(PLANNER_SURFACE_SENTINELS.discharge),
     riverClass: new Uint8Array(size).fill(PLANNER_SURFACE_SENTINELS.riverClass),
-    flowDir: new Int32Array(size).fill(-1),
-    sinkMask: new Uint8Array(size),
-    outletMask: new Uint8Array(size),
-    basinId: new Int32Array(size).fill(-1),
-    routingElevation: new Float32Array(size),
-    depressionDepth: new Float32Array(size),
-    terminalType: new Uint8Array(size),
+    flowDir: Int32Array.from(
+      { length: size },
+      (_, cell) => Math.floor(cell / width) * width + (cell + 1) % width
+    ),
   });
   publishTestArtifact(context, hydrographyArtifacts.riverNetwork, {
-    upstreamArea: new Int32Array(size),
-    streamOrderProxy: new Uint8Array(size),
-    mouthType: new Uint8Array(size),
+    ...water.riverNetwork,
     slopeClass: new Uint8Array(size).fill(PLANNER_SURFACE_SENTINELS.slopeClass),
-    flowPermanenceProxy: new Uint8Array(size),
   });
-  publishTestArtifact(context, hydrographyArtifacts.lakePlan, {
-    width,
-    height,
-    lakeMask: new Uint8Array(size).fill(PLANNER_SURFACE_SENTINELS.lakeMask),
-    plannedLakeTileCount: 0,
-    sinkLakeCount: 0,
-  });
+  publishTestArtifact(context, hydrographyArtifacts.lakePlan, water.lakePlan);
   publishTestArtifact(context, climateArtifacts.climateIndices, {
     surfaceTemperatureC: new Float32Array(size).fill(PLANNER_SURFACE_SENTINELS.surfaceTemperature),
     effectiveMoisture: new Float32Array(size).fill(PLANNER_SURFACE_SENTINELS.effectiveMoisture),
@@ -204,6 +195,7 @@ describe("plan natural wonders step", () => {
     expect(observation.placements).toHaveLength(expectedWondersCount);
     expect(observation.naturalWonderPlanInput).toMatchObject({
       plannerInput: {
+        engineElevationSource: "mock",
         dimensions: preset.dimensions,
         wondersCount: expectedWondersCount,
       },
@@ -235,6 +227,7 @@ describe("plan natural wonders step", () => {
     const probeX = Math.floor(width / 2);
     const probeY = Math.floor(height / 2);
     const probePlotIndex = probeY * width + probeX;
+    adapter.setElevation(Array.from({ length: width * height }, () => 1200.125));
     adapter.setFeatureType(probeX, probeY, {
       Feature: featureTypes.FEATURE_FOREST,
       Direction: 0,
@@ -267,6 +260,8 @@ describe("plan natural wonders step", () => {
     });
     if (!plannerInput) throw new Error("The natural-wonder planner did not receive its input.");
 
+    expect(plannerInput.engineElevations[probePlotIndex]).toBe(1200.125);
+
     expect({
       landMask: plannerInput.landMask[probePlotIndex],
       elevation: plannerInput.elevation[probePlotIndex],
@@ -288,5 +283,54 @@ describe("plan natural wonders step", () => {
       biomeType: biomeGlobals.BIOME_DESERT,
       featureType: featureTypes.FEATURE_FOREST,
     });
+  });
+
+  it("refuses unavailable elevation before planning instead of substituting physical relief", () => {
+    const { adapter, context } = createContext(TEST_MAP_SIZE);
+    adapter.readCurrentMapElevationSnapshot = () => ({
+      ...TEST_MAP_SIZE.dimensions,
+      source: "native",
+      status: "unavailable",
+      reason: "read-failed",
+      plotIndex: 7,
+    });
+    let called = false;
+    const ops = createCapturingOps(() => {
+      called = true;
+    });
+    expect(() =>
+      withStepExecutionForTest(context, PlanNaturalWondersStep, (stepContext) => {
+        publishPlacementInputs(stepContext);
+        PlanNaturalWondersStep.run(
+          stepContext,
+          placementConfig(),
+          ops,
+          buildStepTestDependencies(PlanNaturalWondersStep, stepContext)
+        );
+      })
+    ).toThrow(/engine elevation is unavailable \(native: read-failed at plot 7\)/);
+    expect(called).toBe(false);
+  });
+
+  it("refuses a snapshot with mismatched dimensions", () => {
+    const { adapter, context } = createContext(TEST_MAP_SIZE);
+    adapter.readCurrentMapElevationSnapshot = () => ({
+      width: 1,
+      height: 1,
+      source: "mock",
+      status: "available",
+      values: new Float64Array([2.5]),
+    });
+    expect(() =>
+      withStepExecutionForTest(context, PlanNaturalWondersStep, (stepContext) => {
+        publishPlacementInputs(stepContext);
+        PlanNaturalWondersStep.run(
+          stepContext,
+          placementConfig(),
+          createCapturingOps(() => {}),
+          buildStepTestDependencies(PlanNaturalWondersStep, stepContext)
+        );
+      })
+    ).toThrow(/engine elevation dimensions do not match/);
   });
 });

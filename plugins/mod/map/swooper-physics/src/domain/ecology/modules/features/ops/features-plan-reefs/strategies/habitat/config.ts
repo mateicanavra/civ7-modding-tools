@@ -1,7 +1,7 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Selects the strongest reef habitat and applies deterministic tile-index spacing after admission.
+ * Selects admitted reef habitat by physical quality with minimum wrapped hex spacing.
  * It changes only authored controls; the shared operation remains the sole input and output authority.
  */
 export default defineStrategy({
@@ -15,17 +15,17 @@ export default defineStrategy({
         description:
           "Reef-family score below which ocean habitat remains evidence rather than placement intent.",
       }),
-      stride: Type.Integer({
+      minSpacingTiles: Type.Integer({
         minimum: 1,
         maximum: 12,
         default: 1,
         description:
-          "Deterministic spacing stride for sparse reef-family intent; 1 keeps every admitted habitat tile.",
+          "Minimum hex-edge distance between reef-family intents; 1 keeps every admitted habitat tile.",
       }),
     },
     {
       description:
-        "Reef confidence floor and deterministic tile-index spacing used to select eligible reef-family habitat.",
+        "Reef confidence floor and minimum wrapped hex spacing used to select eligible reef-family habitat.",
     }
   ),
 });

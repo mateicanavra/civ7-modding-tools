@@ -9597,7 +9597,7 @@ export const catalog = {
       "source": "Base/modules/base-standard/ui/unit-flags/unit-flags.ts",
       "declaration": "generated/modules/Base__modules__base-standard__ui__unit-flags__unit-flags.d.ts",
       "evidence": "embedded-typescript",
-      "diagnostics": 15,
+      "diagnostics": 16,
       "anyKeywords": 0,
       "globalAugmentations": 0,
       "dependencies": [
@@ -13195,8 +13195,8 @@ export const catalog = {
       "source": "Base/modules/core/ui-next/services/input.ts",
       "declaration": "generated/modules/Base__modules__core__ui-next__services__input.d.ts",
       "evidence": "embedded-typescript",
-      "diagnostics": 12,
-      "anyKeywords": 9,
+      "diagnostics": 13,
+      "anyKeywords": 10,
       "globalAugmentations": 0,
       "dependencies": [
         {

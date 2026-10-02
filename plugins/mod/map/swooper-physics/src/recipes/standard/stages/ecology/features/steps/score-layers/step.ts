@@ -1,7 +1,8 @@
-import { deriveCiv7CoastProjection, WATER_CLASS_OCEAN } from "@civ7/map-policy";
+import { WATER_CLASS_OCEAN } from "@civ7/map-policy";
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { defineStandardVizMeta } from "../../../../../viz.js";
+import { deriveResolvedCoastProjection } from "../../../../../water-surface-parity.js";
 import { config } from "./config.js";
 
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
@@ -16,34 +17,40 @@ export const ScoreLayersStep = createStep(config, {
     const climateIndices = deps.artifacts.climateIndices.read();
     const pedology = deps.artifacts.pedology.read();
     const topography = deps.artifacts.topography.read();
-    const coastline = deps.artifacts.shelf.read();
+    const shelf = deps.artifacts.shelf.read();
+    const coastline = deps.artifacts.resolvedCoastline.read();
     const hydrography = deps.artifacts.hydrography.read();
     const lakePlan = deps.artifacts.lakePlan.read();
-    const riverProjection = deps.artifacts.projectedNavigableRivers.read();
+    const riverProjection = deps.artifacts.projectedRivers.read();
     const mountains = deps.artifacts.mountains.read();
     const volcanoes = deps.artifacts.volcanoes.read();
 
     const { width, height } = context.setup.dimensions;
     const size = width * height;
-    const ecologyLandMask = new Uint8Array(size);
-    for (let i = 0; i < size; i++) {
-      ecologyLandMask[i] = topography.landMask[i] === 1 && lakePlan.lakeMask[i] !== 1 ? 1 : 0;
-    }
-    const projectedWaterClass = deriveCiv7CoastProjection({
+    const ecologyLandMask = hydrography.exposedLandMask;
+    const nonExternalMask = Uint8Array.from(topography.externalWaterMask, (external) => external === 1 ? 0 : 1);
+    const marineCoastalWater = Uint8Array.from(coastline.coastalWater, (coastal, cell) =>
+      topography.externalWaterMask[cell] === 1 ? coastal : 0
+    );
+    const marineShelfMask = Uint8Array.from(shelf.shelfMask, (shelf, cell) =>
+      topography.externalWaterMask[cell] === 1 ? shelf : 0
+    );
+    const projectedWaterClass = deriveResolvedCoastProjection({
       width,
       height,
-      landMask: topography.landMask,
-      shelfMask: coastline.shelfMask,
-      coastalWater: coastline.coastalWater,
+      exposedLandMask: ecologyLandMask,
+      externalWaterMask: topography.externalWaterMask,
+      lakeMask: lakePlan.lakeMask,
+      shelfMask: marineShelfMask,
+      coastalWater: marineCoastalWater,
     }).waterClass;
     const openOceanMask = new Uint8Array(size);
     for (let i = 0; i < size; i++) {
-      openOceanMask[i] = projectedWaterClass[i] === WATER_CLASS_OCEAN ? 1 : 0;
+      openOceanMask[i] = topography.externalWaterMask[i] === 1 && projectedWaterClass[i] === WATER_CLASS_OCEAN ? 1 : 0;
     }
 
-    // Ecology features consume post-Hydrology lake truth, not just Morphology's
-    // pre-lake land mask. Otherwise vegetation and wetland features can be
-    // planned on tiles that the player later sees as filled lake water.
+    // Terrestrial habitat uses resolved exposure. Marine reef habitat uses only
+    // prescribed external water; finite lakes retain their separate lotus habitat.
     const vegetationSubstrate = ops.vegetationSubstrate(
       {
         width,
@@ -90,7 +97,6 @@ export const ScoreLayersStep = createStep(config, {
         elevation: topography.elevation,
         seaLevel: topography.seaLevel,
         discharge: hydrography.discharge,
-        sinkMask: hydrography.sinkMask,
       },
       stepConfig.featureSubstrate
     );
@@ -168,11 +174,11 @@ export const ScoreLayersStep = createStep(config, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask: nonExternalMask,
         surfaceTemperature: climateIndices.surfaceTemperatureC,
         bathymetry: topography.bathymetry,
-        shelfMask: coastline.shelfMask,
-        coastalWater: coastline.coastalWater,
+        shelfMask: marineShelfMask,
+        coastalWater: marineCoastalWater,
         distanceToCoast: coastline.distanceToCoast,
       },
       stepConfig.scoreReef
@@ -182,11 +188,11 @@ export const ScoreLayersStep = createStep(config, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask: nonExternalMask,
         surfaceTemperature: climateIndices.surfaceTemperatureC,
         bathymetry: topography.bathymetry,
-        shelfMask: coastline.shelfMask,
-        coastalWater: coastline.coastalWater,
+        shelfMask: marineShelfMask,
+        coastalWater: marineCoastalWater,
         distanceToCoast: coastline.distanceToCoast,
       },
       stepConfig.scoreColdReef
@@ -196,12 +202,12 @@ export const ScoreLayersStep = createStep(config, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask: nonExternalMask,
         surfaceTemperature: climateIndices.surfaceTemperatureC,
         bathymetry: topography.bathymetry,
-        shelfMask: coastline.shelfMask,
+        shelfMask: marineShelfMask,
         openOceanMask,
-        coastalWater: coastline.coastalWater,
+        coastalWater: marineCoastalWater,
         distanceToCoast: coastline.distanceToCoast,
       },
       stepConfig.scoreReefAtoll
@@ -211,13 +217,12 @@ export const ScoreLayersStep = createStep(config, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask: ecologyLandMask,
         surfaceTemperature: climateIndices.surfaceTemperatureC,
-        bathymetry: topography.bathymetry,
+        elevation: topography.elevation,
         lakeMask: lakePlan.lakeMask,
-        shelfMask: coastline.shelfMask,
-        coastalWater: coastline.coastalWater,
-        distanceToCoast: coastline.distanceToCoast,
+        bodyId: lakePlan.bodyId,
+        waterSurface: lakePlan.waterSurface,
       },
       stepConfig.scoreReefLotus
     ).score01;
@@ -226,7 +231,7 @@ export const ScoreLayersStep = createStep(config, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask: ecologyLandMask,
         surfaceTemperature: climateIndices.surfaceTemperatureC,
         elevation: topography.elevation,
         freezeIndex: climateIndices.freezeIndex,

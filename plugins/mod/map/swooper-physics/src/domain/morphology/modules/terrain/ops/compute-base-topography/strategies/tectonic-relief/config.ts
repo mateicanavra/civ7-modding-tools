@@ -32,10 +32,10 @@ export default defineStrategy({
         minimum: 0,
         maximum: 1,
       }),
-      /** Amplitude of base noise injected into crust elevations (0..1). */
+      /** Peak-to-peak envelope of coherent crust noise (0..1 normalized relief units). */
       crustNoiseAmplitude: Type.Number({
         description:
-          "Controls amplitude of base noise injected into crust elevations for map relief variation (0..1).",
+          "Peak-to-peak envelope of spatially coherent crust noise; offsets are bounded by half this amplitude in normalized relief units (0..1).",
         default: 0.1,
         minimum: 0,
         maximum: 1,
@@ -72,14 +72,15 @@ export default defineStrategy({
             maximum: 10,
           }),
           boundaryArcNoiseWeight: Type.Number({
-            description: "Controls raggedness injected into tectonic boundary arcs.",
+            description:
+              "Peak-to-peak envelope of independent coherent boundary-arc noise in normalized relief units, attenuated by boundary proximity.",
             default: 0.2,
             minimum: 0,
             maximum: 10,
           }),
           fractalGrain: Type.Number({
             description:
-              "Controls grain of tectonic fractal noise in terrain relief (higher = finer).",
+              "Spatial scale of coherent relief noise in hex-neighbor spacings per lattice unit, rounded to whole tiles (higher = coarser); X is periodic at map width.",
             default: 4,
             minimum: 1,
             maximum: 64,

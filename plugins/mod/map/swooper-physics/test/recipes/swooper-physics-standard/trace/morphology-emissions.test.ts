@@ -19,7 +19,7 @@ describe("Morphology tracing (observability hardening smoke)", () => {
       full("morphology-routing", "routing"),
       full("morphology-erosion", "geomorphology"),
       full("morphology-coasts", "coastline-evidence"),
-      full("morphology-features", "islands"),
+      full("morphology-islands", "islands"),
       full("morphology-features", "mountains"),
       full("morphology-features", "volcanoes"),
     ];

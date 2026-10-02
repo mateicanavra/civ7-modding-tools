@@ -3,6 +3,37 @@
   "name": "swooper-physics-mod",
   "tags": ["kind:app"],
   "targets": {
+    "verify:river-contract-probe-live": {
+      "command": "bun ./test/live/studio-run-in-game.live.test.ts",
+      "dependsOn": [{ "target": "build", "projects": ["control-orpc"] }],
+      "cache": false,
+      "options": { "cwd": "apps/mods/map/swooper-physics" }
+    },
+    "build:river-contract-probe": {
+      "command": "bun ./test/runtime/river-contract-probe.fixture.ts",
+      "dependsOn": [
+        { "target": "build", "projects": ["mapgen-core", "plugin-files", "swooper-physics"] }
+      ],
+      "outputs": ["{projectRoot}/dist/river-contract-probe/**"],
+      "cache": false,
+      "options": { "cwd": "apps/mods/map/swooper-physics" }
+    },
+    "verify:elevation-contract-probe-live": {
+      "command": "bun ./test/live/studio-run-in-game.live.test.ts",
+      "dependsOn": [
+        "build:elevation-contract-probe",
+        { "target": "build", "projects": ["control-orpc"] }
+      ],
+      "cache": false,
+      "options": { "cwd": "apps/mods/map/swooper-physics" }
+    },
+    "build:elevation-contract-probe": {
+      "command": "bun ./test/runtime/elevation-contract-probe.fixture.ts elevation-native-1018-v1",
+      "dependsOn": [{ "target": "build", "projects": ["mapgen-core", "plugin-files"] }],
+      "outputs": ["{projectRoot}/dist/elevation-contract-probe/**"],
+      "cache": false,
+      "options": { "cwd": "apps/mods/map/swooper-physics" }
+    },
     "build": {
       "command": "bun ./src/build.ts",
       "dependsOn": ["^build"],

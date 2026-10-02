@@ -117,6 +117,295 @@ function run(
 }
 
 describe("select-resource-sites operation contract", () => {
+  describe("range completion competition", () => {
+    // Both candidates fail seed 7331's thinning gate (draws 0.356 and 0.738).
+    // A single false contest penalty would outweigh their 0.02 intensity gap.
+    const preferredPlot = 1264;
+    const fallbackPlot = 1268;
+    const habitatMask = maskFromPlots(preferredPlot, fallbackPlot);
+    const intensity = new Float32Array(cellCount);
+    intensity[preferredPlot] = 0.3;
+    intensity[fallbackPlot] = 0.28;
+    const choosingDemand: Demand = {
+      resourceType: "RESOURCE_CHOOSER",
+      weight: 1,
+      targetCount: 1,
+      minCount: 1,
+      maxCount: 1,
+      habitatMask,
+      legalMask: habitatMask,
+      intensity,
+    };
+
+    for (const testCase of [
+      { name: "already-satisfied", anchor: 691, targetCount: 1 },
+      { name: "same-type-spacing-blocked", anchor: preferredPlot + 1, targetCount: 2 },
+    ]) {
+      it(`does not reserve a better site for ${testCase.name} competing demand`, () => {
+        const rivalMask = maskFromPlots(testCase.anchor, preferredPlot);
+        const rivalIntensity = new Float32Array(cellCount);
+        rivalIntensity[testCase.anchor] = 1;
+        const result = run(
+          buildInput({
+            seed: 7331,
+            demands: [
+              choosingDemand,
+              {
+                resourceType: "RESOURCE_RIVAL",
+                weight: 1,
+                targetCount: testCase.targetCount,
+                minCount: 0,
+                maxCount: 2,
+                habitatMask: rivalMask,
+                legalMask: rivalMask,
+                intensity: rivalIntensity,
+              },
+            ],
+          })
+        );
+
+        expect(result.intents.find((row) => row.resourceType === "RESOURCE_RIVAL")).toMatchObject({
+          phase: "rotation",
+          plotIndex: testCase.anchor,
+        });
+        expect(result.intents.find((row) => row.resourceType === "RESOURCE_CHOOSER")).toMatchObject(
+          {
+            phase: "range-floor",
+            plotIndex: preferredPlot,
+          }
+        );
+      });
+    }
+
+    it("does not reserve a better site for exclusion-blocked competing demand", () => {
+      const rivalMask = maskFromPlots(preferredPlot);
+      const blockerMask = maskFromPlots(preferredPlot + 1);
+      const result = run(
+        buildInput({
+          seed: 7331,
+          demands: [
+            choosingDemand,
+            {
+              resourceType: "RESOURCE_RIVAL",
+              weight: 1,
+              targetCount: 1,
+              minCount: 0,
+              maxCount: 1,
+              habitatMask: rivalMask,
+              legalMask: rivalMask,
+              intensity: new Float32Array(cellCount),
+            },
+            {
+              resourceType: "RESOURCE_BLOCKER",
+              weight: 1,
+              targetCount: 1,
+              minCount: 0,
+              maxCount: 1,
+              habitatMask: blockerMask,
+              legalMask: blockerMask,
+            },
+          ],
+        }),
+        (config) => {
+          config.affinityRules = [
+            {
+              resourceA: "RESOURCE_RIVAL",
+              resourceB: "RESOURCE_BLOCKER",
+              relation: "exclusion",
+              radiusTiles: 2,
+            },
+          ];
+        }
+      );
+
+      expect(result.intents.find((row) => row.resourceType === "RESOURCE_CHOOSER")).toMatchObject({
+        phase: "range-floor",
+        plotIndex: preferredPlot,
+      });
+      expect(result.perType.find((row) => row.resourceType === "RESOURCE_RIVAL")).toMatchObject({
+        plannedCount: 0,
+        shortfalls: [{ reason: "no-admitted-site", count: 1 }],
+      });
+    });
+
+    it("still reserves a contested site for outstanding admissible target demand", () => {
+      const rivalMask = maskFromPlots(preferredPlot);
+      const result = run(
+        buildInput({
+          seed: 7331,
+          demands: [
+            choosingDemand,
+            {
+              resourceType: "RESOURCE_RIVAL",
+              weight: 1,
+              targetCount: 1,
+              minCount: 0,
+              maxCount: 1,
+              habitatMask: rivalMask,
+              legalMask: rivalMask,
+              intensity: new Float32Array(cellCount),
+            },
+          ],
+        })
+      );
+
+      expect(result.intents).toMatchObject([
+        { phase: "range-floor", resourceType: "RESOURCE_CHOOSER", plotIndex: fallbackPlot },
+        { phase: "range-floor", resourceType: "RESOURCE_RIVAL", plotIndex: preferredPlot },
+      ]);
+    });
+
+    for (const inHabitat of [true, false]) {
+      it(`preserves an outstanding regional minimum on a ${inHabitat ? "habitat" : "legal-only"} site`, () => {
+        const rivalLegalMask = maskFromPlots(preferredPlot);
+        const regionSlotByTile = new Uint8Array(cellCount);
+        regionSlotByTile[preferredPlot] = 1;
+        const result = run(
+          buildInput({
+            seed: 7331,
+            regionSlotByTile,
+            demands: [
+              choosingDemand,
+              {
+                resourceType: "RESOURCE_RIVAL",
+                weight: 1,
+                targetCount: 0,
+                minCount: 0,
+                maxCount: 1,
+                habitatMask: inHabitat ? rivalLegalMask : new Uint8Array(cellCount),
+                legalMask: rivalLegalMask,
+                regionMinimumRequirement: {
+                  kind: "required",
+                  minimumPerLandmass: admitPositiveResourceRegionMinimum(1),
+                  source: "official-resource",
+                },
+              },
+            ],
+          })
+        );
+
+        expect(result.intents).toMatchObject([
+          { phase: "range-floor", resourceType: "RESOURCE_CHOOSER", plotIndex: fallbackPlot },
+          { phase: "region-minimum", resourceType: "RESOURCE_RIVAL", plotIndex: preferredPlot },
+        ]);
+        expect(result.regionMinimums).toMatchObject([{ required: 1, forced: 1, shortfall: 0 }]);
+      });
+    }
+  });
+
+  it("preserves high-versus-low intensity preference when both have ample legal capacity", () => {
+    // A spacing-safe lattice gives equal capacity to both intensity bands,
+    // so neither spacing nor a habitat/legality imbalance can explain preference.
+    const admissionMask = new Uint8Array(cellCount);
+    const intensity = new Float32Array(cellCount);
+    let highCapacity = 0;
+    let lowCapacity = 0;
+    for (let y = 0; y < height; y += 4) {
+      for (let x = 0; x <= width - 4; x += 4) {
+        const plotIndex = y * width + x;
+        const high = (x / 4 + y / 4) % 2 === 0;
+        admissionMask[plotIndex] = 1;
+        intensity[plotIndex] = high ? 0.9 : 0.1;
+        if (high) highCapacity += 1;
+        else lowCapacity += 1;
+      }
+    }
+    const targetCount = 40;
+    expect(highCapacity).toBeGreaterThan(targetCount);
+    expect(lowCapacity).toBeGreaterThan(targetCount);
+    const input = buildInput({
+      seed: 1353,
+      demands: [
+        {
+          resourceType: "RESOURCE_INTENSITY",
+          weight: 1,
+          targetCount,
+          minCount: 0,
+          maxCount: targetCount,
+          habitatMask: admissionMask,
+          legalMask: admissionMask,
+          intensity,
+        },
+      ],
+    });
+
+    const result = run(input);
+    const highCount = result.intents.filter((intent) => intensity[intent.plotIndex]! > 0.5).length;
+    const lowCount = result.plannedCount - highCount;
+    expect(result.rotationCount).toBe(targetCount);
+    expect(result.rangeFloorCount).toBe(0);
+    expect(highCount).toBeGreaterThan(3 * lowCount);
+    expect(run(input).intents).toEqual(result.intents);
+  });
+
+  it("uses the supplied intensity directly instead of adding another admission baseline", () => {
+    // Seed 7331 draws 0.356 at this plot: above its 0.3 intensity, but below
+    // the duplicated 0.3 + 0.7 * intensity baseline of 0.51.
+    const plotIndex = 1264;
+    const admissionMask = maskFromPlots(plotIndex);
+    const intensity = new Float32Array(cellCount);
+    intensity[plotIndex] = 0.3;
+    const result = run(
+      buildInput({
+        seed: 7331,
+        demands: [
+          {
+            resourceType: "RESOURCE_INTENSITY",
+            weight: 1,
+            targetCount: 1,
+            minCount: 0,
+            maxCount: 1,
+            habitatMask: admissionMask,
+            legalMask: admissionMask,
+            intensity,
+          },
+        ],
+      })
+    );
+
+    expect(result.intents).toMatchObject([{ phase: "range-floor", plotIndex }]);
+    expect(result.perType[0]).toMatchObject({
+      rotationCount: 0,
+      rangeFloorCount: 1,
+      plannedCount: 1,
+      shortfalls: [],
+    });
+  });
+
+  it("leaves zero-intensity sites to lawful minimum and target completion, not rotation", () => {
+    const admittedPlots = [0, 8, 16];
+    const result = run(
+      buildInput({
+        seed: 1353,
+        demands: [
+          {
+            resourceType: "RESOURCE_INTENSITY",
+            weight: 1,
+            targetCount: 3,
+            minCount: 1,
+            maxCount: 3,
+            habitatMask: maskFromPlots(...admittedPlots, 24),
+            legalMask: maskFromPlots(...admittedPlots, 32),
+            intensity: new Float32Array(cellCount),
+          },
+        ],
+      })
+    );
+
+    expect(result.intents.map((intent) => intent.plotIndex).sort((a, b) => a - b)).toEqual(
+      admittedPlots
+    );
+    expect(result.intents.every((intent) => intent.phase === "range-floor")).toBe(true);
+    expect(result.perType[0]).toMatchObject({
+      effectiveTargetCount: 3,
+      plannedCount: 3,
+      rotationCount: 0,
+      rangeFloorCount: 3,
+      regionMinimumCount: 0,
+      shortfalls: [],
+    });
+  });
+
   it("does not let a low-intensity family borrow another family's thinning admission", () => {
     // Seed 7331 orders the anchor first, then draws 0.356 at the contested plot:
     // admitted for intensity 1, rejected for intensity 0.
@@ -409,6 +698,153 @@ describe("select-resource-sites operation contract", () => {
     });
   });
 
+  for (const alternativeSite of [false, true]) {
+    it(`keeps regional minimums inside density equity with alternate site ${alternativeSite}`, () => {
+      const boundary = width / 2;
+      const left = [-26, -18, -10, -2].map((x) => 10 * width + boundary + x);
+      const right = [6, 14].map((x) => 10 * width + boundary + x);
+      const denseCandidate = 20 * width + 4;
+      const sparseCandidate = 20 * width + boundary + 14;
+      const landmassIdByTile = Int32Array.from({ length: cellCount }, (_, i) =>
+        i % width < width / 2 ? 0 : 1
+      );
+      const regionSlotByTile = new Uint8Array(cellCount).fill(1);
+      regionSlotByTile[denseCandidate] = 2;
+      regionSlotByTile[sparseCandidate] = 2;
+      const intensity = new Float32Array(cellCount);
+      intensity[denseCandidate] = 1;
+      const input = buildInput({
+        landmassIdByTile,
+        landmassTileCounts: [cellCount / 2, cellCount / 2],
+        regionSlotByTile,
+        demands: [
+          {
+            resourceType: "RESOURCE_A",
+            weight: 1,
+            targetCount: 6,
+            minCount: 6,
+            maxCount: 6,
+            habitatMask: maskFromPlots(...left, ...right),
+            legalMask: maskFromPlots(...left, ...right),
+          },
+          {
+            resourceType: "RESOURCE_B",
+            weight: 1,
+            targetCount: 0,
+            minCount: 0,
+            maxCount: 1,
+            habitatMask: new Uint8Array(cellCount),
+            legalMask: maskFromPlots(denseCandidate, ...(alternativeSite ? [sparseCandidate] : [])),
+            intensity,
+            regionMinimumRequirement: {
+              kind: "required",
+              minimumPerLandmass: admitPositiveResourceRegionMinimum(1),
+              source: "official-resource",
+            },
+          },
+        ],
+      });
+      const configure = (
+        config: (typeof resources.sites.ops.selectResourceSites.defaultConfig)["config"]
+      ) => {
+        config.perTypeSpacingFloorScale = 0.5;
+        config.equityMaxDensityRatio = 2;
+      };
+      const result = run(input, configure);
+      expect(result.intents.filter((row) => row.resourceType === "RESOURCE_A")).toHaveLength(6);
+      expect(result.intents.filter((row) => row.resourceType === "RESOURCE_B")).toEqual(
+        alternativeSite
+          ? [expect.objectContaining({ plotIndex: sparseCandidate, phase: "region-minimum" })]
+          : []
+      );
+      expect(result.regionMinimums).toEqual([
+        expect.objectContaining({
+          regionSlot: 2,
+          required: 1,
+          forced: alternativeSite ? 1 : 0,
+          shortfall: alternativeSite ? 0 : 1,
+          ...(alternativeSite ? {} : { shortfallReason: "density-equity" }),
+        }),
+      ]);
+      if (alternativeSite) expect(result.regionMinimums[0]?.shortfallReason).toBeUndefined();
+      expect(run(input, configure)).toEqual(result);
+    });
+  }
+
+  it("records density exhaustion after a successful placement in the same regional minimum", () => {
+    const boundary = width / 2;
+    const left = [-26, -18, -10].map((x) => 10 * width + boundary + x);
+    const right = [6, 14].map((x) => 10 * width + boundary + x);
+    const acceptedCandidate = 20 * width + 4;
+    const blockedCandidate = 20 * width + 12;
+    const regionSlotByTile = new Uint8Array(cellCount).fill(1);
+    regionSlotByTile[acceptedCandidate] = 2;
+    regionSlotByTile[blockedCandidate] = 2;
+    const intensity = new Float32Array(cellCount);
+    intensity[acceptedCandidate] = 1;
+    intensity[blockedCandidate] = 0.5;
+    const input = buildInput({
+      landmassIdByTile: Int32Array.from({ length: cellCount }, (_, i) =>
+        i % width < boundary ? 0 : 1
+      ),
+      landmassTileCounts: [cellCount / 2, cellCount / 2],
+      regionSlotByTile,
+      demands: [
+        {
+          resourceType: "RESOURCE_A",
+          weight: 1,
+          targetCount: 5,
+          minCount: 5,
+          maxCount: 5,
+          habitatMask: maskFromPlots(...left, ...right),
+          legalMask: maskFromPlots(...left, ...right),
+        },
+        {
+          resourceType: "RESOURCE_B",
+          weight: 1,
+          targetCount: 0,
+          minCount: 0,
+          maxCount: 3,
+          habitatMask: new Uint8Array(cellCount),
+          legalMask: maskFromPlots(acceptedCandidate, blockedCandidate),
+          intensity,
+          regionMinimumRequirement: {
+            kind: "required",
+            minimumPerLandmass: admitPositiveResourceRegionMinimum(2),
+            source: "official-resource",
+          },
+        },
+      ],
+    });
+    const configure = (
+      config: (typeof resources.sites.ops.selectResourceSites.defaultConfig)["config"]
+    ) => {
+      config.perTypeSpacingFloorScale = 0.5;
+      config.equityMaxDensityRatio = 2;
+    };
+    const result = run(input, configure);
+
+    expect(result.intents.filter((row) => row.resourceType === "RESOURCE_A")).toHaveLength(5);
+    expect(result.intents.filter((row) => row.resourceType === "RESOURCE_B")).toEqual([
+      expect.objectContaining({ plotIndex: acceptedCandidate, phase: "region-minimum" }),
+    ]);
+    // The first addition reaches 4:2; the second would cross the same density limit at 5:2.
+    expect(result.intents.filter((row) => row.landmassId === 0)).toHaveLength(4);
+    expect(result.intents.filter((row) => row.landmassId === 1)).toHaveLength(2);
+    expect(result.regionMinimums).toEqual([
+      {
+        resourceType: "RESOURCE_B",
+        regionSlot: 2,
+        required: 2,
+        fromRotation: 0,
+        forced: 1,
+        shortfall: 1,
+        shortfallReason: "density-equity",
+      },
+    ]);
+    expect(run(input, configure)).toEqual(result);
+  });
+
   it("keeps required range completion intensity-scored while density admission is open", () => {
     const landmassBoundary = Math.floor(width / 2);
     const landmassIdByTile = new Int32Array(cellCount);
@@ -580,8 +1016,44 @@ describe("select-resource-sites operation contract", () => {
         fromRotation: 0,
         forced: 1,
         shortfall: 2,
+        shortfallReason: "no-admitted-site",
       },
     ]);
+  });
+
+  it("attributes a regional shortfall to the resource count cap", () => {
+    const result = run(
+      buildInput({
+        regionSlotByTile: new Uint8Array(cellCount).fill(1),
+        demands: [
+          {
+            resourceType: "RESOURCE_FISH",
+            weight: 1,
+            targetCount: 0,
+            minCount: 0,
+            maxCount: 1,
+            legalMask: maskFromPlots(0, 8, 16),
+            regionMinimumRequirement: {
+              kind: "required",
+              minimumPerLandmass: admitPositiveResourceRegionMinimum(3),
+              source: "official-resource",
+            },
+          },
+        ],
+      })
+    );
+    expect(result.regionMinimums).toEqual([
+      {
+        resourceType: "RESOURCE_FISH",
+        regionSlot: 1,
+        required: 3,
+        fromRotation: 0,
+        forced: 1,
+        shortfall: 2,
+        shortfallReason: "max-count",
+      },
+    ]);
+    expect(result.intents).toHaveLength(1);
   });
 
   it("keeps exclusion hard during the region-minimum force pass", () => {
@@ -635,6 +1107,7 @@ describe("select-resource-sites operation contract", () => {
         fromRotation: 0,
         forced: 0,
         shortfall: 1,
+        shortfallReason: "no-admitted-site",
       },
       {
         resourceType: "RESOURCE_B",
@@ -643,6 +1116,7 @@ describe("select-resource-sites operation contract", () => {
         fromRotation: 0,
         forced: 0,
         shortfall: 1,
+        shortfallReason: "no-admitted-site",
       },
     ]);
     expect(result.perType.find((row) => row.resourceType === "RESOURCE_B")?.shortfalls).toEqual([]);

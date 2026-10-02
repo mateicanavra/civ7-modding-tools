@@ -1,15 +1,14 @@
 import { describe, expect, it } from "bun:test";
+import { I8_VECTOR_MAX_ABS } from "@swooper/mapgen-core/lib/grid";
 
 import hydrologyOpsPublic from "../../../../../../src/domain/hydrology/router.js";
 import {
-  deriveTestOperationSeed,
   TEST_MAP_LATITUDE_BOUNDS,
   TEST_MAP_SIZE,
 } from "../../../../../setup.js";
 
 const { computeAtmosphericCirculation } = hydrologyOpsPublic.climate.ops;
 const { width: WIDTH, height: HEIGHT } = TEST_MAP_SIZE.dimensions;
-const OPERATION_SEED = deriveTestOperationSeed("test:hydrology:atmospheric-circulation");
 const PRESSURE_PHASES = [0, Math.PI / 2, Math.PI, (Math.PI * 3) / 2] as const;
 const MIGRATED_LATITUDE_OFFSETS_DEG = [0, 10, 0, -10] as const;
 const HIGH_PRESSURE_RESPONSE_CONFIG = {
@@ -39,6 +38,31 @@ type GeostrophicConfig = {
   equatorialTaperDeg: number;
 };
 
+const FLOAT32_RELATIVE_EPSILON = 2 ** -23;
+const SIGNED_BYTE_ROUNDING_ERROR = 0.5;
+
+function analyticBackbone(
+  latitudeDeg: number,
+  latitudeRampSign: number,
+  config: GeostrophicConfig
+): { u: number; v: number } {
+  const absoluteLatitude = Math.abs(latitudeDeg);
+  const cell = Math.min(2, Math.floor(absoluteLatitude / 30));
+  const cellPhase = Math.max(0, Math.min(1, absoluteLatitude / 30 - cell));
+  const cellWeights = [1, -0.6, 0.5] as const;
+  const meridionalStrength = Math.min(config.meridionalStrength, 0.35 * config.zonalStrength);
+  return {
+    u: config.zonalStrength * (cell === 1 ? 1 : -1) *
+      (0.65 + 0.35 * Math.sin(Math.PI * Math.min(1, absoluteLatitude / 90))),
+    v: -(latitudeDeg >= 0 ? 1 : -1) * latitudeRampSign * meridionalStrength *
+      cellWeights[cell]! * Math.sin(Math.PI * cellPhase),
+  };
+}
+
+function backboneMagnitudeBound(config: GeostrophicConfig): number {
+  return Math.hypot(config.zonalStrength, Math.min(config.meridionalStrength, 0.35 * config.zonalStrength));
+}
+
 function latitudeRamp(
   top: number = TEST_MAP_LATITUDE_BOUNDS.topLatitude,
   bottom: number = TEST_MAP_LATITUDE_BOUNDS.bottomLatitude
@@ -53,7 +77,7 @@ function latitudeRamp(
 function runWind(
   latitudeByRow: Float32Array,
   config: GeostrophicConfig,
-  input: Readonly<{ pressureField?: Float32Array; rngSeed?: number }> = {}
+  input: Readonly<{ pressureField?: Float32Array }> = {}
 ): { windU: Int8Array; windV: Int8Array } {
   return computeAtmosphericCirculation.run(
     {
@@ -61,7 +85,6 @@ function runWind(
       height: HEIGHT,
       latitudeByRow,
       ...input,
-      rngSeed: input.rngSeed ?? OPERATION_SEED,
       pressureField: input.pressureField ?? new Float32Array(WIDTH * HEIGHT),
     },
     { strategy: "geostrophic-proxy", config }
@@ -229,7 +252,7 @@ function zonalDeviationRatio(field: Readonly<{ windU: Int8Array }>): number {
 }
 
 describe("hydrology/compute-atmospheric-circulation (geostrophic-proxy)", () => {
-  it("is deterministic from explicit pressure and ignores rngSeed", () => {
+  it("is deterministic from explicit pressure", () => {
     const latitudeByRow = latitudeRamp();
     const config = {
       ...BACKBONE_ONLY,
@@ -238,13 +261,26 @@ describe("hydrology/compute-atmospheric-circulation (geostrophic-proxy)", () => 
     };
     const pressureField = pressureWave(0);
 
-    const a = runWind(latitudeByRow, config, { pressureField, rngSeed: 1 });
-    const b = runWind(latitudeByRow, config, { pressureField, rngSeed: 2 });
+    const a = runWind(latitudeByRow, config, { pressureField });
+    const b = runWind(latitudeByRow, config, { pressureField });
 
     expect(a).toEqual(b);
     const midlatitudeRow = rowForLatitude(latitudeByRow, 45);
     expect(rowVariance(a.windU, midlatitudeRow)).toBeGreaterThan(0);
     expect(rowVariance(a.windV, midlatitudeRow)).toBeGreaterThan(0);
+  });
+
+  it("refuses the retired latitude-only seed input rather than ignoring it", () => {
+    const input = {
+      width: WIDTH,
+      height: HEIGHT,
+      latitudeByRow: latitudeRamp(),
+      pressureField: pressureWave(0),
+      rngSeed: 1,
+    };
+    expect(() => computeAtmosphericCirculation.run(
+      input, { strategy: "geostrophic-proxy", config: BACKBONE_ONLY }
+    )).toThrow();
   });
 
   it("keeps non-stagnant zonal bands across the three meridional circulation cells", () => {
@@ -275,13 +311,15 @@ describe("hydrology/compute-atmospheric-circulation (geostrophic-proxy)", () => 
     expect(bandMean(windV, southWesterlies)).toBeGreaterThan(1);
 
     let peakAbsU = 0;
-    let peakAbsV = 0;
+    const latitudeRampSign = Math.sign(latitudeByRow[HEIGHT - 1]! - latitudeByRow[0]!);
+    const encodingScale = I8_VECTOR_MAX_ABS / BACKBONE_ONLY.maxSpeed;
+    const roundingEnvelope = SIGNED_BYTE_ROUNDING_ERROR +
+      FLOAT32_RELATIVE_EPSILON * backboneMagnitudeBound(BACKBONE_ONLY) * encodingScale;
     for (let y = 0; y < HEIGHT; y++) {
       peakAbsU = Math.max(peakAbsU, Math.abs(rowMean(windU, y)));
-      peakAbsV = Math.max(peakAbsV, Math.abs(rowMean(windV, y)));
-    }
-    for (const y of rowsWhere(latitudeByRow, (latitude) => Math.abs(latitude) < 3)) {
-      expect(Math.abs(rowMean(windV, y))).toBeLessThanOrEqual(0.25 * peakAbsV);
+      // The equatorial half-sine is sampled at the actual latitude, not a fraction of a sampled peak.
+      const carrier = analyticBackbone(latitudeByRow[y]!, latitudeRampSign, BACKBONE_ONLY);
+      expect(Math.abs(rowMean(windV, y) - carrier.v * encodingScale)).toBeLessThanOrEqual(roundingEnvelope);
     }
     for (const y of rowsWhere(
       latitudeByRow,
@@ -410,8 +448,37 @@ describe("hydrology/compute-atmospheric-circulation (geostrophic-proxy)", () => 
     expect(radial).toBeGreaterThan(tangential);
   });
 
-  it("keeps supplied pressure anomalies from rewriting tropical row-mean circulation", () => {
+  it("preserves analytic row means within the encoding envelope when pressure cannot saturate", () => {
     const latitudeByRow = latitudeRamp();
+    const latitudeRampSign = Math.sign(latitudeByRow[HEIGHT - 1]! - latitudeByRow[0]!);
+    const backboneBound = backboneMagnitudeBound(BACKBONE_ONLY);
+    const pointwiseRmsFactor = Math.sqrt(WIDTH * HEIGHT);
+    // ||eddy||_infinity <= RMS * sqrt(tile count); reserve half the available speed headroom.
+    const pressureDrivenRms = (BACKBONE_ONLY.maxSpeed - backboneBound) / (2 * pointwiseRmsFactor);
+    const config = { ...BACKBONE_ONLY, pressureDrivenRms, smoothIters: HIGH_PRESSURE_RESPONSE_CONFIG.smoothIters };
+    const perturbationBound = pressureDrivenRms * pointwiseRmsFactor;
+    const encodingScale = I8_VECTOR_MAX_ABS / config.maxSpeed;
+    // Float32 storage bounds the carrier and centered eddies; signed-byte rounding adds half a unit.
+    const roundingEnvelope = SIGNED_BYTE_ROUNDING_ERROR +
+      FLOAT32_RELATIVE_EPSILON * (backboneBound + perturbationBound) * encodingScale;
+    expect(pressureDrivenRms).toBeGreaterThan(0);
+    expect(backboneBound + perturbationBound).toBeLessThan(config.maxSpeed);
+    let observableWeather = false;
+    for (const pressurePhase of PRESSURE_PHASES) {
+      const field = runWind(latitudeByRow, config, { pressureField: pressureWave(pressurePhase) });
+      for (let y = 0; y < HEIGHT; y++) {
+        const carrier = analyticBackbone(latitudeByRow[y]!, latitudeRampSign, config);
+        expect(Math.abs(rowMean(field.windU, y) - carrier.u * encodingScale)).toBeLessThanOrEqual(roundingEnvelope);
+        expect(Math.abs(rowMean(field.windV, y) - carrier.v * encodingScale)).toBeLessThanOrEqual(roundingEnvelope);
+        observableWeather ||= rowVariance(field.windU, y) > 0 || rowVariance(field.windV, y) > 0;
+      }
+    }
+    expect(observableWeather).toBe(true);
+  });
+
+  it("retains tropical carrier direction and weather variance under saturated pressure stress", () => {
+    const latitudeByRow = latitudeRamp();
+    const latitudeRampSign = Math.sign(latitudeByRow[HEIGHT - 1]! - latitudeByRow[0]!);
     const northTrades = rowsWhere(
       latitudeByRow,
       (latitude) => latitude > 8 && latitude < 22
@@ -425,8 +492,14 @@ describe("hydrology/compute-atmospheric-circulation (geostrophic-proxy)", () => 
       const field = runWind(latitudeByRow, HIGH_PRESSURE_RESPONSE_CONFIG, {
         pressureField: pressureWave(pressurePhase),
       });
-      expect(bandMean(field.windV, northTrades)).toBeGreaterThan(1);
-      expect(bandMean(field.windV, southTrades)).toBeLessThan(-1);
+      // Magnitude projection is nonlinear: test the carrier half-space, not an unclipped component mean.
+      for (const rows of [northTrades, southTrades]) {
+        const carrier = rows.reduce((sum, y) => {
+          const row = analyticBackbone(latitudeByRow[y]!, latitudeRampSign, HIGH_PRESSURE_RESPONSE_CONFIG);
+          return { u: sum.u + row.u / rows.length, v: sum.v + row.v / rows.length };
+        }, { u: 0, v: 0 });
+        expect(bandMean(field.windU, rows) * carrier.u + bandMean(field.windV, rows) * carrier.v).toBeGreaterThan(0);
+      }
       expect(rowVariance(field.windV, rowForLatitude(latitudeByRow, 15))).toBeGreaterThan(0);
     }
   });

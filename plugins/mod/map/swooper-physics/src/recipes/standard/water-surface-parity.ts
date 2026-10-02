@@ -1,4 +1,4 @@
-import { CIV7_BROWSER_TABLES_V0, WATER_CLASS_COAST, WATER_CLASS_OCEAN } from "@civ7/map-policy";
+import { CIV7_BROWSER_TABLES_V0, deriveCiv7CoastProjection, WATER_CLASS_COAST, WATER_CLASS_OCEAN } from "@civ7/map-policy";
 import type { StepTrace } from "@swooper/mapgen-core";
 
 const DEFAULT_MAX_WATER_DRIFT_SHARE = 0.05;
@@ -85,6 +85,59 @@ export function landMaskFromWaterMask(waterMask: ArrayLike<number>): Uint8Array 
 }
 
 /**
+ * Projects resolved water without promoting finite lake beds into marine shelf.
+ * The physical lake footprint is complete coast water; native lake size/category
+ * remains a later engine observation. Historical wetness is not a projection input.
+ */
+export function deriveResolvedCoastProjection(input: MapDimensions & Readonly<{
+  exposedLandMask: ArrayLike<number>;
+  externalWaterMask: ArrayLike<number>;
+  lakeMask: ArrayLike<number>;
+  shelfMask: ArrayLike<number>;
+  coastalWater: ArrayLike<number>;
+}>) {
+  const shelfMask = Uint8Array.from(input.shelfMask, (shelf, cell) =>
+    input.externalWaterMask[cell] === 1 ? shelf : 0
+  );
+  const coastalWater = Uint8Array.from(input.coastalWater, (coastal, cell) =>
+    input.externalWaterMask[cell] === 1 ? coastal : 0
+  );
+  const projection = deriveCiv7CoastProjection({
+    width: input.width,
+    height: input.height,
+    landMask: input.exposedLandMask,
+    shelfMask,
+    coastalWater,
+  });
+  for (let cell = 0; cell < projection.waterClass.length; cell++) {
+    if (input.lakeMask[cell] === 1) projection.waterClass[cell] = WATER_CLASS_COAST;
+  }
+  return projection;
+}
+
+/** Certified physical water has no drift budget; native lake classification is separate. */
+export function assertAcceptedLakeFootprint(
+  dimensions: MapDimensions,
+  acceptedLakeMask: ArrayLike<number>,
+  currentWaterMask: ArrayLike<number>,
+  currentTerrain: ArrayLike<number>,
+  label: string
+): void {
+  const { width, height } = dimensions;
+  for (let cell = 0; cell < width * height; cell++) {
+    if (acceptedLakeMask[cell] !== 1) continue;
+    if (
+      currentWaterMask[cell] !== 1 ||
+      currentTerrain[cell] !== CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST
+    ) {
+      throw new Error(
+        `[${label}] certified accepted lake footprint lost at (${cell % width},${Math.floor(cell / width)}): water=${currentWaterMask[cell]}, terrain=${currentTerrain[cell]}.`
+      );
+    }
+  }
+}
+
+/**
  * Restores the Standard recipe's authored coast and ocean terrain after Civ7 maintenance calls.
  *
  * Land terrain is deliberately skipped so mountains, hills, volcanoes, and natural wonders
@@ -162,8 +215,8 @@ export function restoreProjectedCoastTerrain(
  * Map projection steps mutate Civ7 terrain through the adapter, then rely on
  * engine readback for gameplay continuity. The expected land mask must be the
  * projection surface for that specific lifecycle point, not always Morphology's
- * raw topography: after lake projection, planned lake tiles are intentionally
- * engine water even though they began as land in Morphology truth. Pipeline
+ * raw topography: resolved exposure admits initially wet ground becoming dry
+ * and finite lakes remaining wet independently of their initial geometry. Pipeline
  * artifact admission or local construction owns mask cardinality before this check.
  */
 export function assertNoWaterDrift(

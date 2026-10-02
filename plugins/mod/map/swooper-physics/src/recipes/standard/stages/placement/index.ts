@@ -1,4 +1,5 @@
 import { createStage } from "@swooper/mapgen-core/authoring";
+import { Type } from "@swooper/mapgen-core/authoring/contracts";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { AdjustResourcesStep } from "./steps/adjust-resources/step.js";
 import { AssignAdvancedStartsStep } from "./steps/assign-advanced-starts/step.js";
@@ -42,4 +43,38 @@ export default createStage({
     "assign-advanced-starts": AssignAdvancedStartsStep,
     "observe-placement-parity": ObservePlacementParityStep,
   }),
-} as const);
+  public: Type.Object({
+    "plot-landmass-regions": Type.With(PlotLandmassRegionsStep.contract.schema, {
+      description: "Project landmass regions into the game's start slots.",
+    }),
+    "plan-natural-wonders": Type.With(PlanNaturalWondersStep.contract.schema, {
+      description: "Plan natural wonders on the prepared playable surface.",
+    }),
+    "plan-resource-demands": Type.With(PlanResourceDemandsStep.contract.schema, {
+      description: "Plan resource demand by region and admitted habitat.",
+    }),
+    "select-resource-sites": Type.With(SelectResourceSitesStep.contract.schema, {
+      description: "Select legal resource sites before choosing supported starts.",
+    }),
+    "assign-starts": Type.Omit(AssignStartsStep.contract.schema, ["supportRequirements"], {
+      description: "Choose player starts supported by the planned resource sites.",
+    }),
+    "adjust-resources": Type.With(AdjustResourcesStep.contract.schema, {
+      description: "Set the shared start-support requirements and adjust resource support.",
+    }),
+  }),
+  compile: ({ config }) => {
+    const support = config["adjust-resources"].support.config;
+    return {
+      ...config,
+      "assign-starts": {
+        ...config["assign-starts"],
+        supportRequirements: {
+          supportFloor: support.supportFloor,
+          supportRadiusTiles: support.supportRadiusTiles,
+          equityTolerance: support.equityTolerance,
+        },
+      },
+    };
+  },
+});

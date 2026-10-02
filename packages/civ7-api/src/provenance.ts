@@ -6,13 +6,13 @@ export const provenance = {
     "schemaVersion": 5,
     "sourceSnapshot": {
       "receiptPath": ".civ7-source-receipt.json",
-      "sourceReceiptSha256": "86cf0796f45c7a813824194f221f62339138124cae62881d02613f5b90379e2d",
+      "sourceReceiptSha256": "769f010f408319dde56f5784df5e8d32faf8da73b5063ff21b828afa353a9bee",
       "profileId": "civ7-official-api-v1",
-      "sha256": "6859927406ee2837555eed8e91767c28cf00b011f44e470dae89b4f63c07046f",
+      "sha256": "53565e40b47ecb374555868508a639175f8d64d793661c182c03dfc0620de391",
       "fileCount": 10794,
-      "totalBytes": 192609798,
-      "applicationVersion": "Civilization VII version 1.5.0.40 (1306154)",
-      "steamBuildId": "25245002"
+      "totalBytes": 192637392,
+      "applicationVersion": "Civilization VII version 1.5.0.43 (1311346)",
+      "steamBuildId": "25516395"
     },
     "compiler": {
       "name": "typescript",
@@ -24,7 +24,7 @@ export const provenance = {
       "tsCount": 716,
       "tsxCount": 244,
       "ignoredEmbeddedSourceCount": 261,
-      "sha256": "6c5d026766090ace0969140b07eeb02ad2e319bfb34655cc12ef28d15f24ba60"
+      "sha256": "392585864e1030abbf6b301cc65bbb8ddee9742c3b2fb311ac5c41f727e2e925"
     },
     "modules": {
       "shardCount": 965,
@@ -125,11 +125,11 @@ export const provenance = {
       "compiledOnlyEdgeTargets": [
         "/core/ui/stateful-icon/index.js"
       ],
-      "sha256": "60d262d14ab81a599867585f40ca7c79df7063ca4ede2f01dfb1dfb49c2886d2"
+      "sha256": "bb6ad6249242f4ca04f8d5fa952aae92c8fc365c797501f2e81e126a003b137d"
     },
     "emission": {
-      "diagnosticCount": 2535,
-      "diagnosticsSha256": "d7329f84e544458bd0dfb5845b02f8b388ec93232dbc3aa2a60aad5cb06e2002",
+      "diagnosticCount": 2537,
+      "diagnosticsSha256": "d2bd7ece29e0a0668432555dbe866ee6a89c4c04ecb277287be48ad65205095f",
       "globalAugmentationCount": 155,
       "globalAugmentationsSha256": "4dce6511bceb58b94dac4d47672024cbd4767d5d778bb63f2dd3613bdf0d17ff",
       "edgesSha256": "2da019fa7e3b7b44f3b92a6bff60c9642ca03f3fdae49389dad2a368d0624f98",
@@ -212,7 +212,7 @@ export const provenance = {
           "stylesheetPath": "Base/modules/core/ui/shell/main-menu/main-menu.css"
         }
       ],
-      "anyKeywordCount": 698
+      "anyKeywordCount": 699
     },
     "externalTypeEvidence": {
       "packageName": "solid-js",
@@ -4201,9 +4201,9 @@ export const provenance = {
       "code": 9010,
       "category": "error",
       "message": "Variable must have an explicit type annotation with --isolatedDeclarations.",
-      "start": 1316,
+      "start": 1558,
       "length": 15,
-      "line": 41,
+      "line": 49,
       "character": 14
     },
     {
@@ -4795,7 +4795,7 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 5684,
+      "start": 5716,
       "length": 20,
       "line": 180,
       "character": 2
@@ -4806,7 +4806,7 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 6219,
+      "start": 6251,
       "length": 7,
       "line": 199,
       "character": 2
@@ -4817,7 +4817,7 @@ export const provenance = {
       "code": 9010,
       "category": "error",
       "message": "Variable must have an explicit type annotation with --isolatedDeclarations.",
-      "start": 6872,
+      "start": 6904,
       "length": 14,
       "line": 225,
       "character": 7
@@ -6434,7 +6434,7 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 5273,
+      "start": 5305,
       "length": 7,
       "line": 173,
       "character": 2
@@ -6445,7 +6445,7 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 5704,
+      "start": 5736,
       "length": 8,
       "line": 190,
       "character": 2
@@ -6456,7 +6456,7 @@ export const provenance = {
       "code": 9010,
       "category": "error",
       "message": "Variable must have an explicit type annotation with --isolatedDeclarations.",
-      "start": 6527,
+      "start": 6559,
       "length": 11,
       "line": 222,
       "character": 7
@@ -9360,9 +9360,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 22293,
+      "start": 22332,
       "length": 14,
-      "line": 579,
+      "line": 580,
       "character": 2
     },
     {
@@ -9371,9 +9371,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 35080,
+      "start": 35119,
       "length": 25,
-      "line": 944,
+      "line": 945,
       "character": 2
     },
     {
@@ -9382,9 +9382,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 36073,
+      "start": 36112,
       "length": 19,
-      "line": 968,
+      "line": 969,
       "character": 2
     },
     {
@@ -11263,7 +11263,7 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 4589,
+      "start": 4621,
       "length": 7,
       "line": 148,
       "character": 2
@@ -11274,7 +11274,7 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 4945,
+      "start": 4977,
       "length": 8,
       "line": 163,
       "character": 2
@@ -11285,7 +11285,7 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 5331,
+      "start": 5363,
       "length": 24,
       "line": 179,
       "character": 2
@@ -11296,7 +11296,7 @@ export const provenance = {
       "code": 9010,
       "category": "error",
       "message": "Variable must have an explicit type annotation with --isolatedDeclarations.",
-      "start": 5612,
+      "start": 5644,
       "length": 8,
       "line": 189,
       "character": 7
@@ -12132,9 +12132,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 6401,
+      "start": 6458,
       "length": 8,
-      "line": 158,
+      "line": 159,
       "character": 2
     },
     {
@@ -12143,9 +12143,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 12660,
+      "start": 12813,
       "length": 8,
-      "line": 353,
+      "line": 356,
       "character": 2
     },
     {
@@ -12154,9 +12154,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 12700,
+      "start": 12853,
       "length": 8,
-      "line": 357,
+      "line": 360,
       "character": 2
     },
     {
@@ -12165,18 +12165,7 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 14195,
-      "length": 4,
-      "line": 405,
-      "character": 2
-    },
-    {
-      "moduleId": "/base-standard/ui/unit-flags/unit-flags-independent-powers.js",
-      "source": "Base/modules/base-standard/ui/unit-flags/unit-flags-independent-powers.ts",
-      "code": 9008,
-      "category": "error",
-      "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 14285,
+      "start": 14358,
       "length": 4,
       "line": 410,
       "character": 2
@@ -12187,9 +12176,20 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 14588,
+      "start": 14448,
+      "length": 4,
+      "line": 415,
+      "character": 2
+    },
+    {
+      "moduleId": "/base-standard/ui/unit-flags/unit-flags-independent-powers.js",
+      "source": "Base/modules/base-standard/ui/unit-flags/unit-flags-independent-powers.ts",
+      "code": 9008,
+      "category": "error",
+      "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
+      "start": 14751,
       "length": 7,
-      "line": 423,
+      "line": 428,
       "character": 2
     },
     {
@@ -12198,9 +12198,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 14658,
+      "start": 14821,
       "length": 6,
-      "line": 427,
+      "line": 432,
       "character": 2
     },
     {
@@ -12209,9 +12209,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 20118,
+      "start": 20568,
       "length": 13,
-      "line": 592,
+      "line": 604,
       "character": 2
     },
     {
@@ -12220,9 +12220,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 21632,
+      "start": 22082,
       "length": 12,
-      "line": 644,
+      "line": 656,
       "character": 2
     },
     {
@@ -12231,9 +12231,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 21929,
+      "start": 22379,
       "length": 14,
-      "line": 652,
+      "line": 664,
       "character": 2
     },
     {
@@ -12242,9 +12242,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 22237,
+      "start": 22687,
       "length": 9,
-      "line": 663,
+      "line": 675,
       "character": 2
     },
     {
@@ -12253,9 +12253,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 22546,
+      "start": 22996,
       "length": 14,
-      "line": 673,
+      "line": 685,
       "character": 2
     },
     {
@@ -12264,9 +12264,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 22651,
+      "start": 23101,
       "length": 17,
-      "line": 681,
+      "line": 693,
       "character": 2
     },
     {
@@ -12275,9 +12275,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 3267,
+      "start": 3472,
       "length": 8,
-      "line": 83,
+      "line": 90,
       "character": 2
     },
     {
@@ -12286,9 +12286,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 9970,
+      "start": 8855,
       "length": 8,
-      "line": 303,
+      "line": 267,
       "character": 2
     },
     {
@@ -12297,9 +12297,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 10010,
+      "start": 8895,
       "length": 8,
-      "line": 307,
+      "line": 271,
       "character": 2
     },
     {
@@ -12308,9 +12308,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 11571,
+      "start": 11747,
       "length": 4,
-      "line": 360,
+      "line": 374,
       "character": 2
     },
     {
@@ -12319,9 +12319,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 11661,
+      "start": 11837,
       "length": 4,
-      "line": 365,
+      "line": 379,
       "character": 2
     },
     {
@@ -12330,9 +12330,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 11964,
+      "start": 12140,
       "length": 7,
-      "line": 378,
+      "line": 392,
       "character": 2
     },
     {
@@ -12341,9 +12341,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 12034,
+      "start": 12210,
       "length": 6,
-      "line": 382,
+      "line": 396,
       "character": 2
     },
     {
@@ -12352,9 +12352,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 14959,
-      "length": 14,
-      "line": 461,
+      "start": 13787,
+      "length": 21,
+      "line": 437,
       "character": 12
     },
     {
@@ -12363,9 +12363,20 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 18643,
+      "start": 17000,
+      "length": 14,
+      "line": 536,
+      "character": 12
+    },
+    {
+      "moduleId": "/base-standard/ui/unit-flags/unit-flags.js",
+      "source": "Base/modules/base-standard/ui/unit-flags/unit-flags.ts",
+      "code": 9008,
+      "category": "error",
+      "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
+      "start": 20593,
       "length": 13,
-      "line": 569,
+      "line": 640,
       "character": 2
     },
     {
@@ -12374,9 +12385,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 20095,
+      "start": 22045,
       "length": 12,
-      "line": 620,
+      "line": 691,
       "character": 2
     },
     {
@@ -12385,9 +12396,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 20149,
+      "start": 22099,
       "length": 14,
-      "line": 624,
+      "line": 695,
       "character": 2
     },
     {
@@ -12396,9 +12407,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 20566,
+      "start": 22516,
       "length": 9,
-      "line": 638,
+      "line": 709,
       "character": 2
     },
     {
@@ -12407,9 +12418,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 20900,
+      "start": 22850,
       "length": 17,
-      "line": 651,
+      "line": 722,
       "character": 2
     },
     {
@@ -12418,9 +12429,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 21040,
+      "start": 22990,
       "length": 14,
-      "line": 656,
+      "line": 727,
       "character": 2
     },
     {
@@ -12429,9 +12440,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 21442,
+      "start": 23392,
       "length": 16,
-      "line": 667,
+      "line": 738,
       "character": 2
     },
     {
@@ -13441,7 +13452,7 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 1418,
+      "start": 1434,
       "length": 9,
       "line": 39,
       "character": 2
@@ -13452,7 +13463,7 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 1600,
+      "start": 1616,
       "length": 8,
       "line": 45,
       "character": 2
@@ -13463,7 +13474,7 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 1787,
+      "start": 1803,
       "length": 16,
       "line": 51,
       "character": 2
@@ -13474,7 +13485,7 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 1919,
+      "start": 1935,
       "length": 15,
       "line": 55,
       "character": 2
@@ -13485,7 +13496,7 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 3145,
+      "start": 3161,
       "length": 15,
       "line": 79,
       "character": 2
@@ -13496,7 +13507,7 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 3359,
+      "start": 3375,
       "length": 18,
       "line": 86,
       "character": 2
@@ -15751,9 +15762,9 @@ export const provenance = {
       "code": 9010,
       "category": "error",
       "message": "Variable must have an explicit type annotation with --isolatedDeclarations.",
-      "start": 5911,
+      "start": 6103,
       "length": 14,
-      "line": 161,
+      "line": 167,
       "character": 14
     },
     {
@@ -16939,7 +16950,7 @@ export const provenance = {
       "code": 9019,
       "category": "error",
       "message": "Binding elements can't be exported directly with --isolatedDeclarations.",
-      "start": 776,
+      "start": 784,
       "length": 19,
       "line": 18,
       "character": 15
@@ -16950,7 +16961,7 @@ export const provenance = {
       "code": 9019,
       "category": "error",
       "message": "Binding elements can't be exported directly with --isolatedDeclarations.",
-      "start": 797,
+      "start": 805,
       "length": 22,
       "line": 18,
       "character": 36
@@ -16961,7 +16972,7 @@ export const provenance = {
       "code": 9012,
       "category": "error",
       "message": "Property must have an explicit type annotation with --isolatedDeclarations.",
-      "start": 2258,
+      "start": 2266,
       "length": 18,
       "line": 50,
       "character": 2
@@ -16972,7 +16983,7 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 5938,
+      "start": 5946,
       "length": 17,
       "line": 148,
       "character": 9
@@ -16983,9 +16994,9 @@ export const provenance = {
       "code": 9010,
       "category": "error",
       "message": "Variable must have an explicit type annotation with --isolatedDeclarations.",
-      "start": 7078,
+      "start": 7166,
       "length": 17,
-      "line": 186,
+      "line": 183,
       "character": 14
     },
     {
@@ -17522,31 +17533,42 @@ export const provenance = {
       "code": 9010,
       "category": "error",
       "message": "Variable must have an explicit type annotation with --isolatedDeclarations.",
-      "start": 2029,
+      "start": 2114,
       "length": 16,
-      "line": 48,
-      "character": 14
-    },
-    {
-      "moduleId": "/core/ui-next/services/input.js",
-      "source": "Base/modules/core/ui-next/services/input.ts",
-      "code": 9010,
-      "category": "error",
-      "message": "Variable must have an explicit type annotation with --isolatedDeclarations.",
-      "start": 2129,
-      "length": 13,
       "line": 49,
       "character": 14
     },
     {
       "moduleId": "/core/ui-next/services/input.js",
       "source": "Base/modules/core/ui-next/services/input.ts",
+      "code": 9010,
+      "category": "error",
+      "message": "Variable must have an explicit type annotation with --isolatedDeclarations.",
+      "start": 2214,
+      "length": 13,
+      "line": 50,
+      "character": 14
+    },
+    {
+      "moduleId": "/core/ui-next/services/input.js",
+      "source": "Base/modules/core/ui-next/services/input.ts",
+      "code": 9010,
+      "category": "error",
+      "message": "Variable must have an explicit type annotation with --isolatedDeclarations.",
+      "start": 2308,
+      "length": 21,
+      "line": 51,
+      "character": 14
+    },
+    {
+      "moduleId": "/core/ui-next/services/input.js",
+      "source": "Base/modules/core/ui-next/services/input.ts",
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 2391,
+      "start": 2654,
       "length": 17,
-      "line": 56,
+      "line": 60,
       "character": 9
     },
     {
@@ -17555,9 +17577,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 2592,
+      "start": 2855,
       "length": 15,
-      "line": 63,
+      "line": 67,
       "character": 9
     },
     {
@@ -17566,9 +17588,9 @@ export const provenance = {
       "code": 9008,
       "category": "error",
       "message": "Method must have an explicit return type annotation with --isolatedDeclarations.",
-      "start": 2691,
+      "start": 2954,
       "length": 18,
-      "line": 67,
+      "line": 71,
       "character": 9
     },
     {
@@ -17577,9 +17599,9 @@ export const provenance = {
       "code": 9010,
       "category": "error",
       "message": "Variable must have an explicit type annotation with --isolatedDeclarations.",
-      "start": 2827,
+      "start": 3090,
       "length": 23,
-      "line": 74,
+      "line": 78,
       "character": 14
     },
     {

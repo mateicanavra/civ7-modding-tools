@@ -24,13 +24,15 @@ export default defineStrategy({
         default: 0,
         minimum: 0,
         maximum: 12000,
-        description: "Shallow-water depth used for warm-reef scoring.",
+        description:
+          "Shallow-water depth in quantized normalized model relief units below seaLevel used for warm-reef scoring; not meters. The legacy M key is retained.",
       }),
       deepDepthM: Type.Integer({
         default: 120,
         minimum: 0,
         maximum: 12000,
-        description: "Deep-water limit used for warm-reef scoring.",
+        description:
+          "Deep-water limit in quantized normalized model relief units below seaLevel used for warm-reef scoring; not meters. The legacy M key is retained.",
       }),
       maxDistanceToCoast: Type.Integer({
         default: 3,

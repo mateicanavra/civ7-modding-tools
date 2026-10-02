@@ -56,13 +56,23 @@
         "src/domain/*/model/atoms/index.ts",
         "src/domain/*/modules/*/model/atoms/index.ts",
         "src/domain/*/modules/*/artifacts/index.ts",
-        "test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"
+        "test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}",
+        // Standalone receipt/extraction commands are invoked externally, not by recipe imports.
+        "scripts/compare-coherence.ts",
+        "test/recipes/swooper-physics-standard/fixtures/earth/extract.ts",
+        "test/recipes/swooper-physics-standard/fixtures/earth-thermal/height-capture.ts",
+        "test/recipes/swooper-physics-standard/fixtures/earth-thermal/response-capture.ts"
       ]
     },
     "apps/mods/map/swooper-physics": {
       // Nx already exposes the app entrypoints. Knip needs the uncached live proof and
       // cannot observe the compiler's dynamic resolution of uri-js into an esbuild module.
-      "entry": ["test/live/*.live.test.ts"],
+      "entry": [
+        "test/live/*.live.test.ts",
+        // Diagnostic builders import these registrations through generated native source strings.
+        "test/runtime/elevation-contract-map.fixture.ts",
+        "test/runtime/river-contract-map.fixture.ts"
+      ],
       "ignoreDependencies": ["uri-js"]
     },
     "resources/civ7-tuner": {

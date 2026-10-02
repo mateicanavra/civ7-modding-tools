@@ -57,8 +57,9 @@ Current architecture for ecology, lakes, and placement is intentionally physics-
   generator owns that product because Swooper has no independent discovery
   policy or stable catalog to materialize.
 - The Hydrology hydrography module owns both physical truth and the immutable
-  Civ7-projectable river selection
-  (`artifact:map.rivers.projectedNavigableRivers`). The stable `map.rivers`
+  Civ7 river projection (`artifact:map.rivers.projectedRivers`). Its tagged
+  variants distinguish legacy navigable selection from complete authored
+  minor/navigable source writes. The stable `map.rivers`
   runtime namespace identifies that projection product, not a stage catalog.
 - Mutable/current Civ7 state is observed fresh through exact, declared adapter
   bulk-layer capabilities and remains invocation-local. Terrain, elevation,
@@ -67,9 +68,29 @@ Current architecture for ecology, lakes, and placement is intentionally physics-
   privileged complete-surface snapshot. Metrics facets may retain completed
   scalar or component evidence, but neither the observation nor the facet
   evidence is a pipeline artifact.
-- Runtime parity is now treated as a contract boundary:
-  - lake plan vs engine water mask mismatch is emitted as projection evidence,
-  - biome/placement land-water drift is always emitted and remains a strict-candidate gate until a post-hydrology authoritative land mask artifact is finalized.
+- Certified Earthlike water is computed after final ground but before exposed
+  mountain/volcano selection. Exposed land is derived from original land minus
+  the accepted physical wet footprint, not a second mutable mask authority.
+  Classified dry river sources are reserved separately from wet land; neither
+  reservation changes ground or turns a dry channel into a lake.
+  Thermal forcing retains original marine geography; terrestrial ecology uses
+  exposed land. See [ADR-020](../../ADR.md#adr-020-earthlike-water-precedes-exposed-landform-selection).
+- Certified bodies project whole footprints, and elevation/river maintenance
+  requires every accepted cell to remain water with COAST terrain. Native
+  `isLake` classification is observed independently, not required of every
+  physical body. Physical ground, the certified spill-level water surface, and
+  native numeric height are separate authorities: native inland-water leveling
+  does not rewrite either physical field or establish spill-height parity.
+  Numeric adjustments require available readback and qualified local surface
+  evidence, not the physical wet mask alone.
+- Earthlike explicitly selects `certified-sill-spill` water and
+  `authored-network` river projection. Other shipped maps retain explicit legacy
+  models, not automatic fallback. Final placement observes water, native lake
+  category, elevation and authored river-class parity without rewriting intent.
+  River classes do not prove directed native edges, through-lake navigation,
+  or freshwater bonuses. Complete production-native qualification remains
+  separate from the passing headless integration proof; its bounded evidence
+  lives in the [integration packet](../../../projects/native-map-controls/basin-integration.md).
 
 Placement runtime now uses:
 

@@ -27,14 +27,15 @@ export default defineStrategy({
         maximum: 64,
       }),
       lowlandMaxElevationAboveSeaM: Type.Integer({
-        description: "Maximum land elevation above sea level treated as lowland wetland substrate.",
+        description:
+          "Maximum land elevation minus seaLevel in quantized normalized model relief units treated as lowland wetland substrate; not meters. The legacy M key is retained.",
         default: 160,
         minimum: 0,
         maximum: 12000,
       }),
       intertidalMaxElevationAboveSeaM: Type.Integer({
         description:
-          "Maximum coastal land elevation above sea level treated as intertidal substrate.",
+          "Maximum coastal land elevation minus seaLevel in quantized normalized model relief units treated as intertidal substrate; not meters. The legacy M key is retained.",
         default: 40,
         minimum: 0,
         maximum: 12000,

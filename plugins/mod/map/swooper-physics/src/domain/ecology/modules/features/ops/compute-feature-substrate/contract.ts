@@ -20,16 +20,15 @@ const ComputeFeatureSubstrateContract = defineOp({
         description: "Land mask per tile (1=land, 0=water).",
       }),
       elevation: TypedArraySchemas.i16({
-        description: "Elevation in meters, using the same datum as seaLevel.",
+        description:
+          "Signed elevation in quantized normalized model relief units, using the same datum as seaLevel; not meters or native display units.",
       }),
       seaLevel: Type.Number({
-        description: "Global sea-level datum in meters.",
+        description:
+          "Global sea-level datum in the same normalized model relief units as elevation; not meters or a native display setting.",
       }),
-      discharge: TypedArraySchemas.f32({
+      discharge: Type.Array(Type.Number({ minimum: 0 }), {
         description: "Hydrology discharge proxy per tile.",
-      }),
-      sinkMask: TypedArraySchemas.u8({
-        description: "Mask (1/0): local drainage sink or depression.",
       }),
     },
     { additionalProperties: false }
@@ -56,11 +55,8 @@ const ComputeFeatureSubstrateContract = defineOp({
     intertidalCoastMask: TypedArraySchemas.u8({
       description: "Mask (1/0): low coastal land adjacent to water.",
     }),
-    sinkBasinMask: TypedArraySchemas.u8({
-      description: "Mask (1/0): lowland drainage sinks/depressions.",
-    }),
     hydromorphicMask: TypedArraySchemas.u8({
-      description: "Mask (1/0): floodplain, intertidal, or sink-basin wetland substrate.",
+      description: "Mask (1/0): floodplain or intertidal wetland substrate.",
     }),
     wellDrainedMask: TypedArraySchemas.u8({
       description: "Mask (1/0): land outside hydromorphic substrate.",

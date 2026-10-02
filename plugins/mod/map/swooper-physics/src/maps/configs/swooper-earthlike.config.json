@@ -301,7 +301,240 @@
         }
       }
     },
+    "morphology-islands": {
+      "islands": {
+        "islands": {
+          "strategy": "plate-aware-volcanic",
+          "config": {
+            "fractalThresholdPercent": 96,
+            "minDistFromLandRadius": 5,
+            "baseIslandDenNearActive": 5,
+            "baseIslandDenElse": 7,
+            "hotspotSeedDenom": 6,
+            "clusterMax": 3,
+            "microcontinentChance": 0.12
+          }
+        }
+      }
+    },
+    "morphology-shelf": {
+      "knobs": {
+        "shelfWidth": "wide"
+      },
+      "compute-shelf": {
+        "shelfMask": {
+          "strategy": "physical-break-connectivity",
+          "config": {
+            "activeClosenessThreshold": 0.45,
+            "breakGradient": 8,
+            "breakGradientScale": 1
+          }
+        },
+        "coastalAdjacency": {
+          "strategy": "wrapped-hex-adjacency",
+          "config": {}
+        },
+        "distanceToCoast": {
+          "strategy": "multi-source-hex-bfs",
+          "config": {}
+        }
+      }
+    },
+    "hydrology-climate-baseline": {
+      "knobs": {
+        "dryness": "mix",
+        "temperature": "temperate",
+        "seasonality": "normal",
+        "oceanCoupling": "earthlike"
+      },
+      "climate-baseline": {
+        "potentialDemand": {
+          "tMinC": 0,
+          "tMaxC": 36,
+          "petBase": 19,
+          "petTemperatureWeight": 82,
+          "humidityDampening": 0.5
+        },
+        "computePotentialDemand": {
+          "strategy": "temperature-humidity",
+          "config": {}
+        },
+        "seasonality": {
+          "modeCount": 4,
+          "axialTiltDeg": 23.44
+        },
+        "coupling": {
+          "iterations": 2
+        },
+        "computeSeasonalSampling": {
+          "strategy": "periodic-cycle",
+          "config": { "phaseCount": 24 }
+        },
+        "computeAtmosphericAggregate": {
+          "strategy": "phase-reduction",
+          "config": {}
+        },
+        "computeMoistureAggregate": {
+          "strategy": "phase-reduction",
+          "config": {}
+        },
+        "computeRadiativeForcing": {
+          "strategy": "daily-solar-fourier",
+          "config": {}
+        },
+        "computeThermalState": {
+          "strategy": "periodic-response",
+          "config": {
+            "annualOffsetC": 0,
+            "lapseRateCPerElevationUnit": -0.0065,
+            "minC": -40,
+            "maxC": 50
+          }
+        },
+        "computePressureField": {
+          "strategy": "thermal-continental",
+          "config": {
+            "scaffoldStrength": 1,
+            "thermalAnomalyHpaPerC": 0.55,
+            "stationaryThermalHpaPerC": 1.2,
+            "transientScaleTiles": 20,
+            "transientAmplitudeHpa": 14,
+            "smoothIters": 2
+          }
+        },
+        "computeAtmosphericCirculation": {
+          "strategy": "geostrophic-proxy",
+          "config": {
+            "maxSpeed": 160,
+            "zonalStrength": 130,
+            "meridionalStrength": 15,
+            "pressureDrivenRms": 95,
+            "smoothIters": 5,
+            "equatorialTaperDeg": 18
+          }
+        },
+        "computeOceanSurfaceCurrents": {
+          "strategy": "wind-gyre-projection",
+          "config": {
+            "maxSpeed": 80,
+            "windStrength": 0.58,
+            "ekmanStrength": 0.38,
+            "gyreStrength": 30,
+            "coastStrength": 36,
+            "smoothIters": 4,
+            "projectionIters": 8
+          }
+        },
+        "computeOceanGeometry": {
+          "strategy": "connected-basins",
+          "config": {
+            "maxCoastDistance": 64,
+            "maxCoastVectorDistance": 10
+          }
+        },
+        "computeOceanThermalState": {
+          "strategy": "latitude-current-advection",
+          "config": {
+            "equatorTempC": 27,
+            "poleTempC": -1,
+            "advectIters": 30,
+            "diffusion": 0.2,
+            "seaIceThresholdC": -1
+          }
+        },
+        "computeEvaporationSources": {
+          "strategy": "thermal-surface",
+          "config": {
+            "oceanStrength": 1,
+            "landStrength": 0.2,
+            "minTempC": -10,
+            "maxTempC": 32
+          }
+        },
+        "transportMoisture": {
+          "strategy": "vector-advection",
+          "config": {
+            "iterations": 26,
+            "advection": 0.74,
+            "retention": 0.91
+          }
+        },
+        "computePrecipitation": {
+          "strategy": "vector",
+          "config": {
+            "rainfallScale": 174,
+            "humidityExponent": 1.05,
+            "noiseAmplitude": 14,
+            "noiseScale": 0.16,
+            "waterGradient": {
+              "radius": 6,
+              "perRingBonus": 5,
+              "lowlandBonus": 3,
+              "lowlandElevationMax": 200
+            },
+            "upliftStrength": 27,
+            "convergenceStrength": 19
+          }
+        }
+      }
+    },
+    "hydrology-hydrography": {
+      "knobs": {
+        "riverDensity": "normal"
+      },
+      "water": {
+        "model": "certified-sill-spill",
+        "computeLocalRunoff": {
+          "strategy": "precipitation-attributed",
+          "config": {
+            "infiltrationFraction": 0.18,
+            "humidityDampening": 0.22
+          }
+        },
+        "computeDrainageBasins": {
+          "strategy": "plateau-saddle-hierarchy",
+          "config": {
+            "allowExternalEdgeOutlets": false
+          }
+        },
+        "computeBasinNetwork": {
+          "strategy": "stationary-sill-spill",
+          "config": {}
+        },
+        "classifyBasinRiverNetwork": {
+          "strategy": "body-aware",
+          "config": {
+            "highOrderConfluenceUpstreamAreaMin": 64
+          }
+        }
+      },
+      "projectRiverNetwork": {
+        "strategy": "discharge-percentiles",
+        "config": {
+          "minorPercentile": 0.74,
+          "majorPercentile": 0.88,
+          "minMinorDischarge": 0,
+          "minMajorDischarge": 0
+        }
+      }
+    },
     "morphology-features": {
+      "resolved-coastline": {
+        "adjacency": {
+          "strategy": "wrapped-hex-adjacency",
+          "config": {}
+        },
+        "distanceToCoast": {
+          "strategy": "multi-source-hex-bfs",
+          "config": {}
+        }
+      },
+      "landmasses": {
+        "landmasses": {
+          "strategy": "wrapped-hex-components",
+          "config": {}
+        }
+      },
       "knobs": {
         "orogeny": "high",
         "volcanism": "high",
@@ -316,20 +549,6 @@
           "terrainTextureFractalMix": 0.55,
           "erosionMaturity": 0.26,
           "tectonicSignalSensitivity": 1.8
-        }
-      },
-      "islands": {
-        "islands": {
-          "strategy": "plate-aware-volcanic",
-          "config": {
-            "fractalThresholdPercent": 96,
-            "minDistFromLandRadius": 5,
-            "baseIslandDenNearActive": 5,
-            "baseIslandDenElse": 7,
-            "hotspotSeedDenom": 6,
-            "clusterMax": 3,
-            "microcontinentChance": 0.12
-          }
         }
       },
       "mountains": {
@@ -551,212 +770,11 @@
             "maxVolcanoes": 42
           }
         }
-      },
-      "landmasses": {
-        "landmasses": {
-          "strategy": "wrapped-hex-components",
-          "config": {}
-        }
-      }
-    },
-    "morphology-shelf": {
-      "knobs": {
-        "shelfWidth": "wide"
-      },
-      "compute-shelf": {
-        "shelfMask": {
-          "strategy": "physical-break-connectivity",
-          "config": {
-            "activeClosenessThreshold": 0.45,
-            "breakGradient": 8,
-            "breakGradientScale": 1
-          }
-        },
-        "coastalAdjacency": {
-          "strategy": "wrapped-hex-adjacency",
-          "config": {}
-        },
-        "distanceToCoast": {
-          "strategy": "multi-source-hex-bfs",
-          "config": {}
-        }
-      }
-    },
-    "hydrology-climate-baseline": {
-      "knobs": {
-        "dryness": "mix",
-        "temperature": "hot",
-        "seasonality": "high",
-        "oceanCoupling": "earthlike"
-      },
-      "climate-baseline": {
-        "seasonality": {
-          "modeCount": 4,
-          "axialTiltDeg": 23
-        },
-        "coupling": {
-          "iterations": 2
-        },
-        "computeRadiativeForcing": {
-          "strategy": "latitude-insolation",
-          "config": {
-            "equatorInsolation": 1.5,
-            "poleInsolation": 0.22,
-            "latitudeExponent": 1.2
-          }
-        },
-        "computeThermalState": {
-          "strategy": "insolation-lapse-rate",
-          "config": {
-            "baseTemperatureC": 8,
-            "insolationScaleC": 50,
-            "lapseRateCPerElevationUnit": -0.0065,
-            "landCoolingC": 3.2,
-            "minC": -40,
-            "maxC": 50
-          }
-        },
-        "computePressureField": {
-          "strategy": "thermal-continental",
-          "config": {
-            "scaffoldStrength": 1,
-            "thermalAnomalyHpaPerC": 0.55,
-            "stationaryThermalHpaPerC": 1.2,
-            "transientScaleTiles": 20,
-            "transientAmplitudeHpa": 14,
-            "smoothIters": 2
-          }
-        },
-        "computeAtmosphericCirculation": {
-          "strategy": "geostrophic-proxy",
-          "config": {
-            "maxSpeed": 160,
-            "zonalStrength": 130,
-            "meridionalStrength": 15,
-            "pressureDrivenRms": 95,
-            "smoothIters": 5,
-            "equatorialTaperDeg": 18
-          }
-        },
-        "computeOceanSurfaceCurrents": {
-          "strategy": "wind-gyre-projection",
-          "config": {
-            "maxSpeed": 80,
-            "windStrength": 0.58,
-            "ekmanStrength": 0.38,
-            "gyreStrength": 30,
-            "coastStrength": 36,
-            "smoothIters": 4,
-            "projectionIters": 8
-          }
-        },
-        "computeOceanGeometry": {
-          "strategy": "connected-basins",
-          "config": {
-            "maxCoastDistance": 64,
-            "maxCoastVectorDistance": 10
-          }
-        },
-        "computeOceanThermalState": {
-          "strategy": "latitude-current-advection",
-          "config": {
-            "equatorTempC": 27,
-            "poleTempC": -1,
-            "advectIters": 30,
-            "diffusion": 0.2,
-            "secondaryWeightMin": 0.25,
-            "seaIceThresholdC": -1
-          }
-        },
-        "computeEvaporationSources": {
-          "strategy": "thermal-surface",
-          "config": {
-            "oceanStrength": 1,
-            "landStrength": 0.2,
-            "minTempC": -10,
-            "maxTempC": 32
-          }
-        },
-        "transportMoisture": {
-          "strategy": "vector-advection",
-          "config": {
-            "iterations": 26,
-            "advection": 0.74,
-            "retention": 0.91,
-            "secondaryWeightMin": 0.2
-          }
-        },
-        "computePrecipitation": {
-          "strategy": "vector",
-          "config": {
-            "rainfallScale": 174,
-            "humidityExponent": 1.05,
-            "noiseAmplitude": 14,
-            "noiseScale": 0.16,
-            "waterGradient": {
-              "radius": 6,
-              "perRingBonus": 5,
-              "lowlandBonus": 3,
-              "lowlandElevationMax": 200
-            },
-            "upliftStrength": 27,
-            "convergenceStrength": 19
-          }
-        }
-      }
-    },
-    "hydrology-hydrography": {
-      "knobs": {
-        "riverDensity": "normal",
-        "lakeiness": "many"
-      },
-      "rivers": {
-        "drainageRouting": {
-          "strategy": "priority-flood",
-          "config": {
-            "allowExternalEdgeOutlets": false
-          }
-        },
-        "accumulateDischarge": {
-          "strategy": "topological-runoff",
-          "config": {
-            "runoffScale": 1,
-            "infiltrationFraction": 0.18,
-            "humidityDampening": 0.22,
-            "minRunoff": 0
-          }
-        },
-        "projectRiverNetwork": {
-          "strategy": "discharge-percentiles",
-          "config": {
-            "minorPercentile": 0.74,
-            "majorPercentile": 0.88,
-            "minMinorDischarge": 0,
-            "minMajorDischarge": 0
-          }
-        }
-      },
-      "lakes": {
-        "planLakes": {
-          "strategy": "sink-discharge-budget",
-          "config": {
-            "maxUpstreamSteps": 1,
-            "sinkDischargePercentileMin": 0.94,
-            "maxLakeLandFraction": 0.003
-          }
-        },
-        "classifyRiverNetwork": {
-          "strategy": "hydrographic-classification",
-          "config": {
-            "highOrderConfluenceUpstreamAreaMin": 64
-          }
-        }
       }
     },
     "hydrology-climate-refine": {
       "knobs": {
         "dryness": "mix",
-        "temperature": "hot",
         "cryosphere": "on"
       },
       "climate-refine": {
@@ -775,25 +793,6 @@
               "elevationMax": 220,
               "openThresholdM": 24
             }
-          }
-        },
-        "computeRadiativeForcing": {
-          "strategy": "latitude-insolation",
-          "config": {
-            "equatorInsolation": 0.9,
-            "poleInsolation": 0.1,
-            "latitudeExponent": 1
-          }
-        },
-        "computeThermalState": {
-          "strategy": "insolation-lapse-rate",
-          "config": {
-            "baseTemperatureC": 9,
-            "insolationScaleC": 50,
-            "lapseRateCPerElevationUnit": -0.0095,
-            "landCoolingC": 0.32,
-            "minC": -60,
-            "maxC": 50
           }
         },
         "applyAlbedoFeedback": {
@@ -833,13 +832,11 @@
         },
         "computeLandWaterBudget": {
           "strategy": "pet-aridity",
-          "config": {
-            "tMinC": 0,
-            "tMaxC": 36,
-            "petBase": 19,
-            "petTemperatureWeight": 82,
-            "humidityDampening": 0.5
-          }
+          "config": {}
+        },
+        "computePotentialDemand": {
+          "strategy": "temperature-humidity",
+          "config": {}
         },
         "computeClimateDiagnostics": {
           "strategy": "terrain-wind-indices",
@@ -872,35 +869,22 @@
           "strategy": "biophysical-gaussian",
           "config": {
             "temperature": {
-              "equator": 30,
-              "pole": -54,
-              "lapseRate": 7.1,
-              "seaLevel": 200,
-              "bias": 0.15,
               "polarCutoff": -1,
               "tundraCutoff": 4,
               "midLatitude": 10,
-              "tropicalThreshold": 30
+              "tropicalThreshold": 24
             },
             "moisture": {
               "thresholds": [
                 90,
-                188,
+                163.5,
                 228,
                 252
               ]
             },
             "aridity": {
-              "temperatureMin": 0,
-              "temperatureMax": 45,
-              "petBase": 19,
-              "petTemperatureWeight": 92,
-              "humidityDampening": 0.5,
-              "rainfallWeight": 1.08,
-              "bias": 2,
-              "normalization": 118,
               "moistureShiftThresholds": [
-                0.2,
+                0.45,
                 0.66
               ],
               "vegetationPenalty": 0.78
@@ -921,15 +905,7 @@
     "map-morphology": {},
     "map-hydrology": {},
     "map-elevation": {},
-    "map-rivers": {
-      "knobs": {
-        "navigableRiverDensity": "normal"
-      },
-      "plot-rivers": {
-        "endpointDischargePercentileMin": 0.94,
-        "targetMajorTileFraction": 0.28
-      }
-    },
+    "map-rivers": {},
     "ecology-features": {
       "score-layers": {
         "vegetationSubstrate": {
@@ -1102,7 +1078,7 @@
           "strategy": "habitat",
           "config": {
             "minConfidence01": 0.84,
-            "stride": 4
+            "minSpacingTiles": 2
           }
         }
       },

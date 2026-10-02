@@ -1,11 +1,10 @@
 import { idx } from "@swooper/mapgen-core/lib/grid";
 
 /**
- * Reduces a wind vector to the cardinal sampling direction shared by climate algorithms.
- * Calm cells inherit the latitude-band zonal direction so moisture and terrain sampling remain
- * deterministic instead of inventing separate fallbacks in each consumer.
+ * Chooses a cardinal direction for the advisory upwind-barrier visualization.
+ * Its calm-cell latitude convention does not control vector moisture transport or precipitation.
  */
-export function upwindOffset(
+function upwindOffset(
   u: number,
   v: number,
   absoluteLatitude: number
@@ -20,8 +19,8 @@ export function upwindOffset(
 
 /**
  * Finds the first qualifying terrain barrier along a bounded cardinal wind trace.
- * This is the single Hydrology rule used by precipitation behavior and its advisory visualization,
- * keeping diagnostic evidence aligned with the algorithm it explains.
+ * This advisory trace is not the precipitation algorithm's continuous uplift gradient.
+ * Elevation and the legacy barrierElevationM threshold are absolute model relief units, not meters.
  */
 export function upwindBarrierDistance(
   x: number,

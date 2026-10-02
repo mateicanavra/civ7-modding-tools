@@ -1,12 +1,17 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { normalizeFractal } from "@swooper/mapgen-core/lib/noise";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
+import { computeLandNeighborRelief } from "../../../../model/policy/land-neighbor-relief.js";
 import { resolveBoundaryStrength } from "../../../../model/policy/boundary-strength.js";
 import { resolveDriverStrength } from "../../../../model/policy/driver-strength.js";
 import type {
   HillScorePolicy,
   OrogenyPotentialPolicy,
 } from "../../../../model/policy/mountain-scoring-policy.js";
+import {
+  HILL_ABSOLUTE_RELIEF_MIN,
+  normalizeReliefSupport,
+} from "../../../../model/policy/relief-support.js";
 import PlanFoothillsContract from "../../contract.js";
 import { computeHexDistanceToMask } from "../../rules/distance-to-mask.js";
 import { computeHillScore } from "../../rules/hill-score.js";
@@ -23,6 +28,7 @@ export default createStrategy(PlanFoothillsContract, StrategyDefinition, {
       width,
       height,
       landMask,
+      elevation,
       mountainMask,
       mountainRegionMask,
       mountainRegionIdByTile,
@@ -42,6 +48,7 @@ export default createStrategy(PlanFoothillsContract, StrategyDefinition, {
 
     const hillMask = new Uint8Array(size);
     const hillScoreByTile = new Float32Array(size);
+    const hillEligible = new Uint8Array(size);
 
     const boundaryGate = Math.min(0.99, Math.max(0, config.boundaryGate));
     const falloffExponent = config.boundaryExponent;
@@ -117,6 +124,10 @@ export default createStrategy(PlanFoothillsContract, StrategyDefinition, {
         driverSignalByteMin: config.driverSignalByteMin,
         driverExponent: config.driverExponent,
       });
+      const relief = computeLandNeighborRelief({ index: i, width, height, elevation, landMask });
+      const absoluteRelief = Math.max(relief.upward, relief.downward);
+      if (absoluteRelief < HILL_ABSOLUTE_RELIEF_MIN || driverStrength <= 0) continue;
+      hillEligible[i] = 1;
 
       const fractal = normalizeFractal(fractalHill[i]);
       const hillScore = computeHillScore({
@@ -133,7 +144,7 @@ export default createStrategy(PlanFoothillsContract, StrategyDefinition, {
       // Age shaping: old belts should degrade to hills more readily than mountains.
       const ageNorm = (beltAge[i] ?? 0) / 255;
       const ageScale = 1 + ageNorm * (oldBeltHillScale - 1);
-      hillScoreByTile[i] = hillScore * ageScale;
+      hillScoreByTile[i] = hillScore * ageScale * normalizeReliefSupport(absoluteRelief);
     }
 
     const distanceToMountains =
@@ -152,8 +163,7 @@ export default createStrategy(PlanFoothillsContract, StrategyDefinition, {
     const candidates: number[] = [];
     const relaxedCandidates: number[] = [];
     for (let i = 0; i < size; i++) {
-      if (landMask[i] === 0) continue;
-      if (mountainMask[i] === 1) continue;
+      if (hillEligible[i] !== 1) continue;
       const score = hillScoreByTile[i] ?? 0;
 
       const dist = distanceToMountains[i] ?? 255;

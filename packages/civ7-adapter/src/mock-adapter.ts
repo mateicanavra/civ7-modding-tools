@@ -18,12 +18,15 @@ import {
   RIVER_TYPE_NAVIGABLE,
 } from "@civ7/map-policy";
 import {
+  captureCurrentMapElevationSnapshot,
   captureCurrentMapLayer,
   captureCurrentRiverSurface,
+  copyElevationIntent,
   deriveRiverProjectionFromCurrentSurface,
 } from "./current-map-surface.js";
 import { getCiv7RowLatitude } from "./map-metadata.js";
 import type {
+  CurrentMapElevationSnapshot,
   CurrentRiverSurface,
   EngineAdapter,
   FeatureData,
@@ -38,7 +41,11 @@ import type {
   ResourceCatalogEntry,
   ResourcePlacementIntent,
   ResourcePlacementOutcome,
+  RiverCapabilities,
+  RiverDirection,
+  RiverFinalizationArgs,
   RiverProjectionResult,
+  RiverWriteIntent,
   VoronoiBoundingBox,
   VoronoiCell,
   VoronoiDiagram,
@@ -48,6 +55,15 @@ import type {
 } from "./types.js";
 
 type MockRandomFn = (max: number, label: string) => number;
+const MOCK_RIVER_DIRECTIONS: Readonly<Record<RiverDirection, true>> = {
+  EAST: true,
+  NORTHEAST: true,
+  NORTHWEST: true,
+  WEST: true,
+  SOUTHWEST: true,
+  SOUTHEAST: true,
+};
+const MAX_MOCK_RIVER_INTEGER = 0x7fffffff;
 type ResourceValidPlacementRow = readonly [
   biomeType: number,
   terrainType: number,
@@ -400,7 +416,7 @@ export class MockAdapter implements EngineAdapter {
   private aliveMajorPlayerIds: readonly number[] | null;
 
   private terrainTypes: Int32Array;
-  private elevations: Int16Array;
+  private elevations: Float64Array;
   private rainfall: Uint8Array;
   private temperature: Uint8Array;
   private features: Int32Array;
@@ -413,6 +429,7 @@ export class MockAdapter implements EngineAdapter {
   private landmassRegionIds: Uint8Array;
   private riverMask: Uint8Array;
   private riverTypes: Int32Array;
+  private riverWriteIntents = new Map<number, RiverWriteIntent>();
   private rngFn: (max: number, label: string) => number;
   private biomeGlobals: Record<string, number>;
   private featureTypes: Record<string, number>;
@@ -438,6 +455,10 @@ export class MockAdapter implements EngineAdapter {
   readonly calls: {
     emitRuntimeWarning: string[];
     setMapInitData: Array<MapInitParams>;
+    setElevation: number[][];
+    generateCliffsFromElevation: number;
+    setRiverInfo: RiverWriteIntent[];
+    finalizeRivers: RiverFinalizationArgs[];
     designateBiomes: Array<{ width: number; height: number }>;
     addFeatures: Array<{ width: number; height: number }>;
     stampNaturalWonder: Array<{
@@ -508,7 +529,7 @@ export class MockAdapter implements EngineAdapter {
     const size = this.width * this.height;
 
     this.terrainTypes = new Int32Array(size).fill(config.defaultTerrainType ?? 0);
-    this.elevations = new Int16Array(size).fill(config.defaultElevation ?? 100);
+    this.elevations = new Float64Array(size).fill(config.defaultElevation ?? 100);
     this.rainfall = new Uint8Array(size).fill(config.defaultRainfall ?? 50);
     this.temperature = new Uint8Array(size).fill(config.defaultTemperature ?? 15);
     this.features = new Int32Array(size).fill(-1);
@@ -547,6 +568,10 @@ export class MockAdapter implements EngineAdapter {
     this.oceanTerrainId = this.getTerrainTypeIndex("TERRAIN_OCEAN");
     this.mountainTerrainId = this.getTerrainTypeIndex("TERRAIN_MOUNTAIN");
     this.calls = {
+      setElevation: [],
+      generateCliffsFromElevation: 0,
+      setRiverInfo: [],
+      finalizeRivers: [],
       emitRuntimeWarning: [],
       setMapInitData: [],
       designateBiomes: [],
@@ -970,8 +995,24 @@ export class MockAdapter implements EngineAdapter {
     // No-op in mock
   }
 
-  buildElevation(): void {
-    // No-op in mock
+  setElevation(values: readonly number[]): void {
+    const snapshot = copyElevationIntent(values, this.width, this.height);
+    this.elevations.set(snapshot);
+    this.calls.setElevation.push(snapshot);
+  }
+
+  generateCliffsFromElevation(): void {
+    // Record dispatch only: native cliff and terrain effects are not modeled.
+    this.calls.generateCliffsFromElevation++;
+  }
+
+  readCurrentMapElevationSnapshot(): CurrentMapElevationSnapshot {
+    return captureCurrentMapElevationSnapshot({
+      source: "mock",
+      width: this.width,
+      height: this.height,
+      read: (x, y) => this.getElevation(x, y),
+    });
   }
 
   modelRivers(_minLength: number, _maxLength: number, _navigableTerrain: number): void {
@@ -988,8 +1029,75 @@ export class MockAdapter implements EngineAdapter {
     }
   }
 
-  defineNamedRivers(): void {
-    // No-op in mock
+  getRiverCapabilities(): RiverCapabilities {
+    return {
+      source: "mock",
+      setRiverInfo: { status: "available" },
+      finalizeRivers: { status: "available" },
+      riverTypeReadback: { status: "available" },
+    };
+  }
+
+  setRiverInfo(intent: RiverWriteIntent): void {
+    if (!intent || typeof intent !== "object" || Array.isArray(intent))
+      throw new TypeError("[MockAdapter] River write intent must be an object.");
+    const { x, y, direction, riverClass } = intent;
+    if (
+      ![this.width, this.height].every(
+        (value) => Number.isInteger(value) && value > 0 && value <= MAX_MOCK_RIVER_INTEGER
+      )
+    )
+      throw new RangeError(
+        "[MockAdapter] River dimensions must be positive signed-32-bit integers."
+      );
+    if (
+      !Number.isInteger(x) ||
+      !Number.isInteger(y) ||
+      x < 0 ||
+      y < 0 ||
+      x >= this.width ||
+      y >= this.height
+    )
+      throw new RangeError("[MockAdapter] River coordinates must be in-bounds integers.");
+    if (
+      typeof direction !== "string" ||
+      !Object.prototype.hasOwnProperty.call(MOCK_RIVER_DIRECTIONS, direction)
+    )
+      throw new TypeError("[MockAdapter] River direction must be a geographic symbol.");
+    if (riverClass !== "MINOR" && riverClass !== "NAVIGABLE")
+      throw new TypeError("[MockAdapter] River class must be MINOR or NAVIGABLE.");
+    const snapshot = Object.freeze({ x, y, direction, riverClass });
+    this.calls.setRiverInfo.push(snapshot);
+    this.riverWriteIntents.set(this.idx(x, y), snapshot);
+  }
+
+  finalizeRivers(args: RiverFinalizationArgs): void {
+    if (!Array.isArray(args) || args.length !== 4 || typeof args[0] !== "boolean")
+      throw new TypeError(
+        "[MockAdapter] River finalization requires [boolean, percent, minLength, upstream]."
+      );
+    for (const [offset, value] of args.slice(1).entries()) {
+      const max = offset === 0 ? 100 : MAX_MOCK_RIVER_INTEGER;
+      if (typeof value !== "number" || !Number.isInteger(value) || value < 0 || value > max)
+        throw new RangeError(
+          `[MockAdapter] River finalization argument ${offset + 1} must be an integer in [0, ${max}].`
+        );
+    }
+    this.calls.finalizeRivers.push(Object.freeze([args[0], args[1], args[2], args[3]] as const));
+    // Declared intent only: no drainage, slope, class demotion, or ocean-connectivity simulation.
+    for (const [plotIndex, intent] of this.riverWriteIntents) {
+      // Wet direction declarations do not turn water into dry river terrain.
+      if (this.isWater(intent.x, intent.y)) continue;
+      this.riverMask[plotIndex] = 1;
+      this.riverTypes[plotIndex] =
+        intent.riverClass === "MINOR" ? MOCK_RIVER_MINOR : MOCK_RIVER_NAVIGABLE;
+      if (intent.riverClass === "NAVIGABLE")
+        this.setTerrainType(
+          intent.x,
+          intent.y,
+          this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER")
+        );
+    }
   }
 
   storeWaterData(): void {
@@ -1636,10 +1744,15 @@ export class MockAdapter implements EngineAdapter {
     this.riverMask.fill(0);
     this.riverTypes.fill(MOCK_NO_RIVER);
     this.landmassRegionIds.fill(0);
+    this.riverWriteIntents.clear();
     this.mapSizeId = config.mapSizeId ?? 0;
     this.mapInfo = config.mapInfo ?? null;
     this.calls.emitRuntimeWarning.length = 0;
     this.calls.setMapInitData.length = 0;
+    this.calls.setElevation.length = 0;
+    this.calls.generateCliffsFromElevation = 0;
+    this.calls.setRiverInfo.length = 0;
+    this.calls.finalizeRivers.length = 0;
     this.calls.designateBiomes.length = 0;
     this.calls.addFeatures.length = 0;
     this.calls.stampNaturalWonder.length = 0;

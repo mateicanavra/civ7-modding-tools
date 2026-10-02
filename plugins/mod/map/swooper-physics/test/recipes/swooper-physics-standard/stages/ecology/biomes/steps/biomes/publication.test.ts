@@ -5,16 +5,18 @@ import { artifacts as pedologyArtifacts } from "../../../../../../../../src/doma
 import ecology from "../../../../../../../../src/domain/ecology/router.js";
 import { artifacts as climateArtifacts } from "../../../../../../../../src/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as cryosphereArtifacts } from "../../../../../../../../src/domain/hydrology/modules/cryosphere/artifacts/index.js";
-import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as hydrographyArtifacts } from "../../../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readArtifact } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
   normalizeOperationSelectionForTest,
   publishTestArtifact,
+  runAdmittedOperationForTest,
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { BiomesStep as biomesStep } from "../../../../../../../../src/recipes/standard/stages/ecology/biomes/steps/biomes/step.js";
+import { createEmptyWaterFixture } from "../../../../morphology/features/fixtures/surface-water.js";
 import {
   TEST_MAP_LATITUDE_BOUNDS,
   TEST_MAP_SEED,
@@ -40,7 +42,6 @@ describe("biomes step", () => {
     const ctx = createMapContext({ setup, adapter });
 
     const landMask = new Uint8Array(size).fill(1);
-    const elevation = new Int16Array(size).fill(1);
     const effectiveMoistureIn = Float32Array.from(
       { length: size },
       (_value, index) => 100 + (index % 3) * 100
@@ -59,11 +60,10 @@ describe("biomes step", () => {
     );
 
     withMapContextExecutionForTest(ctx, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
-        elevation,
-        seaLevel: 0,
-        landMask,
-        bathymetry: new Int16Array(size),
+      publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan,
+        createEmptyWaterFixture(width, height).lakePlan);
+      publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
+        ...createEmptyWaterFixture(width, height).hydrography, exposedLandMask: landMask,
       });
       publishTestArtifact(stepContext, cryosphereArtifacts.cryosphere, {
         snowCover: new Uint8Array(size),
@@ -103,8 +103,24 @@ describe("biomes step", () => {
     });
 
     const classification = readArtifact(ctx, biomeArtifacts.biomeClassification);
+    const expected = runAdmittedOperationForTest(
+      ecology.biomes.ops.classifyBiomes,
+      {
+        width,
+        height,
+        landMask,
+        effectiveMoisture: effectiveMoistureIn,
+        surfaceTemperatureC,
+        aridityIndex,
+        freezeIndex,
+        soilType: new Uint8Array(size).fill(0),
+        fertility: new Float32Array(size).fill(0.5),
+      },
+      ecology.biomes.ops.classifyBiomes.defaultConfig
+    );
+    expect(classification.biomeIndex).toEqual(expected.biomeIndex);
+    expect(classification.vegetationDensity).toEqual(expected.vegetationDensity);
     expect(Array.from(classification.biomeIndex)).not.toContain(255);
-    expect(new Set(classification.biomeIndex).size).toBeGreaterThan(1);
     expect(new Set(classification.vegetationDensity).size).toBeGreaterThan(1);
   });
 
@@ -133,15 +149,13 @@ describe("biomes step", () => {
       const ctx = createMapContext({ setup, adapter });
 
       const landMask = new Uint8Array(size).fill(1);
-      const elevation = new Int16Array(size).fill(1);
 
       withMapContextExecutionForTest(ctx, (stepContext) => {
-        publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
-          elevation,
-          seaLevel: 0,
-          landMask,
-          bathymetry: new Int16Array(size),
-        });
+        publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan,
+          createEmptyWaterFixture(width, height).lakePlan);
+        publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, {
+        ...createEmptyWaterFixture(width, height).hydrography, exposedLandMask: landMask,
+      });
         publishTestArtifact(stepContext, cryosphereArtifacts.cryosphere, {
           snowCover: new Uint8Array(size),
           seaIceCover: new Uint8Array(size),
