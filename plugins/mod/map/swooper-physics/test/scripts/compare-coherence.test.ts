@@ -29,7 +29,19 @@ describe("observational coherence comparison", () => {
 
   it("refuses unknown, duplicate or empty variant selectors", () => {
     expect(selectCoherenceVariants("baseline,sparse-rivers").map((v) => v.id)).toEqual(["baseline", "sparse-rivers"]);
-    for (const value of ["", "unknown", "baseline,baseline", "baseline,"]) expect(() => selectCoherenceVariants(value)).toThrow();
+    for (const value of ["", "unknown", "fluvial-zero", "baseline,baseline", "baseline,"]) expect(() => selectCoherenceVariants(value)).toThrow();
+  });
+
+  it("admits channel-zero as a new diagnostic probe without changing incision coefficients", () => {
+    const base = requireShippedStandardConfig("swooper-earthlike");
+    const [probe] = selectCoherenceVariants("channel-zero");
+    if (!probe) throw new Error("Expected the live channel-zero probe.");
+    const candidate = createCoherenceConfiguration(base, probe);
+    expect(candidate.config["hydrology-hydrography"].terrainEvolution.cycles).toBe(0);
+    expect(candidate.config["hydrology-hydrography"].terrainEvolution.computeChannelIncision).toEqual(
+      base.config["hydrology-hydrography"].terrainEvolution.computeChannelIncision
+    );
+    expect(changedLeaves(base, candidate)).toEqual(["config.hydrology-hydrography.terrainEvolution.cycles"]);
   });
 
   it("does not silently create misspelled config leaves", () => {

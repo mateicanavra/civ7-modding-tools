@@ -2,9 +2,14 @@
 
 Status: active Earthlike-first coherence completion. The qualified runtime
 lineage and precise channel operation are now merged into main through native
-Graphite PRs #2238, #2239 and #2240. The next completed-source domino is
-certified terrain/network composition, independently reviewed with frozen
-cohort evidence; production activation awaits the unchanged full bank.
+Graphite PRs #2238 through #2241. Certified terrain/network composition is
+implemented and merged. The unchanged full bank is complete: all 57 cases pass
+causal/conservation admission, while thermal variation and savanna woodland
+presence remain failed science expectations. The savanna witness is a valid
+relief-supported hill change, not a broken habitat calculation. The next
+domino activates the measured one-cycle configuration and retires the old
+competing geomorphic/routing path, with exact numerical identity required
+against that measured candidate. Neither failed expectation is waived.
 See [certified composition qualification](basin-evolution-design.md#certified-composition-qualification)
 and the [current evidence inventory](delivery-inventory.md#certified-terrain-and-current-native-evidence).
 The supported catalog is

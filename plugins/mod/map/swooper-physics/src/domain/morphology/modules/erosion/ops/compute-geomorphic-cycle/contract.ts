@@ -7,11 +7,10 @@ import {
   SeaLevelDatumSchema,
   SedimentDepthFieldSchema,
 } from "../../../../model/atoms/index.js";
-import strategyDefinition from "./strategies/stream-power-diffusion/config.js";
 import hillslopeDefinition from "./strategies/hillslope-diffusion/config.js";
 
 /**
- * Evolves admitted relief and substrate through one complete geomorphic cycle.
+ * Shapes initial hillslopes while preserving admitted material substrate.
  */
 const ComputeGeomorphicCycleContract = defineOp({
   kind: "compute",
@@ -23,16 +22,12 @@ const ComputeGeomorphicCycleContract = defineOp({
       elevation: TypedArraySchemas.i16({ description: "Elevation per tile (normalized units)." }),
       seaLevel: SeaLevelDatumSchema,
       landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
-      flowDir: TypedArraySchemas.i32({
-        description: "Flow receiver index per tile (-1 for sinks).",
-      }),
-      flowAccum: TypedArraySchemas.f32({ description: "Flow accumulation per tile." }),
       erodibilityK: TypedArraySchemas.f32({ description: "Erodibility proxy per tile." }),
       sedimentDepth: TypedArraySchemas.f32({ description: "Sediment depth proxy per tile." }),
     },
     {
       additionalProperties: false,
-      description: "Admitted base relief, routing, and material fields for geomorphic evolution.",
+      description: "Admitted base relief and unchanged material fields for initial hillslope shaping.",
     }
   ),
   output: Type.Object(
@@ -57,7 +52,7 @@ const ComputeGeomorphicCycleContract = defineOp({
         },
         {
           additionalProperties: false,
-          description: "Post-erosion material resistance and sediment depth.",
+          description: "Unchanged material resistance and sediment depth, copied without transport.",
         }
       ),
       deltas: Type.Object(
@@ -66,11 +61,6 @@ const ComputeGeomorphicCycleContract = defineOp({
             cardinality: "map-grid",
             description:
               "Diagnostic pre-quantization elevation change accumulated across the geomorphic eras.",
-          }),
-          sedimentDelta: TypedArraySchemas.f32({
-            cardinality: "map-grid",
-            description:
-              "Diagnostic pre-floor sediment-depth change accumulated across the geomorphic eras.",
           }),
         },
         {
@@ -85,8 +75,7 @@ const ComputeGeomorphicCycleContract = defineOp({
       description: "Completed post-erosion products and their diagnostic field changes.",
     }
   ),
-  strategies: [strategyDefinition, hillslopeDefinition],
-  defaultStrategy: "stream-power-diffusion",
+  strategies: [hillslopeDefinition],
 });
 
 export default ComputeGeomorphicCycleContract;

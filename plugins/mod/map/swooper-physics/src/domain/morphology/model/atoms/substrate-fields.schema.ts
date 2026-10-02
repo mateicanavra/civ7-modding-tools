@@ -6,8 +6,8 @@ export const ErodibilityFieldSchema = TypedArraySchemas.f32({
   description: "Per-tile resistance proxy where larger values admit faster incision.",
 });
 
-/** Per-tile loose material available to Morphology erosion and deposition. */
+/** Per-tile loose material retained for landform and pedology consumers. */
 export const SedimentDepthFieldSchema = TypedArraySchemas.f32({
   cardinality: "map-grid",
-  description: "Per-tile loose-sediment depth available for erosion and deposition.",
+  description: "Per-tile loose-sediment depth retained as material substrate.",
 });

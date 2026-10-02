@@ -215,10 +215,20 @@ The 32 whole-map PNGs and eight responsive screenshots are portable evidence,
 not native navigation or complete-bank qualification. The cohort seal is
 `dd01c83a222fd54019875bebd26b8ea7929243e6442f2955e9cebf4990d29bc5`.
 
-Production controls still select zero cycles. The next qualified domino is the
-unchanged 57-scenario, 22-study bank across all three retained products, followed
-by universal adoption and reviewed deletion of the displaced combined law and
-unused preliminary Standard routing participation. Keep each stress product's
-initial diffusion, eras, age and erosion posture; do not translate them into
-channel time or new incision coefficients. No legacy fallback is an accepted
-destination.
+The unchanged 57-scenario, 22-study bank is complete. All causal/mechanical
+checks pass. Thermal variation remains failed and the candidate introduces
+one savanna-feature presence failure. A separately sealed causal assessment
+finds the latter is a valid hill-support change with unchanged climate/biome
+inputs and native flat-only feature legality, not an owner defect. The
+[adoption decision](delivery-inventory.md#complete-bank-and-adoption-decision)
+retains both failures explicitly and accepts the conservative model-coordinate
+candidate without a hill/feature quota repair or scientific-calibration claim.
+
+The next implementation unit selects one cycle at `.02`, m `.5`, n `1` for
+all three products and deletes the displaced combined law and entire unused
+preliminary Morphology routing module. The measured candidate is the exact
+57-case identity control for this deletion. Keep each stress product's initial
+diffusion, eras, age and erosion posture; do not translate them into channel
+time or new incision coefficients. No legacy fallback is an accepted
+destination. Source activation, identity verification, deployment and live
+proof remain separate claims until actually run.

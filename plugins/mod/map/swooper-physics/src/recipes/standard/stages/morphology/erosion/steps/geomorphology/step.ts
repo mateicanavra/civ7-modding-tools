@@ -17,62 +17,27 @@ export const GeomorphologyStep = createStep(config, {
     const { erosion } = ctx.knobs as Readonly<{ erosion?: MorphologyErosionKnob }>;
     const multiplier = MORPHOLOGY_EROSION_RATE_MULTIPLIER[erosion ?? "normal"] ?? 1.0;
 
-    const geomorphologySelection =
-      stepConfig.geomorphology.strategy === "stream-power-diffusion"
-        ? {
-            ...stepConfig.geomorphology,
-            config: {
-              ...stepConfig.geomorphology.config,
-              geomorphology: {
-                ...stepConfig.geomorphology.config.geomorphology,
-                fluvial: {
-                  ...stepConfig.geomorphology.config.geomorphology.fluvial,
-                  rate: clampFinite(
-                    stepConfig.geomorphology.config.geomorphology.fluvial.rate * multiplier,
-                    0
-                  ),
-                },
-                diffusion: {
-                  ...stepConfig.geomorphology.config.geomorphology.diffusion,
-                  rate: clampFinite(
-                    stepConfig.geomorphology.config.geomorphology.diffusion.rate * multiplier,
-                    0
-                  ),
-                },
-                deposition: {
-                  ...stepConfig.geomorphology.config.geomorphology.deposition,
-                  rate: clampFinite(
-                    stepConfig.geomorphology.config.geomorphology.deposition.rate * multiplier,
-                    0
-                  ),
-                },
-              },
-            },
-          }
-        : stepConfig.geomorphology.strategy === "hillslope-diffusion"
-          ? {
-              ...stepConfig.geomorphology,
-              config: {
-                ...stepConfig.geomorphology.config,
-                geomorphology: {
-                  ...stepConfig.geomorphology.config.geomorphology,
-                  diffusion: {
-                    ...stepConfig.geomorphology.config.geomorphology.diffusion,
-                    rate: clampFinite(
-                      stepConfig.geomorphology.config.geomorphology.diffusion.rate * multiplier,
-                      0
-                    ),
-                  },
-                },
-              },
-            }
-          : stepConfig.geomorphology;
+    const geomorphologySelection = {
+      ...stepConfig.geomorphology,
+      config: {
+        ...stepConfig.geomorphology.config,
+        geomorphology: {
+          ...stepConfig.geomorphology.config.geomorphology,
+          diffusion: {
+            ...stepConfig.geomorphology.config.geomorphology.diffusion,
+            rate: clampFinite(
+              stepConfig.geomorphology.config.geomorphology.diffusion.rate * multiplier,
+              0
+            ),
+          },
+        },
+      },
+    };
 
     return { ...stepConfig, geomorphology: geomorphologySelection };
   },
   run: (context, stepConfig, ops, deps) => {
     const topography = deps.artifacts.baseTopography.read();
-    const routing = deps.artifacts.routing.read();
     const substrate = deps.artifacts.baseSubstrate.read();
     const { width, height } = context.setup.dimensions;
 
@@ -83,8 +48,6 @@ export const GeomorphologyStep = createStep(config, {
         elevation: topography.elevation,
         seaLevel: topography.seaLevel,
         landMask: topography.landMask,
-        flowDir: routing.flowDir,
-        flowAccum: routing.flowAccum,
         erodibilityK: substrate.erodibilityK,
         sedimentDepth: substrate.sedimentDepth,
       },
@@ -138,18 +101,6 @@ export const GeomorphologyStep = createStep(config, {
       field: { format: "f32", values: observation.deltas.elevationDelta },
       meta: defineStandardVizMeta("morphology.geomorphology.elevationDelta", "field.signed", {
         label: "Elevation Delta",
-        group: GROUP_GEOMORPHOLOGY,
-        visibility: "debug",
-      }),
-    },
-    {
-      kind: "grid",
-      dataTypeKey: "morphology.geomorphology.sedimentDelta",
-      spaceId: TILE_SPACE_ID,
-      dims: dimensions,
-      field: { format: "f32", values: observation.deltas.sedimentDelta },
-      meta: defineStandardVizMeta("morphology.geomorphology.sedimentDelta", "field.signed", {
-        label: "Sediment Delta",
         group: GROUP_GEOMORPHOLOGY,
         visibility: "debug",
       }),

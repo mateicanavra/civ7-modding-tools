@@ -302,8 +302,11 @@ Hydrology routing is the canonical water-movement graph. It preserves original d
 receivers except explicit exact-sill outlet connectors, mixes wet-body supply
 and demand in body ledgers, and requires nonnegative outflows, acyclicity, and
 marine termination. Its interior wet connectivity is not a per-cell signed
-discharge budget. Hydrology does not consume `artifact:morphology.routing`, which
-remains a terrain-shaping proxy for Morphology consumers.
+discharge budget. Initial Morphology hillslope shaping has no routing lane.
+The NetworkStep privately composes certified solves with pure channel incision,
+then asks Morphology to seal final integer ground and solves again on that
+exact publication. Downstream rough-land planning consumes the final certified
+upstream-area count, not a preliminary terrain-routing proxy.
 
 Physical ground, certified spill-level water surface, and native numeric height
 are distinct. Elevation projection converts ground into authored native intent;

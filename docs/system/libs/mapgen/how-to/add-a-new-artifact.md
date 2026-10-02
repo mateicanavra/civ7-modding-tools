@@ -23,7 +23,7 @@ Routes to:
 
 - Define the artifact as an immutable snapshot. A later value is a separately
   named vintage, not a mutation of the published artifact.
-- Choose a stable id such as `"artifact:morphology.routing"`.
+- Choose a stable id such as `"artifact:morphology.substrate"`.
 - Identify the owning artifact directory and the single step that publishes it.
 
 ## Checklist
@@ -40,30 +40,20 @@ import {
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Publishes geomorphic receivers and accumulation for Morphology terrain shaping. */
+/** Publishes unchanged material substrate after initial hillslope shaping. */
 export const artifact = defineArtifact({
-  name: "routing",
-  id: "artifact:morphology.routing",
+  name: "substrate",
+  id: "artifact:morphology.substrate",
   schema: Type.Object(
     {
-      flowDir: TypedArraySchemas.i32({ cardinality: "map-grid" }),
-      flowAccum: TypedArraySchemas.f32({ cardinality: "map-grid" }),
-      outlets: Type.Array(
-        Type.Object(
-          { x: Type.Integer(), y: Type.Integer() },
-          { additionalProperties: false }
-        )
-      ),
+      erodibilityK: TypedArraySchemas.f32({ cardinality: "map-grid" }),
+      sedimentDepth: TypedArraySchemas.f32({ cardinality: "map-grid" }),
     },
     {
       additionalProperties: false,
-      description: "Immutable Morphology drainage routing fields.",
+      description: "Immutable Morphology material substrate.",
     }
   ),
-  refine: (value, { issues }) => {
-    issues.addGridCoordinates("outlets", value.outlets);
-    return undefined;
-  },
 });
 ```
 
@@ -93,10 +83,10 @@ semantic key and export one direct catalog.
 
 ```ts
 import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
-import { artifact as routing } from "./routing.artifact.js";
+import { artifact as substrate } from "./substrate.artifact.js";
 
 /** Morphology artifact authorities keyed for contracts and consumers. */
-export const artifacts = defineArtifactCatalog({ routing });
+export const artifacts = defineArtifactCatalog({ substrate });
 ```
 
 Do not add module, validator, contract, or handle projections. The artifact
@@ -108,14 +98,16 @@ Producer and consumer contracts select the same catalog value.
 
 ```ts
 import morphology from "../../../../../../../domain/morphology/index.js";
-import { artifacts as morphologyRoutingArtifacts } from "../../../../../../../domain/morphology/modules/routing/artifacts/index.js";
+import { artifacts as erosionArtifacts } from "../../../../../../../domain/morphology/modules/erosion/artifacts/index.js";
+import { artifacts as terrainArtifacts } from "../../../../../../../domain/morphology/modules/terrain/artifacts/index.js";
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 export const config = defineStep({
-  // ...id, dependencies, ops, and schema...
-  requires: [],
-  provides: [morphologyRoutingArtifacts.routing],
+  id: "geomorphology",
+  requires: [terrainArtifacts.baseTopography, terrainArtifacts.baseSubstrate],
+  provides: [erosionArtifacts.erodedTopography, erosionArtifacts.substrate],
   ops: {
-    routing: morphology.routing.ops.computeFlowRouting,
+    geomorphology: morphology.erosion.ops.computeGeomorphicCycle,
   },
 });
 ```
@@ -130,10 +122,11 @@ At each step invocation, the SDK derives validated publication and read capabili
 from the declared artifact authorities.
 
 ```ts
-export const RoutingStep = createStep(config, {
+export const GeomorphologyStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
-    const routing = ops.routing({ /* admitted inputs */ }, stepConfig.routing);
-    deps.artifacts.routing.publish(routing);
+    const result = ops.geomorphology({ /* admitted inputs */ }, stepConfig.geomorphology);
+    deps.artifacts.erodedTopography.publish(result.topography);
+    deps.artifacts.substrate.publish(result.substrate);
   },
 });
 ```

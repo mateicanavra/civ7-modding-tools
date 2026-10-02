@@ -27,7 +27,7 @@ export const COHERENCE_VARIANTS: readonly Variant[] = [
   { id: "three-eras", label: "Three eras only", kind: "single-factor", changes: [eras] },
   { id: "sparse-rivers", label: "Sparse rivers only", kind: "single-factor", changes: [{ path: ["hydrology-hydrography", "knobs", "riverDensity"], value: "sparse" }] },
   { id: "major-percentile", label: "Major percentile 0.96", kind: "single-factor", changes: [{ path: ["hydrology-hydrography", "projectRiverNetwork", "config", "majorPercentile"], value: 0.96 }] },
-  { id: "fluvial-zero", label: "Fluvial rate zero", kind: "single-factor", changes: [{ path: [...erosion, "geomorphology", "fluvial", "rate"], value: 0 }] },
+  { id: "channel-zero", label: "Zero certified channel cycles", kind: "single-factor", changes: [{ path: ["hydrology-hydrography", "terrainEvolution", "cycles"], value: 0 }] },
   { id: "diffusion-zero", label: "Diffusion rate zero", kind: "single-factor", changes: [{ path: [...erosion, "geomorphology", "diffusion", "rate"], value: 0 }] },
   { id: "crust-texture-half", label: "Half crust texture", kind: "single-factor", changes: [{ path: ["morphology-coasts", "landmass-plates", "baseTopography", "config", "crustNoiseAmplitude"], value: 0.18 }] },
   { id: "combined", label: "Mature + normal + three eras", kind: "interaction", changes: [age, intensity, eras] },

@@ -2,7 +2,7 @@ import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../../contract-manifest.js";
 import { GeomorphologyStep } from "./steps/geomorphology/step.js";
 
-/** Authored erosion posture applied to all geomorphic process rates. */
+/** Authored erosion posture applied to initial hillslope diffusion. */
 export type MorphologyErosionKnob = "low" | "normal" | "high";
 
 const knobsSchema = Type.Object(
@@ -10,7 +10,7 @@ const knobsSchema = Type.Object(
     erosion: Type.Union([Type.Literal("low"), Type.Literal("normal"), Type.Literal("high")], {
       default: "normal",
       description:
-        "Controls terrain erosion posture by applying one deterministic multiplier over geomorphology rates.",
+        "Controls initial hillslope diffusion posture through one deterministic rate multiplier.",
     }),
   },
   {
@@ -21,7 +21,7 @@ const knobsSchema = Type.Object(
 );
 
 /**
- * Applies the authored geomorphic-cycle operation after routing and before final landform planning.
+ * Applies initial hillslope shaping before Landforms publishes initial topography.
  */
 export default createStage({
   id: "morphology-erosion",

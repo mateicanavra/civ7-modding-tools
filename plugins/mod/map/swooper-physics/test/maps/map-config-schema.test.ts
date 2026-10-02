@@ -1,12 +1,14 @@
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
+import { buildRecipeDag, collectOperations, deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
 import { Type } from "typebox";
 import { describe, expect, it } from "vitest";
 import { loadSwooperMapConfigCatalog } from "../../scripts/catalog-source";
 import { createSwooperMapConfigSourceStore } from "../../scripts/config-source-store";
 import ecology from "../../src/domain/ecology/router.js";
+import morphology from "../../src/domain/morphology/router.js";
+import { buildStandardRecipeDefaultConfig } from "../../src/recipes/standard/artifacts.js";
 import { admitMapConfigCatalogConfig } from "../../src/maps/catalog/admission";
 import { MAP_CONFIG_CATALOG_IDS } from "../../src/maps/catalog/membership";
 import {
@@ -14,6 +16,7 @@ import {
   validateCanonicalMapConfig,
 } from "../../src/maps/configs/canonical";
 import standardRecipe, { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
+import { swooperStandardRecipeDagStages } from "../../src/recipes/studio-contracts/index.js";
 import { createStandardRecipeTestInitialSetup } from "../recipes/swooper-physics-standard/fixtures/standard-recipe.js";
 import { TEST_MAP_SIZE } from "../setup.js";
 
@@ -183,6 +186,99 @@ describe("Shipped map configs", () => {
         ...thermal.config, annualOffsetC: thermal.config.annualOffsetC + temperatureOffset,
       });
     }
+  });
+
+  it("adopts the exact certified candidate while retaining each product's hillslope controls", async () => {
+    const configs = await loadSwooperMapConfigRegistry();
+    const expected = {
+      "swooper-earthlike": { diffusion: 0.23, eras: 1, worldAge: "young", erosion: "low" },
+      "swooper-desert-mountains": { diffusion: 0.12, eras: 3, worldAge: "old", erosion: "normal" },
+      "sundered-archipelago": { diffusion: 0.2, eras: 2, worldAge: "mature", erosion: "normal" },
+    } as const;
+    for (const { canonicalConfig } of configs) {
+      const erosion = canonicalConfig.config["morphology-erosion"];
+      const selected = erosion.geomorphology.geomorphology;
+      const controls = expected[canonicalConfig.id as keyof typeof expected];
+      expect(selected).toEqual({
+        strategy: "hillslope-diffusion",
+        config: {
+          worldAge: controls.worldAge,
+          geomorphology: { diffusion: { rate: controls.diffusion }, eras: controls.eras },
+        },
+      });
+      expect(erosion.knobs.erosion).toBe(controls.erosion);
+      expect(canonicalConfig.config["hydrology-hydrography"].terrainEvolution).toEqual({
+        cycles: 1,
+        computeChannelIncision: {
+          strategy: "implicit-stream-power", config: { rate: 0.02, m: 0.5, n: 1 },
+        },
+      });
+    }
+    const defaults = buildStandardRecipeDefaultConfig();
+    expect(defaults).not.toHaveProperty("morphology-routing");
+    expect(defaults["morphology-erosion"].geomorphology.geomorphology.strategy).toBe("hillslope-diffusion");
+    expect(morphology).not.toHaveProperty("routing");
+    expect(Object.keys(morphology.erosion.ops.computeGeomorphicCycle.strategies)).toEqual(["hillslope-diffusion"]);
+  });
+
+  it("strictly refuses deleted routing stages and displaced process selections across the catalog", async () => {
+    for (const { canonicalConfig } of await loadSwooperMapConfigRegistry()) {
+      expect(() => admitStandardMapConfig({
+        ...canonicalConfig,
+        config: { ...canonicalConfig.config, "morphology-routing": {} },
+      })).toThrow("Unknown key");
+      const stage = canonicalConfig.config["morphology-erosion"];
+      const selected = stage.geomorphology.geomorphology;
+      for (const obsolete of [
+        { ...selected, strategy: "stream-power-diffusion" },
+        ...["fluvial", "deposition"].map(process => ({
+          ...selected,
+          config: {
+            ...selected.config,
+            geomorphology: { ...selected.config.geomorphology, [process]: { rate: 0 } },
+          },
+        })),
+      ]) {
+        expect(() => admitStandardMapConfig({
+          ...canonicalConfig,
+          config: {
+            ...canonicalConfig.config,
+            "morphology-erosion": { ...stage, geomorphology: { geomorphology: obsolete } },
+          },
+        })).toThrow();
+      }
+    }
+  });
+
+  it("derives a routing-free live operation registry and DAG without replacing dependency edges", () => {
+    const registry = collectOperations(morphology);
+    expect(registry).not.toHaveProperty("morphology/compute-flow-routing");
+    for (const id of [
+      "morphology/compute-geomorphic-cycle",
+      "morphology/compute-channel-incision",
+      "morphology/compute-channel-topography",
+    ]) expect(registry).toHaveProperty(id);
+    const dag = buildRecipeDag({
+      recipeId: "standard", namespace: "mod-swooper-maps", stages: swooperStandardRecipeDagStages,
+    });
+    expect(dag.stages.map(stage => stage.stageId)).not.toContain("morphology-routing");
+    expect(dag.edges.some(edge => edge.artifact.id === "artifact:morphology.routing")).toBe(false);
+    expect(dag.diagnostics.filter(diagnostic => diagnostic.kind !== "artifact-consumer-missing")).toEqual([]);
+    expect(dag.edges).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        artifact: expect.objectContaining({ id: "artifact:morphology.topography.base" }),
+        to: expect.objectContaining({ stepId: "geomorphology" }),
+      }),
+      expect.objectContaining({
+        artifact: expect.objectContaining({ id: "artifact:morphology.topography.initial" }),
+        to: expect.objectContaining({ stepId: "network" }),
+      }),
+      expect.objectContaining({
+        artifact: expect.objectContaining({ id: "artifact:morphology.topography" }),
+        from: expect.objectContaining({ stepId: "network" }),
+        to: expect.objectContaining({ stepId: "mountains" }),
+      }),
+    ]));
   });
 
   it("refuses saved retired climate selectors and controls rather than translating them", async () => {

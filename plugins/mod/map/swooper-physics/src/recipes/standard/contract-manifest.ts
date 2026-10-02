@@ -43,7 +43,6 @@ import { config as plotCoastsConfig } from "./stages/morphology/projection/steps
 import { config as plotContinentsConfig } from "./stages/morphology/projection/steps/plot-continents/config.js";
 import { config as plotMountainsConfig } from "./stages/morphology/projection/steps/plot-mountains/config.js";
 import { config as plotVolcanoesConfig } from "./stages/morphology/projection/steps/plot-volcanoes/config.js";
-import { config as routingConfig } from "./stages/morphology/routing/steps/routing/config.js";
 import { config as computeShelfConfig } from "./stages/morphology/shelf/steps/compute-shelf/config.js";
 import { config as adjustResourcesConfig } from "./stages/placement/steps/adjust-resources/config.js";
 import { config as assignAdvancedStartsConfig } from "./stages/placement/steps/assign-advanced-starts/config.js";
@@ -79,7 +78,6 @@ export const standardStageContractManifest = [
   stage("foundation-orogeny", [crustEvolutionConfig]),
   stage("foundation-projection", [projectionConfig, plateTopologyConfig]),
   stage("morphology-coasts", [landmassPlatesConfig, coastlineEvidenceConfig]),
-  stage("morphology-routing", [routingConfig]),
   stage("morphology-erosion", [geomorphologyConfig]),
   stage("morphology-islands", [islandsConfig]),
   stage("morphology-shelf", [computeShelfConfig]),

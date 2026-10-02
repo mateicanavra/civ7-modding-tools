@@ -32,7 +32,6 @@ import morphologyErosion from "./stages/morphology/erosion/index.js";
 import morphologyFeatures from "./stages/morphology/features/index.js";
 import morphologyIslands from "./stages/morphology/islands/index.js";
 import mapMorphology from "./stages/morphology/projection/index.js";
-import morphologyRouting from "./stages/morphology/routing/index.js";
 import morphologyShelf from "./stages/morphology/shelf/index.js";
 import placement from "./stages/placement/index.js";
 
@@ -48,7 +47,6 @@ const stages = orderStandardStages({
   "foundation-orogeny": foundationCrust,
   "foundation-projection": foundationProjection,
   "morphology-coasts": morphologyCoasts,
-  "morphology-routing": morphologyRouting,
   "morphology-erosion": morphologyErosion,
   "morphology-islands": morphologyIslands,
   "morphology-shelf": morphologyShelf,
