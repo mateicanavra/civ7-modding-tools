@@ -1,9 +1,13 @@
 import { defineDomainSubdomain } from "@swooper/mapgen-core/authoring/contracts";
 import ComputeGeomorphicCycleContract from "./ops/compute-geomorphic-cycle/contract.js";
+import ComputeChannelIncisionContract from "./ops/compute-channel-incision/contract.js";
 
-/** Erosion branch contract for the geomorphic cycle that reshapes relief and substrate. */
+/** Initial geomorphic shaping and precise channel response to certified hydraulic evidence. */
 const erosion = defineDomainSubdomain({
   id: "erosion",
-  ops: { computeGeomorphicCycle: ComputeGeomorphicCycleContract },
+  ops: {
+    computeGeomorphicCycle: ComputeGeomorphicCycleContract,
+    computeChannelIncision: ComputeChannelIncisionContract,
+  },
 });
 export default erosion;

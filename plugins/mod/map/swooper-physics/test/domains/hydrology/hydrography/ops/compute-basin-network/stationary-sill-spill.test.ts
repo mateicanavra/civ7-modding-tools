@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
+import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 import hydrologyOpsPublic from "../../../../../../src/domain/hydrology/router.js";
 import { desertHugeRoot19, hugeRoot17, largerGrid, standardRoots37And39 } from "./fixtures/retained-fixtures.js";
 
@@ -13,7 +14,7 @@ function supported(input: Input) {
   return output.plan;
 }
 function fixture(heights: number[], marine = [0], externalEdges = false, externalWaterHead = 0) {
-  const terrain = { width: heights.length, height: 1, elevation: Int16Array.from(heights), externalWaterMask: Uint8Array.from(heights.map((_, cell) => marine.includes(cell) ? 1 : 0)), externalWaterHead };
+  const terrain = { width: heights.length, height: 1, elevation: Array.from(heights), externalWaterMask: Uint8Array.from(heights.map((_, cell) => marine.includes(cell) ? 1 : 0)), externalWaterHead };
   return { ...terrain, geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: externalEdges } }),
     localRunoff: Array.from(terrain.externalWaterMask, (prescribed): number => prescribed ? 0 : 1), rainfall: new Uint8Array(heights.length).fill(10), potentialDemand: new Float32Array(heights.length).fill(1) } satisfies Input;
 }
@@ -51,6 +52,27 @@ function verify(input: Input) {
 }
 
 describe("hydrology/compute-basin-network", () => {
+  it("solves certified fractional storage without quantizing ground, heads or topology", () => {
+    const input = fixture([-100, 5.25, 1.125, 3.375, 0.125, 8.5, -50], [0, 6]);
+    const plan = verify(input);
+    expect(validateSchemaValueForTest(network.input, input, "/preciseNetworkInput")).toEqual(input);
+    expect(plan.pools.some(pool => pool.level === 5.25)).toBe(true);
+    expect(plan.waterSurface[2]).toBe(5.25);
+    expect(plan.waterSurface[1]).toBe(5.25);
+    expect(supported(input)).toEqual(plan);
+  });
+
+  it("refuses nonfinite precise ground and geometry heights", () => {
+    for (const invalid of [NaN, Infinity, -Infinity, -32768.25, 32767.25]) {
+      const malformed = fixture([-100, 5, 2, 7]);
+      malformed.elevation[2] = invalid;
+      expect(() => run(malformed)).toThrow();
+      const geometryHeight = fixture([-100, 5, 2, 7]);
+      geometryHeight.geometry.nodes[0]!.baseElevation = invalid;
+      expect(() => run(geometryHeight)).toThrow();
+    }
+  });
+
   it("keeps full finite storage, transport, exposure and conservation independent of external beds", () => {
     const input = fixture([-100, 5, 1, 3, 0, 8, -50], [0, 6]);
     const before = structuredClone(input), plan = verify(input), alternate = structuredClone(input);
@@ -243,7 +265,7 @@ describe("hydrology/compute-basin-network", () => {
     for (const exit of plan.boundaryExits) { expect(plan.receiver[exit.fromCell]).toBe(-1); expect(plan.dryDischarge[exit.fromCell]).toBe(0); expect(plan.terminalType[exit.fromCell]).toBe(2); }
   });
   it("gives a boundary-connected hydraulic component a port without a receiver", () => {
-    const terrain = { width: 3, height: 3, elevation: Int16Array.from([2, 2, 2, 2, 0, 2, 2, 2, 2]), externalWaterMask: new Uint8Array(9), externalWaterHead: 0 };
+    const terrain = { width: 3, height: 3, elevation: Array.from([2, 2, 2, 2, 0, 2, 2, 2, 2]), externalWaterMask: new Uint8Array(9), externalWaterHead: 0 };
     const plan = verify({ ...terrain, geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: true } }), localRunoff: new Array(9).fill(1), rainfall: new Uint8Array(9).fill(10), potentialDemand: new Float32Array(9).fill(1) });
     expect(plan.ports).toHaveLength(1); expect(plan.ports[0]!.kind).toBe("boundary-export");
     expect("toCell" in plan.ports[0]!).toBe(false);
@@ -253,7 +275,7 @@ describe("hydrology/compute-basin-network", () => {
   it("handles marine grids and deterministic varied wet, closed and wrapped-hex hierarchies", () => {
     expect(verify(fixture([-1, -1], [0, 1])).pools).toEqual([]);
     for (let sample = 0; sample < 40; sample++) {
-      const width = 8, height = 5, elevation = Int16Array.from({ length: 40 }, (_, cell) => cell < 8 ? -10 : (cell * 17 + sample * 7 + cell * cell) % 13), externalWaterMask = Uint8Array.from(elevation, value => value === -10 ? 1 : 0);
+      const width = 8, height = 5, elevation = Array.from({ length: 40 }, (_, cell) => cell < 8 ? -10 : (cell * 17 + sample * 7 + cell * cell) % 13), externalWaterMask = Uint8Array.from(elevation, value => value === -10 ? 1 : 0);
       const terrain = { width, height, elevation, externalWaterMask, externalWaterHead: -10 };
       verify({ ...terrain, geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: false } }), localRunoff: Array.from(externalWaterMask, (_, cell) => externalWaterMask[cell] ? 0 : 1 + (cell * sample) % 7), rainfall: Uint8Array.from({ length: 40 }, (_, cell) => (sample + cell) % 21), potentialDemand: Float32Array.from({ length: 40 }, (_, cell) => (sample * cell) % 30) });
     }
@@ -268,7 +290,7 @@ describe("hydrology/compute-basin-network", () => {
     let seed = 19219;
     const random = () => ((seed = Math.imul(seed, 1664525) + 1013904223 | 0) >>> 0) / 2 ** 32;
     for (let sample = 0; sample < 4000; sample++) {
-      const width = 8, height = 7, elevation = Int16Array.from({ length: 56 }, (_, cell) => cell < 8 ? -10 : Math.floor(random() * 9)), externalWaterMask = Uint8Array.from(elevation, value => value === -10 ? 1 : 0);
+      const width = 8, height = 7, elevation = Array.from({ length: 56 }, (_, cell) => cell < 8 ? -10 : Math.floor(random() * 9)), externalWaterMask = Uint8Array.from(elevation, value => value === -10 ? 1 : 0);
       const terrain = { width, height, elevation, externalWaterMask, externalWaterHead: -10 };
       const input = { ...terrain, geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: false } }), localRunoff: Array.from(externalWaterMask, value => value ? 0 : random() * 4), rainfall: Uint8Array.from({ length: 56 }, () => Math.floor(random() * 15)), potentialDemand: Float32Array.from({ length: 56 }, () => random() * 30) };
       const plan = supported(input);

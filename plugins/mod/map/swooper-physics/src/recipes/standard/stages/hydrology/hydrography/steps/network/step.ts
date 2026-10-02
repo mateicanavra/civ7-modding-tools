@@ -11,6 +11,7 @@ export const NetworkStep = createStep(config, {
     const topography = deps.artifacts.topography.read();
     const climate = deps.artifacts.baselineClimateField.read();
     const dimensions = { width, height };
+    const ground = Array.from(topography.elevation);
     const physical = (() => {
       const { runoff } = ops.computeLocalRunoff(
         {
@@ -24,7 +25,7 @@ export const NetworkStep = createStep(config, {
       const geometry = ops.computeDrainageBasins(
         {
           ...dimensions,
-          elevation: topography.elevation,
+          elevation: ground,
           externalWaterMask: topography.externalWaterMask,
           externalWaterHead: topography.seaLevel,
         },
@@ -33,7 +34,7 @@ export const NetworkStep = createStep(config, {
       const result = ops.computeBasinNetwork(
         {
           ...dimensions,
-          elevation: topography.elevation,
+          elevation: ground,
           externalWaterMask: topography.externalWaterMask,
           externalWaterHead: topography.seaLevel,
           geometry,

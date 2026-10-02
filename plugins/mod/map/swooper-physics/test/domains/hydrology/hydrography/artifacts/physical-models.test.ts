@@ -151,7 +151,7 @@ describe("certified physical water artifacts", () => {
     const terrain = {
       width: 6,
       height: 1,
-      elevation: Int16Array.of(-1, 5, 0, 1, 6, -1),
+      elevation: [-1, 5, 0, 1, 6, -1],
       externalWaterMask: Uint8Array.of(1, 0, 0, 0, 0, 1),
       externalWaterHead: -1,
     };

@@ -59,7 +59,7 @@ function simple(runoff: number, demand: number, boundary = false) {
   const terrain = {
     width: 5,
     height: 1,
-    elevation: Int16Array.of(-1, 5, 0, 1, 6),
+    elevation: [-1, 5, 0, 1, 6],
     externalWaterMask: Uint8Array.of(1, 0, 0, 0, 0),
     externalWaterHead: -1,
   };
@@ -79,7 +79,7 @@ describe("component-aware basin river metadata", () => {
     const terrain = {
       width: 6,
       height: 1,
-      elevation: Int16Array.of(-1, 1, 2, 0, 3, -1),
+      elevation: [-1, 1, 2, 0, 3, -1],
       externalWaterMask: Uint8Array.of(1, 0, 0, 0, 0, 1),
       externalWaterHead: -1,
     };
@@ -161,7 +161,7 @@ describe("component-aware basin river metadata", () => {
     const terrain = {
       width: 3,
       height: 3,
-      elevation: Int16Array.of(3, 3, 3, 3, 2, 3, 3, 1, 3),
+      elevation: [3, 3, 3, 3, 2, 3, 3, 1, 3],
       externalWaterMask: new Uint8Array(9),
       externalWaterHead: 0,
     };

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
+import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 
 import hydrologyOpsPublic from "../../../../../../src/domain/hydrology/router.js";
 
@@ -18,7 +19,7 @@ function run(input: Input, allowExternalEdgeOutlets = false): Result {
 function syntheticProfile(heights: number[], marineCells = [0]) {
   const externalWaterMask = new Uint8Array(heights.length);
   for (const cell of marineCells) externalWaterMask[cell] = 1;
-  return { width: heights.length, height: 1, elevation: Int16Array.from(heights), externalWaterMask, externalWaterHead: 0 } satisfies Input;
+  return { width: heights.length, height: 1, elevation: Array.from(heights), externalWaterMask, externalWaterHead: 0 } satisfies Input;
 }
 
 function hydraulicElevation(input: Input, cell: number): number {
@@ -161,6 +162,56 @@ function expectThresholdComponents(input: Input, result: Result, level: number, 
 }
 
 describe("hydrology/compute-drainage-basins", () => {
+  it("retains fractional floor, merge, spill, saddle and hypsometry heights through atom admission", () => {
+    const input = syntheticProfile([-5, 8.25, 0.125, 3.375, 1.25, 7.75, 2.5, 16, 20]);
+    const before = structuredClone(input), result = run(input);
+    expect(result.nodes.filter(node => node.kind === "merge").map(node => node.baseElevation)).toEqual([3.375, 7.75]);
+    const root = result.nodes[result.roots[0]! - 1]!;
+    expect(root.floorElevation).toBe(0.125);
+    expect(root.spill?.elevation).toBe(8.25);
+    expect(result.saddles.some(saddle => saddle.elevation === 3.375)).toBe(true);
+    expect(result.hypsometry.some(bin => bin.elevation === 0.125)).toBe(true);
+    expect(validateSchemaValueForTest(computeDrainageBasins.output, result, "/preciseGeometry")).toEqual(result);
+    expectGeometry(input, result);
+    for (const level of [0.125, 1.25, 2.5, 3.375, 7.75, 8.25]) expectThresholdComponents(input, result, level, false);
+    expect(run(input)).toEqual(result);
+    expect(input).toEqual(before);
+  });
+
+  it("distinguishes sub-integer plateaus instead of rounding them into one pit", () => {
+    const input = syntheticProfile([1.125, 1.25, 1.125, 1.25], []);
+    const result = run(input);
+    expect(result.nodes.filter(node => node.kind === "leaf")).toHaveLength(2);
+    expect(result.nodes.at(-1)?.baseElevation).toBe(1.25);
+    expect(run({ ...input, elevation: input.elevation.map(Math.round) }).nodes.filter(node => node.kind === "leaf")).toHaveLength(1);
+    expectGeometry(input, result);
+  });
+
+  it("keeps Number-scale saddle differences that Float32 would collapse", () => {
+    const saddle = 1 + 2 ** -30;
+    const input = syntheticProfile([1, saddle, 1, saddle], []);
+    const result = run(input);
+    expect(result.nodes.filter(node => node.kind === "leaf")).toHaveLength(2);
+    expect(result.nodes.at(-1)?.baseElevation).toBe(saddle);
+    expect(run({ ...input, elevation: input.elevation.map(Math.fround) }).nodes).toHaveLength(1);
+    expect(validateSchemaValueForTest(computeDrainageBasins.output, result, "/numberScaleGeometry")).toEqual(result);
+    expectGeometry(input, result);
+  });
+
+  it("refuses nonfinite and out-of-range precise ground before geometry is produced", () => {
+    const input = syntheticProfile([-5, 8, 0, 3, 1, 7, 2]);
+    for (const invalid of [NaN, Infinity, -Infinity, -32768.25, 32767.25]) {
+      const malformed = structuredClone(input);
+      malformed.elevation[2] = invalid;
+      expect(() => run(malformed)).toThrow();
+    }
+  });
+
+  it("keeps published integer fixtures exactly identical after widening working storage", () => {
+    const input = syntheticProfile([-5, 8, 0, 3, 1, 7, 2, 16, 20]);
+    expect(run({ ...input, elevation: Array.from(Int16Array.from(input.elevation)) })).toEqual(run(input));
+  });
+
   it("keeps every finite hydraulic result invariant under fixed-footprint external bathymetry", () => {
     const input = syntheticProfile([-200, 5, 1, 3, 0, 8, -50], [0, 6]);
     const before = structuredClone(input), first = run(input);
@@ -210,7 +261,7 @@ describe("hydrology/compute-drainage-basins", () => {
 
   it("handles aliased neighbors on a one-column grid and an entirely marine grid", () => {
     const syntheticDimensions = { width: 1, height: 3 };
-    const input = { ...syntheticDimensions, elevation: new Int16Array([4, 1, 3]), externalWaterMask: new Uint8Array(3), externalWaterHead: 0 };
+    const input = { ...syntheticDimensions, elevation: [4, 1, 3], externalWaterMask: new Uint8Array(3), externalWaterHead: 0 };
     const result = run(input);
     expect([...result.rawReceiver]).toEqual([1, -1, 1]);
     expect(result.nodes).toHaveLength(1);
@@ -225,7 +276,7 @@ describe("hydrology/compute-drainage-basins", () => {
 
   it("collapses a minimum flat to one pit and adjacent acyclic receiver tree", () => {
     const syntheticDimensions = { width: 4, height: 3 };
-    const input = { ...syntheticDimensions, elevation: new Int16Array(12).fill(5), externalWaterMask: new Uint8Array(12), externalWaterHead: 0 };
+    const input = { ...syntheticDimensions, elevation: new Array<number>(12).fill(5), externalWaterMask: new Uint8Array(12), externalWaterHead: 0 };
     const result = run(input);
     expect(result.nodes).toHaveLength(1);
     expect(result.nodes[0]!.floorCell).toBe(0);
@@ -299,7 +350,7 @@ describe("hydrology/compute-drainage-basins", () => {
 
   it("connects equal-height cells and spills across the cylindrical seam", () => {
     const syntheticDimensions = { width: 5, height: 3 };
-    const elevation = new Int16Array([9, 9, 9, 9, 9, 1, 7, -5, 4, 1, 9, 9, 9, 9, 9]);
+    const elevation = [9, 9, 9, 9, 9, 1, 7, -5, 4, 1, 9, 9, 9, 9, 9];
     const externalWaterMask = new Uint8Array(15);
     externalWaterMask[7] = 1;
     const input = { ...syntheticDimensions, elevation, externalWaterMask, externalWaterHead: 0 };
@@ -323,7 +374,7 @@ describe("hydrology/compute-drainage-basins", () => {
 
   it("opens only explicitly permitted north/south edge outlets", () => {
     const syntheticDimensions = { width: 3, height: 3 };
-    const elevation = new Int16Array(9).fill(5);
+    const elevation = new Array<number>(9).fill(5);
     elevation[4] = 1;
     const input = { ...syntheticDimensions, elevation, externalWaterMask: new Uint8Array(9), externalWaterHead: 0 };
     const closed = run(input);
@@ -371,7 +422,7 @@ describe("hydrology/compute-drainage-basins", () => {
   it("matches independent sublevel-set connectivity at every terrain level across tied hex fixtures", () => {
     const syntheticDimensions = { width: 5, height: 4 };
     for (let sample = 0; sample < 12; sample++) {
-      const elevation = Int16Array.from({ length: 20 }, (_, cell) =>
+      const elevation = Array.from({ length: 20 }, (_, cell) =>
         (cell * 17 + sample * 13 + cell * cell * 7 + ((cell * sample) % 11)) % 7
       );
       const externalWaterMask = new Uint8Array(20);

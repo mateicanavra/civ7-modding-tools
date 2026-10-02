@@ -8,7 +8,9 @@ const ComputeBasinNetworkContract = defineOp({
   kind: "compute", id: "hydrology/compute-basin-network",
   input: Type.Object({
     width: Type.Integer({ minimum: 1 }), height: Type.Integer({ minimum: 1 }),
-    elevation: TypedArraySchemas.i16(),
+    elevation: Type.Array(Type.Number({ minimum: -32768, maximum: 32767 }), {
+      description: "Finite precise working ground in Morphology elevation units; no intermediate quantization.",
+    }),
     externalWaterMask: TypedArraySchemas.u8({ description: "1=prescribed external water, 0=finite ground." }),
     externalWaterHead: Type.Number({ description: "Uniform finite receiving head; external bathymetry is not hydraulic terrain." }),
     geometry: Type.Object({ rawReceiver: RawReceiverSchema, plateauId: DrainagePlateauIdSchema, leafId: DrainageLeafIdSchema, nodes: BasinNodesSchema, roots: BasinRootsSchema, saddles: BasinSaddlesSchema, catchmentCells: BasinCatchmentCellsSchema, externalCatchmentCells: ExternalCatchmentCellsSchema, hypsometry: BasinHypsometrySchema }, { additionalProperties: false }),
