@@ -31,7 +31,7 @@ Alternatives rejected as the main repair:
    Give Earthlike an explicit hillslope-only operation strategy; other map
    identities retain their existing selected behavior until separately migrated.
 2. Compute existing baseline climate and local runoff once. Hold rainfall,
-   humidity, potential demand and original-land runoff forcing fixed during
+   humidity, potential demand and finite-cell runoff forcing fixed during
    the channel-evolution loop. Do not freeze the derived body budgets.
 3. Solve existing drainage basins and the certified open network on a precise
    working surface. Preserve mixed-body budgets, strict wetness, sill
@@ -104,16 +104,19 @@ All source paths below are beneath `plugins/mod/map/swooper-physics/`.
 Keep the current stage order. Add exactly one artifact,
 `initialTopography` (`artifact:morphology.topography.initial`), with the current
 integer topography shape. Islands publishes this instead of final topography.
-Retarget landmasses, shelf, baseline climate and the existing hydrography
-`network` step to it. Shelf and landmass outputs remain valid because original
-land identity and bathymetry are held through evolution.
+Retarget shelf, baseline climate and the existing hydrography `network` step
+to it. Landmasses and coastline continue to consume final resolved exposure;
+initial identity cannot substitute for land that the certified water solve
+actually exposes. Shelf remains valid because bathymetry is held through
+evolution.
 
 The existing network step becomes the sole publisher of final
 `artifact:morphology.topography`, together with the final hydrography, lake plan
 and river network. Include final topography in its existing complete-group
-validation before publication; this is not a rollback transaction. Its legacy
-branch publishes initial terrain unchanged as final, preserving a single static
-provider. Mountains, volcanoes, refined climate, Ecology, placement and native
+validation before publication; this is not a rollback transaction. The same
+certified solver publishes static terrain for a configuration with zero channel
+evolution cycles; no retired water solver or fallback branch is restored.
+Mountains, volcanoes, refined climate, Ecology, placement and native
 projection keep their existing final-topography dependencies. Precise working
 surfaces stay local to operation composition, not public iteration artifacts.
 
@@ -126,10 +129,11 @@ gameplay river classes must not become incision inputs.
 For certified mountains composition, supply existing final
 `riverNetwork.upstreamArea` to the rough-land operation instead of preliminary
 `routing.flowAccum`. It already counts contributing original-land tiles over
-the certified body-contracted graph, including each wet body once. Wet members
-repeat their body's aggregate and must not be summed. Convert representation to
+the certified body-contracted graph, including all finite contributors and
+each wet body once. Wet members repeat their body's aggregate and must not be
+summed. Convert representation to
 the operation's Float32 input with exact-range checking; do not add another
-accumulation field or operation. Preserve legacy input selection.
+accumulation field or operation. No retired network input selection is retained.
 
 Keep the rough-land logarithmic area normalization. Incision uses discharge,
 but replacing this landform input with discharge would silently introduce a
@@ -138,11 +142,11 @@ take no accumulation input; do not invent one. Final area must come from the
 post-quantization network solve. The pre-island coastline distance used by
 mountains is a separate consumer concern, not necessary to close this cycle.
 
-The existing open-network solver uses `Int16Array.from(ground)` for water
-surfaces, and geometry height schemas require integers. Widen working contracts
-and storage genuinely; casts or repeated public one-cycle calls would truncate
-between cycles. Final public ground can remain integer. Narrow final water
-surfaces only after exact representability is checked on the final solve.
+The current certified solver already retains ordinary-array water surfaces
+without integer narrowing. Widen the actual ground contracts and geometry
+height atoms to finite precise values; casts or integer reconstruction between
+cycles would truncate. Final public ground remains integer. Water surfaces
+retain their existing precise representation, including subtile equilibrium.
 
 Keep original marine elevation, bathymetry, sea level and land mask unchanged.
 Record incision, diffusion, rounding and boundary clamps separately. This is

@@ -935,3 +935,34 @@ changes alter that membership; the current proof receipts in
 [periodic thermal response](periodic-thermal-response.md) retain each change
 without weakening the study bank. A successful handoff repair or reference
 fixture is not completion of the Earth calibration or water workstream.
+
+## Qualified Main Admission And Remaining Owners
+
+The qualified contiguous runtime story has now merged natively through
+PR #2238 into main `a25d5641c0c121f4ea202e0fdf0fb799c3bee07c`. The exact
+admitted tree is `8be5974274595628038df5eb675d13526d85cfc0`; the source
+commit/review disposition and protected-checkout proof remain in
+[admission accounting](stack-consolidation.md#qualified-pipeline-admission).
+Continuation stays in the same worktree, based on this admitted main tree.
+
+The remaining loops are owner-bounded rather than another pipeline rebuild:
+
+1. Complete climate-fed terrain/network evolution against the reviewed
+   [basin evolution design](basin-evolution-design.md). Preserve precise working
+   ground, recompute the certified geometry/network after incision, and publish
+   final integer terrain together with its final solve. This accepted outcome
+   remains required, not an optional future study. The sealed classification
+   comparison is complete and keeps the incumbent: lower river counts did not
+   demonstrate a drainage repair. Firaxis's Earth map remains a descriptive
+   playable comparator, not a fitted quota.
+2. Finish true cliff-mouth movement with a normally acquired vessel in the
+   relevant water component. Disconnected far previews are not cliff evidence;
+   the normal NAV/marine and through-lake witnesses remain independently valid.
+3. Repair the remaining land thermal cause only after the frozen Earth
+   discriminator earns physical selection. The finite-source periodic candidate
+   is numerically admitted but physically nonselected; no defaults or science
+   guards were weakened. Diagnose the real source boundary before designing
+   another candidate, rather than building another integrator or gain sweep.
+4. Publish correlated visible and gameplay milestones, then merge each
+   qualified substantive continuation natively. Preserve the scientific Earth
+   benchmark/procedural recipe distinction and the existing SDK authoring rails.
