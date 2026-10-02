@@ -12,7 +12,7 @@ function bandpass(x: number, lo: number, hi: number, s: number): number {
 }
 
 /**
- * Scores savanna woodland suitability from warm, seasonal, biomass-bearing fields.
+ * Scores savanna woodland from growth energy, annual water supply, stress, and biomass.
  */
 export function scoreSavannaWoodlandSuitability(args: {
   readonly size: number;
@@ -38,7 +38,8 @@ export function scoreSavannaWoodlandSuitability(args: {
     const score =
       biomass *
       bandpass(energy, 0.65, 0.95, 0.08) *
-      bandpass(water, 0.2, 0.6, 0.1) *
+      // Ample annual supply is not waterlogging or an observed absence of a dry season.
+      smoothstep(0.2 - 0.1, 0.2 + 0.1, water) *
       bandpass(waterStress, 0.35, 0.75, 0.1);
 
     score01[i] = clamp01(score);

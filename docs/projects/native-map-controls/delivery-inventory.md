@@ -13,6 +13,20 @@ benchmarks, not inputs hidden inside the procedural Earthlike recipe. A
 realistic Earthlike variant is the desired playable outcome, not literal Earth
 replay. Historical eight-product captures remain immutable comparison evidence.
 
+The next completed owner repair is [savanna annual-supply admission](savanna-water-supply.md):
+woodland appears in all eight representative Standard seeds instead of five.
+The unchanged 57-case bank retains all 2,166 physical-field hashes and every
+previously passing expectation. This repairs an Ecology policy mismatch without
+tuning climate or biome quotas. Within-row thermal variation remains the sole
+unwaived science failure. The build is deployed and freshly generation-tested:
+Huge 1018/1018, twelve players, Exploration, the saved configuration, 23 native
+savanna tiles with zero legality rejections and all 666 river sources exact.
+[Four current native photographs](https://mateis-macbook-pro.taild8da1c.ts.net/civ/savanna-native-atlas-recovered-20261002/index.html)
+show the new woodland neighborhoods. The owner graph passes checks/builds and
+371 realization tests; definition tests pass 1,182 with only the unchanged
+thermal aggregate failing. Source, deployment, generation and appearance retain
+separate receipts in the linked owner record.
+
 The latest gameplay milestone is
 [matched true-cliff passage](native-navigation.md#october-2-matched-true-cliff-passage),
 with [two new native arrival photographs](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherent-normal-atlas-20261002/truecliff-passage.html).
