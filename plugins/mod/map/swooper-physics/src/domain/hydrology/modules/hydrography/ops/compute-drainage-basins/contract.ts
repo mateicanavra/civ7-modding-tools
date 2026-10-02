@@ -12,7 +12,9 @@ const ComputeDrainageBasinsContract = defineOp({
     {
       width: Type.Integer({ minimum: 1, description: "Cylindrical tile grid width." }),
       height: Type.Integer({ minimum: 1, description: "Bounded tile grid height." }),
-      elevation: TypedArraySchemas.i16({ description: "Unmodified Morphology ground elevation." }),
+      elevation: Type.Array(Type.Number({ minimum: -32768, maximum: 32767 }), {
+        description: "Finite precise working ground in Morphology elevation units; no intermediate quantization.",
+      }),
       externalWaterMask: TypedArraySchemas.u8({ description: "1=prescribed external water, 0=finite ground, including initially wet inland cells." }),
       externalWaterHead: Type.Number({ description: "Uniform finite receiving surface head of prescribed external water; independent of its bed." }),
     },

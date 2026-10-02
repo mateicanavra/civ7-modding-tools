@@ -19,6 +19,7 @@ function drainageFixture(rainfallIndex = 100, demandIndex = 10) {
   const ocean = new Set(sourceWaterComponents()[0]);
   const terrain = {
     ...ground,
+    elevation: Array.from(ground.elevation),
     externalWaterMask: Uint8Array.from(ground.elevation, (_, cell) => ocean.has(cell) ? 1 : 0),
     externalWaterHead: 0,
   };
@@ -247,6 +248,7 @@ describe("fixed Earth native-index drainage diagnostic", () => {
     expect(normal.riverClass.some((value) => value === 1)).toBe(true);
     expect(normal.riverClass.some((value) => value === 2)).toBe(true);
     expect(fewerMajor.riverClass).not.toEqual(normal.riverClass);
+    expect(input.elevation.every(value => Number.isInteger(value) && value >= -32768 && value <= 32767)).toBe(true);
     const metadata = hydro.classifyBasinRiverNetwork.run(
       {
         width: input.width,
@@ -254,7 +256,7 @@ describe("fixed Earth native-index drainage diagnostic", () => {
         externalWaterMask: input.externalWaterMask,
         discharge: network.dryDischarge,
         flowDir: network.receiver,
-        elevation: input.elevation,
+        elevation: Int16Array.from(input.elevation),
         lakeMask: network.wetMask,
         waterSurface: network.waterSurface,
         bodyId: network.bodyId,

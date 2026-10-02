@@ -1,13 +1,11 @@
 import { createDomainSubdomainRouter } from "@swooper/mapgen-core/authoring";
 import contract from "./contract.js";
 import computeGeomorphicCycle from "./ops/compute-geomorphic-cycle/index.js";
+import computeChannelIncision from "./ops/compute-channel-incision/index.js";
 
-/**
- * Canonically binds the Erosion contract to the geomorphic cycle that evolves routed relief and
- * substrate before complete island formation and discrete landform planning. The Morphology
- * router is the sole executable aggregate; step authoring continues to reference the contract.
- */
+/** Binds initial shaping and later certified channel incision without owning hydrologic routing. */
 const erosion = createDomainSubdomainRouter(contract, {
   computeGeomorphicCycle,
+  computeChannelIncision,
 });
 export default erosion;

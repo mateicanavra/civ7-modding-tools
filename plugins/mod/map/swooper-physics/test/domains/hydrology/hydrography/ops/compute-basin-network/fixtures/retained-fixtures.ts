@@ -15,7 +15,7 @@ export function largerGrid(startSeed = -1835942095) {
   let seed = startSeed;
   const random = () => ((seed = Math.imul(seed, 1664525) + 1013904223 | 0) >>> 0) / 2 ** 32;
   const width = 40, height = 30, size = width * height;
-  const elevation = Int16Array.from({ length: size }, (_, cell) => cell < width ? -10 : Math.floor(random() * 9));
+  const elevation = Array.from({ length: size }, (_, cell) => cell < width ? -10 : Math.floor(random() * 9));
   const externalWaterMask = Uint8Array.from(elevation, value => value === -10 ? 1 : 0);
   const terrain = { width, height, elevation, externalWaterMask, externalWaterHead: -10 };
   const input = {
@@ -29,7 +29,7 @@ export function largerGrid(startSeed = -1835942095) {
 }
 
 function retained(width: number, height: number, groups: Array<{ rows: Row[]; from: number; to: number; target: number; sill: number }>): Static<typeof contract.input> {
-  const size = width * height, elevation = new Int16Array(size).fill(1000), externalWaterMask = new Uint8Array(size), rainfall = new Uint8Array(size), potentialDemand = new Float32Array(size), localRunoff = new Array<number>(size).fill(0);
+  const size = width * height, elevation = new Array<number>(size).fill(1000), externalWaterMask = new Uint8Array(size), rainfall = new Uint8Array(size), potentialDemand = new Float32Array(size), localRunoff = new Array<number>(size).fill(0);
   const neighbors = (cell: number) => getHexNeighborIndicesOddQ(cell % width, Math.floor(cell / width), width, height);
   const rows = groups.flatMap(group => group.rows), rowCells = new Set(rows.map(row => row[0]));
   for (const [cell, ground, runoff, rain, demand] of rows) {

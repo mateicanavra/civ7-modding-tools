@@ -2,7 +2,7 @@ import { Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/schema";
 
 const SpillSchema = Type.Object(
   {
-    elevation: Type.Integer({ description: "Lowest connecting saddle height in ground units." }),
+    elevation: Type.Number({ minimum: -32768, maximum: 32767, description: "Lowest connecting saddle height in precise ground units." }),
     fromCell: Type.Integer({ minimum: 0, description: "Adjacent saddle endpoint inside this node." }),
     toCell: Type.Integer({ minimum: 0, description: "Adjacent saddle endpoint outside this node." }),
     targetLeafId: Type.Integer({
@@ -24,8 +24,10 @@ const BasinNodeSchema = Type.Object(
       minimum: 0,
       description: "Minimum-height descendant pit; cell index breaks ties.",
     }),
-    floorElevation: Type.Integer({ description: "Lowest ground elevation in this catchment." }),
-    baseElevation: Type.Integer({
+    floorElevation: Type.Number({ minimum: -32768, maximum: 32767, description: "Lowest precise ground elevation in this catchment." }),
+    baseElevation: Type.Number({
+      minimum: -32768,
+      maximum: 32767,
       description: "Leaf floor or common child-merge height; incremental parent storage starts here.",
     }),
     parentId: Type.Integer({ minimum: -1, description: "Containing merge node, or -1 for a forest root." }),
@@ -87,7 +89,7 @@ export const BasinSaddlesSchema = Type.Array(
       leafB: Type.Integer({ minimum: 1 }),
       cellA: Type.Integer({ minimum: 0 }),
       cellB: Type.Integer({ minimum: 0 }),
-      elevation: Type.Integer(),
+      elevation: Type.Number({ minimum: -32768, maximum: 32767 }),
     },
     { additionalProperties: false }
   ),
@@ -114,7 +116,7 @@ export const ExternalCatchmentCellsSchema = TypedArraySchemas.i32({
 export const BasinHypsometrySchema = Type.Array(
   Type.Object(
     {
-      elevation: Type.Integer(),
+      elevation: Type.Number({ minimum: -32768, maximum: 32767 }),
       cellCount: Type.Integer({ minimum: 1 }),
     },
     { additionalProperties: false }

@@ -68,7 +68,7 @@ export function computeDrainageBasins(input: Input, allowExternalEdgeOutlets: bo
   }
   const landMask = Uint8Array.from({ length: size }, (_, cell) => {
     if (externalWaterMask[cell] !== 0 && externalWaterMask[cell] !== 1) throw new RangeError(`Invalid drainage basin input: binary external water mask at ${cell}.`);
-    if (!Number.isInteger(elevation[cell]) || elevation[cell]! < -32768 || elevation[cell]! > 32767) throw new RangeError(`Invalid drainage basin input: original Int16 ground at ${cell}.`);
+    if (!Number.isFinite(elevation[cell]) || elevation[cell]! < -32768 || elevation[cell]! > 32767) throw new RangeError(`Invalid drainage basin input: finite precise ground at ${cell}.`);
     return externalWaterMask[cell] === 0 ? 1 : 0;
   });
   const hydraulicElevation = (cell: number): number => externalWaterMask[cell] ? externalWaterHead : elevation[cell]!;

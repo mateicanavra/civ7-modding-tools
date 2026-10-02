@@ -7,7 +7,7 @@ export function validateExternalWaterBoundary(input: NetworkInput, neighbors: re
   finite(externalWaterHead, "external water head");
   for (let cell = 0; cell < ground.length; cell++) {
     requireValid(externalWaterMask[cell] === 0 || externalWaterMask[cell] === 1, `binary external water mask at ${cell}`);
-    requireValid(Number.isInteger(ground[cell]) && ground[cell]! >= -32768 && ground[cell]! <= 32767, `original Int16 ground at ${cell}`);
+    requireValid(Number.isFinite(ground[cell]) && ground[cell]! >= -32768 && ground[cell]! <= 32767, `finite precise ground at ${cell}`);
   }
   for (let finiteCell = 0; finiteCell < ground.length; finiteCell++) {
     if (externalWaterMask[finiteCell] || ground[finiteCell]! >= externalWaterHead) continue;
@@ -30,7 +30,7 @@ export function validateNetworkInput(input: NetworkInput, neighbors: readonly nu
   const validNode = (id: number) => Number.isSafeInteger(id) && id >= 1 && id <= g.nodes.length;
   const indegree = new Int32Array(size), landCells: number[] = [];
   for (let cell = 0; cell < size; cell++) {
-    requireValid(Number.isInteger(ground[cell]) && ground[cell]! >= -32768 && ground[cell]! <= 32767, `original Int16 ground at ${cell}`);
+    requireValid(Number.isFinite(ground[cell]) && ground[cell]! >= -32768 && ground[cell]! <= 32767, `finite precise ground at ${cell}`);
     requireValid(Number.isInteger(input.rainfall[cell]) && input.rainfall[cell]! >= 0 && input.rainfall[cell]! <= 255, `baseline precipitation at ${cell}`);
     for (const [name, value] of [["localRunoff", input.localRunoff[cell]!], ["potentialDemand", input.potentialDemand[cell]!]] as const) {
       requireValid(finite(value, `${name} at ${cell}`) >= 0, `negative ${name} at ${cell}`);
@@ -62,6 +62,9 @@ export function validateNetworkInput(input: NetworkInput, neighbors: readonly nu
 
   const covered = new Uint8Array(size), expectedRoots: number[] = [];
   for (const [index, node] of g.nodes.entries()) {
+    for (const [name, value] of [["floor", node.floorElevation], ["base", node.baseElevation]] as const) {
+      requireValid(Number.isFinite(value) && value >= -32768 && value <= 32767, `${name} height for node ${node.id}`);
+    }
     requireValid(node.id === index + 1, "node identity/index mismatch");
     requireValid(node.cellStart >= 0 && node.cellStart < node.cellEnd && node.cellEnd <= g.catchmentCells.length, `catchment range for node ${node.id}`);
     requireValid(node.hypsometryStart >= 0 && node.hypsometryStart < node.hypsometryEnd && node.hypsometryEnd <= g.hypsometry.length, `hypsometry range for node ${node.id}`);
