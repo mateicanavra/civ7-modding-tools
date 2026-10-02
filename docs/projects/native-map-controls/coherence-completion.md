@@ -8,8 +8,8 @@ ultimately project. Investigation completion is not product completion.
 ## Current Outcome Boundary
 
 The qualified owner, C3, coherent-reach and native movement milestones are
-merged through PR #2248 at main
-`cec8991c6fb34885cbd9fcf4ced462d897731981`. The
+merged through PR #2248. The output-identical treeline ownership move is merged
+through PR #2249 at main `ad57a257195be92fe9e6073871ffae1415131127`. The
 [delivery inventory](delivery-inventory.md) owns current build and proof
 identities; dated investigations below retain their historical scope.
 Completed investigation is not completion of the remaining physical outcomes.
@@ -39,7 +39,7 @@ is a baseline and discriminator, not the finished solution.
 | Cliffs and navigation | Final-height cliff generation; matched cliff-free and true-cliff mouths crossed both ways by the same normal Cog; ten further normal autoplay turns complete | Bounded routes do not prove universal navigation or repair every apparent shoreline join |
 | Lake junctions at (87,31) and larger lake | Wet outlet writes and final-height preservation implemented; normal finite/external heads qualified; V25 discriminates arbitrary under-rim heads | Respect the bounded native capability limit for any actual under-rim/below-sea product case; no blanket cutoff increase or terrain carving |
 | Whole-map studies and images | Diagnostic PNGs, flow arrows, phone viewer, eighteen selected-build views and two actual cliff-arrival photographs | Refresh after the next accepted physical change; keep each image's build and turn explicit |
-| Domain operations / step size | Basin and erosion algorithms have domain operations; treeline derivation belongs to the existing biome classifier | Mountain noise remains a bounded extraction candidate; climate coupling is recipe orchestration of existing domain operations |
+| Domain operations / step size | Basin and erosion algorithms have domain operations; treeline derivation belongs to the existing biome classifier; mountain slope/foothill selection already belongs to Morphology operations | Keep climate coupling as domain-operation orchestration; no new operation is warranted merely to lower a file's line count |
 | Glossary | Functional glossary with model owners and source links | Extend only for newly introduced concepts |
 | Resource generator and CI | Current-resource compatibility and scoped integrated checks pass | Do not claim uncached whole-repository or remote CI without executing it |
 
@@ -70,7 +70,60 @@ direct identity comes from the classifier/publication tests instead. Evidence:
 `treeline-owner-check-build-20261002.log`. This is source/owner qualification,
 not a new deployment, native generation or scientific calibration claim.
 
+The current step scan counts 7,737 lines across Standard step files. The largest
+relevant files are climate baseline (562), tectonics (545), mountains (351),
+hydrography network (216), climate refinement (196) and biomes (158). These are
+file counts, not algorithm counts. The independent mountains review finds
+ridge/foothill/rough-land selection and neighboring-height support already in
+domain operations; about 100 step lines normalize authored knobs, 74 visualize
+results and 24 count lazy trace diagnostics. Its small deterministic noise-tape
+helper alone does not justify a new operation/schema/RNG contract. Preserve
+public domain boundaries rather than importing a private rule into the recipe
+for cosmetic shortening.
+
+## Remaining Climate Admission
+
+The external coupled surface/air prototype is a test of one missing mechanism,
+not a production replacement or another canonical rainfall publication. Its
+frozen matched-owner Earth guards remain binding for that experiment. Those
+near-zero subpopulation nonregression budgets are not a universal adoption
+oracle for a structural model upgrade; any broader acceptance requires a
+prospective decision around conservation, meaningful held climate skill,
+regional risk and generated-map playability. Do not rescue a measured candidate
+by changing its comparator or budgets afterward.
+
+A production migration must dispose of existing windward, riparian and basin
+effects explicitly. Their current additive rainfall effects are not proved
+redundant and are not a conservative vapor-redistribution operator. Retain
+their intended geography through an admitted replacement, or justify their
+retirement; silently deleting them after a temperature win is incomplete.
+Likewise, refinement must not remain a second temperature/rain/PET authority.
+Pressure and wind retain their own owners; the coupled calculation belongs
+inside one domain operation, not the recipe or a new orchestration framework.
+
+The prototype's unstressed aerodynamic evaporation demand uses the actual,
+possibly hot and water-limited skin. It is not an equilibrated wet/reference
+surface ET estimate, and its diagnostic flux is not applied as realized water
+loss. A unit multiplier cannot make it interchangeable with current PET and
+aridity thresholds. Reference ET explicitly includes a defined adequately
+watered surface and an energy/aerodynamic balance; see
+[FAO 56, Chapter 2](https://www.fao.org/4/X0490E/x0490e06.htm).
+Choose demand semantics and requalify consumers before publishing that lane.
+
+The current basin owner resolves stationary, quantized footprint flux response
+at fixed geometry, including residual brackets and subtile cases, rather than
+integrating flux into geometric storage through time. A positive water-flux
+codec applied jointly to every balance term may preserve balance signs and
+selections in model coordinates, with explicit saturation/floor checks. It does not independently
+establish SI height, area, storage or geological time. Keep those distinct
+admissions separate from the already qualified native heads and navigation.
+
 ## Selected Path
+
+The following records the original September 28 problem split and selected
+investigation path. C2/C3 and bounded native passage are now qualified; use the
+current outcome boundary above rather than treating these old failures as
+current pending implementation.
 
 Two independent failures must not be collapsed into one remedy:
 
@@ -167,7 +220,8 @@ Do not implement either as a purported answer to the user's current map.
 - Normal Exploration Cogs and ordinary Advanced Start effects now provide
   actual NAV entry/interior/exit witnesses. The current build has a fresh
   bidirectional route; the older lake crossing retains its own build identity.
-  Only genuine cliff-mouth passage remains unqualified. Debug-created Galley
+  The later matched true-cliff witness supersedes the then-open cliff-mouth
+  passage obligation. Debug-created Galley
   failures, disconnected previews and AI-controlled approach budgets are not
   cliff rejection oracles.
 - Study the actual per-process incision and published terrain change, not
