@@ -210,7 +210,10 @@ attempt. Do not substitute a first-year Earth score for that qualification.
 Preserve the original equations and guards for a same-method remedy; changing
 physical closure requires its own explicit scientific admission, not an
 efficiency label. A genuinely simpler source-grounded physical alternative
-remains a separate decision if numerical work cannot qualify.
+is now designed as the [thermal boundary discriminator](thermal-boundary-discriminator.md).
+It tests source-native dry-version surface/air exchange and heat transport,
+without prognostic vapor/bucket. This is a distinct constitutive hypothesis,
+not a passed four-state refinement test or a relaxed numerical remedy.
 Only a numerically qualified candidate may undergo the frozen held-Earth and
 complete procedural study bank; no held refit or weakened guard follows refusal.
 
