@@ -190,6 +190,14 @@ The [land-geographic thermal investigation](land-geography-investigation.md)
 can use already-qualified reference heights without waiting for a generated
 metre mapping. It must not hide these scale questions behind a maritime gain.
 
+The subsequent [Foundation support attribution](constitutive-support-attribution.md)
+reconstructs all eight retained local histories and continental support bytes
+exactly. It locates actual post-history thickness clamping and cooling gates,
+not an admitted material law or metre mapping. The retained `-0.0065 C` per
+model-unit thermal lapse therefore remains numerically uncalibrated despite
+its corrected description. The separate flat thermal boundary discriminator
+must not compensate for that unknown height scale.
+
 ## Review Boundary
 
 An independent source auditor confirmed the setup/native distinctions and

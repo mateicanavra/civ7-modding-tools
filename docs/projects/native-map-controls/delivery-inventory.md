@@ -158,6 +158,17 @@ Full-grid accuracy, unchanged flux
 refinement, held-Earth transfer and coherent climate/water adoption remain
 separate requirements. No prototype is deployed.
 
+The [Foundation support attribution](constitutive-support-attribution.md)
+now exactly reconstructs all eight retained local crust histories and
+continental support publications before diagnostics. It identifies actual
+post-history clamping and cooling suppression, but admits no physical material
+meaning, height codec or producer repair. The next thermal hypothesis is the
+[thermal-only boundary discriminator](thermal-boundary-discriminator.md):
+surface/air exchange and dry heat transport, not an assumed requirement to
+replace rain and soil water. Its design is accepted for private authoring only;
+seasonal numerical, held-Earth, complete-cohort and owner-migration admission
+remain ahead. The current playable mod is unchanged.
+
 ## What Shipped Means
 
 These labels are deliberately separate:
@@ -265,9 +276,9 @@ generation and full Earth calibration remain separate claims.
    legacy path, second solver or native carving substitute was added. All
    57 physical cases pass independently. The exterior revision plus resource-
    backed start selection resolve four prior quality failures, while thermal
-   variation and mountain-region flat share remain unwaived. This does not
-   qualify the later native projection.
-3. **Native projection: ordinary-map heads qualified; movement partly open.**
+   variation remains unwaived; the later held-coast landform repair closes the
+   mountain-region flat-share failure. Native projection has separate receipts.
+3. **Native projection: ordinary heads and bounded movement qualified.**
    Final-height preservation holds the resolved finite/external heads and native
    dry/wonder changes. V25 separately bounds arbitrary under-rim/below-sea
    capability. No global cutoff change follows. Ordinary NAV, one through-lake
@@ -276,7 +287,10 @@ generation and full Earth calibration remain separate claims.
 4. **Calibrate the remaining Earthlike causal relationships.** Keep scientific
    reference and generated-geography arms distinct. Retain the unresolved
    thermal gate; a failed candidate is useful evidence, not an excuse to tune
-   its gain. Stress maps are collateral guards, not the center of this loop.
+   its gain. The next thermal-only seasonal boundary discriminator separates
+   missing ocean-to-land heat response from a full moisture replacement.
+   Exact Foundation support attribution separately precedes material/height
+   calibration. Stress maps are collateral guards, not the center of this loop.
 5. **Deliver visible and playable milestones.** Refresh a correlated full-map
    overview plus diagnostic drainage direction/intensity/elevation layers and
    native detail views of key transitions. Screenshots identify build/setup
