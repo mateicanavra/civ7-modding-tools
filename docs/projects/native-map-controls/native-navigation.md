@@ -171,3 +171,32 @@ Durable receipts use `v23-cog-lake-*` and
 user-data directory. `native-water-v23-20261001/cog-through-lake.png` is the
 native visual supplement. No administrative placement, broad unlock, raw
 movement JavaScript or forced successful route was used.
+
+## First-Meet Read Preservation
+
+A subsequent normal-map route inspection exposed two defects in the existing
+generated notification read. The shipped diplomacy panel calls
+`getFirstMeetResponseCostAndRelDelta(greetingType, GameContext.localPlayerID)`;
+our read omitted the local-player argument and admitted missing enum values
+through `Number(null)`. The bounded preservation repair supplies both actual
+finite numeric arguments. Legitimate zero values remain valid, while missing,
+coercible and nonfinite values retain nullable response metadata without
+entering native code. No API, fallback, service owner or gameplay decision was
+introduced into the frozen correct-then-retire corpus.
+
+The real generated-command VM seam now records native argument arrays outside
+its exception-catching probe. All 31 focused notification tests pass, including
+the original parse/quoted-hint cases and the 25 new signature/unavailable-input
+cases. The complete owner graph passes 505 direct-control and 432 service tests,
+types and builds; the final root check passes 187 tasks after formatting the
+new fixture with the existing formatter. A fresh native notification read also
+succeeds in App UI, but its eight returned rows contain no first-meet decision,
+so that read is not a live signature-execution witness.
+
+The preceding native AppHost crash and binder errors are retained separately
+under `earth-calibration/native-appui-crash-20261001/`. The malformed signature
+is a proven source defect, not conclusively the cause of the SIGSEGV and not
+evidence that a ship was refused at a cliff. Owner/focused/live receipts use
+`native-firstmeet-signature-*`; the normal explicit-Exploration recovery uses
+`ocean-coordinate-normal-live-recovery3-20261001.log`. Empty previews and
+unverified sends remain unqualified movement, not failed river experiments.

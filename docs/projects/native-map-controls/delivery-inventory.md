@@ -292,3 +292,58 @@ Evidence is in `earth-calibration/final-height-cliff-*`,
 merge and retirement logs use `earth-calibration/authority-prefix-*`.
 All fourteen protected main-checkout files retain their original hashes after
 the merge and resource-submodule reconciliation.
+
+## Ocean Coordinates And Converged Admission
+
+The current normal build repairs ocean transport handedness at the existing
+coordinate owner, without changing geometry, authored gains or scientific
+comparators. The complete 57-case artifact capture and independent 57-case
+public evaluator retain all 3,192 artifact payloads. Water, placement and relief
+studies pass; the annual within-row thermal expectation remains unwaived. The
+raw initial-land temperature fields are unchanged across all 47 Earthlike
+cases, so the ocean fix is not represented as a land-temperature solution.
+
+The same normal script, SHA256
+`90b05e8f906fc64fe9d9bc2d27c45c9b070275e03f23cf3edb6b04a5ed3f3f47`, is
+installed and freshly generation-qualified in the saved twelve-player
+Huge1018/1018 Exploration setup. The October 1 recovery run explicitly selected
+`Age=AGE_EXPLORATION`, passed all seven live stages and completed generation in
+36.6s. A preceding recovery without the explicit age option is retained only
+as Antiquity generation proof, not a Cog/navigation result.
+
+The [fourteen fresh native views](https://mateis-macbook-pro.taild8da1c.ts.net/civ/ocean-current-repair-1018/index.html)
+and [current full-map physical companion](https://mateis-macbook-pro.taild8da1c.ts.net/civ/ocean-current-physical-1018/index.html)
+are reachable through the existing phone-accessible atlas. The companion adds
+terrain, channel/receiver arrows and discharge PNGs from an exact retained
+current capture. It uses ten players and is separate from the twelve-player
+native images; it is not exact photographic registration. Source/artifact
+identities and independent desktop/mobile checks are sealed in user data.
+
+The qualified contiguous pipeline has been consolidated natively into the
+existing PR #2238 with all 129 original commits retained. Its earlier prefixes
+cannot independently preserve the corrected water-owner contracts, so they
+will not be merged sequentially as known-broken main states. See
+[admission accounting](stack-consolidation.md#qualified-pipeline-admission).
+At this receipt, local convergence is complete; publication and merge are not
+yet claimed.
+
+Two remaining claims stay separate from that completed runtime unit. Actual
+cliff-mouth passage still requires a normal vessel arrival, not a path preview
+or inferred render connection. The phase-resolved thermal discriminator has
+not yet earned numerical admission: fixed-grid annual error exceeded its
+predeclared numerical bound, and the first adaptive runner hit its memory cap.
+Neither result is a physical-law failure or permission to weaken the science
+gate. Compact exact-input execution is the next bounded numerical correction.
+
+The declared finite-head V25 experiment is also complete, with 322 admission
+checks and a separate final 2,280-cell native join. It discriminates a current
+projection limit: identically shaped under-rim closed bodies render at the
+shore-supported head rather than three independently declared heads, and the
+tested negative native water heads read zero. The normal procedural owner
+instead resolves shoreline height cohorts; all 1,554 bodies in the 47-map
+Earthlike cohort have head equal to their lowest adjacent resolved dry shore,
+and the normal Huge1018 realization preserves all 204 accepted finite heights.
+This is not an outstanding ordinary-map failure or a reason to carve terrain,
+raise cutoff globally or falsify physical water heads. Arbitrary under-rim and
+below-sea projection remains a capability limit with a concrete product-case
+trigger. See [the qualified witness](water-height-maintenance.md#declared-finite-head-projection-witness).

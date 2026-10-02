@@ -132,3 +132,39 @@ The ocean-correction tip/tree stayed
 restack. At 49 non-trunk branches, native `submit --stack --draft --no-edit
 --no-interactive --always` completed and reconciled all existing PRs. No PR was
 manually reopened and no occupied prerequisite, main edit or source was changed.
+
+## Qualified Pipeline Admission
+
+On October 1, the remaining 35 map-control branches were reconciled into the
+existing `agent-root-civ7-ocean-coordinate-rotation` admission, PR #2238. This
+is a semantic admission boundary, not cosmetic consolidation: the original
+elevation prefix still aborts on enclosed wet plots, while the corrected
+verification depends on the later external-water and resolved-exposure owners.
+Landing that prefix independently would knowingly put a broken generator on
+main. Backporting it would duplicate owner contracts or recreate a legacy lane.
+
+An independent topology review qualified the installed Graphite 1.8.6 behavior.
+Exactly 34 guarded `gt fold --keep --close --no-interactive` operations kept the
+current branch and closed each discarded parent's PR natively. Every operation
+preserved HEAD `52f466adabee4f56616e13a631d1a05ba5cfcb9b` and tree
+`8fc85dcf8049c4eb284c04aa6cad8a424e49adf0`. All 129 original commits and their
+individual source/review mappings remain; all 102 refs outside the discarded
+parent set remain unchanged. The survivor now has `main` as its native parent.
+
+The clean lower proof worktree was parked at its exact detached commit to
+release occupancy, not removed. The fourteen protected files in the primary
+main checkout retained their hashes. No global restack, raw rebase, squash,
+manual PR reopening or unrelated branch retirement was used.
+
+The discarded PRs are #2196, #2198, #2201, #2206, #2208 through #2237 excluding
+#2207. Earlier native folds already account for the omitted review boundaries.
+Their original branch, parent, SHA, PR and review metadata are recorded in
+`earth-calibration/mapgen-admission-prefold-accounting-20261001.json`; the
+execution receipt is `mapgen-admission-fold-execution-20261001.json` under the
+durable Civ atlas. The final receipt reports 34 folds, 129 commits and 102
+preserved outside refs. The generic census's old Graphite cache is not authority
+for this topology; native CLI facts and the current metadata database are.
+
+This closes local topology convergence, not publication, merge, scientific
+thermal calibration or cliff-mouth gameplay. The admission retains the original
+scientific comparator failure and the separate native qualification boundaries.
