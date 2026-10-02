@@ -1044,3 +1044,21 @@ The next complete dominoes are now narrower than the earlier activation list:
    no wrapper framework, fallback, Earth fixture in production, quota or weakened
    bank comparator. Publish the next actual outcome only after its own proof;
    do not anticipate the continuing normal-UI/navigation work.
+
+## October 2 Seasonal Owner Closure
+
+The [seasonal energy candidate](seasonal-energy-response.md#qualified-nonselection)
+completed its actual whole-grid reference comparison and independent review.
+Corrected geometry and solver/publication checks pass, but all three primary
+held measures regress and forty-seven unchanged guards refuse selection. The
+exact candidate and replay inputs remain in the external research packet;
+all eighteen candidate code/caller files are restored to the incumbent. There
+is no candidate deployment, competing production law or post-refusal refit.
+
+This closes that model decision, not the Earthlike temperature-variation
+requirement. Continue the existing Foundation/crust/freeboard-to-relief owner
+investigation and current-build ordinary vessel qualification separately.
+Scientific Earth relief remains explicitly measured in metres; procedural
+model relief is not assigned that meaning by a rendering multiplier or an
+observed-height quantile fit. The fixed Earth fixture remains a comparator,
+not an alternate procedural generation path.
