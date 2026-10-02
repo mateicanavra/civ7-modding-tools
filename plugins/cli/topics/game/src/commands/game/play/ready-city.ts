@@ -13,9 +13,9 @@ type ReadyCityActionDescriptor = {
 };
 
 export default class GamePlayReadyCity extends Command {
-  static summary = "Read the selected or blocking city with legal closeout operations";
+  static summary = "Read selected or blocking city decision evidence";
   static description =
-    "Returns a read-only live-play view of the selected, requested, or blocker-target city, plus valid no-argument city operations and commands.";
+    "Returns a read-only live-play view of the selected, requested, or blocker-target city with named production, town-focus, and expansion evidence. Action coverage is partial; an empty list does not prove no city decision remains.";
 
   static examples = [
     "<%= config.bin %> game play ready-city --json",
@@ -35,7 +35,7 @@ export default class GamePlayReadyCity extends Command {
         "Explicit city ComponentID JSON. Defaults to selected city, then blocker-target city.",
     }),
     "max-operations": Flags.integer({
-      description: "Maximum operation enum keys to probe per city family",
+      description: "Maximum production candidates to return from named city decision queries",
       default: 96,
     }),
     "timeout-ms": Flags.integer({
@@ -73,7 +73,7 @@ export default class GamePlayReadyCity extends Command {
       `Selected: ${formatProbe(view.selectedCityId)}; blocker-target: ${formatProbe(view.blockingCityId)}`
     );
     this.log(`Summary: ${formatProbe(view.city)}`);
-    this.log("Legal no-argument city operations:");
+    this.log("Named city action evidence (partial):");
     for (const candidate of view.legalOperations) {
       this.log(`- ${candidate.family} ${candidate.operationType}`);
     }
@@ -139,6 +139,7 @@ function buildCompactView(view: ReadyCityView): {
       : null,
     nextAction,
     warnings: [
+      ...view.notes,
       "Read-only city dashboard; validate and postcondition-check assign-worker, expand-city, production, or town-focus sends separately.",
       "Expansion candidate plot yields are map yield facts plus constructible context, not a post-send yield guarantee.",
     ],

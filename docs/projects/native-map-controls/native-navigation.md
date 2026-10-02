@@ -268,3 +268,65 @@ returns local player zero. This is an uncompleted approach, not cliff refusal,
 missing technology or permission to force actor ownership. Receipts are
 `recovery4-cliff-census-20261001/`, `recovery4-player5-cliff-route-20261001/` and
 `recovery4-player5-bounded-stop-return0-20261001.json`.
+
+## Bounded Gameplay Inspection Repair
+
+The October 2 recovery reached a normal twelve-player Huge Exploration map
+and completed ordinary City, Town, Cogs, Gold, Capital Upgrade and Cartography
+Advanced Start effects. Two subsequent aggregate priority reads coincided with
+native AppHost crashes at 00:15:03 and 00:30:30 local time. Their 41 image-offset
+frames match, including the native binder/V8 execution chain. These reports do
+not identify the individual JavaScript call or establish a generator failure,
+cliff refusal or excessive Tuner payload as the cause.
+
+Source comparison independently establishes a concrete defect: ready-unit and
+ready-city enumerated arbitrary native operation identities with empty
+arguments and retried different signatures. JavaScript exception handling does
+not make such native probes safe. The bounded repair stays in the existing
+correct-then-retire owners; it does not implement the accepted future controller
+platform or introduce another transport/API.
+
+- Units use the shipped UI's `VisibleInUI` database candidates and exact
+  argument-bearing four-argument calls, including sentinel coordinates, ability
+  variants and the WMD-specific type. There are no arbitrary enum scans or
+  signature retries.
+- Cities summarize already-read named production, town-focus and expansion
+  evidence without a second discovery pass. Operation summaries explicitly
+  remain partial, not exhaustive native availability.
+- Unresolved actor identities stay present, while native action queries are
+  suppressed. Missing support, truncation and query errors remain explicit;
+  an empty operation list does not clear actor readiness.
+- Executed generated-script VM tests discriminate actual native call arguments,
+  dangerous enum access, constructible type names and independent map bounds.
+  All 29 focused unit tests, nine focused city tests and four adjacent CLI
+  tests pass; source/test types and focused formatting checks pass. The final
+  root-owned graph passes 541 direct-control, 432 control service and 190 CLI
+  tests, alongside checks and builds (34 tasks).
+
+Nearby unit reads use independently admitted stock grid dimensions, never
+coordinates beyond a known bound. Unavailable dimensions permit only the live
+actor's own plot; clipped edges disclose omitted across-wrap neighbors. Radius
+zero needs no grid query. City turn/cost queries use the shipped definition's
+type string; numeric BUILD operation arguments retain their stock contract.
+Failed growth-mode queries remain failed evidence, not fabricated readiness.
+
+Live qualification must refresh generated clients, then read each actor and
+decision surface independently before returning to aggregate priorities. A
+normal post-placement save, `codex-navigation-952990105.Civ7Save`, preserves
+the recovered session without replaying setup. Its map/game seeds are
+952990105/952990036, not the older 1018 or Huge-2 witnesses. It is still the
+pre-activation terrain build, so successful reads there cannot qualify C3
+generation or movement. Native crash attribution remains bounded until fresh
+isolated receipts exist.
+
+The adopted terrain freshly completes saved Huge1018/1018 generation with
+twelve players in Exploration. Two bounded autoplay turns advance 400 CE to
+420 CE, then fresh status confirms autoplay inactive, zero remaining turns and
+local/observer player zero. Both repaired ready views return normally, but
+there is no selected or ready local actor in that session. These receipts
+qualify the no-actor branch, not argument-bearing native action queries or
+vessel movement. The independent source review closes all known findings; it
+does not attribute or declare either historical native crash fixed. Evidence:
+`c3-adopted-huge1018-live-20261002.log`,
+`ready-native-bounded-final-graph-20261002.log`, and
+`c3-adopted-ready-{unit,city}-native-20261002.json` in Earth-calibration user data.

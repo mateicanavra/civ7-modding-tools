@@ -195,22 +195,6 @@ function readyCityViewSource(): string {
       if (type != null) out.type = type;
       return out;
     };
-    const enumValueFor = (enums, operationType) => {
-      if (enums && Object.prototype.hasOwnProperty.call(enums, operationType)) return enums[operationType];
-      if (enums && typeof operationType === "string") {
-        const normalizedKeys = [
-          operationType.replace(/^UNITOPERATION_/, ""),
-          operationType.replace(/^UNITCOMMAND_/, ""),
-          operationType.replace(/^CITYOPERATION_/, ""),
-          operationType.replace(/^CITYCOMMAND_/, ""),
-          operationType.replace(/^PLAYEROPERATION_/, ""),
-        ];
-        for (const key of normalizedKeys) {
-          if (Object.prototype.hasOwnProperty.call(enums, key)) return enums[key];
-        }
-      }
-      return operationType;
-    };
     const successFromCanStart = (result) => {
       if (result === true) return true;
       if (result === false || result == null) return false;
@@ -230,21 +214,6 @@ function readyCityViewSource(): string {
         return String(result);
       }
     };
-    const callCanStart = (router, target, operationType) => {
-      try {
-        return router.canStart(target, operationType, {}, false);
-      } catch (first) {
-        try {
-          return router.canStart(target, operationType, {});
-        } catch {
-          try {
-            return router.canStart(target, operationType);
-          } catch {
-            throw first;
-          }
-        }
-      }
-    };
     const summarizeBuildQueue = (city) => {
       const buildQueue = city?.BuildQueue;
       if (!buildQueue) return null;
@@ -252,7 +221,7 @@ function readyCityViewSource(): string {
         currentProductionTypeHash: readValue(buildQueue, ["currentProductionTypeHash", "productionTypeHash"], ["getCurrentProductionTypeHash"]),
         previousProductionTypeHash: readValue(buildQueue, ["previousProductionTypeHash"], ["getPreviousProductionTypeHash"]),
         productionProgress: readValue(buildQueue, ["productionProgress", "progress"], ["getProductionProgress"]),
-        turnsLeft: readValue(buildQueue, ["turnsLeft", "turnsRemaining"], ["getTurnsLeft", "getTurnsRemaining"]),
+        turnsLeft: readValue(buildQueue, ["turnsLeft", "turnsRemaining"], []),
       };
     };
     const summarizeCity = (cityId) => {
@@ -444,10 +413,13 @@ function readyCityViewSource(): string {
       } catch {}
       return out;
     };
-    const productionBasis = (city, kind, definition, args, result) => {
+    const productionBasis = (city, kind, definition, result) => {
       const buildQueue = city?.BuildQueue;
       const production = city?.Production;
-      const type = args?.UnitType ?? args?.ConstructibleType ?? args?.ProjectType ?? null;
+      // Production getters use definition names; BUILD query args retain their numeric indices.
+      const definitionType = kind === "constructible" ? definition?.ConstructibleType
+        : kind === "unit" ? definition?.UnitType : definition?.ProjectType;
+      const type = typeof definitionType === "string" && definitionType.length > 0 ? definitionType : null;
       const turns = (() => {
         try {
           return type == null || typeof buildQueue?.getTurnsLeft !== "function" ? null : buildQueue.getTurnsLeft(type);
@@ -458,7 +430,7 @@ function readyCityViewSource(): string {
       if (kind === "constructible") {
         const productionCost = (() => {
           try {
-            return typeof production?.getConstructibleProductionCost === "function" ? production.getConstructibleProductionCost(args.ConstructibleType) : null;
+            return type != null && typeof production?.getConstructibleProductionCost === "function" ? production.getConstructibleProductionCost(type) : null;
           } catch {
             return null;
           }
@@ -476,7 +448,7 @@ function readyCityViewSource(): string {
       if (kind === "unit") {
         const cost = (() => {
           try {
-            return typeof production?.getUnitProductionCost === "function" ? production.getUnitProductionCost(args.UnitType) : null;
+            return type != null && typeof production?.getUnitProductionCost === "function" ? production.getUnitProductionCost(type) : null;
           } catch {
             return null;
           }
@@ -492,7 +464,7 @@ function readyCityViewSource(): string {
       }
       const cost = (() => {
         try {
-          return typeof production?.getProjectProductionCost === "function" ? production.getProjectProductionCost(args.ProjectType) : null;
+          return type != null && typeof production?.getProjectProductionCost === "function" ? production.getProjectProductionCost(type) : null;
         } catch {
           return null;
         }
@@ -507,7 +479,7 @@ function readyCityViewSource(): string {
       };
     };
     const productionCandidate = (city, kind, type, definition, args, result) => {
-      const basis = productionBasis(city, kind, definition, args, result);
+      const basis = productionBasis(city, kind, definition, result);
       return {
         kind,
         type,
@@ -594,7 +566,8 @@ function readyCityViewSource(): string {
       const city = Cities.get(cityId);
       if (!city?.isTown) return out;
       const expandArgs = { Type: GrowthTypes.EXPAND, ProjectType: ProjectTypes.NO_PROJECT, City: cityId.id };
-      out.push(townFocusOption("LOC_UI_FOOD_CHOOSER_FOCUS_GROWTH", "LOC_PROJECT_TOWN_FOOD_INCREASE_DESCRIPTION", expandArgs, { Success: true }));
+      const expandValidation = Game.CityCommands.canStart(cityId, CityCommandTypes.CHANGE_GROWTH_MODE, expandArgs, false);
+      out.push(townFocusOption("LOC_UI_FOOD_CHOOSER_FOCUS_GROWTH", "LOC_PROJECT_TOWN_FOOD_INCREASE_DESCRIPTION", expandArgs, expandValidation));
       const result = Game.CityCommands.canStart(cityId, CityCommandTypes.CHANGE_GROWTH_MODE, { Type: GrowthTypes.PROJECT }, false);
       for (const projectType of result?.Projects ?? []) {
         const projectInfo = GameInfo.Projects.lookup(projectType);
@@ -606,6 +579,7 @@ function readyCityViewSource(): string {
     };
     const readPopulationPlacement = (cityId) => {
       const city = Cities.get(cityId);
+      if (!city) return null;
       const allPlacementInfo = probe(() => city?.Workers?.GetAllPlacementInfo?.() ?? []);
       const placementValue = allPlacementInfo.ok && Array.isArray(allPlacementInfo.value) ? allPlacementInfo.value : [];
       const expansionResult = probe(() => {
@@ -655,33 +629,22 @@ function readyCityViewSource(): string {
         ],
       };
     };
-    const operationCandidates = (cityId, maxOperations) => {
-      const families = [
-        { family: "city-operation", router: Game.CityOperations, enums: typeof CityOperationTypes !== "undefined" ? CityOperationTypes : {} },
-        { family: "city-command", router: Game.CityCommands, enums: typeof CityCommandTypes !== "undefined" ? CityCommandTypes : {} },
-      ];
+    const operationCandidates = (production, focus, population) => {
       const out = [];
-      for (const entry of families) {
-        const keys = Object.keys(entry.enums ?? {}).sort().slice(0, maxOperations);
-        for (const operationType of keys) {
-          const enumValue = enumValueFor(entry.enums, operationType);
-          let result;
-          try {
-            result = callCanStart(entry.router, cityId, enumValue);
-          } catch {
-            continue;
-          }
-          const valid = successFromCanStart(result);
-          if (valid) {
-            out.push({
-              family: entry.family,
-              operationType,
-              enumValue,
-              valid,
-              result: safeResult(result),
-            });
-          }
+      // Reuse named, argument-bearing query evidence; do not call native routers again.
+      for (const candidate of production.ok ? production.value : []) {
+        if (candidate.valid && candidate.result?.Success === true) {
+          out.push({ family: "city-operation", operationType: "BUILD", enumValue: CityOperationTypes.BUILD, valid: true, result: candidate.result });
         }
+      }
+      for (const candidate of focus.ok ? focus.value : []) {
+        if (candidate.valid && candidate.result?.Success === true) {
+          out.push({ family: "city-command", operationType: "CHANGE_GROWTH_MODE", enumValue: CityCommandTypes.CHANGE_GROWTH_MODE, valid: true, result: candidate.result });
+        }
+      }
+      const expansion = population.ok ? population.value?.expansionResult : null;
+      if (expansion?.ok && expansion.value?.Success === true) {
+        out.push({ family: "city-command", operationType: "EXPAND", enumValue: CityCommandTypes.EXPAND, valid: true, result: safeResult(expansion.value) });
       }
       return out;
     };
@@ -736,22 +699,30 @@ function readyCityViewSource(): string {
       const cityId = requestedCityId
         ?? (selectedCityId.ok ? selectedCityId.value : null)
         ?? (blockerCityId.ok ? blockerCityId.value : null);
+      const city = probe(() => cityId ? summarizeCity(cityId) : null);
+      const resolvedCity = city.ok && city.value != null;
+      const productionCandidates = probe(() => resolvedCity ? readProductionCandidates(cityId, input.maxOperations) : []);
+      const townFocusOptions = probe(() => resolvedCity ? readTownFocusOptions(cityId) : []);
+      const populationPlacement = probe(() => resolvedCity ? readPopulationPlacement(cityId) : null);
       return {
         localPlayerId: GameContext.localPlayerID,
         requestedCityId,
         selectedCityId,
         blockingCityId: blockerCityId,
         cityId,
-        city: probe(() => cityId ? summarizeCity(cityId) : null),
-        legalOperations: cityId ? operationCandidates(cityId, input.maxOperations) : [],
-        productionCandidates: probe(() => cityId ? readProductionCandidates(cityId, input.maxOperations) : []),
-        townFocusOptions: probe(() => cityId ? readTownFocusOptions(cityId) : []),
-        populationPlacement: probe(() => cityId ? readPopulationPlacement(cityId) : null),
+        city,
+        legalOperations: operationCandidates(productionCandidates, townFocusOptions, populationPlacement),
+        productionCandidates,
+        townFocusOptions,
+        populationPlacement,
         notes: [
           "Read-only ready-city view. Use operation validation before any production, growth, or expansion send.",
           "This view intentionally does not choose production. Use live production chooser data, then choose exactly one production item kind through the semantic production request.",
           "For NEW_POPULATION, acquire-tile mode decides worker assignment versus expansion purchase; do not infer that branch from static city data.",
-          "No-argument legal city operations are only closeout candidates; BUILD and CHANGE_GROWTH_MODE still need live item or focus args."
+          "legalOperations is a partial summary of the named production, town-focus, and expansion evidence only; no arbitrary city operation enums are queried, and an empty list does not prove no city decision remains.",
+          ...(cityId && !resolvedCity ? ["The requested/selected city did not resolve to a live city; no native city action query was made and availability remains unknown."] : []),
+          ...(resolvedCity && typeof Game.CityOperations?.canStartQuery !== "function" ? ["Named production queries are unavailable: Game.CityOperations.canStartQuery is unavailable; production coverage remains unknown."] : []),
+          ...(!productionCandidates.ok || !townFocusOptions.ok || !populationPlacement.ok ? ["One or more named city decision reads failed; legalOperations coverage is incomplete."] : [])
         ],
       };
     };`;

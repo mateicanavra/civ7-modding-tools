@@ -165,16 +165,6 @@ function readyUnitViewSource(): string {
       }
       return operationType;
     };
-    const successFromCanStart = (result) => {
-      if (result === true) return true;
-      if (result === false || result == null) return false;
-      if (typeof result === "object") {
-        if (result.Success !== undefined) return result.Success === true;
-        if (result.success !== undefined) return result.success === true;
-        if (result.canStart !== undefined) return result.canStart === true;
-      }
-      return Boolean(result);
-    };
     const safeResult = (result) => {
       try {
         const json = JSON.stringify(result);
@@ -182,21 +172,6 @@ function readyUnitViewSource(): string {
         return JSON.parse(json);
       } catch {
         return String(result);
-      }
-    };
-    const callCanStart = (router, target, operationType) => {
-      try {
-        return router.canStart(target, operationType, {}, false);
-      } catch (first) {
-        try {
-          return router.canStart(target, operationType, {});
-        } catch {
-          try {
-            return router.canStart(target, operationType);
-          } catch {
-            throw first;
-          }
-        }
       }
     };
     const summarizeUnit = (unitId) => {
@@ -231,48 +206,108 @@ function readyUnitViewSource(): string {
         activity: unit.Activity?.activityType ?? unit.activityType ?? null,
       };
     };
-    const operationCandidates = (unitId, maxOperations) => {
+    const operationCandidates = (unitId, maxOperations, notes) => {
       const families = [
-        { family: "unit-operation", router: Game.UnitOperations, enums: typeof UnitOperationTypes !== "undefined" ? UnitOperationTypes : {} },
-        { family: "unit-command", router: Game.UnitCommands, enums: typeof UnitCommandTypes !== "undefined" ? UnitCommandTypes : {} },
+        { family: "unit-operation", router: Game.UnitOperations, table: GameInfo.UnitOperations, typeKey: "OperationType", enums: typeof UnitOperationTypes !== "undefined" ? UnitOperationTypes : {} },
+        { family: "unit-command", router: Game.UnitCommands, table: GameInfo.UnitCommands, typeKey: "CommandType", enums: typeof UnitCommandTypes !== "undefined" ? UnitCommandTypes : {} },
       ];
+      const abilities = [];
+      const abilityTable = GameInfo.UnitAbilities;
+      if (!abilityTable || typeof abilityTable[Symbol.iterator] !== "function") {
+        notes.push("Stock unit-action candidates are unavailable: GameInfo.UnitAbilities is not iterable; an empty legalOperations list does not prove no legal action.");
+        return [];
+      }
+      for (const ability of abilityTable) abilities.push(ability);
       const out = [];
       for (const entry of families) {
-        const keys = Object.keys(entry.enums ?? {}).sort().slice(0, maxOperations);
-        for (const operationType of keys) {
-          const enumValue = enumValueFor(entry.enums, operationType);
-          let result;
-          try {
-            result = callCanStart(entry.router, unitId, enumValue);
-          } catch {
-            continue;
-          }
-          const valid = successFromCanStart(result);
-          if (valid) {
-            out.push({
-              family: entry.family,
-              operationType,
-              enumValue,
-              valid,
-              result: safeResult(result),
-            });
-          }
+        if (!entry.table || typeof entry.table.forEach !== "function" || typeof entry.router?.canStart !== "function") {
+          notes.push("Stock " + entry.family + " candidates are unavailable; an empty legalOperations list does not prove no legal action.");
+          continue;
         }
+        let attempted = 0;
+        let truncated = false;
+        entry.table.forEach((definition) => {
+          if (!definition.VisibleInUI) return;
+          const operationType = definition[entry.typeKey];
+          if (typeof operationType !== "string") return;
+          const enumValue = enumValueFor(entry.enums, operationType);
+          const matches = abilities.filter((ability) => ability.CommandType === operationType || ability.OperationType === operationType);
+          for (const ability of matches.length > 0 ? matches : [null]) {
+            if (attempted >= maxOperations) {
+              if (!truncated) notes.push("Stock " + entry.family + " candidate coverage reached maxOperations; unqueried actions remain unknown.");
+              truncated = true;
+              return;
+            }
+            attempted += 1;
+            const args = { X: -9999, Y: -9999, UnitAbilityType: ability ? ability.$index : -1 };
+            if (operationType === "UNITOPERATION_WMD_STRIKE") {
+              if (typeof Database === "undefined" || typeof Database.makeHash !== "function") {
+                notes.push("WMD candidate is unavailable: Database.makeHash is unavailable.");
+                continue;
+              }
+              args.Type = Database.makeHash("WMD_NUCLEAR_DEVICE");
+            }
+            try {
+              // Match stock unit-actions visibility and parameter admission, never probe enum identities.
+              const exclusion = entry.router.canStart(unitId, operationType, args, true);
+              if (exclusion?.Success !== true) continue;
+              const result = entry.router.canStart(unitId, operationType, args, false);
+              if (result?.Success !== true) continue;
+              out.push({ family: entry.family, operationType: operationType.replace(/^UNITOPERATION_|^UNITCOMMAND_/, ""), enumValue, valid: true, result: safeResult(result) });
+            } catch (err) {
+              notes.push("Stock " + operationType + " query failed: " + String(err) + "; availability remains unknown.");
+            }
+          }
+        });
       }
       return out;
     };
-    const nearbyPlots = (unit, radius) => {
+    const nearbyPlots = (unit, radius, notes) => {
       const location = unit?.location;
-      if (!location || typeof location.x !== "number" || typeof location.y !== "number") return [];
+      if (!unit) return [];
+      if (!location || !Number.isSafeInteger(location.x) || !Number.isSafeInteger(location.y)
+        || location.x < 0 || location.y < 0) {
+        notes.push("The live unit has no valid plot coordinates; nearby coverage remains unknown and no plot query was made.");
+        return [];
+      }
+      if (typeof MapUnits === "undefined" || typeof MapUnits.getUnits !== "function") {
+        notes.push("MapUnits.getUnits is unavailable; nearby coverage remains unknown.");
+        return [];
+      }
+      let minX = location.x;
+      let maxX = location.x;
+      let minY = location.y;
+      let maxY = location.y;
+      if (radius > 0) {
+        const width = probe(() => typeof GameplayMap !== "undefined" && typeof GameplayMap.getGridWidth === "function" ? GameplayMap.getGridWidth() : null);
+        const height = probe(() => typeof GameplayMap !== "undefined" && typeof GameplayMap.getGridHeight === "function" ? GameplayMap.getGridHeight() : null);
+        const validWidth = width.ok && Number.isSafeInteger(width.value) && width.value > 0;
+        const validHeight = height.ok && Number.isSafeInteger(height.value) && height.value > 0;
+        if ((validWidth && location.x >= width.value) || (validHeight && location.y >= height.value)) {
+          notes.push("The live unit location is outside the admitted map bounds; nearby coverage remains unknown and no plot query was made.");
+          return [];
+        }
+        if (!validWidth || !validHeight) {
+          notes.push("Map dimensions are unavailable or invalid; nearby coverage is limited to the live unit's own plot and the broader neighborhood remains unknown.");
+        } else {
+          minX = Math.max(0, location.x - radius);
+          maxX = Math.min(width.value - 1, location.x + radius);
+          minY = Math.max(0, location.y - radius);
+          maxY = Math.min(height.value - 1, location.y + radius);
+          if (minX !== location.x - radius || maxX !== location.x + radius
+            || minY !== location.y - radius || maxY !== location.y + radius) {
+            notes.push("Nearby coverage is clipped to admitted map bounds; across-wrap neighbors are not queried and coverage beyond the clipped edges remains unknown.");
+          }
+        }
+      }
       const plots = [];
-      for (let y = location.y - radius; y <= location.y + radius; y += 1) {
-        for (let x = location.x - radius; x <= location.x + radius; x += 1) {
+      let queryFailed = false;
+      for (let y = minY; y <= maxY; y += 1) {
+        for (let x = minX; x <= maxX; x += 1) {
           let units = [];
           try {
-            units = typeof MapUnits !== "undefined" && typeof MapUnits.getUnits === "function"
-              ? MapUnits.getUnits(x, y)
-              : [];
-          } catch {}
+            units = MapUnits.getUnits(x, y);
+          } catch { queryFailed = true; }
           if (Array.isArray(units) && units.length > 0) {
             plots.push({
               x,
@@ -282,6 +317,7 @@ function readyUnitViewSource(): string {
           }
         }
       }
+      if (queryFailed) notes.push("One or more in-bounds nearby plot reads failed; nearby coverage remains unknown.");
       return plots;
     };
     const promotionReadiness = (unitId) => {
@@ -370,6 +406,11 @@ function readyUnitViewSource(): string {
         ?? (firstReadyUnitId.ok ? firstReadyUnitId.value : null);
       const unit = probe(() => unitId ? summarizeUnit(unitId) : null);
       const unitValue = unit.ok ? unit.value : null;
+      const candidateNotes = [];
+      const legalOperations = unitValue
+        ? operationCandidates(unitId, input.maxOperations, candidateNotes)
+        : [];
+      if (unitId && !unitValue) candidateNotes.push("The requested/ready unit did not resolve to a live unit; no native action query was made and action availability remains unknown.");
       return {
         localPlayerId: GameContext.localPlayerID,
         requestedUnitId,
@@ -377,11 +418,13 @@ function readyUnitViewSource(): string {
         firstReadyUnitId,
         unitId,
         unit,
-        legalOperations: unitId ? operationCandidates(unitId, input.maxOperations) : [],
-        promotionReadiness: probe(() => unitId ? promotionReadiness(unitId) : null),
-        nearby: probe(() => nearbyPlots(unitValue, input.radius)),
+        legalOperations,
+        promotionReadiness: probe(() => unitValue ? promotionReadiness(unitId) : null),
+        nearby: probe(() => nearbyPlots(unitValue, input.radius, candidateNotes)),
         notes: [
           "Read-only ready-unit view. Use operation validation before mutation.",
+          "legalOperations covers stock VisibleInUI action candidates only, not arbitrary operation enums; absence is not proof that every possible action is disabled.",
+          ...candidateNotes,
           "For plot-target moves or attacks, use the unit-target action path so the official right-click action order decides the operation.",
           "For commanders, a legal PROMOTE/open action is not proof that a spendable promotion exists; inspect commander points before choosing promotion args."
         ],

@@ -6,9 +6,9 @@ import {
 } from "../../../../adapters/play/direct-control";
 
 export default class GamePlayUnitReady extends Command {
-  static summary = "Read the selected or first ready unit with legal operations";
+  static summary = "Read the selected or first ready unit with stock-visible action candidates";
   static description =
-    "Returns a read-only live-play view of the selected or first ready unit, valid no-target operations, and nearby occupied plots.";
+    "Returns a read-only live-play view of the selected or first ready unit, bounded stock VisibleInUI action candidates with stock query arguments, and nearby occupied plots. Candidate coverage is partial; an empty list does not prove no legal action remains.";
   static hiddenAliases = ["game:play:ready-unit"];
 
   static examples = [
@@ -32,7 +32,8 @@ export default class GamePlayUnitReady extends Command {
       default: 2,
     }),
     "max-operations": Flags.integer({
-      description: "Maximum operation enum keys to probe per family",
+      description:
+        "Maximum stock VisibleInUI action candidates to query per family, including ability variants",
       default: 96,
     }),
     "timeout-ms": Flags.integer({
@@ -66,7 +67,7 @@ export default class GamePlayUnitReady extends Command {
       `Selected: ${formatProbe(view.selectedUnitId)}; first ready: ${formatProbe(view.firstReadyUnitId)}`
     );
     this.log(`Summary: ${formatProbe(view.unit)}`);
-    this.log("Legal operations:");
+    this.log("Stock-visible action candidates (partial):");
     for (const candidate of view.legalOperations) {
       this.log(`- ${candidate.family} ${candidate.operationType}`);
     }
