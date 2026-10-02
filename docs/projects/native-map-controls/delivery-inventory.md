@@ -111,8 +111,12 @@ The [coupled thermal numerical follow-through](coupled-thermal-numerics.md)
 now qualifies the original-equation linearization on the retained first stage:
 4,965 checks, 76 derivative controls and three full Newton steps. Earlier
 refused source/method packets remain immutable. This numerical progress does
-not close the current production thermal gate; shared-pole/full-grid accuracy,
-unchanged flux refinement, held-Earth transfer and procedural adoption remain
+not close the current production thermal gate. The separate shared-pole/full
+method passes 7,386 manufactured checks, then exhausts the compute budget in
+its coarse whole-reference worker without a complete result. Private vector
+lifetime is the next implementation-efficiency correction, with the same
+source laws and acceptance limits. Full-grid accuracy, unchanged flux
+refinement, held-Earth transfer and coherent climate/water adoption remain
 separate requirements. No prototype is deployed.
 
 ## What Shipped Means

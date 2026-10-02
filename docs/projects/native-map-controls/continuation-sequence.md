@@ -52,8 +52,14 @@ qualifies branch-consistent original-equation Newton on that exact retained
 six-cell stage: 76 derivative controls and three full steps pass under unchanged
 physical laws and residual limits. A separately frozen accounting-only replay
 corrects the external harness's exact-runtime RSS units without altering the
-method. Full-grid/shared-pole numerical and timestep-refinement qualification
-remain next; no Earth score or production adoption follows from this stage.
+method. The subsequent port passes 7,386 manufactured checks with shared-pole
+and periodic controls, but the coarse whole-reference worker exhausts the
+fixed 900-second proof budget before returning. No full-grid refinement or
+Earth score is available. The next bounded correction reuses private temporary
+vectors without changing physical laws, inputs or guards; it is not another
+recipe pipeline. Coupled adoption also needs one explicit climate-to-water
+conversion rather than relabeling the existing index-based basin quantities.
+See the numerical record for the exact refusal and ownership dependencies.
 Sediment transport, lake infilling and full weather dynamics are optional
 processes, not prerequisites for a coherent calibrated baseline.
 
