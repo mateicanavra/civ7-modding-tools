@@ -186,6 +186,15 @@ The complete proof takes 12.002 seconds and 140.77 MiB child high-water.
 This admits the manufactured relationship only: held-Earth, complete-cohort
 and owner migration remain ahead. The current playable mod is unchanged.
 
+The subsequent matched-support Earth relief reduction is complete and
+independently reviewed: retained NCEP and CRUST1/ETOPO1 are integrated over
+the same land/water-free/ice-free angular intersection. All overlap controls
+pass and every original NCEP support cell reconstructs exactly. The full
+domain and all four blocks retain similar descriptive neighbor/within-row
+shape ratios; no new physical bound, height codec, fitted scale or producer
+law is admitted. Next, investigate actual mesh-to-tile/support semantics rather
+than infer a root sign defect. See [matched reference support](constitutive-support-attribution.md#matched-reference-support).
+
 Independent reference forcing is now admitted for a future separately frozen
 Earth comparison: the actual NCEP target is a `1991-2020` climatology, not
 preindustrial or current-year weather. Thirty pinned NOAA global annual CO2
