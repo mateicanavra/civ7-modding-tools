@@ -45,7 +45,6 @@ type StudioRecipeUiMeta = Readonly<{
 
 const STAGE_LABEL_OVERRIDES: Readonly<Record<string, string>> = {
   "morphology-coasts": "Morphology / Coasts",
-  "morphology-routing": "Morphology / Routing",
   "morphology-erosion": "Morphology / Erosion",
   "morphology-features": "Morphology / Features",
   "morphology-shelf": "Morphology / Shelf",

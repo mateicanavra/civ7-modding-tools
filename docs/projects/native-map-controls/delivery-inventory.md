@@ -149,9 +149,11 @@ the [coherence plan](coherence-completion.md) for acceptance boundaries.
 
 **Required before completion:** preserve the completed water-owner/native-head
 repairs, finish directed movement qualification and the unchanged Earthlike
-thermal gate, and implement the accepted C3 climate-fed terrain/network
-coupling. C3 is independently designed but not implemented; it has not been
-silently reduced to optional investigation. Dimensional area/time/flux and
+thermal gate, and activate/qualify the accepted C3 climate-fed terrain/network
+coupling. C3 composition is implemented and merged through PR #2241; its
+complete unchanged bank and explained ecology witness are recorded below.
+Activation and legacy retirement are the next implementation unit, not an
+optional investigation. Dimensional area/time/flux and
 relief admission is required before full empirical Earth calibration is
 claimed, not before the explicitly model-unit first C3 treatment. No geological
 age, sediment/lake infilling model or Firaxis-fitted density quota follows.
@@ -444,3 +446,85 @@ discriminators, not climate fixes or a reason to waive the science failure.
 The next source admission explicitly separates water/ice energy, marine-air
 transfer and dimensional terrain authority; normalized relief and annual SST
 cannot silently supply those missing physical quantities.
+
+## Complete Bank And Adoption Decision
+
+Certified composition is merged through native Graphite
+[PR #2241](https://github.com/mateicanavra/civ7-modding-tools/pull/2241), at
+`2026-10-02T03:53:51Z`, main commit
+`af070056f39d5120b4f31cddfd7aaf87edce52e8`. The complete 57-case bank retains
+47 Earthlike scenarios and five for each stress product, all memberships and
+all original comparators. Every causal, conservation, precision, immutable
+water, fixed-datum and once-only publication check passes. The candidate
+retains 20/22 passed studies and 4,428/4,430 passed expectations.
+
+Two failed expectations remain visible: within-row land-temperature variation
+is `0.1430737557 C` against the unchanged `1 C` floor, and savanna woodland
+appears in five of eight representative maps against the unchanged six-map
+floor. The latter is a newly explained terrain-sensitive feature result, not
+an unexplained production failure. Standard seed99's sole woodland candidate
+at `(46,25)` retains its seasonal biome, temperature, rainfall and moisture.
+Its local relief rises from 9 to 11 model units, supporting a hill under the
+existing landform law. Shipped Civ7 woodland legality is flat-only. Forcing a
+flat cell or adding a replacement woodland quota would contradict that truth.
+No hill law, ecology coefficient, bank threshold or study membership is changed
+to restore the old feature count.
+
+Root therefore accepts the one-cycle candidate at its proven model-coordinate
+scope, not as complete scientific Earth calibration. Retire preliminary
+Morphology routing and the combined normalized incision/deposition strategy;
+retain initial hillslope shaping and the certified network as separate owners.
+All three products select one certified cycle, rate `.02`, m `.5`, n `1`, with
+their independent hillslope diffusion, eras, age and posture unchanged. Exact
+57-case before/after identity is required for that retirement. The original
+bank's nonselection report remains immutable; this later decision follows the
+separately sealed causal assessment rather than rewriting its conclusion.
+
+Evidence in the durable atlas:
+`earth-calibration/c3-certified-evolution-full-bank-20261001/` (seal
+`d6aa85687db7368abb8cdd86c60ff75226860c805e8bdccc5f51862220e72047`), and
+`c3-savanna-presence-regression-diagnosis-20261001/` (seal
+`f0c7e57871246ec639655091ede62276c60ee3f151a806fae07828d433ea1913`).
+This decision does not claim a deployed or live-generated candidate.
+
+The subsequent D11 marine-source discriminator also completes without a
+production selection. Actual monthly bulk-water temperature remains far from
+winter air over ice; actual monthly skin greatly improves that comparison but
+still fails unchanged air-bias and annual row-mean guards. Bulk water, phase
+skin and near-surface air must remain distinct quantities. Neither observed
+skin nor Earth residuals enter the procedural recipe. The next bounded source
+task is a manufactured and paired-snapshot surface-to-air diagnostic, not a
+fitted carrier offset or a new climate framework. Its external evidence is
+`earth-monthly-marine-observable-discriminator-20261002/`, seal
+`55dfcc13c636ae74d1791f1c518a084f9b255bb5fc0051d74f73ec836f9aca9e`.
+
+Live qualification encountered two matching native process crashes after the
+public attention/priorities read following normal Advanced Start placement.
+That correlation is retained separately from map generation and model studies.
+The next live attempt first preserves a normal post-placement save and narrows
+the public read path; it does not repeat the same broad native probe blindly.
+
+## Adopted Terrain Retirement Proof
+
+The retirement gate is complete on 2026-10-02. All 57 original candidate
+scenarios reproduce the entire public capture, all nine owner artifacts,
+the complete measured sample and canonical operation-replay proof exactly.
+The source/runtime pins remain stable throughout the 335.2-second execution;
+no scenario, scientific target, observer or original sealed payload changes.
+Only the displaced preliminary routing and combined channel strategy/config
+and their obsolete trace emissions disappear. There is one channel-evolution
+owner, operating on the resolved hydraulic receivers, plus the independently
+owned initial hillslope shaping.
+
+The rebuilt candidate is deployed through the existing realization target.
+Checks, types, Habitat and builds pass. The complete definition suite reports
+1,176 passed tests and one failed science aggregate, which retains the thermal
+and savanna expectations described above. All 319 realization, 513 direct
+control, 432 control-oRPC and 189 game-CLI tests pass. None of those classes
+alone claims fresh native terrain or navigation qualification.
+
+The exact identity receipt is
+`earth-calibration/c3-retirement-identity-20261002/RESULT.json`; the combined
+graph output is `c3-retirement-ready-repair-graph-20261002.log` in the same
+calibration root. The original full-bank nonselection and subsequent
+qualified adoption decisions remain separate, unmodified records.

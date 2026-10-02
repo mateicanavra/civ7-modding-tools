@@ -9,7 +9,6 @@ import { artifacts as hydrographyArtifacts } from "../../../../../../src/domain/
 import { artifacts as coastsArtifacts } from "../../../../../../src/domain/morphology/modules/coasts/artifacts/index.js";
 import { artifacts as erosionArtifacts } from "../../../../../../src/domain/morphology/modules/erosion/artifacts/index.js";
 import { artifacts as landformsArtifacts } from "../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
-import { artifacts as routingArtifacts } from "../../../../../../src/domain/morphology/modules/routing/artifacts/index.js";
 import { artifacts as shelfArtifacts } from "../../../../../../src/domain/morphology/modules/shelf/artifacts/index.js";
 import { artifacts as terrainArtifacts } from "../../../../../../src/domain/morphology/modules/terrain/artifacts/index.js";
 import morphology from "../../../../../../src/domain/morphology/router.js";
@@ -62,9 +61,6 @@ describe("post-water surface landform eligibility", () => {
       });
       publishTestArtifact(stepContext, erosionArtifacts.substrate, {
         erodibilityK: new Float32Array(size).fill(0.2), sedimentDepth: new Float32Array(size).fill(0.5),
-      });
-      publishTestArtifact(stepContext, routingArtifacts.routing, {
-        flowDir: new Int32Array(size).fill(-1), flowAccum: new Float32Array(size).fill(999), basinId: new Int32Array(size).fill(-1),
       });
       publishTestArtifact(stepContext, coastsArtifacts.resolvedCoastline, {
         coastalLand: new Uint8Array(size), coastalWater: new Uint8Array(size), distanceToCoast: resolvedDistanceToCoast,
@@ -147,7 +143,6 @@ describe("post-water surface landform eligibility", () => {
     expect(fixture).toEqual(before);
     expect(MountainsStep.contract.requires).toContain(shelfArtifacts.shelf);
     expect(MountainsStep.contract.requires).toContain(hydrographyArtifacts.riverNetwork);
-    expect(MountainsStep.contract.requires).not.toContain(routingArtifacts.routing);
     expect(MountainsStep.contract.requires).not.toContain(coastsArtifacts.resolvedCoastline);
   });
 });

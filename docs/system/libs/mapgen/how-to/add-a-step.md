@@ -61,17 +61,15 @@ Representative example (artifact + ops wiring; excerpt; see full file in anchors
 ```ts
 import morphology from "../../../../../../../domain/morphology/index.js";
 import { artifacts as morphologyErosionArtifacts } from "../../../../../../../domain/morphology/modules/erosion/artifacts/index.js";
-import { artifacts as morphologyRoutingArtifacts } from "../../../../../../../domain/morphology/modules/routing/artifacts/index.js";
 import { artifacts as morphologyTerrainArtifacts } from "../../../../../../../domain/morphology/modules/terrain/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Contract and compiled configuration boundary for geomorphic evolution. */
 export const config = defineStep({
   id: "geomorphology",
-  description: "Evolves admitted terrain through the configured geomorphic cycle.",
+  description: "Shapes initial hillslopes while preserving admitted material substrate.",
   requires: [
     morphologyTerrainArtifacts.baseTopography,
-    morphologyRoutingArtifacts.routing,
     morphologyTerrainArtifacts.baseSubstrate,
   ],
   provides: [
@@ -162,7 +160,6 @@ export const GeomorphologyStep = createStep(config, {
   },
   run: (context, stepConfig, ops, deps) => {
     const topography = deps.artifacts.baseTopography.read();
-    const routing = deps.artifacts.routing.read();
     const substrate = deps.artifacts.baseSubstrate.read();
 
     const result = ops.geomorphology(
@@ -172,8 +169,6 @@ export const GeomorphologyStep = createStep(config, {
         elevation: topography.elevation,
         seaLevel: topography.seaLevel,
         landMask: topography.landMask,
-        flowDir: routing.flowDir,
-        flowAccum: routing.flowAccum,
         erodibilityK: substrate.erodibilityK,
         sedimentDepth: substrate.sedimentDepth,
       },

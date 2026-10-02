@@ -252,33 +252,17 @@
         }
       }
     },
-    "morphology-routing": {
-      "routing": {
-        "routing": {
-          "strategy": "steepest-descent",
-          "config": {}
-        }
-      }
-    },
     "morphology-erosion": {
       "knobs": {
         "erosion": "normal"
       },
       "geomorphology": {
         "geomorphology": {
-          "strategy": "stream-power-diffusion",
+          "strategy": "hillslope-diffusion",
           "config": {
             "geomorphology": {
-              "fluvial": {
-                "rate": 0.08,
-                "m": 0.5,
-                "n": 1
-              },
               "diffusion": {
                 "rate": 0.12
-              },
-              "deposition": {
-                "rate": 0.07
               },
               "eras": 3
             },
@@ -468,10 +452,10 @@
     },
     "hydrology-hydrography": {
       "terrainEvolution": {
-        "cycles": 0,
+        "cycles": 1,
         "computeChannelIncision": {
           "strategy": "implicit-stream-power",
-          "config": { "rate": 0.15, "m": 0.5, "n": 1 }
+          "config": { "rate": 0.02, "m": 0.5, "n": 1 }
         }
       },
       "knobs": {

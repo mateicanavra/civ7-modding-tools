@@ -16,8 +16,8 @@ describe("Morphology tracing (observability hardening smoke)", () => {
       `mod-swooper-maps.standard.${stageId}.${stepId}`;
     const verboseSteps = [
       full("morphology-coasts", "landmass-plates"),
-      full("morphology-routing", "routing"),
       full("morphology-erosion", "geomorphology"),
+      full("hydrology-hydrography", "network"),
       full("morphology-coasts", "coastline-evidence"),
       full("morphology-islands", "islands"),
       full("morphology-features", "mountains"),
@@ -52,7 +52,6 @@ describe("Morphology tracing (observability hardening smoke)", () => {
 
     const requiredKinds = [
       "morphology.landmassPlates.summary",
-      "morphology.routing.summary",
       "morphology.geomorphology.summary",
       "morphology.coastlines.summary",
       "morphology.islands.summary",
@@ -63,5 +62,8 @@ describe("Morphology tracing (observability hardening smoke)", () => {
     for (const required of requiredKinds) {
       expect(kinds.has(required)).toBe(true);
     }
+    expect(kinds.has("morphology.routing.summary")).toBe(false);
+    expect(events.some(event => event.kind === "step.start" && event.stageId === "morphology-routing")).toBe(false);
+    expect(events.some(event => event.kind === "step.start" && event.stepId === full("hydrology-hydrography", "network"))).toBe(true);
   });
 });

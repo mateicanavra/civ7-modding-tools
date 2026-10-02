@@ -1,6 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import type { Static } from "@swooper/mapgen-core/authoring";
-import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
+import {
+  normalizeOperationSelectionForTest,
+  runAdmittedOperationForTest,
+  validateSchemaValueForTest,
+} from "@swooper/mapgen-core/testing";
 import morphology from "../../../../../../src/domain/morphology/router.js";
 
 const operation = morphology.erosion.ops.computeGeomorphicCycle;
@@ -14,15 +18,15 @@ const run = (input: Fixture) => runAdmittedOperationForTest(operation, input, se
 function profile(): Fixture {
   return {
     width: 3, height: 1, elevation: new Int16Array([0, 300, 0]), seaLevel: -1,
-    landMask: new Uint8Array([1, 1, 1]), flowDir: new Int32Array([1, 2, -1]),
-    flowAccum: new Float32Array([1, 2, 3]), erodibilityK: new Float32Array([0.1, 0.2, 0.3]),
+    landMask: new Uint8Array([1, 1, 1]), erodibilityK: new Float32Array([0.1, 0.2, 0.3]),
     sedimentDepth: new Float32Array([-0, 5.125, 2.5]),
   };
 }
 
 describe("compute-geomorphic-cycle hillslope-diffusion", () => {
-  it("registers an independent hillslope strategy without changing the existing default", () => {
-    expect(operation.defaultStrategy).toBe("stream-power-diffusion");
+  it("infers hillslope diffusion as the sole semantic default", () => {
+    expect(operation.defaultStrategy).toBe("hillslope-diffusion");
+    expect(Object.keys(operation.strategies)).toEqual(["hillslope-diffusion"]);
     expect(operation.strategies["hillslope-diffusion"]).toBeDefined();
     expect(run(profile()).topography.elevation).toEqual(new Int16Array([30, 240, 30]));
   });
@@ -41,18 +45,36 @@ describe("compute-geomorphic-cycle hillslope-diffusion", () => {
     expect(old.deltas.elevationDelta).toEqual(new Float32Array([39, -78, 39]));
   });
 
-  it("does not consume routing or accumulation, or change substrate and sediment", () => {
-    const input = profile(), alternate = structuredClone(input);
-    alternate.flowDir.fill(-1);
-    alternate.flowAccum.fill(100000);
+  it("copies material exactly without a sediment-change diagnostic", () => {
+    const input = profile();
     const output = run(input);
-    expect(run(alternate)).toEqual(output);
     expect(output.substrate.erodibilityK).toEqual(input.erodibilityK);
     expect(output.substrate.sedimentDepth).toEqual(input.sedimentDepth);
     expect(Object.is(output.substrate.sedimentDepth[0], -0)).toBe(true);
-    expect(output.deltas.sedimentDelta).toEqual(new Float32Array(3));
+    expect("sedimentDelta" in output.deltas).toBe(false);
     expect(output.substrate.erodibilityK.buffer).not.toBe(input.erodibilityK.buffer);
     expect(output.substrate.sedimentDepth.buffer).not.toBe(input.sedimentDepth.buffer);
+  });
+
+  it("strictly refuses displaced routing inputs, strategy, and process controls", () => {
+    for (const extra of [
+      { flowDir: new Int32Array(3).fill(-1) },
+      { flowAccum: new Float32Array(3) },
+    ]) {
+      expect(() => validateSchemaValueForTest(operation.input, { ...profile(), ...extra }, "/input")).toThrow();
+    }
+    expect(() => normalizeOperationSelectionForTest(operation, {
+      ...selection, strategy: "stream-power-diffusion",
+    })).toThrow();
+    for (const process of ["fluvial", "deposition"]) {
+      expect(() => normalizeOperationSelectionForTest(operation, {
+        ...selection,
+        config: {
+          ...selection.config,
+          geomorphology: { ...selection.config.geomorphology, [process]: { rate: 0 } },
+        },
+      })).toThrow();
+    }
   });
 
   it("uses the existing identity and bathymetry publication rather than exposing or filling water", () => {

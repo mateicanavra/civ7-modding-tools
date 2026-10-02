@@ -8,7 +8,7 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 /**
  * Computes the continental shelf from POST-island morphology truth.
  *
- * Runs after morphology-features (islands + mountains), so the shelf and the
+ * Runs after morphology-islands and before channel evolution, so the shelf and the
  * post-island coastline include every formed island and microcontinent, and
  * downstream ocean-geometry / reef / coast consumers see one coherent vintage.
  */

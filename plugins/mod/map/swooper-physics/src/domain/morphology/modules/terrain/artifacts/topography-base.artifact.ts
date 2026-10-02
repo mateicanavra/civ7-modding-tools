@@ -6,7 +6,7 @@ import {
   SeaLevelDatumSchema,
 } from "../../../model/atoms/index.js";
 
-/** Registers coherent base topography shared by coastline evidence, routing, and erosion. */
+/** Registers coherent base topography shared by coastline evidence and initial hillslope shaping. */
 export const artifact = defineArtifact({
   name: "baseTopography",
   id: "artifact:morphology.topography.base",

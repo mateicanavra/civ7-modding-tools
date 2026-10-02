@@ -28,11 +28,10 @@ describe("standard pipeline viz emissions", () => {
       "foundation.plates.tilePlateId",
       "foundation.tectonics.boundaryType",
       "morphology.geomorphology.elevationDelta",
-      "morphology.geomorphology.sedimentDelta",
       "morphology.topography.elevation",
       "morphology.shelf.shelfMask",
       "morphology.shelf.breakDepth",
-      "morphology.routing.flowAccum",
+      "morphology.substrate.sedimentDepth",
       "map.morphology.coasts.waterClass",
       "map.morphology.coasts.sourceCoastMask",
       "map.morphology.coasts.coastRingMask",
@@ -41,6 +40,10 @@ describe("standard pipeline viz emissions", () => {
       "hydrology.climate.baselineSurfaceTemperature",
       "hydrology.climate.indices.surfaceTemperatureC",
       "hydrology.hydrography.discharge",
+      "hydrology.hydrography.upstreamArea",
+      "hydrology.channelEvolution.incisionDepth",
+      "hydrology.channelEvolution.roundingDelta",
+      "hydrology.channelEvolution.clampDelta",
       "map.hydrology.lakes.plannedLakeMask",
       "map.hydrology.lakes.engineLakeMask",
       "map.hydrology.lakes.rejectedLakeMask",
@@ -60,6 +63,8 @@ describe("standard pipeline viz emissions", () => {
     ];
     const missing = expected.filter((dataTypeKey) => !seenLayers.has(dataTypeKey));
     expect(missing).toEqual([]);
+    expect([...seenLayers].filter(key => key.startsWith("morphology.routing."))).toEqual([]);
+    expect(seenLayers.has("morphology.geomorphology.sedimentDelta")).toBe(false);
   });
 
   it("emits per-era variants for foundation tectonics", () => {
@@ -235,11 +240,7 @@ describe("standard pipeline viz emissions", () => {
       true
     );
 
-    const flowMetas = metasByKey.get("morphology.routing.flow");
-    expect(flowMetas?.some((m) => m?.visibility === "default" && m?.role === "vector")).toBe(true);
-    expect(flowMetas?.some((m) => m?.visibility === "debug" && m?.role === "magnitude")).toBe(true);
-    expect(flowMetas?.some((m) => m?.visibility === "default" && m?.role === "arrows")).toBe(true);
-    expect(flowMetas?.some((m) => m?.visibility === "debug" && m?.role === "centroids")).toBe(true);
+    expect(metasByKey.has("morphology.routing.flow")).toBe(false);
 
     const closenessMetas = metasByKey.get("foundation.plates.tileBoundaryCloseness");
     expect(closenessMetas?.some((m) => m?.visibility === "debug")).toBe(true);

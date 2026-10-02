@@ -67,34 +67,41 @@ stage order is:
 4. `foundation-orogeny`
 5. `foundation-projection`
 6. `morphology-coasts`
-7. `morphology-routing`
-8. `morphology-erosion`
-9. `morphology-islands`
-10. `morphology-shelf`
-11. `hydrology-climate-baseline`
-12. `hydrology-hydrography`
-13. `morphology-features`
-14. `hydrology-climate-refine`
-15. `ecology-pedology`
-16. `ecology-biomes`
-17. `map-morphology`
-18. `map-hydrology`
-19. `map-elevation`
-20. `map-rivers`
-21. `ecology-features`
-22. `map-ecology`
-23. `placement`
+7. `morphology-erosion`
+8. `morphology-islands`
+9. `morphology-shelf`
+10. `hydrology-climate-baseline`
+11. `hydrology-hydrography`
+12. `morphology-features`
+13. `hydrology-climate-refine`
+14. `ecology-pedology`
+15. `ecology-biomes`
+16. `map-morphology`
+17. `map-hydrology`
+18. `map-elevation`
+19. `map-rivers`
+20. `ecology-features`
+21. `map-ecology`
+22. `placement`
 
 The five `foundation-*` stages are a sibling family decomposed from the former
 single `foundation` stage; their steps run in the same order, so output is
 byte-identical (see the FOUNDATION domain reference for the stage→step map).
 The `morphology-shelf` stage computes the continental shelf after
-`morphology-islands` finalizes island ground and landmass decomposition, so every
+`morphology-islands` publishes initial island ground, so every
 new island and microcontinent receives coherent coast and shelf evidence.
-Hydrography then runs one `network` step for the selected physical model.
-Certified Earthlike computes water on final ground before `morphology-features`
+Initial hillslope diffusion has no preliminary routing or sediment-transport
+lane. Hydrography runs one `network` step that privately composes certified
+water solves and channel incision, seals integer final topography once, then
+solves the final network on that publication. All three retained products use
+one certified cycle at rate 0.02, m 0.5, n 1 while retaining independent
+hillslope diffusion, era, age and posture controls. These are model-coordinate
+controls, not calibrated metres or geological ages.
+`morphology-features`
 selects exposed mountains and volcanoes outside wet bodies and reserved dry
-channels. Original ground and marine geography remain unchanged; climate
+channels and derives landmasses/coastlines from final exposed truth.
+Original-water and initially submerged ground, marine geography, fixed sea
+datum and material substrate remain unchanged; climate
 refinement and terrestrial ecology use the appropriate original-marine or
 exposed-land population rather than one interchangeable water mask.
 

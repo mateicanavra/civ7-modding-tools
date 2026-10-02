@@ -81,6 +81,6 @@ export function evolveHillslopeSurface(params: HillslopeParams) {
       erodibilityK: new Float32Array(erodibility),
       sedimentDepth: new Float32Array(sedimentDepth),
     },
-    deltas: { elevationDelta, sedimentDelta: new Float32Array(size) },
+    deltas: { elevationDelta },
   };
 }

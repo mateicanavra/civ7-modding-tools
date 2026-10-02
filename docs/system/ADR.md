@@ -725,3 +725,37 @@ envelope read-only for export and explicit current-config selection, never run i
   live diagnostics extend those selectors instead of defining a second bank.
 - The physical mapping and retained before/after witnesses are in
   [legacy water migration](../projects/native-map-controls/legacy-water-migration.md).
+
+## ADR-024: Channel Evolution Uses Resolved Hydraulic Receivers
+
+**Status:** Accepted
+**Date:** 2026-10-02
+**Context:** The preliminary morphology routing and combined stream-power /
+diffusion strategy evolved channels before finite basin storage, receiving
+water heads and resolved exposure existed. The certified hydrology network now
+owns those relationships. Retaining both channel computations would preserve
+competing owners, not useful algorithmic diversity.
+**Decision:** Morphology performs hillslope diffusion only. The hydrology
+network composes a fresh certified basin solve, head-aware channel incision and
+one final representable-ground publication, then solves that published ground.
+All three retained products adopt the reviewed one-cycle channel controls while
+preserving their independently authored hillslope and world-age controls.
+Retire the displaced morphology routing module/stage/artifact and combined
+strategy, reject their obsolete configuration, and remove their unused sediment
+delta visualization. Material sediment depth remains a live substrate product.
+**Consequences:**
+- Steps remain typed operation composition under the existing SDK; numerical
+  evolution stays in domain rules. No second solver, compatibility lane or new
+  artifact mechanism is introduced.
+- Adoption is qualified in existing model coordinates. This does not establish
+  SI height, elapsed geological time or complete Earth climate calibration.
+- The complete 57-scenario candidate bank passed causal and conservation checks.
+  Its thermal failure remains, and a new savanna-presence failure is explained
+  by one physically supported hill under stock flat-only feature legality.
+  Neither requirement is weakened or compensated with a placement quota.
+- Retirement must preserve the reviewed candidate's public captures, owner
+  artifacts and measurements exactly across all 57 scenarios. Native deployment
+  and gameplay remain separate qualification surfaces.
+- Design, evidence boundaries and the adoption decision live in
+  [basin evolution](../projects/native-map-controls/basin-evolution-design.md)
+  and [delivery inventory](../projects/native-map-controls/delivery-inventory.md).

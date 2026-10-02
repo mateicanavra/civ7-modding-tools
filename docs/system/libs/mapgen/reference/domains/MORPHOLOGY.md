@@ -27,14 +27,14 @@ MORPHOLOGY converts Foundation’s tectonic driver fields into **tile-space terr
 
 - **Topography** (elevation + sea level + land mask + bathymetry)
 - **Substrate** (erodibility + sediment depth)
-- **Geomorphic routing proxy** (flow direction + accumulation used by terrain-shaping consumers)
+- **Initial hillslope shaping and certified channel incision** (separate physical operations)
 - **Base coastline evidence** (pre-island adjacency and distance snapshot)
 - **Continental shelf** (post-island coastline metrics + shelf mask and diagnostics)
 - **Volcano intent** (planned volcano points / mask)
 - **Landmasses** (connected-component decomposition of the land mask)
 
-The domain contract composes six causal modules: `terrain`, `coasts`,
-`routing`, `erosion`, `landforms`, and `shelf`. Each module owns its operation
+The domain contract composes five causal modules: `terrain`, `coasts`,
+`erosion`, `landforms`, and `shelf`. Each module owns its operation
 contracts, executable implementations, policy, and immutable artifact catalog.
 The domain root exposes the aggregate declaration contract; recipe execution
 uses the executable router.
@@ -44,7 +44,7 @@ uses the executable router.
 - `plugins/mod/map/swooper-physics/src/domain/morphology/contract.ts` (`defineDomain("morphology", modules)`)
 - `plugins/mod/map/swooper-physics/src/domain/morphology/router.ts` (`createDomainRouter`)
 - `plugins/mod/map/swooper-physics/src/domain/morphology/modules/*/artifacts/index.ts` (module-owned `artifacts` catalogs)
-- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/routing/steps/routing/config.ts` (`config.provides`)
+- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/config.ts` (`config.provides`)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/coasts/steps/coastline-evidence/config.ts` (`config.provides`)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/config.ts` (`config.provides`)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/features/steps/volcanoes/config.ts` (`config.provides`)
@@ -61,12 +61,12 @@ artifact evidence consumed through declared step contracts.
 
 - **Morphology truth is tile-space.** Mesh-space truth lives upstream in Foundation; Morphology consumes tile-space projections of those drivers.
 - **Artifacts carry the cross-stage evidence vintage.** Topography, substrate,
-  routing, coastline, and shelf state cross stage boundaries through explicit
+  coastline, and shelf state cross stage boundaries through explicit
   artifact contracts rather than ambient runtime state.
 
 **Ground truth anchors**
 
-- `plugins/mod/map/swooper-physics/src/domain/morphology/modules/landforms/artifacts/topography.artifact.ts` (`artifact.schema`)
+- `plugins/mod/map/swooper-physics/src/domain/morphology/modules/erosion/artifacts/topography.artifact.ts` (`artifact.schema`)
 - `plugins/mod/map/swooper-physics/src/domain/morphology/modules/erosion/artifacts/substrate.artifact.ts` (`artifact.schema`)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts` (`config.requires/provides`)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/step.ts` (publishing the initial topography and substrate evidence)
@@ -125,13 +125,14 @@ Morphology's module catalogs provide the following complete artifact set (all
 
 - `artifact:morphology.topography.base`
 - `artifact:morphology.topography.eroded`
+- `artifact:morphology.topography.initial`
 - `artifact:morphology.topography`
 - `artifact:morphology.substrate.base`
 - `artifact:morphology.substrate`
 - `artifact:morphology.beltDrivers`
 - `artifact:morphology.baseCoastline`
+- `artifact:morphology.resolvedCoastline`
 - `artifact:morphology.shelf`
-- `artifact:morphology.routing` (geomorphic proxy; not canonical Hydrology drainage routing)
 - `artifact:morphology.mountains`
 - `artifact:morphology.volcanoes`
 - `artifact:morphology.landmasses`
@@ -159,7 +160,7 @@ provide engine-transaction completions as they materialize those artifacts into 
 This section is a navigation aid: concrete file paths that back the contract claims in this domain reference.
 
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts` (artifact dependencies; no completions)
-- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/routing/steps/routing/config.ts` (artifact dependencies; no completions)
+- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/config.ts` (base terrain/material requirements; no routing)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/config.ts` (artifact dependencies; no completions)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/completions.ts` (`STANDARD_COMPLETIONS`)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/projection/steps/plot-coasts/config.ts` (`config` requires `artifact:morphology.shelf` and provides `coastsPlotted`)
@@ -188,36 +189,49 @@ This section describes **what is authoritative**, **what space it lives in**, an
 
 ### Topography vintages (truth evidence; tile space)
 
-Morphology publishes three immutable topography identities in causal order. A
+Morphology publishes four immutable topography identities in causal order. A
 consumer names the exact vintage it needs; no stage advances one artifact in
 place:
 
 - `artifact:morphology.topography.base` is the terrain module's initial relief.
-- `artifact:morphology.topography.eroded` is the erosion module's post-geomorphic
+- `artifact:morphology.topography.eroded` is the erosion module's post-hillslope
   relief.
-- `artifact:morphology.topography` is the landforms module's terminal post-island
-  relief consumed across domain and projection boundaries.
+- `artifact:morphology.topography.initial` is the landforms module's island-complete
+  relief consumed by baseline climate and initial shelf truth.
+- `artifact:morphology.topography` is the erosion module's sealed final integer
+  ground, published by the certified NetworkStep after precise channel evolution.
 
-All three identities use the same closed tile-space payload:
+All identities contain these tile-space fields:
 
 - `elevation` (i16): signed elevation evidence per tile
 - `seaLevel` (number): sea level threshold in the same units as `elevation`
-- `landMask` (u8): `1=land`, `0=water`; required to be consistent with `elevation > seaLevel`
-- `bathymetry` (i16): `0` on land; `<=0` in water; derived from `elevation` and `seaLevel`
+- `landMask` (u8): original land/water identity, not resolved current exposure
+- `bathymetry` (i16): initial bathymetry; preserved through channel evolution
+
+Initial and final topography additionally contain the independent binary
+`externalWaterMask`, a subset of prescribed initial water at the fixed sea
+datum. Final publication preserves original-water and initially submerged
+ground exactly, rounds evolved eligible land once, and accounts rounding and
+clamp deltas. Resolved wetness/exposure belongs to the final certified Hydrology
+product; it must not overwrite the immutable terrain identity.
 
 **Ground truth anchors**
 
 - `plugins/mod/map/swooper-physics/src/domain/morphology/modules/terrain/artifacts/topography-base.artifact.ts`
 - `plugins/mod/map/swooper-physics/src/domain/morphology/modules/erosion/artifacts/topography-eroded.artifact.ts`
-- `plugins/mod/map/swooper-physics/src/domain/morphology/modules/landforms/artifacts/topography.artifact.ts`
-- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/features/steps/islands/config.ts` (publishing the terminal identity from eroded topography)
+- `plugins/mod/map/swooper-physics/src/domain/morphology/modules/landforms/artifacts/topography-initial.artifact.ts`
+- `plugins/mod/map/swooper-physics/src/domain/morphology/modules/erosion/artifacts/topography.artifact.ts`
+- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/islands/steps/islands/config.ts` (publishing initial island-complete terrain)
+- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/hydrography/steps/network/step.ts` (publishing sealed final terrain with its final certified network)
 
 ### `artifact:morphology.substrate` (truth evidence; tile space)
 
 Morphology publishes `artifact:morphology.substrate.base` from the terrain
 module, then publishes the distinct `artifact:morphology.substrate` identity
-from erosion after sediment transport. Downstream cross-domain consumption is
-not yet part of the standard recipe dependency surface.
+from erosion after hillslope shaping. Material values are copied unchanged:
+neither hillslope diffusion nor certified incision fabricates a sediment
+transport/deposition process. Rough-land planning and Ecology pedology retain
+their live material consumers.
 
 Fields:
 
@@ -229,26 +243,6 @@ Fields:
 - `plugins/mod/map/swooper-physics/src/domain/morphology/modules/terrain/artifacts/substrate-base.artifact.ts`
 - `plugins/mod/map/swooper-physics/src/domain/morphology/modules/erosion/artifacts/substrate.artifact.ts`
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/config.ts` (requires the base identity and provides the post-erosion identity)
-
-### `artifact:morphology.routing` (geomorphic proxy evidence; tile space)
-
-Flow-routing evidence derived from base topography before erosion for
-Morphology erosion and landform consumers such as mountain and rough-land
-planning. Hydrology does not consume this artifact; it owns separate,
-depression-conditioned routing derived from final Morphology topography for
-discharge, rivers, and lakes.
-
-Fields:
-
-- `flowDir` (i32): receiver tile index (`-1` for sinks/edges)
-- `flowAccum` (f32): drainage area proxy
-- `basinId` (i32): basin identifier (`-1` for unassigned)
-
-**Ground truth anchors**
-
-- `plugins/mod/map/swooper-physics/src/domain/morphology/modules/routing/artifacts/routing.artifact.ts` (`artifact.schema`)
-- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/routing/steps/routing/step.ts` (publishing routing evidence)
-- `plugins/mod/map/swooper-physics/src/domain/morphology/modules/routing/ops/compute-flow-routing/strategies/steepest-descent/index.ts` (always returning an `Int32Array` `basinId` filled with `-1`)
 
 ### `artifact:morphology.baseCoastline` (pre-island evidence; tile space)
 
@@ -267,7 +261,7 @@ Fields:
 
 - `plugins/mod/map/swooper-physics/src/domain/morphology/modules/coasts/artifacts/base-coastline.artifact.ts` (`artifact.schema`)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/coasts/steps/coastline-evidence/step.ts` (publishing `baseCoastline`)
-- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/features/steps/islands/config.ts` (`config.requires`)
+- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/islands/steps/islands/config.ts` (`config.requires`)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/features/steps/mountains/config.ts` (`config.requires`)
 
 ### `artifact:morphology.shelf` (post-island evidence; tile space)
@@ -400,29 +394,39 @@ diagnostic; it does not determine shelf membership.
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/step.ts` (invoking `ops.shelfMask` after post-island adjacency and distance recomputation)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/projection/steps/plot-coasts/step.ts` (projecting `shelf.shelfMask` into `TERRAIN_COAST`)
 
-#### `morphology/compute-flow-routing` → `{ flowDir, flowAccum, basinId }`
-
-Computes Morphology's geomorphic routing proxy from elevation and land mask.
-This op is not the canonical water-routing algorithm; Hydrology computes
-depression-conditioned drainage routing from Morphology topography.
-
-**Ground truth anchors**
-
-- `plugins/mod/map/swooper-physics/src/domain/morphology/modules/routing/ops/compute-flow-routing/contract.ts` (`ComputeFlowRoutingContract`)
-- `packages/mapgen-core/src/lib/grid/flow-routing.ts` (`selectFlowReceiver` generic hex-grid primitive)
-- `plugins/mod/map/swooper-physics/src/domain/morphology/modules/routing/ops/compute-flow-routing/strategies/steepest-descent/index.ts` (receiver selection, Morphology accumulation, and `basinId.fill(-1)`)
-
 #### `morphology/compute-geomorphic-cycle` → `{ topography, substrate, deltas }`
 
-Evolves base relief and substrate through the configured geomorphic cycle,
-preserves the admitted land-water identity, and returns coherent post-erosion
-products plus diagnostic elevation and sediment deltas.
+Shapes base hillslopes through synchronous local diffusion with configured
+world age and era count, preserves the admitted land-water identity, and
+returns coherent initial terrain, exact material copies and a diagnostic
+pre-quantization elevation delta. Its sole semantic strategy is
+`hillslope-diffusion`; it has no routing input or sediment-change output.
 
 **Ground truth anchors**
 
 - `plugins/mod/map/swooper-physics/src/domain/morphology/modules/erosion/ops/compute-geomorphic-cycle/contract.ts` (`ComputeGeomorphicCycleContract`)
-- `plugins/mod/map/swooper-physics/src/domain/morphology/modules/erosion/ops/compute-geomorphic-cycle/rules/index.ts` (constructing coherent eroded topography and substrate)
+- `plugins/mod/map/swooper-physics/src/domain/morphology/modules/erosion/ops/compute-geomorphic-cycle/rules/hillslope-diffusion.ts` (diffusion arithmetic, material copying and initial publication)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/step.ts` (publishing the operation-owned products)
+
+#### `morphology/compute-channel-incision` and `morphology/compute-channel-topography`
+
+Pure channel incision consumes precise ground, immutable initial ground,
+original identity, current exposure/wetness and a certified receiver/discharge
+network. It orders the supplied dependencies downstream-first without routing,
+classification or basin solving. Wet receiving heads use certified water
+surfaces; external receiving heads use the fixed sea datum, never their beds.
+
+The separate topography operation seals evolved ground once into representable
+integer terrain, preserves initial identity/bathymetry/sea, and publishes
+rounding and clamp diagnostics. It refuses changed initially submerged ground
+instead of repairing it. NetworkStep owns repeated solves and final
+certification; Morphology owns these two bounded physical operations.
+
+**Ground truth anchors**
+
+- `plugins/mod/map/swooper-physics/src/domain/morphology/modules/erosion/ops/compute-channel-incision/contract.ts`
+- `plugins/mod/map/swooper-physics/src/domain/morphology/modules/erosion/ops/compute-channel-topography/contract.ts`
+- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/hydrography/steps/network/step.ts`
 
 #### `morphology/compute-island-topography` → `{ topography, islandClass }`
 
@@ -435,7 +439,7 @@ land-mask, and bathymetry fields, then returns exact per-tile formation classes:
 **Ground truth anchors**
 
 - `plugins/mod/map/swooper-physics/src/domain/morphology/modules/landforms/ops/compute-island-topography/contract.ts` (`ComputeIslandTopographyContract`)
-- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/features/steps/islands/step.ts` (publishing operation-owned topography and projecting formation-class evidence)
+- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/islands/steps/islands/step.ts` (publishing operation-owned topography and projecting formation-class evidence)
 
 #### `morphology/compute-landmasses` → `{ landmasses, landmassIdByTile }`
 
@@ -524,7 +528,7 @@ The standard recipe exposes six Morphology knobs that apply _after_ defaulted st
 
 - `seaLevel` (morphology-coasts): adds a delta to hypsometry target water percent
 - `shelfWidth` (morphology-shelf): scales the shelf classifier's local break-gradient threshold
-- `erosion` (morphology-erosion): scales geomorphology rates (fluvial/diffusion/deposition)
+- `erosion` (morphology-erosion): scales initial hillslope diffusion only; certified channel controls are independent.
 - `volcanism` (morphology-features): scales volcano planning weights/density
 - `orogeny` (morphology-features): scales mountain planning thresholds/intensity
 - `mountainRanges` (morphology-features): optional coupled mountain-family
@@ -549,19 +553,22 @@ The standard recipe exposes six Morphology knobs that apply _after_ defaulted st
 In the standard recipe, Morphology truth is authored as five stages. The
 Morphology stages run in this order:
 
-- `morphology-coasts` → `morphology-routing` → `morphology-erosion` → `morphology-features` → `morphology-shelf`
+- `morphology-coasts` → `morphology-erosion` → `morphology-islands` → `morphology-shelf`
+- Baseline climate and certified Hydrography then run before `morphology-features`.
 
 `morphology-shelf` completes before the Hydrology and early Ecology truth
-stages. Hydrology baseline consumes topography plus the shelf artifact; Ecology
-biome classification consumes final topography. The later `map-morphology`
-projection consumes topography plus the same shelf artifact.
+stages. Hydrology baseline consumes initial topography plus the shelf artifact;
+NetworkStep evolves channels and publishes sealed final ground with its final
+certified network. Ecology biome classification consumes final topography and
+resolved exposure. The later `map-morphology` projection consumes final ground
+and the appropriate initial-marine or resolved coastline evidence.
 
 **Ground truth anchors**
 
 - `plugins/mod/map/swooper-physics/src/recipes/standard/contract-manifest.ts` (`standardStageContractManifest` canonical stage and step order)
-- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.ts` (requires landforms `topography` and shelf `shelf`)
-- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/biomes/steps/biomes/config.ts` (requires landforms `topography`)
-- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/projection/steps/plot-coasts/config.ts` (requires landforms `topography` and shelf `shelf`)
+- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.ts` (requires landforms `initialTopography` and shelf `shelf`)
+- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/biomes/steps/biomes/config.ts` (requires sealed erosion `topography` and resolved Hydrology)
+- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/projection/steps/plot-coasts/config.ts` (selects sealed terrain, shelf and certified water)
 
 ### `morphology-coasts` (`landmass-plates` → `coastline-evidence`)
 
@@ -599,33 +606,14 @@ Continental shelf computation is not owned here.
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/coasts/steps/coastline-evidence/config.ts` (`config.requires/provides`, `config.ops`)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/coasts/steps/coastline-evidence/step.ts` (publishing pre-island `baseCoastline` without shelf evidence)
 
-### `morphology-routing` (`routing`)
-
-Derives and publishes flow-routing evidence from base topography.
-
-**Requires**
-
-- `artifact:morphology.topography.base`
-
-**Provides**
-
-- `artifact:morphology.routing` (geomorphic proxy snapshot)
-
-**Ground truth anchors**
-
-- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/routing/index.ts` (`steps: [routing]`)
-- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/routing/steps/routing/config.ts` (`config.requires/provides`)
-- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/routing/steps/routing/step.ts` (publishing routing evidence)
-
 ### `morphology-erosion` (`geomorphology`)
 
-Invokes Morphology's complete geomorphic transition over base topography and
-substrate, then publishes its distinct post-erosion identities downstream.
+Invokes initial hillslope diffusion over base topography and unchanged
+substrate, then publishes its distinct eroded terrain and copied material.
 
 **Requires**
 
 - `artifact:morphology.topography.base`
-- `artifact:morphology.routing`
 - `artifact:morphology.substrate.base`
 
 **Provides**
@@ -640,29 +628,37 @@ substrate, then publishes its distinct post-erosion identities downstream.
 - `plugins/mod/map/swooper-physics/src/domain/morphology/modules/erosion/ops/compute-geomorphic-cycle/contract.ts` (owning the complete post-erosion product)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/step.ts` (publishing the post-erosion topography/substrate vintage)
 
-### `morphology-features` (`islands` → `mountains` → `volcanoes` → `landmasses`)
+### `morphology-islands` (`islands`)
 
-Computes complete post-island topography, publishes mountain/foothill intent,
-publishes volcano intent, and publishes the landmass decomposition snapshot.
+Computes island-complete initial topography from eroded terrain, pre-island
+coastline and Foundation plates before baseline climate and channel evolution.
+
+- Provides `artifact:morphology.topography.initial`.
+
+### `morphology-features` (`landmasses` → `resolved-coastline` → `mountains` → `volcanoes`)
+
+Uses the final certified exposed surface after channel evolution. Landmasses
+and resolved coastline consume final exposed truth; mountains and volcanoes
+also respect wet bodies and dry-channel reservations.
 
 **Requires / Provides**
 
-- `islands`: requires `foundation.plates` + `morphology.topography.eroded` + `morphology.baseCoastline`; provides terminal `morphology.topography`
-- `mountains`: requires `morphology.beltDrivers` + `morphology.topography`; provides `morphology.mountains`
-- `volcanoes`: requires `foundation.plates` + `morphology.topography`; provides `morphology.volcanoes`
-- `landmasses`: requires `morphology.topography`; provides `morphology.landmasses`
+- `landmasses`: requires Hydrology `hydrography`; provides `morphology.landmasses`.
+- `resolved-coastline`: requires Hydrology `hydrography`; provides `morphology.resolvedCoastline`.
+- `mountains`: requires belt drivers, sealed terrain, substrate, final certified upstream area, initial shelf evidence and resolved exposure; provides `morphology.mountains`.
+- `volcanoes`: requires Foundation plates, sealed terrain and resolved exposure; provides `morphology.volcanoes`.
 
 **Ground truth anchors**
 
-- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/features/index.ts` (`steps: [islands, mountains, volcanoes, landmasses]`)
-- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/features/steps/islands/config.ts` (`config`)
+- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/features/index.ts` (manifest-ordered final landform steps)
+- `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/islands/steps/islands/config.ts` (`config`)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/features/steps/mountains/config.ts` (`config`)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/features/steps/volcanoes/config.ts` (`config`)
 - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/features/steps/landmasses/config.ts` (`config`)
 
 ### `morphology-shelf` (`compute-shelf`)
 
-Recomputes coastline adjacency and distance from the final post-island landmask,
+Recomputes coastline adjacency and distance from the initial post-island landmask,
 classifies gentle shelf connectivity within Foundation's continental crust,
 and publishes both as one coherent shelf artifact. Immediate coast around
 oceanic islands is retained independently; it cannot seed or bridge shelf
@@ -671,7 +667,7 @@ distinct requirements, because a smooth ocean floor is not a continental shelf.
 
 **Requires**
 
-- `artifact:morphology.topography`
+- `artifact:morphology.topography.initial`
 - `artifact:morphology.beltDrivers`
 - `artifact:foundation.crustTiles`
 
@@ -756,8 +752,8 @@ This page contains many inline “Ground truth anchors” callouts. This section
 - Module contract/executable law: [`docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`](/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md)
 - Standard recipe stages:
   - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/coasts/index.ts`
-  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/routing/index.ts`
   - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/erosion/index.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/islands/index.ts`
   - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/features/index.ts`
   - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/shelf/index.ts`
   - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/projection/index.ts`
@@ -767,7 +763,7 @@ This page contains many inline “Ground truth anchors” callouts. This section
 
 - Example step contracts (truth stages):
   - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/coasts/steps/landmass-plates/config.ts` (`config`)
-  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/routing/steps/routing/config.ts` (`config`)
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/config.ts` (`config`)
   - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/coasts/steps/coastline-evidence/config.ts` (`config`)
   - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/shelf/steps/compute-shelf/config.ts` (`config`)
   - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/features/steps/volcanoes/config.ts` (`config`)

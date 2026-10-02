@@ -12,16 +12,12 @@ describe("compute-geomorphic-cycle surface coherence", () => {
     const size = width * height;
     const elevation = new Int16Array(size).fill(-5);
     const landMask = new Uint8Array(size);
-    const flowDir = new Int32Array(size).fill(-1);
-    const flowAccum = new Float32Array(size);
     const erodibilityK = new Float32Array(size);
     const sedimentDepth = new Float32Array(size);
 
     elevation[0] = 1;
     elevation[1] = -100;
     landMask[0] = 1;
-    flowDir[0] = 1;
-    flowAccum[0] = 1;
     erodibilityK[0] = 1;
     sedimentDepth[0] = 0.2;
 
@@ -31,16 +27,12 @@ describe("compute-geomorphic-cycle surface coherence", () => {
       elevation,
       seaLevel: 0,
       landMask,
-      flowDir,
-      flowAccum,
       erodibilityK,
       sedimentDepth,
     };
     const inputSnapshots = {
       elevation: elevation.slice(),
       landMask: landMask.slice(),
-      flowDir: flowDir.slice(),
-      flowAccum: flowAccum.slice(),
       erodibilityK: erodibilityK.slice(),
       sedimentDepth: sedimentDepth.slice(),
     };
@@ -51,19 +43,9 @@ describe("compute-geomorphic-cycle surface coherence", () => {
         worldAge: "old",
         geomorphology: {
           ...computeGeomorphicCycle.defaultConfig.config.geomorphology,
-          fluvial: {
-            ...computeGeomorphicCycle.defaultConfig.config.geomorphology.fluvial,
-            rate: 1,
-            m: 1,
-            n: 1,
-          },
           diffusion: {
             ...computeGeomorphicCycle.defaultConfig.config.geomorphology.diffusion,
-            rate: 0,
-          },
-          deposition: {
-            ...computeGeomorphicCycle.defaultConfig.config.geomorphology.deposition,
-            rate: 0,
+            rate: 1,
           },
           eras: 1,
         },
@@ -75,8 +57,6 @@ describe("compute-geomorphic-cycle surface coherence", () => {
 
     expect(elevation).toEqual(inputSnapshots.elevation);
     expect(landMask).toEqual(inputSnapshots.landMask);
-    expect(flowDir).toEqual(inputSnapshots.flowDir);
-    expect(flowAccum).toEqual(inputSnapshots.flowAccum);
     expect(erodibilityK).toEqual(inputSnapshots.erodibilityK);
     expect(sedimentDepth).toEqual(inputSnapshots.sedimentDepth);
 
@@ -110,6 +90,7 @@ describe("compute-geomorphic-cycle surface coherence", () => {
     expect(first.substrate.erodibilityK).toEqual(second.substrate.erodibilityK);
     expect(first.substrate.sedimentDepth).toEqual(second.substrate.sedimentDepth);
     expect(first.deltas.elevationDelta).toEqual(second.deltas.elevationDelta);
-    expect(first.deltas.sedimentDelta).toEqual(second.deltas.sedimentDelta);
+    expect(first.substrate.sedimentDepth).toEqual(sedimentDepth);
+    expect("sedimentDelta" in first.deltas).toBe(false);
   });
 });
