@@ -244,6 +244,148 @@ const cliffDirections = [
   "SOUTHWEST",
   "SOUTHEAST",
 ] as const;
+export const APP_UI_NAV_CLIFF_MAX_SOURCE_CELLS = 400;
+const appUiNavCliffSchema = Type.Object(
+  {
+    proofId: Type.String({ pattern: "^[a-zA-Z0-9-]{1,100}$" }),
+    expected: Type.Object(
+      {
+        width: Type.Integer({ minimum: 1, maximum: 10000 }),
+        height: Type.Integer({ minimum: 1, maximum: 10000 }),
+        mapSeed: Type.Integer({ minimum: -0x8000_0000, maximum: 0x7fff_ffff }),
+      },
+      { additionalProperties: false }
+    ),
+    navSources: Type.Array(cliffLocationSchema, {
+      minItems: 1,
+      maxItems: APP_UI_NAV_CLIFF_MAX_SOURCE_CELLS,
+    }),
+  },
+  { additionalProperties: false }
+);
+
+/** Test-only app-owned read diagnostic for public game exec; no hooks, writes or movement claim. */
+export function buildAppUiNavWaterCliffDiagnosticScript(value: unknown): string {
+  if (!Check(appUiNavCliffSchema, value))
+    throw new Error("Invalid bounded AppUI NAV cliff diagnostic input.");
+  const { width, height, mapSeed } = value.expected;
+  const cells = new Set<number>();
+  if (![width, height, mapSeed].every(Number.isSafeInteger))
+    throw new Error("AppUI NAV cliff diagnostic identity requires finite integers.");
+  for (const { x, y } of value.navSources) {
+    if (!Number.isSafeInteger(x) || !Number.isSafeInteger(y) || x >= width || y >= height)
+      throw new Error("AppUI NAV source is outside the expected grid.");
+    const cell = x + y * width;
+    if (cells.has(cell)) throw new Error("Duplicate AppUI NAV source coordinate.");
+    cells.add(cell);
+  }
+  if (cells.size > width * height)
+    throw new Error("AppUI NAV source count exceeds the expected cell budget.");
+  return `JSON.stringify((() => {
+    const input = ${JSON.stringify(value)};
+    const symbols = ${JSON.stringify(cliffDirections.map((symbol) => `DIRECTION_${symbol}`))};
+    const host = globalThis;
+    const result = {
+      diagnostic: "app-ui-nav-water-cliffs-v1", proofId: input.proofId,
+      purpose: "Bounded test-only observation of directed NAV to ordinary-water edges on an already running normal map.",
+      qualification: "Native cliff booleans, classification and height are independent observations; no cliff threshold, movement, navigation success or product policy is inferred.",
+      expected: input.expected, sourceCellBudget: ${APP_UI_NAV_CLIFF_MAX_SOURCE_CELLS},
+      requestedSourceCount: input.navSources.length, identity: { realm: "AppUI" },
+      nativeDirections: [], nativeRiverClass: null, sources: [], records: [], status: "refused"
+    };
+    const refuse = (source, reason) => { throw { source, reason }; };
+    const fact = (source, read, kind, integer = false) => {
+      let value;
+      try { value = read(); } catch (error) {
+        return { source, status: "unavailable", reason: "threw: " + String(error).slice(0, 180) };
+      }
+      return typeof value === kind && (kind !== "number" ||
+        (Number.isFinite(value) && (!integer || Number.isSafeInteger(value))))
+        ? { source, status: "available", value }
+        : { source, status: "unavailable", reason: "unexpected-" + (value === null ? "null" : typeof value) };
+    };
+    const requireFact = (observed) => {
+      if (observed.status !== "available") refuse(observed.source, observed.reason);
+      return observed.value;
+    };
+    const call = (owner, member, args = []) => {
+      if (!owner || typeof owner[member] !== "function") throw new Error("missing-callable");
+      return owner[member].apply(owner, args);
+    };
+    const mapFact = (member, args = [], kind = "number", integer = false) =>
+      fact("GameplayMap." + member, () => call(host.GameplayMap, member, args), kind, integer);
+    const pointFacts = (point) => {
+      const args = [point.x, point.y];
+      const observed = {
+        ...point, elevation: mapFact("getElevation", args),
+        terrain: mapFact("getTerrainType", args, "number", true),
+        riverType: mapFact("getRiverType", args, "number", true),
+        water: mapFact("isWater", args, "boolean"), lake: mapFact("isLake", args, "boolean")
+      };
+      for (const key of ["elevation", "terrain", "riverType", "water", "lake"])
+        requireFact(observed[key]);
+      return observed;
+    };
+    try {
+      Object.assign(result.identity, {
+        inGame: fact("UI.isInGame", () => call(host.UI, "isInGame"), "boolean"),
+        inShell: fact("UI.isInShell", () => call(host.UI, "isInShell"), "boolean"),
+        inLoading: fact("UI.isInLoading", () => call(host.UI, "isInLoading"), "boolean"),
+        turn: fact("Game.turn", () => host.Game.turn, "number", true),
+        mapSeed: fact("Configuration.getMap().mapSeed", () => call(host.Configuration, "getMap").mapSeed, "number", true),
+        nativeMapSeed: mapFact("getRandomSeed", [], "number", true),
+        width: mapFact("getGridWidth", [], "number", true),
+        height: mapFact("getGridHeight", [], "number", true)
+      });
+      const identity = result.identity;
+      for (const key of ["inGame", "inShell", "inLoading", "turn", "mapSeed", "nativeMapSeed", "width", "height"])
+        requireFact(identity[key]);
+      if (!identity.inGame.value || identity.inShell.value || identity.inLoading.value || identity.turn.value < 0)
+        refuse("AppUI", "not-a-running-game");
+      if (identity.width.value !== input.expected.width || identity.height.value !== input.expected.height ||
+          identity.mapSeed.value !== input.expected.mapSeed || identity.nativeMapSeed.value !== input.expected.mapSeed)
+        refuse("AppUI", "expected-grid-or-map-seed-mismatch");
+      result.nativeDirections = symbols.map((symbol) => ({
+        symbol, ...fact("DirectionTypes." + symbol, () => host.DirectionTypes[symbol], "number", true)
+      }));
+      const directions = result.nativeDirections.map(requireFact);
+      if (directions.some((direction) => direction < 0) || new Set(directions).size !== 6)
+        refuse("DirectionTypes", "six-unique-nonnegative-native-directions-required");
+      result.nativeRiverClass = fact("RiverTypes.RIVER_NAVIGABLE", () => host.RiverTypes.RIVER_NAVIGABLE, "number", true);
+      const nav = requireFact(result.nativeRiverClass);
+      if (nav < 0) refuse("RiverTypes.RIVER_NAVIGABLE", "invalid-native-class");
+      result.sources = input.navSources.map(pointFacts);
+      for (const from of result.sources)
+        if (from.riverType.value !== nav) refuse("GameplayMap.getRiverType", "supplied-source-is-not-NAV");
+      const records = [];
+      for (const from of result.sources) for (const direction of result.nativeDirections) {
+        let raw;
+        try { raw = call(host.GameplayMap, "getAdjacentPlotLocation", [{ x: from.x, y: from.y }, direction.value]); }
+        catch (error) { refuse("GameplayMap.getAdjacentPlotLocation", "threw: " + String(error).slice(0, 180)); }
+        if (!raw || !Number.isSafeInteger(raw.x) || !Number.isSafeInteger(raw.y))
+          refuse("GameplayMap.getAdjacentPlotLocation", "invalid-native-coordinate");
+        const nativeAdjacent = { source: "GameplayMap.getAdjacentPlotLocation", raw: { x: raw.x, y: raw.y } };
+        if (raw.y < 0 || raw.y >= input.expected.height) {
+          records.push({ from, nativeDirection: direction, nativeAdjacent: { ...nativeAdjacent, status: "boundary", reason: "y-outside-grid" }, cliff: { source: "GameplayMap.isCliffCrossing", status: "not-read", reason: "y-outside-grid" } });
+          continue;
+        }
+        const to = pointFacts({ x: ((raw.x % input.expected.width) + input.expected.width) % input.expected.width, y: raw.y });
+        const cliff = mapFact("isCliffCrossing", [from.x, from.y, direction.value], "boolean");
+        requireFact(cliff);
+        records.push({ from, to, nativeDirection: direction,
+          nativeAdjacent: { ...nativeAdjacent, status: "available", location: { x: to.x, y: to.y } },
+          ordinaryWaterReceiver: to.water.value && to.riverType.value !== nav, cliff });
+      }
+      result.records = records;
+      result.directedRecordCount = records.length;
+      result.navToOrdinaryWaterCount = records.filter((record) => record.ordinaryWaterReceiver === true).length;
+      result.status = "observed";
+    } catch (error) {
+      result.refusal = error && typeof error.source === "string" ? error : { source: "diagnostic", reason: String(error).slice(0, 180) };
+    }
+    return result;
+  })())`;
+}
 type CliffUnavailable = Readonly<{ status: "unavailable"; member: string; reason: string }>;
 type AuthenticCall = Readonly<{ call: number; method: string; occurrence: number }>;
 const cliffUnavailable = (member: string, reason: string): CliffUnavailable => ({

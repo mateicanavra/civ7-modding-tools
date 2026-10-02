@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { runInNewContext } from "node:vm";
 import { createMockAdapter } from "@civ7/adapter";
 import {
   CIV7_MAP_INFO_KEYS,
@@ -29,6 +30,8 @@ import {
   type WaterHeightDiagnosticSelection,
 } from "./river-contract-probe.fixture.js";
 import {
+  APP_UI_NAV_CLIFF_MAX_SOURCE_CELLS,
+  buildAppUiNavWaterCliffDiagnosticScript,
   DIRECTIONAL_CLIFF_MAX_SHORE_EDGES,
   DIRECTIONAL_CLIFF_WAYPOINTS,
   type DirectionalCliffBindings,
@@ -50,6 +53,275 @@ import {
   WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS,
   WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_PROBE,
 } from "./water-height-maintenance.fixture.js";
+
+const appUiCliffInput = {
+  proofId: "normal-huge-seed2-nav-cliffs",
+  expected: { width: 106, height: 66, mapSeed: 2 },
+  navSources: [
+    { x: 105, y: 0 },
+    { x: 1, y: 1 },
+  ],
+};
+function appUiCliffFixture() {
+  const nativeIds = [11, 17, 23, 29, 31, 37];
+  const offsets = [
+    [1, 0],
+    [1, -1],
+    [0, -1],
+    [-1, 0],
+    [0, 1],
+    [1, 1],
+  ];
+  const flagCalls: Array<{ x: number; y: number; direction: number }> = [];
+  const pointCalls: Array<{ x: number; y: number }> = [];
+  const sources = new Set(appUiCliffInput.navSources.map(({ x, y }) => `${x},${y}`));
+  const bindings = {
+    UI: { isInGame: () => true, isInShell: () => false, isInLoading: () => false },
+    Game: { turn: 0 },
+    Configuration: { getMap: () => ({ mapSeed: 2 }) },
+    RiverTypes: { RIVER_NAVIGABLE: 7 },
+    DirectionTypes: Object.fromEntries(
+      ["EAST", "NORTHEAST", "NORTHWEST", "WEST", "SOUTHWEST", "SOUTHEAST"].map((symbol, index) => [
+        `DIRECTION_${symbol}`,
+        nativeIds[index],
+      ])
+    ) as Record<string, unknown>,
+    GameplayMap: {
+      getGridWidth: () => 106,
+      getGridHeight: () => 66,
+      getRandomSeed: () => 2,
+      getAdjacentPlotLocation: ({ x, y }: { x: number; y: number }, direction: number) => {
+        const offset = offsets[nativeIds.indexOf(direction)]!;
+        return { x: x + offset[0]!, y: y + offset[1]! };
+      },
+      getElevation: (x: number, y: number) => {
+        pointCalls.push({ x, y });
+        return 100;
+      },
+      getTerrainType: () => 3,
+      getRiverType: (x: number, y: number) => (sources.has(`${x},${y}`) ? 7 : -1),
+      isWater: (x: number) => x === 0 || x === 2,
+      isLake: (x: number) => x === 2,
+      isCliffCrossing: function (x: number, y: number, direction: number) {
+        expect(this).toBe(bindings.GameplayMap);
+        flagCalls.push({ x, y, direction });
+        return direction === 11;
+      },
+    } as Record<string, unknown>,
+  };
+  const observe = () =>
+    JSON.parse(runInNewContext(buildAppUiNavWaterCliffDiagnosticScript(appUiCliffInput), bindings));
+  return { bindings, flagCalls, pointCalls, observe };
+}
+describe("app-owned running AppUI NAV water cliff diagnostic", () => {
+  it("admits only bounded unique finite source cells and exact integer identity before generating a command", () => {
+    const navSources = Array.from({ length: APP_UI_NAV_CLIFF_MAX_SOURCE_CELLS }, (_, cell) => ({
+      x: cell % 106,
+      y: Math.floor(cell / 106),
+    }));
+    expect(buildAppUiNavWaterCliffDiagnosticScript({ ...appUiCliffInput, navSources })).toContain(
+      "JSON.stringify("
+    );
+    const invalid: unknown[] = [
+      null,
+      { ...appUiCliffInput, extra: true },
+      { ...appUiCliffInput, proofId: "bad proof" },
+      ...[0, -1, 1.5, null, Number.NaN, Number.POSITIVE_INFINITY, 10001].map((width) => ({
+        ...appUiCliffInput,
+        expected: { ...appUiCliffInput.expected, width },
+      })),
+      ...[null, Number.NaN, Number.POSITIVE_INFINITY, 2.5, 0x8000_0000, -0x8000_0001].map(
+        (mapSeed) => ({
+          ...appUiCliffInput,
+          expected: { ...appUiCliffInput.expected, mapSeed },
+        })
+      ),
+      ...[
+        { x: -1, y: 0 },
+        { x: 106, y: 0 },
+        { x: 1, y: 66 },
+        { x: 1.5, y: 0 },
+        { x: null, y: 0 },
+        { x: 1, y: Number.NaN },
+      ].map((point) => ({ ...appUiCliffInput, navSources: [point] })),
+      { ...appUiCliffInput, navSources: [] },
+      {
+        ...appUiCliffInput,
+        navSources: [appUiCliffInput.navSources[0], appUiCliffInput.navSources[0]],
+      },
+      { ...appUiCliffInput, navSources: [...navSources, { x: 0, y: 4 }] },
+    ];
+    for (const value of invalid)
+      expect(() => buildAppUiNavWaterCliffDiagnosticScript(value)).toThrow();
+  });
+
+  it("reads exact native directions and true/false cliff flags independently of identical endpoint heights", () => {
+    const { bindings, flagCalls, observe } = appUiCliffFixture();
+    for (const owner of Object.values(bindings)) Object.freeze(owner);
+    const result = observe();
+    expect(result).toMatchObject({
+      status: "observed",
+      proofId: appUiCliffInput.proofId,
+      directedRecordCount: 12,
+    });
+    expect(result.identity).toMatchObject({
+      realm: "AppUI",
+      turn: { source: "Game.turn", status: "available", value: 0 },
+      mapSeed: { source: "Configuration.getMap().mapSeed", status: "available", value: 2 },
+      width: { source: "GameplayMap.getGridWidth", status: "available", value: 106 },
+    });
+    expect(result.nativeDirections.map(({ value }: { value: number }) => value)).toEqual([
+      11, 17, 23, 29, 31, 37,
+    ]);
+    const waterEdges = result.records.filter(
+      (record: { ordinaryWaterReceiver: boolean }) => record.ordinaryWaterReceiver
+    );
+    expect(waterEdges.length).toBeGreaterThan(1);
+    expect(
+      waterEdges.some((record: { cliff: { value: boolean } }) => record.cliff.value === true)
+    ).toBe(true);
+    expect(
+      waterEdges.some((record: { cliff: { value: boolean } }) => record.cliff.value === false)
+    ).toBe(true);
+    expect(result.records[0]).toMatchObject({
+      from: { elevation: { value: 100 }, riverType: { value: 7 } },
+      to: { x: 0, y: 0, elevation: { value: 100 }, lake: { value: false }, water: { value: true } },
+      nativeAdjacent: {
+        source: "GameplayMap.getAdjacentPlotLocation",
+        raw: { x: 106, y: 0 },
+        location: { x: 0, y: 0 },
+      },
+      cliff: { source: "GameplayMap.isCliffCrossing", status: "available", value: true },
+    });
+    expect(result.records[6].to.lake.value).toBe(true);
+    expect(flagCalls).toHaveLength(10);
+    expect(result.qualification).toContain("no cliff threshold, movement, navigation success");
+  });
+
+  it("canonicalizes native negative X and excludes out-of-range native Y before getters or flags", () => {
+    const { bindings, pointCalls, flagCalls, observe } = appUiCliffFixture();
+    bindings.GameplayMap.getAdjacentPlotLocation = (_point: unknown, direction: number) => ({
+      x: direction === 11 ? -1 : 106,
+      y: direction === 11 ? 0 : 66,
+    });
+    const result = observe();
+    expect(result.status).toBe("observed");
+    expect(result.records[0].to).toMatchObject({ x: 105, y: 0 });
+    expect(result.records[1]).toMatchObject({
+      nativeAdjacent: { status: "boundary", reason: "y-outside-grid" },
+      cliff: { status: "not-read", reason: "y-outside-grid" },
+    });
+    expect(pointCalls.every(({ x, y }) => x >= 0 && x < 106 && y >= 0 && y < 66)).toBe(true);
+    expect(flagCalls).toEqual([
+      { x: 105, y: 0, direction: 11 },
+      { x: 1, y: 1, direction: 11 },
+    ]);
+  });
+
+  it.each([
+    "missing",
+    "duplicate",
+    "null",
+    "fractional",
+    "negative",
+    "throws",
+  ])("refuses %s native directions without reading edge flags", (kind) => {
+    const { bindings, flagCalls, observe } = appUiCliffFixture();
+    if (kind === "throws")
+      Object.defineProperty(bindings.DirectionTypes, "DIRECTION_EAST", {
+        get() {
+          throw new Error("enum failed");
+        },
+      });
+    else
+      bindings.DirectionTypes.DIRECTION_EAST =
+        kind === "missing"
+          ? undefined
+          : kind === "duplicate"
+            ? 29
+            : kind === "null"
+              ? null
+              : kind === "fractional"
+                ? 1.5
+                : -1;
+    const result = observe();
+    expect(result.status).toBe("refused");
+    expect(result.records).toHaveLength(0);
+    expect(flagCalls).toHaveLength(0);
+  });
+
+  it.each([
+    null,
+    { x: null, y: 0 },
+    { x: 1.5, y: 0 },
+    { x: 0, y: Number.NaN },
+  ])("refuses invalid native adjacency %j without a cliff query", (location) => {
+    const { bindings, flagCalls, observe } = appUiCliffFixture();
+    bindings.GameplayMap.getAdjacentPlotLocation = () => location;
+    expect(observe()).toMatchObject({
+      status: "refused",
+      refusal: {
+        source: "GameplayMap.getAdjacentPlotLocation",
+        reason: "invalid-native-coordinate",
+      },
+    });
+    expect(flagCalls).toHaveLength(0);
+  });
+
+  it.each([
+    "seed",
+    "native-seed",
+    "dimensions",
+    "null-turn",
+    "not-in-game",
+    "source-class",
+  ])("refuses %s identity or source mismatch before native edges", (kind) => {
+    const { bindings, flagCalls, observe } = appUiCliffFixture();
+    if (kind === "seed") bindings.Configuration.getMap = () => ({ mapSeed: 42 });
+    if (kind === "native-seed") bindings.GameplayMap.getRandomSeed = () => 42;
+    if (kind === "dimensions") bindings.GameplayMap.getGridWidth = () => 105;
+    if (kind === "null-turn") Object.assign(bindings.Game, { turn: null });
+    if (kind === "not-in-game") bindings.UI.isInGame = () => false;
+    if (kind === "source-class") bindings.GameplayMap.getRiverType = () => -1;
+    const result = observe();
+    expect(result.status).toBe("refused");
+    expect(result.records).toHaveLength(0);
+    expect(flagCalls).toHaveLength(0);
+    if (kind === "null-turn")
+      expect(result.identity.turn).toMatchObject({
+        status: "unavailable",
+        reason: "unexpected-null",
+      });
+    if (kind === "source-class") expect(result.refusal.reason).toBe("supplied-source-is-not-NAV");
+  });
+
+  it.each([
+    "missing-cliff",
+    "null-cliff",
+    "numeric-cliff",
+    "null-height",
+    "null-water",
+    "null-lake",
+    "null-class",
+  ])("fails closed on %s instead of substituting zero or false", (kind) => {
+    const { bindings, observe } = appUiCliffFixture();
+    const member = {
+      "missing-cliff": "isCliffCrossing",
+      "null-cliff": "isCliffCrossing",
+      "numeric-cliff": "isCliffCrossing",
+      "null-height": "getElevation",
+      "null-water": "isWater",
+      "null-lake": "isLake",
+      "null-class": "getRiverType",
+    }[kind]!;
+    bindings.GameplayMap[member] =
+      kind === "missing-cliff" ? undefined : () => (kind === "numeric-cliff" ? 0 : null);
+    const result = observe();
+    expect(result.status).toBe("refused");
+    expect(result.refusal.source).toBe(`GameplayMap.${member}`);
+    expect(result.records).toHaveLength(0);
+  });
+});
 
 const identity = {
   configHash: "a".repeat(64),

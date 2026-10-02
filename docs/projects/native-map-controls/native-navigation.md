@@ -200,3 +200,71 @@ evidence that a ship was refused at a cliff. Owner/focused/live receipts use
 `native-firstmeet-signature-*`; the normal explicit-Exploration recovery uses
 `ocean-coordinate-normal-live-recovery3-20261001.log`. Empty previews and
 unverified sends remain unqualified movement, not failed river experiments.
+
+The later `recovery3-route-notifications-20261001.json` read contains an actual
+first-meet decision for player 10 with costs/deltas `20/20`, `0/0`, and
+`20/-20`. This is a positive live execution witness for the corrected native
+binder. It does not prove the earlier crash's cause. A public response check
+returned unavailable before the dialog was foregrounded; the retained send
+was correctly refused before dispatch. A normal neutral greeting was then
+clicked through the visible stock UI, not forced through a refused operation.
+The subsequent priority read became unavailable and the native AppHost crashed
+at `2026-10-01T21:24:21-04:00`; no completed greeting, next turn or vessel result
+is claimed. The native crash report and exact action/read order remain a
+separate session-recovery observation, not evidence of cliff refusal or a
+physical generator defect.
+
+## Current True-Cliff Route Discriminator
+
+The retained current 6,996-cell native grid contains seven actual directed
+NAV-to-water cliff edges at `(91,16)`, `(93,18)`, and `(100,20)`.
+The apparent `(81,34)` and `(81,36)` coastal controls are not native cliffs.
+Independent graph reconstruction agrees with all 259 recorded NAV-to-water
+adjacencies, including the native direction enum, X wrapping and bounded Y.
+
+Even generously admitting every ordinary-water and NAV plot, the last-confirmed
+pre-crash Cog at `(73,45)` belongs to a 4,089-cell component; all seven cliff
+approaches belong to a separate 436-cell component. The shortest connection
+crosses two dry, non-NAV cells. Empty previews to those approaches therefore
+do not demonstrate cliff refusal or a broken movement command. The remaining
+gameplay discriminator requires a normally acquired vessel in that separate
+water body, followed by fresh public checks, single sends and actual arrival
+readbacks. No teleport, administrative spawn, broad unlock or terrain carving
+is an admissible substitute.
+
+Grid identity: `536518a0d58fe62f49e5cb6a5819d05c3c8d865347bb4cb675c5b56baf04fd2f`;
+receipts are `ocean-normal-native-grid-20261001/` and `recovery3-cliff-*`
+under the existing Earth-calibration user-data directory. A partial bounded
+actor census is not evidence that the component has no normally granted ship.
+
+## Fresh Current Normal Navigation
+
+The merged normal script `90b05e8f906fc64fe9d9bc2d27c45c9b070275e03f23cf3edb6b04a5ed3f3f47`
+has a fresh saved Huge1018/1018, twelve-player Exploration witness. Ordinary
+Cogs and Cartography Advanced Start effects granted Cog
+`{owner: 0, id: 983054, type: 26}`. Each public target check, single send and
+independent unit read agrees on actual arrival:
+
+| Movement | Actual destination | Moves remaining |
+| --- | --- | --- |
+| Coast entry via the public preview | NAV `(73,50)` | 0 |
+| Interior upstream after one normal turn | NAV `(72,51)` | 2 |
+| Interior return downstream | NAV `(73,50)` | 1 |
+| Exit to ordinary marine water | `(73,49)` | 0 |
+
+The bounded autoplay advances turn one to two, stops and returns local player
+zero. The immutable receipt pins all eighteen check/send/arrival, path and
+session files: `earth-calibration/current-normal-navigation-receipt-20261001.json`,
+SHA256 `dbf8407cb3d145193a4e35c9b286a439de0f7389b83a06470728c8fef68cd1b8`.
+This does not retroactively qualify the older through-lake build or genuine
+cliff mouths.
+
+A complete current actor census covers the separate 436-cell cliff component
+with 52 disjoint bounded reads and zero probe errors, all at turn two. It finds
+a normally granted player-five Cog. One public move succeeds, but successive
+bounded autoplay returns leave the AI moving that vessel; the twelve-turn
+approach budget ends without reaching the cliff. Root stops autoplay and
+returns local player zero. This is an uncompleted approach, not cliff refusal,
+missing technology or permission to force actor ownership. Receipts are
+`recovery4-cliff-census-20261001/`, `recovery4-player5-cliff-route-20261001/` and
+`recovery4-player5-bounded-stop-return0-20261001.json`.

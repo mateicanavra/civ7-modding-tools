@@ -5,6 +5,19 @@ joins, and make the landscape-shaping water network agree with the network we
 ultimately project. Investigation completion is not product completion.
 **Status:** Active. **Owner:** root. **Opened:** 2026-09-28.
 
+## Current Outcome Boundary
+
+The core owner/projection repairs are merged through PR #2238 at main
+`a25d5641c0c121f4ea202e0fdf0fb799c3bee07c`. The
+[delivery inventory](delivery-inventory.md) owns current build and proof
+identities; dated investigations below retain their historical scope.
+Completed investigation is not completion of the remaining physical outcomes.
+The active owners are thermal source-boundary calibration, directed cliff-mouth
+movement, and C3 climate-fed terrain/network evolution. Dimensional Earth
+calibration remains required before claiming empirical area/time/flux or relief
+agreement; it does not block the explicitly model-unit first C3 treatment.
+Neither a density quota nor a new climate integrator is a prerequisite.
+
 This continues [Native Map Controls](WORKSTREAM.md) under the user's existing
 design/implementation authority. The prior [comparison](network-coherence-investigation.md)
 is a baseline and discriminator, not the finished solution.
@@ -14,13 +27,13 @@ is a baseline and discriminator, not the finished solution.
 | Request | What is actually complete | What remains |
 | --- | --- | --- |
 | Numeric elevation | Authored native elevation, live qualification and retained water/wonder exceptions | Preserve those guards during further changes |
-| Climate banding | Convergence/precipitation and geographic temperature corrections; cohort and native checks | Regression protection, not another climate rewrite |
+| Climate banding | Consolidated causal thermal artifacts, forcing/coordinate and moisture corrections; cohort and native checks | The unchanged within-row thermal gate still fails; repair at the actual source owner, without noise or fitted gain |
 | Mountains, hills and coasts | Coherent relief, shelf repair, relief-supported landforms; old peak-chain proxy removed | Preserve relief support as terrain evolves |
 | Basin-aware lakes and rivers | Certified static drainage, budgets, footprints, dry minor/NAV authorship; generalized wet NAV outlet declarations | Cliff-transition regime and actual traversal |
 | Time/erosion/network coherence | Same-seed causal comparisons identified weak incision and fixed preliminary routing | Final climate-fed basin network does not yet shape the terrain it drains |
-| Density and scale | Same-grid Firaxis census: 191 versus 294 dry NAV tiles, 6.05% versus 11.68% of exposed land; current-config identity verified | Fixed-Earth physical benchmark and separately qualified gameplay policy; no invented km-per-tile calibration |
-| Cliffs and navigation | Late cliff generation prevents observed NAV-to-MINOR demotions | Normally produced stock-unit positive control, then Swooper traversal |
-| Lake junctions at (87,31) and larger lake | Outlet-only production repair; cutoff20 preserves existing water heights and repairs large-lake cliffs without expanding water | Qualify bounded map-scoped classification across cohorts; unlimited cutoff is rejected, height reapplication remains an alternative |
+| Density and scale | Current Huge1018: 318 dry NAV cells, 12.63% of exposed land; four cases/twelve classification arms independently reviewed, baseline retained | Scientific area/time/flux and relief admission; no Firaxis quota or invented km-per-tile calibration |
+| Cliffs and navigation | Final-height cliff generation; actual normal Cog NAV entry, bidirectional interior travel and marine exit | Directed true-cliff arrival with a normally acquired vessel in the relevant component |
+| Lake junctions at (87,31) and larger lake | Wet outlet writes and final-height preservation implemented; normal finite/external heads qualified; V25 discriminates arbitrary under-rim heads | Respect the bounded native capability limit for any actual under-rim/below-sea product case; no blanket cutoff increase or terrain carving |
 | Whole-map studies and images | Reusable comparison script, 28 native frames, diagnostic PNGs, flow arrows, phone viewer | Update with final accepted implementation, not just candidate captures |
 | Domain operations / step size | Inventory completed; basin and erosion algorithms already have domain operations | Climate coupling, mountain noise and treeline computation remain extraction candidates |
 | Glossary | Functional glossary with model owners and source links | Extend only for newly introduced concepts |
@@ -64,9 +77,9 @@ serial committed implementations and a single coordinated live-game operator.
 | --- | --- | --- |
 | C0: restore execution | Native Graphite cleanup; explicit open-work accounting | Empty branch removed without commit/tree loss; no operational gate masquerades as a map defect |
 | C1: qualify wet joins | App-owned full-map probe, repeated singleton arm and body42 outlet-only versus complete wet spine | Same dry writes, heights, lake masks and finalizer; reproducible visual join improvement with unaffected controls |
-| C2: generalize projection | Outlet-only policy implemented and reviewed; classification cause and large-lake visual repair proven separately | Three held cohorts and normal-map preservation pass; general height-lifecycle repair still required, with marine and feature/wonder geometry held |
+| C2: generalize projection | Wet outlet policy and final-height lifecycle repair implemented, reviewed and merged; normal-map heads and V25 capability discriminator complete | Preserve ordinary-map heads and native dry/wonder edits; keep arbitrary under-rim projection limits separate from movement |
 | C3: basin evolution | Review explicit terrain/routing/incision composition using certified network and fixed existing climate forcing | Causal process metrics and integrity before default changes; final network/terrain agreement across the held cohorts |
-| C4: density and architecture | Calibrate visible minor/NAV projection after mechanisms; extract affected numerical code into domain operations | Class controls do not alter physical drainage; no arbitrary minimum lake size; focused identity-preserving extraction tests |
+| C4: density and architecture | Existing classification arms compared independently: baseline retained; candidate class changes do not repair drainage | Keep numerical evolution in domain operations; revisit density only after a new physical/calibration result, not another count-fitting sweep |
 | C5: close the outcome | Full study bank, fresh Huge native generation, actual movement controls, gallery refresh, independent review | Every remaining claim is either verified or an explicit bounded product decision, not an unowned future task |
 
 C1 and C3 design can proceed together. C2 must not wait on geological evolution
@@ -79,10 +92,12 @@ The [Earth calibration design](earth-calibration.md) now separates a frozen
 physical surface with reference forcing from that same surface with predicted
 climate. Build this baseline before tuning C3 evolution and C4 class density;
 the independent C2 native height repair need not wait. Firaxis's Earth provides
-a measured gameplay reference, not physical truth. Current Earthlike hot/high
-controls yield an effective 28.44-degree tilt and index-valued runoff, so the
-preset name is not evidence of empirical Earth calibration. The benchmark is
-proposed, not implemented, and is not a second generation or study harness.
+a measured gameplay reference, not physical truth. The initial hot/high
+configuration was corrected. Pinned fixed-geography and scientific reference
+fixtures, public study discriminators and held-surface comparisons are now
+implemented; coupled empirical units and complete physical calibration are not
+yet admitted. Runoff remains index-valued. The benchmark stays separate from
+the procedural recipe and does not establish literal Earth replay.
 The accepted [wet outlet implementation](wet-river-continuity.md) preserves all
 physical fields and dry sources across three cohorts. Production native evidence
 separates the repaired lake joins from the remaining cliff-transition case.
@@ -94,12 +109,14 @@ an unlimited cutoff: all 4,276 original-marine cells become native lakes, with
 collateral height, feature and resource changes. Normal Earthlike is restored
 and its actual cutoff10 verified. The cutoff20 treatment had no measured
 overfill or collateral surface defect. Unlimited classification failure does
-not establish that late reapplication is preferable. Next qualify a bounded,
-map-scoped cutoff against the retained larger-lake and map-size cohorts;
-do not select a seed-specific default or grade physical terrain. Height
-reapplication is an alternative only if that simpler policy cannot cover the
-intended regime, and still needs setter/wonder preservation proof. Navigation
-is separate. The updated maintenance packet records this design correction.
+not establish that late reapplication is preferable. That cutoff decision is
+historical, not the current next action. The later water-owner repair,
+final-height lifecycle preservation and independently qualified normal-map
+heads supersede it. V25 establishes a bounded engine limit for independently
+declared under-rim water levels; it does not identify an ordinary procedural-map
+failure. Preserve stock classification, physical heads and native dry/wonder
+edits rather than selecting a seed-specific cutoff or grading physical terrain.
+Navigation remains separate; the maintenance packet records successor evidence.
 
 Refreshing strict-descent receivers between early erosion eras is not the next
 main fix: shipped Earthlike uses one era, so that change cannot alter its
@@ -121,11 +138,12 @@ Do not implement either as a purported answer to the user's current map.
 - If wet paths fail to fix the specific visual join, stop adding writes and
   compare the shoreline contract with a verified shipped lake. Do not pile
   on cliff removal, repeated finalization or a minimum lake-area threshold.
-- Movement qualification first needs a normally produced or normally granted
-  era-appropriate stock-map naval unit that actually traverses a stock navigable
-  river. Exploration grants a Cog after ordinary Advanced Start card effects;
-  its production availability is corroboration, not a reason to wait for a new
-  ship. Debug-created Galley failures are not a valid rejection oracle for Swooper.
+- Normal Exploration Cogs and ordinary Advanced Start effects now provide
+  actual NAV entry/interior/exit witnesses. The current build has a fresh
+  bidirectional route; the older lake crossing retains its own build identity.
+  Only genuine cliff-mouth passage remains unqualified. Debug-created Galley
+  failures, disconnected previews and AI-controlled approach budgets are not
+  cliff rejection oracles.
 - Study the actual per-process incision and published terrain change, not
   only lake counts or a net erosion correlation. Fewer lakes is not a general
   correctness criterion; genuine divides and closed basins remain valid.

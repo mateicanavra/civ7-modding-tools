@@ -165,6 +165,24 @@ durable Civ atlas. The final receipt reports 34 folds, 129 commits and 102
 preserved outside refs. The generic census's old Graphite cache is not authority
 for this topology; native CLI facts and the current metadata database are.
 
-This closes local topology convergence, not publication, merge, scientific
-thermal calibration or cliff-mouth gameplay. The admission retains the original
-scientific comparator failure and the separate native qualification boundaries.
+Native publication then passed the normal 187-task pre-push graph. Three
+bounded follow-on commits preserve the first-meet native read signature and
+align the outcome/reference documentation, producing source HEAD
+`0828809feb2d7c72450d6463fbd4339a8184a85a`, tree
+`8be5974274595628038df5eb675d13526d85cfc0`.
+
+Native `gt merge --no-interactive` merged the admission through PR #2238 at
+`2026-10-02T01:10:37Z`, with main commit
+`a25d5641c0c121f4ea202e0fdf0fb799c3bee07c` and the exact same source tree.
+The server uses squash merging: the 132 original source commits and review
+mapping remain in the admission's published history and closed PRs, not as
+132 main ancestors. Native `gt sync --no-restack` updated the primary main
+checkout without changing unrelated stacks. The clean resource submodule now
+matches the admitted `9f6b93e129d47faf96ed6814f652560e7b7573d0` gitlink;
+all fourteen protected user-file hashes remain unchanged.
+
+This closes publication and main admission, not scientific thermal calibration
+or true cliff-mouth gameplay. Receipts use `mapgen-admission-native-merge-*`
+and `mapgen-admission-earth-reference-doc-proof2-*` in the existing Civ atlas.
+Continuation uses the same worktree and a meaningful, nonempty descendant of
+the admitted main tree, not an independent stack or duplicate implementation.

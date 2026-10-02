@@ -25,8 +25,14 @@ These labels are deliberately separate:
   case and build, not every map or a later build.
 - **Merged:** incorporated into `main`. Submitted or draft PRs are not merged.
 
-As of October 1, the core MapGen work below is in the retained review lineage,
-not merged to main. The qualified Tuner-release and window-classification
+The qualified core MapGen admission is now merged into `main` through
+[PR #2238](https://github.com/mateicanavra/civ7-modding-tools/pull/2238), at
+`2026-10-02T01:10:37Z` (October 1 locally). The exact main commit is
+`a25d5641c0c121f4ea202e0fdf0fb799c3bee07c`, with source tree
+`8be5974274595628038df5eb675d13526d85cfc0`. Graphite's server-side squash
+retains the qualified final tree; the original commit/review mapping remains
+in the source admission and closed PRs, not as separate main ancestors.
+The qualified Tuner-release and window-classification
 prerequisites, PRs #2164 and #2165, are merged. The contiguous authority
 prerequisite, PRs #2171 through #2186, is also merged: Graphite natively folded
 the fifteen descendants into #2171, preserving the qualified final source tree,
@@ -38,12 +44,12 @@ Before catalog cleanup, a recorded normal playable run used Huge Earthlike,
 map/game seeds 1018/1018, the existing ToT_NoModsExceptMaps setup and twelve
 players. That earlier run does not retroactively live-qualify later source changes.
 
-The subsequent three-product build is now installed and freshly loaded through
-that same saved setup. The normal Huge1018 run completes on October 1 in 44.3s
+At the catalog-cleanup milestone, the three-product build was installed and freshly
+loaded through that same saved setup. That normal Huge1018 run completed on October 1 in 44.3s
 with all seven setup/install/generation stages passing, under Earthlike script
 SHA256 `585d820ed23be7b1c185fb910d7f495f60ee2f97f4a45dc957c0f50ef897b5b9`.
 All eight generated files match the installed tree exactly; its three managed
-map scripts are Earthlike and the two stress products. This proves deployment
+map scripts are Earthlike and the two stress products. This historical run proves deployment
 and normal generation after cleanup, not fresh visual parity, navigation,
 autoplay or complete scientific calibration. The gallery remains dated evidence.
 
@@ -52,12 +58,12 @@ autoplay or complete scientific calibration. The gallery remains dated evidence.
 | Original outcome | Delivered | Still required |
 | --- | --- | --- |
 | Understand the shipped Civ7 controls and support current game data | Installed-source comparison, generated-resource compatibility including shipped resource schema changes, and native contract probes | Keep pinned source/runtime facts separate from undocumented-engine speculation |
-| Show the physical elevation directly in Civ | Direct elevation projection; correct native dry-height retention; authored wet heights reapplied around native maintenance without erasing native dry/wonder edits; deployed and recorded Huge live runs | Closed/below-sea/low-head water qualification and units-based physical relief calibration |
+| Show the physical elevation directly in Civ | Direct elevation projection; correct native dry-height retention; authored wet heights reapplied around native maintenance without erasing native dry/wonder edits; normal Huge live runs and the bounded V25 declared-head discriminator | Arbitrary under-rim/below-sea heads have a qualified native capability limit; dimensional physical relief calibration remains separate |
 | Make mountains and hills agree with the physical relief | Relief-supported landforms and class-conditioned coherence measurements, rather than using landform labels as a substitute heightfield | Further Earth relief calibration; no conversion from model relief to metres by fitting a quantile |
 | Author minor and navigable river networks | Native direction/class declarations follow the authored network; wet terminal writes repair demonstrated mouth discontinuities; normally granted Cogs qualify bidirectional NAV travel, marine exit and one lake crossing | Cliff-mouth traversal remains unqualified; vessel witnesses are bounded routes, not universal passage claims |
-| Use coherent lakes, basins and drainage | Finite storage/supply/outlets and network coordination; prescribed ocean head, all-surface forcing and resolved exposure pass the 57-case proof; native Huge1018 retains all 204 finite heads and 4,275 external heads | Broader closed/below-sea and distinct surface/spill-head cases; no global lake-size policy follows from one seed; thermal/relief calibration is separate |
+| Use coherent lakes, basins and drainage | Finite storage/supply/outlets and network coordination; prescribed ocean head, all-surface forcing and resolved exposure pass the 57-case proof; native Huge1018 retains all 204 finite heads and 4,275 external heads; V25 separately identifies the declared under-rim head limit | No global lake-size policy follows from one seed; meaningful arbitrary under-rim product cases must respect the qualified capability limit; thermal/relief calibration is separate |
 | Remove obsolete compensation after replacing it | Current-only water model and current climate algorithms; retired sink/procedural and four fallback climate paths; no parallel legacy execution lane | Remove only additional compensation whose replacement is proven; do not infer that all native-water work is finished |
-| Let the user inspect and play the result | Same-worktree Studio preview, drainage/elevation diagnostics, reachable mobile viewer; final-height milestone has seventeen fresh normal-map photographs and three matched controls; bounded autoplay and actual Cog arrivals recorded | Complete the remaining cliff-route and physical-head qualifications; scientific calibration is not established by images |
+| Let the user inspect and play the result | Same-worktree Studio preview, reachable mobile viewer, current full-map drainage/elevation PNGs and fourteen fresh native photographs; historical final-height and actual Cog/autoplay witnesses retain their exact builds | Complete the remaining true cliff-route and density-policy qualifications; scientific calibration is not established by images |
 
 Details: [elevation](elevation.md), [relief](relief-coherence.md),
 [rivers](rivers.md), [wet continuity](wet-river-continuity.md),
@@ -71,7 +77,7 @@ Details: [elevation](elevation.md), [relief](relief-coherence.md),
 | Early hydrology and later biome temperature were competing owners | Baseline thermal publication and final climate refinement now form one causal artifact chain; wind and pressure remain their own intended artifacts | Repair other demonstrated ownership gaps at their actual domains, not by splitting every object or adding buffer aliases |
 | Earthlike forcing/configuration did not represent the intended temperate baseline | Effective configuration corrected and measured, not just relabeled | Coupled scientific Earth agreement remains incomplete |
 | Seasonal response and ocean/moisture donor discontinuities | Periodic integration plus geometric donor bracketing and weak-current transfer corrections implemented and studied | Primitive fits and numerical stability do not establish every physical transport coefficient |
-| Ocean rotation treated increasing map rows as geographic north | Existing current owner now translates geographic handedness through the declared latitude ramp; both hemispheres, reversed ramps, actual basin geometry and unchanged ascending behavior are verified | Corrected marine SST improves the frozen Earth comparison, but land geographic response remains unselected and native generation must qualify the new build |
+| Ocean rotation treated increasing map rows as geographic north | Existing current owner translates geographic handedness through the declared latitude ramp; both hemispheres, reversed ramps and actual basin geometry are verified; the current normal build is freshly live-qualified | Corrected marine SST improves the frozen Earth comparison, but land geographic response remains unselected |
 | Lowland land-temperature variation remains too small | Measured thermal budget and independent Earth-reference discriminators; a simple signed monthly inland-advection candidate was rejected | Active Earthlike within-row temperature expectation remains unwaived; no fitted noise, arbitrary gain or lapse tuning |
 | Biome refinement did not wrap longitude | SDK periodic-X correction implemented and deployed; exact-input studies show a small boundary repair | This was not the explanation for all broad biome banding |
 | Vegetation admission and later biome moisture boundaries suppressed supported habitats | Domain-owner scoring repair and bounded classifier calibration implemented; upstream physical captures held; normal Huge Earthlike loaded | Continue coherent ecology calibration against the physical fields rather than adding quotas |
@@ -80,7 +86,7 @@ Details: [elevation](elevation.md), [relief](relief-coherence.md),
 | Native maintenance changed water/dry heights after direct writes | Surface-preparation owner repairs water-height preservation while retaining native dry/wonder changes | Classification cutoff, level preservation, apparent connection and gameplay navigation remain different claims |
 | Cliffs were generated from transiently lowered water before its final retained height | The V24 stock10/finite17 native pair supports moving the sole cliff call after the final setter; 114 former directed flag differences disappear with all final map facts unchanged | Rendered joins and actor cliff admission are separate; no extra pass, carving or blanket cutoff increase |
 | Root checks omitted the definition policy target | Existing target wired into the root graph; public-operation test boundaries, operation-owned support shape and unchanged captured fixture locations repaired; 56 policy rules pass | This closes structural admission, not the retained science aggregate |
-| Initial geographic wetness was treated as an admitted external drainage recipient | Receiving-head rules, wet forcing and complete resolved-exposure handoff pass the full public owning proof; the reviewed Y-exterior prescription repairs the second-sea counterexample and lake-area failure | The prescription is a boundary condition, not salinity or ancestry; native qualification and scientific calibration remain open |
+| Initial geographic wetness was treated as an admitted external drainage recipient | Receiving-head rules, wet forcing and resolved exposure pass the public owning proof; the Y-exterior prescription repairs the second-sea counterexample and lake-area failure; normal native heads are preserved | The prescription is a boundary condition, not salinity or ancestry; scientific calibration and true cliff gameplay remain separate |
 | Resolved water can invalidate a previously plausible start | Resource-backed selection reuses the existing start ladder and exact planned sites; shared radius/floor/gap settings have one authored owner; all three placement expectations pass in the full 57-case evaluator | Native placement and gameplay remain separate proof; no resource gains, habitat relaxation or legacy selection path was added |
 | Historical fallback algorithms and development presets obscured current ownership | Four climate fallback algorithms retired with 96-scenario, 55-artifact exact identity proof; official catalog narrowed to three products | Latest Juicy's pressure failure is retired-product evidence, not a physics repair or weakened Earthlike pressure requirement |
 
@@ -115,10 +121,11 @@ generation and full Earth calibration remain separate claims.
    backed start selection resolve four prior quality failures, while thermal
    variation and mountain-region flat share remain unwaived. This does not
    qualify the later native projection.
-3. **Qualify native projection.** From those resolved bodies, discriminate
-   ordinary-water components, river connections, lake identities and height
-   maintenance. Test closed/low-head/below-sea cases and minor versus navigable
-   cliff mouths with held inputs. Adopt a size policy only after marine guards.
+3. **Native projection: ordinary-map heads qualified; movement partly open.**
+   Final-height preservation holds the resolved finite/external heads and native
+   dry/wonder changes. V25 separately bounds arbitrary under-rim/below-sea
+   capability. No global cutoff change follows. Directed true-cliff passage
+   still needs actual normal-vessel arrival; ordinary NAV travel is qualified.
 4. **Calibrate the remaining Earthlike causal relationships.** Keep scientific
    reference and generated-geography arms distinct. Retain the unresolved
    thermal gate; a failed candidate is useful evidence, not an excuse to tune
@@ -129,9 +136,10 @@ generation and full Earth calibration remain separate claims.
    and what they demonstrate. Then use the existing smart setup in an
    appropriate era for actual ship paths and bounded autoplay; terrain flags,
    a galley test without technology and visual water are not movement proof.
-6. **Merge qualified work bottom to top.** Use the existing Graphite lineage,
-   preserve protected user work, and distinguish publication from merge.
-   Do not bulk-merge unrelated platform work to make the stack look shorter.
+6. **Core admission merged; continue qualified dominoes.** PR #2238 admits the
+   corrected pipeline tree. Continue from that main in the same worktree and
+   Graphite lineage, preserving protected user work. Merge substantive accepted
+   continuations without admitting unrelated platform work.
 
 The catalogue cleanup is a finite selection change, not a new verification
 harness or a change to the causal physics pipeline. The existing public bank,
@@ -139,13 +147,16 @@ official size presets, independent seeds and saved setup remain the test rails.
 See [the current continuation](continuation-sequence.md) for exact evidence and
 the [coherence plan](coherence-completion.md) for acceptance boundaries.
 
-**Required before completion:** physical water ownership, faithful native water
-projection, actual movement qualification, and the remaining Earthlike science
-gate. **Worth studying, not yet an accepted repair:** climate-fed terrain
-evolution/network maturity, dimensional relief calibration and consequent
-major-river density changes. C3 terrain evolution is not implemented. Do not
-expand it merely because a screenshot looks discontinuous, or delay the proven
-water-owner repair until every possible erosion process is modeled.
+**Required before completion:** preserve the completed water-owner/native-head
+repairs, finish directed movement qualification and the unchanged Earthlike
+thermal gate, and implement the accepted C3 climate-fed terrain/network
+coupling. C3 is independently designed but not implemented; it has not been
+silently reduced to optional investigation. Dimensional area/time/flux and
+relief admission is required before full empirical Earth calibration is
+claimed, not before the explicitly model-unit first C3 treatment. No geological
+age, sediment/lake infilling model or Firaxis-fitted density quota follows.
+The completed density comparison retains baseline rather than selecting a
+candidate that merely lowers counts.
 
 The October 1 three-product owner run passes 1,065 definition tests, 271 Civ
 realization tests and 412 Studio tests, plus builds and owner checks. The
@@ -324,16 +335,57 @@ existing PR #2238 with all 129 original commits retained. Its earlier prefixes
 cannot independently preserve the corrected water-owner contracts, so they
 will not be merged sequentially as known-broken main states. See
 [admission accounting](stack-consolidation.md#qualified-pipeline-admission).
-At this receipt, local convergence is complete; publication and merge are not
-yet claimed.
+Native publication passed the normal 187-task pre-push graph, and native
+`gt merge` admitted the exact qualified tree into main. Main's resource gitlink
+and checkout both resolve to `9f6b93e129d47faf96ed6814f652560e7b7573d0`;
+the fourteen protected main files retain their original bytes and hashes.
 
 Two remaining claims stay separate from that completed runtime unit. Actual
 cliff-mouth passage still requires a normal vessel arrival, not a path preview
-or inferred render connection. The phase-resolved thermal discriminator has
-not yet earned numerical admission: fixed-grid annual error exceeded its
-predeclared numerical bound, and the first adaptive runner hit its memory cap.
-Neither result is a physical-law failure or permission to weaken the science
-gate. Compact exact-input execution is the next bounded numerical correction.
+or inferred render connection. The earlier continuous-response thermal arm
+remains numerically unavailable, rather than a physical rejection. Its
+prospectively reviewed finite-source successor completed all five numerical arm
+checks, with independent 384/768-phase integration disagreement no greater than
+`2.14e-14 C`. That numerically admitted candidate is **not selected**: annual,
+monthly, winter and North American comparisons regress, including 46 retained
+observational guard failures (38 held-labelled and eight added-labelled).
+The frozen early-stop rule correctly prevents resolution,
+rotation and coupled-product follow-ons. No thermal law, gain, comparator or
+production default was changed to make it pass. Evidence:
+`earth-calibration/earth-finite-source-periodic-response-20261001/`.
+
+The current river-density inventory also identifies a classification cause,
+not a native projection defect. Fifteen independent Huge Earthlike captures
+have total dry river coverage near 26%, exactly explained by the authored
+minor percentile `.74`. Huge1018 selects 318 navigable and 338 minor source
+cells over 2,517 exposed land cells. The pinned Firaxis Huge geography selects
+191 and 201 over 3,158; it is a descriptive playable-scale comparator, not a
+quota or an admitted real-Earth density. The existing `sparse-rivers` and
+`major-percentile` comparison is complete: Huge1018, Huge2, Huge1234 and
+Standard1018, twelve arms, all physical/head/exposure/transition checks passing.
+Independent review retains baseline. Sparse changes planned landform topology;
+major-only preserves planned terrain but removes connected major corridors and
+wet NAV entries. Final native terrain is a separate projection and is not held
+merely because planned terrain is identical. Neither candidate repairs a
+demonstrated drainage defect or earns production selection.
+
+The [current comparison viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/river-density-current/index.html)
+contains four interactive views, 24 aligned whole-map PNGs and 36 junction/port
+details. All 101 local HTTP payload checks and fifteen desktop/mobile layout
+checks pass. This is portable ten-player evidence, not a new native candidate
+admission. The review rechecks all 66 pins and 28 images; publication copies
+100 exact source files without changing sealed study data. Evidence is
+`earth-calibration/river-density-current-20261001/`; published seal SHA256 is
+`a48b0f56531a1ba01d3bcfd37594bd6d087ed7b8bf4352ba3a69abeb203f502a`.
+
+Fresh current normal navigation also completes one bidirectional NAV/sea route:
+the ordinary Advanced Start Cog enters `(73,50)`, travels to `(72,51)`, returns
+and exits to marine `(73,49)`, with each actual arrival independently read.
+Bounded autoplay restores movement and returns player zero. This is not a
+current-build lake crossing or genuine cliff witness. The eighteen-file receipt
+is `earth-calibration/current-normal-navigation-receipt-20261001.json`, SHA256
+`dbf8407cb3d145193a4e35c9b286a439de0f7389b83a06470728c8fef68cd1b8`.
+See [the route and separate bounded cliff approach](native-navigation.md#fresh-current-normal-navigation).
 
 The declared finite-head V25 experiment is also complete, with 322 admission
 checks and a separate final 2,280-cell native join. It discriminates a current
