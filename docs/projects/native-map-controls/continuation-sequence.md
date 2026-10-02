@@ -10,7 +10,11 @@ profiles and their profile-specific comparison arms retire. Existing Earthlike
 cases and scientific requirements remain unchanged. Historical eight-product
 results below retain their original scope and are not current membership claims.
 
-### Three-Product Convergence
+The [October 2 closure](#october-2-admission-and-next-owners) supersedes the
+earlier pending C3 activation/retirement and publication states. It does not
+close scientific calibration or actual current-build cliff-route arrival.
+
+### Three-Product Convergence (October 1 Milestone)
 
 The existing definition catalog remains the sole membership owner for portable
 configs, generated Studio metadata and Civ map artifacts. Retain the three
@@ -945,7 +949,9 @@ commit/review disposition and protected-checkout proof remain in
 [admission accounting](stack-consolidation.md#qualified-pipeline-admission).
 Continuation stays in the same worktree, based on this admitted main tree.
 
-The remaining loops are owner-bounded rather than another pipeline rebuild:
+The following loops record the obligations at the PR #2238 admission milestone.
+Their current status is superseded by the dated October 2 closure below; the
+historical implementation and experiment receipts remain unchanged:
 
 1. Complete climate-fed terrain/network evolution against the reviewed
    [basin evolution design](basin-evolution-design.md). Preserve precise working
@@ -966,3 +972,75 @@ The remaining loops are owner-bounded rather than another pipeline rebuild:
 4. Publish correlated visible and gameplay milestones, then merge each
    qualified substantive continuation natively. Preserve the scientific Earth
    benchmark/procedural recipe distinction and the existing SDK authoring rails.
+
+## October 2 Admission And Next Owners
+
+Native Graphite merges complete PR #2242 at `2026-10-02T05:45:08Z`, main
+`73e4c0a1fd89ddeeb6534d2c6e854dfe2589fef7`, and PR #2243 at
+`2026-10-02T05:46:37Z`, main `e124d8feec24e30c45786358158cd1913f7dc402`.
+At sync, the existing worktree source tree matches main and all fourteen
+protected hashes remain unchanged. No new worktree or competing recipe is
+introduced. See [the milestone ledger](delivery-inventory.md#october-2-c3-and-native-milestone-closure)
+for the completed adoption, final owner checks and visible evidence.
+
+C3 activation and old routing/combined-channel retirement are complete for all
+three retained products. Each uses hillslope-only initial shaping and one
+certified incision cycle, rate `.02`, m `.5`, n `1`, retaining its independent
+diffusion, eras, age and posture. The unchanged 57-scenario retirement holds
+the entire capture, nine owner artifacts, sample and canonical replay exactly;
+the original full-bank evidence is not rewritten. The readiness-owner final
+graph passes 541 direct-control, 432 control-oRPC and 190 game-CLI tests plus
+checks/builds. The unchanged temperature and savanna scientific failures stay
+visible; this is qualified model-coordinate adoption, not an all-green Earth
+calibration claim.
+
+The adopted portable viewer and fourteen-photo native gallery are published
+and desktop/mobile verified. Fresh saved Huge1018/1018, twelve-major-player
+Exploration generation passes; bounded autoplay reaches turn three and is
+confirmed inactive with local/observer player zero. Human Advanced Start is
+not completed, so neither photographs nor the independently true native shore
+cliff establish a current vessel arrival. Bounded AI Tercio/city/Cog ready reads
+qualify those actual inspection cases, not exhaustive gameplay or attribution
+of the historical native crashes.
+
+The next complete dominoes are now narrower than the earlier activation list:
+
+1. **Make the next producer decision at Morphology's existing terrain owner.**
+   Hillslope removal is refused. The completed upstream packet has eight scored
+   recipes, 48 unchanged operation replays and 64 views; actual
+   `computeBaseTopography` already fails the held magnitude/neighbor budgets
+   before margin or mask conversion under both support treatments. This uses
+   an already-refused scalar hypothesis and does not isolate a unique term,
+   admit SI height or select a coefficient. Hold actual Foundation/belt inputs
+   and distinguish producer law, first encoding and support before selecting
+   any replacement. Do not reopen the finite study, retune sea constraints or
+   compensate in hillslopes, landmask, recipe steps or thermal gain. Packet:
+   `earth-calibration/earth-upstream-relief-owner-20261002/OUTCOME.md`.
+   The subsequent exact eight-input `crustEdgeBlend=0` discriminator also
+   refuses deletion: magnitude and neighbor budgets still fail on both fixed
+   supports, including every validation case. Baseline reconstruction, six
+   manufactured constant/seam controls and all 1,667 input/source pins pass.
+   Keep blending unchanged. The remaining design now follows the existing
+   Foundation crust/freeboard-to-relief relationship, not another smoothing or
+   rounding sweep. Packet:
+   `earth-calibration/earth-boundary-blend-discriminator-20261002/REPORT.md`.
+2. **Keep dimensional and terrestrial thermal admission independent.** A better
+   SST boundary cannot directly fix the dry row-only thermal input law. The
+   marine-owner task decision selects no new mechanism and imposes no ERA5
+   credential prerequisite. A producer/codec/lapse change must earn supported
+   height meaning and unchanged predictive guards, not fit the `1 C` product
+   floor. Low-relief geographic forcing remains a competing missing cause;
+   ground lapse also cannot repair pressure's intentional sea-level input.
+   Packet: `earth-calibration/earth-marine-portable-owner-20261002/DECISION.md`.
+3. **Qualify actual native cliff arrival through normal play.** Complete the
+   ordinary human gameplay prerequisite, acquire a suitable vessel in the
+   relevant water component, then use fresh public checks, a single admitted
+   send and independent arrival/movement readbacks. The observed true edge
+   `(94,19)` to `(95,18)` is a bounded current surface witness, not a successful
+   or failed passage. Preserve older Cog routes at their recorded builds.
+4. **Keep subsequent authoring and publication owner-bounded.** The three-step
+   SDK audit is ALIGNED; current line counts are not extraction budgets.
+   Continue numerical work in domain operations with contextual SDK inference,
+   no wrapper framework, fallback, Earth fixture in production, quota or weakened
+   bank comparator. Publish the next actual outcome only after its own proof;
+   do not anticipate the continuing normal-UI/navigation work.

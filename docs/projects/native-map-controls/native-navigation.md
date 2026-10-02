@@ -4,8 +4,13 @@ This investigation belongs to [the basin integration](basin-integration.md)
 and [the river lane](rivers.md). Native class parity passes; a normal
 Exploration-age Cog now qualifies entry, bidirectional interior travel and exit
 on one authored corridor. A separate normally granted Cog also qualifies
-marine-to-NAV-to-lake-to-NAV travel through one four-cell body. Cliff admission
-remains unqualified. Class retention alone is not a successful movement test.
+marine-to-NAV-to-lake-to-NAV travel through one four-cell body. True-cliff vessel
+traversal remains unqualified. Class retention alone is not a successful movement test.
+
+Those arrived routes qualify their recorded pre-C3 builds. The
+[October 2 adopted-C3 evidence](#october-2-adopted-c3-native-evidence) adds fresh
+generation, photographs, a true native cliff flag and bounded actor inspection,
+but no current-build vessel arrival.
 
 ## Observations
 
@@ -330,3 +335,69 @@ does not attribute or declare either historical native crash fixed. Evidence:
 `c3-adopted-huge1018-live-20261002.log`,
 `ready-native-bounded-final-graph-20261002.log`, and
 `c3-adopted-ready-{unit,city}-native-20261002.json` in Earth-calibration user data.
+
+## October 2 Adopted C3 Native Evidence
+
+The C3 adoption/retirement and bounded readiness continuations are merged
+through PRs #2242 and #2243; main is
+`e124d8feec24e30c45786358158cd1913f7dc402` after the latter's
+`2026-10-02T05:46:37Z` merge. The final readiness graph passes 541 direct-control,
+432 control-oRPC and 190 game-CLI tests with checks/builds. This closes the
+bounded inspection repair, not exhaustive gameplay admission or a demonstrated
+fix for either historical native crash.
+
+The adopted terrain freshly passes normal saved `ToT_NoModsExceptMaps`
+generation: Huge 106x66, map/game seeds 1018/1018, twelve major players,
+Exploration. Two bounded autoplay turns advance turn one/400 CE to turn
+three/420 CE. The initial stop timeout remains recorded; fresh final status
+reconciles it with autoplay inactive, zero remaining turns, and local/observer
+player zero. Human Advanced Start is not completed. The failed Explore attempt
+and unfinished human gameplay prerequisite are not river/cliff refusals.
+
+The [current native gallery](https://mateis-macbook-pro.taild8da1c.ts.net/civ/certified-terrain-native-1018-20261002/index.html)
+contains fourteen actual photographs: twelve widest views at zoom `1`, then
+two details at `.4`. All PNG/receipt copies are byte-exact, generated thumbnails
+are nonblank, and `320/390/1440` Playwright layout checks pass. The linked
+[adopted portable comparison](https://mateis-macbook-pro.taild8da1c.ts.net/civ/certified-terrain-adopted-20261002/index.html)
+uses ten-player Huge captures, not identical native placements. The original
+capture-plan hash and later schema-annotation hash remain explicitly distinct.
+
+### Directed Shore Observation
+
+The shipped app-owned read-only helper observes six actual native directions
+from current Huge1018 NAV `(94,19)`. Its ordinary marine receiver `(95,18)` has
+an available true cliff flag:
+
+| Fact | Native Observation |
+| --- | --- |
+| Source | NAV `(94,19)`, elevation `678` |
+| Receiver | Ordinary marine `(95,18)`, elevation `0`, water true, lake false |
+| Direction | `DIRECTION_SOUTHEAST`, native value `2` |
+| `GameplayMap.isCliffCrossing` | Available, `true` |
+
+Wide photo 12 and detail photo 14 frame this edge. Elevations are native/display
+coordinates, not metres. The flag and photographs prove neither vessel passage
+nor refusal, and no movement threshold follows from their height contrast.
+Receipt: `earth-calibration/c3-adopted-shore-cliff-native-20261002.json`.
+
+### Actor-Bearing Inspection
+
+After the earlier no-local-actor receipts, bounded public ready reads also
+return normally for actual AI actors: owner-seven Tercio and city, and
+owner-eight Cog. The additional Tercio read retains a real actor with movement
+remaining, so the witness is not restricted to the empty/no-actor branch.
+Operation summaries remain partial; these are selected actor cases, not an
+exhaustive census or a local-player vessel acquisition. Receipts:
+
+- `c3-adopted-ready-unit-actor-native-20261002.json`
+- `c3-adopted-ready-unit-131073-native-20261002.json`
+- `c3-adopted-ready-city-actor-native-20261002.json`
+- `c3-adopted-ready-unit-458758-native-20261002.json`
+
+All are in the existing Earth-calibration user-data directory, alongside
+`c3-adopted-huge1018-live-20261002.log`,
+`c3-adopted-huge1018-autoplay-final-20261002.json`, and
+`c3-adopted-native-gallery-20261002/RECEIPT.json`. The remaining normal-play
+discriminator still requires a suitably acquired vessel in the relevant water
+component, one admitted command and actual arrival readback. Continuing UI
+restart/navigation work has no anticipated outcome in this closure.

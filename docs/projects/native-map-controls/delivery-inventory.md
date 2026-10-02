@@ -13,6 +13,10 @@ benchmarks, not inputs hidden inside the procedural Earthlike recipe. A
 realistic Earthlike variant is the desired playable outcome, not literal Earth
 replay. Historical eight-product captures remain immutable comparison evidence.
 
+The latest closed implementation and visible milestone is the
+[October 2 C3 adoption and native capture](#october-2-c3-and-native-milestone-closure).
+Earlier dated receipts below retain their original builds and outcomes.
+
 ## What Shipped Means
 
 These labels are deliberately separate:
@@ -147,18 +151,17 @@ official size presets, independent seeds and saved setup remain the test rails.
 See [the current continuation](continuation-sequence.md) for exact evidence and
 the [coherence plan](coherence-completion.md) for acceptance boundaries.
 
-**Required before completion:** preserve the completed water-owner/native-head
-repairs, finish directed movement qualification and the unchanged Earthlike
-thermal gate, and activate/qualify the accepted C3 climate-fed terrain/network
-coupling. C3 composition is implemented and merged through PR #2241; its
-complete unchanged bank and explained ecology witness are recorded below.
-Activation and legacy retirement are the next implementation unit, not an
-optional investigation. Dimensional area/time/flux and
-relief admission is required before full empirical Earth calibration is
-claimed, not before the explicitly model-unit first C3 treatment. No geological
-age, sediment/lake infilling model or Firaxis-fitted density quota follows.
-The completed density comparison retains baseline rather than selecting a
-candidate that merely lowers counts.
+**Required before full completion, October 2:** preserve the completed
+water-owner/native-head repairs and now-merged C3 activation and retirement;
+finish actual current-build cliff-route arrival and the unchanged Earthlike
+thermal gate. The next relief decision belongs to the existing Morphology
+producer, not downstream compensation. Dimensional area/time/flux and relief
+admission remains required before full empirical Earth calibration is claimed,
+not before the qualified model-coordinate C3 treatment. No geological age,
+sediment/lake infilling model or Firaxis-fitted density quota follows. The
+completed density comparison retains its baseline rather than selecting a
+candidate that merely lowers counts. Exact C3 retirement and the remaining
+science failures are recorded below.
 
 The October 1 three-product owner run passes 1,065 definition tests, 271 Civ
 realization tests and 412 Studio tests, plus builds and owner checks. The
@@ -528,3 +531,126 @@ The exact identity receipt is
 graph output is `c3-retirement-ready-repair-graph-20261002.log` in the same
 calibration root. The original full-bank nonselection and subsequent
 qualified adoption decisions remain separate, unmodified records.
+
+## October 2 C3 And Native Milestone Closure
+
+### Merged Implementation
+
+The accepted adoption/retirement and bounded gameplay-inspection continuations
+are merged through native Graphite, not waiting on an unmerged source branch:
+
+| PR | Merged At (UTC) | Main Commit |
+| --- | --- | --- |
+| [#2242](https://github.com/mateicanavra/civ7-modding-tools/pull/2242) | `2026-10-02T05:45:08Z` | `73e4c0a1fd89ddeeb6534d2c6e854dfe2589fef7` |
+| [#2243](https://github.com/mateicanavra/civ7-modding-tools/pull/2243) | `2026-10-02T05:46:37Z` | `e124d8feec24e30c45786358158cd1913f7dc402` |
+
+At merge/sync, this worktree's source tree matches the admitted main tree and
+all fourteen protected main-checkout files retain their hashes. All three
+products now select hillslope-only initial shaping plus one certified incision
+cycle, rate `.02`, m `.5`, n `1`, preserving each product's independent diffusion,
+eras, age and posture. Preliminary routing and the combined channel
+incision/deposition strategy are deleted; no legacy fallback remains. The
+335.2-second [retirement proof](#adopted-terrain-retirement-proof) holds the
+entire capture, nine owner artifacts, measured sample and canonical replay
+exactly across all 57 unchanged scenarios.
+
+The final readiness-owner graph passes 541 direct-control, 432 control-oRPC and
+190 game-CLI tests, checks and builds. This is bounded inspection-contract
+qualification, not exhaustive gameplay admission or a proved fix for the two
+historical native crashes. The complete unchanged candidate bank still passes
+20/22 studies and 4,428/4,430 expectations. Within-row temperature
+`0.1430737557 < 1 C` and savanna presence `5/8 < 6/8` remain visible, with the
+explained flat-only woodland witness and no threshold or quota change.
+
+### Visible And Native Evidence
+
+The [adopted portable milestone](https://mateis-macbook-pro.taild8da1c.ts.net/civ/certified-terrain-adopted-20261002/index.html)
+contains sixteen whole-map terrain/network PNGs and four interactive comparisons:
+Huge seeds 1018, 2 and 1234, plus Standard seed 1018. It preserves the original
+bank's historical nonselection report alongside the later qualified adoption
+and exact retirement account. The [fresh native Huge1018 gallery](https://mateis-macbook-pro.taild8da1c.ts.net/civ/certified-terrain-native-1018-20261002/index.html)
+contains fourteen actual photographs: twelve widest camera views at zoom `1`
+and two details at `.4`. Byte checks, nonblank-image checks and Playwright
+`320/390/1440` layout checks pass for both publications. Portable Huge captures
+use ten players; the native setup uses twelve major players. Physical plot
+coordinates are compared, not identical placements.
+
+Fresh adopted-C3 generation passes the existing live gate on saved
+`ToT_NoModsExceptMaps`, Huge 106x66, map/game seeds 1018/1018, Exploration.
+Two bounded autoplay turns advance turn one to three (400 CE to 420 CE).
+An initial stop timeout is retained and reconciled by fresh status showing
+autoplay inactive, zero remaining turns and local/observer player zero. Human
+Advanced Start is not completed; no current C3 vessel arrival is claimed.
+
+The shipped read-only helper separately observes a true directed native cliff:
+NAV `(94,19)`, height `678`, to ordinary marine `(95,18)`, height `0`,
+`DIRECTION_SOUTHEAST=2`, `cliff=true`. Wide photo 12 and detail photo 14 frame
+that edge. Those are native/display coordinates, not metres, and a cliff flag
+is not proof of passage or refusal. Bounded actor-bearing ready reads also
+succeed for an actual AI Tercio, city and Cog; their operation summaries remain
+partial. See [the exact navigation boundary](native-navigation.md#october-2-adopted-c3-native-evidence).
+
+Receipts are `c3-retirement-identity-20261002/RESULT.json`,
+`c3-adopted-huge1018-live-20261002.log`,
+`c3-adopted-huge1018-autoplay-final-20261002.json`,
+`c3-adopted-native-gallery-20261002/RECEIPT.json` and
+`c3-adopted-shore-cliff-native-20261002.json` under `earth-calibration/`.
+The native publication explicitly retains the original plan hash and later
+schema-annotation hash separately; it fabricates no original bytes. Both new
+viewers are discoverable in [Local Viewers](../../process/LOCAL-VIEWERS.md).
+
+### Closed Discriminators And Next Owner
+
+Removing existing hillslope diffusion is refused by the completed frozen
+comparison; it does not earn a new physical producer, codec or lapse law. The
+subsequent upstream localization completes eight scored recipes, 48 unchanged
+operation replays and 64 prescribed views. The earliest measured failing
+relief is the actual `computeBaseTopography` return, before margin sculpting
+and mask reconciliation, under both retained support treatments. These scores
+use the already-refused held scalar hypothesis; they do not declare production
+height to be SI. The experiment does not identify a unique defective term,
+select a coefficient or admit a replacement producer. Evidence:
+`earth-upstream-relief-owner-20261002/OUTCOME.md`.
+
+The exact eight-input boundary-blend deletion also completes without selection:
+both fixed supports still fail magnitude and neighbor budgets, and every
+validation scenario fails its all-family gate. Six manufactured controls and
+all 1,667 original execution pins pass. The existing blend remains unchanged;
+the remaining causal design follows the Foundation crust/freeboard distribution
+and its relief/datum relationship. This is not permission to label normalized
+relief metres. Evidence:
+`earth-boundary-blend-discriminator-20261002/REPORT.md`.
+
+The portable marine-owner decision also closes its task framing: refining SST
+cannot directly insert the missing dry land-row thermal response. Exact ERA5
+credentials are not a product prerequisite; no marine/land law or production
+source change is selected. The next bounded producer decision belongs to
+Morphology's existing terrain operation with actual Foundation/belt inputs
+held, followed by independent dimensional/thermal admission if earned. Keep
+low-relief geographic forcing as a competing cause rather than automatically
+amplifying lapse. Evidence: `earth-marine-portable-owner-20261002/DECISION.md`.
+
+The read-only SDK simplicity review is **ALIGNED** for landmass-plates,
+climate-baseline and build-elevation: numerical algorithms are already composed
+through operations; normalization, orchestration and projection checks have
+their existing owners. `step-owner-simplicity-20261002/REPORT.md` records the
+source and authority review. The following current counts are descriptive,
+not line budgets or findings for unreviewed steps:
+
+| Existing Step | Lines |
+| --- | ---: |
+| `landmass-plates` | 377 |
+| `geomorphology` | 143 |
+| `build-elevation` | 264 |
+| `network` | 216 |
+| `plot-rivers` | 113 |
+| `lakes` | 131 |
+| `climate-baseline` | 562 |
+| `climate-refine` | 196 |
+| `biomes` | 165 |
+| Total | 2,167 |
+
+Closure therefore covers C3 adoption, source retirement, merge, fresh normal
+generation and the visible milestone. Scientific thermal/dimensional
+qualification, the next causal producer decision and actual current-build
+true-cliff vessel arrival remain required and open.
