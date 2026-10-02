@@ -23,12 +23,26 @@ expectations exactly. See [current request accounting](coherence-completion.md#c
 and [native receipts](native-navigation.md), not photographs alone.
 
 Remaining Earthlike thermal and dimensional relief/flux calibration are not
-closed. The temperature floor and savanna presence failures remain unchanged;
-neither is waived. Refused candidates do not install a new physical law or
+closed. The [savanna annual-supply repair](savanna-water-supply.md) independently
+closes the presence failure: eight of eight seeds now contain woodland, with
+all 2,166 captured physical-field hashes exact and no collateral expectation
+regression. The same registered mod's fresh Huge1018 native generation applies
+23 savanna tiles with no rejection and exact 346 minor/320 navigable sources;
+four current photos show the admitted habitats. The temperature floor remains
+unchanged and unwaived.
+Refused candidates do not install a new physical law or
 height codec. The current external coupled surface/air candidate's r4
 manufactured controls pass and both full-grid solves settle, but its annual
 water fluxes fail the unchanged timestep-refinement guard. It has no Earth
 scores or deployment; conservation alone does not establish temporal accuracy.
+The subsequent simultaneous implicit r5 method is refused on its first
+six-cell manufactured stage, before any full-grid solve or Earth score. An
+exact observation-only replay identifies genuine non-descent: its frozen
+inactive condensation proposal omits the air-temperature threshold derivative
+that the direction activates. All nine valid damped trials worsen the original
+vapor residual. This warrants a separately bounded branch-consistent numerical
+linearization study, not physical-law tuning, looser admission or a new
+production pipeline. The retained r5 refusal remains immutable.
 Sediment transport, lake infilling and full weather dynamics are optional
 processes, not prerequisites for a coherent calibrated baseline.
 
