@@ -1,73 +1,54 @@
 # Native Map Controls
 
-Status: active Earthlike-first coherence completion. The qualified runtime,
-certified terrain/network composition and competing-route retirement are
-merged through native Graphite PRs #2238 through #2244. PR #2245 now closes
-the tile-level discharge investigation by restoring the intentional coherent-
-reach policy as the sole modern class algorithm. Fresh portable qualification
-reproduces all fifty-seven admitted main cases exactly, including all 4,430
-expectations and the two unchanged science failures. A normal saved Huge1018
-run completes in 42.8 seconds; all 666 dry identities/classes agree, including
-320 NAV sources and zero NAV-terrain mismatches. The complete owner graph
-passes checks and realization tests, with 1,177 definition passes and the
-retained science aggregate failure. This is native realization qualification,
-not current-build vessel passage or completed Earth calibration.
-The candidate's native finalizer demotes 62 of 308
-intended NAV sources while retaining every source identity. Minimum and
-receiver-first-order arms do not repair it; all 705 native receiver resolutions
-match the portable declarations. A controlled four-neighbor class change
-recovers seven sources and loses two, establishing footprint sensitivity but
-not a universal geometry law. Restore the coherent major-reach meaning rather
-than add another proxy, carve terrain or force classes after finalization.
-The completed dataset-pinned experiment is retired from executable fixtures;
-its exact source, receipts and photographs remain immutable evidence.
-See [the selected river outcome](major-river-support.md#selected-outcome).
-All 57 cases retain causal and
-conservation admission; thermal variation and savanna woodland presence remain
-failed science expectations. Neither is waived. The completed eight-pair
-historical thermal-rate discriminator meets the within-row variation bounds
-but cools the population substantially and introduces two Huge1018 habitat
-failures. It is nonselected, not a production repair or a new coefficient sweep.
-The completed directed-fetch source comparison is also nonselected: its held
-errors and arrangement controls reject the tested response. No fitted land
-term, new temperature artifact or weakened requirement follows. The next
-review examines a single source-grounded seasonal energy-balance replacement
-at the existing thermal truth producer, not an appended temperature proxy.
-Fixed independently sourced parameters and observable/geometry admission
-precede implementation. The separate
-Morphology review preserves intentional canonical reference-height controls;
-the refused COLUMN witness did not establish a current coordinate defect.
-See [the closed geographic discriminator](land-geography-investigation.md#directed-fetch-closed-without-a-production-change).
-The previous C3 lake-passage
-milestone now has normally acquired vessel arrivals, while the genuine cliff
-edge retains its separate current-build test. The Foundation COLUMN candidate
-is nonselected and removed, with no alternative legacy execution lane.
-See [certified composition qualification](basin-evolution-design.md#certified-composition-qualification)
-and the [current evidence inventory](delivery-inventory.md#certified-terrain-and-current-native-evidence).
-The supported catalog is
-Earthlike, Desert Mountains and Sundered Archipelago; the latter two are stress
-products, not parallel calibration targets. The [delivery inventory](delivery-inventory.md)
-separates implemented, deployed, live-tested and merged claims, original goals
-and discoveries. Historical eight-profile studies below remain evidence, not
-current product membership. Current-only climate and basin-aware water
-generation serve the retained profiles. Elevation, relief and minor/NAV
-declarations are integrated; the existing surface-preparation owner now preserves
-native wet heights without overwriting native dry/wonder edits. A fresh normal
-Huge Earthlike map is deployed and loaded. Matched Huge1018 runs now distinguish
-native lake identity from height preservation: cutoff40 changes the remaining
-48 accepted cells to lakes without changing any final height. Lake
-classification policy is decided: keep the stock per-size cutoff and physical
-head retention, disclosing native lake identity as a gameplay approximation
-rather than canonical water truth. True-cliff continuity and traversal and the
-unchanged Earthlike thermal expectation remain open. Ordinary NAV/marine/lake traversal
-is qualified on its recorded adopted-C3 build, not inferred from screenshots.
-The existing Earthlike
-moisture classifier boundary is now calibrated against the complete product
-bank, deployed and live-generated at Huge1018 with the normal saved setup.
-No universal forty,
-unlimited cutoff or alternate legacy execution path is adopted.
-See [the current continuation](continuation-sequence.md#height-repair-and-next-qualification)
-and [request accounting and solution path](coherence-completion.md).
+Status: active Earthlike thermal and relief calibration. Native integration,
+certified C3 terrain/network evolution, coherent-reach restoration, stock lake
+classification and physical-head preservation are qualified and merged through
+[PR #2248](https://github.com/mateicanavra/civ7-modding-tools/pull/2248).
+The same normally acquired Cog crosses the recorded cliff-free control and
+true-cliff mouth in both directions. A later ten-turn normal autoplay receipt,
+recorded with PR #2249 on that unchanged installed build, also completes.
+These are bounded gameplay witnesses, not universal navigation or a
+repair of every apparent shoreline join. No missing authorable connector is
+demonstrated at that tested mouth. See [native navigation](native-navigation.md)
+for the actual actors, flags, turns, arrivals and control-return receipts.
+
+The pure treeline ownership move is merged through
+[PR #2249](https://github.com/mateicanavra/civ7-modding-tools/pull/2249): the
+existing biome classifier derives the same all-cell field and the existing
+step publishes it. All 57 study cases and 4,430 expectations remain exact,
+including the unchanged within-row temperature floor (`0.1430737557 < 1 C`)
+and savanna presence (`5/8 < 6/8`) failures. Direct classifier/publication tests
+prove treeline identity separately from the study capture. This is owner
+qualification, not a new native deployment or a thermal law.
+
+The [delivery inventory](delivery-inventory.md) owns current implementation,
+build, deployment and outcome identities. The [request accounting](coherence-completion.md)
+and [continuation sequence](continuation-sequence.md) distinguish completed
+native work from remaining physical calibration. Retain the coherent-reach
+policy after the [tile-level candidate refusal](major-river-support.md#selected-outcome);
+do not fit river density to Firaxis counts or carve terrain to force projection.
+Keep the stock per-size lake cutoff and physical heads: native lake identity
+is a gameplay approximation, not canonical finite-water truth. Arbitrary
+under-rim/below-sea projection retains its bounded native capability limit.
+
+The open scientific owners are the missing geographical/seasonal land thermal
+response and independently qualified relief/flux scale. Refused thermal,
+scalar-height, COLUMN and local-material hypotheses select no replacement or
+metre codec. The newer coupled surface/air candidate remains external. Its r4
+manufactured controls pass and both full 192x84 solves settle in five years,
+but annual rainfall/evaporation fail the unchanged one-percent timestep
+refinement guard. No Earth scores run after that refusal. This is a numerical
+accuracy refusal, not a selected law, a production change or a physical
+nonselection verdict. Conservation and periodic settlement alone do not earn
+temporal accuracy.
+
+The supported catalog is Earthlike plus the Desert Mountains and Sundered
+Archipelago stress products. Sediment transport, lake infilling and a full
+weather model are optional future processes, not prerequisites for the
+remaining calibrated baseline. The [September 29 Earth investigation](earth-calibration.md)
+and dated receipts below preserve their original census, hypotheses and
+then-open obligations; they do not describe the current qualified prefix.
+
 DRA: root. Opened: 2026-09-27.
 Opening branch: `agent-root-civ7-native-map-controls-frame`.
 
@@ -98,10 +79,11 @@ observational stopping point and historical Graphite publication gate. The user
 has explicitly authorized native Graphite repair and continuation through
 design, implementation, independent review and actual outcome verification.
 
-The [Earth calibration packet](earth-calibration.md) adds the measured Firaxis
-Huge comparison and a fixed-surface/reference-forcing benchmark design. It
-separates physical-model calibration from native visual repair and gameplay
-NAV coverage. The bounded [Earth reference](earth-reference.md) now implements
+The historical [September 29 Earth calibration packet](earth-calibration.md)
+retains the measured Firaxis Huge comparison and a fixed-surface/reference-forcing
+benchmark design. It separates physical-model calibration from native visual
+repair and gameplay NAV coverage; the delivery inventory owns later accepted
+outcomes. The bounded [Earth reference](earth-reference.md) now implements
 source-pinned routing and coast/climate discriminators, not a coupled golden
 Earth simulation. The failed config-only calibration candidate uncovered
 competing thermal owners; [thermal coherence](thermal-coherence.md) defines
@@ -211,6 +193,10 @@ where its necessity has been disproven. A mock, build, or screenshot alone does
 not satisfy this outcome.
 
 ## Authority And Baseline
+
+The source/branch comparison below records the September 27 opening baseline,
+not the current merged prefix. Use the delivery inventory for later admission
+and build identities; retain these hashes as provenance for the opening frame.
 
 Current user instructions and root/subtree AGENTS govern. The accepted
 `docs/projects/civ7-capability-realization/` model owns realization boundaries;

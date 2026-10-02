@@ -1,19 +1,34 @@
 # Earth Calibration Benchmark
 
-Status: pinned source and independent thermal fixtures implemented; coupled
-physical Earth benchmark and numerical calibration remain open.
+Status: historical September 29 benchmark investigation and source census.
+Its dated design and implementation snapshots are retained; current delivery
+and remaining scientific work are accounted separately below.
 Prepared 2026-09-29 by root.
-Continues [coherence completion](coherence-completion.md). The user proposes a
-fixed Earth baseline to separate downstream climate/drainage quality from
-generated continent and relief variability.
+The original fixed-Earth proposal separates downstream climate/drainage quality
+from generated continent and relief variability. The retained
+[question sheet](calibration-question-sheet.md) records that investigation's
+effective-input and physical/native-water questions, not current pending work.
 
-The user has now delegated implementation and asked for one consolidated
-[question sheet](calibration-question-sheet.md). Its sequence begins with
-effective Earthlike input correction and distinguishes physical lake surface
-fidelity from preservation of Civ7's initial setter result. The
-[continuation sequence](continuation-sequence.md) owns the accepted execution
-order. This packet retains the original benchmark rationale and source census;
-implemented bounded diagnostics are identified explicitly below.
+## Current Outcome Boundary
+
+The [delivery inventory](delivery-inventory.md) and
+[current continuation](continuation-sequence.md#current-outcome-boundary-october-2)
+supersede this packet's production-status statements. Native integration, C3,
+coherent reach, stock lake/head policy and matched true-cliff passage are
+qualified through PR #2248. Ten further normal autoplay turns are recorded
+with PR #2249 on the unchanged installed build. Treeline's pure
+ownership move is merged through PR #2249, with all 57 study cases exact and
+the same temperature-variation and savanna failures. These milestones do not
+complete Earth thermal/relief calibration, establish universal navigation or
+select a new temperature law or metre codec.
+
+The following census, configurations, hypotheses and implementation accounts
+keep their original September 29 and explicitly dated follow-up vintages.
+They are not measurements of the latest recipe or instructions to repeat
+closed native discriminators. Scientific reference admission remains useful;
+the current [request accounting](coherence-completion.md) owns accepted and
+open outcomes. Sediment, lake infilling and full weather processes are not
+requirements inferred from this historical benchmark design.
 
 ## Investigation Frame
 
@@ -60,6 +75,10 @@ design before any new benchmark architecture or default tuning is enabled.
 
 ## Implemented Versus Open
 
+Historical implementation snapshot: the merge, water-height, C3 and traversal
+states in this section have been superseded by the current outcome boundary.
+The original findings and diagnostic proposals remain unchanged below.
+
 Implemented and locally qualified in this isolated Graphite stack, not merged
 to main: numeric elevation, climate-band corrections, relief-supported
 landforms, certified static basin drainage and lake budgets, dry minor/NAV
@@ -87,6 +106,8 @@ reapplication pass; failure of an unlimited cutoff does not reject this simpler
 option. The normal restored map still uses cutoff10.
 
 ## Shipped Earth Census
+
+This is the retained September 29 comparison, not the current river census.
 
 Both maps have 106 x 66 = 6,996 cells. The primary comparison is unique authored
 dry river sources, not call counts, named rivers or native river objects.
@@ -153,11 +174,15 @@ do not present its river counts as measurements of the latest climate.
 
 ## Current Earthlike Is Not An Earth Calibration
 
+"Current" here denotes this investigation's retained configuration snapshot,
+including its dated follow-through, not the latest qualified product prefix.
+Use the delivery inventory for subsequent C3 and coherent-reach adoption.
+
 Authority is the authored
 [`swooper-earthlike.config.json`](../../../plugins/mod/map/swooper-physics/src/maps/configs/swooper-earthlike.config.json)
 plus normalization, not the preset name or unnormalized fields.
 
-| Control | Current effective meaning | Previous census input |
+| Control | Retained effective meaning | Previous census input |
 | --- | --- | --- |
 | Latitude and water | +80/-80 latitude; 63% target water, not an empirical Earth-area contract | Unchanged |
 | Thermal setting | `temperate`, `periodic-response`, zero annual offset; frozen lowland response, lapse -0.0065 C/model unit, bounds -40/50 C | `hot` used the retired 10.5/60 affine forcing response |

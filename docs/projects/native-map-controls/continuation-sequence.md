@@ -6,13 +6,37 @@ The current [delivery inventory](delivery-inventory.md) accounts separately for
 the original request, delivered owner repairs and unresolved discoveries.
 Earthlike is the primary calibration/playability target. Desert Mountains and
 Sundered Archipelago are retained stress products; the five development-only
-profiles and their profile-specific comparison arms retire. Existing Earthlike
-cases and scientific requirements remain unchanged. Historical eight-product
+profiles and their profile-specific comparison arms are retired. Existing
+Earthlike cases and scientific requirements remain unchanged. Historical eight-product
 results below retain their original scope and are not current membership claims.
 
-The [October 2 closure](#october-2-admission-and-next-owners) supersedes the
-earlier pending C3 activation/retirement and publication states. It does not
-close scientific calibration or actual current-build cliff-route arrival.
+### Current Outcome Boundary (October 2)
+
+Native integration, C3 activation and retirement, coherent-reach restoration,
+stock lake/head policy and matched true-cliff passage are qualified through
+PR #2248. Ten further normal autoplay turns are recorded with PR #2249 on the
+unchanged installed build. The same normal Cog's actual
+bidirectional arrivals close the bounded cliff discriminator, not universal
+navigation or every visual join. The pure treeline ownership move is merged
+through PR #2249; its complete 57-case comparison preserves all 4,430
+expectations exactly. See [current request accounting](coherence-completion.md#current-outcome-boundary)
+and [native receipts](native-navigation.md), not photographs alone.
+
+Remaining Earthlike thermal and dimensional relief/flux calibration are not
+closed. The temperature floor and savanna presence failures remain unchanged;
+neither is waived. Refused candidates do not install a new physical law or
+height codec. The current external coupled surface/air candidate's r4
+manufactured controls pass and both full-grid solves settle, but its annual
+water fluxes fail the unchanged timestep-refinement guard. It has no Earth
+scores or deployment; conservation alone does not establish temporal accuracy.
+Sediment transport, lake infilling and full weather dynamics are optional
+processes, not prerequisites for a coherent calibrated baseline.
+
+The [delivery inventory](delivery-inventory.md) owns exact build and proof
+identities. Dated milestones and dependency descriptions below retain their
+then-current obligations. Their pending native activation, publication and
+cliff-arrival statements are superseded by this current boundary, not erased
+or rewritten as later receipts.
 
 ### Three-Product Convergence (October 1 Milestone)
 
@@ -69,6 +93,10 @@ bounded repair at its actual owner, not universal scalar splitting, a second
 publication mechanism, or bypassing an enforced kind blueprint.
 
 ## Dependency Order
+
+This records the September 29 continuation and its dated follow-through.
+Use the current outcome boundary above and delivery inventory for what remains;
+the completed native items are not requests to repeat those experiments.
 
 Production playability takes precedence over the study queue. The September 29
 random-seed startup failure was a Civ projection admission defect: the residual
@@ -975,6 +1003,10 @@ historical implementation and experiment receipts remain unchanged:
 
 ## October 2 Admission And Next Owners
 
+This is the PR #2242/#2243 milestone account. Its then-pending gameplay and
+publication obligations are superseded by the current outcome boundary above;
+the recorded builds, experiments and refusals remain historical evidence.
+
 Native Graphite merges complete PR #2242 at `2026-10-02T05:45:08Z`, main
 `73e4c0a1fd89ddeeb6534d2c6e854dfe2589fef7`, and PR #2243 at
 `2026-10-02T05:46:37Z`, main `e124d8feec24e30c45786358158cd1913f7dc402`.
@@ -1056,8 +1088,9 @@ all eighteen candidate code/caller files are restored to the incumbent. There
 is no candidate deployment, competing production law or post-refusal refit.
 
 This closes that model decision, not the Earthlike temperature-variation
-requirement. Continue the existing Foundation/crust/freeboard-to-relief owner
-investigation and current-build ordinary vessel qualification separately.
+requirement. Thermal and dimensional relief admission remain separate owners;
+the later bounded ordinary and true-cliff vessel qualifications are recorded
+in [native navigation](native-navigation.md) and the current outcome boundary.
 Scientific Earth relief remains explicitly measured in metres; procedural
 model relief is not assigned that meaning by a rendering multiplier or an
 observed-height quantile fit. The fixed Earth fixture remains a comparator,
