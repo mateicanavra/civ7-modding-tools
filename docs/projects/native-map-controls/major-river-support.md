@@ -127,6 +127,100 @@ Evidence: `river-supported-qualified-native-bank-20261002/`,
 `river-support-schema-final-owner-proof-20261002.log` and
 `river-support-studio-final-test-20261002.log`.
 
+## Native Finalization Discriminator
+
+The fresh normal Huge1018 run completes generation, but final readback contains
+420 MINOR and 246 NAV sources instead of the intended 358 MINOR and 308 NAV.
+All 666 source identities survive. The 62 class substitutions exactly match
+the NAV terrain mismatches. They comprise 34 newly supported sources and 28
+previously major sources; the other 28 newly supported sources survive as NAV.
+The intended source rows match the qualified portable bank exactly.
+
+The existing app-owned `full-map-maintenance` diagnostic repeats the authentic
+Earthlike recipe, stock cutoff ten, both seeds 1018, twelve players and
+Exploration. Its additive source observations locate the first difference:
+all 666 dry classes match immediately before authentic call 8,
+`finalizeRivers(false,25,2,2)`. Immediately afterward, precisely those 62 NAV
+classes are MINOR. Subsequent validation, areas, water caches, wet-height
+preservation and final-height cliff generation change none of the source
+classes or source terrain. The 39 authentic wet declarations remain separate
+from the dry-source census. No production observer, physics change or replay
+was added for this experiment.
+
+This locates an engine projection rule, not a discharge-classification defect.
+It does not yet establish which finalizer setting or native topology rule is
+responsible. Discriminate the two native minima independently on the same
+complete map: retain aesthetics disabled and percent 25, change only upstream
+minimum to zero, then only length minimum to zero, and use both zero only to
+test their interaction. Keep every physical artifact, dry/wet declaration,
+elevation request, ordinary call order and once-only finalization identical.
+Admit a production tuple only after complete final source/class parity and
+collateral checks; do not rewrite rivers afterward, carve terrain or waive
+the parity expectation. PR #2245 remains unmerged during this qualification.
+
+All three declared minima arms now complete on the exact same Huge1018 map:
+`[false,25,2,0]`, `[false,25,0,2]` and `[false,25,0,0]`. Each preserves the
+entire final parity payload, all 36 paired phase payloads, physical-lake
+observations, 705 dry/wet declarations, first 6,996-height request and observed
+generation setup exactly. The same 62 sources are demoted in every arm. Thus
+neither minimum nor their interaction explains this case, and no production
+minimum change is selected. Arm evidence is retained in
+`river-source-authored-{upstream,length,minima}-1018-v28-20261002/`.
+
+Ordinary in-game Restart is not a same-seed discriminator: its first test
+completed the physical recipe with newly randomized map/game seeds, and the
+private observer correctly refused the mismatched setup. The exact-seed arms
+use the existing saved-start owner after returning visibly to the main menu,
+without quitting the application. The unmatched run and actual earlier
+pre-generation session crashes remain separate evidence, not water failures.
+
+The current full shore census reads all 246 final observed NAV sources in all
+six native directions, using seven bounded read-only requests. It finds 215
+NAV-to-ordinary-water edges, including 69 native-lake receiver edges. Three
+directed marine edges retain true cliff flags: `(88,14)->(89,14)` EAST,
+`(88,14)->(88,13)` SOUTHEAST, and `(94,19)->(95,18)` SOUTHEAST. The earlier three
+chosen false-flag edges were not a full census. Heights and cliff flags are
+observations, not navigation outcomes or a physical cliff threshold. Evidence:
+`supported-river-native-shore-census-20261002/`.
+
+The next source-backed rival was declaration order, not another threshold:
+Firaxis's authored Earth table predominantly declares the downstream receiver
+before its upstream source, whereas our declarations are raster-ordered.
+This is a hypothesis about native projection state, not an established API
+requirement. Any discriminator must preserve every declaration, its class and
+direction, the baseline finalization tuple, every physical artifact, heights
+and authentic call order.
+
+The private `authored-downstream` arm now completes at the same Huge1018 setup
+with the baseline `[false,25,2,2]` tuple. Every one of the 705 declarations is
+delivered once, including all 39 wet sources; all 546 internal declaration
+dependencies are delivered receiver-before-source with original-ordinal ready
+ties. Native adjacency resolves the same receiver, direction, class and wet
+identity as the qualified portable projection for every declaration. The full
+final parity payload, all 36 authentic before/after payloads and complete
+165-cell physical-lake observation are exactly unchanged from baseline.
+Ordering is therefore nonselected for this case, not a production repair.
+Evidence: `river-source-authored-downstream-1018-v29-20261002/`.
+
+The updated app fixture and tests pass the full owning graph: 28 tasks,
+371 tests and 55,859 assertions, including both app TypeScript checks and
+policy admission. The intervention remains test-only; no production tuple,
+delivery order, terrain, source membership or physical field is changed.
+The remaining discriminator concerns native channel geometry and supported
+realization, not an assumed difference in geographic direction or write order.
+Major discharge support and actual vessel navigability remain separate claims.
+
+Frozen baseline evidence:
+`river-source-maintenance-phase-scripting-20261002.log`,
+`river-source-maintenance-phase-proof-20261002.json`,
+`river-source-maintenance-observer-deploy-20261002.receipt.json` and
+`river-source-maintenance-observer-live-r2-20261002.receipt.json`.
+The diagnostic script SHA is
+`3fb3d6b2eaef41582955bcb5814b4afc3652c82adef5330a67b0f222a4596616`.
+The earlier session transition crashed before generation; its uncertain
+lifecycle receipt and native crash report remain separate from this passed
+fresh-main-menu experiment.
+
 ## Evidence
 
 Research user-data root:

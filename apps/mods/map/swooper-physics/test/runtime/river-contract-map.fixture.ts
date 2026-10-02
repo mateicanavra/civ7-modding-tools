@@ -39,12 +39,20 @@ export type RiverProbeAtlas =
   | WaterDeclaredFiniteHeadAtlas;
 
 // Argument order comes from shipped scripts/common-generation.js, not the adapter.
+export const RIVER_AUTHORED_FINALIZATION_VARIANTS = {
+  "authored-upstream": [false, 25, 2, 0],
+  "authored-length": [false, 25, 0, 2],
+  "authored-minima": [false, 25, 0, 0],
+} as const;
+export const RIVER_AUTHORED_WRITE_ORDER_VARIANT = "authored-downstream" as const;
 export const RIVER_PROBE_VARIANTS = {
   authored: [false, 25, 2, 2],
   aesthetic: [true, 25, 2, 2],
   length: [true, 25, 4, 2],
   upstream: [true, 25, 2, 0],
   percent: [true, 0, 2, 2],
+  ...RIVER_AUTHORED_FINALIZATION_VARIANTS,
+  [RIVER_AUTHORED_WRITE_ORDER_VARIANT]: [false, 25, 2, 2],
 } as const;
 export type RiverProbeVariant = keyof typeof RIVER_PROBE_VARIANTS;
 export const RIVER_DIRECTIONS = [
@@ -717,6 +725,11 @@ export function registerRiverContractProbe(
 ): void {
   const settings = RIVER_PROBE_VARIANTS[variant];
   if (!settings) throw new Error(`Unknown river probe variant: ${variant}`);
+  if (
+    Object.hasOwn(RIVER_AUTHORED_FINALIZATION_VARIANTS, variant) ||
+    variant === RIVER_AUTHORED_WRITE_ORDER_VARIANT
+  )
+    throw new Error("Authored finalizer ablations require the full-map-maintenance atlas.");
   const isLowerBoundAtlas = atlasKind === "water-closed-lower-bound";
   const isDeclaredFiniteHeadAtlas = atlasKind === "water-declared-finite-head";
   const immediateElevationCheckpoint = isLowerBoundAtlas || isDeclaredFiniteHeadAtlas;

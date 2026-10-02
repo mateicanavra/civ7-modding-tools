@@ -27,6 +27,8 @@ import { loadSwooperMapConfigCatalog } from "@swooper/swooper-physics/tooling/ca
 import { renderSwooperCatalogMapSource } from "../../src/runtime/file-plan.js";
 import { bundleCiv7MapScript } from "../../src/runtime/map-script/compiler.js";
 import {
+  RIVER_AUTHORED_FINALIZATION_VARIANTS,
+  RIVER_AUTHORED_WRITE_ORDER_VARIANT,
   RIVER_LAKE_NAVIGATION_PROBE,
   RIVER_PROBE,
   RIVER_PROBE_VARIANTS,
@@ -228,7 +230,19 @@ export async function buildRiverProbePlan(
   if (!Object.hasOwn(RIVER_PROBE_VARIANTS, variant))
     throw new Error(`Unknown river probe variant: ${variant}`);
   if (!atlases.includes(atlasKind)) throw new Error(`Unknown river probe atlas: ${atlasKind}`);
-  if (atlasKind !== "synthetic-river-v4" && variant !== "authored")
+  const authoredFinalizationVariant = Object.hasOwn(RIVER_AUTHORED_FINALIZATION_VARIANTS, variant);
+  const authoredWriteOrderVariant = variant === RIVER_AUTHORED_WRITE_ORDER_VARIANT;
+  if (
+    (authoredFinalizationVariant || authoredWriteOrderVariant) &&
+    atlasKind !== WATER_HEIGHT_MAINTENANCE_ATLAS
+  )
+    throw new Error("Authored finalizer ablations require the full-map-maintenance atlas.");
+  if (
+    atlasKind !== "synthetic-river-v4" &&
+    variant !== "authored" &&
+    !authoredFinalizationVariant &&
+    !authoredWriteOrderVariant
+  )
     throw new Error("Adapter atlases require the authored finalization tuple.");
   const maxLakeCutoff = atlasKind === WATER_HEIGHT_MAX_LAKE_CUTOFF_ATLAS;
   const boundedLakeCutoff = atlasKind === WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS;
@@ -337,6 +351,26 @@ export async function buildRiverProbePlan(
     playerCount,
     sourceConfigId: selection.sourceConfigId ?? WATER_HEIGHT_MAINTENANCE_PROBE.sourceConfigId,
     expectedLakeSizeCutoff,
+    ...(authoredFinalizationVariant
+      ? {
+          finalizationIntervention: {
+            variant,
+            requestedTuple: RIVER_PROBE_VARIANTS.authored,
+            appliedTuple: RIVER_PROBE_VARIANTS[variant],
+            qualification:
+              "Diagnostic-only authored finalizer minima ablation; no other authentic call changes.",
+          },
+        }
+      : {}),
+    ...(authoredWriteOrderVariant
+      ? {
+          riverWriteOrderIntervention: {
+            variant: RIVER_AUTHORED_WRITE_ORDER_VARIANT,
+            qualification:
+              "Diagnostic-only downstream-first native delivery permutation; every declaration and the authored finalizer tuple are unchanged.",
+          },
+        }
+      : {}),
     ...(directionalCliffs
       ? {
           diagnosticRevision: WATER_HEIGHT_CLIFF_OBSERVATION_REVISION,

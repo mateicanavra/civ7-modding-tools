@@ -17,6 +17,19 @@ The latest closed implementation and visible milestone is the
 [October 2 C3 adoption and native capture](#october-2-c3-and-native-milestone-closure).
 Earlier dated receipts below retain their original builds and outcomes.
 
+The next supported-discharge classification repair is qualified portably but
+not yet admitted to main: [PR #2245](https://github.com/mateicanavra/civ7-modding-tools/pull/2245)
+holds native finalizer qualification. Its [new four-case network viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/discharge-supported-rivers-20261002/index.html)
+contains 24 full-resolution comparison panels and flow arrows. All sixteen
+physical fields are held; this is not a new native photograph or movement
+claim. Civ's finalizer demotes the same 62 authored NAV sources in baseline
+and all three independent/interacting minima arms, plus a fully receiver-first
+delivery arm. All 705 native-derived receivers also match the portable plan;
+neither direction translation nor declaration order explains those demotions.
+The full current shore
+census separately finds three true directed cliff edges among 215 NAV/water
+edges. See [the exact discriminator](major-river-support.md#native-finalization-discriminator).
+
 ## What Shipped Means
 
 These labels are deliberately separate:
@@ -654,3 +667,48 @@ Closure therefore covers C3 adoption, source retirement, merge, fresh normal
 generation and the visible milestone. Scientific thermal/dimensional
 qualification, the next causal producer decision and actual current-build
 true-cliff vessel arrival remain required and open.
+
+## October 2 Completed Lake Passage And Owner Qualification
+
+The current adopted C3 game now closes normal vessel entry, corridor return,
+lake traversal and a distinct lake exit. Human Advanced Start completed normally;
+one Cog confirms NAV/marine/NAV/interior movement, and a second crosses
+marine to NAV to two lake tiles to different NAV to marine. Seven lake-route
+arrivals have single-send and independent readback evidence. Bounded autoplay
+advances fourteen turns and is stopped at T18/570 CE with local control restored.
+The [new three-photo passage page](https://mateis-macbook-pro.taild8da1c.ts.net/civ/native-lake-passage-20261002/index.html)
+is phone-accessible and verified; the earlier fourteen-photo milestone remains
+historical. See [the precise movement boundary](native-navigation.md#october-2-current-c3-lake-passage).
+
+The Foundation COLUMN candidate is **nonselected and removed from production
+source**, not a shipped replacement or a second legacy lane. Eight actual
+recipes, forty-eight owner replays and the complete fifty-seven-case bank
+identify four newly failed expectations with their parent targets. Height-only
+comparisons also fail the held all-view requirements. No guard or coefficient
+was adjusted to adopt it. All thirty-two tracked owned files are restored
+byte-exact to the merged baseline; its one new test and patch are archived in
+research user data. The root's separate river and viewer work is preserved.
+
+A six-call coordinate-origin control establishes a coupled Morphology contract:
+byte-identical raw heights and margin geometry still produce ninety-five changed
+margin heights, a sea shift of `-24` model units and ten changed threshold-mask
+cells when the same affine endpoints are reused as margin profile anchors.
+This is not a unique attribution of all candidate failures or metre admission.
+Next terrain work must distinguish response-coordinate endpoints from the
+margin's reference elevations before another producer candidate is selected.
+Receipts: `earth-foundation-column-qualification-20261002/QUALIFICATION.json`,
+`earth-foundation-column-disposition-20261002/RESULT.json` and
+`foundation-column-nonselection-source-20261002/RESTORATION.json`.
+
+The [major-river owner audit](major-river-support.md) identifies unsupported
+upstream promotion and omitted strong tributaries. The bounded direct-threshold
+repair passes all fifty-seven scenarios and 4,430 unchanged expectations, with
+zero new failures and sixteen physical fields byte-identical in every case.
+All original minor-network membership and thresholds hold. Strong tributaries
+are no longer omitted, and every navigable source meets its own major threshold.
+Class-sensitive habitat outputs change legitimately. Studio's complete
+regenerated schema and all 412 tests pass; the final owner graph passes 41 tasks.
+Historical `-.15 C/model-unit` versus current `-.0065` is a separate empirical
+thermal diagnostic, not a physical metre conversion or an admitted default.
+True-cliff traversal, Earth dimensional/thermal calibration and final
+major-river density qualification remain open; ordinary lake traversal does not.

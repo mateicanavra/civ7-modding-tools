@@ -19,6 +19,8 @@ import {
   buildRiverProbeElevation,
   buildRiverTerrainAtlas,
   buildRiverTerrainElevation,
+  RIVER_AUTHORED_FINALIZATION_VARIANTS,
+  RIVER_AUTHORED_WRITE_ORDER_VARIANT,
   RIVER_CHECKPOINTS,
   RIVER_DIRECTIONS,
   RIVER_ELEVATED_LAKE_CONTROLS,
@@ -33,6 +35,7 @@ import {
   RIVER_TERRAIN_PROBE,
   type RiverProbeAtlas,
   type RiverProbeVariant,
+  registerRiverContractProbe,
   riverLakeNavigationTerrainAt,
   riverProbeExpectedReceiver,
   riverProbeTerrainAt,
@@ -69,6 +72,122 @@ import {
 type LogEntry = { stage: string; payload: Record<string, any>; proofId: string; variant: string };
 
 describe("build-only river diagnostic selectors", () => {
+  test("declared finalizer ablations keep authored aesthetics and select only maintenance tuples", async () => {
+    const variants = ["authored-upstream", "authored-length", "authored-minima"] as const;
+    for (const variant of variants) {
+      const parsed = parseRiverProbeArguments(["finalizer-arm", variant, "full-map-maintenance"]);
+      expect(parsed.variant).toBe(variant);
+      const plan = await buildRiverProbePlan("finalizer-arm", variant, "full-map-maintenance", {
+        playerCount: 12,
+        lakeSizeCutoff: "stock",
+      });
+      const proof = JSON.parse(
+        String(plan.files.find(({ relativePath }) => relativePath === "proof.json")!.content)
+      );
+      expect(proof.settings).toEqual(RIVER_AUTHORED_FINALIZATION_VARIANTS[variant]);
+      expect(proof.finalizationIntervention).toEqual({
+        variant,
+        requestedTuple: [false, 25, 2, 2],
+        appliedTuple: RIVER_AUTHORED_FINALIZATION_VARIANTS[variant],
+        qualification:
+          "Diagnostic-only authored finalizer minima ablation; no other authentic call changes.",
+      });
+      expect(proof.finalizationIntervention.appliedTuple.slice(0, 2)).toEqual([false, 25]);
+      expect(proof).toMatchObject({
+        atlasKind: "full-map-maintenance",
+        expectedLakeSizeCutoff: 10,
+        playerCount: 12,
+      });
+      expect(
+        String(
+          plan.files.find(({ relativePath }) => relativePath === "maps/river-contract.js")!.content
+        )
+      ).toContain("Diagnostic-only authored finalizer minima ablation");
+    }
+    const baseline = await buildRiverProbePlan(
+      "finalizer-baseline",
+      "authored",
+      "full-map-maintenance"
+    );
+    const proof = JSON.parse(
+      String(baseline.files.find(({ relativePath }) => relativePath === "proof.json")!.content)
+    );
+    expect(proof.settings).toEqual([false, 25, 2, 2]);
+    expect(proof.finalizationIntervention).toBeUndefined();
+    expect(proof.riverWriteOrderIntervention).toBeUndefined();
+  });
+
+  test("declared downstream delivery selects only maintenance with the unchanged authored tuple", async () => {
+    const parsed = parseRiverProbeArguments([
+      "downstream-arm",
+      RIVER_AUTHORED_WRITE_ORDER_VARIANT,
+      "full-map-maintenance",
+    ]);
+    expect(parsed.variant).toBe(RIVER_AUTHORED_WRITE_ORDER_VARIANT);
+    const plan = await buildRiverProbePlan(
+      "downstream-arm",
+      RIVER_AUTHORED_WRITE_ORDER_VARIANT,
+      "full-map-maintenance",
+      { playerCount: 12, lakeSizeCutoff: "stock" }
+    );
+    const proof = JSON.parse(
+      String(plan.files.find(({ relativePath }) => relativePath === "proof.json")!.content)
+    );
+    expect(proof.settings).toEqual([false, 25, 2, 2]);
+    expect(proof.finalizationIntervention).toBeUndefined();
+    expect(proof.riverWriteOrderIntervention).toEqual({
+      variant: RIVER_AUTHORED_WRITE_ORDER_VARIANT,
+      qualification:
+        "Diagnostic-only downstream-first native delivery permutation; every declaration and the authored finalizer tuple are unchanged.",
+    });
+    const script = String(
+      plan.files.find(({ relativePath }) => relativePath === "maps/river-contract.js")!.content
+    );
+    expect(script).toContain("Diagnostic-only downstream-first native delivery permutation");
+    await expectCiv7MapScriptCompatibility(script, "authored-downstream");
+    expect(() =>
+      registerRiverContractProbe(
+        "refused-order",
+        RIVER_AUTHORED_WRITE_ORDER_VARIANT,
+        "synthetic-river-v4"
+      )
+    ).toThrow("full-map-maintenance");
+    for (const atlas of [
+      "synthetic-river-v4",
+      "terrain-admission",
+      "full-map-observe",
+      "full-map-lake-cutoff",
+      "full-map-bounded-lake-cutoff",
+      "full-map-original-input-replay",
+    ] as const)
+      await expect(
+        buildRiverProbePlan("refused-order", RIVER_AUTHORED_WRITE_ORDER_VARIANT, atlas)
+      ).rejects.toThrow("full-map-maintenance");
+  });
+
+  test("declared finalizer ablations refuse every other atlas without expanding legacy admission", async () => {
+    for (const variant of ["authored-upstream", "authored-length", "authored-minima"] as const)
+      expect(() =>
+        registerRiverContractProbe("refused-direct-arm", variant, "synthetic-river-v4")
+      ).toThrow("full-map-maintenance");
+    for (const variant of ["authored-upstream", "authored-length", "authored-minima"] as const)
+      for (const atlas of [
+        "synthetic-river-v4",
+        "terrain-admission",
+        "full-map-observe",
+        "full-map-lake-cutoff",
+        "full-map-bounded-lake-cutoff",
+        "full-map-original-input-replay",
+      ] as const)
+        await expect(buildRiverProbePlan("refused-finalizer-arm", variant, atlas)).rejects.toThrow(
+          "full-map-maintenance"
+        );
+    for (const variant of ["aesthetic", "length", "upstream", "percent"] as const)
+      await expect(
+        buildRiverProbePlan("refused-finalizer-arm", variant, "full-map-maintenance")
+      ).rejects.toThrow("authored finalization tuple");
+  });
+
   test("admits a named cliff-study JSON path only for the existing bounded diagnostic and records read-only V23 identity", async () => {
     const root = await mkdtemp(join(tmpdir(), "cliff-study-input-"));
     try {
@@ -2174,7 +2293,11 @@ describe("river diagnostic artifact (not native semantics proof)", () => {
   });
 
   test("each variant changes only the tuple and finalizes exactly once", async () => {
-    for (const variant of Object.keys(RIVER_PROBE_VARIANTS) as RiverProbeVariant[]) {
+    for (const variant of Object.keys(RIVER_PROBE_VARIANTS).filter(
+      (name) =>
+        !Object.hasOwn(RIVER_AUTHORED_FINALIZATION_VARIANTS, name) &&
+        name !== RIVER_AUTHORED_WRITE_ORDER_VARIANT
+    ) as RiverProbeVariant[]) {
       const runtime = mockRuntime((await compiled(variant)).script, { wrapX: false });
       runtime.run();
       expect(
