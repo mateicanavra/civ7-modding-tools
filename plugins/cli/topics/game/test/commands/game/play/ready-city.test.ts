@@ -217,6 +217,57 @@ describe("game play ready-city command", () => {
       await server.close();
     }
   });
+
+  test("preserves partial and unavailable decision notes in compact output", async () => {
+    const notes = [
+      "legalOperations is a partial summary; an empty list does not prove no city decision remains.",
+      "Named production queries are unavailable; production coverage remains unknown.",
+    ];
+    const view: ReadyCityPayload = {
+      ...readyCityView(),
+      legalOperations: [],
+      productionCandidates: { ok: false, error: "query unavailable" },
+      townFocusOptions: { ok: false, error: "query unavailable" },
+      populationPlacement: { ok: true, value: null },
+      notes,
+    };
+    const server = await startReadyCityTunerServer(view);
+    const writes: string[] = [];
+    const log = vi
+      .spyOn(GamePlayReadyCity.prototype, "log")
+      .mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
+    try {
+      const { port } = server.address();
+      await GamePlayReadyCity.run([
+        "--host",
+        "127.0.0.1",
+        "--port",
+        String(port),
+        "--compact",
+        "--json",
+      ]);
+      const payload = JSON.parse(writes.join("")) as {
+        cityId: unknown;
+        legalOperationCount: number;
+        productionCandidateCount: number;
+        nextAction: unknown;
+        warnings: string[];
+      };
+
+      expect(payload.cityId).toEqual(view.cityId);
+      expect(payload.legalOperationCount).toBe(0);
+      expect(payload.productionCandidateCount).toBe(0);
+      expect(payload.nextAction).toBeNull();
+      expect(payload.warnings).toEqual(expect.arrayContaining(notes));
+      expectNormalPlayPayloadToOmitDebugInternals(payload);
+      expect(server.received.some((message) => message.includes("sendRequest"))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
 });
 
 async function startReadyCityTunerServer(

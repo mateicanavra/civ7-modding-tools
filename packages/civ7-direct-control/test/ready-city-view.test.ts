@@ -1,13 +1,16 @@
 import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
+import { runInNewContext } from "node:vm";
 import { Value } from "typebox/value";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import {
   Civ7ReadyCityViewInputSchema,
   Civ7ReadyCityViewResultSchema,
   getCiv7ReadyCityView,
 } from "../src/index";
+import { jsonPayloadFromCommandResult } from "../src/session/command-result";
+import { boundedInteger } from "../src/validation";
 
 type FakeTunerServer = {
   received: string[];
@@ -16,6 +19,166 @@ type FakeTunerServer = {
 };
 
 describe("getCiv7ReadyCityView", () => {
+  test("summarizes named query evidence without probing any generic city enum", async () => {
+    const context = cityContext();
+    const view = await runCityView(context);
+
+    expect(context.Game.CityOperations.canStartQuery.mock.calls).toEqual([
+      [testCityId, 10, 1],
+      [testCityId, 10, 2],
+    ]);
+    expect(context.Game.CityOperations.canStart.mock.calls).toEqual([
+      [testCityId, 10, { ProjectType: 5 }, false],
+    ]);
+    expect(context.Game.CityCommands.canStart.mock.calls).toEqual([
+      [testCityId, 20, { Type: 0, ProjectType: -1, City: testCityId.id }, false],
+      [testCityId, 20, { Type: 1 }, false],
+      [testCityId, 20, { Type: 1, ProjectType: 50, City: testCityId.id }, false],
+      [testCityId, 30, {}, false],
+    ]);
+    expect(view.legalOperations.map((candidate) => candidate.operationType)).toEqual([
+      "BUILD",
+      "BUILD",
+      "CHANGE_GROWTH_MODE",
+      "CHANGE_GROWTH_MODE",
+      "EXPAND",
+    ]);
+    expect(
+      view.productionCandidates.ok && view.productionCandidates.value.map((item) => item.args)
+    ).toEqual([{ UnitType: 6 }, { ProjectType: 5 }]);
+    expect(view.notes.some((note) => note.includes("partial summary"))).toBe(true);
+    expect(Value.Check(Civ7ReadyCityViewResultSchema, view)).toBe(true);
+  });
+
+  test("uses definition type strings for every production getter and keeps BUILD indices", async () => {
+    const context = cityContext();
+    context.Game.CityOperations.canStartQuery.mockImplementation((_id, type, query) => {
+      if (type !== 10) throw new Error("Unknown city operation was queried");
+      return [{ index: query === 1 ? 4 : 6, result: { Success: true } }];
+    });
+    const view = await runCityView(context);
+    const city = context.Cities.get();
+
+    expect(city?.BuildQueue.getTurnsLeft.mock.calls).toEqual([
+      ["BUILDING_TEST"],
+      ["UNIT_TEST"],
+      ["PROJECT_TEST"],
+    ]);
+    expect(city?.Production.getConstructibleProductionCost.mock.calls).toEqual([["BUILDING_TEST"]]);
+    expect(city?.Production.getUnitProductionCost.mock.calls).toEqual([["UNIT_TEST"]]);
+    expect(city?.Production.getProjectProductionCost.mock.calls).toEqual([["PROJECT_TEST"]]);
+    expect(view.productionCandidates.ok && view.productionCandidates.value).toMatchObject([
+      { args: { ConstructibleType: 4 }, cost: 80, turns: 3 },
+      { args: { UnitType: 6 }, cost: 60, turns: 3 },
+      { args: { ProjectType: 5 }, cost: 40, turns: 3 },
+    ]);
+  });
+
+  test("does not guess a production getter overload when the definition name is missing", async () => {
+    const context = cityContext();
+    context.GameInfo.Units.lookup = () => ({ UnitType: "" });
+    const view = await runCityView(context);
+    const city = context.Cities.get();
+
+    expect(city?.BuildQueue.getTurnsLeft.mock.calls).toEqual([["PROJECT_TEST"]]);
+    expect(city?.Production.getUnitProductionCost).not.toHaveBeenCalled();
+    expect(view.productionCandidates.ok && view.productionCandidates.value[0]).toMatchObject({
+      args: { UnitType: 6 },
+      cost: null,
+      turns: null,
+    });
+  });
+
+  test("does not promote an offered growth focus when its named validation fails", async () => {
+    const context = cityContext();
+    context.Game.CityCommands.canStart.mockImplementation((_id, type, args, queryOnly) => {
+      if (queryOnly !== false) throw new Error("Wrong native query signature");
+      if (type === 20 && args.Type === 0) return { Success: false };
+      if (type === 20 && args.Type === 1) return { Success: true, Projects: [5] };
+      if (type === 30 && Object.keys(args).length === 0) return { Success: true };
+      throw new Error("Unknown city command was queried");
+    });
+    const view = await runCityView(context);
+
+    expect(view.townFocusOptions.ok && view.townFocusOptions.value[0]).toMatchObject({
+      args: { Type: 0, ProjectType: -1, City: testCityId.id },
+      valid: false,
+      result: { Success: false },
+    });
+    expect(
+      view.legalOperations.filter((candidate) => candidate.operationType === "CHANGE_GROWTH_MODE")
+    ).toHaveLength(1);
+  });
+
+  test("keeps growth readiness unknown when its named validation throws, without a retry", async () => {
+    const context = cityContext();
+    context.Game.CityCommands.canStart.mockImplementation((_id, type, args, queryOnly) => {
+      if (queryOnly !== false) throw new Error("Wrong native query signature");
+      if (type === 20 && args.Type === 0) throw new Error("growth validation unavailable");
+      if (type === 30 && Object.keys(args).length === 0) return { Success: true };
+      throw new Error("Unexpected city command was queried");
+    });
+    const view = await runCityView(context);
+
+    expect(context.Game.CityCommands.canStart.mock.calls).toEqual([
+      [testCityId, 20, { Type: 0, ProjectType: -1, City: testCityId.id }, false],
+      [testCityId, 30, {}, false],
+    ]);
+    expect(view.cityId).toEqual(testCityId);
+    expect(view.townFocusOptions.ok).toBe(false);
+    expect(
+      view.legalOperations.filter((candidate) => candidate.operationType === "CHANGE_GROWTH_MODE")
+    ).toEqual([]);
+    expect(view.notes.some((note) => note.includes("coverage is incomplete"))).toBe(true);
+  });
+
+  test("never queries city actions for an unresolved actor and retains its identity", async () => {
+    const context = cityContext();
+    context.Cities.get = () => null;
+    const view = await runCityView(context);
+
+    expect(view.cityId).toEqual(testCityId);
+    expect(view.city).toEqual({ ok: true, value: null });
+    expect(view.legalOperations).toEqual([]);
+    expect(context.Game.CityOperations.canStartQuery).not.toHaveBeenCalled();
+    expect(context.Game.CityOperations.canStart).not.toHaveBeenCalled();
+    expect(context.Game.CityCommands.canStart).not.toHaveBeenCalled();
+    expect(view.notes.some((note) => note.includes("availability remains unknown"))).toBe(true);
+  });
+
+  test("reports failed named coverage without retrying native signatures or clearing readiness", async () => {
+    const context = cityContext();
+    context.Game.CityOperations.canStartQuery.mockImplementation(() => {
+      throw new Error("query unavailable");
+    });
+    context.Game.CityCommands.canStart.mockImplementation(() => {
+      throw new Error("query unavailable");
+    });
+    const view = await runCityView(context);
+
+    expect(context.Game.CityOperations.canStartQuery).toHaveBeenCalledTimes(1);
+    expect(context.Game.CityCommands.canStart).toHaveBeenCalledTimes(2);
+    expect(view.cityId).toEqual(testCityId);
+    expect(view.legalOperations).toEqual([]);
+    expect(view.productionCandidates.ok).toBe(false);
+    expect(view.townFocusOptions.ok).toBe(false);
+    expect(view.notes.some((note) => note.includes("coverage is incomplete"))).toBe(true);
+  });
+
+  test("reports unavailable named production queries rather than guessing a generic BUILD check", async () => {
+    const context = cityContext();
+    Reflect.deleteProperty(context.Game.CityOperations, "canStartQuery");
+    const view = await runCityView(context);
+
+    expect(view.cityId).toEqual(testCityId);
+    expect(context.Game.CityOperations.canStart.mock.calls).toEqual([
+      [testCityId, 10, { ProjectType: 5 }, false],
+    ]);
+    expect(view.notes.some((note) => note.includes("production coverage remains unknown"))).toBe(
+      true
+    );
+  });
+
   test("reads ready-city view for city blockers without sending operations", async () => {
     const server = await startReadyCityTunerServer();
     try {
@@ -55,7 +218,7 @@ describe("getCiv7ReadyCityView", () => {
         legalOperations: [
           expect.objectContaining({
             family: "city-operation",
-            operationType: "CONSIDER_TOWN_PROJECT",
+            operationType: "BUILD",
           }),
         ],
       });
@@ -129,6 +292,128 @@ describe("getCiv7ReadyCityView", () => {
   });
 });
 
+const testCityId = { owner: 0, id: 131073, type: 1 };
+
+function cityContext() {
+  const assertType = (actual: unknown, expected: string) => {
+    if (actual !== expected) throw new Error("Production getter requires a definition type string");
+  };
+  const city = {
+    id: testCityId,
+    owner: 0,
+    name: "Test Town",
+    isTown: true,
+    BuildQueue: {
+      getTurnsLeft: vi.fn((...args: unknown[]) => {
+        if (
+          args.length !== 1 ||
+          !["BUILDING_TEST", "UNIT_TEST", "PROJECT_TEST"].includes(String(args[0]))
+        )
+          throw new Error("Turns getter requires exactly one definition type string");
+        return 3;
+      }),
+    },
+    Production: {
+      getConstructibleProductionCost: vi.fn((type: unknown) => {
+        assertType(type, "BUILDING_TEST");
+        return 80;
+      }),
+      getUnitProductionCost: vi.fn((type: unknown) => {
+        assertType(type, "UNIT_TEST");
+        return 60;
+      }),
+      getProjectProductionCost: vi.fn((type: unknown) => {
+        assertType(type, "PROJECT_TEST");
+        return 40;
+      }),
+    },
+  };
+  const project = { $index: 5, $hash: 50, ProjectType: "PROJECT_TEST" };
+  return {
+    GameContext: { localPlayerID: 0 },
+    Game: {
+      Notifications: { getEndTurnBlockingType: () => 0, findEndTurnBlocking: () => null },
+      CityOperations: {
+        canStartQuery: vi.fn((_id: unknown, type: number, query: number) => {
+          if (type !== 10) throw new Error("Unknown city operation was queried");
+          return query === 2 ? [{ index: 6, result: { Success: true } }] : [];
+        }),
+        canStart: vi.fn(
+          (_id: unknown, type: number, args: Record<string, unknown>, queryOnly: boolean) => {
+            if (type !== 10 || args.ProjectType !== 5 || queryOnly !== false)
+              throw new Error("Unsafe BUILD query");
+            return { Success: true };
+          }
+        ),
+      },
+      CityCommands: {
+        canStart: vi.fn(
+          (_id: unknown, type: number, args: Record<string, unknown>, queryOnly: boolean) => {
+            if (queryOnly !== false) throw new Error("Wrong native query signature");
+            if (
+              type === 20 &&
+              args.Type === 0 &&
+              args.ProjectType === -1 &&
+              args.City === testCityId.id
+            )
+              return { Success: true };
+            if (type === 20 && args.Type === 1) {
+              if (Object.keys(args).length === 1) return { Success: true, Projects: [5] };
+              if (args.ProjectType === 50 && args.City === testCityId.id) return { Success: true };
+            }
+            if (type === 30 && Object.keys(args).length === 0) return { Success: true };
+            throw new Error("Unknown city command was queried");
+          }
+        ),
+      },
+    },
+    CityOperationTypes: new Proxy(
+      { BUILD: 10, UNSAFE_ENUM: 11 },
+      {
+        ownKeys: () => {
+          throw new Error("Generic native enum enumeration is forbidden");
+        },
+      }
+    ),
+    CityCommandTypes: new Proxy(
+      { CHANGE_GROWTH_MODE: 20, EXPAND: 30, UNSAFE_ENUM: 31 },
+      {
+        ownKeys: () => {
+          throw new Error("Generic native enum enumeration is forbidden");
+        },
+      }
+    ),
+    CityQueryType: { Constructible: 1, Unit: 2 },
+    GrowthTypes: { EXPAND: 0, PROJECT: 1 },
+    ProjectTypes: { NO_PROJECT: -1 },
+    GameInfo: {
+      Constructibles: { lookup: () => ({ ConstructibleType: "BUILDING_TEST" }) },
+      Units: { lookup: () => ({ UnitType: "UNIT_TEST" }) },
+      Projects: Object.assign([project], { lookup: () => project }),
+    },
+    Cities: { get: (): typeof city | null => city },
+    Players: { get: () => ({ Cities: { getCityIds: () => [testCityId] } }) },
+    UI: { Player: { getHeadSelectedCity: () => testCityId } },
+  };
+}
+
+async function runCityView(context: ReturnType<typeof cityContext>) {
+  return await getCiv7ReadyCityView(
+    {},
+    {},
+    {
+      boundedInteger,
+      executeAppUiCommand: async ({ command }) => ({
+        host: "mock",
+        port: 0,
+        state: { id: "65535", name: "App UI" },
+        output: [String(runInNewContext(command, context, { timeout: 1_000 }))],
+      }),
+      parseReadyCityView: (result, label) => jsonPayloadFromCommandResult(result, label),
+    }
+  );
+}
+
 async function startReadyCityTunerServer(): Promise<FakeTunerServer> {
   const received: string[] = [];
   const server = createServer((socket) => {
@@ -195,7 +480,7 @@ function readyCityView() {
     legalOperations: [
       {
         family: "city-operation",
-        operationType: "CONSIDER_TOWN_PROJECT",
+        operationType: "BUILD",
         enumValue: 1,
         valid: true,
         result: { Success: true },
