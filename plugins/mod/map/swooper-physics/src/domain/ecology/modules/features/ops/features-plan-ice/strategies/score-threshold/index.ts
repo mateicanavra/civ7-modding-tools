@@ -5,7 +5,7 @@ import PlanIceContract from "../../contract.js";
 import { admitIceIntent } from "../../rules/admit-ice-intent.js";
 import StrategyDefinition from "./config.js";
 
-/** Selects ice intent wherever the admitted freeze score reaches the configured threshold. */
+/** Selects unoccupied external-water ice intent at the configured confidence threshold. */
 const scoreThresholdStrategy = createStrategy(PlanIceContract, StrategyDefinition, {
   run: (input, config) => {
     const width = input.width;
@@ -16,6 +16,7 @@ const scoreThresholdStrategy = createStrategy(PlanIceContract, StrategyDefinitio
     void input.seed;
 
     for (let i = 0; i < size; i++) {
+      if (input.externalWaterMask[i] !== 1) continue;
       if (input.featureOccupancyMask[i] !== 0) continue;
       const score = input.score01[i] ?? 0;
       const confidence01 = confidenceFromScore01(score);

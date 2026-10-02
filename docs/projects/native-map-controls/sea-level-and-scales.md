@@ -155,6 +155,20 @@ physical meaning and projection before choosing a scale or removing a proxy.
 No glacier quota, physical-height multiplier, gate retuning or lake-depth
 conversion is accepted by this metadata repair.
 
+## October 2 Marine Feature Retirement
+
+The earlier metadata-only repair deliberately retained legacy alpine keys.
+The subsequent [marine ice eligibility decision](marine-ice-eligibility.md)
+now strictly removes that unsupported feature capability, rather than retaining
+an inactive-looking height option or guessing a metre conversion. The existing
+scorer's sole `marine-temperature` strategy consumes physical external-water
+membership and current climate temperature. Its planner independently checks
+that membership before confidence and occupancy. The three retained configs
+migrate only this ice envelope; old alpine keys and old operation shapes refuse
+canonical admission. Physical cryosphere and percentile snow remain separate
+owners and are unchanged. The historical unit-repair receipts above retain
+their original scope, not a current compatibility promise for retired keys.
+
 ## Acceptance And Next Discriminator
 
 1. Trace physical artifact to operation input and classify each height law as

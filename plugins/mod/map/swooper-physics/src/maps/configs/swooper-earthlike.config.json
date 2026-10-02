@@ -1034,13 +1034,10 @@
           }
         },
         "scoreIce": {
-          "strategy": "thermal-elevation",
+          "strategy": "marine-temperature",
           "config": {
             "seaTempColdC": -10,
-            "seaTempWarmC": -2,
-            "alpineElevationMinM": 2200,
-            "alpineElevationMaxM": 3400,
-            "alpineFreezeMin01": 0.55
+            "seaTempWarmC": -2
           }
         },
         "scoreFloodplains": {

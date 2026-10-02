@@ -231,10 +231,8 @@ export const ScoreLayersStep = createStep(config, {
       {
         width,
         height,
-        landMask: ecologyLandMask,
+        externalWaterMask: topography.externalWaterMask,
         surfaceTemperature: climateIndices.surfaceTemperatureC,
-        elevation: topography.elevation,
-        freezeIndex: climateIndices.freezeIndex,
       },
       stepConfig.scoreIce
     ).score01;
