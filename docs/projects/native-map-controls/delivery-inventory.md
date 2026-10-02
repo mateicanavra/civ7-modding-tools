@@ -23,7 +23,7 @@ Earlier dated receipts below retain their original builds and outcomes.
 
 The tile-level discharge candidate is withdrawn, not waiting for a geometry
 patch. [PR #2245](https://github.com/mateicanavra/civ7-modding-tools/pull/2245)
-now closes the investigation and clarifies the single intentional coherent-reach
+merged on October 2 at 12:43:26Z, now closes the investigation and clarifies the single intentional coherent-reach
 policy. Its restoration now reproduces all fifty-seven admitted study cases
 exactly and completes a fresh normal Huge1018 generation in 42.8 seconds.
 All 666 dry sources survive as declared: 346 MINOR, 320 NAV, zero source,
@@ -46,10 +46,16 @@ The lake policy is also decided: retain the stock per-size native cutoff and
 preserve physical heads. Native lake identity is a disclosed gameplay
 approximation, not canonical finite-water truth. Size overlaps between physical
 categories defeat a dynamic maximum as a universal classifier; absent native
-lake flags alone are not height failures. The next causal climate investigation
-replaces the row-only thermal producer with a source-grounded seasonal energy
-balance if its fixed parameter and owner review is admitted. No appended
-temperature proxy or repeated origin/skin-air study is selected.
+lake flags alone are not height failures. The source-grounded seasonal energy
+replacement completed its [bounded owner study](seasonal-energy-response.md#qualified-nonselection)
+and was rejected: held annual error rises from 2.971 to 3.084 C, monthly error
+from 3.573 to 4.205 C and within-latitude error from 2.315 to 2.546 C. Independent
+review reproduces all forty-seven unchanged guard failures. Its eighteen
+candidate source/caller files are retained externally and restored to the
+incumbent; none was deployed. Numerical correctness alone did not establish
+Earth transfer. The physical-scale investigation and native movement
+qualification remain separate owner stories. No appended temperature proxy,
+held refit, new fallback or repeated origin/skin-air study is selected.
 
 ## What Shipped Means
 
