@@ -33,6 +33,16 @@ The fresh current-build session subsequently completes ten normal autoplay
 turns, T1 to T11/500 CE, and returns player/observer zero, inactive and paused.
 This is a new bounded gameplay receipt, not another vessel-navigation witness
 or a universal playability claim.
+The [sixteen-view current-build atlas](https://mateis-macbook-pro.taild8da1c.ts.net/civ/earthlike-current-atlas-20261002/index.html)
+now shows that T11/500 CE session: fourteen maximum-zoom-out regional frames
+and two details at the interior and highland joins. Each original PNG is
+3,456 by 2,168 pixels with a verified camera target and image digest. World
+summary, turn and player/observer identity remain exactly unchanged across the
+capture. All sixteen tailnet thumbnails match their local hashes; root inspected
+every frame and the rendered Arc layout. These photographs show settlement
+expansion after autoplay, not a new climate solution or another movement trial.
+The existing gallery exposes this latest atlas first; earlier images retain
+their own dates, inputs and builds.
 
 The latest gameplay milestone is
 [matched true-cliff passage](native-navigation.md#october-2-matched-true-cliff-passage),
@@ -113,9 +123,14 @@ now qualifies the original-equation linearization on the retained first stage:
 refused source/method packets remain immutable. This numerical progress does
 not close the current production thermal gate. The separate shared-pole/full
 method passes 7,386 manufactured checks, then exhausts the compute budget in
-its coarse whole-reference worker without a complete result. Private vector
-lifetime is the next implementation-efficiency correction, with the same
-source laws and acceptance limits. Full-grid accuracy, unchanged flux
+its coarse whole-reference worker without a complete result. The private
+vector-lifetime correction passes 7,628 checks with exact original physical
+results, but is also refused before one complete reference year. Its last
+352-phase checkpoint records 93,236 linear iterations and child high-water
+643.5 MiB, above the unchanged 512-MiB limit. The next bounded computational
+design must discriminate numerical cost against a simpler physical alternative;
+no larger cap, automatic allocation tweak or physical retuning is selected.
+Full-grid accuracy, unchanged flux
 refinement, held-Earth transfer and coherent climate/water adoption remain
 separate requirements. No prototype is deployed.
 

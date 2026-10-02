@@ -54,9 +54,14 @@ physical laws and residual limits. A separately frozen accounting-only replay
 corrects the external harness's exact-runtime RSS units without altering the
 method. The subsequent port passes 7,386 manufactured checks with shared-pole
 and periodic controls, but the coarse whole-reference worker exhausts the
-fixed 900-second proof budget before returning. No full-grid refinement or
-Earth score is available. The next bounded correction reuses private temporary
-vectors without changing physical laws, inputs or guards; it is not another
+fixed 900-second proof budget before returning. The subsequent private-vector
+lifetime correction passes 7,628 manufactured checks with exact original
+physical results, but again reaches the deadline before completing even one
+reference year: 352 phases, 93,236 linear iterations and child high-water
+643.5 MiB. No full-grid refinement or Earth score is available. A bounded
+computational design/profile must now discriminate the expensive numerical
+work against a simpler physical alternative; more allocation tweaks or a
+larger cap are not an automatic solution. Neither prototype changes the
 recipe pipeline. Coupled adoption also needs one explicit climate-to-water
 conversion rather than relabeling the existing index-based basin quantities.
 See the numerical record for the exact refusal and ownership dependencies.

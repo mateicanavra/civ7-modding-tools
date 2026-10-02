@@ -95,26 +95,55 @@ plausible resource causes, not a proved leak. The scalar source functions also
 allocate short-lived radiation objects; neither cause is established as the
 sole runtime bottleneck.
 
+## Private Lifetime Outcome
+
+The separately reviewed private-lifetime port is now implemented and tested
+externally. It uses paired current/trial iterate and residual buffers, fixed
+RHS/direction storage and two branch sets, swapping paired state only after
+original trial acceptance. Public snapshots and default linear directions stay
+independently owned. Supplied direction outputs reject backing-buffer aliasing
+and commit only after original residual and deadline admission. The existing
+borrowed stage-result contract remains unchanged. Scalar source functions,
+physical constants, inputs, Float64 state, phase trajectories, arithmetic and
+all acceptance/resource limits remain unchanged; there are no GC calls,
+resolution reductions or production changes.
+
+Root's once-only manufactured run passes 7,628 checks: the original 4,394
+Newton checks, 242 additional lifetime/alias/reentrancy/recovery checks and
+2,992 inherited controls. The returned Newton-control file is byte-identical
+to the preceding method's return; all inherited physical results are exact.
+Its resource-admitted receipt records 9.472464459 seconds and 164,495,360 bytes
+peak RSS. This is a manufactured pass, not full-grid admission.
+
+The subsequent coarse worker again reaches the unchanged whole-proof deadline
+without returning. Its last complete progress row records 352 of the first
+year's 384 phases at 854.809170208 seconds, with 93,236 GMRES iterations and
+99,368 original-operator products, at most four Newton blocks and no
+backtracks. Completed-phase field and local ledger checks remain within their
+original limits. No complete year, periodic solve, fine worker, flux-refinement
+comparison or Earth score exists. The bounded progress high-water is
+674,742,272 bytes, about 643.5 MiB, already above the 512-MiB resource limit;
+the formal parent refusal's 41,664,512 bytes is not child memory. All 75
+frozen pins remain exact.
+
+Thus the lifetime correction preserves the equations but is insufficient for
+the required computational resources. The recorded solver work supports
+investigating numerical cost, not claiming a physical-law defect or a proved
+allocation leak. Progress is external study evidence, not new generation
+instrumentation or acceptance authority. Neither a larger cap nor another
+allocation-only change follows automatically from this result.
+
 ## Next Testable Outcome
 
-The next bounded correction changes private vector lifetime in a new external
-packet, not the mathematical method or the refused packet. Preserve the scalar
-source functions, physical constants, initial/reference inputs, Float64 state,
-all phase trajectories, original residuals, ledgers and resource/refinement
-limits. Use paired current/trial iterate and residual buffers, fixed RHS and
-direction storage, and private branch sets. Swap paired state only after trial
-acceptance. Public control-facing snapshots and default linear directions stay
-independently owned; rejection must not overwrite the accepted state/residual.
-No garbage-collection calls, lower resolution, new solver framework or automatic
-physical-law arm is admitted.
-
-Independent lifetime controls, dense parity, shared-pole/manufactured and
-periodic controls precede the unchanged 384/768 whole-reference flux comparison.
-A bounded external progress receipt must identify the reached phase and work
-on refusal; it does not add instrumentation to ordinary map generation. No
-Earth labels or scores enter numerical-method admission. Only a numerically
-qualified candidate may undergo the frozen held-Earth and complete procedural
-study bank; no held refit or weakened guard follows refusal.
+Choose the smallest computational remedy against a genuinely simpler,
+source-grounded physical alternative before another full-reference attempt.
+Distinguish dropped preconditioner couplings, orthogonalization/operator cost
+and scalar allocation with a bounded exact-stage profile if needed. Preserve
+the original equations and guards for a same-method remedy; changing physical
+closure requires its own explicit scientific admission, not an efficiency
+label. No alternative is selected merely because previous work was invested.
+Only a numerically qualified candidate may undergo the frozen held-Earth and
+complete procedural study bank; no held refit or weakened guard follows refusal.
 
 An eventual production change belongs in the existing Climate operation with
 private numerical arithmetic, not computation in steps or a new framework.
@@ -152,7 +181,14 @@ under `VisualAtlas/huge-1018/earth-calibration/`:
   `aaf530032f323a7bb9f17f9c9727f169c0b4df9fc4b267df0338fb4ecc0c52a2`.
   No complete full-grid result or Earth score exists.
 - `earth-coupled-surface-air-vector-lifetime-design-20261002/`: prospective
-  private-lifetime correction; no passing runtime outcome follows from design.
+  private-lifetime correction, preceding the separate execution below.
+- `earth-coupled-surface-air-vector-lifetime-port-20261002/`: manufactured
+  PASS SHA `0d5408c08846b3573ef401360c0879fb85802d00944f527e941572f84e8fa3be`,
+  then reference deadline refusal SHA
+  `03878d5845090a49576ea34798c9f076473f8a7994728e076de4b8a3efb4be4c`.
+  Bounded progress SHA
+  `fa621237f65a76fdbfc12da66001ea11b9c5d5eff652226be7c44e532eb232aa`
+  records completed phases and child high-water, not a completed solution.
 
 Neither reviewer nor author executed candidate imports or numerical solves.
 Root performed the prospectively frozen executions; independent review
