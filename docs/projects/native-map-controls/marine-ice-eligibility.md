@@ -104,6 +104,13 @@ Complete bank and native receipts are under
 `earth-calibration/marine-ice-bank-20261002/` and
 `earth-calibration/marine-ice-native-20261002/`. Qualification status is
 `MARINE_ICE_OWNER_QUALIFIED` and `QUALIFIED_MARINE_ICE_NORMAL_GENERATION`.
+The repair is merged through
+[PR #2255](https://github.com/mateicanavra/civ7-modding-tools/pull/2255), at
+`2026-10-02T21:43:29Z`, into main commit
+`f9cab8d7b9e816f330514b521986219cd5808117`. Native Graphite sync preserves
+the qualified source tree exactly; all fourteen protected main-checkout files
+retain their original hashes. The existing game is fully revealed through the
+public Explore command; that is visibility evidence, not another movement trial.
 This closes feature admission, not all Earth climate calibration, universal
 marine identity or a new vessel test. The prior sixteen-view atlas retains its
 own build and turn; these feature-intent repairs are not new photographic proof.

@@ -133,15 +133,84 @@ allocation leak. Progress is external study evidence, not new generation
 instrumentation or acceptance authority. Neither a larger cap nor another
 allocation-only change follows automatically from this result.
 
+## First-Stage Cost And Inexact Direction Qualification
+
+A bounded observation-only profile of the authentic reference initialization
+returns the original first stage: 504 GMRES iterations and 538 original-operator
+products, with four Newton blocks, no backtracks and admitted final equations
+and ledgers. Sampled CPU ancestry places 94.46% inside GMRES and 73.00% in its
+Krylov implementation itself. Scalar source-law time is small. These inclusive
+figures overlap; they are not additive or a full-year throughput estimate.
+
+The selected numerical remedy changes only early Newton-direction accuracy.
+Its fixed relative forcing requires the original scaled linear residual
+`||Jd + F||_infinity <= 0.1 * ||F||_infinity`; ordinary direct linear solves keep
+their absolute `1e-10` rule. Final nonlinear fields remain below `1e-10`, with
+heat/water ledger limits `1e-9`. Source laws, coefficients, initialization,
+analytic operator, branch consistency, descent, lifetimes, history policy and
+iteration/resource caps are unchanged. This follows the
+[KINSOL distinction between direction accuracy and successful residual stopping](https://sundials.readthedocs.io/en/latest/kinsol/Mathematics_link.html).
+
+The original r1 harness refuses before any returned control observation because
+its copied source-law module lacks the local parameter-spec file. The separate
+r2 closure repair adds only that byte-identical original spec; the eleven r1
+candidate files remain exact. Root's once-only r2 controls pass 4,879 checks:
+4,462 Newton, 242 lifetime and 175 forcing checks. Historical primitive controls
+are separately pinned authority, not additional checks rerun here.
+
+The once-only authentic first-stage discriminator passes: 180 GMRES iterations
+and 194 operator products replace 504 and 538, with six Newton blocks and no
+backtracks. Its independent original-law normalized residual is `0.246939`,
+below one, and relative heat/water errors are approximately `1.85e-14` and
+`4.58e-15`. Parent elapsed time is 2.906 seconds and child peak RSS 202,899,456
+bytes. This establishes reduced work on this stage under unchanged final
+accuracy, not periodic accuracy, scientific agreement or production admission.
+The inherited zero linear-balance/error-contribution slots are not accuracy
+proof; actual original residuals and independent reconstruction are authoritative.
+
+## Sustained-Year Outcome
+
+The separately reviewed discriminator retains all four original Float64
+histories and returns immediately after the authentic first 384-phase year,
+before year two or periodic tests. Root's once-only execution completes all
+384 stages in 473.122 seconds, with 53,286 GMRES iterations, 57,530 operator
+products, at most seven Newton blocks and no backtracks. Maximum original
+normalized residual is `0.999609`, below one; relative heat/water errors remain
+approximately `1.84e-13` and `6.35e-14`. The four complete histories and all
+returned state/annual lanes are persisted as raw binaries with verified hashes.
+Initial state, geometry and prepared solar match the admitted first-stage case.
+
+The complete attempt is nevertheless **refused on child memory**, not admitted
+as a sustained-year pass. Child peak at year return is 486,440,960 bytes,
+approximately 463.9 MiB. The independent original-law phase-zero oracle then
+passes, but the post-oracle check records a peak of 642,744,320 bytes,
+approximately 613.0 MiB, above the unchanged 512-MiB limit. The remaining three
+sample oracles do not run. Parent adjudication completes in 474.882 seconds,
+without watchdog termination; all final source/control/output pins pass.
+Its 54,542,336-byte parent peak is not child admission.
+
+This establishes an actually returned first-year trajectory and reduced
+numerical work, not resource qualification, periodic convergence, temporal
+refinement, Earth agreement or production admission. The failure boundary is
+after the independent oracle, but the receipt does not isolate importing,
+allocation, JIT or retained lifetime as its cause. Do not attribute the entire
+peak increase to one source operation without a separate bounded observation.
+No automatic retry, cap increase, GC intervention or trajectory stripping follows.
+
 ## Next Testable Outcome
 
-Choose the smallest computational remedy against a genuinely simpler,
-source-grounded physical alternative before another full-reference attempt.
-Distinguish dropped preconditioner couplings, orthogonalization/operator cost
-and scalar allocation with a bounded exact-stage profile if needed. Preserve
-the original equations and guards for a same-method remedy; changing physical
-closure requires its own explicit scientific admission, not an efficiency
-label. No alternative is selected merely because previous work was invested.
+The next design must discriminate verification lifetime from numerical
+throughput before another sustained solve. Moving verification to a separately
+owned worker is a prospective lifecycle alternative, not permission to
+reinterpret this refused receipt or conceal simultaneous memory. Even an
+admitted first year would leave the complete periodic coarse/fine proof open;
+its feasibility must be established before starting another whole-reference
+attempt. Do not substitute a first-year Earth score for that qualification.
+
+Preserve the original equations and guards for a same-method remedy; changing
+physical closure requires its own explicit scientific admission, not an
+efficiency label. A genuinely simpler source-grounded physical alternative
+remains a separate decision if numerical work cannot qualify.
 Only a numerically qualified candidate may undergo the frozen held-Earth and
 complete procedural study bank; no held refit or weakened guard follows refusal.
 
@@ -189,6 +258,21 @@ under `VisualAtlas/huge-1018/earth-calibration/`:
   Bounded progress SHA
   `fa621237f65a76fdbfc12da66001ea11b9c5d5eff652226be7c44e532eb232aa`
   records completed phases and child high-water, not a completed solution.
+- `earth-coupled-surface-air-first-stage-cost-profile-20261002/`: bounded
+  profile and selected direction-accuracy question, decision SHA
+  `fa4fd7a8e64ae84cf3162a019516326dbfb5697fab4098b64fa25e877318ca61`.
+- `earth-coupled-surface-air-inexact-newton-20261002/`: original closure
+  refusal, retained unchanged.
+- `earth-coupled-surface-air-inexact-newton-20261002-r2/`: exact closure repair,
+  4,879 control checks and first-stage PASS. Returned first-stage SHA
+  `9f6bc0a9fb4b60a5d942577792b7be9683f08a1c3e1e099f37f5a46e2b7ffb0b`.
+- `earth-coupled-surface-air-inexact-newton-sustained-year-20261002/`:
+  reviewed one-year packet, READY SHA
+  `83f94184e1ed06edf177e711920be8e26a74ad55da3fa146dc8a0e7f7b5dfd37`;
+  returned trajectory SHA
+  `b81650bafa362b9e75c01fa50ce45fe8011932b455fd79b9e4424d734f5d8b27`,
+  memory refusal SHA
+  `3cbc4c6aa899722df905fcad5ae88aa9a6fc73a4c6ac14e36c80fd6c8bdefc6e`.
 
 Neither reviewer nor author executed candidate imports or numerical solves.
 Root performed the prospectively frozen executions; independent review

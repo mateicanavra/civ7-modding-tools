@@ -40,7 +40,8 @@ finite-water feature attempts/rejections fall from 26 to zero, with all river
 sources, native height measurements and the complete 57-case scientific
 evaluation exact. The alpine feature strategy and its authored keys are retired,
 not retained as a fallback; physical cryosphere and snow remain independent.
-Publication and merge remain separately confirmed outcomes. This does not close
+The repair is merged through PR #2255 at `2026-10-02T21:43:29Z`, main commit
+`f9cab8d7b9e816f330514b521986219cd5808117`. This does not close
 the thermal floor or establish a new photographic/navigation witness.
 Refused candidates do not install a new physical law or
 height codec. The current external coupled surface/air candidate's r4
@@ -69,13 +70,18 @@ reference year: 352 phases, 93,236 linear iterations and child high-water
 643.5 MiB. No full-grid refinement or Earth score is available. A bounded
 computational profile now isolates 94.46% of first-stage sampled CPU inside
 GMRES: 504 iterations and 538 matrix-vector evaluations, with negligible
-source-law time. The next prospectively sealed discriminator replaces only
-early absolute direction tolerance with fixed relative inexact-Newton forcing;
-final original-equation accuracy, branch/descent, ledgers and resource caps
-remain unchanged. Independent review and manufactured controls precede one
-bounded first stage. It is not an automatic full-year retry or adoption, and
-a simpler physical alternative remains a separate decision if numerical work
-cannot qualify. Neither prototype changes the
+source-law time. The separately sealed fixed-relative inexact-Newton direction
+passes 4,879 controls and the authentic first-stage discriminator: 180 rather
+than 504 linear iterations, with the original final equations and ledgers
+unchanged. A separately reviewed sustained-year discriminator then completes
+all 384 stages in 473.122 seconds and persists all four histories. It is still
+refused: child peak rises from 463.9 MiB at year return to 613.0 MiB at the
+post-oracle boundary, above the unchanged 512-MiB limit. Only the first of four
+independent sample oracles completes. No periodic/refinement/Earth admission
+exists. Verification lifetime and complete-proof throughput need separate
+discrimination before another solve; no retry, cap increase or history removal
+is automatic. A simpler physical alternative remains a separate decision if
+numerical work cannot qualify. Neither prototype changes the
 recipe pipeline. Coupled adoption also needs one explicit climate-to-water
 conversion rather than relabeling the existing index-based basin quantities.
 See the numerical record for the exact refusal and ownership dependencies.

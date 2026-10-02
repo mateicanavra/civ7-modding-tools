@@ -24,8 +24,10 @@ all native feature rejections are zero, 23 savanna tiles remain applied, and all
 666 river sources and native height measurements remain exact. Installed
 Earthlike script SHA256 is
 `9180402573b831fde9dd4ce9146b8cc858b5c64acd83301d5a61b1feba453e71`.
-This is implemented, deployed and live-qualified; its merge is separately
-recorded when confirmed. The prior sixteen-view atlas remains photographic
+This is implemented, deployed, live-qualified and merged through
+[PR #2255](https://github.com/mateicanavra/civ7-modding-tools/pull/2255) at
+`2026-10-02T21:43:29Z`, main commit
+`f9cab8d7b9e816f330514b521986219cd5808117`. The prior sixteen-view atlas remains photographic
 evidence for its own build, not a newly captured ice-repair atlas.
 
 The preceding merged owner repair is [savanna annual-supply admission](savanna-water-supply.md),
@@ -142,9 +144,16 @@ its coarse whole-reference worker without a complete result. The private
 vector-lifetime correction passes 7,628 checks with exact original physical
 results, but is also refused before one complete reference year. Its last
 352-phase checkpoint records 93,236 linear iterations and child high-water
-643.5 MiB, above the unchanged 512-MiB limit. The next bounded computational
-design must discriminate numerical cost against a simpler physical alternative;
-no larger cap, automatic allocation tweak or physical retuning is selected.
+643.5 MiB, above the unchanged 512-MiB limit. A bounded CPU profile identifies
+first-stage Krylov work as dominant. Fixed-relative inexact-Newton directions
+then pass 4,879 controls and reduce first-stage linear iterations from 504 to
+180 without weakening final original-equation accuracy. The separately reviewed
+first-year attempt completes all 384 stages in 473.122 seconds and persists all
+four histories, but is refused after the first independent sample oracle: child
+peak 613.0 MiB exceeds 512 MiB. The remaining three oracles, periodic convergence
+and temporal refinement are unrun. Verification lifetime and complete-proof
+throughput remain separate discrimination questions; no larger cap, automatic
+allocation tweak, history removal or physical retuning is selected.
 Full-grid accuracy, unchanged flux
 refinement, held-Earth transfer and coherent climate/water adoption remain
 separate requirements. No prototype is deployed.
