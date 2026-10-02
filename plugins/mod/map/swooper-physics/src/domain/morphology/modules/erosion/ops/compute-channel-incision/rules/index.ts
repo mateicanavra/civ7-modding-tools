@@ -5,6 +5,7 @@ type ChannelIncisionParams = Readonly<{
   width: number;
   height: number;
   elevation: readonly number[];
+  initialElevation: ArrayLike<number>;
   originalLandMask: ArrayLike<number>;
   externalWaterMask: ArrayLike<number>;
   exposedLandMask: ArrayLike<number>;
@@ -31,18 +32,19 @@ const requireValid = (condition: unknown, message: string): void => {
 
 /** One detachment-limited cycle; no routing, lake solve, classification, or sediment accounting. */
 export function inciseChannels(input: ChannelIncisionParams, config: ChannelIncisionConfig): ChannelIncisionResult {
-  const { width, height, elevation: ground, originalLandMask, externalWaterMask, exposedLandMask, wetMask, receiver, dryDischarge, waterSurface, seaLevel, erodibilityK } = input;
+  const { width, height, elevation: ground, initialElevation, originalLandMask, externalWaterMask, exposedLandMask, wetMask, receiver, dryDischarge, waterSurface, seaLevel, erodibilityK } = input;
   const size = width * height;
   requireValid(Number.isSafeInteger(width) && width > 0 && Number.isSafeInteger(height) && height > 0 && Number.isSafeInteger(size) && size <= 0x7fffffff, "grid dimensions");
   requireValid(Number.isFinite(seaLevel), "finite sea datum");
   requireValid(Number.isFinite(config.rate) && config.rate >= 0 && config.rate <= 1 && Number.isFinite(config.m) && config.m >= 0 && config.m <= 4 && config.n === 1, "analytic n=1 process controls");
-  for (const [name, values] of Object.entries({ ground, originalLandMask, externalWaterMask, exposedLandMask, wetMask, receiver, dryDischarge, waterSurface, erodibilityK })) {
+  for (const [name, values] of Object.entries({ ground, initialElevation, originalLandMask, externalWaterMask, exposedLandMask, wetMask, receiver, dryDischarge, waterSurface, erodibilityK })) {
     requireValid(values.length === size, `${name} cardinality`);
   }
   const dry = (cell: number): boolean => exposedLandMask[cell] === 1 && !wetMask[cell] && !externalWaterMask[cell];
   const receivingHead = (cell: number, values: readonly number[]): number => externalWaterMask[cell] ? seaLevel : wetMask[cell] ? waterSurface[cell]! : values[cell]!;
   for (let cell = 0; cell < size; cell++) {
     requireValid(Number.isFinite(ground[cell]) && ground[cell]! >= -32768 && ground[cell]! <= 32767, `finite precise ground at ${cell}`);
+    requireValid(Number.isInteger(initialElevation[cell]) && initialElevation[cell]! >= -32768 && initialElevation[cell]! <= 32767, `original ground at ${cell}`);
     for (const [name, mask] of Object.entries({ originalLandMask, externalWaterMask, exposedLandMask, wetMask })) {
       requireValid(mask[cell] === 0 || mask[cell] === 1, `binary ${name} at ${cell}`);
     }
@@ -76,7 +78,7 @@ export function inciseChannels(input: ChannelIncisionParams, config: ChannelInci
   const incisionDepth = new Array<number>(size).fill(0);
   for (const cell of order) {
     const target = receiver[cell]!;
-    if (!originalLandMask[cell] || target < 0 || dryDischarge[cell] === 0 || config.rate === 0 || erodibilityK[cell] === 0) continue;
+    if (!originalLandMask[cell] || initialElevation[cell]! <= seaLevel || target < 0 || dryDischarge[cell] === 0 || config.rate === 0 || erodibilityK[cell] === 0) continue;
     const coefficient = config.rate * erodibilityK[cell]! * dryDischarge[cell]! ** config.m;
     requireValid(Number.isFinite(coefficient), `finite stream power at ${cell}`);
     const hydraulicHead = receivingHead(target, elevation);

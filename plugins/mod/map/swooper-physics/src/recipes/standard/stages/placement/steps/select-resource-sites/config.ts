@@ -1,5 +1,6 @@
 import { artifacts as hydrographyArtifacts } from "../../../../../../domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyErosionArtifacts } from "../../../../../../domain/morphology/modules/erosion/artifacts/index.js";
 import { artifacts as placementRegionArtifacts } from "../../../../../../domain/placement/modules/regions/artifacts/index.js";
 import resources from "../../../../../../domain/resources/index.js";
 import { artifacts as resourceDemandArtifacts } from "../../../../../../domain/resources/modules/demand/artifacts/index.js";
@@ -15,7 +16,7 @@ export const config = defineStep({
   initialSetup: STANDARD_INITIAL_SETUP,
   requires: [
     resourceDemandArtifacts.resourceDemandPlan,
-    morphologyLandformsArtifacts.topography,
+    morphologyErosionArtifacts.topography,
     morphologyLandformsArtifacts.landmasses,
     hydrographyArtifacts.lakePlan,
     hydrographyArtifacts.hydrography,

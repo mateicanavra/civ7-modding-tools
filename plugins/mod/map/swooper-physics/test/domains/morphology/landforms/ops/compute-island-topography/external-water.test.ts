@@ -52,7 +52,7 @@ function run(waterCells: readonly number[]) {
     expect(output.topography.landMask[index]).toBe(0);
     expect(output.topography.elevation[index]).toBeLessThanOrEqual(input.seaLevel);
   }
-  expect(artifacts.topography.validate(output.topography, {
+  expect(artifacts.initialTopography.validate(output.topography, {
     dimensions: { width: SYNTHETIC_WIDTH, height: SYNTHETIC_HEIGHT },
   })).toEqual([]);
   return output.topography.externalWaterMask;

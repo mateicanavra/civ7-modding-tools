@@ -8,7 +8,7 @@ import {
 import type { ArtifactValueOf } from "@swooper/mapgen-core/authoring";
 import { Value } from "typebox/value";
 import { artifacts as hydrographyArtifacts } from "../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
-import { artifacts as morphologyLandformsArtifacts } from "../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyErosionArtifacts } from "../../../../../../src/domain/morphology/modules/erosion/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { decodeBoundedJsonLogSeries } from "@swooper/mapgen-core/lib/log";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
@@ -99,7 +99,7 @@ function executeParity(
   };
   try {
     const result = withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyErosionArtifacts.topography, {
         elevation,
         seaLevel,
         landMask,

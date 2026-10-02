@@ -178,3 +178,47 @@ No public strategy is retained solely for a diagnostic comparison.
 This design does not yet claim calibrated physical ages, discharge units,
 sediment capacity or lake retention. Those limits do not prevent a coherent
 first terrain/network coupling, but cannot be hidden by the term Earthlike.
+
+## Certified Composition Qualification
+
+The initial/final artifact transition and numerical composition are implemented.
+The network step holds baseline rainfall, humidity, demand and attributed runoff
+while solving fresh geometry and drainage for every precise incision cycle.
+It seals ground once, solves again on those exact published integers, and admits
+all four final artifacts before publishing any of them. Initially submerged
+cells remain ineligible for incision even when the water solve later exposes
+them; immutable initial ground, not current height, owns that admission.
+Mountains consume final certified contributing area, not preliminary discharge.
+
+Focused fixtures include two-cycle topology, changed rounding topology, held
+forcing, initially submerged original-land cells, unsupported intermediate/final
+solves and complete-group publication refusal. Source, tools, test types and
+both owning Habitat checks pass. The full definition suite passes 1,171 tests
+with the one preexisting, unchanged thermal science aggregate failure.
+Evidence: `earth-calibration/c3-certified-terrain-integration-*-r3-20261001.log`
+and `c3-integration-test-types-r3-20261001.log` in the durable Civ atlas.
+
+The separately frozen `c3-certified-evolution-cohort-20261001/` completes 17
+captures, 17 paired artifact executions and 17 independent operation replays.
+All 26 certified balances satisfy their own roundoff bounds; the maximum
+per-cell process-accounting error is `7.106e-15` model-height units. B/C/D have
+exact baseline forcing, and Huge1018 C repeats exactly. Publication rounding
+and clamping are separate from incision and are not sediment flux.
+
+Independent review is aligned. One cycle at rate `.02`, m `.5`, n `1` is the
+conservative full-bank candidate, not an Earth-calibrated physical erosion
+rate. Relative to hillslope-only, it reduces wet cells by 14.1-22.5% in the
+four admitted cases; that response is not accepted because fewer lakes look
+better. The stronger `.1365` arm is mechanically valid but removes roughly
+six times more raw ground. Neither inherits equivalence from the old law.
+The 32 whole-map PNGs and eight responsive screenshots are portable evidence,
+not native navigation or complete-bank qualification. The cohort seal is
+`dd01c83a222fd54019875bebd26b8ea7929243e6442f2955e9cebf4990d29bc5`.
+
+Production controls still select zero cycles. The next qualified domino is the
+unchanged 57-scenario, 22-study bank across all three retained products, followed
+by universal adoption and reviewed deletion of the displaced combined law and
+unused preliminary Standard routing participation. Keep each stress product's
+initial diffusion, eras, age and erosion posture; do not translate them into
+channel time or new incision coefficients. No legacy fallback is an accepted
+destination.

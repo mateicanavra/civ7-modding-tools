@@ -46,9 +46,9 @@ export const ComputeShelfStep = createStep(config, {
     const size = width * height;
     const crustTiles = deps.artifacts.crustTiles.read();
     const beltDrivers = deps.artifacts.beltDrivers.read();
-    const topography = deps.artifacts.topography.read();
+    const topography = deps.artifacts.initialTopography.read();
 
-    // Final topography includes complete island formation and is immutable after publication.
+    // Island-complete bathymetry remains fixed through subsequent channel evolution.
     const landMask = topography.landMask;
     const bathymetry = topography.bathymetry;
 

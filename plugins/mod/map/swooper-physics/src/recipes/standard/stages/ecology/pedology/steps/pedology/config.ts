@@ -3,7 +3,6 @@ import { artifacts as pedologyArtifacts } from "../../../../../../../domain/ecol
 import { artifacts as climateArtifacts } from "../../../../../../../domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "../../../../../../../domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyErosionArtifacts } from "../../../../../../../domain/morphology/modules/erosion/artifacts/index.js";
-import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../domain/morphology/modules/landforms/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -15,7 +14,7 @@ export const config = defineStep({
   id: "pedology",
   description: "Classifies soil and fertility from admitted topography, substrate, and climate.",
   requires: [
-    morphologyLandformsArtifacts.topography,
+    morphologyErosionArtifacts.topography,
     morphologyErosionArtifacts.substrate,
     climateArtifacts.climateField,
     hydrographyArtifacts.hydrography,

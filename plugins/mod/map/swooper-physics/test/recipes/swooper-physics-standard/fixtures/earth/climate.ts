@@ -10,7 +10,7 @@ import {
 } from "@swooper/mapgen-core/testing";
 import { artifacts as climateArtifacts } from "../../../../../src/domain/hydrology/modules/climate/artifacts/index.js";
 import hydrology from "../../../../../src/domain/hydrology/router.js";
-import { artifacts as landformArtifacts } from "../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as shelfArtifacts } from "../../../../../src/domain/morphology/modules/shelf/artifacts/index.js";
 import morphology from "../../../../../src/domain/morphology/router.js";
 import recipe from "../../../../../src/recipes/standard/recipe.js";
@@ -83,7 +83,7 @@ export function runEarthCoastBaseline(
   const heldInputs = structuredClone({ topography, shelf, config });
   let observation: ReturnType<typeof ClimateBaselineStep.run> | undefined;
   withMapContextExecutionForTest(context, (stepContext) => {
-    publishTestArtifact(stepContext, landformArtifacts.topography, topography);
+    publishTestArtifact(stepContext, morphologyLandformsArtifacts.initialTopography, topography);
     publishTestArtifact(stepContext, shelfArtifacts.shelf, shelf);
     observation = ClimateBaselineStep.run(
       stepContext,

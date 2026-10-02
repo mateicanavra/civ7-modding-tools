@@ -194,7 +194,7 @@ export const ClimateBaselineStep = createStep(config, {
     const { width, height } = context.setup.dimensions;
     const { topLatitude, bottomLatitude } = context.setup.latitudeBounds;
 
-    const topography = deps.artifacts.topography.read();
+    const topography = deps.artifacts.initialTopography.read();
     const shelf = deps.artifacts.shelf.read();
     const elevation = topography.elevation;
     const landMask = topography.landMask;

@@ -8,7 +8,7 @@ const GROUP_ISLANDS = "Morphology / Islands";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 /**
- * Publishes final island topography and its formation evidence before water planning.
+ * Publishes island-complete initial topography before baseline climate and channel evolution.
  */
 export const IslandsStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
@@ -46,7 +46,7 @@ export const IslandsStep = createStep(config, {
         microcontinentTiles,
       };
     });
-    deps.artifacts.topography.publish(result.topography);
+    deps.artifacts.initialTopography.publish(result.topography);
     return result.islandClass;
   },
   viz: ({ observation: islandClass, dimensions }) => [

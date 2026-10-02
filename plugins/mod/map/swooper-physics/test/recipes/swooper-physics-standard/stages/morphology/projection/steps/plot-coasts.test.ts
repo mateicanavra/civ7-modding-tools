@@ -11,7 +11,7 @@ import {
 import { createEmptyWaterFixture } from "../../features/fixtures/surface-water.js";
 import { artifacts as hydrographyArtifacts } from "../../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
 import morphology from "../../../../../../../src/domain/morphology/router.js";
-import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyErosionArtifacts } from "../../../../../../../src/domain/morphology/modules/erosion/artifacts/index.js";
 import { artifacts as morphologyCoastsArtifacts } from "../../../../../../../src/domain/morphology/modules/coasts/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "../../../../../../../src/domain/morphology/modules/shelf/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
@@ -58,7 +58,7 @@ describe("map-morphology/plot-coasts", () => {
       mapSeed: TEST_MAP_SEED, dimensions: { width, height }, latitudeBounds: TEST_MAP_LATITUDE_BOUNDS,
     }) });
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyErosionArtifacts.topography, {
         landMask, externalWaterMask, elevation: new Int16Array(size).fill(-10),
         bathymetry: new Int16Array(size).fill(-10), seaLevel: 0,
       });
@@ -94,7 +94,7 @@ describe("map-morphology/plot-coasts", () => {
     }) });
     const before = initialLand.slice();
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyErosionArtifacts.topography, {
         landMask: initialLand, externalWaterMask, elevation: new Int16Array(size).fill(-10),
         bathymetry: new Int16Array(size).fill(-10), seaLevel: 0,
       });
@@ -209,7 +209,7 @@ describe("map-morphology/plot-coasts", () => {
     shelfMask[width + 2] = 1; // (2,1)
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyErosionArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask,
@@ -282,7 +282,7 @@ describe("map-morphology/plot-coasts", () => {
     shelfMask[shelfIndex] = 1;
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyErosionArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask,

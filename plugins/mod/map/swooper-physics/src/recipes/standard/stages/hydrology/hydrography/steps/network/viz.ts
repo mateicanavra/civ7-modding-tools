@@ -6,6 +6,11 @@ type Observation = {
   hydrography: ArtifactReadValueOf<typeof artifacts.hydrography>;
   lakePlan: ArtifactReadValueOf<typeof artifacts.lakePlan>;
   riverNetwork: ArtifactReadValueOf<typeof artifacts.riverNetwork>;
+  terrainEvolution?: {
+    incisionDepthByCycle: readonly (readonly number[])[];
+    roundingDelta: readonly number[];
+    clampDelta: readonly number[];
+  };
 };
 
 /** Number-to-Float32 conversion is visualization-only and cannot feed physical budgets. */
@@ -26,7 +31,26 @@ export function projectNetworkViz(
     // One anchor observation per component keeps this diagnostic additive, unlike shared member area.
     unresolvedResidual[component.anchorCell] = component.unresolvedResidual;
   }
+  const evolution = observation.terrainEvolution;
+  const incisionDepth = evolution ? new Float32Array(basinState.length) : undefined;
+  if (evolution && incisionDepth) {
+    for (let cell = 0; cell < incisionDepth.length; cell += 1) {
+      let depth = 0;
+      for (const cycle of evolution.incisionDepthByCycle) depth += cycle[cell]!;
+      incisionDepth[cell] = depth;
+    }
+  }
   return [
+    ...(evolution && incisionDepth ? ([
+      ["hydrology.channelEvolution.incisionDepth", "Channel Incision (Surface Removal)", incisionDepth],
+      ["hydrology.channelEvolution.roundingDelta", "Final Ground Rounding Delta", Float32Array.from(evolution.roundingDelta)],
+      ["hydrology.channelEvolution.clampDelta", "Final Ground Boundary Clamp Delta", Float32Array.from(evolution.clampDelta)],
+    ] as const).map(([dataTypeKey, label, values]) => ({
+      ...common,
+      dataTypeKey,
+      field: { format: "f32" as const, values },
+      meta: defineStandardVizMeta(dataTypeKey, "field.signed", { label, group, visibility: "debug" }),
+    })) : []),
           {
             ...common,
             dataTypeKey: "hydrology.hydrography.componentId",

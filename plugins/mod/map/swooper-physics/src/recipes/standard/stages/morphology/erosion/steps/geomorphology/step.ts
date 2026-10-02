@@ -49,7 +49,24 @@ export const GeomorphologyStep = createStep(config, {
               },
             },
           }
-        : stepConfig.geomorphology;
+        : stepConfig.geomorphology.strategy === "hillslope-diffusion"
+          ? {
+              ...stepConfig.geomorphology,
+              config: {
+                ...stepConfig.geomorphology.config,
+                geomorphology: {
+                  ...stepConfig.geomorphology.config.geomorphology,
+                  diffusion: {
+                    ...stepConfig.geomorphology.config.geomorphology.diffusion,
+                    rate: clampFinite(
+                      stepConfig.geomorphology.config.geomorphology.diffusion.rate * multiplier,
+                      0
+                    ),
+                  },
+                },
+              },
+            }
+          : stepConfig.geomorphology;
 
     return { ...stepConfig, geomorphology: geomorphologySelection };
   },

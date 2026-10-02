@@ -1,4 +1,5 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
+import morphology from "../../../../../domain/morphology/index.js";
 import { orderStandardStageSteps } from "../../../contract-manifest.js";
 import {
   HYDROLOGY_RIVER_DENSITY_MAJOR_PERCENTILE,
@@ -32,6 +33,13 @@ export default createStage({
       description: "Certified basin geometry, runoff, storage and river classification operations.",
     }),
     projectRiverNetwork: envelopes.projectRiverNetwork,
+    terrainEvolution: Type.Object({
+      cycles: envelopes.terrainEvolution.properties.cycles,
+      computeChannelIncision: envelopes.computeChannelIncision,
+    }, {
+      additionalProperties: false,
+      description: "Fixed-forcing terrain evolution using the certified physical network, independent of river classes.",
+    }),
   }, { additionalProperties: false }),
   compile: ({ config, knobs }) => {
     const authored = config.projectRiverNetwork;
@@ -41,6 +49,9 @@ export default createStage({
     return {
       network: {
         ...water,
+        terrainEvolution: { cycles: config.terrainEvolution.cycles },
+        computeChannelIncision: config.terrainEvolution.computeChannelIncision,
+        computeChannelTopography: morphology.erosion.ops.computeChannelTopography.defaultConfig,
         projectRiverNetwork: {
           ...authored,
           config: {

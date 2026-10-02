@@ -3,7 +3,7 @@ import { describe, expect, it } from "bun:test";
 import { type CurrentMapElevationSnapshot, MockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { artifacts as hydrographyArtifacts } from "../../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
-import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyErosionArtifacts } from "../../../../../../../src/domain/morphology/modules/erosion/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { decodeBoundedJsonLogSeries } from "@swooper/mapgen-core/lib/log";
@@ -33,7 +33,7 @@ function publishBuildElevationInputs(
   externalWaterMask = Uint8Array.from(landMask, (land) => land === 1 ? 0 : 1)
 ): void {
   const size = width * height;
-  publishTestArtifact(context, morphologyLandformsArtifacts.topography, {
+  publishTestArtifact(context, morphologyErosionArtifacts.topography, {
     elevation,
     seaLevel,
     landMask,

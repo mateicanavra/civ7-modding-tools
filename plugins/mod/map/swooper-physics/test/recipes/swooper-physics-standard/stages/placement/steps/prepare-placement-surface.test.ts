@@ -10,7 +10,7 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { artifacts as hydrographyArtifacts } from "../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
-import { artifacts as morphologyLandformsArtifacts } from "../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyErosionArtifacts } from "../../../../../../src/domain/morphology/modules/erosion/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "../../../../../../src/domain/morphology/modules/shelf/artifacts/index.js";
 import { artifacts as morphologyCoastsArtifacts } from "../../../../../../src/domain/morphology/modules/coasts/artifacts/index.js";
 import morphology from "../../../../../../src/domain/morphology/router.js";
@@ -146,7 +146,7 @@ function createFixture() {
 function executePreparation(fixture: ReturnType<typeof createFixture>) {
   const { context, topography, projectedLakes, shelf } = fixture;
   return withMapContextExecutionForTest(context, (stepContext) => {
-    publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, topography);
+    publishTestArtifact(stepContext, morphologyErosionArtifacts.topography, topography);
     publishTestArtifact(stepContext, morphologyShelfArtifacts.shelf, shelf);
     publishTestArtifact(stepContext, hydrographyArtifacts.projectedLakes, projectedLakes);
     const exposedLandMask = Uint8Array.from(topography.landMask, (land, cell) => land === 1 && projectedLakes.lakeMask[cell] === 0 ? 1 : 0);

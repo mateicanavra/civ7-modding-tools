@@ -129,7 +129,7 @@ function capturePeriodicComposition(modeCount: 2 | 4, axialTiltDeg?: number) {
   externalWaterMask[0] = 1;
   let observation: ReturnType<typeof ClimateBaselineStep.run> | undefined;
   withMapContextExecutionForTest(context, (stepContext) => {
-    publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
+    publishTestArtifact(stepContext, morphologyLandformsArtifacts.initialTopography, {
       elevation,
       seaLevel: 0,
       landMask,

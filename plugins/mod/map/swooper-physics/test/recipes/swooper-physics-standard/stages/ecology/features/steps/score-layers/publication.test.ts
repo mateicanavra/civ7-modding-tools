@@ -14,6 +14,7 @@ import ecology from "../../../../../../../../src/domain/ecology/router.js";
 import { artifacts as climateArtifacts } from "../../../../../../../../src/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "../../../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as landformsArtifacts } from "../../../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyErosionArtifacts } from "../../../../../../../../src/domain/morphology/modules/erosion/artifacts/index.js";
 import { artifacts as shelfArtifacts } from "../../../../../../../../src/domain/morphology/modules/shelf/artifacts/index.js";
 import { artifacts as coastsArtifacts } from "../../../../../../../../src/domain/morphology/modules/coasts/artifacts/index.js";
 import { ScoreLayersStep } from "../../../../../../../../src/recipes/standard/stages/ecology/features/steps/score-layers/step.js";
@@ -75,7 +76,7 @@ describe("ecology-features score-layers step", () => {
     let lotusCalls = 0;
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, landformsArtifacts.topography, topography);
+      publishTestArtifact(stepContext, morphologyErosionArtifacts.topography, topography);
       publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, lakePlan);
       publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, hydrography);
       publishTestArtifact(stepContext, hydrographyArtifacts.projectedRivers, {

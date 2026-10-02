@@ -15,7 +15,7 @@ export const config = defineStep({
     morphologyErosionArtifacts.erodedTopography,
     morphologyCoastsArtifacts.baseCoastline,
   ],
-  provides: [morphologyLandformsArtifacts.topography],
+  provides: [morphologyLandformsArtifacts.initialTopography],
 
   ops: {
     islands: morphology.landforms.ops.computeIslandTopography,
