@@ -24,7 +24,7 @@ import {
 } from "../../../../../../../setup.js";
 
 describe("biomes step", () => {
-  it("publishes classifier-owned biome and vegetation truth from Hydrology climate indices", () => {
+  it("publishes classifier-owned biome, vegetation and treeline truth from admitted Hydrology fields", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const setup = admitMapSetup({
@@ -58,6 +58,11 @@ describe("biomes step", () => {
       { length: size },
       (_value, index) => 0.9 - (index % 3) * 0.1
     );
+    const permafrost01 = Float32Array.from(
+      { length: size },
+      (_value, index) => [-0.25, 0, 0.1, 0.25, 0.75, 1, 1.25][index % 7]!
+    );
+    const permafrostBefore = permafrost01.slice();
 
     withMapContextExecutionForTest(ctx, (stepContext) => {
       publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan,
@@ -70,7 +75,7 @@ describe("biomes step", () => {
         seaIceCover: new Uint8Array(size),
         albedo: new Uint8Array(size),
         groundIce01: new Float32Array(size),
-        permafrost01: new Float32Array(size),
+        permafrost01,
         meltPotential01: new Float32Array(size),
       });
 
@@ -113,6 +118,7 @@ describe("biomes step", () => {
         surfaceTemperatureC,
         aridityIndex,
         freezeIndex,
+        permafrost01,
         soilType: new Uint8Array(size).fill(0),
         fertility: new Float32Array(size).fill(0.5),
       },
@@ -120,6 +126,11 @@ describe("biomes step", () => {
     );
     expect(classification.biomeIndex).toEqual(expected.biomeIndex);
     expect(classification.vegetationDensity).toEqual(expected.vegetationDensity);
+    expect(classification.treeLine01).toEqual(expected.treeLine01);
+    expect(classification.treeLine01).toEqual(
+      Float32Array.from(permafrost01, (value) => Math.min(1, Math.max(0, 1 - value)))
+    );
+    expect(permafrost01).toEqual(permafrostBefore);
     expect(Array.from(classification.biomeIndex)).not.toContain(255);
     expect(new Set(classification.vegetationDensity).size).toBeGreaterThan(1);
   });

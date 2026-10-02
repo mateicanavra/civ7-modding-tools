@@ -22,6 +22,7 @@ describe("classifyBiomes thermal and moisture zones", () => {
         surfaceTemperatureC: new Float32Array(size).fill(climate.temperature),
         aridityIndex: new Float32Array(size),
         freezeIndex: new Float32Array(size),
+        permafrost01: new Float32Array(size),
         soilType: new Uint8Array(size),
         fertility: new Float32Array(size).fill(0.5),
       },

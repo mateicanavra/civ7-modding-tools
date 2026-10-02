@@ -571,3 +571,23 @@ Evidence under the existing Earth-calibration user-data directory:
 `publish-truecliff.mjs`. The atlas supplement retains
 `truecliff-passage-evidence.json`, `TRUECLIFF-PUBLICATION.json` and
 `INDEPENDENT-TRUECLIFF-REVIEW-v1.md`.
+
+## October 2 Further Normal Autoplay
+
+After the sealed cliff trial, the same installed normal build completes ten
+additional game turns, T11/500 CE to T21/600 CE. One supported autoplay start
+requests ten turns with observer and return player zero. Independent status
+reads observe the remaining counter decrease through `9,7,1,0`; final local
+and observer control both return to zero. The subsequent supported stop
+confirms autoplay inactive and `paused=true`. A fresh game-status read reports
+playable, Tuner-ready, observation/mutation available and zero reported errors.
+
+This is bounded normal-session progression, not universal path coverage,
+crash-cause attribution or Earth-science admission. No new build, application
+restart, raw terrain/unit mutation or fixture map is involved. The earlier
+cliff trial's final T11 receipt remains unchanged; T21 is a later milestone.
+
+Evidence: `coherent-reach-native-navigation-20261002/NORMAL-TEN-TURN-AUTOPLAY.json`
+embeds nine primary command receipts and their hashes. Its data-only verifier
+`verify-normal-ten-turns.mjs` passes the exact turn range, single start,
+counter debit, returned actor, pause, readiness and installed-script identity.

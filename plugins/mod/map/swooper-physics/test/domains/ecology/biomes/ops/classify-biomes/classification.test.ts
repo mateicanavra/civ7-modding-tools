@@ -46,6 +46,7 @@ describe("classifyBiomes operation", () => {
           surfaceTemperatureC,
           aridityIndex,
           freezeIndex: new Float32Array(size),
+          permafrost01: new Float32Array(size),
           landMask: new Uint8Array(size).fill(1),
           soilType: new Uint8Array(size),
           fertility: new Float32Array(size).fill(0.5),
@@ -72,6 +73,7 @@ describe("classifyBiomes operation", () => {
       surfaceTemperatureC: new Float32Array(size).fill(30),
       aridityIndex: new Float32Array(size).fill(0.35),
       freezeIndex: new Float32Array(size),
+      permafrost01: new Float32Array(size),
       landMask: new Uint8Array(size).fill(1),
       soilType: new Uint8Array(size),
       fertility: new Float32Array(size).fill(0.5),
@@ -162,6 +164,7 @@ describe("classifyBiomes operation", () => {
         surfaceTemperatureC,
         aridityIndex,
         freezeIndex,
+        permafrost01: new Float32Array(size),
         landMask,
         soilType,
         fertility,
@@ -198,6 +201,7 @@ describe("classifyBiomes operation", () => {
       surfaceTemperatureC: new Float32Array(size).fill(15),
       aridityIndex: new Float32Array(size),
       freezeIndex: new Float32Array(size),
+      permafrost01: new Float32Array(size),
       landMask: new Uint8Array(size).fill(1),
       soilType: new Uint8Array(size),
       fertility: new Float32Array(size).fill(0.5),
@@ -240,6 +244,7 @@ describe("classifyBiomes operation", () => {
         surfaceTemperatureC,
         aridityIndex: new Float32Array(size),
         freezeIndex: new Float32Array(size),
+        permafrost01: new Float32Array(size),
         landMask: new Uint8Array(size),
         soilType: new Uint8Array(size),
         fertility: new Float32Array(size),
@@ -251,5 +256,47 @@ describe("classifyBiomes operation", () => {
     );
 
     expect(result.surfaceTemperature[0]).toBeGreaterThan(result.surfaceTemperature[1]!);
+  });
+
+  it("owns the exact all-cell Float32 treeline response without changing classification", () => {
+    const width = 8;
+    const height = 1;
+    const size = width * height;
+    const permafrost01 = Float32Array.of(-0.25, 0, 0.1, 0.25, 0.75, 0.9, 1, 1.25);
+    const input = {
+      width,
+      height,
+      effectiveMoisture: new Float32Array(size).fill(110),
+      surfaceTemperatureC: new Float32Array(size).fill(15),
+      aridityIndex: new Float32Array(size),
+      freezeIndex: new Float32Array(size),
+      permafrost01,
+      landMask: Uint8Array.of(1, 0, 1, 0, 1, 0, 1, 0),
+      soilType: new Uint8Array(size),
+      fertility: new Float32Array(size).fill(0.5),
+    };
+    const before = structuredClone(input);
+    const selection = normalizeOperationSelectionForTest(
+      ecology.biomes.ops.classifyBiomes,
+      ecology.biomes.ops.classifyBiomes.defaultConfig
+    );
+    const result = ecology.biomes.ops.classifyBiomes.run(input, selection);
+    const control = ecology.biomes.ops.classifyBiomes.run(
+      { ...input, permafrost01: new Float32Array(size) },
+      selection
+    );
+    const expected = Float32Array.from(permafrost01, (value) => Math.min(1, Math.max(0, 1 - value)));
+
+    expect(result.treeLine01).toBeInstanceOf(Float32Array);
+    expect(result.treeLine01).toEqual(expected);
+    expect(result.treeLine01).not.toBe(permafrost01);
+    expect(control.treeLine01).toEqual(new Float32Array(size).fill(1));
+    expect(input).toEqual(before);
+    expect(result.biomeIndex).toEqual(control.biomeIndex);
+    expect(result.vegetationDensity).toEqual(control.vegetationDensity);
+    expect(result.effectiveMoisture).toEqual(control.effectiveMoisture);
+    expect(result.surfaceTemperature).toEqual(control.surfaceTemperature);
+    expect(result.aridityIndex).toEqual(control.aridityIndex);
+    expect(result.freezeIndex).toEqual(control.freezeIndex);
   });
 });

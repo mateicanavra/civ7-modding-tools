@@ -63,6 +63,7 @@ describe("ecology vegetation moisture flow", () => {
             surfaceTemperatureC: new Float32Array(size).fill(20),
             aridityIndex: new Float32Array(size).fill(0.1),
             freezeIndex: new Float32Array(size).fill(0.05),
+            permafrost01: new Float32Array(size),
             soilType: new Uint8Array(size).fill(2),
             fertility,
           },

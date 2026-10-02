@@ -7,13 +7,17 @@ ultimately project. Investigation completion is not product completion.
 
 ## Current Outcome Boundary
 
-The core owner/projection repairs are merged through PR #2238 at main
-`a25d5641c0c121f4ea202e0fdf0fb799c3bee07c`. The
+The qualified owner, C3, coherent-reach and native movement milestones are
+merged through PR #2248 at main
+`cec8991c6fb34885cbd9fcf4ced462d897731981`. The
 [delivery inventory](delivery-inventory.md) owns current build and proof
 identities; dated investigations below retain their historical scope.
 Completed investigation is not completion of the remaining physical outcomes.
-The active owners are thermal source-boundary calibration, directed cliff-mouth
-movement, and C3 climate-fed terrain/network evolution. Dimensional Earth
+The active physical owners are thermal source-boundary and dimensional relief
+calibration. C3 climate-fed terrain/network evolution is implemented; normal
+vessel arrivals qualify the tested cliff mouth in both directions without
+carving. Its apparent visual join remains distinct from gameplay passage.
+Dimensional Earth
 calibration remains required before claiming empirical area/time/flux or relief
 agreement; it does not block the explicitly model-unit first C3 treatment.
 Neither a density quota nor a new climate integrator is a prerequisite.
@@ -29,13 +33,13 @@ is a baseline and discriminator, not the finished solution.
 | Numeric elevation | Authored native elevation, live qualification and retained water/wonder exceptions | Preserve those guards during further changes |
 | Climate banding | Consolidated causal thermal artifacts, forcing/coordinate and moisture corrections; cohort and native checks | The unchanged within-row thermal gate still fails; repair at the actual source owner, without noise or fitted gain |
 | Mountains, hills and coasts | Coherent relief, shelf repair, relief-supported landforms; old peak-chain proxy removed | Preserve relief support as terrain evolves |
-| Basin-aware lakes and rivers | Certified static drainage, budgets, footprints, dry minor/NAV authorship; generalized wet NAV outlet declarations | Cliff-transition regime and actual traversal |
-| Time/erosion/network coherence | Same-seed causal comparisons identified weak incision and fixed preliminary routing | Final climate-fed basin network does not yet shape the terrain it drains |
-| Density and scale | Current Huge1018: 318 dry NAV cells, 12.63% of exposed land; four cases/twelve classification arms independently reviewed, baseline retained | Scientific area/time/flux and relief admission; no Firaxis quota or invented km-per-tile calibration |
-| Cliffs and navigation | Final-height cliff generation; actual normal Cog NAV entry, bidirectional interior travel and marine exit | Directed true-cliff arrival with a normally acquired vessel in the relevant component |
+| Basin-aware lakes and rivers | Certified drainage, budgets, footprints, dry minor/NAV authorship and generalized wet NAV outlet declarations; actual ordinary, lake and cliff passage witnesses | Preserve physical heads and separate apparent joins from bounded passage and native lake taxonomy |
+| Time/erosion/network coherence | Certified climate-fed incision, fresh basin/network resolution and retired preliminary channel path across all three products | Physical area/time/flux calibration; no unsupported geological age claim |
+| Density and scale | Selected Huge1018: 320 dry NAV cells on 2,556 exposed land cells (12.52%); coherent-reach policy retained after the tile-level candidate fails native realization | Scientific area/time/flux and relief admission; no Firaxis quota or invented km-per-tile calibration |
+| Cliffs and navigation | Final-height cliff generation; matched cliff-free and true-cliff mouths crossed both ways by the same normal Cog; ten further normal autoplay turns complete | Bounded routes do not prove universal navigation or repair every apparent shoreline join |
 | Lake junctions at (87,31) and larger lake | Wet outlet writes and final-height preservation implemented; normal finite/external heads qualified; V25 discriminates arbitrary under-rim heads | Respect the bounded native capability limit for any actual under-rim/below-sea product case; no blanket cutoff increase or terrain carving |
-| Whole-map studies and images | Reusable comparison script, 28 native frames, diagnostic PNGs, flow arrows, phone viewer | Update with final accepted implementation, not just candidate captures |
-| Domain operations / step size | Inventory completed; basin and erosion algorithms already have domain operations | Climate coupling, mountain noise and treeline computation remain extraction candidates |
+| Whole-map studies and images | Diagnostic PNGs, flow arrows, phone viewer, eighteen selected-build views and two actual cliff-arrival photographs | Refresh after the next accepted physical change; keep each image's build and turn explicit |
+| Domain operations / step size | Basin and erosion algorithms have domain operations; treeline derivation belongs to the existing biome classifier | Mountain noise remains a bounded extraction candidate; climate coupling is recipe orchestration of existing domain operations |
 | Glossary | Functional glossary with model owners and source links | Extend only for newly introduced concepts |
 | Resource generator and CI | Current-resource compatibility and scoped integrated checks pass | Do not claim uncached whole-repository or remote CI without executing it |
 
@@ -43,6 +47,28 @@ Sources: [relief](relief-coherence.md), [climate](earthlike-climate.md),
 [basin integration](basin-integration.md), [navigation](native-navigation.md),
 [visual/ownership audit](visual-audit.md), [resources](resources.md), and
 [water/relief glossary](../../system/libs/mapgen/reference/domains/water-and-relief-glossary.md).
+
+The existing `ecology/biomes/classify` operation admits cryosphere
+`permafrost01` and returns `treeLine01`. Its existing strategy computes
+`Float32(clamp01(1 - permafrost01))` for every cell, including water; the biome
+step forwards that result to the existing observation and artifact without a
+second computation or publication. Climate, biome thresholds, vegetation,
+Gaussian refinement and cryosphere vintage remain unchanged. This ownership
+move does not add a thermal law or require a climate orchestration framework.
+
+Its independent SDK review is ALIGNED. The final owner check/build graph passes
+all 32 tasks, including source/test/tool types and Habitat; realization tests
+pass all 371 tests. Definition tests report 1,178 passes and the existing science
+aggregate failure. The earlier publication-test typing refusal is repaired by
+removing a gratuitous wrapper, not by adding casts or another type envelope.
+Fresh serial capture of all 57 cases reproduces the five retained input,
+study, field-digest, measurement and evaluation files byte-for-byte. All 4,430
+expectations are unchanged, including the remaining temperature-variation and
+savanna failures. `treeLine01` is not retained by `StandardMapCapture`; its
+direct identity comes from the classifier/publication tests instead. Evidence:
+`earth-calibration/treeline-owner-bank-20261002/TREELINE-IDENTITY.json` and
+`treeline-owner-check-build-20261002.log`. This is source/owner qualification,
+not a new deployment, native generation or scientific calibration claim.
 
 ## Selected Path
 
@@ -78,7 +104,7 @@ serial committed implementations and a single coordinated live-game operator.
 | C0: restore execution | Native Graphite cleanup; explicit open-work accounting | Empty branch removed without commit/tree loss; no operational gate masquerades as a map defect |
 | C1: qualify wet joins | App-owned full-map probe, repeated singleton arm and body42 outlet-only versus complete wet spine | Same dry writes, heights, lake masks and finalizer; reproducible visual join improvement with unaffected controls |
 | C2: generalize projection | Wet outlet policy and final-height lifecycle repair implemented, reviewed and merged; normal-map heads and V25 capability discriminator complete | Preserve ordinary-map heads and native dry/wonder edits; keep arbitrary under-rim projection limits separate from movement |
-| C3: basin evolution | Review explicit terrain/routing/incision composition using certified network and fixed existing climate forcing | Causal process metrics and integrity before default changes; final network/terrain agreement across the held cohorts |
+| C3: basin evolution | Implemented and merged: certified network drives incision, geometry/network are recomputed and the earlier channel path is retired | Preserve accepted process/cohort guards while calibrating physical units separately |
 | C4: density and architecture | Existing classification arms compared independently: baseline retained; candidate class changes do not repair drainage | Keep numerical evolution in domain operations; revisit density only after a new physical/calibration result, not another count-fitting sweep |
 | C5: close the outcome | Full study bank, fresh Huge native generation, actual movement controls, gallery refresh, independent review | Every remaining claim is either verified or an explicit bounded product decision, not an unowned future task |
 
@@ -87,7 +113,7 @@ if the visual defect has an independent projection repair. C4 follows the
 mechanism fixes so density cannot conceal broken joins or ineffective erosion.
 The independently reviewed [basin evolution design](basin-evolution-design.md)
 pins the initial/final artifact migration and contributing-area semantics;
-it is not an implemented result.
+its dated implementation and retirement qualification now close C3.
 The [Earth calibration design](earth-calibration.md) now separates a frozen
 physical surface with reference forcing from that same surface with predicted
 climate. Build this baseline before tuning C3 evolution and C4 class density;

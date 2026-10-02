@@ -1,5 +1,4 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { clamp01 } from "@swooper/mapgen-core/lib/math";
 import { buildScalarFieldProjections } from "@swooper/mapgen-viz";
 import { defineStandardVizCategoryMeta, defineStandardVizMeta } from "../../../../../viz.js";
 import {
@@ -32,18 +31,13 @@ export const BiomesStep = createStep(config, {
         surfaceTemperatureC: climateIndices.surfaceTemperatureC,
         aridityIndex: climateIndices.aridityIndex,
         freezeIndex: climateIndices.freezeIndex,
+        permafrost01: cryosphere.permafrost01,
         landMask,
         soilType: pedology.soilType,
         fertility: pedology.fertility,
       },
       stepConfig.classify
     );
-
-    const size = width * height;
-    const treeLine01 = new Float32Array(size);
-    for (let i = 0; i < size; i++) {
-      treeLine01[i] = clamp01(1 - (cryosphere.permafrost01?.[i] ?? 0));
-    }
 
     const classification = {
       width,
@@ -52,14 +46,13 @@ export const BiomesStep = createStep(config, {
       groundIce01: cryosphere.groundIce01,
       permafrost01: cryosphere.permafrost01,
       meltPotential01: cryosphere.meltPotential01,
-      treeLine01,
     };
     deps.artifacts.biomeClassification.publish({
       width,
       height,
       biomeIndex: classification.biomeIndex,
       vegetationDensity: classification.vegetationDensity,
-      treeLine01,
+      treeLine01: classification.treeLine01,
     });
     return classification;
   },

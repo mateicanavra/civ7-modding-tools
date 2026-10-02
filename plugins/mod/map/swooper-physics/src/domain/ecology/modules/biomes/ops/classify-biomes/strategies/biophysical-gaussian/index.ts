@@ -1,5 +1,6 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { wrapX } from "@swooper/mapgen-core/lib/grid";
+import { clamp01 } from "@swooper/mapgen-core/lib/math";
 
 import Contract from "../../contract.js";
 import { classifyBiomesFromFields } from "../../rules/classify.js";
@@ -81,7 +82,7 @@ function refineBiomeIndexGaussian(args: {
   return working;
 }
 
-/** Combines biophysical climate thresholds with deterministic Gaussian edge smoothing while preserving the water sentinel. */
+/** Combines biophysical climate thresholds, permafrost-derived treeline, and deterministic Gaussian edge smoothing while preserving the water sentinel. */
 const biophysicalGaussianStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input, config) => {
     const { width, height } = input;
@@ -128,9 +129,15 @@ const biophysicalGaussianStrategy = createStrategy(Contract, StrategyDefinition,
       iterations: config.edgeRefine.iterations,
     });
 
+    const treeLine01 = new Float32Array(size);
+    for (let i = 0; i < size; i++) {
+      treeLine01[i] = clamp01(1 - (input.permafrost01[i] ?? 0));
+    }
+
     return {
       biomeIndex: refinedBiomeIndex,
       vegetationDensity,
+      treeLine01,
       effectiveMoisture: new Float32Array(effectiveMoistureIn),
       surfaceTemperature: new Float32Array(surfaceTemperatureC),
       aridityIndex: new Float32Array(aridityIndexIn),
