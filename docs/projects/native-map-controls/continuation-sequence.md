@@ -30,6 +30,10 @@ regression. The same registered mod's fresh Huge1018 native generation applies
 23 savanna tiles with no rejection and exact 346 minor/320 navigable sources;
 four current photos show the admitted habitats. The temperature floor remains
 unchanged and unwaived.
+The repair is merged through PR #2251. Its fresh session also completes ten
+normal autoplay turns, T1 to T11/500 CE, with player/observer zero returned and
+autoplay inactive and paused. Those are current-build receipts, distinct from
+the earlier Cog routes and eighteen-view atlas.
 Refused candidates do not install a new physical law or
 height codec. The current external coupled surface/air candidate's r4
 manufactured controls pass and both full-grid solves settle, but its annual
@@ -43,6 +47,13 @@ that the direction activates. All nine valid damped trials worsen the original
 vapor residual. This warrants a separately bounded branch-consistent numerical
 linearization study, not physical-law tuning, looser admission or a new
 production pipeline. The retained r5 refusal remains immutable.
+The subsequent [coupled first-stage discriminator](coupled-thermal-numerics.md)
+qualifies branch-consistent original-equation Newton on that exact retained
+six-cell stage: 76 derivative controls and three full steps pass under unchanged
+physical laws and residual limits. A separately frozen accounting-only replay
+corrects the external harness's exact-runtime RSS units without altering the
+method. Full-grid/shared-pole numerical and timestep-refinement qualification
+remain next; no Earth score or production adoption follows from this stage.
 Sediment transport, lake infilling and full weather dynamics are optional
 processes, not prerequisites for a coherent calibrated baseline.
 

@@ -2,7 +2,7 @@
 
 A functional companion to [Hydrology](HYDROLOGY.md), [Morphology](MORPHOLOGY.md)
 and the [coherence study](../../../../../projects/native-map-controls/network-coherence-investigation.md).
-These entries describe Earthlike's **certified** path, not every legacy strategy.
+These entries describe Earthlike's current path, not historical strategies.
 Real-world sources explain the concepts; they do not make our tiles, heights,
 flow totals or iterations kilometres, metres, cubic metres per second or years.
 
@@ -91,8 +91,8 @@ Learn: [EPA streams and headwaters](https://www.epa.gov/cwa-404/learn-about-stre
 ### Surface Temperature And Thermal Vintage
 
 A temperature field is one property over the map. Baseline publishes its annual
-ground-temperature result as `thermalField`: a dense cycle integral for the
-periodic strategy, or the original sample mean for legacy strategies. Refinement
+ground-temperature result as `thermalField`: the periodic strategy's dense cycle
+integral. Refinement
 applies albedo feedback and publishes the later temperature in the immutable
 `climateIndices` descriptor product. Ecology and placement consume that final
 product, not another temperature calculation. Field and artifact describe
@@ -102,6 +102,16 @@ which deliberately excludes terrain cooling. Our Celsius-valued surface proxy
 is not automatically equivalent to observed ground skin or two-meter air
 temperature. [Thermal ownership and reference](../../../../../projects/native-map-controls/thermal-coherence.md).
 Learn: [NOAA reference-variable classification](https://www.cpc.ncep.noaa.gov/products/precip/atlas_2/cont_data.html).
+
+### Annual Availability Versus Water Stress
+
+The substrate's `water01` summarizes composite annual water availability,
+including effective moisture. It is not rainfall in millimetres, waterlogging
+or the duration of a dry season. Water stress separately describes the annual
+supply/demand relationship. Ecology uses both to score habitat; abundant supply
+alone does not establish an exclusion such as inundation. Wet exposure,
+occupancy and biome admission remain separate authorities.
+[Savanna admission example](../../../../../projects/native-map-controls/savanna-water-supply.md).
 
 ### Lapse Rate And Model Relief
 
