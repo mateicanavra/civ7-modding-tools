@@ -38,29 +38,34 @@ channel drops survive.
 ## Diagnostic Contracts
 
 **Native-index routing under controlled supply.** The actual drainage-basin,
-local-runoff, certified open-basin-network, river-projection and body-aware
-classification operations consume unchanged native indices and the independent
-source water mask. Rainfall 100, humidity 128 and demand 10 are controlled
+local-runoff, certified basin-network, river-projection and body-aware
+classification operations consume unchanged native indices and an explicit
+external-water prescription derived from the independent source water mask.
+Rainfall 100, humidity 128 and demand 10 are controlled
 indices, with the runoff operation's explicit default infiltration/humidity
 policy. Area is one model tile, not spherical Earth area. Discharge is an
 index flux, not cubic metres per second; demand is not measured evaporation.
 Native-index slopes and basin volumes have no physical calibration.
 
-All source water is an external sink **for this diagnostic only**. The solver's
-`marineExits` field therefore means exits to admitted source water here, not
-proof of marine destination. The 3,767-cell largest water component is retained
-separately from 34 enclosed coast components totaling 71 cells. Their lake beds,
-native classifications, marine exchange and water budgets are unsupported
-reference questions; the fixture neither treats their surface as a bed nor
-silently recategorizes them as land. Predicted wet bodies on source land are
-distinct from these pre-existing wet references. This arm cannot score accurate
-Earth terminal destinations or closed-lake reconstruction.
+Only the 3,767-cell largest source-water component is prescribed as external
+water at head zero **for this diagnostic only**. The solver's `marineExits`
+therefore terminate in that admitted component; tests exclude exits into the
+other 34 source-water components, which total 71 enclosed coast cells. Those
+cells retain their source-water identity in the reference, but participate as
+finite eligible ground in this routing prescription, using their unchanged
+native elevation indices. This does not establish their lake beds, native
+classifications, marine exchange or water budgets. Resolved wet/dry exposure
+is a diagnostic result, not a reconstruction of the original water mask. This
+arm cannot score accurate Earth terminal destinations or closed-lake
+reconstruction.
 
-The rain-zero control must retain a dry unsupported certificate. Raising demand
-to 100 at rainfall 100 must retain a closed unsupported certificate and no
-partial plan. The supported case checks receiver adjacency, downhill water
-surface, conservation within the operation's numerical bound, exact
-repeatability, and unchanged supplied terrain/forcing. A class-only percentile
+The rain-zero control (rainfall 0, demand 10) returns a supported plan with dry
+pools and terminals. Raising demand to 100 at rainfall 100 returns a supported
+plan with closed pools and `closed-wet` terminals, without synthesizing an open
+network. Both controls check finite-cell terminal coverage, exact repeatability
+and unchanged supplied inputs. The supply case additionally checks receiver
+adjacency, downhill water surface and conservation within the operation's
+numerical bound. A class-only percentile
 change must change classes without changing the physical network. No river
 count is fitted to Firaxis or promoted to an empirical acceptance threshold.
 
