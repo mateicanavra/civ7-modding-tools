@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyErosionArtifacts } from "../../../../../../src/domain/morphology/modules/erosion/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { createEmptyWaterFixture } from "../../morphology/features/fixtures/surface-water.js";
 import { artifacts as placementRegionArtifacts } from "../../../../../../src/domain/placement/modules/regions/artifacts/index.js";
@@ -55,7 +56,7 @@ describe("landmass-region materialization", () => {
     const ops: PlotLandmassRegionsOps = { regions };
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyErosionArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask: new Uint8Array(size),

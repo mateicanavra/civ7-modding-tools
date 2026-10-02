@@ -4,6 +4,7 @@ import { artifacts as climateArtifacts } from "../../../../../../domain/hydrolog
 import { artifacts as cryosphereArtifacts } from "../../../../../../domain/hydrology/modules/cryosphere/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "../../../../../../domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyErosionArtifacts } from "../../../../../../domain/morphology/modules/erosion/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "../../../../../../domain/morphology/modules/shelf/artifacts/index.js";
 import { artifacts as morphologyCoastsArtifacts } from "../../../../../../domain/morphology/modules/coasts/artifacts/index.js";
 import { artifacts as morphologyTerrainArtifacts } from "../../../../../../domain/morphology/modules/terrain/artifacts/index.js";
@@ -28,7 +29,7 @@ export const config = defineStep({
   ] as const,
   requires: [
     STANDARD_COMPLETIONS.surfacePrepared,
-    morphologyLandformsArtifacts.topography,
+    morphologyErosionArtifacts.topography,
     morphologyShelfArtifacts.shelf,
     morphologyCoastsArtifacts.resolvedCoastline,
     morphologyLandformsArtifacts.mountains,

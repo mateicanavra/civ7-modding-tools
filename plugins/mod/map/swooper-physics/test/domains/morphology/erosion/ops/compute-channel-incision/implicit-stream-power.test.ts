@@ -14,6 +14,7 @@ const run = (input: Input, config: Config = selection.config) => runAdmittedOper
 function profile(elevation: number[], receiver: number[], dryDischarge: number[]): Fixture {
   return {
     width: 1, height: elevation.length, elevation: elevation.slice(),
+    initialElevation: Int16Array.from(elevation),
     originalLandMask: new Uint8Array(elevation.length).fill(1),
     externalWaterMask: new Uint8Array(elevation.length),
     exposedLandMask: new Uint8Array(elevation.length).fill(1),
@@ -90,6 +91,15 @@ describe("morphology/compute-channel-incision", () => {
     expect(run(input).elevation).toEqual(input.elevation);
   });
 
+  it("preserves initially submerged exposed land but keeps initially eligible ground active below sea", () => {
+    const input = profile([-1, -2, -3], [1, 2, -1], [1, 1, 0]);
+    input.initialElevation[1] = 5;
+    const output = run(input);
+    expect(output.elevation).toEqual([-1, -2.5, -3]);
+    expect(output.incisionDepth).toEqual([0, 0.5, 0]);
+    expect(input.initialElevation).toEqual(Int16Array.of(-1, 5, -3));
+  });
+
   it("is deterministic, preserves every input and keeps full Number fractions", () => {
     const input = profile([100 + 2 ** -30, 100, 0], [1, 2, -1], [1, 1, 0]);
     const before = structuredClone(input), first = run(input), second = run(input);
@@ -118,6 +128,7 @@ describe("morphology/compute-channel-incision", () => {
     if (first.status !== "supported") throw new Error(JSON.stringify(first));
     const output = run({
       width: terrain.width, height: terrain.height, elevation: terrain.elevation,
+      initialElevation: Int16Array.from(terrain.elevation),
       originalLandMask: Uint8Array.from(terrain.externalWaterMask, value => value ? 0 : 1),
       externalWaterMask: terrain.externalWaterMask,
       exposedLandMask: first.plan.exposedLandMask, wetMask: first.plan.wetMask,

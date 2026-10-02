@@ -1,6 +1,13 @@
 # Native Map Controls
 
-Status: active Earthlike-first coherence completion. The supported catalog is
+Status: active Earthlike-first coherence completion. The qualified runtime
+lineage and precise channel operation are now merged into main through native
+Graphite PRs #2238, #2239 and #2240. The next completed-source domino is
+certified terrain/network composition, independently reviewed with frozen
+cohort evidence; production activation awaits the unchanged full bank.
+See [certified composition qualification](basin-evolution-design.md#certified-composition-qualification)
+and the [current evidence inventory](delivery-inventory.md#certified-terrain-and-current-native-evidence).
+The supported catalog is
 Earthlike, Desert Mountains and Sundered Archipelago; the latter two are stress
 products, not parallel calibration targets. The [delivery inventory](delivery-inventory.md)
 separates implemented, deployed, live-tested and merged claims, original goals
@@ -58,7 +65,8 @@ source-pinned routing and coast/climate discriminators, not a coupled golden
 Earth simulation. The failed config-only calibration candidate uncovered
 competing thermal owners; [thermal coherence](thermal-coherence.md) defines
 the corrective handoff and independent calibration requirements. Accepted
-fixes remain in this isolated stack, not merged to main.
+fixes are reconciled in the same lineage; the qualified runtime prefix is now
+merged to main, while later candidates retain separate admission evidence.
 
 The [climate artifact lineage](climate-artifact-lineage.md) settles publication
 ownership under the existing blueprint; it does not choose new physical

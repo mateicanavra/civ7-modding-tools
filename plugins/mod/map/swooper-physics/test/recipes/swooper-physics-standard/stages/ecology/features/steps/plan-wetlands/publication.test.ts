@@ -7,6 +7,7 @@ import { artifacts as featureArtifacts } from "../../../../../../../../src/domai
 import ecology from "../../../../../../../../src/domain/ecology/router.js";
 import { artifacts as hydrographyArtifacts } from "../../../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyErosionArtifacts } from "../../../../../../../../src/domain/morphology/modules/erosion/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -64,7 +65,7 @@ describe("ecology-features plan-wetlands step", () => {
       publishTestArtifact(stepContext, featureArtifacts.reefIntents, []);
       publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, createEmptyWaterFixture(width, height).hydrography);
       publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, createEmptyWaterFixture(width, height).lakePlan);
-      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyErosionArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask: new Uint8Array(size).fill(1),

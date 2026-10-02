@@ -16,7 +16,7 @@ export const config = defineStep({
   id: "compute-shelf",
   requires: [
     foundationProjectionArtifacts.crustTiles,
-    morphologyLandformsArtifacts.topography,
+    morphologyLandformsArtifacts.initialTopography,
     morphologyTerrainArtifacts.beltDrivers,
   ],
   provides: [morphologyShelfArtifacts.shelf],

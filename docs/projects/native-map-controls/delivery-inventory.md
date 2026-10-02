@@ -399,3 +399,48 @@ This is not an outstanding ordinary-map failure or a reason to carve terrain,
 raise cutoff globally or falsify physical water heads. Arbitrary under-rim and
 below-sea projection remains a capability limit with a concrete product-case
 trigger. See [the qualified witness](water-height-maintenance.md#declared-finite-head-projection-witness).
+
+## Certified Terrain And Current Native Evidence
+
+The bounded Earthlike qualification and precise channel operation have merged
+natively through Graphite PRs #2239 and #2240. Main now contains both; this is
+not an unmerged competing stack. The current installed build is that merged
+precise-operation build, not the subsequent terrain-cycle candidate.
+Its normal saved Huge2/2 Exploration game, twelve players, completes all seven
+live verification stages in 37 seconds without a full application exit.
+
+The [certified composition](basin-evolution-design.md#certified-composition-qualification)
+now publishes final topography and water/network products from one causal
+composition. Source/type/Habitat verification passes; full definition tests
+pass 1,171 with the retained thermal aggregate failure. Independent review
+finds no required correction. The frozen four-map coefficient study completes
+all captures/replays, conservation and exact forcing holds. Default activation,
+whole-bank acceptance, legacy retirement and fresh native candidate imagery
+remain distinct subsequent claims. No experiment file or scientific Earth
+fixture enters the procedural recipe.
+
+A fresh app-owned read-only native census on the current Huge2 build records
+all 6,996 cells, 221 navigable sources and 1,326 directed edge observations.
+There are 144 navigable-to-ordinary-water adjacencies and three true cliff
+edges, from sources `(80,10)` and `(81,30)`, all toward marine water. This proves
+the cliff cases exist; it does not prove vessel passage or a renderer defect.
+Evidence: `earth-calibration/current-main-huge2-nav-cliffs-small-r2-20261001/`.
+Serial bounded reads succeeded after a large diagnostic request timed out;
+the game remained healthy. Those transport failures are retained separately.
+The latest Advanced Start selection did not produce a vessel because its Cogs
+card requires a water building. It is not a failed cliff-navigation test.
+The next live setup must establish that ordinary gameplay prerequisite first.
+
+Three additional climate discriminators are complete and not selected:
+removing seasonal pressure worsens wind/thermal guards; an observed-ice
+diagnostic improves frozen winter air but regresses summer guards; a common
+six-coefficient wet-air law improves pooled error but regresses held ice-free
+annual and regional comparisons. Independent review confirms the rejection
+boundaries. Their seals and complete outcomes remain in
+`earth-seasonal-pressure-owner-ablation-20261001/`,
+`earth-frozen-surface-air-boundary-admission-20261001/`, and
+`earth-wet-air-source-qualification-20261001/`. These are useful mechanism
+discriminators, not climate fixes or a reason to waive the science failure.
+The next source admission explicitly separates water/ice energy, marine-air
+transfer and dimensional terrain authority; normalized relief and annual SST
+cannot silently supply those missing physical quantities.

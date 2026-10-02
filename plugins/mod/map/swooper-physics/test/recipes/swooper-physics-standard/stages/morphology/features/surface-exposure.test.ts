@@ -16,7 +16,7 @@ import morphology from "../../../../../../src/domain/morphology/router.js";
 import { MountainsStep } from "../../../../../../src/recipes/standard/stages/morphology/features/steps/mountains/step.js";
 import { VolcanoesStep } from "../../../../../../src/recipes/standard/stages/morphology/features/steps/volcanoes/step.js";
 import { TEST_MAP_SEED } from "../../../../../setup.js";
-import { createSurfaceWaterFixture } from "./fixtures/surface-water.js";
+import { createEmptyWaterFixture, createSurfaceWaterFixture } from "./fixtures/surface-water.js";
 
 const { planRidges, planFoothills, planRoughLands, planVolcanoes } = morphology.landforms.ops;
 
@@ -45,11 +45,14 @@ describe("post-water surface landform eligibility", () => {
     const distanceToCoast = new Uint16Array(size).fill(9);
     const resolvedDistanceToCoast = new Uint16Array(size);
     const calls: string[] = [];
+    const upstreamArea = new Int32Array([0, 4, 4, 3, 1, 1, 1, 1]);
+    const riverNetwork = { ...createEmptyWaterFixture(width, height).riverNetwork, upstreamArea };
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, landformsArtifacts.topography, topography);
+      publishTestArtifact(stepContext, erosionArtifacts.topography, topography);
       publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, fixture.hydrography);
       publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, fixture.lakePlan);
+      publishTestArtifact(stepContext, hydrographyArtifacts.riverNetwork, riverNetwork);
       publishTestArtifact(stepContext, terrainArtifacts.beltDrivers, {
         boundaryCloseness: strong(), boundaryType,
         upliftPotential: strong(), collisionPotential: strong(), subductionPotential: strong(),
@@ -61,7 +64,7 @@ describe("post-water surface landform eligibility", () => {
         erodibilityK: new Float32Array(size).fill(0.2), sedimentDepth: new Float32Array(size).fill(0.5),
       });
       publishTestArtifact(stepContext, routingArtifacts.routing, {
-        flowDir: new Int32Array(size).fill(-1), flowAccum: new Float32Array(size), basinId: new Int32Array(size).fill(-1),
+        flowDir: new Int32Array(size).fill(-1), flowAccum: new Float32Array(size).fill(999), basinId: new Int32Array(size).fill(-1),
       });
       publishTestArtifact(stepContext, coastsArtifacts.resolvedCoastline, {
         coastalLand: new Uint8Array(size), coastalWater: new Uint8Array(size), distanceToCoast: resolvedDistanceToCoast,
@@ -76,7 +79,7 @@ describe("post-water surface landform eligibility", () => {
         movementU: new Int8Array(size), movementV: new Int8Array(size), rotation: new Int8Array(size),
       });
 
-      MountainsStep.run(stepContext, {
+      const runMountains = () => MountainsStep.run(stepContext, {
         ridges: planRidges.defaultConfig,
         foothills: planFoothills.defaultConfig,
         roughLands: planRoughLands.defaultConfig,
@@ -105,9 +108,18 @@ describe("post-water surface landform eligibility", () => {
           expect(input.distanceToCoast).toBe(distanceToCoast);
           expect(input.distanceToCoast).not.toBe(resolvedDistanceToCoast);
           expect(input.seaLevel).toBe(topography.seaLevel);
+          expect(input.flowAccum).toEqual(Float32Array.from(upstreamArea));
+          expect(input.flowAccum).not.toEqual(Float32Array.from(fixture.hydrography.discharge));
           return planRoughLands.run(input, config);
         },
       }, buildStepTestDependencies(MountainsStep, stepContext));
+      for (const invalidArea of [-1, 2 ** 24 + 1]) {
+        upstreamArea[0] = invalidArea;
+        expect(runMountains).toThrow(/nonnegative integer exactly representable in Float32/);
+        expect(calls).toEqual([]);
+      }
+      upstreamArea[0] = 0;
+      runMountains();
 
       VolcanoesStep.run(stepContext, {
         volcanoes: {
@@ -134,6 +146,8 @@ describe("post-water surface landform eligibility", () => {
     expect(mountains.mountainMask[majorChannel]).toBe(0);
     expect(fixture).toEqual(before);
     expect(MountainsStep.contract.requires).toContain(shelfArtifacts.shelf);
+    expect(MountainsStep.contract.requires).toContain(hydrographyArtifacts.riverNetwork);
+    expect(MountainsStep.contract.requires).not.toContain(routingArtifacts.routing);
     expect(MountainsStep.contract.requires).not.toContain(coastsArtifacts.resolvedCoastline);
   });
 });

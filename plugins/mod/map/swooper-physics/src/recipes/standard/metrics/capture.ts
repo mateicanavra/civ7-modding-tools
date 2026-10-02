@@ -11,6 +11,7 @@ import { artifacts as pedologyArtifacts } from "../../../domain/ecology/modules/
 import { artifacts as climateArtifacts } from "../../../domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "../../../domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyErosionArtifacts } from "../../../domain/morphology/modules/erosion/artifacts/index.js";
 import { artifacts as morphologyCoastsArtifacts } from "../../../domain/morphology/modules/coasts/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "../../../domain/morphology/modules/shelf/artifacts/index.js";
 import { artifacts as placementRegionArtifacts } from "../../../domain/placement/modules/regions/artifacts/index.js";
@@ -80,6 +81,10 @@ import {
   StandardPlacementParityMeasurementsSchema,
 } from "./families/placement-parity.js";
 import { defineStandardMapMetricScenario, type StandardMapMetricScenario } from "./scenario.js";
+import {
+  type StandardChannelEvolutionMeasurements,
+  StandardChannelEvolutionMeasurementsSchema,
+} from "./families/hydrology/channel-evolution.js";
 
 type Volcanoes = ArtifactReadValueOf<typeof morphologyLandformsArtifacts.volcanoes>;
 type Landmasses = ArtifactReadValueOf<typeof morphologyLandformsArtifacts.landmasses>;
@@ -181,6 +186,7 @@ export type StandardMapCapture = Readonly<{
     exposedLandMask: Uint8Array;
     seaLevel: number;
     elevation: Int16Array;
+    initialElevation: Int16Array;
     regionSlotByTile: Uint8Array;
     landmassIdByTile: Int32Array;
     landmasses: readonly Pick<Landmasses["landmasses"][number], "id" | "tileCount">[];
@@ -209,6 +215,7 @@ export type StandardMapCapture = Readonly<{
         }>;
     terminalType: Uint8Array;
     riverNetworkSummary: StandardRiverNetworkMeasurements;
+    channelEvolution: StandardChannelEvolutionMeasurements;
     biomeIndex: Uint8Array;
     vegetationDensity: Float32Array;
     fertility: Pedology["fertility"];
@@ -352,6 +359,7 @@ export function captureStandardMapScenario(
 
   const context = createMapContext({ setup: plan.setup, adapter });
   let riverNetworkSummary: StandardRiverNetworkMeasurements | undefined;
+  let channelEvolution: StandardChannelEvolutionMeasurements | undefined;
   let seasonalRainfall: StandardSeasonalRainfallMeasurements | undefined;
   let discoveryGeneration: StandardDiscoveryPlacementMeasurements | undefined;
   let featureProjection: StandardFeatureProjectionMeasurements | undefined;
@@ -366,6 +374,9 @@ export function captureStandardMapScenario(
     log: () => {},
     facets: {
       metrics: (projection) => {
+        const evolutionCandidate = projection["hydrology.channelEvolution"];
+        if (evolutionCandidate !== undefined)
+          channelEvolution = Value.Parse(StandardChannelEvolutionMeasurementsSchema, evolutionCandidate);
         const seasonalRainfallCandidate = projection[STANDARD_SEASONAL_RAINFALL_METRIC_KEY];
         if (seasonalRainfallCandidate !== undefined) {
           seasonalRainfall = Value.Parse(
@@ -447,6 +458,7 @@ export function captureStandardMapScenario(
   if (!riverNetworkSummary) {
     throw new Error("Standard metric capture requires Hydrology river-network benchmark evidence.");
   }
+  if (!channelEvolution) throw new Error("Standard metric capture requires channel-evolution accounting.");
   if (!discoveryGeneration) {
     throw new Error("Standard metric capture requires Placement discovery-generation evidence.");
   }
@@ -479,7 +491,8 @@ export function captureStandardMapScenario(
     naturalWonderPlacement,
     resourcePlacement,
     { postWrite: elevationPostWrite, final: elevationFinal },
-    seasonalRainfall
+    seasonalRainfall,
+    channelEvolution
   );
 }
 
@@ -496,12 +509,14 @@ function copyCompletedRun(
   naturalWonderPlacement: StandardNaturalWonderPlacementMeasurements,
   resourcePlacement: StandardResourcePlacementMeasurements,
   elevation: StandardMapCapture["projection"]["elevation"],
-  seasonalRainfall: StandardSeasonalRainfallMeasurements
+  seasonalRainfall: StandardSeasonalRainfallMeasurements,
+  channelEvolution: StandardChannelEvolutionMeasurements
 ): StandardMapCapture {
   const { selection } = initialSetup.map;
   const { width, height } = selection.dimensions;
   const gridSize = width * height;
-  const topographyValue = readArtifact(context, morphologyLandformsArtifacts.topography);
+  const topographyValue = readArtifact(context, morphologyErosionArtifacts.topography);
+  const initialTopographyValue = readArtifact(context, morphologyLandformsArtifacts.initialTopography);
   const resolvedCoastlineValue = readArtifact(context, morphologyCoastsArtifacts.resolvedCoastline);
   const landmassesValue = readArtifact(context, morphologyLandformsArtifacts.landmasses);
   const mountainsValue = readArtifact(context, morphologyLandformsArtifacts.mountains);
@@ -624,6 +639,7 @@ function copyCompletedRun(
         topographyValue.elevation,
         gridSize
       ),
+      initialElevation: copyInt16Grid("morphology.initialTopography.elevation", initialTopographyValue.elevation, gridSize),
       regionSlotByTile: copyUint8Grid(
         "map.landmassRegionSlotByTile.slotByTile",
         regionSlotsValue.slotByTile,
@@ -695,6 +711,7 @@ function copyCompletedRun(
         gridSize
       ),
       riverNetworkSummary: Object.freeze({ ...riverNetworkSummary }),
+      channelEvolution: Object.freeze({ ...channelEvolution }),
       biomeIndex,
       vegetationDensity: copyFloat32Grid(
         "ecology.biomeClassification.vegetationDensity",

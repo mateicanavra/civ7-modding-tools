@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "n
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { artifacts as climateArtifacts } from "../../../../../src/domain/hydrology/modules/climate/artifacts/index.js";
-import { artifacts as landformArtifacts } from "../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as shelfArtifacts } from "../../../../../src/domain/morphology/modules/shelf/artifacts/index.js";
 import { config as baselineConfig } from "../../../../../src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.js";
 import {
@@ -20,7 +20,7 @@ describe("retained Earth-coast baseline evidence", () => {
     const id = (dependency: string | { readonly id: string }) =>
       typeof dependency === "string" ? dependency : dependency.id;
     expect(baselineConfig.requires.map(id)).toEqual([
-      landformArtifacts.topography.id,
+      morphologyLandformsArtifacts.initialTopography.id,
       shelfArtifacts.shelf.id,
     ]);
     expect(baselineConfig.provides.map(id)).toEqual([

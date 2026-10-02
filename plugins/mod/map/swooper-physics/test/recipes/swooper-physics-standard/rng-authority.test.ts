@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { artifacts as morphologyLandformsArtifacts } from "../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyErosionArtifacts } from "../../../src/domain/morphology/modules/erosion/artifacts/index.js";
 import { readArtifact } from "@swooper/mapgen-core/authoring";
 import { runStandardRecipeTestMap } from "./fixtures/standard-recipe.js";
 
@@ -19,7 +19,7 @@ describe("standard recipe RNG authority", () => {
         }),
     });
 
-    const topography = readArtifact(context, morphologyLandformsArtifacts.topography);
+    const topography = readArtifact(context, morphologyErosionArtifacts.topography);
     expect(topography.landMask).toBeInstanceOf(Uint8Array);
   }, 30_000);
 });

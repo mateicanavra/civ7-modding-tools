@@ -4,7 +4,7 @@ import { endianness } from "node:os";
 import { join, relative, resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import { artifacts as climateArtifacts } from "../../../../../src/domain/hydrology/modules/climate/artifacts/index.js";
-import { artifacts as landformArtifacts } from "../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyLandformsArtifacts } from "../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as shelfArtifacts } from "../../../../../src/domain/morphology/modules/shelf/artifacts/index.js";
 import { type EarthCoastBaseline, runEarthCoastBaseline } from "./climate.js";
 import { earthReference, sourceWaterComponents } from "./reference.js";
@@ -66,25 +66,25 @@ export function captureEarthCoastBaseline(run: EarthCoastBaseline) {
       topography.elevation,
       "i16",
       "flat model relief units; not metres",
-      artifact(landformArtifacts.topography.id, "elevation")
+      artifact(morphologyLandformsArtifacts.initialTopography.id, "elevation")
     ),
     "topography.seaLevel": field(
       [topography.seaLevel],
       "f64",
       "flat model relief datum; not metres",
-      artifact(landformArtifacts.topography.id, "seaLevel")
+      artifact(morphologyLandformsArtifacts.initialTopography.id, "seaLevel")
     ),
     "topography.bathymetry": field(
       topography.bathymetry,
       "i16",
       "flat model depth units; not metres",
-      artifact(landformArtifacts.topography.id, "bathymetry")
+      artifact(morphologyLandformsArtifacts.initialTopography.id, "bathymetry")
     ),
     "topography.landMask": field(
       topography.landMask,
       "u8",
       "0 model water / 1 model land; source geography in earth-coast, all water in aquaplanet",
-      artifact(landformArtifacts.topography.id, "landMask")
+      artifact(morphologyLandformsArtifacts.initialTopography.id, "landMask")
     ),
     "shelf.shelfMask": field(
       shelf.shelfMask,

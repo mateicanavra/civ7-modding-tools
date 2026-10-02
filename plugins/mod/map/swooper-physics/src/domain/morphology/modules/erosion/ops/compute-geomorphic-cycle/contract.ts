@@ -8,6 +8,7 @@ import {
   SedimentDepthFieldSchema,
 } from "../../../../model/atoms/index.js";
 import strategyDefinition from "./strategies/stream-power-diffusion/config.js";
+import hillslopeDefinition from "./strategies/hillslope-diffusion/config.js";
 
 /**
  * Evolves admitted relief and substrate through one complete geomorphic cycle.
@@ -84,7 +85,8 @@ const ComputeGeomorphicCycleContract = defineOp({
       description: "Completed post-erosion products and their diagnostic field changes.",
     }
   ),
-  strategies: [strategyDefinition],
+  strategies: [strategyDefinition, hillslopeDefinition],
+  defaultStrategy: "stream-power-diffusion",
 });
 
 export default ComputeGeomorphicCycleContract;

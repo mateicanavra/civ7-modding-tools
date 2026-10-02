@@ -7,6 +7,7 @@ import { artifacts as pedologyArtifacts } from "../../../../../../src/domain/eco
 import { artifacts as climateArtifacts } from "../../../../../../src/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyErosionArtifacts } from "../../../../../../src/domain/morphology/modules/erosion/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "../../../../../../src/domain/morphology/modules/shelf/artifacts/index.js";
 import { artifacts as morphologyCoastsArtifacts } from "../../../../../../src/domain/morphology/modules/coasts/artifacts/index.js";
 import { artifacts as placementRegionArtifacts } from "../../../../../../src/domain/placement/modules/regions/artifacts/index.js";
@@ -138,7 +139,7 @@ function publishAssignStartsInputs(context: MapContext, landTiles: readonly Land
   publishTestArtifact(context, placementRegionArtifacts.landmassRegionSlotByTile, {
     slotByTile,
   });
-  publishTestArtifact(context, morphologyLandformsArtifacts.topography, {
+  publishTestArtifact(context, morphologyErosionArtifacts.topography, {
     elevation: Int16Array.from(landMask, (land) => (land === 1 ? 500 : 0)),
     seaLevel: 0,
     landMask,

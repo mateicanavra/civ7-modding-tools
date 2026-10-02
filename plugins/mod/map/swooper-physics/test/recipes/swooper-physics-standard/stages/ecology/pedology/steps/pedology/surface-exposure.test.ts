@@ -10,7 +10,6 @@ import hydrology from "../../../../../../../../src/domain/hydrology/router.js";
 import { artifacts as climateArtifacts } from "../../../../../../../../src/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "../../../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as erosionArtifacts } from "../../../../../../../../src/domain/morphology/modules/erosion/artifacts/index.js";
-import { artifacts as landformsArtifacts } from "../../../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
 import { ClimateRefineStep } from "../../../../../../../../src/recipes/standard/stages/hydrology/climate/refine/steps/climate-refine/step.js";
 import { PedologyStep } from "../../../../../../../../src/recipes/standard/stages/ecology/pedology/steps/pedology/step.js";
 import { BiomesStep } from "../../../../../../../../src/recipes/standard/stages/ecology/biomes/steps/biomes/step.js";
@@ -70,7 +69,7 @@ function runSurfaceConsumers(initiallyWet = false) {
   const marineTreatment = marineThermal.annualSurfaceTemperatureC[wetCell]!;
 
   withMapContextExecutionForTest(context, (stepContext) => {
-    publishTestArtifact(stepContext, landformsArtifacts.topography, topography);
+    publishTestArtifact(stepContext, erosionArtifacts.topography, topography);
     publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, fixture.lakePlan);
     publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, fixture.hydrography);
     publishTestArtifact(stepContext, erosionArtifacts.substrate, {

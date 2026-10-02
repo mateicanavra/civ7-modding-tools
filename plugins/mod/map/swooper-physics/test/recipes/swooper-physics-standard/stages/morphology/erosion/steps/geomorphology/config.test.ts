@@ -20,6 +20,8 @@ const setup = admitMapSetup({
 function normalizeErosion(erosion: "normal" | "high") {
   if (!GeomorphologyStep.normalize) throw new Error("Geomorphology must normalize erosion.");
   const stageConfig = createStandardRecipeTestConfig()["morphology-erosion"];
+  if (stageConfig.geomorphology.geomorphology.strategy !== "stream-power-diffusion")
+    throw new Error("This fixture requires the explicit combined-process selection.");
   const geomorphology = stageConfig.geomorphology.geomorphology.config.geomorphology;
   geomorphology.fluvial.rate = 0.2;
   geomorphology.diffusion.rate = 0.3;
@@ -45,8 +47,12 @@ function normalizeErosion(erosion: "normal" | "high") {
 
 describe("morphology geomorphology authoring", () => {
   it("multiplies every authored process rate for the high-erosion posture", () => {
-    const neutral = normalizeErosion("normal").geomorphology.config.geomorphology;
-    const high = normalizeErosion("high").geomorphology.config.geomorphology;
+    const neutralSelection = normalizeErosion("normal").geomorphology;
+    const highSelection = normalizeErosion("high").geomorphology;
+    if (neutralSelection.strategy !== "stream-power-diffusion" || highSelection.strategy !== "stream-power-diffusion")
+      throw new Error("Expected the combined-process fixture.");
+    const neutral = neutralSelection.config.geomorphology;
+    const high = highSelection.config.geomorphology;
 
     expect(neutral.fluvial.rate).toBe(0.2);
     expect(neutral.diffusion.rate).toBe(0.3);
@@ -54,5 +60,26 @@ describe("morphology geomorphology authoring", () => {
     expect(high.fluvial.rate).toBeCloseTo(neutral.fluvial.rate * 1.35, 6);
     expect(high.diffusion.rate).toBeCloseTo(neutral.diffusion.rate * 1.35, 6);
     expect(high.deposition.rate).toBeCloseTo(neutral.deposition.rate * 1.35, 6);
+  });
+  it("normalizes only the active diffusion control for hillslope shaping", () => {
+    const stageConfig = createStandardRecipeTestConfig()["morphology-erosion"];
+    stageConfig.geomorphology.geomorphology = {
+      strategy: "hillslope-diffusion",
+      config: { geomorphology: { diffusion: { rate: 0.23 }, eras: 1 }, worldAge: "young" },
+    };
+    stageConfig.knobs.erosion = "low";
+    const admitted = validateSchemaValueForTest(morphologyErosionStage.surfaceSchema, stageConfig, "/hillslope");
+    const { knobs, rawSteps } = morphologyErosionStage.toInternal({ setup, stageConfig: admitted });
+    const config = validateSchemaValueForTest(geomorphologyStepConfig.schema, rawSteps.geomorphology, "/hillslope/step");
+    const selected = validateSchemaValueForTest(
+      geomorphologyStepConfig.schema,
+      GeomorphologyStep.normalize!(config, { setup, knobs }),
+      "/hillslope/normalized"
+    ).geomorphology;
+    expect(selected.strategy).toBe("hillslope-diffusion");
+    if (selected.strategy !== "hillslope-diffusion") throw new Error("Expected hillslope shaping.");
+    expect(selected.config.geomorphology.diffusion.rate).toBeCloseTo(0.23 * 0.75, 12);
+    expect(Object.keys(selected.config.geomorphology).sort()).toEqual(["diffusion", "eras"]);
+    expect(selected.config.worldAge).toBe("young");
   });
 });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { artifacts } from "../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts } from "../../../../../src/domain/morphology/modules/erosion/artifacts/index.js";
 
 const SYNTHETIC_DIMENSIONS = { width: 3, height: 2 };
 
@@ -18,7 +18,7 @@ function issues(value: unknown) {
   return artifacts.topography.validate(value, { dimensions: SYNTHETIC_DIMENSIONS });
 }
 
-describe("landforms topography external-water admission", () => {
+describe("erosion final topography external-water admission", () => {
   it("admits an independent binary prescription including wet ground at its fixed head", () => {
     const value = fixture();
     value.elevation[1] = value.seaLevel;

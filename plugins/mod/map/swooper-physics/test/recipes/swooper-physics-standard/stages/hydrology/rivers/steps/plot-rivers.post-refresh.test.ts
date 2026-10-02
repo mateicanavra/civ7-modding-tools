@@ -7,7 +7,7 @@ import {
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_MINOR,
 } from "../../../../../../../src/domain/hydrology/modules/hydrography/model/policy/river-class.js";
-import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyErosionArtifacts } from "../../../../../../../src/domain/morphology/modules/erosion/artifacts/index.js";
 import { artifacts as morphologyShelfArtifacts } from "../../../../../../../src/domain/morphology/modules/shelf/artifacts/index.js";
 import { artifacts as morphologyCoastsArtifacts } from "../../../../../../../src/domain/morphology/modules/coasts/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
@@ -199,7 +199,7 @@ describe("map-rivers/plot-rivers", () => {
             externalDischarge: 1, unresolvedResidual: 0, normalizedUnresolvedResidual: 0, residual: 0, roundoffBound: 0 },
         });
         publishTestArtifact(stepContext, hydrographyArtifacts.projectedLakes, { lakeMask: acceptedLakeMask });
-        publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, { elevation: new Int16Array(size), seaLevel: 0, landMask, externalWaterMask: Uint8Array.from(landMask, (land) => land === 0 ? 1 : 0), bathymetry: new Int16Array(size) });
+        publishTestArtifact(stepContext, morphologyErosionArtifacts.topography, { elevation: new Int16Array(size), seaLevel: 0, landMask, externalWaterMask: Uint8Array.from(landMask, (land) => land === 0 ? 1 : 0), bathymetry: new Int16Array(size) });
         publishTestArtifact(stepContext, morphologyShelfArtifacts.shelf, { shelfMask: Uint8Array.from(landMask, (value) => 1 - value), coastalLand: new Uint8Array(size), coastalWater: Uint8Array.from(landMask, (value) => 1 - value), distanceToCoast: new Uint16Array(size) });
         publishTestArtifact(stepContext, morphologyCoastsArtifacts.resolvedCoastline, {
           coastalLand: new Uint8Array(size),
@@ -313,7 +313,7 @@ describe("map-rivers/plot-rivers", () => {
       publishTestArtifact(stepContext, hydrographyArtifacts.riverNetwork, fixture.riverNetwork);
       publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, fixture.lakePlan);
       publishTestArtifact(stepContext, hydrographyArtifacts.projectedLakes, { lakeMask: new Uint8Array(size) });
-      publishTestArtifact(stepContext, morphologyLandformsArtifacts.topography, {
+      publishTestArtifact(stepContext, morphologyErosionArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask: new Uint8Array(size).fill(1),

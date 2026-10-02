@@ -10,11 +10,13 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import hydrology from "../../../../../../../../src/domain/hydrology/router.js";
+import morphology from "../../../../../../../../src/domain/morphology/router.js";
 import stage from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/index.js";
 import { NetworkStep } from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/steps/network/step.js";
 import { artifacts as waterArtifacts } from "../../../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as climateArtifacts } from "../../../../../../../../src/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as landArtifacts } from "../../../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as erosionArtifacts } from "../../../../../../../../src/domain/morphology/modules/erosion/artifacts/index.js";
 import {
   desertHugeRoot19,
   hugeRoot17,
@@ -23,6 +25,7 @@ import {
 import { projectNetworkViz } from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/steps/network/viz.js";
 
 const ops = hydrology.hydrography.ops;
+const terrainOps = morphology.erosion.ops;
 const dimensions = { width: 9, height: 1 };
 const setup = admitMapSetup({
   mapSeed: 42,
@@ -34,6 +37,10 @@ function authored(riverDensity: "normal" | "dense" = "normal") {
   return {
     knobs: { riverDensity },
     projectRiverNetwork: structuredClone(ops.projectRiverNetwork.defaultConfig),
+    terrainEvolution: {
+      cycles: 0,
+      computeChannelIncision: structuredClone(terrainOps.computeChannelIncision.defaultConfig),
+    },
     water: {
       model: "certified-sill-spill" as const,
       computeLocalRunoff: structuredClone(ops.computeLocalRunoff.defaultConfig),
@@ -76,7 +83,8 @@ function execute(
   unsupported = false,
   retained?: ReturnType<typeof hugeRoot17>,
   corruptPlan = false,
-  receivingHead = retained?.externalWaterHead ?? forcing().topography.seaLevel
+  receivingHead = retained?.externalWaterHead ?? forcing().topography.seaLevel,
+  evolution: { cycles?: number; unsupportedSolve?: number; corruptTopography?: boolean; submergedLand?: boolean } = {}
 ) {
   // Desert's retained receipt used its own authored runoff law, not Earthlike's.
   const sourceRunoffConfig = retained?.height === 30
@@ -119,6 +127,11 @@ function execute(
       : forcing(),
     calls: string[] = [],
     networkInputs: Parameters<typeof ops.computeBasinNetwork.run>[0][] = [];
+  if (evolution.submergedLand) {
+    input.topography.elevation[3] = -1;
+    input.topography.elevation[4] = -2;
+    input.climate.potentialDemand.fill(10000);
+  }
   function record<A extends unknown[], R>(name: string, run: (...args: A) => R) {
     return (...args: A): R => {
       calls.push(name);
@@ -126,6 +139,15 @@ function execute(
     };
   }
   const bindings: Parameters<typeof NetworkStep.run>[2] = {
+    computeChannelIncision: record("computeChannelIncision", terrainOps.computeChannelIncision.run),
+    computeChannelTopography: record("computeChannelTopography", (
+      input: Parameters<typeof terrainOps.computeChannelTopography.run>[0],
+      config: Parameters<typeof terrainOps.computeChannelTopography.run>[1]
+    ) => {
+      const result = terrainOps.computeChannelTopography.run(input, config);
+      if (evolution.corruptTopography) result.topography.landMask[1] = 2;
+      return result;
+    }),
     projectRiverNetwork: record("projectRiverNetwork", ops.projectRiverNetwork.run),
     computeLocalRunoff: record("computeLocalRunoff", ops.computeLocalRunoff.run),
     computeDrainageBasins: record("computeDrainageBasins", ops.computeDrainageBasins.run),
@@ -136,7 +158,7 @@ function execute(
         config: Parameters<typeof ops.computeBasinNetwork.run>[1]
       ): ReturnType<typeof ops.computeBasinNetwork.run> => {
         networkInputs.push(input);
-        if (unsupported)
+        if (unsupported || networkInputs.length === evolution.unsupportedSolve)
           return {
             status: "no-stationary-solution" as const,
             witness: {
@@ -176,12 +198,18 @@ function execute(
   let failure: unknown;
   try {
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, landArtifacts.topography, input.topography);
+      publishTestArtifact(stepContext, landArtifacts.initialTopography, input.topography);
+      publishTestArtifact(stepContext, erosionArtifacts.substrate, {
+        erodibilityK: new Float32Array(runDimensions.width * runDimensions.height).fill(0.3),
+        sedimentDepth: new Float32Array(runDimensions.width * runDimensions.height).fill(0.2),
+      });
       publishTestArtifact(stepContext, climateArtifacts.baselineClimateField, input.climate);
       NetworkStep.run(
         stepContext,
         (() => {
-          const compiled = compile(authored());
+          const selected = authored();
+          selected.terrainEvolution.cycles = evolution.cycles ?? 0;
+          const compiled = compile(selected);
           return retained
             ? {
                 ...compiled,
@@ -296,6 +324,7 @@ describe("hydrology network authoring and dispatch", () => {
     const result = execute(false, undefined, true);
     expect(result.failure).toBeDefined();
     for (const artifact of [
+      erosionArtifacts.topography,
       waterArtifacts.hydrography,
       waterArtifacts.lakePlan,
       waterArtifacts.riverNetwork,
@@ -308,7 +337,7 @@ describe("hydrology network authoring and dispatch", () => {
     selected.water.computeLocalRunoff.config.infiltrationFraction = 0.37;
     const compiled = compile(selected);
     expect(compiled.computeLocalRunoff.config.infiltrationFraction).toBe(0.37);
-    expect(Object.keys(compiled).sort()).toEqual(["classifyBasinRiverNetwork", "computeBasinNetwork", "computeDrainageBasins", "computeLocalRunoff", "projectRiverNetwork"]);
+    expect(Object.keys(compiled).sort()).toEqual(["classifyBasinRiverNetwork", "computeBasinNetwork", "computeChannelIncision", "computeChannelTopography", "computeDrainageBasins", "computeLocalRunoff", "projectRiverNetwork", "terrainEvolution"]);
     expect(
       Value.Check(stage.surfaceSchema, {
         ...selected,
@@ -362,6 +391,7 @@ describe("hydrology network authoring and dispatch", () => {
     expect(result.failure).toBeUndefined();
     expect(result.calls).toEqual([
       "computeLocalRunoff",
+      "computeChannelTopography",
       "computeDrainageBasins",
       "computeBasinNetwork",
       "projectRiverNetwork",
@@ -384,6 +414,7 @@ describe("hydrology network authoring and dispatch", () => {
       } else expect(lake.waterSurface[cell]).toBe(result.input.topography.externalWaterMask[cell] ? result.input.topography.seaLevel : result.input.topography.elevation[cell]);
     }
     expect(result.input.topography).toEqual(forcing().topography);
+    expect(readArtifact(result.context, erosionArtifacts.topography)).toEqual(result.input.topography);
   });
 
   it("retains unsupported evidence and publishes none of the physical products or later classifications", () => {
@@ -391,14 +422,81 @@ describe("hydrology network authoring and dispatch", () => {
     expect(String(result.failure)).toContain("persistent-surplus");
     expect(result.calls).toEqual([
       "computeLocalRunoff",
+      "computeChannelTopography",
       "computeDrainageBasins",
       "computeBasinNetwork",
     ]);
     for (const artifact of [
+      erosionArtifacts.topography,
       waterArtifacts.hydrography,
       waterArtifacts.lakePlan,
       waterArtifacts.riverNetwork,
     ])
+      expect(() => readArtifact(result.context, artifact)).toThrow();
+  });
+
+  it("re-solves each precise cycle and classifies only the once-sealed final ground", () => {
+    const result = execute(false, undefined, false, 0, { cycles: 2 });
+    expect(result.failure).toBeUndefined();
+    expect(result.calls).toEqual([
+      "computeLocalRunoff", "computeDrainageBasins", "computeBasinNetwork", "computeChannelIncision",
+      "computeDrainageBasins", "computeBasinNetwork", "computeChannelIncision",
+      "computeChannelTopography", "computeDrainageBasins", "computeBasinNetwork",
+      "projectRiverNetwork", "classifyBasinRiverNetwork",
+    ]);
+    expect(result.networkInputs).toHaveLength(3);
+    expect(result.networkInputs[0]!.elevation).toEqual(Array.from(result.input.topography.elevation));
+    expect(result.networkInputs[1]!.elevation.some((height) => !Number.isInteger(height))).toBe(true);
+    const final = readArtifact(result.context, erosionArtifacts.topography);
+    expect(result.networkInputs[2]!.elevation).toEqual(Array.from(final.elevation));
+    expect(final.elevation).not.toEqual(result.input.topography.elevation);
+    expect(final.landMask).toEqual(result.input.topography.landMask);
+    expect(final.externalWaterMask).toEqual(result.input.topography.externalWaterMask);
+    expect(final.bathymetry).toEqual(result.input.topography.bathymetry);
+    for (const input of result.networkInputs) {
+      expect(input.rainfall).toBe(result.input.climate.rainfall);
+      expect(input.potentialDemand).toBe(result.input.climate.potentialDemand);
+      expect(input.localRunoff).toBe(result.networkInputs[0]!.localRunoff);
+    }
+    const lake = readArtifact(result.context, waterArtifacts.lakePlan);
+    const hydro = readArtifact(result.context, waterArtifacts.hydrography);
+    for (let cell = 0; cell < final.elevation.length; cell++)
+      if (hydro.exposedLandMask[cell] === 1) expect(lake.waterSurface[cell]).toBe(final.elevation[cell]);
+    expect(result.input.topography).toEqual(forcing().topography);
+  });
+
+  it("refuses unsupported intermediate or final solves before publishing any final product", () => {
+    for (const unsupportedSolve of [2, 3]) {
+      const result = execute(false, undefined, false, 0, { cycles: 2, unsupportedSolve });
+      expect(String(result.failure)).toContain("persistent-surplus");
+      expect(result.networkInputs).toHaveLength(unsupportedSolve);
+      expect(result.calls).not.toContain("projectRiverNetwork");
+      for (const artifact of [erosionArtifacts.topography, waterArtifacts.hydrography, waterArtifacts.lakePlan, waterArtifacts.riverNetwork])
+        expect(() => readArtifact(result.context, artifact)).toThrow();
+    }
+  });
+
+  it("preserves initially submerged land when finite storage resolves it as exposed ground", () => {
+    const result = execute(false, undefined, false, 0, { cycles: 2, submergedLand: true });
+    expect(result.failure).toBeUndefined();
+    expect(result.networkInputs).toHaveLength(3);
+    const final = readArtifact(result.context, erosionArtifacts.topography);
+    const hydro = readArtifact(result.context, waterArtifacts.hydrography);
+    expect(result.input.topography.landMask[3]).toBe(1);
+    expect(hydro.exposedLandMask[3]).toBe(1);
+    expect(hydro.discharge[3]).toBeGreaterThan(0);
+    expect(final.elevation[3]).toBe(-1);
+    expect(final.elevation[4]).toBe(-2);
+    for (const input of result.networkInputs) {
+      expect(input.elevation[3]).toBe(-1);
+      expect(input.elevation[4]).toBe(-2);
+    }
+  });
+
+  it("admits final topography with the whole physical group before first publication", () => {
+    const result = execute(false, undefined, false, 0, { corruptTopography: true });
+    expect(String(result.failure)).toContain("Invalid topography");
+    for (const artifact of [erosionArtifacts.topography, waterArtifacts.hydrography, waterArtifacts.lakePlan, waterArtifacts.riverNetwork])
       expect(() => readArtifact(result.context, artifact)).toThrow();
   });
 });

@@ -146,10 +146,18 @@ export const MountainsStep = createStep(config, {
     const candidateMask = Uint8Array.from(landMask, (land, i) => land === 1 && hydrography.riverClass[i] === 0 ? 1 : 0);
     const beltDrivers = deps.artifacts.beltDrivers.read();
     const substrate = deps.artifacts.substrate.read();
-    const routing = deps.artifacts.routing.read();
+    const riverNetwork = deps.artifacts.riverNetwork.read();
     // Final wetness controls exposure; the existing upland law keeps its pre-lake coast reference.
     const shelf = deps.artifacts.shelf.read();
     const { width, height } = context.setup.dimensions;
+    const upstreamArea = Float32Array.from(riverNetwork.upstreamArea, (area, cell) => {
+      if (!Number.isSafeInteger(area) || area < 0 || Math.fround(area) !== area) {
+        throw new RangeError(
+          `Certified upstream area at ${cell} must be a nonnegative integer exactly representable in Float32.`
+        );
+      }
+      return area;
+    });
     const baseSeed = deriveStepSeed(context.setup.mapSeed, "morphology:planMountains");
 
     const fractalMountain = buildFractalArray(width, height, baseSeed ^ 0x3d, 5);
@@ -215,7 +223,7 @@ export const MountainsStep = createStep(config, {
         beltAge: beltDrivers.beltAge,
         erodibilityK: substrate.erodibilityK,
         sedimentDepth: substrate.sedimentDepth,
-        flowAccum: routing.flowAccum,
+        flowAccum: upstreamArea,
         distanceToCoast: shelf.distanceToCoast,
         fractalRoughLand,
       },

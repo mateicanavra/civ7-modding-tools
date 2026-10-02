@@ -7,7 +7,7 @@ import {
   SeaLevelDatumSchema,
 } from "../../../model/atoms/index.js";
 
-/** Registers the canonical final topography consumed by downstream stages. */
+/** Registers sealed final ground consumed with its freshly certified water network. */
 export const artifact = defineArtifact({
   name: "topography",
   id: "artifact:morphology.topography",
@@ -22,7 +22,7 @@ export const artifact = defineArtifact({
     {
       additionalProperties: false,
       description:
-        "Final Morphology ground and initial wetness with an independent external-water prescription at seaLevel.",
+        "Sealed final Morphology ground and initial wetness with an unchanged external-water prescription at seaLevel.",
     }
   ),
   refine: (value, { cellCount, issues }) => {

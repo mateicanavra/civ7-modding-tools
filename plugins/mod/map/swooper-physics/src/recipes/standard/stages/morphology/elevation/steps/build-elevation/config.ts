@@ -1,5 +1,5 @@
 import { artifacts as hydrographyArtifacts } from "../../../../../../../domain/hydrology/modules/hydrography/artifacts/index.js";
-import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyErosionArtifacts } from "../../../../../../../domain/morphology/modules/erosion/artifacts/index.js";
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 import { STANDARD_COMPLETIONS } from "../../../../../completions.js";
@@ -24,7 +24,7 @@ export const config = defineStep({
     STANDARD_COMPLETIONS.volcanoesPlotted,
     hydrographyArtifacts.projectedLakes,
     hydrographyArtifacts.hydrography,
-    morphologyLandformsArtifacts.topography,
+    morphologyErosionArtifacts.topography,
   ],
   provides: [STANDARD_COMPLETIONS.elevationBuilt],
 });

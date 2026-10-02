@@ -1,5 +1,7 @@
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
-import { clamp, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
+import { clamp } from "@swooper/mapgen-core/lib/math";
+import { publishGeomorphicTopography } from "./publication.js";
+import { resolveWorldAgeScale } from "./world-age.js";
 
 type WorldAge = "young" | "mature" | "old";
 
@@ -12,19 +14,6 @@ type GeomorphicCycleConfig = Readonly<{
     eras: number;
   }>;
 }>;
-
-const WORLD_AGE_SCALE: Record<string, number> = {
-  young: 0.7,
-  mature: 1.0,
-  old: 1.3,
-};
-
-/**
- * Resolves the world-age scaling multiplier.
- */
-function resolveWorldAgeScale(worldAge: WorldAge): number {
-  return WORLD_AGE_SCALE[worldAge];
-}
 
 /**
  * Evolves elevation and sediment through the configured eras while preserving land-water identity.
@@ -153,40 +142,14 @@ export function evolveGeomorphicSurface(params: {
     }
   }
 
-  const nextElevation = new Int16Array(size);
-  const nextLandMask = new Uint8Array(size);
-  const bathymetry = new Int16Array(size);
   const nextSedimentDepth = new Float32Array(size);
 
   for (let i = 0; i < size; i++) {
-    nextElevation[i] = clampInt16(Math.round((elevation[i] ?? 0) + (elevationDelta[i] ?? 0)));
     nextSedimentDepth[i] = Math.max(0, (sedimentDepth[i] ?? 0) + (sedimentDelta[i] ?? 0));
   }
 
-  const waterElevation = clampInt16(Math.floor(seaLevel));
-  const landElevation = clampInt16(Math.floor(seaLevel) + 1);
-  for (let i = 0; i < size; i++) {
-    const isLand = landMask[i] === 1;
-    nextLandMask[i] = isLand ? 1 : 0;
-    if (isLand) {
-      if ((nextElevation[i] ?? 0) <= seaLevel) nextElevation[i] = landElevation;
-      bathymetry[i] = 0;
-      continue;
-    }
-
-    if ((nextElevation[i] ?? 0) > seaLevel) nextElevation[i] = waterElevation;
-    bathymetry[i] = clampInt16(
-      roundHalfAwayFromZero(Math.min(0, (nextElevation[i] ?? 0) - seaLevel))
-    );
-  }
-
   return {
-    topography: {
-      elevation: nextElevation,
-      seaLevel,
-      landMask: nextLandMask,
-      bathymetry,
-    },
+    topography: publishGeomorphicTopography({ elevation, elevationDelta, landMask, seaLevel }),
     substrate: {
       erodibilityK: new Float32Array(erodibility),
       sedimentDepth: nextSedimentDepth,

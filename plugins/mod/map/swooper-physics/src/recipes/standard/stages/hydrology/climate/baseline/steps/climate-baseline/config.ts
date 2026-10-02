@@ -76,7 +76,7 @@ const ClimateBaselineStepConfigSchema = Type.Object(
 );
 
 /**
- * Defines baseline circulation and moisture transport over final Morphology topography and
+ * Defines baseline circulation and moisture transport over initial Morphology topography and
  * shelf evidence. It publishes pressure, wind, and baseline climate together so river routing
  * and refinement start from one deterministic climate vintage; seasonal amplitudes remain
  * invocation-local visualization evidence.
@@ -85,7 +85,7 @@ export const config = defineStep({
   id: "climate-baseline",
   description:
     "Computes baseline pressure, wind, climate, and seasonality from final Morphology evidence.",
-  requires: [morphologyLandformsArtifacts.topography, morphologyShelfArtifacts.shelf],
+  requires: [morphologyLandformsArtifacts.initialTopography, morphologyShelfArtifacts.shelf],
   provides: [
     climateArtifacts.baselineClimateField,
     climateArtifacts.thermalField,

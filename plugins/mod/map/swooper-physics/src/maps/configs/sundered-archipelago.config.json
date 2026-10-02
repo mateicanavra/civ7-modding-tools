@@ -467,6 +467,13 @@
       }
     },
     "hydrology-hydrography": {
+      "terrainEvolution": {
+        "cycles": 0,
+        "computeChannelIncision": {
+          "strategy": "implicit-stream-power",
+          "config": { "rate": 0.15, "m": 0.5, "n": 1 }
+        }
+      },
       "knobs": {
         "riverDensity": "normal"
       },

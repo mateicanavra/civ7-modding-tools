@@ -10,7 +10,7 @@ import { artifacts as biomeArtifacts } from "../../../../../../src/domain/ecolog
 import { artifacts as pedologyArtifacts } from "../../../../../../src/domain/ecology/modules/pedology/artifacts/index.js";
 import { artifacts as climateArtifacts } from "../../../../../../src/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
-import { artifacts as morphologyLandformsArtifacts } from "../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyErosionArtifacts } from "../../../../../../src/domain/morphology/modules/erosion/artifacts/index.js";
 import { artifacts as placementWonderArtifacts } from "../../../../../../src/domain/placement/modules/wonders/artifacts/index.js";
 import placement from "../../../../../../src/domain/placement/router.js";
 import { createMapContext, type MapContext } from "@swooper/mapgen-core";
@@ -65,7 +65,7 @@ function publishPlacementInputs(context: MapContext): void {
   const { width, height } = context.setup.dimensions;
   const size = width * height;
   const water = createEmptyWaterFixture(width, height);
-  publishTestArtifact(context, morphologyLandformsArtifacts.topography, {
+  publishTestArtifact(context, morphologyErosionArtifacts.topography, {
     elevation: new Int16Array(size).fill(PLANNER_SURFACE_SENTINELS.elevation),
     seaLevel: 0,
     landMask: new Uint8Array(size).fill(PLANNER_SURFACE_SENTINELS.landMask),

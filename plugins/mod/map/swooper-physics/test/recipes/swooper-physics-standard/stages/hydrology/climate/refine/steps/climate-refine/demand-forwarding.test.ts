@@ -10,7 +10,7 @@ import {
 import { artifacts as climateArtifacts } from "../../../../../../../../../src/domain/hydrology/modules/climate/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "../../../../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
 import hydrology from "../../../../../../../../../src/domain/hydrology/router.js";
-import { artifacts as morphologyArtifacts } from "../../../../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
+import { artifacts as morphologyErosionArtifacts } from "../../../../../../../../../src/domain/morphology/modules/erosion/artifacts/index.js";
 import standardRecipe from "../../../../../../../../../src/recipes/standard/recipe.js";
 import { ClimateRefineStep } from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/refine/steps/climate-refine/step.js";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../../../../setup.js";
@@ -61,7 +61,7 @@ describe("hydrology climate-refine demand ownership", () => {
 
       withMapContextExecutionForTest(context, (stepContext) => {
         const dependencies = buildStepTestDependencies(ClimateRefineStep, stepContext);
-        publishTestArtifact(stepContext, morphologyArtifacts.topography, {
+        publishTestArtifact(stepContext, morphologyErosionArtifacts.topography, {
           elevation: new Int16Array(size),
           seaLevel: 0,
           landMask,
