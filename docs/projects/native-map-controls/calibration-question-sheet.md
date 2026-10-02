@@ -108,6 +108,38 @@ distinction is unresolved. Evidence:
 `earth-calibration/ordinary-water-provenance-census-20261001/receipt.json`
 (`383b9ab65ff3fe73d36dd4a8f8f466c34bdfe4c9c81b06ed413522430d95e6f5`).
 
+### Resolved Decision: Preserve Heads, Keep Conservative Native Taxonomy
+
+The subsequent external-water owner repair and V22/V24 comparisons supersede
+the unresolved provenance premise above. Stock Huge cutoff ten preserves all
+204 intended finite water heads. Seventeen changes 48 remaining native lake
+flags without changing heads or the other fourteen sampled native properties;
+final-height cliff ordering removes the earlier cutoff-dependent cliff flags.
+Neither a larger cutoff nor native lake identity is needed for that accepted
+height repair.
+
+The resolved 47-case Earthlike census also defeats a maximum-finite-size
+policy as a general separator: Huge7 has finite coverage 256 with protected
+components of 27/32/36 cells; Standard7 has 97 versus 23; Tiny1337 has 113
+versus 84. These are actual physical component requirements, not proof that
+the opaque engine uses precisely that graph. They do establish that taking
+our largest physical lake as the native cap is not a justified taxonomy rule.
+No admitted runtime setter can apply a per-seed result after generation.
+
+Decision: retain the stock, per-size native cutoff as a conservative gameplay
+projection. Physical finite/external membership, water heads, budgets and
+river direction remain authoritative and unchanged. Native `isLake` is a
+separate engine category and is not promised to equal every physical finite
+body. This is a disclosed representability limitation, not a failing physical
+lake solver or a reason for more cap sweeps, clipped basins, terrain carving,
+new pre-start simulation or recipe readback gates. Ordinary water-tile straits
+and NAV river connections remain different representations; an outlet does
+not by itself select the physical or native category.
+
+The retained movement evidence qualifies specific normal NAV/lake/marine
+paths, not every finite body or a true cliff. Continue those independent
+projection/gameplay obligations without reopening the rejected unlimited cap.
+
 That storage discriminator is now executed. Control reproduces all17 exposed
 physical plan fields exactly. Four finite owner replays produce byte-identical
 control/treatment repeats, with all265 source/Core pins held. Only the ten

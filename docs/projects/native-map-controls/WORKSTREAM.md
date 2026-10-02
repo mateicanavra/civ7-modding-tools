@@ -1,15 +1,47 @@
 # Native Map Controls
 
-Status: active Earthlike-first coherence completion. The qualified runtime
-lineage and precise channel operation are now merged into main through native
-Graphite PRs #2238 through #2241. Certified terrain/network composition is
-implemented and merged. The unchanged full bank is complete: all 57 cases pass
-causal/conservation admission, while thermal variation and savanna woodland
-presence remain failed science expectations. The savanna witness is a valid
-relief-supported hill change, not a broken habitat calculation. The next
-domino activates the measured one-cycle configuration and retires the old
-competing geomorphic/routing path, with exact numerical identity required
-against that measured candidate. Neither failed expectation is waived.
+Status: active Earthlike-first coherence completion. The qualified runtime,
+certified terrain/network composition and competing-route retirement are
+merged through native Graphite PRs #2238 through #2244. PR #2245 now closes
+the tile-level discharge investigation by restoring the intentional coherent-
+reach policy as the sole modern class algorithm. Fresh portable qualification
+reproduces all fifty-seven admitted main cases exactly, including all 4,430
+expectations and the two unchanged science failures. A normal saved Huge1018
+run completes in 42.8 seconds; all 666 dry identities/classes agree, including
+320 NAV sources and zero NAV-terrain mismatches. The complete owner graph
+passes checks and realization tests, with 1,177 definition passes and the
+retained science aggregate failure. This is native realization qualification,
+not current-build vessel passage or completed Earth calibration.
+The candidate's native finalizer demotes 62 of 308
+intended NAV sources while retaining every source identity. Minimum and
+receiver-first-order arms do not repair it; all 705 native receiver resolutions
+match the portable declarations. A controlled four-neighbor class change
+recovers seven sources and loses two, establishing footprint sensitivity but
+not a universal geometry law. Restore the coherent major-reach meaning rather
+than add another proxy, carve terrain or force classes after finalization.
+The completed dataset-pinned experiment is retired from executable fixtures;
+its exact source, receipts and photographs remain immutable evidence.
+See [the selected river outcome](major-river-support.md#selected-outcome).
+All 57 cases retain causal and
+conservation admission; thermal variation and savanna woodland presence remain
+failed science expectations. Neither is waived. The completed eight-pair
+historical thermal-rate discriminator meets the within-row variation bounds
+but cools the population substantially and introduces two Huge1018 habitat
+failures. It is nonselected, not a production repair or a new coefficient sweep.
+The completed directed-fetch source comparison is also nonselected: its held
+errors and arrangement controls reject the tested response. No fitted land
+term, new temperature artifact or weakened requirement follows. The next
+review examines a single source-grounded seasonal energy-balance replacement
+at the existing thermal truth producer, not an appended temperature proxy.
+Fixed independently sourced parameters and observable/geometry admission
+precede implementation. The separate
+Morphology review preserves intentional canonical reference-height controls;
+the refused COLUMN witness did not establish a current coordinate defect.
+See [the closed geographic discriminator](land-geography-investigation.md#directed-fetch-closed-without-a-production-change).
+The previous C3 lake-passage
+milestone now has normally acquired vessel arrivals, while the genuine cliff
+edge retains its separate current-build test. The Foundation COLUMN candidate
+is nonselected and removed, with no alternative legacy execution lane.
 See [certified composition qualification](basin-evolution-design.md#certified-composition-qualification)
 and the [current evidence inventory](delivery-inventory.md#certified-terrain-and-current-native-evidence).
 The supported catalog is
@@ -23,9 +55,13 @@ declarations are integrated; the existing surface-preparation owner now preserve
 native wet heights without overwriting native dry/wonder edits. A fresh normal
 Huge Earthlike map is deployed and loaded. Matched Huge1018 runs now distinguish
 native lake identity from height preservation: cutoff40 changes the remaining
-48 accepted cells to lakes without changing any final height. General lake
-classification policy, cliff continuity, era-qualified naval traversal and
-the unchanged Earthlike thermal expectation remain open. The existing Earthlike
+48 accepted cells to lakes without changing any final height. Lake
+classification policy is decided: keep the stock per-size cutoff and physical
+head retention, disclosing native lake identity as a gameplay approximation
+rather than canonical water truth. True-cliff continuity and traversal and the
+unchanged Earthlike thermal expectation remain open. Ordinary NAV/marine/lake traversal
+is qualified on its recorded adopted-C3 build, not inferred from screenshots.
+The existing Earthlike
 moisture classifier boundary is now calibrated against the complete product
 bank, deployed and live-generated at Huge1018 with the normal saved setup.
 No universal forty,

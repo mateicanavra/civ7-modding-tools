@@ -382,3 +382,58 @@ D4/D5 nonselection packets remain immutable. The fresh owner graph passes
 1,128 definition tests with the one retained science aggregate failure,
 293 realization tests and the definition policy/type/build checks. Those
 results are not a new native-generation or marine-air calibration claim.
+
+## Directed Fetch: Closed Without A Production Change
+
+The finite directed-fetch comparison is complete and independently reviewed.
+Its source replay retains all 547 land identities, the original 196/215 split,
+the preceding annual wind invocation and final marine-temperature invocation.
+The prospectively frozen comparator is the raw zero-height B/G source, not
+the historical D7 ground-temperature comparison. Scientific height remains
+reference-only; no coefficient is applied to procedural model relief.
+
+| Held 215 Receivers | Annual RMSE C | Monthly RMSE C | Within-Row Error RMS C |
+| --- | ---: | ---: | ---: |
+| Frozen raw zero-height source | 2.971039 | 3.572948 | 2.314767 |
+| Joint height-aware row-null | 2.899593 | 3.513734 | 2.211319 |
+| Joint height-aware directed fetch | 2.944688 | 3.527250 | 2.257875 |
+| Same fitted fetch, reversed wind | 2.796330 | 3.464119 | 2.117019 |
+
+Fetch fails 26 guards against the frozen source and 51 against the joint null;
+these are guard counts, not receiver counts. Correct wind arrangement loses
+to reversal and all three rotations on all three required errors. This rejects
+the tested land-fetch response, not wind physics in general. Reversal is not
+a selected repair, and the null's row-mean/bias collateral prevents automatic
+adoption of that comparator. Candidate-own coupled replay and product recipes
+are correctly not run. No thermal operation, gain, strategy or expectation
+changes follow from this result.
+
+The prospective fit, numeric checks, source/calendar pins and four focused
+Bun tests pass. Independent review reproduces the scores and arrangement
+failures; all 33 sealed packet files retain their pins. Evidence is under
+`earth-calibration/earth-land-geographic-response-design-20261002/`, with
+`SEAL.json` SHA256
+`960b365417a6f2d2e8fbd2ca4494c8cb2539d713464ae370e9e809a221bbbb54`.
+The independent result review is under
+`earth-land-geographic-source-design-review-20261002/RESULT-REVIEW.md`, SHA256
+`566e5b7ed68abf51b392900605fa8d4d56de6f239a8d3a1c8282de696a23048c`.
+
+### Reference Controls Are Not Replaceable Coordinate Origins
+
+The subsequent owner review corrects the initial follow-up recommendation.
+Current Morphology deliberately shares authored `oceanicHeight` and
+`continentalHeight` reference elevations between raw relief and margin
+profiles. They mean canonical crust-prior P=0 and P=1 reference heights.
+The retained COLUMN origin witness compensates P to preserve raw heights but
+changes those authored references; different margins and a changed derived
+sea level are consequently not evidence of a current coordinate defect.
+Do not demand zero differences for that changed-policy witness or introduce
+a new datum/artifact/transform framework to satisfy it. A genuine private
+re-encoding must hold authored references fixed and reconstruct canonical P.
+
+This leaves the actual unresolved responsibilities intact: source-supported
+procedural relief, dimensional-height qualification and low-relief annual
+geography. Rejected scalar/CDF compensation is not reopened. The next thermal
+design must discriminate a genuinely missing physical input at its causal
+owner, with the prior-pass dependency and strongest competing explanation
+explicit; it is not another fetch or temperature-spread tuning exercise.

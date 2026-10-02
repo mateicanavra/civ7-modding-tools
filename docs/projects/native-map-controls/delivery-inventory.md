@@ -14,8 +14,42 @@ realistic Earthlike variant is the desired playable outcome, not literal Earth
 replay. Historical eight-product captures remain immutable comparison evidence.
 
 The latest closed implementation and visible milestone is the
-[October 2 C3 adoption and native capture](#october-2-c3-and-native-milestone-closure).
+[qualified coherent-river native build](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherent-rivers-native-20261002/index.html),
+with four fresh normal-build views, exact source/class realization and full
+study-bank identity. The preceding
+[October 2 C3 adoption and native capture](#october-2-c3-and-native-milestone-closure)
+retains its own movement and terrain evidence.
 Earlier dated receipts below retain their original builds and outcomes.
+
+The tile-level discharge candidate is withdrawn, not waiting for a geometry
+patch. [PR #2245](https://github.com/mateicanavra/civ7-modding-tools/pull/2245)
+now closes the investigation and clarifies the single intentional coherent-reach
+policy. Its restoration now reproduces all fifty-seven admitted study cases
+exactly and completes a fresh normal Huge1018 generation in 42.8 seconds.
+All 666 dry sources survive as declared: 346 MINOR, 320 NAV, zero source,
+class or NAV-terrain mismatches. Installed script SHA256 is
+`6ab1fbc2c257b765115fe22963973e2b80f4463772eaa5407209d57dbc153b97`.
+The owner graph passes checks and realization tests; definition tests report
+1,177 passes with the retained science aggregate failure. The full bank's
+4,430 expectations preserve exactly the original temperature-variation and
+savanna failures. This completes river realization qualification, not fresh
+vessel movement or all Earth calibration. The [four-case network viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/discharge-supported-rivers-20261002/index.html)
+retains the rejected candidate as historical evidence, not the selected build.
+The new [17 native photographs](https://mateis-macbook-pro.taild8da1c.ts.net/civ/supported-river-native-1018-v29-20261002/index.html)
+and [controlled neighborhood comparison](https://mateis-macbook-pro.taild8da1c.ts.net/civ/native-channel-neighborhood-20261002/index.html)
+show the actual finalizer behavior. The class-only treatment recovers seven
+sources and loses two; neither native-minimum changes nor receiver-first order
+repairs the tested footprint. No universal native geometry rule, late setter
+or terrain carving is selected. See [the selected outcome](major-river-support.md#selected-outcome).
+
+The lake policy is also decided: retain the stock per-size native cutoff and
+preserve physical heads. Native lake identity is a disclosed gameplay
+approximation, not canonical finite-water truth. Size overlaps between physical
+categories defeat a dynamic maximum as a universal classifier; absent native
+lake flags alone are not height failures. The next causal climate investigation
+replaces the row-only thermal producer with a source-grounded seasonal energy
+balance if its fixed parameter and owner review is admitted. No appended
+temperature proxy or repeated origin/skin-air study is selected.
 
 ## What Shipped Means
 
@@ -654,3 +688,121 @@ Closure therefore covers C3 adoption, source retirement, merge, fresh normal
 generation and the visible milestone. Scientific thermal/dimensional
 qualification, the next causal producer decision and actual current-build
 true-cliff vessel arrival remain required and open.
+
+## October 2 Completed Lake Passage And Owner Qualification
+
+The current adopted C3 game now closes normal vessel entry, corridor return,
+lake traversal and a distinct lake exit. Human Advanced Start completed normally;
+one Cog confirms NAV/marine/NAV/interior movement, and a second crosses
+marine to NAV to two lake tiles to different NAV to marine. Seven lake-route
+arrivals have single-send and independent readback evidence. Bounded autoplay
+advances fourteen turns and is stopped at T18/570 CE with local control restored.
+The [new three-photo passage page](https://mateis-macbook-pro.taild8da1c.ts.net/civ/native-lake-passage-20261002/index.html)
+is phone-accessible and verified; the earlier fourteen-photo milestone remains
+historical. See [the precise movement boundary](native-navigation.md#october-2-current-c3-lake-passage).
+
+The Foundation COLUMN candidate is **nonselected and removed from production
+source**, not a shipped replacement or a second legacy lane. Eight actual
+recipes, forty-eight owner replays and the complete fifty-seven-case bank
+identify four newly failed expectations with their parent targets. Height-only
+comparisons also fail the held all-view requirements. No guard or coefficient
+was adjusted to adopt it. All thirty-two tracked owned files are restored
+byte-exact to the merged baseline; its one new test and patch are archived in
+research user data. The root's separate river and viewer work is preserved.
+
+A six-call coordinate-origin control establishes a coupled Morphology contract:
+byte-identical raw heights and margin geometry still produce ninety-five changed
+margin heights, a sea shift of `-24` model units and ten changed threshold-mask
+cells when the same affine endpoints are reused as margin profile anchors.
+This is not a unique attribution of all candidate failures or metre admission.
+Next terrain work must distinguish response-coordinate endpoints from the
+margin's reference elevations before another producer candidate is selected.
+Receipts: `earth-foundation-column-qualification-20261002/QUALIFICATION.json`,
+`earth-foundation-column-disposition-20261002/RESULT.json` and
+`foundation-column-nonselection-source-20261002/RESTORATION.json`.
+
+The [major-river owner audit](major-river-support.md) identifies unsupported
+upstream promotion and omitted strong tributaries. The bounded direct-threshold
+repair passes all fifty-seven scenarios and 4,430 unchanged expectations, with
+zero new failures and sixteen physical fields byte-identical in every case.
+All original minor-network membership and thresholds hold. Strong tributaries
+are no longer omitted, and every navigable source meets its own major threshold.
+Class-sensitive habitat outputs change legitimately. Studio's complete
+regenerated schema and all 412 tests pass; the final owner graph passes 41 tasks.
+Historical `-.15 C/model-unit` versus current `-.0065` is a separate empirical
+thermal diagnostic, not a physical metre conversion or an admitted default.
+True-cliff traversal, Earth dimensional/thermal calibration and final
+major-river density qualification remain open; ordinary lake traversal does not.
+
+## October 2 Native Discriminators And Fresh Survey
+
+The original C3 native grid independently confirms all 320 requested NAV cells
+as native NAV terrain. The supported-discharge candidate changes 62 additions
+and 74 removals while holding ground, routing and discharge. Its 62 native
+demotions include 34 additions and 28 previously qualified cells: this is not
+simply the new cells being rejected. The baseline, all three native minimum
+controls and receiver-before-source delivery produce exactly the same entire
+parity and maintenance observations. All 705 geographic receivers/directions
+match portable intention. No production setting or write-order repair is
+selected. See [major-river support](major-river-support.md).
+
+The [fresh native survey](https://mateis-macbook-pro.taild8da1c.ts.net/civ/supported-river-native-1018-v29-20261002/index.html)
+publishes seventeen actual 3456x2168 photographs from the completed v29 game:
+twelve maximum-zoom-out survey frames, one widest local channel-footprint view
+and four details. All 17 cameras, native clean-frame restoration and unchanged
+pre/post world summaries qualify; 54 files pass 108 local/tailnet byte checks.
+The page is visually verified in actual Arc and remains discoverable through
+the gallery and Local Viewers. Mobile DOM measurement is unavailable, not
+reported as passed. This is visible current-candidate evidence, not resolution
+of the 62 class substitutions or true-cliff navigation.
+
+Changed surrounding channel class geometry is the next explicit discriminator.
+A private local-neighborhood arm holds all 705 source locations/directions and
+39 wet declarations, the center NAV at `(4,35)`, all physical fields, heights,
+authentic call order and `[false,25,2,2]`. Only its four newly NAV neighbors
+are requested as their former MINOR classes. Original and applied requests
+remain separately observed; original 308-major intention stays the parity
+authority. Center recovery would establish surrounding-footprint influence,
+not a universal width rule or license to erase strong physical sources.
+No production class-neighborhood policy is selected in advance.
+
+## October 2 Closed Neighborhood, Lake Policy And Thermal Decisions
+
+The neighborhood arm now completes and is independently compared. Center
+`(4,35)` retains NAV terrain after finalization instead of being demoted;
+its own class request, direction, receiver and original elevation remain
+unchanged. Seven former demotions recover and two deliberately changed
+neighbor requests lose native NAV, net five; original-intention mismatches
+fall from 62 to 57. Every declaration receiver, authentic call/setup, sampled
+focus point and complete physical-lake payload holds. Unrelated full-grid and
+cliff invariance are not claimed. This establishes neighborhood sensitivity,
+not a universal width rule or production geometry filter. The realization
+graph passes 28 tasks, 390 tests and 56,021 assertions. The
+[matched detail/wide native comparison](https://mateis-macbook-pro.taild8da1c.ts.net/civ/native-channel-neighborhood-20261002/index.html)
+is published, byte-exact on local/tailnet HTTP and visibly verified in Arc.
+
+The semantic review also qualifies the earlier "unsupported promotion"
+description: main deliberately grows coherent trunks from strong endpoints.
+Per-source thresholding changes that intended reach-level meaning; its
+portable qualification does not establish scientifically correct widths or
+native realizability. Review that class/projection responsibility before
+adopting a new footprint. PR #2245 remains held, with no parallel fallback.
+
+Lake classification has a selected conservative projection decision, not
+another pending threshold sweep. Keep stock per-size cutoff and the accepted
+head-retention/final-height cliff transaction. Resolved physical size overlaps
+defeat automatic largest-finite-size classification, and no qualified runtime
+per-body setter exists. All 204 finite heads were already preserved at stock
+ten; native lake flags remain an explicitly separate gameplay approximation.
+See [the resolved question-sheet decision](calibration-question-sheet.md#resolved-decision-preserve-heads-keep-conservative-native-taxonomy).
+This does not close the independent true-cliff vessel test.
+
+The [directed-fetch thermal comparison](land-geography-investigation.md#directed-fetch-closed-without-a-production-change)
+is closed without production adoption. Held errors and arrangement controls
+reject that response; the independent reviewer reproduces the result. No
+temperature proxy, gain or expectation is changed. Current canonical authored
+height references are intentional; the COLUMN witness changed that policy,
+so its nonzero margin differences do not justify a coordinate-defect repair.
+The separate useful reference-height cleanup must preserve all numerical
+outputs and cannot be presented as Earth relief calibration. Annual geographic
+thermal response and dimensional relief remain actual open scientific owners.

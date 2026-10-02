@@ -5,6 +5,7 @@ import {
 } from "@civ7/map-policy";
 import type { MapContext } from "@swooper/mapgen-core";
 import { readArtifact } from "@swooper/mapgen-core/authoring";
+import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import { encodeBoundedJsonLogLines } from "@swooper/mapgen-core/lib/log";
 import { sha256Hex, stableStringify } from "@swooper/mapgen-core/trace";
 import standardRecipe, {
@@ -14,6 +15,11 @@ import standardRecipe, {
 import { Type } from "typebox";
 import { Check } from "typebox/value";
 import type { Civ7Adapter } from "../../src/runtime/map-script/adapter.js";
+import {
+  RIVER_AUTHORED_FINALIZATION_VARIANTS,
+  RIVER_AUTHORED_WRITE_ORDER_VARIANT,
+  RIVER_PROBE_VARIANTS,
+} from "./river-contract-map.fixture.js";
 import type { FullMapProbeIdentity } from "./river-full-map.fixture.js";
 
 export const WATER_HEIGHT_MAINTENANCE_ATLAS = "full-map-maintenance";
@@ -199,6 +205,16 @@ type ProbeOptions = Readonly<{
   sourceConfigId: string;
   expectedLakeSizeCutoff: number;
   directionalCliffs?: DirectionalCliffStudy;
+  finalizationIntervention?: Readonly<{
+    variant: keyof typeof RIVER_AUTHORED_FINALIZATION_VARIANTS;
+    requestedTuple: readonly [boolean, number, number, number];
+    appliedTuple: readonly [boolean, number, number, number];
+    qualification: string;
+  }>;
+  riverWriteOrderIntervention?: Readonly<{
+    variant: typeof RIVER_AUTHORED_WRITE_ORDER_VARIANT;
+    qualification: string;
+  }>;
 }>;
 const focus = [
   { body: 56, role: "wet-outlet", x: 86, y: 32 },
@@ -396,6 +412,96 @@ const cliffUnavailable = (member: string, reason: string): CliffUnavailable => (
 function nativeCliffBindings(): DirectionalCliffBindings {
   const host = globalThis as unknown as Partial<DirectionalCliffBindings>;
   return { GameplayMap: host.GameplayMap ?? {}, DirectionTypes: host.DirectionTypes ?? {} };
+}
+
+function downstreamRiverDelivery(
+  writes: readonly { intent: Parameters<Adapter["setRiverInfo"]>[0] }[],
+  dimensions: Readonly<{ width: number; height: number }>,
+  bindings: DirectionalCliffBindings
+) {
+  const { width, height } = dimensions;
+  const adjacent = bindings.GameplayMap.getAdjacentPlotLocation;
+  if (typeof adjacent !== "function")
+    throw new Error("Downstream delivery requires native getAdjacentPlotLocation.");
+  if (writes.length === 0 || writes.length > width * height)
+    throw new Error("Downstream delivery requires a nonempty bounded declaration population.");
+  const nativeDirections = new Map<string, number>();
+  for (const symbol of cliffDirections) {
+    const value = bindings.DirectionTypes[`DIRECTION_${symbol}`];
+    if (
+      typeof value !== "number" ||
+      !Number.isSafeInteger(value) ||
+      value < 0 ||
+      [...nativeDirections.values()].includes(value)
+    )
+      throw new Error("Downstream delivery requires unique native geographic directions.");
+    nativeDirections.set(symbol, value);
+  }
+  const sourceOrdinals = new Map<number, number>();
+  const receiverCells = writes.map(({ intent }, ordinal) => {
+    const { x, y, direction, riverClass } = intent;
+    if (
+      !Number.isSafeInteger(x) ||
+      !Number.isSafeInteger(y) ||
+      x < 0 ||
+      x >= width ||
+      y < 0 ||
+      y >= height ||
+      !nativeDirections.has(direction) ||
+      (riverClass !== "MINOR" && riverClass !== "NAVIGABLE")
+    )
+      throw new Error("Downstream delivery requires valid authored declarations.");
+    const sourceCell = x + y * width;
+    if (sourceOrdinals.has(sourceCell))
+      throw new Error("Downstream delivery refuses duplicate source declarations.");
+    sourceOrdinals.set(sourceCell, ordinal);
+    const receiver: unknown = adjacent.call(
+      bindings.GameplayMap,
+      { x, y },
+      nativeDirections.get(direction)
+    );
+    if (
+      typeof receiver !== "object" ||
+      receiver === null ||
+      !("x" in receiver) ||
+      !("y" in receiver) ||
+      typeof receiver.x !== "number" ||
+      !Number.isSafeInteger(receiver.x) ||
+      typeof receiver.y !== "number" ||
+      !Number.isSafeInteger(receiver.y) ||
+      receiver.y < 0 ||
+      receiver.y >= height ||
+      (receiver.x < 0 && !(receiver.x === -1 && x === 0)) ||
+      (receiver.x >= width && !(receiver.x === width && x === width - 1))
+    )
+      throw new Error("Downstream delivery requires a valid native adjacent receiver.");
+    // The selected Civ7 cylindrical map admits one native X-boundary step, never Y wrapping.
+    const receiverX = (receiver.x + width) % width;
+    const receiverCell = receiverX + receiver.y * width;
+    if (!getHexNeighborIndicesOddQ(x, y, width, height).includes(receiverCell))
+      throw new Error("Downstream delivery requires a valid native adjacent receiver.");
+    return receiverCell;
+  });
+  const remaining = receiverCells.map((cell) => Number(sourceOrdinals.has(cell)));
+  const upstream = writes.map(() => [] as number[]);
+  receiverCells.forEach((cell, ordinal) => {
+    const receiverOrdinal = sourceOrdinals.get(cell);
+    if (receiverOrdinal !== undefined) upstream[receiverOrdinal]!.push(ordinal);
+  });
+  const ready = remaining.flatMap((count, ordinal) => (count === 0 ? [ordinal] : []));
+  const appliedOrdinals: number[] = [];
+  while (ready.length) {
+    ready.sort((a, b) => a - b);
+    const ordinal = ready.shift()!;
+    appliedOrdinals.push(ordinal);
+    for (const source of upstream[ordinal]!) {
+      remaining[source] = remaining[source]! - 1;
+      if (remaining[source] === 0) ready.push(source);
+    }
+  }
+  if (appliedOrdinals.length !== writes.length)
+    throw new Error("Downstream delivery refuses a cyclic declaration graph.");
+  return { appliedOrdinals, receiverCells };
 }
 
 function directionalCliffObserver(
@@ -767,6 +873,46 @@ export function installWaterHeightMaintenanceProbe(
     )
   )
     throw new Error("Invalid maintenance probe identity.");
+  const intervention = options.finalizationIntervention;
+  const writeOrderIntervention = options.riverWriteOrderIntervention;
+  const sameTuple = (actual: unknown, expected: readonly unknown[]) =>
+    Array.isArray(actual) &&
+    actual.length === expected.length &&
+    actual.every((value, index) => value === expected[index]);
+  if (
+    intervention !== undefined &&
+    (intervention === null ||
+      typeof intervention !== "object" ||
+      options.atlasKind !== WATER_HEIGHT_MAINTENANCE_ATLAS ||
+      !Object.hasOwn(RIVER_AUTHORED_FINALIZATION_VARIANTS, intervention.variant) ||
+      !sameTuple(intervention.requestedTuple, RIVER_PROBE_VARIANTS.authored) ||
+      !sameTuple(
+        intervention.appliedTuple,
+        RIVER_AUTHORED_FINALIZATION_VARIANTS[intervention.variant]
+      ) ||
+      typeof intervention.qualification !== "string" ||
+      !intervention.qualification.trim())
+  )
+    throw new Error(
+      "Invalid authored finalizer ablation; only declared maintenance tuples are admitted."
+    );
+  if (
+    writeOrderIntervention !== undefined &&
+    (writeOrderIntervention === null ||
+      typeof writeOrderIntervention !== "object" ||
+      options.atlasKind !== WATER_HEIGHT_MAINTENANCE_ATLAS ||
+      intervention !== undefined ||
+      writeOrderIntervention.variant !== RIVER_AUTHORED_WRITE_ORDER_VARIANT ||
+      typeof writeOrderIntervention.qualification !== "string" ||
+      !writeOrderIntervention.qualification.trim())
+  )
+    throw new Error(
+      "Invalid downstream delivery intervention; only declared maintenance ordering is admitted."
+    );
+  const appliedTuple =
+    intervention === undefined
+      ? undefined
+      : RIVER_AUTHORED_FINALIZATION_VARIANTS[intervention.variant];
   const cliffStudy =
     options.directionalCliffs === undefined
       ? undefined
@@ -809,6 +955,12 @@ export function installWaterHeightMaintenanceProbe(
   let lastAuthenticCall: AuthenticCall | undefined;
   const occurrences = new Map<string, number>();
   const writes: Array<{ wet: boolean; intent: Parameters<Adapter["setRiverInfo"]>[0] }> = [];
+  let deliveryAttempted = false;
+  let deliveryComplete = false;
+  const refuseInterleavedMutation = () => {
+    if (writeOrderIntervention && writes.length > 0 && !deliveryComplete)
+      throw new Error("Downstream delivery refuses an interleaved authentic mutation.");
+  };
   const elevations: Array<{ count: number; sha256: string }> = [];
   const dryRetention = options.atlasKind === WATER_HEIGHT_DRY_RETENTION_REPLAY_ATLAS;
   const originalInputArm =
@@ -881,19 +1033,66 @@ export function installWaterHeightMaintenanceProbe(
       water: adapter.isWater(point.x, point.y),
       lake: adapter.isLake(point.x, point.y),
     }));
+  const sourceNumber = (
+    adapter: Adapter,
+    member: "getRiverType" | "getTerrainType",
+    x: number,
+    y: number
+  ) => {
+    const unavailable = (reason: string) => ({ status: "unavailable" as const, member, reason });
+    if (
+      !Number.isSafeInteger(x) ||
+      !Number.isSafeInteger(y) ||
+      x < 0 ||
+      y < 0 ||
+      x >= options.width ||
+      y >= options.height
+    ) {
+      return unavailable("source-coordinates-out-of-bounds");
+    }
+    try {
+      const getter = adapter[member];
+      if (typeof getter !== "function") return unavailable("missing-callable");
+      const value = getter.call(adapter, x, y);
+      return Number.isSafeInteger(value) ? value : unavailable("not-a-safe-integer");
+    } catch (error) {
+      return unavailable(`threw: ${String(error).slice(0, 180)}`);
+    }
+  };
+  // Observe all authentic dry and wet source writes, not just the historical lake focus.
+  const riverSourceRows = (adapter: Adapter) =>
+    writes.map(({ intent }) => ({
+      x: intent.x,
+      y: intent.y,
+      intendedClass: intent.riverClass,
+      observedClass: sourceNumber(adapter, "getRiverType", intent.x, intent.y),
+      terrain: sourceNumber(adapter, "getTerrainType", intent.x, intent.y),
+    }));
   const observe = <T>(adapter: Adapter, method: string, action: () => T): T => {
     admit(adapter);
     const occurrence = (occurrences.get(method) ?? 0) + 1;
     occurrences.set(method, occurrence);
     const call = ++sequence;
     const authenticCall = { call, method, occurrence };
-    emit("before", { call, method, occurrence, points: snapshot(adapter) });
+    emit("before", {
+      call,
+      method,
+      occurrence,
+      points: snapshot(adapter),
+      riverSourceRows: riverSourceRows(adapter),
+    });
     if (method === "generateCliffsFromElevation" && occurrence === 1)
       observeCliffs?.("before-generateCliffsFromElevation", authenticCall);
     try {
       const result = action();
       lastAuthenticCall = authenticCall;
-      emit("after", { call, method, occurrence, points: snapshot(adapter) });
+      emit("after", {
+        call,
+        method,
+        occurrence,
+        points: snapshot(adapter),
+        riverSourceRows: riverSourceRows(adapter),
+      });
       if (method === "setElevation" && occurrence <= 2)
         observeCliffs?.(
           occurrence === 1 ? "after-first-setElevation" : "after-second-setElevation",
@@ -910,11 +1109,13 @@ export function installWaterHeightMaintenanceProbe(
   for (const method of maintenanceMethods) {
     const original = prototype[method];
     prototype[method] = function () {
+      refuseInterleavedMutation();
       return observe(this, method, () => original.call(this));
     };
   }
   const setElevation = prototype.setElevation;
   prototype.setElevation = function (values) {
+    refuseInterleavedMutation();
     admit(this);
     if (originalInputArm && originalElevation === undefined) {
       originalElevation = Array.from(values);
@@ -945,32 +1146,81 @@ export function installWaterHeightMaintenanceProbe(
   };
   const setRiverInfo = prototype.setRiverInfo;
   prototype.setRiverInfo = function (intent) {
+    if (writeOrderIntervention && deliveryAttempted)
+      throw new Error("Downstream delivery refuses writes after its single delivery attempt.");
     admit(this);
     writes.push({ wet: this.isWater(intent.x, intent.y), intent: { ...intent } });
+    if (writeOrderIntervention) return;
     return setRiverInfo.call(this, intent);
   };
   const finalizeRivers = prototype.finalizeRivers;
   prototype.finalizeRivers = function (args) {
+    if ((appliedTuple || writeOrderIntervention) && !sameTuple(args, RIVER_PROBE_VARIANTS.authored))
+      throw new Error(
+        "Authored finalizer ablation requires the authentic requested tuple false,25,2,2."
+      );
     admit(this);
+    let delivery: ReturnType<typeof downstreamRiverDelivery> | undefined;
+    if (writeOrderIntervention) {
+      if (deliveryAttempted)
+        throw new Error("Downstream delivery already attempted; no replay is admitted.");
+      // Preflight the complete graph before delivering any buffered native river write.
+      delivery = downstreamRiverDelivery(writes, options, cliffBindings ?? nativeCliffBindings());
+      deliveryAttempted = true;
+    }
     emit("inputs", {
       writes,
       dryWritesSha256: digest(writes.filter((write) => !write.wet).map((write) => write.intent)),
       wetWritesSha256: digest(writes.filter((write) => write.wet).map((write) => write.intent)),
       elevations,
       finalizationTuple: args,
+      ...(intervention ? { finalizationIntervention: intervention } : {}),
+      ...(delivery
+        ? {
+            riverWriteOrderIntervention: {
+              ...writeOrderIntervention,
+              ...delivery,
+              includedWetWriteCount: writes.filter((write) => write.wet).length,
+            },
+          }
+        : {}),
     });
-    return observe(this, "finalizeRivers", () => finalizeRivers.call(this, args));
+    if (delivery) {
+      for (const ordinal of delivery.appliedOrdinals) {
+        try {
+          setRiverInfo.call(this, { ...writes[ordinal]!.intent });
+        } catch (error) {
+          emit("failed", {
+            method: "setRiverInfo",
+            originalOrdinal: ordinal,
+            error: String(error),
+          });
+          throw error;
+        }
+      }
+      deliveryComplete = true;
+    }
+    return observe(this, "finalizeRivers", () =>
+      finalizeRivers.call(
+        this,
+        appliedTuple ? [appliedTuple[0], appliedTuple[1], appliedTuple[2], appliedTuple[3]] : args
+      )
+    );
   };
   emit("installed", {
     ...options,
     focus: observationFocus,
-    qualification: originalInputArm
-      ? dryRetention
-        ? "Authentic calls are preserved. After recipe success, V20 adds one setter retaining exact native dry heights and protected original wet requests, no other maintenance. This is not the internal prepare-surface repair slot."
-        : options.atlasKind === WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS
-          ? "Authentic calls are preserved. Both bounded cutoff arms protect first-setter requests and observe equal post-recipe grids without replay or additional maintenance. Classification and height are independent outcomes."
-          : "Authentic calls are preserved. The generated wrapper invokes equal post-recipe observation slots only after success; V19 adds one original-request setter, no other maintenance. This is not the internal prepare-surface repair slot."
-      : "Read-only observation after measured cutoff admission; installation is not activation or success. Admitted runs add, suppress or retry no river, elevation or maintenance calls.",
+    qualification: writeOrderIntervention
+      ? "Experimental downstream-first native delivery permutation; every declaration and authored finalizer tuple are retained, with no replay."
+      : intervention
+        ? "Experimental authored finalizer minima ablation; forwards one selected native tuple, no other authentic call changes."
+        : originalInputArm
+          ? dryRetention
+            ? "Authentic calls are preserved. After recipe success, V20 adds one setter retaining exact native dry heights and protected original wet requests, no other maintenance. This is not the internal prepare-surface repair slot."
+            : options.atlasKind === WATER_HEIGHT_BOUNDED_LAKE_CUTOFF_ATLAS
+              ? "Authentic calls are preserved. Both bounded cutoff arms protect first-setter requests and observe equal post-recipe grids without replay or additional maintenance. Classification and height are independent outcomes."
+              : "Authentic calls are preserved. The generated wrapper invokes equal post-recipe observation slots only after success; V19 adds one original-request setter, no other maintenance. This is not the internal prepare-surface repair slot."
+          : "Read-only observation after measured cutoff admission; installation is not activation or success. Admitted runs add, suppress or retry no river, elevation or maintenance calls.",
   });
   return () => {
     if (!originalInputArm)

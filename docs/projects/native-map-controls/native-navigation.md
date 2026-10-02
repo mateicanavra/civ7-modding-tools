@@ -7,10 +7,10 @@ on one authored corridor. A separate normally granted Cog also qualifies
 marine-to-NAV-to-lake-to-NAV travel through one four-cell body. True-cliff vessel
 traversal remains unqualified. Class retention alone is not a successful movement test.
 
-Those arrived routes qualify their recorded pre-C3 builds. The
-[October 2 adopted-C3 evidence](#october-2-adopted-c3-native-evidence) adds fresh
-generation, photographs, a true native cliff flag and bounded actor inspection,
-but no current-build vessel arrival.
+Those earlier routes qualify their recorded pre-C3 builds. The
+[current C3 lake-passage milestone](#october-2-current-c3-lake-passage) adds
+normally acquired human Cog arrivals across marine, river and lake connections.
+The separately observed true-cliff edge remains unqualified.
 
 ## Observations
 
@@ -401,3 +401,70 @@ All are in the existing Earth-calibration user-data directory, alongside
 discriminator still requires a suitably acquired vessel in the relevant water
 component, one admitted command and actual arrival readback. Continuing UI
 restart/navigation work has no anticipated outcome in this closure.
+
+## October 2 Current C3 Lake Passage
+
+The normal saved Huge1018/1018 twelve-player Exploration setup completes
+Advanced Start using ordinary City, Town, Cogs, Cartography, Gold and Capital
+Upgrade effects. This is the adopted C3 build, not an administrative unit grant
+or relocation. Its installed script SHA-256 is
+`0aa89183ed6d5c2b3b09cce3eb7f702fd81410ece2db8868f5f8c8e13a9cf792`;
+these arrivals precede the separate major-support classifier repair. Human Cog
+`65536` first confirms NAV `(52,60)` to marine
+`(52,59)`, back to NAV `(52,60)` and along NAV `(51,60)`, with independent
+arrival reads and remaining movement `2/1/0`.
+
+Human Cog `131073` then completes the following distinct lake connection:
+
+| Turn | Confirmed Arrival Edge | Destination | Movement Remaining |
+| --- | --- | --- | ---: |
+| 16 | `(79,36)` to `(80,36)` | Marine | 2 |
+| 16 | `(80,36)` to `(81,36)` | Navigable river | 1 |
+| 16 | `(81,36)` to `(81,37)` | Lake | 0 |
+| 17 | `(81,37)` to `(82,37)` | Lake | 2 |
+| 17 | `(82,37)` to `(82,36)` | Different navigable river | 1 |
+| 17 | `(82,36)` to `(81,36)` | Navigable river | 0 |
+| 18 | `(81,36)` to `(80,36)` | Marine | 2 |
+
+Every edge has one checked send, confirmed `target-reached`, and an independent
+fresh unit read. Native classification and thirty-six directed observations
+are retained separately; these connections have `cliff=false`. Fourteen actual
+turns advance from T4 to T18, within the thirty-turn bound. Final status is
+T18/570 CE, local/observer zero, autoplay inactive, zero remaining autoplay
+turns, and no queued unit destination. Damage changes across turn transitions
+from `4` to `16` to `36`; their cause is not assigned by this experiment.
+
+The [three-photo passage gallery](https://mateis-macbook-pro.taild8da1c.ts.net/civ/native-lake-passage-20261002/index.html)
+retains two widest views and one mouth detail, natural units, original
+3456x2168 PNGs, and checked movement/camera evidence. Local/phone bytes and
+`320/390/1440` browser checks pass. The earlier fourteen-photo survey is not
+overwritten. Evidence under Earth-calibration user data:
+`c3-normal-lake-navigation-20261002.md`,
+`c3-normal-lake-navigation-proof-20261002.json`, and
+`../native-lake-passage-20261002/PUBLICATION.json`.
+
+The failed distant approach to `(95,18)` is not a cliff refusal: a complete
+6996-plot native-grid census places that receiver and NAV `(94,19)` in a
+different water component, even admitting all ocean cells. The actual cliff
+there remains a separate test. Stock Advanced Start is already closed at T18;
+coastal hill `(96,19)` is only a prospective normal-placement site, with region
+and Cog-spawn eligibility unproven. Do not reopen setup, force a player, move a
+unit administratively or lower the cliff to turn this into a positive result.
+
+An independent coordinate join reproduces all 6,996 terrain and ordinary-water
+facts and all 320 NAV sources from the portable C3 capture. No water/NAV
+connector is lost in projection. The receiver `(95,18)` is prescribed external
+water at the model sea head `11`, not a finite lake incorrectly classified by
+Civ. Its external component reaches the clipped northern boundary; shared
+hydrological external-body identity is not a promise of one navigable ocean.
+Sixteen cells of finite body `1643` separately report native `isLake=false`,
+consistent with stock Huge cutoff `10`; all are in the Cog's component and
+therefore do not explain the unreachable cliff approach. Report and exact
+coordinates: `c3-cliff-component-attribution-20261002/{REPORT.md,RECEIPT.json}`.
+
+The subsequent supported-classifier capture holds ground, lake footprints and
+hydraulic surfaces exactly. Candidate `(84,23)` to `(83,23)` is a nearer
+connected NAV/lake endpoint with physical receiving-head drop `47-32=15`.
+The old grid provides no directed cliff flag there. Fresh current-build flags
+and actual movement must qualify this candidate; a head drop is not proof of
+a native cliff or passability.
