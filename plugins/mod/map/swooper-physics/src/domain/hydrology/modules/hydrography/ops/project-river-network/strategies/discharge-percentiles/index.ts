@@ -1,11 +1,7 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { clamp01 } from "@swooper/mapgen-core/lib/math";
 import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
-import {
-  RIVER_CLASS_MAJOR,
-  RIVER_CLASS_MINOR,
-  RIVER_CLASS_NONE,
-} from "../../../../model/policy/river-class.js";
+import { RIVER_CLASS_MAJOR, RIVER_CLASS_MINOR } from "../../../../model/policy/river-class.js";
 import ProjectRiverNetworkContract from "../../contract.js";
 import DischargePercentilesDefinition from "./config.js";
 
@@ -16,27 +12,10 @@ function percentileThreshold(values: number[], p: number): number {
   return values[i] ?? Infinity;
 }
 
-function strongestUpstreamMinor(
-  upstream: readonly number[],
-  discharge: ArrayLike<number>,
-  minorMask: ArrayLike<number>
-): number {
-  let best = -1;
-  let bestDischarge = -Infinity;
-  for (const index of upstream) {
-    if (minorMask[index] !== 1) continue;
-    const value = discharge[index] ?? 0;
-    if (value <= bestDischarge) continue;
-    bestDischarge = value;
-    best = index;
-  }
-  return best;
-}
-
 /**
- * Resolves thresholds from positive land discharge, marks the minor network, then promotes each
- * major endpoint along its strongest connected upstream path. The major threshold is never allowed
- * below the minor threshold, preserving a nested river classification.
+ * Classifies each admitted principal source by its own discharge. Nested thresholds preserve
+ * minor tributaries without extending navigable heads into weaker channels or omitting a strong
+ * tributary merely because another branch carries more flow.
  */
 const dischargePercentilesStrategy = createStrategy(
   ProjectRiverNetworkContract,
@@ -70,7 +49,6 @@ const dischargePercentilesStrategy = createStrategy(
       }
 
       const riverClass = new Uint8Array(size);
-      const minorMask = new Uint8Array(size);
 
       const landDischarge: number[] = [];
       for (let i = 0; i < size; i++) {
@@ -92,46 +70,11 @@ const dischargePercentilesStrategy = createStrategy(
       const minorThreshold = Math.max(0, config.minMinorDischarge, rawMinor);
       const majorThreshold = Math.max(minorThreshold, config.minMajorDischarge, rawMajor);
 
-      const upstream: number[][] = Array.from({ length: size }, () => []);
       for (let i = 0; i < size; i++) {
         if (!eligible[i]) continue;
-        const receiver = input.flowDir[i] ?? -1;
-        if (receiver >= 0 && receiver < size && input.landMask[receiver] === 1) {
-          upstream[receiver]!.push(i);
-        }
         const d = input.discharge[i] ?? 0;
-        if (d <= 0) continue;
-        if (d >= minorThreshold) {
-          riverClass[i] = RIVER_CLASS_MINOR;
-          minorMask[i] = 1;
-        }
-      }
-
-      const majorEndpoints: number[] = [];
-      for (let i = 0; i < size; i++) {
-        if (minorMask[i] !== 1) continue;
-        const d = input.discharge[i] ?? 0;
-        if (d < majorThreshold) continue;
-        const receiver = input.flowDir[i] ?? -1;
-        if (receiver >= 0 && receiver < size && minorMask[receiver] === 1) continue;
-        majorEndpoints.push(i);
-      }
-      majorEndpoints.sort((a, b) => (input.discharge[b] ?? 0) - (input.discharge[a] ?? 0));
-
-      for (const endpoint of majorEndpoints) {
-        let current = endpoint;
-        const seen = new Set<number>();
-        while (current >= 0 && current < size && minorMask[current] === 1 && !seen.has(current)) {
-          seen.add(current);
-          riverClass[current] = RIVER_CLASS_MAJOR;
-          current = strongestUpstreamMinor(upstream[current]!, input.discharge, minorMask);
-        }
-      }
-
-      for (let i = 0; i < size; i++) {
-        if (riverClass[i] === 0) {
-          riverClass[i] = RIVER_CLASS_NONE;
-        }
+        if (d <= 0 || d < minorThreshold) continue;
+        riverClass[i] = d >= majorThreshold ? RIVER_CLASS_MAJOR : RIVER_CLASS_MINOR;
       }
 
       return { riverClass, minorThreshold, majorThreshold } as const;

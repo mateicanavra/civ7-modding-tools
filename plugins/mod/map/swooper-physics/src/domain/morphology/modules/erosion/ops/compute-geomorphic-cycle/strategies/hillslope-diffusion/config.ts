@@ -16,17 +16,27 @@ export default defineStrategy({
                 maximum: 1,
               }),
             },
-            { additionalProperties: false }
+            { additionalProperties: false, description: "Initial hillslope diffusion strength." }
           ),
-          eras: Type.Union([Type.Literal(1), Type.Literal(2), Type.Literal(3)], { default: 2 }),
+          eras: Type.Union([Type.Literal(1), Type.Literal(2), Type.Literal(3)], {
+            default: 2,
+            description:
+              "Number of initial hillslope diffusion passes, not physical geological time.",
+          }),
         },
-        { additionalProperties: false }
+        {
+          additionalProperties: false,
+          description: "Initial hillslope shaping without channel erosion.",
+        }
       ),
-      worldAge: Type.Union(
-        [Type.Literal("young"), Type.Literal("mature"), Type.Literal("old")],
-        { default: "mature", description: "World age posture scaling hillslope diffusion intensity." }
-      ),
+      worldAge: Type.Union([Type.Literal("young"), Type.Literal("mature"), Type.Literal("old")], {
+        default: "mature",
+        description: "World age posture scaling hillslope diffusion intensity.",
+      }),
     },
-    { additionalProperties: false }
+    {
+      additionalProperties: false,
+      description: "Hillslope diffusion and authored world-age intensity.",
+    }
   ),
 });
