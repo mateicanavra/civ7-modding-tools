@@ -13,7 +13,18 @@ benchmarks, not inputs hidden inside the procedural Earthlike recipe. A
 realistic Earthlike variant is the desired playable outcome, not literal Earth
 replay. Historical eight-product captures remain immutable comparison evidence.
 
-The latest visible milestone is the
+The latest gameplay milestone is
+[matched true-cliff passage](native-navigation.md#october-2-matched-true-cliff-passage),
+with [two new native arrival photographs](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherent-normal-atlas-20261002/truecliff-passage.html).
+The same normal Cog crosses a cliff-free control and the genuine `(94,19)`
+mouth in both directions, with four independently confirmed arrivals. The
+native cliff flag remains true at `678/0`; no lowering or carving is needed
+for passage at this tested mouth. The still-apparent visual join is a separate
+rendering question. Final T11 control is player zero with autoplay stopped.
+This closes the bounded current-build cliff discriminator, not universal
+navigation or Earth thermal/dimensional calibration.
+
+The wider visual milestone is the
 [eighteen-view selected-build atlas](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherent-normal-atlas-20261002/index.html)
 and [fresh bidirectional sea/river passage](native-navigation.md#october-2-selected-build-seariver-arrivals).
 It follows the closed implementation and realization qualification in the
@@ -106,10 +117,10 @@ autoplay or complete scientific calibration. The gallery remains dated evidence.
 | Understand the shipped Civ7 controls and support current game data | Installed-source comparison, generated-resource compatibility including shipped resource schema changes, and native contract probes | Keep pinned source/runtime facts separate from undocumented-engine speculation |
 | Show the physical elevation directly in Civ | Direct elevation projection; correct native dry-height retention; authored wet heights reapplied around native maintenance without erasing native dry/wonder edits; normal Huge live runs and the bounded V25 declared-head discriminator | Arbitrary under-rim/below-sea heads have a qualified native capability limit; dimensional physical relief calibration remains separate |
 | Make mountains and hills agree with the physical relief | Relief-supported landforms and class-conditioned coherence measurements, rather than using landform labels as a substitute heightfield | Further Earth relief calibration; no conversion from model relief to metres by fitting a quantile |
-| Author minor and navigable river networks | Native direction/class declarations follow the authored network; wet terminal writes repair demonstrated mouth discontinuities; normally granted Cogs qualify bidirectional NAV travel, marine exit and one lake crossing | Cliff-mouth traversal remains unqualified; vessel witnesses are bounded routes, not universal passage claims |
+| Author minor and navigable river networks | Native direction/class declarations follow the authored network; wet terminal writes repair demonstrated mouth discontinuities; normally granted Cogs qualify bidirectional NAV travel, marine exit, one lake crossing and a matched true-cliff mouth | Vessel witnesses are bounded routes, not universal passage claims; apparent water joins remain distinct from passability |
 | Use coherent lakes, basins and drainage | Finite storage/supply/outlets and network coordination; prescribed ocean head, all-surface forcing and resolved exposure pass the 57-case proof; native Huge1018 retains all 204 finite heads and 4,275 external heads; V25 separately identifies the declared under-rim head limit | No global lake-size policy follows from one seed; meaningful arbitrary under-rim product cases must respect the qualified capability limit; thermal/relief calibration is separate |
 | Remove obsolete compensation after replacing it | Current-only water model and current climate algorithms; retired sink/procedural and four fallback climate paths; no parallel legacy execution lane | Remove only additional compensation whose replacement is proven; do not infer that all native-water work is finished |
-| Let the user inspect and play the result | Same-worktree Studio preview, reachable mobile viewer, current full-map drainage/elevation PNGs and fourteen fresh native photographs; historical final-height and actual Cog/autoplay witnesses retain their exact builds | Complete the remaining true cliff-route and density-policy qualifications; scientific calibration is not established by images |
+| Let the user inspect and play the result | Same-worktree Studio preview, reachable mobile viewer, full-map drainage/elevation PNGs, eighteen selected-build native views and two later cliff-passage photographs; actual Cog/autoplay witnesses retain their exact builds | Scientific calibration and visual joins remain open; the density study retains coherent reaches rather than a count-reduction policy |
 
 Details: [elevation](elevation.md), [relief](relief-coherence.md),
 [rivers](rivers.md), [wet continuity](wet-river-continuity.md),
@@ -170,8 +181,9 @@ generation and full Earth calibration remain separate claims.
 3. **Native projection: ordinary-map heads qualified; movement partly open.**
    Final-height preservation holds the resolved finite/external heads and native
    dry/wonder changes. V25 separately bounds arbitrary under-rim/below-sea
-   capability. No global cutoff change follows. Directed true-cliff passage
-   still needs actual normal-vessel arrival; ordinary NAV travel is qualified.
+   capability. No global cutoff change follows. Ordinary NAV, one through-lake
+   route and the matched true-cliff mouth now have actual vessel arrivals;
+   these witnesses do not establish universal passage or visual join correctness.
 4. **Calibrate the remaining Earthlike causal relationships.** Keep scientific
    reference and generated-geography arms distinct. Retain the unresolved
    thermal gate; a failed candidate is useful evidence, not an excuse to tune
@@ -195,8 +207,8 @@ the [coherence plan](coherence-completion.md) for acceptance boundaries.
 
 **Required before full completion, October 2:** preserve the completed
 water-owner/native-head repairs and now-merged C3 activation and retirement;
-finish actual current-build cliff-route arrival and the unchanged Earthlike
-thermal gate. The next relief decision belongs to the existing Morphology
+retain the now-completed current-build cliff-route arrival and finish the
+unchanged Earthlike thermal gate. The next relief decision belongs to the existing Morphology
 producer, not downstream compensation. Dimensional area/time/flux and relief
 admission remains required before full empirical Earth calibration is claimed,
 not before the qualified model-coordinate C3 treatment. No geological age,
