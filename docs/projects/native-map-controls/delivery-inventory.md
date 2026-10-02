@@ -14,7 +14,11 @@ realistic Earthlike variant is the desired playable outcome, not literal Earth
 replay. Historical eight-product captures remain immutable comparison evidence.
 
 The latest closed implementation and visible milestone is the
-[October 2 C3 adoption and native capture](#october-2-c3-and-native-milestone-closure).
+[qualified coherent-river native build](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherent-rivers-native-20261002/index.html),
+with four fresh normal-build views, exact source/class realization and full
+study-bank identity. The preceding
+[October 2 C3 adoption and native capture](#october-2-c3-and-native-milestone-closure)
+retains its own movement and terrain evidence.
 Earlier dated receipts below retain their original builds and outcomes.
 
 The tile-level discharge candidate is withdrawn, not waiting for a geometry

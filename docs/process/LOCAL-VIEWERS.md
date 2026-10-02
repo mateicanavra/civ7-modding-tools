@@ -2,6 +2,8 @@
 
 ## Civ Map Gallery
 
+- **Selected coherent-river milestone, October 2:** [Four fresh normal-build native views](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherent-rivers-native-20261002/index.html). Huge1018/1018, twelve players, Exploration: all 666 dry source declarations survive exactly, with 346 MINOR and 320 NAV sources and zero source/class/NAV-terrain mismatches. All fifty-seven study cases retain exact admitted-main identity. Two wide views and two details include the remaining true cliff; screenshots are appearance evidence, not vessel passage. All sixteen published files are byte-exact locally and over the tailnet. The earlier tile-level candidate is withdrawn; its photos and controlled comparison below remain historical evidence.
+
 - **Controlled neighborhood result, October 2:** [Matched native before/after views](https://mateis-macbook-pro.taild8da1c.ts.net/civ/native-channel-neighborhood-20261002/index.html). At two held zoom levels, a four-neighbor requested-class treatment recovers center `(4,35)` as NAV terrain without changing its own request, receiver or physical height. Seven old demotions recover and two deliberately changed requests lose native NAV, net five. The experiment establishes footprint sensitivity, not a shipped geometry filter or navigation claim. All five linked files are byte-exact locally and over the tailnet; actual Arc rendering is verified. No new mobile measurement pass is claimed.
 
 - **Phone / tailnet:** [Civ gallery](https://mateis-macbook-pro.taild8da1c.ts.net/civ/gallery.html)
