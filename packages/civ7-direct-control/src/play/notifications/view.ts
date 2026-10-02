@@ -453,6 +453,7 @@ function playNotificationViewSource(): string {
           civilizationName: civilization?.Name ?? civilization?.CivilizationType ?? null,
         };
       });
+      const localPlayerId = GameContext.localPlayerID;
       const responseRows = [
         ["friendly", "PLAYER_REALATIONSHIP_FIRSTMEET_FRIENDLY"],
         ["neutral", "PLAYER_REALATIONSHIP_FIRSTMEET_NEUTRAL"],
@@ -464,9 +465,12 @@ function playNotificationViewSource(): string {
           ?? null
         ));
         const typeValue = type.ok ? type.value : null;
-        const costAndRelationship = Number.isFinite(Number(typeValue))
-          ? probe(() => Game.Diplomacy.getFirstMeetResponseCostAndRelDelta(typeValue))
-          : { ok: false, error: "first-meet response type unavailable" };
+        const costAndRelationship = typeof typeValue === "number"
+          && Number.isFinite(typeValue)
+          && typeof localPlayerId === "number"
+          && Number.isFinite(localPlayerId)
+          ? probe(() => Game.Diplomacy.getFirstMeetResponseCostAndRelDelta(typeValue, localPlayerId))
+          : { ok: false, error: "first-meet response type or local player unavailable" };
         return {
           response,
           influenceCost: costAndRelationship.ok ? costAndRelationship.value?.[0] ?? null : null,
