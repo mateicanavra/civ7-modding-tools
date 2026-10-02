@@ -1,5 +1,14 @@
 # Earthlike Calibration And Projection Questions
 
+Current dispositions and build identities live in the
+[delivery inventory](delivery-inventory.md). Water ownership, normal native
+head retention and bounded actual cliff/lake/marine vessel routes are completed
+there; the dated observations below retain their original scope. Savanna
+annual-supply admission is merged. Earth thermal/dimensional calibration is
+still open; [the coupled numerical study](coupled-thermal-numerics.md) is
+isolated from the procedural recipe and does not introduce an Earth fixture
+as production forcing.
+
 Owner: root. Opened 2026-09-29. This is the single question/decision sheet for
 the user's combined Earth benchmark, river-density and lake-height questions.
 The user delegates sequencing, design, implementation, independent review and

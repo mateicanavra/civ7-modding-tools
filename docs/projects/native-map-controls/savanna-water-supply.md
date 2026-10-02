@@ -65,6 +65,14 @@ The complete owning graph passes checks, types, policy and builds. Definition
 tests report 1,182 passes and the one retained thermal aggregate failure;
 realization tests pass all 371. This is not an all-green science claim.
 
+[PR #2251](https://github.com/mateicanavra/civ7-modding-tools/pull/2251) merges
+the qualified repair through Graphite at `2026-10-02T18:14:21Z`. Main commit
+`b134ef300ffd56bc022f5447c5ec16a71e8b32e4` retains the exact source tree
+`f616fcaee985cd6fdc8c0f965d70287c70156f7d`. At merge/sync, the worktree was clean;
+all fourteen protected main files retain their recorded bytes. The pre-push
+root check graph passes all 187 tasks. This does not supersede the separately
+reported science failure.
+
 ## Native And Visible Milestone
 
 The same registered mod is deployed with Earthlike script SHA256
@@ -85,6 +93,15 @@ the three newly admitted Huge1018 plots at `(1,33)`, `(0,34)` and `(80,35)`;
 the world summary is exact before and after camera-only photography. The
 gallery page and thumbnail bytes are verified through the existing Tailscale
 Serve path. This is a current appearance milestone, not a new vessel test.
+
+The same fresh session completes ten normal autoplay turns, T1 through
+T11/500 CE. Public autoplay readback confirms zero turns remaining, inactive,
+player zero and observer zero restored, then paused. The completion precedes
+the final stop request; it is not an early-stop receipt. The exact current
+script hash, start/end receipts and qualification are retained in
+`savanna-water-supply-native-20261002/AUTOPLAY-RESULT.json`, also linked from
+the mobile gallery. This proves bounded ordinary turn execution on this build,
+not a new vessel route or universal game stability.
 
 The first launch crashed in Civ during previous-game unload, before the new
 generation began. Its failed receipt and native crash/log evidence remain

@@ -13,7 +13,10 @@ benchmarks, not inputs hidden inside the procedural Earthlike recipe. A
 realistic Earthlike variant is the desired playable outcome, not literal Earth
 replay. Historical eight-product captures remain immutable comparison evidence.
 
-The next completed owner repair is [savanna annual-supply admission](savanna-water-supply.md):
+The latest merged owner repair is [savanna annual-supply admission](savanna-water-supply.md),
+[PR #2251](https://github.com/mateicanavra/civ7-modding-tools/pull/2251), merged at
+`2026-10-02T18:14:21Z` into main commit
+`b134ef300ffd56bc022f5447c5ec16a71e8b32e4`:
 woodland appears in all eight representative Standard seeds instead of five.
 The unchanged 57-case bank retains all 2,166 physical-field hashes and every
 previously passing expectation. This repairs an Ecology policy mismatch without
@@ -26,6 +29,10 @@ show the new woodland neighborhoods. The owner graph passes checks/builds and
 371 realization tests; definition tests pass 1,182 with only the unchanged
 thermal aggregate failing. Source, deployment, generation and appearance retain
 separate receipts in the linked owner record.
+The fresh current-build session subsequently completes ten normal autoplay
+turns, T1 to T11/500 CE, and returns player/observer zero, inactive and paused.
+This is a new bounded gameplay receipt, not another vessel-navigation witness
+or a universal playability claim.
 
 The latest gameplay milestone is
 [matched true-cliff passage](native-navigation.md#october-2-matched-true-cliff-passage),
@@ -99,6 +106,14 @@ law was not an established redundancy fix. The sealed outcome and stopping
 rule remain in `earth-calibration/earth-local-column-qualification-20261002/`.
 No rejected physical law, codec, fallback or extraction toolchain is installed
 in the production pipeline.
+
+The [coupled thermal numerical follow-through](coupled-thermal-numerics.md)
+now qualifies the original-equation linearization on the retained first stage:
+4,965 checks, 76 derivative controls and three full Newton steps. Earlier
+refused source/method packets remain immutable. This numerical progress does
+not close the current production thermal gate; shared-pole/full-grid accuracy,
+unchanged flux refinement, held-Earth transfer and procedural adoption remain
+separate requirements. No prototype is deployed.
 
 ## What Shipped Means
 
