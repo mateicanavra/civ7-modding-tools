@@ -10,7 +10,9 @@ traversal remains unqualified. Class retention alone is not a successful movemen
 Those earlier routes qualify their recorded pre-C3 builds. The
 [current C3 lake-passage milestone](#october-2-current-c3-lake-passage) adds
 normally acquired human Cog arrivals across marine, river and lake connections.
-The separately observed true-cliff edge remains unqualified.
+The [fresh selected-build sea/river arrivals](#october-2-selected-build-seariver-arrivals)
+now qualify another normal Cog on the current coherent-reach build. The
+separately observed true-cliff edge remains unqualified.
 
 ## Observations
 
@@ -468,3 +470,51 @@ connected NAV/lake endpoint with physical receiving-head drop `47-32=15`.
 The old grid provides no directed cliff flag there. Fresh current-build flags
 and actual movement must qualify this candidate; a head drop is not proof of
 a native cliff or passability.
+
+## October 2 Selected-Build Sea/River Arrivals
+
+The normal Huge 106x66 run retains map/game seeds 1018/1018, twelve major
+players and Exploration. Installed script SHA256 is
+`6ab1fbc2c257b765115fe22963973e2b80f4463772eaa5407209d57dbc153b97`.
+The rejected seasonal thermal owner was never deployed. Ordinary City, Town,
+Cogs, Gold, Capital Upgrade and Cartography selections grant the human fleet;
+there is no administrative unit spawn, teleport or broad unlock.
+
+Two bounded autoplay turns bring the session to T3/420 CE and return local and
+observer control to player zero, with autoplay inactive. AI movement brings
+human Cog `{owner:0,id:65536,type:26}` to ordinary water `(59,52)`; that approach
+is not attributed to root's targeting. Root then performs two fresh public
+preview/check/single-send/independent-read loops:
+
+- Marine `(59,52)` to NAV `(59,53)`: target reached; actual position `(59,53)`,
+  movement `3 -> 2`, damage zero.
+- NAV `(59,53)` to marine `(59,52)`: target reached; actual position `(59,52)`,
+  movement `2 -> 1`, damage zero.
+
+The native directed edge is cliff-free, with river elevation 188 and marine
+elevation zero. The reverse preview includes an obstacle marker, but the
+validator admits the request and actual arrival succeeds. A preview marker
+alone therefore cannot be treated as a navigation refusal.
+
+The bounded native census checks 54 selected NAV-to-water sources, including
+all six neighbor directions per source. Its 324 directed records include 101
+ordinary-water contacts (26 with native `isLake=true`) and zero true cliff
+flags. Only 38 sources have a non-lake ordinary-water neighbor; 16 have lake
+contacts only. This is not a 54-source marine-only or global component census.
+Known true-cliff mouths `(88,14)` and `(94,19)` lie in disconnected eastern
+components. Their vessel passability remains unqualified.
+
+The [eighteen-view atlas](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherent-normal-atlas-20261002/index.html)
+contains thirteen widest neighborhoods, four details and the normal Cog at
+the tested mouth. All 18 camera and clean-frame receipts pass; summaries are
+identical before/after photography. All 120 local/tailnet HTTP responses are
+byte-exact, and the actual tailnet page is displayed in Arc. No new mobile
+layout measurement is claimed. Native photographs establish appearance, not
+completed Earth climate or dimensional relief calibration.
+
+Evidence in the discoverable Earth-calibration user-data directory:
+`coherent-reach-native-navigation-20261002/` retains the eight fresh movement
+receipts, two census batches, identity and vessel screenshot. Atlas
+`../coherent-normal-atlas-20261002/` retains original 3456x2168 PNGs, thumbnails,
+capture commands/receipts, manifest, passage evidence and publication verifier.
+Historical lake-passage and terrain galleries remain unchanged.
