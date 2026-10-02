@@ -4,15 +4,20 @@ This investigation belongs to [the basin integration](basin-integration.md)
 and [the river lane](rivers.md). Native class parity passes; a normal
 Exploration-age Cog now qualifies entry, bidirectional interior travel and exit
 on one authored corridor. A separate normally granted Cog also qualifies
-marine-to-NAV-to-lake-to-NAV travel through one four-cell body. True-cliff vessel
-traversal remains unqualified. Class retention alone is not a successful movement test.
+marine-to-NAV-to-lake-to-NAV travel through one four-cell body. A later
+[matched cliff trial](#october-2-matched-true-cliff-passage) qualifies another
+normal Cog across one actual cliff-marked mouth in both directions. This is
+bounded passage evidence, not universal cliff navigation or a correct visual
+water join. Class retention alone is not a successful movement test.
 
 Those earlier routes qualify their recorded pre-C3 builds. The
 [current C3 lake-passage milestone](#october-2-current-c3-lake-passage) adds
 normally acquired human Cog arrivals across marine, river and lake connections.
 The [fresh selected-build sea/river arrivals](#october-2-selected-build-seariver-arrivals)
-now qualify another normal Cog on the current coherent-reach build. The
-separately observed true-cliff edge remains unqualified.
+now qualify another normal Cog on the current coherent-reach build. The later
+matched trial tests the previously observed eastern true-cliff edge without
+changing terrain or river classes. Earlier dated sections preserve the
+questions that were still open at their recorded builds and turns.
 
 ## Observations
 
@@ -518,3 +523,51 @@ receipts, two census batches, identity and vessel screenshot. Atlas
 `../coherent-normal-atlas-20261002/` retains original 3456x2168 PNGs, thumbnails,
 capture commands/receipts, manifest, passage evidence and publication verifier.
 Historical lake-passage and terrain galleries remain unchanged.
+
+## October 2 Matched True-Cliff Passage
+
+The same selected normal build supplies existing Cog
+`{owner:8,id:458758,type:26}`. Supported bounded native autoplay transfers
+local and observer control to player eight; it does not force an actor, spawn
+a vessel, grant technology or edit terrain. The same vessel first crosses a
+nearby cliff-free control, then approaches and crosses the genuine cliff mouth:
+
+| Crossing | Independently confirmed arrival | Movement remaining | Damage |
+| --- | --- | --- | --- |
+| T5 control entry | Marine `(103,21)` to NAV `(104,22)` | `2 -> 1` | `4 -> 4` |
+| T5 control exit | NAV `(104,22)` to marine `(103,21)` | `1 -> 0` | `4 -> 4` |
+| T9 cliff entry | Marine `(95,18)` to NAV `(94,19)` | `1 -> 0` | `12 -> 12` |
+| T10 cliff exit | NAV `(94,19)` to marine `(95,18)` | `3 -> 2` | `12 -> 12` |
+
+Every crossing has a fresh public check, one native send, confirmed
+`target-reached` and an independent turn-ready unit read. Native observations
+before and after the trial retain the NAV-to-water cliff flag: true at
+`(94,19)` to `(95,18)`, false at the control. The cliff source/receiver heights
+remain `678/0`, with native direction `DIRECTION_SOUTHEAST=2`. The reverse
+cliff predicate is not sampled; bidirectional vessel passage is independently
+observed. The exit preview's obstacle marker `2108` does not prevent the
+admitted command or actual arrival.
+
+Eight bounded one-turn transitions supply actor control, normal coastal
+approach, movement refresh and return to player zero. Final independent status
+is T11/500 CE, local/observer zero, autoplay inactive and stopped with
+`paused=true`. Damage changes during intervening turns are not attributed to
+cliff crossing. No teleport, administrative spawn, cliff clearing, terrain
+lowering or broad unlock is used.
+
+The [two-photo passage supplement](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherent-normal-atlas-20261002/truecliff-passage.html)
+shows actual arrivals on the river and back at sea. Original 3456x2168 PNGs,
+thumbnails and the embedded movement/flag/return evidence are byte-exact in
+all twelve local/tailnet HTTP responses. Independent review passes 544
+assertions across 69 stable inputs. The original turn-three eighteen-view
+atlas remains unchanged. This witness separates a visually discontinuous join
+from gameplay refusal at this mouth; it does not establish every cliff edge,
+visual correctness, dimensional relief or completed Earth climate calibration.
+It does not justify carving physical terrain solely to enable navigation.
+
+Evidence under the existing Earth-calibration user-data directory:
+`coherent-reach-native-navigation-20261002/eastern-t{5,9,10}-*`,
+`current-cliff-after-arrivals.json`, `eastern-t11-return-zero-*` and
+`publish-truecliff.mjs`. The atlas supplement retains
+`truecliff-passage-evidence.json`, `TRUECLIFF-PUBLICATION.json` and
+`INDEPENDENT-TRUECLIFF-REVIEW-v1.md`.
