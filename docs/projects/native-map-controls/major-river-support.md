@@ -1,5 +1,50 @@
 # Major River Support And Reference Density
 
+## Selected Outcome
+
+The tile-by-tile discharge candidate is withdrawn. Keep the intentional
+coherent-reach algorithm as the sole production classification policy: strong
+endpoints select their strongest upstream minor path. Endpoint thresholds are
+not assertions that every reach member exceeds the major threshold. Continuous
+discharge and the complete minor network remain authoritative physical facts;
+the major class is a gameplay projection, not a measured channel width.
+
+The native neighborhood experiment below demonstrates why adding more
+per-cell NAV requests is not automatically a faithful projection. A four-cell
+class-only treatment recovers seven sources but loses two, with no general
+geometry rule established. The appropriate decision is to restore the reviewed
+coherent-reach meaning, not introduce a second class algorithm, force native
+classes after finalization or tune the count to Firaxis Earth.
+
+The restored implementation is qualified against the unchanged full study
+bank and a fresh normal Huge1018 native run. All fifty-seven scenarios retain
+exact input, study-pin, field-digest, sample and evaluation identity with the
+admitted main baseline. The 4,430 expectations retain precisely the two
+existing failures: within-row temperature variation and savanna presence.
+Neither is weakened. The complete owner graph passes checks and realization
+tests; definition tests report 1,177 passes and that one retained aggregate
+failure. Five focused classification tests preserve coherent upstream reach
+semantics, strongest-branch selection, deterministic ties and immutable flow.
+
+The normal saved Huge106x66 run uses seeds 1018/1018, twelve players and
+Exploration, completing in 42.8 seconds. All 666 dry source identities and
+classes agree: 346 MINOR and 320 NAV, with zero missing, extra, wrong-class or
+NAV-terrain mismatches. Installed and built script SHA256 is
+`6ab1fbc2c257b765115fe22963973e2b80f4463772eaa5407209d57dbc153b97`.
+This is completed generation and native realization, not current-build vessel
+passage or completed scientific Earth calibration. The observer's accepted
+water-height adjustments compare initial bed intent with native water surfaces;
+they are not assertions of zero bed/surface differences.
+
+Evidence in the durable Civ research location:
+`earth-calibration/coherent-reach-restored-native-bank-20261002/MAIN-IDENTITY.json`
+and `earth-calibration/coherent-reach-native-restored-1018-20261002/RESULT.json`.
+That qualification is separate from the completed candidate/ablation evidence
+below. The completed
+dataset-pinned neighborhood arm is retired from executable fixtures; its exact
+source remains in commit `89af5eebc7` and the immutable external evidence packet.
+Generic finalizer-minimum and delivery-order probes remain available.
+
 ## Question And Boundary
 
 The user asked whether the apparent abundance of navigable heads is physical,
@@ -8,7 +53,7 @@ the pinned Firaxis Huge Earth source before changing thresholds. Neither an
 authored Civ Earth river count nor an unknown model discharge unit is a
 scientific Earth navigability measurement.
 
-This owner repair does not alter drainage, basin storage, lake heads or
+This classification investigation does not alter drainage, basin storage, lake heads or
 erosion. Its class-sensitive downstream consumers must be qualified; it is not
 a reason to compensate for Foundation or land temperature in native projection.
 
@@ -44,7 +89,7 @@ disconnection or prove that the selected thresholds are physically calibrated.
 Owner:
 `plugins/mod/map/swooper-physics/src/domain/hydrology/modules/hydrography/ops/project-river-network/strategies/discharge-percentiles/index.ts`.
 
-## Next Discriminator
+## Historical Tile-Level Discriminator
 
 After rejecting the upstream candidate, discriminate direct nested discharge
 classification at this same operation. Hold its inputs, threshold population,
@@ -73,14 +118,14 @@ Predeclare these guards before running the candidate:
 - Compare held Earthlike seeds and both sizes. Inspect source density and
   complete-network views, not one favorable head photograph.
 
-The direct classification repair passes the unchanged qualification below;
-the baseline observation alone did not select it. The remaining difference
+The direct classification candidate passed the portable qualification below,
+but failed native realization and is now withdrawn. The remaining difference
 from Firaxis Earth must be attributed to
 actual climate, geography and authored scale policy, not eliminated by fitting
 one count. Dimensional channel-width or hydraulic navigation claims require
 their own admitted physical units.
 
-## Qualification
+## Historical Portable Candidate Qualification
 
 The unchanged complete bank generates all fifty-seven scenarios and retains
 all 4,430 expectations, with zero newly failed expectations. The original

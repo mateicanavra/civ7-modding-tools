@@ -20,7 +20,6 @@ import {
   buildRiverTerrainAtlas,
   buildRiverTerrainElevation,
   RIVER_AUTHORED_FINALIZATION_VARIANTS,
-  RIVER_AUTHORED_NEIGHBORHOOD_VARIANT,
   RIVER_AUTHORED_WRITE_ORDER_VARIANT,
   RIVER_CHECKPOINTS,
   RIVER_DIRECTIONS,
@@ -65,7 +64,6 @@ import {
 } from "./water-connectivity.fixture.js";
 import {
   DIRECTIONAL_CLIFF_WAYPOINTS,
-  RIVER_NEIGHBORHOOD_CLASS_INTERVENTION,
   WATER_HEIGHT_DRY_RETENTION_REPLAY_ATLAS,
   WATER_HEIGHT_ORIGINAL_INPUT_CONTROL_ATLAS,
   WATER_HEIGHT_ORIGINAL_INPUT_REPLAY_ATLAS,
@@ -117,72 +115,6 @@ describe("build-only river diagnostic selectors", () => {
     expect(proof.settings).toEqual([false, 25, 2, 2]);
     expect(proof.finalizationIntervention).toBeUndefined();
     expect(proof.riverWriteOrderIntervention).toBeUndefined();
-    expect(proof.riverNeighborhoodClassIntervention).toBeUndefined();
-  });
-
-  test("declared neighborhood class ablation selects only its pinned maintenance map", async () => {
-    const parsed = parseRiverProbeArguments([
-      "neighborhood-arm",
-      RIVER_AUTHORED_NEIGHBORHOOD_VARIANT,
-      "full-map-maintenance",
-      "--player-count",
-      "12",
-      "--lake-cutoff",
-      "stock",
-    ]);
-    expect(parsed.variant).toBe(RIVER_AUTHORED_NEIGHBORHOOD_VARIANT);
-    const plan = await buildRiverProbePlan("neighborhood-arm", parsed.variant, parsed.atlasKind, {
-      playerCount: 12,
-      lakeSizeCutoff: "stock",
-    });
-    const proof = JSON.parse(
-      String(plan.files.find(({ relativePath }) => relativePath === "proof.json")!.content)
-    );
-    expect(proof.settings).toEqual([false, 25, 2, 2]);
-    expect(proof.riverNeighborhoodClassIntervention).toEqual(RIVER_NEIGHBORHOOD_CLASS_INTERVENTION);
-    expect(proof.finalizationIntervention).toBeUndefined();
-    expect(proof.riverWriteOrderIntervention).toBeUndefined();
-    const script = String(
-      plan.files.find(({ relativePath }) => relativePath === "maps/river-contract.js")!.content
-    );
-    await expectCiv7MapScriptCompatibility(script, RIVER_AUTHORED_NEIGHBORHOOD_VARIANT);
-    expect(() =>
-      registerRiverContractProbe(
-        "refused-neighborhood",
-        RIVER_AUTHORED_NEIGHBORHOOD_VARIANT,
-        "synthetic-river-v4"
-      )
-    ).toThrow("full-map-maintenance");
-    for (const atlas of [
-      "synthetic-river-v4",
-      "terrain-admission",
-      "full-map-observe",
-      "full-map-lake-cutoff",
-      "full-map-bounded-lake-cutoff",
-      "full-map-original-input-replay",
-    ] as const)
-      await expect(
-        buildRiverProbePlan("refused-neighborhood", RIVER_AUTHORED_NEIGHBORHOOD_VARIANT, atlas, {
-          playerCount: 12,
-        })
-      ).rejects.toThrow("full-map-maintenance");
-    for (const selection of [
-      {},
-      { playerCount: 10 },
-      { playerCount: 12, sourceConfigId: "sundered-archipelago" },
-      { playerCount: 8, mapSize: "MAPSIZE_STANDARD" as const },
-      { playerCount: 12, mapSeed: 2 },
-      { playerCount: 12, gameSeed: 2 },
-      { playerCount: 12, lakeSizeCutoff: 40 },
-    ])
-      await expect(
-        buildRiverProbePlan(
-          "refused-neighborhood",
-          RIVER_AUTHORED_NEIGHBORHOOD_VARIANT,
-          "full-map-maintenance",
-          selection
-        )
-      ).rejects.toThrow("exact pinned");
   });
 
   test("declared downstream delivery selects only maintenance with the unchanged authored tuple", async () => {
@@ -2364,8 +2296,7 @@ describe("river diagnostic artifact (not native semantics proof)", () => {
     for (const variant of Object.keys(RIVER_PROBE_VARIANTS).filter(
       (name) =>
         !Object.hasOwn(RIVER_AUTHORED_FINALIZATION_VARIANTS, name) &&
-        name !== RIVER_AUTHORED_WRITE_ORDER_VARIANT &&
-        name !== RIVER_AUTHORED_NEIGHBORHOOD_VARIANT
+        name !== RIVER_AUTHORED_WRITE_ORDER_VARIANT
     ) as RiverProbeVariant[]) {
       const runtime = mockRuntime((await compiled(variant)).script, { wrapX: false });
       runtime.run();

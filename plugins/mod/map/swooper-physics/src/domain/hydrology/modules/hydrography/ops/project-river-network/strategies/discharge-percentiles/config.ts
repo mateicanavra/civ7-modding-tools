@@ -2,8 +2,9 @@ import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Defines map-relative minor and major discharge percentiles plus absolute safety floors. Defaults
- * select the upper 15 percent for rivers and upper five percent for major candidates while
- * preserving `major >= minor`.
+ * select the upper 15 percent for minor channels and upper five percent for major endpoints while
+ * preserving `major >= minor`. Major reaches extend along the strongest upstream minor path;
+ * their members need not meet the endpoint threshold.
  */
 export default defineStrategy({
   id: "discharge-percentiles",
@@ -16,12 +17,12 @@ export default defineStrategy({
         maximum: 1,
         description: "Discharge percentile used as the minor river threshold (0..1).",
       }),
-      /** Discharge percentile used as the major river threshold (0..1). */
+      /** Discharge percentile used as the major endpoint threshold (0..1). */
       majorPercentile: Type.Number({
         default: 0.95,
         minimum: 0,
         maximum: 1,
-        description: "Discharge percentile used as the major river threshold (0..1).",
+        description: "Discharge percentile used as the major endpoint threshold (0..1).",
       }),
       /** Minimum discharge allowed for minor rivers (same units as discharge). */
       minMinorDischarge: Type.Number({
@@ -30,18 +31,19 @@ export default defineStrategy({
         maximum: 1e9,
         description: "Minimum discharge allowed for minor rivers (same units as discharge).",
       }),
-      /** Minimum discharge allowed for major rivers (same units as discharge). */
+      /** Minimum discharge for major endpoints, not upstream reach members. */
       minMajorDischarge: Type.Number({
         default: 0,
         minimum: 0,
         maximum: 1e9,
-        description: "Minimum discharge allowed for major rivers (same units as discharge).",
+        description:
+          "Minimum discharge for major endpoints (same units as discharge), not upstream reach members.",
       }),
     },
     {
       additionalProperties: false,
       description:
-        "Selects nested minor and major river networks from map-relative discharge percentiles plus absolute safety floors; major threshold never falls below minor.",
+        "Selects minor channels and coherent major reaches from map-relative discharge percentiles plus absolute safety floors; the major endpoint threshold never falls below minor.",
     }
   ),
 });

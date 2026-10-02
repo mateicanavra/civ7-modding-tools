@@ -10,11 +10,14 @@ const ProjectRiverNetworkContract = defineOp({
    * Hydrology drainage graph.
    *
    * This op is Hydrology truth shaping: it converts continuous discharge plus
-   * routed receivers into stable minor/major river classes. Every classified
-   * dry source must support its own class threshold. Tributaries may remain
-   * minor while feeding a major trunk; equally strong tributaries are not lost
-   * through strongest-branch selection. Wet-body transitions retain their
-   * separately owned hydraulic and projection evidence.
+   * routed receivers into stable minor/major river classes. Minor discharge
+   * selects channel membership; major discharge selects downstream endpoints.
+   * Each selected endpoint grows a coherent major reach along its strongest
+   * connected upstream minor path. Reach members need not meet the endpoint's
+   * major threshold, and other tributaries remain minor without losing their
+   * routing or discharge. Wet-body transitions retain their separately owned
+   * hydraulic and projection evidence. These model-relative classes do not
+   * establish physical channel width or vessel navigability.
    *
    * Practical guidance:
    * - If you want more rivers overall: lower `minorPercentile` and/or `majorPercentile`.
@@ -41,7 +44,7 @@ const ProjectRiverNetworkContract = defineOp({
     {
       additionalProperties: false,
       description:
-        "Land discharge and adjacent principal receivers used to select discharge-supported nested minor and major river classes.",
+        "Land discharge and adjacent principal receivers used to select minor channels and coherent major reaches from qualifying endpoints.",
     }
   ),
   /**
@@ -57,9 +60,10 @@ const ProjectRiverNetworkContract = defineOp({
       minorThreshold: Type.Number({
         description: "Computed discharge threshold for minor rivers (same units as discharge).",
       }),
-      /** Computed discharge threshold for major rivers (same units as discharge). */
+      /** Computed discharge threshold for major endpoints, not every reach member. */
       majorThreshold: Type.Number({
-        description: "Computed discharge threshold for major rivers (same units as discharge).",
+        description:
+          "Computed discharge threshold for major endpoints (same units as discharge); upstream major reach members may be below it.",
       }),
     },
     {

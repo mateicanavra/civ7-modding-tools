@@ -17,18 +17,35 @@ The latest closed implementation and visible milestone is the
 [October 2 C3 adoption and native capture](#october-2-c3-and-native-milestone-closure).
 Earlier dated receipts below retain their original builds and outcomes.
 
-The next supported-discharge classification repair is qualified portably but
-not yet admitted to main: [PR #2245](https://github.com/mateicanavra/civ7-modding-tools/pull/2245)
-holds native finalizer qualification. Its [new four-case network viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/discharge-supported-rivers-20261002/index.html)
-contains 24 full-resolution comparison panels and flow arrows. All sixteen
-physical fields are held; this is not a new native photograph or movement
-claim. Civ's finalizer demotes the same 62 authored NAV sources in baseline
-and all three independent/interacting minima arms, plus a fully receiver-first
-delivery arm. All 705 native-derived receivers also match the portable plan;
-neither direction translation nor declaration order explains those demotions.
-The full current shore
-census separately finds three true directed cliff edges among 215 NAV/water
-edges. See [the exact discriminator](major-river-support.md#native-finalization-discriminator).
+The tile-level discharge candidate is withdrawn, not waiting for a geometry
+patch. [PR #2245](https://github.com/mateicanavra/civ7-modding-tools/pull/2245)
+now closes the investigation and clarifies the single intentional coherent-reach
+policy. Its restoration now reproduces all fifty-seven admitted study cases
+exactly and completes a fresh normal Huge1018 generation in 42.8 seconds.
+All 666 dry sources survive as declared: 346 MINOR, 320 NAV, zero source,
+class or NAV-terrain mismatches. Installed script SHA256 is
+`6ab1fbc2c257b765115fe22963973e2b80f4463772eaa5407209d57dbc153b97`.
+The owner graph passes checks and realization tests; definition tests report
+1,177 passes with the retained science aggregate failure. The full bank's
+4,430 expectations preserve exactly the original temperature-variation and
+savanna failures. This completes river realization qualification, not fresh
+vessel movement or all Earth calibration. The [four-case network viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/discharge-supported-rivers-20261002/index.html)
+retains the rejected candidate as historical evidence, not the selected build.
+The new [17 native photographs](https://mateis-macbook-pro.taild8da1c.ts.net/civ/supported-river-native-1018-v29-20261002/index.html)
+and [controlled neighborhood comparison](https://mateis-macbook-pro.taild8da1c.ts.net/civ/native-channel-neighborhood-20261002/index.html)
+show the actual finalizer behavior. The class-only treatment recovers seven
+sources and loses two; neither native-minimum changes nor receiver-first order
+repairs the tested footprint. No universal native geometry rule, late setter
+or terrain carving is selected. See [the selected outcome](major-river-support.md#selected-outcome).
+
+The lake policy is also decided: retain the stock per-size native cutoff and
+preserve physical heads. Native lake identity is a disclosed gameplay
+approximation, not canonical finite-water truth. Size overlaps between physical
+categories defeat a dynamic maximum as a universal classifier; absent native
+lake flags alone are not height failures. The next causal climate investigation
+replaces the row-only thermal producer with a source-grounded seasonal energy
+balance if its fixed parameter and owner review is admitted. No appended
+temperature proxy or repeated origin/skin-air study is selected.
 
 ## What Shipped Means
 
