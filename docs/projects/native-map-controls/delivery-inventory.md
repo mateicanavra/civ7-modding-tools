@@ -27,8 +27,16 @@ Earthlike script SHA256 is
 This is implemented, deployed, live-qualified and merged through
 [PR #2255](https://github.com/mateicanavra/civ7-modding-tools/pull/2255) at
 `2026-10-02T21:43:29Z`, main commit
-`f9cab8d7b9e816f330514b521986219cd5808117`. The prior sixteen-view atlas remains photographic
-evidence for its own build, not a newly captured ice-repair atlas.
+`f9cab8d7b9e816f330514b521986219cd5808117`. The
+[new sixteen-view marine-ice atlas](https://mateis-macbook-pro.taild8da1c.ts.net/civ/earthlike-marine-ice-atlas-20261002/index.html)
+now shows this current build at T1/400 CE: fourteen maximum-zoom-out regions
+and two details, every camera/image receipt retained, world summary unchanged.
+Root inspected all sixteen frames. Browser checks at desktop `1400` and mobile
+`390` load every image with no broken asset or horizontal/text overflow;
+sample HTML, manifest, thumbnail and original PNG bytes match over the tailnet.
+Manifest SHA is `2739206ab96abd1759d1b6fa0c9ceca2d37abe4ab6d05a660f56e18fcbd504c2`.
+These new photographs do not claim a new autoplay, vessel or climate trial.
+The earlier T11 atlas remains evidence for its own build.
 
 The preceding merged owner repair is [savanna annual-supply admission](savanna-water-supply.md),
 [PR #2251](https://github.com/mateicanavra/civ7-modding-tools/pull/2251), merged at
@@ -58,8 +66,8 @@ summary, turn and player/observer identity remain exactly unchanged across the
 capture. All sixteen tailnet thumbnails match their local hashes; root inspected
 every frame and the rendered Arc layout. These photographs show settlement
 expansion after autoplay, not a new climate solution or another movement trial.
-The existing gallery exposes this latest atlas first; earlier images retain
-their own dates, inputs and builds.
+The existing gallery now exposes the later marine-ice atlas first; these
+autoplay images retain their own dates, inputs and build.
 
 The latest gameplay milestone is
 [matched true-cliff passage](native-navigation.md#october-2-matched-true-cliff-passage),
@@ -161,13 +169,31 @@ separate requirements. No prototype is deployed.
 The [Foundation support attribution](constitutive-support-attribution.md)
 now exactly reconstructs all eight retained local crust histories and
 continental support publications before diagnostics. It identifies actual
-post-history clamping and cooling suppression, but admits no physical material
-meaning, height codec or producer repair. The next thermal hypothesis is the
+post-history clamping and cooling suppression, but admits no physical height
+codec or producer-law repair. A comments-only owner clarification now declares
+the actual root/thickness computation as normalized aggregate consolidation
+and support, not separately computed crust/mantle inventory. Parsed-source
+identity proves every non-comment statement, literal and operator unchanged.
+The next thermal hypothesis is the
 [thermal-only boundary discriminator](thermal-boundary-discriminator.md):
 surface/air exchange and dry heat transport, not an assumed requirement to
-replace rain and soil water. Its design is accepted for private authoring only;
-seasonal numerical, held-Earth, complete-cohort and owner-migration admission
-remain ahead. The current playable mod is unchanged.
+replace rain and soil water. Its independently reviewed private numerical
+method now passes all eighteen six-arm seasonal runs at 384/768/1536 phases,
+including original equations/energy, periodic initialization, rotation,
+complete-curve and signed-power refinement. Ocean warming has a positive
+near-versus-far land contrast after the conditional numerical reserve.
+The complete proof takes 12.002 seconds and 140.77 MiB child high-water.
+This admits the manufactured relationship only: held-Earth, complete-cohort
+and owner migration remain ahead. The current playable mod is unchanged.
+
+Independent reference forcing is now admitted for a future separately frozen
+Earth comparison: the actual NCEP target is a `1991-2020` climatology, not
+preindustrial or current-year weather. Thirty pinned NOAA global annual CO2
+rows yield `380.5009523236719 ppm` with prospectively declared Gregorian
+duration-weighted log averaging. This preserves the mean of the source's
+logarithmic CO2 term, not the nonlinear mean climate response. Source parity
+and manufactured controls retain `284 ppm`; no coefficient, label, procedural
+SST or production recipe changes. See the [thermal boundary record](thermal-boundary-discriminator.md#reference-forcing-admission).
 
 ## What Shipped Means
 

@@ -52,14 +52,33 @@ root or era index to density, metres or years. Chemical depletion can offset
 thermal contraction; positive keel support is not intrinsically invalid.
 See [the original density study](https://repository.geologyscience.ru/server/api/core/bitstreams/255aa11e-8a62-40a5-8185-7778372ede73/content).
 
-## Next Owner Decision
+## Supported Owner Meaning
 
-Keep the existing Foundation owner and SDK contracts. Before changing support,
-declare whether root represents crust addition, mantle thermal/compositional
-support, or aggregate phenomenology. Then require the corresponding source or
-material accounting; mechanical strength alone does not establish freeboard.
+Keep the existing Foundation owner and SDK contracts. The actual root/thickness
+computation supports **aggregate phenomenology**: a bounded quiet-history
+consolidation/support index contributes to effective normalized thickness,
+buoyancy and strength. It does not separately integrate material volume,
+mantle density or geological duration. The root itself is not an input to the
+categorical survival decision, which uses maturity and extension.
+
+Comments in the existing evolution and shared support owners now state that
+meaning. They also distinguish normalized extension from a measured beta factor
+and offshore mesh-hop distance from physical ridge distance or seafloor age.
+The fixed model-structure versus authored-character distinction remains intact;
+fixed coefficients are not asserted to be independently established universal
+physical constants. No name/type/schema migration or output-ratio tuning is needed.
+
+TypeScript `6.0.3` parsed-source identity proves both files' complete non-comment
+syntax unchanged. Original and final source snapshots are retained in
+`earth-calibration/earth-foundation-declaration-proof-20261002/`, with
+`FINAL-RESULT.json` status `PASS_PARSED_SOURCE_IDENTITY_COMMENTS_ONLY`.
+This declaration repair changes no equation, material law, config, artifact
+shape or playable output. The original attribution source IDs remain historical.
+The owning Nx check and all 23 dependencies pass. Focused Foundation and
+Morphology baseline tests pass `41/41` with `833` assertions; independent
+source/SDK-simplicity review finds no runtime or authoring machinery change.
 No zero-keel law, fitted sea ratio, synthetic adjacency or blanket SI relabeling
-is selected by this replay.
+is selected.
 
 Height conversion remains a separate admission. Current thermal lapse still
 uses `-0.0065 C` per quantized model-relief unit, not per metre. Correcting the
@@ -81,4 +100,4 @@ Root's once-only outcome SHA is
 status `LOCAL_ATTRIBUTION_COMPLETED_NO_PRODUCER_ADMISSION`.
 The eight attribution payloads retain their per-era/final tapes and distinct
 tile/angular-area summaries. Angular weights use the declared climate embedding,
-not physical crust area. No operation, field, height law or playable build changes.
+not physical crust area. No operation behavior, field, height law or playable build changes.

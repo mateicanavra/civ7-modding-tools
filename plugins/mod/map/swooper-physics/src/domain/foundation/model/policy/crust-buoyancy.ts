@@ -2,41 +2,41 @@ import { clamp01 } from "@swooper/mapgen-core/lib/math";
 
 /**
  * Shared crust buoyancy / strength / classification model — the SINGLE SOURCE OF
- * TRUTH for how crust-history state (maturity, thickness, thermal age) maps to
- * isostatic buoyancy. Consumed by both the t=0 basaltic-lid seed (`compute-crust`)
+ * TRUTH for how normalized crust-history state (maturity, effective thickness,
+ * thermal age) maps to model support. Consumed by the t=0 seed (`compute-crust`)
  * and the era-integrated evolution (`compute-crust-evolution`) so the two can no
  * longer silently diverge (they previously carried byte-identical private copies).
  *
  * WHY here: both Lithosphere and Orogeny depend on the same Foundation-level
- * buoyancy law, so the nearest honest owner is `foundation/model/policy` rather
+ * support law, so the nearest honest owner is `foundation/model/policy` rather
  * than either module. Buoyancy is NOT author-configurable: crust evolution
- * follows tectonic history, so these are physical coefficients, never authoring
- * knobs, and must never be tuned to a downstream land/ocean output ratio.
+ * follows model history. These fixed model coefficients are not independently
+ * calibrated physical constants or authoring knobs; never tune them to a
+ * downstream land/ocean output ratio. No material mass-balance height is solved.
  */
 
 /**
- * Isostatic buoyancy floor every crust cell inherits before history differentiates it
- * (the basaltic oceanic lid at t=0). This is the baseline for ALL crust — the
+ * Normalized support floor every crust cell inherits before history differentiates it.
+ * This is the baseline for ALL crust — the
  * oceanic-vs-continental split emerges from the maturity / thickness / age terms below,
  * not from this constant. (Formerly mis-named `OCEANIC_BASE_ELEVATION`.)
  */
 const CRUST_BASE_BUOYANCY = 0.32;
 
-/** Thermal subsidence depth: cooling lithosphere sinks with thermal age. */
+/** Normalized age-depression amplitude; not a measured subsidence depth. */
 const OCEANIC_AGE_DEPTH = 0.22;
 /** Differentiated (mature) crust is more buoyant. */
 const MATURITY_BUOYANCY_BOOST = 0.45;
-/** Thicker crust floats higher (isostasy). */
+/** Effective consolidated thickness raises model support. */
 const THICKNESS_BUOYANCY_BOOST = 0.25;
 
 /** Maturity at/above which a cell is classified continental crust. */
 const MATURITY_CONTINENT_THRESHOLD = 0.55;
 
 /**
- * Isostatic-support ramp over crustal thickness. Thin crust (basaltic oceanic lithosphere; thinned
- * or young continental margins) is poorly supported and subsides as it cools; thick crust (cratonic
- * keels / orogenic roots) is isostatically buoyant and does not subside. Brackets the basaltic floor
- * (~0.25–0.35 → full subsidence) and a consolidated keel (~0.75+ → none).
+ * Normalized effective-thickness ramp that attenuates the model's age-depression term.
+ * At <=0.35 the full term applies; at >=0.75 it is suppressed. This is an aggregate
+ * support assumption, not proof that a real thick mantle root cannot thermally subside.
  */
 const ISOSTASY_THIN_THICKNESS = 0.35;
 const ISOSTASY_THICK_THICKNESS = 0.75;
@@ -60,27 +60,21 @@ function smoothstep(edge0: number, edge1: number, x: number): number {
 }
 
 /**
- * Isostatic support in [0,1] from crustal thickness: 0 = thin / poorly supported (subsides with
- * age), 1 = thick / buoyant (does not subside).
+ * Age-depression attenuation in [0,1] from effective normalized thickness:
+ * zero admits the full age term; one suppresses it.
  */
 function isostaticSupport(thickness: number): number {
   return smoothstep(ISOSTASY_THIN_THICKNESS, ISOSTASY_THICK_THICKNESS, clamp01(thickness));
 }
 
 /**
- * Isostatic crust buoyancy in [0,1] from crust-history state. Higher rides higher (emerges as land /
- * shallow shelf); lower sinks (deep ocean). `baseElevation := this`, and base-topography linearly
- * remaps it into the absolute relief band — so the SHAPE of this function's output distribution IS
- * the hypsometry.
+ * Dimensionless support from crust-history state, published as `baseElevation` and
+ * remapped by base topography into model relief. Its distribution influences hypsometry;
+ * this function does not establish metres, geological time or a material density column.
  *
- * Thermal subsidence (cooling lithosphere contracts and sinks with age) is gated by ISOSTASY rather
- * than crust type: it acts fully on THIN crust — basaltic oceanic lithosphere (young ridge high →
- * old abyss deep) and thinned/young continental margins (which subside into real shelves) — and
- * fades to zero as crust thickens into an isostatically-supported cratonic keel (old cratons ride
- * highest, never sinking). This deepens old ocean, keeps cratons high, AND leaves thin margins low,
- * yielding a natural shelf→coast→highland spread rather than a drowned flat band (old uniform
- * subsidence) or a uniform high plateau. It also retires the prior mis-model where a saturated,
- * signal-free continental thermalAge dragged all crust down uniformly.
+ * Maturity and effective thickness add support. The normalized age-depression term
+ * is attenuated by thickness rather than crust type. The same aggregate contributes
+ * to strength below; neither response separately computes crust or mantle inventory.
  */
 export function deriveBuoyancy(params: CrustBuoyancyInputs): number {
   const maturity = clamp01(params.maturity);
@@ -118,10 +112,10 @@ export function strengthFromMaturity(maturity: number): number {
 }
 
 /**
- * Maps normalized crustal thickness to the shared isostatic strength contribution.
+ * Maps effective normalized thickness to the shared model strength contribution.
  *
- * @param thickness - Admitted relative thickness for the crust cell being classified.
- * @returns A bounded factor that increases strength for thicker crust.
+ * @param thickness - Admitted aggregate support thickness for the crust cell.
+ * @returns A bounded factor that increases strength with effective thickness.
  */
 export function strengthFromThickness(thickness: number): number {
   return STRENGTH_THICKNESS_MIN + (1 - STRENGTH_THICKNESS_MIN) * clamp01(thickness);

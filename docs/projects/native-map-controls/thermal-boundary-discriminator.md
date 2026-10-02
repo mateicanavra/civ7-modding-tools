@@ -62,6 +62,79 @@ The source-only design is in the [Civ research user-data location](../../process
 under `earth-calibration/earth-two-temperature-owner-design-20261002/`.
 Design SHA is `13bb1918d229700804f16e50305a636ba00bc0ffc4a10bf88ed6341fcf35350b`;
 protocol SHA is `5d12de04d6334b5f1d49b78e4319a379064162c6ae1b9836e579a657546a5b52`.
-Root accepts private implementation authoring, not execution or adoption.
-The method/runtime/module closure needs a separate freeze and review before
-any trajectory. No label read, Earth score or production change has occurred.
+The separately reviewed method/runtime/module closure is now frozen and
+root's one manufactured numerical attempt is complete. No Earth label read,
+Earth score or production change follows from that numerical admission.
+
+## Manufactured Qualification
+
+The two-temperature private method completes all eighteen seasonal runs:
+six manufactured arms at `384/768/1536` phases, with five or six years per run.
+Every accepted phase passes the independent original-law thermal and energy
+oracle. Initialization independence, inverse rotation, complete-cycle convergence,
+all 378 first-order refinement ratios and per-cell signed-power refinement pass.
+The whole attempt takes `12.002 s`; child high-water is `147,603,456 bytes`,
+below the unchanged 900-second/512-MiB limits, including controls and return.
+
+A `10 C` prescribed-water perturbation produces near-minus-far land response
+contrasts of `1.8534/2.0419 K` on the two off-equator rows. After the declared
+conditional numerical reserves, adverse lower bounds remain `1.0715/1.2691 K`.
+No-transport contrasts are exactly zero; that does not forbid uniform response
+through the global radiation term. The result establishes this missing
+boundary-to-interior relationship on the manufactured world, not the production
+one-degree spread requirement or scientific Earth accuracy.
+
+Before execution, independent source review caught a historical port helper's
+high-zenith snow correction being applied to bare land. The selected local
+method now explicitly prescribes zero snow/ice fractions and independently
+recomposes the author's constant bare-ground and open-water optics. Historical
+coupled packets remain unchanged. This was an external source-reuse defect,
+not a claim that the current production recipe used that helper.
+
+Independent post-run review verifies all 101 distinct closure/output pins,
+all 72 binary arrays and their `1,023,678` Float64 values. It independently
+reconstructs refinement, conditional reserves, rotation, initialization and
+causal comparisons without importing or rerunning the solver. The point
+reserve remains conditional, not a nonlinear inverse theorem. The original
+coupled-model annual P/E obligation remains unchanged and unpassed there.
+
+Evidence is `earth-calibration/earth-two-temperature-owner-method-20261002/`.
+FROZEN SHA is `baca52a5b32f99c49e40cede1467b18caa35c46b86ed33451ea3dc458ec1cd91`;
+OUTCOME SHA is `a149b2846c6552e3914324bcb5c7f7c9ec0bc925d3f1f341d9d0d4a38b590266`,
+status `PASS_PRIVATE_MANUFACTURED_NUMERICS_ONLY`. The next admissible story is
+a separately prospective full-geography Earth comparison, including authentic
+owner controls/vintages, temporal accuracy and unchanged scientific guards.
+No prototype, alternate climate lane or diagnostic evaporation is deployed.
+
+## Reference Forcing Admission
+
+The actual retained NCEP air target is the monthly `1991-2020` climatology.
+Its synthetic year-0001 time labels establish January-December order, not
+dated observations. A later physical Earth arm cannot silently interpret the
+author's `284 ppm` preindustrial prior as forcing for that target.
+
+The separately prospectively defined forcing reduction retains exact
+[NOAA global annual CO2 bytes](https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_annmean_gl.txt)
+and all thirty `1991..2020` mean/uncertainty rows. Gregorian year-duration
+weights total `10,958` days. The effective concentration is
+`exp(sum(days * log(ppm)) / sum(days)) = 380.5009523236719 ppm`, encoded with
+the unchanged source `ppm * (44.01 / 28.97) * 1e-6` mass-fraction conversion.
+Independent review confirms every row, leap-year weight, source term, codec
+and identity. No held air-temperature labels enter this reduction.
+
+This preserves the period average of the affine logarithmic CO2 contribution,
+not the nonlinear average temperature, exact all-agent forcing or a transient
+reconstruction. Original radiation coefficients, `tamodern = 287.8 K` and
+fixed GHG amplification `1.3` remain held. Uncertainties are retained, not
+silently divided down or declared propagated. The manufactured/source-parity
+prior remains `284 ppm`; numerical qualification still precedes any separately
+frozen Earth arm. Prescribed procedural SST has no observed climatology period,
+and no observational SST/skin/air labels are substituted as thermal donors.
+
+The user-data packet is `earth-calibration/earth-period-forcing-20261002/`.
+Raw NOAA SHA is `e0b1f499baad55c72447c91566847b547c3c3b613e20c93366de694a60e6b57d`;
+forcing receipt SHA is
+`c6fa4e8f6c741dedaa5935d8b108d587db416f2ac8e9aa3a94dd41d36e8b2408`.
+NOAA warns even historical rows may be revised, so the captured bytes, not a
+future URL response, are this arm's authority. No model run, Earth score or
+production change follows from this forcing-only receipt.
