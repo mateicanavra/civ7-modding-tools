@@ -520,9 +520,51 @@ first SST boundary and all capacities, forcing, optics and geometry fixed.
 It adds neither latent storage nor a vapor/rain/water artifact. Its changed
 Jacobian cannot inherit the dry PCG symmetry certificate; source controls and
 manufactured equation/energy/method qualification precede any authentic Earth
-comparison. It is not implemented or admitted in production, and its efficacy
-remains unknown. Seasonal ocean storage and other declared reductions remain
+comparison. It is not admitted in production, and its Earth efficacy remains
+unknown. Seasonal ocean storage and other declared reductions remain
 countercases; no parameter or calendar search is bundled into this hypothesis.
+
+### Diagnostic Moist-Energy Manufactured Qualification
+
+The external implementation now passes the original manufactured numerical
+qualification in one `14.502 s` attempt, with `162.78125 MiB` child high-water.
+All six original cases at `384/768/1536` complete, converging in five or six
+years. No coefficient, timestep, initial condition, capacity, cloud, forcing,
+solver limit or accuracy guard changes to obtain that result.
+
+**Moist-energy transport** here means moving sensible heat plus the energy
+associated with diagnostic water vapor: `cp*Ta + Lv*0.8*qsat(Ta,0)`. This is a
+transport potential, not another stored temperature or a new humidity/rain
+artifact. Its literal source controls show that the same ten-degree gradient
+can carry substantially more energy in warm air than cold air, without adding
+heat-storage capacity. This establishes the proposed mechanism, not its Earth
+accuracy or suitability for our public recipe.
+
+The exact local skin elimination and existing nonsymmetric GMRES pass direct
+dense and independent original-law controls. Across `88,704` accepted phase
+calls and `177,565` reconstructed directions, the largest independent phase
+defect is `9.9978e-11 K` and relative energy defect `3.8074e-14`; original and
+independent full-direction defects are at most `6.7664e-11`. Original first-order
+ratios are `1.99669..2.01494` across 378 fields; worst signed-power refinement
+is `0.000546177`, below the unchanged `0.01` guard. Initialization, inverse
+rotation and both positive adverse coastal-response tests pass. The
+no-transport coastal contrasts remain exactly zero.
+
+Independent source and compact terminal reviews are aligned. The latter
+reconciles all orbit/direction/iteration counts and rehashes 53 authority and
+compact-output pins; it does not decode binary curves or rerun a third physical
+oracle. The separate original-law phase and direction witnesses run online,
+and the root runner checks binary identities and the complete streamed linear
+proof guards/counts on return. Conditional temporal envelopes remain conditional,
+not a nonlinear inverse-error theorem.
+
+Packet: `earth-calibration/earth-two-temperature-diagnostic-mse-manufactured-20261003/`.
+OUTCOME SHA is
+`2f87626a0b4b484838a5df404c46fa2a3d8b35ff9666f112ba6cbfab056b3816`.
+This accepts only the specified manufactured method. The next authentic fixed
+SST0 experiment needs its own source/input/resource qualification; it cannot
+reuse the dry candidate's trajectory or complete-composition uncertainty.
+Earth scoring, production adoption and new native testing remain unperformed.
 
 ## Reference Forcing Admission
 

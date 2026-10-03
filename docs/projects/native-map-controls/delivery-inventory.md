@@ -56,9 +56,13 @@ monthly error is already `6.53382 C` at SST0 and remains `6.38156/6.39420 C`
 afterward. Real spatial responses and added-coast regression remain disclosed;
 neither the ocean composition nor dry transport is uniquely exonerated or
 identified. No solver rerun, seasonal phase optimization or held-label tuning
-occurs. The next external hypothesis changes only diagnostic moist-energy
-transport at the first fixed boundary and must earn new method/equation/energy
-qualification before an Earth comparison; it is not a production change.
+occurs. The external diagnostic moist-energy implementation now passes all
+six original manufactured cases at three resolutions in one `14.502 s` /
+`162.78125 MiB` attempt, with independently reviewed source and compact receipts.
+Storage, forcing and every original numerical guard remain held. This qualifies
+only that small changed transport method, not authentic-Earth accuracy or
+full-grid efficiency. Its next fixed-SST0 experiment needs separate qualification
+before the unchanged Earth comparison; it is not a production change.
 The installed playable build and full procedural cohort
 remain unchanged, and the within-row shipping obligation is still open.
 
