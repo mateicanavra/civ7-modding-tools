@@ -32,18 +32,36 @@ originals and thumbnails, forty local/tailnet responses and desktop/mobile
 rendering checks pass. The durable [viewer entrypoint](../../process/LOCAL-VIEWERS.md)
 and existing Civ gallery link it without replacing earlier build evidence.
 
-The latest closed numerical story is [canonical SST2 and ground publication](thermal-boundary-discriminator.md#canonical-sst2-and-ground-publication-qualification),
-following accepted SST0 and authentic SST1. The second actual owner update
-acquires SST2; final atmosphere follows without SST3. All nine fresh
-normal/cold/rotated obligations at 384/768/1,536 phases pass their original
-guards. Independent readback verifies both owner reductions, all 45 cycles,
-40,320 phases, eighteen curve/envelope arrays and all nine private ground/calendar
-publications. The largest conditional temporal envelope is `0.38218 K`, distinct
-from equation residual and same-curve quadrature error. Next is seven-branch
-finite composition sensitivity with at most twelve new normal trajectories,
-then unchanged adverse Earth/cohort admission and explicit public-owner migration.
-The installed playable build below is unchanged; no observed temperature labels
-have been opened for this candidate.
+The latest closed investigation is [complete thermal composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection),
+following accepted SST0, authentic SST1 and canonical SST2. All seven complete
+branches, twelve fresh normal solves and two exact reuses retain both actual
+owner updates, final atmosphere without SST3, ground/calendar publication and
+original numerical guards. The external run takes `7,275.487 s` with a maximum
+individual job peak of `395,264,000 bytes`, inside its original limits.
+Independent readback verifies all fourteen trajectory obligations, twenty-one
+acquisitions and fifty-eight component arrays. The finite observed-family
+envelope reaches `1.12662 C`, not an unobserved-tail guarantee.
+
+The frozen Earth comparison rejects the candidate: held annual error barely
+improves `2.97104 -> 2.96849 C`, within-row error worsens
+`2.31477 -> 2.41837 C`, and monthly error rises `3.57295 -> 6.39420 C`.
+Every branch fails an original raw guard. Neither numerical correctness nor
+the annual improvement admits the model. No candidate, CO2 contract migration,
+new solar handoff or proof framework is deployed. Independent retained-input
+evaluation reproduces every score, guard and signed accounting record. Source
+inspection and fixed-date witnesses establish neither a calendar mismatch nor
+a missing heat-capacity divisor. The next bounded discriminator compares
+already-retained SST0/SST1/SST2 seasonal response on the same calendar, to locate
+the regression before changing transport or water-boundary physics. It does
+not rerun the solver, optimize seasonal phase or tune to held observations.
+The installed playable build and full procedural cohort
+remain unchanged, and the within-row shipping obligation is still open.
+
+Scientific observations were intentionally opened only for the separately
+authorized frozen comparison. A preparatory source-search label emission is
+separately disclosed in the owner-design record; no frozen scientific choice
+was changed, and the numerical worker's no-label claim is not extended to the
+whole team.
 
 The [nine-panel thermal study viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/thermal-sst0-sst1-atlas-20261003/index.html)
 exposes retained SST0/SST1 annual air temperature, seasonal range, wet boundaries,

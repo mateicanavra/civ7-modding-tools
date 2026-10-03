@@ -53,8 +53,12 @@ existing-thermal-owner implementation. It must preserve or deliberately retire
 public controls, pressure samples/centering, SST vintages, one ground lapse and
 independently clipped annual integration. Keep `thermalField -> climateIndices`.
 Diagnostic evaporation/humidity must not become a competing canonical rain,
-PET or water artifact. A later moist selection would instead require the
-already-declared joint climate/water migration.
+PET or water artifact. Prognostic vapor, rain or surface-water coupling would
+require the already-declared joint climate/water migration. The source's
+version-1/hydrology-off diagnostic moist-energy transport is a distinct law
+without those new state owners; it needs its own physical and numerical
+qualification, not an automatic water-artifact migration. Neither alternative
+is selected by the current candidate's scientific refusal.
 
 ## Evidence And Status
 
@@ -369,6 +373,96 @@ scientific Earth geometry, not Civ photographs or observed-temperature labels.
 All eighteen original/thumbnail raster checks, thirty input pins, forty-two
 local/tailnet responses and desktop/mobile browser checks pass. It is linked
 from the existing Civ gallery; no playable build changed.
+
+## Complete Composition And Earth Nonselection
+
+All seven prospectively selected complete compositions now finish: canonical
+N384/M24; N384/768/1536 crossed with M24/48; and N1536/M12. Twelve fresh normal
+periodic trajectories and two exact canonical reuses satisfy all fourteen
+obligations. Each branch retains both actual owner updates, final atmosphere
+without SST3, ground/calendar publication and complete readback. No failed
+predecessor trajectory is adopted.
+
+The whole external attempt takes `7,275.487 s`, inside its original
+14,400-second contract. The maximum individual job peak is `395,264,000 bytes`,
+below the unchanged 512-MiB ceiling; the descriptor root peaks at
+`197,066,752 bytes`. The bounded lifetime repair hydrates already accepted
+inputs and separates calculation from owner/publication lifetimes. It changes
+neither equations nor guards and introduces no subprocess, filesystem or proof
+framework into production.
+
+Independent retained arithmetic verifies 22,997 whole-file pins, 720 slices,
+33,805,177,662 bytes, 69,120 phase obligations, 142,488 linear certificates,
+all twenty-one acquisitions and all fifty-eight component/witness arrays.
+Maximum original and independent thermal residuals remain below `1e-10 K`;
+maximum normalized energy discrepancy is `2.1809e-14`. All twenty-nine jobs
+retain their custody, individual ceilings and nonoverlapping recorded
+calculation intervals. The observed finite-family envelope reaches
+`1.12662 C`; it is not an unseen-tail or nonlinear-stability theorem.
+
+The first independent reader refused before binary arithmetic because it
+mistook one author-time copy descriptor for the finalized live prerequisite.
+Its attempt and failure remain intact. A separately reviewed reader resolves
+only that exact frozen READY pointer to its enrolled byte-exact archive,
+retaining every active pin and all other conflict refusals. It passes in
+`76.312 s`; the numerical campaign was not rerun.
+
+Numerical packet: `earth-calibration/earth-two-temperature-full-composition-20261003-r3/`.
+OUTCOME SHA is
+`5fa5f2310124005144b4264cab3bea440dabf856c1dbe6a799c96471c446d840`;
+independent admission SHA is
+`2d2dff9e69f7822df3e6111180d934303048e5fa5b5e0a46bc869b55f0ac0242`.
+
+The separately frozen thin Earth comparator then intentionally opens the
+original observations, after its exclusive claim and accepted-source checks.
+All 547 original receivers, seven raw branches, conditional adverse components,
+populations and original guards remain unchanged. Canonical held results are:
+
+| Error Measure | Incumbent | Candidate |
+| --- | ---: | ---: |
+| Annual RMSE | 2.97104 C | 2.96849 C |
+| Within-row error RMS | 2.31477 C | 2.41837 C |
+| Monthly RMSE | 3.57295 C | 6.39420 C |
+
+The result is `SCIENTIFIC_NONSELECTION`: forty-seven canonical raw failures,
+fifty-four adverse failures, and at least one original raw failure in every
+branch. Marginal annual improvement does not rescue the seasonal and spatial
+regressions. No finest-branch selection, refit, relaxed collateral budget or
+production port follows.
+
+Scientific packet: `earth-calibration/earth-two-temperature-retained-science-comparison-20261003/`.
+Authorization SHA is
+`89580f8209e2dbeb685edcff8dc515aa1fa2e0b2f5fca4116cd9391e0c4cd51e`;
+RESULT SHA is
+`2b53aba837e1e2eebab57d14fa5812e4a1d49d1ad52519be3fb47e197ad85c02`.
+Independent retained-input evaluation reproduces all 547 identities, the
+zero-height incumbent, seven raw score/guard lists, canonical adverse scores
+and every signed accounting record. Its RESULT SHA is
+`b51aa1b68f0e8d28539e70ea6fe397d920ef6aba5f2bf9471157ff2643649163`.
+This is a second execution of the frozen pure scoring formulas, not a third
+scoring formulation or physical model. No forward owner or solver is called;
+the reproduced scientific verdict remains nonselection.
+
+Source inspection and fixed-date witnesses establish neither a January/equinox
+mismatch, hemisphere reversal nor a missing heat-capacity divisor. The solar
+clock and publication calendar agree. The reduced physical model still differs
+from its source through finite dry diffusion, prescribed annual SST, uniform
+cloud and bare zero-snow optics; aggregate errors alone do not select a repair.
+The next small discriminator compares canonical retained SST0/SST1/SST2
+monthly ground and boundary response on that fixed calendar, first verifying
+which inputs remain identical. It separates a problem already present at the
+first boundary from later owner feedback. No solver replay, phase rotation,
+best-vintage selection or coefficient search is admitted by this diagnostic.
+
+The installed playable mod and its existing full procedural cohort remain
+unchanged. Conditional public CO2/solar/thermal port designs are not shipped.
+
+A preparatory source search accidentally emitted label-bearing fixture
+content before the scientific run. The separate owner-design
+`LABEL-ACCESS-LAPSE-20261003.md` records it; no values were used to change any
+frozen model, branch, comparator or threshold. The producer/readback's scoped
+no-label claim is not a whole-team claim. The later scientific opening above
+is explicit and authorized, not described as label-free.
 
 ## Reference Forcing Admission
 
