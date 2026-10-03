@@ -566,6 +566,88 @@ SST0 experiment needs its own source/input/resource qualification; it cannot
 reuse the dry candidate's trajectory or complete-composition uncertainty.
 Earth scoring, production adoption and new native testing remain unperformed.
 
+### Authentic Refusal And Fast Iteration
+
+The separately reviewed fixed-SST0 campaign refuses its first normal `384`
+orbit at year one, phase `145`: the independent equation defect is
+`1.002461447185965e-10 K`, above the unchanged `1e-10` limit. It stops without
+a completed orbit, Earth score or production admission. The failed packet is
+retained unchanged at
+`earth-calibration/earth-two-temperature-diagnostic-mse-sst0-20261003/`.
+
+A source-reviewed, single-phase replay reproduces that exact refusal in
+`1.201 s`, with candidate defect `9.547829193934376e-11 K` and maximum
+candidate/oracle disagreement `8.25894908018654e-12 K`. Both express the same
+real-arithmetic conservative law through different operation orders. This
+supports a finite-precision stopping-boundary problem; it does not identify
+one responsible operation, prove a global roundoff bound or establish Earth
+accuracy. The replay is a diagnostic, not a rescued orbit. RESULT SHA is
+`6f2925eaf1ce4935c3593495da3bcf7fb92b28d3516e398794e435b25eb91803`.
+
+The next numerical design retains the physical equations and uses exact
+moist-energy direction coordinates plus the signed global rank-one correction.
+Its positive-definite component certificate is conditional at each
+linearization; the original MSE operator is not declared symmetric. Internal
+accuracy reserves are derived from the original external limit, not from the
+failed value. Small dense controls and one authentic timed phase precede full
+manufactured qualification. Native-sized feasibility precedes another long
+authentic family. No numerical leaf or study framework is admitted to the
+public recipe by this design alone.
+
+The independently reviewed coordinate implementation now passes its ten dense
+component records, four actual small-stage cases and the original refused
+authentic phase in one bounded attempt. The authentic stage takes `485.333 ms`
+including both full-direction witnesses: three Newton blocks, 213 aggregate
+PCG iterations and 438 matvecs. Candidate/independent final defects are
+`1.27589e-11/1.33591e-11 K`; the largest full-direction defect is
+`1.41197e-12 K`, below the stricter internal `6.25e-12` target. Near-singular
+denominator, precision-underflow and other declared refusal controls pass.
+The pre-result-write peak is `169,164,800 bytes`; the resource check also runs
+after persistence. RESULT SHA is
+`cda9bb4ba100eef2a3c58521439c5d91149922f0ed4be38a691735b74991ebe9`.
+
+This closes the focused counterexample, not the original failed campaign or a
+periodic orbit. It is not a warmed native-size throughput measurement. Its
+cost does not yet establish the native budget, so native-size feasibility and
+exact kernel simplification remain ahead of another expensive authentic family.
+
+### Performance And Retention
+
+Prefer the mathematical reduction in TypeScript before a language port: it
+can improve both the external experiment and Civ's JavaScript path. Rust
+remains an optional offline accelerator only if a bounded measurement of the
+current optimized kernel justifies its cost. A duplicate physical owner,
+cross-language drift and a new permanent toolchain are not accepted here.
+Rust's binary64 type does not guarantee identical transcendental results or
+expression behavior across runtimes; any later port needs explicit parity.
+See the [Rust numeric contract](https://doc.rust-lang.org/std/primitive.f64.html)
+and the [Bun runtime](https://bun.sh/docs/runtime).
+
+The user's `30-60 s` target applies to **entire maximum-size native map
+generation**, not a study phase, year or qualification campaign. A cheap
+authentic stage measurement is diagnostic only. Before a port, account for
+actual phase and spin-up counts, all thermal vintages and the rest of the
+pipeline; qualify the whole map in Civ. The multi-hour refinement, independent
+readback and evidence persistence workloads are not a proposed player path.
+Scientific prediction errors and temporal envelopes remain distinct from
+machine-level equation residuals; tighter residuals do not imply realism.
+
+Reuse immutable admitted inputs, geometry, masks and solar arrays under exact
+source/value/type identity. State-dependent coefficients must be recomputed;
+trajectories require the complete law/input/initialization/timestep/method
+identity. Changed physics cannot borrow an earlier model's trajectory or error
+envelope. Keep the fast regression distinct from full qualification so ordinary
+development does not require every long campaign.
+
+The October 3 resource census finds approximately `42.8 GiB` of retained
+calibration evidence and `125 GiB` available disk on the `32 GiB` Mac. The
+refused MSE prefix is approximately `31.2 MiB`; its diagnostic replay adds
+three small residual vectors. Watch system pressure and free disk before long
+runs, avoid duplicate bulk output and clean disposable data when its readers
+and retention obligations are resolved. Do not silently delete source
+authority, failure receipts or published gallery dependencies. No Rust or
+Python toolchain, new service or repository cache is added by this work.
+
 ## Reference Forcing Admission
 
 The actual retained NCEP air target is the monthly `1991-2020` climatology.

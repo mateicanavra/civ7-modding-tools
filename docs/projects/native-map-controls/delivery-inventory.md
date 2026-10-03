@@ -63,6 +63,21 @@ Storage, forcing and every original numerical guard remain held. This qualifies
 only that small changed transport method, not authentic-Earth accuracy or
 full-grid efficiency. Its next fixed-SST0 experiment needs separate qualification
 before the unchanged Earth comparison; it is not a production change.
+That authentic campaign now refuses its first year at phase `145` on the
+unchanged independent equation limit, with no completed orbit or Earth score.
+A `1.201 s` exact replay supports a finite-precision stopping-boundary issue.
+The [selected numerical and performance sequence](thermal-boundary-discriminator.md#authentic-refusal-and-fast-iteration)
+retains the physical law: small controls and a timed authentic phase, then
+manufactured method qualification and native-size feasibility before another
+long authentic family. TypeScript mathematical reduction comes before any
+Rust decision. The `30-60 s` whole-map native target is a separate shipping
+gate; offline qualification time is not a player-path claim. The reviewed
+coordinate implementation now passes ten dense component records, four small
+stage cases and that original authentic phase, with its independent defect
+reduced to `1.33591e-11 K`. Its `485.333 ms` reference-grid stage timing is not a
+warmed native throughput claim. This focused counterexample is closed, while
+full manufactured qualification, native-size feasibility and Earth accuracy
+remain unperformed for this new numerical method.
 The installed playable build and full procedural cohort
 remain unchanged, and the within-row shipping obligation is still open.
 
