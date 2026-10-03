@@ -312,6 +312,64 @@ they do not claim a uniform transfer theorem or invent a sampling cutoff.
 Original Earth and complete-cohort expectations remain unwaived. No observed
 temperature labels are opened and the installed playable build is unchanged.
 
+## Canonical SST2 And Ground Publication Qualification
+
+The second actual 24-phase owner update now produces SST2, followed by the
+final atmosphere without a third ocean update. Independent retained readback
+reconstructs both acquisitions' all-cell Ta samples, Float32 clipping and
+centering, 120 paired weather reductions and five annual reductions from each
+set of 48 retained members. SST2 and sea-ice custody remain exact; same-body
+owner repetition is not an independent physical circulation oracle.
+
+All nine fixed-SST2 normal/cold/inverse-rotated trajectories at
+384/768/1,536 phases are fresh: complete input comparison rejects SST1 reuse.
+Each settles after five cycles. All original equation, direction, actual-state
+Schur SPD, energy, periodicity, initialization, rotation, first-order and
+signed-power guards pass. Independent arithmetic verifies 5,549 whole pins,
+720 cache slices, 45 cycles, 40,320 phases and eighteen byte-exact comparison
+arrays. The largest coarse/fine curve difference is `0.1273934090 K`; the
+largest conditional temporal envelope is `0.3821816113 K`, not the approximately
+`1e-10 K` equation tolerance or an Earth-error estimate.
+
+All nine private ground/calendar publications pass independently. Dry ground
+uses Ta and exactly one above-datum model-relief lapse; wet ground remains
+SST2, while pressure uses all-cell Ta. The reference relief is zero, not a
+metre conversion. Independent annual/monthly reconstruction differs by at most
+`1.0765e-12 C`; actual annual Float32 DTO values are exact. The largest
+same-curve annual 384/768 and monthly 4/8-per-day differences are
+`2.6569e-7 C` and `2.4088e-5 C`, below the unchanged `1e-4 C` publication guard.
+These quadrature witnesses do not replace solver-refinement evidence. Two/four
+observation subsets preserve annual and integration arrays exactly.
+
+Root's whole attempt takes `5,177.134 s`, with child/parent peaks
+`467,271,680 / 322,125,824 bytes`, inside its prospectively selected
+7,200-second/per-process 512-MiB contract. Independent retained readback takes
+`38.636 s`. These are external qualification costs, not native generation
+timing or a reinterpretation of an earlier refusal.
+
+Packet: `earth-calibration/earth-two-temperature-sst2-publication-20261003/`.
+OUTCOME SHA is
+`e150e1f77b15d2bade116508bbd2dd1d2a3fdfb48dddf91065f192bda53d7264`;
+independent admission SHA is
+`f77e62bd16092f5def100c1c71a5aec77e8444c75ecc8aeaf6bb62dbadfda6ee`.
+This closes the canonical second acquisition, prescribed-SST2 family and
+private publication. It admits neither Earth skill nor production/native
+replacement. The next finite study retains canonical N384/M24 and compares
+seven complete branches: N384/768/1536 crossed with M24/48, plus N1536/M12.
+Exact accepted reuse limits this to at most twelve new normal trajectories.
+Each trajectory keeps its original guards; representative canonical cold and
+rotation controls are not claimed as a transfer theorem. All branch differences
+and conditional uncertainty feed the unchanged later adverse Earth comparison,
+before the full procedural cohort, public-contract migration and native gate.
+
+The [nine-panel SST0/SST1 thermal atlas](https://mateis-macbook-pro.taild8da1c.ts.net/civ/thermal-sst0-sst1-atlas-20261003/index.html)
+shows earlier admitted air means, full-cycle range, prescribed wet boundaries,
+first feedback differences and conditional envelopes. It uses retained
+scientific Earth geometry, not Civ photographs or observed-temperature labels.
+All eighteen original/thumbnail raster checks, thirty input pins, forty-two
+local/tailnet responses and desktop/mobile browser checks pass. It is linked
+from the existing Civ gallery; no playable build changed.
+
 ## Reference Forcing Admission
 
 The actual retained NCEP air target is the monthly `1991-2020` climatology.

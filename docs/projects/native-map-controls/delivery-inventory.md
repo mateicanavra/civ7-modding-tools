@@ -32,19 +32,25 @@ originals and thumbnails, forty local/tailnet responses and desktop/mobile
 rendering checks pass. The durable [viewer entrypoint](../../process/LOCAL-VIEWERS.md)
 and existing Civ gallery link it without replacing earlier build evidence.
 
-The latest closed numerical story is [authentic SST1 qualification](thermal-boundary-discriminator.md#authentic-sst1-numerical-qualification),
-following the accepted SST0 family. Actual current pressure/wind/current/ocean
-owners acquire the first feedback boundary from computed dry and wet air. All
-nine fresh normal/cold/rotated obligations at 384/768/1,536 phases pass the
-original guards. Independent readback verifies all 476 acquisition fields,
-paired/annual reductions, 45 cycles, 40,320 phases and eighteen complete-curve
-arrays. The largest coarse/fine curve difference is `0.12743 K`, and the largest
-conditional point envelope is `0.38230 K`; tiny equation residuals do not erase
-that finite-step uncertainty. This establishes one actual acquisition and
-prescribed-boundary numerical reliability, not Earth accuracy or a production
-replacement. Canonical SST2 and final ground/calendar publication are next,
-then finite complete-composition sensitivity and unchanged Earth/cohort admission.
-The installed playable build below is unchanged.
+The latest closed numerical story is [canonical SST2 and ground publication](thermal-boundary-discriminator.md#canonical-sst2-and-ground-publication-qualification),
+following accepted SST0 and authentic SST1. The second actual owner update
+acquires SST2; final atmosphere follows without SST3. All nine fresh
+normal/cold/rotated obligations at 384/768/1,536 phases pass their original
+guards. Independent readback verifies both owner reductions, all 45 cycles,
+40,320 phases, eighteen curve/envelope arrays and all nine private ground/calendar
+publications. The largest conditional temporal envelope is `0.38218 K`, distinct
+from equation residual and same-curve quadrature error. Next is seven-branch
+finite composition sensitivity with at most twelve new normal trajectories,
+then unchanged adverse Earth/cohort admission and explicit public-owner migration.
+The installed playable build below is unchanged; no observed temperature labels
+have been opened for this candidate.
+
+The [nine-panel thermal study viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/thermal-sst0-sst1-atlas-20261003/index.html)
+exposes retained SST0/SST1 annual air temperature, seasonal range, wet boundaries,
+feedback differences and conditional uncertainty. Original PNGs, thumbnails,
+all forty-two local/tailnet responses and desktop/mobile checks pass. These are
+scientific-geography candidate data, not a new native build or Earth-accuracy
+claim. The existing Civ gallery and durable viewer entrypoint link it.
 
 The next completed owner repair is [marine ice eligibility](marine-ice-eligibility.md).
 It retires the unsupported alpine feature strategy and limits both ice scoring
