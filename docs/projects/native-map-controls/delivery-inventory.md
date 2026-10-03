@@ -197,6 +197,16 @@ then pass manufactured controls before another authentic-grid attempt. See
 [the first-year qualification](thermal-boundary-discriminator.md#full-geography-first-year-feasibility).
 The current playable build and recipe remain unchanged.
 
+That separately reviewed algebraic method now completes both ordered gates:
+all eighteen manufactured runs retain every original guard, then the identical
+authentic Earth first year completes in `69.8 s` rather than `312.125 s`.
+All inputs, geometry and solar values remain exact; all original equations,
+energy and complete-history readback checks pass. This improves measured
+external-study throughput without changing the physics. It does not establish
+native-generation cost, full Earth accuracy or adoption. The next bounded
+story is complete SST0 periodic convergence with streamed cycle histories.
+See [the qualified algebraic improvement](thermal-boundary-discriminator.md#qualified-algebraic-improvement).
+
 The subsequent matched-support Earth relief reduction is complete and
 independently reviewed: retained NCEP and CRUST1/ETOPO1 are integrated over
 the same land/water-free/ice-free angular intersection. All overlap controls
