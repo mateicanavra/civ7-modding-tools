@@ -2,6 +2,8 @@
 
 ## Civ Map Gallery
 
+- **Seasonal attribution, October 3:** [Twelve sampled residual maps and original held-error chart](https://mateis-macbook-pro.taild8da1c.ts.net/civ/seasonal-vintage-attribution-atlas-20261003/index.html). Same-calendar SST0/SST1/SST2 attribution locates the dominant held seasonal regression before the two added ocean updates; it does not identify a unique physical repair. All 547 original receiver sites remain at their actual coordinates, unsampled locations remain empty, and every vintage stays in the tables. Scientific nonselection and non-adoption are prominent. All twenty-six image checks, sixty byte-exact local/tailnet responses and desktop `1440`/mobile `390` checks pass; root inspected all thirteen panels and both browser frames and opened the page in Arc. The current gallery links it without altering earlier sealed atlas assets or deploying a new climate. Manifest SHA is `8a72fb556cd07e2a7f5d6a7775a2c17b077e484c5eb81f640d849b06bc2f6976`; publication receipt SHA is `5a3b33b1b57a1f002a586c5f1f7a395d74726856251460b08bbcc134e0e77ba0`. See [the fixed-calendar result](../projects/native-map-controls/thermal-boundary-discriminator.md#fixed-calendar-attribution-and-visible-nonselection).
+
 The October 3 two-temperature candidate passes numerical qualification but
 is **not selected for production**: its frozen Earth comparison worsens
 seasonal and within-row errors. The thermal atlas below is retained diagnostic

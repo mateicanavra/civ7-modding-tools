@@ -50,10 +50,15 @@ the annual improvement admits the model. No candidate, CO2 contract migration,
 new solar handoff or proof framework is deployed. Independent retained-input
 evaluation reproduces every score, guard and signed accounting record. Source
 inspection and fixed-date witnesses establish neither a calendar mismatch nor
-a missing heat-capacity divisor. The next bounded discriminator compares
-already-retained SST0/SST1/SST2 seasonal response on the same calendar, to locate
-the regression before changing transport or water-boundary physics. It does
-not rerun the solver, optimize seasonal phase or tune to held observations.
+a missing heat-capacity divisor. The completed [fixed-calendar attribution](thermal-boundary-discriminator.md#fixed-calendar-attribution-and-visible-nonselection)
+locates the dominant held seasonal error before the added ocean updates:
+monthly error is already `6.53382 C` at SST0 and remains `6.38156/6.39420 C`
+afterward. Real spatial responses and added-coast regression remain disclosed;
+neither the ocean composition nor dry transport is uniquely exonerated or
+identified. No solver rerun, seasonal phase optimization or held-label tuning
+occurs. The next external hypothesis changes only diagnostic moist-energy
+transport at the first fixed boundary and must earn new method/equation/energy
+qualification before an Earth comparison; it is not a production change.
 The installed playable build and full procedural cohort
 remain unchanged, and the within-row shipping obligation is still open.
 
@@ -69,6 +74,13 @@ feedback differences and conditional uncertainty. Original PNGs, thumbnails,
 all forty-two local/tailnet responses and desktop/mobile checks pass. These are
 scientific-geography candidate data, not a new native build or Earth-accuracy
 claim. The existing Civ gallery and durable viewer entrypoint link it.
+
+The new [seasonal attribution viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/seasonal-vintage-attribution-atlas-20261003/index.html)
+adds twelve sampled residual maps and one held-error chart, retaining every
+original receiver and all three vintages without interpolation. All twenty-six
+image checks, sixty local/tailnet responses and desktop/mobile rendering checks
+pass. It is linked from the existing Civ gallery and opened in Arc. The rejected
+candidate is prominently distinguished from the unchanged playable build.
 
 The next completed owner repair is [marine ice eligibility](marine-ice-eligibility.md).
 It retires the unsupported alpine feature strategy and limits both ice scoring

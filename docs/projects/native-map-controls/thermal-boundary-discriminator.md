@@ -464,6 +464,66 @@ frozen model, branch, comparator or threshold. The producer/readback's scoped
 no-label claim is not a whole-team claim. The later scientific opening above
 is explicit and authorized, not described as label-free.
 
+## Fixed-Calendar Attribution And Visible Nonselection
+
+The small retained-only discriminator now completes in `2.249 s`. It streams
+the three already-qualified canonical final cycles, retaining the exact
+calendar, ground reduction and all 547 receiver identities. Solar, geometry,
+masks, elevation and ice remain byte-identical. Prescribed sea-surface
+temperature (SST) and actual current covariates change; only SST changes directly
+in the thermal equations. No numerical model or owner is rerun.
+
+| Original Held Error | Incumbent | First Boundary SST0 | First Update SST1 | Final SST2 |
+| --- | ---: | ---: | ---: | ---: |
+| Annual RMSE C | 2.97104 | 3.22841 | 2.93876 | 2.96849 |
+| Monthly RMSE C | 3.57295 | 6.53382 | 6.38156 | 6.39420 |
+| Within-row RMS C | 2.31477 | 2.47573 | 2.34460 | 2.41837 |
+
+The dominant held seasonal regression already exists before the added annual
+ocean updates. Their effects are real, not zero: first/second dry-ground annual
+area-weighted RMS responses are `1.81907/0.36728 C`. Added-coast monthly error
+also worsens `4.87686 -> 5.61823 -> 5.62851 C`. This does not exonerate the
+ocean composition or identify dry transport as the unique cause. Annual SST0,
+uniform clouds, bare optics and the two-dimensional reduction are already
+present at the first boundary. No earlier vintage is selected as a repair.
+
+SST2 published annual Float32 values and all original scientific predictions
+are exact; recovered annual/monthly double differences are at most
+`2.7001e-13/4.9738e-14 C`. Independent source and compact-result review are
+aligned, without a new independent arithmetic execution. Attribution RESULT
+SHA is `86f70d5cafd273df2e81a29ab684c5ba1abc7060ce2628d33e5b6b22d5485c31`.
+Packet: `earth-calibration/earth-two-temperature-owner-design-20261002/seasonal-vintage-attribution-20261003/`.
+
+The [seasonal diagnostic atlas](https://mateis-macbook-pro.taild8da1c.ts.net/civ/seasonal-vintage-attribution-atlas-20261003/index.html)
+shows twelve full-resolution sampled residual maps and one original held-error
+chart. All 547 original sites retain their locations; unsampled and polar
+positions are left empty, with no interpolation. One display-only color scale
+retains raw ranges and saturation counts. Seasonal mean-residual maps are
+distinct from the unchanged pooled seasonal RMSE. All three vintages remain in
+the error and signed-response tables; scientific nonselection is prominent.
+These are diagnostic exports, not native screenshots or a new playable build.
+
+All twenty-six PNG/thumbnail dimension, hash and nonblank checks and sixty
+local/tailnet responses pass. Desktop `1440` and mobile `390` load all thirteen
+images without broken assets or page/text overflow; tables retain contained
+horizontal scrolling. Root inspected all thirteen panels and both browser
+frames, opened the page in Arc, and verified the existing gallery link over
+both HTTP surfaces. Manifest SHA is
+`8a72fb556cd07e2a7f5d6a7775a2c17b077e484c5eb81f640d849b06bc2f6976`;
+publication receipt SHA is
+`5a3b33b1b57a1f002a586c5f1f7a395d74726856251460b08bbcc134e0e77ba0`.
+No new service, dependency, Python tooling or Tailscale identity is introduced.
+
+The next selected external hypothesis changes only atmospheric edge transport
+to the author's hydrology-off diagnostic moist-energy potential, holding the
+first SST boundary and all capacities, forcing, optics and geometry fixed.
+It adds neither latent storage nor a vapor/rain/water artifact. Its changed
+Jacobian cannot inherit the dry PCG symmetry certificate; source controls and
+manufactured equation/energy/method qualification precede any authentic Earth
+comparison. It is not implemented or admitted in production, and its efficacy
+remains unknown. Seasonal ocean storage and other declared reductions remain
+countercases; no parameter or calendar search is bundled into this hypothesis.
+
 ## Reference Forcing Admission
 
 The actual retained NCEP air target is the monthly `1991-2020` climatology.
