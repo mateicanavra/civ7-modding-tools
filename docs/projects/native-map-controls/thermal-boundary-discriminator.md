@@ -262,6 +262,56 @@ packet uses actual current pressure/wind/current/ocean bodies to acquire SST1,
 then qualifies that prescribed boundary separately. Fixed-SST refinement is not
 full-composition refinement; original Earth and complete-cohort guards remain.
 
+## Authentic SST1 Numerical Qualification
+
+The subsequent campaign acquires SST1 through the actual current 24-phase
+pressure, paired weather, currents and ocean owners, using accepted SST0's
+normal384 complete air-temperature curve. Pressure consumes independently
+clipped Float32 Ta on dry and wet cells, centered by those exact weighted
+samples; neither skin temperature nor prescribed SST substitutes for wet air.
+Independent readback reconstructs all 24 Ta samples and their Float32
+publication/centering, then 120 paired-reduction arrays and five annual
+reductions from 48 retained weather members, including both Int8 quantization
+stages. All 476 retained typed fields and SST1 custody match. The parent's
+same-body owner repeat is exact, not an independent physical circulation oracle.
+
+All nine fresh fixed-SST1 normal/cold/inverse-rotated obligations at
+384/768/1,536 phases settle after five cycles. Every original equation,
+direction, Schur-certificate, energy, periodicity, initialization, rotation,
+first-order and signed-power guard passes unchanged. Independent retained
+arithmetic verifies 2,630 whole/source/output pins, 720 cache slices, all 45
+cycles and 40,320 phases, and eighteen byte-exact curve/envelope arrays, without
+importing or rerunning solver, owner or physical-oracle modules.
+
+The 63,294 first-order ratios lie in `1.9353370842..2.0107465237`; maximum signed
+power difference is `0.00272834085`, below `0.01`. The largest 384/768 curve
+difference is `0.1274326721 K`; the largest conditional temporal point envelope
+is `0.3822994014 K`. These are finite-step uncertainties, not the approximately
+`1e-10 K` equation defects or Earth errors. All 83,819 linear certificates retain
+the original full-direction check; minimum actual Schur margin is `1.02607037`.
+Maximum phase relative energy discrepancy is `5.11236e-14`.
+
+The whole attempt takes `4,949.82 s`, with child/parent peaks
+`345,800,704 / 231,440,384 bytes`, inside its prospectively selected
+7,200-second/per-process 512-MiB contract. The separate independent readback
+takes `21.496 s`. These external qualification costs are not native throughput
+or a reinterpretation of any earlier resource refusal.
+
+Packet: `earth-calibration/earth-two-temperature-sst1-full-qualification-20261003/`.
+OUTCOME SHA is
+`a3a9339d30fa2df19e124483f2ec0e691f27383dae32e76b270fb2565ffce029`;
+independent admission SHA is
+`525c423b5a86f17606075b18cdc561c7df24a37da7673c13c258eeb8a1b4deaa`.
+This closes one authentic SST0-to-SST1 acquisition and the prescribed-SST1
+trajectories, not SST2, a coupled fixed point, full-composition refinement,
+Earth skill or production/native adoption. The next canonical story acquires
+SST2, qualifies its boundary and final ground/calendar publication. Later
+composition studies retain every per-trajectory guard while distinguishing
+representative initialization/rotation controls from finite sampling sensitivity;
+they do not claim a uniform transfer theorem or invent a sampling cutoff.
+Original Earth and complete-cohort expectations remain unwaived. No observed
+temperature labels are opened and the installed playable build is unchanged.
+
 ## Reference Forcing Admission
 
 The actual retained NCEP air target is the monthly `1991-2020` climatology.
