@@ -32,17 +32,19 @@ originals and thumbnails, forty local/tailnet responses and desktop/mobile
 rendering checks pass. The durable [viewer entrypoint](../../process/LOCAL-VIEWERS.md)
 and existing Civ gallery link it without replacing earlier build evidence.
 
-The latest closed numerical story is [full SST0 qualification](thermal-boundary-discriminator.md#full-sst0-numerical-qualification):
-all nine normal/cold/rotated obligations at 384/768/1,536 phases pass the original
-periodic, equation, energy, temporal-refinement, initialization and rotation
-guards. Independent readback verifies 45 cycles, 40,320 phase pairs and all
-eighteen complete-curve arrays. The largest coarse/fine curve difference remains
-`0.12768 K`; tiny equation residuals are not equally tiny temporal uncertainty.
-This establishes numerical reliability at one prescribed ocean boundary, not
-Earth accuracy or a production climate replacement. The next source packet
-acquires SST1 through actual current pressure/wind/current/ocean owners and
-qualifies it separately before later coupling/publication and Earth/cohort
-admission. The installed playable build below is unchanged.
+The latest closed numerical story is [authentic SST1 qualification](thermal-boundary-discriminator.md#authentic-sst1-numerical-qualification),
+following the accepted SST0 family. Actual current pressure/wind/current/ocean
+owners acquire the first feedback boundary from computed dry and wet air. All
+nine fresh normal/cold/rotated obligations at 384/768/1,536 phases pass the
+original guards. Independent readback verifies all 476 acquisition fields,
+paired/annual reductions, 45 cycles, 40,320 phases and eighteen complete-curve
+arrays. The largest coarse/fine curve difference is `0.12743 K`, and the largest
+conditional point envelope is `0.38230 K`; tiny equation residuals do not erase
+that finite-step uncertainty. This establishes one actual acquisition and
+prescribed-boundary numerical reliability, not Earth accuracy or a production
+replacement. Canonical SST2 and final ground/calendar publication are next,
+then finite complete-composition sensitivity and unchanged Earth/cohort admission.
+The installed playable build below is unchanged.
 
 The next completed owner repair is [marine ice eligibility](marine-ice-eligibility.md).
 It retires the unsupported alpine feature strategy and limits both ice scoring

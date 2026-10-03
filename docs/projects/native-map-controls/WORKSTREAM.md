@@ -33,10 +33,13 @@ under-rim/below-sea projection retains its bounded native capability limit.
 
 The remaining demonstrated production obligation is the missing
 geographical/seasonal land thermal response. The selected external
-[thermal-only boundary study](thermal-boundary-discriminator.md#full-sst0-numerical-qualification)
-now qualifies all nine SST0 periodic/refinement/initialization/rotation
-obligations. Later coupling/publication, unchanged Earth/cohort admission and
-normal native qualification remain separate gates before an owner replacement.
+[thermal-only boundary study](thermal-boundary-discriminator.md#authentic-sst1-numerical-qualification)
+now qualifies the actual first ocean-feedback acquisition and all nine fixed-SST1
+periodic/refinement/initialization/rotation obligations after SST0. Canonical
+SST2 and final ground/calendar publication are next. Finite actual-composition
+sensitivity, unchanged Earth/cohort admission and normal native qualification
+remain separate gates before an owner replacement; representative solver
+controls are not a uniform stability theorem for every generated boundary.
 Numerical correctness alone earns no scientific or production admission.
 
 The [actual Foundation projection witness](constitutive-support-attribution.md#actual-projection-witness)
