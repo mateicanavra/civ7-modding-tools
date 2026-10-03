@@ -220,6 +220,48 @@ seconds/512 MiB, serial execution and the original scientific guards. Its
 larger scope does not rescue or reinterpret any earlier 900-second refusal,
 and neither private resource budget is a native-generation SLA.
 
+## Full SST0 Numerical Qualification
+
+The subsequent serial campaign completes all nine SST0 obligations: normal,
+independently cold and 64-column-rotated at 384, 768 and 1,536 phases. Eight
+orbits are fresh; immutable normal384 is reused with new complete original-law
+readback. All settle after five cycles. The whole attempt takes `4,497.361 s`,
+with current child/parent peaks `264,962,048 / 107,905,024 bytes`, within its
+prospective 7,200-second and per-process 512-MiB contract. These are external
+qualification costs, not native-generation performance or rescued earlier
+900-second attempts.
+
+Independent streamed arithmetic verifies 832 whole-file pins, 720 cache slices,
+all 45 cycles and 40,320 online/readback phase pairs. All 850,671,360 positive
+finite state scalars and 10,160,640 solar scalars retain exact phase, continuity
+and covariate identities. All eighteen complete-curve comparison/envelope arrays
+reconstruct byte-exact. The 83,659 actual linear certificates retain the
+negative global term and original full-direction checks; minimum Schur margin
+is `1.02590821`. Maximum stage/oracle/full-linear defects remain below `1e-10 K`,
+and maximum phase energy discrepancy is `8.53382e-14`.
+
+All 63,294 fieldwise refinement ratios lie in `1.9361082453..2.0108266025`,
+inside the unchanged `1.5..2.5` interval. The largest 384/768 complete-curve
+difference is `0.1276816594 K`; the largest conditional point envelope is
+`0.3830463635 K`. Small equation residuals do not erase finite-step uncertainty.
+Maximum initialization and inverse-rotation differences are respectively
+`1.13687e-13 K` and `2.58012e-10 K`. Every signed annual-power comparison passes
+the original one-percent guard; maximum difference is `0.0026345025`.
+Independent retained-integral and endpoint-energy arithmetic corroborates the
+complete paired source-oracle proofs, not a third physical-oracle execution.
+
+Packet: `earth-calibration/earth-two-temperature-sst0-full-qualification-20261002/`.
+OUTCOME SHA is
+`0a07e235149e6f63aa0175132c75572a63446a15b2512f7cf6e10891a8e4cb21`;
+independent admission SHA is
+`d09de7f41850f434cd90428517c73030d0629ffddc2edcd69e75dbcc2241bec2`.
+Status is `PASS_SST0_TEMPORAL_INIT_ROTATION_ONLY`. No temperature labels are
+opened, and no Earth skill, coupled SST1/SST2 result, rainfall/demand migration,
+public contract or production/native replacement is admitted. The next source
+packet uses actual current pressure/wind/current/ocean bodies to acquire SST1,
+then qualifies that prescribed boundary separately. Fixed-SST refinement is not
+full-composition refinement; original Earth and complete-cohort guards remain.
+
 ## Reference Forcing Admission
 
 The actual retained NCEP air target is the monthly `1991-2020` climatology.

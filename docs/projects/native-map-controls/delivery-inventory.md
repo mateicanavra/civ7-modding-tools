@@ -32,14 +32,17 @@ originals and thumbnails, forty local/tailnet responses and desktop/mobile
 rendering checks pass. The durable [viewer entrypoint](../../process/LOCAL-VIEWERS.md)
 and existing Civ gallery link it without replacing earlier build evidence.
 
-The latest closed research story is [full-grid SST0 periodic qualification](thermal-boundary-discriminator.md#full-grid-periodic-qualification):
-five complete 384-phase years settle under the original guards, with all
-1,920 original-law/energy and complete readback checks passing. Independent
-review reproduces convergence from every retained phase; the first year is
-byte-identical to the qualified Schur result. This establishes one repeatable
-seasonal orbit, not Earth accuracy or a production climate replacement. The
-next selected campaign adds authentic temporal refinement, cold-initialization
-and rotation comparisons. The installed playable build below is unchanged.
+The latest closed numerical story is [full SST0 qualification](thermal-boundary-discriminator.md#full-sst0-numerical-qualification):
+all nine normal/cold/rotated obligations at 384/768/1,536 phases pass the original
+periodic, equation, energy, temporal-refinement, initialization and rotation
+guards. Independent readback verifies 45 cycles, 40,320 phase pairs and all
+eighteen complete-curve arrays. The largest coarse/fine curve difference remains
+`0.12768 K`; tiny equation residuals are not equally tiny temporal uncertainty.
+This establishes numerical reliability at one prescribed ocean boundary, not
+Earth accuracy or a production climate replacement. The next source packet
+acquires SST1 through actual current pressure/wind/current/ocean owners and
+qualifies it separately before later coupling/publication and Earth/cohort
+admission. The installed playable build below is unchanged.
 
 The next completed owner repair is [marine ice eligibility](marine-ice-eligibility.md).
 It retires the unsupported alpine feature strategy and limits both ice scoring

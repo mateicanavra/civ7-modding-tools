@@ -33,9 +33,9 @@ under-rim/below-sea projection retains its bounded native capability limit.
 
 The remaining demonstrated production obligation is the missing
 geographical/seasonal land thermal response. The selected external
-[thermal-only boundary study](thermal-boundary-discriminator.md) now qualifies
-one authentic SST0 periodic orbit; temporal refinement, initialization and
-rotation, later coupling/publication, unchanged Earth/cohort admission and
+[thermal-only boundary study](thermal-boundary-discriminator.md#full-sst0-numerical-qualification)
+now qualifies all nine SST0 periodic/refinement/initialization/rotation
+obligations. Later coupling/publication, unchanged Earth/cohort admission and
 normal native qualification remain separate gates before an owner replacement.
 Numerical correctness alone earns no scientific or production admission.
 
