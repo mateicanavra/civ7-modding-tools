@@ -13,6 +13,15 @@ benchmarks, not inputs hidden inside the procedural Earthlike recipe. A
 realistic Earthlike variant is the desired playable outcome, not literal Earth
 replay. Historical eight-product captures remain immutable comparison evidence.
 
+The latest closed research story is [full-grid SST0 periodic qualification](thermal-boundary-discriminator.md#full-grid-periodic-qualification):
+five complete 384-phase years settle under the original guards, with all
+1,920 original-law/energy and complete readback checks passing. Independent
+review reproduces convergence from every retained phase; the first year is
+byte-identical to the qualified Schur result. This establishes one repeatable
+seasonal orbit, not Earth accuracy or a production climate replacement. The
+next selected campaign adds authentic temporal refinement, cold-initialization
+and rotation comparisons. The installed playable build below is unchanged.
+
 The next completed owner repair is [marine ice eligibility](marine-ice-eligibility.md).
 It retires the unsupported alpine feature strategy and limits both ice scoring
 and planning to the existing physical external-water recipient. Physical
@@ -204,7 +213,8 @@ All inputs, geometry and solar values remain exact; all original equations,
 energy and complete-history readback checks pass. This improves measured
 external-study throughput without changing the physics. It does not establish
 native-generation cost, full Earth accuracy or adoption. The next bounded
-story is complete SST0 periodic convergence with streamed cycle histories.
+story at that milestone was complete SST0 periodic convergence with streamed
+cycle histories; that bounded story now passes as recorded above.
 See [the qualified algebraic improvement](thermal-boundary-discriminator.md#qualified-algebraic-improvement).
 
 The subsequent matched-support Earth relief reduction is complete and

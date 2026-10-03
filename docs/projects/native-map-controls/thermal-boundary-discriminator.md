@@ -167,10 +167,12 @@ remains in the operator; no unconditional SPD claim or fallback is introduced.
 Independent review verifies every input/geometry snapshot, initial state and
 solar tape byte-identical to the qualified GMRES run. Complete-curve maximum
 difference is `6.34543085e-10 K`; different floating-point directions do not
-constitute changed physics. Earth-periodic convergence, refinement, later SST
-vintages, held skill, procedural-cohort and owner admission remain ahead.
-The next numerical story is one streamed SST0 periodic orbit, preserving
-complete phase/cycle tapes rather than keeping two finest-grid curves on heap.
+constitute changed physics. At that milestone, Earth-periodic convergence,
+refinement, later SST vintages, held skill, procedural-cohort and owner
+admission remained ahead.
+The next numerical story at that milestone was one streamed SST0 periodic
+orbit, preserving complete phase/cycle tapes rather than keeping two
+finest-grid curves on heap.
 
 Packet: `earth-calibration/earth-two-temperature-schur-pcg-20261002/`.
 Manufactured OUTCOME SHA is
@@ -178,6 +180,45 @@ Manufactured OUTCOME SHA is
 Earth first-year OUTCOME SHA is
 `51d2c27dd8b36c44cde900462d21b9ae8868901ca6f0009880714b155a549949`.
 Both are external numerical qualifications, not installed production changes.
+
+## Full-Grid Periodic Qualification
+
+The single authentic SST0 orbit now settles after five complete 384-phase
+years, under the unchanged 900-second/512-MiB contract. The whole attempt
+takes `324.16 s`; child high-water is `274,169,856 bytes`. All 1,920 phases
+of all five cycles retain their state, solar, original-equation/energy and
+complete readback proofs. No observed temperature labels are opened.
+
+Complete-cycle equivalent differences decrease from `93.00877234 K` to
+`0.004207958 K`, `1.796294311e-7 K`, then `3.981612611e-11 K`. Independent
+streamed reduction reproduces every endpoint and cycle difference, the two
+consecutive terminal hits and all three contraction guards. The last reported
+ratio zero uses the predeclared below-`1e-9` convention, not exact mathematical
+zero. All 4,789 actual Newton operators retain their original direction and
+SPD-certificate guards. The new stage-local scaled-edge cache preserves
+the exact old expression and order; the entire first-year trajectory and
+solar tape remain byte-identical to the qualified uncached Schur run.
+
+Independent review rehashes 317 distinct authority/output files and checks
+all `40,508,160` state scalars, `483,840` solar scalars, 1,920 online/readback
+proof pairs and 720 cache-control slices. It independently reconstructs
+continuity, convergence and work totals, without importing or rerunning the
+solver or physical oracle. Complete recorded physical-oracle replay is
+authenticated execution, not a third oracle evaluation by the reviewer.
+
+Packet: `earth-calibration/earth-two-temperature-periodic-sst0-20261002/`.
+OUTCOME SHA is
+`40ef84515c6f718b09d907948ae3c1107f59a7a1f350f701c2a1fa675cf3a6d4`;
+independent admission SHA is
+`fc1e5e01cd91f4dec631ca31ce0adc0ba47fb2abbaee5e0c6c8ea75776cb6a4b`.
+This closes one discrete SST0 periodic orbit only. Authentic temporal
+refinement, initialization independence, rotation, later coupling vintages,
+calendar/publication, Earth skill and procedural/native adoption remain
+separate obligations. The next selected story is the larger prospective
+three-resolution SST0 campaign with normal, cold and rotated arms: 7,200
+seconds/512 MiB, serial execution and the original scientific guards. Its
+larger scope does not rescue or reinterpret any earlier 900-second refusal,
+and neither private resource budget is a native-generation SLA.
 
 ## Reference Forcing Admission
 
