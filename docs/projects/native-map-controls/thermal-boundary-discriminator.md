@@ -648,6 +648,98 @@ and retention obligations are resolved. Do not silently delete source
 authority, failure receipts or published gallery dependencies. No Rust or
 Python toolchain, new service or repository cache is added by this work.
 
+### Exact Cache And Native-Sized Cost
+
+The next coefficient cache preserves the fine equations and every precision
+guard. It stores fixed square-root areas and the exact original scaled-edge
+expressions, refreshing on every exact timestep change; state-dependent
+reaction values still refresh at each linearization. Seven lifetime controls
+and eight matched authentic phase pairs pass. End states, all direction
+witnesses and work counts are bit-identical to the uncached coordinate method.
+The seven warm pairs have median advance times `381.744 -> 346.936 ms`, about
+`9.1%` lower. The first pair uses fresh stages in a process already exercised
+by controls, not a process-cold measurement. This is not orbit qualification.
+
+Packet: `earth-calibration/earth-two-temperature-diagnostic-mse-coefficient-cache-20261003/`.
+RESULT SHA is
+`130abe15e7abfa0063cc1b063d75f972881144a911c25eacc1ce3baf9a35107f`.
+
+The separately reviewed native-size cost test then executes one fresh normal
+384-step year on the accepted historical Huge1018 `106 x 66` geography.
+It consumes only the matching initial land masks and provenance from that
+ten-player capture, uses the current owned latitude rule, and constructs new
+zero-current/zero-shelf prescribed SST0 with the actual ocean rule. No captured
+climate output or scientific temperature donor enters it. This is not the
+latest twelve-player live capture or a complete procedural recipe run.
+
+Observed cardinalities are `6,996` air nodes plus `2,720` dry skin states.
+All 384 independent phase equation/energy checks and original full-direction
+guards pass. The attempt reports `38.032 s` before result persistence, of which
+`36.899974 s` is advancement and `0.729306 s` the independent phase oracle.
+There are `48,444` PCG iterations, `101,176` accounted matvecs and `1,072`
+Newton directions. Reported peak is `169,000,960 bytes` (`161.17 MiB`);
+the later checked resource sample agrees. All remain below the prospectively
+declared 600-second/512-MiB limits. Compact independent readback reconstructs
+all phase identities, sums, maxima, strict guards and counts and rehashes all
+199 authority pins, inputs and initial/final states without rerunning physics.
+Only compact phase proofs and two states are retained, not a complete curve.
+
+Packet: `earth-calibration/earth-two-temperature-native-cost-pilot-20261003/`.
+RESULT SHA is
+`0cf74bd266b6ee74ff9555c4d86729cab3cc6f4661456fdadc61f821a9b6ad99`;
+RESOURCE SHA is
+`9becd65b4168ee582e61ea4705e10d5a9e22636f1f16faaf15f9d30b87d52219`.
+This measures one first year in Bun, not periodicity, Earth skill, actual Civ
+runtime or whole-map latency. Advancement is 97% of measured elapsed time;
+these counters do not individually profile PCG, source evaluation and checks.
+One year already consumes much of the entire 30-60-second player budget before
+settling, later SST vintages and other owners. Another multi-hour family is
+not the next default iteration.
+
+The `1e-10 K` equation limit checks this numerical method; it is neither an
+Earth prediction margin nor a required native artifact resolution. Any later
+native approximation needs a prospective output comparison against an accurate
+same-law reference, including seasonal curves, conservation and coupled
+downstream decisions. Temporal error, model discrepancy and Float32 publication
+rounding remain distinct. No scientific guard or failed campaign is relaxed.
+
+Select one bounded IC(0) preconditioner discriminator for the same fine
+component equations before a language port. Only symbolic sparsity is reused;
+numerical factors refresh at each Newton linearization and serve both component
+solves. Finite positive pivots are required, with no shifts, fill sweep or
+fallback. The fine operator, independent residual, rank-one term, precision
+allocation and all original direction/phase guards remain unchanged.
+Small independent dense/factor controls precede paired retained native phases
+and the original authentic counterexample. Selection requires at least 15%
+lower warm median advance in each native case, including factor cost, and does
+not establish a year, orbit or native SLA. This is a numerical preconditioner,
+not coarser physical atmospheric support. The established method category is
+documented by [PETSc's incomplete Cholesky reference](https://petsc.org/main/manualpages/PC/PCICC/);
+its optional shift behavior is not adopted here.
+
+That single bounded discriminator now passes in `3.173 s`. Ten dense component
+records, four actual small stages and the factor lifetime/refusal controls pass.
+The two native cases have warm median advance times `140.356 -> 111.485 ms`
+and `105.882 -> 71.584 ms`, respectively `20.57%` and `32.39%` lower, including
+the numerical factor inside advancement. Both exceed the declared 15% gate.
+The original authentic phase takes `460.362 -> 290.367 ms` and `213 -> 131`
+PCG iterations. That single pair is not a warm or whole-year estimate. The
+largest endpoint difference across all nine pairs is `3.41061e-13 K`; unchanged
+candidate, full-direction and independent equation/energy guards hold. The
+later resource sample is `250,839,040 bytes`, inside the declared 512-MiB cap.
+No complete trajectory, periodicity, scientific or production admission is
+claimed. Complete manufactured qualification and another measured native-size
+year remain the next numerical gates, not an automatic multi-hour family.
+
+Packet: `earth-calibration/earth-two-temperature-diagnostic-mse-ic0-20261003/`.
+RESULT SHA is
+`c858e9572b365107b12d9a3cd6748737c38a2edc746954da067bee12a97deed5`.
+
+The new native cost packet occupies about `744 KiB`, and the matched cache
+packet about `108 KiB`. A fresh host check still finds `125 GiB` free disk and
+41% system-wide free memory on the 32-GiB machine. No multi-GB history is added
+for this diagnostic and no pinned evidence or gallery dependency is deleted.
+
 ## Reference Forcing Admission
 
 The actual retained NCEP air target is the monthly `1991-2020` climatology.
