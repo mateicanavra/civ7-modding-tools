@@ -76,8 +76,26 @@ coordinate implementation now passes ten dense component records, four small
 stage cases and that original authentic phase, with its independent defect
 reduced to `1.33591e-11 K`. Its `485.333 ms` reference-grid stage timing is not a
 warmed native throughput claim. This focused counterexample is closed, while
-full manufactured qualification, native-size feasibility and Earth accuracy
-remain unperformed for this new numerical method.
+full manufactured qualification and Earth accuracy remain unperformed for this
+new numerical method. The exact fixed-coefficient cache subsequently preserves
+all eight matched states/direction witnesses bit-for-bit and lowers the seven
+warm median phase advances by about `9.1%`. A separately reviewed native-sized
+first year now passes all 384 original phase/direction checks in `38.032 s`,
+with `161.17 MiB` reported peak and only compact receipts retained. Advancement
+takes `36.900 s`; the independent phase oracle takes `0.729 s`. This is historical
+Huge geography in Bun, not the current live build, periodicity, Earth skill or
+whole-map qualification. One year alone leaves insufficient demonstrated budget
+for settling, three SST vintages and the rest of the map. The next selected
+bounded discriminator strengthens the fine-equation preconditioner in TypeScript
+before another expensive family, a Rust port or an output-tolerance change.
+It now passes the dense/factor and original small-stage controls plus nine
+matched phase pairs in `3.173 s`: both held native cases exceed the prospectively
+declared 15% directional improvement gate (`20.57% / 32.39%`), while the largest
+endpoint difference is `3.41061e-13 K` under unchanged original-law guards.
+This advances the exact numerical method to full manufactured qualification
+and another native-sized year; it does not establish whole-map latency or
+admit the physical model. No Rust dependency, new worktree or repository cache
+is introduced.
 The installed playable build and full procedural cohort
 remain unchanged, and the within-row shipping obligation is still open.
 
