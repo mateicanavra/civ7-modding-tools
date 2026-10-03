@@ -32,7 +32,7 @@ originals and thumbnails, forty local/tailnet responses and desktop/mobile
 rendering checks pass. The durable [viewer entrypoint](../../process/LOCAL-VIEWERS.md)
 and existing Civ gallery link it without replacing earlier build evidence.
 
-The latest closed investigation is [complete thermal composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection),
+The last completed Earth scientific comparison is [complete thermal composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection),
 following accepted SST0, authentic SST1 and canonical SST2. All seven complete
 branches, twelve fresh normal solves and two exact reuses retain both actual
 owner updates, final atmosphere without SST3, ground/calendar publication and
@@ -104,6 +104,22 @@ The candidate still needs an explicit affordable player-path decision before
 settling, three thermal vintages and the rest of the map can fit the entire
 30-60-second target. No expensive authentic family is automatically launched,
 and no Rust dependency, new worktree or repository cache is introduced.
+The [prospective consumer-margin contract and BDF2 discriminator](thermal-boundary-discriminator.md#consumer-margin-contract-and-temporal-method)
+now preserve the same physical/linear owners through a small history adapter.
+All eighteen fresh manufactured 96/192/384 periodic runs pass in `5.089 s`,
+with second-order ratios `3.94846-4.03021` and unchanged equation/energy guards.
+Independent retained-only readback closes all phase/direction/terminal
+accounting without replaying spin-up. The latest resource receipt is
+`149.91 MiB`, and the packet retains about `72 MiB` outside Git. This is method
+qualification only. The separately reviewed Huge normal 96-phase first year
+then passes in `11.511 s` versus the prior `29.617 s`, an observed `61.13%`
+reduction, with unchanged equation/energy guards and independently closed
+96-phase accounting. Its resource receipt is `183.53 MiB`; retained outputs
+are only about `286 KiB`. Settled-reference, complete three-vintage consumer,
+Earth, cohort and whole-map native admission remain open. The offline
+five-year-minimum proof schedule is not silently imposed on players; any
+different stopping rule needs its own reference/output-margin admission.
+No blanket temperature allowance or automatic 192-step fallback is selected.
 The installed playable build and full procedural cohort
 remain unchanged, and the within-row shipping obligation is still open.
 
