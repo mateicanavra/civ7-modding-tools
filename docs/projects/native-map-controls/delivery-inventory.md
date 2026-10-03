@@ -186,6 +186,17 @@ The complete proof takes 12.002 seconds and 140.77 MiB child high-water.
 This admits the manufactured relationship only: held-Earth, complete-cohort
 and owner migration remain ahead. The current playable mod is unchanged.
 
+The subsequent authentic full-grid thermal first year now completes all 384
+phases on `192 x 84` support within the unchanged resource limits: `312.125 s`
+and `204,275,712 bytes` child high-water. Every original-equation/energy check
+and every complete-history readback passes. This is numerical feasibility,
+not Earth skill or periodic convergence; no observed temperature labels were
+read. Linear-solve throughput is the next bounded numerical question. A prospective
+algebraic solver improvement must preserve the same equations and accuracy,
+then pass manufactured controls before another authentic-grid attempt. See
+[the first-year qualification](thermal-boundary-discriminator.md#full-geography-first-year-feasibility).
+The current playable build and recipe remain unchanged.
+
 The subsequent matched-support Earth relief reduction is complete and
 independently reviewed: retained NCEP and CRUST1/ETOPO1 are integrated over
 the same land/water-free/ice-free angular intersection. All overlap controls
