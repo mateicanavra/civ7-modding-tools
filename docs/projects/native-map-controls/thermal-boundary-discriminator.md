@@ -138,12 +138,46 @@ status `PASS_FIRST_YEAR_NUMERICAL_FEASIBILITY_ONLY`.
 This clears full-grid first-year memory and equation accuracy, not periodic
 convergence, temporal refinement, SST-vintage coupling, held-Earth skill or
 procedural-cohort admission. The observed `84,237` Krylov iterations identify
-linear-solve cost as the next bounded numerical question. The next prospective
-method is exact skin elimination followed by a certified symmetric air solve;
+linear-solve cost as the next bounded numerical question at that milestone.
+The next prospective method was exact skin elimination followed by a certified
+symmetric air solve;
 it must retain the global radiative term and verify reconstructed directions
-against the original full operator. No speedup is yet measured, no compute cap
-is raised, and no accuracy or scientific requirement is waived. Nothing from
-this external feasibility study is installed or deployed.
+against the original full operator. That first-year receipt measured no speedup;
+no compute cap was raised and no accuracy or scientific requirement waived.
+Nothing from this external feasibility study is installed or deployed.
+
+## Qualified Algebraic Improvement
+
+The separately reviewed exact skin Schur elimination and area-symmetric PCG
+method now pass both ordered gates. The complete eighteen-run manufactured
+suite takes `13.474 s` and `187,629,568 bytes` child high-water. All original
+seasonal, energy, initialization, rotation, refinement and causal guards remain
+intact. Independent readback reproduces the final-year comparisons from all
+72 binary arrays and checks every one of the 189,067 linear certificates.
+
+The identical authentic first year then completes in `69.8 s`, compared with
+the earlier `312.125 s` whole attempt. This is a measured end-to-end comparison,
+not a separately timed kernel result or native-generation performance claim.
+Child high-water is `196,640,768 bytes`; all 384 original-equation/energy and
+complete-history readback checks pass. The 959 actual Newton linearizations
+each satisfy the sufficient `min(mu) > beta` certificate and reconstructed
+full unscaled direction guard. The negative global radiative contribution
+remains in the operator; no unconditional SPD claim or fallback is introduced.
+
+Independent review verifies every input/geometry snapshot, initial state and
+solar tape byte-identical to the qualified GMRES run. Complete-curve maximum
+difference is `6.34543085e-10 K`; different floating-point directions do not
+constitute changed physics. Earth-periodic convergence, refinement, later SST
+vintages, held skill, procedural-cohort and owner admission remain ahead.
+The next numerical story is one streamed SST0 periodic orbit, preserving
+complete phase/cycle tapes rather than keeping two finest-grid curves on heap.
+
+Packet: `earth-calibration/earth-two-temperature-schur-pcg-20261002/`.
+Manufactured OUTCOME SHA is
+`33c3a5b5f1f3fd99b28d9e94a668ae7562fd34da34858f28b2a729fbd24f2602`;
+Earth first-year OUTCOME SHA is
+`51d2c27dd8b36c44cde900462d21b9ae8868901ca6f0009880714b155a549949`.
+Both are external numerical qualifications, not installed production changes.
 
 ## Reference Forcing Admission
 
