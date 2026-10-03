@@ -13,6 +13,25 @@ benchmarks, not inputs hidden inside the procedural Earthlike recipe. A
 realistic Earthlike variant is the desired playable outcome, not literal Earth
 replay. Historical eight-product captures remain immutable comparison evidence.
 
+The [actual Foundation projection witness](constitutive-support-attribution.md#actual-projection-witness)
+is now closed with no production change: eight exact current/historical
+captures, 46,128 independently verified assignments, all 364 cells sampled in
+every case, coherent copied lanes and complete signed edge attribution.
+No sampler, averaging, material law or metre codec repair is justified by
+that observation. Dimensional relief/flux calibration remains separately
+unresolved science, not a new prerequisite for delivered C3/water/navigation.
+The remaining demonstrated shipping obligation is the unchanged within-row
+thermal-response failure. A candidate still needs scientific, full-cohort,
+public-contract, deployment and fresh native admission before that is closed.
+
+The [nine-panel Foundation support atlas](https://mateis-macbook-pro.taild8da1c.ts.net/civ/foundation-support-atlas-20261003/index.html)
+now exposes three representative cases from that admitted observation. Actual
+assignments, support contributions and final ground retain distinct meanings;
+these are data exports, not a newly deployed map or native photographs. All
+originals and thumbnails, forty local/tailnet responses and desktop/mobile
+rendering checks pass. The durable [viewer entrypoint](../../process/LOCAL-VIEWERS.md)
+and existing Civ gallery link it without replacing earlier build evidence.
+
 The latest closed research story is [full-grid SST0 periodic qualification](thermal-boundary-discriminator.md#full-grid-periodic-qualification):
 five complete 384-phase years settle under the original guards, with all
 1,920 original-law/energy and complete readback checks passing. Independent

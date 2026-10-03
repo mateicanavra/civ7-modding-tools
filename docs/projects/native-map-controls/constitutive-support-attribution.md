@@ -136,3 +136,66 @@ Packet: `earth-calibration/earth-relief-reference-support-discriminator-20261002
 OUTCOME SHA is `9653ca643f610cc707951134052e6b86b96695264cbae8074e4cc96eff24bf6e`;
 RESULT SHA is `cb7afd9dfdd780eb9f504e213df6137f9c50b1d273f2b1f41fc4d91b0775cced`.
 Status is `COMPLETED_DESCRIPTIVE_REFERENCE_DISCRIMINATION_NOT_PRODUCTION_ADMISSION`.
+
+## Actual Projection Witness
+
+The actual Foundation-to-Morphology observation now completes all eight held
+Standard/Huge seed cases. Five source-local observation insertions preserve
+every original computation and publication. All 304 current model-field
+digests, 104 historical publication identities and the full capture hashes
+match before mapping or descriptive attribution is admitted. Complete binary
+companions preserve 2,504 typed lanes, including 48,114 signed zeros.
+
+Independent readback reconstructs all 46,128 nearest-site assignments against
+the three-periodic-image oracle and verifies 536 copied/quantized lane checks.
+Every one of the 364 mesh cells is sampled in every case. No misplaced,
+unsampled or inconsistently copied material/history support is witnessed.
+Nearest-site projection is the declared point-sampling policy, not a failed
+conservative-area implementation.
+
+All 136,864 canonical edges and 6,272 entries of the signed 14-component
+cross-product matrices reconstruct independently. CROSS edges carry
+66.6 to 90.1 percent of the final squared edge differences in these cases.
+That is a partition by sampling boundary, not independent causal shares:
+negative interactions materially cancel the raw affine support jumps.
+The SAME-cell affine support contribution is exactly zero. Tile-count and
+planar-area support means differ by at most `0.00528` support-index units;
+angular comparison bands remain a third, separately named measure. Their
+different means do not establish lost physical crust mass or a metre scale.
+
+Root closes this sampling/copy discriminator **without a production change**.
+No averaging, terrain-law replacement, gain fit, new codec or further geometry
+arm is selected. Dimensional relief/flux calibration remains an independent
+scientific question; it is not a prerequisite for the already-qualified
+model-unit C3, water or native-projection claims. The remaining demonstrated
+shipping obligation is the geographical thermal response, addressed at its
+existing owner rather than through an inferred altitude multiplier.
+
+The whole observation takes `49.543 s`. Maximum reported capture high-water is
+`699,564,032 bytes`; analysis publication reports `677,429,248 bytes`, and the
+parent reports `96,043,008 bytes`. This admits the fresh private 1-GiB/900-second
+observation protocol, not native/production memory or an aggregate-process
+bound. Six earlier attempts remain refused under their original 512-MiB
+protocols. The memory-budget correction was selected explicitly after those
+failures, with unchanged scope and accuracy/identity checks; none is
+retroactively rescued or used for selected physical statistics. Thermal
+numerical protocols retain their separate 512-MiB limits.
+
+Packet: `earth-calibration/earth-projection-support-witness-20261002-r7/`.
+FROZEN SHA is `c26755b1f9df06c32cb600fee474d822d144315c1639d05bbe4dfc3504ee668b`;
+OUTCOME SHA is `23ad620e7678e3040fe668d08b8a595e8ebc2a89323675ffdb2f20f994e3d2e1`.
+Status is `COMPLETED_OBSERVATION_NOT_PRODUCER_OR_CODEC_ADMISSION`.
+The normal recipe, native build and all original physics remain unchanged.
+
+The [nine-panel support atlas](https://mateis-macbook-pro.taild8da1c.ts.net/civ/foundation-support-atlas-20261003/index.html)
+makes Huge1018, Huge2 and Standard1018 inspectable without rerunning the model.
+Each has categorical assignment, affine support and final-ground panels with
+the same CROSS-edge overlay. The two numeric panels share a display scale;
+external and finite water use distinct markers, not a replacement height.
+These are retained-data exports, not new native photographs. All nine original
+PNGs pass hash, dimension and nonblank checks; thumbnail hashes match and every
+thumbnail loads in both browser viewports. Forty local/tailnet
+asset responses are byte-exact; desktop `1440` and mobile `390` load every image
+without errors or horizontal/text overflow. Root inspected all nine panels and
+both browser frames. Publication verification SHA is
+`75a2b1d725df048ffd80e6d8a9f82482b8f10ed709037b5eae69bc060d77a838`.

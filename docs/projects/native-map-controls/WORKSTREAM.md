@@ -1,6 +1,6 @@
 # Native Map Controls
 
-Status: active Earthlike thermal and relief calibration. Native integration,
+Status: active Earthlike thermal-response qualification. Native integration,
 certified C3 terrain/network evolution, coherent-reach restoration, stock lake
 classification and physical-head preservation are qualified and merged through
 [PR #2248](https://github.com/mateicanavra/civ7-modding-tools/pull/2248).
@@ -31,16 +31,23 @@ Keep the stock per-size lake cutoff and physical heads: native lake identity
 is a gameplay approximation, not canonical finite-water truth. Arbitrary
 under-rim/below-sea projection retains its bounded native capability limit.
 
-The open scientific owners are the missing geographical/seasonal land thermal
-response and independently qualified relief/flux scale. Refused thermal,
-scalar-height, COLUMN and local-material hypotheses select no replacement or
-metre codec. The newer coupled surface/air candidate remains external. Its r4
-manufactured controls pass and both full 192x84 solves settle in five years,
-but annual rainfall/evaporation fail the unchanged one-percent timestep
-refinement guard. No Earth scores run after that refusal. This is a numerical
-accuracy refusal, not a selected law, a production change or a physical
-nonselection verdict. Conservation and periodic settlement alone do not earn
-temporal accuracy.
+The remaining demonstrated production obligation is the missing
+geographical/seasonal land thermal response. The selected external
+[thermal-only boundary study](thermal-boundary-discriminator.md) now qualifies
+one authentic SST0 periodic orbit; temporal refinement, initialization and
+rotation, later coupling/publication, unchanged Earth/cohort admission and
+normal native qualification remain separate gates before an owner replacement.
+Numerical correctness alone earns no scientific or production admission.
+
+The [actual Foundation projection witness](constitutive-support-attribution.md#actual-projection-witness)
+closes all eight cases without a sampling or copied-lane defect and selects
+no production change. Independent relief/flux scale remains unresolved
+scientific calibration, not a prerequisite for the qualified model-unit
+terrain/water/native claims. Refused scalar-height, COLUMN and local-material
+hypotheses select no replacement or metre codec. The historical four-state
+surface/air candidate's annual P/E refinement refusal remains unchanged; it
+does not become another mandatory climate/water migration for this shipping
+target. Keep existing canonical rainfall, PET, finite water and network owners.
 
 The supported catalog is Earthlike plus the Desert Mountains and Sundered
 Archipelago stress products. Sediment transport, lake infilling and a full
