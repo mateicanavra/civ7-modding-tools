@@ -828,6 +828,121 @@ consequential downstream error, original targets or latency. No per-map fallback
 alternate physical owner, spatial coarsening or Rust duplicate is authorized.
 This is the next design story, not numerical or production admission.
 
+### Consumer Margin Contract And Temporal Method
+
+The prospective native approximation contract is now selected without opening
+observational labels to tune a tolerance. For each unchanged acceptance
+boundary, add the qualified reference uncertainty and actual complete-owner
+numerical displacement adversely to the measured value. A nonpositive guard
+margin supplies no approximation budget. The original science accounting,
+strict-improvement/collateral allowances and 57-case product targets remain
+unchanged; they are not general temperature tolerances.
+
+For annual within-row thermal SD, include the pooled demeaned land-temperature
+RMS displacement in the existing `1-8 C` interval. Pressure, PET and evaporation
+have configured propagation sensitivities, not newly invented independent
+raw-field limits. Wind normalization and encoded transport require actual
+owner replay through both ocean updates, final atmosphere, moisture, indices
+and biomes. Require decision agreement where the reference uncertainty does
+not intersect an actual boundary and enumerate every remaining crossing.
+Do not introduce a mismatch quota, blanket byte identity or noise to pass a
+target. Keep 96 as the sole candidate and 192 as refinement, not an automatic
+production fallback when 96 fails.
+
+The implementation of the temporal discriminator is a small composition over
+the immutable qualified IC0 stage, not another physical owner. BDF2 uses the
+effective step `2h/3` and a separately owned solver prior
+`old + (old - older)/3`. This prior is never a climate artifact. The independent
+chronological oracle uses the actual two histories and physical `h` energy
+storage, and both normalized and unnormalized equations keep `1e-10 K`;
+energy keeps `1e-9`. Scaled full-direction witnesses preserve the original
+guard. One endpoint-forced BE startup begins the entire trajectory; history
+continues across years and both histories must close the periodic seam.
+
+The former diagnostic `prepareSolar` is midpoint-forced while its stored
+states are interpreted as endpoint knots. Reusing that helper would not give
+the selected BDF2 method its intended second-order time coordinates. The new
+adapter samples actual endpoints, including zero phase at the year boundary.
+Historical BE sources, receipts and qualification remain unchanged. This is a
+temporal-discretization distinction, not an identified calendar defect in the
+installed production owner or a new public solar API.
+
+Primary category reference: [SUNDIALS mathematical considerations](https://sundials.readthedocs.io/en/v6.6.1/cvode/Mathematics_link.html).
+The adapter implements the fixed BDF2 formula, not CVODE's variable-order,
+variable-step controller or a new dependency. The method packet is
+`earth-calibration/earth-two-temperature-bdf2-method-20261003/`.
+Native settled-reference uncertainty and complete consumer/native admission
+remain separate obligations; a first-year cost observation cannot close them.
+
+That once-only manufactured method family now passes in `5.089 s`, with a
+later resource receipt of `5.091 s` and `157,188,096 bytes` (`149.91 MiB`).
+All eighteen fresh orbits settle in five or six years. Analytic startup,
+stiff exchange, mixed poles and the unchanged IC0 controls pass. Independent
+retained-only readback rehashes all 235 source pins and 96 terminal outputs,
+streams all `50,937` directions and `22,176` phases, and joins the `204,739`
+PCG iterations and `613,226` matvecs to the complete family. Both saved
+histories exactly match the last two states of each terminal curve.
+
+All 378 resolved common-knot refinement ratios lie in `3.94846-4.03021`;
+maximum full piecewise-linear curve differences are `0.0368174 K` for 96/192
+and `0.00916744 K` for 192/384. These are manufactured method results, not
+native consumer allowances or a universal error theorem. Maximum
+unnormalized independent equation defect is `3.74368e-11 K`, and relative
+energy error `1.20889e-14`; no limit was weakened. Initialization, rotation,
+power refinement and adversely positive coastal transmission all pass. The
+online spin-up/seam/contraction diagnostics are not independently replayed
+from unretained historical states. The packet occupies approximately `72 MiB`
+outside Git, including earned journals and about `2 MiB` of terminal arrays.
+RESULT SHA is
+`8839c5d298dc68cdd4a969e93647fd188636e9187b3294a93d21c3d70d7a61fa`.
+This admits only the declared manufactured temporal method. The separately
+reviewed Huge first-year diagnostic follows before any long family; Earth
+accuracy, settled-reference uncertainty, three-vintage consumer consequences,
+complete native latency and production admission remain unclaimed.
+
+The separately reviewed native-sized normal 96-phase first year subsequently
+passes in `11.511 s` before result persistence, compared with the previous
+384-phase `29.617 s`: an observed `61.13%` reduction across separately executed
+methods, not a repeated paired benchmark. Advancement takes `10.824796 s` and
+the independent chronological oracle `0.211930 s`; work totals `14,303` PCG
+iterations, `29,758` matvecs and `288` Newton directions. The later resource
+receipt reports `192,446,464 bytes` (`183.53 MiB`); the still-later console peak
+is `192,462,848 bytes`. Retained accounting independently reconstructs all
+96 phases, exact endpoint coordinates, single startup, work joins and maxima,
+and rehashes 334 source pins and all seven retained output files. The unchanged
+initial state is exact; final and older endpoints have opaque custody only,
+not a physical/reference comparison. Maximum unnormalized independent equation
+defect is `3.40194e-11 K`, and energy error `1.10164e-16`.
+
+Packet: `earth-calibration/earth-two-temperature-bdf2-native-cost-20261003/`.
+RESULT SHA is
+`d9e0590cfd17f0108c3bf8ee94d71e1505fc84ce75c2d8ec12a0a7af0acd83ac`.
+This historical ten-player fixed-SST0 geography is a first-year cost
+observation, not the current live twelve-player recipe, periodicity,
+three-vintage or whole-map performance. Its compact packet is about `400 KiB`;
+no full curve or spin-up history is retained.
+
+The next native gate must separate qualified reference accuracy from player
+stopping. The manufactured/reference policy cannot return before year five:
+the first cycle difference appears in year two and the third contraction
+ratio in year five, even with an exactly periodic warm start. Neither that
+schedule nor `1e-10` equation accuracy is a thermal DTO law. Preserve those
+offline receipts and guards, but do not silently turn the evidence schedule
+into runtime architecture. Select any different native stopping policy only
+against an independently qualified settled reference, complete curves and
+actual adverse consumer/science margins. A stage's positive component/rank
+certificate does not prove annual-map contraction or bound an unseen tail.
+One small year-to-year difference is not an accuracy certificate.
+
+Measure the actual complete three-vintage Huge composition, distinguishing
+startup/settling, stage arithmetic, online checks, publication/weather/ocean
+work and external journal/hash/readback overhead. An earlier vintage's
+endpoint can be a new boundary's initial guess, not a reused trajectory or
+uncertainty estimate. Keep both ocean updates and actual settling. Do not
+multiply first-year timing into a claimed complete-generation result. The
+unchanged Earth and cohort requirements and full native 30-60-second gate
+remain the adoption criteria; the installed playable mod stays unchanged.
+
 ## Reference Forcing Admission
 
 The actual retained NCEP air target is the monthly `1991-2020` climatology.
