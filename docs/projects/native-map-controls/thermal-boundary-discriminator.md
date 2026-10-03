@@ -740,6 +740,94 @@ packet about `108 KiB`. A fresh host check still finds `125 GiB` free disk and
 41% system-wide free memory on the 32-GiB machine. No multi-GB history is added
 for this diagnostic and no pinned evidence or gallery dependency is deleted.
 
+### Complete IC0 Method And Native Cost Gates
+
+The independently reviewed callers now complete both separate once-only gates.
+All eighteen fresh manufactured periodic orbits pass in `16.040 s`, with a
+later resource sample of `191,922,176 bytes` (`183.03 MiB`). The original physical
+laws, six arms, 384/768/1536 refinement, initialization/rotation, conservation
+and causal guards are unchanged. All `179,558` actual direction proofs are
+checked and accounted against `634,161` PCG iterations and `1,986,554` matvecs.
+This admits the numerical method on that manufactured family, not Earth skill.
+The retained terminal arrays occupy about `7.81 MiB`; the full direction tape
+about `183.86 MiB`. No all-spin-up-state history or new repository cache is added.
+
+The native-sized fresh 384-phase first year also passes every original phase
+and direction guard. It takes `29.617 s` before result persistence, compared
+with the prior `38.032 s`: an observed `22.13%` reduction, not a repeated whole-
+year paired benchmark. Advancement takes `28.495462 s` and the independent
+phase oracle `0.727652 s`; there are `34,120` PCG iterations, `72,524` matvecs
+and `1,071` Newton directions. Reported peak is `166,166,528 bytes`
+(`158.47 MiB`). Initial-state identity is exact; neither final-state bit identity
+nor unchanged work counts is claimed for this preconditioner. The maximum
+independent equation defect is `2.39202e-11 K`, inside the original guard.
+Periodicity, three coupled thermal vintages, Earth accuracy and whole-map Civ
+latency are still unqualified. Another expensive authentic family is not
+automatically authorized by these diagnostic passes.
+
+Both gates use the same `230` opaque authority pins and separately sealed
+review/attempt/output namespaces. Manufactured inputs alone are numerically
+consumed by its gate; other authentic authorities are hashed, not modeled.
+Independent streamed readback checks every direction record and orbit join,
+reconstructs terminal refinement/power/causal comparisons, and verifies the
+native year's 384 compact phase receipts and source/state custody. It does not
+replay physics or claim independent recovery of unretained spin-up cycles.
+The manufactured RESULT SHA is
+`4b729de27f2fa63e75cfad9adde11d1d9f66e7ce09a866a38fe6cd4e5b287180`;
+YEAR RESULT SHA is
+`d5ff28ebf61558a93110d6c9122cf43cf8fe91049a1d375526a10869f25e6d6b`.
+
+For player-path context, the retained October 2 Civ scripting log contains a
+complete successful 53-step recipe sequence totaling `6.865 s`, including
+`3.291 s` climate baseline and `1.198 s` hydrography. This is logged step time,
+not application startup/load time, a fresh health test or a measurement of the
+new thermal candidate. Its frozen log and timing receipt live alongside the
+IC0 packet. The candidate cannot simply replace that installed owner: even the
+improved first year consumes too much of the entire 30-60-second budget before
+settling and later vintages. Select the next native-feasibility discriminator
+against actual artifact consumers, keeping accurate qualification and practical
+player accuracy separate rather than pursuing marginal solver speed forever.
+
+### Next Native Accuracy And Performance Story
+
+The current thermal artifact requires aligned phase samples, their exact
+weighted pressure-centering mean, and an independently integrated annual ground
+field. It does not require 384 nonlinear solves: production's 384-point annual
+quadrature evaluates an existing curve, while atmosphere sampling has its own
+24 phases. The three SST vintages follow two actual ocean updates and final
+atmosphere; they are not optional proof overhead. Periodic settling remains a
+physical obligation, separate from offline temporal refinement.
+
+Select a bounded same-continuous-law BDF2 design investigation on the unchanged
+fine spatial support, with one prospective 96-phase path and its 192-phase
+refinement, not a phase sweep or admitted production resolution. Qualify its
+startup, two-state periodic seam, actual forcing coordinates, independent
+storage/energy residuals and second-order refinement before a native comparison.
+Do not apply the old Backward Euler first-order predicate to the new method,
+reinterpret an accepted first year as a settled reference, or alter any earlier
+receipt, equation/energy guard or scientific criterion.
+
+The accuracy contract must follow consumers, not a guessed universal Celsius
+allowance. Pressure's configured linear terms and convex smoothing supply a
+temperature-to-pressure bound; PET and evaporation have configured clipped
+temperature sensitivities. Wind's RMS normalization and encoded current
+directions require actual same-seed owner replay, not a claim that one byte is
+harmless. Compare complete thermal curves, calendar/publication outputs, both
+ocean updates/final atmosphere, and actual moisture/indices/biome operations.
+Require decision stability away from actual certified boundary crossings;
+enumerate remaining crossings rather than inventing a mismatch quota. Retain
+the existing thermal, rainfall, wind and ecology targets and include measured
+approximation differences adversely in unchanged science accounting.
+
+Before implementing the selected approximation, prospectively resolve its
+continuous-output error limits and reference uncertainty. A narrow native
+geography gate must have an independently qualified settled reference; final
+adoption still uses the existing 57-case bank and a complete Huge generation
+in Civ within the entire 30-60-second target. Stop on failed refinement,
+consequential downstream error, original targets or latency. No per-map fallback,
+alternate physical owner, spatial coarsening or Rust duplicate is authorized.
+This is the next design story, not numerical or production admission.
+
 ## Reference Forcing Admission
 
 The actual retained NCEP air target is the monthly `1991-2020` climatology.

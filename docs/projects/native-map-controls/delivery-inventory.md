@@ -75,11 +75,12 @@ gate; offline qualification time is not a player-path claim. The reviewed
 coordinate implementation now passes ten dense component records, four small
 stage cases and that original authentic phase, with its independent defect
 reduced to `1.33591e-11 K`. Its `485.333 ms` reference-grid stage timing is not a
-warmed native throughput claim. This focused counterexample is closed, while
-full manufactured qualification and Earth accuracy remain unperformed for this
-new numerical method. The exact fixed-coefficient cache subsequently preserves
-all eight matched states/direction witnesses bit-for-bit and lowers the seven
-warm median phase advances by about `9.1%`. A separately reviewed native-sized
+warmed native throughput claim. This focused counterexample is closed; at that
+stage, full manufactured qualification and Earth accuracy had not yet been
+tested for this new numerical method. The exact fixed-coefficient cache
+subsequently preserves all eight matched states/direction witnesses bit-for-bit
+and lowers the seven warm median phase advances by about `9.1%`.
+A separately reviewed native-sized
 first year now passes all 384 original phase/direction checks in `38.032 s`,
 with `161.17 MiB` reported peak and only compact receipts retained. Advancement
 takes `36.900 s`; the independent phase oracle takes `0.729 s`. This is historical
@@ -92,10 +93,17 @@ It now passes the dense/factor and original small-stage controls plus nine
 matched phase pairs in `3.173 s`: both held native cases exceed the prospectively
 declared 15% directional improvement gate (`20.57% / 32.39%`), while the largest
 endpoint difference is `3.41061e-13 K` under unchanged original-law guards.
-This advances the exact numerical method to full manufactured qualification
-and another native-sized year; it does not establish whole-map latency or
-admit the physical model. No Rust dependency, new worktree or repository cache
-is introduced.
+The full manufactured method gate subsequently passes all eighteen fresh
+periodic orbits in `16.040 s`. A fresh native-sized 384-phase year passes in
+`29.617 s`, compared with the previous `38.032 s`, while retaining every original
+equation/direction/energy guard. This is a useful observed `22.13%` cost reduction,
+not whole-map or Earth admission. The retained installed-map Civ log separately
+totals `6.865 s` across 53 recipe steps, including `3.291 s` climate baseline;
+that historical measurement is not the new candidate or full game-load time.
+The candidate still needs an explicit affordable player-path decision before
+settling, three thermal vintages and the rest of the map can fit the entire
+30-60-second target. No expensive authentic family is automatically launched,
+and no Rust dependency, new worktree or repository cache is introduced.
 The installed playable build and full procedural cohort
 remain unchanged, and the within-row shipping obligation is still open.
 
