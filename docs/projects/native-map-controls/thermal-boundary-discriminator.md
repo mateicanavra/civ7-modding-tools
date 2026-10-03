@@ -106,6 +106,45 @@ a separately prospective full-geography Earth comparison, including authentic
 owner controls/vintages, temporal accuracy and unchanged scientific guards.
 No prototype, alternate climate lane or diagnostic evaporation is deployed.
 
+## Full-Geography First-Year Feasibility
+
+The separately frozen authentic `192 x 84` Earth-support experiment now
+completes all 384 phases of its first year. It uses 4,970 dry and 11,158 wet
+cells, with 21,098 simultaneous skin/air unknowns. This is the declared
+thermal-only, bare-ground/open-water reduction with prescribed procedural
+SST vintage zero, not observed SST or a newly admitted production climate.
+
+Every phase passes the original unscaled nonlinear equations and independent
+energy oracle. All `8,101,632` state values and `96,768` solar values are
+retained. Independent readback reconstructs every phase with exactly the
+online oracle results. Maximum original and oracle residuals are respectively
+`9.99696436743136e-11 K` and `9.997072801250203e-11 K`; maximum normalized
+energy discrepancy is `2.194635679048263e-15`. The complete attempt takes
+`312.125 s`, with child high-water `204,275,712 bytes`. No Earth temperature
+labels or scientific scores were read.
+
+The first sealed attempt refused before any owner import because the exact
+Bun `1.3.14` runtime rejected an `onLoad` callback returning `undefined`.
+Its evidence remains immutable. A separately reviewed second packet changes
+only the import-admission adapter, passes its inert same-loader smoke, and
+keeps protocol, physical laws, inputs and controls byte-identical. Independent
+post-run review verifies 109 distinct evidence paths and complete histories.
+Evidence is `earth-calibration/earth-two-temperature-earth-feasibility-20261002-r2/`;
+FROZEN SHA is `89d9e525879ca25ffd05c88b81a3dbc5c8903bf44249985a5294c8b8831c5408`
+and OUTCOME SHA is
+`d9031ef8c0449fb0be736b92dd601ed899059af4b7700add5397932ec72283bd`,
+status `PASS_FIRST_YEAR_NUMERICAL_FEASIBILITY_ONLY`.
+
+This clears full-grid first-year memory and equation accuracy, not periodic
+convergence, temporal refinement, SST-vintage coupling, held-Earth skill or
+procedural-cohort admission. The observed `84,237` Krylov iterations identify
+linear-solve cost as the next bounded numerical question. The next prospective
+method is exact skin elimination followed by a certified symmetric air solve;
+it must retain the global radiative term and verify reconstructed directions
+against the original full operator. No speedup is yet measured, no compute cap
+is raised, and no accuracy or scientific requirement is waived. Nothing from
+this external feasibility study is installed or deployed.
+
 ## Reference Forcing Admission
 
 The actual retained NCEP air target is the monthly `1991-2020` climatology.
