@@ -2625,6 +2625,66 @@ climatology. Neither a current-only reference nor prognostic wet thermodynamics
 is selected, and no observational improvement, unique causal attribution,
 production migration or deployment follows from this diagnostic design.
 
+#### Completed Power Discriminator
+
+The retained-state diagnosis completes in `0.646329 s`, without another model
+solve, owner invocation, observation/cohort read or scorer. Its final fresh
+nodal residual reproduces the original exactly (`0.000009359176745 K`). All
+13 phases and four frames satisfy the component/telescope identities and
+globally cancelling internal transport. Independent review also reconstructs
+the compact regional, wet/dry and column/thermostat accounting.
+
+The following are area-weighted means over the original 13 sampled phases,
+on wet-air support, in `W/m2`; they are not calendar annual integrals:
+
+| Support | Initial Wet Dose | Two-Update Departure | State/Transport Reaction |
+| --- | ---: | ---: | ---: |
+| Global cropped geometry | +13.166689 | +22.040712 | -35.207401 |
+| At least 60 degrees north | +178.867627 | +13.132606 | -192.000232 |
+| Complement | +7.377947 | +22.351915 | -29.729862 |
+
+The northern wet-area-mean initial dose also has `214.059959 W/m2` sampled-phase
+anomaly RMS, distinct from the `214.363312 W/m2` area-weighted local-cell anomaly
+RMS. The two-update direct dose is phase-constant for these fixed-optics,
+prescribed-SST laws with air held at `B`; its later state response need not be.
+Initial boundary/reference mismatch therefore dominates this northern power
+split, not the global split. This fixed-state diagnosis therefore retains the
+composed ocean-update contribution.
+Dry cells receive neither direct wet dose: their response includes redistributed
+power. Northern dry-air transport contributes `+15.774119 W/m2`, opposed by
+`-15.774119 W/m2` TOA radiation. Global internal transport still cancels.
+Near-zero mean total is the periodic anomaly balance, not observed accuracy.
+
+The final northern wet-surface residual change, `Rs - H - LE`, is
+`-74.547556 W/m2`. An external thermostat balances it with the opposite sign;
+this is not resolved wet heat storage. The ordered nonlinear split remains
+reference/path dependent and does not establish a counterfactual temperature
+effect or uniquely identify the defective physical assumption.
+
+An initial readback refuses component accounting before a completed summary.
+Its check scaled collapsed column/net-transport terms while omitting large
+primitive operands that had cancelled. Independent pure controls reproduce
+both dry-dose and opposing-face cancellation. A versioned verifier retains
+the original primitive and absolute-face scales with the same `32 * epsilon`
+factor; deliberately larger corruption still refuses. Actual power arithmetic,
+source pins, telescope and scientific/nodal thresholds are unchanged. The
+original refusal remains retained, not relabeled as a physical failure.
+
+The corrected readback's maximum component gap is `2.98e-13 W/m2`, against its
+same-case `1.80e-11 W/m2` arithmetic allowance; maximum cell telescope gap is
+`1.42e-13 W/m2`. Measured child maximum RSS is `172,392,448 B`, sampled whole
+RSS `216,465,408 B`, below the unchanged `256 MiB` cap. All custody postchecks
+pass, no numerical process or owned temporary modules remain, and inclusive
+all-host evidence is `65,100,001 B`, below `64 MiB`, outside Git. Result SHA-256:
+`aa83dc56a7f4ac8591a2eb359b23493ef14a0b6dc9cd297f7f442b09bd4b1e60`.
+
+The next decision is the exposed thermal-boundary/reference convention inside
+the existing thermal owner. Annual liquid SST, exposed seasonal skin and wet
+air are not interchangeable. Qualify that relationship before another full
+Earth candidate; neither a scalar attenuation nor subtracting actual SST0 to
+erase ordinary zero-current maritime response is selected. The training
+rejection remains unchanged and the installed playable mod is unchanged.
+
 ### Historical Trajectory Retirement
 
 A reviewed exact-path retirement removed 182 obsolete raw BE

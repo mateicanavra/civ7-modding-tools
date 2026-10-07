@@ -128,9 +128,16 @@ About `97.6%` of added annual MSE is row-mean error, but the centered annual
 correction is also wrong-sign overall, north and coast. Positive attenuation
 of that same correction cannot repair those annual errors. Seasonal alignment
 is mixed and its seasonal correction magnitude is excessive; this is not only a mean error.
-Next is an exact retained-state power decomposition of initial ocean-boundary
-dose, two-update ocean departure and resulting state/transport reaction, not
-a new model run or a reference chosen merely to recover the empirical baseline.
+The [completed retained power decomposition](thermal-boundary-discriminator.md#completed-power-discriminator)
+takes `0.646 s`, with no new model or observational evaluation. On northern wet
+support the initial boundary/reference dose is `178.868 W/m2`, versus
+`13.133 W/m2` from the two-update departure; globally the latter is larger than
+the initial dose, so this diagnosis retains the composed ocean-update contribution.
+Exact original residual
+reconstruction and independent power-accounting review pass. Next qualify
+annual liquid SST versus exposed seasonal skin/wet air and the reference budget
+inside the current thermal owner, before another full Earth candidate. No
+current-only reference reset, scalar attenuation or ocean-model rebuild is selected.
 The candidate is not selected and the installed mod is unchanged. Neither the simpler
 architecture nor numerical qualification establishes Earth improvement. Any owner replacement
 still needs independent reference/consumer qualification, original procedural
