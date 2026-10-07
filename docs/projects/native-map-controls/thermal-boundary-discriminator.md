@@ -2196,7 +2196,7 @@ Result SHA-256:
 The result and exact executable remain outside Git. No tolerance relaxation,
 new transport fit or held evaluation follows.
 
-The next selected discriminator uses fixed H4/H8 periodic collocation with
+The subsequent discriminator uses fixed H4/H8 periodic collocation with
 bounded Newton iteration for the same reference-subtracted laws. It retains
 the seasonal Jacobian and evaluates the known finite wet-boundary forcing
 exactly. The first Newton step from zero is also the seasonal affine candidate;
@@ -2215,6 +2215,45 @@ not a waveform certificate. Tiny dense algebra is only a discriminator, not a
 production solver. Failure does not authorize automatic order increases, another
 fit or a storage migration. Small-system survival would still require a scalable
 implementation and complete Earth/consumer/Huge qualification.
+
+#### Completed Periodic Discriminator
+
+The single manufactured comparison completes in `0.321 s`. All four independently
+initialized chronological references meet their finite-cycle predicate in five
+years, and both full-waveform refinements pass (`0.01267/0.01437 K`). All four
+periodic collocation cases converge in four full Newton updates, without a
+chronological spin-up. Fresh nodal residuals, continuous Kelvin bounds and
+sampled source-law domain checks pass.
+
+| Tested response | Positive contrast upper gap | Negative contrast upper gap |
+| --- | ---: | ---: |
+| H4 nonlinear, all fourteen fields | `0.00491 K` | `0.02681 K` |
+| H8 nonlinear, all fourteen fields | `0.00459 K` | `0.00480 K` |
+| H4 nonlinear, published land air | `0.00361 K` | `0.02561 K` |
+| H8 nonlinear, published land air | `0.00047 K` | `0.00090 K` |
+
+These conservative polynomial-versus-finite-reference bounds include harmonic
+interpolation allowance and pass the unchanged `0.05 K` target. First-affine
+shortcuts fail at both orders and signs, including land-air gaps of
+`0.08648..0.10261 K`. The tested nonlinear correction is necessary at this
+criterion; merely retaining seasonal coefficients and exact wet forcing is
+insufficient. This does not establish the cheapest possible representation.
+H8 off-grid equation residuals remain diagnostic (`0.13204/0.10543` year-scaled
+kelvin), not a continuum waveform or remaining-tail certificate.
+
+Maximum child RSS is `124 MiB`; sampled whole-process RSS is `220 MiB`. All
+twelve source/runtime identity postchecks pass. The complete new source, method,
+result, execution receipt and wrapper total `166,813 B`, outside Git. Result
+SHA-256: `e3149acaae269e8315a8dd3f3aea951a2c86980f0e949144b8bed6a2b9a2f19c`.
+Independent source and retained-result reviews agree.
+
+Select H4 for the next scalable implementation investigation, retaining H8 as
+qualification reference. The tiny dense systems are not a full-map algorithm.
+A bounded matrix-free solve must first agree with these admitted tiny systems
+and demonstrate native-sized cost before a complete Earth comparison. Keep the
+existing thermal operation/artifact, prescribed wet publication and all three
+thermal vintages/two ocean updates. No parameter fit, held evaluation, owner
+migration, production deployment or whole-Huge timing follows from this pass.
 
 Existing latitude/bounds/tilt can be forwarded by the current step; geographic
 working storage stays private to the operation. Publish `B + delta` once over

@@ -139,8 +139,11 @@ first averaged-coefficient, two-harmonic approximation is rejected: chronologica
 reference refinement passes, but approximation gaps reach `4.684 C` and a
 separate nonlinear land discrepancy reaches `0.753 C`. The complete manufactured
 comparison takes `0.343 s`; it is not an Earth comparison or Huge cost proof.
-The next bounded test retains seasonal coefficients and exact finite wet forcing,
-comparing an affine step with a nonlinear periodic solution. Held labels and the rejected coefficient
+The subsequent nonlinear periodic test passes in `0.321 s`: four harmonics stay
+within `0.027 C` of the finite chronological reference and eight within `0.005 C`,
+with four Newton updates per case. First-affine shortcuts remain ineligible,
+including on land. A scalable implementation and native-sized cost qualification
+must precede the next Earth comparison. Held labels and the rejected coefficient
 search stay closed. No production migration or candidate deployment follows.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
