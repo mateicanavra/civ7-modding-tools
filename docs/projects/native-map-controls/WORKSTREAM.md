@@ -145,11 +145,22 @@ takes `0.079 s`: on the fixed 7,615-cell all-year ice-free support, SST0 is
 `2.346 C` colder than OI; SST2 reduces mean bias but raises local annual RMS
 `3.914 -> 4.494 C`. This does not qualify ice-covered surface or the annual
 liquid prior, and rules out treating the earlier mixed-surface contrast as a
-blanket ocean-warming defect. Next isolate the
-[dry-only reference-budget convention](thermal-boundary-discriminator.md#dry-only-reference-budget-discriminator)
-with actual SST2 held fixed, before designing a production boundary repair.
-No current-only reference reset, scalar attenuation, all-wet mean-preserving
-slab or ocean-model rebuild is selected.
+blanket ocean-warming defect. The subsequent
+[dry-only reference-budget comparison](thermal-boundary-discriminator.md#completed-dry-only-reference-budget)
+holds exact old-H6 SST2 fixed and completes both cold orders in `10.078 s`.
+Waveform, publication and offline memory guards pass. The separate `0.121 s`
+original-training readback rejects both orders on the same 42/47 mirrors:
+annual/monthly RMSE improves versus old H6 (`5.125/7.985 -> 4.649/7.418 C`)
+but remains far worse than the incumbent (`2.514/3.261 C`). Centered annual
+and seasonal harm remain; the complement worsens versus old H6 too.
+Reference-budget removal is a partial causal improvement, not a sufficient repair.
+The next [product-sized domino](thermal-boundary-discriminator.md#next-product-sized-domino)
+qualifies a simpler empirical maritime-air annual/seasonal endmember and its
+actual input meanings before a land-geography pilot. One domino is executable
+at a time. No further solver campaign, gain sweep, wet-storage migration,
+current-only reset or ocean rebuild follows automatically. Cheap premise and
+rejection tests precede expensive qualification; promotion still needs all
+scientific, procedural, downstream and native proofs.
 The candidate is not selected and the installed mod is unchanged. Neither the simpler
 architecture nor numerical qualification establishes Earth improvement. Any owner replacement
 still needs independent reference/consumer qualification, original procedural

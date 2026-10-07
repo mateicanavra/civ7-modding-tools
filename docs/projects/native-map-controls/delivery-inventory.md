@@ -205,13 +205,23 @@ completes in `0.079 s` on 7,615 fixed all-year ice-free cells, with no model sol
 SST0 is colder than OI by `2.346 C` globally on that support; SST2 improves mean
 bias but worsens per-cell annual RMS `3.914 -> 4.494 C`. The northern subset has
 only 76 cells and does not qualify the ice-covered boundary. A blanket ocean
-cooling is not selected. Next isolate the
-[dry-only reference budget](thermal-boundary-discriminator.md#dry-only-reference-budget-discriminator)
-at frozen actual SST2, then resolve the exposed boundary/reference convention
-inside the same thermal owner. No current-only reset, scalar gain, all-wet
-mean-preserving slab or ocean rebuild is selected. Held land labels and the
-rejected coefficient search stay closed.
-No production migration or candidate deployment follows.
+cooling is not selected. The
+[dry-only reference-budget pair](thermal-boundary-discriminator.md#completed-dry-only-reference-budget)
+then completes in `10.078 s` at fixed exact old-H6 SST2, passing the numerical,
+publication and offline memory guards. The separate `0.121 s` training readback
+rejects both orders on the same 42/47 mirrors: annual/monthly RMSE improves
+`5.125/7.985 -> 4.649/7.418 C` versus old H6, but remains worse than the
+incumbent `2.514/3.261 C`. Geographic and seasonal harm persist, and the
+complement worsens versus old H6. This closes reference support as an
+insufficient repair, not a seasonal-resolution failure.
+Independent review and final custody pass; `66,491,757 B` inclusive all-host
+evidence stays below `64 MiB`, with no process or owned temporary directory.
+The next [bounded product comparison](thermal-boundary-discriminator.md#next-product-sized-domino)
+must include a genuinely simpler empirical annual/seasonal geography response.
+Qualify the marine-air endmember and actual procedural covariate meanings
+before a land pilot or another physical campaign. No new solver, parameter
+sweep, wet-storage system or production migration is selected automatically.
+Held land labels and rejected searches remain closed; the playable mod is unchanged.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
 follows accepted SST0, authentic SST1 and canonical SST2. All seven complete
