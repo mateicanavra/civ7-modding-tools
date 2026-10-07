@@ -47,9 +47,6 @@ only for work that actually consumes that vendor source.
 ```sh
 git submodule update --init .civ7/outputs/resources
 bun install --frozen-lockfile
-NX_DAEMON=false nx run-many -t build,link:global,test:studio-run-in-game \
-  -p civ7-cli,swooper-physics-mod,mapgen-studio --skip-nx-cache --parallel=3
-NX_DAEMON=false nx run civ7-cli:test --skip-nx-cache
 ```
 
 The October 6 clean isolated install needed two ignored dependency links already
@@ -65,6 +62,14 @@ test -e node_modules/@types/react || \
   ln -s ../.bun/@types+react@19.2.17/node_modules/@types/react node_modules/@types/react
 test -e node_modules/@math.gl/types || \
   ln -s ../.bun/@math.gl+types@4.1.0/node_modules/@math.gl/types node_modules/@math.gl/types
+```
+
+Then run the uncached build and focused test graph:
+
+```sh
+NX_DAEMON=false nx run-many -t build,link:global,test:studio-run-in-game \
+  -p civ7-cli,swooper-physics-mod,mapgen-studio --skip-nx-cache --parallel=3
+NX_DAEMON=false nx run civ7-cli:test --skip-nx-cache
 ```
 
 The global `civ7` launcher is Bun-owned. Use `civ7` after linking, or
@@ -90,6 +95,38 @@ to loopback `5174`. Inspect listeners before starting another copy. Do not
 expose `/rpc`, Tuner, the remote debugger, or game-control services through the
 public gallery route. A successful frontend HTTP response does not replace a
 successful build/typecheck or a real browser run.
+
+The migration smoke session is currently process-hosted with `nohup /bin/sh
+~/Documents/Civ7Migration/20261006/start-studio.sh`. That wrapper exports the
+pinned runtime paths, disables the Nx daemon, changes to this checkout and runs
+the existing `mapgen-studio:dev` target. Its PID is recorded in the adjacent
+`studio.pid`; output is under `~/Library/Application Support/Civ7Tools/logs/`
+in `studio.log` and `studio-error.log`. It is not a persistent login or reboot
+service: the attempted launchctl wrapper could not execute from Documents
+because of macOS privacy controls, and that owned job was removed.
+
+For a new interactive session, inspect the listeners and use:
+
+```sh
+export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PATH"
+cd "$HOME/Documents/.nosync/DEV/civ7/civ7-modding-tools"
+NX_DAEMON=false nx run mapgen-studio:dev
+```
+
+Open `http://127.0.0.1:5173` on the Mini and stop the foreground session with
+Ctrl-C. For the current background session, inspect the saved PID, its children
+and their command lines before sending TERM only to those verified Studio
+processes; recheck both listeners afterward. Never kill an arbitrary port owner.
+
+The frontend served from Mini passed a desktop browser generation smoke check
+with Standard size, six players and seed 123: all 22 stages completed, state
+returned to Ready and the elevation hex layer rendered without console errors.
+The browser ran on the MacBook through an ephemeral loopback SSH tunnel, which
+was closed afterward; this does not claim browser-worker CPU ran on the Mini.
+Live Civ control remained unavailable pending the stopped-game settings merge.
+At a 390-pixel viewport the existing Studio panels overlap and the layout
+overflows; Studio is not phone-qualified. The separate private gallery passed
+its desktop and phone rendering checks.
 
 ## Portable Game State
 
