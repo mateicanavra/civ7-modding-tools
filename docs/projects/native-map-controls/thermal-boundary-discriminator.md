@@ -2255,6 +2255,41 @@ existing thermal operation/artifact, prescribed wet publication and all three
 thermal vintages/two ocean updates. No parameter fit, held evaluation, owner
 migration, production deployment or whole-Huge timing follows from this pass.
 
+#### Completed Matrix-Free Equivalence
+
+The scalable implementation preserves the exact seasonal residual and Jacobian
+action. Fourier averaging, local dry-skin elimination, cyclic longitude solves
+and a global mean-air rank correction belong only to its fixed right
+preconditioner, not the physical equations. Restarted GMRES and bounded inexact
+Newton replace the tiny dense solve. Four portable TS modules contain only
+problem, preconditioner, Krylov and Newton computation; source admission and
+evidence remain in the external study, not the SDK or player path.
+
+Both original signed H4 cases converge in four full Newton updates. Complete
+basis comparisons at zero and each qualified final state agree with the
+independently assembled dense Jacobian to `1.78e-15` year-scaled kelvin.
+Conservative continuous differences from the retained dense H4 solutions are
+`2.49e-6 / 1.69e-5 K` over all fourteen fields, below the fixed `1e-4 K`
+solver-equivalence limit. Fresh nodal residuals are `5.55e-5 / 8.91e-4 K`,
+inside the unchanged `0.001 K` limit. Continuous Kelvin bounds and sampled
+original-law domain checks pass. These isolate numerical equivalence; they do
+not tighten observed Earth accuracy or qualify a full-map waveform.
+
+The single invocation completes in `0.047 s`, with `85 MiB` maximum child RSS
+and `182 MiB` sampled whole-process RSS, within `10 s / 256 MiB`. All twenty
+source/runtime identity postchecks pass. The complete new source, method,
+wrapper, result and execution receipt total `98,650 B`, outside Git. Result
+SHA-256: `977d2d5f2e557ea4c4db5be339ae8b93214e75f783cea296de81812664bdb1b0`.
+There is no chronological redo, Earth score or candidate deployment.
+
+The next discriminator is cost on the retained native `106 x 66` mask and
+latitude ramp: `6,996` air nodes plus `2,720` individual dry skins, hence
+`87,444` real H4 unknowns. Three newly initialized manufactured problems in one
+process test cold state/workspace cost, not authentic SST0/SST1/SST2 feedback
+or process-cold timing. The prospective targets are `6 s` per complete thermal
+call and `18 s` aggregate, counting setup and readout. No iteration increase,
+warm trajectory, dropped vintage or Earth forward is authorized by a refusal.
+
 Existing latitude/bounds/tilt can be forwarded by the current step; geographic
 working storage stays private to the operation. Publish `B + delta` once over
 land, then apply the existing lapse, independent bounds and Float32 output.
