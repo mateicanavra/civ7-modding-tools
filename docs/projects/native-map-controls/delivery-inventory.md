@@ -156,7 +156,10 @@ against the held `6 s / 18 s` targets. Four full Newton updates per call meet
 the unchanged numerical policy; whole-process RSS stays below `367 MiB`.
 No physical law, iteration limit or accuracy guard changed. This clears that
 specific cost/convergence obstacle, not actual ocean-feedback, whole-recipe,
-Earth-accuracy or deployment admission. Authentic geographic/periodic and
+Earth-accuracy or deployment admission. The fixed H4/H8 extension also passes
+tiny equivalence, with exact retained H4 state/iteration identity and continuous
+H8 differences below `0.000055 C` from the same-order dense references.
+Authentic geographic/periodic and
 three-vintage qualification precede the next frozen training-first Earth
 comparison. Held labels and the rejected coefficient
 search stay closed. No production migration or candidate deployment follows.

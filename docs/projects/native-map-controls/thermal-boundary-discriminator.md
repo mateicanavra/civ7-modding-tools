@@ -2352,6 +2352,20 @@ Git. Result SHA-256:
 Independent retained review confirms both results. No temporary modules or
 orphan processes remain.
 
+The narrow fixed-order extension then permits only nine or seventeen phase
+nodes (H4/H8), with the same equations, solver policy and inverse. One tiny
+invocation qualifies all four signed cases. H4 states, iteration arithmetic
+and refreshed residuals exactly match the retained prior H4 result. H8
+continuous differences from the corresponding dense H8 references are
+`0.00005487 / 0.000001712 K`, below `1e-4 K`; all eight complete-basis
+Jacobian witnesses pass. The invocation takes `0.098 s`, with sampled whole
+RSS below `202 MiB`. All twenty-eight postchecks pass; the compact new packet
+is `131,373 B` outside Git. Result SHA-256:
+`d830774fed36d7e9687a69c2fe6ba1ff3d28614b2636de8352194356dfedc945`.
+Independent retained review reconstructs all fifty-six waveform bounds and
+confirms the result without replaying any physical solve.
+This does not establish H8 native cost, continuum accuracy or Earth skill.
+
 This clears the declared manufactured cost/convergence obstacle, not actual
 SST0/SST1/SST2 feedback, full-map waveform accuracy, Earth skill or complete
 Huge timing. The next comparison must qualify the periodic approximation on
