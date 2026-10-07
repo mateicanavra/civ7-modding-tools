@@ -123,7 +123,8 @@ with Standard size, six players and seed 123: all 22 stages completed, state
 returned to Ready and the elevation hex layer rendered without console errors.
 The browser ran on the MacBook through an ephemeral loopback SSH tunnel, which
 was closed afterward; this does not claim browser-worker CPU ran on the Mini.
-Live Civ control remained unavailable pending the stopped-game settings merge.
+This browser check preceded the game cutover; Studio's Live Civ/Run in Game
+workflow was not retested afterward. Separate native App UI checks below passed.
 At a 390-pixel viewport the existing Studio panels overlap and the layout
 overflows; Studio is not phone-qualified. The separate private gallery passed
 its desktop and phone rendering checks.
@@ -155,21 +156,72 @@ directory. Its policy is deliberate:
 
 All thirteen source saved setups are retained, including `The Swoop`,
 `ToT Config`, and `ToT_NoModsExceptMaps`. `Huge Diety` is a different map setup,
-not a substitute for Huge Swooper Earthlike. File hashes prove copied bytes;
-native setup load/readback and loader logs prove the target can use them.
+not a substitute for Huge Swooper Earthlike. Hashes establish preservation of all
+13 setups. Native shell load/readback qualified the three configurations listed
+below; their map-script execution and gameplay were not tested.
 
 After relaunch, use the existing operational surfaces:
 
 ```sh
-civ7 game health --help
-civ7 game status --help
+civ7 game health --state "App UI" --host 127.0.0.1 --port 4318 --json
+civ7 game status --json
 civ7 game local-data --help
 ```
 
-Require actual Tuner readiness and native setup/mod readback before calling the
-game cutover complete. A copied save or successful portable study is not that
-evidence. See the repository's `civ7-operational-debugging` and `civ7-play-game`
-skills for the current named APIs and proof boundaries.
+Main-menu readiness is the `App UI` Tuner state, not a post-Begin gameplay
+canary. `game status` can correctly report no observable/mutable gameplay while
+the shell and App UI are ready. See the repository's
+`civ7-operational-debugging` and `civ7-play-game` skills for current APIs and
+proof boundaries.
+
+With confirmed no-unsaved-progress authorization, the existing raw command can
+request the shipped graceful exit primitive:
+
+```sh
+civ7 game exec 'engine.call("exitToDesktop")' --state "App UI" \
+  --host 127.0.0.1 --port 4318 --timeout-ms 5000 --json
+pgrep -fl CivilizationVII
+```
+
+Dispatch once. This bypasses the confirmation dialog and does not save progress.
+A fulfilled result or Tuner disconnect is not exit proof: require the independent
+process check to find no game process before writing data. The first migration
+exit used the same shipped primitive through the private Cohtml Console because
+Tuner was not yet enabled; its temporary SSH tunnel was closed afterward. Native
+window CUA was not repaired or required for this completed exit.
+
+Relaunch through the Mini's retained universal Steam executable:
+
+```sh
+"$HOME/Library/Application Support/Steam/Steam.AppBundle/Steam/Contents/MacOS/steam_osx" \
+  -applaunch 1295660
+```
+
+### October 7 Cutover Qualification
+
+The actual stopped-game merge completed at `2026-10-07T04:35:57.041Z`: 475
+source files were copied and hash-verified, all 13 saved configurations retained,
+three preference files changed, and only the approved LocalStorage row merged.
+Fresh stopped-target backup and conflict originals remain in the dated evidence
+directory. Rehearsal's 478-file count is not the actual apply count.
+
+The first relaunch performed the target-native mod scan. After another verified
+graceful stop, reconciliation changed 47 explicit stable-ID choices and found one
+already matching, with zero missing IDs. Fourteen source-null choices were left
+unchanged in target-native state rather than guessed. The guarded transaction retained the
+same protected-data fingerprint and passed integrity checks. The second launch
+reported ready `App UI`; subsequent native mod readback matched all 48 explicit
+source choices, including after the final saved-setup load. Account/DLC
+entitlement equality is not implied.
+
+Native configuration loading passed for `The Swoop`, `ToT Config`, and
+`ToT_NoModsExceptMaps`. Each had two stable shell readbacks with changed setup
+revision and matching Huge Swooper Earthlike map, 12 players, both saved seeds,
+Standard speed, Custom difficulty, and selected leader/civilization. The first
+The Swoop observation attempt timed out after accepted dispatch; fresh bounded
+read-only observations reconciled it without repeating that request. Raw failed
+and successful receipts are retained. No Host/Begin action or new gameplay was
+started. The game was left in the shell with `ToT_NoModsExceptMaps` loaded.
 
 ## Evidence Retention
 
