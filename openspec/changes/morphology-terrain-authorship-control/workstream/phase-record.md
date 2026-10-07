@@ -56,7 +56,7 @@
 ## Repo State
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-dra-morphology-direct-control-objective`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-dra-morphology-direct-control-objective`
 - Branch: `codex/morphology-peer-review-repairs`
 - Local head before the downstream ecology repair: `8b2f452d8`
   `docs(morphology): record fresh readback retry`.

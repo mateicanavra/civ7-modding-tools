@@ -9,7 +9,7 @@ This ledger records manual rendered-shell browser evidence for SMR-06. It must n
 Branch/worktree:
 
 - branch: `codex/studio-browser-scenario-proof`
-- repo: `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools`
+- repo: `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools`
 - dev command: `STUDIO_DAEMON_PORT=5287 STUDIO_DEV_PORT=5288 STUDIO_DEV_RPC_TARGET=http://127.0.0.1:5287 NX_DAEMON=false NX_TUI=false bun run dev:mapgen-studio`
 - browser URL: `http://localhost:5288/`
 - browser driver: Playwright CLI accessibility snapshots; no AppleScript, no coordinate input into Civ7.

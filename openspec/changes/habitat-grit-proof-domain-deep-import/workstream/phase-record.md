@@ -20,7 +20,7 @@ proof gates are recorded in `proposal.md` and `design.md`.
 
 Current checkpoint state:
 
-- worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`;
+- worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`;
 - branch: `agent-HG-habitat-grit-domain-deep-import-side-effect-repair`;
 - historical base at row start:
   `292c5eba9 test(habitat): expand sdk mapgen proof`;

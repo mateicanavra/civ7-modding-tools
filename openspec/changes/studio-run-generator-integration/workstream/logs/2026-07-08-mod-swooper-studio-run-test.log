@@ -54,7 +54,7 @@ DTS dist/index.d.cts 1.80 KB
 CLI Building entry: src/index.ts, src/proof/advisor-warning-proof-policy.ts, src/proof/diplomacy-response-proof-policy.ts, src/proof/first-meet-response-proof-policy.ts, src/proof/government-choice-proof-policy.ts, src/proof/narrative-choice-proof-policy.ts, src/proof/notification-dismissal-proof-policy.ts, src/proof/population-placement-proof-policy.ts, src/proof/progression-player-choice-proof-policy.ts, src/proof/progression-target-proof-policy.ts, src/proof/town-focus-proof-policy.ts, src/proof/turn-completion-proof-policy.ts, src/proof/unit-target-proof-policy.ts, src/play/notifications/postconditions.ts, src/play/operations/production-choice-proof.ts, src/play/progression/choice-postconditions.ts
 CLI Using tsconfig: tsconfig.json
 CLI tsup v8.5.1
-CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-direct-control/tsup.config.ts
+CLI Using tsup config: <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-direct-control/tsup.config.ts
 (node:88081) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 CLI Target: es2022
@@ -119,7 +119,7 @@ ESM ⚡️ Build success in 250ms
 CLI Building entry: src/index.ts
 CLI Using tsconfig: tsconfig.json
 CLI tsup v8.5.1
-CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-map-policy/tsup.config.ts
+CLI Using tsup config: <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-map-policy/tsup.config.ts
 (node:87944) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 CLI Target: esnext
@@ -165,7 +165,7 @@ DTS dist/index.d.cts 1.79 KB
 CLI Building entry: src/civ7-adapter.ts, src/index.ts, src/mock-adapter.ts
 CLI Using tsconfig: tsconfig.json
 CLI tsup v8.5.1
-CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-adapter/tsup.config.ts
+CLI Using tsup config: <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-adapter/tsup.config.ts
 (node:88274) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 CLI Target: esnext
@@ -223,7 +223,7 @@ DTS dist/index.d.cts 12.59 KB
 CLI Building entry: src/index.ts
 CLI Using tsconfig: tsconfig.json
 CLI tsup v8.5.1
-CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/studio-contract/tsup.config.ts
+CLI Using tsup config: <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/studio-contract/tsup.config.ts
 (node:88123) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 CLI Target: es2022
@@ -269,7 +269,7 @@ DTS dist/index.d.cts 5.73 KB
 CLI Building entry: src/index.ts
 CLI Using tsconfig: tsconfig.json
 CLI tsup v8.5.1
-CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/studio-run-workspace/tsup.config.ts
+CLI Using tsup config: <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/studio-run-workspace/tsup.config.ts
 (node:88666) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 CLI Target: es2022
@@ -291,7 +291,7 @@ DTS dist/index.d.ts 13.06 KB
 CLI Building entry: src/index.ts, src/authoring/contracts.ts, src/authoring/index.ts, src/authoring/recipe-dag.ts, src/compiler/normalize.ts, src/compiler/recipe-compile.ts, src/engine/index.ts, src/polyfills/text-encoder.ts, src/lib/grid/index.ts, src/lib/noise/index.ts, src/lib/plates/index.ts, src/lib/math/index.ts, src/lib/mesh/index.ts, src/lib/rng/index.ts, src/lib/collections/index.ts
 CLI Using tsconfig: tsconfig.json
 CLI tsup v8.5.1
-CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/mapgen-core/tsup.config.ts
+CLI Using tsup config: <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/mapgen-core/tsup.config.ts
 (node:88420) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 CLI Target: esnext
@@ -406,7 +406,7 @@ DTS dist/mapgen/index.d.cts 1.72 KB
 CLI Building entry: {"recipes/standard":"src/recipes/standard/recipe.ts"}
 CLI Using tsconfig: tsconfig.json
 CLI tsup v8.5.1
-CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/mods/mod-swooper-maps/tsup.studio-recipes.config.ts
+CLI Using tsup config: <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/mods/mod-swooper-maps/tsup.studio-recipes.config.ts
 (node:89216) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 CLI Target: esnext

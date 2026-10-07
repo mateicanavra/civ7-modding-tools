@@ -35,9 +35,9 @@ train, not optional commentary.
 One operational wrinkle matters:
 
 - the second-wave subagents executed against the primary checkout at
-  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools`;
+  `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools`;
 - the active river stack lives in the dedicated worktree at
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-mapgen-physical-rivers`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-mapgen-physical-rivers`.
 
 That surfaced a real contradiction, not noise:
 

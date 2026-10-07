@@ -36,7 +36,7 @@
 ## Repo State
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-A-mapgen-core-hex-oddr-adjacency`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-A-mapgen-core-hex-oddr-adjacency`
 - Branch: `agent-A-mapgen-core-hex-oddr-adjacency`
 - Parent: `main` (`b8387e3c2`)
 - Related/superseded: `agent-A-fix-island-coast-ring` (PR #1811; origin head

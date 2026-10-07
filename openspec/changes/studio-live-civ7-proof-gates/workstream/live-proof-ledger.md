@@ -48,12 +48,12 @@ Observed meaning:
 - Deploy API:
   `deployMod({ inputDir: "mods/mod-swooper-maps/mod", modId: "mod-swooper-maps" })`.
 - Mods dir:
-  `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods`.
+  `<user-home>/Library/Application Support/Civilization VII/Mods`.
 - Target dir:
-  `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps`.
+  `<user-home>/Library/Application Support/Civilization VII/Mods/mod-swooper-maps`.
 - Files copied: `12`.
 - Deployed script:
-  `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`
+  `<user-home>/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`
   - sha256 after deploy:
     `24ea030538d4bb5db4261948b99b44daf2b192b948aa2131c7e001652ebd0d5a`
   - marker after deploy:
@@ -185,7 +185,7 @@ Generated and deployed evidence:
   `mods/mod-swooper-maps/mod/maps/studio-current.js` sha256
   `85d3eb03ac4709bc2f5bef27d6cdfec630bd53660a0162c526fcb3a6079a6632`.
 - Deployed mod script:
-  `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`
+  `<user-home>/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`
   sha256
   `85d3eb03ac4709bc2f5bef27d6cdfec630bd53660a0162c526fcb3a6079a6632`.
 - Marker proofs present in both local and deployed script:
@@ -220,7 +220,7 @@ Setup/start evidence:
 Bounded log evidence:
 
 - Log path:
-  `/Users/mateicanavra/Library/Application Support/Civilization VII/Logs/Scripting.log`.
+  `<user-home>/Library/Application Support/Civilization VII/Logs/Scripting.log`.
 - Observed at: `2026-06-17T06:16:10.396Z`.
 - Start offset: `61590`.
 - Matched markers:
@@ -268,7 +268,7 @@ Current-top generated/deployed evidence:
   `mods/mod-swooper-maps/src/maps/configs/studio-current.config.json` sha256
   `480d8d38cd6ebd17887c12e99aab956440886e365571d89d8981739bf2953d3f`.
 - Deployed script:
-  `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`.
+  `<user-home>/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`.
 - Deployed script sha256:
   `1b9aee5f882e329371d9e16384290eab357d143c4d06e78ff7e5e67eb2ca218a`.
 - Deployed script mtime: `2026-06-17 03:09:23`.

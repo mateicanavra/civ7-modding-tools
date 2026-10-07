@@ -3,7 +3,7 @@
 Status: draft execution proposal
 
 Worktree:
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets`
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets`
 
 ## Intent
 

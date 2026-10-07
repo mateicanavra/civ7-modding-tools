@@ -99,7 +99,7 @@
 
 - Date: 2026-05-31.
 - Corrected worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-dra-morphology-direct-control-objective`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-dra-morphology-direct-control-objective`.
 - Branch/head at the runtime attempt:
   `codex/morphology-terrain-stats-readback@406ea9332` before the proof-boundary
   branch was opened. Graphite later restacked this local commit; use the final

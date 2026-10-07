@@ -361,11 +361,11 @@ reconciles it with autoplay inactive, zero remaining turns, and local/observer
 player zero. Human Advanced Start is not completed. The failed Explore attempt
 and unfinished human gameplay prerequisite are not river/cliff refusals.
 
-The [current native gallery](https://mateis-macbook-pro.taild8da1c.ts.net/civ/certified-terrain-native-1018-20261002/index.html)
+The current native gallery (`certified-terrain-native-1018-20261002/index.html`)
 contains fourteen actual photographs: twelve widest views at zoom `1`, then
 two details at `.4`. All PNG/receipt copies are byte-exact, generated thumbnails
 are nonblank, and `320/390/1440` Playwright layout checks pass. The linked
-[adopted portable comparison](https://mateis-macbook-pro.taild8da1c.ts.net/civ/certified-terrain-adopted-20261002/index.html)
+adopted portable comparison (`certified-terrain-adopted-20261002/index.html`)
 uses ten-player Huge captures, not identical native placements. The original
 capture-plan hash and later schema-annotation hash remain explicitly distinct.
 
@@ -441,7 +441,7 @@ T18/570 CE, local/observer zero, autoplay inactive, zero remaining autoplay
 turns, and no queued unit destination. Damage changes across turn transitions
 from `4` to `16` to `36`; their cause is not assigned by this experiment.
 
-The [three-photo passage gallery](https://mateis-macbook-pro.taild8da1c.ts.net/civ/native-lake-passage-20261002/index.html)
+The three-photo passage gallery (`native-lake-passage-20261002/index.html`)
 retains two widest views and one mouth detail, natural units, original
 3456x2168 PNGs, and checked movement/camera evidence. Local/phone bytes and
 `320/390/1440` browser checks pass. The earlier fourteen-photo survey is not
@@ -509,7 +509,7 @@ contacts only. This is not a 54-source marine-only or global component census.
 Known true-cliff mouths `(88,14)` and `(94,19)` lie in disconnected eastern
 components. Their vessel passability remains unqualified.
 
-The [eighteen-view atlas](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherent-normal-atlas-20261002/index.html)
+The eighteen-view atlas (`coherent-normal-atlas-20261002/index.html`)
 contains thirteen widest neighborhoods, four details and the normal Cog at
 the tested mouth. All 18 camera and clean-frame receipts pass; summaries are
 identical before/after photography. All 120 local/tailnet HTTP responses are
@@ -555,7 +555,7 @@ is T11/500 CE, local/observer zero, autoplay inactive and stopped with
 cliff crossing. No teleport, administrative spawn, cliff clearing, terrain
 lowering or broad unlock is used.
 
-The [two-photo passage supplement](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherent-normal-atlas-20261002/truecliff-passage.html)
+The two-photo passage supplement (`coherent-normal-atlas-20261002/truecliff-passage.html`)
 shows actual arrivals on the river and back at sea. Original 3456x2168 PNGs,
 thumbnails and the embedded movement/flag/return evidence are byte-exact in
 all twelve local/tailnet HTTP responses. Independent review passes 544

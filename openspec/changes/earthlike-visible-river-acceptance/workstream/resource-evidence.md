@@ -27,7 +27,7 @@ Result:
 Installed app resource root:
 
 ```text
-/Users/mateicanavra/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources
+<user-home>/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources
 ```
 
 Checksum spot-check command compared the installed app against

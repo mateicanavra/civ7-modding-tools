@@ -90,12 +90,12 @@ We will do this via **one default steward agent ("URSULA")** working sequentiall
 
 ## Workflows / Commands (Baseline Discipline)
 URSULA should read and follow these dev workflows as behavioral baselines:
-- `/Users/mateicanavra/.claude/plugins/local/plugins/dev/commands/dev-loop-parallel.md` (loop discipline; one branch layer per unit)
-- `/Users/mateicanavra/.claude/plugins/local/plugins/dev/commands/dev-spec-to-milestone.md`
-- `/Users/mateicanavra/.claude/plugins/local/plugins/dev/commands/dev-harden-milestone.md`
-- `/Users/mateicanavra/.claude/plugins/local/plugins/dev/commands/dev-milestone-to-issues.md`
-- `/Users/mateicanavra/.claude/plugins/local/plugins/dev/commands/dev-prework-sweep.md`
-- `/Users/mateicanavra/.claude/plugins/local/plugins/dev/commands/dev-post-milestone-docs.md`
+- `<user-home>/.claude/plugins/local/plugins/dev/commands/dev-loop-parallel.md` (loop discipline; one branch layer per unit)
+- `<user-home>/.claude/plugins/local/plugins/dev/commands/dev-spec-to-milestone.md`
+- `<user-home>/.claude/plugins/local/plugins/dev/commands/dev-harden-milestone.md`
+- `<user-home>/.claude/plugins/local/plugins/dev/commands/dev-milestone-to-issues.md`
+- `<user-home>/.claude/plugins/local/plugins/dev/commands/dev-prework-sweep.md`
+- `<user-home>/.claude/plugins/local/plugins/dev/commands/dev-post-milestone-docs.md`
 
 Templates:
 - `docs/_templates/milestone.md`
@@ -133,7 +133,7 @@ Create if missing:
 ## Graphite / Worktree Setup
 **Base branch:** `agent-codex-pipeline-realism-maximal-spec-v1`
 
-**Worktrees root:** `WORKTREES_ROOT="/Users/mateicanavra/Documents/.nosync/DEV/worktrees"`
+**Worktrees root:** `WORKTREES_ROOT="<user-home>/Documents/.nosync/DEV/worktrees"`
 
 **Persistent worktree:**
 - Branch: `agent-URSULA-M1-foundation-maximal-cutover`

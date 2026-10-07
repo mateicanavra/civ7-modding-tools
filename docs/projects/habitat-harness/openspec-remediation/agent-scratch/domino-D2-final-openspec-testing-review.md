@@ -30,9 +30,9 @@ results.
 ## Sources Read
 
 - Required skills:
-  - `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`
-  - `/Users/mateicanavra/.agents/skills/information-design/SKILL.md`
-  - `/Users/mateicanavra/.agents/skills/testing-design/SKILL.md`
+  - `<user-home>/.agents/skills/domain-design/SKILL.md`
+  - `<user-home>/.agents/skills/information-design/SKILL.md`
+  - `<user-home>/.agents/skills/testing-design/SKILL.md`
 - Repo-local workstream skills/references:
   - `.agents/skills/civ7-open-spec-workstream/SKILL.md`
   - `.agents/skills/civ7-open-spec-workstream/references/source-map.md`
@@ -96,7 +96,7 @@ results.
 ## Validation
 
 Commands run from
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`:
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`:
 
 | Command | Result | Claim |
 | --- | --- | --- |

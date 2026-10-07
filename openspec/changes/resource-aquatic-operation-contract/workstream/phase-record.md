@@ -9,7 +9,7 @@ unverified runtime-id boundary.
 ## Repo State
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`
+  `<user-home>/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`
 - Branch: `codex/resource-aquatic-operation-contract`
 - Parent slice: `codex/resource-earthlike-expectations-artifact`
 - Source Studio/API pair observed for this source slice:

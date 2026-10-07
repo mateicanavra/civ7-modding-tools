@@ -4,11 +4,11 @@ This register records the authority order for Phase 2 Deep Habitat Toolkit packe
 
 ## Worktree
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`
 - Preparation validation branch: `codex/habitat-fast-lint-checks`
 - Phase 2 packet-suite branch: `codex/deep-habitat-phase2-prep`
-- Original checkout excluded as repo evidence: `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools`
-- Allowed non-worktree inputs: skill files under `/Users/mateicanavra/.codex/skills`, `/Users/mateicanavra/.agents/skills`, `/Users/mateicanavra/.codex/plugins/cache`, and `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills`.
+- Original checkout excluded as repo evidence: `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools`
+- Allowed non-worktree inputs: skill files under `<user-home>/.codex/skills`, `<user-home>/.agents/skills`, `<user-home>/.codex/plugins/cache`, and `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills`.
 
 Phase 2 packet-suite drafting occurs on `codex/deep-habitat-phase2-prep`, which
 is a Graphite child of the preparation commit. Validation rows captured on
@@ -19,10 +19,10 @@ closure must record fresh current-state commands from
 ## Authority Order
 
 1. Current user instruction in this session.
-2. Root repo instructions in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/AGENTS.md`.
+2. Root repo instructions in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/AGENTS.md`.
 3. Phase frame in `docs/projects/habitat-harness/domain-refactor-frame.md`.
 4. Domain design packet in `docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`.
-5. Current Habitat docs under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/docs/`.
+5. Current Habitat docs under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/docs/`.
 6. Current source, tests, root scripts, and Nx metadata in the mandated worktree as present-behavior evidence.
 7. Active OpenSpec records and project ledgers as downstream records, not target-domain authority unless they match the frame and packet.
 8. Historical archives and earlier takeover frames as audit evidence only.
@@ -31,18 +31,18 @@ closure must record fresh current-state commands from
 
 The main DRA owner and fresh agents used the following skills as the active workflow frame:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-systematic-workstream/SKILL.md`
-- `/Users/mateicanavra/.codex/skills/investigation-design/SKILL.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-habitat-dra-workstream/SKILL.md`
-- `/Users/mateicanavra/.codex/skills/framing-design/SKILL.md`
-- `/Users/mateicanavra/.codex/skills/create-goal/SKILL.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/system-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/api-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/solution-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/team-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/typescript/SKILL.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-systematic-workstream/SKILL.md`
+- `<user-home>/.codex/skills/investigation-design/SKILL.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-habitat-dra-workstream/SKILL.md`
+- `<user-home>/.codex/skills/framing-design/SKILL.md`
+- `<user-home>/.codex/skills/create-goal/SKILL.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md`
+- `<user-home>/.agents/skills/domain-design/SKILL.md`
+- `<user-home>/.agents/skills/system-design/SKILL.md`
+- `<user-home>/.agents/skills/api-design/SKILL.md`
+- `<user-home>/.agents/skills/solution-design/SKILL.md`
+- `<user-home>/.agents/skills/team-design/SKILL.md`
+- `<user-home>/.agents/skills/typescript/SKILL.md`
 
 The applied principles are:
 
@@ -61,7 +61,7 @@ Primary:
 
 Current Habitat docs:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/README.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/README.md`
 - `docs/CAPABILITIES.md`
 - `docs/IMPLEMENTED-SURFACE.md`
 - `docs/SCENARIOS.md`
@@ -81,22 +81,22 @@ Project records used as bounded evidence:
 
 The owner read current Habitat source and tests under:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/bin/habitat.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/commands/`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/rules/`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/generators/`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/scripts/`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/test/`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/bin/habitat.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/commands/`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/rules/`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/generators/`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/scripts/`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/test/`
 
 Root integration surfaces:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/package.json`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/nx.json`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/vitest.config.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/eslint.boundaries.config.mjs`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/.husky/pre-commit`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/.husky/pre-push`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/package.json`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/nx.json`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/vitest.config.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/eslint.boundaries.config.mjs`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/.husky/pre-commit`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/.husky/pre-push`
 
 Agent read claims are accepted only where a scratch file or final report records checkout preflight and read surfaces. Wave 1 did not write durable scratch files into this directory; its results are therefore treated as non-auditable owner synthesis, not independent source authority. Wave 2 and Wave 3 scratch files are indexed in `agent-scratch-index.md` and can be audited directly.
 

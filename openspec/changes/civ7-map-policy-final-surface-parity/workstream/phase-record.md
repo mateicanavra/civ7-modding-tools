@@ -37,7 +37,7 @@
 ## Current State
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain`.
 - Repo/Graphite state for this integration: `codex/swooper-studio-parity-proof-drain`
   stacked above `codex/swooper-mapgen-recovery-drain`.
 - Current write set:

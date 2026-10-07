@@ -17,9 +17,9 @@ implementation gates pass.
 
 ## Review Scope
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
 - Branch: `codex/deep-habitat-openspec-remediation`
-- OpenSpec change: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract`
+- OpenSpec change: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract`
 - Source packet: `docs/projects/habitat-harness/phase2-workstream-packets/D2-rule-registry-metadata-contract.md`
 - Prior negative review: `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D2-review.md`
 - Fresh D2 investigations read: code topology, cross-domino, domain/ontology, information-design, OpenSpec/testing, and TypeScript state-space notes under `agent-scratch/domino-D2-*-investigation.md`.
@@ -35,7 +35,7 @@ The prior P1 findings are repaired for design/specification acceptance:
 - Facet/projection contract: repaired by the current diagnosis, target ontology,
   target type model, registry field inventory, facet contract, and projection
   matrix in `design.md`. See
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md:9`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md:9`,
   `design.md:75`, `design.md:93`, `design.md:144`, `design.md:165`, and
   `design.md:180`.
 - Public compatibility and D0/D1 dependency state: repaired by D0/D1 boundary
@@ -45,7 +45,7 @@ The prior P1 findings are repaired for design/specification acceptance:
 - Thin spec delta: repaired by separate normative requirements for versioned
   schema, term dispositions, projections, selector, routing, graph, baseline,
   Grit, generated-zone, governance, malformed metadata, and downstream use. See
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/specs/habitat-harness/spec.md:3`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/specs/habitat-harness/spec.md:3`
   through `spec.md:169`.
 
 ## P2 Findings
@@ -57,12 +57,12 @@ The prior P2 findings are repaired for design/specification acceptance:
 - Validation gates now require focused parser/projection, selector, classify,
   graph, baseline, Grit, generator, command, OpenSpec, and diff gates with
   expected status/non-claims recorded in the phase record. See
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/tasks.md:52`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/tasks.md:52`
   and
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/phase-record.md:39`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/phase-record.md:39`.
 - Downstream realignment now names direct D2 consumers and their projections,
   plus indirect consumer limits. See
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/downstream-realignment-ledger.md:7`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/downstream-realignment-ledger.md:7`
   and `downstream-realignment-ledger.md:20`.
 - Inherited terminology is dispositioned instead of carried forward as target
   authority. See `design.md:197`.

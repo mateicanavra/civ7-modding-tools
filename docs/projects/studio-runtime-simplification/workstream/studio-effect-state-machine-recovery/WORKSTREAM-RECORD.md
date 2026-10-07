@@ -16,7 +16,7 @@ The workstream is a second-order objective reframe. The object is not one endpoi
 
 Primary worktree:
 
-`/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools`
+`<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools`
 
 Current branch:
 
@@ -48,11 +48,11 @@ Relevant worktrees:
 
 | Worktree | State |
 |---|---|
-| `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools` | `codex/studio-effect-state-machine-closeout` |
-| `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-prework` | `codex/studio-tuner-session-serialization`, duplicate downstack Studio worktree |
-| `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor` | detached at `654f58d8f`, ancestor already contained by current runtime branches |
-| `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain` | unrelated habitat stack |
-| `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain` | unrelated habitat repair stack |
+| `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools` | `codex/studio-effect-state-machine-closeout` |
+| `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-prework` | `codex/studio-tuner-session-serialization`, duplicate downstack Studio worktree |
+| `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor` | detached at `654f58d8f`, ancestor already contained by current runtime branches |
+| `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain` | unrelated habitat stack |
+| `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain` | unrelated habitat repair stack |
 
 Graphite render risk:
 

@@ -187,7 +187,7 @@ OUTCOME SHA is `23ad620e7678e3040fe668d08b8a595e8ebc2a89323675ffdb2f20f994e3d2e1
 Status is `COMPLETED_OBSERVATION_NOT_PRODUCER_OR_CODEC_ADMISSION`.
 The normal recipe, native build and all original physics remain unchanged.
 
-The [nine-panel support atlas](https://mateis-macbook-pro.taild8da1c.ts.net/civ/foundation-support-atlas-20261003/index.html)
+The nine-panel support atlas (`foundation-support-atlas-20261003/index.html`)
 makes Huge1018, Huge2 and Standard1018 inspectable without rerunning the model.
 Each has categorical assignment, affine support and final-ground panels with
 the same CROSS-edge overlay. The two numeric panels share a display scale;

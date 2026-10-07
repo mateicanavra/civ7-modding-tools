@@ -1,7 +1,7 @@
 # Spike Feasibility: More Physically Realistic Orographic Precipitation + Rain Shadows
 
 Date: 2026-01-29  
-Repo: `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools`
+Repo: `<user-home>/Documents/.nosync/DEV/civ7-modding-tools`
 
 ## 1) Verdict
 

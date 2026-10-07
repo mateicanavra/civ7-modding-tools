@@ -4,7 +4,7 @@ Status: active planning process
 
 Branch: `agent-codex-mapgen-studio-runtime-openspec-packets`
 
-Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets`
+Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets`
 
 Source proposal:
 `docs/projects/mapgen-studio/resources/run-in-game-deploy-manifest-proposal.md`

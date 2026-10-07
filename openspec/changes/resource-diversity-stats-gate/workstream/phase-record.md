@@ -9,7 +9,7 @@ placements exist.
 ## Repo State
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`
+  `<user-home>/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`
 - Branch: `codex/resource-diversity-stats-gate`
 - Parent slice: `codex/resource-placement-diversity`
 - Source Studio/API pair observed for this source slice:

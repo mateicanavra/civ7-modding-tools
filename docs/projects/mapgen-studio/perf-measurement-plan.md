@@ -10,7 +10,7 @@ Canonical entrypoints:
 # MapGen Studio Performance + Bundle Measurement Plan (Baseline)
 
 Date: 2026-01-31  
-Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-EZRA-M1-mapgen-studio-arch-audit`  
+Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-EZRA-M1-mapgen-studio-arch-audit`
 Branch: `agent-EZRA-M1-mapgen-studio-arch-audit`
 
 This plan is a lightweight “baseline capture” to quantify where time/memory/bandwidth goes in MapGen Studio *before* major refactors.
@@ -95,7 +95,7 @@ Goal: prove (or disprove) that runtime recipe code is duplicated into main + wor
 Baseline build commands (repo root):
 
 ```bash
-bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-EZRA-M1-mapgen-studio-arch-audit/apps/mapgen-studio build
+bun run --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-EZRA-M1-mapgen-studio-arch-audit/apps/mapgen-studio build
 ```
 
 Then inspect:

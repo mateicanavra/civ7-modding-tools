@@ -3,7 +3,7 @@
 Status: investigation/review input only; not acceptance input and not a
 closure record.
 
-Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`.
+Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`.
 Live branch observed: `codex/d11-local-feedback-packet`.
 
 ## Source Authority Read Register
@@ -12,15 +12,15 @@ Live branch observed: `codex/d11-local-feedback-packet`.
 
 | Source | Read | Use In This Investigation |
 | --- | --- | --- |
-| `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md` | full | Single-owner domain boundary, authority overlap, seam and ambiguity tests. |
-| `/Users/mateicanavra/.agents/skills/information-design/SKILL.md` | full | Artifact hierarchy, reader task, traceability, signal/noise, current vs historical status. |
-| `/Users/mateicanavra/.agents/skills/solution-design/SKILL.md` | full | Frame challenge, stakeholder/consumer fit, reversible vs high-commitment packet decisions. |
-| `/Users/mateicanavra/.agents/skills/testing-design/SKILL.md` | full | Falsification-first validation, oracle requirement, risk-proportional testing. |
-| `/Users/mateicanavra/.agents/skills/testing-design/references/principles/universal.md` | full | Falsification, explicit oracle, equivalence/boundaries, spec-gap detection. |
-| `/Users/mateicanavra/.agents/skills/testing-design/references/principles/heuristics.md` | full | Oracle decision tree, state-transition explosion rule, boundary testing rule. |
-| `/Users/mateicanavra/.agents/skills/testing-design/references/leaflet-software-testing.md` | full | Software test layering, contract tests, mutation of weak oracles, environment-independent checks. |
-| `/Users/mateicanavra/.agents/skills/testing-design/references/axes.md` | full | D11 validation posture: rigorous enough for local false-green prevention, binary command outcomes, fast feedback. |
-| `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md` | full | OpenSpec workstream loop, downstream spec role, shortcut-language refusal. |
+| `<user-home>/.agents/skills/domain-design/SKILL.md` | full | Single-owner domain boundary, authority overlap, seam and ambiguity tests. |
+| `<user-home>/.agents/skills/information-design/SKILL.md` | full | Artifact hierarchy, reader task, traceability, signal/noise, current vs historical status. |
+| `<user-home>/.agents/skills/solution-design/SKILL.md` | full | Frame challenge, stakeholder/consumer fit, reversible vs high-commitment packet decisions. |
+| `<user-home>/.agents/skills/testing-design/SKILL.md` | full | Falsification-first validation, oracle requirement, risk-proportional testing. |
+| `<user-home>/.agents/skills/testing-design/references/principles/universal.md` | full | Falsification, explicit oracle, equivalence/boundaries, spec-gap detection. |
+| `<user-home>/.agents/skills/testing-design/references/principles/heuristics.md` | full | Oracle decision tree, state-transition explosion rule, boundary testing rule. |
+| `<user-home>/.agents/skills/testing-design/references/leaflet-software-testing.md` | full | Software test layering, contract tests, mutation of weak oracles, environment-independent checks. |
+| `<user-home>/.agents/skills/testing-design/references/axes.md` | full | D11 validation posture: rigorous enough for local false-green prevention, binary command outcomes, fast feedback. |
+| `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md` | full | OpenSpec workstream loop, downstream spec role, shortcut-language refusal. |
 | `civ7-open-spec-workstream/references/source-map.md` | full | Authority order and OpenSpec artifact locations. |
 | `civ7-open-spec-workstream/references/artifact-contracts.md` | full | Proposal/design/spec/tasks contract and compaction-safe phase records. |
 | `civ7-open-spec-workstream/references/phase-loop.md` | full | Phase readiness, verification, downstream realignment, closure distinction. |

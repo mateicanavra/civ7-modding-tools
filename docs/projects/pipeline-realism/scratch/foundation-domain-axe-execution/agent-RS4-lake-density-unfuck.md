@@ -4,7 +4,7 @@
 Reduce excessive lake count/density in current runtime behavior while preserving hydrology consistency.
 
 ## Scope
-- Worktree: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
+- Worktree: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
 - Branch: codex/prr-m4-s06d-foundation-scratch-audit-ledger
 - Scratch (append-only): docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-RS4-lake-density-unfuck.md
 
@@ -12,9 +12,9 @@ Reduce excessive lake count/density in current runtime behavior while preserving
 Address user-reported overproduction of lakes (not just crash). Focus on hydrology lake planning/config defaults/preset interaction.
 
 ## Suggested investigation points
-- /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps/src/domain/hydrology/ops/plan-lakes/**
-- /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts
-- /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps/src/presets/standard/earthlike.json
+- <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps/src/domain/hydrology/ops/plan-lakes/**
+- <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts
+- <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps/src/presets/standard/earthlike.json
 - related hydrology knobs and tests.
 
 ## Deliverable
@@ -44,18 +44,18 @@ Lake generation looks materially less over-dense while preserving deterministic 
 
 ### Root-cause evidence
 - Engine-side baseline shows `generateLakes(iWidth, iHeight, iTilesPerLake)` computes `ilakePlotRand = floor((iWidth * iHeight) / iTilesPerLake)` and adds a lake when RNG hits 0:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/.civ7/outputs/resources/Base/modules/base-standard/maps/elevation-terrain-generator.js:98`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/.civ7/outputs/resources/Base/modules/base-standard/maps/elevation-terrain-generator.js:101`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/.civ7/outputs/resources/Base/modules/base-standard/maps/elevation-terrain-generator.js:109`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/.civ7/outputs/resources/Base/modules/base-standard/maps/elevation-terrain-generator.js:98`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/.civ7/outputs/resources/Base/modules/base-standard/maps/elevation-terrain-generator.js:101`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/.civ7/outputs/resources/Base/modules/base-standard/maps/elevation-terrain-generator.js:109`
 - Implication: larger `iTilesPerLake` yields **higher** lake-seed probability (denominator shrinks), so increasing this value increases lake density.
 - Current mod runtime path was doubling map frequency (`* 2`), inflating lake seeding:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts` (before patch).
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts` (before patch).
 
 ### Targeted correction
 - Removed the unconditional `* 2` multiplier and now uses map-provided frequency directly:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts`
 - Added a guard test that pins standard frequency behavior (`LakeGenerationFrequency=25 -> tilesPerLake=25`):
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps/test/map-hydrology/lakes-store-water-data.test.ts`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps/test/map-hydrology/lakes-store-water-data.test.ts`
 
 ### Measurement before/after
 - Probe script using the map-hydrology lakes step + mock adapter call capture:

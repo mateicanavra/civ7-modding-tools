@@ -53,9 +53,9 @@ D7 must be reframed if `effect-orpc` `.effect()` cannot return an event iterator
 
 ## Repo State / Baseline
 
-- Packet-authoring worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-refactor-frame`.
+- Packet-authoring worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-refactor-frame`.
 - Packet-authoring branch: `codex/runtime-effect-openspec-packets`.
-- Implementation worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`.
+- Implementation worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`.
 - Implementation branch: `codex/runtime-effect-stream-spike`, stacked above D6 current-operations commit `f6df0bea1`.
 - Implementation write set changes `StudioEventHub` cleanup behavior plus package/app stream tests and D7 workstream docs. D7 is no longer a docs-only slice during implementation.
 - Dirty-file owner during implementation: D7 stream transport files and D7 packet/workstream docs only.

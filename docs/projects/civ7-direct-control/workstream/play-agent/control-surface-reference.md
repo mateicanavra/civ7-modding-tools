@@ -37,7 +37,7 @@ Disallowed assumption:
 Use these authority levels in order:
 
 1. Installed official game resources under:
-   `/Users/mateicanavra/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources`
+   `<user-home>/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources`
 2. Live read-only runtime introspection through the existing direct-control CLI.
 3. Official resources submodule under `.civ7/outputs/resources`.
 4. Existing repo docs and wrappers as implementation evidence, not as new
@@ -136,7 +136,7 @@ DLL metadata and panel evidence so far:
   `FireTuner2.exe`: `Test Automation (WIP)`.
 - `Atf.Core.dll` contains an unrelated DOM `Observer` type.
 - No `Autoplay` or AI-autoplay API symbol was found in FireTuner DLL metadata.
-- `/Users/mateicanavra/Parallels Tunnel/Sid Meier's Civilization VII Development Tools/Comms/Modifiers.ltp`
+- `<user-home>/Parallels Tunnel/Sid Meier's Civilization VII Development Tools/Comms/Modifiers.ltp`
   is a tuner-state modifier inspection panel. It has no autoplay terms and no
   actions.
 

@@ -4,27 +4,27 @@
 
 Mandatory skill grounding read:
 
-- `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/information-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/SKILL.md`
-- All ontology references under `/Users/mateicanavra/.agents/skills/ontology-design/references/`: `axes.md`, `principles.md`, `where-defaults-hide.md`, `representation-choices.md`, `operationalization.md`, `maintenance.md`, `source-map.md`, and `examples.md`.
-- Relevant `/Users/mateicanavra/.agents/skills/solution-design/SKILL.md`, `/Users/mateicanavra/.agents/skills/system-design/SKILL.md`, `/Users/mateicanavra/.agents/skills/team-design/SKILL.md`, and `/Users/mateicanavra/.agents/skills/testing-design/SKILL.md`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md`
+- `<user-home>/.agents/skills/domain-design/SKILL.md`
+- `<user-home>/.agents/skills/information-design/SKILL.md`
+- `<user-home>/.agents/skills/ontology-design/SKILL.md`
+- All ontology references under `<user-home>/.agents/skills/ontology-design/references/`: `axes.md`, `principles.md`, `where-defaults-hide.md`, `representation-choices.md`, `operationalization.md`, `maintenance.md`, `source-map.md`, and `examples.md`.
+- Relevant `<user-home>/.agents/skills/solution-design/SKILL.md`, `<user-home>/.agents/skills/system-design/SKILL.md`, `<user-home>/.agents/skills/team-design/SKILL.md`, and `<user-home>/.agents/skills/testing-design/SKILL.md`.
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md`
 - OpenSpec workstream references for authority, review lanes, artifact contracts, and validation checks: `source-map.md`, `team-and-review-lanes.md`, `artifact-contracts.md`, and `validation-checks.md`.
 
 Repo and control grounding read:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/AGENTS.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/context.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md`
-- Active worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/AGENTS.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/context.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md`
+- Active worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
 - Active branch: `codex/d11-local-feedback-packet`
 
 D11 packet inputs read:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D11-local-feedback.md`
-- Every file under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d11-local-feedback`
-- First-wave D11 scratch inputs under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D11-*.md`, excluding this final output.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D11-local-feedback.md`
+- Every file under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d11-local-feedback`
+- First-wave D11 scratch inputs under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D11-*.md`, excluding this final output.
 
 Accepted upstream and downstream surfaces read where D11 references them:
 

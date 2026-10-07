@@ -50,9 +50,9 @@ Inventory and classify:
 - Husky delegators and `habitat hook` behavior.
 
 The output must include an export matrix for
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/index.ts`
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/index.ts`
 and
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/package.json`.
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/package.json`.
 Each export must be classified as public stable, public versioned,
 package-internal, command-only DTO, test-only, generated/derived, deprecated, or
 refused. No later packet may move or remove exported internals until this matrix
@@ -166,7 +166,7 @@ Update or create:
   before and after packet implementation.
 - `bun run --cwd tools/habitat test -- test/commands/habitat-entrypoints.test.ts`:
   expected exit 0; command behavior receipt for public CLI compatibility.
-- `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/plugin.js`:
+- `bun run habitat classify <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/plugin.js`:
   expected exit 0; command behavior receipt for a stable representative path.
 - `bun run lint`: expected exit 0; hygiene receipt, cache acceptable only if Nx
   reports matching inputs.

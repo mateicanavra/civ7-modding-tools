@@ -240,11 +240,11 @@ describe("StudioOperationRuntime", () => {
       diagnosticsPersistedRevision: 3,
       completedPhases: ["admitting-config"],
       result: {
-        privateSourcePath: "/Users/matei/private/source.config.json",
+        privateSourcePath: "/Users/test/private/source.config.json",
         rawOutput: "Traceback: setup cannot see /tmp/private-deploy/Swooper.lua",
       },
       failure: operationBlocked({
-        message: "setup cannot see /Users/matei/private/Civ7/Mods/Swooper.lua",
+        message: "setup cannot see /Users/test/private/Civ7/Mods/Swooper.lua",
         activeRequestId: "run-other-private",
       }),
     } satisfies RunInGameInternalOperation;

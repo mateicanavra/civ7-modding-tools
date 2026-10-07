@@ -1154,7 +1154,7 @@ classified as `map-script-load-failed` with recovery boundary
 `civ-notification-dismiss`; matched fresh log line:
 `[2026-06-07 06:19:28] Failed to load file into script system - fs://game/swooper-maps/maps/studio-current.js`.
 The deployed mod script identity in that status is
-`/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`
+`<user-home>/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`
 (`sha256:862baf3441a7f98b7a5e38d183a0e64c47890fb1f70385b68e36599e16844a03`,
 `mtimeIso:2026-06-07T10:18:01.268Z`).
 No exact-authorship, final-surface parity, or product acceptance proof is
@@ -1176,7 +1176,7 @@ and terminal status
 It passed materialization, deploy, process restart, direct-control availability,
 setup-row visibility, setup preparation, and map-script load. The deployed
 script identity in that status is
-`/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`
+`<user-home>/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`
 (`sha256:ac3d7a05a4972cb8d264022bbffc4c220f0526e2ff322093bb8da2e0dfa6acdc`,
 `mtimeIso:2026-06-07T10:33:26.425Z`). The terminal failure moved to
 `map-generation-script-failed` with recovery boundary

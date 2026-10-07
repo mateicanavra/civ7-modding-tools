@@ -187,7 +187,7 @@ Please go all the way through this process and don’t stop mid‑way.
 
 <disclaimer>
 
-VERY IMPORTANT: you already have a worktree up and running at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-spike-mapgen-docs-alignment` -- please use this worktree, and notice that you have this prompt at `docs/projects/engine-refactor-v1/mapgen-docs-alignment/PROMPT.md` and your prior iteration's reserach plan here `docs/projects/engine-refactor-v1/mapgen-docs-alignment/SPIKE.md`
+VERY IMPORTANT: you already have a worktree up and running at `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-spike-mapgen-docs-alignment` -- please use this worktree, and notice that you have this prompt at `docs/projects/engine-refactor-v1/mapgen-docs-alignment/PROMPT.md` and your prior iteration's reserach plan here `docs/projects/engine-refactor-v1/mapgen-docs-alignment/SPIKE.md`
 
 Notice that in `docs/projects/engine-refactor-v1/mapgen-docs-alignment/scratch` you also have several files that you created in the last iteration. Please do not inherit these directly yet -- do the exact work you would do given the prompt, from the ground up, and simply utilize the existing documents as if they were the documents you were going to write. By that I mean, add the text YOU want to write THIS time, and modify these docs only if there are gaps or additional information that you think should be added.
 

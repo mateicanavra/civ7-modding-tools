@@ -36,9 +36,9 @@ The current `.mcp.json` hardcodes the main repo path:
 {
   "mcpServers": {
     "narsil-code-intel": {
-      "command": "/Users/mateicanavra/.cargo/bin/narsil-mcp",
+      "command": "<user-home>/.cargo/bin/narsil-mcp",
       "args": [
-        "--repos", "/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools",
+        "--repos", "<user-home>/Documents/.nosync/DEV/civ7-modding-tools",
         "--git",
         "--call-graph",
         "--persist",
@@ -87,7 +87,7 @@ Update `.mcp.json` to use `${PWD}` for the repo path:
 {
   "mcpServers": {
     "narsil-code-intel": {
-      "command": "/Users/mateicanavra/.cargo/bin/narsil-mcp",
+      "command": "<user-home>/.cargo/bin/narsil-mcp",
       "args": [
         "--repos", "${PWD}",
         "--index-path", "${PWD}/.narsil-cache",
@@ -120,7 +120,7 @@ If per-worktree indexing is too heavy:
 {
   "mcpServers": {
     "narsil-code-intel": {
-      "command": "/Users/mateicanavra/.cargo/bin/narsil-mcp",
+      "command": "<user-home>/.cargo/bin/narsil-mcp",
       "args": [
         "--repos", "${PWD}",
         "--git",

@@ -11,7 +11,7 @@ not a new resource-capacity proxy, water repair, or scientific target change.
 The retained water-owner arm is the baseline: 57 direct captures and 57 public
 evaluator cases under one source/runtime pin in
 `water-owner-cohort-20261001`. Its evidence root is
-`/Users/mateicanavra/Library/Application Support/Civ7Tools/VisualAtlas/huge-1018/earth-calibration`.
+`<user-home>/Library/Application Support/Civ7Tools/VisualAtlas/huge-1018/earth-calibration`.
 
 ## Witnesses
 

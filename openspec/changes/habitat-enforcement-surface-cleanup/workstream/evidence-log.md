@@ -2,7 +2,7 @@
 
 **Change:** `habitat-enforcement-surface-cleanup`
 **Owner:** DRA Habitat recovery owner
-**Cwd:** `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-F-habitat-harness-workstream`
+**Cwd:** `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-F-habitat-harness-workstream`
 **Branch:** `codex/habitat-dra-takeover-frame`
 **Base commit at capture:** `5008656a6`
 **Touched-path status:** packet files only.

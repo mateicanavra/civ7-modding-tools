@@ -8,7 +8,7 @@ G-HOST lookahead, and the conditional D15 trigger. It does not review
 implementation and does not edit source code.
 
 Reviewed packet:
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary`
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary`
 
 ## Verdict
 

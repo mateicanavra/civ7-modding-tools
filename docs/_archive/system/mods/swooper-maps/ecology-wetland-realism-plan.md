@@ -14,7 +14,7 @@ This plan fixes that by introducing a hard physical habitat regime and making we
 ## Branch + Workflow Setup
 1. Parent from stack tip: `codex/agent-H-resource-official-primary`.
 2. Create branch: `dev-ecology-wetland-physics-habitat-partition`.
-3. Create isolated worktree at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-dev-dev-ecology-wetland-physics-habitat-partition`.
+3. Create isolated worktree at `<user-home>/Documents/.nosync/DEV/worktrees/wt-dev-dev-ecology-wetland-physics-habitat-partition`.
 4. Track branch in Graphite with parent `codex/agent-H-resource-official-primary`.
 5. Keep one logical commit on this branch (or one additional layer only if scope must split).
 

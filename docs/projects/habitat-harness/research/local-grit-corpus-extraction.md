@@ -1,7 +1,7 @@
 # Local Grit Corpus Extraction Evidence Pack
 
 All paths are repo-relative to
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-F-habitat-harness-workstream`.
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-F-habitat-harness-workstream`.
 
 Evidence standard: current source and fresh local commands win over historical
 phase records; historical records are cited as context unless current code or a

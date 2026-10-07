@@ -92,12 +92,12 @@ consolidated_findings:
     severity: P1
     title: tests_still_call_disabled_compute_tectonic_history
     evidence:
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/foundation/m11-projection-boundary-band.test.ts
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/foundation/mesh-first-ops.test.ts
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/morphology/m11-crust-baseline-consumption.test.ts
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/morphology/m11-hypsometry-continental-fraction.test.ts
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/morphology/m12-mountains-present.test.ts
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts
+      - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/foundation/m11-projection-boundary-band.test.ts
+      - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/foundation/mesh-first-ops.test.ts
+      - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/morphology/m11-crust-baseline-consumption.test.ts
+      - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/morphology/m11-hypsometry-continental-fraction.test.ts
+      - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/morphology/m12-mountains-present.test.ts
+      - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts
     disposition: fix_now
     owner: AR1
   - id: ANCHOR-F002
@@ -105,7 +105,7 @@ consolidated_findings:
     title: issue_pack_describes_stage_split_as_landed_while_recipe_still_single_foundation_stage
     evidence:
       - docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M4-003-stage-topology-compile-surface.md
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/recipe.ts
+      - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/recipe.ts
     disposition: fix_now_docs_sync
     owner: AR2
     note: keep implementation sequencing (S04) unchanged; clarify status text now.
@@ -114,8 +114,8 @@ consolidated_findings:
     title: lane_split_artifact_map_star_not_landed_yet
     evidence:
       - docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M4-004-lane-split-downstream-rewire.md
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts
+      - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts
+      - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts
     disposition: keep_for_S07_with_explicit_rationale
     owner: orchestrator
     note: avoid out-of-order implementation churn; enforce as IG1->S04->S07 gated work.
@@ -124,15 +124,15 @@ consolidated_findings:
     title: foundation_reference_doc_still_mentions_removed_compute_tectonic_history_export
     evidence:
       - docs/system/libs/mapgen/reference/domains/FOUNDATION.md
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/index.ts
+      - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/index.ts
     disposition: fix_now_low_risk
     owner: AR2
   - id: ANCHOR-F005
     severity: P2
     title: disabled_legacy_compute_tectonic_history_stub_contract_still_present
     evidence:
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts
+      - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts
+      - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts
     disposition: keep_temporarily_with_deletion_trigger
     owner: orchestrator
     deletion_trigger: remove_after_all_test_and_consumer_call_sites_are_migrated_and_S04_topology_cut_is_stable
@@ -175,7 +175,7 @@ resolution_execution:
   ANCHOR-F001:
     status: resolved
     implementation:
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/support/tectonics-history-runner.js
+      - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/support/tectonics-history-runner.js
       - rewired_legacy_test_callers_off_computeTectonicHistory_run
     validation:
       - bun run --cwd mods/mod-swooper-maps test -- test/foundation/m11-projection-boundary-band.test.ts test/foundation/mesh-first-ops.test.ts test/morphology/m11-crust-baseline-consumption.test.ts test/morphology/m11-hypsometry-continental-fraction.test.ts test/morphology/m12-mountains-present.test.ts
@@ -202,12 +202,12 @@ ar1_quick_recheck:
   reviewer: AR1
   verdict: pass
   scope:
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/support/tectonics-history-runner.js
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/foundation/m11-projection-boundary-band.test.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/foundation/mesh-first-ops.test.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/morphology/m11-crust-baseline-consumption.test.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/morphology/m11-hypsometry-continental-fraction.test.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/morphology/m12-mountains-present.test.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/support/tectonics-history-runner.js
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/foundation/m11-projection-boundary-band.test.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/foundation/mesh-first-ops.test.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/morphology/m11-crust-baseline-consumption.test.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/morphology/m11-hypsometry-continental-fraction.test.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/morphology/m12-mountains-present.test.ts
   residual_risk:
     - keep_test_helper_test_only_and_do_not_reintroduce_runtime_mega_op_usage
 ```

@@ -8,7 +8,7 @@ and does not authorize implementation.
 ## Preflight
 
 - Worktree confirmed:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`.
 - Branch confirmed: `codex/habitat-fast-lint-checks`.
 - Initial status confirmed clean: `## codex/habitat-fast-lint-checks`.
 - Required domain files confirmed present:
@@ -19,20 +19,20 @@ and does not authorize implementation.
 ## Source Surfaces Read
 
 - Required skill files:
-  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-systematic-workstream/SKILL.md`,
-  `/Users/mateicanavra/.codex/skills/investigation-design/SKILL.md`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-habitat-dra-workstream/SKILL.md`,
-  `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`,
-  `/Users/mateicanavra/.agents/skills/solution-design/SKILL.md`,
-  `/Users/mateicanavra/.agents/skills/system-design/SKILL.md`,
-  `/Users/mateicanavra/.agents/skills/api-design/SKILL.md`,
-  `/Users/mateicanavra/.agents/skills/typescript/SKILL.md`,
-  `/Users/mateicanavra/.agents/skills/team-design/SKILL.md`.
+  `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-systematic-workstream/SKILL.md`,
+  `<user-home>/.codex/skills/investigation-design/SKILL.md`,
+  `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-habitat-dra-workstream/SKILL.md`,
+  `<user-home>/.agents/skills/domain-design/SKILL.md`,
+  `<user-home>/.agents/skills/solution-design/SKILL.md`,
+  `<user-home>/.agents/skills/system-design/SKILL.md`,
+  `<user-home>/.agents/skills/api-design/SKILL.md`,
+  `<user-home>/.agents/skills/typescript/SKILL.md`,
+  `<user-home>/.agents/skills/team-design/SKILL.md`.
 - Domain inputs:
   `docs/projects/habitat-harness/domain-refactor-frame.md`,
   `docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`.
 - Habitat docs:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/README.md`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/README.md`,
   `docs/CAPABILITIES.md`,
   `docs/IMPLEMENTED-SURFACE.md`,
   `docs/SCENARIOS.md`,
@@ -40,27 +40,27 @@ and does not authorize implementation.
   `docs/AUTHORING-NEXT.md`,
   `docs/DOMAIN-MAPPING.md`.
 - Public surface sources:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/package.json`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/nx.json`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/.husky/pre-commit`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/.husky/pre-push`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/package.json`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/generators.json`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/oclif.manifest.json`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/commands/*.ts`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/index.ts`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/command-engine.ts`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/diagnostics.ts`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/plugin.js`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/generators/project/*`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/generators/pattern/*`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/package.json`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/nx.json`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/.husky/pre-commit`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/.husky/pre-push`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/package.json`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/generators.json`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/oclif.manifest.json`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/commands/*.ts`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/index.ts`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/command-engine.ts`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/diagnostics.ts`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/plugin.js`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/generators/project/*`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/generators/pattern/*`,
   focused command/classify/verify/generator/hook/apply tests under
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/test`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/test`.
 - Fresh command evidence:
-  `/Users/mateicanavra/.bun/bin/bun /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/bin/dev.ts --help`,
+  `<user-home>/.bun/bin/bun <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/bin/dev.ts --help`,
   `check --help`, `classify --help`, `verify --help`, `fix --help`,
   `graph --help`, `hook --help`, and
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/node_modules/.bin/nx show project @habitat/cli --json`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/node_modules/.bin/nx show project @habitat/cli --json`.
 
 ## Contract Inventory
 

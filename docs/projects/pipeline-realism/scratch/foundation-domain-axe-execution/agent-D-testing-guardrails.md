@@ -374,8 +374,8 @@ architecture_findings:
     violation:
       summary: "Legacy aggregate tectonic-history op remained publicly wired in Foundation domain ops surfaces."
       files:
-        - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/contracts.ts
-        - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/index.ts
+        - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/contracts.ts
+        - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/index.ts
     remediation:
       - "Removed computeTectonicHistory from foundation ops contracts registry."
       - "Removed computeTectonicHistory implementation wiring/export from foundation ops index surface."
@@ -407,10 +407,10 @@ verification_runs:
 - Guardrails explicitly block reintroduction of legacy aggregate op surface in both tests and lint scans.
 
 ## Changes landed
-- Updated `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/contracts.ts` to remove `computeTectonicHistory` registry exposure.
-- Updated `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/index.ts` to remove `computeTectonicHistory` implementation/export wiring.
-- Updated `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/foundation/contract-guard.test.ts` with explicit no-legacy-surface assertions.
-- Updated `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/scripts/lint/lint-domain-refactor-guardrails.sh` with a foundation-specific legacy aggregate-op scan.
+- Updated `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/contracts.ts` to remove `computeTectonicHistory` registry exposure.
+- Updated `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/index.ts` to remove `computeTectonicHistory` implementation/export wiring.
+- Updated `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/foundation/contract-guard.test.ts` with explicit no-legacy-surface assertions.
+- Updated `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/scripts/lint/lint-domain-refactor-guardrails.sh` with a foundation-specific legacy aggregate-op scan.
 
 ## Open risks
 - Direct file-level imports of `compute-tectonic-history/index.ts` in older non-guardrail tests still exist and can fail if those suites are run without migration to decomposed ops/step orchestration.
@@ -424,7 +424,7 @@ verification_runs:
 ```yaml
 rewrite_scope:
   target_test:
-    path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-history.test.ts
+    path: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-history.test.ts
     objective:
       - remove_direct_computeTectonicHistory_run_usage
       - assert_through_decomposed_tectonics_op_chain
@@ -461,7 +461,7 @@ verification_runs:
 - Foundation history tests assert through the decomposed tectonics contract path only, with no direct dependency on the deprecated aggregate tectonic-history op runtime.
 
 ## Changes landed
-- Rewrote `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-history.test.ts` to remove `computeTectonicHistory.run` and use decomposed ops helper flow for history assertions.
+- Rewrote `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-history.test.ts` to remove `computeTectonicHistory.run` and use decomposed ops helper flow for history assertions.
 - Updated the invalid era-count expectation to contract behavior from `compute-era-plate-membership`.
 - Executed and verified related foundation tests and guardrails in one run (22/22 passing).
 
@@ -477,14 +477,14 @@ verification_runs:
 audit_scope:
   focus: foundation_decomposed_tectonics_chain_ops
   files_audited:
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/index.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/index.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/index.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/index.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/index.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/index.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/index.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/index.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/index.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/index.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/index.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/index.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/index.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/index.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/index.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/index.ts
 
 findings:
   - id: FND-THIN-WRAPPER-001
@@ -495,14 +495,14 @@ findings:
 
 verification_evidence:
   strategy_modules_created:
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/strategies/default.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/strategies/default.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/strategies/default.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/strategies/default.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/strategies/default.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/strategies/default.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/strategies/default.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/strategies/default.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/strategies/default.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/strategies/default.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/strategies/default.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/strategies/default.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/strategies/default.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/strategies/default.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/strategies/default.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/strategies/default.ts
   architecture_checks:
     - check: no_inline_run_in_chain_op_indexes
       command: rg -n "run:\\s*\\(" <chain op index files>
@@ -551,7 +551,7 @@ command_runs:
 
 ```yaml
 helper_dedup_scope:
-  worktree: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+  worktree: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
   branch: codex/prr-m4-s06-test-rewrite-architecture-scans
   objective:
     - remove_locally_recreated_math_helpers_from_decomposed_tectonics_modules
@@ -559,26 +559,26 @@ helper_dedup_scope:
 
 remediation:
   canonicalization:
-    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/shared.ts
+    - file: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/shared.ts
       changes:
         - clampByte now delegates to @swooper/mapgen-core/lib/math clampU8 (with legacy edge-case handling preserved)
         - clamp01 now delegates to @swooper/mapgen-core/lib/math clamp01 (with finite guard preserved)
         - clampInt8 now delegates to @swooper/mapgen-core/lib/math clampInt (with legacy edge-case handling preserved)
         - removed local addClampedByte helper
-    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/rollups.ts
+    - file: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/rollups.ts
       changes:
         - replaced addClampedByte accumulation calls with clampByte(sum + value) saturation
-    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/era-tectonics-kernels.ts
+    - file: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/era-tectonics-kernels.ts
       changes:
         - removed locally recreated clampByte/clampInt8/normalizeToInt8 helper bodies
         - imported canonical shared helpers from ./shared.js
         - replaced residual hypot2 helper use with Math.hypot
-    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/shared.ts
+    - file: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/shared.ts
       changes:
         - removed addClampedByte re-export
 
   guardrails:
-    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/scripts/lint/lint-domain-refactor-guardrails.sh
+    - file: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/scripts/lint/lint-domain-refactor-guardrails.sh
       changes:
         - added foundation rule blocking redefinition of clampByte/addClampedByte/clamp01/clampInt8/normalizeToInt8 inside decomposed tectonics strategy/history-lib modules
 
@@ -626,42 +626,42 @@ second_pass_scope:
     - remove_remaining_local_clamp_helper_reimplementations_in_foundation_hotspot_files
     - standardize_on_core_math_or_foundation_shared_tectonics_helpers
   targeted_hotspots:
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/shared.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-motion/index.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/era-tectonics-kernels.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/shared.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-motion/index.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/era-tectonics-kernels.ts
 
 changes:
   canonical_import_replacements:
-    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-motion/index.ts
+    - file: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-motion/index.ts
       updates:
         - removed local clampByte helper declaration
         - switched byte quantization to @swooper/mapgen-core/lib/math clampU8 with finite guard
-    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts
+    - file: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts
       updates:
         - removed local clampByte/clampInt8/clamp01/normalizeToInt8/hypot2 helper declarations
         - imported clamp01 from @swooper/mapgen-core/lib/math
         - imported clampByte + normalizeToInt8 from foundation shared tectonics helper module
         - replaced hypot2 call with Math.hypot
-    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts
+    - file: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts
       updates:
         - removed local clamp01 helper declaration
         - imported clamp01 from @swooper/mapgen-core/lib/math
-    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts
+    - file: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts
       updates:
         - removed local clampByte/clampInt8 helper declarations
         - imported clampByte + clampInt8 from foundation shared tectonics helper module
 
   guardrail_updates:
-    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/scripts/lint/lint-domain-refactor-guardrails.sh
+    - file: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/scripts/lint/lint-domain-refactor-guardrails.sh
       updates:
         - added hotspot-specific scan that fails if clampByte/addClampedByte/clamp01/clampInt8/normalizeToInt8 are redeclared in targeted hotspot op files
 
 post_sweep_state:
   helper_declarations_remaining_in_targeted_files:
-    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/shared.ts
+    - file: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/shared.ts
       declaration_status: expected_canonical_foundation_shared_helper_surface
   helper_declarations_removed_from_other_targeted_hotspots: true
 
@@ -723,11 +723,11 @@ docs_anchor:
       evidence_lines:
         - "11-18"
   canonical_examples:
-    - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/packages/mapgen-core/src/authoring/stage.ts
+    - path: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/packages/mapgen-core/src/authoring/stage.ts
       evidence_lines:
         - "89-100"
         - "140-156"
-    - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/packages/mapgen-core/src/authoring/op/create.ts
+    - path: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/packages/mapgen-core/src/authoring/op/create.ts
       evidence_lines:
         - "27-30"
         - "80-95"

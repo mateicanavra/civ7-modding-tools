@@ -11,7 +11,7 @@
 ## Proof (commands run + results)
 ### Ordered gate plan (fastest → broadest)
 ```bash
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-agent-ORCH-m4-reanchor-docs
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-agent-ORCH-m4-reanchor-docs
 
 # Gate A: legacy projection ids must be gone (code/tests)
 rg -n "artifact:foundation\\.(plates|tileToCellIndex|crustTiles|tectonicHistoryTiles|tectonicProvenanceTiles)" \

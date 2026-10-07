@@ -1,6 +1,6 @@
 # Spike M7: Step-owned tags and artifacts refactor plan
 
-Using architecture skill to structure a step-owned tag/artifact refactor plan against the current worktree (`/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools-mapgen-domain-config`).
+Using architecture skill to structure a step-owned tag/artifact refactor plan against the current worktree (`<user-home>/Documents/.nosync/DEV/civ7-modding-tools-mapgen-domain-config`).
 
 **Current state (confirmed in this worktree)**
 - Tag kinds in use are `artifact:*`, `field:*`, `effect:*` (no `buffer:*` tags in the standard recipe today).

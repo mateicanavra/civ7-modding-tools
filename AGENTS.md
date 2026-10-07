@@ -10,6 +10,8 @@ This repo uses nested `AGENTS.md` files as lightweight domain routers: short, en
 ## Hygiene & Maintenance
 
 - Before editing, skim `git status` for existing work and avoid undoing unrelated changes.
+- Keep public code and runbooks portable; private machine identities, paths,
+  deployment state and receipts belong outside Git. See `docs/DOCS.md`.
 - When using `apply_patch`, always use absolute file paths. Do not use relative
   paths in patch headers; agents often run from different working directories,
   and absolute paths prevent accidental edits in the wrong checkout or worktree.

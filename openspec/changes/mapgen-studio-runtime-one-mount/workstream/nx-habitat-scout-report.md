@@ -117,6 +117,6 @@ rg -n 'devLive\.ts|"dev": "bun src/server/daemon/devLive\.ts"|bun --watch|turbo 
 
 ## Worktree Policy
 
-- New worktrees use `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-<id>-...`.
+- New worktrees use `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-<id>-...`.
 - New writable worktree entrance includes dependency install before validation results are trusted.
 - `scripts/graphite-import-worktree.sh` is relevant after a clean branch is already checked out; it is not a substitute for official worktree creation.

@@ -1,7 +1,7 @@
 # Adversarial verification — ds-group "forms" (11 rows)
 
 Verdict: **verified = true**. Every import surface was re-derived from source in
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction`.
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction`.
 No tier changes. No missed runtime import crossing. All 11 "clean" tiers hold.
 Corrections are minor (externalDeps completeness, two storyNotes overstatements);
 one contract-level crossing the builder missed is recorded.

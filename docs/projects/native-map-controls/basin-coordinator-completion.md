@@ -424,7 +424,7 @@ open calibration work; neither thresholds nor fixtures were weakened to make
 this change green. The complete log is retained in the discoverable atlas at
 `earth-calibration/basin-coordinator-proof-20260929.log`.
 
-The [Huge/1018 portable comparison](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coordinator-complete-huge-1018/index.html)
+The Huge/1018 portable comparison (`coordinator-complete-huge-1018/index.html`)
 completes both baseline and sparse-river arms with integrity passing. All seven
 required physical holds match exactly, including fractional water surfaces
 hashed as Float64 rather than truncated Int16. The viewer renders 149 signed

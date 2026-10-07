@@ -10,7 +10,7 @@ guard decisions, refusal/recovery rendering, and generated-drift command expecta
 
 Worktree inspected:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
 - Branch: `codex/d10-protected-zone-authority-packet`
 - Initial status: clean
 

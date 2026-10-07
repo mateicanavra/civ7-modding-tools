@@ -1,7 +1,7 @@
 # ORCH-PLAN: M3 Ecology Execution
 
 ## Breadcrumbs
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-MAMBO-M3-ecology-physics-first`
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-MAMBO-M3-ecology-physics-first`
 - Branch: `codex/MAMBO-m3-010-post-cutover-cleanup` (parent: `codex/MAMBO-m3-009-cleanup-delete-legacy-chance`; base: `main`)
 - Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`, M3-006 `#1227`, M3-007 `#1228`, M3-008 `#1229`, M3-009 `#1230`, M3-010 `#1231`
 - Packet: `docs/projects/pipeline-realism/resources/packets/PACKET-M3-ecology-physics-first/`

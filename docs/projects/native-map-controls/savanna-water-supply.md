@@ -87,7 +87,7 @@ navigable-terrain mismatches. Final elevation has zero unplanned lake or
 non-lake mismatches; the 165 declared water adjustments retain their separate
 projection meaning rather than being relabeled output identity.
 
-[Four native photographs](https://mateis-macbook-pro.taild8da1c.ts.net/civ/savanna-native-atlas-recovered-20261002/index.html)
+Four native photographs (`savanna-native-atlas-recovered-20261002/index.html`)
 show two maximum-zoom-out neighborhoods and two details. Native reads confirm
 the three newly admitted Huge1018 plots at `(1,33)`, `(0,34)` and `(80,35)`;
 the world summary is exact before and after camera-only photography. The

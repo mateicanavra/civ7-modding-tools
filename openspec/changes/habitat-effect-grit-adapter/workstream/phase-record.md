@@ -409,14 +409,14 @@ Dependency/platform non-claims:
     `bunx --help`,
     `bun x --help`,
     `bun x --no-install openspec --version`,
-    `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain openspec --version`,
-    `bun --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain x --no-install openspec --version` (failed; top-level `--cwd` does not compose with `x` in this Bun version),
-    `bun x --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain --no-install openspec --version` (failed; `bun x` treats that form as an invalid dependency format),
+    `bun run --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain openspec --version`,
+    `bun --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain x --no-install openspec --version` (failed; top-level `--cwd` does not compose with `x` in this Bun version),
+    `bun x --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain --no-install openspec --version` (failed; `bun x` treats that form as an invalid dependency format),
     `bun x --no-install openspec --version` from the repo root (passed).
   - apply rollback/final-clean focused proof:
-    `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/tools/habitat-harness vitest run --project habitat-harness test/lib/grit-apply.test.ts` (passed; current file has 12 tests after owner-layer correction).
+    `bun run --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/tools/habitat-harness vitest run --project habitat-harness test/lib/grit-apply.test.ts` (passed; current file has 12 tests after owner-layer correction).
   - owner-layer correction proof:
-    `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/tools/habitat-harness test -- grit-apply` (passed: 12 tests),
+    `bun run --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/tools/habitat-harness test -- grit-apply` (passed: 12 tests),
     proving generic transaction safety, pattern-owned approval intake, and
     pattern-owned failure-tag preservation without core-harness import/export
     policy.
@@ -438,7 +438,7 @@ Dependency/platform non-claims:
     removed. A later `@mapgen`/target-export classifier in the transaction
     layer was also removed for the same owner-layer reason.
   - isolated transaction-copy apply proof:
-    `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/tools/habitat-harness test -- grit-apply`
+    `bun run --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/tools/habitat-harness test -- grit-apply`
     passed with 17 tests, including a controlled `deep_import_to_public_surface`
     probe that writes a matching source file, runs real Grit against an isolated
     transaction copy, records `grit-apply-isolated-copy`, changed path,
@@ -455,10 +455,10 @@ Dependency/platform non-claims:
     the dry-run command path can preserve a valid apply match through isolated
     diff evidence; it does not prove live worktree apply.
   - selected apply gates:
-    `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/tools/habitat-harness check` passed,
-    `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/tools/habitat-harness test -- grit-apply` passed,
+    `bun run --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/tools/habitat-harness check` passed,
+    `bun run --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/tools/habitat-harness test -- grit-apply` passed,
     and
-    `bun run biome check /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/tools/habitat-harness/src/lib/grit-apply.ts /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/tools/habitat-harness/test/lib/grit-apply.test.ts`
+    `bun run biome check <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/tools/habitat-harness/src/lib/grit-apply.ts <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/tools/habitat-harness/test/lib/grit-apply.test.ts`
     passed after a safe Biome format/write on those two files.
   - live apply proof guardrail:
     a separate `/tmp` Git probe showed `git checkout -- <intent-to-add-file>`
@@ -468,14 +468,14 @@ Dependency/platform non-claims:
     transaction-copy diff proof, including create/delete rejection at that
     evidence boundary, not live worktree apply or live create/delete rejection.
   - full-depth-language guardrail scan:
-    `rg -n "fallback|shim|temporary|compatibility lane|only-if-needed|silent skip|maybe|optional|dual path|shortcut" /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/openspec/changes/habitat-effect-grit-adapter /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/docs/projects/habitat-harness --glob '!**/_archive/**' --glob '!**/research/**'`
+    `rg -n "fallback|shim|temporary|compatibility lane|only-if-needed|silent skip|maybe|optional|dual path|shortcut" <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/openspec/changes/habitat-effect-grit-adapter <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/docs/projects/habitat-harness --glob '!**/_archive/**' --glob '!**/research/**'`
     found active packet terms only in review/guardrail framing, historical
     Habitat draft material, and the explicit rejected AST/classifier record. No
     hit authorizes an implementation shortcut, fallback path, shim, silent
     skip, or compatibility lane for this packet.
   - resolver proof after explicit execution-plane split:
-    `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/tools/habitat-harness check` (passed),
-    `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/tools/habitat-harness test` (passed: 12 files / 77 tests),
+    `bun run --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/tools/habitat-harness check` (passed),
+    `bun run --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain/tools/habitat-harness test` (passed: 12 files / 77 tests),
     `bun run habitat:check -- --json --tool grit-check` (passed: CheckReport schemaVersion 1, 23 reports, all pass, including all 22 Grit rules plus `baseline-integrity`),
     `bun run habitat:fix -- --dry-run` (passed: processed 235 files and found 0 matches).
   - final OpenSpec validation:

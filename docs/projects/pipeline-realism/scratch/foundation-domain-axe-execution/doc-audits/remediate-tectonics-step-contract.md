@@ -24,7 +24,7 @@ observations:
 ```
 
 ```yaml
-path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts
+path: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts
 before:
   - Imported DEFAULT_PLATE_MOTION_CONFIG and DEFAULT_TECTONIC_SEGMENTS_CONFIG from an op-internal library path.
   - Era-loop computePlateMotion/computeTectonicSegments calls bypassed step config via local constant envelopes.
@@ -34,7 +34,7 @@ after:
 ```
 
 ```yaml
-path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.contract.ts
+path: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.contract.ts
 observations:
   - Contract already declares the decomposed chain (computePlateMotion, computeTectonicSegments, computeEraPlateMembership, computeSegmentEvents, computeHotspotEvents, computeEraTectonicFields, computeTectonicHistoryRollups, computeTectonicsCurrent, computeTracerAdvection, computeTectonicProvenance).
   - No contract edits were required once step runtime stopped bypassing declared config.
@@ -42,9 +42,9 @@ observations:
 
 ### Edits
 - File changed:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts`
 - File intentionally unchanged (already aligned):
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.contract.ts`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.contract.ts`
 
 Concrete delta in `tectonics.ts`:
 - Removed cross-op internal import of default configs.
@@ -55,7 +55,7 @@ Concrete delta in `tectonics.ts`:
 
 ### Verification
 Command:
-- `bun --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps test test/foundation/contract-guard.test.ts test/foundation/no-op-calls-op-tectonics.test.ts test/m11-config-knobs-and-presets.test.ts`
+- `bun --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps test test/foundation/contract-guard.test.ts test/foundation/no-op-calls-op-tectonics.test.ts test/m11-config-knobs-and-presets.test.ts`
 
 Result:
 - 16 passed, 0 failed.

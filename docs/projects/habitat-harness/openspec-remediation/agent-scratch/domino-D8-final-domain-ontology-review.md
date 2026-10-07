@@ -13,9 +13,9 @@ claim implementation completion.
 
 ## Sources Read
 
-- `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`.
-- `/Users/mateicanavra/.agents/skills/information-design/SKILL.md`.
-- `/Users/mateicanavra/.agents/skills/ontology-design/SKILL.md`.
+- `<user-home>/.agents/skills/domain-design/SKILL.md`.
+- `<user-home>/.agents/skills/information-design/SKILL.md`.
+- `<user-home>/.agents/skills/ontology-design/SKILL.md`.
 - Ontology Design direct references: `axes.md`, `principles.md`,
   `where-defaults-hide.md`, `representation-choices.md`,
   `operationalization.md`, `maintenance.md`, `examples.md`, and

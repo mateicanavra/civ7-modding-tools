@@ -4,8 +4,8 @@
 
 - **Base branch:** `agent-GOBI-PRR-s102-plan-fix-blobular-continents-restore-mountains-post-s101-docs`
 - **Spike branch:** `agent-ORCH-spike-ecology-arch-alignment`
-- **Worktree root:** `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-spike-ecology-arch-alignment`
-- **Repo:** `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools`
+- **Worktree root:** `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-spike-ecology-arch-alignment`
+- **Repo:** `<user-home>/Documents/.nosync/DEV/civ7-modding-tools`
 
 ## Agent Roster (Axes + Outputs)
 
@@ -46,9 +46,9 @@ We will run a **research-only** spike to understand:
   - `docs/projects/engine-refactor-v1/resources/spec/SPEC-step-domain-operation-modules.md`
   - `docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md`
 - Ecology “domain + recipe” reality to investigate is centered in:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/ecology/**`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/ecology/**`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/**`
+  - `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/ecology/**`
+  - `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/ecology/**`
+  - `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/**`
 - Deck.gl visualization posture is documented (and is a hard compatibility surface for refactors that touch `dataTypeKey`s):
   - `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
 - Narsil MCP repo id for code intelligence queries:
@@ -61,7 +61,7 @@ We follow the repo’s **git-worktrees** invariant: worktree/branch names includ
 
 1. **Primary-worktree hygiene (no mutation)**
    ```bash
-   cd /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools
+   cd <user-home>/Documents/.nosync/DEV/civ7-modding-tools
    git status
    gt ls
    git branch --show-current
@@ -76,12 +76,12 @@ We follow the repo’s **git-worktrees** invariant: worktree/branch names includ
    - Agent id: `ORCH`
    - Branch name: `agent-ORCH-spike-ecology-arch-alignment`
    - Worktree dir:
-     - `WORKTREES_ROOT="/Users/mateicanavra/Documents/.nosync/DEV/worktrees"`
+     - `WORKTREES_ROOT="<user-home>/Documents/.nosync/DEV/worktrees"`
      - `"$WORKTREES_ROOT/wt-agent-ORCH-spike-ecology-arch-alignment"`
    ```bash
-   cd /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools
+   cd <user-home>/Documents/.nosync/DEV/civ7-modding-tools
    git fetch --all --prune
-   WORKTREES_ROOT="/Users/mateicanavra/Documents/.nosync/DEV/worktrees"
+   WORKTREES_ROOT="<user-home>/Documents/.nosync/DEV/worktrees"
    git worktree add -b agent-ORCH-spike-ecology-arch-alignment \
      "$WORKTREES_ROOT/wt-agent-ORCH-spike-ecology-arch-alignment" \
      <BASE_BRANCH>
@@ -99,7 +99,7 @@ We follow the repo’s **git-worktrees** invariant: worktree/branch names includ
 5. **Mandatory first step (before any other research actions)**
    - Create the spike directory + scratch area, then **write this agreed plan into a scratch document**.
    - Location (chosen to match existing project conventions in `engine-refactor-v1/resources/spike/`):
-     - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/`
+     - `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/`
    - First scratch doc:
      - `.../ecology-arch-alignment/_scratch/00-plan.md`
    - The contents of `00-plan.md` must include:
@@ -110,7 +110,7 @@ We follow the repo’s **git-worktrees** invariant: worktree/branch names includ
 
 6. **Install dependencies (only after the plan is recorded)**
    ```bash
-   cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-spike-ecology-arch-alignment
+   cd <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-spike-ecology-arch-alignment
    bun install
    ```
    - If `bun install` changes lockfiles, stop and decide explicitly whether the spike should include that change (default: do not).
@@ -119,9 +119,9 @@ We follow the repo’s **git-worktrees** invariant: worktree/branch names includ
 Goal: build the initial **mental map** and identify the high-leverage threads.
 
 1. Seed map from existing routers and canonical docs:
-   - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/AGENTS.md`
-   - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/packages/mapgen-core/AGENTS.md`
-   - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/packages/mapgen-viz/AGENTS.md`
+   - `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/AGENTS.md`
+   - `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/packages/mapgen-core/AGENTS.md`
+   - `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/packages/mapgen-viz/AGENTS.md`
    - `docs/system/libs/mapgen/explanation/ARCHITECTURE.md`
    - `docs/system/libs/mapgen/reference/domains/ECOLOGY.md`
 
@@ -227,7 +227,7 @@ We spawn multiple peer agents as teammates. All agents:
 We produce a **small integrated directory** (final spike output) and keep scratch pads separate.
 
 **Canonical spike directory**
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/`
+- `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/`
 
 **Canonical docs (final integrated output)**
 1. `README.md`
@@ -272,9 +272,9 @@ If we need a concrete baseline for later “no behavior change” refactors:
   - what ecology emits (artifacts + viz layers)
   - determinism expectations and current drift/noise sources
 - Candidate commands (document, don’t commit large binaries):
-  - `bun --cwd /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps run diag:dump`
-  - `bun --cwd /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps run diag:list`
-  - `bun --cwd /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps run diag:diff`
+  - `bun --cwd <user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps run diag:dump`
+  - `bun --cwd <user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps run diag:list`
+  - `bun --cwd <user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps run diag:diff`
 
 ### Phase 5: Exit (Capture vs Discard, Cleanup Safe)
 At the end of the spike report, explicitly ask:

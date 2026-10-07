@@ -15,7 +15,7 @@
 - [2026-02-15T02:52:01Z] Preflight complete: milestone tasks=27, review entries=27, task->branch mappings=27/27, missing branches=0.
 - [2026-02-15T02:52:01Z] Baseline snapshots written: preflight-git-status.txt, preflight-gt-ls.txt, preflight-gt-log.txt, preflight-git-worktree-list.txt, preflight-out-of-scope-shas.txt.
 - [2026-02-15T02:52:01Z] Fix-candidate ledger prepared at preflight-fix-ledger.tsv (27 review entries parsed).
-- [2026-02-15T03:05:31Z] Safety correction applied: moved orchestration to dedicated worktree /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-TOMMY-m4-fix-bootstrap (primary checkout cleaned).
+- [2026-02-15T03:05:31Z] Safety correction applied: moved orchestration to dedicated worktree <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-TOMMY-m4-fix-bootstrap (primary checkout cleaned).
 - [2026-02-15T03:05:31Z] Worker capacity constrained (agent thread limit); assigned first wave to eco-core + hydro-bridge, then re-assigned same agents to epp-continuum + crosscut-risk.
 - [2026-02-15T03:12:41Z] Integrated worker handoffs and froze execution queue at docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/frozen-execution-queue.tsv.
 - [2026-02-15T03:12:41Z] Handoff decisions: accepted eco-core/hydro-bridge/epp-continuum/crosscut-risk findings with no revision requests.

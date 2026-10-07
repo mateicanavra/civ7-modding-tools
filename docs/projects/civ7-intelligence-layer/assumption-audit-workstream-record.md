@@ -54,7 +54,7 @@ this record as historical audit input; the active workstream is
 
 ## Repo State
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools`.
+- Worktree: `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools`.
 - Branch: `codex/investigate-civ7-intelligence-threads`.
 - Parent branch: `codex/shape-civ7-intelligence-solution`.
 - Stack position: top of current Civ7 intelligence docs stack.

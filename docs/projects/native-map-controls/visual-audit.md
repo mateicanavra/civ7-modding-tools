@@ -59,37 +59,17 @@ Full-map biomes use an explicitly idealized Civ-like palette, not sampled game
 pixels. Drainage arrows and fluxes depict physical intent; the separate native
 panel reports observed classes without inferring native directed edges.
 
-## Private Mobile Access
+## Viewer Publication
 
-The follow-up mobile-viewing request uses built-in Tailscale Serve on the
-existing Mac, at `/civ/`, forwarding only to the loopback gallery on port 5181.
-The user approved incoming tailnet connections. Existing tailnet policy governs
-other host listeners; Serve itself publishes only this selected HTTP endpoint.
-Funnel is not enabled and the gallery is not published to the public internet.
+Publish only the selected static atlas, never repository source, game user data
+or a controller/debug endpoint. Keep the hosting address and service state in
+a private instance runbook. The [portable viewer guide](../../process/LOCAL-VIEWERS.md)
+describes retention, safe publication and verification without selecting a host.
 
-A separate Opa-style embedded `tsnet` node was investigated, then rejected for
-this owner's-phone use case: application-specific identity/isolation did not
-justify a custom Go server. The unenrolled prototype was stopped and its source
-removed. Opa's service, state and sharing rules remain untouched.
-
-The Mac app's CLI is `/Applications/Tailscale.app/Contents/MacOS/Tailscale`;
-the unrelated Homebrew CLI expects a different daemon. The selected route is:
-
-```sh
-/Applications/Tailscale.app/Contents/MacOS/Tailscale serve --bg \
-  --set-path=/civ http://127.0.0.1:5181
-```
-
-The gallery origin is a standard-library static server, bound to 127.0.0.1,
-serving only the durable user-data atlas directory above. The current-login
-launchd job is `com.mateicanavra.civ7-gallery`; it has no login/startup plist. This
-requires the Mac to remain awake and connected. It exposes neither repository
-source nor a Civ7 controller/debug endpoint through the Serve route.
-
-The user confirmed the HTTPS gallery works on their phone. After relocation,
-the unchanged tailnet URL again returned HTTP 200, as did representative image
-assets. Browser checks at 390 x 844 showed a loaded first image and no horizontal
-overflow; the 1280-pixel desktop gallery also rendered correctly.
+Historical publication checks confirmed the HTML and representative image bytes.
+Browser checks at 390 x 844 showed a loaded first image and no horizontal
+overflow; the 1280-pixel desktop gallery also rendered correctly. Those checks
+do not establish current hosting availability or a new game test.
 
 ## Distinguishing Disconnections
 

@@ -3,7 +3,7 @@
 ## State
 
 - Status: D1 source implementation submitted; closure records aligned with the D1 command-module replacement layer.
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
 - Branch: `agent-DRA-d1-command-modules`.
 - Stack base at preparation snapshot: `agent-DRA-graphite-commit-message-format` / `61d40e640`.
 - Source packet: `docs/projects/habitat-harness/phase2-workstream-packets/D1-proof-contract-boundary.md`.
@@ -43,7 +43,7 @@ Protected paths are exactly the list in `proposal.md`. D1 may cite D0 but may no
 
 | Item | Value | Interpretation |
 | --- | --- | --- |
-| Active worktree | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame` | Dedicated Habitat implementation stack worktree. |
+| Active worktree | `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame` | Dedicated Habitat implementation stack worktree. |
 | Active branch | `agent-DRA-d1-command-modules` | Current D1 source layer on the one linear Habitat Graphite stack. |
 | Downstack | prep frame -> D0 matrix -> Graphite process-doc layer -> D1 prep -> D1 monolith deletion | D1 builds on completed prep/D0 artifacts and stack-maintenance process doc. |
 | D0 matrix | `docs/projects/habitat-harness/public-surface-compatibility-matrix.md` | Concrete D0 rows exist; D1 must cite them instead of placeholders. |

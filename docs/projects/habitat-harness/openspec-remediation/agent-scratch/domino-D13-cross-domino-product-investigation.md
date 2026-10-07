@@ -1,7 +1,7 @@
 # D13 Cross-Domino Product Investigation
 
 Reviewer: fresh D13 cross-domino/product reviewer.
-Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`.
+Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`.
 Branch observed: `codex/d13-scaffolding-refusal-packet`.
 
 ## Review Status

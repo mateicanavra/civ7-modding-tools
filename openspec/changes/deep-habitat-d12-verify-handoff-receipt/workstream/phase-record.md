@@ -4,7 +4,7 @@
 
 - Status: source implementation complete; final Graphite submission remains.
 - Stack parent: submitted D11 local-feedback layer `c0a45918b`.
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
 - Product boundary: `habitat verify` emits a bounded verify receipt from check, graph target-plan, affected Nx, base, and post-state observations.
 
 ## Objective

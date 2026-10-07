@@ -12,7 +12,7 @@ accepted and repaired in the earlier bounded checkpoint.
 ## Branch / Stack
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-runtime-run-validated-closure`
 - Parent: `agent-HG-habitat-grit-contract-export-all-closure`
 - The older `agent-HG-habitat-grit-runtime-run-validated` checkpoint remains

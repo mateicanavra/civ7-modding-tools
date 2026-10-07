@@ -14,7 +14,7 @@ non-claims.
 ## Branch / Stack
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-domain-root-catalogs-closure`
 - Parent: `agent-HG-habitat-grit-sibling-stage-step-imports-closure`
 - Historical bounded DRC proof did not consume HR repair layers. The current

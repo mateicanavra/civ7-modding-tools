@@ -281,7 +281,7 @@ files in parallel.
   2026-07-18) — use `rg` for docs/configs, narsil for the code they point at.
   **Instance config, not narsil law:** this deployment indexes two repos —
   the TS monorepo materialized at the primary worktree
-  (`/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools`) and
+  (`<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools`) and
   the base-game resources dump — so only code checked out at that path is
   searchable. Doctrinal freshness is `--watch` + `--persist`; our operational
   ritual (observed practice): `get_incremental_status` Last Updated recent +

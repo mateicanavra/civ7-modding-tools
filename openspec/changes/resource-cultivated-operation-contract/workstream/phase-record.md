@@ -10,7 +10,7 @@ runtime-id boundary.
 ## Repo State
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`
+  `<user-home>/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`
 - Branch: `codex/resource-cultivated-operation-contract`
 - Parent slice: `codex/resource-aquatic-operation-contract`
 - Parent aquatic local commit:

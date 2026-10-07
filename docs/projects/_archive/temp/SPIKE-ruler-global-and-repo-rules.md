@@ -7,8 +7,8 @@ Evaluate adopting `intellectronica/ruler` to:
 - apply consistent “rules” globally and per-repo
 - keep this repo’s `AGENTS.md` routers as the canonical source of truth
 - understand how this relates to (or replaces) global “slash commands/prompts” like:
-  - `/Users/mateicanavra/.claude/commands/dev.md`
-  - `/Users/mateicanavra/.codex/prompts/dev.md`
+  - `<user-home>/.claude/commands/dev.md`
+  - `<user-home>/.codex/prompts/dev.md`
 
 ## What Ruler is (in practice)
 

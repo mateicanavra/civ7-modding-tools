@@ -13,7 +13,7 @@ blocked are non-claims.
 ## Branch / Stack
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-viz-contract-ownership-closure`
 - Parent: `agent-HG-habitat-grit-control-orpc-contract-ownership-closure`
 - This is a local-only Graphite row above the accepted COCO checkpoint.

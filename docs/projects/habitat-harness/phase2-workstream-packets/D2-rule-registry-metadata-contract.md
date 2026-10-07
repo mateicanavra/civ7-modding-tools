@@ -143,7 +143,7 @@ Update:
 
 - `bun run --cwd tools/habitat test -- test/lib/rule-selection.test.ts test/rules/pattern-authority-manifest.test.ts`:
   expected exit 0; schema and selector receipt for registry facets.
-- `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/rules/rules.json`:
+- `bun run habitat classify <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/rules/rules.json`:
   expected exit 0; command behavior receipt that registry ownership remains
   discoverable.
 - `nx show project habitat`: expected exit 0; graph metadata

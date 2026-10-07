@@ -19,7 +19,7 @@ cleanup, and git status before/after.
   `http://127.0.0.1:5274/healthz` and `http://127.0.0.1:5273/` failed.
 - Cleanup: current-worktree `mapgen-studio:dev`, Vite, and daemon processes were
   terminated. A separate daemon in
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-mc-handcrafted-map`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-mc-handcrafted-map`
   on port `5184` was left alone as exterior state.
 
 ## Attempt 2: Isolated Ports With Nx Daemon Disabled
@@ -36,7 +36,7 @@ cleanup, and git status before/after.
   - `ok`: `true`
   - `serverInstanceId`: `studio-server-mqhl7inu-1jz3-1`
   - `startedAt`: `2026-06-17T04:44:58.554Z`
-  - `repoRoot`: `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools`
+  - `repoRoot`: `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools`
   - `runtimeMode`: `studio-daemon-effect-orpc`
   - tuner: `consecutiveResponseTimeouts=0`, `gateOpenUntil=null`,
     `wedgeSuspected=false`

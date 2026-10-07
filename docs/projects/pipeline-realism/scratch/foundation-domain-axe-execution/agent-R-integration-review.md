@@ -185,8 +185,8 @@ docs_anchor:
 
 ### Hard precondition
 ```text
-$ cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && pwd && git rev-parse --abbrev-ref HEAD
-/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+$ cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && pwd && git rev-parse --abbrev-ref HEAD
+<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
 codex/prr-m4-s06-test-rewrite-architecture-scans
 ```
 

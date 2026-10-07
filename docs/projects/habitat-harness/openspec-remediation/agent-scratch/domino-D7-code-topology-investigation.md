@@ -8,8 +8,8 @@ The current code is traceable enough to describe present `habitat check` behavio
 
 Missing evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d7-structural-enforcement-pipeline/design.md` is still requires the executor to first provide the concrete write set, protected path list, verification gates, and D0 compatibility disposition.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d7-structural-enforcement-pipeline/tasks.md` still has the design intake tasks open, including recording the concrete write set and protected paths.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d7-structural-enforcement-pipeline/design.md` is still requires the executor to first provide the concrete write set, protected path list, verification gates, and D0 compatibility disposition.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d7-structural-enforcement-pipeline/tasks.md` still has the design intake tasks open, including recording the concrete write set and protected paths.
 - D7 says it consumes D0/D1/D2/D3/D5/D6/D10 authority, but the current D6 diagnostic-projection and D10 generated/protected-zone authority are not present as accepted source contracts in code. Current code has present behavior, not the target consumer projection that D7 says it must consume.
 - Current report validation checks structural presence and does not enforce `CheckReport.ok`/rule-status consistency, which is one of the D7 packet stop-condition risks.
 
@@ -17,11 +17,11 @@ This report therefore records current topology and a candidate D7 write set, but
 
 ## Current `habitat check` Path
 
-`habitat check` enters through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/check.ts`.
+`habitat check` enters through `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/check.ts`.
 
 The command parses these flags today: `--json`, `--output`, `--owner`, `--rule`, `--tool`, `--staged`, `--expand-baseline`, and `--base`. `--expand-baseline` bypasses report generation and calls baseline expansion. Normal execution calls `createCheckReport`, renders with `renderCheckReport`, logs or writes the result, and exits `0` when `report.ok` is true and `1` otherwise.
 
-`createCheckReport` in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts` currently owns the full orchestration:
+`createCheckReport` in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts` currently owns the full orchestration:
 
 1. Select rules with `selectRules`.
 2. Return a synthetic `rule-selection-integrity` failure report on invalid selectors.
@@ -34,15 +34,15 @@ The command parses these flags today: `--json`, `--output`, `--owner`, `--rule`,
 
 Rule execution branches today:
 
-- `grit-check` rules are grouped and executed by `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit.ts`.
-- `file-layer` rules are executed by `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/generated-zones.ts`.
-- Other native/wrapped rules run through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/architecture.ts`.
+- `grit-check` rules are grouped and executed by `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit.ts`.
+- `file-layer` rules are executed by `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/generated-zones.ts`.
+- Other native/wrapped rules run through `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/architecture.ts`.
 
-Baseline application is in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts`. It mutates matching diagnostics with `baselined: true`, rejects parser-owned baselining for explicit baseline files, returns contract-failure diagnostics, and checks baseline integrity against the base registry.
+Baseline application is in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts`. It mutates matching diagnostics with `baselined: true`, rejects parser-owned baselining for explicit baseline files, returns contract-failure diagnostics, and checks baseline integrity against the base registry.
 
-Human output is rendered by `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/messages.ts`. JSON output is `JSON.stringify(report, null, 2)` after `validateCheckReport`.
+Human output is rendered by `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/messages.ts`. JSON output is `JSON.stringify(report, null, 2)` after `validateCheckReport`.
 
-Graph/Nx facts exist in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js` and related classify/verify paths. They are not currently consumed by `createCheckReport` when assembling `CheckReport`.
+Graph/Nx facts exist in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js` and related classify/verify paths. They are not currently consumed by `createCheckReport` when assembling `CheckReport`.
 
 ## Current-State Inventory
 
@@ -110,13 +110,13 @@ It does not validate:
 
 ### Grit pattern projection can ignore unexpected native output
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit.ts` projects findings with `rule.gritPattern ?? rule.id` and only rejects unexpected `patternIdentity` when `rejectUnexpectedPatternIdentity` is explicitly requested.
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit.ts` projects findings with `rule.gritPattern ?? rule.id` and only rejects unexpected `patternIdentity` when `rejectUnexpectedPatternIdentity` is explicitly requested.
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/grit-adapter.test.ts` pins the current permissive behavior: findings outside the selected pattern set are ignored by default. This can be false-green for D7/D6 target semantics if all native Grit output is unexpected or if a rule is missing explicit pattern identity.
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/grit-adapter.test.ts` pins the current permissive behavior: findings outside the selected pattern set are ignored by default. This can be false-green for D7/D6 target semantics if all native Grit output is unexpected or if a rule is missing explicit pattern identity.
 
 ### Generated-zone checks are staged-mode and internally source staged paths
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/generated-zones.ts` returns pass with no diagnostics when `context.staged` is false. It reads staged files internally through `git diff --cached --name-status -z`.
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/generated-zones.ts` returns pass with no diagnostics when `context.staged` is false. It reads staged files internally through `git diff --cached --name-status -z`.
 
 `CheckOptions.stagedPaths` affects staged Grit scan roots but does not inject file-layer staged paths, because non-Grit execution only receives `{ staged }`. That makes file-layer behavior harder to test and leaves D7 without a clean stage input model for generated/protected-zone decisions.
 

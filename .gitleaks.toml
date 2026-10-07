@@ -1,0 +1,47 @@
+title = "Public repository secrets and private workstation details"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "privacy-home-path"
+description = "Personal absolute Unix home path; use $HOME or a synthetic fixture"
+# Extract the account so built-in full-path allowlists cannot hide this finding.
+regex = '''(?i)/(?:Users|home)/([a-z0-9_.-]+)'''
+secretGroup = 1
+[[rules.allowlists]]
+regexes = ['''(?i)^(?:test|TestUser|private|shared|public|user|username|example|runner)$''']
+
+[[rules]]
+id = "privacy-windows-home-path"
+description = "Personal absolute Windows home path; use a synthetic fixture"
+regex = '''(?i)[a-z]:[\\/]+Users[\\/]+[a-z0-9_.-]+'''
+[[rules.allowlists]]
+regexes = ['''(?i)^[a-z]:[\\/]+Users[\\/]+(?:TestUser|Public|Default|example|username)$''']
+
+[[rules]]
+id = "privacy-tailnet-host"
+description = "Private tailnet DNS identity; use localhost or example.invalid"
+regex = '''(?i)\b(?:[a-z0-9][a-z0-9-]*\.)+ts\.net\b'''
+
+[[rules]]
+id = "privacy-tailnet-address"
+description = "Private tailnet address; use localhost"
+regex = '''\b100\.(?:6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\.[0-9]{1,3}\.[0-9]{1,3}\b'''
+[[rules.allowlists]]
+regexes = ['''^100\.64\.0\.0$''']
+
+[[rules]]
+id = "privacy-ssh-identity-path"
+description = "Machine-specific SSH identity path; use a generic identity filename"
+regex = '''\.ssh/(?:[^/\s"'<>`]+/)*[^/\s"'<>`]+'''
+[[rules.allowlists]]
+regexes = ['''^\.ssh/(?:id_rsa|id_ed25519|id_ecdsa|known_hosts|authorized_keys|config|example)(?:[.]pub)?$''']
+
+[[rules]]
+id = "privacy-ssh-host"
+description = "Concrete SSH host definition; use an example host"
+# Conventional directive capitalization avoids matching prose like "host app".
+regex = '''(?m)^[ \t]*(?:Host|HostName)[ \t]+[a-zA-Z0-9][a-zA-Z0-9_.-]*[ \t]*$'''
+[[rules.allowlists]]
+regexes = ['''(?i)^[ \t]*(?:Host|HostName)[ \t]+(?:localhost|host|my-host|your-host|example(?:[.-][a-z0-9-]+)*|test(?:[.-][a-z0-9-]+)*)[ \t]*$''']

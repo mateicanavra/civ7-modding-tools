@@ -7,7 +7,7 @@ profile surface, not the solution architecture itself.
 ## Local Location
 
 ```text
-/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/civmods-rhq-39525
+<user-home>/Library/Application Support/Civilization VII/Mods/civmods-rhq-39525
 ```
 
 The active manifest is `ai.modinfo`. In this local copy, `modinfo.xml` and

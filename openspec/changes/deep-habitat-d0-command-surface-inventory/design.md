@@ -287,9 +287,9 @@ non-claims in the matrix or phase record.
 ## Historical Path Policy
 
 Absolute paths under
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`
 in the source packet are historical provenance only. D0 executable commands run
-from `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
+from `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
 or use repo-relative paths.
 
 ## TypeScript Refactoring Implications

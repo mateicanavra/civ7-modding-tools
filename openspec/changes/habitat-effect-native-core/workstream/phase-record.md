@@ -9,7 +9,7 @@ commit.
 
 ## Branch And Stack State
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-F-habitat-effect-core`
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-F-habitat-effect-core`
 - Branch: `agent-F-habitat-effect-core`
 - Graphite parent: `agent-F-habitat-generators-migrations`
 - Current branch state: `agent-F-habitat-effect-core` is stacked on H8 branch

@@ -4,7 +4,7 @@
 
 Role: TypeScript Overengineering Adversary.
 
-Review target: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/`.
+Review target: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/`.
 
 Review question: will this corpus drive TypeScript state-space reduction for product scenarios, or will it authorize abstraction sprawl, excess packet count, broad facades, and ADTs that do not carry product contract value?
 

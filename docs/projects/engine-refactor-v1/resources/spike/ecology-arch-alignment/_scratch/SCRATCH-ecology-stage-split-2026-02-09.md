@@ -30,7 +30,7 @@ Purpose: ongoing scratchpad for maximal drift analysis + remediation planning, w
 
 - Base branch (stack tip): `codex/ecology-wet-placement-standalone` @ `db0c7ae97`
 - Spike branch: `agent-codex-spike-ecology-stage-split`
-- Worktree root: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-spike-ecology-stage-split`
+- Worktree root: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-spike-ecology-stage-split`
 
 ### Canonical MapGen doc spine (target-architecture-first)
 

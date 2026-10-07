@@ -13,7 +13,7 @@ available without source remediation or HR-owned implementation changes.
 ## Repo State
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-runtime-validation-imports-closure`
 - Parent layer: `agent-HG-habitat-grit-runtime-run-validated-closure`
 - Graphite stack:

@@ -43,9 +43,9 @@ We’ll add a new mini-stack (3 slices) on top of `agent-GOBI-PRR-s101-per-era-c
 **Goal:** restore mountain/hill/orogeny signals without “cheating thresholds”.
 
 **Files**
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/ops/compute-belt-drivers/deriveFromHistory.ts`
+- `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/ops/compute-belt-drivers/deriveFromHistory.ts`
 - Add test:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/test/morphology/belt-drivers-boundary-closeness.test.ts` (new)
+  - `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/test/morphology/belt-drivers-boundary-closeness.test.ts` (new)
 
 **Change (decision-complete)**
 1. In `deriveBeltDriversFromHistory`, change:
@@ -75,8 +75,8 @@ We’ll add a new mini-stack (3 slices) on top of `agent-GOBI-PRR-s101-per-era-c
 **Goal:** reduce blobularity by making older-era boundaries materially displaced relative to present.
 
 **Files**
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json`
+- `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts`
+- `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json`
 
 **Change (decision-complete)**
 1. Update `driftStepsByEra` defaults (oldest→newest):
@@ -96,12 +96,12 @@ We’ll add a new mini-stack (3 slices) on top of `agent-GOBI-PRR-s101-per-era-c
 **Goal:** make continents look collision-shaped (not just smoothed crust blobs) by feeding “all relevant inputs” into continent potential in a **multi-scale** way.
 
 **Files**
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/ops/compute-landmask/contract.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/ops/compute-landmask/rules/index.ts` (if needed for validation changes)
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/ops/compute-landmask/strategies/default.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.ts`
+- `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/ops/compute-landmask/contract.ts`
+- `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/ops/compute-landmask/rules/index.ts` (if needed for validation changes)
+- `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/ops/compute-landmask/strategies/default.ts`
+- `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.ts`
 - Add test:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/test/pipeline/mountains-nonzero-probe.test.ts` (new, canonical probe only)
+  - `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/test/pipeline/mountains-nonzero-probe.test.ts` (new, canonical probe only)
 
 **Contract/Input Expansion (decision-complete)**
 Add these inputs to `compute-landmask` op (all tile-aligned arrays):

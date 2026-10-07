@@ -29,6 +29,6 @@ Disposition:
 
 ## Restack Adoption Limit
 
-These June 14 oracles prove the accepted one-mount transport baseline from the packet-authoring branch. On 2026-06-15 the runtime Effect stack was restacked onto the accepted Habitat/Nx baseline and adopted in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`.
+These June 14 oracles prove the accepted one-mount transport baseline from the packet-authoring branch. On 2026-06-15 the runtime Effect stack was restacked onto the accepted Habitat/Nx baseline and adopted in `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`.
 
 Current baseline proof recorded in `phase-record.md` shows local Nx `v22.7.5`, `mapgen-studio` project metadata, `mod-swooper-maps` project metadata, and strict D0 OpenSpec validation. That proof does not close D11: the current `mapgen-studio:dev` target still delegates to package `dev`, whose metadata runs `bun src/server/daemon/devLive.ts`. D11 owns deleting that supervisor and proving Nx-native continuous backend/frontend orchestration.

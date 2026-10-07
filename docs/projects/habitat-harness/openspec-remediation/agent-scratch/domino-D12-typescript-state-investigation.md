@@ -21,11 +21,11 @@ Mandatory skill anchors read before task work:
 
 | Skill | Files read |
 | --- | --- |
-| Domain Design | `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/domain-design/SKILL.md` and every file under `references/`. |
-| Information Design | `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/information-design/SKILL.md` and every file under `references/`. |
-| TypeScript Refactoring | `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/SKILL.md`, every file under `references/`, and every file under `assets/`. |
-| Testing Design | `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/testing-design/SKILL.md`, `references/leaflet-software-testing.md`, `references/principles/*.md`, and `references/defaults/*.md`. |
-| Solution Design | `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/solution-design/SKILL.md`, `references/axes/commitment-reversibility.md`, `references/defaults/critical-and-high.md`, `references/principles/*.md`, and `references/examples/satisficing-and-not-solving.md`. |
+| Domain Design | `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/domain-design/SKILL.md` and every file under `references/`. |
+| Information Design | `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/information-design/SKILL.md` and every file under `references/`. |
+| TypeScript Refactoring | `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/SKILL.md`, every file under `references/`, and every file under `assets/`. |
+| Testing Design | `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/testing-design/SKILL.md`, `references/leaflet-software-testing.md`, `references/principles/*.md`, and `references/defaults/*.md`. |
+| Solution Design | `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/solution-design/SKILL.md`, `references/axes/commitment-reversibility.md`, `references/defaults/critical-and-high.md`, `references/principles/*.md`, and `references/examples/satisficing-and-not-solving.md`. |
 
 Applied skill constraints:
 

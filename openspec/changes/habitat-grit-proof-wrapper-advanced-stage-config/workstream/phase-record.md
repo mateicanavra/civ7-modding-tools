@@ -11,7 +11,7 @@ baseline integrity, and row-specific injected violation/path-control proof.
 ## Branch / Stack
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-wrapper-advanced-stage-config-closure`
 - Parent: `agent-HG-habitat-grit-recipe-runtime-domain-ops-closure`
 - Historical row-local proof was native/parser-only. This closure layer records

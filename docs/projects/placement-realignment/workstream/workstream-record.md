@@ -97,7 +97,7 @@
 
 ## Repo State
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-placement-realignment`
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-placement-realignment`
   (editing), branch `placement-realignment` off `main` @ 90c47d45f.
 - Read-only evidence checkout: `/tmp/civ7-main-placement-audit` (main, for the
   audit workflow agents).

@@ -9,7 +9,7 @@ proxy visibility, warning-only proof, and the unverified runtime-id boundary.
 ## Repo State
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`
+  `<user-home>/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`
 - Branch: `codex/resource-terrestrial-operation-contract`
 - Parent slice: `codex/resource-cultivated-operation-contract`
 - Source Studio/API pair observed for this source slice:

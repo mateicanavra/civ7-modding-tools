@@ -5,7 +5,7 @@
 - Status: Source implementation slice under D9 repair. D9 now owns the
   Transformation Transaction boundary for admitted dry-runs and fail-closed
   live writes, but it is not implementation-complete.
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
 - Branch: `agent-DRA-d9-transformation-transaction`.
 - Source packet: `$D9_SOURCE_PACKET`.
 - OpenSpec change: `$D9_CHANGE`.

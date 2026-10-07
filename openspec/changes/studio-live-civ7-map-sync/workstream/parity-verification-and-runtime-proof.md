@@ -4,7 +4,7 @@
 
 - Branch/worktree:
   `codex/mapgen-physical-rivers` in
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-mapgen-physical-rivers`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-mapgen-physical-rivers`.
 - Proof class: direct-control/CLI live readback capability only; not
   same-run Studio/Civ parity and not minor-river authoring proof.
 - Build prerequisite:
@@ -28,7 +28,7 @@
 
 - Branch/worktree:
   `codex/mapgen-physical-rivers` in
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-mapgen-physical-rivers`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-mapgen-physical-rivers`.
 - Proof class: verifier/local test readiness only; not same-run Studio/Civ
   parity completion and not minor-river authoring proof.
 - Source change:
@@ -73,7 +73,7 @@
 
 - Branch/worktree:
   `codex/swooper-studio-parity-proof-drain` in
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain`.
 - Base predecessor: `8966aba5e fix(studio): prove exact run authorship`.
 - Implemented command path:
   `bun run verify:final-surface-parity -- --request-id <id>` or
@@ -226,8 +226,8 @@
 - Response: pending rerun.
 - Manual boundary, if any: game must be reachable through direct-control.
 - Log paths:
-  - `/Users/mateicanavra/Library/Application Support/Civilization VII/Logs/Scripting.log`
-  - `/Users/mateicanavra/Library/Application Support/Civilization VII/Logs/output.log`
+  - `<user-home>/Library/Application Support/Civilization VII/Logs/Scripting.log`
+  - `<user-home>/Library/Application Support/Civilization VII/Logs/output.log`
 - Timestamp/mtime bounds: pending rerun.
 - Parsed payload:
   - stale fatal at 17:43/17:47: `build-elevation` drift at `(42,0)`;

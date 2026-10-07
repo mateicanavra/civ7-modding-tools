@@ -50,12 +50,12 @@ Official/static resources:
 
 Local Civ7 data:
 
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Saves/**/*.Civ7Save`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Logs/`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Debug/*.sqlite`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/HallofFame.sqlite`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods.sqlite`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/LocalStorage.sqlite`
+- `<user-home>/Library/Application Support/Civilization VII/Saves/**/*.Civ7Save`
+- `<user-home>/Library/Application Support/Civilization VII/Logs/`
+- `<user-home>/Library/Application Support/Civilization VII/Debug/*.sqlite`
+- `<user-home>/Library/Application Support/Civilization VII/HallofFame.sqlite`
+- `<user-home>/Library/Application Support/Civilization VII/Mods.sqlite`
+- `<user-home>/Library/Application Support/Civilization VII/LocalStorage.sqlite`
 
 ## Commands And Probes Run
 

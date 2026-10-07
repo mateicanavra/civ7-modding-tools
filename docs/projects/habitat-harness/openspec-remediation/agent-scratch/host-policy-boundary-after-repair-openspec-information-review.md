@@ -2,7 +2,7 @@
 
 Date: 2026-06-18
 
-Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
+Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
 
 Branch: `codex/host-policy-boundary-gate-packet`
 

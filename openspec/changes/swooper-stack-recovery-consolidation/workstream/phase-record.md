@@ -89,7 +89,7 @@ stale duplicate paths, and keep unrelated stacks out of scope.
   live-play support docs and was aborted; resolving that belongs to the
   live-play/control lane, not Swooper cleanup.
 - Removed the clean old Earthlike source worktree at
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-civ7-map-policy-final-surface-parity`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-civ7-map-policy-final-surface-parity`.
   The source branches remain cleanup-gated until the recovery sink lands.
 - Deleted local Graphite metadata/branch
   `agent-watch-civ7-live-play-reference-assembly` after confirming its branch

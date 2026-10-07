@@ -374,7 +374,7 @@ slices:
 ### 5.1 Parallel worktree rules (copy/paste)
 
 - Each agent owns one domain and one worktree.
-- Worktree root: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/`
+- Worktree root: `<user-home>/Documents/.nosync/DEV/worktrees/`
 - Branch/worktree naming:
   - `agent-<id>-viz-v1-<domain>-greenfield`
   - Example: `agent-F-viz-v1-foundation-greenfield`

@@ -4,7 +4,7 @@
 >
 > **Scope premise:** effects are now IN scope. "Variety" means a **physically-grounded, weighted, biome-aware suitability** model that is **deterministic per seed** (derived from terrain evaluation), explicitly **NOT random** as the base engine generator is.
 >
-> All paths are absolute under the worktree root `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-A-mapgen-oddr-consumer-migration/`. Game-data XML lives under `.civ7/outputs/resources/` (abbreviated `…/resources/`).
+> All paths are absolute under the worktree root `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-A-mapgen-oddr-consumer-migration/`. Game-data XML lives under `.civ7/outputs/resources/` (abbreviated `…/resources/`).
 
 ---
 

@@ -12,7 +12,7 @@ packet artifacts pointed at the variables below.
 
 | Variable | Value |
 | --- | --- |
-| `$ACTIVE_REMEDIATION_WORKTREE` | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame` |
+| `$ACTIVE_REMEDIATION_WORKTREE` | `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame` |
 | `$ACTIVE_REMEDIATION_BRANCH` | `agent-DRA-effect-record-authority-repair` |
 
 ## Path Variables

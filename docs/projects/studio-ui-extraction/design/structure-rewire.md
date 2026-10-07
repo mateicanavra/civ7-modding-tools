@@ -3,7 +3,7 @@
 Inputs: LEDGER.md (frozen), ledger/coherence.md §3 (binding 25-module ownership), all four build-*.md rows,
 WORKSTREAM.md §3/§5/§5b, FRAME.md §2/§3/§6, ground reports (repo-conventions, sync-surface, coupling-recon,
 theme-token, storybook-oracle, converter). All counts below re-verified by grep against
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction/apps/mapgen-studio` @ `c4ebaf1e1`
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction/apps/mapgen-studio` @ `c4ebaf1e1`
 (cited as `app:<path>`). Package paths are relative to `packages/studio-ui/` (placeholder name — Q2 RESERVED).
 
 Legend: **[R]** = decision reserved to Matei (Q2, E1–E4). Everything else is a recommendation this designer owns.

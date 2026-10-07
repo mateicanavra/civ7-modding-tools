@@ -22,12 +22,12 @@ probe is run.
 ## Live Evidence
 
 - `ps` showed a running macOS Civ7 process:
-  `/Users/mateicanavra/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/MacOS/CivilizationVII`.
+  `<user-home>/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/MacOS/CivilizationVII`.
 - `lsof -nP -iTCP:4318` showed `Civilizat` PID `94913` listening on `TCP *:4318`.
 - `nc -vz -G 2 127.0.0.1 4318` succeeded.
-- `ifconfig bridge100` showed Parallels host bridge address `10.211.55.2`.
+- `ifconfig bridge100` showed Parallels host bridge address `<private-tuner-host>`.
 - Direct `LSQ:` probes succeeded on both `127.0.0.1:4318` and
-  `10.211.55.2:4318`.
+  `<private-tuner-host>:4318`.
 - Three new-socket `LSQ:` attempts to each host succeeded, with elapsed times
   between 22ms and 48ms.
 - `LSQ:` returned these states:
@@ -69,7 +69,7 @@ or restart-time state repopulation.
 ## FireTuner Binary Clues
 
 Inspected directory:
-`/Users/mateicanavra/Parallels Tunnel/Sid Meier's Civilization VII Development Tools/FireTuner/Win64/`.
+`<user-home>/Parallels Tunnel/Sid Meier's Civilization VII Development Tools/FireTuner/Win64/`.
 
 `file` identifies `FireTuner2.exe` and the `Firaxis.*.dll` files as Windows
 x86-64 Mono/.NET assemblies. `FireTuner2.exe.config` only contains .NET runtime
@@ -233,7 +233,7 @@ Repeated reconnect probe:
 
 ```text
 127.0.0.1:4318 LSQ attempts: 3/3 ok, 22-47ms, states App UI/Tuner.
-10.211.55.2:4318 LSQ attempts: 3/3 ok, 45-48ms, states App UI/Tuner.
+<private-tuner-host>:4318 LSQ attempts: 3/3 ok, 45-48ms, states App UI/Tuner.
 ```
 
 Source anchors:

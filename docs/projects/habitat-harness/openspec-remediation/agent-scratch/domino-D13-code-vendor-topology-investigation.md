@@ -1,7 +1,7 @@
 # D13 Code/Vendor Topology Investigation
 
 Fresh D13 investigator pass from worktree
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
 on branch `codex/d13-scaffolding-refusal-packet`.
 
 ## Evidence Read

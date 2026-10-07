@@ -20,7 +20,7 @@ This is not source implementation acceptance. The packet itself correctly keeps 
   - `host-policy-boundary-code-vendor-topology-review.md`
   - `host-policy-boundary-cross-domino-product-review.md`
 
-Validation/readiness commands run from `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`:
+Validation/readiness commands run from `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`:
 
 - `bun run openspec -- validate deep-habitat-host-policy-boundary-gate --strict`: exit 0.
 - `bun run openspec:validate`: exit 0, 249 items passed.

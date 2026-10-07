@@ -20,7 +20,7 @@
 - Supersedence evidence (branch/PR): None found downstream; issue remains open at tip.
 - Classification: Fix now
 - Evidence paths/commands:
-  - `rg -n "/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/" docs/projects/pipeline-realism/plans/PLAN-ecology-placement-physics-cutover-2026-02-14.md`
+  - `rg -n "<user-home>/Documents/.nosync/DEV/civ7-modding-tools/" docs/projects/pipeline-realism/plans/PLAN-ecology-placement-physics-cutover-2026-02-14.md`
 - Residual risk: Non-portable execution steps force manual reinterpretation and increase cross-environment drift.
 - Recommended next action: Replace absolute paths with repo-relative paths in plan/scratch references.
 - Status: done

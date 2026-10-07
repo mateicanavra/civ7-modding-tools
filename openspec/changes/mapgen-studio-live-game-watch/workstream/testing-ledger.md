@@ -103,7 +103,7 @@ surface named here.
 Execution state:
 
 - branch and commit: `codex/studio-dev-port-env` at `aa8325a83`;
-- worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-prework`;
+- worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-prework`;
 - proof-run identity: `git rev-parse --abbrev-ref HEAD` returned
   `codex/studio-dev-port-env`, `git rev-parse --short=9 HEAD` returned
   `aa8325a83`, and `git status --short --branch` returned a clean branch before

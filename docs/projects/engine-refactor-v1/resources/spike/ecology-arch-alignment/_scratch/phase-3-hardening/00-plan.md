@@ -7,7 +7,7 @@ This file is the mandatory first action for Phase 3 hardening.
 - Base branch: agent-ORCH-feasibility-ecology-arch-alignment
 - Base commit: 15ea01ba01a56a85a4fecd384dd7860eea0582e2
 - Working branch: agent-ORCH-harden-M2-ecology-architecture-alignment
-- Worktree root: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-harden-M2-ecology-architecture-alignment
+- Worktree root: <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-harden-M2-ecology-architecture-alignment
 
 ## Agent Roster (Phase 3 Hardening)
 
@@ -72,7 +72,7 @@ Pipeline-realism style anchor (for how M2 should read):
 - `docs/projects/pipeline-realism/milestones/M1-foundation-maximal-cutover.md`
 
 Hardening workflow (must be followed/adapted as the backbone):
-- `/Users/mateicanavra/.codex-rawr/prompts/dev-harden-milestone.md`
+- `<user-home>/.codex-rawr/prompts/dev-harden-milestone.md`
 
 ## Output (Phase 3 Deliverable)
 
@@ -81,12 +81,12 @@ Hardening workflow (must be followed/adapted as the backbone):
 - Status: “Planned” (this is plan-only, not execution)
 
 ### 2) Scratch pads (working, not canonical)
-- Path: `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/_scratch/phase-3-hardening/`
+- Path: `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/_scratch/phase-3-hardening/`
 
 ## Worktree + Git Workflow (Graphite-Compatible, Hygiene-Strict)
 
 ### H0) Primary checkout hygiene (blocking)
-From `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools`:
+From `<user-home>/Documents/.nosync/DEV/civ7-modding-tools`:
 ```bash
 git status
 gt ls
@@ -104,14 +104,14 @@ Branch name:
 - `agent-ORCH-harden-M2-ecology-architecture-alignment`
 
 Worktree dir:
-- `WORKTREES_ROOT="/Users/mateicanavra/Documents/.nosync/DEV/worktrees"`
+- `WORKTREES_ROOT="<user-home>/Documents/.nosync/DEV/worktrees"`
 - `"$WORKTREES_ROOT/wt-agent-ORCH-harden-M2-ecology-architecture-alignment"`
 
 Commands:
 ```bash
-cd /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools
+cd <user-home>/Documents/.nosync/DEV/civ7-modding-tools
 gt sync --no-restack
-WORKTREES_ROOT="/Users/mateicanavra/Documents/.nosync/DEV/worktrees"
+WORKTREES_ROOT="<user-home>/Documents/.nosync/DEV/worktrees"
 git worktree add -b agent-ORCH-harden-M2-ecology-architecture-alignment \
   "$WORKTREES_ROOT/wt-agent-ORCH-harden-M2-ecology-architecture-alignment" \
   agent-ORCH-feasibility-ecology-arch-alignment
@@ -142,7 +142,7 @@ Create scratch dir and record the agreed Phase 3 plan verbatim:
 We will use a small team to parallelize hardening inputs, with ORCH integrating into the single M2 doc.
 
 All agents:
-- Operate in the same Phase 3 worktree path: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-harden-M2-ecology-architecture-alignment`
+- Operate in the same Phase 3 worktree path: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-harden-M2-ecology-architecture-alignment`
 - Write only to scratch pads under: `/Users/.../docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/_scratch/phase-3-hardening/`
 - Do not reindex Narsil MCP.
 - Avoid ADRs as primary sources.
@@ -171,9 +171,9 @@ This phase follows `dev-harden-milestone` semantics, adapted because we are crea
 
 ### P1) “Immediately introspect skills/workflows” (required first action after `00-plan.md`)
 Read (do not summarize verbatim; extract constraints and required sections):
-- `/Users/mateicanavra/.codex-rawr/prompts/dev-harden-milestone.md`
-- `/Users/mateicanavra/.codex-rawr/prompts/dev-milestone-to-issues.md`
-- `/Users/mateicanavra/.codex-rawr/prompts/dev-prework-sweep.md`
+- `<user-home>/.codex-rawr/prompts/dev-harden-milestone.md`
+- `<user-home>/.codex-rawr/prompts/dev-milestone-to-issues.md`
+- `<user-home>/.codex-rawr/prompts/dev-prework-sweep.md`
 - Skills: architecture, graphite, git-worktrees, diataxis, deep-search, mental-map, typescript, narsil-mcp
 
 Output (scratch):
@@ -254,10 +254,10 @@ If needed, add a short `## Coherence Review Notes` section at the bottom of M2 w
 ## “Gates” (What the Hardened M2 Doc Must Specify)
 
 The M2 doc must include a **Gates** section with concrete commands and expected outcomes. Minimum set (known-good baseline from feasibility):
-- `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/packages/civ7-adapter build`
-- `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/packages/mapgen-viz build`
-- `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/packages/mapgen-core build`
-- `bun --cwd /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps test test/ecology`
+- `bun run --cwd <user-home>/Documents/.nosync/DEV/civ7-modding-tools/packages/civ7-adapter build`
+- `bun run --cwd <user-home>/Documents/.nosync/DEV/civ7-modding-tools/packages/mapgen-viz build`
+- `bun run --cwd <user-home>/Documents/.nosync/DEV/civ7-modding-tools/packages/mapgen-core build`
+- `bun --cwd <user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps test test/ecology`
 
 M2 must also specify at least one “no behavior change” parity gate beyond tests, for example:
 - determinism fingerprinting on a fixed seed

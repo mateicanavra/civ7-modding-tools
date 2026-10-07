@@ -9,7 +9,7 @@ boundary before later merge, stats, or runtime-proof slices.
 ## Repo State
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`
+  `<user-home>/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`
 - Branch: `codex/resource-group-plan-rollup`
 - Parent slice: `codex/resource-geological-operation-contract`
 - Source Studio/API pair observed for this source slice:

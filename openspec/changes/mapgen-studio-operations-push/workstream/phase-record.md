@@ -40,7 +40,7 @@
 
 ## Gate 2 - Repo State
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`
 - Branch: `codex/runtime-effect-operations-push`
 - Packet-authoring entrance status: clean before D9 packet edits after the
   then-current D8 packet-authoring base.

@@ -22,7 +22,7 @@ Run one sequential `dev-loop-fix-review` pass across M4 (`T01..T27`) with team a
 - Narsil posture: primary worktree only, no `hybrid_search`; validate with native tools.
 - Graphite safety: no global restack; restack only scoped if needed.
 - Fix branch naming: `agent-TOMMY-M4-TNN-fix-<slug>-<hash6>`.
-- Worktree naming: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-TOMMY-M4-TNN-fix-<slug>-<hash6>`.
+- Worktree naming: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-TOMMY-M4-TNN-fix-<slug>-<hash6>`.
 
 ## Execution Phases
 1. Bootstrap plan/scratch artifacts with timestamped start blocks.

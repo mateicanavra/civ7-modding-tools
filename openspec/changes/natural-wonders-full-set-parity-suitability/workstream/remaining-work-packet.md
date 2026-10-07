@@ -33,7 +33,7 @@ Status date: 2026-06-19. Owner: agent-A.
 
 ## 0. Where things stand
 
-- **Worktree:** `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-A-mapgen-oddr-consumer-migration`
+- **Worktree:** `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-A-mapgen-oddr-consumer-migration`
 - **Branch:** `agent-A-natural-wonders-full-set-parity-suitability` (stacked on
   `agent-A-mapgen-oddr-consumer-migration`). **6 commits, DRAFT — NOT published.**
   1. `a26466e3b` design packet

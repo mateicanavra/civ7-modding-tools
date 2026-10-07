@@ -123,7 +123,7 @@ Sequential blockers:
 
 Rejected as invalid packet foundations:
 
-- Split `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/command-engine.ts` by size.
+- Split `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/command-engine.ts` by size.
 - Rewrite the CLI command classes.
 - Move all Habitat internals to Effect.
 - Create a generic proof supertype/framework.

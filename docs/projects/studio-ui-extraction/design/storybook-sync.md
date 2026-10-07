@@ -2,7 +2,7 @@
 
 **Lens:** Storybook is the fidelity oracle; stories are co-located with components and move together. The sync repoint is config-only, same-shape (`storybook`), and the anchor SURVIVES as `changed:[46]` — never a shape flip, never a fork of `lib/emit.mjs`/`lib/bundle.mjs`.
 
-**Ground truth used** (cited as file:line throughout; repo paths relative to `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction/apps/mapgen-studio` unless absolute):
+**Ground truth used** (cited as file:line throughout; repo paths relative to `<user-home>/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction/apps/mapgen-studio` unless absolute):
 - LEDGER.md (frozen), esp. adjudications §3 items 11–12 and client demands §6; ledger/coherence.md §2.11–2.12, §3.
 - `.storybook/main.ts` + `.storybook/preview.tsx` (in full), `.design-sync/config.json` (in full), `.design-sync/overrides/source-storybook.mjs` (in full), `.design-sync/NOTES.md` (in full, bottom-up).
 - The bundled storybook sub-skill (`/private/tmp/claude-501/bundled-skills/2.1.197/490ac14382e1a2b8e98edcb63e9bd8d3/design-sync/storybook/SKILL.md`, in full).

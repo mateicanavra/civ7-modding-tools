@@ -609,8 +609,8 @@ a line-count/domain-ownership scan. It distinguishes the retained native
 numeric receipt from the later same-script/seed screenshot session. No map
 algorithm or native connectivity claim is changed by that observational work.
 The [durable viewer entry point](../../process/LOCAL-VIEWERS.md) is linked from
-the repository README; the gallery lives in user data and is privately served
-over Tailscale at `/civ/`, independent of worktree lifetime.
+the repository README; retained gallery artifacts live outside Git,
+independent of worktree lifetime. Hosting instance details are private.
 
 ### Whole-Map Network Coherence
 

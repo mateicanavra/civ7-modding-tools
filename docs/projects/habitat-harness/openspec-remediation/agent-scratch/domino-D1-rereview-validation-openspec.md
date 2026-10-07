@@ -49,7 +49,7 @@ The packet also preserves authority boundaries. D1 owns shared command-record se
 
 ## Commands Run
 
-From `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`:
+From `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`:
 
 | Command | Result |
 | --- | --- |

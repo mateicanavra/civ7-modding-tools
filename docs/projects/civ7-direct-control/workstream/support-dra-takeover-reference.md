@@ -30,7 +30,7 @@ Source pointers:
 - Takeover target thread: `019e86cb-4f67-79b1-9881-ddf6dde1a2aa`.
 - Supervisor thread: `019e859d-03d6-7cb3-aff3-b8de9c830f52`.
 - Parked play thread: `019e85d9-063f-7270-b055-5d036e547af0`.
-- Support worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-watch-civ7-live-play-reference-assembly`.
+- Support worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-watch-civ7-live-play-reference-assembly`.
 - Accepted support HEAD at takeover: `fe70c90fc test(cli): extract progression read play tests`.
 - Immediate prior accepted layer: `04770bf93 test(cli): extract unit target play tests`.
 - Current goal thread worktree had inherited dirty docs; at least one untracked launch note was corrupt and is not source authority.

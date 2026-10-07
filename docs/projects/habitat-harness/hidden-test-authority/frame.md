@@ -61,7 +61,7 @@ Repo-state note:
 
 - The authoritative base for the next investigation is the Habitat stack
   worktree at
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-habitat-mapgen-static-guardrail-batch`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-DRA-habitat-mapgen-static-guardrail-batch`,
   currently stacked above `agent-DRA-habitat-edge-miss-stabilization`.
 - The primary checkout may be on a different branch and may not contain the same
   migration state or `tools/habitat` rename state. Do not use it as the source of

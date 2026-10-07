@@ -40,7 +40,7 @@
 ## Current State
 
 - Repo/Graphite state: isolated worktree created at
-  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`;
+  `<user-home>/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`;
   branch tracked with Graphite parent `codex/morphology-public-config-surface`.
 - Dirty files and owner: primary worktree had pre-existing dirty files
   `mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json` and
@@ -164,8 +164,8 @@
   - `gt ls`
   - `git submodule update --init .civ7/outputs/resources`
   - `bun run openspec -- list`
-  - `PATH="/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/node_modules/.bin:$PATH" bun run openspec -- validate resource-distribution-planning --strict`
-  - `PATH="/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/node_modules/.bin:$PATH" bun run openspec:validate`
+  - `PATH="<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/node_modules/.bin:$PATH" bun run openspec -- validate resource-distribution-planning --strict`
+  - `PATH="<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/node_modules/.bin:$PATH" bun run openspec:validate`
   - `git diff --check`
 - Results:
   - Graphite branch is tracked above current stack top.

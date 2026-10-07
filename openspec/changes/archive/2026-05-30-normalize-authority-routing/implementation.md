@@ -2,7 +2,7 @@
 
 Date: 2026-05-30
 Branch: `codex/normalize-authority-routing-impl`
-Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-normalize-authority-routing`
+Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-DRA-normalize-authority-routing`
 
 ## Scope
 
@@ -124,8 +124,8 @@ Results from this worktree:
 - The source-material reference search outside
   `architecture-normalization-sources/` returned only the packet's source
   material list and this implementation record.
-- `PATH="/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/node_modules/.bin:$PATH" bun run openspec -- validate normalize-authority-routing --strict`
+- `PATH="<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/node_modules/.bin:$PATH" bun run openspec -- validate normalize-authority-routing --strict`
   passed.
-- `PATH="/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/node_modules/.bin:$PATH" bun run openspec:validate`
+- `PATH="<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/node_modules/.bin:$PATH" bun run openspec:validate`
   passed with 12 items validated and 0 failures.
 - `git diff --check` passed.

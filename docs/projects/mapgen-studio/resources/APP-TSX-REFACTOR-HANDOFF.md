@@ -14,7 +14,7 @@ This is not a redesign. Your job is to **carve the monolith into feature modules
 ## Work context (do not deviate)
 
 - Worktree (cd here; verify with `pwd -P`):
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-spike-mapgen-studio-arch`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-spike-mapgen-studio-arch`
 - Starting branch (verify with `git branch --show-current`):
   - `spike/mapgenstudioarch`
 - You will create **a new Graphite branch on top of the current stack for each slice** (RFX-01..RFX-05).

@@ -10,16 +10,16 @@ Blocker: the current D12 OpenSpec disk state still lets a later implementation a
 
 ### Mandatory skills
 
-- `domain-design`: read `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/domain-design/SKILL.md` and every file under `references/`.
-- `information-design`: read `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/information-design/SKILL.md` and every file under `references/`.
-- `civ7-open-spec-workstream`: read `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md` and the relevant reference files named by the skill.
-- `testing-design`: read `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/testing-design/SKILL.md` and the relevant references for axes, principles, defaults, heuristics, and software testing.
-- `solution-design`: read `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/solution-design/SKILL.md` and the relevant references for axes, principles, defaults, severity, and hidden assumptions.
+- `domain-design`: read `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/domain-design/SKILL.md` and every file under `references/`.
+- `information-design`: read `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/information-design/SKILL.md` and every file under `references/`.
+- `civ7-open-spec-workstream`: read `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md` and the relevant reference files named by the skill.
+- `testing-design`: read `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/testing-design/SKILL.md` and the relevant references for axes, principles, defaults, heuristics, and software testing.
+- `solution-design`: read `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/solution-design/SKILL.md` and the relevant references for axes, principles, defaults, severity, and hidden assumptions.
 
 ### Repo and workflow sources
 
 - Root `AGENTS.md`: repository guidance requires clean-start status, Graphite workflow awareness, root `bun`/Nx entrypoints, generated artifact protection, and closest-router discipline.
-- Initial git state in worktree `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`: branch `codex/d12-verify-handoff-packet`, clean before this scratch document.
+- Initial git state in worktree `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`: branch `codex/d12-verify-handoff-packet`, clean before this scratch document.
 - Source domino: `docs/projects/habitat-harness/phase2-workstream-packets/D12-proof-handoff-verify-command.md`.
 - Current D12 packet: `openspec/changes/deep-habitat-d12-verify-handoff-receipt/{proposal.md,design.md,tasks.md,specs/habitat-harness/spec.md,workstream/phase-record.md,review-disposition-ledger.md,downstream-realignment-ledger.md,closure-checklist.md}`.
 - Accepted upstream OpenSpec changes: D0, D1, D3, and D7 under `openspec/changes/`.

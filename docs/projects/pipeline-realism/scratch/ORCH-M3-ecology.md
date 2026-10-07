@@ -70,7 +70,7 @@ Note: for M3 docs, we executed the posture manually and captured it in packet ru
   - Do **not** use `hybrid_search` (currently crashes the server in this environment).
   - Native tools (`rg`, `git`, file reads) are still preferred for bulk/fast scans.
 - MCP freshness depends on the primary checkout:
-  - Keep `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools` checked out on the latest changes (can be detached HEAD).
+  - Keep `<user-home>/Documents/.nosync/DEV/civ7-modding-tools` checked out on the latest changes (can be detached HEAD).
   - Work happens in worktrees; the primary checkout is for keeping the index current.
 
 ## Agent Team (peers; each keeps scratch)

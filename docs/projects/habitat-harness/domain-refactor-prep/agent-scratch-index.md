@@ -2,7 +2,7 @@
 
 This index records fresh-agent investigations used for the preparation corpus. All accepted agents were instructed to use:
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`
 - Branch: `codex/habitat-fast-lint-checks`
 - Absolute paths only
 - Checkout preflight before investigation

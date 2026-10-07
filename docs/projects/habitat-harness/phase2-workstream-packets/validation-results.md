@@ -7,7 +7,7 @@ receipt. It exists to make the packet-suite closure provenance explicit.
 ## Context
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`
 - Branch: `codex/deep-habitat-phase2-prep`
 - Objective: design the full Phase 2 Deep Habitat Toolkit refactor workstream
   packet suite; no implementation.
@@ -25,7 +25,7 @@ receipt. It exists to make the packet-suite closure provenance explicit.
 | `bun run build` | Passed | Build receipt | Ran root Nx build; Nx read 30 of 47 tasks from local cache. |
 | `bun run lint` | Passed | Hygiene receipt | Runs `nx run @habitat/cli:biome:ci`; Biome checked 2475 files. |
 | `nx show project @habitat/cli` | Passed | Workspace graph metadata | Project metadata exposes Habitat targets and package exports for Phase 2 packet design. |
-| `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/plugin.js` | Passed | Command behavior evidence | Classified `tools/habitat/src/plugin.js` as `@habitat/cli`; required targets were `nx run @habitat/cli:check`, `nx run @habitat/cli:test`, and `bun run lint`. |
+| `bun run habitat classify <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/plugin.js` | Passed | Command behavior evidence | Classified `tools/habitat/src/plugin.js` as `@habitat/cli`; required targets were `nx run @habitat/cli:check`, `nx run @habitat/cli:test`, and `bun run lint`. |
 | `bun run --cwd tools/habitat test` | Failed | Current receipt risk | 210 tests passed; `test/lib/boundary-taxonomy.test.ts` failed because `audit.ok` was false. This is current behavior evidence and remains a Phase 2 receipt risk, not packet-suite implementation closure. |
 | `bun run habitat check --json` | Failed | Current-tree Habitat receipt risk | Failed on current-tree issues: `workspace-entrypoints`, Grit adapter `GritMalformedJson` projections, `nx-boundaries` ENOENT for `apps/hr-scratch-discovery-app/src/index.ts`, and advisory `doc-ambiguity`. This is current behavior evidence, not a packet-suite docs regression. |
 

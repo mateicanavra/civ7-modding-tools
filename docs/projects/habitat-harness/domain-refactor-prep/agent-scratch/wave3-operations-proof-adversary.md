@@ -1,14 +1,14 @@
 # Wave 3 Scratch: Operations / Proof Adversary
 
 Role lane: Operations/Proof Adversary.
-Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`.
+Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`.
 Branch: `codex/habitat-fast-lint-checks`.
 
 This is adversarial review scratch only. It does not author Phase 2 packets and does not authorize implementation.
 
 ## Preflight Evidence
 
-- `/bin/pwd` in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame` returned `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`.
+- `/bin/pwd` in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame` returned `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`.
 - `/usr/bin/git branch --show-current` returned `codex/habitat-fast-lint-checks`.
 - `/usr/bin/git status --short --branch` before review returned only `## codex/habitat-fast-lint-checks` and `?? docs/projects/habitat-harness/domain-refactor-prep/`.
 - `/bin/test -f docs/projects/habitat-harness/domain-refactor-prep/README.md && /bin/echo README_EXISTS` returned `README_EXISTS`.
@@ -17,22 +17,22 @@ This is adversarial review scratch only. It does not author Phase 2 packets and 
 
 Read in full before review:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-systematic-workstream/SKILL.md`
-- `/Users/mateicanavra/.codex/skills/investigation-design/SKILL.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-habitat-dra-workstream/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/solution-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/system-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/api-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/typescript/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/team-design/SKILL.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-systematic-workstream/SKILL.md`
+- `<user-home>/.codex/skills/investigation-design/SKILL.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-habitat-dra-workstream/SKILL.md`
+- `<user-home>/.agents/skills/domain-design/SKILL.md`
+- `<user-home>/.agents/skills/solution-design/SKILL.md`
+- `<user-home>/.agents/skills/system-design/SKILL.md`
+- `<user-home>/.agents/skills/api-design/SKILL.md`
+- `<user-home>/.agents/skills/typescript/SKILL.md`
+- `<user-home>/.agents/skills/team-design/SKILL.md`
 
 Relevant supporting proof references also read:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-habitat-dra-workstream/references/authority-map.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-habitat-dra-workstream/references/proof-classes.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-habitat-dra-workstream/references/review-and-realignment.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-systematic-workstream/references/evidence-and-proof.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-habitat-dra-workstream/references/authority-map.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-habitat-dra-workstream/references/proof-classes.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-habitat-dra-workstream/references/review-and-realignment.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-systematic-workstream/references/evidence-and-proof.md`
 
 ## Corpus Files Read
 
@@ -106,7 +106,7 @@ Required fix before goal attachment:
 
 - Add a goal-attachment validation record or final handoff section that records exact command, branch, commit, result, proof class, cache/freshness caveat, and non-claims.
 - Include at minimum the full Nx harness test target and the false-green alias proof commands from `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:118` through `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:124`.
-- Do not let `/Users/mateicanavra/.bun/bin/bun run --cwd tools/habitat test` substitute for `/Users/mateicanavra/.bun/bin/nx run @habitat/cli:test --outputStyle=static`; those prove different things.
+- Do not let `<user-home>/.bun/bin/bun run --cwd tools/habitat test` substitute for `<user-home>/.bun/bin/nx run @habitat/cli:test --outputStyle=static`; those prove different things.
 
 Goal attachment impact: blocks until validation results are recorded or explicitly marked unresolved with owner and trigger.
 
@@ -118,8 +118,8 @@ Evidence:
 
 - `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:5` through `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:10` records worktree and branch, but not Graphite stack health.
 - `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:17` requires the worktree to be on the expected Graphite branch and clean after commit.
-- `/opt/homebrew/bin/gt log --no-interactive` in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame` showed `06-13-keep_things (needs restack)` above current branch `codex/habitat-fast-lint-checks`.
-- `/usr/bin/git log -1 --oneline` in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame` returned `ca4db1e86 build(habitat): make root lint fast Route root lint to the repo-wide Biome CI hygiene target instead of fanning out full Habitat owner checks. Add a single aggregate Habitat graph target for explicit full structural proof, update the command-surface docs, and keep the enforcement-surface tests aligned with the separated proof classes.`
+- `/opt/homebrew/bin/gt log --no-interactive` in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame` showed `06-13-keep_things (needs restack)` above current branch `codex/habitat-fast-lint-checks`.
+- `/usr/bin/git log -1 --oneline` in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame` returned `ca4db1e86 build(habitat): make root lint fast Route root lint to the repo-wide Biome CI hygiene target instead of fanning out full Habitat owner checks. Add a single aggregate Habitat graph target for explicit full structural proof, update the command-surface docs, and keep the enforcement-surface tests aligned with the separated proof classes.`
 
 Required fix before goal attachment:
 
@@ -148,8 +148,8 @@ Goal attachment impact: does not need to block if `docs/projects/habitat-harness
 
 ## Optional Improvements
 
-- Add a final handoff template under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/` that records preflight, validation commands, `git status`, `git log -1`, `/opt/homebrew/bin/gt log --no-interactive`, commit hash, and proof-class labels.
-- Normalize command examples so every path argument is absolute, including `--cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat`.
+- Add a final handoff template under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/` that records preflight, validation commands, `git status`, `git log -1`, `/opt/homebrew/bin/gt log --no-interactive`, commit hash, and proof-class labels.
+- Normalize command examples so every path argument is absolute, including `--cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat`.
 - In `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md`, split "Proof Class" into "Minimum proof gates" and "Non-claims" so packet authors cannot read broad proof names as closure.
 - Add a short "cached Nx result is not fresh command behavior" reminder next to any Nx proof command list.
 

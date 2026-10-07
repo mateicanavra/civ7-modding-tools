@@ -7,7 +7,7 @@ Fix the crash in `bun run dev:mapgen-studio` where `defineStep` throws:
 
 ## Scope
 - Investigate in this worktree only:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack`
 - Root cause likely in a step `artifacts.requires` list containing `undefined` artifact refs (or equivalent malformed values) during standard recipe import.
 
 ## Required process
@@ -45,15 +45,15 @@ Fix the crash in `bun run dev:mapgen-studio` where `defineStep` throws:
 
 ## 2026-02-15 RS2 startup checkpoint
 - Worker: RS2 crash-fix
-- Worktree: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
-- Repo root: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
+- Worktree: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
+- Repo root: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
 - Branch: codex/prr-m4-s06d-foundation-scratch-audit-ledger
 - Initial status (`git status --short`):
   - ?? docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-RS2-mapgen-studio-dev-crash-fix.md
 
 ## 2026-02-15 RS2 investigation + fix
 - Reproduced crash with:
-  - `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps build:studio-recipes`
+  - `bun run --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps build:studio-recipes`
 - Observed failure:
   - `TypeError: undefined is not an object (evaluating 'artifact.id')`
   - callsite in built recipe points to placement step contract requiring `hydrologyHydrographyArtifacts.lakePlan`.
@@ -75,11 +75,11 @@ Fix the crash in `bun run dev:mapgen-studio` where `defineStep` throws:
   - Ecology plan step op strategies (`planIce`, `planReefs`, `planWetlands`, `planVegetation`) now use empty strategy config schemas, so `minScore01` is invalid.
   - `map-ecology` surface uses step ids (`plot-biomes`, `features-apply`, `plot-effects`), not legacy `biomes` / `featuresApply` / `plotEffects` keys.
 - Source fix applied in:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps/src/presets/standard/earthlike.json`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps/src/presets/standard/earthlike.json`
 - Changes:
   - Removed `foundation.version` + `foundation.profiles`.
   - Replaced `minScore01` configs with `{}` for `planIce`, `planReefs`, `planWetlands`, `planVegetation`.
   - Renamed `map-ecology` config keys to `plot-biomes`, `features-apply`, `plot-effects`.
 - Verification:
-  - `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps build:studio-recipes` => PASS.
-  - `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack dev:mapgen-studio` => startup PASS; reaches Vite ready (`http://localhost:5173/`); manually interrupted with Ctrl+C afterward.
+  - `bun run --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps build:studio-recipes` => PASS.
+  - `bun run --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack dev:mapgen-studio` => startup PASS; reaches Vite ready (`http://localhost:5173/`); manually interrupted with Ctrl+C afterward.

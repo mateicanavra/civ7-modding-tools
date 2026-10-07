@@ -24,21 +24,21 @@ observations:
 ```
 
 ```yaml
-path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/AGENTS.md
+path: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/AGENTS.md
 observations:
   - `src/**` entry surfaces should stay small/declarative.
   - Use package-local bun checks/tests for validation.
 ```
 
 ```yaml
-path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/packages/mapgen-core/src/compiler/normalize.ts
+path: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/packages/mapgen-core/src/compiler/normalize.ts
 observations:
   - `prefillOpDefaults` auto-injects missing op envelopes from op contract defaults.
   - This makes stage-side re-declaration of default op config unnecessary and architecture-smelly.
 ```
 
 ```yaml
-path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+path: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
 observations:
   - Prior implementation duplicated many op defaults and applied knob-related logic in stage compile.
   - Prior return payload included full default envelopes for most ops where compiler already prefilled defaults.
@@ -67,7 +67,7 @@ observations:
 
 ### Changes landed
 - Single-file remediation completed at:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
 - Compile payload is now minimal and truthful to framework/domain posture.
 - Focused compile/guardrail tests pass after change.
 
@@ -82,14 +82,14 @@ observations:
 ## 2026-02-15 — Hard-correction rewrite (stage compile as pure routing/lowering)
 
 ### Plan
-1. Rewrite `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts` so compile is routing-only.
+1. Rewrite `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts` so compile is routing-only.
 2. Remove stage-local normalization/derivation helpers and clamp/lerp logic.
 3. Keep compile signature clean in `createStage` (`compile: compileFoundationStage`) and avoid inline manual config typing there.
 4. Preserve contract/type compatibility for existing authoring surfaces, then run required checks/tests.
 
 ### YAML evidence
 ```yaml
-path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+path: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
 removed:
   - clamp imports and clamp/derive normalization helpers
   - stage-local numeric normalization of mantle amplitude/radius selectors
@@ -102,7 +102,7 @@ added:
 ```
 
 ```yaml
-path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/maps/__type_tests__/createMap-config.inference.ts
+path: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/maps/__type_tests__/createMap-config.inference.ts
 compatibility_reason:
   - keeps `advanced.mantleForcing.potentialAmplitude01` typed surface present
   - compile lowers legacy selectors directly (without stage normalization) to preserve authoring DX/tests
@@ -138,9 +138,9 @@ alignment:
 - Preserved profile defaults and conditional lowering for `mantle-potential`, `crust`, `tectonics.computeEraPlateMembership`, and balanced projection defaults.
 
 ### Verification
-- `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps check`
+- `bun run --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps check`
   - result: pass (`tsc --noEmit` clean)
-- `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps test -- test/m11-config-knobs-and-presets.test.ts test/foundation/contract-guard.test.ts`
+- `bun run --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps test -- test/m11-config-knobs-and-presets.test.ts test/foundation/contract-guard.test.ts`
   - result: 15 passed, 0 failed
 
 ### Proposed target
@@ -149,7 +149,7 @@ alignment:
 
 ### Changes landed
 - Single-file rewrite at:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
 - Scratch audit updated with rationale/evidence at:
   - `docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/doc-audits/remediate-foundation-stage-index.md`
 
@@ -165,7 +165,7 @@ alignment:
 
 ### Applied change
 - File rewritten to minimal stage shell:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
 - Removed entirely:
   - stage `public` schema
   - stage `compile`
@@ -176,7 +176,7 @@ alignment:
 
 ### YAML evidence
 ```yaml
-path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+path: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
 before:
   - defined public schema surface for version/profiles/advanced
   - implemented compile-time lowering and default routing

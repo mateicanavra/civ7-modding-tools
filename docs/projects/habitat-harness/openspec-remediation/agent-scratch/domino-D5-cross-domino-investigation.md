@@ -7,7 +7,7 @@ Fresh D5 cross-domino review for the Deep Habitat OpenSpec remediation pass.
 Reviewed D5 against:
 
 - `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md`
-- accepted-design D0-D4 OpenSpec packets under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/`
+- accepted-design D0-D4 OpenSpec packets under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/`
 - D7 and D8 source packets and current OpenSpec scaffolds
 - `docs/projects/habitat-harness/openspec-remediation/packet-index.md`
 - prior negative-control review at `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-review.md`

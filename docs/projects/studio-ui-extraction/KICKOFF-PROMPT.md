@@ -1,6 +1,6 @@
 # Kickoff — MapGen Studio UI Library Extraction
 
-You are the owner of a new workstream in the `civ7-modding-tools` monorepo (`/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools`).
+You are the owner of a new workstream in the `civ7-modding-tools` monorepo (`<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools`).
 
 **Objective:** extract MapGen Studio's design-synced UI surface — 46 components plus the token/theme layer — out of `apps/mapgen-studio` into a standalone workspace package with a real build (dist, generated `.d.ts`, exports map, CSS entry, and a home for the 46 stories — Storybook topology is yours to decide), rewire the app to consume the package, repoint the Claude Design sync at the package's real artifacts, and delete the `build-inputs.sh` reverse-engineering layer entirely. You own this end-to-end: grounding, classification, design, implementation, review, landing.
 

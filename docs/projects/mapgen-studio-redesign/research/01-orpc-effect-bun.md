@@ -506,4 +506,4 @@ if (isDefinedError(error)) {
 - **effect-orpc bridge** (`makeEffectORPC`, `implementEffect`, `ORPCTaggedError`, `eoc`, `withFiberContext`, tracing): https://github.com/utopyin/effect-orpc
 - npm versions: `@orpc/server@1.14.5`, `@orpc/client@1.14.5`, `@orpc/contract@1.14.5`, `@orpc/zod@1.14.5`, `@orpc/tanstack-query@1.14.5`, `effect-orpc@0.2.2` (peers `@orpc/* >=1.13.0`, `effect >=3.18.0`; published 2026-05-10), `effect@3.21.3`
 - Repo state: `apps/mapgen-studio/vite.config.ts` (lines ~374–1100, 17 `middlewares.use` routes), `apps/mapgen-studio/package.json` (Bun 1.3.7, React 19, Vite 7), `apps/mapgen-studio/railway.json` + `Caddyfile` (static-only prod deploy)
-- Internal skill: `dev:orpc` (`/Users/mateicanavra/.claude/plugins/cache/local/dev/0.1.0/skills/orpc/`) — contract-first, transports, schemas, monorepo, networking references
+- Internal skill: `dev:orpc` (`<user-home>/.claude/plugins/cache/local/dev/0.1.0/skills/orpc/`) — contract-first, transports, schemas, monorepo, networking references

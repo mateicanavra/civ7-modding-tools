@@ -2,7 +2,7 @@
 
 Status: investigation frame, not implementation closure
 Prepared: 2026-06-22
-Authoritative worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`
+Authoritative worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`
 Takeover session: `019ee228-128c-7dd1-b55d-d8e71c3a3273`
 
 ## Purpose

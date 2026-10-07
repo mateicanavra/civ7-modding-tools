@@ -1,7 +1,7 @@
 # Deep Habitat OpenSpec Packetization Matrix
 
 Role: OpenSpec Packet Architect
-Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
+Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
 Branch observed: `codex/deep-habitat-openspec-remediation`
 Packet suite source: `docs/projects/habitat-harness/phase2-workstream-packets/`
 OpenSpec root: `openspec/`

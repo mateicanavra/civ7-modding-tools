@@ -166,7 +166,7 @@ Do not advance a domino if:
 
 This remediation worktree starts from:
 
-- repo: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`;
+- repo: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`;
 - branch: `codex/deep-habitat-openspec-remediation`;
 - base: `origin/main` at `b8387e3c2`;
 - suspended implementation branch: `codex/deep-habitat-d1-receipt-contract-boundary`.

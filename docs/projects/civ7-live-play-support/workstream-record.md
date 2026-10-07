@@ -144,7 +144,7 @@ Outputs:
 Evidence:
 
 - Watcher worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-watch-civ7-live-play-reference-assembly`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-watch-civ7-live-play-reference-assembly`.
 - Base branch:
   `codex/integrate-authoring-guards-over-studio`.
 - Live game read-only snapshot on 2026-06-01:

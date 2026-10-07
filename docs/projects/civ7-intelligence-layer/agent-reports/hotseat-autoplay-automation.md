@@ -34,7 +34,7 @@ play and static native-AI profile shaping.
 - Official resources in `.civ7/outputs/resources`, especially game events,
   Automation scripts, and `context-manager.js`
 - Installed official game bundle under
-  `/Users/mateicanavra/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources`,
+  `<user-home>/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources`,
   especially hotseat shell/staging/handoff files
 - Branch `codex/play-agent-hotseat-phase-packet` at commit `547b81e13`
 - Branch `origin/codex/studio-autoplay-control` at commit `9d40e8728`

@@ -4,7 +4,7 @@
 
 - Status: source implementation submitted as draft PR #1839; packet-boundary
   review accepted for D5 advancement.
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
 - Branch: `agent-DRA-d4-orientation-routing`.
 - OpenSpec change: `openspec/changes/deep-habitat-d4-orientation-routing`.
 

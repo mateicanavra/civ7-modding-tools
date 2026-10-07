@@ -68,11 +68,16 @@
       "inputs": ["{workspaceRoot}/**/*", "{workspaceRoot}/.gitignore"],
       "outputs": []
     },
+    "check:privacy": {
+      "command": "bash scripts/check-privacy.sh",
+      "cache": false,
+      "outputs": []
+    },
     "check": {
       "executor": "nx:noop",
       "cache": false,
       "outputs": [],
-      "dependsOn": ["check:hygiene", "check:boundaries", "check:dead-code"]
+      "dependsOn": ["check:hygiene", "check:boundaries", "check:dead-code", "check:privacy"]
     },
     "verify": {
       "executor": "nx:noop",

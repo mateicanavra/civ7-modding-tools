@@ -23,6 +23,21 @@
 
 This guide defines the target structure for `docs/` in this repo and can be reused as a template in other codebases.
 
+### Public Content Boundary
+
+This is a public repository. Operating guidance belongs here; actual machine
+identities, personal absolute paths, private network addresses, credentials,
+service deployment state and migration receipts do not. Use repository-relative
+paths, explicitly selected output roots and generic configuration examples.
+Keep instance runbooks and evidence locations in private user data or private
+memory, not an archive elsewhere in this repository.
+
+Historical transcripts and logs in the current tree have personal paths and
+private viewer addresses sanitized. Their scientific numbers and original
+receipt digests are retained; the edited text is not a byte-exact copy of the
+original capture. Preserve original evidence privately when needed. A current-tree
+cleanup does not erase earlier Git revisions or hosting-provider PR objects.
+
 ---
 
 ## 2. Core Layout

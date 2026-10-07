@@ -28,7 +28,7 @@ What that means practically:
 ## Branch + Stack Snapshot
 ```yaml
 stack_snapshot:
-  worktree: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+  worktree: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
   branch: codex/prr-m4-s06d-foundation-scratch-audit-ledger
   top_commit: 103a641d8
   stack_tip_order:
@@ -142,7 +142,7 @@ canonical_artifacts:
   milestone:
     - docs/projects/pipeline-realism/milestones/M4-foundation-domain-axe-cutover.md
   issues:
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/issues
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/issues
   orchestrator_scratch:
     - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/00-plan.md
     - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/master-scratch.md

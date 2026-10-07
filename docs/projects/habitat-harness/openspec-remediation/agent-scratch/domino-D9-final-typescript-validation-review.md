@@ -4,48 +4,48 @@
 
 Accepted for the design/specification lane.
 
-No unresolved P1/P2 TypeScript state-space or validation findings remain against the current disk state of `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction`.
+No unresolved P1/P2 TypeScript state-space or validation findings remain against the current disk state of `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction`.
 
-This is not source acceptance. The current implementation evidence in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit-apply.ts` still has the legacy flags, nullable proof DTO, boolean result, inline host validation, and broad orchestration module that D9 is meant to replace. The packet now treats that source as evidence, not target authority, and gives implementation agents a sufficiently exact replacement model and falsification suite.
+This is not source acceptance. The current implementation evidence in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit-apply.ts` still has the legacy flags, nullable proof DTO, boolean result, inline host validation, and broad orchestration module that D9 is meant to replace. The packet now treats that source as evidence, not target authority, and gives implementation agents a sufficiently exact replacement model and falsification suite.
 
 ## Findings
 
 No P1/P2 findings.
 
-Minor non-blocking observation: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/specs/habitat-harness/spec.md` says live-write intent carries "user intent and D8 apply admission only", while the design type also includes `worktree: WorktreeObservation`. Read in context, the scenario is clearly forbidding pre-D9 approved write sets, not forbidding worktree observation, so this is not blocking. If touched later, changing "only" to "without an approved write set" would remove the ambiguity.
+Minor non-blocking observation: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/specs/habitat-harness/spec.md` says live-write intent carries "user intent and D8 apply admission only", while the design type also includes `worktree: WorktreeObservation`. Read in context, the scenario is clearly forbidding pre-D9 approved write sets, not forbidding worktree observation, so this is not blocking. If touched later, changing "only" to "without an approved write set" would remove the ambiguity.
 
 ## Review Evidence
 
 Required skill anchoring was completed from the current local skill corpus before review:
 
-- Domain Design: `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`
-- Information Design: `/Users/mateicanavra/.agents/skills/information-design/SKILL.md`
-- Solution Design: `/Users/mateicanavra/.agents/skills/solution-design/SKILL.md`
-- Testing Design: `/Users/mateicanavra/.agents/skills/testing-design/SKILL.md`
-- TypeScript Design and relevant references under `/Users/mateicanavra/.agents/skills/typescript/`, including `where-defaults-hide.md`, `refactoring-patterns.md`, `design-patterns.md`, `philosophy.md`, `axes.md`, `integration-combos.md`, `module-organization.md`, `sdk-design.md`, `ecosystem.md`, and `real-world-examples.md`
+- Domain Design: `<user-home>/.agents/skills/domain-design/SKILL.md`
+- Information Design: `<user-home>/.agents/skills/information-design/SKILL.md`
+- Solution Design: `<user-home>/.agents/skills/solution-design/SKILL.md`
+- Testing Design: `<user-home>/.agents/skills/testing-design/SKILL.md`
+- TypeScript Design and relevant references under `<user-home>/.agents/skills/typescript/`, including `where-defaults-hide.md`, `refactoring-patterns.md`, `design-patterns.md`, `philosophy.md`, `axes.md`, `integration-combos.md`, `module-organization.md`, `sdk-design.md`, `ecosystem.md`, and `real-world-examples.md`
 
-The duplicate TypeScript skill corpus under `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/dev/1.0.0/skills/typescript` was checked by byte comparison for the relevant files and matched the primary corpus.
+The duplicate TypeScript skill corpus under `<user-home>/.codex/plugins/cache/rawr-hq/dev/1.0.0/skills/typescript` was checked by byte comparison for the relevant files and matched the primary corpus.
 
 Disk evidence reviewed:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/proposal.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/design.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/specs/habitat-harness/spec.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/tasks.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/workstream/review-disposition-ledger.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/workstream/closure-checklist.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/workstream/downstream-realignment-ledger.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/workstream/phase-record.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D9-transformation-transaction.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D9-typescript-state-investigation.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit-apply.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/grit-apply.test.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/proposal.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/design.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/specs/habitat-harness/spec.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/tasks.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/workstream/review-disposition-ledger.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/workstream/closure-checklist.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/workstream/downstream-realignment-ledger.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/workstream/phase-record.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D9-transformation-transaction.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D9-typescript-state-investigation.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit-apply.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/grit-apply.test.ts`
 
 ## TypeScript State-Space Review
 
 The repaired packet now specifies the exact collapse needed for D9 implementation:
 
-- Request construction is explicit: `DryRunIntent` and `LiveWriteIntent` are command-facing intent variants, while `LiveWriteAttempt` is D9-produced after dry-run/copy/path planning. `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/design.md` states that no command parser may construct `LiveWriteAttempt` directly, and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/specs/habitat-harness/spec.md` makes the same distinction normative.
+- Request construction is explicit: `DryRunIntent` and `LiveWriteIntent` are command-facing intent variants, while `LiveWriteAttempt` is D9-produced after dry-run/copy/path planning. `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/design.md` states that no command parser may construct `LiveWriteAttempt` directly, and `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/specs/habitat-harness/spec.md` makes the same distinction normative.
 - The prior circularity is removed. A live-write request no longer appears to require an already approved write set; it carries intent plus D8 admission, and D9 later constructs `LiveWriteAttempt` only after producing `ApprovedWriteSet`.
 - Terminal and intermediate states are closed discriminated unions: admission, dry-run inventory, write-set approval, live write, formatter handoff, gate handoff, rollback, recovery, refusal, non-claim, and terminal outcome.
 - Legacy `GritApplyTransactionOptions`, `GritApplyTransactionProof`, `GritApplyTransactionResult`, `ok: boolean`, nullable command fields, and `proof` language are classified as compatibility surfaces rather than target model.
@@ -68,7 +68,7 @@ This satisfies the review bar for "no host-specific logic in generic D9".
 
 ## Validation Review
 
-The repaired validation surface is adversarial enough for acceptance in the design/spec lane. `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/tasks.md` requires type-level/compile-time rejection of false states and runtime tests for dirty live refusal, dirty dry-run, zero-match dry-run, ambiguous dry-run, unapproved inventory, outside-root refusal, create/delete refusal, protected-zone refusal, missing host gate, unexpected live path, formatter failure, gate failure, rollback success, and rollback failure.
+The repaired validation surface is adversarial enough for acceptance in the design/spec lane. `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/tasks.md` requires type-level/compile-time rejection of false states and runtime tests for dirty live refusal, dirty dry-run, zero-match dry-run, ambiguous dry-run, unapproved inventory, outside-root refusal, create/delete refusal, protected-zone refusal, missing host gate, unexpected live path, formatter failure, gate failure, rollback success, and rollback failure.
 
 The validation requirements are not just green-path command runs. They specifically target false-green states from the current implementation evidence:
 

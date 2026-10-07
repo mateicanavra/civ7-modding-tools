@@ -1,7 +1,7 @@
 # Agent 2: Civ Runtime and Materialization Prosecutor
 
 Date: 2026-06-09
-Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-mapgen-physical-rivers`
+Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-mapgen-physical-rivers`
 Branch: `codex/river-lake-adversarial-synthesis`
 Role: adversarial runtime/materialization audit
 

@@ -4,7 +4,7 @@
   "startedAt": "2026-07-07T04:05:25.191Z",
   "serverCommand": "STUDIO_DAEMON_PORT=5199 bun --conditions bun-source src/server/daemon/daemon.ts",
   "endpoint": "http://127.0.0.1:5199/rpc",
-  "artifactPath": "/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/openspec/changes/studio-run-explicit-cancellation/workstream/artifacts/packet-03-live-endpoint-proof-2026-07-07.json",
+  "artifactPath": "<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/openspec/changes/studio-run-explicit-cancellation/workstream/artifacts/packet-03-live-endpoint-proof-2026-07-07.json",
   "allPassed": true,
   "rows": [
     {
@@ -26,7 +26,7 @@
         "ok": true,
         "serverInstanceId": "studio-server-mra4jatb-1pol-1-eed2b7bf-12fb-4cca-aadc-4d661ecaf013",
         "startedAt": "2026-07-07T04:03:33.887Z",
-        "repoRoot": "/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets",
+        "repoRoot": "<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets",
         "assetsRoot": null,
         "runtimeMode": "studio-daemon-effect-orpc",
         "tuner": {

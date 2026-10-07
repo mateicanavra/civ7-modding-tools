@@ -12,7 +12,7 @@ wrapper/baseline/injected proof is being recorded for the active rule.
 ## Branch / Stack
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-empty-schema-default-closure`
 - Parent: `agent-HG-habitat-grit-wrapped-test-record-truth`
 - Current stack has accepted Habitat wrapper, baseline, and injected probe

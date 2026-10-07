@@ -83,12 +83,12 @@ Fresh evidence after the step-local validation-owner correction:
 - `git diff --check` passed.
 - `bun run build` passed across the full Turbo workspace: 16 successful tasks.
 - `bun run --cwd mods/mod-swooper-maps deploy` passed and deployed the mod to
-  `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps`.
+  `<user-home>/Library/Application Support/Civilization VII/Mods/mod-swooper-maps`.
 
 Current deploy/log status:
 
 - Deployed map output:
-  `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/swooper-earthlike.js`
+  `<user-home>/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/swooper-earthlike.js`
   mtime `2026-05-30 02:52:08`.
 - Fresh `Scripting.log` mtime is `2026-05-30 02:52:33`, after the latest deploy.
 - The fresh in-game run reached
