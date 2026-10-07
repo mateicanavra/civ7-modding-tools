@@ -81,6 +81,16 @@ continuation inherits the original two-value training-only physical design
 and remaining family budget; old refusals stay immutable. Scientific
 acceptance margins remain unchanged. No automatic Earth rerun, refinement or
 production change follows.
+The [completed finite-zonal family](thermal-boundary-discriminator.md#completed-finite-zonal-family)
+now executes both prescribed Earth comparisons successfully, then rejects both
+on unchanged training collateral guards. The lower value slightly improves
+seasonal MSE over isotropic transport but does not repair annual or coastal
+temperatures. No held benchmark or third coefficient is permitted. Both
+complete numerical attempts total `554.28 s`; their training readbacks total
+`0.40 s`. The next causal discriminator uses retained common-SST0 power
+accounting. A published six-panel field atlas makes the response inspectable
+with common scales and verified desktop/mobile layouts. No candidate is
+adopted into the playable mod on this evidence.
 Reference/consumer qualification and the original
 procedural cohorts remain before owner replacement and normal native
 qualification. The earlier dry-transport Earth nonselection

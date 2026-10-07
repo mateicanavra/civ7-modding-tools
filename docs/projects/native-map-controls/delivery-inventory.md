@@ -87,6 +87,19 @@ That bounded numerical qualification permits the separately authorized Earth
 continuation under the original two-value physical selection rules and
 remaining budget. It establishes neither scientific skill nor whole-chain
 uncertainty. No numerical study changes the playable build.
+The [completed finite-zonal family](thermal-boundary-discriminator.md#completed-finite-zonal-family)
+then completes its centre and prescribed lower Earth evaluations in
+`290.75/263.53 s`. Both pass numerical and publication review; neither passes
+the unchanged training eligibility guards. Lower seasonal MSE improves slightly
+over isotropic transport, but annual and coastal RMSE still regress. The
+two-value family is closed without a selected coefficient, held benchmark,
+third trial or production change. Retained heat-budget diagnosis, not another
+transport sweep, is the next physical discriminator. The calibrated empirical
+incumbent and source-prior physical reduction remain distinct evidence classes.
+A six-panel field atlas now compares retained annual air temperature and
+full-cycle range on common scales, with explicit nonselection labels,
+full-resolution exports and verified desktop/mobile layouts. It is not fresh
+native imagery or an adopted climate.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
 follows accepted SST0, authentic SST1 and canonical SST2. All seven complete
