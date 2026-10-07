@@ -160,11 +160,18 @@ overall and `5.939 -> 2.320 C` on all-year ice-free support, but `230` overlappi
 source guards fail. Large ice-free northern cold bias and Arctic winter harm
 remain, and rowwise annual geographic error cannot change. The uniform source
 form is stopped without refit or a land pilot; no rejected coefficients are deployed.
-The next [product-sized domino](thermal-boundary-discriminator.md#next-product-sized-domino)
-must identify a genuinely geographic annual/seasonal equation and cheapest
-falsifier, not another rowwise fit or automatic solver campaign. One domino is
-executable at a time. No gain sweep, wet-storage migration, current-only reset
-or ocean rebuild follows automatically. Cheap premise and rejection tests
+The subsequent [current-SST2 check](thermal-boundary-discriminator.md#completed-current-sst2-information)
+captures the actual empirical incumbent in `4.523 s`, then reads its geographic
+information in `0.095773 s`, without fitting. Pooled information is positive,
+but unit-anomaly error increases and five of seven supported northern held
+tables have wrong-sign SST2-air covariance. Same-support observed OI is much
+better aligned; this is not merely an air/liquid naming discrepancy. Independent
+custody and compact-identity review pass. No seasonal, land or native skill is
+admitted. The next [product-sized domino](thermal-boundary-discriminator.md#next-product-sized-domino)
+separates the ocean reference/diffusion pattern from the actual current-induced
+increment before selecting a geographic thermal equation. No unique transport
+defect, gain sweep, wet-storage migration, global current flip or ocean rebuild
+follows automatically. One domino is executable at a time. Cheap premise and rejection tests
 precede expensive qualification; promotion still needs all scientific,
 procedural, downstream and native proofs.
 The candidate is not selected and the installed mod is unchanged. Neither the simpler
