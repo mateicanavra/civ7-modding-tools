@@ -130,9 +130,26 @@ full-recipe pass-through preserves all 56 published artifacts, 11 metric
 projections and final adapter/river observations exactly. Publication controls pass
 separately. The family takes `10.930 s` with `668.484375 MiB` process RSS; this is
 headless control cost, not a new candidate or native generation measurement.
-No observation labels, nonlinear candidate or deployment are involved. The next
-numerical family still requires immutable physical/publication binding and an
-immediate-predecessor warm-state check before reference/output-margin admission.
+No observation labels, nonlinear candidate or deployment are involved in that
+historical control. Immutable physical/publication binding and immediate-
+predecessor warm-state controls now pass separately, without a new SDK identity
+framework or production instrumentation.
+
+The [Mini three-vintage discriminator](thermal-boundary-discriminator.md#mini-three-vintage-discriminator)
+now completes the actual current Huge chain with the candidate and independently
+settled 96/192 references. Complete headless times are `43.697`, `105.746` and
+`159.747 s`, including all three thermal calls and both ocean updates. Retained
+comparison takes `1.696 s`, with the short candidate within `5.543845e-5 K` of
+the same-resolution reference over complete chronological curves. Observed
+96/192 refinement is not an uncertainty bound: some actual resource habitat
+decisions change and require compiled-boundary assessment. Existing Huge
+physical-climate measurement gives `1.848638400 C` pooled within-row variation
+and no rainfall saturation for the candidate, satisfying that case's unchanged
+bounds without proving the rest of the cohort or fixed-Earth science. No new
+candidate is deployed; actual Civ whole-map latency remains unqualified.
+The three arms retain about `195 MiB` outside Git. Reviewed retirement of obsolete
+BE trajectories recovered about `27.83 GiB`, preserving currently consumed curves,
+receipts and viewer assets rather than copying retired histories to the Mini.
 
 Host migration is a parallel operational track, not a second algorithm stack.
 The shared Mac Mini must establish saves/settings, saved setup, source/runtime,
