@@ -148,10 +148,17 @@ agreement and four Newton updates. Its single small invocation takes `0.047 s`;
 this is solver equivalence, not native-size speed or Earth accuracy. The subsequent
 native-sized cost gate refuses in the first Newton update at the fixed 96-iteration inner
 cap, under one second and within memory limits. No Newton update is accepted;
-later calls are unexecuted. A stronger approximate spatial inverse is the next
-design, without changing physics, accuracy or the `6 s / 18 s` thermal targets.
-Native-sized cost qualification must precede the next
-Earth comparison. Held labels and the rejected coefficient
+later calls are unexecuted. The subsequent full-spatial approximate inverse
+passes independent dense/control review and both tiny H4 comparisons, with
+continuous differences below `0.000003 C`. It then completes all three cold
+native-sized manufactured calls in `1.137 / 1.332 / 1.076 s`, totaling `3.552 s`
+against the held `6 s / 18 s` targets. Four full Newton updates per call meet
+the unchanged numerical policy; whole-process RSS stays below `367 MiB`.
+No physical law, iteration limit or accuracy guard changed. This clears that
+specific cost/convergence obstacle, not actual ocean-feedback, whole-recipe,
+Earth-accuracy or deployment admission. Authentic geographic/periodic and
+three-vintage qualification precede the next frozen training-first Earth
+comparison. Held labels and the rejected coefficient
 search stay closed. No production migration or candidate deployment follows.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
