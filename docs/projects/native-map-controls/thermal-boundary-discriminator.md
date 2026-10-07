@@ -23,10 +23,16 @@ causes degree-scale Arctic winter harm. Both this cycle and inland `B` are
 rowwise and leave annual within-row error unchanged. The uniform endmember is
 rejected before a land pilot; this is not merely a tight-tolerance refusal.
 
-The next [product-sized comparison](#next-product-sized-domino) must identify
-a genuinely geographic annual-and-seasonal relationship, not blend an
-unqualified rowwise boundary inland. Cheap premise checks and rejection-first
-pilots precede large qualification campaigns. Existing numerical methods remain
+The subsequent [current-SST2 information check](#completed-current-sst2-information)
+replays the actual empirical incumbent, not the rejected H6 feedback. Its annual
+ocean field carries some pooled geographic information, but five of seven
+supported northern held tables have wrong-sign covariance with marine air.
+The same-support observed ocean reference is substantially better aligned.
+This moves the next [product-sized comparison](#next-product-sized-domino)
+upstream: separate the ocean reference/diffusion pattern from the actual current
+increment before using this field as a geographic thermal prior. No unique
+transport defect or scalar-gain repair is established. Cheap premise checks and
+rejection-first pilots precede large qualification campaigns. Existing numerical methods remain
 reusable, not a reason to run another solver campaign automatically. Scientific,
 procedural, consumer and native admission remain separate, including the complete
 Huge `30-60 s` budget. Earlier dated designs/results below retain their original
@@ -2944,12 +2950,75 @@ FIT SHA-256: `03bf70318e9572ca76b6b59f3ee8c912f4cd9e26efb77b2223ef814343c1850d`.
 RESULT SHA-256: `5146677833eae5cf077e0f7c90b8ba0bf5f9d78ba69121038e5a1a3f4cb253c9`.
 The installed mod remains unchanged.
 
+#### Completed Current-SST2 Information
+
+Replay the current compiled `ClimateBaselineStep` through the existing SDK test
+helpers on the admitted `192 x 94` source geometry. Invoke the current seasonal
+sampler rowwise at the admitted Gaussian latitudes. Preserve the current compiled
+Earthlike configuration, three ocean/thermal/annual
+calls and final-atmosphere SST2 identity. Relief and sea datum are zero, with no
+shelf: this is a source-geography discriminator, not generated Earth relief,
+Firaxis reconstruction or native runtime proof. The zero-current initial ocean
+call still includes configured diffusion; it is not the raw latitude reference.
+All `866` source postchecks and input/configuration identities pass.
+
+One no-fit reader uses the original `5,531` training / `5,545` historically
+exposed marine-held identities, exact remapped full/primary overlap areas and
+Gregorian annual air means. For each declared support, center both fields using
+that support's weighted latitude-row means. Let `t = E[AIR'^2]`,
+`v = E[SST2'^2]` and `c = E[AIR' * SST2']`. The fixed unit-anomaly proxy has
+centered MSE `t + v - 2c`; its change from the row-only floor is `v - 2c`.
+No coefficient, gain, regression or scientific promotion margin is fitted.
+
+| Marine-Held Support | Air Row Floor C | SST2 Within-Row RMS C | SST2-Air Correlation | Unit-Proxy RMS C | Observed OI-Air Correlation |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Full, 5,545 cells | 2.17915 | 3.80297 | +0.21154 | 3.96297 | +0.85167 |
+| All-year ice-free primary, 3,807 cells | 1.50329 | 4.06212 | +0.33357 | 3.83233 | +0.96388 |
+
+Positive pooled covariance means **some information**, not a qualified uniform
+prior. Five of seven supported northern held tables have negative SST2-air
+covariance. Full `60-75 N` / `75-80 N` correlations are `-0.25486 / -0.17167`,
+while observed OI-air correlations are `+0.94206 / +0.95682`; SST2-OI is also
+negative there. Primary `60-75 N` has only 37 cells, with SST2-air `-0.63616`;
+primary `75-80 N` is empty. Retain the positive exceptions: known-ice `60-75 N`
+and coastal `75-80 N`. The latter still has `+16.359 C` absolute SST2-air bias.
+The observed OI ice-informed analysis is not exposed ice skin or independent
+truth; its source ancestry overlaps the air reference.
+
+This rejects uniform use of the current ocean prior without establishing
+globally absent information, a unique current-direction defect, seasonal/ice
+or land skill. Positive scalar attenuation cannot repair a wrong-sign table;
+a rowwise air law cannot manufacture the missing geography. Inspect the ocean
+producer before compensating downstream or introducing another surface model.
+
+The source replay takes `4.523 s` with sampled whole-process RSS `444,301,312 B`
+below its `512 MiB` offline cap. Readback takes `0.095773 s` and `170,688,512 B`
+below `256 MiB`. Independent review reconstructs `198` compact identities,
+maximum discrepancy `2.02e-13`; original row floors reproduce. Exact custody,
+cleanup and inclusive `67,079,613 B` all-host retention pass the unchanged
+`64 MiB` cap. Raw SST2 and the full compact report remain canonical at the
+compute location, without duplicated reference grids or a repository harness.
+Capture SHA-256: `044b5ee774099c2930a9659cb8557dd37879c0a7c0152186e0a98aebfc814f1c`.
+Result SHA-256: `8b141fcc1fbf7b7602a1c1340f06f93732f54700eb561c643323c69a15fcd82d`.
+The installed mod and original refusals remain unchanged.
+
 #### Next Product-Sized Domino
 
-**Owner:** existing `compute-thermal-state` periodic-response rule and its one
-thermal artifact. Preserve one lapse application, publication, actual driving
-vintages and the three-atmosphere/two-ocean schedule. No new recipe stage or
-climate/water owner follows from this investigation.
+**Immediate owner:** existing ocean thermal operation and its actual final
+current input. The current-SST2 information result requires separating the
+reference/mask/diffusion pattern from the current-induced increment before
+choosing an ocean repair or maritime-air equation. Compare the same frozen
+input with actual, zero and reversed current; zero current retains configured
+diffusion. Retain the raw latitude reference separately. This can localize
+wrong-sign information before versus during transport, not uniquely identify
+transport dose versus coordinate metric or license a global current flip.
+The exact source, resource admission and stop criteria must precede execution;
+no additional run follows automatically from this record.
+
+**Downstream owner:** existing `compute-thermal-state` periodic-response rule
+and its one thermal artifact. Preserve one lapse application, publication,
+actual driving vintages and the three-atmosphere/two-ocean schedule. No new
+recipe stage or climate/water owner follows from this investigation.
 
 **Hypothesis:** independently qualified inland and maritime **air** cycles,
 mixed by one resolution-explicit geometry-only exposure, can supply useful
@@ -2970,14 +3039,13 @@ pooled monthly error improved, but supported ice-free northern monthly error
 rose `2.792 -> 9.683 C`. That is not an untried maritime-air model. Changing
 its name or freeing a gain is not, by itself, a new source explanation.
 
-**Completed first test:** the single solar-only marine-air fit above rejects
-the uniform endmember before a land pilot. Do not use its pooled success to
-license another rowwise fit or an exposure sweep. The next source/design decision
-must state the actual geographic annual/seasonal equation and its cheapest
-falsifier before execution. Any annual-SST covariate must earn predictive value
-and have an explicitly compatible procedural producer/vintage; an annual liquid
-field does not itself provide seasonal air or exposed-ice temperature. Do not
-silently use the rejected H6 feedback's final SST as the incumbent's boundary.
+**Completed source tests:** the solar-only marine-air fit rejects its uniform
+endmember before a land pilot. The compatible incumbent SST2 check then locates
+an upstream geographic prior failure. Neither pooled success licenses another
+rowwise fit, exposure sweep or use of rejected H6 feedback as the incumbent's
+boundary. A repaired annual liquid field still does not itself provide seasonal
+air or exposed-ice temperature. Any later maritime-air equation must state its
+actual geographic annual/seasonal relationship and cheapest falsifier first.
 No land residual fit or held-land score enters this premise. Static marine and
 ice-free supports remain distinct; neither supplies an independently validated
 ice model. No additional computation is admitted merely by this next-design record.

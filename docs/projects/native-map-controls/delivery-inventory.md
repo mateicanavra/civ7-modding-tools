@@ -225,12 +225,19 @@ annual bias. Rowwise annual geographic error is invariant. The uniform form
 is rejected without refit, land pilot or deployment. Independent compact review,
 custody and cleanup pass; inclusive both-host retention is `66,893,871 B`, below
 `64 MiB`. Lossless area/cohort metadata conversions remain outside Git.
+The subsequent [current-SST2 information check](thermal-boundary-discriminator.md#completed-current-sst2-information)
+replays the compatible empirical incumbent in `4.523 s` and reads fixed annual
+supports in `0.095773 s`, without fitting. Full/ice-free held row-anomaly proxy
+RMS rises from `2.179/1.503` to `3.963/3.832 C`; pooled covariance is positive,
+but five of seven supported northern held tables have wrong signs. Observed
+OI is substantially better aligned on the same supports. Independent custody
+and `198` compact identities pass, within the unchanged resource limits.
 The next [bounded product comparison](thermal-boundary-discriminator.md#next-product-sized-domino)
-must specify a genuinely geographic annual/seasonal relationship and its cheapest
-falsifier, with compatible actual inputs, rather than blend this unqualified
-boundary inland. No new solver, parameter sweep, wet-storage system or production
-migration is selected automatically. Held land labels and rejected searches
-remain closed; the playable mod is unchanged.
+must separate the ocean reference/diffusion pattern from its actual current
+increment before a geographic maritime-air model. This establishes neither a
+unique transport defect nor a global current/gain repair. No new solver, sweep,
+wet-storage system or production migration is selected automatically. Held land
+labels and rejected searches remain closed; the playable mod is unchanged.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
 follows accepted SST0, authentic SST1 and canonical SST2. All seven complete
