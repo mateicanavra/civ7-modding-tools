@@ -91,6 +91,38 @@ For deployment callers, verify their owning project graph and use a non-mutating
 CLI command such as `mod manage deploy --help`; do not use a real deploy as a
 build-time smoke test.
 
+## Graceful Application Exit
+
+An already-registered, same-name mod normally needs only an in-game map/session
+restart after deployment. A full application quit is for newly registered mods
+or genuine application recovery, not ordinary redeployment or the expected
+loss of the gameplay Tuner state at the main menu.
+
+For authorized maintainer recovery, discover `game exec --help`, confirm the
+host and App UI state, and use Civ's own shipped exit primitive:
+
+```bash
+civ7 game exec 'engine.call("exitToDesktop")' --state 'App UI' --timeout-ms 10000 --json
+```
+
+Use the execution matrix above when the CLI is not linked. Inspect `--dry-run`
+before dispatch. This existing explicit diagnostic is not a dedicated typed
+quit command; it does not justify adding new behavior to frozen legacy control
+code or creating a command-local transport.
+
+Dispatch once with authorization to lose unsaved progress, then independently
+verify the original Civ process exited on the same host. A successful command,
+fulfilled `undefined`, lost Tuner connection or timeout alone is not the exit
+postcondition. Reconcile uncertain outcomes before retrying; never automatically
+fall back to force-kill. Only confirmed exit admits live settings/database
+replacement and the owning operation's later relaunch.
+
+If Tuner is unavailable, the existing private Cohtml inspector can issue the
+same primitive through documented browser Console UI, or use Civ's own Quit
+control and its confirmation. See the operational debugging skill's
+[graceful-exit procedure](../../../.agents/skills/civ7-operational-debugging/references/graceful-exit.md)
+for state selection, process evidence and ownership boundaries.
+
 ## Upstream References
 
 - [oclif templates and runtime hashbangs](https://oclif.io/docs/templates/)
