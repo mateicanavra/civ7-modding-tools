@@ -57,7 +57,13 @@ annual means by `10.80-10.92 C`. A `0.07 s` retained power readback locates
 substantial internal constraint cooling, not an accidental energy sink.
 This diagnostic justifies choosing a physically supported finite transport
 closure, not adopting row-shared production air or inferring a diffusion gain.
-Existing physical laws and solver guards remain held. No Earth rerun,
+The [prospective finite-zonal calibration](thermal-boundary-discriminator.md#prospective-finite-zonal-calibration)
+now bounds that choice to one parameter, two complete Earth evaluations and
+training-only selection before the unchanged benchmark.
+The separate small-map geometry/stripe gate passes all three prospective
+values in `0.49 s` with unchanged equation and conservation guards. No Earth
+coefficient or production change is selected by that gate.
+Existing physical laws and solver guards remain held. No automatic Earth rerun,
 automatic refinement or production change follows from this observation.
 Reference/consumer qualification and the original
 procedural cohorts remain before owner replacement and normal native

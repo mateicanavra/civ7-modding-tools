@@ -61,8 +61,16 @@ decrease. A `0.07 s` retained-only readback shows substantial internal
 constraint cooling; all 6,768 phase/cell records and 72 statistics pass
 independent review. Its power means cover actual phases 2..95, not a whole
 year. This selects finite-transport closure investigation, not a coefficient
-or proof of a unique Earth cause. No expensive Earth rerun, guessed large
+or proof of a unique Earth cause. No automatic Earth rerun, guessed large
 diffusivity, post-step temperature reset or production zonal model is selected.
+The separate [prospective closure design](thermal-boundary-discriminator.md#prospective-finite-zonal-calibration)
+allows at most two complete Earth evaluations of one finite zonal coefficient,
+selected from training only under an explicit weak prior. It preserves all
+other physical parameters and final benchmark guards, with no new framework
+or player-path proof instrumentation.
+Its distinct three-value geometry/stripe prerequisite now passes in `0.49 s`
+with the original numerical/conservation guards. That gate selects no Earth
+coefficient and changes no installed mod.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
 follows accepted SST0, authentic SST1 and canonical SST2. All seven complete
