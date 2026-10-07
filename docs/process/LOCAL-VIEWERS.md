@@ -51,5 +51,5 @@ checks separately so a working URL cannot be mistaken for fresh game evidence.
 The definition-owned `scripts/compare-coherence.ts` regenerates portable network
 comparisons; see its owning study for configuration and source requirements.
 Native screenshots use the existing CLI camera/capture workflow rather than
-reconstructed map artwork. Useful game lifecycle and migration procedures live
+reconstructed map artwork. Workspace setup and useful game operations live
 in the [portable operating guide](CIV-DEVELOPMENT-HOST.md).
