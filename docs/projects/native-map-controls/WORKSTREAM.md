@@ -81,10 +81,13 @@ both ocean updates and all three atmosphere vintages. Its first averaged-
 coefficient, two-harmonic approximation is rejected by a `0.343 s` manufactured
 comparison: reference refinement passes, but approximation errors reach
 `4.684 C`, with a separate nonlinear discrepancy of `0.753 C` on land.
-The next bounded discriminator retains seasonal coefficients and exact finite
-wet forcing, comparing the first affine step with a nonlinear periodic solve.
-Neither the simpler architecture nor small-system qualification establishes
-Earth improvement. Any owner replacement
+The subsequent nonlinear periodic discriminator passes: fixed four-harmonic
+responses stay within `0.027 C` of the finite chronological reference, and eight
+harmonics within `0.005 C`. Each converges in four Newton updates, without
+chronological spin-up. First-affine shortcuts still fail, including on land.
+The next unit is a scalable four-harmonic implementation and native-sized cost
+qualification, not another Earth or storage campaign. Neither the simpler
+architecture nor small-system qualification establishes Earth improvement. Any owner replacement
 still needs independent reference/consumer qualification, original procedural
 cohorts and normal native proof within the complete Huge `30-60 s` budget.
 Current circulation feedback cannot be dropped merely to improve timing.
