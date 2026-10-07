@@ -134,10 +134,16 @@ support the initial boundary/reference dose is `178.868 W/m2`, versus
 `13.133 W/m2` from the two-update departure; globally the latter is larger than
 the initial dose, so this diagnosis retains the composed ocean-update contribution.
 Exact original residual
-reconstruction and independent power-accounting review pass. Next qualify
-annual liquid SST versus exposed seasonal skin/wet air and the reference budget
-inside the current thermal owner, before another full Earth candidate. No
-current-only reference reset, scalar attenuation or ocean-model rebuild is selected.
+reconstruction and independent power-accounting review pass. The subsequent
+[marine reference-semantics audit](thermal-boundary-discriminator.md#completed-marine-reference-semantics)
+completes in `0.099 s`, using existing matched monthly references and no model
+solve. Northern `B-air` annual mean bias is only `-0.528 C`, but local annual
+and seasonal RMS contrasts are `6.778 / 7.051 C`: regional agreement hides an
+unqualified wet-air reference, not just an exposed-skin mismatch. Next qualify
+the annual liquid prior on the existing ice-free OI support, then design the
+exposed seasonal boundary and reference budget inside the current thermal owner.
+No current-only reference reset, scalar attenuation, all-wet mean-preserving
+slab or ocean-model rebuild is selected.
 The candidate is not selected and the installed mod is unchanged. Neither the simpler
 architecture nor numerical qualification establishes Earth improvement. Any owner replacement
 still needs independent reference/consumer qualification, original procedural
