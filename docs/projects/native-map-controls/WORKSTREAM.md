@@ -122,9 +122,16 @@ same 37 guard messages and no predicate disagreement. This is a substantial
 scientific regression, not an H6/H8 order-dependent verdict or a marginal
 decision tolerance.
 The corrected retained-only reader takes `0.147 s`, with no physical rerun or
-held/added scoring. Next is one retained correction/residual alignment diagnosis,
-not another coefficient, harmonic order or physical-model campaign. The candidate
-is not selected and the installed mod is unchanged. Neither the simpler
+held/added scoring. The [completed alignment diagnosis](thermal-boundary-discriminator.md#retained-correction-alignment)
+then takes `0.149 s` and reproduces every prior score and verdict exactly.
+About `97.6%` of added annual MSE is row-mean error, but the centered annual
+correction is also wrong-sign overall, north and coast. Positive attenuation
+of that same correction cannot repair those annual errors. Seasonal alignment
+is mixed and its seasonal correction magnitude is excessive; this is not only a mean error.
+Next is an exact retained-state power decomposition of initial ocean-boundary
+dose, two-update ocean departure and resulting state/transport reaction, not
+a new model run or a reference chosen merely to recover the empirical baseline.
+The candidate is not selected and the installed mod is unchanged. Neither the simpler
 architecture nor numerical qualification establishes Earth improvement. Any owner replacement
 still needs independent reference/consumer qualification, original procedural
 cohorts and normal native proof within the complete Huge `30-60 s` budget.

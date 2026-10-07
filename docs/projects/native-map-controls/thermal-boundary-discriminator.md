@@ -2552,6 +2552,79 @@ does not fit a gain, select another coefficient or justify a new model run.
 The warm static wet boundary and the empirical reference-subtraction convention
 remain competing causal explanations, not an established transport defect.
 
+### Retained Correction Alignment
+
+The one saved-output diagnosis completes in `0.148969 s`, after reproducing
+every original training score, population, guard and verdict exactly. It uses
+the same 196 identities and original area/calendar weights; no held/added
+receivers, new predictions, fitted gain or solver execution occur. H6 and H8
+give the same interpretations. Independent review reconstructs all 108 scalar
+budgets and their row/monthly partitions from the retained summary.
+
+For H6, `delta MSE = 2 * mean(error * correction) + mean(correction squared)`:
+
+| Component | Cross Term (C2) | Correction Squared (C2) | MSE Change (C2) |
+| --- | ---: | ---: | ---: |
+| Training annual | +0.180079 | 19.767382 | +19.947461 |
+| Training centered annual | +0.016562 | 0.469780 | +0.486342 |
+| Training row-mean annual | +0.163516 | 19.297602 | +19.461119 |
+| Training monthly anomaly | -0.475891 | 33.656490 | +33.180599 |
+| Coastal annual | +19.590590 | 52.430970 | +72.021560 |
+| Coastal monthly anomaly | -2.353073 | 69.514880 | +67.161808 |
+
+About `97.6%` of annual harm is row-mean harm, but subtracting a mean would not
+repair the centered pattern. Its cross term is positive overall, north and
+coast: any positive scalar attenuation of this fixed annual correction still
+worsens those errors. This algebraic sign conclusion is not a fitted gain or
+a claim about every alternative physical mechanism. Some regional centered
+annual responses improve. Monthly anomalies have weak favorable alignment
+overall and north, overwhelmed by correction magnitude, while the complement,
+North America and northern Asia have wrong-sign alignment. Neither "all
+geography is wrong" nor "the right pattern is merely too strong" is accurate.
+
+Original annual/monthly publication gaps stay below roughly `1e-6 C`; they
+cannot explain these effects. Largest MSE budget closure is `2.42e-13 C2`,
+partition closure `7.46e-13 C2`. Measured child high-water RSS is `231,358,464 B`;
+sampled simultaneous whole-process RSS is `227,246,080 B` and misses that brief
+child peak, so is not an actual-peak certificate. Both remain below the held
+`256 MiB` limit. All custody postchecks pass, no orphan or temporary modules
+remain, and inclusive all-host retained evidence is `64,692,899 B`, below `64 MiB`.
+Result SHA-256:
+`cbda1f9b7bfc0dd04779e10b1559a81d04f46c92a5e118ac88e193f1da4e4bf1`.
+
+#### Selected Power Discriminator
+
+Before another physical candidate, use the existing source laws and retained
+H6 state for one exact nonlinear power decomposition. At each of the original
+13 collocation phases,
+with the same geometry, mask, forcing and empirical cycle `B`, telescope:
+
+```text
+F(B + delta, SST2) - F(B, Bwet)
+  = [F(B, SST0) - F(B, Bwet)]              initial wet-boundary dose
+  + [F(B, SST2) - F(B, SST0)]              two-update wet departure
+  + [F(B + delta, SST2) - F(B, SST2)]      state and transport reaction
+```
+
+`SST0` means the actual zero-current ocean-owner output, including its existing
+diffusion, not the raw latitude seed. Keep radiation, sensible/latent exchange,
+dry-skin/air power and globally cancelling internal transport explicit. Retain
+signed phase/mean/anomaly summaries on declared global/northern/complementary
+wet/dry supports. These are discrete phase means/anomalies, not certified
+annual integrals, with no labels, scorer, new trajectory or linear attribution.
+Use the unchanged `10 s / 256 MiB` whole-process, `256 KiB` result, `4 KiB`
+receipt and inclusive `64 MiB` family limits. Source and synthetic accounting
+review precede one real invocation; failure does not authorize retry or cap growth.
+
+This distinguishes initial boundary/reference dose from current feedback before
+choosing an intervention. Subtracting the same initial SST would recover `B`
+without currents by construction, but also remove ordinary maritime geography;
+that identity alone is not a replacement design. The current ocean field is an
+annual liquid-temperature proxy, not an exposed ice-skin or seasonal wet-air
+climatology. Neither a current-only reference nor prognostic wet thermodynamics
+is selected, and no observational improvement, unique causal attribution,
+production migration or deployment follows from this diagnostic design.
+
 ### Historical Trajectory Retirement
 
 A reviewed exact-path retirement removed 182 obsolete raw BE
