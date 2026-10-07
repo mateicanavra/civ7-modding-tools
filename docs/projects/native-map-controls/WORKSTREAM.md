@@ -87,10 +87,12 @@ harmonics within `0.005 C`. Each converges in four Newton updates, without
 chronological spin-up. First-affine shortcuts still fail, including on land.
 The scalable matrix-free implementation also passes both signed cases, with
 continuous differences below `0.000017 C` from the qualified dense H4 results.
-The next unit is native-sized cost qualification, not another Earth or storage
-campaign. Three cold manufactured thermal calls must fit the prospectively
-declared `6 s` per-call / `18 s` aggregate targets before Earth forward.
-Neither the simpler
+The native-sized cost test then refuses at the first inner solve's fixed
+96-iteration cap, before accepting any Newton update. It takes under one second
+and stays within memory limits; the remaining calls are unexecuted. The next
+unit repairs the approximate spatial inverse, not the physical laws or iteration
+allowance. The prospective `6 s` per-call / `18 s` aggregate targets remain
+intact before Earth forward. Neither the simpler
 architecture nor small-system qualification establishes Earth improvement. Any owner replacement
 still needs independent reference/consumer qualification, original procedural
 cohorts and normal native proof within the complete Huge `30-60 s` budget.

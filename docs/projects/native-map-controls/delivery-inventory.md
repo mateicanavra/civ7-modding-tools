@@ -145,9 +145,12 @@ with four Newton updates per case. First-affine shortcuts remain ineligible,
 including on land. The matrix-free implementation now reproduces both qualified
 H4 solutions within `0.000017 C` continuously, with exact seasonal Jacobian
 agreement and four Newton updates. Its single small invocation takes `0.047 s`;
-this is solver equivalence, not native-size speed or Earth accuracy. The next
-cost gate requires three cold manufactured full-size calls within `6 s` each
-and `18 s` aggregate. Native-sized cost qualification must precede the next
+this is solver equivalence, not native-size speed or Earth accuracy. The subsequent
+native-sized cost gate refuses in the first Newton update at the fixed 96-iteration inner
+cap, under one second and within memory limits. No Newton update is accepted;
+later calls are unexecuted. A stronger approximate spatial inverse is the next
+design, without changing physics, accuracy or the `6 s / 18 s` thermal targets.
+Native-sized cost qualification must precede the next
 Earth comparison. Held labels and the rejected coefficient
 search stay closed. No production migration or candidate deployment follows.
 
