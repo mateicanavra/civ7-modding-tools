@@ -2316,6 +2316,52 @@ design addresses the full spatial inverse while preserving the exact physical
 operator, iteration/accuracy limits and thermal budgets. No larger iteration
 allowance, Earth forward, production adoption or deployment follows.
 
+#### Completed Full-Spatial Inverse
+
+The replacement approximate inverse includes meridional as well as zonal
+transport. A general-complex longitude transform reduces each temporal/spatial
+mode to a latitude tridiagonal solve; individual dry skins and the global
+mean-air rank correction remain intact. Only the transformed local reaction
+is longitude-averaged inside the preconditioner. The exact seasonal residual,
+Jacobian, fixed iteration limits and physical laws are unchanged. Independent
+complex dense controls cover merged width-two faces, exact pole caps and mixed
+dry skins. A bounded pure transform benchmark selects a cached direct DFT,
+without an FFT dependency or alternate runtime.
+
+Both original signed tiny cases converge in five full Newton updates. Fresh
+nodal residuals are `2.58e-5 / 6.58e-5 K`; independently reconstructed continuous
+differences from the dense H4 references are `1.40e-6 / 2.87e-6 K`, below the
+unchanged `1e-4 K` equivalence limit. Complete-basis Jacobian gaps remain
+`1.78e-15` year-scaled kelvin. The invocation takes `0.070 s`; all twenty-three
+source/runtime postchecks pass. Its complete new packet is `95,351 B`, outside
+Git. Result SHA-256:
+`80616b1ce60491c95517bc2a38397a1a7757ff8813b1f08496988b9c154c4b42`.
+This establishes equivalence, not uniformly fewer tiny-system iterations.
+
+The separately reviewed native-sized attempt then completes all three newly
+initialized manufactured problems. Each takes four full Newton updates,
+`59` GMRES iterations and `69` Jacobian actions, with refreshed nodal residual
+`0.00052635 K` below `0.001 K`. Complete setup/solve/readout times are
+`1.137 / 1.332 / 1.076 s`; shared admission, three calls and cleanup total
+`3.552 s`. These pass the unchanged `6 s` per-call and `18 s` aggregate targets.
+Maximum child RSS is `269 MiB`, sampled whole-process RSS below `367 MiB`;
+all twenty-five source/runtime postchecks pass. The complete new packet,
+conservatively charging the four reused geography files, is `76,477 B` outside
+Git. Result SHA-256:
+`dacad6858152913a2a66d609fb7bb8e58787dd81a6e37e592997d5eb6992fc3f`.
+Independent retained review confirms both results. No temporary modules or
+orphan processes remain.
+
+This clears the declared manufactured cost/convergence obstacle, not actual
+SST0/SST1/SST2 feedback, full-map waveform accuracy, Earth skill or complete
+Huge timing. The next comparison must qualify the periodic approximation on
+authentic geography and retain all three thermal vintages and both actual
+ocean updates. Reuse the original empirical incumbent, calendar, receivers
+and period-matched forcing for one frozen training-first Earth comparison;
+do not reopen the rejected coefficient search or substitute observed water
+temperature into the procedural recipe. No production deployment follows
+from these numerical results.
+
 Existing latitude/bounds/tilt can be forwarded by the current step; geographic
 working storage stays private to the operation. Publish `B + delta` once over
 land, then apply the existing lapse, independent bounds and Float32 output.

@@ -89,10 +89,17 @@ The scalable matrix-free implementation also passes both signed cases, with
 continuous differences below `0.000017 C` from the qualified dense H4 results.
 The native-sized cost test then refuses at the first inner solve's fixed
 96-iteration cap, before accepting any Newton update. It takes under one second
-and stays within memory limits; the remaining calls are unexecuted. The next
-unit repairs the approximate spatial inverse, not the physical laws or iteration
-allowance. The prospective `6 s` per-call / `18 s` aggregate targets remain
-intact before Earth forward. Neither the simpler
+and stays within memory limits; the remaining calls are unexecuted. The
+subsequent full-spatial inverse resolves that manufactured convergence refusal
+without changing the physical operator or iteration allowance. Its independently
+reviewed tiny solutions agree with the dense H4 references within `0.000003 C`.
+All three independently cold native-sized calls then converge in four full
+Newton updates, taking `1.137 / 1.332 / 1.076 s`; aggregate thermal work is
+`3.552 s`, below the unchanged `6 s` per-call / `18 s` targets. This is repeated
+manufactured-boundary cost qualification, not actual SST0/SST1/SST2 composition.
+The next unit qualifies the periodic approximation on the authentic geography
+and complete ocean-feedback sequence before a frozen training-first Earth
+comparison. Neither the simpler
 architecture nor small-system qualification establishes Earth improvement. Any owner replacement
 still needs independent reference/consumer qualification, original procedural
 cohorts and normal native proof within the complete Huge `30-60 s` budget.
