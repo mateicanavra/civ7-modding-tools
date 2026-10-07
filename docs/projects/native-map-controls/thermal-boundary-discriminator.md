@@ -15,8 +15,12 @@ now refuses the selected canonical candidate: both annual and seasonal error
 worsen against the unchanged original comparator. The [retained seasonal decomposition](#retained-seasonal-error-decomposition)
 locates different inland-amplitude and coast-mean failures. The completed
 [shared-air limit](#manufactured-shared-air-limit) then demonstrates a strong
-manufactured response with conservative internal mixing. Finite closure
-selection comes next, not an automatic Earth rerun or parameter search.
+manufactured response with conservative internal mixing. The subsequent
+[two-value finite-zonal comparison](#completed-finite-zonal-family)
+completes both prescribed Earth evaluations and rejects the family: neither
+value meets the unchanged training eligibility guards. No held benchmark,
+third coefficient or production adoption follows. The next discriminator
+uses retained common-SST0 heat budgets, not another transport sweep.
 Reference/consumer qualification, original procedural
 cohorts and native admission remain separate. The installed playable mod is
 unchanged. Earlier designs and dated results
@@ -1792,6 +1796,86 @@ run by either gate. The continuation explicitly inherits the original physical
 SPEC, scorer, populations, two-value selection and benchmark rules, while
 carrying prior costs into the same `1800 s / 512 MiB` family budget. The
 installed mod and procedural recipe remain unchanged.
+
+#### Completed Finite-Zonal Family
+
+The practical numerical policy now completes both original physical
+evaluations. The centre uses `3162277.6601683795 m^2/s`; its training
+ineligibility selects exactly the predeclared lower second value,
+`1778279.410038923 m^2/s`. Each evaluation independently cold-settles all three
+96-step/M24 vintages in five years per vintage, retains one BE startup per vintage and
+continuous BDF history, performs two actual ocean updates, and publishes final
+SST2 without a third ocean advance. Geometry, forcing and all non-zonal
+physical parameters remain held.
+
+Independent retained review verifies every phase/year ledger, source and
+input binding, ocean transition, numerical guard and final publication.
+The largest independent unnormalized phase defect is `7.07e-9 K`, full
+direction defect `1.91e-10 K`, and relative energy error `6.73e-15`, within
+the prospectively declared policy. Independent annual publication matches
+exactly; same-curve calendar quadrature is not forward temporal refinement.
+These results establish numerical completion, not physical accuracy.
+
+Training uses the unchanged original 196 receivers and their 14-site coastal
+subset. The incumbent remains the original zero-height empirical response;
+the isotropic candidate supplies only the frozen seasonal objective `J0`.
+
+| Training Metric | Original Incumbent | Finite Centre | Finite Lower |
+| --- | ---: | ---: | ---: |
+| Annual RMSE, C | 2.51378 | 5.09448 | 4.89373 |
+| Monthly RMSE, C | 3.26128 | 6.16608 | 6.01473 |
+| Coastal annual RMSE, C | 4.02304 | 9.18355 | 8.94501 |
+| Annual signed bias, C | approximately 0 | 1.76352 | 1.63172 |
+
+Centre monthly MSE is `38.02056`, worse than isotropic `J0 = 36.21250`.
+Lower MSE `36.17700` slightly improves on `J0`, but its annual, row-mean,
+absolute-bias and both coastal collateral guards still fail. Centre fails
+six eligibility predicates; lower fails five. Both are training-ineligible,
+so the frozen family is rejected without coefficient selection, held-label
+benchmark, third value, bracket expansion or guard relaxation. Training
+ineligibility is not represented as a held-benchmark failure.
+
+The two complete numerical attempts take `290.75/263.53 s`, with maximum
+RSS `547,373,056 bytes`. Their separate training readbacks take `0.20 s`
+each, without another simulation. Canonical numerical retention is about
+`230 MiB` combined; full curves remain on the execution host, with only
+compact receipts and prediction lanes copied. Conservative carried family
+charges after training are `569.13 s` and about `322 MiB`, within the original
+`1800 s / 512 MiB` limits. These scientific-grid costs do not establish the
+complete Huge player-generation target.
+
+The active Earth forcing is already `380.5009523236719 ppm`, not the author's
+`284 ppm` prior. The incumbent's near-zero training bias comes from its frozen
+196-cell empirical intercept/geographic fit, not a nonzero annual offset.
+This comparison deliberately pits the raw physical reduction against an
+already calibrated incumbent. No offset handoff defect or permission to fit
+away these failures is established. Uniform clouds, prescribed procedural SST
+and finite transport remain declared model reductions rather than independently
+validated Earth boundary conditions.
+
+The next bounded diagnosis compares signed transport, radiation, exchange,
+storage and wet-thermostat power in the retained common-SST0 trajectories.
+An exact coefficient-only RHS increment at the same retained state separates
+direct transport from the changed-state response. It can locate heat supply,
+not by itself prove that SST or optical assumptions are physically correct.
+No new trajectory, weather framework or competing thermal authority is selected.
+
+The published field-only atlas compares annual raw air temperature and
+full-cycle range for the retained isotropic, finite-centre and finite-lower
+arms. All six panels share fixed geometry and scales, with no saturation,
+observation residuals or new model execution. Full-resolution PNG links,
+desktop and mobile layouts, and the additive gallery entry are verified.
+Earlier gallery sections and assets are unchanged. The atlas makes these
+nonselected responses inspectable; it does not select a climate or refresh
+native screenshots.
+
+Private receipts remain in the existing finite-zonal user-data packet.
+Centre/lower numerical SHA-256 identities are
+`f502c95902191d1150bbd3d1e8ae7dff6fd2ce30d7af447ebc550a545d45f926`
+and `cc03e006f2f35cee6f6652b5af57d0d7b3769330a3e57d63e4f10fc1511b859d`.
+The closed-family receipt is
+`542845c499cca07e68913f4be6bb5c65a6335016cd7058fceb4d5dacb0af1ac8`.
+The installed mod, recipe and public operation contracts are unchanged.
 
 ### Historical Trajectory Retirement
 
