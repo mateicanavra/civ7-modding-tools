@@ -260,6 +260,13 @@ then refuses its first call at the unchanged 64-iteration cap. No full call
 completes, so native-sized throughput and reconstructed outputs are unqualified.
 The physical hypothesis remains untested; no policy expansion, automatic
 representation switch, Earth replay or production change follows.
+The separately reviewed [same-input reference diagnostic](thermal-boundary-discriminator.md#same-input-reference-diagnostic)
+changes only the stopping cap and converges in 552 iterations, taking
+`40.74 ms` including cold setup and output conversion. The old refusal stays
+intact. Full-batch and procedural performance remain unqualified. Cell/Int8
+losses persist despite converged face flow; no SST-error threshold, physical
+skill or representation migration is selected from those diagnostics.
+No raw fields or public harness are retained, and the playable mod is unchanged.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
 follows accepted SST0, authentic SST1 and canonical SST2. All seven complete
