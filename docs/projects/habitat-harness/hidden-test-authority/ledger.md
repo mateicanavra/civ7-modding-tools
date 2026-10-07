@@ -16,7 +16,7 @@ failure signal.
 
 Repo-state baseline before edits:
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`
 - Base branch: `agent-DRA-habitat-authority-placement-cleanup`
 - Base commit: `9320b84a8`
 - New slice: `agent-DRA-habitat-hidden-test-authority-audit`

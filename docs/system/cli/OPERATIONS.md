@@ -102,13 +102,21 @@ For authorized maintainer recovery, discover `game exec --help`, confirm the
 host and App UI state, and use Civ's own shipped exit primitive:
 
 ```bash
-civ7 game exec 'engine.call("exitToDesktop")' --state 'App UI' --timeout-ms 10000 --json
+env -u CIV7_TUNER_HOST -u CIV7_TUNER_HOSTS -u CIV7_TUNER_PORT \
+  civ7 game exec 'engine.call("exitToDesktop")' --host 127.0.0.1 --port 4318 \
+  --state 'App UI' --timeout-ms 10000 --json
 ```
 
 Use the execution matrix above when the CLI is not linked. Inspect `--dry-run`
 before dispatch. This existing explicit diagnostic is not a dedicated typed
 quit command; it does not justify adding new behavior to frozen legacy control
 code or creating a command-local transport.
+
+Run this on the intended game host with its discovered local port. Explicit
+`--host` does not suppress inherited host fallback or the loopback default;
+clear inherited Tuner variables, verify the health response's endpoint and
+inspect the dry-run host list. Remote recovery should execute on the game host,
+not assume this diagnostic offers exclusive remote targeting.
 
 Dispatch once with authorization to lose unsaved progress, then independently
 verify the original Civ process exited on the same host. A successful command,

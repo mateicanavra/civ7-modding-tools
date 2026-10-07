@@ -2,8 +2,8 @@
 
 ## Snapshot
 ```yaml
-repo_root: /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools
-worktree: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-agent-ORCH-foundation-domain-axe-execution
+repo_root: <user-home>/Documents/.nosync/DEV/civ7-modding-tools
+worktree: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-agent-ORCH-foundation-domain-axe-execution
 branch: codex/agent-ORCH-foundation-domain-axe-execution
 base_parent: codex/agent-ORCH-foundation-domain-axe-spike
 stack_anchor: agent-SWANKO-PRR-s124-c01-fix-diag-analyze-mountains-guard
@@ -73,7 +73,7 @@ policy_lock:
 ```yaml
 cleanup_results:
   removed:
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib
   verification:
     - bun run --cwd mods/mod-swooper-maps check
     - bun run --cwd mods/mod-swooper-maps lint
@@ -470,12 +470,12 @@ audit_scope:
   base_branch: agent-SWANKO-PRR-s112-c01-fix-driverStrength-proportional
   head_branch: codex/prr-m4-s06-test-rewrite-architecture-scans
   hotspot_files:
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/era-tectonics-kernels.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.contract.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/era-tectonics-kernels.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.contract.ts
   protocol:
     - architecture docs first
     - absolute paths only in worker instructions and scratch evidence
@@ -499,7 +499,7 @@ audit_scope:
 
 ```yaml
 cutover:
-  file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+  file: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
   target_posture:
     - createStage with inline knobs schema
     - no stage-level schema translation
@@ -535,7 +535,7 @@ current_state:
 ```yaml
 discipline_lock:
   scope: all_future_workers_in_execution_worktree
-  execution_worktree_required: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+  execution_worktree_required: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
   startup_packet_required: true
   startup_packet_fields:
     - absolute_paths
@@ -579,7 +579,7 @@ discipline_lock:
 ```yaml
 checkpoint_13:
   orchestrator_branch: codex/prr-m4-s06d-foundation-scratch-audit-ledger
-  orchestrator_worktree: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+  orchestrator_worktree: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
   active_threads_target:
     - AR1
     - AR2
@@ -649,10 +649,10 @@ cleanup_and_bootstrap:
     - 019c5fba-8669-7411-9303-98d2cfdc53d5
   removed_worktrees:
     - /private/tmp/wt-m4-s03-baseline-check
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-agent-ORCH-foundation-domain-axe-execution
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s02-core
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-agent-ORCH-foundation-domain-axe-execution
+    - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s02-core
   renamed_integration_worktree:
-    from: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
-    to: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
+    from: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+    to: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
   next_action: spawn_default_agent_RS1_for_post_ecology_restack
 ```

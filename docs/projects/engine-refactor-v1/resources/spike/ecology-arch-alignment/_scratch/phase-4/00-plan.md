@@ -7,7 +7,7 @@ Date: 2026-02-08
 - Base branch: `agent-ORCH-harden-M2-ecology-architecture-alignment`
 - Base commit: `ea44e56a4`
 - Phase 4 branch: `agent-ORCH-phase4-m2-ecology-issues-prework-handoff`
-- Phase 4 worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-phase4-m2-ecology-issues-prework-handoff`
+- Phase 4 worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-phase4-m2-ecology-issues-prework-handoff`
 
 ## Agent Roster
 
@@ -30,10 +30,10 @@ PLEASE IMPLEMENT THIS PLAN:
 - Hardened milestone (Phase 3):  
   `docs/projects/pipeline-realism/milestones/M2-ecology-architecture-alignment.md`
 - Canonical spike/feasibility package (paper trail):  
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-harden-M2-ecology-architecture-alignment/docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-harden-M2-ecology-architecture-alignment/docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/`
 - Required workflows (execute, do not treat as “guidance”):
-  - `/Users/mateicanavra/.codex-rawr/prompts/dev-milestone-to-issues.md`
-  - `/Users/mateicanavra/.codex-rawr/prompts/dev-prework-sweep.md`
+  - `<user-home>/.codex-rawr/prompts/dev-milestone-to-issues.md`
+  - `<user-home>/.codex-rawr/prompts/dev-prework-sweep.md`
 - Repo conventions/templates:
   - `docs/_templates/issue.md`
   - `docs/process/LINEAR.md`
@@ -50,7 +50,7 @@ PLEASE IMPLEMENT THIS PLAN:
 ## Outputs (Phase 4 Deliverables)
 1. **Docs aligned** so implementation has one canonical “active set”.
 2. **Local issue docs** for `LOCAL-TBD-PR-M2-001..016` under:  
-   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/<phase4-wt>/docs/projects/pipeline-realism/issues/`
+   `<user-home>/Documents/.nosync/DEV/worktrees/<phase4-wt>/docs/projects/pipeline-realism/issues/`
 3. **M2 milestone doc refactored to an index** that links to the issue docs.
 4. **All prework prompts executed and removed** from the issue docs (results appended).
 5. **Committed handoff prompt/runbook** for the next orchestrator agent (repo-tracked).
@@ -66,7 +66,7 @@ We run Phase 4 in a **new** isolated worktree based on the Phase 3 tip.
    - Base branch: `agent-ORCH-harden-M2-ecology-architecture-alignment`
    - New branch: `agent-ORCH-phase4-m2-ecology-issues-prework-handoff`
    - Worktree dir:
-     - `WORKTREES_ROOT="/Users/mateicanavra/Documents/.nosync/DEV/worktrees"`
+     - `WORKTREES_ROOT="<user-home>/Documents/.nosync/DEV/worktrees"`
      - `"$WORKTREES_ROOT/wt-agent-ORCH-phase4-m2-ecology-issues-prework-handoff"`
    - Commands:
      - `gt sync --no-restack`
@@ -86,7 +86,7 @@ Edge cases:
 ## Mandatory First Step (Before Any Other Work)
 Write the Phase 4 plan (this document) into scratch:
 - Scratch dir:  
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-phase4-m2-ecology-issues-prework-handoff/docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/_scratch/phase-4/`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-phase4-m2-ecology-issues-prework-handoff/docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/_scratch/phase-4/`
 - File: `00-plan.md` (verbatim plan + base SHA + worktree path + agent roster)
 
 Also create per-agent scratch files (empty placeholders upfront):
@@ -125,7 +125,7 @@ Also create per-agent scratch files (empty placeholders upfront):
   - the generated issue docs (after step 2)
 
 ### Agent 2 (Worker agent): Milestone → Local Issue Docs
-**Workflow:** Follow `/Users/mateicanavra/.codex-rawr/prompts/dev-milestone-to-issues.md` end-to-end, with one adaptation: the user’s instruction to execute Phase 4 is the explicit approval to proceed (so no extra confirmation pause).
+**Workflow:** Follow `<user-home>/.codex-rawr/prompts/dev-milestone-to-issues.md` end-to-end, with one adaptation: the user’s instruction to execute Phase 4 is the explicit approval to proceed (so no extra confirmation pause).
 
 **Scope decision (locked):**
 - Project: `pipeline-realism`
@@ -150,7 +150,7 @@ Also create per-agent scratch files (empty placeholders upfront):
   - `milestone: M2-ecology-architecture-alignment`
   - `labels: [pipeline-realism]`
 - Run link/dependency fixer script (read-only first; write only if needed):
-  - `node /Users/mateicanavra/.codex/scripts/dev--linear-doc-issue-link-fixer.mjs --project docs/projects/pipeline-realism --ssot blocked_by`
+  - `node <user-home>/.codex/scripts/dev--linear-doc-issue-link-fixer.mjs --project docs/projects/pipeline-realism --ssot blocked_by`
   - If it reports issues: rerun with `--write`.
 
 **Outputs (scratch):** `agent-milestone-to-issues.md`
@@ -161,7 +161,7 @@ Also create per-agent scratch files (empty placeholders upfront):
 - One commit (preferred) for “milestone → issues breakout” + milestone index refactor.
 
 ### Agent 3 (Worker agent): Prework Sweep (After Issues Exist)
-**Workflow:** Follow `/Users/mateicanavra/.codex-rawr/prompts/dev-prework-sweep.md` end-to-end, docs-only.
+**Workflow:** Follow `<user-home>/.codex-rawr/prompts/dev-prework-sweep.md` end-to-end, docs-only.
 
 **Scope identifier (locked):**
 - `docs/projects/pipeline-realism/issues`

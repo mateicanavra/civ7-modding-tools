@@ -10,7 +10,7 @@ clean-start injected proof.
 ## Branch / Stack
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-mapgen-core-runtime-civ7-closure`
 - Parent: `agent-HG-habitat-grit-empty-schema-default-closure`
 

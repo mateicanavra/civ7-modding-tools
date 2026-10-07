@@ -2,7 +2,7 @@
 
 **Change:** `habitat-boundary-taxonomy-tightening`
 **Owner:** DRA Habitat recovery owner
-**Cwd:** `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-F-habitat-harness-workstream`
+**Cwd:** `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-F-habitat-harness-workstream`
 **Branch:** `codex/habitat-dra-takeover-frame`
 **Base commit at capture:** `b0e766ec6`
 **Touched-path status:** packet files only; created probes were removed before capture closure.

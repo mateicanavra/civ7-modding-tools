@@ -10,11 +10,11 @@ No source implementation was performed. No D10 packet files were edited. This sc
 
 Mandatory skill reads:
 
-- `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/information-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/solution-design/SKILL.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md`
-- Requested exact path `/Users/mateicanavra/.agents/skills/typescript-refactoring/SKILL.md` was absent. I found and read the project-local TypeScript refactoring skill at `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/SKILL.md`.
+- `<user-home>/.agents/skills/domain-design/SKILL.md`
+- `<user-home>/.agents/skills/information-design/SKILL.md`
+- `<user-home>/.agents/skills/solution-design/SKILL.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md`
+- Requested exact path `<user-home>/.agents/skills/typescript-refactoring/SKILL.md` was absent. I found and read the project-local TypeScript refactoring skill at `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/SKILL.md`.
 - All project-local TypeScript refactoring references and assets:
   - `references/llm-slop-cleanup.md`
   - `references/paradigms-and-patterns.md`
@@ -79,7 +79,7 @@ None.
 
 None against the packet.
 
-Operational note: the exact requested TypeScript refactoring skill path under `/Users/mateicanavra/.agents/skills/` did not exist. I used the matching project-local skill path after verifying it was the only discovered `typescript-refactoring` skill. This does not affect D10 packet acceptance.
+Operational note: the exact requested TypeScript refactoring skill path under `<user-home>/.agents/skills/` did not exist. I used the matching project-local skill path after verifying it was the only discovered `typescript-refactoring` skill. This does not affect D10 packet acceptance.
 
 ## Acceptance Rationale
 

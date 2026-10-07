@@ -35,7 +35,7 @@ RPC, direct-control, or Civ7 failure.
   processes. Cleanup proof must audit and clear the actual listener PIDs, not
   only the root `bun run` PID.
 - The parallel daemon in
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-mc-handcrafted-map`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-mc-handcrafted-map`
   is exterior to this packet and was not terminated.
 
 ## Explicit Non-Proofs

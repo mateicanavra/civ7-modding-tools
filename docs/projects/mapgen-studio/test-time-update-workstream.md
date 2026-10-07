@@ -69,7 +69,7 @@ Outputs:
 - Fixed `scripts/placement/verify-manual-catalogs.ts` to compare expected
   discovery hashes in unsigned `u32` form, matching the adapter catalog contract.
 - Deployed Swooper Maps to:
-  `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps`.
+  `<user-home>/Library/Application Support/Civilization VII/Mods/mod-swooper-maps`.
 
 Evidence:
 

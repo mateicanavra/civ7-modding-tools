@@ -40,10 +40,10 @@ Reviewed:
 
 Skill anchors read before review:
 
-- `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/information-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/solution-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/SKILL.md`
+- `<user-home>/.agents/skills/domain-design/SKILL.md`
+- `<user-home>/.agents/skills/information-design/SKILL.md`
+- `<user-home>/.agents/skills/solution-design/SKILL.md`
+- `<user-home>/.agents/skills/testing-design/SKILL.md`
 - `.agents/skills/civ7-open-spec-workstream/SKILL.md`
 - `.agents/skills/civ7-habitat-dra-workstream/SKILL.md`
 - `.agents/skills/civ7-systematic-workstream/SKILL.md`
@@ -193,7 +193,7 @@ gates:
   observations, and stack/worktree hygiene.
 
 Commands run from
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`:
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`:
 
 | Gate | Result | Non-claim |
 | --- | --- | --- |

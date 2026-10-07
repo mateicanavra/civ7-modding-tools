@@ -1,7 +1,7 @@
 # Adversarial verification — ds-group "primitives" (16 rows)
 
 Verifier: independent re-derivation from source in
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction/apps/mapgen-studio`.
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction/apps/mapgen-studio`.
 Every component file and every story file in the slice was read IN FULL; supporting
 evidence (package.json, index.css, barrel, sub-barrel, useResolvedTheme, sonner test,
 .storybook/preview.tsx, .design-sync/{config.json,NOTES.md,conventions.md,ds-entry.tsx})

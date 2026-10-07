@@ -38,7 +38,7 @@
 ## Repo State
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-domain-mapping-investigation-harness`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-domain-mapping-investigation-harness`
 - Branch: `codex/habitat-domain-mapping-investigation-harness`
 - Parent branch: `codex/habitat-domain-mapping-prework`
 - Stack position: Graphite-tracked child of the prework branch.

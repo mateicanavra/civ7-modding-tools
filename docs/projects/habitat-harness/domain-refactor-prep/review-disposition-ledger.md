@@ -15,7 +15,7 @@ Accepted P1/P2 findings block goal attachment until dispositioned. Disposition r
 
 | ID | Severity | Finding | Disposition | Evidence |
 | --- | --- | --- | --- | --- |
-| R0-001 | P1 | Bad-checkout agent findings must not contaminate the corpus. | Fixed. Only fresh agents on `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame` branch `codex/habitat-fast-lint-checks` are indexed. | `agent-scratch-index.md`; each Wave 2 scratch has preflight. |
+| R0-001 | P1 | Bad-checkout agent findings must not contaminate the corpus. | Fixed. Only fresh agents on `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame` branch `codex/habitat-fast-lint-checks` are indexed. | `agent-scratch-index.md`; each Wave 2 scratch has preflight. |
 | R0-002 | P1 | Preparation might drift into packet writing. | Guarded. Corpus names dominoes and dependencies but does not write packet bodies. | `README.md`; `domino-candidate-ledger.md` scope and stop conditions. |
 | R0-003 | P1 | Generic Habitat could be justified by Civ7/MapGen-only behavior. | Guarded. MapGen-specific apply and generated-zone behavior are marked as host/pattern policy boundaries. | `scenario-corpus.md`; `domain-responsibility-map.md`; `domino-candidate-ledger.md`. |
 | R0-004 | P1 | Current full-suite Habitat test reliability is a proof risk. | Converted to Phase 2 stop condition and validation result. It does not block attaching the design goal, but blocks any packet proof closure that depends on Habitat tests until fixed or explicitly non-claimed. | `validation-results.md`; `domino-candidate-ledger.md`. |

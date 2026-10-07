@@ -15,14 +15,14 @@ direct-control for current decisions. The useful split is:
 Observed app-support SQLite files:
 
 ```text
-/Users/mateicanavra/Library/Application Support/Civilization VII/Mods.sqlite
-/Users/mateicanavra/Library/Application Support/Civilization VII/LocalStorage.sqlite
-/Users/mateicanavra/Library/Application Support/Civilization VII/HallofFame.sqlite
-/Users/mateicanavra/Library/Application Support/Civilization VII/Debug/colors-copy.sqlite
-/Users/mateicanavra/Library/Application Support/Civilization VII/Debug/frontend-copy.sqlite
-/Users/mateicanavra/Library/Application Support/Civilization VII/Debug/gameplay-copy.sqlite
-/Users/mateicanavra/Library/Application Support/Civilization VII/Debug/images-copy.sqlite
-/Users/mateicanavra/Library/Application Support/Civilization VII/Debug/localization-copy.sqlite
+<user-home>/Library/Application Support/Civilization VII/Mods.sqlite
+<user-home>/Library/Application Support/Civilization VII/LocalStorage.sqlite
+<user-home>/Library/Application Support/Civilization VII/HallofFame.sqlite
+<user-home>/Library/Application Support/Civilization VII/Debug/colors-copy.sqlite
+<user-home>/Library/Application Support/Civilization VII/Debug/frontend-copy.sqlite
+<user-home>/Library/Application Support/Civilization VII/Debug/gameplay-copy.sqlite
+<user-home>/Library/Application Support/Civilization VII/Debug/images-copy.sqlite
+<user-home>/Library/Application Support/Civilization VII/Debug/localization-copy.sqlite
 ```
 
 Proof labels:
@@ -35,10 +35,10 @@ Proof labels:
 - `.civ7/outputs/resources` and the Steam app resources expose XML, SQL schema,
   and UI JavaScript resources, not live SQLite database files.
 - Current autosaves under
-  `/Users/mateicanavra/Library/Application Support/Civilization VII/Saves` are
+  `<user-home>/Library/Application Support/Civilization VII/Saves` are
   opaque binary data with a `CIV7` header, not SQLite or zip archives.
 - Logs under
-  `/Users/mateicanavra/Library/Application Support/Civilization VII/Logs` expose
+  `<user-home>/Library/Application Support/Civilization VII/Logs` expose
   useful CSV/log evidence, including `Player_Stats.csv`,
   `Player_Treasury.csv`, `CityBuildQueue.csv`, `CombatLog.csv`, and
   `UnitOperations.log`, but they are append-only observations with stale-read

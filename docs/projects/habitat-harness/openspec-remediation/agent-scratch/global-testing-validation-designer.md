@@ -8,7 +8,7 @@ artifact for OpenSpec remediation. It does not authorize implementation and does
 not claim that any command below has passed in this branch.
 
 Repo root for command strings:
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
 
 ## Shared Validation Rules
 
@@ -63,7 +63,7 @@ Validation gates:
   must exit `0` and assert stable CLI invocation behavior, including direct
   `--json` behavior.
 - Integration:
-  `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js`
+  `bun run habitat classify <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js`
   must exit `0` and return a representative workspace classification.
 - Hygiene:
   `bun run lint` must exit `0`; Nx cache is acceptable only if the validation
@@ -112,7 +112,7 @@ Validation gates:
   `bun run --cwd tools/habitat test -- test/lib/rule-selection.test.ts test/rules/pattern-authority-manifest.test.ts`
   must exit `0` and assert selector, manifest, and projection contracts.
 - CLI:
-  `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/rules.json`
+  `bun run habitat classify <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/rules.json`
   must exit `0` and preserve registry ownership discovery.
 - Graph:
   `nx show project @habitat/cli` must exit `0` and record the
@@ -167,7 +167,7 @@ Validation gates:
   `bun run --cwd tools/habitat test -- test/lib/classify.test.ts` must
   exit `0` and cover every classification variant plus refusal output.
 - CLI path:
-  `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js`
+  `bun run habitat classify <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js`
   must exit `0`.
 - CLI docs path:
   `bun run habitat classify docs/projects/habitat-harness/phase2-workstream-packets/README.md`
@@ -295,7 +295,7 @@ Validation gates:
   `bun run --cwd tools/habitat test -- test/lib/generated-zones.test.ts test/lib/grit-apply.test.ts`
   must exit `0` after host-policy fixtures are introduced or updated.
 - CLI representative path:
-  `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/mods/mod-swooper-maps/src/maps/generated/swooper-earthlike.ts`
+  `bun run habitat classify <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/mods/mod-swooper-maps/src/maps/generated/swooper-earthlike.ts`
   must exit `0`.
 - Git:
   `git status --short --branch` must prove declarations are tracked data rather

@@ -10,10 +10,10 @@ Fresh D7 adversarial review. I treated the D7 source domino and accepted D0/D1/D
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md:32` requires D7 to define selector input/failure states, selected rule set, rule execution result, normalized diagnostic, baseline application result, `CheckReport` constructor, and renderer/stringifier.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d7-structural-enforcement-pipeline/design.md:22` says "Define check pipeline ownership and inputs from D2/D3/D5/D6/D10"; lines 24-26 are bullets, not a domain model, state model, transition model, or ownership contract.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d7-structural-enforcement-pipeline/specs/habitat-harness/spec.md:5` has one broad SHALL and two scenarios; it does not enumerate selector refusal, selected-empty, execution-not-run, adapter failure, baseline refusal, graph refusal, protected-zone refusal, advisory-only, rendering, or exit-status derivation.
-- Current implementation evidence shows why this must be explicit: `createCheckReport` in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:273` through `:342` currently performs selection, staged filtering, rule execution, baseline load/application, integrity, report-row construction, and `ok` derivation inline.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md:32` requires D7 to define selector input/failure states, selected rule set, rule execution result, normalized diagnostic, baseline application result, `CheckReport` constructor, and renderer/stringifier.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d7-structural-enforcement-pipeline/design.md:22` says "Define check pipeline ownership and inputs from D2/D3/D5/D6/D10"; lines 24-26 are bullets, not a domain model, state model, transition model, or ownership contract.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d7-structural-enforcement-pipeline/specs/habitat-harness/spec.md:5` has one broad SHALL and two scenarios; it does not enumerate selector refusal, selected-empty, execution-not-run, adapter failure, baseline refusal, graph refusal, protected-zone refusal, advisory-only, rendering, or exit-status derivation.
+- Current implementation evidence shows why this must be explicit: `createCheckReport` in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:273` through `:342` currently performs selection, staged filtering, rule execution, baseline load/application, integrity, report-row construction, and `ok` derivation inline.
 
 Required packet repair:
 
@@ -40,11 +40,11 @@ Each stage must state its single owner, accepted upstream projections, refusal/f
 
 Evidence:
 
-- D2 defines consumer projections and forbids passing whole registry records: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md:180` through `:195`.
-- D3 owns graph read status, target availability, and graph refusals; `command-engine.ts` may not hard-code project targets or verify affected targets outside the graph module after D3: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/design.md:50` through `:85`.
-- D5 says D7 consumes `BaselineApplicationResult`, `BaselineIntegrityResult`, and D5 command diagnostics, and may not load untyped baseline internals after D5 publishes target results: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/design.md:164` through `:172`.
-- D6 says D7 receives `DiagnosticRunOutcome`, finding projections, and adapter failure projections, and must not infer raw Grit internals or pattern/apply authority: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/design.md:441` through `:450`.
-- D7 design says "inputs from D2/D3/D5/D6/D10" at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d7-structural-enforcement-pipeline/design.md:24`, without naming the projections, availability/refusal states, or protected owner boundaries.
+- D2 defines consumer projections and forbids passing whole registry records: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md:180` through `:195`.
+- D3 owns graph read status, target availability, and graph refusals; `command-engine.ts` may not hard-code project targets or verify affected targets outside the graph module after D3: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/design.md:50` through `:85`.
+- D5 says D7 consumes `BaselineApplicationResult`, `BaselineIntegrityResult`, and D5 command diagnostics, and may not load untyped baseline internals after D5 publishes target results: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/design.md:164` through `:172`.
+- D6 says D7 receives `DiagnosticRunOutcome`, finding projections, and adapter failure projections, and must not infer raw Grit internals or pattern/apply authority: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/design.md:441` through `:450`.
+- D7 design says "inputs from D2/D3/D5/D6/D10" at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d7-structural-enforcement-pipeline/design.md:24`, without naming the projections, availability/refusal states, or protected owner boundaries.
 - Current code evidence shows the hazardous local-authority pattern: `command-engine.ts:281` loads baseline state directly, `:285` applies it directly, `:315` checks integrity directly, and `:423` through `:438` invokes Grit from selected whole rules. `generated-zones.ts:17` through `:37` has a local generated-zone table, while D2/D10 require protected-zone authority to be consumed through explicit contracts.
 
 Required packet repair:
@@ -63,11 +63,11 @@ The packet must state that D7 owns aggregation and report-row construction, not 
 
 Evidence:
 
-- The source packet says D7 must avoid selector failures, baseline/Grit leakage, and `CheckReport.ok` contradictions; stop conditions include selector failures indistinguishable from rule failures and baseline/Grit internals leaking into enforcement stages: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md:90` through `:96`.
-- D6 explicitly states adapter failure can never produce a structural pass: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/design.md:336` through `:347`.
-- D3 explicitly rejects no-op wrappers and missing dependency resolution as runnable target success: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/design.md:11` through `:13`, and defines graph refusal states at `:154` through `:165`.
-- Current D7-relevant code can drop staged Grit execution: `rulesForExecution` filters Grit rules in staged mode when there are no staged Grit roots at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:398` through `:409`; `createCheckReport` then derives `ok` from emitted report rows at `:336` through `:342`.
-- D7 spec says unavailable inputs report "blocked or failed state" at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d7-structural-enforcement-pipeline/specs/habitat-harness/spec.md:11` through `:13`; it does not define which unavailable states are blocked, failed, refused, skipped, advisory-only, or non-claim-bearing.
+- The source packet says D7 must avoid selector failures, baseline/Grit leakage, and `CheckReport.ok` contradictions; stop conditions include selector failures indistinguishable from rule failures and baseline/Grit internals leaking into enforcement stages: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md:90` through `:96`.
+- D6 explicitly states adapter failure can never produce a structural pass: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/design.md:336` through `:347`.
+- D3 explicitly rejects no-op wrappers and missing dependency resolution as runnable target success: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/design.md:11` through `:13`, and defines graph refusal states at `:154` through `:165`.
+- Current D7-relevant code can drop staged Grit execution: `rulesForExecution` filters Grit rules in staged mode when there are no staged Grit roots at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:398` through `:409`; `createCheckReport` then derives `ok` from emitted report rows at `:336` through `:342`.
+- D7 spec says unavailable inputs report "blocked or failed state" at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d7-structural-enforcement-pipeline/specs/habitat-harness/spec.md:11` through `:13`; it does not define which unavailable states are blocked, failed, refused, skipped, advisory-only, or non-claim-bearing.
 
 Required packet repair:
 
@@ -93,12 +93,12 @@ Explicitly modeled non-applicability may avoid failure, and it must carry a repo
 
 Evidence:
 
-- D1 says `CheckReport` is selected rules, rule statuses, diagnostics, and baseline/check command outcome, not a receipt or current-tree proof: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary/design.md:20`.
-- D1 requires `CheckReport.ok` to be derived from rule statuses or for validation to reject contradictions: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary/design.md:177`.
-- Current structural validation checks shape, not `ok`/rule-status consistency: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/diagnostics.ts:44` through `:66`.
-- Current command exit derives from `report.ok`: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/check.ts:46` through `:53`.
-- Current human renderer derives its summary from `report.ok`, `fail` rows, and advisory rows: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/messages.ts:27` through `:39`.
-- D7 source packet requires preserving human and JSON output truth equivalence at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md:63`.
+- D1 says `CheckReport` is selected rules, rule statuses, diagnostics, and baseline/check command outcome, not a receipt or current-tree proof: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary/design.md:20`.
+- D1 requires `CheckReport.ok` to be derived from rule statuses or for validation to reject contradictions: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary/design.md:177`.
+- Current structural validation checks shape, not `ok`/rule-status consistency: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/diagnostics.ts:44` through `:66`.
+- Current command exit derives from `report.ok`: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/check.ts:46` through `:53`.
+- Current human renderer derives its summary from `report.ok`, `fail` rows, and advisory rows: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/messages.ts:27` through `:39`.
+- D7 source packet requires preserving human and JSON output truth equivalence at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md:63`.
 
 Required packet repair:
 
@@ -116,9 +116,9 @@ The renderer/stringifier should consume the constructed report, but may not inve
 
 Evidence:
 
-- Current selector model exists in code as `RuleSelection`, `RuleSelectionResult`, `RuleSelectorFact`, and `RuleSelectionFailureReason` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:34` through `:68`.
-- Current selector failures are encoded as a synthetic rule report with `ruleId: "rule-selection-integrity"` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:569` through `:603`.
-- D2 defines selector facts as a projection and says selector failures must not become zero executed rules: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md:184`.
+- Current selector model exists in code as `RuleSelection`, `RuleSelectionResult`, `RuleSelectorFact`, and `RuleSelectionFailureReason` at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:34` through `:68`.
+- Current selector failures are encoded as a synthetic rule report with `ruleId: "rule-selection-integrity"` at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:569` through `:603`.
+- D2 defines selector facts as a projection and says selector failures must not become zero executed rules: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md:184`.
 - D7 design does not mention selector vocabulary, selector fact identity, selected-rule-set identity, synthetic report-row policy, or whether selector refusal is a rule report, command refusal, or check report construction refusal.
 
 Required packet repair:
@@ -137,9 +137,9 @@ The packet must decide whether selector refusals are represented as a synthetic 
 
 Evidence:
 
-- D7 tasks list `test/commands/habitat-commands.test.ts`, broad `habitat check --json`, OpenSpec validation, and `git diff --check`: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d7-structural-enforcement-pipeline/tasks.md:18` through `:24`.
-- The D7 source packet required rule selection tests, CheckReport schema tests, clean/failing/advisory/selector-failure/staged command behavior, baseline integrity current-tree check, and injected violation proof: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md:72` through `:84`.
-- D5 explicitly says `habitat check --rule baseline-integrity --json` is the D5 command outcome and broad `habitat check --json` cannot replace it: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/design.md:234` through `:239`.
+- D7 tasks list `test/commands/habitat-commands.test.ts`, broad `habitat check --json`, OpenSpec validation, and `git diff --check`: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d7-structural-enforcement-pipeline/tasks.md:18` through `:24`.
+- The D7 source packet required rule selection tests, CheckReport schema tests, clean/failing/advisory/selector-failure/staged command behavior, baseline integrity current-tree check, and injected violation proof: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md:72` through `:84`.
+- D5 explicitly says `habitat check --rule baseline-integrity --json` is the D5 command outcome and broad `habitat check --json` cannot replace it: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/design.md:234` through `:239`.
 
 Required packet repair:
 

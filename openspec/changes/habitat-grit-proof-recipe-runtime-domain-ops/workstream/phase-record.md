@@ -13,7 +13,7 @@ repair can be proven without HR-owned implementation changes.
 ## Repo State
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-recipe-runtime-domain-ops-closure`
 - Parent layer: `agent-HG-habitat-grit-step-contract-domain-surface-closure`
 

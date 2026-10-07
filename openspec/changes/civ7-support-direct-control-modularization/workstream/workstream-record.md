@@ -19,7 +19,7 @@ planning evidence only and not controller/runtime proof.
 The main repo accepted a controller bridge substrate correction at
 `c7111b120e92e80ccc9e944442020d9e1d5674c7`:
 `docs(civ7): align controller bridge substrate`. Read
-`/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/docs/projects/civ7-intelligence-layer/workstream/direct-control-game-controller-bridge/supervisor-notice.md`
+`<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/docs/projects/civ7-intelligence-layer/workstream/direct-control-game-controller-bridge/supervisor-notice.md`
 before any downstream bridge, AI-ingestion, semantic CLI, telemetry,
 schema/procedure-core, or Effect/oRPC planning depends on this support
 workstream.
@@ -291,7 +291,7 @@ implement Effect/oRPC source, add `packages/civ7-control-orpc`, accept Task
 ## Current State
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-watch-civ7-live-play-reference-assembly`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-watch-civ7-live-play-reference-assembly`
 - Stack tip when opened: `codex/add-systematic-workstream-skill-to-support-stack`
 - Skill import commit: `0abccba10 docs(skills): add systematic workstream skill`
 - Skill review-fix commit:

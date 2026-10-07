@@ -341,7 +341,7 @@ work is probe-shaped:
 
 - `packages/civ7-direct-control/AGENTS.md`
 - `packages/civ7-direct-control/src/index.ts`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/LocalStorage.sqlite`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods.sqlite`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Logs/`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Debug/gameplay-copy.sqlite`
+- `<user-home>/Library/Application Support/Civilization VII/LocalStorage.sqlite`
+- `<user-home>/Library/Application Support/Civilization VII/Mods.sqlite`
+- `<user-home>/Library/Application Support/Civilization VII/Logs/`
+- `<user-home>/Library/Application Support/Civilization VII/Debug/gameplay-copy.sqlite`

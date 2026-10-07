@@ -6,8 +6,8 @@ This is **my** operator scratch packet for taking over orchestration going forwa
 
 ```yaml
 timestamp_local: 2026-02-15
-repo_root: /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools
-active_worktree: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
+repo_root: <user-home>/Documents/.nosync/DEV/civ7-modding-tools
+active_worktree: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
 active_branch: codex/prr-m4-s06d-foundation-scratch-audit-ledger
 stack_tip_pr:
   graphite_pr: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1332
@@ -16,13 +16,13 @@ local_state:
   working_tree: clean
   local_ahead_of_origin_commits: 3
 local_stashes_created_for_hygiene:
-  - repo: /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools
+  - repo: <user-home>/Documents/.nosync/DEV/civ7-modding-tools
     stash_message: "WIP local: swooper-earthlike.config.json (pre-orchestrator takeover cleanup)"
-  - repo: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
+  - repo: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
     stash_message: "WIP local: earthlike.json (pre-orchestrator takeover cleanup)"
 session_source:
   session_id: 019c5e12-6f1c-73a3-b6d5-212716ffb808
-  transcript_path: /Users/mateicanavra/.codex-rawr/sessions/2026/02/14/rollout-2026-02-14T16-33-12-019c5e12-6f1c-73a3-b6d5-212716ffb808.jsonl
+  transcript_path: <user-home>/.codex-rawr/sessions/2026/02/14/rollout-2026-02-14T16-33-12-019c5e12-6f1c-73a3-b6d5-212716ffb808.jsonl
 ```
 
 ## What we are doing (architecture-first)

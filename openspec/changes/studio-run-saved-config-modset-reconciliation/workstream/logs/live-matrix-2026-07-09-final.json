@@ -100,7 +100,7 @@
     "id": "tot-basicmodsenabled",
     "displayName": "ToT_BasicModsEnabled",
     "fileName": "ToT_BasicModsEnabled.Civ7Cfg",
-    "path": "/Users/mateicanavra/Library/Application Support/Civilization VII/Saves/Single/ToT_BasicModsEnabled.Civ7Cfg"
+    "path": "<user-home>/Library/Application Support/Civilization VII/Saves/Single/ToT_BasicModsEnabled.Civ7Cfg"
   },
   "results": [
     {
@@ -126,7 +126,7 @@
             "id": "tot-basicmodsenabled",
             "displayName": "ToT_BasicModsEnabled",
             "fileName": "ToT_BasicModsEnabled.Civ7Cfg",
-            "path": "/Users/mateicanavra/Library/Application Support/Civilization VII/Saves/Single/ToT_BasicModsEnabled.Civ7Cfg"
+            "path": "<user-home>/Library/Application Support/Civilization VII/Saves/Single/ToT_BasicModsEnabled.Civ7Cfg"
           },
           "gameOptions": {
             "Difficulty": "DIFFICULTY_CUSTOM",
@@ -294,7 +294,7 @@
             "id": "tot-basicmodsenabled",
             "displayName": "ToT_BasicModsEnabled",
             "fileName": "ToT_BasicModsEnabled.Civ7Cfg",
-            "path": "/Users/mateicanavra/Library/Application Support/Civilization VII/Saves/Single/ToT_BasicModsEnabled.Civ7Cfg"
+            "path": "<user-home>/Library/Application Support/Civilization VII/Saves/Single/ToT_BasicModsEnabled.Civ7Cfg"
           },
           "gameOptions": {
             "Difficulty": "DIFFICULTY_CUSTOM",
@@ -451,7 +451,7 @@
             "id": "tot-basicmodsenabled",
             "displayName": "ToT_BasicModsEnabled",
             "fileName": "ToT_BasicModsEnabled.Civ7Cfg",
-            "path": "/Users/mateicanavra/Library/Application Support/Civilization VII/Saves/Single/ToT_BasicModsEnabled.Civ7Cfg"
+            "path": "<user-home>/Library/Application Support/Civilization VII/Saves/Single/ToT_BasicModsEnabled.Civ7Cfg"
           },
           "gameOptions": {
             "Difficulty": "DIFFICULTY_CUSTOM",

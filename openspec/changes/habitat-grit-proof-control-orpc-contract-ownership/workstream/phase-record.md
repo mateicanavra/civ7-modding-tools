@@ -15,7 +15,7 @@ blocked, and product/runtime proof remain non-claims.
 ## Branch / Stack
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-control-orpc-contract-ownership-closure`
 - Parent: `agent-HG-habitat-grit-adapter-base-standard-import-closure`
 - Historical row-local proof did not consume later repair layers. Current
@@ -99,10 +99,10 @@ This checkpoint does not own:
   `bun run openspec:validate`, and `git diff --check`.
 - Active-packet language guardrail scan:
   `rg -n "fallback|shim|compat|workaround|temporary|scratch"
-  /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain/openspec/changes/habitat-grit-proof-control-orpc-contract-ownership
-  /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain/docs/projects/habitat-harness/grit-pattern-corpus-ledger.md
-  /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain/openspec/changes/habitat-grit-proof-repair/workstream/grit-proof-matrix.md
-  /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain/openspec/changes/habitat-grit-proof-repair/workstream/command-proof-log.md`
+  <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain/openspec/changes/habitat-grit-proof-control-orpc-contract-ownership
+  <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain/docs/projects/habitat-harness/grit-pattern-corpus-ledger.md
+  <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain/openspec/changes/habitat-grit-proof-repair/workstream/grit-proof-matrix.md
+  <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain/openspec/changes/habitat-grit-proof-repair/workstream/command-proof-log.md`
   found only this packet's explicit "scratch is not durable proof" guardrail
   language plus unrelated existing aggregate rows.
 

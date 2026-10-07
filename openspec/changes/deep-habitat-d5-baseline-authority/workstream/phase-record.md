@@ -6,7 +6,7 @@
   Graphite layer and waiting for packet-boundary review.
 - Implementation: authorized after concrete D0 row citation and live D2
   baseline/selector projection confirmation.
-- Active checkout: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
+- Active checkout: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
 - Branch: `agent-DRA-d5-baseline-authority`.
 - Source packet: `$D5_SOURCE_PACKET`.
 - OpenSpec change: `$D5_CHANGE`.

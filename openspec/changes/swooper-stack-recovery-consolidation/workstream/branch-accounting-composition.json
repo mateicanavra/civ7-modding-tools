@@ -3,9 +3,9 @@
   "schemaVersion": "swooper-source-route-closure-audit.v1",
   "generatedAt": "2026-06-08T00:29:49Z",
   "inputs": {
-    "repoRoot": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools",
-    "graphiteCachePath": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.git/.graphite_cache_persist",
-    "ledgerPath": "/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain/openspec/changes/swooper-stack-recovery-consolidation/workstream/recovery-accounting-ledger.json",
+    "repoRoot": "<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools",
+    "graphiteCachePath": "<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.git/.graphite_cache_persist",
+    "ledgerPath": "<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-swooper-mapgen-recovery-drain/openspec/changes/swooper-stack-recovery-consolidation/workstream/recovery-accounting-ledger.json",
     "preparedSnapshotPath": "/tmp/civ7-graphite-full-snapshot/current-prepared-ledger-snapshot.json",
     "sourceRoot": "codex/live-play-settlement-reference"
   },

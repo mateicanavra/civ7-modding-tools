@@ -1,6 +1,6 @@
 # Classification ledger — ds-group `panels-layout`
 
-Slice scope: the 4 `panels/*` + 2 `layout/*` components from `.design-sync/config.json` componentSrcMap. Checkout read: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction` @ `c4ebaf1e1` (main tip). Paths relative to `apps/mapgen-studio/` unless noted. Every component source and its co-located story was read IN FULL; every one-hop boundary target's import head was verified directly (not trusted from ground reports). Directive applied: boundary crossings and dependency-direction smells are DEFECTS even where tolerated; cleanups that change rendered output are flagged in risks (46-story oracle gates visual fidelity).
+Slice scope: the 4 `panels/*` + 2 `layout/*` components from `.design-sync/config.json` componentSrcMap. Checkout read: `<user-home>/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction` @ `c4ebaf1e1` (main tip). Paths relative to `apps/mapgen-studio/` unless noted. Every component source and its co-located story was read IN FULL; every one-hop boundary target's import head was verified directly (not trusted from ground reports). Directive applied: boundary crossings and dependency-direction smells are DEFECTS even where tolerated; cleanups that change rendered output are flagged in risks (46-story oracle gates visual fidelity).
 
 Tier rubric: **clean** = moves as-is (react / external / intra-surface / tokens); **moderate** = 1–4 crossings each with a clear remedy; **app-shaped** = entangled with app domain logic, needs a designed split.
 

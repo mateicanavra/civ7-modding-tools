@@ -290,7 +290,7 @@ Evidence: `river-source-local-neighborhood-class-protocol-20261002/` and
 `river-source-authored-neighborhood-1018-v30-20261002/` under the documented
 Civ research root. Protocol SHA256:
 `de2cf515f897e995a19d408ffafe39ccaa29af6c7810a198eb88071cc6a80e17`.
-[The phone comparison](https://mateis-macbook-pro.taild8da1c.ts.net/civ/native-channel-neighborhood-20261002/index.html)
+The phone comparison (`native-channel-neighborhood-20261002/index.html`)
 contains actual matched detail and maximum-zoom screenshots, not a new
 production-qualified map.
 

@@ -33,7 +33,7 @@ Source pointers:
 - `openspec/changes/mapgen-studio-game-door-invariant/workstream/next-packet.md`
 - `openspec/changes/mapgen-studio-nx-dev-runner/workstream/next-packet.md`
 - Session takeover source: `019ec848-a3af-73d1-b5a5-8c0d51174798`
-- Repo state observed in worktree `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-prework`
+- Repo state observed in worktree `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-prework`
 
 ## WHAT
 

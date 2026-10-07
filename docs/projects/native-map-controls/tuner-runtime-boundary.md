@@ -114,8 +114,8 @@ Source: `packages/civ7-direct-control/src/play/map/{surface-observation,full-gri
 Exact machine-local roots:
 
 ```text
-E=/Users/mateicanavra/Library/Application Support/Civ7Tools/VisualAtlas/huge-1018/earth-calibration
-B=/Users/mateicanavra/Library/Application Support/Civ7Tools/VisualAtlas/huge-1018/earth-calibration/bounded-lake-cutoff-20260930
+E=<user-home>/Library/Application Support/Civ7Tools/VisualAtlas/huge-1018/earth-calibration
+B=<user-home>/Library/Application Support/Civ7Tools/VisualAtlas/huge-1018/earth-calibration/bounded-lake-cutoff-20260930
 ```
 
 - `E/earthlike-forest-after-20260930/huge1018-native-surface.json`

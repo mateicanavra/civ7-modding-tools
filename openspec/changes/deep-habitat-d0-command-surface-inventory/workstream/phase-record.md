@@ -4,15 +4,15 @@
 
 - Status: D0 implementation artifact authored and under packet-boundary review.
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
 - Branch at original D0 implementation:
   `agent-DRA-d0-command-surface-inventory`.
 - Source packet, historical path:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D0-scenario-public-contract-inventory.md`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D0-scenario-public-contract-inventory.md`.
 - D0 review, historical path:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D0-review.md`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D0-review.md`.
 - Final D0 acceptance review, historical path:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D0-final-review.md`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D0-final-review.md`.
 - OpenSpec change:
   `openspec/changes/deep-habitat-d0-command-surface-inventory/`.
 
@@ -89,7 +89,7 @@ cache stance, and non-claims.
   `check --help` / `hook --help` failures and long-running broad command
   timeouts. These are current source-surface evidence, not D0 source repairs.
 - Root checkout side-branch risk: root checkout
-  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools` is back on
+  `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools` is back on
   clean `main`; D0 artifact work remains only on the linear Graphite stack layer
   `agent-DRA-d0-command-surface-inventory` above
   `agent-DRA-deep-habitat-prep-frame`.

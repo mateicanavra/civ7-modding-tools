@@ -20,9 +20,9 @@ exist.
 ## Evidence Read
 
 - Re-read the active negative-control note in `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D3-review.md:1`, which supersedes any historical wording that lowered D3 to a `biome-ci`-only fix.
-- Re-read the D3 proposal, design, spec, tasks, and all workstream files under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary`.
+- Re-read the D3 proposal, design, spec, tasks, and all workstream files under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary`.
 - Re-read `docs/projects/habitat-harness/openspec-remediation/context.md` and the packet index.
-- Re-checked current graph-related source topology in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/nx-projects.ts`, and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`.
+- Re-checked current graph-related source topology in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js`, `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/nx-projects.ts`, and `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`.
 
 Commands run:
 
@@ -37,61 +37,61 @@ Commands run:
 D3 now has a concrete code/topology owner boundary. The design introduces the
 Workspace Graph module and assigns `workspace-graph-contract.js`,
 `workspace-graph.ts`, `nx-projects.ts`, `plugin.js`, and `command-engine.ts`
-clear authority/consumer roles in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/design.md:74`.
-The source write set and protected paths are explicit in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/design.md:319`.
+clear authority/consumer roles in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/design.md:74`.
+The source write set and protected paths are explicit in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/design.md:319`.
 
 D3 now models the full dependency topology, not only the `biome-ci` falsifier.
 `TargetDependencyDeclaration` covers same-project target dependency, explicit
 project target dependency, aggregate/workspace dependency, and multi-dependency
-target relationship in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/design.md:182`.
+target relationship in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/design.md:182`.
 The constraints require same-project normalization, explicit project/target
 resolution, aggregate/multi child resolution, graph refusal for unresolved
-aliases, and no `node -e ""` projection until dependencies resolve in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/design.md:204`.
-The topology table ties those kinds to current `plugin.js` shapes in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/design.md:281`.
+aliases, and no `node -e ""` projection until dependencies resolve in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/design.md:204`.
+The topology table ties those kinds to current `plugin.js` shapes in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/design.md:281`.
 
 The spec now makes the same contract normative. It rejects duplicate target truth
-and requires a full graph inventory in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/specs/habitat-harness/spec.md:3`.
+and requires a full graph inventory in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/specs/habitat-harness/spec.md:3`.
 It requires same-project resolution/refusal, canonical `biome-ci` resolution,
 explicit project resolution, aggregate child resolution, missing project/target
-refusal, no first-colon parsing, and closed dependency kinds in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/specs/habitat-harness/spec.md:44`.
+refusal, no first-colon parsing, and closed dependency kinds in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/specs/habitat-harness/spec.md:44`.
 It also requires one validation path for plugin inference, classify, and verify
-in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/specs/habitat-harness/spec.md:94`.
+in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/specs/habitat-harness/spec.md:94`.
 
 The implementation tasks are no longer a vague biome repair. They require the
 Workspace Graph contract, removal of plugin-local owner roots/dependency parsing,
 canonical `biome-ci`, same-project `nx-boundaries`, and aggregate/multi
-`generated:check` topology in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/tasks.md:10`.
-They require plugin migration away from unresolved no-op wrappers in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/tasks.md:27`.
+`generated:check` topology in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/tasks.md:10`.
+They require plugin migration away from unresolved no-op wrappers in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/tasks.md:27`.
 Task 4.6 closes the unresolved-alias representation rule rather than leaving an
 implementation-time decision: withhold runnable aliases by default, expose
 graph-refusal classify/verify states, and use a command-facing failing
 graph-refusal target only when a concrete D0 row covers that public behavior in
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/tasks.md:34`.
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/tasks.md:34`.
 The tasks also require classify/verify migration away from local target
-authority in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/tasks.md:36`,
+authority in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/tasks.md:36`,
 and validation gates for inventory, alias execution, same-project, aggregate,
-multi-dependency, graph read, and daemon failure cases in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/tasks.md:52`.
+multi-dependency, graph read, and daemon failure cases in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/tasks.md:52`.
 
 ## Current Source Topology
 
 The current source remains a live falsifier, not acceptance evidence for
 implementation. `plugin.js` still owns `OWNER_ROOTS` and target-name defaults in
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:17`
-and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:29`.
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:17`
+and `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:29`.
 It still defines `dependencyForTarget` with first-colon parsing in
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:182`,
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:182`,
 still projects aliases through `node -e ""` in
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:190`,
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:190`,
 and still routes `biome-ci`, grit, generated, and `rule.nxTarget` alias shapes
-locally in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:203`.
+locally in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:203`.
 
 `nx-projects.ts` still reads graph metadata and owns `findOwningProject` /
-`projectHasTarget` helpers in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/nx-projects.ts:21`.
+`projectHasTarget` helpers in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/nx-projects.ts:21`.
 `command-engine.ts` still carries classify target DTOs, hard-coded verify target
 names, and local project/workspace target construction in
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:196`,
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:614`,
-and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:1032`.
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:196`,
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:614`,
+and `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:1032`.
 
 That source state is exactly what D3 now requires later implementation to
 replace.
@@ -108,7 +108,7 @@ None.
 
 ### P3-1: Proposal uses one lowering-prone phrase for D12 facts
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/proposal.md:93`
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/proposal.md:93`
 says D12 may consume D3 graph-read and "target-execution facts" for verify
 handoff receipt design.
 

@@ -14,13 +14,13 @@ compatibility action vocabulary.
 
 ## Skills And Contracts Read
 
-- `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/domain-design/SKILL.md`
-- `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/information-design/SKILL.md`
-- `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/system-design/SKILL.md`
-- `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/solution-design/SKILL.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.agents/skills/civ7-open-spec-workstream/SKILL.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.agents/skills/civ7-open-spec-workstream/references/team-and-review-lanes.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.agents/skills/civ7-open-spec-workstream/references/artifact-contracts.md`
+- `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/domain-design/SKILL.md`
+- `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/information-design/SKILL.md`
+- `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/system-design/SKILL.md`
+- `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/solution-design/SKILL.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.agents/skills/civ7-open-spec-workstream/SKILL.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.agents/skills/civ7-open-spec-workstream/references/team-and-review-lanes.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.agents/skills/civ7-open-spec-workstream/references/artifact-contracts.md`
 
 ## Sources Read
 

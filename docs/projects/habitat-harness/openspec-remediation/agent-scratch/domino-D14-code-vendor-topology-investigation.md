@@ -3,9 +3,9 @@
 Status: investigation/review input only. This document does not update the packet
 index, does not close the D14 review lane, and does not authorize source edits.
 
-Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
+Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
 Branch: `codex/d14-authoring-topology-fence-packet`
-Change root: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence`
+Change root: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence`
 
 ## Executive Finding
 

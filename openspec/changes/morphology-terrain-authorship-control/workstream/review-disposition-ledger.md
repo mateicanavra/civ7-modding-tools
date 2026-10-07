@@ -2,7 +2,7 @@
 
 | Finding | Severity | Disposition | Repair Evidence |
 | --- | --- | --- | --- |
-| Wrong initial worktree was the Studio branch, not the morphology handoff branch. | P1 | cleared | Switched to `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-dra-morphology-direct-control-objective`, branch `codex/agent-dra-morphology-direct-control-objective`; closed prior agents. |
+| Wrong initial worktree was the Studio branch, not the morphology handoff branch. | P1 | cleared | Switched to `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-dra-morphology-direct-control-objective`, branch `codex/agent-dra-morphology-direct-control-objective`; closed prior agents. |
 | Hills are structurally under-authored, not just under-tuned. | P1 | accepted | `design.md` records the root cause; downstream rough-land op slice is required before config tuning. |
 | Existing tests can pass with nearly no hills. | P1 | accepted | `design.md` and `tasks.md` require terrain stats/readback gates before closure. |
 | Final terrain counts are misleading because volcanoes stamp mountains separately. | P1 | accepted | Corpus and expectation ledgers require non-volcano mountain separation and volcano-kind stats. |

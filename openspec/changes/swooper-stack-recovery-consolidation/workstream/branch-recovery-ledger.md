@@ -40,7 +40,7 @@
 ## Open Evidence Captured During Recovery
 
 - Screenshot:
-  `/Users/mateicanavra/Desktop/Screenshots/Clean-2026-06-05_23.40.37@2x.png`.
+  `<user-home>/Desktop/Screenshots/Clean-2026-06-05_23.40.37@2x.png`.
 - Visual failure: Studio currently can show mountains as a few vertical blocking
   line systems rather than long, varied, physically grounded mountain regions
   with internal hills, valleys, passages, and subregions.
@@ -102,7 +102,7 @@
 ## Cleanup Actions
 
 - Removed the stale local predecessor worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-swooper-earthlike-tuning`.
+  `<user-home>/Documents/.nosync/DEV/civ7/civ7-swooper-earthlike-tuning`.
 - Deleted the local Graphite branch/ref for
   `codex/swooper-earthlike-post-foundation-tuning` after semantic recovery was
   committed here.
@@ -133,7 +133,7 @@
   live-play support branch needing restack; a narrow restack conflicts in
   live-play docs and is deliberately left to the live-play/control lane.
 - Removed the clean old Earthlike source worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-civ7-map-policy-final-surface-parity`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-civ7-map-policy-final-surface-parity`.
   The source branches remain in Graphite until the recovery sink lands.
 - Deleted local Graphite metadata/branch
   `agent-watch-civ7-live-play-reference-assembly` after confirming its branch

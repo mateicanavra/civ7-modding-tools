@@ -10,12 +10,12 @@ ecology, terrain, tile types, trees, and woodlands.
 ## Repo State
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-systematic-workstream-skill-framing`
+  `<user-home>/Documents/.nosync/DEV/civ7/civ7-systematic-workstream-skill-framing`
 - Branch: `codex/systematic-evidence-workstream-skill`
 - Parent slice: `codex/systematic-workstream-skill-framing`
 - Base evidence branch: `codex/resource-runtime-proof`
 - Existing main worktree dirty state: left untouched in
-  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools`.
+  `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools`.
 - In-app thread tool state: `codex_app.list_threads` was exposed but returned
   `No handler registered for tool: list_threads`; fallback evidence uses
   `rawr sessions` and repo records.
@@ -23,7 +23,7 @@ ecology, terrain, tile types, trees, and woodlands.
 ## Evidence Sources
 
 - Session file:
-  `/Users/mateicanavra/.codex/sessions/2026/05/31/rollout-2026-05-31T02-28-34-019e7cb8-51db-7d31-aa9a-83f862fef76b.jsonl`
+  `<user-home>/.codex/sessions/2026/05/31/rollout-2026-05-31T02-28-34-019e7cb8-51db-7d31-aa9a-83f862fef76b.jsonl`
 - Request capture:
   `docs/projects/systematic-workstream-skill/request-capture.md`
 - Resource planning:
@@ -33,8 +33,8 @@ ecology, terrain, tile types, trees, and woodlands.
 - Repo-local skill conventions:
   `.agents/skills/README.md` and `.agents/skills/*/SKILL.md`
 - Skill authoring guidance:
-  `/Users/mateicanavra/.agents/skills/skill-authoring/SKILL.md` and
-  `/Users/mateicanavra/.codex/skills/.system/skill-creator/SKILL.md`
+  `<user-home>/.agents/skills/skill-authoring/SKILL.md` and
+  `<user-home>/.codex/skills/.system/skill-creator/SKILL.md`
 
 ## Team
 
@@ -105,14 +105,14 @@ The seed method has these load-bearing moves:
 
 ## Verification State
 
-- `PYTHONPATH=/tmp/codex-pyyaml python3 /Users/mateicanavra/.codex/skills/.system/skill-creator/scripts/quick_validate.py .agents/skills/civ7-systematic-workstream`
+- `PYTHONPATH=/tmp/codex-pyyaml python3 <user-home>/.codex/skills/.system/skill-creator/scripts/quick_validate.py .agents/skills/civ7-systematic-workstream`
   passed after installing `PyYAML` into `/tmp/codex-pyyaml` because the default
   Python environments did not include `yaml`.
 - Manual frontmatter/link validation passed.
 - Non-ASCII scan returned no findings.
-- `PATH="/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/node_modules/.bin:$PATH" bun run openspec -- validate systematic-evidence-workstream-skill --strict`
+- `PATH="<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/node_modules/.bin:$PATH" bun run openspec -- validate systematic-evidence-workstream-skill --strict`
   passed.
-- `PATH="/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/node_modules/.bin:$PATH" bun run openspec:validate`
+- `PATH="<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/node_modules/.bin:$PATH" bun run openspec:validate`
   passed: 31 items, 0 failed.
 - `git diff --check` passed.
 

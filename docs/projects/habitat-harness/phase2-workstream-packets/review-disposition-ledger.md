@@ -10,7 +10,7 @@ Reviewer:
 `019ed800-7f16-7d72-a5d4-41bf7dec88b5`
 
 Worktree:
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`
 
 Branch:
 `codex/deep-habitat-phase2-prep`

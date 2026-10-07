@@ -4,73 +4,73 @@
 
 Worktree verified:
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
 - Branch: `codex/d12-verify-handoff-packet`
 - HEAD: `e568d32ebd39e450960cd7763de4bcc7d2478c17` (`docs(habitat): repair D12 verify handoff packet`)
 
 Mandatory design lenses read in full before review:
 
-- `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/information-design/SKILL.md`
+- `<user-home>/.agents/skills/domain-design/SKILL.md`
+- `<user-home>/.agents/skills/information-design/SKILL.md`
 
 Repo/workstream routing read:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-habitat-dra-workstream/SKILL.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/docs/projects/habitat-harness/openspec-remediation/habitat-authority-map.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/docs/projects/habitat-harness/openspec-remediation/openspec-source-map.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/docs/projects/habitat-harness/openspec-remediation/review-phase-loop.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-habitat-dra-workstream/SKILL.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/docs/projects/habitat-harness/openspec-remediation/habitat-authority-map.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/docs/projects/habitat-harness/openspec-remediation/openspec-source-map.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/docs/projects/habitat-harness/openspec-remediation/review-phase-loop.md`
 
 D12 packet and remediation context read:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d12-verify-handoff-receipt/proposal.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d12-verify-handoff-receipt/design.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d12-verify-handoff-receipt/tasks.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d12-verify-handoff-receipt/specs/habitat-harness/spec.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d12-verify-handoff-receipt/workstream/phase-record.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d12-verify-handoff-receipt/workstream/review-disposition-ledger.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d12-verify-handoff-receipt/workstream/downstream-realignment-ledger.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d12-verify-handoff-receipt/workstream/closure-checklist.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/context.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/review-disposition-ledger.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D12-proof-handoff-verify-command.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d12-verify-handoff-receipt/proposal.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d12-verify-handoff-receipt/design.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d12-verify-handoff-receipt/tasks.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d12-verify-handoff-receipt/specs/habitat-harness/spec.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d12-verify-handoff-receipt/workstream/phase-record.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d12-verify-handoff-receipt/workstream/review-disposition-ledger.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d12-verify-handoff-receipt/workstream/downstream-realignment-ledger.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d12-verify-handoff-receipt/workstream/closure-checklist.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/context.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/review-disposition-ledger.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D12-proof-handoff-verify-command.md`
 
 First-wave D12 scratch read:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D12-code-vendor-topology-investigation.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D12-domain-ontology-investigation.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D12-openspec-information-testing-investigation.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D12-typescript-state-investigation.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D12-cross-domino-product-investigation.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D12-code-vendor-topology-investigation.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D12-domain-ontology-investigation.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D12-openspec-information-testing-investigation.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D12-typescript-state-investigation.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D12-cross-domino-product-investigation.md`
 
 Accepted upstream/downstream grounding read:
 
-- D0 public surface compatibility material under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d0-command-surface-inventory/`
-- D1 verify ontology and non-claim material under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-proof-receipt-ontology/`
-- D3 graph/target authority material under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-nx-graph-authority/`
-- D7 check/report projection material under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d7-check-report-projection/`
-- D11 local-feedback/hook boundary material under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d11-verify-hook-local-feedback/`
-- D14 authoring topology material under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology/`
+- D0 public surface compatibility material under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d0-command-surface-inventory/`
+- D1 verify ontology and non-claim material under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-proof-receipt-ontology/`
+- D3 graph/target authority material under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-nx-graph-authority/`
+- D7 check/report projection material under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d7-check-report-projection/`
+- D11 local-feedback/hook boundary material under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d11-verify-hook-local-feedback/`
+- D14 authoring topology material under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology/`
 
 Current code, package, target, and test surfaces read:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/verify.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/hooks.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/index.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/verify-proof.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/commands/habitat-commands.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/package.json`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/nx.json`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/package.json`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/README.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/verify.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/hooks.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/index.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/verify-proof.test.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/commands/habitat-commands.test.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/package.json`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/nx.json`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/package.json`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/README.md`
 
 Vendor grounding read:
 
 - Nx affected documentation: `https://nx.dev/docs/features/ci-features/affected`
 - Nx command reference for `nx affected` options: `https://nx.dev/docs/reference/nx-commands`
-- Local Nx research note: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/research/official-docs-nx.md`
+- Local Nx research note: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/research/official-docs-nx.md`
 
 Validation run:
 
@@ -125,9 +125,9 @@ Complete. No active hold-family language remains in D12 guidance.
 
 Audited for hold-family wording over:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d12-verify-handoff-receipt`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D12-*`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d12-verify-handoff-receipt`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D12-*`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md`
 
 Result: zero active D12 guidance matches.
 
@@ -154,7 +154,7 @@ This matches D11, which keeps hook feedback local and explicitly prevents hook o
 
 The current code surfaces are not target-compliant, and D12 now describes that truthfully.
 
-Current `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/verify.ts` still exposes `bun run habitat verify` as a diagnostic Habitat CLI command that runs Habitat checks and then affected verification targets. Its JSON help still says it emits a structured `VerifyProof` artifact. Current `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts` still hardcodes affected targets, computes `nx affected` argv locally, emits legacy non-claim prose, uses `git status --short`, and records legacy affected/cache states.
+Current `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/verify.ts` still exposes `bun run habitat verify` as a diagnostic Habitat CLI command that runs Habitat checks and then affected verification targets. Its JSON help still says it emits a structured `VerifyProof` artifact. Current `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts` still hardcodes affected targets, computes `nx affected` argv locally, emits legacy non-claim prose, uses `git status --short`, and records legacy affected/cache states.
 
 D12 correctly treats those as implementation gaps, not as accepted behavior:
 
@@ -165,7 +165,7 @@ D12 correctly treats those as implementation gaps, not as accepted behavior:
 - D7 owns check summary projection, selected rule ids, requested selector state, status counts, `allowsAffectedExecution`, and skipped-affected reason.
 - D11 may only contribute local-feedback non-claim and hook trace boundaries.
 
-The target affected command contract is aligned with Nx vendor behavior. Nx affected is a Git-diff and project-graph scoped task runner; the relevant vendor options are `--base`, `--head`, and `--outputStyle`. D12's target command shape, `nx affected -t <stable-target-list-from-D3-VerifyTargetPlan> --base <resolved-base> --head HEAD --outputStyle=static`, is stricter and more reviewable than the current code's local `nx affected -t <hardcoded-list> --base <base>` command. It also matches the repo's own hook precedent in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/hooks.ts`, while preserving D11's rule that hook behavior is only local feedback.
+The target affected command contract is aligned with Nx vendor behavior. Nx affected is a Git-diff and project-graph scoped task runner; the relevant vendor options are `--base`, `--head`, and `--outputStyle`. D12's target command shape, `nx affected -t <stable-target-list-from-D3-VerifyTargetPlan> --base <resolved-base> --head HEAD --outputStyle=static`, is stricter and more reviewable than the current code's local `nx affected -t <hardcoded-list> --base <base>` command. It also matches the repo's own hook precedent in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/hooks.ts`, while preserving D11's rule that hook behavior is only local feedback.
 
 D12's write/protected set split is appropriate:
 

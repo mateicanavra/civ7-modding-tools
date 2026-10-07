@@ -1,7 +1,7 @@
 # D10 Cross-Domino/Product Sequencing Investigation
 
 Investigator: D10 Cross-Domino/Product Sequencing
-Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
+Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
 Branch observed: `codex/d10-protected-zone-authority-packet`
 Scope: design/specification only. No source implementation reviewed as target authority.
 

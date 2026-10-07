@@ -4,7 +4,7 @@
 
 Fresh rereview of the repaired D1 Receipt And Command Record Boundary packet for design/specification acceptance:
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary`
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary`
 
 This review is not implementation and not a redesign. It checks whether the repaired blockers from the final domain/ontology and information-design reviews are cleared.
 

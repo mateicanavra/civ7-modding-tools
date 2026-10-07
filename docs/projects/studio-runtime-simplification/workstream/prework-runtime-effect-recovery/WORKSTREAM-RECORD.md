@@ -20,7 +20,7 @@
 
 ## Repo State
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-prework`
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-prework`
 - Branch: `codex/runtime-effect-prework-frame`
 - Parent branch: `main`
 - Stack position: Graphite-tracked branch above `main`, though `gt ls` currently renders it under `agent-HR-habitat-repair-chain (needs restack)` despite Git ancestry matching `origin/main`; do not run broad stack restacks/submits from this branch.

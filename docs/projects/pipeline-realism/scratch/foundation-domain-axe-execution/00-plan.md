@@ -184,8 +184,8 @@ docs_anchor_contract:
   required_canonical_example:
     minimum_examples: 1
     example_sources:
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/packages/mapgen-core/src/authoring/stage.ts
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps
+      - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/packages/mapgen-core/src/authoring/stage.ts
+      - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps
   worker_must_record:
     - docs_read
     - canonical_examples
@@ -250,7 +250,7 @@ enforcement:
 ```yaml
 anchoring_pass_activation:
   timestamp_local: 2026-02-15
-  orchestrator_worktree: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+  orchestrator_worktree: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
   orchestrator_branch: codex/prr-m4-s06d-foundation-scratch-audit-ledger
   stack_snapshot:
     - codex/prr-m4-s06d-foundation-scratch-audit-ledger
@@ -316,7 +316,7 @@ The outcome is:
 
 ### 2. Scratchpad Structure for This Anchoring Pass
 1. Use existing scratch root:
-   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/`
+   `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/`
 2. Add dedicated anchoring docs:
    - `agent-AR1-architecture-red-team.md`
    - `agent-AR2-architecture-docs-red-team.md`
@@ -394,7 +394,7 @@ The outcome is:
 1. Update milestone:
    - `docs/projects/pipeline-realism/milestones/M4-foundation-domain-axe-cutover.md`
 2. Update impacted local issue docs under:
-   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/issues/`
+   - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/issues/`
 3. Required updates:
    - reflect actual completed slices,
    - add anchor-pass findings and remediation commitments,

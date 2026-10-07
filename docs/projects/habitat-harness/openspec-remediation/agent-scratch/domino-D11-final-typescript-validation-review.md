@@ -2,59 +2,59 @@
 
 Lane: TypeScript state-space and validation.
 
-Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
+Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
 
 Branch: `codex/d11-local-feedback-packet`
 
-Reviewed change: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d11-local-feedback`
+Reviewed change: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d11-local-feedback`
 
 ## Read Register
 
 Mandatory anchoring read:
 
-- `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/information-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/axes.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/examples.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/maintenance.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/operationalization.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/principles.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/representation-choices.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/source-map.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/where-defaults-hide.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/SKILL.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/references/llm-slop-cleanup.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/references/paradigms-and-patterns.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/references/refactoring-mechanics.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/references/smell-catalog.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/references/worked-examples.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/assets/refactor-findings-template.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/assets/refactor-plan-template.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/references/axes.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/references/principles/principles.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/references/principles/universal.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/references/principles/axis-1-2-assurance-and-mode.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/references/principles/axis-3-4-legibility-and-discovery.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/references/principles/axis-5-6-evidence-and-speed.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/references/principles/heuristics.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/references/defaults/where-defaults-hide.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/references/defaults/problem-framing.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/references/defaults/execution.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/references/defaults/design-judgment.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/references/leaflet-software-testing.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/references/examples.md`
+- `<user-home>/.agents/skills/domain-design/SKILL.md`
+- `<user-home>/.agents/skills/information-design/SKILL.md`
+- `<user-home>/.agents/skills/ontology-design/SKILL.md`
+- `<user-home>/.agents/skills/ontology-design/references/axes.md`
+- `<user-home>/.agents/skills/ontology-design/references/examples.md`
+- `<user-home>/.agents/skills/ontology-design/references/maintenance.md`
+- `<user-home>/.agents/skills/ontology-design/references/operationalization.md`
+- `<user-home>/.agents/skills/ontology-design/references/principles.md`
+- `<user-home>/.agents/skills/ontology-design/references/representation-choices.md`
+- `<user-home>/.agents/skills/ontology-design/references/source-map.md`
+- `<user-home>/.agents/skills/ontology-design/references/where-defaults-hide.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/SKILL.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/references/llm-slop-cleanup.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/references/paradigms-and-patterns.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/references/refactoring-mechanics.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/references/smell-catalog.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/references/worked-examples.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/assets/refactor-findings-template.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/assets/refactor-plan-template.md`
+- `<user-home>/.agents/skills/testing-design/SKILL.md`
+- `<user-home>/.agents/skills/testing-design/references/axes.md`
+- `<user-home>/.agents/skills/testing-design/references/principles/principles.md`
+- `<user-home>/.agents/skills/testing-design/references/principles/universal.md`
+- `<user-home>/.agents/skills/testing-design/references/principles/axis-1-2-assurance-and-mode.md`
+- `<user-home>/.agents/skills/testing-design/references/principles/axis-3-4-legibility-and-discovery.md`
+- `<user-home>/.agents/skills/testing-design/references/principles/axis-5-6-evidence-and-speed.md`
+- `<user-home>/.agents/skills/testing-design/references/principles/heuristics.md`
+- `<user-home>/.agents/skills/testing-design/references/defaults/where-defaults-hide.md`
+- `<user-home>/.agents/skills/testing-design/references/defaults/problem-framing.md`
+- `<user-home>/.agents/skills/testing-design/references/defaults/execution.md`
+- `<user-home>/.agents/skills/testing-design/references/defaults/design-judgment.md`
+- `<user-home>/.agents/skills/testing-design/references/leaflet-software-testing.md`
+- `<user-home>/.agents/skills/testing-design/references/examples.md`
 
 Required packet and implementation inputs read:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/AGENTS.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D11-local-feedback.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md`
-- Every file under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d11-local-feedback`
-- D11 first-wave scratch files under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D11-*.md`, excluding this final output
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/hooks.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/hooks.test.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/AGENTS.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D11-local-feedback.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md`
+- Every file under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d11-local-feedback`
+- D11 first-wave scratch files under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D11-*.md`, excluding this final output
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/hooks.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/hooks.test.ts`
 - Accepted upstream packet sections for D0, D1, D3, D6, D7, D9, and D10, targeted to public compatibility blockers, non-claims, graph/affected facts, diagnostic projections, local-feedback check projections, transaction projections, and protected mutation projections.
 
 Repo state observed before review:

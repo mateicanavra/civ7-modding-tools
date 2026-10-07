@@ -3,31 +3,31 @@
 ## Scope
 
 - Role lane: Stale-Record/Compaction Adversary.
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`.
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`.
 - Branch: `codex/habitat-fast-lint-checks`.
-- Review target: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/`.
+- Review target: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/`.
 - Constraint: review only; no implementation.
 
 ## Preflight
 
-- `/bin/pwd` in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame` returned `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`.
-- `/usr/bin/git -C /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame branch --show-current` returned `codex/habitat-fast-lint-checks`.
-- `/usr/bin/git -C /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame status --short --branch` returned `## codex/habitat-fast-lint-checks` plus only `?? docs/projects/habitat-harness/domain-refactor-prep/`.
+- `/bin/pwd` in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame` returned `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`.
+- `/usr/bin/git -C <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame branch --show-current` returned `codex/habitat-fast-lint-checks`.
+- `/usr/bin/git -C <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame status --short --branch` returned `## codex/habitat-fast-lint-checks` plus only `?? docs/projects/habitat-harness/domain-refactor-prep/`.
 - `/bin/test -f docs/projects/habitat-harness/domain-refactor-prep/README.md` passed.
 
 ## Required Reads
 
 Read in full before review:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-systematic-workstream/SKILL.md`.
-- `/Users/mateicanavra/.codex/skills/investigation-design/SKILL.md`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-habitat-dra-workstream/SKILL.md`.
-- `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`.
-- `/Users/mateicanavra/.agents/skills/solution-design/SKILL.md`.
-- `/Users/mateicanavra/.agents/skills/system-design/SKILL.md`.
-- `/Users/mateicanavra/.agents/skills/api-design/SKILL.md`.
-- `/Users/mateicanavra/.agents/skills/typescript/SKILL.md`.
-- `/Users/mateicanavra/.agents/skills/team-design/SKILL.md`.
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-systematic-workstream/SKILL.md`.
+- `<user-home>/.codex/skills/investigation-design/SKILL.md`.
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-habitat-dra-workstream/SKILL.md`.
+- `<user-home>/.agents/skills/domain-design/SKILL.md`.
+- `<user-home>/.agents/skills/solution-design/SKILL.md`.
+- `<user-home>/.agents/skills/system-design/SKILL.md`.
+- `<user-home>/.agents/skills/api-design/SKILL.md`.
+- `<user-home>/.agents/skills/typescript/SKILL.md`.
+- `<user-home>/.agents/skills/team-design/SKILL.md`.
 
 Read in full before findings:
 
@@ -49,7 +49,7 @@ Evidence:
 
 - `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md:37` through `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md:46` lists Wave 3 lanes as expected, not actual, and includes no scratch path or status rows.
 - `docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md:25` through `docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md:27` leaves Wave 3 findings pending.
-- `/bin/ls -la /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch` showed `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave3-product-adversary.md` exists on disk.
+- `/bin/ls -la <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch` showed `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave3-product-adversary.md` exists on disk.
 - `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave3-product-adversary.md:1` identifies the unindexed file as `# Wave 3 Product Adversary Review`.
 - `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:14` requires adversarial review before attachment, and `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:15` requires accepted P1/P2 findings to be dispositioned.
 
@@ -81,7 +81,7 @@ Why this matters:
 
 Required fix before goal attachment:
 
-- Add a named validation-results location under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/`, or add a required section to an existing corpus file.
+- Add a named validation-results location under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/`, or add a required section to an existing corpus file.
 - Define the minimum row schema: command, cwd, branch, commit, timestamp, exit code, result summary, log/output path or bounded excerpt, proof class, non-claims, and disposition against known risks.
 - Update `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md` so the attachment condition names that durable location instead of only `final handoff`.
 
@@ -134,7 +134,7 @@ Attachment impact:
 ## Required Fixes Before Goal Attachment
 
 - Fix and disposition the unindexed Wave 3 review state in `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md` and `docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md`.
-- Define a durable validation-results location and minimum result schema under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/`.
+- Define a durable validation-results location and minimum result schema under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/`.
 - Repair or explicitly disposition the summary-only provenance gaps for Wave 1 and the missing explicit Wave 2 domino-sequencer preflight record.
 
 ## Optional Improvements

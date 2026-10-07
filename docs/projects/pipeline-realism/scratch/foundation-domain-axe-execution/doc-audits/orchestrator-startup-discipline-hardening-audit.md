@@ -1,7 +1,7 @@
 ---
 audit_date: 2026-02-15
 audit_type: orchestrator-startup-discipline-hardening
-worktree: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+worktree: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
 docs_anchor:
   - docs/system/mods/swooper-maps/architecture.md
   - docs/system/libs/mapgen/architecture.md

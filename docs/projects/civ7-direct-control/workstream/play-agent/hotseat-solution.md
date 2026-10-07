@@ -162,17 +162,17 @@ The setup adapter creates the slot topology:
 Evidence that this is the official setup direction:
 
 - Hotseat is gated in the multiplayer landing UI by `UI.supportsHotseat()` in
-  `/Users/mateicanavra/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources/Base/modules/core/ui/shell/mp-landing/mp-landing-new.js:43`
+  `<user-home>/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources/Base/modules/core/ui/shell/mp-landing/mp-landing-new.js:43`
   and `:80`.
 - The hotseat button routes to
   `MultiplayerShellManager.onGameBrowse(ServerType.SERVER_TYPE_HOTSEAT, true)`
   in the same file at `:159-162`.
 - Hotseat skips the browser and pushes `screen-mp-create-game` in
-  `/Users/mateicanavra/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources/Base/modules/core/ui/shell/mp-shell-logic/mp-shell-logic.js:368-370`.
+  `<user-home>/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources/Base/modules/core/ui/shell/mp-shell-logic/mp-shell-logic.js:368-370`.
 - Hosting uses `Network.hostMultiplayerGame(eServerType)` in
   `mp-shell-logic.js:654-672`.
 - Hotseat-specific human slot action maps to `SlotStatus.SS_TAKEN` in
-  `/Users/mateicanavra/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources/Base/modules/core/ui/shell/mp-staging/model-mp-staging-new.js:148-156`.
+  `<user-home>/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources/Base/modules/core/ui/shell/mp-staging/model-mp-staging-new.js:148-156`.
 - Slot status changes use `Configuration.editPlayer(playerID).setSlotStatus(...)`
   and `setAsMajorCiv()` in `model-mp-staging-new.js:1620-1634`.
 - Non-hotseat multiplayer refuses changing a slot that is already human, while
@@ -203,11 +203,11 @@ Evidence that local-player handoff is the official hotseat mechanism:
 
 - `useLocalPlayerId()` initializes from `GameContext.localPlayerID` and listens
   to `LocalPlayerChanged`, updating from `data.player` in
-  `/Users/mateicanavra/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources/Base/modules/core/ui-next/utilities/game-core-utilities.js:64-79`.
+  `<user-home>/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources/Base/modules/core/ui-next/utilities/game-core-utilities.js:64-79`.
 - The in-game manager comments that `LocalPlayerChanged` is likely "handing off
   game to another player (hotseat)" and attaches the curtain if
   `Configuration.getGame().isHotseat` in
-  `/Users/mateicanavra/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources/Base/modules/base-standard/ui/mp-ingame-mgr/mp-ingame-mgr.js:140-146`.
+  `<user-home>/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources/Base/modules/base-standard/ui/mp-ingame-mgr/mp-ingame-mgr.js:140-146`.
 - The staging model defines local identity as
   `playerId == GameContext.localPlayerID` in
   `model-mp-staging-new.js:419-420`.
@@ -246,7 +246,7 @@ Evidence that the existing wrapper is structurally aligned:
   `packages/civ7-direct-control/src/index.ts:2031-2048`.
 - Official UI calls `GameContext.sendTurnComplete()` from the end-turn action
   panel after checking `GameContext.hasSentTurnComplete()` and `canEndTurn()` in
-  `/Users/mateicanavra/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources/Base/modules/base-standard/ui/action/panel-action.js:706-727`.
+  `<user-home>/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources/Base/modules/base-standard/ui/action/panel-action.js:706-727`.
 
 In hotseat, the strongest expectation is that the agent slot is the current
 local player during its own turn, so normal local-player operation authority
@@ -323,7 +323,7 @@ The official UI suppresses input when automation/autoplay is active:
 
 - `ContextManager.noUserInput()` returns true when
   `Automation.isActive || Autoplay.isActive` in
-  `/Users/mateicanavra/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources/Base/modules/core/ui/context-manager/context-manager.js:656-659`.
+  `<user-home>/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources/Base/modules/core/ui/context-manager/context-manager.js:656-659`.
 
 That is the wrong default for "human plays normally while agents take their own
 turns." Automation can still help with disposable smoke tests, native-AI

@@ -361,7 +361,7 @@ Phase B “material improvement” gates are defined as delta-based formulas aga
 **Baseline evidence (example from 2026-02-06, captured by running the plan commands in the primary checkout because the isolated worktree lacked viz runtime deps):**
 
 ```json
-{"runId":"f38bd16daa5fd570b1bde65c8fb71aff831aa5f5f6472050daa32225807fe966","outputDir":"/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/dist/visualization/phase-b-baseline/f38bd16daa5fd570b1bde65c8fb71aff831aa5f5f6472050daa32225807fe966"}
+{"runId":"f38bd16daa5fd570b1bde65c8fb71aff831aa5f5f6472050daa32225807fe966","outputDir":"<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/dist/visualization/phase-b-baseline/f38bd16daa5fd570b1bde65c8fb71aff831aa5f5f6472050daa32225807fe966"}
 ```
 
 Baseline metrics (from `diag:analyze` JSON):

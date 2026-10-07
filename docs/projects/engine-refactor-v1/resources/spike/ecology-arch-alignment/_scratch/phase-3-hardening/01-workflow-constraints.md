@@ -4,7 +4,7 @@ This doc captures the hardening workflow requirements we must follow while autho
 
 ## Backbone Workflow (dev-harden-milestone)
 
-Source: `/Users/mateicanavra/.codex-rawr/prompts/dev-harden-milestone.md`
+Source: `<user-home>/.codex-rawr/prompts/dev-harden-milestone.md`
 
 Key invariants:
 - Work in an isolated git worktree.

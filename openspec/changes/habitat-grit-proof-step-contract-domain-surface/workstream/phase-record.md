@@ -142,7 +142,7 @@ Parent layer:
 
 Worktree:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 
 Completed independent row work:
 

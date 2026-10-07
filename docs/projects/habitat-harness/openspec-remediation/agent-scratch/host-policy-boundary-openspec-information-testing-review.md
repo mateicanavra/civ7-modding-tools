@@ -8,9 +8,9 @@ The G-HOST packet still reads as prepared-but-not-specified. It has OpenSpec-val
 
 ## Evidence Read
 
-- Source packet: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/G-HOST-host-policy-boundary-gate.md`.
-- Current packet files: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-host-policy-boundary-gate/{proposal.md,design.md,tasks.md,specs/habitat-harness/spec.md,workstream/*.md}`.
-- Remediation index/context: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/{packet-index.md,context.md}`.
+- Source packet: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/G-HOST-host-policy-boundary-gate.md`.
+- Current packet files: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-host-policy-boundary-gate/{proposal.md,design.md,tasks.md,specs/habitat-harness/spec.md,workstream/*.md}`.
+- Remediation index/context: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/{packet-index.md,context.md}`.
 - Commands run from `$ACTIVE_REMEDIATION_WORKTREE` on `$ACTIVE_REMEDIATION_BRANCH`:
   - `bun run openspec -- validate deep-habitat-host-policy-boundary-gate --strict`: exit 0, change is valid.
   - `bun run openspec:validate`: exit 0, 249 OpenSpec items passed.

@@ -10,7 +10,7 @@ Canonical entrypoints:
 # MapGen Studio Architecture Assessment (React + Web Workers + deck.gl)
 
 Date: 2026-01-31  
-Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-EZRA-M1-mapgen-studio-arch-audit`  
+Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-EZRA-M1-mapgen-studio-arch-audit`
 Branch: `agent-EZRA-M1-mapgen-studio-arch-audit`
 
 This is an **architecture / integration health assessment** of MapGen Studio as a browser-native pipeline runner + visualization engine.

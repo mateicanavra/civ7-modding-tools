@@ -187,7 +187,7 @@ Non-claims for downstream Grit rows:
 
 - Proof context:
   - CWD:
-    `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain`
+    `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HR-habitat-repair-chain`
   - Branch: `agent-HR-habitat-repair-chain`
   - Env delta: no command-specific env additions; inherited shell env included
     `FORCE_COLOR` during some Nx/Bun runs, which only affected warning/color

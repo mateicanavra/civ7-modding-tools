@@ -42,7 +42,7 @@
 
 ## Gate 2 - Repo State
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`
 - Branch: `codex/runtime-effect-game-door-invariant`
 - Entrance status: clean after D11 commit `5cec78079`.
 - Dirty-file quarantine: none at D12 implementation entrance. Current D12 dirty

@@ -342,7 +342,7 @@ worker_governance_overlay:
     id: WG-STARTUP
     required_checks:
       - worker_prompt_uses_absolute_paths_only
-      - execution_worktree_matches_/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+      - execution_worktree_matches_<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
       - docs_anchor_yaml_block_present
       - canonical_example_paths_present
       - antipattern_attestation_present

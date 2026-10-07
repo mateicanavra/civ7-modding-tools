@@ -4,29 +4,29 @@
 
 Mandatory skills read in full:
 
-- `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/information-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/axes.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/principles.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/where-defaults-hide.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/representation-choices.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/operationalization.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/maintenance.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/examples.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/source-map.md`
-- `/Users/mateicanavra/.agents/skills/solution-design/SKILL.md`
+- `<user-home>/.agents/skills/domain-design/SKILL.md`
+- `<user-home>/.agents/skills/information-design/SKILL.md`
+- `<user-home>/.agents/skills/ontology-design/SKILL.md`
+- `<user-home>/.agents/skills/ontology-design/references/axes.md`
+- `<user-home>/.agents/skills/ontology-design/references/principles.md`
+- `<user-home>/.agents/skills/ontology-design/references/where-defaults-hide.md`
+- `<user-home>/.agents/skills/ontology-design/references/representation-choices.md`
+- `<user-home>/.agents/skills/ontology-design/references/operationalization.md`
+- `<user-home>/.agents/skills/ontology-design/references/maintenance.md`
+- `<user-home>/.agents/skills/ontology-design/references/examples.md`
+- `<user-home>/.agents/skills/ontology-design/references/source-map.md`
+- `<user-home>/.agents/skills/solution-design/SKILL.md`
 
 Current packet/control surfaces read:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/proposal.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/design.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/specs/habitat-harness/spec.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/tasks.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/workstream/phase-record.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/workstream/review-disposition-ledger.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/workstream/downstream-realignment-ledger.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/workstream/closure-checklist.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/proposal.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/design.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/specs/habitat-harness/spec.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/tasks.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/workstream/phase-record.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/workstream/review-disposition-ledger.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/workstream/downstream-realignment-ledger.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/workstream/closure-checklist.md`
 - `docs/projects/habitat-harness/openspec-remediation/context.md`
 
 Negative-control inputs read as repair/disposition evidence, not acceptance evidence:

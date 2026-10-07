@@ -37,7 +37,7 @@
   - `bun run openspec -- validate workspace-build-pipeline --strict`
   - `bun run verify:studio-run-in-game:live -- --timeout-ms 3000`
   - `bun run verify:studio-run-in-game:live -- --timeout-ms 5000`
-  - `bun run verify:studio-run-in-game:live -- --host 10.211.55.2 --timeout-ms 5000`
+  - `bun run verify:studio-run-in-game:live -- --host <private-tuner-host> --timeout-ms 5000`
   - `bun run verify:studio-run-in-game:live -- --host 127.0.0.1 --timeout-ms 10000`
   - `bun run verify:studio-run-in-game:live -- --mutate --map-script '{swooper-maps}/maps/swooper-earthlike.js' --map-size MAPSIZE_STANDARD --seed 753190005 --game-seed 753190000 --from-running-game exit-to-shell --timeout-ms 10000 --wait-timeout-ms 180000 --poll-interval-ms 2000`
   - Studio endpoint probes for `/api/civ7/live/status`,

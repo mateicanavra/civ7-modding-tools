@@ -31,7 +31,7 @@
 - `git diff --check` passed.
 - `bun run build` passed: 16 successful tasks.
 - `bun run --cwd mods/mod-swooper-maps deploy` passed and deployed
-  `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/swooper-earthlike.js`
+  `<user-home>/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/swooper-earthlike.js`
   at `2026-05-30 03:17:52 EDT`.
 - Fresh post-deploy `Scripting.log` evidence after that deploy:
   - `Scripting.log` mtime: `2026-05-30 03:55:38 EDT`.
@@ -43,7 +43,7 @@
   - No bounded-run `TextEncoder`, `Uncaught`, `Error`, or `Exception` failure
     was observed in the inspected lines.
 - FireTuner runtime restart evidence:
-  - Connected FireTuner to the running Civ7 process on `10.211.55.2:4318`.
+  - Connected FireTuner to the running Civ7 process on `<private-tuner-host>:4318`.
   - Ran `Network.restartGame()` from the connected `App UI` state; FireTuner
     returned `true`.
   - The post-command `Scripting.log` window created `MapGeneration` at

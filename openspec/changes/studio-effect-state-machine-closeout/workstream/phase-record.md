@@ -93,7 +93,7 @@ Validation commands run:
 - `gt status` recorded the same unstaged state through Graphite.
 - `git worktree list` recorded the current worktree plus agent/habitat
   worktrees. The only extra worktree checking out a Studio-stack branch is
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-A-civ7-discoveries-live-placement`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-A-civ7-discoveries-live-placement`
   at `agent-A-civ7-discoveries-live-placement`.
 - `gt ls` and `gt log short` recorded the Studio stack rendered below unrelated
   habitat branches marked `needs restack`; no broad restack/sync/submit was

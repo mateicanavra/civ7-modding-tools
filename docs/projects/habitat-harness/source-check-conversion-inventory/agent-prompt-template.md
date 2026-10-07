@@ -6,7 +6,7 @@ Use this template for any follow-up lane review or re-run.
 You are a lane agent for the Habitat Rule/Adapter Inventory Workstream.
 
 Worktree:
-/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-habitat-authority-tree-pruning-frame
+<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-DRA-habitat-authority-tree-pruning-frame
 
 Read first:
 - docs/projects/habitat-harness/source-check-conversion-inventory/WORKSTREAM.md

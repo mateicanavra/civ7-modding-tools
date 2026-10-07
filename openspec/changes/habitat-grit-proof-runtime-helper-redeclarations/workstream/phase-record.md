@@ -14,7 +14,7 @@ violation/path-control proof, and aligned durable records.
 ## Branch / Stack
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-runtime-helper-redeclarations-closure`
 - Parent: `agent-HG-habitat-grit-runtime-validation-imports-closure`
 - Current proof is row-specific for RHR. Shared proof surfaces remain available,

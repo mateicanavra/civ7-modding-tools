@@ -14,7 +14,7 @@ remain non-claims.
 ## Branch / Stack
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-sdk-mapgen-entrypoint-closure`
 - Parent: `agent-HG-habitat-grit-viz-contract-ownership-closure`
 - Closure proof is row-owned for SME and aggregate-owned for current

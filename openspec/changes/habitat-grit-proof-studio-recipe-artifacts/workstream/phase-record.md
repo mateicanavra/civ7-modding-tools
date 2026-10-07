@@ -13,7 +13,7 @@ and row-specific injected behavior without source remediation.
 ## Repo State
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-studio-recipe-artifacts-closure`
 - Parent layer: `agent-HG-habitat-grit-recipe-domain-surface-closure`
 - Graphite stack remains the local HG chain above the accepted HR foundation.

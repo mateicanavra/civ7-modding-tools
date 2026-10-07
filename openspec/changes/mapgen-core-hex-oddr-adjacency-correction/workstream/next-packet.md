@@ -6,7 +6,7 @@
   authored AND the behavioral fix is implemented, committed, and locally proven.
 - Branch `agent-A-mapgen-core-hex-oddr-adjacency` (parent `main` b8387e3c2),
   2 commits: `fca702846` (packet) + `aa97c85c8` (fix).
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-A-mapgen-core-hex-oddr-adjacency`.
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-A-mapgen-core-hex-oddr-adjacency`.
 - DONE: live probe (odd-R confirmed exactly); four primitives corrected
   (hex-oddq, hex-space, vector-field, policy-grid); coast ring consolidated
   (odd-R, no Moore-8). Proof: tsc/biome clean; mapgen-core 103/0; mod 51/0;

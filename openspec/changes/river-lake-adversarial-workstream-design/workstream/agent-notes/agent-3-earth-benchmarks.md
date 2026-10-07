@@ -1,7 +1,7 @@
 # Agent 3: Earth Hydrology Benchmark Prosecutor
 
 Date: 2026-06-09  
-Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-mapgen-physical-rivers`  
+Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-mapgen-physical-rivers`
 Branch: `codex/river-lake-adversarial-synthesis`
 
 ## 1. Framed objective

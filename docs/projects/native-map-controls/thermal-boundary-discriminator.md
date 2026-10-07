@@ -366,7 +366,7 @@ rotation controls are not claimed as a transfer theorem. All branch differences
 and conditional uncertainty feed the unchanged later adverse Earth comparison,
 before the full procedural cohort, public-contract migration and native gate.
 
-The [nine-panel SST0/SST1 thermal atlas](https://mateis-macbook-pro.taild8da1c.ts.net/civ/thermal-sst0-sst1-atlas-20261003/index.html)
+The nine-panel SST0/SST1 thermal atlas (`thermal-sst0-sst1-atlas-20261003/index.html`)
 shows earlier admitted air means, full-cycle range, prescribed wet boundaries,
 first feedback differences and conditional envelopes. It uses retained
 scientific Earth geometry, not Civ photographs or observed-temperature labels.
@@ -494,7 +494,7 @@ aligned, without a new independent arithmetic execution. Attribution RESULT
 SHA is `86f70d5cafd273df2e81a29ab684c5ba1abc7060ce2628d33e5b6b22d5485c31`.
 Packet: `earth-calibration/earth-two-temperature-owner-design-20261002/seasonal-vintage-attribution-20261003/`.
 
-The [seasonal diagnostic atlas](https://mateis-macbook-pro.taild8da1c.ts.net/civ/seasonal-vintage-attribution-atlas-20261003/index.html)
+The seasonal diagnostic atlas (`seasonal-vintage-attribution-atlas-20261003/index.html`)
 shows twelve full-resolution sampled residual maps and one original held-error
 chart. All 547 original sites retain their locations; unsampled and polar
 positions are left empty, with no interpolation. One display-only color scale
@@ -997,12 +997,11 @@ retained control takes `65.45 ms`; its RESULT SHA is
 Independent review rehashes the unchanged source closure and all 61 outputs
 without an owner or solver run.
 
-### Mini Three-Vintage Discriminator
+### Three-Vintage Discriminator
 
-Resource-intensive qualification has moved to the shared Mac Mini. Portable
-entrypoints select its real source root and actual Bun executable explicitly;
-they do not rewrite historical MacBook receipts or substitute paths in old
-results. A fresh host-local parsed source review pins 1,800 files and 5,542
+Portable qualification entrypoints select the source root and Bun executable
+explicitly; a new environment gets new receipts rather than substituted paths
+in historical results. A fresh parsed source review pins 1,800 files and 5,542
 definition edges, including the four explicit direct-filesystem prerequisites.
 Its SHA is
 `292e6b0fa4c3d3fbb6ec58c97bbef1ddf1ab53a90cb7067d4bcdcea8f7c8d538`.
@@ -1091,7 +1090,7 @@ replayable from deleted trajectories. PLAN SHA is
 RESULT SHA is
 `9a002e7d07f96cc2eaea2bde6d6756bdb2da89b2a03371391bbc78f991d30183`.
 Historical results keep their original custody, rather than being relabeled
-as Mini evidence or silently recomputed during ordinary iteration.
+as new-environment evidence or silently recomputed during ordinary iteration.
 
 ## Reference Forcing Admission
 

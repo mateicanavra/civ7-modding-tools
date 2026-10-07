@@ -24,7 +24,7 @@ The remaining demonstrated shipping obligation is the unchanged within-row
 thermal-response failure. A candidate still needs scientific, full-cohort,
 public-contract, deployment and fresh native admission before that is closed.
 
-The [nine-panel Foundation support atlas](https://mateis-macbook-pro.taild8da1c.ts.net/civ/foundation-support-atlas-20261003/index.html)
+The nine-panel Foundation support atlas (`foundation-support-atlas-20261003/index.html`)
 now exposes three representative cases from that admitted observation. Actual
 assignments, support contributions and final ground retain distinct meanings;
 these are data exports, not a newly deployed map or native photographs. All
@@ -135,7 +135,7 @@ historical control. Immutable physical/publication binding and immediate-
 predecessor warm-state controls now pass separately, without a new SDK identity
 framework or production instrumentation.
 
-The [Mini three-vintage discriminator](thermal-boundary-discriminator.md#mini-three-vintage-discriminator)
+The [three-vintage discriminator](thermal-boundary-discriminator.md#three-vintage-discriminator)
 now completes the actual current Huge chain with the candidate and independently
 settled 96/192 references. Complete headless times are `43.697`, `105.746` and
 `159.747 s`, including all three thermal calls and both ocean updates. Retained
@@ -149,14 +149,12 @@ bounds without proving the rest of the cohort or fixed-Earth science. No new
 candidate is deployed; actual Civ whole-map latency remains unqualified.
 The three arms retain about `195 MiB` outside Git. Reviewed retirement of obsolete
 BE trajectories recovered about `27.83 GiB`, preserving currently consumed curves,
-receipts and viewer assets rather than copying retired histories to the Mini.
+receipts and viewer assets rather than copying retired histories.
 
-Host migration is a parallel operational track, not a second algorithm stack.
-The shared Mac Mini must establish saves/settings, saved setup, source/runtime,
-CLI/Studio, private viewer and remote execution parity before the MacBook is
-retired as the working host. Existing source data and working services remain
-intact meanwhile. Fixed Earth fixtures stay benchmarks; host migration does not
-change their authority or qualify a thermal candidate.
+Execution-environment changes are an operational concern, not a second
+algorithm stack or a thermal admission. Fixed Earth fixtures stay benchmarks;
+source, runtime and input identity remain explicit in each scientific receipt.
+Portable game operations are documented separately from private instance state.
 
 Scientific observations were intentionally opened only for the separately
 authorized frozen comparison. A preparatory source-search label emission is
@@ -164,14 +162,14 @@ separately disclosed in the owner-design record; no frozen scientific choice
 was changed, and the numerical worker's no-label claim is not extended to the
 whole team.
 
-The [nine-panel thermal study viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/thermal-sst0-sst1-atlas-20261003/index.html)
+The nine-panel thermal study viewer (`thermal-sst0-sst1-atlas-20261003/index.html`)
 exposes retained SST0/SST1 annual air temperature, seasonal range, wet boundaries,
 feedback differences and conditional uncertainty. Original PNGs, thumbnails,
 all forty-two local/tailnet responses and desktop/mobile checks pass. These are
 scientific-geography candidate data, not a new native build or Earth-accuracy
 claim. The existing Civ gallery and durable viewer entrypoint link it.
 
-The new [seasonal attribution viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/seasonal-vintage-attribution-atlas-20261003/index.html)
+The new seasonal attribution viewer (`seasonal-vintage-attribution-atlas-20261003/index.html`)
 adds twelve sampled residual maps and one held-error chart, retaining every
 original receiver and all three vintages without interpolation. All twenty-six
 image checks, sixty local/tailnet responses and desktop/mobile rendering checks
@@ -193,7 +191,7 @@ This is implemented, deployed, live-qualified and merged through
 [PR #2255](https://github.com/mateicanavra/civ7-modding-tools/pull/2255) at
 `2026-10-02T21:43:29Z`, main commit
 `f9cab8d7b9e816f330514b521986219cd5808117`. The
-[new sixteen-view marine-ice atlas](https://mateis-macbook-pro.taild8da1c.ts.net/civ/earthlike-marine-ice-atlas-20261002/index.html)
+new sixteen-view marine-ice atlas (`earthlike-marine-ice-atlas-20261002/index.html`)
 now shows this current build at T1/400 CE: fourteen maximum-zoom-out regions
 and two details, every camera/image receipt retained, world summary unchanged.
 Root inspected all sixteen frames. Browser checks at desktop `1400` and mobile
@@ -214,7 +212,7 @@ tuning climate or biome quotas. Within-row thermal variation remains the sole
 unwaived science failure. The build is deployed and freshly generation-tested:
 Huge 1018/1018, twelve players, Exploration, the saved configuration, 23 native
 savanna tiles with zero legality rejections and all 666 river sources exact.
-[Four current native photographs](https://mateis-macbook-pro.taild8da1c.ts.net/civ/savanna-native-atlas-recovered-20261002/index.html)
+Four current native photographs (`savanna-native-atlas-recovered-20261002/index.html`)
 show the new woodland neighborhoods. The owner graph passes checks/builds and
 371 realization tests; definition tests pass 1,182 with only the unchanged
 thermal aggregate failing. Source, deployment, generation and appearance retain
@@ -223,7 +221,7 @@ The fresh current-build session subsequently completes ten normal autoplay
 turns, T1 to T11/500 CE, and returns player/observer zero, inactive and paused.
 This is a new bounded gameplay receipt, not another vessel-navigation witness
 or a universal playability claim.
-The [sixteen-view current-build atlas](https://mateis-macbook-pro.taild8da1c.ts.net/civ/earthlike-current-atlas-20261002/index.html)
+The sixteen-view current-build atlas (`earthlike-current-atlas-20261002/index.html`)
 now shows that T11/500 CE session: fourteen maximum-zoom-out regional frames
 and two details at the interior and highland joins. Each original PNG is
 3,456 by 2,168 pixels with a verified camera target and image digest. World
@@ -236,7 +234,7 @@ autoplay images retain their own dates, inputs and build.
 
 The latest gameplay milestone is
 [matched true-cliff passage](native-navigation.md#october-2-matched-true-cliff-passage),
-with [two new native arrival photographs](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherent-normal-atlas-20261002/truecliff-passage.html).
+with two new native arrival photographs (`coherent-normal-atlas-20261002/truecliff-passage.html`).
 The same normal Cog crosses a cliff-free control and the genuine `(94,19)`
 mouth in both directions, with four independently confirmed arrivals. The
 native cliff flag remains true at `678/0`; no lowering or carving is needed
@@ -248,10 +246,10 @@ This closes the bounded current-build cliff discriminator, not universal
 navigation or Earth thermal/dimensional calibration.
 
 The wider visual milestone is the
-[eighteen-view selected-build atlas](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherent-normal-atlas-20261002/index.html)
+eighteen-view selected-build atlas (`coherent-normal-atlas-20261002/index.html`)
 and [fresh bidirectional sea/river passage](native-navigation.md#october-2-selected-build-seariver-arrivals).
 It follows the closed implementation and realization qualification in the
-[qualified coherent-river native build](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherent-rivers-native-20261002/index.html),
+qualified coherent-river native build (`coherent-rivers-native-20261002/index.html`),
 with exact source/class realization and full study-bank identity. The preceding
 [October 2 C3 adoption and native capture](#october-2-c3-and-native-milestone-closure)
 retains its own movement and terrain evidence.
@@ -269,10 +267,10 @@ The owner graph passes checks and realization tests; definition tests report
 1,177 passes with the retained science aggregate failure. The full bank's
 4,430 expectations preserve exactly the original temperature-variation and
 savanna failures. This completes river realization qualification, not fresh
-vessel movement or all Earth calibration. The [four-case network viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/discharge-supported-rivers-20261002/index.html)
+vessel movement or all Earth calibration. The four-case network viewer (`discharge-supported-rivers-20261002/index.html`)
 retains the rejected candidate as historical evidence, not the selected build.
-The new [17 native photographs](https://mateis-macbook-pro.taild8da1c.ts.net/civ/supported-river-native-1018-v29-20261002/index.html)
-and [controlled neighborhood comparison](https://mateis-macbook-pro.taild8da1c.ts.net/civ/native-channel-neighborhood-20261002/index.html)
+The new 17 native photographs (`supported-river-native-1018-v29-20261002/index.html`)
+and controlled neighborhood comparison (`native-channel-neighborhood-20261002/index.html`)
 show the actual finalizer behavior. The class-only treatment recovers seven
 sources and loses two; neither native-minimum changes nor receiver-first order
 repairs the tested footprint. No universal native geometry rule, late setter
@@ -571,7 +569,7 @@ partition, once-only sources, dry-ground preservation and conservation pass.
 All 28 unaffected upstream products retain their preceding values. Evidence:
 `earth-calibration/water-owner-cohort-20261001/` in the durable Civ user data.
 
-The [principal-arm generated Huge1018 viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/water-owner-huge-1018/index.html)
+The principal-arm generated Huge1018 viewer (`water-owner-huge-1018/index.html`)
 is retained evidence for that resolved network, not the subsequent exterior
 revision or a fresh native image.
 This water-owner build is not yet deployed or live-qualified. The earlier
@@ -619,8 +617,8 @@ live run completes in 43.9s, generated and installed script SHA256
 Explore reveals all 6,996 plots and verifies queue suspension/resumption and
 quiescence. Its 69,960ms size-derived settle interval is not a measured hang.
 
-The [new generated drainage viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/water-start-earthlike-1018/index.html)
-and [fourteen native screenshots](https://mateis-macbook-pro.taild8da1c.ts.net/civ/water-start-earthlike-1018/native-gallery.html)
+The new generated drainage viewer (`water-start-earthlike-1018/index.html`)
+and fourteen native screenshots (`water-start-earthlike-1018/native-gallery.html`)
 are retained in the existing phone-accessible atlas. Twelve views use the
 maximum zoom-out setting; two are lake/river and cliff detail views. Native
 images, thumbnails, hashes, camera receipts and capture scripts remain in
@@ -661,12 +659,12 @@ Earthlike script SHA256 is
 This later normal run includes the additive refusal, unlike the earlier sealed
 V24 pair. Redeployment used in-game restart, not a full application exit.
 
-The [new native gallery](https://mateis-macbook-pro.taild8da1c.ts.net/civ/cliff-retention-v24-1018/index.html)
+The new native gallery (`cliff-retention-v24-1018/index.html`)
 contains seventeen fresh normal-map images, mostly at maximum zoom-out, plus
 three retained same-center finite17 controls. Arc rendering and the existing
 private Tailscale route are verified. Its manifest preserves source identity,
 camera centers, zoom, native PNG hashes, clean-frame restoration and timestamps.
-The [directed physical drainage viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/water-start-earthlike-1018/index.html)
+The directed physical drainage viewer (`water-start-earthlike-1018/index.html`)
 remains separate generated evidence; the cliff ordering does not alter its
 physical fields. The reachable paths are also indexed in
 [Local And Private Viewers](../../process/LOCAL-VIEWERS.md).
@@ -706,8 +704,8 @@ Huge1018/1018 Exploration setup. The October 1 recovery run explicitly selected
 36.6s. A preceding recovery without the explicit age option is retained only
 as Antiquity generation proof, not a Cog/navigation result.
 
-The [fourteen fresh native views](https://mateis-macbook-pro.taild8da1c.ts.net/civ/ocean-current-repair-1018/index.html)
-and [current full-map physical companion](https://mateis-macbook-pro.taild8da1c.ts.net/civ/ocean-current-physical-1018/index.html)
+The fourteen fresh native views (`ocean-current-repair-1018/index.html`)
+and current full-map physical companion (`ocean-current-physical-1018/index.html`)
 are reachable through the existing phone-accessible atlas. The companion adds
 terrain, channel/receiver arrows and discharge PNGs from an exact retained
 current capture. It uses ten players and is separate from the twelve-player
@@ -753,7 +751,7 @@ wet NAV entries. Final native terrain is a separate projection and is not held
 merely because planned terrain is identical. Neither candidate repairs a
 demonstrated drainage defect or earns production selection.
 
-The [current comparison viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/river-density-current/index.html)
+The current comparison viewer (`river-density-current/index.html`)
 contains four interactive views, 24 aligned whole-map PNGs and 36 junction/port
 details. All 101 local HTTP payload checks and fifteen desktop/mobile layout
 checks pass. This is portable ten-player evidence, not a new native candidate
@@ -943,11 +941,11 @@ explained flat-only woodland witness and no threshold or quota change.
 
 ### Visible And Native Evidence
 
-The [adopted portable milestone](https://mateis-macbook-pro.taild8da1c.ts.net/civ/certified-terrain-adopted-20261002/index.html)
+The adopted portable milestone (`certified-terrain-adopted-20261002/index.html`)
 contains sixteen whole-map terrain/network PNGs and four interactive comparisons:
 Huge seeds 1018, 2 and 1234, plus Standard seed 1018. It preserves the original
 bank's historical nonselection report alongside the later qualified adoption
-and exact retirement account. The [fresh native Huge1018 gallery](https://mateis-macbook-pro.taild8da1c.ts.net/civ/certified-terrain-native-1018-20261002/index.html)
+and exact retirement account. The fresh native Huge1018 gallery (`certified-terrain-native-1018-20261002/index.html`)
 contains fourteen actual photographs: twelve widest camera views at zoom `1`
 and two details at `.4`. Byte checks, nonblank-image checks and Playwright
 `320/390/1440` layout checks pass for both publications. Portable Huge captures
@@ -1042,7 +1040,7 @@ one Cog confirms NAV/marine/NAV/interior movement, and a second crosses
 marine to NAV to two lake tiles to different NAV to marine. Seven lake-route
 arrivals have single-send and independent readback evidence. Bounded autoplay
 advances fourteen turns and is stopped at T18/570 CE with local control restored.
-The [new three-photo passage page](https://mateis-macbook-pro.taild8da1c.ts.net/civ/native-lake-passage-20261002/index.html)
+The new three-photo passage page (`native-lake-passage-20261002/index.html`)
 is phone-accessible and verified; the earlier fourteen-photo milestone remains
 historical. See [the precise movement boundary](native-navigation.md#october-2-current-c3-lake-passage).
 
@@ -1091,7 +1089,7 @@ parity and maintenance observations. All 705 geographic receivers/directions
 match portable intention. No production setting or write-order repair is
 selected. See [major-river support](major-river-support.md).
 
-The [fresh native survey](https://mateis-macbook-pro.taild8da1c.ts.net/civ/supported-river-native-1018-v29-20261002/index.html)
+The fresh native survey (`supported-river-native-1018-v29-20261002/index.html`)
 publishes seventeen actual 3456x2168 photographs from the completed v29 game:
 twelve maximum-zoom-out survey frames, one widest local channel-footprint view
 and four details. All 17 cameras, native clean-frame restoration and unchanged
@@ -1123,7 +1121,7 @@ focus point and complete physical-lake payload holds. Unrelated full-grid and
 cliff invariance are not claimed. This establishes neighborhood sensitivity,
 not a universal width rule or production geometry filter. The realization
 graph passes 28 tasks, 390 tests and 56,021 assertions. The
-[matched detail/wide native comparison](https://mateis-macbook-pro.taild8da1c.ts.net/civ/native-channel-neighborhood-20261002/index.html)
+matched detail/wide native comparison (`native-channel-neighborhood-20261002/index.html`)
 is published, byte-exact on local/tailnet HTTP and visibly verified in Arc.
 
 The semantic review also qualifies the earlier "unsupported promotion"

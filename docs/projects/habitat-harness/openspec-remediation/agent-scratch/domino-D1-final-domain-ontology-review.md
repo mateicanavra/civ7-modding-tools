@@ -4,7 +4,7 @@
 
 Final domain/ontology adversarial review for:
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary`
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary`
 
 This review treats D1 as one design/specification packet. It does not implement code, repair downstream packets, or perform broad corpus terminology cleanup.
 

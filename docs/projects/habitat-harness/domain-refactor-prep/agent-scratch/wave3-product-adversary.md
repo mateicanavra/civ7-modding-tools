@@ -3,9 +3,9 @@
 ## Scope
 
 - Role lane: Product Adversary.
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`
 - Branch: `codex/habitat-fast-lint-checks`
-- Review target: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/`
+- Review target: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/`
 - Constraint: review only; no implementation.
 
 ## Findings

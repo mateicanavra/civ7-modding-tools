@@ -1,6 +1,6 @@
 # Coherence verdict — whole-ledger judge over the 46-component classification
 
-Judge scope: cross-group consistency over `build-{primitives,composites,forms,panels-layout}.md` + `verify-*.md` (all 8 read in full). Per-row correctness is NOT re-litigated (all four groups verified=true); contested points below were re-adjudicated with fresh greps against `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction/apps/mapgen-studio` @ `c4ebaf1e1`.
+Judge scope: cross-group consistency over `build-{primitives,composites,forms,panels-layout}.md` + `verify-*.md` (all 8 read in full). Per-row correctness is NOT re-litigated (all four groups verified=true); contested points below were re-adjudicated with fresh greps against `<user-home>/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction/apps/mapgen-studio` @ `c4ebaf1e1`.
 
 ## 1. Final tier distribution (46/46 accounted)
 

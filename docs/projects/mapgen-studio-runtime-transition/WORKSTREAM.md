@@ -287,7 +287,7 @@ stack must retain this shape:
 
 | Fact | Opening value |
 | --- | --- |
-| Worktree | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets` |
+| Worktree | `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets` |
 | Branch | `codex/civ7-foundry-target-authority` |
 | Head | `9f2e715fe159755b0db93bc1c80ec9bbdbea0383` |
 | Main | `29e6e4bfdd5a8c576478c809c242b2cd35934501` |

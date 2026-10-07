@@ -9,7 +9,7 @@ runtime telemetry from the scripting logs.
 ## Integration Replay State
 
 - Integration worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-civ7-graphite-integration`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-civ7-graphite-integration`
 - Integration branch: `codex/integrate-resource-runtime-proof`
 - Integration parent slice: `codex/integrate-resource-ops-rollup`
 - Source behavior/proof branch: `codex/resource-runtime-proof` at
@@ -23,7 +23,7 @@ runtime telemetry from the scripting logs.
 ## Repo State
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-civ7-graphite-integration`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-civ7-graphite-integration`
 - Branch: `codex/integrate-resource-runtime-proof`
 - Parent slice: `codex/integrate-resource-ops-rollup`
 - Source downstack restart branch checked for historical runtime proof:

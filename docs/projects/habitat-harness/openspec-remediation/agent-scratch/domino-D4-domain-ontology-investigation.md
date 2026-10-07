@@ -22,11 +22,11 @@ and refusal/recovery semantics before implementation starts.
 ## Sources Read
 
 - Mandatory cognition skills:
-  `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/domain-design/SKILL.md`,
-  `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/information-design/SKILL.md`,
-  `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/SKILL.md`.
+  `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/domain-design/SKILL.md`,
+  `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/information-design/SKILL.md`,
+  `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/SKILL.md`.
 - Ontology references, all files under
-  `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/references/`.
+  `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/references/`.
 - Remediation routers:
   `$REMEDIATION_DIR/context.md`, `$REMEDIATION_DIR/packet-index.md`.
 - D4 inputs:

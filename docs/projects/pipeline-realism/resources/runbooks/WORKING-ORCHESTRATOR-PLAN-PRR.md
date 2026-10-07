@@ -21,7 +21,7 @@ PLEASE IMPLEMENT THIS PLAN:
 - Willing to **break contracts** to achieve the single causal spine, as long as the end state is correct and green.
 
 Canonical execution source: `docs/projects/pipeline-realism/plans/PLAN-no-legacy-foundation-morphology-refactor-2026-02-05.md`
-Workflow contract to follow: `/Users/mateicanavra/.claude/plugins/local/plugins/dev/commands/dev-loop-parallel.md` (single worktree + Graphite stack)
+Workflow contract to follow: `<user-home>/.claude/plugins/local/plugins/dev/commands/dev-loop-parallel.md` (single worktree + Graphite stack)
 
 ---
 
@@ -84,9 +84,9 @@ We follow `dev-loop-parallel` naming rules (agent prefix required) plus phase-re
 **Single milestone worktree + stack base:**
 - Trunk: `main`
 - Milestone base branch: `agent-GOBI-PRR-milestone-no-legacy-foundation-morphology`
-- Worktree root: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees`
+- Worktree root: `<user-home>/Documents/.nosync/DEV/worktrees`
 - Milestone worktree path:  
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-GOBI-PRR-milestone-no-legacy-foundation-morphology`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-GOBI-PRR-milestone-no-legacy-foundation-morphology`
 
 **Slice branches (one per slice, stacked):**
 1. `agent-GOBI-PRR-s00-phase-0-preflight-no-shadow-and-plan-readiness`

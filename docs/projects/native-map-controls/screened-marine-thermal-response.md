@@ -484,7 +484,7 @@ No source experiment or production patch has yet qualified this candidate.
 ## References And Verification Boundary
 
 Evidence root:
-`/Users/mateicanavra/Library/Application Support/Civ7Tools/VisualAtlas/huge-1018/earth-calibration`.
+`<user-home>/Library/Application Support/Civ7Tools/VisualAtlas/huge-1018/earth-calibration`.
 Read `ncep-1991-annual-component-discriminator-attempt3-20261001/REPORT.md`
 and `SEAL.json`, and `earth-thermal-resolution-screen-20261001/REPORT.md`,
 `NEXT-DESIGN.md`, `INDEPENDENT-SCIENTIFIC-RECEIPT.json`. Preserve their original

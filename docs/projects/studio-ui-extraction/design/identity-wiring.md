@@ -1,7 +1,7 @@
 # Design report — Package identity & workspace wiring (Designer 1)
 
 Axis: open question **Q2** (name / location / publishing) + Nx integration + dependency policy.
-Ground truth honored: LEDGER.md (frozen 2026-07-01, adjudications §3, ownership §4, escalations §5, client demands §6), `ledger/coherence.md` §3, WORKSTREAM.md §3/§5/§5b, FRAME.md §2/§3/§6. Repo evidence read from `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction` @ `c4ebaf1e1`. Ground reports cited as `ground/<name>.md`. No repo file modified.
+Ground truth honored: LEDGER.md (frozen 2026-07-01, adjudications §3, ownership §4, escalations §5, client demands §6), `ledger/coherence.md` §3, WORKSTREAM.md §3/§5/§5b, FRAME.md §2/§3/§6. Repo evidence read from `<user-home>/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction` @ `c4ebaf1e1`. Ground reports cited as `ground/<name>.md`. No repo file modified.
 
 Lens: the package must be a first-class citizen of the bun+Nx workspace — CI (`nx run-many --targets=build,check,lint,test,verify`, root `package.json:12`) picks it up with zero pipeline edits — and its manifest must be honest per LEDGER adjudication 10 (dependency truth lives at the package boundary).
 

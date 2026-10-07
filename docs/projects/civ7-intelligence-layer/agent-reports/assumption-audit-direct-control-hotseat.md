@@ -34,7 +34,7 @@ mutating the live game.
 - `docs/projects/civ7-direct-control/workstream/play-agent/hotseat-solution.md`
 - `docs/projects/civ7-direct-control/workstream/play-agent/control-surface-reference.md`
 - `docs/projects/civ7-direct-control/workstream/control-surface-expansion/implementation-closure.md`
-- active peer worktree context at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-watch-civ7-live-play-reference-assembly`
+- active peer worktree context at `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-watch-civ7-live-play-reference-assembly`
 
 ## Branch / Worktree Context
 

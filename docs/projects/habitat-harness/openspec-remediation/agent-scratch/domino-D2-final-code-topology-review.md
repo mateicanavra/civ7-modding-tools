@@ -24,9 +24,9 @@ Scope checked:
 ## Sources Read
 
 - Required skills:
-  - `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`
-  - `/Users/mateicanavra/.agents/skills/information-design/SKILL.md`
-  - `/Users/mateicanavra/.agents/skills/solution-design/SKILL.md`
+  - `<user-home>/.agents/skills/domain-design/SKILL.md`
+  - `<user-home>/.agents/skills/information-design/SKILL.md`
+  - `<user-home>/.agents/skills/solution-design/SKILL.md`
   - repo-local `.agents/skills/typescript-refactoring/SKILL.md`
   - repo-local TypeScript refactoring references: `smell-catalog.md`, `refactoring-mechanics.md`, `paradigms-and-patterns.md`, `llm-slop-cleanup.md`, `worked-examples.md`
 - Repo/workstream routing:

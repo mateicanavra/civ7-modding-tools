@@ -18,8 +18,8 @@ None.
 
 References:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary/tasks.md`, section `6. Validation Gates`, item `6.6`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary/workstream/phase-record.md`, section `Validation Gates`, row `Combined focused D1 tests`.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary/tasks.md`, section `6. Validation Gates`, item `6.6`.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary/workstream/phase-record.md`, section `Validation Gates`, row `Combined focused D1 tests`.
 
 The individual focused gates are exact, but the combined gate says only "Run the combined focused D1 test set in one command" / "Combined focused D1 tests". That leaves the implementation agent to decide the exact file list and order.
 
@@ -37,10 +37,10 @@ Keep the existing expected status, oracle, bad case, cache stance, and non-claim
 
 References:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary/design.md`, sections `Target Semantic Objects` and `Adapter Command Artifact`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary/specs/habitat-harness/spec.md`, requirement `Adapter Command Artifacts Are Compatibility-Bounded`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary/tasks.md`, items `5.5` and `6.2`.
-- Current test evidence: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/proof-artifact.test.ts`.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary/design.md`, sections `Target Semantic Objects` and `Adapter Command Artifact`.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary/specs/habitat-harness/spec.md`, requirement `Adapter Command Artifacts Are Compatibility-Bounded`.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary/tasks.md`, items `5.5` and `6.2`.
+- Current test evidence: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/proof-artifact.test.ts`.
 
 D1 correctly says adapter artifacts must be path-safe, redacted, retention-bounded, bounded in raw output metadata, and non-claiming. The current named test file covers unsafe path IDs, secret redaction, non-claim merge, and writing under a controlled root. It does not currently assert retention semantics or bounded raw-output metadata. The OpenSpec requirement likewise has scenarios for unsafe ID, redaction, and legacy path, but not retention or bounded stdout/stderr/hash/byte/truncation metadata.
 
@@ -63,9 +63,9 @@ Then update `tasks.md` item `6.2` and the phase-record gate so the bad case is n
 
 References:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/verify-proof.test.ts`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/grit-apply.test.ts`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary/tasks.md`, items `5.2`, `5.4`, `6.3`, and `6.5`.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/verify-proof.test.ts`.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/grit-apply.test.ts`.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary/tasks.md`, items `5.2`, `5.4`, `6.3`, and `6.5`.
 
 The current verify test proves skipped Nx state when failed check is passed without an affected result. It does not directly inject the contradictory constructor state "failed check plus affected result". The current apply tests prove important failure states remain failures, but they do not directly construct `ok: true` with a failure tag.
 

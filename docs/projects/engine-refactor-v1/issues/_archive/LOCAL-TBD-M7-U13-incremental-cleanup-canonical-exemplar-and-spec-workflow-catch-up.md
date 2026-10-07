@@ -33,7 +33,7 @@ Former U13 slices about “canonical exemplar” and “schema spreading / op sc
 ---
 
 ## Context / starting point (do not “clean” it first)
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools-mapgen-domain-config`
+- Worktree: `<user-home>/Documents/.nosync/DEV/civ7-modding-tools-mapgen-domain-config`
 - Branch: `chore/mapgen-domain-config-barrel`
 - The working tree is intentionally dirty (in-flight config relocation + schema reshaping). Do not reset/revert/stash as part of this issue; branch slices will capture progress.
 
@@ -134,7 +134,7 @@ Minimum doc updates per slice:
 
 ## Next agent prompt (copy/paste)
 You are working in:
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools-mapgen-domain-config`
+- Worktree: `<user-home>/Documents/.nosync/DEV/civ7-modding-tools-mapgen-domain-config`
 - Branch: `chore/mapgen-domain-config-barrel` (dirty by design).
 
 Mission:

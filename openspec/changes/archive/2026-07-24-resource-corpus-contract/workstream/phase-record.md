@@ -8,7 +8,7 @@ stage architecture while preserving the runtime numeric id proof boundary.
 ## Repo State
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`
+  `<user-home>/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`
 - Branch: `codex/resource-corpus-contract`
 - Parent slice: `codex/resource-stage-architecture`
 - Write set: resource domain corpus, `artifact:resources.corpus`, focused tests,

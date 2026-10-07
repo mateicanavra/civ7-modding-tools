@@ -43,11 +43,11 @@ sets, proof classes, review lanes, stop conditions, and validation gates.
 
 | Item | Current evidence |
 | --- | --- |
-| Worktree | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-prework` |
+| Worktree | `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-prework` |
 | Branch | `codex/runtime-effect-recovery-design` |
 | Parent | `codex/runtime-effect-prework-frame` |
 | Git status at entrance | clean branch with no staged/unstaged files |
-| Primary checkout quarantine | `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools` still has pre-existing external `nx.json` dirt |
+| Primary checkout quarantine | `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools` still has pre-existing external `nx.json` dirt |
 | Current main | `654f58d8f fix(studio): format runtime closeout files (#1748)` |
 | Runtime stack on main | First-parent history contains `#1729` through `#1748` |
 | Old runtime worktree | `wt-agent-S-studio-runtime-effect-refactor` is detached at `654f58d8f`, not checking out a merged runtime branch |

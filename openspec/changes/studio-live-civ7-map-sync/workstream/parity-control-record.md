@@ -43,7 +43,7 @@
 ## Repo State
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools`
+  `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools`
 - Branch: `06-05-fix_studio_validate_civ7_setup_seeds`
 - Parent branch: existing Graphite stack branch for Studio/Civ setup hardening.
 - Stack position: local continuation with staged upstream/foundation work

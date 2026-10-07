@@ -60,9 +60,9 @@ Run and attach in each slice PR description:
 **Primary problem addressed**: rectangular block artifacts in continents.
 
 **Files**
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/ops/compute-landmask/strategies/default.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/ops/compute-landmask/contract.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json`
+- `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/ops/compute-landmask/strategies/default.ts`
+- `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/ops/compute-landmask/contract.ts`
+- `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json`
 
 **Change**
 1. Replace the rectangular coarse averaging:
@@ -93,9 +93,9 @@ Run and attach in each slice PR description:
 **Primary problem addressed**: convergent volcanism bonus suppressed because `polarity=0` when types match.
 
 **Files**
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts`
+- `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts`
 - Add test:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-polarity-bootstrap.test.ts` (new)
+  - `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-polarity-bootstrap.test.ts` (new)
 
 **Change**
 In `compute-tectonic-segments/index.ts`, inside:
@@ -127,7 +127,7 @@ Do not change regime classification or c/e/s calculations in this slice.
 **Primary problem addressed**: stepped contour rings from integer-hop BFS decay in `buildEraFields`.
 
 **Files**
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts`
+- `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts`
 
 **Change**
 In `buildEraFields(...)`:
@@ -155,11 +155,11 @@ In `buildEraFields(...)`:
 **Primary problem addressed**: uplift decays too aggressively + base-topography uplift effect too small.
 
 **Files**
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/ops/compute-base-topography/rules/index.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/config.ts`
+- `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts`
+- `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/ops/compute-base-topography/rules/index.ts`
+- `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/config.ts`
 - Update preset (if needed):
-  - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json`
+  - `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json`
 
 **Change**
 1. In `compute-tectonic-history/index.ts`:
@@ -180,9 +180,9 @@ In `buildEraFields(...)`:
 **Primary problem addressed**: weak/fractured fields produce short belt components that are pruned away.
 
 **Files**
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/ops/compute-belt-drivers/deriveFromHistory.ts`
+- `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/ops/compute-belt-drivers/deriveFromHistory.ts`
 - Update tests if they assert component counts/ids:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/test/morphology/belt-synthesis-history-provenance.test.ts`
+  - `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/test/morphology/belt-synthesis-history-provenance.test.ts`
 
 **Change**
 - `MIN_BELT_LENGTH`: `6 -> 3`
@@ -203,8 +203,8 @@ This slice has two subparts; implement both in this slice to keep a single coher
 
 #### 6A: Per-era integration in crust evolution (authoritative truth)
 **Files**
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust-evolution/index.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust-evolution/contract.ts` (if new params are needed; avoid if possible)
+- `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust-evolution/index.ts`
+- `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust-evolution/contract.ts` (if new params are needed; avoid if possible)
 
 **Algorithm (decision complete)**
 Replace the “one-shot totals” maturity computation with an era loop:
@@ -239,7 +239,7 @@ After era loop:
 
 #### 6B: Per-era polarity/intensity modulation at emission time
 **Files**
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts`
+- `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts`
 
 **Change**
 When deriving per-era event intensities for volcanism/uplift from convergent segments:
@@ -260,11 +260,11 @@ When deriving per-era event intensities for volcanism/uplift from convergent seg
 
 ## Test Plan (Repo-Exact)
 Per slice (minimum):
-- `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps check`
-- `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps test test/pipeline/determinism-suite.test.ts`
-- `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps test test/pipeline/foundation-gates.test.ts`
-- `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps diag:dump -- 106 66 1337 --label <slice>`
-- `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps diag:analyze -- <outputDir>`
+- `bun run --cwd <user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps check`
+- `bun run --cwd <user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps test test/pipeline/determinism-suite.test.ts`
+- `bun run --cwd <user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps test test/pipeline/foundation-gates.test.ts`
+- `bun run --cwd <user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps diag:dump -- 106 66 1337 --label <slice>`
+- `bun run --cwd <user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps diag:analyze -- <outputDir>`
 
 Additions:
 - Slice 2 adds `m11-tectonic-segments-polarity-bootstrap.test.ts` (new)

@@ -20,11 +20,11 @@ Reviewed as a design/specification rereview only:
 
 Skill anchors read in full before review:
 
-- `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/information-design/SKILL.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/SKILL.md`
+- `<user-home>/.agents/skills/domain-design/SKILL.md`
+- `<user-home>/.agents/skills/information-design/SKILL.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/SKILL.md`
 - Every TypeScript refactoring reference and asset under that skill's `references/` and `assets/`
-- `/Users/mateicanavra/.agents/skills/testing-design/SKILL.md`
+- `<user-home>/.agents/skills/testing-design/SKILL.md`
 
 ## Findings
 

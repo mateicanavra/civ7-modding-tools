@@ -18,7 +18,7 @@ this ledger for observations that depend on a running Civ7 instance.
 - Branch: `codex/studio-run-in-game-workstream`.
 - Commands:
   - `bun run verify:studio-run-in-game:live -- --timeout-ms 5000`
-  - `bun run verify:studio-run-in-game:live -- --host 10.211.55.2 --timeout-ms 5000`
+  - `bun run verify:studio-run-in-game:live -- --host <private-tuner-host> --timeout-ms 5000`
   - `bun run verify:studio-run-in-game:live -- --host 127.0.0.1 --timeout-ms 10000`
 - Mode: read-only.
 - Mutation attempted: false.
@@ -26,7 +26,7 @@ this ledger for observations that depend on a running Civ7 instance.
   - Computer Use inspection showed Civ alive in a running game window.
   - `lsof -nP -iTCP:4318` showed the Civ process listening on `*:4318`, with
     accumulated closed/CLOSE_WAIT accepted socket descriptors.
-  - Health failed for `127.0.0.1` and `10.211.55.2` with
+  - Health failed for `127.0.0.1` and `<private-tuner-host>` with
     `Timed out waiting for Civ7 tuner response to LSQ:`.
   - A 10 second local timeout did not recover a response.
 - Mutation replay count: 0.

@@ -7,7 +7,7 @@ It is written **before** any other feasibility research actions.
 
 - Base branch: `agent-ORCH-spike-ecology-arch-alignment`
 - Feasibility branch: `agent-ORCH-feasibility-ecology-arch-alignment`
-- Feasibility worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-feasibility-ecology-arch-alignment`
+- Feasibility worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-feasibility-ecology-arch-alignment`
 
 Notes:
 - The feasibility worktree directory disappeared unexpectedly mid-session and was recreated from the feasibility branch.
@@ -19,7 +19,7 @@ Notes:
 - **Atomic per-feature ops:** each feature family is a distinct op; no multi-feature mega-ops.
 - **Compute substrate model:** shared **compute ops** produce reusable layers; **plan ops** consume them to emit discrete intents/placements.
   - Reference model (in-repo): Morphology `compute-*` substrate ops + `plan-*` ops.
-    - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/ops/compute-substrate/contract.ts`
+    - `<user-home>/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/ops/compute-substrate/contract.ts`
 - **Maximal modularity:** aim for the maximal ideal modular architecture; do not pre-optimize performance (recover via substrate + caching later).
 - **Docs posture:** prioritize canonical MapGen guidelines/specs/policies; avoid ADRs as primary references; treat ADRs older than ~10 days as non-authoritative.
 - **Ops design posture:** ops import **rules** for behavioral policy; step code does not import rules.

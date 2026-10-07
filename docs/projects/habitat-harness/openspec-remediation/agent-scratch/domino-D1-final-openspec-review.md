@@ -4,7 +4,7 @@
 
 Final OpenSpec architecture/design review for:
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary`
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary`
 
 Lane: OpenSpec architect/reviewer. This review checks D1 as one design/specification packet only. It does not authorize implementation, source edits, broad corpus repair, or downstream packet repair.
 
@@ -61,7 +61,7 @@ Required before any D1 implementation:
 
 Ran from:
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
 
 - `bun run openspec -- validate deep-habitat-d1-receipt-contract-boundary --strict`: passed. Output: `Change 'deep-habitat-d1-receipt-contract-boundary' is valid`.
 - `bun run openspec:validate`: passed. Output: `249 passed, 0 failed`.

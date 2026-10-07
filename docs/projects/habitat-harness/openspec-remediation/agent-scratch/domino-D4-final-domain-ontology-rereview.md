@@ -3,38 +3,38 @@
 ## Sources Read
 
 - Required skills read in full:
-  - `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/domain-design/SKILL.md`
-  - `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/information-design/SKILL.md`
-  - `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/SKILL.md`
+  - `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/domain-design/SKILL.md`
+  - `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/information-design/SKILL.md`
+  - `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/SKILL.md`
 - Required ontology references read in full:
-  - `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/references/axes.md`
-  - `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/references/examples.md`
-  - `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/references/maintenance.md`
-  - `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/references/operationalization.md`
-  - `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/references/principles.md`
-  - `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/references/representation-choices.md`
-  - `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/references/source-map.md`
-  - `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/references/where-defaults-hide.md`
+  - `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/references/axes.md`
+  - `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/references/examples.md`
+  - `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/references/maintenance.md`
+  - `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/references/operationalization.md`
+  - `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/references/principles.md`
+  - `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/references/representation-choices.md`
+  - `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/references/source-map.md`
+  - `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/ontology-design/references/where-defaults-hide.md`
 - D4 active packet read in full:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/proposal.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/design.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/specs/habitat-harness/spec.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/tasks.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/workstream/phase-record.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/workstream/review-disposition-ledger.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/workstream/downstream-realignment-ledger.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/workstream/closure-checklist.md`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/proposal.md`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/design.md`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/specs/habitat-harness/spec.md`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/tasks.md`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/workstream/phase-record.md`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/workstream/review-disposition-ledger.md`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/workstream/downstream-realignment-ledger.md`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/workstream/closure-checklist.md`
 - Remediation context and source packet read in full:
   - `docs/projects/habitat-harness/openspec-remediation/context.md`
   - `docs/projects/habitat-harness/openspec-remediation/packet-index.md`
   - `docs/projects/habitat-harness/phase2-workstream-packets/D4-orientation-and-routing.md`
 - Accepted dependency specs/designs read in full:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d0-command-surface-inventory/design.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d0-command-surface-inventory/specs/habitat-harness/spec.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/specs/habitat-harness/spec.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/design.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/specs/habitat-harness/spec.md`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d0-command-surface-inventory/design.md`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d0-command-surface-inventory/specs/habitat-harness/spec.md`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/specs/habitat-harness/spec.md`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/design.md`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/specs/habitat-harness/spec.md`
 - D4 scratch reviews read in full:
   - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-review.md`
   - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-domain-ontology-investigation.md`
@@ -44,12 +44,12 @@
   - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-information-design-investigation.md`
   - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-cross-domino-investigation.md`
 
-Validation/audit commands run from `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`:
+Validation/audit commands run from `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`:
 
 - `git status --short --branch`
 - `bun run openspec -- validate deep-habitat-d4-orientation-routing --strict`
 - targeted language audit over the D4 change root for retired graph-state terms, reduced-standard phrases, optional-target phrasing, and overclaiming command guidance
-- `rg -n "GraphRefusal|graph-refusal|ruleRoutingFacts|ClassifyResult|PathClassification|DiffClassification|RuleRouting|TargetGuidance|RecoveryInstruction|NonClaim|D14|D0" /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing`
+- `rg -n "GraphRefusal|graph-refusal|ruleRoutingFacts|ClassifyResult|PathClassification|DiffClassification|RuleRouting|TargetGuidance|RecoveryInstruction|NonClaim|D14|D0" <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing`
 
 ## Verdict
 

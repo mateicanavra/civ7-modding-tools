@@ -34,9 +34,9 @@ No unresolved P1 after the current packet repair. The earlier blockers around mi
 
 Evidence:
 
-- D14 already says D13 owns the generic scaffold request/refusal envelope at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:23`.
-- D13 already defines `AuthoringTopologyRequest` inside the closed `ScaffoldingRequest` model at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/design.md:72`.
-- D14 then adds a separate D14-owned request union with `not-authoring`, `authoring-request`, `ambiguous-authoring-request`, and `future-authoring-opened` variants at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:72`.
+- D14 already says D13 owns the generic scaffold request/refusal envelope at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:23`.
+- D13 already defines `AuthoringTopologyRequest` inside the closed `ScaffoldingRequest` model at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/design.md:72`.
+- D14 then adds a separate D14-owned request union with `not-authoring`, `authoring-request`, `ambiguous-authoring-request`, and `future-authoring-opened` variants at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:72`.
 - That model references `BlockedAuthoringAction`, `AuthoringRequestSurface`, and `AuthoringSignal`, but the packet does not define these as closed literal sets.
 
 Why this matters:
@@ -54,9 +54,9 @@ Recommended repair:
 
 Evidence:
 
-- D14 proposal requires supported uniform generator dry-runs plus an authoring refusal fixture at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/proposal.md:139`.
-- D14 design says the D13 authoring refusal fixture should exit through D13/D14 refusal at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:184`.
-- D14 tasks say to add/repair tests for "unsupported authoring-looking requests" if source behavior changes at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/tasks.md:68`.
+- D14 proposal requires supported uniform generator dry-runs plus an authoring refusal fixture at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/proposal.md:139`.
+- D14 design says the D13 authoring refusal fixture should exit through D13/D14 refusal at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:184`.
+- D14 tasks say to add/repair tests for "unsupported authoring-looking requests" if source behavior changes at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/tasks.md:68`.
 
 Why this matters:
 
@@ -74,8 +74,8 @@ Recommended repair:
 
 Evidence:
 
-- D14 includes `ambiguous-authoring-request` in the state model at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:76`.
-- The spec says ambiguous authoring signals refuse before writes at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/specs/habitat-harness/spec.md:56`.
+- D14 includes `ambiguous-authoring-request` in the state model at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:76`.
+- The spec says ambiguous authoring signals refuse before writes at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/specs/habitat-harness/spec.md:56`.
 
 Why this matters:
 
@@ -91,7 +91,7 @@ Recommended repair:
 
 Evidence:
 
-- D14's inventory is explicitly authoring-specific and says unsupported generic project kinds remain D13/D0/D2/G-HOST compatibility and ownership decisions unless the request also asks for MapGen authoring topology at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:62`.
+- D14's inventory is explicitly authoring-specific and says unsupported generic project kinds remain D13/D0/D2/G-HOST compatibility and ownership decisions unless the request also asks for MapGen authoring topology at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:62`.
 
 This is the right direction. Keep it that way in source work: MapGen recipe/domain/op/stage/step words may appear in D14 blocked actions and docs, but they must not become generic `kind` values, generic project-scaffold tags, or broad Habitat command types.
 

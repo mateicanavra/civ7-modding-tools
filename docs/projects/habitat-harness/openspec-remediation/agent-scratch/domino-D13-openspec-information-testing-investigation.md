@@ -12,9 +12,9 @@ The proposal is the strongest artifact. It now names D13 request/outcome areas, 
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/proposal.md:42-57` names the closed request/outcome areas the rest of the packet must carry.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/proposal.md:69-82` names D0/D2/D8/G-HOST dependencies and implementation blockers.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/proposal.md:127-146` separates validation phases, but later commands still use `<fixture>` placeholders and do not record expected status, output family, no-write oracle, or non-claim.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/proposal.md:42-57` names the closed request/outcome areas the rest of the packet must carry.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/proposal.md:69-82` names D0/D2/D8/G-HOST dependencies and implementation blockers.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/proposal.md:127-146` separates validation phases, but later commands still use `<fixture>` placeholders and do not record expected status, output family, no-write oracle, or non-claim.
 
 Required repair: keep the richer proposal direction, but make it the packet contract rather than a proposal-only improvement.
 
@@ -24,9 +24,9 @@ The design is now the strongest artifact. It contains a domain boundary, ontolog
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/design.md:64-130` defines the closed request/decision/refusal model.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/design.md:181-221` names write set and protected paths.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/design.md:240-266` defines the validation model with expected results, oracles, and non-claims.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/design.md:64-130` defines the closed request/decision/refusal model.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/design.md:181-221` names write set and protected paths.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/design.md:240-266` defines the validation model with expected results, oracles, and non-claims.
 
 Required repair: use `design.md` as the source for repairing `spec.md`, `tasks.md`, `phase-record.md`, `downstream-realignment-ledger.md`, and `closure-checklist.md`.
 
@@ -36,9 +36,9 @@ The spec delta is incomplete. It contains one requirement and two scenarios, so 
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/specs/habitat-harness/spec.md:3-13` has only supported and unsupported scaffold scenarios.
-- Source D13 required supported kinds, project preflight/refusal states, candidate pattern output state, registered pattern handoff, unsupported-kind refusal, Authoring Topology refusal, and host-policy missing refusal at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D13-scaffolding-and-refusal-contracts.md:32-40`.
-- D8 requires D13 to consume `CandidateHandoffProjection` and avoid active `.grit`, baseline, rule registry, hook, or apply writes by implication at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d8-pattern-governance/specs/habitat-harness/spec.md:262-266`.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/specs/habitat-harness/spec.md:3-13` has only supported and unsupported scaffold scenarios.
+- Source D13 required supported kinds, project preflight/refusal states, candidate pattern output state, registered pattern handoff, unsupported-kind refusal, Authoring Topology refusal, and host-policy missing refusal at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D13-scaffolding-and-refusal-contracts.md:32-40`.
+- D8 requires D13 to consume `CandidateHandoffProjection` and avoid active `.grit`, baseline, rule registry, hook, or apply writes by implication at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d8-pattern-governance/specs/habitat-harness/spec.md:262-266`.
 
 Required repair: replace the single thin requirement with the requirement families in section 3.
 
@@ -48,8 +48,8 @@ The task list is not executable. The implementation tasks mirror broad objective
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/tasks.md:14-16` has three broad implementation bullets.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/tasks.md:20-24` lists broad validation commands without bad-case assertions or no-write checks.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/tasks.md:14-16` has three broad implementation bullets.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/tasks.md:20-24` lists broad validation commands without bad-case assertions or no-write checks.
 
 Required repair: tasks must become implementation steps, for example "define closed supported-kind union", "add unsupported-kind refusal tests for mod/engine/control/adapter/sdk/tooling", "assert candidate-only pattern writes", "assert registered-pattern no-manifest refusal", and "cite D0 rows for every public surface changed."
 
@@ -57,10 +57,10 @@ Required repair: tasks must become implementation steps, for example "define clo
 
 The workstream files exist, but they do not carry the improved proposal contract.
 
-- Phase record: records status and gates, but has stale branch metadata and no write set/protected path matrix. See `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/workstream/phase-record.md:5-10` and `:22-28`.
-- Review ledger: correctly keeps the per-domino review gate blocking, so D13 cannot be accepted yet. See `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/workstream/review-disposition-ledger.md:5-10`.
-- Downstream ledger: lists pending surfaces but does not name D14 blockers, G-HOST acceptance dependency, D0 row requirements, or exact patch/no-patch criteria. See `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/workstream/downstream-realignment-ledger.md:5-9`.
-- Closure checklist: generic checklist items are present, but not the exact D13 matrix needed for closure. See `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/workstream/closure-checklist.md:5-12`.
+- Phase record: records status and gates, but has stale branch metadata and no write set/protected path matrix. See `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/workstream/phase-record.md:5-10` and `:22-28`.
+- Review ledger: correctly keeps the per-domino review gate blocking, so D13 cannot be accepted yet. See `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/workstream/review-disposition-ledger.md:5-10`.
+- Downstream ledger: lists pending surfaces but does not name D14 blockers, G-HOST acceptance dependency, D0 row requirements, or exact patch/no-patch criteria. See `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/workstream/downstream-realignment-ledger.md:5-9`.
+- Closure checklist: generic checklist items are present, but not the exact D13 matrix needed for closure. See `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/workstream/closure-checklist.md:5-12`.
 
 ## 2. Information Architecture Corrections Needed
 
@@ -72,14 +72,14 @@ The workstream files exist, but they do not carry the improved proposal contract
    - What commands prove or falsify each state.
    - What D13 explicitly does not claim.
 
-2. Add one scenario matrix in `design.md` and mirror it as normative requirement families in `spec.md`. The source packet already gives the injected bad-case seed at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D13-scaffolding-and-refusal-contracts.md:124-135`; the live packet must not rely on readers finding it there.
+2. Add one scenario matrix in `design.md` and mirror it as normative requirement families in `spec.md`. The source packet already gives the injected bad-case seed at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D13-scaffolding-and-refusal-contracts.md:124-135`; the live packet must not rely on readers finding it there.
 
 3. Split validation into design-time artifact checks and later implementation behavior checks everywhere, not only in `proposal.md`/`design.md`. `tasks.md`, `phase-record.md`, and `closure-checklist.md` still flatten the distinction.
 
 4. Fix status/fixture drift:
    - Actual branch observed by `git branch --show-current`: `codex/d13-scaffolding-refusal-packet`.
-   - Context now also records `codex/d13-scaffolding-refusal-packet` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/context.md:15-16`.
-   - D13 phase record still says `codex/deep-habitat-openspec-remediation` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/workstream/phase-record.md:8`.
+   - Context now also records `codex/d13-scaffolding-refusal-packet` at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/context.md:15-16`.
+   - D13 phase record still says `codex/deep-habitat-openspec-remediation` at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/workstream/phase-record.md:8`.
 
 ## 3. Normative Spec Requirement Families And Scenario Matrix D13 Needs
 
@@ -96,38 +96,38 @@ The workstream files exist, but they do not carry the improved proposal contract
 | Case | Command or test | Expected status | Required oracle | Non-claim |
 | --- | --- | --- | --- | --- |
 | Non-uniform `mod` kind | `bun run nx g @habitat/cli:project d13-mod-refusal --kind=mod --dry-run --no-interactive` | nonzero | Message names supported uniform kinds, refused kind, owning domain or next safe action; no `mods/d13-mod-refusal/**`, package, or source files. | Does not implement mod scaffolding. |
-| Non-uniform `engine/control/adapter/sdk/tooling` kinds | parameterized generator tests in `test/generators/project-generator.test.ts` | nonzero per kind | Each refusal has owner/reason/recovery and preserves tree state. Current code asserts no writes for `mod` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/project-generator.test.ts:90-99`, but D13 must define the full target matrix. | Does not claim all future workspace kinds are unsupported forever. |
+| Non-uniform `engine/control/adapter/sdk/tooling` kinds | parameterized generator tests in `test/generators/project-generator.test.ts` | nonzero per kind | Each refusal has owner/reason/recovery and preserves tree state. Current code asserts no writes for `mod` at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/project-generator.test.ts:90-99`, but D13 must define the full target matrix. | Does not claim all future workspace kinds are unsupported forever. |
 | Literal host-specific kind | If D13 wants `--kind=host-specific`, it must first change schema through D0; otherwise use an admitted non-uniform kind such as `mod` as the host-owned refusal fixture. | blocked until design chooses | The refusal must come from Habitat's designed refusal path, not an Nx schema parser error. | Does not authorize generic Habitat host policy. |
 
 ### Requirement Family: Project Preflight Refusals Are No-Write Outcomes
 
 | Case | Command or test | Expected status | Required oracle | Non-claim |
 | --- | --- | --- | --- | --- |
-| Root mismatch | generator test using `kind=app` and `directory=packages/misplaced-app` | nonzero | Existing file tree unchanged; no package/source files written. Current test pattern exists at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/project-generator.test.ts:101-114`. | Does not validate D0 compatibility by itself. |
-| Package name mismatch | generator test using `kind=plugin` and wrong `packageName` | nonzero | Canonical root remains absent. Current test pattern exists at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/project-generator.test.ts:116-129`. | Does not prove package namespace policy beyond refusal. |
-| Existing root or package collision | generator tests | nonzero | Preexisting files are byte-preserved; target package is absent. Current tests cover this at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/project-generator.test.ts:131-158`. | Does not prove all filesystem races. |
+| Root mismatch | generator test using `kind=app` and `directory=packages/misplaced-app` | nonzero | Existing file tree unchanged; no package/source files written. Current test pattern exists at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/project-generator.test.ts:101-114`. | Does not validate D0 compatibility by itself. |
+| Package name mismatch | generator test using `kind=plugin` and wrong `packageName` | nonzero | Canonical root remains absent. Current test pattern exists at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/project-generator.test.ts:116-129`. | Does not prove package namespace policy beyond refusal. |
+| Existing root or package collision | generator tests | nonzero | Preexisting files are byte-preserved; target package is absent. Current tests cover this at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/project-generator.test.ts:131-158`. | Does not prove all filesystem races. |
 
 ### Requirement Family: Pattern Generation Produces Candidate-Only State
 
 | Case | Command or test | Expected status | Required oracle | Non-claim |
 | --- | --- | --- | --- | --- |
-| Candidate pattern | `bun run nx g @habitat/cli:pattern grit-d13-candidate --lifecycle=candidate --openspecChangeId=deep-habitat-d13-scaffolding-refusal-contracts --dry-run --no-interactive` | 0 | Only candidate paths are listed; no active `.grit`, `rules.json`, baseline, hook, local-feedback, or apply state. D8 requires this no-active-write rule at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d8-pattern-governance/specs/habitat-harness/spec.md:54-78` and `:262-266`. | Candidate generation does not register a rule. |
-| Candidate collision with active pattern/rule/baseline | generator tests or fixture command with existing active surface | nonzero | No candidate files written; refusal names collision and protected surface. D8 requires refusal before candidate writes at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d8-pattern-governance/specs/habitat-harness/spec.md:69-72`. | Does not decide D8 admission. |
+| Candidate pattern | `bun run nx g @habitat/cli:pattern grit-d13-candidate --lifecycle=candidate --openspecChangeId=deep-habitat-d13-scaffolding-refusal-contracts --dry-run --no-interactive` | 0 | Only candidate paths are listed; no active `.grit`, `rules.json`, baseline, hook, local-feedback, or apply state. D8 requires this no-active-write rule at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d8-pattern-governance/specs/habitat-harness/spec.md:54-78` and `:262-266`. | Candidate generation does not register a rule. |
+| Candidate collision with active pattern/rule/baseline | generator tests or fixture command with existing active surface | nonzero | No candidate files written; refusal names collision and protected surface. D8 requires refusal before candidate writes at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d8-pattern-governance/specs/habitat-harness/spec.md:69-72`. | Does not decide D8 admission. |
 
 ### Requirement Family: Registered Pattern Requests Hand Off To D8 Or Refuse
 
 | Case | Command or test | Expected status | Required oracle | Non-claim |
 | --- | --- | --- | --- | --- |
-| Registered advisory without manifest | `bun run nx g @habitat/cli:pattern grit-d13-advisory --lifecycle=registered-advisory --dry-run --no-interactive` | nonzero | Refusal names Pattern Governance/D8, missing manifest, no active writes. Current test shape exists at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/pattern-generator.test.ts:57-69`. | Does not create Pattern Authority admission. |
-| Registered enforced without manifest | `bun run nx g @habitat/cli:pattern grit-d13-enforced --lifecycle=registered-enforced --dry-run --no-interactive` | nonzero | Refusal names Pattern Governance/D8, missing manifest, no active writes. Current test shape exists at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/pattern-generator.test.ts:71-83`. | Does not admit hook/local-feedback/apply state. |
-| Manifest with placeholder authority | generator test with placeholder manifest | nonzero | No active writes; refusal reason is closed and points to Pattern Authority repair. Current test shape exists at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/pattern-generator.test.ts:85-110`. | Does not prove manifest validity alone is sufficient. |
+| Registered advisory without manifest | `bun run nx g @habitat/cli:pattern grit-d13-advisory --lifecycle=registered-advisory --dry-run --no-interactive` | nonzero | Refusal names Pattern Governance/D8, missing manifest, no active writes. Current test shape exists at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/pattern-generator.test.ts:57-69`. | Does not create Pattern Authority admission. |
+| Registered enforced without manifest | `bun run nx g @habitat/cli:pattern grit-d13-enforced --lifecycle=registered-enforced --dry-run --no-interactive` | nonzero | Refusal names Pattern Governance/D8, missing manifest, no active writes. Current test shape exists at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/pattern-generator.test.ts:71-83`. | Does not admit hook/local-feedback/apply state. |
+| Manifest with placeholder authority | generator test with placeholder manifest | nonzero | No active writes; refusal reason is closed and points to Pattern Authority repair. Current test shape exists at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/pattern-generator.test.ts:85-110`. | Does not prove manifest validity alone is sufficient. |
 
 ### Requirement Family: Host Policy And Authoring Topology Refusals Are Explicit Blockers
 
 | Case | Command or test | Expected status | Required oracle | Non-claim |
 | --- | --- | --- | --- | --- |
-| Host policy missing for host-specific scaffold | exact command must be supplied after G-HOST acceptance | nonzero | Refusal names Host Policy Boundary, missing host declaration, next safe action, and no writes. G-HOST is still blocking in the index at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md:28` and D13 requires it at `:33`. | Does not implement host policy. |
-| MapGen Authoring Topology request | exact command or fixture must be supplied by D13/D14 handoff | nonzero | Refusal names Authoring Topology owner, future trigger, and no generated domain/op/stage/step/recipe files. Source D13 requires this refusal at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D13-scaffolding-and-refusal-contracts.md:38-40`. | Does not implement Authoring Topology. |
+| Host policy missing for host-specific scaffold | exact command must be supplied after G-HOST acceptance | nonzero | Refusal names Host Policy Boundary, missing host declaration, next safe action, and no writes. G-HOST is still blocking in the index at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md:28` and D13 requires it at `:33`. | Does not implement host policy. |
+| MapGen Authoring Topology request | exact command or fixture must be supplied by D13/D14 handoff | nonzero | Refusal names Authoring Topology owner, future trigger, and no generated domain/op/stage/step/recipe files. Source D13 requires this refusal at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D13-scaffolding-and-refusal-contracts.md:38-40`. | Does not implement Authoring Topology. |
 
 ## 4. Design-Time Vs Later Implementation Validation Split
 
@@ -194,11 +194,11 @@ The proposal and design now describe a closed request/outcome surface, but the s
 
 Evidence:
 
-- Proposal names D13 request/outcome areas at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/proposal.md:42-57`.
-- Design defines the detailed matrix at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/design.md:92-130`.
-- Tasks reduce implementation to broad bullets at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/tasks.md:14-16`.
-- Spec delta contains only two scenarios at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/specs/habitat-harness/spec.md:7-13`.
-- D13 downstream ledger does not record G-HOST/D14/D0 row blockers with patch/no-patch criteria at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/workstream/downstream-realignment-ledger.md:5-9`.
+- Proposal names D13 request/outcome areas at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/proposal.md:42-57`.
+- Design defines the detailed matrix at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/design.md:92-130`.
+- Tasks reduce implementation to broad bullets at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/tasks.md:14-16`.
+- Spec delta contains only two scenarios at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/specs/habitat-harness/spec.md:7-13`.
+- D13 downstream ledger does not record G-HOST/D14/D0 row blockers with patch/no-patch criteria at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/workstream/downstream-realignment-ledger.md:5-9`.
 
 Required repair: propagate the proposal/design request/outcome model into `spec.md`, `tasks.md`, `phase-record.md`, `downstream-realignment-ledger.md`, and `closure-checklist.md`.
 
@@ -208,11 +208,11 @@ Required repair: propagate the proposal/design request/outcome model into `spec.
 
 Evidence:
 
-- Proposal later gates use placeholders and lack expected outcomes at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/proposal.md:137-146`.
-- Design has the stronger validation matrix at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/design.md:240-266`.
-- Tasks validation is command names only at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/tasks.md:20-24`.
-- Phase record gates are command names only at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/workstream/phase-record.md:22-28`.
-- Source D13 names expected statuses and injected bad cases at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D13-scaffolding-and-refusal-contracts.md:124-135`.
+- Proposal later gates use placeholders and lack expected outcomes at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/proposal.md:137-146`.
+- Design has the stronger validation matrix at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/design.md:240-266`.
+- Tasks validation is command names only at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/tasks.md:20-24`.
+- Phase record gates are command names only at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/workstream/phase-record.md:22-28`.
+- Source D13 names expected statuses and injected bad cases at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D13-scaffolding-and-refusal-contracts.md:124-135`.
 
 Required repair: copy the design validation matrix into `tasks.md`, `phase-record.md`, and closure criteria with command, expected status, expected output/refusal reason, no-write oracle, freshness/cache stance, proof claim, and non-claim. Include explicit negative cases: unsupported kind, registered pattern without manifest, candidate collision, host-specific scaffold missing host policy, and Authoring Topology request.
 
@@ -222,11 +222,11 @@ D13 now says G-HOST blocks source behavior, but the workstream control artifacts
 
 Evidence:
 
-- D13 proposal says G-HOST remains blocking at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/proposal.md:81-82`.
-- Packet index says G-HOST is incomplete and per-domino gate blocking at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md:28`.
-- Packet index says G-HOST must resolve host-policy boundaries before D13 can claim generic closure at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md:60-61`.
-- G-HOST review ledger has an unresolved P1 per-domino review gate at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-host-policy-boundary-gate/workstream/review-disposition-ledger.md:10`.
-- D13 downstream ledger does not record G-HOST as a closure blocker at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/workstream/downstream-realignment-ledger.md:5-9`.
+- D13 proposal says G-HOST remains blocking at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/proposal.md:81-82`.
+- Packet index says G-HOST is incomplete and per-domino gate blocking at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md:28`.
+- Packet index says G-HOST must resolve host-policy boundaries before D13 can claim generic closure at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md:60-61`.
+- G-HOST review ledger has an unresolved P1 per-domino review gate at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-host-policy-boundary-gate/workstream/review-disposition-ledger.md:10`.
+- D13 downstream ledger does not record G-HOST as a closure blocker at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/workstream/downstream-realignment-ledger.md:5-9`.
 
 Required repair: add D13 closure language stating that host-policy refusal scenarios remain blocked until G-HOST is accepted for design/specification and D13 names the consumed host-policy input. Add a downstream ledger row for G-HOST with `blocked` disposition and exact unblock criteria.
 
@@ -236,10 +236,10 @@ D13 names the public surfaces that may change and states D0 is required, but it 
 
 Evidence:
 
-- D13 proposal requires concrete D0 rows for touched generator/public surfaces at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/proposal.md:71-74`.
-- D13 proposal scopes the public surfaces at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/proposal.md:96-113`.
-- D0 requires compatibility rows before later packets change generator behavior, help/output, public examples, or related surfaces at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d0-command-surface-inventory/specs/habitat-harness/spec.md:3-9` and stops packets without rows at `:22-27`.
-- D13 tasks defer dependency gates to `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/tasks.md:10`.
+- D13 proposal requires concrete D0 rows for touched generator/public surfaces at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/proposal.md:71-74`.
+- D13 proposal scopes the public surfaces at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/proposal.md:96-113`.
+- D0 requires compatibility rows before later packets change generator behavior, help/output, public examples, or related surfaces at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d0-command-surface-inventory/specs/habitat-harness/spec.md:3-9` and stops packets without rows at `:22-27`.
+- D13 tasks defer dependency gates to `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/tasks.md:10`.
 
 Required repair: D13 design/tasks/closure must either cite concrete D0 rows or say source implementation is blocked until rows exist for project generator schema/help/output, pattern generator schema/help/output, docs examples, and any JSON/refusal output.
 
@@ -250,8 +250,8 @@ The context router has been updated to the D13 branch, but the D13 phase record 
 Evidence:
 
 - Actual current branch observed: `codex/d13-scaffolding-refusal-packet`.
-- Context router records the same branch at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/context.md:15-16`.
-- D13 phase record says `codex/deep-habitat-openspec-remediation` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/workstream/phase-record.md:8`.
+- Context router records the same branch at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/context.md:15-16`.
+- D13 phase record says `codex/deep-habitat-openspec-remediation` at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/workstream/phase-record.md:8`.
 
 Required repair: correct the phase record branch before D13 claims compaction-safe state or closure readiness.
 

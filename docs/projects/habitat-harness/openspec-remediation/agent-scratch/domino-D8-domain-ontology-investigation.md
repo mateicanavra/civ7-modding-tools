@@ -9,11 +9,11 @@ Current disk does not satisfy the complete D8 domain contract. The Phase 2 D8 so
 - `git status --short --branch --untracked-files=all`; worktree was clean on `codex/d8-pattern-governance-packet` before authoring.
 - `gt status`; Graphite delegates to Git in this checkout and reported a clean worktree.
 - Root `AGENTS.md`.
-- `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`.
-- `/Users/mateicanavra/.agents/skills/information-design/SKILL.md`.
-- `/Users/mateicanavra/.agents/skills/ontology-design/SKILL.md`.
+- `<user-home>/.agents/skills/domain-design/SKILL.md`.
+- `<user-home>/.agents/skills/information-design/SKILL.md`.
+- `<user-home>/.agents/skills/ontology-design/SKILL.md`.
 - All directly referenced Ontology Design reference files: `axes.md`, `principles.md`, `where-defaults-hide.md`, `representation-choices.md`, `operationalization.md`, `maintenance.md`, `examples.md`, and `source-map.md`.
-- Relevant context from `/Users/mateicanavra/.agents/skills/solution-design/SKILL.md`.
+- Relevant context from `<user-home>/.agents/skills/solution-design/SKILL.md`.
 - Relevant context from `.agents/skills/civ7-open-spec-workstream/SKILL.md`, including `references/source-map.md` and `references/phase-loop.md`.
 - `docs/projects/habitat-harness/openspec-remediation-frame.md`.
 - `docs/projects/habitat-harness/openspec-remediation/context.md`.

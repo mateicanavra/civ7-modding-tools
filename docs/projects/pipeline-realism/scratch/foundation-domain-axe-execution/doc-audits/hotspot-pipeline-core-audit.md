@@ -3,7 +3,7 @@ docs_anchor:
   - docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
   - docs/system/libs/mapgen/architecture.md
   - docs/system/libs/mapgen/explanation/DOMAIN-MODELING.md
-audited_file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts
+audited_file: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts
 branch: codex/prr-m4-s06-test-rewrite-architecture-scans
 audit_date: 2026-02-15
 audit_type: hotspot-architecture
@@ -18,9 +18,9 @@ audit_type: hotspot-architecture
 ### HIGH — F1: Mega-function orchestration inside helper/kernels boundary (`buildEraFields`)
 
 - Evidence:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:561`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:730`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:994`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:561`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:730`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:994`
 - Why this is a hotspot:
   - `buildEraFields` spans ~514 lines and mixes: propagation graph walk, scoring policy, event tie-break policy, boundary classification, and output materialization.
   - This collapses multiple rule-level decisions into one execution block, which is effectively step-like orchestration embedded in a helper.
@@ -31,10 +31,10 @@ audit_type: hotspot-architecture
 ### HIGH — F2: Hidden cross-op coupling via hard-coded kernel defaults in `computeEraSegments`
 
 - Evidence:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:1491`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:1497`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:1500`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:1507`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:1491`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:1497`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:1500`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:1507`
 - Why this is a hotspot:
   - `computeEraSegments` binds to `DEFAULT_PLATE_MOTION_CONFIG` and `DEFAULT_TECTONIC_SEGMENTS_CONFIG` from `era-tectonics-kernels.ts` with no local contract/config surface.
   - Behavior can drift when those defaults change, without explicit change at the `compute-tectonic-history` strategy level.
@@ -44,9 +44,9 @@ audit_type: hotspot-architecture
 ### MEDIUM — F3: Plate-id/index contract leak between era membership and kernel inputs
 
 - Evidence:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:290`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:330`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:1487`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:290`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:330`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:1487`
 - Why this is a hotspot:
   - `computePlateIdByEra` stores `plate.id` into `owner`; later this becomes `cellToPlate` used as index-addressable membership in kernel calls.
   - This assumes `plate.id === plates[index].id` (contiguous/index-safe) but that invariant is not enforced here.
@@ -54,9 +54,9 @@ audit_type: hotspot-architecture
 ### MEDIUM — F4: Determinism sensitivity to ordering/ties (neighbors and event order)
 
 - Evidence:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:363`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:827`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:1023`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:363`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:827`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:1023`
 - Why this is a hotspot:
   - `chooseDriftNeighbor` keeps the first max-dot neighbor; equal-dot ties are not canonically broken.
   - Event competition falls through to event index order, so subtle upstream ordering changes can alter boundary selection in tie conditions.
@@ -64,10 +64,10 @@ audit_type: hotspot-architecture
 ### MEDIUM — F5: Strategy/rule factoring is weak; policy constants are embedded and non-composable
 
 - Evidence:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:18`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:41`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:792`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:1350`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:18`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:41`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:792`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:1350`
 - Why this is a hotspot:
   - Era gain, reset-threshold posture, emission multipliers, and event scoring priorities are hard-coded in this module.
   - The contract only exposes one strategy (`default`) with limited tunables, so policy evolution requires code edits instead of strategy-level composition.
@@ -75,10 +75,10 @@ audit_type: hotspot-architecture
 ### LOW — F6: Duplicate graph/heap machinery increases maintenance entropy
 
 - Evidence:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:121`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:676`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:190`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:651`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:121`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:676`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:190`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts:651`
 - Why this is a hotspot:
   - Two heap implementations and repeated mean-edge/graph-walk logic increase bug surface and drift risk.
 
@@ -94,7 +94,7 @@ audit_type: hotspot-architecture
 ## Commands Run
 
 ```bash
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
 pwd && git rev-parse --abbrev-ref HEAD && git status --short
 rg --files -g 'AGENTS.md'
 cat AGENTS.md

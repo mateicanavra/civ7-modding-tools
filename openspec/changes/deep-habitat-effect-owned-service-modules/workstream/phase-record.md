@@ -31,7 +31,7 @@
 - `domain-design`, `system-design`, `solution-design`, `typescript`
 - Official `effect-orpc` README/docs checked on 2026-06-20.
 - Reference service topology:
-  `/Users/mateicanavra/Documents/.nosync/DEV/magic-apply/magic-migration/collect-ingest/services/collect/src/service/**`
+  `<user-home>/Documents/.nosync/DEV/magic-apply/magic-migration/collect-ingest/services/collect/src/service/**`
 
 ## Verification
 

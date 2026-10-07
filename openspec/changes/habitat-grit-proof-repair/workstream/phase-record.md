@@ -217,7 +217,7 @@
   proof; this packet now adds the target-export and type-only semantic guard.
 - Live applied-diff proof is recorded as:
   - `HGPR-APPLY-LIVE-CURRENT-BLOCKED-2026-06-15`: named proof worktree
-    `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-proof-HGPR-apply-live-da0252153`
+    `<user-home>/Documents/.nosync/DEV/worktrees/wt-proof-HGPR-apply-live-da0252153`
     was created detached from `agent-HR-habitat-grit-proof-repair` at
     `da0252153`, installed with `bun install --frozen-lockfile`, and given a
     committed tracked safe morphology probe. Current public `bun run
@@ -250,7 +250,7 @@
     `@swooper/mapgen-core:build`, matching the package-output contract required
     by `mods/mod-swooper-maps/scripts/generate-map-artifacts.ts`.
   - `HGPR-APPLY-LIVE-COLD-GATES-2026-06-15`: fresh serial proof worktree
-    `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-proof-HGPR-apply-check-c87963cb`
+    `<user-home>/Documents/.nosync/DEV/worktrees/wt-proof-HGPR-apply-check-c87963cb`
     was created detached from `c87963cb`, installed with
     `bun install --frozen-lockfile`, given local proof commit `c3b0f4f65` for
     the Nx dependency repair and local proof commit `5a0b267f7` for the tracked
@@ -506,7 +506,7 @@ implementation tasks 4, 6, or adapter tests begin.
     '*.ts'` (`HGPR-APPLY-LIVE-INVENTORY-2026-06-15`; exit 1 with empty
     output expected for zero matches)
   - `git worktree add --detach
-    /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-proof-HGPR-apply-live-da0252153
+    <user-home>/Documents/.nosync/DEV/worktrees/wt-proof-HGPR-apply-live-da0252153
     agent-HR-habitat-grit-proof-repair`
   - `bun install --frozen-lockfile` in the proof worktree.
   - Proof-worktree local commit `d95a1ba90 proof: add Habitat apply live
@@ -528,7 +528,7 @@ implementation tasks 4, 6, or adapter tests begin.
     in the proof worktree after applied diff; exit 1 on four official resource
     corpus contract tests, recorded as broad-test non-claim.
   - `git worktree add --detach
-    /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-proof-HGPR-apply-check-c87963cb
+    <user-home>/Documents/.nosync/DEV/worktrees/wt-proof-HGPR-apply-check-c87963cb
     HEAD` from implementation checkpoint `c87963cb`.
   - `bun install --frozen-lockfile` in the cold check proof worktree.
   - Proof-worktree local commit `c3b0f4f65 proof: repair mod map generation
@@ -555,12 +555,12 @@ implementation tasks 4, 6, or adapter tests begin.
   - `git restore --worktree --staged -- .` in the cold check proof worktree;
     follow-up `git status --short --branch` was `## HEAD (no branch)`.
   - `git worktree remove
-    /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-proof-HGPR-apply-check-c87963cb`
+    <user-home>/Documents/.nosync/DEV/worktrees/wt-proof-HGPR-apply-check-c87963cb`
     and `git worktree prune`; proof worktree absent afterward.
   - `git restore --worktree --staged -- .` in the proof worktree
     (`HGPR-APPLY-LIVE-ROLLBACK-2026-06-15`; clean status).
   - `git worktree remove
-    /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-proof-HGPR-apply-live-da0252153`
+    <user-home>/Documents/.nosync/DEV/worktrees/wt-proof-HGPR-apply-live-da0252153`
     and `git worktree prune`; proof worktree absent afterward.
   - `find tools/habitat-harness/baselines -maxdepth 1 -type f`
   - `bun run openspec -- validate habitat-grit-proof-repair --strict`

@@ -2,7 +2,7 @@
 
 Status: active executor grounding
 
-Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets`
+Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets`
 
 Branch: `agent-codex-mapgen-studio-runtime-openspec-packets`
 

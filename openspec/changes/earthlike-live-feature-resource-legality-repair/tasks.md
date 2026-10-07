@@ -173,7 +173,7 @@
     Scripting log line:
     `[2026-06-07 06:34:54] [SWOOPER_MOD] Map generation failed: StepExecutionError: Step "mod-swooper-maps.standard.map-elevation.build-elevation" failed: [map-elevation/build-elevation] drift: expected land but adapter reports water at (34,17).`
     The deployed script identity was
-    `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`
+    `<user-home>/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`
     (`sha256:ac3d7a05a4972cb8d264022bbffc4c220f0526e2ff322093bb8da2e0dfa6acdc`,
     `mtimeIso:2026-06-07T10:33:26.425Z`). No current `[mapgen-proof]`,
     `[mapgen-complete]`, exact-authorship packet, final-surface parity proof,

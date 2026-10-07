@@ -41,7 +41,7 @@
 
 ## Gate 2 - Repo State
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`
 - Branch: `codex/runtime-effect-nx-dev-runner`
 - Entrance status: clean after D10 commit
   `9a715e0e7 feat(studio): push live game state from runtime`.

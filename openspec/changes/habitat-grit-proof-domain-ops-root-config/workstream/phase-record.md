@@ -9,7 +9,7 @@ for `grit-domain-ops-root-config`. Supervisor review is the next gate.
 ## Branch
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-domain-ops-root-config-dynamic`
 - Parent row: `agent-HG-habitat-grit-recipe-imports-in-domain-dynamic`
 

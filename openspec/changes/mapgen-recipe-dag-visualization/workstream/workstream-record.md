@@ -34,7 +34,7 @@
 
 ## Repo State
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-mapgen-recipe-dag`
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-mapgen-recipe-dag`
 - Branch: `codex/mapgen-dag-ui-layout`
 - Parent branch: `codex/mapgen-recipe-dag-visualization`
 - Stack position: Graphite-tracked follow-on slice above

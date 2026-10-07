@@ -12,8 +12,8 @@
 ## Live Notes
 - Worker kickoff complete; beginning adjudication wave.
 - Safety correction check @ 2026-02-15T02:56:32Z:
-  - `pwd -P` => `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-TOMMY-m4-fix-bootstrap`
-  - `git rev-parse --show-toplevel` => `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-TOMMY-m4-fix-bootstrap`
+  - `pwd -P` => `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-TOMMY-m4-fix-bootstrap`
+  - `git rev-parse --show-toplevel` => `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-TOMMY-m4-fix-bootstrap`
   - `git branch --show-current` => `agent-TOMMY-m4-fix-bootstrap`
   - Action: continue adjudication from dedicated TOMMY worktree only.
 

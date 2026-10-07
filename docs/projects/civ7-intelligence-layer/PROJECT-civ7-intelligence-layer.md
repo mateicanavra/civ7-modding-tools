@@ -114,7 +114,7 @@ but they do not settle product behavior by themselves.
 The active live-play/direct-control work was found in:
 
 ```text
-/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-watch-civ7-live-play-reference-assembly
+<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-watch-civ7-live-play-reference-assembly
 ```
 
 The branch moved while the investigation was running. It was first observed on
@@ -610,7 +610,7 @@ Repo and worktree evidence:
 - `packages/civ7-direct-control/AGENTS.md`
 - `docs/projects/civ7-direct-control/PROJECT-civ7-direct-control.md`
 - Active live-play worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-watch-civ7-live-play-reference-assembly`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-watch-civ7-live-play-reference-assembly`
 - Official resource submodule:
   `.civ7/outputs/resources`
 

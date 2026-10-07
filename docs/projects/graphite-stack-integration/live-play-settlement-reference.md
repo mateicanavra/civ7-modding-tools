@@ -3,7 +3,7 @@
 Status: `preparation-reference`.
 Captured: 2026-06-01.
 Position: clean repo root on `main` at `98dca3892`.
-Active source worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-watch-civ7-live-play-reference-assembly`.
+Active source worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-watch-civ7-live-play-reference-assembly`.
 
 This document prepares the next integration pass. It does not claim replay,
 validation, submit, merge, or closure. It exists because the full dependent
@@ -165,7 +165,7 @@ whitespace.
 Frame: this is dependency settlement, not branch cleanup. main already contains the merged mapgen/Studio/direct-control baseline through #1413 at 98dca3892. Live-play depends on that baseline, so it remains in scope, but current live-play branches are stale evidence sources, not branches to submit wholesale.
 
 Before mutation, re-check:
-- git status --short --branch in repo root and /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-watch-civ7-live-play-reference-assembly
+- git status --short --branch in repo root and <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-watch-civ7-live-play-reference-assembly
 - git worktree list --porcelain
 - gt log --stack --reverse
 - thread 019e8225-4572-75f0-81b7-93ccc368bfd3 latest state

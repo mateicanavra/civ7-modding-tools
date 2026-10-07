@@ -6,7 +6,7 @@ Created: 2026-06-18.
 
 Branch/worktree used for preparation:
 `agent-DRA-deep-habitat-prep-frame` at
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`,
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`,
 created from `main` at `fbf77fe9e`.
 
 This document is the durable frame I will use after compaction while implementing

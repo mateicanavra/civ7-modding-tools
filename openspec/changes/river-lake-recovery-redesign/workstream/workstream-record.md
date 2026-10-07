@@ -39,7 +39,7 @@
 ## Repo State
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-mapgen-physical-rivers`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-mapgen-physical-rivers`
 - Branch: `codex/river-trunk-coherence`
 - Parent branch: `codex/map-rivers-hydrology-selector`
 - Stack position: top of the current river recovery stack

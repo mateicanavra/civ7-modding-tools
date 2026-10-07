@@ -9,7 +9,7 @@ using only a few adjacent numeric ids under common environmental signatures.
 ## Repo State
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`
+  `<user-home>/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`
 - Branch: `codex/resource-placement-diversity`
 - Parent slice: `codex/resource-group-plan-rollup`
 - Source Studio/API pair observed for this source slice:

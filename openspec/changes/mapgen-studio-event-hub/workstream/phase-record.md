@@ -40,7 +40,7 @@
 
 ## Gate 2 - Repo State
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-refactor-frame`
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-refactor-frame`
 - Branch: `codex/runtime-effect-openspec-packets`
 - Entrance status: clean before D8 edits after D7 commit
   `1a159242d`.

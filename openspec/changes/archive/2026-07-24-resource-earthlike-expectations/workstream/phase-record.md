@@ -9,7 +9,7 @@ behavior or claiming runtime numeric ids.
 ## Repo State
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`
+  `<user-home>/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`
 - Branch: `codex/resource-earthlike-expectations`
 - Parent slice: `codex/resource-corpus-contract`
 - Running local server pair for this worktree:

@@ -1,6 +1,6 @@
 # Habitat Stage 0 Local Claim Extraction Evidence Pack
 
-Repo root: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-F-habitat-harness-workstream`.
+Repo root: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-F-habitat-harness-workstream`.
 Paths below are repo-relative unless noted. This pack uses repo files and local
 commands only. It is evidence extraction, not implementation approval.
 

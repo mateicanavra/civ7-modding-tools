@@ -112,7 +112,7 @@ bun scripts/compare-coherence.ts --output /absolute/path/to/standard-1018 --size
   --variants baseline,three-eras,fluvial-zero,diffusion-zero,major-percentile,combined
 ```
 
-The [private comparison](https://mateis-macbook-pro.taild8da1c.ts.net/civ/coherence-huge-1018/index.html)
+The private comparison (`coherence-huge-1018/index.html`)
 contains ten complete Huge/1018 variants, exact admitted configs, existing
 integrity evaluations, physical-field hashes and per-variant logs. Six-case
 repetitions are beside it at `coherence-huge-42/` and
@@ -270,7 +270,7 @@ semantics, with an actual larger-lake outlet intervention if needed; keep that
 separate from the physical erosion/routing design. The wet-source policy needs
 reconsideration, but not as an assumed complete visual fix.
 
-The [native comparison report](https://mateis-macbook-pro.taild8da1c.ts.net/civ/native-wet-outlet-ab/index.html)
+The native comparison report (`native-wet-outlet-ab/index.html`)
 and its raw receipts live beside the existing gallery. A/B proof IDs are
 `wet-outlet-a-1018` and `wet-outlet-b-1018`. Built and installed bundle SHA-256
 values were checked equal for each run; transport decoding recovered every

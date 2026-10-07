@@ -30,7 +30,7 @@ Hard requirements:
 7. `codex/agent-C-ocean-sst-thermal-evap-v2` (SST + sea-ice)
 8. `codex/agent-E-studio-circulation-debug-wiring` (pipeline wiring + studio UX)
 
-**Worktree root:** `/Users/mateicanavra/Documents/.nosync/DEV/worktrees`
+**Worktree root:** `<user-home>/Documents/.nosync/DEV/worktrees`
 
 ## Workflows / Guardrails (Named)
 - `graphite`: Graphite-first; no ad-hoc rebases/force pushes.

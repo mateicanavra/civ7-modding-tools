@@ -258,13 +258,13 @@ restack_alignment_decision:
 
 ```yaml
 changed:
-  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+  - path: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
     action: removed public schema + compile; inlined knobs schema in createStage
-  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json
+  - path: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json
     action: removed foundation.version/profiles/advanced
-  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/presets/standard/earthlike.json
+  - path: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/presets/standard/earthlike.json
     action: removed foundation.version/profiles/advanced
-  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/m11-config-knobs-and-presets.test.ts
+  - path: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/m11-config-knobs-and-presets.test.ts
     action: updated expectations to knobs-first foundation surface
 verification:
   - bun run --cwd mods/mod-swooper-maps check
@@ -280,7 +280,7 @@ future_worker_startup_discipline_decisions:
   - id: M4-D-036
     decision: require_absolute_execution_worktree_paths_in_all_worker_startup_packets
     applies_to:
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+      - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
   - id: M4-D-037
     decision: require_docs_anchor_and_canonical_example_evidence_before_any_worker_code_edits
     required_docs:
@@ -341,7 +341,7 @@ anchor_triage_disposition_decisions:
   - id: M4-D-045
     decision: resolve_anchor_f001_by_rewiring_legacy_test_call_sites_off_compute_tectonic_history
     artifacts:
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/support/tectonics-history-runner.js
+      - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/support/tectonics-history-runner.js
   - id: M4-D-046
     decision: resolve_anchor_f002_via_milestone_issue_sync_to_actual_runtime_state_pre_S04
   - id: M4-D-047

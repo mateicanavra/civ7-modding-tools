@@ -3,7 +3,7 @@
 ## State
 
 - Status: source implementation submitted as draft PR #1837 after final internal review and repair; focused D2 projection/parser/consumer gates pass. Structural adapter-domain enforcement is a Habitat-owned GritQL rule, not a manual architecture test. User-delegated temporary-supervisor review accepted D2 for D3 advancement after the D7 command-context carry-forward repair.
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
 - Branch: `agent-DRA-d2-rule-registry-metadata-contract`.
 - Source packet: `docs/projects/habitat-harness/phase2-workstream-packets/D2-rule-registry-metadata-contract.md`.
 - OpenSpec change: `openspec/changes/deep-habitat-d2-rule-registry-metadata-contract`.

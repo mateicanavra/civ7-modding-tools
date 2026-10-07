@@ -8,9 +8,9 @@ Branch: `$ACTIVE_REMEDIATION_BRANCH`
 ## Sources Read
 
 - Root `AGENTS.md`.
-- Domain Design skill: `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`.
-- Information Design skill: `/Users/mateicanavra/.agents/skills/information-design/SKILL.md`.
-- Solution Design skill: `/Users/mateicanavra/.agents/skills/solution-design/SKILL.md`.
+- Domain Design skill: `<user-home>/.agents/skills/domain-design/SKILL.md`.
+- Information Design skill: `<user-home>/.agents/skills/information-design/SKILL.md`.
+- Solution Design skill: `<user-home>/.agents/skills/solution-design/SKILL.md`.
 - Civ7 OpenSpec Workstream skill and directly relevant references:
   - `SKILL.md`.
   - `references/source-map.md`.
@@ -49,7 +49,7 @@ Branch: `$ACTIVE_REMEDIATION_BRANCH`
 | `bun run openspec -- validate deep-habitat-d10-protected-zone-authority --strict` | Pass: `Change 'deep-habitat-d10-protected-zone-authority' is valid`. |
 | `bun run openspec:validate` | Pass: `249 passed, 0 failed`. |
 | `git diff --check` | Pass: no whitespace errors. |
-| Durable path scan for `/Users/mateicanavra` and stale branch literals across packet index, source packet, and `$D10_CHANGE` | No brittle local path or stale branch hits in durable D10 packet artifacts. Local absolute paths remain in historical scratch files, where they are review provenance. |
+| Durable path scan for `<user-home>` and stale branch literals across packet index, source packet, and `$D10_CHANGE` | No brittle local path or stale branch hits in durable D10 packet artifacts. Local absolute paths remain in historical scratch files, where they are review provenance. |
 | Status scan across packet index and `$D10_CHANGE` | At the time this lane ran, D10 had a pre-acceptance control state, was not implementation-complete, and had source implementation blockers. This row is superseded by the later final domain/ontology rereview and D10 control-record acceptance update. |
 | Shortcut/wording scan across context, packet index, `$D10_CHANGE`, and D10 scratch files | Durable D10 packet hits are forbidden-language, rejected-term, non-claim, source-blocker, or validation wording. Historical scratch hits remain negative-control evidence. Packet-index hits for D13/D12 source filenames and incomplete D11-D15/G-HOST rows are canonical traceability/status exceptions. |
 | Task prompt scan for `define/decide/design/figure out/determine/choose` | No implementation task asks implementers to design D10. Hits are acceptable context phrases about accepted design layers. |

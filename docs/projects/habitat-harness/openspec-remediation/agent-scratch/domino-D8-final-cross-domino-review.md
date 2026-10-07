@@ -28,11 +28,11 @@ Reviewed as design/specification only:
 
 Skill anchors read before review:
 
-- `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`.
-- `/Users/mateicanavra/.agents/skills/information-design/SKILL.md`.
-- `/Users/mateicanavra/.agents/skills/solution-design/SKILL.md`.
-- `/Users/mateicanavra/.agents/skills/system-design/SKILL.md`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md`.
+- `<user-home>/.agents/skills/domain-design/SKILL.md`.
+- `<user-home>/.agents/skills/information-design/SKILL.md`.
+- `<user-home>/.agents/skills/solution-design/SKILL.md`.
+- `<user-home>/.agents/skills/system-design/SKILL.md`.
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md`.
 - Civ7 Open Spec Workstream references: `source-map.md`, `phase-loop.md`,
   `artifact-contracts.md`, and `validation-checks.md`.
 

@@ -33,11 +33,11 @@ eliminated or deferred.
 - `.civ7/outputs/resources/Base/modules/age-exploration/data/AI_Exploration.xml`
 - `.civ7/outputs/resources/Base/modules/age-modern/data/AI_Modern.xml`
 - `.civ7/outputs/resources/Base/modules/age-*/data/victories.xml`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/civmods-rhq-39525/ai.modinfo`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/civmods-rhq-39525/modules/**`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods.sqlite`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Debug/gameplay-copy.sqlite`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Logs/{Database.log,Modding.log,UI.log,Scripting.log}`
+- `<user-home>/Library/Application Support/Civilization VII/Mods/civmods-rhq-39525/ai.modinfo`
+- `<user-home>/Library/Application Support/Civilization VII/Mods/civmods-rhq-39525/modules/**`
+- `<user-home>/Library/Application Support/Civilization VII/Mods.sqlite`
+- `<user-home>/Library/Application Support/Civilization VII/Debug/gameplay-copy.sqlite`
+- `<user-home>/Library/Application Support/Civilization VII/Logs/{Database.log,Modding.log,UI.log,Scripting.log}`
 
 ## Commands And Probes Run
 
@@ -50,8 +50,8 @@ eliminated or deferred.
 - `sed -n '19,92p' .civ7/outputs/resources/Base/modules/age-exploration/age-exploration.modinfo`
 - `sed -n '19,90p' .civ7/outputs/resources/Base/modules/age-modern/age-modern.modinfo`
 - `rg -n "AI_Base|AI_Antiquity|AI_Exploration|AI_Modern|behaviortrees|AI_Base_Naval|victories.xml|pseudoyields.xml" .civ7/outputs/resources/Base/modules/*/*.modinfo -S`
-- `sqlite3 /Users/mateicanavra/Library/Application\ Support/Civilization\ VII/Mods.sqlite ...`
-- `sqlite3 /Users/mateicanavra/Library/Application\ Support/Civilization\ VII/Debug/gameplay-copy.sqlite ...`
+- `sqlite3 <user-home>/Library/Application\ Support/Civilization\ VII/Mods.sqlite ...`
+- `sqlite3 <user-home>/Library/Application\ Support/Civilization\ VII/Debug/gameplay-copy.sqlite ...`
 - `rg -n "rhq|RHQ|civmods-rhq|ai_trees|BoostHandlers|TriggeredBehaviorTrees|TargetScript|change_banner|error|Error|ERROR" .../Logs/{Database.log,Modding.log,Scripting.log,UI.log} -S`
 
 All probes were read-only. No live-game state mutation was attempted.

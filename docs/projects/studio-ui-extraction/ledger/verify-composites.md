@@ -1,7 +1,7 @@
 # Adversarial verification — ds-group "composites" (13 rows)
 
 Verifier re-derived the import surface of all 13 components + their one-hop helpers from source in
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction`. Verdict: **verified=true** —
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction`. Verdict: **verified=true** —
 no tier changes, no missed runtime crossings. Three corrections (one remedy-quality defect, one false
 storyNote claim, one incomplete categorical sweep) and several notes.
 

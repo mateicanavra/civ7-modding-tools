@@ -22,9 +22,9 @@ mutation, current runtime row freshness, or behavior quality.
 
 Local investigation anchors:
 
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Debug/gameplay-copy.sqlite`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods.sqlite`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/civmods-rhq-39525`
+- `<user-home>/Library/Application Support/Civilization VII/Debug/gameplay-copy.sqlite`
+- `<user-home>/Library/Application Support/Civilization VII/Mods.sqlite`
+- `<user-home>/Library/Application Support/Civilization VII/Mods/civmods-rhq-39525`
 - [agent-reports/static-ai-levers-and-profiles.md](agent-reports/static-ai-levers-and-profiles.md)
 
 ## Lever Families

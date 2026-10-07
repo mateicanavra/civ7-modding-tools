@@ -34,7 +34,7 @@ Implemented and archived; Graphite submission follows this record.
   - `bun run build` passed: 16 successful tasks, 16 total.
 - Deploy/runtime gate:
   - `bun run --cwd mods/mod-swooper-maps deploy` passed.
-  - Deployed map: `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/swooper-earthlike.js`, mtime `2026-05-30 04:54:35 -0400`.
+  - Deployed map: `<user-home>/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/swooper-earthlike.js`, mtime `2026-05-30 04:54:35 -0400`.
   - FireTuner `Network.restartGame()` returned `true`.
   - `Scripting.log` mtime `2026-05-30 04:55:34 -0400`; the fresh run created `MapGeneration` at `2026-05-30 04:55:33`, reached `[50/50] ok mod-swooper-maps.standard.placement.placement` at `2026-05-30 04:55:34`, and ended with `Destroying Context -  MapGeneration`.
   - Bounded log check after the deploy found no `TextEncoder`, `Uncaught`,

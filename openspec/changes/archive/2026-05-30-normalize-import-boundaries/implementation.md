@@ -2,7 +2,7 @@
 
 Date: 2026-05-30
 Branch: `codex/normalize-import-boundaries-impl`
-Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-normalize-authority-routing`
+Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-DRA-normalize-authority-routing`
 
 ## Scope
 

@@ -44,7 +44,7 @@ of inferring hidden state?
 The accountable packet worktree is:
 
 ```text
-/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-foundation-architecture-packet
+<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-foundation-architecture-packet
 branch: codex/foundation-architecture-packet
 opening HEAD: fec2f4c07137c0f8e4ab5da7a3c857cefc69d955
 opening status: clean

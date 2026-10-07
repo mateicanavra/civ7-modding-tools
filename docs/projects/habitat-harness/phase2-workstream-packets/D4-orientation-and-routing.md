@@ -122,7 +122,7 @@ Update:
 
 ## Validation Commands / Receipt Template
 
-- `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/plugin.js`:
+- `bun run habitat classify <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/plugin.js`:
   expected exit 0; representative supported-path classification receipt.
 - `bun run habitat classify docs/projects/habitat-harness/phase2-workstream-packets/README.md`:
   expected exit 0; representative docs-path classification receipt.

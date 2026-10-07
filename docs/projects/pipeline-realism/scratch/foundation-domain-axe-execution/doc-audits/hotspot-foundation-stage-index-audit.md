@@ -3,8 +3,8 @@ docs_anchor:
   - docs/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md
   - docs/system/libs/mapgen/reference/STANDARD-RECIPE.md
   - docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/packages/mapgen-core/src/authoring/stage.ts
-audited_file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+  - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/packages/mapgen-core/src/authoring/stage.ts
+audited_file: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
 branch: codex/prr-m4-s06-test-rewrite-architecture-scans
 audit_date: 2026-02-15
 audit_type: hotspot-architecture
@@ -19,11 +19,11 @@ audit_type: hotspot-architecture
 ### HIGH — F1: Duplicate normalization authority (stage compile vs step/op normalize)
 
 - Evidence:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:534`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:603`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:646`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/mesh.ts:17`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/plateGraph.ts:17`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:534`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:603`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:646`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/mesh.ts:17`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/plateGraph.ts:17`
   - `docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:283`
 - Why this is a hotspot:
   - Stage compile applies `plateCount` knob transforms and clamps, but the same transform is also applied in `step.normalize` for both `mesh` and `plate-graph`.
@@ -34,13 +34,13 @@ audit_type: hotspot-architecture
 ### HIGH — F2: Stage compile re-authors op defaults already owned by op contracts
 
 - Evidence:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:280`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:371`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:598`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/packages/mapgen-core/src/compiler/normalize.ts:185`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-mantle-forcing/contract.ts:8`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-motion/contract.ts:10`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/contract.ts:10`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:280`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:371`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:598`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/packages/mapgen-core/src/compiler/normalize.ts:185`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-mantle-forcing/contract.ts:8`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-motion/contract.ts:10`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/contract.ts:10`
 - Why this is a hotspot:
   - The compiler can prefill op envelope defaults directly from op contracts, but this stage manually inlines many of those same defaults (`COMMON_*` constants + explicit envelope config objects).
   - This duplicates canonical default ownership and turns compile into a broad defaulting engine instead of a mapper.
@@ -48,9 +48,9 @@ audit_type: hotspot-architecture
 ### MEDIUM — F3: Public-schema ranges, compile clamps, and op-contract ranges are misaligned
 
 - Evidence:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:55`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:564`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-mantle-potential/contract.ts:7`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:55`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:564`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-mantle-potential/contract.ts:7`
 - Why this is a hotspot:
   - `advanced.mantleForcing.plumeCount/downwellingCount` are exposed as `0..128`, then compile clamps to `2..16`, while op strategy allows `0..32`.
   - This is a stage-boundary smell: three authorities define different semantics for the same value, increasing surprise and reducing predictability of authoring behavior.
@@ -58,9 +58,9 @@ audit_type: hotspot-architecture
 ### MEDIUM — F4: Compile emits config that is not consumed by the tectonics step runtime path
 
 - Evidence:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:659`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts:102`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts:24`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:659`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts:102`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts:24`
 - Why this is a hotspot:
   - Stage compile writes `tectonics.computePlateMotion`, but the step uses hardcoded `ERA_PLATE_MOTION_STRATEGY` for era replay.
   - This creates a false authoring affordance and makes stage-level tuning appear broader than what runtime actually honors.
@@ -68,10 +68,10 @@ audit_type: hotspot-architecture
 ### LOW — F5: Compile fallback and duplicate profile constants suggest dead/overlapping logic
 
 - Evidence:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:261`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:532`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:350`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:357`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:261`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:532`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:350`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:357`
 - Why this is a hotspot:
   - `profiles` is required in schema, but compile still carries a fallback default path.
   - `COMMON_CRUST_BALANCED` and `COMMON_CRUST_STANDARD` are currently identical, adding indirection without behavior distinction.
@@ -88,7 +88,7 @@ audit_type: hotspot-architecture
 ## Commands Run
 
 ```bash
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
 pwd && git rev-parse --abbrev-ref HEAD
 git status --short --branch
 rg --files -g 'AGENTS.md'

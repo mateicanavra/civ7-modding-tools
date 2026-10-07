@@ -10,10 +10,10 @@ final rereview lanes or packet-index closure step.
 ## Sources Read
 
 - Mandatory skill anchors:
-  - `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`
-  - `/Users/mateicanavra/.agents/skills/information-design/SKILL.md`
-  - `/Users/mateicanavra/.agents/skills/testing-design/SKILL.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md`
+  - `<user-home>/.agents/skills/domain-design/SKILL.md`
+  - `<user-home>/.agents/skills/information-design/SKILL.md`
+  - `<user-home>/.agents/skills/testing-design/SKILL.md`
+  - `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md`
   - `civ7-open-spec-workstream/references/source-map.md`
   - `civ7-open-spec-workstream/references/artifact-contracts.md`
   - `civ7-open-spec-workstream/references/validation-checks.md`
@@ -150,7 +150,7 @@ implementation from starting early.
 ## Validation Evidence
 
 Commands run from
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`:
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`:
 
 | Gate | Result | Non-claim |
 | --- | --- | --- |

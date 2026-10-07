@@ -3,7 +3,7 @@
 ## Snapshot
 - Base branch: `agent-SWANKO-PRR-s112-c01-fix-driverStrength-proportional`
 - Orchestrator branch: `codex/agent-ORCH-foundation-domain-axe-spike`
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-agent-ORCH-foundation-domain-axe-spike`
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-agent-ORCH-foundation-domain-axe-spike`
 
 ## Confirmed Facts (seed)
 1. Foundation stage is monolithic (`id: foundation`) with 10 sequential steps.

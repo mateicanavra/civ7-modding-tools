@@ -2,44 +2,44 @@
 
 ## Skills Read
 
-- `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/domain-design/SKILL.md`
-- `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/information-design/SKILL.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-systematic-workstream/SKILL.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/source-map.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/phase-loop.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/artifact-contracts.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/validation-checks.md`
-- `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/testing-design/SKILL.md`
-- `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/solution-design/SKILL.md`
-- `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/system-design/SKILL.md`
-- `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/dev/1.0.0/skills/typescript/SKILL.md`
+- `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/domain-design/SKILL.md`
+- `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/information-design/SKILL.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-systematic-workstream/SKILL.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/source-map.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/phase-loop.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/artifact-contracts.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/validation-checks.md`
+- `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/testing-design/SKILL.md`
+- `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/solution-design/SKILL.md`
+- `<user-home>/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/system-design/SKILL.md`
+- `<user-home>/.codex/plugins/cache/rawr-hq/dev/1.0.0/skills/typescript/SKILL.md`
 
 ## Sources Read
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/AGENTS.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/AGENTS.md`
 - `docs/projects/habitat-harness/openspec-remediation-frame.md`
 - `docs/projects/habitat-harness/openspec-remediation/packet-index.md`
 - `docs/projects/habitat-harness/phase2-workstream-packets/D2-rule-registry-metadata-contract.md`
 - `docs/projects/habitat-harness/phase2-workstream-packets/D0-scenario-public-contract-inventory.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d0-command-surface-inventory/**`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/proposal.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/tasks.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/specs/habitat-harness/spec.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/phase-record.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/review-disposition-ledger.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/downstream-realignment-ledger.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/closure-checklist.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/architecture.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/rules.json`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/generated-zones.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/generators/pattern/registration.cjs`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/rule-selection.test.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d0-command-surface-inventory/**`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/proposal.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/tasks.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/specs/habitat-harness/spec.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/phase-record.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/review-disposition-ledger.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/downstream-realignment-ledger.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/closure-checklist.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/architecture.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/rules.json`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/generated-zones.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/generators/pattern/registration.cjs`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/rule-selection.test.ts`
 - `docs/DOMAIN-MAPPING.md`
 
 Validation command run:
@@ -60,17 +60,17 @@ The packet describes the desired direction, but it does not yet define the contr
 
 The current registry has 51 rules and 16 observed fields: `detect`, `exceptionPath`, `forbiddenFileNames`, `forbids`, `generatedZone`, `gritPattern`, `hookScope`, `id`, `lane`, `message`, `nxTarget`, `ownerProject`, `ownerTool`, `remediate`, `scope`, and `why`. Existing consumers do not need the same facets:
 
-- `HarnessRule` currently exposes the whole mixed record, including prose and execution fields, at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/architecture.ts:16`.
-- `classifyRuleScope` still derives exact-path and workspace-gate behavior from prose `scope` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:886` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:955`.
-- The Nx plugin hard-codes owner roots and aliases `rule.nxTarget` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:17` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:223`.
-- Baseline integrity has its own parser that projects only `id` and `exceptionPath` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts:753`.
-- Generated zones are maintained as a separate code table, not a host declaration link, at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/generated-zones.ts:17`.
+- `HarnessRule` currently exposes the whole mixed record, including prose and execution fields, at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/architecture.ts:16`.
+- `classifyRuleScope` still derives exact-path and workspace-gate behavior from prose `scope` at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:886` and `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:955`.
+- The Nx plugin hard-codes owner roots and aliases `rule.nxTarget` at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:17` and `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:223`.
+- Baseline integrity has its own parser that projects only `id` and `exceptionPath` at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts:753`.
+- Generated zones are maintained as a separate code table, not a host declaration link, at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/generated-zones.ts:17`.
 
 Required repair: add a D2-owned registry inventory and projection matrix before acceptance. For each consumer, name the projection, exact fields, required/optional facet states, refusal condition, public surface impact, and forbidden source fields. At minimum, cover selector, classify routing, workspace graph/Nx target aliasing, baseline integrity, Grit scan/pattern projection, generated-zone guard, Pattern Authority registration, hook scope, and diagnostic pattern catalog handoff.
 
 ### P1-2: Public-surface compatibility and D0/D1 dependency state are unresolved
 
-D2 requires D0 and D1 in the packet index, but those rows are still "draft scaffold; global constraints applied; per-domino adversarial gate BLOCKING." The D2 design only says the executor must have "D0 compatibility disposition" before implementation at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md:47`, and `tasks.md` says to "Re-run or cite the required dependency gates: D0, D1" at line 10. It never defines which D0/D1 artifacts must exist, which D0 rows D2 touches, or what compatibility handling is valid.
+D2 requires D0 and D1 in the packet index, but those rows are still "draft scaffold; global constraints applied; per-domino adversarial gate BLOCKING." The D2 design only says the executor must have "D0 compatibility disposition" before implementation at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md:47`, and `tasks.md` says to "Re-run or cite the required dependency gates: D0, D1" at line 10. It never defines which D0/D1 artifacts must exist, which D0 rows D2 touches, or what compatibility handling is valid.
 
 This is not a minor sequencing note. D2 can change command JSON/human output for `classify`, `check --json`, Nx inferred target metadata, pattern generator behavior, hook-scoped rule behavior, and package-level exported types. D0 explicitly says later packets may not move or narrow public surfaces before classification, and D2's scaffold has not linked any compatibility rows. D1 may also affect receipt or command outcome language for malformed metadata, but D2 does not state whether these failures are diagnostics, check results, command outcome receipts, or something else.
 
@@ -78,7 +78,7 @@ Required repair: keep D2 blocked until accepted D0/D1 records exist, or amend D2
 
 ### P1-3: OpenSpec spec delta is too thin to control implementation
 
-The spec delta has one broad requirement and two scenarios. It only states that consumers use "the smallest typed registry projection" and do not parse prose at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/specs/habitat-harness/spec.md:5`, then gives a routing scenario and a generic insufficient-metadata scenario at lines 7-13.
+The spec delta has one broad requirement and two scenarios. It only states that consumers use "the smallest typed registry projection" and do not parse prose at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/specs/habitat-harness/spec.md:5`, then gives a routing scenario and a generic insufficient-metadata scenario at lines 7-13.
 
 This misses most of D2's own contract. There is no normative scenario for:
 
@@ -101,13 +101,13 @@ Required repair: expand `specs/habitat-harness/spec.md` into separate requiremen
 
 The validation list in `tasks.md` lines 20-25 runs existing rule-selection and Pattern Authority tests, `classify`, `nx show project`, OpenSpec validation, and `git diff --check`. The source D2 packet required a field inventory, consumer projection matrix, malformed-rule scenarios, and an injected bad case. The OpenSpec scaffold dropped those oracles.
 
-Current tests in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/rule-selection.test.ts:38` cover selector facts, and lines 121-161 cover staged Grit selection. They do not prove that every consumer stopped parsing prose, that malformed facets fail before execution, that Nx target alias metadata is structured, or that generated-zone metadata is host-declared.
+Current tests in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/rule-selection.test.ts:38` cover selector facts, and lines 121-161 cover staged Grit selection. They do not prove that every consumer stopped parsing prose, that malformed facets fail before execution, that Nx target alias metadata is structured, or that generated-zone metadata is host-declared.
 
 Required repair: add required validation oracles for at least one malformed row per facet class, a projection matrix test, a command JSON compatibility test, an Nx target metadata assertion, and a classify test that would fail if prose `scope` parsing remains authoritative.
 
 ### P2-2: Downstream realignment is generic and does not protect enabled dominoes
 
-D2 enables D3, D4, D5, D6, D7, D8, D10, and D13, but the downstream ledger only says "Later domino packets | pending | Update dependency assumptions if review changes D2 contract" at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/downstream-realignment-ledger.md:9`.
+D2 enables D3, D4, D5, D6, D7, D8, D10, and D13, but the downstream ledger only says "Later domino packets | pending | Update dependency assumptions if review changes D2 contract" at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/downstream-realignment-ledger.md:9`.
 
 That is insufficient for a high-fanout packet. Each downstream packet depends on a different D2 projection: D3 graph roots and targets, D4 routing facts, D5 baseline facts, D6 Grit/pattern facts, D7 enforcement selection, D8 Pattern Authority status, D10 generated-zone authority, and D13 scaffolding/refusal registration. Without a per-domino contract row, downstream implementation can reinterpret D2 independently.
 
@@ -123,7 +123,7 @@ Required repair: add a terminology table with columns for current term, target t
 
 ### P2-4: Tasks remain open design work
 
-Implementation tasks 2.1 through 2.3 are phrased as broad outcomes: define facets, move authority, add refusal states. They do not name files, modules, tests, sequence, migration checkpoints, or consumer-by-consumer cuts. The design itself admits implementation needs a "concrete write set and protected path list" later at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md:51`.
+Implementation tasks 2.1 through 2.3 are phrased as broad outcomes: define facets, move authority, add refusal states. They do not name files, modules, tests, sequence, migration checkpoints, or consumer-by-consumer cuts. The design itself admits implementation needs a "concrete write set and protected path list" later at `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md:51`.
 
 Required repair: turn tasks into ordered, bounded implementation steps after the projection matrix exists. Each step should name the target files, consumer contract, test, and stop condition.
 

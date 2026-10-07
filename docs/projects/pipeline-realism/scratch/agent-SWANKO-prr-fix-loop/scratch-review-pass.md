@@ -13,7 +13,7 @@ Conventions:
 ## Log
 
 ### 2026-02-14 (setup)
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-SWANKO-prr-stack-pr-comments-ledger`
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-SWANKO-prr-stack-pr-comments-ledger`
 - Base branch: `codex/prr-stack-pr-comments-ledger` (PR #1201)
 - Review branch: `agent-SWANKO-PRR-ledger-review-full-chain`
 - Tooling prep:

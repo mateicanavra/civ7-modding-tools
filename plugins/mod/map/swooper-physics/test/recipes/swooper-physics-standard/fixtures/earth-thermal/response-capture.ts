@@ -10,7 +10,6 @@ import { solarGeometrySource } from "./solar-geometry.js";
 const fixtureDirectory = dirname(fileURLToPath(import.meta.url));
 const projectDirectory = resolve(fixtureDirectory, "../../../../..");
 const repositoryDirectory = resolve(projectDirectory, "../../../..");
-const defaultOutput = "/Users/mateicanavra/Library/Application Support/Civ7Tools/VisualAtlas/huge-1018/earth-calibration/thermal-response-20260929";
 const hash = (bytes: string | Uint8Array) => createHash("sha256").update(bytes).digest("hex");
 const json = (value: unknown) => Buffer.from(`${JSON.stringify(value, null, 2)}\n`);
 
@@ -76,7 +75,7 @@ async function capture(outputRoot: string) {
   const receipt = {
     schemaVersion: 1, createdAt, repositoryDirectory,
     runtime: { executable: process.execPath, bun: Bun.version, versions: process.versions, platform: process.platform, architecture: process.arch },
-    command: "bun plugins/mod/map/swooper-physics/test/recipes/swooper-physics-standard/fixtures/earth-thermal/response-capture.ts [output-root]",
+    command: "bun plugins/mod/map/swooper-physics/test/recipes/swooper-physics-standard/fixtures/earth-thermal/response-capture.ts <output-root>",
     primarySources: [responsePaperSource, solarGeometrySource],
     protocol: responseStudyProtocol,
     sourceIdentityScope: "Exact test-owned response imports, study note/test, package and lockfile. No production dependency or whole-worktree stability claim.",
@@ -93,4 +92,8 @@ async function capture(outputRoot: string) {
   console.log(JSON.stringify({ outputDirectory, receiptSha256: hash(receiptBytes), samples: samples.length }, null, 2));
 }
 
-if (import.meta.main) await capture(resolve(process.argv[2] ?? defaultOutput));
+if (import.meta.main) {
+  const outputRoot = process.argv[2];
+  if (!outputRoot) throw new Error("Usage: bun response-capture.ts <output-root>");
+  await capture(resolve(outputRoot));
+}

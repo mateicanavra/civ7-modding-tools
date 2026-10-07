@@ -26,11 +26,11 @@ which is only present behavior, and which later domino owns any redesign.
 - Current user direction: design one change packet at a time, deeply, before
   moving to the next packet.
 - Remediation frame:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation-frame.md`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation-frame.md`.
 - Source domino packet:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D0-scenario-public-contract-inventory.md`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D0-scenario-public-contract-inventory.md`.
 - D0 per-domino review:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D0-review.md`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D0-review.md`.
 - Domain Design, Information Design, Solution Design, Testing Design,
   Systematic Workstream, OpenSpec Workstream, and TypeScript Refactoring skills.
 - Current Habitat code/tests/docs as present-behavior evidence only.

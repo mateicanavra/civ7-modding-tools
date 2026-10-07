@@ -4,16 +4,16 @@
 
 Final information-design rereview of the repaired D2 Rule Registry Metadata Contract packet:
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract`
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract`
 
 This review decides whether D2 now clears the prior P1/P2 blockers for design/specification acceptance in the information-design lane. It does not implement source code and does not edit D2 packet files.
 
 ## Required Anchors Read
 
-- `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/information-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/solution-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/system-design/SKILL.md`
+- `<user-home>/.agents/skills/domain-design/SKILL.md`
+- `<user-home>/.agents/skills/information-design/SKILL.md`
+- `<user-home>/.agents/skills/solution-design/SKILL.md`
+- `<user-home>/.agents/skills/system-design/SKILL.md`
 - Root `AGENTS.md`
 - D2 source packet: `docs/projects/habitat-harness/phase2-workstream-packets/D2-rule-registry-metadata-contract.md`
 - Remediation frame and packet index

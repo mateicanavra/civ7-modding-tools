@@ -13,7 +13,7 @@ accepted/live G-HOST projections, concrete D0 rows, and D1 output-family handlin
 
 ## Review Scope
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
 - Branch: `codex/host-policy-boundary-gate-packet`
 - Source packet:
   `docs/projects/habitat-harness/phase2-workstream-packets/G-HOST-host-policy-boundary-gate.md`

@@ -8,16 +8,16 @@ This is an integration mechanics task, not a product feature task.
 ## Working context
 ```yaml
 agent: RS1
-worktree: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
+worktree: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
 branch_expected: codex/prr-m4-s06d-foundation-scratch-audit-ledger
-repo_root: /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools
+repo_root: <user-home>/Documents/.nosync/DEV/civ7-modding-tools
 ```
 
 ## Required startup protocol (docs + introspection)
 Before mutating anything:
-1. Read skill: `/Users/mateicanavra/.codex-rawr/skills/introspect/SKILL.md`
-2. Read skill: `/Users/mateicanavra/.codex-rawr/skills/graphite/SKILL.md`
-3. Read skill: `/Users/mateicanavra/.codex-rawr/skills/git-worktrees/SKILL.md`
+1. Read skill: `<user-home>/.codex-rawr/skills/introspect/SKILL.md`
+2. Read skill: `<user-home>/.codex-rawr/skills/graphite/SKILL.md`
+3. Read skill: `<user-home>/.codex-rawr/skills/git-worktrees/SKILL.md`
 4. Confirm Graphite stack topology from this worktree and record it.
 
 Record attestation in this file with absolute paths and concrete command outputs.
@@ -56,15 +56,15 @@ A clean, correctly-anchored Graphite stack in the integration worktree, ready fo
 
 ## RS1 attestation (2026-02-15T07:13:33Z)
 
-- Worktree root: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
-- Repo root (resolved): /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
+- Worktree root: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
+- Repo root (resolved): <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
 - Branch at start: codex/prr-m4-s06d-foundation-scratch-audit-ledger
 - Required skills read:
-  - /Users/mateicanavra/.codex-rawr/skills/introspect/SKILL.md
-  - /Users/mateicanavra/.codex-rawr/skills/graphite/SKILL.md
-  - /Users/mateicanavra/.codex-rawr/skills/git-worktrees/SKILL.md
+  - <user-home>/.codex-rawr/skills/introspect/SKILL.md
+  - <user-home>/.codex-rawr/skills/graphite/SKILL.md
+  - <user-home>/.codex-rawr/skills/git-worktrees/SKILL.md
 - Repo/router docs read:
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/AGENTS.md
+  - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/AGENTS.md
   - docs/process/GRAPHITE.md
 - Baseline Graphite stack (◉  codex/prr-m4-s06d-foundation-scratch-audit-ledger
 ◯  codex/prr-m4-s06c-foundation-guardrails-hardening
@@ -110,15 +110,15 @@ A clean, correctly-anchored Graphite stack in the integration worktree, ready fo
 ## RS1 attestation correction (2026-02-15T07:13:58Z)
 
 ```yaml
-worktree_root: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
-repo_root_resolved: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
+worktree_root: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
+repo_root_resolved: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
 branch_at_start: codex/prr-m4-s06d-foundation-scratch-audit-ledger
 required_skills_read:
-  - /Users/mateicanavra/.codex-rawr/skills/introspect/SKILL.md
-  - /Users/mateicanavra/.codex-rawr/skills/graphite/SKILL.md
-  - /Users/mateicanavra/.codex-rawr/skills/git-worktrees/SKILL.md
+  - <user-home>/.codex-rawr/skills/introspect/SKILL.md
+  - <user-home>/.codex-rawr/skills/graphite/SKILL.md
+  - <user-home>/.codex-rawr/skills/git-worktrees/SKILL.md
 repo_router_docs_read:
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/AGENTS.md
+  - <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/AGENTS.md
   - docs/process/GRAPHITE.md
 baseline_refs:
   head: 8462f9532a21ce83e4bb76d5046531ace74b3e12
@@ -168,7 +168,7 @@ git status --short --ignore-submodules=all
 1. `gt sync --no-restack`
 2. `gt ls --stack`
 3. `gt restack`  (failed mid-run due submodule worktree pointer)
-4. `git config -f /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/.git/worktrees/wt-codex-prr-m4-s05-guardrails/modules/.civ7/outputs/resources/config core.worktree /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/.civ7/outputs/resources`
+4. `git config -f <user-home>/Documents/.nosync/DEV/civ7-modding-tools/.git/worktrees/wt-codex-prr-m4-s05-guardrails/modules/.civ7/outputs/resources/config core.worktree <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/.civ7/outputs/resources`
 5. `gt ls --stack`
 6. `gt restack`  (stopped at unstaged changes gate)
 7. `git stash push --include-untracked -m 'RS1-temp-pre-restack' -- docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/master-scratch.md docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-RS1-restack-integration.md`
@@ -184,7 +184,7 @@ git status --short --ignore-submodules=all
 ### Conflicts and resolutions
 ```yaml
 conflicts:
-  - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps/src/presets/standard/earthlike.json
+  - file: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps/src/presets/standard/earthlike.json
     phase: gt restack (rebasing codex/prr-m4-s06a-foundation-knobs-surface onto codex/prr-m4-s06-test-rewrite-architecture-scans)
     resolution: kept rebase target side via `git checkout --ours` to preserve newer split ecology stage structure in parent lineage
     commands:

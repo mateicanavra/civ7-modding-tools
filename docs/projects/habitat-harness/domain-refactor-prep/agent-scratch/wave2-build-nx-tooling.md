@@ -1,7 +1,7 @@
 # Wave 2 Scratch: Build / Nx / Tooling
 
 Role lane: Build/Nx/Tooling Analyst.
-Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`.
+Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`.
 Branch: `codex/habitat-fast-lint-checks`.
 
 This is preparation evidence only. It does not author final Phase 2 packets and
@@ -9,7 +9,7 @@ does not authorize implementation.
 
 ## Preflight Evidence
 
-- `/bin/pwd` in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame` returned `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`.
+- `/bin/pwd` in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame` returned `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`.
 - `/usr/bin/git branch --show-current` returned `codex/habitat-fast-lint-checks`.
 - `/usr/bin/git status --short --branch` initially returned only `## codex/habitat-fast-lint-checks`.
 - Required domain docs existed:
@@ -25,13 +25,13 @@ does not authorize implementation.
   and
   `docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`.
 - Root integration:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/package.json`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/nx.json`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tsconfig.base.json`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/vitest.config.ts`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/eslint.boundaries.config.mjs`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/package.json`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/nx.json`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tsconfig.base.json`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/vitest.config.ts`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/eslint.boundaries.config.mjs`.
 - Habitat docs:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/README.md`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/README.md`
   plus `docs/CAPABILITIES.md`,
   `docs/IMPLEMENTED-SURFACE.md`,
   `docs/SCENARIOS.md`,
@@ -39,22 +39,22 @@ does not authorize implementation.
   `docs/DOMAIN-MAPPING.md`,
   and `docs/AUTHORING-NEXT.md`.
 - Habitat source:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/package.json`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/plugin.js`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/command-engine.ts`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/nx-projects.ts`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/workspace-tools.ts`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/hooks.ts`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/habitat-process.ts`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/proof-artifact.ts`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/boundary-taxonomy.ts`,
-  command classes under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/commands`,
-  and relevant tests under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/test`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/package.json`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/plugin.js`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/command-engine.ts`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/nx-projects.ts`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/workspace-tools.ts`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/hooks.ts`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/habitat-process.ts`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/proof-artifact.ts`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/boundary-taxonomy.ts`,
+  command classes under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/commands`,
+  and relevant tests under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/test`.
 
 ## Build / Tooling Map
 
-- Root package manager is Bun: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/package.json` declares `packageManager: bun@1.3.14`, `engines.node: 22.22.0`, and workspaces `apps/*`, `packages/*`, `packages/plugins/*`, `mods/*`, `tools/*`.
-- Actual executable evidence: `/Users/mateicanavra/.bun/bin/bun --version` returned `1.3.14`; `/Users/mateicanavra/.bun/bin/nx` is the resolved Nx executable.
+- Root package manager is Bun: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/package.json` declares `packageManager: bun@1.3.14`, `engines.node: 22.22.0`, and workspaces `apps/*`, `packages/*`, `packages/plugins/*`, `mods/*`, `tools/*`.
+- Actual executable evidence: `<user-home>/.bun/bin/bun --version` returned `1.3.14`; `<user-home>/.bun/bin/nx` is the resolved Nx executable.
 - Root scripts are mostly graph entrypoints:
   `check` -> `nx run-many --targets=build,check,lint,test,verify`,
   `lint` -> `nx run @habitat/cli:biome:ci`,
@@ -62,7 +62,7 @@ does not authorize implementation.
   `habitat` -> `bun tools/habitat/bin/dev.ts`,
   `habitat:check` -> `bun run habitat check`,
   `habitat:fix` -> `bun run habitat fix`.
-- Nx loads the Habitat inference plugin from `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/plugin.js` via `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/nx.json`.
+- Nx loads the Habitat inference plugin from `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/plugin.js` via `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/nx.json`.
 - The plugin infers repo-wide targets on `@habitat/cli`: `biome:format`, `biome:check`, `biome:ci`, `boundaries`, `grit:check`, `generated:check`, `habitat:check:all`, per-rule `habitat:rule:<rule-id>`, and per-owner `habitat:check`.
 - `tools/habitat/package.json` still owns package-local `check` as `tsc -p tsconfig.json --noEmit` and `test` as `vitest run --project habitat-harness --testTimeout=30000`.
 - `tools/habitat/src/lib/workspace-tools.ts` materializes workspace-owned tool execution through `bun run --cwd <repoRoot> <tool>` for `biome`, `grit`, `nx`, `oclif`, `rimraf`, `tsc`, and `vitest`; `openspec` uses `bun x --no-install`.
@@ -70,13 +70,13 @@ does not authorize implementation.
 
 ## Fresh Command Evidence
 
-- `/usr/bin/time -p /Users/mateicanavra/.bun/bin/bun run habitat --help` succeeded in about `0.15s` and listed `check`, `classify`, `fix`, `graph`, `help`, `hook`, and `verify`.
-- `/usr/bin/time -p /Users/mateicanavra/.bun/bin/bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/plugin.js` succeeded in about `0.94s`; output mapped the path to project `@habitat/cli`, tags `npm:private` and `kind:tooling`, targets `nx run @habitat/cli:check`, `nx run @habitat/cli:test`, and `bun run lint`.
-- `/usr/bin/time -p /Users/mateicanavra/.bun/bin/bun run habitat check --rule rule-selection-integrity --json` returned schemaVersion 1 JSON and exit `1`, proving selector validation because `rule-selection-integrity` is a built-in report rule, not a selectable registry rule.
-- `/usr/bin/time -p /Users/mateicanavra/.bun/bin/nx show project @habitat/cli --json` succeeded in about `1.04s` and showed inferred Habitat targets plus package-local targets.
-- `/usr/bin/time -p /Users/mateicanavra/.bun/bin/nx show projects --affected --base=HEAD --head=HEAD --json` returned `[]` in about `0.91s`.
-- `/usr/bin/time -p /Users/mateicanavra/.bun/bin/nx run @habitat/cli:check --outputStyle=static` passed in about `5.31s`.
-- `/usr/bin/time -p /Users/mateicanavra/.bun/bin/nx run @habitat/cli:test --outputStyle=static` failed twice in about `21-22s`; isolated `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/test/lib/boundary-taxonomy.test.ts` passed in about `1.34s`, and a direct audit evaluator reported `ok: true`. The full-suite failure is therefore a robustness/current-proof risk, not settled evidence that taxonomy itself is currently wrong.
+- `/usr/bin/time -p <user-home>/.bun/bin/bun run habitat --help` succeeded in about `0.15s` and listed `check`, `classify`, `fix`, `graph`, `help`, `hook`, and `verify`.
+- `/usr/bin/time -p <user-home>/.bun/bin/bun run habitat classify <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/plugin.js` succeeded in about `0.94s`; output mapped the path to project `@habitat/cli`, tags `npm:private` and `kind:tooling`, targets `nx run @habitat/cli:check`, `nx run @habitat/cli:test`, and `bun run lint`.
+- `/usr/bin/time -p <user-home>/.bun/bin/bun run habitat check --rule rule-selection-integrity --json` returned schemaVersion 1 JSON and exit `1`, proving selector validation because `rule-selection-integrity` is a built-in report rule, not a selectable registry rule.
+- `/usr/bin/time -p <user-home>/.bun/bin/nx show project @habitat/cli --json` succeeded in about `1.04s` and showed inferred Habitat targets plus package-local targets.
+- `/usr/bin/time -p <user-home>/.bun/bin/nx show projects --affected --base=HEAD --head=HEAD --json` returned `[]` in about `0.91s`.
+- `/usr/bin/time -p <user-home>/.bun/bin/nx run @habitat/cli:check --outputStyle=static` passed in about `5.31s`.
+- `/usr/bin/time -p <user-home>/.bun/bin/nx run @habitat/cli:test --outputStyle=static` failed twice in about `21-22s`; isolated `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/test/lib/boundary-taxonomy.test.ts` passed in about `1.34s`, and a direct audit evaluator reported `ok: true`. The full-suite failure is therefore a robustness/current-proof risk, not settled evidence that taxonomy itself is currently wrong.
 
 ## Target Dependency Model For Phase 2 Packets
 
@@ -92,9 +92,9 @@ does not authorize implementation.
 ## Risks
 
 - P1: `@habitat/cli:test` currently fails under the full target, repeatably in this session. Failures observed:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/test/lib/boundary-taxonomy.test.ts` assertion `audit.ok` false in full suite but pass in isolation, and
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/test/lib/enforcement-surface.test.ts` expected a wrapped-test direct command exit `0` but observed `1`. Phase 2 should treat full-suite test reliability as a prerequisite for proof claims.
-- P1: Inferred alias `@habitat/cli:habitat:rule:biome-ci` is miswired. `nx show project @habitat/cli --json` shows its `dependsOn` as `{"projects":["biome"],"target":"ci"}`. `/Users/mateicanavra/.bun/bin/nx show project biome --json` fails with `Could not find project biome`, and running the alias prints an Nx misconfigured `dependsOn` warning while still running the no-op `node -e ""`. This can create false green proof for the Biome rule alias.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/test/lib/boundary-taxonomy.test.ts` assertion `audit.ok` false in full suite but pass in isolation, and
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/test/lib/enforcement-surface.test.ts` expected a wrapped-test direct command exit `0` but observed `1`. Phase 2 should treat full-suite test reliability as a prerequisite for proof claims.
+- P1: Inferred alias `@habitat/cli:habitat:rule:biome-ci` is miswired. `nx show project @habitat/cli --json` shows its `dependsOn` as `{"projects":["biome"],"target":"ci"}`. `<user-home>/.bun/bin/nx show project biome --json` fails with `Could not find project biome`, and running the alias prints an Nx misconfigured `dependsOn` warning while still running the no-op `node -e ""`. This can create false green proof for the Biome rule alias.
 - P2: Plugin `habitatInputs` and `biomeInputs` are deliberately broad (`apps/**`, `packages/**`, `mods/**`, `tools/**`, `docs/**`). That is safe against stale cache masking, but expensive and may make small doc/tooling changes invalidate many Habitat targets.
 - P2: `command-engine.ts` concentrates multiple domains and proof classes in one module, increasing the chance that a performance fix or command refactor crosses authority boundaries accidentally.
 - P2: `runGraph` shells to `nx graph --file <tmp>` and parses the emitted file. This proves current behavior, but a future packet should decide whether graph export belongs to Workspace Graph Integration or Proof Contract and whether the temporary-file protocol is the intended public contract.
@@ -115,13 +115,13 @@ does not authorize implementation.
 
 Use absolute commands from the mandated worktree:
 
-- `/Users/mateicanavra/.bun/bin/bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/plugin.js`
-- `/Users/mateicanavra/.bun/bin/nx show project @habitat/cli --json`
-- `/Users/mateicanavra/.bun/bin/nx run @habitat/cli:check --outputStyle=static`
-- `/Users/mateicanavra/.bun/bin/nx run @habitat/cli:test --outputStyle=static`
-- `/Users/mateicanavra/.bun/bin/bun run habitat check --rule rule-selection-integrity --json`
-- `/Users/mateicanavra/.bun/bin/nx run @habitat/cli:habitat:rule:biome-ci --outputStyle=static`
-- `/Users/mateicanavra/.bun/bin/nx show projects --affected --base=HEAD --head=HEAD --json`
+- `<user-home>/.bun/bin/bun run habitat classify <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/plugin.js`
+- `<user-home>/.bun/bin/nx show project @habitat/cli --json`
+- `<user-home>/.bun/bin/nx run @habitat/cli:check --outputStyle=static`
+- `<user-home>/.bun/bin/nx run @habitat/cli:test --outputStyle=static`
+- `<user-home>/.bun/bin/bun run habitat check --rule rule-selection-integrity --json`
+- `<user-home>/.bun/bin/nx run @habitat/cli:habitat:rule:biome-ci --outputStyle=static`
+- `<user-home>/.bun/bin/nx show projects --affected --base=HEAD --head=HEAD --json`
 
 ## Stop Conditions
 

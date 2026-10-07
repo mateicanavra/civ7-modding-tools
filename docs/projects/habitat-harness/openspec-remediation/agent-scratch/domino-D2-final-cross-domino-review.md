@@ -8,10 +8,10 @@ This is not source implementation acceptance. D2 remains not implementation-comp
 
 ## Sources Read
 
-- `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/information-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/solution-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/system-design/SKILL.md`
+- `<user-home>/.agents/skills/domain-design/SKILL.md`
+- `<user-home>/.agents/skills/information-design/SKILL.md`
+- `<user-home>/.agents/skills/solution-design/SKILL.md`
+- `<user-home>/.agents/skills/system-design/SKILL.md`
 - `.agents/skills/civ7-open-spec-workstream/SKILL.md`
 - `.agents/skills/civ7-open-spec-workstream/references/source-map.md`
 - `.agents/skills/civ7-open-spec-workstream/references/phase-loop.md`

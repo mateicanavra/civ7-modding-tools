@@ -123,10 +123,10 @@ accepted authority, stale residue, or accidental topology.
 `git worktree list` on 2026-06-09:
 
 - primary checkout:
-  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools`
+  `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools`
   at `design/a11y-fixes`
 - active river worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-mapgen-physical-rivers`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-mapgen-physical-rivers`
   at `codex/river-lake-adversarial-synthesis`
 
 Implication:

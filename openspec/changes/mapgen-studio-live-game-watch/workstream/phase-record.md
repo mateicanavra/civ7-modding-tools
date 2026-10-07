@@ -47,7 +47,7 @@
 
 ## Gate 2 - Repo State
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`
 - Branch: `codex/runtime-effect-live-game-watch`
 - Entrance status: clean above D9 commit `983218c02 feat(studio): push operation updates through events`.
 - Current implementation dirty files before commit: live-game watcher/runtime

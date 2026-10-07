@@ -113,14 +113,14 @@ Current active worktrees:
 
 | Worktree | Branch | State | Integration disposition |
 | --- | --- | --- | --- |
-| `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools` | `codex/studio-save-run-state-machine` | Dirty WIP; branch has no committed delta over `codex/studio-operation-state-completion` yet | Exclude from source integration until committed, parked, or explicitly deferred |
-| `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream` | `codex/resource-runtime-proof` | Dirty `NOTE-TO-DRA.md` | Repair or park records before replaying resource proof claims |
-| `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-systematic-skill-review` | `codex/systematic-skill-review-fixes` | Clean | Keep as separate docs/process stack unless literal single stack is required |
-| `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-systematic-workstream-skill-framing` | `codex/systematic-evidence-workstream-skill` | Clean | Keep with systematic skill stack |
-| `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-foundation-architecture-packet` | `codex/foundation-architecture-packet` | Clean | Planning context; include only if reviewer ergonomics require it |
-| `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-dra-authoring-surface-handoff-reference` | `codex/studio-sdk-authoring-surface-guards` | Dirty Earthlike config WIP | Unsafe parent/restack input until WIP is committed, parked, or classified |
-| `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-dra-morphology-direct-control-objective` | `codex/morphology-peer-review-repairs` | Clean | Replay after guards once dirty parent state is resolved |
-| `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-integration-stack-reference-frame` | `codex/integration-stack-reference-frame` | Clean before this record | Docs-only reference branch |
+| `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools` | `codex/studio-save-run-state-machine` | Dirty WIP; branch has no committed delta over `codex/studio-operation-state-completion` yet | Exclude from source integration until committed, parked, or explicitly deferred |
+| `<user-home>/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream` | `codex/resource-runtime-proof` | Dirty `NOTE-TO-DRA.md` | Repair or park records before replaying resource proof claims |
+| `<user-home>/Documents/.nosync/DEV/civ7/civ7-systematic-skill-review` | `codex/systematic-skill-review-fixes` | Clean | Keep as separate docs/process stack unless literal single stack is required |
+| `<user-home>/Documents/.nosync/DEV/civ7/civ7-systematic-workstream-skill-framing` | `codex/systematic-evidence-workstream-skill` | Clean | Keep with systematic skill stack |
+| `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-foundation-architecture-packet` | `codex/foundation-architecture-packet` | Clean | Planning context; include only if reviewer ergonomics require it |
+| `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-dra-authoring-surface-handoff-reference` | `codex/studio-sdk-authoring-surface-guards` | Dirty Earthlike config WIP | Unsafe parent/restack input until WIP is committed, parked, or classified |
+| `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-dra-morphology-direct-control-objective` | `codex/morphology-peer-review-repairs` | Clean | Replay after guards once dirty parent state is resolved |
+| `<user-home>/Documents/.nosync/DEV/worktrees/wt-integration-stack-reference-frame` | `codex/integration-stack-reference-frame` | Clean before this record | Docs-only reference branch |
 
 Dirty root WIP now includes Studio save/run state, map config save/deploy
 status, run-in-game request/status/state tests, Vite run-in-game restart/deploy

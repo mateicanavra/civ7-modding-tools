@@ -75,13 +75,13 @@ effect, and rollback.
 - `docs/projects/civ7-direct-control/workstream/control-surface-expansion/agent-action-surface.md`
 - `.civ7/outputs/resources/Base/Assets/schema/gameplay/01_GameplaySchema.sql`
 - `.civ7/outputs/resources/Base/modules/base-standard/ui/**/*.js`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Debug/gameplay-copy.sqlite`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/LocalStorage.sqlite`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Logs/Database.log`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Logs/Modding.log`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Logs/UI.log`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/civmods-rhq-39525/`
-- selected installed UI mods under `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/`
+- `<user-home>/Library/Application Support/Civilization VII/Debug/gameplay-copy.sqlite`
+- `<user-home>/Library/Application Support/Civilization VII/LocalStorage.sqlite`
+- `<user-home>/Library/Application Support/Civilization VII/Logs/Database.log`
+- `<user-home>/Library/Application Support/Civilization VII/Logs/Modding.log`
+- `<user-home>/Library/Application Support/Civilization VII/Logs/UI.log`
+- `<user-home>/Library/Application Support/Civilization VII/Mods/civmods-rhq-39525/`
+- selected installed UI mods under `<user-home>/Library/Application Support/Civilization VII/Mods/`
 
 ## Commands And Probes Run
 

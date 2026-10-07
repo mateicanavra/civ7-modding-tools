@@ -18,39 +18,39 @@ freshness, apply safety, or product/runtime correctness.
 
 ### Mandatory Skills
 
-- `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/information-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/axes.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/principles.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/where-defaults-hide.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/representation-choices.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/operationalization.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/maintenance.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/examples.md`
-- `/Users/mateicanavra/.agents/skills/ontology-design/references/source-map.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/references/axes.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/references/principles/principles.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/references/principles/universal.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/references/principles/heuristics.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/references/defaults/where-defaults-hide.md`
-- `/Users/mateicanavra/.agents/skills/testing-design/references/leaflet-software-testing.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/source-map.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/phase-loop.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/team-and-review-lanes.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/artifact-contracts.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/validation-checks.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/failure-patterns.md`
+- `<user-home>/.agents/skills/domain-design/SKILL.md`
+- `<user-home>/.agents/skills/information-design/SKILL.md`
+- `<user-home>/.agents/skills/ontology-design/SKILL.md`
+- `<user-home>/.agents/skills/ontology-design/references/axes.md`
+- `<user-home>/.agents/skills/ontology-design/references/principles.md`
+- `<user-home>/.agents/skills/ontology-design/references/where-defaults-hide.md`
+- `<user-home>/.agents/skills/ontology-design/references/representation-choices.md`
+- `<user-home>/.agents/skills/ontology-design/references/operationalization.md`
+- `<user-home>/.agents/skills/ontology-design/references/maintenance.md`
+- `<user-home>/.agents/skills/ontology-design/references/examples.md`
+- `<user-home>/.agents/skills/ontology-design/references/source-map.md`
+- `<user-home>/.agents/skills/testing-design/SKILL.md`
+- `<user-home>/.agents/skills/testing-design/references/axes.md`
+- `<user-home>/.agents/skills/testing-design/references/principles/principles.md`
+- `<user-home>/.agents/skills/testing-design/references/principles/universal.md`
+- `<user-home>/.agents/skills/testing-design/references/principles/heuristics.md`
+- `<user-home>/.agents/skills/testing-design/references/defaults/where-defaults-hide.md`
+- `<user-home>/.agents/skills/testing-design/references/leaflet-software-testing.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/source-map.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/phase-loop.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/team-and-review-lanes.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/artifact-contracts.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/validation-checks.md`
+- `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/failure-patterns.md`
 
 ### Repo And Packet Inputs
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/AGENTS.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D11-local-feedback.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/context.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md`
-- Every file under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d11-local-feedback`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/AGENTS.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D11-local-feedback.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/context.md`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md`
+- Every file under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d11-local-feedback`
 - First-wave D11 scratch files:
   - `domino-D11-domain-ontology-investigation.md`
   - `domino-D11-typescript-state-investigation.md`
@@ -60,7 +60,7 @@ freshness, apply safety, or product/runtime correctness.
 
 ## Evidence Checked
 
-- Worktree/branch observed: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation` on `codex/d11-local-feedback-packet`.
+- Worktree/branch observed: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation` on `codex/d11-local-feedback-packet`.
 - Graphite is installed (`gt` available); no staging or commit was performed.
 - Existing dirty state was already present in the repaired packet/control files and first-wave scratch files before this final scratch write.
 - `bun run openspec -- validate deep-habitat-d11-local-feedback --strict`: passed; OpenSpec shape only.

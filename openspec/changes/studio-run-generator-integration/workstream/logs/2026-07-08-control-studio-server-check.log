@@ -11,7 +11,7 @@
 CLI Building entry: src/index.ts
 CLI Using tsconfig: tsconfig.json
 CLI tsup v8.5.1
-CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-map-policy/tsup.config.ts
+CLI Using tsup config: <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-map-policy/tsup.config.ts
 (node:85935) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 CLI Target: esnext
@@ -50,7 +50,7 @@ DTS dist/index.d.ts 62.46 KB
 CLI Building entry: src/index.ts, src/proof/advisor-warning-proof-policy.ts, src/proof/diplomacy-response-proof-policy.ts, src/proof/first-meet-response-proof-policy.ts, src/proof/government-choice-proof-policy.ts, src/proof/narrative-choice-proof-policy.ts, src/proof/notification-dismissal-proof-policy.ts, src/proof/population-placement-proof-policy.ts, src/proof/progression-player-choice-proof-policy.ts, src/proof/progression-target-proof-policy.ts, src/proof/town-focus-proof-policy.ts, src/proof/turn-completion-proof-policy.ts, src/proof/unit-target-proof-policy.ts, src/play/operations/production-choice-proof.ts, src/play/progression/choice-postconditions.ts, src/play/notifications/postconditions.ts
 CLI Using tsconfig: tsconfig.json
 CLI tsup v8.5.1
-CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-direct-control/tsup.config.ts
+CLI Using tsup config: <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-direct-control/tsup.config.ts
 (node:86196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 CLI Target: es2022
@@ -142,7 +142,7 @@ ESM ⚡️ Build success in 219ms
 CLI Building entry: src/index.ts
 CLI Using tsconfig: tsconfig.json
 CLI tsup v8.5.1
-CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/studio-contract/tsup.config.ts
+CLI Using tsup config: <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/studio-contract/tsup.config.ts
 (node:85932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 CLI Target: es2022
@@ -174,7 +174,7 @@ DTS dist/index.d.ts 600.14 KB
 CLI Building entry: src/index.ts
 CLI Using tsconfig: tsconfig.json
 CLI tsup v8.5.1
-CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/studio-run-workspace/tsup.config.ts
+CLI Using tsup config: <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/studio-run-workspace/tsup.config.ts
 (node:86928) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 CLI Target: es2022
@@ -195,7 +195,7 @@ DTS dist/index.d.ts 13.06 KB
 CLI Building entry: src/contract.ts, src/game-ui.ts, src/index.ts, src/runtime.ts
 CLI Using tsconfig: tsconfig.json
 CLI tsup v8.5.1
-CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-control-orpc/tsup.config.ts
+CLI Using tsup config: <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-control-orpc/tsup.config.ts
 (node:86516) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 CLI Target: esnext
@@ -227,7 +227,7 @@ CJS ⚡️ Build success in 217ms
 
 (node:87029) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
-wrote manifest to /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/tools/habitat/oclif.manifest.json
+wrote manifest to <user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/tools/habitat/oclif.manifest.json
 
 > nx run habitat:"build:bin-mode"
 

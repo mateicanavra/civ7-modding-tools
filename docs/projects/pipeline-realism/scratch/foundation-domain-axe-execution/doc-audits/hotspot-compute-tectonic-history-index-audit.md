@@ -1,7 +1,7 @@
 ---
 docs_anchor:
   audited_at: 2026-02-15
-  target_file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts
+  target_file: <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts
   required_docs:
     - path: docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
       anchors:
@@ -24,36 +24,36 @@ verdict: fail
 
 ### [P1] Legacy mega-op orchestration remains inside a single op boundary
 - Refs:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:68`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:81`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:107`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:113`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:118`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:125`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:133`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:68`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:81`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:107`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:113`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:118`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:125`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:133`
 - Why this is a violation:
   - This op performs a full pipeline orchestration (era membership -> event generation -> rollups -> current snapshot -> tracer advection -> provenance) instead of one focused contract boundary.
   - It matches the spec anti-pattern of a mega-op carrying multiple responsibilities that are now better modeled as separate ops plus step-layer orchestration.
 
 ### [P2] Compile-first posture is violated by runtime config invariant checks in `run`
 - Refs:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:29`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:50`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:52`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:56`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:57`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:29`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:50`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:52`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:56`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:57`
 - Why this is a violation:
   - Strategy config shape/invariant enforcement (`eraWeights` length parity with `driftStepsByEra`, era count bounds) is executed at runtime in `run`.
   - Per compile-first guidance, these checks belong in compile-time normalization/validation (`strategy.normalize`/`op.normalize` and/or step normalize), not execution path throws.
 
 ### [P2] Dual-path contract posture persists (legacy aggregate output surface)
 - Refs:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:14`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:17`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:18`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:22`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:23`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:133`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:14`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:17`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:18`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:22`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:23`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts:133`
 - Why this is a violation:
   - This file preserves a legacy aggregate-op output shape (`tectonicHistory`, `tectonics`, `tectonicProvenance`) and imports all corresponding pipeline phases in one runtime path.
   - Under no-shims/single-path posture, retaining this aggregate path alongside focused op surfaces increases divergence risk and architectural ambiguity.
@@ -61,10 +61,10 @@ verdict: fail
 ## Concrete refactor actions (delete / move / split)
 
 1. Delete legacy orchestration op surface.
-- Delete `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts` after call-site verification.
+- Delete `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts` after call-site verification.
 - Remove `computeTectonicHistory` export wiring from:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/index.ts`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/contracts.ts`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/index.ts`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/contracts.ts`
 
 2. Move config invariants to compile-time normalization.
 - Add `normalize` for the relevant focused op envelope(s) so `eraWeights`/`driftStepsByEra` parity and era-count bounds are validated before runtime.
@@ -80,30 +80,30 @@ verdict: fail
 ## Commands run
 
 ```bash
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && pwd && git rev-parse --abbrev-ref HEAD && git status --short --branch
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && rg --files -g '**/AGENTS.md'
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && cat AGENTS.md
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && cat mods/mod-swooper-maps/AGENTS.md
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && cat mods/mod-swooper-maps/src/AGENTS.md
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && wc -l docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && wc -l docs/system/libs/mapgen/architecture.md
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && wc -l docs/system/libs/mapgen/explanation/DOMAIN-MODELING.md
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && sed -n '1,220p' docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && sed -n '221,383p' docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && cat docs/system/libs/mapgen/architecture.md
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && cat docs/system/libs/mapgen/explanation/DOMAIN-MODELING.md
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && nl -ba mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && nl -ba mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && rg "normalize:\s*\(" -n mods/mod-swooper-maps/src/domain/foundation/ops
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && nl -ba mods/mod-swooper-maps/src/domain/foundation/lib/require.ts
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && rg "compute-tectonic-history|tectonicHistory|tectonicProvenance" -n mods/mod-swooper-maps/src/domain/foundation mods/mod-swooper-maps/src/recipes --glob '*.ts'
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && nl -ba mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts | sed -n '1,280p'
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && rg "computeTectonicHistory\(" -n mods/mod-swooper-maps/src --glob '*.ts'
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && nl -ba mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/index.ts
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && nl -ba mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/index.ts
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && nl -ba mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/index.ts
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && nl -ba mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.contract.ts
-cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && nl -ba mods/mod-swooper-maps/src/domain/foundation/ops/contracts.ts
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && pwd && git rev-parse --abbrev-ref HEAD && git status --short --branch
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && rg --files -g '**/AGENTS.md'
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && cat AGENTS.md
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && cat mods/mod-swooper-maps/AGENTS.md
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && cat mods/mod-swooper-maps/src/AGENTS.md
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && wc -l docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && wc -l docs/system/libs/mapgen/architecture.md
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && wc -l docs/system/libs/mapgen/explanation/DOMAIN-MODELING.md
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && sed -n '1,220p' docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && sed -n '221,383p' docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && cat docs/system/libs/mapgen/architecture.md
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && cat docs/system/libs/mapgen/explanation/DOMAIN-MODELING.md
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && nl -ba mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && nl -ba mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && rg "normalize:\s*\(" -n mods/mod-swooper-maps/src/domain/foundation/ops
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && nl -ba mods/mod-swooper-maps/src/domain/foundation/lib/require.ts
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && rg "compute-tectonic-history|tectonicHistory|tectonicProvenance" -n mods/mod-swooper-maps/src/domain/foundation mods/mod-swooper-maps/src/recipes --glob '*.ts'
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && nl -ba mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts | sed -n '1,280p'
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && rg "computeTectonicHistory\(" -n mods/mod-swooper-maps/src --glob '*.ts'
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && nl -ba mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/index.ts
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && nl -ba mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/index.ts
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && nl -ba mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/index.ts
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && nl -ba mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.contract.ts
+cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && nl -ba mods/mod-swooper-maps/src/domain/foundation/ops/contracts.ts
 ```
 
 ## Proposed target

@@ -42,7 +42,7 @@ narsil-mcp --version
 # Expected: narsil-mcp 1.0.0
 
 # Quick index test
-narsil-mcp --repos /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools --verbose 2>&1 | head -20
+narsil-mcp --repos <user-home>/Documents/.nosync/DEV/civ7-modding-tools --verbose 2>&1 | head -20
 ```
 
 ---
@@ -61,7 +61,7 @@ Add to `mcpServers` object:
 "narsil-code-intel": {
   "command": "narsil-mcp",
   "args": [
-    "--repos", "/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools",
+    "--repos", "<user-home>/Documents/.nosync/DEV/civ7-modding-tools",
     "--git",
     "--call-graph",
     "--persist"
@@ -92,7 +92,7 @@ Add to `mcpServers` object:
 
 ### File
 
-`/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/.mcp.json`
+`<user-home>/Documents/.nosync/DEV/civ7-modding-tools/.mcp.json`
 
 ### Content
 

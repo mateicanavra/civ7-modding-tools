@@ -90,11 +90,11 @@ decision_attestation:
       - scripts/lint/lint-domain-refactor-guardrails.sh
 
   verification:
-    - command: bun --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps check
+    - command: bun --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps check
       result: pass
-    - command: cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full REFRACTOR_DOMAINS=foundation ./scripts/lint/lint-domain-refactor-guardrails.sh
+    - command: cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full REFRACTOR_DOMAINS=foundation ./scripts/lint/lint-domain-refactor-guardrails.sh
       result: pass
-    - command: bun --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps test test/foundation/contract-guard.test.ts test/foundation/no-op-calls-op-tectonics.test.ts test/foundation/m11-tectonic-events.test.ts test/foundation/m11-tectonic-segments-history.test.ts
+    - command: bun --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps test test/foundation/contract-guard.test.ts test/foundation/no-op-calls-op-tectonics.test.ts test/foundation/m11-tectonic-events.test.ts test/foundation/m11-tectonic-segments-history.test.ts
       result: pass (26 passed, 0 failed)
 ```
 
@@ -315,15 +315,15 @@ changed_files:
 ### Verification
 ```yaml
 verification:
-  - command: bun --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps check
+  - command: bun --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps check
     result: pass
-  - command: bun --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps test test/foundation/contract-guard.test.ts test/foundation/no-op-calls-op-tectonics.test.ts
+  - command: bun --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps test test/foundation/contract-guard.test.ts test/foundation/no-op-calls-op-tectonics.test.ts
     result: pass (14 passed, 0 failed)
-  - command: bun --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps test test/foundation/m11-tectonic-events.test.ts
+  - command: bun --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps test test/foundation/m11-tectonic-events.test.ts
     result: pass (3 passed, 0 failed)
-  - command: bun --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps test test/foundation/m11-tectonic-segments-history.test.ts
+  - command: bun --cwd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps test test/foundation/m11-tectonic-segments-history.test.ts
     result: pass (6 passed, 0 failed)
-  - command: cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full REFRACTOR_DOMAINS=foundation ./scripts/lint/lint-domain-refactor-guardrails.sh
+  - command: cd <user-home>/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full REFRACTOR_DOMAINS=foundation ./scripts/lint/lint-domain-refactor-guardrails.sh
     result: pass
 ```
 

@@ -7,14 +7,14 @@ Output owner: this scratch file only
 ## Sources Read
 
 - Mandatory skills, read in full:
-  - `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`
-  - `/Users/mateicanavra/.agents/skills/information-design/SKILL.md`
-  - `/Users/mateicanavra/.agents/skills/solution-design/SKILL.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-systematic-workstream/SKILL.md`
+  - `<user-home>/.agents/skills/domain-design/SKILL.md`
+  - `<user-home>/.agents/skills/information-design/SKILL.md`
+  - `<user-home>/.agents/skills/solution-design/SKILL.md`
+  - `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md`
+  - `<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-systematic-workstream/SKILL.md`
 - Remediation routing:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/context.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/context.md`
+  - `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md`
 - Source packets:
   - `D7-structural-enforcement-pipeline.md`
   - `D8-pattern-governance.md`

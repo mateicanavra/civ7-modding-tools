@@ -14,7 +14,7 @@
 3. Close PR `#1348` unresolved review-thread risk with explicit disposition.
 
 ## Deterministic Execution Log
-- 2026-02-17: Preflight captured stack/worktree state (`git status`, `gt ls`, `gt log`) and prepared loop worktree `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-IGNEZ-fix-1243`.
+- 2026-02-17: Preflight captured stack/worktree state (`git status`, `gt ls`, `gt log`) and prepared loop worktree `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-IGNEZ-fix-1243`.
 - 2026-02-17: First sweep reproduced broad default-check failures caused by stale adapter build artifacts in the temporary worktree (`getDefaultDiscoveryPlacement` type surface mismatch against stale package build output).
 - 2026-02-17: Confirmed root-cause on earliest failing branch (`agent-SWANKO-PRR-s10-c01-fix-cap-reset-threshold-era-max`): running `bun run --cwd packages/civ7-adapter build` immediately before `bun run --cwd mods/mod-swooper-maps check` turned the failure to PASS without source edits.
 - 2026-02-17: Re-ran full deterministic branch list with family-specific gates and adapter preflight for default-check branches.

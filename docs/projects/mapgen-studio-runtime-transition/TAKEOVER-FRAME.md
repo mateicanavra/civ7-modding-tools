@@ -312,13 +312,13 @@ they are not extra live Civ7 mutation rows.
 ### Observed Snapshot
 
 - Requested takeover worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/431b/civ7-modding-tools`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/431b/civ7-modding-tools`,
   clean and detached at `origin/main@46943c5f1` when inspected.
 - Original session framing worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets`,
   clean on `codex/mapgen-domain-operation-topology@16745e337`.
 - Active execution worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-sol-a2-domain-operation`,
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-sol-a2-domain-operation`,
   branch `codex/mapgen-domain-operation-authority`, HEAD `9ff0f711e`.
 - The local source range is 49 commits represented by 39 Graphite entries and
   870 changed paths above current `origin/main`. It is local-only/unsubmitted;
@@ -953,7 +953,7 @@ Graphite mutation in the inherited execution worktree do not.
 - Historical opening-stack/accounting evidence: `stack-recut-manifest.md`,
   `cleanup-register.jsonl`, and `gate-register.jsonl`.
 - Readiness reference worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-domain-operation-blueprint-descent`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-domain-operation-blueprint-descent`.
 
 Scratchpad is retained until this frame is reviewed, committed, and all
 essential findings are synthesized.

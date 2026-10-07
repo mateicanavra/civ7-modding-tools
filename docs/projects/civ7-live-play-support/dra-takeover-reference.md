@@ -49,7 +49,7 @@ with limited context.
 - Supervisor thread: `019e859d-03d6-7cb3-aff3-b8de9c830f52`.
 - Watcher/support thread: `019e8225-4572-75f0-81b7-93ccc368bfd3`.
 - Support worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-watch-civ7-live-play-reference-assembly`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-watch-civ7-live-play-reference-assembly`.
 - Branch: `codex/live-traditions-view`.
 - The turn-19 `NOTIFICATION_UNIT_LOST` blocker id
   `{"owner":0,"id":34,"type":20}` is resolved as of the latest player tail.
@@ -173,7 +173,7 @@ For production-choice support, preserve the emerging direction:
 
 Take over as the live Civ7 support DRA/refiner/builder for the player agent in
 watcher worktree
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-watch-civ7-live-play-reference-assembly`
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-watch-civ7-live-play-reference-assembly`
 on `codex/live-traditions-view`. Help the player finish Antiquity by building
 deterministic, native-feeling CLI support surfaces that convert live blockers
 into safe exact operations with honest postconditions. Ground each pass in

@@ -951,87 +951,87 @@
       "summary": "The repo-local skill ecosystem contains 9 skills (README-listed: civ7-architecture-authority, civ7-product-authority, civ7-open-spec-workstream, civ7-systematic-workstream, civ7-operational-debugging, civ7-orpc-control-architecture, dra-structural-watcher, graphite-stack-drain, plus civ7-habitat-dra-workstream unlisted in main README). The new civ7-mapgen-workstream skill sits atop this ecosystem as a composition/orchestration layer.\n\nSKILL OWNERSHIP MAP: civ7-architecture-authority owns stage/step/domain placement decisions, package boundaries, MapGen core vs mod vs adapter separation, and architecture drift correction. Its references/ownership-boundaries.md explicitly captures the Swooper Maps Mod boundary: \"game-facing mod integration, map entrypoints, mod package scripts, source recipe content, and Civ7 deployment output generation.\" It does NOT own domain algorithms or tuning. civ7-product-authority owns mod-facing behavioral guarantees, official game-data source authority, SDK/CLI consumer contracts, and proof-boundary classification. It does NOT own implementation placement. civ7-operational-debugging owns all runtime verification surfaces: build/deploy/log/tuner/in-game proof, with a structured 8-step debugging workflow and explicit proof-boundary taxonomy (built/generated/deployed/logged/tuner-exercised/in-game-observed/resource-backed/unresolved). It specifically knows Studio viz (though labeled \"firetuner-runtime\" not Studio-viz-specific). civ7-open-spec-workstream owns the phase loop: ground \u2192 define spec \u2192 review \u2192 implement \u2192 verify \u2192 realign \u2192 close. It handles phase records, review ledgers, downstream realignment ledgers, and Graphite commit discipline. civ7-systematic-workstream owns the 12-gate corpus-wide evidence loop: frame \u2192 isolate repo state \u2192 diagnose \u2192 corpus \u2192 group \u2192 expected ranges \u2192 architecture translation \u2192 implement slices \u2192 verify stats \u2192 runtime proof \u2192 review gate \u2192 close. It is the right owner when domain work requires corpus coverage (e.g., resources, biomes) not point fixes. civ7-orpc-control-architecture owns oRPC procedure/router/context/middleware design for Civ7 control surfaces \u2014 the CLI/Studio control boundary. The mapgen-workstream skill references this only for the Studio Civ7 endpoints arm (Studio-viz problem class). dra-structural-watcher owns ongoing heartbeat monitoring of OpenSpec workstreams \u2014 does not implement, only watches for drift and writes correction notes. graphite-stack-drain owns branch topology management \u2014 referenced at finalization gate only. civ7-habitat-dra-workstream owns the specialized Habitat Harness DRA recovery workstream, composing most of the above; not directly referenced by mapgen-workstream.\n\nFACET NOVELTY CALIBRATION \u2014 CONFIRMED AND REFINED:\nFacet 1 (Earth science/physics): NET-NEW. No existing skill owns physical-realism reasoning for procedural generation. The mapgen:* cache skills carry domain philosophy but outdated arch/code \u2014 usable only as a philosophical starting point for what parameters matter (tectonics, wind, currents, rivers, biomes). The new skill must author this from scratch using live src/domain/* as the evidence base.\nFacet 2 (Operational debugging/verification): PARTIALLY EXISTS \u2014 CORRECTION from FRAMING.md calibration. civ7-operational-debugging owns build/deploy/log/tuner/in-game proof discipline comprehensively. However, it does NOT specifically own: (a) Studio visualization verification (stage output rendering vs generation logic distinction), (b) Earth-like benchmark-driven iteration (no benchmark process in the skill), (c) diagnostics emitted by the pipeline itself (mods/mod-swooper-maps/src/dev/diagnostics \u2014 these are pipeline diagnostics, not Civ7 log diagnostics). The map-gen verification facet must explicitly ADD these three surfaces as extensions. The \"substantially covers\" framing in FRAMING.md is correct \u2014 the base is there, the map-gen-specific overlays are the delta.\nFacet 3 (Civ7 domain): PARTIALLY EXISTS \u2014 civ7-product-authority covers official game-data authority (the .civ7/outputs/resources corpus, SDK consumer contracts, XML behavior). civ7-operational-debugging covers FireTuner/log evidence and the \"what did the game load\" questions. NET-NEW for this facet: design-intent reasoning (why does Civ7 make resource/feature placement decisions), forum/web research for game behavior, and Civ-appropriateness aesthetic judgment. The facet must reference both skills and add the research/intent dimension.\n\nCOGNITION CHAIN MAPPING (loop step \u2192 skill):\nStep 0 (Intake/route): inquiry-design if request is ambiguous; otherwise direct to step 1.\nStep 1 (Frame): framing-design \u2014 constructs the problem or objective frame for THIS request.\nStep 2 (Investigation design): investigation-design \u2014 turns the frame into an execution-neutral brief with evidence policy and stop conditions.\nStep 3 (Analysis): facet agents run evidence gathering \u2014 civ7-architecture-authority (pipeline structure), civ7-operational-debugging (runtime/log/Studio surfaces), civ7-product-authority (game-data/official-resources evidence).\nStep 4 (Design): system-design (pipeline as feedback/flow system) + civ7-architecture-authority (ownership boundaries).\nStep 5 (Alternative selection): system-design (leverage points, intervention tradeoffs).\nStep 6 (Implementation): recipe domain logic in mods/mod-swooper-maps/src/{domain,recipes}; OR Studio viz change; governed by civ7-architecture-authority invariants and Grit/Biome patterns.\nStep 7 (In-game verification): civ7-operational-debugging base + map-gen extensions (Studio stage output, Earth-like benchmark, pipeline diagnostics).\nStep 8 (Architecture review): civ7-architecture-authority (boundaries, invariants, Grit pattern compliance).\nStep 9 (Refinement): loop back to 4\u20137.\nStep 10 (Finalization): hand off to civ7-open-spec-workstream (phase records, Graphite commit, downstream realignment) or civ7-systematic-workstream if corpus-wide coverage was part of the work. Both own the closure machinery; the new skill must NOT re-implement it.\n\nCLOSURE HANDOFF BOUNDARY: The new skill's loop should hand off to civ7-open-spec-workstream at step 10 when the change is bounded and spec-driven. It should hand off to civ7-systematic-workstream when the work requires corpus coverage (e.g., all resource placements, all biome assignments). The handoff trigger: once implementation is verified locally + in-game, the downstream realignment, Graphite commit, phase record, and closure checklist are owned by those skills. The mapgen-workstream skill should explicitly say \"finalization follows civ7-open-spec-workstream closure discipline\" at step 10 rather than re-implementing closure mechanics.\n\nHABITAT SDK PATTERNS (awareness-level):\nBiome (biome.json) enforces: double-quoted strings, semicolons, ES5 trailing commas, 100-char line width, LF line endings, space indentation (2), import organization. No debugger, no unreachable code, no duplicate object keys. Applied to all source including mods/mod-swooper-maps/src/** (explicitly: mods/mod-swooper-maps/src/maps/generated/** is excluded, meaning generated map registration output is excluded from linting, but recipe/domain source is not).\nESLint boundaries (eslint.boundaries.config.mjs) enforces the kind:* tag taxonomy: kind:mod (Swooper Maps) may only depend on kind:sdk, kind:engine, kind:adapter, kind:foundation, kind:control. This means recipe code in mods/mod-swooper-maps cannot import kind:app, kind:tooling, or kind:plugin packages \u2014 a constraint any new recipe change must respect.\nGrit patterns (.grit/patterns/habitat/checks/) enforce these recipe/domain constraints as errors: (1) recipe_domain_surface.md \u2014 recipes import only domain root, /ops, or /config.js (not deep private domain files); (2) domain_ops_boundary_imports.md \u2014 domain ops do not import from @civ7/adapter or use ExtendedMapContext/context.adapter; (3) domain_ops_projection_effects.md \u2014 domain ops do not encode \"artifact:map.*\" or \"effect:map.*\" keys (projection belongs to recipe layer); (4) step_contract_domain_surface.md \u2014 step contracts do not import deep domain files; (5) sibling_stage_step_imports.md \u2014 stage code does not import another stage's private steps/; (6) runtime_run_validated.md \u2014 strategies/steps do not call runValidated; (7) domain_ops_root_config.md \u2014 domain ops do not import config.js via parent traversal; (8) mapgen_core_runtime_civ7.md \u2014 mapgen-core source does not import Civ7 runtime APIs.\nThe Nx boundaries target enforces the kind:* tag constraint \u2014 run via \"bun run nx run-many -t boundaries\", not lint.\nThe normalized domain module layout (confirmed in ownership-boundaries.md, accepted 2026-06-10): ops/<op-id>/{contract.ts, index.ts, types.ts, strategies/}, ops/<op-id>/policy/ (one concern per file), domain policy/ (shared predicates), lib/ (reference data corpora). Recipe code changed by the mapgen-workstream must respect this layout.\n\nREFERENCE TABLE summary: civ7-architecture-authority \u2192 reference for stage/step placement, boundary review gate (step 8); civ7-product-authority \u2192 reference for game-data authority, consumer contract review; civ7-operational-debugging \u2192 reference base for verification facet (extend, not duplicate, the proof discipline); civ7-open-spec-workstream \u2192 hand off at step 10 for spec-driven closure; civ7-systematic-workstream \u2192 hand off at step 10 for corpus-wide work; civ7-orpc-control-architecture \u2192 reference for Studio control endpoints (Studio-viz problem class only); dra-structural-watcher \u2192 referenced as optional oversight for long multi-agent runs; graphite-stack-drain \u2192 referenced at finalization for branch topology; mapgen:* cache skills \u2192 philosophy-only, domain concept orientation, never architecture/code.",
       "key_locations": [
         {
-          "path": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-architecture-authority/SKILL.md",
+          "path": "<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-architecture-authority/SKILL.md",
           "role": "Architecture authority skill \u2014 owns stage/step/domain boundaries, package placement, MapGen core vs mod separation; reference at steps 8 and 4 of the new skill's loop"
         },
         {
-          "path": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-architecture-authority/references/ownership-boundaries.md",
+          "path": "<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-architecture-authority/references/ownership-boundaries.md",
           "role": "Authoritative ownership table including normalized domain module layout (ops/<op-id>/, policy/, lib/) accepted 2026-06-10"
         },
         {
-          "path": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-product-authority/SKILL.md",
+          "path": "<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-product-authority/SKILL.md",
           "role": "Product authority skill \u2014 owns game-data authority, SDK/CLI consumer contracts, proof-boundary policy; reference for Facet 3 (Civ7 domain) base"
         },
         {
-          "path": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-operational-debugging/SKILL.md",
+          "path": "<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-operational-debugging/SKILL.md",
           "role": "Operational debugging skill \u2014 owns build/deploy/log/tuner/in-game proof discipline; reference base for Facet 2 (verification)"
         },
         {
-          "path": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-operational-debugging/references/proof-boundaries.md",
+          "path": "<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-operational-debugging/references/proof-boundaries.md",
           "role": "Explicit proof-boundary taxonomy (built/generated/deployed/logged/tuner-exercised/in-game-observed/resource-backed); facet 2 must reference, not reproduce"
         },
         {
-          "path": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-operational-debugging/references/firetuner-runtime.md",
+          "path": "<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-operational-debugging/references/firetuner-runtime.md",
           "role": "FireTuner/direct-control runtime reference \u2014 scripting states, restart loop, civ7 game exec; Facet 2 extension point"
         },
         {
-          "path": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md",
+          "path": "<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/SKILL.md",
           "role": "Open-spec workstream skill \u2014 owns phase loop (ground\u2192spec\u2192review\u2192implement\u2192verify\u2192realign\u2192close), Graphite commit discipline; finalization handoff target (step 10)"
         },
         {
-          "path": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-systematic-workstream/SKILL.md",
+          "path": "<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-systematic-workstream/SKILL.md",
           "role": "Systematic workstream skill \u2014 owns 12-gate corpus-wide evidence loop; finalization handoff target when work is corpus-wide (e.g., resource distribution pass)"
         },
         {
-          "path": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-orpc-control-architecture/SKILL.md",
+          "path": "<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-orpc-control-architecture/SKILL.md",
           "role": "ORPC control architecture \u2014 owns Studio Civ7 oRPC endpoint design; reference for Studio-viz problem class when control surfaces need shaping"
         },
         {
-          "path": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/dra-structural-watcher/SKILL.md",
+          "path": "<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/dra-structural-watcher/SKILL.md",
           "role": "Structural watcher skill \u2014 monitors OpenSpec workstreams for drift without implementing; optional oversight for long multi-agent mapgen runs"
         },
         {
-          "path": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/graphite-stack-drain/SKILL.md",
+          "path": "<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/graphite-stack-drain/SKILL.md",
           "role": "Graphite stack drain skill \u2014 branch topology management; referenced at finalization (step 10) for stack cleanup after multi-branch mapgen work"
         },
         {
-          "path": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-habitat-dra-workstream/SKILL.md",
+          "path": "<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-habitat-dra-workstream/SKILL.md",
           "role": "Habitat DRA workstream \u2014 Habitat Harness recovery; NOT directly referenced by new skill but composes same underlying skills; awareness only"
         },
         {
-          "path": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/README.md",
+          "path": "<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/README.md",
           "role": "Skill registry and operating rules for all repo-local skills; new skill must follow its conventions"
         },
         {
-          "path": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.grit/patterns/habitat/checks/",
+          "path": "<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/.grit/patterns/habitat/checks/",
           "role": "Grit GritQL patterns enforcing recipe/domain code boundaries (recipe_domain_surface, domain_ops_boundary_imports, domain_ops_projection_effects, sibling_stage_step_imports, step_contract_domain_surface, runtime_run_validated, domain_ops_root_config, mapgen_core_runtime_civ7, etc.); any recipe code changed by mapgen-workstream must pass these"
         },
         {
-          "path": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/biome.json",
+          "path": "<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/biome.json",
           "role": "Biome formatter/linter config \u2014 double quotes, semicolons, ES5 trailing commas, 100-char lines, 2-space indent, LF; mods/mod-swooper-maps/src/maps/generated/** excluded but all recipe/domain source is linted"
         },
         {
-          "path": "/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/eslint.boundaries.config.mjs",
+          "path": "<user-home>/Documents/.nosync/DEV/civ7/civ7-modding-tools/eslint.boundaries.config.mjs",
           "role": "Nx boundary enforcement \u2014 kind:mod (Swooper Maps) may only depend on kind:sdk, kind:engine, kind:adapter, kind:foundation, kind:control; enforced via 'bun run nx run-many -t boundaries'"
         },
         {
-          "path": "/Users/mateicanavra/.claude/plugins/local/plugins/cognition/skills/framing-design/SKILL.md",
+          "path": "<user-home>/.claude/plugins/local/plugins/cognition/skills/framing-design/SKILL.md",
           "role": "Cognition framing-design skill \u2014 problem/objective frame construction; loop step 1 owner (philosophy/method, no arch burden)"
         },
         {
-          "path": "/Users/mateicanavra/.claude/plugins/local/plugins/cognition/skills/investigation-design/SKILL.md",
+          "path": "<user-home>/.claude/plugins/local/plugins/cognition/skills/investigation-design/SKILL.md",
           "role": "Investigation-design skill \u2014 execution-neutral investigation brief from a committed frame; loop step 2 owner"
         },
         {
-          "path": "/Users/mateicanavra/.claude/plugins/local/plugins/cognition/skills/inquiry-design/SKILL.md",
+          "path": "<user-home>/.claude/plugins/local/plugins/cognition/skills/inquiry-design/SKILL.md",
           "role": "Inquiry-design skill \u2014 dialogic discovery when request is ambiguous; loop step 0 (intake/route) trigger"
         },
         {
-          "path": "/Users/mateicanavra/.claude/plugins/local/plugins/cognition/skills/system-design/SKILL.md",
+          "path": "<user-home>/.claude/plugins/local/plugins/cognition/skills/system-design/SKILL.md",
           "role": "System-design skill \u2014 feedback loops, stocks/flows, leverage points; loop steps 4-5 (pipeline-as-system analysis and alternative selection)"
         },
         {
-          "path": "/Users/mateicanavra/.claude/plugins/cache/local/mapgen/1.0.0/skills/",
+          "path": "<user-home>/.claude/plugins/cache/local/mapgen/1.0.0/skills/",
           "role": "mapgen:* cache plugin skills (foundation, morphology, hydrology, ecology, placement, narrative, config-tuning) \u2014 PHILOSOPHY ONLY / OUTDATED ARCH; file paths like packages/mapgen-core/src/foundation/plates.ts are stale; use only for domain concept orientation"
         }
       ],

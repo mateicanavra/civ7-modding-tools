@@ -37,7 +37,7 @@ Authority inputs:
   and `play-agent-control-surface-reference.md`; they are not present in this
   detached worktree snapshot.
 - Installed official Civ7 resources under
-  `/Users/mateicanavra/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources`.
+  `<user-home>/Library/Application Support/Steam/steamapps/common/Sid Meier's Civilization VII/CivilizationVII.app/Contents/Resources`.
 - Current `@civ7/direct-control` package contract and CLI ownership.
 - User priority reset from source thread `019e86cb-4f67-79b1-9881-ddf6dde1a2aa`:
   modularize first, then oRPC, then hotseat/oRPC implementation slices.

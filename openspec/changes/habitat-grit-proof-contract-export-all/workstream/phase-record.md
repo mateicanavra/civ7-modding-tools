@@ -103,7 +103,7 @@ Branch/worktree:
 
 - branch: `agent-HG-habitat-grit-pattern-chain`;
 - worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`;
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`;
 - Graphite parent: `main`;
 - row: `grit-contract-export-all` / `contract_export_all`.
 
@@ -143,7 +143,7 @@ Branch/worktree:
 
 - branch: `agent-HG-habitat-grit-contract-export-all-closure`;
 - worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`;
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`;
 - parent checkpoint: accepted `agent-HG-habitat-grit-domain-root-catalogs-closure`.
 
 Completed row-owned closure work:

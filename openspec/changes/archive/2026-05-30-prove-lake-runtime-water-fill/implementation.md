@@ -26,7 +26,7 @@ Local official-resource scan found `MapSeaLevels` in the gameplay schema, but no
 
 Deployed map file:
 
-- `2026-05-30 14:34:51 -0400 /Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/swooper-earthlike.js`
+- `2026-05-30 14:34:51 -0400 <user-home>/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/swooper-earthlike.js`
 
 Fresh Civ7 map roll after the deploy:
 

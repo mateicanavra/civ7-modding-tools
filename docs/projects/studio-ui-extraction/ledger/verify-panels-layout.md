@@ -1,7 +1,7 @@
 # Adversarial verification — ds-group "panels-layout"
 
 Verifier: independent re-derivation from source at
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction`.
+`<user-home>/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction`.
 Every import surface in the six rows was re-read from the files; every one-hop
 module the rows lean on (status.ts x2, clientState.ts, useRecipeDagQuery.ts,
 layout.ts, domainPresentation.ts, artifactPresentation.ts, riverLakeInspector.ts,

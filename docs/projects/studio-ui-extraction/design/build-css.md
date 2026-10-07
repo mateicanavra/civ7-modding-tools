@@ -4,7 +4,7 @@
 
 **Package placeholder:** `@swooper/studio-ui` at `packages/studio-ui/` — the NAME and location are **Q2, RESERVED to Matei**. Every occurrence below is a placeholder; nothing in this design depends on the specific name (one config key + import specifiers change).
 
-Repo worktree read: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction` @ `c4ebaf1e1`. Ground reports cited as `ground/converter.md` and `ground/theme-token.md` (session scratchpad `ground/`).
+Repo worktree read: `<user-home>/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction` @ `c4ebaf1e1`. Ground reports cited as `ground/converter.md` and `ground/theme-token.md` (session scratchpad `ground/`).
 
 ---
 

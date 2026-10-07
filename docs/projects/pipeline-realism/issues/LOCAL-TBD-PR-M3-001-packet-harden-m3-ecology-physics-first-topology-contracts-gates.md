@@ -65,4 +65,4 @@ related_to: [LOCAL-TBD-PR-M2-016]
 
 ### Tooling posture (for later issues)
 - Prefer `$narsil-mcp` for semantic discovery when needed; do not use `hybrid_search`.
-- Keep the primary checkout (`/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools`) on the latest commit to keep the index fresh (detached HEAD is OK).
+- Keep the primary checkout (`<user-home>/Documents/.nosync/DEV/civ7-modding-tools`) on the latest commit to keep the index fresh (detached HEAD is OK).

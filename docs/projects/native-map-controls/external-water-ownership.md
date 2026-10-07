@@ -192,7 +192,7 @@ Receipts and exact per-case payloads are in the durable Civ user-data location:
 `9f7bd51d44a0eeeb883dbde72a518b93a94c9389a6fd33fc5d8a6d631003610e`;
 `capture/public-metric-failures.json` records unchanged comparators and complete
 scenario membership. `payload-verification.json` independently reconstructs
-all 3,192 artifact hashes. The [current generated Huge1018 viewer](https://mateis-macbook-pro.taild8da1c.ts.net/civ/water-owner-huge-1018/index.html)
+all 3,192 artifact hashes. The current generated Huge1018 viewer (`water-owner-huge-1018/index.html`)
 shows this resolved network; it is not a new native screenshot or navigation
 proof. Native low-head, cliff and through-water qualification follows this repair.
 

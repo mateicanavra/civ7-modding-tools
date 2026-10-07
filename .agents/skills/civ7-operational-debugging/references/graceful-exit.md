@@ -32,7 +32,9 @@ The existing bounded maintainer diagnostic can dispatch the native request in
 the discovered App UI state:
 
 ```bash
-civ7 game exec 'engine.call("exitToDesktop")' --state 'App UI' --timeout-ms 10000 --json
+env -u CIV7_TUNER_HOST -u CIV7_TUNER_HOSTS -u CIV7_TUNER_PORT \
+  civ7 game exec 'engine.call("exitToDesktop")' --host 127.0.0.1 --port 4318 \
+  --state 'App UI' --timeout-ms 10000 --json
 ```
 
 Use the supported built-workspace launcher when the CLI is not linked:
@@ -40,7 +42,14 @@ Use the supported built-workspace launcher when the CLI is not linked:
 port and state from current health/configuration; the example is not authority
 for a different machine's endpoint. Before a real request, inspect its
 `--dry-run` output and confirm the target process and unsaved-progress authority.
-Do not send to the gameplay state merely because it was available previously.
+Run the example on the intended game host, selecting its discovered local port.
+The current diagnostic config appends inherited hosts and a loopback default
+even after an explicit `--host`; that flag alone does not disable fallback.
+Clear inherited Tuner endpoint variables for host-local recovery, verify health
+returns the intended endpoint, and inspect the final dry-run host list. For a
+remote game, execute locally on that host rather than relying on an exclusive
+remote-host selection this diagnostic does not provide. Do not send to the
+gameplay state merely because it was available previously.
 
 If the CLI/Tuner path is unavailable but Civ's existing Cohtml inspector is
 available, use documented browser computer use to select the actual game UI

@@ -2,17 +2,17 @@
 
 ## Scope And Grounding
 
-- Worktree inspected: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`.
+- Worktree inspected: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`.
 - Branch inspected: `codex/d10-protected-zone-authority-packet`.
-- D10 packet inspected: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d10-protected-zone-authority`.
-- Source domino packet inspected: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D10-generated-protected-zone-authority.md`.
+- D10 packet inspected: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d10-protected-zone-authority`.
+- Source domino packet inspected: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D10-generated-protected-zone-authority.md`.
 - This is design/specification evidence only. No Habitat source files or D10 packet files were edited.
 
 ## Current Read/Write Surfaces D10 May Affect
 
 ### File-Layer Guard
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/generated-zones.ts` is the current guard center.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/generated-zones.ts` is the current guard center.
   - It declares `generatedZones` with three host-specific zones:
     - `mods/mod-swooper-maps/src/maps/generated/`
     - `packages/civ7-types/generated/`
@@ -21,8 +21,8 @@
   - It emits `HabitatDiagnostic` rows by combining rule message plus zone remediation.
   - It only runs when `FileLayerContext.staged` is truthy.
   - It also handles `forbiddenFileNames`, currently `pnpm-lock.yaml` and `pnpm-workspace.yaml`, which is not generated/protected-zone authority.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/architecture.ts` dispatches every `ownerTool === "file-layer"` rule to `runGeneratedZoneRule`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/rules.json` carries four `file-layer` rows:
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/architecture.ts` dispatches every `ownerTool === "file-layer"` rule to `runGeneratedZoneRule`.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/rules.json` carries four `file-layer` rows:
   - `file-layer-swooper-map-generated`
   - `file-layer-civ7-types-generated`
   - `file-layer-civ7-map-policy-tables`
@@ -30,8 +30,8 @@
 
 ### Check/Command Surface
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/check.ts` exposes `--staged` as "Check staged file-layer protected zones."
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts` passes `staged` into rule execution, but its injectable `stagedPaths` option is used for staged Grit roots only. File-layer rules re-read Git state in `generated-zones.ts`.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/check.ts` exposes `--staged` as "Check staged file-layer protected zones."
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts` passes `staged` into rule execution, but its injectable `stagedPaths` option is used for staged Grit roots only. File-layer rules re-read Git state in `generated-zones.ts`.
 - Public output affected by D10:
   - `habitat check --staged --tool file-layer --json`
   - `habitat check --json`
@@ -41,14 +41,14 @@
 
 ### Hook Consumer
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/hooks.ts` runs the file-layer staged check before Biome, Grit, or formatter restaging:
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/hooks.ts` runs the file-layer staged check before Biome, Grit, or formatter restaging:
   - `bun tools/habitat/bin/dev.ts check --staged --tool file-layer --json`
 - Hook code owns local feedback sequencing, not zone authority. It currently propagates file-layer stdout/stderr and exits early when file-layer returns nonzero.
 - Hook tests mock the file-layer command; they do not prove real D10 zone matching.
 
 ### Grit Scan Protection
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit.ts` imports `generatedZones` to reject generated roots in `validateScanRoots`.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit.ts` imports `generatedZones` to reject generated roots in `validateScanRoots`.
 - The same file has a separate hard-coded protected root prefix list:
   - `.civ7/`
   - `.git/`
@@ -56,28 +56,28 @@
   - `dist/`
   - `node_modules/`
   - `tools/habitat/dist/`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.gritignore` independently excludes the same generated paths plus other broad roots.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.gritignore` independently excludes the same generated paths plus other broad roots.
 
 ### Biome Exclusion
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/biome.json` excludes:
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/biome.json` excludes:
   - `.civ7/outputs/**`
   - `mods/mod-swooper-maps/src/maps/generated/**`
   - `packages/civ7-types/generated/**`
   - `packages/civ7-map-policy/src/civ7-tables.gen.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/biome-closure.test.ts` snapshot-checks those exclusions.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/biome-closure.test.ts` snapshot-checks those exclusions.
 
 ### Generated Drift Target
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js` creates `generated:check` on `@habitat/cli`.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js` creates `generated:check` on `@habitat/cli`.
   - Command: `bun tools/habitat/scripts/verify-generated-zones.mjs`
   - Depends on `@swooper/mapgen-core:build` and `@civ7/map-policy:verify`.
   - Inputs repeat Swooper generated/mod artifacts, `packages/civ7-map-policy/src/civ7-tables.gen.ts`, and `.civ7/outputs/resources/**`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/scripts/verify-generated-zones.mjs` only regenerates/checks Swooper map artifacts. Map-policy freshness is delegated by Nx dependency. Civ7 types are protected but not regenerated by this script.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/scripts/verify-generated-zones.mjs` only regenerates/checks Swooper map artifacts. Map-policy freshness is delegated by Nx dependency. Civ7 types are protected but not regenerated by this script.
 
 ### Apply/Fix Consumer
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit-apply.ts` owns current apply transaction mechanics and changed-path approval, but does not consume a D10 protected-zone decision today.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit-apply.ts` owns current apply transaction mechanics and changed-path approval, but does not consume a D10 protected-zone decision today.
 - D9 requires one generated/protected-zone write blocked by D10 as an injected bad case. Current D9 cannot honestly close that path until D10 publishes a guard decision/write-set contract.
 
 ## Existing State-Space Defects And Duplicated Ownership
@@ -119,29 +119,29 @@
 
 D10 implementation should be limited to these surfaces unless the phase record is updated with a reviewed reason:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/generated-zones.ts` or a replacement module under `tools/habitat/src/lib/` for D10 declarations, guard decisions, and drift-check projections.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/rules.json` only for D2-generated-zone-facet links or command-facing message/remediation projection changes.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/architecture.ts` only to route file-layer rules through the new D10 projection/guard API.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts` only for staged guard consumption and injectable staged-path/state outcomes.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit.ts` only to consume D10 protected/generated scan-root projections, not host literals.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js` only to consume D10 drift target inputs or generated-zone target aliases.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/scripts/verify-generated-zones.mjs` only if D10 owns the generic drift-check surface; host-specific regeneration commands must come from G-HOST declarations.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/biome.json` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.gritignore` only if D10 explicitly records them as projection/check surfaces and D0 classifies public behavior impact.
-- Tests under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/` covering generated-zone declarations, staged guard decisions, missing host declarations, Grit scan-root refusal, Biome exclusion projection, hook consumption, and generated drift boundaries.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/generated-zones.ts` or a replacement module under `tools/habitat/src/lib/` for D10 declarations, guard decisions, and drift-check projections.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/rules.json` only for D2-generated-zone-facet links or command-facing message/remediation projection changes.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/architecture.ts` only to route file-layer rules through the new D10 projection/guard API.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts` only for staged guard consumption and injectable staged-path/state outcomes.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit.ts` only to consume D10 protected/generated scan-root projections, not host literals.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js` only to consume D10 drift target inputs or generated-zone target aliases.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/scripts/verify-generated-zones.mjs` only if D10 owns the generic drift-check surface; host-specific regeneration commands must come from G-HOST declarations.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/biome.json` and `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.gritignore` only if D10 explicitly records them as projection/check surfaces and D0 classifies public behavior impact.
+- Tests under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/` covering generated-zone declarations, staged guard decisions, missing host declarations, Grit scan-root refusal, Biome exclusion projection, hook consumption, and generated drift boundaries.
 
 ## Protected Paths For Future Implementation
 
 Implementation must not hand-edit generated/protected outputs while repairing D10:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/mods/mod-swooper-maps/src/maps/generated/**`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/packages/civ7-types/generated/**`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/packages/civ7-map-policy/src/civ7-tables.gen.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.civ7/outputs/resources/**`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/**/dist/**`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/**/mod/**`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/bun.lock`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/mods/mod-swooper-maps/src/maps/generated/**`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/packages/civ7-types/generated/**`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/packages/civ7-map-policy/src/civ7-tables.gen.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.civ7/outputs/resources/**`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/**/dist/**`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/**/mod/**`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/bun.lock`
 
-The D10 packet files under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d10-protected-zone-authority/**` are protected for this investigation because the user requested scratch-only edits.
+The D10 packet files under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d10-protected-zone-authority/**` are protected for this investigation because the user requested scratch-only edits.
 
 ## Validation Commands That Actually Exist
 
@@ -212,7 +212,7 @@ D13 needs from D10/G-HOST:
 
 ### P1: G-HOST Dependency Is Not Resolved
 
-The D10 packet says it will consume G-HOST declarations, but G-HOST remains an incomplete blocking packet in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md`. D10 cannot claim implementation readiness until host declaration location, schema, and missing-policy refusal are accepted.
+The D10 packet says it will consume G-HOST declarations, but G-HOST remains an incomplete blocking packet in `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md`. D10 cannot claim implementation readiness until host declaration location, schema, and missing-policy refusal are accepted.
 
 ### P1: D10 Does Not Specify A Concrete State Model
 

@@ -56,7 +56,7 @@ This wave is **docs-only**, but deliverables must be implementation-grade:
 
 - Base branch: `agent-codex-pipeline-realism-maximal-spec-v1`
 - Safe sync: `gt sync --no-restack`
-- Worktrees root: `WORKTREES_ROOT="/Users/mateicanavra/Documents/.nosync/DEV/worktrees"`
+- Worktrees root: `WORKTREES_ROOT="<user-home>/Documents/.nosync/DEV/worktrees"`
 - Branch/worktree names must start with `agent-<id>-`
 - Deliverables must land under `docs/projects/pipeline-realism/`
 - Each worker branch produces **exactly one commit** (no fixup commits).
@@ -114,14 +114,14 @@ Run in parallel, integrate in a fixed order to minimize conflicts:
 From the primary repo checkout:
 
 ```bash
-cd /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools
+cd <user-home>/Documents/.nosync/DEV/civ7-modding-tools
 gt sync --no-restack
 ```
 
 Create a worker worktree:
 
 ```bash
-WORKTREES_ROOT="/Users/mateicanavra/Documents/.nosync/DEV/worktrees"
+WORKTREES_ROOT="<user-home>/Documents/.nosync/DEV/worktrees"
 BRANCH="agent-A-..."
 git worktree add -b "$BRANCH" "$WORKTREES_ROOT/wt-$BRANCH" agent-codex-pipeline-realism-maximal-spec-v1
 cd "$WORKTREES_ROOT/wt-$BRANCH"

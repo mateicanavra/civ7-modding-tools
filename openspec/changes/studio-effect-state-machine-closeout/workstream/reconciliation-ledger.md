@@ -185,7 +185,7 @@ Fresh generated/deployed proof from this pass:
   - `mods/mod-swooper-maps/src/maps/generated/studio-current.ts`;
   - `mods/mod-swooper-maps/mod/maps/studio-current.js`.
 - Deployed script:
-  `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`.
+  `<user-home>/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`.
 - Deployed script sha256:
   `1b9aee5f882e329371d9e16384290eab357d143c4d06e78ff7e5e67eb2ca218a`.
 - Deployed script mtime: `2026-06-17 03:09:23`.

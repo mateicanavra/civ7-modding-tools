@@ -32,13 +32,13 @@ No live-game mutation was performed.
 - `docs/projects/civ7-direct-control/workstream/capability-inventory/tuner-surface-report.md`
 - `.civ7/outputs/resources/Base/modules/base-standard/base-standard.modinfo`
 - `.civ7/outputs/resources/Base/modules/base-standard/ui/tuner-input/tuner-input.js`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/swooper-maps.modinfo`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/swooper-earthlike.js`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/civmods-lf-policies-yields-preview-40534/lf-policies-yields-preview.modinfo`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/civmods-lf-policies-yields-preview-40534/scripts/api/public-api.js`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/civmods-lf-policies-yields-preview-40534/scripts/ui/debug/cheat-panel.js`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/civmods-rhq-39525/ai.modinfo`
-- `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/civmods-rhq-39525/ui/change_banner.js`
+- `<user-home>/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/swooper-maps.modinfo`
+- `<user-home>/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/swooper-earthlike.js`
+- `<user-home>/Library/Application Support/Civilization VII/Mods/civmods-lf-policies-yields-preview-40534/lf-policies-yields-preview.modinfo`
+- `<user-home>/Library/Application Support/Civilization VII/Mods/civmods-lf-policies-yields-preview-40534/scripts/api/public-api.js`
+- `<user-home>/Library/Application Support/Civilization VII/Mods/civmods-lf-policies-yields-preview-40534/scripts/ui/debug/cheat-panel.js`
+- `<user-home>/Library/Application Support/Civilization VII/Mods/civmods-rhq-39525/ai.modinfo`
+- `<user-home>/Library/Application Support/Civilization VII/Mods/civmods-rhq-39525/ui/change_banner.js`
 - local Civ7 `Modding.log` and `UI.log`
 
 ## Executive Conclusion

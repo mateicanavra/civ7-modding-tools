@@ -23,40 +23,40 @@ Additional current blockers from fresh command proof:
 
 Command/public surface:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/commands/habitat-entrypoints.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/commands/habitat-commands.test.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/commands/habitat-entrypoints.test.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/commands/habitat-commands.test.ts`
 
 Structural enforcement and selection:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/enforcement-surface.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/rule-selection.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/verify-proof.test.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/enforcement-surface.test.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/rule-selection.test.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/verify-proof.test.ts`
 
 Baseline authority:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/baseline.test.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/baseline.test.ts`
 
 Grit/vendor diagnostics:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/grit-adapter.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/grit-injected-probe.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/grit/grit-patterns.test.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/grit-adapter.test.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/grit-injected-probe.test.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/grit/grit-patterns.test.ts`
 
 Generated/protected and local feedback neighbors:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/hooks.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/scripts/verify-generated-zones.mjs`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/hooks.test.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/scripts/verify-generated-zones.mjs`
 
 Graph/classification neighbors:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/classify.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/workspace-tools.test.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/classify.test.ts`
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/workspace-tools.test.ts`
 
 ## D7 Validation Matrix
 
 | Scenario | Command/test | Expected status/output | Non-claim |
 |---|---|---|---|
-| Report invariant falsification | Add a unit test near `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/rule-selection.test.ts` or a new `check-report.test.ts` that constructs one report with `ok: true` plus a `fail` rule and one with `ok: false` plus only pass/advisory rules. | Current expected outcome: should fail today because `validateCheckReport` does not enforce semantic consistency. Required D7 outcome: constructor/validator rejects both contradictory reports before rendering. | Does not prove any rule diagnostic is correct; proves report-state consistency. |
+| Report invariant falsification | Add a unit test near `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/rule-selection.test.ts` or a new `check-report.test.ts` that constructs one report with `ok: true` plus a `fail` rule and one with `ok: false` plus only pass/advisory rules. | Current expected outcome: should fail today because `validateCheckReport` does not enforce semantic consistency. Required D7 outcome: constructor/validator rejects both contradictory reports before rendering. | Does not prove any rule diagnostic is correct; proves report-state consistency. |
 | Clean structural report | `bun run habitat:check -- --json --tool file-layer --staged` with no staged files. | Exit 0. JSON `ok: true`; all file-layer rules `status: "pass"`; `baseline-integrity` present and pass; no diagnostics. Observed fresh outcome matches this. | Does not prove current-tree Grit, Biome, Nx, wrapped tests, or generated freshness. |
 | Current failing enforced rule | `bun run habitat:check -- --json --rule workspace-entrypoints` | Exit 1 while current repo has the package-script sequencing violation. JSON `ok: false`; selected rule status `fail`; diagnostic severity `error`, `baselined: false`; `baseline-integrity` also present and pass. Observed fresh outcome matches this. | Does not prove the workspace-entrypoints rule is complete; proves enforced failure projects into report failure. |
 | Advisory findings | Add or run command proof with an advisory rule that emits diagnostics, e.g. `bun run habitat:check -- --json --rule docs-local-checkout-paths` if current tree has advisory findings, or a unit-injected advisory rule if current tree is clean. | Exit 0 when only advisory findings exist. JSON `ok: true`; advisory rule `status: "advisory-findings"`; diagnostics severity `advisory`; human output must not label command as FAIL. | Does not prove advisory content is correct or complete. |

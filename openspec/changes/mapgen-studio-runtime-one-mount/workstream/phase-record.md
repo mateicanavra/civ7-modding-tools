@@ -10,7 +10,7 @@ Graphite packet branch: `codex/runtime-effect-openspec-packets`
 
 D0 establishes the implementation base that all later Studio runtime Effect-refactor packets stand on. It does not reopen the one-mount implementation. It classifies the already completed one `/rpc` change, proves the local toolchain and build baseline, records active OpenSpec/Graphite/worktree state, and routes later dev-tooling assumptions to the correct owner.
 
-Operational goal: make the packet train honest about its starting point so D1-D12 do not smuggle stale transport, stale dev orchestration, or unclassified branch state into their specifications. The packet train has now been restacked onto the accepted Habitat/Nx baseline on `main` (`db4a0ea68`) and adopted in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`; pre-Nx packet-authoring evidence below remains historical only.
+Operational goal: make the packet train honest about its starting point so D1-D12 do not smuggle stale transport, stale dev orchestration, or unclassified branch state into their specifications. The packet train has now been restacked onto the accepted Habitat/Nx baseline on `main` (`db4a0ea68`) and adopted in `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`; pre-Nx packet-authoring evidence below remains historical only.
 
 ## Authority
 
@@ -57,7 +57,7 @@ Forbidden owners:
 
 ## Baseline Evidence
 
-Commands run on 2026-06-14 from `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-refactor-frame`:
+Commands run on 2026-06-14 from `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-refactor-frame`:
 
 | Command | Result | What it proves |
 | --- | --- | --- |
@@ -89,7 +89,7 @@ Historical packet-authoring baseline:
 
 Restack adoption update, 2026-06-15:
 
-- The selected implementation worktree is `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`.
+- The selected implementation worktree is `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor`.
 - `main` is `db4a0ea68` (`fix(habitat): normalize Nx workflow graph`), and the runtime Effect packet stack is based on it.
 - `bun install --frozen-lockfile` completed with no lockfile or workspace mutation.
 - `bun run nx --version` reports local Nx `v22.7.5`.

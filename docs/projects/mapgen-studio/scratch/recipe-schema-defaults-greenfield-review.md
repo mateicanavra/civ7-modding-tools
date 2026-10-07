@@ -13,25 +13,25 @@ Ensure Studio’s boot-time recipe config defaults match the designed authored p
 
 ## Skills consulted (mandatory list)
 
-- graphite: `/Users/mateicanavra/.codex-rawr/skills/graphite/SKILL.md`
-- git-worktrees: `/Users/mateicanavra/.codex-rawr/skills/git-worktrees/SKILL.md`
-- bun: `/Users/mateicanavra/.codex-rawr/skills/bun/SKILL.md`
-- turborepo: `/Users/mateicanavra/.codex-rawr/skills/turborepo/SKILL.md`
-- vercel-react-best-practices: `/Users/mateicanavra/.codex-rawr/skills/vercel-react-best-practices/SKILL.md`
-- vercel-composition-patterns: `/Users/mateicanavra/.codex-rawr/skills/vercel-composition-patterns/SKILL.md`
-- vite (only if touching Studio build tooling): `/Users/mateicanavra/.codex-rawr/skills/vite/SKILL.md`
-- web-workers (only if touching worker): `/Users/mateicanavra/.codex-rawr/skills/web-workers/SKILL.md`
-- decision-logging (only if non-obvious packaging moves): `/Users/mateicanavra/.codex-rawr/skills/decision-logging/SKILL.md`
+- graphite: `<user-home>/.codex-rawr/skills/graphite/SKILL.md`
+- git-worktrees: `<user-home>/.codex-rawr/skills/git-worktrees/SKILL.md`
+- bun: `<user-home>/.codex-rawr/skills/bun/SKILL.md`
+- turborepo: `<user-home>/.codex-rawr/skills/turborepo/SKILL.md`
+- vercel-react-best-practices: `<user-home>/.codex-rawr/skills/vercel-react-best-practices/SKILL.md`
+- vercel-composition-patterns: `<user-home>/.codex-rawr/skills/vercel-composition-patterns/SKILL.md`
+- vite (only if touching Studio build tooling): `<user-home>/.codex-rawr/skills/vite/SKILL.md`
+- web-workers (only if touching worker): `<user-home>/.codex-rawr/skills/web-workers/SKILL.md`
+- decision-logging (only if non-obvious packaging moves): `<user-home>/.codex-rawr/skills/decision-logging/SKILL.md`
 
 ## Skill constraints I’m following
 
 - Graphite-first branch/stack operations (use `gt`; no ad-hoc rebases/merges/force-pushes).
 - If I change a mid-stack branch in a way that affects upstack diffs, restack/submit the stack via Graphite.
-- Worktree safety: treat `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-recipe-json-schema-defaults-presets` as the source of truth for all edits.
+- Worktree safety: treat `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-recipe-json-schema-defaults-presets` as the source of truth for all edits.
 
 ## Breadcrumbs
 
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-recipe-json-schema-defaults-presets`
+- Worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-recipe-json-schema-defaults-presets`
 - Branch: `codex/recipe-json-schema-defaults-presets` (Graphite PR #1055)
 - `gt log --stack --steps 2 --no-interactive` (2026-02-04):
   - Downstack: `codex/config-sync-presets` (PR #1050) → `codex/config-sync-maps` (PR #1049)

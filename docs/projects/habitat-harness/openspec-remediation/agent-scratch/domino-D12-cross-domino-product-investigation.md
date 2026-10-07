@@ -44,7 +44,7 @@ Cross-domino sources read:
 
 Repo/process state checked:
 
-- Active worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
+- Active worktree: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
 - Active branch: `codex/d12-verify-handoff-packet`
 - Initial worktree state: clean.
 - Root `AGENTS.md` applies; no closer `AGENTS.md` governs this scratch path.

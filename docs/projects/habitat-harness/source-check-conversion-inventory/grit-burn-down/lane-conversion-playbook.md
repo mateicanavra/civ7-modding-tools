@@ -19,7 +19,7 @@ This playbook is deliberately row-level. A lane can batch commands, but it canno
 - `AGENTS.md`
 - `docs/process/GRAPHITE.md`
 - `.agents/skills/civ7-habitat-dra-workstream/SKILL.md`
-- `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/habitat/1.0.0/skills/systematic-workstream/SKILL.md`
+- `<user-home>/.codex/plugins/cache/rawr-hq/habitat/1.0.0/skills/systematic-workstream/SKILL.md`
 - `docs/projects/habitat-harness/source-check-conversion-inventory/canary-insights.md`
 - `docs/projects/habitat-harness/source-check-conversion-inventory/grit-capability-notes.md`
 - `docs/projects/habitat-harness/source-check-conversion-inventory/matrix.md`

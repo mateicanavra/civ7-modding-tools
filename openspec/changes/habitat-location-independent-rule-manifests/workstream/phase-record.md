@@ -5,7 +5,7 @@
 - Status: implementation complete; final proof and P2 repair proof passed;
   Graphite commit created as this branch closure.
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-habitat-authority-tree-pruning-frame`.
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-DRA-habitat-authority-tree-pruning-frame`.
 - Branch: `codex/habitat-location-independent-manifests-impl`.
 - Commit subject: `feat(habitat): make rule manifests location independent`.
 - Parent: Graphite stack child above the Habitat domino sequence branch.

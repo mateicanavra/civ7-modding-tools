@@ -13,7 +13,7 @@ worktree hygiene are complete; the row is awaiting supervisor review.
 ## Branch
 
 - Worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
+  `<user-home>/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-domain-ops-boundary-imports-closure`
 - Parent row: `agent-HG-habitat-grit-sdk-mapgen-entrypoint-closure`
 

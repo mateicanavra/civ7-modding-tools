@@ -7,15 +7,15 @@ Framed objective: deep Habitat D3 information-design review before acceptance.
 Packet reviewed:
 
 - Source packet: `docs/projects/habitat-harness/phase2-workstream-packets/D3-workspace-graph-integration-boundary.md`
-- OpenSpec change: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary`
+- OpenSpec change: `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary`
 - Negative control review: `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D3-review.md`
 
 Mandatory skills read in full before artifact review:
 
-- `/Users/mateicanavra/.agents/skills/domain-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/information-design/SKILL.md`
-- `/Users/mateicanavra/.agents/skills/solution-design/SKILL.md`
-- repo-local TypeScript refactoring corpus under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.agents/skills/typescript-refactoring/`
+- `<user-home>/.agents/skills/domain-design/SKILL.md`
+- `<user-home>/.agents/skills/information-design/SKILL.md`
+- `<user-home>/.agents/skills/solution-design/SKILL.md`
+- repo-local TypeScript refactoring corpus under `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.agents/skills/typescript-refactoring/`
 
 Important current-state note: during this review, D3 artifacts were edited by another actor. I treated those edits as current worktree state and did not modify them. This scratch review is based on the latest observed D3 artifact state, where `proposal.md`, `design.md`, `tasks.md`, `specs/habitat-harness/spec.md`, and `workstream/review-disposition-ledger.md` have uncommitted edits.
 
@@ -37,8 +37,8 @@ The packet remains blocked because the complete authority contract is not yet ca
 
 Current stale surfaces:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/workstream/phase-record.md` still lists only `nx show project`, `habitat classify`, OpenSpec validation, and `git diff --check` as "Exact Validation Gates". That omits the full D3 validation oracle: workspace graph tests, injected missing-project and missing-target aliases, malformed graph JSON, Nx read/daemon failure, cache-disabled alias execution, and dependency-execution evidence.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/workstream/downstream-realignment-ledger.md` still says "Later domino packets: pending" instead of publishing the accepted graph facts D4, D7, and D12 may consume.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/workstream/phase-record.md` still lists only `nx show project`, `habitat classify`, OpenSpec validation, and `git diff --check` as "Exact Validation Gates". That omits the full D3 validation oracle: workspace graph tests, injected missing-project and missing-target aliases, malformed graph JSON, Nx read/daemon failure, cache-disabled alias execution, and dependency-execution evidence.
+- `<user-home>/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/workstream/downstream-realignment-ledger.md` still says "Later domino packets: pending" instead of publishing the accepted graph facts D4, D7, and D12 may consume.
 - The phase record objective still frames D3 as converting a "scaffold" rather than recording the now-chosen Workspace Graph Integration authority contract.
 
 Why this blocks acceptance: an implementation or downstream agent reading the phase record/downstream ledger can still run smoke checks that pass while the complete graph authority remains unproven. Information design failure here is not formatting; it is conflicting artifact hierarchy. The packet's stronger design contract is buried in some files while the operational control files still authorize the old weaker path.
