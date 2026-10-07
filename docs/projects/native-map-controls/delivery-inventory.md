@@ -216,12 +216,21 @@ complement worsens versus old H6. This closes reference support as an
 insufficient repair, not a seasonal-resolution failure.
 Independent review and final custody pass; `66,491,757 B` inclusive all-host
 evidence stays below `64 MiB`, with no process or owned temporary directory.
+The subsequent [single solar-only marine-air fit](thermal-boundary-discriminator.md#completed-solar-only-marine-air-premise)
+completes in `0.278 s` after freezing coefficients before geographic validation.
+Pooled monthly error improves `6.533 -> 3.289 C` overall and `5.939 -> 2.320 C`
+on ice-free support. However, `230` overlapping source predicates fail, including
+degree-scale northern seasonal harm and a remaining `-10.528 C` ice-free northern
+annual bias. Rowwise annual geographic error is invariant. The uniform form
+is rejected without refit, land pilot or deployment. Independent compact review,
+custody and cleanup pass; inclusive both-host retention is `66,893,871 B`, below
+`64 MiB`. Lossless area/cohort metadata conversions remain outside Git.
 The next [bounded product comparison](thermal-boundary-discriminator.md#next-product-sized-domino)
-must include a genuinely simpler empirical annual/seasonal geography response.
-Qualify the marine-air endmember and actual procedural covariate meanings
-before a land pilot or another physical campaign. No new solver, parameter
-sweep, wet-storage system or production migration is selected automatically.
-Held land labels and rejected searches remain closed; the playable mod is unchanged.
+must specify a genuinely geographic annual/seasonal relationship and its cheapest
+falsifier, with compatible actual inputs, rather than blend this unqualified
+boundary inland. No new solver, parameter sweep, wet-storage system or production
+migration is selected automatically. Held land labels and rejected searches
+remain closed; the playable mod is unchanged.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
 follows accepted SST0, authentic SST1 and canonical SST2. All seven complete

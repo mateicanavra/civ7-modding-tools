@@ -16,13 +16,20 @@ worse than the incumbent. Reference support alone is not the sufficient repair;
 the imperfect annual liquid boundary remains unqualified as exposed ice skin
 or seasonal marine air.
 
-The next [product-sized comparison](#next-product-sized-domino) must earn
-additional complexity against a genuinely simpler geographic annual-and-seasonal
-response. Cheap premise checks and rejection-first pilots precede large
-qualification campaigns. Existing numerical methods remain reusable, not a
-reason to run another solver campaign automatically. Scientific, procedural,
-consumer and native admission remain separate, including the complete Huge
-`30-60 s` budget. Earlier dated designs/results below retain their original
+The subsequent [solar-only marine-air premise](#completed-solar-only-marine-air-premise)
+completes in `0.278 s`. A separately fitted marine cycle improves pooled annual
+and seasonal errors, but still leaves a large ice-free northern cold bias and
+causes degree-scale Arctic winter harm. Both this cycle and inland `B` are
+rowwise and leave annual within-row error unchanged. The uniform endmember is
+rejected before a land pilot; this is not merely a tight-tolerance refusal.
+
+The next [product-sized comparison](#next-product-sized-domino) must identify
+a genuinely geographic annual-and-seasonal relationship, not blend an
+unqualified rowwise boundary inland. Cheap premise checks and rejection-first
+pilots precede large qualification campaigns. Existing numerical methods remain
+reusable, not a reason to run another solver campaign automatically. Scientific,
+procedural, consumer and native admission remain separate, including the complete
+Huge `30-60 s` budget. Earlier dated designs/results below retain their original
 scope and refusals; they are not current next-action instructions.
 
 ## Frame And Decision
@@ -2878,6 +2885,65 @@ training result SHA-256:
 `a4f62fcf1d01c1d65b1a830db7f1b73121bab3185d4b4c49e0fcbe71e2d8c029`.
 Original refusals, acceptance margins and the installed mod remain unchanged.
 
+#### Completed Solar-Only Marine-Air Premise
+
+One six-real-coefficient solar response is fitted to marine **2 m air**, without
+an SST predictor, ice predictor, regional coefficient, land residual or extra harmonic.
+The existing inland `B` belongs to the same class, so training improvement alone
+cannot establish predictive skill. This differs from historical D10, which
+carried SST with fixed gain one and added an affine annual/complex solar response;
+that original rejection remains unchanged.
+
+Reuse D10's exact geographic blocks: `5,531` training cells and `5,545`
+historically exposed marine-held cells within `80` degrees. Fit once using the
+original remapped marine overlap area times month duration; primary overlap
+area is validation-only. The six coefficients and sources are persisted and
+hashed before any held-value accessor call. This prevents new fit leakage,
+not restored statistical blindness. Two small lossless metadata conversions
+preserve original Float64 overlap areas and all `11,977` cohort identities,
+ordered groups, splits and counts. No Python toolchain enters the repository.
+
+Current solar/complex conventions and analytic `1991-2020` Gregorian windows
+are reused. Rank six, the conservative scaled condition bound `19.089`, the
+`-17.255..28.326 C` harmonic enclosure and calendar checks pass. The following
+are raw analytical air comparisons, not clipped native temperatures:
+
+| Marine-Held Support | Annual RMSE, B -> Null C | Monthly RMSE, B -> Null C | Centered Seasonal RMS, B -> Null C |
+| --- | ---: | ---: | ---: |
+| Full | 2.987 -> 2.582 | 6.533 -> 3.289 | 5.810 -> 2.039 |
+| All-year ice-free primary | 2.601 -> 2.015 | 5.939 -> 2.320 | 5.339 -> 1.149 |
+
+Both strict pooled monthly improvements pass, but `230` overlapping guard
+predicates fail across `77` of `92` supported tables; twelve small tables remain
+unavailable. These are prospectively declared D10-style guards **against raw B**,
+not a replay of D10's SST-comparator verdict. The `1e-4 C` collateral and
+`2e-4 C` strict margins remain unchanged.
+
+The harm is substantive. At primary north `60-75` degrees, annual RMSE remains
+`10.553 C`, bias is `-10.528 C`, and JJA RMSE worsens `3.288 -> 8.752 C`.
+Known ice-positive north `75-80` DJF RMSE rises `9.647 -> 12.724 C`; winter bias
+becomes `+8.623 C`. On northern coasts in that band, DJF RMSE rises
+`8.892 -> 13.219 C`, with `+10.019 C` winter bias. Of the `230` failures,
+`95` deteriorations exceed one degree and only nine are below `0.01 C`.
+The large northern error is not confined to known ice-positive support.
+
+Annual within-row RMS is invariant at `2.179 C` full and `1.503 C` primary:
+neither rowwise law represents longitudinal marine geography. Pooled improvement
+supports separate inland/marine air meanings, not a universally qualified
+endmember, geographic land skill or an automatic exposure/parameter fit.
+**Stop this uniform form without refitting or deploying it.**
+
+The one Mini invocation takes `0.278009 s` (`0.239463 s` inside the reader),
+with measured child high-water `171,687,936 B` and sampled simultaneous whole
+`212,746,240 B`, below `256 MiB`. Independent review reconstructs all guards
+and compact annual/seasonal/support identities without observations or a fit
+replay. Source/runtime/output custody and cleanup pass. Inclusive both-host
+retention is `66,893,871 B`, below the existing `64 MiB` cap; no prediction grid,
+physical solver, land score or native performance claim is produced.
+FIT SHA-256: `03bf70318e9572ca76b6b59f3ee8c912f4cd9e26efb77b2223ef814343c1850d`.
+RESULT SHA-256: `5146677833eae5cf077e0f7c90b8ba0bf5f9d78ba69121038e5a1a3f4cb253c9`.
+The installed mod remains unchanged.
+
 #### Next Product-Sized Domino
 
 **Owner:** existing `compute-thermal-state` periodic-response rule and its one
@@ -2904,16 +2970,17 @@ pooled monthly error improved, but supported ice-free northern monthly error
 rose `2.792 -> 9.683 C`. That is not an untried maritime-air model. Changing
 its name or freeing a gain is not, by itself, a new source explanation.
 
-**First executable test:** design and freeze the smallest marine-air coefficient
-form and geographically separated calibration/validation partition using the
-already admitted wet reference, before a land pilot. A solar-only endmember is
-the simpler null, not a promised viable model; use existing source diagnostics
-to test its representational limits before fitting. Any annual-SST covariate
-must earn predictive value and have an explicitly compatible procedural
-producer/vintage. Do not silently use the
-rejected H6 feedback's final SST as the incumbent's boundary. No land residual
-fit or held-land score enters this premise test. Static marine and ice-free
-supports remain distinct; neither supplies an independently validated ice model.
+**Completed first test:** the single solar-only marine-air fit above rejects
+the uniform endmember before a land pilot. Do not use its pooled success to
+license another rowwise fit or an exposure sweep. The next source/design decision
+must state the actual geographic annual/seasonal equation and its cheapest
+falsifier before execution. Any annual-SST covariate must earn predictive value
+and have an explicitly compatible procedural producer/vintage; an annual liquid
+field does not itself provide seasonal air or exposed-ice temperature. Do not
+silently use the rejected H6 feedback's final SST as the incumbent's boundary.
+No land residual fit or held-land score enters this premise. Static marine and
+ice-free supports remain distinct; neither supplies an independently validated
+ice model. No additional computation is admitted merely by this next-design record.
 
 **Distinguishing outcome and stop:** require identifiable, predictive annual
 and centered-seasonal behavior across marine blocks. A failed or unidentified
