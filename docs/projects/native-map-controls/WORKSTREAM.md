@@ -50,10 +50,15 @@ The complete numerical chain takes `348.538 s`; retained science readback takes
 then locates excess inland seasonal RMS and a distinct coast-mean failure:
 amplitude mismatch contributes about 77% of the net held monthly deterioration.
 A four-panel atlas makes the raw atmospheric fields and matched annual
-residuals visible without replacing earlier native imagery. The next small
-manufactured test discriminates finite maritime buffering from the source's
-shared-air limit; it preserves existing physical laws and solver guards.
-No Earth rerun, fitting, automatic refinement or production change follows.
+residuals visible without replacing earlier native imagery. The completed
+[manufactured shared-air limit](thermal-boundary-discriminator.md#manufactured-shared-air-limit)
+takes `0.24 s` and reduces inland seasonal RMS by `5.28-5.46 C`, but also lowers
+annual means by `10.80-10.92 C`. A `0.07 s` retained power readback locates
+substantial internal constraint cooling, not an accidental energy sink.
+This diagnostic justifies choosing a physically supported finite transport
+closure, not adopting row-shared production air or inferring a diffusion gain.
+Existing physical laws and solver guards remain held. No Earth rerun,
+automatic refinement or production change follows from this observation.
 Reference/consumer qualification and the original
 procedural cohorts remain before owner replacement and normal native
 qualification. The earlier dry-transport Earth nonselection

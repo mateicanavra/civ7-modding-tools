@@ -53,10 +53,16 @@ annual residuals. Original 547-site identity, common residual scales,
 unsupported coverage and scientific nonselection remain explicit. Exact-byte
 local/tailnet checks and desktop/mobile browser checks pass; the existing
 gallery preserves all earlier native build evidence. These are diagnostic
-exports, not new Civ screenshots or a changed playable mod. Next compare one
-small finite-air wet-stripe case with a conservative shared-air limit using
-the existing solver. No expensive Earth rerun, guessed large diffusivity,
-post-step temperature reset or production zonal model is selected.
+exports, not new Civ screenshots or a changed playable mod. The subsequent
+[manufactured shared-air limit](thermal-boundary-discriminator.md#manufactured-shared-air-limit)
+completes in `0.24 s`, preserving the numerical/conservation guards. Inland
+seasonal RMS falls by `5.28-5.46 C`, alongside a `10.80-10.92 C` annual-mean
+decrease. A `0.07 s` retained-only readback shows substantial internal
+constraint cooling; all 6,768 phase/cell records and 72 statistics pass
+independent review. Its power means cover actual phases 2..95, not a whole
+year. This selects finite-transport closure investigation, not a coefficient
+or proof of a unique Earth cause. No expensive Earth rerun, guessed large
+diffusivity, post-step temperature reset or production zonal model is selected.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
 follows accepted SST0, authentic SST1 and canonical SST2. All seven complete

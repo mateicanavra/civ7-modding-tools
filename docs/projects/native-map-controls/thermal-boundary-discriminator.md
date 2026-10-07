@@ -13,8 +13,10 @@ decisions but refuses the unchanged componentwise refinement guard; reference
 allowances remain unresolved. The [complete scientific-Earth raw observation](#selected-moist-energy-earth-observation)
 now refuses the selected canonical candidate: both annual and seasonal error
 worsen against the unchanged original comparator. The [retained seasonal decomposition](#retained-seasonal-error-decomposition)
-locates different inland-amplitude and coast-mean failures. One small
-source-sharing-limit test is next, not an Earth rerun or parameter search.
+locates different inland-amplitude and coast-mean failures. The completed
+[shared-air limit](#manufactured-shared-air-limit) then demonstrates a strong
+manufactured response with conservative internal mixing. Finite closure
+selection comes next, not an automatic Earth rerun or parameter search.
 Reference/consumer qualification, original procedural
 cohorts and native admission remain separate. The installed playable mod is
 unchanged. Earlier designs and dated results
@@ -1411,7 +1413,7 @@ asset/served checks and desktop/mobile browser checks pass. Earlier galleries
 remain intact; these are diagnostic exports, not a new deployed climate or
 native imagery.
 
-The next source-grounded question is whether the finite two-dimensional air
+The next source-grounded question was whether the finite two-dimensional air
 adaptation makes maritime buffering too localized. Upstream ZEMBA area-mixes
 land/ocean air within a latitude band before transport; the candidate deliberately
 replaces that sharing with separate finite-coupled air cells. This is a structural
@@ -1423,6 +1425,76 @@ disappearance of longitudinal air contrast. No guessed large diffusivity,
 post-step reset, fitted parameter or production zonal model is selected.
 Constraint/geometry and independent equation/energy review precede execution;
 a null result stops this causal branch. No Earth forward run follows automatically.
+
+### Manufactured Shared-Air Limit
+
+The bounded wet-stripe comparison now completes in `0.24 s` wall time with
+reported maximum RSS `210,518,016 bytes`. Both finite and row-shared arms settle
+after five years at 96 chronological steps, using one BE startup each and the
+unchanged BDF2 history, equation, direction and energy guards. The shared arm
+conservatively aggregates air inventory and cross-row conductance while keeping
+all 27 land-skin states distinct. It is a simultaneous constrained limit, not an
+exact reproduction of the upstream model's daily split-step procedure.
+
+| Latitude | Finite Inland RMS, C | Shared Inland RMS, C | Shared Minus Finite Annual Mean, C |
+| --- | ---: | ---: | ---: |
+| -30 degrees | 11.09987 | 5.63576 | -10.80248 |
+| +30 degrees | 10.83686 | 5.56102 | -10.91511 |
+
+These are full-cycle piecewise-linear centered seasonal RMS and annual mean,
+not max-minus-min range or the Earth comparison's monthly RMS. The large inland
+response is sufficient to continue investigating transport. Longitudinal
+contrast vanishes by constraint and is not evidence of better physical skill.
+No Earth labels, fitted coefficient, refinement or production change enter this
+test. The shared state is not a solution of the unconstrained finite-cell air
+equations and is not a proposed production zonal model.
+
+A separate retained-only power readback takes `0.07 s` wall time with reported
+maximum RSS `157,990,912 bytes`. It uses actual chronological phases 2..95, with
+both BDF predecessors inside the retained terminal curve: 94 intervals, not a
+fabricated periodic wrap or a whole-year energy/covariance claim. Positive
+required mixing warms air; its area-weighted sum cancels across each row.
+
+| Shared Inland Coverage-Mean Power, W/m^2 | Southern Row | Northern Row |
+| --- | ---: | ---: |
+| Required constraint mixing | -24.35927 | -25.00869 |
+| Original finite-face transport | +4.35039 | +4.57556 |
+| Net top-of-atmosphere radiation | +20.51539 | +19.75960 |
+
+These are absolute shared-arm coverage means, not annual means or changes
+relative to the finite arm. The cooler shared land requires substantial local
+constraint cooling while original finite-face transport still supplies heat;
+positive net radiation offsets much of that cooling. Mixing is internal
+redistribution, not an added global sink. Surface-air sensible and latent
+exchange cancel in the combined dry-column budget. The shared mixing-air
+covariances are negative (`-263.87314/-258.65151 C W/m^2`), but raw covariance
+magnitudes are not comparable damping coefficients when temperature amplitudes
+differ.
+
+Independent retained review closes all 6,768 phase/cell records, 72 cell
+statistics and near/far summaries without another model or solver run. The
+lifted shared state's `8.14912 K` unconstrained finite-air defect is explicitly
+represented by constraint mixing, not hidden as a numerical pass. Skin, row
+cancellation and global-energy guards still pass. The complete manufactured
+packet retains `508,348 bytes`; reader plus budget output adds `3,220,559 bytes`.
+The original records remain unchanged.
+
+This closes the shared-air diagnostic, not the Earth failure. Its next use is
+to choose a physically justified finite zonal closure or reject the adaptation,
+not infer a diffusivity from this constrained endpoint. Preserve geographic
+contrast, source-supported meridional transport, local radiation and storage;
+distinguish closure calibration from held-out validation. Existing encoded winds
+are not physical SI advection. A new weather framework, guessed diffusion gain,
+post-step reset and automatic Earth rerun remain unselected.
+
+The private packet is
+`earth-calibration/earth-two-temperature-manufactured-shared-air-limit-20261007/`.
+Manufactured result and retained-budget SHA-256 identities are respectively:
+
+```text
+3e5e43b1b284aa45f1accf73f77e2f6f4c643ea466d53cd904844bdba87b0b17
+ec4cc6dd6caa7f4be52474ac68e2ad1dd7636fffe26a5eb3c5e618d27a3052da
+```
 
 ### Historical Trajectory Retirement
 
