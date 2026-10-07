@@ -183,8 +183,15 @@ readback memory refusal remains recorded; bounded file hashing removes
 unnecessary verification allocations without changing scores or resource caps.
 Sampled whole-process RSS is `226,000,896 B`, below `256 MiB`. All 196 training
 joins and custody checks pass; held/added extraction and model invocations are
-zero. Next is retained correction/residual alignment, not another physical
-run or fit. Held labels and the rejected coefficient search stay closed.
+zero. The [retained correction alignment](thermal-boundary-discriminator.md#retained-correction-alignment)
+now completes in `0.149 s`, reproducing the prior scores/verdict exactly. The
+annual correction is wrong-sign overall, including its centered component;
+seasonal correction has mixed alignment and excessive magnitude. This rules
+out a single positive-gain repair of the same annual correction. Next is a
+retained nonlinear power decomposition separating the initial wet boundary,
+actual current-driven departure and state reaction, without another simulation
+or observational evaluation. Neither a current-only reference nor new wet
+thermodynamics is selected. Held labels and the rejected coefficient search stay closed.
 No production migration or candidate deployment follows.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
