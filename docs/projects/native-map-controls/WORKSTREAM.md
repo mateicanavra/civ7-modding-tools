@@ -91,6 +91,14 @@ complete numerical attempts total `554.28 s`; their training readbacks total
 accounting. A published six-panel field atlas makes the response inspectable
 with common scales and verified desktop/mobile layouts. No candidate is
 adopted into the playable mod on this evidence.
+The [completed retained power and wet-boundary diagnosis](thermal-boundary-discriminator.md#retained-coast-power-and-wet-boundary)
+then shows simultaneous direct zonal warming and seasonal damping, with no
+direct wet face at the 14 geographically coastal identities. Regional monthly
+Earth skin exposes a northern boundary difference hidden by a near-matching
+global average: annual northern wet skin is 11.394 C colder than the prescribed
+annual SST0. One separately bounded wet-temperature sufficiency control is
+next, with the atmospheric laws and an already declared coefficient held;
+observed Earth remains an offline diagnostic, never a procedural recipe input.
 Reference/consumer qualification and the original
 procedural cohorts remain before owner replacement and normal native
 qualification. The earlier dry-transport Earth nonselection

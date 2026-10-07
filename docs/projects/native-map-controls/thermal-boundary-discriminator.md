@@ -19,8 +19,12 @@ manufactured response with conservative internal mixing. The subsequent
 [two-value finite-zonal comparison](#completed-finite-zonal-family)
 completes both prescribed Earth evaluations and rejects the family: neither
 value meets the unchanged training eligibility guards. No held benchmark,
-third coefficient or production adoption follows. The next discriminator
-uses retained common-SST0 heat budgets, not another transport sweep.
+third coefficient or production adoption follows. The completed
+[common-SST0 power readback](#retained-coast-power-and-wet-boundary)
+separates simultaneous zonal warming and seasonal damping. The accompanying
+wet-boundary comparison locates a large northern seasonal contrast hidden by
+the global mean. The next bounded control changes only prescribed wet
+temperature, not another transport coefficient or the procedural recipe.
 Reference/consumer qualification, original procedural
 cohorts and native admission remain separate. The installed playable mod is
 unchanged. Earlier designs and dated results
@@ -1853,7 +1857,7 @@ away these failures is established. Uniform clouds, prescribed procedural SST
 and finite transport remain declared model reductions rather than independently
 validated Earth boundary conditions.
 
-The next bounded diagnosis compares signed transport, radiation, exchange,
+The subsequent bounded diagnosis compares signed transport, radiation, exchange,
 storage and wet-thermostat power in the retained common-SST0 trajectories.
 An exact coefficient-only RHS increment at the same retained state separates
 direct transport from the changed-state response. It can locate heat supply,
@@ -1876,6 +1880,76 @@ and `cc03e006f2f35cee6f6652b5af57d0d7b3769330a3e57d63e4f10fc1511b859d`.
 The closed-family receipt is
 `542845c499cca07e68913f4be6bb5c65a6335016cd7058fceb4d5dacb0af1ac8`.
 The installed mod, recipe and public operation contracts are unchanged.
+
+#### Retained Coast Power And Wet Boundary
+
+The complete common-SST0 readback evaluates the two saved 96-phase trajectories,
+including authentic BDF entry histories, without advancing either simulation.
+The unchanged equation and energy guards pass. At the same centre state,
+stronger zonal transport gives positive mean heat increments at all 14 fixed
+coastal identities (`+5.265..+13.826 W/m2`) while its seasonal covariance with
+air temperature is negative at all 14. Mean warming and seasonal damping are
+therefore compatible, not evidence of an accidental energy sink.
+
+The adjusted centre trajectory warms and narrows its annual range at 13/14
+sites. The remaining site cools `0.152 C` and widens `1.393 C` despite a positive
+fixed-state increment: changed-state feedback cannot be replaced by the direct
+coefficient effect. Meridional transport changes despite its held coefficient.
+All 14 geographically coastal identities have no direct wet face in this
+particular solver graph. Direct wet-import terms are exactly zero; remote
+marine influence remains possible. The cohort label is not a graph-adjacency
+contract.
+
+The readback takes `1.28 s`, with about `271 MiB` maximum RSS and `3.19 MiB`
+compact output. Maximum phase defect is `7.07e-9 K`, energy discrepancy
+`6.36e-15`, and focused air/skin physical closure `7.52e-8 W/m2`. Independent
+review confirms signs, coverage and summaries. Earlier diagnostic refusals
+concerned a missing metadata lookup and an unjustified arithmetic-comparison
+scale, not a failed physical equation. The corrected reconstruction matches
+the original primitive flux ordering and exposes actual roundoff gaps; no
+physical guard was relaxed.
+
+A separate data-only comparison joins existing monthly NCEP-NCAR R1 wet skin
+to the exact Gaussian SST0 geography. The composite surface follows prescribed
+SST over open water and prognostic skin over sea ice; it is neither universal
+SST nor independent ice truth. [NOAA's definitions](https://www.psl.noaa.gov/data/help/faq.html)
+govern that distinction. The documented 1998-2004 polar ice-analysis/mask issue
+remains a limitation of this climatology, not silently corrected data.
+[NOAA's known problems](https://psl.noaa.gov/data/reanalysis/problems.shtml)
+
+Exact latitude, longitude and mask joins pass for all 11,158 cropped wet cells.
+Actual 1991-2020 Gregorian month weights include eight leap years. Global
+area-weighted annual wet skin is only `0.213 C` warmer than prescribed SST0,
+but this hides regional cancellation. For whole cells centered at or north
+of 60N, mean SST0 is a constant `4.840 C`; composite wet skin averages
+`-17.154/-17.269 C` in January/February and `3.122 C` in August. Its annual
+difference is `-11.394 C`. The remaining wet region is `0.639 C` warmer annually.
+All 84 row summaries and both fixed regions retain monthly means, extrema and
+distinct per-cell versus spatial-mean seasonal ranges. Weighted recombination
+recovers the global differences within `1.9e-13 C`.
+
+This locates a substantial exposed-surface boundary mismatch, not its causal
+effect on land or proof of a particular ice model. The existing ocean owner
+starts from a latitude-linear annual SST and convex water-only redistribution.
+With endpoint temperatures 27/-1 C and an ice threshold of -1 C, the cropped
+fixture cannot form threshold ice. Simply wiring that existing mask into the
+external candidate would not repair the missing cold exposure.
+
+The selected next discriminator is one lower-K, SST0-only wet-temperature
+sufficiency control with atmospheric laws, land optics, solar forcing, CO2,
+geometry and open-water optics held. A declared calendar reconstruction of
+the existing monthly composite boundary changes wet temperature only; its
+monthly reconstruction errors must remain visible. Full reference periodic
+settling and the existing phase/direction/energy guards remain mandatory.
+No later ocean updates, air-error fit, held scorer or production adoption
+belongs to this control. Wrong-signed or negligible northern land response
+would weaken the boundary explanation and reprioritize optical/atmospheric
+terms. Even successful cooling would not establish complete sea-ice physics.
+
+Evidence remains outside Git in the existing finite-zonal user-data packet.
+Power result SHA-256:
+`f6d1119a5f6589aa9b20ca01bf27a8772af76b7c45673cda002c7b055e0a4c91`.
+The installed playable mod is unchanged.
 
 ### Historical Trajectory Retirement
 
