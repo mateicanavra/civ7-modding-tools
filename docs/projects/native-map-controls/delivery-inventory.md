@@ -238,11 +238,18 @@ than replaying the coupled pipeline. The current-induced increment has negative
 air covariance and increases fixed-unit error in all seven supported northern
 held tables; five of seven baseline covariances are positive, not all.
 Exact SST0/raw-anchor and compact telescope controls pass; no new field is retained.
-The next [bounded product comparison](thermal-boundary-discriminator.md#next-product-sized-domino)
-must discriminate actual current construction from thermal transport before
-a geographic maritime-air model. This establishes neither a unique direction,
-dose or metric defect nor a zero-current/global-flip/gain repair. No new solver,
-sweep,
+The [frozen explicit-circulation ablation](thermal-boundary-discriminator.md#completed-explicit-circulation-ablation)
+then completes in `5.227 s`, preserving the original trajectory. Removing only
+the gyre/coast block flips five of seven northern AIR/OI increment covariances
+positive, but materially weakens pooled geographic correlation. All seven
+northern centered unit errors improve; two negative increments remain and
+primary `75-80 N` remains empty. Independent review passes 440 compact checks.
+The mixed-result rule stops uniform removal as a sufficient repair; there is
+no automatic coupled wind-only follow-up. The next
+[bounded owner design](thermal-boundary-discriminator.md#next-product-sized-domino)
+must replace arbitrary component-center/coast forcing with a defensible geographic
+relationship before a maritime-air model. Thermal dose/metric remain rivals;
+no unique cause or zero-current/global-flip/gain repair is established. No new solver, sweep,
 wet-storage system or production migration is selected automatically. Held land
 labels and rejected searches remain closed; the playable mod is unchanged.
 

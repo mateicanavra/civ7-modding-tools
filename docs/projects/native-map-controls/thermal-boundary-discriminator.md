@@ -32,9 +32,12 @@ The [exact zero-current decomposition](#completed-zero-current-decomposition)
 then isolates that increment without repeating the coupled pipeline. It worsens
 unit-anomaly error and has negative air covariance in all seven supported
 northern held tables, including the two positive final-field exceptions.
-The next [product-sized comparison](#next-product-sized-domino) stays upstream
-at current construction and thermal transport. No unique direction, dose or
-coordinate defect, zero-current replacement or scalar-gain repair is established.
+The [frozen explicit-circulation ablation](#completed-explicit-circulation-ablation)
+then flips five of those seven increments positive, but weakens pooled geographic
+information. This mixed result stops uniform component removal as a sufficient
+repair. The next [product-sized design](#next-product-sized-domino) stays at
+geographic current construction and thermal transport. No unique direction,
+dose or coordinate defect, zero-current replacement or scalar-gain repair is established.
 Cheap premise checks and
 rejection-first pilots precede large qualification campaigns. Existing numerical methods remain
 reusable, not a reason to run another solver campaign automatically. Scientific,
@@ -3061,6 +3064,70 @@ reserve sets this unit's ceiling to `67,174,400 B`; older `64 MiB` receipts and
 all scientific guards remain unchanged. No executable compression, evidence
 retirement, raw-field duplication or installed-mod change occurs.
 
+#### Completed Explicit-Circulation Ablation
+
+One authentic SDK composition retains all original outputs and intervenes only
+on the second atmosphere's current construction. Its 24 phases each have two
+weather members: 48 alternative builder calls set only `gyreStrength` and
+`coastStrength` to zero. The original weather-member and weighted annual reducers
+both retain their Int8 rounding. One alternative third-ocean call consumes those
+currents without feeding back. All original SST vintages, actual SST2-driving
+annual currents, setup/configuration and final publication reproduce exactly.
+This is not a builder call on annual winds or an alternative coupled trajectory.
+
+Freeze the fields before reference-value access, then reuse the same 24 support
+tables and each table's weighted row means. AIR and OI comparisons agree on the
+mixed geographic result. The following are held, row-centered correlations,
+not absolute temperature accuracy:
+
+| Support | Cells | AIR Correlation, Original to Alternative | OI Correlation, Original to Alternative |
+| --- | ---: | ---: | ---: |
+| Full, overall | 5,545 | +0.21154 to +0.06556 | +0.30075 to +0.08377 |
+| Primary, overall | 3,807 | +0.33357 to +0.09918 | +0.34371 to +0.10528 |
+| Full, 60-75 N | 283 | -0.25486 to +0.07165 | -0.30417 to +0.01636 |
+| Full, 75-80 N | 226 | -0.17167 to +0.30541 | -0.28013 to +0.24386 |
+| Primary, 60-75 N | 37 | -0.63616 to -0.61473 | +0.00792 to +0.01590 |
+| Known ice, 60-75 N | 175 | +0.05212 to +0.25670 | +0.02502 to +0.16653 |
+| Known ice, 75-80 N | 172 | -0.30755 to +0.24571 | -0.38926 to +0.17973 |
+| Coastal, 60-75 N | 139 | -0.14588 to -0.11736 | -0.16207 to -0.07296 |
+| Coastal, 75-80 N | 47 | +0.15998 to +0.33248 | +0.11698 to +0.35185 |
+
+The increment from the unchanged zero-current `Z` becomes positive against both
+AIR and OI in five of seven supported northern tables. Primary/coastal `60-75 N`
+remain negative; primary `75-80 N` is empty. All seven northern centered unit
+errors improve, but pooled correlation deteriorates as variance falls. Overall
+full/primary AIR unit RMS improves `3.963/3.832 -> 2.624/2.131 C`, still above
+the row-only floors. All seven northern OI unit errors also remain above the
+configured zero-current control. Smaller error does not establish repaired geography.
+
+Northern encoded current RMS actually rises `0.61310 -> 0.61891` of the scale,
+with radial saturation rising `4.265% -> 6.895%`; this is not blanket northern
+current attenuation. Spatial dose and direction still change together. Original
+geometry has 17 connected water components; the largest contains 11,984 of
+12,134 wet cells and spans `84.75 S` to `88.54 N`. Connectivity is not a
+circulation-basin definition, and that source limitation is now implicated by
+the geographic tradeoff, not uniquely proven as the cause of every error.
+
+The predeclared mixed-result rule stops uniform G/K removal as a sufficient
+repair. Do not run a coupled wind-only follow-up merely to repeat that mechanism
+contrast. Design at the existing geographic current owner instead; no global
+flip, gain, subgroup patch or larger ocean simulator is selected. OI remains
+ice-informed SST rather than exposed ice skin; shared reference ancestry,
+Gaussian-versus-uniform-tile transport and missing vertical heat budgets remain
+limits. This does not qualify seasonal air, land temperature or production.
+
+The single invocation takes `5.226849 s`. Child high-water is `437,698,560 B`;
+sampled launcher/time/direct-reader RSS is `481,083,392 B`, below `512 MiB`,
+excluding brief checker descendants. Independent compact reconstruction passes
+440 checks across 22 nonempty tables, maximum moment gap `9.42e-14 C2` and
+correlation gap `1.12e-16`. Source/input postchecks and cleanup pass. The canonical
+report is `10,009 B`, SHA-256
+`d9ea39e6427458265ed530e938981aba6bda55d24600a9fbe3f0f37d25b38996`.
+Inclusive retention is `67,210,316 B` under the prospectively admitted
+`67,239,936 B` compact-source/result ceiling; older receipts and scientific
+guards are unchanged. No raw alternative field or public harness is retained.
+The installed mod is unchanged.
+
 #### Next Product-Sized Domino
 
 **Immediate owners:** existing ocean current construction and thermal transport,
@@ -3068,14 +3135,15 @@ using the actual current vintage that drives SST2, not final published currents.
 The completed retained-P/zero-current/raw-anchor decomposition earns investigation
 of the harmful current-induced northern increment. The earlier full actual/zero/
 reversed replay proposal was superseded by that cheaper sufficient test, not run.
-The explicit component-center gyre/coast terms have hemisphere-only handedness;
-connected water components are not gyre basins. That is a documented reduced-model
-limit, not a proven cause; see the [declared current qualification boundary](../../system/libs/mapgen/reference/domains/HYDROLOGY.md#key-artifacts).
-Wind/Ekman already carries latitude regimes, and
-transport dose/metric remain alternatives. Select one frozen-input causal
-discriminator before an owner repair; no global flip, component removal, scalar
-fit or larger ocean model is admitted by this result. Exact source, resources
-and stop criteria must precede execution.
+The completed explicit-block ablation implicates a geographic tradeoff, not a
+uniformly harmful component. Select a bounded wind-derived, coast-constrained
+current-construction design that does not mistake connected water components
+for gyre basins or add an independent hemisphere-only coastal current. Keep it
+inside the existing operation and quantify its strongest rival: the current
+thermal consumer's uniform-tile dose/metric. The [declared qualification boundary](../../system/libs/mapgen/reference/domains/HYDROLOGY.md#key-artifacts)
+still applies. No coupled wind-only run, global flip, component deletion, scalar
+fit or larger ocean model is admitted by the mixed result. Exact relationship,
+manufactured falsifier, resources and stop criteria precede a candidate run.
 
 **Downstream owner:** existing `compute-thermal-state` periodic-response rule
 and its one thermal artifact. Preserve one lapse application, publication,

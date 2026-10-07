@@ -172,11 +172,16 @@ then completes in `0.308 s`, reusing retained SST2 rather than repeating the
 coupled pipeline. Its net current increment has negative air covariance and
 raises unit-anomaly error in all seven supported northern held tables. The
 baseline is not universally correct, but five of seven baseline covariances
-are positive. The next [product-sized domino](thermal-boundary-discriminator.md#next-product-sized-domino)
-discriminates actual current construction from thermal transport at the driving
-vintage before selecting a geographic thermal equation. No unique direction,
-dose or metric defect, zero-current replacement, gain sweep, wet-storage
-migration, global current flip or ocean rebuild
+are positive. The [frozen explicit-circulation ablation](thermal-boundary-discriminator.md#completed-explicit-circulation-ablation)
+then completes in `5.227 s` with the original trajectory unchanged. Removing
+only the gyre/coast block flips five of seven northern AIR/OI increments
+positive, but weakens pooled geographic correlation; two negative increments
+remain. Independent reconstruction passes 440 compact checks. The mixed-result
+rule stops uniform component removal and a coupled wind-only follow-up as a
+sufficient repair. The next [product-sized design](thermal-boundary-discriminator.md#next-product-sized-domino)
+stays at geographic current construction, with thermal dose/metric as rivals,
+before selecting a geographic thermal equation. No unique cause, zero-current
+replacement, gain sweep, wet-storage migration, global flip or ocean rebuild
 follows automatically. One domino is executable at a time. Cheap premise and rejection tests
 precede expensive qualification; promotion still needs all scientific,
 procedural, downstream and native proofs.
