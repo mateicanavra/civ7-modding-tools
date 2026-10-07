@@ -199,8 +199,15 @@ then takes `0.099 s`, using existing monthly references without another model
 solve. A small northern `B-air` mean bias hides substantial local annual and
 seasonal contrasts (`6.778 / 7.051 C` RMS); the inland response is not a qualified
 wet-air or wet-skin reference. This does not establish liquid-SST error on a
-mask mixing sea ice and open water. Next qualify the annual liquid prior on
-existing ice-free OI support, then the exposed boundary/reference convention
+mask mixing sea ice and open water. The subsequent
+[annual liquid-prior audit](thermal-boundary-discriminator.md#completed-annual-liquid-prior)
+completes in `0.079 s` on 7,615 fixed all-year ice-free cells, with no model solve.
+SST0 is colder than OI by `2.346 C` globally on that support; SST2 improves mean
+bias but worsens per-cell annual RMS `3.914 -> 4.494 C`. The northern subset has
+only 76 cells and does not qualify the ice-covered boundary. A blanket ocean
+cooling is not selected. Next isolate the
+[dry-only reference budget](thermal-boundary-discriminator.md#dry-only-reference-budget-discriminator)
+at frozen actual SST2, then resolve the exposed boundary/reference convention
 inside the same thermal owner. No current-only reset, scalar gain, all-wet
 mean-preserving slab or ocean rebuild is selected. Held land labels and the
 rejected coefficient search stay closed.

@@ -139,9 +139,15 @@ reconstruction and independent power-accounting review pass. The subsequent
 completes in `0.099 s`, using existing matched monthly references and no model
 solve. Northern `B-air` annual mean bias is only `-0.528 C`, but local annual
 and seasonal RMS contrasts are `6.778 / 7.051 C`: regional agreement hides an
-unqualified wet-air reference, not just an exposed-skin mismatch. Next qualify
-the annual liquid prior on the existing ice-free OI support, then design the
-exposed seasonal boundary and reference budget inside the current thermal owner.
+unqualified wet-air reference, not just an exposed-skin mismatch. The subsequent
+[annual liquid-prior audit](thermal-boundary-discriminator.md#completed-annual-liquid-prior)
+takes `0.079 s`: on the fixed 7,615-cell all-year ice-free support, SST0 is
+`2.346 C` colder than OI; SST2 reduces mean bias but raises local annual RMS
+`3.914 -> 4.494 C`. This does not qualify ice-covered surface or the annual
+liquid prior, and rules out treating the earlier mixed-surface contrast as a
+blanket ocean-warming defect. Next isolate the
+[dry-only reference-budget convention](thermal-boundary-discriminator.md#dry-only-reference-budget-discriminator)
+with actual SST2 held fixed, before designing a production boundary repair.
 No current-only reference reset, scalar attenuation, all-wet mean-preserving
 slab or ocean-model rebuild is selected.
 The candidate is not selected and the installed mod is unchanged. Neither the simpler
