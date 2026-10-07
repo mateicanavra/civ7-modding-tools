@@ -1496,6 +1496,100 @@ Manufactured result and retained-budget SHA-256 identities are respectively:
 ec4cc6dd6caa7f4be52474ac68e2ad1dd7636fffe26a5eb3c5e618d27a3052da
 ```
 
+### Prospective Finite-Zonal Calibration
+
+Select one finite zonal coefficient, `K_lambda` in `m^2/s`, while holding the
+source meridional coefficients (`700000/840000 m^2/s`) and every other physical
+parameter fixed. The [source model description, sections 2.1.4 and 2.4](https://gmd.copernicus.org/articles/18/2479/2025/)
+distinguishes infinite zonal mixing from calibrated meridional diffusion.
+The pinned unused `land_sea_dry_mixing` helper also has a separate finite
+coefficient, but supplies no selected value in the executed configuration.
+Its two-sector geometry is not the candidate's longitude ring; common units
+do not justify copying a numerical value between them.
+
+Freeze an explicitly weak empirical prior: a hard bracket of `1e6..1e7 m^2/s`
+and first value `10^6.5 m^2/s`. This is an author-selected reduced-model range,
+not an independently measured coefficient or an inference from the shared-air
+endpoint. For a 3000-km half-wavelength dry sinusoidal contrast,
+`tau = L^2 / (pi^2 K_lambda)` is about `10.55/3.34/1.06 days` at the lower,
+centre and upper values. These are isolated dry-mode times, not coupled
+equilibration; the MSE potential has a temperature-dependent derivative.
+
+Only same-row reciprocal conductances change. Cross-row bytes, angular areas,
+polar merging, state layout, skin/air capacities, local radiation, exchange,
+forcing, calendar and incoming SST remain held. Reuse the existing positive
+transport solver and original chronological equations. Small literal geometry
+and original-stripe controls precede Earth execution; no new seasonal proof
+family, advection state or wind-unit conversion is needed.
+
+At most two new complete Earth evaluations are allowed: three independently
+cold settled96/M24 vintages and two actual ocean advances per evaluation.
+The first uses the prior centre. Training uses only the original 196 receivers
+and existing area/day-weighted monthly MSE. Let `J0` be the reused selected
+isotropic candidate's training MSE. Eligibility requires `J < J0`, plus these
+prospective annual checks against the original zero-height incumbent, each
+with the existing `1e-4 C` collateral tolerance:
+
+- Training annual RMSE, source-row mean error RMSE and absolute annual bias
+  must not worsen.
+- The supported 14-site training-coast annual RMSE and source-row mean error
+  RMSE must not worsen. Populations below eight remain unsupported.
+
+These are newly declared training-eligibility mirrors, not claims that the old
+scorer already guarded training. If the first value is eligible, the sole
+second value is `10^6.75`; otherwise it is `10^6.25 m^2/s`. Choose the eligible
+new value with lowest training monthly MSE; exact ties choose the prior centre.
+No continuous optimum, third value or bracket expansion is claimed.
+
+Freeze the coefficient and complete numerical prediction receipt before one
+original 215-site plus 136 additional-coast benchmark readback. These already
+inspected diagnostic populations are excluded from coefficient fitting, not
+pristine unseen validation. Every original annual, monthly, regional and coast
+guard remains intact. Neither seasonal improvement alone nor a fitted
+temperature score establishes independently measured transport physics.
+
+The entire two-evaluation study is bounded by `1800 s` active computation,
+`1.5 GiB` process RSS and `512 MiB` new retention, including compact readbacks;
+each numerical attempt is at most `900 s`. Reject this family if neither
+tested value is training-eligible, the frozen benchmark fails, or success
+requires a bracket endpoint, quasi-shared mixing, additional fitted physics or
+a numerical/resource retry. A failed family returns to the radiation/SST
+reduction as a separate model-selection question, not an endless diffusion
+search. No automatic refinement or production adoption follows.
+
+If selected later, implementation belongs inside the existing
+`hydrology/compute-thermal-state` operation. Forward actual geometry/forcing
+inputs explicitly and keep the existing thermal publication owner; do not
+port private source transforms, file authorities, duplicated proof equations
+or trajectory banks into player generation. Consumer-scaled runtime accuracy
+and invocation-local continuation still need same-law comparison before the
+whole-map native timing gate can be claimed.
+
+The private design packet is
+`earth-calibration/earth-two-temperature-finite-zonal-design-20261007/`.
+Frozen specification SHA-256:
+`0bfa4cba6538500e36ccbbc72488e3af5b75d2ad40e3744ffb6e2df0ce1f6f2f`.
+
+#### Completed Geometry And Stripe Gate
+
+The distinct small-map gate passes all three prospective coefficients on the
+original 36-cell wet stripe. Each arm settles in five years with one BE startup
+and 480 chronological phases. Reciprocal flux, unequal-area cancellation,
+unchanged meridional faces, merged poles and original layout pass. The original
+equation, full-direction and energy checks remain intact; maximum
+unnormalized equation defect is `3.43e-11 K`, maximum relative energy error
+`1.18e-15`, and the final independent full-Jv comparison stays below
+`3.34e-16 K`.
+
+The complete gate takes `0.49 s`, peaks at `192,888,832 bytes` RSS and retains
+`59,839 bytes` on its execution host, including the source packet and root GO.
+It reruns neither previous finite/shared arm and reads no Earth observations.
+Finite inland seasonal contrast remains: the centre-value far-land seasonal
+RMS is `11.008/10.769 C` south/north. This is numerical and geometry readiness,
+not Earth skill, a selected coefficient, refinement or production admission.
+Independent source/design and retained gate reviews pass. Result SHA-256:
+`07d6c6cb45904da82383594161e5fa69c0495b95ca4dd6a6f7e0df7221c02587`.
+
 ### Historical Trajectory Retirement
 
 A reviewed exact-path retirement removed 182 obsolete raw BE
