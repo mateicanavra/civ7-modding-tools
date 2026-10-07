@@ -2368,13 +2368,73 @@ This does not establish H8 native cost, continuum accuracy or Earth skill.
 
 This clears the declared manufactured cost/convergence obstacle, not actual
 SST0/SST1/SST2 feedback, full-map waveform accuracy, Earth skill or complete
-Huge timing. The next comparison must qualify the periodic approximation on
-authentic geography and retain all three thermal vintages and both actual
-ocean updates. Reuse the original empirical incumbent, calendar, receivers
-and period-matched forcing for one frozen training-first Earth comparison;
-do not reopen the rejected coefficient search or substitute observed water
-temperature into the procedural recipe. No production deployment follows
-from these numerical results.
+Huge timing. The authentic comparison below retains all three thermal vintages
+and both actual ocean updates. It does not reopen the rejected coefficient
+search or substitute observed water temperature into the procedural recipe.
+No production deployment follows from these numerical results.
+
+### Authentic Periodic Composition
+
+The frozen Earth comparison preserves the empirical inland baseline, original
+nonlinear laws and source transport coefficients. It solves the same
+reference-subtracted response at H4 and H8, with modern forcing in both power
+budgets. Each order independently follows the actual baseline step through
+SST0, two current/ocean updates, SST2 and final moisture. Wet public temperature
+remains prescribed annual SST; auxiliary wet-air response stays private to the
+thermal computation. No observation feeds either simulation.
+
+Three initial attempts stop at the prospectively fixed `512 MiB` whole-process
+memory guard in `1.886 / 2.927 / 2.930 s`. They have no terminal numerical result
+and remain refused. Bounded runtime hashing removes a whole-executable temporary
+allocation; removing an optional duplicate half-grid diagnostic does not cure
+the refusal. The samples do not identify an unconstrained peak or prove a
+particular solver allocation is responsible.
+
+A separately reviewed resource exception distinguishes this offline
+16,128-cell Earth/H8 reference from the smaller 6,996-cell manufactured native
+H4 case: `358,666` versus `87,444` unknowns. The offline whole-process ceiling is
+`768 MiB`; wall time and new evidence remain `900 s / 64 MiB`. This is not a
+relaxation of numerical or scientific accuracy, nor player-memory admission.
+The complete Huge `30-60 s` player target remains independent. No automatic
+retry or further cap increase is authorized by a refusal.
+
+The single revised attempt completes both actual branches in `34.486 s`.
+All six cold solves converge in four or five full Newton updates, with fresh
+nodal residuals at most `0.000287 K`, below `0.001 K`. Each branch executes
+`144` pressure calls, `48` final evaporation calls and `3` ocean calls (initial
+state plus the two updates). Ground/calendar publication passes, wet DTO
+mismatches are zero and the continuous Kelvin enclosure is
+`257.819..301.633 K`. Primitive-flux checks cover collocation nodes only; no
+off-grid residual or periodic-continuum certificate is claimed.
+
+| Atmosphere Vintage | All-Field H4/H8 Bound (K) | Published Land-Air Bound (K) | SST Maximum Difference (C) |
+| --- | ---: | ---: | ---: |
+| SST0 | 0.074842 | 0.065610 | 0 |
+| SST1 | 0.075713 | 0.066465 | 0.045080 |
+| SST2 | 0.074414 | 0.066175 | 0.071005 |
+
+Every waveform row fails the unchanged `0.05 K` guard; final SST also fails
+its `0.05 C` guard. Worst thermal differences occur in the southernmost retained row.
+Interpolation reserves are only about `1.4e-5 K`, so the refusal is not an
+overly conservative interpolation reserve. Consumer-order differences are
+retained as diagnostics, not silently admitted as equivalent. No training,
+held or added observations are scored, and no production change is selected.
+
+Sampled whole-process RSS reaches `747,880,448 B`, below `768 MiB`. All 891
+source-custody postchecks, runtime/wrapper checks and frozen-output hashes pass. The 466 output fields
+occupy `34,292,832 B` outside Git; only compact receipts are duplicated. The
+retained numerical result is SHA-256
+`1b75c1e9f13c4f0fce642721977d180f5db03d62693b615cbd72b8f4a9ee0930`.
+Independent retained review, not another solve, qualifies these conclusions.
+
+The next discriminator reads these frozen states to separate omitted seasonal
+modes from lower-mode aliasing and locate their geographic support. It must
+justify a numerical refinement before another physical attempt, preserving
+the equations and accuracy guards. Reuse the admitted higher-order branch
+where its exact dependencies permit; do not repeatedly simulate a fixed
+reference. A numerically surviving pair alone earns a separately authorized,
+training-first Earth comparison with the original empirical incumbent,
+calendar, receivers and period-matched forcing.
 
 Existing latitude/bounds/tilt can be forwarded by the current step; geographic
 working storage stays private to the operation. Publish `B + delta` once over

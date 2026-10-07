@@ -97,11 +97,19 @@ All three independently cold native-sized calls then converge in four full
 Newton updates, taking `1.137 / 1.332 / 1.076 s`; aggregate thermal work is
 `3.552 s`, below the unchanged `6 s` per-call / `18 s` targets. This is repeated
 manufactured-boundary cost qualification, not actual SST0/SST1/SST2 composition.
-The fixed H4/H8 extension now passes tiny equivalence at both orders, preserving
-the admitted H4 states and iteration arithmetic exactly. The next unit qualifies
-the periodic approximation on the authentic geography
-and complete ocean-feedback sequence before a frozen training-first Earth
-comparison. Neither the simpler
+The fixed H4/H8 extension passes tiny equivalence at both orders, preserving
+the admitted H4 states and iteration arithmetic exactly. The subsequent
+[authentic periodic composition](thermal-boundary-discriminator.md#authentic-periodic-composition)
+completes both full Earth branches in `34.486 s`, including six cold solves and
+both actual ocean updates per branch. Nodal, calendar and Kelvin checks pass,
+but H4/H8 waveform gaps reach `0.075713 K` and final SST differs by `0.071005 C`,
+exceeding the unchanged `0.05` refinement guards. No observational scoring or
+production adoption follows. Three prior offline memory refusals remain valid;
+a reviewed `768 MiB` budget for this larger reference completes below `714 MiB`
+whole-process RSS, not a player-path memory qualification. Next, use these
+frozen states to distinguish missing seasonal modes from lower-mode aliasing
+before selecting a numerical refinement; do not repeat the Earth reference or
+increase an order automatically. Neither the simpler
 architecture nor small-system qualification establishes Earth improvement. Any owner replacement
 still needs independent reference/consumer qualification, original procedural
 cohorts and normal native proof within the complete Huge `30-60 s` budget.
