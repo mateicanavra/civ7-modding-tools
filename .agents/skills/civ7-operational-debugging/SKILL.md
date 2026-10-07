@@ -1,7 +1,7 @@
 ---
 name: civ7-operational-debugging
 description: |
-  Use in the Civ7 Modding Tools repo for "check the deployed mod", "inspect Civ7 logs", "did Civ7 load this", "is the Tuner healthy", "capture the Civ7 window", "debug a live run", "why did Run in Game fail", "compare generated and deployed files", "what proof do we have", or "verify this in game". Routes evidence through resources/providers, the public controller and Play clients, MapGen-runs, projections, and qualified apps.
+  Use in the Civ7 Modding Tools repo for "check the deployed mod", "inspect Civ7 logs", "did Civ7 load this", "is the Tuner healthy", "capture the Civ7 window", "debug a live run", "quit Civ gracefully", "recover an unresponsive session", "why did Run in Game fail", "compare generated and deployed files", "what proof do we have", or "verify this in game". Routes evidence through resources/providers, the public controller and Play clients, MapGen-runs, projections, and qualified apps.
 ---
 
 # Civ7 Operational Debugging
@@ -75,7 +75,9 @@ Each owner reports only its facts:
    evidence does not prove.
 8. **Recover at the owner.** Fix source/configuration at the semantic or effect
    owner, regenerate/redeploy through Nx, and repeat with a fresh evidence
-   window.
+   window. Prefer an in-game restart for an already-registered mod. When full
+   application exit is necessary, follow `references/graceful-exit.md`: ask Civ
+   to exit through its own UI primitive and independently verify process exit.
 
 ## Discovery First
 
@@ -99,6 +101,7 @@ syntax only after its current `--help` confirms it.
 | `references/operational-paths.md` | Locating owner roots, generated/deployed evidence, logs, and resource/provider source |
 | `references/debugging-workflow.md` | Running build/deploy, live-resource, MapGen-run, or projection diagnosis |
 | `references/firetuner-runtime.md` | Diagnosing Tuner acquisition, scripting states, raw evidence, or native primitive discovery |
+| `references/graceful-exit.md` | Choosing restart versus full exit, issuing the native graceful-exit request through the existing CLI or inspector, and verifying process exit |
 | `references/proof-boundaries.md` | Labeling claims and separating receipts from outcomes |
 
 ## Invariants

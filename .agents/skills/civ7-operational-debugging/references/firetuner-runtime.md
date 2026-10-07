@@ -72,6 +72,14 @@ mod, and prove its admission, dispatch, and readback through the public client.
 Actor-facing checks, no-repeat policy, and next-action meaning then belong to
 Play.
 
+An authorized, bounded maintainer recovery is still a diagnostic use. For full
+application exit, the existing App UI `game exec` surface can invoke Civ's own
+`engine.call("exitToDesktop")`; independently verify process exit afterward.
+Follow [graceful-exit.md](graceful-exit.md) for restart selection, one-shot
+dispatch, uncertain shutdown results and the private inspector alternative.
+This is not a new product lifecycle API or a reason to extend frozen control
+implementations.
+
 ## Runtime Evidence
 
 For each probe record:
@@ -105,4 +113,6 @@ When an actor-facing blocker lacks a public operation:
    readback. Then prove actor-facing postcondition, uncertainty, and no-repeat
    policy in Play rather than adding them to the native leaf.
 
-Do not leave users with a raw script recipe as the permanent workflow.
+Do not leave users with a raw script recipe as the permanent workflow for a
+product or actor-facing capability. Keep bounded maintainer diagnostics
+explicitly labeled and separate from those public operations.
