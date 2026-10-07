@@ -159,9 +159,16 @@ specific cost/convergence obstacle, not actual ocean-feedback, whole-recipe,
 Earth-accuracy or deployment admission. The fixed H4/H8 extension also passes
 tiny equivalence, with exact retained H4 state/iteration identity and continuous
 H8 differences below `0.000055 C` from the same-order dense references.
-Authentic geographic/periodic and
-three-vintage qualification precede the next frozen training-first Earth
-comparison. Held labels and the rejected coefficient
+The subsequent [authentic periodic composition](thermal-boundary-discriminator.md#authentic-periodic-composition)
+completes all six cold Earth solves and both actual ocean updates per branch in
+`34.486 s`. Nodal, calendar and Kelvin checks pass, but complete H4/H8 waveform
+gaps reach `0.075713 K` and final SST differs by `0.071005 C`, above the unchanged
+`0.05` refinement limits. The candidate therefore remains numerically refused;
+no observations are scored. Its reviewed `768 MiB` offline reference budget
+completes below `714 MiB` whole-process RSS; the earlier `512 MiB` refusals remain
+refusals and no native/player memory claim follows. Saved-field seasonal-mode
+and aliasing diagnosis precedes a justified refinement, then any frozen
+training-first comparison. Held labels and the rejected coefficient
 search stay closed. No production migration or candidate deployment follows.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
