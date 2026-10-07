@@ -194,9 +194,15 @@ Northern wet-air initial dose is `178.868 W/m2`, versus `13.133 W/m2` from the
 two-update departure; the global split is different, so this diagnosis retains
 the composed ocean-update contribution. Exact original residual and independent
 accounting checks pass.
-Next qualify the exposed thermal boundary and reference convention inside the
-existing thermal owner, before another full Earth candidate. No current-only
-reference reset or new wet thermodynamics is selected. Held labels and the
+The [completed marine reference-semantics audit](thermal-boundary-discriminator.md#completed-marine-reference-semantics)
+then takes `0.099 s`, using existing monthly references without another model
+solve. A small northern `B-air` mean bias hides substantial local annual and
+seasonal contrasts (`6.778 / 7.051 C` RMS); the inland response is not a qualified
+wet-air or wet-skin reference. This does not establish liquid-SST error on a
+mask mixing sea ice and open water. Next qualify the annual liquid prior on
+existing ice-free OI support, then the exposed boundary/reference convention
+inside the same thermal owner. No current-only reset, scalar gain, all-wet
+mean-preserving slab or ocean rebuild is selected. Held land labels and the
 rejected coefficient search stay closed.
 No production migration or candidate deployment follows.
 

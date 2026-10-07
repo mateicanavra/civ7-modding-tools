@@ -2685,6 +2685,69 @@ Earth candidate; neither a scalar attenuation nor subtracting actual SST0 to
 erase ordinary zero-current maritime response is selected. The training
 rejection remains unchanged and the installed playable mod is unchanged.
 
+#### Completed Marine Reference Semantics
+
+One data-only comparison now separates the unchanged empirical inland response
+`B`, marine two-metre air, composite exposed skin and actual annual SST0/SST2.
+It uses the already retained, matched `1991-2020` NCEP monthly fields on the
+original crop: source rows 5-88, 192 columns and 11,158 static-marine cells.
+All 4,970 dry cells are excluded before temperature-value access. The shared
+container is parsed, but no land observations, cohort, scorer, fit or physical
+owner enters this calculation. Fixed global, north-at-least-60-degree and
+complementary supports are not chosen from the errors.
+
+`B` is evaluated with the original Float32 latitude inputs and solar/policy
+bytes, without lapse, clipping or the public wet-SST substitution. Analytic
+monthly integration uses the existing phase origin and 22 common/8 leap-year
+windows. Annual values are day-weighted monthly means; for `B` this also equals
+its constant Fourier coefficient. The following contrasts are area-weighted
+per-cell RMS, not regional mean biases; seasonal contrast removes each cell's
+own annual mean before aggregation:
+
+| Static Marine Support | B-Air Annual RMS, C | B-Air Seasonal RMS, C | Air-Skin Seasonal RMS, C |
+| --- | ---: | ---: | ---: |
+| Entire crop | 3.118620 | 5.775839 | 0.641523 |
+| At least 60 degrees north | 6.778252 | 7.051132 | 1.314183 |
+| Complement | 2.898157 | 5.723742 | 0.602803 |
+
+Northern regional annual means nearly coincide: `B = -7.301688 C`, air
+`-6.773250 C`, skin `-6.554213 C`. That small `B-air` mean bias (`-0.528438 C`)
+does not qualify its local or seasonal wet-air reference. July's northern
+area-mean `B-air` contrast is `+9.501907 C`. The northern annual `B-skin` RMS is
+`7.729071 C`, and its seasonal RMS is `8.082743 C`; air-skin annual RMS is only
+`1.136282 C`. Merely changing the exposed skin leaves a separate wet-air/reference
+assumption unqualified.
+
+Actual annual SST0 and SST2 means on that northern support are `+4.839955` and
+`+5.546227 C`. They are not interchangeable with either colder air or exposed
+skin. This static marine mask mixes open water and sea ice: the audit does not
+establish liquid-SST error, infer monthly ice cover or independently validate
+sea-ice physics. NCEP air and skin are same-reanalysis references, with
+[documented polar-analysis limitations](https://psl.noaa.gov/data/reanalysis/problems.shtml).
+Open-water skin also shares OI-SST ancestry; a comparison between those sources
+must not be presented as wholly independent observed surface truth.
+
+The next bounded qualification is the existing OI liquid-SST reference on its
+already admitted all-year ice-free support, separately from these all-wet
+air/skin contrasts. No new dataset, land scoring or full Earth solve is needed.
+That determines whether the annual liquid prior needs repair before designing
+the seasonal exposed-boundary and reference-budget relationship in the same
+thermal owner. A zero-mean seasonal slab around annual liquid SST cannot repair
+the demonstrated northern exposed-skin mean; it is not an all-wet solution.
+No capacity, gain, current-only reference reset or ocean-model rebuild is selected.
+
+Execution completes in `0.098536 s`, with measured child maximum RSS
+`149,897,216 B` and sampled whole-process RSS `190,218,240 B`, below `256 MiB`.
+The `B-skin = (B-air) + (air-skin)` identity, per-cell annual/seasonal squared-RMS
+partition, and regional/row recombination pass. All eleven consumed-input
+custody postchecks pass; no numerical process or owned temporary modules remain.
+Inclusive all-host retained evidence is `65,623,425 B`, below `64 MiB`.
+Result SHA-256 is
+`18000060e5b8599f4017e5cdb19355645680ae82a14b22f3ffc2c905c9e59aee`.
+This is reference-variable qualification, not improved candidate skill or a
+deployment. The original training rejection and installed playable mod remain
+unchanged.
+
 ### Historical Trajectory Retirement
 
 A reviewed exact-path retirement removed 182 obsolete raw BE
