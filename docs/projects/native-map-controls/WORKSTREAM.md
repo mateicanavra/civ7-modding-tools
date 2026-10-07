@@ -97,7 +97,9 @@ All three independently cold native-sized calls then converge in four full
 Newton updates, taking `1.137 / 1.332 / 1.076 s`; aggregate thermal work is
 `3.552 s`, below the unchanged `6 s` per-call / `18 s` targets. This is repeated
 manufactured-boundary cost qualification, not actual SST0/SST1/SST2 composition.
-The next unit qualifies the periodic approximation on the authentic geography
+The fixed H4/H8 extension now passes tiny equivalence at both orders, preserving
+the admitted H4 states and iteration arithmetic exactly. The next unit qualifies
+the periodic approximation on the authentic geography
 and complete ocean-feedback sequence before a frozen training-first Earth
 comparison. Neither the simpler
 architecture nor small-system qualification establishes Earth improvement. Any owner replacement
