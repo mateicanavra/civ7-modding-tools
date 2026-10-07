@@ -142,8 +142,13 @@ comparison takes `0.343 s`; it is not an Earth comparison or Huge cost proof.
 The subsequent nonlinear periodic test passes in `0.321 s`: four harmonics stay
 within `0.027 C` of the finite chronological reference and eight within `0.005 C`,
 with four Newton updates per case. First-affine shortcuts remain ineligible,
-including on land. A scalable implementation and native-sized cost qualification
-must precede the next Earth comparison. Held labels and the rejected coefficient
+including on land. The matrix-free implementation now reproduces both qualified
+H4 solutions within `0.000017 C` continuously, with exact seasonal Jacobian
+agreement and four Newton updates. Its single small invocation takes `0.047 s`;
+this is solver equivalence, not native-size speed or Earth accuracy. The next
+cost gate requires three cold manufactured full-size calls within `6 s` each
+and `18 s` aggregate. Native-sized cost qualification must precede the next
+Earth comparison. Held labels and the rejected coefficient
 search stay closed. No production migration or candidate deployment follows.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
