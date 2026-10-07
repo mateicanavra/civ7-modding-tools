@@ -1590,6 +1590,209 @@ not Earth skill, a selected coefficient, refinement or production admission.
 Independent source/design and retained gate reviews pass. Result SHA-256:
 `07d6c6cb45904da82383594161e5fa69c0495b95ca4dd6a6f7e0df7221c02587`.
 
+#### Earth Numerical Refusal
+
+The sole centre-value Earth attempt stops in `1.05 s` during SST0's first
+BE startup, before any completed phase. The first coordinate rhs solve raises
+`COORDINATE_PRECISION_FLOOR_REFUSAL`: its directly evaluated component residual
+has not met the internal `1.5625e-12 K` allocation while the recursive
+preconditioned inner product is nonpositive. The original receipt does not
+retain the failing iteration, inner product or residual margin, so underflow,
+recurrence drift and representable stagnation are hypotheses, not findings.
+
+This closes the frozen calibration family as numerically refused and
+scientifically unevaluated. Neither the second value nor either observational
+reader runs. It rejects no physical coefficient or climate outcome. No phase,
+ocean advance, final publication, resource exhaustion, retry or weakened guard
+is present. Independent custody/source review verifies all six partial files,
+`1,165,082 bytes`, and maximum RSS `384,237,568 bytes`. Refusal SHA-256:
+`80f00a603f3780462543837dfa90d55e464a28a51a195f0216c2da06bac2ac7e`.
+
+The next bounded numerical task isolates the failing linear system, rather
+than repeating Earth vintages or interpreting a solver stop as climate skill.
+Any solver repair must retain the actual full-direction, chronological
+equation and energy checks before a separately authorized scientific run.
+
+The separate exceptional capture reproduces only the unchanged first BE
+startup through its original throw. At iteration `799`, the direct component
+residual is `5.1398885148e-12 K`, above `1.5625e-12 K`, while recursive
+`r^T z` underflows to zero. Independently reconstructed direct normalized
+residual infinity is `9.9688391463e-14`, against recursive
+`1.9283745886e-161`. The last update changes no solution component. This
+demonstrates recurrence drift and underflow, not an unavoidable accuracy
+floor: the dominant cell's one-ULP residual sensitivity is below the target.
+
+The capture takes `0.92 s`, maximum RSS `259,833,856 bytes`, retaining
+`6,024,905 bytes` across 39 files, all independently rehashed. It runs no
+periodic year, ocean owner or label reader. Capture SHA-256:
+`443b8448831d724f8ddc77e50be15353aad27586179ae0edb2c09c4d844d1003`.
+
+The first isolated replay reproduces the original floor, then refuses the
+residual-refresh candidate on nonpositive curvature in the first rhs
+component. No direction returns and no full rank-one residual is measured.
+Its `2.14 s / 178,061,312 bytes` maximum-RSS receipt is a refusal, not a
+repaired climate step. Replay SHA-256:
+`988887a3de834876817b94221e47a57dc753e6b194a77f089606b107cc564e0f`.
+
+The second replay, with an algebraically identical difference-form matvec,
+also refuses: iteration `799`, zero curvature, direct residual
+`5.6692428529e-12 K`, before any refresh. It takes `1.50 s`, maximum RSS
+`178,307,072 bytes`, and returns no direction. Replay SHA-256:
+`947c0eed54323a8b4986a826a4d330089f227a27140416803bbecfc6472de554`.
+These two algebraic variants are not selected; no solver framework follows.
+
+The next numerical design re-derives the conservative internal allocation.
+For component errors `e_x`, `e_z` and rank-one coefficient `c`, the composed
+linear residual is `e_x + c e_z` plus closure/roundoff. The existing certificate
+bounds `|c|` by `C`; quarter allocations `t_x=R/4`, `C t_z<=R/4` consume at
+most `R/2`. Changing only internal `R=epsilon/16` to `epsilon/4` gives
+`t_x=6.25e-12 K`, accommodating the observed residual, with half the internal
+`2.5e-11 K` budget reserved for closure/roundoff. This does not prove an
+irreducible floor or change scientific margins. Test the original solver
+with that single allocation change, not either refused algebraic variant.
+
+The internal full-direction reserve changes explicitly. Both independent
+full-direction checks must still satisfy the original `1e-10 K` requirement;
+the chronological equation `1e-10 K`, energy `1e-9`, IC0 and aggregate
+iteration cap remain held. A returned reduced direction alone qualifies no
+climate step. The
+[Netlib Templates, section 4.2](https://www.netlib.org/templates/templates.html)
+distinguishes attainable floating-point accuracy from nominal residual targets;
+an unachievable internal allocation must be demonstrated and re-derived,
+not bypassed because the recursive residual is small.
+
+The allocation-only captured-system test passes in `0.95 s`, maximum RSS
+`188,923,904 bytes`: `155` aggregate iterations (`82` x, `73` z), versus
+the original first-component refusal at `799`. The actual component defects
+meet their declared allocations. The original difference-form full rank-one
+residual is `5.4649618164e-12 K`, below both the new reserve and the old
+`6.25e-12 K` reserve. That observed result is not a guarantee for later
+directions. Input arrays remain exact; neither refused algebraic variant is
+composed. Replay SHA-256:
+`fc635c746f2fbb6a20baf100c9f864b02896c1e0406164b0bd2b0bcc6c36353c`.
+One complete original startup, with both full Jv witnesses and the independent
+chronological equation/energy oracle, remains before further qualification.
+
+The subsequent single-startup test reaches six valid original/independent
+full-Jv directions, then refuses on nonlinear descent. All direction defects
+remain below `5.92e-12 K`; this is no longer the coordinate-floor failure.
+The run takes `0.70 s`, maximum RSS `265,273,344 bytes`, and admits no phase or
+equation/energy result. Refusal SHA-256:
+`d2e15a23e42a19ea50618aa6a9da8828faffa185a47326e332409fd45151783f`.
+The exceptional observation reproduces that refusal without changing
+arithmetic or decisions. The candidate norm is `1.4311263286e-10 K`; the
+independent original equation norm is `1.9953727559e-10 K`, with maxima at
+different polar-row cells. Both exceed the old `1e-10 K` target. Energy error
+is `3.0297426565e-17`. The final direction is at most `1.107` state ULPs;
+every trial fraction at or below one quarter changes zero coordinates.
+This is state-rounding-limited descent on this trajectory, not a theorem
+about every representable neighboring state. The original guard correctly
+refuses it. The observation takes `0.73 s`, maximum RSS `271,958,016 bytes`,
+retaining `1,436,001 bytes`. Observation SHA-256:
+`41b08856034b98ddbc37945779a33fff7438a5f790d7b2575d73d16a7879c0e1`.
+
+The next prospective numerical policy separates purposes instead of
+preserving an arbitrary ten-decimal phase target with more solver machinery:
+phase equation tolerance `1e-9 K`, original full-direction tolerance
+`1e-10 K`, energy tolerance `1e-9`, and the reviewed coordinate allocation.
+Normal Newton stopping uses half the phase tolerance, reserving the BDF2
+unnormalization factor and requiring the independent oracle to pass in fact.
+Use raw candidate source and remove the special stagnation exit; no refresh
+or difference-form variant is selected. This explicitly supersedes the
+offline phase target, not Earth skill or any SDK artifact requirement.
+
+Before Earth continuation, require an independent cold first-startup at each
+of the three prescribed coefficients on the retained Earth SST0 input, plus
+matched 96-step seasonal curves against the old strict method on all three
+manufactured stripe arms. These cheap bracket checks admit no periodic Earth
+prediction or labels. The prospective maximum complete-curve difference is
+`1e-5 C`, one tenth of the original `1e-4 C` collateral margin. Actual
+direction, energy and periodic guards remain required. This is scoped
+empirical numerical qualification, not an `N*tau` or unseen-tail theorem.
+The original refusals remain immutable; no scientific label reader or
+complete Earth evaluation has run in this numerical repair.
+
+The first bracket-startup attempt passes the centre under the declared new
+phase policy: independent BE residual `1.8720580641e-10 K`, energy error
+`4.0835661892e-17`, four independently checked directions. The upper value
+then refuses inside its first x-rhs coordinate solve, before returning a
+direction; lower is unattempted. This receipt does not capture the upper
+residual or iteration, so it establishes neither the same underflow mechanism
+nor an irreducible floor. The attempt takes `1.38 s`, maximum RSS
+`283,443,200 bytes`, retaining `519,694 bytes`. Refusal SHA-256:
+`609cb223d4c051496a25bbed41655940511068dbaddd1b98b89421c71c5eecd2`.
+
+The next allocation is derived from the actual BDF direction consumer, not
+another algebraic solver variant: `R=epsilon/2`, with quarter component
+budgets `t_x=C t_z=epsilon/8`. The nominal BDF factor gives
+`1.5 R=0.75 epsilon`, retaining directional headroom. Component composition
+uses at most half `R`, with the remainder reserved for closure/evaluation.
+The actual original and independent scaled full-Jv guards remain decisive.
+This prospective one-literal allocation change qualifies nothing until the
+three original Earth startups and strict-versus-new seasonal controls pass.
+The already closed attempt and all earlier costs remain accounted; a new
+numerical protocol must inherit the physical rules and remaining family
+budget rather than grant new coefficient-fitting opportunities.
+
+Review before execution identifies a predictable robustness gap: `1e-9 K`
+is only about five times the observed centre residual, and hot moist-energy
+potentials or stronger transport can consume that margin. The `epsilon/2`
+source-only revision is retained but not executed. Rather than add another
+solver workaround or chase decimal targets, the selected practical policy
+is phase `1e-8 K`, direction `1e-9 K`, the same half-phase Newton stop and
+`R=epsilon/2`, with energy `1e-9` unchanged. This explicitly changes both
+offline numerical targets; no original-direction-guard identity is claimed.
+
+The original raw strict arm remains the matched comparator. The same
+prospective `1e-5 C` complete-curve margin and all scientific acceptance
+thresholds remain held. A hot full-geometry stage from retained unlabelled
+physical states supplements the three cold startups, exercising polar
+stiffness and the unnormalized BDF direction consumer. These are engineering
+qualification controls, not a derived stability or whole-chain error bound.
+Float32 publication and scientific margins explain the relevant output
+scale, but do not by themselves prove the new solver accurate enough.
+
+#### Qualified Practical Numerical Policy
+
+All three original Earth cold startups and the hot full-geometry BDF stress
+now pass. Each returns four independently checked directions. The hot source
+is the isotropic SST0 trajectory's actual maximum atmospheric endpoint,
+`303.1327387 K`, at phase `29`, with retained phases `28/27` as histories and
+the corresponding target forcing. No restricted-domain fallback or wrapped
+history is used. It exercises the prescribed upper coefficient, not a
+continued upper-coefficient orbit or an observational fit.
+
+The largest independent unnormalized phase defect is `4.3280112827e-10 K`;
+the largest independent unnormalized direction defect is `1.7975521072e-10 K`.
+The latter exceeds the old target and passes the explicitly changed target;
+no old-guard identity is claimed. Relative energy error stays below
+`9.09e-17`. The gate takes `1.92 s`, maximum RSS `364,822,528 bytes`, retaining
+`1,967,279 bytes`. Result SHA-256:
+`4777d4689b029e265820bcf4740f78ac72af6a26c1370dbbd4e0e7c64ba642ba`.
+
+The matched gate separately completes all six periodic solves: strict raw
+and practical-policy arms at each of the three prescribed coefficients.
+Each settles in five years, `480` phases and one BE startup, with continuous
+BDF history. Geometry, forcing and initial states agree exactly. Complete
+96-knot full-state PL differences are `2.8441e-9`, `2.9339e-9` and
+`2.6553e-9 C`, all below the prospectively held `1e-5 C` margin. Terminal
+state/history and independent residual/Jv/conservation probes also pass.
+The maximum new-policy unnormalized phase defect is `7.19e-9 K`, direction
+defect `1.87e-10 K` and energy error `1.36e-13`, inside their declared limits.
+
+That gate takes `0.67 s`, maximum RSS `299,941,888 bytes`, and retains
+`398,963 bytes` including its source/spec/authorization packet. Result SHA-256:
+`97cd7e9af0dee23f10d8647c357c6392e788814deab801810bd697ad4332f486`.
+Independent source and retained reviews pass, including rehashing all 30
+output files and recomputing every matched full-curve/state/history gap.
+These measured controls qualify this bounded numerical implementation, not
+an unseen-state theorem, Earth accuracy, complete-chain uncertainty or
+production performance. No labels, scientific score or full Earth orbit is
+run by either gate. The continuation explicitly inherits the original physical
+SPEC, scorer, populations, two-value selection and benchmark rules, while
+carrying prior costs into the same `1800 s / 512 MiB` family budget. The
+installed mod and procedural recipe remain unchanged.
+
 ### Historical Trajectory Retirement
 
 A reviewed exact-path retirement removed 182 obsolete raw BE
