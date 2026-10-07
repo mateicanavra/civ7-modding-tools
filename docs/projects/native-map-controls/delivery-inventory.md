@@ -100,6 +100,14 @@ A six-panel field atlas now compares retained annual air temperature and
 full-cycle range on common scales, with explicit nonselection labels,
 full-resolution exports and verified desktop/mobile layouts. It is not fresh
 native imagery or an adopted climate.
+The [retained power and wet-boundary diagnosis](thermal-boundary-discriminator.md#retained-coast-power-and-wet-boundary)
+is now complete: stronger zonal mixing simultaneously warms and damps the
+inspected seasonal response. The actual graph has no direct wet face at those
+14 coastal identities, so it does not prove immediate ocean heat supply.
+Exact-grid monthly Earth wet skin locates a large northern seasonal boundary
+contrast concealed by the small global mean difference. The next single
+wet-temperature control is offline, holds the atmospheric laws and does not
+select a new ocean model or feed Earth observations into the playable recipe.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
 follows accepted SST0, authentic SST1 and canonical SST2. All seven complete
