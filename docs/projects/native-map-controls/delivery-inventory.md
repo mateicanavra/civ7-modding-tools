@@ -187,11 +187,17 @@ zero. The [retained correction alignment](thermal-boundary-discriminator.md#reta
 now completes in `0.149 s`, reproducing the prior scores/verdict exactly. The
 annual correction is wrong-sign overall, including its centered component;
 seasonal correction has mixed alignment and excessive magnitude. This rules
-out a single positive-gain repair of the same annual correction. Next is a
-retained nonlinear power decomposition separating the initial wet boundary,
-actual current-driven departure and state reaction, without another simulation
-or observational evaluation. Neither a current-only reference nor new wet
-thermodynamics is selected. Held labels and the rejected coefficient search stay closed.
+out a single positive-gain repair of the same annual correction. The
+[completed retained power decomposition](thermal-boundary-discriminator.md#completed-power-discriminator)
+then takes `0.646 s`, without another simulation or observational evaluation.
+Northern wet-air initial dose is `178.868 W/m2`, versus `13.133 W/m2` from the
+two-update departure; the global split is different, so this diagnosis retains
+the composed ocean-update contribution. Exact original residual and independent
+accounting checks pass.
+Next qualify the exposed thermal boundary and reference convention inside the
+existing thermal owner, before another full Earth candidate. No current-only
+reference reset or new wet thermodynamics is selected. Held labels and the
+rejected coefficient search stay closed.
 No production migration or candidate deployment follows.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
