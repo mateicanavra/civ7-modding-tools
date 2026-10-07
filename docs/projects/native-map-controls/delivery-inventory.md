@@ -32,8 +32,20 @@ originals and thumbnails, forty local/tailnet responses and desktop/mobile
 rendering checks pass. The durable [viewer entrypoint](../../process/LOCAL-VIEWERS.md)
 and existing Civ gallery link it without replacing earlier build evidence.
 
-The last completed Earth scientific comparison is [complete thermal composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection),
-following accepted SST0, authentic SST1 and canonical SST2. All seven complete
+The latest [selected moist-energy Earth observation](thermal-boundary-discriminator.md#selected-moist-energy-earth-observation)
+completes all three independently initialized settled96/M24 vintages and both
+actual ocean updates in `348.538 s`, retaining about `115 MiB` of numerical
+evidence. Independent review verifies the unchanged phase/energy guards and
+final publication. Its original-547 pure science readback takes `0.268 s` and
+refuses the canonical candidate with 54 raw-guard failure messages. Held annual RMSE worsens
+`2.97104 -> 3.29488 C`; monthly RMSE worsens `3.57295 -> 5.21915 C`.
+Improved signed bias does not outweigh those regressions. No production
+adoption, automatic refinement or candidate deployment follows. The next
+diagnostic separates mean, seasonal and geographic errors using retained
+outputs, not another expensive simulation or held-label parameter search.
+
+The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
+follows accepted SST0, authentic SST1 and canonical SST2. All seven complete
 branches, twelve fresh normal solves and two exact reuses retain both actual
 owner updates, final atmosphere without SST3, ground/calendar publication and
 original numerical guards. The external run takes `7,275.487 s` with a maximum
@@ -155,9 +167,10 @@ SST0 gaps decrease below `0.018 K`, but 398 componentwise refinement ratios
 fail the unchanged `[3,5]` witness; no conditional allowance is admitted.
 Final masks, all biome IDs, legal intersections, demand targets and 220 resource
 intents remain exact. This earns a finite observation, not reference accuracy.
-Next is one separately frozen complete scientific-Earth raw comparison,
-without treating it as production selection or requiring the entire regression
-bank before obtaining scientific information. Existing Huge
+The separately frozen scientific-Earth raw comparison above is now complete
+and refuses that canonical candidate without treating numerical correctness
+as production selection. The entire regression bank was not required before
+obtaining this diagnostic information. Existing Huge
 physical-climate measurement gives `1.848638400 C` pooled within-row variation
 and no rainfall saturation for the candidate, satisfying that case's unchanged
 bounds without proving the rest of the cohort or fixed-Earth science. No new
