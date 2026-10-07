@@ -2748,6 +2748,92 @@ This is reference-variable qualification, not improved candidate skill or a
 deployment. The original training rejection and installed playable mod remain
 unchanged.
 
+#### Completed Annual Liquid Prior
+
+The existing admitted `1991-2020` OI reference now separates annual liquid SST
+from the earlier composite wet-skin comparison. One lossless format conversion
+reads only five existing NPZ members: annual SST, external/primary masks,
+Gaussian latitude and weights. The original annual values were rounded to
+Float32 then stored as Float64; exact Float64-to-Float32-to-Float64 equality
+passes. No monthly OI, raw NetCDF, land observation, model prediction or new
+extraction/remap enters this conversion. Existing extraction-only tooling stays
+outside Git; no dependency, toolchain or cache is installed in the repository.
+
+The data-only comparison holds the original crop and support fixed:
+`NCEP wet AND OI external AND OI primary`. Primary requires complete admitted
+marine overlap with all twelve source ice values exactly zero and all valid-year
+counts 30. It is an all-year ice-free source support, not an inferred ice mask;
+nonprimary does not mean ice-covered. Exact latitude, longitude, mask and
+Gaussian-weight joins pass. There are 7,615 primary cells, including only 76
+north of 60 degrees and 7,539 in the complement. That northern subset is not
+representative of all 978 static-marine northern cells from the earlier audit.
+
+Contrasts below are signed mean bias / area-weighted per-cell annual RMS, in C:
+
+| Fixed Primary Support | SST0-OI Bias / RMS | SST2-OI Bias / RMS | SKT-OI Bias / RMS |
+| --- | ---: | ---: | ---: |
+| Entire crop | -2.345614 / 3.913692 | -1.845169 / 4.494059 | -0.012311 / 0.307912 |
+| At least 60 degrees north | -1.236827 / 1.693912 | -2.687735 / 3.180695 | -0.023301 / 0.455907 |
+| Complement | -2.350970 / 3.921367 | -1.841099 / 4.499473 | -0.012258 / 0.307024 |
+
+On this supported liquid subset the prior is cold, not an excessively warm
+reservoir. SST2 improves global mean bias while worsening local RMS; in the
+northern subset the updates cool an already cold liquid prior. This does not
+contradict the much colder all-wet composite exposed skin, which includes ice.
+Near SKT-OI agreement is consistent with their shared OI ancestry, not independent
+observational validation. No seasonal ice, wet-air or universal SST qualification
+follows, and no scalar ocean offset or current coefficient is fitted.
+
+The single comparison completes in `0.078997 s`, with measured child maximum
+RSS `132,628,480 B` and sampled whole-process RSS `173,129,728 B`, below `256 MiB`.
+Independent review reconstructs 676 compact support, mean, telescope and
+regional/row signed-and-squared-moment identities; twelve empty rows remain
+explicitly unavailable. All custody/runtime/self postchecks pass. The compact
+lossless export is `56,564 B`; inclusive all-host evidence is `65,982,159 B`,
+below `64 MiB`, outside Git. No process, staging file or cache remains.
+Result SHA-256:
+`78ace08577726c308abae479eb41674347c7732d298e1629297889a80aed09fa`.
+The original training rejection and installed playable mod remain unchanged.
+
+#### Dry-Only Reference Budget Discriminator
+
+The selected next physical question is whether the inland empirical reference
+budget is incorrectly forcing marine air. Hold the exact retained SST2,
+geometry, solar/CO2 forcing, source laws, transport and inland response fixed;
+change only the support receiving that empirical budget. This is a frozen-
+boundary mechanism test, not another complete three-vintage composition.
+
+For `T = B + delta`, the existing all-state reference budget is
+`Q_B = M * Bdot - F_G(B, Bwet)`. The rival applies it only to dry resolved states:
+
+```text
+M * Tdot = F_G(T, SST2) + dry * Q_B
+M * delta_dot = F_G(B + delta, SST2)
+              - dry * F_G(B, Bwet) - wet * M * Bdot
+```
+
+The same atmospheric and dry-skin states, physical derivatives and periodic
+solver remain. All-land `B` must stay exact; all-wet air receives no empirical
+inland budget. This does not subtract actual SST0 or erase ordinary zero-current
+maritime geography. The first discriminator explicitly requires one air node
+per cell; mixed wet/dry shared-cap budget allocation is not qualified by it.
+
+First verify these identities and unchanged linearization on small controls.
+Then compare fixed H6/H8 waveforms under the original numerical limits, freeze
+compact predictions, and use the original untuned training diagnostics. Reuse
+the retained old final-SST2 branch rather than repeating its ocean updates.
+Broad annual or centered-seasonal harm would reject this as a sufficient repair,
+even if a northern power mismatch shrinks. Keep source/input identities and
+sufficient compact predictions, not another collection of full trajectories.
+
+Annual SST2 remains an imperfect prescribed thermostat, not seasonal exposed
+ice skin or a qualified reservoir heat supply. This ablation can isolate the
+reference convention conditioned on that boundary, not qualify ocean physics,
+new wet pressure publication or a production solution. Any eventual candidate
+still needs authentic three-vintage/two-ocean composition, original procedural
+cohorts, downstream/native proof and the complete Huge `30-60 s` budget.
+No new artifact, operation, step, legacy lane or owner migration is selected.
+
 ### Historical Trajectory Retirement
 
 A reviewed exact-path retirement removed 182 obsolete raw BE
