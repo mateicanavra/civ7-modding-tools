@@ -154,13 +154,19 @@ annual/monthly RMSE improves versus old H6 (`5.125/7.985 -> 4.649/7.418 C`)
 but remains far worse than the incumbent (`2.514/3.261 C`). Centered annual
 and seasonal harm remain; the complement worsens versus old H6 too.
 Reference-budget removal is a partial causal improvement, not a sufficient repair.
+The subsequent [solar-only marine-air premise](thermal-boundary-discriminator.md#completed-solar-only-marine-air-premise)
+finishes in `0.278 s`: marine-held monthly RMSE improves `6.533 -> 3.289 C`
+overall and `5.939 -> 2.320 C` on all-year ice-free support, but `230` overlapping
+source guards fail. Large ice-free northern cold bias and Arctic winter harm
+remain, and rowwise annual geographic error cannot change. The uniform source
+form is stopped without refit or a land pilot; no rejected coefficients are deployed.
 The next [product-sized domino](thermal-boundary-discriminator.md#next-product-sized-domino)
-qualifies a simpler empirical maritime-air annual/seasonal endmember and its
-actual input meanings before a land-geography pilot. One domino is executable
-at a time. No further solver campaign, gain sweep, wet-storage migration,
-current-only reset or ocean rebuild follows automatically. Cheap premise and
-rejection tests precede expensive qualification; promotion still needs all
-scientific, procedural, downstream and native proofs.
+must identify a genuinely geographic annual/seasonal equation and cheapest
+falsifier, not another rowwise fit or automatic solver campaign. One domino is
+executable at a time. No gain sweep, wet-storage migration, current-only reset
+or ocean rebuild follows automatically. Cheap premise and rejection tests
+precede expensive qualification; promotion still needs all scientific,
+procedural, downstream and native proofs.
 The candidate is not selected and the installed mod is unchanged. Neither the simpler
 architecture nor numerical qualification establishes Earth improvement. Any owner replacement
 still needs independent reference/consumer qualification, original procedural
