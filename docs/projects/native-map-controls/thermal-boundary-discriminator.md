@@ -23,8 +23,13 @@ third coefficient or production adoption follows. The completed
 [common-SST0 power readback](#retained-coast-power-and-wet-boundary)
 separates simultaneous zonal warming and seasonal damping. The accompanying
 wet-boundary comparison locates a large northern seasonal contrast hidden by
-the global mean. The next bounded control changes only prescribed wet
-temperature, not another transport coefficient or the procedural recipe.
+the global mean. The [completed wet-temperature control](#completed-wet-temperature-control)
+then establishes substantial northern land cooling and wider seasonal ranges
+under held laws. The [paired training diagnosis](#paired-wet-temperature-training-diagnosis)
+then finds improved annual and overall monthly error, but worse northern and
+coastal seasonal-anomaly error. Storage/exchange and seasonal response require
+a coherent candidate design, not another transport
+coefficient or an observational boundary in the procedural recipe.
 Reference/consumer qualification, original procedural
 cohorts and native admission remain separate. The installed playable mod is
 unchanged. Earlier designs and dated results
@@ -1950,6 +1955,176 @@ Evidence remains outside Git in the existing finite-zonal user-data packet.
 Power result SHA-256:
 `f6d1119a5f6589aa9b20ca01bf27a8772af76b7c45673cda002c7b055e0a4c91`.
 The installed playable mod is unchanged.
+
+#### Completed Wet-Temperature Control
+
+One independently initialized lower-K SST0-only control replaces global
+prescribed wet temperature with the existing monthly composite skin boundary.
+Atmospheric laws, geometry, solar, CO2, dry-surface behavior and open-water
+optics are held. No ocean update, scorer, observed error, held label or
+production recipe is involved. The preceding eight-cell numerical gate proves
+byte-identical complete trajectories for static versus dynamically supplied
+constant boundaries, and independently checks a periodic wet-boundary case.
+
+The full control completes five years, 480 stages and independent chronological
+oracles with one BE startup and authentic rolling BDF histories. It satisfies
+the unchanged periodicity predicate, `1e-8 K` phase and `1e-9 K` direction guards
+and `1e-9` relative energy guard. Maximum unnormalized phase defect is
+`6.57e-9 K`, full-direction defect `1.88e-10 K` and relative energy discrepancy
+`9.26e-14`. These are numerical checks, not observed Earth accuracy.
+
+The monthly-mean-as-midpoint reconstruction is explicitly approximate.
+Reintegrating its actual 96-endpoint tape through the original 22-common/
+8-leap-year calendar gives a maximum cell/month defect of `2.210 C`; northern
+wet-area monthly mean defects lie between `-0.485` and `+0.432 C`. These defects
+remain visible; no correction, recentering or propagated accuracy allowance
+is inferred. The existing reanalysis and open-water-optics-over-ice limitations
+still apply.
+
+A separate data-only readback streams the complete retained lower-K **SST0**
+curve, not its SST2 publication. It uses identical endpoint mean/range arithmetic
+and the original solver's midpoint-angular areas, distinct from Gaussian
+quadrature weights in the source-data comparison.
+
+| Land Support | Cells | Annual Air Change C | Mean Per-Cell Full-Cycle Range Change C |
+| --- | ---: | ---: | ---: |
+| All land | 4,970 | +0.152 | +3.791 |
+| Latitude centers at or north of 60N | 942 | -5.507 | +11.012 |
+| Complementary land | 4,028 | +0.842 | +2.910 |
+
+All 942 northern land cells cool annually. All 14 fixed coastal identities
+cool `0.985-9.053 C` and widen their full-cycle ranges `5.487-16.028 C`.
+Regional recombination gaps are at most `2.14e-13 C`; recovery of both retained
+control land summaries is exact. Counts and response magnitudes are descriptive,
+not new eligibility thresholds. Cooling or a larger range alone establishes
+neither better nor worse observed accuracy.
+
+This establishes substantial sensitivity to the prescribed wet-temperature
+distribution under the held laws, without identifying a unique sea-ice cause.
+It does not jointly qualify annual and seasonal behavior. The next design
+must represent water/ice storage, exposed-surface exchange and atmospheric
+response coherently rather than promote this observational tape, relabel
+subfreezing skin as liquid SST, or reopen the rejected coefficient search.
+A joint thermal owner is a candidate, not a selected implementation. Its
+circulation-feedback interface and cheaper partitioned alternative require
+review before any replacement; literal outer-pass counts may change only with
+measured coupling and consumer equivalence, not to omit real work from timing.
+
+The control takes `90.20 s`, about `586 MiB` maximum RSS and about `30 MiB`
+new retained data outside Git. The response readback takes `0.05 s`, about
+`80 MiB` maximum RSS and `12.1 KiB` compact output. Full curves and boundary
+tape stay on the compute host. This offline 16,128-cell reference is not a
+native generation timing or an accepted player-path algorithm.
+
+Control result SHA-256:
+`31424d4748dc4fcc346a2d245dfda8177a173f16b764980d849273dd45dbbf4e`.
+Response result SHA-256:
+`355fc47d12cef3e444b2f06fa1a33497d21aa46c06699e7e2c0fded1b42e9110`.
+The installed playable mod remains unchanged.
+
+The six-panel `wet-temperature-response-atlas-20261007/index.html` now compares
+the exact SST0 and control annual/raw full-cycle fields, with two signed-response
+panels. Common field scales and symmetric actual-extrema difference scales
+have zero saturation. All 16 publication files (`1,660,501 bytes`) match local,
+compute-host and both served routes. The additive gallery change preserves all
+25 preceding sections and their historical assets byte-for-byte. Desktop
+`1280 x 720` and mobile `390 x 844` browser checks verify all six maps, fitting
+text/table layout and the `2400 x 1440` full-resolution image link. Preparation
+scripts and raw exports are retained outside the served atlas. The viewer
+labels the boundary control as unscored and unadopted; subsequent training
+diagnosis does not silently replace this historical rendering or its scope.
+
+#### Manufactured Wet-Enthalpy Mechanism
+
+A small standalone constitutive prototype now passes eight manufactured cases
+and 18 checks. It uses one wet-column enthalpy: positive energy warms liquid;
+negative energy represents latent ice inventory, with liquid at freezing and
+a separately diagnosed colder conductive ice skin. Shared air/surface exchange
+is equal and opposite. Conduction is internal to the wet column and is not
+counted again as external heating.
+
+The constants come from the [EW09 author's implementation](https://eisenman-group.github.io/sea_ice_model_EW09.m):
+liquid volumetric heat capacity `4e6 J/m3/K`, mixed-layer depth `50 m`, latent
+heat `3e8 J/m3` and conductivity `2 W/m/K`. Its idealized `0 C` freezing
+reference is explicit, not a saline-Earth calibration. No Arctic flux recipe,
+albedo fit, observed ice mask, temperature tape or ocean heat convergence is
+imported.
+
+Exact heating, freeze/melt inventories, conductive/melting skin balances,
+the zero-thickness limit, analytic cold-ice growth and analytic liquid/air
+exchange all pass operand-scaled roundoff checks. Analytic subdivision is not
+a numerical timestep-refinement study. The liquid exchange propagator refuses
+freeze crossings rather than claiming to integrate them.
+
+The complete attempt takes `0.03 s`, about `31 MiB` maximum RSS and `5.3 KiB`
+result output. This qualifies constitutive algebra and manufactured branches
+only. Original nonlinear radiation/exchange, coupled phase transitions,
+seasonal settling, observed accuracy, circulation coupling and complete Huge
+performance remain unqualified. Sea ice can increase seasonal air variability;
+this pass does not select an owner migration or claim seasonal damping.
+The subsequent paired training diagnosis distinguishes a wider seasonal cycle
+from a better one before selecting integrated model complexity. The closed
+coefficient family and held benchmark remain closed.
+
+Result SHA-256:
+`324a000d9acbf46d01fe7059588193a9701989af9b8506459b741f0f12e24bd2`.
+The prototype and compact execution evidence remain outside Git. Nothing is
+added to player-path verification or the installed playable mod.
+
+#### Paired Wet-Temperature Training Diagnosis
+
+A retained-only reader now compares the exact lower-K SST0 raw-air curve with
+the completed wet-temperature control. It integrates both 96-endpoint curves
+through the original calendar and evaluates only the frozen 196 training
+receivers, including their 14 coastal identities. The northern subgroup has
+134 receivers at or north of 60N; its complement has 62. These are diagnostic
+subgroups, not new selection thresholds. The shared reference file contains
+held observations, but the reader filters the cohort to training before
+extracting observed values; no held score or eligibility evaluation occurs.
+
+| Training Group | Receivers | Annual RMSE C, Baseline -> Control | Monthly RMSE C, Baseline -> Control | Seasonal-Anomaly MSE C2, Baseline -> Control |
+| --- | ---: | ---: | ---: | ---: |
+| All training | 196 | 4.444 -> 2.001 | 5.652 -> 4.654 | 12.200 -> 17.651 |
+| Coastal | 14 | 8.363 -> 2.649 | 9.271 -> 5.224 | 16.017 -> 20.273 |
+| Northern | 134 | 5.793 -> 2.085 | 7.069 -> 5.806 | 16.412 -> 29.365 |
+| Complement | 62 | 2.314 -> 1.910 | 3.629 -> 3.016 | 7.813 -> 5.449 |
+
+Annual-mean correction improves the combined monthly error while concealing
+a worse northern seasonal cycle. Northern predicted area-weighted mean
+per-receiver seasonal RMS rises
+`13.580 -> 16.378 C`, against observed `12.326 C`; amplitude-mismatch MSE rises
+`9.975 -> 20.229 C2`, and combined shape/phase mismatch rises
+`6.437 -> 9.137 C2`. Coastal amplitude and combined shape/phase errors also
+worsen. The complementary group improves both anomaly components, although
+its SON RMSE slightly worsens (`2.811 -> 2.853 C`). No measured phase lag or
+single physical cause is inferred from the combined shape/phase term.
+
+The receivers are low-relief, not exact sea-level: source height magnitude
+and neighborhood relief are each bounded by `250 m`, while this model
+protocol uses zero relief. Raw-air absolute annual errors therefore are not
+final ground-publication accuracy. A common time-independent lapse cancels
+pointwise paired changes and seasonal anomalies, but could change absolute
+annual RMSE and which arm is closer. No lapse, clipping, Float32 publication
+or mountain-accuracy claim is introduced by this readback.
+
+The monthly error decomposition closes to `1.98e-13 C2`. The complete reader
+takes `0.08 s`, about `92 MiB` maximum RSS, with `57.7 KiB` compact output and
+no new climate simulation. An initial missing-input refusal remains retained;
+the successful attempt uses the unchanged reviewed reader and exact inputs.
+This supports a wet-boundary mean defect under the held laws, but shows that
+this tested monthly wet-skin boundary is not a sufficient joint mean/seasonal repair. It does
+not establish that adding ice or storage will solve the remaining error.
+
+The next integrated discriminator must distinguish wet storage/exchange from
+atmospheric transport/optics, preserving actual energy accounting and the
+whole-Huge performance target. No coefficient search, held benchmark,
+scientific selection, production migration or candidate deployment follows.
+The response atlas retains its original unscored historical scope.
+
+Result SHA-256:
+`96374d6f0b1612fbdb636fac6d2579888cd2df0b1d9a4d51ddac3aeac05198bb`.
+Reader, method and compact execution evidence remain outside Git. Full curves
+stay on the compute host; the installed playable mod is unchanged.
 
 ### Historical Trajectory Retirement
 
