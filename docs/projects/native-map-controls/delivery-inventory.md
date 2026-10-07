@@ -105,9 +105,33 @@ is now complete: stronger zonal mixing simultaneously warms and damps the
 inspected seasonal response. The actual graph has no direct wet face at those
 14 coastal identities, so it does not prove immediate ocean heat supply.
 Exact-grid monthly Earth wet skin locates a large northern seasonal boundary
-contrast concealed by the small global mean difference. The next single
-wet-temperature control is offline, holds the atmospheric laws and does not
-select a new ocean model or feed Earth observations into the playable recipe.
+contrast concealed by the small global mean difference.
+The [wet-temperature control](thermal-boundary-discriminator.md#completed-wet-temperature-control)
+now completes once: northern land cools `5.507 C` annually while its mean
+per-cell seasonal range expands `11.012 C`. All 14 inspected coasts cool and
+widen. Atmospheric laws and the declared lower coefficient are held, so the
+boundary has a substantial causal response, not a proven accuracy improvement.
+The `90.20 s` offline reference and `0.05 s` saved readback select no new ocean
+model, parameter or production change and feed no Earth observations into
+the playable recipe. Storage/exchange and seasonal response remain a joint
+design obligation before replacing the current thermal owner.
+The matched six-panel `wet-temperature-response-atlas-20261007/index.html`
+is published through the existing viewer, with original-resolution exports,
+zero saturation and verified desktop/mobile layouts. All 16 files match both
+served routes; all 25 previous gallery sections and historical assets remain
+exact. This is the unscored boundary-response view, not new native imagery.
+The [wet-enthalpy constitutive gate](thermal-boundary-discriminator.md#manufactured-wet-enthalpy-mechanism)
+now passes eight manufactured cases and 18 checks in `0.03 s`, without Earth
+inputs or a forward climate model. It selects no migration or seasonal-damping
+claim. The [paired retained training-only diagnosis](thermal-boundary-discriminator.md#paired-wet-temperature-training-diagnosis)
+now completes in `0.08 s`: all-training raw-air annual/monthly RMSE improves
+`4.444/5.652 -> 2.001/4.654 C`, while northern seasonal-anomaly MSE worsens
+`16.412 -> 29.365 C2`. Coastal anomaly components worsen too; the complementary
+group improves. These low-relief, zero-model-height comparisons are not final
+ground-publication accuracy. The next integrated discriminator must separate
+wet storage/exchange from atmospheric transport/optics; ice or storage is not
+automatically selected as the cure. Held labels and the rejected coefficient
+search stay closed. No production migration or candidate deployment follows.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
 follows accepted SST0, authentic SST1 and canonical SST2. All seven complete

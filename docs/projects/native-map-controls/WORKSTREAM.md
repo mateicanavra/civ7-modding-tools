@@ -31,79 +31,53 @@ Keep the stock per-size lake cutoff and physical heads: native lake identity
 is a gameplay approximation, not canonical finite-water truth. Arbitrary
 under-rim/below-sea projection retains its bounded native capability limit.
 
-The remaining demonstrated production obligation is the missing
-geographical/seasonal land thermal response. The external
-[three-vintage discriminator](thermal-boundary-discriminator.md#three-vintage-discriminator)
-now completes the current Huge recipe, both ocean updates and final publication
-with the selected diagnostic moist-energy law. Its short 96-step candidate
-takes `43.697 s` headlessly; this is not measured Civ generation time.
-The [retained consumer readback](thermal-boundary-discriminator.md#retained-consumer-boundary-readback)
-finds no placement consequence from the ten observed habitat-bit changes in
-this case, and its original climate/biome facts remain inside their unchanged
-bounds. The [finer-reference observation](thermal-boundary-discriminator.md#finer-reference-observation)
-preserves those decisions but refuses the frozen componentwise refinement
-guard; no reference allowance is admitted. The [complete scientific-Earth observation](thermal-boundary-discriminator.md#selected-moist-energy-earth-observation)
-now refuses the canonical candidate: held annual RMSE rises `2.97104 -> 3.29488 C`
-and monthly RMSE `3.57295 -> 5.21915 C`, with 54 unchanged raw guard failures.
-The complete numerical chain takes `348.538 s`; retained science readback takes
-`0.268 s`, not another simulation. The [retained seasonal decomposition](thermal-boundary-discriminator.md#retained-seasonal-error-decomposition)
-then locates excess inland seasonal RMS and a distinct coast-mean failure:
-amplitude mismatch contributes about 77% of the net held monthly deterioration.
-A four-panel atlas makes the raw atmospheric fields and matched annual
-residuals visible without replacing earlier native imagery. The completed
-[manufactured shared-air limit](thermal-boundary-discriminator.md#manufactured-shared-air-limit)
-takes `0.24 s` and reduces inland seasonal RMS by `5.28-5.46 C`, but also lowers
-annual means by `10.80-10.92 C`. A `0.07 s` retained power readback locates
-substantial internal constraint cooling, not an accidental energy sink.
-This diagnostic justifies choosing a physically supported finite transport
-closure, not adopting row-shared production air or inferring a diffusion gain.
-The [prospective finite-zonal calibration](thermal-boundary-discriminator.md#prospective-finite-zonal-calibration)
-now bounds that choice to one parameter, two complete Earth evaluations and
-training-only selection before the unchanged benchmark.
-The separate small-map geometry/stripe gate passes all three prospective
-values in `0.49 s` with unchanged equation and conservation guards. No Earth
-coefficient or production change is selected by that gate.
-The centre Earth attempt then refuses during the first coordinate rhs solve,
-before any completed phase. That frozen family is closed as numerically
-refused and scientifically unevaluated; no second coefficient or label
-readback runs. The separate captured-system diagnosis identifies an overly
-tight internal residual allocation, then state-rounding-limited nonlinear
-descent under the old offline phase target. An initial `1e-9 K` phase-policy
-check passes the centre startup but refuses the upper internal allocation;
-lower is unattempted. The next practical numerical policy explicitly changes
-phase/direction budgets to `1e-8/1e-9 K`, keeps the physical law and energy
-guard, and removes the special stagnation exit. All three cold startups and
-the full-geometry hot BDF control now pass. Six settled matched controls
-preserve complete seasonal curves within `2.94e-9 C`, against the unchanged
-`1e-5 C` margin. These gates take `2.59 s` and qualify the bounded numerical
-method, not scientific skill or whole-chain uncertainty. The next Earth
-continuation inherits the original two-value training-only physical design
-and remaining family budget; old refusals stay immutable. Scientific
-acceptance margins remain unchanged. No automatic Earth rerun, refinement or
-production change follows.
-The [completed finite-zonal family](thermal-boundary-discriminator.md#completed-finite-zonal-family)
-now executes both prescribed Earth comparisons successfully, then rejects both
-on unchanged training collateral guards. The lower value slightly improves
-seasonal MSE over isotropic transport but does not repair annual or coastal
-temperatures. No held benchmark or third coefficient is permitted. Both
-complete numerical attempts total `554.28 s`; their training readbacks total
-`0.40 s`. The next causal discriminator uses retained common-SST0 power
-accounting. A published six-panel field atlas makes the response inspectable
-with common scales and verified desktop/mobile layouts. No candidate is
-adopted into the playable mod on this evidence.
-The [completed retained power and wet-boundary diagnosis](thermal-boundary-discriminator.md#retained-coast-power-and-wet-boundary)
-then shows simultaneous direct zonal warming and seasonal damping, with no
-direct wet face at the 14 geographically coastal identities. Regional monthly
-Earth skin exposes a northern boundary difference hidden by a near-matching
-global average: annual northern wet skin is 11.394 C colder than the prescribed
-annual SST0. One separately bounded wet-temperature sufficiency control is
-next, with the atmospheric laws and an already declared coefficient held;
-observed Earth remains an offline diagnostic, never a procedural recipe input.
-Reference/consumer qualification and the original
-procedural cohorts remain before owner replacement and normal native
-qualification. The earlier dry-transport Earth nonselection
-is neither a result nor a prediction for the selected law. Numerical correctness
-alone earns no scientific or production admission.
+The remaining production obligation is geographical/seasonal land thermal
+response. The [three-vintage discriminator](thermal-boundary-discriminator.md#three-vintage-discriminator)
+completes the current Huge recipe and both ocean updates in `43.697 s`
+headlessly, not in Civ. It preserves the inspected downstream decisions, but
+the [finer reference](thermal-boundary-discriminator.md#finer-reference-observation)
+refuses componentwise refinement and the [scientific Earth comparison](thermal-boundary-discriminator.md#selected-moist-energy-earth-observation)
+rejects the candidate. The [seasonal decomposition](thermal-boundary-discriminator.md#retained-seasonal-error-decomposition)
+locates excess inland seasonal response and a separate coast-mean failure.
+No reference allowance or production adoption is admitted.
+
+The [shared-air limit](thermal-boundary-discriminator.md#manufactured-shared-air-limit)
+and [completed two-value finite-zonal family](thermal-boundary-discriminator.md#completed-finite-zonal-family)
+show why stronger mixing is not a sufficient repair. Both declared Earth
+coefficients are rejected on unchanged training guards; no third value or
+held evaluation follows. The [retained power diagnosis](thermal-boundary-discriminator.md#retained-coast-power-and-wet-boundary)
+separates simultaneous direct mean warming and seasonal damping. The 14
+geographically coastal identities have no direct wet face in this graph.
+
+The [completed wet-temperature control](thermal-boundary-discriminator.md#completed-wet-temperature-control)
+then changes only the global prescribed wet-surface temperature at the already
+declared lower coefficient. All 942 northern land cells cool, by `5.507 C`
+area-weighted annually, while their mean per-cell full-cycle range expands
+`11.012 C`. All 14 inspected coasts cool and widen. This establishes a substantial
+boundary response, not by itself better observed accuracy or a complete solution.
+The five-year reference takes `90.20 s`; its saved response readback takes
+`0.05 s`, not another simulation. Observed Earth remains an offline diagnostic,
+never a procedural recipe input; the installed playable mod is unchanged.
+
+The [manufactured wet-enthalpy gate](thermal-boundary-discriminator.md#manufactured-wet-enthalpy-mechanism)
+now passes eight small cases in `0.03 s`; it establishes constitutive algebra,
+not Earth accuracy, seasonal damping or a selected owner migration. The
+[completed paired training diagnosis](thermal-boundary-discriminator.md#paired-wet-temperature-training-diagnosis)
+improves all-training raw-air annual/monthly RMSE from `4.444/5.652` to
+`2.001/4.654 C`, but northern seasonal-anomaly MSE worsens
+`16.412 -> 29.365 C2`. These low-relief receivers are not exact sea-level;
+absolute raw-air errors are not final ground-publication accuracy. No held
+benchmark or scientific adoption follows. The next integrated discriminator
+must distinguish wet storage/exchange from atmospheric transport/optics, not
+assume that ice or storage alone fixes the seasonal error. A candidate must address thermal
+storage/exchange and seasonal response together, distinguishing liquid water
+from exposed ice rather than adopting colder prescribed water or another
+transport gain. Any owner replacement
+still needs independent reference/consumer qualification, original procedural
+cohorts and normal native proof within the complete Huge `30-60 s` budget.
+Current circulation feedback cannot be dropped merely to improve timing.
+Detailed dated numerical refusals and completed experiments remain in the
+linked discriminator; they are not new shipping prerequisites.
 
 The [actual Foundation projection witness](constitutive-support-attribution.md#actual-projection-witness)
 closes all eight cases without a sampling or copied-lane defect and selects
