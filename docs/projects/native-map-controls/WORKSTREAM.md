@@ -67,12 +67,24 @@ improves all-training raw-air annual/monthly RMSE from `4.444/5.652` to
 `2.001/4.654 C`, but northern seasonal-anomaly MSE worsens
 `16.412 -> 29.365 C2`. These low-relief receivers are not exact sea-level;
 absolute raw-air errors are not final ground-publication accuracy. No held
-benchmark or scientific adoption follows. The next integrated discriminator
-must distinguish wet storage/exchange from atmospheric transport/optics, not
-assume that ice or storage alone fixes the seasonal error. A candidate must address thermal
-storage/exchange and seasonal response together, distinguishing liquid water
-from exposed ice rather than adopting colder prescribed water or another
-transport gain. Any owner replacement
+benchmark or scientific adoption follows. The subsequent
+[integrated storage discriminator](thermal-boundary-discriminator.md#integrated-storage-discriminator)
+returns all four small arm/grid runs but refuses full-waveform refinement;
+its mean and seasonal responses remain unqualified. No wet-enthalpy migration
+or additional storage campaign becomes a shipping prerequisite.
+
+The selected [reduced geographic-response investigation](thermal-boundary-discriminator.md#reduced-geographic-response)
+instead preserves the empirical inland baseline and adds an explicitly
+reference-subtracted response to existing annual ocean SST inside the current
+thermal operation. It retains one thermal artifact, existing wet publication,
+both ocean updates and all three atmosphere vintages. Its first averaged-
+coefficient, two-harmonic approximation is rejected by a `0.343 s` manufactured
+comparison: reference refinement passes, but approximation errors reach
+`4.684 C`, with a separate nonlinear discrepancy of `0.753 C` on land.
+The next bounded discriminator retains seasonal coefficients and exact finite
+wet forcing, comparing the first affine step with a nonlinear periodic solve.
+Neither the simpler architecture nor small-system qualification establishes
+Earth improvement. Any owner replacement
 still needs independent reference/consumer qualification, original procedural
 cohorts and normal native proof within the complete Huge `30-60 s` budget.
 Current circulation feedback cannot be dropped merely to improve timing.

@@ -2115,16 +2115,120 @@ This supports a wet-boundary mean defect under the held laws, but shows that
 this tested monthly wet-skin boundary is not a sufficient joint mean/seasonal repair. It does
 not establish that adding ice or storage will solve the remaining error.
 
-The next integrated discriminator must distinguish wet storage/exchange from
-atmospheric transport/optics, preserving actual energy accounting and the
-whole-Huge performance target. No coefficient search, held benchmark,
-scientific selection, production migration or candidate deployment follows.
+The subsequent integrated discriminator below tests wet storage/exchange
+without assuming it repairs the seasonal error. No coefficient search, held
+benchmark, scientific selection, production migration or candidate deployment follows.
 The response atlas retains its original unscored historical scope.
 
 Result SHA-256:
 `96374d6f0b1612fbdb636fac6d2579888cd2df0b1d9a4d51ddac3aeac05198bb`.
 Reader, method and compact execution evidence remain outside Git. Full curves
 stay on the compute host; the installed playable mod is unchanged.
+
+#### Integrated Storage Discriminator
+
+One eight-cell source-law experiment pairs instantaneous zero-storage exposed
+wet skin with a 50 m sensible/latent wet column and conductive frozen skin.
+Solar forcing, zero added bottom power, atmospheric laws and transport are
+held. This pair changes storage and frozen-skin exchange together, not uniquely
+heat capacity. It imports no Earth observations or prescribed reference tape.
+
+All four independently initialized arm/grid calls return, then the complete
+96/192 endpoint-piecewise-linear waveform comparison refuses its declared
+`0.05 C` limit. No result packet is written: the failed arm, waveform gap,
+year counts and mean/seasonal responses are not retained. They are unknown,
+not evidence of inventory drift, damping or a particular physical defect.
+The complete attempt takes `1.509 s`, with `123 MiB` maximum child RSS and
+`222 MiB` sampled whole-process RSS, within the unchanged resource caps.
+Its compact terminal receipt remains outside Git, SHA-256
+`8d95eb0f246aefe66a56c7a2f4f9d2eb27cc696e5491a64b8a56cee68b9f6022`.
+
+This discriminator is closed as numerically unqualified, without a larger
+refinement campaign or physical conclusion. Repairing this optional wet owner
+is not a prerequisite for the demonstrated land-geographic response failure.
+The installed playable mod remains unchanged.
+
+#### Reduced Geographic Response
+
+The selected next investigation stays inside `compute-thermal-state`, retaining
+its published thermal artifact and prescribed annual SST over water. The
+existing empirical unclipped sea-level cycle `B(t)` remains the inland
+reference, not a radiative equilibrium or heat capacity. An auxiliary dry skin
+uses that same reference as a declared approximation.
+
+For the same geometry, mask, wet/dry laws and phase, define the climatological
+reference budget `Q_B = M * Bdot - F_G(B, Bwet)`. Then the geographic response is
+`M * delta_dot = F_G(B + delta, Bwet + r) - F_G(B, Bwet)`, where
+`r = annualSST - Bwet`. Zero wet contrast preserves the reference exactly;
+nonzero contrast may change its annual mean. This is a reference-subtracted
+closure, not a claim of absolute column-energy closure or a hidden mean reset.
+
+The first cheap candidate used annual plus two seasonal harmonics, the actual
+source Jacobian/global radiative coupling and differentiated reciprocal
+moist-energy transport. It averaged the seasonal Jacobian while retaining the
+Fourier coefficients of the differentiated wet forcing product. Independent
+time-periodic linear and nonlinear chronological comparators tested those
+approximations at fixed manufactured wet contrasts, without Earth labels.
+
+All eight chronological runs meet the finite-cycle predicate in five years;
+their terminal complete-cycle gaps are at most `1.32e-6 K`. All four full-waveform
+96/192 refinements pass, with maximum displacement `0.01437 K` against `0.05 K`.
+Analytical derivative witnesses, fresh frequency residuals and independent
+zero/scaling/sign identities pass. Nevertheless, the candidate is rejected:
+
+| Comparison | Maximum gap | Location |
+| --- | ---: | --- |
+| Averaged-coefficient/two-harmonic versus chronological linear, either sign | `4.68423 K` | Auxiliary wet air |
+| Nonlinear versus chronological linear, positive contrast | `0.96684 K` | Auxiliary wet air |
+| Nonlinear versus chronological linear, negative contrast | `0.75290 K` | Land air |
+
+The first discrepancy combines coefficient averaging, harmonic truncation and
+quadrature; the result does not isolate their contributions. The other gaps
+reject first-order lifting at the declared `0.25 K` limit, including a genuine
+land discrepancy. These are approximation failures, not a source-physics or
+Earth-accuracy conclusion. Execution completes in `0.343 s`, with `149 MiB`
+maximum child RSS and `246 MiB` sampled whole-process RSS, inside the unchanged
+`10 s / 256 MiB` caps. The retained source/method/result/execution packet is
+`95,931 B`; all eleven source/runtime identity postchecks pass.
+
+Result SHA-256:
+`d2bd541ddd17b0b46de18c2e6bb05b0a1ee0d797e4cf2e4463a840e283490113`.
+The result and exact executable remain outside Git. No tolerance relaxation,
+new transport fit or held evaluation follows.
+
+The next selected discriminator uses fixed H4/H8 periodic collocation with
+bounded Newton iteration for the same reference-subtracted laws. It retains
+the seasonal Jacobian and evaluates the known finite wet-boundary forcing
+exactly. The first Newton step from zero is also the seasonal affine candidate;
+recording that step and the final nonlinear response tests the cheaper option
+and the need for unknown-state nonlinearity in one experiment. The prescribed
+wet-skin term is additive for these fixed-optics laws, so rebinding that boundary
+alone does not change the analytical unknown-state Jacobian.
+
+The manufactured gate retains fourteen unknown fields, both signed manufactured
+contrasts, independently initialized nonlinear 96/192 references, fixed H4/H8 orders
+and at most six Newton steps. Its primary H8-versus-reference waveform target
+and reference refinement limit remain `0.05 K`; harmonic interpolation bounds,
+fresh nodal residuals and independently sampled off-grid residuals distinguish
+representation error from solver convergence. Off-grid residual is diagnostic,
+not a waveform certificate. Tiny dense algebra is only a discriminator, not a
+production solver. Failure does not authorize automatic order increases, another
+fit or a storage migration. Small-system survival would still require a scalable
+implementation and complete Earth/consumer/Huge qualification.
+
+Existing latitude/bounds/tilt can be forwarded by the current step; geographic
+working storage stays private to the operation. Publish `B + delta` once over
+land, then apply the existing lapse, independent bounds and Float32 output.
+Auxiliary wet-air response does not silently replace wet pressure/moisture
+temperature. Keep all three thermal vintages and both actual ocean updates.
+No additional artifact, step, weather model or prognostic wet-temperature owner
+is selected. The closed finite-coefficient family and held benchmark stay closed.
+
+Small-system qualification is not Earth skill, a spin-up-tail bound or Huge
+cost proof. Only a surviving candidate earns one separately frozen complete
+incumbent comparison, training first, and subsequent procedural/consumer/native
+qualification within the complete Huge `30-60 s` target. The installed mod is
+unchanged; no candidate deployment follows from design review.
 
 ### Historical Trajectory Retirement
 
