@@ -40,9 +40,13 @@ takes `43.697 s` headlessly; this is not measured Civ generation time.
 The [retained consumer readback](thermal-boundary-discriminator.md#retained-consumer-boundary-readback)
 finds no placement consequence from the ten observed habitat-bit changes in
 this case, and its original climate/biome facts remain inside their unchanged
-bounds. Next qualify same-law reference uncertainty, then the separately frozen
-Earth comparison and original procedural cohorts, before owner replacement and
-normal native qualification. The earlier dry-transport Earth nonselection
+bounds. The [finer-reference observation](thermal-boundary-discriminator.md#finer-reference-observation)
+preserves those decisions but refuses the frozen componentwise refinement
+guard; no reference allowance is admitted. Next obtain a separately frozen,
+complete scientific-Earth raw observation, without presenting it as accuracy
+or production admission. Reference/consumer qualification and the original
+procedural cohorts remain before owner replacement and normal native
+qualification. The earlier dry-transport Earth nonselection
 is neither a result nor a prediction for the selected law. Numerical correctness
 alone earns no scientific or production admission.
 

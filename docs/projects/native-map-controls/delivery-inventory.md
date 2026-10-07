@@ -149,13 +149,21 @@ remain identical. Current biome facts also agree across all arms: eight
 families, 694 tundra/boreal tiles and qualified-row dominance `0.6405797101`
 under its unchanged `0.75` boundary. This `0.550 s` retained-only check does not
 run a solver or qualify reference uncertainty, the original cohorts or Earth
-science. Selected-law reference uncertainty is the next prerequisite before
-the frozen scientific comparison. Existing Huge
+science. The subsequent [finer-reference observation](thermal-boundary-discriminator.md#finer-reference-observation)
+completes in `204.631 s`, preserving those consumer decisions. Maximum common
+SST0 gaps decrease below `0.018 K`, but 398 componentwise refinement ratios
+fail the unchanged `[3,5]` witness; no conditional allowance is admitted.
+Final masks, all biome IDs, legal intersections, demand targets and 220 resource
+intents remain exact. This earns a finite observation, not reference accuracy.
+Next is one separately frozen complete scientific-Earth raw comparison,
+without treating it as production selection or requiring the entire regression
+bank before obtaining scientific information. Existing Huge
 physical-climate measurement gives `1.848638400 C` pooled within-row variation
 and no rainfall saturation for the candidate, satisfying that case's unchanged
 bounds without proving the rest of the cohort or fixed-Earth science. No new
 candidate is deployed; actual Civ whole-map latency remains unqualified.
-The three arms retain about `195 MiB` outside Git. Reviewed retirement of obsolete
+The original three arms retain about `195 MiB` outside Git; the new 384-step
+attempt retains about `155 MiB`. Reviewed retirement of obsolete
 BE trajectories recovered about `27.83 GiB`, preserving currently consumed curves,
 receipts and viewer assets rather than copying retired histories.
 

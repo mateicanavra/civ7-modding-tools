@@ -7,10 +7,14 @@ the qualified BDF2 time discretization, not the original dry-transport law.
 The [complete current Huge comparison](#three-vintage-discriminator) retains
 all three thermal calls, both ocean updates and actual downstream owners.
 The [consumer readback](#retained-consumer-boundary-readback) closes the observed
-resource-decision consequence question for that case only. Independently
-qualified same-law reference uncertainty is next, before the separately frozen
-selected-law Earth comparison, original procedural cohorts and native admission.
-The installed playable mod is unchanged. Earlier designs and dated results
+resource-decision consequence question for that case only. The
+[finer-reference observation](#finer-reference-observation) retains those
+decisions but refuses the unchanged componentwise refinement guard; reference
+allowances remain unresolved. The next selected story is a complete,
+separately frozen scientific-Earth raw observation, not an accuracy or
+production admission. Reference/consumer qualification, original procedural
+cohorts and native admission remain separate. The installed playable mod is
+unchanged. Earlier designs and dated results
 below preserve their original scope; they are not current next-work instructions.
 
 ## Frame And Decision
@@ -1154,9 +1158,88 @@ Reader SHA is
 report SHA is
 `104aace487fa130963bcfd1678ded3331d9b63a920cc811d66f8ffdd6ec49f0f`.
 This seals the observed consumer-consequence question for the retained current
-Huge case, not production selection. Next prospectively qualify the selected
-law's reference uncertainty before the frozen Earth comparison. No new
-capture framework, target relaxation or runtime instrumentation is introduced.
+Huge case, not production selection. The subsequent finer-reference story
+below preserves the same consumer boundary and records the actual refinement
+refusal. No new capture framework, target relaxation or runtime instrumentation
+is introduced.
+
+### Finer Reference Observation
+
+One newly frozen cold 384-step reference completes the current Huge chain:
+three independently initialized thermal vintages, one BE startup each, both
+actual ocean updates and all downstream owners. Each vintage settles at year
+five. The inner/outer attempt takes `204.421 / 204.631 s`, not multiple hours.
+Original equation, direction and energy guards pass. Source review enrolls
+eight mechanical entry/protocol/retention additions while verifying all 1,800
+prior pins unchanged; no physical owner or solver changes.
+
+The finer observation does **not** qualify the intended reference allowance:
+
+| Common SST0 Complete-Curve Sup Gap | 96 / 192 | 192 / 384 |
+| --- | --- | --- |
+| Dry skin | `0.0588123500 K` | `0.0174064911 K` |
+| Angular air | `0.0509448926 K` | `0.0128497173 K` |
+
+Both aggregate norms satisfy the prospectively selected, reserve-adjusted
+halving compatibility check. However, the preserved per-field common-knot
+second-order `[3,5]` witness refuses: 103 dry and 295 air fields are outside
+that interval, with range `1.2152038856-6.8507099337`. The first refusal is dry
+field 33: common-knot gaps `0.0175386106 / 0.0058844276 K`, ratio
+`2.9805125846`. Those gaps are far above the original solve reserves, not a
+numerical-zero tie. Independent signed-power comparison remains below its
+original one-percent limit. Aggregate compatibility does not override that frozen
+guard. Both conditional allowances remain **unresolved/null**, never zero;
+no later publication or full-composition allowance follows. There is no
+automatic 768-step retry, fallback or relaxed target.
+
+The actual finite downstream observations remain useful. Final climate-land,
+resolved exposure, lake masks and all biome IDs retain identity. Reference384
+habitat masks equal reference192; the earlier ten habitat-bit differences
+remain the only candidate/reference384 categorical differences. All 34 legal
+masks and habitat/legal intersections, demand targets and eight original/adjusted
+220-entry intent arrays remain identical. The current Huge biome-row facts
+remain unchanged. Reference384 pooled within-row land-temperature SD is
+`1.8489055751 C`, with zero annual/seasonal rainfall saturation. The actual
+candidate/reference384 pooled demeaned temperature displacement is
+`0.0004574717 C`, not the difference of SDs or a certified error budget.
+
+The numerical attempt retains `162,173,853 bytes` across 863 files, below its
+new prospective 512-MiB retention cap. Outer receipt RSS is
+`1,401,176,064 bytes`; a later console sample is `1,401,700,352 bytes`, both
+below the unchanged 1.5-GiB limit. Retained-only readback takes `2.074 s` and
+retains `2,504,592 bytes`. Per-vintage comparison buffers are released rather
+than retained across the whole readback. Independent review reconstructs the
+refinement refusal and consumer facts without an owner/model/solver rerun.
+
+Evidence remains in the existing native-composition user-data packet. Inner
+RESULT, outer RESULT and retained-readback SHAs, respectively:
+
+```text
+6dd84a23768f219fa2ce5420a9b556a4332851541dcdba34b1097b29d4f314ad
+508e5a997d614915e7a2bde5a739fb332cd1a543a31e55c5d7f8d700f3fed327
+9c295ca21cc11562da43ea5f3908833c8d7c43e7cb0703d31eaf9b0458f76b77
+```
+
+The next selected discriminator is one cold settled96/M24 complete chain on
+the separately frozen scientific Earth geography (`192x84`, zero relief),
+with final SST2-ground scoring after both actual ocean updates. Reuse the
+original 547 receivers, calendar, zero-height incumbent and raw scientific
+guards. Its result can provide a bounded whole-composition science observation
+or refuse that canonical candidate; it cannot select the production pipeline
+or supply missing reference uncertainty. The Firaxis `106x66` fixture remains
+a distinct native-geography control. Neither fixture enters the procedural
+recipe.
+
+Freeze one 900-second/1.5-GiB numerical attempt and a 512-MiB total new evidence
+cap, not a renewed budget per vintage. Pure science readback has a separate
+60-second/1-GiB bound; human review and transfer waits are not numerical time.
+No extra Earth resolution is automatically executable. A later stronger
+accuracy claim must choose its premise in actual final prediction/consumer
+space; fixed-SST0 Kelvin reserves cannot be pasted through nonlinear feedback.
+The original 57-case bank and complete native 30-60-second gate remain before
+adoption, not prerequisites to obtaining this first scientific observation.
+No observational labels, new production code or deployment occur in the
+finer-reference story.
 
 ### Historical Trajectory Retirement
 
