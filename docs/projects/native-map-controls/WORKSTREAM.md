@@ -42,9 +42,14 @@ finds no placement consequence from the ten observed habitat-bit changes in
 this case, and its original climate/biome facts remain inside their unchanged
 bounds. The [finer-reference observation](thermal-boundary-discriminator.md#finer-reference-observation)
 preserves those decisions but refuses the frozen componentwise refinement
-guard; no reference allowance is admitted. Next obtain a separately frozen,
-complete scientific-Earth raw observation, without presenting it as accuracy
-or production admission. Reference/consumer qualification and the original
+guard; no reference allowance is admitted. The [complete scientific-Earth observation](thermal-boundary-discriminator.md#selected-moist-energy-earth-observation)
+now refuses the canonical candidate: held annual RMSE rises `2.97104 -> 3.29488 C`
+and monthly RMSE `3.57295 -> 5.21915 C`, with 54 unchanged raw guard failures.
+The complete numerical chain takes `348.538 s`; retained science readback takes
+`0.268 s`, not another simulation. Next discriminate mean, seasonal and
+geographic error from retained predictions before selecting another forward
+model. No fitting, automatic refinement or production change follows.
+Reference/consumer qualification and the original
 procedural cohorts remain before owner replacement and normal native
 qualification. The earlier dry-transport Earth nonselection
 is neither a result nor a prediction for the selected law. Numerical correctness

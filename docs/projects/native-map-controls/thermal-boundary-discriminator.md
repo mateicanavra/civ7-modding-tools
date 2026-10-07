@@ -10,9 +10,11 @@ The [consumer readback](#retained-consumer-boundary-readback) closes the observe
 resource-decision consequence question for that case only. The
 [finer-reference observation](#finer-reference-observation) retains those
 decisions but refuses the unchanged componentwise refinement guard; reference
-allowances remain unresolved. The next selected story is a complete,
-separately frozen scientific-Earth raw observation, not an accuracy or
-production admission. Reference/consumer qualification, original procedural
+allowances remain unresolved. The [complete scientific-Earth raw observation](#selected-moist-energy-earth-observation)
+now refuses the selected canonical candidate: both annual and seasonal error
+worsen against the unchanged original comparator. The next discriminator uses
+retained predictions to separate mean, seasonal and geographic errors before
+another forward model. Reference/consumer qualification, original procedural
 cohorts and native admission remain separate. The installed playable mod is
 unchanged. Earlier designs and dated results
 below preserve their original scope; they are not current next-work instructions.
@@ -1240,6 +1242,124 @@ The original 57-case bank and complete native 30-60-second gate remain before
 adoption, not prerequisites to obtaining this first scientific observation.
 No observational labels, new production code or deployment occur in the
 finer-reference story.
+
+### Scientific Earth Startup And Representable-State Exit
+
+The separately frozen scientific-Earth attempt refuses its first BE startup
+with `ORIGINAL_DESCENT_REFUSAL`, before any completed phase, ocean update,
+publication or observation score. Its eight static/procedural-SST0 inputs,
+modern forcing, actual first endpoint solar row and original source closure
+remain pinned. This is a numerical counterexample, not Earth nonselection.
+
+One unchanged observed startup localizes the failure at Newton block five.
+The raw maximum equation residual decreases from `19.2296 K` to
+`3.1336711004e-11 K`, above the internal `TOL/4 = 2.5e-11 K` stop but below
+the original `1e-10 K` phase limit. All six original/independent direction
+proofs pass. No damping trial has a domain error. The full step changes only
+2,132 of 21,098 coordinates and slightly worsens the residual; from quarter
+step through `1/256`, every coordinate is byte-identical to the current state.
+Retained current/trial states and residuals agree exactly. This demonstrates
+representable-state stagnation for this stage, not a wrong transport law or
+ordinary coarse Newton divergence. The observation takes `583.032 ms` and
+retains `1,556,666 bytes`; its final console RSS sample is `263,487,488 bytes`.
+
+The selected private numerical delta preserves the ordinary `TOL/4` stop,
+strict descent statement, nine existing trial fractions and direction checks.
+Only after all nine trials fail may it return the current state when its
+residual is within the original `TOL` and a successfully evaluated trial was
+byte-identical to that state. The return records its stagnation reason and
+explicitly does not admit the phase. The unchanged independent equation,
+energy and chronological BDF checks remain authoritative; no physical
+coefficient, authoring knob or production instrumentation is added.
+
+Focused qualification passes in `883.022 ms`, retaining `200,120 bytes` with
+a final console RSS sample of `296,796,160 bytes`. The repaired startup returns
+the exact previously refused state and all six original direction proofs.
+The independent original BE oracle accepts that state at
+`4.5283776728e-11 K`, with relative energy error `1.3177641869e-18`.
+Five negative gate cases pass. The unchanged chronological oracle still
+rejects normalized `8e-11 K` when its BDF unnormalized defect is `1.2e-10 K`.
+Two small stages and the retained native Huge first BE preserve exact state
+and proof identity on the ordinary path. Independent retained review closes
+these facts without rerunning a solver or oracle.
+
+This qualifies only the bounded false-refusal exit. The separately authorized
+complete scientific-Earth observation below retains three independently
+initialized settled96/M24 vintages, both actual ocean updates and final SST2
+publication, under the same whole-attempt limits. Original 547-receiver science
+readback remains a separate computation. Dry publication observes atmospheric `Ta`, not private
+skin `Ts`; zero relief makes its lapse zero at all 547 dry receiver cells.
+That is the selected reduced near-surface-air diagnostic compared with NCEP
+2 m air, not a vertically resolved 2 m observation operator. No new Earth
+score, accuracy allowance or production admission follows from this repair.
+
+The private packet is
+`earth-calibration/earth-two-temperature-selected-mse-earth-observation-20261007/`.
+Original refusal, observed startup and focused qualification receipt SHAs:
+
+```text
+494ff871e4b46c088d683bb52ae31ff8bfc565d74c3b5479ccd4cd3912ea9bc1
+d13a44d7ec0688101b859426ca11ceeaa3f8ce494a6f8dfd6be41d4b99da4f54
+6ca458cb4b0ff4ee0a398b251b87904dbac0900b171cc21d014a1f74830dccc3
+```
+
+### Selected Moist-Energy Earth Observation
+
+The repaired scientific-Earth chain completes in `348.538 s`, with reported
+peak RSS `611,975,168 bytes` and `120,701,276 bytes` numerical retention. Each
+of the three independently initialized vintages settles after five years:
+1,440 chronological phases, three BE startups and exactly two endogenous
+ocean advances. Final acquisition retains SST2 without a third ocean update.
+Independent retained review closes all 1,582 output pins and independently
+reconstructs final pressure samples, centering and ground annual publication.
+The 676 bounded-stagnation exits are inferred from the accepted source's
+strict ordinary-stop boundary, not individually logged trial traces. Every
+phase still passes the unchanged original equation, chronological BDF and
+energy guards. Maximum unnormalized phase defect is `7.400525e-11 K`.
+
+The separately authorized pure science readback takes `0.268 s` and invokes
+no owner or model. It keeps all 547 original receivers, original calendar,
+zero-height incumbent and raw guards. There are 196 training, 215 held and 136
+additional immediate-coast sites; populations below eight remain unsupported.
+The target is NCEP-NCAR Reanalysis 1 monthly 2 m air climatology, not raw
+station observations. The final canonical candidate produces 54 raw-guard
+failure messages, not 54 independent physical defects:
+
+| Held Error, C | Incumbent | Selected Candidate |
+| --- | ---: | ---: |
+| Annual RMSE | 2.97104 | 3.29488 |
+| Within-row error RMS | 2.31477 | 2.33607 |
+| Source-row mean error RMSE | 1.86251 | 2.32357 |
+| Monthly RMSE | 3.57295 | 5.21915 |
+| Annual signed bias | -1.29405 | -0.12202 |
+
+Better aggregate signed bias does not repair worse spatial or seasonal error.
+All four held seasonal RMSEs worsen. Additional-coast annual RMSE rises
+`3.73154 -> 4.99002 C`. Annual error improves in the supported
+Europe/Africa/west-Asia and southern-Asia/Australia held groups, but worsens in
+North America and northern Asia/Pacific; all four supported held groups have
+worse monthly RMSE. These are diagnostic observations, not fitted corrections
+or evidence for a universal regional cause.
+
+The bounded canonical candidate is refused. No automatic refinement, finest
+branch, parameter fitting, relaxed guard, new uncertainty allowance or
+production port follows. This does not establish failure of the continuum law
+at every resolution. It does stop adoption of this selected implementation.
+The original procedural bank, native timing and installed playable build are
+unchanged. Mean/anomaly and geographic attribution from retained predictions
+comes before another expensive model or a new physical mechanism.
+
+The numerical result and compact science receipt remain in the same private
+packet as the startup repair. Their respective SHA-256 identities are:
+
+```text
+33c7e6d0b711bab114943714489f87e74abea9eb6d2713ac3fb0f771c9fda7d9
+01173b397cfdf9772f23b6bac699423859821690ffc175a51160177c290ff204
+```
+
+Numerical evidence plus compact return and science outputs totals
+`123,136,411 bytes`, below the unchanged 512-MiB ceiling. No full trajectories
+are copied back for routine iteration.
 
 ### Historical Trajectory Retirement
 
