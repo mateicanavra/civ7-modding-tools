@@ -2290,6 +2290,32 @@ or process-cold timing. The prospective targets are `6 s` per complete thermal
 call and `18 s` aggregate, counting setup and readout. No iteration increase,
 warm trajectory, dropped vintage or Earth forward is authorized by a refusal.
 
+#### Completed Native-Sized Cost Refusal
+
+The single native-sized manufactured attempt stops in the first Newton update
+with `GMRES_ITERATION_CAP:96`. No Newton update is accepted; the other two calls
+remain explicitly unexecuted. First-call setup, solve and readout take
+`0.957 s`; outer execution completes in `0.995 s`. Maximum child RSS is
+`216 MiB`, sampled whole-process RSS `310 MiB`. This is a linear-solver refusal,
+not a failure of the prospective `6 s / 18 s` timing or `512 MiB` resource limits.
+
+The retained fresh initial equation norm is `1505.34` year-scaled kelvin at
+zero anomaly, not a temperature error or the last Krylov residual. The thrown
+inner solve does not return its partial residual/counters; aggregate zeros
+omit that work and cannot identify a unique failing spatial mode. The row-line
+preconditioner's omitted meridional coupling is a source-level weakness to
+investigate, not a cause established by the retained telemetry.
+
+All twenty-four source/runtime postchecks pass. The new source, four copied
+geography input files, wrapper, result and receipt total `70,020 B`, outside Git.
+Result SHA-256:
+`24208813871cf6f1975319c84a1c0cd1a3489a4f91e20ccdb4ea9f3c40a54664`.
+Independent retained review confirms the refusal. Small-system equivalence
+remains valid, but this approximate inverse is not native-qualified. The next
+design addresses the full spatial inverse while preserving the exact physical
+operator, iteration/accuracy limits and thermal budgets. No larger iteration
+allowance, Earth forward, production adoption or deployment follows.
+
 Existing latitude/bounds/tilt can be forwarded by the current step; geographic
 working storage stays private to the operation. Publish `B + delta` once over
 land, then apply the existing lapse, independent bounds and Float32 output.
