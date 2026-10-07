@@ -163,12 +163,19 @@ The subsequent [authentic periodic composition](thermal-boundary-discriminator.m
 completes all six cold Earth solves and both actual ocean updates per branch in
 `34.486 s`. Nodal, calendar and Kelvin checks pass, but complete H4/H8 waveform
 gaps reach `0.075713 K` and final SST differs by `0.071005 C`, above the unchanged
-`0.05` refinement limits. The candidate therefore remains numerically refused;
-no observations are scored. Its reviewed `768 MiB` offline reference budget
+`0.05` refinement limits. That H4/H8 pair remains numerically refused;
+no observations are scored from it. Its reviewed `768 MiB` offline reference budget
 completes below `714 MiB` whole-process RSS; the earlier `512 MiB` refusals remain
-refusals and no native/player memory claim follows. Saved-field seasonal-mode
-and aliasing diagnosis precedes a justified refinement, then any frozen
-training-first comparison. Held labels and the rejected coefficient
+refusals and no native/player memory claim follows. The subsequent
+[saved-field diagnosis and H6 refinement](thermal-boundary-discriminator.md#seasonal-resolution-refinement)
+complete without changing physics or repeating H8. One new H6 composition
+takes `18.451 s`; all three waveform comparisons pass, with maximum
+`0.004809 K`, and final SST differs by `0.005152 C`. Tiny controls preserve
+the original H4/H8 implementation exactly. The fresh H6/H8 pair is numerically
+admitted; the old H4/H8 pair remains refused. Its sampled whole-process peak
+leaves only about `5 MiB` below the offline cap, not a native-memory admission.
+Next is the separately frozen original training-only comparison, not another
+reference simulation. Held labels and the rejected coefficient
 search stay closed. No production migration or candidate deployment follows.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)

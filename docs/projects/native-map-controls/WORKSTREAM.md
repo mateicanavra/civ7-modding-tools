@@ -106,11 +106,18 @@ but H4/H8 waveform gaps reach `0.075713 K` and final SST differs by `0.071005 C`
 exceeding the unchanged `0.05` refinement guards. No observational scoring or
 production adoption follows. Three prior offline memory refusals remain valid;
 a reviewed `768 MiB` budget for this larger reference completes below `714 MiB`
-whole-process RSS, not a player-path memory qualification. Next, use these
-frozen states to distinguish missing seasonal modes from lower-mode aliasing
-before selecting a numerical refinement; do not repeat the Earth reference or
-increase an order automatically. Neither the simpler
-architecture nor small-system qualification establishes Earth improvement. Any owner replacement
+whole-process RSS, not a player-path memory qualification. The subsequent
+[seasonal resolution refinement](thermal-boundary-discriminator.md#seasonal-resolution-refinement)
+uses a `0.525 s` saved-field readback to justify one H6 comparison, not a
+parameter or order sweep. Its tiny implementation controls preserve H4/H8
+arithmetic exactly. One actual H6 composition completes in `18.451 s` while
+reusing H8 without another reference solve. All three waveform guards pass,
+with maximum `0.004809 K`; final SST differs by `0.005152 C`. The original
+H4/H8 refusal remains unchanged. Sampled whole-process RSS stays inside the
+offline guard with only about `5 MiB` headroom; native memory is not admitted.
+Next is the separately frozen original training-receiver comparison, not
+another physical run or automatic production promotion. Neither the simpler
+architecture nor numerical qualification establishes Earth improvement. Any owner replacement
 still needs independent reference/consumer qualification, original procedural
 cohorts and normal native proof within the complete Huge `30-60 s` budget.
 Current circulation feedback cannot be dropped merely to improve timing.

@@ -2427,14 +2427,61 @@ retained numerical result is SHA-256
 `1b75c1e9f13c4f0fce642721977d180f5db03d62693b615cbd72b8f4a9ee0930`.
 Independent retained review, not another solve, qualifies these conclusions.
 
-The next discriminator reads these frozen states to separate omitted seasonal
-modes from lower-mode aliasing and locate their geographic support. It must
-justify a numerical refinement before another physical attempt, preserving
-the equations and accuracy guards. Reuse the admitted higher-order branch
-where its exact dependencies permit; do not repeatedly simulate a fixed
-reference. A numerically surviving pair alone earns a separately authorized,
-training-first Earth comparison with the original empirical incumbent,
-calendar, receivers and period-matched forcing.
+### Seasonal Resolution Refinement
+
+A retained-only Fourier readback completes in `0.525 s`, without another
+physical solve or observation access. It reproduces the original waveform
+bounds to roundoff. The largest gaps are polar; middle-latitude maxima remain
+below `0.00863 K`. H8 modes 5-8 have amplitude-sum bounds near `0.038 K`,
+whereas modes 7-8 stay below `0.001657 K`. Lower-mode disagreement is still
+about `0.0446 K`. These diagnostics justify one H6 comparison, not an H6 error
+certificate or unique attribution to aliasing. Later vintages also contain
+endogenous ocean feedback. Readback SHA-256:
+`f0391fef1bf99587a15689339cdee0dc42f28de407a44faa71d57cb9b40b7cbd`.
+
+The narrow portable extension adds thirteen nodes to the admitted nine/seventeen
+shape guard; all remaining kernel arithmetic and solver policy are unchanged.
+Both signed manufactured cases recover an independently closed six-harmonic
+solution within `0.000031 K`. Complete-basis Jacobian and complex-inverse
+controls pass, and the original H4/H8 residuals, Jacobians and full solve
+records remain exactly identical. This is implementation qualification only.
+The retained tiny result is SHA-256
+`88f4f0e4e71f636415a64685cf0de0f3add49a5275ce02475723bcf7eeca0127`.
+
+One genuine H6 composition then completes in `18.451 s`, including comparison
+against the exact retained H8 branch. No H8 solve or output copy is repeated.
+All three H6 cold solves converge in `4 / 4 / 5` full Newton updates; their
+fresh nodal residuals are at most `0.000283 K`. The actual owner still executes
+two ocean updates and final moisture, with `144` pressure, `48` evaporation
+and `3` ocean calls. The original physical laws, forcing, coefficients,
+publication and numerical thresholds remain held.
+
+| Atmosphere Vintage | All-Field H6/H8 Bound (K) | Published Land-Air Bound (K) | SST Maximum Difference (C) |
+| --- | ---: | ---: | ---: |
+| SST0 | 0.004634 | 0.001917 | 0 |
+| SST1 | 0.004733 | 0.001928 | 0.003094 |
+| SST2 | 0.004809 | 0.001943 | 0.005152 |
+
+Every row passes the unchanged `0.05` guards. Calendar, wet publication,
+Kelvin and source/output checks also pass. This independently admits the
+fresh H6/H8 pair; the earlier H4/H8 pair remains refused. H8 is still a
+retained reference, not a periodic-continuum certificate. Other consumer-order
+differences remain diagnostic, not consumer-equivalence admission.
+
+Sampled simultaneous whole-process RSS reaches `799,916,032 B`, only
+`5,390,336 B` below the offline `768 MiB` guard. This is not native-memory
+qualification or permission to increase that guard. All `900` custody rows,
+runtime/wrapper checks, `233` reused H8 descriptors and new outputs pass their
+postchecks. The `233` new H6 fields occupy `17,146,416 B`; combined retained
+evidence across hosts is `59,100,903 B`, below `64 MiB`, outside Git.
+Result SHA-256:
+`320ce59537ed2c09fcc056fd3baada44934114d32f7c341bfb33331258e3870a`.
+
+The separately frozen training reader admits actual orders H6/H8, the original
+196 training receivers and empirical incumbent, calendar and period-matched
+forcing. Its score definitions, supported groups and prospective mirrors
+remain unchanged. Numerical admission earns that separate training readback,
+not Earth improvement, held-label access or production selection.
 
 Existing latitude/bounds/tilt can be forwarded by the current step; geographic
 working storage stays private to the operation. Publish `B + delta` once over
