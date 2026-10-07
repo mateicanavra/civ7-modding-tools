@@ -2,38 +2,28 @@
 
 ## Current Qualification Boundary
 
-The selected external candidate uses diagnostic moist-energy transport and
-the qualified BDF2 time discretization, not the original dry-transport law.
-The [complete current Huge comparison](#three-vintage-discriminator) retains
-all three thermal calls, both ocean updates and actual downstream owners.
-The [consumer readback](#retained-consumer-boundary-readback) closes the observed
-resource-decision consequence question for that case only. The
-[finer-reference observation](#finer-reference-observation) retains those
-decisions but refuses the unchanged componentwise refinement guard; reference
-allowances remain unresolved. The [complete scientific-Earth raw observation](#selected-moist-energy-earth-observation)
-now refuses the selected canonical candidate: both annual and seasonal error
-worsen against the unchanged original comparator. The [retained seasonal decomposition](#retained-seasonal-error-decomposition)
-locates different inland-amplitude and coast-mean failures. The completed
-[shared-air limit](#manufactured-shared-air-limit) then demonstrates a strong
-manufactured response with conservative internal mixing. The subsequent
-[two-value finite-zonal comparison](#completed-finite-zonal-family)
-completes both prescribed Earth evaluations and rejects the family: neither
-value meets the unchanged training eligibility guards. No held benchmark,
-third coefficient or production adoption follows. The completed
-[common-SST0 power readback](#retained-coast-power-and-wet-boundary)
-separates simultaneous zonal warming and seasonal damping. The accompanying
-wet-boundary comparison locates a large northern seasonal contrast hidden by
-the global mean. The [completed wet-temperature control](#completed-wet-temperature-control)
-then establishes substantial northern land cooling and wider seasonal ranges
-under held laws. The [paired training diagnosis](#paired-wet-temperature-training-diagnosis)
-then finds improved annual and overall monthly error, but worse northern and
-coastal seasonal-anomaly error. Storage/exchange and seasonal response require
-a coherent candidate design, not another transport
-coefficient or an observational boundary in the procedural recipe.
-Reference/consumer qualification, original procedural
-cohorts and native admission remain separate. The installed playable mod is
-unchanged. Earlier designs and dated results
-below preserve their original scope; they are not current next-work instructions.
+The product gap is weak geographic land-temperature response at fixed latitude
+and height, not a requirement to reproduce Earth exactly or build a larger
+weather model. The playable empirical incumbent remains installed. No external
+physical candidate in this record has earned production adoption.
+
+The latest [dry-only reference-budget comparison](#completed-dry-only-reference-budget)
+holds the exact old-H6 final SST2 fixed and removes inland reference forcing
+only from marine air. Both periodic resolutions qualify numerically, then
+fail the unchanged original-training guards. The change partly improves the
+old rejected candidate, but annual, row-centered and seasonal error remain
+worse than the incumbent. Reference support alone is not the sufficient repair;
+the imperfect annual liquid boundary remains unqualified as exposed ice skin
+or seasonal marine air.
+
+The next [product-sized comparison](#next-product-sized-domino) must earn
+additional complexity against a genuinely simpler geographic annual-and-seasonal
+response. Cheap premise checks and rejection-first pilots precede large
+qualification campaigns. Existing numerical methods remain reusable, not a
+reason to run another solver campaign automatically. Scientific, procedural,
+consumer and native admission remain separate, including the complete Huge
+`30-60 s` budget. Earlier dated designs/results below retain their original
+scope and refusals; they are not current next-action instructions.
 
 ## Frame And Decision
 
@@ -2833,6 +2823,116 @@ new wet pressure publication or a production solution. Any eventual candidate
 still needs authentic three-vintage/two-ocean composition, original procedural
 cohorts, downstream/native proof and the complete Huge `30-60 s` budget.
 No new artifact, operation, step, legacy lane or owner migration is selected.
+
+#### Completed Dry-Only Reference Budget
+
+The single frozen-boundary pair completes in `10.078223 s`, with no ocean,
+pressure, wind, moisture, observational or scoring call. Both cold solves take
+four accepted Newton updates and 43 Krylov iterations. Fresh nodal residuals
+are `0.000196731 / 0.000196716` year-scaled K. Continuous H6/H8 bounds are
+`0.033425 K` over all states and `0.031841 K` over published land air, below
+`0.05 K`; calendar/Float32 publication guards and zero wet mismatches pass.
+This is order qualification, not an off-grid constitutive or continuum proof.
+Sampled simultaneous whole-process RSS is `698,941,440 B`, below the offline
+`768 MiB` cap; native memory and complete composition are not qualified.
+
+Predictions freeze before the separate `0.121089 s` original-training readback.
+Exactly 196 observations and zero-height incumbent records are extracted;
+held/added records, model solves and fits remain zero. The original scorer,
+population identities and all 47 prospective mirrors are unchanged. Each
+order fails 42 mirrors, with zero predicate disagreements. H6 errors in C:
+
+| Metric | Empirical Incumbent | Old H6, Same SST2 | Dry-Only H6 |
+| --- | ---: | ---: | ---: |
+| Annual RMSE | 2.513784 | 5.125092 | 4.649177 |
+| Within-row annual error RMS | 2.059195 | 2.174081 | 2.153996 |
+| Monthly RMSE | 3.261280 | 7.985237 | 7.417556 |
+| Coastal annual RMSE | 4.023036 | 9.391825 | 8.498784 |
+| Coastal monthly RMSE | 4.443054 | 12.606510 | 11.583653 |
+| Complementary annual RMSE | 1.424962 | 1.992266 | 2.541820 |
+
+The exact-boundary intervention partly improves the rejected old H6, not every
+region: complementary annual and monthly error worsen. It is not merely a
+removable mean. Against the incumbent, all-training row-centered annual MSE
+rises `4.240285 -> 4.639698 C2`, and monthly-anomaly MSE rises
+`4.316835 -> 33.405291 C2`; all four diagnostic supports worsen on both axes.
+Monthly anomalies remove each receiver's day-weighted monthly mean, not its
+independently published annual value. Old H8 remains contextual because its
+original SST2 was close but not identical.
+
+**Decision:** reject this convention change as a sufficient climate repair
+conditioned on the fixed annual SST2. The result does not select another
+coefficient, numerical resolution, ocean simulator or wet-storage migration.
+It also does not establish that annual liquid SST is an appropriate exposed
+seasonal boundary. Preserve the useful numerical method and negative result;
+compare product-sized alternatives before further physical qualification.
+
+Independent compact review reconstructs numerical/score/guard identities and
+custody without replaying models or raw observations. All postchecks pass;
+no process or owned temporary module remains. Four prediction buffers total
+`166,656 B` at their canonical research location; only compact report/receipt
+copies are duplicated. Inclusive all-host family retention is `66,491,757 B`,
+below `64 MiB`, outside Git. Numerical result SHA-256:
+`cb2a308b95f0a6b4c0cfec9360a0bd914745721c2e21e687e9f07a2cab960127`;
+training result SHA-256:
+`a4f62fcf1d01c1d65b1a830db7f1b73121bab3185d4b4c49e0fcbe71e2d8c029`.
+Original refusals, acceptance margins and the installed mod remain unchanged.
+
+#### Next Product-Sized Domino
+
+**Owner:** existing `compute-thermal-state` periodic-response rule and its one
+thermal artifact. Preserve one lapse application, publication, actual driving
+vintages and the three-atmosphere/two-ocean schedule. No new recipe stage or
+climate/water owner follows from this investigation.
+
+**Hypothesis:** independently qualified inland and maritime **air** cycles,
+mixed by one resolution-explicit geometry-only exposure, can supply useful
+annual and seasonal land geography without an absolute column-energy solve:
+
+```text
+Traw_i(t) = (1 - exposure_i) * B_i(t) + exposure_i * M_i(t; admitted inputs)
+```
+
+This is an explicitly empirical alternative, not a closed energy model.
+`M` is not liquid SST, exposed ice skin or copied inland `B`. The same exposure
+must act jointly on annual mean and complex seasonal coefficients; no separate
+land-residual gains, wind-fetch rule or zero-mean-only correction is selected.
+Prior raw-SST screen, directed-fetch and averaged-Jacobian refusals remain closed.
+The earlier six-coefficient marine-air source test also already rejected
+`SST + affine meanQ + two complex solar responses`, with SST gain fixed at one:
+pooled monthly error improved, but supported ice-free northern monthly error
+rose `2.792 -> 9.683 C`. That is not an untried maritime-air model. Changing
+its name or freeing a gain is not, by itself, a new source explanation.
+
+**First executable test:** design and freeze the smallest marine-air coefficient
+form and geographically separated calibration/validation partition using the
+already admitted wet reference, before a land pilot. A solar-only endmember is
+the simpler null, not a promised viable model; use existing source diagnostics
+to test its representational limits before fitting. Any annual-SST covariate
+must earn predictive value and have an explicitly compatible procedural
+producer/vintage. Do not silently use the
+rejected H6 feedback's final SST as the incumbent's boundary. No land residual
+fit or held-land score enters this premise test. Static marine and ice-free
+supports remain distinct; neither supplies an independently validated ice model.
+
+**Distinguishing outcome and stop:** require identifiable, predictive annual
+and centered-seasonal behavior across marine blocks. A failed or unidentified
+endmember stops this candidate before exposure tuning or another Earth solve.
+If existing evidence already rules out the simple family, reject it explicitly
+and identify the one missing source relationship; do not force a new fit.
+Only a surviving, frozen endmember/exposure earns the original-training and
+controlled-geography comparison against the incumbent. A coast benefit that
+merely introduces broad bias or seasonal harm stops it. The corrected nonlinear
+model remains a distinct rival, not an automatically authorized next campaign.
+
+Cheap exploratory evidence can reject, not promote. A useful survivor still
+needs prospective numerical/validation qualification, matched procedural
+Standard/Huge seeds, downstream biome/water/placement checks, visible milestones
+and complete native runtime/memory proof. Existing margins are unchanged;
+different practical margins require prospective justification and approval,
+not retrospective admission of a failed candidate. Only this next premise
+domino is active; relief units, final-topography feedback, riparian/rain semantics
+and optional weather dynamics stay outside it unless its evidence implicates them.
 
 ### Historical Trajectory Retirement
 
