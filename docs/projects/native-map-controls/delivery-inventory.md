@@ -40,9 +40,23 @@ final publication. Its original-547 pure science readback takes `0.268 s` and
 refuses the canonical candidate with 54 raw-guard failure messages. Held annual RMSE worsens
 `2.97104 -> 3.29488 C`; monthly RMSE worsens `3.57295 -> 5.21915 C`.
 Improved signed bias does not outweigh those regressions. No production
-adoption, automatic refinement or candidate deployment follows. The next
-diagnostic separates mean, seasonal and geographic errors using retained
-outputs, not another expensive simulation or held-label parameter search.
+adoption, automatic refinement or candidate deployment follows. The completed
+[retained seasonal decomposition](thermal-boundary-discriminator.md#retained-seasonal-error-decomposition)
+takes `0.134 s` without another simulation: about 77% of the net held monthly
+deterioration is amplitude mismatch, mainly excess inland seasonal RMS. Additional
+coasts improve amplitude error but worsen mean error. These are descriptive
+attributions, not proof of one physical cause or a fitted correction.
+
+The four-panel `selected-mse-earth-atlas-20261007/index.html` now shows raw
+annual air temperature, full-cycle range and the matched incumbent/candidate
+annual residuals. Original 547-site identity, common residual scales,
+unsupported coverage and scientific nonselection remain explicit. Exact-byte
+local/tailnet checks and desktop/mobile browser checks pass; the existing
+gallery preserves all earlier native build evidence. These are diagnostic
+exports, not new Civ screenshots or a changed playable mod. Next compare one
+small finite-air wet-stripe case with a conservative shared-air limit using
+the existing solver. No expensive Earth rerun, guessed large diffusivity,
+post-step temperature reset or production zonal model is selected.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
 follows accepted SST0, authentic SST1 and canonical SST2. All seven complete
