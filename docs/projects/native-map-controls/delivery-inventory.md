@@ -141,8 +141,16 @@ settled 96/192 references. Complete headless times are `43.697`, `105.746` and
 `159.747 s`, including all three thermal calls and both ocean updates. Retained
 comparison takes `1.696 s`, with the short candidate within `5.543845e-5 K` of
 the same-resolution reference over complete chronological curves. Observed
-96/192 refinement is not an uncertainty bound: some actual resource habitat
-decisions change and require compiled-boundary assessment. Existing Huge
+96/192 refinement is not an uncertainty bound. The subsequent
+[compiled-boundary readback](thermal-boundary-discriminator.md#retained-consumer-boundary-readback)
+traces ten habitat-bit changes to four aridity-rank crossings. Complete legal
+intersections, all seven affected demand targets and all 220 resource intents
+remain identical. Current biome facts also agree across all arms: eight
+families, 694 tundra/boreal tiles and qualified-row dominance `0.6405797101`
+under its unchanged `0.75` boundary. This `0.550 s` retained-only check does not
+run a solver or qualify reference uncertainty, the original cohorts or Earth
+science. Selected-law reference uncertainty is the next prerequisite before
+the frozen scientific comparison. Existing Huge
 physical-climate measurement gives `1.848638400 C` pooled within-row variation
 and no rainfall saturation for the candidate, satisfying that case's unchanged
 bounds without proving the rest of the cohort or fixed-Earth science. No new

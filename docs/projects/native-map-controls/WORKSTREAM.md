@@ -32,15 +32,19 @@ is a gameplay approximation, not canonical finite-water truth. Arbitrary
 under-rim/below-sea projection retains its bounded native capability limit.
 
 The remaining demonstrated production obligation is the missing
-geographical/seasonal land thermal response. The selected external
-[thermal-only boundary study](thermal-boundary-discriminator.md#authentic-sst1-numerical-qualification)
-now qualifies the actual first ocean-feedback acquisition and all nine fixed-SST1
-periodic/refinement/initialization/rotation obligations after SST0. Canonical
-SST2 and final ground/calendar publication are next. Finite actual-composition
-sensitivity, unchanged Earth/cohort admission and normal native qualification
-remain separate gates before an owner replacement; representative solver
-controls are not a uniform stability theorem for every generated boundary.
-Numerical correctness alone earns no scientific or production admission.
+geographical/seasonal land thermal response. The external
+[three-vintage discriminator](thermal-boundary-discriminator.md#three-vintage-discriminator)
+now completes the current Huge recipe, both ocean updates and final publication
+with the selected diagnostic moist-energy law. Its short 96-step candidate
+takes `43.697 s` headlessly; this is not measured Civ generation time.
+The [retained consumer readback](thermal-boundary-discriminator.md#retained-consumer-boundary-readback)
+finds no placement consequence from the ten observed habitat-bit changes in
+this case, and its original climate/biome facts remain inside their unchanged
+bounds. Next qualify same-law reference uncertainty, then the separately frozen
+Earth comparison and original procedural cohorts, before owner replacement and
+normal native qualification. The earlier dry-transport Earth nonselection
+is neither a result nor a prediction for the selected law. Numerical correctness
+alone earns no scientific or production admission.
 
 The [actual Foundation projection witness](constitutive-support-attribution.md#actual-projection-witness)
 closes all eight cases without a sampling or copied-lane defect and selects
