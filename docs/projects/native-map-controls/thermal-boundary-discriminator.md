@@ -943,6 +943,58 @@ multiply first-year timing into a claimed complete-generation result. The
 unchanged Earth and cohort requirements and full native 30-60-second gate
 remain the adoption criteria; the installed playable mod stays unchanged.
 
+### Current Huge Owner Composition
+
+The current twelve-player Huge procedural chain now has an independently
+inspectable external control packet at
+`earth-calibration/earth-two-temperature-native-composition-20261003/`.
+It acquires initial topography and shelf from the actual original Standard
+recipe using the recorded native `106x66`, seed `1018/1018`, twelve-player
+Exploration setup and current Earthlike configuration. Saved available options
+survive setup admission exactly. The ordinary mock adapter supplies headless
+execution; neither fixed Earth geography nor an engine emulator enters it.
+
+The original direct baseline replay reproduces all four baseline publications.
+A nominal SDK step/stage composition then passes the original bound thermal
+operation through all three occurrences and the complete downstream recipe.
+All 56 declared artifacts, 11 actual metric projections, six final adapter
+primitive lanes and river readback match the original run exactly. Public
+schemas, complete compiled configuration, plan evidence and actual authored
+stage admission/mapping also match. Current strict authoring requires complete
+stage configuration; an empty-object legacy-default assumption was removed
+from the external control, not restored to the SDK or player recipe.
+
+Eight scalar and qualified same-curve controls also pass: four DTO fields,
+24 sample fields, unequal-weight pressure centering, dry model-unit lapse,
+wet SST publication and wrong curve/mask/SST refusal. This is publication
+arithmetic on a known curve, not native thermal refinement or reference skill.
+The successful control family takes `10.930 s`, including original acquisition
+`4.464 s`, direct baseline `2.771 s` and full wrapper `3.582 s`; measured process
+sampled RSS reaches `700,956,672 bytes` (`668.484375 MiB`). Those include SDK/module
+loading, identities and two complete headless runs, not player generation cost.
+RESULT SHA is
+`a8fb6f70c2cdfd098a66751cbbdc355c5f38925885f66d048657991bb033c49e`.
+Independent retained-only readback rehashes all 1,786 declared source pins and
+73 declared outputs, reproduces the full structured comparisons and all eight
+captured prerequisite lanes, and confirms every loaded source is admitted.
+The RESULT file is additional to those 73 outputs. No owner or solver rerun is
+used for this independent verification.
+
+The packet preserves its earlier discovery refusals. Bundler elimination missed
+runtime exports, so source discovery now follows parsed imports/exports without
+executing owners; native JSON loading remains native. No game failure or physics
+change is inferred from those external control failures. The finite packet is
+about `27 MiB`, outside Git. No candidate solve, Earth observation comparison,
+production instrumentation, deployment or fresh native game run occurs here.
+
+Before the new numerical family, bind solved physical inputs and state ordering
+immutably and admit only the immediate preceding SST vintage as a warm initial
+guess. Live buffer aliases and equal vector lengths alone do not prove either
+relationship. Keep the actual owner composition, both ocean updates and the
+original acceptance guards. Move resource-intensive qualification to the shared
+Mac Mini after source-root/runtime parity; historical MacBook receipts retain
+their original bytes and paths rather than being rewritten as target evidence.
+
 ## Reference Forcing Admission
 
 The actual retained NCEP air target is the monthly `1991-2020` climatology.
