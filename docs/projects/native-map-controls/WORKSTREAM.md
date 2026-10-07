@@ -167,10 +167,16 @@ but unit-anomaly error increases and five of seven supported northern held
 tables have wrong-sign SST2-air covariance. Same-support observed OI is much
 better aligned; this is not merely an air/liquid naming discrepancy. Independent
 custody and compact-identity review pass. No seasonal, land or native skill is
-admitted. The next [product-sized domino](thermal-boundary-discriminator.md#next-product-sized-domino)
-separates the ocean reference/diffusion pattern from the actual current-induced
-increment before selecting a geographic thermal equation. No unique transport
-defect, gain sweep, wet-storage migration, global current flip or ocean rebuild
+admitted. The [exact zero-current decomposition](thermal-boundary-discriminator.md#completed-zero-current-decomposition)
+then completes in `0.308 s`, reusing retained SST2 rather than repeating the
+coupled pipeline. Its net current increment has negative air covariance and
+raises unit-anomaly error in all seven supported northern held tables. The
+baseline is not universally correct, but five of seven baseline covariances
+are positive. The next [product-sized domino](thermal-boundary-discriminator.md#next-product-sized-domino)
+discriminates actual current construction from thermal transport at the driving
+vintage before selecting a geographic thermal equation. No unique direction,
+dose or metric defect, zero-current replacement, gain sweep, wet-storage
+migration, global current flip or ocean rebuild
 follows automatically. One domino is executable at a time. Cheap premise and rejection tests
 precede expensive qualification; promotion still needs all scientific,
 procedural, downstream and native proofs.

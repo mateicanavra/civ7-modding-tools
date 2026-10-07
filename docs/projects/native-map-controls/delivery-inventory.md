@@ -232,10 +232,17 @@ RMS rises from `2.179/1.503` to `3.963/3.832 C`; pooled covariance is positive,
 but five of seven supported northern held tables have wrong signs. Observed
 OI is substantially better aligned on the same supports. Independent custody
 and `198` compact identities pass, within the unchanged resource limits.
+The [exact zero-current decomposition](thermal-boundary-discriminator.md#completed-zero-current-decomposition)
+then takes `0.308 s`, reusing retained SST2 and two direct owner calls rather
+than replaying the coupled pipeline. The current-induced increment has negative
+air covariance and increases fixed-unit error in all seven supported northern
+held tables; five of seven baseline covariances are positive, not all.
+Exact SST0/raw-anchor and compact telescope controls pass; no new field is retained.
 The next [bounded product comparison](thermal-boundary-discriminator.md#next-product-sized-domino)
-must separate the ocean reference/diffusion pattern from its actual current
-increment before a geographic maritime-air model. This establishes neither a
-unique transport defect nor a global current/gain repair. No new solver, sweep,
+must discriminate actual current construction from thermal transport before
+a geographic maritime-air model. This establishes neither a unique direction,
+dose or metric defect nor a zero-current/global-flip/gain repair. No new solver,
+sweep,
 wet-storage system or production migration is selected automatically. Held land
 labels and rejected searches remain closed; the playable mod is unchanged.
 

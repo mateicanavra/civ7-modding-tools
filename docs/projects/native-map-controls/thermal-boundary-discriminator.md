@@ -28,10 +28,14 @@ replays the actual empirical incumbent, not the rejected H6 feedback. Its annual
 ocean field carries some pooled geographic information, but five of seven
 supported northern held tables have wrong-sign covariance with marine air.
 The same-support observed ocean reference is substantially better aligned.
-This moves the next [product-sized comparison](#next-product-sized-domino)
-upstream: separate the ocean reference/diffusion pattern from the actual current
-increment before using this field as a geographic thermal prior. No unique
-transport defect or scalar-gain repair is established. Cheap premise checks and
+The [exact zero-current decomposition](#completed-zero-current-decomposition)
+then isolates that increment without repeating the coupled pipeline. It worsens
+unit-anomaly error and has negative air covariance in all seven supported
+northern held tables, including the two positive final-field exceptions.
+The next [product-sized comparison](#next-product-sized-domino) stays upstream
+at current construction and thermal transport. No unique direction, dose or
+coordinate defect, zero-current replacement or scalar-gain repair is established.
+Cheap premise checks and
 rejection-first pilots precede large qualification campaigns. Existing numerical methods remain
 reusable, not a reason to run another solver campaign automatically. Scientific,
 procedural, consumer and native admission remain separate, including the complete
@@ -3002,18 +3006,76 @@ Capture SHA-256: `044b5ee774099c2930a9659cb8557dd37879c0a7c0152186e0a98aebfc814f
 Result SHA-256: `8b141fcc1fbf7b7602a1c1340f06f93732f54700eb561c643323c69a15fcd82d`.
 The installed mod and original refusals remain unchanged.
 
+#### Completed Zero-Current Decomposition
+
+Reuse the retained actual final `P = SST2`; do not repeat the coupled pipeline.
+Two direct calls to the unchanged ocean operation produce `Z = S(0)` with its
+configured diffusion and `L` with zero passes. `Z` exactly reproduces captured
+SST0; `L` matches the raw Float32 latitude anchor bitwise. Inputs remain exact.
+Admit all 24 original table identities/counts/areas before annual air access;
+freeze field hashes before scoring. No new field grid, fit or reversal is retained.
+
+For each table's own weighted row centering, `D' = P' - Z'` gives:
+
+```text
+cov(AIR', P') = cov(AIR', Z') + cov(AIR', D')
+var(P') = var(Z') + var(D') + 2 cov(Z', D')
+unitMSE(P) - unitMSE(Z) = var(D') + 2 cov(Z', D') - 2 cov(AIR', D')
+```
+
+| Northern Marine-Held Support | Cells | cov(AIR', Z') C2 | cov(AIR', D') C2 | Unit-MSE Increase C2 |
+| --- | ---: | ---: | ---: | ---: |
+| Full, 60-75 N | 283 | +0.040697 | -1.273605 | +2.881383 |
+| Full, 75-80 N | 226 | +0.580480 | -1.696202 | +5.085460 |
+| Primary, 60-75 N | 37 | -0.025956 | -0.111661 | +0.338446 |
+| Known ice, 60-75 N | 175 | +0.575808 | -0.367173 | +1.049446 |
+| Known ice, 75-80 N | 172 | +0.380811 | -2.490680 | +6.933045 |
+| Coastal, 60-75 N | 139 | -0.255669 | -0.355337 | +0.992555 |
+| Coastal, 75-80 N | 47 | +1.257112 | -0.641105 | +1.701349 |
+
+All seven supported northern held increments have negative air covariance and
+increase fixed-unit error versus `Z`. The positive final known-ice/coastal
+exceptions above still receive a harmful increment. Five of seven `Z`
+covariances are positive, not all: the baseline is not universally correct.
+Primary `75-80 N` remains empty. Overall full/primary increment covariance is
+positive (`+1.757505 / +2.035258 C2`), but its variance is excessive
+(`14.361942 / 16.444646 C2`) and unit MSE rises `10.916098 / 12.415093 C2`.
+
+This localizes a net current-induced problem conditional on the actual final
+current vintage and these source inputs. It does not distinguish generated
+current regime, current dose, donor transport or Gaussian-versus-tile metric;
+neither zeroing nor reversing currents is an admitted solution. The raw
+reference/ice-air limitations also remain. Continue at these causal owners,
+not with a downstream thermal gain or biome quota.
+
+The one invocation takes `0.307645 s`; measured child high-water is
+`217,382,912 B`, sampled launcher/time/direct-reader RSS `257,540,096 B`, below
+`256 MiB`. Brief source-checker descendants are not included in that sampled
+sum; no complete descendant-memory or native-runtime proof is claimed.
+Independent review reconstructs all `88` compact telescope identities across
+the `22` nonempty tables, maximum gap `9.46e-14 C2`; prior P identities,
+source/input postchecks and cleanup pass. The canonical result is `5,784 B`, SHA-256
+`522c021f464ac9952a06b12a6b0d5253ac433ab4ea4f165be9070cadbdb36c99`.
+Inclusive retention is `67,123,799 B`. A prospective `64 KiB` compact-source
+reserve sets this unit's ceiling to `67,174,400 B`; older `64 MiB` receipts and
+all scientific guards remain unchanged. No executable compression, evidence
+retirement, raw-field duplication or installed-mod change occurs.
+
 #### Next Product-Sized Domino
 
-**Immediate owner:** existing ocean thermal operation and its actual final
-current input. The current-SST2 information result requires separating the
-reference/mask/diffusion pattern from the current-induced increment before
-choosing an ocean repair or maritime-air equation. Compare the same frozen
-input with actual, zero and reversed current; zero current retains configured
-diffusion. Retain the raw latitude reference separately. This can localize
-wrong-sign information before versus during transport, not uniquely identify
-transport dose versus coordinate metric or license a global current flip.
-The exact source, resource admission and stop criteria must precede execution;
-no additional run follows automatically from this record.
+**Immediate owners:** existing ocean current construction and thermal transport,
+using the actual current vintage that drives SST2, not final published currents.
+The completed retained-P/zero-current/raw-anchor decomposition earns investigation
+of the harmful current-induced northern increment. The earlier full actual/zero/
+reversed replay proposal was superseded by that cheaper sufficient test, not run.
+The explicit component-center gyre/coast terms have hemisphere-only handedness;
+connected water components are not gyre basins. That is a documented reduced-model
+limit, not a proven cause; see the [declared current qualification boundary](../../system/libs/mapgen/reference/domains/HYDROLOGY.md#key-artifacts).
+Wind/Ekman already carries latitude regimes, and
+transport dose/metric remain alternatives. Select one frozen-input causal
+discriminator before an owner repair; no global flip, component removal, scalar
+fit or larger ocean model is admitted by this result. Exact source, resources
+and stop criteria must precede execution.
 
 **Downstream owner:** existing `compute-thermal-state` periodic-response rule
 and its one thermal artifact. Preserve one lapse application, publication,
