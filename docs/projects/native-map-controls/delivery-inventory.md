@@ -252,6 +252,14 @@ relationship before a maritime-air model. Thermal dose/metric remain rivals;
 no unique cause or zero-current/global-flip/gain repair is established. No new solver, sweep,
 wet-storage system or production migration is selected automatically. Held land
 labels and rejected searches remain closed; the playable mod is unchanged.
+The selected [matched projection feasibility](thermal-boundary-discriminator.md#matched-current-projection-feasibility)
+then passes its tiny known-field and output-sign gate in `0.183 s`. Cell/Int8
+reconstruction attenuates circulation and retains boundary/divergence losses;
+closed face flux is not closed DTO or SST transport. The separate Huge gate
+then refuses its first call at the unchanged 64-iteration cap. No full call
+completes, so native-sized throughput and reconstructed outputs are unqualified.
+The physical hypothesis remains untested; no policy expansion, automatic
+representation switch, Earth replay or production change follows.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
 follows accepted SST0, authentic SST1 and canonical SST2. All seven complete

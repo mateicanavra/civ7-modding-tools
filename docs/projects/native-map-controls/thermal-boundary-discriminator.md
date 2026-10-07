@@ -3128,6 +3128,90 @@ Inclusive retention is `67,210,316 B` under the prospectively admitted
 guards are unchanged. No raw alternative field or public harness is retained.
 The installed mod is unchanged.
 
+#### Matched Current Projection Feasibility
+
+The selected reduced candidate retains the existing wind/Ekman seed and Int8
+output contract, replacing independent centroid/coast propulsion, smoothing and
+the unmatched divergence pass with one masked, matched projection. On regular
+equal-face hex geometry in tile units, seed face flux is the mean endpoint
+velocity dotted with the face normal. With incidence `B`, solve
+`B B^T p = B q0`, then `q = q0 - B^T p`. Land/exterior faces carry no graph
+flux. Periodic directional aliases and harmonic self-loops remain distinct.
+This is a kinematic design candidate, not Sverdrup transport, SI ocean velocity
+or proof that surface Ekman flow must be divergence-free. No new artifact,
+recipe stage or production implementation follows from this private feasibility
+unit. The existing `projectionIters` control is not silently reinterpreted.
+
+The single tiny manufactured invocation passes in `0.183 s` of monitored gate
+execution. Two oppositely signed island cycles plus periodic throughflow,
+contaminated by an independently constructed gradient, recover their exact
+face target within relative `8.88e-8`. The capped solver takes 35 iterations;
+original true divergence relative residual is `8.73e-9`, below `1e-8`.
+Adjoint, narrow-grid topology, calm and latitude/seed controls pass. The 144
+repeated **tiny** projections reuse scratch; their `8.12 ms` timing says
+nothing about native-sized cost.
+
+The existing cell-vector contract loses information. Island cycle traces are
+`+/-12 -> +/-6 -> +/-6.0591` through face flux, local least-squares vectors
+and Int8; throughflow is `8 -> 6.4 -> 6.2992`. Signs survive, amplitudes do
+not. Boundary-normal RMS remains `2.024/1.998` before/after encoding; Int8
+matched divergence L2 is `0.7515`. Thus closed face flux must not be attributed
+to the reconstructed vectors, DTO or SST consumer. Maximum unsaturated rounding
+error is `0.4993` encoding units, with no clipping. These reported losses are
+not hidden by a sign-only PASS.
+
+Independent source and retained-result review pass. Sampled monitored
+launcher/time/direct-gate RSS is `105,496,576 B`, below `256 MiB`, excluding
+checker descendants and initial/final dispatcher custody checks. Compact
+RESULT is `4,654 B`, SHA-256
+`62118a058d9f3c81abd0278091817c80d1e2576d7422b3882c84b2cc015a6f11`.
+Both-host source/evidence plus the local next-gate note total `85,822 B`, under
+the separately admitted `256 KiB` family ceiling. No raw field, Earth/model
+execution or installed-mod change occurs. This earns a separately reviewed
+native-sized cost/convergence rejection gate, not physical or Earth skill.
+
+The separately reviewed **Huge** rejection gate then uses the existing Firaxis
+`106 x 66` benchmark water mask: 3,838 wet cells, 9,962 directional faces and
+35 connected components. This is not generated procedural morphology. The
+fixed, source-scale manufactured wind sequence requests all 144 cold current
+calls, retaining `.58/.38/80` wind/Ekman/encoding controls and no old smoother.
+Setup, forcing, solve, reconstruction, encoding and consumer-buffer copies
+belong to the prospective `18 s` stage reservation inside the whole-player
+budget; `20 s / 256 MiB` bounds monitored gate execution.
+
+The invocation completes, but the numerical candidate **refuses its first
+call** at the unchanged 64-iteration cap. True divergence is `100.8152` against
+target `0.0000170737`; relative residual is `0.0590470`, not `1e-8`. Counts
+are one attempted, zero completed and 143 unexecuted. The `19.15 ms` stage
+timing covers setup and that failed first attempt, not 144-call throughput.
+Reconstruction, encoding and consumer-output losses were not measured; the
+report's initialized zero maxima must not be read as successful observations.
+This rejects the bounded numerical implementation policy, not the physical
+current hypothesis or the `30-60 s` whole-map goal. No automatic cap/tolerance
+expansion, Gaussian run or Earth comparison follows.
+
+Independent source and retained-result review preserve that distinction.
+Monitored execution is `0.204 s`; sampled launcher/time/direct-gate RSS is
+`113,410,048 B`, with the same checker/custody exclusions. Compact RESULT is
+`4,140 B`, SHA-256
+`98c4233505b4732a50f93e815fb61fb848166deda62eb7422e5ed04fc965ceca`.
+The separate family retains `64,238 B`, below `256 KiB`, including the
+explicit compact tiny-result dependency copy. All postchecks and cleanup pass.
+No solver, raw field, fixture or new test harness enters the repository; no
+model, game or deployment runs.
+
+A source-level cell-space alternative was also examined, not implemented:
+with endpoint-average face map `A`, use `D = B A` and project cell velocity
+with `D D^T`. That removes local reconstruction, but it is a different
+objective, not an equivalent or proven faster solver. Its centered two-hop
+stencil admits an invisible alternating mode in even periodic channels;
+width-two channel divergence is identically zero. It needs its own operator,
+rank and representable-field controls and does not eliminate boundary-normal
+or Int8 losses. Do not adopt it automatically as a performance rescue. The
+next decision must distinguish numerical solve policy from representation
+and thermal-consumer error, rather than merely raise the cap or promote
+face conservation through a lossy conversion.
+
 #### Next Product-Sized Domino
 
 **Immediate owners:** existing ocean current construction and thermal transport,
@@ -3136,7 +3220,7 @@ The completed retained-P/zero-current/raw-anchor decomposition earns investigati
 of the harmful current-induced northern increment. The earlier full actual/zero/
 reversed replay proposal was superseded by that cheaper sufficient test, not run.
 The completed explicit-block ablation implicates a geographic tradeoff, not a
-uniformly harmful component. Select a bounded wind-derived, coast-constrained
+uniformly harmful component. Investigate a bounded wind-derived, coast-constrained
 current-construction design that does not mistake connected water components
 for gyre basins or add an independent hemisphere-only coastal current. Keep it
 inside the existing operation and quantify its strongest rival: the current

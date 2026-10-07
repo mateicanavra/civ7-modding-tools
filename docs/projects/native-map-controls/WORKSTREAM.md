@@ -178,7 +178,18 @@ only the gyre/coast block flips five of seven northern AIR/OI increments
 positive, but weakens pooled geographic correlation; two negative increments
 remain. Independent reconstruction passes 440 compact checks. The mixed-result
 rule stops uniform component removal and a coupled wind-only follow-up as a
-sufficient repair. The next [product-sized design](thermal-boundary-discriminator.md#next-product-sized-domino)
+sufficient repair. The selected [matched current projection](thermal-boundary-discriminator.md#matched-current-projection-feasibility)
+passes its tiny manufactured target and output-sign gate in `0.183 s`.
+Local reconstruction halves the island circulation amplitude, and encoded
+vectors retain nonzero boundary/divergence losses; face closure is not a DTO
+or SST conservation claim. No Earth score or native cost is admitted. The
+separate Huge gate then refuses its first call at the unchanged 64-iteration
+cap, relative residual `0.0590` versus `1e-8`. Zero calls complete; this is not
+144-call performance or a physical-hypothesis rejection. A source-only
+cell-space alternative removes reconstruction but introduces centered-stencil
+null modes; it is not an automatic solver rescue. Numerical policy,
+representation and thermal-consumer errors must remain distinct before replay.
+The next [product-sized design](thermal-boundary-discriminator.md#next-product-sized-domino)
 stays at geographic current construction, with thermal dose/metric as rivals,
 before selecting a geographic thermal equation. No unique cause, zero-current
 replacement, gain sweep, wet-storage migration, global flip or ocean rebuild
