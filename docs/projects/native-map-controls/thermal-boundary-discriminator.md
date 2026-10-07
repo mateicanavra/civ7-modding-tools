@@ -1,5 +1,18 @@
 # Thermal Boundary Discriminator
 
+## Current Qualification Boundary
+
+The selected external candidate uses diagnostic moist-energy transport and
+the qualified BDF2 time discretization, not the original dry-transport law.
+The [complete current Huge comparison](#three-vintage-discriminator) retains
+all three thermal calls, both ocean updates and actual downstream owners.
+The [consumer readback](#retained-consumer-boundary-readback) closes the observed
+resource-decision consequence question for that case only. Independently
+qualified same-law reference uncertainty is next, before the separately frozen
+selected-law Earth comparison, original procedural cohorts and native admission.
+The installed playable mod is unchanged. Earlier designs and dated results
+below preserve their original scope; they are not current next-work instructions.
+
 ## Frame And Decision
 
 Current land temperature is latitude-only before ground lapse. Prescribed SST
@@ -30,7 +43,7 @@ weather. CO2 `284 ppm` is the source's preindustrial prior, not a verified
 modern-NOAA forcing calibration. No wind encoding becomes SI velocity and no
 normalized terrain becomes scientific altitude.
 
-## Next Complete Story
+## Original First Story
 
 Use one fixed flat seasonal mixed-water stripe, without observed Earth labels.
 Intervene only on prescribed wet temperature; retain no-transport, whole-world
@@ -1051,7 +1064,8 @@ The observed settled 96/192 circular displacement is larger: maximum dry-skin
 `0.05881235 K`, angular-air `0.05094490 K`, across all vintages. Downstream
 biome indices and projected lake/river masks remain exact in this Huge roll,
 but some continuous fields and ten resource habitat-mask decisions change.
-Those decisions still require their actual compiled-boundary assessment;
+The subsequent [compiled-boundary readback](#retained-consumer-boundary-readback)
+closes those observed decisions' placement consequences for this case;
 unchanged biomes are not a universal consumer certificate. Two refinement
 levels alone establish neither a continuum-error bound nor reference
 uncertainty. No inherited BE envelope or mismatch quota admits this candidate.
@@ -1078,9 +1092,75 @@ whole-map latency must separately meet the 30-60-second player gate. The
 installed playable mod remains unchanged. No Rust/Python runtime, repository
 cache, additional worktree or production instrumentation was introduced.
 
+### Retained Consumer Boundary Readback
+
+A narrow retained-only readback now resolves the ten reported habitat-bit
+differences between reference96 and reference192. They are four crossings of
+the existing upper aridity ranks among `2,556` land-not-lake cells, not ten
+temperature-threshold failures. Population rank can cross a boundary even
+when the cell's own aridity barely changes. The compiled signal unions and
+suppressions agree with the retained predicates:
+
+| Cell `(x,y)` | Upper Rank, Reference96 / Reference192 | Changed Habitat Bits |
+| --- | --- | --- |
+| `3392 (0,32)` | `2187 / 2166` | Cotton, silk, wine and flax enter; wool leaves |
+| `4547 (95,42)` | `2172 / 2173` | Dates enter; wine and flax leave |
+| `3480 (88,32)` | `2454 / 2453` | Incense enters |
+| `3585 (87,33)` | `2435 / 2459` | Incense leaves |
+
+For all 34 admitted resources, complete legal masks and habitat/legal
+intersections are identical across the three arms. Every changed resource/cell
+pair has legal value zero; this does not mean every resource is illegal at those
+four cells. Demand targets are computed before legality, so that intersection
+alone would not suffice: all seven affected targets and legal-eligible counts
+also remain unchanged. Four habitat-population diagnostics change by one.
+All six original/adjusted resource intent arrays retain the same 220 entries,
+SHA `7283efcedee9546f57d62fd758d4240509159e8014c7837a373ff8bf967c5f00`.
+DATES' zero eligible count is pre-existing, not a newly passed quality gate.
+
+The existing pure `measureStandardBiomeRows` consumes actual retained resolved
+exposure and biome IDs, with no fabricated full Ecology capture. Five newly
+consumed measurement/target definition files and their parsed import boundaries
+are enrolled against exact source bytes; the original source review and
+climate measurement are reused unchanged. All three arms have identical facts:
+
+| Current Huge Fact | Observed | Original Climate/Biome Boundary |
+| --- | --- | --- |
+| Qualified-row modal biome share | `1547 / 2415 = 0.6405797101` | At most `0.75` |
+| Classified biome families | `8` | At least `3` |
+| Tundra plus boreal tiles | `694` | At least `1` |
+| Median / maximum row diversity | `3 / 5` | Diagnostic here |
+| Adjacent rainforest row pairs / maximum share change | `55 / 0.0973684211` | Diagnostic here |
+
+Rainforest-transition study admission uses its original Huge seed `1337`, not
+this seed `1018`. Climate/climate-biome admission also needs the three original
+Standard cases. The eight-seed Ecology cohort and complete 57-case bank are
+not evaluated by this readback.
+
+Candidate96/reference192 pooled demeaned land-temperature RMS displacement
+is `0.00036074343560290467 C`, not the difference between their SDs. Subtracting
+that observed displacement from reference192's unchanged one-degree SD-floor
+margin leaves `0.84843399399634 C`. This is an observed-only margin: reference
+uncertainty remains explicitly **unqualified**, and the certified approximation
+budget is absent, not zero. No uncertainty estimate, universal categorical
+stability or scientific admission is inferred from these two refinements.
+
+The readback takes `0.550 s`, retaining `179,025 bytes` outside Git. It invokes
+no owner, model, solver or game and opens no Earth observational labels.
+Independent review checks source/input identities, exact masks and intents,
+row measurements, target scope and the demeaned displacement separately.
+Reader SHA is
+`e0b16aceae7929f296e79245a53a184905a7c1c7364adc861ae8703c065cbe40`;
+report SHA is
+`104aace487fa130963bcfd1678ded3331d9b63a920cc811d66f8ffdd6ec49f0f`.
+This seals the observed consumer-consequence question for the retained current
+Huge case, not production selection. Next prospectively qualify the selected
+law's reference uncertainty before the frozen Earth comparison. No new
+capture framework, target relaxation or runtime instrumentation is introduced.
+
 ### Historical Trajectory Retirement
 
-Before transfer, a reviewed exact-path retirement removed 182 obsolete raw BE
+A reviewed exact-path retirement removed 182 obsolete raw BE
 trajectory files: `29,878,818,816` logical bytes, about `27.83 GiB`. Nine curves
 still consumed by current comparisons, compact receipts, source pins and all
 viewer assets were retained and rehashed. The old full-campaign raw replay
