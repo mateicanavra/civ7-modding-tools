@@ -128,9 +128,19 @@ now completes in `0.08 s`: all-training raw-air annual/monthly RMSE improves
 `4.444/5.652 -> 2.001/4.654 C`, while northern seasonal-anomaly MSE worsens
 `16.412 -> 29.365 C2`. Coastal anomaly components worsen too; the complementary
 group improves. These low-relief, zero-model-height comparisons are not final
-ground-publication accuracy. The next integrated discriminator must separate
-wet storage/exchange from atmospheric transport/optics; ice or storage is not
-automatically selected as the cure. Held labels and the rejected coefficient
+ground-publication accuracy. The subsequent
+[integrated storage discriminator](thermal-boundary-discriminator.md#integrated-storage-discriminator)
+returns four small arm/grid runs but refuses full-waveform refinement. Its
+mean and seasonal effects remain unqualified; no storage migration follows.
+The selected [reduced geographic-response investigation](thermal-boundary-discriminator.md#reduced-geographic-response)
+stays inside the existing thermal operation and preserves the calibrated
+inland reference, published artifact and annual wet-SST projection. Its
+first averaged-coefficient, two-harmonic approximation is rejected: chronological
+reference refinement passes, but approximation gaps reach `4.684 C` and a
+separate nonlinear land discrepancy reaches `0.753 C`. The complete manufactured
+comparison takes `0.343 s`; it is not an Earth comparison or Huge cost proof.
+The next bounded test retains seasonal coefficients and exact finite wet forcing,
+comparing an affine step with a nonlinear periodic solution. Held labels and the rejected coefficient
 search stay closed. No production migration or candidate deployment follows.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
