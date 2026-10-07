@@ -123,6 +123,24 @@ No blanket temperature allowance or automatic 192-step fallback is selected.
 The installed playable build and full procedural cohort
 remain unchanged, and the within-row shipping obligation is still open.
 
+The [current Huge owner-composition controls](thermal-boundary-discriminator.md#current-huge-owner-composition)
+now pass using the actual saved twelve-player Exploration setup and current
+Earthlike recipe. Direct baseline replay reproduces four publications; nominal
+full-recipe pass-through preserves all 56 published artifacts, 11 metric
+projections and final adapter/river observations exactly. Publication controls pass
+separately. The family takes `10.930 s` with `668.484375 MiB` process RSS; this is
+headless control cost, not a new candidate or native generation measurement.
+No observation labels, nonlinear candidate or deployment are involved. The next
+numerical family still requires immutable physical/publication binding and an
+immediate-predecessor warm-state check before reference/output-margin admission.
+
+Host migration is a parallel operational track, not a second algorithm stack.
+The shared Mac Mini must establish saves/settings, saved setup, source/runtime,
+CLI/Studio, private viewer and remote execution parity before the MacBook is
+retired as the working host. Existing source data and working services remain
+intact meanwhile. Fixed Earth fixtures stay benchmarks; host migration does not
+change their authority or qualify a thermal candidate.
+
 Scientific observations were intentionally opened only for the separately
 authorized frozen comparison. A preparatory source-search label emission is
 separately disclosed in the owner-design record; no frozen scientific choice
