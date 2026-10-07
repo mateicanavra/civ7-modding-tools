@@ -987,13 +987,111 @@ change is inferred from those external control failures. The finite packet is
 about `27 MiB`, outside Git. No candidate solve, Earth observation comparison,
 production instrumentation, deployment or fresh native game run occurs here.
 
-Before the new numerical family, bind solved physical inputs and state ordering
-immutably and admit only the immediate preceding SST vintage as a warm initial
-guess. Live buffer aliases and equal vector lengths alone do not prove either
-relationship. Keep the actual owner composition, both ocean updates and the
-original acceptance guards. Move resource-intensive qualification to the shared
-Mac Mini after source-root/runtime parity; historical MacBook receipts retain
-their original bytes and paths rather than being rewritten as target evidence.
+The subsequent immutable physical/publication binding controls now pass. They
+bind solved inputs, mask-derived dry-skin/angular-air state ordering and
+publication fields/parameters, and admit only the immediate preceding SST vintage as a
+warm initial guess. Owned copies replace live input aliases. This is an
+external diagnostic guard, not a new public SDK identity framework. The
+retained control takes `65.45 ms`; its RESULT SHA is
+`47e0b00eb04868543798c634fddcd4715f6de36886aa19ff21eef72d8420bbcc`.
+Independent review rehashes the unchanged source closure and all 61 outputs
+without an owner or solver run.
+
+### Mini Three-Vintage Discriminator
+
+Resource-intensive qualification has moved to the shared Mac Mini. Portable
+entrypoints select its real source root and actual Bun executable explicitly;
+they do not rewrite historical MacBook receipts or substitute paths in old
+results. A fresh host-local parsed source review pins 1,800 files and 5,542
+definition edges, including the four explicit direct-filesystem prerequisites.
+Its SHA is
+`292e6b0fa4c3d3fbb6ec58c97bbef1ddf1ab53a90cb7067d4bcdcea8f7c8d538`.
+Original-owner replay, pass-through and literal controls pass again on that
+host in `7.594 s`; RESULT SHA is
+`a7f5b2b3f90c8ba8d4147743c1cb0b0fcd864842c391dac52260a9b5625b5124`.
+Independent readback verifies all 1,873 declared source/output pins. That
+control does not execute the numerical model.
+
+The complete current Huge recipe then runs as three separately admitted arms,
+each with all three thermal calls, both original ocean updates, and all actual
+downstream owners. The short candidate uses two 96-step years per vintage,
+with only the immediate predecessor's owned state as the later initial guess.
+The 96- and 192-step references cold-start each vintage independently and
+meet the unchanged offline stop at year five. Each vintage has one BE startup.
+No endpoint shortcut replaces a whole recipe run.
+
+| Arm | Complete Headless Time | Thermal Solve Times, SST0 / SST1 / SST2 |
+| --- | --- | --- |
+| Two-year 96-step candidate | 43.697 s | 12.869 / 13.130 / 12.740 s |
+| Settled 96-step reference | 105.746 s | 32.686 / 33.836 / 33.514 s |
+| Settled 192-step reference | 159.747 s | 50.742 / 52.104 / 51.063 s |
+
+These include acquisition, full Standard replay, publication and persistence.
+They are not three standalone climate-pass timings multiplied into a map
+estimate. Maximum sampled process RSS across the outer runs is
+`1,136,377,856 bytes`. The three arms retain `203,966,572 bytes` outside Git;
+they do not retain every spinup trajectory. All original equation, direction
+and energy guards pass. RESULT SHAs in the table's order are:
+
+```text
+62e20977bda6f7344000a92590a2f499106e741b3eadb6756efd0622ebae7a11
+a6fe6ec8c0b7e3fe958baf79d4dfe6436128602d340ef2e62751fae54e2ee439
+7056f58fd0f783cfde5a63bb7c6e3224c29e81809d4b5f0a0656f78e7f222627
+```
+
+Retained-only comparison closes all nine arm-pair/vintage combinations,
+complete circular and chronological curves, endpoint/history closure, signed
+power lanes, every actual public thermal DTO field and actual downstream
+artifacts/projections. The largest short-versus-settled same-resolution
+chronological displacement is `5.543845e-5 K`, at SST0; later vintage maxima
+are `3.669833e-6 K` and `1.609936e-6 K`. Candidate circular seam substitution is
+reported separately rather than called periodic closure. There are no changed
+categorical artifact lanes in that same-resolution comparison.
+
+The observed settled 96/192 circular displacement is larger: maximum dry-skin
+`0.05881235 K`, angular-air `0.05094490 K`, across all vintages. Downstream
+biome indices and projected lake/river masks remain exact in this Huge roll,
+but some continuous fields and ten resource habitat-mask decisions change.
+Those decisions still require their actual compiled-boundary assessment;
+unchanged biomes are not a universal consumer certificate. Two refinement
+levels alone establish neither a continuum-error bound nor reference
+uncertainty. No inherited BE envelope or mismatch quota admits this candidate.
+The comparison takes `1.696 s`, executing no owner or numerical model; report
+SHA is
+`417341d36526a77ada51fd27a056bef5f0c027f4fddb164e7df3271b894e76b9`.
+
+A separate narrow retained readback calls the existing
+`measureStandardClimateStructure`, using post-feedback climate indices and
+the full integration's seasonal counts. The initial mask substitutes for the
+final capture mask only after exact final-artifact identity verification.
+Pooled within-row land-temperature SD is `1.848638400 C` for the candidate,
+`1.848638385 C` for reference96 and `1.848794737 C` for reference192. All have
+zero saturated land tiles in baseline/refined annual rainfall and zero maximum
+seasonal saturation. Those Huge-case values satisfy the unchanged physical
+climate bounds; they are not passage of the four-case climate study, Ecology
+targets, 57-case bank or fixed-Earth scientific benchmark. Measurement SHA is
+`3d11ad96c5f22b7dd8ee36299151e600ac995f76ae826ce9df53b328d6b7ebc2`.
+
+The short path is now empirically discriminated, not selected for production.
+Reference uncertainty, adverse consumer boundaries, remaining procedural
+cohorts and frozen Earth science still precede owner integration. Actual Civ
+whole-map latency must separately meet the 30-60-second player gate. The
+installed playable mod remains unchanged. No Rust/Python runtime, repository
+cache, additional worktree or production instrumentation was introduced.
+
+### Historical Trajectory Retirement
+
+Before transfer, a reviewed exact-path retirement removed 182 obsolete raw BE
+trajectory files: `29,878,818,816` logical bytes, about `27.83 GiB`. Nine curves
+still consumed by current comparisons, compact receipts, source pins and all
+viewer assets were retained and rehashed. The old full-campaign raw replay
+obligation is explicitly retired; no current comparison is represented as
+replayable from deleted trajectories. PLAN SHA is
+`2da04dbaf1479030b38c608131639418a7ed6f2e66de704189dfe63a008729c7`;
+RESULT SHA is
+`9a002e7d07f96cc2eaea2bde6d6756bdb2da89b2a03371391bbc78f991d30183`.
+Historical results keep their original custody, rather than being relabeled
+as Mini evidence or silently recomputed during ordinary iteration.
 
 ## Reference Forcing Admission
 
