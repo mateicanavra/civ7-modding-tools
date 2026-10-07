@@ -2497,6 +2497,61 @@ incumbent comparison, training first, and subsequent procedural/consumer/native
 qualification within the complete Huge `30-60 s` target. The installed mod is
 unchanged; no candidate deployment follows from design review.
 
+### Frozen Training Rejection
+
+The separately frozen training readback evaluates only the original 196 training
+receivers: 134 northern and 62 complementary identities, including the same
+14 coastal identities. It reuses the unchanged empirical zero-height incumbent,
+original scorer, calendar, geographic groups and prospective training mirrors.
+No held 215 or added 136 identities are scored. Numerical H6/H8 admission remains
+valid, but both orders reject scientific promotion with the same 37 guard
+messages and no predicate disagreement. Messages are not independent defects.
+
+| Training Metric (C) | Incumbent | H6 | H8 |
+| --- | ---: | ---: | ---: |
+| Annual RMSE | 2.513784 | 5.125092 | 5.125100 |
+| Within-Row Error RMS | 2.059195 | 2.174081 | 2.174082 |
+| Source-Row Mean Error RMSE | 1.441813 | 4.641114 | 4.641123 |
+| Monthly RMSE | 3.261280 | 7.985237 | 7.985249 |
+| Coastal Annual RMSE | 4.023036 | 9.391825 | 9.391842 |
+| Coastal Monthly RMSE | 4.443054 | 12.606510 | 12.606537 |
+
+H6 annual signed bias is `+3.103302 C`, versus approximately zero for the fitted
+incumbent. Northern bias becomes `+5.768513 C`; coastal bias `+8.314194 C`.
+Some regional annual metrics improve, but their seasonal deterioration still
+matters. The rejection is far larger than the `1e-4 / 2e-4 C` decision margins;
+those margins are conservative promotion rules, not observational precision or
+gameplay temperature requirements. No held evaluation, coefficient search,
+production adoption or candidate deployment follows.
+
+The first reader attempt stops after `0.127 s` at the unchanged `256 MiB`
+whole-process cap, before writing a result. Its receipt has no stage information
+and does not establish a unique allocation cause. A narrow source correction
+uses one reusable `64 KiB` buffer for hash-only custody reads instead of
+allocating complete discarded file buffers. Actual prediction/JSON consumers
+retain exact full-read byte/hash verification. All frozen source/output bytes
+are still verified before labels, with the scorer, extraction filters, calendar,
+mirrors and resource ceilings unchanged. Synthetic chunk, mismatch and interrupted
+descriptor-close controls pass independent review. The original refusal remains
+recorded, not relabeled as a scientific result.
+
+The corrected invocation completes in `0.147 s`; measured child maximum RSS is
+`193,003,520 B` and sampled simultaneous whole-process RSS `226,000,896 B`.
+All source/runtime and output postchecks pass. Exactly 196 observation and
+incumbent records are extracted; model/owner/solver and held/added counts are
+zero. Inclusive retained evidence is `64,343,537 B`, below `64 MiB`, outside Git.
+Training result SHA-256:
+`6743ba5ac87060b89d42792aee36a3cc441840ed3490e2ae7198c1b9ccd6478b`.
+
+Next is one retained-only correction/residual alignment diagnosis on those same
+training identities. Decompose `delta MSE = 2 * mean(error * correction) +
+mean(correction squared)`, separately for annual raw/row-centered and monthly
+mean/anomaly components. A wrong-sign cross term differs from a favorable
+direction overwhelmed by magnitude. This diagnoses the frozen candidate; it
+does not fit a gain, select another coefficient or justify a new model run.
+The warm static wet boundary and the empirical reference-subtraction convention
+remain competing causal explanations, not an established transport defect.
+
 ### Historical Trajectory Retirement
 
 A reviewed exact-path retirement removed 182 obsolete raw BE

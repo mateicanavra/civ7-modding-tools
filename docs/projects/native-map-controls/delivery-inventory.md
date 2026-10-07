@@ -174,9 +174,18 @@ takes `18.451 s`; all three waveform comparisons pass, with maximum
 the original H4/H8 implementation exactly. The fresh H6/H8 pair is numerically
 admitted; the old H4/H8 pair remains refused. Its sampled whole-process peak
 leaves only about `5 MiB` below the offline cap, not a native-memory admission.
-Next is the separately frozen original training-only comparison, not another
-reference simulation. Held labels and the rejected coefficient
-search stay closed. No production migration or candidate deployment follows.
+The separately frozen [original training-only comparison](thermal-boundary-discriminator.md#frozen-training-rejection)
+now completes in `0.147 s`, without another simulation. Both orders reject
+the candidate with 37 identical guard messages: training annual RMSE rises
+`2.514 -> 5.125 C`, monthly RMSE `3.261 -> 7.985 C`, and within-row error
+`2.059 -> 2.174 C`. Coastal errors worsen substantially too. An initial
+readback memory refusal remains recorded; bounded file hashing removes
+unnecessary verification allocations without changing scores or resource caps.
+Sampled whole-process RSS is `226,000,896 B`, below `256 MiB`. All 196 training
+joins and custody checks pass; held/added extraction and model invocations are
+zero. Next is retained correction/residual alignment, not another physical
+run or fit. Held labels and the rejected coefficient search stay closed.
+No production migration or candidate deployment follows.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
 follows accepted SST0, authentic SST1 and canonical SST2. All seven complete

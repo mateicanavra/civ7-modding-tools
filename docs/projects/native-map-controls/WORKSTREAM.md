@@ -115,8 +115,16 @@ reusing H8 without another reference solve. All three waveform guards pass,
 with maximum `0.004809 K`; final SST differs by `0.005152 C`. The original
 H4/H8 refusal remains unchanged. Sampled whole-process RSS stays inside the
 offline guard with only about `5 MiB` headroom; native memory is not admitted.
-Next is the separately frozen original training-receiver comparison, not
-another physical run or automatic production promotion. Neither the simpler
+The [frozen training comparison](thermal-boundary-discriminator.md#frozen-training-rejection)
+then rejects both orders: annual RMSE rises `2.514 -> 5.125 C`, monthly RMSE
+`3.261 -> 7.985 C`, and within-row error also worsens. Both orders have the
+same 37 guard messages and no predicate disagreement. This is a substantial
+scientific regression, not an H6/H8 order-dependent verdict or a marginal
+decision tolerance.
+The corrected retained-only reader takes `0.147 s`, with no physical rerun or
+held/added scoring. Next is one retained correction/residual alignment diagnosis,
+not another coefficient, harmonic order or physical-model campaign. The candidate
+is not selected and the installed mod is unchanged. Neither the simpler
 architecture nor numerical qualification establishes Earth improvement. Any owner replacement
 still needs independent reference/consumer qualification, original procedural
 cohorts and normal native proof within the complete Huge `30-60 s` budget.
