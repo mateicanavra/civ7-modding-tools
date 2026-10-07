@@ -63,8 +63,24 @@ training-only selection before the unchanged benchmark.
 The separate small-map geometry/stripe gate passes all three prospective
 values in `0.49 s` with unchanged equation and conservation guards. No Earth
 coefficient or production change is selected by that gate.
-Existing physical laws and solver guards remain held. No automatic Earth rerun,
-automatic refinement or production change follows from this observation.
+The centre Earth attempt then refuses during the first coordinate rhs solve,
+before any completed phase. That frozen family is closed as numerically
+refused and scientifically unevaluated; no second coefficient or label
+readback runs. The separate captured-system diagnosis identifies an overly
+tight internal residual allocation, then state-rounding-limited nonlinear
+descent under the old offline phase target. An initial `1e-9 K` phase-policy
+check passes the centre startup but refuses the upper internal allocation;
+lower is unattempted. The next practical numerical policy explicitly changes
+phase/direction budgets to `1e-8/1e-9 K`, keeps the physical law and energy
+guard, and removes the special stagnation exit. All three cold startups and
+the full-geometry hot BDF control now pass. Six settled matched controls
+preserve complete seasonal curves within `2.94e-9 C`, against the unchanged
+`1e-5 C` margin. These gates take `2.59 s` and qualify the bounded numerical
+method, not scientific skill or whole-chain uncertainty. The next Earth
+continuation inherits the original two-value training-only physical design
+and remaining family budget; old refusals stay immutable. Scientific
+acceptance margins remain unchanged. No automatic Earth rerun, refinement or
+production change follows.
 Reference/consumer qualification and the original
 procedural cohorts remain before owner replacement and normal native
 qualification. The earlier dry-transport Earth nonselection

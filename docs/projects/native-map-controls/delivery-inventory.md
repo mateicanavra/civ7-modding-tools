@@ -71,6 +71,22 @@ or player-path proof instrumentation.
 Its distinct three-value geometry/stripe prerequisite now passes in `0.49 s`
 with the original numerical/conservation guards. That gate selects no Earth
 coefficient and changes no installed mod.
+The centre Earth attempt refuses in `1.05 s` at the first coordinate rhs
+solve, before a completed phase. The frozen family closes without another
+coefficient, observation score or retry. Its climate law is scientifically
+unevaluated. The separate numerical diagnosis identifies a tight internal
+allocation and state-rounding-limited nonlinear descent. The first `1e-9 K`
+phase-policy check passes centre, then refuses upper's internal component
+allocation; lower is unattempted. This is partial numerical qualification,
+not a rejected physical coefficient. The next practical policy explicitly
+uses phase/direction `1e-8/1e-9 K`, with energy and scientific guards held,
+and retires the special stagnation exit. Three cold startups, one full-geometry
+hot BDF stage and six settled matched controls now pass in `2.59 s`;
+complete seasonal-curve differences stay below `2.94e-9 C` against `1e-5 C`.
+That bounded numerical qualification permits the separately authorized Earth
+continuation under the original two-value physical selection rules and
+remaining budget. It establishes neither scientific skill nor whole-chain
+uncertainty. No numerical study changes the playable build.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
 follows accepted SST0, authentic SST1 and canonical SST2. All seven complete
