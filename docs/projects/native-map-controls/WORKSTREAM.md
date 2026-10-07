@@ -46,9 +46,14 @@ guard; no reference allowance is admitted. The [complete scientific-Earth observ
 now refuses the canonical candidate: held annual RMSE rises `2.97104 -> 3.29488 C`
 and monthly RMSE `3.57295 -> 5.21915 C`, with 54 unchanged raw guard failures.
 The complete numerical chain takes `348.538 s`; retained science readback takes
-`0.268 s`, not another simulation. Next discriminate mean, seasonal and
-geographic error from retained predictions before selecting another forward
-model. No fitting, automatic refinement or production change follows.
+`0.268 s`, not another simulation. The [retained seasonal decomposition](thermal-boundary-discriminator.md#retained-seasonal-error-decomposition)
+then locates excess inland seasonal RMS and a distinct coast-mean failure:
+amplitude mismatch contributes about 77% of the net held monthly deterioration.
+A four-panel atlas makes the raw atmospheric fields and matched annual
+residuals visible without replacing earlier native imagery. The next small
+manufactured test discriminates finite maritime buffering from the source's
+shared-air limit; it preserves existing physical laws and solver guards.
+No Earth rerun, fitting, automatic refinement or production change follows.
 Reference/consumer qualification and the original
 procedural cohorts remain before owner replacement and normal native
 qualification. The earlier dry-transport Earth nonselection

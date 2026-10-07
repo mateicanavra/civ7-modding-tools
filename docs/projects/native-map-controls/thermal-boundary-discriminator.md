@@ -12,9 +12,10 @@ resource-decision consequence question for that case only. The
 decisions but refuses the unchanged componentwise refinement guard; reference
 allowances remain unresolved. The [complete scientific-Earth raw observation](#selected-moist-energy-earth-observation)
 now refuses the selected canonical candidate: both annual and seasonal error
-worsen against the unchanged original comparator. The next discriminator uses
-retained predictions to separate mean, seasonal and geographic errors before
-another forward model. Reference/consumer qualification, original procedural
+worsen against the unchanged original comparator. The [retained seasonal decomposition](#retained-seasonal-error-decomposition)
+locates different inland-amplitude and coast-mean failures. One small
+source-sharing-limit test is next, not an Earth rerun or parameter search.
+Reference/consumer qualification, original procedural
 cohorts and native admission remain separate. The installed playable mod is
 unchanged. Earlier designs and dated results
 below preserve their original scope; they are not current next-work instructions.
@@ -1360,6 +1361,68 @@ packet as the startup repair. Their respective SHA-256 identities are:
 Numerical evidence plus compact return and science outputs totals
 `123,136,411 bytes`, below the unchanged 512-MiB ceiling. No full trajectories
 are copied back for routine iteration.
+
+### Retained Seasonal Error Decomposition
+
+One pure local readback separates each original receiver's monthly errors
+before applying the unchanged month-day and receiver-area weights. Monthly
+MSE equals squared monthly-mean error plus seasonal-amplitude mismatch plus
+shape-alignment error. Amplitude mismatch is the squared difference between
+predicted and observed centered seasonal RMS; shape alignment is the remaining
+centered-pattern discrepancy, not pure phase or a fitted time shift.
+
+| Selected Minus Incumbent, C^2 | Held | Additional Coast |
+| --- | ---: | ---: |
+| Monthly-mean error MSE | +2.02913 | +10.97592 |
+| Seasonal-amplitude error MSE | +11.14536 | -4.96771 |
+| Shape-alignment error MSE | +1.29908 | +0.68742 |
+| Total monthly MSE | +14.47357 | +6.69563 |
+
+Seasonal-amplitude mismatch accounts for about 77% of the net held monthly
+deterioration. Additional-coast amplitude error improves, but its mean error
+worsens enough to outweigh that improvement. These are different error
+patterns, not a demonstrated case for one uniform temperature offset or blanket
+amplitude reduction; they do not identify a unique physical cause. The largest annual
+publication/monthly-mean gap is only `1.072884e-6 C`, not a plausible explanation
+for the observed multi-degree errors.
+
+The direction is explicit in the retained records: 98 of 109 held interior
+receiver cells have excess seasonal RMS, representing 84.7% of that population's
+area weight. Its weighted mean predicted-minus-observed RMS is `+3.33171 C`;
+the additional-coast mean gap instead crosses to `-0.67223 C`. Better coastal
+amplitude error is not proof of correct coastal physics.
+
+All 547 records, 19 original populations and unsupported groups retain their
+identity. Canonical metrics reconstruct exactly. Independent review closes
+the aggregate identities and original failure messages without another model,
+owner or scorer invocation. The readback takes `133.859 ms` before final write,
+with sampled RSS `225,247,232 bytes`; caller plus receipt retains `1,349,075 bytes`.
+Result SHA is
+`3c275ec3d9142c00e0361916229ffb736170669aa457431b1ad07dedde9cd777`.
+No lag search, amplitude fit, uncertainty allowance or adoption follows.
+
+The existing Civ gallery now links the four-panel
+`selected-mse-earth-atlas-20261007/index.html`: raw annual air temperature,
+full-cycle atmospheric range and matched incumbent/candidate annual residuals.
+All 547 original sampled sites, shared residual scales, empty unsampled areas
+and nonselection labels remain explicit. Raw air is not private land skin;
+annual published-temperature residuals are a separate observable. Exact-byte
+asset/served checks and desktop/mobile browser checks pass. Earlier galleries
+remain intact; these are diagnostic exports, not a new deployed climate or
+native imagery.
+
+The next source-grounded question is whether the finite two-dimensional air
+adaptation makes maritime buffering too localized. Upstream ZEMBA area-mixes
+land/ocean air within a latitude band before transport; the candidate deliberately
+replaces that sharing with separate finite-coupled air cells. This is a structural
+difference, not evidence that the original capacities lack a divisor. Compare
+one small seasonal wet-stripe case with a conservatively aggregated shared-air
+limit, holding capacities, exchange, optics, forcing and annual SST fixed.
+Measure absolute inland/coastal seasonal RMS and signed differences, not the guaranteed
+disappearance of longitudinal air contrast. No guessed large diffusivity,
+post-step reset, fitted parameter or production zonal model is selected.
+Constraint/geometry and independent equation/energy review precede execution;
+a null result stops this causal branch. No Earth forward run follows automatically.
 
 ### Historical Trajectory Retirement
 
