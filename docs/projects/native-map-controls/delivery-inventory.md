@@ -62,6 +62,12 @@ production thermal law is admitted, no third scalar is queued, and no
 residual-attribution study follows. Scientific margins, the playable incumbent
 and delivered water/navigation work are unchanged.
 
+The subsequent [annual-mean scope review](thermal-boundary-discriminator.md#annual-mean-scope-decision)
+recommends retaining that approximation with an explicit unresolved thermal
+requirement. A land-water/energy-budget extension is a concrete larger design
+option, not an approved replacement or an inferred cause. No new experiment
+or implementation follows automatically from closing these pilots.
+
 The nine-panel Foundation support atlas (`foundation-support-atlas-20261003/index.html`)
 now exposes three representative cases from that admitted observation. Actual
 assignments, support contributions and final ground retain distinct meanings;

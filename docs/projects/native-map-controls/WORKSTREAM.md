@@ -34,10 +34,13 @@ worsens held annual RMSE (`2.971039 -> 2.988292 C`) and barely changes
 within-row error (`2.314767 -> 2.314749 C`). That is insufficient useful annual
 geography, not merely a count of failed guards. No further recipe/native run,
 refit, third scalar coast descriptor or residual-attribution campaign follows.
-The remaining design question is the annual-mean geographic relationship,
-separate from seasonal amplitude/phase; the seasonal source alone cannot
-qualify an annual correction. The playable incumbent and delivered water work
-remain intact.
+The completed [annual-mean scope review](thermal-boundary-discriminator.md#annual-mean-scope-decision)
+separates annual geography from seasonal amplitude/phase. It recommends
+retaining the playable approximation with its thermal requirement still open,
+rather than silently expanding into a land-water/energy-budget redesign.
+That larger responsibility needs a deliberate product decision; another
+scalar fit and ocean-solver prerequisite are not selected. The playable
+incumbent and delivered water work remain intact.
 
 Native integration,
 certified C3 terrain/network evolution, coherent-reach restoration, stock lake

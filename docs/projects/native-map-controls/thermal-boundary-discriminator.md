@@ -3798,6 +3798,36 @@ a source-grounded relationship or a concrete product tradeoff; another scalar
 coast fit is not selected. No production source, fixture, acceptance margin,
 installed mod or active game changed during this pilot.
 
+#### Annual-Mean Scope Decision
+
+The relief/climate steward's design-only review recommends retaining the
+playable approximation while leaving the annual regional-temperature
+requirement open. Seasonal amplitude/phase and annual mean are separate
+responsibilities: evidence that continentality affects seasons does not
+establish the annual correction tested here. Neither refusal identifies a
+unique missing physical cause, and neither justifies another scalar fit.
+
+One materially different design option is available land water -> actual
+evaporative energy loss -> near-surface air response. The
+[land-surface experiment](https://pubmed.ncbi.nlm.nih.gov/17788673/) and
+[surface-exchange formulation](https://www.fao.org/4/x0490e/x0490e06.htm)
+support that relationship's physical relevance, not its dominance in our
+residuals or a ready-made air-temperature law. Today's evaporation source is
+a downstream moisture index, not a soil-water-limited energy debit; demand
+is not actual evapotranspiration. Dimensionless solar forcing is not net
+radiation, and the later circulation field has no qualified atmospheric
+layer or physical wind-speed conversion. Reusing those names is not enough.
+
+The concrete product choice is therefore to retain the usable approximation
+with an explicit known limitation, or deliberately design an earlier
+land-water/energy budget and air response with appropriate units and
+sequencing. The latter is a larger physical responsibility, not a missing
+wire or a prerequisite for already delivered water/navigation. Atmospheric
+heat convergence remains a competing explanation. This review selects no
+implementation, new experiment or replacement model. Its recommendation is
+to close the present candidate search rather than silently expand it; the
+existing acceptance requirements are not waived.
+
 ### Historical Trajectory Retirement
 
 A reviewed exact-path retirement removed 182 obsolete raw BE
