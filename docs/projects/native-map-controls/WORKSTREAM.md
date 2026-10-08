@@ -47,6 +47,18 @@ coast fit and ocean-solver prerequisite remain excluded. The playable
 incumbent and delivered water work remain intact, without treating interim
 retention as completion of the thermal goal.
 
+The [completed upstream source qualification](annual-land-response-owner-decision.md#completed-producer-qualification)
+now refuses that optical shortcut: bulk crust/provenance and substrate proxies
+do not represent exposed reflectance, and its annual air response is unqualified.
+Pipeline improvements remain in scope. The [next bounded design](annual-land-response-owner-decision.md#next-bounded-design)
+compares a climatic supply/demand predictor with actual water/energy accounting
+and specifies one lagged correction's ordering, consumers and stop rule. It
+prefers reviewing the empirical scope first, without claiming actual ET or
+adding a basin debit. Its annual response basis is still unresolved; no pilot,
+implementation, scientific gate change or game mutation is admitted by this
+source review. The relevant goal remains useful regional climate, not a new
+field or an independently accurate ocean simulator.
+
 Native integration,
 certified C3 terrain/network evolution, coherent-reach restoration, stock lake
 classification and physical-head preservation are qualified and merged through
