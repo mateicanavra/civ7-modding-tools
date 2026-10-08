@@ -3250,6 +3250,56 @@ ceiling. No raw current field, new public harness, model, game or deployment
 is produced. The next decision is at the current-to-SST consumer boundary,
 not an automatic representation migration or a claim of Earth improvement.
 
+#### Frozen Matched-Current Delivery
+
+The next discriminator retains the current tile-vector contract rather than
+adding a face artifact or repeating the already qualified donor-stencil tests.
+It reuses the frozen driving-vintage comparison: every original SDK result is
+returned unchanged, while only the second atmosphere's 48 alternative current
+constructions use the matched kernel. Each uses its actual phase circulation
+latitude, winds and current options, with one reusable topology/scratch plan.
+The existing 24 weather-pair reductions, weighted annual reduction and both
+Int8 conversions remain. One alternate third-ocean call does not feed back.
+All original SST vintages, annual currents, input digest and options reproduce.
+
+All **48/48** candidate calls converge under the separately admitted
+`1024 / 1e-8` policy: 745-775 iterations, 36,540 total, maximum true relative
+residual `9.99867e-9`. Candidate construction takes `4.744 s`, including setup,
+seed, solve, local reconstruction, encoding, owned copies and checks; monitored
+execution takes `10.831 s`. This uses the `192 x 94` Gaussian-index benchmark
+mask with regular equal-face projection, not Gaussian physical face metrics,
+the native `106 x 66` map or a qualified 144-call player path.
+
+The scientific result remains **mixed and not selected**. Held pooled full/
+primary AIR correlations improve (`0.3161 / 0.5472`), but six of seven
+supported northern alternative-minus-zero-current increments have negative
+covariance with both AIR and OI. Primary `60-75 N` is positive; primary
+`75-80 N` remains empty. All seven supported northern centered unit errors
+remain above the zero-current reference for both targets. Covariance,
+normalized correlation and centered unit
+error are retained together on the unchanged 24 supports, not replaced with a
+pooled score. Northern annual encoded-current RMS falls `0.6131 -> 0.4483`;
+annual radial saturation falls `4.265% -> 1.986%`. Reduced dose is not orientation repair.
+Maximum same-call normalized Int8 face/divergence/boundary losses are
+`11.67% / 15.79% / 79.94%`; these are descriptive vector losses, not measured
+SST error or transport through land.
+True residual convergence therefore does not make this reduced wind/Ekman
+construction a sufficient geographic repair, and does not uniquely blame the
+DTO, wind input, latitude seed, metric or nonconservative scalar consumer.
+No fit, second arm, coupled candidate replay or production adoption follows.
+Independent retained-only review reconstructs 435 identities, moments and
+correlations across all 22 nonempty tables without a numerical replay.
+
+The `18 s` summed construction and `30 s / 512 MiB` monitored guards pass.
+Sampled launcher/time/direct-gate RSS peaks at `492,208,128 B`, excluding
+checker descendants and dispatcher custody. RESULT is `12,834 B`, SHA-256
+`389bbb26b43436e26eb125f9e65c6e988f87a3dbb1e5e96ef0b4fb6dd1d5781e`.
+Inclusive new-family retention is `125,045 B`, below `192 KiB`, with one
+canonical compact report and no raw fields or copied inputs. Postchecks and
+cleanup pass. The installed mod is unchanged. Further design must distinguish
+current construction from the actual scalar transport response before another
+expensive thermal candidate; proxy closure alone is not the product outcome.
+
 #### Next Product-Sized Domino
 
 **Immediate owners:** existing ocean current construction and thermal transport,
@@ -3258,14 +3308,21 @@ The completed retained-P/zero-current/raw-anchor decomposition earns investigati
 of the harmful current-induced northern increment. The earlier full actual/zero/
 reversed replay proposal was superseded by that cheaper sufficient test, not run.
 The completed explicit-block ablation implicates a geographic tradeoff, not a
-uniformly harmful component. Investigate a bounded wind-derived, coast-constrained
-current-construction design that does not mistake connected water components
-for gyre basins or add an independent hemisphere-only coastal current. Keep it
-inside the existing operation and quantify its strongest rival: the current
-thermal consumer's uniform-tile dose/metric. The [declared qualification boundary](../../system/libs/mapgen/reference/domains/HYDROLOGY.md#key-artifacts)
-still applies. No coupled wind-only run, global flip, component deletion, scalar
-fit or larger ocean model is admitted by the mixed result. Exact relationship,
-manufactured falsifier, resources and stop criteria precede a candidate run.
+uniformly harmful component. The frozen matched-current contrast now tests the
+selected masked face-projected wind/Ekman construction through the actual reducers
+and SST consumer. Its mixed geographic result closes that reduced construction
+as a sufficient repair; it must not be retried as though only numerical
+convergence remained unresolved.
+
+Next design must distinguish the missing geographic relationship in wind/current
+construction from the scalar consumer's latitude seed, uniform-tile dose and
+metric. State the expected directional heat response and cheapest discriminating
+contrast before choosing a replacement. Keep ownership in these existing
+operations, retain the tile DTO unless functional evidence requires otherwise,
+and do not repeat the already qualified generic donor controls. The [declared qualification boundary](../../system/libs/mapgen/reference/domains/HYDROLOGY.md#key-artifacts)
+still applies. No coupled wind-only/matched replay, global flip, component
+deletion, scalar fit or larger ocean model is admitted by either mixed result.
+Exact relationship, falsifier, resources and stop criteria precede a new arm.
 
 **Downstream owner:** existing `compute-thermal-state` periodic-response rule
 and its one thermal artifact. Preserve one lapse application, publication,

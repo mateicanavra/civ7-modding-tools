@@ -267,6 +267,16 @@ intact. Full-batch and procedural performance remain unqualified. Cell/Int8
 losses persist despite converged face flow; no SST-error threshold, physical
 skill or representation migration is selected from those diagnostics.
 No raw fields or public harness are retained, and the playable mod is unchanged.
+The [frozen matched-current consumer comparison](thermal-boundary-discriminator.md#frozen-matched-current-delivery)
+then completes 48/48 constructions, authentic weather-pair/annual reductions
+and one alternate SST update in `10.831 s`, holding the original trajectory
+exact. Six of seven supported northern AIR/OI increment covariances remain
+negative. Positive pooled information and smaller current dose do not select
+this reduced construction. Numerical feasibility is now measured on that
+Gaussian benchmark; geographic repair, native throughput and adoption are not.
+The existing tile-vector contract stays, with no new face artifact or donor
+harness. Subsequent design must discriminate construction from scalar transport,
+not automatically fit a gain or repeat the coupled climate campaign.
 
 The earlier dry-transport [complete composition and Earth nonselection](thermal-boundary-discriminator.md#complete-composition-and-earth-nonselection)
 follows accepted SST0, authentic SST1 and canonical SST2. All seven complete
