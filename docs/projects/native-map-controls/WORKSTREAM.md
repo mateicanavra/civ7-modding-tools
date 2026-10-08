@@ -189,6 +189,15 @@ cap, relative residual `0.0590` versus `1e-8`. Zero calls complete; this is not
 cell-space alternative removes reconstruction but introduces centered-stencil
 null modes; it is not an automatic solver rescue. Numerical policy,
 representation and thermal-consumer errors must remain distinct before replay.
+The separate [same-input reference diagnostic](thermal-boundary-discriminator.md#same-input-reference-diagnostic)
+then converges after 552 iterations at the unchanged `1e-8` target, with a
+`40.74 ms` cold numerical stage. This proves the original 64-step cap was
+insufficient for that input, not 144-call or procedural cost qualification.
+Cell/Int8 conversion retains substantial measured face, divergence and
+boundary-normal losses; these are not measured SST or Earth errors. The SST
+consumer blocks land donors, so boundary-normal vectors are not proof of
+through-land transport. Check the actual consumer before selecting another
+representation or a production solve policy. The installed mod is unchanged.
 The next [product-sized design](thermal-boundary-discriminator.md#next-product-sized-domino)
 stays at geographic current construction, with thermal dose/metric as rivals,
 before selecting a geographic thermal equation. No unique cause, zero-current

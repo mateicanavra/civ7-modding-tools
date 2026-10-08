@@ -3212,6 +3212,44 @@ next decision must distinguish numerical solve policy from representation
 and thermal-consumer error, rather than merely raise the cap or promote
 face conservation through a lossy conversion.
 
+#### Same-Input Reference Diagnostic
+
+A separate one-call diagnostic changes only the failed input's stopping cap
+from 64 to 1,024. The previous refusal remains unchanged. Kernel, Jacobi
+preconditioner, `1e-8` true-residual target, exact first-call wind bytes,
+Firaxis geometry, raw RHS norm and authored `.58/.38/80` controls all hold.
+There is no 64-arm rerun, additional phase, climate solve or observation read.
+This diagnostic is not a production iteration policy.
+
+The same input converges after **552 iterations**: true residual
+`0.0000166908` against target `0.0000170737`, relative `9.77573e-9`.
+Projection takes `27.35 ms`; the cold numerical stage, including grid import,
+fixture/config parsing, topology, forcing, reconstruction, encoding and two
+consumer-owned copies, takes `40.74 ms`. This establishes that 64 iterations
+were insufficient for this input. It does not establish 144-call throughput,
+procedural convergence or the complete player-path budget.
+
+Converged face flow still does not survive the existing representation exactly.
+Projected-face RMS is `17.2849`. Relative to that scale, reconstructed cell
+face discrepancy is `9.19%`, water-cell divergence RMS is `22.68%` and
+boundary-normal RMS is `78.03%`; after Int8 conversion those values are
+`16.91% / 26.41% / 70.68%`. Twelve components clip, while maximum unsaturated
+rounding error remains `0.49998` encoding units. These are descriptive losses,
+not prospectively admitted practical-error thresholds or a measured SST error.
+The current SST consumer keeps blocked donor shares at self, so vector
+boundary-normal error must not be mislabeled as actual transport through land.
+Additional solver iterations cannot remove reconstruction/encoding losses.
+
+The separate `1 s` numerical-stage guard and `5 s / 256 MiB` monitored guard
+pass. Monitored execution takes `0.205 s`; sampled launcher/time/direct-gate
+RSS is `115,261,440 B`, excluding checker descendants and dispatcher custody.
+Compact RESULT is `4,646 B`, SHA-256
+`5776f0ef31df41892f1ee7e7e9a319bfb1e7ee85ec323665fc37904d72a7bfdf`.
+Both-host new source/evidence totals `56,054 B`, below the separate `128 KiB`
+ceiling. No raw current field, new public harness, model, game or deployment
+is produced. The next decision is at the current-to-SST consumer boundary,
+not an automatic representation migration or a claim of Earth improvement.
+
 #### Next Product-Sized Domino
 
 **Immediate owners:** existing ocean current construction and thermal transport,
