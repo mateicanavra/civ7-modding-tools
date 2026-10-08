@@ -1,5 +1,28 @@
 # Native Map Controls
 
+## Current Product Goal
+
+Deliver a coherent, playable procedural Earthlike map, using scientific Earth
+as a benchmark rather than a procedural input. Elevation, basin/network
+repairs and bounded native navigation are delivered. The remaining climate
+obligation is useful regional land-temperature response and its downstream
+biome/water consequences, not a complete Earth-system simulator.
+
+The [private climatic-deficit pilot is complete and closed](annual-land-response-owner-decision.md#completed-deficit-pilot).
+Actual-producer and zero-response controls pass, but all 196 training sites
+have zero active-season deficit index. The sole training estimate requests
+the opposite of the admitted response; its nonnegative gain is zero. No
+validation temperatures are scored, no procedural candidate follows, and
+production remains unchanged.
+
+The regional thermal requirement remains open, not blocked on an ocean solver
+or another river rewrite. More fitting of this uninformative predictor is not
+selected. Any subsequent proposal must first establish useful modeled regional
+information and a bounded product-level discriminator. The playable incumbent
+stays installed until an improvement is actually qualified.
+
+## Prior Decisions
+
 Status: active Earthlike land-response work; both the cap-fraction and
 continental-interior pilots are complete and rejected. Ocean-solver work is not its
 automatic prerequisite. The [product relevance reset](thermal-boundary-discriminator.md#next-product-sized-domino)
