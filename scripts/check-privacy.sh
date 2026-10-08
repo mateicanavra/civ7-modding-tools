@@ -26,7 +26,7 @@ while IFS= read -r -d '' entry; do
   fi
 done |
   tar -cf - --null --no-recursion -T - |
-  tar -xf - -C "$snapshot"
+  tar -xf - --ignore-zeros -C "$snapshot"
 
 gitleaks dir "$snapshot" --config "$config" --no-banner --redact \
   --ignore-gitleaks-allow --gitleaks-ignore-path "$snapshot" "$@"
