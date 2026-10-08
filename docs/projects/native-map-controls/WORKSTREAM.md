@@ -1,7 +1,7 @@
 # Native Map Controls
 
-Status: active Earthlike land-response work; the bounded geographic pilot is
-complete and rejected. Ocean-solver work is not its
+Status: active Earthlike land-response work; both the cap-fraction and
+continental-interior pilots are complete and rejected. Ocean-solver work is not its
 automatic prerequisite. The [product relevance reset](thermal-boundary-discriminator.md#next-product-sized-domino)
 supersedes the intermediate current-owner queue below. The goal is a believable,
 playable procedural climate, not an independently accurate ocean simulator.
@@ -25,7 +25,22 @@ beyond same-row training exposure. Both limitations matter; a calibration-only
 expansion cannot resolve the supported collisions. The next decision belongs
 to land-response representation design, not another coefficient fit, automatic
 wind feedback or ocean campaign. The audit does not identify a unique missing
-physical mechanism or admit a replacement model.
+physical mechanism or admit a replacement model. The subsequent
+[selected continental-interior pilot](thermal-boundary-discriminator.md#selected-continental-interior-pilot)
+replaces the cap fraction with nearest original-water angular distance,
+retaining six coefficients and the existing thermal owner. Its
+[completed frozen comparison](thermal-boundary-discriminator.md#completed-continental-interior-pilot)
+worsens held annual RMSE (`2.971039 -> 2.988292 C`) and barely changes
+within-row error (`2.314767 -> 2.314749 C`). That is insufficient useful annual
+geography, not merely a count of failed guards. No further recipe/native run,
+refit, third scalar coast descriptor or residual-attribution campaign follows.
+The completed [annual-mean scope review](thermal-boundary-discriminator.md#annual-mean-scope-decision)
+separates annual geography from seasonal amplitude/phase. It recommends
+retaining the playable approximation with its thermal requirement still open,
+rather than silently expanding into a land-water/energy-budget redesign.
+That larger responsibility needs a deliberate product decision; another
+scalar fit and ocean-solver prerequisite are not selected. The playable
+incumbent and delivered water work remain intact.
 
 Native integration,
 certified C3 terrain/network evolution, coherent-reach restoration, stock lake

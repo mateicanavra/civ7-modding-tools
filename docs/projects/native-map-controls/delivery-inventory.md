@@ -51,8 +51,22 @@ same-input collisions establish a representation limitation; coastal
 extrapolation is a separate warning, not a proven sole cause. More calibration
 of this unchanged family cannot distinguish its identical inputs. This is a
 completed design discriminator, not a shipped climate improvement. Land-response
-representation remains the next owner-level decision; scientific margins and
-the playable incumbent are unchanged.
+representation is now narrowed to the subsequent
+[selected continental-interior pilot](thermal-boundary-discriminator.md#selected-continental-interior-pilot):
+replace cap fraction with nearest original-water angular distance, keeping
+one scalar, six coefficients and the existing thermal owner. That pilot is
+now [complete and rejected](thermal-boundary-discriminator.md#completed-continental-interior-pilot):
+held annual error worsens and within-row error barely improves. The single
+fit/readback takes `0.30/0.29 s`, before any new recipe or native run. No
+production thermal law is admitted, no third scalar is queued, and no
+residual-attribution study follows. Scientific margins, the playable incumbent
+and delivered water/navigation work are unchanged.
+
+The subsequent [annual-mean scope review](thermal-boundary-discriminator.md#annual-mean-scope-decision)
+recommends retaining that approximation with an explicit unresolved thermal
+requirement. A land-water/energy-budget extension is a concrete larger design
+option, not an approved replacement or an inferred cause. No new experiment
+or implementation follows automatically from closing these pilots.
 
 The nine-panel Foundation support atlas (`foundation-support-atlas-20261003/index.html`)
 now exposes three representative cases from that admitted observation. Actual

@@ -3634,6 +3634,200 @@ evaluation in the current recipe; feeding them back is a new coupling, not
 free reuse. The playable incumbent, scientific allowances and original
 procedural acceptance remain unchanged.
 
+#### Selected Continental-Interior Pilot
+
+**Prospective decision, October 7:** select one new empirical geographic
+predictor for a bounded pilot: nearest original-water angular distance `d`.
+This replaces the rejected cap-fraction predictor and its coefficients; it
+does not add another predictor to them. The goal is useful inland/coastal
+procedural variation without scientific collateral, not explaining every
+Earth residual or eliminating all identical-input pairs.
+
+The existing relief/climate steward recommends this distinction because it
+can retain an inland gradient after the old finite-cap `E` becomes zero.
+More samples with unchanged `E` cannot do that. Directed wind fetch would
+reopen a rejected family and its circulation dependence; a new SST-driven
+endmember would reopen the unqualified marine boundary. Neither is selected.
+The [seasonal research](https://phuybers.sites.fas.harvard.edu/Doc/McKinnon_JC2013.pdf)
+supports land/ocean history as an influence on extratropical seasonal response,
+but shows that circulation prevents a single continentality scalar from being
+complete. It does not validate this isotropic distance law, a tropical law or
+the candidate's annual-mean correction. Those are explicit empirical hypotheses.
+
+Define `d` as the minimum great-circle **cell-center** angular separation, in
+degrees, from a land receiver to any represented original-water cell. Use
+longitude `360*x/width`, wrapped X and the actual Float32 row latitudes; no
+water outside represented Y, radius, kilometre conversion or fitted distance
+transform. Original water remains the complement of initial Morphology land,
+including disconnected water, not lakes authored later. Do not relabel it
+ocean-only continentality. Center support makes near-shore values resolution
+dependent; a fixed-geography sampling witness must describe that limitation.
+
+With the unchanged raw incumbent `B`, solar harmonics `Q`, and phase turns `t`:
+
+```text
+Traw(t) = B(t) + d * [a0 + aQ * meanQ
+  + Re(A1 * Qhat1 * exp(i * 2*pi*t))
+  + Re(A2 * Qhat2 * exp(i * 4*pi*t))]
+Qhatk = coskQ - i * sinkQ
+```
+
+There are six newly fitted real coefficients, not greater fitting capacity.
+`a0` is C per angular degree; the other terms are C per angular degree per
+dimensionless solar input. No universal warming sign, heat capacity, transport
+speed or Earth penetration length is inferred. Annual and seasonal response
+remain separately expressible. Equal-distance locations at the same latitude
+still cannot be distinguished; this is an admitted limit, not another automatic
+descriptor search.
+
+**Minimal authoring shape:** keep the computation in a private rule of the
+existing `compute-thermal-state` owner. Latitude is the only newly required
+contract input; the caller already has it and only passes it through. Do not
+compute or pass an unowned distance field in the recipe step. Geometry uses
+the initial topography vintage throughout the existing three thermal
+evaluations and two ocean updates. Recompute within each thermal invocation
+for the first cost measurement; no cache, new artifact, operation, stage,
+strategy knob or backward wind dependency is required. Preserve wet SST
+publication, one model-unit lapse, raw/clipped separation, independent annual
+integration and the existing thermal artifact. This is conditional production
+placement, not authorization to change production before pilot admission.
+The SDK simplicity steward confirms the existing contract/caller/rule route:
+the strategy already forwards inputs without copied callback types. Apply any
+candidate to both requested-phase values and dense annual integration; changing
+only samples would leave annual truth inconsistent. Existing immutability,
+calendar, lapse, clipping and composition checks remain the proof owners.
+
+**Smallest discriminator:** use a private pilot, following the existing
+prospective fit/readback separation. First verify angular distance, wrap,
+reflected latitude order, represented boundaries, unchanged wet output,
+zero-coefficient parity and calendar signs. Water-only inputs have no land
+response; land with no represented water is outside this pilot's geometric
+support. Refusing that diagnostic case does not authorize a new production
+map failure or legacy fallback. A survivor must resolve its actual production
+input-domain obligation before adoption: current production explicitly accepts
+all-land inputs, including the width-one replay and lapse fixtures. Do not
+change those fixtures to conceal a domain restriction.
+
+Report predictor support by latitude, original population and procedural
+geometry before fitting, using already-retained original procedural geometry,
+not new recipe captures. Coverage is descriptive, not a new overlap or neighbor
+count gate; the held row-disjoint split remains intentional. Fit once on the
+original 196 training identities
+with unchanged spatial/calendar weights and identification checks, then freeze
+before evaluating the reused 215 held and 136 added-coast receivers. Report
+raw response over the geometric `0..180 degree` range and actual observed
+support; no saturation, radius, gain, transform or coefficient sweep. Reused
+benchmarks remain reused. Preserve the existing scientific guards and
+improvement requirement, raw/published separation and annual-spread target.
+
+A scientific survivor immediately runs the existing four paired complete-
+recipe cases, not a new broad cohort. The scorecard keeps baseline temperature,
+rainfall and potential demand -> wet budgets/lake heads/spill/discharge ->
+incision/final terrain distinct from later refined PET, biomes, habitats and
+starts. Both physics consequences and integrity matter; increased thermal
+spread alone cannot advance the candidate. Preserve the complete native-map
+`30-60 s` budget, with generated and native costs separately labeled. Wider
+cohort, visible-map and native proof follow only a surviving early scorecard.
+
+Stop the candidate on scientific harm, failed geometric/source admission or
+the existing numerical identification checks, or failed existing procedural
+acceptance; do not turn refusal into another attribution
+campaign. At this design checkpoint no new fit or simulation had run. The
+playable incumbent remains unchanged.
+
+#### Completed Continental-Interior Pilot
+
+**Reject and close the selected distance-conditioned family.** The single
+training-only fit and separately frozen comparison complete. Small monthly
+gains do not deliver useful annual geography: held annual error worsens and
+the within-row improvement is only `0.00001861 C`, below the unchanged
+`0.0002 C` improvement requirement. No refit, transform, third scalar coast
+descriptor, attribution study or new recipe/native capture follows.
+
+| Raw scientific quantity | Incumbent | Candidate |
+| --- | ---: | ---: |
+| Held annual RMSE | 2.971039 C | 2.988292 C |
+| Held monthly RMSE | 3.572948 C | 3.560794 C |
+| Held within-row error RMS | 2.314767 C | 2.314749 C |
+| Held row-mean error RMSE | 1.862506 C | 1.889928 C |
+| Added-coast annual RMSE | 3.731538 C | 3.735580 C |
+| Added-coast monthly RMSE | 5.093664 C | 5.105071 C |
+
+There are also real regional tradeoffs: northern Asia/Pacific held monthly
+RMSE improves `2.377325 -> 2.253389 C`, while southern Asia/Australia held
+annual RMSE worsens `3.426661 -> 3.512911 C` and monthly RMSE worsens
+`3.813188 -> 3.862939 C`. Forty-one overlapping guard failures repeat in raw
+and published scoring; this is not 82 independent findings. The practical
+rejection is missing useful annual improvement, not the count. The same-
+coefficient row-mean-distance control does slightly better in pooled held
+annual/monthly errors (`2.981063/3.558043 C`), but fails its own 37 guards and
+is not selected.
+
+The pre-fit geometry-only readback reports a maximum training distance of
+`14.497891 degrees`, versus `35.426461/38.261318/33.159144/38.240229 degrees`
+in the four retained procedural geometries. This is a descriptive
+extrapolation warning, not a new gate or an identified cause. No new maps
+were needed to obtain those input facts. The fixed-geography synthetic
+sampling witness differs by `2.505269 degrees` within its `4 degree` geometric
+bound; that is not general resolution qualification.
+
+Numerical refinement passes (`5.69e-14 C` maximum annual discrepancy; zero
+monthly discrepancy). No evaluated receiver curve clips, independently
+confirmed by a conservative harmonic bound. The full `0..180 degree`
+response envelope remains a sampled-phase diagnostic, not a certified
+continuous-time extremum or an admission of every hypothetical world.
+Controls/support/fit/score take `0.06/0.35/0.30/0.29 s` whole-process time,
+respectively, with maximum RSS across those processes `106,708,992 bytes`.
+All remain inside their existing `10 s / 256 MiB` diagnostic envelope. These
+are offline costs, not new native generation timings.
+
+Independent review verifies 32 distinct source/input/output files and all 411
+original observation identities, then independently reduces 8,205 frozen
+harmonic operands into all 114 metric tables. All 924 numeric comparisons
+agree within `6.22e-15 C`, and both guard lists reproduce exactly. Evidence is
+retained under `earth-calibration/earth-continental-interior-pilot-20261008/`;
+FREEZE SHA is `96e9d0985b1f06d2314d96b359ac79f67adcb294e57f18aeaf6df3b643866202`,
+RESULT SHA is `6143a37f4763fb13fd184236c62f9523b0361ed22a0018860d6b22c50942667b`.
+
+The shipping implication is explicit: no thermal fix has qualified from this
+family, and the unchanged within-row procedural requirement remains open.
+Delivered elevation, certified water/network evolution and bounded native
+navigation proof are not invalidated. The next design question must separate
+annual-mean geographic responsibility from seasonal amplitude/phase and name
+a source-grounded relationship or a concrete product tradeoff; another scalar
+coast fit is not selected. No production source, fixture, acceptance margin,
+installed mod or active game changed during this pilot.
+
+#### Annual-Mean Scope Decision
+
+The relief/climate steward's design-only review recommends retaining the
+playable approximation while leaving the annual regional-temperature
+requirement open. Seasonal amplitude/phase and annual mean are separate
+responsibilities: evidence that continentality affects seasons does not
+establish the annual correction tested here. Neither refusal identifies a
+unique missing physical cause, and neither justifies another scalar fit.
+
+One materially different design option is available land water -> actual
+evaporative energy loss -> near-surface air response. The
+[land-surface experiment](https://pubmed.ncbi.nlm.nih.gov/17788673/) and
+[surface-exchange formulation](https://www.fao.org/4/x0490e/x0490e06.htm)
+support that relationship's physical relevance, not its dominance in our
+residuals or a ready-made air-temperature law. Today's evaporation source is
+a downstream moisture index, not a soil-water-limited energy debit; demand
+is not actual evapotranspiration. Dimensionless solar forcing is not net
+radiation, and the later circulation field has no qualified atmospheric
+layer or physical wind-speed conversion. Reusing those names is not enough.
+
+The concrete product choice is therefore to retain the usable approximation
+with an explicit known limitation, or deliberately design an earlier
+land-water/energy budget and air response with appropriate units and
+sequencing. The latter is a larger physical responsibility, not a missing
+wire or a prerequisite for already delivered water/navigation. Atmospheric
+heat convergence remains a competing explanation. This review selects no
+implementation, new experiment or replacement model. Its recommendation is
+to close the present candidate search rather than silently expand it; the
+existing acceptance requirements are not waived.
+
 ### Historical Trajectory Retirement
 
 A reviewed exact-path retirement removed 182 obsolete raw BE
