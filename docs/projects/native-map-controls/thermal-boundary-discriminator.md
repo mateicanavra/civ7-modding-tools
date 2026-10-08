@@ -3732,8 +3732,71 @@ cohort, visible-map and native proof follow only a surviving early scorecard.
 Stop the candidate on scientific harm, failed geometric/source admission or
 the existing numerical identification checks, or failed existing procedural
 acceptance; do not turn refusal into another attribution
-campaign. No new fit or simulation has run for this selected design. The
+campaign. At this design checkpoint no new fit or simulation had run. The
 playable incumbent remains unchanged.
+
+#### Completed Continental-Interior Pilot
+
+**Reject and close the selected distance-conditioned family.** The single
+training-only fit and separately frozen comparison complete. Small monthly
+gains do not deliver useful annual geography: held annual error worsens and
+the within-row improvement is only `0.00001861 C`, below the unchanged
+`0.0002 C` improvement requirement. No refit, transform, third scalar coast
+descriptor, attribution study or new recipe/native capture follows.
+
+| Raw scientific quantity | Incumbent | Candidate |
+| --- | ---: | ---: |
+| Held annual RMSE | 2.971039 C | 2.988292 C |
+| Held monthly RMSE | 3.572948 C | 3.560794 C |
+| Held within-row error RMS | 2.314767 C | 2.314749 C |
+| Held row-mean error RMSE | 1.862506 C | 1.889928 C |
+| Added-coast annual RMSE | 3.731538 C | 3.735580 C |
+| Added-coast monthly RMSE | 5.093664 C | 5.105071 C |
+
+There are also real regional tradeoffs: northern Asia/Pacific held monthly
+RMSE improves `2.377325 -> 2.253389 C`, while southern Asia/Australia held
+annual RMSE worsens `3.426661 -> 3.512911 C` and monthly RMSE worsens
+`3.813188 -> 3.862939 C`. Forty-one overlapping guard failures repeat in raw
+and published scoring; this is not 82 independent findings. The practical
+rejection is missing useful annual improvement, not the count. The same-
+coefficient row-mean-distance control does slightly better in pooled held
+annual/monthly errors (`2.981063/3.558043 C`), but fails its own 37 guards and
+is not selected.
+
+The pre-fit geometry-only readback reports a maximum training distance of
+`14.497891 degrees`, versus `35.426461/38.261318/33.159144/38.240229 degrees`
+in the four retained procedural geometries. This is a descriptive
+extrapolation warning, not a new gate or an identified cause. No new maps
+were needed to obtain those input facts. The fixed-geography synthetic
+sampling witness differs by `2.505269 degrees` within its `4 degree` geometric
+bound; that is not general resolution qualification.
+
+Numerical refinement passes (`5.69e-14 C` maximum annual discrepancy; zero
+monthly discrepancy). No evaluated receiver curve clips, independently
+confirmed by a conservative harmonic bound. The full `0..180 degree`
+response envelope remains a sampled-phase diagnostic, not a certified
+continuous-time extremum or an admission of every hypothetical world.
+Controls/support/fit/score take `0.06/0.35/0.30/0.29 s` whole-process time,
+respectively, with maximum RSS across those processes `106,708,992 bytes`.
+All remain inside their existing `10 s / 256 MiB` diagnostic envelope. These
+are offline costs, not new native generation timings.
+
+Independent review verifies 32 distinct source/input/output files and all 411
+original observation identities, then independently reduces 8,205 frozen
+harmonic operands into all 114 metric tables. All 924 numeric comparisons
+agree within `6.22e-15 C`, and both guard lists reproduce exactly. Evidence is
+retained under `earth-calibration/earth-continental-interior-pilot-20261008/`;
+FREEZE SHA is `96e9d0985b1f06d2314d96b359ac79f67adcb294e57f18aeaf6df3b643866202`,
+RESULT SHA is `6143a37f4763fb13fd184236c62f9523b0361ed22a0018860d6b22c50942667b`.
+
+The shipping implication is explicit: no thermal fix has qualified from this
+family, and the unchanged within-row procedural requirement remains open.
+Delivered elevation, certified water/network evolution and bounded native
+navigation proof are not invalidated. The next design question must separate
+annual-mean geographic responsibility from seasonal amplitude/phase and name
+a source-grounded relationship or a concrete product tradeoff; another scalar
+coast fit is not selected. No production source, fixture, acceptance margin,
+installed mod or active game changed during this pilot.
 
 ### Historical Trajectory Retirement
 
