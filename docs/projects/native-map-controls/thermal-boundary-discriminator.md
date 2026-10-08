@@ -10,9 +10,10 @@ physical candidate in this record has earned production adoption.
 The [product relevance reset](#next-product-sized-domino) governs continuation.
 The ocean studies below reject particular candidate inputs, but do not make an
 accurate ocean simulation a prerequisite for addressing land geography. The
-installed land branch does not directly use SST or coastal exposure. Next is
-a bounded land-response solution decision, not the proposed one-pass ocean
-experiment or another current solver. All historical refusals remain intact.
+installed land branch does not directly use SST or coastal exposure. The
+[direct land pilot](#direct-land-response-pilot) selects one bounded empirical
+test, not the proposed one-pass ocean experiment or another current solver.
+All historical refusals remain intact.
 
 The latest [dry-only reference-budget comparison](#completed-dry-only-reference-budget)
 holds the exact old-H6 final SST2 fixed and removes inland reference forcing
@@ -3359,8 +3360,10 @@ by increasing the lapse coefficient, temperature noise or biome quotas.
 The structurally different candidate worth evaluating is an openly empirical
 land-air response conditioned on existing mask/coastal geometry, alongside
 the calibrated solar baseline, rather than a globally qualified marine-air
-endmember driven by modeled SST. This is a **design option, not a selected
-equation or permission to fit residuals yet**. Any new training-only geographic
+endmember driven by modeled SST. At the relevance reset this was a **design
+option, not permission to fit residuals**. The prospective
+[pilot decision](#direct-land-response-pilot) below now selects its exact
+bounded family. Any new training-only geographic
 calibration must explicitly revise the earlier no-land-residual-fit design,
 freeze the family before validation, preserve original splits, and identify
 how it differs from rejected fetch/endmember forms. The
@@ -3392,6 +3395,83 @@ with native runtime/memory proof inside the complete `30-60 s` budget.
 Existing scientific and product guards remain unchanged; changing margins
 requires prospective justification, not retrospective admission of a failed
 candidate. The playable build remains unchanged by this relevance review.
+
+#### Direct Land-Response Pilot
+
+**Prospective decision, October 7:** authorize one training-only fit of the
+fixed six-real-coefficient original-water-conditioned land residual below.
+This supersedes the prior no-land-residual-fit restriction for this pilot
+only. It does not authorize a radius/model sweep, production change or
+scientific-margin relaxation. Independent design review admits the bounded
+test with the limitations and rejection conditions below.
+
+Let `B` be the unchanged raw sea-level incumbent, `Q` the current solar
+harmonics and `t` the existing equinox-relative phase. On original land:
+
+```text
+Traw(t) = B(t) + E * [a0 + aQ * meanQ
+  + Re(A1 * Qhat1 * exp(i * 2*pi*t))
+  + Re(A2 * Qhat2 * exp(i * 4*pi*t))]
+Qhatk = coskQ - i * sinkQ
+```
+
+`a0`, `aQ`, and the real/imaginary parts of `A1/A2` are the six fitted
+coefficients. `E` is the represented original-water area fraction in a fixed
+`6.75 degree` spherical cap. It uses cell-center membership with an inclusive
+boundary, longitude `360*x/width`, wrapped X, actual Float32 row latitudes,
+internal latitude faces at adjacent-center midpoints, and outer faces at the
+first/last represented latitude. Area weights are sine-of-face differences;
+the receiver's land area remains in the denominator. There is no invented
+water outside represented Y support. Single-row maps are outside this pilot's
+admitted geometric support. Original water means the complement
+of the initial land mask, including disconnected water, not an ocean-only
+classification or lakes created downstream.
+
+The cap is an authored angular descriptor, approximately the pre-existing
+750-km Earth cohort boundary, not a fitted physical penetration length.
+The response is empirical degrees Celsius per dimensionless solar/exposure
+input. Source scientific heights do not enter this zero-model-relief fit.
+At equal latitude its spatial freedom is only one scalar: algebraically it
+blends two rowwise harmonic responses. Its distinction from the rejected
+marine endmember is direct land-residual calibration and this fixed predictor,
+not a richer representation or a newly qualified marine-air law. It cannot
+distinguish equal-exposure east/west coasts or different water temperatures.
+
+Fit once on the original 196 training identities, with original Gaussian
+spatial weights, Gregorian day weights, analytic monthly integrals and the
+existing scaled-QR identification checks. Freeze coefficients and predictions
+before scoring the reused 215 held and 136 added-coast benchmarks. They are
+not pristine validation. No original training cell is immediately coastal;
+all 14 training cells in the coastal distance class are northern high-latitude
+cells. Report exposure support by latitude and raw response/correction extrema
+over `E=0..1` before reading validation outcomes. Do not hide extrapolation
+behind post-fit saturation, coefficient clipping or a changed radius.
+
+Retain the original scientific outcome guards, improvement requirement,
+collateral allowances and support counts, applying them to raw candidate and
+raw incumbent as an additional check. Report published/clipped metrics
+separately; clipping cannot rescue raw failure. Added-coast monthly/seasonal
+scores are explicit diagnostics, not falsely described as old acceptance
+gates. Retired solver-energy, SST-input and fitted-length qualifications do
+not become prerequisites for this different empirical family.
+
+First check zero-response parity, calendar/complex signs, manufactured fit
+recovery/rank refusal, all-land/water geometry, wrap/reflection and represented
+boundary behavior. A fixed-mask resolution witness describes discretization;
+Standard/Huge maps are different domains, not a refinement pair. Then pair
+incumbent and candidate on the four existing climate-structure cases
+(`Huge/1018`, `Standard/1018`, `Standard/1`, `Standard/42`) as cheap complete-
+recipe diagnostics, not promotion or replacement for wider qualification.
+Trace baseline temperature/rain/potential demand through wet `P-D` budgets,
+lake heads/spill/discharge/incision and final terrain; keep later refined
+PET/moisture/biome/habitat/start outcomes distinct. Compare quality and semantic
+guards, not old field hashes or desired river counts.
+
+A failed scientific guard or demonstrated seasonal/coastal harm closes this
+family without a radius sweep or refit. A survivor still needs the established
+wider procedural, consumer, native performance/movement and visible-map
+qualification. No production source, strategy, stage or deployed mod changes
+as part of this external pilot.
 
 ### Historical Trajectory Retirement
 

@@ -30,8 +30,12 @@ prerequisite. A fresh direct-owner witness changes neighboring SST by `20 C`
 and moves one shoreline cell: all retained land annual and seasonal outputs
 remain identical. The missing direct land dependency is real; current repair
 alone cannot supply it. This is a design correction, not a deployed climate
-fix. The next bounded decision is a geography-conditioned land response; no
-new equation, fitted coefficients or scientific guard changes are admitted.
+fix. The separately reviewed
+[direct land pilot](thermal-boundary-discriminator.md#direct-land-response-pilot)
+now selects one fixed original-water-conditioned response family for a single
+training-only fit. Existing scientific guards and production behavior remain
+unchanged; four paired complete-recipe diagnostics precede any extended
+qualification or deployment decision.
 
 The nine-panel Foundation support atlas (`foundation-support-atlas-20261003/index.html`)
 now exposes three representative cases from that admitted observation. Actual
