@@ -3828,6 +3828,15 @@ implementation, new experiment or replacement model. Its recommendation is
 to close the present candidate search rather than silently expand it; the
 existing acceptance requirements are not waived.
 
+The subsequent [owner decision](annual-land-response-owner-decision.md)
+corrects any exclusive reading of that choice. An earlier surface-optical
+prior with an explicitly empirical annual response is a smaller proposed
+expansion than coupled water/energy accounting. A terrain-exposure proxy is
+wiring-simpler but has less established relevance to flat regions. Neither
+is selected for execution: surface-to-optics assignment and response meaning
+remain the precise input-design boundary. Keeping the approximation is an
+interim state, not completion of the delegated convergence goal.
+
 ### Historical Trajectory Retirement
 
 A reviewed exact-path retirement removed 182 obsolete raw BE
