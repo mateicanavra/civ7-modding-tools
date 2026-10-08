@@ -1,6 +1,7 @@
 # Native Map Controls
 
-Status: active bounded Earthlike land-response pilot; ocean-solver work is not its
+Status: active Earthlike land-response work; the bounded geographic pilot is
+complete and rejected. Ocean-solver work is not its
 automatic prerequisite. The [product relevance reset](thermal-boundary-discriminator.md#next-product-sized-domino)
 supersedes the intermediate current-owner queue below. The goal is a believable,
 playable procedural climate, not an independently accurate ocean simulator.
@@ -8,9 +9,12 @@ The current land thermal owner has no direct geographic maritime response:
 at fixed solar forcing and elevation, changing adjacent SST or coastline does
 not change its land outputs. The separately reviewed
 [direct land-response pilot](thermal-boundary-discriminator.md#direct-land-response-pilot)
-now selects one six-coefficient original-water-conditioned empirical family
-for one training-only fit and early scientific/procedural rejection. This is
-not a production adoption, new climate owner or change to scientific margins.
+completed one six-coefficient original-water-conditioned fit and early
+scientific/procedural rejection. It directly changes temperature, baseline
+water budgets and downstream products without breaking the four-case integrity
+checks, but worsens coastal/regional reference outcomes and leaves the thermal
+floor unmet. Preserve the playable incumbent; no refit, new climate owner,
+production adoption or change to scientific margins follows.
 
 Native integration,
 certified C3 terrain/network evolution, coherent-reach restoration, stock lake

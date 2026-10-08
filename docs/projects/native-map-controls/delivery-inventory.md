@@ -32,10 +32,17 @@ remain identical. The missing direct land dependency is real; current repair
 alone cannot supply it. This is a design correction, not a deployed climate
 fix. The separately reviewed
 [direct land pilot](thermal-boundary-discriminator.md#direct-land-response-pilot)
-now selects one fixed original-water-conditioned response family for a single
-training-only fit. Existing scientific guards and production behavior remain
-unchanged; four paired complete-recipe diagnostics precede any extended
-qualification or deployment decision.
+now completes and rejects one fixed original-water-conditioned response
+family. The single fit and frozen readback take less than a second each;
+eight complete-recipe captures take about 22.7 seconds including fresh process
+startup. Within-row spread rises substantially, but coastal/regional harm and
+the retained procedural temperature floor prevent adoption. All four paired
+maps preserve integrity, lake heads and footprints while their water fluxes,
+some terrain, habitats and starts respond. Existing scientific guards and
+the installed playable build remain unchanged. See the
+[completed pilot](thermal-boundary-discriminator.md#completed-direct-land-pilot)
+for exact scientific and downstream outcomes; no ocean restart or refit is
+selected by this refusal.
 
 The nine-panel Foundation support atlas (`foundation-support-atlas-20261003/index.html`)
 now exposes three representative cases from that admitted observation. Actual

@@ -11,9 +11,10 @@ The [product relevance reset](#next-product-sized-domino) governs continuation.
 The ocean studies below reject particular candidate inputs, but do not make an
 accurate ocean simulation a prerequisite for addressing land geography. The
 installed land branch does not directly use SST or coastal exposure. The
-[direct land pilot](#direct-land-response-pilot) selects one bounded empirical
-test, not the proposed one-pass ocean experiment or another current solver.
-All historical refusals remain intact.
+[direct land pilot](#direct-land-response-pilot) completes one bounded empirical
+test and rejects that frozen family. It establishes direct downstream response,
+not an adopted repair or a need to restart the ocean investigation. All
+historical refusals remain intact.
 
 The latest [dry-only reference-budget comparison](#completed-dry-only-reference-budget)
 holds the exact old-H6 final SST2 fixed and removes inland reference forcing
@@ -3472,6 +3473,87 @@ family without a radius sweep or refit. A survivor still needs the established
 wider procedural, consumer, native performance/movement and visible-map
 qualification. No production source, strategy, stage or deployed mod changes
 as part of this external pilot.
+
+#### Completed Direct Land Pilot
+
+The reviewed single fit, frozen scientific comparison and eight paired
+complete-recipe captures are complete. **Reject this frozen family.** Its
+modest pooled held gains do not compensate for coastal/regional harm, and
+none of the four procedural cases reaches the retained temperature floor.
+There is no coefficient refit, radius sweep, production change or deployment.
+
+| Raw scientific quantity | Incumbent | Candidate |
+| --- | ---: | ---: |
+| Held annual RMSE | 2.971039 C | 2.911028 C |
+| Held monthly RMSE | 3.572948 C | 3.531251 C |
+| Held within-row error RMS | 2.314767 C | 2.287457 C |
+| Added-coast annual RMSE, 136 receivers | 3.731538 C | 3.841574 C |
+| Added northern Asia/Pacific annual RMSE, 19 receivers | 1.990503 C | 3.254591 C |
+| Added southern Asia/Australia annual RMSE, 18 receivers | 1.634574 C | 2.244733 C |
+
+The same 24 overlapping guard failures appear in raw and published comparison;
+they are not 48 independent findings. The pooled held winter deterioration is
+small (`0.001475 C`), but the degree-scale northern coastal regression makes
+this more than a numerical-margin refusal. No reference prediction clips.
+Annual integration discrepancy is at most `6.75e-14 C`; monthly discrepancy
+is zero. Training exposure reaches `0.483`, versus `0.949` at added coasts,
+retaining the prospectively identified extrapolation limitation.
+
+Replacing site exposure by its original-land row mean, without refitting,
+gives better pooled held annual/monthly errors than the site-aware candidate
+(`2.855129/3.502190 C`). Site exposure buys only `0.027310 C` of within-row
+error improvement on that held population; training and added-coast within-row
+errors worsen. This control is descriptive and fails its own guards, not a
+selected rowwise replacement or proof that all geographic response is useless.
+
+| Procedural case | Within-row temperature SD, incumbent -> candidate | Final ground / river-class / biome cells changed |
+| --- | --- | --- |
+| Huge 1018 | 0.156600 -> 0.811262 C | 5 / 10 / 72 |
+| Standard 1018 | 0.143074 -> 0.710975 C | 1 / 5 / 45 |
+| Standard 1 | 0.181401 -> 0.693444 C | 6 / 2 / 40 |
+| Standard 42 | 0.178356 -> 0.787233 C | 2 / 2 / 33 |
+
+These are fresh complete-recipe captures using the source-owned four-case
+study, not frozen downstream replays. Every original-water neighborhood and
+initial ground is identical within its pair. Baseline annual land temperature
+changes exactly where original-land exposure is positive. Rain/humidity and
+baseline potential demand then change dry runoff and wet budgets separately.
+Wet `P-D` changes by `-8.5568/+3.1477/-19.2751/-0.0077` model-flux units;
+marine export changes by `-134.4237/+0.7052/+100.7023/+42.9698`.
+All matched pool/body/component outflows change, but lake footprints and
+wet-cell heads remain identical. The changed `waterSurface` entries are dry
+ground changes, not changed lake heights. Published ground differences are
+all one model-relief unit; terrain-class changes are a separate result.
+
+Later refined PET/moisture and resource habitats also respond. Final PET is
+not the demand supplied to the earlier basin solve. All 392 integrity checks
+pass, conservation remains within its reported arithmetic bounds, and all
+`10/8/8/8` requested players are seated without degradation. Starts move, but
+fairness improves in only one case; this is not a playability-improvement
+claim. The existing biome-structure target passes in both arms and all cases
+retain eight biome families. It does not establish that changed biome
+allocation is better. The four-case temperature floor still fails, separately
+from the scientific refusal.
+
+Synthetic controls, fit and score take `0.06/0.15/0.13 s` whole-process time.
+Four recipe captures total `8.784 s` incumbent and `8.810 s` candidate;
+eight fresh process launches total about `22.7 s`. These are host diagnostics,
+not native Civ timings. The unchanged Huge capture first exceeds the estimated
+512-MiB envelope at `599,015,424 bytes` maximum RSS; before any candidate run,
+the diagnostic envelope is explicitly revised to 1 GiB for imports, copied
+captures and serialization. That miss remains recorded. No scientific-fit
+limit or complete native-map budget changes. Fit/score peaks are respectively
+`119,226,368/137,920,512 bytes`, below their 256-MiB envelope.
+
+Independent readback verifies the frozen source/input/output identities and
+all eight retained field payloads. The user-data packet is
+`earth-calibration/earth-direct-land-exposure-20261008/`;
+FREEZE SHA is `28172d88b589dcbf5226880e1b1124dfa8e522f6b0cd2c8207996b60c929e40a`,
+and RESULT SHA is `94fe1ccb2cbd7c0a3c0b084b75e723bb4bb31b57f0d604f9c388a48b91c76e7c`.
+No additional basin solver or native navigation experiment is needed to reject
+this candidate. The remaining decision is a land-response representation and
+calibration support that can distinguish useful regional behavior without
+coastal harm; neither more gain nor another ocean prerequisite is selected.
 
 ### Historical Trajectory Retirement
 
