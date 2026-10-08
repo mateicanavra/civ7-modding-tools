@@ -38,9 +38,14 @@ The completed [annual-mean scope review](thermal-boundary-discriminator.md#annua
 separates annual geography from seasonal amplitude/phase. It recommends
 retaining the playable approximation with its thermal requirement still open,
 rather than silently expanding into a land-water/energy-budget redesign.
-That larger responsibility needs a deliberate product decision; another
-scalar fit and ocean-solver prerequisite are not selected. The playable
-incumbent and delivered water work remain intact.
+The subsequent [owner decision](annual-land-response-owner-decision.md)
+identifies a smaller proposed optical-property expansion and compares it with
+a terrain-exposure proxy. Its missing surface-to-optics assignment is a
+bounded input-design choice, not proof that a full water/energy model is
+necessary. No new experiment or implementation is selected; another scalar
+coast fit and ocean-solver prerequisite remain excluded. The playable
+incumbent and delivered water work remain intact, without treating interim
+retention as completion of the thermal goal.
 
 Native integration,
 certified C3 terrain/network evolution, coherent-reach restoration, stock lake

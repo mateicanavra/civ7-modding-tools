@@ -67,6 +67,10 @@ recommends retaining that approximation with an explicit unresolved thermal
 requirement. A land-water/energy-budget extension is a concrete larger design
 option, not an approved replacement or an inferred cause. No new experiment
 or implementation follows automatically from closing these pilots.
+The [owner decision](annual-land-response-owner-decision.md) subsequently
+identifies an earlier optical-property prior as a smaller proposed expansion,
+compared with a terrain-exposure proxy. No optical producer, annual law or
+execution is admitted; the specific input-design boundary remains open.
 
 The nine-panel Foundation support atlas (`foundation-support-atlas-20261003/index.html`)
 now exposes three representative cases from that admitted observation. Actual
