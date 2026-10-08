@@ -198,6 +198,14 @@ boundary-normal losses; these are not measured SST or Earth errors. The SST
 consumer blocks land donors, so boundary-normal vectors are not proof of
 through-land transport. Check the actual consumer before selecting another
 representation or a production solve policy. The installed mod is unchanged.
+The [frozen matched-current delivery](thermal-boundary-discriminator.md#frozen-matched-current-delivery)
+then completes all 48 candidate constructions and both authentic Int8 reducer
+levels in a `10.831 s` offline comparison, preserving every original SDK
+trajectory identity. It does not select the construction: six of seven
+supported northern current-induced increments retain negative AIR/OI covariance,
+despite positive pooled correlations and reduced annual current dose. Numerical
+closure is not geographic repair. No new artifact, redundant donor test,
+coupled candidate, gain fit or production change follows from that mixed result.
 The next [product-sized design](thermal-boundary-discriminator.md#next-product-sized-domino)
 stays at geographic current construction, with thermal dose/metric as rivals,
 before selecting a geographic thermal equation. No unique cause, zero-current
