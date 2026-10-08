@@ -1,6 +1,16 @@
 # Native Map Controls
 
-Status: active Earthlike thermal-response qualification. Native integration,
+Status: active Earthlike land-response design; ocean-solver work is not its
+automatic prerequisite. The [product relevance reset](thermal-boundary-discriminator.md#next-product-sized-domino)
+supersedes the intermediate current-owner queue below. The goal is a believable,
+playable procedural climate, not an independently accurate ocean simulator.
+The current land thermal owner has no direct geographic maritime response:
+at fixed solar forcing and elevation, changing adjacent SST or coastline does
+not change its land outputs. The next decision must address that relationship
+directly, with an explicit candidate and product-level falsifier before more
+computation. No new law or empirical fit is selected by this reset.
+
+Native integration,
 certified C3 terrain/network evolution, coherent-reach restoration, stock lake
 classification and physical-head preservation are qualified and merged through
 [PR #2248](https://github.com/mateicanavra/civ7-modding-tools/pull/2248).
@@ -206,13 +216,13 @@ supported northern current-induced increments retain negative AIR/OI covariance,
 despite positive pooled correlations and reduced annual current dose. Numerical
 closure is not geographic repair. No new artifact, redundant donor test,
 coupled candidate, gain fit or production change follows from that mixed result.
-The next [product-sized design](thermal-boundary-discriminator.md#next-product-sized-domino)
-stays at geographic current construction, with thermal dose/metric as rivals,
-before selecting a geographic thermal equation. No unique cause, zero-current
-replacement, gain sweep, wet-storage migration, global flip or ocean rebuild
-follows automatically. One domino is executable at a time. Cheap premise and rejection tests
-precede expensive qualification; promotion still needs all scientific,
-procedural, downstream and native proofs.
+The [product relevance review](thermal-boundary-discriminator.md#next-product-sized-domino)
+closes current reconstruction/transport as the presumed next dependency.
+Even a better SST cannot repair a land owner that does not consume it. The
+proposed one-pass ocean discriminator is not run. Next is one bounded
+land-response solution decision, not another numerical predecessor. Cheap
+product-facing rejection tests precede expensive qualification; promotion
+still needs scientific, procedural, downstream and native proofs.
 The candidate is not selected and the installed mod is unchanged. Neither the simpler
 architecture nor numerical qualification establishes Earth improvement. Any owner replacement
 still needs independent reference/consumer qualification, original procedural
