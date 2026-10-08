@@ -16,6 +16,17 @@ checks, but worsens coastal/regional reference outcomes and leaves the thermal
 floor unmet. Preserve the playable incumbent; no refit, new climate owner,
 production adoption or change to scientific margins follows.
 
+The completed [retained compatibility audit](thermal-boundary-discriminator.md#retained-land-response-compatibility-audit)
+now distinguishes representation from calibration support without another fit
+or simulation. Same-row, equal-exposure, equal-recorded-height locations inside
+training support require different annual and seasonal corrections, but this
+family can only predict identical values. Some added coasts also extrapolate
+beyond same-row training exposure. Both limitations matter; a calibration-only
+expansion cannot resolve the supported collisions. The next decision belongs
+to land-response representation design, not another coefficient fit, automatic
+wind feedback or ocean campaign. The audit does not identify a unique missing
+physical mechanism or admit a replacement model.
+
 Native integration,
 certified C3 terrain/network evolution, coherent-reach restoration, stock lake
 classification and physical-head preservation are qualified and merged through

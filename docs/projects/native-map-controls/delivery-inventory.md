@@ -44,6 +44,16 @@ the installed playable build remain unchanged. See the
 for exact scientific and downstream outcomes; no ocean restart or refit is
 selected by this refusal.
 
+The subsequent [retained compatibility audit](thermal-boundary-discriminator.md#retained-land-response-compatibility-audit)
+closes in `0.13 s`, without refitting, generating maps or changing Civ. Independent
+reduction reproduces all 1,400 matched pairs and 130 site groups. Supported
+same-input collisions establish a representation limitation; coastal
+extrapolation is a separate warning, not a proven sole cause. More calibration
+of this unchanged family cannot distinguish its identical inputs. This is a
+completed design discriminator, not a shipped climate improvement. Land-response
+representation remains the next owner-level decision; scientific margins and
+the playable incumbent are unchanged.
+
 The nine-panel Foundation support atlas (`foundation-support-atlas-20261003/index.html`)
 now exposes three representative cases from that admitted observation. Actual
 assignments, support contributions and final ground retain distinct meanings;

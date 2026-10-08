@@ -3555,6 +3555,85 @@ this candidate. The remaining decision is a land-response representation and
 calibration support that can distinguish useful regional behavior without
 coastal harm; neither more gain nor another ocean prerequisite is selected.
 
+#### Retained Land-Response Compatibility Audit
+
+One prospectively specified, retained-only audit now separates the rejected
+pilot's expressive limits from its calibration coverage. **Mixed evidence,
+with a demonstrated representation limitation.** The frozen pilot stays
+rejected. No fit, new observations, radius sweep, climate/recipe run, native
+action or changed scientific gate occurs.
+
+Preserve all 196 training, 215 held and 136 added-coast identities. Of 6,084
+same-row pairs, 1,177 have exactly equal original-water exposure `E`, and 223
+have a nonzero exposure difference no larger than `0.01`. Exact exposure and
+exact recorded source height coincide in six pairs, covering 12 receivers on
+three rows. Close heights (nonzero gap no larger than 25 m) and larger gaps
+remain separate metadata strata, not a guessed lapse correction. Compare
+retained 2 m air reference contrasts and required corrections against the
+unchanged raw baseline and frozen pilot predictions.
+
+The decisive supported witness is training pair `14:31 / 14:48`: identical
+row/solar inputs, exact `E=0`, and equal recorded height `238 m`. Both retain
+local training support after self-exclusion. Their required correction differs
+by `2.600 C` annually and `3.375 C` full-monthly RMS, including `2.152 C`
+centered seasonal RMS. Every coefficient choice in the current
+`B + E * correction(solar)` family predicts identical outputs for that pair.
+More calibration alone cannot express this distinction. A second supported
+training collision, `14:40 / 14:43`, has equal positive
+`E=0.00959915662481338`, height `133 m`, and required contrasts of
+`0.863 C` annual / `1.063 C` monthly RMS. Exact collisions are therefore not
+exclusively an `E=0` special case.
+
+This proves insufficient representation against the retained reference, not
+one missing physical mechanism. Equal recorded heights do not establish equal
+subgrid terrain: neighborhood relief for the first pair is `129 / 228 m`.
+Inland `E=0` collisions are inland limitations, not proof of a maritime cause.
+Near matches diagnose only the frozen response; unlike exact collisions,
+they cannot establish impossibility for every coefficient choice. Pairs share
+receivers and densely sampled rows contribute quadratically, so their counts
+are not independent statistical samples.
+
+Training support uses original same-row training identities only, excluding
+the receiver itself from both interval and nearest-neighbor calculations.
+"Local inside" requires an in-interval `E` and another training exposure within
+`0.01`; these descriptive labels are not generalization guarantees.
+
+| Receiver population | No training row | Below interval | Above interval | Inside, nonlocal | Local inside |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Training | 7 | 13 | 15 | 50 | 111 |
+| Held | 215 | 0 | 0 | 0 | 0 |
+| Added coast | 101 | 0 | 32 | 2 | 1 |
+
+All held no-row labels follow the original row-disjoint split; they are not
+a newly discovered coverage defect. The 32 added coasts above their row's
+training interval worsen annual RMSE `1.516 -> 2.477 C` and monthly RMSE
+`2.690 -> 3.232 C`. This is a meaningful extrapolation warning, not proof that
+coverage caused the rejection or that expanding the fit would repair it.
+The single locally supported added coast cannot support a broad comparison.
+
+The first readback stops before contrasts because the added-coast source has
+no neighborhood-relief property. The explicit schema repair retains that
+metadata as unavailable, without inference or changes to required source
+height, matching rules or populations. The successful reduction takes
+`0.13 s` whole-process time, peaks at `148,996,096 bytes` RSS and retains
+`1,764,903 bytes` of output, within its existing 30-second / 256-MiB bound.
+No new runtime dependency or repository toolchain is introduced.
+
+Independent review verifies the original source/input pins, all 411 original
+reference records, 5,470 frozen harmonic operands, all pair contrasts, witness
+rankings and 130 site groups. Fifty-two comparable original result metrics
+agree within `2.23e-15 C`. The retained packet is
+`earth-calibration/earth-direct-land-support-audit-20261008/`; OUTPUT SHA is
+`a9253c122c683104922258c8d06e821260b467bafe2e9a12ce66c33cd83e8036`.
+
+The next decision is representation design: identify a physically defensible
+distinction that can separate supported collisions, including inland response,
+before selecting a replacement. No specific descriptor or new campaign is
+approved by this audit. Pressure and winds are computed after thermal
+evaluation in the current recipe; feeding them back is a new coupling, not
+free reuse. The playable incumbent, scientific allowances and original
+procedural acceptance remain unchanged.
+
 ### Historical Trajectory Retirement
 
 A reviewed exact-path retirement removed 182 obsolete raw BE
