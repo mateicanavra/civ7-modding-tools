@@ -81,6 +81,14 @@ It preserves existing basin accounting while allowing changed final forcing.
 The annual response basis remains unresolved, so this is a sealed source/design
 decision, not a climate fix, new fit, deployment or native milestone.
 
+The [completed climatic-deficit pilot](annual-land-response-owner-decision.md#completed-deficit-pilot)
+now closes the bounded empirical alternative. Actual-producer and independent
+zero-response captures pass in `6.80/6.78 s`; every training site has zero
+active-season deficit index. The single fit's permitted gain is zero, closing
+before validation scoring or procedural candidate captures. No production
+change, deployment or new gameplay claim follows. The regional thermal gap
+remains explicit, while delivered elevation/water/navigation work stays intact.
+
 The nine-panel Foundation support atlas (`foundation-support-atlas-20261003/index.html`)
 now exposes three representative cases from that admitted observation. Actual
 assignments, support contributions and final ground retain distinct meanings;

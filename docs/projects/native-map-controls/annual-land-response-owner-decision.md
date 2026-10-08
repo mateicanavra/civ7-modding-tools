@@ -222,3 +222,119 @@ the physical model or change thresholds. Retain the playable incumbent and
 the explicitly open climate requirement. This avoids both endless theory
 and premature implementation of a merely plausible mechanism. This turn
 ran no fit, experiment, deployment or game action.
+
+## Admitted Private Deficit Pilot
+
+The bounded physical review now admits one prospective empirical test, not a
+production law. A missing literature coefficient is not a veto: the functional
+relationship, quantities, support and calibration protocol must be defensible;
+one training-only estimate can then determine magnitude. The original source
+review above did not supply that design and remains historical.
+
+Use incumbent final-SST2 seasonal rainfall `P`, potential demand `D`, calendar
+weights `w`, source daily-mean solar `Q`, and sea-level temperature `B`. Define:
+
+```text
+a = clamp01((B - demand.tMinC) / (demand.tMaxC - demand.tMinC))
+X = sum_phase(w * Q * a * max(D - P, 0)) / sum_phase(w * D)
+deltaT = k * (X - mean_eligible_original_land_in_row(X)), k >= 0
+```
+
+The row reference is equal-cell, includes the receiver itself and excludes
+water/zero-demand cells. Empty rows are inactive. Original land is the initial
+geographic identity, not a calibration subset or later basin footprint.
+Strictly reject invalid inputs. `X` is dimensionless, bounded in `[0,1]`;
+`k` is Celsius per centered index unit. The raw active-land row anomaly sums
+to zero. This deliberately cannot fix row-global mean or seasonal phase.
+
+`Q` is the exact source daily solar at the existing phase/declination, not a
+truncated Fourier reconstruction. Existing thermal bounds enclose the demand
+activity ramp, making raw and clipped sea-level activity equivalent here.
+Phase-matched deficit prevents winter surplus cancelling summer deficit;
+illumination and the existing temperature ramp limit cold-season influence.
+The [regime study](https://doi.org/10.1175/JCLI-D-16-0727.1) supports seasonal
+water/energy limitation, not this proxy's exact form or a transferable gain.
+The [coupling experiment](https://doi.org/10.1175/JCLI-D-14-00324.1) also retains
+atmospheric explanations. Treat this as a climatic association, not identified
+soil-moisture causation or an actual latent-heat flux.
+
+Use identical current modeled producers on the scientific Earth grid and
+procedural maps. The scientific grid preserves its original Gaussian
+coordinates/mask and explicitly zero model relief; do not substitute Firaxis
+indices, observed rainfall, source metres or an observed humidity/ET predictor.
+Demand already depends on temperature and rainfall-derived humidity. On flat
+same-row support, modeled precipitation supplies the new horizontal signal;
+procedural relief introduces existing lapse dependence, not independent new
+climate information. Grid-step transport and flat-orography limitations remain
+transfer hazards.
+
+Freeze the law, inputs and protocol before producer inspection or fitting.
+Read predictor support first. If identifiable, estimate only `k` once from
+original training annual residuals with unchanged area weights and no intercept
+refit. Freeze all predictions before validation access. A zero nonnegative
+solution closes the candidate. Preserve the original raw and published
+scientific/regional/seasonal guards and separate numerical margins.
+
+The private diagnostic uses actual operations with narrowly pinned solar/
+thermal source overlays, not a new production artifact, stage or SDK. The
+annual offset enters requested raw samples and dense integration before
+clipping and one lapse. The first two atmosphere vintages and both ocean
+updates stay unchanged; final weather/demand is recomputed at the same SST2
+without recursively updating the predictor or debiting water again. Independent
+zero-response full-step parity and source/numerical controls are required.
+
+One prospective proof-order amendment retains cheap end-to-end learning:
+any finite nonzero candidate passing mechanical/resource controls runs the
+existing four paired procedural cases through basins, terrain and ecology,
+even if scientific scoring refuses it. Those cases diagnose actual final
+consumer consequences; they cannot rescue scientific refusal or authorize
+adoption. Zero-gain, invalid/numerical, pathological or hard-resource refusals
+stop before captures. No larger map bank or native run follows a refusal.
+Only a science-and-transfer survivor earns a
+production integration review, full checks, whole-map cost proof and fresh
+native/playability qualification. Preserve the live game during this private
+test. No ocean prerequisite, third coast scalar, sweep or threshold rescue is
+selected.
+
+## Completed Deficit Pilot
+
+The frozen private pilot `earth-climatic-deficit-pilot-20261008` completes
+without a production change. Actual climate-baseline execution and an
+independently initialized zero-response overlay produce identical full-step
+outputs, published artifacts and complete operation input/options/output
+traces. The three thermal vintages and both ocean updates remain intact.
+Capture costs are `6.80/6.78 s`, with peak resident memory about `649/644 MiB`.
+These are private scientific-grid captures, not whole-map generation timings.
+
+Independent controls pass for the solar integral, actual phase solar,
+deficit construction, row centering, cold/wet/zero-demand cases, rotation,
+invalid inputs and complete seasonal zero-response parity. Raw and clipped
+activity are identical under the frozen bounds. Existing numerical margins
+pass without changing scientific or resource limits.
+
+Support is decisive: all 196 training and all 136 additional sites have
+`X = 0`. The 215 held sites span only `0..0.0004083`. Some training cells have
+a small centered feature because other original land contributes to their
+row reference; this gives numerical rank one, not useful within-row
+active-deficit contrast in training. The sole area-weighted training fit
+requests signed `k = -17928.5385`; the admitted nonnegative solution is
+therefore exactly zero. An independent direct reduction agrees with the QR
+solution.
+
+Predictions are frozen. No validation temperatures are consulted or scored,
+and the explicit zero-gain stop prevents the four paired procedural cases.
+Validation-file hashing for custody is not validation scoring. No sign flip,
+threshold change, second fit, corrected nonzero producer, deployment or native
+game action follows. Private import/measurement repairs preserve the frozen
+law and guards; final execution source hashes are retained with the fit.
+
+This closes this empirical candidate, not the regional thermal requirement.
+The existing modeled rainfall/demand combination supplies essentially no
+active-season deficit contrast on the flat scientific training support.
+That does not identify the sole cause, establish that all procedural water
+budgets are wrong, or prove that regional land physics cannot be represented.
+It does establish that further calibration of this predictor is not a useful
+next implementation step. Retain the playable incumbent and the already
+delivered elevation, basin, river and bounded navigation work. A subsequent
+land-response proposal must demonstrate useful modeled regional information
+before spending another implementation or solver qualification cycle.
