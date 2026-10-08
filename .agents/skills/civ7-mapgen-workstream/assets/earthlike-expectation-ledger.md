@@ -30,6 +30,20 @@ Fill the declaration sections before implementation. Amendments are append-only.
 
 `<evidence that would show this mechanism or chosen locus is wrong>`
 
+### Decision-Relevant Quantity Chains
+
+Trace only the branches capable of changing this decision. Record source
+dependencies separately from proposed or measured effects; link a shared
+meaning/scale definition rather than duplicating it in every row.
+
+| Quantity and meaning/units/support | Producer and artifact/iteration vintage | Actual consumer and consequential outcome | Evidence class and smallest proof |
+| --- | --- | --- | --- |
+| `<quantity; physical or empirical meaning>` | `<owner; exact forcing/geometry version>` | `<consumer -> outcome>` | `<source-confirmed/proposed/unverified; input held and readback>` |
+
+- **Non-interchangeable fields / absent feedback:** `<named distinction; deliberate approximation, demonstrated defect or unresolved risk>`
+- **Physical steward / decision:** `<relevant role, focused question and accept/revise/unresolved disposition; not a review of every domain>`
+- **Material changes requiring re-review:** `<quantity meaning, vintage, geometry or consumer wiring>`
+
 ## 3. Alternatives
 
 | Alternative | Structural/model shape | Expected benefit | Main risk | Disposition |
