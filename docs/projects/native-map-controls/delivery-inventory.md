@@ -24,6 +24,15 @@ The remaining demonstrated shipping obligation is the unchanged within-row
 thermal-response failure. A candidate still needs scientific, full-cohort,
 public-contract, deployment and fresh native admission before that is closed.
 
+The [product relevance reset](thermal-boundary-discriminator.md#next-product-sized-domino)
+keeps that outcome but removes ocean-solver qualification as an assumed
+prerequisite. A fresh direct-owner witness changes neighboring SST by `20 C`
+and moves one shoreline cell: all retained land annual and seasonal outputs
+remain identical. The missing direct land dependency is real; current repair
+alone cannot supply it. This is a design correction, not a deployed climate
+fix. The next bounded decision is a geography-conditioned land response; no
+new equation, fitted coefficients or scientific guard changes are admitted.
+
 The nine-panel Foundation support atlas (`foundation-support-atlas-20261003/index.html`)
 now exposes three representative cases from that admitted observation. Actual
 assignments, support contributions and final ground retain distinct meanings;
@@ -245,13 +254,13 @@ positive, but materially weakens pooled geographic correlation. All seven
 northern centered unit errors improve; two negative increments remain and
 primary `75-80 N` remains empty. Independent review passes 440 compact checks.
 The mixed-result rule stops uniform removal as a sufficient repair; there is
-no automatic coupled wind-only follow-up. The next
-[bounded owner design](thermal-boundary-discriminator.md#next-product-sized-domino)
-must replace arbitrary component-center/coast forcing with a defensible geographic
-relationship before a maritime-air model. Thermal dose/metric remain rivals;
-no unique cause or zero-current/global-flip/gain repair is established. No new solver, sweep,
-wet-storage system or production migration is selected automatically. Held land
-labels and rejected searches remain closed; the playable mod is unchanged.
+no automatic coupled wind-only follow-up. The intermediate current-owner design
+was subsequently superseded by the
+[product relevance reset](thermal-boundary-discriminator.md#next-product-sized-domino),
+not promoted into a mandatory ocean rewrite. Thermal dose/metric remain
+unresolved rivals for the ocean findings; no unique cause or zero-current,
+global-flip or gain repair is established. Held land labels and rejected
+searches remain closed; the playable mod is unchanged.
 The selected [matched projection feasibility](thermal-boundary-discriminator.md#matched-current-projection-feasibility)
 then passes its tiny known-field and output-sign gate in `0.183 s`. Cell/Int8
 reconstruction attenuates circulation and retains boundary/divergence losses;

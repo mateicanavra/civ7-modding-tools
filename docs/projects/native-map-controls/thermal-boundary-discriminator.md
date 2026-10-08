@@ -7,6 +7,13 @@ and height, not a requirement to reproduce Earth exactly or build a larger
 weather model. The playable empirical incumbent remains installed. No external
 physical candidate in this record has earned production adoption.
 
+The [product relevance reset](#next-product-sized-domino) governs continuation.
+The ocean studies below reject particular candidate inputs, but do not make an
+accurate ocean simulation a prerequisite for addressing land geography. The
+installed land branch does not directly use SST or coastal exposure. Next is
+a bounded land-response solution decision, not the proposed one-pass ocean
+experiment or another current solver. All historical refusals remain intact.
+
 The latest [dry-only reference-budget comparison](#completed-dry-only-reference-budget)
 holds the exact old-H6 final SST2 fixed and removes inland reference forcing
 only from marine air. Both periodic resolutions qualify numerically, then
@@ -35,8 +42,8 @@ northern held tables, including the two positive final-field exceptions.
 The [frozen explicit-circulation ablation](#completed-explicit-circulation-ablation)
 then flips five of those seven increments positive, but weakens pooled geographic
 information. This mixed result stops uniform component removal as a sufficient
-repair. The next [product-sized design](#next-product-sized-domino) stays at
-geographic current construction and thermal transport. No unique direction,
+repair. Its intermediate current-construction queue is superseded by the
+[product-sized design](#next-product-sized-domino). No unique direction,
 dose or coordinate defect, zero-current replacement or scalar-gain repair is established.
 Cheap premise checks and
 rejection-first pilots precede large qualification campaigns. Existing numerical methods remain
@@ -3296,87 +3303,95 @@ checker descendants and dispatcher custody. RESULT is `12,834 B`, SHA-256
 `389bbb26b43436e26eb125f9e65c6e988f87a3dbb1e5e96ef0b4fb6dd1d5781e`.
 Inclusive new-family retention is `125,045 B`, below `192 KiB`, with one
 canonical compact report and no raw fields or copied inputs. Postchecks and
-cleanup pass. The installed mod is unchanged. Further design must distinguish
-current construction from the actual scalar transport response before another
-expensive thermal candidate; proxy closure alone is not the product outcome.
+cleanup pass. The installed mod is unchanged. The intermediate next step was
+to distinguish current construction from scalar transport; the product
+relevance reset below supersedes that automatic ocean prerequisite. Proxy
+closure alone is not the product outcome.
 
 #### Next Product-Sized Domino
 
-**Immediate owners:** existing ocean current construction and thermal transport,
-using the actual current vintage that drives SST2, not final published currents.
-The completed retained-P/zero-current/raw-anchor decomposition earns investigation
-of the harmful current-induced northern increment. The earlier full actual/zero/
-reversed replay proposal was superseded by that cheaper sufficient test, not run.
-The completed explicit-block ablation implicates a geographic tradeoff, not a
-uniformly harmful component. The frozen matched-current contrast now tests the
-selected masked face-projected wind/Ekman construction through the actual reducers
-and SST consumer. Its mixed geographic result closes that reduced construction
-as a sufficient repair; it must not be retried as though only numerical
-convergence remained unresolved.
+**Product relevance reset, October 7:** retain the goal of believable,
+playable Earthlike regional climate; stop treating independently qualified
+ocean circulation as its automatic prerequisite. The ocean investigation
+tested a possible input to an unselected land-coupling family. It did not
+establish that this is the shortest or necessary path to a land improvement.
+Matched projection converged without repairing the tested geography. More
+solver work cannot by itself reconnect the installed land-temperature owner.
 
-Next design must distinguish the missing geographic relationship in wind/current
-construction from the scalar consumer's latitude seed, uniform-tile dose and
-metric. State the expected directional heat response and cheapest discriminating
-contrast before choosing a replacement. Keep ownership in these existing
-operations, retain the tile DTO unless functional evidence requires otherwise,
-and do not repeat the already qualified generic donor controls. The [declared qualification boundary](../../system/libs/mapgen/reference/domains/HYDROLOGY.md#key-artifacts)
-still applies. No coupled wind-only/matched replay, global flip, component
-deletion, scalar fit or larger ocean model is admitted by either mixed result.
-Exact relationship, falsifier, resources and stop criteria precede a new arm.
+**Direct owner witness:** the current `compute-thermal-state` rule selects
+rowwise solar response on land, and SST only on water. A source-pinned,
+five-cell, one-row check uses land mask `[0,1,1,1,0]`, zero elevation/sea datum,
+solar coefficients `meanQ=.25`, `cos1Q=.08`, `cos2Q=.01`, both sine terms zero,
+phases `[0,.25,.5,.75]`, equal weights, and the current default thermal controls.
+Changing both wet SST values from `5` to `25 C` raises wet annual outputs by
+`20 C`, while all three retained land annual and phase outputs remain exactly
+equal. Changing the first wet cell to land also preserves those retained land
+outputs. Source hashes are checked before and after. This is a direct-owner
+sensitivity check, not a coupled pipeline run or a claim that downstream
+rainfall/albedo feedback cannot change final ground temperature.
 
-**Downstream owner:** existing `compute-thermal-state` periodic-response rule
-and its one thermal artifact. Preserve one lapse application, publication,
-actual driving vintages and the three-atmosphere/two-ocean schedule. No new
-recipe stage or climate/water owner follows from this investigation.
+The witnessed rule SHA-256 is
+`f5b93e1eb5bdb4c2600f063b561da8300bd22dfd5aca83d70d6984b3460e60d9`;
+its clamp and response-policy dependencies are respectively
+`ec7b4675bb238596bd1248ac34534c6a7427cc045cc9d28820573d6bfab69e4c`
+and `1df2a06151852a5dcf4c1ee175186b6092d7a38253d7cdf38dda988acd2ec42a`.
+No benchmark input, new test harness, raw field or candidate enters production.
 
-**Hypothesis:** independently qualified inland and maritime **air** cycles,
-mixed by one resolution-explicit geometry-only exposure, can supply useful
-annual and seasonal land geography without an absolute column-energy solve:
+**Acceptance meaning:** the unchanged `1-8 C` within-row population target
+includes relief lapse and downstream albedo. It is an authored product guard,
+not an equal-height Earth-accuracy requirement; arbitrary noise or inflated
+lapse could pass it without useful geography. The independent
+[variance budget](land-thermal-variance.md) establishes missing low-relief
+response but does not uniquely identify maritime exchange. Its moisture/
+category evidence also means a thermal repair alone is not a promised cure
+for biome banding. Northern wet covariance tests reject the tested source
+forms; they are not substitutes for actual land-consumer outcomes, and their
+overlapping supports are not independent experiments.
 
-```text
-Traw_i(t) = (1 - exposure_i) * B_i(t) + exposure_i * M_i(t; admitted inputs)
-```
+**Next bounded deliverable:** one exact, geography-conditioned land-response
+proposal at the existing `compute-thermal-state` owner. It must name the
+available geographic input, annual-mean relationship, seasonal amplitude and
+phase relationship, units/resolution meaning, and first discriminating test.
+Retain one lapse, the existing thermal artifact/publication, clipping, and the
+current atmosphere/ocean schedule. Do not add a stage or repair the product
+by increasing the lapse coefficient, temperature noise or biome quotas.
 
-This is an explicitly empirical alternative, not a closed energy model.
-`M` is not liquid SST, exposed ice skin or copied inland `B`. The same exposure
-must act jointly on annual mean and complex seasonal coefficients; no separate
-land-residual gains, wind-fetch rule or zero-mean-only correction is selected.
-Prior raw-SST screen, directed-fetch and averaged-Jacobian refusals remain closed.
-The earlier six-coefficient marine-air source test also already rejected
-`SST + affine meanQ + two complex solar responses`, with SST gain fixed at one:
-pooled monthly error improved, but supported ice-free northern monthly error
-rose `2.792 -> 9.683 C`. That is not an untried maritime-air model. Changing
-its name or freeing a gain is not, by itself, a new source explanation.
+The structurally different candidate worth evaluating is an openly empirical
+land-air response conditioned on existing mask/coastal geometry, alongside
+the calibrated solar baseline, rather than a globally qualified marine-air
+endmember driven by modeled SST. This is a **design option, not a selected
+equation or permission to fit residuals yet**. Any new training-only geographic
+calibration must explicitly revise the earlier no-land-residual-fit design,
+freeze the family before validation, preserve original splits, and identify
+how it differs from rejected fetch/endmember forms. The
+[seasonal source](https://phuybers.sites.fas.harvard.edu/Doc/McKinnon_JC2013.pdf)
+supports investigating land/ocean influence, not an arbitrary annual coastal
+offset; it also describes limitations of a single continentality scalar.
+No reviewed source currently qualifies a new law for adoption.
 
-**Completed source tests:** the solar-only marine-air fit rejects its uniform
-endmember before a land pilot. The compatible incumbent SST2 check then locates
-an upstream geographic prior failure. Neither pooled success licenses another
-rowwise fit, exposure sweep or use of rejected H6 feedback as the incumbent's
-boundary. A repaired annual liquid field still does not itself provide seasonal
-air or exposed-ice temperature. Any later maritime-air equation must state its
-actual geographic annual/seasonal relationship and cheapest falsifier first.
-No land residual fit or held-land score enters this premise. Static marine and
-ice-free supports remain distinct; neither supplies an independently validated
-ice model. No additional computation is admitted merely by this next-design record.
+**Decision and stop:** first establish a coherent equal-latitude/equal-height
+land response to changed geography, then evaluate annual and seasonal skill
+on the existing scientific references. A candidate cannot advance solely by
+increasing spread. An exact proposal without defensible input/relationship
+semantics stops at design. A frozen pilot with seasonal/coastal harm stops
+before production; report the product tradeoff rather than opening another
+unbounded chain of prerequisites. Do not rerun the rejected nonlinear,
+raw-SST, directed-fetch or uniform-endmember families under new names.
 
-**Distinguishing outcome and stop:** require identifiable, predictive annual
-and centered-seasonal behavior across marine blocks. A failed or unidentified
-endmember stops this candidate before exposure tuning or another Earth solve.
-If existing evidence already rules out the simple family, reject it explicitly
-and identify the one missing source relationship; do not force a new fit.
-Only a surviving, frozen endmember/exposure earns the original-training and
-controlled-geography comparison against the incumbent. A coast benefit that
-merely introduces broad bias or seasonal harm stops it. The corrected nonlinear
-model remains a distinct rival, not an automatically authorized next campaign.
+The proposed one-pass ocean discriminator is **not run and is no longer next**.
+Current representation, forced-vorticity and scalar-conservation research are
+outside this land-response story. Reopen an ocean repair only for a concrete
+independent ocean outcome or when an otherwise-qualified land design names
+the required ocean input and its functional error budget. No global flip,
+gain, new face artifact, wet-storage migration or larger climate solver follows
+from the existing refusals.
 
-Cheap exploratory evidence can reject, not promote. A useful survivor still
-needs prospective numerical/validation qualification, matched procedural
-Standard/Huge seeds, downstream biome/water/placement checks, visible milestones
-and complete native runtime/memory proof. Existing margins are unchanged;
-different practical margins require prospective justification and approval,
-not retrospective admission of a failed candidate. Only this next premise
-domino is active; relief units, final-topography feedback, riparian/rain semantics
-and optional weather dynamics stay outside it unless its evidence implicates them.
+A surviving proposal still needs the original procedural Standard/Huge cohort,
+downstream biome/water/placement checks and a visible before/after Huge map
+with native runtime/memory proof inside the complete `30-60 s` budget.
+Existing scientific and product guards remain unchanged; changing margins
+requires prospective justification, not retrospective admission of a failed
+candidate. The playable build remains unchanged by this relevance review.
 
 ### Historical Trajectory Retirement
 
