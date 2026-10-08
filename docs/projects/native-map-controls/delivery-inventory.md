@@ -72,6 +72,15 @@ identifies an earlier optical-property prior as a smaller proposed expansion,
 compared with a terrain-exposure proxy. No optical producer, annual law or
 execution is admitted; the specific input-design boundary remains open.
 
+The [completed producer review](annual-land-response-owner-decision.md#completed-producer-qualification)
+now closes that optical shortcut rather than inventing reflectance from
+tectonic/material proxies. The [bounded continuation design](annual-land-response-owner-decision.md#next-bounded-design)
+permits improving pipeline ordering where useful, and distinguishes an
+empirical climatic supply/demand response from actual water/energy exchange.
+It preserves existing basin accounting while allowing changed final forcing.
+The annual response basis remains unresolved, so this is a sealed source/design
+decision, not a climate fix, new fit, deployment or native milestone.
+
 The nine-panel Foundation support atlas (`foundation-support-atlas-20261003/index.html`)
 now exposes three representative cases from that admitted observation. Actual
 assignments, support contributions and final ground retain distinct meanings;
