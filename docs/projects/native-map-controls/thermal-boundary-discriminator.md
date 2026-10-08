@@ -3634,6 +3634,107 @@ evaluation in the current recipe; feeding them back is a new coupling, not
 free reuse. The playable incumbent, scientific allowances and original
 procedural acceptance remain unchanged.
 
+#### Selected Continental-Interior Pilot
+
+**Prospective decision, October 7:** select one new empirical geographic
+predictor for a bounded pilot: nearest original-water angular distance `d`.
+This replaces the rejected cap-fraction predictor and its coefficients; it
+does not add another predictor to them. The goal is useful inland/coastal
+procedural variation without scientific collateral, not explaining every
+Earth residual or eliminating all identical-input pairs.
+
+The existing relief/climate steward recommends this distinction because it
+can retain an inland gradient after the old finite-cap `E` becomes zero.
+More samples with unchanged `E` cannot do that. Directed wind fetch would
+reopen a rejected family and its circulation dependence; a new SST-driven
+endmember would reopen the unqualified marine boundary. Neither is selected.
+The [seasonal research](https://phuybers.sites.fas.harvard.edu/Doc/McKinnon_JC2013.pdf)
+supports land/ocean history as an influence on extratropical seasonal response,
+but shows that circulation prevents a single continentality scalar from being
+complete. It does not validate this isotropic distance law, a tropical law or
+the candidate's annual-mean correction. Those are explicit empirical hypotheses.
+
+Define `d` as the minimum great-circle **cell-center** angular separation, in
+degrees, from a land receiver to any represented original-water cell. Use
+longitude `360*x/width`, wrapped X and the actual Float32 row latitudes; no
+water outside represented Y, radius, kilometre conversion or fitted distance
+transform. Original water remains the complement of initial Morphology land,
+including disconnected water, not lakes authored later. Do not relabel it
+ocean-only continentality. Center support makes near-shore values resolution
+dependent; a fixed-geography sampling witness must describe that limitation.
+
+With the unchanged raw incumbent `B`, solar harmonics `Q`, and phase turns `t`:
+
+```text
+Traw(t) = B(t) + d * [a0 + aQ * meanQ
+  + Re(A1 * Qhat1 * exp(i * 2*pi*t))
+  + Re(A2 * Qhat2 * exp(i * 4*pi*t))]
+Qhatk = coskQ - i * sinkQ
+```
+
+There are six newly fitted real coefficients, not greater fitting capacity.
+`a0` is C per angular degree; the other terms are C per angular degree per
+dimensionless solar input. No universal warming sign, heat capacity, transport
+speed or Earth penetration length is inferred. Annual and seasonal response
+remain separately expressible. Equal-distance locations at the same latitude
+still cannot be distinguished; this is an admitted limit, not another automatic
+descriptor search.
+
+**Minimal authoring shape:** keep the computation in a private rule of the
+existing `compute-thermal-state` owner. Latitude is the only newly required
+contract input; the caller already has it and only passes it through. Do not
+compute or pass an unowned distance field in the recipe step. Geometry uses
+the initial topography vintage throughout the existing three thermal
+evaluations and two ocean updates. Recompute within each thermal invocation
+for the first cost measurement; no cache, new artifact, operation, stage,
+strategy knob or backward wind dependency is required. Preserve wet SST
+publication, one model-unit lapse, raw/clipped separation, independent annual
+integration and the existing thermal artifact. This is conditional production
+placement, not authorization to change production before pilot admission.
+The SDK simplicity steward confirms the existing contract/caller/rule route:
+the strategy already forwards inputs without copied callback types. Apply any
+candidate to both requested-phase values and dense annual integration; changing
+only samples would leave annual truth inconsistent. Existing immutability,
+calendar, lapse, clipping and composition checks remain the proof owners.
+
+**Smallest discriminator:** use a private pilot, following the existing
+prospective fit/readback separation. First verify angular distance, wrap,
+reflected latitude order, represented boundaries, unchanged wet output,
+zero-coefficient parity and calendar signs. Water-only inputs have no land
+response; land with no represented water is outside this pilot's geometric
+support. Refusing that diagnostic case does not authorize a new production
+map failure or legacy fallback. A survivor must resolve its actual production
+input-domain obligation before adoption: current production explicitly accepts
+all-land inputs, including the width-one replay and lapse fixtures. Do not
+change those fixtures to conceal a domain restriction.
+
+Report predictor support by latitude, original population and procedural
+geometry before fitting, using already-retained original procedural geometry,
+not new recipe captures. Coverage is descriptive, not a new overlap or neighbor
+count gate; the held row-disjoint split remains intentional. Fit once on the
+original 196 training identities
+with unchanged spatial/calendar weights and identification checks, then freeze
+before evaluating the reused 215 held and 136 added-coast receivers. Report
+raw response over the geometric `0..180 degree` range and actual observed
+support; no saturation, radius, gain, transform or coefficient sweep. Reused
+benchmarks remain reused. Preserve the existing scientific guards and
+improvement requirement, raw/published separation and annual-spread target.
+
+A scientific survivor immediately runs the existing four paired complete-
+recipe cases, not a new broad cohort. The scorecard keeps baseline temperature,
+rainfall and potential demand -> wet budgets/lake heads/spill/discharge ->
+incision/final terrain distinct from later refined PET, biomes, habitats and
+starts. Both physics consequences and integrity matter; increased thermal
+spread alone cannot advance the candidate. Preserve the complete native-map
+`30-60 s` budget, with generated and native costs separately labeled. Wider
+cohort, visible-map and native proof follow only a surviving early scorecard.
+
+Stop the candidate on scientific harm, failed geometric/source admission or
+the existing numerical identification checks, or failed existing procedural
+acceptance; do not turn refusal into another attribution
+campaign. No new fit or simulation has run for this selected design. The
+playable incumbent remains unchanged.
+
 ### Historical Trajectory Retirement
 
 A reviewed exact-path retirement removed 182 obsolete raw BE

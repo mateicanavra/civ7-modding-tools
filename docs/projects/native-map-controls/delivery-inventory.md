@@ -51,8 +51,13 @@ same-input collisions establish a representation limitation; coastal
 extrapolation is a separate warning, not a proven sole cause. More calibration
 of this unchanged family cannot distinguish its identical inputs. This is a
 completed design discriminator, not a shipped climate improvement. Land-response
-representation remains the next owner-level decision; scientific margins and
-the playable incumbent are unchanged.
+representation is now narrowed to the subsequent
+[selected continental-interior pilot](thermal-boundary-discriminator.md#selected-continental-interior-pilot):
+replace cap fraction with nearest original-water angular distance, keeping
+one scalar, six coefficients and the existing thermal owner. This is an unrun
+design, not a new temperature law admitted to production. It has one frozen
+fit/readback and, only if scientifically viable, the existing four-map coupled
+scorecard. Scientific margins and the playable incumbent are unchanged.
 
 The nine-panel Foundation support atlas (`foundation-support-atlas-20261003/index.html`)
 now exposes three representative cases from that admitted observation. Actual

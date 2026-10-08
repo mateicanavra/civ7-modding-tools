@@ -1,7 +1,8 @@
 # Native Map Controls
 
-Status: active Earthlike land-response work; the bounded geographic pilot is
-complete and rejected. Ocean-solver work is not its
+Status: active Earthlike land-response work; the cap-fraction pilot is
+complete and rejected, and one continental-interior pilot is selected but
+unrun. Ocean-solver work is not its
 automatic prerequisite. The [product relevance reset](thermal-boundary-discriminator.md#next-product-sized-domino)
 supersedes the intermediate current-owner queue below. The goal is a believable,
 playable procedural climate, not an independently accurate ocean simulator.
@@ -25,7 +26,14 @@ beyond same-row training exposure. Both limitations matter; a calibration-only
 expansion cannot resolve the supported collisions. The next decision belongs
 to land-response representation design, not another coefficient fit, automatic
 wind feedback or ocean campaign. The audit does not identify a unique missing
-physical mechanism or admit a replacement model.
+physical mechanism or admit a replacement model. The subsequent
+[selected continental-interior pilot](thermal-boundary-discriminator.md#selected-continental-interior-pilot)
+replaces the cap fraction with nearest original-water angular distance,
+retaining six coefficients and the existing thermal owner. It can distinguish
+broad interiors without adding SST/wind coupling. One frozen training-only
+fit is the next discriminator; no fit, production edit or deployment is
+claimed. A scientific survivor immediately receives the existing four-map
+baseline-demand/basin/incision/ecology scorecard, not another ocean prerequisite.
 
 Native integration,
 certified C3 terrain/network evolution, coherent-reach restoration, stock lake
