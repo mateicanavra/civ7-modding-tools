@@ -3,6 +3,7 @@ import { defineDomainSubdomain } from "@swooper/mapgen-core/authoring/contracts"
 import ComputeAtmosphericCirculationContract from "./ops/compute-atmospheric-circulation/contract.js";
 import ComputeAtmosphericAggregateContract from "./ops/compute-atmospheric-aggregate/contract.js";
 import ComputeMoistureAggregateContract from "./ops/compute-moisture-aggregate/contract.js";
+import ComputeMoistureForcingContract from "./ops/compute-moisture-forcing/contract.js";
 import ComputeSeasonalSamplingContract from "./ops/compute-seasonal-sampling/contract.js";
 import ComputeClimateDiagnosticsContract from "./ops/compute-climate-diagnostics/contract.js";
 import ComputeEvaporationSourcesContract from "./ops/compute-evaporation-sources/contract.js";
@@ -22,6 +23,7 @@ const climate = defineDomainSubdomain({
     computeSeasonalSampling: ComputeSeasonalSamplingContract,
     computeAtmosphericAggregate: ComputeAtmosphericAggregateContract,
     computeMoistureAggregate: ComputeMoistureAggregateContract,
+    computeMoistureForcing: ComputeMoistureForcingContract,
     computeRadiativeForcing: ComputeRadiativeForcingContract,
     computeThermalState: ComputeThermalStateContract,
     computePressureField: ComputePressureFieldContract,
