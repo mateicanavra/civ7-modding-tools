@@ -24,8 +24,8 @@ const ApplyAlbedoFeedbackContract = defineOp({
       height: Type.Integer({ minimum: 1, description: "Tile grid height (rows)." }),
       /** Land mask per tile (1=land, 0=water). */
       landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
-      /** Rainfall (0..200) per tile (used as a precipitation signal for snow accumulation). */
-      rainfall: TypedArraySchemas.u8({ description: "Rainfall (0..200) per tile." }),
+      /** Float model precipitation used by the unchanged bounded snow accumulation law. */
+      precipitation: TypedArraySchemas.f32({ description: "Finite nonnegative model precipitation per tile without codec saturation." }),
       /** Base surface temperature proxy (C), before albedo feedback. */
       surfaceTemperatureC: TypedArraySchemas.f32({
         description: "Base surface temperature proxy (C).",

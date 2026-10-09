@@ -58,6 +58,7 @@ describe("retained Earth-coast baseline evidence", () => {
           expect(sha256(bytes)).toBe(file.sha256);
           const capture = JSON.parse(bytes.toString("utf8")) as Capture;
           captures.push(capture);
+          expect(capture.format).toBe("earth-coast-flat-relief-baseline-capture-v3");
           expect(capture.sourcePayloadSha256).toBe(
             "1048d5d628efcaca1c2943f246603caacaf2bc2087530538c8d67466149c5485"
           );
@@ -72,6 +73,9 @@ describe("retained Earth-coast baseline evidence", () => {
           expect(capture.semantics.aggregation).toContain("not the observation subset");
           expect(capture.registration.longitude).toContain("unqualified");
           expect(capture.semantics.water).toContain("including enclosed water");
+          expect(capture.fields["topography.externalWaterMask"]!.values).toEqual(
+            capture.fields["topography.landMask"]!.values.map((land) => land === 0 ? 1 : 0)
+          );
           expect(capture.fields["thermalField.surfaceTemperatureC"]!.authority).toBe(
             `${climateArtifacts.thermalField.id}.surfaceTemperatureC`
           );
@@ -80,10 +84,25 @@ describe("retained Earth-coast baseline evidence", () => {
           expect(capture.fields["baselineClimateField.potentialDemand"]!.units).toContain(
             "not open-water evaporation"
           );
+          expect(capture.fields["baselineClimateField.potentialDemand"]!.units).toContain(
+            "including source water"
+          );
+          expect(capture.fields["baselineClimateField.precipitation"]!.storage).toBe("f32");
+          expect(capture.fields["baselineClimateField.surfaceWetness"]!.storage).toBe("f32");
+          expect(capture.fields["baselineClimateField.rainfallCodec"]!.storage).toBe("u8");
+          expect(capture.fields["baselineClimateField.precipitation"]!.units).toContain("not mm/year");
+          expect(capture.fields["baselineClimateField.surfaceWetness"]!.units).toContain("not atmospheric humidity");
+          expect(capture.fields["baselineClimateField.rainfallCodec"]!.units).toContain("not physical precipitation supply");
+          expect(capture.fields["baselineClimateField.rainfall"]).toBeUndefined();
+          expect(capture.fields["baselineClimateField.humidity"]).toBeUndefined();
+          expect(capture.semantics.moisture).toContain("No empirical Earth precipitation reference");
+          expect(capture.fields["seasonalAmplitudes.precipitationAmplitude"]!.storage).toBe("f32");
+          expect(capture.fields["seasonalAmplitudes.surfaceWetnessAmplitude"]!.storage).toBe("f32");
           expect(capture.fields["topography.elevation"]!.units).toContain("not metres");
           expect(capture.fields["thermalResponse.annualClippingDeltaC"]).toBeDefined();
           for (let phase = 0; phase < 24; phase++) {
-            expect(capture.fields[`seasonalIntegration.rainfall.${phase}`]).toBeDefined();
+            expect(capture.fields[`seasonalIntegration.precipitation.${phase}`]!.storage).toBe("f32");
+            expect(capture.fields[`seasonalIntegration.surfaceWetness.${phase}`]!.storage).toBe("f32");
             expect(capture.fields[`seasonalIntegration.potentialDemand.${phase}`]).toBeDefined();
           }
           const constructors = {
@@ -112,8 +131,8 @@ describe("retained Earth-coast baseline evidence", () => {
             season++
           ) {
             for (const name of [
-              "Rainfall",
-              "Humidity",
+              "Precipitation",
+              "SurfaceWetness",
               "SurfaceTemperatureC",
               "Pressure",
               "WindU",
@@ -133,8 +152,8 @@ describe("retained Earth-coast baseline evidence", () => {
       expect(earth.setup).toEqual(aquaplanet.setup);
       expect(earth.authoredMapConfig).toEqual(aquaplanet.authoredMapConfig);
       expect(earth.compiledConfigs).toEqual(aquaplanet.compiledConfigs);
-      expect(earth.fields["baselineClimateField.rainfall"]!.sha256).not.toBe(
-        aquaplanet.fields["baselineClimateField.rainfall"]!.sha256
+      expect(earth.fields["baselineClimateField.precipitation"]!.sha256).not.toBe(
+        aquaplanet.fields["baselineClimateField.precipitation"]!.sha256
       );
       expect(aquaplanet.fields["shelf.shelfMask"]!.values.every((value) => value === 0)).toBe(true);
       expect(aquaplanet.fields["thermalField.surfaceTemperatureC"]!.values).toEqual(
@@ -145,6 +164,9 @@ describe("retained Earth-coast baseline evidence", () => {
           (value) => Number.isFinite(value) && value >= 0
         )
       ).toBe(true);
+      expect(aquaplanet.fields["baselineClimateField.potentialDemand"]!.values.some(
+        (value) => value > 0
+      )).toBe(true);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

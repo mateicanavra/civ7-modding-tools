@@ -10,8 +10,8 @@ const ComputeLocalRunoffContract = defineOp({
       width: Type.Integer({ minimum: 1 }),
       height: Type.Integer({ minimum: 1 }),
       externalWaterMask: TypedArraySchemas.u8(),
-      rainfall: TypedArraySchemas.u8(),
-      humidity: TypedArraySchemas.u8(),
+      precipitation: TypedArraySchemas.f32({ description: "Finite nonnegative model precipitation, including fractional values above codec saturation." }),
+      surfaceWetness: TypedArraySchemas.f32({ description: "Empirical surface wetness in 0..1." }),
     },
     { additionalProperties: false }
   ),
@@ -19,7 +19,7 @@ const ComputeLocalRunoffContract = defineOp({
     {
       runoff: Type.Array(Type.Number({ minimum: 0 }), {
         description:
-          "Map-grid Number-precision precipitation-attributed supply on all finite ground; zero on prescribed external water and never greater than local rainfall.",
+          "Map-grid Number-precision precipitation-attributed supply on all finite ground; zero on prescribed external water and never greater than local model precipitation.",
       }),
     },
     { additionalProperties: false }

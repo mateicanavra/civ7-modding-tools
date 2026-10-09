@@ -14,7 +14,7 @@ const ComputeBasinNetworkContract = defineOp({
     externalWaterMask: TypedArraySchemas.u8({ description: "1=prescribed external water, 0=finite ground." }),
     externalWaterHead: Type.Number({ description: "Uniform finite receiving head; external bathymetry is not hydraulic terrain." }),
     geometry: Type.Object({ rawReceiver: RawReceiverSchema, plateauId: DrainagePlateauIdSchema, leafId: DrainageLeafIdSchema, nodes: BasinNodesSchema, roots: BasinRootsSchema, saddles: BasinSaddlesSchema, catchmentCells: BasinCatchmentCellsSchema, externalCatchmentCells: ExternalCatchmentCellsSchema, hypsometry: BasinHypsometrySchema }, { additionalProperties: false }),
-    localRunoff: Type.Array(Type.Number({ minimum: 0 })), rainfall: TypedArraySchemas.u8(), potentialDemand: TypedArraySchemas.f32(),
+    localRunoff: Type.Array(Type.Number({ minimum: 0 })), precipitation: TypedArraySchemas.f32({ description: "Finite nonnegative model precipitation; fractional and above-codec values remain physical supply." }), potentialDemand: TypedArraySchemas.f32(),
   }, { additionalProperties: false }),
   output: Type.Union([
     Type.Object({ status: Type.Literal("unsupported-external-inundation"), witness: Type.Object({

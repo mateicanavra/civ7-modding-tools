@@ -1,19 +1,16 @@
 import { describe, expect, it } from "bun:test";
-import {
-  RIVER_CLASS_MAJOR,
-  RIVER_CLASS_MINOR,
-} from "../../../../../../src/domain/hydrology/modules/hydrography/model/policy/river-class.js";
 import hydrology from "../../../../../../src/domain/hydrology/router.js";
 import { TEST_MAP_SIZE } from "../../../../../setup.js";
 
 const { computeLandWaterBudget, computePotentialDemand } = hydrology.climate.ops;
 const strategy = computeLandWaterBudget.defaultConfig;
+const RIVER_CLASS_MINOR = 1, RIVER_CLASS_MAJOR = 2;
 const parameters = {
   tMinC: 0,
   tMaxC: 35,
   petBase: 18,
   petTemperatureWeight: 75,
-  humidityDampening: 0.55,
+  wetnessDampening: 0.55,
 } as const;
 
 function indexOf(x: number, y: number, width: number): number {
@@ -24,8 +21,8 @@ describe("hydrology/compute-land-water-budget riparian moisture", () => {
   it("orders major, minor, and dry land while keeping water outside the terrestrial budget", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
-    const rainfall = new Uint8Array(size).fill(40);
-    const humidity = new Uint8Array(size).fill(100);
+    const precipitation = new Float32Array(size).fill(40.25);
+    const surfaceWetness = new Float32Array(size).fill(100 / 255);
     const surfaceTemperatureC = new Float32Array(size).fill(20);
     const landMask = new Uint8Array(size).fill(1);
     const riverClass = new Uint8Array(size);
@@ -42,37 +39,38 @@ describe("hydrology/compute-land-water-budget riparian moisture", () => {
     riverClass[waterTile] = RIVER_CLASS_MAJOR;
     riverClass[saturatedTile] = RIVER_CLASS_MAJOR;
     landMask[waterTile] = 0;
-    rainfall[saturatedTile] = 200;
-    humidity[saturatedTile] = 255;
+    precipitation[saturatedTile] = 400.25;
+    surfaceWetness[saturatedTile] = 1;
 
     const input = {
       width,
       height,
       landMask,
-      rainfall,
-      humidity,
+      precipitation,
+      surfaceWetness,
       pet: computePotentialDemand.run(
-        { width, height, humidity, surfaceTemperatureC, parameters },
+        { width, height, surfaceWetness, surfaceTemperatureC, parameters },
         computePotentialDemand.defaultConfig
       ).pet,
       riverClass,
     };
-    const rainfallBefore = new Uint8Array(rainfall);
-    const humidityBefore = new Uint8Array(humidity);
+    const precipitationBefore = new Float32Array(precipitation);
+    const wetnessBefore = new Float32Array(surfaceWetness);
     const riverClassBefore = new Uint8Array(riverClass);
     const first = computeLandWaterBudget.run(input, strategy);
     const second = computeLandWaterBudget.run(input, strategy);
 
-    expect(first.effectiveMoisture[dryTile]).toBeCloseTo(75, 5);
-    expect(first.effectiveMoisture[minorTile]).toBeCloseTo(79, 5);
-    expect(first.effectiveMoisture[majorTile]).toBeCloseTo(83, 5);
-    expect(first.effectiveMoisture[mixedTierTile]).toBeCloseTo(83, 5);
+    const baseMoisture = 40.25 + 0.35 * (255 * surfaceWetness[dryTile]!);
+    expect(first.effectiveMoisture[dryTile]).toBe(Math.fround(baseMoisture));
+    expect(first.effectiveMoisture[minorTile]).toBe(Math.fround(baseMoisture + 4));
+    expect(first.effectiveMoisture[majorTile]).toBe(Math.fround(baseMoisture + 8));
+    expect(first.effectiveMoisture[mixedTierTile]).toBe(Math.fround(baseMoisture + 8));
     expect(first.effectiveMoisture[waterTile]).toBe(0);
-    expect(first.effectiveMoisture[saturatedTile]).toBeCloseTo(297.25, 5);
-    const expectedPet = (18 + 75 * (20 / 35)) * (1 - 0.55 * (100 / 255));
+    expect(first.effectiveMoisture[saturatedTile]).toBe(497.5);
+    const expectedPet = (18 + 75 * (20 / 35)) * (1 - 0.55 * surfaceWetness[dryTile]!);
     expect(input.pet[waterTile]).toBe(expectedPet);
     expect(first.pet[dryTile]).toBeCloseTo(expectedPet, 5);
-    expect(first.aridityIndex[dryTile]).toBeCloseTo(expectedPet / (expectedPet + 41), 5);
+    expect(first.aridityIndex[dryTile]).toBe(Math.fround(expectedPet / (expectedPet + 41.25)));
     expect(first.pet[minorTile]).toBe(first.pet[dryTile]);
     expect(first.pet[majorTile]).toBe(first.pet[dryTile]);
     expect(first.aridityIndex[minorTile]).toBe(first.aridityIndex[dryTile]);
@@ -82,8 +80,8 @@ describe("hydrology/compute-land-water-budget riparian moisture", () => {
     expect(first.effectiveMoisture).toEqual(second.effectiveMoisture);
     expect(first.pet).toEqual(second.pet);
     expect(first.aridityIndex).toEqual(second.aridityIndex);
-    expect(rainfall).toEqual(rainfallBefore);
-    expect(humidity).toEqual(humidityBefore);
+    expect(precipitation).toEqual(precipitationBefore);
+    expect(surfaceWetness).toEqual(wetnessBefore);
     expect(riverClass).toEqual(riverClassBefore);
   });
 
@@ -102,8 +100,8 @@ describe("hydrology/compute-land-water-budget riparian moisture", () => {
         width,
         height,
         landMask,
-        rainfall: new Uint8Array(size),
-        humidity: new Uint8Array(size),
+        precipitation: new Float32Array(size),
+        surfaceWetness: new Float32Array(size),
         pet: new Array<number>(size).fill(0),
         riverClass,
       },

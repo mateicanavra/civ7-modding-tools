@@ -23,7 +23,7 @@ export function validateNetworkInput(input: NetworkInput, neighbors: readonly nu
   const landMask = Uint8Array.from(externalWaterMask, prescribed => prescribed === 0 ? 1 : 0);
   const size = width * height;
   requireValid(Number.isSafeInteger(width) && width > 0 && Number.isSafeInteger(height) && height > 0 && Number.isSafeInteger(size), "grid dimensions");
-  for (const [name, values] of Object.entries({ ground, externalWaterMask, localRunoff: input.localRunoff, rainfall: input.rainfall, potentialDemand: input.potentialDemand, rawReceiver: g.rawReceiver, plateauId: g.plateauId, leafId: g.leafId })) {
+  for (const [name, values] of Object.entries({ ground, externalWaterMask, localRunoff: input.localRunoff, precipitation: input.precipitation, potentialDemand: input.potentialDemand, rawReceiver: g.rawReceiver, plateauId: g.plateauId, leafId: g.leafId })) {
     requireValid(values.length === size, `${name} cardinality`);
   }
   const validCell = (cell: number) => Number.isSafeInteger(cell) && cell >= 0 && cell < size;
@@ -31,7 +31,7 @@ export function validateNetworkInput(input: NetworkInput, neighbors: readonly nu
   const indegree = new Int32Array(size), landCells: number[] = [];
   for (let cell = 0; cell < size; cell++) {
     requireValid(Number.isFinite(ground[cell]) && ground[cell]! >= -32768 && ground[cell]! <= 32767, `finite precise ground at ${cell}`);
-    requireValid(Number.isInteger(input.rainfall[cell]) && input.rainfall[cell]! >= 0 && input.rainfall[cell]! <= 255, `baseline precipitation at ${cell}`);
+    requireValid(Number.isFinite(input.precipitation[cell]) && input.precipitation[cell]! >= 0, `baseline precipitation at ${cell}`);
     for (const [name, value] of [["localRunoff", input.localRunoff[cell]!], ["potentialDemand", input.potentialDemand[cell]!]] as const) {
       requireValid(finite(value, `${name} at ${cell}`) >= 0, `negative ${name} at ${cell}`);
     }

@@ -19,7 +19,6 @@ import { createSurfaceWaterFixture } from "../../../../morphology/features/fixtu
 const climate = hydrology.climate.ops;
 const cryosphere = hydrology.cryosphere.ops;
 const climateConfig = {
-  refinePrecipitation: climate.refinePrecipitation.defaultConfig,
   applyAlbedoFeedback: cryosphere.applyAlbedoFeedback.defaultConfig,
   computeCryosphereState: cryosphere.computeCryosphereState.defaultConfig,
   computeLandWaterBudget: climate.computeLandWaterBudget.defaultConfig,
@@ -67,6 +66,10 @@ function runSurfaceConsumers(initiallyWet = false) {
     { ...thermalInput, landMask: incorrectMarineMask }, climate.computeThermalState.defaultConfig
   );
   const marineTreatment = marineThermal.annualSurfaceTemperatureC[wetCell]!;
+  const precipitation = new Float32Array(size).fill(180.25);
+  const surfaceWetness = new Float32Array(size).fill(150 / 255);
+  const rainfallCodec = new Uint8Array(size).fill(180);
+  const forcingBefore = structuredClone({ precipitation, surfaceWetness, rainfallCodec });
 
   withMapContextExecutionForTest(context, (stepContext) => {
     publishTestArtifact(stepContext, erosionArtifacts.topography, topography);
@@ -77,10 +80,11 @@ function runSurfaceConsumers(initiallyWet = false) {
       sedimentDepth: new Float32Array(size).fill(0.5),
     });
     publishTestArtifact(stepContext, climateArtifacts.baselineClimateField, {
-      rainfall: new Uint8Array(size).fill(180),
-      humidity: new Uint8Array(size).fill(150),
+      precipitation,
+      surfaceWetness,
+      rainfallCodec,
       potentialDemand: new Float32Array(size).fill(100),
-      demandParameters: { tMinC: -10, tMaxC: 30, petBase: 40, petTemperatureWeight: 100, humidityDampening: 0.3 },
+      demandParameters: { tMinC: -10, tMaxC: 30, petBase: 40, petTemperatureWeight: 100, wetnessDampening: 0.3 },
     });
     publishTestArtifact(stepContext, climateArtifacts.thermalField, {
       surfaceTemperatureC: baselineTemperature,
@@ -89,7 +93,6 @@ function runSurfaceConsumers(initiallyWet = false) {
       windU: new Int8Array(size), windV: new Int8Array(size),
     });
     ClimateRefineStep.run(stepContext, climateConfig, {
-      refinePrecipitation: climate.refinePrecipitation.run,
       applyAlbedoFeedback: (...[input, config]: Parameters<typeof cryosphere.applyAlbedoFeedback.run>) => {
         calls.push("albedo");
         expect(input.surfaceTemperatureC).toBe(baselineTemperature);
@@ -120,6 +123,9 @@ function runSurfaceConsumers(initiallyWet = false) {
         calls.push("pedology");
         expect(input.landMask).toEqual(expectedExposure);
         expect(input.elevation).toBe(topography.elevation);
+        expect(input.precipitation).toEqual(precipitation);
+        expect(input.surfaceWetness).toEqual(surfaceWetness);
+        expect(Object.hasOwn(input, "rainfallCodec")).toBe(false);
         return ecology.pedology.ops.classifyPedology.run(input, config);
       },
     }, buildStepTestDependencies(PedologyStep, stepContext));
@@ -135,6 +141,7 @@ function runSurfaceConsumers(initiallyWet = false) {
 
   expect(calls).toEqual(["albedo", "water-budget", "pedology", "biomes"]);
   expect(fixture).toEqual(before);
+  expect({ precipitation, surfaceWetness, rainfallCodec }).toEqual(forcingBefore);
   expect(baselineTemperature[wetCell]).toBe(baselineTemperature[fixture.dryCell]);
   if (!initiallyWet) expect(baselineTemperature[wetCell]).toBeLessThan(marineTreatment);
   else expect(baselineTemperature[wetCell]).toBe(marineTreatment);

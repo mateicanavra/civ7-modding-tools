@@ -28,6 +28,9 @@ const terrainWindIndicesStrategy = createStrategy(
       for (let y = 0; y < height; y += 1) {
         for (let x = 0; x < width; x += 1) {
           const index = y * width + x;
+          if (!Number.isFinite(input.precipitation[index]) || input.precipitation[index]! < 0) {
+            throw new RangeError(`Climate diagnostics require nonnegative finite precipitation at tile ${index}.`);
+          }
           if (input.landMask[index] === 0) continue;
 
           continentalityIndex[index] = clamp01(
@@ -46,10 +49,10 @@ const terrainWindIndicesStrategy = createStrategy(
             config.barrierSteps,
             { barrierElevationM: config.barrierElevationM }
           );
-          const rainfall = (input.rainfall[index] ?? 0) / 200;
+          const precipitation = input.precipitation[index]! / 200;
           rainShadowIndex[index] =
             barrierDistance > 0
-              ? clamp01((barrierDistance / config.barrierSteps) * (1 - rainfall))
+              ? clamp01((barrierDistance / config.barrierSteps) * (1 - precipitation))
               : 0;
           convergenceIndex[index] = clamp01(
             Math.max(0, -(divergence[index] ?? 0)) / config.convergenceNormalization

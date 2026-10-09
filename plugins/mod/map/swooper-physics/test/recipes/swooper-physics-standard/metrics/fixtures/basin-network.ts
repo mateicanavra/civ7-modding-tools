@@ -10,7 +10,7 @@ export function basinCapture() {
       landMask: Uint8Array.of(0, 1, 1), externalWaterMask: Uint8Array.of(1, 0, 0), exposedLandMask: Uint8Array.of(0, 1, 0), elevation: Int16Array.of(-1, 2, 0),
       plannedLakeMask: Uint8Array.of(0, 0, 1), riverClass: Uint8Array.of(0, 2, 0),
       flowDir: Int32Array.of(-1, 0, -2), terminalType: Uint8Array.of(0, 1, 1),
-      mountainMask: new Uint8Array(3), volcanoMask: new Uint8Array(3), baselineRainfall: Uint8Array.of(0, 10, 10),
+      mountainMask: new Uint8Array(3), volcanoMask: new Uint8Array(3), baselineRainfall: Float32Array.of(0, 10, 10),
       physicalHydrology: {
         model: "certified-sill-spill" as const,
         runoff: [0, 2, 3], discharge: [0, 11, 0], potentialDemand: Float32Array.of(0, 1, 1),
@@ -58,7 +58,7 @@ export function quantizedCapture() {
     landMask: Uint8Array.of(0, 1, 1, 1), externalWaterMask: Uint8Array.of(1, 0, 0, 0), exposedLandMask: Uint8Array.of(0, 1, 0, 1), elevation: Int16Array.of(-1, 4, 0, 2),
     plannedLakeMask: Uint8Array.of(0, 0, 1, 0), riverClass: new Uint8Array(4),
     flowDir: Int32Array.of(-1, 2, -2, 2), terminalType: Uint8Array.of(0, 3, 3, 3),
-    mountainMask: new Uint8Array(4), volcanoMask: new Uint8Array(4), baselineRainfall: Uint8Array.of(0, 0, 10, 0),
+    mountainMask: new Uint8Array(4), volcanoMask: new Uint8Array(4), baselineRainfall: Float32Array.of(0, 0, 10, 0),
   });
   Object.assign(capture.model.physicalHydrology, {
     runoff: [0, 1, 1, 1], discharge: [0, 1, 0, 1], potentialDemand: Float32Array.of(0, 0, 9, 5),

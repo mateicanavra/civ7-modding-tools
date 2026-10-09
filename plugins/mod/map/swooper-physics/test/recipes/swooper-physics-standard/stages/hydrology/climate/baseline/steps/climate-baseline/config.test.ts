@@ -22,11 +22,8 @@ const setup = admitMapSetup({
 function normalizeDryness(dryness: "wet" | "mix") {
   if (!ClimateBaselineStep.normalize) throw new Error("Climate baseline must normalize dryness.");
   const stageConfig = createStandardRecipeTestConfig()["hydrology-climate-baseline"];
-  const precipitation = stageConfig["climate-baseline"].computePrecipitation;
-  if (precipitation.strategy !== "vector") {
-    throw new Error("Climate baseline must author vector precipitation.");
-  }
-  precipitation.config.rainfallScale = 100;
+  const forcing = stageConfig["climate-baseline"].computeMoistureForcing;
+  forcing.config.wetnessScale = 2;
   stageConfig.knobs.dryness = dryness;
   stageConfig.knobs.temperature = "temperate";
   stageConfig.knobs.seasonality = "normal";
@@ -79,7 +76,7 @@ describe("hydrology climate-baseline authoring", () => {
         parameters.tMaxC,
         parameters.petBase,
         parameters.petTemperatureWeight,
-        parameters.humidityDampening,
+        parameters.wetnessDampening,
       ]).toEqual(expected);
       expect(refine.computeLandWaterBudget.config).toEqual({});
       expect(refine.computePotentialDemand.config).toEqual({});
@@ -101,17 +98,15 @@ describe("hydrology climate-baseline authoring", () => {
     expect(config.potentialDemand).toEqual(normalizeDryness("wet").potentialDemand);
   });
 
-  it("scales authored rainfall upward for the wet posture", () => {
+  it("scales marine supply once for the wet posture without changing rates or demand", () => {
     const neutral = normalizeDryness("mix");
     const wet = normalizeDryness("wet");
-    if (neutral.computePrecipitation.strategy !== "vector") {
-      throw new Error("Climate baseline must retain vector precipitation.");
-    }
-    if (wet.computePrecipitation.strategy !== "vector") {
-      throw new Error("Climate baseline must retain vector precipitation.");
-    }
-
-    expect(neutral.computePrecipitation.config.rainfallScale).toBe(100);
-    expect(wet.computePrecipitation.config.rainfallScale).toBeCloseTo(115, 6);
+    expect(neutral.computeMoistureForcing.strategy).toBe("source-limited");
+    expect(neutral.computeMoistureForcing.config.wetnessScale).toBe(2);
+    expect(wet.computeMoistureForcing).toEqual({
+      ...neutral.computeMoistureForcing,
+      config: { ...neutral.computeMoistureForcing.config, wetnessScale: 2.3 },
+    });
+    expect(wet.potentialDemand).toEqual(neutral.potentialDemand);
   });
 });

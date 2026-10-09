@@ -18,16 +18,16 @@ export const artifact = defineArtifact({
       effectiveMoisture: TypedArraySchemas.f32({
         cardinality: "map-grid",
         description:
-          "Land-only rainfall + 0.35*humidity + radius-1 wrapped-hex river bonus (minor=4, major=8); the authored rainfall and humidity maxima yield 297.25, and water remains 0.",
+          "Land-only model precipitation + 0.35*255*surfaceWetness + radius-1 wrapped-hex river bonus (minor=4, major=8); no atmospheric rain is added, and water remains 0.",
       }),
       pet: TypedArraySchemas.f32({
         cardinality: "map-grid",
         description:
-          "Potential evapotranspiration proxy in rainfall units used to distinguish water demand from supply.",
+          "Land-only empirical potential demand in H=1 rainfall-index-equivalent units, recomputed at the refined annual-temperature vintage, not actual evapotranspiration or the baseline weighted phase demand.",
       }),
       aridityIndex: TypedArraySchemas.f32({
         cardinality: "map-grid",
-        description: "Dryness ratio derived from precipitation and evapotranspiration (0..1).",
+        description: "Dryness ratio derived from float model precipitation and refined empirical potential demand (0..1).",
       }),
       freezeIndex: TypedArraySchemas.f32({
         cardinality: "map-grid",

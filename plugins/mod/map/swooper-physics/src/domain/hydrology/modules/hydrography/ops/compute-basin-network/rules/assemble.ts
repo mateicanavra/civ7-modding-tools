@@ -7,7 +7,7 @@ const flux = (incomingOverflow: number, dryRunoff: number, wetPrecipitation: num
 
 /** Recomputes all transport from original rows on the final, disjoint partition. */
 export function assembleNetwork(input: NetworkInput, neighbors: readonly number[][], solved: Solved) {
-  const { elevation: z, geometry: g, externalWaterMask, localRunoff: runoff, rainfall, potentialDemand: demand } = input;
+  const { elevation: z, geometry: g, externalWaterMask, localRunoff: runoff, precipitation, potentialDemand: demand } = input;
   const landMask = Uint8Array.from(externalWaterMask, prescribed => prescribed === 0 ? 1 : 0);
   const size = z.length, wetMask = new Uint8Array(size), bodyId = new Int32Array(size), componentId = new Int32Array(size);
   const waterSurface = Array.from(z, (ground, cell) => externalWaterMask[cell] ? input.externalWaterHead : ground), receiver = Int32Array.from(g.rawReceiver), dryDischarge = new Array<number>(size).fill(0);
@@ -69,7 +69,7 @@ export function assembleNetwork(input: NetworkInput, neighbors: readonly number[
     if (!vertex.component) requireValid(vertex.targetCell === g.rawReceiver[vertex.cell], "ordinary raw tributary changed");
   }
   const order = vertices.flatMap((_, index) => indegree[index] === 0 ? [index] : []);
-  const absolute = sum(Array.from({ length: size }, (_, cell) => landMask[cell] ? runoff[cell]! + rainfall[cell]! + demand[cell]! : 0));
+  const absolute = sum(Array.from({ length: size }, (_, cell) => landMask[cell] ? runoff[cell]! + precipitation[cell]! + demand[cell]! : 0));
   const epsilon = (8 * size + 8 * vertices.length + 1) * Number.EPSILON;
   requireValid(epsilon < 1, "unsupported accumulation cardinality");
   const roundoffBound = finite(3 * epsilon / (1 - epsilon) * absolute, "roundoff bound");
@@ -84,7 +84,7 @@ export function assembleNetwork(input: NetworkInput, neighbors: readonly number[
     const vertex = vertices[order[index]!]!, component = vertex.component;
     if (component) {
       const dry = component.memberCells.filter(cell => !wetMask[cell]), wet = component.memberCells.filter(cell => wetMask[cell]);
-      component.flux = flux(vertex.incoming, sum(dry.map(cell => runoff[cell]!)), sum(wet.map(cell => rainfall[cell]!)), sum(wet.map(cell => demand[cell]!)));
+      component.flux = flux(vertex.incoming, sum(dry.map(cell => runoff[cell]!)), sum(wet.map(cell => precipitation[cell]!)), sum(wet.map(cell => demand[cell]!)));
       vertex.outflow = component.outflow;
       close(component.flux.balance, component.outflow + component.unresolvedResidual, `component ${component.componentId} balance`);
     } else { vertex.outflow = finite(vertex.incoming + runoff[vertex.cell]!, "dry discharge"); if (vertex.targetCell >= 0) dryDischarge[vertex.cell] = vertex.outflow; }
@@ -123,7 +123,7 @@ export function assembleNetwork(input: NetworkInput, neighbors: readonly number[
   for (const pool of pools) {
     const incoming = sum(vertices.filter(vertex => vertex.component?.poolId !== pool.poolId && vertex.targetCell >= 0 && solved.owner[vertex.targetCell] === pool.poolId && vertex.component).map(vertex => vertex.outflow));
     const dry = pool.catchmentCells.filter(cell => !wetMask[cell]), wet = pool.catchmentCells.filter(cell => wetMask[cell]);
-    const recomputed = flux(incoming, sum(dry.map(cell => runoff[cell]!)), sum(wet.map(cell => rainfall[cell]!)), sum(wet.map(cell => demand[cell]!)));
+    const recomputed = flux(incoming, sum(dry.map(cell => runoff[cell]!)), sum(wet.map(cell => precipitation[cell]!)), sum(wet.map(cell => demand[cell]!)));
     for (const key of ["incomingOverflow", "dryRunoff", "wetPrecipitation", "wetDemand", "balance"] as const) close(recomputed[key], pool.flux[key], `pool ${pool.poolId} ${key}`);
     if (pool.closure?.resolution === "shoreline-quantization") {
       const closure = pool.closure;
@@ -142,7 +142,7 @@ export function assembleNetwork(input: NetworkInput, neighbors: readonly number[
     for (const id of component.bodyIds) {
       const body = bodyById.get(id)!;
       for (const cell of body.wetCells) internalAt.set(cell, internal.length);
-      body.flux = flux(sum(body.wetCells.map(cell => incomingAt[cell]!)), 0, sum(body.wetCells.map(cell => rainfall[cell]!)), sum(body.wetCells.map(cell => demand[cell]!)));
+      body.flux = flux(sum(body.wetCells.map(cell => incomingAt[cell]!)), 0, sum(body.wetCells.map(cell => precipitation[cell]!)), sum(body.wetCells.map(cell => demand[cell]!)));
       internal.push({ cells: body.wetCells, body, net: body.flux.balance - body.unresolvedResidual, parent: -1, edge: null });
     }
     for (const cell of component.memberCells) if (!wetMask[cell]) {
@@ -202,7 +202,7 @@ export function assembleNetwork(input: NetworkInput, neighbors: readonly number[
     for (const vertex of internal) {
       const members = new Set(vertex.cells);
       let balance = vertex.body
-        ? sum(vertex.cells.map(cell => rainfall[cell]! - demand[cell]! + incomingAt[cell]!)) - vertex.body.unresolvedResidual
+        ? sum(vertex.cells.map(cell => precipitation[cell]! - demand[cell]! + incomingAt[cell]!)) - vertex.body.unresolvedResidual
         : runoff[vertex.cells[0]!]! + incomingAt[vertex.cells[0]!]! - (!component.bodyIds.length && vertex.cells[0] === component.anchorCell ? component.unresolvedResidual : 0);
       for (const transfer of transfers) if (transfer.componentId === component.componentId) {
         if (members.has(transfer.cellA)) balance -= transfer.signedDischarge;

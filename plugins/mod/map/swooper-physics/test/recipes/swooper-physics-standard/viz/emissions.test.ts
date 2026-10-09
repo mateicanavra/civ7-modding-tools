@@ -36,7 +36,8 @@ describe("standard pipeline viz emissions", () => {
       "map.morphology.coasts.sourceCoastMask",
       "map.morphology.coasts.coastRingMask",
       "morphology.mountains.mountainMask",
-      "hydrology.climate.rainfall",
+      "hydrology.climate.precipitation",
+      "hydrology.climate.surfaceWetness",
       "hydrology.climate.baselineSurfaceTemperature",
       "hydrology.climate.indices.surfaceTemperatureC",
       "hydrology.hydrography.discharge",
@@ -288,11 +289,11 @@ describe("standard pipeline viz emissions", () => {
       fertilityMetas?.some((m) => m?.visibility === "default" && m?.role === "centroids")
     ).toBe(true);
 
-    const rainfallAmpMetas = metasByKey.get("hydrology.climate.seasonality.rainfallAmplitude");
-    expect(rainfallAmpMetas?.some((m) => m?.visibility === "default")).toBe(true);
+    const precipitationAmpMetas = metasByKey.get("hydrology.climate.seasonality.precipitationAmplitude");
+    expect(precipitationAmpMetas?.some((m) => m?.visibility === "default")).toBe(true);
 
-    const humidityAmpMetas = metasByKey.get("hydrology.climate.seasonality.humidityAmplitude");
-    expect(humidityAmpMetas?.some((m) => m?.visibility === "default")).toBe(true);
+    const wetnessAmpMetas = metasByKey.get("hydrology.climate.seasonality.surfaceWetnessAmplitude");
+    expect(wetnessAmpMetas?.some((m) => m?.visibility === "default")).toBe(true);
 
     const snowMetas = metasByKey.get("hydrology.cryosphere.snowCover");
     expect(snowMetas?.some((m) => m?.visibility === "default")).toBe(true);
@@ -300,19 +301,19 @@ describe("standard pipeline viz emissions", () => {
     const seaIceMetas = metasByKey.get("hydrology.cryosphere.seaIceCover");
     expect(seaIceMetas?.some((m) => m?.visibility === "default")).toBe(true);
 
-    const rainfallMetas = metasByKey.get("hydrology.climate.rainfall");
-    expect(rainfallMetas?.some((m) => m?.visibility === "default")).toBe(true);
+    const precipitationMetas = metasByKey.get("hydrology.climate.precipitation");
+    expect(precipitationMetas?.some((m) => m?.visibility === "default")).toBe(true);
     expect(
-      rainfallMetas?.some(
+      precipitationMetas?.some(
         (m) =>
           m?.role === "centroids" &&
-          m?.label === "Rainfall (Baseline)" &&
+          m?.label === "Model Precipitation (Baseline)" &&
           m?.visibility === "default"
       )
     ).toBe(true);
     expect(
-      rainfallMetas?.some(
-        (m) => m?.role === "centroids" && m?.label === "Rainfall" && m?.visibility === "default"
+      precipitationMetas?.some(
+        (m) => m?.role === "centroids" && m?.label === "Model Precipitation" && m?.visibility === "default"
       )
     ).toBe(true);
 

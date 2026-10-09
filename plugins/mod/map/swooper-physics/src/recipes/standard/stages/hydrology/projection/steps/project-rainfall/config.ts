@@ -3,11 +3,12 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Declares the sole engine projection boundary for Hydrology rainfall. It consumes the
- * final-refined climate artifact and materializes it in authored recipe order.
+ * final climate artifact's derived byte codec in authored recipe order, never
+ * using the engine codec as physical forcing.
  */
 export const config = defineStep({
   id: "project-rainfall",
-  description: "Materializes the admitted final climate rainfall surface exactly once.",
+  description: "Materializes the admitted final climate rainfall codec exactly once.",
   engine: ["setRainfall"] as const,
   requires: [climateArtifacts.climateField],
   provides: [],

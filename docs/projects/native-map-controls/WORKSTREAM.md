@@ -29,11 +29,15 @@ consequences against the cheaper honest proxy through existing basins,
 rivers and ecology. Its concrete provisional numerical scheme now selects
 source/rainout rates, SDK two-ray donor scatter, size-aware travel and the
 manufactured acceptance controls. Architecture implementation scope was approved
-on 2026-10-09; the owner operation passes its manufactured controls, while the
-end-to-end candidate and production adoption remain unqualified. The thermal
-backbone stays fixed and no new temperature family
-is selected. Complete the owner/contract slice before the full candidate; retain
-the installed build and live session during definition qualification.
+on 2026-10-09. The owner operation and full float-forcing consumer cutover pass
+their focused controls; the terminal calibration passes the four climate
+controls. The independent 57-case bank reveals one new mountain-region failure
+beside the retained thermal floor. Production adoption remains unqualified.
+Freeze the climate coefficients and diagnose that one downstream interaction
+at its causal owners before selecting a repair or refusing the candidate. The
+thermal backbone stays fixed; another temperature family, ocean campaign,
+language port or fixture-driven procedural recipe is not selected. Retain the
+installed build and live session during definition qualification.
 
 ## Prior Decisions
 

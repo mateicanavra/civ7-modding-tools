@@ -21,8 +21,8 @@ const ComputeCryosphereStateContract = defineOp({
       landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
       /** Surface temperature proxy (C). */
       surfaceTemperatureC: TypedArraySchemas.f32({ description: "Surface temperature proxy (C)." }),
-      /** Rainfall (0..200) per tile; used as a precipitation signal for snow cover. */
-      rainfall: TypedArraySchemas.u8({ description: "Rainfall (0..200) per tile." }),
+      /** Float model precipitation; used as the existing bounded snow-cover signal. */
+      precipitation: TypedArraySchemas.f32({ description: "Finite nonnegative model precipitation per tile without codec saturation." }),
     },
     {
       additionalProperties: false,

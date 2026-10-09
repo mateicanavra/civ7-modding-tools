@@ -13,6 +13,41 @@ benchmarks, not inputs hidden inside the procedural Earthlike recipe. A
 realistic Earthlike variant is the desired playable outcome, not literal Earth
 replay. Historical eight-product captures remain immutable comparison evidence.
 
+## Current Selected Delivery
+
+The [source-limited rainfall story](climate-moisture-closure-design.md) is the
+active product-sized improvement. Its operation is qualified and merged in
+[PR #2321](https://github.com/mateicanavra/civ7-modding-tools/pull/2321).
+The full consumer cutover preserves float precipitation through runoff and
+finite basins, separates the Civ byte codec, and removes the competing rain
+synthesis/refinement lane. Focused contract, consumer and composition controls
+pass. This cutover is not yet admitted or deployed.
+
+The terminal calibration passes all four climate controls. The complete
+57-case bank introduces one mountain-region failure beside the retained
+temperature floor. Exact independent measurement confirms the affected Huge
+seed's maximum region span is 36, below the unchanged 38-edge requirement.
+Moisture coefficients stay frozen; the next bounded investigation belongs to
+ridge selection and its terrain/network inputs, not another climate fit.
+The known thermal requirement remains open without becoming a prerequisite
+for every other useful pipeline correction.
+
+The paired generated viewer now exposes precipitation, effective surface
+moisture and biomes alongside terrain, flow direction and discharge. All six
+views, PNG export and mobile layout pass browser proof. These are portable
+candidate comparisons, not refreshed native screenshots or a claim that the
+installed game has changed.
+
+The separate compiled-probe test-lifetime correction is merged in
+[PR #2322](https://github.com/mateicanavra/civ7-modding-tools/pull/2322).
+All 371 realization tests pass with their assertions intact. Only one existing
+test's deadline changes; no production compiler retry or recovery mechanism is
+added. The delivered elevation, basin/network and bounded vessel-navigation
+work described below remains intact. No new native game-use or deployment is
+selected before candidate admission.
+
+## Prior Delivery Evidence
+
 The [actual Foundation projection witness](constitutive-support-attribution.md#actual-projection-witness)
 is now closed with no production change: eight exact current/historical
 captures, 46,128 independently verified assignments, all 364 cells sampled in

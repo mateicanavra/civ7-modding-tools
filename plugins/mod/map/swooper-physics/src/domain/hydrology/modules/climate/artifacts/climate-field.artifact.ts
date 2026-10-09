@@ -1,38 +1,55 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Publishes the final rainfall and humidity vintage after river-corridor and cryosphere refinement;
- * map projection and Ecology consume this surface rather than the baseline. Admission preserves map
- * cardinality and Civ7's inclusive `0..200` rainfall domain.
+ * Publishes the post-network consumer bundle without changing baseline atmospheric supply.
+ * Ecology observes float forcing; native projection alone consumes the derived rainfall codec.
  */
 export const artifact = defineArtifact({
   name: "climateField",
   id: "artifact:hydrology.climateField",
   schema: Type.Object(
     {
-      rainfall: TypedArraySchemas.u8({
+      precipitation: TypedArraySchemas.f32({
         cardinality: "map-grid",
         description:
-          "Final per-tile precipitation intensity consumed by projection and Ecology, encoded in Civ7's inclusive 0-200 rainfall domain.",
+          "Unchanged baseline model precipitation in rainfall-index-equivalent units over H=1, finite and nonnegative; resolved lakes and rivers do not create new atmospheric supply.",
       }),
-      humidity: TypedArraySchemas.u8({
+      surfaceWetness: TypedArraySchemas.f32({
         cardinality: "map-grid",
         description:
-          "Final per-tile atmospheric moisture after river-corridor and cryosphere refinement, encoded on an inclusive 0-255 scale.",
+          "Unchanged baseline empirical surface wetness in 0..1; local riparian moisture belongs only to climateIndices.effectiveMoisture.",
+      }),
+      rainfallCodec: TypedArraySchemas.u8({
+        cardinality: "map-grid",
+        description: "Unchanged derived native rainfall byte: round(clamp(precipitation,0,200)).",
       }),
     },
     {
       additionalProperties: false,
       description:
-        "Hydrology's immutable final climate surface with one refined rainfall and humidity sample for every map tile.",
+        "Hydrology's immutable post-network forcing bundle; physical supply and its native codec retain the pre-network atmospheric vintage.",
     }
   ),
   refine: (value, { issues }) => {
-    const invalidIndex = value.rainfall.findIndex((sample) => sample > 200);
+    const invalidIndex = value.precipitation.findIndex(
+      (sample) => !Number.isFinite(sample) || sample < 0
+    );
     if (invalidIndex >= 0) {
       issues.add(
-        `Expected climate.rainfall[${invalidIndex}] to be within 0..200 (received ${value.rainfall[invalidIndex]}).`
+        `Expected climateField.precipitation[${invalidIndex}] to be finite and nonnegative.`
       );
+    }
+    const invalidWetnessIndex = value.surfaceWetness.findIndex(
+      (sample) => !Number.isFinite(sample) || sample < 0 || sample > 1
+    );
+    if (invalidWetnessIndex >= 0) {
+      issues.add(`Expected climateField.surfaceWetness[${invalidWetnessIndex}] within 0..1.`);
+    }
+    const invalidCodecIndex = value.rainfallCodec.findIndex(
+      (sample, index) => sample !== Math.min(200, Math.round(value.precipitation[index]!))
+    );
+    if (invalidCodecIndex >= 0) {
+      issues.add(`Expected climateField.rainfallCodec[${invalidCodecIndex}] to encode precipitation.`);
     }
   },
 });

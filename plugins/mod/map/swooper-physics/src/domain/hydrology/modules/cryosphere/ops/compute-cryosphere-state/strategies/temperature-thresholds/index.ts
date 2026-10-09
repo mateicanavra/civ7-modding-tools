@@ -6,7 +6,7 @@ import { clampU8, lerp01 } from "../../rules/index.js";
 import TemperatureThresholdsDefinition from "./config.js";
 
 /**
- * Classifies every frozen-water product from the same admitted temperature and rainfall sample.
+ * Classifies every frozen-water product from the same admitted temperature and precipitation sample.
  * Land and water outputs are mutually exclusive, and normalized intermediate fields are clamped
  * before they feed albedo, permafrost, ground ice, or melt evidence.
  */
@@ -38,7 +38,10 @@ const temperatureThresholdsStrategy = createStrategy(
 
       for (let i = 0; i < size; i++) {
         const temp = input.surfaceTemperatureC[i] ?? 0;
-        const rain = (input.rainfall[i] ?? 0) / 200;
+        if (!Number.isFinite(input.precipitation[i]) || input.precipitation[i]! < 0) {
+          throw new RangeError(`Cryosphere requires nonnegative finite precipitation at tile ${i}.`);
+        }
+        const rain = input.precipitation[i]! / 200;
         const isLand = input.landMask[i] === 1;
 
         const freeze = lerp01(temp, config.freezeIndexStartC, config.freezeIndexFullC);

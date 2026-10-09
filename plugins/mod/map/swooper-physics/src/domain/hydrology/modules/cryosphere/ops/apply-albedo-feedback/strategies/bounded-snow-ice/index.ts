@@ -32,11 +32,16 @@ const boundedSnowIceStrategy = createStrategy(
 
       let temp = new Float32Array(input.surfaceTemperatureC);
       let next = new Float32Array(size);
+      for (let i = 0; i < size; i++) {
+        if (!Number.isFinite(input.precipitation[i]) || input.precipitation[i]! < 0) {
+          throw new RangeError(`Albedo feedback requires nonnegative finite precipitation at tile ${i}.`);
+        }
+      }
 
       for (let iter = 0; iter < iterations; iter++) {
         for (let i = 0; i < size; i++) {
           const base = temp[i] ?? 0;
-          const rain = (input.rainfall[i] ?? 0) / 200;
+          const rain = input.precipitation[i]! / 200;
           const isLand = input.landMask[i] === 1;
 
           const snowFrac = isLand

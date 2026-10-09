@@ -27,11 +27,11 @@ export const PotentialDemandParametersSchema = Type.Object(
       maximum: 400,
       description: "Temperature contribution to PET scaling.",
     }),
-    humidityDampening: Type.Number({
+    wetnessDampening: Type.Number({
       default: 0.55,
       minimum: 0,
       maximum: 1,
-      description: "How much humidity reduces PET (0..1).",
+      description: "How much empirical surface wetness reduces PET (0..1).",
     }),
   },
   {

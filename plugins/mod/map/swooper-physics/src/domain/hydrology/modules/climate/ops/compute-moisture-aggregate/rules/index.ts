@@ -10,7 +10,7 @@ type Reduction = Readonly<{ width: number; height: number }> & (
   }
 );
 
-/** Weather rainfall/humidity are reduced before phase demand; annual demand is never recomputed. */
+/** Average precipitation and member-clamped wetness independently before phase demand. */
 export function reduceMoisture(input: Reduction) {
   const size = input.width * input.height;
   const count = input.samples.length;
@@ -32,38 +32,42 @@ export function reduceMoisture(input: Reduction) {
     }
   }
   for (const sample of input.samples) {
-    if (!(sample.rainfall instanceof Uint8Array) || !(sample.humidity instanceof Uint8Array) ||
-        sample.rainfall.length !== size || sample.humidity.length !== size) {
-      throw new RangeError("Moisture fields must be grid-aligned Uint8Arrays.");
+    for (let index = 0; index < size; index++) {
+      if (!Number.isFinite(sample.precipitation[index]) || sample.precipitation[index]! < 0 ||
+          !Number.isFinite(sample.surfaceWetness[index]) || sample.surfaceWetness[index]! < 0 || sample.surfaceWetness[index]! > 1) {
+        throw new RangeError("Moisture fields require finite nonnegative precipitation and surface wetness in 0..1.");
+      }
     }
   }
   const weights = input.reduction === "annual" ? input.weights : undefined;
-  const rainfall = new Uint8Array(size);
-  const humidity = new Uint8Array(size);
+  const precipitation = new Float32Array(size);
+  const surfaceWetness = new Float32Array(size);
   const potentialDemand = new Float32Array(size);
-  const rainfallAmplitude = new Uint8Array(size);
-  const humidityAmplitude = new Uint8Array(size);
+  const precipitationAmplitude = new Float32Array(size);
+  const surfaceWetnessAmplitude = new Float32Array(size);
+  const rainfallCodec = new Uint8Array(size);
   for (let index = 0; index < size; index++) {
-    let rainSum = 0, humidSum = 0, demandSum = 0;
-    let rainMin = 255, rainMax = 0, humidMin = 255, humidMax = 0;
+    let rainSum = 0, wetnessSum = 0, demandSum = 0;
+    let rainMin = Infinity, rainMax = 0, wetnessMin = Infinity, wetnessMax = 0;
     for (let phase = 0; phase < count; phase++) {
       const sample = input.samples[phase]!;
-      const rain = sample.rainfall[index]!;
-      const humid = sample.humidity[index]!;
+      const rain = sample.precipitation[index]!;
+      const wetness = sample.surfaceWetness[index]!;
       const weight = weights ? weights[phase]! : 1;
       rainSum += rain * weight;
-      humidSum += humid * weight;
+      wetnessSum += wetness * weight;
       if (input.reduction === "annual") demandSum += input.samples[phase]!.potentialDemand[index]! * weight;
       rainMin = Math.min(rainMin, rain); rainMax = Math.max(rainMax, rain);
-      humidMin = Math.min(humidMin, humid); humidMax = Math.max(humidMax, humid);
+      wetnessMin = Math.min(wetnessMin, wetness); wetnessMax = Math.max(wetnessMax, wetness);
     }
-    rainfall[index] = Math.max(0, Math.min(input.reduction === "annual" ? 200 : 255, Math.round(weights ? rainSum : rainSum / count)));
-    humidity[index] = Math.max(0, Math.min(255, Math.round(weights ? humidSum : humidSum / count)));
+    precipitation[index] = weights ? rainSum : rainSum / count;
+    surfaceWetness[index] = weights ? wetnessSum : wetnessSum / count;
     potentialDemand[index] = weights ? demandSum : demandSum / count;
-    rainfallAmplitude[index] = Math.max(0, Math.min(255, Math.round((rainMax - rainMin) / 2)));
-    humidityAmplitude[index] = Math.max(0, Math.min(255, Math.round((humidMax - humidMin) / 2)));
+    precipitationAmplitude[index] = (rainMax - rainMin) / 2;
+    surfaceWetnessAmplitude[index] = (wetnessMax - wetnessMin) / 2;
+    if (input.reduction === "annual") rainfallCodec[index] = Math.round(Math.max(0, Math.min(200, precipitation[index]!)));
   }
   return input.reduction === "weather-members"
-    ? { reduction: input.reduction, rainfall, humidity }
-    : { reduction: input.reduction, rainfall, humidity, potentialDemand, rainfallAmplitude, humidityAmplitude };
+    ? { reduction: input.reduction, precipitation, surfaceWetness }
+    : { reduction: input.reduction, precipitation, surfaceWetness, potentialDemand, precipitationAmplitude, surfaceWetnessAmplitude, rainfallCodec };
 }

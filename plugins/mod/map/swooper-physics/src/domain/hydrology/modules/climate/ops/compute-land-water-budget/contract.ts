@@ -8,7 +8,7 @@ const ComputeLandWaterBudgetContract = defineOp({
   /**
    * Computes terrestrial effective moisture, PET, and aridity.
    *
-   * This op combines rainfall, humidity, supplied demand, and river hierarchy into deterministic
+   * This op combines precipitation, empirical surface wetness, supplied demand, and river hierarchy into deterministic
    * advisory indices. Consumers use these outputs rather than re-deriving local variants.
    */
   input: Type.Object(
@@ -19,10 +19,10 @@ const ComputeLandWaterBudgetContract = defineOp({
       height: Type.Integer({ minimum: 1, description: "Tile grid height (rows)." }),
       /** Land mask per tile (1=land, 0=water). */
       landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
-      /** Rainfall (0..200) per tile. */
-      rainfall: TypedArraySchemas.u8({ description: "Rainfall (0..200) per tile." }),
-      /** Humidity (0..255) per tile. */
-      humidity: TypedArraySchemas.u8({ description: "Humidity (0..255) per tile." }),
+      /** Authoritative deposited model water, independent of the native rainfall byte. */
+      precipitation: TypedArraySchemas.f32({ description: "Finite nonnegative model precipitation per tile without codec saturation." }),
+      /** Empirical wetness proxy, not independent atmospheric humidity. */
+      surfaceWetness: TypedArraySchemas.f32({ description: "Finite empirical surface wetness in 0..1." }),
       /** Double-precision demand preserves pre-extraction aridity before public Float32 rounding. */
       pet: Type.Array(Type.Number({ minimum: 0 }), {
         description: "One double-precision potential-demand sample per tile, supplied by Climate.",
@@ -44,14 +44,14 @@ const ComputeLandWaterBudgetContract = defineOp({
    */
   output: Type.Object(
     {
-      /** Potential evapotranspiration proxy (rainfall units, advisory). */
+      /** Potential evapotranspiration proxy (model water units, advisory). */
       pet: TypedArraySchemas.f32({
-        description: "Potential evapotranspiration proxy (rainfall units, advisory).",
+        description: "Potential evapotranspiration proxy (model water units, advisory).",
       }),
-      /** Rainfall, humidity, and nearby river influence expressed on one terrestrial moisture scale. */
+      /** Precipitation, normalized wetness, and nearby river influence on the terrestrial moisture scale. */
       effectiveMoisture: TypedArraySchemas.f32({
         description:
-          "Land-only rainfall + 0.35*humidity + radius-1 wrapped-hex river bonus (minor=4, major=8); the authored rainfall and humidity maxima yield 297.25, and water is 0.",
+          "Land-only precipitation + 0.35*(255*surfaceWetness) + radius-1 wrapped-hex river bonus (minor=4, major=8); atmospheric precipitation is unchanged, and water is 0.",
       }),
       /** Aridity index (0..1) derived from precipitation vs PET (advisory). */
       aridityIndex: TypedArraySchemas.f32({

@@ -24,8 +24,8 @@ export const PedologyStep = createStep(config, {
         height,
         landMask,
         elevation: topography.elevation,
-        rainfall: climateField.rainfall,
-        humidity: climateField.humidity,
+        precipitation: climateField.precipitation,
+        surfaceWetness: climateField.surfaceWetness,
         sedimentDepth: substrate.sedimentDepth,
       },
       stepConfig.classify

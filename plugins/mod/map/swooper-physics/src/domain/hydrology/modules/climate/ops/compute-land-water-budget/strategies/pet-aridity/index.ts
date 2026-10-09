@@ -8,7 +8,7 @@ import { clamp01 } from "@swooper/mapgen-core/lib/math";
 import ComputeLandWaterBudgetContract from "../../contract.js";
 import PetAridityDefinition from "./config.js";
 
-const EFFECTIVE_MOISTURE_HUMIDITY_WEIGHT = 0.35;
+const EFFECTIVE_MOISTURE_WETNESS_WEIGHT = 0.35;
 const MINOR_RIVER_MOISTURE_BONUS = 4;
 const MAJOR_RIVER_MOISTURE_BONUS = 8;
 
@@ -31,6 +31,10 @@ const petAridityStrategy = createStrategy(ComputeLandWaterBudgetContract, PetAri
     const aridityIndex = new Float32Array(size);
 
     for (let i = 0; i < size; i++) {
+      if (!Number.isFinite(input.precipitation[i]) || input.precipitation[i]! < 0 ||
+          !Number.isFinite(input.surfaceWetness[i]) || input.surfaceWetness[i]! < 0 || input.surfaceWetness[i]! > 1) {
+        throw new RangeError("Land water budget requires nonnegative precipitation and surface wetness in 0..1.");
+      }
       if (input.landMask[i] !== 1) {
         pet[i] = 0;
         effectiveMoisture[i] = 0;
@@ -38,8 +42,8 @@ const petAridityStrategy = createStrategy(ComputeLandWaterBudgetContract, PetAri
         continue;
       }
 
-      const humidityRaw = input.humidity[i]!;
-      const precip = input.rainfall[i]!;
+      const wetness = input.surfaceWetness[i]!;
+      const precip = input.precipitation[i]!;
       let maximumRiverClass = input.riverClass[i]!;
       if (!isMajorRiverClass(maximumRiverClass)) {
         const x = i % width;
@@ -55,7 +59,7 @@ const petAridityStrategy = createStrategy(ComputeLandWaterBudgetContract, PetAri
           ? MINOR_RIVER_MOISTURE_BONUS
           : 0;
       effectiveMoisture[i] =
-        precip + EFFECTIVE_MOISTURE_HUMIDITY_WEIGHT * humidityRaw + riparianBonus;
+        precip + EFFECTIVE_MOISTURE_WETNESS_WEIGHT * (255 * wetness) + riparianBonus;
 
       const petValue = input.pet[i]!;
       pet[i] = petValue;

@@ -20,7 +20,7 @@ const ComputeClimateDiagnosticsContract = defineOp({
       landMask: TypedArraySchemas.u8({ description: "Land membership for each tile." }),
       windU: TypedArraySchemas.i8({ description: "Zonal wind component for each tile." }),
       windV: TypedArraySchemas.i8({ description: "Meridional wind component for each tile." }),
-      rainfall: TypedArraySchemas.u8({ description: "Final rainfall intensity for each tile." }),
+      precipitation: TypedArraySchemas.f32({ description: "Finite nonnegative model precipitation for each tile without byte saturation." }),
     },
     {
       additionalProperties: false,

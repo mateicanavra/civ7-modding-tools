@@ -47,14 +47,19 @@ describe("hydrology climate-refine demand ownership", () => {
       baselineTemperature[2] = 0;
       const beforeTemperature = baselineTemperature.slice();
       let refinedTemperature: Float32Array = new Float32Array(size);
-      const refinedHumidity = new Uint8Array(size).fill(100);
-      const rainfall = new Uint8Array(size).fill(40);
+      const surfaceWetness = new Float32Array(size).fill(0.4);
+      const precipitation = new Float32Array(size).fill(40.25);
+      precipitation[0] = 240.25;
+      const rainfallCodec = Uint8Array.from(precipitation, (value) => Math.min(200, Math.round(value)));
+      const beforePrecipitation = precipitation.slice();
+      const beforeWetness = surfaceWetness.slice();
+      const beforeCodec = rainfallCodec.slice();
       const parameters = {
         tMinC: -10,
         tMaxC: 21,
         petBase: 43,
         petTemperatureWeight: 123,
-        humidityDampening: 0.3,
+        wetnessDampening: 0.3,
       };
       let demandCalls = 0;
       let computedPet: readonly number[] = [];
@@ -69,8 +74,9 @@ describe("hydrology climate-refine demand ownership", () => {
           bathymetry: new Int16Array(size),
         });
         publishTestArtifact(stepContext, climateArtifacts.baselineClimateField, {
-          rainfall: new Uint8Array(size).fill(5),
-          humidity: new Uint8Array(size).fill(6),
+          precipitation,
+          surfaceWetness,
+          rainfallCodec,
           potentialDemand: new Float32Array(size).fill(999),
           demandParameters: parameters,
         });
@@ -83,6 +89,8 @@ describe("hydrology climate-refine demand ownership", () => {
         });
         const waterFixture = createEmptyWaterFixture(width, height);
         waterFixture.hydrography.exposedLandMask[0] = 0;
+        waterFixture.hydrography.riverClass[2] = 2;
+        waterFixture.hydrography.flowDir[2] = 3;
         publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, waterFixture.hydrography);
         publishTestArtifact(
           stepContext,
@@ -93,7 +101,6 @@ describe("hydrology climate-refine demand ownership", () => {
           stepContext,
           config,
           {
-            refinePrecipitation: () => ({ rainfall, humidity: refinedHumidity }),
             applyAlbedoFeedback: (
               ...[input, albedoConfig]: Parameters<
                 typeof hydrology.cryosphere.ops.applyAlbedoFeedback.run
@@ -101,7 +108,7 @@ describe("hydrology climate-refine demand ownership", () => {
             ) => {
               expect(input.surfaceTemperatureC).toBe(baselineTemperature);
               expect(input.landMask).toBe(landMask);
-              expect(input.rainfall).toBe(rainfall);
+              expect(input.precipitation).toBe(precipitation);
               const output = hydrology.cryosphere.ops.applyAlbedoFeedback.run(input, albedoConfig);
               refinedTemperature = output.surfaceTemperatureC;
               return output;
@@ -114,7 +121,7 @@ describe("hydrology climate-refine demand ownership", () => {
               demandCalls++;
               expect(Object.hasOwn(input, "landMask")).toBe(false);
               expect(input.surfaceTemperatureC).toBe(refinedTemperature);
-              expect(input.humidity).toBe(refinedHumidity);
+              expect(input.surfaceWetness).toBe(surfaceWetness);
               expect(input.parameters).toEqual(parameters);
               const output = hydrology.climate.ops.computePotentialDemand.run(input, demandConfig);
               computedPet = output.pet;
@@ -136,13 +143,23 @@ describe("hydrology climate-refine demand ownership", () => {
 
       expect(demandCalls).toBe(1);
       const indices = readArtifact(context, climateArtifacts.climateIndices);
+      const finalClimate = readArtifact(context, climateArtifacts.climateField);
+      expect(finalClimate.precipitation).toEqual(beforePrecipitation);
+      expect(finalClimate.surfaceWetness).toEqual(beforeWetness);
+      expect(finalClimate.rainfallCodec).toEqual(beforeCodec);
+      expect(finalClimate.precipitation).not.toBe(precipitation);
+      expect(finalClimate.surfaceWetness).not.toBe(surfaceWetness);
+      expect(finalClimate.rainfallCodec).not.toBe(rainfallCodec);
+      expect(precipitation).toEqual(beforePrecipitation);
+      expect(surfaceWetness).toEqual(beforeWetness);
+      expect(rainfallCodec).toEqual(beforeCodec);
       const surfaceTemperature = indices.surfaceTemperatureC;
       const expected = hydrology.climate.ops.computePotentialDemand.run(
         {
           width,
           height,
           surfaceTemperatureC: refinedTemperature,
-          humidity: refinedHumidity,
+          surfaceWetness,
           parameters,
         },
         hydrology.climate.ops.computePotentialDemand.defaultConfig
@@ -153,8 +170,8 @@ describe("hydrology climate-refine demand ownership", () => {
       expectedTerrestrialPet[0] = 0;
       expect(indices.pet).toEqual(expectedTerrestrialPet);
       expect(indices.pet[0]).toBe(0);
-      expect(indices.effectiveMoisture[1]).toBe(75);
-      expect(indices.aridityIndex[1]).toBe(Math.fround(expected.pet[1]! / (expected.pet[1]! + 41)));
+      expect(indices.effectiveMoisture[1]).toBe(Math.fround(40.25 + 0.35 * 255 * surfaceWetness[1]! + 8));
+      expect(indices.aridityIndex[1]).toBe(Math.fround(expected.pet[1]! / (expected.pet[1]! + 41.25)));
       expect(surfaceTemperature).toBe(refinedTemperature);
       expect(baselineTemperature).toEqual(beforeTemperature);
       expect(surfaceTemperature).toEqual(
@@ -163,7 +180,7 @@ describe("hydrology climate-refine demand ownership", () => {
             width,
             height,
             landMask,
-            rainfall,
+            precipitation,
             surfaceTemperatureC: beforeTemperature,
           },
           config.applyAlbedoFeedback

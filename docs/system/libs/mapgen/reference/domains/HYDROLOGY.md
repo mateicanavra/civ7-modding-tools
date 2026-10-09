@@ -20,15 +20,16 @@ connects physical terms, current computations and practical interpretation.
 
 Hydrology produces climate and water-cycle products for downstream consumption:
 
-- baseline and final-refined climate fields (rainfall, humidity, and potential demand),
-- atmospheric wind and moisture-transport state,
+- baseline and final climate fields (float precipitation, empirical surface wetness,
+  a separate rainfall codec, and potential demand),
+- atmospheric wind and bounded moisture supply/transport/rainout,
 - ground-preserving basin routing over final Morphology topography,
 - discharge and hydrography evidence,
 - refined terrestrial indices (effective moisture, aridity, and freeze) and optional cryosphere products,
   and related diagnostics.
 
 Hydrology also feeds engine-facing projection steps, which are explicitly
-**projection-only**: `map-hydrology` materializes final-refined rainfall and
+**projection-only**: `map-hydrology` materializes the final rainfall codec and
 accepted lake water before engine elevation, and `map-rivers` materializes
 the complete admitted dry-source network after elevation. All shipped maps
 use this single physical/native chain. Unsupported cases are refused, not
@@ -57,12 +58,15 @@ Hydrology requires:
 
 Hydrology provides:
 
-- `artifact:hydrology.baselineClimateField` (annual-mean rainfall, humidity,
-  potential demand, and its admitted parameters used by hydrography/refinement)
+- `artifact:hydrology.baselineClimateField` (annual float precipitation, empirical
+  surface wetness, rainfall codec, potential demand and its admitted parameters
+  used by hydrography/refinement)
 - `artifact:hydrology._internal.thermalField` (the annual mean of seasonal
   ground/SST temperature before feedback, published as `surfaceTemperatureC`
   in a named map-grid product consumed by refinement)
-- `artifact:hydrology.climateField` (final-refined rainfall/humidity used by Ecology and engine projection)
+- `artifact:hydrology.climateField` (unchanged baseline precipitation/wetness/codec
+  forwarded after network resolution; Ecology consumes physical quantities and
+  engine projection consumes only the codec)
 - `artifact:hydrology.hydrography` (model-tagged drainage, discharge, and river
   classes; certified discharge is dry-cell evidence, with whole-body mixing in
   lake ledgers rather than signed wet-cell accumulation)
@@ -137,22 +141,31 @@ shelf mixing and SST-derived ice threshold. This relative-strength blend does
 not specify metres per second, a travel distance or timestep, or globally
 heat-conserving transport.
 
-Vector moisture transport uses the same Core angular bracket while retaining
-its own transport law and donor admission. Air crosses both land and water;
-off-map Y shares remain at self. Supplied phase/weather-member winds are
-authoritative: calm wind samples self, and no latitude-band fallback or
-secondary-donor cutoff overrides the vector. Local evaporation is still
-injected on every fixed pass before retention and clamping, so calm conditions
-do not imply constant humidity. Moisture remains direction-only; it does not
-use the ocean's relative-strength blend. Its input contains only dimensions,
-supplied winds and evaporation; neither latitude nor a terrain mask gates air
-transport. The former cardinal algorithm is no longer selectable.
+Climate's `compute-moisture-forcing` operation owns one bounded source-limited
+transition. Each weather member starts with zero atmospheric stock. Marine
+supply is admitted only by initial `externalWaterMask` and modulated by prescribed
+SST, ice and supplied wind strength; dry land and finite inland water have no
+local source. Exact local source/rainout precedes donor-bounded two-ray transport
+using Core's angular bracket. Deposited precipitation debits the stock before
+transport; blocked Y shares remain at the donor and X wraps. Rate integration
+and size-aware travel prevent the pass count from multiplying supply or distance.
+Calm wind prevents transport, not marine supply or local rainout.
+
+This is model water over one representative interval, not millimetres per year,
+actual ET or a settled terrestrial water cycle. Land recycling is deliberately
+absent. Each member publishes float P and empirical wetness `clamp01(P / 200)`;
+phase and annual reductions average those quantities independently. Only the
+annual aggregate derives the byte rainfall codec. Basin/runoff forcing never
+round-trips through that codec. The former supply, transport, independent rain
+synthesis and riparian rainfall-refinement operations are retired without a
+fallback lane. Rivers can still influence effective surface moisture; they do
+not manufacture atmospheric precipitation after producing the basin network.
 
 Aggregate river benchmark evidence is calculated and emitted by the Standard
 recipe's Network metrics projector rather than retained as pipeline state.
 Advisory terrain/wind climate diagnostics are derived by the climate module's
 pure observation operation and remain invocation-local input to visualization.
-Seasonal rainfall and humidity amplitudes likewise remain invocation-local
+Seasonal precipitation and surface-wetness amplitudes likewise remain invocation-local
 evidence projected by the baseline step; no downstream pipeline consumer owns
 or reads a retained seasonality product.
 
@@ -161,11 +174,13 @@ five-parameter calibration. The baseline step evaluates the shared
 `computePotentialDemand` operation within its existing final seasonal samples
 and averages demand, rather than applying a nonlinear temperature law to an
 annual temperature mean. Refinement reuses the same parameters with its later
-temperature/humidity forcing. `computeLandWaterBudget` consumes that demand
+temperature/surface-wetness forcing. `computeLandWaterBudget` consumes that demand
 and owns effective moisture and aridity; it does not own another PET law.
 Invocation-local demand retains double precision until aridity is computed,
-while published climate arrays remain Float32. Demand uses empirical rainfall
-index units, not calibrated open-water evaporation or a depth-storage rate.
+while published physical climate arrays remain Float32. Demand and precipitation
+use the same model-index interval, not calibrated open-water evaporation or a
+depth-storage rate. Wet footprints receive direct P-D instead of submerged dry
+runoff; dry runoff retains its separate infiltration/wetness law.
 
 There is one ground-temperature computation owner: baseline climate. Refine
 consumes `thermalField` and applies declared albedo feedback;
@@ -180,9 +195,9 @@ Elevation lapse is per normalized model relief unit, not per physical meter.
 
 All shipped profiles use Climate's sole `periodic-cycle` sampling,
 `daily-solar-fourier` forcing and `periodic-response` temperature strategies.
-Circulation, surface currents, moisture transport and precipitation likewise
-have one strategy each: `geostrophic-proxy`, `wind-gyre-projection`,
-`vector-advection` and `vector`. The baseline always derives ocean geometry and
+Circulation, surface currents and coupled moisture forcing likewise have one
+strategy each: `geostrophic-proxy`, `wind-gyre-projection` and `source-limited`.
+The baseline always derives ocean geometry and
 performs the authored fixed coupling iterations, initializing prescribed SST
 before the first atmosphere pass. Surface-current inputs still permit genuinely
 optional basin/coast evidence within that one algorithm; the selected ocean
@@ -194,7 +209,7 @@ while visualization selects two/four observations without changing annual
 fields. Seasonal saturation metrics require the complete cycle and its explicit
 phase/weight metadata. Superseded snapshot/instantaneous strategies and legacy
 capture fallbacks are not production alternatives. The former atmosphere/current
-`latitude`, moisture `cardinal` and precipitation `baseline` selectors are also
+`latitude` and independent moisture/precipitation selectors are also
 refused at existing operation, step and saved-config admission boundaries, not
 translated into guessed physics. Circulation takes no seed input; deterministic
 pressure and sampling still consume their original step-owned seed. Historical

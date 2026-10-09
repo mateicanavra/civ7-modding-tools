@@ -3,9 +3,93 @@
 **Goal:** Coherent wet/dry regions whose forcing reaches basins, rivers and
 ecology without manufacturing atmospheric supply from dry land or terrain.
 **Status:** Architecture scope approved for implementation on 2026-10-09.
-The owner operation passes its manufactured controls; end-to-end candidate and
-production admission remain outstanding.
+The owner and consumer cutover pass their focused controls. The terminal
+calibration passes the four climate controls but introduces one mountain-region
+failure in the independent study bank. Production admission remains outstanding;
+the playable incumbent is unchanged.
 **Owner:** Swooper Physics, Hydrology's Climate module.
+
+### Early Product Discriminator
+
+The initial four matched procedural cases complete with unchanged pressure and
+wind and passing integrity. They nevertheless fail product admission: mean
+exposed-land P falls from 77-88 to 11-14 model units, and snow/desert dominates.
+Numerical closure is not a reason to ship that result.
+
+Before further execution, select only three coarse calibration contrasts:
+marine source amplitude 4x and 8x separately, and reference transport speed 4x
+separately. The rates are provisional model-index quantities, not calibrated
+Earth units. Amplitude discriminates missing quantity; transport discriminates
+the finite travel/depletion shape. Hold extraction, relief reference, horizon,
+zero initial stock, geography, thermal producers, demand and all downstream
+thresholds fixed. If transport improves shape without sufficient quantity, one
+predeclared interaction is allowed: source 2x with transport 4x. Do not continue
+with a larger search, new sources, noise, biome quotas or a settling model.
+
+Evaluate the same four cases, unchanged rainfall-codec saturation and biome
+structure bounds, basin integrity, river hierarchy and whole-map cost. The
+existing thermal floor remains a separate unresolved requirement. A useful
+candidate must earn regional wet/dry outcomes without solving one failure by
+adding widespread codec saturation. Otherwise retain the playable incumbent
+and reject this candidate in favor of an honestly scoped empirical proxy.
+
+### Terminal Calibration Amendment
+
+The initial, source-4x, transport-4x and source-2x/transport-4x contrasts have
+all refused adoption. Source 8x alone is analytically refused without execution:
+at fixed transport/extraction the source response is linear, and source 4x
+already exceeds the unchanged annual codec-saturation bound in two cases.
+The higher amplitude cannot repair that failure.
+
+New paired readback distinguishes reach from quantity. On the same 393 Huge
+initial-land cells at least seven wrapped-hex edges from initial marine water,
+transport 20 to 80 raises median P from 1.57 to 26.77. On the same 546
+marine-adjacent cells, the median moves from 24.56 to 28.78. At fixed transport
+80, doubling source doubles P exactly and baseline/refined supply is unchanged;
+960 of 1,061 jointly warm/exposed desert cells remain below effective moisture
+90. That implicates remaining quantity, not a demonstrated consumer loss.
+
+Before execution, replace the analytically refused source-8x slot with exactly
+one source-3x/transport-4x contrast (`marineSourceRate=900`,
+`transportSpeed=80`). This is an explicit amendment, not the original frozen
+selection. Keep the total candidate budget, four matched cases, physical laws,
+consumers, thresholds and guards unchanged. Multiplying retained transport-4x
+P by three would saturate the annual codec on 4.596%, 3.326%, 2.750% and 3.034%
+of original land in Huge 1018 and Standard 1018/1/42. This necessary feasibility
+check says nothing about seasonal saturation, ecology, basins or held-out
+quality. Effective moisture 90 is not sufficient to escape desert because the
+existing aridity rule can shift the moisture zone.
+
+This is the terminal calibration contrast. Failure closes B without another
+interpolation, parameter sweep or threshold change. Success advances only to
+the already required independent study-bank and native qualification, not
+production admission. Preserve every earlier failed receipt and E8's separate
+analytical refusal. These four maps are now calibration controls, not holdouts.
+
+### Completed Terminal Comparison
+
+The frozen source-3x/transport-4x candidate passes the unchanged annual and
+seasonal codec-saturation bounds, biome structure, basin integrity and
+pressure/wind holds on all four controls. Earthlike's maximum row-dominant biome
+share is `0.662465`, below the unchanged `0.75` ceiling. The complete existing
+57-case bank passes every other expectation except the retained temperature
+floor and a new Earthlike orogeny failure. Neither requirement is weakened.
+
+The new failure is Huge seed 5050: the reported maximum mountain-region span
+moves from 39 to 36, below the unchanged 38-edge floor. An independent all-pairs
+hex BFS measures exact diameters 40 and 36. Two-sweep estimation therefore does
+not explain away the refusal. Both masks have four components; region coverage
+moves from 1,476 to 1,416 cells, while peak count moves from 316 to 315.
+This is a downstream footprint change, not proof of its physical cause.
+
+Freeze the moisture coefficients and stop climate tuning. The next bounded
+causal discriminator separates changed incision/relief, resolved wet exposure
+and river exclusions at the existing ridge planner. An owner correction must
+follow from a demonstrated contract or algorithm defect, not extending a range
+to obtain 38. If no such correction is justified, refuse this candidate without
+retiring its qualified operation on the mistaken claim that source limitation
+itself was disproven. Numerical qualification, consumer correctness and product
+admission remain separate decisions. No native deployment is admitted yet.
 
 ## Why This Is The Next Product Story
 
@@ -31,7 +115,7 @@ and [Smith and Barstad's orographic model](https://journals.ametsoc.org/view/jou
 The latter distinguishes moisture influx, advection and fallout and documents
 the limits of simple upslope estimates; it does not prescribe this scheme.
 
-## Current Authority And Vintages
+## Pre-Cutover Authority And Vintages
 
 All paths in this section are under
 `plugins/mod/map/swooper-physics/src/`.

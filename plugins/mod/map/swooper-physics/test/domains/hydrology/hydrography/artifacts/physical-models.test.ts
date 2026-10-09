@@ -41,7 +41,7 @@ describe("certified physical water artifacts", () => {
     expect(barrierCells).toHaveLength(2);
     for (const cell of barrierCells) {
       expect(input.externalWaterMask[cell]).toBe(0);
-      expect([input.localRunoff[cell], input.rainfall[cell], input.potentialDemand[cell]]).toEqual([0, 0, 0]);
+      expect([input.localRunoff[cell], input.precipitation[cell], input.potentialDemand[cell]]).toEqual([0, 0, 0]);
     }
     expect(value.bodies[0]!.bodyId).toBe(2636);
     expect(value.components[0]!.componentId).toBe(2636);
@@ -162,7 +162,7 @@ describe("certified physical water artifacts", () => {
         config: { allowExternalEdgeOutlets: false },
       }),
       localRunoff: Array.from(terrain.externalWaterMask, (external) => external ? 0 : 1),
-      rainfall: new Uint8Array(6),
+      precipitation: new Float32Array(6),
       potentialDemand: Float32Array.of(0, 0, 1, 0, 0, 0),
     });
     expect(value.waterSurface[2]).toBe(Number.MIN_VALUE);

@@ -34,7 +34,7 @@ const HydrologyOceanCouplingKnobSchema = Type.Union(
   {
     default: "earthlike",
     description:
-      "Ocean influence preset (off/simple/earthlike). Applies as a deterministic transform over winds, currents, moisture transport, and coastal gradients.",
+      "Ocean influence preset (off/simple/earthlike). Applies as a deterministic transform over upstream winds and currents, not numerical moisture passes or independent coastal rainfall.",
   }
 );
 
@@ -44,7 +44,7 @@ const knobsSchema = Type.Object(
      * Global moisture availability bias (not regional).
      *
      * Stage scope:
-     * - Transforms baseline rainfall/moisture and related forcing only.
+     * - Multiplies external marine supply once, not extraction or publication.
      * - Must not change canonical drainage routing truth or Hydrology river classification knobs.
      */
     dryness: HydrologyDrynessKnobSchema,
@@ -60,7 +60,7 @@ const knobsSchema = Type.Object(
      * Seasonal cycle posture.
      *
      * Stage scope:
-     * - Transforms wind texture + precip noise texture.
+     * - Transforms wind texture, not independent precipitation noise.
      * - Transforms the annual amplitude posture (mode count / axial tilt biases).
      */
     seasonality: HydrologySeasonalityKnobSchema,
@@ -68,7 +68,7 @@ const knobsSchema = Type.Object(
      * Ocean coupling posture.
      *
      * Stage scope:
-     * - Transforms winds/currents/transport and coastal gradients deterministically.
+     * - Transforms upstream winds and currents deterministically.
      */
     oceanCoupling: HydrologyOceanCouplingKnobSchema,
   },

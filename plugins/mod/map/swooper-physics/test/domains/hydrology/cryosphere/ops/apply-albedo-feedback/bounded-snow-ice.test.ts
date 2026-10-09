@@ -31,7 +31,7 @@ describe("hydrology/apply-albedo-feedback bounded-snow-ice", () => {
         width: 3,
         height: 2,
         landMask: new Uint8Array([1, 1, 0, 0, 1, 0]),
-        rainfall: new Uint8Array([0, 200, 0, 200, 200, 200]),
+        precipitation: new Float32Array([0, 200, 0, 200, 200, 200]),
         surfaceTemperatureC: new Float32Array([-15, -15, -10, -10, 8, 8]),
       };
       const before = structuredClone(input);
@@ -53,7 +53,7 @@ describe("hydrology/apply-albedo-feedback bounded-snow-ice", () => {
       width: 3,
       height: 2,
       landMask: new Uint8Array([1, 0, 1, 0, 1, 0]),
-      rainfall: new Uint8Array(6).fill(200),
+      precipitation: new Float32Array(6).fill(200),
       surfaceTemperatureC: new Float32Array([-100, -100, 100, 100, -29, -19]),
     };
     for (const iterations of [1, 2, 3]) {
@@ -66,6 +66,29 @@ describe("hydrology/apply-albedo-feedback bounded-snow-ice", () => {
     expect(Array.from(input.surfaceTemperatureC)).toEqual([-100, -100, 100, 100, -29, -19]);
   });
 
+  it("preserves the same bounded cooling law for fractional and high physical precipitation", () => {
+    const input = {
+      width: 3, height: 1, landMask: new Uint8Array(3).fill(1),
+      precipitation: new Float32Array([100.25, 200, 400.75]),
+      surfaceTemperatureC: new Float32Array(3).fill(-15),
+    };
+    const result = runAdmittedOperationForTest(applyAlbedoFeedback, input, {
+      strategy: "bounded-snow-ice", config: { ...config, iterations: 1 },
+    });
+    for (let i = 0; i < 3; i++) {
+      const snowFraction = 0.5 * (1 + 0.5 * Math.min(1, input.precipitation[i]! / 200));
+      expect(result.surfaceTemperatureC[i]).toBe(Math.fround(-15 - snowFraction * 3));
+    }
+    expect(result.surfaceTemperatureC[2]).toBe(result.surfaceTemperatureC[1]);
+    for (const precipitation of [NaN, Infinity, -0.25]) {
+      const malformed = structuredClone(input);
+      malformed.precipitation[0] = precipitation;
+      expect(() => runAdmittedOperationForTest(applyAlbedoFeedback, malformed, {
+        strategy: "bounded-snow-ice", config: { ...config, iterations: 0 },
+      })).toThrow("precipitation");
+    }
+  });
+
   it("preserves out-of-bound temperatures when zero passes explicitly disable feedback", () => {
     const result = runAdmittedOperationForTest(
       applyAlbedoFeedback,
@@ -73,7 +96,7 @@ describe("hydrology/apply-albedo-feedback bounded-snow-ice", () => {
         width: 2,
         height: 1,
         landMask: new Uint8Array([1, 0]),
-        rainfall: new Uint8Array([200, 200]),
+        precipitation: new Float32Array([200, 200]),
         surfaceTemperatureC: new Float32Array([-100, 100]),
       },
       { strategy: "bounded-snow-ice", config: { ...config, iterations: 0 } }

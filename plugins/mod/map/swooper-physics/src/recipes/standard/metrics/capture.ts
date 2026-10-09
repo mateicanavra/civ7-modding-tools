@@ -221,8 +221,13 @@ export type StandardMapCapture = Readonly<{
     fertility: Pedology["fertility"];
     effectiveMoisture: Float32Array;
     surfaceTemperature: Float32Array;
-    baselineRainfall: Uint8Array;
-    refinedRainfall: Uint8Array;
+    /** Physical model precipitation; never reconstructed from the Civ rainfall codec. */
+    baselineRainfall: Float32Array;
+    refinedRainfall: Float32Array;
+    baselineSurfaceWetness: Float32Array;
+    refinedSurfaceWetness: Float32Array;
+    baselineRainfallCodec: Uint8Array;
+    refinedRainfallCodec: Uint8Array;
     seasonalRainfall: StandardSeasonalRainfallMeasurements;
     aridityIndex: Float32Array;
     windU: Int8Array;
@@ -729,14 +734,34 @@ function copyCompletedRun(
         climateIndicesValue.surfaceTemperatureC,
         gridSize
       ),
-      baselineRainfall: copyUint8Grid(
-        "hydrology.baselineClimateField.rainfall",
-        baselineClimateValue.rainfall,
+      baselineRainfall: copyFloat32Grid(
+        "hydrology.baselineClimateField.precipitation",
+        baselineClimateValue.precipitation,
         gridSize
       ),
-      refinedRainfall: copyUint8Grid(
-        "hydrology.climateField.rainfall",
-        climateValue.rainfall,
+      refinedRainfall: copyFloat32Grid(
+        "hydrology.climateField.precipitation",
+        climateValue.precipitation,
+        gridSize
+      ),
+      baselineSurfaceWetness: copyFloat32Grid(
+        "hydrology.baselineClimateField.surfaceWetness",
+        baselineClimateValue.surfaceWetness,
+        gridSize
+      ),
+      refinedSurfaceWetness: copyFloat32Grid(
+        "hydrology.climateField.surfaceWetness",
+        climateValue.surfaceWetness,
+        gridSize
+      ),
+      baselineRainfallCodec: copyUint8Grid(
+        "hydrology.baselineClimateField.rainfallCodec",
+        baselineClimateValue.rainfallCodec,
+        gridSize
+      ),
+      refinedRainfallCodec: copyUint8Grid(
+        "hydrology.climateField.rainfallCodec",
+        climateValue.rainfallCodec,
         gridSize
       ),
       seasonalRainfall: Object.freeze({

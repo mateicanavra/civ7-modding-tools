@@ -12,7 +12,7 @@ export default defineStrategy({
         minimum: 0,
         maximum: 5,
         default: 1.2,
-        description: "Controls the influence of rainfall and humidity on soil fertility.",
+        description: "Controls the influence of precipitation and surface wetness on soil fertility.",
       }),
       reliefWeight: Type.Number({
         minimum: 0,

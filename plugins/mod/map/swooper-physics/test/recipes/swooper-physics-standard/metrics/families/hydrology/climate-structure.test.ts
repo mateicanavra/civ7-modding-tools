@@ -16,8 +16,8 @@ function controlledClimateInput(): StandardClimateStructureInput {
     provenance: { width: 4, height: 2 },
     model: {
       landMask,
-      baselineRainfall: Uint8Array.from([199, 200, 200, 200, 0, 200, 201, 0]),
-      refinedRainfall: Uint8Array.from([200, 199, 200, 200, 199, 0, 0, 0]),
+      baselineRainfallCodec: Uint8Array.from([199, 200, 200, 200, 0, 200, 200, 0]),
+      refinedRainfallCodec: Uint8Array.from([200, 199, 200, 200, 199, 0, 0, 0]),
       surfaceTemperature: Float32Array.from([0, 4, 900, -900, 10, 10, 10, 10]),
       seasonalRainfall: measureStandardSeasonalRainfall({
         landMask,
@@ -27,9 +27,9 @@ function controlledClimateInput(): StandardClimateStructureInput {
           phases: [0.25, 0.75],
           weights: [0.5, 0.5],
           observationIndices: [0, 1],
-          rainfall: [
-            Uint8Array.from([200, 0, 200, 200, 0, 0, 0, 0]),
-            Uint8Array.from([200, 200, 200, 200, 200, 200, 0, 0]),
+          precipitation: [
+            Float32Array.from([200.25, 0, 300.5, 200, 0, 0, 0, 0]),
+            Float32Array.from([200, 199.5, 200, 200, 320.75, 200, 199.49, 0]),
           ],
         },
       }),
@@ -63,8 +63,8 @@ describe("Standard climate-structure measurements", () => {
 
   it("retains full periodic integration counts independently of selected observations", () => {
     const input = controlledClimateInput();
-    const rainfall = Array.from({ length: 24 }, () => new Uint8Array(8));
-    rainfall[5]!.fill(200);
+    const precipitation = Array.from({ length: 24 }, () => new Float32Array(8));
+    precipitation[5]!.fill(200);
     const phases = Array.from({ length: 24 }, (_, index) => index / 24);
     const weights = new Array<number>(24).fill(1 / 24);
     const measurement = measureStandardSeasonalRainfall({
@@ -75,7 +75,7 @@ describe("Standard climate-structure measurements", () => {
         phases,
         weights,
         observationIndices: [6, 18],
-        rainfall,
+        precipitation,
       },
     });
     expect(measurement.version).toBe(2);
@@ -148,7 +148,7 @@ describe("Standard climate-structure measurements", () => {
       landMask: input.model.landMask,
       seasonalIntegration: {
         ...input.model.seasonalRainfall.sampling,
-        rainfall: [input.model.baselineRainfall, input.model.baselineRainfall],
+        precipitation: [input.model.baselineRainfallCodec, input.model.baselineRainfallCodec],
       },
     });
     const metrics = measureStandardClimateStructure({
@@ -166,14 +166,14 @@ describe("Standard climate-structure measurements", () => {
     expect(() =>
       measureStandardSeasonalRainfall({
         landMask: input.model.landMask,
-        seasonalIntegration: { ...input.model.seasonalRainfall.sampling, rainfall: [] },
+        seasonalIntegration: { ...input.model.seasonalRainfall.sampling, precipitation: [] },
       })
     ).toThrow("at least one observed season");
     expect(() =>
       measureStandardSeasonalRainfall({
         landMask: input.model.landMask,
         seasonalIntegration: {
-          ...input.model.seasonalRainfall.sampling, rainfall: [new Uint8Array(1), new Uint8Array(1)],
+          ...input.model.seasonalRainfall.sampling, precipitation: [new Float32Array(1), new Float32Array(1)],
         },
       })
     ).toThrow("identical length");
@@ -210,7 +210,7 @@ describe("Standard climate-structure measurements", () => {
     ]) {
       expect(() => measureStandardSeasonalRainfall({
         landMask: input.model.landMask,
-        seasonalIntegration: { ...sampling, rainfall: [new Uint8Array(8), new Uint8Array(8)] } as never,
+        seasonalIntegration: { ...sampling, precipitation: [new Float32Array(8), new Float32Array(8)] } as never,
       })).toThrow("Seasonal integration");
     }
   });

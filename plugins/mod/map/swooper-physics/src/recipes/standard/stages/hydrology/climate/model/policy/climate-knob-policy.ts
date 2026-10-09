@@ -4,8 +4,8 @@ export type HydrologySeasonalityKnob = "low" | "normal" | "high";
 export type HydrologyOceanCouplingKnob = "off" | "simple" | "earthlike";
 
 /**
- * Multiplier through which the public dryness knob retunes evaporation, rainfall, and local
- * moisture bonuses while preserving each selected strategy's authored baseline.
+ * Multiplier through which the public dryness knob scales external marine moisture supply once,
+ * without scaling extraction, deposited precipitation, or riparian moisture again.
  */
 export const HYDROLOGY_DRYNESS_WETNESS_SCALE = {
   wet: 1.15,
@@ -33,13 +33,6 @@ export const HYDROLOGY_SEASONALITY_WIND_VARIANCE = {
   high: 0.75,
 } as const satisfies Record<HydrologySeasonalityKnob, number>;
 
-/** Relative precipitation-noise amplitudes used to texture low, normal, and high seasonality. */
-export const HYDROLOGY_SEASONALITY_PRECIP_NOISE_AMPLITUDE = {
-  low: 5,
-  normal: 6,
-  high: 8,
-} as const satisfies Record<HydrologySeasonalityKnob, number>;
-
 /**
  * Seasonal-mode and axial-tilt defaults published into the normalized baseline climate config.
  * Mode count is intentionally limited to two or four so downstream seasonal aggregation stays
@@ -62,7 +55,6 @@ export const HYDROLOGY_OCEAN_COUPLING_WIND_JET_STRENGTH = {
   simple: 1.0,
   earthlike: 1.05,
 } as const satisfies Record<HydrologyOceanCouplingKnob, number>;
-
 /**
  * Surface-current strength calibration by coupling mode; `off` suppresses current-driven effects.
  */
@@ -70,32 +62,4 @@ export const HYDROLOGY_OCEAN_COUPLING_CURRENT_STRENGTH = {
   off: 0,
   simple: 0.75,
   earthlike: 1.0,
-} as const satisfies Record<HydrologyOceanCouplingKnob, number>;
-
-/**
- * Moisture-solver iteration references whose delta from Earthlike shortens weaker coupling modes.
- */
-export const HYDROLOGY_OCEAN_COUPLING_MOISTURE_TRANSPORT_ITERATIONS = {
-  off: 18,
-  simple: 24,
-  earthlike: 28,
-} as const satisfies Record<HydrologyOceanCouplingKnob, number>;
-
-/**
- * Coastal-moisture reach references whose delta from Earthlike retunes precipitation strategy
- * radius without discarding map-specific configuration.
- */
-export const HYDROLOGY_OCEAN_COUPLING_WATER_GRADIENT_RADIUS = {
-  off: 4,
-  simple: 5,
-  earthlike: 6,
-} as const satisfies Record<HydrologyOceanCouplingKnob, number>;
-
-/**
- * Per-ring coastal rainfall references whose delta from Earthlike adjusts near-water wetness.
- */
-export const HYDROLOGY_WATER_GRADIENT_PER_RING_BONUS_BASE = {
-  off: 3,
-  simple: 4,
-  earthlike: 4,
 } as const satisfies Record<HydrologyOceanCouplingKnob, number>;

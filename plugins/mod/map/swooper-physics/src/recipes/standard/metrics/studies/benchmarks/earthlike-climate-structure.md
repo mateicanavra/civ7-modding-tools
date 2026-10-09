@@ -15,7 +15,8 @@ also receives `standard/integrity`.
 
 The bounds were declared before production correction, not fitted to passing
 outputs. They are product regression bounds, not observational Earth calibration:
-rainfall uses a bounded empirical 0-200 scale and relief has no physical-meter
+the Civ rainfall codec uses a bounded empirical 0-200 scale, while physical
+precipitation remains an unclipped float model amount. Relief has no physical-meter
 calibration. The existing Huge 1337 biome-structure study and all other studies
 retain their original thresholds.
 
@@ -30,8 +31,10 @@ retain their original thresholds.
 | Tundra or boreal land tiles | >=1 |
 | Classified land biome families | >=3 |
 
-Saturation counts rainfall at or above 200 and excludes modeled water from both
-count and population. Baseline annual saturation is retained as causal evidence,
+Saturation counts the rounded rainfall codec at its 200 ceiling and excludes
+modeled water from both count and population. Seasonal counts project each
+phase's physical precipitation with the same rounding, without quantizing the
+forcing consumed by basins or ecology. Baseline annual saturation is retained as causal evidence,
 without an additional target. Seasonal rainfall arrays stay invocation-local;
 the baseline metrics facet retains each season's saturated count and land
 population. Missing seasonal evidence is a capture failure, not a passing zero.

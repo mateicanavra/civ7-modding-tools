@@ -99,9 +99,7 @@ export function runEarthCoastBaseline(
         computeThermalState: hydrology.climate.ops.computeThermalState.run,
         computePressureField: hydrology.climate.ops.computePressureField.run,
         computeAtmosphericCirculation: hydrology.climate.ops.computeAtmosphericCirculation.run,
-        computeEvaporationSources: hydrology.climate.ops.computeEvaporationSources.run,
-        transportMoisture: hydrology.climate.ops.transportMoisture.run,
-        computePrecipitation: hydrology.climate.ops.computePrecipitation.run,
+        computeMoistureForcing: hydrology.climate.ops.computeMoistureForcing.run,
         computePotentialDemand: hydrology.climate.ops.computePotentialDemand.run,
       },
       buildStepTestDependencies(ClimateBaselineStep, stepContext)

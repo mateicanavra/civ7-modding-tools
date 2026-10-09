@@ -20,7 +20,7 @@ describe("certified basin-network integrity measurements", () => {
       const measured = measureBasinLedger({ ...base, provenance: { width: input.width, height: input.height }, model: {
         ...base.model, externalWaterMask: input.externalWaterMask, seaLevel: input.externalWaterHead,
         exposedLandMask: Uint8Array.from(input.externalWaterMask, (external, cell) => external === 0 && plan.wetMask[cell] === 0 ? 1 : 0),
-        elevation: Int16Array.from(input.elevation), baselineRainfall: input.rainfall,
+        elevation: Int16Array.from(input.elevation), baselineRainfall: input.precipitation,
         plannedLakeMask: plan.wetMask, flowDir: plan.receiver, terminalType: plan.terminalType, riverClass: new Uint8Array(size),
         mountainMask: new Uint8Array(size), volcanoMask: new Uint8Array(size),
         physicalHydrology: { model: "certified-sill-spill", runoff: input.localRunoff, potentialDemand: input.potentialDemand,

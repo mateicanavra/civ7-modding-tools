@@ -323,10 +323,10 @@
           "tMaxC": 35,
           "petBase": 18,
           "petTemperatureWeight": 75,
-          "humidityDampening": 0.55
+          "wetnessDampening": 0.55
         },
         "computePotentialDemand": {
-          "strategy": "temperature-humidity",
+          "strategy": "temperature-wetness",
           "config": {}
         },
         "seasonality": {
@@ -414,38 +414,15 @@
             "seaIceThresholdC": -1
           }
         },
-        "computeEvaporationSources": {
-          "strategy": "thermal-surface",
+        "computeMoistureForcing": {
+          "strategy": "source-limited",
           "config": {
-            "oceanStrength": 1.15,
-            "landStrength": 0.22999999999999998,
-            "minTempC": -10,
-            "maxTempC": 30
-          }
-        },
-        "transportMoisture": {
-          "strategy": "vector-advection",
-          "config": {
-            "iterations": 22,
-            "advection": 0.7,
-            "retention": 0.93
-          }
-        },
-        "computePrecipitation": {
-          "strategy": "vector",
-          "config": {
-            "rainfallScale": 130,
-            "humidityExponent": 1,
-            "noiseAmplitude": 8,
-            "noiseScale": 0.12,
-            "waterGradient": {
-              "radius": 5,
-              "perRingBonus": 5,
-              "lowlandBonus": 2,
-              "lowlandElevationMax": 150
-            },
-            "upliftStrength": 22,
-            "convergenceStrength": 16
+            "marineSourceRate": 900,
+            "backgroundExtractionRate": 1.2,
+            "ascentExtractionRate": 4,
+            "transportSpeed": 80,
+            "terrainGradientReference": 300,
+            "wetnessScale": 1
           }
         }
       }
@@ -467,7 +444,7 @@
           "strategy": "precipitation-attributed",
           "config": {
             "infiltrationFraction": 0.15,
-            "humidityDampening": 0.25
+            "wetnessDampening": 0.25
           }
         },
         "computeDrainageBasins": {
@@ -753,27 +730,9 @@
     },
     "hydrology-climate-refine": {
       "knobs": {
-        "dryness": "mix",
         "cryosphere": "on"
       },
       "climate-refine": {
-        "refinePrecipitation": {
-          "strategy": "riparian-basin-wetness",
-          "config": {
-            "riverCorridor": {
-              "adjacencyRadius": 1,
-              "lowlandAdjacencyBonus": 16,
-              "highlandAdjacencyBonus": 12,
-              "lowlandElevationMax": 250
-            },
-            "lowBasin": {
-              "radius": 2,
-              "delta": 7,
-              "elevationMax": 200,
-              "openThresholdM": 20
-            }
-          }
-        },
         "applyAlbedoFeedback": {
           "strategy": "bounded-snow-ice",
           "config": {
@@ -814,7 +773,7 @@
           "config": {}
         },
         "computePotentialDemand": {
-          "strategy": "temperature-humidity",
+          "strategy": "temperature-wetness",
           "config": {}
         },
         "computeClimateDiagnostics": {

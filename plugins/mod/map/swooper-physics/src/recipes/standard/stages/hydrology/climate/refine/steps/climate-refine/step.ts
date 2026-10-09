@@ -1,10 +1,6 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { HYDROLOGY_DRYNESS_WETNESS_SCALE } from "../../../model/policy/climate-knob-policy.js";
 import { config } from "./config.js";
 import { buildClimateRefineVizProjections } from "./viz.js";
-
-type HydrologyCryosphereKnob = "off" | "on";
-type HydrologyDrynessKnob = "wet" | "mix" | "dry";
 
 /**
  * Refines baseline climate against topography and hydrography, publishing physical products while
@@ -12,37 +8,14 @@ type HydrologyDrynessKnob = "wet" | "mix" | "dry";
  */
 export const ClimateRefineStep = createStep(config, {
   normalize: (stepConfig, ctx) => {
-    const { dryness, cryosphere } = ctx.knobs as {
-      dryness: HydrologyDrynessKnob;
-      cryosphere: HydrologyCryosphereKnob;
-    };
-
-    const wetnessScale = HYDROLOGY_DRYNESS_WETNESS_SCALE[dryness];
-
     const next = { ...stepConfig };
 
-    const precipitationRefinement = next.refinePrecipitation.config;
-    next.refinePrecipitation = {
-      ...next.refinePrecipitation,
-      config: {
-        ...precipitationRefinement,
-        riverCorridor: {
-          ...precipitationRefinement.riverCorridor,
-          lowlandAdjacencyBonus: Math.round(
-            precipitationRefinement.riverCorridor.lowlandAdjacencyBonus * wetnessScale
-          ),
-          highlandAdjacencyBonus: Math.round(
-            precipitationRefinement.riverCorridor.highlandAdjacencyBonus * wetnessScale
-          ),
-        },
-        lowBasin: {
-          ...precipitationRefinement.lowBasin,
-          delta: Math.round(precipitationRefinement.lowBasin.delta * wetnessScale),
-        },
-      },
-    };
-
-    if (cryosphere === "off") {
+    if (
+      typeof ctx.knobs === "object" &&
+      ctx.knobs !== null &&
+      "cryosphere" in ctx.knobs &&
+      ctx.knobs.cryosphere === "off"
+    ) {
       if (next.applyAlbedoFeedback.strategy === "bounded-snow-ice") {
         next.applyAlbedoFeedback = {
           ...next.applyAlbedoFeedback,
@@ -93,25 +66,12 @@ export const ClimateRefineStep = createStep(config, {
       }
     }
 
-    const refined = ops.refinePrecipitation(
-      {
-        width,
-        height,
-        elevation: topography.elevation,
-        landMask: exposedLandMask,
-        rainfall: baselineClimateField.rainfall,
-        humidity: baselineClimateField.humidity,
-        riverClass: hydrography.riverClass,
-      },
-      stepConfig.refinePrecipitation
-    );
-
     const albedoFeedback = ops.applyAlbedoFeedback(
       {
         width,
         height,
         landMask: topography.landMask,
-        rainfall: refined.rainfall,
+        precipitation: baselineClimateField.precipitation,
         surfaceTemperatureC: thermalField.surfaceTemperatureC,
       },
       stepConfig.applyAlbedoFeedback
@@ -123,7 +83,7 @@ export const ClimateRefineStep = createStep(config, {
         height,
         landMask: topography.landMask,
         surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,
-        rainfall: refined.rainfall,
+        precipitation: baselineClimateField.precipitation,
       },
       stepConfig.computeCryosphereState
     );
@@ -133,7 +93,7 @@ export const ClimateRefineStep = createStep(config, {
         width,
         height,
         surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,
-        humidity: refined.humidity,
+        surfaceWetness: baselineClimateField.surfaceWetness,
         parameters: baselineClimateField.demandParameters,
       },
       stepConfig.computePotentialDemand
@@ -143,8 +103,8 @@ export const ClimateRefineStep = createStep(config, {
         width,
         height,
         landMask: exposedLandMask,
-        rainfall: refined.rainfall,
-        humidity: refined.humidity,
+        precipitation: baselineClimateField.precipitation,
+        surfaceWetness: baselineClimateField.surfaceWetness,
         pet: demand.pet,
         riverClass: hydrography.riverClass,
       },
@@ -160,14 +120,15 @@ export const ClimateRefineStep = createStep(config, {
         landMask: exposedLandMask,
         windU: windField.windU,
         windV: windField.windV,
-        rainfall: refined.rainfall,
+        precipitation: baselineClimateField.precipitation,
       },
       stepConfig.computeClimateDiagnostics
     );
 
     const climateField = deps.artifacts.climateField.publish({
-      rainfall: new Uint8Array(refined.rainfall),
-      humidity: new Uint8Array(refined.humidity),
+      precipitation: new Float32Array(baselineClimateField.precipitation),
+      surfaceWetness: new Float32Array(baselineClimateField.surfaceWetness),
+      rainfallCodec: new Uint8Array(baselineClimateField.rainfallCodec),
     });
     const climateIndices = deps.artifacts.climateIndices.publish({
       surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,

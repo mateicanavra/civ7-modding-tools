@@ -7,14 +7,10 @@ import {
 import {
   HYDROLOGY_DRYNESS_WETNESS_SCALE,
   HYDROLOGY_OCEAN_COUPLING_CURRENT_STRENGTH,
-  HYDROLOGY_OCEAN_COUPLING_MOISTURE_TRANSPORT_ITERATIONS,
-  HYDROLOGY_OCEAN_COUPLING_WATER_GRADIENT_RADIUS,
   HYDROLOGY_OCEAN_COUPLING_WIND_JET_STRENGTH,
   HYDROLOGY_SEASONALITY_DEFAULTS,
-  HYDROLOGY_SEASONALITY_PRECIP_NOISE_AMPLITUDE,
   HYDROLOGY_SEASONALITY_WIND_VARIANCE,
   HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C,
-  HYDROLOGY_WATER_GRADIENT_PER_RING_BONUS_BASE,
 } from "../../../model/policy/climate-knob-policy.js";
 import { config } from "./config.js";
 import { buildClimateBaselineVizProjections } from "./viz.js";
@@ -57,9 +53,6 @@ export const ClimateBaselineStep = createStep(config, {
 
     const varianceFactor =
       HYDROLOGY_SEASONALITY_WIND_VARIANCE[seasonality] / HYDROLOGY_SEASONALITY_WIND_VARIANCE.normal;
-    const noiseAmplitudeFactor =
-      HYDROLOGY_SEASONALITY_PRECIP_NOISE_AMPLITUDE[seasonality] /
-      HYDROLOGY_SEASONALITY_PRECIP_NOISE_AMPLITUDE.normal;
 
     const jetStrengthFactor =
       HYDROLOGY_OCEAN_COUPLING_WIND_JET_STRENGTH[oceanCoupling] /
@@ -67,10 +60,6 @@ export const ClimateBaselineStep = createStep(config, {
     const currentStrengthFactor =
       HYDROLOGY_OCEAN_COUPLING_CURRENT_STRENGTH[oceanCoupling] /
       HYDROLOGY_OCEAN_COUPLING_CURRENT_STRENGTH.earthlike;
-
-    const transportIterationsDelta =
-      HYDROLOGY_OCEAN_COUPLING_MOISTURE_TRANSPORT_ITERATIONS[oceanCoupling] -
-      HYDROLOGY_OCEAN_COUPLING_MOISTURE_TRANSPORT_ITERATIONS.earthlike;
 
     const clampNumber = (value: number, min: number, max: number): number =>
       Math.max(min, Math.min(max, value));
@@ -124,58 +113,11 @@ export const ClimateBaselineStep = createStep(config, {
       },
     };
 
-    const computeEvaporationSources = {
-      ...stepConfig.computeEvaporationSources,
+    const computeMoistureForcing = {
+      ...stepConfig.computeMoistureForcing,
       config: {
-        ...stepConfig.computeEvaporationSources.config,
-        oceanStrength: stepConfig.computeEvaporationSources.config.oceanStrength * wetnessScale,
-        landStrength: stepConfig.computeEvaporationSources.config.landStrength * wetnessScale,
-      },
-    };
-
-    const transportMoisture = {
-      ...stepConfig.transportMoisture,
-      config: {
-        ...stepConfig.transportMoisture.config,
-        iterations: Math.max(
-          0,
-          Math.round(stepConfig.transportMoisture.config.iterations + transportIterationsDelta)
-        ),
-      },
-    };
-
-    const waterGradientRadiusDelta =
-      HYDROLOGY_OCEAN_COUPLING_WATER_GRADIENT_RADIUS[oceanCoupling] -
-      HYDROLOGY_OCEAN_COUPLING_WATER_GRADIENT_RADIUS.earthlike;
-    const perRingBonusDelta =
-      HYDROLOGY_WATER_GRADIENT_PER_RING_BONUS_BASE[oceanCoupling] -
-      HYDROLOGY_WATER_GRADIENT_PER_RING_BONUS_BASE.earthlike;
-    const computePrecipitation = {
-      ...stepConfig.computePrecipitation,
-      config: {
-        ...stepConfig.computePrecipitation.config,
-        rainfallScale: stepConfig.computePrecipitation.config.rainfallScale * wetnessScale,
-        noiseAmplitude: stepConfig.computePrecipitation.config.noiseAmplitude * noiseAmplitudeFactor,
-        waterGradient: {
-          ...stepConfig.computePrecipitation.config.waterGradient,
-          radius: Math.max(
-            1,
-            Math.round(
-              stepConfig.computePrecipitation.config.waterGradient.radius + waterGradientRadiusDelta
-            )
-          ),
-          perRingBonus: Math.max(
-            0,
-            Math.round(
-              (stepConfig.computePrecipitation.config.waterGradient.perRingBonus + perRingBonusDelta) *
-                wetnessScale
-            )
-          ),
-          lowlandBonus: Math.max(
-            0,
-            Math.round(stepConfig.computePrecipitation.config.waterGradient.lowlandBonus * wetnessScale)
-          ),
-        },
+        ...stepConfig.computeMoistureForcing.config,
+        wetnessScale: stepConfig.computeMoistureForcing.config.wetnessScale * wetnessScale,
       },
     };
 
@@ -185,9 +127,7 @@ export const ClimateBaselineStep = createStep(config, {
       computeThermalState,
       computeAtmosphericCirculation,
       computeOceanSurfaceCurrents,
-      computeEvaporationSources,
-      transportMoisture,
-      computePrecipitation,
+      computeMoistureForcing,
     };
   },
   run: (context, stepConfig, ops, deps) => {
@@ -209,12 +149,6 @@ export const ClimateBaselineStep = createStep(config, {
       ctxRandomLabel(stepId, "hydrology/compute-atmospheric-circulation"),
       2_147_483_647
     );
-    const perlinSeed = ctxRandom(
-      context,
-      ctxRandomLabel(stepId, "hydrology/compute-precipitation/noise"),
-      2_147_483_647
-    );
-
     const size = width * height;
 
     const modeCount = stepConfig.seasonality.modeCount;
@@ -225,8 +159,8 @@ export const ClimateBaselineStep = createStep(config, {
     );
     const { latitudeByRow } = sampling;
 
-    const seasonalRainfall: Uint8Array[] = [];
-    const seasonalHumidity: Uint8Array[] = [];
+    const seasonalPrecipitation: Float32Array[] = [];
+    const seasonalSurfaceWetness: Float32Array[] = [];
     const seasonalDemand: number[][] = [];
     const seasonalSurfaceTemperatureC: Float32Array[] = [];
 
@@ -408,42 +342,20 @@ export const ClimateBaselineStep = createStep(config, {
       const surfaceTemperatureC = sample.groundTemperatureC;
       seasonalSurfaceTemperatureC.push(surfaceTemperatureC);
       const weatherPrecipitation = sample.weatherMembers.map((member) => {
-        const evaporation = ops.computeEvaporationSources(
+        return ops.computeMoistureForcing(
           {
             width,
             height,
             landMask,
-            surfaceTemperatureC,
+            externalWaterMask: topography.externalWaterMask,
+            elevation,
+            seaLevel: topography.seaLevel,
             windU: member.windU,
             windV: member.windV,
             sstC: oceanThermal.sstC,
             seaIceMask: oceanThermal.seaIceMask,
           },
-          stepConfig.computeEvaporationSources
-        );
-        const moisture = ops.transportMoisture(
-          {
-            width,
-            height,
-            windU: member.windU,
-            windV: member.windV,
-            evaporation: evaporation.evaporation,
-          },
-          stepConfig.transportMoisture
-        );
-        return ops.computePrecipitation(
-          {
-            width,
-            height,
-            latitudeByRow: sample.thermalLatitude,
-            elevation,
-            landMask,
-            windU: member.windU,
-            windV: member.windV,
-            humidityF32: moisture.humidity,
-            perlinSeed,
-          },
-          stepConfig.computePrecipitation
+          stepConfig.computeMoistureForcing
         );
       });
 
@@ -453,16 +365,16 @@ export const ClimateBaselineStep = createStep(config, {
       );
       if (precipitation.reduction !== "weather-members")
         throw new Error("Expected weather precipitation reduction.");
-      seasonalRainfall.push(precipitation.rainfall);
-      const humidity = precipitation.humidity;
-      seasonalHumidity.push(humidity);
+      seasonalPrecipitation.push(precipitation.precipitation);
+      const surfaceWetness = precipitation.surfaceWetness;
+      seasonalSurfaceWetness.push(surfaceWetness);
       seasonalDemand.push(
         ops.computePotentialDemand(
           {
             width,
             height,
             surfaceTemperatureC,
-            humidity,
+            surfaceWetness,
             parameters: stepConfig.potentialDemand,
           },
           stepConfig.computePotentialDemand
@@ -477,9 +389,9 @@ export const ClimateBaselineStep = createStep(config, {
         height,
         model: sampling.model,
         weights: sampling.weights,
-        samples: seasonalRainfall.map((rainfall, index) => ({
-          rainfall,
-          humidity: seasonalHumidity[index]!,
+        samples: seasonalPrecipitation.map((precipitation, index) => ({
+          precipitation,
+          surfaceWetness: seasonalSurfaceWetness[index]!,
           potentialDemand: seasonalDemand[index]!,
         })),
       },
@@ -489,14 +401,15 @@ export const ClimateBaselineStep = createStep(config, {
       throw new Error("Expected annual moisture reduction.");
 
     const baselineClimateField = deps.artifacts.baselineClimateField.publish({
-      rainfall: annualMoisture.rainfall,
-      humidity: annualMoisture.humidity,
+      precipitation: annualMoisture.precipitation,
+      surfaceWetness: annualMoisture.surfaceWetness,
+      rainfallCodec: annualMoisture.rainfallCodec,
       potentialDemand: annualMoisture.potentialDemand,
       demandParameters: { ...stepConfig.potentialDemand },
     });
     const seasonalAmplitudes = {
-      rainfallAmplitude: annualMoisture.rainfallAmplitude,
-      humidityAmplitude: annualMoisture.humidityAmplitude,
+      precipitationAmplitude: annualMoisture.precipitationAmplitude,
+      surfaceWetnessAmplitude: annualMoisture.surfaceWetnessAmplitude,
     };
     const pressureField = deps.artifacts.pressureField.publish({
       pressure: meanPressure,
@@ -522,8 +435,8 @@ export const ClimateBaselineStep = createStep(config, {
       pressureField,
       windField,
       currentField,
-      seasonalRainfall: observe(seasonalRainfall),
-      seasonalHumidity: observe(seasonalHumidity),
+      seasonalPrecipitation: observe(seasonalPrecipitation),
+      seasonalSurfaceWetness: observe(seasonalSurfaceWetness),
       seasonalSurfaceTemperatureC: observe(seasonalSurfaceTemperatureC),
       seasonalPressure: observe(seasonalPressure),
       seasonalWindU: observe(seasonalWindU),
@@ -536,8 +449,8 @@ export const ClimateBaselineStep = createStep(config, {
         phases: sampling.phases,
         weights: sampling.weights,
         observationIndices: sampling.observationIndices,
-        rainfall: seasonalRainfall,
-        humidity: seasonalHumidity,
+        precipitation: seasonalPrecipitation,
+        surfaceWetness: seasonalSurfaceWetness,
         potentialDemand: seasonalDemand,
         surfaceTemperatureC: seasonalSurfaceTemperatureC,
         pressure: seasonalPressure,

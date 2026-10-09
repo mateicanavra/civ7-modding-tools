@@ -32,8 +32,8 @@ type ClimateBaselineVizEvidence = Readonly<{
   baselineClimateField: BaselineClimateField;
   thermalField: ArtifactReadValueOf<typeof climateArtifacts.thermalField>;
   seasonalAmplitudes: Readonly<{
-    rainfallAmplitude: Uint8VizValues;
-    humidityAmplitude: Uint8VizValues;
+    precipitationAmplitude: Float32VizValues;
+    surfaceWetnessAmplitude: Float32VizValues;
   }>;
   pressureField: PressureField;
   windField: WindField;
@@ -41,8 +41,8 @@ type ClimateBaselineVizEvidence = Readonly<{
     currentU: Int8VizValues;
     currentV: Int8VizValues;
   }>;
-  seasonalRainfall: readonly Uint8VizValues[];
-  seasonalHumidity: readonly Uint8VizValues[];
+  seasonalPrecipitation: readonly Float32VizValues[];
+  seasonalSurfaceWetness: readonly Float32VizValues[];
   seasonalSurfaceTemperatureC: readonly Float32VizValues[];
   seasonalPressure: readonly Float32VizValues[];
   seasonalWindU: readonly Int8VizValues[];
@@ -296,78 +296,78 @@ export function buildClimateBaselineVizProjections(
       points: {},
     }),
     ...buildScalarFieldProjections({
-      dataTypeKey: "hydrology.climate.rainfall",
+      dataTypeKey: "hydrology.climate.precipitation",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: baselineClimateField.rainfall },
-      meta: defineStandardVizMeta("hydrology.climate.rainfall", "climate.moisture", {
-        label: "Rainfall (Baseline)",
+      field: { format: "f32", values: baselineClimateField.precipitation },
+      meta: defineStandardVizMeta("hydrology.climate.precipitation", "climate.moisture", {
+        label: "Model Precipitation (Baseline)",
         group: GROUP_CLIMATE,
       }),
       points: {},
     }),
     ...buildScalarFieldProjections({
-      dataTypeKey: "hydrology.climate.humidity",
+      dataTypeKey: "hydrology.climate.surfaceWetness",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: baselineClimateField.humidity },
-      meta: defineStandardVizMeta("hydrology.climate.humidity", "climate.moisture", {
-        label: "Humidity (Baseline)",
+      field: { format: "f32", values: baselineClimateField.surfaceWetness },
+      meta: defineStandardVizMeta("hydrology.climate.surfaceWetness", "climate.moisture", {
+        label: "Surface Wetness (Baseline)",
         group: GROUP_CLIMATE,
         visibility: "debug",
       }),
     }),
     {
       kind: "grid",
-      dataTypeKey: "hydrology.climate.seasonality.rainfallAmplitude",
+      dataTypeKey: "hydrology.climate.seasonality.precipitationAmplitude",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: seasonalAmplitudes.rainfallAmplitude },
+      field: { format: "f32", values: seasonalAmplitudes.precipitationAmplitude },
       meta: defineStandardVizMeta(
-        "hydrology.climate.seasonality.rainfallAmplitude",
+        "hydrology.climate.seasonality.precipitationAmplitude",
         "field.intensity",
-        { label: "Rainfall Amplitude", group: GROUP_SEASONALITY }
+        { label: "Model Precipitation Amplitude", group: GROUP_SEASONALITY }
       ),
     },
     {
       kind: "grid",
-      dataTypeKey: "hydrology.climate.seasonality.humidityAmplitude",
+      dataTypeKey: "hydrology.climate.seasonality.surfaceWetnessAmplitude",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: seasonalAmplitudes.humidityAmplitude },
+      field: { format: "f32", values: seasonalAmplitudes.surfaceWetnessAmplitude },
       meta: defineStandardVizMeta(
-        "hydrology.climate.seasonality.humidityAmplitude",
+        "hydrology.climate.seasonality.surfaceWetnessAmplitude",
         "field.intensity",
-        { label: "Humidity Amplitude", group: GROUP_SEASONALITY }
+        { label: "Surface Wetness Amplitude", group: GROUP_SEASONALITY }
       ),
     }
   );
 
-  for (let season = 0; season < observation.seasonalRainfall.length; season += 1) {
-    const rainfall = observation.seasonalRainfall[season];
-    const humidity = observation.seasonalHumidity[season];
-    if (!rainfall || !humidity) continue;
+  for (let season = 0; season < observation.seasonalPrecipitation.length; season += 1) {
+    const precipitation = observation.seasonalPrecipitation[season];
+    const surfaceWetness = observation.seasonalSurfaceWetness[season];
+    if (!precipitation || !surfaceWetness) continue;
     projections.push(
       ...buildScalarFieldProjections({
-        dataTypeKey: "hydrology.climate.rainfall",
+        dataTypeKey: "hydrology.climate.precipitation",
         variantKey: `season:${season}`,
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "u8", values: rainfall },
-        meta: defineStandardVizMeta("hydrology.climate.rainfall", "climate.moisture", {
-          label: `Rainfall (${seasonLabel(season)})`,
+        field: { format: "f32", values: precipitation },
+        meta: defineStandardVizMeta("hydrology.climate.precipitation", "climate.moisture", {
+          label: `Model Precipitation (${seasonLabel(season)})`,
           group: GROUP_SEASONALITY,
           visibility: "debug",
         }),
       }),
       ...buildScalarFieldProjections({
-        dataTypeKey: "hydrology.climate.humidity",
+        dataTypeKey: "hydrology.climate.surfaceWetness",
         variantKey: `season:${season}`,
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "u8", values: humidity },
-        meta: defineStandardVizMeta("hydrology.climate.humidity", "climate.moisture", {
-          label: `Humidity (${seasonLabel(season)})`,
+        field: { format: "f32", values: surfaceWetness },
+        meta: defineStandardVizMeta("hydrology.climate.surfaceWetness", "climate.moisture", {
+          label: `Surface Wetness (${seasonLabel(season)})`,
           group: GROUP_SEASONALITY,
           visibility: "debug",
         }),

@@ -71,12 +71,12 @@ export default defineStrategy({
         maximum: 10,
         description: "Temperature at which sea ice cover is saturated (C).",
       }),
-      /** How much rainfall boosts snow cover accumulation (dimensionless). */
+      /** How much precipitation boosts snow cover accumulation (dimensionless). */
       precipitationInfluence: Type.Number({
         default: 0.25,
         minimum: 0,
         maximum: 1,
-        description: "How much rainfall boosts snow cover accumulation (dimensionless).",
+        description: "How much precipitation boosts snow cover accumulation (dimensionless).",
       }),
     },
     {

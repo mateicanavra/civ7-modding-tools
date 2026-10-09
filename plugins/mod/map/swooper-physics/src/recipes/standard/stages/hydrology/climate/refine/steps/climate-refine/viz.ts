@@ -43,24 +43,24 @@ export function buildClimateRefineVizProjections(
   const diagnostics = observation.diagnostics;
   return [
     ...buildScalarFieldProjections({
-      dataTypeKey: "hydrology.climate.rainfall",
+      dataTypeKey: "hydrology.climate.precipitation",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: observation.climateField.rainfall },
-      meta: defineStandardVizMeta("hydrology.climate.rainfall", "climate.moisture", {
-        label: "Rainfall",
+      field: { format: "f32", values: observation.climateField.precipitation },
+      meta: defineStandardVizMeta("hydrology.climate.precipitation", "climate.moisture", {
+        label: "Model Precipitation",
         group: GROUP_CLIMATE,
       }),
       points: {},
     }),
     {
       kind: "grid",
-      dataTypeKey: "hydrology.climate.humidity",
+      dataTypeKey: "hydrology.climate.surfaceWetness",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: observation.climateField.humidity },
-      meta: defineStandardVizMeta("hydrology.climate.humidity", "climate.moisture", {
-        label: "Humidity",
+      field: { format: "f32", values: observation.climateField.surfaceWetness },
+      meta: defineStandardVizMeta("hydrology.climate.surfaceWetness", "climate.moisture", {
+        label: "Surface Wetness",
         group: GROUP_CLIMATE,
         visibility: "debug",
       }),
@@ -84,7 +84,7 @@ export function buildClimateRefineVizProjections(
       dims: dimensions,
       field: { format: "f32", values: observation.climateIndices.pet },
       meta: defineStandardVizMeta("hydrology.climate.indices.pet", "field.intensity", {
-        label: "Potential Evapotranspiration",
+        label: "Empirical Potential Demand",
         group: GROUP_INDICES,
         visibility: "debug",
       }),

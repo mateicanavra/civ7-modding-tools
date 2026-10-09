@@ -6,7 +6,7 @@ export default defineStrategy({
   config: Type.Object(
     {
       marineSourceRate: Type.Number({
-        default: 300,
+        default: 900,
         minimum: 0,
         description: "Provisional marine model-water supply per unit tile area per interval (E0).",
       }),
@@ -21,7 +21,7 @@ export default defineStrategy({
         description: "Provisional maximum additional land-ascent rainout rate per interval (k1).",
       }),
       transportSpeed: Type.Number({
-        default: 20,
+        default: 80,
         minimum: 0,
         description:
           "Provisional reference projected edge lengths per interval at maximum encoded wind (V0), with fixed spacing h=84/width.",

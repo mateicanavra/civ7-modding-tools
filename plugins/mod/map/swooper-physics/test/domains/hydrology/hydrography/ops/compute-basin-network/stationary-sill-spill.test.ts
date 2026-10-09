@@ -16,7 +16,7 @@ function supported(input: Input) {
 function fixture(heights: number[], marine = [0], externalEdges = false, externalWaterHead = 0) {
   const terrain = { width: heights.length, height: 1, elevation: Array.from(heights), externalWaterMask: Uint8Array.from(heights.map((_, cell) => marine.includes(cell) ? 1 : 0)), externalWaterHead };
   return { ...terrain, geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: externalEdges } }),
-    localRunoff: Array.from(terrain.externalWaterMask, (prescribed): number => prescribed ? 0 : 1), rainfall: new Uint8Array(heights.length).fill(10), potentialDemand: new Float32Array(heights.length).fill(1) } satisfies Input;
+    localRunoff: Array.from(terrain.externalWaterMask, (prescribed): number => prescribed ? 0 : 1), precipitation: new Float32Array(heights.length).fill(10), potentialDemand: new Float32Array(heights.length).fill(1) } satisfies Input;
 }
 function verify(input: Input) {
   const before = structuredClone(input), plan = supported(input);
@@ -215,7 +215,7 @@ describe("hydrology/compute-basin-network", () => {
   });
   it("admits the dry-sill bypass without inventing an outward reservoir edge", () => {
     const input = fixture([-1, 1, 2, 0, 3, -1], [0, 5]);
-    input.localRunoff.fill(0); input.localRunoff[2] = 20.5; input.rainfall.fill(0); input.potentialDemand.fill(0); input.potentialDemand[3] = 10;
+    input.localRunoff.fill(0); input.localRunoff[2] = 20.5; input.precipitation.fill(0); input.potentialDemand.fill(0); input.potentialDemand[3] = 10;
     const plan = verify(input);
     expect(plan.bodies[0]!.outflow).toBe(0); expect(plan.bodies[0]!.flux.incomingOverflow).toBe(10);
     expect(plan.dryDischarge[2]).toBe(10.5); expect(plan.transfers[0]!.signedDischarge).toBe(10);
@@ -223,18 +223,48 @@ describe("hydrology/compute-basin-network", () => {
   it("keeps Number runoff and mixes a negative wet source without per-cell clipping", () => {
     const input = fixture([-1, 4, 0, 0, 5, -1], [0, 5]);
     input.localRunoff[1] = 1 + 2 ** -30;
-    input.rainfall[2] = 0; input.potentialDemand[2] = 9;
-    input.rainfall[3] = 10; input.potentialDemand[3] = 0;
+    input.precipitation[2] = 0; input.potentialDemand[2] = 9;
+    input.precipitation[3] = 10; input.potentialDemand[3] = 0;
     const plan = verify(input);
     expect(plan.bodies[0]!.wetCells).toEqual([2, 3]);
     expect(plan.bodies[0]!.flux.wetDemand).toBe(9);
     expect(plan.dryDischarge[1]).toBe(3 + 2 ** -30);
     expect(plan.dryDischarge[1]).not.toBe(Math.fround(plan.dryDischarge[1]!));
   });
+  it("uses fractional high precipitation minus demand on wet cells instead of their dry runoff", () => {
+    const input = fixture([-1, 4, 0, 0, 5, -1], [0, 5]);
+    input.localRunoff[1] = 1.25;
+    input.precipitation[2] = 300.5; input.potentialDemand[2] = 309.75;
+    input.precipitation[3] = 10.5; input.potentialDemand[3] = 0;
+    const plan = verify(input), body = plan.bodies[0]!;
+    expect(body.wetCells).toEqual([2, 3]);
+    expect(body.flux.wetPrecipitation).toBe(311);
+    expect(body.flux.wetDemand).toBe(309.75);
+    expect(plan.dryDischarge[1]).toBe(3.5);
+    const alternate = structuredClone(input);
+    alternate.localRunoff[2] = 800.125;
+    alternate.localRunoff[3] = 600.75;
+    const alternatePlan = verify(alternate);
+    expect(alternatePlan.pools).toEqual(plan.pools);
+    expect(alternatePlan.bodies).toEqual(plan.bodies);
+    expect(alternatePlan.receiver).toEqual(plan.receiver);
+    expect(alternatePlan.dryDischarge).toEqual(plan.dryDischarge);
+    expect(alternatePlan.wetMask).toEqual(plan.wetMask);
+    expect(alternatePlan.conservation.wetPrecipitation).toBe(plan.conservation.wetPrecipitation);
+    expect(alternatePlan.conservation.wetDemand).toBe(plan.conservation.wetDemand);
+    expect(alternatePlan.conservation.externalDischarge).toBe(plan.conservation.externalDischarge);
+    // The conservative guard includes all admitted source magnitudes, even submerged runoff.
+    expect(alternatePlan.conservation.roundoffBound).toBeGreaterThan(plan.conservation.roundoffBound);
+    for (const invalid of [NaN, Infinity, -0.125]) {
+      const malformed = structuredClone(input);
+      malformed.precipitation[2] = invalid;
+      expect(() => run(malformed)).toThrow("precipitation");
+    }
+  });
   it("keeps a saturated partial multifurcation below its unsaturated sibling", () => {
     const input = fixture([-1, 6, 0, 3, 0, 3, 0, 7, -1], [0, 8]);
     input.localRunoff.fill(0); for (const cell of [2, 4, 6]) input.localRunoff[cell] = 1;
-    input.rainfall.fill(0); input.potentialDemand.fill(0); input.rainfall[2] = 5; input.potentialDemand[4] = 1; input.potentialDemand[6] = 100;
+    input.precipitation.fill(0); input.potentialDemand.fill(0); input.precipitation[2] = 5; input.potentialDemand[4] = 1; input.potentialDemand[6] = 100;
     const plan = verify(input);
     expect(plan.pools.some(pool => pool.leafIds.length === 2 && pool.level === 3)).toBe(true);
     expect(plan.pools.some(pool => pool.state === "subtile")).toBe(true);
@@ -242,18 +272,18 @@ describe("hydrology/compute-basin-network", () => {
   });
   it("represents zero intervals with the next exact Number, and never jumps an early closed cohort", () => {
     const exact = fixture([-1, 5, 0, 1, 6, -1], [0, 5]);
-    exact.rainfall.fill(0); exact.potentialDemand.fill(0); exact.potentialDemand[2] = 1;
+    exact.precipitation.fill(0); exact.potentialDemand.fill(0); exact.potentialDemand[2] = 1;
     const plan = verify(exact), pool = plan.pools[0]!;
     expect(pool.state).toBe("closed"); expect(pool.closure?.resolution).toBe("exact-balance");
     expect(pool.level).toBe(Number.MIN_VALUE); expect(plan.wetMask[2]).toBe(1); expect(plan.waterSurface[2]).not.toBe(Math.round(plan.waterSurface[2]!));
     const nonmonotone = fixture([-1, 5, 0, 1, 2, 6, -1], [0, 6]);
-    nonmonotone.rainfall.fill(0); nonmonotone.potentialDemand.fill(0); nonmonotone.potentialDemand[2] = 10; nonmonotone.rainfall[4] = 100;
+    nonmonotone.precipitation.fill(0); nonmonotone.potentialDemand.fill(0); nonmonotone.potentialDemand[2] = 10; nonmonotone.precipitation[4] = 100;
     expect(verify(nonmonotone).pools[0]!.state).toBe("subtile");
   });
   it("distinguishes no-source dry, balanced outlet-free and persistent surplus", () => {
     const dry = fixture([-1, 5, 0, 5]); dry.localRunoff.fill(0);
     expect(verify(dry).pools[0]!.state).toBe("dry");
-    const balanced = fixture([3, 0, 2], []); balanced.rainfall.fill(0); balanced.potentialDemand.fill(0); balanced.potentialDemand[1] = 2;
+    const balanced = fixture([3, 0, 2], []); balanced.precipitation.fill(0); balanced.potentialDemand.fill(0); balanced.potentialDemand[1] = 2;
     expect(verify(balanced).pools[0]!.state).toBe("closed");
     const result = run(fixture([3, 0, 2], []));
     expect(result.status).toBe("no-stationary-solution"); expect("plan" in result).toBe(false);
@@ -266,7 +296,7 @@ describe("hydrology/compute-basin-network", () => {
   });
   it("gives a boundary-connected hydraulic component a port without a receiver", () => {
     const terrain = { width: 3, height: 3, elevation: Array.from([2, 2, 2, 2, 0, 2, 2, 2, 2]), externalWaterMask: new Uint8Array(9), externalWaterHead: 0 };
-    const plan = verify({ ...terrain, geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: true } }), localRunoff: new Array(9).fill(1), rainfall: new Uint8Array(9).fill(10), potentialDemand: new Float32Array(9).fill(1) });
+    const plan = verify({ ...terrain, geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: true } }), localRunoff: new Array(9).fill(1), precipitation: new Float32Array(9).fill(10), potentialDemand: new Float32Array(9).fill(1) });
     expect(plan.ports).toHaveLength(1); expect(plan.ports[0]!.kind).toBe("boundary-export");
     expect("toCell" in plan.ports[0]!).toBe(false);
     expect(plan.dryDischarge[plan.ports[0]!.fromCell]).toBe(0);
@@ -277,7 +307,7 @@ describe("hydrology/compute-basin-network", () => {
     for (let sample = 0; sample < 40; sample++) {
       const width = 8, height = 5, elevation = Array.from({ length: 40 }, (_, cell) => cell < 8 ? -10 : (cell * 17 + sample * 7 + cell * cell) % 13), externalWaterMask = Uint8Array.from(elevation, value => value === -10 ? 1 : 0);
       const terrain = { width, height, elevation, externalWaterMask, externalWaterHead: -10 };
-      verify({ ...terrain, geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: false } }), localRunoff: Array.from(externalWaterMask, (_, cell) => externalWaterMask[cell] ? 0 : 1 + (cell * sample) % 7), rainfall: Uint8Array.from({ length: 40 }, (_, cell) => (sample + cell) % 21), potentialDemand: Float32Array.from({ length: 40 }, (_, cell) => (sample * cell) % 30) });
+      verify({ ...terrain, geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: false } }), localRunoff: Array.from(externalWaterMask, (_, cell) => externalWaterMask[cell] ? 0 : 1 + (cell * sample) % 7), precipitation: Float32Array.from({ length: 40 }, (_, cell) => (sample + cell) % 21), potentialDemand: Float32Array.from({ length: 40 }, (_, cell) => (sample * cell) % 30) });
     }
   });
   it("rejects malformed forcing, duplicate sources and root dependency cycles", () => {
@@ -292,7 +322,7 @@ describe("hydrology/compute-basin-network", () => {
     for (let sample = 0; sample < 4000; sample++) {
       const width = 8, height = 7, elevation = Array.from({ length: 56 }, (_, cell) => cell < 8 ? -10 : Math.floor(random() * 9)), externalWaterMask = Uint8Array.from(elevation, value => value === -10 ? 1 : 0);
       const terrain = { width, height, elevation, externalWaterMask, externalWaterHead: -10 };
-      const input = { ...terrain, geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: false } }), localRunoff: Array.from(externalWaterMask, value => value ? 0 : random() * 4), rainfall: Uint8Array.from({ length: 56 }, () => Math.floor(random() * 15)), potentialDemand: Float32Array.from({ length: 56 }, () => random() * 30) };
+      const input = { ...terrain, geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: false } }), localRunoff: Array.from(externalWaterMask, value => value ? 0 : random() * 4), precipitation: Float32Array.from({ length: 56 }, () => Math.floor(random() * 15)), potentialDemand: Float32Array.from({ length: 56 }, () => random() * 30) };
       const plan = supported(input);
       expect(Math.abs(plan.conservation.residual)).toBeLessThanOrEqual(plan.conservation.roundoffBound);
       // These exact generations found stale response, unrelated shoreline, and

@@ -6,7 +6,7 @@ import { measureStandardChannelEvolution } from "../../../../../metrics/families
 import { projectNetworkViz } from "./viz.js";
 import { config } from "./config.js";
 
-/** Complete the physical computation before publishing its mutually consistent products. */
+/** Complete the physical network under exact baseline float forcing before publication. */
 export const NetworkStep = createStep(config, {
   run: (context, stepConfig, ops, deps) => {
     const { width, height } = context.setup.dimensions;
@@ -20,8 +20,8 @@ export const NetworkStep = createStep(config, {
         {
           ...dimensions,
           externalWaterMask,
-          rainfall: climate.rainfall,
-          humidity: climate.humidity,
+          precipitation: climate.precipitation,
+          surfaceWetness: climate.surfaceWetness,
         },
         stepConfig.computeLocalRunoff
       );
@@ -43,7 +43,7 @@ export const NetworkStep = createStep(config, {
             externalWaterHead: seaLevel,
             geometry,
             localRunoff: runoff,
-            rainfall: climate.rainfall,
+            precipitation: climate.precipitation,
             potentialDemand: climate.potentialDemand,
           },
           stepConfig.computeBasinNetwork

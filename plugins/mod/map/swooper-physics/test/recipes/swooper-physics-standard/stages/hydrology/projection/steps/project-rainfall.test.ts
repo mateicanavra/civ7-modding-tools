@@ -29,9 +29,11 @@ describe("map-hydrology/project-rainfall", () => {
     expect(PlotRiversStep.contract.engine).not.toContain("modelRivers");
   });
 
-  it("projects every final-refined rainfall sample exactly once in row-major order", () => {
+  it("projects only the native codec exactly once in row-major order", () => {
     const { width, height } = SYNTHETIC_DIMENSIONS;
-    const rainfall = new Uint8Array([0, 17, 200, 42, 81, 133]);
+    const rainfallCodec = new Uint8Array([0, 17, 200, 42, 81, 133]);
+    const precipitation = new Float32Array([0.25, 17.25, 420.5, 42.25, 81.25, 133.25]);
+    const surfaceWetness = new Float32Array([0.1, 0.2, 1, 0.4, 0.5, 0.6]);
     const adapter = new RainfallRecordingAdapter({ width, height });
     const context = createMapContext({
       setup: admitMapSetup({
@@ -43,8 +45,9 @@ describe("map-hydrology/project-rainfall", () => {
     });
     withMapContextExecutionForTest(context, (stepContext) => {
       publishTestArtifact(stepContext, climateArtifacts.climateField, {
-        rainfall,
-        humidity: new Uint8Array(width * height),
+        precipitation,
+        surfaceWetness,
+        rainfallCodec,
       });
 
       ProjectRainfallStep.run(
@@ -64,5 +67,7 @@ describe("map-hydrology/project-rainfall", () => {
       { x: 2, y: 1, rainfall: 133 },
     ]);
     expect(adapter.projected).toHaveLength(width * height);
+    expect(precipitation).toEqual(new Float32Array([0.25, 17.25, 420.5, 42.25, 81.25, 133.25]));
+    expect(surfaceWetness).toEqual(new Float32Array([0.1, 0.2, 1, 0.4, 0.5, 0.6]));
   });
 });

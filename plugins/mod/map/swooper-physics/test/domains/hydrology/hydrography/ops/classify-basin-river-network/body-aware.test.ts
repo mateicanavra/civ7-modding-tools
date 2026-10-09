@@ -70,7 +70,7 @@ function simple(runoff: number, demand: number, boundary = false) {
       config: { allowExternalEdgeOutlets: boundary },
     }),
     localRunoff: Array.from(terrain.externalWaterMask, (external) => external ? 0 : runoff),
-    rainfall: new Uint8Array(5),
+    precipitation: new Float32Array(5),
     potentialDemand: Float32Array.of(0, 0, demand, 0, 0),
   };
 }
@@ -90,7 +90,7 @@ describe("component-aware basin river metadata", () => {
         config: { allowExternalEdgeOutlets: false },
       }),
       localRunoff: [0, 0, 20.5, 0, 0, 0],
-      rainfall: new Uint8Array(6),
+      precipitation: new Float32Array(6),
       potentialDemand: Float32Array.of(0, 0, 0, 10, 0, 0),
     });
     expect(input.flowDir[2]).toBe(1);
@@ -120,7 +120,7 @@ describe("component-aware basin river metadata", () => {
     // The 17 retained finite rows now meet an explicit finite sill at 396,
     // which contributes one source area while supplying no additional water.
     expect(source.externalWaterMask[396]).toBe(0);
-    expect([source.localRunoff[396], source.rainfall[396], source.potentialDemand[396]]).toEqual([0, 0, 0]);
+    expect([source.localRunoff[396], source.precipitation[396], source.potentialDemand[396]]).toEqual([0, 0, 0]);
     for (const cell of component.memberCells) expect(output.upstreamArea[cell]).toBe(18);
     expect(output.mouthType[312]).toBe(2);
     expect(output.mouthBodyId[312]).toBe(input.bodyId[228]);
@@ -172,7 +172,7 @@ describe("component-aware basin river metadata", () => {
         config: { allowExternalEdgeOutlets: true },
       }),
       localRunoff: new Array<number>(9).fill(1),
-      rainfall: new Uint8Array(9),
+      precipitation: new Float32Array(9),
       potentialDemand: new Float32Array(9),
     });
     const output = classify.run(input, classify.defaultConfig);
