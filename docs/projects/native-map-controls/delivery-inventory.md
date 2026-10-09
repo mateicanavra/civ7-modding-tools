@@ -13,6 +13,52 @@ benchmarks, not inputs hidden inside the procedural Earthlike recipe. A
 realistic Earthlike variant is the desired playable outcome, not literal Earth
 replay. Historical eight-product captures remain immutable comparison evidence.
 
+## Current Product Closure
+
+The original elevation, finite-basin/network and bounded native navigation
+outcomes below remain delivered. The desired product is still a coherent,
+playable procedural Earthlike map, not a literal Earth replay or a complete
+Earth-system simulator. Regional land-temperature response remains an explicit
+limitation; no new thermal or ocean campaign is an implicit prerequisite to
+playing the qualified product.
+
+The [source-limited rainfall experiment](climate-moisture-closure-design.md#completed-product-decision)
+is complete and not adopted. Owner accounting and consumer controls pass, and
+four calibrated maps improve climate structure. The independent 57-case bank
+adds one real terrain refusal: Huge seed 5050's exact maximum regional span
+falls from `40` to `36`, below the unchanged `38` policy. The final witness
+shows intentional relief-supported anchor and corridor reselection, not the
+proposed missing-axis defect. No further selector repair or moisture tuning
+is justified by that diagnosis. This does not establish that conservation is
+wrong or that every player-facing property deteriorated.
+
+[PR #2323](https://github.com/mateicanavra/civ7-modding-tools/pull/2323) is closed
+with the full candidate and receipts preserved. The qualified but unused
+preparatory operation from PR #2321 is retired as maintenance, not silently
+adopted or left as a fallback. The empirical incumbent is the sole production
+rainfall path. There is no partially migrated consumer chain or changed
+installed climate.
+
+The useful independent work is delivered in
+[PR #2324](https://github.com/mateicanavra/civ7-modding-tools/pull/2324): paired
+rainfall, effective-moisture and biome views; shared numeric scales; exact tile
+inspection and PNG export. All six views, desktop/mobile layout and export
+pass browser proof. Two existing exhaustive basin tests receive bounded
+deadline headroom with every case, seed and assertion retained. The full
+incumbent definition suite passes 1,200 tests, with only the pre-existing
+temperature-variation aggregate failure. Source-branch retirement removes
+six unused operation tests; it does not remove a failing product expectation.
+
+The next player-facing outcome is the already-authorized, explicitly diagnostic
+frozen seed-5050 native contrast, then the latest qualified Huge Earthlike game.
+It follows exact build/installation comparison and preservation of existing
+user state. Research views are not native screenshots or gameplay proof.
+Native use must wait for the existing session's explicit release. The frozen
+candidate remains unadmitted during that look and the qualified incumbent must
+be restored afterward; no forced replacement user game or autoplay is selected.
+
+## Prior Delivery Evidence
+
 The [actual Foundation projection witness](constitutive-support-attribution.md#actual-projection-witness)
 is now closed with no production change: eight exact current/historical
 captures, 46,128 independently verified assignments, all 364 cells sampled in
