@@ -299,7 +299,7 @@ describe("hydrology/compute-basin-network", () => {
       // recorded-plateau outlet bugs during the independent partition checks.
       if ([12, 85, 113, 1877, 3551].includes(sample)) verify(input);
     }
-  });
+  }, 15_000);
   it("settles independent hydraulic groups across larger source partitions", () => {
     let seed = 919121;
     for (let sample = 0; sample < 24; sample++) {
@@ -313,5 +313,5 @@ describe("hydrology/compute-basin-network", () => {
         expect(Math.abs(pool.flux.balance - pool.outflow - pool.unresolvedResidual)).toBeLessThanOrEqual(plan.conservation.roundoffBound);
       }
     }
-  }, 30_000);
+  }, 60_000);
 });

@@ -125,6 +125,7 @@ function viewData(capture: StandardMapCapture): CoherenceViewData {
     elevation: Array.from(model.elevation), land: Array.from(model.externalWaterMask, (external) => external === 0 ? 1 : 0), wet: Array.from(model.plannedLakeMask),
     mountain: Array.from(model.mountainMask), hill: Array.from(model.hillMask), volcano: Array.from(model.volcanoMask),
     river: Array.from(model.riverClass), receiver: Array.from(model.flowDir), discharge: Array.from(hydro.discharge),
+    precipitation: Array.from(model.baselineRainfall), effectiveMoisture: Array.from(model.effectiveMoisture), biomeIndex: Array.from(model.biomeIndex),
     bodyId: Array.from(hydro.bodyId), waterSurface: Array.from(hydro.waterSurface),
     bodies: hydro.bodies.map((body) => ({ id: body.bodyId, component: body.componentId, surface: body.level,
       outflow: body.outflow, unresolved: body.unresolvedResidual, wetTiles: body.wetCells.length })),
