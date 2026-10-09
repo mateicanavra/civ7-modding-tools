@@ -4,9 +4,10 @@
 
 Deliver a coherent, playable procedural Earthlike map, using scientific Earth
 as a benchmark rather than a procedural input. Elevation, basin/network
-repairs and bounded native navigation are delivered. The remaining climate
-obligation is useful regional land-temperature response and its downstream
-biome/water consequences, not a complete Earth-system simulator.
+repairs and bounded native navigation are delivered. Regional land-temperature
+response remains an unresolved requirement. The approved moisture story targets
+wet/dry forcing of existing basins and networks directly, not a complete
+Earth-system simulator or another temperature fit.
 
 The [private climatic-deficit pilot is complete and closed](annual-land-response-owner-decision.md#completed-deficit-pilot).
 Actual-producer and zero-response controls pass, but all 196 training sites
@@ -20,6 +21,18 @@ or another river rewrite. More fitting of this uninformative predictor is not
 selected. Any subsequent proposal must first establish useful modeled regional
 information and a bounded product-level discriminator. The playable incumbent
 stays installed until an improvement is actually qualified.
+
+The next approved product story is
+[Source-Limited Rainfall](climate-moisture-closure-design.md): implement the lean
+Climate-owned supply/transport/rainout relationship, then prove wet/dry
+consequences against the cheaper honest proxy through existing basins,
+rivers and ecology. Its concrete provisional numerical scheme now selects
+source/rainout rates, SDK two-ray donor scatter, size-aware travel and the
+manufactured acceptance controls. Architecture implementation scope was approved
+on 2026-10-09; the numerical scheme remains unexecuted and production adoption
+is not admitted. The thermal backbone stays fixed and no new temperature family
+is selected. Complete the owner/contract slice before the full candidate; retain
+the installed build and live session during definition qualification.
 
 ## Prior Decisions
 
