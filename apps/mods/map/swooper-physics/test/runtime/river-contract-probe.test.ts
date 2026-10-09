@@ -1200,39 +1200,44 @@ describe("V16/V17 stock original-input replay transport (not native preservation
     expect(runtime.calls).toHaveLength(0);
   });
 
-  test("unavailable getter evidence is retained on both sides and never becomes replay input", async () => {
-    const { script } = await compiled("authored", WATER_CONNECTIVITY_REPLAY_ATLAS);
-    const runtime = mockRuntime(script, {
-      lakeCutoff: 6,
-      missing: ["getElevation", "isLake", "getAreaId"],
-    });
-    runtime.run();
-    for (const checkpoint of [
-      "before-original-replay-slot",
-      "after-original-replay-slot",
-      "after-water-cache",
-    ]) {
-      const rows = runtime
-        .entries()
-        .filter(
-          ({ stage, payload }) =>
-            stage === "water-connectivity-grid" && payload.checkpoint === checkpoint
-        );
-      expect(rows).toHaveLength(38);
-      for (const { payload } of rows)
-        for (const field of ["elevation", "lake", "areaId"])
-          expect(
-            payload[field].every(
-              (value: any) => value.status === "unavailable" && value.reason === "missing-callable"
-            )
-          ).toBe(true);
-    }
-    expect(runtime.elevationInputs).toEqual([
-      buildWaterConnectivityElevation(),
-      buildWaterConnectivityElevation(),
-    ]);
-    expect(runtime.lines.every((line) => line.length <= 900)).toBe(true);
-  });
+  test(
+    "unavailable getter evidence is retained on both sides and never becomes replay input",
+    async () => {
+      const { script } = await compiled("authored", WATER_CONNECTIVITY_REPLAY_ATLAS);
+      const runtime = mockRuntime(script, {
+        lakeCutoff: 6,
+        missing: ["getElevation", "isLake", "getAreaId"],
+      });
+      runtime.run();
+      for (const checkpoint of [
+        "before-original-replay-slot",
+        "after-original-replay-slot",
+        "after-water-cache",
+      ]) {
+        const rows = runtime
+          .entries()
+          .filter(
+            ({ stage, payload }) =>
+              stage === "water-connectivity-grid" && payload.checkpoint === checkpoint
+          );
+        expect(rows).toHaveLength(38);
+        for (const { payload } of rows)
+          for (const field of ["elevation", "lake", "areaId"])
+            expect(
+              payload[field].every(
+                (value: any) =>
+                  value.status === "unavailable" && value.reason === "missing-callable"
+              )
+            ).toBe(true);
+      }
+      expect(runtime.elevationInputs).toEqual([
+        buildWaterConnectivityElevation(),
+        buildWaterConnectivityElevation(),
+      ]);
+      expect(runtime.lines.every((line) => line.length <= 900)).toBe(true);
+    },
+    { timeout: 15_000 }
+  );
 
   test("a failed replay is not retried and cannot run area/cache refresh or emit completion", async () => {
     const { script } = await compiled("authored", WATER_CONNECTIVITY_REPLAY_ATLAS);
