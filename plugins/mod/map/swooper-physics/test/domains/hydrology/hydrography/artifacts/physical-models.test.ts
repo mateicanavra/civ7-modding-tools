@@ -36,15 +36,26 @@ describe("certified physical water artifacts", () => {
     const input = desertHugeRoot19(), value = certifiedLake(input);
     const dimensions = { width: value.width, height: value.height };
     expect(value.plannedLakeTileCount).toBe(14);
-    expect(value.pools[0]!.catchmentCells).toHaveLength(44);
-    const barrierCells = value.pools[0]!.catchmentCells.filter(cell => input.elevation[cell] === 1000);
-    expect(barrierCells).toHaveLength(2);
+    const catchmentCells = Array.from(input.geometry.catchmentCells), pool = value.pools[0]!;
+    expect(pool.catchmentCells).toEqual(catchmentCells);
+    const retainedCells = catchmentCells.filter(cell => input.elevation[cell]! < 1000);
+    expect(retainedCells).toHaveLength(42);
+    expect(pool.catchmentCells.filter(cell => input.elevation[cell]! < 1000)).toEqual(retainedCells);
+    const barrierCells = catchmentCells.filter(cell => input.elevation[cell] === 1000);
+    expect(pool.catchmentCells.filter(cell => input.elevation[cell] === 1000)).toEqual(barrierCells);
+    expect(barrierCells.length).toBeGreaterThan(0);
     for (const cell of barrierCells) {
       expect(input.externalWaterMask[cell]).toBe(0);
       expect([input.localRunoff[cell], input.rainfall[cell], input.potentialDemand[cell]]).toEqual([0, 0, 0]);
     }
+    const wetCells = retainedCells.filter(cell => input.elevation[cell]! < 30);
+    expect(wetCells).toHaveLength(14);
+    expect(pool.level).toBe(30);
+    expect(pool.wetCells).toEqual(wetCells);
     expect(value.bodies[0]!.bodyId).toBe(2636);
     expect(value.components[0]!.componentId).toBe(2636);
+    expect(value.bodies[0]!.wetCells).toEqual(wetCells);
+    expect(value.components[0]!.memberCells).toEqual(wetCells);
     for (const record of [value.bodies[0]!, value.components[0]!]) {
       expect(record.flux.balance - record.outflow - record.unresolvedResidual).toBe(2 ** -42);
       expect(record.unresolvedResidual).toBe(3.2292057291665515);

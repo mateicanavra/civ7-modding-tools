@@ -112,15 +112,15 @@ export function computeDrainageBasins(input: Input, allowExternalEdgeOutlets: bo
     plateaus.push(plateau);
   }
 
-  // Strict descent orders plateau dependencies; flats get an adjacent BFS tree, not index jumps.
+  // Strict descent orders dependencies. Drainable flats keep local exits; only interiors use BFS.
   plateaus.sort((a, b) => a.elevation - b.elevation || a.id - b.id);
   const routed = new Uint8Array(size);
   const queue = new Int32Array(size);
   for (const plateau of plateaus) {
-    let source = plateau.id;
-    let receiver = -1;
+    const exits: Array<{ source: number; receiver: number }> = [];
     let edgeExit = -1;
     for (const cell of plateau.cells) {
+      let receiver = -1;
       const y = Math.floor(cell / width);
       if (allowExternalEdgeOutlets && (y === 0 || y === height - 1)) {
         if (edgeExit === -1 || cell < edgeExit) edgeExit = cell;
@@ -133,38 +133,43 @@ export function computeDrainageBasins(input: Input, allowExternalEdgeOutlets: bo
           receiver === -1 ||
           hydraulicElevation(neighbor) < hydraulicElevation(receiver) ||
           (hydraulicElevation(neighbor) === hydraulicElevation(receiver) &&
-            (neighbor < receiver || (neighbor === receiver && cell < source)))
+            neighbor < receiver)
         ) {
-          source = cell;
           receiver = neighbor;
         }
       });
+      if (receiver !== -1) exits.push({ source: cell, receiver });
     }
 
     let label = 0;
     if (edgeExit !== -1) {
-      source = edgeExit;
-      receiver = -1;
-    } else if (receiver !== -1) {
-      label = leafId[receiver]!;
-    } else {
+      exits.length = 0;
+      exits.push({ source: edgeExit, receiver: -1 });
+    } else if (exits.length === 0) {
       label = nodes.length + 1;
       nodes.push(makeNode(label, "leaf", plateau.id, plateau.elevation, plateau.elevation, []));
+      exits.push({ source: plateau.id, receiver: -1 });
+    } else {
+      // Equal-distance interiors retain the existing lowest-head, receiver-index, source-index tie order.
+      exits.sort((a, b) => hydraulicElevation(a.receiver) - hydraulicElevation(b.receiver) ||
+        a.receiver - b.receiver || a.source - b.source);
     }
 
     let head = 0;
-    let tail = 1;
-    queue[0] = source;
-    routed[source] = 1;
-    rawReceiver[source] = receiver;
-    leafId[source] = label;
+    let tail = 0;
+    for (const { source, receiver } of exits) {
+      queue[tail++] = source;
+      routed[source] = 1;
+      rawReceiver[source] = receiver;
+      leafId[source] = receiver === -1 ? label : leafId[receiver]!;
+    }
     while (head < tail) {
       const cell = queue[head++]!;
       neighbors(cell, (neighbor) => {
         if (plateauId[neighbor] !== plateau.id || routed[neighbor] === 1) return;
         routed[neighbor] = 1;
         rawReceiver[neighbor] = cell;
-        leafId[neighbor] = label;
+        leafId[neighbor] = leafId[cell]!;
         queue[tail++] = neighbor;
       });
     }

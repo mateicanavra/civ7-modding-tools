@@ -133,24 +133,131 @@ describe("hydrology/compute-basin-network", () => {
   it("does not commit a lower merger against an unsettled higher-sill export", () => {
     const { input, nextSeed } = largerGrid();
     expect(nextSeed).toBe(-397855455);
+    expect(input.geometry.nodes).toHaveLength(187);
     const plan = verify(input);
     const upstream = plan.pools.find(pool => pool.leafIds.includes(78))!;
     const receiver = plan.pools.find(pool => pool.leafIds.includes(82))!;
     const terminal = plan.pools.find(pool => pool.leafIds.includes(86))!;
+    // Fixed heads and leaf groups determine strict wetlands. Input plateau IDs
+    // admit only the internal contacts and selected sill, without another flood solver.
+    const expectedComponent = (leaves: number[], head: number, portLeaf: number | null) => {
+      const wetCells = Array.from(input.geometry.leafId).flatMap((leaf, cell) =>
+        leaves.includes(leaf) && input.elevation[cell]! < head ? [cell] : []
+      );
+      const spill = portLeaf === null ? null : input.geometry.nodes[portLeaf - 1]!.spill!;
+      const seeds = input.geometry.saddles.filter(saddle =>
+        leaves.includes(saddle.leafA) && leaves.includes(saddle.leafB) && saddle.elevation === head
+      ).flatMap(saddle => [saddle.cellA, saddle.cellB]);
+      if (spill) seeds.push(spill.fromCell, spill.toCell);
+      else seeds.push(input.geometry.nodes[leaves[0]! - 1]!.floorCell);
+      const plateaus = new Set(seeds.filter(cell => input.elevation[cell] === head).map(cell => input.geometry.plateauId[cell]));
+      const junctionCells = Array.from(input.geometry.plateauId).flatMap((plateau, cell) =>
+        !input.externalWaterMask[cell] && input.elevation[cell] === head && plateaus.has(plateau) ? [cell] : []
+      );
+      const memberCells = [...wetCells, ...junctionCells].sort((a, b) => a - b);
+      let port = spill ? { fromCell: spill.fromCell, toCell: spill.toCell } : null;
+      while (port && memberCells.includes(port.toCell))
+        port = { fromCell: port.toCell, toCell: input.geometry.rawReceiver[port.toCell]! };
+      return { poolId: Math.min(...leaves), componentId: memberCells[0]! + 1, memberCells, wetCells, junctionCells, port };
+    };
+    const expectedComponents = [
+      expectedComponent([60, 78, 85, 93, 121, 137], 3, 78),
+      expectedComponent([82], 2, 82),
+      expectedComponent([86], 0, null),
+    ];
+    for (const expected of expectedComponents) {
+      const component = plan.components.find(component => component.poolId === expected.poolId)!;
+      expect(component.componentId).toBe(expected.componentId);
+      expect(component.memberCells).toEqual(expected.memberCells);
+      expect(component.junctionCells).toEqual(expected.junctionCells);
+      expect(plan.pools.find(pool => pool.poolId === expected.poolId)!.wetCells).toEqual(expected.wetCells);
+    }
+    for (let index = 0; index < 2; index++) {
+      const expected = expectedComponents[index]!, destination = expectedComponents[index + 1]!;
+      expect(plan.ports.find(port => port.componentId === expected.componentId)).toMatchObject({
+        ...expected.port, kind: "adjacent", componentId: expected.componentId,
+        destination: "component", destinationComponentId: destination.componentId,
+      });
+    }
+    expect(plan.ports.some(port => port.componentId === expectedComponents[2]!.componentId)).toBe(false);
+    const incomplete = structuredClone(plan.components.find(component => component.poolId === expectedComponents[0]!.poolId)!);
+    incomplete.memberCells = incomplete.memberCells.filter(cell => cell !== expectedComponents[0]!.junctionCells[0]);
+    incomplete.junctionCells = incomplete.junctionCells.filter(cell => cell !== expectedComponents[0]!.junctionCells[0]);
+    expect([...expectedComponents[0]!.wetCells, ...incomplete.junctionCells].sort((a, b) => a - b)).toEqual(incomplete.memberCells);
+    expect(incomplete.flux.balance).toBe(incomplete.outflow + incomplete.unresolvedResidual);
+    expect(() => expect(incomplete.memberCells).toEqual(expectedComponents[0]!.memberCells)).toThrow();
+    // First-pool attribution is now anchored entirely in input topology, not
+    // output membership, catchments, receivers, or flux.
+    const memberPool = new Map(expectedComponents.flatMap(component =>
+      component.memberCells.map(cell => [cell, component.poolId] as const)
+    ));
+    const firstPool = new Int32Array(input.elevation.length);
+    for (let source = 0; source < firstPool.length; source++) {
+      if (input.externalWaterMask[source]) continue;
+      const visited = new Set<number>();
+      let cell = source;
+      while (cell >= 0 && !input.externalWaterMask[cell]) {
+        if (visited.has(cell)) throw new Error("Cyclic input source route");
+        visited.add(cell);
+        const poolId = memberPool.get(cell);
+        if (poolId !== undefined) { firstPool[source] = poolId; break; }
+        cell = input.geometry.rawReceiver[cell]!;
+      }
+    }
+    const budget = (poolId: number, head: number, incomingOverflow: number, includeCohort = false) => {
+      const cells = Array.from(firstPool).flatMap((owner, cell) => owner === poolId ? [cell] : []);
+      const wetCells = cells.filter(cell => includeCohort ? input.elevation[cell]! <= head : input.elevation[cell]! < head);
+      const dryRunoff = cells.filter(cell => !wetCells.includes(cell)).reduce((sum, cell) => sum + input.localRunoff[cell]!, 0);
+      const wetPrecipitation = wetCells.reduce((sum, cell) => sum + input.rainfall[cell]!, 0);
+      const wetDemand = wetCells.reduce((sum, cell) => sum + input.potentialDemand[cell]!, 0);
+      return { cells, wetCells, flux: { incomingOverflow, dryRunoff, wetPrecipitation, wetDemand,
+        balance: incomingOverflow + dryRunoff + wetPrecipitation - wetDemand } };
+    };
+    const upstreamBudget = budget(upstream.poolId, 3, 0);
+    const receiverBudget = budget(receiver.poolId, 2, upstreamBudget.flux.balance);
+    const terminalBudget = budget(terminal.poolId, 0, receiverBudget.flux.balance);
+    for (const [pool, expected] of [[upstream, upstreamBudget], [receiver, receiverBudget], [terminal, terminalBudget]] as const) {
+      expect(pool.catchmentCells).toEqual(expected.cells);
+      expect(pool.wetCells).toEqual(expected.wetCells);
+      expect(pool.flux).toEqual(expected.flux);
+    }
+    const incomingPools = (poolId: number) => plan.ports.flatMap(port =>
+      port.kind === "adjacent" && firstPool[port.toCell] === poolId
+        ? [plan.components.find(component => component.componentId === port.componentId)!.poolId] : []
+    );
+    expect(incomingPools(upstream.poolId)).toEqual([]);
+    expect(incomingPools(receiver.poolId)).toEqual([upstream.poolId]);
+    expect(incomingPools(terminal.poolId)).toEqual([receiver.poolId]);
     expect(upstream.leafIds).toEqual([60, 78, 85, 93, 121, 137]);
-    expect(upstream.outflow).toBe(8.979684541001916);
+    expect(upstream.state).toBe("open");
+    expect(upstream.level).toBe(3);
+    expect(upstream.outflow).toBe(upstreamBudget.flux.balance);
+    expect(upstream.outflow).toBeGreaterThan(0);
     expect(receiver.leafIds).toEqual([82]);
+    expect(receiver.state).toBe("open");
+    expect(receiver.level).toBe(2);
     expect(receiver.flux.incomingOverflow).toBe(upstream.outflow);
-    expect(receiver.outflow).toBe(6.516185967251658);
+    expect(receiver.outflow).toBe(receiverBudget.flux.balance);
+    expect(receiver.outflow).toBeGreaterThan(0);
     expect(terminal.leafIds).toEqual([86]);
     expect(terminal.state).toBe("subtile");
     expect(terminal.level).toBe(0);
     expect(terminal.wetCells).toEqual([]);
     expect(plan.wetMask[1091]).toBe(0);
-    expect(terminal.unresolvedResidual).toBe(13.48288746085018);
+    expect(terminal.flux.incomingOverflow).toBe(receiver.outflow);
+    expect(terminal.outflow).toBe(0);
+    expect(terminal.unresolvedResidual).toBe(terminalBudget.flux.balance);
+    expect(terminal.unresolvedResidual).toBeGreaterThan(0);
     if (terminal.closure?.resolution !== "shoreline-quantization") throw new Error("Missing closed cohort");
     // The old attained deficit is now the rejected next cohort, not retained wet demand.
-    expect(terminal.closure.after.balance).toBe(-11.585683768615127);
+    const rejected = budget(terminal.poolId, 0, receiverBudget.flux.balance, true);
+    expect(rejected.wetCells).toEqual([1091]);
+    expect(terminal.closure.cohortCells).toEqual(rejected.wetCells);
+    expect(terminal.closure.before).toEqual(terminalBudget.flux);
+    expect(terminal.closure.after).toEqual(rejected.flux);
+    expect(terminal.closure.after.balance).toBeLessThan(0);
+    expect(terminal.closure.jumpMagnitude).toBe(terminalBudget.flux.balance - rejected.flux.balance);
+    expect(terminal.closure.unresolvedResidual).toBe(terminalBudget.flux.balance);
     expect(plan.conservation.residual).toBe(0);
     const reordered = structuredClone(input);
     reordered.geometry.saddles.reverse();

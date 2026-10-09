@@ -297,6 +297,88 @@ describe("hydrology/compute-drainage-basins", () => {
     expectGeometry(input, result);
   });
 
+  it("preserves every local downhill marine exit instead of collecting a coastal strip sideways", () => {
+    const width = 8, height = 5;
+    const elevation: number[] = Array.from({ length: width * height }, (_, cell) => {
+      const y = Math.floor(cell / width);
+      return y < 2 ? 25 : y < 4 ? 12 : -20;
+    });
+    const externalWaterMask = Uint8Array.from(elevation, (_, cell) => Math.floor(cell / width) === 4 ? 1 : 0);
+    const input = { width, height, elevation, externalWaterMask, externalWaterHead: 11 };
+    const before = structuredClone(input), result = run(input);
+    const shoreline = Array.from({ length: width }, (_, x) => 3 * width + x);
+    expect(shoreline.filter(cell => externalWaterMask[result.rawReceiver[cell]!] === 1)).toHaveLength(width);
+    for (const cell of shoreline) {
+      const marineNeighbors = getHexNeighborIndicesOddQ(cell % width, 3, width, height)
+        .filter(neighbor => externalWaterMask[neighbor] === 1);
+      expect(result.rawReceiver[cell]).toBe(Math.min(...marineNeighbors));
+    }
+    for (let cell = 2 * width; cell < 3 * width; cell++) {
+      expect(shoreline).toContain(result.rawReceiver[cell]!);
+    }
+    expect(result.nodes).toEqual([]);
+    expect(result.externalCatchmentCells).toHaveLength(4 * width);
+    expectGeometry(input, result);
+    expect(run(structuredClone(input))).toEqual(result);
+    const alternate = structuredClone(input);
+    for (const cell of externalWaterMask.keys()) {
+      if (externalWaterMask[cell]) alternate.elevation[cell] = cell % 2 === 0 ? -32768 : 32767;
+    }
+    expect(run(alternate)).toEqual(result);
+    expect(input).toEqual(before);
+  });
+
+  it("routes a single-outlet inland flat into its existing depression without fragmenting it", () => {
+    const input = syntheticProfile([20, 5, 5, 5, 1, 20, 20, 20], []);
+    const result = run(input);
+    expect([...result.rawReceiver.slice(1, 5)]).toEqual([2, 3, 4, -1]);
+    expect(result.nodes).toHaveLength(1);
+    expect(result.nodes[0]!.floorCell).toBe(4);
+    expect(result.nodes[0]!.spill).toBeNull();
+    expect([...result.leafId]).toEqual(Array(8).fill(1));
+    expect(result.hypsometry).toEqual([
+      { elevation: 1, cellCount: 1 },
+      { elevation: 5, cellCount: 3 },
+      { elevation: 20, cellCount: 4 },
+    ]);
+    expectGeometry(input, result);
+    for (const level of [1, 5, 20]) expectThresholdComponents(input, result, level, false);
+  });
+
+  it("routes wrapped flat interiors to the nearest local exits with deterministic marine ties", () => {
+    const width = 8, height = 3;
+    const elevation = new Array<number>(width * height).fill(20);
+    elevation.fill(12, width, 2 * width);
+    const externalWaterMask = new Uint8Array(width * height);
+    externalWaterMask[0] = externalWaterMask[4] = 1;
+    const input = { width, height, elevation, externalWaterMask, externalWaterHead: 11 };
+    const before = structuredClone(input), result = run(input);
+    expect([...result.plateauId.slice(width, 2 * width)]).toEqual(Array(width).fill(width));
+    expect([...result.rawReceiver.slice(width, 2 * width)]).toEqual([0, 8, 11, 4, 4, 12, 15, 0]);
+    expect(result.nodes).toEqual([]);
+    expectGeometry(input, result);
+    expect(run(structuredClone(input))).toEqual(result);
+    expect(input).toEqual(before);
+  });
+
+  it("inherits each local exit's depression while retaining the closed basin's common saddle and storage", () => {
+    const input = syntheticProfile([20, 1, 5, 5, 5, 5, 2, 20], []);
+    const result = run(input);
+    expect([...result.rawReceiver]).toEqual([1, -1, 1, 2, 5, 6, -1, 6]);
+    expect([...result.leafId]).toEqual([1, 1, 1, 1, 2, 2, 2, 2]);
+    expect(result.nodes.map(node => [node.kind, node.floorCell, node.baseElevation, node.parentId]))
+      .toEqual([["leaf", 1, 1, 3], ["leaf", 6, 2, 3], ["merge", 1, 5, -1]]);
+    expect(result.roots).toEqual([3]);
+    const root = result.nodes[2]!;
+    expect(root.children).toEqual([1, 2]);
+    expect(root.spill).toBeNull();
+    expect(cellsOf(result, root).sort((a, b) => a - b)).toEqual([...input.elevation.keys()]);
+    expect(volumeAt(result, root, 5)).toBe(7);
+    expect(result.externalCatchmentCells).toHaveLength(0);
+    expectGeometry(input, result);
+    for (const level of [1, 2, 5, 20]) expectThresholdComponents(input, result, level, false);
+  });
+
   it("retains nested bowls, true merge heights, and uplands above the inundation sill", () => {
     const input = syntheticProfile([-5, 8, 0, 3, 1, 7, 2, 16, 20]);
     const result = run(input);

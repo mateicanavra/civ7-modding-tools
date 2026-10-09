@@ -3,6 +3,7 @@ import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readArtifact } from "@swooper/mapgen-core/authoring";
 import { MockAdapter } from "@civ7/adapter";
 import { Value } from "typebox/value";
+import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import {
   buildStepTestDependencies,
   publishTestArtifact,
@@ -231,13 +232,13 @@ function execute(
 }
 
 describe("hydrology network authoring and dispatch", () => {
-  it("composes exact retained forcing at explicit receiving heads with all finite barrier sources", () => {
+  it("composes exact retained forcing at explicit receiving heads with every finite source accounted", () => {
     // These are generated-geometry discriminators, not unmodified receipt
     // replay: the prescribed heads meet the finite sills at 25, 31 and 40.
-    for (const { retained, head, wetCountAtZeroHead } of [
-      { retained: hugeRoot17(), head: 25, wetCountAtZeroHead: 0 },
-      { retained: desertHugeRoot19(), head: 31, wetCountAtZeroHead: 6 },
-      { retained: standardRoots37And39(), head: 40, wetCountAtZeroHead: 4 },
+    for (const { retained, head } of [
+      { retained: hugeRoot17(), head: 25 },
+      { retained: desertHugeRoot19(), head: 31 },
+      { retained: standardRoots37And39(), head: 40 },
     ]) {
       const before = structuredClone(retained),
         result = execute(false, retained, false, head);
@@ -256,9 +257,33 @@ describe("hydrology network authoring and dispatch", () => {
       expect(retained).toEqual(before);
       expect("certificates" in lake).toBe(false);
       expect(lake.waterSurface.every(Number.isFinite)).toBe(true);
-      const finiteSourceCount = retained.externalWaterMask.reduce((count, external) => count + (external ? 0 : 1), 0);
+      const networkInput = result.networkInputs[0]!, inputGeometry = networkInput.geometry;
+      const finiteSources = Array.from(retained.externalWaterMask).flatMap((external, cell) => external ? [] : [cell]);
+      const inputPartition = [...inputGeometry.catchmentCells, ...inputGeometry.externalCatchmentCells];
+      expect(new Set(inputPartition).size).toBe(finiteSources.length);
+      expect(inputPartition.sort((a, b) => a - b)).toEqual(finiteSources);
+      const level = retained.height === 3 ? 24 : retained.height === 30 ? 30 : 40;
+      const wetCells = Array.from(inputGeometry.catchmentCells).filter(cell => networkInput.elevation[cell]! < level).sort((a, b) => a - b);
+      const sillPlateaus = new Set(inputGeometry.saddles.filter(saddle => saddle.elevation === level)
+        .flatMap(saddle => [saddle.cellA, saddle.cellB])
+        .filter(cell => networkInput.elevation[cell] === level)
+        .map(cell => inputGeometry.plateauId[cell]));
+      const junctionCells = finiteSources.filter(cell => networkInput.elevation[cell] === level && sillPlateaus.has(inputGeometry.plateauId[cell]));
+      const members = new Set([...wetCells, ...junctionCells]);
+      const catchmentCells = finiteSources.filter(source => {
+        let cell = source;
+        while (cell >= 0 && !networkInput.externalWaterMask[cell] && !members.has(cell)) cell = inputGeometry.rawReceiver[cell]!;
+        return members.has(cell);
+      });
+      const externalSources = Array.from(inputGeometry.externalCatchmentCells).filter(cell => !catchmentCells.includes(cell));
       expect(lake.pools).toHaveLength(1);
-      expect(lake.pools[0]!.catchmentCells).toHaveLength(finiteSourceCount);
+      expect(lake.pools[0]!.catchmentCells).toEqual(catchmentCells);
+      expect(lake.pools[0]!.wetCells).toEqual(wetCells);
+      expect(lake.components[0]!.memberCells).toEqual([...members].sort((a, b) => a - b));
+      expect(lake.components[0]!.junctionCells).toEqual(junctionCells);
+      const finalPartition = [...catchmentCells, ...externalSources];
+      expect(new Set(finalPartition).size).toBe(finiteSources.length);
+      expect(finalPartition.sort((a, b) => a - b)).toEqual(finiteSources);
       for (let cell = 0; cell < retained.elevation.length; cell++) {
         if (retained.externalWaterMask[cell]) expect(lake.waterSurface[cell]).toBe(head);
         if (retained.elevation[cell] === 1000) {
@@ -287,7 +312,31 @@ describe("hydrology network authoring and dispatch", () => {
       if (retained.height === 3) {
         expect(lake.bodies[0]!.wetCells).toEqual([43]);
         expect(lake.waterSurface[43]).toBe(24);
-        expect(lake.conservation.unresolvedResidual).toBe(14.902249320942005);
+        const receiver = inputGeometry.rawReceiver[254]!;
+        expect(getHexNeighborIndicesOddQ(254 % retained.width, Math.floor(254 / retained.width), retained.width, retained.height)).toContain(receiver);
+        expect(networkInput.externalWaterMask[receiver]).toBe(1);
+        expect(head).toBeLessThanOrEqual(networkInput.elevation[254]!);
+        expect(hydro.flowDir[254]).toBe(receiver);
+        expect(externalSources).toContain(254);
+        const inputFlux = (wet: number[]) => {
+          const dryRunoff = catchmentCells.filter(cell => !wet.includes(cell)).reduce((sum, cell) => sum + networkInput.localRunoff[cell]!, 0);
+          const wetPrecipitation = wet.reduce((sum, cell) => sum + networkInput.rainfall[cell]!, 0);
+          const wetDemand = wet.reduce((sum, cell) => sum + networkInput.potentialDemand[cell]!, 0);
+          return { incomingOverflow: 0, dryRunoff, wetPrecipitation, wetDemand, balance: dryRunoff + wetPrecipitation - wetDemand };
+        };
+        const beforeFlux = inputFlux(wetCells), cohortCells = catchmentCells.filter(cell => networkInput.elevation[cell] === level);
+        const afterFlux = inputFlux([...wetCells, ...cohortCells]);
+        expect(lake.pools[0]!.flux).toEqual(beforeFlux);
+        expect(lake.conservation.unresolvedResidual).toBe(beforeFlux.balance);
+        expect(14.902249320942005 - beforeFlux.balance).toBeCloseTo(networkInput.localRunoff[254]!, 12);
+        const closure = lake.pools[0]!.closure;
+        if (closure?.resolution !== "shoreline-quantization") throw new Error("Missing Huge quantized closure.");
+        expect(cohortCells).toEqual([149]);
+        expect(closure.cohortCells).toEqual(cohortCells);
+        expect(closure.before).toEqual(beforeFlux);
+        expect(closure.after).toEqual(afterFlux);
+        expect(closure.before.balance).toBeGreaterThan(0);
+        expect(closure.after.balance).toBeLessThan(0);
         expect(hydro.terminalType[43]).toBe(3);
         expect(metadata.mouthType[149]).toBe(2);
       } else if (retained.height === 30) {
@@ -304,7 +353,7 @@ describe("hydrology network authoring and dispatch", () => {
         expect(hydro.discharge[312]).toBeCloseTo(5.586530981337614, 12);
         expect(hydro.flowDir[396]).toBe(395);
         expect(hydro.discharge[396]).toBeCloseTo(1.7170643127800531, 12);
-        expect(metadata.upstreamArea[312]).toBe(419);
+        expect(metadata.upstreamArea[312]).toBe(catchmentCells.length);
         expect(metadata.mouthType[312]).toBe(2);
         expect(metadata.mouthBodyId[312]).toBe(lake.bodyId[228]);
         expect(metadata.mouthType[396]).toBe(1);
@@ -315,7 +364,18 @@ describe("hydrology network authoring and dispatch", () => {
       const zeroHeadLake = readArtifact(zeroHead.context, waterArtifacts.lakePlan);
       expect(zeroHeadHydro.runoff).toEqual(retained.localRunoff);
       expect(zeroHead.networkInputs[0]!.potentialDemand).toEqual(retained.potentialDemand);
-      expect(zeroHeadLake.plannedLakeTileCount).toBe(wetCountAtZeroHead);
+      const zeroInput = zeroHead.networkInputs[0]!;
+      // Desert still closes at the preceding ground cohort; the other fixed
+      // footprints need not differ merely because the receiving head differs.
+      const zeroLevel = retained.height === 30
+        ? Math.max(...wetCells.map(cell => networkInput.elevation[cell]!)) : level;
+      const zeroWetCells = Array.from(zeroInput.geometry.catchmentCells)
+        .filter(cell => zeroInput.elevation[cell]! < zeroLevel).sort((a, b) => a - b);
+      expect(zeroHeadLake.pools).toHaveLength(1);
+      expect(zeroHeadLake.pools[0]!.level).toBe(zeroLevel);
+      expect(zeroHeadLake.pools[0]!.wetCells).toEqual(zeroWetCells);
+      expect(zeroHeadLake.plannedLakeTileCount).toBe(zeroWetCells.length);
+      if (retained.height === 30) expect(zeroHeadLake.plannedLakeTileCount).toBe(6);
       expect(zeroHeadLake.pools).not.toEqual(lake.pools);
     }
   });

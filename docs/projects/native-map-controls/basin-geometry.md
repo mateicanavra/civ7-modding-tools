@@ -11,10 +11,13 @@ rainfall conversion, evaporation model, or native-water admission policy.
 The reference is [Barnes et al. (2020), sections 3.4 and 5](https://esurf.copernicus.org/articles/8/431/2020/).
 The alternative flat/catchment algorithm is adapted to the existing Civ7
 odd-row hex adjacency (the helper's `OddQ` name is historical). X wraps and
-Y is bounded. Equal-height connected land is one plateau. Each plateau uses
-the lowest adjacent descending endpoint, with destination/source cell-index
-ties, or one minimum pit. An adjacent breadth-first tree drains the plateau
-to that endpoint or pit. Level water also admits drainage. Explicitly enabled
+Y is bounded. Equal-height connected land is one plateau. Each cell with an
+admitted local exit retains its lowest adjacent hydraulic endpoint, with
+destination cell-index ties. All such cells seed one multi-source breadth-first
+traversal: flat interiors drain to their nearest exit, inheriting that exit's
+raw leaf. Equal-distance ties use endpoint head, destination index and source
+index. An outlet-free plateau retains one minimum-index pit. Level water also
+admits drainage. Explicitly enabled
 north/south edge exits take precedence on their plateau; no exterior exit is
 inferred when that policy is disabled. These raw receivers never climb ground.
 
@@ -73,15 +76,35 @@ To avoid counting children twice, its additional storage is
 ## Boundaries And Proof
 
 All admitted mask-water is treated as marine/external by this operation. Do
-not pass a post-lake water mask to reinterpret inland storage as ocean. Raw
-plateau drainage deliberately selects one deterministic exit rather than
-splitting runoff between multiple equivalent outlets. Cell areas are uniform
+not pass a post-lake water mask to reinterpret inland storage as ocean. Each
+cell has one deterministic receiver; runoff is not split. A drainable plateau
+can retain multiple local exits instead of collecting an entire shoreline into
+one sideways route. The explicitly enabled polar-edge policy still selects
+one edge exit for its plateau. Cell areas are uniform
 tile units. No spherical area correction or below-grid shoreline interpolation
 is claimed.
 
 Focused fixtures cover flats, nested storage, already-drained receiving
 valleys, competing/coastal saddles, the wrap seam, closed maps, explicit edge
 policy, ties, terrain immutability, nonoverlapping storage, and independent
-sublevel-set connectivity. These support geometry only. Supply/loss,
+sublevel-set connectivity. Local-exit fixtures additionally cover a coastal
+strip, a single-outlet inland flat, wrapped competing exits, and two closed
+depressions retaining their common saddle and storage. Downstream tests derive
+source attribution from input geometry and forcing rather than retaining the
+former collector's numerical snapshots. These support geometry only. Supply/loss,
 fill-spill-merge water state, final river routing, native admission, and recipe
 activation remain separate work.
+
+### Local-Exit Repair Boundary
+
+The current full Huge Earthlike captures at seeds 1018 and 5050 pass the
+unchanged Standard integrity gates, with no invalid or ascending final dry
+receivers. This does not establish that every final channel chooses its
+steepest local exit: the basin coordinator can replace raw receivers while
+assembling equal-head hydraulic components. At seed 1018, dry NAV cell
+1083 `(23,10)` routes to dry cell 1084 at ground 12 despite adjacent marine
+cell 1189 at receiving head 11; its matching positive internal transfer is a
+separate component-assembly witness. Qualification of that final routing
+belongs at the coordinator, not another plateau patch, density threshold,
+terrain carve or native projection rule. These headless captures do not
+establish live appearance or vessel navigation.
