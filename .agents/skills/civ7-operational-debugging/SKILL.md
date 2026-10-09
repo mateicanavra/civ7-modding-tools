@@ -81,6 +81,12 @@ Each owner reports only its facts:
 
 ## Discovery First
 
+For a game on another host, run that host's existing CLI and qualified app
+lifecycle through SSH. A missing CLI leaf is not a missing capability: check
+the existing Studio/lifecycle owner before falling back to computer use.
+Use Screen Sharing only for a concrete UI-only action, not routine setup,
+launch, deployment, inspection, or screenshot capture.
+
 The following discovery commands are current and non-mutating:
 
 ```bash
