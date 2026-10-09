@@ -10,7 +10,7 @@ type Input = OperationInput<typeof contract.input>;
 type Geometry = Static<typeof contract.input>["geometry"];
 type Row = [cell: number, ground: number, runoff: number, rain: number, demand: number, receiver: number, plateau: number];
 
-/** Frozen consumer-review-grid114 input, reconstructed without an opaque grid dump. */
+/** Deterministic consumer-review-grid114 terrain and forcing, with current geometry. */
 export function largerGrid(startSeed = -1835942095) {
   let seed = startSeed;
   const random = () => ((seed = Math.imul(seed, 1664525) + 1013904223 | 0) >>> 0) / 2 ** 32;

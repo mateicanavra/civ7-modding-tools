@@ -55,6 +55,32 @@ function metadataInput(input: Parameters<typeof network.run>[0]) {
     riverClass,
   };
 }
+function contributingSources(input: ReturnType<typeof metadataInput>) {
+  const size = input.width * input.height;
+  const sources = Array.from({ length: size }, () => new Set<number>());
+  const components = new Map(input.components.map(component => [component.componentId, component]));
+  const ports = new Map(input.ports.map(port => [port.componentId, port]));
+  // Trace one finite source at a time, crossing a component only by its authoritative port.
+  for (let source = 0; source < size; source++) {
+    if (input.externalWaterMask[source]) continue;
+    const visited = new Set<number>();
+    let cell = source;
+    while (cell >= 0 && !input.externalWaterMask[cell]) {
+      const componentId = input.componentId[cell]!, vertex = componentId ? size + componentId : cell;
+      if (visited.has(vertex)) throw new Error("Cyclic source reachability");
+      visited.add(vertex);
+      if (componentId) {
+        for (const member of components.get(componentId)!.memberCells) sources[member]!.add(source);
+        const port = ports.get(componentId);
+        cell = port?.kind === "adjacent" ? port.toCell : -1;
+      } else {
+        sources[cell]!.add(source);
+        cell = input.flowDir[cell]!;
+      }
+    }
+  }
+  return sources;
+}
 function simple(runoff: number, demand: number, boundary = false) {
   const terrain = {
     width: 5,
@@ -117,11 +143,20 @@ describe("component-aware basin river metadata", () => {
     expect(
       input.transfers.find((edge) => edge.cellA === 228 && edge.cellB === 312)!.signedDischarge
     ).toBeLessThan(0);
-    // The 17 retained finite rows now meet an explicit finite sill at 396,
-    // which contributes one source area while supplying no additional water.
+    // The 17 retained rows, the finite sill, and every routed zero-forcing barrier
+    // each contribute one area, regardless of their water supply.
     expect(source.externalWaterMask[396]).toBe(0);
     expect([source.localRunoff[396], source.rainfall[396], source.potentialDemand[396]]).toEqual([0, 0, 0]);
-    for (const cell of component.memberCells) expect(output.upstreamArea[cell]).toBe(18);
+    const sources = contributingSources(input), componentSources = sources[component.anchorCell]!;
+    expect([...componentSources].filter(cell => source.elevation[cell]! < 1000)).toHaveLength(18);
+    const barrierSources = [...componentSources].filter(cell => source.elevation[cell] === 1000);
+    expect(barrierSources.length).toBeGreaterThan(0);
+    for (const cell of barrierSources) {
+      expect(source.externalWaterMask[cell]).toBe(0);
+      expect([source.localRunoff[cell], source.rainfall[cell], source.potentialDemand[cell]]).toEqual([0, 0, 0]);
+    }
+    expect(Array.from(output.upstreamArea)).toEqual(sources.map(cells => cells.size));
+    for (const cell of component.memberCells) expect(sources[cell]).toEqual(componentSources);
     expect(output.mouthType[312]).toBe(2);
     expect(output.mouthBodyId[312]).toBe(input.bodyId[228]);
     expect(output.mouthType[396]).toBe(1);
