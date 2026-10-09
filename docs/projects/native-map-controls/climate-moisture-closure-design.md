@@ -3,7 +3,8 @@
 **Goal:** Coherent wet/dry regions whose forcing reaches basins, rivers and
 ecology without manufacturing atmospheric supply from dry land or terrain.
 **Status:** Architecture scope approved for implementation on 2026-10-09.
-The provisional numerical scheme is unexecuted and not admitted for production.
+The owner operation passes its manufactured controls; end-to-end candidate and
+production admission remain outstanding.
 **Owner:** Swooper Physics, Hydrology's Climate module.
 
 ## Why This Is The Next Product Story
@@ -324,8 +325,9 @@ The L1/contraction limits are provisional numerical acceptance choices, not
 Earth accuracy margins. The four paired procedural cases remain the separate
 product discriminator. Existing rainfall-saturation and river-hierarchy
 requirements remain unchanged; no number here waives them or establishes
-Earth rainfall skill. No tests, simulation, fitting or candidate execution
-have yet qualified this selected scheme.
+Earth rainfall skill. The owner qualification below establishes these
+manufactured limits; it does not qualify procedural maps or Earth rainfall
+accuracy.
 
 ## SDK And Ownership
 
@@ -341,6 +343,18 @@ derived codec, with explicit field meanings; ADR-022 does not require one
 artifact per temporary array. Forward readonly inputs through current SDK
 admission and allocate only owned working/output storage. No type casts,
 custom generic builder, mutable ambient field or Core redesign is needed.
+
+The consumer cutover names the three different quantities explicitly inside
+the existing bundles: `precipitation` is authoritative float model supply,
+`surfaceWetness` is the float empirical proxy, and `rainfallCodec` is the
+derived byte value for native rainfall projection. Weather-member P and
+already-clamped wetness are averaged independently; annual aggregation owns
+the one codec conversion. Final climate forwards that baseline supply rather
+than adding river or basin rainfall. Riparian moisture stays in the existing
+land-water-budget owner. Remove the superseded rainfall/humidity fields and
+operation bindings, rather than leaving compatibility aliases or a fallback.
+Physical albedo, cryosphere, pedology, runoff and basin consumers admit float
+P; codec saturation measurements remain separate and keep their targets.
 
 Authority: [operation contracts](../../system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md),
 [artifacts](../../system/libs/mapgen/reference/ARTIFACTS.md) and
@@ -459,3 +473,53 @@ quantity, CFL, incoming-ascent, split-ordering and publication-residual
 relationships, while retaining the finite-window/zero-recycling product risk.
 Those reviews supported the approved architecture decision; they are not
 implementation proof, simulation results or production admission.
+
+## Owner Qualification
+
+The definition now registers Climate's `compute-moisture-forcing` operation,
+but the production recipe still invokes the incumbent moisture operations.
+The new owner publishes only float precipitation and empirical surface
+wetness. Invocation-local source, transfer, extraction and final stock remain
+private, without a recipe ledger or additional artifact family.
+
+All six predeclared private numerical-qualification groups pass: 11 controls
+and 672 assertions. Zero-source/finite-water, exact calm reaction, independent
+parity/oblique transport, terrain-response, boundary/alias, and fixed-horizon
+refinement controls retain their declared parameters and margins. The public
+contract also refuses missing prescribed SST/ice, incorrect grid cardinality
+and private initial-stock/pass controls.
+
+For the smooth fixture, `Q=635040`. Precipitation L1 differences at 64/128 and
+128/256 passes are `116.390838333` and `58.233659269`, a `0.500329`
+contraction. Stock differences are `173.316450904` and `86.118968274`, a
+`0.496889` contraction. The initial differences are respectively `0.018328%`
+and `0.027292%` of Q, below the frozen 1% limit. The Float64 account residual
+stays within the declared guard, and signed Float32 publication differences
+are measured separately rather than absorbed into rain or a widened margin.
+
+This proves the selected operation's numerical and causal controls, not
+playable wet/dry regimes, calibrated rainfall, whole-map cost or deployment.
+The next unit must carry exact float forcing through existing consumers and
+retire the replaced path before the four paired product comparisons.
+
+Qualification evidence is distinct from the committed regression surface.
+The enforced test-import boundary refused a direct private-kernel import;
+the permissive focused-internals sentence in `policies/IMPORTS.md` is not an
+exception to that gate. Repository regressions call the public Hydrology
+operation with independent nominal-scheme oracles. Private pulse, production
+N-refinement and Float64 ledger readback remain separately recorded numerical
+qualification of the inspected kernel, not a new public API, hidden source
+test, authored numerical knob or claim about an oracle's stock. Requalify that
+evidence when its kernel changes; do not widen the production surface or
+weaken the import gate merely to expose numerical scratch.
+
+The committed public-operation suite passes six tests and 6,314 assertions,
+including nominal-scheme agreement at Standard and Huge dimensions. It makes
+no production final-stock or oracle-only refinement claim. The narrower
+regression surface and private numerical receipt support different claims;
+neither substitutes for the paired product comparison.
+
+The complete Climate domain suite also passes (101 tests), and the definition's
+owning Nx `check` graph passes types, generated artifacts and enforced Habitat
+policy. The earlier private-import policy failure was repaired at the test
+boundary, not suppressed or admitted into a baseline.

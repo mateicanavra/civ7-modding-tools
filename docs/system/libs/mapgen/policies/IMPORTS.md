@@ -54,7 +54,7 @@ domain alias namespace must stay on a named domain surface.
 | Rules, strategies, implementations      | private algorithm `Params`/`Result` types plus smaller atom types when shared | Habitat `pattern-check` |
 | Cross-domain source code                | Domain-root contracts first; domain-internal imports only with a named owner   | Policy only         |
 | Domain internals                        | Relative imports within the same domain owner                                  | Policy only         |
-| Tests                                   | Public surfaces by default; deep imports only for focused internals under test | Policy only         |
+| Tests                                   | Named domain contract/router, nearest model atom/policy, or module artifact catalog; no test-only widening or private-operation imports | Habitat `pattern-check` |
 
 Domain and direct-module model vocabulary lives only under `model/atoms` and
 `model/policy`. Atoms are smaller schema primitives or cohesive subentities,
