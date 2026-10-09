@@ -61,6 +61,39 @@ Use `cognition:team-design` for lane ownership and synthesis mechanics. Keep
 live mutation in one coordinated lane because the installed Mods tree, Civ7
 process, and active run are shared mutable state.
 
+### Physical Coupling Review
+
+Before accepting a changed physical model or extending an inconclusive
+investigation into another campaign, route the decision-relevant coupling:
+
+- `earth-relief-climate-steward`: relief, thermal or moisture meaning and its
+  climate/landscape/habitat consequences, including changes without a relief edit.
+- `earth-basin-drainage-steward`: basin, lake and river mechanisms, including
+  upstream forcing changes that could alter water balance, discharge or terrain.
+- `mapgen-sdk-simplicity-steward`: the selected authoring shape, not physical
+  model selection or a substitute for either Earth review.
+
+Use only the roles implicated by the named decision. For a shared physical
+change, give the relevant reviewers the same candidate, source/config/scenario
+identity and evidence, with separate consequence questions. Launch with bounded
+context, not copied conversation history. A numerical-only change can reuse the
+physical review when meanings, input vintages and consumer wiring are unchanged.
+
+Record the material quantity chains in the existing expectation ledger:
+producer, meaning/units/support, artifact or iteration vintage, actual consumer,
+consequential outcome and smallest discriminating proof. Identify similarly
+named but non-interchangeable fields and absent feedback. Reviewers distinguish
+a deliberate approximation from a demonstrated defect or unresolved risk;
+missing coupling is not permission to build a larger simulator.
+
+The parent closes cross-role questions and records accept/revise/unresolved
+dispositions before adopting behavior. Recheck affected chains after a material
+change to meaning, vintage, geometry or consumer wiring; do not replay the whole
+review history. Before accepting the slice, compare actual consumer evidence
+with the declared expectations. A prompt, diagram or reviewer agreement is not
+proof that the resulting map improved. Existing scientific, cohort and native
+gates retain their separate claims.
+
 ## 5. Design Alternatives
 
 Use `cognition:system-design` to carry at least two meaningful shapes when the

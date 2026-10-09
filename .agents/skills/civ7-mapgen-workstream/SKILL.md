@@ -73,8 +73,12 @@ See `references/facet-verification.md`.
 2. **Frame the claim.** Name the actor outcome, the proof class needed, and what
    would falsify the leading explanation.
 3. **Re-derive the live pipeline.** Read the definition's domain contracts,
-   recipe manifest, artifact owners, and tests. Do not preserve counts or stage
-   inventories from this skill.
+   recipe manifest, artifact owners, and tests. Trace changed physical quantities
+   through their exact producer/iteration vintage and actual consumers, not
+   similarly named downstream diagnostics. Route consequential climate/habitat
+   and water-budget changes through the existing Earth stewards as described in
+   `references/orchestration.md`. Do not preserve counts or stage inventories
+   from this skill.
 4. **Diagnose.** Compare causal artifacts and diagnostic layers before blaming
    rendering. For live disagreement, preserve correlation and use the public
    MapGen-runs/controller path.
