@@ -2,10 +2,93 @@
 
 **Goal:** Coherent wet/dry regions whose forcing reaches basins, rivers and
 ecology without manufacturing atmospheric supply from dry land or terrain.
-**Status:** Architecture scope approved for implementation on 2026-10-09.
-The owner operation passes its manufactured controls; end-to-end candidate and
-production admission remain outstanding.
+**Status:** Implemented and qualified at the owner/consumer layers; the complete
+procedural candidate is not adopted. The bounded investigation is closed.
+The unused preparatory operation is retired, with its qualified implementation
+and the complete candidate preserved as research. The empirical incumbent
+remains the sole production path. The design below records the proposal and
+qualification history, not an active implementation queue.
 **Owner:** Swooper Physics, Hydrology's Climate module.
+
+## Completed Product Decision
+
+Architecture implementation scope was approved on 2026-10-09. The operation's
+accounting controls and the full float-forcing consumer cutover pass. After
+the prospectively bounded quantity/reach contrasts, the terminal candidate
+uses marine source rate `900` and reference transport speed `80`. It passes
+annual/seasonal rainfall-codec saturation, biome structure, basin integrity
+and pressure/wind holds on Huge seed 1018 and Standard seeds 1018/1/42.
+Earthlike's row-dominant biome share is `0.662465`, below the unchanged `0.75`
+ceiling. These four cases are calibration controls, not independent holdouts.
+The complete implementation and contrast history are preserved in
+[closed PR #2323](https://github.com/mateicanavra/civ7-modding-tools/pull/2323).
+
+The existing 57-case bank nevertheless refuses this candidate: Huge seed 5050
+has mountain-region span `36`, below the unchanged `38` floor. The incumbent's
+reported span is `39`; independent all-pairs hex BFS gives exact diameters
+`40` and `36`. Measurement underestimation cannot explain away the refusal.
+The incumbent's known temperature-variation floor also remains unmet; it is
+not a new moisture regression and is not claimed resolved.
+
+The bounded selector witness reproduces the original masks and all five
+public operation outputs with identical ridge source and effective config.
+Every one of the 18 selected owners receives axis growth in both cases.
+The first selected anchor changes because a neighbor rises from `59` to `63`,
+reducing an eligible tile's downward relief from `15` to `11` and its score
+from `2.324545` to `1.704666`. An unchanged competing score of `2.289920` wins.
+The seven investigated lost peaks were corridor promotions, not anchors;
+changed axis directions and ownership explain why they are no longer visited.
+Their eligibility survives and their earlier budgets were not exhausted.
+
+Final-ground-supported reselection is an intentional mechanism. This witness
+rules out the proposed missed-axis explanation; it does not prove every
+possible mountain-design weakness absent. No concrete defect justifies a
+production selector repair. The regional floor is a product policy, not an
+Earth-physics law, but it remains the current independent acceptance contract.
+It is not retrospectively changed to admit this candidate.
+
+Close this B parameterization without another climate fit, region-extension
+patch or native adoption trial. Keep A, the existing empirical incumbent, as the sole
+production interpretation. Retire the unused preparatory operation to avoid a
+dead or competing domain surface; preserve its valid numerical qualification
+in [PR #2321](https://github.com/mateicanavra/civ7-modding-tools/pull/2321).
+The full candidate and retained inputs remain reproducible outside active
+production. Non-adoption does not disprove source limitation or conservation.
+
+The independent viewer improvement in
+[PR #2324](https://github.com/mateicanavra/civ7-modding-tools/pull/2324) projects
+existing rainfall, effective moisture and biome fields alongside terrain,
+direction and discharge. The retained 5050 pair makes this trade-off visible
+without another model run. It shows peaks, not the complete regional mask;
+exact region span remains separately receipt-backed. Incumbent byte rainfall
+and candidate float precipitation are distinct producer meanings, not a claim
+of identical scientific units. Any stronger range-legibility guarantee or
+policy change needs a separate prospective product decision. No new physical
+model or calibration campaign is selected by this result.
+
+### Deferred Native Product Contrast
+
+The approved sequencing below explicitly permits an early Huge candidate
+contrast after focused checks, labeled candidate evidence rather than adopted
+climate. The independent `36 < 38` refusal prevents production adoption; it
+does not forbid that separately authorized diagnostic look. Numerical closure
+and generated masks do not alone establish which visual/gameplay trade-off a
+player prefers. This is not a retrospective target waiver.
+
+After explicit release of the existing game session and preservation of user
+state, compare the qualified incumbent and recoverable frozen candidate at
+the same Huge seed `5050`, dimensions, gameplay setup and camera positions.
+Use the current public run/controller and screenshot paths, at most two map
+generations, and no new algorithm, renderer, tuning or autoplay. Retain the
+failed regional guard beside the images. Correlated loader/completion facts
+must distinguish the two exact builds. Source/readback disagreements are
+separate from the already diagnosed generated-mask change.
+
+Restore and independently verify the qualified incumbent after this contrast.
+Only then fulfill the ordinary Huge/random player setup, without replacing an
+active user game on an assumption. The comparison informs any future explicit
+product-policy or range-legibility proposal; it cannot admit this frozen
+candidate under the unchanged contract or reopen a parameter campaign.
 
 ## Why This Is The Next Product Story
 
@@ -476,10 +559,11 @@ implementation proof, simulation results or production admission.
 
 ## Owner Qualification
 
-The definition now registers Climate's `compute-moisture-forcing` operation,
-but the production recipe still invokes the incumbent moisture operations.
-The new owner publishes only float precipitation and empirical surface
-wetness. Invocation-local source, transfer, extraction and final stock remain
+At this historical qualification point, the definition registered Climate's
+`compute-moisture-forcing` operation while production still invoked the
+incumbent moisture operations. The subsequently retired implementation is
+preserved in PR #2321. That owner published only float precipitation and
+empirical surface wetness. Invocation-local source, transfer, extraction and final stock remained
 private, without a recipe ledger or additional artifact family.
 
 All six predeclared private numerical-qualification groups pass: 11 controls
@@ -499,8 +583,10 @@ are measured separately rather than absorbed into rain or a widened margin.
 
 This proves the selected operation's numerical and causal controls, not
 playable wet/dry regimes, calibrated rainfall, whole-map cost or deployment.
-The next unit must carry exact float forcing through existing consumers and
-retire the replaced path before the four paired product comparisons.
+The subsequent consumer cutover carried exact float forcing through existing
+consumers and retired the replaced path in the candidate. Its product
+comparison and non-adoption are recorded above; this is not an unfinished
+production migration.
 
 Qualification evidence is distinct from the committed regression surface.
 The enforced test-import boundary refused a direct private-kernel import;

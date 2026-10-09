@@ -22,18 +22,31 @@ selected. Any subsequent proposal must first establish useful modeled regional
 information and a bounded product-level discriminator. The playable incumbent
 stays installed until an improvement is actually qualified.
 
-The next approved product story is
-[Source-Limited Rainfall](climate-moisture-closure-design.md): implement the lean
-Climate-owned supply/transport/rainout relationship, then prove wet/dry
-consequences against the cheaper honest proxy through existing basins,
-rivers and ecology. Its concrete provisional numerical scheme now selects
-source/rainout rates, SDK two-ray donor scatter, size-aware travel and the
-manufactured acceptance controls. Architecture implementation scope was approved
-on 2026-10-09; the owner operation passes its manufactured controls, while the
-end-to-end candidate and production adoption remain unqualified. The thermal
-backbone stays fixed and no new temperature family
-is selected. Complete the owner/contract slice before the full candidate; retain
-the installed build and live session during definition qualification.
+The approved [source-limited rainfall story](climate-moisture-closure-design.md#completed-product-decision)
+has reached its stop condition. Numerical accounting and the float-forcing
+consumer cutover pass. The terminal candidate improves the four climate
+controls but fails one unchanged independent mountain-region requirement.
+Exact replay attributes the changed footprint to intentional relief-supported
+selection, not a missing axis pass or another demonstrated selector defect.
+Neither a terrain repair to force the target nor another moisture sweep is
+selected. The complete candidate is preserved in closed PR #2323 and retained
+research evidence; the unused preparatory operation is retired from the active
+domain. This is maintenance after non-adoption, not rejection of source
+accounting as a physical principle.
+
+The empirical incumbent remains the sole production rainfall path, with its
+known thermal limitation explicit. Independent comparison views and bounded
+property-test deadlines are delivered in PR #2324. The next player-facing
+outcome is an explicitly diagnostic frozen-pair native look, then inspection
+and play of the latest qualified Huge Earthlike build. Reconcile exact source,
+build and installation, preserve any existing user session, and wait for its
+release first. The approved early candidate contrast is not production
+admission or a reason to rerun climate calibration. A new climate law,
+stronger range-stability requirement or product
+policy amendment requires its own prospective design; none follows from this
+closure. Scientific Earth and Firaxis geography remain benchmarks, never
+hidden procedural inputs. No additional thermal, morphology, ocean or language
+campaign is queued.
 
 ## Prior Decisions
 
