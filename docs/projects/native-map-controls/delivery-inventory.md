@@ -159,6 +159,22 @@ failure, with no new failure or weakened gate. This is owner qualification, not
 new lake-shore plant access, complete atmospheric-policy retirement or fresh
 native gameplay proof.
 
+The subsequent [local biome classification repair](terrestrial-water-influence.md#completed-local-classification-qualification)
+retires category-only Gaussian majority and its obsolete authored controls.
+The existing local physical classifier, continuous density and single published
+biome remain. Four exact prospective pairs hold all 37 non-category model keys,
+including water and moisture, while restoring receiver-local classifications.
+Forest falls on three of the four maps; neither greening nor count restoration
+qualifies the change. Fresh independent topology and visual reviews find
+locally attributable patch changes without dissolving the dominant regions.
+Existing broad latitude bands remain an upstream calibration limitation.
+All founders and mock resource intentions pass the existing integrity checks,
+with no feature refusals. Full owner verification passes 1,326 definition,
+371 realization and 412 Studio tests. The complete unchanged bank retains
+4,429 passes and the exact one thermal failure, with no new refusal or weakened
+gate. This is qualified owner behavior, not a new plant-water law or fresh
+native generation; installation and live claims require separate proof.
+
 The single retained island transect resolves to finite water and does not
 demonstrate lost marine relief. No new island algorithm is selected from that
 example. The broader geography observation needs a matched marine connection;

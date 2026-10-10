@@ -715,3 +715,54 @@ This transition does not add plant-water supply, establish seasonal root access,
 retire the remaining atmospheric wetness injection, or resolve the outstanding
 thermal calibration. Precipitation, river/lake/coast opportunity, finite storage
 and usable root water remain distinct parts of the causal investigation.
+
+### Completed Local Classification Qualification
+
+The clean candidate at `1426673bce1` returns the existing per-tile biophysical
+classification directly. The three live selections use `biophysical`; the
+Gaussian strategy and `edgeRefine` are retired and fail canonical admission.
+There is still one final published biome artifact. Classification thresholds,
+continuous density, treeline and forwarded climate are unchanged. Fresh SDK
+review finds no additional abstraction, compatibility path or owner defect.
+
+The four prospective current-main/candidate pairs hold all 37 non-category
+public model keys, including moisture, temperature, rainfall, aridity,
+vegetation density and the physical water network. Six non-feature projection
+keys and eleven physical readback fields also hold. The former category
+overrides affect `72 / 66 / 45 / 53` cells in Huge `2/2` and Standard `1/1`,
+`42/42`, `1018/1018`; every candidate category now equals the unchanged helper
+applied to its receiver's observed inputs. All 49 integrity expectations pass
+per arm, all founders remain full and dry/non-NAV, all planned mock resources
+are realized, and there are no feature refusals. Mock acceptance is not native
+engine admission.
+
+Forest moves `227 -> 230`, `263 -> 257`, `118 -> 114`, `198 -> 186`;
+rainforest moves `38 -> 40`, `16 -> 18`, `11 -> 13`, `17 -> 24`.
+Neither increase nor count restoration is an acceptance condition. Per-biome
+wrapped-hex components increase `69 -> 83`, `57 -> 74`, `54 -> 71`, `54 -> 74`.
+Singletons increase from 47 to 88 of 7,304 exposed land cells across the four
+maps. Independent component-overlap tracing finds only three incumbent patch
+splits; the dominant regions remain intact. The additional small patches have
+local moisture, aridity or temperature explanations under the existing law.
+These observations do not establish universal fragmentation limits or an
+Earth-calibrated classifier. In particular, narrow cold-desert patches expose
+an existing threshold discontinuity rather than a newly introduced noise law.
+
+All four paired biome viewers are visually inspected. The changes are local
+boundaries and pockets; the broad latitude bands predate this unit and remain.
+The observer's category-only helper call does not reconstruct uncaptured raw
+freezing or soil fields or claim a second density comparison.
+
+Full owner verification passes 1,326 definition tests, 371 realization tests
+and 412 Studio tests; types, policy and builds pass. The complete unchanged
+bank takes about 103 seconds and retains all 22 studies, 57 unique scenarios,
+112 targets and 4,430 expectations: 4,429 pass with the exact same thermal
+failure at `0.142881437915705 C`. The 84 numeric consequences introduce no
+new failure, status change or weakened gate. Twenty-seven move toward a bound
+without crossing it; they are not mislabeled universal improvement. Independent
+director review verifies the full authority tree, statuses and retained
+input/receipt bindings before adoption.
+
+This removes a demonstrated downstream override before further water-response
+design. It does not establish root-zone supply, make every shoreline wet,
+retire the any-river atmospheric proxy or resolve thermal calibration.
