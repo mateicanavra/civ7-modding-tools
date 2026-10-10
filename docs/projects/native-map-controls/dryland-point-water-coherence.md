@@ -183,6 +183,23 @@ observed-earlier-free, not proof of exact final planner legality.
 
 Full suites pass 1,388 definition tests with the sole retained within-row thermal
 aggregate failure, all 371 realization tests and all 412 Studio tests. No
-expectation is weakened. This unit has no fresh native placement proof and does
-not modify the installed favorite map. Annual source support still does not
-establish seasonal liquid-water survival, groundwater, salinity or patch extent.
+expectation is weakened. This unit has no fresh native placement proof. Annual
+source support still does not establish seasonal liquid-water survival,
+groundwater, salinity or patch extent.
+
+### Consumer Meaning Check
+
+A frozen regime table reproduces captured classification on all 7,989 exposed-land
+cells and traces source-only contrasts without changing climate. The selected flat,
+observed-earlier-free DESERT witnesses have low absolute plant moisture but atmospheric aridity
+of only `0.238..0.315`; both point-water climatic scores are zero. The greatest
+atmospheric aridity in each world occurs on polar `snow`, not compatible dryland.
+The existing moderate-temperature producer regimes still admit an oasis at annual
+source opportunity `60` and a watering hole at `90`; increasing local source changes
+the plant-responsive category as well as the score.
+
+This is consistent with the declared distinction between local plant habitat,
+atmospheric climatic dryness, and native biome compatibility. It does not establish
+an owner contradiction that must block wet-family review. Empirical score scale and
+Earthlike dry-regime coverage remain open; reproducing these meanings does not
+validate their inherited thresholds or global physical realism.
