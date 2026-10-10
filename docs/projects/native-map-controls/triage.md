@@ -114,12 +114,13 @@ established. [Read the research question](questions/q-001-low-shore-neighborhood
 
 #### Q-004: Point-Water Habitat Support
 
-Two retained headless Earthlike cases lose every oasis/watering-hole precursor
-to a broad floodplain substrate exclusion before climate scoring. Oasis also
-has an independent warmth ceiling below admission in the pair. Habitat,
-response and biome requirements need a coherent interpretation; neither mask
-removal nor a hotter climate is an established remedy. This is distinct from
-Q-001's neighborhood geometry.
+The source-led consumer path admits oasis and watering-hole intent in
+producer-consistent fixtures, but all four qualified generated worlds still
+have zero attempts and features. Atmospheric dryness, plant-responsive biome
+classification and native compatibility leave an open dry-habitat question;
+the retired mask and direct-warmth limits are historical evidence, not current
+blockers. Neither rarity nor the conditional score bounds establish a climate
+defect or a preferred coefficient. Q-001's geometry question remains separate.
 [Read the research question](questions/q-004-point-water-support.md).
 
 ### Ecology / Features / Scoring And Wetland Planning

@@ -100,6 +100,24 @@ marine from inland sources, but is not a tidal-exposure simulation. The
 [shore geometry question][geometry] and the [point-water question][point-water]
 remain distinct from these family-response choices.
 
+### What Does Bog Fertility Mean?
+
+The [bog scorer's increasing fertility factor][bog-qualified] raises a specific
+question about habitat meaning. EPA describes bogs as nutrient-poor peat
+wetlands supplied largely by precipitation, in contrast to the richer water
+sources of fens and many marshes. That physical distinction does not make the
+game's field a nutrient measurement. [EPA's wetland classification][epa-wetlands]
+provides context, not scoring coefficients or a definition of Civ7's feature.
+
+The incoming [pedology fertility index][pedology-qualified] combines rainfall,
+humidity, relief, sediment and bedrock. Does that generic growth proxy add a
+justified condition for bog existence, or repeat a climatic penalty already
+present in the other factors? Evidence that it represents an independent
+habitat requirement would support the gate; evidence that it excludes otherwise
+plausible bog habitat by counting the same limitation twice would challenge it.
+The field name alone establishes neither a defect nor a reason to reverse the
+ramp. This remains part of the tundra-bog response and shared-admission question.
+
 ## A Shared Floor After Compatibility
 
 In `ecology-features / plan-wetlands`, the [planner][planner] first requires a
@@ -142,7 +160,8 @@ Their scores are approximately 0.369707 and 0.373966, below 0.42. Warmth and
 fertility are both moderate: products of approximately `0.6364 * 0.5809 * 1`
 and `0.6414 * 0.5830 * 1` explain those results. Rainforest later fills the
 unclaimed sites; it did not preempt a qualifying mangrove. The controlling
-loss is therefore different from the empty point-water substrate in Q-004.
+loss is therefore different from Q-004's original, now-retired empty
+point-water substrate.
 
 ## What Would Distinguish The Explanations
 
@@ -179,9 +198,17 @@ the public digest is not independently reproducible by itself. Structured
 verification here is source inspection, not new replay, native acceptance,
 all-seed prevalence or physical calibration.
 
+The bog-fertility lead adds separately pinned scorer and pedology source at
+`09e8c9a87fba9c5078d20134ad1c8e04a858bfbb` and the physical reference above.
+It does not refresh the original location snapshot or verification, add a new
+replay, or resolve the family's response.
+
 [scores]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/steps/score-layers/step.ts#L136-L202
 [marsh]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-marsh/strategies/temperate-hydromorphic/index.ts
 [bog]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-tundra-bog/strategies/cold-hydromorphic/index.ts
+[bog-qualified]: https://github.com/mateicanavra/civ7-modding-tools/blob/09e8c9a87fba9c5078d20134ad1c8e04a858bfbb/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-tundra-bog/strategies/cold-hydromorphic/index.ts
+[pedology-qualified]: https://github.com/mateicanavra/civ7-modding-tools/blob/09e8c9a87fba9c5078d20134ad1c8e04a858bfbb/plugins/mod/map/swooper-physics/src/domain/ecology/modules/pedology/ops/pedology-classify/rules/index.ts
+[epa-wetlands]: https://www.epa.gov/wetlands/classification-and-types-wetlands
 [mangrove]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-mangrove/strategies/warm-intertidal/index.ts
 [planner]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/features-plan-wetlands/strategies/habitat-confidence/index.ts
 [floor]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/maps/configs/swooper-earthlike.config.json#L1050-L1054

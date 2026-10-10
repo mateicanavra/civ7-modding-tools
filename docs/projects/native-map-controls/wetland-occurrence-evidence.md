@@ -1,15 +1,14 @@
 # Wetland Occurrence: Bounded Evidence
 
-This is a portable summary of a two-case headless diagnostic and a separate
-native feature census, not a wetland abundance target. The diagnostic
-distinguishes absent habitat,
-low suitability, terrain and biome compatibility, prior occupancy, feature
-selection and final **headless/mock** output. The analysis identifies different
-controlling conditions for point-water features and other wetland families.
-The native census records occurrence on a different map; it does not establish
-that the same upstream mechanisms caused those counts.
+This portable evidence summary separates the original two-case headless
+diagnostic, a later source-led point-water qualification, and a native feature
+census on a different map. None is a wetland abundance target. Habitat,
+suitability, compatibility, prior occupancy, admitted intent and final output
+have different meanings and populations. The later qualification does not
+replace the original observations or transfer their causal explanation to the
+native census.
 
-## Case And Source Identity
+## Original Case And Source Identity
 
 Both cases use Swooper Earthlike. Standard1 is 84 x 54 with map/game seeds 1/1
 and eight major players. Huge2 is 106 x 66 with seeds 2/2 and ten major players.
@@ -49,13 +48,16 @@ draw. Two passes made 28 owner-operation replays in total. New recipe generation
 build and native calls were all zero. The additional support control below has
 separate custody and four additional owner-operation replays.
 
-## Point-Water Support
+## Baseline Point-Water Support
 
-The [substrate rule][substrate] requires exposed lowland within a radius-one
+At inspected baseline `2a31c96f`, the [substrate rule][substrate] requires exposed
+lowland within a radius-one
 classified-river neighborhood, while excluding the broader floodplain substrate
 mask. That proxy uses radius two and discharge at least 96 in the inspected
 Earthlike configuration. These are authored neighborhood and discharge values,
-not calibrated physical distances or flooding frequencies.
+not calibrated physical distances or flooding frequencies. This isolated-water
+mask and the direct warmth response below are retired in the later source-led
+implementation; the findings remain evidence about the original inputs and law.
 
 | Measurement | Standard1 | Huge2 |
 | --- | ---: | ---: |
@@ -87,7 +89,7 @@ approximately 0.321287 and 0.322380. Each other factor is at most one, so warmth
 alone caps the product below the shared 0.42 admission floor. Approximately
 27.56 degrees C is necessary even with perfect remaining factors.
 
-This is an additional current-pair obstacle, independent of the empty
+This is an additional baseline-pair obstacle, independent of the empty
 point-water mask. It does not prove all-seed impossibility, establish a physical
 temperature requirement for oases or justify heating the climate model to
 satisfy the feature scorer.
@@ -114,7 +116,7 @@ and zero native calls. These results and the temperature comparison have their
 own program/result hashes below; they are not attributed to the older 28-call
 diagnostic.
 
-## Other Wetland Families
+## Original Other-Family Observations
 
 The [score-layers step][scores] already calls five separate family scorers.
 Earthlike's [wetland planner][planner] uses a common minimum score of 0.42.
@@ -147,6 +149,117 @@ The marsh and bog observations refute universal headless absence in this pair.
 They do not establish adequate frequency, a calibrated meaning for 0.42 or
 physical correctness of the score functions. Positive habitat, positive score,
 legal/free opportunity and admitted placement have different denominators.
+
+## Qualified Source-Led Point-Water Result
+
+The [merged qualified outcome][qualified] establishes source-consumer coherence,
+not restored generated occurrence. Hydrology publishes its existing local
+source opportunity `L` directly. Oasis and watering-hole suitability becomes
+`drySuit(A) * L / (L + D)` for positive source, otherwise zero, where `A` is
+atmospheric aridity and `D` is published post-albedo potential demand. Direct
+warmth, whole-tile plant-moisture and fertility multipliers and the isolated-water
+mask are retired. Family dryness ramps and the 0.42 admission floor are unchanged.
+
+Producer-consistent moderate-temperature fixtures admit oasis on DESERT and
+watering-hole on PLAINS through the actual classifier, scorers and legal
+planner. Ordinary imported flow and finite-body contact supply positive cases;
+source absence, inaccessible or marine donors, incompatible biome or terrain
+and actual prior occupancy retain their exclusions. The owner reports 45
+focused tests and 1,830 assertions. This supports a bounded consumer law, not a
+calibrated physical model or an occurrence target.
+
+### Separate Identities And Paired Holds
+
+The later qualification uses different evidence from the original diagnostic:
+
+- Retained Standard 1/1 and Huge 2/2 comparator source:
+  `ccb92fbc585ab0eddd1d2faa3a6b71c5aaa9179f`.
+- Replay, four recipe captures and near-miss diagnostic runtime:
+  `7b20d0b9da117bdaecb73a39f5a085d2964810da`.
+- Qualified documentation head: `2a41b9c3d2d9d19c9c2e095636538c8b6e982368`.
+- Merged report and inspected source: `09e8c9a87fba9c5078d20134ad1c8e04a858bfbb`.
+
+Repeated case names and seeds do not make these the original `5f82b5f1`
+captures. The paired retained replay reports unchanged pre-existing climate,
+actual post-albedo demand, classifier, unrelated score layers and wetland and
+vegetation intent. Five dependency-owner source trees match, but compiled
+dependency bytes are not asserted exact: one SDK grid-wrapper entry differs
+and its old bytes were unavailable. No cause or whole-SDK equivalence is inferred.
+
+Four predeclared recipe captures pass integrity: Standard 1/1, Huge 2/2,
+Standard 3/3 and Huge 4/4. The first two have incumbent comparisons that preserve
+pre-existing public model fields, physical elevation/lake/river projection,
+final feature cells, resources and starts. The other two are candidate variation
+captures, not paired comparisons. **All four have zero oasis and watering-hole
+attempts and features.**
+
+### Conditional Dryness Ceilings
+
+The near-miss diagnostic examines each family's native-biome-compatible,
+captured-flat, observed-earlier-free population. "Earlier" means floodplain,
+ice or reef occupancy, not later vegetation. The following are population
+maxima, not all-land maxima or a claim of exact final planner legality.
+
+| World / map and game seeds | Oasis max dryness factor | Watering-hole max dryness factor | Watering-hole max score |
+| --- | ---: | ---: | ---: |
+| Standard / 1/1 | 0 | 0.03881 | 0.01848 |
+| Huge / 2/2 | 0 | 0.07702 | 0.04900 |
+| Standard / 3/3 | 0 | 0.01505 | 0.00609 |
+| Huge / 4/4 | 0 | 0.09005 | 0.02752 |
+
+At fixed climate and class, source support is at most one, so even unlimited
+source cannot lift these populations to 0.42. Increasing source can change
+plant-responsive classification; the bound is not a source-tuning prescription.
+Biome moisture uses plant-water indices, whereas family dryness uses
+demand-relative atmospheric aridity. Their different meanings identify an
+open ecological interpretation, not a demonstrated rainfall, thermal or
+classification defect and not authority for new coefficients.
+
+The diagnostic recovers a unique land humidity byte from captured atmospheric
+moisture and rainfall on all 7,989 exposed-land cells, then calls the actual
+unchanged post-albedo demand and budget owners. It closes all four captures'
+published aridity, local opportunity and plant-water fields. For the paired
+cases, recovered humidity and demand exactly match authentic retained inputs,
+and observed prior occupancy agrees with the exact retained prior mask.
+The variation cases have no such exact prior-intent validation. This is a
+recovered-input diagnostic, not originally captured demand; earlier hydraulic
+demand and water-cell humidity are outside that recovery claim.
+
+The new retained replay reports 56 owner-operation calls. The separate margins
+diagnostic reads four existing captures, compiles four configurations and makes
+16 owner-operation calls, with zero generation, build or native calls. Those
+counts are separate from the original diagnostic's 28 calls and its four-call
+support control; the four recipe captures are a distinct qualification activity.
+The editorial summary does not rerun any of them.
+
+Reported full suites retain the thermal aggregate failure alongside 1,388
+definition passes, with 371 realization and 412 Studio passes; no expectation
+was weakened. There is no fresh native placement or installation proof.
+Annual opportunity does not establish seasonal liquid-water survival,
+groundwater, salinity, permanence or patch extent. Generated scarcity and
+ecological adequacy remain open in [Q-004][point-water]; [Q-005][wetland-question]
+remains a separate family-response/admission question.
+
+### Separate Dry-Habitat Interpretation Check
+
+A bounded 40-row contract trace at source
+`2a41b9c3d2d9d19c9c2e095636538c8b6e982368` reuses the four captures above.
+The four low-aridity DESERT witnesses follow the absolute plant-moisture bucket;
+each world's highest-aridity land witness is polar/snow, not eligible dryland.
+Source-only contrasts preserve ambient climate while altering plant fields
+and sometimes native-compatible class. Existing producer-consistent positive
+local regimes still admit oasis and watering hole. The trace identifies no
+specific contradiction between these distinct meanings, but does not establish
+generated-world reachability or validate the absolute moisture cutoff of 90,
+family ramps or 0.42 floor. Empirical response scales and Earthlike dry-regime
+coverage remain open.
+
+This separate diagnostic reports 59 owner-operation calls, 24 scalar source
+contrasts and zero generation, build or native calls. Capture contrasts are
+scalar handoff equations, not rerouted Hydrology or whole-world experiments;
+local positive fixtures have separately labeled reduced point-family planner
+intent. Their scope does not imply final native legality. These are privately
+retained report findings, not an added verification or a new run by this summary.
 
 ## A Separate Native Occurrence Observation
 
@@ -194,9 +307,24 @@ validation.
 | Native original receipt | `d5e119c30d2045c200b9c3012eed4ba05525ce61321b710b93c81abb33e5cbd8` |
 | Native continuation receipt | `d87adeebef6dd608f53e69f70e352a2db99c98288ab69ab0f1e7c5a680d0eab9` |
 
-The diagnostic programs and census reducer have no committed producer revisions
-of their own. Their findings
-therefore remain prose evidence with explicit custody and source limits, not a
+The later source-led qualification has separate custody:
+
+| Retained artifact | SHA-256 |
+| --- | --- |
+| Source-led retained replay result | `8aac7036f317bc34d05a604b1c23c68a595a1a7f8e562dd207418d6ff1faf31c` |
+| Four-capture qualification manifest | `9748b8f1eaf296a024e75ca38e1def94e70bd4c753b045d90d126701e197bea9` |
+| Conditional margins result | `be8241ee5526e992ed2026430c8e95e6d90503e667ee1677d9373d463d963dab` |
+| Conditional margins program | `bb58f0f620b72b54f7416c229fd033a8a4d2a5a3bce9bca2d885572d055d7ee8` |
+| Source-led Standard 1/1 capture receipt | `9241ad0d0b246c02709189e18b9d02625d810a715d383b95310d927135507835` |
+| Source-led Huge 2/2 capture receipt | `7b5b185ae50cdd0b4fe31eab6db19854360f9283552bdab78babc713272fd001` |
+| Source-led Standard 3/3 capture receipt | `1763d8ee3a855614d9783ce02b9b976b5da98f9b84783d52e2eed9902b91285b` |
+| Source-led Huge 4/4 capture receipt | `4558ffac505e14c07f7c1870780a7a6b4e51a3fe392abcb64005828af6daf0ee` |
+| Dry-habitat contract trace result | `11da2e0383a3822dfc0f3c6168d066a7eab3db7d66f08b82511d09154eb616fd` |
+| Dry-habitat contract trace program | `5707a1d31a02a8c6cf54e3ff71458192bc7af00172c8c97223daea6d09e89350` |
+
+The private diagnostic programs and census reducer have no committed producer
+revisions of their own. Their findings therefore remain prose evidence with
+explicit custody and source limits, not a
 fabricated structured verification record pinned to this editorial commit.
 No current live-state claim, all-seed prevalence, physical calibration, repaired
 output or preferred threshold follows from these results.
@@ -205,3 +333,6 @@ output or preferred threshold follows from these results.
 [scores]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/steps/score-layers/step.ts
 [planner]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/features-plan-wetlands/strategies/habitat-confidence/index.ts
 [oasis]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/maps/configs/swooper-earthlike.config.json#L949-L957
+[qualified]: https://github.com/mateicanavra/civ7-modding-tools/blob/09e8c9a87fba9c5078d20134ad1c8e04a858bfbb/docs/projects/native-map-controls/dryland-point-water-coherence.md#qualified-outcome
+[point-water]: questions/q-004-point-water-support.md
+[wetland-question]: questions/q-005-wetland-suitability.md
