@@ -23,7 +23,9 @@ export type EarthCoastClimateArm = "earth-coast" | "aquaplanet";
 
 /**
  * Test-owned composition of the actual baseline step, not a new recipe or a completed Earth map.
- * Source water (including enclosed water) receives SST; flat relief has no physical height claim.
+ * This scientific fixture explicitly prescribes all source water, including enclosed water, as
+ * external supply. It is not the procedural recipe's marine-boundary policy; flat relief has
+ * no physical height claim.
  */
 export function runEarthCoastBaseline(
   arm: EarthCoastClimateArm = "earth-coast",
@@ -99,9 +101,7 @@ export function runEarthCoastBaseline(
         computeThermalState: hydrology.climate.ops.computeThermalState.run,
         computePressureField: hydrology.climate.ops.computePressureField.run,
         computeAtmosphericCirculation: hydrology.climate.ops.computeAtmosphericCirculation.run,
-        computeEvaporationSources: hydrology.climate.ops.computeEvaporationSources.run,
-        transportMoisture: hydrology.climate.ops.transportMoisture.run,
-        computePrecipitation: hydrology.climate.ops.computePrecipitation.run,
+        computeMoistureForcing: hydrology.climate.ops.computeMoistureForcing.run,
         computePotentialDemand: hydrology.climate.ops.computePotentialDemand.run,
       },
       buildStepTestDependencies(ClimateBaselineStep, stepContext)

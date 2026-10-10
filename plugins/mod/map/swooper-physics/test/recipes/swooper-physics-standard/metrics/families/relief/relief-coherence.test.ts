@@ -219,8 +219,8 @@ describe("Standard neutral relief coherence", () => {
     const input = reliefCoherenceFixture(6, 1);
     input.model.elevation.set([0, 10, 20, 30, 40, 50]);
     input.model.windU.fill(10);
-    input.model.baselineRainfall.set([80, 110, 110, 110, 110, 80]);
-    input.model.refinedRainfall.set([70, 115, 115, 115, 115, 70]);
+    input.model.baselinePrecipitation.set([80, 110, 110, 110, 110, 80]);
+    input.model.refinedPrecipitation.set([70, 115, 115, 115, 115, 70]);
     const east = measureStandardReliefCoherence(input).windRainfallAssociation;
     expect(east.groups.uphill.tiles.count).toBe(4);
     expect(east.groups.downhill.tiles.count).toBe(2);

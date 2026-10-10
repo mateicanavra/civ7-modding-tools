@@ -28,8 +28,8 @@ export type StandardReliefCoherenceInput = Readonly<{
     | "riverClass"
     | "flowDir"
     | "surfaceTemperature"
-    | "baselineRainfall"
-    | "refinedRainfall"
+    | "baselinePrecipitation"
+    | "refinedPrecipitation"
     | "windU"
     | "windV"
   > & { physicalHydrology: Pick<StandardMapCapture["model"]["physicalHydrology"], "waterSurface"> };
@@ -554,9 +554,9 @@ function measureWindRainfall(
     const indices = Array.from({ length: width }, (_, x) => y * width + x).filter((i) => land[i]);
     if (!indices.length) continue;
     const baselineMean =
-      indices.reduce((sum, i) => sum + input.model.baselineRainfall[i]!, 0) / indices.length;
+      indices.reduce((sum, i) => sum + input.model.baselinePrecipitation[i]!, 0) / indices.length;
     const refinedMean =
-      indices.reduce((sum, i) => sum + input.model.refinedRainfall[i]!, 0) / indices.length;
+      indices.reduce((sum, i) => sum + input.model.refinedPrecipitation[i]!, 0) / indices.length;
     for (const index of indices) {
       population += 1;
       const u = input.model.windU[index]!,
@@ -589,8 +589,8 @@ function measureWindRainfall(
               : alignedGradient < -1e-9
                 ? "downhill"
                 : "zero";
-      const baselineResidual = input.model.baselineRainfall[index]! - baselineMean;
-      const refinedResidual = input.model.refinedRainfall[index]! - refinedMean;
+      const baselineResidual = input.model.baselinePrecipitation[index]! - baselineMean;
+      const refinedResidual = input.model.refinedPrecipitation[index]! - refinedMean;
       groups[kind].push({ index, alignedGradient, baselineResidual, refinedResidual });
       if (alignedGradient !== null) {
         baselinePairs.push([alignedGradient, baselineResidual]);

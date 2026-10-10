@@ -11,23 +11,25 @@ const input = () => ({
   width: 4,
   height: 1,
   externalWaterMask: Uint8Array.of(1, 0, 0, 0),
-  rainfall: Uint8Array.of(200, 51, 99, 0),
-  humidity: Uint8Array.of(0, 56, 121, 255),
+  precipitation: Float32Array.of(420.75, 51.125, 399.75, 0),
+  surfaceWetness: Float32Array.from([0, 56, 121, 255], value => value / 255),
 });
 
 describe("hydrology/compute-local-runoff", () => {
-  it("preserves the original source arithmetic before Float32 narrowing and attributes no more than rainfall", () => {
+  it("uses unclipped float precipitation and normalized wetness without narrowing Number runoff", () => {
     const forcing = input();
     const before = structuredClone(forcing);
     const { runoff } = computeLocalRunoff.run(forcing, config);
     expect(Array.isArray(runoff)).toBe(true);
     expect(runoff[0]).toBe(0);
     expect(runoff[3]).toBe(0);
-    expect(runoff[1]).toBe(51 * (1 - 0.15) * (1 - 0.25 * (56 / 255)));
+    expect(runoff[1]).toBe(51.125 * (1 - 0.15) * (1 - 0.25 * forcing.surfaceWetness[1]!));
+    expect(runoff[2]).toBe(399.75 * (1 - 0.15) * (1 - 0.25 * forcing.surfaceWetness[2]!));
+    expect(runoff[2]).toBeGreaterThan(255);
     expect(runoff[1]).not.toBe(Math.fround(runoff[1]!));
     for (let cell = 0; cell < runoff.length; cell++) {
       expect(runoff[cell]).toBeGreaterThanOrEqual(0);
-      expect(runoff[cell]).toBeLessThanOrEqual(forcing.rainfall[cell]!);
+      expect(runoff[cell]).toBeLessThanOrEqual(forcing.precipitation[cell]!);
     }
     expect(computeLocalRunoff.run(forcing, config)).toEqual({ runoff });
     expect(forcing).toEqual(before);
@@ -43,6 +45,16 @@ describe("hydrology/compute-local-runoff", () => {
     ).toEqual([0, 0, 0, 0]);
     forcing.externalWaterMask[1] = 2;
     expect(() => computeLocalRunoff.run(forcing, config)).toThrow("binary");
+    for (const invalid of [-1, NaN, Infinity]) {
+      const malformed = input();
+      malformed.precipitation[1] = invalid;
+      expect(() => computeLocalRunoff.run(malformed, config)).toThrow("precipitation");
+    }
+    for (const invalid of [-1, 1.01, NaN, Infinity]) {
+      const malformed = input();
+      malformed.surfaceWetness[1] = invalid;
+      expect(() => computeLocalRunoff.run(malformed, config)).toThrow("surface wetness");
+    }
     for (const retired of [{ minRunoff: 0 }, { runoffScale: 1 }]) {
       const retiredSelection = { ...config, config: { ...config.config, ...retired } };
       expect(() =>

@@ -46,7 +46,7 @@ const terrainWindIndicesStrategy = createStrategy(
             config.barrierSteps,
             { barrierElevationM: config.barrierElevationM }
           );
-          const rainfall = (input.rainfall[index] ?? 0) / 200;
+          const rainfall = clamp01((input.precipitation[index] ?? 0) / 200);
           rainShadowIndex[index] =
             barrierDistance > 0
               ? clamp01((barrierDistance / config.barrierSteps) * (1 - rainfall))

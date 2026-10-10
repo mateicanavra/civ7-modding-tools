@@ -20,7 +20,7 @@ describe("certified basin-network integrity measurements", () => {
       const measured = measureBasinLedger({ ...base, provenance: { width: input.width, height: input.height }, model: {
         ...base.model, externalWaterMask: input.externalWaterMask, seaLevel: input.externalWaterHead,
         exposedLandMask: Uint8Array.from(input.externalWaterMask, (external, cell) => external === 0 && plan.wetMask[cell] === 0 ? 1 : 0),
-        elevation: Int16Array.from(input.elevation), baselineRainfall: input.rainfall,
+        elevation: Int16Array.from(input.elevation), baselinePrecipitation: input.precipitation,
         plannedLakeMask: plan.wetMask, flowDir: plan.receiver, terminalType: plan.terminalType, riverClass: new Uint8Array(size),
         mountainMask: new Uint8Array(size), volcanoMask: new Uint8Array(size),
         physicalHydrology: { model: "certified-sill-spill", runoff: input.localRunoff, potentialDemand: input.potentialDemand,
@@ -208,7 +208,7 @@ describe("certified basin-network integrity measurements", () => {
       input.model.exposedLandMask.set([0, 1, 1]);
       input.model.riverClass.fill(0); input.model.flowDir.set([-1, 2, -2]);
       input.model.terminalType.set([0, state === "subtile" ? 4 : 5, state === "subtile" ? 4 : 5]);
-      input.model.baselineRainfall.fill(0);
+      input.model.baselinePrecipitation.fill(0);
       physical.waterSurface = [0, 2, 0]; physical.bodyId.fill(0); physical.componentId.set([0, 0, 3]); physical.basinId.set([-1, 3, 3]);
       physical.runoff = state === "subtile" ? [0, 1, 1] : [0, 0, 0]; physical.discharge = state === "subtile" ? [0, 1, 0] : [0, 0, 0];
       physical.potentialDemand.set([0, 0, 4]);

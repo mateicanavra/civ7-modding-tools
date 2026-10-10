@@ -17,8 +17,14 @@ describe("climate-refine index projections", () => {
       freezeIndex: new Float32Array([0, 0.3]),
     };
     const before = structuredClone(climateIndices);
+    const climateField = {
+      precipitation: new Float32Array([10.125, 600.75]),
+      surfaceWetness: Float32Array.of(0.25, 0.75),
+      rainfallCodec: new Uint8Array([10, 200]),
+    };
+    const beforeClimate = structuredClone(climateField);
     const projections = buildClimateRefineVizProjections({
-      climateField: { rainfall: new Uint8Array([10, 20]), humidity: new Uint8Array([30, 40]) },
+      climateField,
       climateIndices,
       cryosphere: {
         snowCover: new Uint8Array(2), seaIceCover: new Uint8Array(2), albedo: new Uint8Array(2),
@@ -28,6 +34,12 @@ describe("climate-refine index projections", () => {
         rainShadowIndex: new Float32Array(2), continentalityIndex: new Float32Array(2), convergenceIndex: new Float32Array(2),
       },
     }, dimensions);
+    for (const key of ["precipitation", "surfaceWetness", "rainfallCodec"] as const) {
+      const grid = projections.find(projection => projection.kind === "grid" && projection.dataTypeKey === `hydrology.climate.${key}`);
+      if (!grid || grid.kind !== "grid") throw new Error("Expected atmospheric scalar grid.");
+      expect(grid.field.format).toBe(key === "rainfallCodec" ? "u8" : "f32");
+      expect(grid.field.values).toBe(climateField[key]);
+    }
     for (const key of ["effectiveMoisture", "aridityIndex", "localSurfaceWaterOpportunity", "plantEffectiveMoisture", "plantWaterStress"] as const) {
       const grids = projections.filter((projection) =>
         projection.kind === "grid" && projection.dataTypeKey === `hydrology.climate.indices.${key}`);
@@ -42,5 +54,6 @@ describe("climate-refine index projections", () => {
       expect(grid.meta?.visibility).toBe("debug");
     }
     expect(climateIndices).toEqual(before);
+    expect(climateField).toEqual(beforeClimate);
   });
 });

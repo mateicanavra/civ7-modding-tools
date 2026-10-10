@@ -5,7 +5,7 @@ import { measureWetTransitions } from "./wet-transitions.js";
 export type StandardBasinNetworkMeasurementInput = Readonly<{
   provenance: Pick<StandardMapCapture["provenance"], "width" | "height">;
   model: Pick<StandardMapCapture["model"], "physicalHydrology" | "externalWaterMask" | "exposedLandMask" | "seaLevel" | "elevation" | "plannedLakeMask" |
-    "riverClass" | "flowDir" | "terminalType" | "mountainMask" | "volcanoMask" | "baselineRainfall">;
+    "riverClass" | "flowDir" | "terminalType" | "mountainMask" | "volcanoMask" | "baselinePrecipitation">;
   projection: Pick<StandardMapCapture["projection"], "lakes" | "navigableRivers" | "riverReadback">;
   observation: Pick<StandardMapCapture["observation"], "isWater" | "isLake" | "terrain" | "coastTerrain">;
 }>;

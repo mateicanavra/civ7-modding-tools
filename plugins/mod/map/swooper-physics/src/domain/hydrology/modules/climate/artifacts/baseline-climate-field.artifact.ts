@@ -2,24 +2,27 @@ import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/au
 import { PotentialDemandParametersSchema } from "../model/atoms/potential-demand.schema.js";
 
 /**
- * Publishes the pre-hydrography rainfall, humidity, and demand vintage so river routing and later climate
- * refinement share one causal baseline. Admission preserves map cardinality and Civ7's inclusive
- * `0..200` rainfall domain.
+ * Publishes independent atmospheric precipitation, normalized wetness and seasonal demand before
+ * hydrography. The native rainfall codec is a projection boundary, not a physical forcing field.
  */
 export const artifact = defineArtifact({
   name: "baselineClimateField",
   id: "artifact:hydrology.baselineClimateField",
   schema: Type.Object(
     {
-      rainfall: TypedArraySchemas.u8({
+      precipitation: TypedArraySchemas.f32({
         cardinality: "map-grid",
         description:
-          "Annual-mean atmospheric precipitation intensity preserved through climate refinement, encoded in Civ7's inclusive 0-200 rainfall domain.",
+          "Annual-mean unclipped atmospheric precipitation in empirical rainfall-index-equivalent units per representative interval.",
       }),
-      humidity: TypedArraySchemas.u8({
+      surfaceWetness: TypedArraySchemas.f32({
         cardinality: "map-grid",
         description:
-          "Annual-mean rainfall-derived wetness proxy available to river routing and climate refinement, encoded on an inclusive 0-255 scale.",
+          "Annual mean of independently reduced member surface wetness, normalized to 0..1; not soil water or local plant supply.",
+      }),
+      rainfallCodec: TypedArraySchemas.u8({
+        cardinality: "map-grid",
+        description: "Native rainfall codec derived once from annual precipitation by rounding and clamping to 0..200.",
       }),
       potentialDemand: TypedArraySchemas.f32({
         cardinality: "map-grid",
@@ -31,15 +34,23 @@ export const artifact = defineArtifact({
     {
       additionalProperties: false,
       description:
-        "Hydrology's immutable pre-hydrography rainfall, humidity, and potential demand with the admitted calibration forwarded to refinement.",
+        "Immutable baseline atmospheric P/W, native codec, and seasonal potential demand with calibration forwarded unchanged to refinement.",
     }
   ),
   refine: (value, { issues }) => {
-    const invalidIndex = value.rainfall.findIndex((sample) => sample > 200);
+    const invalidIndex = value.rainfallCodec.findIndex((sample) => sample > 200);
     if (invalidIndex >= 0) {
       issues.add(
-        `Expected climate.rainfall[${invalidIndex}] to be within 0..200 (received ${value.rainfall[invalidIndex]}).`
+        `Expected climate.rainfallCodec[${invalidIndex}] to be within 0..200 (received ${value.rainfallCodec[invalidIndex]}).`
       );
+    }
+    const invalidPrecipitationIndex = value.precipitation.findIndex((sample) => !Number.isFinite(sample) || sample < 0);
+    if (invalidPrecipitationIndex >= 0) {
+      issues.add(`Expected climate.precipitation[${invalidPrecipitationIndex}] to be finite and nonnegative (received ${value.precipitation[invalidPrecipitationIndex]}).`);
+    }
+    const invalidWetnessIndex = value.surfaceWetness.findIndex((sample) => !Number.isFinite(sample) || sample < 0 || sample > 1);
+    if (invalidWetnessIndex >= 0) {
+      issues.add(`Expected climate.surfaceWetness[${invalidWetnessIndex}] to be finite and within 0..1 (received ${value.surfaceWetness[invalidWetnessIndex]}).`);
     }
     const invalidDemandIndex = value.potentialDemand.findIndex(
       (sample) => !Number.isFinite(sample) || sample < 0

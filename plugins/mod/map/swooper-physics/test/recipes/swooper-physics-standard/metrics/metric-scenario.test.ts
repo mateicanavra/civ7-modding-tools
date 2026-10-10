@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import { FEATURE_PLACEMENT_KEYS, getCiv7StandardMapSizePreset } from "@civ7/map-policy";
 import { evaluateMetricTargets } from "@swooper/mapgen-metrics";
-import { admitStandardMapConfig } from "../../../../src/maps/configs/canonical.js";
+import { admitStandardMapConfig, canonicalMapConfigDigest } from "../../../../src/maps/configs/canonical.js";
 import swooperEarthlikeRaw from "../../../../src/maps/configs/swooper-earthlike.config.json";
 import { captureStandardMapScenario } from "../../../../src/recipes/standard/metrics/capture.js";
 import { measureStandardMapCapture } from "../../../../src/recipes/standard/metrics/sample.js";
@@ -138,7 +138,8 @@ describe("Standard metric scenario admission", () => {
   it("captures inspected-setup provenance and the complete feature legality corpus", () => {
     const identity = standardMetricScenarioIdentity(TEST_MAP_SIZE, TEST_MAP_SEED, TEST_GAME_SEED);
     const capture = captureStandardMapScenario(
-      standardProductMetricScenario(earthlikeConfig, TEST_MAP_SIZE, identity)
+      standardProductMetricScenario(earthlikeConfig, TEST_MAP_SIZE, identity),
+      { includeMoistureDiagnostics: true }
     );
     expect(capture.provenance).toMatchObject({
       mapKind: "civ7-preset",
@@ -150,15 +151,48 @@ describe("Standard metric scenario admission", () => {
       height: TEST_MAP_SIZE.dimensions.height,
       topLatitude: earthlikeConfig.latitudeBounds.topLatitude,
       bottomLatitude: earthlikeConfig.latitudeBounds.bottomLatitude,
+      configurationDigest: canonicalMapConfigDigest(earthlikeConfig),
     });
     expect(capture.placement.aliveMajorIds).toEqual(capture.provenance.aliveMajorPlayerIds);
     const { model } = capture;
     const gridSize = TEST_MAP_SIZE.dimensions.width * TEST_MAP_SIZE.dimensions.height;
-    for (const field of [model.localSurfaceWaterOpportunity, model.plantEffectiveMoisture, model.plantWaterStress]) {
+    for (const field of [
+      model.localSurfaceWaterOpportunity, model.plantEffectiveMoisture, model.plantWaterStress,
+      model.baselinePrecipitation, model.refinedPrecipitation,
+      model.baselineSurfaceWetness, model.refinedSurfaceWetness,
+      model.physicalHydrology.potentialDemand, model.refinedLandPotentialDemand,
+    ]) {
       expect(field).toBeInstanceOf(Float32Array);
       expect(field).toHaveLength(gridSize);
       expect(field.every(Number.isFinite)).toBe(true);
     }
+    expect(model.refinedPrecipitation).toEqual(model.baselinePrecipitation);
+    expect(model.refinedSurfaceWetness).toEqual(model.baselineSurfaceWetness);
+    expect(model.refinedRainfallCodec).toEqual(model.baselineRainfallCodec);
+    expect(model.refinedPrecipitation).not.toBe(model.baselinePrecipitation);
+    expect(model.refinedSurfaceWetness).not.toBe(model.baselineSurfaceWetness);
+    expect(model.baselineRainfallCodec).toBeInstanceOf(Uint8Array);
+    expect(model.baselineRainfallCodec.every((codec) => codec <= 200)).toBe(true);
+    expect(model.baselineSurfaceWetness.every((wetness) => wetness >= 0 && wetness <= 1)).toBe(true);
+    expect(model.refinedLandPotentialDemand.every((demand, cell) => model.exposedLandMask[cell] === 1 || demand === 0)).toBe(true);
+    expect(Number.isFinite(capture.execution.definitionGenerationDurationMs)).toBe(true);
+    expect(capture.execution.definitionGenerationDurationMs).toBeGreaterThan(0);
+    const diagnostics = capture.moistureDiagnostics;
+    if (!diagnostics) throw new Error("Requested moisture attribution must be captured.");
+    expect(diagnostics.oceanSstC).toBeInstanceOf(Float32Array);
+    expect(diagnostics.oceanSeaIceMask).toBeInstanceOf(Uint8Array);
+    expect(diagnostics.baselineSurfaceTemperatureC).toHaveLength(gridSize);
+    for (const family of ["forest", "rainforest", "taiga", "marsh", "tundra-bog", "mangrove", "oasis", "watering-hole"]) {
+      expect(diagnostics.featureSuitability[family]).toBeInstanceOf(Float32Array);
+      expect(diagnostics.featureSuitability[family]).toHaveLength(gridSize);
+    }
+    expect(Object.isFrozen(diagnostics)).toBe(true);
+    expect(Object.isFrozen(diagnostics.featureSuitability)).toBe(true);
+    expect(Object.isFrozen(diagnostics.floodplainIntents)).toBe(true);
+    expect(Object.isFrozen(diagnostics.iceIntents)).toBe(true);
+    expect(Object.isFrozen(diagnostics.reefIntents)).toBe(true);
+    expect(Object.isFrozen(diagnostics.vegetationIntents)).toBe(true);
+    expect(Object.isFrozen(diagnostics.wetlandIntents)).toBe(true);
     expect(model.plantEffectiveMoisture).not.toBe(model.effectiveMoisture);
     expect(model.plantWaterStress).not.toBe(model.aridityIndex);
     expect(model.localSurfaceWaterOpportunity.every((opportunity) => opportunity >= 0)).toBe(true);

@@ -43,24 +43,39 @@ export function buildClimateRefineVizProjections(
   const diagnostics = observation.diagnostics;
   return [
     ...buildScalarFieldProjections({
-      dataTypeKey: "hydrology.climate.rainfall",
+      dataTypeKey: "hydrology.climate.precipitation",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: observation.climateField.rainfall },
-      meta: defineStandardVizMeta("hydrology.climate.rainfall", "climate.moisture", {
-        label: "Rainfall",
+      field: { format: "f32", values: observation.climateField.precipitation },
+      meta: defineStandardVizMeta("hydrology.climate.precipitation", "climate.moisture", {
+        label: "Atmospheric Precipitation",
+        description: "Unclipped atmospheric precipitation in empirical rainfall-index units; not the native rainfall codec.",
         group: GROUP_CLIMATE,
       }),
       points: {},
     }),
     {
       kind: "grid",
-      dataTypeKey: "hydrology.climate.humidity",
+      dataTypeKey: "hydrology.climate.surfaceWetness",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: observation.climateField.humidity },
-      meta: defineStandardVizMeta("hydrology.climate.humidity", "climate.moisture", {
-        label: "Humidity",
+      field: { format: "f32", values: observation.climateField.surfaceWetness },
+      meta: defineStandardVizMeta("hydrology.climate.surfaceWetness", "climate.moisture", {
+        label: "Atmospheric Surface Wetness",
+        description: "Independently aggregated normalized atmospheric wetness in 0..1; not local plant-water supply.",
+        group: GROUP_CLIMATE,
+        visibility: "debug",
+      }),
+    },
+    {
+      kind: "grid",
+      dataTypeKey: "hydrology.climate.rainfallCodec",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "u8", values: observation.climateField.rainfallCodec },
+      meta: defineStandardVizMeta("hydrology.climate.rainfallCodec", "climate.moisture", {
+        label: "Native Rainfall Codec",
+        description: "Annual precipitation rounded and clipped at the native conversion boundary; not physical forcing.",
         group: GROUP_CLIMATE,
         visibility: "debug",
       }),

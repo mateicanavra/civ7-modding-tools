@@ -15,8 +15,11 @@ export default createStrategy(ComputePotentialDemandContract, TemperatureHumidit
       if (!Number.isFinite(input.surfaceTemperatureC[i])) {
         throw new RangeError(`Expected finite potential-demand temperature at tile ${i}.`);
       }
+      if (!Number.isFinite(input.surfaceWetness[i]) || input.surfaceWetness[i]! < 0 || input.surfaceWetness[i]! > 1) {
+        throw new RangeError(`Expected normalized potential-demand surface wetness at tile ${i}.`);
+      }
       const tempFactor = lerp01(input.surfaceTemperatureC[i]!, tMinC, tMax);
-      const damp = 1 - humidityDampening * clamp01(input.humidity[i]! / 255);
+      const damp = 1 - humidityDampening * input.surfaceWetness[i]!;
       pet[i] = (petBase + petTemperatureWeight * tempFactor) * clamp01(damp);
     }
     return { pet };

@@ -3,7 +3,7 @@ import { ClimateSamplingModelSchema } from "../../model/atoms/climate-phase.sche
 import { MoistureSampleSchema } from "../../model/atoms/moisture-sample.schema.js";
 import phaseReduction from "./strategies/phase-reduction/config.js";
 
-/** Owns weather-member and annual moisture reductions, including phase-resolved demand evidence. */
+/** Independently reduces weather P/W before phase demand and calendar annual P/W/D. */
 export default defineOp({
   kind: "compute",
   id: "hydrology/compute-moisture-aggregate",
@@ -18,25 +18,26 @@ export default defineOp({
       reduction: Type.Literal("annual"), model: ClimateSamplingModelSchema,
       weights: Type.Array(Type.Number({ exclusiveMinimum: 0 }), { minItems: 1 }),
       samples: Type.Array(Type.Object({
-        rainfall: TypedArraySchemas.u8({ description: "Weather-reduced rainfall at this phase." }),
-        humidity: TypedArraySchemas.u8({ description: "Weather-reduced humidity at this phase." }),
-        potentialDemand: Type.Array(Type.Number({ minimum: 0 }), { description: "Demand computed from this phase's temperature and weather-reduced humidity." }),
+        precipitation: TypedArraySchemas.f32({ description: "Weather-reduced unclipped precipitation at this phase." }),
+        surfaceWetness: TypedArraySchemas.f32({ description: "Independently weather-reduced normalized wetness at this phase." }),
+        potentialDemand: Type.Array(Type.Number({ minimum: 0 }), { description: "Demand computed after this phase's temperature and weather-reduced wetness." }),
       }, { additionalProperties: false }), { minItems: 1 }),
     }, { additionalProperties: false }),
   ]),
   output: Type.Union([
     Type.Object({
       reduction: Type.Literal("weather-members"),
-      rainfall: TypedArraySchemas.u8({ description: "Equal-weight weather rainfall mean, rounded and bounded to 255." }),
-      humidity: TypedArraySchemas.u8({ description: "Equal-weight weather humidity mean, rounded and bounded to 255." }),
+      precipitation: TypedArraySchemas.f32({ description: "Equal-weight member precipitation mean without clipping or integer rounding." }),
+      surfaceWetness: TypedArraySchemas.f32({ description: "Equal-weight member wetness mean, independent of precipitation reduction." }),
     }, { additionalProperties: false }),
     Type.Object({
       reduction: Type.Literal("annual"),
-      rainfall: TypedArraySchemas.u8({ description: "Annual rainfall mean, rounded and bounded to 200." }),
-      humidity: TypedArraySchemas.u8({ description: "Annual humidity mean, rounded and bounded to 255." }),
-      potentialDemand: TypedArraySchemas.f32({ description: "Annual mean of phase-resolved potential demand." }),
-      rainfallAmplitude: TypedArraySchemas.u8({ description: "Half-range over all integration phases, rounded." }),
-      humidityAmplitude: TypedArraySchemas.u8({ description: "Half-range over all integration phases, rounded." }),
+      precipitation: TypedArraySchemas.f32({ description: "Calendar-weighted annual atmospheric precipitation, unclipped." }),
+      surfaceWetness: TypedArraySchemas.f32({ description: "Calendar-weighted annual normalized wetness, independent of precipitation reduction." }),
+      rainfallCodec: TypedArraySchemas.u8({ description: "Native rainfall codec derived once from published annual P, rounded and bounded to 200." }),
+      potentialDemand: TypedArraySchemas.f32({ description: "Annual mean of phase-resolved potential demand; not recomputed from annual wetness." }),
+      precipitationAmplitude: TypedArraySchemas.f32({ description: "Empirical precipitation half-range over every integration phase." }),
+      surfaceWetnessAmplitude: TypedArraySchemas.f32({ description: "Empirical normalized wetness half-range over every integration phase." }),
     }, { additionalProperties: false }),
   ]),
   strategies: [phaseReduction],

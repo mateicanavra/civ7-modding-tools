@@ -100,7 +100,7 @@ describe("observational coherence comparison", () => {
                 seaLevel: 0, elevation: new Int16Array([10, -10]), flowDir: new Int32Array([1, -1]),
                 landMask: new Uint8Array([1, 0]), plannedLakeMask: new Uint8Array(2), riverClass: new Uint8Array([2, 0]),
                 externalWaterMask: new Uint8Array([0, 1]), exposedLandMask: new Uint8Array([1, 0]),
-                baselineRainfall: new Uint8Array([30, 80]), effectiveMoisture: new Float32Array([45, 0]), biomeIndex: new Uint8Array([3, 255]),
+                baselinePrecipitation: new Float32Array([30.25, 280.5]), effectiveMoisture: new Float32Array([45, 0]), biomeIndex: new Uint8Array([3, 255]),
                 mountainMask: new Uint8Array(2), hillMask: new Uint8Array(2), foothillMask: new Uint8Array(2), roughLandMask: new Uint8Array(2), volcanoMask: new Uint8Array(2),
                 physicalHydrology: { model: "certified-sill-spill", discharge: [changed && ${JSON.stringify(failure)} === "discharge" ? 2 : 1, 0],
                   bodyId: new Int32Array(2), waterSurface: [changed && ${JSON.stringify(failure)} === "waterSurface" ? 10.25 : 10, 0], bodies: [], transfers: [], ports: [] }
@@ -121,6 +121,7 @@ describe("observational coherence comparison", () => {
         const html = readFileSync(join(output, "index.html"), "utf8");
         expect(html).toContain('"Generation","Verification"');
         expect(html).toContain('verification!=="pass"');
+        expect(html).toContain('"precipitation":[30.25,280.5]');
       } finally {
         rmSync(output, { recursive: true, force: true });
       }

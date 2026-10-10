@@ -31,7 +31,7 @@ export const PotentialDemandParametersSchema = Type.Object(
       default: 0.55,
       minimum: 0,
       maximum: 1,
-      description: "How much humidity reduces PET (0..1).",
+      description: "How much normalized atmospheric surface wetness reduces PET (0..1).",
     }),
   },
   {

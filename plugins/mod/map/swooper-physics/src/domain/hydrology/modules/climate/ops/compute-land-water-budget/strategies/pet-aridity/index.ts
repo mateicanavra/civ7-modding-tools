@@ -18,6 +18,21 @@ const petAridityStrategy = createStrategy(ComputeLandWaterBudgetContract, PetAri
     if (input.pet.length !== size) {
       throw new RangeError(`Expected ${size} potential-demand samples, received ${input.pet.length}.`);
     }
+    for (const key of ["precipitation", "surfaceWetness"] as const) {
+      if (input[key].length !== size) {
+        throw new RangeError(`Expected ${size} ${key} samples, received ${input[key].length}.`);
+      }
+    }
+    for (let i = 0; i < size; i++) {
+      const precipitation = input.precipitation[i]!;
+      const wetness = input.surfaceWetness[i]!;
+      if (!Number.isFinite(precipitation) || precipitation < 0) {
+        throw new RangeError(`Expected finite nonnegative precipitation at ${i}.`);
+      }
+      if (!Number.isFinite(wetness) || wetness < 0 || wetness > 1) {
+        throw new RangeError(`Expected finite surface wetness in 0..1 at ${i}.`);
+      }
+    }
 
     const pet = new Float32Array(size);
     const effectiveMoisture = new Float32Array(size);
@@ -36,9 +51,9 @@ const petAridityStrategy = createStrategy(ComputeLandWaterBudgetContract, PetAri
         continue;
       }
 
-      const humidityRaw = input.humidity[i]!;
-      const precip = input.rainfall[i]!;
-      effectiveMoisture[i] = precip + EFFECTIVE_MOISTURE_HUMIDITY_WEIGHT * humidityRaw;
+      const wetness = input.surfaceWetness[i]!;
+      const precip = input.precipitation[i]!;
+      effectiveMoisture[i] = precip + EFFECTIVE_MOISTURE_HUMIDITY_WEIGHT * 255 * wetness;
 
       const petValue = input.pet[i]!;
       pet[i] = petValue;
@@ -49,7 +64,7 @@ const petAridityStrategy = createStrategy(ComputeLandWaterBudgetContract, PetAri
       // Preserve the incumbent exactly at its Float32 publication boundary when no source is admitted.
       plantEffectiveMoisture[i] = localWater === 0
         ? effectiveMoisture[i]!
-        : precip + EFFECTIVE_MOISTURE_HUMIDITY_WEIGHT * humidityRaw + localWater;
+        : precip + EFFECTIVE_MOISTURE_HUMIDITY_WEIGHT * 255 * wetness + localWater;
       plantWaterStress[i] = localWater === 0
         ? aridityIndex[i]!
         : petValue / (petValue + precip + localWater + 1);

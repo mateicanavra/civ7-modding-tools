@@ -8,8 +8,8 @@ export default createStrategy(contract, definition, {
     const size = input.width * input.height;
     if (
       input.externalWaterMask.length !== size ||
-      input.rainfall.length !== size ||
-      input.humidity.length !== size
+      input.precipitation.length !== size ||
+      input.surfaceWetness.length !== size
     )
       throw new RangeError("Local runoff requires map-grid inputs.");
     for (const value of [config.infiltrationFraction, config.humidityDampening]) {
@@ -20,12 +20,17 @@ export default createStrategy(contract, definition, {
     for (let cell = 0; cell < size; cell++) {
       if (input.externalWaterMask[cell] !== 0 && input.externalWaterMask[cell] !== 1)
         throw new RangeError("Local runoff requires a binary external water mask.");
+      const precipitation = input.precipitation[cell]!;
+      const wetness = input.surfaceWetness[cell]!;
+      if (!Number.isFinite(precipitation) || precipitation < 0)
+        throw new RangeError("Local runoff requires finite nonnegative precipitation.");
+      if (!Number.isFinite(wetness) || wetness < 0 || wetness > 1)
+        throw new RangeError("Local runoff requires finite surface wetness in 0..1.");
       if (input.externalWaterMask[cell]) continue;
-      const precipitation = input.rainfall[cell]!;
       runoff[cell] =
         precipitation *
         (1 - config.infiltrationFraction) *
-        (1 - config.humidityDampening * Math.max(0, Math.min(1, input.humidity[cell]! / 255)));
+        (1 - config.humidityDampening * wetness);
     }
     return { runoff };
   },

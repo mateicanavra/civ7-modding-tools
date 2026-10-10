@@ -76,8 +76,9 @@ function runSurfaceConsumers(initiallyWet = false) {
       sedimentDepth: new Float32Array(size).fill(0.5),
     });
     publishTestArtifact(stepContext, climateArtifacts.baselineClimateField, {
-      rainfall: new Uint8Array(size).fill(180),
-      humidity: new Uint8Array(size).fill(150),
+      precipitation: new Float32Array(size).fill(180),
+      surfaceWetness: new Float32Array(size).fill(150 / 255),
+      rainfallCodec: new Uint8Array(size).fill(180),
       potentialDemand: new Float32Array(size).fill(100),
       demandParameters: { tMinC: -10, tMaxC: 30, petBase: 40, petTemperatureWeight: 100, humidityDampening: 0.3 },
     });
@@ -113,14 +114,19 @@ function runSurfaceConsumers(initiallyWet = false) {
       computeClimateDiagnostics: climate.computeClimateDiagnostics.run,
     }, buildStepTestDependencies(ClimateRefineStep, stepContext));
 
+    const pedologyDependencies = buildStepTestDependencies(PedologyStep, stepContext);
     PedologyStep.run(stepContext, { classify: ecology.pedology.ops.classifyPedology.defaultConfig }, {
       classify: (...[input, config]: Parameters<typeof ecology.pedology.ops.classifyPedology.run>) => {
         calls.push("pedology");
         expect(input.landMask).toEqual(expectedExposure);
         expect(input.elevation).toBe(topography.elevation);
+        const atmosphere = pedologyDependencies.artifacts.climateField.read();
+        expect(input.precipitation).toBe(atmosphere.precipitation);
+        expect(input.surfaceWetness).toBe(atmosphere.surfaceWetness);
+        expect(Object.hasOwn(input, "plantEffectiveMoisture")).toBe(false);
         return ecology.pedology.ops.classifyPedology.run(input, config);
       },
-    }, buildStepTestDependencies(PedologyStep, stepContext));
+    }, pedologyDependencies);
 
     BiomesStep.run(stepContext, { classify: ecology.biomes.ops.classifyBiomes.defaultConfig }, {
       classify: (...[input, config]: Parameters<typeof ecology.biomes.ops.classifyBiomes.run>) => {

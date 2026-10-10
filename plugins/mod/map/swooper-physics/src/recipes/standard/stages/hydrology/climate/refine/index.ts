@@ -25,7 +25,7 @@ const knobsSchema = Type.Object(
 );
 
 /**
- * Preserves baseline rainfall and humidity while applying bounded albedo and cryosphere
+ * Preserves baseline precipitation, surface wetness and codec while applying bounded albedo and cryosphere
  * refinement in the post-hydrography climate pass.
  */
 export default createStage({

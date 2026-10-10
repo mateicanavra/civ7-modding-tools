@@ -73,7 +73,7 @@ export const ClimateRefineStep = createStep(config, {
         width,
         height,
         landMask: topography.landMask,
-        rainfall: baselineClimateField.rainfall,
+        precipitation: baselineClimateField.precipitation,
         surfaceTemperatureC: thermalField.surfaceTemperatureC,
       },
       stepConfig.applyAlbedoFeedback
@@ -85,7 +85,7 @@ export const ClimateRefineStep = createStep(config, {
         height,
         landMask: topography.landMask,
         surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,
-        rainfall: baselineClimateField.rainfall,
+        precipitation: baselineClimateField.precipitation,
       },
       stepConfig.computeCryosphereState
     );
@@ -95,7 +95,7 @@ export const ClimateRefineStep = createStep(config, {
         width,
         height,
         surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,
-        humidity: baselineClimateField.humidity,
+        surfaceWetness: baselineClimateField.surfaceWetness,
         parameters: baselineClimateField.demandParameters,
       },
       stepConfig.computePotentialDemand
@@ -111,8 +111,8 @@ export const ClimateRefineStep = createStep(config, {
         discharge: hydrography.discharge,
         runoff: hydrography.runoff,
         bodies: lakePlan.bodies,
-        rainfall: baselineClimateField.rainfall,
-        humidity: baselineClimateField.humidity,
+        precipitation: baselineClimateField.precipitation,
+        surfaceWetness: baselineClimateField.surfaceWetness,
         pet: demand.pet,
       },
       stepConfig.computeLandWaterBudget
@@ -127,14 +127,15 @@ export const ClimateRefineStep = createStep(config, {
         landMask: exposedLandMask,
         windU: windField.windU,
         windV: windField.windV,
-        rainfall: baselineClimateField.rainfall,
+        precipitation: baselineClimateField.precipitation,
       },
       stepConfig.computeClimateDiagnostics
     );
 
     const climateField = deps.artifacts.climateField.publish({
-      rainfall: new Uint8Array(baselineClimateField.rainfall),
-      humidity: new Uint8Array(baselineClimateField.humidity),
+      precipitation: new Float32Array(baselineClimateField.precipitation),
+      surfaceWetness: new Float32Array(baselineClimateField.surfaceWetness),
+      rainfallCodec: new Uint8Array(baselineClimateField.rainfallCodec),
     });
     const climateIndices = deps.artifacts.climateIndices.publish({
       surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,

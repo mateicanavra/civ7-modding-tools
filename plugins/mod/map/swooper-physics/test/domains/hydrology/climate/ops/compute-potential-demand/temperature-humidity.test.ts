@@ -18,7 +18,7 @@ function fixture(parameters: PotentialDemandParameters = defaults) {
     width,
     height,
     surfaceTemperatureC: Float32Array.from({ length: size }, (_, i) => -60 + i / 3),
-    humidity: Uint8Array.from({ length: size }, (_, i) => i % 256),
+    surfaceWetness: Float32Array.from({ length: size }, (_, i) => (i % 256) / 255),
     parameters,
   };
 }
@@ -36,7 +36,7 @@ describe("hydrology/compute-potential-demand", () => {
     expect(computeLandWaterBudget.defaultConfig.config).toEqual({});
   });
 
-  it("exactly preserves former refined PET and aridity without rounding demand early", () => {
+  it("preserves refined PET and aridity with normalized wetness without rounding demand early", () => {
     const calibrations: PotentialDemandParameters[] = [
       defaults,
       { tMinC: 0, tMaxC: 36, petBase: 19, petTemperatureWeight: 82, humidityDampening: 0.5 },
@@ -52,13 +52,13 @@ describe("hydrology/compute-potential-demand", () => {
       const demand = computePotentialDemand.run(input, computePotentialDemand.defaultConfig);
       const size = input.width * input.height;
       const landMask = Uint8Array.from({ length: size }, (_, i) => (i % 13 === 0 ? 0 : 1));
-      const rainfall = Uint8Array.from({ length: size }, (_, i) => i % 201);
+      const precipitation = Float32Array.from({ length: size }, (_, i) => i % 201);
       const expectedPet = new Float32Array(size);
       const expectedAridity = new Float32Array(size);
       const expectedMoisture = new Float32Array(size);
       const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
       for (let i = 0; i < size; i++) {
-        // Frozen reference arithmetic from the original combined land-water budget.
+        // Unchanged reference arithmetic using the admitted normalized wetness directly.
         const tMax = Math.max(parameters.tMinC + 1e-6, parameters.tMaxC);
         const range = tMax - parameters.tMinC;
         const temperature = input.surfaceTemperatureC[i]!;
@@ -68,17 +68,17 @@ describe("hydrology/compute-potential-demand", () => {
               ? 1
               : 0
             : clamp01((temperature - parameters.tMinC) / range);
-        const damp = 1 - parameters.humidityDampening * clamp01(input.humidity[i]! / 255);
+        const damp = 1 - parameters.humidityDampening * input.surfaceWetness[i]!;
         const petValue =
           (parameters.petBase + parameters.petTemperatureWeight * tempFactor) * clamp01(damp);
         expect(demand.pet[i]).toBe(petValue);
         if (landMask[i] !== 1) continue;
         expectedPet[i] = petValue;
-        const denominator = petValue + rainfall[i]! + 1;
+        const denominator = petValue + precipitation[i]! + 1;
         expectedAridity[i] = denominator <= 0 ? 0 : clamp01(petValue / denominator);
-        expectedMoisture[i] = rainfall[i]! + 0.35 * input.humidity[i]!;
+        expectedMoisture[i] = precipitation[i]! + 0.35 * 255 * input.surfaceWetness[i]!;
         const roundedPet = Math.fround(petValue);
-        if (Math.fround(roundedPet / (roundedPet + rainfall[i]! + 1)) !== expectedAridity[i]) {
+        if (Math.fround(roundedPet / (roundedPet + precipitation[i]! + 1)) !== expectedAridity[i]) {
           earlyRoundingDifferences++;
         }
       }
@@ -88,8 +88,8 @@ describe("hydrology/compute-potential-demand", () => {
           height: input.height,
           ...noLocalWaterSources(input.width, input.height),
           landMask,
-          humidity: input.humidity,
-          rainfall,
+          surfaceWetness: input.surfaceWetness,
+          precipitation,
           pet: demand.pet,
         },
         computeLandWaterBudget.defaultConfig
@@ -112,7 +112,7 @@ describe("hydrology/compute-potential-demand", () => {
     ).toThrow();
     expect(() =>
       computePotentialDemand.run(
-        { ...input, humidity: new Uint8Array(1) },
+        { ...input, surfaceWetness: new Float32Array(1) },
         computePotentialDemand.defaultConfig
       )
     ).toThrow();
@@ -123,8 +123,8 @@ describe("hydrology/compute-potential-demand", () => {
           height: input.height,
           ...noLocalWaterSources(input.width, input.height),
           landMask: new Uint8Array(input.width * input.height).fill(1),
-          humidity: input.humidity,
-          rainfall: new Uint8Array(input.width * input.height),
+          surfaceWetness: input.surfaceWetness,
+          precipitation: new Float32Array(input.width * input.height),
           pet: [1],
         },
         computeLandWaterBudget.defaultConfig
@@ -137,14 +137,14 @@ describe("hydrology/compute-potential-demand", () => {
       width: 3,
       height: 1,
       surfaceTemperatureC: new Float32Array([0, 17.5, 35]),
-      humidity: new Uint8Array([0, 128, 255]),
+      surfaceWetness: new Float32Array([0, 128 / 255, 1]),
       parameters: defaults,
     };
     const demand = computePotentialDemand.run(input, computePotentialDemand.defaultConfig);
     expect(demand.pet).toEqual([
       defaults.petBase,
       (defaults.petBase + defaults.petTemperatureWeight * 0.5) *
-        (1 - defaults.humidityDampening * (128 / 255)),
+        (1 - defaults.humidityDampening * input.surfaceWetness[1]!),
       (defaults.petBase + defaults.petTemperatureWeight) * (1 - defaults.humidityDampening),
     ]);
     const obsoleteInput = { ...input, landMask: new Uint8Array(3) };
@@ -158,6 +158,14 @@ describe("hydrology/compute-potential-demand", () => {
       expect(() => computePotentialDemand.run(input, computePotentialDemand.defaultConfig)).toThrow(
         "finite potential-demand temperature at tile 0"
       );
+    }
+  });
+
+  it("refuses non-normalized wetness rather than silently applying a byte scale", () => {
+    for (const sample of [-0.1, 1.1, NaN, Infinity]) {
+      const input = fixture();
+      input.surfaceWetness[0] = sample;
+      expect(() => computePotentialDemand.run(input, computePotentialDemand.defaultConfig)).toThrow("normalized potential-demand surface wetness");
     }
   });
 });

@@ -3,19 +3,19 @@ import { Type } from "typebox";
 
 import type { StandardMapCapture } from "../../capture.js";
 
-/** Metric identity for seasonal rainfall saturation evidence over the full integration population. */
-export const STANDARD_SEASONAL_RAINFALL_METRIC_KEY = "hydrology.seasonalRainfall";
-const RAINFALL_CEILING = 200;
+/** Metric identity for native rainfall-codec saturation over the full integration population. */
+export const STANDARD_SEASONAL_RAINFALL_CODEC_METRIC_KEY = "hydrology.seasonalRainfallCodec";
+const RAINFALL_CODEC_CEILING = 200;
 
 const seasonalCountFields = {
   landTileCount: Type.Integer({ minimum: 0 }),
   saturatedLandTileCounts: Type.Array(Type.Integer({ minimum: 0 }), {
     minItems: 1,
-    description: "Land rainfall counts at or above the 200-unit ceiling, in season order.",
+    description: "Land native rainfall-codec counts at the 200-unit ceiling, in phase order; not a float-precipitation bound.",
   }),
 };
 /** Full integration counts and their measure remain distinct from optional visualization samples. */
-export const StandardSeasonalRainfallMeasurementsSchema = Type.Object(
+export const StandardSeasonalRainfallCodecMeasurementsSchema = Type.Object(
   {
     version: Type.Literal(2),
     ...seasonalCountFields,
@@ -43,7 +43,7 @@ type PeriodicSampling = Readonly<{
   weights: readonly number[];
   observationIndices: readonly number[];
 }>;
-export type StandardSeasonalRainfallMeasurements = Readonly<{
+export type StandardSeasonalRainfallCodecMeasurements = Readonly<{
   version: 2;
   landTileCount: number;
   saturatedLandTileCounts: readonly number[];
@@ -51,26 +51,26 @@ export type StandardSeasonalRainfallMeasurements = Readonly<{
 }>;
 
 /** Projects the seasonal saturation evidence before the baseline observation is discarded. */
-export function measureStandardSeasonalRainfall(
+export function measureStandardSeasonalRainfallCodec(
   input: Readonly<{
     landMask: ArrayLike<number>;
-    seasonalIntegration: PeriodicSampling & Readonly<{ rainfall: readonly ArrayLike<number>[] }>;
+    seasonalIntegration: PeriodicSampling & Readonly<{ precipitation: readonly ArrayLike<number>[] }>;
   }>
-): StandardSeasonalRainfallMeasurements {
-  const { rainfall, model, phaseOrigin, phases, weights, observationIndices } =
+): StandardSeasonalRainfallCodecMeasurements {
+  const { precipitation, model, phaseOrigin, phases, weights, observationIndices } =
     input.seasonalIntegration;
-  if (rainfall.length === 0) {
-    throw new Error("Seasonal rainfall measurement requires at least one observed season.");
+  if (precipitation.length === 0) {
+    throw new Error("Seasonal rainfall-codec measurement requires at least one observed season.");
   }
   let landTileCount = 0;
   for (let index = 0; index < input.landMask.length; index += 1) {
     if (input.landMask[index] === 1) landTileCount += 1;
   }
-  const saturatedLandTileCounts = rainfall.map((rainfall) =>
-    countSaturatedLandTiles(input.landMask, rainfall)
+  const saturatedLandTileCounts = precipitation.map((phasePrecipitation) =>
+    countSaturatedLandTiles(input.landMask, phasePrecipitation, true)
   );
   Object.freeze(saturatedLandTileCounts);
-  validatePeriodicSampling(input.seasonalIntegration, rainfall.length);
+  validatePeriodicSampling(input.seasonalIntegration, precipitation.length);
   return Object.freeze({
     version: 2,
     landTileCount,
@@ -118,7 +118,7 @@ export type StandardClimateStructureInput = Readonly<{
   provenance: Pick<StandardMapCapture["provenance"], "width" | "height">;
   model: Pick<
     StandardMapCapture["model"],
-    "landMask" | "baselineRainfall" | "refinedRainfall" | "seasonalRainfall" | "surfaceTemperature"
+    "landMask" | "baselineRainfallCodec" | "refinedRainfallCodec" | "seasonalRainfallCodec" | "surfaceTemperature"
   >;
 }>;
 
@@ -136,20 +136,20 @@ export function measureStandardClimateStructure(
   capture: StandardClimateStructureInput
 ): StandardClimateStructureMetrics {
   const { width, height } = capture.provenance;
-  const { landMask, baselineRainfall, refinedRainfall, seasonalRainfall, surfaceTemperature } =
+  const { landMask, baselineRainfallCodec, refinedRainfallCodec, seasonalRainfallCodec, surfaceTemperature } =
     capture.model;
   const tileCount = width * height;
   if (
     landMask.length !== tileCount ||
-    baselineRainfall.length !== tileCount ||
-    refinedRainfall.length !== tileCount ||
+    baselineRainfallCodec.length !== tileCount ||
+    refinedRainfallCodec.length !== tileCount ||
     surfaceTemperature.length !== tileCount
   ) {
-    throw new Error("Climate structure requires complete rainfall, land, and temperature grids.");
+    throw new Error("Climate structure requires complete rainfall-codec, land, and temperature grids.");
   }
   validatePeriodicSampling(
-    seasonalRainfall.sampling,
-    seasonalRainfall.saturatedLandTileCounts.length
+    seasonalRainfallCodec.sampling,
+    seasonalRainfallCodec.saturatedLandTileCounts.length
   );
   let landTileCount = 0;
   let withinRowSquaredDeparture = 0;
@@ -174,9 +174,9 @@ export function measureStandardClimateStructure(
   }
 
   if (
-    seasonalRainfall.landTileCount !== landTileCount ||
-    seasonalRainfall.saturatedLandTileCounts.length === 0 ||
-    seasonalRainfall.saturatedLandTileCounts.some(
+    seasonalRainfallCodec.landTileCount !== landTileCount ||
+    seasonalRainfallCodec.saturatedLandTileCounts.length === 0 ||
+    seasonalRainfallCodec.saturatedLandTileCounts.some(
       (count) => !Number.isInteger(count) || count < 0 || count > landTileCount
     )
   ) {
@@ -187,29 +187,37 @@ export function measureStandardClimateStructure(
 
   return Object.freeze({
     baselineSaturatedLandTiles: measureMetricCount(
-      countSaturatedLandTiles(landMask, baselineRainfall),
+      countSaturatedLandTiles(landMask, baselineRainfallCodec),
       landTileCount
     ),
     refinedSaturatedLandTiles: measureMetricCount(
-      countSaturatedLandTiles(landMask, refinedRainfall),
+      countSaturatedLandTiles(landMask, refinedRainfallCodec),
       landTileCount
     ),
     maximumSeasonalLandSaturationFraction:
-      seasonalRainfall.landTileCount > 0
-        ? Math.max(...seasonalRainfall.saturatedLandTileCounts) / seasonalRainfall.landTileCount
+      seasonalRainfallCodec.landTileCount > 0
+        ? Math.max(...seasonalRainfallCodec.saturatedLandTileCounts) / seasonalRainfallCodec.landTileCount
         : null,
     pooledWithinRowTemperatureSdC:
       landTileCount > 0 ? Math.sqrt(withinRowSquaredDeparture / landTileCount) : null,
   });
 }
 
-function countSaturatedLandTiles(landMask: ArrayLike<number>, rainfall: ArrayLike<number>): number {
+function countSaturatedLandTiles(
+  landMask: ArrayLike<number>,
+  rainfall: ArrayLike<number>,
+  deriveSeasonalCodec = false
+): number {
   if (rainfall.length !== landMask.length) {
-    throw new Error("Rainfall saturation requires rainfall and land grids of identical length.");
+    throw new Error("Rainfall-codec saturation requires rainfall and land grids of identical length.");
   }
   let count = 0;
   for (let index = 0; index < landMask.length; index += 1) {
-    if (landMask[index] === 1 && rainfall[index]! >= RAINFALL_CEILING) count += 1;
+    // Seasonal conversion is diagnostic-only; no rounded intermediate enters model forcing.
+    const codec = deriveSeasonalCodec
+      ? Math.max(0, Math.min(RAINFALL_CODEC_CEILING, Math.round(rainfall[index]!)))
+      : rainfall[index]!;
+    if (landMask[index] === 1 && codec >= RAINFALL_CODEC_CEILING) count += 1;
   }
   return count;
 }

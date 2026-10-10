@@ -5,6 +5,6 @@ export default defineStrategy({
   id: "temperature-humidity",
   config: Type.Object({}, {
     additionalProperties: false,
-    description: "Computes potential demand from supplied temperature, humidity, and baseline calibration.",
+    description: "Computes potential demand from supplied temperature, normalized surface wetness, and baseline calibration.",
   }),
 });

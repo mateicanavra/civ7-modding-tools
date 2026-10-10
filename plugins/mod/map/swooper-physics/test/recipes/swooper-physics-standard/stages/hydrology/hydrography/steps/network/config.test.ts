@@ -67,8 +67,9 @@ function forcing() {
       bathymetry: new Int16Array(9),
     },
     climate: {
-      rainfall: new Uint8Array(9).fill(100),
-      humidity: new Uint8Array(9).fill(64),
+      precipitation: new Float32Array(9).fill(100),
+      surfaceWetness: new Float32Array(9).fill(64 / 255),
+      rainfallCodec: new Uint8Array(9).fill(100),
       potentialDemand: new Float32Array(9).fill(1),
       demandParameters: {
         tMinC: 0,
@@ -105,23 +106,24 @@ function execute(
           },
           climate: {
             ...forcing().climate,
-            rainfall: Uint8Array.from(retained.rainfall),
+            precipitation: Float32Array.from(retained.precipitation),
+            rainfallCodec: Uint8Array.from(retained.precipitation, value => Math.max(0, Math.min(200, Math.round(value)))),
             potentialDemand: Float32Array.from(retained.potentialDemand),
-            // Recover exact source arithmetic, not a forcing fit. Zero-forcing
-            // finite barriers admit any humidity byte and retain zero.
-            humidity: Uint8Array.from(retained.localRunoff, (runoff, cell) => {
+            // Recover the historical byte, then admit normalized Float32 wetness.
+            // Its publication rounding is separate from the unchanged Number runoff law.
+            surfaceWetness: Float32Array.from(retained.localRunoff, (runoff, cell) => {
               if (retained.externalWaterMask[cell]) return 0;
-              if (retained.rainfall[cell] === 0) {
-                if (runoff !== 0) throw new Error(`Nonzero retained runoff without rainfall at ${cell}.`);
+              if (retained.precipitation[cell] === 0) {
+                if (runoff !== 0) throw new Error(`Nonzero retained runoff without precipitation at ${cell}.`);
                 return 0;
               }
-              for (let humidity = 0; humidity < 256; humidity++)
+              for (let humidityByte = 0; humidityByte < 256; humidityByte++)
                 if (
-                  retained.rainfall[cell]! * (1 - sourceRunoffConfig.infiltrationFraction) * (1 - sourceRunoffConfig.humidityDampening * (humidity / 255)) ===
+                  retained.precipitation[cell]! * (1 - sourceRunoffConfig.infiltrationFraction) * (1 - sourceRunoffConfig.humidityDampening * (humidityByte / 255)) ===
                   runoff
                 )
-                  return humidity;
-              throw new Error(`No exact retained source humidity at ${cell}.`);
+                  return humidityByte / 255;
+              throw new Error(`No exact retained source humidity byte at ${cell}.`);
             }),
           },
         }
@@ -228,11 +230,18 @@ function execute(
   } catch (error) {
     failure = error;
   }
-  return { context, calls, input, failure, networkInputs };
+  const expectedRunoff = Array.from(input.climate.precipitation, (precipitation, cell) => input.topography.externalWaterMask[cell]
+    ? 0
+    : precipitation * (1 - sourceRunoffConfig.infiltrationFraction) * (1 - sourceRunoffConfig.humidityDampening * input.climate.surfaceWetness[cell]!));
+  // Maximum absolute normalized Float32 rounding error is 2^-25 on [0, 1].
+  const wetnessPublicationBound = Array.from(input.climate.precipitation, (precipitation, cell) => input.topography.externalWaterMask[cell]
+    ? 0
+    : precipitation * (1 - sourceRunoffConfig.infiltrationFraction) * sourceRunoffConfig.humidityDampening * 2 ** -25).reduce((total, value) => total + value, 0);
+  return { context, calls, input, failure, networkInputs, expectedRunoff, wetnessPublicationBound };
 }
 
 describe("hydrology network authoring and dispatch", () => {
-  it("composes exact retained forcing at explicit receiving heads with every finite source accounted", () => {
+  it("composes retained geometry and admitted float forcing at explicit heads with every finite source accounted", () => {
     // These are generated-geometry discriminators, not unmodified receipt
     // replay: the prescribed heads meet the finite sills at 25, 31 and 40.
     for (const { retained, head } of [
@@ -248,11 +257,13 @@ describe("hydrology network authoring and dispatch", () => {
       const metadata = readArtifact(result.context, waterArtifacts.riverNetwork);
       if (lake.model !== "certified-sill-spill" || metadata.model !== "certified-sill-spill")
         throw new Error("Wrong model.");
-      expect(hydro.runoff).toEqual(retained.localRunoff);
+      expect(hydro.runoff).toEqual(result.expectedRunoff);
+      const legacyRunoffDifference = hydro.runoff.reduce((total, value, cell) => total + Math.abs(value - retained.localRunoff[cell]!), 0);
+      expect(legacyRunoffDifference).toBeLessThanOrEqual(result.wetnessPublicationBound);
       expect(result.networkInputs).toHaveLength(1);
       expect(result.networkInputs[0]!.externalWaterHead).toBe(head);
-      expect(result.networkInputs[0]!.localRunoff).toEqual(retained.localRunoff);
-      expect(result.networkInputs[0]!.rainfall).toEqual(retained.rainfall);
+      expect(result.networkInputs[0]!.localRunoff).toEqual(result.expectedRunoff);
+      expect(result.networkInputs[0]!.precipitation).toEqual(retained.precipitation);
       expect(result.networkInputs[0]!.potentialDemand).toEqual(retained.potentialDemand);
       expect(retained).toEqual(before);
       expect("certificates" in lake).toBe(false);
@@ -288,7 +299,7 @@ describe("hydrology network authoring and dispatch", () => {
         if (retained.externalWaterMask[cell]) expect(lake.waterSurface[cell]).toBe(head);
         if (retained.elevation[cell] === 1000) {
           expect(retained.externalWaterMask[cell]).toBe(0);
-          expect([hydro.runoff[cell], result.input.climate.rainfall[cell], result.input.climate.potentialDemand[cell]]).toEqual([0, 0, 0]);
+          expect([hydro.runoff[cell], result.input.climate.precipitation[cell], result.input.climate.potentialDemand[cell]]).toEqual([0, 0, 0]);
         }
       }
       const viz = projectNetworkViz(
@@ -320,7 +331,7 @@ describe("hydrology network authoring and dispatch", () => {
         expect(externalSources).toContain(254);
         const inputFlux = (wet: number[]) => {
           const dryRunoff = catchmentCells.filter(cell => !wet.includes(cell)).reduce((sum, cell) => sum + networkInput.localRunoff[cell]!, 0);
-          const wetPrecipitation = wet.reduce((sum, cell) => sum + networkInput.rainfall[cell]!, 0);
+          const wetPrecipitation = wet.reduce((sum, cell) => sum + networkInput.precipitation[cell]!, 0);
           const wetDemand = wet.reduce((sum, cell) => sum + networkInput.potentialDemand[cell]!, 0);
           return { incomingOverflow: 0, dryRunoff, wetPrecipitation, wetDemand, balance: dryRunoff + wetPrecipitation - wetDemand };
         };
@@ -328,7 +339,9 @@ describe("hydrology network authoring and dispatch", () => {
         const afterFlux = inputFlux([...wetCells, ...cohortCells]);
         expect(lake.pools[0]!.flux).toEqual(beforeFlux);
         expect(lake.conservation.unresolvedResidual).toBe(beforeFlux.balance);
-        expect(14.902249320942005 - beforeFlux.balance).toBeCloseTo(networkInput.localRunoff[254]!, 12);
+        expect(Math.abs(14.902249320942005 - beforeFlux.balance - networkInput.localRunoff[254]!)).toBeLessThanOrEqual(
+          result.wetnessPublicationBound + lake.conservation.roundoffBound
+        );
         const closure = lake.pools[0]!.closure;
         if (closure?.resolution !== "shoreline-quantization") throw new Error("Missing Huge quantized closure.");
         expect(cohortCells).toEqual([149]);
@@ -342,17 +355,25 @@ describe("hydrology network authoring and dispatch", () => {
       } else if (retained.height === 30) {
         expect(lake.plannedLakeTileCount).toBe(14);
         expect(lake.pools[0]!.level).toBe(30);
-        expect(lake.conservation.unresolvedResidual).toBe(3.2292057291665515);
-        expect(lake.pools[0]!.flux).toEqual({ incomingOverflow: 0, dryRunoff: 1184.3766666666666, wetPrecipitation: 749, wetDemand: 1930.1474609375, balance: 3.2292057291665515 });
+        expect(Math.abs(lake.conservation.unresolvedResidual - 3.2292057291665515)).toBeLessThanOrEqual(
+          result.wetnessPublicationBound + lake.conservation.roundoffBound
+        );
+        const flux = lake.pools[0]!.flux;
+        expect(flux.incomingOverflow).toBe(0);
+        expect(flux.wetPrecipitation).toBe(749);
+        expect(flux.wetDemand).toBe(1930.1474609375);
+        expect(Math.abs(flux.dryRunoff - 1184.3766666666666)).toBeLessThanOrEqual(result.wetnessPublicationBound);
+        expect(flux.balance).toBe(flux.dryRunoff + flux.wetPrecipitation - flux.wetDemand);
       } else {
-        expect(
-          lake.transfers.find((edge) => edge.cellA === 228 && edge.cellB === 312)!.signedDischarge
-        ).toBeCloseTo(-5.586530981337614, 12);
+        const legacyFluxBound = result.wetnessPublicationBound + lake.conservation.roundoffBound;
+        expect(Math.abs(
+          lake.transfers.find((edge) => edge.cellA === 228 && edge.cellB === 312)!.signedDischarge + 5.586530981337614
+        )).toBeLessThanOrEqual(legacyFluxBound);
         expect(lake.bodies.find((body) => body.wetCells.includes(228))!.outflow).toBe(0);
         expect(hydro.flowDir[312]).toBe(228);
-        expect(hydro.discharge[312]).toBeCloseTo(5.586530981337614, 12);
+        expect(Math.abs(hydro.discharge[312]! - 5.586530981337614)).toBeLessThanOrEqual(legacyFluxBound);
         expect(hydro.flowDir[396]).toBe(395);
-        expect(hydro.discharge[396]).toBeCloseTo(1.7170643127800531, 12);
+        expect(Math.abs(hydro.discharge[396]! - 1.7170643127800531)).toBeLessThanOrEqual(legacyFluxBound);
         expect(metadata.upstreamArea[312]).toBe(catchmentCells.length);
         expect(metadata.mouthType[312]).toBe(2);
         expect(metadata.mouthBodyId[312]).toBe(lake.bodyId[228]);
@@ -362,7 +383,7 @@ describe("hydrology network authoring and dispatch", () => {
       expect(zeroHead.failure).toBeUndefined();
       const zeroHeadHydro = readArtifact(zeroHead.context, waterArtifacts.hydrography);
       const zeroHeadLake = readArtifact(zeroHead.context, waterArtifacts.lakePlan);
-      expect(zeroHeadHydro.runoff).toEqual(retained.localRunoff);
+      expect(zeroHeadHydro.runoff).toEqual(zeroHead.expectedRunoff);
       expect(zeroHead.networkInputs[0]!.potentialDemand).toEqual(retained.potentialDemand);
       const zeroInput = zeroHead.networkInputs[0]!;
       // Desert still closes at the preceding ground cohort; the other fixed
@@ -514,7 +535,7 @@ describe("hydrology network authoring and dispatch", () => {
     expect(final.externalWaterMask).toEqual(result.input.topography.externalWaterMask);
     expect(final.bathymetry).toEqual(result.input.topography.bathymetry);
     for (const input of result.networkInputs) {
-      expect(input.rainfall).toBe(result.input.climate.rainfall);
+      expect(input.precipitation).toBe(result.input.climate.precipitation);
       expect(input.potentialDemand).toBe(result.input.climate.potentialDemand);
       expect(input.localRunoff).toBe(result.networkInputs[0]!.localRunoff);
     }

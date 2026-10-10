@@ -31,7 +31,7 @@ describe("hydrology/apply-albedo-feedback bounded-snow-ice", () => {
         width: 3,
         height: 2,
         landMask: new Uint8Array([1, 1, 0, 0, 1, 0]),
-        rainfall: new Uint8Array([0, 200, 0, 200, 200, 200]),
+        precipitation: new Float32Array([0, 200, 0, 200, 200, 200]),
         surfaceTemperatureC: new Float32Array([-15, -15, -10, -10, 8, 8]),
       };
       const before = structuredClone(input);
@@ -45,6 +45,10 @@ describe("hydrology/apply-albedo-feedback bounded-snow-ice", () => {
       expect(input).toEqual(before);
       expect(result.surfaceTemperatureC.buffer).not.toBe(input.surfaceTemperatureC.buffer);
       expect(runAdmittedOperationForTest(applyAlbedoFeedback, input, selection)).toEqual(result);
+      const uncapped = { ...input, precipitation: Float32Array.from(input.precipitation, value => value === 200 ? 600.75 : value) };
+      const uncappedBefore = uncapped.precipitation.slice();
+      expect(runAdmittedOperationForTest(applyAlbedoFeedback, uncapped, selection)).toEqual(result);
+      expect(uncapped.precipitation).toEqual(uncappedBefore);
     });
   }
 
@@ -53,7 +57,7 @@ describe("hydrology/apply-albedo-feedback bounded-snow-ice", () => {
       width: 3,
       height: 2,
       landMask: new Uint8Array([1, 0, 1, 0, 1, 0]),
-      rainfall: new Uint8Array(6).fill(200),
+      precipitation: new Float32Array(6).fill(200),
       surfaceTemperatureC: new Float32Array([-100, -100, 100, 100, -29, -19]),
     };
     for (const iterations of [1, 2, 3]) {
@@ -73,7 +77,7 @@ describe("hydrology/apply-albedo-feedback bounded-snow-ice", () => {
         width: 2,
         height: 1,
         landMask: new Uint8Array([1, 0]),
-        rainfall: new Uint8Array([200, 200]),
+        precipitation: new Float32Array([200, 200]),
         surfaceTemperatureC: new Float32Array([-100, 100]),
       },
       { strategy: "bounded-snow-ice", config: { ...config, iterations: 0 } }

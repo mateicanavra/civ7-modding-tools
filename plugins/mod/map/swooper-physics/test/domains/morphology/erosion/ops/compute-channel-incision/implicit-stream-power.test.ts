@@ -119,7 +119,7 @@ describe("morphology/compute-channel-incision", () => {
   it("accepts actual certified fractional evidence and leaves the next solve conservative", () => {
     const { computeDrainageBasins: geometry, computeBasinNetwork: network } = hydrology.hydrography.ops;
     const terrain = { width: 7, height: 1, elevation: [-100, 5.25, 1.125, 3.375, 0.125, 8.5, -50], externalWaterMask: new Uint8Array([1, 0, 0, 0, 0, 0, 1]), externalWaterHead: 0 };
-    const forcing = { localRunoff: [0, 1, 1, 1, 1, 1, 0], rainfall: new Uint8Array(7).fill(10), potentialDemand: new Float32Array(7).fill(1) };
+    const forcing = { localRunoff: [0, 1, 1, 1, 1, 1, 0], precipitation: new Float32Array(7).fill(10), potentialDemand: new Float32Array(7).fill(1) };
     const solve = (elevation: number[]) => {
       const surface = { ...terrain, elevation };
       return network.run({ ...surface, ...forcing, geometry: geometry.run(surface, geometry.defaultConfig) }, network.defaultConfig);

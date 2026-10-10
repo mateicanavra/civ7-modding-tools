@@ -29,7 +29,7 @@ function runColdForestFlow(cases: readonly ClimateCase[]) {
   const size = width * height;
   const landMask = new Uint8Array(size).fill(1);
   const surfaceTemperatureC = new Float32Array(size).fill(20);
-  const rainfall = new Uint8Array(size).fill(120);
+  const precipitation = new Float32Array(size).fill(120);
   const effectiveMoisture = new Float32Array(size).fill(130.60000610351562);
   const plantEffectiveMoisture = new Float32Array(size).fill(673.6563110351562);
   const aridityIndex = new Float32Array(size).fill(0.2);
@@ -44,7 +44,7 @@ function runColdForestFlow(cases: readonly ClimateCase[]) {
   const heldFields = [
     landMask,
     surfaceTemperatureC,
-    rainfall,
+    precipitation,
     effectiveMoisture,
     plantEffectiveMoisture,
     aridityIndex,
@@ -55,7 +55,7 @@ function runColdForestFlow(cases: readonly ClimateCase[]) {
   const snapshots = heldFields.map((field) => field.slice());
 
   const cryosphere = hydrology.cryosphere.ops.computeCryosphereState.run(
-    { width, height, landMask, surfaceTemperatureC, rainfall },
+    { width, height, landMask, surfaceTemperatureC, precipitation },
     cryosphereConfig
   );
   const biomes = ecology.biomes.ops.classifyBiomes.run(

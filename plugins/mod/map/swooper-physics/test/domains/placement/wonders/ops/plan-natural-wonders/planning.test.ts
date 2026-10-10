@@ -54,7 +54,7 @@ describe("natural wonder planning", () => {
     const budgetOperation = hydrology.climate.ops.computeLandWaterBudget;
     const physical = {
       width: 1, height: 1, ...noLocalWaterSources(1, 1), landMask: new Uint8Array([1]),
-      rainfall: new Uint8Array([0]), humidity: new Uint8Array([1]), pet: [10.123456789],
+      precipitation: new Float32Array([0]), surfaceWetness: new Float32Array([1 / 255]), pet: [10.123456789],
     };
     const baseline = budgetOperation.run(physical, budgetOperation.defaultConfig);
     expect(baseline.plantEffectiveMoisture).toEqual(baseline.effectiveMoisture);

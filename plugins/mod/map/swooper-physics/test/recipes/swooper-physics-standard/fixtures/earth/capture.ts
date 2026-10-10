@@ -57,8 +57,8 @@ export function captureEarthCoastBaseline(run: EarthCoastBaseline) {
   const observed = (member: string) =>
     `ClimateBaselineStep observation.${member} (not an artifact)`;
   const vectorUnits = "quantized model forcing -127..127; not m/s";
-  const rainfallUnits = "Civ7 precipitation intensity index 0..200; not mm/year";
-  const humidityUnits = "atmospheric moisture index 0..255; not relative-humidity percent";
+  const precipitationUnits = "unclipped empirical rainfall-index equivalents per unit tile area/interval; not mm/year";
+  const wetnessUnits = "atmospheric surface-wetness proxy 0..1; not relative-humidity percent";
   const pressureUnits = "circulation-pressure anomaly proxy in hPa; not absolute surface pressure";
   const integration = observation.seasonalIntegration;
   const fields: Record<string, ReturnType<typeof field>> = {
@@ -116,22 +116,28 @@ export function captureEarthCoastBaseline(run: EarthCoastBaseline) {
       "degrees Celsius, annual mean before albedo feedback",
       artifact(climateArtifacts.thermalField.id, "surfaceTemperatureC")
     ),
-    "baselineClimateField.rainfall": field(
-      baseline.rainfall,
-      "u8",
-      rainfallUnits,
-      artifact(climateArtifacts.baselineClimateField.id, "rainfall")
+    "baselineClimateField.precipitation": field(
+      baseline.precipitation,
+      "f32",
+      precipitationUnits,
+      artifact(climateArtifacts.baselineClimateField.id, "precipitation")
     ),
-    "baselineClimateField.humidity": field(
-      baseline.humidity,
+    "baselineClimateField.surfaceWetness": field(
+      baseline.surfaceWetness,
+      "f32",
+      wetnessUnits,
+      artifact(climateArtifacts.baselineClimateField.id, "surfaceWetness")
+    ),
+    "baselineClimateField.rainfallCodec": field(
+      baseline.rainfallCodec,
       "u8",
-      humidityUnits,
-      artifact(climateArtifacts.baselineClimateField.id, "humidity")
+      "native rainfall codec 0..200; not physical precipitation",
+      artifact(climateArtifacts.baselineClimateField.id, "rainfallCodec")
     ),
     "baselineClimateField.potentialDemand": field(
       baseline.potentialDemand,
       "f32",
-      "mean seasonal empirical PET in rainfall-index units on original land, zero on source water; not open-water evaporation",
+      "mean seasonal empirical potential demand in rainfall-index units on all surfaces; not open-water evaporation",
       artifact(climateArtifacts.baselineClimateField.id, "potentialDemand")
     ),
     "pressureField.pressure": field(
@@ -161,17 +167,17 @@ export function captureEarthCoastBaseline(run: EarthCoastBaseline) {
       observed(`currentField.${member}`)
     );
   }
-  for (const member of ["rainfallAmplitude", "humidityAmplitude"] as const) {
+  for (const member of ["precipitationAmplitude", "surfaceWetnessAmplitude"] as const) {
     fields[`seasonalAmplitudes.${member}`] = field(
       observation.seasonalAmplitudes[member],
-      "u8",
-      "half seasonal range in the corresponding moisture-index units",
+      "f32",
+      "half seasonal range in the corresponding empirical precipitation/wetness units",
       observed(`seasonalAmplitudes.${member}`)
     );
   }
   for (const [member, storage, units] of [
-    ["seasonalRainfall", "u8", rainfallUnits],
-    ["seasonalHumidity", "u8", humidityUnits],
+    ["seasonalPrecipitation", "f32", precipitationUnits],
+    ["seasonalSurfaceWetness", "f32", wetnessUnits],
     ["seasonalSurfaceTemperatureC", "f32", "degrees Celsius, final seasonal ground thermal sample"],
     ["seasonalPressure", "f32", pressureUnits],
     ["seasonalWindU", "i8", vectorUnits],
@@ -221,7 +227,7 @@ export function captureEarthCoastBaseline(run: EarthCoastBaseline) {
   }
   {
     for (const [member, storage, units] of [
-      ["rainfall", "u8", rainfallUnits], ["humidity", "u8", humidityUnits],
+      ["precipitation", "f32", precipitationUnits], ["surfaceWetness", "f32", wetnessUnits],
       ["potentialDemand", "f64", "empirical PET in rainfall-index units; not open-water evaporation"],
       ["surfaceTemperatureC", "f32", "degrees Celsius, sampled ground response"],
       ["pressure", "f32", pressureUnits],
@@ -243,7 +249,7 @@ export function captureEarthCoastBaseline(run: EarthCoastBaseline) {
     }
   }
   return {
-    format: "earth-coast-flat-relief-baseline-capture-v2",
+    format: "earth-coast-flat-relief-baseline-capture-v3",
     arm: run.arm,
     source: earthReference.provenance,
     sourcePayloadSha256: sha256(JSON.stringify(earthReference)),
@@ -272,7 +278,7 @@ export function captureEarthCoastBaseline(run: EarthCoastBaseline) {
       aquaplanet:
         "Removes land and authored shelf; holds setup, normalized forcing and flat relief.",
       temperature: "thermalField is the independently dense-integrated clipped annual ground response; no refinement/albedo feedback.",
-      aggregation: "Atmosphere/moisture use the recorded integration phases and weights, not the observation subset; thermal has an independent dense integral. Integer domains round after weighted reduction.",
+      aggregation: "Atmosphere/moisture use the recorded integration phases and weights, not the observation subset; thermal has an independent dense integral. P and surface wetness remain independent float reductions; the native rainfall codec rounds only the annual result.",
       scope:
         "Baseline-only test composition; no coupled drainage, biomes, empirical Earth accuracy or native parity claim.",
       seasonSamples:
@@ -303,8 +309,9 @@ export function captureEarthCoastBaseline(run: EarthCoastBaseline) {
       landCells: topography.landMask.reduce((sum, value) => sum + value, 0),
       modelWaterCells: topography.landMask.reduce((sum, value) => sum + (value === 0 ? 1 : 0), 0),
       surfaceTemperatureC: summary(thermal.surfaceTemperatureC),
-      rainfall: summary(baseline.rainfall),
-      humidity: summary(baseline.humidity),
+      precipitation: summary(baseline.precipitation),
+      surfaceWetness: summary(baseline.surfaceWetness),
+      rainfallCodec: summary(baseline.rainfallCodec),
       potentialDemand: summary(baseline.potentialDemand),
       pressure: summary(pressure.pressure),
     },

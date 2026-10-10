@@ -8,7 +8,7 @@ export function measureBasinLedger(capture: StandardBasinNetworkMeasurementInput
   if (physical.model !== "certified-sill-spill") throw new Error("Expected completed basin evidence.");
   const { width, height } = capture.provenance;
   const size = width * height;
-  const { externalWaterMask, exposedLandMask, seaLevel, elevation, plannedLakeMask: wet, flowDir, terminalType, baselineRainfall } = capture.model;
+  const { externalWaterMask, exposedLandMask, seaLevel, elevation, plannedLakeMask: wet, flowDir, terminalType, baselinePrecipitation } = capture.model;
   const { potentialDemand, runoff, discharge, conservation } = physical;
   const finiteGround = Uint8Array.from(externalWaterMask, (external) => external === 1 ? 0 : 1);
   const hydraulicHeight = (cell: number) => externalWaterMask[cell] === 1 ? seaLevel : physical.waterSurface[cell]!;
@@ -16,7 +16,7 @@ export function measureBasinLedger(capture: StandardBasinNetworkMeasurementInput
   // neither a claimed larger bound nor unresolved supply can hide lost water.
   let absolute = 0, correction = 0, ordinaryVertexCount = 0;
   for (let cell = 0; cell < size; cell++) if (finiteGround[cell]) {
-    const adjusted = runoff[cell]! + baselineRainfall[cell]! + potentialDemand[cell]! - correction;
+    const adjusted = runoff[cell]! + baselinePrecipitation[cell]! + potentialDemand[cell]! - correction;
     const next = absolute + adjusted;
     correction = (next - absolute) - adjusted; absolute = next;
     if (!physical.componentId[cell]) ordinaryVertexCount++;
@@ -53,7 +53,7 @@ export function measureBasinLedger(capture: StandardBasinNetworkMeasurementInput
   let dryGroundMismatchCount = 0, nonascendingGroundViolationCount = 0, ordinaryDryLedgerMismatchCount = 0;
   const leaves = new Set<number>();
   if ([physical.waterSurface, physical.bodyId, physical.componentId, physical.basinId, potentialDemand, runoff, discharge,
-    wet, finiteGround, exposedLandMask, elevation, flowDir, terminalType, baselineRainfall].some((grid) => grid.length !== size)) poolPartitionMismatchCount++;
+    wet, finiteGround, exposedLandMask, elevation, flowDir, terminalType, baselinePrecipitation].some((grid) => grid.length !== size)) poolPartitionMismatchCount++;
   for (const pool of physical.pools) {
     if (!pool.leafIds.length || pool.poolId !== Math.min(...pool.leafIds)) poolPartitionMismatchCount++;
     for (const leaf of pool.leafIds) { if (leaves.has(leaf)) poolPartitionMismatchCount++; leaves.add(leaf); }
@@ -223,7 +223,7 @@ export function measureBasinLedger(capture: StandardBasinNetworkMeasurementInput
   const sourceFlux = (cells: readonly number[], incomingOverflow: number) => {
     let dryRunoff = 0, wetPrecipitation = 0, wetDemand = 0;
     for (const cell of cells) {
-      if (wet[cell]) { wetPrecipitation += baselineRainfall[cell]!; wetDemand += potentialDemand[cell]!; }
+      if (wet[cell]) { wetPrecipitation += baselinePrecipitation[cell]!; wetDemand += potentialDemand[cell]!; }
       else dryRunoff += runoff[cell]!;
     }
     return { incomingOverflow, dryRunoff, wetPrecipitation, wetDemand,
@@ -297,7 +297,7 @@ export function measureBasinLedger(capture: StandardBasinNetworkMeasurementInput
     } else if (closure?.resolution === "shoreline-quantization") {
       const cohort = pool.catchmentCells.filter((cell) => elevation[cell] === closure.level);
       const after = { ...expected };
-      for (const cell of cohort) { after.dryRunoff -= runoff[cell]!; after.wetPrecipitation += baselineRainfall[cell]!; after.wetDemand += potentialDemand[cell]!; }
+      for (const cell of cohort) { after.dryRunoff -= runoff[cell]!; after.wetPrecipitation += baselinePrecipitation[cell]!; after.wetDemand += potentialDemand[cell]!; }
       after.balance = after.incomingOverflow + after.dryRunoff + after.wetPrecipitation - after.wetDemand;
       if (closure.level !== pool.level || !sameMembers(closure.cohortCells, cohort) || !cohort.length ||
         !fluxMatches(closure.before, expected) || !fluxMatches(closure.after, after) || closure.before.balance <= 0 || closure.after.balance >= 0 ||

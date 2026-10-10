@@ -15,8 +15,12 @@ const PedologyClassifyContract = defineOp({
       description:
         "Signed elevation in quantized normalized model relief units, not meters or native display units; no sea-level subtraction.",
     }),
-    rainfall: TypedArraySchemas.u8({ description: "Rainfall per tile (0..255)." }),
-    humidity: TypedArraySchemas.u8({ description: "Humidity per tile (0..255)." }),
+    precipitation: TypedArraySchemas.f32({
+      description: "Unclipped atmospheric precipitation per tile in empirical rainfall-index units.",
+    }),
+    surfaceWetness: TypedArraySchemas.f32({
+      description: "Atmospheric surface-wetness proxy per tile (0..1), not local plant-water supply.",
+    }),
     sedimentDepth: Type.Optional(
       Type.Union([
         TypedArraySchemas.f32({

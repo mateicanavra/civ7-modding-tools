@@ -22,18 +22,18 @@ export function largerGrid(startSeed = -1835942095) {
     ...terrain,
     geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: false } }),
     localRunoff: Array.from(externalWaterMask, prescribed => prescribed ? 0 : random() * 4),
-    rainfall: Uint8Array.from({ length: size }, () => Math.floor(random() * 15)),
+    precipitation: Float32Array.from({ length: size }, () => Math.floor(random() * 15)),
     potentialDemand: Float32Array.from({ length: size }, () => random() * 30),
   };
   return { input, nextSeed: seed };
 }
 
 function retained(width: number, height: number, groups: Array<{ rows: Row[]; from: number; to: number; target: number; sill: number }>): Static<typeof contract.input> {
-  const size = width * height, elevation = new Array<number>(size).fill(1000), externalWaterMask = new Uint8Array(size), rainfall = new Uint8Array(size), potentialDemand = new Float32Array(size), localRunoff = new Array<number>(size).fill(0);
+  const size = width * height, elevation = new Array<number>(size).fill(1000), externalWaterMask = new Uint8Array(size), precipitation = new Float32Array(size), potentialDemand = new Float32Array(size), localRunoff = new Array<number>(size).fill(0);
   const neighbors = (cell: number) => getHexNeighborIndicesOddQ(cell % width, Math.floor(cell / width), width, height);
   const rows = groups.flatMap(group => group.rows), rowCells = new Set(rows.map(row => row[0]));
   for (const [cell, ground, runoff, rain, demand] of rows) {
-    elevation[cell] = ground; localRunoff[cell] = runoff; rainfall[cell] = rain; potentialDemand[cell] = demand;
+    elevation[cell] = ground; localRunoff[cell] = runoff; precipitation[cell] = rain; potentialDemand[cell] = demand;
   }
   for (const group of groups) if (!group.target) {
     elevation[group.to] = group.sill;
@@ -75,7 +75,7 @@ function retained(width: number, height: number, groups: Array<{ rows: Row[]; fr
       : { leafA: id, leafB: group.target, cellA: group.from, cellB: group.to, elevation: group.sill });
   }
   const externalCatchmentCells = Int32Array.from({ length: size }, (_, cell) => cell).filter(cell => !externalWaterMask[cell] && leafId[cell] === 0);
-  return { ...terrain, localRunoff, rainfall, potentialDemand,
+  return { ...terrain, localRunoff, precipitation, potentialDemand,
     geometry: { rawReceiver, plateauId, leafId, nodes, saddles, roots: nodes.map(node => node.id), catchmentCells: Int32Array.from(catchmentCells), externalCatchmentCells, hypsometry } } satisfies Input;
 }
 
