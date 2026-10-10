@@ -1,6 +1,7 @@
 import {
   type OfficialAgeType,
   type OfficialResourceType,
+  OFFICIAL_RESOURCE_TYPE_ORDER,
   resolveResourceRuntimeIds,
 } from "@civ7/map-policy";
 import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
@@ -12,7 +13,8 @@ import {
 } from "../model/atoms/resource-demand.schema.js";
 import type { ResourceExpectationIdentity } from "../model/atoms/resource-expectation.schema.js";
 import {
-  EARTHLIKE_RESOURCE_EXPECTATIONS,
+  type EarthlikeResourceExpectation,
+  resolveEarthlikeResourceExpectations,
   RESOURCE_EXPECTATION_IDENTITY_BY_GROUP,
 } from "../model/policy/earthlike-expectations.js";
 import { RESOURCE_HABITAT_SIGNALS } from "../model/policy/habitat-eligibility.js";
@@ -63,11 +65,8 @@ type NoLegalSitesCandidateLike = TerminalCandidateLike & {
   readonly reason: { readonly kind: "no-legal-sites"; readonly legalMask: ReadonlyMask };
 };
 
-const EXPECTATION_BY_TYPE = new Map(
-  EARTHLIKE_RESOURCE_EXPECTATIONS.map((expectation) => [expectation.resourceType, expectation])
-);
 const EXPECTATION_ORDER_BY_TYPE = new Map(
-  EARTHLIKE_RESOURCE_EXPECTATIONS.map((expectation, index) => [expectation.resourceType, index])
+  OFFICIAL_RESOURCE_TYPE_ORDER.map((resourceType, index) => [resourceType, index])
 );
 const RESOURCE_RUNTIME_IDS = resolveResourceRuntimeIds();
 
@@ -80,6 +79,7 @@ export const artifact = defineArtifact({
       width: Type.Integer({ minimum: 1 }),
       height: Type.Integer({ minimum: 1 }),
       age: Type.Literal(INITIAL_MAP_RESOURCE_AUTHORING_AGE),
+      aliveMajorPlayerCount: Type.Integer({ minimum: 1, maximum: 64 }),
       candidates: Type.Object(
         {
           admitted: Type.Array(AdmittedResourceDemandCandidateSchema),
@@ -99,6 +99,12 @@ export const artifact = defineArtifact({
     }
   ),
   refine: (value, { dimensions, issues }) => {
+    const expectations = resolveEarthlikeResourceExpectations({
+      aliveMajorPlayerCount: value.aliveMajorPlayerCount,
+    });
+    const expectationByType = new Map(
+      expectations.map((expectation) => [expectation.resourceType, expectation])
+    );
     if (value.width !== dimensions.width || value.height !== dimensions.height) {
       issues.add(
         `resourceDemandPlan dimensions ${value.width}x${value.height} do not match execution dimensions ${dimensions.width}x${dimensions.height}.`
@@ -106,31 +112,35 @@ export const artifact = defineArtifact({
     }
 
     const seen = new Set<string>();
-    const registerCandidate = (candidate: TerminalCandidateLike): void => {
+    const registerCandidate = (
+      candidate: TerminalCandidateLike
+    ): EarthlikeResourceExpectation | undefined => {
       const { source } = candidate;
       if (seen.has(source.resourceType)) {
         issues.add(`Resource demand source ${source.resourceType} appears more than once.`);
       }
       seen.add(source.resourceType);
-      validateCanonicalIdentity(source, issues.add);
+      const expectation = expectationByType.get(source.resourceType as OfficialResourceType);
+      validateCanonicalIdentity(source, expectation, issues.add);
+      return expectation;
     };
 
     for (const candidate of value.candidates.admitted) {
-      registerCandidate(candidate);
-      validateCanonicalSiteEvidence(candidate.source, issues.add);
+      const expectation = registerCandidate(candidate);
+      validateCanonicalSiteEvidence(candidate.source, expectation, issues.add);
       validateAdmittedCandidate(candidate, value.age, issues.add);
     }
     for (const candidate of value.candidates.excluded.expectationBlocked) {
-      registerCandidate(candidate);
-      validateIdentityExclusion(candidate, value.age, issues.add);
+      const expectation = registerCandidate(candidate);
+      validateIdentityExclusion(candidate, expectation, value.age, issues.add);
     }
     for (const candidate of value.candidates.excluded.ageDeferred) {
-      registerCandidate(candidate);
-      validateIdentityExclusion(candidate, value.age, issues.add);
+      const expectation = registerCandidate(candidate);
+      validateIdentityExclusion(candidate, expectation, value.age, issues.add);
     }
     for (const candidate of value.candidates.excluded.noLegalSites) {
-      registerCandidate(candidate);
-      validateCanonicalSiteEvidence(candidate.source, issues.add);
+      const expectation = registerCandidate(candidate);
+      validateCanonicalSiteEvidence(candidate.source, expectation, issues.add);
       validateNoLegalSitesCandidate(candidate, value.age, issues.add);
     }
     validatePartitionOrder(
@@ -159,14 +169,14 @@ export const artifact = defineArtifact({
       value.candidates.excluded.expectationBlocked.length +
       value.candidates.excluded.ageDeferred.length +
       value.candidates.excluded.noLegalSites.length;
-    if (candidateCount !== EARTHLIKE_RESOURCE_EXPECTATIONS.length) {
+    if (candidateCount !== OFFICIAL_RESOURCE_TYPE_ORDER.length) {
       issues.add(
-        `Resource demand ledger has ${candidateCount} candidates; expected exact official corpus size ${EARTHLIKE_RESOURCE_EXPECTATIONS.length}.`
+        `Resource demand ledger has ${candidateCount} candidates; expected exact official corpus size ${OFFICIAL_RESOURCE_TYPE_ORDER.length}.`
       );
     }
-    for (const expectation of EARTHLIKE_RESOURCE_EXPECTATIONS) {
-      if (!seen.has(expectation.resourceType)) {
-        issues.add(`Resource demand ledger is missing ${expectation.resourceType}.`);
+    for (const resourceType of OFFICIAL_RESOURCE_TYPE_ORDER) {
+      if (!seen.has(resourceType)) {
+        issues.add(`Resource demand ledger is missing ${resourceType}.`);
       }
     }
   },
@@ -192,9 +202,9 @@ function validatePartitionOrder(
 
 function validateCanonicalIdentity(
   source: ExpectationIdentityLike,
+  expectation: EarthlikeResourceExpectation | undefined,
   addIssue: (message: string) => void
 ): void {
-  const expectation = EXPECTATION_BY_TYPE.get(source.resourceType as OfficialResourceType);
   if (!expectation) {
     addIssue(
       `Resource demand source ${source.resourceType} is outside the canonical official expectation corpus.`
@@ -217,9 +227,9 @@ function validateCanonicalIdentity(
 
 function validateCanonicalSiteEvidence(
   source: SiteEvidenceSourceLike,
+  expectation: EarthlikeResourceExpectation | undefined,
   addIssue: (message: string) => void
 ): void {
-  const expectation = EXPECTATION_BY_TYPE.get(source.resourceType as OfficialResourceType);
   if (!expectation) return;
   const expectedIdentity = RESOURCE_EXPECTATION_IDENTITY_BY_GROUP[expectation.groupId];
   const signal = RESOURCE_HABITAT_SIGNALS.get(expectation.resourceType);
@@ -378,11 +388,11 @@ function validateCanonicalDemandPolicy(
 
 function validateIdentityExclusion(
   candidate: IdentityExcludedCandidateLike,
+  expectation: EarthlikeResourceExpectation | undefined,
   age: typeof INITIAL_MAP_RESOURCE_AUTHORING_AGE,
   addIssue: (message: string) => void
 ): void {
   const { source, reason } = candidate;
-  const expectation = EXPECTATION_BY_TYPE.get(source.resourceType as OfficialResourceType);
   if (!expectation) return;
 
   switch (reason.kind) {

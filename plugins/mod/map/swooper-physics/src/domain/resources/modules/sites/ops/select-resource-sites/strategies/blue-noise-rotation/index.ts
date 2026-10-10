@@ -128,7 +128,9 @@ const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
       const spacingFloorTiles = Math.max(
         2,
         Math.round(
-          spacingFloorFor(effectiveTargetCount) * perTypeSpacingFloorScale * (1 + sparsity)
+          spacingFloorFor(row.resourceType, effectiveTargetCount) *
+            perTypeSpacingFloorScale *
+            (1 + sparsity)
         )
       );
       return {

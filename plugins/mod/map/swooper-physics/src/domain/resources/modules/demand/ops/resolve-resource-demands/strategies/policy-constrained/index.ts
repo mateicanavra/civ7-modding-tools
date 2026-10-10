@@ -10,7 +10,7 @@ import type {
 } from "../../../../model/atoms/resource-demand.schema.js";
 import type { ResourceExpectationIdentity } from "../../../../model/atoms/resource-expectation.schema.js";
 import {
-  EARTHLIKE_RESOURCE_EXPECTATIONS,
+  resolveEarthlikeResourceExpectations,
   RESOURCE_EXPECTATION_IDENTITY_BY_GROUP,
 } from "../../../../model/policy/earthlike-expectations.js";
 import {
@@ -32,7 +32,8 @@ import StrategyDefinition from "./config.js";
  */
 const policyConstrainedStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input) => {
-    const { width, height } = input;
+    const { width, height, aliveMajorPlayerCount } = input;
+    const expectations = resolveEarthlikeResourceExpectations({ aliveMajorPlayerCount });
     const size = width * height;
     const age = INITIAL_MAP_RESOURCE_AUTHORING_AGE;
     const runtimeIds = resolveResourceRuntimeIds();
@@ -51,7 +52,7 @@ const policyConstrainedStrategy = createStrategy(Contract, StrategyDefinition, {
       noLegalSites: [] as NoLegalSitesResourceDemandCandidate[],
     };
 
-    for (const expectation of EARTHLIKE_RESOURCE_EXPECTATIONS) {
+    for (const expectation of expectations) {
       const resourceType = expectation.resourceType;
       const identity: ResourceExpectationIdentity = {
         resourceType,
@@ -161,6 +162,7 @@ const policyConstrainedStrategy = createStrategy(Contract, StrategyDefinition, {
       width,
       height,
       age,
+      aliveMajorPlayerCount,
       candidates: { admitted, excluded },
     };
   },

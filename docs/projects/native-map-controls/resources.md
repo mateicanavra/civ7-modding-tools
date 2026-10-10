@@ -192,6 +192,47 @@ spacing in this comparison. Demand-owner ranges, artifact validation, age,
 legality, start support and the existing twenty-seed placement guards remain
 authoritative. No default adoption is claimed before these results.
 
+The repaired incumbent's actual density-two diagnostic now closes on all nine
+scenarios: Fish reaches twelve, Crabs ten, Pearls five, Cowrie four and Turtles
+three. Physical fields, projections and habitat/legality evidence hold, and all
+442 declared expectations pass. However, every Fish spacing floor changes from
+four to three at target twelve. Reject that arm as a clean count-only comparison;
+do not hide this coupling with a global scale override. The primary comparison
+is repaired density one versus player-scaled density one, both at floor four.
+
+### Player-Scaled Supply Design
+
+Resolve the two supply ranges once at the existing demand owner from
+`context.initialSetup.aliveMajorPlayerIds.length`. Carry the required count at
+the demand-plan root and one resolved range per candidate. Selection consumes
+that published range; artifact validation checks it against the same resolver.
+Replace the static expectation export, not supplement it with overrides or a
+reference-player fallback. Private fixed tuples and two range callbacks suffice;
+no public policy framework or new operation/artifact is needed.
+
+Label the two ranges `alive-major-player-supply` / `authored-gameplay`; keep all
+other range values and evidence unchanged. Reject absent, zero, fractional and
+nonfinite player counts, consistent with the existing nonempty setup roster.
+Crab rounding is nonnegative half-up: three players resolve to `2/3/5`, five
+to `3/5/8`. Publish the resolved range in existing capture candidate evidence
+rather than recomputing policy in metrics.
+
+Make the existing spacing helper resource-aware so Fish and Crabs retain base
+floor four on either side of target twelve. Other resources keep their current
+target-dependent floors. Preserve authored spacing scale, sparsity, habitat
+capacity, regional floors, age rules, legality and start-support algorithms.
+Expected supply is not guaranteed placement; retain explicit shortfalls.
+
+Before default admission, prove resolver and malformed artifact controls,
+unchanged other ranges, actual setup-count forwarding, sparse-capacity behavior,
+deterministic placement and spacing. Compare the same nine scenarios against
+the repaired baseline with all physical/projection/non-resource observations
+and habitat/legality held; record any resource-driven start changes. Run the
+unchanged complete study bank and twenty-seed placement guards. Finally verify
+the fresh Huge native game's authored Fish/Crabs, start plan and physical
+collateral. Native resource mismatches remain visible, not waived by headless
+success. No climate or geography tuning accompanies this supply decision.
+
 ### Finite Consumer Verification
 
 The three focused resource suites pass 45 tests. Source and test types pass;
@@ -231,3 +272,46 @@ remain unchanged: Flax, Iron, Wild Game, Silver and Hardwood. Native totals are
 this repaired habitat omission; do not claim universal resource parity.
 Whale age admission, richer marine supply and vessel movement are not proven
 by this finite-Fish change.
+
+### Player-Scaled Supply Verification
+
+The player-count resolver, required demand-plan identity and resource-aware
+spacing are implemented. Fresh SDK review is aligned. The complete owner graph
+passes build, types and policy; 1,304 definition tests pass with only the retained
+within-row thermal expectation failing. Realization passes 371 tests and Studio
+passes 412. No climate expectation or placement guard is weakened.
+
+All eleven fixed-input cases reach their headless Fish and Crab targets at
+actual spacing four: 282 Fish, including 72 on finite water, and 94 coastal
+Crabs. The unchanged study evaluates 539 sample expectations and one cohort
+expectation successfully. All physical, projection and non-resource hashes
+hold, as do the 55 retained habitat/legality evidence records and the other
+53 resource ranges. Legal masks themselves were not retained; this is not a
+claim of mask identity. No same-type spacing violation occurs.
+
+Supply is scaled, not uniformly increased: Tiny and Small Crab targets become
+four and six rather than seven. Ordinary occupancy moves other resource sites
+and some founder allocations while preserving complete regional seating. On
+Standard seed 42, Llamas drop from one to zero; their eligible habitat/legal
+intersection was already zero in both arms, so this is sensitivity of legal-only
+completion, not changed climate or habitat. Explicit other-resource shortfalls
+remain visible rather than being presented as perfect supply.
+
+Fresh Huge native generation at map/game seeds `-1152948646/-1152948677`, ten
+players and the saved configuration completes in 29.4 seconds including
+orchestration. Civ accepts 29 of 30 authored Fish and all ten Crabs. The fresh
+placement log records `cannot-have-resource` for the Fish at `(53,30)`, a native
+coastal lake tile; it is not a later startup deletion. This remains within the
+authored Fish range `20/30/40`, but is not full target realization or universal
+finite-water legality. Five incumbent non-Fish refusal locations remain, with
+two resource types changed by occupancy. Native total is 234 of 240 intents.
+All 6,996 terrain, biome, water, lake, elevation, river-class and feature values
+hold against the preceding native run, and all ten founders match the plan.
+
+Admit the supply policy independently of that native oracle limitation. Its
+range is expected supply, not a promise that every preferred site is writable.
+The existing best-effort writer retains each refusal; neither fallback fishing
+sites nor a new physics rule is invented to hide this one. Navigable-river Crab
+eligibility is the next separate habitat/legal repair, not part of this count
+comparison. The current native capture does not establish vessel behavior or
+refreshed screenshots.

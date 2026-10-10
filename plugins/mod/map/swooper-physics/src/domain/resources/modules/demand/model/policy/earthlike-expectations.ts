@@ -13,7 +13,7 @@ import type {
   ResourceExpectationStatus,
 } from "../atoms/resource-expectation.schema.js";
 
-/** Planner-consumed physical expectation for one official Civ7 resource. */
+/** Planner-consumed habitat and authored count expectation for one official Civ7 resource. */
 export type EarthlikeResourceExpectation = {
   readonly resourceType: OfficialResourceType;
   readonly groupId: ResourceExpectationGroupId;
@@ -49,7 +49,9 @@ type ExpectationDefinition = {
   readonly resourceType: OfficialResourceType;
   readonly groupId: ResourceExpectationGroupId;
   readonly earthlikePredicate: string;
-  readonly range: readonly [min: number, target: number, max: number];
+  readonly range:
+    | readonly [min: number, target: number, max: number]
+    | ((aliveMajorPlayerCount: number) => ResourceExpectedCountRange);
   readonly rangeEvidence?: ResourceExpectationRangeEvidence;
   readonly conditionMultipliers: readonly string[];
   readonly signalRequirements?: readonly string[];
@@ -61,7 +63,13 @@ const DEFINITIONS = [
     "RESOURCE_FISH",
     "aquatic-coastal-navigable-river",
     "Broad coastal shelf, estuary, upwelling, and unfrozen finite-water fishery.",
-    [6, 9, 12],
+    (count) => ({
+      baseline: "alive-major-player-supply",
+      min: 2 * count,
+      target: 3 * count,
+      max: 4 * count,
+      evidence: "authored-gameplay",
+    }),
     [
       "eligible coast/shelf/finite water up",
       "upwelling/estuary/finite shore/shore-adjacent river up",
@@ -86,7 +94,13 @@ const DEFINITIONS = [
     "RESOURCE_CRABS",
     "aquatic-coastal-navigable-river",
     "Estuary, delta, brackish bay, shallow coast, and navigable river mouth or floodplain.",
-    [4, 7, 10],
+    (count) => ({
+      baseline: "alive-major-player-supply",
+      min: Math.round(0.5 * count),
+      target: count,
+      max: Math.round(1.5 * count),
+      evidence: "authored-gameplay",
+    }),
     ["estuaries/navigable rivers up", "seagrass/warm shallows up", "cold/deep/open coast down"],
     { signalRequirements: ["navigable-river mouth or floodplain signal"] }
   ),
@@ -488,7 +502,7 @@ function def(
   resourceType: OfficialResourceType,
   groupId: ResourceExpectationGroupId,
   earthlikePredicate: string,
-  range: readonly [number, number, number],
+  range: ExpectationDefinition["range"],
   conditionMultipliers: readonly string[],
   options: Partial<
     Omit<
@@ -524,17 +538,27 @@ function deepFreeze<T>(value: T): T {
   return Object.freeze(value);
 }
 
-function toExpectation(definition: ExpectationDefinition): EarthlikeResourceExpectation {
+function toExpectation(
+  definition: ExpectationDefinition,
+  aliveMajorPlayerCount: number
+): EarthlikeResourceExpectation {
   const corpusEntry = OFFICIAL_RESOURCE_BY_TYPE[definition.resourceType];
   if (!corpusEntry)
     throw new Error(`Missing resource corpus entry for ${definition.resourceType}.`);
 
   const corpusBlocked = BLOCKED_ROW_TYPES.has(definition.resourceType);
   const status: ResourceExpectationStatus = corpusBlocked ? "blocked" : "expected";
-  const [min, target, max] = corpusBlocked ? [0, 0, 0] : definition.range;
-  const rangeEvidence = corpusBlocked
-    ? "blocked"
-    : (definition.rangeEvidence ?? "inference-backed");
+  const range = corpusBlocked ? ([0, 0, 0] as const) : definition.range;
+  const expectedCountRange: ResourceExpectedCountRange =
+    typeof range === "function"
+      ? range(aliveMajorPlayerCount)
+      : {
+          baseline: BASELINE,
+          min: range[0],
+          target: range[1],
+          max: range[2],
+          evidence: corpusBlocked ? "blocked" : (definition.rangeEvidence ?? "inference-backed"),
+        };
 
   if ((corpusEntry.placeability.status === "placeable") === corpusBlocked) {
     throw new Error(`Blocked resource expectation drift for ${definition.resourceType}.`);
@@ -545,13 +569,7 @@ function toExpectation(definition: ExpectationDefinition): EarthlikeResourceExpe
     groupId: definition.groupId,
     status,
     earthlikePredicate: definition.earthlikePredicate,
-    expectedCountRange: {
-      baseline: BASELINE,
-      min,
-      target,
-      max,
-      evidence: rangeEvidence,
-    },
+    expectedCountRange,
     conditionMultipliers: corpusBlocked ? [] : definition.conditionMultipliers,
     signalRequirements: definition.signalRequirements ?? [],
     caveats: [
@@ -568,25 +586,39 @@ const DEFINITIONS_BY_TYPE = new Map(
 );
 
 /**
- * Frozen expectation row for every entry in the official resource corpus, in corpus order.
+ * Resolves one frozen expectation row for every official resource, in corpus order.
+ * Alive-major-player supply requires the same 1..64 count envelope as Standard's unique ids.
  * Construction fails when a definition is missing, and the module-level parity checks reject
  * duplicate or incomplete coverage before planners can consume it.
  */
-export const EARTHLIKE_RESOURCE_EXPECTATIONS = deepFreeze(
-  OFFICIAL_RESOURCE_CORPUS.map((entry) => {
-    const definition = DEFINITIONS_BY_TYPE.get(entry.resourceType);
-    if (!definition) {
-      throw new Error(`Missing earthlike expectation definition for ${entry.resourceType}.`);
-    }
-    return toExpectation(definition);
-  })
-);
+export function resolveEarthlikeResourceExpectations({
+  aliveMajorPlayerCount,
+}: {
+  aliveMajorPlayerCount: number;
+}): readonly EarthlikeResourceExpectation[] {
+  if (
+    !Number.isInteger(aliveMajorPlayerCount) ||
+    aliveMajorPlayerCount < 1 ||
+    aliveMajorPlayerCount > 64
+  ) {
+    throw new RangeError("Alive-major-player resource supply requires an integer count in [1, 64].");
+  }
+  return deepFreeze(
+    OFFICIAL_RESOURCE_CORPUS.map((entry) => {
+      const definition = DEFINITIONS_BY_TYPE.get(entry.resourceType);
+      if (!definition) {
+        throw new Error(`Missing earthlike expectation definition for ${entry.resourceType}.`);
+      }
+      return toExpectation(definition, aliveMajorPlayerCount);
+    })
+  );
+}
 
 const definitionTypes = new Set(DEFINITIONS.map((entry) => entry.resourceType));
 if (definitionTypes.size !== DEFINITIONS.length) {
   throw new Error("Duplicate resource earthlike expectations.");
 }
-if (EARTHLIKE_RESOURCE_EXPECTATIONS.length !== OFFICIAL_RESOURCE_CORPUS.length) {
+if (DEFINITIONS.length !== OFFICIAL_RESOURCE_CORPUS.length) {
   throw new Error("Resource earthlike expectations must cover the official corpus.");
 }
 for (const corpusEntry of OFFICIAL_RESOURCE_CORPUS) {

@@ -296,4 +296,36 @@ describe("Standard recipe generation", () => {
     expect(custom.context.setup.dimensions).toEqual(official.context.setup.dimensions);
     expect(customDemand).toEqual(officialDemand);
   }, 30_000);
+
+  it("forwards the admitted alive-major roster count rather than preset capacity or player ids", () => {
+    const aliveMajorPlayerIds = [2, 17, 41];
+    const result = runStandardRecipeTestMap({ presetId: "MAPSIZE_TINY", aliveMajorPlayerIds });
+    const demand = readArtifact(result.context, resourceDemandArtifacts.resourceDemandPlan);
+    expect(result.preset.mapInfo.PlayersLandmass1 + result.preset.mapInfo.PlayersLandmass2).toBe(4);
+    expect(demand.aliveMajorPlayerCount).toBe(3);
+    const candidates = [
+      ...demand.candidates.admitted,
+      ...demand.candidates.excluded.noLegalSites,
+      ...demand.candidates.excluded.ageDeferred,
+      ...demand.candidates.excluded.expectationBlocked,
+    ];
+    expect(
+      candidates.find((row) => row.source.resourceType === "RESOURCE_FISH")?.source.expectedCountRange
+    ).toEqual({
+      baseline: "alive-major-player-supply",
+      min: 6,
+      target: 9,
+      max: 12,
+      evidence: "authored-gameplay",
+    });
+    expect(
+      candidates.find((row) => row.source.resourceType === "RESOURCE_CRABS")?.source.expectedCountRange
+    ).toEqual({
+      baseline: "alive-major-player-supply",
+      min: 2,
+      target: 3,
+      max: 5,
+      evidence: "authored-gameplay",
+    });
+  }, 30_000);
 });

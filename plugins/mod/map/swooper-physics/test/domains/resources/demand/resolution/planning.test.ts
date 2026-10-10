@@ -7,7 +7,7 @@ import {
 } from "@civ7/map-policy";
 import {
   admitPositiveResourceRegionMinimum,
-  EARTHLIKE_RESOURCE_EXPECTATIONS,
+  resolveEarthlikeResourceExpectations,
   getInitialMapResourcePolicyForType,
   HABITAT_MASK_FIELD_NAMES,
   type HabitatMaskFieldName,
@@ -26,6 +26,7 @@ type TerminalCandidate =
   | ResolveOutput["candidates"]["excluded"]["ageDeferred"][number]
   | ResolveOutput["candidates"]["excluded"]["noLegalSites"][number];
 type HabitatMaskFields = Partial<Record<HabitatMaskFieldName, Uint8Array>>;
+const expectations = resolveEarthlikeResourceExpectations({ aliveMajorPlayerCount: 4 });
 
 const BLOCKED_RESOURCE_TYPES = [
   "RESOURCE_CLOVES",
@@ -39,10 +40,61 @@ describe("resource demand resolution", () => {
   const { width, height } = TEST_MAP_SIZE.dimensions;
   const size = width * height;
 
+  it.each([1, 3, 4, 5, 6, 8, 10, 64])(
+    "publishes the resolved range once for every candidate at P=%s",
+    (aliveMajorPlayerCount) => {
+      const result = run({ ...buildFixture("RESOURCE_FISH"), aliveMajorPlayerCount });
+      const resolved = resolveEarthlikeResourceExpectations({ aliveMajorPlayerCount });
+      expect(result.aliveMajorPlayerCount).toBe(aliveMajorPlayerCount);
+      const candidates = allCandidates(result);
+      for (const expectation of resolved) {
+        expect(
+          candidates.find((row) => row.source.resourceType === expectation.resourceType)?.source
+            .expectedCountRange
+        ).toEqual(expectation.expectedCountRange);
+      }
+      expect(
+        result.candidates.admitted.find((row) => row.source.resourceType === "RESOURCE_FISH")?.source
+          .targetIntentCount
+      ).toBe(3 * aliveMajorPlayerCount);
+    }
+  );
+
+  it.each([undefined, 0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, 65])(
+    "refuses invalid required player supply at operation admission: %s",
+    (aliveMajorPlayerCount) => {
+      expect(() =>
+        run({ ...buildFixture(), aliveMajorPlayerCount: aliveMajorPlayerCount as number })
+      ).toThrow();
+    }
+  );
+
+  it("requires an explicit player count at operation admission", () => {
+    const { aliveMajorPlayerCount, ...input } = buildFixture();
+    expect(aliveMajorPlayerCount).toBe(4);
+    expect(() => run(input as ResolveInput)).toThrow();
+  });
+
+  it("bounds target intent by habitat capacity without rewriting the resolved range", () => {
+    const input = buildFixture("RESOURCE_FISH");
+    const habitatMasks = Object.fromEntries(
+      HABITAT_MASK_FIELD_NAMES.map((field) => [field, new Uint8Array(size)])
+    ) as Record<HabitatMaskFieldName, Uint8Array>;
+    const result = run({ ...input, ...habitatMasks, lakeMask: oneAt(8), aliveMajorPlayerCount: 10 });
+    const fish = result.candidates.admitted.find(
+      (row) => row.source.resourceType === "RESOURCE_FISH"
+    );
+    expect(fish?.source).toMatchObject({
+      expectedCountRange: { min: 20, target: 30, max: 40, evidence: "authored-gameplay" },
+      targetIntentCount: 1,
+      habitatTileCount: 1,
+    });
+  });
+
   it("partitions the exact official corpus with canonical blocked, range, and lane identity", () => {
     const result = run(buildFixture());
     const candidates = allCandidates(result);
-    const expectedTypes = EARTHLIKE_RESOURCE_EXPECTATIONS.map((row) => row.resourceType);
+    const expectedTypes = expectations.map((row) => row.resourceType);
 
     expect(candidates).toHaveLength(expectedTypes.length);
     expect(new Set(candidates.map((candidate) => candidate.source.resourceType))).toEqual(
@@ -58,7 +110,7 @@ describe("resource demand resolution", () => {
     const admitted = result.candidates.admitted.find(
       (candidate) => candidate.source.resourceType === selected.resourceType
     );
-    const expectation = EARTHLIKE_RESOURCE_EXPECTATIONS.find(
+    const expectation = expectations.find(
       (row) => row.resourceType === selected.resourceType
     );
     if (!admitted || !expectation) {
@@ -266,7 +318,7 @@ describe("resource demand resolution", () => {
         resolveResourceRuntimeIds().byType.get("RESOURCE_FISH")!.resourceTypeId
       )
     ).toBe(true);
-    expect(fish.source.expectedCountRange).toMatchObject({ min: 6, target: 9, max: 12 });
+    expect(fish.source.expectedCountRange).toMatchObject({ min: 8, target: 12, max: 16 });
     expect(result.age).toBe(INITIAL_MAP_RESOURCE_AUTHORING_AGE);
     for (const age of ["AGE_ANTIQUITY", "AGE_EXPLORATION", "AGE_MODERN"] as const) {
       expect(getInitialMapResourcePolicyForType("RESOURCE_FISH", age)?.status).toBe("eligible");
@@ -392,7 +444,7 @@ describe("resource demand resolution", () => {
 
   it("records the source-matched future-age disposition without weakening the corpus ledger", () => {
     const result = run(buildFixture());
-    const withheld = EARTHLIKE_RESOURCE_EXPECTATIONS.find(
+    const withheld = expectations.find(
       (expectation) =>
         expectation.status === "expected" &&
         getInitialMapResourcePolicyForType(
@@ -568,6 +620,7 @@ describe("resource demand resolution", () => {
     return {
       width,
       height,
+      aliveMajorPlayerCount: 4,
       ...habitatMasks,
       aquaticIntensity: new Float32Array(size).fill(1),
       cultivatedIntensity: new Float32Array(size).fill(1),
@@ -593,7 +646,7 @@ function selectedResourceFixture(requestedType?: OfficialResourceType): {
     string,
     readonly (readonly [number, number, number])[] | undefined
   >;
-  const expectation = EARTHLIKE_RESOURCE_EXPECTATIONS.find((row) => {
+  const expectation = expectations.find((row) => {
     if (requestedType !== undefined && row.resourceType !== requestedType) return false;
     const signal = RESOURCE_HABITAT_SIGNALS.get(row.resourceType);
     const resolved = resolution.byType.get(row.resourceType);

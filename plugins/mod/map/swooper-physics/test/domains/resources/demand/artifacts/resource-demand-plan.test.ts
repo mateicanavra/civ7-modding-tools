@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { type OfficialResourceType, resolveResourceRuntimeIds } from "@civ7/map-policy";
 import {
   admitPositiveResourceRegionMinimum,
-  EARTHLIKE_RESOURCE_EXPECTATIONS,
+  resolveEarthlikeResourceExpectations,
   getInitialMapResourcePolicyForType,
   INITIAL_MAP_RESOURCE_AUTHORING_AGE,
   RESOURCE_HABITAT_SIGNALS,
@@ -22,8 +22,72 @@ type TerminalCandidate =
   | ResourceDemandPlanPayload["candidates"]["excluded"]["expectationBlocked"][number]
   | ResourceDemandPlanPayload["candidates"]["excluded"]["ageDeferred"][number]
   | ResourceDemandPlanPayload["candidates"]["excluded"]["noLegalSites"][number];
+const expectations = resolveEarthlikeResourceExpectations({ aliveMajorPlayerCount: 4 });
 
 describe("placement resource-demand-plan artifact", () => {
+  it.each([1, 3, 4, 5, 6, 8, 10, 64])(
+    "admits the same resolver's complete ledger at P=%s",
+    (count) => {
+      expect(resourceDemandMessages(resourceDemandPlanPayload(count))).toEqual([]);
+    }
+  );
+
+  it.each([undefined, 0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, 65])(
+    "refuses missing or invalid root alive-major player counts: %s",
+    (aliveMajorPlayerCount) => {
+      const payload = resourceDemandPlanPayload();
+      Object.assign(payload, { aliveMajorPlayerCount });
+      expect(resourceDemandMessages(payload).length).toBeGreaterThan(0);
+    }
+  );
+
+  it("requires the player count on the persisted artifact root", () => {
+    const { aliveMajorPlayerCount, ...payload } = resourceDemandPlanPayload();
+    expect(aliveMajorPlayerCount).toBe(4);
+    expect(resourceDemandArtifacts.resourceDemandPlan.validate(payload, {
+      dimensions: TEST_MAP_SIZE.dimensions,
+    }).length).toBeGreaterThan(0);
+  });
+
+  it("requires count correspondence for both supply ranges without accepting another valid count", () => {
+    const payload = resourceDemandPlanPayload();
+    payload.aliveMajorPlayerCount = 10;
+    const messages = resourceDemandMessages(payload);
+    for (const resourceType of ["RESOURCE_FISH", "RESOURCE_CRABS"]) {
+      expect(
+        messages.some((message) =>
+          message.includes(`${resourceType} range`) && message.includes("canonical range")
+        )
+      ).toBe(true);
+    }
+  });
+
+  it.each([
+    { baseline: "standard-earthlike-map" },
+    { evidence: "inference-backed" },
+    { min: 0 },
+    { target: 11 },
+    { max: 17 },
+    { evidence: "made-up" },
+    { min: 1.5 },
+    { target: Number.NaN },
+  ])("refuses malformed or forged resolved supply evidence %j", (rangeDelta) => {
+    const payload = resourceDemandPlanPayload();
+    Object.assign(findCandidate(payload, "RESOURCE_FISH").source.expectedCountRange, rangeDelta);
+    expect(resourceDemandMessages(payload).length).toBeGreaterThan(0);
+  });
+
+  it("does not broaden a fixed resource's baseline or evidence with the new supply vocabulary", () => {
+    const payload = resourceDemandPlanPayload();
+    Object.assign(findCandidate(payload, "RESOURCE_PEARLS").source.expectedCountRange, {
+      baseline: "alive-major-player-supply",
+      evidence: "authored-gameplay",
+    });
+    expect(
+      resourceDemandMessages(payload).some((message) => message.includes("RESOURCE_PEARLS range"))
+    ).toBe(true);
+  });
+
   it("requires the exact canonical corpus once with source-matched terminal dispositions", () => {
     const baseline = resourceDemandPlanPayload();
     expect(resourceDemandMessages(baseline)).toEqual([]);
@@ -33,7 +97,7 @@ describe("placement resource-demand-plan artifact", () => {
     if (!removed) throw new Error("Missing terminal candidate fixture.");
     expect(resourceDemandMessages(missing)).toEqual(
       expect.arrayContaining([
-        `Resource demand ledger has ${EARTHLIKE_RESOURCE_EXPECTATIONS.length - 1} candidates; expected exact official corpus size ${EARTHLIKE_RESOURCE_EXPECTATIONS.length}.`,
+        `Resource demand ledger has ${expectations.length - 1} candidates; expected exact official corpus size ${expectations.length}.`,
         `Resource demand ledger is missing ${removed.source.resourceType}.`,
       ])
     );
@@ -45,7 +109,7 @@ describe("placement resource-demand-plan artifact", () => {
     expect(resourceDemandMessages(duplicate)).toEqual(
       expect.arrayContaining([
         `Resource demand source ${duplicate.candidates.excluded.noLegalSites[0]!.source.resourceType} appears more than once.`,
-        `Resource demand ledger has ${EARTHLIKE_RESOURCE_EXPECTATIONS.length + 1} candidates; expected exact official corpus size ${EARTHLIKE_RESOURCE_EXPECTATIONS.length}.`,
+        `Resource demand ledger has ${expectations.length + 1} candidates; expected exact official corpus size ${expectations.length}.`,
       ])
     );
   });
@@ -110,7 +174,7 @@ describe("placement resource-demand-plan artifact", () => {
       expect.arrayContaining([
         "Resource demand RESOURCE_FISH habitatMask[0] is 2; masks admit only 0 or 1.",
         `Resource demand source RESOURCE_FISH habitatTileCount ${fish.source.habitatTileCount} does not match habitatMask count ${fish.source.habitatMask.length}.`,
-        `Resource demand source RESOURCE_FISH target 0 does not match canonical habitat-derived target ${EARTHLIKE_RESOURCE_EXPECTATIONS.find((row) => row.resourceType === "RESOURCE_FISH")!.expectedCountRange.target}.`,
+        `Resource demand source RESOURCE_FISH target 0 does not match canonical habitat-derived target ${expectations.find((row) => row.resourceType === "RESOURCE_FISH")!.expectedCountRange.target}.`,
       ])
     );
   });
@@ -259,7 +323,7 @@ function resourceDemandMessages(
     .map((issue) => issue.message);
 }
 
-function resourceDemandPlanPayload(): ResourceDemandPlanPayload {
+function resourceDemandPlanPayload(aliveMajorPlayerCount = 4): ResourceDemandPlanPayload {
   const size = TEST_MAP_SIZE.dimensions.width * TEST_MAP_SIZE.dimensions.height;
   const candidates: ResourceDemandPlanPayload["candidates"] = {
     admitted: [],
@@ -270,7 +334,7 @@ function resourceDemandPlanPayload(): ResourceDemandPlanPayload {
     },
   };
 
-  for (const expectation of EARTHLIKE_RESOURCE_EXPECTATIONS) {
+  for (const expectation of resolveEarthlikeResourceExpectations({ aliveMajorPlayerCount })) {
     const identity = {
       resourceType: expectation.resourceType,
       groupId: expectation.groupId,
@@ -337,6 +401,7 @@ function resourceDemandPlanPayload(): ResourceDemandPlanPayload {
     width: TEST_MAP_SIZE.dimensions.width,
     height: TEST_MAP_SIZE.dimensions.height,
     age: INITIAL_MAP_RESOURCE_AUTHORING_AGE,
+    aliveMajorPlayerCount,
     candidates,
   };
 }

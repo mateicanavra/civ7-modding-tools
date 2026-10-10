@@ -42,7 +42,7 @@ export default defineStrategy({
         maximum: 3,
         default: 1,
         description:
-          "Scales the per-type same-type spacing floors (3 for common types with target >= 12, 4 otherwise).",
+          "Scales same-type spacing floors: Fish and Crabs retain 4; other types use 3 at target >= 12 and 4 otherwise.",
       }),
       equityMaxDensityRatio: Type.Number({
         minimum: 1,

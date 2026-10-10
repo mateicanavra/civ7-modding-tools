@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { requireResourceRuntimeId } from "@civ7/map-policy";
+import { resolveEarthlikeResourceExpectations } from "../../../../../../src/domain/resources/index.js";
 import { evaluateMetricTargets } from "@swooper/mapgen-metrics";
 import type { StandardMapCapture } from "../../../../../../src/recipes/standard/metrics/capture.js";
 import { measureStandardResourcePlacement } from "../../../../../../src/recipes/standard/metrics/families/placement/resource-placement.js";
@@ -67,6 +68,21 @@ function captureWithScenarioIneligibleDates(): StandardMapCapture {
 }
 
 describe("Standard resource metrics", () => {
+  it("captures every candidate's published range and the demand root's player count", () => {
+    const capture = captureEarthlikeScenario();
+    expect(capture.resources.aliveMajorPlayerCount).toBe(capture.provenance.aliveMajorPlayerIds.length);
+    const expectations = resolveEarthlikeResourceExpectations({
+      aliveMajorPlayerCount: capture.resources.aliveMajorPlayerCount,
+    });
+    expect(capture.resources.candidates).toHaveLength(expectations.length);
+    for (const expectation of expectations) {
+      expect(
+        capture.resources.candidates.find((row) => row.resourceType === expectation.resourceType)
+          ?.expectedCountRange
+      ).toEqual(expectation.expectedCountRange);
+    }
+  });
+
   it.each([
     { label: "empty cohort", ratios: [], status: "fail" },
     { label: "missing ratio", ratios: [1.5, null], status: "fail" },

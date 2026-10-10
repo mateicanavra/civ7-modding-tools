@@ -1,6 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import { CIV7_BROWSER_TABLES_V0, resolveResourceRuntimeIds } from "@civ7/map-policy";
-import { admitPositiveResourceRegionMinimum } from "../../../../src/domain/resources/index.js";
+import {
+  admitPositiveResourceRegionMinimum,
+  resolveEarthlikeResourceExpectations,
+} from "../../../../src/domain/resources/index.js";
 
 import resources from "../../../../src/domain/resources/router.js";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
@@ -118,6 +121,88 @@ function run(
 }
 
 describe("select-resource-sites operation contract", () => {
+  it.each([
+    { resourceType: "RESOURCE_FISH", count: 3, density: 1, target: 9 },
+    { resourceType: "RESOURCE_FISH", count: 4, density: 1, target: 12 },
+    { resourceType: "RESOURCE_FISH", count: 10, density: 2, target: 40 },
+    { resourceType: "RESOURCE_CRABS", count: 10, density: 1, target: 10 },
+    { resourceType: "RESOURCE_CRABS", count: 10, density: 2, target: 15 },
+    { resourceType: "RESOURCE_CRABS", count: 64, density: 1, target: 64 },
+  ])(
+    "retains deterministic floor four for $resourceType at target $target",
+    ({ resourceType, count, density, target }) => {
+      const expectation = resolveEarthlikeResourceExpectations({ aliveMajorPlayerCount: count })
+        .find((row) => row.resourceType === resourceType)!;
+      const range = expectation.expectedCountRange;
+      const input = buildInput({
+        demands: [{
+          resourceType,
+          family: "aquatic",
+          weight: 1,
+          targetCount: range.target,
+          minCount: range.min,
+          maxCount: range.max,
+        }],
+      });
+      const result = run(input, (config) => {
+        config.familyDensity.aquatic = density;
+      });
+      expect(result.perType[0]).toMatchObject({ effectiveTargetCount: target, spacingFloorTiles: 4 });
+      expect(result.intents.length).toBeGreaterThan(1);
+      for (let i = 0; i < result.intents.length; i++) {
+        for (let j = i + 1; j < result.intents.length; j++) {
+          expect(
+            hexDistanceOddQPeriodicX(result.intents[i]!.plotIndex, result.intents[j]!.plotIndex, width)
+          ).toBeGreaterThanOrEqual(4);
+        }
+      }
+      expect(run(input, (config) => {
+        config.familyDensity.aquatic = density;
+      }).intents).toEqual(result.intents);
+    }
+  );
+
+  it.each(["RESOURCE_FISH", "RESOURCE_CRABS"])(
+    "preserves authored scaling and sparsity above target twelve for %s",
+    (resourceType) => {
+      const input = buildInput({
+        demands: [{ resourceType, weight: 1, targetCount: 20, minCount: 16, maxCount: 24 }],
+      });
+      const result = run(input, (config) => {
+        config.perTypeSpacingFloorScale = 1.5;
+        config.sparsity = 0.5;
+      });
+      expect(result.perType[0]).toMatchObject({ effectiveTargetCount: 18, spacingFloorTiles: 9 });
+    }
+  );
+
+  it("retains Fish supply and an explicit shortfall when only three admitted sites exist", () => {
+    const range = resolveEarthlikeResourceExpectations({ aliveMajorPlayerCount: 10 })
+      .find((row) => row.resourceType === "RESOURCE_FISH")!.expectedCountRange;
+    const threeSites = maskFromPlots(8 * width + 8, 8 * width + 16, 8 * width + 24);
+    const result = run(buildInput({
+      demands: [{
+        resourceType: "RESOURCE_FISH",
+        weight: 1,
+        targetCount: 3,
+        minCount: range.min,
+        maxCount: range.max,
+        legalMask: threeSites,
+        habitatMask: threeSites,
+      }],
+    }));
+    expect(result.perType[0]).toMatchObject({
+      authoredTargetCount: 3,
+      effectiveTargetCount: 20,
+      minCount: 20,
+      maxCount: 40,
+      plannedCount: 3,
+      spacingFloorTiles: 4,
+      shortfalls: [{ resourceType: "RESOURCE_FISH", reason: "no-admitted-site", count: 17 }],
+    });
+    expect(result.intents).toHaveLength(3);
+  });
+
   it("distinguishes normal finite Fish rotation from the unchanged frozen legal-only minimum", () => {
     const landMask = new Uint8Array(cellCount).fill(1);
     const lakeMask = new Uint8Array(cellCount);
@@ -196,6 +281,7 @@ describe("select-resource-sites operation contract", () => {
       resources.demand.ops.resolveResourceDemands,
       {
         ...habitat,
+        aliveMajorPlayerCount: 4,
         legalitySurface: { biomeType, terrainType, featureType, engineWaterMask },
         riverMasks: [riverMask],
       },
@@ -233,9 +319,9 @@ describe("select-resource-sites operation contract", () => {
     const result = run(input);
     const finiteIntents = result.intents.filter((intent) => lakeMask[intent.plotIndex] === 1);
 
-    expect(fish.source.expectedCountRange).toMatchObject({ min: 6, target: 9, max: 12 });
-    expect(result.plannedCount).toBe(9);
-    expect(result.rotationCount).toBe(9);
+    expect(fish.source.expectedCountRange).toMatchObject({ min: 8, target: 12, max: 16 });
+    expect(result.plannedCount).toBe(12);
+    expect(result.rotationCount).toBe(12);
     expect(result.rangeFloorCount).toBe(0);
     expect(result.regionMinimumCount).toBe(0);
     expect(finiteIntents.length).toBeGreaterThan(0);
@@ -268,6 +354,7 @@ describe("select-resource-sites operation contract", () => {
       resources.demand.ops.resolveResourceDemands,
       {
         ...frozenHabitat,
+        aliveMajorPlayerCount: 4,
         legalitySurface: { biomeType, terrainType, featureType, engineWaterMask },
         riverMasks: [riverMask],
       },
@@ -716,6 +803,7 @@ describe("select-resource-sites operation contract", () => {
       })
     );
     for (const row of result.perType) {
+      expect(row.spacingFloorTiles).toBe(row.resourceType === "RESOURCE_A" ? 3 : 4);
       expect(row.plannedCount).toBeLessThanOrEqual(row.maxCount);
       const plots = result.intents
         .filter((intent) => intent.resourceType === row.resourceType)
