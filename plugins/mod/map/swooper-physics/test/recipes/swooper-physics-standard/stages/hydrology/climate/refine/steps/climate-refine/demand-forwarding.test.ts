@@ -125,6 +125,7 @@ describe("hydrology climate-refine demand ownership", () => {
               budgetConfig: typeof hydrology.climate.ops.computeLandWaterBudget.defaultConfig
             ) => {
               expect(input.pet).toBe(computedPet);
+              expect(Object.hasOwn(input, "riverClass")).toBe(false);
               return hydrology.climate.ops.computeLandWaterBudget.run(input, budgetConfig);
             },
             computeClimateDiagnostics: hydrology.climate.ops.computeClimateDiagnostics.run,
