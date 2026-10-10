@@ -67,6 +67,7 @@ export const PlanResourceDemandsStep = createStep(config, {
         ...habitat,
         width,
         height,
+        aliveMajorPlayerCount: context.initialSetup.aliveMajorPlayerIds.length,
         legalitySurface: {
           biomeType: currentBiomeTypes,
           terrainType: currentRiverSurface.terrainType,

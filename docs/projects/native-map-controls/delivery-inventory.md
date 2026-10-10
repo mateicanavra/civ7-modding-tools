@@ -27,9 +27,14 @@ admits resolved inland water through the existing habitat owner, without
 changing physical water, climate or total supply policy. Eleven fixed-input
 captures and fresh Huge native generation qualify the repair, including Fish
 on physical finite water with either native lake or coastal identity. The
-installed game is revealed. This is not yet adoption of the separately designed
-player-scaled aquatic supply; that comparison must hold actual spacing and
-resource legality before changing the baseline.
+preceding installed game was revealed. The subsequent
+[player-scaled aquatic supply](resources.md#player-scaled-supply-verification)
+holds actual spacing four, physical fields and retained habitat/legal evidence
+across eleven cases. Fish targets now scale with the actual alive-major roster,
+as do Crab targets, without a density override. Fresh Huge native generation
+accepts 29 of 30 Fish and all ten Crabs; the one Fish refusal is explicit and
+within the authored range, not concealed as full target parity. Navigable-river
+Crab habitat/legal admission remains the next bounded consumer repair.
 
 The single retained island transect resolves to finite water and does not
 demonstrate lost marine relief. No new island algorithm is selected from that

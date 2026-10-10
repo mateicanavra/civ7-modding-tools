@@ -46,6 +46,7 @@ const ResolveResourceDemandsContract = defineOp({
     {
       width: Type.Integer({ minimum: 1 }),
       height: Type.Integer({ minimum: 1 }),
+      aliveMajorPlayerCount: Type.Integer({ minimum: 1, maximum: 64 }),
       ...habitatMaskProperties,
       ...habitatIntensityProperties,
       legalitySurface: Type.Object(
@@ -71,6 +72,7 @@ const ResolveResourceDemandsContract = defineOp({
       width: Type.Integer({ minimum: 1 }),
       height: Type.Integer({ minimum: 1 }),
       age: Type.Literal(INITIAL_MAP_RESOURCE_AUTHORING_AGE),
+      aliveMajorPlayerCount: Type.Integer({ minimum: 1, maximum: 64 }),
       candidates: Type.Object(
         {
           admitted: Type.Array(AdmittedResourceDemandCandidateSchema),

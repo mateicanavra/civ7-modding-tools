@@ -20,7 +20,7 @@ export {
 export {
   buildInitialMapResourceAuthoringPolicy,
   DEFERRED_INITIAL_MAP_RESOURCE_TYPES,
-  EARTHLIKE_RESOURCE_EXPECTATIONS,
+  resolveEarthlikeResourceExpectations,
   type EarthlikeResourceExpectation,
   getInitialMapResourcePolicyForType,
   INITIAL_MAP_RESOURCE_AUTHORING_AGE,

@@ -8,7 +8,7 @@ export {
   type ResourceExpectationStatus,
 } from "./model/atoms/resource-expectation.schema.js";
 export {
-  EARTHLIKE_RESOURCE_EXPECTATIONS,
+  resolveEarthlikeResourceExpectations,
   type EarthlikeResourceExpectation,
   RESOURCE_EXPECTATION_IDENTITY_BY_GROUP,
 } from "./model/policy/earthlike-expectations.js";

@@ -126,6 +126,7 @@ type StandardResourceCandidateBase = Readonly<{
   runtimeResourceTypeId: number | null;
   groupId: ResourceDemandCandidate["source"]["groupId"];
   expectationStatus: ResourceDemandCandidate["source"]["expectationStatus"];
+  expectedCountRange: Readonly<ResourceDemandCandidate["source"]["expectedCountRange"]>;
 }>;
 
 type StandardResourceSiteEvidence = Readonly<{
@@ -251,6 +252,7 @@ export type StandardMapCapture = Readonly<{
     featureRejections: Readonly<Record<string, number>>;
   }>;
   resources: Readonly<{
+    aliveMajorPlayerCount: number;
     candidates: readonly StandardResourceCandidate[];
     intents: readonly Pick<
       ResourcePlanAdjusted["intents"][number],
@@ -796,6 +798,7 @@ function copyCompletedRun(
       }),
     }),
     resources: Object.freeze({
+      aliveMajorPlayerCount: resourceDemandPlanValue.aliveMajorPlayerCount,
       candidates: copyResourceCandidates(resourceDemandPlanValue, gridSize),
       intents: Object.freeze(
         adjustedResourcePlanValue.intents.map((intent) =>
@@ -1060,6 +1063,7 @@ function copyResourceCandidateIdentity(
     runtimeResourceTypeId: runtimeIds.get(candidate.source.resourceType) ?? null,
     groupId: candidate.source.groupId,
     expectationStatus: candidate.source.expectationStatus,
+    expectedCountRange: Object.freeze({ ...candidate.source.expectedCountRange }),
   });
 }
 
