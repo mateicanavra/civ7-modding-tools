@@ -62,8 +62,9 @@ into one sideways route. The exact unchanged bank comparison against the
 previous qualified source covers 22 studies, 57 scenarios and 4,430
 expectations. It retains the known thermal failure and finds three new failed
 expectations: Archipelago Huge 1018 loses mangroves; Earthlike Standard 1340
-loses start-fertility advantage and score fairness. These remain release
-obligations, not reasons to waive the bank or alter climate forcing.
+loses start-fertility advantage and score fairness. The consumer repairs below
+close all three with the same bank, rather than waiving expectations or
+altering climate forcing.
 
 The authorized diagnostic native run uses Huge Earthlike, seeds 1018/1018 and
 ten players. Generation and full-map exploration complete. Final whole-map
@@ -96,8 +97,34 @@ resource admission. Its one cross-region fairness upgrade is already recorded
 as a degradation. The selected repair puts achieved balance before regional
 count, retaining completeness and hard spacing first and regional preference
 as the next tie-break. No fertility weights, resource quotas, thresholds or
-fairness limits change. The full operation and unchanged bank must qualify
-that ordering before the placement obligation is closed.
+fairness limits change. This is parity priority, not a guarantee that every
+balanced set has a higher minimum score than every unbalanced alternative.
+The complete 1340 recipe selects the expected band: fertility advantage rises
+from `0.9242009` to `1.1888797`, the gap falls to `0.06404945`, all eight seats
+retain freshwater and hard spacing, and the single cross-region move remains
+explicitly degraded. Both the fairness regression and the balanced regional
+tie-break pass, alongside 43 focused placement tests and all owner checks.
+The unchanged 22-study, 57-scenario bank closes all three new failures. Only
+the pre-existing thermal-variation failure remains; its one-degree requirement
+is unchanged.
+
+The shoreline improvement is not a river-abundance calibration. On matched
+Huge 1018 inputs, classified sources remain about `26.06%` of exposed land,
+while navigable-class sources change from `320` to `375` (`12.52%` to `14.65%`
+of exposed land). Physical source density and projected class prevalence must
+remain separate questions. No rainfall or class threshold was retuned here.
+
+A distinct basin-junction issue remains under owner-level design. At the
+selected spill head, contact discovery admits the entire equal-ground dry
+plateau into the reservoir's contributing catchment. Exact Huge 1018 replay
+shows independent raw marine exit `1084 -> 1189` being captured into pool 1;
+nearby `1083` instead has a legitimate raw inlet to pit `976`. A fixed declared
+spill-corridor counterfactual preserves wet cell `976`, head `12`, the existing
+external port and conservation while restoring independent dry exits. That
+probe does not qualify a general algorithm. The next repair must separate
+contact discovery from runoff ownership and preserve required equal-head
+mergers, inward support, dry bypasses and partial-merger behavior. It belongs
+in basin junction admission, not projection carving or a second river network.
 
 ## Prior Delivery Evidence
 

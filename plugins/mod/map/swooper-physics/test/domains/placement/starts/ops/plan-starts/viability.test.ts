@@ -744,6 +744,105 @@ describe("resource-backed start admission", () => {
     });
   }
 
+  for (const [name, westFertility, eastFertility, regionalBalanced, preferredCount] of [
+    ["prefers fairness over an extra regional seat across resource bands", 0.1, 1, false, 1],
+    ["prefers regional seats when both resource bands are balanced", 0.55, 0.6, true, 2],
+  ] as const) {
+    it(name, () => {
+      const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid24x10, 2);
+      const lowWest = [
+        [2, 2],
+        [2, 3],
+      ] as const;
+      const lowEast = [
+        [14, 2],
+        [14, 3],
+        [14, 6],
+        [14, 7],
+      ] as const;
+      const highWest = [
+        [6, 2],
+        [6, 3],
+      ] as const;
+      const highEast = [
+        [18, 2],
+        [18, 3],
+      ] as const;
+      addLandmass(input, 0, 1, lowWest);
+      addLandmass(input, 1, 2, lowEast);
+      addLandmass(input, 2, 1, highWest);
+      addLandmass(input, 3, 2, highEast);
+      for (const [x, y] of lowWest) input.fertility[idx(input.width, x, y)] = 0.1;
+      for (const [x, y] of lowEast) input.fertility[idx(input.width, x, y)] = 1;
+      for (const [x, y] of highWest) input.fertility[idx(input.width, x, y)] = westFertility;
+      for (const [x, y] of highEast) input.fertility[idx(input.width, x, y)] = eastFertility;
+      const lowSites = [idx(input.width, 2, 2), idx(input.width, 14, 2), idx(input.width, 14, 6)];
+      const highSites = [...highWest, ...highEast].map(([x, y]) => idx(input.width, x, y));
+      input.plannedResourcePlotIndices = [...lowSites, ...highSites];
+      input.resourceSupportRequirements = {
+        supportFloor: 1,
+        supportRadiusTiles: 1,
+        equityTolerance: 0,
+      };
+      const configure = (config: (typeof planStarts.defaultConfig)["config"]) => {
+        config.minContiguousLandTiles = 2;
+        config.minExpansionLandTiles = 2;
+        config.spacingFloorTiles = 2;
+        config.desiredSpacingTiles = 2;
+        config.largeLandmassWeight = 0;
+        config.fertilityWeight = 4;
+        config.resourceSupportWeight = 0;
+        config.freshwaterWeight = 0;
+        config.climateWeight = 0;
+        config.coastalPreferenceWeight = 0;
+        config.riverPreferenceWeight = 0;
+        config.roughnessPenaltyWeight = 0;
+        config.climateExtremePenaltyWeight = 0;
+        config.rankingBlend = 1;
+      };
+      const fairBand = plan({ ...input, plannedResourcePlotIndices: lowSites }, configure);
+      const regionalBand = plan({ ...input, plannedResourcePlotIndices: highSites }, configure);
+      const result = plan(input, configure);
+
+      expect(supportCounts(input, fairBand.seats)).toEqual([1, 1]);
+      expect(supportCounts(input, regionalBand.seats)).toEqual([2, 2]);
+      for (const band of [fairBand, regionalBand, result]) {
+        expect(band.seats.map((seat) => seat.playerId)).toEqual([...input.playerIds]);
+        expect(
+          band.seats.every((seat) => seat.plotIndex >= 0 && seat.achievedSpacing >= 2)
+        ).toBe(true);
+      }
+      expect(fairBand.fairnessReport.balanced).toBe(true);
+      expect(fairBand.seats.map((seat) => seat.rung)).toEqual(["open-pool", "regional"]);
+      expect(fairBand.fairnessReport.relaxations).toContainEqual({
+        seatIndex: 0,
+        kind: "region",
+        from: 1,
+        to: 2,
+      });
+      expect(fairBand.seats[0]).toMatchObject({
+        regionSlot: 1,
+        realizedRegionSlot: 2,
+        rung: "open-pool",
+        status: "degraded",
+      });
+      expect(regionalBand.fairnessReport.balanced).toBe(regionalBalanced);
+      expect(regionalBand.seats.every((seat) => seat.rung === "regional")).toBe(true);
+      expect(Math.min(...fairBand.seats.map((seat) => seat.score))).toBeGreaterThan(
+        Math.min(...regionalBand.seats.map((seat) => seat.score))
+      );
+      const preferredBand = preferredCount === 1 ? fairBand : regionalBand;
+      expect(result.seats.map((seat) => seat.plotIndex)).toEqual(
+        preferredBand.seats.map((seat) => seat.plotIndex)
+      );
+      expect(result.seats.map((seat) => seat.rung)).toEqual(
+        preferredBand.seats.map((seat) => seat.rung)
+      );
+      expect(result.fairnessReport.balanced).toBe(true);
+      expect(supportCounts(input, result.seats)).toEqual([preferredCount, preferredCount]);
+    });
+  }
+
   it("counts overlapping seat radii jointly and deduplicates actual resource plots", () => {
     const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid20x10, 2);
     addLandmass(
