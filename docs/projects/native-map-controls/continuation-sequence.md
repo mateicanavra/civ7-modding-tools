@@ -10,6 +10,111 @@ profiles and their profile-specific comparison arms are retired. Existing
 Earthlike cases and scientific requirements remain unchanged. Historical eight-product
 results below retain their original scope and are not current membership claims.
 
+### Minor-River Vegetation Admission (October 10)
+
+The retained Huge J and 1337 comparisons discriminate a consumer exclusion
+from a moisture deficit. Baseline rainfall and water demand precede river
+classification; the later corridor response adds rainfall and moisture rather
+than subtracting them. Across these two maps, all 23 bare, flat
+rainforest-biome cells are minor-river source cells. Their broad temperature,
+moisture and vegetation gates pass. This is not yet proof that their exact
+suitability scores pass the unchanged feature-local confidence floor.
+
+`PlanVegetationStep` excludes every river class before score arbitration.
+Minor rivers retain ordinary land terrain, unlike terrain-replacing navigable
+rivers. The sibling wetlands planner already makes this major-only distinction.
+The shipped feature schema has no `NoRiver` field; stock scatter placement
+excludes navigable rivers and then consults native feature legality.
+
+One bounded read on the preserved Huge 1337 game at turn 128 qualifies the
+native distinction. All six bare, unowned flat/tropical minor-river cells at
+`(22,29)`, `(23,30)`, `(24,32)`, `(81,34)`, `(83,34)` and `(83,35)` remain
+unchanged from the retained turn-one census and admit native rainforest.
+The bare tropical navigable-river control at `(23,28)` rejects it. Ordinary
+flat/tropical `(24,28)` already contains rainforest and returns false; that
+occupied feature slot is realized placement evidence, not an empty positive
+control. Native `GameInfo` resolves rainforest to feature 17. Before/after
+map, turn and selected plot facts are exact, with one connection epoch, no
+timeouts and no native mutation. Supported autoplay is restored on the same
+game. This is predicate evidence, not new feature placement or a turn-one
+oracle replay.
+
+The selected repair replaces the vegetation step's any-river exclusion with
+the existing major-river predicate. Preserve exposed-land, hill, mountain and
+volcano exclusions; prior floodplain, ice, reef and wetland occupancy;
+positive suitability, feature-local floors, broad habitat and deterministic
+ordering. No rainfall law, density setting, new eligibility abstraction,
+artifact, domain operation or authoring layer is introduced.
+
+The existing vegetation scores already consume effective moisture,
+temperature, aridity, freezing, biomass and fertility through the owned
+vegetation substrate. Coastal geometry, sea temperature, evaporation and
+transport influence baseline rainfall upstream. The refinement then uses
+river-corridor and low-basin wetness proxies, including additive riparian
+moisture. These are not a resolved soil-water or groundwater model. Final lake
+surfaces and freshwater/coastal proximity are not separate vegetation inputs;
+their represented influence must arrive through those upstream products.
+Preserve this distinction: fixing an eligibility omission neither validates
+all existing moisture proxies nor supplies a missing lake-shore water balance.
+Any subsequent causal moisture change belongs at that owner, with actual
+consumer consequences qualified, not a vegetation quota or automatic promotion
+beside every waterbody.
+
+Qualification uses the existing publication fixture, then the same current
+Huge J/1337 recipe identities. Retain actual suitability and intent artifacts
+through ordinary public recipe execution to close the score question; do not
+infer unavailable raw scores from old captures. Hold physical/climate fields,
+river/lake/elevation projection and prior feature occupancy. Report changed
+vegetation, resources and founder decisions honestly rather than imposing
+downstream output identity. Keep the full map-selected study bank and all
+existing expectations unchanged. Review the actual delta with a fresh SDK
+simplicity steward before normal Graphite publication.
+
+This consumer repair does not settle major-river density or the remaining
+regional thermal calibration. The historical `.92` density arm remains a
+separate candidate, not a rainfall or rainforest repair. Preserve the current
+user game; a later fresh native realization requires separately coordinated
+session preservation, not silently replacing autoplay.
+
+#### Completed Owner Qualification
+
+The two unchanged Huge recipes admit all 23 retained bare minor-river
+rainforest witnesses under the existing `0.29` floor. Actual rainforest scores
+range from `0.5242471` to `0.6946549`; no score, climate forcing or authored
+threshold changes. Rainforest increases from `37` to `49` on J and from `40`
+to `51` on seed `1337`. Changed final vegetation totals `90` and `123` cells,
+all on minor-river source land. Those totals include three old Redwood Forest
+wonder cells becoming supported ordinary forest in each map; blank-only
+vegetation additions are `87` and `120`.
+
+The original private comparison fails its overly broad final-feature freeze
+and remains immutable. Stage-correct review distinguishes early feature
+occupancy from later natural-wonder arbitration: all `362` and `447` upstream
+intents retain their expected projected features, and every previously
+occupied non-wonder cell remains unchanged. The unchanged wonder selector
+replaces Redwood with Torres del Paine on J and Mount Fuji on `1337`, retaining
+seven planned and placed wonders per map with no shortfall or rejection.
+Those are the only remaining feature changes, not arbitrary permitted losses.
+
+All `38` physical/climate products, six nonfeature projection entries and
+twelve nonfeature/nonresource observation entries are byte-identical. Whole
+resource captures and all seats hold; placement score diagnostics do not.
+The worst pair gap changes from `0.1074446` to `0.1079949` on J and from
+`0.0905669` to `0.0908692` on `1337`, within the unchanged expectations.
+All ten founders in each map remain dry and outside authored navigable-river
+cells. One additional ordinary public recipe execution per case retains real
+suitability and intents and exactly matches the corresponding public capture's
+feature/resource grids and starts. Baseline raw suitability was not retained;
+this establishes actual candidate support, not invented baseline score identity.
+
+The 98 existing sample expectations pass. The nearest 44 tests, fresh SDK
+simplicity review, builds, types and policy pass; the full definition suite
+passes `1,323` tests with only the retained temperature-variation aggregate
+failure. Realization passes `371` tests and Studio passes `412`. The full
+study bank and its one-degree requirement are unchanged. Native predicate
+evidence remains limited to the six inspected rainforest sites; owner proof
+is not fresh candidate-native placement, deployment or gameplay proof.
+
 ### Current Outcome Boundary (October 2)
 
 Native integration, C3 activation and retirement, coherent-reach restoration,
