@@ -6,6 +6,11 @@ import { artifacts as biomeArtifacts } from "../../../../../../../../src/domain/
 import { artifacts as featureArtifacts } from "../../../../../../../../src/domain/ecology/modules/features/artifacts/index.js";
 import ecology from "../../../../../../../../src/domain/ecology/router.js";
 import { artifacts as hydrographyArtifacts } from "../../../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
+import {
+  RIVER_CLASS_MAJOR,
+  RIVER_CLASS_MINOR,
+  RIVER_CLASS_NONE,
+} from "../../../../../../../../src/domain/hydrology/modules/hydrography/model/policy/river-class.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../../src/domain/morphology/modules/landforms/artifacts/index.js";
 import { artifacts as morphologyErosionArtifacts } from "../../../../../../../../src/domain/morphology/modules/erosion/artifacts/index.js";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
@@ -25,7 +30,13 @@ import {
 import { createEmptyFeatureScoreLayers } from "../../fixtures/feature-score-layers.js";
 
 describe("ecology-features plan-wetlands step", () => {
-  it("publishes marsh intent after admitted upstream feature intents", () => {
+  it.each([
+    "marsh",
+    "tundra-bog",
+    "mangrove",
+    "oasis",
+    "watering-hole",
+  ] as const)("publishes %s on flat none/minor-river land while preserving exclusions", (feature) => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const setup = admitMapSetup({
@@ -45,8 +56,36 @@ describe("ecology-features plan-wetlands step", () => {
     const ctx = createMapContext({ setup, adapter });
 
     withMapContextExecutionForTest(ctx, (stepContext) => {
+      const candidates = {
+        none: 0,
+        minor: 1,
+        major: 2,
+        submerged: 3,
+        mountain: 4,
+        hill: 5,
+        volcano: 6,
+        floodplain: 7,
+        ice: 8,
+        reef: 9,
+      };
       const layers = createEmptyFeatureScoreLayers(size);
-      layers.marsh.fill(1);
+      const lakeMask = new Uint8Array(size);
+      lakeMask[candidates.submerged] = 1;
+      const water = createEmptyWaterFixture(width, height, lakeMask);
+      for (const cell of Object.values(candidates)) {
+        layers[feature][cell] = 1;
+        water.hydrography.riverClass[cell] = RIVER_CLASS_MINOR;
+        water.hydrography.flowDir[cell] = cell + 1;
+      }
+      water.hydrography.riverClass[candidates.none] = RIVER_CLASS_NONE;
+      water.hydrography.riverClass[candidates.submerged] = RIVER_CLASS_NONE;
+      water.hydrography.riverClass[candidates.major] = RIVER_CLASS_MAJOR;
+      const mountainMask = new Uint8Array(size);
+      mountainMask[candidates.mountain] = 1;
+      const hillMask = new Uint8Array(size);
+      hillMask[candidates.hill] = 1;
+      const volcanoMask = new Uint8Array(size);
+      volcanoMask[candidates.volcano] = 1;
 
       publishTestArtifact(stepContext, biomeArtifacts.biomeClassification, {
         width,
@@ -60,11 +99,17 @@ describe("ecology-features plan-wetlands step", () => {
         height,
         layers,
       });
-      publishTestArtifact(stepContext, featureArtifacts.floodplainIntents, []);
-      publishTestArtifact(stepContext, featureArtifacts.iceIntents, []);
-      publishTestArtifact(stepContext, featureArtifacts.reefIntents, []);
-      publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, createEmptyWaterFixture(width, height).hydrography);
-      publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, createEmptyWaterFixture(width, height).lakePlan);
+      publishTestArtifact(stepContext, featureArtifacts.floodplainIntents, [
+        { x: candidates.floodplain, y: 0, feature: "grassland-floodplain-minor" },
+      ]);
+      publishTestArtifact(stepContext, featureArtifacts.iceIntents, [
+        { x: candidates.ice, y: 0, feature: "ice" },
+      ]);
+      publishTestArtifact(stepContext, featureArtifacts.reefIntents, [
+        { x: candidates.reef, y: 0, feature: "reef" },
+      ]);
+      publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, water.hydrography);
+      publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, water.lakePlan);
       publishTestArtifact(stepContext, morphologyErosionArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
@@ -73,10 +118,10 @@ describe("ecology-features plan-wetlands step", () => {
         bathymetry: new Int16Array(size),
       });
       publishTestArtifact(stepContext, morphologyLandformsArtifacts.mountains, {
-        mountainMask: new Uint8Array(size),
+        mountainMask,
         mountainRegionMask: new Uint8Array(size),
         mountainRegionIdByTile: new Int32Array(size).fill(-1),
-        hillMask: new Uint8Array(size),
+        hillMask,
         foothillMask: new Uint8Array(size),
         roughLandMask: new Uint8Array(size),
         orogenyPotential: new Uint8Array(size),
@@ -84,8 +129,8 @@ describe("ecology-features plan-wetlands step", () => {
         roughnessPotential: new Uint8Array(size),
       });
       publishTestArtifact(stepContext, morphologyLandformsArtifacts.volcanoes, {
-        volcanoMask: new Uint8Array(size),
-        volcanoes: [],
+        volcanoMask,
+        volcanoes: [{ tileIndex: candidates.volcano, kind: "intraplate", strength01: 1 }],
       });
 
       const config = {
@@ -104,7 +149,9 @@ describe("ecology-features plan-wetlands step", () => {
     });
 
     const intents = readArtifact(ctx, featureArtifacts.wetlandIntents);
-    expect(intents.length).toBeGreaterThan(0);
-    expect(intents.every(({ feature }) => feature === "marsh")).toBe(true);
+    expect(intents).toEqual([
+      { x: 0, y: 0, feature },
+      { x: 1, y: 0, feature },
+    ]);
   });
 });
