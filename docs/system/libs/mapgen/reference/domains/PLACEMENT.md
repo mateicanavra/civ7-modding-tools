@@ -236,6 +236,15 @@ published.
   (fertility/freshwater/climate-comfort/resource-support/roughness),
   tiering, four-rung selection ladder, fairness balancing, and seat identity.
 
+Start planning derives one requested homeland allocation from all regular
+candidates meeting the exact planned-site support floor and physical spacing
+ceiling. Resource count bands share that request; their feasible realization
+uses the existing ladder, fairness and explicit regional degradation. Requested
+seat/player identities do not change between band attempts. Each attempt owns
+fresh mutable selection identities, so a band's zero regional capacity cannot
+silently redefine the obligation against which its regional success is ranked.
+Reserve admission remains a recorded quality relaxation, not normal capacity.
+
 `domain/resources` composes four modules with level-local model authority:
 `demand` owns the one canonical expectation-and-habitat demand resolver and its
 closed admitted/excluded ledger, `habitat` owns habitat fields, `sites` owns

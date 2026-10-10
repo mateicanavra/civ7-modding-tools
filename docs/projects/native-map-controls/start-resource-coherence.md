@@ -57,9 +57,14 @@ selector. Select the strongest feasible result by completed player seating,
 existing rung/spacing guarantees, and candidate quality, with deterministic
 ties. Both the regular pool and quality-relaxed reserve obey the same resource
 band. No count-band admission promises capacity from unplaced alternatives.
-Regional quota ceilings are bounded by the band's admitted candidate count as
-well as the existing physical spacing ceiling. A balance bias cannot allocate
-a seat to an intrinsically unsupported island using its old land population.
+Requested homeland allocation is computed once from all floor-supported,
+tier-admitted regular candidates, bounded by their regional count and the
+existing physical spacing ceiling. A balance bias cannot create a normal
+request for an intrinsically unsupported homeland using its old land
+population. Every resource band receives fresh mutable seat identities with
+that same immutable requested allocation. Band-local candidate capacity then
+limits realization through the existing selection ladder and recorded regional
+relaxation; it does not redefine requests before ranking its own compliance.
 
 A complete resource band establishes planned-site floor and equity only. The
 unchanged ladder may still use a quality, region, or spacing relaxation; its
@@ -98,6 +103,54 @@ There is no acceptance by cohort pass count. If no admitted seat set can meet
 the product contract, preserve every player and publish explicit typed
 degradation/refusal through the existing product boundary. Do not label such
 seats full, relax habitat or floors silently, or hide scientific failure.
+
+### Stable Requests Across Resource Bands
+
+This refines the original band-local quota-ceiling decision above. The
+homeland design's D2 allocation precedes selection; D4 records failed regional
+realization as relaxation. Restricting allocation separately for each support
+band instead makes regional success incomparable. Standard Earthlike seed
+`1340` has globally supported regional capacities `1166/70` before the basin
+repair and `1165/70` after it; both apportion eight requests as `6/2`. A
+resource-rich `10..12` band has capacity `87/0` and previously redefined its
+request as `8/0`, outranking a balanced `3..5` band realizing `7/1` against
+`6/2`. Those eight regional successes satisfy a different request, not the
+shared homeland obligation.
+
+Keep the existing ordering: complete seating, hard spacing, achieved balance,
+regional compliance, then candidate quality and support tie-breaks. The
+`10..12` band must now record its two east-to-west reassignments. Each band's
+selection-region mutations remain local to that attempt; the original requested
+region and player identity remain stable. Quality-relaxed reserve admission,
+under-capacity top-up and lawful refusal retain their existing meanings. No
+fertility threshold, score gain, resource-site manufacture, policy knob or
+second selector is introduced. Full operation replay, including reserve
+rungs, and the unchanged cohort decide whether this owner correction repairs
+the observed downstream loss.
+
+The implemented correction passes 45 focused tests with 828 assertions and
+source/test TypeScript. Both new stable-request discriminators fail against
+the previous implementation and pass against the correction; the existing
+balanced regional-preference guard remains unchanged. Complete operation
+replay retains all fifteen bands, including reserve admission, and exactly
+reproduces the admitted operation output with immutable input and deterministic
+repeat. Current basin-corridor input selects `3..5`: requests `6/2`, realization
+`7/1`, all eight legal freshwater seats at spacing at least six, support
+`[3,4,3,3,3,3,5,3]`, balanced gap `0.08265420482797337` and fertility advantage
+`1.1796923673994837`. One east-to-west move remains explicitly degraded. The
+preceding qualified input retains exactly its former seats and measurements.
+Independent SDK review is aligned. Fresh owner graph, full unchanged bank and
+native realization are separate subsequent admission gates; focused success
+does not waive them.
+
+The normal 122-task owner check/build graph subsequently passes. The complete
+22-study, 57-scenario public evaluator closes the new placement-fertility
+failure with no new failures; all 4,430 expectation identities, descriptions and
+comparators remain byte-identical to the preceding qualified bank. Its sole
+retained failure is the unchanged independent within-row thermal requirement,
+not a placement waiver. Full Huge 1018 capture also preserves all 38 model
+fields, projection, resources and seats against the basin-only arm. This
+establishes portable admission of the owner correction, not native movement.
 
 ## Acceptance And Proof
 

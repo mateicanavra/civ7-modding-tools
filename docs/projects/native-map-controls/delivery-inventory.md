@@ -164,13 +164,58 @@ request. Globally supported candidates imply `6/2` requests in both arms; the
 poorer `10..12` band instead derives `8/0` and rewards itself as eight regional
 seats. The next placement-owner correction must hold requests stable across
 bands and expose existing realization relaxations without changing resource,
-spacing, fairness or fertility expectations. Native deployment of this combined
-candidate follows that independent qualification; the installed game above
-remains the previously qualified shoreline/consumer build.
+spacing, fairness or fertility expectations.
+
+The stable-request correction now closes that consequence. All fifteen resource
+bands, including reserve admission, use the same `6/2` request; the winning
+`3..5` band realizes `7/1`, preserving eight legal freshwater starts, spacing
+at least six, support floor/equity and one explicitly degraded regional move.
+Fertility advantage is `1.1796923673994837` and the balanced score gap is
+`0.08265420482797337`. Two focused counterfactual guards fail on the prior
+source and pass on the correction. Forty-five focused tests, source/test types,
+independent SDK review and the normal 122-task check/build graph pass. No
+comparator, scoring weight, physical field or resource parameter changes.
+
+The fresh complete 22-study, 57-scenario bank restores the placement-fertility
+expectation and adds no failures against the preceding qualified product.
+All `4,430` expectation identities, descriptions and comparators are unchanged.
+The sole retained failure is within-row land-temperature variation:
+`0.142881437915705 C` against the unchanged `>= 1 C` requirement. The aggregate
+therefore still exits nonzero; this is not reported as all-green science.
+A separate full Huge 1018 capture preserves all `38` model fields, the complete
+projection, resources, seats and provenance exactly against the basin-only
+capture. The physical paired viewer thus remains an exact view of this repair,
+not a rendering of a different placement-dependent hydrology arm.
+
+The combined qualified build is freshly installed and generation-tested in
+Civ7: Huge Earthlike, seeds `1018/1018`, ten players and `106x66`. All eight
+installed files match the build. The existing lifecycle leaves the active game
+and starts the exact requested seed without quitting the application. Final
+whole-map readback observes all `281` minor and `386` navigable sources with
+zero missing, extra, wrong-class or NAV-terrain mismatches. All `939` feature
+attempts apply without refusal. Existing exploration reveals all `6,996` cells,
+retains visibility and reaches quiescence; camera readback confirms `(24,10)`
+at zoom `.5`. This seals generation, installation, class realization and
+inspectability, not a fresh vessel arrival or native flow-direction proof.
+The new paired PNGs remain generated evidence, not native photographs.
+
+The moderate major-percentile discriminator is a separate next-study result,
+not a default change. On frozen final Huge 1018 hydrology, `.92` instead of
+`.88` reduces NAV sources `386 -> 290` while all `667` ANY-river sources and
+every physical input hold. Surviving directed NAV reaches retain exact cell
+order, but dry reach opportunities fall `104 -> 66`. The sealed historical
+Huge 2 control also reproduces its baseline exactly and retains its 44-cell
+trunk, yet loses `17/36` dry reaches and four wet-exit opportunities. That
+historical forcing is not a current-final Huge 2 comparator. Fresh current
+regional/downstream qualification and an explicit gameplay decision are needed
+before adopting a density policy; neither visual sparsity nor a Firaxis count
+establishes physical Earth density.
 
 Evidence is retained under `flat-shoreline-20261009/`, including
-`basin-corridor-huge1018-receipt.json`, `basin-corridor-bank.json` and
-`paired-basin/`. No private host identity or instance URL enters this ledger.
+`basin-corridor-huge1018-receipt.json`, `stable-homeland-bank-comparison.json`,
+`stable-homeland-starts1340-receipt.json`, `basin-stable-huge1018-holds.json`,
+`density-moderate/` and `paired-basin/`. No private host identity or instance
+URL enters this ledger.
 
 ## Prior Delivery Evidence
 
