@@ -180,6 +180,33 @@ NAV label proves vessel movement nor a dry-looking bed proves inadequate
 physical supply. Do not merge this witness with biome banding, minor cliff
 mouths or lake classification before a common cause is demonstrated.
 
+The retained receiver chain through that tile crosses the seam using the
+correct projected directions. Its native heights descend from 348 to 238;
+all 6,996 class readbacks agree with the authored river classes. A bounded
+native membership diagnostic finds all eight inspected corridor cells in the
+same 29-cell river object, with ocean connection reported for each. The
+singleton-object or uphill-routing explanation is not reproduced. These
+facts establish neither rendered mesh continuity nor vessel movement; matched
+pixels and era-appropriate movement remain the relevant next discriminators,
+not a speculative elevation or drainage rewrite.
+
+Sparse inland fisheries and total aquatic supply are separate Resources
+obligations; see [their declared comparison](resources.md#finite-fisheries-and-aquatic-supply).
+Island formation also remains separate: trace one retained shallow connection
+through relief, land selection, margin shaping and final exposure before
+adding new geological processes. Shallow water is not proof that land should
+have emerged.
+
+One artifact-selected transect on seed `-3641438`, cells `(57..59,26)`, is a
+three-cell finite body with surface 22 over ground 20. Its raw shelf support
+is discarded by the exterior-water mask; planned-lake projection supplies its
+COAST classification. It is not registered to the photographed island concern,
+and no earlier relief, formation or tectonic material was retained there.
+Therefore it neither establishes lost land nor disproves the broader island
+observation. No additional island experiment follows from this arbitrary finite
+body; resume on a specifically identified external connection or an explicit
+geography objective.
+
 That storage discriminator is now executed. Control reproduces all17 exposed
 physical plan fields exactly. Four finite owner replays produce byte-identical
 control/treatment repeats, with all265 source/Core pins held. Only the ten

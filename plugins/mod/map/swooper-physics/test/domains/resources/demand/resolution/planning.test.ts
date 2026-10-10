@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import {
   CIV7_BROWSER_TABLES_V0,
   type OfficialResourceType,
+  isResourceAdjacentToLandRuntimeOptional,
   resolveResourceRuntimeIds,
 } from "@civ7/map-policy";
 import {
@@ -175,6 +176,104 @@ describe("resource demand resolution", () => {
     expect(
       run(buildFixture()).candidates.excluded.ageDeferred.some(
         (candidate) => candidate.source.resourceType === "RESOURCE_TEA"
+      )
+    ).toBe(true);
+  });
+
+  it("admits unfrozen finite Fish without broadening the other aquatic habitat predicates", () => {
+    const source = resolveHabitatSource("RESOURCE_FISH", {
+      coastalWaterMask: oneAt(4),
+      shelfMask: oneAt(8),
+      lakeMask: maskAt(5, 6),
+      iceMask: oneAt(6),
+    });
+    expect(requireSignal("RESOURCE_FISH").primary).toEqual([
+      "coastalWaterMask",
+      "shelfMask",
+      "lakeMask",
+    ]);
+    expect(requireSignal("RESOURCE_FISH").suppress).toEqual(["iceMask"]);
+    expect(source.habitatTileCount).toBe(3);
+    expect(source.habitatMask).toEqual(maskAt(4, 5, 8));
+    expect(source.habitatMask[7]).toBe(0);
+
+    for (const [resourceType, primary, suppress] of [
+      [
+        "RESOURCE_PEARLS",
+        ["warmShallowWaterMask", "reefOrProtectedShallowsMask"],
+        ["lakeMask", "iceMask"],
+      ],
+      ["RESOURCE_WHALES", ["coldProductiveWaterMask", "shelfMask"], ["lakeMask", "iceMask"]],
+      [
+        "RESOURCE_CRABS",
+        ["estuaryMask", "navigableRiverMouthMask", "coastalWaterMask"],
+        ["iceMask"],
+      ],
+      [
+        "RESOURCE_COWRIE",
+        ["warmShallowWaterMask", "reefOrProtectedShallowsMask"],
+        ["lakeMask", "iceMask"],
+      ],
+      [
+        "RESOURCE_TURTLES",
+        ["warmShallowWaterMask", "reefOrProtectedShallowsMask", "coastalWaterMask"],
+        ["lakeMask", "iceMask"],
+      ],
+    ] as const) {
+      expect(requireSignal(resourceType).primary, resourceType).toEqual(primary);
+      expect(requireSignal(resourceType).suppress, resourceType).toEqual(suppress);
+    }
+    expect(resolveHabitatSource("RESOURCE_CRABS", { lakeMask: oneAt(5) }).habitatTileCount).toBe(0);
+  });
+
+  it("keeps finite Fish subject to official surfaces, adjacency, river exclusion, age, and range", () => {
+    const baseline = buildFixture("RESOURCE_FISH");
+    const marine = 8 * width;
+    const shore = 8 * width + 8;
+    const frozen = 8 * width + 16;
+    const wrongSurface = 8 * width + 24;
+    const river = 8 * width + 32;
+    const interior = 8 * width + 40;
+    const engineWaterMask = new Uint8Array(size).fill(1);
+    for (const plot of [marine, shore, frozen, wrongSurface, river]) {
+      engineWaterMask[plot + 1] = 0;
+    }
+    const featureType = Int32Array.from(baseline.legalitySurface.featureType);
+    featureType[wrongSurface] = -12345;
+    const result = run({
+      ...baseline,
+      coastalWaterMask: oneAt(marine),
+      shelfMask: new Uint8Array(size),
+      lakeMask: maskAt(shore, frozen, wrongSurface, river, interior),
+      iceMask: oneAt(frozen),
+      legalitySurface: { ...baseline.legalitySurface, engineWaterMask, featureType },
+      riverMasks: [oneAt(river)],
+    });
+    const fish = result.candidates.admitted.find(
+      (row) => row.source.resourceType === "RESOURCE_FISH"
+    );
+    if (!fish) throw new Error("Missing admitted finite Fish fixture.");
+
+    expect(fish.source.habitatTileCount).toBe(5);
+    expect(fish.source.habitatMask[shore]).toBe(1);
+    expect(fish.source.habitatMask[frozen]).toBe(0);
+    expect(fish.source.habitatMask[interior]).toBe(1);
+    expect(fish.demand.eligibleTileCount).toBe(3);
+    for (const plot of [marine, shore, interior]) expect(fish.demand.legalMask[plot]).toBe(1);
+    for (const plot of [wrongSurface, river]) expect(fish.demand.legalMask[plot]).toBe(0);
+    expect(
+      isResourceAdjacentToLandRuntimeOptional(
+        resolveResourceRuntimeIds().byType.get("RESOURCE_FISH")!.resourceTypeId
+      )
+    ).toBe(true);
+    expect(fish.source.expectedCountRange).toMatchObject({ min: 6, target: 9, max: 12 });
+    expect(result.age).toBe(INITIAL_MAP_RESOURCE_AUTHORING_AGE);
+    for (const age of ["AGE_ANTIQUITY", "AGE_EXPLORATION", "AGE_MODERN"] as const) {
+      expect(getInitialMapResourcePolicyForType("RESOURCE_FISH", age)?.status).toBe("eligible");
+    }
+    expect(
+      result.candidates.excluded.ageDeferred.some(
+        (row) => row.source.resourceType === "RESOURCE_WHALES"
       )
     ).toBe(true);
   });
@@ -437,8 +536,12 @@ describe("resource demand resolution", () => {
   }
 
   function oneAt(plotIndex: number): Uint8Array {
+    return maskAt(plotIndex);
+  }
+
+  function maskAt(...plotIndices: number[]): Uint8Array {
     const mask = new Uint8Array(size);
-    mask[plotIndex] = 1;
+    for (const plotIndex of plotIndices) mask[plotIndex] = 1;
     return mask;
   }
 
@@ -454,7 +557,7 @@ describe("resource demand resolution", () => {
     const habitatMasks = Object.fromEntries(
       HABITAT_MASK_FIELD_NAMES.map((field) => [
         field,
-        new Uint8Array(size).fill(primaryFields.has(field) ? 1 : 0),
+        new Uint8Array(size).fill(primaryFields.has(field) && field !== "lakeMask" ? 1 : 0),
       ])
     ) as Record<(typeof HABITAT_MASK_FIELD_NAMES)[number], Uint8Array>;
     if (habitatMode === "empty-primary-habitat") {

@@ -173,7 +173,7 @@ const quantilePhysicalLanesStrategy = createStrategy(Contract, StrategyDefinitio
     const warmShallowWaterMask = mask((i) => (seaCoastal(i) || seaShelf(i)) && T(i) >= 19);
     const coldProductiveWaterMask = mask((i) => (seaCoastal(i) || seaShelf(i)) && T(i) <= 12);
     const reefOrProtectedShallowsMask = mask((i) => (seaCoastal(i) || seaShelf(i)) && T(i) >= 22);
-    const iceMask = mask((i) => sea(i) && ((seaIce?.[i] ?? 0) >= 128 || T(i) <= -4));
+    const iceMask = mask((i) => grids.water(i) && ((seaIce?.[i] ?? 0) >= 128 || T(i) <= -4));
 
     const riverAdjacentWater = (minClass: number): Uint8Array =>
       mask((i) => {
@@ -303,6 +303,22 @@ const quantilePhysicalLanesStrategy = createStrategy(Contract, StrategyDefinitio
         aquaticIntensity[i] = Math.min(
           1,
           0.4 + (coastalWater[i] === 1 ? 0.3 : 0) + (shelfWater[i] === 1 ? 0.3 : 0)
+        );
+        continue;
+      }
+      if (grids.water(i) && grids.lake(i)) {
+        if (iceMask[i] === 1) continue;
+        const y = (i / width) | 0;
+        const x = i - y * width;
+        let adjacentExposedLand = false;
+        let adjacentPhysicalRiver = false;
+        for (const n of getHexNeighborIndicesOddQ(x, y, width, height)) {
+          if (landMask[n] === 1) adjacentExposedLand = true;
+          if (landMask[n] === 1 && (riverClass[n] ?? 0) >= 1) adjacentPhysicalRiver = true;
+        }
+        aquaticIntensity[i] = Math.min(
+          1,
+          0.4 + (adjacentExposedLand ? 0.3 : 0) + (adjacentPhysicalRiver ? 0.3 : 0)
         );
         continue;
       }

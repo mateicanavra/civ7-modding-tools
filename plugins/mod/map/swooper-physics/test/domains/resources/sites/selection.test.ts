@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { CIV7_BROWSER_TABLES_V0, resolveResourceRuntimeIds } from "@civ7/map-policy";
 import { admitPositiveResourceRegionMinimum } from "../../../../src/domain/resources/index.js";
 
 import resources from "../../../../src/domain/resources/router.js";
@@ -117,6 +118,192 @@ function run(
 }
 
 describe("select-resource-sites operation contract", () => {
+  it("distinguishes normal finite Fish rotation from the unchanged frozen legal-only minimum", () => {
+    const landMask = new Uint8Array(cellCount).fill(1);
+    const lakeMask = new Uint8Array(cellCount);
+    const coastalWater = new Uint8Array(cellCount);
+    const shelfWater = new Uint8Array(cellCount);
+    const riverClass = new Uint8Array(cellCount);
+    const temperature = new Float32Array(cellCount).fill(10);
+    const seaIceCover = new Uint8Array(cellCount);
+    const biomeType = new Int32Array(cellCount).fill(-1);
+    const terrainType = new Int32Array(cellCount).fill(-1);
+    const featureType = new Int32Array(cellCount).fill(-1);
+    const engineWaterMask = new Uint8Array(cellCount);
+    const fishId = resolveResourceRuntimeIds().byType.get("RESOURCE_FISH")?.resourceTypeId;
+    if (fishId === undefined) throw new Error("Missing official Fish runtime id.");
+    const placementRows: Readonly<
+      Record<string, readonly (readonly [number, number, number])[] | undefined>
+    > = CIV7_BROWSER_TABLES_V0.resourceValidPlacementRows;
+    const placementRow = placementRows[String(fishId)]?.[0];
+    if (!placementRow) throw new Error("Missing official Fish placement row.");
+    const finitePlots: number[] = [];
+    for (const y of [8, 16]) {
+      for (const x of [8, 16, 24, 32, 40, 48]) finitePlots.push(y * width + x);
+    }
+    const marinePlots = [8 * width, 16 * width];
+    const frozenTemperature = 24 * width + 8;
+    const frozenCover = 24 * width + 16;
+    const wrongSurface = 24 * width + 24;
+    const excludedRiver = 24 * width + 32;
+    const dry = 24 * width + 40;
+    const finiteControls = [frozenTemperature, frozenCover, wrongSurface, excludedRiver];
+    for (const plot of [...finitePlots, ...marinePlots, ...finiteControls]) {
+      landMask[plot] = 0;
+      engineWaterMask[plot] = 1;
+      // Physical finite water uses the same legal coast row, not a native lake identity.
+      biomeType[plot] = placementRow[0];
+      terrainType[plot] = placementRow[1];
+      featureType[plot] = placementRow[2];
+    }
+    for (const plot of [...finitePlots, ...finiteControls]) {
+      lakeMask[plot] = 1;
+      riverClass[plot + 1] = 1;
+    }
+    for (const plot of marinePlots) {
+      coastalWater[plot] = 1;
+      shelfWater[plot] = 1;
+    }
+    temperature[frozenTemperature] = -4;
+    seaIceCover[frozenCover] = 128;
+    featureType[wrongSurface] = -12345;
+    const riverMask = maskFromPlots(excludedRiver);
+
+    const physicalInput = {
+      width,
+      height,
+      landMask,
+      lakeMask,
+      coastalWater,
+      shelfWater,
+      riverClass,
+      surfaceTemperature: temperature,
+      seaIceCover,
+      aridityIndex: new Float32Array(cellCount),
+      effectiveMoisture: new Float32Array(cellCount),
+      vegetationDensity: new Float32Array(cellCount),
+      fertility: new Float32Array(cellCount),
+      elevation: new Int16Array(cellCount),
+      hillMask: new Uint8Array(cellCount),
+      mountainMask: new Uint8Array(cellCount),
+    };
+    const habitat = runAdmittedOperationForTest(
+      resources.habitat.ops.deriveHabitatFields,
+      physicalInput,
+      resources.habitat.ops.deriveHabitatFields.defaultConfig
+    );
+    const resolved = runAdmittedOperationForTest(
+      resources.demand.ops.resolveResourceDemands,
+      {
+        ...habitat,
+        legalitySurface: { biomeType, terrainType, featureType, engineWaterMask },
+        riverMasks: [riverMask],
+      },
+      resources.demand.ops.resolveResourceDemands.defaultConfig
+    );
+    const fish = resolved.candidates.admitted.find(
+      (row) => row.source.resourceType === "RESOURCE_FISH"
+    );
+    if (!fish) throw new Error("Missing admitted physical finite Fish demand.");
+    const landmassIdByTile = new Int32Array(cellCount);
+    for (let i = 0; i < cellCount; i++) if (landMask[i] === 0) landmassIdByTile[i] = -1;
+    const fishDemand: SelectInput["demands"][number] = {
+      resourceType: fish.source.resourceType,
+      family: fish.source.family,
+      laneId: fish.source.laneId,
+      laneKind: fish.source.laneKind,
+      targetCount: fish.source.targetIntentCount,
+      minCount: fish.source.expectedCountRange.min,
+      maxCount: fish.source.expectedCountRange.max,
+      habitatMask: fish.source.habitatMask,
+      habitatTileCount: fish.source.habitatTileCount,
+      ...fish.demand,
+    };
+    const input: SelectInput = {
+      width,
+      height,
+      seed: TEST_MAP_SEED,
+      landMask,
+      lakeMask,
+      landmassIdByTile,
+      landmassTileCounts: [countMask(landMask)],
+      regionSlotByTile: new Uint8Array(cellCount).fill(1),
+      demands: [fishDemand],
+    };
+    const result = run(input);
+    const finiteIntents = result.intents.filter((intent) => lakeMask[intent.plotIndex] === 1);
+
+    expect(fish.source.expectedCountRange).toMatchObject({ min: 6, target: 9, max: 12 });
+    expect(result.plannedCount).toBe(9);
+    expect(result.rotationCount).toBe(9);
+    expect(result.rangeFloorCount).toBe(0);
+    expect(result.regionMinimumCount).toBe(0);
+    expect(finiteIntents.length).toBeGreaterThan(0);
+    expect(finiteIntents.length).toBeLessThan(finitePlots.length);
+    expect(result.regionMinimums).toMatchObject([{ required: 1, forced: 0, shortfall: 0 }]);
+    for (const intent of result.intents) {
+      expect(intent).toMatchObject({ phase: "rotation", inHabitat: true, laneKind: "water" });
+      expect(fish.demand.legalMask[intent.plotIndex]).toBe(1);
+      expect(habitat.iceMask[intent.plotIndex]).toBe(0);
+      expect([wrongSurface, excludedRiver, dry]).not.toContain(intent.plotIndex);
+    }
+    for (let i = 0; i < result.intents.length; i++) {
+      for (let j = i + 1; j < result.intents.length; j++) {
+        expect(
+          hexDistanceOddQPeriodicX(result.intents[i]!.plotIndex, result.intents[j]!.plotIndex, width)
+        ).toBeGreaterThanOrEqual(4);
+      }
+    }
+    expect(run(input).intents).toEqual(result.intents);
+
+    // The official regional floor is deliberately legal-only, not a normal habitat lane.
+    temperature.fill(-4);
+    for (const plot of marinePlots) featureType[plot] = -12345;
+    const frozenHabitat = runAdmittedOperationForTest(
+      resources.habitat.ops.deriveHabitatFields,
+      physicalInput,
+      resources.habitat.ops.deriveHabitatFields.defaultConfig
+    );
+    const frozenResolution = runAdmittedOperationForTest(
+      resources.demand.ops.resolveResourceDemands,
+      {
+        ...frozenHabitat,
+        legalitySurface: { biomeType, terrainType, featureType, engineWaterMask },
+        riverMasks: [riverMask],
+      },
+      resources.demand.ops.resolveResourceDemands.defaultConfig
+    );
+    const frozenFish = frozenResolution.candidates.admitted.find(
+      (row) => row.source.resourceType === "RESOURCE_FISH"
+    );
+    if (!frozenFish) throw new Error("Missing legal-only frozen finite Fish demand.");
+    expect(frozenFish.source.habitatTileCount).toBe(0);
+    expect(frozenFish.demand.eligibleTileCount).toBe(0);
+    const legalOnly = run({
+      ...input,
+      demands: [
+        {
+          ...fishDemand,
+          targetCount: frozenFish.source.targetIntentCount,
+          habitatMask: frozenFish.source.habitatMask,
+          habitatTileCount: frozenFish.source.habitatTileCount,
+          ...frozenFish.demand,
+        },
+      ],
+    });
+    expect(legalOnly.plannedCount).toBe(1);
+    expect(legalOnly.rotationCount).toBe(0);
+    expect(legalOnly.rangeFloorCount).toBe(0);
+    expect(legalOnly.regionMinimumCount).toBe(1);
+    expect(legalOnly.intents).toMatchObject([{ phase: "region-minimum", inHabitat: false }]);
+    expect(legalOnly.regionMinimums).toMatchObject([{ required: 1, forced: 1, shortfall: 0 }]);
+    const legalOnlyPlot = legalOnly.intents[0]!.plotIndex;
+    expect(lakeMask[legalOnlyPlot]).toBe(1);
+    expect(frozenHabitat.iceMask[legalOnlyPlot]).toBe(1);
+    expect(frozenHabitat.aquaticIntensity[legalOnlyPlot]).toBe(0);
+    expect(frozenFish.demand.legalMask[legalOnlyPlot]).toBe(1);
+  });
+
   describe("range completion competition", () => {
     // Both candidates fail seed 7331's thinning gate (draws 0.356 and 0.738).
     // A single false contest penalty would outweigh their 0.02 intensity gap.

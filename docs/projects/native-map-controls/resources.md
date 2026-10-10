@@ -119,3 +119,115 @@ The setup-parameter census changes from 63 to 65 rows for shipped sea-level
 variants `shuffle-voronoi` and `terra-incognita-voronoi`; the 56 unique IDs,
 16 groups and 31-column invariants remain. Binary `Earth_Huge.Civ7Map` is
 recorded as a non-script asset, never a JavaScript declaration root.
+
+## Finite Fisheries And Aquatic Supply
+
+### Consumer Repair
+
+The retained Huge Earthlike seed `-1152948646` has 226 positive-depth finite
+water cells, including 111 that do not receive native lake identity. The
+resource owner receives their physical mask, but Fish's primary habitat omits
+it, its suppression includes it, and aquatic intensity is zero there. All
+nine Fish intents are selected on exterior water. This is a consumer omission,
+not evidence that the native resource writer rejected inland Fish.
+
+Use the existing Resources habitat/demand operations. Admit the physical
+finite-water mask as a Fish primary lane and retain ice suppression. Give
+unfrozen finite water the existing aquatic baseline intensity plus the same
+bounded shore and shore-adjacent physical-river bonuses; those are placement preferences,
+not estimates of biomass or salinity. Preserve marine intensity byte-for-byte
+and the other resource predicates. Apply the existing ice predicate to all
+physical water, including finite water. No new artifact, strategy, body quota,
+climate computation or native-category workaround is needed.
+
+The official schema defaults `LakeEligible` to true and Fish does not override
+it; Fish is available in all three ages. Ordinary engine legality and adjacency
+still decide candidate admission. Whales are not an Antiquity resource and
+explicitly exclude lakes; their absence in these turn-one games is not itself
+a bug. Do not broaden every marine species merely because Fish can be inland.
+
+Removing the suppressor alone leaves the primary/intensity omission intact.
+A separate freshwater field adds redundant machinery without a demonstrated
+distinct consumer. Both alternatives are rejected for this repair.
+
+### Expectations Before Implementation
+
+| Obligation | Expected Result | Proof |
+| --- | --- | --- |
+| Finite Fish admission | Eligible unfrozen shore/river-adjacent cells can be selected, independent of native lake classification | Mixed-water operation controls; retained Huge captures; existing size/seed cohort |
+| Frozen or dry finite cells | No Fish admission; no invented wetness | Ice, exposure and legality controls |
+| Marine and non-Fish habitat | Exact identity outside the deliberate finite-water/ice changes | Field comparisons and nearest domain tests |
+| Physics and policy | Physical fields, age rules, count ranges, regional minima and spacing unchanged | Fixed-input capture and public study evaluation |
+| Placement outcome | Deterministic legal Fish selections; no promise of one Fish per body or every seed | Site-selection tests and cohort distribution |
+| Native outcome | Authored finite Fish appears in the matched fresh game | Realization deploy, log and map readback |
+
+A changed non-Fish site caused by lawful Fish occupancy is not a habitat
+change. Record that consequence rather than promising every final site holds.
+This repair may redistribute the existing nine Fish away from the sea; it is
+not admission of a richer total supply policy.
+
+The focused implementation read qualifies the frozen-cell expectation above:
+it applies to habitat admission and normal rotation, not the existing
+legal-only regional-minimum phase. That phase can intentionally use an
+officially legal habitat-suppressed site to satisfy an admitted regional floor;
+this repair does not change its authority. Retain a discriminator for the two
+phases rather than asserting a new universal placement ban. The generated
+policy also already admits Fish interiors through its explicit runtime-optional
+adjacency disposition; do not add a new shore-only legal restriction here.
+
+### Separate Abundance Comparison
+
+The photographed Huge game's 1,596 coastal cells receive nine Fish and seven
+Crabs. Existing fixed count caps limit the aquatic-density knob; coast area
+alone is not a defensible economic denominator. Compare a prospective
+alive-major-player supply envelope (Fish `2P/3P/4P`, Crabs
+`round(0.5P)/P/round(1.5P)`) against the repaired current policy and the current
+policy at aquatic density two. This is authored gameplay supply, not an Earth
+biological constant or a guarantee that habitat capacity satisfies demand.
+
+Use the existing Earthlike/deep-ocean nine-scenario size/seed cohort: all five
+sizes at seed 1337, plus Standard/Huge seeds 7 and 42. Hold actual numerical
+spacing: the current target-count switch at twelve must not silently relax
+spacing in this comparison. Demand-owner ranges, artifact validation, age,
+legality, start support and the existing twenty-seed placement guards remain
+authoritative. No default adoption is claimed before these results.
+
+### Finite Consumer Verification
+
+The three focused resource suites pass 45 tests. Source and test types pass;
+fresh SDK and consumer reviews found no material issue. The complete owner
+graph passes its build, type and policy tasks, 371 realization tests and 412
+Studio tests. Definition tests report 1,230 passing and the one existing
+within-row temperature-variation expectation failing; that climate requirement
+is unchanged and is not a resource regression.
+
+The nine authored size/seed scenarios and two retained Huge negatives pass
+539 unchanged sample expectations and one deep-ocean cohort expectation.
+All 99 Fish selections are ordinary rotation, in authored habitat and
+headless-policy legal. Actual Fish ranges remain `6/9/12`, spacing remains four
+tiles, and no same-type spacing violations occur. Both negatives preserve all
+38 model properties, eight projection properties, thirteen non-resource
+observations and 54 non-Fish candidate evidence records. Fish admission changes
+only at finite water: 206 added habitat cells in seed `-1152948646`, 198 in
+seed `-3641438`; no exterior or dry cells change.
+
+Lawful occupancy changes final resource sites. The first negative retains all
+ten seats; the second replaces one seat location and changes player allocation
+among seats, retaining ten full regional seats with no unseated or imputed
+result. Record this downstream effect, not an invented final-placement hold.
+
+Fresh Huge Civ7 generation at map/game seeds `-1152948646/-1152948677` with ten
+players completes through the existing realization target in 29.1 seconds,
+including orchestration. All nine authored Fish appear, including physical
+finite water at `(102,33)` that Civ classifies as coastal non-lake water, and
+at `(1,42)` that Civ classifies as a lake. All 6,996 native terrain, biome,
+water, lake, elevation, river-class and feature readbacks hold against the
+pre-repair game; all ten founder locations match the source plan. This proves
+finite Fish realization without forcing native lake classification.
+
+Five exact non-Fish source/native omissions already present in that baseline
+remain unchanged: Flax, Iron, Wild Game, Silver and Hardwood. Native totals are
+210 rather than the headless plan's 215. Their causes remain separate from
+this repaired habitat omission; do not claim universal resource parity.
+Whale age admission, richer marine supply and vessel movement are not proven
+by this finite-Fish change.

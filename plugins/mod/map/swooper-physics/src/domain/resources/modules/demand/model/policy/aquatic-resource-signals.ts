@@ -13,7 +13,8 @@ export type AquaticMaskField =
   | "coldProductiveWaterMask"
   | "reefOrProtectedShallowsMask"
   | "estuaryMask"
-  | "navigableRiverMouthMask";
+  | "navigableRiverMouthMask"
+  | "lakeMask";
 
 export type AquaticSuppressionField = "lakeMask" | "iceMask";
 
@@ -29,8 +30,8 @@ export type AquaticResourceSignals = {
  */
 export const AQUATIC_SIGNALS: Record<AquaticResourceType, AquaticResourceSignals> = {
   RESOURCE_FISH: {
-    primary: ["coastalWaterMask", "shelfMask"],
-    suppress: ["lakeMask", "iceMask"],
+    primary: ["coastalWaterMask", "shelfMask", "lakeMask"],
+    suppress: ["iceMask"],
   },
   RESOURCE_PEARLS: {
     primary: ["warmShallowWaterMask", "reefOrProtectedShallowsMask"],

@@ -35,7 +35,7 @@ const DeriveHabitatFieldsContract = defineOp({
       width: Type.Integer({ minimum: 1 }),
       height: Type.Integer({ minimum: 1 }),
       landMask: u8("Land mask per tile (1=land, 0=water)."),
-      lakeMask: u8("Deterministic lake plan mask (1=lake)."),
+      lakeMask: u8("Positive-depth physical finite-water mask (1=finite water)."),
       coastalWater: u8("Water tiles adjacent to land in the carved Morphology coastline."),
       shelfWater: u8("Water tiles admitted to the Morphology continental shelf."),
       riverClass: u8("Hydrology river class per tile (0=none,1=minor,2=major)."),
