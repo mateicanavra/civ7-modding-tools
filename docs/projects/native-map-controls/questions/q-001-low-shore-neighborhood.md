@@ -148,6 +148,12 @@ The [original evidence packet][original-question] preserves the historical
 decisions and test references. They are provenance, not newly executed boundary
 experiments or scientific validation.
 
+Two related questions distinguish other wetland mechanisms from geometry:
+[Q-004](q-004-point-water-support.md) concerns localized water support excluded
+by the floodplain substrate proxy, while [Q-005](q-005-wetland-suitability.md)
+concerns individual family responses and shared admission. Their retained-case
+observations do not settle this sheet's boundary or distance questions.
+
 [coastal-rule]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/rules/coastal-land-mask.ts
 [substrate-strategy]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/strategies/hydromorphic/index.ts
 [substrate-config]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/strategies/hydromorphic/config.ts

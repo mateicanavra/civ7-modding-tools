@@ -100,6 +100,8 @@ These are navigation pointers, not copied investigations or new dispositions.
 - [Low-shore neighborhood semantics](#q-001-low-shore-neighborhood-semantics)
 - [Ecological prevalence and benchmark authority](#q-002-ecological-prevalence-and-benchmark-authority)
 - [Relief bounds and admitted support](#q-003-relief-bounds-and-admitted-support)
+- [Point-water habitat support](#q-004-point-water-habitat-support)
+- [Wetland suitability and admission](#q-005-wetland-suitability-and-admission)
 
 ### Ecology / Features / Score Layers
 
@@ -109,6 +111,24 @@ The source distinguishes generic low-shore support from marine intertidal
 eligibility. Whether its clipped square proximity window has the intended
 boundary behavior and physical support remains open; no placement harm is
 established. [Read the research question](questions/q-001-low-shore-neighborhood.md).
+
+#### Q-004: Point-Water Habitat Support
+
+Two retained headless Earthlike cases lose every oasis/watering-hole precursor
+to a broad floodplain substrate exclusion before climate scoring. The loss is
+demonstrated for those inputs; physical source/inundation meaning and adequate
+occurrence remain open. This is distinct from Q-001's neighborhood geometry.
+[Read the research question](questions/q-004-point-water-support.md).
+
+### Ecology / Features / Scoring And Wetland Planning
+
+#### Q-005: Wetland Suitability And Admission
+
+Marsh, tundra bog and mangrove already have distinct responses followed by a
+shared admission floor. Retained headless losses occur in scoring or admission,
+not later competition for otherwise qualifying sites. Physical response and
+the shared floor's meaning remain unassessed; rarity alone selects no repair.
+[Read the research question](questions/q-005-wetland-suitability.md).
 
 ### Benchmark Authority / Ecological Prevalence
 
