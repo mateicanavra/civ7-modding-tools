@@ -252,6 +252,67 @@ acceptance require separate correlated evidence. Review this complete owner
 change before merging or selecting another consumer; do not run additional worlds or
 broad science campaigns to replace this bounded proof.
 
+### Completed Mangrove Pair
+
+The sealed production consumer closes the selected retained witness through
+eight actual recipe steps and fifty owner-operation calls. Mangrove scores,
+wetland intentions and subsequent vegetation intentions match the discriminator
+exactly. Other score families, climate/cryosphere and authentic retained inputs
+hold; this is not a resources/starts continuation from incomplete raw inputs.
+
+Exactly two complete public recipes then compare Standard map/game seed `1`
+and Huge map/game seed `2` against the sealed bog pair. All forty-one public
+model fields, their typed-array contracts, physical projection, terrain, biome
+and water readback hold exactly before downstream attribution. Package source
+trees hold with the previously disclosed compiled grid-entrypoint bridge, not
+a claim that every compiled byte is identical. Both existing integrity targets
+pass all forty-nine expectations; no observation hook or new runtime instrument
+was added. Final feature changes are precisely eight and thirty-three
+rainforest-to-mangrove cells, with no headless feature refusal.
+
+| Observed Consequence | Standard 1 | Huge 2 |
+| --- | --- | --- |
+| Changed resource cells | 23 | 16 |
+| Total placed resources | 223 to 224 | 240 to 246 |
+| Clay / Kaolin / Rice | 6/0/0 to 7/1/1 | 6/0/0 to 8/2/6 |
+| Mangos | 2 to 1 | 5 to 1 |
+| Players with changed seat coordinates | 4 of 8 | 5 of 10 |
+| Worst published start-score gap | 0.091495 to 0.058800 | 0.082232, unchanged |
+| Minimum start spacing | 11, unchanged | 10 to 9 |
+| Global start-dispersion index | 1.011266 to 1.065929 | 0.866291 to 0.790411 |
+| Radius-four resource support per start | 4-6 to 3-5 | 2-4 to 3-5 |
+
+Resource habitat masks and admitted target/range/spacing controls hold. Official
+feature legality changes the available sites: the new feature admits more Clay,
+Kaolin and Rice but removes rainforest-only Mango opportunity. Huge Mango
+eligible sites fall from twenty-six to zero; the remaining resource is an
+existing legal-only regional-minimum placement, not player support or proof of
+a viable Mango range. Its recorded target shortfall rises from zero to four.
+Standard Wool
+also changes from seven to six. Total resource count is therefore not a verdict
+that all supply improved. No resource target, feature floor or physical field
+was changed to conceal this tradeoff.
+
+All eight/ten players remain fully seated on legal dry land with freshwater,
+without fallback, imputation or region relaxation. Resource support remains
+three to five per start, gap two, with no shortfall. Natural-wonder placements
+hold exactly. The existing placement and resource-distribution targets pass on
+this two-map pair before and after; that does not qualify the full stable-seed
+cohort. Resource and seat coordinates are explicitly not invariant.
+Huge start dispersion worsens while its score gap holds; the existing dispersion
+requirement is a cohort mean, not a per-map floor. The two-case candidate mean is
+`0.928170`, above `0.85`, without establishing full-cohort qualification.
+
+Annual within-row temperature variation remains exactly `0.178088` and
+`0.129471 C`, below the unchanged one-degree requirement. No new climate claim
+or full-bank calibration run follows from this consumer correction. The
+definition check passes all fifty-six Habitat rules and typing/build checks;
+forty-eight focused tests pass 803 assertions. The realization build/loader
+gate passes eleven tests and seventy assertions across all three generated map
+bundles. Installation and native acceptance remain separate proof boundaries;
+headless legal placement does not prove engine feasibility or real intertidal
+conditions.
+
 [mangrove-nutrients]: https://www.frontiersin.org/journals/marine-science/articles/10.3389/fmars.2016.00271/full
 [mangrove-establishment]: https://pmc.ncbi.nlm.nih.gov/articles/PMC3080477/
 [mangrove-habitat]: https://oceanservice.noaa.gov/education/tutorial_estuaries/est07_adaptations.html

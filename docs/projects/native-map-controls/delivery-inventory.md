@@ -17,6 +17,21 @@ replay. Historical eight-product captures remain immutable comparison evidence.
 
 ## Current Product Closure
 
+The [mangrove consumer qualification](wetland-consumer-coherence.md#completed-mangrove-pair)
+removes only composite soil fertility from coarse marine-low-shore occurrence,
+retiring its input, recipe binding and authored control. Warmth, climatic
+dryness, marine/relief, official compatibility, flatness, occupancy and per-map
+floors remain. Actual retained owners close the selected eight/thirty-three
+rainforest replacements. Exactly two complete paired recipes hold all
+forty-one public model fields and physical projection while producing the same
+final mangrove changes. Resource/seat identity does not hold: resource counts
+rise but Mango supply falls, and four/five players change coordinates. All
+players remain legally seated with freshwater and supported resources; wonders
+hold and both integrity targets pass. The existing placement/resource targets
+also pass on this bounded pair, not the full seed bank. The unchanged regional
+thermal failure remains explicit. This is consumer/downstream qualification,
+not fresh native acceptance or measured tidal/salinity/nutrient conditions.
+
 The latest [bog consumer repair](wetland-consumer-coherence.md#qualified-outcome)
 removes generic soil fertility as a tundra-bog prerequisite while retaining
 atmospheric-water, cold/freeze, substrate, compatibility and placement policy.
