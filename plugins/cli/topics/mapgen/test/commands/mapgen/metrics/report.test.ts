@@ -2,11 +2,16 @@ import { Command } from "@oclif/core";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import MapgenMetricsReport from "../../../../src/commands/mapgen/metrics/report";
 
-const { evaluate } = vi.hoisted(() => ({ evaluate: vi.fn() }));
+const { evaluate, selectStudies, coreStudies, allStudies } = vi.hoisted(() => ({
+  evaluate: vi.fn(),
+  selectStudies: vi.fn(),
+  coreStudies: [{ id: "representative-study" }],
+  allStudies: [{ id: "representative-study" }, { id: "configuration-stress-study" }],
+}));
 
 vi.mock("@swooper/swooper-physics/standard/metrics", () => ({
   evaluateStandardMetricStudies: evaluate,
-  STANDARD_METRIC_STUDIES: [{ id: "representative-study" }],
+  selectStandardMetricStudies: selectStudies,
 }));
 
 const evaluation = {
@@ -66,6 +71,8 @@ describe("MapGen metrics report command", () => {
       stderr.push(args.join(" "));
     });
     originalLog = console.log;
+    selectStudies.mockReset();
+    selectStudies.mockImplementation((scope) => scope === "all" ? allStudies : coreStudies);
     evaluate.mockReset();
     evaluate.mockImplementation(() => {
       console.log("metric telemetry", 42);
@@ -81,7 +88,8 @@ describe("MapGen metrics report command", () => {
   test("isolates evaluator telemetry from the single JSON report and restores console.log", async () => {
     await MapgenMetricsReport.run();
 
-    expect(evaluate).toHaveBeenCalledExactlyOnceWith([{ id: "representative-study" }]);
+    expect(selectStudies).toHaveBeenCalledExactlyOnceWith("earthlike-core");
+    expect(evaluate).toHaveBeenCalledExactlyOnceWith(coreStudies);
     expect(stdout).toEqual([`${JSON.stringify(evaluation)}\n`]);
     expect(Buffer.byteLength(stdout[0]!)).toBeGreaterThan(65_536);
     expect(JSON.parse(stdout[0]!)).toEqual(evaluation);
@@ -95,6 +103,30 @@ describe("MapGen metrics report command", () => {
     expect(console.log).toBe(originalLog);
     console.log("after evaluation");
     expect(stdout.at(-1)).toBe("after evaluation");
+  });
+
+  test("requires explicit all scope to evaluate configuration-stress studies", async () => {
+    await MapgenMetricsReport.run(["--scope", "all"]);
+
+    expect(selectStudies).toHaveBeenCalledExactlyOnceWith("all");
+    expect(evaluate).toHaveBeenCalledExactlyOnceWith(allStudies);
+    expect(stdout).toEqual([`${JSON.stringify(evaluation)}\n`]);
+  });
+
+  test("accepts an explicit Earthlike core scope without adding stress coverage", async () => {
+    await MapgenMetricsReport.run(["--scope", "earthlike-core"]);
+
+    expect(selectStudies).toHaveBeenCalledExactlyOnceWith("earthlike-core");
+    expect(evaluate).toHaveBeenCalledExactlyOnceWith(coreStudies);
+  });
+
+  test("refuses an unknown scope before selecting studies or generating maps", async () => {
+    await expect(MapgenMetricsReport.run(["--scope", "desert-only"]))
+      .rejects.toThrow(/Expected --scope=desert-only to be one of/);
+
+    expect(selectStudies).not.toHaveBeenCalled();
+    expect(evaluate).not.toHaveBeenCalled();
+    expect(stdout).toEqual([]);
   });
 
   test("restores console.log when the evaluator throws without publishing a partial report", async () => {

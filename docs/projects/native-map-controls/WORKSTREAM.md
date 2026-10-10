@@ -15,14 +15,24 @@ with physical routing, baseline forcing and projection intent held exactly.
 The unchanged full bank retains its single thermal failure; attributed thermal,
 habitat, resource and founder consequences are reviewed without count targets
 or weaker thresholds. Fresh Huge `2/2` native generation and ten dry, non-NAV
-founder reads qualify delivery. Local river/lake plant-water composition is now
-the [selected implementation and qualification unit](local-plant-water-design.md),
-not a completed greening improvement. Retained source/access controls support
-the law, with polar moisture lookup and the savanna climatic gate corrected
-prospectively. It must reach lawful local ecological classification and growth
-consumers while keeping atmospheric climate separate. Neither tree quotas nor
-fixed shoreline bonuses define success; the installed qualified build remains
-unchanged until this owner unit is admitted.
+founder reads qualify delivery. The subsequent
+[local plant-water integration](local-plant-water-design.md#completed-causal-qualification)
+closes actual Huge/Standard publication pairs and fresh native Huge generation.
+Local supply reaches classification and growth while atmospheric climate,
+physical drainage, no-access growth and polar categories hold exactly. Neither
+tree quotas nor fixed shoreline bonuses define success. The candidate is
+installed for bounded validation; final owner checks and merge follow the
+explicit Earthlike benchmark-scope amendment. Thermal banding is not repaired
+by this ecological unit.
+
+Core qualification now centers on procedural Earthlike, not the intentionally
+biased Desert Mountains or Archipelago configurations. Their previous evidence
+is retained and their products remain available as opt-in configuration stress
+cases. Remove the underived Desert rainforest count cap outright, preserving
+the original failed result instead of tuning physics to that quota. The
+Earthlike geography cohort retains the same four Huge seeds and generic
+integrity/geography guards. This prospective selection change does not silently
+erase the regional thermal requirement or redesign existing product bounds.
 
 The [private climatic-deficit pilot is complete and closed](annual-land-response-owner-decision.md#completed-deficit-pilot).
 Actual-producer and zero-response controls pass, but all 196 training sites

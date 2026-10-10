@@ -1,4 +1,8 @@
-export { STANDARD_METRIC_STUDIES } from "./catalog.js";
+export {
+  selectStandardMetricStudies,
+  STANDARD_METRIC_STUDIES,
+  type StandardMetricStudyScope,
+} from "./catalog.js";
 export { evaluateStandardMetricStudies } from "./evaluate.js";
 export type {
   StandardMetricRunEvaluation,

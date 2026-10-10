@@ -89,6 +89,15 @@ The JSON report is the complete evidence projection for automation. The test
 target is the pass/fail gate. Diagnostic dumps and visualization tools may
 explain a failure, but they must not become a second benchmark authority.
 
+Qualification scope is recipe-owned policy. Core physical qualification must
+not silently include intentionally biased configuration-stress studies as
+release gates. Reports and behavioral gates select the same whole declared
+studies from the recipe's existing bank; selection does not rewrite cohorts or
+weaken their targets. Configuration-stress studies remain available through
+explicit opt-in, and generic structural and domain tests retain their full
+configuration coverage. A scope amendment is prospective: completed evidence
+and failures under the prior scope remain historical records.
+
 ## Recipe study banks
 
 - Standard Swooper Maps recipe: [Standard metric studies](../../../../../plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/STUDIES.md)

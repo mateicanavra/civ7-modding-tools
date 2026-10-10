@@ -7,7 +7,9 @@ the atmospheric-proxy retirement in PR #2347. The desired outcome is local
 ecological response to admitted river/lake water, not more trees everywhere,
 restored historical counts or a
 second atmospheric calculation. The source/access law is selected for one
-implementation unit, not yet admitted to the installed production build.
+implementation unit. Actual recipe and bounded native qualification are now
+complete; final owner checks and the explicit Earthlike benchmark-policy
+amendment remain the release prerequisites.
 
 Atmospheric forcing, demand, physical drainage, wet-body ledgers and geometry
 already exist. Root access, salinity, soil-water storage, channel stage and
@@ -189,3 +191,80 @@ unchanged complete map-selected bank, full owner checks and fresh bounded
 native realization. Preserve every existing requirement and the known thermal
 failure. The installed qualified build remains in use until this unit earns
 adoption. No groundwater, atmosphere, soil or island redesign is its prerequisite.
+
+## Completed Causal Qualification
+
+The sealed `5f82b5f1f39040e83d909793eb296fc526420511` implementation is compared
+with the atmospheric-retirement incumbent
+`fda02f26040a47f6bbd78ef685c1ad4fe909cc05`. Actual Huge `2/2` and Standard `1/1`
+public captures close against separate complete recipe publications, including
+pedology, sediment, all feature scores, vegetation intentions and plot effects.
+Unrounded demand, substrate and jungle calculations are explicitly source-owner
+replays, not invented raw step publications. The reduction executes no maps.
+
+Each pair preserves 50 public physical/atmospheric fields and 23 complete raw
+artifacts exactly. Source arithmetic, matching plant stress, no-access category,
+density and growth consumers pass. Polar category remains unchanged. Marine,
+wetland and ice score families remain unchanged; floodplain types follow the
+changed lawful biome. The new Standard capture copies both published plant
+indices rather than recomputing them. The rainforest habitat measurement uses
+the same plant-moisture meaning as its planner, with the existing `85`, `16 C`
+and `0.18` gates unchanged; savanna retains climatic aridity.
+
+| Actual pair | Exposed land | Positive opportunity | Ordinary/body winners | Changed projected biomes | Changed final features |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Huge `2/2` | 2,501 | 1,644 | 1,581 / 63 | 721 | 430 |
+| Standard `1/1` | 1,506 | 944 | 915 / 29 | 387 | 205 |
+
+Finite-body winners change 52/20 local classes and 33/10 final features, so the
+lake path reaches controlling consumers. Zero-access final features remain
+exact, and there are no illegal headless ecosystem features or policy-rejected
+intentions in either pair. Resource redistribution is separate collateral:
+59/41 no-access resource cells change, with closed plans and total placements
+`235 -> 236` / `218 -> 221`. Exact resource identity everywhere was not promised.
+Changed categorical IDs are transitions, not numeric evidence of improvement.
+
+The historical complete bank retains all 57 scenarios and 4,430 expectation
+identities/comparators. Its only new failure is Desert Mountains seed
+`1538316523`: 33 rainforest tiles against the old absolute cap of 20. A separate
+actual capture observes 3,418 exposed-land tiles, zero habitat/legal violations,
+and 15 sites that cross the existing moisture gate only with plant water. This
+is retained failed-policy evidence, not a relabeled pass or proof of independent
+arid calibration. No additional arid-only study or gain sweep is selected.
+
+### Explicit Benchmark-Scope Amendment
+
+The subsequent human decision makes procedural Earthlike the core baseline.
+Desert Mountains and Sundered Archipelago remain configuration stress products,
+not baseline release gates while this pipeline is being established. Remove the
+underived absolute rainforest cap outright, rather than raising it or filtering
+water-supported vegetation out of its count. Preserve structural/domain tests
+and all physically meaningful Earthlike requirements, including the known
+thermal failure. Default study selection must implement this decision, not merely
+rename an active themed-map gate. The explicit all-config study path remains
+available for later configuration qualification.
+
+This is a prospective policy amendment under the benchmark owner, not a change
+to plant-water physics or historical results. The Earthlike geography cohort
+retains the existing four Huge seeds and generic geography/integrity guards;
+themed-map appearances must not influence that cohort. Remaining Earthlike
+appearance assumptions require independent review, not silent removal here.
+
+### Bounded Native Delivery
+
+All eight generated and installed files match for the sealed implementation.
+The existing registered mod is redeployed and the game restarted without fully
+quitting Civ. Fresh Huge `2/2`, ten players and the saved map configuration pass
+the owning Run in Game gate in 32.27 seconds, including setup/load overhead.
+At actual turn one, all ten founder plots are dry, non-lake and non-NAV. Fresh
+scripting, modding, database and UI evidence is retained separately. The
+climate-refine step completes in 18 ms in this native run.
+
+The full 6,996-tile map is subsequently explored for player zero. This is a
+bounded installation/loader/generation/founder witness, not new vessel path
+proof, a complete final-surface census, or a claim that thermal banding is fixed.
+The portable actual-pair viewer includes both atmospheric and plant indices,
+source/access diagnostics, flow and final headless features; desktop and phone
+layouts are checked. It is explicitly labeled headless evidence, not native
+photography. Scientific root uptake, seasonality, salinity and Earth thermal
+calibration remain unclaimed.

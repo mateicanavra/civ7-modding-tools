@@ -7,6 +7,8 @@ request and the causal repairs it exposed. Earthlike is the primary procedural
 product for calibration, play and iteration. Desert Mountains and Sundered
 Archipelago are the two retained stress products. They test the same engine;
 they do not establish separate algorithms or compete for the Earth baseline.
+They are now explicit opt-in configuration studies, not default release gates
+for the core Earthlike pipeline. Structural/domain tests remain in place.
 
 The fixed Firaxis Earth geography and scientific Earth observations are
 benchmarks, not inputs hidden inside the procedural Earthlike recipe. A
@@ -14,6 +16,25 @@ realistic Earthlike variant is the desired playable outcome, not literal Earth
 replay. Historical eight-product captures remain immutable comparison evidence.
 
 ## Current Product Closure
+
+The latest [local plant-water integration](local-plant-water-design.md#completed-causal-qualification)
+adds separately named plant moisture/stress to the existing climate-indices
+artifact. Atmospheric temperature, rainfall, humidity, dryness and physical
+water remain exact in both actual Huge/Standard pairs. Classification and
+growth can respond to modeled imported flow and finite-body water; no fixed
+shoreline credit or vegetation quota is introduced. No-access growth and polar
+category remain unchanged, and all observed ecosystem features are lawful in
+those pairs. The portable viewer now compares actual complete publications,
+not merely retained-input counterfactuals.
+
+The bounded native candidate is installed, fresh Huge `2/2` generation passes,
+and all ten turn-one founders are dry and non-NAV. All eight installed files
+match the generated build. The map is explored for viewing. Final owner checks
+and Graphite reconciliation accompany the explicit benchmark-scope amendment:
+Earthlike is the default core bank; themed presets are opt-in stress cases;
+the arbitrary Desert rainforest cap is removed, with its original `33/20`
+failure retained. This delivery does not resolve the known regional thermal
+requirement or claim scientific root-water calibration.
 
 The original elevation, finite-basin/network and bounded native navigation
 outcomes below remain delivered. The desired product is still a coherent,

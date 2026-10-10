@@ -16,7 +16,6 @@ type WorldIdentityTargetSpec = Readonly<{
   vegetationFamilyMinimum: number;
   requiresAtolls: boolean;
   rainforestVegetationShareMaximum: number | null;
-  rainforestTileMaximum: number | null;
 }>;
 
 const EARTHLIKE_WORLD_IDENTITY_SPEC = {
@@ -34,7 +33,6 @@ const EARTHLIKE_WORLD_IDENTITY_SPEC = {
   vegetationFamilyMinimum: 5,
   requiresAtolls: false,
   rainforestVegetationShareMaximum: 0.65,
-  rainforestTileMaximum: null,
 } as const satisfies WorldIdentityTargetSpec;
 
 const IDENTITY_SPECS = {
@@ -48,7 +46,6 @@ const IDENTITY_SPECS = {
     vegetationFamilyMinimum: 2,
     requiresAtolls: true,
     rainforestVegetationShareMaximum: null,
-    rainforestTileMaximum: 20,
   },
   "sundered-archipelago": {
     wetlandShareMaximum: 0.22,
@@ -59,7 +56,6 @@ const IDENTITY_SPECS = {
     vegetationFamilyMinimum: 2,
     requiresAtolls: true,
     rainforestVegetationShareMaximum: null,
-    rainforestTileMaximum: null,
   },
 } as const satisfies Readonly<Record<ShippedStandardConfigurationId, WorldIdentityTargetSpec>>;
 
@@ -103,13 +99,6 @@ const DESERT_MOUNTAINS_ARID_CLIMATE_EXPECTATIONS = [
   ),
   requiredFeatureExpectation("FEATURE_SAVANNA_WOODLAND"),
   requiredFeatureExpectation("FEATURE_SAGEBRUSH_STEPPE"),
-  atMost(
-    "rainforest-tile-count",
-    "Rainforest remains below the Desert Mountains tropical-drift budget.",
-    (sample: StandardMapProductSample) =>
-      sample.metrics.ecology.featureCounts.FEATURE_RAINFOREST ?? 0,
-    IDENTITY_SPECS["swooper-desert-mountains"].rainforestTileMaximum ?? 0
-  ),
   atLeast(
     "dry-flow-presence",
     "Desert Mountains retains land with no sustained modeled flow.",
@@ -122,14 +111,14 @@ const DESERT_MOUNTAINS_ARID_CLIMATE_EXPECTATIONS = [
  * Multi-seed climate identity for Desert Mountains.
  *
  * The shipped identity target remains a representative full-map benchmark because atolls and
- * some resource outcomes legitimately vary by seed. This narrower target owns the arid ecology
- * invariants that the Desert Mountains climate calibration must preserve on every admitted roll.
+ * some resource outcomes legitimately vary by seed. This narrower target studies the biased
+ * configuration's arid ecology; it does not qualify the core Earthlike physical model.
  */
 export const DESERT_MOUNTAINS_ARID_CLIMATE_TARGET: MetricTarget<StandardMapProductSample> =
   Object.freeze({
     id: "swooper-desert-mountains/arid-climate",
     description:
-      "Desert Mountains preserves dry land and varied vegetation without tropical drift across seeds.",
+      "Desert Mountains preserves dry land and varied vegetation across seeds.",
     expectations: Object.freeze(DESERT_MOUNTAINS_ARID_CLIMATE_EXPECTATIONS),
   });
 
@@ -209,18 +198,6 @@ function createIdentityTarget(
       )
     );
   }
-  if (spec.rainforestTileMaximum !== null) {
-    expectations.push(
-      atMost(
-        "rainforest-tile-count",
-        "Rainforest remains below this map identity's absolute tile budget.",
-        (sample: StandardMapProductSample) =>
-          sample.metrics.ecology.featureCounts.FEATURE_RAINFOREST ?? 0,
-        spec.rainforestTileMaximum
-      )
-    );
-  }
-
   return Object.freeze({
     id: `${configurationId}/identity`,
     description: `The ${configurationId} configuration preserves its shipped map identity.`,

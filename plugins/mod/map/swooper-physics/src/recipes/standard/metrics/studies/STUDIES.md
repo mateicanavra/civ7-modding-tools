@@ -7,9 +7,35 @@ reviewable and reproducible.
 
 The durable catalog is ordered with `swooper-earthlike` as the primary profile,
 followed by the `swooper-desert-mountains` and `sundered-archipelago` stress
-profiles. The bank retains 22 studies and 57 distinct scenarios: 47 Earthlike,
-five Desert Mountains, and five Archipelago. The thirteen dedicated Earthlike
-studies retain their existing size, seed, player, and target axes.
+profiles. The bank retains 23 studies and 57 distinct scenarios: 47 Earthlike,
+five Desert Mountains, and five Archipelago. Earthlike is the core physical
+qualification profile. The other two profiles run the same recipe with
+intentionally biased configuration; they are opt-in configuration-stress
+studies, not core physical-calibration benchmarks or release gates.
+
+`selectStandardMetricStudies()` selects `earthlike-core` by default: 16 whole
+declared studies and all 47 Earthlike scenarios. The explicit `all` scope retains
+23 studies and the same 57 distinct scenarios. The original thirteen dedicated
+Earthlike studies, Earthlike identity, and relief-coherence study keep their
+size, seed, player, and target axes. The additional `earthlike/geography-cohort`
+prospectively declares the existing four Huge Earthlike geography cases against
+the unchanged generic integrity and nondegenerate-geography targets. It keeps
+Earthlike baseline coverage without filtering the mixed `shipped/geography`
+cohort at runtime. The runner reconciles the shared semantic identities before
+capture, so `all` adds no duplicate generation for the new declaration.
+
+This scope amendment does not change generation, the map catalog, generic
+structural/domain tests, or any Earthlike bound. The Desert Mountains absolute
+20-tile rainforest cap is removed from both its identity and arid-climate
+targets, not replaced or raised. Previously completed results remain evidence
+under their original scope and target policy; this is not a retroactive pass.
+
+Remaining appearance shares, component sizes, presence counts, and climate
+envelopes are declared product assumptions or regression guards, not physical
+laws or independently calibrated Earth observations. Conservation, closure,
+legality, and habitat-fidelity checks serve distinct physical or structural
+claims. Reviewing an appearance assumption requires a separate prospective
+amendment; this scope change does not silently relax it.
 
 The generic subsystem contract lives in [Map product benchmarks](../../../../../../../docs/system/libs/mapgen/benchmarks/BENCHMARKS.md).
 
@@ -28,7 +54,7 @@ metrics/
     scenarios.ts           shipped configs, Civ7 presets, semantic identity
     model.ts               sample/cohort study and result shapes
     define.ts              shared study constructors and cohort helpers
-    catalog.ts             assembly-only STANDARD_METRIC_STUDIES bank
+    catalog.ts             one STANDARD_METRIC_STUDIES bank and scope selection
     evaluate.ts            reconcile, capture once, evaluate atomically
     families/*.md          compact measurement-family sheets
     benchmarks/*.study.ts  executable scenario and target bindings
@@ -61,9 +87,10 @@ sheet. Every runtime study ID emitted by `STANDARD_METRIC_STUDIES` maps below.
 | Runtime study ID | Shape | Protocol |
 | --- | --- | --- |
 | `shipped/identity/<catalog-config-id>` | Three Huge sample studies exhausting the durable catalog, seed 1018 | [Shipped identities](benchmarks/shipped-identities.md) |
-| `shipped/arid-climate/MAPSIZE_HUGE/seed-{123,1337,1538316415,1538316523}` | Four Huge sample studies | [Desert Mountains arid climate](benchmarks/shipped-arid-climate.md) |
-| `shipped/geography` | Twelve-map cohort across all three catalog configs | [Shipped geography](benchmarks/shipped-geography.md) |
+| `shipped/arid-climate/MAPSIZE_HUGE/map-<seed>/game-<seed>` | Four opt-in Huge sample studies, seeds 123/1337/1538316415/1538316523 | [Desert Mountains arid climate](benchmarks/shipped-arid-climate.md) |
+| `shipped/geography` | Opt-in twelve-map cohort across all three catalog configs | [Shipped geography](benchmarks/shipped-geography.md) |
 | `shipped/relief-coherence` | Six Earthlike samples, Standard/Huge, seeds 1/42/1018 | [Relief coherence](benchmarks/relief-coherence.md) |
+| `earthlike/geography-cohort` | Four Huge Earthlike cases from the existing shipped geography matrix, unchanged generic targets | [Shipped geography](benchmarks/shipped-geography.md) |
 | `earthlike/geography` | Standard sample, seed 1337 | [Earthlike geography](benchmarks/earthlike-geography.md) |
 | `earthlike/biome-structure` | Huge sample, seed 1337 | [Earthlike biome structure](benchmarks/earthlike-biome-structure.md) |
 | `earthlike/climate-structure` | Huge 1018 and Standard 1018/1/42 cohort | [Earthlike climate structure](benchmarks/earthlike-climate-structure.md) |
@@ -92,10 +119,13 @@ All studies that include `STANDARD_INTEGRITY_TARGET` also use the [Standard inte
 ## Proof commands
 
 ```bash
-# Complete machine-readable evaluation of the closed study bank.
+# Core Earthlike machine-readable qualification (16 studies, 47 scenarios).
 civ7 mapgen metrics report
 
-# Behavioral gate that asserts the declared studies.
+# Explicit configuration-stress opt-in (23 studies, 57 scenarios).
+civ7 mapgen metrics report --scope all
+
+# Core Earthlike study gate plus unchanged generic structural/domain tests.
 nx run swooper-physics:test
 ```
 
