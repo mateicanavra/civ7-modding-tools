@@ -303,6 +303,14 @@ receivers except explicit exact-sill outlet connectors, mixes wet-body supply
 and demand in body ledgers, and requires nonnegative outflows, acyclicity, and
 marine termination. Its interior wet connectivity is not a per-cell signed
 discharge budget. Initial Morphology hillslope shaping has no routing lane.
+Dry sill connectors follow immutable raw receivers from selected frontier and
+attained internal-saddle endpoints, only while finite ground equals the head.
+Equal contour reachability alone neither admits contributing catchment nor
+merges independently spilling pools. Declared attained saddles, actual admitted
+connector intersections and supported delivery cycles establish contractions;
+obsolete above-head junctions retire only after their replacement deliveries
+settle. This distinguishes a known spill corridor from a newly invented
+standing-water connection across otherwise independently drained land.
 The NetworkStep privately composes certified solves with pure channel incision,
 then asks Morphology to seal final integer ground and solves again on that
 exact publication. Downstream rough-land planning consumes the final certified
