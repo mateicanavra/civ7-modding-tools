@@ -127,10 +127,13 @@ defect or a preferred coefficient. Q-001's geometry question remains separate.
 
 #### Q-005: Wetland Suitability And Admission
 
-Marsh, tundra bog and mangrove already have distinct responses followed by a
-shared admission floor. Retained headless losses occur in scoring or admission,
-not later competition for otherwise qualifying sites. Physical response and
-the shared floor's meaning remain unassessed; rarity alone selects no repair.
+Marsh, tundra bog and mangrove have distinct responses followed by a shared
+admission floor. Bog-only removal of generic fertility is qualified in two
+complete recipe pairs, including actual taiga displacement and Clay gains;
+polar resource overrepresentation nevertheless increases. Broad habitat proxies,
+annual cold/freeze meaning, the other family responses and shared admission
+remain open. More lawful placements do not establish scientific adequacy or
+generally improved resource distribution.
 [Read the research question](questions/q-005-wetland-suitability.md).
 
 ### Benchmark Authority / Ecological Prevalence

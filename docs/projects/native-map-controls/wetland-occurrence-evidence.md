@@ -1,10 +1,10 @@
 # Wetland Occurrence: Bounded Evidence
 
 This portable evidence summary separates the original two-case headless
-diagnostic, a later source-led point-water qualification, and a native feature
-census on a different map. None is a wetland abundance target. Habitat,
+diagnostic, source-led point-water and bog-consumer qualifications, and a native
+feature census on a different map. None is a wetland abundance target. Habitat,
 suitability, compatibility, prior occupancy, admitted intent and final output
-have different meanings and populations. The later qualification does not
+have different meanings and populations. The later qualifications do not
 replace the original observations or transfer their causal explanation to the
 native census.
 
@@ -261,6 +261,119 @@ local positive fixtures have separately labeled reduced point-family planner
 intent. Their scope does not imply final native legality. These are privately
 retained report findings, not an added verification or a new run by this summary.
 
+## Qualified Bog-Consumer Result
+
+The [merged bog-consumer outcome][bog-qualified] removes only the generic
+fertility prerequisite from tundra-bog suitability. Hydromorphic support,
+atmospheric water, cold/freeze curves, native compatibility, flat/free admission,
+planner ordering and the shared 0.42 floor remain unchanged. Marsh, mangrove,
+other fertility consumers and the pedology producer are not retuned. This is a
+supported consumer correction with bounded downstream qualification, not
+whole-wetland scientific validation.
+
+### Retained Replay And Complete Pairs
+
+The qualification has its own producer identities:
+
+- Actual production runtime: `be9b403bdc2d586c990c56dfb543b8506f849e6c`.
+- Accepted source/documentation head: `aa9b2006a3c0f2a2d2eae8a676fefa57061f23f7`.
+- Merged report and inspected source: `4ae7b311a1e259449001b96b683860c5b682301e`.
+- Corrected report labels: `7080b22891f2b77297132fa7699fd42fc5fdb4a7`.
+
+The label correction changes documentation only, not the executed runtime or
+its captures.
+
+The retained production replay uses the `ccb92fbc` raw captures identified in
+the point-water qualification, not the original `5f82b5f1` observations. Actual
+climate-refinement, score, wetland and vegetation owners reproduce the sealed
+bog-only discriminator: bog intent changes from 2 to 8 and 1 to 6, while taiga
+intent changes from 177 to 171 and 298 to 294. No vegetation is added and no
+other vegetation family changes. Unrelated scores and upstream physical,
+climate and classifier inputs hold. The successful replay reports two compiles,
+eight step calls and 52 owner-operation calls, with no generation, resource/start
+owner calls or native execution.
+
+That raw evidence lacks foundation inputs and the adapter/random-state lifetime
+needed to resume resources and starts. The retained replay therefore stops at
+vegetation; it does not fabricate a complete downstream continuation. Exactly
+two fresh complete public recipe captures instead compare Standard 1/1 and
+Huge 2/2 against the sealed `7b20d0b9` point-water captures:
+
+| Completed recipe outcome | Standard 1/1 | Huge 2/2 |
+| --- | ---: | ---: |
+| Bog features | 2 to 8 | 1 to 6 |
+| Taiga features | 177 to 171 | 298 to 294 |
+| New bogs on previously bare cells | 0 | 1 |
+| Clay placements | 4 to 6 | 2 to 6 |
+
+Both unchanged integrity targets pass, forty-nine expectations per case. All
+forty-one public model fields and their typed-array contracts, physical terrain,
+biome, water, elevation, lakes and rivers remain exact. Actual feature changes
+are six taiga-to-bog cells in Standard and four taiga-to-bog plus one bare-to-bog
+cell in Huge, with no other changes or feature refusals. The full public
+starts/fairness publication, resource support and natural wonders remain exact.
+The coordinator's data-only review checked seventeen fresh-pair file bindings
+and actual previous/current snapshot arrays; this summary does not repeat that
+audit or execute the recipe.
+
+### Resource Consequences Are Not Distribution Success
+
+Clay gains follow existing final-feature compatibility, not added supply or
+retuned habitat, ranges, targets or spacing. Both cases reach the existing
+minimum six but remain two short of target eight. Standard replaces one former
+Clay site with three newly eligible bog sites; Huge adds four bog sites. No
+other final resource placements change. Some legal-site counts change without
+changing placement: Wild Game gains candidates, while Huge Jade and Salt each
+lose one legal site but retain their eligible sites and placements.
+
+The [resource distribution measure][resource-distribution] divides each band's
+share of placed land resources by its share of exposed land, then records the
+maximum defined band ratio. One means equal shares, not an independently
+justified ecological or gameplay target.
+
+| Maximum latitude-band resource overrepresentation | Before | After |
+| --- | ---: | ---: |
+| Standard 1/1 | 1.58491 | 2.10335 |
+| Huge 2/2 | 2.26540 | 4.43440 |
+
+The after-change maximum occurs in Standard's 70 to 80 degree band and Huge's
+-80 to -65 degree band. Those bands contain twenty-four and six land tiles,
+with placed resources changing from four to six and one to two, respectively.
+Standard's before-change maximum is near the equator
+(-5 to 10 degrees), so its maximum shifts between bands rather than tracking one
+fixed polar band. The northern polar band itself rises from 1.41808 to 2.10335.
+These observations record increased polar concentration, not evidence of general
+distribution improvement. Both candidates retain four-tile Clay spacing; changed
+resource sites lie outside founder support zones, consistent with exact support
+outputs. Remaining non-Clay authored-range deficits persist. Resource legality,
+supply calibration and spatial distribution are separate claims, and neither
+deficits nor concentration are waived by the consumer correction.
+
+### Custody And Scientific Limits
+
+The retained replay preserves the explicit local grid-wrapper byte exception
+described above. The fresh pair has exact package source trees and no differences
+among its 102 comparable compiled pins, with additional compiled extensions
+disclosed separately. That fresh comparison does not retroactively remove the
+retained exception or establish whole-SDK or whole-build byte identity.
+
+Hydromorphic support covers 1,442/1,506 and 2,432/2,501 exposed-land cells
+(95.75% and 97.24%) in the retained pair. This is broad eligibility, not measured
+waterlogging. All eleven new bog witnesses are raw tundra/native TUNDRA,
+thermally polar, with annual temperature -12.893 to -9.530 degrees C and
+`permafrost01 = 1`. Annual fields establish neither seasonal active-layer thaw
+nor its absence, peat formation or hydroperiod. They do not justify an
+impossible-bog conclusion, a new frost veto or validation of the remaining
+response.
+
+The owner reports thirty focused tests / 595 assertions, 1,390 definition
+passes with the exact known thermal aggregate failure, 371 realization passes,
+412 Studio passes and 188 successful pre-push checks. No expectation or shared
+floor was weakened. No new model run, capture or test was performed by this
+editorial summary, and there is no fresh native-game proof. [Q-005][wetland-question]
+remains open for substrate, seasonality, marsh/mangrove response and shared
+admission adequacy.
+
 ## A Separate Native Occurrence Observation
 
 An independently retained native readback covers all 6,996 unique plots of a
@@ -322,12 +435,22 @@ The later source-led qualification has separate custody:
 | Dry-habitat contract trace result | `11da2e0383a3822dfc0f3c6168d066a7eab3db7d66f08b82511d09154eb616fd` |
 | Dry-habitat contract trace program | `5707a1d31a02a8c6cf54e3ff71458192bc7af00172c8c97223daea6d09e89350` |
 
+The bog-consumer qualification is separately bound:
+
+| Retained artifact | SHA-256 |
+| --- | --- |
+| Bog production retained-replay result | `50266b11b4aece7762b5af047e2cd60b2f9581ebdade5a205d3264eb3fda5ebf` |
+| Bog production retained-replay program | `f89bc43a06e26197e532c7e895fb6f323c829cf85b173fc3e10bf3cdf10e8a6e` |
+| Two-capture bog qualification manifest | `5c2348fcd50fd7f9986dde19ce5e1d065c9a4b6aea31d56d152ac9d16d88c887` |
+| Bog-qualified Standard 1/1 capture receipt | `b6cae77c77cd3270d4d9a4b5fb9c9bd15a91f24db9c5df12f7e62ee0f271372e` |
+| Bog-qualified Huge 2/2 capture receipt | `41842669c4f678d7f14d2263967f7ba65f43c491d752e9f334b492dd200e3c17` |
+
 The private diagnostic programs and census reducer have no committed producer
 revisions of their own. Their findings therefore remain prose evidence with
 explicit custody and source limits, not a
 fabricated structured verification record pinned to this editorial commit.
-No current live-state claim, all-seed prevalence, physical calibration, repaired
-output or preferred threshold follows from these results.
+No current live-state claim, all-seed prevalence, physical calibration or
+preferred threshold follows from these results.
 
 [substrate]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/rules/wetland-substrate-masks.ts
 [scores]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/steps/score-layers/step.ts
@@ -336,3 +459,5 @@ output or preferred threshold follows from these results.
 [qualified]: https://github.com/mateicanavra/civ7-modding-tools/blob/09e8c9a87fba9c5078d20134ad1c8e04a858bfbb/docs/projects/native-map-controls/dryland-point-water-coherence.md#qualified-outcome
 [point-water]: questions/q-004-point-water-support.md
 [wetland-question]: questions/q-005-wetland-suitability.md
+[bog-qualified]: https://github.com/mateicanavra/civ7-modding-tools/blob/7080b22891f2b77297132fa7699fd42fc5fdb4a7/docs/projects/native-map-controls/wetland-consumer-coherence.md#qualified-outcome
+[resource-distribution]: https://github.com/mateicanavra/civ7-modding-tools/blob/4ae7b311a1e259449001b96b683860c5b682301e/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/families/resources.ts#L386-L409
