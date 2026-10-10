@@ -1,4 +1,9 @@
-import { buildResourceLegalityMask, resolveResourceRuntimeIds } from "@civ7/map-policy";
+import {
+  buildResourceLegalityMask,
+  CIV7_BROWSER_TABLES_V0,
+  OFFICIAL_RESOURCE_BY_TYPE,
+  resolveResourceRuntimeIds,
+} from "@civ7/map-policy";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import type {
   AdmittedResourceDemandCandidate,
@@ -121,8 +126,20 @@ const policyConstrainedStrategy = createStrategy(Contract, StrategyDefinition, {
         );
       }
       const legalMask = buildResourceLegalityMask(legalitySurface, resolved.resourceTypeId);
+      const navigableEligible =
+        OFFICIAL_RESOURCE_BY_TYPE[resourceType]?.typeTags.includes("NAVIGABLE_RIVERS_ELIGIBLE") ===
+        true;
       for (let index = 0; index < size; index += 1) {
-        if (riverMask[index] !== 0) legalMask[index] = 0;
+        if (
+          riverMask[index] !== 0 &&
+          !(
+            navigableEligible &&
+            legalitySurface.terrainType[index] ===
+              CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_NAVIGABLE_RIVER
+          )
+        ) {
+          legalMask[index] = 0;
+        }
       }
 
       let legalTileCount = 0;

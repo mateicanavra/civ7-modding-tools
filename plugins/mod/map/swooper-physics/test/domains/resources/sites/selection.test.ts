@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { CIV7_BROWSER_TABLES_V0, resolveResourceRuntimeIds } from "@civ7/map-policy";
+import { CIV7_BROWSER_TABLES_V0, NO_FEATURE_TYPE, resolveResourceRuntimeIds } from "@civ7/map-policy";
 import {
   admitPositiveResourceRegionMinimum,
   resolveEarthlikeResourceExpectations,
@@ -389,6 +389,163 @@ describe("select-resource-sites operation contract", () => {
     expect(frozenHabitat.iceMask[legalOnlyPlot]).toBe(1);
     expect(frozenHabitat.aquaticIntensity[legalOnlyPlot]).toBe(0);
     expect(frozenFish.demand.legalMask[legalOnlyPlot]).toBe(1);
+  });
+
+  it("selects stock-legal navigable Crabs through physical habitat and demand without widening controls", () => {
+    const { biomeGlobals: biomes, terrainTypeIndices: terrains, featureTypes: features } =
+      CIV7_BROWSER_TABLES_V0;
+    const landMask = new Uint8Array(cellCount).fill(1);
+    const lakeMask = new Uint8Array(cellCount);
+    const coastalWater = new Uint8Array(cellCount);
+    const riverClass = new Uint8Array(cellCount);
+    const temperature = new Float32Array(cellCount).fill(10);
+    const seaIceCover = new Uint8Array(cellCount);
+    const biomeType = new Int32Array(cellCount).fill(-1);
+    const terrainType = new Int32Array(cellCount).fill(-1);
+    const featureType = new Int32Array(cellCount).fill(NO_FEATURE_TYPE);
+    const engineWaterMask = new Uint8Array(cellCount);
+    const navigablePlots = [8, 16, 24, 32].map((x) => 8 * width + x);
+    const minor = 16 * width + 8;
+    const frozenTemperature = 16 * width + 16;
+    const frozenCover = 16 * width + 24;
+    const wrongFeature = 16 * width + 32;
+    const coastRiver = 24 * width + 8;
+    const submerged = 24 * width + 16;
+    const dry = 24 * width + 24;
+    const wrongTerrain = 24 * width + 32;
+    const controls = [
+      minor,
+      frozenTemperature,
+      frozenCover,
+      wrongFeature,
+      coastRiver,
+      submerged,
+      dry,
+      wrongTerrain,
+    ];
+    for (const plot of [...navigablePlots, ...controls]) {
+      riverClass[plot] = 2;
+      biomeType[plot] = biomes.BIOME_GRASSLAND;
+      terrainType[plot] = terrains.TERRAIN_NAVIGABLE_RIVER;
+      featureType[plot] = features.FEATURE_GRASSLAND_FLOODPLAIN_NAVIGABLE;
+    }
+    riverClass[minor] = 1;
+    riverClass[dry] = 0;
+    temperature[frozenTemperature] = -4;
+    seaIceCover[frozenCover] = 128;
+    featureType[wrongFeature] = features.FEATURE_GRASSLAND_FLOODPLAIN_MINOR;
+    terrainType[wrongTerrain] = terrains.TERRAIN_FLAT;
+    for (const plot of [coastRiver, submerged]) {
+      landMask[plot] = 0;
+      engineWaterMask[plot] = 1;
+    }
+    lakeMask[submerged] = 1;
+    coastalWater[coastRiver] = 1;
+    biomeType[coastRiver] = biomes.BIOME_MARINE;
+    terrainType[coastRiver] = terrains.TERRAIN_COAST;
+    featureType[coastRiver] = NO_FEATURE_TYPE;
+    const riverMask = maskFromPlots(...navigablePlots, ...controls.filter((plot) => plot !== dry));
+    const habitat = runAdmittedOperationForTest(
+      resources.habitat.ops.deriveHabitatFields,
+      {
+        width,
+        height,
+        landMask,
+        lakeMask,
+        coastalWater,
+        shelfWater: new Uint8Array(cellCount),
+        riverClass,
+        surfaceTemperature: temperature,
+        seaIceCover,
+        aridityIndex: new Float32Array(cellCount),
+        effectiveMoisture: new Float32Array(cellCount),
+        vegetationDensity: new Float32Array(cellCount),
+        fertility: new Float32Array(cellCount),
+        elevation: new Int16Array(cellCount),
+        hillMask: new Uint8Array(cellCount),
+        mountainMask: new Uint8Array(cellCount),
+      },
+      resources.habitat.ops.deriveHabitatFields.defaultConfig
+    );
+    const resolved = runAdmittedOperationForTest(
+      resources.demand.ops.resolveResourceDemands,
+      {
+        ...habitat,
+        aliveMajorPlayerCount: 4,
+        legalitySurface: { biomeType, terrainType, featureType, engineWaterMask },
+        riverMasks: [riverMask],
+      },
+      resources.demand.ops.resolveResourceDemands.defaultConfig
+    );
+    const crab = resolved.candidates.admitted.find(
+      (row) => row.source.resourceType === "RESOURCE_CRABS"
+    );
+    if (!crab) throw new Error("Missing admitted navigable Crab demand.");
+    const landmassIdByTile = new Int32Array(cellCount);
+    landmassIdByTile[coastRiver] = -1;
+    landmassIdByTile[submerged] = -1;
+    const input: SelectInput = {
+      width,
+      height,
+      seed: TEST_MAP_SEED,
+      landMask,
+      lakeMask,
+      landmassIdByTile,
+      landmassTileCounts: [countMask(landMask)],
+      regionSlotByTile: new Uint8Array(cellCount).fill(1),
+      demands: [{
+        resourceType: crab.source.resourceType,
+        family: crab.source.family,
+        laneId: crab.source.laneId,
+        laneKind: crab.source.laneKind,
+        targetCount: crab.source.targetIntentCount,
+        minCount: crab.source.expectedCountRange.min,
+        maxCount: crab.source.expectedCountRange.max,
+        habitatMask: crab.source.habitatMask,
+        habitatTileCount: crab.source.habitatTileCount,
+        ...crab.demand,
+      }],
+    };
+    const result = run(input);
+
+    expect(crab.source.expectedCountRange).toMatchObject({ min: 2, target: 4, max: 6 });
+    expect(crab.demand.eligibleTileCount).toBe(navigablePlots.length);
+    expect(result.plannedCount).toBe(4);
+    expect(result.regionMinimumCount).toBe(0);
+    expect(result.perType[0]).toMatchObject({ spacingFloorTiles: 4, shortfalls: [] });
+    expect(new Set(result.intents.map((intent) => intent.plotIndex))).toEqual(new Set(navigablePlots));
+    for (const intent of result.intents) {
+      expect(intent).toMatchObject({ resourceType: "RESOURCE_CRABS", inHabitat: true, laneKind: "water" });
+      expect(intent.phase).not.toBe("region-minimum");
+      expect(landMask[intent.plotIndex]).toBe(1);
+      expect(habitat.majorRiverMask[intent.plotIndex]).toBe(1);
+      expect(habitat.iceMask[intent.plotIndex]).toBe(0);
+      expect(habitat.aquaticIntensity[intent.plotIndex]).toBe(Math.fround(0.4));
+      expect(crab.demand.legalMask[intent.plotIndex]).toBe(1);
+      expect(terrainType[intent.plotIndex]).toBe(terrains.TERRAIN_NAVIGABLE_RIVER);
+      expect(controls).not.toContain(intent.plotIndex);
+    }
+    expect(crab.source.habitatMask[minor]).toBe(0);
+    expect(crab.source.habitatMask[submerged]).toBe(0);
+    expect(crab.source.habitatMask[dry]).toBe(0);
+    for (const plot of [frozenTemperature, frozenCover]) {
+      expect(crab.source.habitatMask[plot]).toBe(0);
+      expect(crab.demand.legalMask[plot]).toBe(1);
+    }
+    for (const plot of [wrongFeature, wrongTerrain, coastRiver]) {
+      expect(crab.demand.legalMask[plot]).toBe(0);
+    }
+    const fish = resolved.candidates.excluded.noLegalSites.find(
+      (row) => row.source.resourceType === "RESOURCE_FISH"
+    );
+    expect(fish?.reason.legalMask.every((value) => value === 0)).toBe(true);
+    for (let i = 0; i < result.intents.length; i++) {
+      for (let j = i + 1; j < result.intents.length; j++) {
+        expect(hexDistanceOddQPeriodicX(result.intents[i]!.plotIndex, result.intents[j]!.plotIndex, width))
+          .toBeGreaterThanOrEqual(4);
+      }
+    }
+    expect(run(input)).toEqual(result);
   });
 
   describe("range completion competition", () => {

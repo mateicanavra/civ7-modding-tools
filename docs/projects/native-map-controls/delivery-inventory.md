@@ -33,8 +33,22 @@ holds actual spacing four, physical fields and retained habitat/legal evidence
 across eleven cases. Fish targets now scale with the actual alive-major roster,
 as do Crab targets, without a density override. Fresh Huge native generation
 accepts 29 of 30 Fish and all ten Crabs; the one Fish refusal is explicit and
-within the authored range, not concealed as full target parity. Navigable-river
-Crab habitat/legal admission remains the next bounded consumer repair.
+within the authored range, not concealed as full target parity. The subsequent
+[navigable-river Crab consumer repair](resources.md#navigable-crab-consumer-verification)
+passes the same eleven cases and realizes both a regional-minimum and an
+ordinary-rotation NAV Crab in two fresh Huge games. The latter game retains one
+explicit Crab refusal on a founder plot; neither resource ranges nor native
+legality are overridden to hide it.
+
+Those native censuses expose the next concrete start defect: seven of ten
+founders in each game occupy correctly authored NAV terrain even though Civ
+reports `water=false`. Physical-land admission and exact coordinate parity do
+not establish dry founder placement. The next owner repair excludes existing
+authored NAV sources from founder candidacy while preserving river geography,
+adjacent freshwater and transit topology. It is not a river-write rejection or
+permission to reclassify physical riverbeds as water. Parallel coastal rivers
+and rainforest scarcity remain separate calibration questions; these images
+do not establish that NAV projection consumes atmospheric moisture.
 
 The single retained island transect resolves to finite water and does not
 demonstrate lost marine relief. No new island algorithm is selected from that

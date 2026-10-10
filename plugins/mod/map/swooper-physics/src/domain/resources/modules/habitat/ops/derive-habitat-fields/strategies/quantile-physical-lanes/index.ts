@@ -173,7 +173,13 @@ const quantilePhysicalLanesStrategy = createStrategy(Contract, StrategyDefinitio
     const warmShallowWaterMask = mask((i) => (seaCoastal(i) || seaShelf(i)) && T(i) >= 19);
     const coldProductiveWaterMask = mask((i) => (seaCoastal(i) || seaShelf(i)) && T(i) <= 12);
     const reefOrProtectedShallowsMask = mask((i) => (seaCoastal(i) || seaShelf(i)) && T(i) >= 22);
-    const iceMask = mask((i) => grids.water(i) && ((seaIce?.[i] ?? 0) >= 128 || T(i) <= -4));
+    // Physical major corridors are habitat evidence, not native navigable-terrain proof.
+    const majorRiverMask = landMaskOf((i) => (riverClass[i] ?? 0) >= 2);
+    const iceMask = mask(
+      (i) =>
+        (grids.water(i) || majorRiverMask[i] === 1) &&
+        ((seaIce?.[i] ?? 0) >= 128 || T(i) <= -4)
+    );
 
     const riverAdjacentWater = (minClass: number): Uint8Array =>
       mask((i) => {
@@ -323,6 +329,7 @@ const quantilePhysicalLanesStrategy = createStrategy(Contract, StrategyDefinitio
         continue;
       }
       if (!grids.landNotLake(i)) continue;
+      if (majorRiverMask[i] === 1 && iceMask[i] !== 1) aquaticIntensity[i] = 0.4;
       terrestrialIntensity[i] = Math.min(1, 0.35 + 0.65 * V(i));
       cultivatedIntensity[i] = Math.min(1, 0.3 + 0.7 * F(i));
       const geoSignal = Math.max(
@@ -343,6 +350,7 @@ const quantilePhysicalLanesStrategy = createStrategy(Contract, StrategyDefinitio
       reefOrProtectedShallowsMask,
       estuaryMask,
       navigableRiverMouthMask,
+      majorRiverMask,
       lakeMask: mask((i) => grids.lake(i)),
       iceMask,
       aridRangelandMask,

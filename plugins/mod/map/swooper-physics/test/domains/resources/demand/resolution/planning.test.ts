@@ -1,6 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import {
+  buildResourceLegalityMask,
   CIV7_BROWSER_TABLES_V0,
+  NO_FEATURE_TYPE,
+  OFFICIAL_RESOURCE_BY_TYPE,
   type OfficialResourceType,
   isResourceAdjacentToLandRuntimeOptional,
   resolveResourceRuntimeIds,
@@ -137,7 +140,7 @@ describe("resource demand resolution", () => {
     });
   });
 
-  it("removes every river tile before deciding whether a resource has an eligible site", () => {
+  it("retains river exclusions for resources without official navigable admission", () => {
     const selected = selectedResourceFixture();
     const baseline = run(buildFixture(selected.resourceType));
     const baselineCandidate = baseline.candidates.admitted.find(
@@ -258,7 +261,7 @@ describe("resource demand resolution", () => {
       ["RESOURCE_WHALES", ["coldProductiveWaterMask", "shelfMask"], ["lakeMask", "iceMask"]],
       [
         "RESOURCE_CRABS",
-        ["estuaryMask", "navigableRiverMouthMask", "coastalWaterMask"],
+        ["estuaryMask", "navigableRiverMouthMask", "coastalWaterMask", "majorRiverMask"],
         ["iceMask"],
       ],
       [
@@ -276,6 +279,122 @@ describe("resource demand resolution", () => {
       expect(requireSignal(resourceType).suppress, resourceType).toEqual(suppress);
     }
     expect(resolveHabitatSource("RESOURCE_CRABS", { lakeMask: oneAt(5) }).habitatTileCount).toBe(0);
+  });
+
+  it("adds the physical major-corridor primary only to Crabs", () => {
+    for (const [resourceType, signal] of RESOURCE_HABITAT_SIGNALS) {
+      expect(signal.primary.includes("majorRiverMask"), resourceType).toBe(
+        resourceType === "RESOURCE_CRABS"
+      );
+    }
+    expect(resolveHabitatSource("RESOURCE_CRABS", { majorRiverMask: oneAt(5) }).habitatTileCount)
+      .toBe(1);
+    expect(resolveHabitatSource("RESOURCE_CRABS", {
+      majorRiverMask: oneAt(5),
+      iceMask: oneAt(5),
+    }).habitatTileCount).toBe(0);
+    expect(resolveHabitatSource("RESOURCE_CRABS", {
+      floodplainOrRiverMask: oneAt(5),
+      alluvialPlacerMask: oneAt(5),
+    }).habitatTileCount).toBe(0);
+  });
+
+  it("preserves only exact stock Crab navigable tuples through the river union", () => {
+    const { biomeGlobals: biomes, terrainTypeIndices: terrains, featureTypes: features } =
+      CIV7_BROWSER_TABLES_V0;
+    const expectedRows = [
+      [biomes.BIOME_GRASSLAND, terrains.TERRAIN_NAVIGABLE_RIVER,
+        features.FEATURE_GRASSLAND_FLOODPLAIN_NAVIGABLE],
+      [biomes.BIOME_TUNDRA, terrains.TERRAIN_NAVIGABLE_RIVER,
+        features.FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE],
+      [biomes.BIOME_TROPICAL, terrains.TERRAIN_NAVIGABLE_RIVER,
+        features.FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE],
+      [biomes.BIOME_PLAINS, terrains.TERRAIN_NAVIGABLE_RIVER,
+        features.FEATURE_PLAINS_FLOODPLAIN_NAVIGABLE],
+      [biomes.BIOME_DESERT, terrains.TERRAIN_NAVIGABLE_RIVER,
+        features.FEATURE_DESERT_FLOODPLAIN_NAVIGABLE],
+    ] as const;
+    const crabId = resolveResourceRuntimeIds().byType.get("RESOURCE_CRABS")!.resourceTypeId;
+    const fishId = resolveResourceRuntimeIds().byType.get("RESOURCE_FISH")!.resourceTypeId;
+    const rows: Readonly<Record<string, readonly (readonly [number, number, number])[] | undefined>> =
+      CIV7_BROWSER_TABLES_V0.resourceValidPlacementRows;
+    expect(rows[String(crabId)]?.filter((row) => row[1] === terrains.TERRAIN_NAVIGABLE_RIVER))
+      .toEqual([...expectedRows]);
+    expect(OFFICIAL_RESOURCE_BY_TYPE.RESOURCE_CRABS?.typeTags)
+      .toContain("NAVIGABLE_RIVERS_ELIGIBLE");
+    expect(OFFICIAL_RESOURCE_BY_TYPE.RESOURCE_FISH?.typeTags)
+      .not.toContain("NAVIGABLE_RIVERS_ELIGIBLE");
+    expect(rows[String(fishId)]?.some((row) => row[1] === terrains.TERRAIN_NAVIGABLE_RIVER))
+      .toBe(false);
+
+    const baseline = buildFixture("RESOURCE_CRABS");
+    const biomeType = new Int32Array(size).fill(-1);
+    const terrainType = new Int32Array(size).fill(-1);
+    const featureType = new Int32Array(size).fill(NO_FEATURE_TYPE);
+    const firstRiverMask = new Uint8Array(size);
+    const secondRiverMask = new Uint8Array(size);
+    const exactPlots: number[] = [];
+    const featureMismatchPlots: number[] = [];
+    for (const [offset, row] of expectedRows.entries()) {
+      const exact = 8 * width + 8 + offset;
+      const missingFeature = exact + width;
+      const mismatchedFeature = exact + 2 * width;
+      exactPlots.push(exact);
+      featureMismatchPlots.push(missingFeature, mismatchedFeature);
+      for (const plot of [exact, missingFeature, mismatchedFeature]) {
+        biomeType[plot] = row[0];
+        terrainType[plot] = row[1];
+        featureType[plot] = row[2];
+        (offset % 2 === 0 ? firstRiverMask : secondRiverMask)[plot] = 1;
+      }
+      featureType[missingFeature] = NO_FEATURE_TYPE;
+      featureType[mismatchedFeature] = expectedRows[(offset + 1) % expectedRows.length]![2];
+    }
+    const coastRiver = 12 * width + 8;
+    const coast = coastRiver + 8;
+    for (const plot of [coastRiver, coast]) {
+      biomeType[plot] = biomes.BIOME_MARINE;
+      terrainType[plot] = terrains.TERRAIN_COAST;
+    }
+    firstRiverMask[coastRiver] = 1;
+    const legalitySurface = {
+      biomeType,
+      terrainType,
+      featureType,
+      engineWaterMask: new Uint8Array(size),
+    };
+    const stockCrabs = buildResourceLegalityMask({ width, height, ...legalitySurface }, crabId);
+    const stockFish = buildResourceLegalityMask({ width, height, ...legalitySurface }, fishId);
+    const result = run({
+      ...baseline,
+      legalitySurface,
+      riverMasks: [firstRiverMask, secondRiverMask],
+    });
+    const crab = result.candidates.admitted.find((row) => row.source.resourceType === "RESOURCE_CRABS");
+    const fish = result.candidates.admitted.find((row) => row.source.resourceType === "RESOURCE_FISH");
+    if (!crab || !fish) throw new Error("Missing Crab/Fish tuple-discriminator demands.");
+
+    for (const plot of exactPlots) {
+      expect(stockCrabs[plot]).toBe(1);
+      expect(crab.demand.legalMask[plot]).toBe(1);
+      expect(stockFish[plot]).toBe(0);
+      expect(fish.demand.legalMask[plot]).toBe(0);
+    }
+    for (const plot of featureMismatchPlots) {
+      expect(stockCrabs[plot]).toBe(0);
+      expect(crab.demand.legalMask[plot]).toBe(0);
+    }
+    expect(stockCrabs[coastRiver]).toBe(1);
+    expect(crab.demand.legalMask[coastRiver]).toBe(0);
+    expect(fish.demand.legalMask[coastRiver]).toBe(0);
+    expect(crab.demand.legalMask[coast]).toBe(1);
+    expect(fish.demand.legalMask[coast]).toBe(1);
+    expect(crab.demand.legalTileCount).toBe(6);
+    expect(crab.demand.eligibleTileCount).toBe(6);
+    expect(crab.demand.weight).toBe(resolveResourceRuntimeIds().byType.get("RESOURCE_CRABS")!.weight);
+    expect(crab.source.expectedCountRange).toEqual(
+      expectations.find((row) => row.resourceType === "RESOURCE_CRABS")!.expectedCountRange
+    );
   });
 
   it("keeps finite Fish subject to official surfaces, adjacency, river exclusion, age, and range", () => {
