@@ -432,6 +432,55 @@ describe("Shipped map configs", () => {
     }
   });
 
+  it("admits all three fertility-free bog envelopes while retaining other wetland controls", async () => {
+    const configs = await loadSwooperMapConfigRegistry();
+    expect(configs).toHaveLength(3);
+    const expectedFloors = {
+      "swooper-earthlike": 0.42,
+      "swooper-desert-mountains": 0.32,
+      "sundered-archipelago": 0.35,
+    } as const;
+    for (const { canonicalConfig } of configs) {
+      const before = structuredClone(canonicalConfig);
+      const stage = canonicalConfig.config["ecology-features"];
+      const scoring = stage["score-layers"];
+      const bog = scoring.scoreWetTundraBog;
+      expect(bog).toEqual({
+        strategy: "cold-hydromorphic",
+        config: { waterMin01: 0.55, freezeMin01: 0.55, tempColdMaxC: 4, tempWarmMaxC: 14 },
+      });
+      expect(scoring.scoreWetMarsh.config.fertilityMin01).toBe(0.2);
+      expect(scoring.scoreWetMangrove.config.fertilityMin01).toBe(0.15);
+      expect(stage["plan-wetlands"].planWetlands).toEqual({
+        strategy: "habitat-confidence",
+        config: { minConfidence01: expectedFloors[canonicalConfig.id as keyof typeof expectedFloors] },
+      });
+      expect(admitStandardMapConfig(canonicalConfig)).toEqual(canonicalConfig);
+      const compiled = standardRecipe.compileConfig(
+        createStandardRecipeTestInitialSetup({ mapConfig: canonicalConfig }),
+        canonicalConfig.config
+      )["ecology-features"];
+      expect(compiled["score-layers"].scoreWetTundraBog).toEqual(bog);
+      expect(compiled["score-layers"].scoreWetMarsh).toEqual(scoring.scoreWetMarsh);
+      expect(compiled["score-layers"].scoreWetMangrove).toEqual(scoring.scoreWetMangrove);
+      expect(compiled["plan-wetlands"]).toEqual(stage["plan-wetlands"]);
+      expect(() => admitStandardMapConfig({
+        ...canonicalConfig,
+        config: {
+          ...canonicalConfig.config,
+          "ecology-features": {
+            ...stage,
+            "score-layers": {
+              ...scoring,
+              scoreWetTundraBog: { ...bog, config: { ...bog.config, fertilityMin01: 0.1 } },
+            },
+          },
+        },
+      })).toThrow("Unknown key");
+      expect(canonicalConfig).toEqual(before);
+    }
+  });
+
   it("rejects retired biome majority strategy and edge controls through canonical admission", async () => {
     const configs = await loadSwooperMapConfigRegistry();
     for (const { canonicalConfig } of configs) {

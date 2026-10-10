@@ -203,7 +203,13 @@ describe("ecology-features score-layers step", () => {
         return ops.scoreWetMarsh(input, operationConfig);
       };
       const scoreWetTundraBog: typeof ops.scoreWetTundraBog = (input, operationConfig) => {
+        expect(Object.keys(input).sort()).toEqual([
+          "freezeIndex", "height", "hydromorphicMask", "landMask", "surfaceTemperature", "water01", "width",
+        ]);
+        expect(input.landMask).toBe(hydrography.exposedLandMask);
         expect(input.water01).toBe(substrateFields().atmosphericWater01);
+        expect(input.water01).not.toBe(substrateFields().plantWater01);
+        expect(input.surfaceTemperature).toBe(surfaceTemperatureC);
         return ops.scoreWetTundraBog(input, operationConfig);
       };
       const scoreWetOasis: typeof ops.scoreWetOasis = (input, operationConfig) => {

@@ -1,7 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import coldHydromorphicDefinition from "./strategies/cold-hydromorphic/config.js";
 
-/** Scores cold saturated land from hydromorphic substrate, water, fertility, freeze, and temperature. Every implementation shares this admitted input and output boundary. */
+/** Scores cold hydromorphic land from atmospheric moisture, freeze, and temperature. Every implementation shares this admitted input and output boundary. */
 const ScoreWetTundraBogContract = defineOp({
   kind: "compute",
   id: "ecology/wet/score/tundra-bog",
@@ -10,10 +10,9 @@ const ScoreWetTundraBogContract = defineOp({
     height: Type.Integer({ minimum: 1 }),
     landMask: TypedArraySchemas.u8({ description: "Land mask (1 = land, 0 = water)." }),
     hydromorphicMask: TypedArraySchemas.u8({
-      description: "Mask (1/0): floodplain, sink-basin, or intertidal wetland substrate.",
+      description: "Mask (1/0): floodplain-or-low-shore proxy near resolved water, including finite lakes; not measured saturation or peat.",
     }),
-    water01: TypedArraySchemas.f32({ description: "Water availability proxy (0..1)." }),
-    fertility01: TypedArraySchemas.f32({ description: "Fertility proxy (0..1)." }),
+    water01: TypedArraySchemas.f32({ description: "Atmospheric moisture availability proxy (0..1)." }),
     surfaceTemperature: TypedArraySchemas.f32({ description: "Surface temperature (C)." }),
     freezeIndex: TypedArraySchemas.f32({ description: "Freeze index (0..1)." }),
   }),

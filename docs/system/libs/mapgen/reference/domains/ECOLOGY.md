@@ -141,7 +141,10 @@ Feature scoring and planning stay separate:
   Mangrove scoring combines warmth, fertility, and low aridity after that marine low-shore gate;
   it does not require the generic terrestrial `water01` multiplier. The gate is an empirical wet-habitat
   approximation, not a measurement of salinity, tides, freshwater access, or root uptake. Marsh and
-  tundra-bog scorers retain their terrestrial water inputs. Before arbitration and occupancy
+  tundra-bog scorers consume `atmosphericWater01`, not plant water or local source opportunity.
+  Bog scoring combines that atmospheric-water response with cold and freeze responses, without
+  treating generic fertility as a habitat requirement. These annual proxies do not establish
+  hydroperiod, peat accumulation, or seasonal active-layer thaw. Before arbitration and occupancy
   reservation, the Standard recipe supplies closed five-family terrain/biome compatibility masks for planned flat
   ground from official Civ7 feature policy and its shared canonical biome/feature projection maps.
   These masks are transient planner inputs, not an artifact or a prediction of complete native

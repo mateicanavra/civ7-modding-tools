@@ -1,7 +1,7 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Requires hydromorphic substrate, then favors frozen, waterlogged cold terrain.
+ * Requires hydromorphic substrate proxy, then favors moist, frozen cold terrain.
  * It changes only authored controls; the shared operation remains the sole input and output authority.
  */
 export default defineStrategy({
@@ -12,13 +12,7 @@ export default defineStrategy({
         default: 0.55,
         minimum: 0,
         maximum: 1,
-        description: "Minimum water availability for tundra-bog suitability.",
-      }),
-      fertilityMin01: Type.Number({
-        default: 0.1,
-        minimum: 0,
-        maximum: 1,
-        description: "Minimum soil fertility for tundra-bog suitability.",
+        description: "Minimum atmospheric moisture availability for tundra-bog suitability.",
       }),
       freezeMin01: Type.Number({
         default: 0.55,
@@ -41,7 +35,7 @@ export default defineStrategy({
     },
     {
       description:
-        "Water, fertility, freeze-index, and temperature thresholds used to score tundra-bog habitat on admitted hydromorphic substrate.",
+        "Atmospheric moisture, freeze-index, and temperature thresholds used to score tundra-bog habitat on admitted hydromorphic substrate proxy.",
     }
   ),
 });

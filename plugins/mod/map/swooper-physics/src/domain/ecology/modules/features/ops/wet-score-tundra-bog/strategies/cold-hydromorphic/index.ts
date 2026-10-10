@@ -5,7 +5,7 @@ import { rampDown01, rampUp01 } from "../../../../model/policy/feature-score-sel
 import Contract from "../../contract.js";
 import StrategyDefinition from "./config.js";
 
-/** Requires hydromorphic substrate, then favors frozen, waterlogged cold terrain. */
+/** Requires hydromorphic substrate proxy, then favors moist, frozen cold terrain. */
 const coldHydromorphicStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input, config) => {
     const size = input.width * input.height;
@@ -16,10 +16,10 @@ const coldHydromorphicStrategy = createStrategy(Contract, StrategyDefinition, {
       if (input.landMask[i] === 0) continue;
       if (input.hydromorphicMask[i] === 0) continue;
 
-      // Tundra bogs require saturated cold ground; cold climate alone should
-      // not create bog intents on well-drained terrain.
+      // The hydromorphic proxy admits wet substrate, not measured peat chemistry.
+      // Cold climate alone must not create bog intents on well-drained terrain;
+      // generic soil fertility is not a bog nutrient prerequisite.
       const waterSuit = rampUp01(input.water01[i], config.waterMin01, 1);
-      const fertilitySuit = rampUp01(input.fertility01[i], config.fertilityMin01, 1);
       const coldSuit = rampDown01(
         input.surfaceTemperature[i],
         config.tempColdMaxC,
@@ -27,7 +27,7 @@ const coldHydromorphicStrategy = createStrategy(Contract, StrategyDefinition, {
       );
       const freezeSuit = rampUp01(input.freezeIndex[i], config.freezeMin01, 1);
 
-      score01[i] = clamp01(waterSuit * fertilitySuit * coldSuit * freezeSuit);
+      score01[i] = clamp01(waterSuit * coldSuit * freezeSuit);
     }
 
     return { score01 };
