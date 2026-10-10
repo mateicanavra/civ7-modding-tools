@@ -81,7 +81,9 @@ describe("ecology-features score-layers step", () => {
     let lotusCalls = 0;
     let iceCalls = 0;
     let featureSubstrateCalls = 0;
+    let mangroveCalls = 0;
     let vegetationSubstrateOutput: ReturnType<typeof features.computeVegetationSubstrate.run> | undefined;
+    let featureSubstrateOutput: ReturnType<typeof features.computeFeatureSubstrate.run> | undefined;
     const effectiveMoisture = new Float32Array(size).fill(120);
     const localSurfaceWaterOpportunity = new Float32Array(size).fill(280);
     const pet = new Float32Array(size).fill(80);
@@ -174,31 +176,37 @@ describe("ecology-features score-layers step", () => {
         return vegetationSubstrateOutput;
       };
       const scoreForest: typeof ops.scoreForest = (input, operationConfig) => {
+        expect(input.fertility01).toBe(substrateFields().fertility01);
         expect(input.plantWater01).toBe(substrateFields().plantWater01);
         expect(input.plantWaterStress01).toBe(substrateFields().plantWaterStress01);
         return ops.scoreForest(input, operationConfig);
       };
       const scoreRainforest: typeof ops.scoreRainforest = (input, operationConfig) => {
+        expect(input.fertility01).toBe(substrateFields().fertility01);
         expect(input.plantWater01).toBe(substrateFields().plantWater01);
         expect(input.plantWaterStress01).toBe(substrateFields().plantWaterStress01);
         return ops.scoreRainforest(input, operationConfig);
       };
       const scoreTaiga: typeof ops.scoreTaiga = (input, operationConfig) => {
+        expect(input.fertility01).toBe(substrateFields().fertility01);
         expect(input.atmosphericWater01).toBe(substrateFields().atmosphericWater01);
         expect(input.plantWaterStress01).toBe(substrateFields().plantWaterStress01);
         return ops.scoreTaiga(input, operationConfig);
       };
       const scoreSavannaWoodland: typeof ops.scoreSavannaWoodland = (input, operationConfig) => {
+        expect(input.fertility01).toBe(substrateFields().fertility01);
         expect(input.plantWater01).toBe(substrateFields().plantWater01);
         expect(input.climaticAridity01).toBe(substrateFields().climaticAridity01);
         return ops.scoreSavannaWoodland(input, operationConfig);
       };
       const scoreSagebrushSteppe: typeof ops.scoreSagebrushSteppe = (input, operationConfig) => {
+        expect(input.fertility01).toBe(substrateFields().fertility01);
         expect(input.atmosphericWater01).toBe(substrateFields().atmosphericWater01);
         expect(input.climaticAridity01).toBe(substrateFields().climaticAridity01);
         return ops.scoreSagebrushSteppe(input, operationConfig);
       };
       const scoreWetMarsh: typeof ops.scoreWetMarsh = (input, operationConfig) => {
+        expect(input.fertility01).toBe(substrateFields().fertility01);
         expect(input.water01).toBe(substrateFields().atmosphericWater01);
         return ops.scoreWetMarsh(input, operationConfig);
       };
@@ -211,6 +219,18 @@ describe("ecology-features score-layers step", () => {
         expect(input.water01).not.toBe(substrateFields().plantWater01);
         expect(input.surfaceTemperature).toBe(surfaceTemperatureC);
         return ops.scoreWetTundraBog(input, operationConfig);
+      };
+      const scoreWetMangrove: typeof ops.scoreWetMangrove = (input, operationConfig) => {
+        mangroveCalls++;
+        expect(Object.keys(input).sort()).toEqual([
+          "aridityIndex", "height", "intertidalCoastMask", "landMask", "surfaceTemperature", "width",
+        ]);
+        expect(input.landMask).toBe(hydrography.exposedLandMask);
+        expect(input.surfaceTemperature).toBe(surfaceTemperatureC);
+        expect(input.aridityIndex).toBe(aridityIndex);
+        expect(featureSubstrateOutput).toBeDefined();
+        expect(input.intertidalCoastMask).toBe(featureSubstrateOutput!.intertidalCoastMask);
+        return ops.scoreWetMangrove(input, operationConfig);
       };
       const scoreWetOasis: typeof ops.scoreWetOasis = (input, operationConfig) => {
         expect(input.localSurfaceWaterOpportunity).toBe(localSurfaceWaterOpportunity);
@@ -230,7 +250,8 @@ describe("ecology-features score-layers step", () => {
         expect(input.externalWaterMask).toBe(topography.externalWaterMask);
         expect(input.externalWaterMask[0]).toBe(1);
         expect(input.externalWaterMask[wetCell]).toBe(0);
-        return ops.featureSubstrate(input, operationConfig);
+        featureSubstrateOutput = ops.featureSubstrate(input, operationConfig);
+        return featureSubstrateOutput;
       };
       const scoreIce: typeof ops.scoreIce = (input, operationConfig) => {
         iceCalls++;
@@ -257,6 +278,7 @@ describe("ecology-features score-layers step", () => {
         scoreSagebrushSteppe,
         scoreWetMarsh,
         scoreWetTundraBog,
+        scoreWetMangrove,
         scoreWetOasis,
         scoreWetWateringHole,
       },
@@ -267,6 +289,7 @@ describe("ecology-features score-layers step", () => {
     expect(lotusCalls).toBe(1);
     expect(iceCalls).toBe(1);
     expect(featureSubstrateCalls).toBe(1);
+    expect(mangroveCalls).toBe(1);
     expect(suitability.layers.ice[0]).toBe(cold ? 1 : 0);
     expect(suitability.layers.ice.every((score, cell) => score === 0 || topography.externalWaterMask[cell] === 1)).toBe(true);
     expect(suitability.layers.ice[wetCell]).toBe(0);

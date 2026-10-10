@@ -922,7 +922,6 @@
         "scoreWetMangrove": {
           "strategy": "warm-intertidal",
           "config": {
-            "fertilityMin01": 0.15,
             "aridityMax01": 0.7,
             "tempWarmStartC": 18,
             "tempWarmEndC": 30

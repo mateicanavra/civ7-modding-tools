@@ -5,7 +5,7 @@ import { rampDown01, rampUp01 } from "../../../../model/policy/feature-score-sel
 import Contract from "../../contract.js";
 import StrategyDefinition from "./config.js";
 
-/** Requires marine intertidal substrate, then combines warmth, fertility, and low aridity. */
+/** Scores coarse mangrove occurrence from marine low-shore substrate, warmth, and low aridity. */
 const warmIntertidalStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input, config) => {
     const size = input.width * input.height;
@@ -16,18 +16,17 @@ const warmIntertidalStrategy = createStrategy(Contract, StrategyDefinition, {
       if (input.landMask[i] === 0) continue;
       if (input.intertidalCoastMask[i] === 0) continue;
 
-      // Mangroves are warm intertidal coast features, not generic humid coastal
-      // vegetation. The marine low-shore gate is the wet-habitat proxy, not a
-      // measurement of freshwater connection, salinity, or root uptake.
+      // Marine low shore is a coarse occurrence proxy, not generic humid coast.
+      // Nutrients, persistent tidal inundation, salinity, freshwater connection,
+      // and root uptake are not measured by these admitted fields.
       const warmSuit = rampUp01(
         input.surfaceTemperature[i],
         config.tempWarmStartC,
         config.tempWarmEndC
       );
-      const fertilitySuit = rampUp01(input.fertility01[i], config.fertilityMin01, 1);
       const ariditySuit = rampDown01(input.aridityIndex[i], config.aridityMax01, 1);
 
-      score01[i] = clamp01(warmSuit * fertilitySuit * ariditySuit);
+      score01[i] = clamp01(warmSuit * ariditySuit);
     }
 
     return { score01 };

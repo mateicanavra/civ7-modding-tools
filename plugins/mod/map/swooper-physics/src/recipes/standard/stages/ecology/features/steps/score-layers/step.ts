@@ -166,7 +166,6 @@ export const ScoreLayersStep = createStep(config, {
         height,
         landMask: ecologyLandMask,
         intertidalCoastMask: featureSubstrate.intertidalCoastMask,
-        fertility01: vegetationSubstrate.fertility01,
         surfaceTemperature: climateIndices.surfaceTemperatureC,
         aridityIndex: climateIndices.aridityIndex,
       },

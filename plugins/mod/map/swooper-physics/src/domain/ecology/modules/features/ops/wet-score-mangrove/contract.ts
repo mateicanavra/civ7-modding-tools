@@ -1,7 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import warmIntertidalDefinition from "./strategies/warm-intertidal/config.js";
 
-/** Scores warm marine intertidal habitat from fertility, aridity, and temperature evidence. Every implementation shares this admitted input and output boundary. */
+/** Scores coarse mangrove occurrence from marine low-shore, aridity, and temperature evidence. Every implementation shares this admitted input and output boundary. */
 const ScoreWetMangroveContract = defineOp({
   kind: "compute",
   id: "ecology/wet/score/mangrove",
@@ -12,7 +12,6 @@ const ScoreWetMangroveContract = defineOp({
     intertidalCoastMask: TypedArraySchemas.u8({
       description: "Mask (1/0): low exposed coastal land adjacent to marine water.",
     }),
-    fertility01: TypedArraySchemas.f32({ description: "Fertility proxy (0..1)." }),
     surfaceTemperature: TypedArraySchemas.f32({ description: "Surface temperature (C)." }),
     aridityIndex: TypedArraySchemas.f32({ description: "Aridity index (0..1)." }),
   }),

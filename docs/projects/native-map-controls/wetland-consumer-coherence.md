@@ -5,7 +5,8 @@
 Separate the environmental evidence for a wetland from generic plant-growth
 preferences and from the policy that admits its score for placement. Start with
 one tundra-bog dependency, not a shared-floor adjustment or a climate rewrite.
-Marsh, mangrove and dryland point-water families remain independently owned.
+The subsequent mangrove response is independently reviewed below. Marsh and
+dryland point-water families remain separately owned.
 
 The incumbent bog scorer multiplied atmospheric water, fertility, cold and freeze
 responses after admitting hydromorphic substrate. Pedology's fertility blends
@@ -157,3 +158,161 @@ veto is inferred from this repair.
 - [Delivery inventory](delivery-inventory.md)
 
 [epa]: https://www.epa.gov/wetlands/classification-and-types-wetlands
+
+## Mangrove Occurrence Response
+
+### Selected Mechanism
+
+The incumbent mangrove scorer multiplied annual warmth, generic Pedology
+fertility and low-aridity responses after requiring exposed marine low shore. Remove only
+the fertility occurrence penalty, its input, direct binding and authored
+control from the existing `warm-intertidal` operation. Retain the producer,
+warmth `18..30 C`, aridity `0.7..1`, marine/relief gate, flatness, official
+compatibility, prior occupancy, arbitration and each map's admission policy.
+The Earthlike floor remains `0.42`. All three retained configurations retire
+the dead control; there is no compatibility fallback or new abstraction.
+
+Pedology fertility blends rainfall/humidity, relief, sediment and bedrock
+context. The recipe does not bind bedrock age, while its configured weight
+remains in the normalization. That missing-input/denominator relationship is
+an open producer question under this investigation, not a repair in this unit.
+Neither the composite nor any one term measures necessary mangrove nutrient
+availability, tidal hydroperiod, salinity or recruitment success.
+
+[Almahasheer et al.][mangrove-nutrients] observe nutrient-poor mangrove stands
+with reduced stature and experimental growth responses. Their recruitment
+caveat, and [Sato et al.][mangrove-establishment]'s nutrient-assisted
+establishment, prevent a claim that nutrients are irrelevant. They do not
+establish our composite productivity ramp as a necessary-occurrence condition.
+The selected correction removes that unsupported inference rather than fitting
+a mangrove count. A minimum-factor aggregation would preserve the same
+unjustified necessity; shortened ramps, gains and floor changes have no better
+independent justification.
+
+Marine low shore remains a coarse wet-habitat proxy, not verified intertidal
+habitat. Tidal flooding, salinity and hydrogeomorphic conditions matter to real
+mangroves ([NOAA habitat guidance][mangrove-habitat]). Shelter, wave exposure,
+propagules, damaging cold extremes and nutrient-specific uptake are absent.
+Temperature is an annual ground-surface field, not leaf temperature or a cold
+extreme. The existing empirical warmth/aridity curves remain unchanged and are
+not calibrated probabilities. This unit does not fix those separate limitations.
+
+### Pre-Implementation Discrimination
+
+Current climate, complete mangrove scores, bog scores, wetland intentions and
+vegetation intentions first reproduce the sealed bog runtime on the authentic
+Standard 1 and Huge 2 retained maps. Removing fertility alone then produces
+eight and thirty-three legal mangrove intentions, displacing exactly the same
+numbers of later rainforest intentions. Other wetland intentions hold.
+
+These are all eight and thirty-three current legal, flat, free marine-low-shore
+cells. The saturation is explicit: the retained eligible cohort contains no
+climatic negative, not evidence of universal coastal occupancy. Its temperature
+and dryness-supported scores remain nonconstant; colder, nonflat, incompatible
+and occupied shores remain outside admission. Missing tidal/shelter variation
+limits confidence and spatial coverage, but retaining generic fertility would
+not supply those observations.
+
+Seventeen local regimes exercise actual compiled Earthlike demand, water budget,
+cryosphere, Pedology without bedrock binding, biome classification, substrates,
+wet-family scores, compatibility and planner. Temperature/geometry are admitted
+local boundaries, not new generated climate evidence. Humidity derives from the
+actual precipitation-scale helper rather than independent authoring.
+
+At `24 C`, rainfall `200`, humidity `255` and sediment `1`, actual fertility is
+`0.797797`: the incumbent score `0.381057` fails the held floor; the selected
+response `0.5` admits mangrove. Lower sediment `0.2` produces fertility
+`0.628377`, incumbent `0.281398` and the same selected score. A warmer, rich-soil
+incumbent-positive remains positive. Moderate-rain cases cross the selected
+score floor but their actual temperate-dry/tropical-seasonal classifications
+remain officially incompatible, so no mangrove intention is produced.
+Cold, dry, inland, finite-water-only, high-shore and water controls reject;
+explicit planner-boundary flatness, compatibility and occupancy guards hold.
+No fertility, aridity, biome or marine mask is hand-authored in the causal
+regimes. These controls discriminate the remaining modeled gates, not real
+mangrove establishment.
+
+### Qualification Expectations
+
+| Regime / Boundary | Required Consequence | Guard |
+| --- | --- | --- |
+| Retained Standard 1 / Huge 2 | Production matches the selected score and lawful intent digests | Exactly 8 / 33 later rainforest occupancy removals; no wider vegetation change |
+| Cold, dry, nonmarine, water and high shore | No mangrove admission | Existing response curves and marine proxy held |
+| Moderate, incompatible, nonflat or occupied | A high score cannot bypass admission | Actual classifier/official policy and ordered occupancy held |
+| Complete paired recipes | Measure final features and feature-driven resource legality | All 41 public model fields, relief/water projection and unrelated scores exact |
+| Resources, wonders, starts and fairness | Trace actual consequences, including changed legal-site opportunities | No inferred identity from unchanged habitat inputs; no policy compensation |
+| Existing checks and integrity | No new failed requirement | The known thermal failure stays explicit and unwaived |
+
+Qualify precisely Standard 1 and Huge 2 against the sealed bog pair through
+complete public recipe captures. The retained raw lacks foundation inputs and
+adapter/RNG lifetime for resources/starts and must not be used to manufacture
+that continuation. A feature change can alter official resource legality even
+when resource habitat fields hold. Native feasibility, deployment and live
+acceptance require separate correlated evidence. Review this complete owner
+change before merging or selecting another consumer; do not run additional worlds or
+broad science campaigns to replace this bounded proof.
+
+### Completed Mangrove Pair
+
+The sealed production consumer closes the selected retained witness through
+eight actual recipe steps and fifty owner-operation calls. Mangrove scores,
+wetland intentions and subsequent vegetation intentions match the discriminator
+exactly. Other score families, climate/cryosphere and authentic retained inputs
+hold; this is not a resources/starts continuation from incomplete raw inputs.
+
+Exactly two complete public recipes then compare Standard map/game seed `1`
+and Huge map/game seed `2` against the sealed bog pair. All forty-one public
+model fields, their typed-array contracts, physical projection, terrain, biome
+and water readback hold exactly before downstream attribution. Package source
+trees hold with the previously disclosed compiled grid-entrypoint bridge, not
+a claim that every compiled byte is identical. Both existing integrity targets
+pass all forty-nine expectations; no observation hook or new runtime instrument
+was added. Final feature changes are precisely eight and thirty-three
+rainforest-to-mangrove cells, with no headless feature refusal.
+
+| Observed Consequence | Standard 1 | Huge 2 |
+| --- | --- | --- |
+| Changed resource cells | 23 | 16 |
+| Total placed resources | 223 to 224 | 240 to 246 |
+| Clay / Kaolin / Rice | 6/0/0 to 7/1/1 | 6/0/0 to 8/2/6 |
+| Mangos | 2 to 1 | 5 to 1 |
+| Players with changed seat coordinates | 4 of 8 | 5 of 10 |
+| Worst published start-score gap | 0.091495 to 0.058800 | 0.082232, unchanged |
+| Minimum start spacing | 11, unchanged | 10 to 9 |
+| Global start-dispersion index | 1.011266 to 1.065929 | 0.866291 to 0.790411 |
+| Radius-four resource support per start | 4-6 to 3-5 | 2-4 to 3-5 |
+
+Resource habitat masks and admitted target/range/spacing controls hold. Official
+feature legality changes the available sites: the new feature admits more Clay,
+Kaolin and Rice but removes rainforest-only Mango opportunity. Huge Mango
+eligible sites fall from twenty-six to zero; the remaining resource is an
+existing legal-only regional-minimum placement, not player support or proof of
+a viable Mango range. Its recorded target shortfall rises from zero to four.
+Standard Wool
+also changes from seven to six. Total resource count is therefore not a verdict
+that all supply improved. No resource target, feature floor or physical field
+was changed to conceal this tradeoff.
+
+All eight/ten players remain fully seated on legal dry land with freshwater,
+without fallback, imputation or region relaxation. Resource support remains
+three to five per start, gap two, with no shortfall. Natural-wonder placements
+hold exactly. The existing placement and resource-distribution targets pass on
+this two-map pair before and after; that does not qualify the full stable-seed
+cohort. Resource and seat coordinates are explicitly not invariant.
+Huge start dispersion worsens while its score gap holds; the existing dispersion
+requirement is a cohort mean, not a per-map floor. The two-case candidate mean is
+`0.928170`, above `0.85`, without establishing full-cohort qualification.
+
+Annual within-row temperature variation remains exactly `0.178088` and
+`0.129471 C`, below the unchanged one-degree requirement. No new climate claim
+or full-bank calibration run follows from this consumer correction. The
+definition check passes all fifty-six Habitat rules and typing/build checks;
+forty-eight focused tests pass 803 assertions. The realization build/loader
+gate passes eleven tests and seventy assertions across all three generated map
+bundles. Installation and native acceptance remain separate proof boundaries;
+headless legal placement does not prove engine feasibility or real intertidal
+conditions.
+
+[mangrove-nutrients]: https://www.frontiersin.org/journals/marine-science/articles/10.3389/fmars.2016.00271/full
+[mangrove-establishment]: https://pmc.ncbi.nlm.nih.gov/articles/PMC3080477/
+[mangrove-habitat]: https://oceanservice.noaa.gov/education/tutorial_estuaries/est07_adaptations.html
