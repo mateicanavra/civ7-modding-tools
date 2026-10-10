@@ -11,6 +11,7 @@ export const HABITAT_MASK_FIELD_NAMES = [
   "reefOrProtectedShallowsMask",
   "estuaryMask",
   "navigableRiverMouthMask",
+  "majorRiverMask",
   "lakeMask",
   "iceMask",
   "aridRangelandMask",

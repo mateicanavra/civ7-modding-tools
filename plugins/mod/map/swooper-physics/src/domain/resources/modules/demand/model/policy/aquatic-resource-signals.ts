@@ -14,6 +14,7 @@ export type AquaticMaskField =
   | "reefOrProtectedShallowsMask"
   | "estuaryMask"
   | "navigableRiverMouthMask"
+  | "majorRiverMask"
   | "lakeMask";
 
 export type AquaticSuppressionField = "lakeMask" | "iceMask";
@@ -24,7 +25,7 @@ export type AquaticResourceSignals = {
 };
 
 /**
- * Physical eligibility policy for each aquatic resource, mapping it to primary water-habitat
+ * Physical eligibility policy for each aquatic resource, mapping it to primary aquatic-habitat
  * masks and lake/ice suppressors. Empty primary lists intentionally keep officially visible
  * but currently unplaceable types blocked instead of assigning generic habitat.
  */
@@ -42,7 +43,7 @@ export const AQUATIC_SIGNALS: Record<AquaticResourceType, AquaticResourceSignals
     suppress: ["lakeMask", "iceMask"],
   },
   RESOURCE_CRABS: {
-    primary: ["estuaryMask", "navigableRiverMouthMask", "coastalWaterMask"],
+    primary: ["estuaryMask", "navigableRiverMouthMask", "coastalWaterMask", "majorRiverMask"],
     suppress: ["iceMask"],
   },
   RESOURCE_COWRIE: {

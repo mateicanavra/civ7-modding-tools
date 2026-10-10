@@ -114,7 +114,7 @@ describe("derive-habitat-fields operation contract", () => {
     }
   });
 
-  it("keeps aquatic lanes on water and terrestrial lanes on land (E2.4 marine lane)", () => {
+  it("keeps marine lanes on water and terrestrial lanes on land (E2.4 marine lane)", () => {
     const input = syntheticInput();
     const result = runAdmittedOperationForTest(
       resources.habitat.ops.deriveHabitatFields,
@@ -132,6 +132,69 @@ describe("derive-habitat-fields operation contract", () => {
       }
     }
     expect(coastalCount).toBeGreaterThan(0);
+  });
+
+  it("admits only exposed non-lake major corridors and suppresses their frozen aquatic baseline", () => {
+    const input = { ...syntheticInput(), seaIceCover: new Uint8Array(size) };
+    input.surfaceTemperature.fill(10);
+    input.riverClass.fill(0);
+    const major = 4 * width + 8;
+    const larger = 4 * width + 16;
+    const minor = 4 * width + 24;
+    const dry = 4 * width + 32;
+    const submergedSea = 4 * width + 1;
+    const submergedLake = 8 * width + 8;
+    const exposedLake = 8 * width + 16;
+    const frozenTemperature = 12 * width + 8;
+    const frozenCover = 12 * width + 16;
+    const unfrozenEdge = 12 * width + 24;
+    input.landMask[submergedLake] = 0;
+    input.lakeMask[submergedLake] = 1;
+    input.lakeMask[exposedLake] = 1;
+    input.surfaceTemperature[frozenTemperature] = -4;
+    input.seaIceCover[frozenCover] = 128;
+    input.surfaceTemperature[unfrozenEdge] = -3.9;
+    input.seaIceCover[unfrozenEdge] = 127;
+    const baseline = derive(input);
+    for (const plot of [
+      major,
+      submergedSea,
+      submergedLake,
+      exposedLake,
+      frozenTemperature,
+      frozenCover,
+      unfrozenEdge,
+    ]) input.riverClass[plot] = 2;
+    input.riverClass[larger] = 3;
+    input.riverClass[minor] = 1;
+
+    const result = derive(input);
+    for (let i = 0; i < size; i++) {
+      expect(result.majorRiverMask[i]).toBe(
+        Number(input.landMask[i] === 1 && input.lakeMask[i] !== 1 && input.riverClass[i]! >= 2)
+      );
+    }
+    for (const plot of [major, larger, unfrozenEdge]) {
+      expect(result.majorRiverMask[plot]).toBe(1);
+      expect(result.iceMask[plot]).toBe(0);
+      expect(result.aquaticIntensity[plot]).toBe(Math.fround(0.4));
+    }
+    for (const plot of [minor, dry, submergedSea, submergedLake, exposedLake]) {
+      expect(result.majorRiverMask[plot]).toBe(0);
+    }
+    for (const plot of [minor, dry, exposedLake]) expect(result.aquaticIntensity[plot]).toBe(0);
+    for (const plot of [frozenTemperature, frozenCover]) {
+      expect(result.majorRiverMask[plot]).toBe(1);
+      expect(result.iceMask[plot]).toBe(1);
+      expect(result.aquaticIntensity[plot]).toBe(0);
+    }
+    for (const field of HABITAT_INTENSITY_FIELD_NAMES) {
+      if (field === "aquaticIntensity") continue;
+      expect(result[field], field).toEqual(baseline[field]);
+      for (const plot of [major, frozenTemperature, frozenCover]) {
+        expect(result[field][plot], field).toBeGreaterThan(0);
+      }
+    }
   });
 
   it("weights unfrozen physical finite water by interior, exposed shore, and shore river", () => {

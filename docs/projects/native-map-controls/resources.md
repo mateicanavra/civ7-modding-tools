@@ -315,3 +315,92 @@ sites nor a new physics rule is invented to hide this one. Navigable-river Crab
 eligibility is the next separate habitat/legal repair, not part of this count
 comparison. The current native capture does not establish vessel behavior or
 refreshed screenshots.
+
+### Navigable Crab Consumer Design
+
+Stock Crabs carry `NAVIGABLE_RIVERS_ELIGIBLE` and five exact navigable-terrain /
+biome / floodplain feature tuples. Fish does not carry that admission: ordinary
+Fishing Boat yields on navigable rivers are not discrete Fish-resource legality.
+The current demand owner vetoes every river cell after stock legality, while
+Crab habitat names only coastal water and coastal mouth cells. These are two
+demonstrated consumer omissions, not a reason to modify drainage or river density.
+
+Add one `majorRiverMask` to the existing habitat vocabulary, derived solely from
+exposed, non-lake physical land with river class at least two. This represents a
+physical corridor, not proof of native navigation. Unfrozen major corridors use
+the existing aquatic intensity baseline `0.4`; extend aquatic ice suppression
+to those corridors without changing other family intensities or marine/lake
+lanes. Only the Crab primary habitat adds this field. Reusing the general
+alluvial/minor-river mask instead would obscure that distinction and widen
+habitat capacity beyond the desired corridor.
+
+Keep the generated stock legality predicate unchanged. At the demand owner,
+preserve an already-legal river cell only when the resource has the official
+navigable-eligibility tag and the current terrain is native navigable river.
+The exact biome/feature tuple must still pass. Do not reinterpret the stock
+ignore-weight tag as permission to alter authored resource weighting. All
+other river exclusions, Fish policy, player-scaled ranges, spacing, ages,
+regional minima and selection algorithms remain unchanged. No new operation,
+artifact, recipe step, configuration knob or native write path is required.
+
+Prove major/minor/submerged/frozen discriminators, the five exact legal tuples,
+and mismatched-feature, coastal-river and Fish negatives through the existing
+habitat/demand/selection tests. Compare the same eleven fixed-input cases to
+the admitted supply baseline: physical and projection fields must hold, only
+the declared habitat/intensity/Crab legality may widen, and actual navigable
+Crab selections must be reported. Preserve all 539 sample and one cohort guards
+and record ordinary occupancy/start effects. Choose a native witness from that
+declared cohort with positive navigable selections; require actual stock oracle,
+placement and readback evidence before claiming native delivery. Capacity alone
+is not placement, and resource realization is not vessel movement.
+
+### Navigable Crab Consumer Verification
+
+The bounded implementation passes 76 focused habitat/demand/selection tests,
+including a deterministic four-Crab navigable selection witness at unchanged
+spacing. Source and test TypeScript pass. Fresh SDK review is aligned after
+correcting the official corpus lookup to its existing record contract. The
+complete owner graph passes build, types and policy, 371 realization tests and
+412 Studio tests. Definition tests pass 1,308 cases with only the unchanged
+within-row thermal expectation failing.
+
+The same eleven fixed-input cases pass all 539 sample expectations and the one
+cohort expectation. They select 102 Crabs: 84 coastal and 18 NAV, versus 94
+coastal Crabs before the repair. All remain within the unchanged player-scaled
+ranges and spacing. Existing regional minima explain some count increases;
+these are not all ordinary-rotation placements. All 281 frozen major-corridor
+cells remain ineligible. The 38 model properties, eight projection properties,
+thirteen non-resource observations, all 55 ranges and Fish admission/counts
+hold. Declared corridor habitat, aquatic intensity, ice suppression and exact
+stock-qualified Crab legality are the only owner changes. Old raw habitat and
+legal masks were not retained: the owner comparison uses a pinned same-input
+replay, not invented retained-mask identity. Ordinary site and seat changes
+are reported, with complete seating and no unseated players.
+
+Fresh Huge generation at map/game seeds `-1152948646/-1152948677`, ten players
+and the saved setup completes in 36.8 seconds including orchestration. Native
+Crabs increase from ten to eleven solely at NAV plot `(85,54)`, a regional-minimum
+selection with the exact tundra/floodplain tuple. All 6,996 terrain, biome,
+water, lake, elevation, river-class and feature values hold, as do the preceding
+234 native resource sites and all ten founder coordinates. The same six
+incumbent resource refusals remain, including the previously documented Fish.
+An earlier census was interrupted by a map restart and is not used as complete
+proof; the repeated census holds its exact game identity before and after.
+
+A second fresh Huge game at seeds `1337/1337` completes in 28.3 seconds.
+Ordinary-rotation NAV Crab at `(64,41)` is accepted with the exact plains /
+floodplain tuple. The other authored NAV Crab at `(43,38)` retains its exact
+tropical / floodplain tuple but receives `cannot-have-resource`; it is also an
+authored/native founder plot. That coincidence is not yet a causal diagnosis.
+The game contains nine of ten authored Crabs and all thirty Fish, within the
+unchanged expected ranges, with 221 of 233 total resource intents accepted.
+There is no retained preceding native census for this seed, so this is source
+readback and writer proof, not a matched native collateral comparison.
+
+Both games confirm stock-qualified NAV Crab realization without changing river
+authoring, Fish legality or geography. They do not promise every preferred
+resource site is writable or prove vessel movement. Both also expose seven
+NAV founder tiles despite exact planned-coordinate parity and native
+`water=false`; the separate founder-admission repair must precede any claim of
+all-player dry-start quality. Do not repair that outcome by removing rivers or
+overriding native resource legality.
