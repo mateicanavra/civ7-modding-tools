@@ -17,6 +17,17 @@ replay. Historical eight-product captures remain immutable comparison evidence.
 
 ## Current Product Closure
 
+The latest [cold-forest consumer repair](cold-forest-consumer-coherence.md#qualified-outcome)
+removes the taiga scorer's contradictory frost requirement without changing
+climate, plant water, biome classification, other feature scores or placement
+policy. Actual Huge/Standard pairs gain 15/30 boreal taiga sites and 33/30 tundra
+sites, all previously bare. Physical fields and actual public start placement
+hold. The full suites retain only the known regional thermal-study failure.
+A fresh random Huge native map observes 576 taiga features on legal native
+terrain/biome, ten dry non-NAV founders, full reveal and unbounded autoplay.
+This closes that bounded consumer and visible realization, not Earth ecological
+calibration or the separate point-water/wetland habitat investigation.
+
 The latest [local plant-water integration](local-plant-water-design.md#completed-causal-qualification)
 adds separately named plant moisture/stress to the existing climate-indices
 artifact. Atmospheric temperature, rainfall, humidity, dryness and physical
