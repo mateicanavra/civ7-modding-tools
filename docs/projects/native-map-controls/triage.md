@@ -128,12 +128,14 @@ defect or a preferred coefficient. Q-001's geometry question remains separate.
 #### Q-005: Wetland Suitability And Admission
 
 Marsh, tundra bog and mangrove have distinct responses followed by a shared
-admission floor. Bog-only removal of generic fertility is qualified in two
-complete recipe pairs, including actual taiga displacement and Clay gains;
-polar resource overrepresentation nevertheless increases. Broad habitat proxies,
-annual cold/freeze meaning, the other family responses and shared admission
-remain open. More lawful placements do not establish scientific adequacy or
-generally improved resource distribution.
+admission floor. Separate bog and mangrove corrections remove generic fertility
+as a prerequisite without changing that floor. Their paired consequences are
+not uniformly beneficial: bog replaces taiga and increases polar resource
+concentration; mangrove replaces rainforest, reduces Mango opportunity and
+changes resources, starts and support. Broad habitat proxies, seasonal and tidal
+meaning, remaining response factors and shared admission remain open. More
+lawful placements do not establish scientific adequacy or generally improved
+resource distribution.
 [Read the research question](questions/q-005-wetland-suitability.md).
 
 ### Benchmark Authority / Ecological Prevalence

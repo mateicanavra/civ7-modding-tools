@@ -1,7 +1,7 @@
 # Wetland Occurrence: Bounded Evidence
 
 This portable evidence summary separates the original two-case headless
-diagnostic, source-led point-water and bog-consumer qualifications, and a native
+diagnostic, source-led point-water, bog and mangrove qualifications, and a native
 feature census on a different map. None is a wetland abundance target. Habitat,
 suitability, compatibility, prior occupancy, admitted intent and final output
 have different meanings and populations. The later qualifications do not
@@ -266,10 +266,10 @@ retained report findings, not an added verification or a new run by this summary
 The [merged bog-consumer outcome][bog-qualified] removes only the generic
 fertility prerequisite from tundra-bog suitability. Hydromorphic support,
 atmospheric water, cold/freeze curves, native compatibility, flat/free admission,
-planner ordering and the shared 0.42 floor remain unchanged. Marsh, mangrove,
-other fertility consumers and the pedology producer are not retuned. This is a
-supported consumer correction with bounded downstream qualification, not
-whole-wetland scientific validation.
+planner ordering and the shared 0.42 floor remain unchanged. In that comparison,
+marsh, mangrove, other fertility consumers and the pedology producer are not
+retuned. This is a supported consumer correction with bounded downstream
+qualification, not whole-wetland scientific validation.
 
 ### Retained Replay And Complete Pairs
 
@@ -374,6 +374,151 @@ editorial summary, and there is no fresh native-game proof. [Q-005][wetland-ques
 remains open for substrate, seasonality, marsh/mangrove response and shared
 admission adequacy.
 
+## Qualified Mangrove-Consumer Result
+
+The [merged mangrove outcome][mangrove-qualified] removes generic Pedology
+fertility as an occurrence multiplier, along with its direct input, binding and
+authored control. Warmth, low aridity, exposed marine-low-shore support, flatness,
+official compatibility, prior occupancy, arbitration and admission policy hold.
+Earthlike's floor stays 0.42; all three map configurations retire the dead control.
+The fertility producer, marsh and bog are unchanged by this correction.
+
+This is not the bog argument applied indiscriminately. Nutrients can affect
+mangrove growth and establishment; the mixed growth composite is not measured
+nutrient supply or evidence of a necessary occurrence condition. Removing the
+multiplier neither models root-zone chemistry nor validates the unchanged
+empirical warmth/aridity curves. [Q-005][wetland-question] supplies the Earth
+context and keeps habitat and admission adequacy open.
+
+### Source Identities And Local Controls
+
+- Pre-implementation discriminator source:
+  `3ae89fefad8fee376d69ad94d4624e34f134f398`.
+- Actual production runtime: `4829c718eb1dfe5cddd57bb3b32c2208de184fbc`.
+- Accepted result documentation: `a602477b62a547fe398164090d93f072612558e9`.
+- Merged source and report: `22438584f152a420901c0fa0d0e90f175a815f32`.
+- Complete-pair comparator: bog runtime
+  `be9b403bdc2d586c990c56dfb543b8506f849e6c`.
+
+The merged tree is identical to the accepted documentation tree; the latter
+changes documentation only after the runtime. None is an installation or
+fresh native-observation identity.
+
+The retained discriminator first reproduces the sealed bog runtime, then
+substitutes only a fertility-free mangrove score. It reports two compiles,
+eight recipe-step calls and 54 owner-operation calls, plus two private candidate
+score evaluations. The selected contrast admits eight and thirty-three mangrove
+intentions and removes exactly as many later rainforest intentions. Other
+wetland intentions hold. These are all eight and thirty-three currently legal,
+flat, free marine-low-shore opportunities, not all 94 and 493 substrate cells.
+The eligible retained cohort contains no climatic negative; it cannot establish
+appropriate coastal coverage or all-seed occurrence.
+
+Seventeen local regimes exercise the actual demand, water-budget, cryosphere,
+Pedology, classifier, substrate, family-score and planner chain. Their annual
+temperatures and 5-by-3 geometry are admitted local boundaries, not new generated
+climate or reachable-world evidence. Humidity comes from the actual precipitation
+helper. There are 241 input/configuration immutability checks, with source and
+dependencies unchanged during the reported run.
+
+At 24 degrees C, rainfall 200, produced humidity 255 and sediment 1, fertility
+is 0.797797; the incumbent score is 0.381057, below 0.42, while the selected score
+is 0.5. Sediment 0.2 gives fertility 0.628377 and incumbent score 0.281398, but
+the same selected score. A warmer incumbent-positive case stays positive.
+Moderate-rain cases can exceed the new score floor but fail actual native-biome
+compatibility. Cold, dry, inland, finite-water-only, high-shore and water cases
+reject. Nonflat, occupied and artificial-incompatibility cases are separately
+identified planner-boundary guards, not generated-terrain or floodplain facts.
+The controls discriminate modeled gates, not real seedling establishment.
+
+### Production Replay And Complete Pairs
+
+Production retained replay reports two compiles, eight actual recipe steps and
+50 owner-operation calls. It exactly closes the selected mangrove scores,
+wetland intentions and subsequent vegetation intentions; other family scores,
+climate/cryosphere and authentic retained inputs hold. It makes zero generation,
+resource/start-owner or native calls. As with the bog replay, missing foundation
+inputs and adapter/random-state lifetime prevent a complete downstream
+continuation from those raw inputs.
+
+Exactly two complete public headless recipes instead compare Standard 1/1 and
+Huge 2/2 with the sealed bog captures. Both integrity targets pass forty-nine
+expectations each. All forty-one public model fields, their typed-array
+contracts and physical terrain, biome, elevation, water, rivers and lakes hold.
+Final feature changes are precisely eight and thirty-three rainforest-to-mangrove
+cells, without feature or resource refusals. Marsh remains 2/2 and bog 8/6;
+discovery and parity checks hold. Resource and start outputs are not exact.
+
+| Completed recipe outcome | Standard 1/1 | Huge 2/2 |
+| --- | ---: | ---: |
+| Mangrove features | 0 to 8 | 0 to 33 |
+| Rainforest features | 20 to 12 | 55 to 22 |
+| Changed resource cells | 23 | 16 |
+| Total placed resources | 223 to 224 | 240 to 246 |
+| Clay placements | 6 to 7 | 6 to 8 |
+| Kaolin placements | 0 to 1 | 0 to 2 |
+| Rice placements | 0 to 1 | 0 to 6 |
+| Mangos placed | 2 to 1 | 5 to 1 |
+| Wool placements | 7 to 6 | Unchanged |
+| Players with changed seat coordinates | 4 of 8 | 5 of 10 |
+| Worst published start-score gap | 0.091495 to 0.058800 | 0.082232 to 0.082232 |
+| Minimum start spacing, tiles | 11 to 11 | 10 to 9 |
+| Global start-dispersion index | 1.011266 to 1.065929 | 0.866291 to 0.790411 |
+| Radius-four resource support per start | 4-6 to 3-5 | 2-4 to 3-5 |
+
+### Resource Opportunity And Seating Tradeoffs
+
+Resource habitat masks and target/range/spacing controls hold. Official feature
+legality nevertheless changes the available sites: new mangrove admits more
+Clay, Kaolin and Rice while removing rainforest-only Mango opportunity. Huge
+Mango eligible sites fall from twenty-six to zero. Its sole Mango, at plot 3654,
+is a new `region-minimum` intent under the unchanged legal-only regional-minimum
+exception, not player support or persistence of the same earlier placement.
+The recorded target shortfall rises from zero to four. Increased total resource
+count therefore does not mean every resource's supply improved.
+
+All eight and ten players remain fully seated on legal dry land with freshwater,
+without fallback, imputation or region relaxation. The radius-four support
+settings and empty shortfall records hold; realized support counts do not.
+Standard changes from four-to-six resources per start to three-to-five; Huge
+changes from two-to-four to three-to-five. Both candidates have a gap of two
+and no support shortfall. Natural-wonder placements remain exact.
+
+The [start-dispersion index][start-spread] divides mean nearest-neighbor start
+spacing by the square root of land area per start. Huge's decline means less
+spread relative to that reference; its worst start-score gap is unchanged.
+The existing dispersion requirement is a cohort mean, not a per-map floor.
+The two-case candidate mean is 0.928170, above 0.85. Existing placement and
+resource-distribution requirements pass before and after on this two-map pair,
+not a newly qualified full stable-seed bank. No target or physical field was
+changed to offset the resource or seating consequences.
+
+### Dependency Custody And Remaining Limits
+
+The complete mangrove pair retains exact source trees for five dependency
+packages, but one of 102 comparable compiled pins differs:
+`packages/mapgen-core/dist/lib/grid/index.js`. Six additional CJS/type files
+were not pinned by the prior bog captures. This explicit grid-entrypoint bridge
+is not the earlier bog fresh pair's zero-difference comparison, and does not
+establish whole-SDK or whole-build byte identity. Exact observed model/physical
+fields support bounded downstream attribution, not an inferred explanation of
+that binary difference.
+
+Marine low shore is still only a coarse proxy. Tidal flooding, salinity,
+shelter, waves, propagule arrival and recruitment remain unmodeled. Annual
+ground temperature does not measure damaging cold extremes or leaf temperature.
+The unbound bedrock-age input and its retained normalization weight remain an
+open Pedology producer question, not a proven defect or a repair in this unit.
+
+The owner reports 48 focused tests with 803 assertions, all 56 definition
+Habitat rules and typing/build checks, plus 11 realization loader tests with
+70 assertions across all three generated map bundles. Annual within-row
+temperature variation remains 0.178088 and 0.129471 degrees C, still below the
+unchanged one-degree requirement; this existing failure is not waived by the
+consumer correction. These are reported qualification results, not executions
+by this editorial summary. Merge, headless legality and local controls do not
+establish installation, fresh native acceptance or physical calibration.
+
 ## A Separate Native Occurrence Observation
 
 An independently retained native readback covers all 6,996 unique plots of a
@@ -445,6 +590,20 @@ The bog-consumer qualification is separately bound:
 | Bog-qualified Standard 1/1 capture receipt | `b6cae77c77cd3270d4d9a4b5fb9c9bd15a91f24db9c5df12f7e62ee0f271372e` |
 | Bog-qualified Huge 2/2 capture receipt | `41842669c4f678d7f14d2263967f7ba65f43c491d752e9f334b492dd200e3c17` |
 
+The mangrove discrimination and qualification have their own bindings:
+
+| Retained artifact | SHA-256 |
+| --- | --- |
+| Mangrove retained discriminator result | `5a6ac52cb8bcacd7c74b77abceec3b3517320a43c052c4128e70675e913cf3ba` |
+| Mangrove retained discriminator program | `5f1cdf20088c25371626f4d5262a721448130d56e05afcb21f8479cd39b2aa98` |
+| Mangrove local discriminator result | `716242c99619318aa66276cb14894a18520b696efb71fb536a7321fd97b70484` |
+| Mangrove local discriminator program | `75ed9eb53f1cd9bf2341cf2fdb28c7dcac5d79f021fac3455ba638e290b803a0` |
+| Mangrove production retained-replay result | `3eda072f15ab6bddea8901e778cc8103d4dca644e6c0d98bacc3f1117f8b2c31` |
+| Mangrove production retained-replay program | `6583c6266a4a2f4ba5927b1f6783708825801fb5a8a390de4455c9cf5ec6d8d1` |
+| Two-capture mangrove qualification manifest | `f8ff6bb408a1ee471524ac9039a78d06c8d7c0bda56376639919a09937866f52` |
+| Mangrove-qualified Standard 1/1 capture receipt | `6454031f4eb2575b48180b3b2c00f2e62ff035d06ccdff79d435eb7384da4a9a` |
+| Mangrove-qualified Huge 2/2 capture receipt | `673d9eba8047c3f13c344834a2dc41ac93a450ec7fc5b7b5ef931c955261bf29` |
+
 The private diagnostic programs and census reducer have no committed producer
 revisions of their own. Their findings therefore remain prose evidence with
 explicit custody and source limits, not a
@@ -461,3 +620,5 @@ preferred threshold follows from these results.
 [wetland-question]: questions/q-005-wetland-suitability.md
 [bog-qualified]: https://github.com/mateicanavra/civ7-modding-tools/blob/7080b22891f2b77297132fa7699fd42fc5fdb4a7/docs/projects/native-map-controls/wetland-consumer-coherence.md#qualified-outcome
 [resource-distribution]: https://github.com/mateicanavra/civ7-modding-tools/blob/4ae7b311a1e259449001b96b683860c5b682301e/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/families/resources.ts#L386-L409
+[mangrove-qualified]: https://github.com/mateicanavra/civ7-modding-tools/blob/22438584f152a420901c0fa0d0e90f175a815f32/docs/projects/native-map-controls/wetland-consumer-coherence.md#completed-mangrove-pair
+[start-spread]: https://github.com/mateicanavra/civ7-modding-tools/blob/4829c718eb1dfe5cddd57bb3b32c2208de184fbc/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/families/placement.ts#L468-L494
