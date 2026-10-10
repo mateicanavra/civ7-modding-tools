@@ -62,6 +62,23 @@ native legality or claim full resource parity. Parallel coastal rivers and
 rainforest scarcity remain separate calibration questions; these images do
 not establish that NAV projection consumes atmospheric moisture.
 
+The subsequent [minor-river vegetation admission repair](continuation-sequence.md#completed-owner-qualification)
+removes the vegetation planner's blanket river exclusion without changing
+scores, moisture, thresholds or quotas. Both Huge comparisons restore all 23
+identified bare rainforest sites under their existing confidence floor;
+rainforest counts move from `37/40` to `49/51`. All physical/climate fields,
+river/lake/elevation projection, resource captures and founder coordinates
+hold. Early feature occupancy remains intact; the later natural-wonder
+selection changes one wonder per map, with seven placed in each and no
+shortfall. Placement score diagnostics change slightly and remain within the
+unchanged expectations. All 98 paired sample expectations pass. Full owner
+verification retains only the known thermal aggregate failure, with no new
+study refusal. This is qualified owner behavior plus six prior native legality
+predicates, not fresh candidate-native placement or complete lake-shore
+moisture calibration. Finalized lake surfaces do not yet feed an explicit
+root-zone water balance; no vegetation promotion beside every waterbody was
+introduced as a substitute.
+
 The single retained island transect resolves to finite water and does not
 demonstrate lost marine relief. No new island algorithm is selected from that
 example. The broader geography observation needs a matched marine connection;
