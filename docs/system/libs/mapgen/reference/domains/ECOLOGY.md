@@ -138,8 +138,8 @@ Feature scoring and planning stay separate:
   atmospheric climatic dryness. It has no isolation mask, second adjacency estimate, or whole-tile
   moisture requirement. Annual source support does not establish seasonal liquid-water survival,
   salinity, groundwater, or the extent of a habitable patch.
-  Mangrove scoring combines warmth, fertility, and low aridity after that marine low-shore gate;
-  it does not require the generic terrestrial `water01` multiplier. The gate is an empirical wet-habitat
+  Mangrove occurrence scoring combines warmth and low aridity after that marine low-shore gate;
+  it does not require generic fertility or the terrestrial `water01` multiplier. The gate is an empirical wet-habitat
   approximation, not a measurement of salinity, tides, freshwater access, or root uptake. Marsh and
   tundra-bog scorers consume `atmosphericWater01`, not plant water or local source opportunity.
   Bog scoring combines that atmospheric-water response with cold and freeze responses, without

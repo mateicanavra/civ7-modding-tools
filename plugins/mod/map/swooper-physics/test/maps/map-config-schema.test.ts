@@ -432,7 +432,7 @@ describe("Shipped map configs", () => {
     }
   });
 
-  it("admits all three fertility-free bog envelopes while retaining other wetland controls", async () => {
+  it("admits all three fertility-free bog and mangrove envelopes while retaining marsh and planner controls", async () => {
     const configs = await loadSwooperMapConfigRegistry();
     expect(configs).toHaveLength(3);
     const expectedFloors = {
@@ -445,12 +445,16 @@ describe("Shipped map configs", () => {
       const stage = canonicalConfig.config["ecology-features"];
       const scoring = stage["score-layers"];
       const bog = scoring.scoreWetTundraBog;
+      const mangrove = scoring.scoreWetMangrove;
       expect(bog).toEqual({
         strategy: "cold-hydromorphic",
         config: { waterMin01: 0.55, freezeMin01: 0.55, tempColdMaxC: 4, tempWarmMaxC: 14 },
       });
       expect(scoring.scoreWetMarsh.config.fertilityMin01).toBe(0.2);
-      expect(scoring.scoreWetMangrove.config.fertilityMin01).toBe(0.15);
+      expect(mangrove).toEqual({
+        strategy: "warm-intertidal",
+        config: { aridityMax01: 0.7, tempWarmStartC: 18, tempWarmEndC: 30 },
+      });
       expect(stage["plan-wetlands"].planWetlands).toEqual({
         strategy: "habitat-confidence",
         config: { minConfidence01: expectedFloors[canonicalConfig.id as keyof typeof expectedFloors] },
@@ -464,19 +468,22 @@ describe("Shipped map configs", () => {
       expect(compiled["score-layers"].scoreWetMarsh).toEqual(scoring.scoreWetMarsh);
       expect(compiled["score-layers"].scoreWetMangrove).toEqual(scoring.scoreWetMangrove);
       expect(compiled["plan-wetlands"]).toEqual(stage["plan-wetlands"]);
-      expect(() => admitStandardMapConfig({
-        ...canonicalConfig,
-        config: {
-          ...canonicalConfig.config,
-          "ecology-features": {
-            ...stage,
-            "score-layers": {
-              ...scoring,
-              scoreWetTundraBog: { ...bog, config: { ...bog.config, fertilityMin01: 0.1 } },
+      for (const key of ["scoreWetTundraBog", "scoreWetMangrove"] as const) {
+        const selection = scoring[key];
+        expect(() => admitStandardMapConfig({
+          ...canonicalConfig,
+          config: {
+            ...canonicalConfig.config,
+            "ecology-features": {
+              ...stage,
+              "score-layers": {
+                ...scoring,
+                [key]: { ...selection, config: { ...selection.config, fertilityMin01: 0.1 } },
+              },
             },
           },
-        },
-      })).toThrow("Unknown key");
+        })).toThrow("Unknown key");
+      }
       expect(canonicalConfig).toEqual(before);
     }
   });
