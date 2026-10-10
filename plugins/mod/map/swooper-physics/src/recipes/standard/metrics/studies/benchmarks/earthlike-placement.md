@@ -12,13 +12,33 @@ stable seed interval `1337..1356`. Every sample first passes `standard/integrity
 
 ## Placement expected outcomes
 
-Every scenario must give at least 80% of starts modeled/headless freshwater
-opportunity; start fertility at least `1.05x` land fertility; worst pair score gap
-`<=0.30`; non-regional fallback and unique region relaxation each `<=5%`; no
-small landmass (less than 25% of modeled land) may seat half the players;
-global dispersion `>=85%` of even spacing; each multi-start homeland `>=40%`;
-climate-tail starts `<=10%`; and the radius-4 support contract must realize at
-least two resources per start with gap `<=2` and no shortfall.
+**Freshwater evidence boundary:** Opportunity means a modeled river or observed
+headless lake on or adjacent to a start, not a native Civ7 freshwater founding
+bonus. Freshwater is a soft start-score component, not a guarantee of that native
+bonus.
+
+**Pooled cohort shares:** Counts and measured start populations are summed across
+the twenty scenarios. Freshwater opportunity must reach at least 80% of starts;
+non-regional fallback and unique recorded homeland-region relaxation must each
+remain `<=5%`; climate-tail starts must remain `<=10%`. These are cohort shares,
+not per-map share floors or ceilings.
+
+**Cohort-mean global dispersion:** The arithmetic mean of per-map global
+dispersion indices must reach `>=85%` of even spacing over modeled land. Every
+map must have an available observation; empty cohorts or missing observations
+fail. This is not an `>=85%` requirement for every map individually.
+
+**Per-map and regional requirements:** Every scenario's radius-two start
+fertility mean must be at least `1.05x` its land fertility mean, and its published
+`0..1` worst pair score gap must be `<=0.30`. No landmass with less than 25% of
+modeled land may seat half or more of the players. Each multi-start homeland must
+retain `>=40%` of even spacing over its modeled land.
+
+**Start-support requirements:** Every map must use the radius-4 support contract
+with configured floor two and equity tolerance two. Every start must realize at
+least two resources within that radius, and every map's realized support gap
+must be `<=2`. Support populations must be nonempty, with no starts below the
+configured floor and no recorded planning shortfall.
 
 **Placement expectation IDs:** `freshwater-access-share`,
 `fertility-advantage`, `worst-pair-fairness-gap`,
