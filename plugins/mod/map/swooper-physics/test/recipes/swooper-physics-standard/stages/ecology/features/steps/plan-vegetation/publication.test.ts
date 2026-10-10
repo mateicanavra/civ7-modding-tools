@@ -93,6 +93,7 @@ describe("ecology-features plan-vegetation step", () => {
         treeLine01: new Float32Array(size),
       });
       publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
+        localSurfaceWaterOpportunity: new Float32Array(size),
         effectiveMoisture: new Float32Array(size).fill(120),
         plantEffectiveMoisture: new Float32Array(size).fill(120),
         surfaceTemperatureC: new Float32Array(size).fill(20),
@@ -256,6 +257,7 @@ describe("ecology-features plan-vegetation step", () => {
           treeLine01: new Float32Array(size),
         });
         publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
+          localSurfaceWaterOpportunity: new Float32Array(size),
           effectiveMoisture: new Float32Array(size).fill(120),
           plantEffectiveMoisture: new Float32Array(size).fill(120),
           surfaceTemperatureC: new Float32Array(size).fill(temperature),

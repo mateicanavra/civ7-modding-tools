@@ -25,6 +25,8 @@ const petAridityStrategy = createStrategy(ComputeLandWaterBudgetContract, PetAri
     const plantEffectiveMoisture = new Float32Array(size);
     const plantWaterStress = new Float32Array(size);
     const opportunity = computeLocalSurfaceWaterOpportunity(input);
+    // Publish Float32 separately; plant calculations retain the unrounded opportunity.
+    const localSurfaceWaterOpportunity = new Float32Array(opportunity);
 
     for (let i = 0; i < size; i++) {
       if (input.landMask[i] !== 1) {
@@ -53,7 +55,7 @@ const petAridityStrategy = createStrategy(ComputeLandWaterBudgetContract, PetAri
         : petValue / (petValue + precip + localWater + 1);
     }
 
-    return { pet, effectiveMoisture, aridityIndex, plantEffectiveMoisture, plantWaterStress };
+    return { pet, effectiveMoisture, aridityIndex, localSurfaceWaterOpportunity, plantEffectiveMoisture, plantWaterStress };
   },
 });
 

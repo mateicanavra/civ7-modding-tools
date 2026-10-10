@@ -88,6 +88,13 @@ plant moisture/stress to the same existing `climateIndices` publication. The
 implementation remains unadmitted until qualification; no new artifact family
 or stage is needed.
 
+The qualification below admits that plant-index path. The subsequent
+[dryland point-water repair](dryland-point-water-coherence.md#qualified-outcome)
+also publishes the existing local opportunity `L` directly in the same artifact
+for source-led oasis/watering-hole consumers; it does not reconstruct `L` from
+rounded plant/atmospheric fields or replace climatic dryness. Its generated-world
+occurrence limitation remains explicit.
+
 | Consumer | Selected meaning |
 | --- | --- |
 | Thermal-zone transition context and snow | Existing atmospheric moisture, unchanged |

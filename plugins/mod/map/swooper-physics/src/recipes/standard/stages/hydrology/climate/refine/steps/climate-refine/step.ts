@@ -141,6 +141,7 @@ export const ClimateRefineStep = createStep(config, {
       effectiveMoisture: waterBudget.effectiveMoisture,
       pet: waterBudget.pet,
       aridityIndex: waterBudget.aridityIndex,
+      localSurfaceWaterOpportunity: waterBudget.localSurfaceWaterOpportunity,
       plantEffectiveMoisture: waterBudget.plantEffectiveMoisture,
       plantWaterStress: waterBudget.plantWaterStress,
       freezeIndex: cryosphere.freezeIndex,

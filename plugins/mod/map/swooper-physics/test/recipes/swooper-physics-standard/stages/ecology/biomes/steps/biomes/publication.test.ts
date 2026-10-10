@@ -82,6 +82,7 @@ describe("biomes step", () => {
       });
 
       publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
+        localSurfaceWaterOpportunity: new Float32Array(size),
         surfaceTemperatureC,
         effectiveMoisture: effectiveMoistureIn,
         plantEffectiveMoisture,
@@ -182,6 +183,7 @@ describe("biomes step", () => {
           meltPotential01: new Float32Array(size),
         });
         publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
+          localSurfaceWaterOpportunity: new Float32Array(size),
           surfaceTemperatureC: new Float32Array(size).fill(15),
           effectiveMoisture: effectiveMoistureIn,
           plantEffectiveMoisture: effectiveMoistureIn,

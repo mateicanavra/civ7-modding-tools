@@ -11,6 +11,7 @@ describe("climate-refine index projections", () => {
       pet: new Float32Array([50, 60]),
       effectiveMoisture: new Float32Array([20, 30]),
       aridityIndex: new Float32Array([0.7, 0.8]),
+      localSurfaceWaterOpportunity: new Float32Array([100, 200]),
       plantEffectiveMoisture: new Float32Array([120, 230]),
       plantWaterStress: new Float32Array([0.1, 0.2]),
       freezeIndex: new Float32Array([0, 0.3]),
@@ -27,7 +28,7 @@ describe("climate-refine index projections", () => {
         rainShadowIndex: new Float32Array(2), continentalityIndex: new Float32Array(2), convergenceIndex: new Float32Array(2),
       },
     }, dimensions);
-    for (const key of ["effectiveMoisture", "aridityIndex", "plantEffectiveMoisture", "plantWaterStress"] as const) {
+    for (const key of ["effectiveMoisture", "aridityIndex", "localSurfaceWaterOpportunity", "plantEffectiveMoisture", "plantWaterStress"] as const) {
       const grids = projections.filter((projection) =>
         projection.kind === "grid" && projection.dataTypeKey === `hydrology.climate.indices.${key}`);
       expect(grids).toHaveLength(1);

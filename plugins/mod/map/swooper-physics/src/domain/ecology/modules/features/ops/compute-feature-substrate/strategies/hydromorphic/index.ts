@@ -31,13 +31,6 @@ const hydromorphicStrategy = createStrategy(Contract, StrategyDefinition, {
       radius: config.nearRiverRadius,
     });
 
-    const isolatedRiverMask = computeRiverAdjacencyMask({
-      width,
-      height,
-      riverMask,
-      radius: config.isolatedRiverRadius,
-    });
-
     const coastalLandMask = computeCoastalLandMask({
       width,
       height,
@@ -63,7 +56,6 @@ const hydromorphicStrategy = createStrategy(Contract, StrategyDefinition, {
       riverMask,
       discharge,
       nearRiverMask,
-      isolatedRiverMask,
       coastalLandMask,
       marineCoastalLandMask,
       nearRiverRadius: config.nearRiverRadius,
@@ -75,7 +67,6 @@ const hydromorphicStrategy = createStrategy(Contract, StrategyDefinition, {
     return {
       navigableRiverMask: new Uint8Array(navigableRiverMask),
       nearRiverMask,
-      isolatedRiverMask,
       coastalLandMask,
       ...wetlandSubstrate,
     };

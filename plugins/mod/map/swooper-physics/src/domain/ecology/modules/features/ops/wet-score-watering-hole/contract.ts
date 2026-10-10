@@ -1,7 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import aridWaterpointDefinition from "./strategies/arid-waterpoint/config.js";
+import sourceLedDrylandDefinition from "./strategies/source-led-dryland/config.js";
 
-/** Scores sparse arid habitat around isolated water points from water, fertility, aridity, and temperature. Every implementation shares this admitted input and output boundary. */
+/** Scores admitted local surface-water opportunity in dry climatic context; native plains compatibility is planned separately. */
 const ScoreWetWateringHoleContract = defineOp({
   kind: "compute",
   id: "ecology/wet/score/watering-hole",
@@ -9,20 +9,18 @@ const ScoreWetWateringHoleContract = defineOp({
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
     landMask: TypedArraySchemas.u8({ description: "Land mask (1 = land, 0 = water)." }),
-    isolatedWaterPointMask: TypedArraySchemas.u8({
-      description: "Mask (1/0): isolated lowland water-source substrate.",
+    localSurfaceWaterOpportunity: TypedArraySchemas.f32({
+      description: "Hydrology-owned annual local surface-water opportunity per represented tile area, in empirical rainfall-index units.",
     }),
-    plantWater01: TypedArraySchemas.f32({ description: "Normalized plant-water support, not a saturation or geometry inference (0..1)." }),
-    fertility01: TypedArraySchemas.f32({ description: "Fertility proxy (0..1)." }),
+    pet: TypedArraySchemas.f32({ description: "Published post-albedo potential demand in the same empirical scale as local opportunity." }),
     aridityIndex: TypedArraySchemas.f32({ description: "Atmospheric aridity for the climatic habitat gate (0..1)." }),
-    surfaceTemperature: TypedArraySchemas.f32({ description: "Surface temperature (C)." }),
   }),
   output: Type.Object({
     score01: TypedArraySchemas.f32({
       description: "Watering hole suitability score per tile (0..1).",
     }),
   }),
-  strategies: [aridWaterpointDefinition],
+  strategies: [sourceLedDrylandDefinition],
 });
 
 export default ScoreWetWateringHoleContract;

@@ -179,10 +179,9 @@ export const ScoreLayersStep = createStep(config, {
         width,
         height,
         landMask: ecologyLandMask,
-        isolatedWaterPointMask: featureSubstrate.isolatedWaterPointMask,
-        plantWater01: vegetationSubstrate.plantWater01,
+        localSurfaceWaterOpportunity: climateIndices.localSurfaceWaterOpportunity,
+        pet: climateIndices.pet,
         aridityIndex: climateIndices.aridityIndex,
-        surfaceTemperature: climateIndices.surfaceTemperatureC,
       },
       stepConfig.scoreWetOasis
     ).score01;
@@ -192,11 +191,9 @@ export const ScoreLayersStep = createStep(config, {
         width,
         height,
         landMask: ecologyLandMask,
-        isolatedWaterPointMask: featureSubstrate.isolatedWaterPointMask,
-        plantWater01: vegetationSubstrate.plantWater01,
-        fertility01: vegetationSubstrate.fertility01,
+        localSurfaceWaterOpportunity: climateIndices.localSurfaceWaterOpportunity,
+        pet: climateIndices.pet,
         aridityIndex: climateIndices.aridityIndex,
-        surfaceTemperature: climateIndices.surfaceTemperatureC,
       },
       stepConfig.scoreWetWateringHole
     ).score01;

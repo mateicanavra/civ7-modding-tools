@@ -42,6 +42,7 @@ describe("hydrology/compute-land-water-budget effective moisture", () => {
     const second = computeLandWaterBudget.run(input, strategy);
 
     expect(first.effectiveMoisture).toEqual(new Float32Array([0, 75, 150, 0, 289.25, 75]));
+    expect(first.localSurfaceWaterOpportunity).toEqual(new Float32Array(width * height));
     for (const tileIndex of [0, 1, 2, 4, 5]) {
       const petValue = input.pet[tileIndex]!;
       expect(first.pet[tileIndex]).toBe(Math.fround(petValue));

@@ -17,6 +17,19 @@ replay. Historical eight-product captures remain immutable comparison evidence.
 
 ## Current Product Closure
 
+The latest [dryland point-water consumer repair](dryland-point-water-coherence.md#qualified-outcome)
+publishes existing local water opportunity directly and replaces contradictory
+heat/fertility/isolation prerequisites with source-led oasis and watering-hole
+support. Actual producer/classifier/planner regimes demonstrate lawful intent.
+Four prescribed captures pass integrity; paired physical fields, final features,
+resources and starts hold exactly. All four still produce zero point-water
+features: compatible sites' climatic dryness support cannot clear the retained
+floor even with infinite source support. This closes a bounded consumer repair,
+not generated-world scarcity, scientific calibration or fresh native placement.
+Full suites retain only the existing thermal aggregate failure. The remaining
+climatic/classifier/admission relationship is explicit, not hidden by tuning or
+quotas; marsh, bog and mangrove remain separate consumer questions.
+
 The latest [cold-forest consumer repair](cold-forest-consumer-coherence.md#qualified-outcome)
 removes the taiga scorer's contradictory frost requirement without changing
 climate, plant water, biome classification, other feature scores or placement

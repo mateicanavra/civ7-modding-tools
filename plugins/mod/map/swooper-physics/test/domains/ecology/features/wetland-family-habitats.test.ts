@@ -7,7 +7,7 @@ import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../setup.js";
 
 describe("ecology wetland-family habitats", () => {
-  it("requires hydromorphic, intertidal, or isolated water-source substrate", () => {
+  it("requires hydromorphic, intertidal, or admitted local water-source evidence", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const landMask = new Uint8Array(size).fill(1);
@@ -15,8 +15,8 @@ describe("ecology wetland-family habitats", () => {
     hydromorphicMask[1] = 1;
     const intertidalCoastMask = new Uint8Array(size);
     intertidalCoastMask[1] = 1;
-    const isolatedWaterPointMask = new Uint8Array(size);
-    isolatedWaterPointMask[1] = 1;
+    const localSurfaceWaterOpportunity = new Float32Array(size);
+    localSurfaceWaterOpportunity[1] = 60;
     const water01 = new Float32Array(size).fill(0.85);
     const fertility01 = new Float32Array(size).fill(0.7);
     const surfaceTemperature = new Float32Array(size).fill(14);
@@ -24,7 +24,6 @@ describe("ecology wetland-family habitats", () => {
     const coldTemperature = new Float32Array(size);
     const aridityIndex = new Float32Array(size).fill(0.25);
     const dryAridityIndex = new Float32Array(size).fill(0.8);
-    const aridWaterPointWater01 = new Float32Array(size).fill(0.7);
     const freezeIndex = new Float32Array(size).fill(0.8);
 
     const marsh = ecology.features.ops.scoreWetMarsh.run(
@@ -79,10 +78,9 @@ describe("ecology wetland-family habitats", () => {
         width,
         height,
         landMask,
-        isolatedWaterPointMask,
-        plantWater01: aridWaterPointWater01,
+        localSurfaceWaterOpportunity,
+        pet: new Float32Array(size).fill(30),
         aridityIndex: dryAridityIndex,
-        surfaceTemperature: mangroveTemperature,
       },
       normalizeOperationSelectionForTest(
         ecology.features.ops.scoreWetOasis,
@@ -145,7 +143,9 @@ describe("ecology wetland-family habitats", () => {
       expect(other.input.required).toContain("water01");
     }
     for (const other of [ecology.features.ops.scoreWetOasis, ecology.features.ops.scoreWetWateringHole]) {
-      expect(other.input.required).toContain("plantWater01");
+      expect(other.input.required).toContain("localSurfaceWaterOpportunity");
+      expect(other.input.required).toContain("pet");
+      expect(Object.hasOwn(other.input.properties, "plantWater01")).toBe(false);
     }
 
     const selection = normalizeOperationSelectionForTest(operation, operation.defaultConfig);

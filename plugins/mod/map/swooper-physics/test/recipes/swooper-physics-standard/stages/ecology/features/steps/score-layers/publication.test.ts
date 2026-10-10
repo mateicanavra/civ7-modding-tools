@@ -83,6 +83,8 @@ describe("ecology-features score-layers step", () => {
     let featureSubstrateCalls = 0;
     let vegetationSubstrateOutput: ReturnType<typeof features.computeVegetationSubstrate.run> | undefined;
     const effectiveMoisture = new Float32Array(size).fill(120);
+    const localSurfaceWaterOpportunity = new Float32Array(size).fill(280);
+    const pet = new Float32Array(size).fill(80);
     const plantEffectiveMoisture = new Float32Array(size).fill(400);
     const aridityIndex = new Float32Array(size).fill(0.4);
     const plantWaterStress = new Float32Array(size).fill(0.1);
@@ -116,13 +118,14 @@ describe("ecology-features score-layers step", () => {
         fertility: new Float32Array(size).fill(0.5),
       });
       publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
+        localSurfaceWaterOpportunity,
         effectiveMoisture,
         plantEffectiveMoisture,
         surfaceTemperatureC,
         aridityIndex,
         plantWaterStress,
         freezeIndex: new Float32Array(size),
-        pet: new Float32Array(size),
+        pet,
       });
       publishTestArtifact(stepContext, shelfArtifacts.shelf, {
         shelfMask, coastalWater, distanceToCoast, coastalLand: new Uint8Array(size),
@@ -204,12 +207,14 @@ describe("ecology-features score-layers step", () => {
         return ops.scoreWetTundraBog(input, operationConfig);
       };
       const scoreWetOasis: typeof ops.scoreWetOasis = (input, operationConfig) => {
-        expect(input.plantWater01).toBe(substrateFields().plantWater01);
+        expect(input.localSurfaceWaterOpportunity).toBe(localSurfaceWaterOpportunity);
+        expect(input.pet).toBe(pet);
         expect(input.aridityIndex).toBe(aridityIndex);
         return ops.scoreWetOasis(input, operationConfig);
       };
       const scoreWetWateringHole: typeof ops.scoreWetWateringHole = (input, operationConfig) => {
-        expect(input.plantWater01).toBe(substrateFields().plantWater01);
+        expect(input.localSurfaceWaterOpportunity).toBe(localSurfaceWaterOpportunity);
+        expect(input.pet).toBe(pet);
         expect(input.aridityIndex).toBe(aridityIndex);
         return ops.scoreWetWateringHole(input, operationConfig);
       };

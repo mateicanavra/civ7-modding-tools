@@ -154,13 +154,15 @@ describe("Standard metric scenario admission", () => {
     expect(capture.placement.aliveMajorIds).toEqual(capture.provenance.aliveMajorPlayerIds);
     const { model } = capture;
     const gridSize = TEST_MAP_SIZE.dimensions.width * TEST_MAP_SIZE.dimensions.height;
-    for (const field of [model.plantEffectiveMoisture, model.plantWaterStress]) {
+    for (const field of [model.localSurfaceWaterOpportunity, model.plantEffectiveMoisture, model.plantWaterStress]) {
       expect(field).toBeInstanceOf(Float32Array);
       expect(field).toHaveLength(gridSize);
       expect(field.every(Number.isFinite)).toBe(true);
     }
     expect(model.plantEffectiveMoisture).not.toBe(model.effectiveMoisture);
     expect(model.plantWaterStress).not.toBe(model.aridityIndex);
+    expect(model.localSurfaceWaterOpportunity.every((opportunity) => opportunity >= 0)).toBe(true);
+    expect(model.localSurfaceWaterOpportunity.some((opportunity) => opportunity > 0)).toBe(true);
     expect(model.plantEffectiveMoisture.every((moisture, cell) => moisture >= model.effectiveMoisture[cell]!)).toBe(true);
     expect(model.plantWaterStress.every((stress, cell) => stress <= model.aridityIndex[cell]!)).toBe(true);
     expect(model.plantEffectiveMoisture.some((moisture, cell) => moisture > model.effectiveMoisture[cell]!)).toBe(true);

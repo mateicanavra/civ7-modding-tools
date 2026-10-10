@@ -43,9 +43,6 @@ const ComputeFeatureSubstrateContract = defineOp({
     nearRiverMask: TypedArraySchemas.u8({
       description: "Mask (1/0): tiles within nearRiverRadius of any river tile.",
     }),
-    isolatedRiverMask: TypedArraySchemas.u8({
-      description: "Mask (1/0): tiles within isolatedRiverRadius of any river tile.",
-    }),
     coastalLandMask: TypedArraySchemas.u8({
       description: "Mask (1/0): land tiles within coastalAdjacencyRadius of any water tile.",
     }),
@@ -63,9 +60,6 @@ const ComputeFeatureSubstrateContract = defineOp({
     }),
     wellDrainedMask: TypedArraySchemas.u8({
       description: "Mask (1/0): land outside hydromorphic substrate.",
-    }),
-    isolatedWaterPointMask: TypedArraySchemas.u8({
-      description: "Mask (1/0): isolated lowland water-point substrate for arid wet features.",
     }),
   }),
   strategies: [hydromorphicDefinition],

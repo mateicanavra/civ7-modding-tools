@@ -873,7 +873,6 @@
           "strategy": "hydromorphic",
           "config": {
             "nearRiverRadius": 2,
-            "isolatedRiverRadius": 1,
             "coastalAdjacencyRadius": 1,
             "lowlandMaxElevationAboveSeaM": 160,
             "intertidalMaxElevationAboveSeaM": 40,
@@ -931,24 +930,17 @@
           }
         },
         "scoreWetOasis": {
-          "strategy": "warm-arid-waterpoint",
+          "strategy": "source-led-dryland",
           "config": {
             "dryMin01": 0.6,
-            "dryMax01": 0.95,
-            "waterMin01": 0.35,
-            "tempWarmStartC": 20,
-            "tempWarmEndC": 38
+            "dryMax01": 0.95
           }
         },
         "scoreWetWateringHole": {
-          "strategy": "arid-waterpoint",
+          "strategy": "source-led-dryland",
           "config": {
             "dryMin01": 0.45,
-            "dryMax01": 0.85,
-            "waterMin01": 0.25,
-            "fertilityMin01": 0.1,
-            "tempWarmStartC": 12,
-            "tempWarmEndC": 32
+            "dryMax01": 0.85
           }
         },
         "scoreReef": {
