@@ -1,6 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import placementDomain from "../../../../../../src/domain/placement/router.js";
-import type { Static } from "@swooper/mapgen-core/authoring";
+import {
+  OperationInputAdmissionError,
+  type OperationInput,
+  type Static,
+} from "@swooper/mapgen-core/authoring";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 import { TEST_GAME_SEED } from "../../../../../setup.js";
 import { getHexRadiusIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
@@ -16,6 +20,7 @@ type StartInputField =
   | "width"
   | "height"
   | "landMask"
+  | "navigableRiverMask"
   | "slotByTile"
   | "landmassIdByTile"
   | "landmassTileCounts"
@@ -62,6 +67,7 @@ function makeInput(
     width,
     height,
     landMask: new Uint8Array(size),
+    navigableRiverMask: new Uint8Array(size),
     slotByTile: new Uint8Array(size),
     landmassIdByTile,
     landmassTileCounts: [],
@@ -102,7 +108,7 @@ function addShallowTransit(input: StartInput, tiles: ReadonlyArray<readonly [num
 }
 
 function plan(
-  input: PlanStartsInput,
+  input: OperationInput<(typeof planStarts)["input"]>,
   configure?: (config: (typeof planStarts.defaultConfig)["config"]) => void
 ) {
   const selection = structuredClone(planStarts.defaultConfig);
@@ -327,6 +333,204 @@ describe("reachable first-age expansion admission", () => {
     expect(result.seats.some((seat) => seat.rung === "quality-relaxed")).toBe(true);
     expect(result.seats.some((seat) => seat.rung === "spacing-relaxed")).toBe(true);
     expect(result.rejectionCounts).toContainEqual({ reason: "no-reachable-expansion", count: 3 });
+  });
+});
+
+describe("dry founder admission", () => {
+  it("refuses absent, wrong-constructor and wrong-cardinality NAV intent at operation admission", () => {
+    const input = makePlayerDemandInput([7]);
+    const { navigableRiverMask: _mask, ...missingMask } = input;
+    expect(() => {
+      // @ts-expect-error Missing NAV intent is invalid at both type and runtime boundaries.
+      planStarts.run(missingMask, planStarts.defaultConfig);
+    }).toThrow(OperationInputAdmissionError);
+    const wrongConstructor = { ...input, navigableRiverMask: new Uint16Array(_mask.length) };
+    expect(() => {
+      // @ts-expect-error NAV intent requires the exact Uint8Array constructor.
+      planStarts.run(wrongConstructor, planStarts.defaultConfig);
+    }).toThrow(OperationInputAdmissionError);
+    for (const length of [0, _mask.length - 1, _mask.length + 1]) {
+      expect(() => plan({ ...input, navigableRiverMask: new Uint8Array(length) })).toThrow(
+        OperationInputAdmissionError
+      );
+    }
+  });
+
+  it("rejects superior-scoring NAV land before scoring or capacity and preserves readonly deterministic inputs", () => {
+    const input = makePlayerDemandInput([7]);
+    const navPlot = idx(input.width, 4, 4);
+    input.riverClass[navPlot] = 2;
+    input.resourceSupport = new Uint8Array(input.width * input.height);
+    input.resourceSupport[navPlot] = 255;
+    const configure = (config: (typeof planStarts.defaultConfig)["config"]) => {
+      config.resourceSupportWeight = 4;
+      config.freshwaterWeight = 4;
+      config.largeLandmassWeight = 0;
+      config.fertilityWeight = 0;
+      config.climateWeight = 0;
+      config.coastalPreferenceWeight = 0;
+      config.riverPreferenceWeight = 0;
+      config.roughnessPenaltyWeight = 0;
+      config.climateExtremePenaltyWeight = 0;
+      config.rankingBlend = 1;
+    };
+    const unscreened = plan(input, configure);
+    expect(unscreened.seats[0]!.plotIndex).toBe(navPlot);
+    input.navigableRiverMask[navPlot] = 1;
+    const before = structuredClone(input);
+    const readonlyInput: OperationInput<(typeof planStarts)["input"]> = Object.freeze({
+      ...input,
+      playerIds: Object.freeze([...input.playerIds]),
+      plannedResourcePlotIndices: Object.freeze([...input.plannedResourcePlotIndices]),
+    });
+    const result = plan(readonlyInput, configure);
+
+    expect(result.rejectionCounts).toContainEqual({ reason: "navigable-river", count: 1 });
+    expect(result.settleableTileCount).toBe(unscreened.settleableTileCount - 1);
+    expect(result.candidateCount).toBe(unscreened.candidateCount - 1);
+    expect(result.candidates.some((candidate) => candidate.plotIndex === navPlot)).toBe(false);
+    expect(result.tierByTile[navPlot]).toBe(1);
+    expect(result.scoreByTile[navPlot]).toBe(0);
+    expect(result.seats[0]!.plotIndex).toBeGreaterThanOrEqual(0);
+    expect(result.seats[0]!.plotIndex).not.toBe(navPlot);
+    expect(result.seats[0]!.rung).toBe("regional");
+    expect(result.seats[0]!.score).toBeLessThan(unscreened.seats[0]!.score);
+    expect(plan(readonlyInput, configure)).toEqual(result);
+    expect(input).toEqual(before);
+  });
+
+  it("retains minor and NAV-adjacent dry candidates and their optional freshwater scoring evidence", () => {
+    const input = makePlayerDemandInput([7]);
+    const navPlot = idx(input.width, 4, 4);
+    const adjacentDryPlot = idx(input.width, 5, 4);
+    const minorPlot = idx(input.width, 8, 6);
+    input.navigableRiverMask[navPlot] = 1;
+    input.riverClass[navPlot] = 2;
+    input.riverClass[minorPlot] = 1;
+    const before = structuredClone(input);
+    const result = plan(input);
+
+    expect(
+      result.candidates.find((candidate) => candidate.plotIndex === minorPlot)?.components.freshwater
+    ).toBe(0.5);
+    expect(
+      result.candidates.find((candidate) => candidate.plotIndex === adjacentDryPlot)?.components.freshwater
+    ).toBe(0.8);
+    expect(result.candidates.some((candidate) => candidate.plotIndex === navPlot)).toBe(false);
+    const { riverClass: _riverClass, ...withoutScoringEvidence } = input;
+    const imputed = plan(withoutScoringEvidence);
+    expect(imputed.rejectionCounts).toContainEqual({ reason: "navigable-river", count: 1 });
+    expect(imputed.candidates.some((candidate) => candidate.plotIndex === minorPlot)).toBe(true);
+    expect(imputed.candidates.some((candidate) => candidate.plotIndex === adjacentDryPlot)).toBe(true);
+    expect(imputed.inputCoverage).toContainEqual({
+      input: "riverClass",
+      status: "imputed",
+      affectsComponent: "freshwater",
+    });
+    expect(input).toEqual(before);
+  });
+
+  it("preserves NAV transit and useful physical expansion support while excluding all NAV founder sources", () => {
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid20x10);
+    const dryIsland = [
+      [2, 4],
+      [2, 5],
+      [3, 4],
+    ] as const;
+    const usefulDestination = Array.from(
+      { length: 20 },
+      (_value, i) => [8 + (i % 4), 2 + Math.floor(i / 4)] as const
+    );
+    const bridge = [
+      [4, 4],
+      [5, 4],
+      [6, 4],
+      [7, 4],
+    ] as const;
+    addLandmass(input, 0, 1, dryIsland);
+    addLandmass(input, 1, 2, usefulDestination);
+    addLandmass(input, 2, 2, bridge);
+    for (const [x, y] of [...usefulDestination, ...bridge]) {
+      input.riverClass[idx(input.width, x, y)] = 2;
+    }
+    const baseline = earthlikePlan(input);
+    for (const [x, y] of [...usefulDestination, ...bridge]) {
+      input.navigableRiverMask[idx(input.width, x, y)] = 1;
+    }
+    const before = structuredClone(input);
+    const result = earthlikePlan(input);
+
+    expect(result.rejectionCounts).toContainEqual({ reason: "navigable-river", count: 24 });
+    expect(result.candidates).toHaveLength(3);
+    for (const [x, y] of dryIsland) {
+      const plotIndex = idx(input.width, x, y);
+      expect(result.candidates.find((candidate) => candidate.plotIndex === plotIndex)).toEqual(
+        baseline.candidates.find((candidate) => candidate.plotIndex === plotIndex)
+      );
+    }
+    expect(result.seats[0]!.plotIndex).toBeGreaterThanOrEqual(0);
+    expect(input.navigableRiverMask[result.seats[0]!.plotIndex]).toBe(0);
+    expect(input).toEqual(before);
+    input.firstAgeTransitMask[idx(input.width, 6, 4)] = 0;
+    const disconnected = earthlikePlan(input);
+    expect(disconnected.seats[0]!.plotIndex).toBe(-1);
+    expect(disconnected.rejectionCounts).toContainEqual({ reason: "no-reachable-expansion", count: 3 });
+  });
+
+  for (const rung of ["regional", "quality-relaxed", "spacing-relaxed"] as const) {
+    it(`cannot readmit NAV sources through ${rung} selection`, () => {
+      const input = makePlayerDemandInput([7, 2, 11]);
+      input.navigableRiverMask.set(input.landMask);
+      for (const [x, y] of [[2, 2], [3, 2], [2, 3]] as const) {
+        input.navigableRiverMask[idx(input.width, x, y)] = 0;
+      }
+      input.riverClass = Uint8Array.from(input.navigableRiverMask, (nav) => nav === 1 ? 2 : 0);
+      input.resourceSupport = Uint8Array.from(
+        input.navigableRiverMask,
+        (nav) => nav === 1 ? 255 : 0
+      );
+      const result = plan(input, (config) => {
+        config.spacingFloorTiles = rung === "spacing-relaxed" ? 12 : 0;
+        config.desiredSpacingTiles = config.spacingFloorTiles;
+        config.resourceSupportWeight = 4;
+        config.fairnessTolerance = 0;
+        if (rung !== "regional") {
+          config.minContiguousLandTiles = 400;
+          config.minIslandClusterLandTiles = 160;
+        }
+      });
+      expect(result.seats.map((seat) => seat.playerId)).toEqual([7, 2, 11]);
+      expect(
+        result.seats.every((seat) => seat.plotIndex >= 0 && input.navigableRiverMask[seat.plotIndex] === 0)
+      ).toBe(true);
+      expect(result.seats.some((seat) => seat.rung === rung)).toBe(true);
+      expect(result.rejectionCounts).toContainEqual({ reason: "navigable-river", count: 77 });
+    });
+  }
+
+  it("retains every player as typed unseated degradation when all physical land is NAV", () => {
+    const input = makePlayerDemandInput([7, 2, 11]);
+    input.navigableRiverMask.set(input.landMask);
+    input.riverClass = Uint8Array.from(input.navigableRiverMask, (nav) => nav === 1 ? 2 : 0);
+    const before = structuredClone(input);
+    const result = plan(input, (config) => {
+      config.spacingFloorTiles = 12;
+      config.desiredSpacingTiles = 12;
+      config.minContiguousLandTiles = 400;
+      config.minIslandClusterLandTiles = 160;
+      config.fairnessTolerance = 0;
+    });
+    expect(result.settleableTileCount).toBe(0);
+    expect(result.candidateCount).toBe(0);
+    expect(result.seats.map((seat) => seat.playerId)).toEqual([7, 2, 11]);
+    expect(
+      result.seats.every((seat) =>
+        seat.plotIndex === -1 && seat.status === "degraded" && seat.imputedFlags.includes("unseated")
+      )
+    ).toBe(true);
+    expect(result.rejectionCounts).toContainEqual({ reason: "navigable-river", count: 80 });
+    expect(result.fairnessReport.swaps).toHaveLength(0);
+    expect(input).toEqual(before);
   });
 });
 
@@ -786,7 +990,7 @@ describe("start selection ladder (op-owned, S4)", () => {
     expect(Math.max(...seatedScores) - Math.min(...seatedScores)).toBeCloseTo(gap as number, 10);
   });
 
-  it("improves weak seats without lowering strong seats to manufacture parity", () => {
+  it("improves weak seats through open-pool fairness without readmitting superior NAV sources", () => {
     const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid24x10, 2);
     const west = Array.from(
       { length: 48 },
@@ -802,6 +1006,9 @@ describe("start selection ladder (op-owned, S4)", () => {
     for (const [x, y] of east) {
       input.fertility[idx(input.width, x, y)] = x < 18 ? 1 : 0.2;
     }
+    const navPlot = idx(input.width, 15, 1);
+    input.navigableRiverMask[navPlot] = 1;
+    input.riverClass[navPlot] = 2;
 
     const result = plan(input, (config) => {
       config.spacingFloorTiles = 1;
@@ -821,6 +1028,12 @@ describe("start selection ladder (op-owned, S4)", () => {
 
     expect(result.fairnessReport.swaps.length).toBeGreaterThan(0);
     expect(result.fairnessReport.swaps.every((swap) => swap.toScore > swap.fromScore)).toBe(true);
+    expect(result.candidates.some((candidate) => candidate.plotIndex === navPlot)).toBe(false);
+    expect(result.seats.every((seat) => input.navigableRiverMask[seat.plotIndex] === 0)).toBe(true);
+    expect(
+      result.fairnessReport.swaps.every((swap) => input.navigableRiverMask[swap.toPlotIndex] === 0)
+    ).toBe(true);
+    expect(result.rejectionCounts).toContainEqual({ reason: "navigable-river", count: 1 });
     expect(result.fairnessReport.relaxations).toContainEqual({
       seatIndex: 0,
       kind: "region",
@@ -932,6 +1145,13 @@ describe("resource-backed start admission", () => {
       const input = {
         ...raw,
         landMask: Uint8Array.from(raw.landMask),
+        // The retained 20261001 water-owner cohort projected every physical
+        // major dry source as NAV. This reconstructs that witness input only;
+        // production admission consumes the required authored projection mask.
+        navigableRiverMask: Uint8Array.from(
+          raw.riverClass,
+          (riverClass) => riverClass === 2 ? 1 : 0
+        ),
         slotByTile: Uint8Array.from(raw.slotByTile),
         landmassIdByTile: Int32Array.from(raw.landmassIdByTile),
         coastalLand: Uint8Array.from(raw.coastalLand),
@@ -959,6 +1179,7 @@ describe("resource-backed start admission", () => {
 
       expect(result.seats.map((seat) => seat.playerId)).toEqual(input.playerIds);
       expect(result.seats.every((seat) => seat.plotIndex >= 0)).toBe(true);
+      expect(result.seats.every((seat) => input.navigableRiverMask[seat.plotIndex] === 0)).toBe(true);
       expect(Math.min(...counts)).toBeGreaterThanOrEqual(2);
       expect(Math.max(...counts) - Math.min(...counts)).toBeLessThanOrEqual(2);
       expect(result.seats.every((seat) => seat.achievedSpacing >= 6)).toBe(true);

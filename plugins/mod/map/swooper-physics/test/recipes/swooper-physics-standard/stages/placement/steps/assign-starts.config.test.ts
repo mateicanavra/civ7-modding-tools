@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { admitMapSetup } from "@swooper/mapgen-core";
 import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 import { Value } from "typebox/value";
+import { artifacts as hydrographyArtifacts } from "../../../../../../src/domain/hydrology/modules/hydrography/artifacts/index.js";
 import stage from "../../../../../../src/recipes/standard/stages/placement/index.js";
 import { AssignStartsStep } from "../../../../../../src/recipes/standard/stages/placement/steps/assign-starts/step.js";
 import { standardMapConfig } from "../../../fixtures/standard-recipe.js";
@@ -13,6 +14,23 @@ const setup = admitMapSetup({
 });
 
 describe("shared start-resource requirements", () => {
+  it("requires the existing authored river projection without introducing another config knob", () => {
+    expect(AssignStartsStep.contract.requires).toContain(hydrographyArtifacts.projectedRivers);
+    expect(Object.keys(AssignStartsStep.contract.schema.properties).sort()).toEqual([
+      "starts",
+      "supportRequirements",
+    ]);
+    expect(
+      Value.Check(stage.surfaceSchema, {
+        ...standardMapConfig.config.placement,
+        "assign-starts": {
+          ...standardMapConfig.config.placement["assign-starts"],
+          navigableRiverMask: [],
+        },
+      })
+    ).toBe(false);
+  });
+
   it("forwards the support owner's actual values without adding another author-facing knob", () => {
     const authored = structuredClone(standardMapConfig.config.placement);
     authored["adjust-resources"].support.config.supportFloor = 3;

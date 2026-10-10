@@ -319,3 +319,128 @@ the pinned ten-player v2 capture. The receipt is
 `relief-owner-causal-20261001/exact12/receipt.json`, SHA256
 `2c4bf3b141a06168cdab77bffbd6edab36d22fbd26497f022ffcebeb18b3864c`.
 This is deterministic full-recipe mock proof, not a native runtime claim.
+
+## Dry Founder Admission
+
+### Demonstrated Boundary
+
+The aquatic-resource qualification exposes a separate founder-surface defect.
+In Huge seeds `-1152948646` and `1337`, seven of ten authored and native founder
+locations are navigable-river terrain. The physical and projected source grids
+agree with Civ: physical exposure is one, river class is major and native NAV
+terrain is present. Native `water=false` therefore does not establish ordinary
+dry founder ground. There is no river-write rejection or relocation in this
+witness. The user's boat-start screenshot is not seed-linked; do not identify
+its particular unit from these censuses.
+
+The existing physical land mask and optimistic transit topology intentionally
+include riverbeds. They remain valid for those meanings, but are insufficient
+as founder eligibility. The preceding operation's initial hard screen admitted
+NAV sources before every regular/reserve pool and fallback rung. Fix that
+consumer boundary instead of changing rivers, classifying them as physical
+water, or filtering emitted seats after selection.
+
+### Selected Owner Repair
+
+Add one required, dimension-cardinality `navigableRiverMask` input to the
+existing `placement/plan-starts` operation. `assign-starts` declares and reads
+the existing `projectedRivers` artifact and forwards its immutable `riverMask`
+unchanged. This is exact authored NAV source intent; no new artifact, native
+read, copied terrain ID, configuration knob or selection algorithm is needed.
+Record a `navigable-river` rejection in the initial candidate screen before
+classification, resource bands, capacity, regional allocation, fallback or
+fairness replacement. Missing or malformed input is not an all-zero fallback.
+
+Preserve physical land, useful expansion accounting, optimistic NAV transit,
+river scores and adjacent freshwater, source river masks/writes/directions,
+terrain, accepted lakes, climate and resource policy. Optional `riverClass`
+remains scoring evidence rather than a silently optional hard safety gate.
+The existing typed unseated outcome and materializer's incomplete-assignment
+refusal remain authoritative when no complete admissible set exists. A later
+quality or spacing relaxation cannot reopen NAV founder eligibility.
+
+### Predeclared Verification
+
+- Target: every selected source/native founder is non-NAV, with complete
+  seating where current admissible capacity permits it. Exact J and Huge 1337
+  use the unchanged ten-player saved setup; player identity is never padded.
+- Controls: superior-scoring NAV land, minor and adjacent dry river land,
+  all-NAV exhaustion, every fallback/fairness pool, unchanged NAV transit,
+  missing/wrong-length masks, determinism and input immutability. Extend the
+  nearest start/materialization tests, not a new harness.
+- Hold: all physical/climate, river projection and terrain/lake properties;
+  all resource demand ranges/admission and the existing spacing/support laws.
+  Founder seats and lawful downstream support sites may move.
+- Gate: focused semantics/types, fresh SDK review, the complete owner graph
+  and its unchanged 22-study/57-scenario bank. Retain the independent thermal
+  failure without weakening any product expectation.
+- Native: warm generation and full correlated readback of both declared Huge
+  cases; all ten founders must match the revised source seats, be non-NAV and
+  non-water, and preserve the preceding native physical/projection grids.
+  Re-read the prior Crab refusal at `(43,38)` without assuming start occupancy
+  caused it. Resource refusals and vessel movement remain separate claims.
+
+Fresh design and SDK reviews align with this owner repair. Parallel coastal
+rivers and rainforest scarcity remain a separate causal study, not an implicit
+reason to alter moisture supply or river density in this start change.
+
+The implementation passes 63 focused tests with 944 assertions, source and
+test TypeScript, and fresh actual-patch SDK review. Five existing production
+files add fifteen lines; three nearest test files extend the controls without
+adding a harness or test file. Retained fixture JSON is unchanged, and its test
+conversion explicitly uses the historical exact major-source projection
+correspondence rather than supplying a zero-mask bypass.
+
+### Completed Owner And Native Verification
+
+The complete owner graph passes builds, source/test types and policy checks;
+definition tests pass 1,318 with one failed science aggregate, realization tests
+pass 371 and Studio tests pass 412. The unchanged 22-study/57-scenario bank's
+only failed expectation is the existing within-row temperature-variation floor.
+No comparator, scenario or physical configuration is relaxed for this repair.
+
+The two generated comparisons preserve all 38 retained model fields, eight
+river/projection fields and thirteen nonresource observations. All 55 resource
+candidates' retained habitat/admission/range evidence, per-type planning rows,
+support settings and complete resource intentions remain identical. All 98
+existing expectation evaluations pass. Each case changes seven founders on
+projected NAV source cells to zero and seats all ten players on exposed,
+nonwater, nonlake, non-NAV plots. Nine seats change in J and all ten in Huge
+1337. This compares validated projection write-source coverage, not an
+unretained raw mask; neither raw legal-mask nor transit-mask identity is claimed.
+
+After deployment, fresh Huge games use the same two map/game-seed pairs, ten
+actual alive-major players and the saved setup. Warm J generation completes
+in 28.5 seconds including orchestration. The transition out of that game
+crashes Civ before the next generation; process exit and a native crash report
+are retained separately. After application recovery, Huge 1337 completes in
+24.8 seconds including orchestration. This is not a failed hydrology or founder
+generation and does not justify routine full application restarts.
+
+Both complete turn-one native censuses cover all 6,996 plots without mutations
+or identity drift. All ten native founders match revised source coordinates,
+with no NAV terrain, NAV river type, NAV flag, water or lake classification.
+Every native terrain, biome, water, lake, elevation, river-type and feature cell
+matches that case's preceding actual native census. The repair changes founder
+admission, not physical water, authored rivers or world connectivity.
+
+Resource acceptance remains a separate fact. J accepts 234 of 241 intentions:
+29 Fish and eleven Crabs, including the NAV Crab at `(85,54)`. Its six earlier
+omissions remain; Clay at the newly selected founder plot `(104,50)` is now
+also refused. Huge 1337 accepts 220 of 233 intentions: all thirty Fish and ten
+Crabs, including both NAV intentions. Crab at `(43,38)` is now accepted after
+the preceding founder moves away, with its exact terrain/biome/feature tuple
+unchanged; Crab at `(64,41)` remains accepted. Flax at `(58,21)` and Wild Game
+at `(48,15)` are newly refused on revised founder plots. All other native
+resource sites hold. Fish and Crab remain within their unchanged declared
+ranges in both games. No native legality override or compensating resource
+insertion hides these differences.
+
+The matched founder/resource changes isolate a useful next ownership question:
+does native start reservation constrain subsequent resource stamping beyond
+the retained pre-start admission? This is not a river-placement failure, and
+the comparisons alone do not prove an undocumented native rejection cause.
+Any subsequent repair belongs at the existing start/resource composition;
+it must retain truthful supply and support accounting rather than force Civ's
+writer. Dry founder admission is complete independently of that question and
+of vessel movement, resource accessibility or Earth climate calibration.

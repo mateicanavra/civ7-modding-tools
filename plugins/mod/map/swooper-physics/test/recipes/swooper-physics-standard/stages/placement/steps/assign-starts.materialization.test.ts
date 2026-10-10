@@ -34,6 +34,7 @@ import {
 type AssignStartsConfig = Static<(typeof AssignStartsStep.contract)["schema"]>;
 type AssignStartsOps = StepRuntimeOps<NonNullable<(typeof AssignStartsStep.contract)["ops"]>>;
 type LandTile = readonly [x: number, y: number];
+type RiverSource = readonly [x: number, y: number, riverClass: "MINOR" | "NAVIGABLE"];
 
 const ASSIGN_STARTS_OP_CONTRACTS = AssignStartsStep.contract.ops!;
 const ASSIGN_STARTS_OPS = placement.starts.ops.bind(
@@ -83,7 +84,8 @@ function createAssignStartsContext(alivePlayerIds: readonly number[]) {
 function publishAssignStartsInputs(
   context: MapContext,
   landTiles: readonly LandTile[],
-  acceptedLakeTiles: readonly LandTile[]
+  acceptedLakeTiles: readonly LandTile[],
+  riverSources: readonly RiverSource[]
 ): void {
   const { width, height } = context.setup.dimensions;
   const size = width * height;
@@ -180,9 +182,41 @@ function publishAssignStartsInputs(
     coastalWater: new Uint8Array(size),
     distanceToCoast: new Uint16Array(size),
   });
+  const riverClass = new Uint8Array(size);
+  const flowDir = new Int32Array(size).fill(-1);
+  const minorRiverMask = new Uint8Array(size);
+  const navigableRiverMask = new Uint8Array(size);
+  for (const [x, y, kind] of riverSources) {
+    const plotIndex = y * width + x;
+    riverClass[plotIndex] = kind === "MINOR" ? 1 : 2;
+    flowDir[plotIndex] = plotIndex + 1;
+    (kind === "MINOR" ? minorRiverMask : navigableRiverMask)[plotIndex] = 1;
+  }
   publishTestArtifact(context, hydrographyArtifacts.hydrography, {
     ...createEmptyWaterFixture(width, height).hydrography,
     exposedLandMask: landMask,
+    riverClass,
+    flowDir,
+  });
+  publishTestArtifact(context, hydrographyArtifacts.projectedRivers, {
+    model: "certified-sill-spill",
+    width,
+    height,
+    riverMask: navigableRiverMask,
+    nativeMinorRiverMask: minorRiverMask,
+    plannedMinorRiverMask: minorRiverMask,
+    plannedMajorRiverMask: navigableRiverMask,
+    plannedMinorRiverTileCount: riverSources.filter(([, , kind]) => kind === "MINOR").length,
+    plannedMajorRiverTileCount: riverSources.filter(([, , kind]) => kind === "NAVIGABLE").length,
+    authoredSourceCount: riverSources.length,
+    writes: riverSources.map(([x, y, riverClass]) => ({
+      sourceCell: y * width + x,
+      receiverCell: y * width + x + 1,
+      direction: "EAST" as const,
+      riverClass,
+    })),
+    wetTransitionWrites: [],
+    wetTransitionDispositions: [],
   });
   const acceptedLakeMask = new Uint8Array(size);
   for (const [x, y] of acceptedLakeTiles) acceptedLakeMask[y * width + x] = 1;
@@ -207,10 +241,11 @@ function runAssignStartsStep(
   landTiles: readonly LandTile[],
   config: AssignStartsConfig = assignStartsConfig(),
   ops: AssignStartsOps = ASSIGN_STARTS_OPS,
-  acceptedLakeTiles: readonly LandTile[] = []
+  acceptedLakeTiles: readonly LandTile[] = [],
+  riverSources: readonly RiverSource[] = []
 ): void {
   withStepExecutionForTest(context, AssignStartsStep, (stepContext) => {
-    publishAssignStartsInputs(stepContext, landTiles, acceptedLakeTiles);
+    publishAssignStartsInputs(stepContext, landTiles, acceptedLakeTiles, riverSources);
     AssignStartsStep.run(
       stepContext,
       config,
@@ -221,23 +256,55 @@ function runAssignStartsStep(
 }
 
 describe("assign starts step", () => {
-  it("composes final shallow transit intent including accepted inland water, without promoting ocean", () => {
-    const landTiles = Array.from({ length: 80 }, (_value, i) =>
-      [1 + (i % 10), 1 + Math.floor(i / 10)] as const);
+  it("forwards immutable authored NAV intent without changing physical land, minor rivers or shallow transit", () => {
+    const landTiles = Array.from(
+      { length: 80 },
+      (_value, i) => [1 + (i % 10), 1 + Math.floor(i / 10)] as const
+    );
     const { context } = createAssignStartsContext([4]);
     const { width } = context.setup.dimensions;
-    const inspectingOps: AssignStartsOps = {
-      starts: (input, selection) => {
-        expect(input.firstAgeTransitMask[3 * width + 3]).toBe(1);
-        expect(input.firstAgeTransitMask[3 * width + 11]).toBe(1);
-        expect(input.firstAgeTransitMask[20 * width + 20]).toBe(1);
-        expect(input.firstAgeTransitMask[20 * width + 21]).toBe(0);
-        expect(input.lakeMask![20 * width + 20]).toBe(1);
-        expect("shelfMask" in input).toBe(false);
-        return ASSIGN_STARTS_OPS.starts(input, selection);
-      },
-    };
-    runAssignStartsStep(context, landTiles, assignStartsConfig(), inspectingOps, [[20, 20]]);
+    withStepExecutionForTest(context, AssignStartsStep, (stepContext) => {
+      publishAssignStartsInputs(stepContext, landTiles, [[20, 20]], [
+        [3, 3, "NAVIGABLE"],
+        [7, 5, "MINOR"],
+      ]);
+      const deps = buildStepTestDependencies(AssignStartsStep, stepContext);
+      const projectedRivers = deps.artifacts.projectedRivers.read();
+      const hydrography = deps.artifacts.hydrography.read();
+      const navBefore = Array.from(projectedRivers.riverMask);
+      const landBefore = Array.from(hydrography.exposedLandMask);
+      const inspectingOps: AssignStartsOps = {
+        starts: (input, selection) => {
+          expect(input.navigableRiverMask).toBe(projectedRivers.riverMask);
+          expect(input.landMask).toBe(hydrography.exposedLandMask);
+          expect(input.navigableRiverMask[3 * width + 3]).toBe(1);
+          expect(input.landMask[3 * width + 3]).toBe(1);
+          expect(input.riverClass![3 * width + 3]).toBe(2);
+          expect(input.navigableRiverMask[5 * width + 7]).toBe(0);
+          expect(input.riverClass![5 * width + 7]).toBe(1);
+          expect(input.firstAgeTransitMask[3 * width + 3]).toBe(1);
+          expect(input.firstAgeTransitMask[3 * width + 11]).toBe(1);
+          expect(input.firstAgeTransitMask[20 * width + 20]).toBe(1);
+          expect(input.firstAgeTransitMask[20 * width + 21]).toBe(0);
+          expect(input.lakeMask![20 * width + 20]).toBe(1);
+          expect("shelfMask" in input).toBe(false);
+          const plan = ASSIGN_STARTS_OPS.starts(input, selection);
+          expect(plan.candidates.some(({ plotIndex }) => plotIndex === 3 * width + 3)).toBe(false);
+          expect(plan.candidates.some(({ plotIndex }) => plotIndex === 5 * width + 7)).toBe(true);
+          expect(
+            plan.candidates.find(({ plotIndex }) => plotIndex === 3 * width + 4)?.components.freshwater
+          ).toBe(0.8);
+          expect(Array.from(projectedRivers.riverMask)).toEqual(navBefore);
+          expect(Array.from(hydrography.exposedLandMask)).toEqual(landBefore);
+          return plan;
+        },
+      };
+      AssignStartsStep.run(stepContext, assignStartsConfig(), inspectingOps, deps);
+    });
+    const assignment = readArtifact(context, placementStartArtifacts.startAssignment);
+    expect(assignment.assigned).toBe(1);
+    expect(assignment.positions).not.toContain(3 * width + 3);
+    expect(assignment.rejectionCounts).toContainEqual({ reason: "navigable-river", count: 1 });
   });
 
   it("stamps every planned seat with the operation-owned player and plot identities", () => {
@@ -313,6 +380,35 @@ describe("assign starts step", () => {
       unseatedCount: 1,
       status: "degraded",
     });
+  });
+
+  it("publishes NAV exhaustion before refusing to stamp any physical-land founder", () => {
+    const landTiles = Array.from(
+      { length: 80 },
+      (_value, i) => [1 + (i % 10), 1 + Math.floor(i / 10)] as const
+    );
+    const { adapter, context } = createAssignStartsContext([4, 9]);
+    const riverSources = landTiles.map(([x, y]) => [x, y, "NAVIGABLE"] as const);
+    expect(() =>
+      runAssignStartsStep(context, landTiles, assignStartsConfig(), ASSIGN_STARTS_OPS, [], riverSources)
+    ).toThrow(
+      /Start assignment incomplete: assigned 0 of 2 seat\(s\), with 2 unseated/
+    );
+    const assignment = readArtifact(context, placementStartArtifacts.startAssignment);
+    expect(assignment).toMatchObject({
+      assigned: 0,
+      unseatedCount: 2,
+      status: "degraded",
+      candidateCount: 0,
+    });
+    expect(assignment.seats.map((seat) => seat.playerId)).toEqual([4, 9]);
+    expect(
+      assignment.seats.every((seat) =>
+        seat.plotIndex === -1 && !seat.imputedFlags.includes("resource-support-unresolved")
+      )
+    ).toBe(true);
+    expect(assignment.rejectionCounts).toContainEqual({ reason: "navigable-river", count: 80 });
+    expect(adapter.calls.setStartPosition).toHaveLength(0);
   });
 
   it("publishes isolated-island rejection before refusing an otherwise resource-free fallback", () => {

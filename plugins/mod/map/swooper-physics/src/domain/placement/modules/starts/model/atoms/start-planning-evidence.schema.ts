@@ -3,6 +3,7 @@ import { Type } from "@swooper/mapgen-core/authoring/schema";
 /** Hard-screen reason that excluded a tile from start candidacy. */
 export const StartRejectionReasonSchema = Type.Union([
   Type.Literal("water"),
+  Type.Literal("navigable-river"),
   Type.Literal("lake"),
   Type.Literal("mountain"),
   Type.Literal("volcano"),

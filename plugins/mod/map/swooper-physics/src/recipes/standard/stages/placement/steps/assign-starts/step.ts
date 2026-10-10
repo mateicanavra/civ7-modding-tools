@@ -188,6 +188,7 @@ export const AssignStartsStep = createStep(config, {
     const coastline = deps.artifacts.resolvedCoastline.read();
     const hydrography = deps.artifacts.hydrography.read();
     const projectedLakes = deps.artifacts.projectedLakes.read();
+    const projectedRivers = deps.artifacts.projectedRivers.read();
     const climateIndices = deps.artifacts.climateIndices.read();
     const pedology = deps.artifacts.pedology.read();
     const currentFeatureTypes = deps.engine.readCurrentMapFeatureTypes(context);
@@ -209,6 +210,7 @@ export const AssignStartsStep = createStep(config, {
         width,
         height,
         landMask: hydrography.exposedLandMask as Uint8Array,
+        navigableRiverMask: projectedRivers.riverMask,
         // NAV source intent is physical dry ground; accepted lakes and marine
         // coast are shallow transit even when native isLake reports otherwise.
         firstAgeTransitMask: Uint8Array.from(coastProjection.waterClass, (waterClass, cell) =>

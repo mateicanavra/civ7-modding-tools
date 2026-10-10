@@ -34,6 +34,7 @@ export const config = defineStep({
     climateArtifacts.climateIndices,
     hydrographyArtifacts.hydrography,
     hydrographyArtifacts.projectedLakes,
+    hydrographyArtifacts.projectedRivers,
     pedologyArtifacts.pedology,
   ],
   provides: [placementStartArtifacts.startAssignment],

@@ -51,6 +51,11 @@ const PlanStartsContract = defineOp({
     landMask: TypedArraySchemas.u8({
       description: "Required land mask per tile (1=land,0=water).",
     }),
+    navigableRiverMask: TypedArraySchemas.u8({
+      cardinality: ["width", "height"],
+      description:
+        "Required authored NAV river source intent per tile (1=navigable river); excludes founder candidates without changing physical land or transit.",
+    }),
     firstAgeTransitMask: TypedArraySchemas.u8({
       cardinality: ["width", "height"],
       description:
