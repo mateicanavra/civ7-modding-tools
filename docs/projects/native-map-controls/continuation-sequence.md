@@ -115,6 +115,26 @@ study bank and its one-degree requirement are unchanged. Native predicate
 evidence remains limited to the six inspected rainforest sites; owner proof
 is not fresh candidate-native placement, deployment or gameplay proof.
 
+### Moderate NAV Representation (October 10)
+
+The subsequent [fixed density qualification](moderate-navigable-density.md)
+selects Earthlike `majorPercentile = 0.92` after one rebased Huge contrast and
+the unchanged complete scenario bank. NAV sources fall from `346` to `248`
+without removing any of the 651 classified river-source cells or changing physical
+hydrology and climate forcing. All retained reaches and selected wet-exit
+obligations remain complete. Full-bank failures are exactly unchanged; the
+known thermal requirement remains open. This is a representation default,
+not a physical rainfall or Earth-density calibration.
+
+The fresh vegetation result is legitimate downstream admission, not mandatory
+planting: supported vegetation rises from `646` to `674`, while rainforest
+remains `43` in this contrast. A remaining causal-owner question is now more
+precise: the existing `+8/+4` river-class moisture proxy changes despite
+identical physical water supply. Resolve any replacement against physical
+supply/storage evidence and consumer consequences; do not substitute a
+vegetation quota, an automatic shore bonus or an unqualified groundwater
+simulation. Preserve the current user game before later native replacement.
+
 ### Current Outcome Boundary (October 2)
 
 Native integration, C3 activation and retirement, coherent-reach restoration,
