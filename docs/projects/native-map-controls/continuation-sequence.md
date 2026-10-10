@@ -135,6 +135,15 @@ supply/storage evidence and consumer consequences; do not substitute a
 vegetation quota, an automatic shore bonus or an unqualified groundwater
 simulation. Preserve the current user game before later native replacement.
 
+The subsequent native delivery realizes all 248 NAV and 403 MINOR memberships,
+43 rainforest memberships and ten dry, non-NAV planned founder coordinates on
+the matching Huge seed. The full map is explored for human player zero; see the
+density record's fresh delivery section for proof limits and session preservation.
+The next reviewed causal-owner decision is
+[terrestrial surface-water influence](terrestrial-water-influence.md), replacing
+both the post-network precipitation amplification and class-weighted moisture
+lane rather than adding automatic vegetation promotion or a groundwater solver.
+
 ### Current Outcome Boundary (October 2)
 
 Native integration, C3 activation and retirement, coherent-reach restoration,
