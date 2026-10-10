@@ -44,6 +44,7 @@ describe("ecology feature substrate", () => {
       width,
       height,
       landMask,
+      externalWaterMask: Uint8Array.from(landMask, (land) => land === 0 ? 1 : 0),
       elevation,
       seaLevel,
       riverClass: new Uint8Array(size).fill(RIVER_CLASS_MAJOR),
@@ -83,13 +84,100 @@ describe("ecology feature substrate", () => {
   });
 
   it("admits only current substrate evidence and never invents retired sink substrate", () => {
-    const input = { width: 5, height: 5, riverClass: new Uint8Array(25), navigableRiverMask: new Uint8Array(25), landMask: new Uint8Array(25).fill(1), elevation: new Int16Array(25).fill(10), seaLevel: 0, discharge: Array<number>(25).fill(0) };
+    const input = { width: 5, height: 5, riverClass: new Uint8Array(25), navigableRiverMask: new Uint8Array(25), landMask: new Uint8Array(25).fill(1), externalWaterMask: new Uint8Array(25), elevation: new Int16Array(25).fill(10), seaLevel: 0, discharge: Array<number>(25).fill(0) };
     const selection = normalizeOperationSelectionForTest(ecology.features.ops.computeFeatureSubstrate, ecology.features.ops.computeFeatureSubstrate.defaultConfig);
     const without = ecology.features.ops.computeFeatureSubstrate.run(input, selection);
     expect(without.hydromorphicMask).toEqual(new Uint8Array(25));
     expect(Object.hasOwn(without, "sinkBasinMask")).toBe(false);
+    expect(Value.Check(ecology.features.ops.computeFeatureSubstrate.input, input)).toBe(true);
+    const { externalWaterMask, ...withoutMarineIdentity } = input;
+    expect(Value.Check(ecology.features.ops.computeFeatureSubstrate.input, withoutMarineIdentity)).toBe(false);
     expect(Value.Check(ecology.features.ops.computeFeatureSubstrate.input, { ...input, sinkMask: new Uint8Array(25) })).toBe(false);
   });
+
+  it("requires marine low shores for mangroves while preserving generic finite-shore and river substrate", () => {
+    const width = 9;
+    const height = 2;
+    const size = width * height;
+    const landMask = new Uint8Array(size);
+    landMask.fill(1, width);
+    const elevation = new Int16Array(size).fill(-20);
+    elevation.set([0, 24, 41, 161, -1, 24, 24, 24, 24], width);
+    const riverClass = new Uint8Array(size);
+    const discharge = Array<number>(size).fill(0);
+    riverClass[width + 5] = RIVER_CLASS_MAJOR;
+    riverClass[width + 8] = RIVER_CLASS_MINOR;
+    discharge[width + 5] = 160;
+    discharge[width + 8] = 8;
+    const marineWaterMask = Uint8Array.from(landMask, (land) => land === 0 ? 1 : 0);
+    const mixedWaterMask = new Uint8Array(size);
+    mixedWaterMask[1] = 1;
+    const input = {
+      width,
+      height,
+      landMask,
+      externalWaterMask: marineWaterMask,
+      elevation,
+      seaLevel: 0,
+      riverClass,
+      navigableRiverMask: new Uint8Array(size),
+      discharge,
+    };
+    const before = structuredClone(input);
+    const operation = ecology.features.ops.computeFeatureSubstrate;
+    const selection = normalizeOperationSelectionForTest(operation, {
+      ...operation.defaultConfig,
+      config: {
+        ...operation.defaultConfig.config,
+        nearRiverRadius: 1,
+        floodplainDischargeMin: 96,
+      },
+    });
+    const marine = operation.run(input, selection);
+    const finite = operation.run({ ...input, externalWaterMask: new Uint8Array(size) }, selection);
+    const mixed = operation.run({ ...input, externalWaterMask: mixedWaterMask }, selection);
+
+    expect(Array.from(marine.intertidalCoastMask.slice(width))).toEqual([1, 1, 0, 0, 0, 1, 1, 1, 1]);
+    expect(finite.intertidalCoastMask).toEqual(new Uint8Array(size));
+    expect(Array.from(mixed.intertidalCoastMask.slice(width))).toEqual([1, 1, 0, 0, 0, 0, 0, 0, 0]);
+    const { intertidalCoastMask: marineIntertidal, ...marineGeneric } = marine;
+    const { intertidalCoastMask: finiteIntertidal, ...finiteGeneric } = finite;
+    const { intertidalCoastMask: mixedIntertidal, ...mixedGeneric } = mixed;
+    expect(finiteGeneric).toEqual(marineGeneric);
+    expect(mixedGeneric).toEqual(marineGeneric);
+    expect(finite.coastalLandMask[width + 1]).toBe(1);
+    expect(finite.floodplainMask[width + 1]).toBe(0);
+    expect(finite.hydromorphicMask[width + 1]).toBe(1);
+    expect(finite.wellDrainedMask[width + 1]).toBe(0);
+    expect(finite.floodplainMask[width + 5]).toBe(1);
+    expect(finite.isolatedWaterPointMask[width + 8]).toBe(1);
+    expect(marine.coastalLandMask[width + 2]).toBe(1);
+    expect(marine.hydromorphicMask[width + 2]).toBe(0);
+    expect(marine.wellDrainedMask[width + 2]).toBe(1);
+
+    const mangroveOperation = ecology.features.ops.scoreWetMangrove;
+    const mangroveSelection = normalizeOperationSelectionForTest(mangroveOperation, mangroveOperation.defaultConfig);
+    const scoreMangroves = (intertidalCoastMask: Uint8Array) => mangroveOperation.run({
+      width,
+      height,
+      landMask,
+      intertidalCoastMask,
+      water01: new Float32Array(size).fill(0.85),
+      fertility01: new Float32Array(size).fill(0.7),
+      surfaceTemperature: new Float32Array(size).fill(24),
+      aridityIndex: new Float32Array(size).fill(0.25),
+    }, mangroveSelection).score01;
+    const marineScores = scoreMangroves(marineIntertidal);
+    const finiteScores = scoreMangroves(finiteIntertidal);
+    const mixedScores = scoreMangroves(mixedIntertidal);
+    expect(marineScores[width + 1]).toBeGreaterThan(0);
+    expect(finiteScores).toEqual(new Float32Array(size));
+    expect(mixedScores[width + 1]).toBe(marineScores[width + 1]);
+    expect(marineScores[width + 2]).toBe(0);
+    expect(marineScores.slice(0, width)).toEqual(new Float32Array(width));
+    expect(input).toEqual(before);
+  });
+
   it("separates minor river adjacency from projected navigable terrain", () => {
     const syntheticDimensions = { width: 3, height: 3 } as const;
     const { width, height } = syntheticDimensions;
@@ -110,6 +198,7 @@ describe("ecology feature substrate", () => {
         riverClass,
         navigableRiverMask,
         landMask: new Uint8Array(size).fill(1),
+        externalWaterMask: new Uint8Array(size),
         elevation: new Int16Array(size).fill(40),
         seaLevel: 0,
         discharge: Array<number>(size).fill(100),
@@ -146,6 +235,7 @@ describe("ecology feature substrate", () => {
         riverClass,
         navigableRiverMask: new Uint8Array(size),
         landMask: new Uint8Array(size).fill(1),
+        externalWaterMask: new Uint8Array(size),
         elevation: new Int16Array(size).fill(24),
         seaLevel: 0,
         discharge: Array<number>(size).fill(8),
@@ -185,6 +275,7 @@ describe("ecology feature substrate", () => {
         riverClass,
         navigableRiverMask,
         landMask: new Uint8Array(size).fill(1),
+        externalWaterMask: new Uint8Array(size),
         elevation: new Int16Array(size).fill(24),
         seaLevel: 0,
         discharge,

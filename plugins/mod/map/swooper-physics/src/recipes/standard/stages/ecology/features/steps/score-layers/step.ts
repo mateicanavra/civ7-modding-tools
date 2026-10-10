@@ -94,6 +94,7 @@ export const ScoreLayersStep = createStep(config, {
         riverClass: hydrography.riverClass,
         navigableRiverMask: riverProjection.riverMask,
         landMask: ecologyLandMask,
+        externalWaterMask: topography.externalWaterMask,
         elevation: topography.elevation,
         seaLevel: topography.seaLevel,
         discharge: hydrography.discharge,

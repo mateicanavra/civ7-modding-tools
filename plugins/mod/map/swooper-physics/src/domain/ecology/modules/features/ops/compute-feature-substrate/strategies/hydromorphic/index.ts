@@ -42,6 +42,15 @@ const hydromorphicStrategy = createStrategy(Contract, StrategyDefinition, {
       width,
       height,
       landMask,
+      sourceWaterMask: Uint8Array.from(landMask, (land) => land === 0 ? 1 : 0),
+      radius: config.coastalAdjacencyRadius,
+    });
+
+    const marineCoastalLandMask = computeCoastalLandMask({
+      width,
+      height,
+      landMask,
+      sourceWaterMask: input.externalWaterMask,
       radius: config.coastalAdjacencyRadius,
     });
 
@@ -56,6 +65,7 @@ const hydromorphicStrategy = createStrategy(Contract, StrategyDefinition, {
       nearRiverMask,
       isolatedRiverMask,
       coastalLandMask,
+      marineCoastalLandMask,
       nearRiverRadius: config.nearRiverRadius,
       lowlandMaxElevationAboveSeaM: config.lowlandMaxElevationAboveSeaM,
       intertidalMaxElevationAboveSeaM: config.intertidalMaxElevationAboveSeaM,

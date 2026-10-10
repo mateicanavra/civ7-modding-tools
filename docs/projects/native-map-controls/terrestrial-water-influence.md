@@ -277,3 +277,86 @@ into the same owner decision before selecting another implementation. Do not
 lower feature admission to rescue this case, promote every shore, or substitute
 river display class for actual water availability. No new root-zone solver or
 empirical shore bonus is selected.
+
+## Marine Habitat Provenance Prerequisite
+
+The next bounded repair carries an already-owned source distinction into
+Ecology before selecting terrestrial water opportunity. `score-layers` already
+reads `externalWaterMask`, separating prescribed external marine water from
+finite resolved water. Admit that mask to `computeFeatureSubstrate` and qualify
+the existing `intertidalCoastMask` with adjacency to external water, exposed
+land and the unchanged relative-height limit. This is a marine low-shore
+habitat proxy, not measured tides, salinity, freshwater quality or root access.
+
+Keep the current neighborhood geometry and configured radius. Preserve generic
+any-water `coastalLandMask` and its existing hydromorphic consequences for the
+other wetland consumers. Narrowing mangrove provenance must not silently
+remove lake-shore opportunities from marsh or bog. No new artifact, operation,
+stage, solver, supply scalar, score coefficient or planner floor is selected.
+
+The retained Archipelago geometry already gives all 573 intertidal candidates
+an external-water neighbor, including all 19 incumbent mangroves. Therefore
+this repair is expected to preserve that outcome; it does not recover the
+refused removal control's lost scores and is not a climate improvement claim.
+
+### Prospective Proof
+
+- At fixed exposure, height and climate, marine-only low shores retain marine
+  eligibility; finite-only shores do not; mixed shores retain it; high ground
+  remains excluded. Generic coastal/hydromorphic outputs retain their declared
+  any-water behavior.
+- Baseline and final climate, Pedology, physical geometry, drainage, lake
+  ledgers and river/elevation projection hold. No freshwater increment follows
+  from a marine adjacency label.
+- Qualify a retained procedural finite-only low-shore witness when available,
+  not a newly generated geography created to fit the test.
+- The actual Archipelago incumbent retains its 19 mangroves and complete
+  feature result. Use the unchanged complete bank for collateral qualification;
+  require no new failed leaf or deterioration of the existing failed leaf.
+  Other downstream competition, resource and start changes are reported,
+  rather than silently assumed identical.
+
+Seal this source-meaning repair before returning to the explicitly empirical
+terrestrial opportunity/consumer contract. Perfect salinity or root physics
+is not a prerequisite for an honest approximation, but source adjacency must
+not be promoted to those missing quantities. The original thermal objective,
+consumer calibration and local plant-water response remain open.
+
+### Completed Source-Provenance Qualification
+
+The required `externalWaterMask` is now wired into the existing substrate
+operation. Marine-only and mixed low shores retain intertidal eligibility;
+finite-only low shores retain generic coastal and hydromorphic eligibility,
+but not the marine label. The original neighborhood and height rules hold.
+No score coefficient, admission floor, rainfall or water-supply formula changes.
+
+One actual Huge Earthlike `2/2` capture is byte-identical to the qualified
+incumbent, including all model, projection, feature, resource and start data.
+Its 49 integrity expectations pass. On those retained physical inputs, the
+source-only substrate contrast narrows intertidal eligibility `795 -> 493`,
+removing 302 finite-only low-shore cells. All nine other substrate outputs
+remain exact. Six retained finite-shore witnesses qualify the distinction;
+these operation replays are not original score-time snapshots.
+
+One actual Huge Archipelago `1018/1018` execution preserves its 573 marine
+intertidal candidates, all 19 mangrove scores/intents/writes, and the complete
+final mock readback. Physical/climate artifacts and all non-intertidal masks
+hold. The executions take about `2.85` and `2.52` seconds respectively; neither
+is a native-generation or complete player-wait claim.
+
+The first Huge evidence reducer used the physical name `MAJOR` where the
+captured projection enum is `NAVIGABLE`. It failed after writing the valid
+capture. A versioned reduction reuses that immutable capture, checks the
+original failed receipt and source pins, and completes the comparison with
+zero additional generations. The failed first receipt remains retained.
+
+Focused controls pass 12 tests and 212 assertions. Owner verification passes
+1,324 definition tests, 371 realization tests and 412 Studio tests; the
+definition study aggregate still fails on the known thermal requirement.
+The unchanged complete bank is byte-identical: 22 studies, 57 unique scenarios
+and 4,430 expectations, with 4,429 passing and the same thermal leaf failing
+at `0.142881437915705 C` against `>= 1 C`. Independent comparison finds no
+changed observation, new failure, deterioration or weakened gate.
+Types, policy and builds pass. This qualifies source meaning, not salinity,
+tidal habitat, root-zone access or a new terrestrial water response. The
+loaded playable session is preserved; new-bundle native execution is unclaimed.

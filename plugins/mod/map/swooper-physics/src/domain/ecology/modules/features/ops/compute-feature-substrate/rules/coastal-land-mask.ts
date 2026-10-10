@@ -1,12 +1,13 @@
 import { clampInt } from "@swooper/mapgen-core/lib/math";
 
 /**
- * Marks land tiles that sit within the configured radius of water.
+ * Marks exposed land within the configured radius of an explicitly admitted water source.
  */
 export function computeCoastalLandMask(args: {
   readonly width: number;
   readonly height: number;
   readonly landMask: ArrayLike<number>;
+  readonly sourceWaterMask: ArrayLike<number>;
   readonly radius: number;
 }): Uint8Array {
   const width = args.width;
@@ -30,7 +31,7 @@ export function computeCoastalLandMask(args: {
         const row = ny * width;
         for (let nx = x0; nx <= x1; nx++) {
           if (nx === x && ny === y) continue;
-          if (args.landMask[row + nx] === 0) {
+          if (args.sourceWaterMask[row + nx] === 1) {
             adjacentWater = 1;
             break;
           }
