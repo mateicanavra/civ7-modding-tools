@@ -115,9 +115,11 @@ established. [Read the research question](questions/q-001-low-shore-neighborhood
 #### Q-004: Point-Water Habitat Support
 
 Two retained headless Earthlike cases lose every oasis/watering-hole precursor
-to a broad floodplain substrate exclusion before climate scoring. The loss is
-demonstrated for those inputs; physical source/inundation meaning and adequate
-occurrence remain open. This is distinct from Q-001's neighborhood geometry.
+to a broad floodplain substrate exclusion before climate scoring. Oasis also
+has an independent warmth ceiling below admission in the pair. Habitat,
+response and biome requirements need a coherent interpretation; neither mask
+removal nor a hotter climate is an established remedy. This is distinct from
+Q-001's neighborhood geometry.
 [Read the research question](questions/q-004-point-water-support.md).
 
 ### Ecology / Features / Scoring And Wetland Planning

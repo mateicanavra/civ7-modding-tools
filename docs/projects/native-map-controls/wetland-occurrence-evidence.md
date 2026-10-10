@@ -46,7 +46,8 @@ from captured metadata rather than guessed numeric IDs.
 The original planner seed was not retained. Diagnostic seed 0 is explicit; the
 inspected strategy ignores that input, so it supplies no substituted random
 draw. Two passes made 28 owner-operation replays in total. New recipe generation,
-build and native calls were all zero. This summary adds no further replay.
+build and native calls were all zero. The additional support control below has
+separate custody and four additional owner-operation replays.
 
 ## Point-Water Support
 
@@ -75,6 +76,43 @@ Actual prior floodplain features occupy far fewer tiles. Removing prior feature
 occupancy is not the same as changing the substrate exclusion. The selected
 point-water witnesses also fail dryness factors; their first mask loss does
 not prove that deleting the mask veto alone would produce either feature.
+
+### Independent Limits Beyond The Mask
+
+A separate scalar comparison uses the retained land temperatures and the
+[configured oasis response][oasis]. Standard1 and Huge2 have maximum annual
+land temperatures of approximately 25.783157 and 25.802839 degrees C. With an
+authored warmth ramp from 20 to 38 degrees C, the largest warmth factors are
+approximately 0.321287 and 0.322380. Each other factor is at most one, so warmth
+alone caps the product below the shared 0.42 admission floor. Approximately
+27.56 degrees C is necessary even with perfect remaining factors.
+
+This is an additional current-pair obstacle, independent of the empty
+point-water mask. It does not prove all-seed impossibility, establish a physical
+temperature requirement for oases or justify heating the climate model to
+satisfy the feature scorer.
+
+A separate diagnostic enables the habitat mask on every cell while holding
+actual climate, plant-water, fertility, land identity and compiled configuration
+fixed. Its four calls to the actual oasis and watering-hole scorers yield:
+
+| Family / case | Positive land scores | Maximum score | Score >= 0.42 |
+| --- | ---: | ---: | ---: |
+| Oasis / Standard1 | 0 | 0 | 0 |
+| Oasis / Huge2 | 0 | 0 | 0 |
+| Watering hole / Standard1 | 6 | 0.0024374612 | 0 |
+| Watering hole / Huge2 | 79 | 0.0095032779 | 0 |
+
+This overpermissive control proves that mask-only intervention cannot admit
+either family in the retained pair. It does not propose a physical source mask
+or identify the appropriate response law. It was executed at
+`889c4b79c41432ea41aa75d2c55fb2ac190e3813`, with both scorer subtrees and the
+shared scalar helper verified unchanged from inspected `2a31c96f`. Original
+raw inputs and compiled configurations remain bound to the original receipts.
+The control made four additional owner-operation replays, zero generation calls
+and zero native calls. These results and the temperature comparison have their
+own program/result hashes below; they are not attributed to the older 28-call
+diagnostic.
 
 ## Other Wetland Families
 
@@ -149,13 +187,15 @@ validation.
 | Structured diagnostic result | `0ec59f93649abcc94f94a907242d2dacd09238725e7a573d840866f5f36d55c3` |
 | Diagnostic program | `ae79f92161bd34003a91ba8a9cdb37ff4a3cb840aa6704116c862b4dd70ef853` |
 | Narrative diagnostic report | `cffb6f61a2a2fd61d1b16f3af6cf6eb80715a4ee101160fd2e4df5dfc711e372` |
+| Point-water support control result | `74c4a5d6d44145c0b304246c26f2e88ca9b4d44cc63bc88340047d5dc2b58707` |
+| Point-water support control program | `3010466d6c2740b6a8840a92460b3fc2d931326ce15fceeb25165393af69f400` |
 | Native census result | `bb794bcc41ab9aabcc7c153926ca920622a503aac3539caca4a0e6bd4ca042b2` |
 | Native census reducer | `b129ea5380ecfc3f3166954b45a13afb6a5dc484602a73a2aa1ef383e3c41f8f` |
 | Native original receipt | `d5e119c30d2045c200b9c3012eed4ba05525ce61321b710b93c81abb33e5cbd8` |
 | Native continuation receipt | `d87adeebef6dd608f53e69f70e352a2db99c98288ab69ab0f1e7c5a680d0eab9` |
 
-The diagnostic and census reducer have no committed producer revisions of
-their own. Their findings
+The diagnostic programs and census reducer have no committed producer revisions
+of their own. Their findings
 therefore remain prose evidence with explicit custody and source limits, not a
 fabricated structured verification record pinned to this editorial commit.
 No current live-state claim, all-seed prevalence, physical calibration, repaired
@@ -164,3 +204,4 @@ output or preferred threshold follows from these results.
 [substrate]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/rules/wetland-substrate-masks.ts
 [scores]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/steps/score-layers/step.ts
 [planner]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/features-plan-wetlands/strategies/habitat-confidence/index.ts
+[oasis]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/maps/configs/swooper-earthlike.config.json#L949-L957

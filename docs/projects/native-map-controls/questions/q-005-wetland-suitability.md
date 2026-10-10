@@ -66,7 +66,7 @@ verification:
 When eligible wetland habitat rarely becomes a feature, is the limiting factor
 the environment, the family's response to it, or the rule that admits a score
 for placement? Marsh, tundra bog and mangrove already have different scoring
-models. They nevertheless compete through the same numerical admission floor.
+models. They nevertheless pass through the same numerical admission floor.
 The meaning of that shared comparison is the central question, not whether all
 wetlands should become more common.
 
@@ -107,6 +107,11 @@ flat, previously unoccupied site. It considers biome-compatible families,
 selects the strongest candidate and then applies the configured minimum score.
 Earthlike sets that floor to [0.42][floor]. The implementation calls the score
 "confidence," but it is not an independently calibrated probability.
+
+The [official biome compatibility masks][compatibility] for these wetland
+families are mutually exclusive. They therefore do not currently compete with
+one another on the same compatible tile. A shared floor is not itself evidence
+that one wetland family displaces another.
 
 A common numeric range does not by itself demonstrate that the scores have
 comparable ecological meaning. Their factors and response windows differ.
@@ -180,6 +185,7 @@ all-seed prevalence or physical calibration.
 [mangrove]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-mangrove/strategies/warm-intertidal/index.ts
 [planner]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/features-plan-wetlands/strategies/habitat-confidence/index.ts
 [floor]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/maps/configs/swooper-earthlike.config.json#L1050-L1054
+[compatibility]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/packages/civ7-map-policy/src/civ7-tables.gen.ts
 [retained]: ../wetland-occurrence-evidence.md
 [geometry]: q-001-low-shore-neighborhood.md
 [point-water]: q-004-point-water-support.md
