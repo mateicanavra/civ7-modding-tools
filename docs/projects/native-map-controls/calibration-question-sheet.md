@@ -1,5 +1,9 @@
 # Earthlike Calibration And Projection Questions
 
+This sheet retains its original calibration/projection investigation. New
+material off-path discoveries go to the shared [investigation questions](triage.md);
+current active scope remains in the [workstream](WORKSTREAM.md).
+
 Current dispositions and build identities live in the
 [delivery inventory](delivery-inventory.md). Water ownership, normal native
 head retention and bounded actual cliff/lake/marine vessel routes are completed
