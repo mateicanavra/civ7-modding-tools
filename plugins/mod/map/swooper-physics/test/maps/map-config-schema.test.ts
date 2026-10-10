@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 import { loadSwooperMapConfigCatalog } from "../../scripts/catalog-source";
 import { createSwooperMapConfigSourceStore } from "../../scripts/config-source-store";
 import ecology from "../../src/domain/ecology/router.js";
+import hydrology from "../../src/domain/hydrology/router.js";
 import morphology from "../../src/domain/morphology/router.js";
 import { buildStandardRecipeDefaultConfig } from "../../src/recipes/standard/artifacts.js";
 import { admitMapConfigCatalogConfig } from "../../src/maps/catalog/admission";
@@ -575,6 +576,32 @@ describe("Shipped map configs", () => {
         })),
       ];
       for (const obsolete of obsoleteStages) {
+        expect(() => admitStandardMapConfig({
+          ...canonicalConfig,
+          config: { ...canonicalConfig.config, "hydrology-climate-refine": obsolete },
+        })).toThrow("Unknown key");
+      }
+    }
+  });
+
+  it("rejects retired precipitation refinement and its dryness knob across the catalog", async () => {
+    expect(collectOperations(hydrology)).not.toHaveProperty("hydrology/refine-precipitation");
+    for (const { canonicalConfig } of await loadSwooperMapConfigRegistry()) {
+      const stage = canonicalConfig.config["hydrology-climate-refine"];
+      expect(stage.knobs).toEqual({ cryosphere: "on" });
+      expect(stage["climate-refine"]).not.toHaveProperty("refinePrecipitation");
+      for (const obsolete of [
+        ...["wet", "mix", "dry"].map((dryness) => ({
+          ...stage, knobs: { ...stage.knobs, dryness },
+        })),
+        {
+          ...stage,
+          "climate-refine": {
+            ...stage["climate-refine"],
+            refinePrecipitation: { strategy: "riparian-basin-wetness", config: {} },
+          },
+        },
+      ]) {
         expect(() => admitStandardMapConfig({
           ...canonicalConfig,
           config: { ...canonicalConfig.config, "hydrology-climate-refine": obsolete },

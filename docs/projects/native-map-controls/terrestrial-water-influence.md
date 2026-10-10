@@ -827,3 +827,47 @@ water source. Keep the remaining any-river rainfall injection and regional
 thermal/moisture response as explicit upstream owner questions. Resolve those
 meanings before adopting a replacement local-water calculation; the existing
 Hydrology budget remains the composition owner and Ecology its consumer.
+
+## Prospective Atmospheric-Proxy Retirement
+
+The current-source comparison retires only the remaining river/enclosed-basin
+precipitation operation, its controls and wiring. Hierarchy-only budget
+retirement, marine consumers and local biome classification are already adopted.
+Do not reuse the historical A implementation or receipt as current proof.
+No new local-water index, shore gain, thermal model or habitat tuning belongs
+to this unit. Baseline atmospheric rainfall and humidity become the sole final
+rainfall/humidity vintage; existing thermal and ecological consumers remain.
+
+The director and a fresh relief/climate steward prospectively replace the
+workstream's scalar non-deterioration veto with attributed-retirement proof.
+The executable `1 C` thermal requirement, comparator, original-land population,
+scenarios and failed status remain unchanged. Unsupported snow variation is
+not independent evidence of physical quality. Its removal does not by itself
+establish harm, but explaining a scalar cannot excuse a bad map or habitat loss.
+Historical A remains refused under its original protocol.
+
+Before execution, freeze these holds and falsifiers:
+
+- Keep baseline atmosphere and pre-network demand, initial/sealed geometry,
+  drainage, lake ledgers, physical hydrography and physical projection intent
+  exact. Final candidate rainfall/humidity must equal baseline arrays.
+- Retain the actual pre-albedo thermal field. Replay the unchanged cooling
+  owner with each rainfall arm and close every changed temperature to that
+  mechanism. Zero-albedo controls retain temperature exactly.
+- Attribute row-centered variance and covariance on every original-mask
+  thermal-cohort case, including later-covered cells. The earlier Huge2
+  decomposition is not this proof; sampled seasonal means are not the exact
+  independently integrated annual thermal field.
+- Run the unchanged full bank with no new failed leaf or comparator change.
+  Explain material habitat substitutions, resource and founder consequences;
+  vegetation totals alone are inadequate. Current marine behavior must be
+  qualified rather than assumed safe from its earlier repair.
+- Inspect aligned paired map views for coherent, usable habitat and placement.
+  Fresh native realization is separate proof before claiming a deployed result.
+
+Unexplained thermal changes, changed physical water, new bank failures, lost
+legitimate habitat or unacceptable visible structure refuse this candidate.
+No compensating constant rescues it. A qualified retirement still leaves local
+plant-water opportunity and regional thermal response as distinct next owners;
+missing physical measurements do not prohibit a defensible, explicitly modeled
+game-scale approximation.

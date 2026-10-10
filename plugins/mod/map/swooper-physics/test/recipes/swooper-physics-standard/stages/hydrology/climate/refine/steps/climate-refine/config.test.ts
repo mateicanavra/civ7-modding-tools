@@ -8,33 +8,43 @@ import {
 
 const setup = createStandardRecipeTestInitialSetup();
 
-function normalizeDryness(dryness: "wet" | "mix") {
+function normalizeCryosphere(cryosphere: "off" | "on") {
   const recipeConfig = createStandardRecipeTestConfig();
   const stageConfig = recipeConfig["hydrology-climate-refine"];
-  const precipitation = stageConfig["climate-refine"].refinePrecipitation;
-  if (precipitation.strategy !== "riparian-basin-wetness") {
-    throw new Error("Climate refine must author refined precipitation.");
-  }
-  precipitation.config.riverCorridor.lowlandAdjacencyBonus = 20;
-  stageConfig.knobs.dryness = dryness;
-  stageConfig.knobs.cryosphere = "on";
-  return standardRecipe.compileConfig(setup, recipeConfig)["hydrology-climate-refine"][
-    "climate-refine"
-  ];
+  stageConfig.knobs.cryosphere = cryosphere;
+  return {
+    authored: stageConfig["climate-refine"],
+    compiled: standardRecipe.compileConfig(setup, recipeConfig)["hydrology-climate-refine"][
+      "climate-refine"
+    ],
+  };
 }
 
 describe("hydrology climate-refine authoring", () => {
-  it("scales authored river-corridor moisture upward for the wet posture", () => {
-    const neutral = normalizeDryness("mix");
-    const wet = normalizeDryness("wet");
-    if (neutral.refinePrecipitation.strategy !== "riparian-basin-wetness") {
-      throw new Error("Climate refine must retain refined precipitation.");
-    }
-    if (wet.refinePrecipitation.strategy !== "riparian-basin-wetness") {
-      throw new Error("Climate refine must retain refined precipitation.");
-    }
+  it("preserves the authored physical controls when cryosphere remains enabled", () => {
+    const { authored, compiled } = normalizeCryosphere("on");
+    expect(compiled).toEqual(authored);
+    expect(compiled).not.toHaveProperty("refinePrecipitation");
+  });
 
-    expect(neutral.refinePrecipitation.config.riverCorridor.lowlandAdjacencyBonus).toBe(20);
-    expect(wet.refinePrecipitation.config.riverCorridor.lowlandAdjacencyBonus).toBe(23);
+  it("neutralizes only cryosphere feedback when disabled", () => {
+    const { authored, compiled } = normalizeCryosphere("off");
+    expect(compiled.applyAlbedoFeedback.config.iterations).toBe(0);
+    expect(compiled.computeCryosphereState.config).toEqual({
+      ...authored.computeCryosphereState.config,
+      landSnowStartC: -60,
+      landSnowFullC: -80,
+      seaIceStartC: -60,
+      seaIceFullC: -80,
+      freezeIndexStartC: -60,
+      freezeIndexFullC: -80,
+      precipitationInfluence: 0,
+      snowAlbedoBoost: 0,
+      seaIceAlbedoBoost: 0,
+    });
+    expect(compiled.computePotentialDemand).toEqual(authored.computePotentialDemand);
+    expect(compiled.computeLandWaterBudget).toEqual(authored.computeLandWaterBudget);
+    expect(compiled.computeClimateDiagnostics).toEqual(authored.computeClimateDiagnostics);
+    expect(compiled).not.toHaveProperty("refinePrecipitation");
   });
 });

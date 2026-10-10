@@ -19,7 +19,6 @@ import { createSurfaceWaterFixture } from "../../../../morphology/features/fixtu
 const climate = hydrology.climate.ops;
 const cryosphere = hydrology.cryosphere.ops;
 const climateConfig = {
-  refinePrecipitation: climate.refinePrecipitation.defaultConfig,
   applyAlbedoFeedback: cryosphere.applyAlbedoFeedback.defaultConfig,
   computeCryosphereState: cryosphere.computeCryosphereState.defaultConfig,
   computeLandWaterBudget: climate.computeLandWaterBudget.defaultConfig,
@@ -89,7 +88,6 @@ function runSurfaceConsumers(initiallyWet = false) {
       windU: new Int8Array(size), windV: new Int8Array(size),
     });
     ClimateRefineStep.run(stepContext, climateConfig, {
-      refinePrecipitation: climate.refinePrecipitation.run,
       applyAlbedoFeedback: (...[input, config]: Parameters<typeof cryosphere.applyAlbedoFeedback.run>) => {
         calls.push("albedo");
         expect(input.surfaceTemperatureC).toBe(baselineTemperature);

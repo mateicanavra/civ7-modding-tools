@@ -4,8 +4,8 @@ export type HydrologySeasonalityKnob = "low" | "normal" | "high";
 export type HydrologyOceanCouplingKnob = "off" | "simple" | "earthlike";
 
 /**
- * Multiplier through which the public dryness knob retunes evaporation, rainfall, and local
- * moisture bonuses while preserving each selected strategy's authored baseline.
+ * Multiplier through which the baseline dryness knob retunes evaporation and rainfall while
+ * preserving each selected strategy's authored baseline.
  */
 export const HYDROLOGY_DRYNESS_WETNESS_SCALE = {
   wet: 1.15,

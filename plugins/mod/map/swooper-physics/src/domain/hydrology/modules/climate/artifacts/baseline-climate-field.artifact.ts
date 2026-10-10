@@ -14,7 +14,7 @@ export const artifact = defineArtifact({
       rainfall: TypedArraySchemas.u8({
         cardinality: "map-grid",
         description:
-          "Annual-mean precipitation intensity before river-corridor and cryosphere refinement, encoded in Civ7's inclusive 0-200 rainfall domain.",
+          "Annual-mean atmospheric precipitation intensity preserved through climate refinement, encoded in Civ7's inclusive 0-200 rainfall domain.",
       }),
       humidity: TypedArraySchemas.u8({
         cardinality: "map-grid",
