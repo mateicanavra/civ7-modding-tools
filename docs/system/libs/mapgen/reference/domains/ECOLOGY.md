@@ -108,10 +108,13 @@ Key contract point: each strategy owns its configuration schema, while each sema
 artifacts and model vocabulary its operations share. Cross-stage consumption does not move artifact
 authority to the root domain.
 
-Biome classification consumes Hydrology's surface temperature, effective moisture, aridity, and
-freeze indices without re-deriving them. Its temperature controls classify supplied temperatures;
-its aridity controls govern moisture-zone shifts and vegetation stress. Thermal forcing, lapse
-rates, and PET derivation remain Hydrology-owned, not Ecology authoring controls.
+Biome classification consumes Hydrology's surface temperature, atmospheric moisture/aridity,
+plant moisture/stress, and freeze indices without re-deriving them. Nonpolar moisture buckets and
+dryward shifts describe local plant habitat; polar categories and thermal-transition context retain
+atmospheric inputs. These empirical categories are not scientific climatic-aridity classes:
+native DESERT projects the Ecology `desert` symbol, not a second test of atmospheric aridity.
+Temperature controls classify supplied temperatures. Thermal forcing, lapse rates, and PET
+derivation remain Hydrology-owned, not Ecology authoring controls.
 
 Feature scoring and planning stay separate:
 - Score ops produce continuous physical suitability fields. A positive score is not itself a placement command.
@@ -129,12 +132,17 @@ Feature scoring and planning stay separate:
   biome identity into the ten family score fields; the floodplain planner separately chooses which
   scored identity, if any, becomes intent.
 - Reef-family habitat eligibility is reef-owned: warm reefs use warm shallow near-coast shelf water, cold reefs use colder deeper shelf/edge water, atolls use isolated warm shallow banks, and `FEATURE_LOTUS` uses warm shallow near-land water.
-- Wetland-family habitat eligibility is wet-feature-owned through named substrate masks: marsh and tundra bog require hydromorphic substrate, mangrove requires marine intertidal coast, and oasis/watering-hole features require isolated lowland water-source substrate plus arid scoring.
+- Wetland-family habitat eligibility is wet-feature-owned: marsh and tundra bog require hydromorphic
+  substrate, and mangrove requires marine intertidal coast. Oasis/watering-hole scoring instead uses
+  Hydrology's annual local water-source opportunity relative to potential demand, multiplied by
+  atmospheric climatic dryness. It has no isolation mask, second adjacency estimate, or whole-tile
+  moisture requirement. Annual source support does not establish seasonal liquid-water survival,
+  salinity, groundwater, or the extent of a habitable patch.
   Mangrove scoring combines warmth, fertility, and low aridity after that marine low-shore gate;
   it does not require the generic terrestrial `water01` multiplier. The gate is an empirical wet-habitat
-  approximation, not a measurement of salinity, tides, freshwater access, or root uptake. Other wetland
-  scorers retain their terrestrial water inputs. Before arbitration and occupancy reservation, the
-  Standard recipe supplies closed five-family terrain/biome compatibility masks for planned flat
+  approximation, not a measurement of salinity, tides, freshwater access, or root uptake. Marsh and
+  tundra-bog scorers retain their terrestrial water inputs. Before arbitration and occupancy
+  reservation, the Standard recipe supplies closed five-family terrain/biome compatibility masks for planned flat
   ground from official Civ7 feature policy and its shared canonical biome/feature projection maps.
   These masks are transient planner inputs, not an artifact or a prediction of complete native
   feasibility. Planning still applies confidence and availability gates, and projection retains
