@@ -60,9 +60,13 @@ const DEFINITIONS = [
   def(
     "RESOURCE_FISH",
     "aquatic-coastal-navigable-river",
-    "Broad coastal shelf, estuary, and upwelling fishery.",
+    "Broad coastal shelf, estuary, upwelling, and unfrozen finite-water fishery.",
     [6, 9, 12],
-    ["eligible coast/shelf up", "upwelling/estuary up", "ice/deep-ocean/lakes down"]
+    [
+      "eligible coast/shelf/finite water up",
+      "upwelling/estuary/finite shore/shore-adjacent river up",
+      "ice/deep-ocean down",
+    ]
   ),
   def(
     "RESOURCE_PEARLS",

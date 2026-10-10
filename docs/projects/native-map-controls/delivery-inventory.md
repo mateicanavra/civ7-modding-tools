@@ -22,6 +22,21 @@ Earth-system simulator. Regional land-temperature response remains an explicit
 limitation; no new thermal or ocean campaign is an implicit prerequisite to
 playing the qualified product.
 
+The latest [finite-Fish consumer repair](resources.md#finite-consumer-verification)
+admits resolved inland water through the existing habitat owner, without
+changing physical water, climate or total supply policy. Eleven fixed-input
+captures and fresh Huge native generation qualify the repair, including Fish
+on physical finite water with either native lake or coastal identity. The
+installed game is revealed. This is not yet adoption of the separately designed
+player-scaled aquatic supply; that comparison must hold actual spacing and
+resource legality before changing the baseline.
+
+The single retained island transect resolves to finite water and does not
+demonstrate lost marine relief. No new island algorithm is selected from that
+example. The broader geography observation needs a matched marine connection;
+no automatic island or sea-level-history campaign is a prerequisite to the
+next resource domino.
+
 The [source-limited rainfall experiment](climate-moisture-closure-design.md#completed-product-decision)
 is complete and not adopted. Owner accounting and consumer controls pass, and
 four calibrated maps improve climate structure. The independent 57-case bank
