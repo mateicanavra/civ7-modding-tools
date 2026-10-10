@@ -12,10 +12,7 @@ import {
   BOUNDED_JSON_LOG_MAX_LINE_LENGTH,
   decodeBoundedJsonLogSeries,
 } from "@swooper/mapgen-core/lib/log";
-import {
-  publishTestArtifact,
-  withMapContextExecutionForTest,
-} from "@swooper/mapgen-core/testing";
+import { publishTestArtifact, withMapContextExecutionForTest } from "@swooper/mapgen-core/testing";
 import { sha256Hex, stableStringify } from "@swooper/mapgen-core/trace";
 import standardRecipe, {
   createUnavailableStandardInitialOptionEvidence,
