@@ -701,6 +701,11 @@ physical inputs prove noisy, repair that owner rather than repaint categories.
   failure. The bank's row-based biome measures do not establish two-dimensional
   patch coherence: inspect the paired viewer and attribute changed categories
   to each receiver's admitted local inputs before adopting the candidate.
+- Use existing Standard `1/1`, `42/42`, `1018/1018` and Huge `2/2`
+  identities for the bounded paired topology inspection. Compare per-biome
+  wrapped-hex component sizes and singleton populations without manufacturing
+  a new fragmentation threshold. Unresolved physical support or problematic
+  topology is inconclusive, not an excuse to adjust classification parameters.
 - Reuse current feature legality, resource and start checks, with fresh SDK
   review and owner verification. A greener map, larger rainforest count or
   lower row dominance alone does not qualify the correction. A failed topology,

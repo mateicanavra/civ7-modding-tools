@@ -6,7 +6,7 @@ import { temperatureZoneOf } from "./temperature.js";
 import { clamp01 } from "./util.js";
 import { vegetationDensityForBiome } from "./vegetation.js";
 
-type BiophysicalGaussianConfig = Readonly<{
+type BiophysicalConfig = Readonly<{
   moisture: Readonly<{ thresholds: readonly [number, number, number, number] }>;
   vegetation: Readonly<{
     base: number;
@@ -39,7 +39,7 @@ export function classifyBiomesFromFields(args: {
   readonly aridityIndexF64: ArrayLike<number>;
   readonly soilType: ArrayLike<number>;
   readonly fertility: ArrayLike<number>;
-  readonly config: Readonly<BiophysicalGaussianConfig>;
+  readonly config: Readonly<BiophysicalConfig>;
 }): Readonly<{ biomeIndex: Uint8Array; vegetationDensity: Float32Array }> {
   const { width, height } = args;
   const size = width * height;
