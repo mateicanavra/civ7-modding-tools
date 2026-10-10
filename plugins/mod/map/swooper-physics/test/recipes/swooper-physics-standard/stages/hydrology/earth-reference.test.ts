@@ -14,7 +14,7 @@ import {
 
 const hydro = hydrology.hydrography.ops;
 
-function drainageFixture(rainfallIndex = 100, demandIndex = 10) {
+function drainageFixture(rainfallIndex = 100, demandIndex = 10, forcingCell?: number) {
   const { sourceShelfMask: _sourceShelfMask, landMask: _initialLandMask, ...ground } = createEarthReferenceSurface();
   const ocean = new Set(sourceWaterComponents()[0]);
   const terrain = {
@@ -24,7 +24,12 @@ function drainageFixture(rainfallIndex = 100, demandIndex = 10) {
     externalWaterHead: 0,
   };
   const size = terrain.width * terrain.height;
-  const rainfall = new Uint8Array(size).fill(rainfallIndex);
+  const rainfall = new Uint8Array(size).fill(forcingCell === undefined ? rainfallIndex : 0);
+  const potentialDemand = new Float32Array(size).fill(forcingCell === undefined ? demandIndex : 0);
+  if (forcingCell !== undefined) {
+    rainfall[forcingCell] = rainfallIndex;
+    potentialDemand[forcingCell] = demandIndex;
+  }
   const humidity = new Uint8Array(size).fill(128);
   const { runoff } = hydro.computeLocalRunoff.run(
     {
@@ -44,7 +49,7 @@ function drainageFixture(rainfallIndex = 100, demandIndex = 10) {
     }),
     localRunoff: runoff,
     rainfall,
-    potentialDemand: new Float32Array(size).fill(demandIndex),
+    potentialDemand,
   };
 }
 
@@ -277,24 +282,100 @@ describe("fixed Earth native-index drainage diagnostic", () => {
     expect(input).toEqual(held);
   });
 
-  it("resolves dry and balanced closed terminals without synthesizing an open network", () => {
-    for (const [rain, demand, state] of [
-      [0, 10, "dry"],
-      [100, 100, "closed"],
+  it("distinguishes dry, localized exact-balance closure, and uniform open export", () => {
+    for (const [rain, demand, forcingCell, state] of [
+      [0, 10, undefined, "dry"],
+      [100, 100, 5040, "closed"],
+      [100, 100, undefined, "open"],
     ] as const) {
-      const input = drainageFixture(rain, demand);
+      const input = drainageFixture(rain, demand, forcingCell);
       const before = structuredClone(input);
       const result = hydro.computeBasinNetwork.run(input, hydro.computeBasinNetwork.defaultConfig);
       expect(result.status).toBe("supported");
       if (result.status !== "supported") throw new Error(JSON.stringify(result.witness));
-      expect(result.plan.pools.some((pool) => pool.state === state)).toBe(true);
-      expect(
-        result.plan.terminals.some(
-          (terminal) => terminal.role === (state === "closed" ? "closed-wet" : "dry")
-        )
-      ).toBe(true);
-      for (let cell = 0; cell < input.externalWaterMask.length; cell++)
-        if (!input.externalWaterMask[cell]) expect(result.plan.terminalId[cell]).toBeGreaterThan(0);
+      const network = result.plan;
+      expect(network.pools.length).toBeGreaterThan(0);
+      expect(Math.abs(network.conservation.residual)).toBeLessThanOrEqual(
+        network.conservation.roundoffBound
+      );
+      if (state === "closed") {
+        expect(input.rainfall.every((value, cell) => value === (cell === 5040 ? 100 : 0))).toBe(true);
+        expect(
+          input.potentialDemand.every((value, cell) => value === (cell === 5040 ? 100 : 0))
+        ).toBe(true);
+        expect(input.localRunoff[5040]).toBeGreaterThan(0);
+        expect(input.localRunoff.every((runoff, cell) => cell === 5040 || runoff === 0)).toBe(true);
+        const basin = input.geometry.nodes[0]!;
+        expect(basin).toMatchObject({
+          id: 1, kind: "leaf", floorCell: 5040, floorElevation: 0,
+          spill: { elevation: 350 },
+        });
+        const catchmentCells = Array.from(
+          input.geometry.catchmentCells.slice(basin.cellStart, basin.cellEnd)
+        ).sort((a, b) => a - b);
+        expect(
+          Math.min(...catchmentCells.map(cell => input.elevation[cell]!).filter(height => height > 0))
+        ).toBe(200);
+        const closedPool = network.pools.find(pool => pool.poolId === 1);
+        expect(closedPool).toMatchObject({
+          poolId: 1,
+          componentId: 5041,
+          leafIds: [1],
+          catchmentCells,
+          wetCells: catchmentCells.filter(cell => input.elevation[cell] === 0),
+          state: "closed",
+          level: Number.MIN_VALUE,
+          flux: {
+            incomingOverflow: 0, dryRunoff: 0, wetPrecipitation: 100, wetDemand: 100, balance: 0,
+          },
+          outflow: 0,
+          unresolvedResidual: 0,
+          closure: {
+            resolution: "exact-balance",
+            levels: { lower: 0, lowerInclusive: false, upper: 200, upperInclusive: true },
+          },
+        });
+        expect(network.pools.filter(pool => pool.state === "closed")).toEqual([closedPool!]);
+        expect(
+          network.pools.filter(pool => pool.poolId !== 1).every(pool => pool.state === "dry")
+        ).toBe(true);
+        expect(network.terminals.filter(terminal => terminal.role === "closed-wet")).toEqual([
+          { terminalId: 5041, role: "closed-wet", anchorCell: 5040, componentId: 5041 },
+        ]);
+        expect(network.terminalId[5040]).toBe(5041);
+        expect(network.ports.filter(port => port.componentId === 5041)).toEqual([]);
+        expect(network.conservation).toMatchObject({
+          dryRunoff: 0, wetPrecipitation: 100, wetDemand: 100,
+          marineDischarge: 0, boundaryDischarge: 0, externalDischarge: 0,
+          unresolvedResidual: 0,
+        });
+        expect(network.dryDischarge.every(discharge => discharge === 0)).toBe(true);
+      } else if (state === "dry") {
+        expect(network.pools.every(pool => pool.state === "dry")).toBe(true);
+        expect(network.terminals.some(terminal => terminal.role === "dry")).toBe(true);
+        expect(network.wetMask.every(wet => wet === 0)).toBe(true);
+        expect(network.conservation.externalDischarge).toBe(0);
+      } else {
+        // Equal wet precipitation and demand do not cancel runoff from the dry catchment.
+        expect(network.pools.every(pool => pool.state === "open")).toBe(true);
+        expect(network.terminals.some(terminal => terminal.role === "marine")).toBe(true);
+        expect(network.conservation.dryRunoff).toBeGreaterThan(0);
+        expect(network.conservation.wetPrecipitation).toBe(network.conservation.wetDemand);
+        expect(network.conservation.marineDischarge).toBe(225601.66666666666);
+        expect(network.conservation.marineDischarge).toBeGreaterThan(0);
+        expect(network.conservation.boundaryDischarge).toBe(0);
+        expect(network.conservation.externalDischarge).toBe(network.conservation.marineDischarge);
+      }
+      for (let cell = 0; cell < input.externalWaterMask.length; cell++) {
+        if (input.externalWaterMask[cell]) {
+          expect(network.terminalId[cell]).toBe(-1);
+          continue;
+        }
+        expect(network.terminalId[cell]).toBeGreaterThan(0);
+        expect(
+          network.terminals.some(terminal => terminal.terminalId === network.terminalId[cell])
+        ).toBe(true);
+      }
       expect(hydro.computeBasinNetwork.run(input, hydro.computeBasinNetwork.defaultConfig)).toEqual(
         result
       );
