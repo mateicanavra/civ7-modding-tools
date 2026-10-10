@@ -19,12 +19,12 @@ export const artifact = defineArtifact({
       humidity: TypedArraySchemas.u8({
         cardinality: "map-grid",
         description:
-          "Annual-mean atmospheric moisture available to river routing and climate refinement, encoded on an inclusive 0-255 scale.",
+          "Annual-mean rainfall-derived wetness proxy available to river routing and climate refinement, encoded on an inclusive 0-255 scale.",
       }),
       potentialDemand: TypedArraySchemas.f32({
         cardinality: "map-grid",
         description:
-          "Mean of seasonal empirical PET in rainfall units on original Morphology land; zero on original water. Not calibrated open-water evaporation.",
+          "Mean of seasonal empirical PET in rainfall units on all surfaces. Not calibrated open-water evaporation.",
       }),
       demandParameters: PotentialDemandParametersSchema,
     },

@@ -146,7 +146,6 @@ export const ClimateRefineStep = createStep(config, {
         rainfall: refined.rainfall,
         humidity: refined.humidity,
         pet: demand.pet,
-        riverClass: hydrography.riverClass,
       },
       stepConfig.computeLandWaterBudget
     );

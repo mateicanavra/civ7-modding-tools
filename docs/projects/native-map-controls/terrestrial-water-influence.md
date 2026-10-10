@@ -542,3 +542,107 @@ The combined unit is qualified for adoption; the bare response remains
 historical refused-release evidence. Generated, installed and freshly native
 execution claims remain distinct. This closes impossible wetland reservation,
 not the open terrestrial river/lake opportunity or root-zone balance.
+
+## Hierarchy-Only Moisture Retirement
+
+Fresh retained-input investigation refuses the proposed annual-deficit local
+response before implementation. At the retained Huge `2/2` anchor, all 1,781
+exposed cells with a represented channel or adjacent channel/strict finite
+water have annual precipitation at least as large as final empirical demand.
+The Archipelago `1018/1018` raw-demand replay independently finds no overlap
+between its 360 local-source targets and 24 positive-deficit cells. A response
+bounded by `max(0, demand - precipitation)` would therefore be identically zero
+on both anchors. This is absence of candidate support, not evidence of
+year-round root-water sufficiency, freshwater quality or seasonal persistence.
+No new plant-stress field, gain, threshold or root-zone solver is selected.
+
+The retained Huge consumer trace also finds no unrealized admitted rainforest
+or forest: 52 rainforest-biome cells reduce to 43 after flat-terrain and prior
+occupancy exclusions, and all 43 are realized; 584 forest-biome cells reduce to
+261 and all 261 are realized. No local-source target receives an aridity
+moisture-zone shift. Regional biome envelopes, rather than a demonstrated
+score-admission defect, explain this anchor's sparse rainforest. Preserve
+those rules; more vegetation is not the acceptance target.
+
+Select the narrower demonstrated correction: retire the budget operation's
+extra minor `+4` / major `+8` effective-moisture increment and its required
+river-class input. At unchanged physical water supply, changing only the
+navigable promotion threshold currently changes 285 moisture samples. A display
+hierarchy must not supply additional ecological water. The operation will
+publish `M = rainfall + 0.35 * humidity` on resolved exposed land and zero on
+water. Preserve the existing PET and aridity arithmetic exactly.
+
+This is a distinct transition from refused removal control A. The current
+refined precipitation/humidity, albedo, temperature, freezing and final demand
+remain unchanged; the existing any-river corridor relationship is not retired
+or relabeled as a resolved plant-water budget. Finite-shore plant access and
+atmospheric wetness-injection semantics remain open causal-owner obligations.
+Baseline humidity is a rainfall-derived wetness proxy, and baseline demand is
+computed on all surfaces; correct their stale descriptions without changing
+the arrays or introducing parallel artifacts.
+
+### Prospective Qualification
+
+- Retire the input at its contract, sole recipe call and focused fixtures; no
+  ignored compatibility key or fallback lane remains. Required demand keeps
+  its double precision until the existing Float32 publication.
+- At held rainfall/humidity/demand/exposure, the public operation is exactly
+  independent of river display hierarchy. Verify the retained physical
+  `.88/.92` contrast without another geography execution.
+- One exact current-incumbent/candidate Huge `2/2` pair must hold physical geometry, baseline and
+  refined climate, demand/aridity, freezing, drainage/lake ledgers and physical
+  projection intent. Effective moisture, biome/density, features, resources
+  and start arbitration are measured downstream consequences, not blanket
+  identity claims.
+- Preserve the complete map-selected bank, every comparator and bound. Require
+  no new failed leaf and no deterioration of the existing failed leaf; report
+  the unchanged thermal failure separately. Do not tune a score, count, gain or
+  bank requirement to admit this correction.
+- Use fresh SDK/semantic review and actual owner checks before adoption. Keep
+  generated, installed, fresh native and gameplay proof distinct. A refused
+  result remains a completed experiment, not a partially installed change.
+
+### Completed Hierarchy Retirement Qualification
+
+The clean candidate at `fee7fe8a1705` removes only the extra display-class
+moisture increment and its closed input. Fresh SDK review finds no additional
+abstraction, compatibility lane or owner-contract defect. Existing refined
+rainfall/humidity, thermal and cryosphere operations, Number demand and aridity
+arithmetic remain unchanged. The any-river refinement input remains explicit;
+this is not complete atmospheric-injection retirement.
+
+An exact paired Huge `2/2`, ten-player public recipe execution against current
+main `2661c8b83312` holds all 35 nonconsequential public model fields, six
+non-feature projection keys and physical readback. Both arms pass all 49
+existing integrity expectations. The candidate takes about 2.78 seconds and
+changes effective moisture at 1,706 cells, modeled biome at 162 and vegetation
+density at 1,527. Final mock readback changes 144 biome, 71 feature and 52
+resource cells. Forest moves `261 -> 227` and rainforest `43 -> 38`, with no
+feature refusals; these are measured consequences, not vegetation-count goals.
+All ten seats remain full and dry/non-NAV, with zero unseated players. Start
+arbitration changes, and all 236 mock resource intentions are placed. This does
+not imply corresponding native engine admission.
+
+The historical `.88/.92` captures separately establish the actual defect:
+98 display-class changes caused 285 moisture changes despite unchanged physical
+network and forcing. The new closed public operation is hierarchy-independent
+at explicitly held humidity and Number-demand controls and publishes exactly
+`Float32(rainfall + 0.35 * humidity)` on exposed land. That control does not
+reconstruct uncaptured raw climate or prove final vegetation identity when
+navigable terrain changes.
+
+Full owner verification passes 1,328 definition tests, 371 realization tests
+and 412 Studio tests; types, policy and builds pass. Only the pre-existing
+thermal aggregate fails. The unchanged complete bank takes about 104 seconds,
+retains 22 studies, 57 unique scenarios and all 4,430 expectations, and records
+4,429 passes with the exact same thermal failure at `0.142881437915705 C`.
+The 97 numeric consequences introduce no new failure, status change or
+failed-leaf deterioration. Fifty-two move toward a bound without crossing it;
+they are not mislabeled universal improvement. No comparator, threshold or
+vegetation quota is changed.
+
+Public capture omits final raw humidity, Number demand, albedo and freezing.
+Unchanged source and owner tests qualify their computation; the paired observer
+does not invent their readback. Generated, installed and fresh native claims
+remain separate. Finite-shore plant access, regional versus local habitat
+composition and atmospheric wetness semantics remain open causal questions.

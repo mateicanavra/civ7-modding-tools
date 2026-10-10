@@ -147,6 +147,18 @@ This does not complete terrestrial
 river/lake plant-water composition, introduce a shoreline quota, or claim fresh
 native execution.
 
+The subsequent [hierarchy-only moisture retirement](terrestrial-water-influence.md#completed-hierarchy-retirement-qualification)
+removes the extra minor/major display-class increment from the Hydrology budget
+and retires its closed input. Exact current-main/candidate Huge comparison holds
+physical network, forcing and aridity while measuring downstream habitat,
+resource and start changes. Forest moves `261 -> 227` and rainforest `43 -> 38`;
+neither count is restored by artificial promotion. All 49 integrity expectations
+pass, ten seats remain full and 236 mock resource intentions are realized.
+The unchanged 57-scenario bank retains 4,429 passes and the exact one thermal
+failure, with no new failure or weakened gate. This is owner qualification, not
+new lake-shore plant access, complete atmospheric-policy retirement or fresh
+native gameplay proof.
+
 The single retained island transect resolves to finite water and does not
 demonstrate lost marine relief. No new island algorithm is selected from that
 example. The broader geography observation needs a matched marine connection;

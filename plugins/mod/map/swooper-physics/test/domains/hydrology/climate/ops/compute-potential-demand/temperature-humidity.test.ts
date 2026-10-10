@@ -89,7 +89,6 @@ describe("hydrology/compute-potential-demand", () => {
           humidity: input.humidity,
           rainfall,
           pet: demand.pet,
-          riverClass: new Uint8Array(size),
         },
         computeLandWaterBudget.defaultConfig
       );
@@ -124,7 +123,6 @@ describe("hydrology/compute-potential-demand", () => {
           humidity: input.humidity,
           rainfall: new Uint8Array(input.width * input.height),
           pet: [1],
-          riverClass: new Uint8Array(input.width * input.height),
         },
         computeLandWaterBudget.defaultConfig
       )
