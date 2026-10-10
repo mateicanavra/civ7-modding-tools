@@ -59,6 +59,7 @@ describe("plot biomes step", () => {
         ...createEmptyWaterFixture(width, height).hydrography, exposedLandMask: landMask,
       });
       publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
+        localSurfaceWaterOpportunity: new Float32Array(size),
         surfaceTemperatureC: new Float32Array(size).fill(15),
         effectiveMoisture: new Float32Array(size).fill(160),
         plantEffectiveMoisture: new Float32Array(size).fill(160),

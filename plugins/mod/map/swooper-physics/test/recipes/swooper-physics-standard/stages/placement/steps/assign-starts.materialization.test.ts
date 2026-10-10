@@ -222,6 +222,7 @@ function publishAssignStartsInputs(
   for (const [x, y] of acceptedLakeTiles) acceptedLakeMask[y * width + x] = 1;
   publishTestArtifact(context, hydrographyArtifacts.projectedLakes, { lakeMask: acceptedLakeMask });
   publishTestArtifact(context, climateArtifacts.climateIndices, {
+    localSurfaceWaterOpportunity: new Float32Array(size),
     surfaceTemperatureC: new Float32Array(size).fill(16),
     effectiveMoisture: new Float32Array(size).fill(0.5),
     plantEffectiveMoisture: new Float32Array(size).fill(0.5),

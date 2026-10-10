@@ -48,9 +48,10 @@ score         = drySuit(A) * sourceSupport
 rainfall-index scale as `L`; `A` is unchanged climatic aridity. The family ramps
 remain oasis 0.60..0.95 and watering-hole 0.45..0.85. This score is a declared
 game-scale source/demand balance, not a probability, physical water allocation,
-permanence measurement or validated Earth coefficient. Increasing annual heat
-does not independently promote a feature; demand retains its existing causal
-role. Fertility still affects its existing downstream consumers, not the
+permanence measurement or validated Earth coefficient. There is no separate
+annual-heat reward factor; demand still affects both climatic dryness and the
+source-support balance, so the final score need not decrease as demand rises.
+Fertility still affects its existing downstream consumers, not the
 existence of a localized surface source.
 
 Retire the unused isolated-water-point mask and its private radius/precursor
@@ -85,11 +86,12 @@ representability, not occurrence on every generated world.
 | Contrast | Required outcome |
 | --- | --- |
 | No source, marine donor, inaccessible elevated bank, resolved water | No invented point-water support |
-| More source at fixed geometry and demand | Nondecreasing bounded source score |
+| More source at fixed geometry, climate and demand | Nondecreasing bounded source score; legal intent may disappear when the unchanged classifier leaves the compatible biome |
 | More contact area at fixed source | No greater per-area source support |
 | Duplicate wet edges/body identity or relabeled display river class | Exact source and response invariance |
 | Compatible moderate-temperature dryland, contrasting fertility | Source-led intent can survive the actual classifier and unchanged floor |
 | Incompatible class/terrain or prior occupied tile | No illegal or overlapping intent |
+| Cold DESERT produced by the unchanged classifier | Report source score and lawful intent separately from unmodeled seasonal liquid-water survival; no invented frost veto |
 | Climate, drainage/lakes, classifier and unrelated score families | Exact hold under a retained-input comparison |
 
 If credible positives cannot coexist with the accepted producer/classifier

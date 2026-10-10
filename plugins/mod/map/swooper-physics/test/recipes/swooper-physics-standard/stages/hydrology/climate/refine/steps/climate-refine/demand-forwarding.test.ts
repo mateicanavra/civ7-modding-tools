@@ -74,6 +74,7 @@ describe("hydrology climate-refine demand ownership", () => {
       };
       let demandCalls = 0;
       let computedPet: readonly number[] = [];
+      let computedOpportunity: Float32Array = new Float32Array(size);
 
       withMapContextExecutionForTest(context, (stepContext) => {
         const dependencies = buildStepTestDependencies(ClimateRefineStep, stepContext);
@@ -167,7 +168,9 @@ describe("hydrology climate-refine demand ownership", () => {
               expect(input.componentId).toBe(waterFixture.lakePlan.componentId);
               expect(input.bodies).toBe(waterFixture.lakePlan.bodies);
               expect(Object.hasOwn(input, "riverClass")).toBe(false);
-              return hydrology.climate.ops.computeLandWaterBudget.run(input, budgetConfig);
+              const output = hydrology.climate.ops.computeLandWaterBudget.run(input, budgetConfig);
+              computedOpportunity = output.localSurfaceWaterOpportunity;
+              return output;
             },
             computeClimateDiagnostics: (
               ...[input, diagnosticConfig]: Parameters<
@@ -194,6 +197,8 @@ describe("hydrology climate-refine demand ownership", () => {
       expect(humidity).toEqual(beforeHumidity);
       expect(baselineDemand).toEqual(beforeDemand);
       const indices = readArtifact(context, climateArtifacts.climateIndices);
+      expect(indices.localSurfaceWaterOpportunity).toBe(computedOpportunity);
+      expect(indices.localSurfaceWaterOpportunity).toEqual(new Float32Array(size));
       const surfaceTemperature = indices.surfaceTemperatureC;
       const expected = hydrology.climate.ops.computePotentialDemand.run(
         {

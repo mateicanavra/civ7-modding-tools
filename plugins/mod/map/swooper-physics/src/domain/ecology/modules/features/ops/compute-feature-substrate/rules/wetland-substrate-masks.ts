@@ -5,14 +5,13 @@ export type WetlandSubstrateMasks = Readonly<{
   intertidalCoastMask: Uint8Array;
   hydromorphicMask: Uint8Array;
   wellDrainedMask: Uint8Array;
-  isolatedWaterPointMask: Uint8Array;
 }>;
 
 /**
  * Wet features need waterlogged or water-source substrate before climate can
  * choose a feature identity. These masks encode that policy once at the feature
- * substrate owner so marsh, bog, mangrove, oasis, and watering-hole scoring do
- * not each invent a different hydrology/topography proxy.
+ * substrate owner for marsh, bog, mangrove and floodplain scoring. Local
+ * point-water source/access opportunity is independently owned by Hydrology.
  */
 export function computeWetlandSubstrateMasks(args: {
   readonly width: number;
@@ -23,7 +22,6 @@ export function computeWetlandSubstrateMasks(args: {
   readonly riverMask: ArrayLike<number>;
   readonly discharge: ArrayLike<number>;
   readonly nearRiverMask: ArrayLike<number>;
-  readonly isolatedRiverMask: ArrayLike<number>;
   readonly coastalLandMask: ArrayLike<number>;
   readonly marineCoastalLandMask: ArrayLike<number>;
   readonly nearRiverRadius: number;
@@ -44,7 +42,6 @@ export function computeWetlandSubstrateMasks(args: {
   const intertidalCoastMask = new Uint8Array(size);
   const hydromorphicMask = new Uint8Array(size);
   const wellDrainedMask = new Uint8Array(size);
-  const isolatedWaterPointMask = new Uint8Array(size);
 
   for (let y = 0; y < height; y++) {
     const y0 = Math.max(0, y - riverRadius);
@@ -83,10 +80,6 @@ export function computeWetlandSubstrateMasks(args: {
       hydromorphicMask[i] = hydromorphic ? 1 : 0;
       wellDrainedMask[i] = hydromorphic ? 0 : 1;
 
-      // Oases and watering holes are point-scale arid water-source candidates:
-      // isolated river influence is allowed, but broad floodplains are not.
-      isolatedWaterPointMask[i] =
-        isLowland && args.isolatedRiverMask[i] === 1 && !isFloodplain ? 1 : 0;
     }
   }
 
@@ -96,7 +89,6 @@ export function computeWetlandSubstrateMasks(args: {
     intertidalCoastMask,
     hydromorphicMask,
     wellDrainedMask,
-    isolatedWaterPointMask,
   };
 }
 

@@ -76,6 +76,7 @@ describe("Hydrology climate-field artifacts", () => {
     const indices = {
       surfaceTemperatureC: new Float32Array(cellCount),
       effectiveMoisture: new Float32Array(cellCount),
+      localSurfaceWaterOpportunity: new Float32Array(cellCount),
       plantEffectiveMoisture: new Float32Array(cellCount),
       pet: new Float32Array(cellCount),
       aridityIndex: new Float32Array(cellCount),
@@ -83,6 +84,18 @@ describe("Hydrology climate-field artifacts", () => {
       freezeIndex: new Float32Array(cellCount),
     };
     expect(climateArtifacts.climateIndices.validate(indices, { dimensions })).toEqual([]);
+    for (const localSurfaceWaterOpportunity of [
+      undefined,
+      new Uint8Array(cellCount),
+      new Float32Array(cellCount - 1),
+    ]) {
+      expect(
+        climateArtifacts.climateIndices.validate(
+          { ...indices, localSurfaceWaterOpportunity },
+          { dimensions }
+        )
+      ).not.toEqual([]);
+    }
     expect(
       climateArtifacts.climateIndices.validate(
         {

@@ -14,12 +14,6 @@ export default defineStrategy({
         minimum: 0,
         maximum: 64,
       }),
-      isolatedRiverRadius: Type.Integer({
-        description: "Square-radius used to compute isolated-river adjacency mask.",
-        default: 1,
-        minimum: 0,
-        maximum: 64,
-      }),
       coastalAdjacencyRadius: Type.Integer({
         description: "Square-radius used to compute coastal land adjacency mask.",
         default: 1,

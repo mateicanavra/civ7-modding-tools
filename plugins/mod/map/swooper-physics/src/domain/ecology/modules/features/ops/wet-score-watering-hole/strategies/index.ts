@@ -1,4 +1,4 @@
-import aridWaterpoint from "./arid-waterpoint/index.js";
+import sourceLedDryland from "./source-led-dryland/index.js";
 
-/** Scores sparse arid habitat around isolated water points from water, fertility, aridity, and temperature. Implementations available to the recipe's semantic strategy selection. */
-export default [aridWaterpoint] as const;
+/** Implementations of the admitted source-led watering-hole response. */
+export default [sourceLedDryland] as const;

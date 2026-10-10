@@ -27,12 +27,7 @@ function body(input: ReturnType<typeof fixture>, cells: number[] = [7], supply =
   };
 }
 const run = (input: ReturnType<typeof fixture>) => operation.run(input, operation.defaultConfig);
-// With zero atmospheric supply, the public plant-moisture field publishes L at Float32 precision.
-const opportunity = (input: ReturnType<typeof fixture>) => run({
-  ...input,
-  rainfall: new Uint8Array(input.width * input.height),
-  humidity: new Uint8Array(input.width * input.height),
-}).plantEffectiveMoisture;
+const opportunity = (input: ReturnType<typeof fixture>) => run(input).localSurfaceWaterOpportunity;
 
 describe("local annual surface-water opportunity", () => {
   it("holds no-source atmospheric arithmetic exactly at Float32 and owns fresh readonly-input outputs", () => {
@@ -49,7 +44,7 @@ describe("local annual surface-water opportunity", () => {
     expect(first.plantEffectiveMoisture).toEqual(first.effectiveMoisture);
     expect(first.plantWaterStress).toEqual(first.aridityIndex);
     expect(first).toEqual(second);
-    for (const key of ["pet", "effectiveMoisture", "aridityIndex", "plantEffectiveMoisture", "plantWaterStress"] as const) {
+    for (const key of ["pet", "effectiveMoisture", "aridityIndex", "localSurfaceWaterOpportunity", "plantEffectiveMoisture", "plantWaterStress"] as const) {
       expect(first[key]).not.toBe(second[key]);
       expect(first[key][0]).toBe(0);
     }
@@ -57,6 +52,34 @@ describe("local annual surface-water opportunity", () => {
     expect(first.plantWaterStress).not.toBe(first.aridityIndex);
     expect(first.aridityIndex[2]).toBe(Math.fround(input.pet[2]! / (input.pet[2]! + 1)));
     expect(input).toEqual(before);
+  });
+
+  it("publishes Float32 opportunity without rounding the existing plant-water arithmetic", () => {
+    const input = fixture(1, 1);
+    const baseline = run(input);
+    input.discharge[0] = 1000.123456789;
+    const moistureCase = run(input);
+    expect(moistureCase.localSurfaceWaterOpportunity).toBeInstanceOf(Float32Array);
+    expect(moistureCase.localSurfaceWaterOpportunity[0]).toBe(Math.fround(input.discharge[0]!));
+    expect(moistureCase.plantEffectiveMoisture[0]).toBe(Math.fround(41 + input.discharge[0]!));
+    expect(moistureCase.plantEffectiveMoisture[0]).not.toBe(
+      Math.fround(41 + moistureCase.localSurfaceWaterOpportunity[0]!)
+    );
+
+    input.discharge[0] = 139 / 997;
+    const stressCase = run(input);
+    expect(stressCase.localSurfaceWaterOpportunity[0]).toBe(Math.fround(input.discharge[0]!));
+    expect(stressCase.plantWaterStress[0]).toBe(
+      Math.fround(input.pet[0]! / (input.pet[0]! + 20 + input.discharge[0]! + 1))
+    );
+    expect(stressCase.plantWaterStress[0]).not.toBe(
+      Math.fround(input.pet[0]! / (input.pet[0]! + 20 + stressCase.localSurfaceWaterOpportunity[0]! + 1))
+    );
+    for (const result of [moistureCase, stressCase]) {
+      expect(result.pet).toEqual(baseline.pet);
+      expect(result.effectiveMoisture).toEqual(baseline.effectiveMoisture);
+      expect(result.aridityIndex).toEqual(baseline.aridityIndex);
+    }
   });
 
   it("subtracts local runoff and retains volume sensitivity without a display-class gate", () => {
@@ -200,6 +223,7 @@ describe("local annual surface-water opportunity", () => {
     expect(supported.plantWaterStress[7]).toBeLessThan(baseline.plantWaterStress[7]!);
     input.pet.fill(60.246913578);
     const higherDemand = run(input);
+    expect(higherDemand.localSurfaceWaterOpportunity).toEqual(supported.localSurfaceWaterOpportunity);
     expect(higherDemand.plantEffectiveMoisture).toEqual(supported.plantEffectiveMoisture);
     expect(higherDemand.plantWaterStress[7]).toBeGreaterThan(supported.plantWaterStress[7]!);
   });

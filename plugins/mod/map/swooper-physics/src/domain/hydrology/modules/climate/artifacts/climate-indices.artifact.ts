@@ -29,6 +29,10 @@ export const artifact = defineArtifact({
         cardinality: "map-grid",
         description: "Dryness ratio derived from precipitation and evapotranspiration (0..1).",
       }),
+      localSurfaceWaterOpportunity: TypedArraySchemas.f32({
+        cardinality: "map-grid",
+        description: "Local annual surface-water opportunity per represented exposed-land tile area in rainfall-index units; zero on water, not delivered water, groundwater, permanence, or salinity proof.",
+      }),
       plantEffectiveMoisture: TypedArraySchemas.f32({
         cardinality: "map-grid",
         description: "Atmospheric moisture plus local annual surface-water opportunity on exposed land; not permanence, salinity, groundwater, or root uptake.",

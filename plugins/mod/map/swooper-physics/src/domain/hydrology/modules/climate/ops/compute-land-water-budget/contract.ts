@@ -59,6 +59,9 @@ const ComputeLandWaterBudgetContract = defineOp({
       aridityIndex: TypedArraySchemas.f32({
         description: "Aridity index (0..1) derived from precipitation vs PET (advisory).",
       }),
+      localSurfaceWaterOpportunity: TypedArraySchemas.f32({
+        description: "Local annual surface-water opportunity per represented exposed-land tile area in rainfall-index units; zero on water, not delivered water or permanence.",
+      }),
       plantEffectiveMoisture: TypedArraySchemas.f32({
         description: "Exposed-land rainfall + 0.35*humidity + local annual surface-water opportunity; not root uptake or groundwater.",
       }),

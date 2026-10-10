@@ -115,6 +115,19 @@ export function buildClimateRefineVizProjections(
     },
     {
       kind: "grid",
+      dataTypeKey: "hydrology.climate.indices.localSurfaceWaterOpportunity",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "f32", values: observation.climateIndices.localSurfaceWaterOpportunity },
+      meta: defineStandardVizMeta("hydrology.climate.indices.localSurfaceWaterOpportunity", "climate.moisture", {
+        label: "Local Surface-Water Opportunity",
+        description: "Annual rainfall-index opportunity per exposed-land tile area; not delivered water, groundwater, permanence, or salinity proof.",
+        group: GROUP_INDICES,
+        visibility: "debug",
+      }),
+    },
+    {
+      kind: "grid",
       dataTypeKey: "hydrology.climate.indices.plantEffectiveMoisture",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,

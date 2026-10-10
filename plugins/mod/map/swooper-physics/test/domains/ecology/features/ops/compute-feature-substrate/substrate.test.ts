@@ -150,7 +150,8 @@ describe("ecology feature substrate", () => {
     expect(finite.hydromorphicMask[width + 1]).toBe(1);
     expect(finite.wellDrainedMask[width + 1]).toBe(0);
     expect(finite.floodplainMask[width + 5]).toBe(1);
-    expect(finite.isolatedWaterPointMask[width + 8]).toBe(1);
+    expect(Object.hasOwn(finite, "isolatedWaterPointMask")).toBe(false);
+    expect(Object.hasOwn(finite, "isolatedRiverMask")).toBe(false);
     expect(marine.coastalLandMask[width + 2]).toBe(1);
     expect(marine.hydromorphicMask[width + 2]).toBe(0);
     expect(marine.wellDrainedMask[width + 2]).toBe(1);
