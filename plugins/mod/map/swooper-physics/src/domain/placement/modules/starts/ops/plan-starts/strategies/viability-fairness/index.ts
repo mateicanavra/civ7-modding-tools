@@ -40,6 +40,7 @@ import ViabilityFairnessDefinition from "./config.js";
 type StartTier = "primary" | "islandCluster" | "marginal";
 type RejectionReason =
   | "water"
+  | "navigable-river"
   | "lake"
   | "mountain"
   | "volcano"
@@ -380,6 +381,11 @@ const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessDe
     for (let plotIndex = 0; plotIndex < size; plotIndex++) {
       if ((landMask[plotIndex] ?? 0) !== 1) {
         addRejection(rejectionCounts, "water");
+        continue;
+      }
+      if (input.navigableRiverMask[plotIndex] === 1) {
+        addRejection(rejectionCounts, "navigable-river");
+        tierByTile[plotIndex] = 1;
         continue;
       }
       if ((lakeMask?.[plotIndex] ?? 0) === 1) {

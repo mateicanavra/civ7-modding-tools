@@ -40,15 +40,27 @@ ordinary-rotation NAV Crab in two fresh Huge games. The latter game retains one
 explicit Crab refusal on a founder plot; neither resource ranges nor native
 legality are overridden to hide it.
 
-Those native censuses expose the next concrete start defect: seven of ten
-founders in each game occupy correctly authored NAV terrain even though Civ
-reports `water=false`. Physical-land admission and exact coordinate parity do
-not establish dry founder placement. The next owner repair excludes existing
-authored NAV sources from founder candidacy while preserving river geography,
-adjacent freshwater and transit topology. It is not a river-write rejection or
-permission to reclassify physical riverbeds as water. Parallel coastal rivers
-and rainforest scarcity remain separate calibration questions; these images
-do not establish that NAV projection consumes atmospheric moisture.
+Those native censuses expose a separate start defect: seven of ten founders in
+each game occupy correctly authored NAV terrain even though Civ reports
+`water=false`. The completed [dry-founder admission repair](start-resource-coherence.md#completed-owner-and-native-verification)
+uses the existing authored river artifact at the initial founder hard screen.
+Both generated comparisons and fresh native Huge games now seat all ten
+founders on exact planned dry, non-NAV coordinates. All 6,996 native terrain,
+biome, height, water, lake, river-type and feature cells remain unchanged in
+each case. Builds, types and policy pass; 1,318 definition, 371 realization and
+412 Studio tests pass, with only the retained thermal aggregate failing.
+This is not a river-write rejection or permission to reclassify physical
+riverbeds as water; freshwater and transit keep their existing meanings.
+
+The same native comparison realizes the previously refused NAV Crab at
+`(43,38)` after its founder moves away, while identifying three newly refused
+ordinary resources on revised founder plots across the two games. J accepts
+234 of 241 intentions and Huge 1337 accepts 220 of 233; Fish/Crab counts remain
+within declared ranges. Source intentions are identical. This sharpens a
+separate start-reservation/resource-stamping question, not a reason to bypass
+native legality or claim full resource parity. Parallel coastal rivers and
+rainforest scarcity remain separate calibration questions; these images do
+not establish that NAV projection consumes atmospheric moisture.
 
 The single retained island transect resolves to finite water and does not
 demonstrate lost marine relief. No new island algorithm is selected from that
