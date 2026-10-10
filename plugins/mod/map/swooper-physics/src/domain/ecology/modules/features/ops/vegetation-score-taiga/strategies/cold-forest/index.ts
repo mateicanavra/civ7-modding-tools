@@ -4,7 +4,7 @@ import Contract from "../../contract.js";
 import { scoreTaigaSuitability } from "../../rules/index.js";
 import StrategyDefinition from "./config.js";
 
-/** Projects cold moist bioclimate and biomass into bounded taiga suitability. */
+/** Projects annual energy, atmospheric water, biomass, and plant stress into taiga opportunity. */
 const coldForestStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input) => {
     const score01 = scoreTaigaSuitability({
@@ -13,7 +13,6 @@ const coldForestStrategy = createStrategy(Contract, StrategyDefinition, {
       energy01: input.energy01,
       atmosphericWater01: input.atmosphericWater01,
       plantWaterStress01: input.plantWaterStress01,
-      coldStress01: input.coldStress01,
       biomass01: input.biomass01,
     });
 

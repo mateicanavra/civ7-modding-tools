@@ -27,7 +27,7 @@ export default defineStrategy({
         maximum: 1,
         default: 0.12,
         description:
-          "Taiga admission threshold: cold forest scores are lower-amplitude because cold stress is part of the habitat.",
+          "Taiga admission threshold for the annual cold-forest opportunity score.",
       }),
       savannaWoodlandMinConfidence01: Type.Number({
         minimum: 0,

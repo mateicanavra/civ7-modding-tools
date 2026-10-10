@@ -6,13 +6,15 @@ function smoothstep(edge0: number, edge1: number, x: number): number {
 }
 
 function bandpass(x: number, lo: number, hi: number, s: number): number {
-  const inLo = smoothstep(lo - s, lo + s, x);
-  const outHi = 1 - smoothstep(hi - s, hi + s, x);
+  const inLo = smoothstep(clamp01(lo - s), clamp01(lo + s), x);
+  const outHi = 1 - smoothstep(clamp01(hi - s), clamp01(hi + s), x);
   return clamp01(inLo * outHi);
 }
 
 /**
- * Scores taiga suitability from cold forest habitat evidence.
+ * Scores annual cold-forest opportunity from energy, atmospheric water,
+ * biomass, and plant-water stress. The admitted zero-energy endpoint yields
+ * no opportunity.
  */
 export function scoreTaigaSuitability(args: {
   readonly size: number;
@@ -20,7 +22,6 @@ export function scoreTaigaSuitability(args: {
   readonly energy01: ArrayLike<number>;
   readonly atmosphericWater01: ArrayLike<number>;
   readonly plantWaterStress01: ArrayLike<number>;
-  readonly coldStress01: ArrayLike<number>;
   readonly biomass01: ArrayLike<number>;
 }): Float32Array {
   const score01 = new Float32Array(args.size);
@@ -35,21 +36,14 @@ export function scoreTaigaSuitability(args: {
     const energy = args.energy01[i];
     const water = args.atmosphericWater01[i];
     const waterStress = args.plantWaterStress01[i];
-    const coldStress = args.coldStress01[i];
-
-    const coldHabitat = bandpass(coldStress, 0.35, 0.9, 0.12);
     const biomassEvidence = 0.35 + 0.65 * biomass;
 
-    /**
-     * Taiga is cold forest, not failed temperate forest. Biome vegetation
-     * density already falls in cold regions, so cold stress must become habitat
-     * evidence here instead of applying the same penalty twice.
-     */
+    // Biomass already attenuates cold growth. The annual energy envelope
+    // selects cold-forest habitat without requiring frost as a second gate.
     const score =
       biomassEvidence *
       bandpass(energy, 0.08, 0.5, 0.12) *
       bandpass(water, 0.22, 0.78, 0.12) *
-      coldHabitat *
       (1 - 0.75 * waterStress);
 
     score01[i] = clamp01(score);
