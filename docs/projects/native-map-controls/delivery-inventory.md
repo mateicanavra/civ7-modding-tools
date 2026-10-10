@@ -49,13 +49,55 @@ incumbent definition suite passes 1,200 tests, with only the pre-existing
 temperature-variation aggregate failure. Source-branch retirement removes
 six unused operation tests; it does not remove a failing product expectation.
 
-The next player-facing outcome is the already-authorized, explicitly diagnostic
-frozen seed-5050 native contrast, then the latest qualified Huge Earthlike game.
-It follows exact build/installation comparison and preservation of existing
-user state. Research views are not native screenshots or gameplay proof.
-Native use must wait for the existing session's explicit release. The frozen
-candidate remains unadmitted during that look and the qualified incumbent must
-be restored afterward; no forced replacement user game or autoplay is selected.
+The frozen rainfall native look is complete and remains diagnostic only. Its
+restart changed the actual seed, so it does not establish a matched native
+A/B comparison. The candidate was not adopted; the qualified incumbent was
+restored. Research views are not native screenshots or gameplay proof.
+
+### Local Shoreline And Consumer Qualification
+
+[PR #2327](https://github.com/mateicanavra/civ7-modding-tools/pull/2327) preserves
+local raw exits on drainable flats instead of collecting an entire coastline
+into one sideways route. The exact unchanged bank comparison against the
+previous qualified source covers 22 studies, 57 scenarios and 4,430
+expectations. It retains the known thermal failure and finds three new failed
+expectations: Archipelago Huge 1018 loses mangroves; Earthlike Standard 1340
+loses start-fertility advantage and score fairness. These remain release
+obligations, not reasons to waive the bank or alter climate forcing.
+
+The authorized diagnostic native run uses Huge Earthlike, seeds 1018/1018 and
+ten players. Generation and full-map exploration complete. Final whole-map
+river readback has no missing, extra, wrong-class or navigable-terrain
+mismatches. The former coastal strip around `(50,60)` now agrees with authored
+minor/non-river classes rather than a sideways navigable chain. This proves
+source/class realization, not exact native flow direction or vessel movement.
+The diagnostic build is not a newly qualified default.
+
+The mangrove loss exposes an overbroad consumer predicate: minor rivers retain
+flat land, but wetland planning excluded every river. The bounded repair in
+[PR #2328](https://github.com/mateicanavra/civ7-modding-tools/pull/2328) admits
+minor-river habitat while preserving navigable-river, exposure, relief,
+occupancy, suitability and native-legality gates. All five wetland families
+share the corrected flat-surface contract; family-specific habitat remains
+upstream. The unchanged bank restores the mangrove expectation with 19
+realized sites and introduces no new failed expectations. It does not force
+the seven historical sites back. The 99 focused feature tests, owner checks,
+builds and pre-push checks pass. This consumer repair is not yet installed in
+the diagnostic native session described above.
+
+The independent 1340 placement loss is selection into poorer, more crowded
+land, not a map-wide fertility collapse. An exact replay of the existing
+operation and helpers reproduces both source plans, their resource bands and
+all measured placement outcomes. The current band comparator prefers eight
+regional seats with an unbalanced score gap of `0.4040402` over a lawful,
+balanced alternative with seven regional seats and a gap of `0.06404945`.
+That alternative preserves all eight seats, hard spacing, freshwater and
+resource admission. Its one cross-region fairness upgrade is already recorded
+as a degradation. The selected repair puts achieved balance before regional
+count, retaining completeness and hard spacing first and regional preference
+as the next tie-break. No fertility weights, resource quotas, thresholds or
+fairness limits change. The full operation and unchanged bank must qualify
+that ordering before the placement obligation is closed.
 
 ## Prior Delivery Evidence
 

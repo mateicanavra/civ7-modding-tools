@@ -1,4 +1,4 @@
-import { isAnyRiverClass } from "../../../../../../../domain/hydrology/modules/hydrography/model/policy/river-class.js";
+import { isMajorRiverClass } from "../../../../../../../domain/hydrology/modules/hydrography/model/policy/river-class.js";
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import {
@@ -32,7 +32,7 @@ export const PlanWetlandsStep = createStep(config, {
     for (let i = 0; i < size; i++) {
       flatLandMask[i] =
         hydrography.exposedLandMask[i] === 1 &&
-        !isAnyRiverClass(hydrography.riverClass[i]) &&
+        !isMajorRiverClass(hydrography.riverClass[i]) &&
         mountains.mountainMask[i] !== 1 &&
         mountains.hillMask[i] !== 1 &&
         volcanoes.volcanoMask[i] !== 1
