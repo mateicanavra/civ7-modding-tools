@@ -204,8 +204,8 @@ describe("planWetlands (joint resolver)", () => {
       flatLandMask,
       biomeIndex,
       surfaceTemperature: new Float32Array(width).fill(24),
-      effectiveMoisture: new Float32Array(width).fill(80),
-      aridityIndex: new Float32Array(width).fill(0.5),
+      plantEffectiveMoisture: new Float32Array(width).fill(80),
+      climaticAridityIndex: new Float32Array(width).fill(0.5),
       vegetationDensity: new Float32Array(width).fill(0.3),
       featureOccupancyMask: deriveFeatureOccupancy({ width, height }, wetlandIntents),
     }, normalizeOperationSelectionForTest(vegetation, vegetation.defaultConfig)).placements;

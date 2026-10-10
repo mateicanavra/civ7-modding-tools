@@ -10,7 +10,7 @@ export default defineStrategy({
     {
       moistureNormalization: Type.Number({
         description:
-          "Effective moisture value mapped to water01=1.0. Default aligns with humid threshold + padding in biome classification.",
+          "Moisture mapped to atmosphericWater01 and plantWater01 = 1.0. Default aligns with humid threshold + padding in biome classification.",
         default: 230,
         minimum: 1,
         maximum: 1000,

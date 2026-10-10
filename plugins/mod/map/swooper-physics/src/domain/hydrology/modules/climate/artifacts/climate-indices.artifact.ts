@@ -29,6 +29,14 @@ export const artifact = defineArtifact({
         cardinality: "map-grid",
         description: "Dryness ratio derived from precipitation and evapotranspiration (0..1).",
       }),
+      plantEffectiveMoisture: TypedArraySchemas.f32({
+        cardinality: "map-grid",
+        description: "Atmospheric moisture plus local annual surface-water opportunity on exposed land; not permanence, salinity, groundwater, or root uptake.",
+      }),
+      plantWaterStress: TypedArraySchemas.f32({
+        cardinality: "map-grid",
+        description: "Post-albedo unrounded demand / (demand + rainfall + local annual surface-water opportunity + 1); zero on water.",
+      }),
       freezeIndex: TypedArraySchemas.f32({
         cardinality: "map-grid",
         description: "Persistence of freezing conditions per tile (0..1).",

@@ -15,6 +15,8 @@ const ComputeVegetationSubstrateContract = defineOp({
         description: "Surface temperature per tile (C).",
       }),
       aridityIndex: TypedArraySchemas.f32({ description: "Aridity index per tile (0..1)." }),
+      plantEffectiveMoisture: TypedArraySchemas.f32({ description: "Plant growth moisture, including admitted local water opportunity." }),
+      plantWaterStress: TypedArraySchemas.f32({ description: "Plant water limitation (0..1), not climatic dryness habitat." }),
       freezeIndex: TypedArraySchemas.f32({ description: "Freeze index per tile (0..1)." }),
       vegetationDensity: TypedArraySchemas.f32({
         description: "Vegetation density per tile (0..1).",
@@ -27,12 +29,14 @@ const ComputeVegetationSubstrateContract = defineOp({
     energy01: TypedArraySchemas.f32({
       description: "Normalized growth energy proxy from surfaceTemperature (0..1).",
     }),
-    water01: TypedArraySchemas.f32({
-      description: "Normalized water availability proxy from effectiveMoisture (0..1).",
+    atmosphericWater01: TypedArraySchemas.f32({
+      description: "Normalized atmospheric moisture for climatic habitat bands (0..1).",
     }),
-    waterStress01: TypedArraySchemas.f32({
-      description: "Water stress proxy from aridityIndex (0..1).",
+    climaticAridity01: TypedArraySchemas.f32({ description: "Climatic dryness habitat context from atmospheric aridity (0..1)." }),
+    plantWater01: TypedArraySchemas.f32({
+      description: "Normalized plant growth water opportunity from plantEffectiveMoisture (0..1).",
     }),
+    plantWaterStress01: TypedArraySchemas.f32({ description: "Plant water limitation from plantWaterStress (0..1)." }),
     coldStress01: TypedArraySchemas.f32({
       description: "Cold stress proxy from freezeIndex (0..1).",
     }),

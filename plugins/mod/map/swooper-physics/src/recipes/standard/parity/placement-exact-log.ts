@@ -68,7 +68,7 @@ type NaturalWonderPlacementExactLogPayload = Readonly<{
 
 type PlacementExactLogMarker =
   | "NATURAL_WONDER_PLACEMENT_V1"
-  | "NATURAL_WONDER_PLAN_INPUT_V3"
+  | "NATURAL_WONDER_PLAN_INPUT_V4"
   | "NATURAL_WONDER_PLAN_V1"
   | "PLACEMENT_PARITY_V1"
   | "RESOURCE_PLACEMENT_V1";
@@ -276,7 +276,7 @@ export function emitStandardNaturalWonderPlanExactLog(plan: DeepReadonly<Natural
 export function emitStandardNaturalWonderPlanInputExactLog(
   measurements: StandardNaturalWonderPlanInputMeasurements
 ): void {
-  emitPlacementExactLog("NATURAL_WONDER_PLAN_INPUT_V3", measurements);
+  emitPlacementExactLog("NATURAL_WONDER_PLAN_INPUT_V4", measurements);
 }
 
 function projectNaturalWonderPlacementExactLog(

@@ -22,9 +22,9 @@ const COMPARISON_DIMENSIONS = TEST_MAP_SIZE.dimensions;
 const COMPARISON_PLOT_COUNT = COMPARISON_DIMENSIONS.width * COMPARISON_DIMENSIONS.height;
 const EMPTY_DIGEST = { count: 0, hash32: "811c9dc5" } as const;
 const EMPTY_INPUT_EVIDENCE = {
-  version: 3,
+  version: 4,
   plannerInput: {
-    version: 2,
+    version: 3,
     engineElevationSource: "mock",
     dimensions: COMPARISON_DIMENSIONS,
     wondersCount: 0,
@@ -45,7 +45,7 @@ const EMPTY_INPUT_EVIDENCE = {
       configHash32: "bbbbbbbb",
     },
     surfaceDigests: {
-      version: 2,
+      version: 3,
       plotCount: COMPARISON_PLOT_COUNT,
       landMaskHash32: "11111111",
       elevationHash32: "22222222",
@@ -54,7 +54,7 @@ const EMPTY_INPUT_EVIDENCE = {
       riverClassHash32: "44444444",
       lakeMaskHash32: "55555555",
       vegetationDensityHash32: "66666666",
-      effectiveMoistureHash32: "77777777",
+      plantEffectiveMoistureHash32: "77777777",
       surfaceTemperatureHash32: "88888888",
       fertilityHash32: "99999999",
       dischargeHash32: "aaaaaaaa",

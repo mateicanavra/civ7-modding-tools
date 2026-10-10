@@ -18,8 +18,8 @@ export function scoreRainforestSuitability(args: {
   readonly size: number;
   readonly landMask: ArrayLike<number>;
   readonly energy01: ArrayLike<number>;
-  readonly water01: ArrayLike<number>;
-  readonly waterStress01: ArrayLike<number>;
+  readonly plantWater01: ArrayLike<number>;
+  readonly plantWaterStress01: ArrayLike<number>;
   readonly coldStress01: ArrayLike<number>;
   readonly biomass01: ArrayLike<number>;
 }): Float32Array {
@@ -33,8 +33,8 @@ export function scoreRainforestSuitability(args: {
 
     const biomass = args.biomass01[i];
     const energy = args.energy01[i];
-    const water = args.water01[i];
-    const waterStress = args.waterStress01[i];
+    const water = args.plantWater01[i];
+    const waterStress = args.plantWaterStress01[i];
     const coldStress = args.coldStress01[i];
 
     const score =

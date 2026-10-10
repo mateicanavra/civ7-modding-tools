@@ -14,7 +14,7 @@ const PlotEffectsScoreJungleContract = defineOp({
     vegetationDensity: TypedArraySchemas.f32({
       description: "Vegetation density per tile (0..1).",
     }),
-    effectiveMoisture: TypedArraySchemas.f32({ description: "Effective moisture per tile." }),
+    plantEffectiveMoisture: TypedArraySchemas.f32({ description: "Plant growth moisture per tile, including admitted local annual water opportunity." }),
     surfaceTemperature: TypedArraySchemas.f32({
       description: "Surface temperature per tile (C).",
     }),

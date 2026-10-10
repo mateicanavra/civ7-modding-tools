@@ -5,6 +5,8 @@ import placementDomain from "../../../../../../src/domain/placement/router.js";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 import type { NonEmptyTuple } from "type-fest";
 import { TEST_MAP_SIZE } from "../../../../../setup.js";
+import hydrology from "../../../../../../src/domain/hydrology/router.js";
+import { noLocalWaterSources } from "../../../../../fixtures/local-water-sources.js";
 
 const { planNaturalWonders } = placementDomain.wonders.ops;
 
@@ -17,7 +19,7 @@ function naturalWonderSelection(minSpacingTiles: number) {
 function baselineSuitabilitySurfaces(size: number) {
   return {
     vegetationDensity: new Float32Array(size),
-    effectiveMoisture: new Float32Array(size),
+    plantEffectiveMoisture: new Float32Array(size),
     surfaceTemperature: new Float32Array(size).fill(15),
     fertility: new Float32Array(size),
     discharge: Array<number>(size).fill(0),
@@ -48,6 +50,52 @@ function plannerCatalogEntry(
 }
 
 describe("natural wonder planning", () => {
+  it.each([28, 30, 39])("keeps the existing score law but forwards causal plant moisture only to botanical wonder %i", (featureType) => {
+    const budgetOperation = hydrology.climate.ops.computeLandWaterBudget;
+    const physical = {
+      width: 1, height: 1, ...noLocalWaterSources(1, 1), landMask: new Uint8Array([1]),
+      rainfall: new Uint8Array([0]), humidity: new Uint8Array([1]), pet: [10.123456789],
+    };
+    const baseline = budgetOperation.run(physical, budgetOperation.defaultConfig);
+    expect(baseline.plantEffectiveMoisture).toEqual(baseline.effectiveMoisture);
+    expect(baseline.plantWaterStress).toEqual(baseline.aridityIndex);
+    physical.discharge[0] = 0.25;
+    const before = structuredClone(physical);
+    const supported = budgetOperation.run(physical, budgetOperation.defaultConfig);
+    expect(physical).toEqual(before);
+    expect(supported.aridityIndex).toEqual(baseline.aridityIndex);
+    const anchorOnly: FootprintOffsetsByParity = {
+      even: [{ dx: 0, dy: 0 }], odd: [{ dx: 0, dy: 0 }],
+    };
+    const input = {
+      width: 1, height: 1, wondersCount: 1,
+      landMask: physical.landMask, elevation: physical.elevation, engineElevations: [0],
+      aridityIndex: baseline.aridityIndex, riverClass: new Uint8Array(1), lakeMask: new Uint8Array(1),
+      ...baselineSuitabilitySurfaces(1), plantEffectiveMoisture: baseline.plantEffectiveMoisture,
+      coastTerrainType: 2, mountainTerrainType: 3, iceFeatureType: 4, noFeatureType: -1,
+      terrainType: new Int32Array([1]), biomeType: new Int32Array([1]), featureType: new Int32Array([-1]),
+      naturalWonderBlockedMask: new Uint8Array(1), featureCatalog: [plannerCatalogEntry(featureType, anchorOnly)],
+    };
+    const run = (plantEffectiveMoisture: Float32Array, aridityIndex = baseline.aridityIndex) =>
+      runAdmittedOperationForTest(planNaturalWonders, { ...input, plantEffectiveMoisture, aridityIndex }, naturalWonderSelection(0));
+    const noAccess = run(baseline.plantEffectiveMoisture);
+    expect(noAccess).toEqual(run(baseline.effectiveMoisture));
+    const candidate = run(supported.plantEffectiveMoisture);
+    expect(noAccess.placements).toHaveLength(1);
+    expect(candidate.placements).toHaveLength(1);
+    if (featureType === 39) {
+      expect(candidate).toEqual(noAccess);
+      expect(run(supported.plantEffectiveMoisture, new Float32Array([0.2])).placements[0]!.priority)
+        .toBeLessThan(candidate.placements[0]!.priority);
+    } else {
+      expect(candidate.placements[0]!.priority).toBeGreaterThan(noAccess.placements[0]!.priority);
+      expect(candidate.placements[0]!.priority - noAccess.placements[0]!.priority)
+        .toBeCloseTo(0.3 * (supported.plantEffectiveMoisture[0]! - baseline.plantEffectiveMoisture[0]!), 10);
+      // Preserve the incumbent raw clamp, including its known saturation above one.
+      expect(run(new Float32Array([2]))).toEqual(run(new Float32Array([200])));
+    }
+  });
+
   it("produces identical natural-wonder placements on repeated runs (deterministic, no RNG)", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
@@ -76,7 +124,7 @@ describe("natural wonder planning", () => {
       noFeatureType: -1,
       naturalWonderBlockedMask: new Uint8Array(size),
       vegetationDensity: f32((i) => ((i * 11) % 100) / 100),
-      effectiveMoisture: f32((i) => ((i * 13) % 100) / 100),
+      plantEffectiveMoisture: f32((i) => ((i * 13) % 100) / 100),
       surfaceTemperature: f32((i) => (i * 17) % 30),
       fertility: f32((i) => ((i * 19) % 100) / 100),
       discharge: Array.from(f32((i) => (i * 23) % 50)),
@@ -215,7 +263,7 @@ describe("natural wonder planning", () => {
         lakeMask: new Uint8Array(size),
         ...baselineSuitabilitySurfaces(size),
         vegetationDensity: new Float32Array(size).fill(0.6), // group I: 0.55*0.6 = 0.33
-        effectiveMoisture: new Float32Array(size).fill(0.5), //          + 0.3*0.5 = 0.15
+        plantEffectiveMoisture: new Float32Array(size).fill(0.5), //          + 0.3*0.5 = 0.15
         surfaceTemperature: new Float32Array(size).fill(35), // temperate term -> 0
         coastTerrainType: 2,
         mountainTerrainType: 3,

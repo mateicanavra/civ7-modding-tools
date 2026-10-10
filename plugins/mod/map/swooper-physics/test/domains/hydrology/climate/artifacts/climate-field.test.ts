@@ -76,8 +76,10 @@ describe("Hydrology climate-field artifacts", () => {
     const indices = {
       surfaceTemperatureC: new Float32Array(cellCount),
       effectiveMoisture: new Float32Array(cellCount),
+      plantEffectiveMoisture: new Float32Array(cellCount),
       pet: new Float32Array(cellCount),
       aridityIndex: new Float32Array(cellCount),
+      plantWaterStress: new Float32Array(cellCount),
       freezeIndex: new Float32Array(cellCount),
     };
     expect(climateArtifacts.climateIndices.validate(indices, { dimensions })).toEqual([]);

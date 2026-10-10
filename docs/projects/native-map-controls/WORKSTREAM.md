@@ -15,10 +15,14 @@ with physical routing, baseline forcing and projection intent held exactly.
 The unchanged full bank retains its single thermal failure; attributed thermal,
 habitat, resource and founder consequences are reviewed without count targets
 or weaker thresholds. Fresh Huge `2/2` native generation and ten dry, non-NAV
-founder reads qualify delivery. Local river/lake plant-water composition is the
-[next causal-owner decision](terrestrial-water-influence.md#next-plant-water-owner),
-not a completed greening improvement. It must reach lawful local ecological
-classification and consumers while keeping atmospheric climate separate.
+founder reads qualify delivery. Local river/lake plant-water composition is now
+the [selected implementation and qualification unit](local-plant-water-design.md),
+not a completed greening improvement. Retained source/access controls support
+the law, with polar moisture lookup and the savanna climatic gate corrected
+prospectively. It must reach lawful local ecological classification and growth
+consumers while keeping atmospheric climate separate. Neither tree quotas nor
+fixed shoreline bonuses define success; the installed qualified build remains
+unchanged until this owner unit is admitted.
 
 The [private climatic-deficit pilot is complete and closed](annual-land-response-owner-decision.md#completed-deficit-pilot).
 Actual-producer and zero-response controls pass, but all 196 training sites

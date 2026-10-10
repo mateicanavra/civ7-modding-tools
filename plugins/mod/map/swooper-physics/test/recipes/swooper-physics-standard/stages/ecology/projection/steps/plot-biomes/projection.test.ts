@@ -61,8 +61,10 @@ describe("plot biomes step", () => {
       publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
         surfaceTemperatureC: new Float32Array(size).fill(15),
         effectiveMoisture: new Float32Array(size).fill(160),
+        plantEffectiveMoisture: new Float32Array(size).fill(160),
         pet: new Float32Array(size),
         aridityIndex: new Float32Array(size).fill(0.2),
+        plantWaterStress: new Float32Array(size).fill(0.2),
         freezeIndex: new Float32Array(size).fill(0.05),
       });
       const stepResult = plotBiomesStep.run(

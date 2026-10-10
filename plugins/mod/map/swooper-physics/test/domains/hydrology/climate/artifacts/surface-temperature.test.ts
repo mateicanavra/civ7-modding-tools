@@ -14,8 +14,10 @@ describe("Hydrology causal thermal vintages", () => {
       artifact: artifacts.climateIndices,
       fields: {
         effectiveMoisture: new Float32Array(cellCount),
+        plantEffectiveMoisture: new Float32Array(cellCount),
         pet: new Float32Array(cellCount),
         aridityIndex: new Float32Array(cellCount),
+        plantWaterStress: new Float32Array(cellCount),
         freezeIndex: new Float32Array(cellCount),
       },
     },

@@ -40,7 +40,7 @@ const PLANNER_SURFACE_SENTINELS = {
   riverClass: 2,
   lakeMask: 0,
   vegetationDensity: Math.fround(0.22),
-  effectiveMoisture: Math.fround(0.33),
+  plantEffectiveMoisture: Math.fround(0.33),
   surfaceTemperature: 14,
   fertility: Math.fround(0.44),
   discharge: 55,
@@ -88,9 +88,11 @@ function publishPlacementInputs(context: MapContext): void {
   publishTestArtifact(context, hydrographyArtifacts.lakePlan, water.lakePlan);
   publishTestArtifact(context, climateArtifacts.climateIndices, {
     surfaceTemperatureC: new Float32Array(size).fill(PLANNER_SURFACE_SENTINELS.surfaceTemperature),
-    effectiveMoisture: new Float32Array(size).fill(PLANNER_SURFACE_SENTINELS.effectiveMoisture),
+    plantEffectiveMoisture: new Float32Array(size).fill(PLANNER_SURFACE_SENTINELS.plantEffectiveMoisture),
+    effectiveMoisture: new Float32Array(size).fill(0.03),
     pet: new Float32Array(size),
     aridityIndex: new Float32Array(size).fill(PLANNER_SURFACE_SENTINELS.aridityIndex),
+    plantWaterStress: new Float32Array(size).fill(0.01),
     freezeIndex: new Float32Array(size),
   });
   publishTestArtifact(context, biomeArtifacts.biomeClassification, {
@@ -269,7 +271,7 @@ describe("plan natural wonders step", () => {
       riverClass: plannerInput.riverClass[probePlotIndex],
       lakeMask: plannerInput.lakeMask[probePlotIndex],
       vegetationDensity: plannerInput.vegetationDensity?.[probePlotIndex],
-      effectiveMoisture: plannerInput.effectiveMoisture?.[probePlotIndex],
+      plantEffectiveMoisture: plannerInput.plantEffectiveMoisture?.[probePlotIndex],
       surfaceTemperature: plannerInput.surfaceTemperature?.[probePlotIndex],
       fertility: plannerInput.fertility?.[probePlotIndex],
       discharge: plannerInput.discharge?.[probePlotIndex],

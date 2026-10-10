@@ -50,6 +50,7 @@ export const ClimateRefineStep = createStep(config, {
     const windField = deps.artifacts.windField.read();
     const hydrography = deps.artifacts.hydrography.read();
     const topography = deps.artifacts.topography.read();
+    const lakePlan = deps.artifacts.lakePlan.read();
     const exposedLandMask = hydrography.exposedLandMask;
 
     const baselineClimateField = deps.artifacts.baselineClimateField.read();
@@ -104,6 +105,12 @@ export const ClimateRefineStep = createStep(config, {
         width,
         height,
         landMask: exposedLandMask,
+        externalWaterMask: topography.externalWaterMask,
+        elevation: topography.elevation,
+        componentId: lakePlan.componentId,
+        discharge: hydrography.discharge,
+        runoff: hydrography.runoff,
+        bodies: lakePlan.bodies,
         rainfall: baselineClimateField.rainfall,
         humidity: baselineClimateField.humidity,
         pet: demand.pet,
@@ -134,6 +141,8 @@ export const ClimateRefineStep = createStep(config, {
       effectiveMoisture: waterBudget.effectiveMoisture,
       pet: waterBudget.pet,
       aridityIndex: waterBudget.aridityIndex,
+      plantEffectiveMoisture: waterBudget.plantEffectiveMoisture,
+      plantWaterStress: waterBudget.plantWaterStress,
       freezeIndex: cryosphere.freezeIndex,
     });
     const publishedCryosphere = deps.artifacts.cryosphere.publish({

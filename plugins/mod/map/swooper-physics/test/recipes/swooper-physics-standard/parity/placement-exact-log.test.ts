@@ -51,9 +51,9 @@ const EMPTY_NATURAL_WONDER_PLACEMENT = {
 } satisfies NaturalWonderPlacementCompatibility;
 
 const EMPTY_NATURAL_WONDER_PLAN_INPUT = {
-  version: 3,
+  version: 4,
   plannerInput: {
-    version: 2,
+    version: 3,
     engineElevationSource: "mock",
     dimensions: TEST_MAP_SIZE.dimensions,
     wondersCount: 0,
@@ -74,7 +74,7 @@ const EMPTY_NATURAL_WONDER_PLAN_INPUT = {
       configHash32: fnv1a32StringHex("{}"),
     },
     surfaceDigests: {
-      version: 2,
+      version: 3,
       plotCount: TEST_MAP_SIZE.dimensions.width * TEST_MAP_SIZE.dimensions.height,
       landMaskHash32: EMPTY_HASH32,
       elevationHash32: EMPTY_HASH32,
@@ -83,7 +83,7 @@ const EMPTY_NATURAL_WONDER_PLAN_INPUT = {
       riverClassHash32: EMPTY_HASH32,
       lakeMaskHash32: EMPTY_HASH32,
       vegetationDensityHash32: EMPTY_HASH32,
-      effectiveMoistureHash32: EMPTY_HASH32,
+      plantEffectiveMoistureHash32: EMPTY_HASH32,
       surfaceTemperatureHash32: EMPTY_HASH32,
       fertilityHash32: EMPTY_HASH32,
       dischargeHash32: EMPTY_HASH32,
@@ -474,7 +474,7 @@ describe("placement exact-log producer protocol", () => {
         decodeBoundedJsonLogSeries(engineObservedLines, "NATURAL_WONDER_PLAN_V1")[0]?.payload
       ).toEqual(expectedPlan);
       expect(
-        decodeBoundedJsonLogSeries(engineObservedLines, "NATURAL_WONDER_PLAN_INPUT_V3")[0]?.payload
+        decodeBoundedJsonLogSeries(engineObservedLines, "NATURAL_WONDER_PLAN_INPUT_V4")[0]?.payload
       ).toEqual(EMPTY_NATURAL_WONDER_PLAN_INPUT);
       expect(
         decodeBoundedJsonLogSeries(engineObservedLines, "NATURAL_WONDER_PLACEMENT_V1")[0]?.payload

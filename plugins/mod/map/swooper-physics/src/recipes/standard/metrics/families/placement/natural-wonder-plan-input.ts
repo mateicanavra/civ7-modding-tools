@@ -23,7 +23,7 @@ export type StandardNaturalWonderPlannerMeasurementSurface = Readonly<{
   riverClass: PlannerNumericSurface;
   lakeMask: PlannerNumericSurface;
   vegetationDensity: PlannerNumericSurface;
-  effectiveMoisture: PlannerNumericSurface;
+  plantEffectiveMoisture: PlannerNumericSurface;
   surfaceTemperature: PlannerNumericSurface;
   fertility: PlannerNumericSurface;
   discharge: readonly number[];
@@ -55,7 +55,7 @@ const STANDARD_NATURAL_WONDER_PLANNER_INPUT_EVIDENCE_OWNERS = {
   riverClass: "plannerInput.surfaceDigests.riverClassHash32",
   lakeMask: "plannerInput.surfaceDigests.lakeMaskHash32",
   vegetationDensity: "plannerInput.surfaceDigests.vegetationDensityHash32",
-  effectiveMoisture: "plannerInput.surfaceDigests.effectiveMoistureHash32",
+  plantEffectiveMoisture: "plannerInput.surfaceDigests.plantEffectiveMoistureHash32",
   surfaceTemperature: "plannerInput.surfaceDigests.surfaceTemperatureHash32",
   fertility: "plannerInput.surfaceDigests.fertilityHash32",
   discharge: "plannerInput.surfaceDigests.dischargeHash32",
@@ -95,7 +95,7 @@ function digest(description: string) {
 
 const PlannerSurfaceDigestsSchema = Type.Object(
   {
-    version: Type.Literal(2, {
+    version: Type.Literal(3, {
       description: "Schema version for the natural-wonder planner surface digest set.",
     }),
     plotCount: Type.Integer({
@@ -123,8 +123,8 @@ const PlannerSurfaceDigestsSchema = Type.Object(
     vegetationDensityHash32: digest(
       "Raw-byte digest of Ecology vegetation density admitted as a wonder suitability signal."
     ),
-    effectiveMoistureHash32: digest(
-      "Raw-byte digest of Hydrology effective moisture admitted as a wonder suitability signal."
+    plantEffectiveMoistureHash32: digest(
+      "Raw-byte digest of Hydrology plant growth moisture admitted by botanical wonder groups."
     ),
     surfaceTemperatureHash32: digest(
       "Raw-byte digest of Hydrology surface temperature admitted as a wonder suitability signal."
@@ -160,7 +160,7 @@ const PlannerSurfaceDigestsSchema = Type.Object(
 
 const PlannerInputSchema = Type.Object(
   {
-    version: Type.Literal(2, {
+    version: Type.Literal(3, {
       description: "Schema version for the natural-wonder planner causal-input projection.",
     }),
     engineElevationSource: Type.Union([Type.Literal("native"), Type.Literal("mock")], {
@@ -333,7 +333,7 @@ const PlanningInputRowSchema = Type.Object(
  */
 export const StandardNaturalWonderPlanInputMeasurementsSchema = Type.Object(
   {
-    version: Type.Literal(3, {
+    version: Type.Literal(4, {
       description: "Schema version for Standard natural-wonder planning-input measurements.",
     }),
     plannerInput: PlannerInputSchema,
@@ -423,9 +423,9 @@ export function measureStandardNaturalWonderPlanInput({
   );
 
   return Object.freeze({
-    version: 3,
+    version: 4,
     plannerInput: Object.freeze({
-      version: 2,
+      version: 3,
       engineElevationSource,
       dimensions: Object.freeze({
         width: plannerInput.width,
@@ -451,7 +451,7 @@ export function measureStandardNaturalWonderPlanInput({
         configHash32: fnv1a32StringHex(configCanonicalJson),
       }),
       surfaceDigests: Object.freeze({
-        version: 2,
+        version: 3,
         plotCount,
         landMaskHash32: fnv1a32BytesHex(plannerInput.landMask),
         elevationHash32: fnv1a32BytesHex(plannerInput.elevation),
@@ -460,7 +460,7 @@ export function measureStandardNaturalWonderPlanInput({
         riverClassHash32: fnv1a32BytesHex(plannerInput.riverClass),
         lakeMaskHash32: fnv1a32BytesHex(plannerInput.lakeMask),
         vegetationDensityHash32: fnv1a32BytesHex(plannerInput.vegetationDensity),
-        effectiveMoistureHash32: fnv1a32BytesHex(plannerInput.effectiveMoisture),
+        plantEffectiveMoistureHash32: fnv1a32BytesHex(plannerInput.plantEffectiveMoisture),
         surfaceTemperatureHash32: fnv1a32BytesHex(plannerInput.surfaceTemperature),
         fertilityHash32: fnv1a32BytesHex(plannerInput.fertility),
         dischargeHash32: hashDischarge(plannerInput.discharge),

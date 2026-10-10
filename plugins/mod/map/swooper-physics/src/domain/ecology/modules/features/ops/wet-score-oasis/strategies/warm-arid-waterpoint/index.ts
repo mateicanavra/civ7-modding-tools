@@ -19,7 +19,7 @@ const warmAridWaterpointStrategy = createStrategy(Contract, StrategyDefinition, 
       // Oases are arid local water-source features. This policy excludes broad
       // floodplain wetlands and leaves lushness to climate/fertility scoring.
       const drySuit = rampUp01(input.aridityIndex[i], config.dryMin01, config.dryMax01);
-      const waterSuit = rampUp01(input.water01[i], config.waterMin01, 1);
+      const waterSuit = rampUp01(input.plantWater01[i], config.waterMin01, 1);
       const warmSuit = rampUp01(
         input.surfaceTemperature[i],
         config.tempWarmStartC,

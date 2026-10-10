@@ -1,12 +1,13 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { BasinWetBodySchema } from "../../../hydrography/model/atoms/basin-network.schema.js";
 import petAridityDefinition from "./strategies/pet-aridity/config.js";
 
-/** Computes terrestrial moisture supply and aridity from supplied potential demand. */
+/** Computes distinct atmospheric and plant-water indices from supplied demand and physical water ledgers. */
 const ComputeLandWaterBudgetContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-land-water-budget",
   /**
-   * Computes terrestrial effective moisture, PET, and aridity.
+   * Computes atmospheric moisture, PET and aridity alongside plant moisture and stress.
    *
    * This op combines rainfall, humidity, and supplied demand into deterministic
    * advisory indices. Consumers use these outputs rather than re-deriving local variants.
@@ -19,6 +20,12 @@ const ComputeLandWaterBudgetContract = defineOp({
       height: Type.Integer({ minimum: 1, description: "Tile grid height (rows)." }),
       /** Land mask per tile (1=land, 0=water). */
       landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
+      externalWaterMask: TypedArraySchemas.u8({ description: "Prescribed marine water, excluded from terrestrial opportunity." }),
+      elevation: TypedArraySchemas.i16({ description: "Sealed ground in the same datum as finite-body heads." }),
+      componentId: TypedArraySchemas.i32({ description: "Hydraulic component membership; zero denotes ordinary dry reaches." }),
+      discharge: Type.Array(Type.Number({ minimum: 0 }), { description: "Number-precision ordinary dry-edge flux per tile." }),
+      runoff: Type.Array(Type.Number({ minimum: 0 }), { description: "Number-precision local precipitation-attributed runoff per tile." }),
+      bodies: Type.Array(BasinWetBodySchema, { description: "Complete strict finite wet bodies and their annual input ledgers." }),
       /** Rainfall (0..200) per tile. */
       rainfall: TypedArraySchemas.u8({ description: "Rainfall (0..200) per tile." }),
       /** Humidity (0..255) per tile. */
@@ -52,11 +59,17 @@ const ComputeLandWaterBudgetContract = defineOp({
       aridityIndex: TypedArraySchemas.f32({
         description: "Aridity index (0..1) derived from precipitation vs PET (advisory).",
       }),
+      plantEffectiveMoisture: TypedArraySchemas.f32({
+        description: "Exposed-land rainfall + 0.35*humidity + local annual surface-water opportunity; not root uptake or groundwater.",
+      }),
+      plantWaterStress: TypedArraySchemas.f32({
+        description: "Demand / (demand + rainfall + local annual surface-water opportunity + 1), zero on water.",
+      }),
     },
     {
       additionalProperties: false,
       description:
-        "Land water budget outputs: effective terrestrial moisture, PET proxy, and aridity index.",
+        "Distinct atmospheric and plant-water indices, with unchanged atmospheric moisture, PET and aridity.",
     }
   ),
   strategies: [petAridityDefinition],

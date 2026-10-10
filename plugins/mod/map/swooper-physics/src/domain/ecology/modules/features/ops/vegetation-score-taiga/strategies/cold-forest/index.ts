@@ -11,8 +11,8 @@ const coldForestStrategy = createStrategy(Contract, StrategyDefinition, {
       size: input.width * input.height,
       landMask: input.landMask,
       energy01: input.energy01,
-      water01: input.water01,
-      waterStress01: input.waterStress01,
+      atmosphericWater01: input.atmosphericWater01,
+      plantWaterStress01: input.plantWaterStress01,
       coldStress01: input.coldStress01,
       biomass01: input.biomass01,
     });

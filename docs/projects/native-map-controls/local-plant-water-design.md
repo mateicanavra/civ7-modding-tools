@@ -2,10 +2,12 @@
 
 ## Frame And Status
 
-Prospective retained-input discriminator after the atmospheric-proxy retirement
-in PR #2347. The desired outcome is local ecological response to admitted
-river/lake water, not more trees everywhere, restored historical counts or a
-second atmospheric calculation. No response law below is production-admitted.
+Implementation and qualification after the retained-input discriminator following
+the atmospheric-proxy retirement in PR #2347. The desired outcome is local
+ecological response to admitted river/lake water, not more trees everywhere,
+restored historical counts or a
+second atmospheric calculation. The source/access law is selected for one
+implementation unit, not yet admitted to the installed production build.
 
 Atmospheric forcing, demand, physical drainage, wet-body ledgers and geometry
 already exist. Root access, salinity, soil-water storage, channel stage and
@@ -25,7 +27,7 @@ M_plant     = M_atmosphere + L
 S_plant     = D / (D + P + L + 1)
 ```
 
-`L` is local annual wetting opportunity per represented dry-tile area, in the
+`L` is local annual surface-water opportunity per represented dry-tile area, in the
 existing empirical rainfall-index scale. It is not delivered water, withdrawal,
 root uptake, actual evapotranspiration or measured soil saturation. `S_plant`
 retains the existing smooth dryness-ratio family; it is not FAO's crop-stress
@@ -80,18 +82,22 @@ follows. All terrestrial outputs remain zero on resolved water.
 ## Complete Consumer Path
 
 Keep `effectiveMoisture` and `aridityIndex` atmospheric. Add explicitly named
-plant moisture/stress to the same existing `climateIndices` publication only
-if the discriminator earns production adoption. No new artifact family or stage.
+plant moisture/stress to the same existing `climateIndices` publication. The
+implementation remains unadmitted until qualification; no new artifact family
+or stage is needed.
 
 | Consumer | Selected meaning |
 | --- | --- |
 | Thermal-zone transition context and snow | Existing atmospheric moisture, unchanged |
-| Local biome moisture bucket and dryward shift | Plant moisture and matching plant stress |
+| Polar biome moisture bucket and dryward shift | Existing atmospheric moisture/climatic aridity; local supply does not manufacture snow |
+| Nonpolar local biome moisture bucket and dryward shift | Plant moisture and matching plant stress |
 | Vegetation density and forest/rainforest growth | The same plant moisture/stress, existing energy, freeze, soil and fertility |
 | Taiga's existing water habitat band | Atmospheric moisture context; plant stress relieves its growth penalty without claiming waterlogging |
-| Savanna/steppe dry-habitat bands | Existing atmospheric moisture/climatic aridity context; plant-responsive biomass remains distinct |
+| Savanna/steppe dry-habitat bands and savanna planner aridity gate | Existing atmospheric moisture/climatic aridity context; plant-responsive biomass remains distinct |
 | Oasis/watering-hole climatic dryness | Existing climatic aridity, unchanged |
 | Marine habitat and rainfall/humidity-based soil | Existing marine and atmospheric owners, unchanged |
+| Botanical natural-wonder moisture terms | Plant moisture; existing bounded suitability law, no threshold recalibration |
+| Resource climate/geology/wet-habitat masks and start climate comfort | Existing atmospheric context; lawful class/density consequences remain available |
 | Feature planning and native projection | Lawful local biome, terrain, occupancy and Civ compatibility; no bypass |
 
 Hydrology owns the calculation in `compute-land-water-budget`; climate-refine
@@ -106,6 +112,13 @@ habitat contexts in the discriminator, rather than feeding every score argument
 the plant ratio. This preserves their existing approximation for review, not
 physical validation of those band thresholds.
 
+The resource owner mixes climatic, geological, wet-habitat and growth predicates
+in its shared moisture/aridity inputs. Do not swap that entire vector. A future
+selective growth or `aridWithoutWater` predicate repair belongs to resource-policy
+design, not an indiscriminate promotion in this unit. Starts retain climatic
+comfort. Botanical wonder moisture already has a saturating bounded score;
+changing its input meaning does not establish a new scientific calibration.
+
 ## Alternatives
 
 - **Selected for discrimination:** rainfall-equivalent wetting plus the smooth
@@ -117,6 +130,29 @@ physical validation of those band thresholds.
   wetness, `D * opportunity` moisture credit, or assigning maximum wetness to
   any finite contact. These respectively miss category admission, add a gain,
   manufacture supply with demand, or confuse contact with ecological state.
+
+## Retained Discriminator Decision
+
+The fixed Huge `2/2` and Standard `1/1` retained contrasts reproduce the incumbent
+and pass the fifteen source/access controls, including exact no-access behavior.
+Opportunity varies spatially and by source magnitude. Finite-body offers have
+controlling effects beyond ordinary flow, including lawful conditional feature
+eligibility. This justifies one owner implementation and qualification, not a
+release claim or a historical tree-count target.
+
+The contrast also exposed two consumer-meaning errors. Polar moisture lookup
+could flip snow/tundra despite unchanged temperature, freeze and actual snow;
+it must retain atmospheric context. The savanna planner's broad aridity gate
+must likewise remain climatic. These are prospective consumer corrections;
+the frozen source/access law, gain and scope remain unchanged. Retained input
+replay lacks full original soil/publication/intent evidence, so actual recipe
+qualification must close that gap before adoption.
+
+Access is deliberately coarse: adjacent dry shore samples generally sit at or
+above finite-body head, and this law admits only at/below-head contacts. It is
+annual surface opportunity, not a complete riparian/rooting/groundwater model.
+The observed saturated upper tail is a qualification risk, not permission to
+invent a retrospective shoreline-coverage or forest-count ceiling.
 
 ## Expectations Before Execution
 

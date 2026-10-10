@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import hydrology from "../../../../../../src/domain/hydrology/router.js";
+import { noLocalWaterSources } from "../../../../../fixtures/local-water-sources.js";
 
 const { computeLandWaterBudget, computePotentialDemand } = hydrology.climate.ops;
 const strategy = computeLandWaterBudget.defaultConfig;
@@ -21,6 +22,7 @@ describe("hydrology/compute-land-water-budget effective moisture", () => {
     const input = {
       width,
       height,
+      ...noLocalWaterSources(width, height),
       landMask,
       rainfall,
       humidity,
@@ -58,6 +60,7 @@ describe("hydrology/compute-land-water-budget effective moisture", () => {
     const input = {
       width: 1,
       height: 1,
+      ...noLocalWaterSources(1, 1),
       landMask: new Uint8Array([1]),
       rainfall: new Uint8Array([40]),
       humidity: new Uint8Array([100]),

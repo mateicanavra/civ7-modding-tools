@@ -20,6 +20,8 @@ const BiomeClassificationContract = defineOp({
       description:
         "Aridity index (0..1) per tile (from Hydrology climate indices; do not recompute from rainfall alone).",
     }),
+    plantEffectiveMoisture: TypedArraySchemas.f32({ description: "Plant moisture including admitted local annual surface-water opportunity." }),
+    plantWaterStress: TypedArraySchemas.f32({ description: "Plant water limitation ratio (0..1), distinct from climatic aridity." }),
     freezeIndex: TypedArraySchemas.f32({
       description: "Freeze persistence index (0..1) per tile (from Hydrology climate indices).",
     }),

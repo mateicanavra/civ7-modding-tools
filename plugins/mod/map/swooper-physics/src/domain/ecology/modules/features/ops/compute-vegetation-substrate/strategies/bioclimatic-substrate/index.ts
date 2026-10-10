@@ -13,6 +13,8 @@ const bioclimaticSubstrateStrategy = createStrategy(Contract, StrategyDefinition
       effectiveMoisture: input.effectiveMoisture,
       surfaceTemperature: input.surfaceTemperature,
       aridityIndex: input.aridityIndex,
+      plantEffectiveMoisture: input.plantEffectiveMoisture,
+      plantWaterStress: input.plantWaterStress,
       freezeIndex: input.freezeIndex,
       vegetationDensity: input.vegetationDensity,
       fertility: input.fertility,
