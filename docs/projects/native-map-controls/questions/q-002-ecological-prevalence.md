@@ -55,81 +55,121 @@ verification:
 
 # Q-002: Ecological Prevalence And Benchmark Authority
 
-**Current source review (2026-10-10):** At
-`2a31c96f8d61ee713075974838dfd36a0b008021`, the
-[Earthlike identity][current-identity-target] and
-[ecology target values][current-ecology-target] remain unchanged. The
-[current study policy][current-study-policy] selects `earthlike-core` by default
-and classifies remaining appearance counts, shares and component bounds as
-product assumptions or regression guards, not physical laws or independently
-calibrated Earth observations. The Desert Mountains absolute 20-tile cap
-[has been removed from both consumers][current-identity-protocol], not retuned.
-This answers part of the original classification question without establishing
-predicate-level justification for population, denominator, variability or
-habitat-conditioned numerical support. No benchmark or new calibration was
-executed by this review.
+What does an ecological prevalence benchmark tell us: that a map expresses its
+intended gameplay identity, that a test exercises a feature, or that the world
+is ecologically plausible? These are different claims. A rainforest limit may
+protect vegetation variety without estimating Earth's rainforest coverage; a
+floodplain count may ensure a placement path is tested without asserting how
+common floodplains should be.
 
-## Historical Evidence
+The [study policy][study-policy] explicitly classifies appearance counts and
+shares as product assumptions or regression guards, not physical laws or
+independently calibrated Earth observations. The open question is therefore
+more specific than whether these numbers are "scientific": does each retained
+bound have a justified purpose, population, denominator and allowance for
+variability? Confusing those supports could reward implausible coverage or
+reject a coherent map, but neither consequence has been demonstrated here.
 
-The original packet below is preserved at
-`fda02f26040a47f6bbd78ef685c1ad4fe909cc05`. Its linked tests and decisions are
-historical evidence, not newly executed verification.
+## The Benchmarks Judge Outcomes, Not Ecological Forcing
 
-**Type:** triage. **Context:** source review of the Earthlike identity and ecology
-targets at `fda02f26040a47f6bbd78ef685c1ad4fe909cc05`.
-**Evidence disposition:** numerical predicates confirmed; their complete
-decision/calibration provenance is not established by this review. This is not
-proof that every threshold is wrong, nor a new plant-water release veto.
+The relevant owner is the Standard recipe's metric targets, especially
+[ecology targets][ecology-target] and [shipped identity targets][identity-target].
+They consume measured feature and attempt counts, land and vegetation
+populations, lake components and cohort identities. Their output is acceptance
+evidence, not a command to generate more vegetation. Related production occurs
+in `ecology-features / plan-vegetation`; `map-ecology / features-apply` realizes
+feature intent on the Civ7 surface.
 
-**Question and consequence:** Which bounds express authorized gameplay identity,
-which ensure a test exercises a feature, and which claim ecological adequacy?
-Should a particular expectation depend on available lawful habitat rather than
-an unconditional count or whole-map share? Conflating these claims could reward
-implausible coverage or reject a physically coherent map, but neither outcome
-has been demonstrated here.
+The default `earthlike-core` study scope qualifies Earthlike. Desert Mountains
+and Archipelago are deliberately biased, opt-in configuration-stress studies
+under `all`, not core Earthlike calibration or release gates. The former Desert
+Mountains absolute `rainforest-tile-count <=20` cap is already removed from both
+the identity and arid-climate consumers, not raised or replaced. That decision
+does not remove the Earthlike bounds.
 
-**Facts and affected path:** The [Earthlike identity target][identity-target]
-requires a projected lake component of at least four tiles, five vegetation
-families, named feature presence and rainforest at most 65% of vegetation.
-The [ecology targets][ecology-target] separately require vegetation on 8-55% of
-land, rainforest at most 70% of vegetation and 35% of land, named-feature
-presence across rolls, cold-reef presence in four rolls and at least eight
-floodplain attempts in the representative sample. Representative identity and
-cohort constraints are different supports, not automatically contradictory
-numbers. Inputs are measured feature/attempt counts, land and vegetation
-denominators, lake components and cohort identities; outputs are benchmark
-pass/fail receipts consumed by acceptance review, not new procedural forcing.
+## Four Populations Behind the Numbers
 
-**Evidence, rivals and missing support:** The source explicitly labels many
-bounds as product identity or representative coverage. The floodplain attempts
-floor explicitly exercises an otherwise inactive row; it need not estimate
-Earth prevalence. These are serious rival explanations to an arbitrary-physics
-claim. What remains missing is a predicate-level trace from owner decision to
-population, denominator, variability and justified bound. No independent
-observational or habitat-conditioned calibration was established by this source
-review; that is an evidence gap, not proof that such evidence cannot exist.
+### A Representative Earthlike Identity
 
-**Smallest investigation and disproof:** Select one disputed predicate and one
-already retained Earthlike case. Trace its original decision and exact sample
-support before any new run. Join the corresponding habitat eligibility,
-compatibility, intent and observed result if retained, holding the producer
-revision and cohort fixed. If those observations are absent, name the missing
-receipt before proposing a capture. Recovering an authorized product/coverage
-requirement with the stated support and a matching measurement can disprove the
-claim that this predicate is an unsupported physics gate. Conversely, a number
-alone cannot distinguish scarcity, illegal placement and an erroneous scorer.
-The result may simply clarify a claim or remove duplicated checks; changing the
-denominator, threshold or generator is not preselected.
+The [identity study][identity-protocol] uses Huge (106 x 66, 10 players), seed
+`1018`. It requires a projected lake component of at least four tiles and at
+least five vegetation families, with forest, rainforest, taiga, savanna woodland
+and sagebrush steppe present. Rainforest is limited to 65% of vegetation. These
+bounds describe one representative product identity, not every seed or an
+empirical Earth average.
 
-**Next check:** Revisit when an Earthlike prevalence check would motivate a
-scientific change or a new eligible-habitat support is proposed. Route a failure
-needed by current work directly to its owner. This does not reopen the decided
-themed-preset exclusion or 20-tile-cap removal. Close or promote the selected
-predicate with its exact evidence; do not launch a sweep of all quotas.
+### Vegetation Across Eight Standard Maps
 
-[identity-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/identities.ts
-[ecology-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts
-[current-identity-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/identities.ts
-[current-ecology-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts
-[current-study-policy]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/STUDIES.md
-[current-identity-protocol]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/shipped-identities.md
+The [ecology cohort][ecology-protocol] uses Standard (84 x 54, 8 players), seeds
+`1018`, `1`, `2`, `3`, `42`, `99`, `1234` and `7777`. Every map requires
+vegetation, at least four vegetation families, and vegetation on 8-55% of land.
+Rainforest is limited to 70% of vegetation and 35% of land. Forest, rainforest
+and taiga must appear in every map; savanna woodland and sagebrush steppe must
+each appear in at least six of eight. The 65% representative and 70% cohort
+rainforest ceilings have different sample supports and are not automatically
+contradictory.
+
+### Cold Reefs Across Eight Huge Maps
+
+The [cold-reef cohort][cold-reef-protocol] uses the same eight seeds at Huge
+(106 x 66, 10 players). Cold reefs must appear in at least four rolls and occupy
+at most 15% of coast water in any roll. Presence frequency and local coverage
+answer different questions: recurrence across seeds versus avoiding a carpet
+within available shallow water.
+
+### Floodplain Attempts in One Standard Map
+
+The [floodplain study][floodplain-protocol] uses Standard (84 x 54, 8 players),
+seed `1018`. It requires at least eight floodplain attempts, zero soft
+rejections and zero final feature-surface violations. The attempt floor makes
+the intent-to-surface path observable; the rejection and legality checks address
+whether it works. A final count alone could conceal rejected attempts. This is
+a strong alternative to interpreting the floor as a prevalence estimate.
+
+## When the Denominator Changes the Question
+
+Whole-land share, share of vegetation, share of coast water and frequency
+across seed rolls are not interchangeable measures. Each preserves information
+the others discard. A gameplay identity may legitimately constrain whole-map
+composition; a coverage test may legitimately require enough events to exercise
+a path. Neither purpose automatically calls for an eligible-habitat denominator.
+
+For a claim about ecological adequacy, however, the amount of lawful habitat
+may be essential. Scarce habitat, incompatible terrain, weak feature intent and
+failed application can all produce a low observed count for different reasons.
+A habitat-conditioned comparison could distinguish those explanations. It
+would still need evidence supporting its numerical bound: changing the
+denominator alone does not turn a product assumption into an Earth-calibrated
+law.
+
+## Evidence That Would Settle an Individual Bound
+
+For a disputed predicate, its original purpose and exact sample support are
+more informative than the number in isolation. An existing Earthlike case can
+connect habitat eligibility, terrain and biome compatibility, feature intent,
+and the observed result while holding the producer revision and cohort fixed.
+Missing observations limit the inference; they do not establish a defective
+scorer or justify retuning generation.
+
+An authorized product or coverage requirement, supported by the stated
+population and matching measurement, would disprove the allegation that this
+predicate is an unsupported physics gate. A claim of ecological calibration
+would need independent observational or habitat-conditioned support. That
+predicate-level provenance has not been established by the source evidence
+here, which is not proof that it cannot exist. The answer could clarify a
+claim, justify a bound or expose a duplicated check without changing any
+threshold, denominator or generator.
+
+The [original evidence packet][original-question] retains the historical
+context. The linked definitions establish source facts; they are not newly
+executed benchmarks, ecological calibration or a blanket verdict on the
+remaining bounds.
+
+[identity-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/identities.ts
+[ecology-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts
+[study-policy]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/STUDIES.md
+[identity-protocol]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/shipped-identities.md
+[ecology-protocol]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/earthlike-ecology.md
+[cold-reef-protocol]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/earthlike-cold-reef.md
+[floodplain-protocol]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/earthlike-floodplain.md
+[original-question]: https://github.com/mateicanavra/civ7-modding-tools/blob/92e1fff097e67f4bfedd3e2b3f6084d7642f04ef/docs/projects/native-map-controls/questions/q-002-ecological-prevalence.md

@@ -1,10 +1,11 @@
 # MapGen Investigation Questions
 
-This is the shared intake for material, off-path questions found while building,
-qualifying or explaining the Earthlike pipeline. It preserves enough evidence
-to decide whether an investigation is worthwhile, not a queue of presumed bugs
-or a promise to implement a repair. Group related observations under their
-mechanism, operation and recipe step rather than creating an entry per symptom.
+This index collects research questions about the Earthlike pipeline and its
+benchmarks. Each linked sheet explains a challenge, why it matters, what is
+known and what evidence would distinguish possible answers. These are starting
+points for inquiry, not investigation logs, a queue of presumed bugs or promises
+to implement repairs. Related observations share a mechanism, operation or recipe
+step rather than becoming one entry per symptom.
 
 [Open questions](#open-questions) are distinct from accepted learning material,
 active owner work and intentional deferrals. Linear owns task status, priority,
@@ -33,11 +34,12 @@ historical question whose later evidence already provides a disposition.
 Keep a stable `Q-NNN` heading here with a concise summary and a link to its
 question record. The [record contract](questions/README.md) keeps affected-scope
 links, claim assessments and verification provenance distinct. Preserve these
-parts in the record:
+meanings in the record, shaped for an explanatory reading path rather than an
+execution checklist:
 
-- **Context and type:** originating owner/review and durable links; `triage`
-  while a research or scope decision remains. Name the mechanism, operation and
-  step, affected inputs/outputs and first controlling downstream consumers.
+- **Pipeline context:** the mechanism, operation and step, affected inputs and
+  outputs, and first controlling downstream consumers. Benchmark predicates
+  have their own observation context, not invented generator ownership.
 - **Question and consequence:** what is questionable and why the answer could
   matter. Separate pinned implementation facts, plausible concerns, proven
   defects and unresolved scientific evidence. A test count, merged PR, visual
@@ -46,12 +48,18 @@ parts in the record:
   physical support where available, contrary evidence and valid alternative
   interpretations. Name missing artifacts, support/units or a possible
   simplification without treating an unbuilt artifact as required architecture.
-- **Smallest investigation:** held inputs, permitted variation, observed outputs
-  and the result that could disprove the concern. No preferred repair disguised
-  as a question. Stop when the bounded question is answered; reframe before
-  expanding into a model, parameter sweep or full-map campaign.
-- **Next check:** an event-based revisit trigger and a closure/promotion route.
-  Refresh the source pin on revisit; do not silently treat old facts as current.
+- **Discriminating evidence:** a bounded comparison's held inputs, permitted
+  variation, observed outputs and the result that could disprove the concern.
+  Explain what each outcome would establish, not what an agent should execute
+  next. No preferred repair disguised as a question.
+
+Keep contribution instructions here and in the record contract. Individual
+sheets do not carry agent assignments, handoffs, commands, progress or next-run
+plans. Historical packets can be linked for provenance without reproducing
+their working instructions. Source pins and evidence vintage remain explicit;
+an editorial rewrite does not renew evidence. Assignment and scheduling belong
+in Linear or messaging, while a scientific disposition belongs with the
+question and its supporting rationale.
 
 For benchmark questions, state the claim, admitted population, units, variation,
 threshold rationale and counterexample before treating a check as a gate.
@@ -100,7 +108,7 @@ These are navigation pointers, not copied investigations or new dispositions.
 The source distinguishes generic low-shore support from marine intertidal
 eligibility. Whether its clipped square proximity window has the intended
 boundary behavior and physical support remains open; no placement harm is
-established. [Read the evidence and next check](questions/q-001-low-shore-neighborhood.md).
+established. [Read the research question](questions/q-001-low-shore-neighborhood.md).
 
 ### Benchmark Authority / Ecological Prevalence
 
@@ -110,7 +118,7 @@ Current policy identifies appearance counts and shares as product assumptions
 or regression guards, not calibrated physical laws. Predicate-level
 justification for population, denominator and numerical support remains open;
 the decided Desert Mountains cap removal is not reopened.
-[Read the evidence and next check](questions/q-002-ecological-prevalence.md).
+[Read the research question](questions/q-002-ecological-prevalence.md).
 
 ### Benchmark Authority / Relief And Orogeny
 
@@ -119,7 +127,7 @@ the decided Desert Mountains cap removal is not reopened.
 The existing relief bounds and Huge-cohort amendment are source-confirmed.
 Their portability to other map sizes, terrain representations or producer
 regimes remains unassessed; benchmark product guards are not universal physical
-laws. [Read the evidence and next check](questions/q-003-relief-support.md).
+laws. [Read the research question](questions/q-003-relief-support.md).
 
 [current-study-policy]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/STUDIES.md
 [current-identity-protocol]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/shipped-identities.md

@@ -51,126 +51,108 @@ verification:
 
 # Q-001: Low-Shore Neighborhood Semantics
 
-**Current source review (2026-10-10):** At
-`2a31c96f8d61ee713075974838dfd36a0b008021`, the [substrate rule][current-coastal-rule],
-[marine-source separation][current-substrate-strategy] and
-[mangrove operation][current-mangrove-contract] are unchanged from the original
-pin. Marine provenance remains source-supported while the square-window
-geometry question stays open. [Plant-aware biome inputs][current-biome-step]
-and [other wet-family scoring inputs][current-score-step] have changed and may
-affect later wetland intent; unchanged substrate and mangrove code does not
-establish identical final placement. A separate [local-water hex-neighborhood
-rule][current-local-water-rule] does not settle this operation's authored
-square-window contract. This review establishes source facts only, not physical
-adequacy or downstream outcomes.
+Does a low shore retain the same ecological eligibility when its local landscape
+crosses the east-west boundary of a cylindrical hex map? More broadly, what
+physical relationship should "near water" represent here: proximity in a square
+index window, distance on the hex grid, or an explicitly tolerated approximation?
 
-## Historical Evidence
+The distinction matters because proximity helps decide where wetland features
+can compete for placement. A boundary-dependent eligibility difference could
+matter ecologically, but it is not itself evidence of changed feature placement
+or gameplay harm. The implementation is known; its intended boundary behavior,
+physical adequacy and downstream consequences remain separate questions.
 
-The original packet below is preserved at
-`fda02f26040a47f6bbd78ef685c1ad4fe909cc05`. Its linked tests and decisions are
-historical evidence, not newly executed verification.
+## Where Shore Proximity Becomes Wetland Support
 
-**Type:** triage. **Evidence disposition:** confirmed implementation behavior;
-plausible boundary/topology concern; physical adequacy and material downstream
-harm unresolved. No defect or repair is admitted by this entry.
+The question belongs to `ecology-features / score-layers`, where
+`computeFeatureSubstrate` prepares eligibility masks for feature scorers.
+[computeCoastalLandMask][coastal-rule] takes map width and height, exposed land,
+an admitted source-water mask and a radius. It scans an inclusive rectangular
+X/Y window, skips the target cell, clips both axes and does not wrap X. At radius
+one, an interior window can inspect eight other cells rather than the six
+native hex neighbors.
 
-**Context:** Source qualification for the marine-shore learning lesson exposed
-a shared neighborhood contract question, not a failure of marine provenance.
-All implementation and acceptance facts below are pinned to
-`fda02f26040a47f6bbd78ef685c1ad4fe909cc05`.
+The [hydromorphic strategy][substrate-strategy] performs two separate proximity
+calculations: one for resolved any-water sources and one for prescribed
+`externalWaterMask` sources. The [wetland substrate rule][wetland-rule] combines
+generic water proximity with elevation relative to sea level to identify low
+shores. These support `hydromorphicMask`, meaning waterlogged substrate, and its
+complement, `wellDrainedMask`. Finite-water shores remain eligible for this
+generic support. Only `intertidalCoastMask` additionally requires external
+marine-water proximity. Marine provenance and neighborhood geometry are thus
+different parts of the model.
 
-**Question:** Does the low-shore source-proximity window provide the intended
-neighborhood semantics on the cylindrical hex map, or can a longitude boundary
-or grid orientation change meaningful substrate eligibility? The authored
-[configuration][substrate-config] explicitly promises a square radius, not hex
-distance. The open question is its boundary treatment and physical support.
-A periodic square window changes boundary behavior; a hex-distance neighborhood
-would change the authored metric and needs a separate owner decision.
+In [score-layers][score-step], marsh and tundra-bog scoring consume hydromorphic
+support; mangrove scoring consumes intertidal support. Scores, terrain and biome
+compatibility, and wetland arbitration stand between these masks and admitted
+feature intent. A changed mask need not change a controlling score, and a
+changed score need not win placement. Final intent also depends on plant-aware
+[biome inputs][biome-step] and competing wet-family scores. Unchanged substrate
+and mangrove logic therefore cannot establish placement equivalence when those
+other inputs change.
 
-**Implementation and affected path:**
-[computeCoastalLandMask][coastal-rule] scans an inclusive rectangular X/Y index
-window, skips the target, clips both axes and does not wrap X. Radius one can
-inspect eight other cells in an interior square, not the six native hex
-neighbors. Its inputs are width/height, exposed `landMask`, `sourceWaterMask`
-and radius. The [hydromorphic strategy][substrate-strategy] calls it separately
-with resolved any-water sources and prescribed `externalWaterMask` sources.
-Keep those populations separate throughout the investigation.
+## A Square Radius Is an Authored Choice
 
-The [wetland substrate rule][wetland-rule] combines generic coast proximity
-with relative elevation to derive low-shore support. That affects
-`hydromorphicMask` and complementary `wellDrainedMask`; external-water proximity
-additionally gates `intertidalCoastMask`. In [score-layers][score-step], marsh and
-tundra-bog scorers consume hydromorphic support, while the mangrove scorer
-consumes intertidal support. A proximity difference need not survive those
-scores, terrain/biome compatibility and wetland arbitration into actual feature
-intent. Track masks, scores and admitted intent separately; do not infer changed
-placement or gameplay from changed eligibility alone.
+The [configuration][substrate-config] explicitly defines
+`coastalAdjacencyRadius` as a square radius, defaulting to one. It does not
+promise hex distance. A periodic square window would change boundary behavior;
+a hex-distance neighborhood would change the authored metric as well. Those
+are distinct choices, and selecting the latter requires a separate owner
+decision about what proximity should mean.
 
-**Why it may matter:** A jointly translated source/receiver arrangement could
-lose support at the X boundary even when its local world relationship is held.
-A square index window may also distinguish hex-equivalent local orientations.
-Those are hypotheses about an intended invariance, not measured ecological
-harm, a whole-world rotation requirement or proof that a new metric is better.
-Latitude, bounded Y and row parity must not be changed accidentally.
+This is meaningful counterevidence to the idea that any square stencil must be
+a defect. The accepted marine-provenance repair deliberately retained geometry
+and radius while separating finite-water shores from marine eligibility. Its
+focused test establishes that separation, height gates and generic-mask
+preservation, not periodicity or orientation independence. A deliberate clipped
+raster approximation, a tolerated product limitation or an inactive downstream
+gate could defeat the suspected consequence.
 
-**Contrary evidence and limits:** The square-radius label is explicit authoring
-evidence, not an accidental undocumented hex implementation. The
-[accepted marine-provenance repair][marine-decision]
-explicitly held the existing geometry and radius while separating generic
-finite-water shores from marine eligibility. The [focused substrate test][substrate-test]
-checks that distinction, height gates and generic-mask preservation; it does
-not declare periodicity or isotropy. Another owner's [periodic biome repair][biome-decision]
-provides a precedent for a held longitude-translation discriminator, not
-authority to copy its law into this operation. A deliberate clipped raster
-approximation, an inactive downstream gate or a tolerated product limitation
-could defeat the suspected consequence. No primary physical evidence assembled
-for this entry selects a stencil/radius or proves this approximation harmful.
+The separate [local-water hex-neighborhood rule][local-water-rule] belongs to
+hydrology's land-water budget; it does not settle this square-window contract.
+Likewise, the periodic biome repair offers a useful comparison method, not
+authority to transfer another operation's requirements. The missing evidence is
+an explicit boundary requirement and physical support for the stencil and
+radius. No primary physical evidence assembled for this question selects a
+replacement or demonstrates ecological harm.
 
-**Missing evidence and simplification opportunity:** The missing contract
-evidence concerns required world-boundary behavior and justified physical
-support for the authored square approximation, not a promised hex distance.
-Missing receipts are a held boundary comparison and its
-first-consumer consequences, not another permanent artifact or a new global
-distance abstraction. If a later accepted contract matches an existing public
-grid primitive, assess reuse then; do not preselect it now.
+## Comparisons That Separate Geometry From Consequence
 
-**Smallest discriminating investigation:** Begin with one synthetic exposed
-low-shore target and one admitted source, once inland in the index domain and
-once across the east-west boundary. Cyclically translate all relevant input
-fields together at fixed row and fixed radius; keep elevation/sea datum,
-climate, fertility, river fields and source identity held. Inverse-translate the
-outputs before comparing them. Run generic finite-water and marine-source arms
-separately. Observe the proximity masks, resulting hydromorphic/intertidal masks
-and first controlling scores before considering any planner consequence.
+A discriminating boundary comparison would place one exposed low-shore target
+and one admitted water source first inside the index domain, then across the
+east-west boundary. A parity-preserving cyclic X translation of all input fields
+together holds rows, latitude, radius and the local source-target relationship
+fixed. Elevation and sea datum, climate, fertility, river fields and source
+identity remain identical in corresponding cells. Inverse-translating outputs
+allows a like-for-like comparison without confusing a boundary effect with a
+different environment. Generic finite-water and marine-source cases answer
+different eligibility questions and remain separate comparisons.
 
-Exact correspondence would disprove boundary sensitivity for that witness.
-Different masks but identical controlling scores would refute a claimed scoring
-failure for that witness, not all potential consumers. A source-only difference
-establishes boundary sensitivity, not physical or gameplay harm. If the owner
-accepts a deliberately bounded index contract, close the mismatch allegation
-as an accepted limitation with rationale rather than rewriting the contract by
-test. Only if hex-isotropic local proximity is actually required should a later
-held interior hex-rotation fixture be considered; a full globe rotation is not
-an invariant of latitude-dependent forcing or bounded Y.
+Proximity masks, hydromorphic and intertidal masks, first controlling scores,
+and admitted intent distinguish successive consequences. Exact correspondence
+would disprove boundary sensitivity for that witness. Different masks with
+identical controlling scores would refute a claimed scoring failure for that
+witness, not for every possible consumer. A proximity-only difference would
+establish boundary sensitivity without establishing physical or gameplay harm.
+Evidence that the intended contract is deliberately bounded would instead
+resolve the mismatch allegation as an accepted limitation, with its rationale.
 
-**Next check:** Revisit before changing coastal adjacency radius/geometry or
-before a retained Earthlike low-shore anomaly is attributed to local water
-availability. If that anomaly blocks current work, return it immediately to
-the active owner. The workstream owner may admit a bounded contract investigation
-to Linear; any repair additionally requires a settled contract and qualified
-consequence. This entry selects no implementation and executes no new experiment.
+Orientation is a further question only if equal treatment of hex-equivalent
+local arrangements is required. A controlled interior hex-rotation comparison
+could then distinguish orientation effects. Whole-world rotation is not an
+appropriate invariant for latitude-dependent forcing and bounded Y. Neither
+comparison preselects a new distance abstraction; reuse of an existing grid
+primitive becomes relevant only if its semantics match the accepted contract.
 
-[coastal-rule]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/rules/coastal-land-mask.ts
-[substrate-strategy]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/strategies/hydromorphic/index.ts
-[substrate-config]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/strategies/hydromorphic/config.ts
-[wetland-rule]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/rules/wetland-substrate-masks.ts
-[score-step]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/steps/score-layers/step.ts
-[marine-decision]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/docs/projects/native-map-controls/terrestrial-water-influence.md#marine-habitat-provenance-prerequisite
-[substrate-test]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/plugins/mod/map/swooper-physics/test/domains/ecology/features/ops/compute-feature-substrate/substrate.test.ts
-[biome-decision]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/docs/projects/native-map-controls/biome-periodic-edges.md
-[current-coastal-rule]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/rules/coastal-land-mask.ts
-[current-substrate-strategy]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/strategies/hydromorphic/index.ts
-[current-mangrove-contract]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-mangrove/contract.ts
-[current-biome-step]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/biomes/steps/biomes/step.ts
-[current-score-step]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/steps/score-layers/step.ts
-[current-local-water-rule]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/climate/ops/compute-land-water-budget/rules/local-surface-water-opportunity.ts
+The [original evidence packet][original-question] preserves the historical
+decisions and test references. They are provenance, not newly executed boundary
+experiments or scientific validation.
+
+[coastal-rule]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/rules/coastal-land-mask.ts
+[substrate-strategy]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/strategies/hydromorphic/index.ts
+[substrate-config]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/strategies/hydromorphic/config.ts
+[wetland-rule]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/rules/wetland-substrate-masks.ts
+[score-step]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/steps/score-layers/step.ts
+[biome-step]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/biomes/steps/biomes/step.ts
+[local-water-rule]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/climate/ops/compute-land-water-budget/rules/local-surface-water-opportunity.ts
+[original-question]: https://github.com/mateicanavra/civ7-modding-tools/blob/92e1fff097e67f4bfedd3e2b3f6084d7642f04ef/docs/projects/native-map-controls/questions/q-001-low-shore-neighborhood.md

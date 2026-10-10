@@ -2,8 +2,10 @@
 
 ## Scope And Ownership
 
-These ordinary Markdown records are the source for the separate Investigation
-Questions section and its links to the pipeline notebook. The
+These ordinary Markdown records are durable research problem sheets: a question
+or challenge, its significance, the evidence behind it and what would distinguish
+possible answers. They are the source for the separate Investigation Questions
+section and its links to the pipeline notebook. The
 [question index](../triage.md) owns admission and editorial policy. Linear owns
 task status, assignment and scheduling. This format does not establish a second
 task tracker, a scientific verdict, or a generic graph framework.
@@ -12,6 +14,33 @@ The reader must be able to move from a question to its affected pipeline/topic
 locations and back. The learning notebook remains a sequential explanation of
 Earth processes, modeling choices, stages, steps and operations. A question is
 not a chapter, and a location with pending teaching is a valid link target.
+
+## Research Sheet Body
+
+A reader should encounter the intellectual question before source-review dates,
+provenance details or collaboration history. Explain where the question sits in
+the pipeline or its benchmarks, why the answer matters, and how the relevant
+mechanism works. Separate established facts from plausible consequences and
+unresolved physical support. The body is an explanation of a problem, not an
+instruction to execute an investigation.
+
+Use content-specific headings and enough background for a reader unfamiliar
+with the implementation. Evidence and credible rival interpretations belong
+alongside the claims they qualify. A discriminating comparison describes what
+would vary, what would remain held and what different outcomes would mean,
+including a result that would disprove the concern. It need not take the form
+of a numbered procedure or select an implementation. Different questions may
+need different explanatory structures; these are reading priorities, not a
+mandatory section template.
+
+Agent assignments, handoff requests, run commands, progress updates and "do this
+next" notes belong in messaging or the task tracker, not in a research sheet.
+Authoring and admission instructions belong in this contract or the index, not
+in the body. A source change updates the explanation and its qualified claims;
+it does not require a release diary at the top. Historical packets and decisions
+remain reachable through immutable links rather than being copied wholesale
+into the reading path. Evidence dates and revisions remain in verification
+metadata because provenance is part of the claim, not an action queue.
 
 ## Source Contract
 
@@ -107,6 +136,15 @@ invent an assessment badge for an unmapped or undrafted stage. It uses the
 recipe's declared stage order. Unknown question, location and stage identities
 must remain not-found rather than falling through to unrelated content.
 
+The rendered sheet leads with the question and explanatory body. Location links
+provide nearby orientation; full verification and source details remain
+accessible without dominating the opening. Visual emphasis must preserve the
+difference between a supported source fact, an unassessed physical claim and
+an established consequence. A polished question card is not a severity badge.
+Reading order and link affordances must remain clear on narrow screens as well
+as desktop. The projection must not inject agent instructions or collaboration
+notes into the sheet.
+
 Before admission or publication, check:
 
 - Unique YAML keys and a single document, allowed field shapes, stable unique
@@ -128,8 +166,8 @@ embedded HTML and unsafe decoded URLs, not only filter Markdown link syntax.
 
 The notebook curator owns grouping, wording, identities and links. The
 workstream/domain owner supplies a scientific disposition and any promotion
-to implementation. On a meaningful source change or the entry's stated revisit
-trigger, review affected claims and mappings; retain historical evidence at its
+to implementation. When source changes or new evidence bear on the question's
+assumptions, review affected claims and mappings; retain historical evidence at its
 original revision and scope. Do not refresh unrelated evidence by changing a
 top-level source pin.
 
