@@ -843,6 +843,112 @@ describe("resource-backed start admission", () => {
     });
   }
 
+  for (const [name, balancedRegionalBand, preferredCount] of [
+    ["compares regional seats against stable requests across resource bands", true, 1],
+    ["records a band-local homeland shortfall against the stable request", false, 2],
+  ] as const) {
+    it(name, () => {
+      const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid24x10, 2);
+      const regionalWest = [
+        [2, 2],
+        [2, 3],
+      ] as const;
+      const regionalEast = [
+        [18, 2],
+        [18, 3],
+      ] as const;
+      const westOnly = [
+        [6, 2],
+        [6, 3],
+        [10, 2],
+        [10, 3],
+      ] as const;
+      addLandmass(input, 0, 1, regionalWest);
+      addLandmass(input, 1, 2, regionalEast);
+      addLandmass(input, 2, 1, westOnly.slice(0, 2));
+      addLandmass(input, 3, 1, westOnly.slice(2));
+      for (const [x, y] of regionalWest) {
+        input.fertility[idx(input.width, x, y)] = balancedRegionalBand ? 0.4 : 0.1;
+      }
+      for (const [x, y] of regionalEast) {
+        input.fertility[idx(input.width, x, y)] = balancedRegionalBand ? 0.4 : 1;
+      }
+      for (const [x, y] of westOnly) input.fertility[idx(input.width, x, y)] = 0.8;
+      input.plannedResourcePlotIndices = [
+        idx(input.width, 2, 2),
+        idx(input.width, 18, 2),
+        ...westOnly.map(([x, y]) => idx(input.width, x, y)),
+      ];
+      input.resourceSupportRequirements = {
+        supportFloor: 1,
+        supportRadiusTiles: 1,
+        equityTolerance: 0,
+      };
+      const configure = (config: (typeof planStarts.defaultConfig)["config"]) => {
+        config.minContiguousLandTiles = 2;
+        config.minExpansionLandTiles = 2;
+        config.spacingFloorTiles = 2;
+        config.desiredSpacingTiles = 2;
+        config.largeLandmassWeight = 0;
+        config.fertilityWeight = 4;
+        config.resourceSupportWeight = 0;
+        config.freshwaterWeight = 0;
+        config.climateWeight = 0;
+        config.coastalPreferenceWeight = 0;
+        config.riverPreferenceWeight = 0;
+        config.roughnessPenaltyWeight = 0;
+        config.climateExtremePenaltyWeight = 0;
+        config.rankingBlend = 1;
+      };
+      const before = structuredClone(input);
+      const result = plan(input, configure);
+      const candidateSupport = supportCounts(input, result.candidates);
+      const westOnlyCandidates = result.candidates.filter(
+        (_tile, index) => candidateSupport[index] === 2
+      );
+
+      expect(result.candidates.some((tile) => tile.regionSlot === 1)).toBe(true);
+      expect(result.candidates.some((tile) => tile.regionSlot === 2)).toBe(true);
+      expect(westOnlyCandidates).toHaveLength(4);
+      expect(westOnlyCandidates.every((tile) => tile.regionSlot === 1)).toBe(true);
+      expect([result.playersLandmass1, result.playersLandmass2]).toEqual([1, 1]);
+      expect(result.seats.map((seat) => seat.regionSlot)).toEqual([1, 2]);
+      expect(result.seats.map((seat) => seat.playerId)).toEqual([...input.playerIds]);
+      expect(result.seats.every((seat) => seat.achievedSpacing >= 2)).toBe(true);
+      expect(result.fairnessReport.balanced).toBe(true);
+      expect(supportCounts(input, result.seats)).toEqual([preferredCount, preferredCount]);
+      if (balancedRegionalBand) {
+        expect(result.seats.map((seat) => seat.realizedRegionSlot)).toEqual([1, 2]);
+        expect(
+          result.seats.every((seat) => seat.rung === "regional" && seat.status === "full")
+        ).toBe(true);
+        expect(Math.min(...westOnlyCandidates.map((tile) => tile.score))).toBeGreaterThan(
+          Math.max(...result.seats.map((seat) => seat.score))
+        );
+        expect(result.fairnessReport.relaxations.filter((row) => row.kind === "region")).toEqual(
+          []
+        );
+      } else {
+        expect(result.seats.map((seat) => seat.realizedRegionSlot)).toEqual([1, 1]);
+        expect(result.seats[1]).toMatchObject({
+          regionSlot: 2,
+          realizedRegionSlot: 1,
+          rung: "regional",
+          status: "degraded",
+        });
+        expect(result.seats[1]!.imputedFlags).toContain("region-reassigned");
+        expect(result.fairnessReport.relaxations).toContainEqual({
+          seatIndex: 1,
+          kind: "region",
+          from: 2,
+          to: 1,
+        });
+      }
+      expect(input).toEqual(before);
+      expect(plan(input, configure)).toEqual(result);
+    });
+  }
+
   it("counts overlapping seat radii jointly and deduplicates actual resource plots", () => {
     const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid20x10, 2);
     addLandmass(

@@ -646,42 +646,39 @@ const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessDe
       else if (slot === 2) landBySlot2 += 1;
     }
 
+    // --- pass 3a: capacity-proportional homeland allocation (D2) ---------------------------
+    // All floor-supported regular candidates define one requested allocation.
+    // Bands may relax its realization, but cannot redefine what counts as regional.
+    const supportedCandidatesBySlot = { 1: 0, 2: 0 };
+    for (const candidate of supportedCandidates) {
+      supportedCandidatesBySlot[candidate.regionSlot] += 1;
+    }
+    const allocation = apportionStartsByCapacity({
+      capacities: [supportedCandidatesBySlot[1], supportedCandidatesBySlot[2]],
+      ceilings: [
+        Math.min(supportedCandidatesBySlot[1], feasibleStartCeiling(landBySlot1, spacingFloorTiles)),
+        Math.min(supportedCandidatesBySlot[2], feasibleStartCeiling(landBySlot2, spacingFloorTiles)),
+      ],
+      total: totalPlayers,
+      balanceBias: CIV7_START_PLACEMENT_POLICY_V0.balanceBias,
+    });
+    // Over-subscribed players remain explicit seats; the ladder records degradation.
+    let allocated = allocation[0]! + allocation[1]!;
+    while (allocated < totalPlayers) {
+      const headroom1 = supportedCandidatesBySlot[1] - allocation[0]!;
+      const headroom2 = supportedCandidatesBySlot[2] - allocation[1]!;
+      allocation[headroom1 >= headroom2 ? 0 : 1]! += 1;
+      allocated += 1;
+    }
+    const playersWest = allocation[0]!;
+    const playersEast = allocation[1]!;
+
     const selectWithinBand = (
       candidates: readonly StartCandidate[],
       reserve: readonly SelectableTile[]
     ) => {
-      // --- pass 3a: capacity-proportional homeland allocation (D2) ---------------------------
-      // WHY: the legacy fixed playersLandmass1/playersLandmass2 split (default
-      // 4/4) ignored where the settleable land actually is, forcing half the civs
-      // into a land-poor homeland (the reported clustering). Apportion the SAME
-      // total across the two homelands by real capacity — admitted-candidate count
-      // (quality-aware) clamped to a spacing-feasibility ceiling from each region's
-      // land extent — then bias toward equal hemispheres when the land allows.
-      // Total seat count is preserved.
       const candidatesBySlot = { 1: 0, 2: 0 };
       for (const candidate of candidates) candidatesBySlot[candidate.regionSlot] += 1;
-      const allocation = apportionStartsByCapacity({
-        capacities: [candidatesBySlot[1], candidatesBySlot[2]],
-        ceilings: [
-          Math.min(candidatesBySlot[1], feasibleStartCeiling(landBySlot1, spacingFloorTiles)),
-          Math.min(candidatesBySlot[2], feasibleStartCeiling(landBySlot2, spacingFloorTiles)),
-        ],
-        total: totalPlayers,
-        balanceBias: CIV7_START_PLACEMENT_POLICY_V0.balanceBias,
-      });
-      // Over-subscription top-up: when the map cannot feasibly hold `total`
-      // well-spaced starts, the excess still gets a seat in the homeland with the
-      // most remaining candidate headroom — degraded downstream by the ladder,
-      // never silently dropped.
-      let allocated = allocation[0]! + allocation[1]!;
-      while (allocated < totalPlayers) {
-        const headroom1 = candidatesBySlot[1] - allocation[0]!;
-        const headroom2 = candidatesBySlot[2] - allocation[1]!;
-        allocation[headroom1 >= headroom2 ? 0 : 1]! += 1;
-        allocated += 1;
-      }
-      const playersWest = allocation[0]!;
-      const playersEast = allocation[1]!;
 
       // --- pass 3b: seat identities + four-rung selection ladder -----------------------------
       const seatIdentities = buildSeatIdentities({
@@ -692,9 +689,8 @@ const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessDe
 
       // Region reassignment (recorded, never silent): a residual guard for any
       // seat whose homeland still has ZERO admitted candidates after allocation
-      // (rare now that D2 allocates 0 players to a zero-capacity region). The seat
-      // is reassigned to the other region, recorded as a region relaxation, and
-      // its status degrades.
+      // in this band. Move only the working homeland; preserve the request,
+      // record the region relaxation, and degrade the seat's status.
       const preLadderRelaxations: RelaxationEntry[] = [];
       const reassignedSeats = new Set<number>();
       for (const seat of seatIdentities) {
@@ -743,7 +739,7 @@ const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessDe
         ...ladder.relaxations,
         ...fairness.relaxations,
       ];
-      return { ladder, fairness, relaxations, reassignedSeats, playersWest, playersEast };
+      return { ladder, fairness, relaxations, reassignedSeats };
     };
 
     // Every selected tile in an observed count band already satisfies both
@@ -803,8 +799,7 @@ const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessDe
       bestSelection = selection;
       bestRank = rank;
     }
-    const { ladder, fairness, relaxations, reassignedSeats, playersWest, playersEast } =
-      bestSelection;
+    const { ladder, fairness, relaxations, reassignedSeats } = bestSelection;
 
     // --- pass 5: per-seat StartRecord intents ----------------------------------------------
     const seatedPlots = ladder.selections
@@ -862,9 +857,7 @@ const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessDe
       .sort((a, b) => a.reason.localeCompare(b.reason));
 
     return {
-      // Report the ACTUAL capacity-proportional allocation, not the requested
-      // split (the contract defines these as "player count allocated to the
-      // west/east landmass region").
+      // Requested allocation stays distinct from each seat's realized homeland.
       playersLandmass1: playersWest,
       playersLandmass2: playersEast,
       spacingFloorTiles,
