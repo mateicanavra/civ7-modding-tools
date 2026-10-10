@@ -646,3 +646,67 @@ Unchanged source and owner tests qualify their computation; the paired observer
 does not invent their readback. Generated, installed and fresh native claims
 remain separate. Finite-shore plant access, regional versus local habitat
 composition and atmospheric wetness semantics remain open causal questions.
+
+## Local Biome Support Before Additional Water Response
+
+The existing classifier is per tile, not a single fixed category for an entire
+region. A valid local moisture input can select a locally humid biome without
+changing atmospheric temperature or precipitation. Before designing another
+water-response law, qualify whether that admitted local support survives the
+existing categorical refinement.
+
+At the unchanged Earthlike selection (`radius: 1`, `iterations: 3`), a valid
+synthetic single humid cell and one-tile-wide humid column both classify as
+`temperateHumid` from their supplied temperature/moisture/aridity, then become
+`temperateDry` solely through category-majority smoothing. The filter has no
+receiver climate evidence, so it can also promote an unsupported dry receiver
+when humid neighbors dominate. The four retained production witnesses remain
+exclusion witnesses, not proof that those cells deserve trees or a particular
+water-supply increment.
+
+Density is already a continuous climate/soil response and does not depend on
+the biome symbol. Its unchanged value is not a stale class-specific biomass
+bug. The demonstrated inconsistency is local physical support versus the final
+categorical gate used by native projection, vegetation and other habitat
+consumers.
+
+### Selected Owner Correction And Alternatives
+
+Retire category-only majority smoothing, its obsolete configuration and its
+Gaussian strategy identity at the existing classification owner. Keep one final
+published biome artifact, the exact local classification law, continuous density,
+treeline and forwarded climate. Migrate the three live authored selections; do
+not leave an ignored control, legacy strategy or parallel raw-biome lane.
+
+Retaining cosmetic refinement would require a defensible way to distinguish
+unsupported noise from physically supported narrow habitat. The present filter
+cannot do so. A second local/regional framework, downstream forest rescue or a
+larger Hydrology gain to overpower the filter is not selected. If the underlying
+physical inputs prove noisy, repair that owner rather than repaint categories.
+
+### Prospective Qualification
+
+- Existing public-operation tests must retain supplied narrow humid support,
+  avoid promoting an unchanged dry receiver from neighbor popularity, and
+  preserve the water sentinel, zero water density, cyclic-X translation,
+  bounded north/south behavior, determinism and input nonmutation. Density,
+  treeline and forwarded climate must remain exact. Retired selections must
+  fail admission rather than silently doing nothing.
+- An exact current-incumbent/candidate Huge `2/2` pair must hold physical
+  morphology, climate, water budget, drainage, lakes, river hierarchy and
+  continuous density. Biome, feature/resource outcomes and start arbitration
+  are measured consequences, not restored-count targets.
+- Preserve the complete existing map-selected study bank, all identities and
+  bounds. Require no new failed leaf or worsening of the retained thermal
+  failure. The bank's row-based biome measures do not establish two-dimensional
+  patch coherence: inspect the paired viewer and attribute changed categories
+  to each receiver's admitted local inputs before adopting the candidate.
+- Reuse current feature legality, resource and start checks, with fresh SDK
+  review and owner verification. A greener map, larger rainforest count or
+  lower row dominance alone does not qualify the correction. A failed topology,
+  support or collateral guard refuses adoption without tuning a quota or gate.
+
+This transition does not add plant-water supply, establish seasonal root access,
+retire the remaining atmospheric wetness injection, or resolve the outstanding
+thermal calibration. Precipitation, river/lake/coast opportunity, finite storage
+and usable root water remain distinct parts of the causal investigation.
