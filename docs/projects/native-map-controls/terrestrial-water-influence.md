@@ -827,3 +827,159 @@ water source. Keep the remaining any-river rainfall injection and regional
 thermal/moisture response as explicit upstream owner questions. Resolve those
 meanings before adopting a replacement local-water calculation; the existing
 Hydrology budget remains the composition owner and Ecology its consumer.
+
+## Prospective Atmospheric-Proxy Retirement
+
+The current-source comparison retires only the remaining river/enclosed-basin
+precipitation operation, its controls and wiring. Hierarchy-only budget
+retirement, marine consumers and local biome classification are already adopted.
+Do not reuse the historical A implementation or receipt as current proof.
+No new local-water index, shore gain, thermal model or habitat tuning belongs
+to this unit. Baseline atmospheric rainfall and humidity become the sole final
+rainfall/humidity vintage; existing thermal and ecological consumers remain.
+
+The director and a fresh relief/climate steward prospectively replace the
+workstream's scalar non-deterioration veto with attributed-retirement proof.
+The executable `1 C` thermal requirement, comparator, original-land population,
+scenarios and failed status remain unchanged. Unsupported snow variation is
+not independent evidence of physical quality. Its removal does not by itself
+establish harm, but explaining a scalar cannot excuse a bad map or habitat loss.
+Historical A remains refused under its original protocol.
+
+Before execution, freeze these holds and falsifiers:
+
+- Keep baseline atmosphere and pre-network demand, initial/sealed geometry,
+  drainage, lake ledgers, physical hydrography and physical projection intent
+  exact. Final candidate rainfall/humidity must equal baseline arrays.
+- Retain the actual pre-albedo thermal field. Replay the unchanged cooling
+  owner with each rainfall arm and close every changed temperature to that
+  mechanism. Zero-albedo controls retain temperature exactly.
+- Attribute row-centered variance and covariance on every original-mask
+  thermal-cohort case, including later-covered cells. The earlier Huge2
+  decomposition is not this proof; sampled seasonal means are not the exact
+  independently integrated annual thermal field.
+- Run the unchanged full bank with no new failed leaf or comparator change.
+  Explain material habitat substitutions, resource and founder consequences;
+  vegetation totals alone are inadequate. Current marine behavior must be
+  qualified rather than assumed safe from its earlier repair.
+- Inspect aligned paired map views for coherent, usable habitat and placement.
+  Fresh native realization is separate proof before claiming a deployed result.
+
+Unexplained thermal changes, changed physical water, new bank failures, lost
+legitimate habitat or unacceptable visible structure refuse this candidate.
+No compensating constant rescues it. A qualified retirement still leaves local
+plant-water opportunity and regional thermal response as distinct next owners;
+missing physical measurements do not prohibit a defensible, explicitly modeled
+game-scale approximation.
+
+## Completed Atmospheric Retirement Qualification
+
+The current-source implementation at `c46f7def` retires the remaining
+river/enclosed-basin rainfall operation, its configuration and wiring, rather
+than preserving a fallback. Final rainfall and humidity are detached exact
+copies of the admitted atmospheric baseline. Physical water demand and routing
+are not recomputed from the ecological consequences.
+
+Six actual paired public recipe captures cover Earthlike Huge `2/2` and
+`1018/1018`, Earthlike Standard `1018/1018`, `1/1` and `42/42`, and Huge
+Archipelago `1018/1018`. All 49 existing integrity expectations pass per case.
+All 31 declared baseline/physical model products, four physical projection
+entries and nine observed terrain/water products hold exactly. This is portable
+realization evidence, not complete native parity.
+
+Six additional authentic complete runs per arm retain the actual pre-albedo
+thermal field; they reuse the SHA-bound public captures rather than recapturing
+them. The unchanged cooling owner reproduces every final temperature exactly
+with its own rainfall. Candidate pre-albedo temperature with incumbent rainfall
+reproduces every incumbent final temperature. Changed cells warm by at most
+`0.1889172 C`, entirely through removal of unsupported snow cooling. Archipelago's
+zero-albedo control holds temperature exactly. Independent retained-evidence
+review reproduces the arithmetic and all six original-land-mask covariance
+decompositions, including later-covered cells.
+
+The unchanged complete bank retains 22 studies, 57 unique scenarios and all
+4,430 expectation identities, descriptions and comparators. It passes 4,429
+leaves with the same one thermal failure and zero new failed leaves. The
+four-case thermal floor changes `0.1428814379 -> 0.1390440683 C` against the
+unchanged `1 C` requirement. It remains red and unwaived under the prospective
+attributed-retirement decision; this is not thermal calibration success.
+
+Material ecological consequences are attributed, not called improvement:
+
+| Retained comparison | Before | After | Cause and limit |
+| --- | --- | --- | --- |
+| Huge `2/2` forest / rainforest / steppe | 230 / 40 / 40 | 133 / 29 / 160 | Local moisture-driven category changes, not score-floor failure |
+| Standard `1/1` forest | 257 | 141 | Existing local category admission; 104 additional feature-free cells, not a forest-count entitlement |
+| Archipelago mangrove | 31 | 10 | Lower climate-sensitive fertility; all 21 lost sites become rainforest |
+
+Across all six maps, every lost old forest/rainforest site loses its required
+local biome category. All lost Earthlike sites still exceed their unchanged
+continuous score floors. Classifier replay explains both published category
+arrays; one near-freezing Standard42 cell additionally crosses the existing
+temperature boundary. Mangrove eligibility, flatness, tropical compatibility,
+temperature and drought factor hold at its lost sites; fertility explains its
+score decline. These are different consumer mechanisms.
+
+All admitted resource intents are realized in the portable captures with zero
+refusals, but scarcity is real: Clay disappears from Huge1018; Kaolin, Clay and
+Tin disappear from Archipelago; Standard1018 loses Llamas; Standard1 Mangos fall
+from three to two. Narrower habitat admission is not recovered supply. All
+candidate founders remain full, dry and non-NAV, while fairness gaps worsen on
+five of the six maps. Existing resource authority permits recorded planning
+shortfalls; no resource policy or scientific threshold is weakened here.
+
+Aligned paired biome views for all six cases retain broad regions with explained
+drier substitutions. The prior latitude banding remains visibly unresolved.
+Fresh independent habitat, SDK/source, thermal and bank reviews find no
+unexplained-loss veto for this bounded retirement. Vegetation totals, resource
+totals and founder legality do not establish improved ecological or gameplay
+quality.
+
+Types, Habitat policy and builds pass. The complete owner graph passes 1,326
+definition tests with only the existing thermal aggregate failure, 371
+realization tests and 412 Studio tests. The first graph run also exposed two
+test-only accesses to a readonly typed array's hidden buffer. The subsequent
+public-read/mutable-fixture alias check repairs those assertions without casts
+or production type changes; the full second graph is the type-qualified receipt.
+
+### Native Delivery
+
+All eight generated and installed files match. A fresh existing saved-
+configuration owner launch completes Huge Earthlike seeds `2/2`, ten players,
+at turn one in about 25 seconds including setup. The owner binds the matching
+script to fresh generation completion and the 6,996-plot game. Separate small
+read-only queries confirm all ten founders occupy dry, non-lake, non-NAV
+surfaces. This does not establish complete portable/native parity, unchanged
+founder ordering, new vessel paths or ecological improvement.
+
+Earlier begin-readiness refusal and restart timeout remain separate unresolved
+operation receipts. The successful launch wrapper also contains a subsequent
+rejected read-only field selection; the corrected independent founder reads,
+not a repeated launch or reinterpretation of that wrapper, close this surface
+check. The full map is subsequently explored through the existing visibility
+owner. Native window capture remains unavailable for missing capture permission;
+the six paired browser views are portable diagnostics, not native screenshots.
+
+### Next Plant-Water Owner
+
+The removal does not supply a new river/lake plant-water response. Equal ground
+and finite-water head alone does not establish root access, persistence or
+freshwater quality. Marine adjacency likewise is not a generic freshwater
+source; coastal atmospheric transport and salt-tolerant marine habitat retain
+their own meanings.
+
+Local availability belongs at the existing Hydrology budget and published
+ecological index contract. Its next discriminator must reach the actual local
+classifier, density and feature consumers, not merely increase a growth score
+behind an unchanged category gate. Forest and rainforest's native grassland/
+tropical, flat-terrain restrictions are confirmed in the admitted official
+source; removing the planner gate alone would create incompatible intent.
+
+Review a source-sensitive moisture composition against an explicit climatic-
+aridity versus plant-stress distinction before selecting the next approximation.
+Neither an amplitude chosen to restore old forests nor the earlier `+8` candidate
+is selected. Preserve atmospheric rainfall/humidity, potential demand and
+physical water; qualify volume sensitivity, head/ground access, repeated-source
+behavior, display-class invariance and actual downstream habitat/native intent.
+This is one causal-owner decision, not a new stage, groundwater solver, second
+climate lane or permission to promote vegetation beside every waterbody.

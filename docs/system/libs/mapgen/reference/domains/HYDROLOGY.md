@@ -20,7 +20,7 @@ connects physical terms, current computations and practical interpretation.
 
 Hydrology produces climate and water-cycle products for downstream consumption:
 
-- baseline and final-refined climate fields (rainfall, humidity, and potential demand),
+- baseline and final climate fields (rainfall, humidity, and potential demand),
 - atmospheric wind and moisture-transport state,
 - ground-preserving basin routing over final Morphology topography,
 - discharge and hydrography evidence,
@@ -28,7 +28,7 @@ Hydrology produces climate and water-cycle products for downstream consumption:
   and related diagnostics.
 
 Hydrology also feeds engine-facing projection steps, which are explicitly
-**projection-only**: `map-hydrology` materializes final-refined rainfall and
+**projection-only**: `map-hydrology` materializes final atmospheric rainfall and
 accepted lake water before engine elevation, and `map-rivers` materializes
 the complete admitted dry-source network after elevation. All shipped maps
 use this single physical/native chain. Unsupported cases are refused, not
@@ -62,7 +62,7 @@ Hydrology provides:
 - `artifact:hydrology._internal.thermalField` (the annual mean of seasonal
   ground/SST temperature before feedback, published as `surfaceTemperatureC`
   in a named map-grid product consumed by refinement)
-- `artifact:hydrology.climateField` (final-refined rainfall/humidity used by Ecology and engine projection)
+- `artifact:hydrology.climateField` (copied baseline atmospheric rainfall/humidity used by Ecology and engine projection)
 - `artifact:hydrology.hydrography` (model-tagged drainage, discharge, and river
   classes; certified discharge is dry-cell evidence, with whole-body mixing in
   lake ledgers rather than signed wet-cell accumulation)
@@ -178,6 +178,21 @@ annual refined temperature and is therefore not generally equal to mean
 seasonal demand under a nonlinear law; that approximation remains explicit.
 Elevation lapse is per normalized model relief unit, not per physical meter.
 
+Final climate publication copies baseline rainfall and humidity exactly on all
+cells, including original marine water and resolved lake footprints. Refinement
+does not manufacture additional precipitation or atmospheric humidity from river
+classes, nearby channels, or enclosed topographic basins. The unchanged albedo,
+cryosphere, demand, budget and diagnostic operations receive that baseline forcing.
+The final climate arrays do not alias the baseline arrays.
+
+The terrestrial budget alone composes effective moisture as
+`rainfall + 0.35 * humidity` on resolved exposed land. It receives no river-class
+input and adds no separate minor/major-river bonus. Resolved water has exactly
+zero effective moisture, terrestrial PET and aridity. These remain empirical
+indices, not soil-water storage or an actual evapotranspiration ledger; physical
+basin/network accounting continues to consume the unchanged baseline rainfall
+and seasonal demand.
+
 All shipped profiles use Climate's sole `periodic-cycle` sampling,
 `daily-solar-fourier` forcing and `periodic-response` temperature strategies.
 Circulation, surface currents, moisture transport and precipitation likewise
@@ -208,7 +223,7 @@ operations they execute:
 
 - `ocean`: ocean geometry, surface currents, and thermal state,
 - `climate`: radiative and thermal forcing, atmospheric circulation, moisture transport,
-  precipitation, and the river-aware terrestrial water budget,
+  precipitation, and the terrestrial water budget,
 - `cryosphere`: cryosphere state and albedo feedback,
 - `hydrography`: drainage, discharge, causal river-network classification, and lake intent.
 
@@ -221,7 +236,6 @@ The Standard recipe uses operation contracts such as:
 - `computeEvaporationSources`
 - `transportMoisture`
 - `computePrecipitation` (`vector` synthesis)
-- `refinePrecipitation` (post-hydrography riparian and closed-basin wetness)
 - `projectRiverNetwork`
 - `computeLocalRunoff`
 - `computeDrainageBasins`
@@ -249,7 +263,7 @@ small set of stage knobs for product-level posture:
 
 - `hydrology-climate-baseline` knobs: `dryness`, `temperature`, `seasonality`, `oceanCoupling`
 - `hydrology-hydrography` knobs: `riverDensity` (physical river-network classification density)
-- `hydrology-climate-refine` knobs: `dryness`, `cryosphere`
+- `hydrology-climate-refine` knobs: `cryosphere`
 
 `hydrology-hydrography.water` is a closed `certified-sill-spill` contract with
 four physical operation envelopes. `map-rivers` is configurationless and uses
@@ -264,6 +278,9 @@ replace or reconstruct their shape.
 The baseline step's `potentialDemand` object owns PET coefficients; refinement
 receives their admitted values through baseline climate instead of duplicating
 authoring authority in its water-budget strategy.
+The former `refinePrecipitation` envelope and refinement-stage `dryness` knob
+are refused by current schema admission, not translated into replacement water
+coefficients. Baseline `dryness` remains the existing atmospheric authoring knob.
 
 ## River network benchmark contract
 

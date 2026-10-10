@@ -191,6 +191,27 @@ gain, seasonal artifact or new production calculation is adopted. Root-water
 access and the remaining any-river atmospheric proxy stay open; vegetation
 targets do not replace the upstream physical investigation.
 
+The subsequent [atmospheric-proxy retirement](terrestrial-water-influence.md#completed-atmospheric-retirement-qualification)
+removes that remaining river/enclosed-basin rainfall and reconstructed-humidity
+path. Six paired recipe cases preserve all 31 declared baseline/physical
+products, four projection entries and nine terrain/water observations exactly.
+Authentic thermal replay attributes every temperature change to the unchanged
+snow-cooling owner; the unchanged bank retains 4,429 passes and the same one
+thermal failure. Forest/rainforest category loss, mangrove fertility loss,
+resource scarcity and worse founder fairness on five cases remain disclosed
+collateral, not an ecological improvement claim. Types, policy and builds pass;
+1,326 definition tests pass with the known aggregate failure, alongside 371
+realization and 412 Studio tests.
+
+All eight generated/installed files match, and a fresh Huge `2/2`, ten-player
+saved-configuration launch completes in about 25 seconds including setup.
+Independent turn-one reads confirm ten dry, non-lake, non-NAV founder surfaces;
+the full map is explored. This is bounded native delivery, not complete parity
+or new navigation proof. Six paired browser views expose the drier substitutions
+and remaining latitude bands. Local source-sensitive plant-water availability
+must next reach the actual ecological classifier, density and scoring; neither
+a stress-only patch nor restoring former tree counts is selected.
+
 The single retained island transect resolves to finite water and does not
 demonstrate lost marine relief. No new island algorithm is selected from that
 example. The broader geography observation needs a matched marine connection;

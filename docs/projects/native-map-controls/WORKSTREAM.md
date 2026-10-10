@@ -9,6 +9,17 @@ response remains an unresolved requirement. The approved moisture story targets
 wet/dry forcing of existing basins and networks directly, not a complete
 Earth-system simulator or another temperature fit.
 
+The latest [atmospheric-proxy retirement](terrestrial-water-influence.md#completed-atmospheric-retirement-qualification)
+removes unsupported river/enclosed-basin rainfall and reconstructed humidity,
+with physical routing, baseline forcing and projection intent held exactly.
+The unchanged full bank retains its single thermal failure; attributed thermal,
+habitat, resource and founder consequences are reviewed without count targets
+or weaker thresholds. Fresh Huge `2/2` native generation and ten dry, non-NAV
+founder reads qualify delivery. Local river/lake plant-water composition is the
+[next causal-owner decision](terrestrial-water-influence.md#next-plant-water-owner),
+not a completed greening improvement. It must reach lawful local ecological
+classification and consumers while keeping atmospheric climate separate.
+
 The [private climatic-deficit pilot is complete and closed](annual-land-response-owner-decision.md#completed-deficit-pilot).
 Actual-producer and zero-response controls pass, but all 196 training sites
 have zero active-season deficit index. The sole training estimate requests

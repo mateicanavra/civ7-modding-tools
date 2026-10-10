@@ -753,27 +753,9 @@
     },
     "hydrology-climate-refine": {
       "knobs": {
-        "dryness": "dry",
         "cryosphere": "on"
       },
       "climate-refine": {
-        "refinePrecipitation": {
-          "strategy": "riparian-basin-wetness",
-          "config": {
-            "riverCorridor": {
-              "adjacencyRadius": 1,
-              "lowlandAdjacencyBonus": 12,
-              "highlandAdjacencyBonus": 9,
-              "lowlandElevationMax": 250
-            },
-            "lowBasin": {
-              "radius": 2,
-              "delta": 5,
-              "elevationMax": 200,
-              "openThresholdM": 20
-            }
-          }
-        },
         "applyAlbedoFeedback": {
           "strategy": "bounded-snow-ice",
           "config": {
