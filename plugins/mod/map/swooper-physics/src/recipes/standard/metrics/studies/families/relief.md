@@ -9,14 +9,23 @@ diameter, volcano boundary-regime classification, exact per-tile volcano
 feature/terrain readback mismatches, flat pockets inside orogenic regions, and
 the count, minimum, maximum, and mean of final Morphology elevation on land.
 
-Certified planned surface-category shares use exposed land, excluding the
-physical wet footprint, matching the landform allocator. Geological elevation,
-original mountain-region diagnostics, and existing final observation populations
-retain original marine-land semantics. Legacy populations are unchanged.
+Certified planned surface-category shares and final land-elevation diagnostics
+use exposed land, excluding the physical wet footprint, matching the landform
+allocator. Final terrain shares use the same exposed-land denominator, while
+their counts read non-water native observation cells.
 
-Connectivity uses the recipe's periodic odd-Q grid. The family does not decide
-whether a range is long enough, an interior is open enough, or rough terrain is
-too dense; targets own those product judgments.
+Mountain-region counts, shares, and flat-interior components use exposed land
+intersected with `mountainRegionMask`. Composition is aggregated across all
+regions, not measured separately for every region. Region size and span
+components instead use the raw `mountainRegionMask`; touching owner regions
+can merge, and largest size and maximum span can come from different components.
+
+Connectivity uses the recipe's row-parity odd-R hex grid, with X wrapping and
+bounded Y despite legacy `OddQ` helper names. Component diameter is a two-sweep
+BFS span in within-mask graph edges, not a physical distance. These population
+and topology distinctions describe the unchanged measurement implementation.
+The family does not decide whether a range is long enough, an interior is open
+enough, or rough terrain is too dense; targets own those product judgments.
 
 ## Native numeric projection
 

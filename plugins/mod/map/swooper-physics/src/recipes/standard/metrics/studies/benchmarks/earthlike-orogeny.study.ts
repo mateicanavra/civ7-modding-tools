@@ -7,7 +7,7 @@ import {
 } from "../define.js";
 import { STANDARD_METRIC_PRESETS } from "../scenarios.js";
 
-/** Proves Earthlike Huge maps form long mountain systems with traversable interior structure. */
+/** Checks Huge Earthlike regional footprint and aggregate exposed-terrain composition. */
 export const EARTHLIKE_OROGENY_STUDY = defineStandardMetricCohortStudy(
   "earthlike/orogeny",
   standardMetricScenariosForSeedPairs(

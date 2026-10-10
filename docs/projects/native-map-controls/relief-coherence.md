@@ -521,3 +521,67 @@ receipt SHA256
 This closes the narrow landform-input defect, not complete scientific
 calibration or native navigation. The new fourteen-image gallery predates
 this relief correction and is not post-correction native proof.
+
+## Prospective Regional-Span Amendment (2026-10-10)
+
+Retire only the `mountain-region-diameter >=38` admission expectation in
+`swooper-earthlike/orogeny-cohort`. Keep the measured regional span as a
+diagnostic, with no replacement numeric floor. This is a prospective policy
+choice about an inherited length promise, not a terrain repair, climate waiver,
+or reinterpretation of the earlier peak-span amendment's decision to retain 38.
+The historical decisions and their receipts above remain unchanged. The frozen
+historical rainfall candidate remains failed under its original 38 protocol.
+
+The guarantee knowingly removed is
+`min_over_samples(max_over_components(two_sweep_BFS_span)) >=38` for Huge
+Earthlike 106 x 66, ten players, map/game seed pairs `1018/1018`, `2024/2024`,
+and `5050/5050`. There is no replacement minimum regional-length guarantee for
+those three samples. Span uses the raw `mountainRegionMask`, where touching
+owner regions can merge, on row-parity odd-R adjacency with X wrapping and
+bounded Y despite legacy `OddQ` helper names. It is within-mask graph edges,
+not kilometres or ridge length.
+
+All seven remaining laws retain their expectation IDs, metric selections,
+cohort reductions, and bounds: minimum modeled mountain count `>=1`, minimum
+largest raw region component size `>=450`, minimum region non-mountain share
+`>=0.65`, minimum region flat-interior share `>=0.35`, minimum total region
+flat-interior count `>=300`, maximum region mountain share `<=0.38`, and minimum
+sum of region foothill and rough-land shares `>=0.25`. See the
+[active orogeny study](../../../plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/earthlike-orogeny.md)
+for the current contract.
+
+These laws admit raw regional footprint and aggregate exposed-terrain
+composition. Composition counts exposed land intersected with the region mask
+across all regions in each sample; it is not a promise about every region or
+the same component that supplies the size or span maximum. Size does not
+guarantee elongation or width, and flat share or volume does not establish a
+transverse crossing, native passability, or settlement sufficiency. Long, broad,
+varied, physically supported ranges with usable interiors remain the product
+intent, not an outcome proven in full by these aggregate checks.
+
+Retiring 38 accepts a real loss of an extension guard. The retained comparison
+includes meaningful regional contraction and peak-category turnover;
+unchanged regional connectivity does not prove unchanged barriers or passes.
+The existing evidence does not establish a physical defect requiring
+compensation to recover exactly 38, or a physical derivation of that floor.
+Neither that limitation nor the amendment certifies the failed candidate's
+terrain. A demonstrated loss of recognizable ranges or usable interiors would
+reopen the relevant terrain or selection question, not automatically reinstate
+38 or tune rainfall to it.
+
+The separate Huge relief cohort retains its span `>=30`, coverage, and
+connected-flat-pocket obligations on seeds `1`, `42`, `99`, and `7777`; it does
+not replace the removed guarantee on this three-seed population. The
+representative study retains its own relief coverage on seed `1018`, and
+per-tile mountain/hill physical support remains independent. Relief-coherence
+checks continue to gate accounting and valid diagnostic populations, not
+physical goodness or same-component passability.
+
+Generation, configurations, seeds, study identities, measurement schemas, and
+all other target laws are unchanged. The deleted expectation no longer has an
+admission row in ordinary target reports; the diagnostic remains in measured
+samples through the existing capture/measurement API. This amendment neither
+changes nor requalifies any existing receipt, build, installed mod, or loaded
+world. Any later climate integration is a newly declared candidate requiring
+its own causal-output and existing Earthlike-core protocol evaluation before
+qualification; a policy-only amendment is not map improvement or native proof.
