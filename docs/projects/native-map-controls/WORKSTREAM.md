@@ -20,10 +20,12 @@ founder reads qualify delivery. The subsequent
 closes actual Huge/Standard publication pairs and fresh native Huge generation.
 Local supply reaches classification and growth while atmospheric climate,
 physical drainage, no-access growth and polar categories hold exactly. Neither
-tree quotas nor fixed shoreline bonuses define success. The candidate is
-installed for bounded validation; final owner checks and merge follow the
-explicit Earthlike benchmark-scope amendment. Thermal banding is not repaired
-by this ecological unit.
+tree quotas nor fixed shoreline bonuses define success. The qualified
+implementation is installed, with the subsequent benchmark/test-only
+amendments preserving its runtime bundle exactly. Core qualification passes
+3,894 of 3,895 expectations across all 47 Earthlike scenarios; the sole known
+thermal requirement remains intact. Thermal banding is not repaired by this
+ecological unit.
 
 Core qualification now centers on procedural Earthlike, not the intentionally
 biased Desert Mountains or Archipelago configurations. Their previous evidence
@@ -33,6 +35,10 @@ the original failed result instead of tuning physics to that quota. The
 Earthlike geography cohort retains the same four Huge seeds and generic
 integrity/geography guards. This prospective selection change does not silently
 erase the regional thermal requirement or redesign existing product bounds.
+The realization's empty-lake diagnostic now uses a controlled publication,
+not a requirement that an Archipelago seed remain lake-free. Remaining
+off-path benchmark-authority questions belong in the shared curated question
+book, not additional release blockers or unrecorded physics tuning.
 
 The [private climatic-deficit pilot is complete and closed](annual-land-response-owner-decision.md#completed-deficit-pilot).
 Actual-producer and zero-response controls pass, but all 196 training sites

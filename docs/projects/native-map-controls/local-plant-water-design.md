@@ -8,8 +8,8 @@ ecological response to admitted river/lake water, not more trees everywhere,
 restored historical counts or a
 second atmospheric calculation. The source/access law is selected for one
 implementation unit. Actual recipe and bounded native qualification are now
-complete; final owner checks and the explicit Earthlike benchmark-policy
-amendment remain the release prerequisites.
+complete. The explicit Earthlike benchmark-policy amendment and final
+test-owner reconciliation preserve the qualified runtime implementation.
 
 Atmospheric forcing, demand, physical drainage, wet-body ledgers and geometry
 already exist. Root access, salinity, soil-water storage, channel stage and
@@ -249,6 +249,33 @@ to plant-water physics or historical results. The Earthlike geography cohort
 retains the existing four Huge seeds and generic geography/integrity guards;
 themed-map appearances must not influence that cohort. Remaining Earthlike
 appearance assumptions require independent review, not silent removal here.
+
+### Completed Core Qualification
+
+The built default CLI and definition fixture use the same whole-study selector.
+The actual `1e7c7a67c93ff7161295f6dd4a06a3aa4c301282` core report evaluates 16
+studies and all 47 retained Earthlike scenarios: 3,894 of 3,895 expectations pass.
+The sole failure remains within-row land-temperature variation, observed
+`0.139044 C` against the unchanged `1 C` requirement. All 15 retained studies
+are exactly equal to their corresponding historical candidate evaluations;
+the new geography declaration retains the four original Huge scenario rows
+and targets, and its Earthlike-only cohort passes. This is not a relabeled
+historical all-config run.
+
+The dependency-ordered owner graph passes 1,367 definition tests, 371
+realization tests, 412 Studio tests and 11 CLI tests; the definition aggregate
+still fails only that thermal requirement. Builds, types and Habitat pass.
+The standard runtime bundle is byte-identical to the implementation used for
+the actual paired captures and native generation; the metrics bundle changes
+only with the prospective study policy.
+
+A final realization test-owner repair replaces the assumption that one Huge
+Archipelago seed must produce zero lakes. The existing SDK test-publication
+lifecycle supplies a controlled empty footprint with nonempty dry pool and
+component records instead. Exact completed-plan correlation, fractional heads,
+ordered records, bounded serialization and immutability remain asserted. This
+is diagnostic-publication proof, not a new physical lake-model result or a
+themed-map appearance gate.
 
 ### Bounded Native Delivery
 

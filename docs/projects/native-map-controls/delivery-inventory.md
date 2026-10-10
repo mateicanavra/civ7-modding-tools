@@ -29,12 +29,20 @@ not merely retained-input counterfactuals.
 
 The bounded native candidate is installed, fresh Huge `2/2` generation passes,
 and all ten turn-one founders are dry and non-NAV. All eight installed files
-match the generated build. The map is explored for viewing. Final owner checks
+match the generated build. The map is explored for viewing. Owner verification
 and Graphite reconciliation accompany the explicit benchmark-scope amendment:
 Earthlike is the default core bank; themed presets are opt-in stress cases;
 the arbitrary Desert rainforest cap is removed, with its original `33/20`
 failure retained. This delivery does not resolve the known regional thermal
 requirement or claim scientific root-water calibration.
+
+The actual core report covers 16 studies and all 47 Earthlike scenarios, with
+3,894 of 3,895 expectations passing. The sole unchanged thermal failure remains
+explicit. All retained Earthlike study evaluations and the original four Huge
+geography scenario rows are exact; the standard runtime bundle remains identical
+to the paired-capture/native implementation. A controlled empty-publication
+diagnostic replaces the realization test's old lake-free Archipelago assumption
+without changing production water physics or its diagnostic contract.
 
 The original elevation, finite-basin/network and bounded native navigation
 outcomes below remain delivered. The desired product is still a coherent,
