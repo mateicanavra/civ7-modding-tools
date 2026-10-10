@@ -101,7 +101,8 @@ Current posture in the standard recipe:
   selections rather than a second stage-owned schema.
 - `map-ecology` defines neither an author-facing configuration schema nor a `compile` callback. Its
   projection steps have no authored tuning to translate, while fixed biome projection policy stays
-  at `map-ecology` stage scope under `model/policy/` and uses official identities from Civ7 policy.
+  at shared Ecology recipe scope under `stages/ecology/model/policy/` and uses official
+  identities from Civ7 policy for planning compatibility and native projection.
 
 Key contract point: each strategy owns its configuration schema, while each semantic module owns the
 artifacts and model vocabulary its operations share. Cross-stage consumption does not move artifact
@@ -128,7 +129,16 @@ Feature scoring and planning stay separate:
   biome identity into the ten family score fields; the floodplain planner separately chooses which
   scored identity, if any, becomes intent.
 - Reef-family habitat eligibility is reef-owned: warm reefs use warm shallow near-coast shelf water, cold reefs use colder deeper shelf/edge water, atolls use isolated warm shallow banks, and `FEATURE_LOTUS` uses warm shallow near-land water.
-- Wetland-family habitat eligibility is wet-feature-owned through named substrate masks: marsh and tundra bog require hydromorphic substrate, mangrove requires intertidal coast, and oasis/watering-hole features require isolated lowland water-source substrate plus arid scoring.
+- Wetland-family habitat eligibility is wet-feature-owned through named substrate masks: marsh and tundra bog require hydromorphic substrate, mangrove requires marine intertidal coast, and oasis/watering-hole features require isolated lowland water-source substrate plus arid scoring.
+  Mangrove scoring combines warmth, fertility, and low aridity after that marine low-shore gate;
+  it does not require the generic terrestrial `water01` multiplier. The gate is an empirical wet-habitat
+  approximation, not a measurement of salinity, tides, freshwater access, or root uptake. Other wetland
+  scorers retain their terrestrial water inputs. Before arbitration and occupancy reservation, the
+  Standard recipe supplies closed five-family terrain/biome compatibility masks for planned flat
+  ground from official Civ7 feature policy and its shared canonical biome/feature projection maps.
+  These masks are transient planner inputs, not an artifact or a prediction of complete native
+  feasibility. Planning still applies confidence and availability gates, and projection retains
+  the final native `canHaveFeature` guard.
 
 ## Engine projection notes (map-ecology)
 
@@ -163,8 +173,10 @@ The `map-ecology` stage:
 - Example step contracts (projection stage):
   - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/projection/steps/plot-biomes/config.ts`
   - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/projection/steps/features-apply/config.ts`
-- Stage-owned biome projection policy:
-  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/projection/model/policy/biome-projection.ts`
+- Shared Ecology recipe projection and compatibility policy:
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/model/policy/biome-projection.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/model/policy/feature-projection.ts`
+  - `plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/model/policy/wetland-terrain-biome-compatibility.ts`
 - Completion catalog: `plugins/mod/map/swooper-physics/src/recipes/standard/completions.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
 - Architecture guardrails (import bans and parity gates):

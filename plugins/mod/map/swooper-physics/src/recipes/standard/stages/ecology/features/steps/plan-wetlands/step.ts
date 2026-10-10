@@ -1,6 +1,7 @@
 import { isMajorRiverClass } from "../../../../../../../domain/hydrology/modules/hydrography/model/policy/river-class.js";
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { deriveWetlandTerrainBiomeCompatibilityMasks } from "../../../model/policy/wetland-terrain-biome-compatibility.js";
 import {
   assertFeatureIntentCandidatesAvailable,
   deriveFeatureOccupancy,
@@ -17,6 +18,7 @@ export const PlanWetlandsStep = createStep(config, {
     const iceIntents = deps.artifacts.iceIntents.read();
     const reefIntents = deps.artifacts.reefIntents.read();
     const suitability = deps.artifacts.featureSuitability.read();
+    const classification = deps.artifacts.biomeClassification.read();
     const hydrography = deps.artifacts.hydrography.read();
     const mountains = deps.artifacts.mountains.read();
     const volcanoes = deps.artifacts.volcanoes.read();
@@ -40,6 +42,13 @@ export const PlanWetlandsStep = createStep(config, {
           : 0;
     }
 
+    const terrainBiomeCompatibilityMasks = deriveWetlandTerrainBiomeCompatibilityMasks({
+      width,
+      height,
+      flatLandMask,
+      biomeIndex: classification.biomeIndex,
+    });
+
     const seed = ctxStepSeed(context, config.id, "ecology/plan-wetlands");
     const placements = ops.planWetlands(
       {
@@ -52,6 +61,7 @@ export const PlanWetlandsStep = createStep(config, {
         scoreOasis01: suitability.layers.oasis,
         scoreWateringHole01: suitability.layers["watering-hole"],
         flatLandMask,
+        terrainBiomeCompatibilityMasks,
         featureOccupancyMask,
       },
       stepConfig.planWetlands

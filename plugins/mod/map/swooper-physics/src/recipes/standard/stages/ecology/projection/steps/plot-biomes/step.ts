@@ -7,7 +7,7 @@ import {
   defineStandardVizMeta,
   STANDARD_VIZ_COLORS,
 } from "../../../../../viz.js";
-import { resolveEngineBiomeIds } from "../../model/policy/biome-projection.js";
+import { resolveEngineBiomeIds } from "../../../model/policy/biome-projection.js";
 import { buildEngineBiomeIdVizCategories } from "../../viz.js";
 import { config } from "./config.js";
 

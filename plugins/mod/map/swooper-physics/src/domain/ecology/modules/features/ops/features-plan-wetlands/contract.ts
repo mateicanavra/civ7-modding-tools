@@ -1,8 +1,11 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { WetlandFeaturePlacementSchema } from "../../model/atoms/index.js";
+import {
+  WetlandFeaturePlacementSchema,
+  WetlandTerrainBiomeCompatibilityMasksSchema,
+} from "../../model/atoms/index.js";
 import habitatConfidenceDefinition from "./strategies/habitat-confidence/config.js";
 
-/** Chooses the strongest wetland-family habitat per unoccupied land tile after substrate-specific scoring. Every implementation shares this admitted input and output boundary. */
+/** Chooses the strongest compatible wetland-family habitat per unoccupied land tile after substrate-specific scoring. Every implementation shares this admitted input and output boundary. */
 const PlanWetlandsContract = defineOp({
   kind: "plan",
   id: "ecology/features/plan-wetlands",
@@ -31,6 +34,8 @@ const PlanWetlandsContract = defineOp({
       description:
         "1 = land tile that will remain flat after terrain projection; 0 = water, hill, mountain, volcano, or lake.",
     }),
+
+    terrainBiomeCompatibilityMasks: WetlandTerrainBiomeCompatibilityMasksSchema,
 
     featureOccupancyMask: TypedArraySchemas.u8({
       description: "0 = unoccupied, nonzero = already claimed by an ecology feature intent.",

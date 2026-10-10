@@ -162,18 +162,17 @@ describe("ecology feature substrate", () => {
       height,
       landMask,
       intertidalCoastMask,
-      water01: new Float32Array(size).fill(0.85),
-      fertility01: new Float32Array(size).fill(0.7),
-      surfaceTemperature: new Float32Array(size).fill(24),
-      aridityIndex: new Float32Array(size).fill(0.25),
+      fertility01: new Float32Array(size).fill(0.6),
+      surfaceTemperature: new Float32Array(size).fill(30),
+      aridityIndex: new Float32Array(size).fill(0.4),
     }, mangroveSelection).score01;
     const marineScores = scoreMangroves(marineIntertidal);
     const finiteScores = scoreMangroves(finiteIntertidal);
     const mixedScores = scoreMangroves(mixedIntertidal);
-    expect(marineScores[width + 1]).toBeGreaterThan(0);
+    expect(marineScores[width + 1]).toBeCloseTo(0.529412, 6);
     expect(finiteScores).toEqual(new Float32Array(size));
     expect(mixedScores[width + 1]).toBe(marineScores[width + 1]);
-    expect(marineScores[width + 2]).toBe(0);
+    expect(Array.from(marineScores.slice(width + 2, width + 5))).toEqual([0, 0, 0]);
     expect(marineScores.slice(0, width)).toEqual(new Float32Array(width));
     expect(input).toEqual(before);
   });

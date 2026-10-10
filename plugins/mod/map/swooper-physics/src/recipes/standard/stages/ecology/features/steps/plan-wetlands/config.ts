@@ -1,4 +1,5 @@
 import ecology from "../../../../../../../domain/ecology/index.js";
+import { artifacts as biomeArtifacts } from "../../../../../../../domain/ecology/modules/biomes/artifacts/index.js";
 import { artifacts as featureArtifacts } from "../../../../../../../domain/ecology/modules/features/artifacts/index.js";
 import { artifacts as hydrographyArtifacts } from "../../../../../../../domain/hydrology/modules/hydrography/artifacts/index.js";
 import { artifacts as morphologyLandformsArtifacts } from "../../../../../../../domain/morphology/modules/landforms/artifacts/index.js";
@@ -12,6 +13,7 @@ export const config = defineStep({
   id: "plan-wetlands",
   description: "Plans deterministic wetland-family intent after floodplain, ice, and reef intent.",
   requires: [
+    biomeArtifacts.biomeClassification,
     featureArtifacts.featureSuitability,
     featureArtifacts.floodplainIntents,
     featureArtifacts.iceIntents,
