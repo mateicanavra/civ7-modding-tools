@@ -183,8 +183,6 @@ describe("hydrology climate-refine demand ownership", () => {
       expect(finalClimate.humidity).toEqual(beforeHumidity);
       expect(finalClimate.rainfall).not.toBe(rainfall);
       expect(finalClimate.humidity).not.toBe(humidity);
-      expect(finalClimate.rainfall.buffer).not.toBe(rainfall.buffer);
-      expect(finalClimate.humidity.buffer).not.toBe(humidity.buffer);
       expect(rainfall).toEqual(beforeRainfall);
       expect(humidity).toEqual(beforeHumidity);
       expect(baselineDemand).toEqual(beforeDemand);
@@ -243,6 +241,11 @@ describe("hydrology climate-refine demand ownership", () => {
         expect(surfaceTemperature[2]).toBe(baselineTemperature[2]);
         expect(surfaceTemperature[3]).toBe(baselineTemperature[3]);
       }
+      // Fixture mutation after evaluation detects shared storage without bypassing readonly artifacts.
+      rainfall[1] = 0;
+      humidity[1] = 0;
+      expect(finalClimate.rainfall).toEqual(beforeRainfall);
+      expect(finalClimate.humidity).toEqual(beforeHumidity);
     });
   }
 });
