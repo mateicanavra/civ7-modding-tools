@@ -22,6 +22,10 @@ import {
   isClimateExtreme,
 } from "../../rules/climate-comfort.js";
 import { balanceFairness } from "../../rules/fairness.js";
+import {
+  buildExpansionConnectivity,
+  countReachableClusterLand,
+} from "../../rules/expansion-connectivity.js";
 import { buildSeatIdentities } from "../../rules/seat-identity.js";
 import {
   compareSelectableTiles,
@@ -41,6 +45,7 @@ type RejectionReason =
   | "volcano"
   | "natural-wonder"
   | "single-tile-island"
+  | "no-reachable-expansion"
   | "insufficient-landmass"
   | "insufficient-expansion"
   | "insufficient-island-cluster"
@@ -83,39 +88,6 @@ function getLandmassTiles(
   if (landmassId < 0) return 0;
   const count = landmassTileCounts?.[landmassId];
   return typeof count === "number" && Number.isFinite(count) ? Math.max(0, count | 0) : 0;
-}
-
-function countSameLandWithinRadius(args: {
-  center: number;
-  width: number;
-  height: number;
-  radius: number;
-  landMask: ArrayLike<number>;
-  landmassIdByTile: ArrayLike<number>;
-}): number {
-  const targetLandmass = args.landmassIdByTile[args.center] ?? -1;
-  if (targetLandmass < 0) return 0;
-  let count = 0;
-  for (const idx of getHexRadiusIndicesOddQ(args.center, args.width, args.height, args.radius)) {
-    if ((args.landMask[idx] ?? 0) !== 1) continue;
-    if ((args.landmassIdByTile[idx] ?? -1) !== targetLandmass) continue;
-    count++;
-  }
-  return count;
-}
-
-function countLandWithinRadius(args: {
-  center: number;
-  width: number;
-  height: number;
-  radius: number;
-  landMask: ArrayLike<number>;
-}): number {
-  let count = 0;
-  for (const idx of getHexRadiusIndicesOddQ(args.center, args.width, args.height, args.radius)) {
-    if ((args.landMask[idx] ?? 0) === 1) count++;
-  }
-  return count;
 }
 
 function averageFloatWithinRadius(args: {
@@ -370,6 +342,27 @@ const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessDe
     const expansionRadiusTiles = Math.max(1, config.expansionRadiusTiles | 0);
     const islandClusterRadiusTiles = Math.max(1, config.islandClusterRadiusTiles | 0);
     const maxIslandStartCoastDistance = Math.max(0, config.maxIslandStartCoastDistance | 0);
+    const usableLandMask = Uint8Array.from(landMask, (land, cell) =>
+      land === 1 &&
+      lakeMask?.[cell] !== 1 &&
+      mountainMask?.[cell] !== 1 &&
+      volcanoMask?.[cell] !== 1 &&
+      !naturalWonderPlots.has(cell)
+        ? 1
+        : 0
+    );
+    const firstAgeTransitMask = Uint8Array.from(input.firstAgeTransitMask, (transit, cell) =>
+      transit === 1 && mountainMask?.[cell] !== 1 && volcanoMask?.[cell] !== 1 ? 1 : 0
+    );
+    const expansionConnectivity = buildExpansionConnectivity({
+      width,
+      height,
+      usableLandMask,
+      landmassIdByTile,
+      firstAgeTransitMask,
+      expansionRadiusTiles,
+      minExpansionLandTiles,
+    });
 
     // --- pass 1: hard screens, envelope measurement, tier classification ------------------
     type SettleableTile = {
@@ -420,20 +413,28 @@ const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessDe
       }
 
       const landmassTiles = getLandmassTiles(landmassIdByTile, input.landmassTileCounts, plotIndex);
-      const expansionLandTiles = countSameLandWithinRadius({
-        center: plotIndex,
-        width,
-        height,
-        radius: expansionRadiusTiles,
-        landMask,
-        landmassIdByTile,
-      });
-      const nearbyClusterLandTiles = countLandWithinRadius({
+      // This safety gate precedes every regular/reserve pool and capacity.
+      // Quality, resource bands, spacing relaxation and fairness cannot reopen it.
+      if (
+        !expansionConnectivity.usefulComponents.has(
+          expansionConnectivity.componentByTile[plotIndex]!
+        )
+      ) {
+        addRejection(
+          rejectionCounts,
+          landmassTiles === 1 ? "single-tile-island" : "no-reachable-expansion"
+        );
+        tierByTile[plotIndex] = 1;
+        continue;
+      }
+      const expansionLandTiles = expansionConnectivity.expansionLandTilesByTile[plotIndex]!;
+      const nearbyClusterLandTiles = countReachableClusterLand({
         center: plotIndex,
         width,
         height,
         radius: islandClusterRadiusTiles,
-        landMask,
+        landMask: usableLandMask,
+        componentByTile: expansionConnectivity.componentByTile,
       });
       const coastDistance = Math.max(
         0,

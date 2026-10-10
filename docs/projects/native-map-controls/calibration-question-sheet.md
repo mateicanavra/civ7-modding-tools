@@ -149,6 +149,37 @@ The retained movement evidence qualifies specific normal NAV/lake/marine
 paths, not every finite body or a true cliff. Continue those independent
 projection/gameplay obligations without reopening the rejected unlimited cap.
 
+### Reopened Render And Category Qualification
+
+The height decision above remains qualified, but is not closure of the newly
+reported appearance/category outcome. Huge Earthlike seed `2032606321` has
+162 finite wet cells: all retain their numeric heads, 108 report native lake
+identity and 54 do not. Native areas of size fourteen occur both as an
+intended finite body and as a protected exterior body. Another finite area
+has twenty-three cells. Thus no single size cap separates all intended finite
+and exterior bodies on this exact map. Raising the cap to the largest lake,
+one hundred or an unlimited value is not an admitted general solution.
+
+The photographed pale basin must still be joined to a matched camera and
+physical footprint. A getter returning the intended elevation is not a
+rendered-water measurement. A scoped classifier treatment can discriminate
+category-dependent filling, but must hold numeric fields and retain protected
+exterior controls. If a native-lake control is also visually empty, or category
+changes without repairing appearance, classification alone is falsified.
+Per-body native classification is not qualified by the currently searched
+shipped sources. Deliberate finite inland-sea intent remains a possible product
+design; it cannot be inferred retrospectively from size, a river outlet or
+`isLake=false`, and cannot turn finite water into an infinite reservoir.
+
+A second independent witness is Huge seed `-3641438`, with dry-looking tile
+`(103,23)`, index `2541`, labeled Navigable River near the east-west seam.
+Preserved photographs, logs and all 6,996 native cells allow a comparison of
+authored receiver/class, periodic neighbors and native elevation/category.
+Determine routing, realization and visual continuity separately. Neither a
+NAV label proves vessel movement nor a dry-looking bed proves inadequate
+physical supply. Do not merge this witness with biome banding, minor cliff
+mouths or lake classification before a common cause is demonstrated.
+
 That storage discriminator is now executed. Control reproduces all17 exposed
 physical plan fields exactly. Four finite owner replays produce byte-identical
 control/treatment repeats, with all265 source/Core pins held. Only the ten

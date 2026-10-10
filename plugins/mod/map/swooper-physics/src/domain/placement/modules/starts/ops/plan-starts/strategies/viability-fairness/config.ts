@@ -12,19 +12,22 @@ export default defineStrategy({
         minimum: 1,
         maximum: 400,
         default: 24,
-        description: "Minimum connected landmass size for a normal first-age start candidate.",
+        description:
+          "Connected landmass size for the primary quality tier; not a hard first-age expansion-admission floor.",
       }),
       expansionRadiusTiles: Type.Integer({
         minimum: 1,
         maximum: 8,
         default: 4,
-        description: "Radius used to measure immediate land expansion around a candidate.",
+        description:
+          "Radius used to measure usable same-landmass local expansion envelopes.",
       }),
       minExpansionLandTiles: Type.Integer({
         minimum: 1,
         maximum: 120,
         default: 14,
-        description: "Minimum same-landmass land tiles inside the expansion radius.",
+        description:
+          "Minimum usable same-landmass land tiles in an individually useful local envelope. Every start, including fallback, must reach such an envelope without OCEAN or known impassable transit.",
       }),
       islandClusterRadiusTiles: Type.Integer({
         minimum: 1,
@@ -37,7 +40,7 @@ export default defineStrategy({
         maximum: 160,
         default: 18,
         description:
-          "Minimum nearby land across small islands for an intentional archipelago start.",
+          "Minimum nearby usable land reachable in the candidate's first-age transit component for the archipelago quality tier; it does not replace the individual expansion-envelope gate.",
       }),
       maxIslandStartCoastDistance: Type.Integer({
         minimum: 0,

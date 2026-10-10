@@ -245,6 +245,31 @@ fresh mutable selection identities, so a band's zero regional capacity cannot
 silently redefine the obligation against which its regional success is ranked.
 Reserve admission remains a recorded quality relaxation, not normal capacity.
 
+First-age geographic admission precedes every regular/reserve pool, resource
+band, regional capacity, selection rung, and fairness swap. A start must reach
+an individually useful local expansion envelope over the intended non-OCEAN
+surface. Standard composes that transit mask from the same resolved coast
+projection restored by surface preparation, including accepted inland COAST
+water and physical dry NAVIGABLE river sources. Placement removes known
+mountain/volcano barriers and uses the SDK's odd-row, X-wrapped adjacency.
+An envelope counts only usable land on one landmass in the same passable
+component, inside `expansionRadiusTiles`; lake, mountain, volcano, and occupied
+wonder cells do not contribute. Nearby island-cluster support likewise counts
+only usable land in the candidate's reachable component. Connected tiny islands
+cannot pool their land into one qualifying envelope. A useful envelope can lie
+elsewhere on the start's own landmass or across genuine shallow transit on a
+distinct landmass, so useful independent islands remain legitimate.
+
+Earthlike authors `minExpansionLandTiles: 14` as its local expansion budget.
+This is gameplay policy, not a physical constant or native settlement-legality
+proof. `minContiguousLandTiles: 24` remains a quality-tier/scoring threshold,
+not the hard expansion-admission rule. Resource support, regional quotas,
+quality/spacing relaxation, and fairness cannot readmit an isolated start;
+exhausted maps retain unseated evidence and are refused by the materializer.
+The graph proves only projected reachability under these admitted barriers,
+not a complete native movement pathfinder, city legality, or age-specific
+embarkation state.
+
 `domain/resources` composes four modules with level-local model authority:
 `demand` owns the one canonical expectation-and-habitat demand resolver and its
 closed admitted/excluded ledger, `habitat` owns habitat fields, `sites` owns

@@ -8,6 +8,7 @@ export const StartRejectionReasonSchema = Type.Union([
   Type.Literal("volcano"),
   Type.Literal("natural-wonder"),
   Type.Literal("single-tile-island"),
+  Type.Literal("no-reachable-expansion"),
   Type.Literal("insufficient-landmass"),
   Type.Literal("insufficient-expansion"),
   Type.Literal("insufficient-island-cluster"),

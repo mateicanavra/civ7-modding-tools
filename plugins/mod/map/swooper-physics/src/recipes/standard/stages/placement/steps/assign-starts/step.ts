@@ -1,4 +1,4 @@
-import { collectNaturalWonderPlotIndices } from "@civ7/map-policy";
+import { collectNaturalWonderPlotIndices, WATER_CLASS_COAST } from "@civ7/map-policy";
 import placement from "../../../../../../domain/placement/index.js";
 import { artifacts as placementStartArtifacts } from "../../../../../../domain/placement/modules/starts/artifacts/index.js";
 import type { MapContext } from "@swooper/mapgen-core";
@@ -10,6 +10,7 @@ import {
 } from "@swooper/mapgen-core/authoring";
 import { config } from "./config.js";
 import { projectStartAssignmentViz } from "./viz.js";
+import { deriveResolvedCoastProjection } from "../../../../water-surface-parity.js";
 
 type PlanStartsOutput = Static<(typeof placement.starts.ops.planStarts)["output"]>;
 type StartAssignmentArtifact = ArtifactValueOf<typeof placementStartArtifacts.startAssignment>;
@@ -186,12 +187,21 @@ export const AssignStartsStep = createStep(config, {
     const shelf = deps.artifacts.shelf.read();
     const coastline = deps.artifacts.resolvedCoastline.read();
     const hydrography = deps.artifacts.hydrography.read();
-    const lakePlan = deps.artifacts.lakePlan.read();
+    const projectedLakes = deps.artifacts.projectedLakes.read();
     const climateIndices = deps.artifacts.climateIndices.read();
     const pedology = deps.artifacts.pedology.read();
     const currentFeatureTypes = deps.engine.readCurrentMapFeatureTypes(context);
     const slotByTile = landmassRegionSlotByTile.slotByTile as Uint8Array;
     const { width, height } = context.setup.dimensions;
+    const coastProjection = deriveResolvedCoastProjection({
+      width,
+      height,
+      exposedLandMask: hydrography.exposedLandMask,
+      externalWaterMask: topography.externalWaterMask,
+      lakeMask: projectedLakes.lakeMask,
+      shelfMask: shelf.shelfMask,
+      coastalWater: coastline.coastalWater,
+    });
     const plan = ops.starts(
       {
         playerIds: context.initialSetup.aliveMajorPlayerIds,
@@ -199,19 +209,23 @@ export const AssignStartsStep = createStep(config, {
         width,
         height,
         landMask: hydrography.exposedLandMask as Uint8Array,
+        // NAV source intent is physical dry ground; accepted lakes and marine
+        // coast are shallow transit even when native isLake reports otherwise.
+        firstAgeTransitMask: Uint8Array.from(coastProjection.waterClass, (waterClass, cell) =>
+          hydrography.exposedLandMask[cell] === 1 || waterClass === WATER_CLASS_COAST ? 1 : 0
+        ),
         slotByTile,
         landmassIdByTile: landmasses.landmassIdByTile as Int32Array,
         landmassTileCounts: landmasses.landmasses.map((landmass) => landmass.tileCount),
         coastalLand: coastline.coastalLand as Uint8Array,
         distanceToCoast: coastline.distanceToCoast as Uint16Array,
-        shelfMask: shelf.shelfMask as Uint8Array,
         elevation: topography.elevation as Int16Array,
         fertility: pedology.fertility as Float32Array,
         effectiveMoisture: climateIndices.effectiveMoisture as Float32Array,
         surfaceTemperature: climateIndices.surfaceTemperatureC as Float32Array,
         aridityIndex: climateIndices.aridityIndex as Float32Array,
         riverClass: hydrography.riverClass as Uint8Array,
-        lakeMask: lakePlan.lakeMask as Uint8Array,
+        lakeMask: projectedLakes.lakeMask as Uint8Array,
         mountainMask: mountains.mountainMask as Uint8Array,
         volcanoMask: volcanoes.volcanoMask as Uint8Array,
         naturalWonderPlotIndices: collectNaturalWonderPlotIndices(currentFeatureTypes),

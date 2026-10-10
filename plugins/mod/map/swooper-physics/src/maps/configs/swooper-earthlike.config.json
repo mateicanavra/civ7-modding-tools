@@ -1237,7 +1237,7 @@
           "config": {
             "minContiguousLandTiles": 24,
             "expansionRadiusTiles": 4,
-            "minExpansionLandTiles": 4,
+            "minExpansionLandTiles": 14,
             "islandClusterRadiusTiles": 5,
             "minIslandClusterLandTiles": 3,
             "maxIslandStartCoastDistance": 8,

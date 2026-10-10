@@ -154,6 +154,83 @@ establishes portable admission of the owner correction, not native movement.
 
 ## Acceptance And Proof
 
+### Reachable Expansion Admission
+
+Two fresh Huge Earthlike games expose a distinct geographic admission defect.
+Seed `-1526277100` places player zero on three land cells with nine surrounding
+coast cells and no shallow route elsewhere. Seed `-1152948646` places players
+zero and one in separate ocean-bounded island groups; the first contains
+islands of `4/3/2/2/2/1` cells, not useful contiguous expansion territory.
+All ten native founders match the authored seats in each game. The native and
+portable water/terrain grids also agree. This is source selection, not a
+native relocation or a reason to change coastline physics.
+
+The revised owner admission asks whether a candidate's projected first-age
+transit component reaches an individually useful local land envelope. Compose
+the existing resolved coast projection and accepted projected lakes; dry land
+and shallow coast participate, OCEAN does not. Mountain and volcano barriers
+cannot connect components. Count usable expansion support on one landmass in
+that same component, excluding lakes, mountains, volcanoes and occupied wonder
+cells. Separate tiny islands cannot pool their land to fabricate the budget.
+This is optimistic topology admission, not a native unit pathfinder or proof
+of legal city sites, research availability or route travel cost.
+
+The existing radius and minimum expansion count remain the one authored
+gameplay budget. Earthlike's earlier minimum of four is restored to fourteen;
+fourteen is policy, not an Earth constant or universal empire-size guarantee.
+An independent useful island below the inherited twenty-four-cell quality
+floor remains admitted. A shallow-connected small island can reach another
+useful island without reaching a mainland. A chain composed entirely of
+sub-budget islands is deliberately excluded even if discrete settlement on
+some of its cells might be legal. The twenty-four-cell floor remains a quality
+preference, never the new hard geographic gate.
+
+Apply this screen before regular/reserve candidate pools, capacity, requested
+homelands, resource bands, spacing rungs and fairness replacement. A later
+relaxation cannot readmit an isolated candidate. If no complete lawful set
+exists, preserve the existing typed unseated/refusal outcome rather than carve
+terrain or silently weaken admission. Resource support, homeland identity,
+spacing and fairness remain independent requirements.
+
+Focused operation/materialization tests pass 53 cases and 859 assertions;
+source and test TypeScript pass. Full owner, unchanged study-bank and fresh
+native verification remain separate release gates. The negative witnesses,
+positive connected and independent-island controls, X wrapping, impassable
+support, all-rung exclusion and materialization refusal are covered without
+introducing another selector or a legacy execution path.
+
+Complete procedural replays of both negative witnesses move all ten seats to
+useful reachable territory, with no unseated players. Their selected landmass
+sizes are respectively `2,476` and `2,339` cells. All 38 captured physical and
+climate properties, elevation projection and accepted lake projection remain
+deep-identical to the corresponding preceding source captures. Resource intent
+counts hold at `212` and `215`; individual sites may move through the existing
+start-support owner. This is a selection repair, not geography manipulation.
+The physical regional-area measure used for spacing and requested allocation
+also remains unchanged after independent SDK review; usable expansion support
+is not substituted for that separate measure.
+
+Both exact negative seeds now complete fresh Huge generation through the
+realization-owned live target using the saved setup and ten-player override,
+without quitting the application. Target completion takes `29.1` and `30.3`
+seconds including build/setup overhead. All ten turn-one native founder plots
+match their respective revised authored seats. Each full 6,996-cell native
+census preserves terrain, biome, water/lake category, elevation, river class
+and features exactly against that seed's preceding native census. One and two
+resource cells respectively change through the existing start-support owner.
+This is matched native selection and collateral-hold proof, not unit movement.
+Mock/native lake differences (`31` and `111`) and the five wonder-biome
+differences per map remain visible; this start proof does not pretend to close
+those separate realization contracts. The second game is explored for viewing.
+
+The final definition run completes with 1,223 passed tests and the single
+unchanged within-row thermal-variation failure. All other owning graph tasks
+succeed, including 371 realization and 412 Studio tests. The Earth reference
+fixture separately distinguishes a localized closed balance from uniform wet
+forcing with positive dry-catchment runoff; it does not impose a closed state
+on the latter or weaken conservation. No scientific target was relaxed to
+admit the start repair.
+
 - Exact baseline replay of Standard/1337 and Huge/1234 before modifying the
   owner; retain seeds, config, resource intent and eligibility fields.
 - Both witnesses satisfy realized floor two, gap at most two, no support
