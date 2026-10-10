@@ -85,7 +85,7 @@ function validateRootDag(input: NetworkInput): Map<number, number> {
 
 /**
  * Absolute deliveries on the current quotient. A new generation either admits a
- * finite sill plateau or contracts saturated pools. Between these events every
+ * finite sill connector or contracts saturated pools. Between these events every
  * response graph is a DAG; repeated identical deliveries do not enqueue work.
  */
 export function solvePools(input: NetworkInput, neighbors: readonly number[][]): Solved {
@@ -105,12 +105,20 @@ export function solvePools(input: NetworkInput, neighbors: readonly number[][]):
   let owner = new Int32Array(size);
   const partitions = new Set<string>();
   const compare = (a: Crossing, b: Crossing) => a.elevation - b.elevation || Math.min(a.fromCell, a.toCell) - Math.min(b.fromCell, b.toCell) || Math.max(a.fromCell, a.toCell) - Math.max(b.fromCell, b.toCell);
+  const traceConnector = (start: number, head: number, junctions: Set<number>): void => {
+    let cell = start;
+    const traced = new Set<number>();
+    while (cell >= 0 && landMask[cell] && z[cell] === head) {
+      requireValid(!traced.has(cell), "cyclic sill connector receiver");
+      traced.add(cell); junctions.add(cell); cell = g.rawReceiver[cell]!;
+    }
+  };
   const merge = (members: Pool[], head: number): void => {
     const ids = new Set(members.map(pool => pool.id));
     const leaves = members.flatMap(pool => pool.leaves).sort((a, b) => a - b);
     const leafSet = new Set(leaves), junctions = new Set(members.flatMap(pool => [...pool.junctions]));
     for (const saddle of g.saddles) if (saddle.elevation === head && leafSet.has(saddle.leafA) && leafSet.has(saddle.leafB)) {
-      for (const cell of [saddle.cellA, saddle.cellB]) if (z[cell] === head) junctions.add(cell);
+      for (const cell of [saddle.cellA, saddle.cellB]) traceConnector(cell, head, junctions);
     }
     pools = pools.filter(pool => !ids.has(pool.id));
     pools.push({ ...members[0]!, id: leaves[0]!, generation: ++generation, leaves, base: head,
@@ -199,27 +207,21 @@ export function solvePools(input: NetworkInput, neighbors: readonly number[][]):
       if (contacts.size > 1) { merge([...contacts], pool.level); restart = true; break; }
 
       if (pool.response.state === "open") {
-        const head = pool.level, plateau: number[] = [];
-        const seen = new Set<number>();
-        // Admit the selected sill's plateau, not every unrelated shoreline
-        // plateau touching the reservoir; other raw tributaries stay untouched.
-        const seeds = [...pool.junctions, ...(pool.frontier ? [pool.frontier.fromCell, pool.frontier.toCell] : [])];
-        for (const cell of seeds) if (landMask[cell] && z[cell] === head && !seen.has(cell)) { seen.add(cell); plateau.push(cell); }
-        for (let at = 0; at < plateau.length; at++) for (const neighbor of neighbors[plateau[at]!]!) {
-          if (landMask[neighbor] && z[neighbor] === head && !seen.has(neighbor)) { seen.add(neighbor); plateau.push(neighbor); }
-        }
+        const head = pool.level;
+        const connectors = new Set(pool.junctions);
+        if (pool.frontier) for (const cell of [pool.frontier.fromCell, pool.frontier.toCell]) traceConnector(cell, head, connectors);
         const touched = new Set<Pool>([pool]);
-        for (const cell of plateau) {
+        // Contour reachability is not a hydraulic connection. Only an actual
+        // raw connector intersection can contract an already owned junction.
+        for (const cell of connectors) {
           const other = junctionOwner[cell] ? byId.get(junctionOwner[cell]!) : undefined;
-          if (other && other !== pool) touched.add(other);
-          for (const neighbor of neighbors[cell]!) {
-            const neighborPool = byLeaf.get(g.leafId[neighbor]!);
-            if (neighborPool && neighborPool !== pool && evaluated.has(neighborPool.id) && neighborPool.level === head && neighborPool.response.wetCells.includes(neighbor)) touched.add(neighborPool);
-          }
+          // Retained junction contacts contract before obsolete above-head
+          // membership is retired after settlement, without a new equal-head guard.
+          if (other) touched.add(other);
         }
-        if (touched.size > 1) { for (const cell of plateau) pool.junctions.add(cell); merge([...touched], head); restart = true; break; }
-        if (plateau.some(cell => !pool.junctions.has(cell))) {
-          for (const cell of plateau) pool.junctions.add(cell);
+        if (touched.size > 1) { for (const cell of connectors) pool.junctions.add(cell); merge([...touched], head); restart = true; break; }
+        if ([...connectors].some(cell => !pool.junctions.has(cell))) {
+          for (const cell of connectors) pool.junctions.add(cell);
           generation++; restart = true; break;
         }
         const membership = new Set([...pool.response.wetCells, ...pool.junctions]);

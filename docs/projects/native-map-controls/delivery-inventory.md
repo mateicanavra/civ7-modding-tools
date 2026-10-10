@@ -72,7 +72,6 @@ river readback has no missing, extra, wrong-class or navigable-terrain
 mismatches. The former coastal strip around `(50,60)` now agrees with authored
 minor/non-river classes rather than a sideways navigable chain. This proves
 source/class realization, not exact native flow direction or vessel movement.
-The diagnostic build is not a newly qualified default.
 
 The mangrove loss exposes an overbroad consumer predicate: minor rivers retain
 flat land, but wetland planning excluded every river. The bounded repair in
@@ -83,8 +82,7 @@ share the corrected flat-surface contract; family-specific habitat remains
 upstream. The unchanged bank restores the mangrove expectation with 19
 realized sites and introduces no new failed expectations. It does not force
 the seven historical sites back. The 99 focused feature tests, owner checks,
-builds and pre-push checks pass. This consumer repair is not yet installed in
-the diagnostic native session described above.
+builds and pre-push checks pass.
 
 The independent 1340 placement loss is selection into poorer, more crowded
 land, not a map-wide fertility collapse. An exact replay of the existing
@@ -94,7 +92,9 @@ regional seats with an unbalanced score gap of `0.4040402` over a lawful,
 balanced alternative with seven regional seats and a gap of `0.06404945`.
 That alternative preserves all eight seats, hard spacing, freshwater and
 resource admission. Its one cross-region fairness upgrade is already recorded
-as a degradation. The selected repair puts achieved balance before regional
+as a degradation. The repair in
+[PR #2329](https://github.com/mateicanavra/civ7-modding-tools/pull/2329)
+puts achieved balance before regional
 count, retaining completeness and hard spacing first and regional preference
 as the next tie-break. No fertility weights, resource quotas, thresholds or
 fairness limits change. This is parity priority, not a guarantee that every
@@ -108,23 +108,69 @@ The unchanged 22-study, 57-scenario bank closes all three new failures. Only
 the pre-existing thermal-variation failure remains; its one-degree requirement
 is unchanged.
 
+Both consumer repairs are merged and installed with the shoreline correction.
+A fresh Huge Earthlike game at seeds `1018/1018`, ten players and `106x66`
+completes generation and exploration of all `6,996` tiles. The installed files
+match the qualified build. Final readback reports `292` minor and `375`
+navigable cells, with zero missing, extra, wrong-class or navigable-terrain
+mismatches. Feature realization applies all `960` attempted placements without
+refusal; tundra bogs increase from three to five against the preceding
+shoreline-only run. The camera is positioned at the repaired coastal strip.
+This is fresh generation and realization proof, not a new vessel-movement test
+or a native screenshot capture.
+
 The shoreline improvement is not a river-abundance calibration. On matched
 Huge 1018 inputs, classified sources remain about `26.06%` of exposed land,
 while navigable-class sources change from `320` to `375` (`12.52%` to `14.65%`
 of exposed land). Physical source density and projected class prevalence must
 remain separate questions. No rainfall or class threshold was retuned here.
 
-A distinct basin-junction issue remains under owner-level design. At the
-selected spill head, contact discovery admits the entire equal-ground dry
-plateau into the reservoir's contributing catchment. Exact Huge 1018 replay
-shows independent raw marine exit `1084 -> 1189` being captured into pool 1;
-nearby `1083` instead has a legitimate raw inlet to pit `976`. A fixed declared
-spill-corridor counterfactual preserves wet cell `976`, head `12`, the existing
-external port and conservation while restoring independent dry exits. That
-probe does not qualify a general algorithm. The next repair must separate
-contact discovery from runoff ownership and preserve required equal-head
-mergers, inward support, dry bypasses and partial-merger behavior. It belongs
-in basin junction admission, not projection carving or a second river network.
+The subsequent basin-junction repair replaces dry-contour flood discovery with
+raw-receiver traces from the selected spill frontier and declared merger
+saddles. Equal ground at the spill head is not by itself standing-water contact
+or ownership of every nearby runoff source. Actual retained connector
+intersections, declared saddle mergers and delivery cycles still contract;
+settlement retires obsolete above-head junctions. There is no new basin solver,
+projection carving, configuration or network artifact.
+
+The frozen Huge 1018 replay restores `24` independent marine exits, including
+`1084 -> 1189`. Nearby `1083` retains its legitimate inlet to pit `976`.
+Pool 1's junction footprint falls from `68` to `8` cells while its wet cell,
+head `12`, external port and incoming upstream overflow hold. All `2,494`
+ordinary dry receivers equal the raw receiver input; wet footprints, groups,
+heads and port endpoints hold. Complete water accounting is bit-identical,
+including marine export `148446.88122942863` and zero residual. The selected
+frontier provides an independent spatial witness; returned component
+membership alone is not an independent ownership oracle for every pool.
+The retained capture does not contain historical raw geometry, so this proof
+does not assert historical geometry identity.
+
+Seventy-nine focused tests with `77,568` assertions retain all `4,000`
+adversarial and `24` larger partition cases. New discriminators preserve a
+selected dry spill connector, separate equal-head lakes with independent
+marine exits, and retain declared closed equal-head merging. Source/test types,
+owner checks and builds pass. The fresh complete Huge recipe legitimately
+changes incision, some landforms and class-sensitive consumers; those are not
+represented as frozen terrain holds. Its paired viewer contains fourteen
+generated PNGs, all-receiver arrows and the exact restored outlet witness.
+These are portable model images, not native photographs or full bank admission.
+
+The unchanged 22-study, 57-scenario bank retains the known thermal failure and
+exposes one new placement-fertility failure at Standard seed `1340`. Four
+resource sites move while regional totals hold. Exact placement replay finds
+that each resource band currently derives a different requested homeland
+allocation, then ranks its regional compliance against that self-derived
+request. Globally supported candidates imply `6/2` requests in both arms; the
+poorer `10..12` band instead derives `8/0` and rewards itself as eight regional
+seats. The next placement-owner correction must hold requests stable across
+bands and expose existing realization relaxations without changing resource,
+spacing, fairness or fertility expectations. Native deployment of this combined
+candidate follows that independent qualification; the installed game above
+remains the previously qualified shoreline/consumer build.
+
+Evidence is retained under `flat-shoreline-20261009/`, including
+`basin-corridor-huge1018-receipt.json`, `basin-corridor-bank.json` and
+`paired-basin/`. No private host identity or instance URL enters this ledger.
 
 ## Prior Delivery Evidence
 

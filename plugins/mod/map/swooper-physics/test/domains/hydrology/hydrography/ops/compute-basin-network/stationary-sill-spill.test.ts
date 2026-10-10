@@ -130,6 +130,86 @@ describe("hydrology/compute-basin-network", () => {
     expect(() => run({ ...input, externalWaterHead: NaN })).toThrow();
   });
 
+  it("keeps independent dry plateau runoff outside a selected sill connector", () => {
+    const terrain = {
+      width: 5, height: 3,
+      elevation: [
+        -10, -10, -10, -10, -10,
+        5, 5, 5, 5, 5,
+        9, 9, 1, 9, 9,
+      ],
+      externalWaterMask: Uint8Array.from({ length: 15 }, (_, cell) => cell < 5 ? 1 : 0), externalWaterHead: 0,
+    };
+    const input = { ...terrain, geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: false } }), localRunoff: Array.from(terrain.externalWaterMask, prescribed => prescribed ? 0 : 1), rainfall: new Uint8Array(15).fill(10), potentialDemand: new Float32Array(15) };
+    expect(input.geometry.leafId[6]).toBe(0);
+    const plan = verify(input);
+    expect(plan.pools).toHaveLength(1);
+    expect(plan.pools[0]!.level).toBe(5);
+    expect(plan.pools[0]!.wetCells).toEqual([12]);
+    expect(plan.components[0]!.junctionCells).toEqual([6]);
+    expect(plan.pools[0]!.catchmentCells).toEqual([6, 11, 12, 13]);
+    expect(plan.pools[0]!.flux).toEqual({ incomingOverflow: 0, dryRunoff: 3, wetPrecipitation: 10, wetDemand: 0, balance: 13 });
+    expect(plan.ports).toEqual([{ kind: "adjacent", componentId: 7, fromCell: 6, toCell: 1, destination: "marine", destinationComponentId: 0, discharge: 13 }]);
+    for (const cell of [5, 7, 8, 9]) {
+      expect(plan.componentId[cell]).toBe(0);
+      expect(plan.receiver[cell]).toBe(input.geometry.rawReceiver[cell]);
+    }
+    expect(plan.conservation.marineDischarge).toBe(19);
+    expect(plan.marineExits.filter(exit => exit.fromCell !== 6).reduce((total, exit) => total + exit.discharge, 0)).toBe(6);
+  });
+
+  it("keeps independently spilling equal-head wet pools separate across a dry contour", () => {
+    const terrain = {
+      width: 7, height: 3,
+      elevation: [
+        -10, -10, -10, -10, -10, -10, -10,
+        5, 5, 5, 5, 5, 5, 5,
+        9, 1, 9, 9, 9, 1, 9,
+      ],
+      externalWaterMask: Uint8Array.from({ length: 21 }, (_, cell) => cell < 7 ? 1 : 0), externalWaterHead: 0,
+    };
+    const input = { ...terrain, geometry: geometry.run(terrain, { strategy: "plateau-saddle-hierarchy", config: { allowExternalEdgeOutlets: false } }), localRunoff: Array.from(terrain.externalWaterMask, prescribed => prescribed ? 0 : 1), rainfall: new Uint8Array(21).fill(10), potentialDemand: new Float32Array(21) };
+    expect(input.geometry.roots).toEqual([1, 2]);
+    expect(input.geometry.nodes.map(node => node.spill && [node.spill.fromCell, node.spill.toCell, node.spill.targetLeafId])).toEqual([[15, 7, 0], [19, 11, 0]]);
+    expect([input.geometry.rawReceiver[7], input.geometry.rawReceiver[11]]).toEqual([0, 4]);
+    expect(input.geometry.saddles.some(saddle => saddle.leafA > 0 && saddle.leafB > 0 && saddle.elevation === 5)).toBe(false);
+    const plan = verify(input);
+    expect(plan.pools.map(pool => pool.leafIds)).toEqual([[1], [2]]);
+    expect(plan.pools.map(pool => pool.level)).toEqual([5, 5]);
+    expect(plan.pools.map(pool => pool.wetCells)).toEqual([[15], [19]]);
+    expect(plan.components.map(component => component.junctionCells)).toEqual([[7], [11]]);
+    expect(plan.ports.map(port => port.kind === "adjacent" ? [port.fromCell, port.toCell, port.destination] : null)).toEqual([[7, 0, "marine"], [11, 4, "marine"]]);
+    for (const [cell, receiver] of [[8, 1], [9, 2], [10, 3], [12, 5], [13, 0]] as const) {
+      expect(input.geometry.rawReceiver[cell]).toBe(receiver);
+      expect(plan.componentId[cell]).toBe(0);
+      expect(plan.receiver[cell]).toBe(receiver);
+    }
+    expect(plan.conservation.marineDischarge).toBe(32);
+    const reordered = structuredClone(input); reordered.geometry.saddles.reverse();
+    expect(supported(reordered)).toEqual(plan);
+  });
+
+  it("retains complete raw-receiver saddle connectors when an attained merger closes", () => {
+    const input = fixture([-1, 9, 1, 5, 5, 5, 5, 2, 9, -1], [0, 9]);
+    input.localRunoff.fill(0); input.rainfall.fill(0); input.potentialDemand.fill(0);
+    for (const cell of [3, 4, 5, 6]) { input.localRunoff[cell] = 1; input.potentialDemand[cell] = 10; }
+    input.rainfall[2] = 1; input.rainfall[7] = 1;
+    const plan = verify(input);
+    expect(plan.pools).toHaveLength(1);
+    expect(plan.pools[0]!.leafIds).toEqual([1, 2]);
+    expect(plan.pools[0]!.level).toBe(5);
+    expect(plan.pools[0]!.state).toBe("closed");
+    expect(plan.pools[0]!.wetCells).toEqual([2, 7]);
+    expect(plan.components[0]!.junctionCells).toEqual([3, 4, 5, 6]);
+    expect(plan.pools[0]!.flux).toEqual({ incomingOverflow: 0, dryRunoff: 4, wetPrecipitation: 2, wetDemand: 0, balance: 6 });
+    expect(plan.pools[0]!.closure?.resolution).toBe("shoreline-quantization");
+    expect(plan.pools[0]!.unresolvedResidual).toBe(6);
+    expect(plan.ports).toEqual([]);
+    expect(plan.conservation.externalDischarge).toBe(0);
+    const reordered = structuredClone(input); reordered.geometry.saddles.reverse();
+    expect(supported(reordered)).toEqual(plan);
+  });
+
   it("does not commit a lower merger against an unsettled higher-sill export", () => {
     const { input, nextSeed } = largerGrid();
     expect(nextSeed).toBe(-397855455);
@@ -138,8 +218,8 @@ describe("hydrology/compute-basin-network", () => {
     const upstream = plan.pools.find(pool => pool.leafIds.includes(78))!;
     const receiver = plan.pools.find(pool => pool.leafIds.includes(82))!;
     const terminal = plan.pools.find(pool => pool.leafIds.includes(86))!;
-    // Fixed heads and leaf groups determine strict wetlands. Input plateau IDs
-    // admit only the internal contacts and selected sill, without another flood solver.
+    // Fixed heads and leaf groups determine strict wetlands. Declared internal
+    // contacts and the selected spill own only their input raw-receiver connectors.
     const expectedComponent = (leaves: number[], head: number, portLeaf: number | null) => {
       const wetCells = Array.from(input.geometry.leafId).flatMap((leaf, cell) =>
         leaves.includes(leaf) && input.elevation[cell]! < head ? [cell] : []
@@ -150,10 +230,15 @@ describe("hydrology/compute-basin-network", () => {
       ).flatMap(saddle => [saddle.cellA, saddle.cellB]);
       if (spill) seeds.push(spill.fromCell, spill.toCell);
       else seeds.push(input.geometry.nodes[leaves[0]! - 1]!.floorCell);
-      const plateaus = new Set(seeds.filter(cell => input.elevation[cell] === head).map(cell => input.geometry.plateauId[cell]));
-      const junctionCells = Array.from(input.geometry.plateauId).flatMap((plateau, cell) =>
-        !input.externalWaterMask[cell] && input.elevation[cell] === head && plateaus.has(plateau) ? [cell] : []
-      );
+      const junctions = new Set<number>();
+      for (const start of seeds) {
+        const visited = new Set<number>();
+        for (let cell = start; cell >= 0 && !input.externalWaterMask[cell] && input.elevation[cell] === head; cell = input.geometry.rawReceiver[cell]!) {
+          if (visited.has(cell)) throw new Error("Cyclic input sill connector");
+          visited.add(cell); junctions.add(cell);
+        }
+      }
+      const junctionCells = [...junctions].sort((a, b) => a - b);
       const memberCells = [...wetCells, ...junctionCells].sort((a, b) => a - b);
       let port = spill ? { fromCell: spill.fromCell, toCell: spill.toCell } : null;
       while (port && memberCells.includes(port.toCell))
@@ -310,6 +395,11 @@ describe("hydrology/compute-basin-network", () => {
   it("absorbs the root39 delivery once and supports root37 inward at dry junction312", () => {
     const input = standardRoots37And39(), plan = verify(input);
     expect(plan.pools).toHaveLength(1); expect(plan.pools[0]!.leafIds).toEqual([1, 2]);
+    expect(plan.components[0]!.junctionCells).toEqual([59, 312, 396]);
+    for (const cell of [310, 323]) {
+      expect(plan.componentId[cell]).toBe(0);
+      expect(plan.receiver[cell]).toBe(input.geometry.rawReceiver[cell]);
+    }
     expect(plan.pools[0]!.outflow).toBeCloseTo(1.7170643127800531, 12);
     expect(plan.bodies).toHaveLength(2);
     const exchange = plan.transfers.find(edge => edge.cellA === 228 && edge.cellB === 312)!;
@@ -404,7 +494,7 @@ describe("hydrology/compute-basin-network", () => {
       expect(Math.abs(plan.conservation.residual)).toBeLessThanOrEqual(plan.conservation.roundoffBound);
       // These exact generations found stale response, unrelated shoreline, and
       // recorded-plateau outlet bugs during the independent partition checks.
-      if ([12, 85, 113, 1877, 3551].includes(sample)) verify(input);
+      if ([12, 85, 113, 758, 1877, 3551].includes(sample)) verify(input);
     }
   }, 15_000);
   it("settles independent hydraulic groups across larger source partitions", () => {
