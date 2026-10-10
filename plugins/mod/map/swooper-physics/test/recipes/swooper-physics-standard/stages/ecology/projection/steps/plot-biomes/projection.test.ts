@@ -11,7 +11,7 @@ import {
   publishTestArtifact,
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
-import { resolveEngineBiomeIds } from "../../../../../../../../src/recipes/standard/stages/ecology/projection/model/policy/biome-projection.js";
+import { resolveEngineBiomeIds } from "../../../../../../../../src/recipes/standard/stages/ecology/model/policy/biome-projection.js";
 import { PlotBiomesStep as plotBiomesStep } from "../../../../../../../../src/recipes/standard/stages/ecology/projection/steps/plot-biomes/step.js";
 import {
   TEST_MAP_LATITUDE_BOUNDS,

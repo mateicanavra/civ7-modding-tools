@@ -360,3 +360,185 @@ changed observation, new failure, deterioration or weakened gate.
 Types, policy and builds pass. This qualifies source meaning, not salinity,
 tidal habitat, root-zone access or a new terrestrial water response. The
 loaded playable session is preserved; new-bundle native execution is unclaimed.
+
+## Marine Mangrove Response Decision
+
+The next selected repair is one Ecology consumer, not another Hydrology
+amplitude. Retained-only source joins find no strict finite-water neighbor at
+the 19 mangrove sites lost by A; principal discharge equals reconstructed local
+runoff there and at their exposed radius-one neighbors. That does not prove
+absent groundwater or plant access. Across all 500 eligible flat/unoccupied
+sites, even granting B's full eight-unit increment and best aridity cannot
+reach the unchanged `0.35` floor with A's warmth/fertility held. These bounds
+refuse that adoption explanation; they are not restoration targets.
+
+Select an empirical marine-coastal habitat score:
+`eligibleMarineLowShore * warmth * fertility * lowAridity`. Retire the mandatory
+generic terrestrial `water01 = clamp(M / 230)` multiplier from mangrove scoring
+only, including its contract input, caller wiring and authored `waterMin01`
+keys. Do not replace it with a constant freshwater credit, scalar or fallback.
+Marine eligibility represents the existing wet-habitat approximation; it does
+not assert measured inundation, salinity or root uptake.
+
+This is a model choice supported by the qualitative habitat regime, not a
+numerical Earth calibration. Mangroves tolerate saltwater-inundated coastal
+conditions ([NOAA habitat description](https://www.fisheries.noaa.gov/news/july-26-international-mangrove-conservation-day)).
+Temperature and rainfall constrain regional distribution
+([USGS climatic-controls study](https://pubs.usgs.gov/publication/70179448)).
+Freshwater remains physically relevant: drought observations show changing
+groundwater flow and salinity, processes not resolved by these artifacts
+([USGS field study](https://pubs.usgs.gov/publication/70023555)).
+Keep the distinct Pedology rainfall/humidity/material reduction and the
+existing empirical aridity response; neither is retired merely for covarying.
+
+### Prospective Response And Proof
+
+Preserve the current warmth `18..30 C`, fertility `0.15..1`, aridity `0.7..1`
+ramps, marine/relief gate, flatness/occupancy checks and authored planner policy
+(`0.35` Archipelago, `0.42` Earthlike, `0.32` Desert Mountains).
+At fertility `0.6`, `30 C` and aridity `0.4`, the score is about `0.5294`;
+cooling to `24 C` or increasing aridity to `0.85` halves it to `0.2647`.
+Cold `18 C`, extreme aridity `1`, finite-only and excluded high shores stay
+zero. No assertion about freshwater connection is added without that input.
+
+Qualify those anchors in the existing wetland-family/substrate tests. Hold
+physical geometry, marine eligibility, drainage/lake ledgers, climate,
+Pedology and all other feature scorers exactly. Actual mangrove arbitration,
+features, resources, starts and later occupancy are measured consequences,
+not blanket identity claims. Use one actual selected recipe contrast and the
+unchanged complete bank; refuse new failed leaves or deterioration of the
+existing failed leaf. No mangrove count, extra greening, weakened floor or
+noise is an acceptance target. Only a qualified unit is adopted and installed.
+
+Generic river/lake opportunity remains the following Hydrology decision; this
+marine consumer must not dictate its amplitude or reopen the refused A/B paths.
+
+## Marine Response Candidate Discrimination
+
+The bounded implementation at `11725ec6` removes the mangrove-only terrestrial
+water input, multiplier and authored key. The marine gate and warmth, fertility,
+aridity, flatness, occupancy and map-specific planner floors remain intact.
+Marsh, bog, oasis and watering-hole water inputs are unchanged. Fifteen focused
+tests pass with 232 assertions, including the declared response anchors and
+retired-contract rejection; no alternative artifact or compatibility lane is added.
+
+One actual Huge Archipelago `1018/1018`, ten-player execution takes about
+`2.71` seconds. Fourteen named retained artifact objects, full replayed
+substrates, all 24 other feature scorer layers and prior occupancy hold exactly.
+Current-operation, factor-product and planner parity cover all 6,996 tiles.
+These are retained captured products and terminal replays, not complete
+uncaptured hydraulic ledgers or a native-generation claim.
+
+Mangroves move `19 -> 31`: twelve final rainforest tiles become mangrove,
+rainforest moves `174 -> 162`, and occupied ground does not increase. Only
+31 of 500 eligible flat/unoccupied marine sites win; there is no all-shore
+promotion or restoration-count target. All 31 mock attempts are allowed and
+written, with zero mock refusals. Non-feature final readback is exact.
+All 140 incumbent resource placements survive; eight additions occur on eight
+of the twelve changed feature cells, giving 148 placements and no mock refusal.
+This is habitat substitution plus newly legal resource opportunities, not a
+change to physical hydrology or an engine-legality proof. Starts were not
+captured by this observer; the complete bank retains its existing start checks.
+
+The unchanged complete bank covers 22 studies, 57 unique scenarios and 4,430
+expectations. All 4,429 passing expectations remain passing; the thermal leaf
+remains exactly `0.142881437915705 C` against `>= 1 C`. Every identity,
+comparator and bound holds. There are 22 changed numeric observations and no
+status changes, new failed leaves or failed-leaf deterioration. All retained
+Earthlike observations hold; changes occur in the two stress products.
+
+The twelve passing observations that move toward their unchanged bounds are
+fully reported, not concealed as exact output identity. Archipelago wetland
+share moves `0.0235 -> 0.0384` under its `0.22` ceiling. Desert Mountains'
+savanna counts across the five retained seeds move
+`60/55/95/61/39 -> 8/8/21/7/25`; sagebrush counts move
+`1414/1374/1348/1383/2602 -> 1368/1309/1290/1279/2599`.
+Their feature-presence bounds remain intact, but that is insufficient product
+qualification. The receipt-hashed log contains 57 complete feature-application
+records. Five records attempt `108/125/137/171/17` mangroves respectively;
+every one is refused by official biome legality, with zero mangrove writes.
+Wetland share stays zero in these dry cases. Wetland intent reserves occupancy
+before vegetation planning; later projection rejection leaves that ground bare.
+The dry-map declines are therefore impossible-intent starvation, not realized
+habitat substitution. Resource gains there cannot be called habitat improvement.
+The bare `11725ec6` candidate is held, not adopted or installed. The numerical
+bank law is unchanged; its presence/ceiling checks did not detect this defect.
+
+The complete bank runs in about 101 seconds on the verification host; that is
+not one map's player-path latency. Owner verification passes types, policy and
+builds, 1,325 definition tests, 371 realization tests and 412 Studio tests.
+The definition aggregate still fails solely on the retained thermal leaf.
+Independent raw comparison qualifies the declared holds and twelve final
+feature substitutions separately from the bank verdict. Installation and any
+future native execution remain separate claims.
+
+## Wetland Feasibility Prerequisite
+
+Physical suitability and Civ7 representation are different decisions. Preserve
+the honest marine score; do not repaint a biome, lower its habitat floor, add
+freshwater credit, or retry a vegetation fallback after engine rejection.
+Use the existing generated official feature-legality policy and the existing
+canonical biome projection at the Ecology recipe boundary to admit feasibility
+for planned flat ground. Supply that closed feasibility input to the existing
+portable wetland planner. Filter candidates before choosing the winner and
+publishing reserving intent, so an impossible high-score mangrove cannot hide
+a legal lower-score wetland or suppress ordinary vegetation. The live engine
+legality check remains a distinct final safeguard, not a physical scorer.
+
+Acceptance: illegal best/legal runner-up selects the legal wetland; no feasible
+wetland leaves ground unreserved for vegetation; a feasible marine winner stays
+unchanged. Verify official policy wiring against canonical biome meaning, not a
+hand-maintained tropical-ID test. Require physical/climate/substrate/score holds,
+zero biome-incompatible wetland intents under this admitted policy, unchanged
+bank gates and no new failure or existing-failure deterioration. Existing legal
+feature counts are consequences, not fitted targets. Reuse the retained failure
+logs; qualify the combined repaired candidate before merging this same branch.
+
+### Completed Compatibility Qualification
+
+The combined source at `739082916f` preserves the physical marine score and
+admits the five required terrain/biome masks through shared Ecology recipe
+policy. It filters candidates before arbitration and occupancy. Official
+feature legality and the same canonical biome mapping used by projection own
+this static admission; the final engine guard remains separate. No habitat
+gain, biome repaint, fallback or new artifact is introduced.
+
+The focused tests cover illegal-best/legal-runner-up selection, unreserved
+ground for ordinary vegetation, required closed mask admission and canonical
+official-policy parity. Types, policy and builds pass. Full owner verification
+passes 1,328 definition tests, 371 realization tests and 412 Studio tests; the
+definition aggregate still fails solely on the existing thermal requirement.
+
+One actual Huge Archipelago `1018/1018`, ten-player recipe takes `2.68` seconds.
+The captured physical/climate/Pedology products, substrates, all 24 other
+scorer layers and prior occupancy hold exactly. All 6,996 current score,
+factor-product and compatibility-aware planner samples agree. The twelve
+rainforest-to-mangrove substitutions remain; all 31 mangrove intents are
+statically compatible, allowed and written in the mock execution. All 140
+prior resources survive with eight habitat-legal additions. Starts remain
+uncaptured by this observer and separately checked by the unchanged bank.
+
+SDK decoding of the receipt-hashed bank logs yields 57 complete application
+records in each arm. Against the bare response candidate, mangrove attempts
+move `674 -> 116`, writes remain `116`, and refusals move `558 -> 0`. Marsh
+and bog writes remain exactly `245` and `190`; oasis and watering-hole writes
+remain zero. Each of the five previously all-refused mangrove records now has
+zero mangrove intent. Its ordinary vegetation recovers without changing any
+physical score or floor: savanna returns to `60/55/95/61/39` and sagebrush to
+`1414/1374/1348/1383/2602`, exactly the pre-unit dry-map outcomes. Log ordinals
+are not invented seed identities; scenario-specific comparisons remain bank-owned.
+
+The complete bank takes about 104 seconds and retains all 22 studies, 57
+unique scenarios and 4,430 unchanged expectations. It has 4,429 passes, the
+exact same thermal failure at `0.142881437915705 C`, no new failed leaf and no
+failed-leaf deterioration. The eight numeric changes from the pre-unit bank
+are confined to Archipelago habitat substitution and resource opportunity;
+all Earthlike and Desert Mountains observations hold exactly. Wetland share
+increases within its unchanged ceiling and rainforest decreases while retaining
+its unchanged presence requirement. Those are explained outcomes, not blanket
+directional improvement or restored-count acceptance.
+
+The combined unit is qualified for adoption; the bare response remains
+historical refused-release evidence. Generated, installed and freshly native
+execution claims remain distinct. This closes impossible wetland reservation,
+not the open terrestrial river/lake opportunity or root-zone balance.

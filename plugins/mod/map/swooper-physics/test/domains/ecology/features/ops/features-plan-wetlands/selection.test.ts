@@ -1,5 +1,9 @@
 import { describe, expect, it } from "bun:test";
+import { Value } from "typebox/value";
+import { BIOME_SYMBOL_TO_INDEX } from "../../../../../../src/domain/ecology/index.js";
 import ecology from "../../../../../../src/domain/ecology/router.js";
+import { deriveFeatureOccupancy } from "../../../../../../src/recipes/standard/stages/ecology/features/model/policy/derive-feature-occupancy.js";
+import { deriveWetlandTerrainBiomeCompatibilityMasks } from "../../../../../../src/recipes/standard/stages/ecology/model/policy/wetland-terrain-biome-compatibility.js";
 
 import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
 import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
@@ -7,6 +11,13 @@ import { TEST_MAP_SEED, TEST_MAP_SIZE } from "../../../../../setup.js";
 function broadWetlandHabitatFields(size: number) {
   return {
     flatLandMask: new Uint8Array(size).fill(1),
+    terrainBiomeCompatibilityMasks: {
+      marsh: new Uint8Array(size).fill(1),
+      "tundra-bog": new Uint8Array(size).fill(1),
+      mangrove: new Uint8Array(size).fill(1),
+      oasis: new Uint8Array(size).fill(1),
+      "watering-hole": new Uint8Array(size).fill(1),
+    },
   };
 }
 
@@ -82,5 +93,125 @@ describe("planWetlands (joint resolver)", () => {
     const a = ecology.features.ops.planWetlands.run({ ...input, seed: 123 }, selection);
     const b = ecology.features.ops.planWetlands.run({ ...input, seed: 987654 }, selection);
     expect(b).toEqual(a);
+  });
+
+  it("requires closed masks and selects a legal runner-up before reserving intent", () => {
+    const width = 3;
+    const height = 1;
+    const flatLandMask = new Uint8Array(width).fill(1);
+    const habitat = {
+      flatLandMask,
+      terrainBiomeCompatibilityMasks: deriveWetlandTerrainBiomeCompatibilityMasks({
+        width,
+        height,
+        flatLandMask,
+        biomeIndex: new Uint8Array([
+          BIOME_SYMBOL_TO_INDEX.temperateHumid,
+          BIOME_SYMBOL_TO_INDEX.desert,
+          BIOME_SYMBOL_TO_INDEX.tropicalRainforest,
+        ]),
+      }),
+    };
+    const masks = habitat.terrainBiomeCompatibilityMasks;
+    const input = {
+      width,
+      height,
+      seed: TEST_MAP_SEED,
+      scoreMarsh01: new Float32Array([0.75, 0.75, 0.75]),
+      scoreTundraBog01: new Float32Array(width),
+      scoreMangrove01: new Float32Array([0.95, 0.95, 0.95]),
+      scoreOasis01: new Float32Array(width),
+      scoreWateringHole01: new Float32Array(width),
+      ...habitat,
+      featureOccupancyMask: new Uint8Array(width),
+    };
+    const planner = ecology.features.ops.planWetlands;
+    const selection = normalizeOperationSelectionForTest(planner, planner.defaultConfig);
+    const before = structuredClone(input);
+
+    expect(Value.Check(planner.input, input)).toBe(true);
+    expect(
+      Value.Check(planner.input, { ...input, terrainBiomeCompatibilityMasks: undefined })
+    ).toBe(false);
+    expect(
+      Value.Check(planner.input, {
+        ...input,
+        terrainBiomeCompatibilityMasks: { marsh: masks.marsh },
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(planner.input, {
+        ...input,
+        terrainBiomeCompatibilityMasks: { ...masks, reef: new Uint8Array(width) },
+      })
+    ).toBe(false);
+    expect(() =>
+      planner.run(
+        {
+          ...input,
+          terrainBiomeCompatibilityMasks: { ...masks, mangrove: new Uint8Array(width - 1) },
+        },
+        selection
+      )
+    ).toThrow();
+    expect(planner.run(input, selection).placements).toEqual([
+      { x: 0, y: 0, feature: "marsh" },
+      { x: 2, y: 0, feature: "mangrove" },
+    ]);
+    expect(input).toEqual(before);
+  });
+
+  it("leaves unsupported desert and plains mangrove claims available to vegetation", () => {
+    const width = 2;
+    const height = 1;
+    const flatLandMask = new Uint8Array(width).fill(1);
+    const biomeIndex = new Uint8Array([
+      BIOME_SYMBOL_TO_INDEX.desert,
+      BIOME_SYMBOL_TO_INDEX.tropicalSeasonal,
+    ]);
+    const planner = ecology.features.ops.planWetlands;
+    const wetlandIntents = planner.run({
+      width,
+      height,
+      seed: TEST_MAP_SEED,
+      scoreMarsh01: new Float32Array(width),
+      scoreTundraBog01: new Float32Array(width),
+      scoreMangrove01: new Float32Array(width).fill(0.95),
+      scoreOasis01: new Float32Array(width),
+      scoreWateringHole01: new Float32Array(width),
+      flatLandMask,
+      terrainBiomeCompatibilityMasks: deriveWetlandTerrainBiomeCompatibilityMasks({
+        width,
+        height,
+        flatLandMask,
+        biomeIndex,
+      }),
+      featureOccupancyMask: new Uint8Array(width),
+    }, normalizeOperationSelectionForTest(planner, planner.defaultConfig)).placements;
+    expect(wetlandIntents).toEqual([]);
+
+    const vegetation = ecology.features.ops.planVegetation;
+    const vegetationIntents = vegetation.run({
+      width,
+      height,
+      seed: TEST_MAP_SEED,
+      scoreForest01: new Float32Array(width),
+      scoreRainforest01: new Float32Array(width),
+      scoreTaiga01: new Float32Array(width),
+      scoreSavannaWoodland01: new Float32Array([0, 0.8]),
+      scoreSagebrushSteppe01: new Float32Array([0.8, 0]),
+      landMask: new Uint8Array(width).fill(1),
+      flatLandMask,
+      biomeIndex,
+      surfaceTemperature: new Float32Array(width).fill(24),
+      effectiveMoisture: new Float32Array(width).fill(80),
+      aridityIndex: new Float32Array(width).fill(0.5),
+      vegetationDensity: new Float32Array(width).fill(0.3),
+      featureOccupancyMask: deriveFeatureOccupancy({ width, height }, wetlandIntents),
+    }, normalizeOperationSelectionForTest(vegetation, vegetation.defaultConfig)).placements;
+    expect(vegetationIntents).toEqual([
+      { x: 0, y: 0, feature: "sagebrush-steppe" },
+      { x: 1, y: 0, feature: "savanna-woodland" },
+    ]);
   });
 });

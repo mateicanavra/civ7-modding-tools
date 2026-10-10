@@ -8,7 +8,8 @@ const VEGETATION_FEATURE_INTENT_KEYS = [
   "sagebrush-steppe",
 ] as const;
 
-const WETLAND_FEATURE_INTENT_KEYS = [
+/** Closed wetland families shared by physical planning and recipe compatibility admission. */
+export const WETLAND_FEATURE_INTENT_KEYS = [
   "marsh",
   "tundra-bog",
   "mangrove",

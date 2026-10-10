@@ -31,12 +31,12 @@ import { createEmptyFeatureScoreLayers } from "../../fixtures/feature-score-laye
 
 describe("ecology-features plan-wetlands step", () => {
   it.each([
-    "marsh",
-    "tundra-bog",
-    "mangrove",
-    "oasis",
-    "watering-hole",
-  ] as const)("publishes %s on flat none/minor-river land while preserving exclusions", (feature) => {
+    { feature: "marsh", biome: "temperateHumid" },
+    { feature: "tundra-bog", biome: "boreal" },
+    { feature: "mangrove", biome: "tropicalRainforest" },
+    { feature: "oasis", biome: "desert" },
+    { feature: "watering-hole", biome: "tropicalSeasonal" },
+  ] as const)("publishes $feature on compatible flat none/minor-river land while preserving exclusions", ({ feature, biome }) => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const setup = admitMapSetup({
@@ -90,7 +90,7 @@ describe("ecology-features plan-wetlands step", () => {
       publishTestArtifact(stepContext, biomeArtifacts.biomeClassification, {
         width,
         height,
-        biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid),
+        biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX[biome]),
         vegetationDensity: new Float32Array(size).fill(0.4),
         treeLine01: new Float32Array(size),
       });

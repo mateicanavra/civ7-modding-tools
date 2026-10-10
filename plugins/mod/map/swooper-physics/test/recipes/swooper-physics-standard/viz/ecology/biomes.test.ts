@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { resolveEngineBiomeIds } from "../../../../../src/recipes/standard/stages/ecology/projection/model/policy/biome-projection.js";
+import { resolveEngineBiomeIds } from "../../../../../src/recipes/standard/stages/ecology/model/policy/biome-projection.js";
 import { buildEngineBiomeIdVizCategories } from "../../../../../src/recipes/standard/stages/ecology/projection/viz.js";
 import { TEST_MAP_SIZE } from "../../../../setup.js";
 

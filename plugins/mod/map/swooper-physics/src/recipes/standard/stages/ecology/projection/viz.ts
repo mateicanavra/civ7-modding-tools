@@ -2,7 +2,7 @@ import { BIOME_SYMBOL_ORDER, type BiomeSymbol } from "../../../../../domain/ecol
 import type { VizLayerCategory } from "@swooper/mapgen-viz";
 
 import { BIOME_INDEX_VIZ_CATEGORIES } from "../../ecology/biomes/viz.js";
-import type { resolveEngineBiomeIds } from "./model/policy/biome-projection.js";
+import type { resolveEngineBiomeIds } from "../model/policy/biome-projection.js";
 
 const MARINE_LABEL = "marine";
 type NumericVizLayerCategory = VizLayerCategory & Readonly<{ value: number }>;

@@ -18,4 +18,9 @@ export {
   type WetlandFeatureIntentKey,
   type WetlandFeaturePlacement,
   WetlandFeaturePlacementSchema,
+  WETLAND_FEATURE_INTENT_KEYS,
 } from "./feature-placement.schema.js";
+export {
+  type WetlandTerrainBiomeCompatibilityMasks,
+  WetlandTerrainBiomeCompatibilityMasksSchema,
+} from "./wetland-terrain-biome-compatibility.schema.js";

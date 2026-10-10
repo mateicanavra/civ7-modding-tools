@@ -118,6 +118,35 @@ thermal aggregate failure. This is source-meaning qualification, not a new
 freshwater supply, salinity or root-zone model. The playable session is retained;
 new-bundle native execution remains unclaimed.
 
+The subsequent [marine mangrove response candidate](terrestrial-water-influence.md#marine-response-candidate-discrimination)
+retires only that consumer's generic terrestrial-water multiplier and controls,
+retaining marine habitat, warmth, drought, fertility and placement gates.
+The actual Archipelago contrast holds captured physical/climate/soil products
+and all 24 other scorer layers; twelve rainforest sites become mangrove with
+no increase in occupied ground. All 140 resource placements survive and eight
+new habitat-legal opportunities are placed in the mock execution. The complete
+bank retains 4,429 passing expectations and the exact one thermal failure;
+all Earthlike observations hold. Retained application logs nevertheless expose
+five dry cases where every mangrove is refused after its intent suppresses
+legal vegetation. The bare candidate is held, not adopted or installed. The
+[bounded admission prerequisite](terrestrial-water-influence.md#wetland-feasibility-prerequisite)
+uses official terrain/biome compatibility before wetland arbitration and
+occupancy; no climate tuning or post-rejection fallback is selected.
+The [combined compatibility qualification](terrestrial-water-influence.md#completed-compatibility-qualification)
+now closes that prerequisite. All 558 impossible mangrove reservations in the
+retained 57-map log comparison disappear, while all 116 realized mangrove
+placements survive and the five dry cases recover their pre-unit vegetation
+outcomes without score or floor changes. The actual Archipelago still realizes
+the twelve supported habitat substitutions; all Earthlike and Desert Mountains
+bank observations hold. Full owner verification passes 1,328 definition, 371
+realization and 412 Studio tests, with only the same thermal aggregate failure.
+The unchanged complete bank retains 4,429 passing expectations and the exact
+one thermal failure. This qualifies adoption at the owner, not a fresh native
+game or complete engine feasibility.
+This does not complete terrestrial
+river/lake plant-water composition, introduce a shoreline quota, or claim fresh
+native execution.
+
 The single retained island transect resolves to finite water and does not
 demonstrate lost marine relief. No new island algorithm is selected from that
 example. The broader geography observation needs a matched marine connection;

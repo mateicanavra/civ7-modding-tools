@@ -3,9 +3,10 @@ import {
   CIV7_MARINE_BIOME_GLOBAL,
   type Civ7BiomeGlobal,
 } from "@civ7/map-policy";
-import { BIOME_SYMBOL_ORDER, type BiomeSymbol } from "../../../../../../../domain/ecology/index.js";
+import { BIOME_SYMBOL_ORDER, type BiomeSymbol } from "../../../../../../domain/ecology/index.js";
 
-const SWOOPER_LAND_BIOME_PROJECTION = {
+/** Canonical Standard recipe mapping used by planning compatibility and Civ7 projection. */
+export const SWOOPER_LAND_BIOME_PROJECTION = {
   snow: CIV7_BIOME_GLOBAL.TUNDRA,
   tundra: CIV7_BIOME_GLOBAL.TUNDRA,
   boreal: CIV7_BIOME_GLOBAL.TUNDRA,
@@ -30,7 +31,7 @@ function isEngineBiomeId(value: number): boolean {
 }
 
 /**
- * Resolves the stage-owned biome projection policy against the active Civ7 adapter.
+ * Resolves the recipe-owned biome projection policy against the active Civ7 adapter.
  * Missing or non-numeric globals fail closed so projection cannot silently substitute a biome.
  */
 export function resolveEngineBiomeIds(adapter: BiomeGlobalResolver): ResolvedEngineBiomeIds {

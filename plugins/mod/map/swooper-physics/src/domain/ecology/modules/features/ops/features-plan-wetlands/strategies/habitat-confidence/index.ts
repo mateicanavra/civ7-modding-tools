@@ -69,7 +69,10 @@ const habitatConfidenceStrategy = createStrategy(Contract, StrategyDefinition, {
         },
       ] as const;
 
-      const best = choosePhysicalCandidate(candidates);
+      const compatibleCandidates = candidates.filter(
+        (candidate) => input.terrainBiomeCompatibilityMasks[candidate.feature][i] === 1
+      );
+      const best = choosePhysicalCandidate(compatibleCandidates);
       if (best === null) continue;
       if (!admitWetlandIntent(best, config)) continue;
 
