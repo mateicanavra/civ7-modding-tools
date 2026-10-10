@@ -96,7 +96,7 @@ resources and starts; it is not used to invent that continuation.
 
 Exactly two fresh, complete public recipe captures compare Standard 1 and Huge 2
 against the sealed preceding point-water captures. Both pass the unchanged
-integrity target. All forty-one public model fields and their typed-array
+integrity target, forty-nine expectations each. All forty-one public model fields and their typed-array
 contracts, elevation/lake/river projection, terrain, biome and water are exact
 before attributing any feature or resource changes. Final placement has no feature
 refusals and reproduces the retained occupancy consequences:
@@ -121,6 +121,15 @@ outcomes are legal under the existing headless policy; resource support and the
 complete public start/fairness publication remain exact. These are copied
 completed-recipe observations, not reconstructed per-cell planner history or
 fresh native resource acceptance.
+
+This does not establish generally improved resource distribution. The measured
+polar latitude-band overrepresentation rises from `1.58491 to 2.10335` and
+`2.26540 to 4.43440` as new cold legal sites admit Clay. Both candidates retain
+the actual four-tile Clay spacing floor, and all changed resources lie outside
+the founder support zones, consistent with exact realized support. Pre-existing
+non-Clay authored-range deficits remain; none is waived or attributed to this
+repair. Source legality, supply calibration and spatial distribution are separate
+claims.
 
 The focused contract/publication/config tests pass thirty tests. Full definition
 verification passes 1,390 tests with only the unchanged within-row thermal-study
