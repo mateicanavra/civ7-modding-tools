@@ -8,33 +8,47 @@ import {
 
 const setup = createStandardRecipeTestInitialSetup();
 
-function normalizeDryness(dryness: "wet" | "mix") {
+function normalizeCryosphere(cryosphere: "off" | "on") {
   const recipeConfig = createStandardRecipeTestConfig();
   const stageConfig = recipeConfig["hydrology-climate-refine"];
-  const precipitation = stageConfig["climate-refine"].refinePrecipitation;
-  if (precipitation.strategy !== "riparian-basin-wetness") {
-    throw new Error("Climate refine must author refined precipitation.");
-  }
-  precipitation.config.riverCorridor.lowlandAdjacencyBonus = 20;
-  stageConfig.knobs.dryness = dryness;
-  stageConfig.knobs.cryosphere = "on";
+  stageConfig.knobs.cryosphere = cryosphere;
   return standardRecipe.compileConfig(setup, recipeConfig)["hydrology-climate-refine"][
     "climate-refine"
   ];
 }
 
 describe("hydrology climate-refine authoring", () => {
-  it("scales authored river-corridor moisture upward for the wet posture", () => {
-    const neutral = normalizeDryness("mix");
-    const wet = normalizeDryness("wet");
-    if (neutral.refinePrecipitation.strategy !== "riparian-basin-wetness") {
-      throw new Error("Climate refine must retain refined precipitation.");
-    }
-    if (wet.refinePrecipitation.strategy !== "riparian-basin-wetness") {
-      throw new Error("Climate refine must retain refined precipitation.");
-    }
+  it("retains only cryosphere normalization without rewriting atmospheric forcing", () => {
+    const on = normalizeCryosphere("on");
+    const off = normalizeCryosphere("off");
+    const authored = createStandardRecipeTestConfig()["hydrology-climate-refine"];
 
-    expect(neutral.refinePrecipitation.config.riverCorridor.lowlandAdjacencyBonus).toBe(20);
-    expect(wet.refinePrecipitation.config.riverCorridor.lowlandAdjacencyBonus).toBe(23);
+    expect(authored.knobs).toEqual({ cryosphere: "on" });
+    expect(on).toEqual(authored["climate-refine"]);
+    expect(off.applyAlbedoFeedback.config.iterations).toBe(0);
+    expect(off.computeCryosphereState.config.precipitationInfluence).toBe(0);
+    expect(off.computeLandWaterBudget).toEqual(on.computeLandWaterBudget);
+    expect(off.computePotentialDemand).toEqual(on.computePotentialDemand);
+    expect(off.computeClimateDiagnostics).toEqual(on.computeClimateDiagnostics);
+    expect(on).not.toHaveProperty("refinePrecipitation");
+  });
+
+  it("refuses retired precipitation refinement and dryness at recipe compilation", () => {
+    const config = createStandardRecipeTestConfig();
+    const stage = config["hydrology-climate-refine"];
+    for (const retiredStage of [
+      { ...stage, knobs: { ...stage.knobs, dryness: "mix" } },
+      {
+        ...stage,
+        "climate-refine": {
+          ...stage["climate-refine"],
+          refinePrecipitation: { strategy: "riparian-basin-wetness", config: {} },
+        },
+      },
+    ]) {
+      expect(() => standardRecipe.compileConfig(setup, {
+        ...config, "hydrology-climate-refine": retiredStage,
+      })).toThrow();
+    }
   });
 });

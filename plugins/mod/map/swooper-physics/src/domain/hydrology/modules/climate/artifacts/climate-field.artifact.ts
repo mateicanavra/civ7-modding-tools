@@ -1,8 +1,8 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Publishes the final rainfall and humidity vintage after river-corridor and cryosphere refinement;
- * map projection and Ecology consume this surface rather than the baseline. Admission preserves map
+ * Publishes copies of unchanged baseline atmospheric rainfall and humidity after climate refinement;
+ * map projection and Ecology consume this final vintage. Admission preserves map
  * cardinality and Civ7's inclusive `0..200` rainfall domain.
  */
 export const artifact = defineArtifact({
@@ -18,13 +18,13 @@ export const artifact = defineArtifact({
       humidity: TypedArraySchemas.u8({
         cardinality: "map-grid",
         description:
-          "Final per-tile atmospheric moisture after river-corridor and cryosphere refinement, encoded on an inclusive 0-255 scale.",
+          "Unchanged baseline per-tile atmospheric moisture consumed by projection and Ecology, encoded on an inclusive 0-255 scale.",
       }),
     },
     {
       additionalProperties: false,
       description:
-        "Hydrology's immutable final climate surface with one refined rainfall and humidity sample for every map tile.",
+        "Hydrology's immutable final climate surface with unchanged baseline atmospheric rainfall and humidity for every map tile.",
     }
   ),
   refine: (value, { issues }) => {

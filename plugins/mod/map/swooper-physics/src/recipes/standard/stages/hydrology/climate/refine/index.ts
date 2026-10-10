@@ -2,15 +2,6 @@ import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../../../contract-manifest.js";
 import { ClimateRefineStep } from "./steps/climate-refine/step.js";
 
-const HydrologyDrynessKnobSchema = Type.Union(
-  [Type.Literal("wet"), Type.Literal("mix"), Type.Literal("dry")],
-  {
-    default: "mix",
-    description:
-      "Global moisture availability preset (wet/mix/dry). Used to bias climate generation; does not directly tune canonical drainage routing or Hydrology river classification thresholds.",
-  }
-);
-
 const HydrologyCryosphereKnobSchema = Type.Union([Type.Literal("off"), Type.Literal("on")], {
   default: "on",
   description:
@@ -19,14 +10,6 @@ const HydrologyCryosphereKnobSchema = Type.Union([Type.Literal("off"), Type.Lite
 
 const knobsSchema = Type.Object(
   {
-    /**
-     * Global moisture availability bias (not regional).
-     *
-     * Stage scope:
-     * - Transforms bounded precipitation-refinement deltas.
-     * - Must not change baseline climate generation (that belongs to climate-baseline).
-     */
-    dryness: HydrologyDrynessKnobSchema,
     /**
      * Cryosphere enablement.
      *
@@ -37,12 +20,12 @@ const knobsSchema = Type.Object(
   },
   {
     description:
-      "Hydrology climate-refine knobs (dryness/cryosphere). Knobs apply after defaulted refinement controls as deterministic transforms; baseline owns thermal forcing.",
+      "Hydrology climate-refine cryosphere knob. Applies a deterministic transform to bounded feedback controls; baseline owns atmospheric and thermal forcing.",
   }
 );
 
 /**
- * Applies bounded precipitation, albedo, and cryosphere refinement in
+ * Preserves atmospheric forcing and applies bounded albedo and cryosphere refinement in
  * the post-hydrography climate pass.
  */
 export default createStage({

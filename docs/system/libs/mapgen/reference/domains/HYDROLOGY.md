@@ -160,12 +160,26 @@ Baseline climate also publishes potential evaporative demand and its admitted
 five-parameter calibration. The baseline step evaluates the shared
 `computePotentialDemand` operation within its existing final seasonal samples
 and averages demand, rather than applying a nonlinear temperature law to an
-annual temperature mean. Refinement reuses the same parameters with its later
-temperature/humidity forcing. `computeLandWaterBudget` consumes that demand
-and owns effective moisture and aridity; it does not own another PET law.
+annual temperature mean. This seasonal empirical demand is evaluated on all
+surfaces, including original water; it is not a land-masked output. Refinement
+reuses the same parameters with its later temperature and unchanged baseline
+humidity. `computeLandWaterBudget` consumes that demand and owns effective
+moisture and aridity; it does not own another PET law.
 Invocation-local demand retains double precision until aridity is computed,
 while published climate arrays remain Float32. Demand uses empirical rainfall
 index units, not calibrated open-water evaporation or a depth-storage rate.
+
+The post-network climate pass preserves baseline atmospheric rainfall and
+humidity exactly and publishes copies for final consumers. It does not inject
+river-corridor or closed-basin rainfall, reconstruct humidity from rainfall,
+or derive effective moisture from river hierarchy. The existing land-water
+budget owns the empirical atmospheric index `rainfall + 0.35 * humidity` on
+resolved exposed land, including newly exposed finite ground. Its supplied
+PET and aridity law are unchanged; all three terrestrial budget outputs remain
+zero on water. The index is not soil saturation, groundwater, plant uptake,
+actual evapotranspiration or a local surface-water access model. This
+atmospheric-only removal control is a qualification candidate, not an adopted
+local-water response.
 
 There is one ground-temperature computation owner: baseline climate. Refine
 consumes `thermalField` and applies declared albedo feedback;
@@ -208,7 +222,7 @@ operations they execute:
 
 - `ocean`: ocean geometry, surface currents, and thermal state,
 - `climate`: radiative and thermal forcing, atmospheric circulation, moisture transport,
-  precipitation, and the river-aware terrestrial water budget,
+  precipitation, and the atmospheric terrestrial water budget,
 - `cryosphere`: cryosphere state and albedo feedback,
 - `hydrography`: drainage, discharge, causal river-network classification, and lake intent.
 
@@ -221,7 +235,6 @@ The Standard recipe uses operation contracts such as:
 - `computeEvaporationSources`
 - `transportMoisture`
 - `computePrecipitation` (`vector` synthesis)
-- `refinePrecipitation` (post-hydrography riparian and closed-basin wetness)
 - `projectRiverNetwork`
 - `computeLocalRunoff`
 - `computeDrainageBasins`
@@ -249,7 +262,7 @@ small set of stage knobs for product-level posture:
 
 - `hydrology-climate-baseline` knobs: `dryness`, `temperature`, `seasonality`, `oceanCoupling`
 - `hydrology-hydrography` knobs: `riverDensity` (physical river-network classification density)
-- `hydrology-climate-refine` knobs: `dryness`, `cryosphere`
+- `hydrology-climate-refine` knobs: `cryosphere`
 
 `hydrology-hydrography.water` is a closed `certified-sill-spill` contract with
 four physical operation envelopes. `map-rivers` is configurationless and uses
@@ -264,6 +277,10 @@ replace or reconstruct their shape.
 The baseline step's `potentialDemand` object owns PET coefficients; refinement
 receives their admitted values through baseline climate instead of duplicating
 authoring authority in its water-budget strategy.
+The former climate-refine `dryness` knob and `refinePrecipitation` operation
+envelope are retired and refused at step, stage and saved-config admission,
+not translated into a replacement wetness lane. Baseline `dryness` remains
+the sole product-level atmospheric moisture posture.
 
 ## River network benchmark contract
 

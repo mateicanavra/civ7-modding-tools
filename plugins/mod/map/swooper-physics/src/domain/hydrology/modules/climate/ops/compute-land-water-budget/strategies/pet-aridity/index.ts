@@ -1,21 +1,13 @@
-import {
-  isMajorRiverClass,
-  isMinorRiverClass,
-} from "../../../../../hydrography/model/policy/river-class.js";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { clamp01 } from "@swooper/mapgen-core/lib/math";
 import ComputeLandWaterBudgetContract from "../../contract.js";
 import PetAridityDefinition from "./config.js";
 
 const EFFECTIVE_MOISTURE_HUMIDITY_WEIGHT = 0.35;
-const MINOR_RIVER_MOISTURE_BONUS = 4;
-const MAJOR_RIVER_MOISTURE_BONUS = 8;
 
 /**
- * Derives effective moisture and aridity from supplied demand, climate, and river evidence.
- * Effective moisture uses the Civ7 hex neighborhood so diagonal square-grid corners cannot create
- * false riparian influence; all terrestrial indices remain exactly zero on water.
+ * Derives atmospheric effective moisture and aridity from supplied demand and climate.
+ * All terrestrial indices remain exactly zero outside resolved exposed land.
  */
 const petAridityStrategy = createStrategy(ComputeLandWaterBudgetContract, PetAridityDefinition, {
   run: (input) => {
@@ -40,22 +32,7 @@ const petAridityStrategy = createStrategy(ComputeLandWaterBudgetContract, PetAri
 
       const humidityRaw = input.humidity[i]!;
       const precip = input.rainfall[i]!;
-      let maximumRiverClass = input.riverClass[i]!;
-      if (!isMajorRiverClass(maximumRiverClass)) {
-        const x = i % width;
-        const y = (i / width) | 0;
-        forEachHexNeighborOddQ(x, y, width, height, (neighborX, neighborY) => {
-          const riverClass = input.riverClass[neighborY * width + neighborX]!;
-          if (riverClass > maximumRiverClass) maximumRiverClass = riverClass;
-        });
-      }
-      const riparianBonus = isMajorRiverClass(maximumRiverClass)
-        ? MAJOR_RIVER_MOISTURE_BONUS
-        : isMinorRiverClass(maximumRiverClass)
-          ? MINOR_RIVER_MOISTURE_BONUS
-          : 0;
-      effectiveMoisture[i] =
-        precip + EFFECTIVE_MOISTURE_HUMIDITY_WEIGHT * humidityRaw + riparianBonus;
+      effectiveMoisture[i] = precip + EFFECTIVE_MOISTURE_HUMIDITY_WEIGHT * humidityRaw;
 
       const petValue = input.pet[i]!;
       pet[i] = petValue;

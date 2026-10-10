@@ -8,7 +8,7 @@ const ComputeLandWaterBudgetContract = defineOp({
   /**
    * Computes terrestrial effective moisture, PET, and aridity.
    *
-   * This op combines rainfall, humidity, supplied demand, and river hierarchy into deterministic
+   * This op combines rainfall, humidity, and supplied demand into deterministic
    * advisory indices. Consumers use these outputs rather than re-deriving local variants.
    */
   input: Type.Object(
@@ -17,8 +17,10 @@ const ComputeLandWaterBudgetContract = defineOp({
       width: Type.Integer({ minimum: 1, description: "Tile grid width (columns)." }),
       /** Tile grid height. */
       height: Type.Integer({ minimum: 1, description: "Tile grid height (rows)." }),
-      /** Land mask per tile (1=land, 0=water). */
-      landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
+      /** Resolved exposed-land mask per tile (1=land, 0=water). */
+      landMask: TypedArraySchemas.u8({
+        description: "Resolved exposed-land mask per tile (1=land, 0=water).",
+      }),
       /** Rainfall (0..200) per tile. */
       rainfall: TypedArraySchemas.u8({ description: "Rainfall (0..200) per tile." }),
       /** Humidity (0..255) per tile. */
@@ -27,16 +29,11 @@ const ComputeLandWaterBudgetContract = defineOp({
       pet: Type.Array(Type.Number({ minimum: 0 }), {
         description: "One double-precision potential-demand sample per tile, supplied by Climate.",
       }),
-      /** Hydrology river hierarchy used to derive local riparian moisture influence. */
-      riverClass: TypedArraySchemas.u8({
-        description:
-          "Hydrology river class per tile (0=none, 1=minor, 2+=major) used for riparian moisture.",
-      }),
     },
     {
       additionalProperties: false,
       description:
-        "Admitted climate and river inputs for deterministic terrestrial water-budget indices.",
+        "Admitted atmospheric climate and demand inputs for deterministic terrestrial water-budget indices.",
     }
   ),
   /**
@@ -48,10 +45,10 @@ const ComputeLandWaterBudgetContract = defineOp({
       pet: TypedArraySchemas.f32({
         description: "Potential evapotranspiration proxy (rainfall units, advisory).",
       }),
-      /** Rainfall, humidity, and nearby river influence expressed on one terrestrial moisture scale. */
+      /** Atmospheric rainfall and humidity expressed on one terrestrial moisture scale. */
       effectiveMoisture: TypedArraySchemas.f32({
         description:
-          "Land-only rainfall + 0.35*humidity + radius-1 wrapped-hex river bonus (minor=4, major=8); the authored rainfall and humidity maxima yield 297.25, and water is 0.",
+          "Exposed-land rainfall + 0.35*humidity, an empirical atmospheric moisture index; the authored rainfall and humidity maxima yield 289.25, and water is 0.",
       }),
       /** Aridity index (0..1) derived from precipitation vs PET (advisory). */
       aridityIndex: TypedArraySchemas.f32({

@@ -12,7 +12,6 @@ import ComputePrecipitationContract from "./ops/compute-precipitation/contract.j
 import ComputePressureFieldContract from "./ops/compute-pressure-field/contract.js";
 import ComputeRadiativeForcingContract from "./ops/compute-radiative-forcing/contract.js";
 import ComputeThermalStateContract from "./ops/compute-thermal-state/contract.js";
-import RefinePrecipitationContract from "./ops/refine-precipitation/contract.js";
 import TransportMoistureContract from "./ops/transport-moisture/contract.js";
 
 /** Climate contract for atmospheric forcing, moisture transport, precipitation, and water budgets. */
@@ -29,7 +28,6 @@ const climate = defineDomainSubdomain({
     computeEvaporationSources: ComputeEvaporationSourcesContract,
     transportMoisture: TransportMoistureContract,
     computePrecipitation: ComputePrecipitationContract,
-    refinePrecipitation: RefinePrecipitationContract,
     computeLandWaterBudget: ComputeLandWaterBudgetContract,
     computePotentialDemand: ComputePotentialDemandContract,
     computeClimateDiagnostics: ComputeClimateDiagnosticsContract,

@@ -8,6 +8,7 @@ import { loadSwooperMapConfigCatalog } from "../../scripts/catalog-source";
 import { createSwooperMapConfigSourceStore } from "../../scripts/config-source-store";
 import ecology from "../../src/domain/ecology/router.js";
 import morphology from "../../src/domain/morphology/router.js";
+import hydrology from "../../src/domain/hydrology/router.js";
 import { buildStandardRecipeDefaultConfig } from "../../src/recipes/standard/artifacts.js";
 import { admitMapConfigCatalogConfig } from "../../src/maps/catalog/admission";
 import { MAP_CONFIG_CATALOG_IDS } from "../../src/maps/catalog/membership";
@@ -283,7 +284,27 @@ describe("Shipped map configs", () => {
 
   it("refuses saved retired climate selectors and controls rather than translating them", async () => {
     const configs = await loadSwooperMapConfigRegistry();
+    expect(collectOperations(hydrology)).not.toHaveProperty("hydrology/refine-precipitation");
+    expect(hydrology.climate.ops).not.toHaveProperty("refinePrecipitation");
     for (const { canonicalConfig } of configs) {
+      const refine = canonicalConfig.config["hydrology-climate-refine"];
+      expect(refine.knobs).not.toHaveProperty("dryness");
+      expect(refine["climate-refine"]).not.toHaveProperty("refinePrecipitation");
+      for (const retiredRefine of [
+        { ...refine, knobs: { ...refine.knobs, dryness: "mix" } },
+        {
+          ...refine,
+          "climate-refine": {
+            ...refine["climate-refine"],
+            refinePrecipitation: { strategy: "riparian-basin-wetness", config: {} },
+          },
+        },
+      ]) {
+        expect(() => admitStandardMapConfig({
+          ...canonicalConfig,
+          config: { ...canonicalConfig.config, "hydrology-climate-refine": retiredRefine },
+        })).toThrow("Unknown key");
+      }
       const stage = canonicalConfig.config["hydrology-climate-baseline"];
       const baseline = stage["climate-baseline"];
       for (const [key, obsolete] of [

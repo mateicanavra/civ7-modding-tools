@@ -14,7 +14,7 @@ export const artifact = defineArtifact({
       rainfall: TypedArraySchemas.u8({
         cardinality: "map-grid",
         description:
-          "Annual-mean precipitation intensity before river-corridor and cryosphere refinement, encoded in Civ7's inclusive 0-200 rainfall domain.",
+          "Annual-mean atmospheric precipitation intensity preserved through climate refinement, encoded in Civ7's inclusive 0-200 rainfall domain.",
       }),
       humidity: TypedArraySchemas.u8({
         cardinality: "map-grid",
@@ -24,7 +24,7 @@ export const artifact = defineArtifact({
       potentialDemand: TypedArraySchemas.f32({
         cardinality: "map-grid",
         description:
-          "Mean of seasonal empirical PET in rainfall units on original Morphology land; zero on original water. Not calibrated open-water evaporation.",
+          "Mean of seasonal empirical PET in rainfall units on all surfaces, including original water. Not calibrated open-water evaporation.",
       }),
       demandParameters: PotentialDemandParametersSchema,
     },
