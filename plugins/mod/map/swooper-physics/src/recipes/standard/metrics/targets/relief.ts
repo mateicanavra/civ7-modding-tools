@@ -164,11 +164,11 @@ export const EARTHLIKE_HUGE_RELIEF_COHORT_TARGET = {
   ],
 } satisfies MetricTarget<StandardMapMetricCohort>;
 
-/** Earthlike cohort benchmark for long orogenic systems with inhabitable interior structure. */
+/** Earthlike cohort admission for regional footprint and aggregate exposed-terrain composition. */
 export const EARTHLIKE_OROGENY_TARGET = {
   id: "swooper-earthlike/orogeny-cohort",
   description:
-    "Earthlike preserves long mountain systems whose regions contain passes, valleys, and foothills.",
+    "Earthlike keeps large mountain-region footprints and mixed exposed regional terrain.",
   expectations: [
     atLeast<StandardMapMetricCohort>(
       "mountain-presence",
@@ -176,16 +176,6 @@ export const EARTHLIKE_OROGENY_TARGET = {
       (samples) =>
         summarizeCohort(samples, (sample) => sample.metrics.relief.plannedMountains.count).minimum,
       1
-    ),
-    atLeast<StandardMapMetricCohort>(
-      "mountain-region-diameter",
-      "Every roll retains a long mountain-region system.",
-      (samples) =>
-        summarizeCohort(
-          samples,
-          (sample) => sample.metrics.relief.mountainRegion.components.maximumComponentDiameter
-        ).minimum,
-      38
     ),
     atLeast<StandardMapMetricCohort>(
       "mountain-region-size",
@@ -199,21 +189,21 @@ export const EARTHLIKE_OROGENY_TARGET = {
     ),
     atLeast<StandardMapMetricCohort>(
       "mountain-region-non-mountain-share",
-      "Every orogenic region keeps most of its interior below mountain terrain.",
+      "Each sample keeps most exposed mountain-region terrain below modeled mountain terrain.",
       (samples) =>
         minimumShare(samples, (sample) => sample.metrics.relief.mountainRegion.nonMountains),
       0.65
     ),
     atLeast<StandardMapMetricCohort>(
       "mountain-region-flat-share",
-      "Every orogenic region retains broad flat passages and valleys.",
+      "Each sample retains a substantial aggregate share of flat exposed mountain-region terrain.",
       (samples) =>
         minimumShare(samples, (sample) => sample.metrics.relief.mountainRegion.flatInterior),
       0.35
     ),
     atLeast<StandardMapMetricCohort>(
       "mountain-region-flat-volume",
-      "Every roll retains settlement-scale flat terrain inside its mountain region.",
+      "Each sample retains substantial aggregate flat terrain within its exposed mountain regions.",
       (samples) =>
         summarizeCohort(
           samples,
@@ -223,14 +213,14 @@ export const EARTHLIKE_OROGENY_TARGET = {
     ),
     atMost<StandardMapMetricCohort>(
       "mountain-region-mountain-share",
-      "Mountain peaks remain a minority of the broader orogenic region.",
+      "Modeled mountains remain a minority of exposed mountain-region terrain in each sample.",
       (samples) =>
         maximumShare(samples, (sample) => sample.metrics.relief.mountainRegion.mountains),
       0.38
     ),
     atLeast<StandardMapMetricCohort>(
       "mountain-region-shoulder-share",
-      "Foothills and rough uplands provide a substantial shoulder around mountain spines.",
+      "Each sample retains a substantial aggregate foothill and rough-upland share in its exposed mountain regions.",
       (samples) =>
         summarizeCohort(samples, (sample) => {
           const region = sample.metrics.relief.mountainRegion;

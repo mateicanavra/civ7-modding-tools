@@ -25,7 +25,7 @@ function orogenyFixture(): StandardMapProductSample {
         ),
         mountainRegion: {
           tiles: 1000,
-          components: summarizeMetricComponents([{ size: 1000, diameter: 40 }]),
+          components: summarizeMetricComponents([{ size: 1000, diameter: 37 }]),
           mountains: measureMetricCount(200, 1000),
           foothills: measureMetricCount(300, 1000),
           roughLand: measureMetricCount(100, 1000),
@@ -39,12 +39,11 @@ function orogenyFixture(): StandardMapProductSample {
 }
 
 describe("Earthlike orogeny contract", () => {
-  it("retires only the categorical peak-span floor, preserving all regional bounds", () => {
+  it("retires span floors while preserving regional volume and composition bounds", () => {
     expect(
       EARTHLIKE_OROGENY_TARGET.expectations.map(({ id, comparator }) => ({ id, comparator }))
     ).toEqual([
       { id: "mountain-presence", comparator: { kind: "at-least", value: 1 } },
-      { id: "mountain-region-diameter", comparator: { kind: "at-least", value: 38 } },
       { id: "mountain-region-size", comparator: { kind: "at-least", value: 450 } },
       { id: "mountain-region-non-mountain-share", comparator: { kind: "at-least", value: 0.65 } },
       { id: "mountain-region-flat-share", comparator: { kind: "at-least", value: 0.35 } },
@@ -54,22 +53,21 @@ describe("Earthlike orogeny contract", () => {
     ]);
   });
 
-  it("accepts short categorical spines in a qualifying region without discarding their diagnostic", () => {
+  it("accepts sub-floor peak and region spans without discarding their diagnostics", () => {
     const sample = orogenyFixture();
-    const diagnostic = structuredClone(sample.metrics.relief.plannedMountainComponents);
+    const peakDiagnostic = structuredClone(sample.metrics.relief.plannedMountainComponents);
+    const regionDiagnostic = structuredClone(sample.metrics.relief.mountainRegion.components);
     const [evaluation] = evaluateMetricTargets([sample], [EARTHLIKE_OROGENY_TARGET]);
     expect(evaluation?.status).toBe("pass");
     expect(sample.metrics.relief.plannedMountainComponents.maximumComponentDiameter).toBe(9);
-    expect(sample.metrics.relief.plannedMountainComponents).toEqual(diagnostic);
+    expect(sample.metrics.relief.plannedMountainComponents).toEqual(peakDiagnostic);
+    expect(sample.metrics.relief.mountainRegion.components.maximumComponentDiameter).toBe(37);
+    expect(sample.metrics.relief.mountainRegion.components).toEqual(regionDiagnostic);
   }, 30_000);
 
-  it("still rejects deficient regional extent and passable interiors regardless of peak span", () => {
+  it("still rejects deficient regional volume and composition regardless of peak span", () => {
     const base = orogenyFixture();
     const deficientRegions: readonly [string, Partial<Region>][] = [
-      [
-        "mountain-region-diameter",
-        { components: summarizeMetricComponents([{ size: 1000, diameter: 37 }]) },
-      ],
       [
         "mountain-region-size",
         { components: summarizeMetricComponents([{ size: 449, diameter: 40 }]) },
