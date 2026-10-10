@@ -27,8 +27,10 @@ wonders. Bog features move from `2 to 8` and `1 to 6`; unchanged resource policy
 admits additional Clay on the changed feature surface, reaching minimum six in
 both cases without changing habitat masks, supply targets, ranges or spacing.
 All headless resource outcomes are legal, and both integrity targets pass. Full
-suites retain only the known thermal aggregate failure. Measured polar resource
-concentration increases, so this is not general distribution calibration. This is a bounded
+suites retain only the known thermal aggregate failure. Maximum latitude-band
+resource overrepresentation increases, with both after maxima in polar bands;
+this is a measured concentration consequence, not an automatic quality verdict
+or general distribution calibration. This is a bounded
 consumer and downstream qualification, not fresh native acceptance, measured
 waterlogging/peat/thaw or complete wetland prevalence calibration.
 

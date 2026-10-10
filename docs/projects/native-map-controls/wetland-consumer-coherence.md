@@ -123,8 +123,14 @@ completed-recipe observations, not reconstructed per-cell planner history or
 fresh native resource acceptance.
 
 This does not establish generally improved resource distribution. The measured
-polar latitude-band overrepresentation rises from `1.58491 to 2.10335` and
-`2.26540 to 4.43440` as new cold legal sites admit Clay. Both candidates retain
+maximum latitude-band resource overrepresentation rises from `1.58491 to 2.10335`
+and `2.26540 to 4.43440`. These maxima can select different bands: Standard's
+before maximum is at `-5..10` latitude, while its after maximum is at `70..80`.
+That northern band has twenty-four land tiles, resources `4 to 6` and its own
+ratio `1.41808 to 2.10335`. Huge's maximum remains at `-80..-65`, with six land
+tiles and resources `1 to 2`. Both after maxima are polar, establishing an actual
+concentration change as new cold legal sites admit Clay, not an automatic
+physical or gameplay quality regression. Both candidates retain
 the actual four-tile Clay spacing floor, and all changed resources lie outside
 the founder support zones, consistent with exact realized support. Pre-existing
 non-Clay authored-range deficits remain; none is waived or attributed to this
