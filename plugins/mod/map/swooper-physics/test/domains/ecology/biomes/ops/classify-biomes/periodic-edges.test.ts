@@ -44,25 +44,21 @@ function translateInputX(input: ReturnType<typeof inputFor>, offset: number) {
   };
 }
 
-function classify(input: ReturnType<typeof inputFor>, radius: number, iterations: number) {
-  const selection = classifyBiomes.defaultConfig;
-  return runAdmittedOperationForTest(classifyBiomes, input, {
-    ...selection,
-    config: { ...selection.config, edgeRefine: { radius, iterations } },
-  });
+function classify(input: ReturnType<typeof inputFor>) {
+  return runAdmittedOperationForTest(classifyBiomes, input, classifyBiomes.defaultConfig);
 }
 
 describe("classifyBiomes periodic edges", () => {
-  it.each([1, 2, 4])("commutes with cyclic X translations over %i refinement iterations", (iterations) => {
+  it("commutes with cyclic X translations", () => {
     const input = inputFor(9, 5);
     for (let y = 0; y < input.height; y++) input.effectiveMoisture[y * input.width] = 230;
     for (let index = 0; index < input.permafrost01.length; index++) {
       input.permafrost01[index] = (index % 5) / 4;
     }
-    const baseline = classify(input, 1, iterations);
+    const baseline = classify(input);
 
     for (let offset = 1; offset < input.width; offset++) {
-      const translated = classify(translateInputX(input, offset), 1, iterations);
+      const translated = classify(translateInputX(input, offset));
       expect(Array.from(translated.biomeIndex)).toEqual(
         translateX(baseline.biomeIndex, input.width, offset)
       );
@@ -75,7 +71,7 @@ describe("classifyBiomes periodic edges", () => {
     }
   });
 
-  it("excludes water votes across the seam while preserving the water sentinel", () => {
+  it("keeps land support independent of water across the seam while preserving the water sentinel", () => {
     const input = inputFor(9, 5);
     input.landMask.fill(0);
     for (let y = 0; y < input.height; y++) {
@@ -85,18 +81,20 @@ describe("classifyBiomes periodic edges", () => {
       input.landMask[row + input.width - 1] = 1;
       input.effectiveMoisture[row] = 230;
     }
-    const baseline = classify(input, 3, 4);
+    const baseline = classify(input);
 
     for (let index = 0; index < input.landMask.length; index++) {
       if (input.landMask[index] === 0) {
         expect(baseline.biomeIndex[index]).toBe(255);
         expect(baseline.vegetationDensity[index]).toBe(0);
       } else {
-        expect(biomeSymbolFromIndex(baseline.biomeIndex[index]!)).toBe("temperateDry");
+        expect(biomeSymbolFromIndex(baseline.biomeIndex[index]!)).toBe(
+          index % input.width === 0 ? "temperateHumid" : "temperateDry"
+        );
       }
     }
     for (let offset = 1; offset < input.width; offset++) {
-      const translated = classify(translateInputX(input, offset), 3, 4);
+      const translated = classify(translateInputX(input, offset));
       expect(Array.from(translated.biomeIndex)).toEqual(
         translateX(baseline.biomeIndex, input.width, offset)
       );
@@ -110,16 +108,16 @@ describe("classifyBiomes periodic edges", () => {
       differentWaterClimate.aridityIndex[index] = 1;
       differentWaterClimate.freezeIndex[index] = 1;
     }
-    const changedWater = classify(differentWaterClimate, 3, 4);
+    const changedWater = classify(differentWaterClimate);
     expect(changedWater.biomeIndex).toEqual(baseline.biomeIndex);
     expect(changedWater.vegetationDensity).toEqual(baseline.vegetationDensity);
   });
 
-  it.each([1, 4])("does not wrap between north and south over %i refinement iterations", (iterations) => {
+  it("does not transfer support between north and south", () => {
     const input = inputFor(4, 5);
     input.landMask.fill(0, input.width, input.width * 3);
     input.effectiveMoisture.fill(230, input.width * 3);
-    const result = classify(input, 2, iterations);
+    const result = classify(input);
 
     for (let x = 0; x < input.width; x++) {
       expect(biomeSymbolFromIndex(result.biomeIndex[x]!)).toBe("temperateDry");
@@ -130,37 +128,34 @@ describe("classifyBiomes periodic edges", () => {
     }
   });
 
-  it.each([1, 2, 4])("retains every Gaussian offset on a width-two grid over %i iterations", (iterations) => {
+  it("retains each column's local support on a width-two grid", () => {
     const input = inputFor(2, 3);
     for (let y = 0; y < input.height; y++) input.effectiveMoisture[y * input.width] = 230;
-    const result = classify(input, 5, iterations);
+    const result = classify(input);
 
-    // At radius five, the six odd X offsets outweigh the five even offsets.
     for (let y = 0; y < input.height; y++) {
-      expect(biomeSymbolFromIndex(result.biomeIndex[y * input.width]!)).toBe(
-        iterations % 2 === 1 ? "temperateDry" : "temperateHumid"
-      );
-      expect(biomeSymbolFromIndex(result.biomeIndex[y * input.width + 1]!)).toBe(
-        iterations % 2 === 1 ? "temperateHumid" : "temperateDry"
-      );
+      expect(biomeSymbolFromIndex(result.biomeIndex[y * input.width]!)).toBe("temperateHumid");
+      expect(biomeSymbolFromIndex(result.biomeIndex[y * input.width + 1]!)).toBe("temperateDry");
     }
-    const translated = classify(translateInputX(input, 1), 5, iterations);
+    const translated = classify(translateInputX(input, 1));
     expect(Array.from(translated.biomeIndex)).toEqual(translateX(result.biomeIndex, 2, 1));
   });
 
-  it("admits a width-one grid with a kernel wider than the map", () => {
+  it("admits a width-one grid without transferring support between rows", () => {
     const input = inputFor(1, 4);
+    input.effectiveMoisture[1] = 230;
     input.landMask[2] = 0;
-    const result = classify(input, 5, 4);
+    const result = classify(input);
 
-    for (const index of [0, 1, 3]) {
+    for (const index of [0, 3]) {
       expect(biomeSymbolFromIndex(result.biomeIndex[index]!)).toBe("temperateDry");
     }
+    expect(biomeSymbolFromIndex(result.biomeIndex[1]!)).toBe("temperateHumid");
     expect(result.biomeIndex[2]).toBe(255);
     expect(result.vegetationDensity[2]).toBe(0);
   });
 
-  it("leaves admitted inputs, forwarded climate fields, and vegetation unchanged by refinement", () => {
+  it("is deterministic and preserves admitted inputs, local density, treeline, and forwarded climate", () => {
     const input = inputFor(9, 5);
     for (let index = 0; index < input.landMask.length; index++) {
       input.effectiveMoisture[index] = index % input.width === 0 ? 230 : 70;
@@ -173,22 +168,35 @@ describe("classifyBiomes periodic edges", () => {
     }
     input.landMask[input.width - 1] = 0;
     const before = structuredClone(input);
-    const local = classify(input, 1, 1);
-    const broad = classify(input, 5, 4);
+    const result = classify(input);
+    const config = classifyBiomes.defaultConfig.config;
+    const moistureNormalization =
+      config.moisture.thresholds[3] + config.vegetation.moistureNormalizationPadding;
+    const energyRange = config.temperature.tropicalThreshold - config.temperature.polarCutoff;
+    const expectedDensity = Float32Array.from(input.effectiveMoisture, (moisture, index) => {
+      if (input.landMask[index] === 0) return 0;
+      const moistureNorm = Math.min(1, moisture / moistureNormalization);
+      const energy01 = (input.surfaceTemperatureC[index]! - config.temperature.polarCutoff) / energyRange;
+      const soilDelta = [-0.15, -0.08, 0.05][input.soilType[index]!]!;
+      return (
+        (config.vegetation.base + config.vegetation.moistureWeight * moistureNorm)
+        * energy01 * (1 - input.freezeIndex[index]!)
+        * (1 - input.aridityIndex[index]! * config.aridity.vegetationPenalty)
+        * (0.6 + 0.5 * input.fertility[index]! + soilDelta)
+      );
+    });
 
     expect(input).toEqual(before);
-    expect(classify(input, 5, 4)).toEqual(broad);
-    expect(broad.vegetationDensity).toEqual(local.vegetationDensity);
-    expect(broad.treeLine01).toEqual(local.treeLine01);
-    for (const result of [local, broad]) {
-      expect(result.effectiveMoisture).toEqual(input.effectiveMoisture);
-      expect(result.surfaceTemperature).toEqual(input.surfaceTemperatureC);
-      expect(result.aridityIndex).toEqual(input.aridityIndex);
-      expect(result.freezeIndex).toEqual(input.freezeIndex);
-      expect(result.effectiveMoisture).not.toBe(input.effectiveMoisture);
-      expect(result.surfaceTemperature).not.toBe(input.surfaceTemperatureC);
-      expect(result.aridityIndex).not.toBe(input.aridityIndex);
-      expect(result.freezeIndex).not.toBe(input.freezeIndex);
-    }
+    expect(classify(input)).toEqual(result);
+    expect(result.vegetationDensity).toEqual(expectedDensity);
+    expect(result.treeLine01).toEqual(Float32Array.from(input.permafrost01, (value) => 1 - value));
+    expect(result.effectiveMoisture).toEqual(input.effectiveMoisture);
+    expect(result.surfaceTemperature).toEqual(input.surfaceTemperatureC);
+    expect(result.aridityIndex).toEqual(input.aridityIndex);
+    expect(result.freezeIndex).toEqual(input.freezeIndex);
+    expect(result.effectiveMoisture).not.toBe(input.effectiveMoisture);
+    expect(result.surfaceTemperature).not.toBe(input.surfaceTemperatureC);
+    expect(result.aridityIndex).not.toBe(input.aridityIndex);
+    expect(result.freezeIndex).not.toBe(input.freezeIndex);
   });
 });

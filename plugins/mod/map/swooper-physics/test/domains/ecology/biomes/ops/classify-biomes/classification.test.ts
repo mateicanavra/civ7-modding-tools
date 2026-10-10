@@ -8,8 +8,10 @@ import { TEST_MAP_SIZE } from "../../../../../setup.js";
 
 describe("classifyBiomes operation", () => {
   it("exposes classification responses rather than local climate derivation controls", () => {
-    const { config } = ecology.biomes.ops.classifyBiomes.defaultConfig;
+    const { strategy, config } = ecology.biomes.ops.classifyBiomes.defaultConfig;
 
+    expect(strategy).toBe("biophysical");
+    expect(Object.keys(config).sort()).toEqual(["aridity", "moisture", "temperature", "vegetation"]);
     expect(Object.keys(config.temperature).sort()).toEqual([
       "midLatitude",
       "polarCutoff",
@@ -138,17 +140,10 @@ describe("classifyBiomes operation", () => {
       { moisture: 180 + 0.35 * 160, temperature: -10, freeze: 1 },
     ] as const;
     sampleTiles.forEach((sampleTile, sampleIndex) => {
-      const centerX = sampleTile % width;
-      const centerY = Math.floor(sampleTile / width);
       const sample = sampleValues[sampleIndex]!;
-      for (let dy = -1; dy <= 1; dy++) {
-        for (let dx = -1; dx <= 1; dx++) {
-          const tile = (centerY + dy) * width + centerX + dx;
-          effectiveMoisture[tile] = sample.moisture;
-          surfaceTemperatureC[tile] = sample.temperature;
-          freezeIndex[tile] = sample.freeze;
-        }
-      }
+      effectiveMoisture[sampleTile] = sample.moisture;
+      surfaceTemperatureC[sampleTile] = sample.temperature;
+      freezeIndex[sampleTile] = sample.freeze;
     });
 
     const selection = normalizeOperationSelectionForTest(
@@ -173,61 +168,69 @@ describe("classifyBiomes operation", () => {
     );
 
     expect(biomeSymbolFromIndex(result.biomeIndex[sampleTiles[0]!]!)).toBe("tropicalRainforest");
+    expect(biomeSymbolFromIndex(result.biomeIndex[sampleTiles[1]!]!)).toBe("temperateHumid");
     expect(biomeSymbolFromIndex(result.biomeIndex[sampleTiles[2]!]!)).toBe("temperateDry");
     expect(biomeSymbolFromIndex(result.biomeIndex[sampleTiles[3]!]!)).toBe("desert");
     expect(biomeSymbolFromIndex(result.biomeIndex[sampleTiles[4]!]!)).toBe("snow");
     expect(result.biomeIndex[waterTile]).toBe(255);
   });
 
-  it("applies authored edge smoothing through classification without erasing water", () => {
-    const { width, height } = TEST_MAP_SIZE.dimensions;
+  it.each([
+    { name: "single humid cell", column: false, backgroundMoisture: 98.45, localMoisture: 164 },
+    { name: "one-cell-wide humid column", column: true, backgroundMoisture: 98.45, localMoisture: 164 },
+    { name: "dry receiver among humid neighbors", column: false, backgroundMoisture: 164, localMoisture: 98.45 },
+  ])("preserves Earthlike's local physical support for a $name", (fixture) => {
+    const width = 9;
+    const height = 9;
     const size = width * height;
     const centerX = Math.floor(width / 2);
     const centerY = Math.floor(height / 2);
     const center = centerY * width + centerX;
     const waterTile = size - 1;
 
-    const effectiveMoisture = new Float32Array(size).fill(70);
-    for (let dy = -1; dy <= 1; dy++) {
-      for (let dx = -1; dx <= 1; dx++) {
-        effectiveMoisture[(centerY + dy) * width + centerX + dx] = 210;
-      }
+    const effectiveMoisture = new Float32Array(size).fill(fixture.backgroundMoisture);
+    if (fixture.column) {
+      for (let y = 0; y < height; y++) effectiveMoisture[y * width + centerX] = fixture.localMoisture;
+    } else {
+      effectiveMoisture[center] = fixture.localMoisture;
     }
 
     const input = {
       width,
       height,
       effectiveMoisture,
-      surfaceTemperatureC: new Float32Array(size).fill(15),
-      aridityIndex: new Float32Array(size),
+      surfaceTemperatureC: new Float32Array(size).fill(12.13),
+      aridityIndex: new Float32Array(size).fill(0.35924),
       freezeIndex: new Float32Array(size),
       permafrost01: new Float32Array(size),
       landMask: new Uint8Array(size).fill(1),
       soilType: new Uint8Array(size),
-      fertility: new Float32Array(size).fill(0.5),
+      fertility: new Float32Array(size).fill(0.46),
     };
     input.landMask[waterTile] = 0;
+    const before = structuredClone(input);
+    const authored = admitStandardMapConfig(swooperEarthlikeRaw)
+      .config["ecology-biomes"].biomes.classify;
+    expect(authored.config.moisture.thresholds[1]).toBe(163.5);
+    const result = ecology.biomes.ops.classifyBiomes.run(
+      input,
+      normalizeOperationSelectionForTest(ecology.biomes.ops.classifyBiomes, authored)
+    );
 
-    const defaultSelection = ecology.biomes.ops.classifyBiomes.defaultConfig;
-    const runWithRadius = (radius: number) =>
-      ecology.biomes.ops.classifyBiomes.run(
-        input,
-        normalizeOperationSelectionForTest(ecology.biomes.ops.classifyBiomes, {
-          ...defaultSelection,
-          config: {
-            ...defaultSelection.config,
-            edgeRefine: { radius, iterations: 1 },
-          },
-        })
+    for (let index = 0; index < size; index++) {
+      if (index === waterTile) continue;
+      expect(biomeSymbolFromIndex(result.biomeIndex[index]!)).toBe(
+        effectiveMoisture[index]! >= 163.5 ? "temperateHumid" : "temperateDry"
       );
-
-    const localSmoothing = runWithRadius(1);
-    const broadSmoothing = runWithRadius(3);
-
-    expect(biomeSymbolFromIndex(localSmoothing.biomeIndex[center]!)).toBe("temperateHumid");
-    expect(biomeSymbolFromIndex(broadSmoothing.biomeIndex[center]!)).toBe("temperateDry");
-    expect(localSmoothing.biomeIndex[waterTile]).toBe(255);
-    expect(broadSmoothing.biomeIndex[waterTile]).toBe(255);
+    }
+    expect(result.biomeIndex[waterTile]).toBe(255);
+    expect(result.vegetationDensity[waterTile]).toBe(0);
+    expect(result.treeLine01).toEqual(new Float32Array(size).fill(1));
+    expect(result.effectiveMoisture).toEqual(input.effectiveMoisture);
+    expect(result.surfaceTemperature).toEqual(input.surfaceTemperatureC);
+    expect(result.aridityIndex).toEqual(input.aridityIndex);
+    expect(result.freezeIndex).toEqual(input.freezeIndex);
+    expect(input).toEqual(before);
   });
 
   it("preserves ocean thermal ordering under the default classifier", () => {

@@ -1,11 +1,11 @@
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Combines biophysical climate thresholds with deterministic Gaussian edge smoothing while preserving the water sentinel.
+ * Applies biophysical climate thresholds per tile while preserving the water sentinel.
  * It changes only authored controls; the shared operation remains the sole input and output authority.
  */
 export default defineStrategy({
-  id: "biophysical-gaussian",
+  id: "biophysical",
   config: Type.Object(
     {
       /** Classification thresholds for Hydrology surface temperature (degrees C). */
@@ -145,39 +145,10 @@ export default defineStrategy({
           description: "Vegetation density model knobs (base, moisture weight, normalization).",
         }
       ),
-      /** Deterministic biome edge refinement applied after classification. */
-      edgeRefine: Type.Object(
-        {
-          /**
-           * Neighborhood radius (tiles) used for deterministic biome edge smoothing.
-           * @default 1
-           */
-          radius: Type.Integer({
-            description: "Neighborhood radius (tiles) used for deterministic biome edge smoothing.",
-            default: 1,
-            minimum: 1,
-            maximum: 5,
-          }),
-          /**
-           * Number of smoothing iterations.
-           * @default 1
-           */
-          iterations: Type.Integer({
-            description: "Number of smoothing iterations.",
-            default: 1,
-            minimum: 1,
-            maximum: 4,
-          }),
-        },
-        {
-          description:
-            "Deterministic smoothing pass applied to biomeIndex after classification (integrated edge refinement).",
-        }
-      ),
     },
     {
       description:
-        "Biome classification parameters for temperature, moisture, aridity, vegetation, and edge refinement.",
+        "Biome classification parameters for temperature, moisture, aridity, and vegetation.",
     }
   ),
 });

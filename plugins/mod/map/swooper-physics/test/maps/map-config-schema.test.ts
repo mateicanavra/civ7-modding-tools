@@ -431,6 +431,27 @@ describe("Shipped map configs", () => {
     }
   });
 
+  it("rejects retired biome majority strategy and edge controls through canonical admission", async () => {
+    const configs = await loadSwooperMapConfigRegistry();
+    for (const { canonicalConfig } of configs) {
+      const stage = canonicalConfig.config["ecology-biomes"];
+      const classify = stage.biomes.classify;
+      expect(classify.strategy).toBe("biophysical");
+      for (const obsolete of [
+        { ...classify, strategy: "biophysical-gaussian" },
+        { ...classify, config: { ...classify.config, edgeRefine: { radius: 1, iterations: 3 } } },
+      ]) {
+        expect(() => admitStandardMapConfig({
+          ...canonicalConfig,
+          config: {
+            ...canonicalConfig.config,
+            "ecology-biomes": { ...stage, biomes: { classify: obsolete } },
+          },
+        })).toThrow();
+      }
+    }
+  });
+
   it("rejects retired reef strategy and stride controls through canonical admission", async () => {
     const configs = await loadSwooperMapConfigRegistry();
     for (const { canonicalConfig } of configs) {

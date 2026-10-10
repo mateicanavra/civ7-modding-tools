@@ -1,7 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import biophysicalGaussianDefinition from "./strategies/biophysical-gaussian/config.js";
+import biophysicalDefinition from "./strategies/biophysical/config.js";
 
-/** Classifies admitted climate, soil, and permafrost fields into biome, vegetation, and treeline truth, then smooths only land-biome edges. Every implementation shares this admitted input and output boundary. */
+/** Classifies admitted climate, soil, and permafrost fields into local biome, vegetation, and treeline truth. Every implementation shares this admitted input and output boundary. */
 const BiomeClassificationContract = defineOp({
   kind: "compute",
   id: "ecology/biomes/classify",
@@ -51,7 +51,7 @@ const BiomeClassificationContract = defineOp({
     aridityIndex: TypedArraySchemas.f32({ description: "Aridity index per tile (0..1)." }),
     freezeIndex: TypedArraySchemas.f32({ description: "Freeze index per tile (0..1)." }),
   }),
-  strategies: [biophysicalGaussianDefinition],
+  strategies: [biophysicalDefinition],
 });
 
 export default BiomeClassificationContract;

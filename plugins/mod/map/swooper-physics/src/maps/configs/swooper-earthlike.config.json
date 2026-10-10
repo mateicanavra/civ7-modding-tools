@@ -857,7 +857,7 @@
     "ecology-biomes": {
       "biomes": {
         "classify": {
-          "strategy": "biophysical-gaussian",
+          "strategy": "biophysical",
           "config": {
             "temperature": {
               "polarCutoff": -1,
@@ -884,10 +884,6 @@
               "base": 0.39,
               "moistureWeight": 0.72,
               "moistureNormalizationPadding": 48
-            },
-            "edgeRefine": {
-              "radius": 1,
-              "iterations": 3
             }
           }
         }

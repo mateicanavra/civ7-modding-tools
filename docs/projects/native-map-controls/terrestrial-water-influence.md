@@ -646,3 +646,123 @@ Unchanged source and owner tests qualify their computation; the paired observer
 does not invent their readback. Generated, installed and fresh native claims
 remain separate. Finite-shore plant access, regional versus local habitat
 composition and atmospheric wetness semantics remain open causal questions.
+
+## Local Biome Support Before Additional Water Response
+
+The existing classifier is per tile, not a single fixed category for an entire
+region. A valid local moisture input can select a locally humid biome without
+changing atmospheric temperature or precipitation. Before designing another
+water-response law, qualify whether that admitted local support survives the
+existing categorical refinement.
+
+At the unchanged Earthlike selection (`radius: 1`, `iterations: 3`), a valid
+synthetic single humid cell and one-tile-wide humid column both classify as
+`temperateHumid` from their supplied temperature/moisture/aridity, then become
+`temperateDry` solely through category-majority smoothing. The filter has no
+receiver climate evidence, so it can also promote an unsupported dry receiver
+when humid neighbors dominate. The four retained production witnesses remain
+exclusion witnesses, not proof that those cells deserve trees or a particular
+water-supply increment.
+
+Density is already a continuous climate/soil response and does not depend on
+the biome symbol. Its unchanged value is not a stale class-specific biomass
+bug. The demonstrated inconsistency is local physical support versus the final
+categorical gate used by native projection, vegetation and other habitat
+consumers.
+
+### Selected Owner Correction And Alternatives
+
+Retire category-only majority smoothing, its obsolete configuration and its
+Gaussian strategy identity at the existing classification owner. Keep one final
+published biome artifact, the exact local classification law, continuous density,
+treeline and forwarded climate. Migrate the three live authored selections; do
+not leave an ignored control, legacy strategy or parallel raw-biome lane.
+
+Retaining cosmetic refinement would require a defensible way to distinguish
+unsupported noise from physically supported narrow habitat. The present filter
+cannot do so. A second local/regional framework, downstream forest rescue or a
+larger Hydrology gain to overpower the filter is not selected. If the underlying
+physical inputs prove noisy, repair that owner rather than repaint categories.
+
+### Prospective Qualification
+
+- Existing public-operation tests must retain supplied narrow humid support,
+  avoid promoting an unchanged dry receiver from neighbor popularity, and
+  preserve the water sentinel, zero water density, cyclic-X translation,
+  bounded north/south behavior, determinism and input nonmutation. Density,
+  treeline and forwarded climate must remain exact. Retired selections must
+  fail admission rather than silently doing nothing.
+- An exact current-incumbent/candidate Huge `2/2` pair must hold physical
+  morphology, climate, water budget, drainage, lakes, river hierarchy and
+  continuous density. Biome, feature/resource outcomes and start arbitration
+  are measured consequences, not restored-count targets.
+- Preserve the complete existing map-selected study bank, all identities and
+  bounds. Require no new failed leaf or worsening of the retained thermal
+  failure. The bank's row-based biome measures do not establish two-dimensional
+  patch coherence: inspect the paired viewer and attribute changed categories
+  to each receiver's admitted local inputs before adopting the candidate.
+- Use existing Standard `1/1`, `42/42`, `1018/1018` and Huge `2/2`
+  identities for the bounded paired topology inspection. Compare per-biome
+  wrapped-hex component sizes and singleton populations without manufacturing
+  a new fragmentation threshold. Unresolved physical support or problematic
+  topology is inconclusive, not an excuse to adjust classification parameters.
+- Reuse current feature legality, resource and start checks, with fresh SDK
+  review and owner verification. A greener map, larger rainforest count or
+  lower row dominance alone does not qualify the correction. A failed topology,
+  support or collateral guard refuses adoption without tuning a quota or gate.
+
+This transition does not add plant-water supply, establish seasonal root access,
+retire the remaining atmospheric wetness injection, or resolve the outstanding
+thermal calibration. Precipitation, river/lake/coast opportunity, finite storage
+and usable root water remain distinct parts of the causal investigation.
+
+### Completed Local Classification Qualification
+
+The clean candidate at `1426673bce1` returns the existing per-tile biophysical
+classification directly. The three live selections use `biophysical`; the
+Gaussian strategy and `edgeRefine` are retired and fail canonical admission.
+There is still one final published biome artifact. Classification thresholds,
+continuous density, treeline and forwarded climate are unchanged. Fresh SDK
+review finds no additional abstraction, compatibility path or owner defect.
+
+The four prospective current-main/candidate pairs hold all 37 non-category
+public model keys, including moisture, temperature, rainfall, aridity,
+vegetation density and the physical water network. Six non-feature projection
+keys and eleven physical readback fields also hold. The former category
+overrides affect `72 / 66 / 45 / 53` cells in Huge `2/2` and Standard `1/1`,
+`42/42`, `1018/1018`; every candidate category now equals the unchanged helper
+applied to its receiver's observed inputs. All 49 integrity expectations pass
+per arm, all founders remain full and dry/non-NAV, all planned mock resources
+are realized, and there are no feature refusals. Mock acceptance is not native
+engine admission.
+
+Forest moves `227 -> 230`, `263 -> 257`, `118 -> 114`, `198 -> 186`;
+rainforest moves `38 -> 40`, `16 -> 18`, `11 -> 13`, `17 -> 24`.
+Neither increase nor count restoration is an acceptance condition. Per-biome
+wrapped-hex components increase `69 -> 83`, `57 -> 74`, `54 -> 71`, `54 -> 74`.
+Singletons increase from 47 to 88 of 7,304 exposed land cells across the four
+maps. Independent component-overlap tracing finds only three incumbent patch
+splits; the dominant regions remain intact. The additional small patches have
+local moisture, aridity or temperature explanations under the existing law.
+These observations do not establish universal fragmentation limits or an
+Earth-calibrated classifier. In particular, narrow cold-desert patches expose
+an existing threshold discontinuity rather than a newly introduced noise law.
+
+All four paired biome viewers are visually inspected. The changes are local
+boundaries and pockets; the broad latitude bands predate this unit and remain.
+The observer's category-only helper call does not reconstruct uncaptured raw
+freezing or soil fields or claim a second density comparison.
+
+Full owner verification passes 1,326 definition tests, 371 realization tests
+and 412 Studio tests; types, policy and builds pass. The complete unchanged
+bank takes about 103 seconds and retains all 22 studies, 57 unique scenarios,
+112 targets and 4,430 expectations: 4,429 pass with the exact same thermal
+failure at `0.142881437915705 C`. The 84 numeric consequences introduce no
+new failure, status change or weakened gate. Twenty-seven move toward a bound
+without crossing it; they are not mislabeled universal improvement. Independent
+director review verifies the full authority tree, statuses and retained
+input/receipt bindings before adoption.
+
+This removes a demonstrated downstream override before further water-response
+design. It does not establish root-zone supply, make every shoreline wet,
+retire the any-river atmospheric proxy or resolve thermal calibration.
