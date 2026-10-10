@@ -120,3 +120,69 @@ patch; fresh bounded reviewers independently check producer-consistent regimes,
 SDK wiring/simplicity and causal response meaning. Qualify and merge this unit
 before starting the next dependent consumer repair. No native game action is
 needed for the initial discriminator.
+
+## Qualified Outcome
+
+The source-led consumer is implemented through the existing owners. Hydrology
+publishes `localSurfaceWaterOpportunity` directly alongside the existing PET and
+climatic aridity; Ecology consumes those publications. Both obsolete scorer
+strategies and the unused isolation masks/radius are removed from all three
+authored configs. Existing unrounded plant-water arithmetic remains unchanged.
+The recipe step contains less logic, not a second water computation.
+
+Producer-consistent regimes demonstrate moderate-temperature DESERT/oasis and
+PLAINS/watering-hole intent through the actual demand, cryosphere, pedology,
+water-budget, classifier, scorer and legal planner. Ordinary imported flow and
+finite-body contact both work; fertility changes do not invent or suppress the
+source. Source absence, marine donors, inaccessible banks, terrain, incompatible
+classes and actual earlier occupancy retain their exclusions. The focused
+verification passes 45 tests with 1,830 assertions. Fresh independent reviews
+find no implementation, SDK-ownership or causal-handoff defect.
+
+Retained Standard `1/1` and Huge `2/2` replays hold every pre-existing climate
+publication, actual post-albedo demand, classifier, unrelated score layer and
+wetland/vegetation intent. Their compiled-dependency custody is not absolute:
+one retained SDK grid wrapper differs and its old bytes are unavailable. All
+five dependency-owner source trees remain exact; the exception and failed
+initial preflight are retained rather than described as byte-equivalent.
+
+Four predeclared actual recipe captures then pass integrity: Standard `1/1`,
+Huge `2/2`, Standard `3/3` and Huge `4/4`. They take 8.4 seconds in total. In both
+pairs, all pre-existing public model fields, physical elevation/lake/river
+projection, final feature cells, resources and starts remain exact. All four
+produce zero oasis and watering-hole attempts and features. This qualifies the
+consumer repair, not a visible restoration or resolved generated-world scarcity.
+
+The strongest native-compatible, captured-flat, observed-earlier-free witnesses
+discriminate that zero result without another generation:
+
+| Case | Maximum oasis drySuit | Maximum watering-hole drySuit | Maximum watering-hole score |
+| --- | --- | --- | --- |
+| Standard 1 | 0 | 0.03881 | 0.01848 |
+| Huge 2 | 0 | 0.07702 | 0.04900 |
+| Standard 3 | 0 | 0.01505 | 0.00609 |
+| Huge 4 | 0 | 0.09005 | 0.02752 |
+
+Every compatible population's dryness support is below the unchanged `0.42`
+floor even at infinite source support. More local water alone therefore cannot
+admit a site at fixed climatic context and class. This identifies the remaining
+climatic/classifier/admission relationship to review; it does not by itself
+prove which owner is wrong or justify lowering a shared floor. Source changes
+can also change the plant-responsive class, so these conditional bounds are not
+source-tuning instructions.
+
+The diagnostic recovers one unique byte humidity value from the exact captured
+atmospheric moisture/rainfall encoding on every exposed-land cell, then calls
+the unchanged post-albedo demand and budget owners. Both pairs match authentic
+retained humidity and published PET exactly; all four close captured atmospheric
+moisture, aridity, direct opportunity and plant indices. These are recovered-input
+diagnostics, not originally captured PET or guesses from an earlier hydraulic
+demand. Water-cell humidity is outside that recovery claim. Pair earlier
+occupancy also matches exact retained prior masks; varied-world witnesses remain
+observed-earlier-free, not proof of exact final planner legality.
+
+Full suites pass 1,388 definition tests with the sole retained within-row thermal
+aggregate failure, all 371 realization tests and all 412 Studio tests. No
+expectation is weakened. This unit has no fresh native placement proof and does
+not modify the installed favorite map. Annual source support still does not
+establish seasonal liquid-water survival, groundwater, salinity or patch extent.
