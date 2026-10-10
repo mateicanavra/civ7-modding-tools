@@ -30,7 +30,10 @@ that active owner immediately; this book must not become a way to defer it.
 Search the current owner documents and older triage first. Do not revive a
 historical question whose later evidence already provides a disposition.
 
-Use a stable `Q-NNN` heading and preserve these parts:
+Keep a stable `Q-NNN` heading here with a concise summary and a link to its
+question record. The [record contract](questions/README.md) keeps affected-scope
+links, claim assessments and verification provenance distinct. Preserve these
+parts in the record:
 
 - **Context and type:** originating owner/review and durable links; `triage`
   while a research or scope decision remains. Name the mechanism, operation and
@@ -56,9 +59,12 @@ Swooper Earthlike is the selected core baseline. Desert Mountains, Archipelago
 and other themed presets are not core baseline or gating benchmarks; revisit
 them as configuration work after baseline confidence. Unsupported inherited
 quotas, including the arbitrary 20-rainforest-tile cap, are not physics authority.
-Removing that cap belongs to the active benchmark change, not a deferred item
-here, and does not mean retuning it or filtering failures. Preserve older
-evidence with its original selection and limits rather than rewriting history.
+The [benchmark scope amendment][current-study-policy] selects `earthlike-core`
+by default and [removes that cap from both Desert Mountains consumers][current-identity-protocol],
+without retuning it or filtering failures. Remaining appearance guards are
+product assumptions, not independently calibrated Earth observations. Benchmark
+support questions remain in this book. Preserve older evidence with its original
+selection and limits rather than rewriting history.
 
 When definite work is accepted, create or link a right-sized Linear issue with
 its outcome and acceptance evidence; leave a short promotion link here rather
@@ -74,9 +80,10 @@ not as an indefinitely unresolved question. Follow [Linear conventions](../../pr
   and [annual land-response owner](annual-land-response-owner-decision.md).
 - Local plant-water meaning and its ecological consumers remain with the
   [plant-water owner decision](terrestrial-water-influence.md#next-plant-water-owner).
-- Benchmark scope and removal of unsupported count caps remain active owner work
-  under the Earthlike baseline decision above; this book does not schedule a
-  second implementation.
+- The [Earthlike core scope and Desert Mountains cap removal][current-study-policy]
+  are decided and reflected in the [identity protocol][current-identity-protocol].
+  This book retains unresolved benchmark-support questions, not a second
+  implementation of that removal.
 
 These are navigation pointers, not copied investigations or new dispositions.
 
@@ -90,208 +97,29 @@ These are navigation pointers, not copied investigations or new dispositions.
 
 #### Q-001: Low-Shore Neighborhood Semantics
 
-**Type:** triage. **Evidence disposition:** confirmed implementation behavior;
-plausible boundary/topology concern; physical adequacy and material downstream
-harm unresolved. No defect or repair is admitted by this entry.
-
-**Context:** Source qualification for the marine-shore learning lesson exposed
-a shared neighborhood contract question, not a failure of marine provenance.
-All implementation and acceptance facts below are pinned to
-`fda02f26040a47f6bbd78ef685c1ad4fe909cc05`.
-
-**Question:** Does the low-shore source-proximity window provide the intended
-neighborhood semantics on the cylindrical hex map, or can a longitude boundary
-or grid orientation change meaningful substrate eligibility? The authored
-[configuration][substrate-config] explicitly promises a square radius, not hex
-distance. The open question is its boundary treatment and physical support.
-A periodic square window changes boundary behavior; a hex-distance neighborhood
-would change the authored metric and needs a separate owner decision.
-
-**Implementation and affected path:**
-[computeCoastalLandMask][coastal-rule] scans an inclusive rectangular X/Y index
-window, skips the target, clips both axes and does not wrap X. Radius one can
-inspect eight other cells in an interior square, not the six native hex
-neighbors. Its inputs are width/height, exposed `landMask`, `sourceWaterMask`
-and radius. The [hydromorphic strategy][substrate-strategy] calls it separately
-with resolved any-water sources and prescribed `externalWaterMask` sources.
-Keep those populations separate throughout the investigation.
-
-The [wetland substrate rule][wetland-rule] combines generic coast proximity
-with relative elevation to derive low-shore support. That affects
-`hydromorphicMask` and complementary `wellDrainedMask`; external-water proximity
-additionally gates `intertidalCoastMask`. In [score-layers][score-step], marsh and
-tundra-bog scorers consume hydromorphic support, while the mangrove scorer
-consumes intertidal support. A proximity difference need not survive those
-scores, terrain/biome compatibility and wetland arbitration into actual feature
-intent. Track masks, scores and admitted intent separately; do not infer changed
-placement or gameplay from changed eligibility alone.
-
-**Why it may matter:** A jointly translated source/receiver arrangement could
-lose support at the X boundary even when its local world relationship is held.
-A square index window may also distinguish hex-equivalent local orientations.
-Those are hypotheses about an intended invariance, not measured ecological
-harm, a whole-world rotation requirement or proof that a new metric is better.
-Latitude, bounded Y and row parity must not be changed accidentally.
-
-**Contrary evidence and limits:** The square-radius label is explicit authoring
-evidence, not an accidental undocumented hex implementation. The
-[accepted marine-provenance repair][marine-decision]
-explicitly held the existing geometry and radius while separating generic
-finite-water shores from marine eligibility. The [focused substrate test][substrate-test]
-checks that distinction, height gates and generic-mask preservation; it does
-not declare periodicity or isotropy. Another owner's [periodic biome repair][biome-decision]
-provides a precedent for a held longitude-translation discriminator, not
-authority to copy its law into this operation. A deliberate clipped raster
-approximation, an inactive downstream gate or a tolerated product limitation
-could defeat the suspected consequence. No primary physical evidence assembled
-for this entry selects a stencil/radius or proves this approximation harmful.
-
-**Missing evidence and simplification opportunity:** The missing contract
-evidence concerns required world-boundary behavior and justified physical
-support for the authored square approximation, not a promised hex distance.
-Missing receipts are a held boundary comparison and its
-first-consumer consequences, not another permanent artifact or a new global
-distance abstraction. If a later accepted contract matches an existing public
-grid primitive, assess reuse then; do not preselect it now.
-
-**Smallest discriminating investigation:** Begin with one synthetic exposed
-low-shore target and one admitted source, once inland in the index domain and
-once across the east-west boundary. Cyclically translate all relevant input
-fields together at fixed row and fixed radius; keep elevation/sea datum,
-climate, fertility, river fields and source identity held. Inverse-translate the
-outputs before comparing them. Run generic finite-water and marine-source arms
-separately. Observe the proximity masks, resulting hydromorphic/intertidal masks
-and first controlling scores before considering any planner consequence.
-
-Exact correspondence would disprove boundary sensitivity for that witness.
-Different masks but identical controlling scores would refute a claimed scoring
-failure for that witness, not all potential consumers. A source-only difference
-establishes boundary sensitivity, not physical or gameplay harm. If the owner
-accepts a deliberately bounded index contract, close the mismatch allegation
-as an accepted limitation with rationale rather than rewriting the contract by
-test. Only if hex-isotropic local proximity is actually required should a later
-held interior hex-rotation fixture be considered; a full globe rotation is not
-an invariant of latitude-dependent forcing or bounded Y.
-
-**Next check:** Revisit before changing coastal adjacency radius/geometry or
-before a retained Earthlike low-shore anomaly is attributed to local water
-availability. If that anomaly blocks current work, return it immediately to
-the active owner. The workstream owner may admit a bounded contract investigation
-to Linear; any repair additionally requires a settled contract and qualified
-consequence. This entry selects no implementation and executes no new experiment.
+The source distinguishes generic low-shore support from marine intertidal
+eligibility. Whether its clipped square proximity window has the intended
+boundary behavior and physical support remains open; no placement harm is
+established. [Read the evidence and next check](questions/q-001-low-shore-neighborhood.md).
 
 ### Benchmark Authority / Ecological Prevalence
 
 #### Q-002: Ecological Prevalence And Benchmark Authority
 
-**Type:** triage. **Context:** source review of the Earthlike identity and ecology
-targets at `fda02f26040a47f6bbd78ef685c1ad4fe909cc05`.
-**Evidence disposition:** numerical predicates confirmed; their complete
-decision/calibration provenance is not established by this review. This is not
-proof that every threshold is wrong, nor a new plant-water release veto.
-
-**Question and consequence:** Which bounds express authorized gameplay identity,
-which ensure a test exercises a feature, and which claim ecological adequacy?
-Should a particular expectation depend on available lawful habitat rather than
-an unconditional count or whole-map share? Conflating these claims could reward
-implausible coverage or reject a physically coherent map, but neither outcome
-has been demonstrated here.
-
-**Facts and affected path:** The [Earthlike identity target][identity-target]
-requires a projected lake component of at least four tiles, five vegetation
-families, named feature presence and rainforest at most 65% of vegetation.
-The [ecology targets][ecology-target] separately require vegetation on 8-55% of
-land, rainforest at most 70% of vegetation and 35% of land, named-feature
-presence across rolls, cold-reef presence in four rolls and at least eight
-floodplain attempts in the representative sample. Representative identity and
-cohort constraints are different supports, not automatically contradictory
-numbers. Inputs are measured feature/attempt counts, land and vegetation
-denominators, lake components and cohort identities; outputs are benchmark
-pass/fail receipts consumed by acceptance review, not new procedural forcing.
-
-**Evidence, rivals and missing support:** The source explicitly labels many
-bounds as product identity or representative coverage. The floodplain attempts
-floor explicitly exercises an otherwise inactive row; it need not estimate
-Earth prevalence. These are serious rival explanations to an arbitrary-physics
-claim. What remains missing is a predicate-level trace from owner decision to
-population, denominator, variability and justified bound. No independent
-observational or habitat-conditioned calibration was established by this source
-review; that is an evidence gap, not proof that such evidence cannot exist.
-
-**Smallest investigation and disproof:** Select one disputed predicate and one
-already retained Earthlike case. Trace its original decision and exact sample
-support before any new run. Join the corresponding habitat eligibility,
-compatibility, intent and observed result if retained, holding the producer
-revision and cohort fixed. If those observations are absent, name the missing
-receipt before proposing a capture. Recovering an authorized product/coverage
-requirement with the stated support and a matching measurement can disprove the
-claim that this predicate is an unsupported physics gate. Conversely, a number
-alone cannot distinguish scarcity, illegal placement and an erroneous scorer.
-The result may simply clarify a claim or remove duplicated checks; changing the
-denominator, threshold or generator is not preselected.
-
-**Next check:** Revisit when an Earthlike prevalence check would motivate a
-scientific change or a new eligible-habitat support is proposed. Route a failure
-needed by current work directly to its owner. This does not reopen the decided
-themed-preset exclusion or 20-tile-cap removal. Close or promote the selected
-predicate with its exact evidence; do not launch a sweep of all quotas.
+Current policy identifies appearance counts and shares as product assumptions
+or regression guards, not calibrated physical laws. Predicate-level
+justification for population, denominator and numerical support remains open;
+the decided Desert Mountains cap removal is not reopened.
+[Read the evidence and next check](questions/q-002-ecological-prevalence.md).
 
 ### Benchmark Authority / Relief And Orogeny
 
 #### Q-003: Relief Bounds And Admitted Support
 
-**Type:** triage. **Context:** Earthlike relief targets and the orogeny protocol
-at `fda02f26040a47f6bbd78ef685c1ad4fe909cc05`.
-**Evidence disposition:** existing product bounds and their partial amendment
-are confirmed; validity outside their admitted support is unresolved, not a
-demonstrated terrain or test defect.
+The existing relief bounds and Huge-cohort amendment are source-confirmed.
+Their portability to other map sizes, terrain representations or producer
+regimes remains unassessed; benchmark product guards are not universal physical
+laws. [Read the evidence and next check](questions/q-003-relief-support.md).
 
-**Question and consequence:** Which relief bounds remain meaningful when map
-scale, terrain representation or upstream inputs change? The [relief targets][relief-target]
-include representative rough-upland coverage of 4-8%, component caps of 60
-(representative) and 40 (Huge cohort), and orogeny-cohort floors of 38 for region
-diameter, 450 region tiles and 300 flat-region tiles. Different cohorts and
-dimensionless shares versus tile counts must not be collapsed into one universal
-terrain law. An out-of-support size comparison could falsely blame generation;
-an in-support failure could still reveal a meaningful product regression.
-
-**Affected path and counterevidence:** Inputs are planned/observed terrain
-populations and periodic-grid region topology; outputs are representative and
-cohort acceptance predicates. They influence relief adoption decisions, not
-physical ground directly. The [orogeny protocol][orogeny-protocol] explicitly
-defines a Huge-map product and retains regional extent, interior composition,
-mountain presence and peak-density bounds after retiring only the
-`mountain-spine-diameter >=25` floor. That is positive policy evidence, not an
-absence of rationale or permission to repeal the remaining bounds. A region
-proxy also does not independently prove native movement through a pass.
-
-**Missing evidence and smallest discriminator:** Before a proposed support
-change, choose one bound and recover its authorized purpose, size/cohort and
-metric geometry. Read its result on an existing retained sample within that
-support. Compare another size or terrain representation only if the owner
-actually claims portability to it, with physical fields and representation
-differences explicitly accounted for. No generation, rescaling, retuning or
-new study framework is selected by this entry. A documented Huge-only product
-requirement can disprove an alleged cross-size inconsistency; a justified
-portable normalization and qualified contrasting support can disprove the
-broader scale-dependence concern. Missing evidence is a claim-to-support record,
-not automatically another landscape metric.
-
-**Next check:** Revisit before extending an existing relief gate to new sizes,
-terrain semantics or producer regimes, or before using such a failure to alter
-the physical model. Preserve the accepted amendment and old receipts. Close a
-disproved concern or accepted support limit explicitly; scope any real repair
-through the active owner and Linear rather than weakening a failing bound.
-
-[coastal-rule]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/rules/coastal-land-mask.ts
-[substrate-strategy]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/strategies/hydromorphic/index.ts
-[substrate-config]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/strategies/hydromorphic/config.ts
-[wetland-rule]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/rules/wetland-substrate-masks.ts
-[score-step]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/steps/score-layers/step.ts
-[marine-decision]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/docs/projects/native-map-controls/terrestrial-water-influence.md#marine-habitat-provenance-prerequisite
-[substrate-test]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/plugins/mod/map/swooper-physics/test/domains/ecology/features/ops/compute-feature-substrate/substrate.test.ts
-[biome-decision]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/docs/projects/native-map-controls/biome-periodic-edges.md
-[identity-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/identities.ts
-[ecology-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts
-[relief-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/relief.ts
-[orogeny-protocol]: https://github.com/mateicanavra/civ7-modding-tools/blob/fda02f26040a47f6bbd78ef685c1ad4fe909cc05/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/earthlike-orogeny.md
+[current-study-policy]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/STUDIES.md
+[current-identity-protocol]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/shipped-identities.md
