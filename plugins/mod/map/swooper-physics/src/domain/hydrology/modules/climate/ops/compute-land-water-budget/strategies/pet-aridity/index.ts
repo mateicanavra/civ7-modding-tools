@@ -2,6 +2,7 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { clamp01 } from "@swooper/mapgen-core/lib/math";
 import ComputeLandWaterBudgetContract from "../../contract.js";
 import PetAridityDefinition from "./config.js";
+import { computeLocalSurfaceWaterOpportunity } from "../../rules/local-surface-water-opportunity.js";
 
 const EFFECTIVE_MOISTURE_HUMIDITY_WEIGHT = 0.35;
 
@@ -21,6 +22,9 @@ const petAridityStrategy = createStrategy(ComputeLandWaterBudgetContract, PetAri
     const pet = new Float32Array(size);
     const effectiveMoisture = new Float32Array(size);
     const aridityIndex = new Float32Array(size);
+    const plantEffectiveMoisture = new Float32Array(size);
+    const plantWaterStress = new Float32Array(size);
+    const opportunity = computeLocalSurfaceWaterOpportunity(input);
 
     for (let i = 0; i < size; i++) {
       if (input.landMask[i] !== 1) {
@@ -39,9 +43,17 @@ const petAridityStrategy = createStrategy(ComputeLandWaterBudgetContract, PetAri
 
       const denom = petValue + precip + 1;
       aridityIndex[i] = denom <= 0 ? 0 : clamp01(petValue / denom);
+      const localWater = opportunity[i]!;
+      // Preserve the incumbent exactly at its Float32 publication boundary when no source is admitted.
+      plantEffectiveMoisture[i] = localWater === 0
+        ? effectiveMoisture[i]!
+        : precip + EFFECTIVE_MOISTURE_HUMIDITY_WEIGHT * humidityRaw + localWater;
+      plantWaterStress[i] = localWater === 0
+        ? aridityIndex[i]!
+        : petValue / (petValue + precip + localWater + 1);
     }
 
-    return { pet, effectiveMoisture, aridityIndex } as const;
+    return { pet, effectiveMoisture, aridityIndex, plantEffectiveMoisture, plantWaterStress };
   },
 });
 

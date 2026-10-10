@@ -12,9 +12,9 @@ const ScoreWetWateringHoleContract = defineOp({
     isolatedWaterPointMask: TypedArraySchemas.u8({
       description: "Mask (1/0): isolated lowland water-source substrate.",
     }),
-    water01: TypedArraySchemas.f32({ description: "Water availability proxy (0..1)." }),
+    plantWater01: TypedArraySchemas.f32({ description: "Normalized plant-water support, not a saturation or geometry inference (0..1)." }),
     fertility01: TypedArraySchemas.f32({ description: "Fertility proxy (0..1)." }),
-    aridityIndex: TypedArraySchemas.f32({ description: "Aridity index (0..1)." }),
+    aridityIndex: TypedArraySchemas.f32({ description: "Atmospheric aridity for the climatic habitat gate (0..1)." }),
     surfaceTemperature: TypedArraySchemas.f32({ description: "Surface temperature (C)." }),
   }),
   output: Type.Object({

@@ -31,7 +31,7 @@ function measurementInput(
   const riverClass = new Uint8Array(plotCount).fill(2);
   const lakeMask = new Uint8Array(plotCount);
   const vegetationDensity = new Float32Array(plotCount).fill(0.5);
-  const effectiveMoisture = new Float32Array(plotCount).fill(0.75);
+  const plantEffectiveMoisture = new Float32Array(plotCount).fill(0.75);
   const surfaceTemperature = new Float32Array(plotCount).fill(18.25);
   const fertility = new Float32Array(plotCount).fill(0.625);
   const discharge = Array<number>(plotCount).fill(12.5);
@@ -57,7 +57,7 @@ function measurementInput(
       riverClass,
       lakeMask,
       vegetationDensity,
-      effectiveMoisture,
+      plantEffectiveMoisture,
       surfaceTemperature,
       fertility,
       discharge,
@@ -181,10 +181,10 @@ const SURFACE_PERTURBATIONS: Array<{
     },
   },
   {
-    channel: "effectiveMoisture",
-    digest: "effectiveMoistureHash32",
+    channel: "plantEffectiveMoisture",
+    digest: "plantEffectiveMoistureHash32",
     mutate: (input) => {
-      input.plannerInput.effectiveMoisture[9] = 0.750_000_06;
+      input.plannerInput.plantEffectiveMoisture[9] = 0.750_000_06;
     },
   },
   {
@@ -252,9 +252,9 @@ describe("Standard natural-wonder planning-input measurements", () => {
 
     expect(Value.Check(StandardNaturalWonderPlanInputMeasurementsSchema, measurements)).toBe(true);
     expect(measurements).toMatchObject({
-      version: 3,
+      version: 4,
       plannerInput: {
-        version: 2,
+        version: 3,
         engineElevationSource: "mock",
         dimensions: TEST_MAP_SIZE.dimensions,
         wondersCount: 3,
@@ -275,7 +275,7 @@ describe("Standard natural-wonder planning-input measurements", () => {
           configHash32: expect.stringMatching(/^[0-9a-f]{8}$/),
         },
         surfaceDigests: {
-          version: 2,
+          version: 3,
           plotCount: TEST_MAP_SIZE.dimensions.width * TEST_MAP_SIZE.dimensions.height,
         },
       },

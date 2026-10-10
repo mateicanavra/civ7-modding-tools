@@ -7,12 +7,16 @@ const { classifyBiomes } = ecology.biomes.ops;
 
 function inputFor(width: number, height: number) {
   const size = width * height;
+  const effectiveMoisture = new Float32Array(size).fill(70);
+  const aridityIndex = new Float32Array(size);
   return {
     width,
     height,
-    effectiveMoisture: new Float32Array(size).fill(70),
+    effectiveMoisture,
+    plantEffectiveMoisture: effectiveMoisture,
     surfaceTemperatureC: new Float32Array(size).fill(15),
-    aridityIndex: new Float32Array(size),
+    aridityIndex,
+    plantWaterStress: aridityIndex,
     freezeIndex: new Float32Array(size),
     permafrost01: new Float32Array(size),
     landMask: new Uint8Array(size).fill(1),
@@ -34,8 +38,10 @@ function translateInputX(input: ReturnType<typeof inputFor>, offset: number) {
   return {
     ...input,
     effectiveMoisture: new Float32Array(translateX(input.effectiveMoisture, width, offset)),
+    plantEffectiveMoisture: new Float32Array(translateX(input.plantEffectiveMoisture, width, offset)),
     surfaceTemperatureC: new Float32Array(translateX(input.surfaceTemperatureC, width, offset)),
     aridityIndex: new Float32Array(translateX(input.aridityIndex, width, offset)),
+    plantWaterStress: new Float32Array(translateX(input.plantWaterStress, width, offset)),
     freezeIndex: new Float32Array(translateX(input.freezeIndex, width, offset)),
     permafrost01: new Float32Array(translateX(input.permafrost01, width, offset)),
     landMask: new Uint8Array(translateX(input.landMask, width, offset)),

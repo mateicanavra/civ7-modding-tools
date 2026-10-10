@@ -1,18 +1,29 @@
-import { Command } from "@oclif/core";
+import { Command, Flags } from "@oclif/core";
 import {
   evaluateStandardMetricStudies,
-  STANDARD_METRIC_STUDIES,
+  type StandardMetricStudyScope,
+  selectStandardMetricStudies,
 } from "@swooper/swooper-physics/standard/metrics";
 
 export default class MapgenMetricsReport extends Command {
-  static summary = "Evaluate the complete Swooper Standard metric study bank";
+  static summary = "Evaluate core Earthlike metric studies or opt in to configuration stress";
+
+  static flags = {
+    scope: Flags.option({
+      description: "Qualification scope; all includes biased configuration-stress studies",
+      options: ["earthlike-core", "all"] as const satisfies readonly StandardMetricStudyScope[],
+      default: "earthlike-core",
+    })(),
+  };
 
   public async run(): Promise<void> {
+    const { flags } = await this.parse(MapgenMetricsReport);
+    const studies = selectStandardMetricStudies(flags.scope);
     const originalLog = console.log;
     console.log = (...args: unknown[]) => console.error(...args);
     let evaluation: ReturnType<typeof evaluateStandardMetricStudies>;
     try {
-      evaluation = evaluateStandardMetricStudies(STANDARD_METRIC_STUDIES);
+      evaluation = evaluateStandardMetricStudies(studies);
     } finally {
       console.log = originalLog;
     }

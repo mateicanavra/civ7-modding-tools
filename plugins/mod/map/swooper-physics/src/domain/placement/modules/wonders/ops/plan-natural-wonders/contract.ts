@@ -24,7 +24,7 @@ const PlanNaturalWondersContract = defineOp({
         description: "Exact current engine elevation per tile, used for native elevation floors.",
       })
     ),
-    aridityIndex: TypedArraySchemas.f32({ description: "Aridity index per tile (0..1)." }),
+    aridityIndex: TypedArraySchemas.f32({ description: "Atmospheric climatic aridity per tile (0..1), retained for dry-land and marine habitat context." }),
     riverClass: TypedArraySchemas.u8({
       description: "Hydrology river class per tile (0=none,1=minor,>=2=major/projectable).",
     }),
@@ -34,8 +34,8 @@ const PlanNaturalWondersContract = defineOp({
     vegetationDensity: TypedArraySchemas.f32({
       description: "Ecology vegetation density per tile (0..1).",
     }),
-    effectiveMoisture: TypedArraySchemas.f32({
-      description: "Final climate effective-moisture field per tile.",
+    plantEffectiveMoisture: TypedArraySchemas.f32({
+      description: "Plant growth moisture per tile, used only by botanical wonder groups; not a climatic or marine moisture replacement.",
     }),
     surfaceTemperature: TypedArraySchemas.f32({
       description: "Final climate surface temperature per tile (C).",

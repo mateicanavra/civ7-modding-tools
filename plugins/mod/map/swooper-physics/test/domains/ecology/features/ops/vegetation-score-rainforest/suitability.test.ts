@@ -11,8 +11,8 @@ function warmHabitatFields() {
     height,
     landMask: new Uint8Array(size).fill(1),
     energy01: new Float32Array(size).fill(0.8),
-    water01: new Float32Array(size).fill(0.9),
-    waterStress01: new Float32Array(size).fill(0.1),
+    plantWater01: new Float32Array(size).fill(0.9),
+    plantWaterStress01: new Float32Array(size).fill(0.1),
     coldStress01: new Float32Array(size).fill(0.05),
     biomass01: new Float32Array(size).fill(0.8),
     fertility01: new Float32Array(size).fill(0.5),
@@ -30,9 +30,9 @@ function score(input: ReturnType<typeof warmHabitatFields>): Float32Array {
 }
 
 describe("rainforest suitability", () => {
-  it("increases with water availability and stays saturated through water01=1", () => {
+  it("increases with water availability and stays saturated through plantWater01=1", () => {
     const input = warmHabitatFields();
-    input.water01.set([0.62, 0.7, 0.8, 0.9, 1]);
+    input.plantWater01.set([0.62, 0.7, 0.8, 0.9, 1]);
 
     const scores = score(input);
     const fullyWetScore = 0.8 * 0.9 * 0.95;
@@ -51,7 +51,7 @@ describe("rainforest suitability", () => {
     const input = warmHabitatFields();
     input.energy01[1] = 0.5;
     input.energy01[2] = 1;
-    input.waterStress01[3] = 1;
+    input.plantWaterStress01[3] = 1;
     input.coldStress01[4] = 1;
     input.biomass01[5] = 0;
     input.biomass01[6] = 0.4;

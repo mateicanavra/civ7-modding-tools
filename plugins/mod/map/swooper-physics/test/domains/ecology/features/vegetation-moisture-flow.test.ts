@@ -15,8 +15,10 @@ describe("ecology vegetation moisture flow", () => {
         height,
         landMask: new Uint8Array(size).fill(1),
         effectiveMoisture: new Float32Array(size).fill(effectiveMoisture),
+        plantEffectiveMoisture: new Float32Array(size).fill(effectiveMoisture),
         surfaceTemperature: new Float32Array(size).fill(20),
         aridityIndex: new Float32Array(size).fill(0.2),
+        plantWaterStress: new Float32Array(size).fill(0.2),
         freezeIndex: new Float32Array(size).fill(0.05),
         vegetationDensity: new Float32Array(size).fill(0.6),
         fertility: new Float32Array(size).fill(0.5),
@@ -32,7 +34,12 @@ describe("ecology vegetation moisture flow", () => {
         width,
         height,
         landMask: new Uint8Array(size).fill(1),
-        ...substrate,
+        energy01: substrate.energy01,
+        plantWater01: substrate.plantWater01,
+        plantWaterStress01: substrate.plantWaterStress01,
+        coldStress01: substrate.coldStress01,
+        biomass01: substrate.biomass01,
+        fertility01: substrate.fertility01,
       },
       normalizeOperationSelectionForTest(
         ecology.features.ops.scoreVegetationForest,
@@ -40,7 +47,7 @@ describe("ecology vegetation moisture flow", () => {
       )
     );
 
-    expect(substrate.water01[0]).toBeCloseTo(effectiveMoisture / 230, 6);
+    expect(substrate.plantWater01[0]).toBeCloseTo(effectiveMoisture / 230, 6);
     expect(forest.score01[0]).toBeGreaterThan(0);
     expect(forest.score01[0]).toBeLessThan(1);
   });
@@ -60,8 +67,10 @@ describe("ecology vegetation moisture flow", () => {
             height,
             landMask,
             effectiveMoisture: new Float32Array(size).fill(effectiveMoisture),
+            plantEffectiveMoisture: new Float32Array(size).fill(effectiveMoisture),
             surfaceTemperatureC: new Float32Array(size).fill(20),
             aridityIndex: new Float32Array(size).fill(0.1),
+            plantWaterStress: new Float32Array(size).fill(0.1),
             freezeIndex: new Float32Array(size).fill(0.05),
             permafrost01: new Float32Array(size),
             soilType: new Uint8Array(size).fill(2),
@@ -78,8 +87,10 @@ describe("ecology vegetation moisture flow", () => {
             height,
             landMask,
             effectiveMoisture: biomes.effectiveMoisture,
+            plantEffectiveMoisture: biomes.effectiveMoisture,
             surfaceTemperature: biomes.surfaceTemperature,
             aridityIndex: biomes.aridityIndex,
+            plantWaterStress: biomes.aridityIndex,
             freezeIndex: biomes.freezeIndex,
             vegetationDensity: biomes.vegetationDensity,
             fertility,
@@ -92,15 +103,24 @@ describe("ecology vegetation moisture flow", () => {
             },
           })
         );
+        const canopy = {
+          width, height, landMask,
+          energy01: substrate.energy01,
+          plantWater01: substrate.plantWater01,
+          plantWaterStress01: substrate.plantWaterStress01,
+          coldStress01: substrate.coldStress01,
+          biomass01: substrate.biomass01,
+          fertility01: substrate.fertility01,
+        };
         const forest = ecology.features.ops.scoreVegetationForest.run(
-          { width, height, landMask, ...substrate },
+          canopy,
           normalizeOperationSelectionForTest(
             ecology.features.ops.scoreVegetationForest,
             ecology.features.ops.scoreVegetationForest.defaultConfig
           )
         );
         const rainforest = ecology.features.ops.scoreVegetationRainforest.run(
-          { width, height, landMask, ...substrate },
+          canopy,
           normalizeOperationSelectionForTest(
             ecology.features.ops.scoreVegetationRainforest,
             ecology.features.ops.scoreVegetationRainforest.defaultConfig
@@ -120,8 +140,8 @@ describe("ecology vegetation moisture flow", () => {
             featureOccupancyMask,
             biomeIndex: biomes.biomeIndex,
             surfaceTemperature: biomes.surfaceTemperature,
-            effectiveMoisture: biomes.effectiveMoisture,
-            aridityIndex: biomes.aridityIndex,
+            plantEffectiveMoisture: biomes.effectiveMoisture,
+            climaticAridityIndex: biomes.aridityIndex,
             vegetationDensity: biomes.vegetationDensity,
             scoreForest01: forest.score01,
             scoreRainforest01: rainforest.score01,
@@ -137,7 +157,7 @@ describe("ecology vegetation moisture flow", () => {
 
         expect(biomes.biomeIndex[3]).toBe(BIOME_SYMBOL_TO_INDEX.temperateHumid);
         expect(substrate.biomass01).toEqual(biomes.vegetationDensity);
-        expect(substrate.water01[3]).toBeCloseTo(Math.min(1, effectiveMoisture / moistureNormalization), 6);
+        expect(substrate.plantWater01[3]).toBeCloseTo(Math.min(1, effectiveMoisture / moistureNormalization), 6);
         expect(forest.score01[0]).toBe(0);
         expect(forest.score01[3]).toBeGreaterThanOrEqual(previousScore);
         expect(forest.score01[3]).toBeGreaterThan(

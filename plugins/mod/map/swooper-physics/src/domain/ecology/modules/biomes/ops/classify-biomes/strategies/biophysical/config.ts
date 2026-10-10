@@ -73,16 +73,16 @@ export default defineStrategy({
             {
               default: [45, 90, 140, 190],
               description:
-                "Moisture thresholds in effective moisture units (Hydrology effectiveMoisture advisory index).",
+                "Moisture thresholds in plant effective-moisture units; polar categories retain atmospheric effective moisture.",
             }
           ),
         },
         {
           description:
-            "Effective moisture thresholds (Hydrology effectiveMoisture advisory index).",
+            "Effective-moisture thresholds, with atmospheric moisture retained for polar categories and tropical transition context.",
         }
       ),
-      /** Responses to Hydrology aridity (moisture-zone shifts and vegetation dryness stress). */
+      /** Plant-stress responses, with atmospheric aridity retained for polar category shifts. */
       aridity: Type.Object(
         {
           moistureShiftThresholds: Type.Tuple(
@@ -102,11 +102,11 @@ export default defineStrategy({
             ],
             {
               default: [0.45, 0.7],
-              description: "Aridity thresholds that shift moisture zones toward drier classes.",
+              description: "Plant-stress thresholds that shift moisture zones toward drier classes; polar categories use atmospheric aridity.",
             }
           ),
           vegetationPenalty: Type.Number({
-            description: "Vegetation dryness-stress weight applied from aridity (0..1).",
+            description: "Vegetation dryness-stress weight applied from plant water stress (0..1).",
             default: 0.15,
             minimum: 0,
             maximum: 1,

@@ -19,15 +19,15 @@ function isBroadVegetationHabitat(
   fields: {
     readonly biomeIndex: ArrayLike<number>;
     readonly surfaceTemperature: ArrayLike<number>;
-    readonly effectiveMoisture: ArrayLike<number>;
-    readonly aridityIndex: ArrayLike<number>;
+    readonly plantEffectiveMoisture: ArrayLike<number>;
+    readonly climaticAridityIndex: ArrayLike<number>;
     readonly vegetationDensity: ArrayLike<number>;
   }
 ): boolean {
   const biome = fields.biomeIndex[tileIndex] ?? 255;
   const temp = fields.surfaceTemperature[tileIndex] ?? 0;
-  const moisture = fields.effectiveMoisture[tileIndex] ?? 0;
-  const aridity = fields.aridityIndex[tileIndex] ?? 0;
+  const moisture = fields.plantEffectiveMoisture[tileIndex] ?? 0;
+  const aridity = fields.climaticAridityIndex[tileIndex] ?? 0;
   const vegetation = fields.vegetationDensity[tileIndex] ?? 0;
 
   switch (feature) {
@@ -73,8 +73,8 @@ const habitatConfidenceStrategy = createStrategy(Contract, StrategyDefinition, {
     const broadHabitatFields = {
       biomeIndex,
       surfaceTemperature: input.surfaceTemperature,
-      effectiveMoisture: input.effectiveMoisture,
-      aridityIndex: input.aridityIndex,
+      plantEffectiveMoisture: input.plantEffectiveMoisture,
+      climaticAridityIndex: input.climaticAridityIndex,
       vegetationDensity: input.vegetationDensity,
     };
 

@@ -80,7 +80,7 @@ describe("ecology wetland-family habitats", () => {
         height,
         landMask,
         isolatedWaterPointMask,
-        water01: aridWaterPointWater01,
+        plantWater01: aridWaterPointWater01,
         aridityIndex: dryAridityIndex,
         surfaceTemperature: mangroveTemperature,
       },
@@ -141,10 +141,11 @@ describe("ecology wetland-family habitats", () => {
     for (const other of [
       ecology.features.ops.scoreWetMarsh,
       ecology.features.ops.scoreWetTundraBog,
-      ecology.features.ops.scoreWetOasis,
-      ecology.features.ops.scoreWetWateringHole,
     ]) {
       expect(other.input.required).toContain("water01");
+    }
+    for (const other of [ecology.features.ops.scoreWetOasis, ecology.features.ops.scoreWetWateringHole]) {
+      expect(other.input.required).toContain("plantWater01");
     }
 
     const selection = normalizeOperationSelectionForTest(operation, operation.defaultConfig);

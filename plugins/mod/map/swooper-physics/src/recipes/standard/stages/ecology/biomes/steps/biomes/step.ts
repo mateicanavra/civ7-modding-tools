@@ -30,6 +30,8 @@ export const BiomesStep = createStep(config, {
         effectiveMoisture: climateIndices.effectiveMoisture,
         surfaceTemperatureC: climateIndices.surfaceTemperatureC,
         aridityIndex: climateIndices.aridityIndex,
+        plantEffectiveMoisture: climateIndices.plantEffectiveMoisture,
+        plantWaterStress: climateIndices.plantWaterStress,
         freezeIndex: climateIndices.freezeIndex,
         permafrost01: cryosphere.permafrost01,
         landMask,

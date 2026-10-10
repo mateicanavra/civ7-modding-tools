@@ -58,6 +58,8 @@ describe("biomes step", () => {
       { length: size },
       (_value, index) => 0.9 - (index % 3) * 0.1
     );
+    const plantEffectiveMoisture = Float32Array.from(effectiveMoistureIn, (value) => value + 150);
+    const plantWaterStress = Float32Array.from(aridityIndex, (value) => value / 2);
     const permafrost01 = Float32Array.from(
       { length: size },
       (_value, index) => [-0.25, 0, 0.1, 0.25, 0.75, 1, 1.25][index % 7]!
@@ -82,8 +84,10 @@ describe("biomes step", () => {
       publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
         surfaceTemperatureC,
         effectiveMoisture: effectiveMoistureIn,
+        plantEffectiveMoisture,
         pet: new Float32Array(size),
         aridityIndex,
+        plantWaterStress,
         freezeIndex,
       });
       publishTestArtifact(stepContext, pedologyArtifacts.pedology, {
@@ -115,8 +119,10 @@ describe("biomes step", () => {
         height,
         landMask,
         effectiveMoisture: effectiveMoistureIn,
+        plantEffectiveMoisture,
         surfaceTemperatureC,
         aridityIndex,
+        plantWaterStress,
         freezeIndex,
         permafrost01,
         soilType: new Uint8Array(size).fill(0),
@@ -178,8 +184,10 @@ describe("biomes step", () => {
         publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
           surfaceTemperatureC: new Float32Array(size).fill(15),
           effectiveMoisture: effectiveMoistureIn,
+          plantEffectiveMoisture: effectiveMoistureIn,
           pet: new Float32Array(size),
           aridityIndex: new Float32Array(size).fill(0.2),
+          plantWaterStress: new Float32Array(size).fill(0.2),
           freezeIndex: new Float32Array(size).fill(0.05),
         });
         publishTestArtifact(stepContext, pedologyArtifacts.pedology, {
@@ -202,7 +210,7 @@ describe("biomes step", () => {
 
     const baseline = new Float32Array(size).fill(120);
     const boosted = new Float32Array(size).fill(120);
-    // Simulate "upstream" (Hydrology) riparian influence baked into climateIndices.effectiveMoisture.
+    // Matching no-access plant and atmospheric fields must retain the existing classifier response.
     const center = Math.floor(height / 2) * width + Math.floor(width / 2);
     const adjacent = center + 1;
     boosted[center] += 8;

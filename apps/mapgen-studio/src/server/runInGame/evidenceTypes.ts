@@ -122,7 +122,7 @@ export type RunInGameDetailedEvidenceLog = Readonly<{
     planRows?: ReadonlyArray<RunInGameDetailedNaturalWonderPlanRow>;
   }>;
   naturalWonderPlanInput?: Readonly<{
-    marker: "NATURAL_WONDER_PLAN_INPUT_V3";
+    marker: "NATURAL_WONDER_PLAN_INPUT_V4";
     payload: unknown;
   }>;
   naturalWonderPlacement?: Readonly<{

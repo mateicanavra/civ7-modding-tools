@@ -94,8 +94,10 @@ describe("ecology-features plan-vegetation step", () => {
       });
       publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
         effectiveMoisture: new Float32Array(size).fill(120),
+        plantEffectiveMoisture: new Float32Array(size).fill(120),
         surfaceTemperatureC: new Float32Array(size).fill(20),
         aridityIndex: new Float32Array(size).fill(0.4),
+        plantWaterStress: new Float32Array(size).fill(0.4),
         freezeIndex: new Float32Array(size),
         pet: new Float32Array(size),
       });
@@ -255,8 +257,10 @@ describe("ecology-features plan-vegetation step", () => {
         });
         publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
           effectiveMoisture: new Float32Array(size).fill(120),
+          plantEffectiveMoisture: new Float32Array(size).fill(120),
           surfaceTemperatureC: new Float32Array(size).fill(temperature),
           aridityIndex: new Float32Array(size).fill(0.4),
+          plantWaterStress: new Float32Array(size).fill(0.4),
           freezeIndex: new Float32Array(size),
           pet: new Float32Array(size),
         });

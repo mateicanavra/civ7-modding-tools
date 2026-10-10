@@ -11,8 +11,8 @@ function temperateHabitatFields() {
     height,
     landMask: new Uint8Array(size).fill(1),
     energy01: new Float32Array(size).fill(0.6),
-    water01: new Float32Array(size).fill(1),
-    waterStress01: new Float32Array(size).fill(0.1),
+    plantWater01: new Float32Array(size).fill(1),
+    plantWaterStress01: new Float32Array(size).fill(0.1),
     coldStress01: new Float32Array(size).fill(0.05),
     biomass01: new Float32Array(size).fill(0.8),
     fertility01: new Float32Array(size).fill(0.5),
@@ -42,10 +42,10 @@ function legacyBandpass(x: number, lo: number, hi: number, shoulder: number): nu
 }
 
 describe("forest suitability", () => {
-  it("never loses suitability as water supply increases and stays saturated through water01=1", () => {
+  it("never loses suitability as water supply increases and stays saturated through plantWater01=1", () => {
     const input = temperateHabitatFields();
     const water = [0, 0.24, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1];
-    input.water01.set(water);
+    input.plantWater01.set(water);
 
     const scores = score(input);
     const fullyWetScore = 0.8 * 0.9 * 0.95 * 0.8;
@@ -55,10 +55,10 @@ describe("forest suitability", () => {
     expect(scores[2]).toBeCloseTo(0, 6);
     expect(scores[4]).toBeCloseTo(fullyWetScore * 0.5, 6);
     for (let i = 1; i < water.length; i++) {
-      expect(scores[i], `water01=${water[i]}`).toBeGreaterThanOrEqual(scores[i - 1]!);
+      expect(scores[i], `plantWater01=${water[i]}`).toBeGreaterThanOrEqual(scores[i - 1]!);
     }
     for (let i = 7; i < water.length; i++) {
-      expect(scores[i], `water01=${water[i]}`).toBe(scores[7]!);
+      expect(scores[i], `plantWater01=${water[i]}`).toBe(scores[7]!);
     }
     expect(scores[7]).toBeCloseTo(fullyWetScore, 6);
   });
@@ -70,9 +70,9 @@ describe("forest suitability", () => {
     const expected = new Float32Array(input.landMask.length);
     for (let i = 0; i < expected.length; i++) {
       input.landMask[i] = i % 13 === 0 ? 0 : 1;
-      input.water01[i] = water[i % water.length]!;
+      input.plantWater01[i] = water[i % water.length]!;
       input.energy01[i] = energy[Math.floor(i / water.length) % energy.length]!;
-      input.waterStress01[i] = (i % 5) / 4;
+      input.plantWaterStress01[i] = (i % 5) / 4;
       input.coldStress01[i] = i % 2 === 0 ? 0.05 : 0.75;
       input.biomass01[i] = (i % 7) / 6;
       input.fertility01[i] = (i % 11) / 10;
@@ -80,8 +80,8 @@ describe("forest suitability", () => {
       expected[i] =
         input.biomass01[i]! *
         legacyBandpass(input.energy01[i]!, 0.35, 0.8, 0.1) *
-        legacyBandpass(input.water01[i]!, 0.35, 0.8, 0.1) *
-        (1 - input.waterStress01[i]!) *
+        legacyBandpass(input.plantWater01[i]!, 0.35, 0.8, 0.1) *
+        (1 - input.plantWaterStress01[i]!) *
         (1 - input.coldStress01[i]!) *
         (0.6 + 0.4 * input.fertility01[i]!);
     }
@@ -95,9 +95,9 @@ describe("forest suitability", () => {
     input.energy01[2] = 1;
     input.energy01[3] = 0.35;
     input.energy01[4] = 0.8;
-    input.waterStress01[5] = 1;
+    input.plantWaterStress01[5] = 1;
     input.coldStress01[6] = 1;
-    input.waterStress01[7] = 0.55;
+    input.plantWaterStress01[7] = 0.55;
     input.coldStress01[8] = 0.525;
     input.biomass01[9] = 0;
     input.biomass01[10] = 0.4;
@@ -121,8 +121,8 @@ describe("forest suitability", () => {
     const fields = [
       input.landMask,
       input.energy01,
-      input.water01,
-      input.waterStress01,
+      input.plantWater01,
+      input.plantWaterStress01,
       input.coldStress01,
       input.biomass01,
       input.fertility01,
@@ -130,8 +130,8 @@ describe("forest suitability", () => {
     for (let i = 0; i < input.landMask.length; i++) {
       input.landMask[i] = i % 9 === 0 ? 0 : 1;
       input.energy01[i] = (i % 101) / 100;
-      input.water01[i] = (i % 97) / 96;
-      input.waterStress01[i] = (i % 89) / 88;
+      input.plantWater01[i] = (i % 97) / 96;
+      input.plantWaterStress01[i] = (i % 89) / 88;
       input.coldStress01[i] = (i % 83) / 82;
       input.biomass01[i] = (i % 79) / 78;
       input.fertility01[i] = (i % 73) / 72;

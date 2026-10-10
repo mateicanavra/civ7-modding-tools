@@ -37,6 +37,8 @@ export function classifyBiomesFromFields(args: {
   readonly surfaceTemperatureF64: ArrayLike<number>;
   readonly freezeIndex: ArrayLike<number>;
   readonly aridityIndexF64: ArrayLike<number>;
+  readonly plantEffectiveMoisture: ArrayLike<number>;
+  readonly plantWaterStress: ArrayLike<number>;
   readonly soilType: ArrayLike<number>;
   readonly fertility: ArrayLike<number>;
   readonly config: Readonly<BiophysicalConfig>;
@@ -64,19 +66,24 @@ export function classifyBiomesFromFields(args: {
     const temperature = args.surfaceTemperatureF64[i] ?? 0;
     const moisture = args.effectiveMoistureF64[i] ?? 0;
     const aridity = args.aridityIndexF64[i] ?? 0;
+    const plantMoisture = args.plantEffectiveMoisture[i] ?? 0;
+    const plantStress = args.plantWaterStress[i] ?? 0;
     const freezeIndex = args.freezeIndex[i] ?? 0;
     const energy01 = clamp01((temperature - energyMin) / energyRange);
 
-    const aridityShift = aridityShiftForIndex(aridity, args.config.aridity.moistureShiftThresholds);
+    let tempZone = temperatureZoneOf(temperature, args.config.temperature);
+    // Polar wetness selects snow versus tundra, not local plant growth habitat.
+    const categoryMoisture = tempZone === "polar" ? moisture : plantMoisture;
+    const categoryDryness = tempZone === "polar" ? aridity : plantStress;
+    const aridityShift = aridityShiftForIndex(categoryDryness, args.config.aridity.moistureShiftThresholds);
     const moistureZone = shiftMoistureZone(
-      moistureZoneOf(moisture, [dry, semiArid, subhumid, humidThreshold]),
+      moistureZoneOf(categoryMoisture, [dry, semiArid, subhumid, humidThreshold]),
       aridityShift
     );
 
     const tropicalThreshold = args.config.temperature.tropicalThreshold;
     const transitionBandC = 1.25;
 
-    let tempZone = temperatureZoneOf(temperature, args.config.temperature);
     if (
       (tempZone === "temperate" || tempZone === "tropical") &&
       Math.abs(temperature - tropicalThreshold) <= transitionBandC
@@ -95,14 +102,14 @@ export function classifyBiomesFromFields(args: {
     const symbol = biomeSymbolForZones(tempZone, moistureZone);
     biomeIndex[i] = BIOME_SYMBOL_TO_INDEX[symbol]!;
 
-    const moistureNorm = clamp01(moisture / moistureNormalization);
+    const moistureNorm = clamp01(plantMoisture / moistureNormalization);
     vegetationDensity[i] = vegetationDensityForBiome(symbol, {
       base: args.config.vegetation.base,
       moistureWeight: args.config.vegetation.moistureWeight,
       moistureNorm,
       energy01,
       freezeIndex,
-      aridityIndex: aridity,
+      aridityIndex: plantStress,
       aridityStressWeight: args.config.aridity.vegetationPenalty,
       fertility01: args.fertility[i] ?? 0,
       soilType: args.soilType[i] ?? 0,

@@ -5,6 +5,7 @@ import {
 } from "../../../../../src/recipes/standard/metrics/capture.js";
 import {
   STANDARD_METRIC_STUDIES,
+  selectStandardMetricStudies,
   type StandardMetricRunEvaluation,
 } from "../../../../../src/recipes/standard/metrics/index.js";
 import {
@@ -21,9 +22,9 @@ if (earthlikePlacementStudy.kind !== "cohort") {
 /** Shipped Earthlike cohort whose placement and resource distribution are evaluated together. */
 export const EARTHLIKE_PLACEMENT_STUDY = earthlikePlacementStudy;
 
-/** Every declared Standard metric study other than the dedicated Earthlike placement cohort. */
+/** Every core Earthlike study other than the dedicated placement cohort. */
 export const OTHER_METRIC_STUDIES = requireNonEmptyStudies(
-  STANDARD_METRIC_STUDIES.filter((metricStudy) => metricStudy !== EARTHLIKE_PLACEMENT_STUDY)
+  selectStandardMetricStudies().filter((metricStudy) => metricStudy !== EARTHLIKE_PLACEMENT_STUDY)
 );
 
 let representativeEarthlikeCapture: StandardMapCapture | undefined;

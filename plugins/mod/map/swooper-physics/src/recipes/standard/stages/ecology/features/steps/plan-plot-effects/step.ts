@@ -61,7 +61,7 @@ export const PlanPlotEffectsStep = createStep(config, {
         landMask: hydrography.exposedLandMask,
         biomeIndex: classification.biomeIndex,
         vegetationDensity: classification.vegetationDensity,
-        effectiveMoisture: climateIndices.effectiveMoisture,
+        plantEffectiveMoisture: climateIndices.plantEffectiveMoisture,
         surfaceTemperature: climateIndices.surfaceTemperatureC,
       },
       stepConfig.scoreJungle

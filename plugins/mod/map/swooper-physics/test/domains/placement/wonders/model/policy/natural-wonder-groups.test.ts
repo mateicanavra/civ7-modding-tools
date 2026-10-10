@@ -45,7 +45,7 @@ describe("natural wonder group policy", () => {
       slopeN: 0.1,
       shelfN: 1,
       deepN: 0.55,
-      moist: 0.45,
+      plantMoisture: 0.45,
     };
     const suitability = (group: keyof typeof WONDER_GROUPS) =>
       WONDER_GROUPS[group].suitability(signals);

@@ -59,6 +59,8 @@ export const ScoreLayersStep = createStep(config, {
         effectiveMoisture: climateIndices.effectiveMoisture,
         surfaceTemperature: climateIndices.surfaceTemperatureC,
         aridityIndex: climateIndices.aridityIndex,
+        plantEffectiveMoisture: climateIndices.plantEffectiveMoisture,
+        plantWaterStress: climateIndices.plantWaterStress,
         freezeIndex: climateIndices.freezeIndex,
         vegetationDensity: classification.vegetationDensity,
         fertility: pedology.fertility,
@@ -66,24 +68,53 @@ export const ScoreLayersStep = createStep(config, {
       stepConfig.vegetationSubstrate
     );
 
+    const growthFields = {
+      width,
+      height,
+      landMask: ecologyLandMask,
+      energy01: vegetationSubstrate.energy01,
+      coldStress01: vegetationSubstrate.coldStress01,
+      biomass01: vegetationSubstrate.biomass01,
+      fertility01: vegetationSubstrate.fertility01,
+    };
     const forestScore = ops.scoreForest(
-      { width, height, landMask: ecologyLandMask, ...vegetationSubstrate },
+      {
+        ...growthFields,
+        plantWater01: vegetationSubstrate.plantWater01,
+        plantWaterStress01: vegetationSubstrate.plantWaterStress01,
+      },
       stepConfig.scoreForest
     ).score01;
     const rainforestScore = ops.scoreRainforest(
-      { width, height, landMask: ecologyLandMask, ...vegetationSubstrate },
+      {
+        ...growthFields,
+        plantWater01: vegetationSubstrate.plantWater01,
+        plantWaterStress01: vegetationSubstrate.plantWaterStress01,
+      },
       stepConfig.scoreRainforest
     ).score01;
     const taigaScore = ops.scoreTaiga(
-      { width, height, landMask: ecologyLandMask, ...vegetationSubstrate },
+      {
+        ...growthFields,
+        atmosphericWater01: vegetationSubstrate.atmosphericWater01,
+        plantWaterStress01: vegetationSubstrate.plantWaterStress01,
+      },
       stepConfig.scoreTaiga
     ).score01;
     const savannaWoodlandScore = ops.scoreSavannaWoodland(
-      { width, height, landMask: ecologyLandMask, ...vegetationSubstrate },
+      {
+        ...growthFields,
+        plantWater01: vegetationSubstrate.plantWater01,
+        climaticAridity01: vegetationSubstrate.climaticAridity01,
+      },
       stepConfig.scoreSavannaWoodland
     ).score01;
     const sagebrushSteppeScore = ops.scoreSagebrushSteppe(
-      { width, height, landMask: ecologyLandMask, ...vegetationSubstrate },
+      {
+        ...growthFields,
+        atmosphericWater01: vegetationSubstrate.atmosphericWater01,
+        climaticAridity01: vegetationSubstrate.climaticAridity01,
+      },
       stepConfig.scoreSagebrushSteppe
     ).score01;
 
@@ -108,7 +139,7 @@ export const ScoreLayersStep = createStep(config, {
         height,
         landMask: ecologyLandMask,
         hydromorphicMask: featureSubstrate.hydromorphicMask,
-        water01: vegetationSubstrate.water01,
+        water01: vegetationSubstrate.atmosphericWater01,
         fertility01: vegetationSubstrate.fertility01,
         surfaceTemperature: climateIndices.surfaceTemperatureC,
         aridityIndex: climateIndices.aridityIndex,
@@ -122,7 +153,7 @@ export const ScoreLayersStep = createStep(config, {
         height,
         landMask: ecologyLandMask,
         hydromorphicMask: featureSubstrate.hydromorphicMask,
-        water01: vegetationSubstrate.water01,
+        water01: vegetationSubstrate.atmosphericWater01,
         fertility01: vegetationSubstrate.fertility01,
         surfaceTemperature: climateIndices.surfaceTemperatureC,
         freezeIndex: climateIndices.freezeIndex,
@@ -149,7 +180,7 @@ export const ScoreLayersStep = createStep(config, {
         height,
         landMask: ecologyLandMask,
         isolatedWaterPointMask: featureSubstrate.isolatedWaterPointMask,
-        water01: vegetationSubstrate.water01,
+        plantWater01: vegetationSubstrate.plantWater01,
         aridityIndex: climateIndices.aridityIndex,
         surfaceTemperature: climateIndices.surfaceTemperatureC,
       },
@@ -162,7 +193,7 @@ export const ScoreLayersStep = createStep(config, {
         height,
         landMask: ecologyLandMask,
         isolatedWaterPointMask: featureSubstrate.isolatedWaterPointMask,
-        water01: vegetationSubstrate.water01,
+        plantWater01: vegetationSubstrate.plantWater01,
         fertility01: vegetationSubstrate.fertility01,
         aridityIndex: climateIndices.aridityIndex,
         surfaceTemperature: climateIndices.surfaceTemperatureC,

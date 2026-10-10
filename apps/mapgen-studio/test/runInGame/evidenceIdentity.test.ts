@@ -72,9 +72,9 @@ describe("Run in Game exact authorship evidence identity", () => {
 
   it("parses bounded Swooper evidence and completion log payloads for the same request chain", () => {
     const naturalWonderPlanInputPayload = {
-      version: 3,
+      version: 4,
       plannerInput: {
-        version: 2,
+        version: 3,
         engineElevationSource: "native",
         dimensions: { width: 84, height: 54 },
         wondersCount: 7,
@@ -95,7 +95,7 @@ describe("Run in Game exact authorship evidence identity", () => {
           configHash32: "cdcdcdcd",
         },
         surfaceDigests: {
-          version: 2,
+          version: 3,
           plotCount: 4536,
           landMaskHash32: "11111111",
           elevationHash32: "22222222",
@@ -104,7 +104,7 @@ describe("Run in Game exact authorship evidence identity", () => {
           riverClassHash32: "44444444",
           lakeMaskHash32: "55555555",
           vegetationDensityHash32: "66666666",
-          effectiveMoistureHash32: "77777777",
+          plantEffectiveMoistureHash32: "77777777",
           surfaceTemperatureHash32: "88888888",
           fertilityHash32: "99999999",
           dischargeHash32: "aaaaaaaa",
@@ -223,7 +223,7 @@ describe("Run in Game exact authorship evidence identity", () => {
             plannedHash32: "bbbbbbbb",
           },
         })}`,
-        `[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V3 ${JSON.stringify(naturalWonderPlanInputPayload)}`,
+        `[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V4 ${JSON.stringify(naturalWonderPlanInputPayload)}`,
         `[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 ${JSON.stringify({
           version: 1,
           plannedCount: 7,
@@ -375,7 +375,7 @@ describe("Run in Game exact authorship evidence identity", () => {
       ],
     });
     expect(logEvidence?.naturalWonderPlanInput).toEqual({
-      marker: "NATURAL_WONDER_PLAN_INPUT_V3",
+      marker: "NATURAL_WONDER_PLAN_INPUT_V4",
       payload: naturalWonderPlanInputPayload,
     });
     expect(logEvidence?.naturalWonderPlacement).toMatchObject({

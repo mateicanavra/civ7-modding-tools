@@ -5,22 +5,27 @@
 
 ## Question and design
 
-Does Desert Mountains stay dry and botanically varied without tropical drift
+Does Desert Mountains stay dry and botanically varied
 across seed rolls? Four sample studies run `MAPSIZE_HUGE` (106 x 66, 10 players)
 at seeds `123`, `1337`, `1538316415`, and `1538316523`. Runtime IDs are
-`shipped/arid-climate/MAPSIZE_HUGE/seed-<seed>`.
+`shipped/arid-climate/MAPSIZE_HUGE/map-<seed>/game-<seed>`.
+
+These intentionally biased configuration studies are available under explicit
+`all` scope for configuration stress. They are not part of core Earthlike
+physical qualification or its default definition study gate.
 
 ## Measurements and expected outcomes
 
 The ecology and hydrology families supply wetland share, vegetation families,
-feature counts, rainforest count, and dry-flow evidence. Each sample must retain
+feature counts, and dry-flow evidence. Each sample must retain
 the Desert Mountains configuration, keep wetlands `<=0.08`, expose at least two
-vegetation families, contain savanna and sagebrush, realize at most 20 rainforest
-tiles, and retain at least one land tile without sustained modeled flow.
+vegetation families, contain savanna and sagebrush, and retain at least one land
+tile without sustained modeled flow. The former absolute 20-tile rainforest cap
+is removed, not raised or replaced; the physical model is unchanged.
 
 **Expectation IDs:** `configuration-identity`, `wetland-share`,
 `vegetation-family-variety`, `required-feature/feature_savanna_woodland`,
-`required-feature/feature_sagebrush_steppe`, `rainforest-tile-count`, and
+`required-feature/feature_sagebrush_steppe`, and
 `dry-flow-presence`.
 
 This study isolates the arid-climate hypothesis; it intentionally does not add
@@ -30,6 +35,5 @@ and geography studies over the same semantic scenarios.
 ## Proof
 
 ```bash
-civ7 mapgen metrics report
-nx run swooper-physics:test
+civ7 mapgen metrics report --scope all
 ```

@@ -37,6 +37,8 @@ const biophysicalStrategy = createStrategy(Contract, StrategyDefinition, {
       surfaceTemperatureF64,
       freezeIndex,
       aridityIndexF64,
+      plantEffectiveMoisture: input.plantEffectiveMoisture,
+      plantWaterStress: input.plantWaterStress,
       soilType,
       fertility,
       config,

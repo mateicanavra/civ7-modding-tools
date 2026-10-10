@@ -19,7 +19,7 @@ export default defineStrategy({
         default: 110,
         minimum: 0,
         maximum: 1000,
-        description: "Jungle is eligible when effectiveMoisture >= minMoisture.",
+        description: "Jungle is eligible when plantEffectiveMoisture >= minMoisture.",
       }),
       minVegetation: Type.Number({
         default: 0.45,

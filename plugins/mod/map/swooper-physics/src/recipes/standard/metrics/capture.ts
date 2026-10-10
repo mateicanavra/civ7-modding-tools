@@ -221,6 +221,8 @@ export type StandardMapCapture = Readonly<{
     vegetationDensity: Float32Array;
     fertility: Pedology["fertility"];
     effectiveMoisture: Float32Array;
+    plantEffectiveMoisture: Float32Array;
+    plantWaterStress: Float32Array;
     surfaceTemperature: Float32Array;
     baselineRainfall: Uint8Array;
     refinedRainfall: Uint8Array;
@@ -724,6 +726,16 @@ function copyCompletedRun(
       effectiveMoisture: copyFloat32Grid(
         "hydrology.climateIndices.effectiveMoisture",
         climateIndicesValue.effectiveMoisture,
+        gridSize
+      ),
+      plantEffectiveMoisture: copyFloat32Grid(
+        "hydrology.climateIndices.plantEffectiveMoisture",
+        climateIndicesValue.plantEffectiveMoisture,
+        gridSize
+      ),
+      plantWaterStress: copyFloat32Grid(
+        "hydrology.climateIndices.plantWaterStress",
+        climateIndicesValue.plantWaterStress,
         gridSize
       ),
       surfaceTemperature: copyFloat32Grid(

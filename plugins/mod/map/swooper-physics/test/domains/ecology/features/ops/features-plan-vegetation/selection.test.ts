@@ -10,8 +10,8 @@ function broadHabitatFields(size: number) {
     flatLandMask: new Uint8Array(size).fill(1),
     biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid),
     surfaceTemperature: new Float32Array(size).fill(20),
-    effectiveMoisture: new Float32Array(size).fill(120),
-    aridityIndex: new Float32Array(size).fill(0.4),
+    plantEffectiveMoisture: new Float32Array(size).fill(120),
+    climaticAridityIndex: new Float32Array(size).fill(0.4),
     vegetationDensity: new Float32Array(size).fill(0.35),
   };
 }
@@ -171,7 +171,7 @@ describe("planVegetation (joint resolver)", () => {
     habitat.surfaceTemperature[1] = 2;
     habitat.biomeIndex[2] = BIOME_SYMBOL_TO_INDEX.tropicalRainforest;
     habitat.surfaceTemperature[2] = 25;
-    habitat.effectiveMoisture[2] = 120;
+    habitat.plantEffectiveMoisture[2] = 120;
     habitat.vegetationDensity[2] = 0.45;
     habitat.biomeIndex[3] = BIOME_SYMBOL_TO_INDEX.desert;
     habitat.surfaceTemperature[3] = 20;
@@ -257,7 +257,7 @@ describe("planVegetation (joint resolver)", () => {
     const habitat = broadHabitatFields(size);
     habitat.biomeIndex[0] = BIOME_SYMBOL_TO_INDEX.tropicalRainforest;
     habitat.surfaceTemperature[0] = 25;
-    habitat.effectiveMoisture[0] = 120;
+    habitat.plantEffectiveMoisture[0] = 120;
     habitat.vegetationDensity[0] = 0.45;
     habitat.biomeIndex[1] = BIOME_SYMBOL_TO_INDEX.boreal;
     habitat.surfaceTemperature[1] = 0;

@@ -6,15 +6,15 @@ import {
   OTHER_METRIC_STUDIES,
 } from "../../fixtures/standard-product.js";
 
-describe("Standard map product studies", () => {
+describe("Core Earthlike map product studies", () => {
   it("keeps the full Earthlike placement cohort inside its placement and resource targets", () => {
     const evaluation = evaluateStandardMetricStudies([EARTHLIKE_PLACEMENT_STUDY]);
     expect(failedExpectations(evaluation)).toEqual([]);
     expect(evaluation.status).toBe("pass");
   }, 180_000);
 
-  // Keep shared scenarios atomic and deduplicated across the full periodic-climate bank.
-  it("keeps every other declared map product inside its shared metric targets", () => {
+  // Keep shared scenarios atomic and deduplicated across the core Earthlike qualification scope.
+  it("keeps every other core Earthlike study inside its shared metric targets", () => {
     const evaluation = evaluateStandardMetricStudies(OTHER_METRIC_STUDIES);
     const expectedScenarioIds = new Set(
       OTHER_METRIC_STUDIES.flatMap((metricStudy) =>

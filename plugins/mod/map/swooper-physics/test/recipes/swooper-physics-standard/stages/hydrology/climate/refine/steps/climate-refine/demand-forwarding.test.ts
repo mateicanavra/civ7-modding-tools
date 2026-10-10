@@ -46,6 +46,7 @@ describe("hydrology climate-refine demand ownership", () => {
       landMask[0] = 0;
       const externalWaterMask = new Uint8Array(size);
       externalWaterMask[0] = 1;
+      const elevation = new Int16Array(size);
       const baselineTemperature = new Float32Array(size).fill(20);
       baselineTemperature[0] = -10;
       baselineTemperature[1] = -15;
@@ -77,7 +78,7 @@ describe("hydrology climate-refine demand ownership", () => {
       withMapContextExecutionForTest(context, (stepContext) => {
         const dependencies = buildStepTestDependencies(ClimateRefineStep, stepContext);
         publishTestArtifact(stepContext, morphologyErosionArtifacts.topography, {
-          elevation: new Int16Array(size),
+          elevation,
           seaLevel: 0,
           landMask,
           externalWaterMask,
@@ -159,6 +160,12 @@ describe("hydrology climate-refine demand ownership", () => {
               expect(input.rainfall).toBe(rainfall);
               expect(input.humidity).toBe(humidity);
               expect(input.landMask).toBe(waterFixture.hydrography.exposedLandMask);
+              expect(input.elevation).toBe(elevation);
+              expect(input.externalWaterMask).toBe(externalWaterMask);
+              expect(input.discharge).toBe(waterFixture.hydrography.discharge);
+              expect(input.runoff).toBe(waterFixture.hydrography.runoff);
+              expect(input.componentId).toBe(waterFixture.lakePlan.componentId);
+              expect(input.bodies).toBe(waterFixture.lakePlan.bodies);
               expect(Object.hasOwn(input, "riverClass")).toBe(false);
               return hydrology.climate.ops.computeLandWaterBudget.run(input, budgetConfig);
             },
@@ -214,6 +221,8 @@ describe("hydrology climate-refine demand ownership", () => {
       expect(indices.aridityIndex[1]).toBe(Math.fround(expected.pet[1]! / (expected.pet[1]! + 41)));
       expect(indices.effectiveMoisture[2]).toBe(Math.fround(0.35 * 255));
       expect(indices.aridityIndex[2]).toBe(Math.fround(expected.pet[2]! / (expected.pet[2]! + 1)));
+      expect(indices.plantEffectiveMoisture).toEqual(indices.effectiveMoisture);
+      expect(indices.plantWaterStress).toEqual(indices.aridityIndex);
       expect(surfaceTemperature).toBe(refinedTemperature);
       expect(baselineTemperature).toEqual(beforeTemperature);
       expect(surfaceTemperature).toEqual(

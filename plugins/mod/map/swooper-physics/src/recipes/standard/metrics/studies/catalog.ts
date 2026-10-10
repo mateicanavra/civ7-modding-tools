@@ -13,17 +13,22 @@ import { EARTHLIKE_RELIEF_REPRESENTATIVE_STUDY } from "./benchmarks/earthlike-re
 import { EARTHLIKE_RIVER_NETWORK_STUDY } from "./benchmarks/earthlike-river-network.study.js";
 import { EARTHLIKE_WIND_STRUCTURE_STUDY } from "./benchmarks/earthlike-wind-structure.study.js";
 import { SHIPPED_ARID_CLIMATE_STUDIES } from "./benchmarks/shipped-arid-climate.study.js";
-import { SHIPPED_GEOGRAPHY_STUDY } from "./benchmarks/shipped-geography.study.js";
+import {
+  EARTHLIKE_GEOGRAPHY_COHORT_STUDY,
+  SHIPPED_GEOGRAPHY_STUDY,
+} from "./benchmarks/shipped-geography.study.js";
 import { SHIPPED_IDENTITY_STUDIES } from "./benchmarks/shipped-identities.study.js";
 import { RELIEF_COHERENCE_STUDY } from "./benchmarks/relief-coherence.study.js";
+import { requireNonEmptyMetricStudyValues } from "./define.js";
 import type { StandardMetricStudy } from "./model.js";
 
-/** Closed executable study bank for the shipped Standard recipe product. */
+/** Closed executable study bank for core Earthlike qualification and opt-in configuration stress. */
 export const STANDARD_METRIC_STUDIES: NonEmptyTuple<StandardMetricStudy> = Object.freeze([
   ...SHIPPED_IDENTITY_STUDIES,
   ...SHIPPED_ARID_CLIMATE_STUDIES,
   SHIPPED_GEOGRAPHY_STUDY,
   RELIEF_COHERENCE_STUDY,
+  EARTHLIKE_GEOGRAPHY_COHORT_STUDY,
   EARTHLIKE_GEOGRAPHY_STUDY,
   EARTHLIKE_BIOME_STRUCTURE_STUDY,
   EARTHLIKE_CLIMATE_STRUCTURE_STUDY,
@@ -38,3 +43,21 @@ export const STANDARD_METRIC_STUDIES: NonEmptyTuple<StandardMetricStudy> = Objec
   EARTHLIKE_HUGE_RELIEF_COHORT_STUDY,
   EARTHLIKE_PLACEMENT_STUDY,
 ] satisfies NonEmptyTuple<StandardMetricStudy>);
+
+/** Qualification scopes select whole declared studies without changing scenario or target policy. */
+export type StandardMetricStudyScope = "earthlike-core" | "all";
+
+/** Selects core Earthlike qualification by default; biased configurations require explicit opt-in. */
+export function selectStandardMetricStudies(
+  scope: StandardMetricStudyScope = "earthlike-core"
+): NonEmptyTuple<StandardMetricStudy> {
+  if (scope === "all") return STANDARD_METRIC_STUDIES;
+  if (scope !== "earthlike-core") throw new Error(`Unknown Standard metric study scope ${scope}.`);
+  return Object.freeze(requireNonEmptyMetricStudyValues(
+    STANDARD_METRIC_STUDIES.filter((study) => {
+      const scenarios = study.kind === "sample" ? [study.scenario] : study.scenarios;
+      return scenarios.every(({ config }) => config.id === "swooper-earthlike");
+    }),
+    "core Earthlike studies"
+  ));
+}

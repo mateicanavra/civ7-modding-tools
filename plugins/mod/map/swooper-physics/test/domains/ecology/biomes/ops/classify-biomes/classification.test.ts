@@ -45,8 +45,10 @@ describe("classifyBiomes operation", () => {
           width,
           height,
           effectiveMoisture: new Float32Array(size).fill(110),
+          plantEffectiveMoisture: new Float32Array(size).fill(110),
           surfaceTemperatureC,
           aridityIndex,
+          plantWaterStress: aridityIndex,
           freezeIndex: new Float32Array(size),
           permafrost01: new Float32Array(size),
           landMask: new Uint8Array(size).fill(1),
@@ -72,8 +74,10 @@ describe("classifyBiomes operation", () => {
       width,
       height,
       effectiveMoisture: new Float32Array(size).fill(150),
+      plantEffectiveMoisture: new Float32Array(size).fill(150),
       surfaceTemperatureC: new Float32Array(size).fill(30),
       aridityIndex: new Float32Array(size).fill(0.35),
+      plantWaterStress: new Float32Array(size).fill(0.35),
       freezeIndex: new Float32Array(size),
       permafrost01: new Float32Array(size),
       landMask: new Uint8Array(size).fill(1),
@@ -108,6 +112,7 @@ describe("classifyBiomes operation", () => {
     expect(overShifted.biomeIndex[waterTile]).toBe(255);
 
     input.aridityIndex.fill(0.8);
+    input.plantWaterStress.fill(0.8);
     const dry = runWithFirstShift(authored.config.aridity.moistureShiftThresholds[0]);
     expect(biomeSymbolFromIndex(dry.biomeIndex[0]!)).toBe("desert");
     expect(dry.biomeIndex[waterTile]).toBe(255);
@@ -156,8 +161,10 @@ describe("classifyBiomes operation", () => {
         width,
         height,
         effectiveMoisture,
+        plantEffectiveMoisture: effectiveMoisture,
         surfaceTemperatureC,
         aridityIndex,
+        plantWaterStress: aridityIndex,
         freezeIndex,
         permafrost01: new Float32Array(size),
         landMask,
@@ -199,8 +206,10 @@ describe("classifyBiomes operation", () => {
       width,
       height,
       effectiveMoisture,
+      plantEffectiveMoisture: effectiveMoisture,
       surfaceTemperatureC: new Float32Array(size).fill(12.13),
       aridityIndex: new Float32Array(size).fill(0.35924),
+      plantWaterStress: new Float32Array(size).fill(0.35924),
       freezeIndex: new Float32Array(size),
       permafrost01: new Float32Array(size),
       landMask: new Uint8Array(size).fill(1),
@@ -244,8 +253,10 @@ describe("classifyBiomes operation", () => {
         width,
         height,
         effectiveMoisture: new Float32Array(size),
+        plantEffectiveMoisture: new Float32Array(size),
         surfaceTemperatureC,
         aridityIndex: new Float32Array(size),
+        plantWaterStress: new Float32Array(size),
         freezeIndex: new Float32Array(size),
         permafrost01: new Float32Array(size),
         landMask: new Uint8Array(size),
@@ -270,8 +281,10 @@ describe("classifyBiomes operation", () => {
       width,
       height,
       effectiveMoisture: new Float32Array(size).fill(110),
+      plantEffectiveMoisture: new Float32Array(size).fill(110),
       surfaceTemperatureC: new Float32Array(size).fill(15),
       aridityIndex: new Float32Array(size),
+      plantWaterStress: new Float32Array(size),
       freezeIndex: new Float32Array(size),
       permafrost01,
       landMask: Uint8Array.of(1, 0, 1, 0, 1, 0, 1, 0),

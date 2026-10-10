@@ -11,8 +11,8 @@ const semiaridOpenStrategy = createStrategy(Contract, StrategyDefinition, {
       size: input.width * input.height,
       landMask: input.landMask,
       energy01: input.energy01,
-      water01: input.water01,
-      waterStress01: input.waterStress01,
+      atmosphericWater01: input.atmosphericWater01,
+      climaticAridity01: input.climaticAridity01,
       biomass01: input.biomass01,
     });
 

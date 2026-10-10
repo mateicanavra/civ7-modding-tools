@@ -15,7 +15,7 @@ export type GroupSuitabilitySignals = {
   slopeN: number;
   shelfN: number;
   deepN: number;
-  moist: number;
+  plantMoisture: number;
 };
 
 export type WonderGroupDefinition = {
@@ -52,7 +52,7 @@ export const WONDER_GROUPS: Readonly<Record<WonderGroup, WonderGroupDefinition>>
   },
   G: {
     features: [28],
-    suitability: (s) => clamp01(0.45 * s.fertN + 0.3 * s.moist + 0.25 * (1 - s.relief)),
+    suitability: (s) => clamp01(0.45 * s.fertN + 0.3 * s.plantMoisture + 0.25 * (1 - s.relief)),
   },
   H: {
     features: [31, 39],
@@ -60,7 +60,7 @@ export const WONDER_GROUPS: Readonly<Record<WonderGroup, WonderGroupDefinition>>
   },
   I: {
     features: [30],
-    suitability: (s) => clamp01(0.55 * s.vegN + 0.3 * s.moist + 0.15 * s.temperate),
+    suitability: (s) => clamp01(0.55 * s.vegN + 0.3 * s.plantMoisture + 0.15 * s.temperate),
   },
 };
 

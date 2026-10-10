@@ -5,6 +5,7 @@ import {
   PotentialDemandParametersSchema,
 } from "../../../../../../src/domain/hydrology/modules/climate/model/atoms/potential-demand.schema.js";
 import hydrology from "../../../../../../src/domain/hydrology/router.js";
+import { noLocalWaterSources } from "../../../../../fixtures/local-water-sources.js";
 
 const { computePotentialDemand, computeLandWaterBudget } = hydrology.climate.ops;
 const defaults = Value.Create(PotentialDemandParametersSchema);
@@ -85,6 +86,7 @@ describe("hydrology/compute-potential-demand", () => {
         {
           width: input.width,
           height: input.height,
+          ...noLocalWaterSources(input.width, input.height),
           landMask,
           humidity: input.humidity,
           rainfall,
@@ -119,6 +121,7 @@ describe("hydrology/compute-potential-demand", () => {
         {
           width: input.width,
           height: input.height,
+          ...noLocalWaterSources(input.width, input.height),
           landMask: new Uint8Array(input.width * input.height).fill(1),
           humidity: input.humidity,
           rainfall: new Uint8Array(input.width * input.height),

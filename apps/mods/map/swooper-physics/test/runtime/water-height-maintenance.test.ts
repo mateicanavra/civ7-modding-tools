@@ -12,6 +12,7 @@ import {
   BOUNDED_JSON_LOG_MAX_LINE_LENGTH,
   decodeBoundedJsonLogSeries,
 } from "@swooper/mapgen-core/lib/log";
+import { publishTestArtifact, withMapContextExecutionForTest } from "@swooper/mapgen-core/testing";
 import { sha256Hex, stableStringify } from "@swooper/mapgen-core/trace";
 import standardRecipe, {
   createUnavailableStandardInitialOptionEvidence,
@@ -1051,6 +1052,7 @@ async function physicalLakeRun(
     adapter,
     context,
     options,
+    artifacts: { lakePlan: lakePlanDefinition, projectedLakes: projectedLakesDefinition },
     lakes: () => readArtifact(context, lakePlanDefinition),
     accepted: () => readArtifact(context, projectedLakesDefinition),
     topography: () => readArtifact(context, topographyDefinition),
@@ -1306,15 +1308,94 @@ describe("post-recipe physical lake maintenance evidence", () => {
     expect(observations).toBe(0);
   }, 30_000);
 
-  it("retains an authentic empty Archipelago footprint and its physical pool/component records", async () => {
-    const run = await physicalLakeRun("sundered-archipelago", "MAPSIZE_HUGE", 1018, 1018);
-    const originalLog = console.log;
-    try {
-      console.log = () => {};
-      standardRecipe.execute(run.context, run.plan, { log: () => {} });
-    } finally {
-      console.log = originalLog;
+  it("retains a controlled empty publication and its physical pool/component records", async () => {
+    const run = await physicalLakeRun();
+    const { width, height } = run.context.setup.dimensions;
+    const size = width * height;
+    const flux = {
+      incomingOverflow: 0,
+      dryRunoff: 0,
+      wetPrecipitation: 0,
+      wetDemand: 0,
+      balance: 0,
+    };
+    const dryPools = [
+      { poolId: 7, componentId: 4, cell: 3, level: 200.5 },
+      { poolId: 2, componentId: 1, cell: 0, level: 100.25 },
+    ];
+    const componentId = new Int32Array(size);
+    const waterSurface = Array<number>(size).fill(0);
+    for (const pool of dryPools) {
+      componentId[pool.cell] = pool.componentId;
+      waterSurface[pool.cell] = pool.level;
     }
+    // Exercise validated publication and completed-context observation, not preset appearance.
+    withMapContextExecutionForTest(run.context, (stepContext) => {
+      publishTestArtifact(stepContext, run.artifacts.lakePlan, {
+        model: "certified-sill-spill",
+        width,
+        height,
+        lakeMask: new Uint8Array(size),
+        plannedLakeTileCount: 0,
+        bodyId: new Int32Array(size),
+        componentId,
+        waterSurface,
+        pools: dryPools.map((pool) => ({
+          poolId: pool.poolId,
+          componentId: pool.componentId,
+          leafIds: [pool.poolId],
+          catchmentCells: [pool.cell],
+          wetCells: [],
+          state: "dry" as const,
+          level: pool.level,
+          flux,
+          outflow: 0,
+          unresolvedResidual: 0,
+          closure: null,
+        })),
+        bodies: [],
+        components: dryPools.map((pool) => ({
+          componentId: pool.componentId,
+          poolId: pool.poolId,
+          bodyIds: [],
+          memberCells: [pool.cell],
+          junctionCells: [pool.cell],
+          anchorCell: pool.cell,
+          level: pool.level,
+          state: "dry" as const,
+          flux,
+          outflow: 0,
+          unresolvedResidual: 0,
+          terminalId: pool.componentId,
+        })),
+        transfers: [],
+        ports: [],
+        terminals: dryPools.map((pool) => ({
+          terminalId: pool.componentId,
+          role: "dry" as const,
+          anchorCell: pool.cell,
+          componentId: pool.componentId,
+        })),
+        marineExits: [],
+        boundaryExits: [],
+        conservation: {
+          dryRunoff: 0,
+          wetPrecipitation: 0,
+          wetDemand: 0,
+          marineDischarge: 0,
+          boundaryDischarge: 0,
+          externalDischarge: 0,
+          unresolvedResidual: 0,
+          normalizedUnresolvedResidual: 0,
+          residual: 0,
+          roundoffBound: 0,
+        },
+      });
+      publishTestArtifact(stepContext, run.artifacts.projectedLakes, {
+        lakeMask: new Uint8Array(size),
+      });
+    });
+    const before = stableStringify([run.lakes(), run.accepted()]);
     const lines: string[] = [];
     observeWaterHeightPhysicalLakes(
       run.context,
@@ -1324,39 +1405,37 @@ describe("post-recipe physical lake maintenance evidence", () => {
       run.options,
       (line) => lines.push(line)
     );
-    const lakes = run.lakes();
-    expect(lakes.plannedLakeTileCount).toBe(0);
-    const record = decodeBoundedJsonLogSeries(lines, "[water-height-maintenance]")[0]!;
-    expect(record.payload).toMatchObject({
+    expect(stableStringify([run.lakes(), run.accepted()])).toBe(before);
+    expect(run.lakes().plannedLakeTileCount).toBe(0);
+    expect(lines.every((line) => line.length <= BOUNDED_JSON_LOG_MAX_LINE_LENGTH)).toBe(true);
+    const records = decodeBoundedJsonLogSeries(lines, "[water-height-maintenance]");
+    expect(records).toHaveLength(1);
+    expect(records[0]!.payload).toEqual({
+      proofId: "empty-physical-lakes",
       stage: "physical-lakes",
+      diagnosticRevision: run.options.diagnosticRevision,
+      atlasKind: run.options.atlasKind,
+      ...identity,
       payload: {
         phase: "post-recipe",
+        mapSeed: run.options.mapSeed,
+        gameSeed: run.options.gameSeed,
+        dimensions: { width, height },
         plannedLakeTileCount: 0,
+        columns: ["cell", "body", "head"],
         cells: [],
         bodies: [],
-        components: lakes.components
-          .map((component) => ({
-            componentId: component.componentId,
-            poolId: component.poolId,
-            state: component.state,
-            level: component.level,
-            bodyIds: [...component.bodyIds],
-            memberCells: [...component.memberCells],
-          }))
-          .sort((a, b) => a.componentId - b.componentId),
-        pools: lakes.pools
-          .map((pool) => ({
-            poolId: pool.poolId,
-            componentId: pool.componentId,
-            state: pool.state,
-            level: pool.level,
-            leafIds: [...pool.leafIds],
-            wetCells: [...pool.wetCells],
-          }))
-          .sort((a, b) => a.poolId - b.poolId),
+        components: [
+          { componentId: 1, poolId: 2, state: "dry", level: 100.25, bodyIds: [], memberCells: [0] },
+          { componentId: 4, poolId: 7, state: "dry", level: 200.5, bodyIds: [], memberCells: [3] },
+        ],
+        pools: [
+          { poolId: 2, componentId: 1, state: "dry", level: 100.25, leafIds: [2], wetCells: [] },
+          { poolId: 7, componentId: 4, state: "dry", level: 200.5, leafIds: [7], wetCells: [] },
+        ],
       },
     });
-  }, 30_000);
+  });
 
   it("refuses a fresh context or mismatched diagnostic selection without success evidence", async () => {
     const run = await physicalLakeRun();

@@ -19,7 +19,7 @@ const aridWaterpointStrategy = createStrategy(Contract, StrategyDefinition, {
       // Watering holes share the arid water-source substrate with oases but
       // stay drier and less fertile through their own scoring policy.
       const drySuit = rampUp01(input.aridityIndex[i], config.dryMin01, config.dryMax01);
-      const waterSuit = rampUp01(input.water01[i], config.waterMin01, 1);
+      const waterSuit = rampUp01(input.plantWater01[i], config.waterMin01, 1);
       const fertilitySuit = rampUp01(input.fertility01[i], config.fertilityMin01, 1);
       const warmSuit = rampUp01(
         input.surfaceTemperature[i],

@@ -39,11 +39,11 @@ const PlanVegetationContract = defineOp({
     surfaceTemperature: TypedArraySchemas.f32({
       description: "Surface temperature per tile (C) used for broad feature habitat admission.",
     }),
-    effectiveMoisture: TypedArraySchemas.f32({
-      description: "Effective moisture per tile used for broad feature habitat admission.",
+    plantEffectiveMoisture: TypedArraySchemas.f32({
+      description: "Plant growth moisture per tile used for rainforest habitat admission.",
     }),
-    aridityIndex: TypedArraySchemas.f32({
-      description: "Aridity index per tile (0..1) used for broad feature habitat admission.",
+    climaticAridityIndex: TypedArraySchemas.f32({
+      description: "Atmospheric climatic dryness per tile (0..1) used for the savanna habitat gate.",
     }),
     vegetationDensity: TypedArraySchemas.f32({
       description: "Vegetation density per tile (0..1) used for broad feature habitat admission.",

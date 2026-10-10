@@ -23,7 +23,7 @@ const hotWetDenseStrategy = createStrategy(Contract, StrategyDefinition, {
         if (landMask[idx] === 0) continue;
 
         const temp = input.surfaceTemperature[idx];
-        const moisture = input.effectiveMoisture[idx];
+        const moisture = input.plantEffectiveMoisture[idx];
         const vegetation = input.vegetationDensity[idx];
         const symbol = biomeSymbolFromIndex(input.biomeIndex[idx]);
 

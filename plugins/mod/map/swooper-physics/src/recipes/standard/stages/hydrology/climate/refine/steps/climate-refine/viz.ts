@@ -115,6 +115,32 @@ export function buildClimateRefineVizProjections(
     },
     {
       kind: "grid",
+      dataTypeKey: "hydrology.climate.indices.plantEffectiveMoisture",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "f32", values: observation.climateIndices.plantEffectiveMoisture },
+      meta: defineStandardVizMeta("hydrology.climate.indices.plantEffectiveMoisture", "climate.moisture", {
+        label: "Plant Effective Moisture",
+        description: "Atmospheric moisture plus local annual surface-water opportunity; not root uptake, groundwater, permanence, or salinity proof.",
+        group: GROUP_INDICES,
+        visibility: "debug",
+      }),
+    },
+    {
+      kind: "grid",
+      dataTypeKey: "hydrology.climate.indices.plantWaterStress",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "f32", values: observation.climateIndices.plantWaterStress },
+      meta: defineStandardVizMeta("hydrology.climate.indices.plantWaterStress", "field.intensity", {
+        label: "Plant Water Stress",
+        description: "Post-albedo demand relative to rainfall and local annual water opportunity, distinct from atmospheric aridity.",
+        group: GROUP_INDICES,
+        visibility: "debug",
+      }),
+    },
+    {
+      kind: "grid",
       dataTypeKey: "hydrology.climate.indices.freezeIndex",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,

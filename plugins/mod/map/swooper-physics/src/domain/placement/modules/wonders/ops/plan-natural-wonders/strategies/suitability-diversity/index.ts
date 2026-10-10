@@ -147,7 +147,7 @@ const suitabilityDiversity = createStrategy(
 
       const {
         vegetationDensity,
-        effectiveMoisture,
+        plantEffectiveMoisture,
         surfaceTemperature,
         fertility,
         discharge,
@@ -198,7 +198,7 @@ const suitabilityDiversity = createStrategy(
           slopeN: clamp01(slopeClass[i]! / 4),
           shelfN: isWater && isCoast ? 1 : 0,
           deepN: isWater && !isCoast ? 1 : 0,
-          moist: clamp01(effectiveMoisture[i]!),
+          plantMoisture: clamp01(plantEffectiveMoisture[i]!),
         };
         return WONDER_GROUPS[group].suitability(signals);
       };

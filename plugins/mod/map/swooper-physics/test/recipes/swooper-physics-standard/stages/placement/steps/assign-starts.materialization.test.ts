@@ -224,8 +224,10 @@ function publishAssignStartsInputs(
   publishTestArtifact(context, climateArtifacts.climateIndices, {
     surfaceTemperatureC: new Float32Array(size).fill(16),
     effectiveMoisture: new Float32Array(size).fill(0.5),
+    plantEffectiveMoisture: new Float32Array(size).fill(0.5),
     pet: new Float32Array(size),
     aridityIndex: new Float32Array(size).fill(0.5),
+    plantWaterStress: new Float32Array(size).fill(0.5),
     freezeIndex: new Float32Array(size),
   });
   publishTestArtifact(context, pedologyArtifacts.pedology, {

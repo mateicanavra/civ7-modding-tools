@@ -66,7 +66,7 @@ export const PlanNaturalWondersStep = createStep(config, {
       riverClass: hydrography.riverClass,
       lakeMask: lakePlan.lakeMask,
       vegetationDensity: biomeClassification.vegetationDensity,
-      effectiveMoisture: climateIndices.effectiveMoisture,
+      plantEffectiveMoisture: climateIndices.plantEffectiveMoisture,
       surfaceTemperature: climateIndices.surfaceTemperatureC,
       fertility: pedology.fertility,
       discharge: Array.from(hydrography.discharge),
