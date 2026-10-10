@@ -1,5 +1,10 @@
 # Native Map Controls
 
+Material off-path discoveries belong in the curated
+[investigation questions](triage.md), grouped by mechanism and backed by a
+falsifiable next check. Active owner work stays here and in its linked issues;
+the question book is not a second implementation or status tracker.
+
 ## Current Product Goal
 
 Deliver a coherent, playable procedural Earthlike map, using scientific Earth
