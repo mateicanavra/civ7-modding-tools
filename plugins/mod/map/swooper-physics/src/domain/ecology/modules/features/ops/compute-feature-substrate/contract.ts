@@ -17,7 +17,10 @@ const ComputeFeatureSubstrateContract = defineOp({
           "Materialized navigable-river terrain mask from map-rivers projection (1=navigable river terrain).",
       }),
       landMask: TypedArraySchemas.u8({
-        description: "Land mask per tile (1=land, 0=water).",
+        description: "Resolved exposed-land mask per tile (1=land, 0=water).",
+      }),
+      externalWaterMask: TypedArraySchemas.u8({
+        description: "Represented external marine-water mask per tile (1=marine water, 0=other); excludes finite lakes.",
       }),
       elevation: TypedArraySchemas.i16({
         description:
@@ -53,10 +56,10 @@ const ComputeFeatureSubstrateContract = defineOp({
       description: "Mask (1/0): lowland land with nearby meaningful river water exchange.",
     }),
     intertidalCoastMask: TypedArraySchemas.u8({
-      description: "Mask (1/0): low coastal land adjacent to water.",
+      description: "Mask (1/0): exposed low coastal land within coastalAdjacencyRadius of represented external marine water, not finite lakes.",
     }),
     hydromorphicMask: TypedArraySchemas.u8({
-      description: "Mask (1/0): floodplain or intertidal wetland substrate.",
+      description: "Mask (1/0): floodplain or low coastal wetland substrate near any resolved water, including finite lakes.",
     }),
     wellDrainedMask: TypedArraySchemas.u8({
       description: "Mask (1/0): land outside hydromorphic substrate.",

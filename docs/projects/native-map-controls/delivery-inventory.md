@@ -107,6 +107,17 @@ admission, before projection: water and moisture-sensitive fertility factors
 fall. The next decision qualifies the supply and substrate meanings rather
 than forcing vegetation or weakening the benchmark.
 
+The subsequent [marine habitat provenance repair](terrestrial-water-influence.md#completed-source-provenance-qualification)
+admits the existing external-water identity to intertidal eligibility while
+preserving generic lake-shore wetland eligibility. A retained Huge source-only
+contrast removes 302 finite-only marine labels, with all other substrate masks
+exact. The actual Huge capture and complete 57-scenario bank are byte-identical
+to the qualified incumbent; Archipelago retains all 19 mangroves and complete
+final mock readback. Types, policy and builds pass, with only the unchanged
+thermal aggregate failure. This is source-meaning qualification, not a new
+freshwater supply, salinity or root-zone model. The playable session is retained;
+new-bundle native execution remains unclaimed.
+
 The single retained island transect resolves to finite water and does not
 demonstrate lost marine relief. No new island algorithm is selected from that
 example. The broader geography observation needs a matched marine connection;

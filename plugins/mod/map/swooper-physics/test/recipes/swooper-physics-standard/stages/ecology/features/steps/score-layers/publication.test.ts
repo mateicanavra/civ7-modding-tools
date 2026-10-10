@@ -80,6 +80,7 @@ describe("ecology-features score-layers step", () => {
     const context = createMapContext({ setup, adapter: createMockAdapter({ width, height }) });
     let lotusCalls = 0;
     let iceCalls = 0;
+    let featureSubstrateCalls = 0;
 
     withMapContextExecutionForTest(context, (stepContext) => {
       publishTestArtifact(stepContext, morphologyErosionArtifacts.topography, topography);
@@ -151,6 +152,14 @@ describe("ecology-features score-layers step", () => {
         expect(input.landMask[wetCell]).toBe(0);
         return ops.vegetationSubstrate(input, operationConfig);
       };
+      const featureSubstrate: typeof ops.featureSubstrate = (input, operationConfig) => {
+        featureSubstrateCalls++;
+        expect(input.landMask).toBe(hydrography.exposedLandMask);
+        expect(input.externalWaterMask).toBe(topography.externalWaterMask);
+        expect(input.externalWaterMask[0]).toBe(1);
+        expect(input.externalWaterMask[wetCell]).toBe(0);
+        return ops.featureSubstrate(input, operationConfig);
+      };
       const scoreIce: typeof ops.scoreIce = (input, operationConfig) => {
         iceCalls++;
         expect(Object.keys(input).sort()).toEqual([
@@ -167,6 +176,7 @@ describe("ecology-features score-layers step", () => {
         ...ops,
         scoreReefLotus,
         vegetationSubstrate,
+        featureSubstrate,
         scoreIce,
       },
         buildStepTestDependencies(ScoreLayersStep, stepContext));
@@ -175,6 +185,7 @@ describe("ecology-features score-layers step", () => {
     const suitability = readArtifact(context, featureArtifacts.featureSuitability);
     expect(lotusCalls).toBe(1);
     expect(iceCalls).toBe(1);
+    expect(featureSubstrateCalls).toBe(1);
     expect(suitability.layers.ice[0]).toBe(cold ? 1 : 0);
     expect(suitability.layers.ice.every((score, cell) => score === 0 || topography.externalWaterMask[cell] === 1)).toBe(true);
     expect(suitability.layers.ice[wetCell]).toBe(0);

@@ -25,6 +25,7 @@ export function computeWetlandSubstrateMasks(args: {
   readonly nearRiverMask: ArrayLike<number>;
   readonly isolatedRiverMask: ArrayLike<number>;
   readonly coastalLandMask: ArrayLike<number>;
+  readonly marineCoastalLandMask: ArrayLike<number>;
   readonly nearRiverRadius: number;
   readonly lowlandMaxElevationAboveSeaM: number;
   readonly intertidalMaxElevationAboveSeaM: number;
@@ -57,8 +58,9 @@ export function computeWetlandSubstrateMasks(args: {
       const isLowland = heightAboveSeaM >= 0 && heightAboveSeaM <= lowlandMax;
       lowlandMask[i] = isLowland ? 1 : 0;
 
-      const isIntertidal =
+      const isLowShore =
         args.coastalLandMask[i] === 1 && heightAboveSeaM >= 0 && heightAboveSeaM <= intertidalMax;
+      const isIntertidal = isLowShore && args.marineCoastalLandMask[i] === 1;
       intertidalCoastMask[i] = isIntertidal ? 1 : 0;
 
       const hasNearbyFlow = hasRiverFlowNear({
@@ -76,7 +78,8 @@ export function computeWetlandSubstrateMasks(args: {
       const isFloodplain = isLowland && args.nearRiverMask[i] === 1 && hasNearbyFlow;
       floodplainMask[i] = isFloodplain ? 1 : 0;
 
-      const hydromorphic = isFloodplain || isIntertidal;
+      // General wetland substrate retains finite-water shores; only mangrove eligibility is marine.
+      const hydromorphic = isFloodplain || isLowShore;
       hydromorphicMask[i] = hydromorphic ? 1 : 0;
       wellDrainedMask[i] = hydromorphic ? 0 : 1;
 
