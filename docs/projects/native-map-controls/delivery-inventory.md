@@ -172,8 +172,24 @@ All founders and mock resource intentions pass the existing integrity checks,
 with no feature refusals. Full owner verification passes 1,326 definition,
 371 realization and 412 Studio tests. The complete unchanged bank retains
 4,429 passes and the exact one thermal failure, with no new refusal or weakened
-gate. This is qualified owner behavior, not a new plant-water law or fresh
-native generation; installation and live claims require separate proof.
+gate. This qualifies owner behavior, not a new plant-water law.
+PR #2345 is merged and deployed; a subsequent existing
+saved-configuration launch completes Huge `2/2`, ten players, in about 26
+seconds including setup. The owner binds matching generated/installed script
+bytes to fresh map-generation completion. Ten separate Turn1 founder reads
+confirm dry, non-NAV terrain with no probe errors. The full map is explored and
+unbounded autoplay advances. These bounded native checks do not establish
+complete portable/native parity or new vessel paths. Native window capture is
+unavailable for missing host permission, separate from map-generation success.
+
+The [seasonal shortfall discriminator](terrestrial-water-influence.md#completed-seasonal-shortfall-discriminator)
+reproduces baseline annual fields and retained sealed cohorts exactly while
+retaining all 24 integration phases. Annual averaging conceals some phase
+shortfalls, but only two of 308 finite-shore cells have a positive warm
+contribution, with a small empirical magnitude. No shoreline greening law,
+gain, seasonal artifact or new production calculation is adopted. Root-water
+access and the remaining any-river atmospheric proxy stay open; vegetation
+targets do not replace the upstream physical investigation.
 
 The single retained island transect resolves to finite water and does not
 demonstrate lost marine relief. No new island algorithm is selected from that

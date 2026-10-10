@@ -766,3 +766,64 @@ input/receipt bindings before adoption.
 This removes a demonstrated downstream override before further water-response
 design. It does not establish root-zone supply, make every shoreline wet,
 retire the any-river atmospheric proxy or resolve thermal calibration.
+
+## Completed Seasonal Shortfall Discriminator
+
+The next bounded investigation retains all 24 baseline integration phases for
+procedural Earthlike Huge `2/2`, not the two/four visualization samples or fixed
+Earth geography. Public recipe execution stops between the completed shelf and
+baseline steps. The existing SDK test composition then invokes the actual
+baseline owner once with cloned original topography, full shelf and compiled
+configuration. A complete current recipe independently reproduces the same
+published annual rainfall, humidity and demand exactly. Original inputs remain
+unchanged; sealed ground, exposure, finite-water identity/head and routed-flow
+cohort fields also match the retained capture exactly.
+
+Preserve phase rainfall/humidity as `u8`, demand as `f64`, temperature as `f32`
+and the exact normalized weights. The diagnostic is
+`S = sum(w * max(0, D - P))`. Its warm contribution includes only coeval
+`T > 0 C` without renormalizing weights; that gate is not a biological growing
+season. Compare separately with `max(0, sum(w * (D - P)))` and published annual
+deficit. Annual rainfall includes rounding and a clamp to 200; demand is
+published as Float32. Reconstruct these exactly rather than attributing every
+annual-versus-phase difference to temporal averaging.
+
+| Exposed population | Tiles | Positive phase shortfall | Positive warm contribution |
+| --- | ---: | ---: | ---: |
+| All exposed land | 2,501 | 326 | 34 |
+| Adjacent strict finite water | 308 | 42 | 2 |
+| Shore at highest adjacent head | 69 | 10 | 0 |
+| Shore above all adjacent heads | 239 | 32 | 2 |
+| Own ordinary noncomponent routed `Q > R` | 1,236 | 189 | 17 |
+| Marine-only control | 107 | 0 | 0 |
+
+Thirty-seven finite-shore cells have positive phase shortfall while both raw
+and published annual deficit are zero: real temporal cancellation is present.
+Five other shores already have positive baseline annual deficit; this is not
+the preceding investigation's final refined-demand comparison.
+However, forty of the forty-two shore responses are cold-only under the
+declared gate. The two warm responses have maximum annual-weighted magnitude
+`0.12844` in empirical rainfall-index units, not millimetres or root uptake.
+This does not support a blanket shore bonus or a gain chosen to restore forest.
+
+All exposed members of this anchor were originally land. Originally wet but
+later exposed terrain and below-head shore cohorts are empty, not qualified
+zero-response controls. The earlier 539-cell unrepresented-channel interior
+comparison includes unclassified routed flow; its 156 phase and 17 warm
+responses do not prove an isolated source. A stricter no-local-cue population
+has only seven cells, with no positive response; it cannot establish absence
+of subsurface water or serve as a representative planet-wide control.
+
+The complete observation, one procedural prefix and one complete recipe take
+about five seconds, with no build or native request. Private retained raw data
+is about 9.5 MB; no production observation hook, artifact family, test framework,
+new model or dependency is introduced. Source and installed product are unchanged.
+
+**Decision:** seasonal averaging matters, but this empirical atmospheric
+shortfall does not establish usable local-water supply, lake persistence,
+freshwater quality, channel stage or a vegetation response law. Do not promote
+vegetation beside every river, lake or coast, or make river display class a
+water source. Keep the remaining any-river rainfall injection and regional
+thermal/moisture response as explicit upstream owner questions. Resolve those
+meanings before adopting a replacement local-water calculation; the existing
+Hydrology budget remains the composition owner and Ecology its consumer.
