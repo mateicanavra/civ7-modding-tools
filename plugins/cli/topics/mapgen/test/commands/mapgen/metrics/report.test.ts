@@ -72,7 +72,7 @@ describe("MapGen metrics report command", () => {
     });
     originalLog = console.log;
     selectStudies.mockReset();
-    selectStudies.mockImplementation((scope) => scope === "all" ? allStudies : coreStudies);
+    selectStudies.mockImplementation((scope) => (scope === "all" ? allStudies : coreStudies));
     evaluate.mockReset();
     evaluate.mockImplementation(() => {
       console.log("metric telemetry", 42);
@@ -121,8 +121,9 @@ describe("MapGen metrics report command", () => {
   });
 
   test("refuses an unknown scope before selecting studies or generating maps", async () => {
-    await expect(MapgenMetricsReport.run(["--scope", "desert-only"]))
-      .rejects.toThrow(/Expected --scope=desert-only to be one of/);
+    await expect(MapgenMetricsReport.run(["--scope", "desert-only"])).rejects.toThrow(
+      /Expected --scope=desert-only to be one of/
+    );
 
     expect(selectStudies).not.toHaveBeenCalled();
     expect(evaluate).not.toHaveBeenCalled();

@@ -1,8 +1,8 @@
 import { Command, Flags } from "@oclif/core";
 import {
   evaluateStandardMetricStudies,
-  selectStandardMetricStudies,
   type StandardMetricStudyScope,
+  selectStandardMetricStudies,
 } from "@swooper/swooper-physics/standard/metrics";
 
 export default class MapgenMetricsReport extends Command {
