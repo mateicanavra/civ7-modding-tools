@@ -51,6 +51,11 @@ const PlanStartsContract = defineOp({
     landMask: TypedArraySchemas.u8({
       description: "Required land mask per tile (1=land,0=water).",
     }),
+    firstAgeTransitMask: TypedArraySchemas.u8({
+      cardinality: ["width", "height"],
+      description:
+        "Required projected non-OCEAN transit intent (1=dry land, including NAV sources, or accepted COAST; 0=OCEAN). Optimistic topology, not native movement legality.",
+    }),
     slotByTile: TypedArraySchemas.u8({
       description: "Required requested landmass slot per tile (0=none,1=west,2=east).",
     }),
@@ -69,9 +74,6 @@ const PlanStartsContract = defineOp({
       TypedArraySchemas.u16({
         description: "Minimum tile distance from each tile to the coastline.",
       })
-    ),
-    shelfMask: Type.Optional(
-      TypedArraySchemas.u8({ description: "Shallow shelf water mask per tile." })
     ),
     elevation: Type.Optional(
       TypedArraySchemas.i16({ description: "Elevation per tile for roughness screening." })
@@ -153,7 +155,7 @@ const PlanStartsContract = defineOp({
     settleableTileCount: Type.Integer({
       minimum: 0,
       description:
-        "Land tiles that pass the hard screens (non-lake/mountain/volcano/wonder). Zero with players requested is the only hard-fail arm.",
+        "Land tiles that pass occupancy and reachable-expansion hard screens; geographically rejected tiles never enter fallback pools.",
     }),
     rejectionCounts: Type.Array(StartRejectionCountSchema),
     tierCounts: StartTierCountsSchema,

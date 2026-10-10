@@ -33,7 +33,7 @@ export const config = defineStep({
     morphologyCoastsArtifacts.resolvedCoastline,
     climateArtifacts.climateIndices,
     hydrographyArtifacts.hydrography,
-    hydrographyArtifacts.lakePlan,
+    hydrographyArtifacts.projectedLakes,
     pedologyArtifacts.pedology,
   ],
   provides: [placementStartArtifacts.startAssignment],

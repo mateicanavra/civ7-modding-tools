@@ -80,7 +80,11 @@ function createAssignStartsContext(alivePlayerIds: readonly number[]) {
   return { adapter, context };
 }
 
-function publishAssignStartsInputs(context: MapContext, landTiles: readonly LandTile[]): void {
+function publishAssignStartsInputs(
+  context: MapContext,
+  landTiles: readonly LandTile[],
+  acceptedLakeTiles: readonly LandTile[]
+): void {
   const { width, height } = context.setup.dimensions;
   const size = width * height;
   const landMask = new Uint8Array(size);
@@ -180,11 +184,9 @@ function publishAssignStartsInputs(context: MapContext, landTiles: readonly Land
     ...createEmptyWaterFixture(width, height).hydrography,
     exposedLandMask: landMask,
   });
-  publishTestArtifact(
-    context,
-    hydrographyArtifacts.lakePlan,
-    createEmptyWaterFixture(width, height).lakePlan
-  );
+  const acceptedLakeMask = new Uint8Array(size);
+  for (const [x, y] of acceptedLakeTiles) acceptedLakeMask[y * width + x] = 1;
+  publishTestArtifact(context, hydrographyArtifacts.projectedLakes, { lakeMask: acceptedLakeMask });
   publishTestArtifact(context, climateArtifacts.climateIndices, {
     surfaceTemperatureC: new Float32Array(size).fill(16),
     effectiveMoisture: new Float32Array(size).fill(0.5),
@@ -204,10 +206,11 @@ function runAssignStartsStep(
   context: MapContext,
   landTiles: readonly LandTile[],
   config: AssignStartsConfig = assignStartsConfig(),
-  ops: AssignStartsOps = ASSIGN_STARTS_OPS
+  ops: AssignStartsOps = ASSIGN_STARTS_OPS,
+  acceptedLakeTiles: readonly LandTile[] = []
 ): void {
   withStepExecutionForTest(context, AssignStartsStep, (stepContext) => {
-    publishAssignStartsInputs(stepContext, landTiles);
+    publishAssignStartsInputs(stepContext, landTiles, acceptedLakeTiles);
     AssignStartsStep.run(
       stepContext,
       config,
@@ -218,6 +221,25 @@ function runAssignStartsStep(
 }
 
 describe("assign starts step", () => {
+  it("composes final shallow transit intent including accepted inland water, without promoting ocean", () => {
+    const landTiles = Array.from({ length: 80 }, (_value, i) =>
+      [1 + (i % 10), 1 + Math.floor(i / 10)] as const);
+    const { context } = createAssignStartsContext([4]);
+    const { width } = context.setup.dimensions;
+    const inspectingOps: AssignStartsOps = {
+      starts: (input, selection) => {
+        expect(input.firstAgeTransitMask[3 * width + 3]).toBe(1);
+        expect(input.firstAgeTransitMask[3 * width + 11]).toBe(1);
+        expect(input.firstAgeTransitMask[20 * width + 20]).toBe(1);
+        expect(input.firstAgeTransitMask[20 * width + 21]).toBe(0);
+        expect(input.lakeMask![20 * width + 20]).toBe(1);
+        expect("shelfMask" in input).toBe(false);
+        return ASSIGN_STARTS_OPS.starts(input, selection);
+      },
+    };
+    runAssignStartsStep(context, landTiles, assignStartsConfig(), inspectingOps, [[20, 20]]);
+  });
+
   it("stamps every planned seat with the operation-owned player and plot identities", () => {
     const landTiles = Array.from(
       { length: 80 },
@@ -293,9 +315,22 @@ describe("assign starts step", () => {
     });
   });
 
+  it("publishes isolated-island rejection before refusing an otherwise resource-free fallback", () => {
+    const { adapter, context } = createAssignStartsContext([4]);
+    expect(() => runAssignStartsStep(context, [[2, 2], [3, 2], [2, 3]])).toThrow(
+      /Start assignment incomplete: assigned 0 of 1 seat\(s\), with 1 unseated/
+    );
+    const assignment = readArtifact(context, placementStartArtifacts.startAssignment);
+    expect(assignment.rejectionCounts).toContainEqual({ reason: "no-reachable-expansion", count: 3 });
+    expect(assignment.seats[0]!.imputedFlags).not.toContain("resource-support-unresolved");
+    expect(adapter.calls.setStartPosition).toHaveLength(0);
+  });
+
   it("publishes resource refusal evidence before rejecting a landful but resource-free map", () => {
     const { adapter, context } = createAssignStartsContext([4]);
-    const config = assignStartsConfig();
+    const config = assignStartsConfig((selection) => {
+      selection.minExpansionLandTiles = 3;
+    });
     config.supportRequirements = { supportFloor: 2, supportRadiusTiles: 4, equityTolerance: 2 };
 
     expect(() =>
@@ -323,6 +358,7 @@ describe("assign starts step", () => {
     const config = assignStartsConfig((selection) => {
       selection.spacingFloorTiles = 1;
       selection.desiredSpacingTiles = 2;
+      selection.minExpansionLandTiles = 2;
     });
 
     expect(() =>
@@ -330,7 +366,7 @@ describe("assign starts step", () => {
         context,
         [
           [2, 2],
-          [5, 4],
+          [3, 2],
         ],
         config
       )

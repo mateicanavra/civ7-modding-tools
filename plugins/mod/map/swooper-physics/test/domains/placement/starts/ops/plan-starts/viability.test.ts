@@ -6,6 +6,7 @@ import { TEST_GAME_SEED } from "../../../../../setup.js";
 import { getHexRadiusIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import standard1337 from "../../../../../recipes/swooper-physics-standard/fixtures/starts/standard-1337.json";
 import huge1234 from "../../../../../recipes/swooper-physics-standard/fixtures/starts/huge-1234.json";
+import earthlike from "../../../../../../src/maps/configs/swooper-earthlike.config.json";
 
 const { planStarts } = placementDomain.starts.ops;
 
@@ -20,7 +21,7 @@ type StartInputField =
   | "landmassTileCounts"
   | "coastalLand"
   | "distanceToCoast"
-  | "shelfMask"
+  | "firstAgeTransitMask"
   | "elevation"
   | "fertility"
   | "effectiveMoisture"
@@ -66,7 +67,7 @@ function makeInput(
     landmassTileCounts: [],
     coastalLand: new Uint8Array(size),
     distanceToCoast,
-    shelfMask: new Uint8Array(size),
+    firstAgeTransitMask: new Uint8Array(size),
     elevation: new Int16Array(size),
     fertility: new Float32Array(size).fill(0.55),
     effectiveMoisture: new Float32Array(size).fill(0.55),
@@ -89,10 +90,15 @@ function addLandmass(
   for (const [x, y] of tiles) {
     const plotIndex = idx(input.width, x, y);
     input.landMask[plotIndex] = 1;
+    input.firstAgeTransitMask[plotIndex] = 1;
     input.slotByTile[plotIndex] = slot;
     input.landmassIdByTile[plotIndex] = landmassId;
     input.coastalLand[plotIndex] = 1;
   }
+}
+
+function addShallowTransit(input: StartInput, tiles: ReadonlyArray<readonly [number, number]>): void {
+  for (const [x, y] of tiles) input.firstAgeTransitMask[idx(input.width, x, y)] = 1;
 }
 
 function plan(
@@ -122,6 +128,208 @@ function makePlayerDemandInput(playerIds: readonly number[]): StartInput {
   return input;
 }
 
+function earthlikePlan(
+  input: PlanStartsInput,
+  configure?: (config: (typeof planStarts.defaultConfig)["config"]) => void
+) {
+  return plan(input, (config) => {
+    Object.assign(config, earthlike.config.placement["assign-starts"].starts.config);
+    configure?.(config);
+  });
+}
+
+describe("reachable first-age expansion admission", () => {
+  it("rejects an ocean-bounded three-cell human island and seats the entire ten-player mainland roster", () => {
+    const input = makeInput({ width: 106, height: 66 }, 10);
+    input.gameSeed = -1526277133;
+    const island = [[96, 15], [97, 15], [96, 16]] as const;
+    addLandmass(input, 0, 1, island);
+    addShallowTransit(input, [[95, 15], [98, 15], [96, 14], [97, 14], [95, 14],
+      [95, 16], [97, 16], [98, 16], [96, 17]]);
+    addLandmass(input, 1, 2, Array.from({ length: 2500 }, (_value, i) =>
+      [10 + (i % 50), 5 + Math.floor(i / 50)] as const));
+    input.resourceSupport = new Uint8Array(input.width * input.height);
+    for (const [x, y] of island) {
+      input.resourceSupport[idx(input.width, x, y)] = 255;
+      input.fertility[idx(input.width, x, y)] = 1;
+    }
+    input.plannedResourcePlotIndices = island.map(([x, y]) => idx(input.width, x, y));
+    const before = structuredClone(input);
+    const result = earthlikePlan(input, (config) => {
+      config.resourceSupportWeight = 4;
+      config.fairnessTolerance = 0;
+    });
+
+    expect(earthlike.config.placement["assign-starts"].starts.config.minExpansionLandTiles).toBe(14);
+    expect(result.playersLandmass1).toBe(0);
+    expect(result.playersLandmass2).toBe(10);
+    expect(result.seats.every((seat) => seat.plotIndex >= 0 && seat.realizedRegionSlot === 2)).toBe(true);
+    expect(result.rejectionCounts).toContainEqual({ reason: "no-reachable-expansion", count: 3 });
+    for (const [x, y] of island) {
+      const plot = idx(input.width, x, y);
+      expect(result.tierByTile[plot]).toBe(1);
+      expect(result.scoreByTile[plot]).toBe(0);
+    }
+    expect(input).toEqual(before);
+  });
+
+  it("does not pool a reachable 4/3/2/2/2/1 island chain into a useful land envelope", () => {
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid24x10, 2);
+    input.gameSeed = -1152948677;
+    const islands = [
+      [[1, 2], [1, 3], [2, 2], [2, 3]],
+      [[4, 2], [4, 3], [4, 4]],
+      [[6, 2], [6, 3]],
+      [[8, 2], [8, 3]],
+      [[10, 2], [10, 3]],
+      [[12, 2]],
+    ] as const;
+    islands.forEach((tiles, id) => addLandmass(input, id, 1, tiles));
+    addShallowTransit(input, [[3, 2], [5, 2], [7, 2], [9, 2], [11, 2]]);
+
+    // The old four-tile budget and the topology repair are independent changes.
+    const permissive = earthlikePlan(input, (config) => { config.minExpansionLandTiles = 4; });
+    expect(permissive.seats.every((seat) => seat.plotIndex >= 0)).toBe(true);
+    const result = earthlikePlan(input);
+    expect(result.settleableTileCount).toBe(0);
+    expect(result.candidateCount).toBe(0);
+    expect(result.seats.every((seat) => seat.plotIndex === -1)).toBe(true);
+    expect(result.rejectionCounts).toContainEqual({ reason: "no-reachable-expansion", count: 13 });
+  });
+
+  it("admits a small island across genuine shallow transit to a useful independent destination", () => {
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid20x10);
+    addLandmass(input, 0, 1, [[2, 4], [2, 5], [3, 4]]);
+    addLandmass(input, 1, 2, Array.from({ length: 20 }, (_value, i) =>
+      [8 + (i % 4), 2 + Math.floor(i / 4)] as const));
+    addShallowTransit(input, [[4, 4], [5, 4], [6, 4], [7, 4]]);
+
+    const result = earthlikePlan(input);
+    const smallIsland = result.candidates.filter((candidate) => candidate.landmassTiles === 3);
+    expect(smallIsland).toHaveLength(3);
+    expect(smallIsland.every((candidate) => candidate.tier === "islandCluster")).toBe(true);
+    // The destination is useful despite being below the old24 quality threshold.
+    expect(result.candidates.some((candidate) => candidate.landmassTiles === 20)).toBe(true);
+    input.firstAgeTransitMask[idx(input.width, 6, 4)] = 0;
+    const broken = earthlikePlan(input);
+    expect(broken.candidates.some((candidate) => candidate.landmassTiles === 3)).toBe(false);
+    expect(broken.rejectionCounts).toContainEqual({ reason: "no-reachable-expansion", count: 3 });
+  });
+
+  it("preserves useful independent islands below the contiguous quality threshold", () => {
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid16x10);
+    addLandmass(input, 0, 1, Array.from({ length: 20 }, (_value, i) =>
+      [3 + (i % 4), 2 + Math.floor(i / 4)] as const));
+    const result = earthlikePlan(input);
+    expect(result.candidateCount).toBe(20);
+    expect(result.seats[0]!.plotIndex).toBeGreaterThanOrEqual(0);
+    expect(result.rejectionCounts.some((row) => row.reason === "no-reachable-expansion")).toBe(false);
+  });
+
+  it("measures nearby cluster support only on reachable usable land", () => {
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid24x10);
+    addLandmass(input, 0, 1, Array.from({ length: 20 }, (_value, i) =>
+      [2 + (i % 4), 2 + Math.floor(i / 4)] as const));
+    addLandmass(input, 1, 2, Array.from({ length: 20 }, (_value, i) =>
+      [9 + (i % 4), 2 + Math.floor(i / 4)] as const));
+    const center = idx(input.width, 5, 4);
+    const nearby = getHexRadiusIndicesOddQ(center, input.width, input.height, 5);
+    expect(nearby.some((cell) => input.landmassIdByTile[cell] === 1)).toBe(true);
+    const candidate = earthlikePlan(input).candidates.find((tile) => tile.plotIndex === center)!;
+    expect(candidate.nearbyClusterLandTiles).toBe(
+      nearby.filter((cell) => input.landmassIdByTile[cell] === 0).length
+    );
+  });
+
+  it("admits a sparse edge that reaches a useful envelope on its own landmass", () => {
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid24x10);
+    addLandmass(input, 0, 1, [
+      ...Array.from({ length: 7 }, (_value, i) => [2 + i, 4] as const),
+      ...Array.from({ length: 20 }, (_value, i) => [9 + (i % 4), 2 + Math.floor(i / 4)] as const),
+    ]);
+    const edge = earthlikePlan(input).candidates.find((tile) => tile.plotIndex === idx(input.width, 2, 4));
+    expect(edge).toBeDefined();
+    expect(edge!.expansionLandTiles).toBeLessThan(14);
+  });
+
+  it("finds useful land over the wrapped X seam using the SDK odd-row topology", () => {
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid20x10);
+    addLandmass(input, 0, 1, [[18, 4], [18, 5]]);
+    addLandmass(input, 1, 2, Array.from({ length: 20 }, (_value, i) =>
+      [1 + (i % 4), 2 + Math.floor(i / 4)] as const));
+    addShallowTransit(input, [[19, 4], [0, 4]]);
+    const result = earthlikePlan(input);
+    expect(result.candidates.filter((candidate) => candidate.landmassTiles === 2)).toHaveLength(2);
+    input.firstAgeTransitMask[idx(input.width, 0, 4)] = 0;
+    expect(earthlikePlan(input).candidates.some((candidate) => candidate.landmassTiles === 2)).toBe(false);
+  });
+
+  it("rejects nominally large land whose usable expansion budget is mostly impassable or occupied", () => {
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid16x10);
+    const tiles = Array.from({ length: 20 }, (_value, i) =>
+      [3 + (i % 4), 2 + Math.floor(i / 4)] as const);
+    addLandmass(input, 0, 1, tiles);
+    input.mountainMask = new Uint8Array(input.width * input.height);
+    input.volcanoMask = new Uint8Array(input.width * input.height);
+    tiles.slice(3, 13).forEach(([x, y]) => { input.mountainMask![idx(input.width, x, y)] = 1; });
+    tiles.slice(13, 16).forEach(([x, y]) => { input.volcanoMask![idx(input.width, x, y)] = 1; });
+    input.naturalWonderPlotIndices = tiles.slice(16).map(([x, y]) => idx(input.width, x, y));
+    const result = earthlikePlan(input);
+    expect(result.settleableTileCount).toBe(0);
+    expect(result.seats[0]!.plotIndex).toBe(-1);
+    expect(result.rejectionCounts).toContainEqual({ reason: "no-reachable-expansion", count: 3 });
+  });
+
+  for (const barrier of ["mountainMask", "volcanoMask"] as const) {
+    it(`does not let a known ${barrier} bridge isolated usable fragments`, () => {
+      const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid20x10);
+      addLandmass(input, 0, 1, [[2, 4], [2, 5], [3, 4]]);
+      addLandmass(input, 1, 2, Array.from({ length: 20 }, (_value, i) =>
+        [8 + (i % 4), 2 + Math.floor(i / 4)] as const));
+      addShallowTransit(input, [[4, 4], [5, 4], [6, 4], [7, 4]]);
+      addLandmass(input, 2, 1, [[6, 4]]);
+      input[barrier] = new Uint8Array(input.width * input.height);
+      input[barrier]![idx(input.width, 6, 4)] = 1;
+      const result = earthlikePlan(input);
+      expect(result.candidates.some((candidate) => candidate.landmassTiles === 3)).toBe(false);
+    });
+  }
+
+  it("does not count geometrically nearby usable cells across an impassable split as one envelope", () => {
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid16x10);
+    const left = Array.from({ length: 8 }, (_value, i) => [2 + (i % 2), 2 + Math.floor(i / 2)] as const);
+    const right = Array.from({ length: 8 }, (_value, i) => [5 + (i % 2), 2 + Math.floor(i / 2)] as const);
+    const wall = Array.from({ length: 4 }, (_value, i) => [4, 2 + i] as const);
+    addLandmass(input, 0, 1, [...left, ...wall, ...right]);
+    input.mountainMask = new Uint8Array(input.width * input.height);
+    for (const [x, y] of wall) input.mountainMask[idx(input.width, x, y)] = 1;
+    const result = earthlikePlan(input);
+    expect(result.settleableTileCount).toBe(0);
+    expect(result.rejectionCounts).toContainEqual({ reason: "no-reachable-expansion", count: 16 });
+  });
+
+  it("cannot reopen geography through quality/spacing fallback or fairness", () => {
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid24x10, 3);
+    const useful = Array.from({ length: 14 }, (_value, i) =>
+      [1 + (i % 4), 1 + Math.floor(i / 4)] as const);
+    addLandmass(input, 0, 1, useful);
+    addLandmass(input, 1, 2, [[16, 4], [17, 4], [16, 5]]);
+    input.fertility.fill(1);
+    for (const [x, y] of useful) input.fertility[idx(input.width, x, y)] = 0.1;
+    const result = earthlikePlan(input, (config) => {
+      config.minContiguousLandTiles = 400;
+      config.minIslandClusterLandTiles = 160;
+      config.spacingFloorTiles = 12;
+      config.desiredSpacingTiles = 12;
+      config.fairnessTolerance = 0;
+    });
+    expect(result.seats.every((seat) => seat.plotIndex >= 0 && seat.realizedRegionSlot === 1)).toBe(true);
+    expect(result.seats.some((seat) => seat.rung === "quality-relaxed")).toBe(true);
+    expect(result.seats.some((seat) => seat.rung === "spacing-relaxed")).toBe(true);
+    expect(result.rejectionCounts).toContainEqual({ reason: "no-reachable-expansion", count: 3 });
+  });
+});
+
 describe("start viability planning", () => {
   it("rejects single-tile islands when larger expansion land exists", () => {
     const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid10x8);
@@ -145,7 +353,7 @@ describe("start viability planning", () => {
   });
 
   it("allows intentional archipelago starts when nearby small islands form an expansion cluster", () => {
-    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid12x8);
+    const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid20x10);
     addLandmass(input, 0, 1, [
       [3, 3],
       [3, 4],
@@ -162,6 +370,13 @@ describe("start viability planning", () => {
       [6, 5],
       [6, 6],
     ]);
+    addLandmass(
+      input,
+      4,
+      2,
+      Array.from({ length: 24 }, (_value, i) => [10 + (i % 4), 1 + Math.floor(i / 4)] as const)
+    );
+    addShallowTransit(input, [[4, 3], [6, 3], [7, 5], [8, 3], [9, 3]]);
 
     const result = plan(input, (config) => {
       config.minContiguousLandTiles = 20;
@@ -170,9 +385,12 @@ describe("start viability planning", () => {
       config.islandClusterRadiusTiles = 5;
     });
 
-    expect(result.tierCounts.primary).toBe(0);
+    expect(result.tierCounts.primary).toBeGreaterThan(0);
     expect(result.tierCounts.islandCluster).toBeGreaterThan(0);
-    expect(result.candidates.every((candidate) => candidate.tier === "islandCluster")).toBe(true);
+    expect(
+      result.candidates.filter((candidate) => candidate.landmassTiles < 20)
+        .every((candidate) => candidate.tier === "islandCluster")
+    ).toBe(true);
   });
 
   it("orders continent and subcontinent starts ahead of island-cluster fallback starts", () => {
@@ -195,6 +413,7 @@ describe("start viability planning", () => {
       [11, 5],
       [11, 6],
     ]);
+    addShallowTransit(input, [[7, 3], [8, 3], [9, 3], [11, 3], [12, 5]]);
 
     const result = plan(input, (config) => {
       config.minIslandClusterLandTiles = 6;
@@ -426,8 +645,8 @@ describe("start selection ladder (op-owned, S4)", () => {
 
   it("uses the scored quality-relaxed rung before relaxing spacing below the floor", () => {
     const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid12x8, 2);
-    // A 5-tile strip: below every tier admission gate (marginal needs 6
-    // contiguous at marginalLandRatio 0.5) but still settleable land.
+    // A useful independent strip below the quality tiers. Geography stays
+    // admitted, while the quality-relaxed rung remains observable.
     addLandmass(input, 0, 1, [
       [1, 1],
       [2, 1],
@@ -439,6 +658,9 @@ describe("start selection ladder (op-owned, S4)", () => {
     const result = plan(input, (config) => {
       config.spacingFloorTiles = 2;
       config.desiredSpacingTiles = 3;
+      config.minExpansionLandTiles = 5;
+      config.minContiguousLandTiles = 20;
+      config.minIslandClusterLandTiles = 20;
     });
 
     expect(result.candidateCount).toBe(0);
@@ -455,7 +677,7 @@ describe("start selection ladder (op-owned, S4)", () => {
 
   it("spacing-relaxed last resort stays scored, goes below the floor only when forced, and never throws", () => {
     const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid8x6, 3);
-    // Three settleable tiles in a tight cluster: floor 2 cannot hold 3 seats.
+    // An individually useful compact island: floor 2 cannot hold 3 seats.
     addLandmass(input, 0, 1, [
       [2, 2],
       [3, 2],
@@ -465,6 +687,7 @@ describe("start selection ladder (op-owned, S4)", () => {
     const result = plan(input, (config) => {
       config.spacingFloorTiles = 2;
       config.desiredSpacingTiles = 3;
+      config.minExpansionLandTiles = 3;
     });
 
     expect(result.seats.length).toBe(3);
@@ -484,15 +707,16 @@ describe("start selection ladder (op-owned, S4)", () => {
 
   it("records unseated players as degraded data instead of throwing on an exhausted map", () => {
     const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid8x6, 3);
-    // Two settleable tiles for three seats: one seat must remain unseated.
+    // Two adjacent useful tiles for three seats: one seat must remain unseated.
     addLandmass(input, 0, 1, [
       [2, 2],
-      [5, 4],
+      [3, 2],
     ]);
 
     const result = plan(input, (config) => {
       config.spacingFloorTiles = 1;
       config.desiredSpacingTiles = 2;
+      config.minExpansionLandTiles = 2;
     });
 
     const unseated = result.seats.filter((seat) => seat.plotIndex < 0);
@@ -704,7 +928,7 @@ describe("resource-backed start admission", () => {
     ["Huge/1234", huge1234],
   ] as const) {
     it(`seats the retained ${name} witness from distinct planned sites without resource repair`, () => {
-      const raw = fixture.input;
+      const { shelfMask: _legacyShelfMask, ...raw } = fixture.input;
       const input = {
         ...raw,
         landMask: Uint8Array.from(raw.landMask),
@@ -712,7 +936,9 @@ describe("resource-backed start admission", () => {
         landmassIdByTile: Int32Array.from(raw.landmassIdByTile),
         coastalLand: Uint8Array.from(raw.coastalLand),
         distanceToCoast: Uint16Array.from(raw.distanceToCoast),
-        shelfMask: Uint8Array.from(raw.shelfMask),
+        // These historical resource witnesses retained only dry geography,
+        // not resolved coastal-water intent; they prove the dry-land route.
+        firstAgeTransitMask: Uint8Array.from(raw.landMask),
         elevation: Int16Array.from(raw.elevation),
         fertility: Float32Array.from(raw.fertility),
         effectiveMoisture: Float32Array.from(raw.effectiveMoisture),
@@ -1052,8 +1278,8 @@ describe("resource-backed start admission", () => {
 
   it("records an unseated player when individually supported sites have no complete equity band", () => {
     const input = makeInput(SYNTHETIC_START_DIMENSIONS.grid24x10, 2);
-    addLandmass(input, 0, 1, [[2, 4]]);
-    addLandmass(input, 1, 2, [[16, 4]]);
+    addLandmass(input, 0, 1, [[2, 4], [2, 3]]);
+    addLandmass(input, 1, 2, [[16, 4], [15, 4]]);
     input.plannedResourcePlotIndices = [
       idx(input.width, 3, 4),
       idx(input.width, 2, 5),
@@ -1068,7 +1294,9 @@ describe("resource-backed start admission", () => {
       equityTolerance: 0,
     };
 
-    const result = plan(input);
+    const result = plan(input, (config) => {
+      config.minExpansionLandTiles = 2;
+    });
     expect(result.seats.map((seat) => seat.playerId)).toEqual([...input.playerIds]);
     expect(result.seats.filter((seat) => seat.plotIndex >= 0)).toHaveLength(1);
     expect(
