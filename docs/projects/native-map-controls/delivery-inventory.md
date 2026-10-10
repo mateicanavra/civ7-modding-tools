@@ -79,6 +79,19 @@ moisture calibration. Finalized lake surfaces do not yet feed an explicit
 root-zone water balance; no vegetation promotion beside every waterbody was
 introduced as a substitute.
 
+The subsequent [moderate NAV representation](moderate-navigable-density.md)
+selects one Earthlike config leaf, `majorPercentile: 0.88 -> 0.92`, after the
+corrected MINOR vegetation baseline. The exact Huge contrast retains all
+651 river sources and physical water/forcing, with NAV tiles `346 -> 248` and
+every retained route and selected wet transition complete. Vegetation changes
+by ordinary habitat admission, not promotion. Both complete 57-scenario banks
+pass 4,429 of 4,430 unchanged expectations, with the exact same unresolved
+thermal failure. Builds, types and policy pass; definition passes 1,323 tests
+with that sole aggregate failure, realization 371 and Studio 412. This is a
+qualified owner default and refreshed portable viewer, not deployment or a
+new native navigation claim. The existing class-based moisture proxy remains
+a separately identified causal limitation, not a proven root-zone water model.
+
 The single retained island transect resolves to finite water and does not
 demonstrate lost marine relief. No new island algorithm is selected from that
 example. The broader geography observation needs a matched marine connection;
