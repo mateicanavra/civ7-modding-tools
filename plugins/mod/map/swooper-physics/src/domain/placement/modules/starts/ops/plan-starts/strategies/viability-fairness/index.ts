@@ -771,8 +771,8 @@ const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessDe
       return [
         selected.length,
         spaced,
-        regional,
         selection.fairness.balanced ? 1 : 0,
+        regional,
         selected.length > 0 ? Math.min(...selected.map((entry) => entry.tile!.score)) : 0,
         selected.reduce((total, entry) => total + entry.tile!.score, 0),
         selected.length > 0
