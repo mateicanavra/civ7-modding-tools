@@ -930,7 +930,6 @@
           "strategy": "cold-hydromorphic",
           "config": {
             "waterMin01": 0.55,
-            "fertilityMin01": 0.1,
             "freezeMin01": 0.55,
             "tempColdMaxC": 4,
             "tempWarmMaxC": 14

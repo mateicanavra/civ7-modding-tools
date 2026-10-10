@@ -17,6 +17,21 @@ replay. Historical eight-product captures remain immutable comparison evidence.
 
 ## Current Product Closure
 
+The latest [bog consumer repair](wetland-consumer-coherence.md#qualified-outcome)
+removes generic soil fertility as a tundra-bog prerequisite while retaining
+atmospheric-water, cold/freeze, substrate, compatibility and placement policy.
+Actual retained owners close the selected score/intent change and precisely ten
+later taiga occupancy removals. Two complete paired recipe captures hold all
+forty-one public model fields, physical projection, starts, fairness and natural
+wonders. Bog features move from `2 to 8` and `1 to 6`; unchanged resource policy
+admits additional Clay on the changed feature surface, reaching minimum six in
+both cases without changing habitat masks, supply targets, ranges or spacing.
+All headless resource outcomes are legal, and both integrity targets pass. Full
+suites retain only the known thermal aggregate failure. Measured polar resource
+concentration increases, so this is not general distribution calibration. This is a bounded
+consumer and downstream qualification, not fresh native acceptance, measured
+waterlogging/peat/thaw or complete wetland prevalence calibration.
+
 The latest [dryland point-water consumer repair](dryland-point-water-coherence.md#qualified-outcome)
 publishes existing local water opportunity directly and replaces contradictory
 heat/fertility/isolation prerequisites with source-led oasis and watering-hole
