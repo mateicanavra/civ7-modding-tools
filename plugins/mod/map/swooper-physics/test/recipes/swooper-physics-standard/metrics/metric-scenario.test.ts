@@ -152,6 +152,19 @@ describe("Standard metric scenario admission", () => {
       bottomLatitude: earthlikeConfig.latitudeBounds.bottomLatitude,
     });
     expect(capture.placement.aliveMajorIds).toEqual(capture.provenance.aliveMajorPlayerIds);
+    const { model } = capture;
+    const gridSize = TEST_MAP_SIZE.dimensions.width * TEST_MAP_SIZE.dimensions.height;
+    for (const field of [model.plantEffectiveMoisture, model.plantWaterStress]) {
+      expect(field).toBeInstanceOf(Float32Array);
+      expect(field).toHaveLength(gridSize);
+      expect(field.every(Number.isFinite)).toBe(true);
+    }
+    expect(model.plantEffectiveMoisture).not.toBe(model.effectiveMoisture);
+    expect(model.plantWaterStress).not.toBe(model.aridityIndex);
+    expect(model.plantEffectiveMoisture.every((moisture, cell) => moisture >= model.effectiveMoisture[cell]!)).toBe(true);
+    expect(model.plantWaterStress.every((stress, cell) => stress <= model.aridityIndex[cell]!)).toBe(true);
+    expect(model.plantEffectiveMoisture.some((moisture, cell) => moisture > model.effectiveMoisture[cell]!)).toBe(true);
+    expect(model.plantWaterStress.some((stress, cell) => stress < model.aridityIndex[cell]!)).toBe(true);
     const capturedKeys = capture.observation.features.map(({ key }) => key);
     const floodplain = FEATURE_PLACEMENT_KEYS.find((key) => key.includes("_FLOODPLAIN_"));
     if (!floodplain) throw new Error("Canonical Civ7 feature authority has no floodplain feature.");

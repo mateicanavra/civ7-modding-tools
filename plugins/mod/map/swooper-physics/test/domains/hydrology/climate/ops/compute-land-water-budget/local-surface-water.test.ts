@@ -2,7 +2,6 @@ import { describe, expect, it } from "bun:test";
 import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import { OperationInputAdmissionError } from "@swooper/mapgen-core/authoring";
 import hydrology from "../../../../../../src/domain/hydrology/router.js";
-import { computeLocalSurfaceWaterOpportunity } from "../../../../../../src/domain/hydrology/modules/climate/ops/compute-land-water-budget/rules/local-surface-water-opportunity.js";
 import { noLocalWaterSources } from "../../../../../fixtures/local-water-sources.js";
 
 const operation = hydrology.climate.ops.computeLandWaterBudget;
@@ -27,8 +26,13 @@ function body(input: ReturnType<typeof fixture>, cells: number[] = [7], supply =
     outflow: 0, unresolvedResidual: 0,
   };
 }
-const opportunity = (input: ReturnType<typeof fixture>) => computeLocalSurfaceWaterOpportunity(input);
 const run = (input: ReturnType<typeof fixture>) => operation.run(input, operation.defaultConfig);
+// With zero atmospheric supply, the public plant-moisture field publishes L at Float32 precision.
+const opportunity = (input: ReturnType<typeof fixture>) => run({
+  ...input,
+  rainfall: new Uint8Array(input.width * input.height),
+  humidity: new Uint8Array(input.width * input.height),
+}).plantEffectiveMoisture;
 
 describe("local annual surface-water opportunity", () => {
   it("holds no-source atmospheric arithmetic exactly at Float32 and owns fresh readonly-input outputs", () => {
@@ -41,7 +45,7 @@ describe("local annual surface-water opportunity", () => {
     const observed = Object.freeze({ ...input, pet: Object.freeze(input.pet.slice()), bodies: Object.freeze(input.bodies.slice()) });
     const first = operation.run(observed, operation.defaultConfig);
     const second = operation.run(observed, operation.defaultConfig);
-    expect(opportunity(input)).toEqual(new Float64Array(input.width * input.height));
+    expect(opportunity(input)).toEqual(new Float32Array(input.width * input.height));
     expect(first.plantEffectiveMoisture).toEqual(first.effectiveMoisture);
     expect(first.plantWaterStress).toEqual(first.aridityIndex);
     expect(first).toEqual(second);
@@ -60,16 +64,18 @@ describe("local annual surface-water opportunity", () => {
     input.discharge[7] = 4;
     input.runoff[7] = 2;
     const small = opportunity(input);
-    expect(small[7]).toBe(2 / 7);
+    expect(small[7]).toBe(Math.fround(2 / 7));
     input.discharge[7] = 400;
     input.runoff[7] = 200;
     const large = opportunity(input);
-    expect(large[7]).toBe(200 / 7);
+    expect(large[7]).toBe(Math.fround(200 / 7));
     expect(large[7]).toBeGreaterThan(small[7]!);
     const labeled = { ...input, riverClass: new Uint8Array(15).fill(2) };
-    expect(computeLocalSurfaceWaterOpportunity(labeled)).toEqual(large);
+    expect(Object.hasOwn(operation.input.properties, "riverClass")).toBe(false);
+    expect(() => operation.run(labeled, operation.defaultConfig)).toThrow(OperationInputAdmissionError);
+    expect(opportunity(input)).toEqual(large);
     input.runoff[7] = 401;
-    expect(opportunity(input)).toEqual(new Float64Array(15));
+    expect(opportunity(input)).toEqual(new Float32Array(15));
   });
 
   it("dilutes fixed ordinary supply by distinct eligible self and adjacent contact area", () => {
@@ -82,7 +88,7 @@ describe("local annual surface-water opportunity", () => {
     expect(opportunity(input)[7]).toBe(10);
     input.elevation[8] = 11;
     expect(opportunity(input)[8]).toBe(0);
-    expect(opportunity(input)[7]).toBe(70 / 6);
+    expect(opportunity(input)[7]).toBe(Math.fround(70 / 6));
   });
 
   it("offers the receiver maximum, never an additive edge amplification", () => {
@@ -98,10 +104,10 @@ describe("local annual surface-water opportunity", () => {
     const input = fixture();
     input.discharge[7] = 70;
     input.externalWaterMask[7] = 1;
-    expect(opportunity(input)).toEqual(new Float64Array(15));
+    expect(opportunity(input)).toEqual(new Float32Array(15));
     input.externalWaterMask[7] = 0;
     input.componentId[7] = 1;
-    expect(opportunity(input)).toEqual(new Float64Array(15));
+    expect(opportunity(input)).toEqual(new Float32Array(15));
     input.bodies.push(body(input, [8]));
     expect(opportunity(input)[7]).toBeGreaterThan(0);
     expect(opportunity(input)[8]).toBe(0);
@@ -137,11 +143,11 @@ describe("local annual surface-water opportunity", () => {
       }
     }
     const baseline = opportunity(input);
-    expect(baseline[6]).toBe(70 / (2 + contacts.size));
+    expect(baseline[6]).toBe(Math.fround(70 / (2 + contacts.size)));
     wetBody.wetCells.push(7, 8, 8);
     input.bodies.push(structuredClone(wetBody));
     expect(opportunity(input)).toEqual(baseline);
-    expect(run(input).plantEffectiveMoisture[6]).toBe(Math.fround(41 + baseline[6]!));
+    expect(run(input).plantEffectiveMoisture[6]).toBe(Math.fround(41 + 70 / (2 + contacts.size)));
     input.bodies[1]!.level++;
     expect(() => run(input)).toThrow("Conflicting finite-body");
   });
@@ -168,7 +174,7 @@ describe("local annual surface-water opportunity", () => {
     const baseline = opportunity(input);
     const ordinary = opportunity({ ...input, bodies: [] });
     const finite = opportunity({ ...input, discharge: Array<number>(15).fill(0) });
-    expect(baseline).toEqual(Float64Array.from(ordinary, (value, cell) => Math.max(value, finite[cell]!)));
+    expect(baseline).toEqual(Float32Array.from(ordinary, (value, cell) => Math.max(value, finite[cell]!)));
     input.elevation = Int16Array.from(input.elevation, (value) => value + 1234);
     input.bodies[0]!.level += 1234;
     expect(opportunity(input)).toEqual(baseline);
@@ -179,7 +185,7 @@ describe("local annual surface-water opportunity", () => {
     input.discharge[0] = 20;
     const contacts = new Set([0, ...getHexNeighborIndicesOddQ(0, 0, width, height)]);
     const result = opportunity(input);
-    for (const cell of contacts) expect(result[cell]).toBe(20 / contacts.size);
+    for (const cell of contacts) expect(result[cell]).toBe(Math.fround(20 / contacts.size));
     if (height === 3) expect(result[2]).toBe(0);
   });
 

@@ -10,10 +10,11 @@ import type { StandardMapCapture } from "../capture.js";
 export function isStandardFeatureHabitatMismatch(
   feature: string,
   index: number,
-  model: StandardMapCapture["model"]
+  model: Pick<StandardMapCapture["model"],
+    "surfaceTemperature" | "plantEffectiveMoisture" | "aridityIndex" | "vegetationDensity" | "biomeIndex">
 ): boolean {
   const temperature = model.surfaceTemperature[index]!;
-  const moisture = model.effectiveMoisture[index]!;
+  const plantMoisture = model.plantEffectiveMoisture[index]!;
   const aridity = model.aridityIndex[index]!;
   const vegetation = model.vegetationDensity[index]!;
   const biome = biomeSymbolFromIndex(model.biomeIndex[index]!);
@@ -23,7 +24,7 @@ export function isStandardFeatureHabitatMismatch(
       return biome !== "temperateHumid" || vegetation < 0.08;
     case "FEATURE_RAINFOREST":
       return (
-        biome !== "tropicalRainforest" || temperature < 16 || moisture < 85 || vegetation < 0.18
+        biome !== "tropicalRainforest" || temperature < 16 || plantMoisture < 85 || vegetation < 0.18
       );
     case "FEATURE_TAIGA":
       return biome !== "snow" && biome !== "tundra" && biome !== "boreal";
