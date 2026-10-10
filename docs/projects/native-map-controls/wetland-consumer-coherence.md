@@ -7,7 +7,7 @@ preferences and from the policy that admits its score for placement. Start with
 one tundra-bog dependency, not a shared-floor adjustment or a climate rewrite.
 Marsh, mangrove and dryland point-water families remain independently owned.
 
-The bog scorer currently multiplies atmospheric water, fertility, cold and freeze
+The incumbent bog scorer multiplied atmospheric water, fertility, cold and freeze
 responses after admitting hydromorphic substrate. Pedology's fertility blends
 rainfall/humidity, relief, sediment and bedrock context; it does not measure
 nutrients, acidity or peat. The [EPA's wetland classification][epa] distinguishes
@@ -39,8 +39,9 @@ hydroperiod or peat formation.
 
 ## Retained Discriminator
 
-The actual current climate-refinement, feature-score and wetland-planning owners
-reproduce the retained Standard 1 and Huge 2 incumbent publications. Holding those
+Before implementation, the actual climate-refinement, feature-score and
+wetland-planning owners reproduced the retained Standard 1 and Huge 2 incumbent
+publications. Holding those
 inputs, other scores and admission fixed isolates the fertility factor:
 
 | Outcome | Standard 1 | Huge 2 |
@@ -82,6 +83,56 @@ Use one branch in the existing Graphite lineage. Review and qualify this complet
 owner change before selecting another wet-family response. Persistent wetness,
 source/substrate adequacy, seasonality, empirical score scale and Earth prevalence
 remain open under the wetland investigation, not prerequisite new solvers.
+
+## Qualified Outcome
+
+The implemented operation closes the discriminator with actual production
+climate-refinement, score, wetland and vegetation owners on both retained maps.
+All unrelated score families, post-albedo climate and physical/classifier inputs
+remain exact. The actual vegetation planner removes precisely the ten predicted
+taiga intents, adds none and makes no wider vegetation changes. The retained raw
+does not contain the foundation inputs and adapter/RNG lifetime needed to resume
+resources and starts; it is not used to invent that continuation.
+
+Exactly two fresh, complete public recipe captures compare Standard 1 and Huge 2
+against the sealed preceding point-water captures. Both pass the unchanged
+integrity target. All forty-one public model fields and their typed-array
+contracts, elevation/lake/river projection, terrain, biome and water are exact
+before attributing any feature or resource changes. Final placement has no feature
+refusals and reproduces the retained occupancy consequences:
+
+| Completed Recipe Outcome | Standard 1 | Huge 2 |
+| --- | ---: | ---: |
+| Bog features, before to after | 2 to 8 | 1 to 6 |
+| Taiga features, before to after | 177 to 171 | 298 to 294 |
+| New bogs on formerly bare cells | 0 | 1 |
+| Clay placements, before to after | 4 to 6 | 2 to 6 |
+| Starts, fairness and natural wonders | Exact | Exact |
+
+The resource change follows final feature legality, not new mineral supply.
+Habitat masks, targets, declared ranges and spacing remain unchanged. Clay's
+legal and eligible sites increase from `4 to 10` and `3 to 8`; its actual placed
+count reaches the retained minimum six, while a shortfall of two to target eight
+remains explicit. Standard replaces one former Clay site with three new bog
+sites; Huge adds four bog sites. Wild Game's admitted site counts change without
+changing its intentions or placements. Huge's Jade and Salt legal counts each
+fall by one, but their eligible sites and placements hold. All actual resource
+outcomes are legal under the existing headless policy; resource support and the
+complete public start/fairness publication remain exact. These are copied
+completed-recipe observations, not reconstructed per-cell planner history or
+fresh native resource acceptance.
+
+The focused contract/publication/config tests pass thirty tests. Full definition
+verification passes 1,390 tests with only the unchanged within-row thermal-study
+aggregate failing; realization passes 371 and Studio 412. Types, builds and owner
+policy pass. No expectation, shared floor or other consumer is weakened.
+
+This closes one unnecessary consumer dependency and its bounded downstream
+qualification, not complete wetland prevalence or scientific habitat validation.
+The broad substrate proxy and the cold annual/permafrost cases remain explicit
+limitations. Marsh/mangrove response, persistent wetness, seasonality and native
+placement still need their own owner evidence; no new liquid-water law or frost
+veto is inferred from this repair.
 
 ## Links And References
 
