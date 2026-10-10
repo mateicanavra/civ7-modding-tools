@@ -135,6 +135,23 @@ supply/storage evidence and consumer consequences; do not substitute a
 vegetation quota, an automatic shore bonus or an unqualified groundwater
 simulation. Preserve the current user game before later native replacement.
 
+The subsequent native delivery realizes all 248 NAV and 403 MINOR memberships,
+43 rainforest memberships and ten dry, non-NAV planned founder coordinates on
+the matching Huge seed. The full map is explored for human player zero; see the
+density record's fresh delivery section for proof limits and session preservation.
+The reviewed causal-owner decision is
+[terrestrial surface-water influence](terrestrial-water-influence.md). Its
+completed removal control is refused by the unchanged complete bank: a new
+Archipelago mangrove-presence failure and deterioration of the already-failed
+thermal floor. Candidate source is neither merged nor deployed, and its PR is
+closed through Graphite. The qualified native density/vegetation delivery is
+independent. The exact paired coastal consumer discriminator now locates
+mangrove loss at score admission: eligibility and warmth hold, but the
+normalized water factor and moisture-sensitive fertility decrease before any
+placement attempt. The next owner decision qualifies those supply meanings
+against admitted local hydrology before choosing a replacement; neither
+automatic vegetation promotion nor a groundwater solver is selected.
+
 ### Current Outcome Boundary (October 2)
 
 Native integration, C3 activation and retirement, coherent-reach restoration,

@@ -122,3 +122,36 @@ captures, without another generation. This is a bounded owner decision, not
 an Earth navigability ratio, a rainfall repair, a native visual/navigation
 result or a qualification of the moisture proxy. The current installed user
 game remains unchanged pending a preserved-session native comparison.
+
+## Fresh Native Delivery
+
+The merged definition is built, deployed and freshly generated using the saved
+setup, Huge `106 x 66`, map/game seeds `2/2` and ten major players. The owning
+live-start verification completes successfully in `25.9 s`, with matching built
+and installed map-script bytes and fresh seed-correlated generation completion.
+This duration includes the verification graph and launch, not an isolated
+algorithm timing.
+
+A supported four-row census reads all 6,996 distinct native plots with zero
+probe errors. All 248 NAV and 403 MINOR source memberships match the qualified
+portable capture exactly, as does terrain. All 43 rainforest memberships match.
+Every founder remains at its planned coordinate on dry, non-NAV terrain before
+movement. Player/observer zero is the human, and all 6,996 plots are explored and
+visible with the visibility grant retained.
+Autoplay is inactive, with no pause or pending-pause request at handback; the
+game remains at turn one for the human to inspect.
+
+This is a bounded placement/realization proof, not new vessel movement or a
+photographic proof. Six other feature cells differ from the portable simulator
+at planned natural wonders and their native extents; whole-feature identity is
+not claimed. Native lake classification differs from simulated classification
+on 60 cells even though the complete water mask matches; do not equate every
+physical finite-water body with native `IsLake`. Neither discrepancy establishes
+a regression against a prior matched native run.
+
+Session preservation retains a verified turn-160 autosave and the prior installed
+mod. The additionally requested named save never serialized; exact later
+in-memory progress is not claimed as restored. Full exit was necessary for that
+unresponsive prior game and used Civ's own graceful exit, with process exit
+independently observed. The new game is a deliberate test replacement, not a
+restoration of that checkpoint. Native screenshot capture remains unqualified.

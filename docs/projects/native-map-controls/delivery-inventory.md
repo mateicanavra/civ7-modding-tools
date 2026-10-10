@@ -88,9 +88,24 @@ by ordinary habitat admission, not promotion. Both complete 57-scenario banks
 pass 4,429 of 4,430 unchanged expectations, with the exact same unresolved
 thermal failure. Builds, types and policy pass; definition passes 1,323 tests
 with that sole aggregate failure, realization 371 and Studio 412. This is a
-qualified owner default and refreshed portable viewer, not deployment or a
-new native navigation claim. The existing class-based moisture proxy remains
-a separately identified causal limitation, not a proven root-zone water model.
+qualified owner default and refreshed portable viewer. Subsequent fresh Huge
+`2/2` native delivery realizes all 248 NAV and 403 MINOR memberships, all 43
+rainforest memberships and ten exact dry, non-NAV planned founders. The full
+map is explored for the human player; this does not establish new vessel paths
+or complete native lake-taxonomy parity. The existing class-based moisture
+proxy remains a separately identified causal limitation, not a proven
+root-zone water model.
+
+The subsequent [terrestrial-water removal control](terrestrial-water-influence.md#completed-removal-control)
+is complete and refused. Physical hydrology and baseline forcing hold, but
+the unchanged bank loses required Archipelago mangroves and slightly worsens
+the already-failed thermal requirement. PR #2341 is closed through Graphite
+with its source/proof retained; no candidate change is merged or deployed.
+Local-water ecological supply remains open. The completed exact paired
+consumer trace holds mangrove eligibility/warmth and locates loss at score
+admission, before projection: water and moisture-sensitive fertility factors
+fall. The next decision qualifies the supply and substrate meanings rather
+than forcing vegetation or weakening the benchmark.
 
 The single retained island transect resolves to finite water and does not
 demonstrate lost marine relief. No new island algorithm is selected from that
