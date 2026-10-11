@@ -56,6 +56,8 @@ assessments:
     state: "supported"
   - claim: "Exact downstream reproduction of those six B cases finds 1,625 free-flat DESERT cells below admission. The 82 current DESERT and nine other-biome receiver climates with sufficient atmospheric dryness have no oasis admission window through source opportunity alone at held temperature, precipitation and wetness. This is conditional, not an all-climate impossibility result or threshold validation."
     state: "supported"
+  - claim: "The owner-meaning review retains a coarse annual-source gameplay proxy for a localized vegetated enclave in native DESERT. It finds no demonstrated owner mismatch requiring repair; it does not validate occurrence, response scales or the shared admission floor."
+    state: "supported"
   - claim: "Atmospheric dryness, plant-responsive biome classification, local source support and native compatibility jointly admit ecologically appropriate point-water habitat with adequate occurrence."
     state: "unassessed"
 verification:
@@ -231,21 +233,31 @@ representative biome changes before an oasis qualifies. This is a defensible
 [earlier contract trace][retained] likewise distinguishes these meanings rather
 than validating their response scales.
 
-A **small wet patch within a dry surrounding landscape** poses a different
-question. How much of the represented tile receives water, and for how long?
-For an example of why area matters, [FAO's field water balance][wetted-area]
-distinguishes field-average irrigation from its concentration over the wetted
-fraction. That agricultural treatment is not a natural-oasis calibration or a
-prescription for this model. Our [source-and-access quantity][source-model]
-measures neither patch area nor persistence, so it cannot settle that spatial
-interpretation.
+A **small wet patch within a dry surrounding landscape** has a deliberately
+coarse representation here: an annual-source gameplay proxy for a localized
+vegetated enclave in a native DESERT cell. That is the retained owner meaning,
+not a prediction of the patch's size or dry-period reliability. The
+[source-and-access quantity][source-model] measures neither patch area nor
+persistence. Those would be stronger product promises, not missing prerequisites
+for retaining this proxy.
 
-No behavioral repair is justified by the retained diagnosis. **That does not
+The spatial distinction still matters when interpreting the evidence. For
+example, [FAO's field water balance][wetted-area] distinguishes field-average
+irrigation from its concentration over the wetted fraction. That agricultural
+treatment illustrates what a stronger area-specific claim would need; it is
+neither natural-oasis calibration nor a prescription to add a patch model.
+
+No owner mismatch requiring behavioral repair is established. **That does not
 validate the thresholds.** Whether the empirical moisture classes, dryness
 ramps and shared floor represent the intended habitat at this scale remains
 open. Physically suitable dry, watered habitats systematically excluded by
 their intersection would challenge that meaning; worlds lacking such habitats
 could explain the absence without increasing placement.
+
+The retained decision therefore does not change the classifier, annual budget,
+score law or 0.42 floor to manufacture oasis occurrence. The conditional
+91-climate result and the quantity-compatible local positive control can both
+be true. Neither establishes generated-world adequacy or Earth calibration.
 
 Neither the near-miss bounds nor the positive fixtures establish a rainfall or
 thermal defect, a better coefficient, or a reason to lower the admission floor.
@@ -255,6 +267,12 @@ the separate question of marsh, bog, mangrove and shared admission;
 [Q-001][geometry] retains neighborhood geometry.
 
 ## Evidence Boundaries
+
+The 2026-10-11 owner-meaning recommendation is a source-and-evidence review,
+not another model, map or native run. It retains the annual-source proxy without
+closing this sheet's adequacy question. Its private recommendation has SHA-256
+`e08e20ebca1af610bbc6ddc515cf54bee1c77f2da169b52b2062f7044e5b4c7f`;
+that custody identity is not independent scientific verification.
 
 The [original question][baseline] and [evidence digest][retained] preserve the
 earlier empty-mask and direct-warmth findings at their original revisions.

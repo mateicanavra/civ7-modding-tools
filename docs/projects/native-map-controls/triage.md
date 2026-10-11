@@ -105,21 +105,33 @@ These are navigation pointers, not copied investigations or new dispositions.
 - [Point-water habitat support](#q-004-point-water-habitat-support)
 - [Wetland suitability and admission](#q-005-wetland-suitability-and-admission)
 - [Regional thermal response and qualification](#q-006-regional-thermal-response-and-qualification)
+- [Biome transition meaning](#q-007-biome-transition-meaning)
 
 ### Hydrology / Baseline Climate / Regional Response
 
 #### Q-006: Regional Thermal Response And Qualification
 
-On one fixed Earth-mask fixture with zero model height, current-source seasonal
-moisture varies broadly within latitude rows, and its retained input/publication
-checks pass exactly. The historical deficit statistic now has training-coordinate
-support, but concentrated regional magnitude; neither finding qualifies a
-temperature-response law.
-Annual versus phase-aware response and prospective geographic expectations
-remain open. Accepted qualification separates hard invariants, retained Earth
-diagnostics and procedural/downstream outcomes without changing executable
-targets or historical verdicts.
+A single Standard1018 gain-zero versus diagnostic-gain-six comparison produces
+a modest, geographically organized response through all 53 recipe steps.
+Mechanism and integrity checks pass; downstream effects are mixed and within-row
+thermal variation remains below the inherited 1 degree C floor. The evaluated
+producer-phase model has a bounded annual proxy, not a corrected continuous
+annual integral. Its separate fixed-Earth input evidence is not calibration.
+Regional adequacy, Earth accuracy and playable benefit remain open; no gain,
+default, cohort or native acceptance follows from this result.
 [Read the research question](questions/q-006-regional-thermal-response.md).
+
+### Ecology / Biomes / Classification
+
+#### Q-007: Biome Transition Meaning
+
+The thermal comparison exposes an existing atmospheric-moisture adjustment
+near the tropical boundary: 21 cells enter its guard and four cross adaptive
+thresholds within it, without changing their plant-moisture/stress categories.
+The open question is whether this boundary expresses a justified ecological
+proxy, obsolete visual compensation or an implementation mismatch. Cooling
+across a category boundary is not itself a defect or non-monotonicity proof.
+[Read the research question](questions/q-007-biome-transition-meaning.md).
 
 ### Ecology / Features / Score Layers
 
@@ -139,9 +151,11 @@ All 1,625 free-flat DESERT cells score below admission. With receiver climates
 held, 91 score-capable source-only paths leave DESERT before the floor is reached;
 atmospheric dryness caps the remaining eligible nonpolar climates.
 A quantity-compatible local positive control is not a generated-world oasis.
-Whole-tile habitat response versus a small wet patch in a dry landscape remains
-open. No justified repair is not threshold validation; these findings justify
-neither a quota nor a lower floor.
+The retained meaning is a coarse annual-source proxy for a localized vegetated
+enclave in native DESERT, not a prediction of patch area or persistence. No
+owner mismatch requiring repair is established; generated-world adequacy and
+calibration remain open. That conclusion does not validate the thresholds or
+justify a quota or lower floor.
 [Read the research question](questions/q-004-point-water-support.md).
 
 ### Ecology / Features / Scoring And Wetland Planning
