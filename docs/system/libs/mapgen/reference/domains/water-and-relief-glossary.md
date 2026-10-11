@@ -122,6 +122,15 @@ meter conversion. Independent lowland temperature can constrain latitude and
 thermal gain, but cannot determine that relief conversion or replace missing
 maritime heat transport. [Calibration limits](../../../../../projects/native-map-controls/earth-thermal-reference.md).
 
+Earthlike authors `-0.15` C per model relief unit as an empirical terrain-sensitivity
+choice in the Physics recipe; the shared default and other shipped profiles retain
+`-0.0065`. This does not change the independent Earth-reference thermal response
+or establish a meter conversion, an optimal coefficient, or complete Earth climate
+calibration. Cooling depends on the generated relief population and map size, and
+can be substantial rather than uniformly small. In the retained Standard1
+comparison, original-land mean temperature changed from `12.916` to `1.747` C.
+That observation does not prove preservation of a fixed lowland population.
+
 ### Seasonal Integration Versus Observation
 
 Integration phases are the times sampled to calculate annual atmospheric and
