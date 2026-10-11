@@ -42,9 +42,9 @@ function responseLevel(response: BasinWaterBudgetResponse, base: number): number
   return base;
 }
 
-/** Joins active catchment cells to unchanged ground and their attributed runoff, rainfall, and demand. */
+/** Joins active catchment cells to unchanged ground and their attributed runoff, precipitation, and demand. */
 function budgetRows(input: NetworkInput, cells: readonly number[]) {
-  return cells.map(cell => ({ cell, ground: input.elevation[cell]!, localRunoff: input.localRunoff[cell]!, precipitation: input.rainfall[cell]!, potentialDemand: input.potentialDemand[cell]! }));
+  return cells.map(cell => ({ cell, ground: input.elevation[cell]!, localRunoff: input.localRunoff[cell]!, precipitation: input.precipitation[cell]!, potentialDemand: input.potentialDemand[cell]! }));
 }
 
 /** Independent check of the geometry's root overflow order, not reciprocal sibling pointers. */

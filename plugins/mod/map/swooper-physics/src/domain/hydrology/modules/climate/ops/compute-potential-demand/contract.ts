@@ -11,7 +11,7 @@ const ComputePotentialDemandContract = defineOp({
       width: Type.Integer({ minimum: 1, description: "Tile grid width." }),
       height: Type.Integer({ minimum: 1, description: "Tile grid height." }),
       surfaceTemperatureC: TypedArraySchemas.f32({ description: "Surface temperature proxy (C)." }),
-      humidity: TypedArraySchemas.u8({ description: "Humidity (0..255) at the same forcing vintage." }),
+      surfaceWetness: TypedArraySchemas.f32({ description: "Normalized atmospheric surface wetness (0..1) at the same forcing vintage." }),
       parameters: PotentialDemandParametersSchema,
     },
     { additionalProperties: false }

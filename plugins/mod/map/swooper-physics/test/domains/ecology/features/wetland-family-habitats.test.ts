@@ -313,17 +313,17 @@ describe("ecology wetland-family habitats", () => {
     const width = 5, height = 3, size = width * height, marineWater = 7, receiver = 8;
     const wetFertility: number[] = [];
     expect(plannerConfig.config.minConfidence01).toBe(0.42);
-    for (const [rainfall, humidityU8, sediment] of [[200, 255, 1], [200, 255, 0.2], [100, 128, 0.2], [0, 0, 1]] as const) {
+    for (const [precipitation, wetnessByteEquivalent, sediment] of [[200, 255, 1], [200, 255, 0.2], [100, 128, 0.2], [0, 0, 1]] as const) {
       // Matched precipitation encodings and annual temperature are local regimes,
       // not evidence of generated climate reachability.
       const surfaceTemperatureC = new Float32Array(size).fill(24);
-      const humidity = new Uint8Array(size).fill(humidityU8);
+      const surfaceWetness = new Float32Array(size).fill(wetnessByteEquivalent / 255);
       const demand = hydrology.climate.ops.computePotentialDemand.run({
-        width, height, surfaceTemperatureC, humidity, parameters: baseline.potentialDemand,
+        width, height, surfaceTemperatureC, surfaceWetness, parameters: baseline.potentialDemand,
       }, refine.computePotentialDemand);
       const budgetInput = { width, height, ...noLocalWaterSources(width, height),
-        landMask: new Uint8Array(size).fill(1), rainfall: new Uint8Array(size).fill(rainfall),
-        humidity, pet: demand.pet };
+        landMask: new Uint8Array(size).fill(1), precipitation: new Float32Array(size).fill(precipitation),
+        surfaceWetness, pet: demand.pet };
       budgetInput.elevation.fill(10);
       budgetInput.landMask[marineWater] = 0;
       budgetInput.externalWaterMask[marineWater] = 1;
@@ -332,11 +332,11 @@ describe("ecology wetland-family habitats", () => {
       const before = structuredClone({ budgetInput, surfaceTemperatureC, sedimentDepth });
       const indices = hydrology.climate.ops.computeLandWaterBudget.run(budgetInput, refine.computeLandWaterBudget);
       const cryosphere = hydrology.cryosphere.ops.computeCryosphereState.run({
-        width, height, landMask: budgetInput.landMask, surfaceTemperatureC, rainfall: budgetInput.rainfall,
+        width, height, landMask: budgetInput.landMask, surfaceTemperatureC, precipitation: budgetInput.precipitation,
       }, refine.computeCryosphereState);
       const pedology = ecology.pedology.ops.classifyPedology.run({
         width, height, landMask: budgetInput.landMask, elevation: budgetInput.elevation,
-        rainfall: budgetInput.rainfall, humidity, sedimentDepth,
+        precipitation: budgetInput.precipitation, surfaceWetness, sedimentDepth,
       }, compiled["ecology-pedology"].pedology.classify);
       const biomes = ecology.biomes.ops.classifyBiomes.run({
         width, height, landMask: budgetInput.landMask, surfaceTemperatureC,
@@ -368,16 +368,16 @@ describe("ecology wetland-family habitats", () => {
       expect(substrate.intertidalCoastMask[receiver]).toBe(1);
       expect(indices.localSurfaceWaterOpportunity[receiver]).toBe(0);
       expect(biomeSymbolFromIndex(biomes.biomeIndex[receiver]!)).toBe(
-        rainfall === 200 ? "tropicalRainforest" : rainfall === 100 ? "temperateDry" : "desert"
+        precipitation === 200 ? "tropicalRainforest" : precipitation === 100 ? "temperateDry" : "desert"
       );
-      expect(compatibility.mangrove[receiver]).toBe(rainfall === 200 ? 1 : 0);
-      if (rainfall > 0) expect(scoreMangrove01[receiver]).toBe(0.5);
+      expect(compatibility.mangrove[receiver]).toBe(precipitation === 200 ? 1 : 0);
+      if (precipitation > 0) expect(scoreMangrove01[receiver]).toBe(0.5);
       else {
         expect(scoreMangrove01[receiver]).toBeGreaterThan(0);
         expect(scoreMangrove01[receiver]).toBeLessThan(plannerConfig.config.minConfidence01);
       }
-      expect(placements).toEqual(rainfall === 200 ? [{ x: 3, y: 1, feature: "mangrove" }] : []);
-      if (rainfall === 200) wetFertility.push(pedology.fertility[receiver]!);
+      expect(placements).toEqual(precipitation === 200 ? [{ x: 3, y: 1, feature: "mangrove" }] : []);
+      if (precipitation === 200) wetFertility.push(pedology.fertility[receiver]!);
       expect({ budgetInput, surfaceTemperatureC, sedimentDepth }).toEqual(before);
     }
     expect(wetFertility[0]).not.toBe(wetFertility[1]);

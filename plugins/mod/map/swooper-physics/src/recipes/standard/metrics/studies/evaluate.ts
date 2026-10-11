@@ -5,7 +5,7 @@ import {
 } from "@swooper/mapgen-metrics";
 import type { NonEmptyTuple } from "type-fest";
 
-import { captureStandardMapScenario } from "../capture.js";
+import { captureStandardMapScenario, type StandardMapCapture } from "../capture.js";
 import { measureStandardMapCapture, type StandardMapProductSample } from "../sample.js";
 import { defineStandardMapMetricScenario, type StandardPresetMetricScenario } from "../scenario.js";
 import type {
@@ -20,16 +20,24 @@ import type {
 } from "./model.js";
 import { standardMetricScenarioSignature } from "./scenarios.js";
 
+/** Optional capture evidence without changing the authoritative study measurement or verdict. */
+export type StandardMetricStudyEvaluationOptions = Readonly<{
+  includeMoistureDiagnostics?: boolean;
+  /** Observes a copied capture synchronously, after its authoritative sample has been stored. */
+  onCapture?: (capture: StandardMapCapture) => undefined;
+}>;
+
 /**
  * Captures each unique scenario exactly once and evaluates the declared studies atomically.
  * All scenario identities are reconciled before generation, and any capture failure aborts the run.
  */
 export function evaluateStandardMetricStudies(
-  studies: NonEmptyTuple<StandardMetricStudy>
+  studies: NonEmptyTuple<StandardMetricStudy>,
+  options: StandardMetricStudyEvaluationOptions = {}
 ): StandardMetricRunEvaluation {
   assertUniqueStudyIds(studies);
   const scenarios = reconcileScenarios(studies);
-  const samples = captureScenarios(scenarios);
+  const samples = captureScenarios(scenarios, options);
   const evaluations = Object.freeze(
     studies.map((metricStudy) => evaluateStudy(metricStudy, samples))
   );
@@ -74,11 +82,19 @@ function reconcileScenarios(
 }
 
 function captureScenarios(
-  scenarios: readonly StandardPresetMetricScenario[]
+  scenarios: readonly StandardPresetMetricScenario[],
+  options: StandardMetricStudyEvaluationOptions
 ): ReadonlyMap<string, StandardMapProductSample> {
   const samples = new Map<string, StandardMapProductSample>();
   for (const scenario of scenarios) {
-    samples.set(scenario.id, measureStandardMapCapture(captureStandardMapScenario(scenario)));
+    const capture = captureStandardMapScenario(
+      scenario,
+      options.includeMoistureDiagnostics ? { includeMoistureDiagnostics: true } : undefined
+    );
+    samples.set(scenario.id, measureStandardMapCapture(capture));
+    if (options.onCapture && options.onCapture(capture) !== undefined) {
+      throw new Error("Standard metric capture observers must complete synchronously and return undefined.");
+    }
   }
   return samples;
 }

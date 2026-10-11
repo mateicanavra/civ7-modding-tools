@@ -20,8 +20,8 @@ export const NetworkStep = createStep(config, {
         {
           ...dimensions,
           externalWaterMask,
-          rainfall: climate.rainfall,
-          humidity: climate.humidity,
+          precipitation: climate.precipitation,
+          surfaceWetness: climate.surfaceWetness,
         },
         stepConfig.computeLocalRunoff
       );
@@ -43,7 +43,7 @@ export const NetworkStep = createStep(config, {
             externalWaterHead: seaLevel,
             geometry,
             localRunoff: runoff,
-            rainfall: climate.rainfall,
+            precipitation: climate.precipitation,
             potentialDemand: climate.potentialDemand,
           },
           stepConfig.computeBasinNetwork

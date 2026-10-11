@@ -9,7 +9,7 @@ function supportedRainforestModel() {
   const operation = hydrology.climate.ops.computeLandWaterBudget;
   const physical = {
     width: 1, height: 1, ...noLocalWaterSources(1, 1),
-    landMask: new Uint8Array([1]), rainfall: new Uint8Array([20]), humidity: new Uint8Array([0]), pet: [80],
+    landMask: new Uint8Array([1]), precipitation: new Float32Array([20]), surfaceWetness: new Float32Array([0]), pet: [80],
   };
   physical.discharge[0] = 250;
   const indices = operation.run(physical, operation.defaultConfig);

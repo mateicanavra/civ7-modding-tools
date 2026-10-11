@@ -15,8 +15,8 @@ describe("ecology/pedology/classify relief", () => {
       height,
       landMask: new Uint8Array(size).fill(1),
       elevation: new Int16Array(size).fill(100),
-      rainfall: new Uint8Array(size),
-      humidity: new Uint8Array(size),
+      precipitation: new Float32Array(size),
+      surfaceWetness: new Float32Array(size),
     };
     const reliefOnlySelection = {
       strategy: "balanced",
@@ -40,5 +40,30 @@ describe("ecology/pedology/classify relief", () => {
     );
 
     expect(cliff.fertility[center]).toBeLessThan(flat.fertility[center]!);
+  });
+
+  it("preserves the atmospheric fertility scale without clipping precipitation to the native codec", () => {
+    const input = {
+      width: 4,
+      height: 1,
+      landMask: Uint8Array.of(1, 1, 1, 0),
+      elevation: new Int16Array(4),
+      precipitation: Float32Array.of(180.5, 360.5, 600, 600),
+      surfaceWetness: Float32Array.of(150 / 255, 0.5, 1, 1),
+    };
+    const before = structuredClone(input);
+    const result = runAdmittedOperationForTest(classifyPedology, input, {
+      strategy: "balanced",
+      config: {
+        climateWeight: 1, reliefWeight: 0, sedimentWeight: 0,
+        bedrockWeight: 0, fertilityCeiling: 1,
+      },
+    });
+
+    expect(result.fertility[0]).toBe(Math.fround((180.5 + 255 * input.surfaceWetness[0]!) / 510));
+    expect(result.fertility[1]).toBe(Math.fround((360.5 + 255 * 0.5) / 510));
+    expect(result.fertility[2]).toBe(1);
+    expect(result.fertility[3]).toBe(0);
+    expect(input).toEqual(before);
   });
 });

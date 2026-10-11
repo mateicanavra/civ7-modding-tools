@@ -31,7 +31,7 @@ export type NetworkInput = Readonly<{
   externalWaterHead: number;
   geometry: GeometryInput;
   localRunoff: readonly number[];
-  rainfall: ArrayLike<number>;
+  precipitation: ArrayLike<number>;
   potentialDemand: ArrayLike<number>;
 }>;
 

@@ -6,8 +6,8 @@ type PedologyInput = {
   readonly height: number;
   readonly landMask: ArrayLike<number>;
   readonly elevation: ArrayLike<number>;
-  readonly rainfall: ArrayLike<number>;
-  readonly humidity: ArrayLike<number>;
+  readonly precipitation: ArrayLike<number>;
+  readonly surfaceWetness: ArrayLike<number>;
   readonly sedimentDepth?: ArrayLike<number>;
   readonly bedrockAge?: ArrayLike<number>;
 };
@@ -46,15 +46,15 @@ export function classifyPedology(input: PedologyInput, config: PedologyWeights):
       continue;
     }
     const tileFertility = fertilityForTile({
-      rainfall: input.rainfall[i],
-      humidity: input.humidity[i],
+      precipitation: input.precipitation[i],
+      surfaceWetness: input.surfaceWetness[i],
       relief: relief[i],
       sedimentDepth: sediment ? sediment[i] : 0,
       bedrockAge: bedrock ? bedrock[i] : 0,
       weights: config,
     });
     fertility[i] = tileFertility;
-    const moisture = (input.rainfall[i] + input.humidity[i]) / 510;
+    const moisture = (input.precipitation[i] + 255 * input.surfaceWetness[i]) / 510;
     soilType[i] = soilPaletteIndex(tileFertility, relief[i], moisture);
   }
 
@@ -100,15 +100,15 @@ function computeLocalReliefProxy(
  * Computes a fertility score for a tile from climate, relief, sediment, and bedrock signals.
  */
 function fertilityForTile({
-  rainfall,
-  humidity,
+  precipitation,
+  surfaceWetness,
   relief,
   sedimentDepth,
   bedrockAge,
   weights,
 }: {
-  rainfall: number;
-  humidity: number;
+  precipitation: number;
+  surfaceWetness: number;
   relief: number;
   sedimentDepth: number;
   bedrockAge: number;
@@ -120,7 +120,7 @@ function fertilityForTile({
     fertilityCeiling: number;
   };
 }): number {
-  const moisture = clamp01((rainfall + humidity) / 510);
+  const moisture = clamp01((precipitation + 255 * surfaceWetness) / 510);
   const sedimentSignal = clamp01(sedimentDepth);
   const reliefPenalty = 1 - clamp01(relief);
   const bedrockSignal = clamp01(bedrockAge);

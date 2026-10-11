@@ -2,13 +2,42 @@
 
 **Goal:** Coherent wet/dry regions whose forcing reaches basins, rivers and
 ecology without manufacturing atmospheric supply from dry land or terrain.
-**Status:** Implemented and qualified at the owner/consumer layers; the complete
-procedural candidate is not adopted. The bounded investigation is closed.
-The unused preparatory operation is retired, with its qualified implementation
-and the complete candidate preserved as research. The empirical incumbent
-remains the sole production path. The design below records the proposal and
-qualification history, not an active implementation queue.
+**Status:** The historical procedural candidate remains refused under its
+original protocol. A separately reviewed current-baseline integration carries
+the fixed forcing owner into the repaired consumers; it is not adopted until
+its new matched qualification completes. The historical results below retain
+their original identities and verdicts.
 **Owner:** Swooper Physics, Hydrology's Climate module.
+
+## Current-Baseline Integration
+
+The prospective integration restores only the selected source-limited owner
+at marine source `900`, reference transport speed `80`, extraction `1.2/4`,
+gradient reference `300` and authored wetness scale `1`. The unchanged kernel
+derives 185 passes at Standard width and 234 at Huge width. The existing dryness
+knob scales source once; retired gain, reinjection and proximity paths have no
+fallback lane.
+
+Atmospheric `precipitation` and normalized `surfaceWetness` are independently
+reduced floats; `rainfallCodec` is a separate native projection. Phase demand
+follows phase moisture aggregation, and seasonal-mean baseline demand feeds
+finite-water budgets. Annual post-albedo demand remains ecological. Current
+atmospheric moisture preserves `P + 0.35*255*W`; source-led local plant-water
+opportunity remains separate. No river-class or enclosed-basin rainfall bonus
+is restored, and no refined ecological input feeds earlier basin creation.
+
+Current external-surface-head and sill routing, local plant-water, cold-forest,
+dryland waterpoint, bog/mangrove, resource and placement repairs are preserved
+rather than replaying the historical consumer patch. Native codec saturation,
+physical supply, feature suitability/admission and realized coverage support
+different claims. Counts alone cannot establish improved forcing.
+
+Initial matched evidence uses the four calibration controls plus Huge 5050
+and the existing Huge 2024 orogeny member. Final qualification uses the current
+Earthlike-core study bank with unchanged laws. The inherited thermal floor
+remains authoritative; a raw failing bank is never reported passing. Whole
+headless generation cost is an early gate, not native player-path performance.
+No deployment or native/gameplay result follows merely from this integration.
 
 ## Completed Product Decision
 
@@ -44,13 +73,13 @@ Final-ground-supported reselection is an intentional mechanism. This witness
 rules out the proposed missed-axis explanation; it does not prove every
 possible mountain-design weakness absent. No concrete defect justifies a
 production selector repair. The regional floor is a product policy, not an
-Earth-physics law, but it remains the current independent acceptance contract.
-It is not retrospectively changed to admit this candidate.
+Earth-physics law, but it was the independent acceptance contract for that
+evaluation. Its later retirement does not retrospectively admit that candidate.
 
-Close this B parameterization without another climate fit, region-extension
-patch or native adoption trial. Keep A, the existing empirical incumbent, as the sole
-production interpretation. Retire the unused preparatory operation to avoid a
-dead or competing domain surface; preserve its valid numerical qualification
+That B parameterization was closed without another climate fit, region-extension
+patch or native adoption trial. A remained the sole production interpretation.
+The unused preparatory operation was retired to avoid a dead or competing
+domain surface; its valid numerical qualification remains in
 in [PR #2321](https://github.com/mateicanavra/civ7-modding-tools/pull/2321).
 The full candidate and retained inputs remain reproducible outside active
 production. Non-adoption does not disprove source limitation or conservation.

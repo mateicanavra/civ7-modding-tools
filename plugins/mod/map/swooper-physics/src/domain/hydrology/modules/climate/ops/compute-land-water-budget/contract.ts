@@ -9,7 +9,7 @@ const ComputeLandWaterBudgetContract = defineOp({
   /**
    * Computes atmospheric moisture, PET and aridity alongside plant moisture and stress.
    *
-   * This op combines rainfall, humidity, and supplied demand into deterministic
+   * This op combines precipitation, surface wetness, and supplied demand into deterministic
    * advisory indices. Consumers use these outputs rather than re-deriving local variants.
    */
   input: Type.Object(
@@ -26,10 +26,10 @@ const ComputeLandWaterBudgetContract = defineOp({
       discharge: Type.Array(Type.Number({ minimum: 0 }), { description: "Number-precision ordinary dry-edge flux per tile." }),
       runoff: Type.Array(Type.Number({ minimum: 0 }), { description: "Number-precision local precipitation-attributed runoff per tile." }),
       bodies: Type.Array(BasinWetBodySchema, { description: "Complete strict finite wet bodies and their annual input ledgers." }),
-      /** Rainfall (0..200) per tile. */
-      rainfall: TypedArraySchemas.u8({ description: "Rainfall (0..200) per tile." }),
-      /** Humidity (0..255) per tile. */
-      humidity: TypedArraySchemas.u8({ description: "Humidity (0..255) per tile." }),
+      /** Unclipped finite nonnegative atmospheric precipitation. */
+      precipitation: TypedArraySchemas.f32({ description: "Finite nonnegative atmospheric precipitation in rainfall-index units." }),
+      /** Independently aggregated normalized atmospheric wetness. */
+      surfaceWetness: TypedArraySchemas.f32({ description: "Atmospheric surface wetness in 0..1; not local plant-water supply." }),
       /** Double-precision demand preserves pre-extraction aridity before public Float32 rounding. */
       pet: Type.Array(Type.Number({ minimum: 0 }), {
         description: "One double-precision potential-demand sample per tile, supplied by Climate.",
@@ -46,14 +46,14 @@ const ComputeLandWaterBudgetContract = defineOp({
    */
   output: Type.Object(
     {
-      /** Potential evapotranspiration proxy (rainfall units, advisory). */
+      /** Potential evapotranspiration proxy (precipitation units, advisory). */
       pet: TypedArraySchemas.f32({
-        description: "Potential evapotranspiration proxy (rainfall units, advisory).",
+        description: "Potential evapotranspiration proxy (precipitation units, advisory).",
       }),
-      /** Rainfall and humidity expressed on one terrestrial moisture scale. */
+      /** Precipitation and normalized wetness expressed on one terrestrial moisture scale. */
       effectiveMoisture: TypedArraySchemas.f32({
         description:
-          "Resolved exposed-land rainfall + 0.35*humidity; the authored rainfall and humidity maxima yield 289.25, and water is 0.",
+          "Resolved exposed-land precipitation + 0.35*255*surfaceWetness; zero on water, with no atmospheric precipitation cap.",
       }),
       /** Aridity index (0..1) derived from precipitation vs PET (advisory). */
       aridityIndex: TypedArraySchemas.f32({
@@ -63,10 +63,10 @@ const ComputeLandWaterBudgetContract = defineOp({
         description: "Local annual surface-water opportunity per represented exposed-land tile area in rainfall-index units; zero on water, not delivered water or permanence.",
       }),
       plantEffectiveMoisture: TypedArraySchemas.f32({
-        description: "Exposed-land rainfall + 0.35*humidity + local annual surface-water opportunity; not root uptake or groundwater.",
+        description: "Exposed-land precipitation + 0.35*255*surfaceWetness + local annual surface-water opportunity; not root uptake or groundwater.",
       }),
       plantWaterStress: TypedArraySchemas.f32({
-        description: "Demand / (demand + rainfall + local annual surface-water opportunity + 1), zero on water.",
+        description: "Demand / (demand + precipitation + local annual surface-water opportunity + 1), zero on water.",
       }),
     },
     {

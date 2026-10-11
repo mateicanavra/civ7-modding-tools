@@ -24,20 +24,20 @@ function drainageFixture(rainfallIndex = 100, demandIndex = 10, forcingCell?: nu
     externalWaterHead: 0,
   };
   const size = terrain.width * terrain.height;
-  const rainfall = new Uint8Array(size).fill(forcingCell === undefined ? rainfallIndex : 0);
+  const precipitation = new Float32Array(size).fill(forcingCell === undefined ? rainfallIndex : 0);
   const potentialDemand = new Float32Array(size).fill(forcingCell === undefined ? demandIndex : 0);
   if (forcingCell !== undefined) {
-    rainfall[forcingCell] = rainfallIndex;
+    precipitation[forcingCell] = rainfallIndex;
     potentialDemand[forcingCell] = demandIndex;
   }
-  const humidity = new Uint8Array(size).fill(128);
+  const surfaceWetness = new Float32Array(size).fill(128 / 255);
   const { runoff } = hydro.computeLocalRunoff.run(
     {
       width: terrain.width,
       height: terrain.height,
       externalWaterMask: terrain.externalWaterMask,
-      rainfall,
-      humidity,
+      precipitation,
+      surfaceWetness,
     },
     hydro.computeLocalRunoff.defaultConfig
   );
@@ -48,7 +48,7 @@ function drainageFixture(rainfallIndex = 100, demandIndex = 10, forcingCell?: nu
       config: { allowExternalEdgeOutlets: false },
     }),
     localRunoff: runoff,
-    rainfall,
+    precipitation,
     potentialDemand,
   };
 }
@@ -201,7 +201,7 @@ describe("fixed Earth native-index drainage diagnostic", () => {
         expect(network.waterSurface[receiver]!).toBeLessThanOrEqual(network.waterSurface[cell]!);
       if (network.wetMask[cell]) {
         expect(network.dryDischarge[cell]).toBe(0);
-        wetPrecipitation += input.rainfall[cell]!;
+        wetPrecipitation += input.precipitation[cell]!;
         wetDemand += input.potentialDemand[cell]!;
       } else {
         dryRunoff += input.localRunoff[cell]!;
@@ -299,7 +299,7 @@ describe("fixed Earth native-index drainage diagnostic", () => {
         network.conservation.roundoffBound
       );
       if (state === "closed") {
-        expect(input.rainfall.every((value, cell) => value === (cell === 5040 ? 100 : 0))).toBe(true);
+        expect(input.precipitation.every((value, cell) => value === (cell === 5040 ? 100 : 0))).toBe(true);
         expect(
           input.potentialDemand.every((value, cell) => value === (cell === 5040 ? 100 : 0))
         ).toBe(true);
@@ -414,10 +414,10 @@ describe("fixed Earth-coast flat-relief climate ablation", () => {
     expect(earth.wind).toEqual(repeated.wind);
     expect(earth.observation.currentField).toEqual(repeated.observation.currentField);
     expect(earth.observation).toEqual(repeated.observation);
-    expect(earth.baseline.rainfall).not.toEqual(aquaplanet.baseline.rainfall);
+    expect(earth.baseline.precipitation).not.toEqual(aquaplanet.baseline.precipitation);
     expect(earth.pressure).not.toEqual(aquaplanet.pressure);
     expect(earth.wind).not.toEqual(aquaplanet.wind);
-    expect(earth.observation.seasonalRainfall).toHaveLength(earth.config.seasonality.modeCount);
+    expect(earth.observation.seasonalPrecipitation).toHaveLength(earth.config.seasonality.modeCount);
     const seasonalTemperature = earth.observation.seasonalSurfaceTemperatureC;
     expect(seasonalTemperature).toHaveLength(earth.config.seasonality.modeCount);
     const integration = earth.observation.seasonalIntegration;
@@ -434,7 +434,7 @@ describe("fixed Earth-coast flat-relief climate ablation", () => {
             width: earthReference.grid.width,
             height: earthReference.grid.height,
             surfaceTemperatureC,
-            humidity: integration.humidity[season]!,
+            surfaceWetness: integration.surfaceWetness[season]!,
             parameters: earth.baseline.demandParameters,
           },
           earth.config.computePotentialDemand
@@ -445,11 +445,11 @@ describe("fixed Earth-coast flat-relief climate ablation", () => {
     for (let cell = 0; cell < earth.thermal.surfaceTemperatureC.length; cell++) {
       const seasonMean = (fields: readonly ArrayLike<number>[]) =>
         fields.reduce((sum, field, phase) => sum + field[cell]! * integration.weights[phase]!, 0);
-      expect(earth.baseline.rainfall[cell]).toBe(
-        Math.max(0, Math.min(200, Math.round(seasonMean(integration.rainfall))))
+      expect(earth.baseline.precipitation[cell]).toBe(
+        Math.fround(seasonMean(integration.precipitation))
       );
-      expect(earth.baseline.humidity[cell]).toBe(
-        Math.max(0, Math.min(255, Math.round(seasonMean(integration.humidity))))
+      expect(earth.baseline.surfaceWetness[cell]).toBe(
+        Math.fround(seasonMean(integration.surfaceWetness))
       );
       expect(earth.baseline.potentialDemand[cell]).toBe(Math.fround(seasonMean(seasonalDemand)));
       expect(earth.pressure.pressure[cell]).toBe(Math.fround(seasonMean(integration.pressure)));
@@ -465,7 +465,7 @@ describe("fixed Earth-coast flat-relief climate ablation", () => {
         );
       }
     }
-    expect(earth.baseline.rainfall.every((value) => value >= 0 && value <= 200)).toBe(true);
+    expect(earth.baseline.precipitation.every((value) => Number.isFinite(value) && value >= 0)).toBe(true);
     expect(earth.pressure.pressure.every(Number.isFinite)).toBe(true);
     expect(
       earth.baseline.potentialDemand.every(

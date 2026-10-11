@@ -16,7 +16,7 @@ const HydrologyTemperatureKnobSchema = Type.Union(
   {
     default: "temperate",
     description:
-      "Global thermal preset (cold/temperate/hot). Used as a bias over the default temperature regime; influences cryosphere and evap/precip behavior.",
+      "Global thermal preset (cold/temperate/hot). Used as a bias over the default temperature regime; influences cryosphere and marine supply response.",
   }
 );
 
@@ -34,7 +34,7 @@ const HydrologyOceanCouplingKnobSchema = Type.Union(
   {
     default: "earthlike",
     description:
-      "Ocean influence preset (off/simple/earthlike). Applies as a deterministic transform over winds, currents, moisture transport, and coastal gradients.",
+      "Ocean influence preset (off/simple/earthlike). Applies as a deterministic transform over winds and currents upstream of marine supply.",
   }
 );
 
@@ -44,7 +44,7 @@ const knobsSchema = Type.Object(
      * Global moisture availability bias (not regional).
      *
      * Stage scope:
-     * - Transforms baseline rainfall/moisture and related forcing only.
+     * - Transforms marine supply once only.
      * - Must not change canonical drainage routing truth or Hydrology river classification knobs.
      */
     dryness: HydrologyDrynessKnobSchema,
@@ -52,7 +52,7 @@ const knobsSchema = Type.Object(
      * Global thermal bias.
      *
      * Stage scope:
-     * - Transforms baseline temperature regime and downstream evap/precip coupling inputs.
+     * - Transforms baseline temperature regime and prescribed marine supply inputs.
      * - Must not implement “compat” behavior; use semantic public controls for exact numeric control.
      */
     temperature: HydrologyTemperatureKnobSchema,
@@ -60,7 +60,7 @@ const knobsSchema = Type.Object(
      * Seasonal cycle posture.
      *
      * Stage scope:
-     * - Transforms wind texture + precip noise texture.
+     * - Transforms the decorrelated wind-weather budget.
      * - Transforms the annual amplitude posture (mode count / axial tilt biases).
      */
     seasonality: HydrologySeasonalityKnobSchema,
@@ -68,7 +68,7 @@ const knobsSchema = Type.Object(
      * Ocean coupling posture.
      *
      * Stage scope:
-     * - Transforms winds/currents/transport and coastal gradients deterministically.
+     * - Transforms winds and currents deterministically.
      */
     oceanCoupling: HydrologyOceanCouplingKnobSchema,
   },

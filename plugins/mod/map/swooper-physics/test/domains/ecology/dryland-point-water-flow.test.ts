@@ -34,20 +34,20 @@ type Source = "ordinary" | "finite-body";
 function fixture(source: Source = "ordinary", supply = 420, options: {
   sedimentSignal?: number;
   temperature?: number;
-  rainfall?: number;
+  precipitation?: number;
 } = {}) {
   const surfaceTemperatureC = new Float32Array(size).fill(options.temperature ?? 22);
-  const humidity = new Uint8Array(size).fill(80);
+  const surfaceWetness = new Float32Array(size).fill(80 / 255);
   const demandInput = {
-    width, height, surfaceTemperatureC, humidity,
+    width, height, surfaceTemperatureC, surfaceWetness,
     parameters: baselineConfig.potentialDemand,
   };
   const demand = hydrology.climate.ops.computePotentialDemand.run(demandInput, refineConfig.computePotentialDemand);
   const input = {
     width, height, ...noLocalWaterSources(width, height),
     landMask: new Uint8Array(size).fill(1),
-    rainfall: new Uint8Array(size).fill(options.rainfall ?? 5),
-    humidity, pet: demand.pet,
+    precipitation: new Float32Array(size).fill(options.precipitation ?? 5),
+    surfaceWetness, pet: demand.pet,
   };
   input.elevation.fill(10);
   if (source === "ordinary") {
@@ -64,9 +64,9 @@ function fixture(source: Source = "ordinary", supply = 420, options: {
       const body = basinBudget.run({
         cells: [{
           cell: donor, ground: 9, localRunoff: 0,
-          precipitation: input.rainfall[donor]!, potentialDemand: baselineDemand.pet[donor]!,
+          precipitation: input.precipitation[donor]!, potentialDemand: baselineDemand.pet[donor]!,
         }],
-        incomingOverflow: supply - input.rainfall[donor]!, attainedLevel: 9, spillElevation: 10,
+        incomingOverflow: supply - input.precipitation[donor]!, attainedLevel: 9, spillElevation: 10,
       }, basinBudget.defaultConfig);
       expect(body.state).toBe("open");
       if (body.state !== "open") throw new Error("Expected the admitted finite body to reach its outward sill.");
@@ -78,7 +78,7 @@ function fixture(source: Source = "ordinary", supply = 420, options: {
     }
   }
   const cryosphere = hydrology.cryosphere.ops.computeCryosphereState.run({
-    width, height, landMask: input.landMask, surfaceTemperatureC, rainfall: input.rainfall,
+    width, height, landMask: input.landMask, surfaceTemperatureC, precipitation: input.precipitation,
   }, refineConfig.computeCryosphereState);
   return {
     input, surfaceTemperatureC, freezeIndex: cryosphere.freezeIndex, permafrost01: cryosphere.permafrost01,
@@ -94,7 +94,7 @@ function runFlow(fields: ReturnType<typeof fixture>, flatLandMask = fields.input
   const indices = budget.run(input, refineConfig.computeLandWaterBudget);
   const pedology = ecology.pedology.ops.classifyPedology.run({
     width, height, landMask: input.landMask, elevation: input.elevation,
-    rainfall: input.rainfall, humidity: input.humidity, sedimentDepth, bedrockAge,
+    precipitation: input.precipitation, surfaceWetness: input.surfaceWetness, sedimentDepth, bedrockAge,
   }, pedologyConfig);
   const biomes = ecology.biomes.ops.classifyBiomes.run({
     width, height, landMask: input.landMask, surfaceTemperatureC, freezeIndex, permafrost01,
@@ -152,7 +152,7 @@ describe("Earthlike source-led dryland point-water consumer flow", () => {
         const result = runFlow(fields);
         const contrast = runFlow(fixture(source, oasis ? 420 : 630, { sedimentSignal: oasis ? 0 : 1 }));
         expect(plannerConfig.config.minConfidence01).toBe(0.42);
-        expect(fields.input.pet[receiver]).toBe(58.270152505446625);
+        expect(fields.input.pet[receiver]).toBe((19 + 82 * (22 / 36)) * (1 - 0.5 * Math.fround(80 / 255)));
         expect(result.indices.pet[receiver]).toBe(Math.fround(fields.input.pet[receiver]!));
         expect(result.indices.localSurfaceWaterOpportunity[receiver]).toBe(oasis ? 60 : 90);
         expect(result.indices.effectiveMoisture[receiver]).toBe(33);
@@ -201,7 +201,7 @@ describe("Earthlike source-led dryland point-water consumer flow", () => {
     });
 
     it(`retains climatic dryness at ${source} receivers even with abundant local supply`, () => {
-      const humid = runFlow(fixture(source, 630, { rainfall: 100 }));
+      const humid = runFlow(fixture(source, 630, { precipitation: 100 }));
       expect(humid.indices.localSurfaceWaterOpportunity[receiver]).toBe(90);
       expect(humid.indices.aridityIndex[receiver]).toBeLessThan(0.45);
       expect(humid.oasis[receiver]).toBe(0);

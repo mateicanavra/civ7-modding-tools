@@ -3,7 +3,7 @@ export {
   STANDARD_METRIC_STUDIES,
   type StandardMetricStudyScope,
 } from "./catalog.js";
-export { evaluateStandardMetricStudies } from "./evaluate.js";
+export { evaluateStandardMetricStudies, type StandardMetricStudyEvaluationOptions } from "./evaluate.js";
 export type {
   StandardMetricRunEvaluation,
   StandardMetricStudy,

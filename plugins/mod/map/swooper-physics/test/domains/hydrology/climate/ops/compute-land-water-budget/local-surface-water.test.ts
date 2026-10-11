@@ -12,8 +12,8 @@ function fixture(width = 5, height = 3) {
   return {
     width, height, ...sources,
     landMask: new Uint8Array(size).fill(1),
-    rainfall: new Uint8Array(size).fill(20),
-    humidity: new Uint8Array(size).fill(60),
+    precipitation: new Float32Array(size).fill(20),
+    surfaceWetness: new Float32Array(size).fill(60 / 255),
     pet: Array<number>(size).fill(30.123456789),
   };
 }
@@ -34,8 +34,8 @@ describe("local annual surface-water opportunity", () => {
     const input = fixture();
     input.landMask[0] = 0;
     input.externalWaterMask[0] = 1;
-    input.rainfall[2] = 0;
-    input.humidity[2] = 255;
+    input.precipitation[2] = 0;
+    input.surfaceWetness[2] = 1;
     const before = structuredClone(input);
     const observed = Object.freeze({ ...input, pet: Object.freeze(input.pet.slice()), bodies: Object.freeze(input.bodies.slice()) });
     const first = operation.run(observed, operation.defaultConfig);
@@ -57,13 +57,14 @@ describe("local annual surface-water opportunity", () => {
   it("publishes Float32 opportunity without rounding the existing plant-water arithmetic", () => {
     const input = fixture(1, 1);
     const baseline = run(input);
+    const atmosphericMoisture = input.precipitation[0]! + 0.35 * 255 * input.surfaceWetness[0]!;
     input.discharge[0] = 1000.123456789;
     const moistureCase = run(input);
     expect(moistureCase.localSurfaceWaterOpportunity).toBeInstanceOf(Float32Array);
     expect(moistureCase.localSurfaceWaterOpportunity[0]).toBe(Math.fround(input.discharge[0]!));
-    expect(moistureCase.plantEffectiveMoisture[0]).toBe(Math.fround(41 + input.discharge[0]!));
+    expect(moistureCase.plantEffectiveMoisture[0]).toBe(Math.fround(atmosphericMoisture + input.discharge[0]!));
     expect(moistureCase.plantEffectiveMoisture[0]).not.toBe(
-      Math.fround(41 + moistureCase.localSurfaceWaterOpportunity[0]!)
+      Math.fround(atmosphericMoisture + moistureCase.localSurfaceWaterOpportunity[0]!)
     );
 
     input.discharge[0] = 139 / 997;
@@ -170,7 +171,9 @@ describe("local annual surface-water opportunity", () => {
     wetBody.wetCells.push(7, 8, 8);
     input.bodies.push(structuredClone(wetBody));
     expect(opportunity(input)).toEqual(baseline);
-    expect(run(input).plantEffectiveMoisture[6]).toBe(Math.fround(41 + 70 / (2 + contacts.size)));
+    expect(run(input).plantEffectiveMoisture[6]).toBe(
+      Math.fround(input.precipitation[6]! + 0.35 * 255 * input.surfaceWetness[6]! + 70 / (2 + contacts.size))
+    );
     input.bodies[1]!.level++;
     expect(() => run(input)).toThrow("Conflicting finite-body");
   });

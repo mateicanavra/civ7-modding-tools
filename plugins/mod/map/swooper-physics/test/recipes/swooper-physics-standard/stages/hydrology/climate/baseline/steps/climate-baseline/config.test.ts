@@ -19,14 +19,14 @@ const setup = admitMapSetup({
   latitudeBounds: standardMapConfig.latitudeBounds,
 });
 
-function normalizeDryness(dryness: "wet" | "mix") {
+function normalizeDryness(dryness: "wet" | "mix" | "dry", authoredWetnessScale = 1) {
   if (!ClimateBaselineStep.normalize) throw new Error("Climate baseline must normalize dryness.");
   const stageConfig = createStandardRecipeTestConfig()["hydrology-climate-baseline"];
-  const precipitation = stageConfig["climate-baseline"].computePrecipitation;
-  if (precipitation.strategy !== "vector") {
-    throw new Error("Climate baseline must author vector precipitation.");
+  const forcing = stageConfig["climate-baseline"].computeMoistureForcing;
+  if (forcing.strategy !== "source-limited") {
+    throw new Error("Climate baseline must author source-limited forcing.");
   }
-  precipitation.config.rainfallScale = 100;
+  forcing.config.wetnessScale = authoredWetnessScale;
   stageConfig.knobs.dryness = dryness;
   stageConfig.knobs.temperature = "temperate";
   stageConfig.knobs.seasonality = "normal";
@@ -101,17 +101,31 @@ describe("hydrology climate-baseline authoring", () => {
     expect(config.potentialDemand).toEqual(normalizeDryness("wet").potentialDemand);
   });
 
-  it("scales authored rainfall upward for the wet posture", () => {
+  it("scales authored marine supply once for the wet posture", () => {
     const neutral = normalizeDryness("mix");
     const wet = normalizeDryness("wet");
-    if (neutral.computePrecipitation.strategy !== "vector") {
-      throw new Error("Climate baseline must retain vector precipitation.");
+    if (neutral.computeMoistureForcing.strategy !== "source-limited") {
+      throw new Error("Climate baseline must retain source-limited forcing.");
     }
-    if (wet.computePrecipitation.strategy !== "vector") {
-      throw new Error("Climate baseline must retain vector precipitation.");
+    if (wet.computeMoistureForcing.strategy !== "source-limited") {
+      throw new Error("Climate baseline must retain source-limited forcing.");
     }
 
-    expect(neutral.computePrecipitation.config.rainfallScale).toBe(100);
-    expect(wet.computePrecipitation.config.rainfallScale).toBeCloseTo(115, 6);
+    expect(neutral.computeMoistureForcing.config.wetnessScale).toBe(1);
+    expect(wet.computeMoistureForcing.config.wetnessScale).toBeCloseTo(1.15, 6);
+    expect(wet.computeMoistureForcing.config.marineSourceRate).toBe(900);
+    expect(wet.computeMoistureForcing.config.transportSpeed).toBe(80);
+    expect(wet.computeMoistureForcing.config.backgroundExtractionRate).toBe(neutral.computeMoistureForcing.config.backgroundExtractionRate);
+    expect(wet.computeMoistureForcing.config.ascentExtractionRate).toBe(neutral.computeMoistureForcing.config.ascentExtractionRate);
+    for (const [dryness, multiplier] of [["wet", 1.15], ["mix", 1], ["dry", 0.85]] as const) {
+      const normalized = normalizeDryness(dryness, 0.65);
+      expect(normalized.computeMoistureForcing.config).toEqual({
+        ...neutral.computeMoistureForcing.config,
+        wetnessScale: 0.65 * multiplier,
+      });
+      expect(normalized.computeAtmosphericCirculation).toEqual(neutral.computeAtmosphericCirculation);
+      expect(normalized.computeThermalState).toEqual(neutral.computeThermalState);
+      expect(normalized.computeOceanSurfaceCurrents).toEqual(neutral.computeOceanSurfaceCurrents);
+    }
   });
 });

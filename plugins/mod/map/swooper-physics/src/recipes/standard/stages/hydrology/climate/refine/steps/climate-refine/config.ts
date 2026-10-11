@@ -8,7 +8,7 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 /**
  * Hydrology refinement step with optional diagnostic projection (bounded, deterministic).
  *
- * This step preserves baseline rainfall/humidity, applies albedo feedback to baseline temperature,
+ * This step preserves baseline precipitation, surface wetness and codec, applies albedo feedback to baseline temperature,
  * computes land water budget indices, and publishes refined physical artifacts.
  *
  * Configuration posture:
@@ -23,7 +23,7 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 export const config = defineStep({
   id: "climate-refine",
   description:
-    "Preserves atmospheric rainfall/humidity and refines thermal, cryosphere, water-budget, and climate diagnostic evidence.",
+    "Preserves atmospheric precipitation, surface wetness and native codec while refining thermal, cryosphere, water-budget, and climate diagnostic evidence.",
   requires: [
     morphologyErosionArtifacts.topography,
     climateArtifacts.baselineClimateField,

@@ -18,7 +18,7 @@ export const artifact = defineArtifact({
       effectiveMoisture: TypedArraySchemas.f32({
         cardinality: "map-grid",
         description:
-          "Resolved exposed-land rainfall + 0.35*humidity; the authored rainfall and humidity maxima yield 289.25, and water remains 0.",
+          "Resolved exposed-land atmospheric precipitation + 0.35*255*surfaceWetness, preserving the empirical moisture scale without clipping float precipitation; water remains 0.",
       }),
       pet: TypedArraySchemas.f32({
         cardinality: "map-grid",
@@ -39,7 +39,7 @@ export const artifact = defineArtifact({
       }),
       plantWaterStress: TypedArraySchemas.f32({
         cardinality: "map-grid",
-        description: "Post-albedo unrounded demand / (demand + rainfall + local annual surface-water opportunity + 1); zero on water.",
+        description: "Post-albedo unrounded demand / (demand + precipitation + local annual surface-water opportunity + 1); zero on water.",
       }),
       freezeIndex: TypedArraySchemas.f32({
         cardinality: "map-grid",

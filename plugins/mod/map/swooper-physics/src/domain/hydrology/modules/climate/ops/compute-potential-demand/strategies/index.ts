@@ -1,4 +1,4 @@
 import temperatureHumidity from "./temperature-humidity/index.js";
 
-/** Temperature and humidity determine demand under the baseline-owned calibration. */
+/** Temperature and normalized surface wetness determine demand under baseline-owned calibration. */
 export default [temperatureHumidity] as const;

@@ -176,8 +176,7 @@ describe("Shipped map configs", () => {
       for (const [key, strategy] of [
         ["computeAtmosphericCirculation", "geostrophic-proxy"],
         ["computeOceanSurfaceCurrents", "wind-gyre-projection"],
-        ["transportMoisture", "vector-advection"],
-        ["computePrecipitation", "vector"],
+        ["computeMoistureForcing", "source-limited"],
       ] as const) {
         expect(authored["climate-baseline"][key].strategy).toBe(strategy);
         expect(baseline[key].strategy).toBe(strategy);
@@ -347,7 +346,7 @@ describe("Shipped map configs", () => {
       baseline.computeRadiativeForcing.strategy !== "daily-solar-fourier" ||
       baseline.computeSeasonalSampling.strategy !== "periodic-cycle" ||
       baseline.computeAtmosphericCirculation.strategy !== "geostrophic-proxy" ||
-      baseline.computePrecipitation.strategy !== "vector"
+      baseline.computeMoistureForcing.strategy !== "source-limited"
     ) {
       throw new Error("Expected Earthlike's matching periodic thermal, solar, sampling, circulation, and precipitation strategies");
     }
@@ -361,7 +360,7 @@ describe("Shipped map configs", () => {
       atmosphericAggregate: baseline.computeAtmosphericAggregate,
       moistureAggregate: baseline.computeMoistureAggregate,
       pressureDrivenRms: baseline.computeAtmosphericCirculation.config.pressureDrivenRms,
-      precipitationNoiseAmplitude: baseline.computePrecipitation.config.noiseAmplitude,
+      moistureForcing: baseline.computeMoistureForcing.config,
     }).toEqual({
       seasonality: { modeCount: 4, axialTiltDeg: 23.44 },
       integrationPhaseCount: 24,
@@ -370,7 +369,14 @@ describe("Shipped map configs", () => {
       atmosphericAggregate: { strategy: "phase-reduction", config: {} },
       moistureAggregate: { strategy: "phase-reduction", config: {} },
       pressureDrivenRms: 95,
-      precipitationNoiseAmplitude: 14,
+      moistureForcing: {
+        marineSourceRate: 900,
+        backgroundExtractionRate: 1.2,
+        ascentExtractionRate: 4,
+        transportSpeed: 80,
+        terrainGradientReference: 300,
+        wetnessScale: 1,
+      },
     });
     expect(refine).not.toHaveProperty("computeRadiativeForcing");
     expect(refine).not.toHaveProperty("computeThermalState");

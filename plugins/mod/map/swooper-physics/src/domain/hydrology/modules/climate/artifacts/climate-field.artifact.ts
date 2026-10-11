@@ -1,38 +1,49 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Publishes copied baseline atmospheric rainfall and humidity without local water bonuses;
- * map projection and Ecology consume this surface rather than the baseline. Admission preserves map
- * cardinality and Civ7's inclusive `0..200` rainfall domain.
+ * Publishes copied baseline atmospheric precipitation, wetness and native codec without local
+ * water bonuses. Physical consumers use float P/W; only projection consumes the codec.
  */
 export const artifact = defineArtifact({
   name: "climateField",
   id: "artifact:hydrology.climateField",
   schema: Type.Object(
     {
-      rainfall: TypedArraySchemas.u8({
+      precipitation: TypedArraySchemas.f32({
         cardinality: "map-grid",
         description:
-          "Final per-tile precipitation intensity consumed by projection and Ecology, encoded in Civ7's inclusive 0-200 rainfall domain.",
+          "Copied baseline atmospheric precipitation in empirical rainfall-index-equivalent units, unclipped by native codec limits.",
       }),
-      humidity: TypedArraySchemas.u8({
+      surfaceWetness: TypedArraySchemas.f32({
         cardinality: "map-grid",
         description:
-          "Baseline per-tile atmospheric wetness proxy preserved through refinement, encoded on an inclusive 0-255 scale.",
+          "Copied baseline atmospheric surface-wetness proxy, normalized to 0..1 and independent of local plant-water opportunity.",
+      }),
+      rainfallCodec: TypedArraySchemas.u8({
+        cardinality: "map-grid",
+        description: "Copied baseline native rainfall codec in Civ7's inclusive 0..200 range; not model forcing.",
       }),
     },
     {
       additionalProperties: false,
       description:
-        "Hydrology's immutable final climate surface with copied baseline rainfall and humidity for every map tile.",
+        "Immutable final atmospheric P/W and projection-only rainfall codec copied from the baseline.",
     }
   ),
   refine: (value, { issues }) => {
-    const invalidIndex = value.rainfall.findIndex((sample) => sample > 200);
+    const invalidIndex = value.rainfallCodec.findIndex((sample) => sample > 200);
     if (invalidIndex >= 0) {
       issues.add(
-        `Expected climate.rainfall[${invalidIndex}] to be within 0..200 (received ${value.rainfall[invalidIndex]}).`
+        `Expected climate.rainfallCodec[${invalidIndex}] to be within 0..200 (received ${value.rainfallCodec[invalidIndex]}).`
       );
+    }
+    const invalidPrecipitationIndex = value.precipitation.findIndex((sample) => !Number.isFinite(sample) || sample < 0);
+    if (invalidPrecipitationIndex >= 0) {
+      issues.add(`Expected climate.precipitation[${invalidPrecipitationIndex}] to be finite and nonnegative (received ${value.precipitation[invalidPrecipitationIndex]}).`);
+    }
+    const invalidWetnessIndex = value.surfaceWetness.findIndex((sample) => !Number.isFinite(sample) || sample < 0 || sample > 1);
+    if (invalidWetnessIndex >= 0) {
+      issues.add(`Expected climate.surfaceWetness[${invalidWetnessIndex}] to be finite and within 0..1 (received ${value.surfaceWetness[invalidWetnessIndex]}).`);
     }
   },
 });

@@ -8,12 +8,12 @@ import { config } from "./config.js";
 export const ProjectRainfallStep = createStep(config, {
   run: (context, _stepConfig, _ops, deps) => {
     const { width, height } = context.setup.dimensions;
-    const { rainfall } = deps.artifacts.climateField.read();
+    const { rainfallCodec } = deps.artifacts.climateField.read();
 
     for (let y = 0; y < height; y++) {
       const rowOffset = y * width;
       for (let x = 0; x < width; x++) {
-        const sample = rainfall[rowOffset + x];
+        const sample = rainfallCodec[rowOffset + x];
         if (sample === undefined) {
           throw new Error(`Final climate rainfall is missing tile (${x}, ${y}).`);
         }

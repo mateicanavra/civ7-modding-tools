@@ -3,7 +3,7 @@ import contract from "../../contract.js";
 import { reduceMoisture } from "../../rules/index.js";
 import definition from "./config.js";
 
-/** Reduces admitted rainfall, humidity, and demand at their declared sampling level. */
+/** Reduces admitted float precipitation, normalized wetness and phase demand independently. */
 export default createStrategy(contract, definition, {
   run: (input) => reduceMoisture(input),
 });

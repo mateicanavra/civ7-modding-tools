@@ -14,8 +14,9 @@ describe("Hydrology climate-field artifacts", () => {
       potentialDemand[cellCount - 1] = sample;
       const issues = climateArtifacts.baselineClimateField.validate(
         {
-          rainfall: new Uint8Array(cellCount),
-          humidity: new Uint8Array(cellCount),
+          precipitation: new Float32Array(cellCount),
+          surfaceWetness: new Float32Array(cellCount),
+          rainfallCodec: new Uint8Array(cellCount),
           potentialDemand,
           demandParameters: Value.Create(PotentialDemandParametersSchema),
         },
@@ -27,17 +28,18 @@ describe("Hydrology climate-field artifacts", () => {
     }
   });
 
-  it("rejects rainfall outside the admitted climate range", () => {
-    const rainfall = new Uint8Array(cellCount);
-    rainfall[cellCount - 1] = 201;
+  it("rejects the native codec outside its range without limiting float P", () => {
+    const rainfallCodec = new Uint8Array(cellCount);
+    rainfallCodec[cellCount - 1] = 201;
 
     for (const artifact of [climateArtifacts.baselineClimateField, climateArtifacts.climateField]) {
       expect(
         artifact
           .validate(
             {
-              rainfall,
-              humidity: new Uint8Array(cellCount),
+              precipitation: new Float32Array(cellCount).fill(450.25),
+              surfaceWetness: new Float32Array(cellCount),
+              rainfallCodec,
               ...(artifact === climateArtifacts.baselineClimateField
                 ? {
                     potentialDemand: new Float32Array(cellCount),
@@ -50,16 +52,47 @@ describe("Hydrology climate-field artifacts", () => {
           .map((issue) => issue.message)
       ).toEqual(
         expect.arrayContaining([
-          `Expected climate.rainfall[${cellCount - 1}] to be within 0..200 (received 201).`,
+          `Expected climate.rainfallCodec[${cellCount - 1}] to be within 0..200 (received 201).`,
         ])
       );
     }
   });
 
+  it("admits unclipped float precipitation and refuses invalid physical P/W or retired byte inputs", () => {
+    const forcing = {
+      precipitation: new Float32Array(cellCount).fill(450.25),
+      surfaceWetness: new Float32Array(cellCount).fill(0.5),
+      rainfallCodec: new Uint8Array(cellCount).fill(200),
+    };
+    for (const artifact of [climateArtifacts.baselineClimateField, climateArtifacts.climateField]) {
+      const value = {
+        ...forcing,
+        ...(artifact === climateArtifacts.baselineClimateField ? {
+          potentialDemand: new Float32Array(cellCount),
+          demandParameters: Value.Create(PotentialDemandParametersSchema),
+        } : {}),
+      };
+      expect(artifact.validate(value, { dimensions })).toEqual([]);
+      for (const sample of [-1, NaN, Infinity]) {
+        const precipitation = new Float32Array(value.precipitation);
+        precipitation[0] = sample;
+        expect(artifact.validate({ ...value, precipitation }, { dimensions })).not.toEqual([]);
+      }
+      for (const sample of [-0.1, 1.1, NaN, Infinity]) {
+        const surfaceWetness = new Float32Array(value.surfaceWetness);
+        surfaceWetness[0] = sample;
+        expect(artifact.validate({ ...value, surfaceWetness }, { dimensions })).not.toEqual([]);
+      }
+      expect(artifact.validate({ ...value, precipitation: new Uint8Array(cellCount) }, { dimensions })).not.toEqual([]);
+      expect(artifact.validate({ ...value, rainfall: new Uint8Array(cellCount) }, { dimensions })).not.toEqual([]);
+    }
+  });
+
   it("keeps baseline thermal evidence separate while final indices retain their temperature", () => {
     const baseline = {
-      rainfall: new Uint8Array(cellCount),
-      humidity: new Uint8Array(cellCount),
+      precipitation: new Float32Array(cellCount),
+      surfaceWetness: new Float32Array(cellCount),
+      rainfallCodec: new Uint8Array(cellCount),
       potentialDemand: new Float32Array(cellCount),
       demandParameters: Value.Create(PotentialDemandParametersSchema),
     };
@@ -108,8 +141,9 @@ describe("Hydrology climate-field artifacts", () => {
     expect(
       climateArtifacts.climateField.validate(
         {
-          rainfall: baseline.rainfall,
-          humidity: baseline.humidity,
+          precipitation: baseline.precipitation,
+          surfaceWetness: baseline.surfaceWetness,
+          rainfallCodec: baseline.rainfallCodec,
           surfaceTemperatureC: new Float32Array(cellCount),
         },
         { dimensions }

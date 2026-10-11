@@ -184,7 +184,7 @@ describe("plant water and climatic habitat meanings", () => {
       const budgetInput = {
         width, height, ...noLocalWaterSources(width, height),
         landMask: new Uint8Array(size).fill(1),
-        rainfall: new Uint8Array(size).fill(20), humidity: new Uint8Array(size).fill(60), pet: Array<number>(size).fill(30.123456789),
+        precipitation: new Float32Array(size).fill(20), surfaceWetness: new Float32Array(size).fill(60 / 255), pet: Array<number>(size).fill(30.123456789),
       };
       budgetInput.elevation.fill(10);
       if (source === "finite-body") budgetInput.landMask[7] = 0;

@@ -31,7 +31,9 @@ describe("map-hydrology/project-rainfall", () => {
 
   it("projects every final-refined rainfall sample exactly once in row-major order", () => {
     const { width, height } = SYNTHETIC_DIMENSIONS;
-    const rainfall = new Uint8Array([0, 17, 200, 42, 81, 133]);
+    const rainfallCodec = new Uint8Array([0, 17, 200, 42, 81, 133]);
+    const precipitation = new Float32Array([0.1, 17.4, 421.25, 42.2, 81.125, 133.3]);
+    const before = new Float32Array(precipitation);
     const adapter = new RainfallRecordingAdapter({ width, height });
     const context = createMapContext({
       setup: admitMapSetup({
@@ -43,8 +45,9 @@ describe("map-hydrology/project-rainfall", () => {
     });
     withMapContextExecutionForTest(context, (stepContext) => {
       publishTestArtifact(stepContext, climateArtifacts.climateField, {
-        rainfall,
-        humidity: new Uint8Array(width * height),
+        precipitation,
+        surfaceWetness: new Float32Array(width * height),
+        rainfallCodec,
       });
 
       ProjectRainfallStep.run(
@@ -64,5 +67,6 @@ describe("map-hydrology/project-rainfall", () => {
       { x: 2, y: 1, rainfall: 133 },
     ]);
     expect(adapter.projected).toHaveLength(width * height);
+    expect(precipitation).toEqual(before);
   });
 });
