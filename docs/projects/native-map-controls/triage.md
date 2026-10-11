@@ -112,14 +112,17 @@ These are navigation pointers, not copied investigations or new dispositions.
 
 #### Q-006: Regional Thermal Response And Qualification
 
-A single Standard1018 gain-zero versus diagnostic-gain-six comparison produces
-a modest, geographically organized response through all 53 recipe steps.
-Mechanism and integrity checks pass; downstream effects are mixed and within-row
-thermal variation remains below the inherited 1 degree C floor. The evaluated
-producer-phase model has a bounded annual proxy, not a corrected continuous
-annual integral. Its separate fixed-Earth input evidence is not calibration.
-Regional adequacy, Earth accuracy and playable benefit remain open; no gain,
-default, cohort or native acceptance follows from this result.
+Stronger cooling through the existing relief control is locally adopted:
+the original climate and placement studies pass, an independent production
+source reproduces qualified results, and bounded Standard1/Huge1018 native
+observations establish response and compatibility. Standard1's substantial
+cooling and rainforest loss remain visible, as do native resource/wonder
+refusals and lake-classification differences. This is empirical model-unit
+terrain sensitivity, not SI-height calibration, exact plan-to-game parity or
+a solution for geography at equal height. The separate precipitation/demand
+experiment remains closed and disabled; its modest result and failed variation
+floor are not promoted by the relief outcome. Physical calibration and broader
+regional/gameplay adequacy remain open.
 [Read the research question](questions/q-006-regional-thermal-response.md).
 
 ### Ecology / Biomes / Classification

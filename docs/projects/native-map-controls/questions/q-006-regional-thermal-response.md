@@ -23,7 +23,10 @@ assessments:
     state: "supported"
   - claim: "The retained Standard1018 gain-0 versus diagnostic-gain-6 pair has a modest, spatially organized temperature response, passing mechanism and integrity checks with mixed downstream consequences; its inherited row-variation floor still fails."
     state: "supported"
-  - claim: "The evaluated temperature response establishes Earth-temperature accuracy, adequate regional climate across procedural worlds, biome improvement or playable benefit."
+  - claim: "The separate existing relief-cooling control is locally adopted at -0.15 C per model relief unit: both original studies pass, all 24 production samples reproduce qualified lapse-B evidence under declared exclusions, and bounded Standard1/Huge1018 native observations establish response and compatibility, not exact projection parity."
+    state: "supported"
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/docs/projects/native-map-controls/land-thermal-variance.md#completed-regional-and-relief-decisions"
+  - claim: "Either the adopted relief response or the disabled precipitation/demand experiment establishes Earth-temperature accuracy, optimal terrain sensitivity, equal-height geographic response or full gameplay qualification."
     state: "unassessed"
   - claim: "Accepted qualification separates hard invariants, retained Earth diagnostics and procedural outcomes without changing executable targets or selecting a response model."
     state: "supported"
@@ -59,6 +62,16 @@ verification:
     revision: ae8fc94d790a769fb45c60584e47304f69f53a93
     date: '2026-10-11'
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/ae8fc94d790a769fb45c60584e47304f69f53a93/docs/projects/native-map-controls/land-thermal-variance.md#producer-phase-candidate"
+  - kind: source-inspection
+    scope: "Inspection confirms the independent production change authors only Earthlike's existing relief sensitivity at -0.15 C per model relief unit, with the Standard1 cooling countercase disclosed. The physical height scale and equal-height regional response remain uncalibrated; this is not an editorial rerun of the reported cohorts or native observations."
+    revision: 6c5c8a82e7d36c17371699104ec58b3830f0e06d
+    date: '2026-10-11'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/6c5c8a82e7d36c17371699104ec58b3830f0e06d/docs/system/libs/mapgen/reference/domains/water-and-relief-glossary.md#lapse-rate-and-model-relief"
+  - kind: source-inspection
+    scope: "Inspection confirms the portable owner account separates the adopted relief control from the disabled regional experiment and reports unchanged study targets, production equivalence, substantial cooling and bounded native projection limits. This is documentation inspection, not a new execution or independent reproduction of its reported results."
+    revision: fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1
+    date: '2026-10-11'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/docs/projects/native-map-controls/land-thermal-variance.md#completed-regional-and-relief-decisions"
 ---
 
 # Q-006: Regional Thermal Response And Qualification
@@ -69,6 +82,14 @@ a coherent regional climate that survives different Earthlike worlds and
 reaches their water and ecological systems. A wider temperature distribution,
 less biome banding or a better aggregate score cannot establish that by itself.
 
+A stronger setting of the **existing relief-cooling control is locally
+adopted**. Its [reported qualification][relief-outcome] combines the original
+studies, an independent production-source comparison and bounded native
+observations. This is a qualified relief-linked response, not a solution for
+geography at equal height. The separate precipitation/demand temperature
+experiment remains closed and disabled;
+it does not inherit the relief result.
+
 This question sits in the [baseline climate step][baseline-location], where
 seasonal thermal, pressure, circulation, moisture and demand operations are
 composed before river routing and later ecology. The
@@ -78,9 +99,104 @@ question: which properties of the resulting maps are acceptable? The
 without treating an implemented temperature-response law as an established
 physical explanation.
 
-## A Modest Response In One Procedural World
+## A Stronger Relief Response
 
-One complete Standard Earthlike comparison establishes that the evaluated
+Earthlike's [terrain-sensitivity setting][relief-meaning] changes from -0.0065
+to -0.15 degrees C per model relief unit. The underlying thermal algorithm,
+shared default, other presets and benchmark targets do not change. Higher
+model relief therefore receives stronger cooling, without adding a new
+regional-response solver. The coefficient is **per model unit, not per metre**;
+the generated elevation field has no established conversion to physical height.
+
+| Evidence | What It Establishes |
+| --- | --- |
+| Original climate-structure and placement studies | The four climate cases and twenty placement cases pass their unchanged targets under stronger relief cooling. The two A/B arms contain 48 captures, not one pooled acceptance population. |
+| Independent production source | All 24 production samples reproduce qualified lapse-B product results, excluding only declared configuration provenance and execution duration. |
+| Matched native Standard1 A/B | Both worlds complete generation, with a directly observed colder-habitat response and recorded projection limits. |
+| Native Huge1018 B | A second-size production compatibility observation, not another paired native comparison. |
+
+The four climate maps have within-row temperature variation of 2.4414-4.4912
+degrees C under B, inside the retained 1-8 degree C bounds. Placement mean
+dispersion changes from 1.085698 to 1.090019 across its actual twenty-map
+population. These are qualified product outcomes, not Earth calibration or
+proof that every map improves. The [start-comfort question][start-comfort]
+explains why passing placement does not settle relative climate preference.
+
+**Standard1 is a substantial cold countercase.** Its offline original-land
+mean temperature falls from 12.916 to 1.747 degrees C, and vegetation density
+from 0.2592 to 0.1520. Its dominant modeled biome changes from desert to snow;
+Huge1018 is snow-dominant in both arms. The native Standard1 comparison records
+rainforest features falling from 17 to zero and savanna from two to zero.
+Native readback does not expose the model temperature field: the temperature
+means and native feature counts are different measurements, not a native
+temperature calibration. The [`coldBiomeTiles` metric][cold-count] counts tundra and boreal
+biomes, excluding snow, so it is not a census of all cold habitat.
+
+The response also reaches water and ecology. Across the 24 paired study maps,
+lake layouts change on six, river classes on nine and discharge on all 24.
+The held local-runoff field does not imply identical final dry/wet budget
+partitions. Explicit unresolved water supply is distinct from floating-point
+balance residual. Passing their existing integrity checks does not make those
+different quantities interchangeable or prove fixed-height lowlands preserved.
+
+### Native Response And Projection Limits
+
+All three native generations complete 53 recipe steps. Ordinary feature
+attempts, applied counts and refusals in both B worlds exactly match their
+production samples at matching configuration digests. That is **aggregate
+ordinary-feature application**, not a whole-grid spatial census or complete
+plan-to-game parity.
+
+| Native Observation | A Standard1 | B Standard1 | B Huge1018 |
+| --- | ---: | ---: | ---: |
+| Features applied / attempted | 658 / 658 | 624 / 624 | 1,157 / 1,157 |
+| Resources placed / planned | 198 / 201 | 197 / 201 | 212 / 220 |
+| Natural wonders placed / planned | 4 / 5 | 3 / 5 | 4 / 7 |
+| Accepted lake-water cells | 233 | 244 | 154 |
+| Native lake-classification differences | 183 | 197 | 16 |
+
+There are no recorded missing, extra or wrong-class river sources, no navigable-
+terrain mismatch, and no water or accepted-lake-water drift in these runs.
+The lake-classification differences concern Civ7's native category, **not
+missing accepted water**. Resources encounter `cannot-have-resource` refusals;
+wonders encounter `set-feature-false`. Each refusal count rises by one in the
+matched Standard1 pair. These are actual downstream projection shortfalls,
+not exact parity and not, by themselves, a new thermal implementation defect.
+Their significance for individual starts is not established as harmless.
+
+The same three bounded windows, 135 unique cells per Standard1 world, have
+complete readback and unchanged land/water footprints. In the equatorial
+window, tropical-biome cells change from 24 to one, while six rainforest and
+two forest features become zero rainforest and eight forest. This supports a
+localized category conversion, not unexplained loss during feature application.
+It does not extend the observation to every map cell or to a played campaign.
+
+## What Relief Leaves Unanswered
+
+Relief-driven contrast does not explain different temperatures at the same
+latitude **and height**. Nor do passing studies determine an optimal terrain
+coefficient, establish a metre scale, demonstrate complete Earth climate
+accuracy or prove gameplay benefit. The cold countercase limits the inference
+of broad improvement even though the existing targets pass.
+
+The open physical question remains what produces coherent seasonal and annual
+geography beyond relief, with acceptable water, habitat and placement effects.
+The retained precipitation/demand experiment below explores one different
+meaning; its limited result is neither repaired nor promoted by the adopted
+relief response. [Q-007][classifier] separately owns biome-transition meaning,
+and [Q-008][start-comfort] remains open on start-climate preference. Native
+resource/wonder refusals remain unresolved downstream projection limits.
+
+## The Separate Precipitation/Demand Experiment
+
+This closed, disabled experiment uses a seasonal moisture-limitation proxy to
+alter temperature relative to a latitude-row reference. It is distinct from
+the adopted relief control. Its retained mechanisms, observations and evidence
+limits explain what remains unresolved, not a second adopted climate model.
+
+### A Modest Response In One Procedural World
+
+One complete Standard Earthlike comparison establishes that this evaluated
 seasonal response reaches the actual pipeline, but not that it makes a better
 world. Both arms use an 84 x 54 map, map/game seeds 1018/1018, players 0-7 and
 the same source and authored inputs. A uses gain zero; B uses a prospectively
@@ -95,7 +211,8 @@ it does not mean that land warms by six degrees.
 | Mechanism and integrity | All 36 source/input holds, nine mechanism checks and 49 existing sample-integrity expectations pass. No phase clipping or aggregate saturation occurs. |
 
 The inherited floor is a [product amplitude heuristic][amplitude-bounds], not
-Earth calibration. Both recorded failures remain unchanged.
+Earth calibration. Both recorded P/D-experiment failures remain unchanged;
+they are not the separate lapse-study result.
 
 The retained whole-map sheets show locally organized warmer and cooler areas,
 not arbitrary noise, but absolute temperature remains strongly latitude-led.
@@ -120,13 +237,13 @@ review retains that classifier as an intentional empirical envelope; ecological
 calibration remains open.
 
 Seven existing cohort target families are evaluated on this single case; six
-pass in both arms and climate structure fails in both. No larger cohort,
-observed-Earth fit, native comparison or gameplay qualification is established.
-The candidate remains disabled in authored maps. The open issue is the
-geographic and product adequacy of this response, not whether it can produce
-a nonzero temperature difference.
+pass in both arms and climate structure fails in both. For this P/D experiment,
+no larger cohort, observed-Earth fit, native comparison or gameplay
+qualification is established. The P/D candidate remains disabled and its
+evaluation is closed. The open issue is the geographic and product adequacy of
+this response, not whether it can produce a nonzero temperature difference.
 
-## Geographic Information Is Present; Its Temperature Effect Is Open
+### Geographic Information Is Present; Its Temperature Effect Is Open
 
 The separate input-only diagnostic is one fixed Earth-mask fixture, not the
 procedural comparison above. It uses the actual `ClimateBaselineStep` on the
@@ -148,7 +265,7 @@ response. The [current baseline source][current-baseline] keeps phase-derived
 demand distinct from annual publication. Demand depends on temperature and W;
 P, normalized W and demand are not three independent empirical predictors.
 
-### A Deficit Summary Is Not A Temperature Law
+#### A Deficit Summary Is Not A Temperature Law
 
 The historical statistic `X` summarizes warm, illuminated seasonal demand
 exceeding precipitation. It uses aligned phase inputs and their original
@@ -167,7 +284,7 @@ ordering or alignment with observed temperature errors. Explained regional
 concentration can be legitimate; unexplained concentration is a limitation,
 not something a global score can conceal.
 
-## Three Different Meanings Of Qualification
+### Three Different Meanings Of Qualification
 
 Earth supplies calibration evidence and diagnostics for a procedural world,
 not an obligation to reproduce every observed temperature exactly. The
@@ -186,13 +303,14 @@ while allowing almost no worsening elsewhere. These are not validated
 product effect-size budgets, Earth observational uncertainties or substitutes
 for hard floating-point and solver-equivalence tolerances.
 
-That screen and its original verdicts remain intact. Prospectively, an adverse
+That screen and its original verdicts remain intact; they are not a newly
+imposed gate on the accepted relief control. Prospectively, an adverse
 scientific result calls for explicit review of the affected population, season,
 bias and magnitude alongside reproducible procedural benefit and collateral
 results. It is neither an automatic product veto nor permission to ignore
 scientific harm. No replacement margin or threshold has been selected.
 
-## Annual And Seasonal Responses Remain Distinct Choices
+### Annual And Seasonal Responses Remain Distinct Choices
 
 An annual correction and a phase-aware response make different claims about
 when regional contrast matters. The [evaluated candidate][phase-candidate]
@@ -228,9 +346,10 @@ baseline phase-derived climate; later ecological demand uses the refined
 annual temperature. Neither later river water nor plant-water opportunity
 is an upstream predictor of this thermal response.
 
-The current 1-8 degrees C bounds apply to the pooled RMS deviation of land
+The shared 1-8 degrees C bounds apply to the pooled RMS deviation of land
 temperatures from their row means, not the percentile spreads above. These
-targets remain unwaived, including the inherited floor failure. An explicit,
+targets remain unwaived: the P/D pair retains its inherited floor failure,
+while the separate adopted relief cohort passes. An explicit,
 evidence-justified prospective product-target amendment is possible, but none
 is selected here. The single procedural case adds evidence of organized response
 and actual consequences, not Earth temperature accuracy, biome repair,
@@ -241,9 +360,56 @@ more rainforest alone cannot answer it.
 
 ## Evidence Scope And Provenance
 
+### Relief Response And Native Comparison
+
+The reported relief studies use experimental source
+`ac9984216f9e74c63d436b88fa1fa0f0bfc0a1ba`, with regional thermal gain zero.
+Their four climate cases are Huge1018 and Standard1018/1/42; the separate
+placement population is Standard1337-1356. The independent production source
+is `6c5c8a82e7d36c17371699104ec58b3830f0e06d`, with no experimental solver
+parent. Its additional 24 captures reproduce qualified B across all retained
+product metrics, layout/water hashes and original-land summaries. Sample
+comparison excludes configuration digests and generation duration; evaluation
+and manifest provenance exclusions are separately declared. No product
+quantity, residual or layout difference is suppressed.
+
+The adopted merge is `d51c56f221c83b0659b61060b36ab296e713b692`, with the
+same tree as the executed production candidate:
+`25d79c789e072d1ac07e72fb0d432ba21e54221f`. All eight generated and locally
+installed files match the tested inventory after adoption. This is local mod
+adoption, not a Steam Workshop or public marketplace release; the merge
+identity is not substituted for the earlier execution identity.
+
+Native A uses `eff77c0f8cd3be5b8a8fd176997918b76848bc44`; native B uses that
+exact independent production source, with all eight generated/installed files
+matching its sealed inventory. The reported 2026-10-11 native evidence consists
+of fresh Standard1 A/B and Huge1018 B generations, aggregate application and
+river/water observations, plus bounded map windows. A requested whole-Standard
+grid read was unavailable. Seeds and dimensions alone are not treated as unique
+live identity; fresh generation context and installed/configuration identity
+are separate evidence. No complete final-grid, founding-water-bonus,
+movement-path or campaign qualification follows.
+
+| Retained Evidence | SHA-256 |
+| --- | --- |
+| Original cohort evaluation/reduction | `4b0370b86c4c444dc68df15b9f4464bbfc22730af4c241f71d8877cb9bca0135` |
+| Full production-sample comparison | `b5e7de23e5607fc8bb8265272b5cd4a1b5e2f3553cc0210f3c9e3a8d29991736` |
+| Native comparison interpretation | `51c3fbb32c4ab2f17694b31155d4c9c04a3f4d35a08f8b5c3cfa7a80e05b8d20` |
+| Decoded native observations | `e909164826a4d1231d6b211401477e80a185b292e0fe41aa9f6bf912ae65808d` |
+| Aggregate ordinary-feature comparison | `100095a1d99780f1c9a97142932e1d4b0282f38899d9022d624c5a35b505a49b` |
+
+These are reported owner results and retained-file checks, not a new editorial
+model, cohort, target evaluation or native execution. The native comparison
+qualifies the accepted relief response within its stated scope; it does not
+qualify the disabled P/D experiment or close the equal-height regional question.
+The [portable owner account][relief-outcome] is inspected at documentation
+revision `fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1`, distinct from both the
+executed production source and adopted merge.
+
 ### Procedural Pair
 
-The Standard1018 result is dated 2026-10-11. Its physics qualification base is
+The disabled precipitation/demand experiment's gain-zero versus gain-six
+Standard1018 result is dated 2026-10-11. Its physics qualification base is
 `ae8fc94d790a769fb45c60584e47304f69f53a93`; both complete arms execute
 `ff7b40a7beca64ac2621f6ce07fc5f2f8485a327`, whose only additional source change
 is the diagnostic filename repair and its test. Those are distinct source
@@ -297,4 +463,8 @@ the workstream; this sheet is the linked research question, not its task queue.
 [phase-candidate]: https://github.com/mateicanavra/civ7-modding-tools/blob/ae8fc94d790a769fb45c60584e47304f69f53a93/docs/projects/native-map-controls/land-thermal-variance.md#producer-phase-candidate
 [amplitude-bounds]: https://github.com/mateicanavra/civ7-modding-tools/blob/ae8fc94d790a769fb45c60584e47304f69f53a93/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/earthlike-climate-structure.md#question-and-design
 [classifier]: q-007-biome-transition-meaning.md
+[relief-meaning]: https://github.com/mateicanavra/civ7-modding-tools/blob/6c5c8a82e7d36c17371699104ec58b3830f0e06d/docs/system/libs/mapgen/reference/domains/water-and-relief-glossary.md#lapse-rate-and-model-relief
+[relief-outcome]: https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/docs/projects/native-map-controls/land-thermal-variance.md#completed-regional-and-relief-decisions
+[cold-count]: https://github.com/mateicanavra/civ7-modding-tools/blob/6c5c8a82e7d36c17371699104ec58b3830f0e06d/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/families/ecology.ts#L123-L126
+[start-comfort]: q-008-start-climate-comfort.md
 [thermal-owner]: ../triage.md#active-owners-not-deferred-questions
