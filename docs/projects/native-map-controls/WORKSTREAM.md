@@ -38,10 +38,12 @@ Keep delivery evidence separate:
 
 - **Merged source:** the source-limited forcing and consumer repairs are on
   `main`. The later oasis amendment changes tests and documentation only.
+  [PR #2368](https://github.com/mateicanavra/civ7-modding-tools/pull/2368) adopts
+  the existing Earthlike model-unit lapse control, without a regional solver.
 - **Installation:** merging source does not deploy it. Installation qualification
   applies to the exact selected runtime bundle, not automatically to the latest
   source. Restoring installed files does not regenerate an already-loaded world.
-- **Candidate qualification:** a separate native smoke's complete 6,996-cell census
+- **Prior source-limited candidate qualification:** a separate native smoke's complete 6,996-cell census
   matches the retained candidate's terrain, biome and water. All 1,125 ordinary
   ecology placements match exactly across the 25 catalog families, with zero
   ordinary feature rejections. Resource and natural-wonder refusals remain
@@ -61,17 +63,17 @@ procedural inputs. The remaining regional thermal requirement is unwaived;
 thermal banding is not declared fixed by ecological placement. The curated
 `Q004`/`Q005` questions remain open, and island formation is not declared fixed.
 
-The [prospective regional qualification decision](land-thermal-variance.md#prospective-regional-qualification)
-separates hard owner/numerical controls, retained fixed-Earth diagnostics and
-procedural Earthlike outcomes. A failed historical near-Pareto scientific screen
-is not an unconditional product veto; adverse tradeoffs require explicit review.
-No executable target, historical refusal or thermal model is changed by that
-decision. Select and review one causal response before another experiment.
-
-Adopted-build native generation and bounded normal gameplay have been exercised;
-they do not close all playability or climate questions. Next, select one causal
-response and its prospective expectations. Use the Civ CLI for additional
-native checks, with imagery required only for rendering claims.
+The [completed regional and relief decisions](land-thermal-variance.md#completed-regional-and-relief-decisions)
+retain the regional candidate disabled and unmerged, while adopting PR #2368's
+existing Earthlike lapse control. The original climate and placement studies,
+exact production bridge and bounded native comparisons qualify that change with
+substantial cooling and actual projection shortfalls disclosed. It is not an SI
+height calibration, complete native parity or completion of equal-height geographic
+response. The prospective qualification contract and historical scientific refusals
+remain intact; no additional thermal candidate or experiment follows automatically.
+Earlier adopted-build gameplay does not qualify this relief change's gameplay.
+Use the Civ CLI for additional native checks, with imagery required only for
+rendering claims.
 Do not infer an ocean/climate/feature omnibus, another climate bank, terrain
 carving or count targets from the open questions. Preserve existing user state
 and distinguish source, installation and loaded-world identity at each handoff.
