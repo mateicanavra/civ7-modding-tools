@@ -176,7 +176,8 @@ disabled-response control must recover the incumbent exactly. Add only the
 focused owner tests needed for the selected mechanism, not another harness.
 
 Keep baseline phase sea-level temperature for pressure distinct from phase
-ground temperature for demand and the independent annual thermal integral.
+ground temperature for demand and the annual thermal datum. The unchanged
+incumbent integral and enabled annual proxy have different declared meanings.
 Retain the actual two ocean updates and three thermal vintages unless a separate
 causal-order design is reviewed. Unrounded P, member-reduced W and phase-derived
 demand keep their separate meanings; native rainfall bytes are not physics.
@@ -193,7 +194,8 @@ Scientific proxy, portable artifact, installed build, screenshot and gameplay
 proof stay separate. Native water taxonomy/render questions remain independent
 and open.
 
-The next selected mechanism is the bounded seasonal candidate below. No fit,
+The next selected mechanism is the [producer-phase candidate](#producer-phase-candidate)
+below. No fit,
 solver, observational scoring, bank run or production adoption is admitted by
 the qualification decision alone. A bounded owner improvement may ship honestly
 with declared inherited failures. The current targets remain unwaived; completing
@@ -205,7 +207,13 @@ not complete the goal.
 
 ## Seasonal Regional Candidate
 
-The selected opt-in candidate is one lagged, phase-aware land climatic-limitation
+This section preserves the original continuous candidate B and its proof scope.
+The [producer-phase candidate](#producer-phase-candidate) supersedes its temporal
+representation; it does not inherit its coefficient or qualification. The failed
+continuous-curve qualification and failed event-aware repair remain historical
+refusals, not passes for the new observable.
+
+The original opt-in candidate is one lagged, phase-aware land climatic-limitation
 anomaly inside `compute-thermal-state`. The incumbent remains the zero-gain
 comparator. A year-round offset from an annual summer-deficit summary was not
 selected: it would persist into cold/dark seasons without a supported seasonal
@@ -299,8 +307,90 @@ sampling, reduction and demand owners are exercised; stubbed transport/ocean,
 whole-recipe Earthlike runtime, scientific accuracy and native play are not
 certified by that control.
 
-Before any one-gain training protocol, inspect the actual raw seasonal B basis
-and annual integral on retained modeled inputs and coordinate-only training
+## Producer-Phase Candidate
+
+The seasonal producer provides separately salted atmosphere samples, not a
+resolved weather trajectory. Each phase has two antithetic weather members;
+different phase salts do not establish statistically independent observations.
+No current production consumer requires P/D between these phases. Pressure and
+demand use the integration calendar; the two/four observation phases are subsets
+of that calendar. The new candidate therefore evaluates the regional response
+directly at the frozen producer phases, with no P/D interpolation, harmonic
+reconstruction, nearest-phase fallback or new integrator.
+
+The spatial hypothesis remains a warm/illuminated, activity-centered original-
+land response to modeled relative climatic limitation. Frozen P and D retain
+their actual provenance. At weather-member level W is `clamp(P/200)`; phase P
+and W are reduced separately, and phase demand uses the actually reduced W.
+It is not reconstructed from mean P. These are empirical model quantities,
+not soil storage, actual evapotranspiration or an energy-conserving heat exchange.
+
+Enabled requested phases must exactly match the producer calendar, in order,
+with the existing admitted weights. Arbitrary requested thermal phases remain
+valid for the unchanged disabled response. A future consumer that needs
+arbitrary corrected phases requires a separately reviewed representation;
+scientific monthly observations do not silently restore continuous B.
+
+### Annual Observable
+
+Keep the dense incumbent annual ground calculation. Define the new annual
+publication as an explicitly bounded seasonal statistical departure from that
+baseline, not the integral of an unrepresented corrected continuous curve:
+
+```text
+C(x) = clamp(x, existing thermal minC, existing thermal maxC)
+b[j] = incumbent raw ground temperature at producer phase j
+d[j] = producer-phase raw regional anomaly
+A0, R0 = dense incumbent clipped and raw ground means
+
+annualProxy = C(A0 + sum_j w[j] * (C(b[j] + d[j]) - C(b[j])))
+rawAnnualProxy = R0 + sum_j w[j] * d[j]
+annualClippingDeltaC = annualProxy - rawAnnualProxy
+```
+
+Annual terms are computed before Float32 publication. The final aggregate bound
+is part of the model: two different averaging measures can otherwise produce a
+result outside the thermal bounds even when every corrected phase is bounded.
+The delta includes inherited clipping, phase clipping changes and aggregate
+saturation. It is not a continuous-cycle clipping integral. Directly averaging
+corrected phase temperatures would instead change the incumbent annual datum
+even at zero departure; that alternative is not selected.
+
+Cells with an exactly zero anomaly at every producer phase preserve the exact
+incumbent annual/raw/delta publications. In real arithmetic this is the same
+formula; the explicit identity avoids re-clamping tiny dense-accumulation drift
+at non-binary bounds. A weighted cancellation alone is not an inert response.
+
+Sea-level and ground phase samples still add the anomaly before their independent
+bounds and one lapse. Pressure centering uses the exact published sea-level
+samples; phase demand uses the ground samples. Zero gain and inert responses
+preserve the incumbent exactly, and original water retains prescribed SST.
+
+### Causal And Proof Boundaries
+
+Retain both ocean updates and the provisional/frozen/corrected final-SST2 pass
+described above. Refreshed phase P/W/D feed the baseline annual water publication
+and hydrographic network. Later albedo-adjusted annual temperature recomputes
+ecological PET against completed hydrography; that is not the baseline mean of
+phase demand. Later local-water opportunity never becomes the upstream predictor.
+
+The finite departure uses a separately implemented scalar arithmetic reference,
+with direct producer-phase anomalies, nonuniform weights, independent clipping
+and aggregate saturation. The unchanged dense incumbent calculation retains its
+independent owner qualification. The new finite statistic does not borrow the
+continuous candidate's integration allowance or retrospectively pass its failures.
+One meaning contrast keeps annual P/D summaries equal but places limitation in
+warm/illuminated versus cold/dark phases. A larger spread alone cannot pass it.
+
+All three authored map gains remain zero. Owner arithmetic, consumer composition,
+scientific geographic benefit, procedural adequacy, installation and gameplay are
+distinct claims. No new gain, scientific comparison, cohort or production adoption
+is selected by this owner change. A subsequent comparison must prospectively name
+a compatible observable and report numerical indeterminacy where its uncertainty
+cannot discriminate tiny score differences. The thermal requirement stays open.
+
+Before any one-gain training protocol, inspect the actual producer-phase basis
+and annual proxy on retained modeled inputs and coordinate-only training
 sites, with no observed temperatures. Report concentration, cancellation and
 clipping separately. Mechanical agreement or nonzero basis support alone does
 not authorize fitting, production gain, deployment or adoption. The regional

@@ -397,6 +397,18 @@ describe("hydrology climate-baseline composition", () => {
     const run = capturePeriodicComposition(4, undefined, { spatialMoisture: true, regionalGainC: 6 });
     const phaseCount = run.observation.seasonalIntegration.phases.length;
     const membersPerVintage = phaseCount * 2;
+    const atmospherePass = ["thermal", ...Array.from({ length: phaseCount }, () =>
+      ["pressure", "wind", "current", "pressure", "wind", "current", "atmosphere-reduction"]
+    ).flat(), "atmosphere-reduction"];
+    const moisturePass = Array.from({ length: phaseCount }, () =>
+      ["moisture", "moisture", "moisture-reduction", "demand"]
+    ).flat();
+    expect(run.operationTrace).toEqual([
+      "sampling", "geometry", "solar", "ocean",
+      ...atmospherePass, "ocean", ...atmospherePass, "ocean",
+      ...atmospherePass, ...moisturePass,
+      ...atmospherePass, ...moisturePass, "moisture-reduction",
+    ]);
     expect(run.events).toEqual(["ocean", "thermal", "ocean", "thermal", "ocean", "thermal", "thermal"]);
     expect(run.oceanInputs).toEqual(incumbent.oceanInputs);
     expect(run.observation.oceanThermal).toEqual(incumbent.observation.oceanThermal);

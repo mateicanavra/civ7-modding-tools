@@ -52,6 +52,11 @@ function requireRegionalResponse(input: Params, response: RegionalResponse): voi
     count > 0 && response.precipitationByPhase.length === count && response.demandByPhase.length === count,
     "aligned nonempty regional source calendar"
   );
+  requireValid(
+    response.gainC === 0 ||
+      (input.phases.length === count && input.phases.every((phase, index) => phase === response.phases[index])),
+    "enabled regional response requires requested phases to exactly match producer phases"
+  );
   for (let phase = 0; phase < count; phase++) {
     const current = response.phases[phase]!;
     const next = phase + 1 < count ? response.phases[phase + 1]! : response.phases[0]! + 1;
@@ -77,7 +82,7 @@ function requireRegionalResponse(input: Params, response: RegionalResponse): voi
   }
 }
 
-/** One empirical thermal response, sampled at two datums and independently integrated after clipping. */
+/** Incumbent thermal curve with optional producer-phase response and a bounded annual ground proxy. */
 export function computePeriodicThermalResponse(
   input: Params,
   options: Options,
@@ -167,10 +172,16 @@ export function computePeriodicThermalResponse(
     const lapseByColumn = new Float64Array(width);
     const rawSums = new Float64Array(width);
     const clippedSums = new Float64Array(width);
+    const rawAnomalySums = new Float64Array(width);
+    const clippedDepartureSums = new Float64Array(width);
+    const hasAnomalyByColumn = new Uint8Array(width);
     const pressureMeans = new Float64Array(width);
     for (let row = 0; row < height; row++) {
       rawSums.fill(0);
       clippedSums.fill(0);
+      rawAnomalySums.fill(0);
+      clippedDepartureSums.fill(0);
+      hasAnomalyByColumn.fill(0);
       pressureMeans.fill(0);
       for (let column = 0; column < width; column++) {
         const cell = row * width + column;
@@ -180,42 +191,59 @@ export function computePeriodicThermalResponse(
       }
       const regionalRow = { response, width, row, landMask: input.landMask, lapseByColumn,
         minC: options.minC, maxC: options.maxC };
-      for (let phase = 0; phase < phases.length; phase++) {
-        const raw = rawSamplesByRow[row]![phase]!;
-        const anomaly = evaluateRegionalRowAnomaly(regionalRow, phases[phase]!, raw, working);
-        const sample = samples[phase]!;
-        for (let column = 0; column < width; column++) {
-          const cell = row * width + column;
-          const rawSeaLevel = input.landMask[cell] === 1 ? raw + anomaly[column]! : input.sstC[cell]!;
-          sample.seaLevelTemperatureC[cell] = clampNumber(rawSeaLevel, options.minC, options.maxC);
-          sample.surfaceTemperatureC[cell] = clampNumber(rawSeaLevel + lapseByColumn[column]!, options.minC, options.maxC);
-          pressureMeans[column]! += weights[phase]! * sample.seaLevelTemperatureC[cell]!;
-        }
-      }
-      for (let phase = 0; phase < annualQuadratureCount; phase++) {
-        const raw = denseByRow[row]![phase]!;
-        const anomaly = evaluateRegionalRowAnomaly(regionalRow, (phase + 0.5) / annualQuadratureCount, raw, working);
+      // Keep the independent dense incumbent baseline; P/D has no intermediate-phase representation.
+      for (const raw of denseByRow[row]!) {
         for (let column = 0; column < width; column++) {
           const cell = row * width + column;
           const rawGround = input.landMask[cell] === 1
-            ? raw + anomaly[column]! + lapseByColumn[column]!
+            ? raw + lapseByColumn[column]!
             : input.sstC[cell]!;
           rawSums[column]! += rawGround;
           clippedSums[column]! += clampNumber(rawGround, options.minC, options.maxC);
         }
       }
+      for (let phase = 0; phase < phases.length; phase++) {
+        const raw = rawSamplesByRow[row]![phase]!;
+        const anomaly = evaluateRegionalRowAnomaly(regionalRow, phase, raw, working);
+        const sample = samples[phase]!;
+        for (let column = 0; column < width; column++) {
+          const cell = row * width + column;
+          const land = input.landMask[cell] === 1;
+          if (anomaly[column] !== 0) hasAnomalyByColumn[column] = 1;
+          const rawSeaLevel = land ? raw + anomaly[column]! : input.sstC[cell]!;
+          const incumbentRawGround = land ? raw + lapseByColumn[column]! : input.sstC[cell]!;
+          const correctedRawGround = incumbentRawGround + anomaly[column]!;
+          const clippedGround = clampNumber(correctedRawGround, options.minC, options.maxC);
+          sample.seaLevelTemperatureC[cell] = clampNumber(rawSeaLevel, options.minC, options.maxC);
+          sample.surfaceTemperatureC[cell] = clippedGround;
+          pressureMeans[column]! += weights[phase]! * sample.seaLevelTemperatureC[cell]!;
+          rawAnomalySums[column]! += weights[phase]! * anomaly[column]!;
+          clippedDepartureSums[column]! += weights[phase]! * (
+            clippedGround - clampNumber(incumbentRawGround, options.minC, options.maxC)
+          );
+        }
+      }
       for (let column = 0; column < width; column++) {
         const cell = row * width + column;
-        const rawMean = rawSums[column]! / annualQuadratureCount;
-        const clippedMean = clippedSums[column]! / annualQuadratureCount;
-        const clippingDelta = clippedMean - rawMean;
+        const rawBaseline = rawSums[column]! / annualQuadratureCount;
+        const clippedBaseline = clippedSums[column]! / annualQuadratureCount;
+        const hasAnomaly = hasAnomalyByColumn[column] === 1;
+        const rawAnnualProxy = hasAnomaly ? rawBaseline + rawAnomalySums[column]! : rawBaseline;
+        // Exactly inert cells retain incumbent publications, including dense accumulation roundoff.
+        // Aggregate saturation belongs to this proxy law, not a corrected continuous-cycle integral.
+        const annualProxy = hasAnomaly ? clampNumber(
+          clippedBaseline + clippedDepartureSums[column]!,
+          options.minC, options.maxC
+        ) : clippedBaseline;
+        const clippingDelta = annualProxy - rawAnnualProxy;
         requireValid(
-          Number.isFinite(Math.fround(rawMean)) && Number.isFinite(Math.fround(clippingDelta)),
+          Number.isFinite(Math.fround(annualProxy)) &&
+            Number.isFinite(Math.fround(rawAnnualProxy)) && Number.isFinite(Math.fround(clippingDelta)),
           `regional annual diagnostics must be representable as finite Float32 at cell ${cell}`
         );
         meanSeaLevelTemperatureC[cell] = pressureMeans[column]!;
-        annualSurfaceTemperatureC[cell] = clippedMean;
-        annualUnclippedSurfaceTemperatureC[cell] = rawMean;
+        annualSurfaceTemperatureC[cell] = annualProxy;
+        annualUnclippedSurfaceTemperatureC[cell] = rawAnnualProxy;
         annualClippingDeltaC[cell] = clippingDelta;
       }
     }

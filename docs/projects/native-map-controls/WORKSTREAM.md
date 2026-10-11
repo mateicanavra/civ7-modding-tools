@@ -66,9 +66,13 @@ separates hard owner/numerical controls, retained fixed-Earth diagnostics and
 procedural Earthlike outcomes. A failed historical near-Pareto scientific screen
 is not an unconditional product veto; adverse tradeoffs require explicit review.
 No executable target or historical refusal is changed by that decision. The
-[selected seasonal regional candidate](land-thermal-variance.md#seasonal-regional-candidate)
-keeps its anomaly in the thermal owner, freezes provisional final-SST2 P/D once,
-and explicitly adds one corrected final atmosphere/moisture pass. It remains
+[selected producer-phase candidate](land-thermal-variance.md#producer-phase-candidate)
+keeps its anomaly in the thermal owner, freezes actual provisional final-SST2 P/D
+once, and explicitly adds one corrected final atmosphere/moisture pass. It
+replaces unsupported between-phase P/D interpolation with direct phase response
+and a bounded annual statistical departure from the incumbent dense baseline.
+That changed annual proxy inherits neither the continuous candidate's coefficient
+nor its failed qualification. It remains
 unqualified for production: the three retained maps have explicit zero gain,
 and the installed default is unchanged. Complete-config admission is preserved
 without an optional fallback or SDK policy change.

@@ -3,7 +3,7 @@ import { dailyMeanSolarQ } from "../../../model/policy/daily-solar.js";
 import { EARTH_PERIODIC_RESPONSE } from "../../../model/policy/earth-periodic-response.js";
 import { clampNumber } from "./index.js";
 
-/** Frozen seasonal evidence shared only by this operation's private curve and integration rules. */
+/** Frozen producer-phase evidence shared only by this operation's private response rules. */
 export type RegionalResponse = Readonly<{
   gainC: number;
   phases: readonly number[];
@@ -61,44 +61,29 @@ export function evaluateThermalSeaLevel(harmonics: ThermalHarmonics, phaseTurns:
   );
 }
 
-function interpolateNonnegative(lower: number, upper: number, fraction: number): number {
-  // Add to the smaller endpoint: avoid cancellation or underflow turning positive demand into zero.
-  return lower <= upper ? lower + fraction * (upper - lower)
-    : upper + (1 - fraction) * (lower - upper);
-}
-
 /**
- * Interpolates frozen evidence, then gates and centers against the unchanged ground curve.
+ * Reads one frozen producer phase, then gates and centers against the unchanged ground curve.
  * Writes activity, limitation and anomaly into reusable row storage and returns that anomaly buffer.
  */
 export function evaluateRegionalRowAnomaly(
   input: RegionalRow,
-  phaseTurns: number,
+  sourcePhase: number,
   incumbentRawSeaLevelC: number,
   working: RegionalWorking
 ): Float64Array {
   const { response, width, row } = input;
-  const count = response.phases.length;
-  let lower = count - 1;
-  for (let source = 0; source < count; source++) {
-    if (response.phases[source]! > phaseTurns) break;
-    lower = source;
+  if (!Number.isInteger(sourcePhase) || sourcePhase < 0 || sourcePhase >= response.phases.length) {
+    throw new RangeError("Regional thermal response requires an admitted source-phase index.");
   }
-  const upper = (lower + 1) % count;
-  const start = response.phases[lower]!;
-  const end = response.phases[upper]! + (upper === 0 ? 1 : 0);
-  const phase = phaseTurns < start ? phaseTurns + 1 : phaseTurns;
-  const fraction = (phase - start) / (end - start);
+  const phaseTurns = response.phases[sourcePhase]!;
   const q = dailyMeanSolarQ(
     response.latitudeByRow[row]!, response.axialTiltDeg * Math.sin(2 * Math.PI * phaseTurns)
   );
   let activitySum = 0, weightedLimitationSum = 0;
   for (let column = 0; column < width; column++) {
     const cell = row * width + column;
-    const d0 = response.demandByPhase[lower]![cell]!;
-    const demand = interpolateNonnegative(d0, response.demandByPhase[upper]![cell]!, fraction);
-    const p0 = response.precipitationByPhase[lower]![cell]!;
-    const precipitation = interpolateNonnegative(p0, response.precipitationByPhase[upper]![cell]!, fraction);
+    const demand = response.demandByPhase[sourcePhase]![cell]!;
+    const precipitation = response.precipitationByPhase[sourcePhase]![cell]!;
     // The private zero-demand rule is inactive; enabled admission excludes its discontinuous boundary on land.
     const limitation = demand <= 0 || precipitation >= demand ? 0 : 1 - precipitation / demand;
     const incumbentGroundC = clampNumber(

@@ -23,9 +23,9 @@ function fixture() {
     solarByRow: [forcing(30)], phases: [0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875],
     weights: new Array<number>(8).fill(1 / 8), elevation: new Int16Array([0, 40, 201, 0]),
     seaLevel: 0, landMask: new Uint8Array([1, 1, 1, 0]), sstC: new Float32Array([80, -80, 40, 12]),
-    regionalResponse: { gainC: 20, phases: [0, 0.25, 0.5, 0.75],
-      precipitationByPhase: Array.from({ length: 4 }, () => new Float32Array([0, 5, 10, 0])),
-      demandByPhase: Array.from({ length: 4 }, () => [10, 10, 10, 0]),
+    regionalResponse: { gainC: 20, phases: [0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875],
+      precipitationByPhase: Array.from({ length: 8 }, () => new Float32Array([0, 5, 10, 0])),
+      demandByPhase: Array.from({ length: 8 }, () => [10, 10, 10, 0]),
       latitudeByRow: new Float32Array([30]), axialTiltDeg: 23.44, tMinC: 0, tMaxC: 35 } };
 }
 type Fixture = Omit<ReturnType<typeof fixture>, "regionalResponse"> & {
@@ -60,30 +60,17 @@ function solarOracle(latitude: number, declination: number) {
     Math.cos(lat) * Math.cos(dec) * Math.sin(sunset)) / Math.PI);
 }
 
-function interpolate(phases: readonly number[], values: readonly ArrayLike<number>[], cell: number, t: number) {
-  if (phases.length === 1) return values[0]![cell]!;
-  // Search explicit wrap-extended intervals, independent of the production lower-knot search.
-  for (let knot = 0; knot < phases.length; knot++) {
-    const next = (knot + 1) % phases.length;
-    const start = phases[knot]!, end = phases[next]! + (next === 0 ? 1 : 0);
-    const phase = t < start ? t + 1 : t;
-    if (phase >= start && phase < end) {
-      const fraction = (phase - start) / (end - start);
-      return (1 - fraction) * values[knot]![cell]! + fraction * values[next]![cell]!;
-    }
-  }
-  throw new Error("Oracle calendar interval missing.");
-}
-
 function anomalyOracle(input: Fixture, row: number, phase: number, options = config) {
   const response = input.regionalResponse!;
+  const source = response.phases.indexOf(phase);
+  if (source < 0) throw new Error("Oracle requires an exact original producer phase.");
   const q = solarOracle(response.latitudeByRow[row]!, response.axialTiltDeg * Math.sin(2 * Math.PI * phase));
   const raw = rawAt(input, row, phase, options);
   const activity: number[] = [], limitation: number[] = [];
   for (let column = 0; column < input.width; column++) {
     const cell = row * input.width + column;
-    const demand = interpolate(response.phases, response.demandByPhase, cell, phase);
-    const precipitation = interpolate(response.phases, response.precipitationByPhase, cell, phase);
+    const demand = response.demandByPhase[source]![cell]!;
+    const precipitation = response.precipitationByPhase[source]![cell]!;
     limitation.push(demand <= 0 || precipitation >= demand ? 0 : 1 - precipitation / demand);
     const lapse = Math.max(0, input.elevation[cell]! - input.seaLevel) * options.lapseRateCPerElevationUnit;
     const ground = bounded(raw + lapse, options.minC, options.maxC);
@@ -105,42 +92,57 @@ function sampleOracle(input: Fixture, phase: number, options = config) {
       const raw = land ? rawAt(input, row, phase, options) + anomaly[column]! : input.sstC[cell]!;
       const lapse = land ? Math.max(0, input.elevation[cell]! - input.seaLevel) * options.lapseRateCPerElevationUnit : 0;
       seaLevelTemperatureC[cell] = bounded(raw, options.minC, options.maxC);
-      surfaceTemperatureC[cell] = bounded(raw + lapse, options.minC, options.maxC);
+      const ground = land ? rawAt(input, row, phase, options) + lapse + anomaly[column]! : input.sstC[cell]!;
+      surfaceTemperatureC[cell] = bounded(ground, options.minC, options.maxC);
     }
   }
   return { seaLevelTemperatureC, surfaceTemperatureC };
 }
 
-function annualOracle(input: Fixture, count: number, options = config) {
-  const raw = new Float64Array(input.width * input.height), clipped = raw.slice();
-  for (let phase = 0; phase < count; phase++) {
-    const t = (phase + 0.5) / count;
-    for (let row = 0; row < input.height; row++) {
-      const anomaly = anomalyOracle(input, row, t, options);
-      for (let column = 0; column < input.width; column++) {
-        const cell = row * input.width + column;
-        const lapse = Math.max(0, input.elevation[cell]! - input.seaLevel) * options.lapseRateCPerElevationUnit;
-        const ground = input.landMask[cell] === 1
-          ? rawAt(input, row, t, options) + anomaly[column]! + lapse : input.sstC[cell]!;
-        raw[cell]! += ground;
-        clipped[cell]! += bounded(ground, options.minC, options.maxC);
-      }
+// Scalar reference: dense incumbent baseline plus a finite producer-phase departure.
+// No corrected continuous curve, production response helper or sample Float32 values enter this sum.
+function annualOracle(input: Fixture, count = 384, options = config) {
+  const size = input.width * input.height;
+  const raw = new Float64Array(size), clipped = raw.slice(), delta = raw.slice();
+  const denseRaw = raw.slice(), denseClipped = raw.slice(), departure = raw.slice();
+  const unbounded = raw.slice();
+  for (let cell = 0; cell < size; cell++) {
+    const row = Math.floor(cell / input.width), column = cell % input.width;
+    const land = input.landMask[cell] === 1;
+    const lapse = land ? Math.max(0, input.elevation[cell]! - input.seaLevel) * options.lapseRateCPerElevationUnit : 0;
+    let rawSum = 0, clippedSum = 0;
+    for (let sample = 0; sample < count; sample++) {
+      const ground = land ? rawAt(input, row, (sample + 0.5) / count, options) + lapse : input.sstC[cell]!;
+      rawSum += ground;
+      clippedSum += bounded(ground, options.minC, options.maxC);
     }
-  }
-  const delta = raw.slice();
-  for (let cell = 0; cell < raw.length; cell++) {
-    raw[cell]! /= count;
-    clipped[cell]! /= count;
+    denseRaw[cell] = rawSum / count;
+    denseClipped[cell] = clippedSum / count;
+    let rawDeparture = 0, clippedDeparture = 0, changed = false;
+    for (let source = 0; source < input.phases.length; source++) {
+      const phase = input.phases[source]!;
+      const anomaly = land ? anomalyOracle(input, row, phase, options)[column]! : 0;
+      changed ||= anomaly !== 0;
+      const ground = land ? rawAt(input, row, phase, options) + lapse : input.sstC[cell]!;
+      rawDeparture += input.weights[source]! * anomaly;
+      clippedDeparture += input.weights[source]! *
+        (bounded(ground + anomaly, options.minC, options.maxC) - bounded(ground, options.minC, options.maxC));
+    }
+    departure[cell] = clippedDeparture;
+    unbounded[cell] = denseClipped[cell]! + clippedDeparture;
+    raw[cell] = changed ? denseRaw[cell]! + rawDeparture : denseRaw[cell]!;
+    clipped[cell] = changed ? bounded(unbounded[cell]!, options.minC, options.maxC) : denseClipped[cell]!;
     delta[cell] = clipped[cell]! - raw[cell]!;
   }
-  return { raw, clipped, delta };
+  return { raw, clipped, delta, denseRaw, denseClipped, departure, unbounded };
 }
 
-describe("frozen seasonal regional thermal response", () => {
+describe("frozen producer-phase regional thermal response", () => {
   it("preserves every incumbent output at omitted/zero gain, including zero-demand data and input identity", () => {
     const input = fixture();
     input.regionalResponse.gainC = 0;
     input.regionalResponse.demandByPhase = input.regionalResponse.demandByPhase.map(() => [0, 0, 0, 0]);
+    input.phases = [0.01, 0.33, 0.999]; input.weights = [0.2, 0.3, 0.5];
     const snapshot = structuredClone(input);
     expect(run(input)).toEqual(incumbent(input));
     expect(input).toEqual(snapshot);
@@ -184,8 +186,12 @@ describe("frozen seasonal regional thermal response", () => {
     expect(mutate((input) => { input.regionalResponse.tMaxC = 0; })).toThrow(/activity bounds/);
     expect(mutate((input) => { input.regionalResponse.latitudeByRow[0] = 91; })).toThrow(/latitude/);
     expect(mutate((input) => { input.regionalResponse.axialTiltDeg = 91; })).toThrow();
-    expect(mutate((input) => { input.regionalResponse.phases[2] = 0.51; })).toThrow(/uniform/);
-    expect(mutate((input) => { input.regionalResponse.phases.reverse(); })).toThrow(/uniform/);
+    expect(mutate((input) => {
+      input.regionalResponse.phases[2] = 0.51; input.phases = input.regionalResponse.phases.slice();
+    })).toThrow(/uniform/);
+    expect(mutate((input) => {
+      input.regionalResponse.phases.reverse(); input.phases = input.regionalResponse.phases.slice();
+    })).toThrow(/uniform/);
     expect(mutate((input) => { input.regionalResponse.demandByPhase.pop(); })).toThrow(/calendar/);
     expect(mutate((input) => { input.regionalResponse.demandByPhase[0]!.pop(); })).toThrow(/cardinality/);
     expect(mutate((input) => { input.regionalResponse.precipitationByPhase[0]![0] = -1; })).toThrow(/nonnegative/);
@@ -232,23 +238,43 @@ describe("frozen seasonal regional thermal response", () => {
     expect(run(boundedInput)).toEqual(incumbent(boundedInput));
   });
 
-  it("keeps polar darkness inactive at actual evaluation phases rather than interpolating gated knot corrections", () => {
-    const input = fixture();
-    input.regionalResponse.latitudeByRow[0] = 90;
-    input.regionalResponse.phases = [0.125, 0.375, 0.625, 0.875];
-    input.phases = [0.25, 0.75, 0.99]; input.weights = [1 / 3, 1 / 3, 1 / 3];
-    const actual = run(input), baseline = incumbent(input);
-    expect(actual.samples[0]!.surfaceTemperatureC[0]!).toBeGreaterThan(baseline.samples[0]!.surfaceTemperatureC[0]!);
-    for (const phase of [1, 2]) expect(actual.samples[phase]).toEqual(baseline.samples[phase]);
+  it("distinguishes warm illuminated limitation from cold dark limitation with identical annual P/D summaries", () => {
+    const warm = fixture(); warm.elevation.fill(0); warm.solarByRow = [forcing(10, 0, 20)];
+    warm.regionalResponse.latitudeByRow[0] = 90;
+    warm.regionalResponse.phases = [0.125, 0.375, 0.625, 0.875];
+    warm.phases = warm.regionalResponse.phases.slice(); warm.weights = [0.25, 0.25, 0.25, 0.25];
+    warm.regionalResponse.demandByPhase = warm.phases.map(() => [10, 10, 10, 0]);
+    warm.regionalResponse.precipitationByPhase = warm.phases.map((_, phase) =>
+      new Float32Array([phase < 2 ? 0 : 10, 10, 10, 0]));
+    const cold = structuredClone(warm);
+    cold.regionalResponse.precipitationByPhase.reverse();
+    for (const field of ["precipitationByPhase", "demandByPhase"] as const) {
+      for (let cell = 0; cell < warm.width; cell++) {
+        const summary = (input: typeof warm) => input.weights.reduce(
+          (sum, weight, phase) => sum + weight * input.regionalResponse[field][phase]![cell]!, 0);
+        expect(summary(warm)).toBe(summary(cold));
+      }
+    }
+    const active = run(warm), inactive = run(cold), baseline = incumbent(warm);
+    expect(inactive).toEqual(baseline);
+    for (const phase of [0, 1]) {
+      expect(active.samples[phase]).toEqual(sampleOracle(warm, warm.phases[phase]!));
+      expect(active.samples[phase]!.surfaceTemperatureC[0]!).toBeGreaterThan(baseline.samples[phase]!.surfaceTemperatureC[0]!);
+      expect(active.samples[phase]!.surfaceTemperatureC[1]!).toBeLessThan(baseline.samples[phase]!.surfaceTemperatureC[1]!);
+    }
+    for (const phase of [2, 3]) expect(active.samples[phase]).toEqual(baseline.samples[phase]);
+    expect(active.annualSurfaceTemperatureC[0]!).toBeGreaterThan(inactive.annualSurfaceTemperatureC[0]!);
+    expect(active.annualSurfaceTemperatureC[1]!).toBeLessThan(inactive.annualSurfaceTemperatureC[1]!);
+    expect(active.annualSurfaceTemperatureC).toEqual(Float32Array.from(annualOracle(warm).clipped));
   });
 
-  it("cannot carry warm source-knot corrections through an intervening cold ground phase", () => {
+  it("cannot carry warm producer-phase corrections into another admitted cold ground phase", () => {
     const input = fixture(); input.elevation.fill(0);
     const [real, imaginary] = fit.g2, norm = real * real + imaginary * imaginary;
     input.solarByRow = [{ ...forcing(0), cos2Q: 20 * real / norm, sin2Q: 20 * imaginary / norm }];
-    input.regionalResponse.phases = [0, 0.5];
-    input.regionalResponse.precipitationByPhase = input.regionalResponse.precipitationByPhase.slice(0, 2);
-    input.regionalResponse.demandByPhase = input.regionalResponse.demandByPhase.slice(0, 2);
+    input.regionalResponse.phases = [0, 0.25, 0.5, 0.75];
+    input.regionalResponse.precipitationByPhase = input.regionalResponse.precipitationByPhase.slice(0, 4);
+    input.regionalResponse.demandByPhase = input.regionalResponse.demandByPhase.slice(0, 4);
     input.phases = [0, 0.25, 0.5, 0.75]; input.weights = [0.25, 0.25, 0.25, 0.25];
     const actual = run(input), baseline = incumbent(input);
     for (const phase of [0, 2]) expect(actual.samples[phase]!.surfaceTemperatureC[0]!)
@@ -274,10 +300,24 @@ describe("frozen seasonal regional thermal response", () => {
     expect(run(water)).toEqual(incumbent(water));
   });
 
+  it("preserves exact inert and original-water diagnostics when dense clipping drifts beyond a nonbinary bound", () => {
+    const options = { ...config, minC: -0.1, maxC: 0.3 };
+    const water = fixture(); water.landMask.fill(0); water.sstC.fill(-0.1);
+    water.regionalResponse.demandByPhase.forEach((field) => field.fill(0));
+    const oracle = annualOracle(water, 384, options), baseline = incumbent(water, options);
+    expect(oracle.denseClipped[0]!).toBeLessThan(options.minC);
+    expect(Math.fround(options.minC - oracle.raw[0]!)).not.toBe(Math.fround(oracle.delta[0]!));
+    expect(run(water, options)).toEqual(baseline);
+    expect(baseline.annualClippingDeltaC).toEqual(Float32Array.from(oracle.delta));
+    const land = fixture(); land.solarByRow = [forcing(-0.100000001)]; land.elevation.fill(0);
+    expect(run(land, options)).toEqual(incumbent(land, options));
+  });
+
   it("refuses unsupported zero-demand knots and preserves the response for strictly positive near-zero demand", () => {
     const input = fixture(); input.elevation.fill(0);
     input.regionalResponse.axialTiltDeg = 0;
     input.regionalResponse.phases = [0, 0.5];
+    input.phases = [0, 0.5]; input.weights = [0.5, 0.5];
     input.regionalResponse.precipitationByPhase = [new Float32Array([0, 10, 0, 0]), new Float32Array([0, 10, 0, 0])];
     input.regionalResponse.demandByPhase = [[0, 10, 0, 0], [1, 10, 0, 0]];
     expect(() => run(input)).toThrow(/strictly positive/);
@@ -291,25 +331,40 @@ describe("frozen seasonal regional thermal response", () => {
     expect(run(input).samples[0]).toEqual(sampleOracle(input, 0));
   });
 
-  it("interpolates continuous P and D before their ratio, at exact knots and across a shifted wrap", () => {
-    const input = fixture(); input.elevation.fill(0);
+  it("uses actual P/D at each shifted producer knot and retains its known signed row anomaly", () => {
+    const input = fixture(); input.elevation.fill(0); input.solarByRow = [forcing(35)];
+    input.regionalResponse.latitudeByRow[0] = 0; input.regionalResponse.axialTiltDeg = 0;
     input.regionalResponse.phases = [0.125, 0.375, 0.625, 0.875];
     input.regionalResponse.precipitationByPhase = [0, 3, 8, 1].map((value) => new Float32Array([value, 10, 5, 0]));
     input.regionalResponse.demandByPhase = [2, 12, 9, 4].map((value) => [value, 10, 10, 0]);
-    input.phases = [0, 1e-10, 0.125, 0.25, 0.375, 0.625, 0.875, 1 - 1e-10];
-    input.weights = new Array<number>(input.phases.length).fill(1 / input.phases.length);
+    input.phases = input.regionalResponse.phases.slice(); input.weights = [0.1, 0.2, 0.3, 0.4];
+    const knownLimitation = [1, 3 / 4, 1 / 9, 3 / 4];
     const actual = run(input);
     for (const [phaseIndex, phase] of input.phases.entries()) {
-      const oracle = anomalyOracle(input, 0, phase);
+      const limitation = knownLimitation[phaseIndex]!, reference = (limitation + 0.5) / 3;
+      const expected = [limitation - reference, -reference, 0.5 - reference].map((value) => 20 / Math.PI * value);
+      expect(expected.reduce((sum, value) => sum + value, 0)).toBeCloseTo(0, 14);
       for (let cell = 0; cell < input.width - 1; cell++) {
-        expect(actual.samples[phaseIndex]!.surfaceTemperatureC[cell]).toBe(Math.fround(rawAt(input, 0, phase) + oracle[cell]!));
+        expect(actual.samples[phaseIndex]!.surfaceTemperatureC[cell]).toBe(Math.fround(rawAt(input, 0, phase) + expected[cell]!));
       }
     }
-    expect(actual.samples[1]!.surfaceTemperatureC[0]).toBe(actual.samples[7]!.surfaceTemperatureC[0]);
-    const singleton = fixture(); singleton.regionalResponse.phases = [0.125];
-    singleton.regionalResponse.precipitationByPhase = [singleton.regionalResponse.precipitationByPhase[0]!];
-    singleton.regionalResponse.demandByPhase = [singleton.regionalResponse.demandByPhase[0]!];
-    expect(run(singleton)).toEqual(run(fixture()));
+    expect(actual.samples[0]!.surfaceTemperatureC[0]).not.toBe(actual.samples[2]!.surfaceTemperatureC[0]);
+    expect(actual.annualSurfaceTemperatureC).toEqual(Float32Array.from(annualOracle(input).clipped));
+  });
+
+  it("refuses every enabled calendar mismatch instead of interpolating, snapping or falling back", () => {
+    const input = fixture();
+    for (const phases of [[0, 0.25, 0.5, 0.75], input.phases.slice().reverse(),
+      input.phases.map((phase, index) => index === 1 ? phase + Number.EPSILON : phase)]) {
+      const requested = { ...input, phases, weights: new Array<number>(phases.length).fill(1 / phases.length) };
+      expect(() => run(requested)).toThrow(/calendar|producer|source phases/i);
+      expect(run({ ...requested, regionalResponse: { ...input.regionalResponse, gainC: 0 } })).toEqual(incumbent(requested));
+    }
+    const shifted = fixture();
+    shifted.regionalResponse.phases = shifted.regionalResponse.phases.map((phase) => phase + 1 / 32);
+    expect(() => run(shifted)).toThrow(/calendar|producer|source phases/i);
+    shifted.phases = shifted.regionalResponse.phases.slice();
+    expect(run(shifted).samples[0]).toEqual(sampleOracle(shifted, shifted.phases[0]!));
   });
 
   it("applies one shot from the incumbent gate even when corrected active ground crosses tMin", () => {
@@ -324,7 +379,7 @@ describe("frozen seasonal regional thermal response", () => {
     expect(oracle[1]!).toBeLessThan(0);
   });
 
-  it("uses each qualified 12/24/48/96 source calendar without changing shared knots, exact gates or periodic wrap", () => {
+  it("uses each qualified 12/24/48/96 matching calendar with direct phase arithmetic and exact cold gates", () => {
     for (const count of [12, 24, 48, 96]) {
       const input = fixture(); input.solarByRow = [forcing(10, 25, 0)];
       input.regionalResponse.phases = Array.from({ length: count }, (_, phase) => phase / count);
@@ -332,12 +387,11 @@ describe("frozen seasonal regional thermal response", () => {
         new Float32Array([6 + 6 * Math.sin(2 * Math.PI * phase), 12, 2, 0]));
       input.regionalResponse.demandByPhase = input.regionalResponse.phases.map((phase) =>
         [18 + 4 * Math.cos(2 * Math.PI * phase), 12, 12, 0]);
-      input.phases = [0, 0.25, 0.5, 0.75, 1 - 1e-10, 1e-10];
+      input.phases = input.regionalResponse.phases.slice();
       input.weights = new Array<number>(input.phases.length).fill(1 / input.phases.length);
       const actual = run(input), baseline = incumbent(input);
       for (const [phaseIndex, phase] of input.phases.entries()) expect(actual.samples[phaseIndex]).toEqual(sampleOracle(input, phase));
-      expect(actual.samples[2]).toEqual(baseline.samples[2]);
-      expect(actual.samples[4]!.surfaceTemperatureC[0]).toBe(actual.samples[5]!.surfaceTemperatureC[0]);
+      expect(actual.samples[count / 2]).toEqual(baseline.samples[count / 2]);
     }
   });
 
@@ -345,6 +399,7 @@ describe("frozen seasonal regional thermal response", () => {
     const input = fixture(); input.solarByRow = [forcing(100)];
     input.elevation = new Int16Array([400, 200, 0, 0]);
     input.regionalResponse.gainC = 200;
+    input.weights = input.phases.map((_, phase) => (phase + 1) / 36);
     const actual = run(input);
     for (const [phaseIndex, phase] of input.phases.entries()) {
       const anomaly = anomalyOracle(input, 0, phase);
@@ -371,16 +426,18 @@ describe("frozen seasonal regional thermal response", () => {
     expect(input).toEqual(snapshot);
   });
 
-  it("uses the same representability refusal for binary64 annual accumulation overflow", () => {
+  it("refuses unrepresentable maximum finite gain without inventing dense corrected accumulation overflow", () => {
     const input = fixture(); input.regionalResponse.gainC = Number.MAX_VALUE;
     expect(anomalyOracle(input, 0, 0.25).every(Number.isFinite)).toBe(true);
-    const oracle = annualOracle(input, 384);
+    const oracle = annualOracle(input);
     expect(oracle.clipped.every(Number.isFinite)).toBe(true);
-    expect(oracle.raw.some((value) => !Number.isFinite(value))).toBe(true);
+    expect(oracle.raw.every(Number.isFinite)).toBe(true);
+    expect(oracle.delta.every(Number.isFinite)).toBe(true);
+    expect(Float32Array.from(oracle.raw).some((value) => !Number.isFinite(value))).toBe(true);
     expect(() => run(input)).toThrow(/regional annual diagnostics.*finite Float32/);
   });
 
-  it("independently qualifies one frozen crossing/wrap curve at 384/768/1536, unaffected by requested sampling form", () => {
+  it("publishes the independently reduced bounded annual proxy at nonuniform producer weights, not a phase mean", () => {
     const input = fixture(); input.height = 2;
     input.solarByRow = [forcing(12, 25, 9), forcing(40, 22, 17)];
     input.elevation = new Int16Array([0, 80, 200, -100, 0, 40, 250, 0]);
@@ -393,29 +450,65 @@ describe("frozen seasonal regional thermal response", () => {
       [2, 15, 30, 0, 8, 20, 4, 0], (base, cell) => Math.max(0, base + (cell % 4 === 3 ? 0 : 8 * Math.sin(2 * Math.PI * phase + cell)))));
     input.regionalResponse.demandByPhase = input.regionalResponse.phases.map((phase) => Array.from(
       { length: 8 }, (_, cell) => cell % 4 === 3 ? 0 : 18 + 8 * Math.cos(2 * Math.PI * phase - cell)));
-    const snapshot = structuredClone(input), actual = run(input);
-    const reference = annualOracle(input, 24576);
-    const errors = new Map<number, number>();
-    for (const count of [384, 768, 1536]) {
-      const oracle = annualOracle(input, count);
-      errors.set(count, Math.max(...Array.from(oracle.clipped, (value, cell) => Math.abs(value - reference.clipped[cell]!))));
-      if (count === 384) {
-        expect(actual.annualSurfaceTemperatureC).toEqual(Float32Array.from(oracle.clipped));
-        expect(actual.annualUnclippedSurfaceTemperatureC).toEqual(Float32Array.from(oracle.raw));
-        for (let cell = 0; cell < 8; cell++) expect(actual.annualClippingDeltaC[cell]!).toBeCloseTo(oracle.delta[cell]!, 5);
-      }
-    }
-    // Existing owner budget for independently integrated nonsmooth clipped periodic curves, not a new gain fit.
-    expect(errors.get(384)!).toBeLessThan(0.003);
-    expect(errors.get(768)!).toBeLessThan(errors.get(384)!);
-    expect(errors.get(1536)!).toBeLessThan(errors.get(768)!);
-    for (const count of [2, 4, 12, 24, 48, 96]) {
-      const sampled = run({ ...input, phases: Array.from({ length: count }, (_, phase) => phase / count),
-        weights: new Array<number>(count).fill(1 / count) });
-      expect(sampled.annualSurfaceTemperatureC).toEqual(actual.annualSurfaceTemperatureC);
-      expect(sampled.annualUnclippedSurfaceTemperatureC).toEqual(actual.annualUnclippedSurfaceTemperatureC);
-      expect(sampled.annualClippingDeltaC).toEqual(actual.annualClippingDeltaC);
-    }
+    input.phases = input.regionalResponse.phases.slice();
+    input.weights = input.phases.map((_, phase) => (phase + 1) / 300);
+    const options = { ...config, minC: -10, maxC: 30 };
+    const snapshot = structuredClone(input), actual = run(input, options);
+    const oracle = annualOracle(input, 384, options), baseline = incumbent(input, options);
+    expect(baseline.annualSurfaceTemperatureC).toEqual(Float32Array.from(oracle.denseClipped));
+    expect(baseline.annualUnclippedSurfaceTemperatureC).toEqual(Float32Array.from(oracle.denseRaw));
+    expect(actual.annualSurfaceTemperatureC).toEqual(Float32Array.from(oracle.clipped));
+    expect(actual.annualUnclippedSurfaceTemperatureC).toEqual(Float32Array.from(oracle.raw));
+    expect(actual.annualClippingDeltaC).toEqual(Float32Array.from(oracle.delta));
+    const phaseMean = input.weights.reduce((sum, weight, phase) =>
+      sum + weight * actual.samples[phase]!.surfaceTemperatureC[0]!, 0);
+    expect(Math.abs(actual.annualSurfaceTemperatureC[0]! - phaseMean)).toBeGreaterThan(0.1);
+    expect(actual.annualSurfaceTemperatureC[3]).toBe(12);
+    expect(actual.annualSurfaceTemperatureC[7]).toBe(30);
+    expect(actual.annualUnclippedSurfaceTemperatureC[7]).toBe(80);
+    expect(actual.annualClippingDeltaC[7]).toBe(-50);
+    expect(run(input, options)).toEqual(actual);
     expect(input).toEqual(snapshot);
+  });
+
+  it("saturates the aggregate proxy when dense and producer baselines differ at either thermal bound", () => {
+    for (const upper of [true, false]) {
+      const input = fixture(); input.elevation.fill(0);
+      input.solarByRow = [forcing(upper ? 20 : -20, 20)];
+      input.phases = [upper ? 0.5 : 0]; input.weights = [1];
+      input.regionalResponse.phases = input.phases.slice();
+      input.regionalResponse.precipitationByPhase = [new Float32Array([0, 10, 10, 0])];
+      input.regionalResponse.demandByPhase = [[10, 10, 10, 0]];
+      input.regionalResponse.latitudeByRow[0] = 0; input.regionalResponse.axialTiltDeg = 0;
+      input.regionalResponse.tMinC = -10; input.regionalResponse.tMaxC = 0;
+      input.regionalResponse.gainC = 600;
+      const oracle = annualOracle(input), actual = run(input), cell = upper ? 0 : 1;
+      if (upper) expect(oracle.unbounded[cell]!).toBeGreaterThan(config.maxC);
+      else expect(oracle.unbounded[cell]!).toBeLessThan(config.minC);
+      expect(actual.samples[0]!.surfaceTemperatureC[cell]).toBe(upper ? config.maxC : config.minC);
+      expect(actual.annualSurfaceTemperatureC[cell]).toBe(upper ? config.maxC : config.minC);
+      expect(actual.annualSurfaceTemperatureC).toEqual(Float32Array.from(oracle.clipped));
+      expect(actual.annualUnclippedSurfaceTemperatureC).toEqual(Float32Array.from(oracle.raw));
+      expect(actual.annualClippingDeltaC).toEqual(Float32Array.from(oracle.delta));
+    }
+  });
+
+  it("reduces clipped departures before Float32 sample rounding and computes the diagnostic before output rounding", () => {
+    const input = fixture(); input.elevation.fill(0); input.solarByRow = [forcing(30.0000005)];
+    input.regionalResponse.latitudeByRow[0] = 0; input.regionalResponse.axialTiltDeg = 0;
+    input.regionalResponse.gainC = 1e-5;
+    input.weights = input.phases.map((_, phase) => (phase + 1) / 36);
+    const options = { ...config, maxC: 30 }, oracle = annualOracle(input, 384, options);
+    const actual = run(input, options), baseline = incumbent(input, options);
+    const roundedDeparture = input.weights.reduce((sum, weight, phase) => sum + weight *
+      (actual.samples[phase]!.surfaceTemperatureC[2]! - baseline.samples[phase]!.surfaceTemperatureC[2]!), 0);
+    expect(roundedDeparture).toBe(0);
+    expect(oracle.departure[2]!).toBeLessThan(-1e-7);
+    const roundedProxy = bounded(oracle.denseClipped[2]! + roundedDeparture, options.minC, options.maxC);
+    expect(Math.fround(roundedProxy - oracle.raw[2]!)).not.toBe(Math.fround(oracle.delta[2]!));
+    expect(actual.annualSurfaceTemperatureC).toEqual(Float32Array.from(oracle.clipped));
+    expect(actual.annualUnclippedSurfaceTemperatureC).toEqual(Float32Array.from(oracle.raw));
+    expect(actual.annualClippingDeltaC).toEqual(Float32Array.from(oracle.delta));
+    expect(actual.annualSurfaceTemperatureC[0]! - actual.annualUnclippedSurfaceTemperatureC[0]!).not.toBe(actual.annualClippingDeltaC[0]);
   });
 });
