@@ -436,6 +436,9 @@
             "terrainGradientReference": 300,
             "wetnessScale": 1
           }
+        },
+        "regionalResponse": {
+          "gainC": 0
         }
       }
     },

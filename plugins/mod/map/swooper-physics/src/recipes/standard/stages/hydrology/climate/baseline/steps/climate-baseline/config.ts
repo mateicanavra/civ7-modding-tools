@@ -19,6 +19,21 @@ const ClimateBaselineStepConfigSchema = Type.Object(
   {
     /** Physical demand calibration owned here and forwarded unchanged to refinement. */
     potentialDemand: PotentialDemandParametersSchema,
+    /** Opt-in, single-lag candidate; zero gain retains the incumbent operation schedule. */
+    regionalResponse: Type.Object(
+      {
+        gainC: Type.Number({
+          default: 0,
+          minimum: 0,
+          description:
+            "Phase-aware land climatic-limitation anomaly gain in Celsius per index unit; 0 disables the candidate.",
+        }),
+      },
+      {
+        additionalProperties: false,
+        description: "Bounded final-SST2 regional thermal response candidate.",
+      }
+    ),
     /**
      * Seasonality controls.
      *

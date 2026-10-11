@@ -1,29 +1,8 @@
 import type { SolarHarmonics } from "../../../model/atoms/solar-harmonics.schema.js";
+import { dailyMeanSolarQ, requireSolarAngle } from "../../../model/policy/daily-solar.js";
 
 /** Fixed midpoint quadrature resolution for the circular-orbit solar Fourier coefficients. */
 const SOLAR_FOURIER_QUADRATURE_COUNT = 384;
-const RADIANS_PER_DEGREE = Math.PI / 180;
-
-function requireAngle(value: number, name: string): void {
-  if (!Number.isFinite(value) || Math.abs(value) > 90) {
-    throw new RangeError(`${name} must be finite and in [-90, 90] degrees.`);
-  }
-}
-
-/** FAO-56 equations 21/25, normalized by the solar constant with circular distance factor 1. */
-function dailyMeanSolarQ(latitudeDegrees: number, declinationDegrees: number): number {
-  requireAngle(latitudeDegrees, "Latitude");
-  requireAngle(declinationDegrees, "Declination");
-  const latitude = latitudeDegrees * RADIANS_PER_DEGREE;
-  const declination = declinationDegrees * RADIANS_PER_DEGREE;
-  const offset = Math.sin(latitude) * Math.sin(declination);
-  const amplitude = Math.cos(latitude) * Math.cos(declination);
-  // Sunrise extrema handle polar day/night without tan(latitude)'s polar singularity.
-  if (offset + amplitude <= 0) return 0;
-  if (offset - amplitude >= 0) return offset;
-  const sunsetAngle = Math.acos(Math.max(-1, Math.min(1, -offset / amplitude)));
-  return Math.max(0, (sunsetAngle * offset + amplitude * Math.sin(sunsetAngle)) / Math.PI);
-}
 
 /** Midpoint Fourier integration; phase zero is the northward equinox, not January 1. */
 export function computeSolarHarmonics(
@@ -31,7 +10,7 @@ export function computeSolarHarmonics(
   axialTiltDeg: number,
   quadratureCount = SOLAR_FOURIER_QUADRATURE_COUNT
 ): SolarHarmonics {
-  requireAngle(latitudeDegrees, "Latitude");
+  requireSolarAngle(latitudeDegrees, "Latitude");
   if (!Number.isFinite(axialTiltDeg) || axialTiltDeg < 0 || axialTiltDeg > 90) {
     throw new RangeError("Axial tilt must be finite and in [0, 90] degrees.");
   }

@@ -31,6 +31,22 @@ const ComputeThermalStateContract = defineOp({
         cardinality: ["width", "height"],
         description: "Required prescribed annual SST; water has no seasonal anomaly.",
       }),
+      regionalResponse: Type.Optional(Type.Object({
+        gainC: Type.Number({ minimum: 0, description: "Unidentified regional anomaly gain; zero preserves the incumbent." }),
+        phases: Type.Array(Type.Number({ minimum: 0, exclusiveMaximum: 1 }), {
+          minItems: 1,
+          description: "Frozen sorted uniform cyclic integration phases, independent of requested thermal samples.",
+        }),
+        precipitationByPhase: Type.Array(TypedArraySchemas.f32({ cardinality: ["width", "height"] }), { minItems: 1 }),
+        demandByPhase: Type.Array(Type.Array(Type.Number({ minimum: 0 }), { minItems: 1 }), { minItems: 1 }),
+        latitudeByRow: TypedArraySchemas.f32({ cardinality: ["height"] }),
+        axialTiltDeg: Type.Number({ minimum: 0, maximum: 90 }),
+        tMinC: Type.Number(),
+        tMaxC: Type.Number(),
+      }, {
+        additionalProperties: false,
+        description: "Frozen model P/D evidence, not observed precipitation or soil storage. Enabled response requires strictly positive source demand on original land.",
+      })),
     },
     { additionalProperties: false }
   ),

@@ -193,13 +193,115 @@ Scientific proxy, portable artifact, installed build, screenshot and gameplay
 proof stay separate. Native water taxonomy/render questions remain independent
 and open.
 
-Next: select and review one source-grounded regional-response mechanism and its
-small falsifiable expectation ledger under this contract. No fit, solver,
-observational scoring, bank run or production adoption is admitted by this
-qualification decision alone. A bounded owner improvement may ship honestly
+The next selected mechanism is the bounded seasonal candidate below. No fit,
+solver, observational scoring, bank run or production adoption is admitted by
+the qualification decision alone. A bounded owner improvement may ship honestly
 with declared inherited failures. The current targets remain unwaived; completing
 the regional thermal goal requires meaningful regional coherence and satisfaction
 of the current product contract, or an evidence-justified prospective target
 amendment with history intact. The amplitude floor is not an immutable physical
 law. No target amendment is selected here, and numerical difference alone does
 not complete the goal.
+
+## Seasonal Regional Candidate
+
+The selected opt-in candidate is one lagged, phase-aware land climatic-limitation
+anomaly inside `compute-thermal-state`. The incumbent remains the zero-gain
+comparator. A year-round offset from an annual summer-deficit summary was not
+selected: it would persist into cold/dark seasons without a supported seasonal
+mechanism. This candidate is an empirical approximation, not soil storage,
+actual evapotranspiration, latent-heat accounting or an energy-conserving exchange.
+
+Freeze original land and the provisional final-SST2 integration-phase
+precipitation P and binary64 potential demand D. Periodically linearly
+interpolate P/D evidence, then evaluate the exact daily solar geometry and
+unchanged incumbent ground curve at each requested or annual midpoint phase:
+
+```text
+r = 0 if P >= D; otherwise 1 - P/D, for D > 0
+a = clamp01((bounded incumbent ground temperature - tMinC) / (tMaxC - tMinC))
+g = daily Q * a, on original land with positive demand; otherwise zero
+row reference = sum_original_land(g*r) / sum_original_land(g), empty zero
+delta temperature = gainC * g * (r - row reference)
+```
+
+The activity-weighted row reference anchors the existing zonal climatology; it
+is not nonlocal physical heat transfer. Raw row anomalies sum to zero before
+clipping. A warm wet receiver may cool relative to an active deficit-bearing
+row. All-wet or uniform-limitation rows have no anomaly. Cold ground, polar
+darkness and original water cannot become active through their neighbors.
+The ground gate is evaluated before Float32 publication, with one existing
+elevation lapse. A corrected temperature crossing the gate threshold does not
+recursively change that one-shot gate.
+
+Enabled admission requires strictly positive D at every original-land source
+knot. The D=0 inactive branch is discontinuous and is not hidden with an epsilon;
+unsupported enabled inputs are refused. The current Earthlike demand parameters
+have a positive lower bound of 9.5 model units before rounding. P/D are empirical
+commensurate model quantities, Q/r/a/g dimensionless, and gainC Celsius per index
+unit. No meter, millimeter or observed-temperature interpretation is implied.
+Enabled annual raw/clipping diagnostics must remain finitely representable in
+Float32; an unrepresentable result is refused, not repaired with a gain cap or
+correction clipping.
+
+Add delta to raw sea-level response before independent sea/ground bounds and
+one lapse. The same rule drives phase samples and the dense 384-midpoint annual
+ground integral; the annual result is not a sparse sample mean or annual-plus-
+mean-offset shortcut. Exact solar geometry has one shared lawful owner, not a
+copied response-specific solar formula.
+
+The operation-private `rules/thermal-curve.ts` owns the coherent periodic and
+seasonal curve evaluation consumed by `rules/periodic-response.ts`; validation,
+integration and publication remain in the latter. This internal composition
+does not promote one-consumer algorithms into shared model policy or expose a
+public diagnostic API.
+
+### Schedule And Disabled Control
+
+Positive gain explicitly requires the existing two ocean updates, followed by
+one additional final thermal/atmosphere/moisture pass at held SST2:
+
+```text
+SST0 -> atmosphere0 -> SST1 -> atmosphere1 -> SST2
+     -> provisional atmosphere/P/W/D -> frozen driver
+     -> corrected atmosphere/P/W/D -> final publications -> refinement
+```
+
+Both ocean updates remain unchanged. Only the corrected final pressure,
+wind/current, moisture/demand and thermal vintage is published. There is no
+third ocean update, recursive predictor, water debit, or later river/lake/plant
+water feeding this upstream response. The step composes existing operations;
+the anomaly mathematics stays in the thermal owner with row-sized working data.
+
+Complete authored configurations require the explicit `regionalResponse.gainC`
+selector. The three retained maps receive only `gainC: 0`; all preceding values
+and source bytes remain exact after removing that addition. This is an approved
+complete-config migration, not optional/default-object admission or a second
+configuration lane. At zero gain the extra pass and regional input are absent,
+retaining every incumbent coupling setting and operation schedule.
+
+Focused mechanical controls cover aligned inputs, unsupported zero demand,
+near-zero demand, weighted centering, cold ground, polar darkness, wet/singleton/
+empty rows, knots/wrap, clipping, single lapse and final consumer vintages.
+Permanent tests use public domain operations. Exact private binary64 helper
+witnesses stay outside Git; they do not widen the product's diagnostic payload
+or excuse test imports across domain boundaries.
+Independent refinement of one frozen crossing/wrap driver compares 384/768/1536
+midpoints to 24,576 under the current owner's `0.003 C` margin. That witness
+does not certify every gain or a resampled moisture producer. Supported source
+calendars and requested sample forms are checked separately.
+
+An unchanged-source synthetic comparator matches all ordered operation inputs,
+configs and outputs, four publications and the returned observation across
+observation modes 2/4, tilts 0/18 and coupling counts 1-4. It preserves typed
+bytes and alias relationships without a tolerance. Real thermal, solar,
+sampling, reduction and demand owners are exercised; stubbed transport/ocean,
+whole-recipe Earthlike runtime, scientific accuracy and native play are not
+certified by that control.
+
+Before any one-gain training protocol, inspect the actual raw seasonal B basis
+and annual integral on retained modeled inputs and coordinate-only training
+sites, with no observed temperatures. Report concentration, cancellation and
+clipping separately. Mechanical agreement or nonzero basis support alone does
+not authorize fitting, production gain, deployment or adoption. The regional
+thermal requirement and procedural outcome protections remain open.
