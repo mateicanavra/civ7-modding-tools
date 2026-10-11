@@ -3,81 +3,70 @@
 ## Current Product Goal
 
 Deliver a coherent, playable procedural Earthlike map, using scientific Earth
-as a benchmark rather than a procedural input. Elevation, basin/network
-repairs and bounded native navigation are delivered. Regional land-temperature
-response remains an unresolved requirement. The approved moisture story targets
-wet/dry forcing of existing basins and networks directly, not a complete
-Earth-system simulator or another temperature fit.
+as a benchmark rather than a procedural input. Elevation and basin/network
+repairs provide the causal foundation; regional land-temperature response
+remains an unresolved requirement. The goal is useful physical forcing through
+drainage, ecology and Civ projection, not a complete Earth-system simulator.
 
-The latest [atmospheric-proxy retirement](terrestrial-water-influence.md#completed-atmospheric-retirement-qualification)
-removes unsupported river/enclosed-basin rainfall and reconstructed humidity,
-with physical routing, baseline forcing and projection intent held exactly.
-The unchanged full bank retains its single thermal failure; attributed thermal,
-habitat, resource and founder consequences are reviewed without count targets
-or weaker thresholds. Fresh Huge `2/2` native generation and ten dry, non-NAV
-founder reads qualify delivery. The subsequent
-[local plant-water integration](local-plant-water-design.md#completed-causal-qualification)
-closes actual Huge/Standard publication pairs and fresh native Huge generation.
-Local supply reaches classification and growth while atmospheric climate,
-physical drainage, no-access growth and polar categories hold exactly. Neither
-tree quotas nor fixed shoreline bonuses define success. The qualified
-implementation is installed, with the subsequent benchmark/test-only
-amendments preserving its runtime bundle exactly. Core qualification passes
-3,894 of 3,895 expectations across all 47 Earthlike scenarios; the sole known
-thermal requirement remains intact. Thermal banding is not repaired by this
-ecological unit.
+The current merged source uses the
+[source-limited moisture owner](climate-moisture-closure-design.md#current-baseline-integration),
+integrated with the repaired consumers in
+[PR #2359](https://github.com/mateicanavra/civ7-modding-tools/pull/2359).
+Unrounded precipitation and surface wetness reach the physical consumers;
+native rainfall encoding remains a distinct projection. The empirical rainfall
+path is not a parallel production fallback. The older
+[PR #2323 non-adoption](climate-moisture-closure-design.md#completed-product-decision)
+and rejected thermal pilots remain historical findings, not the current source
+or automatic orders for another fit.
 
-Core qualification now centers on procedural Earthlike, not the intentionally
-biased Desert Mountains or Archipelago configurations. Their previous evidence
-is retained and their products remain available as opt-in configuration stress
-cases. Remove the underived Desert rainforest count cap outright, preserving
-the original failed result instead of tuning physics to that quota. The
-Earthlike geography cohort retains the same four Huge seeds and generic
-integrity/geography guards. This prospective selection change does not silently
-erase the regional thermal requirement or redesign existing product bounds.
-The realization's empty-lake diagnostic now uses a controlled publication,
-not a requirement that an Archipelago seed remain lake-free. Remaining
-off-path benchmark-authority questions belong in the shared curated question
-book, not additional release blockers or unrecorded physics tuning.
+That source preserves the
+[retirement of river and enclosed-basin atmospheric proxies](terrestrial-water-influence.md#completed-atmospheric-retirement-qualification)
+and [local plant-water response](local-plant-water-design.md#completed-causal-qualification).
+Subsequent owner repairs align
+[cold-forest response](cold-forest-consumer-coherence.md#qualified-outcome)
+with actual climate publications, make
+[dryland waterpoints source-led](dryland-point-water-coherence.md#qualified-outcome),
+remove [generic fertility from bog scoring](wetland-consumer-coherence.md#qualified-outcome),
+and separate [mangrove occurrence from soil productivity](wetland-consumer-coherence.md#completed-mangrove-pair).
+These are bounded consumer repairs, not proof of calibrated habitat prevalence.
+The [current oasis publication control](dryland-point-water-coherence.md#current-moisture-publication-boundary)
+admits a synthetic local positive case, while all six retained source-limited
+worlds still plan no oases. Neither that control nor the zero count justifies an
+arbitrary occurrence quota or weaker shared score floor.
 
-The [private climatic-deficit pilot is complete and closed](annual-land-response-owner-decision.md#completed-deficit-pilot).
-Actual-producer and zero-response controls pass, but all 196 training sites
-have zero active-season deficit index. The sole training estimate requests
-the opposite of the admitted response; its nonnegative gain is zero. No
-validation temperatures are scored, no procedural candidate follows, and
-production remains unchanged.
+Keep delivery evidence separate:
 
-The regional thermal requirement remains open, not blocked on an ocean solver
-or another river rewrite. More fitting of this uninformative predictor is not
-selected. Any subsequent proposal must first establish useful modeled regional
-information and a bounded product-level discriminator. The playable incumbent
-stays installed until an improvement is actually qualified.
+- **Merged source:** the source-limited forcing and consumer repairs are on
+  `main`. The later oasis amendment changes tests and documentation only.
+- **Installation:** merging source does not deploy it. Installation qualification
+  applies to the exact selected runtime bundle, not automatically to the latest
+  source. Restoring installed files does not regenerate an already-loaded world.
+- **Candidate qualification:** a separate native smoke's complete 6,996-cell census
+  matches the retained candidate's terrain, biome and water. All 1,125 ordinary
+  ecology placements match exactly across the 25 catalog families, with zero
+  ordinary feature rejections. Resource and natural-wonder refusals remain
+  separate. This qualifies the exercised case, not release adoption or a matched
+  native A/B.
 
-The approved [source-limited rainfall story](climate-moisture-closure-design.md#completed-product-decision)
-has reached its stop condition. Numerical accounting and the float-forcing
-consumer cutover pass. The terminal candidate improves the four climate
-controls but fails one unchanged independent mountain-region requirement.
-Exact replay attributes the changed footprint to intentional relief-supported
-selection, not a missing axis pass or another demonstrated selector defect.
-Neither a terrain repair to force the target nor another moisture sweep is
-selected. The complete candidate is preserved in closed PR #2323 and retained
-research evidence; the unused preparatory operation is retired from the active
-domain. This is maintenance after non-adoption, not rejection of source
-accounting as a physical principle.
+A dry start read and available founding or movement check are not completed
+founding, movement or a played turn. Generation and native feature parity do
+not establish pixel quality, vessel passage, visual river continuity or physical
+water-surface calibration. Actual deployment/session state and exact operational
+receipts remain in private custody, not a public live inventory.
 
-The empirical incumbent remains the sole production rainfall path, with its
-known thermal limitation explicit. Independent comparison views and bounded
-property-test deadlines are delivered in PR #2324. The next player-facing
-outcome is an explicitly diagnostic frozen-pair native look, then inspection
-and play of the latest qualified Huge Earthlike build. Reconcile exact source,
-build and installation, preserve any existing user session, and wait for its
-release first. The approved early candidate contrast is not production
-admission or a reason to rerun climate calibration. A new climate law,
-stronger range-stability requirement or product
-policy amendment requires its own prospective design; none follows from this
-closure. Scientific Earth and Firaxis geography remain benchmarks, never
-hidden procedural inputs. No additional thermal, morphology, ocean or language
-campaign is queued.
+Core qualification is procedural Earthlike. Desert Mountains and Sundered
+Archipelago remain opt-in configuration stress cases, not competing core
+benchmarks. Scientific Earth and Firaxis geography are references, never hidden
+procedural inputs. The remaining regional thermal requirement is unwaived;
+thermal banding is not declared fixed by ecological placement. The curated
+`Q004`/`Q005` questions remain open, and island formation is not declared fixed.
+
+Next, finish player-facing inspection and normal play when capture is available.
+Accept a satisfactory player outcome, or route one concrete observed defect to
+its causal owner for design, implementation and qualification.
+Do not infer an ocean/climate/feature omnibus, another climate bank, terrain
+carving or count targets from the open questions. Preserve existing user state
+and distinguish source, installation and loaded-world identity at each handoff.
 
 ## Prior Decisions
 
