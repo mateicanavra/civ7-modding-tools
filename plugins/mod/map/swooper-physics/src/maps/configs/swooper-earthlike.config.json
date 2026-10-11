@@ -370,7 +370,7 @@
           "strategy": "periodic-response",
           "config": {
             "annualOffsetC": 0,
-            "lapseRateCPerElevationUnit": -0.0065,
+            "lapseRateCPerElevationUnit": -0.15,
             "minC": -40,
             "maxC": 50
           }

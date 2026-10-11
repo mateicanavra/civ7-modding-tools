@@ -330,8 +330,20 @@ describe("Shipped map configs", () => {
     expect(classifier.temperature.tropicalThreshold).toBe(24);
   });
 
-  it("compiles Earthlike to neutral periodic thermal controls with 24 integration phases and four observations", async () => {
+  it("compiles Earthlike's empirical relief response with unchanged periodic climate controls", async () => {
     const configs = await loadSwooperMapConfigRegistry();
+    expect(Object.fromEntries(configs.map(({ canonicalConfig }) => [
+      canonicalConfig.id,
+      canonicalConfig.config["hydrology-climate-baseline"]["climate-baseline"].computeThermalState.config.lapseRateCPerElevationUnit,
+    ]))).toEqual({
+      "swooper-earthlike": -0.15,
+      "swooper-desert-mountains": -0.0065,
+      "sundered-archipelago": -0.0065,
+    });
+    expect(buildStandardRecipeDefaultConfig()["hydrology-climate-baseline"]["climate-baseline"].computeThermalState).toEqual({
+      strategy: "periodic-response",
+      config: { annualOffsetC: 0, lapseRateCPerElevationUnit: -0.0065, minC: -40, maxC: 50 },
+    });
     const earthlike = configs.find((entry) => entry.canonicalConfig.id === "swooper-earthlike");
     if (!earthlike) throw new Error("Expected the shipped Earthlike config");
     const canonicalConfig = earthlike.canonicalConfig;
@@ -365,7 +377,7 @@ describe("Shipped map configs", () => {
       seasonality: { modeCount: 4, axialTiltDeg: 23.44 },
       integrationPhaseCount: 24,
       solarConfig: {},
-      thermalConfig: { annualOffsetC: 0, lapseRateCPerElevationUnit: -0.0065, minC: -40, maxC: 50 },
+      thermalConfig: { annualOffsetC: 0, lapseRateCPerElevationUnit: -0.15, minC: -40, maxC: 50 },
       atmosphericAggregate: { strategy: "phase-reduction", config: {} },
       moistureAggregate: { strategy: "phase-reduction", config: {} },
       pressureDrivenRms: 95,
