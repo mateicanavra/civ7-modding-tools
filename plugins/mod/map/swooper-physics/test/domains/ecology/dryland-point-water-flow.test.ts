@@ -31,13 +31,17 @@ const width = 5, height = 3, size = width * height, donor = 7, receiver = 8;
 const receiverIntent = { x: 3, y: 1 };
 type Source = "ordinary" | "finite-body";
 
+// Defaults retain independent precipitation/wetness owner-boundary controls,
+// not quantities reachable through the current atmospheric forcing producer.
 function fixture(source: Source = "ordinary", supply = 420, options: {
   sedimentSignal?: number;
   temperature?: number;
   precipitation?: number;
+  moistureForcing?: ReturnType<typeof hydrology.climate.ops.computeMoistureForcing.run>;
 } = {}) {
   const surfaceTemperatureC = new Float32Array(size).fill(options.temperature ?? 22);
-  const surfaceWetness = new Float32Array(size).fill(80 / 255);
+  const surfaceWetness = options.moistureForcing?.surfaceWetness ?? new Float32Array(size).fill(80 / 255);
+  const precipitation = options.moistureForcing?.precipitation ?? new Float32Array(size).fill(options.precipitation ?? 5);
   const demandInput = {
     width, height, surfaceTemperatureC, surfaceWetness,
     parameters: baselineConfig.potentialDemand,
@@ -46,7 +50,7 @@ function fixture(source: Source = "ordinary", supply = 420, options: {
   const input = {
     width, height, ...noLocalWaterSources(width, height),
     landMask: new Uint8Array(size).fill(1),
-    precipitation: new Float32Array(size).fill(options.precipitation ?? 5),
+    precipitation,
     surfaceWetness, pet: demand.pet,
   };
   input.elevation.fill(10);
@@ -144,9 +148,50 @@ function receiverPlacements(result: ReturnType<typeof runFlow>) {
 }
 
 describe("Earthlike source-led dryland point-water consumer flow", () => {
+  it("joins current moisture publication to a lawful oasis with insufficient and absent-source contrasts", () => {
+    const parameters = baselineConfig.computeMoistureForcing.config;
+    const k = parameters.backgroundExtractionRate;
+    // Calm marine deposition P=E*(1+expm1(-k)/k); this is a separate publication
+    // fixture composed with a land consumer, not same-world rainfall reachability.
+    const moistureForcing = hydrology.climate.ops.computeMoistureForcing.run({
+      width, height, landMask: new Uint8Array(size), externalWaterMask: new Uint8Array(size).fill(1),
+      elevation: new Int16Array(size), seaLevel: 0,
+      windU: new Int8Array(size), windV: new Int8Array(size),
+      sstC: new Float32Array(size).fill(32), seaIceMask: new Uint8Array(size),
+    }, {
+      ...baselineConfig.computeMoistureForcing,
+      config: { ...parameters, marineSourceRate: 5 / (parameters.wetnessScale * 0.65 * (1 + Math.expm1(-k) / k)) },
+    });
+    expect(moistureForcing.precipitation).toEqual(new Float32Array(size).fill(5));
+    expect(moistureForcing.surfaceWetness).toEqual(new Float32Array(size).fill(5 / 200));
+    const fields = fixture("ordinary", 420, { moistureForcing });
+    expect(fields.surfaceTemperatureC[receiver]).toBe(22);
+    expect(fields.input.pet[receiver]).toBe((19 + 82 * (22 / 36)) * (1 - 0.5 * Math.fround(5 / 200)));
+    const result = runFlow(fields);
+    expect(plannerConfig.config.minConfidence01).toBe(0.42);
+    expect(result.indices.localSurfaceWaterOpportunity[receiver]).toBe(60);
+    expect(result.indices.pet[receiver]).toBe(Math.fround(fields.input.pet[receiver]!));
+    expect(biomeSymbolFromIndex(result.biomes.biomeIndex[receiver]!)).toBe("desert");
+    expect(result.oasis[receiver]).toBeCloseTo(0.4266611, 6);
+    expect(result.oasis[receiver]).toBeGreaterThan(plannerConfig.config.minConfidence01);
+    expect(result.plannerInput.terrainBiomeCompatibilityMasks.oasis[receiver]).toBe(1);
+    expect(receiverPlacements(result)).toEqual([{ ...receiverIntent, feature: "oasis" }]);
+    for (const supply of [350, 0]) {
+      const contrast = runFlow(fixture("ordinary", supply, { moistureForcing }));
+      expect(contrast.indices.pet).toEqual(result.indices.pet);
+      expect(contrast.indices.effectiveMoisture).toEqual(result.indices.effectiveMoisture);
+      expect(contrast.indices.aridityIndex).toEqual(result.indices.aridityIndex);
+      expect(contrast.indices.localSurfaceWaterOpportunity[receiver]).toBe(supply / 7);
+      expect(biomeSymbolFromIndex(contrast.biomes.biomeIndex[receiver]!)).toBe("desert");
+      expect(contrast.oasis[receiver]).toBeLessThan(plannerConfig.config.minConfidence01);
+      if (supply === 0) expect(contrast.oasis[receiver]).toBe(0);
+      expect(receiverPlacements(contrast)).toEqual([]);
+    }
+  });
+
   for (const source of ["ordinary", "finite-body"] as const) {
     for (const family of ["oasis", "watering-hole"] as const) {
-      it(`admits lawful ${family} from ${source} opportunity at moderate temperature, not a hand-set biome`, () => {
+      it(`admits lawful ${family} from ${source} opportunity with independent P/W owner controls, not a hand-set biome`, () => {
         const oasis = family === "oasis";
         const fields = fixture(source, oasis ? 420 : 630, { sedimentSignal: oasis ? 1 : 0 });
         const result = runFlow(fields);

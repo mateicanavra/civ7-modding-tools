@@ -130,9 +130,10 @@ strategies and the unused isolation masks/radius are removed from all three
 authored configs. Existing unrounded plant-water arithmetic remains unchanged.
 The recipe step contains less logic, not a second water computation.
 
-Producer-consistent regimes demonstrate moderate-temperature DESERT/oasis and
-PLAINS/watering-hole intent through the actual demand, cryosphere, pedology,
-water-budget, classifier, scorer and legal planner. Ordinary imported flow and
+Independent precipitation/wetness owner-boundary regimes demonstrate
+moderate-temperature DESERT/oasis and PLAINS/watering-hole intent through the
+actual demand, cryosphere, pedology, water-budget, classifier, scorer and legal
+planner. Ordinary imported flow and
 finite-body contact both work; fertility changes do not invent or suppress the
 source. Source absence, marine donors, inaccessible banks, terrain, incompatible
 classes and actual earlier occupancy retain their exclusions. The focused
@@ -194,12 +195,41 @@ cells and traces source-only contrasts without changing climate. The selected fl
 observed-earlier-free DESERT witnesses have low absolute plant moisture but atmospheric aridity
 of only `0.238..0.315`; both point-water climatic scores are zero. The greatest
 atmospheric aridity in each world occurs on polar `snow`, not compatible dryland.
-The existing moderate-temperature producer regimes still admit an oasis at annual
-source opportunity `60` and a watering hole at `90`; increasing local source changes
-the plant-responsive category as well as the score.
+The existing independent precipitation/wetness owner-boundary regimes still
+admit an oasis at annual source opportunity `60` and a watering hole at `90`;
+increasing local source changes the plant-responsive category as well as the score.
 
 This is consistent with the declared distinction between local plant habitat,
 atmospheric climatic dryness, and native biome compatibility. It does not establish
 an owner contradiction that must block wet-family review. Empirical score scale and
 Earthlike dry-regime coverage remain open; reproducing these meanings does not
 validate their inherited thresholds or global physical realism.
+
+### Current Moisture Publication Boundary
+
+The older joined owner-boundary controls declare precipitation and surface
+wetness independently (`P=5`, `W=80/255`). They remain valid demand/budget and
+consumer controls, but that pair is incompatible with the current moisture
+producer's derived wetness relation. They do not prove current atmospheric
+forcing reachability.
+
+The existing dryland flow suite now also consumes actual P/W outputs from the
+public `computeMoistureForcing` operation. A synthetic calm-marine publication
+fixture produces `P=5`, `W=Float32(5/200)`; its quantities feed the unchanged
+22 C land demand, ordinary-flow opportunity, pedology, classifier, scorer,
+compatibility and planner. Opportunity `60` admits DESERT/oasis at score
+`0.426661`; opportunity `50` and absent source remain DESERT without oasis
+admission. This composes two declared local regimes, not a demonstration that
+the atmospheric producer supplies those quantities to that land in one world.
+
+The six retained source-limited worlds (Huge seeds 1018/2024/5050 and Standard
+1018/1/42) still plan no oases. Their 1,625 free flat DESERT cells remain below
+the unchanged floor. At held receiver climate, all 91 eligible nonpolar
+source-window climates, including nine currently non-DESERT cells, leave
+DESERT before crossing the oasis floor. The positive local composition does
+not repair or contradict this conditional generated-world result.
+
+Generated occurrence, physical adequacy of the empirical thresholds, and
+whole-tile versus sub-tile oasis meaning remain unqualified. The annual local
+opportunity does not measure patch area or persistence. No quota, floor,
+production algorithm or authored configuration changes follow from this test.
