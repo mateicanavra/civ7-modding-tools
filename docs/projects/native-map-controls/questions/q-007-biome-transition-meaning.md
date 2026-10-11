@@ -24,7 +24,9 @@ assessments:
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/ae8fc94d790a769fb45c60584e47304f69f53a93/plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/ops/classify-biomes/rules/classify.ts#L66-L100"
   - claim: "The retained thermal pair reports 25 tropical-to-temperate-humid cells with unchanged plant-moisture/stress category buckets: 21 enter the adaptive guard and four cross adaptive thresholds within it. This is a policy interaction, not by itself a defect or a non-monotonicity result."
     state: "supported"
-  - claim: "The atmospheric adjustment and both guard boundaries express a justified ecological or gameplay distinction without obsolete visual compensation or an implementation mismatch."
+  - claim: "The bounded owner review retains the intentional empirical temperature/atmospheric-moisture envelope. Source algebra and 39 reported scalar checks support monotone tropical admission under shipped configurations at fixed other inputs, not ecological calibration or every schema-admitted configuration."
+    state: "supported"
+  - claim: "The empirical transition constants and guard-limited boundary are ecologically calibrated or preferable to other habitat-classification choices."
     state: "unassessed"
 verification:
   - kind: source-inspection
@@ -46,11 +48,12 @@ verification:
 
 # Q-007: Biome Transition Meaning
 
-What should a change from tropical to temperate mean in this model? A continuous
-climate field must eventually become discrete biome categories. Crossing a
-category boundary is expected; the question is whether the boundary expresses
-an intended ecological or gameplay distinction, rather than disguising a
-limitation of the upstream climate.
+How well does this model's tropical boundary describe the intended habitat?
+A continuous climate field must eventually become discrete biome categories.
+Crossing a category boundary is expected. The retained owner meaning is an
+intentional, **uncalibrated temperature/atmospheric-moisture envelope**, not
+a demonstrated classifier defect. Its empirical support and the merits of
+alternative boundaries remain open.
 
 The owner is **Ecology / Biomes / Biome Classification**, after Hydrology has
 produced climate and local plant-water fields, and before features and native
@@ -67,7 +70,7 @@ a separate adjustment uses **atmospheric effective moisture** to decide which
 temperature zone applies. This is not normalized forcing `W` or the plant-water
 index. [Canonical Ecology meaning][ecology-meaning] explicitly preserves this
 atmospheric context. The different inputs are deliberate; whether that
-distinction has a justified ecological or gameplay meaning remains open.
+distinction is adequately calibrated is a separate question.
 
 The [transition rule][transition] names its original purpose: preventing
 row-perfect tropical cutoffs. [Earthlike's nominal threshold][earthlike-config]
@@ -76,6 +79,15 @@ The atmospheric adjustment is active only within the inclusive interval
 22.75-25.25 degrees C. On its dry side, the adjusted tropical threshold can
 rise to 25.4 degrees C, beyond the interval's upper edge. Outside the interval,
 the ordinary temperature-zone rule applies.
+
+The guard therefore clips the actual boundary: at the dry extreme, tropical
+membership requires temperature **strictly above 25.25 degrees C**, not 25.4.
+At the wet extreme it begins **at 22.75 degrees C, inclusively**. Between those
+extremes the adaptive threshold applies. For the shipped configurations,
+tropical admission is monotone in temperature at fixed atmospheric moisture,
+and in atmospheric moisture at fixed temperature and plant inputs. Warming
+alone or wetting alone does not reverse tropical admission; cooling and
+wetting together need not preserve it.
 
 That relationship makes the guard itself part of the effective decision
 boundary. Entering it can change the category without crossing 24 degrees C.
@@ -93,7 +105,7 @@ other argument held fixed.
 
 The retained pair's per-cell attribution reports 25 physical tropical-to-temperate-humid
 changes: 19 from tropical rainforest and six from tropical seasonal. All cool,
-none crosses the hard 24 degree C cutoff, and their plant-moisture/stress
+none crosses the nominal 24 degree C center, and their plant-moisture/stress
 category buckets and elevations stay unchanged. The numeric moisture and
 stress values need not be identical.
 
@@ -115,29 +127,41 @@ and mixed atmospheric responses do not support a broad-drying explanation.
 The retained attribution also does not isolate pressure, rainfall and demand
 as independent causes of the atmospheric-moisture change.
 
-## A Proxy, A Compensation Or A Mismatch?
+## Retained Meaning, Open Calibration
 
-A defensible ecological envelope may legitimately use atmospheric conditions
-to interpret a thermal boundary, even when plant-water categories have another
-purpose. Its meaning would identify the habitat or gameplay distinction being
-approximated and explain why the complete boundary, including both guard edges,
-expresses it. In that case, retaining the rule with clearer explanation is a
-real answer, not an incomplete repair.
+The bounded meaning review retains the behavior. Near the nominal tropical
+boundary, wetter atmospheric climate permits tropical membership at a cooler
+supplied temperature; drier climate requires more warmth. Local plant water
+independently determines the moisture category and vegetation support. This
+classifies the supplied climate; it neither computes a new temperature nor
+claims that rainfall physically warms a tile.
 
-An adjustment whose sole justification is concealing row-led upstream climate
-has a different status: it is visual compensation, not an independently
-supported climate mechanism. Whether it duplicates any upstream response
-depends on the actual inputs and the intended distinction. The diagnostic
-thermal candidate is disabled in authored maps, so its existence alone does
-not make the incumbent adjustment obsolete.
+The anti-banding origin is real, but it does not by itself demonstrate obsolete
+compensation. The strongest remaining objection is that this is an aesthetic
+boundary shaper retained without specific ecological calibration. Retention
+acknowledges that empirical status; it does not turn historical visual intent
+into Earth evidence or establish that the constants are optimal.
 
-A third possibility is a mismatch between a defensible intended policy and
-its implemented boundary. Evidence for that would compare the declared
-temperature/moisture ordering with the full classifier predicate under fixed
-admitted inputs. Ordinary categorical crossings are compatible with a correct
-rule; an unexplained reversal or a boundary that contradicts its declared
-meaning would be more discriminating. The retained map pair motivates this
-question but does not decide among these alternatives or identify a repair.
+Source algebra and the reported 39 scalar checks resolve the suspected shipped-
+law monotonicity defect for this discriminator. The 25 map transitions remain
+ordinary consequences of the guarded policy under simultaneous input changes.
+The disabled thermal candidate uses seasonal precipitation/demand relative to
+an active row reference; the classifier uses absolute final atmospheric moisture.
+Their interaction is not evidence of a duplicate temperature computation.
+
+The live question is how well this joint envelope represents the intended
+habitat, and what evidence would favor another classification. A meaningful
+alternative would state the climatic or gameplay distinction it preserves,
+the inputs it requires, and what outcomes would distinguish it from this proxy.
+Removing the adjustment, widening its guard or substituting local plant water
+would change policy, not repair a demonstrated wiring error. More rainforest
+alone would not justify any of those choices.
+
+Retention would be challenged by a same-input violation under a shipped
+configuration, an explicit rejection of the joint-envelope meaning, or evidence
+that the guard was intended only as an optimization of an unbounded rule.
+None is established by the retained pair. Ecological calibration and native
+gameplay remain separate evidence questions, not conclusions of scalar checks.
 
 This concerns classifier meaning, not the [authority of prevalence targets][benchmarks]
 or the [annual-source meaning of an oasis][oasis]. More rainforest, wider
@@ -154,10 +178,20 @@ filename repair added. Its [custody and comparison scope][pair-provenance]
 remain with Q-006. The 21/four attribution comes from the sealed thermal outcome,
 not a joint population independently recomputed for this sheet.
 
+The separate 2026-10-11 retention decision reports source/history review and
+39 actual one-cell operation checks, independently rerun by the director.
+Their scope is the guarded law, climate forwarding and separation of atmospheric
+and plant inputs, not map prevalence or ecological validity. The monotonicity
+conclusion is scoped to shipped configurations: an unordered hypothetical
+configuration admitted by the schema can violate it and does not explain this
+pair. The private decision and counter-read have SHA-256 identities
+`af2ce538baa6afe1aaef7774146b4d3f9ebb2e5883f86a42bd447f3bba778b15`
+and `6d15c5f410179078ec853aa65a0152387dd1551a661204e37a769cbc389a1be4`.
+
 No scalar experiment, generated map, native observation or Earth calibration
-is added here. The source comment and canonical documentation establish what
-the rule says and does, not verified Earth physics. This is an open meaning
-question, not a declared classifier or climate defect.
+was rerun to prepare this sheet. The source and retained checks establish
+bounded model behavior, not verified Earth physics. The suspected shipped-law
+defect discriminator is closed by retention; empirical calibration remains open.
 
 [step]: https://github.com/mateicanavra/civ7-modding-tools/blob/ae8fc94d790a769fb45c60584e47304f69f53a93/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/biomes/steps/biomes/step.ts#L21-L41
 [transition]: https://github.com/mateicanavra/civ7-modding-tools/blob/ae8fc94d790a769fb45c60584e47304f69f53a93/plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/ops/classify-biomes/rules/classify.ts#L66-L100

@@ -128,9 +128,11 @@ default, cohort or native acceptance follows from this result.
 The thermal comparison exposes an existing atmospheric-moisture adjustment
 near the tropical boundary: 21 cells enter its guard and four cross adaptive
 thresholds within it, without changing their plant-moisture/stress categories.
-The open question is whether this boundary expresses a justified ecological
-proxy, obsolete visual compensation or an implementation mismatch. Cooling
-across a category boundary is not itself a defect or non-monotonicity proof.
+The bounded owner review retains its intentional empirical habitat envelope;
+the shipped law is monotone at fixed other inputs. Cooling across a categorical
+boundary is not a defect, and simultaneous cooling/wetting need not preserve
+a class. Ecological calibration and the case for alternatives remain open;
+retention does not turn visual-compensation provenance into Earth evidence.
 [Read the research question](questions/q-007-biome-transition-meaning.md).
 
 ### Ecology / Features / Score Layers

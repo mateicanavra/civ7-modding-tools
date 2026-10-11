@@ -115,7 +115,9 @@ Among the physical-biome changes, 25 tropical cells become temperate humid
 through an existing moisture-dependent thermal boundary. This is a separate
 [biome-transition meaning question][classifier], not evidence that widespread
 drying or a defective thermal producer caused the change. The complete pair
-holds initial conditions, not every later classifier input.
+holds initial conditions, not every later classifier input. The bounded owner
+review retains that classifier as an intentional empirical envelope; ecological
+calibration remains open.
 
 Seven existing cohort target families are evaluated on this single case; six
 pass in both arms and climate structure fails in both. No larger cohort,
