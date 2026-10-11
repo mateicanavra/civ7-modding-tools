@@ -46,12 +46,14 @@ assessments:
   - claim: "The merged source-led scorers consume Hydrology's published local source opportunity and demand, multiplied by atmospheric dryness, without the retired isolated-water mask or direct warmth/fertility multipliers."
     state: "supported"
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/09e8c9a87fba9c5078d20134ad1c8e04a858bfbb/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/model/policy/dryland-waterpoint-score.ts"
-  - claim: "The qualified owner report establishes producer-consistent moderate-temperature oasis and watering-hole intent, but reports zero attempts and features for both families in all four prescribed generated worlds."
+  - claim: "The earlier source-led consumer qualification establishes producer-consistent moderate-temperature oasis and watering-hole intent, but reports zero attempts and features in its four prescribed worlds. Those are not the later moisture-integration captures."
     state: "supported"
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/09e8c9a87fba9c5078d20134ad1c8e04a858bfbb/docs/projects/native-map-controls/dryland-point-water-coherence.md#qualified-outcome"
-  - claim: "At fixed climate and class, all four qualified worlds' native-compatible, captured-flat, observed-earlier-free populations have dryness factors below 0.42 even with unlimited source support."
+  - claim: "At fixed climate and class, the four earlier consumer-qualification worlds' native-compatible, captured-flat, observed-earlier-free populations have dryness factors below 0.42 even with unlimited source support."
     state: "supported"
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/09e8c9a87fba9c5078d20134ad1c8e04a858bfbb/docs/projects/native-map-controls/dryland-point-water-coherence.md#qualified-outcome"
+  - claim: "With the source-led consumer law retained, the source-limited moisture comparison produces watering holes in three of six prescribed B cases and no oases. Compatible-flat dry/source overlap appears for oasis, but its scores remain below 0.42. This is six-case headless attribution, not 47-case prevalence or native qualification."
+    state: "supported"
   - claim: "Atmospheric dryness, plant-responsive biome classification, local source support and native compatibility jointly admit ecologically appropriate point-water habitat with adequate occurrence."
     state: "unassessed"
 verification:
@@ -80,6 +82,16 @@ verification:
     revision: 09e8c9a87fba9c5078d20134ad1c8e04a858bfbb
     date: '2026-10-10'
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/09e8c9a87fba9c5078d20134ad1c8e04a858bfbb/docs/projects/native-map-controls/local-plant-water-design.md#complete-consumer-path"
+  - kind: source-inspection
+    scope: "The merged moisture integration preserves the source-led point-water scorer and admission controls. Inspection confirms the consumer law, not a new execution of the privately retained six-case comparison."
+    revision: d17abf6f54b018600b2d13c139e8be485e2aa732
+    date: '2026-10-10'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/d17abf6f54b018600b2d13c139e8be485e2aa732/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/model/policy/dryland-waterpoint-score.ts"
+  - kind: source-inspection
+    scope: "Current Hydrology documentation distinguishes unclipped precipitation, independently reduced wetness, native codec and later local plant-water opportunity, with separate baseline and refined demand. It does not establish calibrated units, all-seed reachability or native acceptance."
+    revision: eff77c0f8cd3be5b8a8fd176997918b76848bc44
+    date: '2026-10-10'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/eff77c0f8cd3be5b8a8fd176997918b76848bc44/docs/system/libs/mapgen/reference/domains/HYDROLOGY.md#L144-L217"
 ---
 
 # Q-004: Point-Water Habitat Support
@@ -89,11 +101,14 @@ hole? Source availability, atmospheric dryness and the surrounding biome answer
 different questions. The open challenge is whether their combination describes
 the same ecologically suitable place, not how to force more features onto a map.
 
-The [qualified source-led implementation][qualified] establishes that the water
-producer, feature scorers and legal planner can admit both families in
-producer-consistent fixtures. Yet all four prescribed generated worlds still
-contain **zero oasis and watering-hole attempts or features**. Source-consumer
-coherence is supported; generated scarcity and ecological adequacy remain open.
+The current [six-case moisture comparison][current-evidence] contrasts the
+empirical-moisture baseline (A) with source-limited forcing (B), retaining the
+same repaired consumers. **Watering holes occur in three of six B maps;
+oases remain absent.** For oasis, dry atmosphere and local supply now overlap
+in compatible flat terrain, but the combined score
+remains below admission. This distinguishes a change in generated conditions
+from a change to the scoring law. It does not establish suitable frequency,
+justify a lower floor or close the ecological question.
 
 ## A Source Is Not A Dry Habitat
 
@@ -103,14 +118,16 @@ operations in `ecology-features / score-layers`, then into `plan-wetlands`.
 Hydrology's [source-and-access model][source-model] distinguishes modeled local
 surface-water opportunity from atmospheric moisture. Its annual opportunity `L` can come
 from imported flow or contact with a standing water body. It is published
-directly, not inferred by subtracting rounded moisture fields.
+directly, not inferred by subtracting rounded moisture fields. The current
+comparison calls this same quantity `O`. It is a later **non-withdrawal
+opportunity**, not extra atmospheric rainfall or a second conserved allocation.
 
 The two [point-water scorers][scorer] combine that opportunity with potential
-water demand `D` and atmospheric aridity `A`:
+water demand `D` and atmospheric aridity `a`:
 
 ```text
 sourceSupport = L / (L + D) when L > 0; otherwise 0
-suitability   = drySuit(A) * sourceSupport
+suitability   = drySuit(a) * sourceSupport
 ```
 
 `L` and `D` use the same empirical rainfall-index scale. Source support lies
@@ -129,30 +146,48 @@ fixtures demonstrate oasis intent on DESERT and watering-hole intent on PLAINS
 without bypassing those constraints. That result does not establish appropriate
 occurrence across generated worlds.
 
+### The Forcing Reaches The Consumer
+
+In `hydrology-climate-baseline / climate-baseline`, the new moisture owner
+produces unclipped model precipitation `P` and normalized wetness `W`. Members'
+`P` and `W` are averaged independently; the native rainfall byte is a separate
+rounded and capped representation. Neither the byte nor local opportunity is
+substituted for atmospheric supply. These are empirical index quantities,
+not millimetres per year. The [quantity map][quantities] follows them through
+runoff, basins and the later plant-water budget.
+
+This changes which sites jointly have a dry atmosphere, local water and a
+compatible biome. It does not change `drySuit(a) * L / (L + D)`. The six
+prescribed matched cases below use equal map/game seeds. Maxima describe each
+family's compatible-flat population, not all land or a new prevalence sample.
+
+| Case | B oasis dry/source overlap | B oasis max score | B watering-hole max score | Watering holes, A to B |
+| --- | ---: | ---: | ---: | ---: |
+| Huge 1018 | 5 | 0.026405 | 0.377289 | 0 to 0 |
+| Huge 2024 | 84 | 0.162630 | 0.369044 | 0 to 0 |
+| Huge 5050 | 48 | 0.209933 | 0.426854 | 0 to 1 |
+| Standard 1018 | 42 | 0.222416 | 0.650944 | 0 to 9 |
+| Standard 1 | 115 | 0.271177 | 0.489799 | 0 to 2 |
+| Standard 42 | 19 | 0.029535 | 0.317764 | 0 to 0 |
+
+Oasis has zero plans and final features in both arms of all six cases. In A,
+no compatible-flat oasis site has both positive opportunity and aridity above
+0.60. In B, that overlap exists, but even its best score, 0.271177, is below
+0.42. Watering-hole scores clear the held floor in three cases, and the resulting
+plans, projection attempts and final headless counts agree. The limiting
+condition therefore differs by family and world; "water is present" is not
+equivalent to "a waterpoint qualifies."
+
 ## Four Worlds Still Fall Below Admission
 
-The [qualified near-miss analysis][qualified] examines each family's
-native-biome-compatible, captured-flat sites without an observed earlier
-floodplain, ice or reef feature. The maxima below describe those populations,
-not all land and not a census of exact final planner legality.
-
-| World / map and game seeds | Oasis max dryness factor | Watering-hole max dryness factor | Watering-hole max score |
-| --- | ---: | ---: | ---: |
-| Standard / 1/1 | 0 | 0.03881 | 0.01848 |
-| Huge / 2/2 | 0 | 0.07702 | 0.04900 |
-| Standard / 3/3 | 0 | 0.01505 | 0.00609 |
-| Huge / 4/4 | 0 | 0.09005 | 0.02752 |
-
-Because source support cannot exceed one, the dryness factor is also a ceiling
-on suitability. At the captured climate and biome, even unlimited source
-support leaves every site in these populations below 0.42. This is a conditional
-bound, not a source-tuning prescription: changing water opportunity can also
-change plant-responsive biome classification.
-
-Standard 1/1 and Huge 2/2 have paired incumbent comparisons. Standard 3/3 and
-Huge 4/4 are additional candidate variation captures, not additional
-before/after pairs. None of the four demonstrates restored point-water
-occurrence, and four worlds do not establish universal impossibility.
+This is an **[earlier consumer-qualification result][qualified]**, not the
+current six-case forcing comparison. Its Standard 1/1, Huge 2/2, Standard 3/3 and Huge 4/4 worlds
+all have zero attempts and features. At their fixed climate and class, dryness
+alone caps the compatible-flat, observed-earlier-free populations below 0.42,
+even with unlimited source. The [original margins and custody][earlier-evidence]
+retain the two incumbent pairs separately from the two variation captures.
+Changing forcing or plant-responsive class changes the premises of that bound;
+it is not an all-world impossibility or a source-tuning prescription.
 
 ## Two Meanings Of Dryness
 
@@ -163,13 +198,14 @@ dryness instead uses atmospheric aridity, which compares demand with rainfall.
 A native DESERT label therefore does not by itself establish high atmospheric
 aridity, and a cold DESERT site is not itself evidence of a mapping defect.
 
-A separate [bounded contract trace][retained] reproduces those distinct
+A separate [earlier contract trace][retained] reproduces those distinct
 meanings without identifying a specific contradiction. Its four low-aridity
 DESERT witnesses follow the absolute plant-moisture bucket; the highest-aridity
 land witness in each world is polar/snow rather than eligible dryland. Source-only
 contrasts hold ambient climate fixed but can change plant state and compatible
-biome. Positive local regimes still admit both families, without demonstrating
-that generated Earthlike worlds reach those regimes.
+biome. Its positive local regimes establish modeled admission, not generated
+reachability. The later six-case result supplies reachability for watering
+holes in three prescribed worlds, not general adequacy for either family.
 
 The unresolved question is whether the empirical response scales and generated
 dry-regime coverage adequately represent the intended habitats. Neither the
@@ -197,31 +233,28 @@ and three original source inspections remain the explicit
 location is historical context; the two scorer locations own the open consumer
 question. Their recipe coordinates remain unchanged.
 
-The later qualified result has runtime
-`7b20d0b9da117bdaecb73a39f5a085d2964810da` and merged report/source
-`09e8c9a87fba9c5078d20134ad1c8e04a858bfbb`. Its paired comparator is
-`ccb92fbc585ab0eddd1d2faa3a6b71c5aaa9179f`, not the original diagnostic's
-`5f82b5f1f39040e83d909793eb296fc526420511` captures. The digest records these
-separate identities and the compiled-dependency exception.
+The digest distinguishes the original captures, earlier consumer qualification
+and current moisture comparison, including exact executed/merged revisions and
+dependency limits. The earlier near-miss demand was reconstructed from recovered
+land humidity; the current comparison retains actual demand and final scores.
+Neither evidence type is silently substituted for the other.
 
-The separate contract trace uses inspected source
-`2a41b9c3d2d9d19c9c2e095636538c8b6e982368` and the same four captured worlds.
-Its negative attribution result is not an additional generation or a claim
-that the empirical response scales are physically correct.
-
-Near-miss demand is reconstructed through the actual post-albedo owner using
-recovered land humidity; it is not originally captured demand. The pair closes
-against authentic retained demand and prior occupancy, while the variation
-cases retain the narrower observed-earlier-free qualification. Raw evidence
-remains private. The added verification records are source/report inspections,
-not new test executions, fresh native placement proof, all-seed prevalence or
-physical calibration.
+Detailed ecology covers six paired cases. The separate 47-case bank has zero
+newly failed expectations but retains the thermal failure: **both raw banks
+are FAIL**. Its broader checks are not 47-case waterpoint attribution. These
+results contain no installed/native qualification of B: there is
+**no native B comparison**. The added structured records remain source/document
+inspections; privately retained results are summarized with
+custody, not presented as new editorial executions or physical calibration.
 
 [qualified]: https://github.com/mateicanavra/civ7-modding-tools/blob/09e8c9a87fba9c5078d20134ad1c8e04a858bfbb/docs/projects/native-map-controls/dryland-point-water-coherence.md#qualified-outcome
 [source-model]: https://github.com/mateicanavra/civ7-modding-tools/blob/09e8c9a87fba9c5078d20134ad1c8e04a858bfbb/docs/projects/native-map-controls/local-plant-water-design.md#source-and-access-definition
-[scorer]: https://github.com/mateicanavra/civ7-modding-tools/blob/09e8c9a87fba9c5078d20134ad1c8e04a858bfbb/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/model/policy/dryland-waterpoint-score.ts
+[scorer]: https://github.com/mateicanavra/civ7-modding-tools/blob/d17abf6f54b018600b2d13c139e8be485e2aa732/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/model/policy/dryland-waterpoint-score.ts
 [consumers]: https://github.com/mateicanavra/civ7-modding-tools/blob/09e8c9a87fba9c5078d20134ad1c8e04a858bfbb/docs/projects/native-map-controls/local-plant-water-design.md#complete-consumer-path
 [baseline]: https://github.com/mateicanavra/civ7-modding-tools/blob/9cc0ef028aff3fa23bcdf3765440de0d0aef9d1f/docs/projects/native-map-controls/questions/q-004-point-water-support.md
 [retained]: ../wetland-occurrence-evidence.md
+[current-evidence]: ../wetland-occurrence-evidence.md#source-limited-moisture-with-repaired-consumers
+[quantities]: ../wetland-occurrence-evidence.md#four-quantities-through-the-pipeline
+[earlier-evidence]: ../wetland-occurrence-evidence.md#conditional-dryness-ceilings
 [geometry]: q-001-low-shore-neighborhood.md
 [suitability]: q-005-wetland-suitability.md

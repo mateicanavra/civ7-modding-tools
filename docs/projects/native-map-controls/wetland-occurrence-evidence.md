@@ -1,12 +1,203 @@
 # Wetland Occurrence: Bounded Evidence
 
-This portable evidence summary separates the original two-case headless
-diagnostic, source-led point-water, bog and mangrove qualifications, and a native
-feature census on a different map. None is a wetland abundance target. Habitat,
-suitability, compatibility, prior occupancy, admitted intent and final output
-have different meanings and populations. The later qualifications do not
-replace the original observations or transfer their causal explanation to the
-native census.
+The current evidence distinguishes **changed environmental forcing** from
+**changed ecological responses**. Source-limited moisture now reaches the
+repaired consumers without returning the retired point-water, bog, mangrove or
+taiga prerequisites. Six paired cases show how habitat, score and placement
+respond. A separate 47-case bank checks the existing requirements. Neither
+turns feature counts into abundance targets or establishes physical calibration.
+
+- [Six-case attribution](#six-case-feature-attribution) explains the current
+  forcing contrast, including watering-hole reachability and an unobserved bog cause.
+- [The 47-case bank](#what-the-47-case-bank-establishes) has no newly failed
+  expectation, but both raw banks remain FAIL on the inherited thermal requirement.
+- [Earlier point-water](#qualified-source-led-point-water-result),
+  [bog](#qualified-bog-consumer-result) and [mangrove](#qualified-mangrove-consumer-result)
+  comparisons isolate different consumer changes. Their original observations,
+  identities and limits remain intact below.
+- The [historical native census](#a-separate-native-occurrence-observation)
+  covers a different map. There is no native B comparison for the current integration.
+
+## Source-Limited Moisture With Repaired Consumers
+
+In this comparison, A is the repaired empirical-moisture baseline and B replaces
+its moisture forcing with the fixed source-limited owner. Marine source is 900
+and reference transport speed 80; the selected parameters, prescribed scenarios,
+consumer laws and admission targets are not tuned in response to these counts.
+Atmospheric supply comes from initial external marine water. Rainout debits
+available stock before residual transport; land and finite inland water do not
+supply new atmospheric water in this model. It is not a complete Earth water cycle.
+
+### Four Quantities Through The Pipeline
+
+The [current Hydrology contract][current-hydrology] separates quantities that
+can look similar on a colored map but answer different questions:
+
+| Quantity | Meaning | Not A Claim Of |
+| --- | --- | --- |
+| Precipitation `P` | Unclipped Float32 deposited model water, in empirical rainfall-index equivalents per tile area and representative interval | Measured millimetres per year |
+| Normalized wetness `W` | Member `clamp01(P / 200)`, then independently averaged through phase and annual reductions | Measured humidity, soil water, or `clamp01(annual P / 200)` |
+| Native rainfall byte | `min(200, round(annual P))`, derived for native projection | A cap on physical forcing or feedback into the water budget |
+| Local opportunity `O` | Later non-withdrawal source/contact/access support for plant water, called `L` in the earlier consumer studies | Extra precipitation or a second conserved allocation |
+
+In `hydrology-climate-baseline / climate-baseline`,
+[`computeMoistureForcing`][moisture-owner] produces member P and W.
+[`computeMoistureAggregate`][moisture-reduction] averages them independently;
+phase demand follows that reduction, and annual baseline demand is the seasonal
+mean. Averaging after a nonlinear clamp is not equivalent to clamping the average.
+
+`hydrology-hydrography / network` consumes these baseline fields. Dry runoff is
+`P * (1 - 0.18) * (1 - 0.22 * W)`. A final wet footprint **replaces** its dry
+contribution with `P - D`, using baseline seasonal-mean all-surface demand.
+It does not add both contributions. Later refined ecological demand is a
+different product and is zero on wet cells; it does not create the earlier basins.
+
+`hydrology-climate-refine / climate-refine` computes post-albedo demand and
+the [land-water budget][plant-water-owner]. Atmospheric effective moisture is
+`M = P + 0.35 * 255 * W`; local opportunity can raise plant moisture above M.
+Opportunity combines available source offers by maximum, not summation, and
+does not withdraw or reallocate conserved basin water. On exposed tiles with
+O zero in all twelve retained captures, plant moisture equals atmospheric
+moisture and plant stress equals atmospheric aridity exactly. On exposed tiles
+with positive O, plant moisture never falls below atmospheric moisture and
+plant stress never exceeds atmospheric aridity.
+
+The [native rainfall step][native-rainfall] consumes only the byte codec.
+A's actual rainfall and humidity are the earlier byte proxies; the comparison
+does not invent a float-P history or reinterpret humidity/255 as source-limited W.
+The notebook's `2a31` Learning/navigation snapshot predates the new forcing
+operation. These scoped current-source links do not silently refresh that spine.
+
+### Six-Case Feature Attribution
+
+The six cases are prescribed, not randomly sampled: Huge is 106 x 66 with ten
+players; Standard is 84 x 54 with eight. Map and game seeds equal each listed
+seed, with latitude bounds 80/-80. Each entry below is **A to B final headless
+feature count**, not a native-game census or an abundance target.
+
+| Family | Huge 1018 | Huge 2024 | Huge 5050 | Standard 1018 | Standard 1 | Standard 42 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Forest | 237 to 224 | 375 to 218 | 319 to 187 | 240 to 142 | 270 to 140 | 152 to 83 |
+| Rainforest | 5 to 18 | 4 to 21 | 4 to 11 | 15 to 29 | 12 to 17 | 5 to 12 |
+| Taiga | 641 to 491 | 439 to 275 | 393 to 370 | 333 to 274 | 171 to 85 | 374 to 262 |
+| Savanna woodland | 28 to 23 | 41 to 19 | 20 to 9 | 39 to 15 | 12 to 2 | 15 to 14 |
+| Sagebrush steppe | 100 to 165 | 78 to 312 | 128 to 330 | 43 to 208 | 19 to 309 | 33 to 175 |
+| Marsh | 0 to 1 | 4 to 1 | 3 to 1 | 1 to 1 | 2 to 5 | 2 to 3 |
+| Tundra bog | 14 to 3 | 14 to 2 | 17 to 7 | 19 to 6 | 8 to 5 | 11 to 6 |
+| Mangrove | 28 to 30 | 43 to 59 | 48 to 71 | 21 to 18 | 8 to 6 | 14 to 16 |
+| Oasis | 0 to 0 | 0 to 0 | 0 to 0 | 0 to 0 | 0 to 0 | 0 to 0 |
+| Watering hole | 0 to 0 | 0 to 0 | 0 to 1 | 0 to 9 | 0 to 2 | 0 to 0 |
+
+Across all 120 arm/family funnels, recorded plan counts, projection attempts,
+final counts and readback at planned coordinates agree. There are no recorded
+out-of-gate plans, projection rejections, missing planned observations or
+same-stage peer losses. Earlier occupancy remains consequential; a floodplain
+or mangrove can occupy a site before vegetation is considered.
+
+The attribution reads retained final scores rather than recomputing them.
+Eligibility gates are inferred from captured exposure, terrain, biome and prior
+intent plus inspected source. Transient hydromorphic/intertidal masks and
+individual factor products were not retained. First-blocker transitions therefore
+identify bounded explanations, not unique counterfactual causes.
+
+**Point water.** A has no compatible-flat oasis site with both positive local
+opportunity and aridity above 0.60. B has such overlap in 5, 84, 48, 42, 115 and
+19 cells, in table order, but its maximum oasis scores are only 0.026405,
+0.162630, 0.209933, 0.222416, 0.271177 and 0.029535. Watering holes cross the
+unchanged 0.42 floor in three B maps. [Q-004][point-water] separates this
+reachability result from ecological adequacy; neither the law nor its floor changes.
+
+**Wetlands and vegetation.** Forest reductions primarily encounter changed
+categorical habitat; every flat habitat-valid forest score clears its held
+0.04 floor. Rainforest's habitat-valid population increases in all six cases,
+and all such flat scores clear 0.29, although earlier occupancy still removes
+opportunity. Taiga retains its annual-energy repair and atmospheric-water
+envelope, with no new frost requirement. Bog still has no generic fertility
+factor; of 49 former bog plans first blocked by a zero B score, 48 have
+`M <= 130.9`, sufficient to zero the unchanged water ramp. Standard 42 cell 255
+has M 165.906296 and a zero score; its exact substrate/factor cause remains
+unobserved. [Q-005][wetland-question] retains that uncertainty and the distinct
+marsh, bog and mangrove hypotheses. Their counts do not rank habitat quality.
+
+### What The 47-Case Bank Establishes
+
+The unchanged Earthlike bank comprises 16 studies, 47 unique prescribed
+scenarios, 20 target IDs and 3,894 expectation occurrences. It is broader than
+the six-case attribution but retains ordinary metrics and provenance, not
+another 47-case collection of rich ecology and water fields.
+
+| Paired expectation result | Occurrences |
+| --- | ---: |
+| Pass in A and B | 3,893 |
+| Newly failed in B | 0 |
+| Failed in A and B | 1 |
+| Resolved in B | 0 |
+
+**Both raw banks remain FAIL**: fifteen studies pass and one climate study
+fails in each arm. All 840 initial expectation occurrences per arm recur
+identically in the full bank. No requirement is waived. The inherited
+within-row temperature-variation floor remains at least 1 degree C; the
+reported cohort observation changes from 0.1390440682965476 to
+0.13276011573193755 degrees C. An inherited failure is not an unchanged value
+or a repaired thermal model.
+
+All seven current orogeny requirements pass in both arms. [Q-003][relief-question]
+explains the separately adopted regional-span policy; the frozen historical
+rainfall candidate retains its original refusal. Zero new failures supports
+bounded compatibility with the admitted bank, not an all-climate pass, Earth
+rainfall calibration or general scoring vindication.
+
+### Water And Thermal Limits
+
+Captured upstream fields agree, including pre-refinement temperature. Hidden
+seasonal/member thermal, pressure, wind and current equality is instead a
+source/configuration/input-boundary argument, not an observation recoverable
+from annual means. Downstream fields are allowed to respond to changed forcing;
+the older consumer-only comparisons' forty-one-field holds do not transfer here.
+
+Refined temperature changes occur only on below-zero retained-topography land.
+Four per-map within-row deviations decline and two rise. The source-consistent
+explanation is the unchanged precipitation-sensitive snow/ice feedback, not
+a new thermal fit; individual iteration traces are unobserved. Warm-land
+regional thermal structure is not repaired. Native codec saturation is a
+separate representation diagnostic, not evidence that physical P should be clipped.
+
+Water accounting remains explicit about unresolved supply: four B maps retain
+positive shoreline-quantization terms, with a maximum of 112.68602329508147 in
+Standard 1. Closure within the existing rounding guard does not mean unresolved
+supply is zero. A wet footprint with negative local `P - D` can be supported
+by imported network flow; it is not automatically an invalid lake. River
+counts can also hold while locations change. None of these observations
+calibrates hydroperiod, salinity, groundwater or ecological patch extent.
+
+### Executed, Merged And Native Identities
+
+- Executed A: `a19bede35a2c963a3ad45ba299b7261e9ebc814e`, tree
+  `40a1d719c9bf0ec2e3e2fcad9eea0dcd86e07042`, plus the explicit two-file
+  measurement-only overlay, SHA-256
+  `a2452d2f42607db97601df8021425d45368e0936c3c4597599fdeaf18fd86d67`.
+  This is not an unmodified-A execution.
+- Executed B: `3e43bd59473825bb12e01a842df0cc55cef3e7ae`, tree
+  `04918ea4efa9c58fc32b3dc3cba8def424850f61`.
+- Merged source: `d17abf6f54b018600b2d13c139e8be485e2aa732`, with exactly the
+  executed B tree. Portable [source links][moisture-owner] use this merged revision.
+- Accepted documentation: `877fdb628de3b9045afa711b9d92247dd4544411`, merged as
+  `eff77c0f8cd3be5b8a8fd176997918b76848bc44`; both have tree
+  `913f943249d21410f9865a2fe6106508bb6d7553`. This is not B's execution revision.
+
+The matched execution uses Bun 1.3.14 and Node 22.22.0, matched lock/resource
+inputs, and official resources `9f6b93e129d47faf96ed6814f652560e7b7573d0`.
+The source-limited kernel is bound by SHA-256
+`c549b9374e64097ea07fea4c44264cf2780e982c63c0fdb9ce68a31ea0f17672`.
+The reports describe 447 focused tests and 188 successful repository checks;
+these are owner-reported qualification, not tests rerun by this editorial summary.
+
+The source-adoption receipt records the merged source independently of native
+qualification. **There is no native B comparison:** the closed native window
+stopped after A's live-world identity changed, before B was built, installed or
+launched. That is neither B-native success nor B-native failure. The earlier
+qualified installed build was verified unchanged at closure. Source adoption,
+headless qualification and native player-path acceptance are separate claims.
 
 ## Original Case And Source Identity
 
@@ -477,8 +668,11 @@ exception, not player support or persistence of the same earlier placement.
 The recorded target shortfall rises from zero to four. Increased total resource
 count therefore does not mean every resource's supply improved.
 
-All eight and ten players remain fully seated on legal dry land with freshwater,
-without fallback, imputation or region relaxation. The radius-four support
+All eight and ten players remain fully seated on legal dry land with modeled
+nearby-water opportunity, without fallback, imputation or region relaxation.
+This headless "freshwater" field is a soft preference, not native founding-bonus
+proof; the [placement interpretation][freshwater-meaning] keeps those meanings
+separate. The radius-four support
 settings and empty shortfall records hold; realized support counts do not.
 Standard changes from four-to-six resources per start to three-to-five; Huge
 changes from two-to-four to three-to-five. Both candidates have a gap of two
@@ -551,6 +745,24 @@ reproducible from this file alone. Content hashes identify the exact inspected
 artifacts; they are identity checks, not substitutes for access or scientific
 validation.
 
+The current moisture comparison has separate, privately retained custody:
+
+| Retained artifact | SHA-256 |
+| --- | --- |
+| Six-case decision manifest | `60de5c69c8f8185e2427485e9c3687785a22418d1205e6808d2d684718b7f458` |
+| Six-case ecology attribution | `7c932a22133fa3a7a8dcf177ba3afcffd5ff728ef676e90d057c7367d6c0f932` |
+| Six-case thermal metrics | `3e7ae5a4a510c0f9e5bd70b23629d16fbd4d177b94491bde30b1295eb0659369` |
+| Six-case water attribution | `1ddd45ec138dce74fc40c659efd2440f2da55f5cb9418f05a68808e4f58a8614` |
+| Water-attribution manifest | `e9e0ea6ea6f44ffdbe129fa2ff8bc5ce24a34812d1a91adb973c34a3c5c5ab66` |
+| Full-bank decision manifest | `d0505b84f95d7acffc886936435f1462ea68eb07fe4973e40672f3470d031c93` |
+| Full-bank paired comparison | `48e78e78f31036bb4ca1ae25f9d67e8fa11618460b6f3ec7849ad675af67877b` |
+| Closed native-pair receipt | `32b71f0a1c8597fa5b6ce936db607ae80b45f948902ca269fe85d04f4371ef60` |
+| Source-adoption final receipt | `449bb1fc6494f8c4b16273847c227ea7f13e8df3441d1f54c11b11ffccf49b1d` |
+
+These identify the inspected reports; they do not publish the raw arrays or
+replace the original capture bindings. The earlier qualifications retain their
+own custody below.
+
 | Retained artifact | SHA-256 |
 | --- | --- |
 | Standard1 candidate receipt | `a107a4bb8b2baf71ac1d35c428aa8465c2eb376b8a4f25b3266736b4ec238ddf` |
@@ -622,3 +834,10 @@ preferred threshold follows from these results.
 [resource-distribution]: https://github.com/mateicanavra/civ7-modding-tools/blob/4ae7b311a1e259449001b96b683860c5b682301e/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/families/resources.ts#L386-L409
 [mangrove-qualified]: https://github.com/mateicanavra/civ7-modding-tools/blob/22438584f152a420901c0fa0d0e90f175a815f32/docs/projects/native-map-controls/wetland-consumer-coherence.md#completed-mangrove-pair
 [start-spread]: https://github.com/mateicanavra/civ7-modding-tools/blob/4829c718eb1dfe5cddd57bb3b32c2208de184fbc/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/families/placement.ts#L468-L494
+[current-hydrology]: https://github.com/mateicanavra/civ7-modding-tools/blob/eff77c0f8cd3be5b8a8fd176997918b76848bc44/docs/system/libs/mapgen/reference/domains/HYDROLOGY.md#L144-L217
+[moisture-owner]: https://github.com/mateicanavra/civ7-modding-tools/blob/d17abf6f54b018600b2d13c139e8be485e2aa732/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/climate/ops/compute-moisture-forcing/contract.ts
+[moisture-reduction]: https://github.com/mateicanavra/civ7-modding-tools/blob/d17abf6f54b018600b2d13c139e8be485e2aa732/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/climate/ops/compute-moisture-aggregate/rules/index.ts
+[plant-water-owner]: https://github.com/mateicanavra/civ7-modding-tools/blob/d17abf6f54b018600b2d13c139e8be485e2aa732/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/climate/ops/compute-land-water-budget/strategies/pet-aridity/index.ts
+[native-rainfall]: https://github.com/mateicanavra/civ7-modding-tools/blob/d17abf6f54b018600b2d13c139e8be485e2aa732/plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/projection/steps/project-rainfall/step.ts
+[relief-question]: questions/q-003-relief-support.md
+[freshwater-meaning]: https://github.com/mateicanavra/civ7-modding-tools/blob/3532e8d34c28f6acb343b066338d761e9d2a3644/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/earthlike-placement.md

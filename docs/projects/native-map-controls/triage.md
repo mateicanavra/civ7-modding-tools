@@ -114,28 +114,27 @@ established. [Read the research question](questions/q-001-low-shore-neighborhood
 
 #### Q-004: Point-Water Habitat Support
 
-The source-led consumer path admits oasis and watering-hole intent in
-producer-consistent fixtures, but all four qualified generated worlds still
-have zero attempts and features. Atmospheric dryness, plant-responsive biome
-classification and native compatibility leave an open dry-habitat question;
-the retired mask and direct-warmth limits are historical evidence, not current
-blockers. Neither rarity nor the conditional score bounds establish a climate
-defect or a preferred coefficient. Q-001's geometry question remains separate.
+With repaired source-led consumers retained, the six-case moisture comparison
+produces watering holes in three of the six source-limited maps; oasis remains
+absent despite new overlap between local supply and atmospheric dryness. Oasis scores stay below
+the unchanged floor. This is forcing-sensitive headless occurrence, not
+appropriate prevalence, 47-case feature attribution or native acceptance.
+Habitat meaning and empirical response scales remain open; neither the old
+four-world zeros nor the new counts justify a quota or lower floor.
 [Read the research question](questions/q-004-point-water-support.md).
 
 ### Ecology / Features / Scoring And Wetland Planning
 
 #### Q-005: Wetland Suitability And Admission
 
-Marsh, tundra bog and mangrove have distinct responses followed by a shared
-admission floor. Separate bog and mangrove corrections remove generic fertility
-as a prerequisite without changing that floor. Their paired consequences are
-not uniformly beneficial: bog replaces taiga and increases polar resource
-concentration; mangrove replaces rainforest, reduces Mango opportunity and
-changes resources, starts and support. Broad habitat proxies, seasonal and tidal
-meaning, remaining response factors and shared admission remain open. More
-lawful placements do not establish scientific adequacy or generally improved
-resource distribution.
+Marsh, tundra bog and mangrove retain distinct responses and their shared
+admission floor under the new moisture forcing. Across six prescribed pairs,
+rainforest rises and bog falls; marsh and mangrove responses are mixed. Most
+of the identified zero-score bog losses are consistent with the unchanged
+atmospheric-water ramp; one exact substrate/factor cause remains unobserved.
+Earlier consumer-only comparisons retain their separate resource and seating
+tradeoffs. Broad habitat proxies, seasonal/tidal meaning and shared admission
+remain open. Changed counts are not ecological validation or general improvement.
 [Read the research question](questions/q-005-wetland-suitability.md).
 
 ### Benchmark Authority / Ecological Prevalence
@@ -152,10 +151,13 @@ the decided Desert Mountains cap removal is not reopened.
 
 #### Q-003: Relief Bounds And Admitted Support
 
-The existing relief bounds and Huge-cohort amendment are source-confirmed.
-Their portability to other map sizes, terrain representations or producer
-regimes remains unassessed; benchmark product guards are not universal physical
-laws. [Read the research question](questions/q-003-relief-support.md).
+The three-seed orogeny contract retires its regional-span floor without
+replacement, retaining seven mountain-presence, region-size and composition
+requirements. Span remains diagnostic; the separate four-seed floor has different
+support. This relinquishes a product length guarantee, not a physical law, and
+does not retrospectively admit the historical rainfall candidate. Portability
+and native passability remain unassessed.
+[Read the research question](questions/q-003-relief-support.md).
 
 [current-study-policy]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/STUDIES.md
 [current-identity-protocol]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/shipped-identities.md
