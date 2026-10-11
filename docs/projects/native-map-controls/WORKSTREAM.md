@@ -65,12 +65,22 @@ The [prospective regional qualification decision](land-thermal-variance.md#prosp
 separates hard owner/numerical controls, retained fixed-Earth diagnostics and
 procedural Earthlike outcomes. A failed historical near-Pareto scientific screen
 is not an unconditional product veto; adverse tradeoffs require explicit review.
-No executable target, historical refusal or thermal model is changed by that
-decision. Select and review one causal response before another experiment.
+No executable target or historical refusal is changed by that decision. The
+[selected producer-phase candidate](land-thermal-variance.md#producer-phase-candidate)
+keeps its anomaly in the thermal owner, freezes actual provisional final-SST2 P/D
+once, and explicitly adds one corrected final atmosphere/moisture pass. It
+replaces unsupported between-phase P/D interpolation with direct phase response
+and a bounded annual statistical departure from the incumbent dense baseline.
+That changed annual proxy inherits neither the continuous candidate's coefficient
+nor its failed qualification. It remains
+unqualified for production: the three retained maps have explicit zero gain,
+and the installed default is unchanged. Complete-config admission is preserved
+without an optional fallback or SDK policy change.
 
 Adopted-build native generation and bounded normal gameplay have been exercised;
-they do not close all playability or climate questions. Next, select one causal
-response and its prospective expectations. Use the Civ CLI for additional
+they do not close all playability or climate questions. Qualify the candidate's
+mechanics and actual retained-input basis before a one-gain training protocol.
+Use the Civ CLI for additional
 native checks, with imagery required only for rendering claims.
 Do not infer an ocean/climate/feature omnibus, another climate bank, terrain
 carving or count targets from the open questions. Preserve existing user state

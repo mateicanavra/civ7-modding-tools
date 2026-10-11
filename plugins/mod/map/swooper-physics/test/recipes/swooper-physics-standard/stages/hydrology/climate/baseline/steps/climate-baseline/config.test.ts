@@ -66,6 +66,7 @@ describe("hydrology climate-baseline authoring", () => {
         JSON.parse(readFileSync(new URL(filename, directory), "utf8"))
       );
       const baseline = map.config["hydrology-climate-baseline"]["climate-baseline"];
+      expect(baseline.regionalResponse).toEqual({ gainC: 0 });
       const refine = map.config["hydrology-climate-refine"]["climate-refine"];
       const expected =
         filename === "swooper-desert-mountains.config.json"
@@ -84,6 +85,21 @@ describe("hydrology climate-baseline authoring", () => {
       expect(refine.computeLandWaterBudget.config).toEqual({});
       expect(refine.computePotentialDemand.config).toEqual({});
     }
+  });
+
+  it("requires the explicit disabled candidate selector and rejects negative gains", () => {
+    const config = normalizeDryness("mix");
+    expect(config.regionalResponse).toEqual({ gainC: 0 });
+    const { regionalResponse, ...withoutSelector } = config;
+    expect(regionalResponse.gainC).toBe(0);
+    for (const invalid of [withoutSelector, { ...config, regionalResponse: { gainC: -1 } }]) {
+      expect(() => validateSchemaValueForTest(
+        climateBaselineConfig.schema, invalid, "/climate-baseline/regional-response"
+      )).toThrow();
+    }
+    expect(validateSchemaValueForTest(
+      climateBaselineConfig.schema, { ...config, regionalResponse: { gainC: 6 } }, "/climate-baseline/regional-response"
+    ).regionalResponse).toEqual({ gainC: 6 });
   });
 
   it("rejects invalid demand calibration at the baseline config boundary", () => {

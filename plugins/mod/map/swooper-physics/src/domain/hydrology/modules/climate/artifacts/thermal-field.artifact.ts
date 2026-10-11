@@ -9,12 +9,12 @@ export const artifact = defineArtifact({
       surfaceTemperatureC: TypedArraySchemas.f32({
         cardinality: "map-grid",
         description:
-          "Annual mean of seasonal ground-surface temperature in degrees Celsius before albedo feedback. Land lapse uses height above sea level in model relief units; admitted SST is authoritative over original marine water.",
+          "Annual ground-surface thermal proxy in degrees Celsius before albedo feedback: the dense clipped incumbent mean, or with enabled regional response its bounded sum with the weighted producer-phase clipped-ground departure, reduced before Float32 publication. Cells with zero anomaly at every producer phase retain the exact incumbent annual publication. Not a reconstructed corrected-cycle integral. Land lapse uses height above sea level in model relief units; prescribed SST is authoritative over original marine water.",
       }),
     },
     {
       additionalProperties: false,
-      description: "Annual baseline ground-surface thermal evidence consumed by climate refinement.",
+      description: "Annual baseline ground-surface thermal proxy consumed by climate refinement.",
     }
   ),
   refine: (value, { issues }) => {

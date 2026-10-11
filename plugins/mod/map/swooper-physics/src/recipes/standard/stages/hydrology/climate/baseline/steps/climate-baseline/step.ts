@@ -157,11 +157,11 @@ export const ClimateBaselineStep = createStep(config, {
       stepConfig.computeSeasonalSampling
     );
     const { latitudeByRow } = sampling;
-
-    const seasonalPrecipitation: Float32Array[] = [];
-    const seasonalSurfaceWetness: Float32Array[] = [];
-    const seasonalDemand: number[][] = [];
-    const seasonalSurfaceTemperatureC: Float32Array[] = [];
+    const regionalResponseGainC = stepConfig.regionalResponse.gainC;
+    const regionalResponseEnabled = regionalResponseGainC > 0;
+    if (regionalResponseEnabled && stepConfig.coupling.iterations !== 2) {
+      throw new Error("Regional thermal response requires exactly two ocean coupling updates.");
+    }
 
     const oceanGeometry = ops.computeOceanGeometry(
       {
@@ -182,7 +182,13 @@ export const ClimateBaselineStep = createStep(config, {
       stepConfig.computeRadiativeForcing
     );
 
-    const computeSeasonalAtmosphere = (sstC: Float32Array) => {
+    const computeSeasonalAtmosphere = (
+      sstC: Float32Array,
+      frozenDriver?: Readonly<{
+        precipitationByPhase: readonly Float32Array[];
+        demandByPhase: readonly (readonly number[])[];
+      }>
+    ) => {
       const periodicThermal = ops.computeThermalState(
         {
           model: "periodic-response",
@@ -195,6 +201,20 @@ export const ClimateBaselineStep = createStep(config, {
           seaLevel: topography.seaLevel,
           landMask,
           sstC,
+          ...(frozenDriver
+            ? {
+                regionalResponse: {
+                  gainC: regionalResponseGainC,
+                  phases: sampling.phases,
+                  precipitationByPhase: frozenDriver.precipitationByPhase,
+                  demandByPhase: frozenDriver.demandByPhase,
+                  latitudeByRow,
+                  axialTiltDeg,
+                  tMinC: stepConfig.potentialDemand.tMinC,
+                  tMaxC: stepConfig.potentialDemand.tMaxC,
+                },
+              }
+            : {}),
         },
         stepConfig.computeThermalState
       );
@@ -328,58 +348,81 @@ export const ClimateBaselineStep = createStep(config, {
       carriedSstC = oceanThermal.sstC;
     }
 
-    const atmosphere = computeSeasonalAtmosphere(carriedSstC);
+    const computeSeasonalMoisture = (atmosphere: ReturnType<typeof computeSeasonalAtmosphere>) => {
+      const precipitationByPhase: Float32Array[] = [];
+      const surfaceWetnessByPhase: Float32Array[] = [];
+      const demandByPhase: number[][] = [];
+      const surfaceTemperatureByPhase: Float32Array[] = [];
+      for (const sample of atmosphere.samples) {
+        const surfaceTemperatureC = sample.groundTemperatureC;
+        surfaceTemperatureByPhase.push(surfaceTemperatureC);
+        const weatherPrecipitation = sample.weatherMembers.map((member) =>
+          ops.computeMoistureForcing(
+            {
+              width,
+              height,
+              landMask,
+              externalWaterMask: topography.externalWaterMask,
+              elevation,
+              seaLevel: topography.seaLevel,
+              windU: member.windU,
+              windV: member.windV,
+              sstC: oceanThermal.sstC,
+              seaIceMask: oceanThermal.seaIceMask,
+            },
+            stepConfig.computeMoistureForcing
+          )
+        );
+        const precipitation = ops.computeMoistureAggregate(
+          { reduction: "weather-members", width, height, samples: weatherPrecipitation },
+          stepConfig.computeMoistureAggregate
+        );
+        if (precipitation.reduction !== "weather-members")
+          throw new Error("Expected weather precipitation reduction.");
+        precipitationByPhase.push(precipitation.precipitation);
+        const surfaceWetness = precipitation.surfaceWetness;
+        surfaceWetnessByPhase.push(surfaceWetness);
+        demandByPhase.push(
+          ops.computePotentialDemand(
+            {
+              width,
+              height,
+              surfaceTemperatureC,
+              surfaceWetness,
+              parameters: stepConfig.potentialDemand,
+            },
+            stepConfig.computePotentialDemand
+          ).pet
+        );
+      }
+      return {
+        precipitationByPhase,
+        surfaceWetnessByPhase,
+        demandByPhase,
+        surfaceTemperatureByPhase,
+      };
+    };
+
+    let atmosphere = computeSeasonalAtmosphere(carriedSstC);
+    let moisture = computeSeasonalMoisture(atmosphere);
+    if (regionalResponseEnabled) {
+      // Freeze the provisional P/D once. The corrected pass shares SST2 and never advances
+      // the ocean or feeds its own moisture back into the response.
+      atmosphere = computeSeasonalAtmosphere(carriedSstC, moisture);
+      moisture = computeSeasonalMoisture(atmosphere);
+    }
+    const {
+      precipitationByPhase: seasonalPrecipitation,
+      surfaceWetnessByPhase: seasonalSurfaceWetness,
+      demandByPhase: seasonalDemand,
+      surfaceTemperatureByPhase: seasonalSurfaceTemperatureC,
+    } = moisture;
     const seasonalPressure = atmosphere.samples.map((sample) => sample.pressure);
     const seasonalWindU = atmosphere.samples.map((sample) => sample.windU);
     const seasonalWindV = atmosphere.samples.map((sample) => sample.windV);
     const seasonalCurrentU = atmosphere.samples.map((sample) => sample.currentU);
     const seasonalCurrentV = atmosphere.samples.map((sample) => sample.currentV);
     const { meanWindU, meanWindV, meanCurrentU, meanCurrentV, meanPressure } = atmosphere;
-
-    // Moisture and precipitation consume the same final atmosphere and prescribed SST vintage.
-    for (const sample of atmosphere.samples) {
-      const surfaceTemperatureC = sample.groundTemperatureC;
-      seasonalSurfaceTemperatureC.push(surfaceTemperatureC);
-      const weatherPrecipitation = sample.weatherMembers.map((member) =>
-        ops.computeMoistureForcing(
-          {
-            width,
-            height,
-            landMask,
-            externalWaterMask: topography.externalWaterMask,
-            elevation,
-            seaLevel: topography.seaLevel,
-            windU: member.windU,
-            windV: member.windV,
-            sstC: oceanThermal.sstC,
-            seaIceMask: oceanThermal.seaIceMask,
-          },
-          stepConfig.computeMoistureForcing
-        )
-      );
-
-      const precipitation = ops.computeMoistureAggregate(
-        { reduction: "weather-members", width, height, samples: weatherPrecipitation },
-        stepConfig.computeMoistureAggregate
-      );
-      if (precipitation.reduction !== "weather-members")
-        throw new Error("Expected weather precipitation reduction.");
-      seasonalPrecipitation.push(precipitation.precipitation);
-      const surfaceWetness = precipitation.surfaceWetness;
-      seasonalSurfaceWetness.push(surfaceWetness);
-      seasonalDemand.push(
-        ops.computePotentialDemand(
-          {
-            width,
-            height,
-            surfaceTemperatureC,
-            surfaceWetness,
-            parameters: stepConfig.potentialDemand,
-          },
-          stepConfig.computePotentialDemand
-        ).pet
-      );
-    }
 
     const annualMoisture = ops.computeMoistureAggregate(
       {
