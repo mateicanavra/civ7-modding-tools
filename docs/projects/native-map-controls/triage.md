@@ -86,6 +86,8 @@ not as an indefinitely unresolved question. Follow [Linear conventions](../../pr
 
 - Regional thermal response remains with the [current product goal](WORKSTREAM.md#current-product-goal)
   and [annual land-response owner](annual-land-response-owner-decision.md).
+  [Q-006](questions/q-006-regional-thermal-response.md) explains its open
+  response-and-qualification question without duplicating that active work.
 - Local plant-water meaning and its ecological consumers remain with the
   [plant-water owner decision](terrestrial-water-influence.md#next-plant-water-owner).
 - The [Earthlike core scope and Desert Mountains cap removal][current-study-policy]
@@ -102,6 +104,22 @@ These are navigation pointers, not copied investigations or new dispositions.
 - [Relief bounds and admitted support](#q-003-relief-bounds-and-admitted-support)
 - [Point-water habitat support](#q-004-point-water-habitat-support)
 - [Wetland suitability and admission](#q-005-wetland-suitability-and-admission)
+- [Regional thermal response and qualification](#q-006-regional-thermal-response-and-qualification)
+
+### Hydrology / Baseline Climate / Regional Response
+
+#### Q-006: Regional Thermal Response And Qualification
+
+On one fixed Earth-mask fixture with zero model height, current-source seasonal
+moisture varies broadly within latitude rows, and its retained input/publication
+checks pass exactly. The historical deficit statistic now has training-coordinate
+support, but concentrated regional magnitude; neither finding qualifies a
+temperature-response law.
+Annual versus phase-aware response and prospective geographic expectations
+remain open. Accepted qualification separates hard invariants, retained Earth
+diagnostics and procedural/downstream outcomes without changing executable
+targets or historical verdicts.
+[Read the research question](questions/q-006-regional-thermal-response.md).
 
 ### Ecology / Features / Score Layers
 
