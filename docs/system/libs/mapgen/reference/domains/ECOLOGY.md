@@ -116,6 +116,13 @@ native DESERT projects the Ecology `desert` symbol, not a second test of atmosph
 Temperature controls classify supplied temperatures. Thermal forcing, lapse rates, and PET
 derivation remain Hydrology-owned, not Ecology authoring controls.
 
+The tropical threshold is the nominal center of an empirical climate-habitat
+envelope, not a universal hard cutoff. For coarse temperate/tropical cells
+within 1.25 C of that center, atmospheric moisture shifts tropical admission;
+the guard limits the effective transition. Local plant water can improve
+moisture habitat and biomass without changing that climatic context or supplied
+temperature. These transition constants are not an Earth-calibrated life-zone model.
+
 Feature scoring and planning stay separate:
 - Score ops produce continuous physical suitability fields. A positive score is not itself a placement command.
 - Planner-local policies decide whether a suitability candidate is strong enough to become an intent.

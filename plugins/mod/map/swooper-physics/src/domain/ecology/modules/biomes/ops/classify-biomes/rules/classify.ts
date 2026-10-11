@@ -88,12 +88,13 @@ export function classifyBiomesFromFields(args: {
       (tempZone === "temperate" || tempZone === "tropical") &&
       Math.abs(temperature - tropicalThreshold) <= transitionBandC
     ) {
-      // Soft transition: use a stronger x-varying wetness signal (Hydrology effectiveMoisture)
-      // to prevent row-perfect biome cutoffs near the tropical threshold.
+      // Empirical climate-habitat envelope, originally introduced to reduce latitude cutoffs.
+      // Atmospheric wetness shifts tropical admission, not temperature or local plant water.
+      // The guard bounds this transition; outside it, the coarse temperature zone applies.
       const transitionDenom = Math.max(1e-6, humidThreshold - subhumid);
       const wetness01 = clamp01((moisture - subhumid) / transitionDenom);
       const wetnessShiftRaw = (wetness01 - 0.55) * 2.0;
-      const wetnessShiftC = Math.max(-1, Math.min(1, wetnessShiftRaw)); // [-1C..+1C]
+      const wetnessShiftC = Math.max(-1, Math.min(1, wetnessShiftRaw)); // Reachable range: [-1, 0.9].
       const wetnessShiftScaleC = 1.4;
       const effectiveThreshold = tropicalThreshold - wetnessShiftC * wetnessShiftScaleC;
       tempZone = temperature >= effectiveThreshold ? "tropical" : "temperate";
