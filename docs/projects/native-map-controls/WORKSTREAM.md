@@ -61,9 +61,17 @@ procedural inputs. The remaining regional thermal requirement is unwaived;
 thermal banding is not declared fixed by ecological placement. The curated
 `Q004`/`Q005` questions remain open, and island formation is not declared fixed.
 
-Next, finish player-facing inspection and normal play when capture is available.
-Accept a satisfactory player outcome, or route one concrete observed defect to
-its causal owner for design, implementation and qualification.
+The [prospective regional qualification decision](land-thermal-variance.md#prospective-regional-qualification)
+separates hard owner/numerical controls, retained fixed-Earth diagnostics and
+procedural Earthlike outcomes. A failed historical near-Pareto scientific screen
+is not an unconditional product veto; adverse tradeoffs require explicit review.
+No executable target, historical refusal or thermal model is changed by that
+decision. Select and review one causal response before another experiment.
+
+Adopted-build native generation and bounded normal gameplay have been exercised;
+they do not close all playability or climate questions. Next, select one causal
+response and its prospective expectations. Use the Civ CLI for additional
+native checks, with imagery required only for rendering claims.
 Do not infer an ocean/climate/feature omnibus, another climate bank, terrain
 carving or count targets from the open questions. Preserve existing user state
 and distinguish source, installation and loaded-world identity at each handoff.
