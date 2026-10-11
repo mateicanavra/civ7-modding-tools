@@ -250,6 +250,14 @@ Yet a low product can also be a legitimate rejection of marginal conditions.
 Sparse placement alone cannot distinguish an overly restrictive response from
 an appropriate one, or establish that the floor should be lowered.
 
+The [oasis admission question][point-water] makes that distinction concrete.
+Among 91 score-capable receiver climates in the six retained source-limited
+maps, plant-responsive classification ends DESERT compatibility before source
+support can lift the oasis score to the floor. Atmospheric dryness caps the
+remaining eligible nonpolar climates in those maps.
+Those conditional explanations justify no behavioral repair; they do not
+validate 0.42 as a common ecological threshold across these families.
+
 ## Changed Forcing, Retained Responses
 
 The moisture integration changes the environment supplied to these families,
@@ -410,9 +418,14 @@ Detailed attribution covers six prescribed pairs, not the separate 47-case
 bank. That bank has zero newly failed expectations but one inherited thermal
 failure; **both raw banks remain FAIL**. None of those statements establishes
 physical calibration, random-sample prevalence or improved regional warmth.
-These results contain no installed/native qualification of B: there is
-**no native B comparison**. Structured verification remains source or
-document inspection, not a new run or a whole-question success badge.
+The separate [candidate Huge 1018 readback][native-smoke] matches the retained
+headless B capture at exact coordinates for all 25 ordinary feature families,
+including bog 3, marsh 1 and mangrove 30. This single-candidate smoke is not the
+earlier native A/B, which stopped before B. Six resource refusals, three natural-wonder refusals
+and sixteen planned-lake classification differences limit the native claim;
+visual, navigation and played-turn adequacy remain unestablished. Structured
+verification remains source or document inspection, not a new run or a
+whole-question success badge.
 
 [scores]: https://github.com/mateicanavra/civ7-modding-tools/blob/d17abf6f54b018600b2d13c139e8be485e2aa732/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/steps/score-layers/step.ts
 [marsh]: https://github.com/mateicanavra/civ7-modding-tools/blob/d17abf6f54b018600b2d13c139e8be485e2aa732/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-marsh/strategies/temperate-hydromorphic/index.ts
@@ -434,6 +447,7 @@ document inspection, not a new run or a whole-question success badge.
 [retained]: ../wetland-occurrence-evidence.md
 [current-evidence]: ../wetland-occurrence-evidence.md#six-case-feature-attribution
 [quantities]: ../wetland-occurrence-evidence.md#four-quantities-through-the-pipeline
+[native-smoke]: ../wetland-occurrence-evidence.md#candidate-huge-1018-readback
 [bog-evidence]: ../wetland-occurrence-evidence.md#qualified-bog-consumer-result
 [mangrove-evidence]: ../wetland-occurrence-evidence.md#qualified-mangrove-consumer-result
 [original-evidence]: ../wetland-occurrence-evidence.md#original-other-family-observations

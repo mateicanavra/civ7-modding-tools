@@ -116,11 +116,14 @@ established. [Read the research question](questions/q-001-low-shore-neighborhood
 
 With repaired source-led consumers retained, the six-case moisture comparison
 produces watering holes in three of the six source-limited maps; oasis remains
-absent despite new overlap between local supply and atmospheric dryness. Oasis scores stay below
-the unchanged floor. This is forcing-sensitive headless occurrence, not
-appropriate prevalence, 47-case feature attribution or native acceptance.
-Habitat meaning and empirical response scales remain open; neither the old
-four-world zeros nor the new counts justify a quota or lower floor.
+absent despite new overlap between local supply and atmospheric dryness.
+All 1,625 free-flat DESERT cells score below admission. With receiver climates
+held, 91 score-capable source-only paths leave DESERT before the floor is reached;
+atmospheric dryness caps the remaining eligible nonpolar climates.
+A quantity-compatible local positive control is not a generated-world oasis.
+Whole-tile habitat response versus a small wet patch in a dry landscape remains
+open. No justified repair is not threshold validation; these findings justify
+neither a quota nor a lower floor.
 [Read the research question](questions/q-004-point-water-support.md).
 
 ### Ecology / Features / Scoring And Wetland Planning

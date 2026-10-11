@@ -46,13 +46,15 @@ assessments:
   - claim: "The merged source-led scorers consume Hydrology's published local source opportunity and demand, multiplied by atmospheric dryness, without the retired isolated-water mask or direct warmth/fertility multipliers."
     state: "supported"
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/09e8c9a87fba9c5078d20134ad1c8e04a858bfbb/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/model/policy/dryland-waterpoint-score.ts"
-  - claim: "The earlier source-led consumer qualification establishes producer-consistent moderate-temperature oasis and watering-hole intent, but reports zero attempts and features in its four prescribed worlds. Those are not the later moisture-integration captures."
+  - claim: "The earlier source-led consumer qualification establishes moderate-temperature oasis and watering-hole intent through downstream owners, but its P=5 / W=80/255 controls are not compatible with current moisture forcing. Its four zero-occurrence worlds are not the later moisture-integration captures."
     state: "supported"
-    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/09e8c9a87fba9c5078d20134ad1c8e04a858bfbb/docs/projects/native-map-controls/dryland-point-water-coherence.md#qualified-outcome"
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/73c9de02adb99ca0c604086c286ab6b2e8bbb605/docs/projects/native-map-controls/dryland-point-water-coherence.md#current-moisture-publication-boundary"
   - claim: "At fixed climate and class, the four earlier consumer-qualification worlds' native-compatible, captured-flat, observed-earlier-free populations have dryness factors below 0.42 even with unlimited source support."
     state: "supported"
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/09e8c9a87fba9c5078d20134ad1c8e04a858bfbb/docs/projects/native-map-controls/dryland-point-water-coherence.md#qualified-outcome"
   - claim: "With the source-led consumer law retained, the source-limited moisture comparison produces watering holes in three of six prescribed B cases and no oases. Compatible-flat dry/source overlap appears for oasis, but its scores remain below 0.42. This is six-case headless attribution, not 47-case prevalence or native qualification."
+    state: "supported"
+  - claim: "Exact downstream reproduction of those six B cases finds 1,625 free-flat DESERT cells below admission. The 82 current DESERT and nine other-biome receiver climates with sufficient atmospheric dryness have no oasis admission window through source opportunity alone at held temperature, precipitation and wetness. This is conditional, not an all-climate impossibility result or threshold validation."
     state: "supported"
   - claim: "Atmospheric dryness, plant-responsive biome classification, local source support and native compatibility jointly admit ecologically appropriate point-water habitat with adequate occurrence."
     state: "unassessed"
@@ -92,6 +94,11 @@ verification:
     revision: eff77c0f8cd3be5b8a8fd176997918b76848bc44
     date: '2026-10-10'
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/eff77c0f8cd3be5b8a8fd176997918b76848bc44/docs/system/libs/mapgen/reference/domains/HYDROLOGY.md#L144-L217"
+  - kind: source-inspection
+    scope: "The accepted test composes actual public moisture-forcing P/W outputs from a synthetic calm-marine fixture with a separate 22 C land-consumer fixture. It asserts DESERT/oasis admission at opportunity 60 and rejection at 50 or absent source. Inspection is not a new test execution, same-world atmospheric/catchment reachability or threshold calibration."
+    revision: 73c9de02adb99ca0c604086c286ab6b2e8bbb605
+    date: '2026-10-10'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/73c9de02adb99ca0c604086c286ab6b2e8bbb605/plugins/mod/map/swooper-physics/test/domains/ecology/dryland-point-water-flow.test.ts#L151-L190"
 ---
 
 # Q-004: Point-Water Habitat Support
@@ -104,11 +111,13 @@ the same ecologically suitable place, not how to force more features onto a map.
 The current [six-case moisture comparison][current-evidence] contrasts the
 empirical-moisture baseline (A) with source-limited forcing (B), retaining the
 same repaired consumers. **Watering holes occur in three of six B maps;
-oases remain absent.** For oasis, dry atmosphere and local supply now overlap
-in compatible flat terrain, but the combined score
-remains below admission. This distinguishes a change in generated conditions
-from a change to the scoring law. It does not establish suitable frequency,
-justify a lower floor or close the ecological question.
+oases remain absent.** All 1,625 currently free, flat DESERT cells score below
+admission. The [source-window diagnosis][oasis-windows] distinguishes two limits
+with temperature, precipitation and wetness held. In 91 score-capable receiver
+climates, the plant-responsive biome leaves DESERT before the oasis score
+clears the floor. The remaining eligible nonpolar climates are capped below
+admission by atmospheric dryness even with unlimited source. Neither finding
+establishes universal impossibility or validates the thresholds.
 
 ## A Source Is Not A Dry Habitat
 
@@ -141,10 +150,16 @@ choice rather than a calibrated physical constant.
 There is no separate whole-tile plant-moisture, fertility or direct warmth
 multiplier in these scorers. Temperature can still affect water demand.
 The legal planner still respects terrain, native biome compatibility and
-actual earlier feature occupancy. Producer-consistent moderate-temperature
-fixtures demonstrate oasis intent on DESERT and watering-hole intent on PLAINS
-without bypassing those constraints. That result does not establish appropriate
-occurrence across generated worlds.
+actual earlier feature occupancy. Local controls can exercise that complete
+consumer path without proving that a generated world supplies their conditions.
+The [earlier controls][current-control] use `P = 5, W = 80/255`. They are
+**downstream-owner fixtures**, not current moisture-compatible inputs.
+A quantity-compatible local control uses actual `P = 5, W = Float32(5/200)`
+outputs from a synthetic calm-marine forcing fixture in a separate 22 degrees C
+land fixture. `O = 60` admits DESERT/oasis at 0.426661; `O = 50` and absent
+source do not. This is composition of two declared local regimes, not rainfall
+and catchment reachability on that land in one generated world. The
+[control comparison][oasis-windows] preserves that boundary.
 
 ### The Forcing Reaches The Consumer
 
@@ -178,6 +193,17 @@ plans, projection attempts and final headless counts agree. The limiting
 condition therefore differs by family and world; "water is present" is not
 equivalent to "a waterpoint qualifies."
 
+The source-window diagnosis asks a narrower counterfactual: with each receiver's
+temperature, precipitation and wetness held, could a different local source
+opportunity admit an oasis? Its **91 receiver climates** comprise 82 currently
+DESERT and nine currently in other biomes. They are not the same population as
+the 1,625 free-flat DESERT cells above. Their atmospheric dryness response could
+exceed the floor with enough source, but none has an interval where the
+plant-responsive biome remains DESERT and the oasis score reaches 0.42.
+The remaining eligible nonpolar climates cannot reach that floor even at the
+unlimited-source score ceiling. These local donor-path witnesses do not prove
+that a regenerated catchment can provide the tested supply.
+
 ## Four Worlds Still Fall Below Admission
 
 This is an **[earlier consumer-qualification result][qualified]**, not the
@@ -192,29 +218,34 @@ it is not an all-world impossibility or a source-tuning prescription.
 ## Two Meanings Of Dryness
 
 The [biome and feature consumers][consumers] interpret different aspects of
-water. Nonpolar biome classification uses plant-water moisture and stress;
-its moisture bucket is based on the absolute moisture index. Point-water
-dryness instead uses atmospheric aridity, which compares demand with rainfall.
+water. Nonpolar biome classification uses both the absolute plant-moisture
+index and plant stress, including stress-driven shifts toward drier classes.
+Point-water dryness instead uses atmospheric aridity, which compares demand with rainfall.
 A native DESERT label therefore does not by itself establish high atmospheric
 aridity, and a cold DESERT site is not itself evidence of a mapping defect.
 
-A separate [earlier contract trace][retained] reproduces those distinct
-meanings without identifying a specific contradiction. Its four low-aridity
-DESERT witnesses follow the absolute plant-moisture bucket; the highest-aridity
-land witness in each world is polar/snow rather than eligible dryland. Source-only
-contrasts hold ambient climate fixed but can change plant state and compatible
-biome. Its positive local regimes establish modeled admission, not generated
-reachability. The later six-case result supplies reachability for watering
-holes in three prescribed worlds, not general adequacy for either family.
+Increasing local opportunity raises plant moisture and lowers plant stress
+without erasing atmospheric aridity. In the 91 score-capable climates, the
+representative biome changes before an oasis qualifies. This is a defensible
+**whole-tile habitat response**, not by itself a classifier contradiction. The
+[earlier contract trace][retained] likewise distinguishes these meanings rather
+than validating their response scales.
 
-The unresolved question is whether the empirical response scales and generated
-dry-regime coverage adequately represent the intended habitats. Neither the
-absolute moisture cutoff of 90, the dryness ramps nor the shared floor is
-validated by a trace that reproduces the implemented meanings.
-Evidence that appropriate dry, watered habitats fall outside the intersection
-of compatible biomes and family responses
-would challenge the interpretation. Evidence that the worlds lack such
-habitats could explain the absence without increasing placement.
+A **small wet patch within a dry surrounding landscape** poses a different
+question. How much of the represented tile receives water, and for how long?
+For an example of why area matters, [FAO's field water balance][wetted-area]
+distinguishes field-average irrigation from its concentration over the wetted
+fraction. That agricultural treatment is not a natural-oasis calibration or a
+prescription for this model. Our [source-and-access quantity][source-model]
+measures neither patch area nor persistence, so it cannot settle that spatial
+interpretation.
+
+No behavioral repair is justified by the retained diagnosis. **That does not
+validate the thresholds.** Whether the empirical moisture classes, dryness
+ramps and shared floor represent the intended habitat at this scale remains
+open. Physically suitable dry, watered habitats systematically excluded by
+their intersection would challenge that meaning; worlds lacking such habitats
+could explain the absence without increasing placement.
 
 Neither the near-miss bounds nor the positive fixtures establish a rainfall or
 thermal defect, a better coefficient, or a reason to lower the admission floor.
@@ -242,10 +273,15 @@ Neither evidence type is silently substituted for the other.
 Detailed ecology covers six paired cases. The separate 47-case bank has zero
 newly failed expectations but retains the thermal failure: **both raw banks
 are FAIL**. Its broader checks are not 47-case waterpoint attribution. These
-results contain no installed/native qualification of B: there is
-**no native B comparison**. The added structured records remain source/document
-inspections; privately retained results are summarized with
-custody, not presented as new editorial executions or physical calibration.
+headless results are distinct from the later [candidate Huge 1018 readback][native-smoke].
+That separate turn-one native smoke matches the retained headless B capture
+at exact coordinates for all 25 ordinary feature families, including zero oasis
+and watering hole. It is not a completed native A/B:
+the earlier comparison still stopped before B. Six resource refusals, three
+natural-wonder refusals and sixteen planned-lake classification differences
+prevent an all-native parity claim. Visual or played-turn adequacy is not
+established. Structured records remain source/document inspections; retained
+results have separate custody, not new editorial executions or physical calibration.
 
 [qualified]: https://github.com/mateicanavra/civ7-modding-tools/blob/09e8c9a87fba9c5078d20134ad1c8e04a858bfbb/docs/projects/native-map-controls/dryland-point-water-coherence.md#qualified-outcome
 [source-model]: https://github.com/mateicanavra/civ7-modding-tools/blob/09e8c9a87fba9c5078d20134ad1c8e04a858bfbb/docs/projects/native-map-controls/local-plant-water-design.md#source-and-access-definition
@@ -255,6 +291,10 @@ custody, not presented as new editorial executions or physical calibration.
 [retained]: ../wetland-occurrence-evidence.md
 [current-evidence]: ../wetland-occurrence-evidence.md#source-limited-moisture-with-repaired-consumers
 [quantities]: ../wetland-occurrence-evidence.md#four-quantities-through-the-pipeline
+[oasis-windows]: ../wetland-occurrence-evidence.md#oasis-admission-at-held-climate
+[native-smoke]: ../wetland-occurrence-evidence.md#candidate-huge-1018-readback
+[wetted-area]: https://www.fao.org/4/x0490e/x0490e0c.htm
+[current-control]: https://github.com/mateicanavra/civ7-modding-tools/blob/73c9de02adb99ca0c604086c286ab6b2e8bbb605/docs/projects/native-map-controls/dryland-point-water-coherence.md#current-moisture-publication-boundary
 [earlier-evidence]: ../wetland-occurrence-evidence.md#conditional-dryness-ceilings
 [geometry]: q-001-low-shore-neighborhood.md
 [suitability]: q-005-wetland-suitability.md

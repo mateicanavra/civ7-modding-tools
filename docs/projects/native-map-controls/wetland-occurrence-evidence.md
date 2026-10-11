@@ -9,14 +9,18 @@ turns feature counts into abundance targets or establishes physical calibration.
 
 - [Six-case attribution](#six-case-feature-attribution) explains the current
   forcing contrast, including watering-hole reachability and an unobserved bog cause.
+- [Oasis admission at held climate](#oasis-admission-at-held-climate) separates
+  the six worlds' absent admission windows from a quantity-compatible local control.
 - [The 47-case bank](#what-the-47-case-bank-establishes) has no newly failed
   expectation, but both raw banks remain FAIL on the inherited thermal requirement.
 - [Earlier point-water](#qualified-source-led-point-water-result),
   [bog](#qualified-bog-consumer-result) and [mangrove](#qualified-mangrove-consumer-result)
   comparisons isolate different consumer changes. Their original observations,
   identities and limits remain intact below.
-- The [historical native census](#a-separate-native-occurrence-observation)
-  covers a different map. There is no native B comparison for the current integration.
+- The separate [candidate Huge 1018 readback](#candidate-huge-1018-readback)
+  matches ordinary ecology but not every native output. It does not complete the
+  earlier native A/B; the [historical census](#a-separate-native-occurrence-observation)
+  covers a different map again.
 
 ## Source-Limited Moisture With Repaired Consumers
 
@@ -119,6 +123,77 @@ has M 165.906296 and a zero score; its exact substrate/factor cause remains
 unobserved. [Q-005][wetland-question] retains that uncertainty and the distinct
 marsh, bog and mangrove hypotheses. Their counts do not rank habitat quality.
 
+### Oasis Admission At Held Climate
+
+Exact downstream reproduction of all six B captures agrees with retained demand,
+atmospheric moisture/aridity, local opportunity, plant moisture/stress, biome,
+vegetation density, both point-water scores and all wetland intent coordinates
+and families. This is not tree-line reproduction. All **1,625 currently free,
+flat DESERT cells** remain below the unchanged oasis floor.
+
+The source-window comparison holds each receiver's temperature, unrounded
+precipitation and normalized wetness. It varies opportunity through a declared
+local donor path, not a regenerated catchment. The 91 receiver climates below
+have an atmospheric dryness response high enough to exceed 0.42 with sufficient
+source. They include 82 currently DESERT and nine other-biome cells, not just a
+subset of the 1,625 current DESERT population.
+
+| Case | Free-flat DESERT cells | Tested climates: DESERT + other | Oasis admission windows |
+| --- | ---: | ---: | ---: |
+| Huge 1018 | 198 | 0 + 0 | 0 |
+| Huge 2024 | 327 | 14 + 0 | 0 |
+| Huge 5050 | 350 | 12 + 0 | 0 |
+| Standard 1018 | 235 | 17 + 8 | 0 |
+| Standard 1 | 310 | 39 + 1 | 0 |
+| Standard 42 | 205 | 0 + 0 | 0 |
+
+Every tested path leaves DESERT before the oasis score reaches admission.
+The other eligible nonpolar climates cannot reach the floor even at the
+unlimited-source score ceiling. The closest tested window is Standard 1018
+cell 1994: its analytic DESERT opportunity ceiling is about 77.471053, below
+the 97.307739 required at the literal oasis score floor. More source changes
+plant moisture and stress, hence compatible biome, while atmospheric aridity
+holds. This identifies a conditional interaction, not a hidden planner veto,
+native oasis-placement failure or proof that catchment supply is available.
+
+**Local admission is still possible.** At 22 degrees C, precipitation 5 and
+opportunity 60, two controls have different evidential scope:
+
+| Normalized wetness | Oasis score | What The Control Establishes |
+| --- | ---: | --- |
+| `80/255` | 0.444470 | Earlier downstream-owner admission; not current moisture-compatible input |
+| `Float32(5/200)` | 0.426661 | Quantity-compatible local DESERT/oasis admission; not generated-world reachability |
+
+Current member forcing publishes `W = clamp01(P/200)`. Independent annual
+reductions imply the necessary bound `W <= min(P/200, 1)`, allowing Float32
+tolerance; annual equality is not generally valid. The old control violates
+that bound. Its downstream assertions remain useful, but they cannot prove
+that the current moisture owner supplies those inputs.
+
+The [accepted durable control][current-control] consumes actual P/W from the
+public moisture-forcing operation: a synthetic calm-marine fixture supplies
+these quantities to a separate 22 degrees C land-consumer fixture. Its ordinary
+flow yields opportunity 60; reduced opportunity 50 and absent source both keep
+DESERT without admitting an oasis. This is a manufactured local composition,
+not same-world atmospheric delivery or catchment reachability. The
+[test source][current-control-test] and boundary explanation are pinned to
+accepted revision `73c9de02adb99ca0c604086c286ab6b2e8bbb605`, with no production
+algorithm or authored configuration change. The owner reports 15 focused tests
+and 1,311 assertions; this summary inspects that source, not a fresh test run.
+
+The source-only result does not establish impossibility across climates.
+Nor does finding no justified repair validate the moisture classes, dryness
+ramps or 0.42 floor. [Q-004][point-water] keeps the spatial question explicit:
+does an oasis represent the tile's habitat, or a small wet patch within a dry
+matrix? Annual opportunity is not patch area, groundwater or persistence.
+That meaning is not resolved by these counts or by the local positive control.
+
+The retained reproduction executed existing operations at documentation source
+`877fdb628de3b9045afa711b9d92247dd4544411`, the same tree as adopted `eff77` below.
+It is separate from the original six-case execution and does not change its
+receipt identity. Its private program and result are hash-bound in the custody
+section; this editorial summary runs neither operation replay nor generation.
+
 ### What The 47-Case Bank Establishes
 
 The unchanged Earthlike bank comprises 16 studies, 47 unique prescribed
@@ -193,11 +268,48 @@ The reports describe 447 focused tests and 188 successful repository checks;
 these are owner-reported qualification, not tests rerun by this editorial summary.
 
 The source-adoption receipt records the merged source independently of native
-qualification. **There is no native B comparison:** the closed native window
+qualification. **The earlier native A/B remains incomplete:** its closed window
 stopped after A's live-world identity changed, before B was built, installed or
-launched. That is neither B-native success nor B-native failure. The earlier
-qualified installed build was verified unchanged at closure. Source adoption,
-headless qualification and native player-path acceptance are separate claims.
+launched in that attempt. That is neither B-native success nor B-native failure.
+The earlier qualified installed build was verified unchanged at that closure.
+The separate single-candidate observation below adds native evidence without
+rewriting that receipt or completing its comparison.
+
+### Candidate Huge 1018 Readback
+
+One later smoke of candidate `eff77c0f8cd3be5b8a8fd176997918b76848bc44`
+generated a Huge 106 x 66 world with map/game seeds 1018/1018, ten majors and
+latitude bounds 80/-80. A stable turn-one census contains all 6,996 unique
+cells, with none missing or omitted. Its comparison uses the already-retained
+B Huge 1018 capture, not another headless generation or a native A/B pair.
+
+**All 25 ordinary feature families match at exact coordinates**, including
+absent oasis and watering hole. Counts include bog 3, marsh 1 and mangrove 30.
+All 1,125 ordinary feature attempts were applied, with no rejection. Terrain,
+biome and actual water also match. Native rainfall matches the retained byte
+codec, not unrounded atmospheric precipitation. All 667 river-bearing cells
+match, comprising 417 minor and 250 navigable tiles; navigable terrain and
+metadata coordinates also agree. These are tile/source observations, not
+complete river-object topology or vessel-path proof.
+
+This is **not all-native parity**. Six of 230 planned resources are refused,
+each coordinate difference matching a typed native rejection. Three of seven
+planned natural wonders are refused; wonder realization accounts for fifteen
+feature-cell differences outside ordinary ecology. All 154 planned lake cells
+remain water, but sixteen are classified as coastal water rather than lake.
+Those are classification differences, not disappeared water, and do not
+establish calibrated physical water-surface heights.
+
+The sealed Earthlike script has SHA-256
+`40bbc71a9c2ae4bf84bcfd6120bad80be9bc3aa1dc1e6f77cd5f885d590c0711`.
+Installed-file hashes and fresh matching configuration/plan logs support
+identity separately; the engine logs are not cryptographic executing-bundle
+attestation. A narrow later read completed the ten start-coordinate proxies
+without repeating generation or census, preserving the initial consumer-stop
+receipt. The previously qualified eight-file installation was restored; that
+did not replace the already-generated candidate world, which remained at turn
+one. This observation is not release adoption, visual continuity, navigation,
+played-turn adequacy or Earth calibration.
 
 ## Original Case And Source Identity
 
@@ -351,13 +463,16 @@ atmospheric aridity and `D` is published post-albedo potential demand. Direct
 warmth, whole-tile plant-moisture and fertility multipliers and the isolated-water
 mask are retired. Family dryness ramps and the 0.42 admission floor are unchanged.
 
-Producer-consistent moderate-temperature fixtures admit oasis on DESERT and
+Moderate-temperature downstream-owner fixtures admit oasis on DESERT and
 watering-hole on PLAINS through the actual classifier, scorers and legal
 planner. Ordinary imported flow and finite-body contact supply positive cases;
 source absence, inaccessible or marine donors, incompatible biome or terrain
 and actual prior occupancy retain their exclusions. The owner reports 45
 focused tests and 1,830 assertions. This supports a bounded consumer law, not a
 calibrated physical model or an occurrence target.
+Their historical `P = 5, W = 80/255` pair is not compatible with the later
+moisture producer; the [current control comparison](#oasis-admission-at-held-climate)
+qualifies that input boundary without changing the earlier execution record.
 
 ### Separate Identities And Paired Holds
 
@@ -438,7 +553,7 @@ A bounded 40-row contract trace at source
 The four low-aridity DESERT witnesses follow the absolute plant-moisture bucket;
 each world's highest-aridity land witness is polar/snow, not eligible dryland.
 Source-only contrasts preserve ambient climate while altering plant fields
-and sometimes native-compatible class. Existing producer-consistent positive
+and sometimes native-compatible class. Existing downstream-owner positive
 local regimes still admit oasis and watering hole. The trace identifies no
 specific contradiction between these distinct meanings, but does not establish
 generated-world reachability or validate the absolute moisture cutoff of 90,
@@ -760,8 +875,24 @@ The current moisture comparison has separate, privately retained custody:
 | Source-adoption final receipt | `449bb1fc6494f8c4b16273847c227ea7f13e8df3441d1f54c11b11ffccf49b1d` |
 
 These identify the inspected reports; they do not publish the raw arrays or
-replace the original capture bindings. The earlier qualifications retain their
-own custody below.
+replace the original capture bindings.
+
+The oasis source-window diagnosis and the separate candidate native smoke
+have their own identities. Neither rewrites the original forcing comparison
+or the closed native-pair receipt:
+
+| Retained artifact | SHA-256 |
+| --- | --- |
+| Oasis diagnostic bindings | `69d06646af3a926618cab1284d8eef032d59c21dfad2f9201b106a556c3ed27d` |
+| Oasis diagnostic decision | `afbc271763f2d113317bc9f1c81c27e6fd7791c05b26d610a1c7b7548708a8cb` |
+| Six-case oasis reproduction | `8099574bdbd42cfa0a8348c831786817b375220fdf0a4a2af347aadb93c21155` |
+| Oasis reproduction program | `cd986b9485baea88d786bda1c761fac0fe4ccadd4f986fcbbf9ce34722a00101` |
+| Feature-admission physical review | `3c6516553d5305f181741dabfce6f96ffe015bc011a48989bccae32c81fa2fc9` |
+| Candidate native-smoke bindings | `d09b20482b9c10d0d24b8b0149e1a176e9214ca826af2118bcd9a53d6019128a` |
+| Candidate native-smoke decision | `78c1082e68cfb072d5ac0de5d5111dc2c3505532f2b45916e528f68a631c7435` |
+| Candidate native/offline comparison | `ee3a52f1b52712c3e184efb5444663280589f62c13ba547e7b39e81845dfe689` |
+
+The earlier qualifications retain their own custody below.
 
 | Retained artifact | SHA-256 |
 | --- | --- |
@@ -841,3 +972,5 @@ preferred threshold follows from these results.
 [native-rainfall]: https://github.com/mateicanavra/civ7-modding-tools/blob/d17abf6f54b018600b2d13c139e8be485e2aa732/plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/projection/steps/project-rainfall/step.ts
 [relief-question]: questions/q-003-relief-support.md
 [freshwater-meaning]: https://github.com/mateicanavra/civ7-modding-tools/blob/3532e8d34c28f6acb343b066338d761e9d2a3644/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/earthlike-placement.md
+[current-control]: https://github.com/mateicanavra/civ7-modding-tools/blob/73c9de02adb99ca0c604086c286ab6b2e8bbb605/docs/projects/native-map-controls/dryland-point-water-coherence.md#current-moisture-publication-boundary
+[current-control-test]: https://github.com/mateicanavra/civ7-modding-tools/blob/73c9de02adb99ca0c604086c286ab6b2e8bbb605/plugins/mod/map/swooper-physics/test/domains/ecology/dryland-point-water-flow.test.ts#L151-L190
