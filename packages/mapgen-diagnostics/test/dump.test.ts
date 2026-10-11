@@ -11,7 +11,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { createTraceSessionForTest } from "@swooper/mapgen-core/testing";
 import { admitPathVizManifest, createVizLayerKey, type PathVizManifest } from "@swooper/mapgen-viz";
 import { createDiagnosticDumpAdapters } from "../src/index.js";
@@ -214,8 +214,129 @@ describe("diagnostic dump adapters", () => {
       expect(
         Array.from(readFileSync(join(outputRoot, "facet-run", layer.field.data.path)))
       ).toEqual([4, 7]);
-      expect(layer.field.data.path).toContain("%2A");
+      expect(layer.layerKey).toContain("test.facet*grid");
+      expect(layer.field.data.path).toMatch(/^data\/slot-[a-f\d]{64}__sha256-[a-f\d]{64}\.bin$/);
       expect(Array.from(backing)).toEqual([90, 4, 7, 91]);
+    } finally {
+      rmSync(outputRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("bounds long-identifier binary paths without truncating logical identities or aliasing slots", () => {
+    const outputRoot = mkdtempSync(join(tmpdir(), "swooper-viz-long-identifiers-"));
+    try {
+      const outputs = createDiagnosticDumpAdapters({ outputRoot });
+      const stepId = `test.${"long-step.".repeat(80)}end`;
+      const dataTypeKey = `test.${"long-data-type.".repeat(80)}end`;
+      const firstFieldKey = `${"long-field-".repeat(80)}first`;
+      const secondFieldKey = `${"long-field-".repeat(80)}second`;
+      const context = {
+        runId: "long-identifiers-run",
+        planFingerprint: "long-identifiers-plan",
+        stepId,
+        stageId: "foundation",
+        stepIndex: 0,
+      } as const;
+      const scalar = new Uint8Array([42]);
+      const geometry = new Float32Array([0, 0, 1, 1]);
+      outputs.facetSinks.viz?.(
+        [
+          {
+            kind: "gridFields",
+            dataTypeKey,
+            spaceId: "tile.hexOddQ",
+            dims: { width: 1, height: 1 },
+            fields: {
+              [firstFieldKey]: { format: "u8", values: scalar },
+              [secondFieldKey]: { format: "u8", values: scalar },
+            },
+          },
+          {
+            kind: "grid",
+            dataTypeKey,
+            spaceId: "tile.hexOddQ",
+            dims: { width: 1, height: 1 },
+            field: { format: "u8", values: scalar },
+          },
+          {
+            kind: "points",
+            dataTypeKey,
+            spaceId: "tile.hexOddQ",
+            positions: geometry,
+            values: { format: "f32", values: new Float32Array([7, 7]) },
+          },
+          {
+            kind: "segments",
+            dataTypeKey,
+            spaceId: "tile.hexOddQ",
+            segments: geometry,
+            values: { format: "f32", values: new Float32Array([7]) },
+          },
+        ],
+        context
+      );
+
+      const manifest = readManifest(outputRoot, context.runId);
+      expect(manifest.steps).toEqual([{ stepId, stageId: "foundation", stepIndex: 0 }]);
+      expect(manifest.layers).toHaveLength(4);
+      const [fields, grid, points, segments] = manifest.layers;
+      if (
+        fields?.kind !== "gridFields" ||
+        grid?.kind !== "grid" ||
+        points?.kind !== "points" ||
+        segments?.kind !== "segments" ||
+        !points.values ||
+        !segments.values
+      ) {
+        throw new Error("Expected all diagnostic binary slot kinds.");
+      }
+      expect(Object.keys(fields.fields)).toEqual([firstFieldKey, secondFieldKey]);
+      for (const layer of manifest.layers) {
+        expect(layer.stepId).toBe(stepId);
+        expect(layer.dataTypeKey).toBe(dataTypeKey);
+        expect(layer.layerKey).toBe(
+          createVizLayerKey({ stepId, dataTypeKey, spaceId: "tile.hexOddQ", kind: layer.kind })
+        );
+        expect(Buffer.byteLength(encodeURIComponent(layer.layerKey))).toBeGreaterThan(255);
+      }
+      const pathsAndBytes = [
+        [fields.fields[firstFieldKey]!.data.path, Buffer.from(scalar)],
+        [fields.fields[secondFieldKey]!.data.path, Buffer.from(scalar)],
+        [grid.field.data.path, Buffer.from(scalar)],
+        [points.positions.path, Buffer.from(geometry.buffer)],
+        [points.values.data.path, Buffer.from(new Float32Array([7, 7]).buffer)],
+        [segments.segments.path, Buffer.from(geometry.buffer)],
+        [segments.values.data.path, Buffer.from(new Float32Array([7]).buffer)],
+      ] as const;
+      expect(new Set(pathsAndBytes.map(([path]) => path)).size).toBe(pathsAndBytes.length);
+      for (const [path, bytes] of pathsAndBytes) {
+        expect(path).toMatch(/^data\/slot-[a-f\d]{64}__sha256-[a-f\d]{64}\.bin$/);
+        const filename = basename(path);
+        expect(
+          Buffer.byteLength(`${filename}.tmp-${Number.MAX_SAFE_INTEGER}-${Number.MAX_SAFE_INTEGER}`)
+        ).toBeLessThan(255);
+        expect(readFileSync(join(outputRoot, context.runId, path))).toEqual(bytes);
+      }
+      expect(readdirSync(join(outputRoot, context.runId, "data")).sort()).toEqual(
+        pathsAndBytes.map(([path]) => basename(path)).sort()
+      );
+
+      const repeatedOutputs = createDiagnosticDumpAdapters({ outputRoot });
+      repeatedOutputs.facetSinks.viz?.(
+        [
+          {
+            kind: "grid",
+            dataTypeKey,
+            spaceId: "tile.hexOddQ",
+            dims: { width: 1, height: 1 },
+            field: { format: "u8", values: scalar },
+          },
+        ],
+        { ...context, runId: "long-identifiers-repeated-run" }
+      );
+      const repeatedGrid = readManifest(outputRoot, "long-identifiers-repeated-run").layers[0];
+      if (repeatedGrid?.kind !== "grid") throw new Error("Expected deterministic repeated grid.");
+      expect(repeatedGrid.field.data.path).toBe(grid.field.data.path);
     } finally {
       rmSync(outputRoot, { recursive: true, force: true });
     }
@@ -577,10 +698,10 @@ describe("diagnostic dump adapters", () => {
       const digest = createHash("sha256")
         .update(new Uint8Array([10]))
         .digest("hex");
-      const blockedPath = join(
-        runDir,
-        `data/${encodeURIComponent(layerKey)}__field-b__sha256-${digest}.bin`
-      );
+      const blockedIdentityDigest = createHash("sha256")
+        .update(JSON.stringify([layerKey, "grid-field-values", "b"]))
+        .digest("hex");
+      const blockedPath = join(runDir, `data/slot-${blockedIdentityDigest}__sha256-${digest}.bin`);
       mkdirSync(blockedPath);
 
       expect(() => dump(9, 10, "test.atomic.second")).toThrow();
@@ -591,8 +712,11 @@ describe("diagnostic dump adapters", () => {
       const newADigest = createHash("sha256")
         .update(new Uint8Array([9]))
         .digest("hex");
+      const newAIdentityDigest = createHash("sha256")
+        .update(JSON.stringify([layerKey, "grid-field-values", "a"]))
+        .digest("hex");
       expect(readdirSync(join(runDir, "data"))).toContain(
-        `${encodeURIComponent(layerKey)}__field-a__sha256-${newADigest}.bin`
+        `slot-${newAIdentityDigest}__sha256-${newADigest}.bin`
       );
     } finally {
       rmSync(outputRoot, { recursive: true, force: true });

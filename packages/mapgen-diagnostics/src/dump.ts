@@ -295,21 +295,16 @@ function createTraceDumpSinkWithState(
   return { emit };
 }
 
-function encodePortablePathComponent(value: string): string {
-  return encodeURIComponent(value).replace(
-    /[!'()*]/g,
-    (character) => `%${character.charCodeAt(0).toString(16).toUpperCase()}`
-  );
-}
-
 function binaryPath(slot: VizBinarySlot, bytes: Uint8Array): string {
-  const layer = encodePortablePathComponent(slot.layerKey);
+  // Bound the filename while retaining full slot identity and atomic-write suffix headroom.
+  const identity = JSON.stringify([
+    slot.layerKey,
+    slot.kind,
+    slot.kind === "grid-field-values" ? slot.fieldKey : null,
+  ]);
+  const identityDigest = createHash("sha256").update(identity).digest("hex");
   const digest = createHash("sha256").update(bytes).digest("hex");
-  const role =
-    slot.kind === "grid-field-values"
-      ? `field-${encodePortablePathComponent(slot.fieldKey)}`
-      : slot.kind;
-  return `data/${layer}__${role}__sha256-${digest}.bin`;
+  return `data/slot-${identityDigest}__sha256-${digest}.bin`;
 }
 
 type StagedVizBinary = Readonly<{ path: string; bytes: Uint8Array }>;
