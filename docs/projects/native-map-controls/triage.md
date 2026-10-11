@@ -106,6 +106,7 @@ These are navigation pointers, not copied investigations or new dispositions.
 - [Wetland suitability and admission](#q-005-wetland-suitability-and-admission)
 - [Regional thermal response and qualification](#q-006-regional-thermal-response-and-qualification)
 - [Biome transition meaning](#q-007-biome-transition-meaning)
+- [Start climate comfort](#q-008-start-climate-comfort)
 
 ### Hydrology / Baseline Climate / Regional Response
 
@@ -173,6 +174,19 @@ Earlier consumer-only comparisons retain their separate resource and seating
 tradeoffs. Broad habitat proxies, seasonal/tidal meaning and shared admission
 remain open. Changed counts are not ecological validation or general improvement.
 [Read the research question](questions/q-005-wetland-suitability.md).
+
+### Placement / Assign Starts / Climate Comfort
+
+#### Q-008: Start Climate Comfort
+
+Start climate comfort is deliberately relative to the generated world's land,
+not an absolute habitability test. In a retained relief-cooling comparison, a
+slightly cooler site enters the newly lower warm tail and loses preference
+while remaining Primary. The original twenty-map placement study passes in
+both arms; the isolated Standard1018 spacing result is not that cohort's
+mean. Whether relative tail avoidance best serves start quality remains open,
+without a demonstrated defect, placement blocker or selected threshold repair.
+[Read the research question](questions/q-008-start-climate-comfort.md).
 
 ### Benchmark Authority / Ecological Prevalence
 
