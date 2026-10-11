@@ -104,3 +104,102 @@ tests/verifier; those remain root-owned proof. Covariance closure alone is an
 algebraic identity, while exact operation replay, row-only raw forcing and
 negligible residue supply the independent attribution guards.
 No native Civ7 comparison or final calibration acceptance is claimed.
+
+## Prospective Regional Qualification
+
+Accepted prospective qualification meaning for the next thermal candidate,
+within the existing workstream; not a verified model or executable target change.
+Earth is a calibration resource and diagnostic proxy for a coherent, playable
+procedural world, not an exact-reproduction authority. This does not accept an
+algorithm, change any executable target, read reference outcomes, or reinterpret
+earlier failed experiments. Historical results in this document and earlier
+scientific refusals retain their original meaning.
+
+### What Is Worth Shipping
+
+A useful regional response makes equal-latitude, equal-height land differ for
+an explicit upstream geographic or physical reason, with coherent annual and
+seasonal behavior. It must survive different Earthlike seeds and sizes and reach
+all affected downstream consumers in the declared schedule, while deliberately
+held fields remain exact. A final-atmosphere intervention may correctly retain
+SST2. More temperature spread, less biome banding or more features alone does
+not establish that result. No universal warmer-drier annual ordering is assumed.
+Current moisture information does not select the historical deficit statistic,
+a maritime scalar, or any other response law.
+
+### Three Qualification Boundaries
+
+| Boundary | Required Meaning | Failure Disposition |
+| --- | --- | --- |
+| Hard owner and numerical controls | Single artifact authority; finite aligned arrays; correct datum, clipping, calendar and consumer vintages; deterministic nonmutation; justified numerical error bounds | Reject the candidate at its owner; no scientific score or attractive map rescues it |
+| Fixed-Earth scientific comparison | Retain source, split, geography and weights; report annual/monthly, regional, seasonal, bias, clipping and low-relief results against the frozen comparator | Preserve the old screen and verdict; a scientifically adverse tradeoff requires explicit review, not automatic product acceptance or veto |
+| Procedural Earthlike outcome | Causal regional response plus unchanged climate, water, ecology, resource and start/playability protections across the existing cohorts, then qualified native proof | Reject unexplained new regressions; an inherited unmet target stays open, never becomes a pass by averaging or omission |
+
+The historical strict-improvement margin greater than `2e-4 C` and per-group
+collateral budget of `1e-4 C` are a conservative near-Pareto selection screen
+on a simplified Earth fixture. They are not justified Earth observational
+uncertainty or product effect-size thresholds. Keep that screen unchanged and
+reported. Do not confuse its selection budgets with actual Float32 publication
+or solver-equivalence tolerances: those numerical controls remain hard gates.
+
+Prospectively, scientific screen failure is a review trigger rather than an
+unconditional product veto. Review must identify the exact affected population,
+season, bias and magnitude; explain the physical simplification or tradeoff;
+and show the corresponding reproducible procedural benefit and collateral
+results. Unexplained concentration, wrong-direction or broadly adverse responses
+are not excused by global RMSE or one attractive map. Physically justified
+regional concentration is disclosed and assessed, not categorically refused.
+No convenient replacement tolerance is selected here. Before any candidate
+outcomes are inspected, freeze its mechanism, signed regime expectations,
+scientific comparison and decision rule. Any later amendment must be explicit
+and prospective; old scores remain.
+
+### Existing Owners And Minimal Proof
+
+Use the current executable
+[Earthlike climate-structure study](../../../plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/earthlike-climate-structure.study.ts):
+Huge1018 and Standard1018/1/42, retaining each sample and its integrity checks.
+The authored [thermal bounds](../../../plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/hydrology.ts)
+remain `1-8 C`; the inherited floor failure is unwaived. Seasonal/annual
+rainfall-codec saturation, exposed-land biome structure, the eight-seed ecology
+cohort and existing placement/resource cohorts remain protected. Populations
+and aggregation come from their current executable owners, not old prose or
+a new private bank. The [current study catalog](../../../plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/catalog.ts)
+owns selection.
+
+The variance floor cannot prove geography: row permutation or sign reversal
+can preserve it while reversing a physical relationship. Reuse the existing
+climate measurement fixture to falsify those decoys with the candidate's
+separately declared signed regime check. Preserve the existing row-only,
+missing-population, datum, water, clipping and composition controls. A future
+disabled-response control must recover the incumbent exactly. Add only the
+focused owner tests needed for the selected mechanism, not another harness.
+
+Keep baseline phase sea-level temperature for pressure distinct from phase
+ground temperature for demand and the independent annual thermal integral.
+Retain the actual two ocean updates and three thermal vintages unless a separate
+causal-order design is reviewed. Unrounded P, member-reduced W and phase-derived
+demand keep their separate meanings; native rainfall bytes are not physics.
+Later lakes, rivers and plant-water opportunity do not become upstream thermal
+inputs. Finite-water conservation and all existing legality, seating, spacing,
+resource/habitat and explicit-degradation guards remain in force.
+
+Focused owner controls precede the relevant existing cohorts; only surviving
+candidates proceed to the ordinary regression graph, source-aligned before/after
+diagnostics, Civ CLI native readback and bounded gameplay where affected. Images
+are required only for claims about rendering, not as a universal experiment gate.
+Complete maximum-size generation retains the `30-60 s` player budget.
+Scientific proxy, portable artifact, installed build, screenshot and gameplay
+proof stay separate. Native water taxonomy/render questions remain independent
+and open.
+
+Next: select and review one source-grounded regional-response mechanism and its
+small falsifiable expectation ledger under this contract. No fit, solver,
+observational scoring, bank run or production adoption is admitted by this
+qualification decision alone. A bounded owner improvement may ship honestly
+with declared inherited failures. The current targets remain unwaived; completing
+the regional thermal goal requires meaningful regional coherence and satisfaction
+of the current product contract, or an evidence-justified prospective target
+amendment with history intact. The amplitude floor is not an immutable physical
+law. No target amendment is selected here, and numerical difference alone does
+not complete the goal.
