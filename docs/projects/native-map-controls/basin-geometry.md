@@ -97,14 +97,22 @@ activation remain separate work.
 
 ### Local-Exit Repair Boundary
 
-The current full Huge Earthlike captures at seeds 1018 and 5050 pass the
-unchanged Standard integrity gates, with no invalid or ascending final dry
-receivers. This does not establish that every final channel chooses its
-steepest local exit: the basin coordinator can replace raw receivers while
-assembling equal-head hydraulic components. At seed 1018, dry NAV cell
-1083 `(23,10)` routes to dry cell 1084 at ground 12 despite adjacent marine
-cell 1189 at receiving head 11; its matching positive internal transfer is a
-separate component-assembly witness. Qualification of that final routing
-belongs at the coordinator, not another plateau patch, density threshold,
-terrain carve or native projection rule. These headless captures do not
-establish live appearance or vessel navigation.
+The local-exit-only Huge Earthlike captures at seeds 1018 and 5050 passed
+unchanged Standard integrity gates, but left a coordinator ownership boundary:
+equal-ground contour discovery could absorb independently draining dry cells.
+That boundary is historical, not a remaining defect in the admitted source.
+[PR #2327](https://github.com/mateicanavra/civ7-modding-tools/pull/2327)
+preserved local raw exits;
+[PR #2330](https://github.com/mateicanavra/civ7-modding-tools/pull/2330)
+subsequently limited dry sill membership to raw-receiver traces from selected
+spill frontiers and declared merger saddles.
+
+The frozen Huge 1018 replay restores 24 independent marine exits, including
+`1084 -> 1189`. Nearby `1083 -> 976` is a legitimate lower-ground inlet, not a
+missed marine exit. Ordinary dry receivers match raw input while wet footprints,
+heads, ports and complete water accounting hold. See the
+[delivery evidence](delivery-inventory.md#local-shoreline-and-consumer-qualification)
+for qualification and its limits. These bounded model results do not establish
+universal steepest-exit routing, exact native flow direction, live appearance or
+vessel navigation. Wet-body mixing and declared spill connectivity remain
+distinct from local dry drainage.

@@ -72,16 +72,27 @@ once, and explicitly adds one corrected final atmosphere/moisture pass. It
 replaces unsupported between-phase P/D interpolation with direct phase response
 and a bounded annual statistical departure from the incumbent dense baseline.
 That changed annual proxy inherits neither the continuous candidate's coefficient
-nor its failed qualification. It remains
-unqualified for production: the three retained maps have explicit zero gain,
-and the installed default is unchanged. Complete-config admission is preserved
-without an optional fallback or SDK policy change.
+nor its failed qualification. The [completed Standard1018 pair](land-thermal-variance.md#completed-producer-phase-pair)
+compared gain zero with a prospectively fixed diagnostic gain of 6 C. It produced
+a modest, geographically organized annual departure (land RMS `0.1998 C`),
+preserved its owner and integrity controls, and had mixed downstream outcomes.
+Within-row variation rose from `0.13276` to `0.21034 C`, still below the
+unchanged `1 C` floor. Better playable climate was not demonstrated.
+
+This experimental thermal line is closed for now, with the candidate disabled
+and evidence retained. The three retained maps keep explicit zero gain; the
+installed default is unchanged. The classifier is retained as an intentional,
+uncalibrated empirical climate-habitat envelope, not a competing temperature
+producer. Complete-config admission is preserved without an optional fallback
+or SDK policy change. No next coefficient, solver, fit or cohort is selected;
+the larger regional thermal requirement remains open and unwaived.
 
 Adopted-build native generation and bounded normal gameplay have been exercised;
-they do not close all playability or climate questions. Qualify the candidate's
-mechanics and actual retained-input basis before a one-gain training protocol.
-Use the Civ CLI for additional
-native checks, with imagery required only for rendering claims.
+they do not close all playability or climate questions. Use the qualified
+installed build for bounded player feedback; a concrete, repeatable mismatch or
+a separately justified discriminator must select any further thermal repair.
+Use the Civ CLI for additional native checks, with imagery required only for
+rendering claims.
 Do not infer an ocean/climate/feature omnibus, another climate bank, terrain
 carving or count targets from the open questions. Preserve existing user state
 and distinguish source, installation and loaded-world identity at each handoff.
