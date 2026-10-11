@@ -15,26 +15,32 @@ also receives `standard/integrity`.
 
 The bounds were declared before production correction, not fitted to passing
 outputs. They are product regression bounds, not observational Earth calibration:
-rainfall uses a bounded empirical 0-200 scale and relief has no physical-meter
-calibration. The existing Huge 1337 biome-structure study and all other studies
+the native rainfall codec uses a bounded empirical 0-200 scale, while physical
+precipitation P is an unclipped Float32 quantity and surface wetness W is a
+separately reduced Float32 proxy in 0-1. Neither is measured Earth rainfall or
+air humidity; relief also has no physical-meter calibration. The existing Huge
+1337 biome-structure study and all other studies
 retain their original thresholds.
 
 ## Measurements and expected outcomes
 
 | Measurement | Every-map expectation |
 | --- | --- |
-| Maximum seasonal land rainfall saturation | <0.10 |
-| Refined annual land rainfall saturation | <0.05 |
+| Maximum seasonal land native-codec saturation | <0.10 |
+| Refined annual land native-codec saturation | <0.05 |
 | Pooled within-row land temperature SD | 1-8 C |
 | Land-weighted dominant biome share in qualified rows | <=0.75 |
 | Tundra or boreal land tiles | >=1 |
 | Classified land biome families | >=3 |
 
-Saturation counts rainfall at or above 200 and excludes modeled water from both
-count and population. Baseline annual saturation is retained as causal evidence,
-without an additional target. Seasonal rainfall arrays stay invocation-local;
-the baseline metrics facet retains each season's saturated count and land
-population. Missing seasonal evidence is a capture failure, not a passing zero.
+Saturation counts the native rainfall codec at 200 and excludes modeled water
+from both count and population. Annual evidence reads the published codec,
+derived once from annual P. Baseline annual saturation remains causal evidence,
+without an additional target. Phase P stays invocation-local; the baseline
+metrics facet diagnostically rounds/clamps each phase to the same 0-200 codec
+and retains its saturated count and land population. This diagnostic conversion
+does not feed physics or replace independent phase/annual P and W reductions.
+Missing seasonal evidence is a capture failure, not a passing zero.
 
 Temperature SD removes each row's land-only mean, then computes
 `sqrt(sum(squared departures) / total land tiles)`. This weights rows by their

@@ -38,11 +38,14 @@ pressure reconstructs the complete wind field. The anomaly is a field
 measurement in hPa, not a pressure-operation knob.
 
 The nested `climateStructure` measurement retains baseline and refined annual
-rainfall saturation as land counts/populations, the worst seasonal land
+native rainfall-codec saturation as land counts/populations, the worst seasonal land
 saturation fraction, and pooled within-row land-temperature SD in Celsius.
-Annual rainfall is copied from the existing baseline/refined climate artifacts;
-the baseline metrics facet projects seasonal counts without publishing new
-climate artifacts. Saturation means rainfall >=200. Water is excluded, each
+Annual codecs are copied from the existing baseline/refined climate artifacts;
+the baseline metrics facet diagnostically rounds/clamps phase precipitation to
+the same 0-200 codec before counting, without publishing new climate artifacts
+or feeding rounded values back into physics. Saturation means codec 200, not an
+upper bound on physical precipitation P. P remains unclipped Float32; surface
+wetness W remains an independently reduced Float32 proxy in 0-1. Water is excluded, each
 temperature row mean uses only land, and squared departures are pooled over all
 land tiles. Empty land produces null fractions/SD rather than a passing zero.
 The [climate-structure study](../benchmarks/earthlike-climate-structure.md) owns

@@ -20,7 +20,8 @@ connects physical terms, current computations and practical interpretation.
 
 Hydrology produces climate and water-cycle products for downstream consumption:
 
-- baseline and final climate fields (rainfall, humidity, and potential demand),
+- baseline and final atmospheric precipitation, surface wetness and native rainfall codec,
+- baseline potential demand for physical water accounting,
 - atmospheric wind and moisture-transport state,
 - ground-preserving basin routing over final Morphology topography,
 - discharge and hydrography evidence,
@@ -57,12 +58,15 @@ Hydrology requires:
 
 Hydrology provides:
 
-- `artifact:hydrology.baselineClimateField` (annual-mean rainfall, humidity,
-  potential demand, and its admitted parameters used by hydrography/refinement)
+- `artifact:hydrology.baselineClimateField` (annual-mean precipitation, surface wetness,
+  native rainfall codec, potential demand, and its admitted parameters used by
+  hydrography/refinement)
 - `artifact:hydrology._internal.thermalField` (the annual mean of seasonal
   ground/SST temperature before feedback, published as `surfaceTemperatureC`
   in a named map-grid product consumed by refinement)
-- `artifact:hydrology.climateField` (copied baseline atmospheric rainfall/humidity used by Ecology and engine projection)
+- `artifact:hydrology.climateField` (copied baseline atmospheric precipitation,
+  surface wetness and codec; physical/ecological consumers use the float fields,
+  while rainfall projection uses the codec)
 - `artifact:hydrology.hydrography` (model-tagged drainage, discharge, and river
   classes; certified discharge is dry-cell evidence, with whole-body mixing in
   lake ledgers rather than signed wet-cell accumulation)
@@ -137,22 +141,36 @@ shelf mixing and SST-derived ice threshold. This relative-strength blend does
 not specify metres per second, a travel distance or timestep, or globally
 heat-conserving transport.
 
-Vector moisture transport uses the same Core angular bracket while retaining
-its own transport law and donor admission. Air crosses both land and water;
-off-map Y shares remain at self. Supplied phase/weather-member winds are
-authoritative: calm wind samples self, and no latitude-band fallback or
-secondary-donor cutoff overrides the vector. Local evaporation is still
-injected on every fixed pass before retention and clamping, so calm conditions
-do not imply constant humidity. Moisture remains direction-only; it does not
-use the ocean's relative-strength blend. Its input contains only dimensions,
-supplied winds and evaporation; neither latitude nor a terrain mask gates air
-transport. The former cardinal algorithm is no longer selectable.
+Source-limited moisture forcing uses the Core angular bracket with conservative
+downwind stock transfers, marine supply and local extraction. Air crosses both
+land and water; missing Y-edge transfers retain their stock. Supplied
+phase/weather-member wind direction and normalized magnitude set transport
+rates, without a latitude-band fallback. Calm wind disables transport, not
+local source/extraction. Adaptive integration passes depend on grid spacing and
+the authored reference speed; the prescribed interval and empirical rates do
+not establish metres per second or millimetres per year.
+
+Only initially admitted external marine water supplies atmospheric moisture,
+with prescribed SST, ice and wind dependence. Land and finite inland water are
+not sources. Terrain extraction uses signed incoming ascent toward land, with
+the admitted sea surface rather than marine bed elevation as the coastal datum.
+Transported stock is invocation-local; published precipitation `P` is finite,
+nonnegative Float32 without an upper rainfall-codec cap. Each weather member
+publishes normalized surface wetness `W = clamp01(P / 200)` separately.
+
+Baseline composition uses `computeMoistureAggregate` to average member P and W
+independently, then `computePotentialDemand` with the resulting phase wetness and
+ground temperature. The aggregate reduces phase P, W and demand with the full
+seasonal weights. Annual W is not
+recomputed from mean P: the member clamp does not commute with averaging.
+The annual native `rainfallCodec` rounds the published annual P and caps it at
+200; physical consumers never substitute that byte representation for P.
 
 Aggregate river benchmark evidence is calculated and emitted by the Standard
 recipe's Network metrics projector rather than retained as pipeline state.
 Advisory terrain/wind climate diagnostics are derived by the climate module's
 pure observation operation and remain invocation-local input to visualization.
-Seasonal rainfall and humidity amplitudes likewise remain invocation-local
+Seasonal precipitation and surface-wetness amplitudes likewise remain invocation-local
 evidence projected by the baseline step; no downstream pipeline consumer owns
 or reads a retained seasonality product.
 
@@ -161,7 +179,7 @@ five-parameter calibration. The baseline step evaluates the shared
 `computePotentialDemand` operation within its existing final seasonal samples
 and averages demand, rather than applying a nonlinear temperature law to an
 annual temperature mean. Refinement reuses the same parameters with its later
-temperature/humidity forcing. `computeLandWaterBudget` consumes that demand
+temperature/surface-wetness forcing. `computeLandWaterBudget` consumes that demand
 and owns effective moisture and aridity; it does not own another PET law.
 Invocation-local demand retains double precision until aridity is computed,
 while published climate arrays remain Float32. Demand uses empirical rainfall
@@ -178,27 +196,32 @@ annual refined temperature and is therefore not generally equal to mean
 seasonal demand under a nonlinear law; that approximation remains explicit.
 Elevation lapse is per normalized model relief unit, not per physical meter.
 
-Final climate publication copies baseline rainfall and humidity exactly on all
+Final climate publication copies baseline P, W and rainfall codec exactly on all
 cells, including original marine water and resolved lake footprints. Refinement
-does not manufacture additional precipitation or atmospheric humidity from river
+does not manufacture additional precipitation or surface wetness from river
 classes, nearby channels, or enclosed topographic basins. The unchanged albedo,
 cryosphere, demand, budget and diagnostic operations receive that baseline forcing.
 The final climate arrays do not alias the baseline arrays.
 
 The terrestrial budget alone composes effective moisture as
-`rainfall + 0.35 * humidity` on resolved exposed land. It receives no river-class
+`P + 0.35 * 255 * W` on resolved exposed land. It receives no river-class
 input and adds no separate minor/major-river bonus. Resolved water has exactly
 zero effective moisture, terrestrial PET and aridity. These remain empirical
 indices, not soil-water storage or an actual evapotranspiration ledger; physical
-basin/network accounting continues to consume the unchanged baseline rainfall
+basin/network accounting continues to consume the unchanged baseline P
 and seasonal demand.
+
+Local surface-water opportunity remains a separate source-led product from
+resolved runoff, discharge and finite-body supply. It can support plant-effective
+moisture and plant-water stress without changing atmospheric aridity, creating
+precipitation, or withdrawing a second conserved supply from the physical ledger.
 
 All shipped profiles use Climate's sole `periodic-cycle` sampling,
 `daily-solar-fourier` forcing and `periodic-response` temperature strategies.
-Circulation, surface currents, moisture transport and precipitation likewise
-have one strategy each: `geostrophic-proxy`, `wind-gyre-projection`,
-`vector-advection` and `vector`. The baseline always derives ocean geometry and
-performs the authored fixed coupling iterations, initializing prescribed SST
+Circulation, surface currents and moisture forcing likewise have one strategy
+each: `geostrophic-proxy`, `wind-gyre-projection` and `source-limited`.
+Moisture aggregation uses `phase-reduction`. The baseline always derives ocean
+geometry and performs the authored fixed coupling iterations, initializing prescribed SST
 before the first atmosphere pass. Surface-current inputs still permit genuinely
 optional basin/coast evidence within that one algorithm; the selected ocean
 thermal `latitude-current-advection` law remains unchanged.
@@ -209,9 +232,10 @@ while visualization selects two/four observations without changing annual
 fields. Seasonal saturation metrics require the complete cycle and its explicit
 phase/weight metadata. Superseded snapshot/instantaneous strategies and legacy
 capture fallbacks are not production alternatives. The former atmosphere/current
-`latitude`, moisture `cardinal` and precipitation `baseline` selectors are also
-refused at existing operation, step and saved-config admission boundaries, not
-translated into guessed physics. Circulation takes no seed input; deterministic
+`latitude` selectors and the retired evaporation, moisture-transport and
+precipitation operation envelopes are refused at existing operation, step and
+saved-config admission boundaries, not translated into guessed physics.
+Circulation takes no seed input; deterministic
 pressure and sampling still consume their original step-owned seed. Historical
 receipts are retained separately. Algorithm retirement is not full Earth/profile quality
 acceptance, which the existing metric study bank continues to measure.
@@ -233,9 +257,8 @@ The Standard recipe uses operation contracts such as:
 - `computeThermalState`
 - `computeAtmosphericCirculation`
 - `computeOceanSurfaceCurrents`
-- `computeEvaporationSources`
-- `transportMoisture`
-- `computePrecipitation` (`vector` synthesis)
+- `computeMoistureForcing`
+- `computeMoistureAggregate`
 - `projectRiverNetwork`
 - `computeLocalRunoff`
 - `computeDrainageBasins`
@@ -247,7 +270,7 @@ The Standard recipe uses operation contracts such as:
 
 The single Standard `network` step orchestrates the bound operations;
 operations do not call one another. It uses attributed Number-precision local runoff, exact basin
-geometry, baseline rainfall/demand, and whole-body conservation before publishing
+geometry, baseline float P/seasonal demand, and whole-body conservation before publishing
 consistent hydrography, lake, and river-network products. An unsupported result
 publishes no partial authoritative network.
 
