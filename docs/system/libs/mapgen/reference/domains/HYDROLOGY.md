@@ -61,9 +61,10 @@ Hydrology provides:
 - `artifact:hydrology.baselineClimateField` (annual-mean precipitation, surface wetness,
   native rainfall codec, potential demand, and its admitted parameters used by
   hydrography/refinement)
-- `artifact:hydrology._internal.thermalField` (the annual mean of seasonal
-  ground/SST temperature before feedback, published as `surfaceTemperatureC`
-  in a named map-grid product consumed by refinement)
+- `artifact:hydrology._internal.thermalField` (the bounded annual ground/SST
+  temperature observable before feedback, published as `surfaceTemperatureC`
+  in a named map-grid product consumed by refinement; its incumbent clipped-cycle
+  mean receives weighted producer-phase departures when regional response is enabled)
 - `artifact:hydrology.climateField` (copied baseline atmospheric precipitation,
   surface wetness and codec; physical/ecological consumers use the float fields,
   while rainfall projection uses the codec)
@@ -194,6 +195,10 @@ temperature algorithm. Baseline thermal and final climate indices are
 successive immutable vintages, not competing algorithms. Refined demand uses
 annual refined temperature and is therefore not generally equal to mean
 seasonal demand under a nonlinear law; that approximation remains explicit.
+At zero regional gain, the annual thermal observable retains the independent
+dense clipped-cycle mean. Enabled regional response adds weighted clipped
+departures at the admitted producer phases and bounds the result; it is not
+an integral of a corrected continuous seasonal trajectory.
 Elevation lapse is per normalized model relief unit, not per physical meter.
 
 Final climate publication copies baseline P, W and rainfall codec exactly on all

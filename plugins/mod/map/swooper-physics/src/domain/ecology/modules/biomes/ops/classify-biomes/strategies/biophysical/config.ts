@@ -30,7 +30,8 @@ export default defineStrategy({
             maximum: 100,
           }),
           tropicalThreshold: Type.Number({
-            description: "Temperature threshold for tropical zone classification (degrees C).",
+            description:
+              "Nominal center of the empirical tropical transition (degrees C); atmospheric moisture adjusts admission within a bounded band.",
             default: 24,
             minimum: -100,
             maximum: 100,
