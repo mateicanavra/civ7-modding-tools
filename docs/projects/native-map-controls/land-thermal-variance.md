@@ -1,11 +1,15 @@
 # Land Thermal Variance
 
 The remaining Earthlike thermal-structure failure is measured, not an inference
-from the aggregate test log or the old profile experiment. This bounded study
-runs the exact four `earthlike/climate-structure` cases without changing forcing,
-relief, coefficients, classifier thresholds or study expectations.
+from the aggregate test log or the old profile experiment. The retained baseline
+study ran the exact four `earthlike/climate-structure` cases without changing
+forcing, relief, coefficients, classifier thresholds or study expectations.
+The later [producer-phase pair](#completed-producer-phase-pair) is complete:
+its mixed outcome did not establish better playable climate. The experimental
+candidate remains disabled; neither another fit nor a target amendment is
+selected, and the regional thermal requirement remains open.
 
-## Current Measurements
+## Retained Baseline Measurements
 
 | Case | Within-Row Land Temperature RMS C | Row-Biome Dominance |
 | --- | ---: | ---: |
@@ -194,11 +198,11 @@ Scientific proxy, portable artifact, installed build, screenshot and gameplay
 proof stay separate. Native water taxonomy/render questions remain independent
 and open.
 
-The next selected mechanism is the [producer-phase candidate](#producer-phase-candidate)
-below. No fit,
-solver, observational scoring, bank run or production adoption is admitted by
-the qualification decision alone. A bounded owner improvement may ship honestly
-with declared inherited failures. The current targets remain unwaived; completing
+The [producer-phase candidate](#producer-phase-candidate) below subsequently
+completed its [fixed procedural pair](#completed-producer-phase-pair), without
+production adoption. The qualification decision alone did not admit a fit,
+solver, observational scoring or bank run. A bounded owner improvement may ship
+honestly with declared inherited failures. The current targets remain unwaived; completing
 the regional thermal goal requires meaningful regional coherence and satisfaction
 of the current product contract, or an evidence-justified prospective target
 amendment with history intact. The amplitude floor is not an immutable physical
@@ -389,9 +393,36 @@ is selected by this owner change. A subsequent comparison must prospectively nam
 a compatible observable and report numerical indeterminacy where its uncertainty
 cannot discriminate tiny score differences. The thermal requirement stays open.
 
-Before any one-gain training protocol, inspect the actual producer-phase basis
-and annual proxy on retained modeled inputs and coordinate-only training
-sites, with no observed temperatures. Report concentration, cancellation and
-clipping separately. Mechanical agreement or nonzero basis support alone does
-not authorize fitting, production gain, deployment or adoption. The regional
-thermal requirement and procedural outcome protections remain open.
+### Completed Producer-Phase Pair
+
+The complete offline Standard1018 pair used canonical Standard size (`84 x 54`),
+map/game seeds `1018/1018` and eight player identities. Gain zero was compared
+with the prospectively fixed diagnostic gain `6 C`, not a fitted coefficient or
+playable default. Physics qualification base
+`ae8fc94d790a769fb45c60584e47304f69f53a93` and actual source for both arms
+`ff7b40a7beca64ac2621f6ce07fc5f2f8485a327` remain distinct: the latter adds
+only the diagnostics filename repair. The subsequent behavior-preserving
+classifier clarification at `984268a43b4c87538e0c82429dd9f8ccc2aaa38f`
+([PR #2366](https://github.com/mateicanavra/civ7-modding-tools/pull/2366))
+does not replace either frozen pair identity.
+
+All 36 exact holds, nine mechanism checks and 49 existing sample-integrity
+expectations pass in both arms. The annual land departure is geographically
+organized but modest: RMS `0.1998 C`, with range `-0.474` to `+0.642 C`.
+Within-row variation rises `0.13276 -> 0.21034 C`, still below the unchanged
+`1 C` floor. Row-biome dominance does not improve (`0.53496 -> 0.53700`),
+rainforest features fall `29 -> 22`, and starts/resource support move in mixed
+directions while their existing requirements still pass. This is one complete
+procedural pair, not a full cohort, Earth calibration or native qualification.
+It does not demonstrate better playable climate.
+
+The classifier's tropical transitions were reviewed and retained as an
+intentional, uncalibrated empirical climate-habitat envelope. Atmospheric context
+and local plant support keep their distinct meanings; the rule does not compute
+temperature. See the [Ecology owner reference](../../system/libs/mapgen/reference/domains/ECOLOGY.md).
+Mechanical agreement and classifier retention do not authorize thermal gain.
+Close this experimental line for now, retain its drafts and evidence, and keep
+the candidate disabled. No next coefficient, solver, fit or cohort is selected.
+Further thermal work needs a concrete repeatable mismatch from qualified-build
+feedback or a separately justified discriminator. The regional requirement and
+procedural protections remain explicit and unwaived.
