@@ -199,6 +199,23 @@ isolation. Parent verification must distinguish prompt behavior, configuration
 discovery and enforced runtime permissions. Keep deployment paths, private raw
 receipts and machine custody in the launch packet, not public agent definitions.
 
+## Off-Path Investigation Questions
+
+Use the shared [MapGen question intake](../../../../docs/projects/native-map-controls/triage.md)
+for material discoveries that need investigation before they become scoped work.
+Follow its contribution contract: group by causal mechanism/operation/step,
+pin facts and proof vintage, retain contrary evidence, and name the smallest
+discriminator, disproof condition and revisit trigger. Do not create an entry
+for every minor defect or park a finding needed by the active workstream.
+
+The notebook stewardship parent curates; the workstream owner admits and
+prioritizes; existing domain stewards review scientific meaning. The three
+learning roles retain their read-only remit and cannot turn question intake or
+lesson eligibility into repair approval. Definite accepted work goes to Linear;
+disproven concerns and accepted limitations close with evidence. Keep status,
+priority and scheduling out of the book, and link owner evidence instead of
+copying its investigation history.
+
 ## Gate Summary
 
 | Gate | Required before passing |
