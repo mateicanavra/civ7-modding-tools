@@ -12,12 +12,12 @@ type BiophysicalConfig = Readonly<{
     base: number;
     moistureWeight: number;
     moistureNormalizationPadding: number;
+    energyMaxC: number;
   }>;
   temperature: Readonly<{
     polarCutoff: number;
     tundraCutoff: number;
-    midLatitude: number;
-    tropicalThreshold: number;
+    tropicalColdMonthMeanMinC: number;
   }>;
   aridity: Readonly<{
     moistureShiftThresholds: readonly [number, number];
@@ -35,6 +35,7 @@ export function classifyBiomesFromFields(args: {
   readonly landMask: ArrayLike<number>;
   readonly effectiveMoistureF64: ArrayLike<number>;
   readonly surfaceTemperatureF64: ArrayLike<number>;
+  readonly coldestMonthMeanSurfaceTemperatureC: ArrayLike<number>;
   readonly freezeIndex: ArrayLike<number>;
   readonly aridityIndexF64: ArrayLike<number>;
   readonly plantEffectiveMoisture: ArrayLike<number>;
@@ -53,7 +54,7 @@ export function classifyBiomesFromFields(args: {
   const moistureNormalization =
     humidThreshold + args.config.vegetation.moistureNormalizationPadding;
   const energyMin = args.config.temperature.polarCutoff;
-  const energyMax = args.config.temperature.tropicalThreshold;
+  const energyMax = args.config.vegetation.energyMaxC;
   const energyRange = Math.max(1e-6, energyMax - energyMin);
 
   for (let i = 0; i < size; i++) {
@@ -71,7 +72,11 @@ export function classifyBiomesFromFields(args: {
     const freezeIndex = args.freezeIndex[i] ?? 0;
     const energy01 = clamp01((temperature - energyMin) / energyRange);
 
-    let tempZone = temperatureZoneOf(temperature, args.config.temperature);
+    const tempZone = temperatureZoneOf(
+      temperature,
+      args.coldestMonthMeanSurfaceTemperatureC[i]!,
+      args.config.temperature
+    );
     // Polar wetness selects snow versus tundra, not local plant growth habitat.
     const categoryMoisture = tempZone === "polar" ? moisture : plantMoisture;
     const categoryDryness = tempZone === "polar" ? aridity : plantStress;
@@ -80,24 +85,6 @@ export function classifyBiomesFromFields(args: {
       moistureZoneOf(categoryMoisture, [dry, semiArid, subhumid, humidThreshold]),
       aridityShift
     );
-
-    const tropicalThreshold = args.config.temperature.tropicalThreshold;
-    const transitionBandC = 1.25;
-
-    if (
-      (tempZone === "temperate" || tempZone === "tropical") &&
-      Math.abs(temperature - tropicalThreshold) <= transitionBandC
-    ) {
-      // Soft transition: use a stronger x-varying wetness signal (Hydrology effectiveMoisture)
-      // to prevent row-perfect biome cutoffs near the tropical threshold.
-      const transitionDenom = Math.max(1e-6, humidThreshold - subhumid);
-      const wetness01 = clamp01((moisture - subhumid) / transitionDenom);
-      const wetnessShiftRaw = (wetness01 - 0.55) * 2.0;
-      const wetnessShiftC = Math.max(-1, Math.min(1, wetnessShiftRaw)); // [-1C..+1C]
-      const wetnessShiftScaleC = 1.4;
-      const effectiveThreshold = tropicalThreshold - wetnessShiftC * wetnessShiftScaleC;
-      tempZone = temperature >= effectiveThreshold ? "tropical" : "temperate";
-    }
 
     const symbol = biomeSymbolForZones(tempZone, moistureZone);
     biomeIndex[i] = BIOME_SYMBOL_TO_INDEX[symbol]!;

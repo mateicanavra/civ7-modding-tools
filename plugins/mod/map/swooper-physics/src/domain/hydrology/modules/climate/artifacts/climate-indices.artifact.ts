@@ -15,6 +15,11 @@ export const artifact = defineArtifact({
         description:
           "Ground-surface temperature in degrees Celsius after bounded albedo feedback on the annual baseline, consumed by Ecology, placement, projection, and analysis.",
       }),
+      coldestMonthMeanSurfaceTemperatureC: TypedArraySchemas.f32({
+        cardinality: "map-grid",
+        description:
+          "Baseline/pre-albedo minimum circular one-twelfth-cycle mean in degrees Celsius, forwarded from thermalField for seasonal biome admission; the annual albedo correction is not distributed over seasons.",
+      }),
       effectiveMoisture: TypedArraySchemas.f32({
         cardinality: "map-grid",
         description:
@@ -58,6 +63,10 @@ export const artifact = defineArtifact({
       issues.add(
         `Expected climateIndices.surfaceTemperatureC[${invalidIndex}] to be finite (received ${value.surfaceTemperatureC[invalidIndex]}).`
       );
+    }
+    const invalidColdMonth = value.coldestMonthMeanSurfaceTemperatureC.findIndex((sample) => !Number.isFinite(sample));
+    if (invalidColdMonth >= 0) {
+      issues.add(`Expected climateIndices.coldestMonthMeanSurfaceTemperatureC[${invalidColdMonth}] to be finite (received ${value.coldestMonthMeanSurfaceTemperatureC[invalidColdMonth]}).`);
     }
   },
 });

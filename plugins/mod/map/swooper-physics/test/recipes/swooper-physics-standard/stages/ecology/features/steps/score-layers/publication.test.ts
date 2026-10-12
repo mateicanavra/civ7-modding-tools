@@ -124,6 +124,8 @@ describe("ecology-features score-layers step", () => {
         effectiveMoisture,
         plantEffectiveMoisture,
         surfaceTemperatureC,
+        // Constant synthetic thermal profiles per cell.
+        coldestMonthMeanSurfaceTemperatureC: surfaceTemperatureC.slice(),
         aridityIndex,
         plantWaterStress,
         freezeIndex: new Float32Array(size),

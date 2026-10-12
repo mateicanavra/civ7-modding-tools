@@ -51,6 +51,10 @@ describe("hydrology climate-refine demand ownership", () => {
       baselineTemperature[0] = -10;
       baselineTemperature[1] = -15;
       baselineTemperature[2] = 0;
+      // Hand-authored seasonal scalar, distinct from the annual albedo input.
+      const baselineColdMonthMean = Float32Array.from(baselineTemperature, value => value - 3);
+      baselineColdMonthMean[4] = 19;
+      const beforeColdMonthMean = baselineColdMonthMean.slice();
       const beforeTemperature = baselineTemperature.slice();
       let refinedTemperature: Float32Array = new Float32Array(size);
       const surfaceWetness = new Float32Array(size).fill(100 / 255);
@@ -98,6 +102,7 @@ describe("hydrology climate-refine demand ownership", () => {
         });
         publishTestArtifact(stepContext, climateArtifacts.thermalField, {
           surfaceTemperatureC: baselineTemperature,
+          coldestMonthMeanSurfaceTemperatureC: baselineColdMonthMean,
         });
         publishTestArtifact(stepContext, climateArtifacts.windField, {
           windU: new Int8Array(size),
@@ -207,6 +212,9 @@ describe("hydrology climate-refine demand ownership", () => {
       expect(rainfallCodec).toEqual(beforeRainfallCodec);
       expect(baselineDemand).toEqual(beforeDemand);
       const indices = readArtifact(context, climateArtifacts.climateIndices);
+      expect(indices.coldestMonthMeanSurfaceTemperatureC).not.toBe(baselineColdMonthMean);
+      expect(indices.coldestMonthMeanSurfaceTemperatureC).toEqual(beforeColdMonthMean);
+      expect(baselineColdMonthMean).toEqual(beforeColdMonthMean);
       expect(indices.localSurfaceWaterOpportunity).toBe(computedOpportunity);
       expect(indices.localSurfaceWaterOpportunity).toEqual(new Float32Array(size));
       const surfaceTemperature = indices.surfaceTemperatureC;
@@ -262,16 +270,22 @@ describe("hydrology climate-refine demand ownership", () => {
         );
       } else {
         expect(surfaceTemperature[1]).toBeLessThan(baselineTemperature[1]!);
+        expect(indices.coldestMonthMeanSurfaceTemperatureC[1]).toBe(beforeColdMonthMean[1]);
         expect(surfaceTemperature[2]).toBe(baselineTemperature[2]);
         expect(surfaceTemperature[3]).toBe(baselineTemperature[3]);
       }
+      // Newly admitted warm seasonal habitat has no annual albedo correction.
+      expect(baselineColdMonthMean[4]).toBeGreaterThanOrEqual(18);
+      expect(surfaceTemperature[4]).toBe(baselineTemperature[4]);
       // Fixture mutation after evaluation detects shared storage without bypassing readonly artifacts.
       precipitation[1] = 0;
       surfaceWetness[1] = 0;
       rainfallCodec[1] = 0;
+      baselineColdMonthMean[4] = 0;
       expect(finalClimate.precipitation).toEqual(beforePrecipitation);
       expect(finalClimate.surfaceWetness).toEqual(beforeSurfaceWetness);
       expect(finalClimate.rainfallCodec).toEqual(beforeRainfallCodec);
+      expect(indices.coldestMonthMeanSurfaceTemperatureC).toEqual(beforeColdMonthMean);
     });
   }
 });

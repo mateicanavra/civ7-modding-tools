@@ -18,6 +18,8 @@ describe("ecology rainforest moisture flow", () => {
         effectiveMoisture: new Float32Array(size).fill(230),
         plantEffectiveMoisture: new Float32Array(size).fill(230),
         surfaceTemperatureC: new Float32Array(size).fill(26),
+        // Constant synthetic tropical profile.
+        coldestMonthMeanSurfaceTemperatureC: new Float32Array(size).fill(26),
         aridityIndex: new Float32Array(size).fill(0.1),
         plantWaterStress: new Float32Array(size).fill(0.1),
         freezeIndex: new Float32Array(size).fill(0.05),

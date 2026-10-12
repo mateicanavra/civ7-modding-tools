@@ -398,7 +398,10 @@ describe("fixed Earth-coast flat-relief climate ablation", () => {
       expect(run.observation.pressureField).toBe(run.pressure);
       expect(run.observation.windField).toBe(run.wind);
       expect("surfaceTemperatureC" in run.baseline).toBe(false);
-      expect(Object.keys(run.thermal)).toEqual(["surfaceTemperatureC"]);
+      expect("coldestMonthMeanSurfaceTemperatureC" in run.baseline).toBe(false);
+      expect(Object.keys(run.thermal)).toEqual([
+        "surfaceTemperatureC", "coldestMonthMeanSurfaceTemperatureC",
+      ]);
     }
     expect(earth.setup.latitudeBounds).toEqual({ topLatitude: 90, bottomLatitude: -90 });
     expect(earth.config.seasonality.axialTiltDeg).toBe(23.44);

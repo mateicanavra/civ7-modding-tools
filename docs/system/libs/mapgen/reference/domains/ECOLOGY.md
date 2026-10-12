@@ -108,10 +108,17 @@ Key contract point: each strategy owns its configuration schema, while each sema
 artifacts and model vocabulary its operations share. Cross-stage consumption does not move artifact
 authority to the root domain.
 
-Biome classification consumes Hydrology's surface temperature, atmospheric moisture/aridity,
+Biome classification consumes Hydrology's annual and coldest-month-like temperature, atmospheric moisture/aridity,
 plant moisture/stress, and freeze indices without re-deriving them. Nonpolar moisture buckets and
-dryward shifts describe local plant habitat; polar categories and thermal-transition context retain
-atmospheric inputs. These empirical categories are not scientific climatic-aridity classes:
+dryward shifts describe local plant habitat; polar categories retain atmospheric inputs.
+Polar/boreal temperature rules use the annual field. Tropical versus temperate admission uses
+Hydrology's baseline/pre-albedo minimum circular one-twelfth-cycle mean, not an annual threshold
+shifted by wetness. The initial `tropicalColdMonthMeanMinC` of 18 C is an Earth-informed proxy
+from [Peel et al. (2007), Table 1](https://hess.copernicus.org/articles/11/1633/2007/),
+not a universal plant limit or a complete seasonal rainforest water model. Annual albedo cooling
+is not silently distributed over phases. Vegetation density separately keeps its annual energy
+normalization, with `vegetation.energyMaxC` independent of this category threshold.
+These empirical categories are not scientific climatic-aridity classes:
 native DESERT projects the Ecology `desert` symbol, not a second test of atmospheric aridity.
 Temperature controls classify supplied temperatures. Thermal forcing, lapse rates, and PET
 derivation remain Hydrology-owned, not Ecology authoring controls.

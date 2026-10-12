@@ -36,10 +36,13 @@ type Source = "ordinary" | "finite-body";
 function fixture(source: Source = "ordinary", supply = 420, options: {
   sedimentSignal?: number;
   temperature?: number;
+  coldestMonthMeanTemperatureC?: number;
   precipitation?: number;
   moistureForcing?: ReturnType<typeof hydrology.climate.ops.computeMoistureForcing.run>;
 } = {}) {
   const surfaceTemperatureC = new Float32Array(size).fill(options.temperature ?? 22);
+  // Seasonal temperate owner-boundary evidence, not a captured thermal profile.
+  const coldestMonthMeanSurfaceTemperatureC = new Float32Array(size).fill(options.coldestMonthMeanTemperatureC ?? 14);
   const surfaceWetness = options.moistureForcing?.surfaceWetness ?? new Float32Array(size).fill(80 / 255);
   const precipitation = options.moistureForcing?.precipitation ?? new Float32Array(size).fill(options.precipitation ?? 5);
   const demandInput = {
@@ -85,7 +88,8 @@ function fixture(source: Source = "ordinary", supply = 420, options: {
     width, height, landMask: input.landMask, surfaceTemperatureC, precipitation: input.precipitation,
   }, refineConfig.computeCryosphereState);
   return {
-    input, surfaceTemperatureC, freezeIndex: cryosphere.freezeIndex, permafrost01: cryosphere.permafrost01,
+    input, surfaceTemperatureC, coldestMonthMeanSurfaceTemperatureC,
+    freezeIndex: cryosphere.freezeIndex, permafrost01: cryosphere.permafrost01,
     sedimentDepth: new Float32Array(size).fill(options.sedimentSignal ?? 1),
     bedrockAge: new Int16Array(size).fill(options.sedimentSignal ?? 1),
   };
@@ -94,7 +98,7 @@ function fixture(source: Source = "ordinary", supply = 420, options: {
 function runFlow(fields: ReturnType<typeof fixture>, flatLandMask = fields.input.landMask.slice(),
   featureOccupancyMask = deriveFeatureOccupancy({ width, height })) {
   const before = structuredClone(fields);
-  const { input, surfaceTemperatureC, freezeIndex, permafrost01, sedimentDepth, bedrockAge } = fields;
+  const { input, surfaceTemperatureC, coldestMonthMeanSurfaceTemperatureC, freezeIndex, permafrost01, sedimentDepth, bedrockAge } = fields;
   const indices = budget.run(input, refineConfig.computeLandWaterBudget);
   const pedology = ecology.pedology.ops.classifyPedology.run({
     width, height, landMask: input.landMask, elevation: input.elevation,
@@ -102,6 +106,7 @@ function runFlow(fields: ReturnType<typeof fixture>, flatLandMask = fields.input
   }, pedologyConfig);
   const biomes = ecology.biomes.ops.classifyBiomes.run({
     width, height, landMask: input.landMask, surfaceTemperatureC, freezeIndex, permafrost01,
+    coldestMonthMeanSurfaceTemperatureC,
     effectiveMoisture: indices.effectiveMoisture, aridityIndex: indices.aridityIndex,
     plantEffectiveMoisture: indices.plantEffectiveMoisture, plantWaterStress: indices.plantWaterStress,
     soilType: pedology.soilType, fertility: pedology.fertility,
@@ -347,7 +352,7 @@ describe("Earthlike source-led dryland point-water consumer flow", () => {
   });
 
   it("reports the actual cold-desert response without inventing a scorer frost veto", () => {
-    const cold = runFlow(fixture("ordinary", 350, { temperature: 0 }));
+    const cold = runFlow(fixture("ordinary", 350, { temperature: 0, coldestMonthMeanTemperatureC: -6 }));
     expect(biomeSymbolFromIndex(cold.biomes.biomeIndex[receiver]!)).toBe("desert");
     expect(cold.biomes.freezeIndex[receiver]).toBe(Math.fround(2 / 14));
     expect(cold.oasis[receiver]).toBeGreaterThan(0);

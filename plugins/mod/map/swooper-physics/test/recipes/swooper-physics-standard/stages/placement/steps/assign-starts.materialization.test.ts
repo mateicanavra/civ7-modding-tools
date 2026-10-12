@@ -224,6 +224,8 @@ function publishAssignStartsInputs(
   publishTestArtifact(context, climateArtifacts.climateIndices, {
     localSurfaceWaterOpportunity: new Float32Array(size),
     surfaceTemperatureC: new Float32Array(size).fill(16),
+    // Constant synthetic thermal profile.
+    coldestMonthMeanSurfaceTemperatureC: new Float32Array(size).fill(16),
     effectiveMoisture: new Float32Array(size).fill(0.5),
     plantEffectiveMoisture: new Float32Array(size).fill(0.5),
     pet: new Float32Array(size),

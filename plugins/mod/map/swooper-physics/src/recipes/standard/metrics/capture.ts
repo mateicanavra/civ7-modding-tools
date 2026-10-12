@@ -253,6 +253,7 @@ export type StandardMapCapture = Readonly<{
   /** Opt-in initial-case attribution; no member state or complete seasonal trajectory. */
   moistureDiagnostics?: Readonly<{
     baselineSurfaceTemperatureC: Float32Array;
+    coldestMonthMeanSurfaceTemperatureC: Float32Array;
     oceanSstC: Float32Array;
     oceanSeaIceMask: Uint8Array;
     soilType: Uint8Array;
@@ -594,6 +595,7 @@ function copyCompletedRun(
     const suitability = readArtifact(context, featureArtifacts.featureSuitability);
     return Object.freeze({
       baselineSurfaceTemperatureC: copyFloat32Grid("hydrology.thermalField.surfaceTemperatureC", thermal.surfaceTemperatureC, gridSize),
+      coldestMonthMeanSurfaceTemperatureC: copyFloat32Grid("hydrology.climateIndices.coldestMonthMeanSurfaceTemperatureC", indices.coldestMonthMeanSurfaceTemperatureC, gridSize),
       ...oceanObservation,
       soilType: copyUint8Grid("ecology.pedology.soilType", pedology.soilType, gridSize),
       freezeIndex: copyFloat32Grid("hydrology.climateIndices.freezeIndex", indices.freezeIndex, gridSize),

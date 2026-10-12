@@ -41,9 +41,12 @@ function runColdForestFlow(cases: readonly ClimateCase[]) {
     effectiveMoisture[i] = cases[i]!.atmosphericMoisture ?? effectiveMoisture[i]!;
     plantWaterStress[i] = cases[i]!.plantStress ?? plantWaterStress[i]!;
   }
+  // These hand-authored cases use constant temporal profiles per cell.
+  const coldestMonthMeanSurfaceTemperatureC = surfaceTemperatureC.slice();
   const heldFields = [
     landMask,
     surfaceTemperatureC,
+    coldestMonthMeanSurfaceTemperatureC,
     precipitation,
     effectiveMoisture,
     plantEffectiveMoisture,
@@ -64,6 +67,7 @@ function runColdForestFlow(cases: readonly ClimateCase[]) {
       height,
       landMask,
       surfaceTemperatureC,
+      coldestMonthMeanSurfaceTemperatureC,
       effectiveMoisture,
       plantEffectiveMoisture,
       aridityIndex,
@@ -141,7 +145,9 @@ function runColdForestFlow(cases: readonly ClimateCase[]) {
 
 describe("Earthlike cold-forest consumer flow", () => {
   it("admits boreal and colder opportunity through the actual producer chain without leaking at energy zero", () => {
-    // Retained Huge seed2 thermal/plant-water witness at (38,9), index992, then boundary probes.
+    // Retained Huge seed2 annual thermal/plant-water witness at (38,9), index992,
+    // then boundary probes. Cold-month inputs are synthetic constant extensions,
+    // not additional seasonal evidence from that retained capture.
     const cases = [
       { temperature: 0.1835019886493683 },
       { temperature: 2 },

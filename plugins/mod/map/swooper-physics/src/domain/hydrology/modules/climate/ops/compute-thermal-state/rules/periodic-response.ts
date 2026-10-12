@@ -2,7 +2,7 @@ import type { SolarHarmonics } from "../../../model/atoms/solar-harmonics.schema
 import { EARTH_PERIODIC_RESPONSE } from "../../../model/policy/earth-periodic-response.js";
 import { clampNumber } from "./index.js";
 
-/** Fixed midpoint resolution for independent annual integration of clipped periodic temperatures. */
+/** Fixed midpoint resolution for independent summaries of clipped periodic temperatures. */
 const ANNUAL_THERMAL_QUADRATURE_COUNT = 384;
 
 type Params = Readonly<{
@@ -57,7 +57,30 @@ function evaluate(harmonics: ThermalHarmonics, phaseTurns: number): number {
   );
 }
 
-/** One empirical thermal response, sampled at two datums and independently integrated after clipping. */
+/** Minimum circular one-twelfth-cycle mean of the clipped midpoint-bin curve. */
+function coldestMonthMean(samples: Float64Array): number {
+  const count = samples.length;
+  const monthBins = count / 12;
+  const fullBins = Math.floor(monthBins);
+  const fraction = monthBins - fullBins;
+  let fullSum = 0;
+  for (let bin = 0; bin < fullBins; bin++) fullSum += samples[bin]!;
+  let minimum = Infinity;
+  for (let start = 0; start < count; start++) {
+    let end = start + fullBins;
+    if (end >= count) end -= count;
+    minimum = Math.min(minimum, fullSum + fraction * samples[end]!);
+    if (fraction > 0) {
+      // The rolling integral is linear between start/end bin crossings; both are extrema candidates.
+      const previous = start === 0 ? count - 1 : start - 1;
+      minimum = Math.min(minimum, fullSum + fraction * samples[previous]!);
+    }
+    fullSum += samples[end]! - samples[start]!;
+  }
+  return minimum / monthBins;
+}
+
+/** One empirical thermal response, sampled at two datums and summarized independently after clipping. */
 export function computePeriodicThermalResponse(
   input: Params,
   options: Options,
@@ -134,8 +157,10 @@ export function computePeriodicThermalResponse(
   }));
   const meanSeaLevelTemperatureC = new Float32Array(size);
   const annualSurfaceTemperatureC = new Float32Array(size);
+  const coldestMonthMeanSurfaceTemperatureC = new Float32Array(size);
   const annualUnclippedSurfaceTemperatureC = new Float32Array(size);
   const annualClippingDeltaC = new Float32Array(size);
+  const clippedGroundCycle = new Float64Array(annualQuadratureCount);
   for (let cell = 0; cell < size; cell++) {
     const row = Math.floor(cell / width);
     const land = input.landMask[cell] === 1;
@@ -153,14 +178,18 @@ export function computePeriodicThermalResponse(
     meanSeaLevelTemperatureC[cell] = pressureMean;
     let clippedSum = 0,
       rawSum = 0;
+    let densePhase = 0;
     for (const rawSeaLevel of denseByRow[row]!) {
       const rawGround = land ? rawSeaLevel + lapse : input.sstC[cell]!;
       rawSum += rawGround;
-      clippedSum += clampNumber(rawGround, options.minC, options.maxC);
+      const clipped = clampNumber(rawGround, options.minC, options.maxC);
+      clippedSum += clipped;
+      clippedGroundCycle[densePhase++] = clipped;
     }
     const rawMean = rawSum / annualQuadratureCount;
     const clippedMean = clippedSum / annualQuadratureCount;
     annualSurfaceTemperatureC[cell] = clippedMean;
+    coldestMonthMeanSurfaceTemperatureC[cell] = coldestMonthMean(clippedGroundCycle);
     annualUnclippedSurfaceTemperatureC[cell] = rawMean;
     annualClippingDeltaC[cell] = clippedMean - rawMean;
   }
@@ -168,6 +197,7 @@ export function computePeriodicThermalResponse(
     samples,
     meanSeaLevelTemperatureC,
     annualSurfaceTemperatureC,
+    coldestMonthMeanSurfaceTemperatureC,
     annualUnclippedSurfaceTemperatureC,
     annualClippingDeltaC,
   };

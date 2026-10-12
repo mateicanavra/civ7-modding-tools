@@ -2,7 +2,7 @@ import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authorin
 import { SolarHarmonicsSchema } from "../../model/atoms/solar-harmonics.schema.js";
 import periodicResponseDefinition from "./strategies/periodic-response/config.js";
 
-/** Owns thermal response, independent sea/ground clipping, and the integrated annual ground datum. */
+/** Owns thermal response, independent sea/ground clipping, and baseline ground-cycle summaries. */
 const ComputeThermalStateContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-thermal-state",
@@ -59,6 +59,10 @@ const ComputeThermalStateContract = defineOp({
       annualSurfaceTemperatureC: TypedArraySchemas.f32({
         description:
           "Independent dense-cycle mean of clipped ground temperature; never an observation average.",
+      }),
+      coldestMonthMeanSurfaceTemperatureC: TypedArraySchemas.f32({
+        description:
+          "Coldest month-like rolling mean: minimum circular one-twelfth-cycle mean of the clipped dense midpoint-bin baseline ground curve, before albedo. Independent of requested phases; not a point minimum or a guarantee of monthly 2 m air-temperature metrology.",
       }),
       annualUnclippedSurfaceTemperatureC: TypedArraySchemas.f32({
         description:

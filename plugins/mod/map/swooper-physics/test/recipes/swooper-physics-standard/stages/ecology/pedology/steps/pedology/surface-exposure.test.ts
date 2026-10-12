@@ -84,6 +84,7 @@ function runSurfaceConsumers(initiallyWet = false) {
     });
     publishTestArtifact(stepContext, climateArtifacts.thermalField, {
       surfaceTemperatureC: baselineTemperature,
+      coldestMonthMeanSurfaceTemperatureC: baselineThermal.coldestMonthMeanSurfaceTemperatureC,
     });
     publishTestArtifact(stepContext, climateArtifacts.windField, {
       windU: new Int8Array(size), windV: new Int8Array(size),
@@ -128,18 +129,26 @@ function runSurfaceConsumers(initiallyWet = false) {
       },
     }, pedologyDependencies);
 
+    const biomesDependencies = buildStepTestDependencies(BiomesStep, stepContext);
     BiomesStep.run(stepContext, { classify: ecology.biomes.ops.classifyBiomes.defaultConfig }, {
       classify: (...[input, config]: Parameters<typeof ecology.biomes.ops.classifyBiomes.run>) => {
         calls.push("biomes");
         expect(input.landMask).toEqual(expectedExposure);
+        expect(input.coldestMonthMeanSurfaceTemperatureC).toBe(
+          biomesDependencies.artifacts.climateIndices.read().coldestMonthMeanSurfaceTemperatureC
+        );
+        expect(input.coldestMonthMeanSurfaceTemperatureC).toEqual(baselineThermal.coldestMonthMeanSurfaceTemperatureC);
         return ecology.biomes.ops.classifyBiomes.run(input, config);
       },
-    }, buildStepTestDependencies(BiomesStep, stepContext));
+    }, biomesDependencies);
   });
 
   expect(calls).toEqual(["albedo", "water-budget", "pedology", "biomes"]);
   expect(fixture).toEqual(before);
   expect(baselineTemperature[wetCell]).toBe(baselineTemperature[fixture.dryCell]);
+  expect(readArtifact(context, climateArtifacts.climateIndices).coldestMonthMeanSurfaceTemperatureC).toEqual(
+    baselineThermal.coldestMonthMeanSurfaceTemperatureC
+  );
   if (!initiallyWet) expect(baselineTemperature[wetCell]).toBeLessThan(marineTreatment);
   else expect(baselineTemperature[wetCell]).toBe(marineTreatment);
   return {

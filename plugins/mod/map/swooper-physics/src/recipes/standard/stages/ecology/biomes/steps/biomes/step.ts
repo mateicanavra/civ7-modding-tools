@@ -29,6 +29,7 @@ export const BiomesStep = createStep(config, {
         height,
         effectiveMoisture: climateIndices.effectiveMoisture,
         surfaceTemperatureC: climateIndices.surfaceTemperatureC,
+        coldestMonthMeanSurfaceTemperatureC: climateIndices.coldestMonthMeanSurfaceTemperatureC,
         aridityIndex: climateIndices.aridityIndex,
         plantEffectiveMoisture: climateIndices.plantEffectiveMoisture,
         plantWaterStress: climateIndices.plantWaterStress,

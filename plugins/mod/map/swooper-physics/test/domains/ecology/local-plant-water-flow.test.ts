@@ -9,7 +9,8 @@ import { noLocalWaterSources } from "../../fixtures/local-water-sources.js";
 
 const { classifyBiomes } = ecology.biomes.ops;
 const features = ecology.features.ops;
-function climate(temperature = 20, moisture = 70, aridity = 0.6) {
+// Hand-authored seasonal temperate boundary inputs, not thermal-producer captures.
+function climate(temperature = 20, moisture = 70, aridity = 0.6, coldMonthMean = 14) {
   return {
     width: 1, height: 1,
     landMask: new Uint8Array([1]),
@@ -18,6 +19,7 @@ function climate(temperature = 20, moisture = 70, aridity = 0.6) {
     plantEffectiveMoisture: new Float32Array([moisture]),
     plantWaterStress: new Float32Array([aridity]),
     surfaceTemperatureC: new Float32Array([temperature]),
+    coldestMonthMeanSurfaceTemperatureC: new Float32Array([coldMonthMean]),
     freezeIndex: new Float32Array([0.05]),
     permafrost01: new Float32Array([0]),
     soilType: new Uint8Array([2]),
@@ -69,7 +71,7 @@ describe("plant water and climatic habitat meanings", () => {
   });
 
   it.each([30, 70, 130, 230])("holds polar lookup wetness and dry shifts at atmospheric moisture %i", (moisture) => {
-    const input = climate(-5, moisture, 0.6);
+    const input = climate(-5, moisture, 0.6, -5);
     const baseline = classifyBiomes.run(input, classifyBiomes.defaultConfig);
     input.plantEffectiveMoisture.fill(1000);
     input.plantWaterStress.fill(0);
@@ -79,13 +81,13 @@ describe("plant water and climatic habitat meanings", () => {
     expect(supported.aridityIndex).toEqual(input.aridityIndex);
   });
 
-  it.each([22.9, 23.5, 24, 24.5, 25.1])("holds tropical transition context at %f C while plant moisture can change the category", (temperature) => {
+  it.each([22.9, 23.5, 24, 24.5, 25.1])("holds seasonal temperate habitat at annual %f C while plant moisture changes density", (temperature) => {
     const input = climate(temperature, 70, 0);
     input.plantEffectiveMoisture.fill(110);
     const seasonal = classifyBiomes.run(input, classifyBiomes.defaultConfig);
     input.plantEffectiveMoisture.fill(300);
     const supported = classifyBiomes.run(input, classifyBiomes.defaultConfig);
-    // Atmospheric dryness keeps the thermal transition temperate over this complete band.
+    // Explicit cold-month evidence keeps the entire annual-temperature band temperate.
     expect(biomeSymbolFromIndex(seasonal.biomeIndex[0]!)).toBe("temperateHumid");
     expect(biomeSymbolFromIndex(supported.biomeIndex[0]!)).toBe("temperateHumid");
     expect(supported.vegetationDensity[0]).toBeGreaterThan(seasonal.vegetationDensity[0]!);
@@ -109,7 +111,7 @@ describe("plant water and climatic habitat meanings", () => {
   });
 
   it("keeps taiga's atmospheric upper-water habitat band while relieving plant growth stress", () => {
-    const input = climate(-3, 115, 0.6);
+    const input = climate(-3, 115, 0.6, -3);
     input.freezeIndex.fill(0.65);
     const baseline = substrate(input);
     input.plantEffectiveMoisture.fill(1000);
@@ -133,7 +135,7 @@ describe("plant water and climatic habitat meanings", () => {
   });
 
   it("retains savanna climatic dry-season context with monotone plant support, and steppe climatic bands with plant biomass", () => {
-    const input = climate(28, 46, 0.55);
+    const input = climate(28, 46, 0.55, 28);
     const baseline = substrate(input);
     input.plantEffectiveMoisture.fill(1000);
     input.plantWaterStress.fill(0.01);
@@ -203,6 +205,8 @@ describe("plant water and climatic habitat meanings", () => {
           effectiveMoisture: indices.effectiveMoisture, aridityIndex: indices.aridityIndex,
           plantEffectiveMoisture: indices.plantEffectiveMoisture, plantWaterStress: indices.plantWaterStress,
           surfaceTemperatureC: new Float32Array(size).fill(20), freezeIndex: new Float32Array(size).fill(0.05), permafrost01: new Float32Array(size),
+          // Seasonal temperate synthetic regime preserves this forest-water guard.
+          coldestMonthMeanSurfaceTemperatureC: new Float32Array(size).fill(14),
           fertility: new Float32Array(size).fill(0.6), soilType: new Uint8Array(size).fill(2),
         }, classifyBiomes.defaultConfig);
         const fields = features.computeVegetationSubstrate.run({

@@ -809,8 +809,7 @@
             "temperature": {
               "polarCutoff": -8,
               "tundraCutoff": -2,
-              "midLatitude": 11,
-              "tropicalThreshold": 25
+              "tropicalColdMonthMeanMinC": 18
             },
             "moisture": {
               "thresholds": [
@@ -828,6 +827,7 @@
               "vegetationPenalty": 0.31
             },
             "vegetation": {
+              "energyMaxC": 25,
               "base": 0.09,
               "moistureWeight": 0.46,
               "moistureNormalizationPadding": 40

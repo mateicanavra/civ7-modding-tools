@@ -89,6 +89,8 @@ function publishPlacementInputs(context: MapContext): void {
   publishTestArtifact(context, climateArtifacts.climateIndices, {
     localSurfaceWaterOpportunity: new Float32Array(size),
     surfaceTemperatureC: new Float32Array(size).fill(PLANNER_SURFACE_SENTINELS.surfaceTemperature),
+    // Constant synthetic thermal profile.
+    coldestMonthMeanSurfaceTemperatureC: new Float32Array(size).fill(PLANNER_SURFACE_SENTINELS.surfaceTemperature),
     plantEffectiveMoisture: new Float32Array(size).fill(PLANNER_SURFACE_SENTINELS.plantEffectiveMoisture),
     effectiveMoisture: new Float32Array(size).fill(0.03),
     pet: new Float32Array(size),
