@@ -13,9 +13,8 @@ describe("classifyBiomes operation", () => {
     expect(strategy).toBe("biophysical");
     expect(Object.keys(config).sort()).toEqual(["aridity", "moisture", "temperature", "vegetation"]);
     expect(Object.keys(config.temperature).sort()).toEqual([
-      "midLatitude",
       "polarCutoff",
-      "tropicalThreshold",
+      "tropicalColdMonthMeanMinC",
       "tundraCutoff",
     ]);
     expect(Object.keys(config.aridity).sort()).toEqual([
@@ -47,6 +46,7 @@ describe("classifyBiomes operation", () => {
           effectiveMoisture: new Float32Array(size).fill(110),
           plantEffectiveMoisture: new Float32Array(size).fill(110),
           surfaceTemperatureC,
+          coldestMonthMeanSurfaceTemperatureC: new Float32Array(surfaceTemperatureC),
           aridityIndex,
           plantWaterStress: aridityIndex,
           freezeIndex: new Float32Array(size),
@@ -76,6 +76,7 @@ describe("classifyBiomes operation", () => {
       effectiveMoisture: new Float32Array(size).fill(150),
       plantEffectiveMoisture: new Float32Array(size).fill(150),
       surfaceTemperatureC: new Float32Array(size).fill(30),
+      coldestMonthMeanSurfaceTemperatureC: new Float32Array(size).fill(22),
       aridityIndex: new Float32Array(size).fill(0.35),
       plantWaterStress: new Float32Array(size).fill(0.35),
       freezeIndex: new Float32Array(size),
@@ -126,6 +127,7 @@ describe("classifyBiomes operation", () => {
     // effectiveMoisture = rainfall + 0.35 * humidity (no river bonus in this test).
     const effectiveMoisture = new Float32Array(size).fill(70 + 0.35 * 30);
     const surfaceTemperatureC = new Float32Array(size).fill(15);
+    const coldestMonthMeanSurfaceTemperatureC = new Float32Array(size).fill(10);
     const aridityIndex = new Float32Array(size);
     const freezeIndex = new Float32Array(size);
     const landMask = new Uint8Array(size).fill(1);
@@ -148,6 +150,7 @@ describe("classifyBiomes operation", () => {
       const sample = sampleValues[sampleIndex]!;
       effectiveMoisture[sampleTile] = sample.moisture;
       surfaceTemperatureC[sampleTile] = sample.temperature;
+      coldestMonthMeanSurfaceTemperatureC[sampleTile] = sample.temperature - 6;
       freezeIndex[sampleTile] = sample.freeze;
     });
 
@@ -163,6 +166,7 @@ describe("classifyBiomes operation", () => {
         effectiveMoisture,
         plantEffectiveMoisture: effectiveMoisture,
         surfaceTemperatureC,
+        coldestMonthMeanSurfaceTemperatureC,
         aridityIndex,
         plantWaterStress: aridityIndex,
         freezeIndex,
@@ -208,6 +212,7 @@ describe("classifyBiomes operation", () => {
       effectiveMoisture,
       plantEffectiveMoisture: effectiveMoisture,
       surfaceTemperatureC: new Float32Array(size).fill(12.13),
+      coldestMonthMeanSurfaceTemperatureC: new Float32Array(size).fill(8),
       aridityIndex: new Float32Array(size).fill(0.35924),
       plantWaterStress: new Float32Array(size).fill(0.35924),
       freezeIndex: new Float32Array(size),
@@ -255,6 +260,7 @@ describe("classifyBiomes operation", () => {
         effectiveMoisture: new Float32Array(size),
         plantEffectiveMoisture: new Float32Array(size),
         surfaceTemperatureC,
+        coldestMonthMeanSurfaceTemperatureC: new Float32Array(surfaceTemperatureC),
         aridityIndex: new Float32Array(size),
         plantWaterStress: new Float32Array(size),
         freezeIndex: new Float32Array(size),
@@ -283,6 +289,7 @@ describe("classifyBiomes operation", () => {
       effectiveMoisture: new Float32Array(size).fill(110),
       plantEffectiveMoisture: new Float32Array(size).fill(110),
       surfaceTemperatureC: new Float32Array(size).fill(15),
+      coldestMonthMeanSurfaceTemperatureC: new Float32Array(size).fill(10),
       aridityIndex: new Float32Array(size),
       plantWaterStress: new Float32Array(size),
       freezeIndex: new Float32Array(size),
@@ -314,5 +321,42 @@ describe("classifyBiomes operation", () => {
     expect(result.surfaceTemperature).toEqual(control.surfaceTemperature);
     expect(result.aridityIndex).toEqual(control.aridityIndex);
     expect(result.freezeIndex).toEqual(control.freezeIndex);
+  });
+
+  it("uses persistent seasonal warmth without wetness changing the thermal criterion or annual energy", () => {
+    const profiles = [
+      { annual: 22, coldMonth: 22, moisture: 230, biome: "tropicalRainforest" },
+      { annual: 22, coldMonth: 17, moisture: 230, biome: "temperateHumid" },
+      { annual: 24, coldMonth: 17, moisture: 230, biome: "temperateHumid" },
+      { annual: 22, coldMonth: 18, moisture: 230, biome: "tropicalRainforest" },
+      { annual: 22, coldMonth: 17.999, moisture: 230, biome: "temperateHumid" },
+      { annual: 28, coldMonth: 22, moisture: 30, biome: "desert" },
+      { annual: -10, coldMonth: -20, moisture: 230, biome: "snow" },
+      { annual: 0, coldMonth: -8, moisture: 230, biome: "boreal" },
+    ] as const;
+    const size = profiles.length;
+    const input = {
+      width: size, height: 1,
+      surfaceTemperatureC: Float32Array.from(profiles, (profile) => profile.annual),
+      coldestMonthMeanSurfaceTemperatureC: Float32Array.from(profiles, (profile) => profile.coldMonth),
+      effectiveMoisture: Float32Array.from(profiles, (profile) => profile.moisture),
+      plantEffectiveMoisture: Float32Array.from(profiles, (profile) => profile.moisture),
+      aridityIndex: new Float32Array(size), plantWaterStress: new Float32Array(size),
+      freezeIndex: new Float32Array(size), permafrost01: new Float32Array(size),
+      landMask: new Uint8Array(size).fill(1), soilType: new Uint8Array(size),
+      fertility: new Float32Array(size).fill(0.5),
+    };
+    const selection = normalizeOperationSelectionForTest(
+      ecology.biomes.ops.classifyBiomes, ecology.biomes.ops.classifyBiomes.defaultConfig
+    );
+    const result = ecology.biomes.ops.classifyBiomes.run(input, selection);
+    expect(Array.from(result.biomeIndex, biomeSymbolFromIndex)).toEqual(profiles.map((profile) => profile.biome));
+    const differentSeason = ecology.biomes.ops.classifyBiomes.run({
+      ...input, coldestMonthMeanSurfaceTemperatureC: new Float32Array(size).fill(16),
+    }, selection);
+    expect(result.vegetationDensity).toEqual(differentSeason.vegetationDensity);
+    expect(result.surfaceTemperature).toEqual(input.surfaceTemperatureC);
+    expect(result.effectiveMoisture).toEqual(input.effectiveMoisture);
+    expect(result.vegetationDensity[0]).toBe(result.vegetationDensity[1]);
   });
 });

@@ -23,21 +23,15 @@ export default defineStrategy({
             minimum: -100,
             maximum: 100,
           }),
-          midLatitude: Type.Number({
-            description: "Upper bound for temperate zone classification (degrees C).",
-            default: 12,
-            minimum: -100,
-            maximum: 100,
-          }),
-          tropicalThreshold: Type.Number({
-            description: "Temperature threshold for tropical zone classification (degrees C).",
-            default: 24,
+          tropicalColdMonthMeanMinC: Type.Number({
+            description: "Minimum baseline coldest-month-like mean for tropical classification (degrees C); 18 C is a provisional Earth-informed climate proxy, not a universal plant limit.",
+            default: 18,
             minimum: -100,
             maximum: 100,
           }),
         },
         {
-          description: "Biome classification thresholds for Hydrology surface temperature (degrees C).",
+          description: "Annual cold-zone thresholds and baseline coldest-month-like tropical threshold (degrees C).",
         }
       ),
       /** Moisture model knobs (thresholds only; no local effective-moisture derivation). */
@@ -79,7 +73,7 @@ export default defineStrategy({
         },
         {
           description:
-            "Effective-moisture thresholds, with atmospheric moisture retained for polar categories and tropical transition context.",
+            "Effective-moisture thresholds, with atmospheric moisture retained for polar categories.",
         }
       ),
       /** Plant-stress responses, with atmospheric aridity retained for polar category shifts. */
@@ -119,6 +113,12 @@ export default defineStrategy({
       /** Vegetation density model knobs (0..1 weights, soil modifiers). */
       vegetation: Type.Object(
         {
+          energyMaxC: Type.Number({
+            description: "Annual temperature at full vegetation energy response (degrees C), independent of seasonal tropical classification; the lower bound remains polarCutoff.",
+            default: 24,
+            minimum: -100,
+            maximum: 100,
+          }),
           base: Type.Number({
             description:
               "Baseline vegetation density (0..1). Acts as the floor even in marginal climates.",

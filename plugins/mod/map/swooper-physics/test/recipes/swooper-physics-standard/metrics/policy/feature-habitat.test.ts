@@ -19,6 +19,8 @@ function supportedRainforestModel() {
     effectiveMoisture: indices.effectiveMoisture, aridityIndex: indices.aridityIndex,
     plantEffectiveMoisture: indices.plantEffectiveMoisture, plantWaterStress: indices.plantWaterStress,
     surfaceTemperatureC: surfaceTemperature, freezeIndex: new Float32Array(1), permafrost01: new Float32Array(1),
+    // Constant synthetic 27 C profile.
+    coldestMonthMeanSurfaceTemperatureC: new Float32Array([27]),
     soilType: new Uint8Array([2]), fertility: new Float32Array([0.6]),
   }, ecology.biomes.ops.classifyBiomes.defaultConfig);
   return {

@@ -50,6 +50,12 @@ describe("biomes step", () => {
       { length: size },
       (_value, index) => 10 + (index % 3) * 10
     );
+    // Explicit seasonal synthetic evidence; not an annual-temperature alias.
+    const coldestMonthMeanSurfaceTemperatureC = Float32Array.from(
+      { length: size },
+      (_value, index) => [4, 14, 22][index % 3]!
+    );
+    const coldMonthBefore = coldestMonthMeanSurfaceTemperatureC.slice();
     const aridityIndex = Float32Array.from(
       { length: size },
       (_value, index) => 0.1 + (index % 3) * 0.1
@@ -84,6 +90,7 @@ describe("biomes step", () => {
       publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
         localSurfaceWaterOpportunity: new Float32Array(size),
         surfaceTemperatureC,
+        coldestMonthMeanSurfaceTemperatureC,
         effectiveMoisture: effectiveMoistureIn,
         plantEffectiveMoisture,
         pet: new Float32Array(size),
@@ -107,7 +114,14 @@ describe("biomes step", () => {
       biomesStep.run(
         stepContext,
         { classify: classifyConfig },
-        ops,
+        {
+          ...ops,
+          classify: (...[input, config]: Parameters<typeof ops.classify>) => {
+            expect(input.surfaceTemperatureC).toBe(surfaceTemperatureC);
+            expect(input.coldestMonthMeanSurfaceTemperatureC).toBe(coldestMonthMeanSurfaceTemperatureC);
+            return ops.classify(input, config);
+          },
+        },
         buildStepTestDependencies(biomesStep, stepContext)
       );
     });
@@ -122,6 +136,7 @@ describe("biomes step", () => {
         effectiveMoisture: effectiveMoistureIn,
         plantEffectiveMoisture,
         surfaceTemperatureC,
+        coldestMonthMeanSurfaceTemperatureC,
         aridityIndex,
         plantWaterStress,
         freezeIndex,
@@ -138,6 +153,7 @@ describe("biomes step", () => {
       Float32Array.from(permafrost01, (value) => Math.min(1, Math.max(0, 1 - value)))
     );
     expect(permafrost01).toEqual(permafrostBefore);
+    expect(coldestMonthMeanSurfaceTemperatureC).toEqual(coldMonthBefore);
     expect(Array.from(classification.biomeIndex)).not.toContain(255);
     expect(new Set(classification.vegetationDensity).size).toBeGreaterThan(1);
   });
@@ -185,6 +201,8 @@ describe("biomes step", () => {
         publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
           localSurfaceWaterOpportunity: new Float32Array(size),
           surfaceTemperatureC: new Float32Array(size).fill(15),
+          // Constant synthetic 15 C profile.
+          coldestMonthMeanSurfaceTemperatureC: new Float32Array(size).fill(15),
           effectiveMoisture: effectiveMoistureIn,
           plantEffectiveMoisture: effectiveMoistureIn,
           pet: new Float32Array(size),

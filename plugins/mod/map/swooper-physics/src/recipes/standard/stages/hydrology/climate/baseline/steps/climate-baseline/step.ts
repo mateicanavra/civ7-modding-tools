@@ -423,6 +423,7 @@ export const ClimateBaselineStep = createStep(config, {
     };
     const thermalField = deps.artifacts.thermalField.publish({
       surfaceTemperatureC: atmosphere.periodicThermal.annualSurfaceTemperatureC,
+      coldestMonthMeanSurfaceTemperatureC: atmosphere.periodicThermal.coldestMonthMeanSurfaceTemperatureC,
     });
     const observe = <T>(samples: readonly T[]): T[] =>
       sampling.observationIndices.map((index) => samples[index]!);

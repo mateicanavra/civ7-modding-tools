@@ -15,6 +15,7 @@ function inputFor(width: number, height: number) {
     effectiveMoisture,
     plantEffectiveMoisture: effectiveMoisture,
     surfaceTemperatureC: new Float32Array(size).fill(15),
+    coldestMonthMeanSurfaceTemperatureC: new Float32Array(size).fill(10),
     aridityIndex,
     plantWaterStress: aridityIndex,
     freezeIndex: new Float32Array(size),
@@ -40,6 +41,7 @@ function translateInputX(input: ReturnType<typeof inputFor>, offset: number) {
     effectiveMoisture: new Float32Array(translateX(input.effectiveMoisture, width, offset)),
     plantEffectiveMoisture: new Float32Array(translateX(input.plantEffectiveMoisture, width, offset)),
     surfaceTemperatureC: new Float32Array(translateX(input.surfaceTemperatureC, width, offset)),
+    coldestMonthMeanSurfaceTemperatureC: new Float32Array(translateX(input.coldestMonthMeanSurfaceTemperatureC, width, offset)),
     aridityIndex: new Float32Array(translateX(input.aridityIndex, width, offset)),
     plantWaterStress: new Float32Array(translateX(input.plantWaterStress, width, offset)),
     freezeIndex: new Float32Array(translateX(input.freezeIndex, width, offset)),
@@ -178,7 +180,7 @@ describe("classifyBiomes periodic edges", () => {
     const config = classifyBiomes.defaultConfig.config;
     const moistureNormalization =
       config.moisture.thresholds[3] + config.vegetation.moistureNormalizationPadding;
-    const energyRange = config.temperature.tropicalThreshold - config.temperature.polarCutoff;
+    const energyRange = config.vegetation.energyMaxC - config.temperature.polarCutoff;
     const expectedDensity = Float32Array.from(input.effectiveMoisture, (moisture, index) => {
       if (input.landMask[index] === 0) return 0;
       const moistureNorm = Math.min(1, moisture / moistureNormalization);

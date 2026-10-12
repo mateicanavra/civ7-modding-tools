@@ -8,6 +8,8 @@ describe("climate-refine index projections", () => {
     const dimensions = { width, height };
     const climateIndices = {
       surfaceTemperatureC: new Float32Array([10, 20]),
+      // Constant synthetic profiles, not an observed seasonal capture.
+      coldestMonthMeanSurfaceTemperatureC: new Float32Array([10, 20]),
       pet: new Float32Array([50, 60]),
       effectiveMoisture: new Float32Array([20, 30]),
       aridityIndex: new Float32Array([0.7, 0.8]),

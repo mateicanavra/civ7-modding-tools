@@ -24,36 +24,40 @@ describe("Hydrology causal thermal vintages", () => {
     },
   ];
   for (const { artifact, fields } of vintages) {
-    it(`requires finite map-grid Float32Array temperature within ${artifact.name}`, () => {
-      expect(
-        artifact.validate(
-          { ...fields, surfaceTemperatureC: new Float32Array(cellCount).fill(-25) },
-          { dimensions }
-        )
-      ).toEqual([]);
-      expect(artifact.validate(fields, { dimensions })).not.toEqual([]);
-      expect(artifact.validate(new Float32Array(cellCount), { dimensions })).not.toEqual([]);
-      for (const value of [
-        undefined,
-        { surfaceTemperatureC: new Float32Array(cellCount) },
-        new Uint8Array(cellCount),
-        new Float32Array(cellCount - 1),
-      ]) {
-        expect(
-          artifact.validate({ ...fields, surfaceTemperatureC: value }, { dimensions })
-        ).not.toEqual([]);
-      }
-      for (const sample of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
-        const value = new Float32Array(cellCount);
-        value[cellCount - 1] = sample;
-        expect(
-          artifact.validate({ ...fields, surfaceTemperatureC: value }, { dimensions })
-            .map((issue) => issue.message)
-        ).toEqual([
-          `Expected ${artifact.name}.surfaceTemperatureC[${cellCount - 1}] to be finite (received ${sample}).`,
-        ]);
-      }
-    });
+    for (const field of ["surfaceTemperatureC", "coldestMonthMeanSurfaceTemperatureC"] as const) {
+      it(`requires finite map-grid Float32Array ${field} within ${artifact.name}`, () => {
+        // Constant synthetic thermal profiles have equal annual and cold-month means.
+        const valid = {
+          ...fields,
+          surfaceTemperatureC: new Float32Array(cellCount).fill(-25),
+          coldestMonthMeanSurfaceTemperatureC: new Float32Array(cellCount).fill(-25),
+        };
+        expect(artifact.validate(valid, { dimensions })).toEqual([]);
+        expect(artifact.validate(fields, { dimensions })).not.toEqual([]);
+        expect(artifact.validate(new Float32Array(cellCount), { dimensions })).not.toEqual([]);
+        for (const value of [
+          undefined,
+          { [field]: new Float32Array(cellCount) },
+          new Uint8Array(cellCount),
+          new Float32Array(cellCount - 1),
+          new Float32Array(cellCount + 1),
+        ]) {
+          expect(
+            artifact.validate({ ...valid, [field]: value }, { dimensions })
+          ).not.toEqual([]);
+        }
+        for (const sample of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
+          const value = new Float32Array(cellCount);
+          value[cellCount - 1] = sample;
+          expect(
+            artifact.validate({ ...valid, [field]: value }, { dimensions })
+              .map((issue) => issue.message)
+          ).toEqual([
+            `Expected ${artifact.name}.${field}[${cellCount - 1}] to be finite (received ${sample}).`,
+          ]);
+        }
+      });
+    }
   }
 
   it("owns baseline thermal evidence and final indices without parallel temperature artifacts", () => {
@@ -63,6 +67,7 @@ describe("Hydrology causal thermal vintages", () => {
       artifacts.thermalField.validate(
         {
           surfaceTemperatureC: new Float32Array(cellCount),
+          coldestMonthMeanSurfaceTemperatureC: new Float32Array(cellCount),
           rainfall: new Uint8Array(cellCount),
         },
         { dimensions }

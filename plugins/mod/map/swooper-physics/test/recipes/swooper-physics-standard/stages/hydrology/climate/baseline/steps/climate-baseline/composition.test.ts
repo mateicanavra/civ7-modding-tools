@@ -313,6 +313,12 @@ describe("hydrology climate-baseline composition", () => {
     expect(run.observation.thermalField.surfaceTemperatureC).toEqual(
       final.annualSurfaceTemperatureC
     );
+    expect(run.observation.thermalField.coldestMonthMeanSurfaceTemperatureC).toBe(
+      final.coldestMonthMeanSurfaceTemperatureC
+    );
+    expect(readArtifact(run.context, climateArtifacts.thermalField).coldestMonthMeanSurfaceTemperatureC).toBe(
+      final.coldestMonthMeanSurfaceTemperatureC
+    );
     expect(run.observation.seasonalIntegration.precipitation).toHaveLength(phaseCount);
     expect(run.observation.seasonalSurfaceTemperatureC).toHaveLength(4);
   });

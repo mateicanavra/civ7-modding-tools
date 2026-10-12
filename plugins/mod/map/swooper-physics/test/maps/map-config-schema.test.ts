@@ -327,7 +327,11 @@ describe("Shipped map configs", () => {
       ecology.biomes.ops.classifyBiomes.defaultConfig.config.aridity.moistureShiftThresholds[0]
     );
     expect(classifier.aridity.moistureShiftThresholds).toEqual([0.45, 0.66]);
-    expect(classifier.temperature.tropicalThreshold).toBe(24);
+    expect(classifier.temperature.tropicalColdMonthMeanMinC).toBe(18);
+    expect(classifier.vegetation.energyMaxC).toBe(24);
+    expect(Object.fromEntries(configs.map(({ canonicalConfig }) => [
+      canonicalConfig.id, canonicalConfig.config["ecology-biomes"].biomes.classify.config.vegetation.energyMaxC,
+    ]))).toEqual({ "swooper-earthlike": 24, "swooper-desert-mountains": 25, "sundered-archipelago": 24 });
   });
 
   it("compiles Earthlike's authored river and relief controls with unchanged periodic climate", async () => {

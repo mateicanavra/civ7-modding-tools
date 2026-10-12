@@ -95,7 +95,96 @@ function forcingForTemperature(mean: number, cosine: number, sine: number, harmo
   };
 }
 
+function forcingForCycle(
+  mean: number,
+  annual: readonly [number, number],
+  semiannual: readonly [number, number]
+) {
+  const first = forcingForTemperature(mean, annual[0], annual[1], 1);
+  const second = forcingForTemperature(mean, semiannual[0], semiannual[1], 2);
+  return { ...first, cos2Q: second.cos2Q, sin2Q: second.sin2Q };
+}
+
+function shiftOrigin(solar: typeof q, turns: number) {
+  const angle = 2 * Math.PI * turns;
+  return {
+    meanQ: solar.meanQ,
+    cos1Q: solar.cos1Q * Math.cos(angle) + solar.sin1Q * Math.sin(angle),
+    sin1Q: solar.sin1Q * Math.cos(angle) - solar.cos1Q * Math.sin(angle),
+    cos2Q: solar.cos2Q * Math.cos(2 * angle) + solar.sin2Q * Math.sin(2 * angle),
+    sin2Q: solar.sin2Q * Math.cos(2 * angle) - solar.cos2Q * Math.sin(2 * angle),
+  };
+}
+
+// Independent circular antiderivative at test-only resolutions divisible by twelve.
+function coldestMonthGroundOracle(input: ReturnType<typeof fixture>, count: number) {
+  const config = selection.config;
+  return Float32Array.from(input.landMask, (land, cell) => {
+    const solar = input.solarByRow[Math.floor(cell / input.width)]!;
+    const lapse =
+      Math.max(0, input.elevation[cell]! - input.seaLevel) * config.lapseRateCPerElevationUnit;
+    const values = Float64Array.from({ length: count }, (_, sample) => {
+      const raw = land
+        ? rawAt(solar, (sample + 0.5) / count) + config.annualOffsetC + lapse
+        : input.sstC[cell]!;
+      return Math.max(config.minC, Math.min(config.maxC, raw));
+    });
+    const monthBins = count / 12;
+    const prefix = new Float64Array(count + monthBins);
+    for (let bin = 0; bin < prefix.length - 1; bin++) {
+      prefix[bin + 1] = prefix[bin]! + values[bin % count]!;
+    }
+    let minimum = Infinity;
+    for (let start = 0; start < count; start++) {
+      minimum = Math.min(minimum, (prefix[start + monthBins]! - prefix[start]!) / monthBins);
+    }
+    return minimum;
+  });
+}
+
+function legacyOutputBits(result: ReturnType<typeof run>) {
+  const bits = (field: Float32Array) =>
+    Array.from(new Uint32Array(field.buffer, field.byteOffset, field.length));
+  return {
+    samples: result.samples.map((sample) => [
+      bits(sample.seaLevelTemperatureC), bits(sample.surfaceTemperatureC),
+    ]),
+    meanSeaLevelTemperatureC: bits(result.meanSeaLevelTemperatureC),
+    annualSurfaceTemperatureC: bits(result.annualSurfaceTemperatureC),
+    annualUnclippedSurfaceTemperatureC: bits(result.annualUnclippedSurfaceTemperatureC),
+    annualClippingDeltaC: bits(result.annualClippingDeltaC),
+  };
+}
+
 describe("empirical periodic thermal response", () => {
+  it("adds the cold-month summary without changing any retained legacy output bits", () => {
+    // Captured from this owner before the summary was added, including independent clipping.
+    expect(legacyOutputBits(run())).toEqual({
+      samples: [
+        [[1096420498, 1096420498, 1094713344], [1096420498, 3215956846, 1094713344]],
+        [[1103074817, 1103074817, 1094713344], [1103074817, 1091513345, 1094713344]],
+        [[1096451880, 1096451880, 1094713344], [1096451880, 3215705790, 1094713344]],
+        [[1087268723, 1087268723, 1094713344], [1087268723, 3238579270, 1094713344]],
+      ],
+      meanSeaLevelTemperatureC: [1095583564, 1095583564, 1094713344],
+      annualSurfaceTemperatureC: [1097252061, 3205771820, 1094713344],
+      annualUnclippedSurfaceTemperatureC: [1097252061, 3205771820, 1094713344],
+      annualClippingDeltaC: [0, 0, 0],
+    });
+    expect(legacyOutputBits(run(fixture(), { ...selection.config, minC: 8, maxC: 17 }))).toEqual({
+      samples: [
+        [[1096420498, 1096420498, 1094713344], [1096420498, 1090519040, 1094713344]],
+        [[1099431936, 1099431936, 1094713344], [1099431936, 1091513345, 1094713344]],
+        [[1096451880, 1096451880, 1094713344], [1096451880, 1090519040, 1094713344]],
+        [[1090519040, 1090519040, 1094713344], [1090519040, 1090519040, 1094713344]],
+      ],
+      meanSeaLevelTemperatureC: [1094776475, 1094776475, 1094713344],
+      annualSurfaceTemperatureC: [1095797427, 1090656468, 1094713344],
+      annualUnclippedSurfaceTemperatureC: [1097252061, 3205771820, 1094713344],
+      annualClippingDeltaC: [3216085334, 1091263479, 0],
+    });
+  });
+
   it("defaults to the sole periodic model and refuses retired models, selectors and controls", () => {
     expect(operation.defaultConfig.strategy).toBe("periodic-response");
     expect(operation.run(fixture(), operation.defaultConfig).model).toBe("periodic-response");
@@ -171,6 +260,7 @@ describe("empirical periodic thermal response", () => {
       expect(sample.surfaceTemperatureC).toEqual(sample.seaLevelTemperatureC);
     }
     expect(Array.from(result.annualSurfaceTemperatureC)).toEqual([-40, 12, 50]);
+    expect(Array.from(result.coldestMonthMeanSurfaceTemperatureC)).toEqual([-40, 12, 50]);
     expect(run({ ...fixture(), sstC: new Float32Array([-100, 100, 12]) })).toEqual(run());
   });
 
@@ -239,6 +329,105 @@ describe("empirical periodic thermal response", () => {
     expect(Array.from(actual.annualSurfaceTemperatureC)).toEqual([40, 50, 50]);
     expect(Array.from(actual.annualUnclippedSurfaceTemperatureC)).toEqual([40, 100, 80]);
     expect(Array.from(actual.annualClippingDeltaC)).toEqual([0, -50, -30]);
+    expect(Array.from(actual.coldestMonthMeanSurfaceTemperatureC)).toEqual([40, 50, 50]);
+  });
+
+  it("publishes a ground rolling mean rather than a point minimum or annual-temperature surrogate", () => {
+    for (const [mean, amplitude, harmonic] of [[22, 0, 1], [22, 12, 1], [24, 10, 1], [22, 12, 2]] as const) {
+      const halfMonthAngle = harmonic * Math.PI / 12;
+      const sincMonth = Math.sin(halfMonthAngle) / halfMonthAngle;
+      const input = { ...fixture(), solarByRow: [forcingForTemperature(mean, amplitude, 0, harmonic)] };
+      const actual = run(input);
+      expect(actual.coldestMonthMeanSurfaceTemperatureC).toBeInstanceOf(Float32Array);
+      expect(actual.coldestMonthMeanSurfaceTemperatureC.length).toBe(input.width * input.height);
+      expect(actual.annualSurfaceTemperatureC[0]).toBe(mean);
+      expect(Math.abs(actual.coldestMonthMeanSurfaceTemperatureC[0]! -
+        (mean - amplitude * sincMonth))).toBeLessThan(0.02);
+      expect(Math.abs(actual.coldestMonthMeanSurfaceTemperatureC[1]! -
+        (mean - 15 - amplitude * sincMonth))).toBeLessThan(0.02);
+      expect(actual.coldestMonthMeanSurfaceTemperatureC[2]).toBe(12);
+      if (amplitude === 0) {
+        expect(actual.coldestMonthMeanSurfaceTemperatureC[0]).toBe(22);
+      } else {
+        expect(actual.coldestMonthMeanSurfaceTemperatureC[0]!).toBeLessThan(18);
+        expect(actual.coldestMonthMeanSurfaceTemperatureC[0]! - (mean - amplitude))
+          .toBeGreaterThan(0.1);
+      }
+    }
+  });
+
+  it("holds the independent cold-month field exactly across observation and moisture-phase requests", () => {
+    const input = { ...fixture(), solarByRow: [forcingForCycle(20, [25, 20], [40, 35])] };
+    const actual = run(input);
+    for (const count of [1, 2, 4, 24, 48]) {
+      const varied = run({
+        ...input,
+        phases: Array.from({ length: count }, (_, phase) => (phase + 0.371) / count),
+        weights: new Array(count).fill(1 / count),
+      });
+      expect(varied.coldestMonthMeanSurfaceTemperatureC).toEqual(actual.coldestMonthMeanSurfaceTemperatureC);
+      expect(varied.annualSurfaceTemperatureC).toEqual(actual.annualSurfaceTemperatureC);
+      expect(varied.annualUnclippedSurfaceTemperatureC).toEqual(actual.annualUnclippedSurfaceTemperatureC);
+      expect(varied.annualClippingDeltaC).toEqual(actual.annualClippingDeltaC);
+    }
+  });
+
+  it("qualifies public fixed-384 clipped rolling means against converged independent dense oracles", () => {
+    // Declared family: means -35..45 C, annual amplitude <=35 C, semiannual <=60 C,
+    // relief lapse 0/-15 C, and -40/50 C clipping. 0.02 C is a qualification budget,
+    // not a universal guarantee for every admitted coefficient or near-threshold decision.
+    const profiles = [
+      forcingForCycle(22, [0, 0], [0, 0]),
+      forcingForCycle(22, [12, 0], [0, 0]),
+      forcingForCycle(-10, [0, 0], [0, 31]),
+      forcingForCycle(-10, [0, 0], [0, 40]),
+      ...[-35, -10, 20, 45].map((mean) => forcingForCycle(mean, [21, 28], [40, 35])),
+    ];
+    let maximumError = 0;
+    for (const solar of profiles) {
+      const input = { ...fixture(), solarByRow: [shiftOrigin(solar, 0.173)] };
+      const reference = coldestMonthGroundOracle(input, 98304);
+      const dense = coldestMonthGroundOracle(input, 24576);
+      const published = run(input);
+      expect(published.coldestMonthMeanSurfaceTemperatureC)
+        .toEqual(coldestMonthGroundOracle(input, 384));
+      for (let cell = 0; cell < input.width; cell++) {
+        expect(Math.abs(dense[cell]! - reference[cell]!)).toBeLessThan(0.00002);
+        const value = published.coldestMonthMeanSurfaceTemperatureC[cell]!;
+        expect(Number.isFinite(value)).toBe(true);
+        expect(value).toBeGreaterThanOrEqual(selection.config.minC);
+        expect(value).toBeLessThanOrEqual(selection.config.maxC);
+        expect(value).toBeLessThanOrEqual(published.annualSurfaceTemperatureC[cell]!);
+        maximumError = Math.max(maximumError, Math.abs(value - reference[cell]!));
+      }
+    }
+    expect(maximumError).toBeLessThan(0.02);
+  });
+
+  it("is circular under dense-bin shifts and qualifies arbitrary origins and hemispheric symmetry", () => {
+    for (const solar of [forcingForCycle(22, [12, 0], [0, 0]), forcingForCycle(20, [21, 28], [40, 35])]) {
+      const input = { ...fixture(), solarByRow: [solar] };
+      const actual = run(input).coldestMonthMeanSurfaceTemperatureC;
+      for (const shift of [1 / 384, 17 / 384, 0.5]) {
+        const shifted = run({ ...input, solarByRow: [shiftOrigin(solar, shift)] });
+        expect(shifted.coldestMonthMeanSurfaceTemperatureC).toEqual(actual);
+      }
+      for (const shift of [0.173, 0.371, 0.997]) {
+        const shifted = run({ ...input, solarByRow: [shiftOrigin(solar, shift)] });
+        for (let cell = 0; cell < input.width; cell++) expect(
+          Math.abs(shifted.coldestMonthMeanSurfaceTemperatureC[cell]! - actual[cell]!)
+        ).toBeLessThan(0.02);
+      }
+      const opposite = { ...solar, cos1Q: -solar.cos1Q, sin1Q: -solar.sin1Q };
+      const hemisphere = run({
+        ...input, height: 2, solarByRow: [solar, opposite],
+        elevation: new Int16Array([20, 120, -100, 20, 120, -100]),
+        landMask: new Uint8Array([1, 1, 0, 1, 1, 0]),
+        sstC: new Float32Array([90, -90, 12, 90, -90, 12]),
+      });
+      expect(hemisphere.coldestMonthMeanSurfaceTemperatureC.slice(0, 3))
+        .toEqual(hemisphere.coldestMonthMeanSurfaceTemperatureC.slice(3));
+    }
   });
 
   it("finds annual clipping missed by both two and four observation phases", () => {

@@ -108,6 +108,7 @@ describe("Hydrology climate-field artifacts", () => {
     ).not.toEqual([]);
     const indices = {
       surfaceTemperatureC: new Float32Array(cellCount),
+      coldestMonthMeanSurfaceTemperatureC: new Float32Array(cellCount),
       effectiveMoisture: new Float32Array(cellCount),
       localSurfaceWaterOpportunity: new Float32Array(cellCount),
       plantEffectiveMoisture: new Float32Array(cellCount),
@@ -129,15 +130,31 @@ describe("Hydrology climate-field artifacts", () => {
         )
       ).not.toEqual([]);
     }
-    expect(
-      climateArtifacts.climateIndices.validate(
-        {
-          ...indices,
-          surfaceTemperatureC: undefined,
-        },
-        { dimensions }
-      )
-    ).not.toEqual([]);
+    for (const field of ["surfaceTemperatureC", "coldestMonthMeanSurfaceTemperatureC"] as const) {
+      expect(
+        climateArtifacts.climateIndices.validate(
+          { ...indices, [field]: undefined },
+          { dimensions }
+        )
+      ).not.toEqual([]);
+      expect(
+        climateArtifacts.baselineClimateField.validate(
+          { ...baseline, [field]: new Float32Array(cellCount) },
+          { dimensions }
+        )
+      ).not.toEqual([]);
+      expect(
+        climateArtifacts.climateField.validate(
+          {
+            precipitation: baseline.precipitation,
+            surfaceWetness: baseline.surfaceWetness,
+            rainfallCodec: baseline.rainfallCodec,
+            [field]: new Float32Array(cellCount),
+          },
+          { dimensions }
+        )
+      ).not.toEqual([]);
+    }
     expect(
       climateArtifacts.climateField.validate(
         {

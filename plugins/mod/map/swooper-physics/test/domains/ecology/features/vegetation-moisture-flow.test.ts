@@ -69,6 +69,8 @@ describe("ecology vegetation moisture flow", () => {
             effectiveMoisture: new Float32Array(size).fill(effectiveMoisture),
             plantEffectiveMoisture: new Float32Array(size).fill(effectiveMoisture),
             surfaceTemperatureC: new Float32Array(size).fill(20),
+            // Hand-authored seasonal temperate input, not a producer capture.
+            coldestMonthMeanSurfaceTemperatureC: new Float32Array(size).fill(14),
             aridityIndex: new Float32Array(size).fill(0.1),
             plantWaterStress: new Float32Array(size).fill(0.1),
             freezeIndex: new Float32Array(size).fill(0.05),

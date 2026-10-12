@@ -16,6 +16,10 @@ const BiomeClassificationContract = defineOp({
       description:
         "Surface temperature proxy (C) per tile (from Hydrology climate indices; do not recompute from latitude).",
     }),
+    coldestMonthMeanSurfaceTemperatureC: TypedArraySchemas.f32({
+      description:
+        "Baseline/pre-albedo minimum circular one-twelfth-cycle mean in degrees Celsius from Hydrology climate indices; tropical thermal admission uses this seasonal scalar, not annual temperature or wetness.",
+    }),
     aridityIndex: TypedArraySchemas.f32({
       description:
         "Aridity index (0..1) per tile (from Hydrology climate indices; do not recompute from rainfall alone).",

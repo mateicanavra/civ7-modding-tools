@@ -61,9 +61,10 @@ Hydrology provides:
 - `artifact:hydrology.baselineClimateField` (annual-mean precipitation, surface wetness,
   native rainfall codec, potential demand, and its admitted parameters used by
   hydrography/refinement)
-- `artifact:hydrology._internal.thermalField` (the annual mean of seasonal
-  ground/SST temperature before feedback, published as `surfaceTemperatureC`
-  in a named map-grid product consumed by refinement)
+- `artifact:hydrology._internal.thermalField` (baseline annual mean ground/SST
+  temperature and minimum circular one-twelfth-cycle mean, published as
+  `surfaceTemperatureC` and `coldestMonthMeanSurfaceTemperatureC` in one named
+  map-grid product consumed by refinement)
 - `artifact:hydrology.climateField` (copied baseline atmospheric precipitation,
   surface wetness and codec; physical/ecological consumers use the float fields,
   while rainfall projection uses the codec)
@@ -79,8 +80,9 @@ Hydrology provides:
   complete authored dry-source writes;
   `map.rivers` identifies the product lane, not stage catalog ownership, and
   mutable engine readback is not retained)
-- `artifact:hydrology.climateIndices` (final post-feedback temperature, moisture,
-  demand, aridity and freezing descriptors for Ecology, placement and analysis)
+- `artifact:hydrology.climateIndices` (final post-feedback annual temperature,
+  moisture, demand, aridity and freezing descriptors, plus the explicitly
+  baseline/pre-albedo coldest-month-like mean, for Ecology, placement and analysis)
 - `artifact:hydrology.cryosphere` (cryosphere products; neutralized when knob disables it)
 
 Hydrology projection also provides a payload-free external-state completion:
@@ -172,7 +174,9 @@ Advisory terrain/wind climate diagnostics are derived by the climate module's
 pure observation operation and remain invocation-local input to visualization.
 Seasonal precipitation and surface-wetness amplitudes likewise remain invocation-local
 evidence projected by the baseline step; no downstream pipeline consumer owns
-or reads a retained seasonality product.
+or reads a retained precipitation/wetness seasonality product. The used
+cold-season thermal scalar is separately owned by `thermalField` and forwarded
+through `climateIndices`, not reconstructed from these diagnostics.
 
 Baseline climate also publishes potential evaporative demand and its admitted
 five-parameter calibration. The baseline step evaluates the shared

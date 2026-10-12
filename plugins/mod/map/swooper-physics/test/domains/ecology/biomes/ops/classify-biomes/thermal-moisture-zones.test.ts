@@ -21,6 +21,7 @@ describe("classifyBiomes thermal and moisture zones", () => {
         effectiveMoisture: new Float32Array(size).fill(climate.moisture),
         plantEffectiveMoisture: new Float32Array(size).fill(climate.moisture),
         surfaceTemperatureC: new Float32Array(size).fill(climate.temperature),
+        coldestMonthMeanSurfaceTemperatureC: new Float32Array(size).fill(climate.temperature - 6),
         aridityIndex: new Float32Array(size),
         plantWaterStress: new Float32Array(size),
         freezeIndex: new Float32Array(size),

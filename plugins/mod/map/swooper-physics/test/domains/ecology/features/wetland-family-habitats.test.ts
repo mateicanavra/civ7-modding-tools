@@ -314,9 +314,10 @@ describe("ecology wetland-family habitats", () => {
     const wetFertility: number[] = [];
     expect(plannerConfig.config.minConfidence01).toBe(0.42);
     for (const [precipitation, wetnessByteEquivalent, sediment] of [[200, 255, 1], [200, 255, 0.2], [100, 128, 0.2], [0, 0, 1]] as const) {
-      // Matched precipitation encodings and annual temperature are local regimes,
-      // not evidence of generated climate reachability.
+      // Matched precipitation encodings and constant 24 C thermal profiles are
+      // local regimes, not evidence of generated climate reachability.
       const surfaceTemperatureC = new Float32Array(size).fill(24);
+      const coldestMonthMeanSurfaceTemperatureC = new Float32Array(size).fill(24);
       const surfaceWetness = new Float32Array(size).fill(wetnessByteEquivalent / 255);
       const demand = hydrology.climate.ops.computePotentialDemand.run({
         width, height, surfaceTemperatureC, surfaceWetness, parameters: baseline.potentialDemand,
@@ -340,6 +341,7 @@ describe("ecology wetland-family habitats", () => {
       }, compiled["ecology-pedology"].pedology.classify);
       const biomes = ecology.biomes.ops.classifyBiomes.run({
         width, height, landMask: budgetInput.landMask, surfaceTemperatureC,
+        coldestMonthMeanSurfaceTemperatureC,
         freezeIndex: cryosphere.freezeIndex, permafrost01: cryosphere.permafrost01,
         effectiveMoisture: indices.effectiveMoisture, aridityIndex: indices.aridityIndex,
         plantEffectiveMoisture: indices.plantEffectiveMoisture, plantWaterStress: indices.plantWaterStress,
@@ -368,7 +370,7 @@ describe("ecology wetland-family habitats", () => {
       expect(substrate.intertidalCoastMask[receiver]).toBe(1);
       expect(indices.localSurfaceWaterOpportunity[receiver]).toBe(0);
       expect(biomeSymbolFromIndex(biomes.biomeIndex[receiver]!)).toBe(
-        precipitation === 200 ? "tropicalRainforest" : precipitation === 100 ? "temperateDry" : "desert"
+        precipitation === 200 ? "tropicalRainforest" : precipitation === 100 ? "tropicalSeasonal" : "desert"
       );
       expect(compatibility.mangrove[receiver]).toBe(precipitation === 200 ? 1 : 0);
       if (precipitation > 0) expect(scoreMangrove01[receiver]).toBe(0.5);

@@ -92,10 +92,16 @@ Learn: [EPA streams and headwaters](https://www.epa.gov/cwa-404/learn-about-stre
 
 A temperature field is one property over the map. Baseline publishes its annual
 ground-temperature result as `thermalField`: the periodic strategy's dense cycle
-integral. Refinement
+integral. That product also owns `coldestMonthMeanSurfaceTemperatureC`, the
+minimum circular one-twelfth-cycle mean of the clipped baseline curve. Its
+fixed 384-point midpoint integration is independent of the requested moisture
+phases; it is month-like, not the coldest instantaneous sample. Refinement
 applies albedo feedback and publishes the later temperature in the immutable
 `climateIndices` descriptor product. Ecology and placement consume that final
-product, not another temperature calculation. Field and artifact describe
+product, not another temperature calculation. The cold-season scalar is forwarded
+unchanged with explicit pre-albedo provenance and used for tropical biome
+admission; no annual albedo adjustment is invented for individual seasons.
+Field and artifact describe
 spatial meaning and publication respectively, not competing storage mechanisms.
 Pressure separately uses sea-level thermal forcing,
 which deliberately excludes terrain cooling. Our Celsius-valued surface proxy

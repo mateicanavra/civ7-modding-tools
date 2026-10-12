@@ -139,6 +139,7 @@ export const ClimateRefineStep = createStep(config, {
     });
     const climateIndices = deps.artifacts.climateIndices.publish({
       surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,
+      coldestMonthMeanSurfaceTemperatureC: new Float32Array(thermalField.coldestMonthMeanSurfaceTemperatureC),
       effectiveMoisture: waterBudget.effectiveMoisture,
       pet: waterBudget.pet,
       aridityIndex: waterBudget.aridityIndex,
