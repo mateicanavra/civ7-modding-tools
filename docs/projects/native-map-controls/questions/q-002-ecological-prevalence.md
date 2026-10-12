@@ -311,13 +311,13 @@ adequate landscape.
 
 #### Installation Does Not Establish A Loaded World
 
-The implementation owner reports that the frozen candidate was built and
-installed through the owning task graph. That installation has not been
-independently checked here; fresh game loading and native readback are
-**unverified**. Installed bytes do not establish which source the current world
-loaded, whether its features and categories match the headless result, or how
-it looks. The
-candidate remains unmerged and unadopted under this disposition. The previously
+A retained deployment receipt and fresh read-only inventory verify installation:
+all eight installed files match the generated artifacts for the frozen source.
+Its state is **installed, native-unqualified**. Fresh game loading and native
+readback remain **unverified**. Installed bytes do not establish which source
+the current world loaded, whether its features and categories match the
+headless result, or how it looks. The candidate remains unmerged and unadopted
+under this disposition. The previously
 adopted annual-yield release retains its own qualification; these records do
 not show that the currently loaded world changed.
 
@@ -1238,8 +1238,10 @@ The fifteen new candidate recipes use frozen source
 qualification and the independent capture review are distinct evidence; the
 review is not another set of generations. Installation, loading, native
 readback, visual observation and adoption are not supplied by those offline
-receipts. The implementation owner reports this selected map-script digest,
-not independently checked installation, verified fresh loading or readback:
+receipts. The separate retained deployment log records a successful owning
+graph of 24 tasks, including cached work. Its fresh read-only inventory at
+`2026-10-12T21:23:10.867Z` records all eight installed files matching generated
+artifacts from the frozen source, including this selected map-script digest:
 `352f17c904d5830e223002d525f63ae05aac22feccc52863795e33e71d3ec197`.
 This identifies selected-script bytes, not a full source-to-live identity or
 an observed current world.
@@ -1252,6 +1254,9 @@ an observed current world.
 | Controlled scorer/planner probe | `499a70f1388d2a24403433321faefc2c09be06b3531f7227f3c5c9c5ac232ddd` |
 | Remaining-desert concentration | `300c68363135a6e115563796e025530725d5298d62603b58a020261816ffcfcf` |
 | Stopped transport-custody review | `1d8ca55955291a1dc854d2366ccfc105867e598e244a28567240c4b4218ee63b` |
+| Installation and generated-file inventory receipt | `8650fc8dc64e1a8bcd89fc2b2d4d9a0403f286b8a9eac7e14dfaafc3c05bf9e8` |
+| Completed owner deployment log | `9f746cf5981c5f6c65ddca18d7f2b788b349039964d009167951dd13c2d0a5b1` |
+| Bounded unsuccessful native-access observations | `d7917d5e667d9fa294d662d304b39240eebe69b76ac79a4f02c283a4b45e54d5` |
 
 [identity-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/identities.ts
 [ecology-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts
