@@ -45,8 +45,21 @@ const PlanVegetationContract = defineOp({
     climaticAridityIndex: TypedArraySchemas.f32({
       description: "Atmospheric climatic dryness per tile (0..1) used for the savanna habitat gate.",
     }),
+    precipitation: TypedArraySchemas.f32({
+      description:
+        "Published annual atmospheric precipitation per tile in empirical rainfall-index units, finite and nonnegative; excludes wetness and local-water bonuses.",
+    }),
+    pet: TypedArraySchemas.f32({
+      description:
+        "Published annual potential evaporative-demand proxy per tile in matching empirical rainfall-index units, finite and nonnegative.",
+    }),
+    localSurfaceWaterOpportunity: TypedArraySchemas.f32({
+      description:
+        "Published local annual surface-water opportunity per tile in matching empirical rainfall-index units, finite and nonnegative; not delivered root water.",
+    }),
     vegetationDensity: TypedArraySchemas.f32({
-      description: "Vegetation density per tile (0..1) used for broad feature habitat admission.",
+      description:
+        "Generic modeled growth per tile (0..1), finite and nonnegative, used for broad feature habitat admission; not fractional stand cover.",
     }),
 
     featureOccupancyMask: TypedArraySchemas.u8({

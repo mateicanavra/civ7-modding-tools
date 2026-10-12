@@ -43,6 +43,12 @@ export default defineStrategy({
         description:
           "Sagebrush steppe admission threshold: semiarid open-cover scores are intentionally sparse and lower-amplitude.",
       }),
+      sagebrushSteppeMinAnnualWaterOpportunityRatio: Type.Number({
+        exclusiveMinimum: 0,
+        default: 0.1,
+        description:
+          "Finite positive authored minimum annual water-opportunity ratio for sagebrush community intent: precipitation + local opportunity must strictly exceed this ratio times potential demand. Not physiological maintenance, fractional cover, or an Earth-calibrated boundary.",
+      }),
     },
     {
       description:

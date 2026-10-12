@@ -18,6 +18,7 @@ export const PlanVegetationStep = createStep(config, {
     const reefIntents = deps.artifacts.reefIntents.read();
     const wetlandIntents = deps.artifacts.wetlandIntents.read();
     const classification = deps.artifacts.biomeClassification.read();
+    const climate = deps.artifacts.climateField.read();
     const climateIndices = deps.artifacts.climateIndices.read();
     const suitability = deps.artifacts.featureSuitability.read();
     const hydrography = deps.artifacts.hydrography.read();
@@ -61,6 +62,9 @@ export const PlanVegetationStep = createStep(config, {
         surfaceTemperature: climateIndices.surfaceTemperatureC,
         plantEffectiveMoisture: climateIndices.plantEffectiveMoisture,
         climaticAridityIndex: climateIndices.aridityIndex,
+        precipitation: climate.precipitation,
+        pet: climateIndices.pet,
+        localSurfaceWaterOpportunity: climateIndices.localSurfaceWaterOpportunity,
         vegetationDensity: classification.vegetationDensity,
         featureOccupancyMask,
       },
