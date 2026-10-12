@@ -37,6 +37,9 @@ assessments:
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/climate/ops/compute-land-water-budget/contract.ts"
   - claim: "The retained f200858 fifteen-map full-recipe comparison physically supports the approximate annual partition while exposing increased unresolved shoreline/subtile supply. This does not establish calibrated yield, ecological adequacy or native qualification."
     state: "supported"
+  - claim: "The inspected source prescribes external water at sea datum for initial-water components touching a clipped north/south boundary. Drainage uses the external surface head and explicitly refuses unsupported inward inundation of adjacent below-head finite ground. This is not a tested general ocean-exchange model."
+    state: "supported"
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/hydrography/ops/compute-drainage-basins/rules/index.ts#L74-L93"
   - claim: "The annual aggregation, demand scales and local-water opportunity accurately represent catchment yield and plant-accessible water across relevant Earth regimes."
     state: "unassessed"
 verification:
@@ -50,6 +53,16 @@ verification:
     revision: ce077ddf13dc8cbbed16c1071e2aac6fafddbb60
     date: '2026-10-12'
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/refine/steps/climate-refine/config.ts"
+  - kind: source-inspection
+    scope: "Inspection confirms initial-water component admission at the clipped north/south boundaries and the sea datum. This is source scope, not a new basin comparison or native observation."
+    revision: ce077ddf13dc8cbbed16c1071e2aac6fafddbb60
+    date: '2026-10-12'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/domain/morphology/modules/landforms/ops/compute-island-topography/rules/external-water.ts#L24-L40"
+  - kind: source-inspection
+    scope: "Inspection confirms prescribed-head drainage and the explicit below-head inward-inundation refusal. The matched closed/outflowing/ocean-connected comparison remains absent from retained qualification."
+    revision: ce077ddf13dc8cbbed16c1071e2aac6fafddbb60
+    date: '2026-10-12'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/hydrography/ops/compute-drainage-basins/rules/index.ts#L74-L93"
 ---
 
 # Q-009: Annual Water Yield And Downstream Supply
@@ -66,6 +79,34 @@ supplied precipitation and potential demand. It follows resolved water into
 opportunity index. [Ecological prevalence][ecology] asks whether the resulting
 habitat and cover are adequate; a preferred feature count is not itself a
 target for hydrological tuning.
+
+## Connections And Budgets, Not Names Or Size
+
+The Black Sea exchanges water with the Mediterranean through the Turkish
+Straits; it is not a closed basin merely because land nearly surrounds it.
+The Caspian receives rivers but has no outlet, losing water through evaporation
+while salts accumulate. Their names do not identify the same mechanism.
+[Lima and colleagues: Black Sea exchange][black-sea]; [NASA: Caspian][caspian].
+
+The model needs to distinguish an **ocean-connected prescribed boundary**, a
+**finite basin with outflow**, and a **finite closed basin**. Its finite solver
+already resolves geometry, annual dry-ground yield, wet precipitation/demand
+and overflow. Basin extent follows those conditions rather than an area quota;
+an outflowing and a closed basin do not require separate generators.
+
+The [external-water declaration][external-water] is more specific than a
+general ocean model: initially water-covered components reaching either clipped
+north/south boundary are prescribed at sea datum. [Drainage][external-drainage]
+uses that water-surface head rather than the bed, and explicitly refuses an
+adjacent below-head finite cell needing inward inundation. Two-way exchange,
+groundwater travel/storage and salt evolution are not supplied by this audited
+surface-water transition. Island relief and land/water topology are authored
+upstream before climate, not evidence that large inland waters need another
+formation algorithm.
+
+This identifies a conditional external-boundary/exchange limitation, not a
+found failure on the two qualified native maps. Neither a name, a large area
+nor a native category supplies a missing physical boundary condition.
 
 ## A Repaired Partition Is Not A Calibrated Catchment
 
@@ -127,8 +168,9 @@ replace this full-recipe evidence.
 The combined reviewed source `ce077ddf13dc8cbbed16c1071e2aac6fafddbb60` retains
 the same generation implementation. Its separate benchmark amendment changes
 rainforest non-vacuity, not physical runoff. The physical approximation is
-accepted; native qualification and source adoption are not established by
-these observations. The [resource-planning question][resources] retains the
+accepted without establishing catchment calibration. The separate adoption
+and bounded native findings retain their own [qualification account][qualification].
+The [resource-planning question][resources] retains the
 downstream composition cost under its own owner.
 
 ## Physical Water Bodies And Native Lake Categories
@@ -149,7 +191,25 @@ features and resources; raising the threshold is not a neutral way to make
 the categories agree. These limits do not, by themselves, select a basin cap
 or explain why a particular physical basin is large.
 
+The bounded two-map consumer trace retains finite-water Fish habitat on all
+74 cells in four bodies whose native lake flags differ. Three placed Fish are
+unchanged in native readback; the eighteen-cell body has no selected resource
+in either result. There are no resource differences on these bodies and no
+directly adjacent observed first-unit positions. This does not qualify every
+eligible resource site, native freshwater bonuses or salinity. It does show
+that these non-lake flags did not convert the bodies into marine resource
+habitat. The trace inspects retained evidence, not a new native execution.
+
 ## What Would Distinguish The Remaining Explanations?
+
+Holding the interior bowl, annual forcing and sea datum fixed while changing
+only its connection from sealed rim to finite outflow to ocean connection
+would distinguish finite-basin balance from external-boundary behavior.
+Connections across the east-west wrap belong to the same comparison. A limit
+confined to inward, below-head exchange would implicate external-boundary
+support, not establish a need to tune evaporation or cap lake area. This
+matched comparison is not part of the retained qualification; no passing
+result or replacement algorithm is claimed.
 
 With annual totals held, different precipitation/demand timing can reveal
 whether aggregation hides materially different water availability. Agreement
@@ -170,7 +230,12 @@ Neither outcome selects a lake quota, a river percentile or a vegetation floor.
 [plant-water]: https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/climate/ops/compute-land-water-budget/contract.ts
 [ecology]: q-002-ecological-prevalence.md
 [category]: q-002-ecological-prevalence.md#rainforest-habitat-is-not-a-native-feature-guarantee
+[qualification]: q-002-ecological-prevalence.md#annual-yield-evidence-and-qualification
 [resources]: q-010-resource-composition.md
 [lake-category]: https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/docs/projects/native-map-controls/calibration-question-sheet.md#resolved-decision-preserve-heads-keep-conservative-native-taxonomy
 [lake-render]: https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/docs/projects/native-map-controls/calibration-question-sheet.md#reopened-render-and-category-qualification
 [unlimited-cap]: https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/docs/projects/native-map-controls/water-height-maintenance.md#v12-outcome-and-restoration
+[black-sea]: https://os.copernicus.org/articles/22/1051/2026/
+[caspian]: https://modis.gsfc.nasa.gov/gallery/individual.php?db_date=2016-06-22
+[external-water]: https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/domain/morphology/modules/landforms/ops/compute-island-topography/rules/external-water.ts#L24-L40
+[external-drainage]: https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/hydrography/ops/compute-drainage-basins/rules/index.ts#L74-L93

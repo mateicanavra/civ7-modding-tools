@@ -174,7 +174,8 @@ has ten changed resource cells but eight fewer resources overall; Huge has four
 changed cells and four fewer resources. The refusal totals are not a count of
 every changed cell, and those readbacks alone do not identify which native rule
 or intervening effect explains each difference. No underlying repair, general
-native legality, visual quality or source adoption is established here.
+native legality or visual quality is established here. Source adoption does
+not resolve this admission mismatch.
 
 ## What Would Separate Scarcity From An Allocation Limit?
 

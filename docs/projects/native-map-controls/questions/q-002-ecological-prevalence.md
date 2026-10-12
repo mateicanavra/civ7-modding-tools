@@ -162,8 +162,8 @@ qualifying site, not how to meet a rainforest quota.
 
 ## Annual Water Yield And Its Landscape Consequences
 
-The annual-yield candidate has physical acceptance for its approximate annual
-water partition, not source adoption or native qualification. Fifteen complete
+The adopted annual-yield rule has physical acceptance for its approximate annual
+water partition, not ecological calibration. Fifteen complete
 headless recipes, ten Huge and five Standard, hold upstream climate forcing
 while allowing incision, sealing and fresh final routing to respond. The
 result is not merely the earlier fixed-ground sensitivity test. It includes
@@ -949,6 +949,8 @@ at f200858; the ce077dd evaluation does not relabel their producer.
 | Amended eight-map PASS receipt | `52db1136e319a0f1228227febb21f6981d7003bb834ffb979dd1a001bb150e0d` |
 | Resource review, version 2 | `bb66171fe7c7e9e664939c4505c10e6077f3694438a763af5cb71915e68f40d4` |
 | NAV policy projection comparison | `7a7ee598a5fd0ea41f8d499b705f10eecf8e70eff5e108caab9a4175266ddef3` |
+| Bounded native qualification report | `9db4562d5c9ce22d20d218999fe09ebe9e161633f87662f5a4a2e3ac921db01e` |
+| Native adoption input seal | `2ff9712dfc5b2fdd7a8dfecb0b9f3e166eaa0e2817ae5a8600512efa3da8666c` |
 
 The amended evaluation observes seven positive members against a minimum of
 one; all other cohort expectations and all eight sample-target records remain
@@ -965,9 +967,28 @@ compressed bytes or a new cohort.
 The R1 receipt SHA-256 is
 `e11aafbfa44d4632e807e58fd26f1d0e949cc4f979ab2174805d0c636565101b`.
 These are retained owner results, not new editorial executions. They close
-the named offline gates, not native qualification, source adoption or
-ecological adequacy. Full captures remain outside the public document; the
-digests identify their retained receipts without exposing private locations.
+the named offline gates, not ecological adequacy. Full captures remain outside
+the public document; the digests identify their retained receipts without
+exposing private locations.
+
+Source adoption is separate: PR #2373 merged the benchmark amendment as
+`3817d8bb1ae853e74ad39e3137f5aa64c5630873`; PR #2372 then merged annual yield as
+`e73bbbd5f2301922f7204b694ed7cf9ba047bc44`. The latter has the exact reviewed
+ce077dd tree `fb3dc2521f53bbd436349faa1e97c9bd45d734bb`. Learning retains that
+reviewed source pin; the f200858 generation evidence keeps its original identity.
+
+In two native witnesses, Standard 918829240 and Huge 668178883, measured terrain,
+water coverage, authored river metadata and numeric heads for all 78 physical
+water bodies match the corresponding retained generation targets. Their 74
+lake-category differences belong to four complete bodies
+above the stock cutoff, not lost water. Ordinary ecological feature families
+agree; remaining feature differences belong to natural-wonder materialization.
+Eighteen observed first-unit positions satisfy the supplied land predicates;
+this is not founder identity or a `canFound` test. Resource refusals remain
+eight of 195 and four of 196 intents, as detailed in [Q-010][resource-composition].
+Missing shared game-instance correlation prevents formal native parity, and
+pixel QA is unavailable. These bounded findings support adoption without
+establishing visual quality, resource sufficiency or ecological abundance.
 
 [identity-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/identities.ts
 [ecology-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts
