@@ -129,28 +129,16 @@ regional/gameplay adequacy remain open.
 
 #### Q-007: Biome Transition Meaning
 
-The thermal comparison exposes an existing atmospheric-moisture adjustment
-near the tropical boundary: 21 cells enter its guard and four cross adaptive
-thresholds within it, without changing their plant-moisture/stress categories.
-The bounded owner review retains its intentional empirical habitat envelope;
-the reviewed baseline law is monotone at fixed other inputs. Cooling across a categorical
-boundary is not a defect, and simultaneous cooling/wetting need not preserve
-a class. Ecological calibration and the case for alternatives remain open;
-retention does not turn visual-compensation provenance into Earth evidence.
-The separate physical-meaning review identifies an annual hot/wet envelope,
-not calibrated forest regimes. Three synthetic seasonal profiles become the
-same consumed annual chain and Rainforest intent. This demonstrates unavailable
-chronology, not generated-map reachability, a required vegetation difference
-or a cause of scarcity. A separate single-case recapture establishes real
-atmospheric seasonal exposure, but all positive-gap rainforest cells have annual
-local-water support of unknown seasonal persistence and all free lawful slots
-already place. That atmospheric-water challenger does not establish a classifier
-change; it does not validate annual tropical thermal admission or whole-land
-diversity. The separate cold-season thermal rule is adopted with source/headless
-recovery and bounded matched Huge native realization, while protected annual
-physical, climate and water summaries hold.
-It replaces tropical admission, not all annual means, and is not a seasonal
-soil-water model. Broader biome quality and gameplay qualification remain open.
+Tropical admission now uses the coldest month-like mean, with source/headless
+recovery and bounded matched Huge native realization. Protected annual physical,
+climate and water summaries hold in the qualified pairs. The adopted rule changes
+the thermal information used for tropical admission, not every annual climate
+decision; it is not a seasonal soil-water model or calibrated forest regime.
+Seasonal plant-water survival, broader biome quality and gameplay qualification
+remain open. Earlier annual-gate consistency findings, three synthetic histories
+with equal annual inputs, and one generated seasonal-water witness retain their
+separate evidence scopes. The water witness did not establish a classifier
+change; that does not negate the separately qualified thermal distinction.
 [Read the research question](questions/q-007-biome-transition-meaning.md).
 
 ### Ecology / Features / Score Layers

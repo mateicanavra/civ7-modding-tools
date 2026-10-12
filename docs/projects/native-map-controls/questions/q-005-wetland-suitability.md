@@ -3,7 +3,7 @@ id: Q-005
 title: Wetland Suitability And Admission
 recordKind: question
 disposition: open
-sourceRevision: 2a31c96f8d61ee713075974838dfd36a0b008021
+sourceRevision: fe85600bb814cdeb977e36f4e9b5656aa322eb57
 locations:
   - id: "ecology-marsh-scoring"
     label: "Marsh Scoring"
@@ -11,28 +11,28 @@ locations:
     stage: "ecology-features"
     step: "score-layers"
     operation: "ecology.features.ops.scoreWetMarsh"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-marsh/contract.ts"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-marsh/contract.ts"
   - id: "ecology-tundra-bog-scoring"
     label: "Tundra-Bog Scoring"
     relation: "question-owner"
     stage: "ecology-features"
     step: "score-layers"
     operation: "ecology.features.ops.scoreWetTundraBog"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-tundra-bog/contract.ts"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-tundra-bog/contract.ts"
   - id: "ecology-mangrove-scoring"
     label: "Mangrove Scoring"
     relation: "question-owner"
     stage: "ecology-features"
     step: "score-layers"
     operation: "ecology.features.ops.scoreWetMangrove"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-mangrove/contract.ts"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-mangrove/contract.ts"
   - id: "ecology-wetland-planning"
     label: "Wetland Planning"
     relation: "question-owner"
     stage: "ecology-features"
     step: "plan-wetlands"
     operation: "ecology.features.ops.planWetlands"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/features-plan-wetlands/contract.ts"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/features-plan-wetlands/contract.ts"
 assessments:
   - claim: "Marsh, tundra-bog and mangrove have separate multiplicative suitability operations; their water and temperature inputs differ."
     state: "supported"
@@ -242,9 +242,9 @@ The existing warmth ramp from 18 to 30 degrees C and low-aridity response from
 Land, marine-low-shore, flatness, native biome compatibility and prior occupancy
 still constrain admission. No replacement nutrient factor, gain or lower floor
 is introduced; marsh and the fertility producer are unchanged by this correction.
-The pipeline's coastal lesson is pinned to the earlier `2a31` model and still
-explains its fertility-dependent formula; this sheet distinguishes the current
-response without changing that lesson's source vintage.
+The pipeline's coastal lesson explains this current response with a worked
+marine-shore example. Removing the fertility multiplier is a separate consumer
+correction from the later cold-season biome admission change.
 
 Seventeen reported local regimes distinguish this change from blanket admission.
 At 24 degrees C in one producer-consistent wet marine regime, removing fertility
@@ -539,15 +539,15 @@ habitat-to-placement populations, distinct from Q-004's original empty mask.
 
 ## Scope Of The Evidence
 
-This sheet's location map and three original source inspections retain the
-explicit `2a31c96f8d61ee713075974838dfd36a0b008021` navigation baseline. The
-recipe coordinates and shared location identities remain unchanged; later
-source/report evidence does not refresh those original verifications.
+This sheet's location map points to the adopted source; its three original
+source inspections retain their explicit `2a31c96f8d61ee713075974838dfd36a0b008021`
+evidence vintage. The recipe coordinates and shared location identities remain
+unchanged. Updating navigation does not refresh an earlier verification.
 
 The [evidence digest][retained] separates the original diagnostic, consumer-only
 pairs and current forcing comparison, with exact executed and merged revisions,
-dependency qualifications and artifact hashes. The `2a31` coastal lesson retains
-its earlier formula; the later source links here do not silently repin Learning.
+dependency qualifications and artifact hashes. Current Learning explains the
+adopted scoring law, while these paired observations retain their own revisions.
 Raw artifacts remain private, so the public digest alone is not independently
 reproducible. The [pre-correction sheet][baseline] preserves the original question.
 

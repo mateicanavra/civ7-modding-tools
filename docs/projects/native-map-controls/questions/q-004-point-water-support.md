@@ -3,7 +3,7 @@ id: Q-004
 title: Point-Water Habitat Support
 recordKind: question
 disposition: open
-sourceRevision: 2a31c96f8d61ee713075974838dfd36a0b008021
+sourceRevision: fe85600bb814cdeb977e36f4e9b5656aa322eb57
 locations:
   - id: "ecology-point-water-substrate"
     label: "Point-Water Substrate"
@@ -11,28 +11,28 @@ locations:
     stage: "ecology-features"
     step: "score-layers"
     operation: "ecology.features.ops.computeFeatureSubstrate"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/contract.ts"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/contract.ts"
   - id: "ecology-oasis-scoring"
     label: "Oasis Scoring"
     relation: "question-owner"
     stage: "ecology-features"
     step: "score-layers"
     operation: "ecology.features.ops.scoreWetOasis"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-oasis/contract.ts"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-oasis/contract.ts"
   - id: "ecology-watering-hole-scoring"
     label: "Watering-Hole Scoring"
     relation: "question-owner"
     stage: "ecology-features"
     step: "score-layers"
     operation: "ecology.features.ops.scoreWetWateringHole"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-watering-hole/contract.ts"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-watering-hole/contract.ts"
   - id: "ecology-wetland-planning"
     label: "Wetland Planning"
     relation: "downstream-consumer"
     stage: "ecology-features"
     step: "plan-wetlands"
     operation: "ecology.features.ops.planWetlands"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/features-plan-wetlands/contract.ts"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/features-plan-wetlands/contract.ts"
 assessments:
   - claim: "At the 2a31c96f baseline, Earthlike point-water support excludes radius-two floodplain substrate from lowland radius-one river support; when every classified river exceeds the discharge floor, that support is empty. This is a retired mechanism."
     state: "supported"
@@ -110,10 +110,10 @@ hole? Source availability, atmospheric dryness and the surrounding biome answer
 different questions. The open challenge is whether their combination describes
 the same ecologically suitable place, not how to force more features onto a map.
 
-The current [six-case moisture comparison][current-evidence] contrasts the
+The retained [six-case moisture-integration comparison][current-evidence] contrasts the
 empirical-moisture baseline (A) with source-limited forcing (B), retaining the
 same repaired consumers. **Watering holes occur in three of six B maps;
-oases remain absent.** All 1,625 currently free, flat DESERT cells score below
+oases remain absent.** All 1,625 free, flat DESERT cells in that comparison score below
 admission. The [source-window diagnosis][oasis-windows] distinguishes two limits
 with temperature, precipitation and wetness held. In 91 score-capable receiver
 climates, the plant-responsive biome leaves DESERT before the oasis score
@@ -209,7 +209,7 @@ that a regenerated catchment can provide the tested supply.
 ## Four Worlds Still Fall Below Admission
 
 This is an **[earlier consumer-qualification result][qualified]**, not the
-current six-case forcing comparison. Its Standard 1/1, Huge 2/2, Standard 3/3 and Huge 4/4 worlds
+retained six-case moisture-integration comparison. Its Standard 1/1, Huge 2/2, Standard 3/3 and Huge 4/4 worlds
 all have zero attempts and features. At their fixed climate and class, dryness
 alone caps the compatible-flat, observed-earlier-free populations below 0.42,
 even with unlimited source. The [original margins and custody][earlier-evidence]
@@ -277,15 +277,16 @@ that custody identity is not independent scientific verification.
 The [original question][baseline] and [evidence digest][retained] preserve the
 earlier empty-mask and direct-warmth findings at their original revisions.
 Those mechanisms are retired, not current blockers. This sheet's location map
-and three original source inspections remain the explicit
-`2a31c96f8d61ee713075974838dfd36a0b008021` navigation baseline. Its substrate
-location is historical context; the two scorer locations own the open consumer
-question. Their recipe coordinates remain unchanged.
+uses adopted source `fe85600bb814cdeb977e36f4e9b5656aa322eb57`; its three original
+source inspections retain `2a31c96f8d61ee713075974838dfd36a0b008021` as their
+evidence vintage. Its substrate location is historical context; the two scorer
+locations own the open consumer question. Their recipe coordinates remain
+unchanged, without restoring the retired point-water mask.
 
 The digest distinguishes the original captures, earlier consumer qualification
-and current moisture comparison, including exact executed/merged revisions and
+and retained moisture comparison, including exact executed/merged revisions and
 dependency limits. The earlier near-miss demand was reconstructed from recovered
-land humidity; the current comparison retains actual demand and final scores.
+land humidity; the later comparison retains actual demand and final scores.
 Neither evidence type is silently substituted for the other.
 
 Detailed ecology covers six paired cases. The separate 47-case bank has zero

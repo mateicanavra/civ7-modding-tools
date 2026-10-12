@@ -3,18 +3,18 @@ id: Q-003
 title: Relief Bounds And Admitted Support
 recordKind: question
 disposition: open
-sourceRevision: 2a31c96f8d61ee713075974838dfd36a0b008021
+sourceRevision: fe85600bb814cdeb977e36f4e9b5656aa322eb57
 locations:
   - id: "benchmark-relief-support"
     label: "Relief Benchmark Support"
     relation: "question-owner"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/relief.ts"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/relief.ts"
   - id: "morphology-mountain-planning"
     label: "Mountain And Hill Planning"
     relation: "related-producer"
     stage: "morphology-features"
     step: "mountains"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/features/steps/mountains/step.ts"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/recipes/standard/stages/morphology/features/steps/mountains/step.ts"
 assessments:
   - claim: "Relief acceptance defines separate representative and Huge-cohort bounds rather than one universal terrain law."
     state: "supported"
@@ -185,7 +185,7 @@ evidence does not by itself call for a new landscape metric, rescaling or
 retuning.
 
 The [original evidence packet][original-question] and original `2a31` source
-inspections preserve historical provenance and pipeline navigation. The later
+inspections preserve historical provenance and original pipeline navigation. The later
 amendment does not rewrite those receipts. Source definitions establish the
 bounds and their amendment, not
 physical adequacy, native movement or experimentally verified portability. No

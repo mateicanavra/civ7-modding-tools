@@ -3,7 +3,7 @@ id: Q-007
 title: Biome Transition Meaning
 recordKind: question
 disposition: open
-sourceRevision: 2a31c96f8d61ee713075974838dfd36a0b008021
+sourceRevision: fe85600bb814cdeb977e36f4e9b5656aa322eb57
 locations:
   - id: "ecology-biome-classification"
     label: "Biome Classification"
@@ -11,35 +11,35 @@ locations:
     stage: "ecology-biomes"
     step: "biomes"
     operation: "ecology.biomes.ops.classifyBiomes"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/ops/classify-biomes/contract.ts"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/ops/classify-biomes/contract.ts"
   - id: "hydrology-baseline-climate"
     label: "Baseline Climate"
     relation: "related-producer"
     stage: "hydrology-climate-baseline"
     step: "climate-baseline"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.ts#L84-L111"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.ts#L84-L111"
 assessments:
-  - claim: "The classifier uses plant moisture/stress for nonpolar moisture categories and deliberately retains atmospheric effective moisture for its guarded tropical-temperature transition."
+  - claim: "The reviewed annual-gate classifier uses plant moisture/stress for nonpolar moisture categories and deliberately retains atmospheric effective moisture for its guarded tropical-temperature transition."
     state: "supported"
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/ae8fc94d790a769fb45c60584e47304f69f53a93/plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/ops/classify-biomes/rules/classify.ts#L66-L100"
-  - claim: "The retained thermal pair reports 25 tropical-to-temperate-humid cells with unchanged plant-moisture/stress category buckets: 21 enter the adaptive guard and four cross adaptive thresholds within it. This is a policy interaction, not by itself a defect or a non-monotonicity result."
+  - claim: "The retained annual-gate thermal pair reports 25 tropical-to-temperate-humid cells with unchanged plant-moisture/stress category buckets: 21 enter the adaptive guard and four cross adaptive thresholds within it. This is a policy interaction, not by itself a defect or a non-monotonicity result."
     state: "supported"
-  - claim: "The bounded owner review retains the intentional empirical temperature/atmospheric-moisture envelope. Source algebra and 39 reported scalar checks support monotone tropical admission under shipped configurations at fixed other inputs, not ecological calibration or every schema-admitted configuration."
+  - claim: "The bounded owner review retained the intentional annual temperature/atmospheric-moisture envelope at its reviewed source. Source algebra and 39 reported scalar checks support monotone tropical admission under the configurations shipped at that revision with other inputs fixed, not ecological calibration or every schema-admitted configuration."
     state: "supported"
-  - claim: "The empirical transition constants and guard-limited boundary are ecologically calibrated or preferable to other habitat-classification choices."
+  - claim: "The reviewed annual-gate transition constants and guard-limited boundary are ecologically calibrated or preferable to other habitat-classification choices."
     state: "unassessed"
-  - claim: "The rainforest category is an empirical annual hot/wet envelope. tropicalSeasonal is an annual moisture category, not a measured duration of seasonal water shortage."
+  - claim: "The reviewed annual-gate rainforest category is an empirical annual hot/wet envelope. Its tropicalSeasonal category describes annual moisture, not a measured duration of seasonal water shortage."
     state: "supported"
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/ops/classify-biomes/rules/lookup.ts"
   - claim: "The retained three-profile synthetic probe records exactly equal consumed annual chains and one Rainforest intent each despite different precipitation ordering. This establishes unavailable distinguishing information, not generated-map reachability, required vegetation differences or a cause of rainforest scarcity."
     state: "supported"
-  - claim: "The current freezeIndex producer ramps annual post-albedo temperature rather than measuring freezing duration or frequency; its value is zero throughout admitted Earthlike rainforest."
+  - claim: "The reviewed freezeIndex producer ramps annual post-albedo temperature rather than measuring freezing duration or frequency; its value is zero throughout the annual-gate baseline's admitted Earthlike rainforest."
     state: "supported"
-  - claim: "A seasonal summary or broader humid-forest classification is necessary and has a supported producer-reachable benefit over an accurately described annual proxy."
+  - claim: "A seasonal-water summary or broader humid-forest classification is necessary and has a supported producer-reachable benefit beyond the adopted thermal distinction and accurately described annual water indices."
     state: "unassessed"
   - claim: "One existing-case recapture establishes producer-reachable atmospheric seasonal exposure, but not a justified classifier change: all 21 positive-gap rainforest-biome cells have annual local-water support of unknown seasonal persistence, and all ten free lawful rainforest slots already place. Annual behavior was retained against that seasonal-water challenger, not validated for tropical thermal admission or whole-land biome diversity."
     state: "supported"
-  - claim: "A separate implemented thermal candidate replaces the annual tropical gate and atmospheric wetness-to-temperature adjustment with Hydrology's coldest circular one-twelfth-cycle mean and a provisional 18 C criterion. Fixed-fifteen and existing-eight headless comparisons demonstrate habitat-to-feature recovery with protected annual fields and scores held. Source/headless acceptance does not establish native qualification or a full seasonal-water habitat model."
+  - claim: "The separately qualified thermal correction replaces the annual tropical gate and atmospheric wetness-to-temperature adjustment with Hydrology's coldest circular one-twelfth-cycle mean and a provisional 18 C criterion. Fixed-fifteen and existing-eight headless comparisons demonstrate habitat-to-feature recovery with protected annual fields and scores held. Source/headless acceptance does not establish native qualification or a full seasonal-water habitat model."
     state: "supported"
   - claim: "The cold-season correction is adopted at fe85600 with the same qualified tree as acf3 and separate bounded native realization in one matched Huge case. This accepts the thermal admission distinction, not a selected permanent season, a full seasonal-water habitat model, calibrated whole-land ecology or campaign quality."
     state: "supported"
@@ -94,70 +94,67 @@ verification:
 # Q-007: Biome Transition Meaning
 
 How well does this model's tropical boundary describe the intended habitat?
-A continuous climate field must eventually become discrete biome categories.
-Crossing a category boundary is expected. The retained owner meaning is an
-intentional, **uncalibrated annual temperature/atmospheric-moisture envelope**.
-Its earlier consistency findings remain valid for that baseline. A separate
-[cold-season thermal rule](#persistent-warmth-is-a-separate-question) is adopted
-with headless and bounded native evidence: it changes the information used for
-tropical admission, not the annual climate itself. Seasonal-water habitat
-meaning, broader ecological adequacy and gameplay qualification remain open.
+The adopted [cold-season thermal rule](#persistent-warmth-is-a-separate-question)
+uses persistent warmth rather than annual mean temperature for tropical
+admission. Its headless and bounded native results support that distinction
+without changing the annual climate itself. Seasonal-water habitat meaning,
+broader ecological adequacy and gameplay qualification remain open.
 
 The owner is **Ecology / Biomes / Biome Classification**, after Hydrology has
 produced climate and local plant-water fields, and before features and native
-biome projection. The [biomes step][step] calls `classifyBiomes` with those
-distinct inputs. Its physical categories are not the same as Civ7's projected
+biome projection. The [reviewed biomes step][step] calls `classifyBiomes` with
+those distinct inputs. Physical categories are not the same as Civ7's projected
 biome identities, and neither is a count of rainforest features.
 
-The retained monotonicity finding and the
-[seasonal-information question](#annual-categories-and-seasonal-regimes) concern
-different claims. A rule can behave consistently while lacking information
-needed to distinguish some forest regimes. In particular, `tropicalSeasonal`
-names an annual moisture category here, not a measured dry-season duration.
+A continuous climate field must eventually become discrete categories; crossing
+a boundary is expected. The question is which climatic distinctions those
+categories preserve and which consequences justify them. In particular,
+`tropicalSeasonal` still names an annual moisture category, not a measured
+dry-season duration.
 
-The annual guarded rule and retained pair below describe their original source
-vintages. They are not the adopted cold-season rule. The later outcome
-does not retroactively change those findings or the notebook's navigation pin.
+## Persistent Warmth Is A Separate Question
 
-## Two Different Uses Of Moisture
+The adopted [thermal producer][adopted-thermal-producer] supplies a
+Hydrology-owned **minimum circular one-twelfth-cycle mean** from the existing
+periodic temperature curve: the coldest month-like interval, not its coldest
+sampled instant or one chosen permanent season. The initial 18 degrees C
+criterion is informed by the
+[Koppen-Geiger tropical criterion][peel], but remains a provisional model
+choice, not a universal physiological boundary. The
+[adopted classifier][adopted-thermal-rule] replaces the annual tropical
+temperature gate and atmospheric wetness-to-temperature adjustment rather than
+adding another veto on top of them. Annual temperature still serves the cold
+zones and annual growth/demand meanings; annual plant-water categories remain
+distinct from a full seasonal rainforest classification.
 
-The classifier first combines a temperature zone with a moisture category.
-For nonpolar land, plant moisture and plant stress describe local growth
-conditions, including water beyond local rainfall. Near the tropical boundary,
-a separate adjustment uses **atmospheric effective moisture** to decide which
-temperature zone applies. This is not normalized forcing `W` or the plant-water
-index. [Canonical Ecology meaning][ecology-meaning] explicitly preserves this
-atmospheric context. The different inputs are deliberate; whether that
-distinction is adequately calibrated is a separate question.
+**The lesson is to preserve the summary each decision needs, not to choose one
+season or discard annual means everywhere.** The same periodic temperature curve
+can supply an annual mean for annual processes and a cold-season constraint for
+persistent tropical warmth. This rule uses the baseline, pre-albedo thermal
+curve; newly tropical cells in the qualification have neutral annual albedo
+correction. It does not add seasonal soil storage, uptake or dry-season survival.
 
-The [transition rule][transition] names its original purpose: preventing
-row-perfect tropical cutoffs. [Earthlike's nominal threshold][earthlike-config]
-is 24 degrees C.
-The atmospheric adjustment is active only within the inclusive interval
-22.75-25.25 degrees C. On its dry side, the adjusted tropical threshold can
-rise to 25.4 degrees C, beyond the interval's upper edge. Outside the interval,
-the ordinary temperature-zone rule applies.
+The [fixed-map comparison][seasonal-outcomes] demonstrates formerly excluded
+humid habitat reaching final Rainforest, with annual physical, climate, water,
+vegetation-density and fifteen biome-independent score fields held. Gains,
+losses and sparse cases are reported together. Separate
+[matched native evidence][seasonal-native] supports application-stage gains and
+bounded terrain/biome/feature readback while measured physical water and river
+classes hold. The correction is adopted on that qualified basis. Neither
+adoption nor successful application closes seasonal-water meaning, the remaining
+feature-occurrence questions or broader biome quality.
 
-The guard therefore clips the actual boundary: at the dry extreme, tropical
-membership requires temperature **strictly above 25.25 degrees C**, not 25.4.
-At the wet extreme it begins **at 22.75 degrees C, inclusively**. Between those
-extremes the adaptive threshold applies. For the shipped configurations,
-tropical admission is monotone in temperature at fixed atmospheric moisture,
-and in atmospheric moisture at fixed temperature and plant inputs. Warming
-alone or wetting alone does not reverse tropical admission; cooling and
-wetting together need not preserve it.
-
-That relationship makes the guard itself part of the effective decision
-boundary. Entering it can change the category without crossing 24 degrees C.
-The [lookup][lookup] can then replace a tropical biome with `temperateHumid`
-while its subhumid, humid or perhumid moisture category stays the same. This
-explains how a wetter location can lose the rainforest *biome label*; it does
-not establish that wetter conditions have reduced the modeled water supply.
+Seasonal water availability and persistent tropical warmth are different
+questions. The synthetic water probe below holds temperature constant, while the
+generated water witness examines atmospheric shortfalls and uncertain local-water
+persistence. Neither establishes that annual mean temperature is an adequate
+substitute for the cold part of the temperature cycle.
 
 ## Annual Categories And Seasonal Regimes
 
-The baseline [rainforest lookup][current-lookup] describes a hot, humid annual
-envelope, not a scientifically calibrated forest regime. The distinction is
+The baseline [rainforest lookup][current-lookup] described a hot, humid annual
+envelope, not a scientifically calibrated forest regime. Replacing its thermal
+gate does not yet supply a full seasonal-water classification. The distinction is
 more than terminology: climate capable of supporting a forest, the amount of
 vegetation, and actual tree cover are different claims.
 
@@ -190,15 +187,16 @@ to assign the native Rainforest feature to every tropical mountain; the game's
 
 ### Seasonal Information Exists Upstream
 
-The [baseline climate step][seasonal-baseline] computes ground temperature,
-precipitation, wetness and potential demand across Earthlike's 24 phases.
+At the reviewed annual-gate source, the [baseline climate step][seasonal-baseline]
+computes ground temperature, precipitation, wetness and potential demand across
+Earthlike's 24 phases.
 Full histories remain available as observations. Durable downstream products
 publish annual quantities, and [climate refinement][annual-refinement] derives
 its later demand from annual post-albedo temperature and annual wetness. That
 later demand is distinct from the phase-derived demand used by hydrography.
 The rainforest decision does not receive the chronology.
 
-That describes the retained baseline's forwarding. The thermal candidate adds
+That describes the retained baseline's forwarding. The adopted thermal rule adds
 one durable summary of cold-season temperature, not full phase histories or a
 seasonal water balance. The annual water meanings below remain separate.
 
@@ -210,19 +208,19 @@ process. These particular indices do not preserve how wet and dry phases are
 arranged. Likewise, `tropicalSeasonal` is selected from annual moisture/stress
 buckets, not the number or duration of dry intervals.
 
-The [artifact description][freeze-description] calls `freezeIndex` freezing
-persistence, but its [producer][freeze-producer] ramps annual temperature
-between the [configured][current-config] 2 and -12 degrees C endpoints. It measures neither
-frequency nor duration of freezing. Its value is zero throughout admitted
-Earthlike rainforest, so this description overclaim does not explain rainforest
-suppression.
+The reviewed [artifact description][freeze-description] calls `freezeIndex`
+freezing persistence, but its [producer][freeze-producer] ramps annual temperature
+between the [configured][current-config] 2 and -12 degrees C endpoints. It measures
+neither frequency nor duration of freezing. Its value is zero throughout the
+annual-gate baseline's admitted Earthlike rainforest, so this description
+overclaim does not explain rainforest suppression in that population.
 
 ### Three Histories Become The Same Annual Input
 
-A retained synthetic probe passes three one-cell profiles through the existing
-demand, annual reducer, water-budget, biome, substrate, rainforest-score and
-vegetation-planner operations. Each has 24 equally weighted phases, fixed
-temperature 26 degrees C, mean model precipitation 250, mean wetness 0.5,
+A retained synthetic probe passes three one-cell profiles through the reviewed
+annual-gate demand, annual reducer, water-budget, biome, substrate,
+rainforest-score and vegetation-planner operations. Each has 24 equally weighted
+phases, fixed temperature 26 degrees C, mean model precipitation 250, mean wetness 0.5,
 identical soils/fertility, zero local-water opportunity and a free flat slot.
 The steady profile holds those water values throughout; the other two arrange
 twelve zero-precipitation/zero-wetness phases and twelve phases of precipitation
@@ -258,8 +256,8 @@ feature counts are not synonyms.
 A separate observation of one generated map establishes that the producer
 creates seasonal atmospheric exposure, but not that this exposure justifies
 changing the habitat decision. It recaptures an existing Standard case under
-stronger cooling and the reviewed 0.92 major-river setting, not another synthetic
-profile or a new seed population.
+stronger cooling, the annual tropical gate and the reviewed 0.92 major-river
+setting, not another synthetic profile or a new seed population.
 
 The observation retains 24 chronological phases. Its `gap` is the weighted
 positive difference between baseline atmospheric demand and precipitation,
@@ -293,7 +291,7 @@ site has a gap of 0.27992 and a run of 8/24, alongside annual local-water suppor
 of 576.09. Those model-unit observations do not assign ecological severity or
 prove that the vegetation is misplaced.
 
-The bounded review retains annual behavior against this atmospheric-water
+The bounded review retained annual-water behavior against this atmospheric-water
 challenger without erasing the information limitation. It neither validates
 the annual tropical thermal gate nor establishes that seasonality never matters.
 The natural contrasts do not reproduce the three synthetic histories or hold
@@ -306,49 +304,22 @@ The [whole-land census][whole-land-coverage] also shows why filling all free
 lawful slots is not an adequacy test for the world. It conditions on the habitat
 already admitted, leaving its extent and the resulting biome diversity open.
 
-### Persistent Warmth Is A Separate Question
-
-Seasonal water availability and persistent tropical warmth are different
-questions. The synthetic water probe holds temperature constant, while the
-generated water witness examines atmospheric shortfalls and uncertain local-water
-persistence. Neither establishes that annual mean temperature is an adequate
-substitute for the cold part of the temperature cycle.
-
-The adopted [thermal producer][adopted-thermal-producer] supplies a
-Hydrology-owned **minimum circular one-twelfth-cycle mean** from the existing
-periodic temperature curve: the
-coldest month-like interval, not its coldest sampled instant or one chosen
-permanent season. The initial 18 degrees C criterion is informed by the
-[Koppen-Geiger tropical criterion][peel], but remains a provisional model
-choice, not a universal physiological boundary. The
-[adopted classifier][adopted-thermal-rule] replaces the annual tropical
-temperature gate and atmospheric wetness-to-temperature adjustment rather than
-adding another veto on top of them. Annual temperature still serves the cold
-zones and annual growth/demand meanings; annual plant-water categories remain
-distinct from a full seasonal rainforest classification.
-
-**The lesson is to preserve the summary each decision needs, not to choose one
-season or discard annual means everywhere.** The same periodic temperature curve
-can supply an annual mean for annual processes and a cold-season constraint for
-persistent tropical warmth. This rule uses the baseline, pre-albedo thermal
-curve; newly tropical cells in the qualification have neutral annual albedo
-correction. It does not add seasonal soil storage, uptake or dry-season survival.
-
-The [fixed-map comparison][seasonal-outcomes] demonstrates formerly excluded
-humid habitat reaching final Rainforest, with annual physical, climate, water,
-vegetation-density and fifteen biome-independent score fields held. Gains,
-losses and sparse cases are reported together. Separate
-[matched native evidence][seasonal-native] supports application-stage gains and
-bounded terrain/biome/feature readback while measured physical water and river
-classes hold. The correction is adopted on that qualified basis. Neither
-adoption nor successful application closes seasonal-water meaning, the remaining
-feature-occurrence questions or broader biome quality.
+A narrower annual hot/wet proxy, described accurately, remains a comparator,
+not a validated account of persistent tropical warmth. A broader humid-forest
+interpretation or additional seasonal evidence would need to preserve a useful
+physical or gameplay distinction, with producer-reachable support and a
+defensible downstream consequence. The water witness alone establishes exposure,
+not that consequence. The separate thermal result now demonstrates a useful
+habitat-to-feature effect for its fixed populations, while leaving seasonal
+soil water and full forest-regime classification unresolved. Raising rainforest
+counts alone remains insufficient, but complete placement inside a narrow
+admitted population is not evidence of an adequate world either.
 
 ### Why This Is Not Another Score Repair
 
 The [earlier wet-end correction][wet-end-correction] removed rainforest's
-unsupported penalty at maximum available water. The [current score][rainforest-score]
-has a saturating lower water ramp; under [current Earthlike inputs][current-config] it is already
+unsupported penalty at maximum available water. The [reviewed score][rainforest-score]
+has a saturating lower water ramp; under the [annual-gate Earthlike inputs][current-config] it is already
 fully active below the rainforest category's minimum moisture. The freeze
 attenuation is inactive throughout that warm domain. There is no direct
 generic-fertility multiplier in this score; fertility influences the separate
@@ -364,7 +335,60 @@ repair or validates the habitat category. The separate
 specialized-habitat priority without validating coastal coverage. Independent
 family scores are not calibrated competing occurrence probabilities.
 
-## What The Retained Pair Exposes
+This concerns classifier meaning, not the [authority of prevalence targets][benchmarks]
+or the [annual-source meaning of an oasis][oasis]. More rainforest, wider
+temperature spread or fewer visible bands would not by themselves establish
+a better answer.
+
+## Earlier Annual-Gate Evidence
+
+The original owner meaning was an intentional, **uncalibrated annual
+temperature/atmospheric-moisture envelope**. The guarded rule, retained pair
+and consistency findings below describe their original source vintages, not the
+adopted cold-season rule. Adoption does not retroactively change those findings.
+
+The retained monotonicity finding and the
+[seasonal-information question](#annual-categories-and-seasonal-regimes) concern
+different claims. A rule can behave consistently while lacking information
+needed to distinguish some forest regimes.
+
+### Two Different Uses Of Moisture
+
+The reviewed annual-gate classifier first combines a temperature zone with a
+moisture category.
+For nonpolar land, plant moisture and plant stress describe local growth
+conditions, including water beyond local rainfall. Near the tropical boundary,
+a separate adjustment uses **atmospheric effective moisture** to decide which
+temperature zone applies. This is not normalized forcing `W` or the plant-water
+index. The [Ecology meaning at that revision][ecology-meaning] explicitly
+preserves this atmospheric context. The different inputs are deliberate; whether that
+distinction is adequately calibrated is a separate question.
+
+The [transition rule][transition] names its original purpose: preventing
+row-perfect tropical cutoffs. [Earthlike's nominal threshold][earthlike-config]
+is 24 degrees C.
+The atmospheric adjustment is active only within the inclusive interval
+22.75-25.25 degrees C. On its dry side, the adjusted tropical threshold can
+rise to 25.4 degrees C, beyond the interval's upper edge. Outside the interval,
+the ordinary temperature-zone rule applies.
+
+The guard therefore clips the actual boundary: at the dry extreme, tropical
+membership requires temperature **strictly above 25.25 degrees C**, not 25.4.
+At the wet extreme it begins **at 22.75 degrees C, inclusively**. Between those
+extremes the adaptive threshold applies. For the configurations shipped at that
+revision, tropical admission is monotone in temperature at fixed atmospheric moisture,
+and in atmospheric moisture at fixed temperature and plant inputs. Warming
+alone or wetting alone does not reverse tropical admission; cooling and
+wetting together need not preserve it.
+
+That relationship makes the guard itself part of the effective decision
+boundary. Entering it can change the category without crossing 24 degrees C.
+The [lookup][lookup] can then replace a tropical biome with `temperateHumid`
+while its subhumid, humid or perhumid moisture category stays the same. This
+explains how a wetter location can lose the rainforest *biome label*; it does
+not establish that wetter conditions have reduced the modeled water supply.
+
+### What The Retained Pair Exposes
 
 The [single-world thermal comparison][thermal-pair] changes only the admitted
 upstream thermal gain, but later temperature, atmospheric moisture and other
@@ -389,16 +413,16 @@ activates. Across the 25 cells, precipitation rises in 11 and falls in 14;
 wetness rises in 14 and falls in 11. Twenty-four cells form a localized cluster
 across the map's horizontal wrap, not a whole-latitude-row replacement.
 
-These are concrete consequences of an existing policy. Cooling across a
+These are concrete consequences of that annual-gate policy. Cooling across a
 categorical boundary does **not** demonstrate non-monotonic classification,
 and mixed atmospheric responses do not support a broad-drying explanation.
 The retained attribution also does not isolate pressure, rainfall and demand
 as independent causes of the atmospheric-moisture change.
 
-## Retained Meaning, Open Calibration
+### Retained Meaning, Open Calibration
 
-The bounded meaning review retains the behavior. Near the nominal tropical
-boundary, wetter atmospheric climate permits tropical membership at a cooler
+The bounded meaning review retained the annual-gate behavior at its source.
+Near the nominal tropical boundary, wetter atmospheric climate permits tropical membership at a cooler
 supplied temperature; drier climate requires more warmth. Local plant water
 independently determines the moisture category and vegetation support. This
 classifies the supplied climate; it neither computes a new temperature nor
@@ -411,48 +435,37 @@ to distinguish some seasonal histories. Retention acknowledges the empirical
 status; it does not turn historical visual intent into Earth evidence or
 establish that the constants are optimal.
 
-Source algebra and the reported 39 scalar checks resolve the suspected shipped-
-law monotonicity defect for this discriminator. The 25 map transitions remain
-ordinary consequences of the guarded policy under simultaneous input changes.
+Source algebra and the reported 39 scalar checks resolved the suspected
+monotonicity defect in the then-shipped law for this discriminator. The 25 map
+transitions remain ordinary consequences of the guarded policy under simultaneous input changes.
 The disabled thermal candidate uses seasonal precipitation/demand relative to
 an active row reference; the classifier uses absolute final atmospheric moisture.
 Their interaction is not evidence of a duplicate temperature computation.
 
-The live question is how well this joint envelope represents the intended
-habitat, and what evidence would favor another classification. A meaningful
+That review left open how well the joint annual envelope represented the
+intended habitat, and what evidence would favor another classification. A meaningful
 alternative would state the climatic or gameplay distinction it preserves,
 the inputs it requires, and what outcomes would distinguish it from this proxy.
 Removing the adjustment, widening its guard or substituting local plant water
-would change policy, not repair a demonstrated wiring error. More rainforest
+would change that policy, not repair a demonstrated wiring error. More rainforest
 alone would not justify any of those choices.
 
-A narrower annual hot/wet proxy, described accurately, remains a comparator,
-not a validated account of persistent tropical warmth. A broader humid-forest
-interpretation or additional seasonal evidence would need to preserve a useful
-physical or gameplay distinction, with producer-reachable support and a
-defensible downstream consequence. The water witness alone establishes exposure,
-not that consequence. The separate thermal result now demonstrates a useful
-habitat-to-feature effect for its fixed populations, while leaving seasonal
-soil water and full forest-regime classification unresolved. Raising rainforest
-counts alone remains insufficient, but complete placement inside a narrow
-admitted population is not evidence of an adequate world either.
-
-Retention would be challenged by a same-input violation under a shipped
-configuration, an explicit rejection of the joint-envelope meaning, or evidence
-that the guard was intended only as an optimization of an unbounded rule.
-None is established by the retained pair. Ecological calibration and native
+That retention would have been challenged by a same-input violation under a
+configuration shipped at the reviewed revision, an explicit rejection of the
+joint-envelope meaning, or evidence that the guard was intended only as an
+optimization of an unbounded rule.
+None was established by the retained pair. Ecological calibration and native
 gameplay remain separate evidence questions, not conclusions of scalar checks.
-
-This concerns classifier meaning, not the [authority of prevalence targets][benchmarks]
-or the [annual-source meaning of an oasis][oasis]. More rainforest, wider
-temperature spread or fewer visible bands would not by themselves establish
-a better answer.
 
 ## Evidence Boundaries
 
+The current location mappings use adopted source `fe85600`; the historical
+findings below remain scoped to the source and evidence that established them.
+
 The original guard and thermal-pair source statements describe physics revision
 `ae8fc94d790a769fb45c60584e47304f69f53a93`. The classifier operation and owning
-step are unchanged from the `2a31` navigation source. The reported pair executes
+step at that revision are unchanged from the earlier `2a31` source. The reported
+pair executes
 `ff7b40a7beca64ac2621f6ce07fc5f2f8485a327`, with only the separate diagnostic
 filename repair added. Its [custody and comparison scope][pair-provenance]
 remain with Q-006. The 21/four attribution comes from the sealed thermal outcome,
@@ -462,16 +475,16 @@ The separate 2026-10-11 retention decision reports source/history review and
 39 actual one-cell operation checks, independently rerun by the director.
 Their scope is the guarded law, climate forwarding and separation of atmospheric
 and plant inputs, not map prevalence or ecological validity. The monotonicity
-conclusion is scoped to shipped configurations: an unordered hypothetical
-configuration admitted by the schema can violate it and does not explain this
+conclusion is scoped to configurations shipped at that reviewed revision: an
+unordered hypothetical configuration admitted by the schema can violate it and does not explain this
 pair. The private decision and counter-read have SHA-256 identities
 `af2ce538baa6afe1aaef7774146b4d3f9ebb2e5883f86a42bd447f3bba778b15`
 and `6d15c5f410179078ec853aa65a0152387dd1551a661204e37a769cbc389a1be4`.
 
 No scalar experiment, generated map, native observation or Earth calibration
 was rerun to prepare this sheet. The source and retained checks establish
-bounded model behavior, not verified Earth physics. The suspected shipped-law
-defect discriminator is closed by retention; empirical calibration remains open.
+bounded model behavior, not verified Earth physics. The suspected defect in that reviewed law
+was closed by retention; empirical calibration remains open.
 
 ### Annual-Regime Review And Synthetic Probe
 
@@ -481,8 +494,7 @@ and unchanged runtime from `6c5c8a82e7d36c17371699104ec58b3830f0e06d`.
 They do not replace the earlier 39 scalar checks or add maps to Q002's
 fifteen-configuration/45-execution population. The semantic probe's method was
 independently reviewed; its stored input/output equality and custody were
-checked for this sheet without rerunning it. There are no new native sessions
-or production changes.
+checked for this sheet without rerunning it. That probe adds no native sessions or production changes.
 
 The research supplies external classification context, not calibration of the
 pipeline's units, a source of new numerical constants or proof that all omitted

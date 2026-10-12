@@ -3,26 +3,26 @@ id: Q-002
 title: Ecological Prevalence And Benchmark Authority
 recordKind: question
 disposition: open
-sourceRevision: 2a31c96f8d61ee713075974838dfd36a0b008021
+sourceRevision: fe85600bb814cdeb977e36f4e9b5656aa322eb57
 locations:
   - id: "benchmark-ecological-prevalence"
     label: "Ecological Prevalence Benchmarks"
     relation: "question-owner"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts"
   - id: "ecology-vegetation-planning"
     label: "Vegetation Planning"
     relation: "related-producer"
     stage: "ecology-features"
     step: "plan-vegetation"
     operation: "ecology.features.ops.planVegetation"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/features-plan-vegetation/contract.ts"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/features-plan-vegetation/contract.ts"
   - id: "ecology-feature-application"
     label: "Feature Application"
     relation: "downstream-consumer"
     stage: "map-ecology"
     step: "features-apply"
     operation: "ecology.features.ops.applyFeatures"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/features-apply/contract.ts"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/features-apply/contract.ts"
 assessments:
   - claim: "The ecology benchmark contains explicit vegetation-share, feature-presence, cold-reef and floodplain-attempt predicates."
     state: "supported"
@@ -35,7 +35,7 @@ assessments:
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/STUDIES.md"
   - claim: "Each retained prevalence predicate has justified population, denominator and variability support, including habitat-conditioned numerical calibration where claimed."
     state: "unassessed"
-  - claim: "The retained fifteen-configuration rainforest investigation separates modeled habitat from terrain exclusion and earlier wet-feature occupancy. Every remaining eligible flat rainforest site places in its headless adapter; this is not fresh native acceptance or a calibrated coverage target."
+  - claim: "The retained fifteen-configuration annual-gate rainforest investigation separates modeled habitat from terrain exclusion and earlier wet-feature occupancy. Every remaining eligible flat rainforest site places in its headless adapter; this is not fresh native acceptance or a calibrated coverage target."
     state: "supported"
   - claim: "A previous-lapse river-representation intervention retains 2,372 rainforest-biome cells while NAV cells fall from 3,575 to 2,325 and Rainforest features rise from 487 to 589. It establishes a partial occupancy contribution, not rainfall depletion or a selected production percentile."
     state: "supported"
@@ -44,13 +44,13 @@ assessments:
   - claim: "The adopted Earthlike configuration selects major/minor discharge percentiles of 0.95/0.74. This is a river-representation choice, not a change to climate, physical drainage or habitat classification."
     state: "supported"
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/9f425885815ba314b8304bc414122c2dd769217c/plugins/mod/map/swooper-physics/src/maps/configs/swooper-earthlike.config.json"
-  - claim: "Fifteen current-climate candidate executions against retained B controls preserve all 8,479 river-source coordinates and 1,233 rainforest-biome cells while NAV cells fall from 3,577 to 2,318 and Rainforest features rise from 197 to 248. Fewer represented navigable components and outlets are a disclosed cost, not removed physical water."
+  - claim: "Fifteen river-only candidate executions under the reviewed annual-gate climate against retained B controls preserve all 8,479 river-source coordinates and 1,233 rainforest-biome cells while NAV cells fall from 3,577 to 2,318 and Rainforest features rise from 197 to 248. Fewer represented navigable components and outlets are a disclosed cost, not removed physical water."
     state: "supported"
   - claim: "One matched Huge native pair reproduces the first qualified case's river classes and feature-application aggregates, including Rainforest 45 to 50. Native resource shortfalls remain 11 and 12 refusals; bounded observations do not establish a complete native census, per-start resource support, vessel passage or calibrated ecology."
     state: "supported"
-  - claim: "The whole-land census of the same fifteen adopted-equivalent captures contains 1,233 rainforest-biome cells and 248 Rainforest features on 32,561 exposed cells. Of 4,314 flat desert cells, 4,071 carry sagebrush and only 153 are feature-bare. Complete placement within admitted habitat does not establish sufficient habitat extent or overall biome diversity."
+  - claim: "The whole-land census of the fifteen annual-gate baseline captures contains 1,233 rainforest-biome cells and 248 Rainforest features on 32,561 exposed cells. Of 4,314 flat desert cells, 4,071 carry sagebrush and only 153 are feature-bare. Complete placement within admitted habitat does not establish sufficient habitat extent or overall biome diversity."
     state: "supported"
-  - claim: "The seasonal-thermal candidate's headless comparison raises rainforest habitat from 1,233 to 2,174 and final Rainforest from 248 to 553 across the same fifteen exposed-land populations, with 974 habitat additions/33 losses and 309 feature additions/four losses. Annual physical, climate, water, density and fifteen biome-independent score fields hold. The unchanged eight-Standard ecology study passes, but sparse and zero-rainforest cases remain; this is not native qualification or whole-land adequacy."
+  - claim: "The adopted seasonal-thermal rule's headless comparison raises rainforest habitat from 1,233 to 2,174 and final Rainforest from 248 to 553 across the same fifteen exposed-land populations, with 974 habitat additions/33 losses and 309 feature additions/four losses. Annual physical, climate, water, density and fifteen biome-independent score fields hold. The unchanged eight-Standard ecology study passes, but sparse and zero-rainforest cases remain; this is not native qualification or whole-land adequacy."
     state: "supported"
   - claim: "The adopted cold-season thermal correction has separate matched Huge native evidence: Rainforest applications rise from 50 to 107 and savanna from 3 to 95, with measured full-grid elevation/lake arrays and all 608 river coordinates/classes held. Three windows containing 135 cells match candidate terrain/biome/features. Resources change from 231 planned/219 placed/12 refused to 236/223/13; the additional refusal is an accepted tradeoff, not preservation. This does not establish independent final full-grid feature identity, ecological adequacy or campaign quality."
     state: "supported"
@@ -121,6 +121,13 @@ protect vegetation variety without estimating Earth's rainforest coverage; a
 floodplain count may ensure a placement path is tested without asserting how
 common floodplains should be.
 
+Two adopted changes address different bottlenecks. The
+[river-representation choice](#current-cooling-qualification-and-adoption)
+releases ordinary surface without enlarging habitat; the
+[cold-season thermal rule](#seasonal-thermal-recovery-and-its-limits) changes
+habitat admission without adding water or changing river classes. Neither
+establishes a calibrated target for whole-world vegetation.
+
 The [study policy][study-policy] explicitly classifies appearance counts and
 shares as product assumptions or regression guards, not physical laws or
 independently calibrated Earth observations. The open question is therefore
@@ -136,12 +143,184 @@ does not imply extensive bare desert surface. The open
 [mangrove occurrence question][occurrence] concerns which feature occupies a
 qualifying site, not how to meet a rainforest quota.
 
-Two adopted changes address different bottlenecks. The
-[river-representation choice](#current-cooling-qualification-and-adoption)
-releases ordinary surface without enlarging habitat; the
-[cold-season thermal rule](#seasonal-thermal-recovery-and-its-limits) changes
-habitat admission without adding water or changing river classes. Neither
-establishes a calibrated target for whole-world vegetation.
+## Seasonal-Thermal Recovery And Its Limits
+
+The adopted [cold-season thermal rule][seasonal-thermal] changes habitat
+admission without changing the captured annual climate, water, physical fields
+or vegetation density. Its headless comparison covers the same ten Huge and
+five Standard maps as the [annual-gate census](#whole-land-habitat-and-feature-coverage):
+32,561 exposed cells, including navigable terrain but excluding finite lakes
+and external ocean. Final features change as well as theoretical habitat.
+Additions and losses are separate same-site counts, not just the net difference.
+
+| Population | Annual-Gate Baseline | Adopted Thermal Rule | Added | Lost |
+| --- | ---: | ---: | ---: | ---: |
+| Rainforest-biome habitat | 1,233 | 2,174 | 974 | 33 |
+| Rainforest features | 248 | 553 | 309 | 4 |
+| Savanna woodland features | 26 | 317 | 291 | 0 |
+| Forest features | 3,622 | 3,047 | 27 | 602 |
+
+Every added rainforest-habitat cell belongs to the previously annual-gate-excluded
+humid population, and 309 of those recovered sites carry final Rainforest.
+All fifteen biome-independent score layers hold, so the gains are not a wetter
+climate, a boosted vegetation score or a feature quota. Forest losses and other
+[family-competition consequences][seasonal-occurrence] remain visible rather
+than being treated as automatically desirable exchanges.
+
+Fourteen of fifteen maps gain final rainforest. Huge seed `1419989910` remains
+at zero, with rainforest habitat changing from 32 to 30 cells. This is useful
+end-to-end recovery, not universal recovery or adequate whole-world diversity.
+The source/headless correction is accepted after independent outcome audit;
+its separate native comparison below supports bounded realization, not a new
+fifteen-map native census or closure of the remaining ecological questions.
+
+### The Separate Eight-Map Ecology Result
+
+The [existing eight-Standard ecology cohort](#vegetation-across-eight-standard-maps)
+is a separate population. Its exact annual-gate baseline study fails its
+vegetation-family variety and rainforest-presence requirements, while the
+unchanged seasonal-thermal candidate study passes without threshold edits or
+newly failing per-map expectations. Yet Standard seeds 1 and 3 contain only one
+and two Rainforest features. Presence is not adequate abundance, and a passed
+study is not Earth calibration. The zero-rainforest Huge
+case in the [fifteen-map comparison](#seasonal-thermal-recovery-and-its-limits)
+belongs to a different population, not an unreported failure of this eight-case
+study.
+
+### Cold-Season Admission In One Native World
+
+The adopted thermal rule reaches Civ7 in one matched Huge case: seed
+`378148420`, 106 x 66 cells and ten major players. Both arms use the already
+adopted major-river percentile of 0.95. This comparison therefore tests thermal
+admission, not another reduction in navigable-river coverage.
+
+| Ordinary-Feature Applications | Annual-Gate Baseline | Cold-Season Rule |
+| --- | ---: | ---: |
+| Rainforest | 50 | 107 |
+| Savanna woodland | 3 | 95 |
+| Forest | 357 | 227 |
+| Mangrove | 22 | 34 |
+
+Total ordinary-feature applications rise from 1,144 to 1,175 with no recorded
+legality refusals; every family aggregate matches the qualified headless case.
+**Applications and final native readback are different evidence.** These counts
+are recorded after feature setter calls, not independently read from every final
+tile. Three native windows provide that second kind of observation for 135
+cells: all have available facts and match candidate terrain, biome and feature.
+Their physical facts hold against the matched baseline. The tropical window
+includes one forest-to-empty site as well as gains; the basin and old-start
+windows hold.
+
+**Successful vegetation application does not mean refusal-free placement.**
+Native resources change from 231 planned / 219 placed / 12 refused to
+236 / 223 / 13. The additional refusal is an explicitly accepted downstream
+tradeoff, not a preserved resource result or a waived success. Wonders remain
+7 planned / 4 placed / 3 refused. These counts establish neither per-start
+resource adequacy nor complete realization of every planned object.
+
+Measured elevation and accepted/observed lake arrays hold between arms across
+all 6,996 cells. All 608 river coordinates and classes hold, comprising 445 minor
+and 163 navigable cells. All 158 accepted lake cells remain water, but the same
+40 native lake-classification differences persist. Physical preservation is
+not perfect agreement between lake categories or proof of vessel passage.
+
+All ten observed founder sites are native dry, non-lake and non-navigable terrain
+at turn one; two players' starting positions differ between maps and the local
+player remains at `(38,16)`. This is a start-surface observation, not a founding, movement, visual
+or campaign test. The sparse cases above, dryland occurrence below and
+[family-competition question][seasonal-occurrence] remain open.
+
+## When the Denominator Changes the Question
+
+Whole-land share, share of vegetation, share of coast water and frequency
+across seed rolls are not interchangeable measures. Each preserves information
+the others discard. A gameplay identity may legitimately constrain whole-map
+composition; a coverage test may legitimately require enough events to exercise
+a path. Neither purpose automatically calls for an eligible-habitat denominator.
+
+For a claim about ecological adequacy, however, the amount of lawful habitat
+may be essential. Scarce habitat, incompatible terrain, weak feature intent and
+failed application can all produce a low observed count for different reasons.
+A habitat-conditioned comparison could distinguish those explanations. It
+would still need evidence supporting its numerical bound: changing the
+denominator alone does not turn a product assumption into an Earth-calibrated
+law.
+
+### Whole-Land Habitat And Feature Coverage
+
+**Complete placement within admitted habitat is not the same as adequate
+whole-land abundance or diversity.** The census re-examines the same fifteen
+adopted-equivalent captures: ten Huge and five Standard maps, stronger cooling
+and major-river percentile 0.95, with the pre-change annual tropical gate. This
+**annual-gate baseline** predates the adopted seasonal-thermal rule. The census
+adds no map generation. Its denominator is
+all 32,561 exposed cells, including navigable terrain but excluding finite lakes
+and external ocean, rather than only the sites that qualify for a feature.
+
+| Annual-Gate Baseline Outcome | Cells | Share Of All Exposed Cells |
+| --- | ---: | ---: |
+| Rainforest-biome habitat | 1,233 | 3.787% |
+| Rainforest features | 248 | 0.762% |
+| Desert-biome habitat | 7,726 | 23.728% |
+| Flat desert terrain | 4,314 | 13.249% |
+| Feature-bare flat desert | 153 | 0.470% |
+
+These rows overlap; they are not an additive partition. All are headless
+outcomes, not a new native census. There are 6,594 cells in the classifier's
+baseline adjusted-humid categories, but 5,361 are outside its tropical thermal
+category. Among the 1,233 rainforest-biome cells, geometry leaves 864 flat
+sites; earlier mangrove and minor floodplain occupy 616, leaving the 248 that
+receive Rainforest. This is ordered accounting, not a prediction that changing
+one gate would turn every excluded humid cell into rainforest.
+
+### Flat Desert Is Not Necessarily Bare Desert
+
+In the annual-gate baseline, 4,314 flat desert cells divide into 4,071 sagebrush,
+153 feature-bare, 89 minor desert floodplain and one oasis. Sagebrush occupies
+94.367% of flat desert. In the first Huge case, 332 flat desert cells contain
+324 sagebrush, four bare and four minor floodplain. Bare surface is scarce even where the
+desert biome itself is extensive.
+
+The remaining bare cells are not a representative warm-desert population:
+127 belong to the model's cold thermal category and 26 to its temperate category;
+their maximum captured annual temperature is 7.043 degrees C. These categories
+are model outputs, not validated Earth climate classes. Feature-bare does not
+mean resource-free: only 132 of the 153 also lack a resource. Neither the
+feature names nor these headless counts establish the live map's appearance.
+
+The unresolved outcomes therefore have different mechanisms: rainforest habitat
+admission is distinct from the near-blanket feature coverage of flat desert.
+The [adopted river choice](#current-cooling-qualification-and-adoption) is a
+partial surface-capacity improvement, not resolution of either question.
+Earth observations can inform sensible distributions across a varied cohort
+without requiring each generated map to reproduce Earth's proportions. This
+census identifies contractions; it selects neither a target count nor a repair.
+The thermal result does not supply a new dryland census or resolve the
+occurrence/support question. A native DESERT identity is not itself a physical
+aridity class, and positive suitability is not calibrated full-tile occurrence.
+
+## Evidence That Would Settle an Individual Bound
+
+For a disputed predicate, its original purpose and exact sample support are
+more informative than the number in isolation. An existing Earthlike case can
+connect habitat eligibility, terrain and biome compatibility, feature intent,
+and the observed result while holding the producer revision and cohort fixed.
+Missing observations limit the inference; they do not establish a defective
+scorer or justify retuning generation.
+
+An authorized product or coverage requirement, supported by the stated
+population and matching measurement, would disprove the allegation that this
+predicate is an unsupported physics gate. A claim of ecological calibration
+would need independent observational or habitat-conditioned support. That
+predicate-level provenance has not been established by the source evidence
+here, which is not proof that it cannot exist. The answer could clarify a
+claim, justify a bound or expose a duplicated check without changing any
+threshold, denominator or generator.
+
+The [original evidence packet][original-question] retains the historical
+context. The benchmark definitions establish source facts; the separate retained
+rainforest comparisons establish their separately bounded populations. Neither is
+ecological calibration or a blanket verdict on the remaining bounds.
 
 ## The Benchmarks Judge Outcomes, Not Ecological Forcing
 
@@ -188,17 +367,10 @@ studies but omitted this
 therefore do not establish its vegetation-diversity requirements, including
 [rainforest presence on every map][cooling-rainforest-presence]. This is a
 qualification-coverage gap, not a reported failed ecology run. The separate
-fifteen-case census below is not a substitute result for this different cohort.
+fifteen-case census is not a substitute result for this different cohort.
 
-The later seasonal-thermal comparison supplies that missing cohort evidence
-separately: the eight-case exact-adopted baseline study fails its vegetation-family
-variety and rainforest-presence requirements, while the unchanged candidate study
-passes without threshold edits or newly failing per-map expectations. Yet
-Standard seeds 1 and 3 contain only one and two Rainforest features. Presence is not adequate
-abundance, and a passed study is not Earth calibration. The zero-rainforest Huge
-case in the [fifteen-map comparison](#seasonal-thermal-recovery-and-its-limits)
-belongs to a different population, not an unreported failure of this eight-case
-study.
+The [separate seasonal-thermal result](#the-separate-eight-map-ecology-result)
+compares this exact cohort without changing its requirements.
 
 ### Cold Reefs Across Eight Huge Maps
 
@@ -217,146 +389,11 @@ the intent-to-surface path observable; the rejection and legality checks address
 whether it works. A final count alone could conceal rejected attempts. This is
 a strong alternative to interpreting the floor as a prevalence estimate.
 
-## When the Denominator Changes the Question
+## Earlier Cooling And River-Representation Evidence
 
-Whole-land share, share of vegetation, share of coast water and frequency
-across seed rolls are not interchangeable measures. Each preserves information
-the others discard. A gameplay identity may legitimately constrain whole-map
-composition; a coverage test may legitimately require enough events to exercise
-a path. Neither purpose automatically calls for an eligible-habitat denominator.
-
-For a claim about ecological adequacy, however, the amount of lawful habitat
-may be essential. Scarce habitat, incompatible terrain, weak feature intent and
-failed application can all produce a low observed count for different reasons.
-A habitat-conditioned comparison could distinguish those explanations. It
-would still need evidence supporting its numerical bound: changing the
-denominator alone does not turn a product assumption into an Earth-calibrated
-law.
-
-### Whole-Land Habitat And Feature Coverage
-
-**Complete placement within admitted habitat is not the same as adequate
-whole-land abundance or diversity.** The census re-examines the same fifteen
-adopted-equivalent captures: ten Huge and five Standard maps, stronger cooling
-and major-river percentile 0.95, with the pre-change annual tropical gate. This
-**annual-gate baseline** predates the seasonal-thermal candidate below. The census
-adds no map generation. Its denominator is
-all 32,561 exposed cells, including navigable terrain but excluding finite lakes
-and external ocean, rather than only the sites that qualify for a feature.
-
-| Annual-Gate Baseline Outcome | Cells | Share Of All Exposed Cells |
-| --- | ---: | ---: |
-| Rainforest-biome habitat | 1,233 | 3.787% |
-| Rainforest features | 248 | 0.762% |
-| Desert-biome habitat | 7,726 | 23.728% |
-| Flat desert terrain | 4,314 | 13.249% |
-| Feature-bare flat desert | 153 | 0.470% |
-
-These rows overlap; they are not an additive partition. All are headless
-outcomes, not a new native census. There are 6,594 cells in the classifier's
-baseline adjusted-humid categories, but 5,361 are outside its tropical thermal
-category. Among the 1,233 rainforest-biome cells, geometry leaves 864 flat
-sites; earlier mangrove and minor floodplain occupy 616, leaving the 248 that
-receive Rainforest. This is ordered accounting, not a prediction that changing
-one gate would turn every excluded humid cell into rainforest.
-
-#### Seasonal-Thermal Recovery And Its Limits
-
-The [cold-season thermal candidate][seasonal-thermal] changes habitat admission
-without changing the captured annual climate, water, physical fields or
-vegetation density. On the same 32,561 exposed cells, the final headless features
-change as well as the theoretical habitat. Additions and losses are separate
-same-site counts, not just the net difference.
-
-| Population | Annual-Gate Baseline | Thermal Candidate | Added | Lost |
-| --- | ---: | ---: | ---: | ---: |
-| Rainforest-biome habitat | 1,233 | 2,174 | 974 | 33 |
-| Rainforest features | 248 | 553 | 309 | 4 |
-| Savanna woodland features | 26 | 317 | 291 | 0 |
-| Forest features | 3,622 | 3,047 | 27 | 602 |
-
-Every added rainforest-habitat cell belongs to the previously annual-gate-excluded
-humid population, and 309 of those recovered sites carry final Rainforest.
-All fifteen biome-independent score layers hold, so the gains are not a wetter
-climate, a boosted vegetation score or a feature quota. Forest losses and other
-[family-competition consequences][seasonal-occurrence] remain visible rather
-than being treated as automatically desirable exchanges.
-
-Fourteen of fifteen maps gain final rainforest. Huge seed `1419989910` remains
-at zero, with rainforest habitat changing from 32 to 30 cells. This is useful
-end-to-end recovery, not universal recovery or adequate whole-world diversity.
-The source/headless correction is accepted after independent outcome audit;
-its separate native comparison below supports bounded realization, not a new
-fifteen-map native census or closure of the remaining ecological questions.
-
-##### Cold-Season Admission In One Native World
-
-The adopted thermal rule reaches Civ7 in one matched Huge case: seed
-`378148420`, 106 x 66 cells and ten major players. Both arms use the already
-adopted major-river percentile of 0.95. This comparison therefore tests thermal
-admission, not another reduction in navigable-river coverage.
-
-| Ordinary-Feature Applications | Annual-Gate Baseline | Cold-Season Rule |
-| --- | ---: | ---: |
-| Rainforest | 50 | 107 |
-| Savanna woodland | 3 | 95 |
-| Forest | 357 | 227 |
-| Mangrove | 22 | 34 |
-
-Total ordinary-feature applications rise from 1,144 to 1,175 with no recorded
-legality refusals; every family aggregate matches the qualified headless case.
-**Applications and final native readback are different evidence.** These counts
-are recorded after feature setter calls, not independently read from every final
-tile. Three native windows provide that second kind of observation for 135
-cells: all have available facts and match candidate terrain, biome and feature.
-Their physical facts hold against the matched baseline. The tropical window
-includes one forest-to-empty site as well as gains; the basin and old-start
-windows hold.
-
-**Successful vegetation application does not mean refusal-free placement.**
-Native resources change from 231 planned / 219 placed / 12 refused to
-236 / 223 / 13. The additional refusal is an explicitly accepted downstream
-tradeoff, not a preserved resource result or a waived success. Wonders remain
-7 planned / 4 placed / 3 refused. These counts establish neither per-start
-resource adequacy nor complete realization of every planned object.
-
-Measured elevation and accepted/observed lake arrays hold between arms across
-all 6,996 cells. All 608 river coordinates and classes hold, comprising 445 minor
-and 163 navigable cells. All 158 accepted lake cells remain water, but the same
-40 native lake-classification differences persist. Physical preservation is
-not perfect agreement between lake categories or proof of vessel passage.
-
-All ten current founder sites are native dry, non-lake and non-navigable terrain
-at turn one; two players' starting positions differ between maps and the local player remains at
-`(38,16)`. This is a start-surface observation, not a founding, movement, visual
-or campaign test. The sparse cases above, dryland occurrence below and
-[family-competition question][seasonal-occurrence] remain open.
-
-#### Flat Desert Is Not Necessarily Bare Desert
-
-In the annual-gate baseline, 4,314 flat desert cells divide into 4,071 sagebrush,
-153 feature-bare, 89 minor desert floodplain and one oasis. Sagebrush occupies
-94.367% of flat desert. In the first Huge case, 332 flat desert cells contain
-324 sagebrush, four bare and four minor floodplain. Bare surface is scarce even where the
-desert biome itself is extensive.
-
-The remaining bare cells are not a representative warm-desert population:
-127 belong to the model's cold thermal category and 26 to its temperate category;
-their maximum captured annual temperature is 7.043 degrees C. These categories
-are model outputs, not validated Earth climate classes. Feature-bare does not
-mean resource-free: only 132 of the 153 also lack a resource. Neither the
-feature names nor these headless counts establish the live map's appearance.
-
-The unresolved outcomes therefore have different mechanisms: rainforest habitat
-admission is distinct from the near-blanket feature coverage of flat desert.
-The [adopted river choice](#current-cooling-qualification-and-adoption) is a
-partial surface-capacity improvement, not resolution of either question.
-Earth observations can inform sensible distributions across a varied cohort
-without requiring each generated map to reproduce Earth's proportions. This
-census identifies contractions; it selects neither a target count nor a repair.
-The thermal result does not supply a new dryland census or resolve the
-occurrence/support question. A native DESERT identity is not itself a physical
-aridity class, and positive suitability is not calibrated full-tile occurrence.
+The following comparisons use the reviewed annual tropical gate. They distinguish
+cooling and surface occupancy before the adopted cold-season rule; their source
+vintages and populations remain independent of the seasonal results above.
 
 ### Rainforest Habitat And Feature Occupancy
 
@@ -365,9 +402,9 @@ amplifies it rather than establishing its historical origin. A retained
 fifteen-configuration comparison separates these contributions on one source.
 **A** uses the previous lapse of -0.0065 and **B** the adopted -0.15, with the
 same map/game seeds within each pair. A is a controlled previous-lapse
-counterfactual on current source, not a reconstruction of an earlier build.
+counterfactual on the reviewed source, not a reconstruction of an earlier build.
 
-The modeled `tropicalRainforest` biome describes an
+In these comparisons, the modeled `tropicalRainforest` biome describes an
 [empirical annual habitat envelope][annual-regimes]; the game's Rainforest
 feature is a separate surface object. [Ordinary Rainforest legality][rainforest-legality]
 requires native flat terrain and tropical biome. A tropical-biome mountain is
@@ -478,14 +515,15 @@ connected paths receive navigable-river representation. More ordinary surface
 becomes available at the cost of fewer navigable corridors. Neither climate
 nor the underlying physical river network is repaired by this choice.
 
-The qualification uses the same ten Huge and five Standard cases under current
-stronger-cooling B, not the previous-lapse A/C intervention above. Fifteen new
+This river-only qualification uses the same ten Huge and five Standard cases
+under stronger-cooling B and the annual tropical gate, not the previous-lapse
+A/C intervention above. Fifteen new
 candidate executions change only major percentile 0.92 to 0.95 against the
 fifteen retained B controls. Baselines were not rerun. The existing
 [configuration test][adopted-river-test] also checks that the normal density
 knob preserves the authored selection in the compiled recipe.
 
-| Quantity Across The 15 Current-Climate Cases | B: Major 0.92 | Adopted: Major 0.95 |
+| Quantity Across The 15 Annual-Gate Cases | B: Major 0.92 | Adopted: Major 0.95 |
 | --- | ---: | ---: |
 | Navigable river-source cells | 3,577 | 2,318 |
 | Minor river-source cells | 4,902 | 6,161 |
@@ -558,30 +596,10 @@ three refusals in each arm. Headless legality, successful feature application
 and a bounded native comparison do not imply refusal-free realization, complete
 lake connectivity, full-game stability or calibrated rainforest ecology.
 
-## Evidence That Would Settle an Individual Bound
-
-For a disputed predicate, its original purpose and exact sample support are
-more informative than the number in isolation. An existing Earthlike case can
-connect habitat eligibility, terrain and biome compatibility, feature intent,
-and the observed result while holding the producer revision and cohort fixed.
-Missing observations limit the inference; they do not establish a defective
-scorer or justify retuning generation.
-
-An authorized product or coverage requirement, supported by the stated
-population and matching measurement, would disprove the allegation that this
-predicate is an unsupported physics gate. A claim of ecological calibration
-would need independent observational or habitat-conditioned support. That
-predicate-level provenance has not been established by the source evidence
-here, which is not proof that it cannot exist. The answer could clarify a
-claim, justify a bound or expose a duplicated check without changing any
-threshold, denominator or generator.
-
-The [original evidence packet][original-question] retains the historical
-context. The benchmark definitions establish source facts; the separate retained
-rainforest comparison establishes the bounded populations above. Neither is
-ecological calibration or a blanket verdict on the remaining bounds.
-
 ## Rainforest Evidence Scope And Provenance
+
+The current location mappings use adopted source `fe85600`; the observations
+below retain their own source revisions and qualification scopes.
 
 The original A/B/C investigation uses source
 `fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1`, whose runtime is unchanged from
@@ -636,8 +654,8 @@ relationship, with identical Huge/seed/player setup, Antiquity, Prince and
 Standard speed. Its independent reviewer decoded the original logs and checked
 the bounded observations; this editorial account does not repeat those actions.
 
-Source adoption does not retroactively update the `2a31` navigation and Learning
-baseline or the earlier observations in this sheet. Native observations support
+Source adoption does not retroactively update the earlier observations or the
+source-inspection findings pinned to `2a31` in this sheet. Native observations support
 only the quantities and populations stated above. Raw captures, operational
 receipts and machine-specific evidence remain private. The following custody
 identities are not public reproduction downloads or whole-question verification.
@@ -656,8 +674,8 @@ identities are not public reproduction downloads or whole-question verification.
 ### Whole-Land Census And Qualification Coverage
 
 The whole-land census is a new reduction of 45 retained captures, not 45 new
-maps: fifteen current 0.95 cases, fifteen previous-lapse A controls and fifteen
-stronger-cooling 0.92 B controls. The current table uses only the fifteen
+maps: fifteen annual-gate 0.95 cases, fifteen previous-lapse A controls and fifteen
+stronger-cooling 0.92 B controls. The baseline table uses only the fifteen
 adopted-equivalent cases and all their exposed cells. Source capture is
 `fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1`; owner replay uses
 `dde45a82982270d183d59831bd2f7afee42232cb` after checking owner-file identity

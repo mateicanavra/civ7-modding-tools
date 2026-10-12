@@ -3,7 +3,7 @@ id: Q-008
 title: Start Climate Comfort
 recordKind: question
 disposition: open
-sourceRevision: 2a31c96f8d61ee713075974838dfd36a0b008021
+sourceRevision: fe85600bb814cdeb977e36f4e9b5656aa322eb57
 locations:
   - id: "placement-start-planning"
     label: "Start Planning"
@@ -11,23 +11,23 @@ locations:
     stage: "placement"
     step: "assign-starts"
     operation: "placement.starts.ops.planStarts"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/placement/modules/starts/ops/plan-starts/contract.ts"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/domain/placement/modules/starts/ops/plan-starts/contract.ts"
   - id: "hydrology-refined-climate"
     label: "Refined Climate"
     relation: "related-producer"
     stage: "hydrology-climate-refine"
     step: "climate-refine"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/refine/steps/climate-refine/config.ts#L23-L47"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/refine/steps/climate-refine/config.ts#L23-L47"
   - id: "hydrology-baseline-climate"
     label: "Baseline Climate"
     relation: "related-producer"
     stage: "hydrology-climate-baseline"
     step: "climate-baseline"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.ts#L84-L111"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.ts#L84-L111"
   - id: "benchmark-placement-climate-dispersion"
     label: "Placement Climate And Dispersion"
     relation: "question-owner"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/placement.ts#L72-L115"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/placement.ts#L72-L115"
 assessments:
   - claim: "Start climate comfort uses all supplied land cells to derive relative temperature and aridity thresholds. It intentionally avoids assuming calibrated absolute habitability limits."
     state: "supported"
@@ -199,10 +199,11 @@ exposed by a roughly 23 degree C site or a selected threshold repair.
 ## Evidence Boundaries
 
 Runtime and benchmark statements are pinned to
-`ac9984216f9e74c63d436b88fa1fa0f0bfc0a1ba`. Navigation uses the frozen `2a31`
-recipe. The start-planning operation, binding and metric predicates are
-unchanged between those revisions; the climate-producer implementation and
-study explanation are not interchangeable across pins.
+`ac9984216f9e74c63d436b88fa1fa0f0bfc0a1ba`. Navigation uses adopted source
+`fe85600bb814cdeb977e36f4e9b5656aa322eb57`. The start-planning operation, binding
+and metric predicates are unchanged between those revisions. That continuity
+is not a new run or renewed qualification; climate-producer implementation and
+study explanation remain attached to their own pins.
 
 The 2026-10-11 Standard1018 pair supplies the site witness and candidate counts.
 Selected temperature and score values were read from its retained captures

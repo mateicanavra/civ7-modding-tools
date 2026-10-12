@@ -3,7 +3,7 @@ id: Q-001
 title: Low-Shore Neighborhood Semantics
 recordKind: question
 disposition: open
-sourceRevision: 2a31c96f8d61ee713075974838dfd36a0b008021
+sourceRevision: fe85600bb814cdeb977e36f4e9b5656aa322eb57
 locations:
   - id: "ecology-low-shore-substrate"
     label: "Low-Shore Substrate"
@@ -11,7 +11,7 @@ locations:
     stage: "ecology-features"
     step: "score-layers"
     operation: "ecology.features.ops.computeFeatureSubstrate"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/contract.ts"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/contract.ts"
     lessonIds: ["marine-shores"]
   - id: "ecology-mangrove-scoring"
     label: "Mangrove Scoring"
@@ -19,7 +19,7 @@ locations:
     stage: "ecology-features"
     step: "score-layers"
     operation: "ecology.features.ops.scoreWetMangrove"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-mangrove/contract.ts"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-mangrove/contract.ts"
 assessments:
   - claim: "The low-shore proximity implementation clips its rectangular X/Y window and does not wrap X."
     state: "supported"

@@ -3,23 +3,23 @@ id: Q-006
 title: Regional Thermal Response And Qualification
 recordKind: question
 disposition: open
-sourceRevision: 2a31c96f8d61ee713075974838dfd36a0b008021
+sourceRevision: fe85600bb814cdeb977e36f4e9b5656aa322eb57
 locations:
   - id: "hydrology-baseline-climate"
     label: "Baseline Climate"
     relation: "question-owner"
     stage: "hydrology-climate-baseline"
     step: "climate-baseline"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.ts#L84-L111"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.ts#L84-L111"
   - id: "benchmark-climate-structure"
     label: "Climate-Structure Benchmark"
     relation: "question-owner"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/earthlike-climate-structure.study.ts#L17-L34"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/earthlike-climate-structure.study.ts#L17-L34"
 assessments:
   - claim: "Baseline climate composes seasonal thermal, pressure, circulation, moisture and demand operations within one step."
     state: "supported"
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.ts#L84-L111"
-  - claim: "The retained current-source flat-fixture capture establishes broad same-row seasonal P/W contrast and exact input/publication replay; the historical deficit statistic has concentrated training-coordinate support."
+  - claim: "The retained input-only flat-fixture capture establishes broad same-row seasonal P/W contrast and exact input/publication replay; the historical deficit statistic has concentrated training-coordinate support."
     state: "supported"
   - claim: "The retained Standard1018 gain-0 versus diagnostic-gain-6 pair has a modest, spatially organized temperature response, passing mechanism and integrity checks with mixed downstream consequences; its inherited row-variation floor still fails."
     state: "supported"
@@ -449,14 +449,14 @@ reading this sheet does not independently reproduce it.
 | Seasonal arrays, compressed | `e7552ee33a9eb5d14b7fea26eb58a7344df8c95d667be065d1a5015e9e40bf99` |
 | Support analysis | `3a1402ad5eecc9a009d7c929dfef011574af3795497055946e10ab4e0298722d` |
 
-Pipeline navigation remains pinned to `2a31`; the later moisture implementation
-is cited separately rather than backdated into that Learning source. The
-merged qualification decision is a distinct source inspection, not verification
+Pipeline navigation uses adopted source `fe85600bb814cdeb977e36f4e9b5656aa322eb57`.
+The retained relief, moisture and input-only comparisons keep their original
+revisions and scopes. The merged qualification decision is a distinct source inspection, not verification
 of response adequacy. [Active thermal ownership][thermal-owner] remains with
 the workstream; this sheet is the linked research question, not its task queue.
 
-[baseline-location]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.ts#L84-L111
-[climate-study]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/earthlike-climate-structure.study.ts#L17-L34
+[baseline-location]: https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.ts#L84-L111
+[climate-study]: https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/earthlike-climate-structure.study.ts#L17-L34
 [qualification]: https://github.com/mateicanavra/civ7-modding-tools/blob/fffe4e7b31291c75a8b47f2f93080e6a586295fc/docs/projects/native-map-controls/land-thermal-variance.md#prospective-regional-qualification
 [current-baseline]: https://github.com/mateicanavra/civ7-modding-tools/blob/eff77c0f8cd3be5b8a8fd176997918b76848bc44/plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/step.ts#L339-L460
 [historical-pilot]: https://github.com/mateicanavra/civ7-modding-tools/blob/fffe4e7b31291c75a8b47f2f93080e6a586295fc/docs/projects/native-map-controls/annual-land-response-owner-decision.md#completed-deficit-pilot
