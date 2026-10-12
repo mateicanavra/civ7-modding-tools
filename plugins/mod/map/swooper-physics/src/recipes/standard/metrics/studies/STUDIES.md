@@ -37,6 +37,19 @@ legality, and habitat-fidelity checks serve distinct physical or structural
 claims. Reviewing an appearance assumption requires a separate prospective
 amendment; this scope change does not silently relax it.
 
+The ecology cohort's `rainforest-cohort-non-vacuity` is a subsequent target-policy
+amendment: at least one cohort member must realize rainforest. It is an integration
+smoke test against complete family erasure, not a requirement that every random
+world contain a legal unreserved rainforest tile. Native rainforest is restricted
+to flat terrain; supported habitat may instead become navigable-river terrain or
+be reserved by another legitimate feature. No quota or fallback placement follows
+from a missing feature on one world.
+
+This smoke test does not establish rainforest abundance, geographic coherence or
+Earth accuracy. Per-case habitat and final-feature extent remain measurements;
+their calibration is open. All other targets and scenarios remain unchanged, and
+old results retain their original target-policy verdicts.
+
 The generic subsystem contract lives in [Map product benchmarks](../../../../../../../docs/system/libs/mapgen/benchmarks/BENCHMARKS.md).
 
 ## Authority map

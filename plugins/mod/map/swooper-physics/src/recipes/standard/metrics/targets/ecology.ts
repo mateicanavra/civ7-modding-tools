@@ -178,11 +178,11 @@ export const EARTHLIKE_ECOLOGY_TARGET = {
       (samples) => featurePresenceCount(samples, "FEATURE_FOREST") === samples.length,
       true
     ),
-    equalTo<StandardMapMetricCohort>(
-      "rainforest-presence",
-      "Rainforest appears in every representative Earthlike roll.",
-      (samples) => featurePresenceCount(samples, "FEATURE_RAINFOREST") === samples.length,
-      true
+    atLeast<StandardMapMetricCohort>(
+      "rainforest-cohort-non-vacuity",
+      "Cohort integration smoke: at least one Earthlike roll realizes rainforest, not an abundance, prevalence, or Earth-accuracy target.",
+      (samples) => featurePresenceCount(samples, "FEATURE_RAINFOREST"),
+      1
     ),
     equalTo<StandardMapMetricCohort>(
       "taiga-presence",
