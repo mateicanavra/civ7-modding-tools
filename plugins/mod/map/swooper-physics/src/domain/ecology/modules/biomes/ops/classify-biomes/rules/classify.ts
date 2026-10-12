@@ -86,7 +86,11 @@ export function classifyBiomesFromFields(args: {
       aridityShift
     );
 
-    const symbol = biomeSymbolForZones(tempZone, moistureZone);
+    const incumbentSymbol = biomeSymbolForZones(tempZone, moistureZone);
+    // S = D / (D + P + O + 1): desert requires D > P + O + 1, not low moisture alone.
+    const symbol = tempZone !== "polar" && incumbentSymbol === "desert" && plantStress <= 0.5
+      ? biomeSymbolForZones(tempZone, "semiArid")
+      : incumbentSymbol;
     biomeIndex[i] = BIOME_SYMBOL_TO_INDEX[symbol]!;
 
     const moistureNorm = clamp01(plantMoisture / moistureNormalization);
