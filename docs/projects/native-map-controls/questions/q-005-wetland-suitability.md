@@ -330,9 +330,10 @@ neither simplification nor a high conditional admission rate proves it wrong.
 Retention could be challenged by a physically supported negative regime that
 the owner can actually distinguish, or by an explicit change in the intended
 product policy. No supplied discriminator is not proof that none matters.
-Climate, drainage, major-river percentile 0.92, native legality and other
-families remain outside this decision. A higher rainforest score cannot rank
-the two families as competing probabilities: their independent response curves
+That occurrence review holds climate, drainage, the reviewed major-river
+percentile 0.92, native legality and other families fixed. A higher rainforest
+score cannot rank the two families as competing probabilities: their independent
+response curves
 have no shared occurrence calibration. More rainforest alone supports neither
 a priority reversal nor a quota. Its own
 [annual habitat meaning][annual-regimes] remains a separate open question.
@@ -341,6 +342,14 @@ The [shore-topology question][geometry] remains separate: a bounded square
 window is not wrapped-hex proximity, but its contribution to bulk rainforest
 scarcity has not been quantified. This occurrence question selects no geometry
 replacement, score adjustment, priority reversal or production repair.
+
+The separate [adopted river-representation choice][current-river-choice] changes
+available surface without changing wetland scoring or precedence. Both mangrove
+and rainforest can gain space when fewer cells receive navigable terrain; that
+does not imply a more permissive wetland rule or calibrated coastal coverage.
+The thirty-capture occurrence audit above remains evidence at its reviewed
+0.92 configuration, not a fresh replay of the adopted 0.95 surface. Q002 owns
+the distinct fifteen-case qualification, matched native pair and their limits.
 
 ## Changed Forcing, Retained Responses
 
@@ -565,3 +574,4 @@ the following custody digests, not supplied as public reproduction downloads.
 [relief-response]: q-006-regional-thermal-response.md#a-stronger-relief-response
 [classifier-meaning]: q-007-biome-transition-meaning.md#retained-meaning-open-calibration
 [annual-regimes]: q-007-biome-transition-meaning.md#annual-categories-and-seasonal-regimes
+[current-river-choice]: q-002-ecological-prevalence.md#current-cooling-qualification-and-adoption

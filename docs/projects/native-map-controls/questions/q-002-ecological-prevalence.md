@@ -41,6 +41,13 @@ assessments:
     state: "supported"
   - claim: "Stronger cooling amplifies rainforest scarcity in the retained pairs but is not established as its historical origin; ecological adequacy remains unresolved."
     state: "supported"
+  - claim: "The adopted Earthlike configuration selects major/minor discharge percentiles of 0.95/0.74. This is a river-representation choice, not a change to climate, physical drainage or habitat classification."
+    state: "supported"
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/9f425885815ba314b8304bc414122c2dd769217c/plugins/mod/map/swooper-physics/src/maps/configs/swooper-earthlike.config.json"
+  - claim: "Fifteen current-climate candidate executions against retained B controls preserve all 8,479 river-source coordinates and 1,233 rainforest-biome cells while NAV cells fall from 3,577 to 2,318 and Rainforest features rise from 197 to 248. Fewer represented navigable components and outlets are a disclosed cost, not removed physical water."
+    state: "supported"
+  - claim: "One matched Huge native pair reproduces the first qualified case's river classes and feature-application aggregates, including Rainforest 45 to 50. Native resource shortfalls remain 11 and 12 refusals; bounded observations do not establish a complete native census, per-start resource support, vessel passage or calibrated ecology."
+    state: "supported"
 verification:
   - kind: source-inspection
     scope: "Source inspection confirms the ecology predicates and their unchanged numerical bounds; no benchmark or generation was run."
@@ -72,6 +79,21 @@ verification:
     revision: fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1
     date: '2026-10-11'
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/hydrography/ops/project-river-network/strategies/discharge-percentiles/index.ts"
+  - kind: source-inspection
+    scope: "Inspection of the adopted source confirms the Earthlike-only major-percentile change from 0.92 to 0.95 with minor 0.74 and all other authored inputs held. Retained offline and native findings remain separate evidence, not new editorial executions."
+    revision: 9f425885815ba314b8304bc414122c2dd769217c
+    date: '2026-10-12'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/9f425885815ba314b8304bc414122c2dd769217c/plugins/mod/map/swooper-physics/src/maps/configs/swooper-earthlike.config.json"
+  - kind: source-inspection
+    scope: "The adopted Hydrology reference distinguishes channel-class selection from physical water, climate and lake accounting, and discloses the ordinary-land versus navigable-corridor tradeoff. Native passage remains separately unqualified."
+    revision: 9f425885815ba314b8304bc414122c2dd769217c
+    date: '2026-10-12'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/9f425885815ba314b8304bc414122c2dd769217c/docs/system/libs/mapgen/reference/domains/HYDROLOGY.md"
+  - kind: source-inspection
+    scope: "Inspection confirms the existing effective-configuration test asserts authored and compiled Earthlike 0.74/0.95 selection under the normal density knob. This is test-source inspection, not a rerun or native qualification."
+    revision: 9f425885815ba314b8304bc414122c2dd769217c
+    date: '2026-10-12'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/9f425885815ba314b8304bc414122c2dd769217c/plugins/mod/map/swooper-physics/test/maps/map-config-schema.test.ts#L356-L367"
 ---
 
 # Q-002: Ecological Prevalence And Benchmark Authority
@@ -270,14 +292,104 @@ network. More free terrain therefore does not translate one-for-one into more
 rainforest. Lakes also occupy area, but there is no lake-only intervention here.
 The [basin strategy][basin-config] exposes no lake-count or lake-percentile cap.
 
-The diagnostic does not select 0.95, qualify a production change or establish
-that earlier wet features are wrong. The separate
+That previous-lapse diagnostic alone does not select 0.95, qualify a production
+change or establish that earlier wet features are wrong. The separate
 [occurrence review in Q-005][occurrence] retains the intended mangrove priority
 without establishing an admission repair; its ecological coverage remains open.
 Q007's [seasonal-information probe][annual-regimes] likewise establishes an
 unavailable distinction, not a cause of low counts. Neither review adds new
 worlds to this population. A higher rainforest count alone cannot validate
 either habitat classification or feature priority.
+
+### Current-Cooling Qualification And Adoption
+
+**Earthlike adopts a major-river discharge percentile of 0.95, retaining the
+minor percentile of 0.74.** The [adopted configuration][adopted-river-config]
+and [Hydrology reference][adopted-river-meaning] describe a representation
+choice: after physical water and terrain evolution, the selector decides which
+connected paths receive navigable-river representation. More ordinary surface
+becomes available at the cost of fewer navigable corridors. Neither climate
+nor the underlying physical river network is repaired by this choice.
+
+The qualification uses the same ten Huge and five Standard cases under current
+stronger-cooling B, not the previous-lapse A/C intervention above. Fifteen new
+candidate executions change only major percentile 0.92 to 0.95 against the
+fifteen retained B controls. Baselines were not rerun. The existing
+[configuration test][adopted-river-test] also checks that the normal density
+knob preserves the authored selection in the compiled recipe.
+
+| Quantity Across The 15 Current-Climate Cases | B: Major 0.92 | Adopted: Major 0.95 |
+| --- | ---: | ---: |
+| Navigable river-source cells | 3,577 | 2,318 |
+| Minor river-source cells | 4,902 | 6,161 |
+| Any-river source cells | 8,479 | 8,479 |
+| Rainforest-biome habitat cells | 1,233 | 1,233 |
+| Free admitted Rainforest slots/features | 197 | 248 |
+
+Every changed river class is major-to-minor; the any-river mask holds exactly,
+not just its total. Captured upstream climate, physical water, lake geometry
+and habitat fields also hold. Eleven maps gain rainforest features, four hold
+and none lose. All free admitted lawful slots are filled in both headless arms.
+Forty-nine of the 51 gains occupy demoted NAV cells; two come from former minor
+floodplain slots. Of 132 demoted rainforest-biome cells, 41 instead become
+mangrove, 18 minor floodplain and 24 expose their existing hill constraint.
+Wetland precedence and habitat scores are unchanged.
+
+The navigable-coverage cost is substantial: dry flow-connected NAV components
+fall from 870 to 504, and authored wet outlet writes from 404 to 318. These
+are graph and projection diagnostics, not named river counts or proven boat
+routes. Physical water bodies and outlet truth remain intact. Retaining 0.92
+is a coherent alternative preference for more represented navigable coverage;
+adoption of 0.95 does not establish superior vessel access or repair
+coast-following river topology.
+
+Other downstream consequences are not hidden by rainforest gains. Forty-one
+of 140 start coordinates move across twelve maps; modeled freshwater access
+remains 136/140 and existing placement guards pass. Resources fall from 3,250
+to 3,248, with 72 changed resource-surface cells. These headless outcomes do
+not promise native resource support. A larger visible forest population is
+not a calibrated ecological target.
+
+#### What One Matched Native Pair Confirms
+
+A separate matched Civ7 pair uses the first Huge case, map/game seed `378148420`,
+106 x 66 tiles and ten majors, with the same complete setup in both arms.
+It is two successful native generations of one case, not a second fifteen-map
+study. River intended/observed arrays agree exactly in each arm: all 608 source
+coordinates hold, with 75 major cells becoming minor.
+
+| Native Observation | Control 0.92 | Candidate 0.95 |
+| --- | ---: | ---: |
+| Navigable river-source cells | 238 | 163 |
+| Minor river-source cells | 370 | 445 |
+| Rainforest applications | 45 | 50 |
+| Forest applications | 312 | 357 |
+| Resources planned | 232 | 231 |
+| Resources placed | 221 | 219 |
+| Resources refused | 11 | 12 |
+
+Ordinary features apply without refusal in both arms, 1,108 and 1,144
+respectively, matching the first headless case's aggregates. That agreement
+is not an independent whole-grid final feature census. Final projection-phase
+elevation arrays and accepted/observed lake masks hold across all 6,996 cells.
+All 158 accepted inland-water cells remain water; 118 have native lake
+classification and 40 retain the accepted inland-water adjustment. This is
+not a claim that all 158 are classified as native lakes.
+
+Three same-coordinate windows independently observe 135 cells per arm without
+omission. In the tropical window, NAV falls from 12 to four and Rainforest rises
+from seven to twelve; the other two windows hold. Available water, lake,
+elevation, rainfall, biome and any-river facts hold in all three. All ten
+candidate founder tiles have native dry, non-lake, non-NAV readback, but nine
+player-indexed positions move. These observations do not establish founding
+bonuses, boat passage or native per-start resource support.
+
+**The native resource shortfall remains real.** Only eight refusal examples
+are retained per arm, so the extra refusal cannot be attributed to one displayed
+coordinate or treated as a complete refusal census. Natural wonders also retain
+three refusals in each arm. Headless legality, successful feature application
+and a bounded native comparison do not imply refusal-free realization, complete
+lake connectivity, full-game stability or calibrated rainforest ecology.
 
 ## Evidence That Would Settle an Individual Bound
 
@@ -304,7 +416,7 @@ ecological calibration or a blanket verdict on the remaining bounds.
 
 ## Rainforest Evidence Scope And Provenance
 
-The reported investigation uses source
+The original A/B/C investigation uses source
 `fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1`, whose runtime is unchanged from
 the relief production candidate `6c5c8a82e7d36c17371699104ec58b3830f0e06d`;
 only two owner documents differ. Its fifteen configurations comprise ten Huge
@@ -317,7 +429,8 @@ diagnostics, not additional full worlds.
 
 Static ordinary-feature legality comes from official corpus
 `9f6b93e129d47faf96ed6814f652560e7b7573d0`. No fresh native game comparison,
-production repair or threshold adoption is established by this investigation.
+production repair or threshold adoption is established by that original
+investigation alone. The later qualification has its own scope below.
 The retained report and selected summaries identify the evidence below. They
 remain private; these custody digests are not public reproduction downloads.
 
@@ -337,6 +450,42 @@ independent reproduction of the raw fields. **Q-002 remains open:** a measured
 habitat-to-feature bottleneck does not supply a justified numerical coverage
 bound.
 
+### Current-Climate Qualification And Native Scope
+
+The later offline qualification executes the sole 0.95 candidate at source
+`fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1`, against retained current-B 0.92
+controls. Its fifteen new executions are distinct from the earlier 45 A/B/C
+executions, the three synthetic profiles, and Q007's
+[single seasonal recapture][generated-seasonal-witness]. Protected captured
+fields and existing guards pass unchanged; absent artifacts receive no identity
+claim. Its non-interleaved timings do not establish a performance improvement.
+
+The tested production source is `dde45a82982270d183d59831bd2f7afee42232cb`.
+The adopted merge `9f425885815ba314b8304bc414122c2dd769217c` has the same tested
+tree, `3425e606704c008fc6f4e4241136524bf9e0bf76`. Only Earthlike's major
+percentile changes at runtime; adjacent documentation and the existing test
+change with it. The matched native pair uses that qualified control/candidate
+relationship, with identical Huge/seed/player setup, Antiquity, Prince and
+Standard speed. Its independent reviewer decoded the original logs and checked
+the bounded observations; this editorial account does not repeat those actions.
+
+Source adoption does not retroactively update the `2a31` navigation and Learning
+baseline or the earlier observations in this sheet. Native observations support
+only the quantities and populations stated above. Raw captures, operational
+receipts and machine-specific evidence remain private. The following custody
+identities are not public reproduction downloads or whole-question verification.
+
+| Retained Qualification Evidence | SHA-256 |
+| --- | --- |
+| Current-B offline report | `a178e97e4978cb06d1273415ec63fcbc943ff79f7c86f9f54cfa7926cb0a1a65` |
+| Fifteen-candidate execution receipt | `17b83c1a16e21a5ff3c244f9e7dcdd667964296fbf31e61987d233c0a8df29ef` |
+| Current-B paired analysis | `c01bc27d5d33a32fe538ee7509fe048b464eb612960cda8bc02cd19d6b3d8caa` |
+| Navigable representation cost | `7ad7d38936db7b17778801c1ef3b15bc0640a90e65c88b137b08c689ba19e633` |
+| Production and native report | `dcdbbaa99fb31178e23303020ddd8744271edc29cc5275b578ad5054c710fcf5` |
+| Matched native comparison | `2e3851d80c8ea9d253c4430e0f381db18f83b683a0a5c9e20a2fdd8a1037757c` |
+| Independent native review | `bb988928fa5187d87d2758d5d90fc09925ed8f0d1b300a934b29b27d8bea3e7c` |
+| Completed source-adoption closure | `f74db85f007b6cdbbe676efd2884b8ec461ed7a4ae97f39a6abbdeda6fc0f72c` |
+
 [identity-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/identities.ts
 [ecology-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts
 [study-policy]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/STUDIES.md
@@ -355,3 +504,7 @@ bound.
 [relief-response]: q-006-regional-thermal-response.md#a-stronger-relief-response
 [classifier-meaning]: q-007-biome-transition-meaning.md#retained-meaning-open-calibration
 [annual-regimes]: q-007-biome-transition-meaning.md#annual-categories-and-seasonal-regimes
+[generated-seasonal-witness]: q-007-biome-transition-meaning.md#one-generated-witness-no-established-classifier-change
+[adopted-river-config]: https://github.com/mateicanavra/civ7-modding-tools/blob/9f425885815ba314b8304bc414122c2dd769217c/plugins/mod/map/swooper-physics/src/maps/configs/swooper-earthlike.config.json
+[adopted-river-meaning]: https://github.com/mateicanavra/civ7-modding-tools/blob/9f425885815ba314b8304bc414122c2dd769217c/docs/system/libs/mapgen/reference/domains/HYDROLOGY.md
+[adopted-river-test]: https://github.com/mateicanavra/civ7-modding-tools/blob/9f425885815ba314b8304bc414122c2dd769217c/plugins/mod/map/swooper-physics/test/maps/map-config-schema.test.ts#L356-L367

@@ -37,6 +37,8 @@ assessments:
     state: "supported"
   - claim: "A seasonal summary or broader humid-forest classification is necessary and has a supported producer-reachable benefit over an accurately described annual proxy."
     state: "unassessed"
+  - claim: "One existing-case recapture establishes producer-reachable atmospheric seasonal exposure, but not a justified classifier change: all 21 positive-gap rainforest-biome cells have annual local-water support of unknown seasonal persistence, and all ten free lawful rainforest slots already place. The annual model is retained without ecological calibration."
+    state: "supported"
 verification:
   - kind: source-inspection
     scope: "Inspection confirms the frozen recipe's real classifyBiomes binding; the owning step and classifier operation are unchanged through ae8. This is navigation/source identity, not physical qualification."
@@ -225,6 +227,54 @@ is unknown. Recognizing a long dry season could exclude some currently admitted
 rainforest rather than increase it. Better regime discrimination and higher
 feature counts are not synonyms.
 
+### One Generated Witness, No Established Classifier Change
+
+**The annual model is retained.** A separate observation of one generated map
+establishes that the producer creates seasonal atmospheric exposure, but not
+that this exposure justifies changing the habitat decision. It recaptures an
+existing Standard case under stronger cooling and the reviewed 0.92 major-river
+setting, not another synthetic profile or a new seed population.
+
+The observation retains 24 chronological phases. Its `gap` is the weighted
+positive difference between baseline atmospheric demand and precipitation,
+divided by weighted demand. Its `run` is the longest cyclic contiguous fraction
+of phase weight for which demand exceeds precipitation. These describe modeled
+atmospheric exposure, not measured drought, plant survival or a calibrated
+dry-season threshold.
+
+Among 61 rainforest-biome cells, 21 have a positive gap. Twenty of those still
+have annual baseline precipitation at least as large as annual demand: annual
+balance can conceal within-cycle shortfalls in a real generated case. The
+placement and local-water context, however, changes what follows from that fact.
+
+| Rainforest-Biome Population | Cells | With A Positive Atmospheric Gap |
+| --- | ---: | ---: |
+| No annual local-water opportunity (`L = 0`) | 21 | 0 |
+| Positive annual local-water opportunity (`L > 0`) | 40 | 21 |
+
+Every positive-gap rainforest cell has annual local-water support whose seasonal
+availability is unknown. An atmospheric veto would discard that modeled support;
+distributing annual `L` across phases to cancel the gaps would invent its
+persistence. Neither inference is established by these observations.
+
+All ten free lawful rainforest slots already produce intents and headless
+features. The remaining rainforest-biome cells are 15 navigable-river cells,
+five hills, 24 earlier mangroves and seven earlier minor tropical floodplains.
+There is no missing free lawful placement in this case for a seasonal change
+to explain. Six of the ten actual rainforest features have a positive gap;
+five gaps are only 0.00787-0.02138, with longest runs of 2-3/24. The remaining
+site has a gap of 0.27992 and a run of 8/24, alongside annual local-water support
+of 576.09. Those model-unit observations do not assign ecological severity or
+prove that the vegetation is misplaced.
+
+The bounded review retains the annual model without erasing the information
+limitation. It neither establishes that seasonality never matters
+nor validates calibrated rainforest ecology. The natural contrasts do not
+reproduce the three synthetic histories or hold their annual inputs identical.
+The separate [river-representation qualification][current-river-choice] changes
+available surface without changing this annual classification; its feature
+gains are not evidence for a seasonal habitat repair.
+
 ### Why This Is Not Another Score Repair
 
 The [earlier wet-end correction][wet-end-correction] removed rainforest's
@@ -307,8 +357,10 @@ alone would not justify any of those choices.
 A narrower annual hot/wet proxy, described accurately, remains a credible
 game-scale model. A broader humid-forest interpretation or additional seasonal
 evidence would need to preserve a useful physical or gameplay distinction,
-with producer-reachable support. Warm aseasonal forest, cooler humid forest,
-seasonally dry tropical land and temperate wet land are candidate contrasts,
+with producer-reachable support and a defensible downstream consequence. The
+single generated witness establishes exposure, not that consequence. Warm
+aseasonal forest, cooler humid forest, seasonally dry tropical land and temperate
+wet land are candidate contrasts,
 not newly established classification outcomes. No new seasonal field, soil-water
 model, threshold or production behavior is selected here. The design question
 is which distinction earns representation, not how to raise rainforest counts.
@@ -373,6 +425,39 @@ public reproduction downloads.
 | Synthetic-probe method | `8c1d1162fb3dac23fde79310845d0c1c08dbd0eab0204e24e7e58d3796298c0d` |
 | Synthetic-probe inputs and results | `a3cafee30bb331103f30f6ffe2059c735bab8db5cd0066515a91cebe17df36bd` |
 
+### One Producer-Reachable Observation
+
+The separate witness uses source `fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1`,
+Standard 84 x 54, map/game seed `1327944073` and eight players: the existing
+current-climate case 11-B. Exactly one full capture was repeated with additional
+observation; all 49 existing integrity expectations passed. Original captured
+outputs are identical except execution runtime and the added observation.
+Artifacts absent from the original capture are outside that identity claim.
+Temporary observation changes were removed; no production model changed.
+
+The complete inventory covers 61 tropicalRainforest, six tropicalSeasonal and
+399 temperateHumid cells, all also baseline land. The retained one-ULP check
+reports no uncertain demand-versus-precipitation comparisons in these cohorts.
+That is numerical sensitivity evidence, not biological certainty. Full phase
+demand retains its original double precision rather than being rounded to the
+single precision of precipitation, wetness and temperature.
+
+The independent evidence review recomputed the phase reductions and annual-
+water/feature joins; a separate physical/product review retained the annual
+model. The final ordered placement partition was added afterward and checked
+by the implementation owner, not retrospectively attributed to those completed
+independent reviews. This sheet inspects retained evidence without repeating
+the capture or reductions. It adds neither a native observation nor another
+member to the separate fifteen-case river qualification.
+
+| Retained Witness Evidence | SHA-256 |
+| --- | --- |
+| Generated seasonal-witness report | `ff18e2696f968393fdb579c3e8a01798d2b7116d4586b5f326aaa2ed85a41796` |
+| One-capture receipt | `68d0666c85bce7d8760342006e4aff1d2109a2681d67221c303296b43db037b6` |
+| Complete-cohort analysis | `9fefd3aebc2f28da892855a6feaf1fc9b8e8212db568a988e8f38fc03424cc16` |
+| Ordered placement reconciliation | `5dae3cbf7ebb4b6cf5a790222bf329aa5c0aebb24e542e641db029a68a174b52` |
+| Retained-model closure | `45e0581abe56358fb30e23a631c675012aa0ebace717dff504593fc7558e8c81` |
+
 [step]: https://github.com/mateicanavra/civ7-modding-tools/blob/ae8fc94d790a769fb45c60584e47304f69f53a93/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/biomes/steps/biomes/step.ts#L21-L41
 [transition]: https://github.com/mateicanavra/civ7-modding-tools/blob/ae8fc94d790a769fb45c60584e47304f69f53a93/plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/ops/classify-biomes/rules/classify.ts#L66-L100
 [ecology-meaning]: https://github.com/mateicanavra/civ7-modding-tools/blob/ae8fc94d790a769fb45c60584e47304f69f53a93/docs/system/libs/mapgen/reference/domains/ECOLOGY.md#config-posture
@@ -394,6 +479,7 @@ public reproduction downloads.
 [wet-end-correction]: https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/docs/projects/native-map-controls/earthlike-climate.md#rejected-pet-calibration-and-next-discriminator
 [rainforest-population]: q-002-ecological-prevalence.md#rainforest-habitat-and-feature-occupancy
 [mangrove-retention]: q-005-wetland-suitability.md#when-suitability-reserves-the-only-feature-slot
+[current-river-choice]: q-002-ecological-prevalence.md#current-cooling-qualification-and-adoption
 [peel]: https://hess.copernicus.org/articles/11/1633/2007/hess-11-1633-2007.pdf
 [fao-zones]: https://www.fao.org/4/ap861e/ap861e00.pdf
 [lugo]: https://data.fs.usda.gov/research/pubs/iitf/ja_iitf_1999_lugo002.pdf

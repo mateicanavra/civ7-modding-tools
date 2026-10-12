@@ -141,8 +141,11 @@ The separate physical-meaning review identifies an annual hot/wet envelope,
 not calibrated forest regimes. Three synthetic seasonal profiles become the
 same consumed annual chain and Rainforest intent. This demonstrates unavailable
 chronology, not generated-map reachability, a required vegetation difference
-or a cause of scarcity. A richer humid-forest model remains an open design
-choice, not a selected score repair.
+or a cause of scarcity. A separate single-case recapture establishes real
+atmospheric seasonal exposure, but all positive-gap rainforest cells have annual
+local-water support of unknown seasonal persistence and all free lawful slots
+already place. The bounded review retains the annual model; neither a seasonal
+classifier change nor calibrated ecology is established.
 [Read the research question](questions/q-007-biome-transition-meaning.md).
 
 ### Ecology / Features / Score Layers
@@ -184,6 +187,8 @@ ecological coverage. Suitability, occurrence and admission remain different
 claims. The six-pair moisture study and earlier consumer-only resource/seating
 tradeoffs stay separate. Habitat meaning, omitted seasonal/tidal processes and
 shared admission remain open; no priority reversal or rainforest quota is selected.
+The adopted river selector changes available surface, not wetland policy; the
+thirty-capture occurrence audit remains tied to its reviewed 0.92 configuration.
 [Read the research question](questions/q-005-wetland-suitability.md).
 
 ### Placement / Assign Starts / Climate Comfort
@@ -213,8 +218,12 @@ amplifies scarcity but is not established as its historical origin. A previous-l
 river-representation intervention increases Rainforest features with climate,
 lake geometry and rainforest-biome count held, supporting a partial occupancy
 explanation rather than precipitation depletion or a new coverage target.
-The separate classifier-meaning and mangrove-occurrence reviews add no generated
-maps and do not turn these counts into ecological calibration.
+The separate current-climate qualification and one matched native pair support
+adoption of major percentile 0.95 as a representation choice: more ordinary
+feature capacity, fewer navigable corridors, unchanged captured physical water
+and habitat. Native resource refusals remain visible. The synthetic profiles,
+single seasonal recapture, fifteen-case qualification and native pair retain
+distinct populations; none turns these counts into ecological calibration.
 [Read the research question](questions/q-002-ecological-prevalence.md).
 
 ### Benchmark Authority / Relief And Orogeny
