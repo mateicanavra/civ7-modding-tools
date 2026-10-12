@@ -441,11 +441,8 @@
       "water": {
         "model": "certified-sill-spill",
         "computeLocalRunoff": {
-          "strategy": "precipitation-attributed",
-          "config": {
-            "infiltrationFraction": 0.15,
-            "humidityDampening": 0.25
-          }
+          "strategy": "annual-water-yield",
+          "config": {}
         },
         "computeDrainageBasins": {
           "strategy": "plateau-saddle-hierarchy",

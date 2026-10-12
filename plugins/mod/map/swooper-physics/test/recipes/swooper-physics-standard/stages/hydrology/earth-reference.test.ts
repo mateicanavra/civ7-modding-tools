@@ -30,14 +30,13 @@ function drainageFixture(rainfallIndex = 100, demandIndex = 10, forcingCell?: nu
     precipitation[forcingCell] = rainfallIndex;
     potentialDemand[forcingCell] = demandIndex;
   }
-  const surfaceWetness = new Float32Array(size).fill(128 / 255);
   const { runoff } = hydro.computeLocalRunoff.run(
     {
       width: terrain.width,
       height: terrain.height,
       externalWaterMask: terrain.externalWaterMask,
       precipitation,
-      surfaceWetness,
+      potentialDemand,
     },
     hydro.computeLocalRunoff.defaultConfig
   );
@@ -361,7 +360,17 @@ describe("fixed Earth native-index drainage diagnostic", () => {
         expect(network.terminals.some(terminal => terminal.role === "marine")).toBe(true);
         expect(network.conservation.dryRunoff).toBeGreaterThan(0);
         expect(network.conservation.wetPrecipitation).toBe(network.conservation.wetDemand);
-        expect(network.conservation.marineDischarge).toBe(225601.66666666666);
+        // Independently substitute wet P-D for dry yield on the resolved footprint.
+        let sourceBudget = 0;
+        for (let cell = 0; cell < input.externalWaterMask.length; cell++) {
+          if (input.externalWaterMask[cell]) continue;
+          sourceBudget += network.wetMask[cell]
+            ? input.precipitation[cell]! - input.potentialDemand[cell]!
+            : input.localRunoff[cell]!;
+        }
+        expect(Math.abs(
+          network.conservation.marineDischarge + network.conservation.unresolvedResidual - sourceBudget
+        )).toBeLessThanOrEqual(network.conservation.roundoffBound);
         expect(network.conservation.marineDischarge).toBeGreaterThan(0);
         expect(network.conservation.boundaryDischarge).toBe(0);
         expect(network.conservation.externalDischarge).toBe(network.conservation.marineDischarge);

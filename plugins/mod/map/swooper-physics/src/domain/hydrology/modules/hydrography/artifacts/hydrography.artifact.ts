@@ -27,7 +27,7 @@ export const artifact = defineArtifact({
       description: "Resolved source role: 0 marine/non-source, 1 marine, 2 boundary export, 3 closed wet, 4 subtile, 5 dry.",
     }),
     runoff: Type.Array(Type.Number({ minimum: 0 }), {
-      description: "Map-grid local precipitation-attributed runoff at Number precision; zero on prescribed external water. Finite wet cells replace this supply with their wet budget.",
+      description: "Map-grid approximate annual dry-ground water yield at Number precision; zero on prescribed external water. Finite wet cells replace this supply with their wet P-D budget.",
     }),
     discharge: Type.Array(Type.Number({ minimum: 0 }), {
       description: "Map-grid Number-precision ordinary/principal dry-edge flux, not a junction's total transfers. Zero wet/marine entries are sentinels; lakePlan owns complete exchange and boundary export.",
