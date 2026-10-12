@@ -37,20 +37,30 @@ describe("ecology-features plan-vegetation step", () => {
       forestScore01: 1,
       zeroFloor: false,
       upstreamOccupancy: false,
+      annualSupport: false,
     },
     {
       name: "publishes empty vegetation intent for zero score layers at authored zero floors",
       forestScore01: 0,
       zeroFloor: true,
       upstreamOccupancy: false,
+      annualSupport: false,
     },
     {
       name: "preserves upstream occupancy when publishing positive vegetation at zero floors",
       forestScore01: 1,
       zeroFloor: true,
       upstreamOccupancy: true,
+      annualSupport: false,
     },
-  ])("$name", ({ forestScore01, zeroFloor, upstreamOccupancy }) => {
+    {
+      name: "uses published annual precipitation, demand and local opportunity for sagebrush support",
+      forestScore01: 0,
+      zeroFloor: false,
+      upstreamOccupancy: false,
+      annualSupport: true,
+    },
+  ])("$name", ({ forestScore01, zeroFloor, upstreamOccupancy, annualSupport }) => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const setup = admitMapSetup({
@@ -75,6 +85,27 @@ describe("ecology-features plan-vegetation step", () => {
     withMapContextExecutionForTest(ctx, (stepContext) => {
       const layers = createEmptyFeatureScoreLayers(size);
       layers.forest.fill(forestScore01);
+      const precipitation = new Float32Array(size).fill(120);
+      const pet = new Float32Array(size).fill(100);
+      const localSurfaceWaterOpportunity = new Float32Array(size);
+      const vegetationDensity = new Float32Array(size).fill(0.4);
+      if (annualSupport) {
+        layers["sagebrush-steppe"].fill(1, 0, 7);
+        precipitation.fill(0);
+        pet.fill(10);
+        // No opportunity at zero demand, exact equality, positive surplus,
+        // local equality/relief, positive opportunity at zero demand, and zero growth.
+        pet[0] = 0;
+        precipitation[1] = 1;
+        precipitation[2] = 1 + 2 ** -23;
+        precipitation[3] = 0.5;
+        localSurfaceWaterOpportunity[3] = 0.5;
+        localSurfaceWaterOpportunity[4] = 1 + 2 ** -23;
+        pet[5] = 0;
+        localSurfaceWaterOpportunity[5] = 2 ** -149;
+        precipitation[6] = 120;
+        vegetationDensity[6] = 0;
+      }
 
       publishTestArtifact(stepContext, featureArtifacts.featureSuitability, {
         width,
@@ -88,12 +119,20 @@ describe("ecology-features plan-vegetation step", () => {
       publishTestArtifact(stepContext, biomeArtifacts.biomeClassification, {
         width,
         height,
-        biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid),
-        vegetationDensity: new Float32Array(size).fill(0.4),
+        biomeIndex: new Uint8Array(size).fill(
+          annualSupport ? BIOME_SYMBOL_TO_INDEX.desert : BIOME_SYMBOL_TO_INDEX.temperateHumid
+        ),
+        vegetationDensity,
         treeLine01: new Float32Array(size),
       });
+      publishTestArtifact(stepContext, climateArtifacts.climateField, {
+        precipitation,
+        // Deliberately unlike annual P: neither wetness nor codec may supply this gate.
+        surfaceWetness: new Float32Array(size).fill(1),
+        rainfallCodec: new Uint8Array(size).fill(200),
+      });
       publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
-        localSurfaceWaterOpportunity: new Float32Array(size),
+        localSurfaceWaterOpportunity,
         effectiveMoisture: new Float32Array(size).fill(120),
         plantEffectiveMoisture: new Float32Array(size).fill(120),
         surfaceTemperatureC: new Float32Array(size).fill(20),
@@ -102,7 +141,7 @@ describe("ecology-features plan-vegetation step", () => {
         aridityIndex: new Float32Array(size).fill(0.4),
         plantWaterStress: new Float32Array(size).fill(0.4),
         freezeIndex: new Float32Array(size),
-        pet: new Float32Array(size),
+        pet,
       });
       publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, createEmptyWaterFixture(width, height).hydrography);
       publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, createEmptyWaterFixture(width, height).lakePlan);
@@ -157,14 +196,21 @@ describe("ecology-features plan-vegetation step", () => {
     });
 
     const intents = readArtifact(ctx, featureArtifacts.vegetationIntents);
-    if (forestScore01 === 0) {
+    if (annualSupport) {
+      expect(planVegetationStep.contract.requires).toContain(climateArtifacts.climateField);
+      expect(intents).toEqual([
+        { x: 2, y: 0, feature: "sagebrush-steppe" },
+        { x: 4, y: 0, feature: "sagebrush-steppe" },
+        { x: 5, y: 0, feature: "sagebrush-steppe" },
+      ]);
+    } else if (forestScore01 === 0) {
       expect(intents).toEqual([]);
     } else {
       expect(intents.length).toBe(size - wetlandIntents.length);
       expect(intents[0]).toEqual({ x: upstreamOccupancy ? 1 : 0, y: 0, feature: "forest" });
       expect(intents.at(-1)).toEqual({ x: width - 1, y: height - 1, feature: "forest" });
     }
-    expect(intents.every(({ feature }) => feature === "forest")).toBe(true);
+    expect(intents.every(({ feature }) => feature === (annualSupport ? "sagebrush-steppe" : "forest"))).toBe(true);
     expect(readArtifact(ctx, featureArtifacts.wetlandIntents)).toEqual(wetlandIntents);
   });
 
@@ -258,6 +304,11 @@ describe("ecology-features plan-vegetation step", () => {
           vegetationDensity: new Float32Array(size).fill(0.4),
           treeLine01: new Float32Array(size),
         });
+        publishTestArtifact(stepContext, climateArtifacts.climateField, {
+          precipitation: new Float32Array(size).fill(120),
+          surfaceWetness: new Float32Array(size),
+          rainfallCodec: new Uint8Array(size).fill(120),
+        });
         publishTestArtifact(stepContext, climateArtifacts.climateIndices, {
           localSurfaceWaterOpportunity: new Float32Array(size),
           effectiveMoisture: new Float32Array(size).fill(120),
@@ -268,7 +319,7 @@ describe("ecology-features plan-vegetation step", () => {
           aridityIndex: new Float32Array(size).fill(0.4),
           plantWaterStress: new Float32Array(size).fill(0.4),
           freezeIndex: new Float32Array(size),
-          pet: new Float32Array(size),
+          pet: new Float32Array(size).fill(100),
         });
         publishTestArtifact(stepContext, hydrographyArtifacts.hydrography, water.hydrography);
         publishTestArtifact(stepContext, hydrographyArtifacts.lakePlan, water.lakePlan);

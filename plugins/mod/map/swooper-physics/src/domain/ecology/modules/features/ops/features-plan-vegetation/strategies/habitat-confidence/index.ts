@@ -10,7 +10,11 @@ import {
   stressFromConfidence01,
 } from "../../../../model/policy/feature-score-selection.js";
 import Contract from "../../contract.js";
-import { admitVegetationIntent } from "../../rules/admit-vegetation-intent.js";
+import {
+  admitSagebrushAnnualSupport,
+  admitVegetationIntent,
+  assertSagebrushAnnualSupportInputs,
+} from "../../rules/admit-vegetation-intent.js";
 import StrategyDefinition from "./config.js";
 
 function isBroadVegetationHabitat(
@@ -68,6 +72,11 @@ const habitatConfidenceStrategy = createStrategy(Contract, StrategyDefinition, {
     const width = input.width;
     const height = input.height;
     const size = width * height;
+    assertSagebrushAnnualSupportInputs(
+      input,
+      size,
+      config.sagebrushSteppeMinAnnualWaterOpportunityRatio
+    );
     const flatLandMask = input.flatLandMask;
     const biomeIndex = input.biomeIndex;
     const broadHabitatFields = {
@@ -138,7 +147,17 @@ const habitatConfidenceStrategy = createStrategy(Contract, StrategyDefinition, {
         candidates.filter(
           (candidate) =>
             isBroadVegetationHabitat(candidate.feature, i, broadHabitatFields) &&
-            admitVegetationIntent(candidate, config)
+            admitVegetationIntent(candidate, config) &&
+            (candidate.feature !== "sagebrush-steppe" ||
+              admitSagebrushAnnualSupport(
+                {
+                  precipitation: input.precipitation[i]!,
+                  pet: input.pet[i]!,
+                  localSurfaceWaterOpportunity: input.localSurfaceWaterOpportunity[i]!,
+                  genericGrowth: input.vegetationDensity[i]!,
+                },
+                config.sagebrushSteppeMinAnnualWaterOpportunityRatio
+              ))
         )
       );
       if (best === null) continue;

@@ -173,6 +173,9 @@ describe("plant water and climatic habitat meanings", () => {
       surfaceTemperature: new Float32Array(2).fill(28),
       plantEffectiveMoisture: new Float32Array(2).fill(1000),
       climaticAridityIndex: new Float32Array([0.91, 0.89]),
+      precipitation: new Float32Array(2).fill(20),
+      pet: new Float32Array(2).fill(30),
+      localSurfaceWaterOpportunity: new Float32Array(2).fill(980),
       vegetationDensity: new Float32Array(2).fill(0.4),
       scoreForest01: new Float32Array(2), scoreRainforest01: new Float32Array(2), scoreTaiga01: new Float32Array(2),
       scoreSavannaWoodland01: new Float32Array(2).fill(1), scoreSagebrushSteppe01: new Float32Array(2),
@@ -229,6 +232,7 @@ describe("plant water and climatic habitat meanings", () => {
           width, height, seed: 1, landMask: budgetInput.landMask, flatLandMask, featureOccupancyMask,
           biomeIndex: biomes.biomeIndex, vegetationDensity: biomes.vegetationDensity,
           surfaceTemperature: biomes.surfaceTemperature, plantEffectiveMoisture: indices.plantEffectiveMoisture, climaticAridityIndex: indices.aridityIndex,
+          precipitation: budgetInput.precipitation, pet: indices.pet, localSurfaceWaterOpportunity: indices.localSurfaceWaterOpportunity,
           scoreForest01: forest, scoreRainforest01: new Float32Array(size), scoreTaiga01: new Float32Array(size),
           scoreSavannaWoodland01: new Float32Array(size), scoreSagebrushSteppe01: new Float32Array(size),
         }, features.planVegetation.defaultConfig).placements;

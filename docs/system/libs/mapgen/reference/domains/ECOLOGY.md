@@ -140,6 +140,19 @@ Feature scoring and planning stay separate:
 - Vegetation admission requires positive physical confidence as well as its feature-local floor.
   An authored zero floor admits every positively supported candidate that passes the other habitat
   and availability gates, not unsupported zero-score candidates.
+- Sagebrush steppe additionally requires positive generic modeled growth (`vegetationDensity`)
+  and annual water opportunity `A = P + O` with both `A > 0` and `A > k * D` before arbitration.
+  The Standard step forwards `P` from published `climateField.precipitation`, `D` from
+  `climateIndices.pet`, and `O` from `climateIndices.localSurfaceWaterOpportunity` without
+  deriving new climate quantities. These finite nonnegative inputs share empirical rainfall-index
+  units, not physical millimetres or delivered root water. The finite positive authored
+  `sagebrushSteppeMinAnnualWaterOpportunityRatio` defaults to `0.10`; it is a minimum annual
+  community water-opportunity ratio, not physiological maintenance, fractional cover, an occurrence
+  probability, or an Earth-calibrated boundary. Equality rejects; zero demand admits this water
+  gate only when opportunity is positive. Invalid quantities fail validation rather than silently
+  producing bare land. Local opportunity relieves annual support only: it cannot rescue a zero
+  atmospheric habitat score, incompatible biome, confidence failure, terrain, or occupancy.
+  This annual-only guard does not establish seasonal persistence, root access, or water uptake.
 - Vegetation substrate `water01` is normalized effective-moisture availability, not waterlogging.
   Forest suitability retains its dry-side transition around `0.25..0.45`, then saturates rather than
   falling on wet land. Thermal suitability, aridity and cold stress, biomass, and fertility still

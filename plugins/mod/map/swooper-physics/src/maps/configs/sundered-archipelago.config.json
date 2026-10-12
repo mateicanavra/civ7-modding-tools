@@ -1011,7 +1011,8 @@
             "rainforestMinConfidence01": 0.22,
             "taigaMinConfidence01": 0.12,
             "savannaWoodlandMinConfidence01": 0.08,
-            "sagebrushSteppeMinConfidence01": 0.09
+            "sagebrushSteppeMinConfidence01": 0.09,
+            "sagebrushSteppeMinAnnualWaterOpportunityRatio": 0.1
           }
         }
       },

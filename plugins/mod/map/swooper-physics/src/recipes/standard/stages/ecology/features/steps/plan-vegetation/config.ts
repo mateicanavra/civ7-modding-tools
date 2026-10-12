@@ -20,6 +20,7 @@ export const config = defineStep({
     featureArtifacts.iceIntents,
     featureArtifacts.reefIntents,
     featureArtifacts.wetlandIntents,
+    climateArtifacts.climateField,
     climateArtifacts.climateIndices,
     hydrographyArtifacts.hydrography,
     morphologyLandformsArtifacts.mountains,

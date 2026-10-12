@@ -12,6 +12,9 @@ function broadHabitatFields(size: number) {
     surfaceTemperature: new Float32Array(size).fill(20),
     plantEffectiveMoisture: new Float32Array(size).fill(120),
     climaticAridityIndex: new Float32Array(size).fill(0.4),
+    precipitation: new Float32Array(size).fill(120),
+    pet: new Float32Array(size).fill(100),
+    localSurfaceWaterOpportunity: new Float32Array(size),
     vegetationDensity: new Float32Array(size).fill(0.35),
   };
 }
