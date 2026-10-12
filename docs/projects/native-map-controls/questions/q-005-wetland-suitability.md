@@ -532,6 +532,14 @@ does not validate the existing cover, but it also does not justify transferring
 a wetland floor, priority rule or absence requirement to sagebrush. Physical
 support and native stand meaning remain separate questions in both cases.
 
+The [post-yield desert census][desert-census] sharpens that distinction without
+selecting a wetland change. Sagebrush covers 95.77% of 5,177 flat desert cells,
+while all 175 feature-bare flat desert cells have precipitation at least as
+large as both annual-demand estimates and a median temperature of 1.62 degrees C.
+Many warmer, annually water-stressed desert sites remain covered. Category
+consistency and stand occurrence therefore need separate evidence. The proposed
+desert-admission guard in Q-002 is unqualified here; it neither establishes a
+sagebrush repair nor validates a shared occurrence floor.
 
 The [rainforest category witness][category-witness] shows why habitat support,
 family response and selection must remain distinct: changed local-water
@@ -544,6 +552,7 @@ stand question remains with [Q002][dryland-meaning].
 
 [category-witness]: q-002-ecological-prevalence.md#rainforest-habitat-is-not-a-native-feature-guarantee
 [dryland-meaning]: q-002-ecological-prevalence.md#flat-desert-is-not-necessarily-bare-desert
+[desert-census]: q-002-ecological-prevalence.md#desert-expansion-without-a-rainfall-change
 
 ## Original Paired Observations
 

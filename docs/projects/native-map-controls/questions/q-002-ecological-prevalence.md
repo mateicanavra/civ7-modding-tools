@@ -61,6 +61,8 @@ assessments:
   - claim: "The benchmark amendment intentionally tests whether the cohort exercises rainforest, not its abundance, distribution or Earth accuracy."
     state: "supported"
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts"
+  - claim: "A sealed fifteen-pair census finds desert expansion in every annual-yield pair under unchanged precipitation. All 1,226 common-ground additions have unchanged temperature, refined demand and atmospheric effective moisture but lower local-water opportunity. This identifies the retained expansion, not a fresh native census, Earth calibration or a qualified replacement classifier."
+    state: "supported"
 verification:
   - kind: source-inspection
     scope: "Source inspection confirms the ecology predicates and their unchanged numerical bounds; no benchmark or generation was run."
@@ -127,6 +129,16 @@ verification:
     revision: ce077ddf13dc8cbbed16c1071e2aac6fafddbb60
     date: '2026-10-12'
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/steps/plan-vegetation/step.ts"
+  - kind: source-inspection
+    scope: "Inspection confirms nonpolar biome selection uses plant moisture and stress, with no separate necessary water-limitation guard on desert. This describes the adopted owner, not qualification of the proposed guard or a new recipe execution."
+    revision: ce077ddf13dc8cbbed16c1071e2aac6fafddbb60
+    date: '2026-10-12'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/ops/classify-biomes/rules/classify.ts"
+  - kind: source-inspection
+    scope: "Inspection confirms atmospheric effective moisture, local plant-water opportunity and the regularized annual stress transform are separate published quantities. It does not establish seasonal sufficiency, root access or a calibrated desert boundary."
+    revision: ce077ddf13dc8cbbed16c1071e2aac6fafddbb60
+    date: '2026-10-12'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/climate/ops/compute-land-water-budget/strategies/pet-aridity/index.ts"
 ---
 
 # Q-002: Ecological Prevalence And Benchmark Authority
@@ -182,6 +194,73 @@ hydrological calibration and water-access question. [Resource composition and
 allocation][resource-composition] owns the accompanying fixed-obligation
 resource deterioration. Neither is a request to recover rainforest by restoring
 excess upstream yield or changing a resource writer.
+
+### Desert Expansion Without A Rainfall Change
+
+The retained maps are not uniformly almost all desert, but desert expands in
+**every one of the fifteen annual-yield pairs**. This is a census of thirty
+sealed captures of fifteen seeds, ten Huge and five Standard, not thirty
+independent maps or a newly generated cohort.
+
+| Population | Before Annual Yield | After Annual Yield |
+| --- | ---: | ---: |
+| Desert / exposed land, all fifteen | 7,726 / 32,561 (23.73%) | 9,074 / 32,827 (27.64%) |
+| Desert / exposed land, Huge 668178883 | 1,171 / 2,499 (46.86%) | 1,434 / 2,644 (54.24%) |
+
+Exposed land excludes lakes and external water but includes mountains and
+navigable channels. The post-yield per-map shares range from 9.22% to 54.24%;
+every map retains all five projected land-biome categories. Category presence
+alone does not establish satisfactory balance or the appearance of a particular
+neighborhood. The retained completed-generation log records the same Huge seed.
+It is not a loaded-world census or visual confirmation of the player's view.
+
+All paired precipitation fields are unchanged. Among the 32,494 cells exposed
+in both captures, 1,226 become desert and 23 cease to be desert. Every addition
+has identical final temperature, refined demand and atmospheric effective
+moisture, but lower local annual surface-water opportunity and higher plant
+stress. Another 145 desert cells are newly exposed; no former desert becomes
+wet. The net increase therefore closes as `1,226 - 23 + 145 = 1,348`.
+This locates the increase in local-water support, exposure and downstream
+classification, not a newly reduced rainfall field. It does not validate the
+inherited climate or make every desert classification erroneous.
+
+The [biome classifier][desert-classifier] can assign nonpolar desert whenever
+plant moisture `M < 90`, regardless of how small annual demand is. This branch
+accounts for 8,981 of 9,074 post-yield desert cells. Across all desert cells,
+2,694 have precipitation at least as large as refined annual demand. Low
+absolute supply and relative water limitation are therefore not interchangeable
+inside this model. These are uncalibrated indices, not Earth rainfall units or
+evidence that every annually sufficient site should support forest.
+
+The Huge outlier retains a different burden: only 201 of its 1,434 desert cells
+have precipitation at least as large as refined demand. Most still have a
+modeled annual deficit. A category-consistency correction cannot, by itself,
+claim to solve that warm, dry landscape or establish whether its rainfall and
+demand are appropriate.
+
+#### A Water-Limitation Guard Is A Candidate, Not A Result
+
+The proposed Ecology-only guard would require published plant-water stress
+`S > 0.5` when the existing nonpolar calculation otherwise selects desert.
+Under the [existing transform][desert-water-indices],
+`S = D / (D + P + O + 1)`, where `O` is local annual water opportunity, this
+requires demand to exceed precipitation plus opportunity and the one-unit
+regularizer. The boundary is derived from that transform, not fitted to a
+desired desert percentage or established as an Earth aridity threshold.
+
+Where the guard rejects desert, the proposal uses the existing thermal-appropriate
+open class: cold tundra, temperate dry or tropical seasonal, not direct promotion
+to forest. It retains the intended distinction between regional atmospheric
+climate and locally supported plant habitat. Its scope excludes rainfall,
+potential-demand and hydrology changes, vegetation occurrence policy and count
+quotas. **No accepted or deployed repair is established by this census.**
+
+A meaningful qualification would distinguish removal of the low-demand bypass
+from damage to existing locally supported habitat, unchanged classes or upstream
+fields. Full-chain feature and resource consequences would remain separate from
+a held-input classifier comparison. Annual opportunity does not establish
+seasonal survival or delivered root water, and a corrected category need not
+resolve the [stand-occurrence question][dryland-occurrence].
 
 ### Rainforest Habitat Is Not A Native Feature Guarantee
 
@@ -264,6 +343,9 @@ feature, resource or start outcome.
 [occurrence-meaning]: q-005-wetland-suitability.md#habitat-meaning-remains-open
 [annual-supply]: q-009-annual-water-yield.md
 [resource-composition]: q-010-resource-composition.md
+[desert-classifier]: https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/ops/classify-biomes/rules/classify.ts
+[desert-water-indices]: https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/climate/ops/compute-land-water-budget/strategies/pet-aridity/index.ts
+[dryland-occurrence]: #flat-desert-is-not-necessarily-bare-desert
 
 ## Seasonal-Thermal Recovery And Its Limits
 
@@ -396,6 +478,17 @@ receive Rainforest. This is ordered accounting, not a prediction that changing
 one gate would turn every excluded humid cell into rainforest.
 
 ### Flat Desert Is Not Necessarily Bare Desert
+
+The [post-yield census](#desert-expansion-without-a-rainfall-change) makes the
+category/cover distinction concrete: 4,958 of 5,177 flat desert cells carry
+sagebrush (95.77%), 175 are feature-bare and 44 carry minor floodplain. All 175
+bare cells have precipitation at least as large as both baseline and refined
+annual demand; their median annual temperature is 1.62 degrees C. Meanwhile,
+3,634 sagebrush-covered flat desert cells have precipitation below refined
+demand, and 2,278 have zero local-water opportunity. Thus bare ground is not
+identifying the most annually water-limited subset, and broad shrub cover is
+not explained by lakes alone. These are retained headless categories and
+features, not measured canopy cover or current native appearance.
 
 A native DESERT label compresses several physical regimes into one game
 category. It is not a measured Earth aridity class. Likewise, annual modeled
@@ -989,6 +1082,28 @@ eight of 195 and four of 196 intents, as detailed in [Q-010][resource-compositio
 Missing shared game-instance correlation prevents formal native parity, and
 pixel QA is unavailable. These bounded findings support adoption without
 establishing visual quality, resource sufficiency or ecological abundance.
+
+### Desert Census Provenance
+
+The later desert audit reuses thirty sealed captures: the fifteen seasonal
+outputs at `acf3ba936977fa36342eb0c645a7d9bf0675e6d5` and their fifteen annual-yield
+counterparts at `f20085808332b5051971dd465e189e834daaa5d4`. Every capture hash
+matches its completed receipt. Twelve interpretation owners at reviewed ce077dd
+are byte-equal to both producer revisions; the adopted e73bbbd5 tree remains
+the same reviewed tree. The audit reuses existing classifier helpers to check
+categories, with zero recipe executions and zero native calls.
+
+| Retained Desert Evidence | SHA-256 |
+| --- | --- |
+| Census receipt | `a2cfac113c65747ff582fe86211d6807036f11de2164b7f6fbddd2efa0e21263` |
+| Counts, intersections and paired attribution | `aef2d7d5b16dda3028e807c873663d497ff17f4996078693988269dd44c6f134` |
+| Interpretation report | `902abce62db1931e6c6f08d7a363f9c0ee7daf0e186147297d1138cf13f14c68` |
+| Read-only reducer | `aa0d33a2081c9baa6f8bc6f0dcbce0ac3d12bd6c6389b4d177c57e595943618a` |
+
+The separate last-completed-log finding does not supply the unavailable fresh
+world observation. Neither that finding nor this census changes the annual-yield
+arithmetic qualification into whole-biome qualification, or supplies a passing
+result for the proposed water-limitation guard.
 
 [identity-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/identities.ts
 [ecology-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts
