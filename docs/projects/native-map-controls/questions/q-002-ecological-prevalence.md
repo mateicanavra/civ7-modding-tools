@@ -48,6 +48,8 @@ assessments:
     state: "supported"
   - claim: "One matched Huge native pair reproduces the first qualified case's river classes and feature-application aggregates, including Rainforest 45 to 50. Native resource shortfalls remain 11 and 12 refusals; bounded observations do not establish a complete native census, per-start resource support, vessel passage or calibrated ecology."
     state: "supported"
+  - claim: "The whole-land census of the same fifteen adopted-equivalent captures contains 1,233 rainforest-biome cells and 248 Rainforest features on 32,561 exposed cells. Of 4,314 flat desert cells, 4,071 carry sagebrush and only 153 are feature-bare. Complete placement within admitted habitat does not establish sufficient habitat extent or overall biome diversity."
+    state: "supported"
 verification:
   - kind: source-inspection
     scope: "Source inspection confirms the ecology predicates and their unchanged numerical bounds; no benchmark or generation was run."
@@ -94,6 +96,16 @@ verification:
     revision: 9f425885815ba314b8304bc414122c2dd769217c
     date: '2026-10-12'
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/9f425885815ba314b8304bc414122c2dd769217c/plugins/mod/map/swooper-physics/test/maps/map-config-schema.test.ts#L356-L367"
+  - kind: source-inspection
+    scope: "The cooling-production source already contains the eight-Standard Earthlike ecology study. This confirms the preexisting cohort definition, not execution or a passing result; its omission is established separately by retained qualification manifests."
+    revision: 6c5c8a82e7d36c17371699104ec58b3830f0e06d
+    date: '2026-10-12'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/6c5c8a82e7d36c17371699104ec58b3830f0e06d/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/earthlike-ecology.study.ts#L10-L31"
+  - kind: source-inspection
+    scope: "The existing ecology target requires rainforest presence on every representative map by comparing presence count with cohort size. Source inspection does not establish a result for the omitted ecology cohort or turn presence into a calibrated abundance criterion."
+    revision: 6c5c8a82e7d36c17371699104ec58b3830f0e06d
+    date: '2026-10-12'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/6c5c8a82e7d36c17371699104ec58b3830f0e06d/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts#L181-L186"
 ---
 
 # Q-002: Ecological Prevalence And Benchmark Authority
@@ -113,9 +125,10 @@ bound have a justified purpose, population, denominator and allowance for
 variability? Confusing those supports could reward implausible coverage or
 reject a coherent map, but neither consequence has been demonstrated here.
 
-The [rainforest comparison below](#rainforest-habitat-and-feature-occupancy)
-shows why the denominator matters: suitable modeled habitat and visible
-Rainforest features are different populations. Its open
+The [whole-land census below](#whole-land-habitat-and-feature-coverage)
+shows why the denominator matters: filling the available rainforest slots does
+not establish that enough habitat exists, and extensive desert classification
+does not imply extensive bare desert surface. The open
 [mangrove occurrence question][occurrence] concerns which feature occupies a
 qualifying site, not how to meet a rainforest quota.
 
@@ -158,6 +171,14 @@ each appear in at least six of eight. The 65% representative and 70% cohort
 rainforest ceilings have different sample supports and are not automatically
 contradictory.
 
+The earlier stronger-cooling qualification covered climate and placement
+studies but omitted this
+[existing eight-Standard ecology study][cooling-ecology-study]. Those passes
+therefore do not establish its vegetation-diversity requirements, including
+[rainforest presence on every map][cooling-rainforest-presence]. This is a
+qualification-coverage gap, not a reported failed ecology run. The separate
+fifteen-case census below is not a substitute result for this different cohort.
+
 ### Cold Reefs Across Eight Huge Maps
 
 The [cold-reef cohort][cold-reef-protocol] uses the same eight seeds at Huge
@@ -190,6 +211,54 @@ A habitat-conditioned comparison could distinguish those explanations. It
 would still need evidence supporting its numerical bound: changing the
 denominator alone does not turn a product assumption into an Earth-calibrated
 law.
+
+### Whole-Land Habitat And Feature Coverage
+
+**Complete placement within admitted habitat is not the same as adequate
+whole-land abundance or diversity.** The census re-examines the same fifteen
+adopted-equivalent captures: ten Huge and five Standard maps, stronger cooling
+and major-river percentile 0.95. It adds no map generation. Its denominator is
+all 32,561 exposed cells, including navigable terrain but excluding finite lakes
+and external ocean, rather than only the sites that qualify for a feature.
+
+| Current Outcome | Cells | Share Of All Exposed Cells |
+| --- | ---: | ---: |
+| Rainforest-biome habitat | 1,233 | 3.787% |
+| Rainforest features | 248 | 0.762% |
+| Desert-biome habitat | 7,726 | 23.728% |
+| Flat desert terrain | 4,314 | 13.249% |
+| Feature-bare flat desert | 153 | 0.470% |
+
+These rows overlap; they are not an additive partition. All are headless
+outcomes, not a new native census. There are 6,594 cells in the classifier's
+current adjusted-humid categories, but 5,361 are outside its tropical thermal
+category. Among the 1,233 rainforest-biome cells, geometry leaves 864 flat
+sites; earlier mangrove and minor floodplain occupy 616, leaving the 248 that
+receive Rainforest. This is ordered accounting, not a prediction that changing
+one gate would turn every excluded humid cell into rainforest.
+
+#### Flat Desert Is Not Necessarily Bare Desert
+
+The 4,314 flat desert cells divide into 4,071 sagebrush, 153 feature-bare,
+89 minor desert floodplain and one oasis. Sagebrush occupies 94.367% of flat
+desert. In the first Huge case, 332 flat desert cells contain 324 sagebrush,
+four bare and four minor floodplain. Bare surface is scarce even where the
+desert biome itself is extensive.
+
+The remaining bare cells are not a representative warm-desert population:
+127 belong to the model's cold thermal category and 26 to its temperate category;
+their maximum captured annual temperature is 7.043 degrees C. These categories
+are model outputs, not validated Earth climate classes. Feature-bare does not
+mean resource-free: only 132 of the 153 also lack a resource. Neither the
+feature names nor these headless counts establish the live map's appearance.
+
+The unresolved outcomes therefore have different mechanisms: rainforest habitat
+admission is distinct from the near-blanket feature coverage of flat desert.
+The [adopted river choice](#current-cooling-qualification-and-adoption) is a
+partial surface-capacity improvement, not resolution of either question.
+Earth observations can inform sensible distributions across a varied cohort
+without requiring each generated map to reproduce Earth's proportions. This
+census identifies contractions; it selects neither a target count nor a repair.
 
 ### Rainforest Habitat And Feature Occupancy
 
@@ -486,6 +555,36 @@ identities are not public reproduction downloads or whole-question verification.
 | Independent native review | `bb988928fa5187d87d2758d5d90fc09925ed8f0d1b300a934b29b27d8bea3e7c` |
 | Completed source-adoption closure | `f74db85f007b6cdbbe676efd2884b8ec461ed7a4ae97f39a6abbdeda6fc0f72c` |
 
+### Whole-Land Census And Qualification Coverage
+
+The whole-land census is a new reduction of 45 retained captures, not 45 new
+maps: fifteen current 0.95 cases, fifteen previous-lapse A controls and fifteen
+stronger-cooling 0.92 B controls. The current table uses only the fifteen
+adopted-equivalent cases and all their exposed cells. Source capture is
+`fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1`; owner replay uses
+`dde45a82982270d183d59831bd2f7afee42232cb` after checking owner-file identity
+against the capture source. The retained census reports exact classifier,
+density, substrate and rainforest-score replay plus surface-partition checks.
+This editorial account inspects its stored results without repeating those
+replays. No new generation or native observation is added.
+
+The earlier cooling-production qualification at
+`6c5c8a82e7d36c17371699104ec58b3830f0e06d` has a different scope: four
+climate-structure cases and twenty placement cases. Its manifest and receipt
+record those 24 captures, not the eight-Standard ecology study. Climate coverage
+included climate/biome structure and placement included resources, but neither
+substitutes for the omitted ecology study. This limitation does not change the
+reported results of the studies that ran, and it is separate from the later
+fifteen-case NAV qualification.
+
+| Retained Census And Coverage Evidence | SHA-256 |
+| --- | --- |
+| Whole-land census report | `ad86184a16f1068152c776bd6ffb4f7d908e1be7b576bf41a697d7e51e251057` |
+| Census reduction receipt | `72df0d415ad859c0385223270232bcb224637cf194b7b3c90be35dfc37eefefa` |
+| Whole-land and per-map analysis | `cd09500af47d03247392aa0e7c30b5beafa2c681685902dee49035db4f49056b` |
+| Earlier cooling-production study manifest | `762481ff1dbfad2ee3aa0aee5ee0caa7ee2356e54fa659229702ac131bfe219e` |
+| Earlier cooling-production execution receipt | `54d47c2893055cce41d64ccff70018e23aa7120e9290923eb6fdf1b51fc2a7a0` |
+
 [identity-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/identities.ts
 [ecology-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts
 [study-policy]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/STUDIES.md
@@ -508,3 +607,5 @@ identities are not public reproduction downloads or whole-question verification.
 [adopted-river-config]: https://github.com/mateicanavra/civ7-modding-tools/blob/9f425885815ba314b8304bc414122c2dd769217c/plugins/mod/map/swooper-physics/src/maps/configs/swooper-earthlike.config.json
 [adopted-river-meaning]: https://github.com/mateicanavra/civ7-modding-tools/blob/9f425885815ba314b8304bc414122c2dd769217c/docs/system/libs/mapgen/reference/domains/HYDROLOGY.md
 [adopted-river-test]: https://github.com/mateicanavra/civ7-modding-tools/blob/9f425885815ba314b8304bc414122c2dd769217c/plugins/mod/map/swooper-physics/test/maps/map-config-schema.test.ts#L356-L367
+[cooling-ecology-study]: https://github.com/mateicanavra/civ7-modding-tools/blob/6c5c8a82e7d36c17371699104ec58b3830f0e06d/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/earthlike-ecology.study.ts#L10-L31
+[cooling-rainforest-presence]: https://github.com/mateicanavra/civ7-modding-tools/blob/6c5c8a82e7d36c17371699104ec58b3830f0e06d/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts#L181-L186

@@ -144,8 +144,10 @@ chronology, not generated-map reachability, a required vegetation difference
 or a cause of scarcity. A separate single-case recapture establishes real
 atmospheric seasonal exposure, but all positive-gap rainforest cells have annual
 local-water support of unknown seasonal persistence and all free lawful slots
-already place. The bounded review retains the annual model; neither a seasonal
-classifier change nor calibrated ecology is established.
+already place. That atmospheric-water challenger does not establish a classifier
+change; it does not validate annual tropical thermal admission or whole-land
+diversity. The separate cold-season thermal alternative remains unqualified and
+unshipped, not resolved by the water finding.
 [Read the research question](questions/q-007-biome-transition-meaning.md).
 
 ### Ecology / Features / Score Layers
@@ -224,6 +226,11 @@ feature capacity, fewer navigable corridors, unchanged captured physical water
 and habitat. Native resource refusals remain visible. The synthetic profiles,
 single seasonal recapture, fifteen-case qualification and native pair retain
 distinct populations; none turns these counts into ecological calibration.
+The whole-land census separates narrow rainforest habitat from near-blanket
+sagebrush coverage of flat desert. Filling admitted slots does not establish
+sufficient abundance or diversity. The earlier cooling qualification omitted
+the existing eight-Standard ecology study; climate and placement passes do not
+establish that different cohort's vegetation requirements.
 [Read the research question](questions/q-002-ecological-prevalence.md).
 
 ### Benchmark Authority / Relief And Orogeny

@@ -37,7 +37,7 @@ assessments:
     state: "supported"
   - claim: "A seasonal summary or broader humid-forest classification is necessary and has a supported producer-reachable benefit over an accurately described annual proxy."
     state: "unassessed"
-  - claim: "One existing-case recapture establishes producer-reachable atmospheric seasonal exposure, but not a justified classifier change: all 21 positive-gap rainforest-biome cells have annual local-water support of unknown seasonal persistence, and all ten free lawful rainforest slots already place. The annual model is retained without ecological calibration."
+  - claim: "One existing-case recapture establishes producer-reachable atmospheric seasonal exposure, but not a justified classifier change: all 21 positive-gap rainforest-biome cells have annual local-water support of unknown seasonal persistence, and all ten free lawful rainforest slots already place. Annual behavior was retained against that seasonal-water challenger, not validated for tropical thermal admission or whole-land biome diversity."
     state: "supported"
 verification:
   - kind: source-inspection
@@ -229,11 +229,12 @@ feature counts are not synonyms.
 
 ### One Generated Witness, No Established Classifier Change
 
-**The annual model is retained.** A separate observation of one generated map
-establishes that the producer creates seasonal atmospheric exposure, but not
-that this exposure justifies changing the habitat decision. It recaptures an
-existing Standard case under stronger cooling and the reviewed 0.92 major-river
-setting, not another synthetic profile or a new seed population.
+**The seasonal-water challenger does not establish a classifier change.**
+A separate observation of one generated map establishes that the producer
+creates seasonal atmospheric exposure, but not that this exposure justifies
+changing the habitat decision. It recaptures an existing Standard case under
+stronger cooling and the reviewed 0.92 major-river setting, not another synthetic
+profile or a new seed population.
 
 The observation retains 24 chronological phases. Its `gap` is the weighted
 positive difference between baseline atmospheric demand and precipitation,
@@ -267,13 +268,40 @@ site has a gap of 0.27992 and a run of 8/24, alongside annual local-water suppor
 of 576.09. Those model-unit observations do not assign ecological severity or
 prove that the vegetation is misplaced.
 
-The bounded review retains the annual model without erasing the information
-limitation. It neither establishes that seasonality never matters
-nor validates calibrated rainforest ecology. The natural contrasts do not
-reproduce the three synthetic histories or hold their annual inputs identical.
+The bounded review retains annual behavior against this atmospheric-water
+challenger without erasing the information limitation. It neither validates
+the annual tropical thermal gate nor establishes that seasonality never matters.
+The natural contrasts do not reproduce the three synthetic histories or hold
+their annual inputs identical.
 The separate [river-representation qualification][current-river-choice] changes
 available surface without changing this annual classification; its feature
 gains are not evidence for a seasonal habitat repair.
+
+The [whole-land census][whole-land-coverage] also shows why filling all free
+lawful slots is not an adequacy test for the world. It conditions on the habitat
+already admitted, leaving its extent and the resulting biome diversity open.
+
+### Persistent Warmth Is A Separate Question
+
+Seasonal water availability and persistent tropical warmth are different
+questions. The synthetic water probe holds temperature constant, while the
+generated water witness examines atmospheric shortfalls and uncertain local-water
+persistence. Neither establishes that annual mean temperature is an adequate
+substitute for the cold part of the temperature cycle.
+
+The separate thermal alternative is a Hydrology-owned **minimum circular
+one-twelfth-cycle mean** from the existing periodic temperature curve: the
+coldest month-like interval, not its coldest sampled instant or one chosen
+permanent season. The initial 18 degrees C criterion is informed by the
+[Koppen-Geiger tropical criterion][peel], but remains a provisional model
+choice, not a universal physiological boundary. Its scope is tropical admission
+rather than a change to annual climate, water or vegetation density. The annual
+moisture policy remains distinct from a full seasonal rainforest classification.
+
+This alternative is authorized for implementation but **unqualified and
+unshipped**. A proposed distinction and higher potential counts do not establish
+useful recovery in generated worlds or acceptable downstream consequences.
+The closed water challenger is not a closure of this thermal question.
 
 ### Why This Is Not Another Score Repair
 
@@ -354,16 +382,20 @@ Removing the adjustment, widening its guard or substituting local plant water
 would change policy, not repair a demonstrated wiring error. More rainforest
 alone would not justify any of those choices.
 
-A narrower annual hot/wet proxy, described accurately, remains a credible
-game-scale model. A broader humid-forest interpretation or additional seasonal
-evidence would need to preserve a useful physical or gameplay distinction,
-with producer-reachable support and a defensible downstream consequence. The
-single generated witness establishes exposure, not that consequence. Warm
+A narrower annual hot/wet proxy, described accurately, remains a comparator,
+not a validated account of persistent tropical warmth. A broader humid-forest
+interpretation or additional seasonal evidence would need to preserve a useful
+physical or gameplay distinction, with producer-reachable support and a
+defensible downstream consequence. The single generated witness establishes
+exposure, not that consequence. Warm
 aseasonal forest, cooler humid forest, seasonally dry tropical land and temperate
-wet land are candidate contrasts,
-not newly established classification outcomes. No new seasonal field, soil-water
-model, threshold or production behavior is selected here. The design question
-is which distinction earns representation, not how to raise rainforest counts.
+wet land are candidate contrasts, not newly established classification outcomes.
+The seasonal-thermal alternative
+above is not yet a qualified production change, and it does not select a
+seasonal soil-water model. The design question is which distinction earns
+representation and produces useful whole-land outcomes. Raising rainforest
+counts alone is insufficient, but complete placement inside a narrow admitted
+population is not evidence of an adequate world either.
 
 Retention would be challenged by a same-input violation under a shipped
 configuration, an explicit rejection of the joint-envelope meaning, or evidence
@@ -458,6 +490,16 @@ member to the separate fifteen-case river qualification.
 | Ordered placement reconciliation | `5dae3cbf7ebb4b6cf5a790222bf329aa5c0aebb24e542e641db029a68a174b52` |
 | Retained-model closure | `45e0581abe56358fb30e23a631c675012aa0ebace717dff504593fc7558e8c81` |
 
+The separate seasonal-thermal alternative has a predeclared definition, not a
+qualification result. Its retained identity below supports the stated proposal
+scope only. It adds no generated population, validated recovery or adopted
+behavior to this sheet. The water-witness closure above is not evidence for
+accepting or rejecting that different thermal mechanism.
+
+| Candidate Definition, Not Outcome | SHA-256 |
+| --- | --- |
+| Seasonal-thermal scope and provisional criterion | `4e12737019d8f5733bd6dcc05296c51e6a1511542ba8369f5002f4db1034af33` |
+
 [step]: https://github.com/mateicanavra/civ7-modding-tools/blob/ae8fc94d790a769fb45c60584e47304f69f53a93/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/biomes/steps/biomes/step.ts#L21-L41
 [transition]: https://github.com/mateicanavra/civ7-modding-tools/blob/ae8fc94d790a769fb45c60584e47304f69f53a93/plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/ops/classify-biomes/rules/classify.ts#L66-L100
 [ecology-meaning]: https://github.com/mateicanavra/civ7-modding-tools/blob/ae8fc94d790a769fb45c60584e47304f69f53a93/docs/system/libs/mapgen/reference/domains/ECOLOGY.md#config-posture
@@ -480,6 +522,7 @@ member to the separate fifteen-case river qualification.
 [rainforest-population]: q-002-ecological-prevalence.md#rainforest-habitat-and-feature-occupancy
 [mangrove-retention]: q-005-wetland-suitability.md#when-suitability-reserves-the-only-feature-slot
 [current-river-choice]: q-002-ecological-prevalence.md#current-cooling-qualification-and-adoption
+[whole-land-coverage]: q-002-ecological-prevalence.md#whole-land-habitat-and-feature-coverage
 [peel]: https://hess.copernicus.org/articles/11/1633/2007/hess-11-1633-2007.pdf
 [fao-zones]: https://www.fao.org/4/ap861e/ap861e00.pdf
 [lugo]: https://data.fs.usda.gov/research/pubs/iitf/ja_iitf_1999_lugo002.pdf
