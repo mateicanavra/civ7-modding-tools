@@ -185,6 +185,8 @@ and averages demand, rather than applying a nonlinear temperature law to an
 annual temperature mean. Refinement reuses the same parameters with its later
 temperature/surface-wetness forcing. `computeLandWaterBudget` consumes that demand
 and owns effective moisture and aridity; it does not own another PET law.
+`computeLocalRunoff` consumes baseline annual P and this same-vintage mean seasonal
+demand to approximate dry-ground annual yield; it never substitutes refined demand.
 Invocation-local demand retains double precision until aridity is computed,
 while published climate arrays remain Float32. Demand uses empirical rainfall
 index units, not calibrated open-water evaporation or a depth-storage rate.
@@ -273,10 +275,20 @@ The Standard recipe uses operation contracts such as:
 - `computeCryosphereState`, `applyAlbedoFeedback`
 
 The single Standard `network` step orchestrates the bound operations;
-operations do not call one another. It uses attributed Number-precision local runoff, exact basin
+operations do not call one another. It uses annual Number-precision dry-ground water yield, exact basin
 geometry, baseline float P/seasonal demand, and whole-body conservation before publishing
 consistent hydrography, lake, and river-network products. An unsupported result
 publishes no partial authoritative network.
+
+The sole `annual-water-yield` runoff strategy uses the fixed Turc-Pike partition:
+approximate actual ET is `E=P*D/hypot(P,D)` and dry yield is `Q=P-E`, with zero
+yield at zero precipitation and `Q=P` at zero demand. The implementation evaluates
+an algebraically rationalized Q to retain tiny positive water-limited yield.
+E is bounded by both water and energy availability; no extra infiltration or
+surface-wetness loss is stacked onto it. The basin replaces dry Q with wet P-D
+on its resolved wet footprint, rather than debiting demand a second time.
+This is a long-term empirical partition in rainfall-index-equivalent units, not
+storm runoff, seasonal soil storage, groundwater travel or calibrated Earth ET.
 
 River projection is not a second physical model. Authored projection preserves every
 classified dry source and receiver, rejecting blocked or invalid intent instead
@@ -298,6 +310,10 @@ Core's closed empty surface, not a redundant projection identity. All shipped pr
 use these contracts; lake count, area and singleton quotas are not physical
 inputs. Retired solver/projection identities and their controls are rejected
 by the owning schemas, not migrated into new physical coefficients.
+The runoff envelope has an empty closed config. Its old `precipitation-attributed`
+strategy and runoff-local `infiltrationFraction`/`humidityDampening` controls are
+refused, not translated or silently ignored. The climate demand calibration's
+separate `humidityDampening` remains active at its original owner.
 
 Earthlike authors minor/major discharge percentiles of `0.74/0.95`; its
 `normal` river-density posture preserves those values. The major selector

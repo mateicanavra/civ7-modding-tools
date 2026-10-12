@@ -24,7 +24,7 @@ const ComputeLandWaterBudgetContract = defineOp({
       elevation: TypedArraySchemas.i16({ description: "Sealed ground in the same datum as finite-body heads." }),
       componentId: TypedArraySchemas.i32({ description: "Hydraulic component membership; zero denotes ordinary dry reaches." }),
       discharge: Type.Array(Type.Number({ minimum: 0 }), { description: "Number-precision ordinary dry-edge flux per tile." }),
-      runoff: Type.Array(Type.Number({ minimum: 0 }), { description: "Number-precision local precipitation-attributed runoff per tile." }),
+      runoff: Type.Array(Type.Number({ minimum: 0 }), { description: "Number-precision approximate annual dry-ground water yield per tile." }),
       bodies: Type.Array(BasinWetBodySchema, { description: "Complete strict finite wet bodies and their annual input ledgers." }),
       /** Unclipped finite nonnegative atmospheric precipitation. */
       precipitation: TypedArraySchemas.f32({ description: "Finite nonnegative atmospheric precipitation in rainfall-index units." }),

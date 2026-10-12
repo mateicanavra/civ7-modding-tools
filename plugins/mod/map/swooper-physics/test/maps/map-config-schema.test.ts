@@ -717,6 +717,19 @@ describe("Shipped map configs", () => {
           ...waterStage, water: { ...waterStage.water, model: "legacy-sink-budget" },
         } },
       })).toThrow();
+      const runoff = waterStage.water.computeLocalRunoff;
+      for (const obsolete of [
+        { strategy: "precipitation-attributed", config: {} },
+        { ...runoff, config: { infiltrationFraction: .15 } },
+        { ...runoff, config: { humidityDampening: .25 } },
+      ]) {
+        expect(() => admitStandardMapConfig({
+          ...raw,
+          config: { ...raw.config, "hydrology-hydrography": {
+            ...waterStage, water: { ...waterStage.water, computeLocalRunoff: obsolete },
+          } },
+        })).toThrow();
+      }
     }
   });
 

@@ -62,10 +62,14 @@ Learn: [terrain-routing and depressions](https://esurf.copernicus.org/articles/8
 
 ### Local Runoff
 
-Water supplied locally to drainage after modeled losses. Our strategy scales
-rainfall by infiltration and humidity-dependent dampening. It connects climate
-to river supply, but does not simulate groundwater travel or storm timing.
-[Runoff computation](../../../../../../plugins/mod/map/swooper-physics/src/domain/hydrology/modules/hydrography/ops/compute-local-runoff/strategies/precipitation-attributed/index.ts).
+Approximate annual dry-ground water yield supplied locally to drainage. Our
+fixed Turc-Pike partition uses baseline precipitation P and its same-vintage
+mean seasonal evaporative demand D: actual ET is limited by both water and energy,
+and remaining precipitation becomes yield. It does not add separate infiltration
+or humidity losses. The basin substitutes wet P-D where it resolves standing
+water. These are empirical index units, not measured water depth; storm timing,
+seasonal storage and groundwater travel are absent.
+[Runoff computation](../../../../../../plugins/mod/map/swooper-physics/src/domain/hydrology/modules/hydrography/ops/compute-local-runoff/strategies/annual-water-yield/index.ts).
 Learn: [USGS surface runoff](https://www.usgs.gov/water-science-school/science/surface-runoff-and-water-cycle).
 
 ### Discharge And Lake Water Budget
