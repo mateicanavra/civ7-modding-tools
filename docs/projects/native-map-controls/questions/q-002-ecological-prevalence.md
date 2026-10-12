@@ -63,6 +63,8 @@ assessments:
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts"
   - claim: "A sealed fifteen-pair census finds desert expansion in every annual-yield pair under unchanged precipitation. All 1,226 common-ground additions have unchanged temperature, refined demand and atmospheric effective moisture but lower local-water opportunity. This identifies the retained expansion, not a fresh native census, Earth calibration or a qualified replacement classifier."
     state: "supported"
+  - claim: "The e5dbd836 water-limitation screen has scoped offline qualification on fifteen complete recipes: 3,576 incumbent desert cells change to existing open categories while 1,095 captured-field comparisons hold. This does not establish native acceptance, adoption, calibrated desert severity or improved bare-versus-shrub diversity; all 3,102 surviving flat desert cells still carry a feature."
+    state: "supported"
 verification:
   - kind: source-inspection
     scope: "Source inspection confirms the ecology predicates and their unchanged numerical bounds; no benchmark or generation was run."
@@ -139,6 +141,11 @@ verification:
     revision: ce077ddf13dc8cbbed16c1071e2aac6fafddbb60
     date: '2026-10-12'
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/climate/ops/compute-land-water-budget/strategies/pet-aridity/index.ts"
+  - kind: source-inspection
+    scope: "Inspection of frozen e5dbd836 confirms the nonpolar incumbent-desert screen uses published plant stress greater than 0.5 and otherwise selects the existing semiArid class for the same thermal zone. The retained full-recipe result is separate evidence; inspection does not establish native loading, adoption or ecological calibration."
+    revision: e5dbd83655f1f7f8f7ed2a1e76c80603df1b3313
+    date: '2026-10-12'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/e5dbd83655f1f7f8f7ed2a1e76c80603df1b3313/plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/ops/classify-biomes/rules/classify.ts"
 ---
 
 # Q-002: Ecological Prevalence And Benchmark Authority
@@ -238,29 +245,108 @@ modeled annual deficit. A category-consistency correction cannot, by itself,
 claim to solve that warm, dry landscape or establish whether its rainfall and
 demand are appropriate.
 
-#### A Water-Limitation Guard Is A Candidate, Not A Result
+#### A Necessary Water-Limitation Screen
 
-The proposed Ecology-only guard would require published plant-water stress
+The [frozen candidate][desert-screen] requires published plant-water stress
 `S > 0.5` when the existing nonpolar calculation otherwise selects desert.
 Under the [existing transform][desert-water-indices],
-`S = D / (D + P + O + 1)`, where `O` is local annual water opportunity, this
-requires demand to exceed precipitation plus opportunity and the one-unit
-regularizer. The boundary is derived from that transform, not fitted to a
-desired desert percentage or established as an Earth aridity threshold.
+`S = D / (D + P + O + 1)`, `D` is annual demand, `P` precipitation and `O`
+local annual water opportunity. Before output rounding, the boundary is
+`D > P + O + 1`: demand exceeds modeled supply and the one-unit regularizer.
+The classifier compares the published Float32 stress, not an exact inverse
+reconstructed from separately rounded fields. This is a necessary consistency
+screen within the model, not an Earth-calibrated desert-severity threshold.
 
-Where the guard rejects desert, the proposal uses the existing thermal-appropriate
-open class: cold tundra, temperate dry or tropical seasonal, not direct promotion
-to forest. It retains the intended distinction between regional atmospheric
-climate and locally supported plant habitat. Its scope excludes rainfall,
-potential-demand and hydrology changes, vegetation occurrence policy and count
-quotas. **No accepted or deployed repair is established by this census.**
+Rejected desert cells use the existing open class for their thermal zone:
+cold tundra, temperate dry or tropical seasonal, not direct promotion to forest.
+The screen retains locally supported plant-habitat meaning without changing
+rainfall, demand, hydrology, vegetation occurrence policy or count quotas.
+Annual opportunity still does not establish seasonal survival or delivered
+root water.
 
-A meaningful qualification would distinguish removal of the low-demand bypass
-from damage to existing locally supported habitat, unchanged classes or upstream
-fields. Full-chain feature and resource consequences would remain separate from
-a held-input classifier comparison. Annual opportunity does not establish
-seasonal survival or delivered root water, and a corrected category need not
-resolve the [stand-occurrence question][dryland-occurrence].
+#### Offline Qualification Does Not Establish Ecological Adequacy
+
+At frozen source `e5dbd83655f1f7f8f7ed2a1e76c80603df1b3313`, fifteen complete
+candidate recipes reproduce the independent prospective category oracle.
+These are the same ten Huge and five Standard cases, compared with retained
+post-yield baselines, not a new seed sample or baseline rerun.
+
+| Same Fifteen Recipes | Before Screen | After Screen |
+| --- | ---: | ---: |
+| Desert / unchanged exposed land | 9,074 / 32,827 (27.64%) | 5,498 / 32,827 (16.75%) |
+| Sagebrush features | 4,958 | 3,079 |
+| Taiga features | 5,003 | 5,338 |
+| Savanna features | 352 | 379 |
+| Forest / Rainforest features | 2,521 / 459 | 2,521 / 459 |
+| Headless resource placements | 3,112 | 3,186 |
+
+All 3,576 category changes are incumbent desert becoming 730 tundra, 2,785
+temperate-dry and 61 tropical-seasonal cells. Other model categories hold.
+Independent review recomputes 1,095 exact comparisons, 73 per map, across the
+captured fields: climate, demand, local opportunity, relief, water, river
+hierarchy and vegetation density remain unchanged. These are comparison checks,
+not 1,095 distinct fields. The real operation wrapper, permafrost input and
+treeline publication execute in the complete recipes; the omitted retained
+permafrost/treeline fields are not independently compared bit for bit.
+
+Final terrain holds, but 2,081 feature cells and 1,352 resource cells differ.
+The resource total does not imply an increase on every map or sufficient
+composition. All 140 modeled starts remain seated and legal, 138 have the
+modeled freshwater relation, and all 95 requested wonders place. Start
+positions, resource composition and some wonder footprints change; none is
+an output-identity claim or native placement guarantee.
+
+The same-fifteen vegetation-family diagnostic remains **FAIL in both arms**:
+its observed minimum is three families against a requirement of at least four.
+This out-of-population diagnostic is not a verdict on the registered eight-case
+benchmark. The applicable offline qualification does not erase that failure
+or establish abundance or Earth calibration.
+
+**This is scoped offline acceptance for native qualification, not adoption or
+native acceptance.** Huge 668178883 still has 1,149 / 2,644 exposed desert
+cells (43.46%). Moreover, every surviving flat desert cell still carries a
+feature, as the [bare-versus-shrub evidence][dryland-occurrence] explains.
+Correcting a category does not make the atmosphere wetter or establish an
+adequate landscape.
+
+#### Installation Does Not Establish A Loaded World
+
+The implementation owner reports that the frozen candidate was built and
+installed through the owning task graph. That installation has not been
+independently checked here; fresh game loading and native readback are
+**unverified**. Installed bytes do not establish which source the current world
+loaded, whether its features and categories match the headless result, or how
+it looks. The
+candidate remains unmerged and unadopted under this disposition. The previously
+adopted annual-yield release retains its own qualification; these records do
+not show that the currently loaded world changed.
+
+#### Remaining Dryness Has No Proven Transport Cause
+
+The retained annual fields and prospective screen identify mostly temperate
+and seasonal-tropical remaining desert, not just cold misclassification.
+Huge 668178883 has dry temperate and tropical populations; Huge 912543090 has
+wet tropics but a dry temperate mainland. The wetter Huge 1594661164 provides
+a contrast, not a required desert percentage. Whole thermal populations,
+including non-desert land, support this contrast without selecting only dry
+cells after the fact.
+
+Whether low precipitation relative to demand begins at marine air entry or
+develops inland remains unanswered. **No upwind transect was calculated.**
+Annual rainfall combines 24 seasonal phases and two transient-polarity members
+per phase. The captured winds are separately averaged and rounded at member
+and annual reductions; the codec retains no cell-wise member winds, rain or
+directed moisture flux. Annual arrows and lake adjacency cannot reconstruct
+the rain-producing paths. Even the unretained phase-mean winds already average
+the two weather members.
+
+The missing evidence belongs to the existing moisture calculation: actual
+phase/member inputs, source, deposition, atmospheric stock and directed
+marine-to-land and inland transport. Exact reproduction of the sealed public
+moisture outputs and reductions would establish custody before a causal
+interpretation. No such observation is established here, and no blanket rain
+multiplier, demand adjustment or new atmosphere is selected. This evidence gap
+is separate from the classifier result.
 
 ### Rainforest Habitat Is Not A Native Feature Guarantee
 
@@ -345,6 +431,7 @@ feature, resource or start outcome.
 [resource-composition]: q-010-resource-composition.md
 [desert-classifier]: https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/ops/classify-biomes/rules/classify.ts
 [desert-water-indices]: https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/climate/ops/compute-land-water-budget/strategies/pet-aridity/index.ts
+[desert-screen]: https://github.com/mateicanavra/civ7-modding-tools/blob/e5dbd83655f1f7f8f7ed2a1e76c80603df1b3313/plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/ops/classify-biomes/rules/classify.ts
 [dryland-occurrence]: #flat-desert-is-not-necessarily-bare-desert
 
 ## Seasonal-Thermal Recovery And Its Limits
@@ -479,8 +566,17 @@ one gate would turn every excluded humid cell into rainforest.
 
 ### Flat Desert Is Not Necessarily Bare Desert
 
+The [offline screen result](#offline-qualification-does-not-establish-ecological-adequacy)
+reduces the number of desert cells but does not create bare-versus-shrub
+diversity. Of 3,102 surviving flat desert cells, 3,079 carry sagebrush (99.3%)
+and 23 carry minor floodplain: **none is feature-bare**. All 175 previously
+bare flat desert cells leave DESERT because their low-demand classification
+was inconsistent. Their departure is not new bare habitat or a feature-policy
+improvement. This flat-desert partition excludes the four navigable desert
+floodplain features elsewhere in the candidate.
+
 The [post-yield census](#desert-expansion-without-a-rainfall-change) makes the
-category/cover distinction concrete: 4,958 of 5,177 flat desert cells carry
+earlier, pre-screen category/cover distinction concrete: 4,958 of 5,177 flat desert cells carry
 sagebrush (95.77%), 175 are feature-bare and 44 carry minor floodplain. All 175
 bare cells have precipitation at least as large as both baseline and refined
 annual demand; their median annual temperature is 1.62 degrees C. Meanwhile,
@@ -497,6 +593,26 @@ absence of drought-adapted plants. Sparse shrubland remains a plausible
 interpretation: a feature on every large tile need not mean continuous shrub
 canopy. Its movement and yield effects nevertheless make the distinction
 between some plants and a gameplay-significant stand consequential.
+
+A separate controlled operation composition at the frozen candidate calls the
+public sagebrush scorer and planner with an explicitly eligible flat, free
+desert tile, competitors at zero and the authored zero score floor. Varying
+water and biomass changes the score but not its intent:
+
+| Water Input | Biomass Input | Score (Rounded) | Sagebrush Intent |
+| ---: | ---: | ---: | --- |
+| 0 | 0 | 0.1026385 | Present |
+| 0 | 0.25 | 0.15625 | Present |
+| 0.2 | 0 | 0.6568866 | Present |
+| 0.2 | 0.25 | 1 | Present |
+
+Explicit-zero-score controls produce no intent. Under these controlled eligible
+inputs, reducing a positive score alone does not reduce deterministic occurrence.
+The probe does not establish that the constructed inputs arise in generated
+worlds, that zero atmospheric water means no local support, or that scores are
+occupancy probabilities. No replacement threshold, probability or stand policy
+is selected. Compatible shrub habitat and an actual cover feature remain
+different claims.
 
 The earlier annual-gate census found 4,314 flat desert cells: 4,071 sagebrush,
 153 feature-bare, 89 minor desert floodplain and one oasis. Sagebrush occupied
@@ -1104,6 +1220,38 @@ The separate last-completed-log finding does not supply the unavailable fresh
 world observation. Neither that finding nor this census changes the annual-yield
 arithmetic qualification into whole-biome qualification, or supplies a passing
 result for the proposed water-limitation guard.
+
+#### A Water-Limitation Guard Is A Candidate, Not A Result
+
+The original census identified the guard as a hypothesis, not a passing result.
+That census alone still proves no repair. The separately executed
+[offline qualification](#offline-qualification-does-not-establish-ecological-adequacy)
+now supplies scoped candidate evidence; native acceptance and adoption remain
+unestablished by those offline records.
+
+### Desert Screen Qualification Provenance
+
+The baseline retains generation source `f20085808332b5051971dd465e189e834daaa5d4`.
+The fifteen new candidate recipes use frozen source
+`e5dbd83655f1f7f8f7ed2a1e76c80603df1b3313`, tree
+`c79fbd609ae2a54e2383141d9a82c0c12021f4c7`. Rule replay, complete-recipe
+qualification and the independent capture review are distinct evidence; the
+review is not another set of generations. Installation, loading, native
+readback, visual observation and adoption are not supplied by those offline
+receipts. The implementation owner reports this selected map-script digest,
+not independently checked installation, verified fresh loading or readback:
+`352f17c904d5830e223002d525f63ae05aac22feccc52863795e33e71d3ec197`.
+This identifies selected-script bytes, not a full source-to-live identity or
+an observed current world.
+
+| Retained Screen Evidence | SHA-256 |
+| --- | --- |
+| Complete-recipe receipt | `2228d7a8020f9b665ca872f9ad6acec6d611778c87582f9587ad6a83c56992b4` |
+| Independent offline review | `7a205dbca2a30d0ffe00a315faa467e133f11b07fd196df131231f59b691eaa1` |
+| Complete-recipe result | `4f804d6c1cb5bb73bc29135a87743128225b98776d5f7e27402967d0c4dce2de` |
+| Controlled scorer/planner probe | `499a70f1388d2a24403433321faefc2c09be06b3531f7227f3c5c9c5ac232ddd` |
+| Remaining-desert concentration | `300c68363135a6e115563796e025530725d5298d62603b58a020261816ffcfcf` |
+| Stopped transport-custody review | `1d8ca55955291a1dc854d2366ccfc105867e598e244a28567240c4b4218ee63b` |
 
 [identity-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/identities.ts
 [ecology-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts

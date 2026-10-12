@@ -536,10 +536,19 @@ The [post-yield desert census][desert-census] sharpens that distinction without
 selecting a wetland change. Sagebrush covers 95.77% of 5,177 flat desert cells,
 while all 175 feature-bare flat desert cells have precipitation at least as
 large as both annual-demand estimates and a median temperature of 1.62 degrees C.
-Many warmer, annually water-stressed desert sites remain covered. Category
-consistency and stand occurrence therefore need separate evidence. The proposed
-desert-admission guard in Q-002 is unqualified here; it neither establishes a
-sagebrush repair nor validates a shared occurrence floor.
+Many warmer, annually water-stressed desert sites remain covered. The separately
+[offline-qualified desert screen][desert-offline] corrects the low-demand
+category problem, not stand occurrence: all 3,102 surviving flat desert cells
+still carry a feature, 3,079 sagebrush and 23 minor floodplains, with none bare.
+All 175 formerly bare flat desert cells leave the desert category.
+
+Q-002's controlled scorer-to-planner probe varies positive scores while keeping
+eligible habitat and the zero admission floor fixed; every row still selects
+sagebrush, whereas explicit-zero-score controls select none. It is not evidence
+of generated reachability or a probability of occupancy. Category consistency,
+compatible habitat and an actual stand remain separate claims. Neither the
+offline result nor the probe supplies native acceptance, a sagebrush occurrence
+repair or a shared wetland floor.
 
 The [rainforest category witness][category-witness] shows why habitat support,
 family response and selection must remain distinct: changed local-water
@@ -553,6 +562,7 @@ stand question remains with [Q002][dryland-meaning].
 [category-witness]: q-002-ecological-prevalence.md#rainforest-habitat-is-not-a-native-feature-guarantee
 [dryland-meaning]: q-002-ecological-prevalence.md#flat-desert-is-not-necessarily-bare-desert
 [desert-census]: q-002-ecological-prevalence.md#desert-expansion-without-a-rainfall-change
+[desert-offline]: q-002-ecological-prevalence.md#offline-qualification-does-not-establish-ecological-adequacy
 
 ## Original Paired Observations
 
