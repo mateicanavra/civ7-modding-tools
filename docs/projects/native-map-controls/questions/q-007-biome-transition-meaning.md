@@ -28,6 +28,15 @@ assessments:
     state: "supported"
   - claim: "The empirical transition constants and guard-limited boundary are ecologically calibrated or preferable to other habitat-classification choices."
     state: "unassessed"
+  - claim: "The rainforest category is an empirical annual hot/wet envelope. tropicalSeasonal is an annual moisture category, not a measured duration of seasonal water shortage."
+    state: "supported"
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/ops/classify-biomes/rules/lookup.ts"
+  - claim: "The retained three-profile synthetic probe records exactly equal consumed annual chains and one Rainforest intent each despite different precipitation ordering. This establishes unavailable distinguishing information, not generated-map reachability, required vegetation differences or a cause of rainforest scarcity."
+    state: "supported"
+  - claim: "The current freezeIndex producer ramps annual post-albedo temperature rather than measuring freezing duration or frequency; its value is zero throughout admitted Earthlike rainforest."
+    state: "supported"
+  - claim: "A seasonal summary or broader humid-forest classification is necessary and has a supported producer-reachable benefit over an accurately described annual proxy."
+    state: "unassessed"
 verification:
   - kind: source-inspection
     scope: "Inspection confirms the frozen recipe's real classifyBiomes binding; the owning step and classifier operation are unchanged through ae8. This is navigation/source identity, not physical qualification."
@@ -44,6 +53,26 @@ verification:
     revision: ae8fc94d790a769fb45c60584e47304f69f53a93
     date: '2026-10-11'
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/ae8fc94d790a769fb45c60584e47304f69f53a93/docs/system/libs/mapgen/reference/domains/ECOLOGY.md#config-posture"
+  - kind: source-inspection
+    scope: "Inspection confirms seasonal temperature, precipitation, wetness and demand are computed, while durable baseline products publish annual summaries and full phase histories remain observations. This is not a new seasonal simulation or scientific qualification."
+    revision: fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1
+    date: '2026-10-11'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/step.ts"
+  - kind: source-inspection
+    scope: "Inspection confirms refined demand and climate indices use annual post-albedo temperature and annual wetness, rather than passing seasonal chronology to Ecology. The retained synthetic probe remains separate reported evidence."
+    revision: fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1
+    date: '2026-10-11'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/refine/steps/climate-refine/step.ts"
+  - kind: source-inspection
+    scope: "Inspection confirms freezeIndex is a ramp of its supplied temperature. The refinement binding supplies annual post-albedo temperature; the artifact's persistence wording therefore does not establish duration or frequency."
+    revision: fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1
+    date: '2026-10-11'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/cryosphere/ops/compute-cryosphere-state/strategies/temperature-thresholds/index.ts"
+  - kind: source-inspection
+    scope: "Inspection confirms rainforest's saturating lower water ramp and absence of a direct fertility multiplier. This describes implemented scoring, not calibrated occurrence or a newly executed score repair."
+    revision: fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1
+    date: '2026-10-11'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/vegetation-score-rainforest/rules/score.ts"
 ---
 
 # Q-007: Biome Transition Meaning
@@ -51,7 +80,7 @@ verification:
 How well does this model's tropical boundary describe the intended habitat?
 A continuous climate field must eventually become discrete biome categories.
 Crossing a category boundary is expected. The retained owner meaning is an
-intentional, **uncalibrated temperature/atmospheric-moisture envelope**, not
+intentional, **uncalibrated annual temperature/atmospheric-moisture envelope**, not
 a demonstrated classifier defect. Its empirical support and the merits of
 alternative boundaries remain open.
 
@@ -60,6 +89,12 @@ produced climate and local plant-water fields, and before features and native
 biome projection. The [biomes step][step] calls `classifyBiomes` with those
 distinct inputs. Its physical categories are not the same as Civ7's projected
 biome identities, and neither is a count of rainforest features.
+
+The retained monotonicity finding and the
+[seasonal-information question](#annual-categories-and-seasonal-regimes) concern
+different claims. A rule can behave consistently while lacking information
+needed to distinguish some forest regimes. In particular, `tropicalSeasonal`
+names an annual moisture category here, not a measured dry-season duration.
 
 ## Two Different Uses Of Moisture
 
@@ -95,6 +130,117 @@ The [lookup][lookup] can then replace a tropical biome with `temperateHumid`
 while its subhumid, humid or perhumid moisture category stays the same. This
 explains how a wetter location can lose the rainforest *biome label*; it does
 not establish that wetter conditions have reduced the modeled water supply.
+
+## Annual Categories And Seasonal Regimes
+
+The model's [rainforest lookup][current-lookup] describes a hot, humid annual
+envelope, not a scientifically calibrated forest regime. The distinction is
+more than terminology: climate capable of supporting a forest, the amount of
+vegetation, and actual tree cover are different claims.
+
+### What Earth Classifications Distinguish
+
+In the Koppen-Geiger classification documented by [Peel and colleagues][peel],
+tropical climate depends on the coldest month's mean temperature; the rainforest
+subtype also depends on the driest month's rainfall. These are climate-class
+criteria, not universal physiological limits on trees. [FAO's ecological
+zones][fao-zones] instead distinguish tropical rainforest, moist forest and dry
+forest partly by dry-season duration. The report itself questions a historical
+boundary choice. Duration matters to that classification without making one
+cutoff a universal law.
+
+Elevation introduces another distinction. [FAO's tropical mountain account][fao-mountains]
+includes montane evergreen and cloud forests within a varied altitudinal mosaic,
+not only hot lowland forest. In the Holdridge framework described by
+[Lugo and colleagues][lugo], sea-level biotemperature identifies latitudinal
+belts while actual local biotemperature identifies altitudinal belts. Its
+24 degree C tropical-belt value does not independently validate a cutoff on
+our local annual ground temperature. The same paper acknowledges the seasonal
+limits of first-level annual life zones and distinguishes potential ecosystems
+from actual land cover.
+
+These sources support asking which regime a model represents, not copying
+monthly air-temperature or millimetre rainfall thresholds into annual ground
+temperature and model rainfall-index units. Cooler humid forest is not a reason
+to assign the native Rainforest feature to every tropical mountain; the game's
+[terrain and feature legality][rainforest-population] remains a separate layer.
+
+### Seasonal Information Exists Upstream
+
+The [baseline climate step][seasonal-baseline] computes ground temperature,
+precipitation, wetness and potential demand across Earthlike's 24 phases.
+Full histories remain available as observations. Durable downstream products
+publish annual quantities, and [climate refinement][annual-refinement] derives
+its later demand from annual post-albedo temperature and annual wetness. That
+later demand is distinct from the phase-derived demand used by hydrography.
+The rainforest decision does not receive the chronology.
+
+Its [plant-water indices][annual-water] combine annual precipitation, wetness
+and local surface-water opportunity algebraically. They are not seasonally
+integrated root-zone storage, uptake or survival. Annual summaries are not
+intrinsically inadequate: a summary could preserve the outcome of a seasonal
+process. These particular indices do not preserve how wet and dry phases are
+arranged. Likewise, `tropicalSeasonal` is selected from annual moisture/stress
+buckets, not the number or duration of dry intervals.
+
+The [artifact description][freeze-description] calls `freezeIndex` freezing
+persistence, but its [producer][freeze-producer] ramps annual temperature
+between the [configured][current-config] 2 and -12 degrees C endpoints. It measures neither
+frequency nor duration of freezing. Its value is zero throughout admitted
+Earthlike rainforest, so this description overclaim does not explain rainforest
+suppression.
+
+### Three Histories Become The Same Annual Input
+
+A retained synthetic probe passes three one-cell profiles through the existing
+demand, annual reducer, water-budget, biome, substrate, rainforest-score and
+vegetation-planner operations. Each has 24 equally weighted phases, fixed
+temperature 26 degrees C, mean model precipitation 250, mean wetness 0.5,
+identical soils/fertility, zero local-water opportunity and a free flat slot.
+The steady profile holds those water values throughout; the other two arrange
+twelve zero-precipitation/zero-wetness phases and twelve phases of precipitation
+500/wetness 1 differently.
+
+| Synthetic History | Longest Cyclic Zero-Precipitation Run | Consumed Result |
+| --- | ---: | --- |
+| Steady wetness | 0 phases | Identical annual chain; one Rainforest intent |
+| Clustered dry/wet halves | 12 phases | Identical annual chain; one Rainforest intent |
+| Alternating dry/wet phases | 1 phase | Identical annual chain; one Rainforest intent |
+
+The **entire recorded consumed annual chain is exactly equal across profiles**,
+not just its rounded score. All three have plant moisture 294.625, plant stress
+0.189451 and rainforest score 0.530493. Observation-only amplitudes distinguish
+steady from variable profiles, but not clustered from alternating phases.
+
+This establishes lost distinguishing information, **not that the three profiles
+must produce different vegetation**. Zero-precipitation run length describes
+the supplied sequence, not a calibrated ecological drought: storage, uptake
+and local supply are separate processes. The probe is not a generated-map
+witness; reachability of these complete histories is unestablished. It does
+not replay seasonal routing, albedo, cryosphere or native placement. Constant
+temperature avoids broader claims about varying temperature and covariance.
+
+Its contribution to the [retained rainforest shortage][rainforest-population]
+is unknown. Recognizing a long dry season could exclude some currently admitted
+rainforest rather than increase it. Better regime discrimination and higher
+feature counts are not synonyms.
+
+### Why This Is Not Another Score Repair
+
+The [earlier wet-end correction][wet-end-correction] removed rainforest's
+unsupported penalty at maximum available water. The [current score][rainforest-score]
+has a saturating lower water ramp; under [current Earthlike inputs][current-config] it is already
+fully active below the rainforest category's minimum moisture. The freeze
+attenuation is inactive throughout that warm domain. There is no direct
+generic-fertility multiplier in this score; fertility influences the separate
+[density calculation][vegetation-density] through a bounded soil response.
+
+The retained fifteen-configuration comparison found no additional score-floor
+loss among free, legally eligible rainforest sites. That supports no new score
+repair, not scientific validation of the habitat category. The separate
+[mangrove occurrence review][mangrove-retention] likewise retains its intended
+specialized-habitat priority without validating coastal coverage. Independent
+family scores are not calibrated competing occurrence probabilities.
 
 ## What The Retained Pair Exposes
 
@@ -137,10 +283,11 @@ classifies the supplied climate; it neither computes a new temperature nor
 claims that rainfall physically warms a tile.
 
 The anti-banding origin is real, but it does not by itself demonstrate obsolete
-compensation. The strongest remaining objection is that this is an aesthetic
-boundary shaper retained without specific ecological calibration. Retention
-acknowledges that empirical status; it does not turn historical visual intent
-into Earth evidence or establish that the constants are optimal.
+compensation. The remaining objections concern both an aesthetic boundary
+shaper without specific ecological calibration and the annual inputs' inability
+to distinguish some seasonal histories. Retention acknowledges the empirical
+status; it does not turn historical visual intent into Earth evidence or
+establish that the constants are optimal.
 
 Source algebra and the reported 39 scalar checks resolve the suspected shipped-
 law monotonicity defect for this discriminator. The 25 map transitions remain
@@ -157,6 +304,15 @@ Removing the adjustment, widening its guard or substituting local plant water
 would change policy, not repair a demonstrated wiring error. More rainforest
 alone would not justify any of those choices.
 
+A narrower annual hot/wet proxy, described accurately, remains a credible
+game-scale model. A broader humid-forest interpretation or additional seasonal
+evidence would need to preserve a useful physical or gameplay distinction,
+with producer-reachable support. Warm aseasonal forest, cooler humid forest,
+seasonally dry tropical land and temperate wet land are candidate contrasts,
+not newly established classification outcomes. No new seasonal field, soil-water
+model, threshold or production behavior is selected here. The design question
+is which distinction earns representation, not how to raise rainforest counts.
+
 Retention would be challenged by a same-input violation under a shipped
 configuration, an explicit rejection of the joint-envelope meaning, or evidence
 that the guard was intended only as an optimization of an unbounded rule.
@@ -170,7 +326,7 @@ a better answer.
 
 ## Evidence Boundaries
 
-Source statements describe physics revision
+The original guard and thermal-pair source statements describe physics revision
 `ae8fc94d790a769fb45c60584e47304f69f53a93`. The classifier operation and owning
 step are unchanged from the `2a31` navigation source. The reported pair executes
 `ff7b40a7beca64ac2621f6ce07fc5f2f8485a327`, with only the separate diagnostic
@@ -193,6 +349,30 @@ was rerun to prepare this sheet. The source and retained checks establish
 bounded model behavior, not verified Earth physics. The suspected shipped-law
 defect discriminator is closed by retention; empirical calibration remains open.
 
+### Annual-Regime Review And Synthetic Probe
+
+The separate physical-meaning review and three-profile probe inspect and execute
+existing owners at `fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1`, with clean source
+and unchanged runtime from `6c5c8a82e7d36c17371699104ec58b3830f0e06d`.
+They do not replace the earlier 39 scalar checks or add maps to Q002's
+fifteen-configuration/45-execution population. The semantic probe's method was
+independently reviewed; its stored input/output equality and custody were
+checked for this sheet without rerunning it. There are no new native sessions
+or production changes.
+
+The research supplies external classification context, not calibration of the
+pipeline's units, a source of new numerical constants or proof that all omitted
+processes must be modeled. The reported three focused rainforest tests concern
+implementation behavior, not ecological qualification. Raw reports and probe
+artifacts remain private; the following hashes identify retained evidence, not
+public reproduction downloads.
+
+| Retained Evidence | SHA-256 |
+| --- | --- |
+| Rainforest physical-meaning report | `f6399cda1649b9879c03b798d3fffdb37c60166ef62bf87217f421a9cfd7ea6a` |
+| Synthetic-probe method | `8c1d1162fb3dac23fde79310845d0c1c08dbd0eab0204e24e7e58d3796298c0d` |
+| Synthetic-probe inputs and results | `a3cafee30bb331103f30f6ffe2059c735bab8db5cd0066515a91cebe17df36bd` |
+
 [step]: https://github.com/mateicanavra/civ7-modding-tools/blob/ae8fc94d790a769fb45c60584e47304f69f53a93/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/biomes/steps/biomes/step.ts#L21-L41
 [transition]: https://github.com/mateicanavra/civ7-modding-tools/blob/ae8fc94d790a769fb45c60584e47304f69f53a93/plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/ops/classify-biomes/rules/classify.ts#L66-L100
 [ecology-meaning]: https://github.com/mateicanavra/civ7-modding-tools/blob/ae8fc94d790a769fb45c60584e47304f69f53a93/docs/system/libs/mapgen/reference/domains/ECOLOGY.md#config-posture
@@ -202,3 +382,19 @@ defect discriminator is closed by retention; empirical calibration remains open.
 [pair-provenance]: q-006-regional-thermal-response.md#procedural-pair
 [benchmarks]: q-002-ecological-prevalence.md
 [oasis]: q-004-point-water-support.md#two-meanings-of-dryness
+[current-lookup]: https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/ops/classify-biomes/rules/lookup.ts
+[current-config]: https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/maps/configs/swooper-earthlike.config.json
+[seasonal-baseline]: https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/step.ts
+[annual-refinement]: https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/refine/steps/climate-refine/step.ts
+[annual-water]: https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/climate/ops/compute-land-water-budget/strategies/pet-aridity/index.ts
+[freeze-description]: https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/climate/artifacts/climate-indices.artifact.ts
+[freeze-producer]: https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/cryosphere/ops/compute-cryosphere-state/strategies/temperature-thresholds/index.ts
+[rainforest-score]: https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/vegetation-score-rainforest/rules/score.ts
+[vegetation-density]: https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/ops/classify-biomes/rules/vegetation.ts
+[wet-end-correction]: https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/docs/projects/native-map-controls/earthlike-climate.md#rejected-pet-calibration-and-next-discriminator
+[rainforest-population]: q-002-ecological-prevalence.md#rainforest-habitat-and-feature-occupancy
+[mangrove-retention]: q-005-wetland-suitability.md#when-suitability-reserves-the-only-feature-slot
+[peel]: https://hess.copernicus.org/articles/11/1633/2007/hess-11-1633-2007.pdf
+[fao-zones]: https://www.fao.org/4/ap861e/ap861e00.pdf
+[lugo]: https://data.fs.usda.gov/research/pubs/iitf/ja_iitf_1999_lugo002.pdf
+[fao-mountains]: https://www.fao.org/4/ad652e/ad652e07.htm

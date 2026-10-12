@@ -137,6 +137,12 @@ the shipped law is monotone at fixed other inputs. Cooling across a categorical
 boundary is not a defect, and simultaneous cooling/wetting need not preserve
 a class. Ecological calibration and the case for alternatives remain open;
 retention does not turn visual-compensation provenance into Earth evidence.
+The separate physical-meaning review identifies an annual hot/wet envelope,
+not calibrated forest regimes. Three synthetic seasonal profiles become the
+same consumed annual chain and Rainforest intent. This demonstrates unavailable
+chronology, not generated-map reachability, a required vegetation difference
+or a cause of scarcity. A richer humid-forest model remains an open design
+choice, not a selected score repair.
 [Read the research question](questions/q-007-biome-transition-meaning.md).
 
 ### Ecology / Features / Score Layers
@@ -170,14 +176,14 @@ justify a quota or lower floor.
 
 #### Q-005: Wetland Suitability And Admission
 
-Wetland suitability, occurrence and admission are different claims. Earlier
-mangrove intent reserves a flat tropical feature slot before otherwise admitted
-rainforest; the open question is whether warm marine-low-shore support justifies
-that priority or establishes only suitability. A coarse proxy is not inherently
-defective, and more rainforest is not proof of improvement. The retained
-six-pair moisture study and earlier consumer-only resource/seating tradeoffs
-remain separate evidence. Broad habitat proxies, seasonal/tidal meaning and
-shared admission remain open; no production repair or rainforest quota is selected.
+The bounded occurrence review retains the intended specialized-habitat priority;
+no mangrove admission repair is established. Exact existing-owner replay on
+thirty retained captures confirms the policy, while conditional admission of
+97.7% and 98.3% of legal, flat, free marine-low-shore candidates does not validate
+ecological coverage. Suitability, occurrence and admission remain different
+claims. The six-pair moisture study and earlier consumer-only resource/seating
+tradeoffs stay separate. Habitat meaning, omitted seasonal/tidal processes and
+shared admission remain open; no priority reversal or rainforest quota is selected.
 [Read the research question](questions/q-005-wetland-suitability.md).
 
 ### Placement / Assign Starts / Climate Comfort
@@ -207,6 +213,8 @@ amplifies scarcity but is not established as its historical origin. A previous-l
 river-representation intervention increases Rainforest features with climate,
 lake geometry and rainforest-biome count held, supporting a partial occupancy
 explanation rather than precipitation depletion or a new coverage target.
+The separate classifier-meaning and mangrove-occurrence reviews add no generated
+maps and do not turn these counts into ecological calibration.
 [Read the research question](questions/q-002-ecological-prevalence.md).
 
 ### Benchmark Authority / Relief And Orogeny

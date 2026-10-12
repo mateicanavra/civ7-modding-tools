@@ -69,6 +69,10 @@ assessments:
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/steps/plan-vegetation/step.ts"
   - claim: "Warm marine-low-shore suitability establishes mangrove occurrence strongly enough to reserve the only feature slot ahead of otherwise admitted rainforest at dual-qualified flat tropical sites."
     state: "unassessed"
+  - claim: "The bounded occurrence review retains the intended specialized-habitat policy; no admission repair is established. Existing owners exactly replay mangrove scores and wetland/vegetation intents on thirty retained captures, without validating ecological coverage."
+    state: "supported"
+  - claim: "Mangrove admission covers 477 of 488 and 411 of 418 already-filtered legal, flat, free marine-low-shore candidates. The conditional 97.7% and 98.3% rates are not evidence of physically sufficient occurrence discrimination."
+    state: "supported"
 verification:
   - kind: source-inspection
     scope: "Source inspection confirms separate family operations and actual atmospheric-water, plant-water and climate-field bindings; it does not calibrate their physical responses."
@@ -144,10 +148,11 @@ responses are mixed. The result is not "more wetlands": it shows distinct
 consumers responding differently to changed conditions. Earlier bog and
 mangrove comparisons instead changed a consumer while holding its environment
 fixed. Neither kind of evidence establishes ecological adequacy or appropriate
-abundance. The separate [rainforest investigation][rainforest-population] sharpens
-one occurrence question: does warm marine-low-shore suitability justify
-[mangrove priority at a dual-qualified site](#when-suitability-reserves-the-only-feature-slot)?
-**Q-005 remains open** for habitat meaning, the remaining responses and admission.
+abundance. The separate [rainforest investigation][rainforest-population] exposes
+dual-qualified sites. The [bounded occurrence review](#when-suitability-reserves-the-only-feature-slot)
+retains mangrove priority without establishing an admission repair or validating
+ecological coverage. **Q-005 remains open** for habitat meaning, the remaining
+responses and admission.
 
 ## Three Responses, Not One Wetland Score
 
@@ -277,6 +282,10 @@ validate 0.42 as a common ecological threshold across these families.
 
 ## When Suitability Reserves The Only Feature Slot
 
+**The intended specialized-habitat priority is retained; no admission repair
+is established.** This bounded decision concerns implementation and the evidence
+for changing it, not scientific validation of mangrove prevalence.
+
 Mangrove and rainforest do not meet in a single highest-score contest.
 Wetland planning happens first; its admitted intent becomes
 [prior occupancy for vegetation][retained-vegetation]. A mangrove can therefore
@@ -284,30 +293,49 @@ occupy a flat tropical site where rainforest would otherwise be admitted. This
 is different from competition among the mutually exclusive wetland families
 described above.
 
-The [fifteen-configuration rainforest comparison][rainforest-population] records
-477 rainforest-biome cells occupied by earlier mangrove in its previous-lapse
-control. That is a habitat-to-feature observation, not 477 demonstrated errors.
-The full denominator, separate terrain exclusions and river-representation
-intervention are retained in Q-002 rather than treated as an abundance target.
+The completed same-site audit uses all thirty A/B captures from the
+[fifteen-configuration rainforest comparison][rainforest-population]. A uses
+the previous lapse on current source; B uses stronger cooling. Existing owners
+reproduce the complete mangrove scores, wetland intents and vegetation intents
+exactly before a diagnostic omits only mangrove reservations from the vegetation
+planner's occupancy input. No physical field, score, configuration or other
+family's reservation changes. This is not another generated world or a proposed
+priority reversal.
 
-The open question is whether the [warm-intertidal predicate][retained-mangrove]
-establishes **occurrence**, rather than only **suitability**, strongly enough to
-reserve the only feature slot. It recognizes warm, sufficiently non-arid low
-marine shores, but does not measure tidal persistence, salinity or seedling
-establishment. The ecological distinction matters even when a score clears its
-floor and both families are statically legal. The rival explanation is that a
-deliberately coarse habitat proxy and explicit mangrove priority are adequate
-at this map scale; a simplified predicate is not automatically a defect.
+| Observation | A: Previous Lapse | B: Stronger Cooling |
+| --- | ---: | ---: |
+| Legal, flat, previously free marine-low-shore candidates | 488 | 418 |
+| Mangrove intents | 477 | 411 |
+| Below the existing admission floor | 11 | 7 |
+| Candidate admission fraction | 97.7% | 98.3% |
+| Otherwise-admitted rainforest on those mangrove sites | 477 | 411 |
 
-Evidence distinguishing those interpretations concerns the dual-qualified
-flat tropical sites under unchanged climate, drainage, major-river percentile
-0.92, native legality and other family rules. If the reservations represent
-the intended tidal regimes, that would weaken the occurrence concern and leave
-upstream habitat or calibration as possible limits. If they instead include
-ordinary humid coastal land without adequate occurrence support, it would
-challenge the mangrove predicate or the meaning of its priority. More
-Rainforest features alone would establish neither conclusion, and no global
-rainforest quota follows.
+The omission releases rainforest at every mangrove site and no other vegetation
+family, while preserving existing vegetation intent. All dual-qualified sites
+satisfy the represented marine/relative-relief, confidence, flatness,
+compatibility and earlier-occupancy gates. That establishes the representation
+tradeoff without a demonstrated binding or admission bypass. The full terrain
+and habitat denominator remains in Q002.
+
+**Near-universal admission in this filtered population is not ecological
+reassurance.** The remaining question is whether the
+[warm-intertidal predicate][retained-mangrove] supplies adequate **occurrence**
+support rather than only **suitability**. It recognizes warm, sufficiently
+non-arid low marine shores, but does not measure tidal persistence, salinity,
+wave disturbance, damaging cold extremes or seedling establishment. Those
+omissions remain limits, not evidence for new thresholds on the supplied inputs.
+Deliberately coarse specialized-habitat policy is a credible game-scale choice;
+neither simplification nor a high conditional admission rate proves it wrong.
+
+Retention could be challenged by a physically supported negative regime that
+the owner can actually distinguish, or by an explicit change in the intended
+product policy. No supplied discriminator is not proof that none matters.
+Climate, drainage, major-river percentile 0.92, native legality and other
+families remain outside this decision. A higher rainforest score cannot rank
+the two families as competing probabilities: their independent response curves
+have no shared occurrence calibration. More rainforest alone supports neither
+a priority reversal nor a quota. Its own
+[annual habitat meaning][annual-regimes] remains a separate open question.
 
 The [shore-topology question][geometry] remains separate: a bounded square
 window is not wrapped-hex proximity, but its contribution to bulk rainforest
@@ -489,7 +517,19 @@ digests. Its previous-lapse and stronger-cooling arms are not the A/B arms of
 the moisture study above. It adds occupancy evidence and an open occurrence
 question, not another consumer correction, fresh native proof or a rewrite of
 the accepted [thermal][relief-response] and [classifier][classifier-meaning]
-findings.
+findings. The completed occurrence review adds existing-owner replays of those
+same thirty A/B captures, not new full recipes. Complete mangrove score arrays
+and both planners' intents match. Substrate is recomputed by its existing owner;
+complete substrate masks were not retained, so complete substrate-artifact
+identity is not claimed. Source remains
+`fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1`. Private evidence is identified by
+the following custody digests, not supplied as public reproduction downloads.
+
+| Retained Occurrence Evidence | SHA-256 |
+| --- | --- |
+| Mangrove review report | `9516a9705e21d37368ab33e24ad79e474da24e52f1b6371ebca5a9eeb42ca494` |
+| Same-site audit method | `875c6cd42f8565bb843715e5f89f9b96be77b93ac8108d231309a12a97af728b` |
+| Same-site audit results | `13aa53117dc56347574821d3090d88364eeb6c76dc515300860494a249f7bf0b` |
 
 [scores]: https://github.com/mateicanavra/civ7-modding-tools/blob/d17abf6f54b018600b2d13c139e8be485e2aa732/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/steps/score-layers/step.ts
 [marsh]: https://github.com/mateicanavra/civ7-modding-tools/blob/d17abf6f54b018600b2d13c139e8be485e2aa732/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-marsh/strategies/temperate-hydromorphic/index.ts
@@ -524,3 +564,4 @@ findings.
 [retained-vegetation]: https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/steps/plan-vegetation/step.ts
 [relief-response]: q-006-regional-thermal-response.md#a-stronger-relief-response
 [classifier-meaning]: q-007-biome-transition-meaning.md#retained-meaning-open-calibration
+[annual-regimes]: q-007-biome-transition-meaning.md#annual-categories-and-seasonal-regimes

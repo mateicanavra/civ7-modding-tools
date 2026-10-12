@@ -178,7 +178,8 @@ fifteen-configuration comparison separates these contributions on one source.
 same map/game seeds within each pair. A is a controlled previous-lapse
 counterfactual on current source, not a reconstruction of an earlier build.
 
-The modeled `tropicalRainforest` biome describes habitat; the game's Rainforest
+The modeled `tropicalRainforest` biome describes an
+[empirical annual habitat envelope][annual-regimes]; the game's Rainforest
 feature is a separate surface object. [Ordinary Rainforest legality][rainforest-legality]
 requires native flat terrain and tropical biome. A tropical-biome mountain is
 therefore possible without a legal ordinary Rainforest feature. The
@@ -270,10 +271,13 @@ rainforest. Lakes also occupy area, but there is no lake-only intervention here.
 The [basin strategy][basin-config] exposes no lake-count or lake-percentile cap.
 
 The diagnostic does not select 0.95, qualify a production change or establish
-that earlier wet features are wrong. It sharpens the
-[occurrence question in Q-005][occurrence]: does warm marine-low-shore suitability
-justify reserving a flat tropical site for mangrove ahead of otherwise admitted
-rainforest? A higher rainforest count alone cannot answer that.
+that earlier wet features are wrong. The separate
+[occurrence review in Q-005][occurrence] retains the intended mangrove priority
+without establishing an admission repair; its ecological coverage remains open.
+Q007's [seasonal-information probe][annual-regimes] likewise establishes an
+unavailable distinction, not a cause of low counts. Neither review adds new
+worlds to this population. A higher rainforest count alone cannot validate
+either habitat classification or feature priority.
 
 ## Evidence That Would Settle an Individual Bound
 
@@ -350,3 +354,4 @@ bound.
 [moisture-meaning]: q-007-biome-transition-meaning.md#two-different-uses-of-moisture
 [relief-response]: q-006-regional-thermal-response.md#a-stronger-relief-response
 [classifier-meaning]: q-007-biome-transition-meaning.md#retained-meaning-open-calibration
+[annual-regimes]: q-007-biome-transition-meaning.md#annual-categories-and-seasonal-regimes
